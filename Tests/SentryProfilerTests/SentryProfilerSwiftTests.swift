@@ -39,7 +39,7 @@ class SentryProfilerSwiftTests: XCTestCase {
 #endif
 
         init() {
-            CurrentDate.setCurrentDateProvider(currentDateProvider)
+            SentryDependencyContainer.sharedInstance().dateProvider = currentDateProvider
             options.profilesSampleRate = 1.0
             options.tracesSampleRate = 1.0
 

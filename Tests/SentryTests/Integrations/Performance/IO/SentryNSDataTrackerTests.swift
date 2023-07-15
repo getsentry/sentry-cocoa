@@ -6,7 +6,7 @@ class SentryNSDataTrackerTests: XCTestCase {
     private class Fixture {
         
         let filePath = "Some Path"
-        let sentryPath = try! TestFileManager(options: Options(), andCurrentDateProvider: DefaultCurrentDateProvider.sharedInstance()).sentryPath 
+        let sentryPath = try! TestFileManager(options: Options()).sentryPath 
         let dateProvider = TestCurrentDateProvider()
         let data = "SOME DATA".data(using: .utf8)!
         let threadInspector = TestThreadInspector.instance
@@ -22,7 +22,7 @@ class SentryNSDataTrackerTests: XCTestCase {
             processInfoWrapper.overrides.processDirectoryPath = "sentrytest"
 
             let result = SentryNSDataTracker(threadInspector: threadInspector, processInfoWrapper: processInfoWrapper)
-            CurrentDate.setCurrentDateProvider(dateProvider)
+            SentryDependencyContainer.sharedInstance().dateProvider = dateProvider
             result.enable()
             return result
         }

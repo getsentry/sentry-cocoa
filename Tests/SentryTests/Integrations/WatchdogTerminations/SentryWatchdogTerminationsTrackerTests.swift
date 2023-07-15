@@ -11,8 +11,8 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
         let options: Options
         let client: TestClient!
         let crashWrapper: TestSentryCrashWrapper
-        lazy var mockFileManager = try! TestFileManager(options: options, andCurrentDateProvider: currentDate)
-        lazy var realFileManager = try! SentryFileManager(options: options, andCurrentDateProvider: currentDate, dispatchQueueWrapper: dispatchQueue)
+        lazy var mockFileManager = try! TestFileManager(options: options)
+        lazy var realFileManager = try! SentryFileManager(options: options, dispatchQueueWrapper: dispatchQueue)
         let currentDate = TestCurrentDateProvider()
         let sysctl = TestSysctl()
         let dispatchQueue = TestSentryDispatchQueueWrapper()
@@ -27,7 +27,7 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
             
             crashWrapper = TestSentryCrashWrapper.sharedInstance()
             
-            let hub = SentryHub(client: client, andScope: nil, andCrashWrapper: crashWrapper, andCurrentDateProvider: currentDate)
+            let hub = SentryHub(client: client, andScope: nil, andCrashWrapper: crashWrapper)
             SentrySDK.setCurrentHub(hub)
         }
         
@@ -40,7 +40,6 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
                 options: options,
                 crashWrapper: crashWrapper,
                 fileManager: fileManager,
-                currentDateProvider: currentDate,
                 sysctl: sysctl,
                 dispatchQueueWrapper: self.dispatchQueue,
                 notificationCenterWrapper: SentryNSNotificationCenterWrapper()
@@ -118,7 +117,7 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
     }
 
     func testDifferentAppVersions_NoOOM() {
-        givenPreviousAppState(appState: SentryAppState(releaseName: "0.9.0", osVersion: UIDevice.current.systemVersion, vendorId: TestData.someUUID, isDebugging: false, systemBootTimestamp: fixture.currentDate.date()))
+        givenPreviousAppState(appState: SentryAppState(releaseName: "0.9.0", osVersion: UIDevice.current.systemVersion, vendorId: TestData.someUUID, isDebugging: false, systemBootTimestamp: SentryDependencyContainer.sharedInstance().dateProvider.date()))
         
         sut.start()
         
@@ -126,7 +125,7 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
     }
     
     func testDifferentOSVersions_NoOOM() {
-        givenPreviousAppState(appState: SentryAppState(releaseName: fixture.options.releaseName ?? "", osVersion: "1.0.0", vendorId: TestData.someUUID, isDebugging: false, systemBootTimestamp: fixture.currentDate.date()))
+        givenPreviousAppState(appState: SentryAppState(releaseName: fixture.options.releaseName ?? "", osVersion: "1.0.0", vendorId: TestData.someUUID, isDebugging: false, systemBootTimestamp: SentryDependencyContainer.sharedInstance().dateProvider.date()))
         
         sut.start()
         
@@ -134,7 +133,7 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
     }
     
     func testDifferentVendorId_NoOOM() {
-        givenPreviousAppState(appState: SentryAppState(releaseName: fixture.options.releaseName ?? "", osVersion: "1.0.0", vendorId: "0987654321", isDebugging: false, systemBootTimestamp: fixture.currentDate.date()))
+        givenPreviousAppState(appState: SentryAppState(releaseName: fixture.options.releaseName ?? "", osVersion: "1.0.0", vendorId: "0987654321", isDebugging: false, systemBootTimestamp: SentryDependencyContainer.sharedInstance().dateProvider.date()))
         
         sut.start()
         
@@ -179,7 +178,7 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
     }
     
     func testCrashReport_NoOOM() {
-        let appState = SentryAppState(releaseName: TestData.appState.releaseName, osVersion: UIDevice.current.systemVersion, vendorId: TestData.someUUID, isDebugging: false, systemBootTimestamp: fixture.currentDate.date())
+        let appState = SentryAppState(releaseName: TestData.appState.releaseName, osVersion: UIDevice.current.systemVersion, vendorId: TestData.someUUID, isDebugging: false, systemBootTimestamp: SentryDependencyContainer.sharedInstance().dateProvider.date())
         givenPreviousAppState(appState: appState)
         fixture.crashWrapper.internalCrashedLastLaunch = true
         
@@ -189,7 +188,7 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
     }
 
     func testSDKWasClosed_NoOOM() {
-        let appState = SentryAppState(releaseName: TestData.appState.releaseName, osVersion: UIDevice.current.systemVersion, vendorId: TestData.someUUID, isDebugging: false, systemBootTimestamp: fixture.currentDate.date())
+        let appState = SentryAppState(releaseName: TestData.appState.releaseName, osVersion: UIDevice.current.systemVersion, vendorId: TestData.someUUID, isDebugging: false, systemBootTimestamp: SentryDependencyContainer.sharedInstance().dateProvider.date())
         appState.isSDKRunning = false
 
         givenPreviousAppState(appState: appState)
@@ -319,7 +318,7 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
     }
     
     func testStop_StopsObserving_NoMoreFileManagerInvocations() {
-        let fileManager = try! TestFileManager(options: Options(), andCurrentDateProvider: TestCurrentDateProvider())
+        let fileManager = try! TestFileManager(options: Options())
         sut = fixture.getSut(fileManager: fileManager)
 
         sut.start()

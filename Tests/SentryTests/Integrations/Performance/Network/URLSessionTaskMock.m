@@ -1,5 +1,6 @@
 #import "URLSessionTaskMock.h"
-#import "SentryCurrentDate.h"
+#import "SentryCurrentDateProvider.h"
+#import "SentryDependencyContainer.h"
 
 @implementation URLSessionDataTaskMock {
     NSURLRequest *_request;
@@ -49,7 +50,7 @@
 
 - (void)resume
 {
-    _resumeDate = SentryCurrentDate.date;
+    _resumeDate = SentryDependencyContainer.sharedInstance.dateProvider.date;
 }
 
 - (int64_t)countOfBytesSent

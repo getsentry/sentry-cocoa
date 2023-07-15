@@ -50,7 +50,7 @@ class SentryTracerTests: XCTestCase {
         init() {
             dispatchQueue.blockBeforeMainBlock = { false }
 
-            CurrentDate.setCurrentDateProvider(currentDateProvider)
+            SentryDependencyContainer.sharedInstance().dateProvider = currentDateProvider
             appStart = currentDateProvider.date()
             appStartEnd = appStart.addingTimeInterval(appStartDuration)
             
@@ -775,7 +775,6 @@ class SentryTracerTests: XCTestCase {
     }
 
     func testFinish_WithUnfinishedChildren() {
-        CurrentDate.setCurrentDateProvider(DefaultCurrentDateProvider.sharedInstance())
         let sut = fixture.getSut(waitForChildren: false)
         let child1 = sut.startChild(operation: fixture.transactionOperation)
         let child2 = sut.startChild(operation: fixture.transactionOperation)
@@ -786,6 +785,8 @@ class SentryTracerTests: XCTestCase {
         //are equal we need to make sure that SentryTracer is not changing
         //the timestamp value of proper finished spans.
         Thread.sleep(forTimeInterval: 0.1)
+
+        fixture.currentDateProvider.setDate(date: SentryDependencyContainer.sharedInstance().dateProvider.date().addingTimeInterval(0.1))
         
         sut.finish()
         

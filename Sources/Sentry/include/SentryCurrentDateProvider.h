@@ -3,7 +3,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 NS_SWIFT_NAME(CurrentDateProvider)
-@protocol SentryCurrentDateProvider <NSObject>
+@interface SentryCurrentDateProvider : NSObject
 
 - (NSDate *)date;
 

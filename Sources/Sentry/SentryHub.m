@@ -2,7 +2,6 @@
 #import "SentryClient+Private.h"
 #import "SentryCrashWrapper.h"
 #import "SentryCurrentDateProvider.h"
-#import "SentryDefaultCurrentDateProvider.h"
 #import "SentryDependencyContainer.h"
 #import "SentryEnvelope.h"
 #import "SentryEnvelopeItemType.h"
@@ -37,7 +36,6 @@ SentryHub ()
 @property (nonatomic, strong) SentryCrashWrapper *crashWrapper;
 @property (nonatomic, strong) SentryTracesSampler *tracesSampler;
 @property (nonatomic, strong) SentryProfilesSampler *profilesSampler;
-@property (nonatomic, strong) id<SentryCurrentDateProvider> currentDateProvider;
 @property (nonatomic, strong) NSMutableArray<id<SentryIntegrationProtocol>> *installedIntegrations;
 @property (nonatomic, strong) NSMutableSet<NSString *> *installedIntegrationNames;
 @property (nonatomic) NSUInteger errorsBeforeSession;
@@ -67,7 +65,6 @@ SentryHub ()
             _profilesSampler = [[SentryProfilesSampler alloc] initWithOptions:client.options];
         }
 #endif
-        _currentDateProvider = [SentryDefaultCurrentDateProvider sharedInstance];
     }
     return self;
 }
@@ -76,11 +73,9 @@ SentryHub ()
 - (instancetype)initWithClient:(nullable SentryClient *)client
                       andScope:(nullable SentryScope *)scope
                andCrashWrapper:(SentryCrashWrapper *)crashWrapper
-        andCurrentDateProvider:(id<SentryCurrentDateProvider>)currentDateProvider
 {
     self = [self initWithClient:client andScope:scope];
     _crashWrapper = crashWrapper;
-    _currentDateProvider = currentDateProvider;
 
     return self;
 }
@@ -114,13 +109,14 @@ SentryHub ()
         [self storeCurrentSession:_session];
         [self captureSession:_session];
     }
-    [lastSession endSessionExitedWithTimestamp:[self.currentDateProvider date]];
+    [lastSession
+        endSessionExitedWithTimestamp:[SentryDependencyContainer.sharedInstance.dateProvider date]];
     [self captureSession:lastSession];
 }
 
 - (void)endSession
 {
-    [self endSessionWithTimestamp:[self.currentDateProvider date]];
+    [self endSessionWithTimestamp:[SentryDependencyContainer.sharedInstance.dateProvider date]];
 }
 
 - (void)endSessionWithTimestamp:(NSDate *)timestamp
@@ -600,7 +596,9 @@ SentryHub ()
                 return envelope;
             }
             if (!handled) {
-                [currentSession endSessionCrashedWithTimestamp:[_currentDateProvider date]];
+                [currentSession
+                    endSessionCrashedWithTimestamp:[SentryDependencyContainer.sharedInstance
+                                                           .dateProvider date]];
                 // Setting _session to nil so startSession doesn't capture it again
                 _session = nil;
                 [self startSession];

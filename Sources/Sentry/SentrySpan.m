@@ -1,7 +1,8 @@
 #import "SentrySpan.h"
 #import "NSDate+SentryExtras.h"
 #import "NSDictionary+SentrySanitize.h"
-#import "SentryCurrentDate.h"
+#import "SentryCurrentDateProvider.h"
+#import "SentryDependencyContainer.h"
 #import "SentryFrame.h"
 #import "SentryId.h"
 #import "SentryLog.h"
@@ -30,7 +31,7 @@ SentrySpan ()
 - (instancetype)initWithContext:(SentrySpanContext *)context
 {
     if (self = [super init]) {
-        self.startTimestamp = [SentryCurrentDate date];
+        self.startTimestamp = [SentryDependencyContainer.sharedInstance.dateProvider date];
         _data = [[NSMutableDictionary alloc] init];
         _tags = [[NSMutableDictionary alloc] init];
         _isFinished = NO;
@@ -146,9 +147,9 @@ SentrySpan ()
     self.status = status;
     _isFinished = YES;
     if (self.timestamp == nil) {
-        self.timestamp = [SentryCurrentDate date];
+        self.timestamp = [SentryDependencyContainer.sharedInstance.dateProvider date];
         SENTRY_LOG_DEBUG(@"Setting span timestamp: %@ at system time %llu", self.timestamp,
-            (unsigned long long)SentryCurrentDate.systemTime);
+            (unsigned long long)SentryDependencyContainer.sharedInstance.dateProvider.systemTime);
     }
     if (self.tracer == nil) {
         SENTRY_LOG_DEBUG(

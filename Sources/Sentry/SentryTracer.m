@@ -3,7 +3,7 @@
 #import "PrivateSentrySDKOnly.h"
 #import "SentryAppStartMeasurement.h"
 #import "SentryClient.h"
-#import "SentryCurrentDate.h"
+#import "SentryCurrentDateProvider.h"
 #import "SentryDebugImageProvider.h"
 #import "SentryDependencyContainer.h"
 #import "SentryEvent+Private.h"
@@ -151,7 +151,7 @@ static BOOL appStartMeasurementRead;
 #if SENTRY_TARGET_PROFILING_SUPPORTED
     if (_configuration.profilesSamplerDecision.decision == kSentrySampleDecisionYes) {
         _isProfiling = YES;
-        _startSystemTime = SentryCurrentDate.systemTime;
+        _startSystemTime = SentryDependencyContainer.sharedInstance.dateProvider.systemTime;
         [SentryProfiler startWithHub:hub tracer:self];
     }
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
@@ -309,7 +309,7 @@ static BOOL appStartMeasurementRead;
                                            sampled:self.sampled];
 
     SentrySpan *child = [[SentrySpan alloc] initWithTracer:self context:context];
-    child.startTimestamp = [SentryCurrentDate date];
+    child.startTimestamp = [SentryDependencyContainer.sharedInstance.dateProvider date];
     SENTRY_LOG_DEBUG(@"Started child span %@ under %@", child.spanId.sentrySpanIdString,
         parentId.sentrySpanIdString);
     @synchronized(_children) {
@@ -567,7 +567,7 @@ static BOOL appStartMeasurementRead;
     transaction.transaction = self.transactionContext.name;
 #if SENTRY_TARGET_PROFILING_SUPPORTED
     transaction.startSystemTime = self.startSystemTime;
-    transaction.endSystemTime = SentryCurrentDate.systemTime;
+    transaction.endSystemTime = SentryDependencyContainer.sharedInstance.dateProvider.systemTime;
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
     NSMutableArray *framesOfAllSpans = [NSMutableArray array];

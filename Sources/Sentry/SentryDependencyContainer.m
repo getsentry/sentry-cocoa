@@ -1,5 +1,5 @@
 #import "SentryANRTracker.h"
-#import "SentryDefaultCurrentDateProvider.h"
+#import "SentryCurrentDateProvider.h"
 #import "SentryDispatchFactory.h"
 #import "SentryDispatchQueueWrapper.h"
 #import "SentryDisplayLinkWrapper.h"
@@ -12,7 +12,6 @@
 #import <SentryClient+Private.h>
 #import <SentryCrashWrapper.h>
 #import <SentryDebugImageProvider.h>
-#import <SentryDefaultCurrentDateProvider.h>
 #import <SentryDependencyContainer.h>
 #import <SentryHub.h>
 #import <SentryNSNotificationCenterWrapper.h>
@@ -68,14 +67,13 @@ static NSObject *sentryDependencyContainerLock;
     @synchronized(sentryDependencyContainerLock) {
         if (_appStateManager == nil) {
             SentryOptions *options = [[[SentrySDK currentHub] getClient] options];
-            _appStateManager = [[SentryAppStateManager alloc]
-                          initWithOptions:options
-                             crashWrapper:self.crashWrapper
-                              fileManager:self.fileManager
-                      currentDateProvider:[SentryDefaultCurrentDateProvider sharedInstance]
-                                   sysctl:[[SentrySysctl alloc] init]
-                     dispatchQueueWrapper:self.dispatchQueueWrapper
-                notificationCenterWrapper:self.notificationCenterWrapper];
+            _appStateManager =
+                [[SentryAppStateManager alloc] initWithOptions:options
+                                                  crashWrapper:self.crashWrapper
+                                                   fileManager:self.fileManager
+                                                        sysctl:[[SentrySysctl alloc] init]
+                                          dispatchQueueWrapper:self.dispatchQueueWrapper
+                                     notificationCenterWrapper:self.notificationCenterWrapper];
         }
         return _appStateManager;
     }
@@ -218,12 +216,11 @@ static NSObject *sentryDependencyContainerLock;
     if (_anrTracker == nil) {
         @synchronized(sentryDependencyContainerLock) {
             if (_anrTracker == nil) {
-                _anrTracker = [[SentryANRTracker alloc]
-                    initWithTimeoutInterval:timeout
-                        currentDateProvider:[SentryDefaultCurrentDateProvider sharedInstance]
-                               crashWrapper:self.crashWrapper
-                       dispatchQueueWrapper:self.dispatchQueueWrapper
-                              threadWrapper:self.threadWrapper];
+                _anrTracker =
+                    [[SentryANRTracker alloc] initWithTimeoutInterval:timeout
+                                                         crashWrapper:self.crashWrapper
+                                                 dispatchQueueWrapper:self.dispatchQueueWrapper
+                                                        threadWrapper:self.threadWrapper];
             }
         }
     }
@@ -277,6 +274,18 @@ static NSObject *sentryDependencyContainerLock;
         }
     }
     return _timerFactory;
+}
+
+- (SentryCurrentDateProvider *)dateProvider
+{
+    if (_dateProvider == nil) {
+        @synchronized(sentryDependencyContainerLock) {
+            if (_dateProvider == nil) {
+                _dateProvider = [[SentryCurrentDateProvider alloc] init];
+            }
+        }
+    }
+    return _dateProvider;
 }
 
 #if SENTRY_HAS_METRIC_KIT

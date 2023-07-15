@@ -4,7 +4,6 @@
 #import "SentryClient+Private.h"
 #import "SentryClient+TestInit.h"
 #import "SentryCrashWrapper.h"
-#import "SentryCurrentDate.h"
 #import "SentryCurrentDateProvider.h"
 #import "SentryDefines.h"
 #import "SentryDependencyContainer.h"

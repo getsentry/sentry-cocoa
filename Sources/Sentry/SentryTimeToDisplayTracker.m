@@ -1,5 +1,5 @@
 #import "SentryTimeToDisplayTracker.h"
-#import "SentryCurrentDate.h"
+#import "SentryCurrentDateProvider.h"
 #import "SentryDependencyContainer.h"
 #import "SentryFramesTracker.h"
 #import "SentryMeasurementValue.h"
@@ -79,7 +79,8 @@ SentryTimeToDisplayTracker () <SentryFramesTrackerListener>
         // We need the timestamp to be able to calculate the duration
         // but we can't finish first and add measure later because
         // finishing the span may trigger the tracer finishInternal.
-        self.fullDisplaySpan.timestamp = [SentryCurrentDate date];
+        self.fullDisplaySpan.timestamp =
+            [SentryDependencyContainer.sharedInstance.dateProvider date];
         [self addTimeToDisplayMeasurement:self.fullDisplaySpan name:@"time_to_full_display"];
         [self.fullDisplaySpan finish];
     }
@@ -93,7 +94,7 @@ SentryTimeToDisplayTracker () <SentryFramesTrackerListener>
 
 - (void)framesTrackerHasNewFrame
 {
-    NSDate *finishTime = [SentryCurrentDate date];
+    NSDate *finishTime = [SentryDependencyContainer.sharedInstance.dateProvider date];
 
     // The purpose of TTID and TTFD is to measure how long
     // takes to the content of the screen to change.

@@ -19,7 +19,6 @@ class TestCleanup: NSObject {
         PrivateSentrySDKOnly.onAppStartMeasurementAvailable = nil
         PrivateSentrySDKOnly.appStartMeasurementHybridSDKMode = false
         SentrySDK.setAppStartMeasurement(nil)
-        CurrentDate.setCurrentDateProvider(nil)
         SentryNetworkTracker.sharedInstance.disable()
         
         setTestDefaultLogLevel()

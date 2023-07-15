@@ -18,11 +18,10 @@ SENTRY_NO_INIT
 
 @property (nonatomic) BOOL isRunning;
 
-- (instancetype)initWithCurrentDateProvider:(id<SentryCurrentDateProvider>)currentDateProvider
-                       dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
-                            appStateManager:(SentryAppStateManager *)appStateManager
-                                     sysctl:(SentrySysctl *)sysctl
-             enablePreWarmedAppStartTracing:(BOOL)enablePreWarmedAppStartTracing;
+- (instancetype)initWithDispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
+                             appStateManager:(SentryAppStateManager *)appStateManager
+                                      sysctl:(SentrySysctl *)sysctl
+              enablePreWarmedAppStartTracing:(BOOL)enablePreWarmedAppStartTracing;
 
 - (void)start;
 - (void)stop;
