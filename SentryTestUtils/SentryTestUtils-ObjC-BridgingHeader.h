@@ -1,11 +1,14 @@
 #import "SentryDefines.h"
 
 #if SENTRY_HAS_UIKIT
+#import "SentryAppStartTracker.h"
+#import "SentryDisplayLinkWrapper.h"
 #    import "SentryFramesTracker+TestInit.h"
+#import "SentryUIDeviceWrapper.h"
+#import "SentryUIViewControllerPerformanceTracker.h"
 #endif // SENTRY_HAS_UIKIT
 
 #import "PrivateSentrySDKOnly.h"
-#import "SentryAppStartTracker.h"
 #import "SentryAppState.h"
 #import "SentryClient+Private.h"
 #import "SentryClient+TestInit.h"
@@ -16,7 +19,6 @@
 #import "SentryDispatchFactory.h"
 #import "SentryDispatchQueueWrapper.h"
 #import "SentryDispatchSourceWrapper.h"
-#import "SentryDisplayLinkWrapper.h"
 #import "SentryEnvelope.h"
 #import "SentryFileManager.h"
 #import "SentryGlobalEventProcessor.h"
@@ -37,5 +39,3 @@
 #import "SentryTracer+Test.h"
 #import "SentryTransport.h"
 #import "SentryTransportAdapter.h"
-#import "SentryUIDeviceWrapper.h"
-#import "SentryUIViewControllerPerformanceTracker.h"
