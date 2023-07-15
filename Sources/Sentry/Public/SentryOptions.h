@@ -468,7 +468,7 @@ NS_SWIFT_NAME(Options)
 @property (nonatomic, assign) BOOL enableMetricKit API_AVAILABLE(
     ios(15.0), macos(12.0), macCatalyst(15.0)) API_UNAVAILABLE(tvos, watchos);
 
-#endif
+#endif // SENTRY_HAS_METRIC_KIT
 
 /**
  * @warning This is an experimental feature and may still have bugs.
