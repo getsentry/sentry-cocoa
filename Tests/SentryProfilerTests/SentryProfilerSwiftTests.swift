@@ -240,8 +240,11 @@ class SentryProfilerSwiftTests: XCTestCase {
         var spans = [Span]()
 
         func createConcurrentSpansWithMetrics() throws {
+            XCTAssertFalse(SentryProfiler.isCurrentlyProfiling())
+
             for _ in 0 ..< numberOfTransactions {
                 let span = try fixture.newTransaction()
+                XCTAssertTrue(SentryProfiler.isCurrentlyProfiling())
                 spans.append(span)
                 fixture.currentDateProvider.advanceBy(nanoseconds: 100)
             }
@@ -250,11 +253,14 @@ class SentryProfilerSwiftTests: XCTestCase {
 
             for (i, span) in spans.enumerated() {
                 try fixture.gatherMockedMetrics(span: span)
+                XCTAssertTrue(SentryProfiler.isCurrentlyProfiling())
                 span.finish()
 
                 try self.assertValidProfileData()
                 try self.assertMetricsPayload(metricsBatches: i + 1)
             }
+            
+            XCTAssertFalse(SentryProfiler.isCurrentlyProfiling())
         }
 
         try createConcurrentSpansWithMetrics()
