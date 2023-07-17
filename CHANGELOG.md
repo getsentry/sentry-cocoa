@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Fix a crash in SentryCoreDataTracker for nil error params (#3152)
+
 ## 8.9.1
 
 ### Fixes

@@ -31,6 +31,7 @@
 #import "SentryClientReport.h"
 #import "SentryConcurrentRateLimitsDictionary.h"
 #import "SentryCoreDataSwizzling.h"
+#import "SentryCoreDataTracker+Test.h"
 #import "SentryCoreDataTracker.h"
 #import "SentryCoreDataTrackingIntegration.h"
 #import "SentryCrashBinaryImageProvider.h"
