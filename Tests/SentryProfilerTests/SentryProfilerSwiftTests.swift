@@ -401,6 +401,38 @@ class SentryProfilerSwiftTests: XCTestCase {
             options.profilesSampler = { _ in return -0.01 }
         }
     }
+
+    /// based on ``SentryTracerTests.testFinish_WithoutHub_DoesntCaptureTransaction``
+    func testProfilerCleanedUpAfterTransactionDiscarded_NoHub() {
+
+    }
+
+    /// based on ``SentryTracerTests.testFinish_WaitForAllChildren_ExceedsMaxDuration_NoTransactionCaptured``
+    func testProfilerCleanedUpAfterTransactionDiscarded_ExceedsMaxDuration() {
+
+    }
+
+    /// based on ``SentryTracerTests.testFinish_IdleTimeout_ExceedsMaxDuration_NoTransactionCaptured``
+    func testProfilerCleanedUpAfterTransactionDiscarded_IdleTimeout_ExceedsMaxDuration() {
+
+    }
+
+    /// based on ``SentryTracerTests.testIdleTimeout_NoChildren_TransactionNotCaptured``
+    func testProfilerCleanedUpAfterTransactionDiscarded_IdleTimeout_NoChildren() {
+
+    }
+
+    /// based on ``SentryTracerTests.testIdleTransaction_CreatingDispatchBlockFails_NoTransactionCaptured``
+    func testProfilerCleanedUpAfterTransactionDiscarded_IdleTransaction_CreatingDispatchBlockFails() {
+
+    }
+
+#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+    /// based on ``SentryTracerTests.testFinish_WaitForAllChildren_StartTimeModified_NoTransactionCaptured``
+    func testProfilerCleanedUpAfterTransactionDiscarded_WaitForAllChildren_StartTimeModified() {
+
+    }
+#endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
 }
 
 private extension SentryProfilerSwiftTests {
