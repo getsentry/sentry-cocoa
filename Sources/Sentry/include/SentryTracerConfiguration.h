@@ -1,5 +1,5 @@
+#import "PrivatesHeader.h"
 #import <Foundation/Foundation.h>
-#import <Sentry/PrivatesHeader.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
