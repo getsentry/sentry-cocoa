@@ -1,4 +1,3 @@
-#import "SentryCurrentDateProvider.h"
 #import "SentryFileManager.h"
 #import <Foundation/Foundation.h>
 
@@ -16,7 +15,6 @@ NS_ASSUME_NONNULL_BEGIN
 SENTRY_NO_INIT
 
 - (instancetype)initWithFileManager:(SentryFileManager *)fileManager
-             andCurrentDateProvider:(id<SentryCurrentDateProvider>)currentDateProvider
        andNotificationCenterWrapper:(SentryNSNotificationCenterWrapper *)notificationCenterWrapper;
 
 - (void)startWithDelegate:(id<SentryBreadcrumbDelegate>)delegate;

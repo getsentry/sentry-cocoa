@@ -1,20 +1,21 @@
 #import "SentryUIViewControllerPerformanceTracker.h"
-#import "SentryFramesTracker.h"
-#import "SentryHub.h"
-#import "SentryLog.h"
-#import "SentryPerformanceTracker.h"
-#import "SentrySDK+Private.h"
-#import "SentryScope.h"
-#import "SentrySpanId.h"
-#import "SentrySwift.h"
-#import "SentryTimeToDisplayTracker.h"
-#import "SentryTraceOrigins.h"
-#import "SentryTracer.h"
-#import <SentryInAppLogic.h>
-#import <SentrySpanOperations.h>
-#import <objc/runtime.h>
 
 #if SENTRY_HAS_UIKIT
+
+#    import "SentryFramesTracker.h"
+#    import "SentryHub.h"
+#    import "SentryLog.h"
+#    import "SentryPerformanceTracker.h"
+#    import "SentrySDK+Private.h"
+#    import "SentryScope.h"
+#    import "SentrySpanId.h"
+#    import "SentrySwift.h"
+#    import "SentryTimeToDisplayTracker.h"
+#    import "SentryTraceOrigins.h"
+#    import "SentryTracer.h"
+#    import <SentryInAppLogic.h>
+#    import <SentrySpanOperations.h>
+#    import <objc/runtime.h>
 
 @interface
 SentryUIViewControllerPerformanceTracker ()
@@ -403,4 +404,4 @@ SentryUIViewControllerPerformanceTracker ()
 
 @end
 
-#endif
+#endif // SENTRY_HAS_UIKIT

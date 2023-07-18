@@ -3,7 +3,7 @@
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 #    import "NSDate+SentryExtras.h"
 #    import "SentryClient+Private.h"
-#    import "SentryCurrentDate.h"
+#    import "SentryCurrentDateProvider.h"
 #    import "SentryDebugImageProvider.h"
 #    import "SentryDebugMeta.h"
 #    import "SentryDefines.h"
@@ -24,6 +24,7 @@
 #    import "SentryNSProcessInfoWrapper.h"
 #    import "SentryNSTimerFactory.h"
 #    import "SentryProfileTimeseries.h"
+#    import "SentryProfiledTracerConcurrency.h"
 #    import "SentryProfilerState+ObjCpp.h"
 #    import "SentrySample.h"
 #    import "SentrySamplingProfiler.hpp"
@@ -35,7 +36,6 @@
 #    import "SentryThreadWrapper.h"
 #    import "SentryTime.h"
 #    import "SentryTracer.h"
-#    import "SentryTracerConcurrency.h"
 #    import "SentryTransaction.h"
 #    import "SentryTransactionContext+Private.h"
 
@@ -221,7 +221,8 @@ serializedProfileData(NSDictionary<NSString *, id> *profileData, SentryTransacti
     if (UNLIKELY(timestamp == nil)) {
         SENTRY_LOG_WARN(@"There was no start timestamp on the provided transaction. Falling back "
                         @"to old behavior of using the current time.");
-        payload[@"timestamp"] = [[SentryCurrentDate date] sentry_toIso8601String];
+        payload[@"timestamp"] =
+            [[SentryDependencyContainer.sharedInstance.dateProvider date] sentry_toIso8601String];
     } else {
         payload[@"timestamp"] = [timestamp sentry_toIso8601String];
     }
@@ -488,7 +489,8 @@ serializedProfileData(NSDictionary<NSString *, id> *profileData, SentryTransacti
     // breakages or performance hits there.
 #    if defined(TEST) || defined(TESTCI)
             Backtrace backtraceCopy = backtrace;
-            backtraceCopy.absoluteTimestamp = SentryCurrentDate.systemTime;
+            backtraceCopy.absoluteTimestamp
+                = SentryDependencyContainer.sharedInstance.dateProvider.systemTime;
             [state appendBacktrace:backtraceCopy];
 #    else
             [state appendBacktrace:backtrace];

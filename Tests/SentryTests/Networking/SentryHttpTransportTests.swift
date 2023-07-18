@@ -46,7 +46,7 @@ class SentryHttpTransportTests: XCTestCase {
 
         init() {
             currentDateProvider = TestCurrentDateProvider()
-            CurrentDate.setCurrentDateProvider(currentDateProvider)
+            SentryDependencyContainer.sharedInstance().dateProvider = currentDateProvider
 
             event = Event()
             event.message = SentryMessage(formatted: "Some message")
@@ -57,29 +57,29 @@ class SentryHttpTransportTests: XCTestCase {
 
             eventEnvelope = SentryEnvelope(id: event.eventId, items: [SentryEnvelopeItem(event: event), attachmentEnvelopeItem])
             // We are comparing byte data and the `sentAt` header is also set in the transport, so we also need them here in the expected envelope.
-            eventEnvelope.header.sentAt = CurrentDate.date()
+            eventEnvelope.header.sentAt = SentryDependencyContainer.sharedInstance().dateProvider.date()
             eventWithAttachmentRequest = buildRequest(eventEnvelope)
 
             session = SentrySession(releaseName: "2.0.1")
             sessionEnvelope = SentryEnvelope(id: nil, singleItem: SentryEnvelopeItem(session: session))
-            sessionEnvelope.header.sentAt = CurrentDate.date()
+            sessionEnvelope.header.sentAt = SentryDependencyContainer.sharedInstance().dateProvider.date()
             sessionRequest = buildRequest(sessionEnvelope)
 
             let items = [SentryEnvelopeItem(event: event), SentryEnvelopeItem(session: session)]
             eventWithSessionEnvelope = SentryEnvelope(id: event.eventId, items: items)
-            eventWithSessionEnvelope.header.sentAt = CurrentDate.date()
+            eventWithSessionEnvelope.header.sentAt = SentryDependencyContainer.sharedInstance().dateProvider.date()
             eventWithSessionRequest = buildRequest(eventWithSessionEnvelope)
 
             options = Options()
             options.dsn = SentryHttpTransportTests.dsnAsString
-            fileManager = try! TestFileManager(options: options, andCurrentDateProvider: currentDateProvider)
+            fileManager = try! TestFileManager(options: options)
 
             requestManager = TestRequestManager(session: URLSession(configuration: URLSessionConfiguration.ephemeral))
             rateLimits = DefaultRateLimits(retryAfterHeaderParser: RetryAfterHeaderParser(httpDateParser: HttpDateParser()), andRateLimitParser: RateLimitParser())
 
             userFeedback = TestData.userFeedback
             let userFeedbackEnvelope = SentryEnvelope(userFeedback: userFeedback)
-            userFeedbackEnvelope.header.sentAt = CurrentDate.date()
+            userFeedbackEnvelope.header.sentAt = SentryDependencyContainer.sharedInstance().dateProvider.date()
             userFeedbackRequest = buildRequest(userFeedbackEnvelope)
             
             let beforeSendTransaction = SentryDiscardedEvent(reason: .beforeSend, category: .transaction, quantity: 2)
@@ -98,7 +98,7 @@ class SentryHttpTransportTests: XCTestCase {
                 SentryEnvelopeItem(clientReport: clientReport)
             ]
             clientReportEnvelope = SentryEnvelope(id: event.eventId, items: clientReportEnvelopeItems)
-            clientReportEnvelope.header.sentAt = CurrentDate.date()
+            clientReportEnvelope.header.sentAt = SentryDependencyContainer.sharedInstance().dateProvider.date()
             clientReportRequest = buildRequest(clientReportEnvelope)
         }
 
@@ -234,7 +234,7 @@ class SentryHttpTransportTests: XCTestCase {
             SentryEnvelopeItem(clientReport: clientReport)
         ]
         let envelope = SentryEnvelope(id: fixture.event.eventId, items: envelopeItems)
-        envelope.header.sentAt = CurrentDate.date()
+        envelope.header.sentAt = SentryDependencyContainer.sharedInstance().dateProvider.date()
         let request = SentryHttpTransportTests.buildRequest(envelope)
         XCTAssertEqual(request.httpBody, fixture.requestManager.requests.last?.httpBody)
     }
@@ -433,7 +433,7 @@ class SentryHttpTransportTests: XCTestCase {
         assertEnvelopesStored(envelopeCount: 0)
 
         let sessionEnvelope = SentryEnvelope(id: fixture.event.eventId, singleItem: SentryEnvelopeItem(session: fixture.session))
-        sessionEnvelope.header.sentAt = CurrentDate.date()
+        sessionEnvelope.header.sentAt = SentryDependencyContainer.sharedInstance().dateProvider.date()
         let sessionData = try! SentrySerialization.data(with: sessionEnvelope)
         let sessionRequest = try! SentryNSURLRequest(envelopeRequestWith: SentryHttpTransportTests.dsn(), andData: sessionData)
 
@@ -513,7 +513,7 @@ class SentryHttpTransportTests: XCTestCase {
             SentryEnvelopeItem(clientReport: clientReport)
         ]
         let clientReportEnvelope = SentryEnvelope(id: fixture.event.eventId, items: clientReportEnvelopeItems)
-        clientReportEnvelope.header.sentAt = CurrentDate.date()
+        clientReportEnvelope.header.sentAt = SentryDependencyContainer.sharedInstance().dateProvider.date()
         let clientReportRequest = SentryHttpTransportTests.buildRequest(clientReportEnvelope)
         
         givenRateLimitResponse(forCategory: "error")
@@ -687,8 +687,6 @@ class SentryHttpTransportTests: XCTestCase {
     }
     
     func testFlush_BlocksCallingThread_TimesOut() {
-        CurrentDate.setCurrentDateProvider(DefaultCurrentDateProvider.sharedInstance())
-        
         givenCachedEvents(amount: 30)
         
         fixture.requestManager.responseDelay = fixture.flushTimeout + 0.2
@@ -704,8 +702,6 @@ class SentryHttpTransportTests: XCTestCase {
     }
     
     func testFlush_BlocksCallingThread_FinishesFlushingWhenSent() {
-        CurrentDate.setCurrentDateProvider(DefaultCurrentDateProvider.sharedInstance())
-        
         givenCachedEvents(amount: 1)
         
         let beforeFlush = getAbsoluteTime()
@@ -715,8 +711,6 @@ class SentryHttpTransportTests: XCTestCase {
     }
     
     func testFlush_CalledSequentially_BlocksTwice() {
-        CurrentDate.setCurrentDateProvider(DefaultCurrentDateProvider.sharedInstance())
-        
         givenCachedEvents()
         
         let beforeFlush = getAbsoluteTime()
@@ -729,14 +723,10 @@ class SentryHttpTransportTests: XCTestCase {
     }
     
     func testFlush_WhenNoEnvelopes_BlocksAndFinishes() {
-        CurrentDate.setCurrentDateProvider(DefaultCurrentDateProvider.sharedInstance())
-        
         assertFlushBlocksAndFinishesSuccessfully()
     }
     
     func testFlush_WhenNoInternet_BlocksAndFinishes() {
-        CurrentDate.setCurrentDateProvider(DefaultCurrentDateProvider.sharedInstance())
-        
         givenCachedEvents()
         givenNoInternetConnection()
         
@@ -746,8 +736,6 @@ class SentryHttpTransportTests: XCTestCase {
     func testFlush_CalledMultipleTimes_ImmediatelyReturnsFalse() {
         // To avoid spamming the test logs
         SentryLog.configure(true, diagnosticLevel: .error)
-        
-        CurrentDate.setCurrentDateProvider(DefaultCurrentDateProvider.sharedInstance())
         
         givenCachedEvents(amount: 30)
         

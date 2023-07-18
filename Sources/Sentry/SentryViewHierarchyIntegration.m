@@ -1,14 +1,14 @@
 #import "SentryViewHierarchyIntegration.h"
-#import "SentryAttachment+Private.h"
-#import "SentryCrashC.h"
-#import "SentryDependencyContainer.h"
-#import "SentryEvent+Private.h"
-#import "SentryHub+Private.h"
-#import "SentryMetricKitIntegration.h"
-#import "SentrySDK+Private.h"
-#import "SentryViewHierarchy.h"
 
 #if SENTRY_HAS_UIKIT
+#    import "SentryAttachment+Private.h"
+#    import "SentryCrashC.h"
+#    import "SentryDependencyContainer.h"
+#    import "SentryEvent+Private.h"
+#    import "SentryHub+Private.h"
+#    import "SentryMetricKitIntegration.h"
+#    import "SentrySDK+Private.h"
+#    import "SentryViewHierarchy.h"
 
 /**
  * Function to call through to the ObjC method to save a view hierarchy, which can be passed around

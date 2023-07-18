@@ -1,13 +1,13 @@
 import Foundation
 
 @objc
-public class TestCurrentDateProvider: NSObject, CurrentDateProvider {
+public class TestCurrentDateProvider: CurrentDateProvider {
     public static let defaultStartingDate = Date(timeIntervalSinceReferenceDate: 0)
     private var internalDate = defaultStartingDate
     private var internalSystemTime: UInt64 = 0
     public var driftTimeForEveryRead = false
     
-    public func date() -> Date {
+    public override func date() -> Date {
 
         defer {
             if driftTimeForEveryRead {
@@ -40,16 +40,16 @@ public class TestCurrentDateProvider: NSObject, CurrentDateProvider {
     }
     
     public var internalDispatchNow = DispatchTime.now()
-    public func dispatchTimeNow() -> dispatch_time_t {
+    public override func dispatchTimeNow() -> dispatch_time_t {
         return internalDispatchNow.rawValue
     }
 
     public var timezoneOffsetValue = 0
-    public func timezoneOffset() -> Int {
+    public override func timezoneOffset() -> Int {
         return timezoneOffsetValue
     }
 
-    public func systemTime() -> UInt64 {
+    public override func systemTime() -> UInt64 {
         return internalSystemTime
     }
 }

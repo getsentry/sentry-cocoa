@@ -1,6 +1,5 @@
-import Foundation
-
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+
 class TestSentryScreenshot: SentryScreenshot {
     
     var result: [Data]?
@@ -10,4 +9,5 @@ class TestSentryScreenshot: SentryScreenshot {
     }
     
 }
-#endif
+
+#endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)

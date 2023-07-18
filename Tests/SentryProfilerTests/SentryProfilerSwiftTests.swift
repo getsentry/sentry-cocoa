@@ -39,7 +39,7 @@ class SentryProfilerSwiftTests: XCTestCase {
 #endif
 
         init() {
-            CurrentDate.setCurrentDateProvider(currentDateProvider)
+            SentryDependencyContainer.sharedInstance().dateProvider = currentDateProvider
             options.profilesSampleRate = 1.0
             options.tracesSampleRate = 1.0
 
@@ -192,6 +192,7 @@ class SentryProfilerSwiftTests: XCTestCase {
         var appStartDuration = 0.5
         lazy var appStartEnd = appStart.addingTimeInterval(appStartDuration)
 
+        #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
         func getAppStartMeasurement(type: SentryAppStartType, preWarmed: Bool = false) -> SentryAppStartMeasurement {
             let runtimeInitDuration = 0.05
             let runtimeInit = appStart.addingTimeInterval(runtimeInitDuration)
@@ -203,6 +204,7 @@ class SentryProfilerSwiftTests: XCTestCase {
             appStartEnd = appStart.addingTimeInterval(appStartDuration)
             return SentryAppStartMeasurement(type: type, isPreWarmed: preWarmed, appStartTimestamp: appStart, duration: appStartDuration, runtimeInitTimestamp: runtimeInit, moduleInitializationTimestamp: main, didFinishLaunchingTimestamp: didFinishLaunching)
         }
+        #endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
     }
 
     private var fixture: Fixture!
@@ -240,8 +242,11 @@ class SentryProfilerSwiftTests: XCTestCase {
         var spans = [Span]()
 
         func createConcurrentSpansWithMetrics() throws {
+            XCTAssertFalse(SentryProfiler.isCurrentlyProfiling())
+
             for _ in 0 ..< numberOfTransactions {
                 let span = try fixture.newTransaction()
+                XCTAssertTrue(SentryProfiler.isCurrentlyProfiling())
                 spans.append(span)
                 fixture.currentDateProvider.advanceBy(nanoseconds: 100)
             }
@@ -250,11 +255,14 @@ class SentryProfilerSwiftTests: XCTestCase {
 
             for (i, span) in spans.enumerated() {
                 try fixture.gatherMockedMetrics(span: span)
+                XCTAssertTrue(SentryProfiler.isCurrentlyProfiling())
                 span.finish()
 
                 try self.assertValidProfileData()
                 try self.assertMetricsPayload(metricsBatches: i + 1)
             }
+            
+            XCTAssertFalse(SentryProfiler.isCurrentlyProfiling())
         }
 
         try createConcurrentSpansWithMetrics()
@@ -323,17 +331,19 @@ class SentryProfilerSwiftTests: XCTestCase {
         try performTest(transactionEnvironment: expectedEnvironment)
     }
 
+    #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
     func testProfileWithTransactionContainingStartupSpansForColdStart() throws {
-        try performTest(launchType: .cold, prewarmed: false)
+        try performTest(uikitParameters: UIKitParameters(launchType: .cold, prewarmed: false))
     }
 
     func testProfileWithTransactionContainingStartupSpansForWarmStart() throws {
-        try performTest(launchType: .warm, prewarmed: false)
+        try performTest(uikitParameters: UIKitParameters(launchType: .warm, prewarmed: false))
     }
 
     func testProfileWithTransactionContainingStartupSpansForPrewarmedStart() throws {
-        try performTest(launchType: .cold, prewarmed: true)
+        try performTest(uikitParameters: UIKitParameters(launchType: .cold, prewarmed: true))
     }
+#endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
 
     func testProfilingDataContainsEnvironmentSetFromConfigureScope() throws {
         let expectedEnvironment = "test-environment"
@@ -419,13 +429,23 @@ private extension SentryProfilerSwiftTests {
         SentryProfilerMocksSwiftCompatible.appendMockBacktrace(to: state, threadID: threadMetadata.id, threadPriority: threadMetadata.priority, threadName: threadMetadata.name, queueAddress: queueMetadata.address, queueLabel: queueMetadata.label, addresses: addresses)
     }
 
-    func performTest(transactionEnvironment: String = kSentryDefaultEnvironment, shouldTimeOut: Bool = false, launchType: SentryAppStartType? = nil, prewarmed: Bool = false) throws {
+    struct UIKitParameters {
+        #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+        var launchType: SentryAppStartType
+        var prewarmed: Bool
+        #endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+    }
+
+    func performTest(transactionEnvironment: String = kSentryDefaultEnvironment, shouldTimeOut: Bool = false, uikitParameters: UIKitParameters? = nil) throws {
         var testingAppLaunchSpans = false
-        if let launchType = launchType {
+
+            #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+        if let uikitParameters = uikitParameters {
             testingAppLaunchSpans = true
-            let appStartMeasurement = fixture.getAppStartMeasurement(type: launchType, preWarmed: prewarmed)
+            let appStartMeasurement = fixture.getAppStartMeasurement(type: uikitParameters.launchType, preWarmed: uikitParameters.prewarmed)
             SentrySDK.setAppStartMeasurement(appStartMeasurement)
         }
+#endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
 
         let span = try fixture.newTransaction(testingAppLaunchSpans: testingAppLaunchSpans)
 

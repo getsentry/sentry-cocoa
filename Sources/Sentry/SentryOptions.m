@@ -1,12 +1,31 @@
 #import "SentryOptions.h"
 #import "SentryANRTracker.h"
+#import "SentryANRTrackingIntegration.h"
+#import "SentryAutoBreadcrumbTrackingIntegration.h"
+#import "SentryAutoSessionTrackingIntegration.h"
+#import "SentryCoreDataTrackingIntegration.h"
+#import "SentryCrashIntegration.h"
 #import "SentryDsn.h"
+#import "SentryFileIOTrackingIntegration.h"
 #import "SentryHttpStatusCodeRange.h"
 #import "SentryLevelMapper.h"
 #import "SentryLog.h"
 #import "SentryMeta.h"
+#import "SentryMetricKitIntegration.h"
+#import "SentryNetworkTrackingIntegration.h"
 #import "SentrySDK.h"
 #import "SentryScope.h"
+#import "SentrySwiftAsyncIntegration.h"
+
+#if SENTRY_HAS_UIKIT
+#    import "SentryAppStartTrackingIntegration.h"
+#    import "SentryFramesTrackingIntegration.h"
+#    import "SentryPerformanceTrackingIntegration.h"
+#    import "SentryScreenshotIntegration.h"
+#    import "SentryUIEventTrackingIntegration.h"
+#    import "SentryViewHierarchyIntegration.h"
+#    import "SentryWatchdogTerminationTrackingIntegration.h"
+#endif // SENTRY_HAS_UIKIT
 
 @interface
 SentryOptions ()
@@ -34,23 +53,31 @@ NSString *const kSentryDefaultEnvironment = @"production";
 {
     NSMutableArray<NSString *> *defaultIntegrations =
         @[
-            @"SentryCrashIntegration",
 #if SENTRY_HAS_UIKIT
-            @"SentryScreenshotIntegration", @"SentryUIEventTrackingIntegration",
-            @"SentryViewHierarchyIntegration",
+            NSStringFromClass([SentryAppStartTrackingIntegration class]),
+            NSStringFromClass([SentryFramesTrackingIntegration class]),
+            NSStringFromClass([SentryPerformanceTrackingIntegration class]),
+            NSStringFromClass([SentryScreenshotIntegration class]),
+            NSStringFromClass([SentryUIEventTrackingIntegration class]),
+            NSStringFromClass([SentryViewHierarchyIntegration class]),
+            NSStringFromClass([SentryWatchdogTerminationTrackingIntegration class]),
 #endif
-            @"SentryANRTrackingIntegration", @"SentryFramesTrackingIntegration",
-            @"SentryAutoBreadcrumbTrackingIntegration", @"SentryAutoSessionTrackingIntegration",
-            @"SentryAppStartTrackingIntegration", @"SentryWatchdogTerminationTrackingIntegration",
-            @"SentryPerformanceTrackingIntegration", @"SentryNetworkTrackingIntegration",
-            @"SentryFileIOTrackingIntegration", @"SentryCoreDataTrackingIntegration",
-            @"SentrySwiftAsyncIntegration"
+            NSStringFromClass([SentryANRTrackingIntegration class]),
+            NSStringFromClass([SentryAutoBreadcrumbTrackingIntegration class]),
+            NSStringFromClass([SentryAutoSessionTrackingIntegration class]),
+            NSStringFromClass([SentryCoreDataTrackingIntegration class]),
+            NSStringFromClass([SentryCrashIntegration class]),
+            NSStringFromClass([SentryFileIOTrackingIntegration class]),
+            NSStringFromClass([SentryNetworkTrackingIntegration class]),
+            NSStringFromClass([SentrySwiftAsyncIntegration class])
         ]
             .mutableCopy;
 
+#if SENTRY_HAS_METRICKIT
     if (@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, *)) {
-        [defaultIntegrations addObject:@"SentryMetricKitIntegration"];
+        [defaultIntegrations addObject:NSStringFromClass([SentryMetricKitIntegration class])];
     }
+#endif // SENTRY_HAS_METRICKIT
 
     return defaultIntegrations;
 }

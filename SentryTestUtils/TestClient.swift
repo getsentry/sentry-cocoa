@@ -140,11 +140,7 @@ public class TestFileManager: SentryFileManager {
     var deleteTimestampLastInForegroundInvocations: Int = 0
 
     public init(options: Options) throws {
-        try super.init(options: options, andCurrentDateProvider: TestCurrentDateProvider(), dispatchQueueWrapper: TestSentryDispatchQueueWrapper())
-    }
-
-    public init(options: Options, andCurrentDateProvider currentDateProvider: CurrentDateProvider) throws {
-        try super.init(options: options, andCurrentDateProvider: currentDateProvider, dispatchQueueWrapper: TestSentryDispatchQueueWrapper())
+        try super.init(options: options, dispatchQueueWrapper: TestSentryDispatchQueueWrapper())
     }
     
     public var deleteOldEnvelopeItemsInvocations = Invocations<Void>()

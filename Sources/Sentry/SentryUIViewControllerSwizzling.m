@@ -1,18 +1,19 @@
 #import "SentryUIViewControllerSwizzling.h"
-#import "SentryDefaultObjCRuntimeWrapper.h"
-#import "SentryLog.h"
-#import "SentryNSProcessInfoWrapper.h"
-#import "SentrySubClassFinder.h"
-#import "SentrySwizzle.h"
-#import "SentryUIViewControllerPerformanceTracker.h"
-#import <SentryDispatchQueueWrapper.h>
-#import <SentryInAppLogic.h>
-#import <SentryOptions.h>
-#import <UIViewController+Sentry.h>
-#import <objc/runtime.h>
 
 #if SENTRY_HAS_UIKIT
+
+#    import "SentryDefaultObjCRuntimeWrapper.h"
+#    import "SentryLog.h"
+#    import "SentryNSProcessInfoWrapper.h"
+#    import "SentrySubClassFinder.h"
+#    import "SentrySwizzle.h"
+#    import "SentryUIViewControllerPerformanceTracker.h"
+#    import <SentryDispatchQueueWrapper.h>
+#    import <SentryInAppLogic.h>
+#    import <SentryOptions.h>
 #    import <UIKit/UIKit.h>
+#    import <UIViewController+Sentry.h>
+#    import <objc/runtime.h>
 
 /**
  * @c swizzleRootViewControllerFromUIApplication: requires an object that conforms to
@@ -442,4 +443,5 @@ SentryUIViewControllerSwizzling ()
 @end
 
 #    pragma clang diagnostic pop
-#endif
+
+#endif // SENTRY_HAS_UIKIT
