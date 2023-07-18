@@ -177,9 +177,9 @@ class SentryCoreDataTrackerTests: XCTestCase {
         
         let transaction = startTransaction()
         
-        try? sut.managedObjectContext(fixture.context) { _ in
+        XCTAssertNoThrow(try sut.managedObjectContext(fixture.context) { _ in
             return true
-        }
+        })
         
         XCTAssertEqual(transaction.children.count, 1)
         
@@ -256,9 +256,9 @@ class SentryCoreDataTrackerTests: XCTestCase {
         let transaction = startTransaction()
         let sut = fixture.getSut()
         fixture.context.inserted = [fixture.testEntity()]
-        try? sut.managedObjectContext(fixture.context) { _ in
+        XCTAssertThrowsError(try sut.managedObjectContext(fixture.context) { _ in
             return false
-        }
+        })
         
         XCTAssertEqual(transaction.children.count, 1)
         XCTAssertEqual(transaction.children[0].status, .internalError)
@@ -282,9 +282,9 @@ class SentryCoreDataTrackerTests: XCTestCase {
         
         let transaction = startTransaction()
         
-        try? sut.managedObjectContext(fixture.context) { _ in
+        XCTAssertNoThrow(try sut.managedObjectContext(fixture.context) { _ in
             return true
-        }
+        })
         
         XCTAssertEqual(transaction.children.count, 0)
     }
@@ -294,9 +294,9 @@ class SentryCoreDataTrackerTests: XCTestCase {
         
         let transaction = startTransaction()
         
-        try? sut.managedObjectContext(fixture.context) { _ in
+        XCTAssertNoThrow(try sut.managedObjectContext(fixture.context) { _ in
             return true
-        }
+        })
 
         guard let dbSpan = try? XCTUnwrap(transaction.children.first) else {
             XCTFail("Span for DB operation don't exist.")
