@@ -29,6 +29,29 @@ static NSMutableDictionary</* SentryProfiler.profileId */ NSString *,
 static NSMutableDictionary</* SentryTracer.tracerId */ NSString *, SentryProfiler *>
     *_gTracersToProfilers;
 
+namespace {
+
+/**
+ * Remove a profiler from tracking given the id of the tracer it's associated with.
+ * @warning Must be called from a synchronized context.
+ */
+void
+_unsafe_cleanUpProfiler(SentryProfiler *profiler, NSString *tracerKey)
+{
+    const auto profilerKey = profiler.profileId.sentryIdString;
+
+    [_gTracersToProfilers removeObjectForKey:tracerKey];
+    _gProfilersToTracers[profilerKey] = @(_gProfilersToTracers[profilerKey].unsignedIntValue - 1);
+    if ([_gProfilersToTracers[profilerKey] unsignedIntValue] == 0) {
+        [_gProfilersToTracers removeObjectForKey:profilerKey];
+        if ([profiler isRunning]) {
+            [profiler stopForReason:SentryProfilerTruncationReasonNormal];
+        }
+    }
+}
+
+} // namespace
+
 std::mutex _gStateLock;
 
 void
@@ -75,16 +98,7 @@ discardProfilerForTracer(SentryTracer *tracer)
         return;
     }
 
-    const auto profilerKey = profiler.profileId.sentryIdString;
-
-    [_gTracersToProfilers removeObjectForKey:tracerKey];
-    _gProfilersToTracers[profilerKey] = @(_gProfilersToTracers[profilerKey].unsignedIntValue - 1);
-    if ([_gProfilersToTracers[profilerKey] unsignedIntValue] == 0) {
-        [_gProfilersToTracers removeObjectForKey:profilerKey];
-        if ([profiler isRunning]) {
-            [profiler stopForReason:SentryProfilerTruncationReasonNormal];
-        }
-    }
+    _unsafe_cleanUpProfiler(profiler, tracerKey);
 
 #    if SENTRY_HAS_UIKIT
     if (_gProfilersToTracers.count == 0) {
@@ -108,16 +122,7 @@ SentryProfiler *_Nullable profilerForFinishedTracer(SentryTracer *tracer)
         return nil;
     }
 
-    const auto profilerKey = profiler.profileId.sentryIdString;
-
-    [_gTracersToProfilers removeObjectForKey:tracerKey];
-    _gProfilersToTracers[profilerKey] = @(_gProfilersToTracers[profilerKey].unsignedIntValue - 1);
-    if ([_gProfilersToTracers[profilerKey] unsignedIntValue] == 0) {
-        [_gProfilersToTracers removeObjectForKey:profilerKey];
-        if ([profiler isRunning]) {
-            [profiler stopForReason:SentryProfilerTruncationReasonNormal];
-        }
-    }
+    _unsafe_cleanUpProfiler(profiler, tracerKey);
 
 #    if SENTRY_HAS_UIKIT
     profiler._screenFrameData =
