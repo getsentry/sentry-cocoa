@@ -6,6 +6,10 @@
 
 - Reduced macOS SDK footprint by 2% (#3157)
 
+### Fixes
+
+- Fix a crash in SentryCoreDataTracker for nil error params (#3152)
+
 ## 8.9.1
 
 ### Fixes
