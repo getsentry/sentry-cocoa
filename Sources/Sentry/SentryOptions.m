@@ -11,6 +11,7 @@
 #import "SentryLevelMapper.h"
 #import "SentryLog.h"
 #import "SentryMeta.h"
+#import "SentryMetricKitIntegration.h"
 #import "SentryNetworkTrackingIntegration.h"
 #import "SentrySDK.h"
 #import "SentryScope.h"

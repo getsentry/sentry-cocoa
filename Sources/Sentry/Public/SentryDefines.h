@@ -7,12 +7,6 @@
 #endif
 
 #if TARGET_OS_IOS || TARGET_OS_TV
-#    define SENTRY_HAS_UIDEVICE 1
-#else
-#    define SENTRY_HAS_UIDEVICE 0
-#endif
-
-#if SENTRY_HAS_UIDEVICE
 #    define SENTRY_HAS_UIKIT 1
 #else
 #    define SENTRY_HAS_UIKIT 0
