@@ -26,7 +26,7 @@
 #import "SentryTransactionContext+Private.h"
 
 #if SENTRY_HAS_UIKIT
-#import "SentryUIViewControllerPerformanceTracker.h"
+#    import "SentryUIViewControllerPerformanceTracker.h"
 #endif // SENTRY_HAS_UIKIT
 
 NS_ASSUME_NONNULL_BEGIN

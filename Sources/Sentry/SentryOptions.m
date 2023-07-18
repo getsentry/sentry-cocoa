@@ -18,13 +18,13 @@
 #import "SentrySwiftAsyncIntegration.h"
 
 #if SENTRY_HAS_UIKIT
-#import "SentryAppStartTrackingIntegration.h"
-#import "SentryFramesTrackingIntegration.h"
-#import "SentryPerformanceTrackingIntegration.h"
-#import "SentryViewHierarchyIntegration.h"
-#import "SentryWatchdogTerminationTrackingIntegration.h"
+#    import "SentryAppStartTrackingIntegration.h"
+#    import "SentryFramesTrackingIntegration.h"
+#    import "SentryPerformanceTrackingIntegration.h"
 #    import "SentryScreenshotIntegration.h"
 #    import "SentryUIEventTrackingIntegration.h"
+#    import "SentryViewHierarchyIntegration.h"
+#    import "SentryWatchdogTerminationTrackingIntegration.h"
 #endif // SENTRY_HAS_UIKIT
 
 @interface
