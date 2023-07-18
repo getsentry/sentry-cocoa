@@ -1,4 +1,3 @@
-#import "SentryDefines.h"
 #import <Foundation/Foundation.h>
 
 @class SentryDebugMeta, SentryThread, SentryFrame;

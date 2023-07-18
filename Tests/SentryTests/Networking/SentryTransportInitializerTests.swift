@@ -12,7 +12,7 @@ class SentryTransportInitializerTests: XCTestCase {
         super.setUp()
         let options = Options()
         options.dsn = SentryTransportInitializerTests.dsnAsString
-        fileManager = try! SentryFileManager(options: options, andCurrentDateProvider: TestCurrentDateProvider(), dispatchQueueWrapper: TestSentryDispatchQueueWrapper())
+        fileManager = try! SentryFileManager(options: options, dispatchQueueWrapper: TestSentryDispatchQueueWrapper())
     }
 
     func testDefault() throws {

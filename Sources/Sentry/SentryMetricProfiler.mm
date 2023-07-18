@@ -2,7 +2,7 @@
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
-#    import "SentryCurrentDate.h"
+#    import "SentryCurrentDateProvider.h"
 #    import "SentryDependencyContainer.h"
 #    import "SentryDispatchFactory.h"
 #    import "SentryDispatchQueueWrapper.h"
@@ -208,7 +208,7 @@ SentrySerializedMetricEntry *_Nullable serializeValuesWithNormalizedTime(
 {
     const auto reading = [[SentryMetricReading alloc] init];
     reading.value = value;
-    reading.absoluteTimestamp = SentryCurrentDate.systemTime;
+    reading.absoluteTimestamp = SentryDependencyContainer.sharedInstance.dateProvider.systemTime;
     return reading;
 }
 

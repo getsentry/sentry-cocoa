@@ -1,10 +1,11 @@
 #import "SentryScreenshot.h"
-#import "SentryCompiler.h"
-#import "SentryDependencyContainer.h"
-#import "SentryDispatchQueueWrapper.h"
-#import "SentryUIApplication.h"
 
 #if SENTRY_HAS_UIKIT
+
+#    import "SentryCompiler.h"
+#    import "SentryDependencyContainer.h"
+#    import "SentryDispatchQueueWrapper.h"
+#    import "SentryUIApplication.h"
 #    import <UIKit/UIKit.h>
 
 @implementation SentryScreenshot
@@ -72,4 +73,4 @@
 
 @end
 
-#endif
+#endif // SENTRY_HAS_UIKIT

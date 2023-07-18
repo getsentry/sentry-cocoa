@@ -1,13 +1,14 @@
 #import "SentryScreenshotIntegration.h"
-#import "SentryAttachment.h"
-#import "SentryCrashC.h"
-#import "SentryDependencyContainer.h"
-#import "SentryEvent+Private.h"
-#import "SentryHub+Private.h"
-#import "SentryMetricKitIntegration.h"
-#import "SentrySDK+Private.h"
 
 #if SENTRY_HAS_UIKIT
+
+#    import "SentryAttachment.h"
+#    import "SentryCrashC.h"
+#    import "SentryDependencyContainer.h"
+#    import "SentryEvent+Private.h"
+#    import "SentryHub+Private.h"
+#    import "SentryMetricKitIntegration.h"
+#    import "SentrySDK+Private.h"
 
 void
 saveScreenShot(const char *path)
@@ -76,4 +77,5 @@ saveScreenShot(const char *path)
 }
 
 @end
-#endif
+
+#endif // SENTRY_HAS_UIKIT

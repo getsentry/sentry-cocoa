@@ -108,10 +108,6 @@ class SentryAppStartTrackingIntegrationTests: NotificationCenterTestCase {
     }
 
     func assertTrackerSetupAndRunning(_ tracker: SentryAppStartTracker) throws {
-        let dateProvider = Dynamic(tracker).currentDate.asObject as? DefaultCurrentDateProvider
-
-        XCTAssertEqual(dateProvider, DefaultCurrentDateProvider.sharedInstance())
-
         _ = try XCTUnwrap(Dynamic(tracker).dispatchQueue.asAnyObject as? SentryDispatchQueueWrapper, "Tracker does not have a dispatch queue.")
 
         let appStateManager = Dynamic(tracker).appStateManager.asObject as? SentryAppStateManager

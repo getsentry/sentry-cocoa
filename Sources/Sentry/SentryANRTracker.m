@@ -1,5 +1,7 @@
 #import "SentryANRTracker.h"
 #import "SentryCrashWrapper.h"
+#import "SentryCurrentDateProvider.h"
+#import "SentryDependencyContainer.h"
 #import "SentryDispatchQueueWrapper.h"
 #import "SentryLog.h"
 #import "SentryThreadWrapper.h"
@@ -16,7 +18,6 @@ typedef NS_ENUM(NSInteger, SentryANRTrackerState) {
 @interface
 SentryANRTracker ()
 
-@property (nonatomic, strong) id<SentryCurrentDateProvider> currentDate;
 @property (nonatomic, strong) SentryCrashWrapper *crashWrapper;
 @property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueueWrapper;
 @property (nonatomic, strong) SentryThreadWrapper *threadWrapper;
@@ -31,14 +32,12 @@ SentryANRTracker ()
 }
 
 - (instancetype)initWithTimeoutInterval:(NSTimeInterval)timeoutInterval
-                    currentDateProvider:(id<SentryCurrentDateProvider>)currentDateProvider
                            crashWrapper:(SentryCrashWrapper *)crashWrapper
                    dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
                           threadWrapper:(SentryThreadWrapper *)threadWrapper
 {
     if (self = [super init]) {
         self.timeoutInterval = timeoutInterval;
-        self.currentDate = currentDateProvider;
         self.crashWrapper = crashWrapper;
         self.dispatchQueueWrapper = dispatchQueueWrapper;
         self.threadWrapper = threadWrapper;
@@ -79,8 +78,8 @@ SentryANRTracker ()
             }
         }
 
-        NSDate *blockDeadline =
-            [[self.currentDate date] dateByAddingTimeInterval:self.timeoutInterval];
+        NSDate *blockDeadline = [[SentryDependencyContainer.sharedInstance.dateProvider date]
+            dateByAddingTimeInterval:self.timeoutInterval];
 
         ticksSinceUiUpdate++;
 
@@ -107,7 +106,8 @@ SentryANRTracker ()
         // an ANR. If the app gets suspended this thread could sleep and wake up again. To avoid
         // false positives, we don't report ANRs if the delta is too big.
         NSTimeInterval deltaFromNowToBlockDeadline =
-            [[self.currentDate date] timeIntervalSinceDate:blockDeadline];
+            [[SentryDependencyContainer.sharedInstance.dateProvider date]
+                timeIntervalSinceDate:blockDeadline];
 
         if (deltaFromNowToBlockDeadline >= self.timeoutInterval) {
             SENTRY_LOG_DEBUG(

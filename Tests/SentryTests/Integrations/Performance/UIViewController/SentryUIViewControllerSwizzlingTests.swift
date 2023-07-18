@@ -1,8 +1,9 @@
+#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+
 import Sentry
 import SentryTestUtils
 import XCTest
 
-#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
 class SentryUIViewControllerSwizzlingTests: XCTestCase {
     
     private class Fixture {
@@ -335,4 +336,4 @@ class TestSubClassFinder: SentrySubClassFinder {
     }
 }
 
-#endif
+#endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)

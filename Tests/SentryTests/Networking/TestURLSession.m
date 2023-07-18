@@ -1,5 +1,6 @@
 #import "TestURLSession.h"
-#import "SentryCurrentDate.h"
+#import "SentryCurrentDateProvider.h"
+#import "SentryDependencyContainer.h"
 
 @implementation TestURLSession
 
@@ -20,7 +21,7 @@
 
 - (void)invalidateAndCancel
 {
-    self.invalidateAndCancelDate = [SentryCurrentDate date];
+    self.invalidateAndCancelDate = [SentryDependencyContainer.sharedInstance.dateProvider date];
 }
 
 @end

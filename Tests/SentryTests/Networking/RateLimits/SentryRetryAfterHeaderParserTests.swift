@@ -15,7 +15,7 @@ class SentryRetryAfterHeaderParserTests: XCTestCase {
     override func setUp() {
         super.setUp()
         currentDateProvider = TestCurrentDateProvider()
-        CurrentDate.setCurrentDateProvider(currentDateProvider)
+        SentryDependencyContainer.sharedInstance().dateProvider = currentDateProvider
         sut = RetryAfterHeaderParser(httpDateParser: HttpDateParser())
     }
 
