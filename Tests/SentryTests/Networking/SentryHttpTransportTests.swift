@@ -28,7 +28,11 @@ class SentryHttpTransportTests: XCTestCase {
             dqw.dispatchAfterExecutesBlock = true
             return dqw
         }()
+
+#if !os(watchOS)
         let reachability = TestSentryReachability()
+#endif // !os(watchOS)
+
         let flushTimeout: TimeInterval = 0.5
 
         let userFeedback: UserFeedback
@@ -99,6 +103,7 @@ class SentryHttpTransportTests: XCTestCase {
         }
 
         var sut: SentryHttpTransport {
+#if !os(watchOS)
             return SentryHttpTransport(
                 options: options,
                 fileManager: fileManager,
@@ -108,7 +113,19 @@ class SentryHttpTransportTests: XCTestCase {
                 envelopeRateLimit: EnvelopeRateLimit(rateLimits: rateLimits),
                 dispatchQueueWrapper: dispatchQueueWrapper,
                 reachability: reachability
-            ) 
+            )
+
+#else // os(watchOS)
+            return SentryHttpTransport(
+                options: options,
+                fileManager: fileManager,
+                requestManager: requestManager,
+                requestBuilder: requestBuilder,
+                rateLimits: rateLimits,
+                envelopeRateLimit: EnvelopeRateLimit(rateLimits: rateLimits),
+                dispatchQueueWrapper: dispatchQueueWrapper
+            )
+#endif // !os(watchOS)
         }
     }
 
@@ -766,6 +783,7 @@ class SentryHttpTransportTests: XCTestCase {
         setTestDefaultLogLevel()
     }
 
+#if !os(watchOS)
     func testSendsWhenNetworkComesBack() {
         givenNoInternetConnection()
 
@@ -791,6 +809,7 @@ class SentryHttpTransportTests: XCTestCase {
         
         fixture.reachability.triggerNetworkReachable()
     }
+#endif // !os(watchOS)
     
     private func givenRetryAfterResponse() -> HTTPURLResponse {
         let response = TestResponseFactory.createRetryAfterResponse(headerValue: "1")

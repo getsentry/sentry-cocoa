@@ -1,3 +1,5 @@
+#if !os(watchOS)
+
 import SentryTestUtils
 
 class TestSentryReachability: SentryReachability {
@@ -16,3 +18,5 @@ class TestSentryReachability: SentryReachability {
         stopMonitoringInvocations.record(Void())
     }
 }
+
+#endif // !os(watchOS)

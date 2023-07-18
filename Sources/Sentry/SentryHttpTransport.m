@@ -18,8 +18,11 @@
 #import "SentryNSURLRequest.h"
 #import "SentryNSURLRequestBuilder.h"
 #import "SentryOptions.h"
-#import "SentryReachability.h"
 #import "SentrySerialization.h"
+
+#if !TARGET_OS_WATCH
+#    import "SentryReachability.h"
+#endif // !TARGET_OS_WATCH
 
 static NSTimeInterval const cachedEnvelopeSendDelay = 0.1;
 
@@ -34,7 +37,9 @@ SentryHttpTransport ()
 @property (nonatomic, strong) SentryEnvelopeRateLimit *envelopeRateLimit;
 @property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueue;
 @property (nonatomic, strong) dispatch_group_t dispatchGroup;
+#if !TARGET_OS_WATCH
 @property (nonatomic, strong) SentryReachability *reachability;
+#endif // !TARGET_OS_WATCH
 
 #if TEST || TESTCI
 @property (nullable, nonatomic, strong) void (^startFlushCallback)(void);
@@ -68,7 +73,9 @@ SentryHttpTransport ()
               rateLimits:(id<SentryRateLimits>)rateLimits
        envelopeRateLimit:(SentryEnvelopeRateLimit *)envelopeRateLimit
     dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
+#if !TARGET_OS_WATCH
             reachability:(SentryReachability *)reachability
+#endif // !TARGET_OS_WATCH
 {
     if (self = [super init]) {
         self.options = options;
@@ -84,11 +91,11 @@ SentryHttpTransport ()
         self.discardedEvents = [NSMutableDictionary new];
         [self.envelopeRateLimit setDelegate:self];
         [self.fileManager setDelegate:self];
-        self.reachability = reachability;
 
         [self sendAllCachedEnvelopes];
 
 #if !TARGET_OS_WATCH
+        self.reachability = reachability;
         __weak SentryHttpTransport *weakSelf = self;
         [self.reachability monitorURL:[NSURL URLWithString:@"https://sentry.io"]
                         usingCallback:^(BOOL connected, NSString *_Nonnull typeDescription) {
