@@ -1,14 +1,17 @@
 #import "SentryClient.h"
 #import "SentryHub.h"
 #import "SentryOptions.h"
-#import "SentryProfiler.h"
-#import "SentryProfilesSampler.h"
 #import "SentryProfilingConditionals.h"
 #import "SentrySpan.h"
 #import "SentryTests-Swift.h"
 #import "SentryTracer.h"
 #import "SentryTransactionContext.h"
 #import <XCTest/XCTest.h>
+
+#if SENTRY_TARGET_PROFILING_SUPPORTED
+#    import "SentryProfiler.h"
+#    import "SentryProfilesSampler.h"
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
 @interface SentryTracerObjCTests : XCTestCase
 
