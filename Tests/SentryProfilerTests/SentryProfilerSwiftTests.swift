@@ -403,8 +403,13 @@ class SentryProfilerSwiftTests: XCTestCase {
     }
 
     /// based on ``SentryTracerTests.testFinish_WithoutHub_DoesntCaptureTransaction``
-    func testProfilerCleanedUpAfterTransactionDiscarded_NoHub() {
+    func testProfilerCleanedUpAfterTransactionDiscarded_NoHub() throws {
+        let sut = SentryTracer(transactionContext: TransactionContext(name: transactionName, operation: transactionOperation), hub: nil)
+        sut.finish()
 
+        let envelope = try XCTUnwrap(self.fixture.client?.captureEventWithScopeInvocations.last)
+        XCTAssertEqual(1, envelope.additionalEnvelopeItems.count)
+        let profileItem = try XCTUnwrap(envelope.additionalEnvelopeItems.first)
     }
 
     /// based on ``SentryTracerTests.testFinish_WaitForAllChildren_ExceedsMaxDuration_NoTransactionCaptured``
