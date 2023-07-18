@@ -124,8 +124,8 @@ class TestMXDiagnosticPayload: MXDiagnosticPayload {
         var diskWriteDiagnostic: [MXDiskWriteExceptionDiagnostic]?
         var hangDiagnostic: [MXHangDiagnostic]?
         
-        var timeStampBegin = CurrentDate.date()
-        var timeStampEnd = CurrentDate.date()
+        var timeStampBegin = SentryDependencyContainer.sharedInstance().dateProvider.date()
+        var timeStampEnd = SentryDependencyContainer.sharedInstance().dateProvider.date()
     }
     
     var overrides = Override()

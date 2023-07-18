@@ -38,7 +38,7 @@ class SentrySessionGeneratorTests: NotificationCenterTestCase {
             return name != "SentryAutoSessionTrackingIntegration"
         }
 
-        fileManager = try! SentryFileManager(options: options, andCurrentDateProvider: DefaultCurrentDateProvider.sharedInstance(), dispatchQueueWrapper: TestSentryDispatchQueueWrapper())
+        fileManager = try! SentryFileManager(options: options, dispatchQueueWrapper: TestSentryDispatchQueueWrapper())
         
         fileManager.deleteCurrentSession()
         fileManager.deleteCrashedSession()
@@ -142,7 +142,7 @@ class SentrySessionGeneratorTests: NotificationCenterTestCase {
         
         sentryCrash = TestSentryCrashWrapper.sharedInstance()
         let client = SentrySDK.currentHub().getClient()
-        let hub = SentryHub(client: client, andScope: nil, andCrashWrapper: self.sentryCrash, andCurrentDateProvider: DefaultCurrentDateProvider.sharedInstance())
+        let hub = SentryHub(client: client, andScope: nil, andCrashWrapper: self.sentryCrash)
         SentrySDK.setCurrentHub(hub)
         
         crashIntegration = SentryCrashIntegration(crashAdapter: sentryCrash, andDispatchQueueWrapper: TestSentryDispatchQueueWrapper())

@@ -2,7 +2,7 @@
 #import "NSDictionary+SentrySanitize.h"
 #import "PrivateSentrySDKOnly.h"
 #import "SentryClient.h"
-#import "SentryCurrentDate.h"
+#import "SentryCurrentDateProvider.h"
 #import "SentryDebugImageProvider.h"
 #import "SentryDependencyContainer.h"
 #import "SentryEvent+Private.h"
@@ -21,7 +21,6 @@
 #import "SentryTime.h"
 #import "SentryTraceContext.h"
 #import "SentryTraceOrigins.h"
-#import "SentryTracerConcurrency.h"
 #import "SentryTransaction.h"
 #import "SentryTransactionContext.h"
 #import <NSMutableDictionary+Sentry.h>
@@ -30,6 +29,7 @@
 #import <SentrySpanOperations.h>
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
+#    import "SentryProfiledTracerConcurrency.h"
 #    import "SentryProfiler.h"
 #    import "SentryProfilesSampler.h"
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
@@ -165,7 +165,7 @@ static BOOL appStartMeasurementRead;
 #if SENTRY_TARGET_PROFILING_SUPPORTED
     if (_configuration.profilesSamplerDecision.decision == kSentrySampleDecisionYes) {
         _isProfiling = YES;
-        _startSystemTime = SentryCurrentDate.systemTime;
+        _startSystemTime = SentryDependencyContainer.sharedInstance.dateProvider.systemTime;
         [SentryProfiler startWithHub:hub tracer:self];
     }
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
@@ -323,7 +323,7 @@ static BOOL appStartMeasurementRead;
                                            sampled:self.sampled];
 
     SentrySpan *child = [[SentrySpan alloc] initWithTracer:self context:context];
-    child.startTimestamp = [SentryCurrentDate date];
+    child.startTimestamp = [SentryDependencyContainer.sharedInstance.dateProvider date];
     SENTRY_LOG_DEBUG(@"Started child span %@ under %@", child.spanId.sentrySpanIdString,
         parentId.sentrySpanIdString);
     @synchronized(_children) {
@@ -591,7 +591,7 @@ static BOOL appStartMeasurementRead;
     transaction.transaction = self.transactionContext.name;
 #if SENTRY_TARGET_PROFILING_SUPPORTED
     transaction.startSystemTime = self.startSystemTime;
-    transaction.endSystemTime = SentryCurrentDate.systemTime;
+    transaction.endSystemTime = SentryDependencyContainer.sharedInstance.dateProvider.systemTime;
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
     NSMutableArray *framesOfAllSpans = [NSMutableArray array];
@@ -833,8 +833,8 @@ static BOOL appStartMeasurementRead;
 }
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED && (defined(TEST) || defined(TESTCI))
-// this just calls through to SentryTracerConcurrency.resetConcurrencyTracking(). we have to
-// do this through SentryTracer because SentryTracerConcurrency cannot be included in test
+// this just calls through to SentryProfiledTracerConcurrency.resetConcurrencyTracking(). we have to
+// do this through SentryTracer because SentryProfiledTracerConcurrency cannot be included in test
 // targets via ObjC bridging headers because it contains C++.
 + (void)resetConcurrencyTracking
 {

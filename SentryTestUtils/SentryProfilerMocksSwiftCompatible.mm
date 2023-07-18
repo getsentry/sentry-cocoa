@@ -2,7 +2,8 @@
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
-#    import "SentryCurrentDate.h"
+#    import "SentryCurrentDateProvider.h"
+#    import "SentryDependencyContainer.h"
 #    import "SentryProfilerMocks.h"
 #    import "SentryProfilerState+ObjCpp.h"
 #    include <vector>
@@ -28,7 +29,7 @@ using namespace std;
     auto backtrace = mockBacktrace(threadID, threadPriority,
         [threadName cStringUsingEncoding:NSUTF8StringEncoding], queueAddress,
         [queueLabel cStringUsingEncoding:NSUTF8StringEncoding], backtraceAddresses);
-    backtrace.absoluteTimestamp = SentryCurrentDate.getCurrentDateProvider.systemTime;
+    backtrace.absoluteTimestamp = SentryDependencyContainer.sharedInstance.dateProvider.systemTime;
     [state appendBacktrace:backtrace];
 }
 

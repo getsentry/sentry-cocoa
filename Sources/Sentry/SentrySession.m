@@ -1,6 +1,7 @@
 #import "NSDate+SentryExtras.h"
 #import "NSMutableDictionary+Sentry.h"
-#import "SentryCurrentDate.h"
+#import "SentryCurrentDateProvider.h"
+#import "SentryDependencyContainer.h"
 #import "SentryInstallation.h"
 #import "SentryLog.h"
 #import "SentrySession+Private.h"
@@ -35,7 +36,7 @@ nameForSentrySessionStatus(SentrySessionStatus status)
 {
     if (self = [super init]) {
         _sessionId = [NSUUID UUID];
-        _started = [SentryCurrentDate date];
+        _started = [SentryDependencyContainer.sharedInstance.dateProvider date];
         _status = kSentrySessionStatusOk;
         _sequence = 1;
         _errors = 0;
@@ -210,7 +211,9 @@ nameForSentrySessionStatus(SentrySessionStatus status)
             [serializedData setValue:statusString forKey:@"status"];
         }
 
-        NSDate *timestamp = nil != _timestamp ? _timestamp : [SentryCurrentDate date];
+        NSDate *timestamp = nil != _timestamp
+            ? _timestamp
+            : [SentryDependencyContainer.sharedInstance.dateProvider date];
         [serializedData setValue:[timestamp sentry_toIso8601String] forKey:@"timestamp"];
 
         if (_duration != nil) {

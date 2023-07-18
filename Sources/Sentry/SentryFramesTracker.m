@@ -3,7 +3,8 @@
 #if SENTRY_HAS_UIKIT
 
 #    import "SentryCompiler.h"
-#    import "SentryCurrentDate.h"
+#    import "SentryCurrentDateProvider.h"
+#    import "SentryDependencyContainer.h"
 #    import "SentryDisplayLinkWrapper.h"
 #    import "SentryLog.h"
 #    import "SentryProfiler.h"
@@ -100,7 +101,8 @@ slowFrameThreshold(uint64_t actualFramesPerSecond)
 - (void)displayLinkCallback
 {
     CFTimeInterval thisFrameTimestamp = self.displayLinkWrapper.timestamp;
-    uint64_t thisFrameSystemTimestamp = SentryCurrentDate.systemTime;
+    uint64_t thisFrameSystemTimestamp
+        = SentryDependencyContainer.sharedInstance.dateProvider.systemTime;
 
     if (self.previousFrameTimestamp == SentryPreviousFrameInitialValue) {
         self.previousFrameTimestamp = thisFrameTimestamp;

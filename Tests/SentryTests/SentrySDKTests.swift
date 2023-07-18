@@ -33,7 +33,7 @@ class SentrySDKTests: XCTestCase {
         let transactionName = "Load Main Screen"
         
         init() {
-            CurrentDate.setCurrentDateProvider(currentDate)
+            SentryDependencyContainer.sharedInstance().dateProvider = currentDate
             
             event = Event()
             event.message = SentryMessage(formatted: message)
@@ -45,7 +45,7 @@ class SentrySDKTests: XCTestCase {
             options.dsn = SentrySDKTests.dsnAsString
             options.releaseName = "1.0.0"
             client = TestClient(options: options)!
-            hub = SentryHub(client: client, andScope: scope, andCrashWrapper: TestSentryCrashWrapper.sharedInstance(), andCurrentDateProvider: currentDate)
+            hub = SentryHub(client: client, andScope: scope, andCrashWrapper: TestSentryCrashWrapper.sharedInstance())
             
             userFeedback = UserFeedback(eventId: SentryId())
             userFeedback.comments = "Again really?"
@@ -433,7 +433,7 @@ class SentrySDKTests: XCTestCase {
         XCTAssertEqual(expected.errors, actual?.errors)
         XCTAssertEqual(expected.sequence, actual?.sequence)
         XCTAssertEqual(expected.releaseName, actual?.releaseName)
-        XCTAssertEqual(fixture.currentDate.date(), actual?.started)
+        XCTAssertEqual(SentryDependencyContainer.sharedInstance().dateProvider.date(), actual?.started)
         XCTAssertEqual(SentrySessionStatus.ok, actual?.status)
         XCTAssertNil(actual?.timestamp)
         XCTAssertNil(actual?.duration)
@@ -456,7 +456,7 @@ class SentrySDKTests: XCTestCase {
         XCTAssertEqual(SentrySessionStatus.exited, actual.status)
         XCTAssertEqual(fixture.options.releaseName ?? "", actual.releaseName)
         XCTAssertEqual(1, actual.duration)
-        XCTAssertEqual(fixture.currentDate.date(), actual.timestamp)
+        XCTAssertEqual(SentryDependencyContainer.sharedInstance().dateProvider.date(), actual.timestamp)
     }
     
     func testGlobalOptions() {
@@ -644,7 +644,7 @@ class SentrySDKTests: XCTestCase {
         func setAppStartMeasurement(_ queue: DispatchQueue, _ i: Int) {
             group.enter()
             queue.async {
-                let timestamp = self.fixture.currentDate.date().addingTimeInterval( TimeInterval(i))
+                let timestamp = SentryDependencyContainer.sharedInstance().dateProvider.date().addingTimeInterval( TimeInterval(i))
                 let appStartMeasurement = TestData.getAppStartMeasurement(type: .warm, appStartTimestamp: timestamp)
                 SentrySDK.setAppStartMeasurement(appStartMeasurement)
                 group.leave()
@@ -670,7 +670,7 @@ class SentrySDKTests: XCTestCase {
         queue2.activate()
         group.waitWithTimeout(timeout: 100)
 
-        let timestamp = self.fixture.currentDate.date().addingTimeInterval(TimeInterval(amount))
+        let timestamp = SentryDependencyContainer.sharedInstance().dateProvider.date().addingTimeInterval(TimeInterval(amount))
         XCTAssertEqual(timestamp, SentrySDK.getAppStartMeasurement()?.appStartTimestamp)
     }
 
@@ -678,7 +678,7 @@ class SentrySDKTests: XCTestCase {
         let options = Options()
         options.dsn = SentrySDKTests.dsnAsString
 
-        let fileManager = try! TestFileManager(options: options, andCurrentDateProvider: TestCurrentDateProvider())
+        let fileManager = try! TestFileManager(options: options)
         let observer = SentryWatchdogTerminationScopeObserver(maxBreadcrumbs: 10, fileManager: fileManager)
         let serializedBreadcrumb = TestData.crumb.serialize()
 
@@ -754,6 +754,6 @@ class SentrySDKTests: XCTestCase {
     }
     
     private func advanceTime(bySeconds: TimeInterval) {
-        fixture.currentDate.setDate(date: fixture.currentDate.date().addingTimeInterval(bySeconds))
+        fixture.currentDate.setDate(date: SentryDependencyContainer.sharedInstance().dateProvider.date().addingTimeInterval(bySeconds))
     }
 }

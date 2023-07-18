@@ -23,14 +23,14 @@
     XCTAssertEqualObjects(@"none", SentryConnectivityFlagRepresentation(0));
     XCTAssertEqualObjects(
         @"none", SentryConnectivityFlagRepresentation(kSCNetworkReachabilityFlagsIsDirect));
-#    if SENTRY_HAS_UIDEVICE
+#    if SENTRY_HAS_UIKIT
     // kSCNetworkReachabilityFlagsIsWWAN does not exist on macOS
     XCTAssertEqualObjects(
         @"none", SentryConnectivityFlagRepresentation(kSCNetworkReachabilityFlagsIsWWAN));
     XCTAssertEqualObjects(@"cellular",
         SentryConnectivityFlagRepresentation(
             kSCNetworkReachabilityFlagsIsWWAN | kSCNetworkReachabilityFlagsReachable));
-#    endif
+#    endif // SENTRY_HAS_UIKIT
     XCTAssertEqualObjects(
         @"wifi", SentryConnectivityFlagRepresentation(kSCNetworkReachabilityFlagsReachable));
     XCTAssertEqualObjects(@"wifi",
@@ -47,4 +47,4 @@
 }
 
 @end
-#endif
+#endif // !TARGET_OS_WATCH

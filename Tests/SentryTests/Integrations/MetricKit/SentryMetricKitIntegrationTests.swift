@@ -30,7 +30,7 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         
         // Starting from iOS 15 MetricKit payloads are delivered immediately, so
         // timeStamp and timeStampEnd match.
-        timeStampBegin = currentDate.date().addingTimeInterval(21.23)
+        timeStampBegin = SentryDependencyContainer.sharedInstance().dateProvider.date().addingTimeInterval(21.23)
         timeStampEnd = timeStampBegin
     }
 

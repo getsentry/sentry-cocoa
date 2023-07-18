@@ -1,3 +1,6 @@
+#if !TARGET_OS_WATCH
+#    import "SentryReachability.h"
+#endif // !TARGET_OS_WATCH
 #import "SentryDefines.h"
 
 #if SENTRY_HAS_METRIC_KIT
@@ -45,7 +48,7 @@
 #import "SentryClientReport.h"
 #import "SentryConcurrentRateLimitsDictionary.h"
 #import "SentryCoreDataSwizzling.h"
-#import "SentryCoreDataTracker.h"
+#import "SentryCoreDataTracker+Test.h"
 #import "SentryCoreDataTrackingIntegration.h"
 #import "SentryCrashBinaryImageProvider.h"
 #import "SentryCrashC.h"
@@ -69,14 +72,13 @@
 #import "SentryCrashStackEntryMapper.h"
 #import "SentryCrashUUIDConversion.h"
 #import "SentryCrashWrapper.h"
-#import "SentryCurrentDate.h"
+#import "SentryCurrentDateProvider.h"
 #import "SentryDataCategory.h"
 #import "SentryDataCategoryMapper.h"
 #import "SentryDateUtil.h"
 #import "SentryDebugImageProvider+TestInit.h"
 #import "SentryDebugImageProvider.h"
 #import "SentryDebugMeta.h"
-#import "SentryDefaultCurrentDateProvider.h"
 #import "SentryDefaultObjCRuntimeWrapper.h"
 #import "SentryDefaultRateLimits.h"
 #import "SentryDependencyContainer.h"
@@ -143,7 +145,6 @@
 #import "SentryRandom.h"
 #import "SentryRateLimitParser.h"
 #import "SentryRateLimits.h"
-#import "SentryReachability.h"
 #import "SentryRetryAfterHeaderParser.h"
 #import "SentrySDK+Private.h"
 #import "SentrySDK+Tests.h"
