@@ -22,7 +22,6 @@ SentryAppStateManager ()
 @property (nonatomic, strong) SentryOptions *options;
 @property (nonatomic, strong) SentryCrashWrapper *crashWrapper;
 @property (nonatomic, strong) SentryFileManager *fileManager;
-@property (nonatomic, strong) id<SentryCurrentDateProvider> currentDate;
 @property (nonatomic, strong) SentrySysctl *sysctl;
 @property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueue;
 @property (nonatomic, strong) SentryNSNotificationCenterWrapper *notificationCenterWrapper;
@@ -35,7 +34,6 @@ SentryAppStateManager ()
 - (instancetype)initWithOptions:(SentryOptions *)options
                    crashWrapper:(SentryCrashWrapper *)crashWrapper
                     fileManager:(SentryFileManager *)fileManager
-            currentDateProvider:(id<SentryCurrentDateProvider>)currentDateProvider
                          sysctl:(SentrySysctl *)sysctl
            dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
       notificationCenterWrapper:(SentryNSNotificationCenterWrapper *)notificationCenterWrapper
@@ -44,7 +42,6 @@ SentryAppStateManager ()
         self.options = options;
         self.crashWrapper = crashWrapper;
         self.fileManager = fileManager;
-        self.currentDate = currentDateProvider;
         self.sysctl = sysctl;
         self.dispatchQueue = dispatchQueueWrapper;
         self.notificationCenterWrapper = notificationCenterWrapper;

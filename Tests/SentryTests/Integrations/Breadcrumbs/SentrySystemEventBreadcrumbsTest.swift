@@ -20,14 +20,14 @@ class SentrySystemEventBreadcrumbsTest: XCTestCase {
             options.releaseName = "SentrySessionTrackerIntegrationTests"
             options.sessionTrackingIntervalMillis = 10_000
             options.environment = "debug"
+            SentryDependencyContainer.sharedInstance().dateProvider = currentDateProvider
 
-            fileManager = try! TestFileManager(options: options, andCurrentDateProvider: currentDateProvider)
+            fileManager = try! TestFileManager(options: options)
         }
 
         func getSut(currentDevice: UIDevice? = UIDevice.current) -> SentrySystemEventBreadcrumbs {
             let systemEvents = SentrySystemEventBreadcrumbs(
                 fileManager: fileManager,
-                andCurrentDateProvider: currentDateProvider,
                 andNotificationCenterWrapper: notificationCenterWrapper
             )
             systemEvents.start(with: self.delegate, currentDevice: currentDevice)
@@ -36,7 +36,7 @@ class SentrySystemEventBreadcrumbsTest: XCTestCase {
         }
     }
 
-    private let fixture = Fixture()
+    private lazy var fixture = Fixture()
     private var sut: SentrySystemEventBreadcrumbs!
     
     internal class MyUIDevice: UIDevice {
@@ -235,7 +235,7 @@ class SentrySystemEventBreadcrumbsTest: XCTestCase {
 
         assertBreadcrumbAction(action: "TIMEZONE_CHANGE") { data in
             XCTAssertEqual(data["previous_seconds_from_gmt"] as? Int, 0)
-            XCTAssertEqual(data["current_seconds_from_gmt"] as? Int, 7_200)
+            XCTAssertEqual(data["current_seconds_from_gmt"] as? Int64, 7_200)
         }
     }
 
@@ -248,7 +248,7 @@ class SentrySystemEventBreadcrumbsTest: XCTestCase {
 
         assertBreadcrumbAction(action: "TIMEZONE_CHANGE") { data in
             XCTAssertEqual(data["previous_seconds_from_gmt"] as? Int, 0)
-            XCTAssertEqual(data["current_seconds_from_gmt"] as? Int, 7_200)
+            XCTAssertEqual(data["current_seconds_from_gmt"] as? Int64, 7_200)
         }
     }
 

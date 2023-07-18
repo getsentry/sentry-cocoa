@@ -15,19 +15,16 @@
 SentrySystemEventBreadcrumbs ()
 @property (nonatomic, weak) id<SentryBreadcrumbDelegate> delegate;
 @property (nonatomic, strong) SentryFileManager *fileManager;
-@property (nonatomic, strong) id<SentryCurrentDateProvider> currentDateProvider;
 @property (nonatomic, strong) SentryNSNotificationCenterWrapper *notificationCenterWrapper;
 @end
 
 @implementation SentrySystemEventBreadcrumbs
 
 - (instancetype)initWithFileManager:(SentryFileManager *)fileManager
-             andCurrentDateProvider:(id<SentryCurrentDateProvider>)currentDateProvider
        andNotificationCenterWrapper:(SentryNSNotificationCenterWrapper *)notificationCenterWrapper
 {
     if (self = [super init]) {
         _fileManager = fileManager;
-        _currentDateProvider = currentDateProvider;
         _notificationCenterWrapper = notificationCenterWrapper;
     }
     return self;
@@ -224,7 +221,8 @@ SentrySystemEventBreadcrumbs ()
 
     if (storedTimezoneOffset == nil) {
         [self updateStoredTimezone];
-    } else if (storedTimezoneOffset.doubleValue != self.currentDateProvider.timezoneOffset) {
+    } else if (storedTimezoneOffset.doubleValue
+        != SentryDependencyContainer.sharedInstance.dateProvider.timezoneOffset) {
         [self timezoneEventTriggered:storedTimezoneOffset];
     }
 
@@ -248,7 +246,7 @@ SentrySystemEventBreadcrumbs ()
     SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:kSentryLevelInfo
                                                              category:@"device.event"];
 
-    NSInteger offset = self.currentDateProvider.timezoneOffset;
+    NSInteger offset = SentryDependencyContainer.sharedInstance.dateProvider.timezoneOffset;
 
     crumb.type = @"system";
     crumb.data = @{
@@ -263,7 +261,8 @@ SentrySystemEventBreadcrumbs ()
 
 - (void)updateStoredTimezone
 {
-    [self.fileManager storeTimezoneOffset:self.currentDateProvider.timezoneOffset];
+    [self.fileManager
+        storeTimezoneOffset:SentryDependencyContainer.sharedInstance.dateProvider.timezoneOffset];
 }
 
 #endif

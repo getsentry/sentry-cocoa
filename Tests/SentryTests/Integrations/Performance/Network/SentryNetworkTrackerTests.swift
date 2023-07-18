@@ -59,7 +59,7 @@ class SentryNetworkTrackerTests: XCTestCase {
         fixture = Fixture()
         
         SentrySDK.setCurrentHub(fixture.hub)
-        CurrentDate.setCurrentDateProvider(fixture.dateProvider)
+        SentryDependencyContainer.sharedInstance().dateProvider = fixture.dateProvider
     }
     
     override func tearDown() {

@@ -3,7 +3,6 @@
 #if SENTRY_HAS_UIKIT
 
 #    import "SentryAppStartTracker.h"
-#    import "SentryDefaultCurrentDateProvider.h"
 #    import "SentryLog.h"
 #    import <Foundation/Foundation.h>
 #    import <PrivateSentrySDKOnly.h>
@@ -29,16 +28,13 @@ SentryAppStartTrackingIntegration ()
         return NO;
     }
 
-    SentryDefaultCurrentDateProvider *currentDateProvider =
-        [SentryDefaultCurrentDateProvider sharedInstance];
     SentrySysctl *sysctl = [[SentrySysctl alloc] init];
 
     SentryAppStateManager *appStateManager =
         [SentryDependencyContainer sharedInstance].appStateManager;
 
     self.tracker = [[SentryAppStartTracker alloc]
-           initWithCurrentDateProvider:currentDateProvider
-                  dispatchQueueWrapper:[[SentryDispatchQueueWrapper alloc] init]
+          initWithDispatchQueueWrapper:[[SentryDispatchQueueWrapper alloc] init]
                        appStateManager:appStateManager
                                 sysctl:sysctl
         enablePreWarmedAppStartTracing:options.enablePreWarmedAppStartTracing];

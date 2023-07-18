@@ -8,8 +8,8 @@
 #import "SentryCrashDefaultMachineContextWrapper.h"
 #import "SentryCrashIntegration.h"
 #import "SentryCrashStackEntryMapper.h"
+#import "SentryCurrentDateProvider.h"
 #import "SentryDebugImageProvider.h"
-#import "SentryDefaultCurrentDateProvider.h"
 #import "SentryDependencyContainer.h"
 #import "SentryDispatchQueueWrapper.h"
 #import "SentryDsn.h"
@@ -34,6 +34,7 @@
 #import "SentryOptions+Private.h"
 #import "SentrySDK+Private.h"
 #import "SentryScope+Private.h"
+#import "SentrySession.h"
 #import "SentryStacktraceBuilder.h"
 #import "SentrySwift.h"
 #import "SentryThreadInspector.h"
@@ -82,11 +83,9 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                   deleteOldEnvelopeItems:(BOOL)deleteOldEnvelopeItems
 {
     NSError *error;
-    SentryFileManager *fileManager =
-        [[SentryFileManager alloc] initWithOptions:options
-                            andCurrentDateProvider:[SentryDefaultCurrentDateProvider sharedInstance]
-                              dispatchQueueWrapper:dispatchQueue
-                                             error:&error];
+    SentryFileManager *fileManager = [[SentryFileManager alloc] initWithOptions:options
+                                                           dispatchQueueWrapper:dispatchQueue
+                                                                          error:&error];
     if (error != nil) {
         SENTRY_LOG_ERROR(@"Cannot init filesystem.");
         return nil;

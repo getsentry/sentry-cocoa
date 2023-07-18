@@ -10,6 +10,7 @@
 #    import <PrivateSentrySDKOnly.h>
 #    import <SentryAppState.h>
 #    import <SentryCurrentDateProvider.h>
+#    import <SentryDependencyContainer.h>
 #    import <SentryDispatchQueueWrapper.h>
 #    import <SentryInternalNotificationNames.h>
 #    import <SentryLog.h>
@@ -28,7 +29,6 @@ static const NSTimeInterval SENTRY_APP_START_MAX_DURATION = 180.0;
 @interface
 SentryAppStartTracker ()
 
-@property (nonatomic, strong) id<SentryCurrentDateProvider> currentDate;
 @property (nonatomic, strong) SentryAppState *previousAppState;
 @property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueue;
 @property (nonatomic, strong) SentryAppStateManager *appStateManager;
@@ -53,20 +53,19 @@ SentryAppStartTracker ()
         [[NSProcessInfo processInfo].environment[@"ActivePrewarm"] isEqualToString:@"1"];
 }
 
-- (instancetype)initWithCurrentDateProvider:(id<SentryCurrentDateProvider>)currentDateProvider
-                       dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
-                            appStateManager:(SentryAppStateManager *)appStateManager
-                                     sysctl:(SentrySysctl *)sysctl
-             enablePreWarmedAppStartTracing:(BOOL)enablePreWarmedAppStartTracing
+- (instancetype)initWithDispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
+                             appStateManager:(SentryAppStateManager *)appStateManager
+                                      sysctl:(SentrySysctl *)sysctl
+              enablePreWarmedAppStartTracing:(BOOL)enablePreWarmedAppStartTracing
 {
     if (self = [super init]) {
-        self.currentDate = currentDateProvider;
         self.dispatchQueue = dispatchQueueWrapper;
         self.appStateManager = appStateManager;
         self.sysctl = sysctl;
         self.previousAppState = [self.appStateManager loadPreviousAppState];
         self.wasInBackground = NO;
-        self.didFinishLaunchingTimestamp = [currentDateProvider date];
+        self.didFinishLaunchingTimestamp =
+            [SentryDependencyContainer.sharedInstance.dateProvider date];
         self.enablePreWarmedAppStartTracing = enablePreWarmedAppStartTracing;
         self.isRunning = NO;
     }
@@ -94,7 +93,7 @@ SentryAppStartTracker ()
     // or we just don't receive it. In this case the didFinishLaunchingTimestamp would be nil. As
     // the SDK should be initialized in application:didFinishLaunchingWithOptions: or in the init of
     // @main of a SwiftUI  we set the timestamp here.
-    self.didFinishLaunchingTimestamp = [self.currentDate date];
+    self.didFinishLaunchingTimestamp = [SentryDependencyContainer.sharedInstance.dateProvider date];
 
     [NSNotificationCenter.defaultCenter addObserver:self
                                            selector:@selector(didFinishLaunching)
@@ -172,12 +171,12 @@ SentryAppStartTracker ()
         NSTimeInterval appStartDuration = 0.0;
         NSDate *appStartTimestamp;
         if (isPreWarmed) {
-            appStartDuration = [[self.currentDate date]
+            appStartDuration = [[SentryDependencyContainer.sharedInstance.dateProvider date]
                 timeIntervalSinceDate:self.sysctl.moduleInitializationTimestamp];
             appStartTimestamp = self.sysctl.moduleInitializationTimestamp;
         } else {
-            appStartDuration =
-                [[self.currentDate date] timeIntervalSinceDate:self.sysctl.processStartTimestamp];
+            appStartDuration = [[SentryDependencyContainer.sharedInstance.dateProvider date]
+                timeIntervalSinceDate:self.sysctl.processStartTimestamp];
             appStartTimestamp = self.sysctl.processStartTimestamp;
         }
 
@@ -266,7 +265,7 @@ SentryAppStartTracker ()
 
 - (void)didFinishLaunching
 {
-    self.didFinishLaunchingTimestamp = [self.currentDate date];
+    self.didFinishLaunchingTimestamp = [SentryDependencyContainer.sharedInstance.dateProvider date];
 }
 
 - (void)didEnterBackground
