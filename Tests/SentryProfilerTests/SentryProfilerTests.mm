@@ -189,8 +189,8 @@ using namespace sentry::profiling;
 
     const auto profileID = [[SentryId alloc] init];
     const auto serialization = serializedProfileData(profileData, transaction, profileID,
-        profilerTruncationReasonName(SentryProfilerTruncationReasonNormal), @"test", @"someRelease",
-        @{}, @[], [[SentryHub alloc] initWithClient:nil andScope:nil]
+        profilerTruncationReasonName(SentryProfilerTruncationReasonNormal), @{}, @[],
+        [[SentryHub alloc] initWithClient:nil andScope:nil]
 #    if SENTRY_HAS_UIKIT
         ,
         [[SentryScreenFrames alloc] initWithTotal:5

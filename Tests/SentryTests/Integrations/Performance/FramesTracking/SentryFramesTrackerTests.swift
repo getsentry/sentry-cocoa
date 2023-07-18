@@ -27,7 +27,7 @@ class SentryFramesTrackerTests: XCTestCase {
 
 #if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
         // the profiler must be running for the frames tracker to record frame rate info etc, validated in assertProfilingData()
-        SentryProfiler.start(with: fixture.hub, tracer: fixture.tracer)
+        SentryProfiler.start(with: fixture.tracer)
 #endif
     }
 

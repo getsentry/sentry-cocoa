@@ -35,7 +35,7 @@
 #    import "SentryThread.h"
 #    import "SentryThreadWrapper.h"
 #    import "SentryTime.h"
-#    import "SentryTracer.h"
+#    import "SentryTracer+Private.h"
 #    import "SentryTransaction.h"
 #    import "SentryTransactionContext+Private.h"
 
@@ -154,10 +154,10 @@ serializedSamplesWithRelativeTimestamps(
 }
 
 NSDictionary<NSString *, id> *
-serializedProfileData(NSDictionary<NSString *, id> *profileData, SentryTransaction *transaction,
-    SentryId *profileID, NSString *truncationReason, NSString *environment, NSString *release,
-    NSDictionary<NSString *, id> *serializedMetrics, NSArray<SentryDebugMeta *> *debugMeta,
-    SentryHub *hub
+serializedProfileData(
+    NSDictionary<NSString *, id> *profileData, SentryTransaction *transaction, SentryId *profileID,
+    NSString *truncationReason, NSDictionary<NSString *, id> *serializedMetrics,
+    NSArray<SentryDebugMeta *> *debugMeta, SentryHub *hub
 #    if SENTRY_HAS_UIKIT
     ,
     SentryScreenFrames *gpuData
@@ -215,7 +215,7 @@ serializedProfileData(NSDictionary<NSString *, id> *profileData, SentryTransacti
     payload[@"profile_id"] = profileID.sentryIdString;
     payload[@"truncation_reason"] = truncationReason;
     payload[@"platform"] = transaction.platform;
-    payload[@"environment"] = environment;
+    payload[@"environment"] = hub.scope.environmentString ?: hub.getClient.options.environment;
 
     const auto timestamp = transaction.trace.originalStartTimestamp;
     if (UNLIKELY(timestamp == nil)) {
@@ -227,7 +227,7 @@ serializedProfileData(NSDictionary<NSString *, id> *profileData, SentryTransacti
         payload[@"timestamp"] = [timestamp sentry_toIso8601String];
     }
 
-    payload[@"release"] = release;
+    payload[@"release"] = hub.getClient.options.releaseName;
     payload[@"transaction"] = @ {
         @"id" : transaction.eventId.sentryIdString,
         @"trace_id" : transaction.trace.traceId.sentryIdString,
@@ -279,10 +279,9 @@ serializedProfileData(NSDictionary<NSString *, id> *profileData, SentryTransacti
 
     SentryProfilerTruncationReason _truncationReason;
     NSTimer *_timeoutTimer;
-    SentryHub *__weak _hub;
 }
 
-- (instancetype)initWithHub:(SentryHub *)hub
+- (instancetype)init
 {
     if (!(self = [super init])) {
         return nil;
@@ -292,7 +291,6 @@ serializedProfileData(NSDictionary<NSString *, id> *profileData, SentryTransacti
 
     SENTRY_LOG_DEBUG(@"Initialized new SentryProfiler %@", self);
     _debugImageProvider = [SentryDependencyContainer sharedInstance].debugImageProvider;
-    _hub = hub;
     [self start];
     [self scheduleTimeoutTimer];
 
@@ -332,7 +330,7 @@ serializedProfileData(NSDictionary<NSString *, id> *profileData, SentryTransacti
 
 #    pragma mark - Public
 
-+ (void)startWithHub:(SentryHub *)hub tracer:(SentryTracer *)tracer
++ (void)startWithTracer:(SentryTracer *)tracer
 {
     std::lock_guard<std::mutex> l(_gProfilerLock);
 
@@ -342,7 +340,7 @@ serializedProfileData(NSDictionary<NSString *, id> *profileData, SentryTransacti
         return;
     }
 
-    _gCurrentProfiler = [[SentryProfiler alloc] initWithHub:hub];
+    _gCurrentProfiler = [[SentryProfiler alloc] init];
     if (_gCurrentProfiler == nil) {
         SENTRY_LOG_WARN(@"Profiler was not initialized, will not proceed.");
         return;
@@ -392,9 +390,8 @@ serializedProfileData(NSDictionary<NSString *, id> *profileData, SentryTransacti
 {
     return serializedProfileData([self._state copyProfilingData], transaction, self.profileId,
         profilerTruncationReasonName(_truncationReason),
-        _hub.scope.environmentString ?: _hub.getClient.options.environment,
-        _hub.getClient.options.releaseName, [_metricProfiler serializeForTransaction:transaction],
-        [_debugImageProvider getDebugImagesCrashed:NO], _hub
+        [_metricProfiler serializeForTransaction:transaction],
+        [_debugImageProvider getDebugImagesCrashed:NO], transaction.trace.hub
 #    if SENTRY_HAS_UIKIT
         ,
         self._screenFrameData

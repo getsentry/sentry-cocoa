@@ -7,7 +7,6 @@
 #if SENTRY_HAS_UIKIT
 @class SentryFramesTracker;
 #endif // SENTRY_HAS_UIKIT
-@class SentryHub;
 @class SentryTransaction;
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
@@ -44,7 +43,7 @@ SENTRY_EXTERN_C_END
 /**
  * Start a profiler, if one isn't already running.
  */
-+ (void)startWithHub:(SentryHub *)hub tracer:(SentryTracer *)tracer;
++ (void)startWithTracer:(SentryTracer *)tracer;
 
 /**
  * Stop the profiler if it is running.
