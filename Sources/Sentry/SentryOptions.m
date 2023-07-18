@@ -27,6 +27,10 @@
 #    import "SentryWatchdogTerminationTrackingIntegration.h"
 #endif // SENTRY_HAS_UIKIT
 
+#if SENTRY_HAS_METRIC_KIT
+#    import "SentryMetricKitIntegration.h"
+#endif // SENTRY_HAS_METRIC_KIT
+
 @interface
 SentryOptions ()
 
@@ -73,11 +77,11 @@ NSString *const kSentryDefaultEnvironment = @"production";
         ]
             .mutableCopy;
 
-#if SENTRY_HAS_METRICKIT
+#if SENTRY_HAS_METRIC_KIT
     if (@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, *)) {
         [defaultIntegrations addObject:NSStringFromClass([SentryMetricKitIntegration class])];
     }
-#endif // SENTRY_HAS_METRICKIT
+#endif // SENTRY_HAS_METRIC_KIT
 
     return defaultIntegrations;
 }

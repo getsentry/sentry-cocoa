@@ -1,5 +1,7 @@
 import XCTest
 
+#if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
+
 final class SentryMetricKitEventTests: XCTestCase {
 
     func testMXCPUException_IsMetricKitEvent() {
@@ -35,3 +37,5 @@ final class SentryMetricKitEventTests: XCTestCase {
         return event
     }
 }
+
+#endif // os(iOS) || os(macOS) || targetEnvironment(macCatalyst)

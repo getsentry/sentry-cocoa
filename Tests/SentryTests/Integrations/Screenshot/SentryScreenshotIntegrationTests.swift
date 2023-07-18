@@ -117,7 +117,8 @@ class SentryScreenshotIntegrationTests: XCTestCase {
         
         XCTAssertEqual(newAttachmentList?.count, 0)
     }
-    
+
+#if os(iOS) || targetEnvironment(macCatalyst)
     func test_noScreenShot_MetricKitEvent() {
         let sut = fixture.getSut()
         
@@ -125,6 +126,7 @@ class SentryScreenshotIntegrationTests: XCTestCase {
         
         XCTAssertEqual(newAttachmentList?.count, 0)
     }
+#endif // os(iOS) || targetEnvironment(macCatalyst)
     
     func test_noScreenshot_keepAttachment() {
         let sut = fixture.getSut()

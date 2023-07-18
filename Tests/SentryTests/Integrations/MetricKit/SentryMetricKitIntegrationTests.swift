@@ -3,14 +3,14 @@ import SentryPrivate
 import SentryTestUtils
 import XCTest
 
-#if os(iOS) || os(macOS)
+#if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
 
 /**
  * We need to check if MetricKit is available for compatibility on iOS 12 and below. As there are no compiler directives for iOS versions we use canImport.
  */
 #if canImport(MetricKit)
 import MetricKit
-#endif
+#endif // canImport(MetricKit)
 
 final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
     
@@ -396,4 +396,4 @@ class TestMXHangDiagnostic: MXHangDiagnostic {
     }
 }
 
-#endif
+#endif // os(iOS) || os(macOS) || targetEnvironment(macCatalyst)

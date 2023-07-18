@@ -3,6 +3,10 @@
 #endif // !TARGET_OS_WATCH
 #import "SentryDefines.h"
 
+#if SENTRY_HAS_METRIC_KIT
+#    import "SentryMetricKitIntegration.h"
+#endif // SENTRY_HAS_METRIC_KIT
+
 #if SENTRY_HAS_UIKIT
 #    import "MockUIScene.h"
 #    import "SentryFramesTracker+TestInit.h"
@@ -115,7 +119,6 @@
 #import "SentryMechanism.h"
 #import "SentryMechanismMeta.h"
 #import "SentryMeta.h"
-#import "SentryMetricKitIntegration.h"
 #import "SentryMetricProfiler.h"
 #import "SentryMigrateSessionInit.h"
 #import "SentryNSDataTracker.h"

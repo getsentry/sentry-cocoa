@@ -257,6 +257,8 @@ class TestData {
         event.exceptions = [exception]
         return event
     }
+
+#if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
     
     static var metricKitEvent: Event {
         let event = Event(level: .warning)
@@ -265,6 +267,8 @@ class TestData {
         event.exceptions = [exception]
         return event
     }
+
+#endif // os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
     
     static func scopeWith(observer: SentryScopeObserver) -> Scope {
         let scope = Scope()
