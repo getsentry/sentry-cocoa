@@ -244,9 +244,9 @@ class SentryCoreDataTrackerTests: XCTestCase {
         
         let context = fixture.context
         
-        let _ = try?  sut.fetchManagedObjectContext(context, request: fetch, isErrorNil: true) { _, _ in
+        XCTAssertNoThrow(try sut.fetchManagedObjectContext(context, request: fetch, isErrorNil: true) { _, _ in
             return nil
-        }
+        })
         
         XCTAssertEqual(transaction.children.count, 1)
         XCTAssertEqual(transaction.children[0].status, .internalError)
