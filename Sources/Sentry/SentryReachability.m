@@ -106,11 +106,7 @@ SentryConnectivityCallback(
     }
 }
 
-#endif
-
 @implementation SentryReachability
-
-#if !TARGET_OS_WATCH
 
 + (void)initialize
 {
@@ -162,6 +158,6 @@ SentryConnectivityCallback(
     return [self description];
 }
 
-#endif
-
 @end
+
+#endif // !TARGET_OS_WATCH

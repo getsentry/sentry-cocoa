@@ -7,6 +7,7 @@
 @class SentryId;
 @class SentryProfilerState;
 @class SentrySample;
+@class SentryHub;
 #    if SENTRY_HAS_UIKIT
 @class SentryScreenFrames;
 #    endif // SENTRY_HAS_UIKIT
@@ -14,9 +15,9 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-NSDictionary<NSString *, id> *serializedProfileData(NSDictionary<NSString *, id> *profileData,
-    SentryTransaction *transaction, SentryId *profileID, NSString *truncationReason,
-    NSString *environment, NSString *release, NSDictionary<NSString *, id> *serializedMetrics,
+NSDictionary<NSString *, id> *serializedProfileData(
+    NSDictionary<NSString *, id> *profileData, SentryTransaction *transaction, SentryId *profileID,
+    NSString *truncationReason, NSDictionary<NSString *, id> *serializedMetrics,
     NSArray<SentryDebugMeta *> *debugMeta, SentryHub *hub
 #    if SENTRY_HAS_UIKIT
     ,

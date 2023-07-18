@@ -9,13 +9,16 @@
 @class SentryDispatchFactory;
 @class SentryDispatchQueueWrapper;
 @class SentryFileManager;
-@class SentryMXManager;
 @class SentryNSNotificationCenterWrapper;
 @class SentryNSProcessInfoWrapper;
 @class SentryNSTimerFactory;
 @class SentrySwizzleWrapper;
 @class SentrySystemWrapper;
 @class SentryThreadWrapper;
+
+#if SENTRY_HAS_METRIC_KIT
+@class SentryMXManager;
+#endif // SENTRY_HAS_METRIC_KIT
 
 #if SENTRY_HAS_UIKIT
 @class SentryFramesTracker;

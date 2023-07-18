@@ -89,7 +89,8 @@ class SentryViewHierarchyIntegrationTests: XCTestCase {
 
         XCTAssertEqual(newAttachmentList?.count, 0)
     }
-    
+
+#if os(iOS) || targetEnvironment(macCatalyst)
     func test_noViewHierarchy_MetricKitEvent() {
         let sut = fixture.getSut()
         
@@ -97,6 +98,7 @@ class SentryViewHierarchyIntegrationTests: XCTestCase {
 
         XCTAssertEqual(newAttachmentList?.count, 0)
     }
+#endif // os(iOS) || targetEnvironment(macCatalyst)
 
     func test_noViewHierarchy_keepAttachment() {
         let sut = fixture.getSut()

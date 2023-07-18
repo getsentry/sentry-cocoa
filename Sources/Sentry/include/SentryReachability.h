@@ -38,8 +38,6 @@ NSString *SentryConnectivityFlagRepresentation(SCNetworkReachabilityFlags flags)
 
 BOOL SentryConnectivityShouldReportChange(SCNetworkReachabilityFlags flags);
 
-#endif
-
 /**
  * Function signature to connectivity monitoring callback of @c SentryReachability
  * @param connected @c YES if the monitored URL is reachable
@@ -53,7 +51,6 @@ typedef void (^SentryConnectivityChangeBlock)(BOOL connected, NSString *typeDesc
  */
 @interface SentryReachability : NSObject
 
-#if !TARGET_OS_WATCH
 /**
  * Invoke a block each time network connectivity changes
  * @param URL The URL monitored for changes. Should be equivalent to
@@ -69,10 +66,8 @@ typedef void (^SentryConnectivityChangeBlock)(BOOL connected, NSString *typeDesc
 
 - (NSString *)keyForInstance;
 
-#endif
-
 @end
 
-#if !TARGET_OS_WATCH
 NS_ASSUME_NONNULL_END
-#endif
+
+#endif // !TARGET_OS_WATCH

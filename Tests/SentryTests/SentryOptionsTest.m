@@ -720,16 +720,6 @@
     [self testBooleanField:@"enableFileIOTracing" defaultValue:YES];
 }
 
-#    if SENTRY_HAS_METRIC_KIT
-
-- (void)testEnableMetricKit
-{
-    if (@available(iOS 14.0, macOS 12.0, macCatalyst 14.0, *)) {
-        [self testBooleanField:@"enableMetricKit" defaultValue:NO];
-    }
-}
-#    endif
-
 - (void)testShutdownTimeInterval
 {
     NSNumber *shutdownTimeInterval = @2.1;
@@ -752,6 +742,16 @@
     [self testBooleanField:@"enablePreWarmedAppStartTracing" defaultValue:NO];
 }
 
+#endif
+
+#if SENTRY_HAS_METRIC_KIT
+
+- (void)testEnableMetricKit
+{
+    if (@available(iOS 14.0, macOS 12.0, macCatalyst 14.0, *)) {
+        [self testBooleanField:@"enableMetricKit" defaultValue:NO];
+    }
+}
 #endif
 
 - (void)testEnableAppHangTracking

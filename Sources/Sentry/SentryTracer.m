@@ -1,4 +1,3 @@
-#import "SentryTracer.h"
 #import "NSDictionary+SentrySanitize.h"
 #import "PrivateSentrySDKOnly.h"
 #import "SentryClient.h"
@@ -22,6 +21,7 @@
 #import "SentryTime.h"
 #import "SentryTraceContext.h"
 #import "SentryTraceOrigins.h"
+#import "SentryTracer+Private.h"
 #import "SentryTransaction.h"
 #import "SentryTransactionContext.h"
 #import <NSMutableDictionary+Sentry.h>
@@ -59,7 +59,6 @@ static const NSTimeInterval SENTRY_AUTO_TRANSACTION_DEADLINE = 30.0;
 @interface
 SentryTracer ()
 
-@property (nonatomic, strong) SentryHub *hub;
 @property (nonatomic) SentrySpanStatus finishStatus;
 /** This property is different from @c isFinished. While @c isFinished states if the tracer is
  * actually finished, this property tells you if finish was called on the tracer. Calling
@@ -166,7 +165,7 @@ static BOOL appStartMeasurementRead;
     if (_configuration.profilesSamplerDecision.decision == kSentrySampleDecisionYes) {
         _isProfiling = YES;
         _startSystemTime = SentryDependencyContainer.sharedInstance.dateProvider.systemTime;
-        [SentryProfiler startWithHub:hub tracer:self];
+        [SentryProfiler startWithTracer:self];
     }
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 

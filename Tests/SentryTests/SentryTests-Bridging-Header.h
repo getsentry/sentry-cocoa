@@ -1,4 +1,11 @@
+#if !TARGET_OS_WATCH
+#    import "SentryReachability.h"
+#endif // !TARGET_OS_WATCH
 #import "SentryDefines.h"
+
+#if SENTRY_HAS_METRIC_KIT
+#    import "SentryMetricKitIntegration.h"
+#endif // SENTRY_HAS_METRIC_KIT
 
 #if SENTRY_HAS_UIKIT
 #    import "MockUIScene.h"
@@ -112,7 +119,6 @@
 #import "SentryMechanism.h"
 #import "SentryMechanismMeta.h"
 #import "SentryMeta.h"
-#import "SentryMetricKitIntegration.h"
 #import "SentryMetricProfiler.h"
 #import "SentryMigrateSessionInit.h"
 #import "SentryNSDataTracker.h"
@@ -140,7 +146,6 @@
 #import "SentryRandom.h"
 #import "SentryRateLimitParser.h"
 #import "SentryRateLimits.h"
-#import "SentryReachability.h"
 #import "SentryRetryAfterHeaderParser.h"
 #import "SentrySDK+Private.h"
 #import "SentrySDK+Tests.h"
