@@ -1,6 +1,6 @@
 import Foundation
 
-extension SentryCoreDataMiddleware {
+extension SentryCoreDataTracker {
     
     func fetchManagedObjectContext<T>(_ context: NSManagedObjectContext, request: NSFetchRequest<T>, isErrorNil: Bool = false, originalImp: (NSFetchRequest<T>, NSErrorPointer) -> [T]?) throws -> [Any] {
         
