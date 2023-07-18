@@ -1,16 +1,18 @@
 #import "SentryFramesTracker.h"
-#import "SentryCompiler.h"
-#import "SentryCurrentDate.h"
-#import "SentryDisplayLinkWrapper.h"
-#import "SentryLog.h"
-#import "SentryProfiler.h"
-#import "SentryProfilingConditionals.h"
-#import "SentryTime.h"
-#import "SentryTracer.h"
-#import <SentryScreenFrames.h>
-#include <stdatomic.h>
 
 #if SENTRY_HAS_UIKIT
+
+#    import "SentryCompiler.h"
+#    import "SentryCurrentDate.h"
+#    import "SentryDisplayLinkWrapper.h"
+#    import "SentryLog.h"
+#    import "SentryProfiler.h"
+#    import "SentryProfilingConditionals.h"
+#    import "SentryTime.h"
+#    import "SentryTracer.h"
+#    import <SentryScreenFrames.h>
+#    include <stdatomic.h>
+
 #    import <UIKit/UIKit.h>
 
 #    if SENTRY_TARGET_PROFILING_SUPPORTED
@@ -182,7 +184,7 @@ slowFrameThreshold(uint64_t actualFramesPerSecond)
     BOOL shouldRecord = [SentryProfiler isCurrentlyProfiling];
 #        if defined(TEST) || defined(TESTCI)
     shouldRecord = YES;
-#        endif
+#        endif // defined(TEST) || defined(TESTCI)
     if (shouldRecord) {
         [array addObject:@{ @"timestamp" : @(timestamp), @"value" : value }];
     }
@@ -228,4 +230,4 @@ slowFrameThreshold(uint64_t actualFramesPerSecond)
 
 @end
 
-#endif
+#endif // SENTRY_HAS_UIKIT

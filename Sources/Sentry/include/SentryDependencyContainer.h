@@ -8,7 +8,6 @@
 @class SentryDebugImageProvider;
 @class SentryDispatchFactory;
 @class SentryDispatchQueueWrapper;
-@class SentryFramesTracker;
 @class SentryMXManager;
 @class SentryNSNotificationCenterWrapper;
 @class SentryNSProcessInfoWrapper;
@@ -18,6 +17,7 @@
 @class SentryThreadWrapper;
 
 #if SENTRY_HAS_UIKIT
+@class SentryFramesTracker;
 @class SentryScreenshot;
 @class SentryUIApplication;
 @class SentryViewHierarchy;

@@ -1,8 +1,8 @@
 #import "PrivatesHeader.h"
 
-NS_ASSUME_NONNULL_BEGIN
-
 #if SENTRY_HAS_UIKIT
+
+NS_ASSUME_NONNULL_BEGIN
 
 /** An array of dictionaries that each contain a start and end timestamp for a rendered frame. */
 #    if SENTRY_TARGET_PROFILING_SUPPORTED
@@ -53,6 +53,6 @@ SENTRY_NO_INIT
 
 @end
 
-#endif
-
 NS_ASSUME_NONNULL_END
+
+#endif // SENTRY_HAS_UIKIT

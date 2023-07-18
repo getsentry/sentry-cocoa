@@ -1,8 +1,9 @@
+#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+
 import Sentry
 import SentryTestUtils
 import XCTest
 
-#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
 class SentryViewHierarchyIntegrationTests: XCTestCase {
 
     private class Fixture {
@@ -109,4 +110,5 @@ class SentryViewHierarchyIntegrationTests: XCTestCase {
         XCTAssertEqual(newAttachmentList?.first, attachment)
     }
 }
-#endif
+
+#endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
