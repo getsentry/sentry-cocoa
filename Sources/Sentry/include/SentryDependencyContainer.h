@@ -1,13 +1,14 @@
 #import "SentryDefines.h"
-#import "SentryFileManager.h"
 #import "SentryRandom.h"
 
 @class SentryANRTracker;
 @class SentryAppStateManager;
 @class SentryCrashWrapper;
+@class SentryCurrentDateProvider;
 @class SentryDebugImageProvider;
 @class SentryDispatchFactory;
 @class SentryDispatchQueueWrapper;
+@class SentryFileManager;
 @class SentryNSNotificationCenterWrapper;
 @class SentryNSProcessInfoWrapper;
 @class SentryNSTimerFactory;
@@ -52,6 +53,7 @@ SENTRY_NO_INIT
 @property (nonatomic, strong) SentrySystemWrapper *systemWrapper;
 @property (nonatomic, strong) SentryDispatchFactory *dispatchFactory;
 @property (nonatomic, strong) SentryNSTimerFactory *timerFactory;
+@property (nonatomic, strong) SentryCurrentDateProvider *dateProvider;
 
 #if SENTRY_HAS_UIKIT
 @property (nonatomic, strong) SentryFramesTracker *framesTracker;

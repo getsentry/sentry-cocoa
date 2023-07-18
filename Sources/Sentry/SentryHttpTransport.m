@@ -1,7 +1,8 @@
 #import "SentryHttpTransport.h"
 #import "SentryClientReport.h"
-#import "SentryCurrentDate.h"
+#import "SentryCurrentDateProvider.h"
 #import "SentryDataCategoryMapper.h"
+#import "SentryDependencyContainer.h"
 #import "SentryDiscardReasonMapper.h"
 #import "SentryDiscardedEvent.h"
 #import "SentryDispatchQueueWrapper.h"
@@ -294,7 +295,7 @@ SentryHttpTransport ()
     }
 
     // We must set sentAt as close as possible to the transmission of the envelope to Sentry.
-    rateLimitedEnvelope.header.sentAt = SentryCurrentDate.date;
+    rateLimitedEnvelope.header.sentAt = SentryDependencyContainer.sharedInstance.dateProvider.date;
 
     NSError *requestError = nil;
     NSURLRequest *request = [self.requestBuilder createEnvelopeRequest:rateLimitedEnvelope

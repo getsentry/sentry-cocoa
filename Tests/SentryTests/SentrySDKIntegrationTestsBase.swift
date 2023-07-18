@@ -25,7 +25,7 @@ class SentrySDKIntegrationTestsBase: XCTestCase {
     
     func givenSdkWithHub(_ options: Options? = nil, scope: Scope = Scope()) {
         let client = TestClient(options: options ?? self.options)
-        let hub = SentryHub(client: client, andScope: scope, andCrashWrapper: TestSentryCrashWrapper.sharedInstance(), andCurrentDateProvider: currentDate)
+        let hub = SentryHub(client: client, andScope: scope, andCrashWrapper: TestSentryCrashWrapper.sharedInstance())
         
         SentrySDK.setCurrentHub(hub)
     }
@@ -107,6 +107,6 @@ class SentrySDKIntegrationTestsBase: XCTestCase {
     }
     
     func advanceTime(bySeconds: TimeInterval) {
-        currentDate.setDate(date: currentDate.date().addingTimeInterval(bySeconds))
+        currentDate.setDate(date: SentryDependencyContainer.sharedInstance().dateProvider.date().addingTimeInterval(bySeconds))
     }
 }

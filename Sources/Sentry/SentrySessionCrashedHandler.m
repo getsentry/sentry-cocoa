@@ -1,10 +1,12 @@
 #import "SentrySessionCrashedHandler.h"
 #import "SentryClient+Private.h"
 #import "SentryCrashWrapper.h"
-#import "SentryCurrentDate.h"
+#import "SentryCurrentDateProvider.h"
+#import "SentryDependencyContainer.h"
 #import "SentryFileManager.h"
 #import "SentryHub.h"
 #import "SentrySDK+Private.h"
+#import "SentrySession.h"
 #import "SentryWatchdogTerminationLogic.h"
 
 @interface
@@ -53,7 +55,7 @@ SentrySessionCrashedHandler ()
             return;
         }
 
-        NSDate *timeSinceLastCrash = [[SentryCurrentDate date]
+        NSDate *timeSinceLastCrash = [[SentryDependencyContainer.sharedInstance.dateProvider date]
             dateByAddingTimeInterval:-self.crashWrapper.activeDurationSinceLastCrash];
 
         [session endSessionCrashedWithTimestamp:timeSinceLastCrash];

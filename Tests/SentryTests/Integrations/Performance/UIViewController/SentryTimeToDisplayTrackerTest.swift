@@ -29,7 +29,7 @@ class SentryTimeToDisplayTrackerTest: XCTestCase {
 
     override func setUp() {
         super.setUp()
-        CurrentDate.setCurrentDateProvider(fixture.dateProvider)
+        SentryDependencyContainer.sharedInstance().dateProvider = fixture.dateProvider
     }
 
     override func tearDown() {

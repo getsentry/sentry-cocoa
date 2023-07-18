@@ -13,7 +13,6 @@
 #import "SentryClient+Private.h"
 #import "SentryClient+TestInit.h"
 #import "SentryCrashWrapper.h"
-#import "SentryCurrentDate.h"
 #import "SentryCurrentDateProvider.h"
 #import "SentryDependencyContainer.h"
 #import "SentryDispatchFactory.h"

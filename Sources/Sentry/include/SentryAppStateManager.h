@@ -1,4 +1,3 @@
-#import "SentryCurrentDateProvider.h"
 #import "SentryDefines.h"
 
 @class SentryOptions, SentryCrashWrapper, SentryAppState, SentryFileManager, SentrySysctl,
@@ -14,7 +13,6 @@ SENTRY_NO_INIT
 - (instancetype)initWithOptions:(SentryOptions *)options
                    crashWrapper:(SentryCrashWrapper *)crashWrapper
                     fileManager:(SentryFileManager *)fileManager
-            currentDateProvider:(id<SentryCurrentDateProvider>)currentDateProvider
                          sysctl:(SentrySysctl *)sysctl
            dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
       notificationCenterWrapper:(SentryNSNotificationCenterWrapper *)notificationCenterWrapper;
