@@ -177,7 +177,7 @@ class SentryCoreDataTrackerTests: XCTestCase {
         
         let transaction = startTransaction()
         
-        try? sut.saveManagedObjectContext(fixture.context) { _ in
+        try? sut.managedObjectContext(fixture.context) { _ in
             return true
         }
         
@@ -256,7 +256,7 @@ class SentryCoreDataTrackerTests: XCTestCase {
         let transaction = startTransaction()
         let sut = fixture.getSut()
         fixture.context.inserted = [fixture.testEntity()]
-        try? sut.saveManagedObjectContext(fixture.context) { _ in
+        try? sut.managedObjectContext(fixture.context) { _ in
             return false
         }
         
@@ -282,7 +282,7 @@ class SentryCoreDataTrackerTests: XCTestCase {
         
         let transaction = startTransaction()
         
-        try? sut.saveManagedObjectContext(fixture.context) { _ in
+        try? sut.managedObjectContext(fixture.context) { _ in
             return true
         }
         
@@ -294,7 +294,7 @@ class SentryCoreDataTrackerTests: XCTestCase {
         
         let transaction = startTransaction()
         
-        try? sut.saveManagedObjectContext(fixture.context) { _ in
+        try? sut.managedObjectContext(fixture.context) { _ in
             return true
         }
 

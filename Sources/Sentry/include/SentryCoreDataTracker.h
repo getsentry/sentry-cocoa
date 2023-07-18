@@ -22,8 +22,7 @@ SENTRY_NO_INIT
 
 - (BOOL)managedObjectContext:(NSManagedObjectContext *)context
                         save:(NSError **)error
-                 originalImp:(BOOL(NS_NOESCAPE ^)(NSError **))original
-    NS_SWIFT_NAME(saveManagedObjectContext(_:originalImp:));
+                 originalImp:(BOOL(NS_NOESCAPE ^)(NSError **))original;
 
 @end
 
