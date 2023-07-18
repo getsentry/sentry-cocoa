@@ -246,7 +246,7 @@ NS_SWIFT_NAME(Options)
  */
 @property (nonatomic, assign) BOOL enablePreWarmedAppStartTracing;
 
-#endif
+#endif // SENTRY_HAS_UIKIT
 
 /**
  * When enabled, the SDK tracks performance for HTTP requests if auto performance tracking and

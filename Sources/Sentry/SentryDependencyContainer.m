@@ -3,7 +3,6 @@
 #import "SentryDispatchFactory.h"
 #import "SentryDispatchQueueWrapper.h"
 #import "SentryDisplayLinkWrapper.h"
-#import "SentryFramesTracker.h"
 #import "SentryNSProcessInfoWrapper.h"
 #import "SentryNSTimerFactory.h"
 #import "SentrySystemWrapper.h"
@@ -23,6 +22,10 @@
 #import <SentrySysctl.h>
 #import <SentryThreadWrapper.h>
 #import <SentryViewHierarchy.h>
+
+#if SENTRY_HAS_UIKIT
+#    import "SentryFramesTracker.h"
+#endif // SENTRY_HAS_UIKIT
 
 @implementation SentryDependencyContainer
 

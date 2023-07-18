@@ -69,6 +69,7 @@ SentryCrashIntegration ()
 
     self.options = options;
 
+#if SENTRY_HAS_UIKIT
     SentryAppStateManager *appStateManager =
         [SentryDependencyContainer sharedInstance].appStateManager;
     SentryWatchdogTerminationLogic *logic =
@@ -78,6 +79,10 @@ SentryCrashIntegration ()
     self.crashedSessionHandler =
         [[SentrySessionCrashedHandler alloc] initWithCrashWrapper:self.crashAdapter
                                          watchdogTerminationLogic:logic];
+#else
+    self.crashedSessionHandler =
+        [[SentrySessionCrashedHandler alloc] initWithCrashWrapper:self.crashAdapter];
+#endif // SENTRY_HAS_UIKIT
 
     self.scopeObserver =
         [[SentryCrashScopeObserver alloc] initWithMaxBreadcrumbs:options.maxBreadcrumbs];

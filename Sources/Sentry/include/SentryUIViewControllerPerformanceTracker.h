@@ -1,7 +1,7 @@
 #import "SentryDefines.h"
-#import <Foundation/Foundation.h>
 
 #if SENTRY_HAS_UIKIT
+
 #    import <UIKit/UIKit.h>
 
 @class SentrySpan, SentryInAppLogic;
@@ -104,4 +104,5 @@ static NSString *const SENTRY_UI_PERFORMANCE_TRACKER_TTD_TRACKER
 @end
 
 NS_ASSUME_NONNULL_END
+
 #endif // SENTRY_HAS_UIKIT

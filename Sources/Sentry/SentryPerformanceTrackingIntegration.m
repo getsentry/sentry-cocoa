@@ -1,19 +1,20 @@
 #import "SentryPerformanceTrackingIntegration.h"
-#import "SentryDefaultObjCRuntimeWrapper.h"
-#import "SentryDependencyContainer.h"
-#import "SentryDispatchQueueWrapper.h"
-#import "SentryLog.h"
-#import "SentryNSProcessInfoWrapper.h"
-#import "SentrySubClassFinder.h"
-#import "SentryUIViewControllerPerformanceTracker.h"
-#import "SentryUIViewControllerSwizzling.h"
+
+#if SENTRY_HAS_UIKIT
+
+#    import "SentryDefaultObjCRuntimeWrapper.h"
+#    import "SentryDependencyContainer.h"
+#    import "SentryDispatchQueueWrapper.h"
+#    import "SentryLog.h"
+#    import "SentryNSProcessInfoWrapper.h"
+#    import "SentrySubClassFinder.h"
+#    import "SentryUIViewControllerPerformanceTracker.h"
+#    import "SentryUIViewControllerSwizzling.h"
 
 @interface
 SentryPerformanceTrackingIntegration ()
 
-#if SENTRY_HAS_UIKIT
 @property (nonatomic, strong) SentryUIViewControllerSwizzling *swizzling;
-#endif
 
 @end
 
@@ -21,7 +22,6 @@ SentryPerformanceTrackingIntegration ()
 
 - (BOOL)installWithOptions:(SentryOptions *)options
 {
-#if SENTRY_HAS_UIKIT
     if (![super installWithOptions:options]) {
         return NO;
     }
@@ -48,10 +48,6 @@ SentryPerformanceTrackingIntegration ()
         = options.enableTimeToFullDisplayTracing;
 
     return YES;
-#else
-    SENTRY_LOG_DEBUG(@"NO UIKit -> [SentryPerformanceTrackingIntegration start] does nothing.");
-    return NO;
-#endif
 }
 
 - (SentryIntegrationOption)integrationOptions
@@ -62,3 +58,5 @@ SentryPerformanceTrackingIntegration ()
 }
 
 @end
+
+#endif // SENTRY_HAS_UIKIT

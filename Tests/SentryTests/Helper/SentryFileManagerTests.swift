@@ -576,6 +576,8 @@ class SentryFileManagerTests: XCTestCase {
         XCTAssertNotNil(sut.readTimezoneOffset())
     }
 
+    #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+
     func testReadPreviousBreadcrumbs() {
         let observer = SentryWatchdogTerminationScopeObserver(maxBreadcrumbs: 2, fileManager: sut)
 
@@ -613,6 +615,8 @@ class SentryFileManagerTests: XCTestCase {
         XCTAssertEqual((result[1] as! NSDictionary)["message"] as! String, "3")
         XCTAssertEqual((result[2] as! NSDictionary)["message"] as! String, "4")
     }
+
+#endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
 
     func testReadGarbageTimezoneOffset() throws {
         try "garbage".write(to: URL(fileURLWithPath: sut.timezoneOffsetFilePath), atomically: true, encoding: .utf8)
