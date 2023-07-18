@@ -515,6 +515,19 @@ serializedProfileData(
 {
     return _gCurrentProfiler;
 }
+
+// this just calls through to SentryProfiledTracerConcurrency.resetConcurrencyTracking(). we have to
+// do this through SentryTracer because SentryProfiledTracerConcurrency cannot be included in test
+// targets via ObjC bridging headers because it contains C++.
++ (void)resetConcurrencyTracking
+{
+    resetConcurrencyTracking();
+}
+
++ (NSUInteger)currentProfiledTracers
+{
+    return currentProfiledTracers();
+}
 #    endif // defined(TEST) || defined(TESTCI)
 
 @end

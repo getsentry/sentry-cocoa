@@ -10,6 +10,10 @@ SentryProfiler ()
 
 + (SentryProfiler *)getCurrentProfiler;
 
++ (void)resetConcurrencyTracking;
+
++ (NSUInteger)currentProfiledTracers;
+
 @end
 
 NS_ASSUME_NONNULL_END

@@ -143,6 +143,13 @@ resetConcurrencyTracking()
     [_gTracersToProfilers removeAllObjects];
     [_gProfilersToTracers removeAllObjects];
 }
+
+NSUInteger
+currentProfiledTracers()
+{
+    std::lock_guard<std::mutex> l(_gStateLock);
+    return [_gTracersToProfilers count];
+}
 #    endif // defined(TEST) || defined(TESTCI)
 
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED

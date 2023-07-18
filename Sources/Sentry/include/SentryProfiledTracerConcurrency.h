@@ -33,6 +33,7 @@ SentryProfiler *_Nullable profilerForFinishedTracer(SentryTracer *tracer);
 
 #    if defined(TEST) || defined(TESTCI)
 void resetConcurrencyTracking(void);
+NSUInteger currentProfiledTracers(void);
 #    endif // defined(TEST) || defined(TESTCI)
 
 SENTRY_EXTERN_C_END

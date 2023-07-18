@@ -175,7 +175,9 @@ static BOOL appStartMeasurementRead;
 - (void)dealloc
 {
 #if SENTRY_TARGET_PROFILING_SUPPORTED
-    discardProfilerForTracer(self);
+    if (self.isProfiling) {
+        discardProfilerForTracer(self);
+    }
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 }
 
@@ -837,16 +839,6 @@ static BOOL appStartMeasurementRead;
 {
     return _startTimeChanged ? _originalStartTimestamp : self.startTimestamp;
 }
-
-#if SENTRY_TARGET_PROFILING_SUPPORTED && (defined(TEST) || defined(TESTCI))
-// this just calls through to SentryProfiledTracerConcurrency.resetConcurrencyTracking(). we have to
-// do this through SentryTracer because SentryProfiledTracerConcurrency cannot be included in test
-// targets via ObjC bridging headers because it contains C++.
-+ (void)resetConcurrencyTracking
-{
-    resetConcurrencyTracking();
-}
-#endif // SENTRY_TARGET_PROFILING_SUPPORTED && (defined(TEST) || defined(TESTCI))
 
 @end
 

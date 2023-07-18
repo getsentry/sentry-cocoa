@@ -1827,13 +1827,6 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		035E73C627D5661A005EEB11 /* Profiling */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = Profiling;
-			sourceTree = "<group>";
-		};
 		0A9BF4E028A114690068D266 /* ViewHierarchy */ = {
 			isa = PBXGroup;
 			children = (
@@ -2255,7 +2248,6 @@
 				7BD7299B24654CD500EA3610 /* Helper */,
 				7B944FA924697E9700A10721 /* Integrations */,
 				7BBD18AF24517E5D00427C76 /* Networking */,
-				035E73C627D5661A005EEB11 /* Profiling */,
 				7B3D0474249A3D5800E106B6 /* Protocol */,
 				63FE71D220DA66C500CDBAE8 /* SentryCrash */,
 				7B944FAC2469B41600A10721 /* State */,
