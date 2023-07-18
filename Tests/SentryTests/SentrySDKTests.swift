@@ -463,7 +463,8 @@ class SentrySDKTests: XCTestCase {
         SentrySDK.setCurrentHub(fixture.hub)
         XCTAssertEqual(SentrySDK.options, fixture.options)
     }
-    
+
+#if SENTRY_HAS_UIKIT
     func testSetAppStartMeasurement_CallsPrivateSDKCallback() {
         let appStartMeasurement = TestData.getAppStartMeasurement(type: .warm)
         
@@ -484,6 +485,7 @@ class SentrySDKTests: XCTestCase {
         
         XCTAssertEqual(SentrySDK.getAppStartMeasurement(), appStartMeasurement)
     }
+#endif // SENTRY_HAS_UIKIT
     
     func testSDKStartInvocations() {
         XCTAssertEqual(0, SentrySDK.startInvocations)
@@ -636,6 +638,8 @@ class SentrySDKTests: XCTestCase {
         XCTAssertEqual(flushTimeout, transport.flushInvocations.first)
     }
     
+#if SENTRY_HAS_UIKIT
+    
     func testSetAppStartMeasurementConcurrently() {
         func setAppStartMeasurement(_ queue: DispatchQueue, _ i: Int) {
             group.enter()
@@ -646,22 +650,22 @@ class SentrySDKTests: XCTestCase {
                 group.leave()
             }
         }
-        
+
         func createQueue() -> DispatchQueue {
             return DispatchQueue(label: "SentrySDKTests", qos: .userInteractive, attributes: [.initiallyInactive])
         }
-        
+
         let queue1 = createQueue()
         let queue2 = createQueue()
         let group = DispatchGroup()
-        
+
         let amount = 100
-        
+
         for i in 0...amount {
             setAppStartMeasurement(queue1, i)
             setAppStartMeasurement(queue2, i)
         }
-        
+
         queue1.activate()
         queue2.activate()
         group.waitWithTimeout(timeout: 100)
@@ -687,7 +691,9 @@ class SentrySDKTests: XCTestCase {
         let result = fileManager.readPreviousBreadcrumbs()
         XCTAssertEqual(result.count, 3)
     }
-    
+
+#endif // SENTRY_HAS_UIKIT
+
     private func givenSdkWithHub() {
         SentrySDK.setCurrentHub(fixture.hub)
     }

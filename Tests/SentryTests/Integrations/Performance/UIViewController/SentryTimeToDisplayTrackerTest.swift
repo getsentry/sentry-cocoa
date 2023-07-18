@@ -276,4 +276,4 @@ class SentryTimeToDisplayTrackerTest: XCTestCase {
     }
 }
 
-#endif
+#endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)

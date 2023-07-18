@@ -1,8 +1,9 @@
+#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+
 import Sentry
 import SentryTestUtils
 import XCTest
 
-#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
 class SentryScreenshotIntegrationTests: XCTestCase {
     
     private class Fixture {
@@ -160,4 +161,5 @@ class SentryScreenshotIntegrationTests: XCTestCase {
     }
     
 }
-#endif
+
+#endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)

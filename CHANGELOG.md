@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Improvements
+
+- Reduced macOS SDK footprint by 2% (#3157)
+
 ## 8.9.1
 
 ### Fixes

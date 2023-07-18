@@ -1,3 +1,5 @@
+#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+
 import SentryTestUtils
 import XCTest
 
@@ -123,3 +125,5 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
     }
     
 }
+
+#endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)

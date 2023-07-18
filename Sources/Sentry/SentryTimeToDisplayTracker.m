@@ -1,17 +1,18 @@
 #import "SentryTimeToDisplayTracker.h"
-#import "SentryCurrentDateProvider.h"
-#import "SentryDependencyContainer.h"
-#import "SentryFramesTracker.h"
-#import "SentryMeasurementValue.h"
-#import "SentrySpan.h"
-#import "SentrySpanContext.h"
-#import "SentrySpanId.h"
-#import "SentrySpanOperations.h"
-#import "SentrySwift.h"
-#import "SentryTraceOrigins.h"
-#import "SentryTracer.h"
 
 #if SENTRY_HAS_UIKIT
+
+#    import "SentryCurrentDateProvider.h"
+#    import "SentryDependencyContainer.h"
+#    import "SentryFramesTracker.h"
+#    import "SentryMeasurementValue.h"
+#    import "SentrySpan.h"
+#    import "SentrySpanContext.h"
+#    import "SentrySpanId.h"
+#    import "SentrySpanOperations.h"
+#    import "SentrySwift.h"
+#    import "SentryTraceOrigins.h"
+#    import "SentryTracer.h"
 
 @interface
 SentryTimeToDisplayTracker () <SentryFramesTrackerListener>
@@ -128,4 +129,5 @@ SentryTimeToDisplayTracker () <SentryFramesTrackerListener>
 }
 
 @end
-#endif
+
+#endif // SENTRY_HAS_UIKIT

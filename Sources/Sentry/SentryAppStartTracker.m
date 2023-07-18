@@ -1,20 +1,20 @@
-#import "SentryAppStartMeasurement.h"
-#import "SentryAppStateManager.h"
-#import "SentryCurrentDateProvider.h"
-#import "SentryDependencyContainer.h"
-#import "SentryLog.h"
-#import "SentrySysctl.h"
-#import <Foundation/Foundation.h>
-#import <PrivateSentrySDKOnly.h>
 #import <SentryAppStartTracker.h>
-#import <SentryAppState.h>
-#import <SentryCurrentDateProvider.h>
-#import <SentryDispatchQueueWrapper.h>
-#import <SentryInternalNotificationNames.h>
-#import <SentryLog.h>
-#import <SentrySDK+Private.h>
 
 #if SENTRY_HAS_UIKIT
+
+#    import "SentryAppStartMeasurement.h"
+#    import "SentryAppStateManager.h"
+#    import "SentryLog.h"
+#    import "SentrySysctl.h"
+#    import <Foundation/Foundation.h>
+#    import <PrivateSentrySDKOnly.h>
+#    import <SentryAppState.h>
+#    import <SentryCurrentDateProvider.h>
+#    import <SentryDependencyContainer.h>
+#    import <SentryDispatchQueueWrapper.h>
+#    import <SentryInternalNotificationNames.h>
+#    import <SentryLog.h>
+#    import <SentrySDK+Private.h>
 #    import <UIKit/UIKit.h>
 
 static NSDate *runtimeInit = nil;
@@ -82,9 +82,9 @@ SentryAppStartTracker ()
     } else {
         return NO;
     }
-#    else
+#    else // !TARGET_OS_IOS
     return NO;
-#    endif
+#    endif // TARGET_OS_IOS
 }
 
 - (void)start
@@ -116,7 +116,7 @@ SentryAppStartTracker ()
 
 #    if SENTRY_HAS_UIKIT
     [self.appStateManager start];
-#    endif
+#    endif // SENTRY_HAS_UIKIT
 
     self.isRunning = YES;
 }
@@ -312,4 +312,4 @@ SentryAppStartTracker ()
 
 @end
 
-#endif
+#endif // SENTRY_HAS_UIKIT

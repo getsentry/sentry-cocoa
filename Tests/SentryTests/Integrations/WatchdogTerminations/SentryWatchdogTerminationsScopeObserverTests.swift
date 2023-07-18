@@ -1,3 +1,5 @@
+#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+
 import SentryTestUtils
 import XCTest
 
@@ -154,3 +156,5 @@ class SentryWatchdogTerminationScopeObserverTests: XCTestCase {
             XCTAssertEqual(1, fixture.fileManager.readPreviousBreadcrumbs().count)
         }
 }
+
+#endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
