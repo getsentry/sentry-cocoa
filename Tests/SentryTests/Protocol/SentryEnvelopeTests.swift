@@ -53,7 +53,7 @@ class SentryEnvelopeTests: XCTestCase {
 
     override func setUp() {
         super.setUp()
-        CurrentDate.setCurrentDateProvider(TestCurrentDateProvider())
+        SentryDependencyContainer.sharedInstance().dateProvider = TestCurrentDateProvider()
     }
     
     override func tearDown() {
@@ -204,7 +204,7 @@ class SentryEnvelopeTests: XCTestCase {
             json.assertContains(event.releaseName ?? "", "releaseName")
             json.assertContains(event.environment ?? "", "environment")
             
-            json.assertContains(String(format: "%.0f", CurrentDate.date().timeIntervalSince1970), "timestamp")
+            json.assertContains(String(format: "%.0f", SentryDependencyContainer.sharedInstance().dateProvider.date().timeIntervalSince1970), "timestamp")
         }
     }
     

@@ -5,7 +5,7 @@ import XCTest
 class SentryClientReportTests: XCTestCase {
 
     func testSerialize() {
-        CurrentDate.setCurrentDateProvider(TestCurrentDateProvider())
+        SentryDependencyContainer.sharedInstance().dateProvider = TestCurrentDateProvider()
         
         let event1 = SentryDiscardedEvent(reason: .sampleRate, category: .transaction, quantity: 2)
         let event2 = SentryDiscardedEvent(reason: .beforeSend, category: .transaction, quantity: 3)
@@ -15,7 +15,7 @@ class SentryClientReportTests: XCTestCase {
         
         let actual = report.serialize()
         
-        XCTAssertEqual(CurrentDate.date().timeIntervalSince1970, actual["timestamp"] as? TimeInterval)
+        XCTAssertEqual(SentryDependencyContainer.sharedInstance().dateProvider.date().timeIntervalSince1970, actual["timestamp"] as? TimeInterval)
         
         let discardedEvents = actual["discarded_events"] as! [[String: Any]]
         

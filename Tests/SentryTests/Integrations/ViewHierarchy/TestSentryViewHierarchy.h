@@ -1,8 +1,9 @@
-#import "SentryCrashJSONCodec.h"
 #import "SentryDefines.h"
-#import "SentryViewHierarchy.h"
 
 #if SENTRY_HAS_UIKIT
+
+#    import "SentryCrashJSONCodec.h"
+#    import "SentryViewHierarchy.h"
 
 void saveViewHierarchy(const char *path);
 
@@ -13,4 +14,5 @@ SentryViewHierarchy (Test)
                  addFunction:(SentryCrashJSONAddDataFunc)addJSONDataFunc
                     userData:(void *const)userData;
 @end
-#endif
+
+#endif // SENTRY_HAS_UIKIT

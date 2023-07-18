@@ -1,6 +1,5 @@
-import Foundation
-
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+
 class TestSentryViewHierarchy: SentryViewHierarchy {
 
     var result: Data?
@@ -30,4 +29,4 @@ class TestSentryViewHierarchy: SentryViewHierarchy {
         return super .processViewHierarchy(windows, add: addJSONDataFunc, userData: userData)
     }
 }
-#endif
+#endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)

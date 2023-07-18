@@ -1,6 +1,7 @@
 #import "SentryFileManager.h"
 #import "NSDate+SentryExtras.h"
 #import "SentryAppState.h"
+#import "SentryCurrentDateProvider.h"
 #import "SentryDataCategoryMapper.h"
 #import "SentryDependencyContainer.h"
 #import "SentryDispatchQueueWrapper.h"
@@ -21,7 +22,6 @@ NSString *const EnvelopesPathComponent = @"envelopes";
 @interface
 SentryFileManager ()
 
-@property (nonatomic, strong) id<SentryCurrentDateProvider> currentDateProvider;
 @property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueue;
 @property (nonatomic, copy) NSString *basePath;
 @property (nonatomic, copy) NSString *sentryPath;
@@ -45,23 +45,18 @@ SentryFileManager ()
 
 @implementation SentryFileManager
 
-- (nullable instancetype)initWithOptions:(SentryOptions *)options
-                  andCurrentDateProvider:(id<SentryCurrentDateProvider>)currentDateProvider
-                                   error:(NSError **)error
+- (nullable instancetype)initWithOptions:(SentryOptions *)options error:(NSError **)error
 {
     return [self initWithOptions:options
-          andCurrentDateProvider:currentDateProvider
             dispatchQueueWrapper:SentryDependencyContainer.sharedInstance.dispatchQueueWrapper
                            error:error];
 }
 
 - (nullable instancetype)initWithOptions:(SentryOptions *)options
-                  andCurrentDateProvider:(id<SentryCurrentDateProvider>)currentDateProvider
                     dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
                                    error:(NSError **)error
 {
     if (self = [super init]) {
-        self.currentDateProvider = currentDateProvider;
         self.dispatchQueue = dispatchQueueWrapper;
         [self createPathsWithOptions:options];
 
@@ -111,9 +106,10 @@ SentryFileManager ()
     //      need this because otherwise 10 would be sorted before 2 for example.
     // %@ = NSString
     // For example 978307200.000000-00001-3FE8C3AE-EB9C-4BEB-868C-14B8D47C33DD.json
-    return [NSString stringWithFormat:@"%f-%05lu-%@.json",
-                     [[self.currentDateProvider date] timeIntervalSince1970],
-                     (unsigned long)self.currentFileCounter++, [NSUUID UUID].UUIDString];
+    return [NSString
+        stringWithFormat:@"%f-%05lu-%@.json",
+        [[SentryDependencyContainer.sharedInstance.dateProvider date] timeIntervalSince1970],
+        (unsigned long)self.currentFileCounter++, [NSUUID UUID].UUIDString];
 }
 
 - (NSArray<SentryFileContents *> *)getAllEnvelopes
@@ -195,7 +191,8 @@ SentryFileManager ()
 
 - (void)deleteOldEnvelopesFromPath:(NSString *)envelopesPath
 {
-    NSTimeInterval now = [[self.currentDateProvider date] timeIntervalSince1970];
+    NSTimeInterval now =
+        [[SentryDependencyContainer.sharedInstance.dateProvider date] timeIntervalSince1970];
 
     for (NSString *path in [self allFilesInFolder:envelopesPath]) {
         NSString *fullPath = [envelopesPath stringByAppendingPathComponent:path];

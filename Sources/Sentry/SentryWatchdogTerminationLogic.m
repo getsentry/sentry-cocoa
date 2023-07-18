@@ -1,14 +1,14 @@
-#import <Foundation/Foundation.h>
-#import <SentryAppState.h>
-#import <SentryAppStateManager.h>
-#import <SentryCrashWrapper.h>
-#import <SentryOptions.h>
-#import <SentrySDK+Private.h>
 #import <SentryWatchdogTerminationLogic.h>
 
 #if SENTRY_HAS_UIKIT
+
+#    import <Foundation/Foundation.h>
+#    import <SentryAppState.h>
+#    import <SentryAppStateManager.h>
+#    import <SentryCrashWrapper.h>
+#    import <SentryOptions.h>
+#    import <SentrySDK+Private.h>
 #    import <UIKit/UIKit.h>
-#endif
 
 @interface
 SentryWatchdogTerminationLogic ()
@@ -39,7 +39,6 @@ SentryWatchdogTerminationLogic ()
         return NO;
     }
 
-#if SENTRY_HAS_UIKIT
     SentryAppState *previousAppState = [self.appStateManager loadPreviousAppState];
     SentryAppState *currentAppState = [self.appStateManager buildCurrentAppState];
 
@@ -107,11 +106,8 @@ SentryWatchdogTerminationLogic ()
     }
 
     return YES;
-#else
-    // We can only track Watchdog Terminations for iOS, tvOS and macCatalyst. Therefore we return NO
-    // for other platforms.
-    return NO;
-#endif
 }
 
 @end
+
+#endif // SENTRY_HAS_UIKIT

@@ -1,11 +1,12 @@
 #import "SentryDefines.h"
-#import "SentryProfilingConditionals.h"
+
+#if SENTRY_HAS_UIKIT
+
+#    import "SentryProfilingConditionals.h"
 
 @class SentryOptions, SentryDisplayLinkWrapper, SentryScreenFrames;
 
 NS_ASSUME_NONNULL_BEGIN
-
-#if SENTRY_HAS_UIKIT
 
 @class SentryTracer;
 
@@ -39,6 +40,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
-#endif
-
 NS_ASSUME_NONNULL_END
+
+#endif // SENTRY_HAS_UIKIT

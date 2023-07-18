@@ -1,14 +1,17 @@
-#import "SentryCurrentDateProvider.h"
 #import "SentryDataCategory.h"
 #import "SentryDefines.h"
-#import "SentrySession.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 @protocol SentryFileManagerDelegate;
 
-@class SentryEvent, SentryOptions, SentryEnvelope, SentryFileContents, SentryAppState,
-    SentryDispatchQueueWrapper;
+@class SentryAppState;
+@class SentryDispatchQueueWrapper;
+@class SentryEvent;
+@class SentryEnvelope;
+@class SentryFileContents;
+@class SentryOptions;
+@class SentrySession;
 
 NS_SWIFT_NAME(SentryFileManager)
 @interface SentryFileManager : NSObject
@@ -20,12 +23,9 @@ SENTRY_NO_INIT
 @property (nonatomic, readonly) NSString *previousBreadcrumbsFilePathOne;
 @property (nonatomic, readonly) NSString *previousBreadcrumbsFilePathTwo;
 
-- (nullable instancetype)initWithOptions:(SentryOptions *)options
-                  andCurrentDateProvider:(id<SentryCurrentDateProvider>)currentDateProvider
-                                   error:(NSError **)error;
+- (nullable instancetype)initWithOptions:(SentryOptions *)options error:(NSError **)error;
 
 - (nullable instancetype)initWithOptions:(SentryOptions *)options
-                  andCurrentDateProvider:(id<SentryCurrentDateProvider>)currentDateProvider
                     dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
                                    error:(NSError **)error NS_DESIGNATED_INITIALIZER;
 

@@ -29,7 +29,7 @@ class SentrySpanTests: XCTestCase {
         }
         
         func getSut(client: SentryClient) -> Span {
-            let hub = SentryHub(client: client, andScope: nil, andCrashWrapper: TestSentryCrashWrapper.sharedInstance(), andCurrentDateProvider: currentDateProvider)
+            let hub = SentryHub(client: client, andScope: nil, andCrashWrapper: TestSentryCrashWrapper.sharedInstance())
             return hub.startTransaction(name: someTransaction, operation: someOperation)
         }
         
@@ -43,7 +43,7 @@ class SentrySpanTests: XCTestCase {
         SentryLog.setLogOutput(logOutput)
 
         fixture = Fixture()
-        CurrentDate.setCurrentDateProvider(fixture.currentDateProvider)
+        SentryDependencyContainer.sharedInstance().dateProvider = fixture.currentDateProvider
     }
     
     func testInitAndCheckForTimestamps() {

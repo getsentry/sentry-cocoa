@@ -8,7 +8,10 @@
 #import "SentrySpanProtocol.h"
 #import "SentryTracer.h"
 #import "SentryTransactionContext+Private.h"
-#import "SentryUIEventTracker.h"
+
+#if SENTRY_HAS_UIKIT
+#    import "SentryUIEventTracker.h"
+#endif // SENTRY_HAS_UIKIT
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -60,18 +63,20 @@ SentryPerformanceTracker () <SentryTracerDelegate>
                                                                                     origin:origin];
 
         [SentrySDK.currentHub.scope useSpan:^(id<SentrySpan> span) {
-            BOOL bindToScope = YES;
-            if (span != nil) {
+            BOOL bindToScope = NO;
+            if (span == nil) {
+                bindToScope = YES;
+            }
+#if SENTRY_HAS_UIKIT
+            else {
                 if ([SentryUIEventTracker isUIEventOperation:span.operation]) {
                     SENTRY_LOG_DEBUG(
                         @"Cancelling previous UI event span %@", span.spanId.sentrySpanIdString);
                     [span finishWithStatus:kSentrySpanStatusCancelled];
-                } else {
-                    SENTRY_LOG_DEBUG(@"Current scope span %@ is not tracking a UI event",
-                        span.spanId.sentrySpanIdString);
-                    bindToScope = NO;
+                    bindToScope = YES;
                 }
             }
+#endif // SENTRY_HAS_UIKIT
 
             SENTRY_LOG_DEBUG(@"Creating new transaction bound to scope: %d", bindToScope);
 

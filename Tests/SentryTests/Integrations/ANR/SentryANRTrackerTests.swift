@@ -19,9 +19,10 @@ class SentryANRTrackerTests: XCTestCase, SentryANRTrackerDelegate {
         
         init() {
             crashWrapper = TestSentryCrashWrapper.sharedInstance()
+            SentryDependencyContainer.sharedInstance().dateProvider = currentDate
         }
     }
-    
+
     override func setUp() {
         super.setUp()
         
@@ -33,7 +34,6 @@ class SentryANRTrackerTests: XCTestCase, SentryANRTrackerDelegate {
         
         sut = SentryANRTracker(
             timeoutInterval: fixture.timeoutInterval,
-            currentDateProvider: fixture.currentDate,
             crashWrapper: fixture.crashWrapper,
             dispatchQueueWrapper: fixture.dispatchQueue,
             threadWrapper: fixture.threadWrapper)
@@ -212,7 +212,7 @@ class SentryANRTrackerTests: XCTestCase, SentryANRTrackerDelegate {
     }
     
     private func advanceTime(bySeconds: TimeInterval) {
-        fixture.currentDate.setDate(date: fixture.currentDate.date().addingTimeInterval(bySeconds))
+        fixture.currentDate.setDate(date: SentryDependencyContainer.sharedInstance().dateProvider.date().addingTimeInterval(bySeconds))
     }
 }
 
