@@ -388,7 +388,7 @@ NS_SWIFT_NAME(Options)
 @property (nonatomic, assign) BOOL enableProfiling DEPRECATED_MSG_ATTRIBUTE(
     "Use profilesSampleRate or profilesSampler instead. This property will be removed in a future "
     "version of the SDK");
-#endif
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
 /**
  * Whether to send client reports, which contain statistics about discarded events.

@@ -12,7 +12,7 @@
 #import "SentryLog.h"
 #import "SentryNSTimerFactory.h"
 #import "SentryPerformanceTracker.h"
-#import "SentryProfilesSampler.h"
+#import "SentryProfilingConditionals.h"
 #import "SentrySDK+Private.h"
 #import "SentrySamplingContext.h"
 #import "SentryScope+Private.h"
@@ -28,6 +28,10 @@
 #    import "SentryUIViewControllerPerformanceTracker.h"
 #endif // SENTRY_HAS_UIKIT
 
+#if SENTRY_TARGET_PROFILING_SUPPORTED
+#    import "SentryProfilesSampler.h"
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED"
+
 NS_ASSUME_NONNULL_BEGIN
 
 @interface
@@ -38,7 +42,9 @@ SentryHub ()
 @property (nullable, nonatomic, strong) SentryScope *scope;
 @property (nonatomic, strong) SentryCrashWrapper *crashWrapper;
 @property (nonatomic, strong) SentryTracesSampler *tracesSampler;
+#if SENTRY_TARGET_PROFILING_SUPPORTED
 @property (nonatomic, strong) SentryProfilesSampler *profilesSampler;
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED
 @property (nonatomic, strong) NSMutableArray<id<SentryIntegrationProtocol>> *installedIntegrations;
 @property (nonatomic, strong) NSMutableSet<NSString *> *installedIntegrationNames;
 @property (nonatomic) NSUInteger errorsBeforeSession;
@@ -67,7 +73,7 @@ SentryHub ()
         if (client.options.isProfilingEnabled) {
             _profilesSampler = [[SentryProfilesSampler alloc] initWithOptions:client.options];
         }
-#endif
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED
     }
     return self;
 }
@@ -382,10 +388,12 @@ SentryHub ()
                                       withSampled:samplerDecision.decision];
     transactionContext.sampleRate = samplerDecision.sampleRate;
 
+#if SENTRY_TARGET_PROFILING_SUPPORTED
     SentryProfilesSamplerDecision *profilesSamplerDecision =
         [_profilesSampler sample:samplingContext tracesSamplerDecision:samplerDecision];
 
     configuration.profilesSamplerDecision = profilesSamplerDecision;
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED"
 
     SentryTracer *tracer = [[SentryTracer alloc] initWithTransactionContext:transactionContext
                                                                         hub:self
@@ -660,7 +668,7 @@ SentryHub ()
     } else {
         SENTRY_LOG_DEBUG(@"The options `enableTimeToFullDisplay` is disabled.");
     }
-#endif
+#endif // SENTRY_HAS_UIKIT
 }
 
 - (void)flush:(NSTimeInterval)timeout

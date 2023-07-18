@@ -669,7 +669,7 @@ class SentrySDKTests: XCTestCase {
         queue1.activate()
         queue2.activate()
         group.waitWithTimeout(timeout: 100)
-        
+
         let timestamp = SentryDependencyContainer.sharedInstance().dateProvider.date().addingTimeInterval(TimeInterval(amount))
         XCTAssertEqual(timestamp, SentrySDK.getAppStartMeasurement()?.appStartTimestamp)
     }
