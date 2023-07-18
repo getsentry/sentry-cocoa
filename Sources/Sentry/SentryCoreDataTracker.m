@@ -67,7 +67,7 @@
             finishWithStatus:result == nil ? kSentrySpanStatusInternalError : kSentrySpanStatusOk];
 
         SENTRY_LOG_DEBUG(@"SentryCoreDataTracker automatically finished span with status: %@",
-            error == nil ? @"ok" : @"error");
+            result == nil ? @"error" : @"ok");
     }
 
     return result;
@@ -109,7 +109,7 @@
         [fetchSpan finishWithStatus:result ? kSentrySpanStatusOk : kSentrySpanStatusInternalError];
 
         SENTRY_LOG_DEBUG(@"SentryCoreDataTracker automatically finished span with status: %@",
-            *error == nil ? @"ok" : @"error");
+            result ? @"ok" : @"error");
     }
 
     return result;

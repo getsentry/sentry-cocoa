@@ -24,6 +24,7 @@
 #    import "SentryNSProcessInfoWrapper.h"
 #    import "SentryNSTimerFactory.h"
 #    import "SentryProfileTimeseries.h"
+#    import "SentryProfiledTracerConcurrency.h"
 #    import "SentryProfilerState+ObjCpp.h"
 #    import "SentrySample.h"
 #    import "SentrySamplingProfiler.hpp"
@@ -35,7 +36,6 @@
 #    import "SentryThreadWrapper.h"
 #    import "SentryTime.h"
 #    import "SentryTracer+Private.h"
-#    import "SentryTracerConcurrency.h"
 #    import "SentryTransaction.h"
 #    import "SentryTransactionContext+Private.h"
 

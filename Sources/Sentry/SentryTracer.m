@@ -11,6 +11,7 @@
 #import "SentryLog.h"
 #import "SentryNSTimerFactory.h"
 #import "SentryNoOpSpan.h"
+#import "SentryProfiledTracerConcurrency.h"
 #import "SentryProfiler.h"
 #import "SentryProfilesSampler.h"
 #import "SentryProfilingConditionals.h"
@@ -25,7 +26,6 @@
 #import "SentryTraceContext.h"
 #import "SentryTraceOrigins.h"
 #import "SentryTracer+Private.h"
-#import "SentryTracerConcurrency.h"
 #import "SentryTransaction.h"
 #import "SentryTransactionContext.h"
 #import "SentryUIViewControllerPerformanceTracker.h"
@@ -803,8 +803,8 @@ static BOOL appStartMeasurementRead;
 }
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED && (defined(TEST) || defined(TESTCI))
-// this just calls through to SentryTracerConcurrency.resetConcurrencyTracking(). we have to
-// do this through SentryTracer because SentryTracerConcurrency cannot be included in test
+// this just calls through to SentryProfiledTracerConcurrency.resetConcurrencyTracking(). we have to
+// do this through SentryTracer because SentryProfiledTracerConcurrency cannot be included in test
 // targets via ObjC bridging headers because it contains C++.
 + (void)resetConcurrencyTracking
 {
