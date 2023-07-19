@@ -6,13 +6,13 @@
 #    define SENTRY_EXTERN extern __attribute__((visibility("default")))
 #endif
 
-#if TARGET_OS_IOS || TARGET_OS_TV
+#if __has_include(<UIKit/UIKit.h>)
 #    define SENTRY_HAS_UIKIT 1
 #else
 #    define SENTRY_HAS_UIKIT 0
 #endif
 
-#if TARGET_OS_IOS || TARGET_OS_OSX || TARGET_OS_MACCATALYST
+#if __has_include(<MetricKit/MetricKit.h>)
 #    define SENTRY_HAS_METRIC_KIT 1
 #else
 #    define SENTRY_HAS_METRIC_KIT 0
