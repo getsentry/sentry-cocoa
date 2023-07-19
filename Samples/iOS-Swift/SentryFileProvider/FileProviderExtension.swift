@@ -36,5 +36,4 @@ class FileProviderExtension: NSFileProviderExtension {
         return FileProviderEnumerator(enumeratedItemIdentifier: containerItemIdentifier)
     }
 
-
 }
