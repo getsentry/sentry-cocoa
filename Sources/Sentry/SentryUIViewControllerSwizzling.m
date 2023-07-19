@@ -25,9 +25,9 @@
  * This category makes @c UIApplication conform to
  * @c SentryUIApplication in order to be used by @c SentryUIViewControllerSwizzling .
  */
-@interface
-UIApplication (SentryUIApplication) <SentryUIApplication>
-@end
+//@interface
+// UIApplication (SentryUIApplication) <SentryUIApplication>
+//@end
 
 @interface
 SentryUIViewControllerSwizzling ()
@@ -292,21 +292,23 @@ SentryUIViewControllerSwizzling ()
 
 - (void)swizzleRootViewControllerAndDescendant:(UIViewController *)rootViewController
 {
-    NSArray<UIViewController *> *allViewControllers
-        = rootViewController.sentry_descendantViewControllers;
-
-    for (UIViewController *viewController in allViewControllers) {
-        Class viewControllerClass = [viewController class];
-        if (viewControllerClass != nil) {
-            SENTRY_LOG_DEBUG(@"UIViewControllerSwizzling Calling swizzleRootViewController.");
-            [self swizzleViewControllerSubClass:viewControllerClass];
-
-            // We can't get the image name with the app delegate class for some apps. Therefore, we
-            // use the rootViewController and its subclasses as a fallback.  The following method
-            // ensures we don't swizzle ViewControllers of UIKit.
-            [self swizzleUIViewControllersOfClassesInImageOf:viewControllerClass];
-        }
-    }
+    //    NSArray<UIViewController *> *allViewControllers
+    //        = rootViewController.sentry_descendantViewControllers;
+    //
+    //    for (UIViewController *viewController in allViewControllers) {
+    //        Class viewControllerClass = [viewController class];
+    //        if (viewControllerClass != nil) {
+    //            SENTRY_LOG_DEBUG(@"UIViewControllerSwizzling Calling swizzleRootViewController.");
+    //            [self swizzleViewControllerSubClass:viewControllerClass];
+    //
+    //            // We can't get the image name with the app delegate class for some apps.
+    //            Therefore, we
+    //            // use the rootViewController and its subclasses as a fallback.  The following
+    //            method
+    //            // ensures we don't swizzle ViewControllers of UIKit.
+    //            [self swizzleUIViewControllersOfClassesInImageOf:viewControllerClass];
+    //        }
+    //    }
 }
 
 /**
