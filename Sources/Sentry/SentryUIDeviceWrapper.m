@@ -36,7 +36,7 @@ SentryUIDeviceWrapper ()
             // Needed so we can read the battery level
             if (!device.isBatteryMonitoringEnabled) {
                 self.cleanupBatteryMonitoring = YES;
-                UIDevice.currentDevice.batteryMonitoringEnabled = YES;
+                device.batteryMonitoringEnabled = YES;
             }
         }];
     }
