@@ -21,6 +21,9 @@
 ### Features
 
 - Symbolicate locally only when debug is enabled (#3079)
+
+This change considerably speeds up retrieving stacktraces, which the SDK uses for captureMessage, captureError and also for reporting file IO or DB operation on the main thread.
+
 - Sanitize HTTP info from breadcrumbs, spans and events (#3094)
 
 ### Breaking change
