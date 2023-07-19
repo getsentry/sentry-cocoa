@@ -18,7 +18,6 @@
 
 #if SENTRY_HAS_UIKIT
 #    import "SentryUIApplication.h"
-#    import <UIKit/UIKit.h>
 #endif
 
 static dispatch_once_t installationToken = 0;

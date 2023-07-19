@@ -18,6 +18,10 @@
 #    define SENTRY_HAS_METRIC_KIT 0
 #endif
 
+#if __has_include(<UIKit/UIKit.h>)
+
+#    import <UIKit/UIKit.h>
+
 typedef NS_ENUM(NSInteger, SENTRY_UIDeviceBatteryState) {
     SENTRY_UIDeviceBatteryStateUnknown,
     SENTRY_UIDeviceBatteryStateUnplugged, // on battery, discharging
@@ -115,43 +119,47 @@ typedef NS_ENUM(NSInteger, SENTRY_UISceneActivationState) {
     SENTRY_UISceneActivationStateBackground
 } API_AVAILABLE(ios(13.0));
 
-#define SENTRY_UIDevice NSClassFromString(@"UIDevice")
-#define SENTRY_UIButton NSClassFromString(@"UIButton")
-#define SENTRY_UITextField NSClassFromString(@"UITextField")
-#define SENTRY_UIViewController NSClassFromString(@"UIViewController")
-#define SENTRY_UIView NSClassFromString(@"UIView")
-#define SENTRY_UIBarButtonItem NSClassFromString(@"UIBarButtonItem")
-#define SENTRY_UISegmentedControl NSClassFromString(@"UISegmentedControl")
-#define SENTRY_UIPageControl NSClassFromString(@"UIPageControl")
-#define SENTRY_UIApplication NSClassFromString(@"UIApplication")
-#define SENTRY_UIWindow NSClassFromString(@"UIWindow")
+#    define SENTRY_UIDevice NSClassFromString(@"UIDevice")
+#    define SENTRY_UIButton NSClassFromString(@"UIButton")
+#    define SENTRY_UITextField NSClassFromString(@"UITextField")
+#    define SENTRY_UIViewController NSClassFromString(@"UIViewController")
+#    define SENTRY_UIView NSClassFromString(@"UIView")
+#    define SENTRY_UIBarButtonItem NSClassFromString(@"UIBarButtonItem")
+#    define SENTRY_UISegmentedControl NSClassFromString(@"UISegmentedControl")
+#    define SENTRY_UIPageControl NSClassFromString(@"UIPageControl")
+#    define SENTRY_UIApplication NSClassFromString(@"UIApplication")
+#    define SENTRY_UIWindow NSClassFromString(@"UIWindow")
 
-#define SENTRY_UIApplicationDidBecomeActiveNotification @"UIApplicationDidBecomeActiveNotification"
-#define SENTRY_UIApplicationWillResignActiveNotification                                           \
-    @"UIApplicationWillResignActiveNotification"
-#define SENTRY_UIApplicationWillTerminateNotification @"UIApplicationWillTerminateNotification"
-#define SENTRY_UIKeyboardDidShowNotification @"UIKeyboardDidShowNotification"
-#define SENTRY_UIKeyboardDidHideNotification @"UIKeyboardDidHideNotification"
-#define SENTRY_UIApplicationUserDidTakeScreenshotNotification                                      \
-    @"UIApplicationUserDidTakeScreenshotNotification"
-#define SENTRY_UIDeviceBatteryLevelDidChangeNotification                                           \
-    @"UIDeviceBatteryLevelDidChangeNotification"
-#define SENTRY_UIDeviceBatteryStateDidChangeNotification                                           \
-    @"UIDeviceBatteryStateDidChangeNotification"
-#define SENTRY_UIDeviceOrientationDidChangeNotification @"UIDeviceOrientationDidChangeNotification"
-#define SENTRY_UIDeviceOrientationDidChangeNotification @"UIDeviceOrientationDidChangeNotification"
-#define SENTRY_UIApplicationDidEnterBackgroundNotification                                         \
-    @"UIApplicationDidEnterBackgroundNotification"
-#define SENTRY_UIApplicationDidReceiveMemoryWarningNotification                                    \
-    @"UIApplicationDidReceiveMemoryWarningNotification"
-#define SENTRY_UIApplicationDidFinishLaunchingNotification                                         \
-    @"UIApplicationDidFinishLaunchingNotification"
-#define SENTRY_UIWindowDidBecomeVisibleNotification @"UIWindowDidBecomeVisibleNotification"
-#define SENTRY_UISceneWillConnectNotification @"UISceneWillConnectNotification"
-#define SENTRY_UIApplicationWillEnterForegroundNotification                                        \
-    @"UIApplicationWillEnterForegroundNotification"
-#define SENTRY_UIApplicationWillEnterForegroundNotification                                        \
-    @"UIApplicationWillEnterForegroundNotification"
+#    define SENTRY_UIApplicationDidBecomeActiveNotification                                        \
+        @"UIApplicationDidBecomeActiveNotification"
+#    define SENTRY_UIApplicationWillResignActiveNotification                                       \
+        @"UIApplicationWillResignActiveNotification"
+#    define SENTRY_UIApplicationWillTerminateNotification @"UIApplicationWillTerminateNotification"
+#    define SENTRY_UIKeyboardDidShowNotification @"UIKeyboardDidShowNotification"
+#    define SENTRY_UIKeyboardDidHideNotification @"UIKeyboardDidHideNotification"
+#    define SENTRY_UIApplicationUserDidTakeScreenshotNotification                                  \
+        @"UIApplicationUserDidTakeScreenshotNotification"
+#    define SENTRY_UIDeviceBatteryLevelDidChangeNotification                                       \
+        @"UIDeviceBatteryLevelDidChangeNotification"
+#    define SENTRY_UIDeviceBatteryStateDidChangeNotification                                       \
+        @"UIDeviceBatteryStateDidChangeNotification"
+#    define SENTRY_UIDeviceOrientationDidChangeNotification                                        \
+        @"UIDeviceOrientationDidChangeNotification"
+#    define SENTRY_UIDeviceOrientationDidChangeNotification                                        \
+        @"UIDeviceOrientationDidChangeNotification"
+#    define SENTRY_UIApplicationDidEnterBackgroundNotification                                     \
+        @"UIApplicationDidEnterBackgroundNotification"
+#    define SENTRY_UIApplicationDidReceiveMemoryWarningNotification                                \
+        @"UIApplicationDidReceiveMemoryWarningNotification"
+#    define SENTRY_UIApplicationDidFinishLaunchingNotification                                     \
+        @"UIApplicationDidFinishLaunchingNotification"
+#    define SENTRY_UIWindowDidBecomeVisibleNotification @"UIWindowDidBecomeVisibleNotification"
+#    define SENTRY_UISceneWillConnectNotification @"UISceneWillConnectNotification"
+#    define SENTRY_UIApplicationWillEnterForegroundNotification                                    \
+        @"UIApplicationWillEnterForegroundNotification"
+#    define SENTRY_UIApplicationWillEnterForegroundNotification                                    \
+        @"UIApplicationWillEnterForegroundNotification"
+#endif //  __has_include(<UIKit/UIKit.h>)
 
 #define SENTRY_NO_INIT                                                                             \
     -(instancetype)init NS_UNAVAILABLE;                                                            \

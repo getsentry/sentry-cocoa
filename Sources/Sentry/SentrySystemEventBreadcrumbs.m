@@ -7,11 +7,6 @@
 #import "SentryLog.h"
 #import "SentryNSNotificationCenterWrapper.h"
 
-// all those notifications are not available for tvOS
-#if TARGET_OS_IOS
-#    import <UIKit/UIKit.h>
-#endif
-
 @interface
 SentrySystemEventBreadcrumbs ()
 @property (nonatomic, weak) id<SentryBreadcrumbDelegate> delegate;

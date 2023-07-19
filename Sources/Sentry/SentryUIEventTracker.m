@@ -14,7 +14,6 @@
 #    import <SentryTraceOrigins.h>
 #    import <SentryTracer.h>
 #    import <SentryTransactionContext+Private.h>
-#    import <UIKit/UIKit.h>
 
 NS_ASSUME_NONNULL_BEGIN
 

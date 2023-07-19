@@ -41,9 +41,6 @@
 
 #import <CommonCrypto/CommonDigest.h>
 #import <Foundation/Foundation.h>
-#if SentryCrashCRASH_HAS_UIKIT
-#    import <UIKit/UIKit.h>
-#endif
 #include <mach-o/dyld.h>
 #include <mach/mach.h>
 

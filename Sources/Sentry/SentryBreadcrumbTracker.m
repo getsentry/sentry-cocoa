@@ -11,9 +11,7 @@
 #import "SentrySwizzle.h"
 #import "SentrySwizzleWrapper.h"
 
-#if SENTRY_HAS_UIKIT
-#    import <UIKit/UIKit.h>
-#elif TARGET_OS_OSX || TARGET_OS_MACCATALYST
+#if TARGET_OS_OSX || TARGET_OS_MACCATALYST
 #    import <Cocoa/Cocoa.h>
 #endif
 

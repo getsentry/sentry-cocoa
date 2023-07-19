@@ -8,7 +8,6 @@
 #    import "SentryLog.h"
 #    import "SentryUIApplication.h"
 #    import "UIView+Sentry.h"
-#    import <UIKit/UIKit.h>
 
 @import SentryPrivate;
 

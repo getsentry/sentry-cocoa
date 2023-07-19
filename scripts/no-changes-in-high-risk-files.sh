@@ -6,7 +6,7 @@ set -euox pipefail
 ACTUAL=$(shasum -a 256 ./Sources/Sentry/SentryNSURLSessionTaskSearch.m ./Sources/Sentry/SentryNetworkTracker.m ./Sources/Sentry/SentryUIViewControllerSwizzling.m ./Sources/Sentry/SentryNSDataSwizzling.m ./Sources/Sentry/SentrySubClassFinder.m ./Sources/Sentry/SentryCoreDataSwizzling.m ./Sources/Sentry/SentrySwizzleWrapper.m ./Sources/Sentry/include/SentrySwizzle.h ./Sources/Sentry/SentrySwizzle.m)
 EXPECTED="819d5ca5e3db2ac23c859b14c149b7f0754d3ae88bea1dba92c18f49a81da0e1  ./Sources/Sentry/SentryNSURLSessionTaskSearch.m
 797f1e4f1f4d0986770c749c6614243417373d3858044a0aa6e16bd4a52533ed  ./Sources/Sentry/SentryNetworkTracker.m
-92185b9fc9eb59842a3b3ecffe420e29621ea1c444dc80135e0e3eea397a9f46  ./Sources/Sentry/SentryUIViewControllerSwizzling.m
+44a1349af49fd76a6b0a7728d1e363dc38218a6a29ac369766d16f94da4b3f80  ./Sources/Sentry/SentryUIViewControllerSwizzling.m
 e95e62ec7363984f20c78643bb7d992a41a740f97e1befb71525ac34caf88b37  ./Sources/Sentry/SentryNSDataSwizzling.m
 0a685b5ee8d660958b79b663df7e65ca558d976c8be8ad44d3d2ff11bc8f8e62  ./Sources/Sentry/SentrySubClassFinder.m
 59db11da66e6ac0058526be0be08b57cdccd3727033e85164a631b205e972134  ./Sources/Sentry/SentryCoreDataSwizzling.m
