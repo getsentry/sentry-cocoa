@@ -7,7 +7,9 @@
 #import "SentryFrame.h"
 #import "SentryFrameRemover.h"
 #import "SentryStacktrace.h"
+#import <SentryFormatter.h>
 #import <dlfcn.h>
+#import <objc/runtime.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -110,6 +112,26 @@ SentryStacktraceBuilder ()
     sentrycrashsc_initSelfThread(&stackCursor, 0);
     stackCursor.symbolicate = sentrycrashsymbolicator_symbolicate_async_unsafe;
     return [self retrieveStacktraceFromCursor:stackCursor];
+}
+
+- (nullable NSString *)retrieveAddressForSelector:(SEL)aSelector instance:(NSObject *)instance;
+{
+    if (![instance respondsToSelector:aSelector]) {
+        return nil;
+    }
+
+    IMP pointer = [instance methodForSelector:aSelector];
+    return sentry_formatHexAddressUInt64((uintptr_t)pointer);
+}
+
+- (nullable NSString *)retrieveAddressForSelector:(SEL)aSelector clazz:(Class)clazz
+{
+    if (![clazz respondsToSelector:aSelector]) {
+        return nil;
+    }
+
+    IMP pointer = [clazz instanceMethodForSelector:aSelector];
+    return sentry_formatHexAddressUInt64((uintptr_t)pointer);
 }
 
 @end

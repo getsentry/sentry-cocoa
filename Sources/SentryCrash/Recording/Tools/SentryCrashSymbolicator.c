@@ -51,13 +51,14 @@
 #define CALL_INSTRUCTION_FROM_RETURN_ADDRESS(A) (DETAG_INSTRUCTION_ADDRESS((A)) - 1)
 
 static bool
-symbolicate_internal(SentryCrashStackCursor *cursor, bool asyncUnsafe)
+sentrycrashsymbolicator_symbolicate_stack_entry(SentryCrashStackEntry *stackEntry, bool asyncUnsafe)
 {
-    if (cursor->stackEntry.address == SentryCrashSC_ASYNC_MARKER) {
-        cursor->stackEntry.imageAddress = 0;
-        cursor->stackEntry.imageName = 0;
-        cursor->stackEntry.symbolAddress = 0;
-        cursor->stackEntry.symbolName = "__sentrycrash__async_marker__";
+
+    if (stackEntry->address == SentryCrashSC_ASYNC_MARKER) {
+        stackEntry->imageAddress = 0;
+        stackEntry->imageName = 0;
+        stackEntry->symbolAddress = 0;
+        stackEntry->symbolName = "__sentrycrash__async_marker__";
         return true;
     }
 
@@ -66,25 +67,31 @@ symbolicate_internal(SentryCrashStackCursor *cursor, bool asyncUnsafe)
     bool symbols_succeed = false;
 
     if (asyncUnsafe) {
-        symbols_succeed = dladdr((void *)cursor->stackEntry.address, &symbolsBuffer) != 0;
+        symbols_succeed = dladdr((void *)stackEntry->address, &symbolsBuffer) != 0;
     } else {
         symbols_succeed = sentrycrashdl_dladdr(
-            CALL_INSTRUCTION_FROM_RETURN_ADDRESS(cursor->stackEntry.address), &symbolsBuffer);
+            CALL_INSTRUCTION_FROM_RETURN_ADDRESS(stackEntry->address), &symbolsBuffer);
     }
 
     if (symbols_succeed) {
-        cursor->stackEntry.imageAddress = (uintptr_t)symbolsBuffer.dli_fbase;
-        cursor->stackEntry.imageName = symbolsBuffer.dli_fname;
-        cursor->stackEntry.symbolAddress = (uintptr_t)symbolsBuffer.dli_saddr;
-        cursor->stackEntry.symbolName = symbolsBuffer.dli_sname;
+        stackEntry->imageAddress = (uintptr_t)symbolsBuffer.dli_fbase;
+        stackEntry->imageName = symbolsBuffer.dli_fname;
+        stackEntry->symbolAddress = (uintptr_t)symbolsBuffer.dli_saddr;
+        stackEntry->symbolName = symbolsBuffer.dli_sname;
         return true;
     }
 
-    cursor->stackEntry.imageAddress = 0;
-    cursor->stackEntry.imageName = 0;
-    cursor->stackEntry.symbolAddress = 0;
-    cursor->stackEntry.symbolName = 0;
+    stackEntry->imageAddress = 0;
+    stackEntry->imageName = 0;
+    stackEntry->symbolAddress = 0;
+    stackEntry->symbolName = 0;
     return false;
+}
+
+static bool
+symbolicate_internal(SentryCrashStackCursor *cursor, bool asyncUnsafe)
+{
+    return sentrycrashsymbolicator_symbolicate_stack_entry(&cursor->stackEntry, asyncUnsafe);
 }
 
 bool
