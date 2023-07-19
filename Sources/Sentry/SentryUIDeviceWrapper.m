@@ -24,16 +24,17 @@ SentryUIDeviceWrapper ()
 - (instancetype)initWithDispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
 {
     if (self = [super init]) {
+        UIDevice *device = [SENTRY_UIDevice currentDevice];
         self.dispatchQueueWrapper = dispatchQueueWrapper;
         [self.dispatchQueueWrapper dispatchSyncOnMainQueue:^{
             // Needed to read the device orientation on demand
-            if (!UIDevice.currentDevice.isGeneratingDeviceOrientationNotifications) {
+            if (!device.isGeneratingDeviceOrientationNotifications) {
                 self.cleanupDeviceOrientationNotifications = YES;
-                [UIDevice.currentDevice beginGeneratingDeviceOrientationNotifications];
+                [device beginGeneratingDeviceOrientationNotifications];
             }
 
             // Needed so we can read the battery level
-            if (!UIDevice.currentDevice.isBatteryMonitoringEnabled) {
+            if (!device.isBatteryMonitoringEnabled) {
                 self.cleanupBatteryMonitoring = YES;
                 UIDevice.currentDevice.batteryMonitoringEnabled = YES;
             }
@@ -45,11 +46,12 @@ SentryUIDeviceWrapper ()
 - (void)stop
 {
     [self.dispatchQueueWrapper dispatchSyncOnMainQueue:^{
+        UIDevice *device = [SENTRY_UIDevice currentDevice];
         if (self.cleanupDeviceOrientationNotifications) {
-            [UIDevice.currentDevice endGeneratingDeviceOrientationNotifications];
+            [device endGeneratingDeviceOrientationNotifications];
         }
         if (self.cleanupBatteryMonitoring) {
-            UIDevice.currentDevice.batteryMonitoringEnabled = NO;
+            device.batteryMonitoringEnabled = NO;
         }
     }];
 }
@@ -61,22 +63,22 @@ SentryUIDeviceWrapper ()
 
 - (UIDeviceOrientation)orientation
 {
-    return UIDevice.currentDevice.orientation;
+    return [SENTRY_UIDevice currentDevice].orientation;
 }
 
 - (BOOL)isBatteryMonitoringEnabled
 {
-    return UIDevice.currentDevice.isBatteryMonitoringEnabled;
+    return [SENTRY_UIDevice currentDevice].isBatteryMonitoringEnabled;
 }
 
 - (UIDeviceBatteryState)batteryState
 {
-    return UIDevice.currentDevice.batteryState;
+    return [SENTRY_UIDevice currentDevice].batteryState;
 }
 
 - (float)batteryLevel
 {
-    return UIDevice.currentDevice.batteryLevel;
+    return [SENTRY_UIDevice currentDevice].batteryLevel;
 }
 
 #endif

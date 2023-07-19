@@ -41,7 +41,7 @@ static NSMutableDictionary<NSString *, SentrySwizzleSendActionCallback>
 #    pragma clang diagnostic ignored "-Wshadow"
     static const void *swizzleSendActionKey = &swizzleSendActionKey;
     SEL selector = NSSelectorFromString(@"sendAction:to:from:forEvent:");
-    SentrySwizzleInstanceMethod(UIApplication.class, selector, SentrySWReturnType(BOOL),
+    SentrySwizzleInstanceMethod(SENTRY_UIApplication, selector, SentrySWReturnType(BOOL),
         SentrySWArguments(SEL action, id target, id sender, UIEvent * event), SentrySWReplacement({
             [SentrySwizzleWrapper sendActionCalled:action target:target sender:sender event:event];
             return SentrySWCallOriginal(action, target, sender, event);

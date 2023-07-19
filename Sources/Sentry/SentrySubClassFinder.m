@@ -28,7 +28,7 @@ SentrySubClassFinder ()
 - (void)actOnSubclassesOfViewControllerInImage:(NSString *)imageName block:(void (^)(Class))block;
 {
     [self.dispatchQueue dispatchAsyncWithBlock:^{
-        Class viewControllerClass = NSClassFromString(@"UIViewController");
+        Class viewControllerClass = SENTRY_UIViewController;
         if (viewControllerClass == nil) {
             SENTRY_LOG_DEBUG(@"UIViewController class not found.");
             return;

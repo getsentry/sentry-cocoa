@@ -45,6 +45,13 @@ SENTRY_UIDeviceOrientationIsLandscape(SENTRY_UIDeviceOrientation orientation) AP
         || (orientation) == SENTRY_UIDeviceOrientationLandscapeRight);
 }
 
+static inline BOOL
+SENTRY_UIDeviceOrientationIsPortrait(SENTRY_UIDeviceOrientation orientation) API_UNAVAILABLE(tvos)
+{
+    return ((orientation) == SENTRY_UIDeviceOrientationPortrait
+        || (orientation) == SENTRY_UIDeviceOrientationPortraitUpsideDown);
+}
+
 static inline __attribute__((always_inline)) BOOL
 SENTRY_UIDeviceOrientationIsValidInterfaceOrientation(SENTRY_UIDeviceOrientation orientation)
     API_UNAVAILABLE(tvos)
@@ -100,6 +107,13 @@ typedef NS_OPTIONS(NSUInteger, SENTRY_UIControlEvents) {
     SENTRY_UIControlEventSystemReserved = 0xF0000000, // range reserved for internal framework use
     SENTRY_UIControlEventAllEvents = 0xFFFFFFFF
 };
+
+typedef NS_ENUM(NSInteger, SENTRY_UISceneActivationState) {
+    SENTRY_UISceneActivationStateUnattached = -1,
+    SENTRY_UISceneActivationStateForegroundActive,
+    SENTRY_UISceneActivationStateForegroundInactive,
+    SENTRY_UISceneActivationStateBackground
+} API_AVAILABLE(ios(13.0));
 
 #define SENTRY_UIDevice NSClassFromString(@"UIDevice")
 #define SENTRY_UIButton NSClassFromString(@"UIButton")

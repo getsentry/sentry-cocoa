@@ -6,10 +6,10 @@
 
 - (UIApplication *)sharedApplication
 {
-    if (![UIApplication respondsToSelector:@selector(sharedApplication)])
+    if (![SENTRY_UIApplication respondsToSelector:@selector(sharedApplication)])
         return nil;
 
-    return [UIApplication performSelector:@selector(sharedApplication)];
+    return [SENTRY_UIApplication performSelector:@selector(sharedApplication)];
 }
 
 - (nullable id<UIApplicationDelegate>)getApplicationDelegate:(UIApplication *)application
@@ -35,8 +35,8 @@
     if (@available(iOS 13.0, tvOS 13.0, *)) {
         NSArray<UIScene *> *scenes = [self getApplicationConnectedScenes:app];
         for (UIScene *scene in scenes) {
-            if (scene.activationState == UISceneActivationStateForegroundActive && scene.delegate &&
-                [scene.delegate respondsToSelector:@selector(window)]) {
+            if (scene.activationState == SENTRY_UISceneActivationStateForegroundActive
+                && scene.delegate && [scene.delegate respondsToSelector:@selector(window)]) {
                 id window = [scene.delegate performSelector:@selector(window)];
                 if (window) {
                     [result addObject:window];

@@ -1,6 +1,7 @@
 #import "SentryExtraContextProvider.h"
 #import "SentryCrashIntegration.h"
 #import "SentryCrashWrapper.h"
+#import "SentryDefines.h"
 #import "SentryDependencyContainer.h"
 #import "SentryNSProcessInfoWrapper.h"
 #import "SentryUIDeviceWrapper.h"
@@ -58,15 +59,18 @@ SentryExtraContextProvider ()
     extraDeviceContext[@"processor_count"] = @([self.processInfoWrapper processorCount]);
 
 #if TARGET_OS_IOS
-    if (self.deviceWrapper.orientation != UIDeviceOrientationUnknown) {
+    if (self.deviceWrapper.orientation != SENTRY_UIDeviceOrientationUnknown) {
         extraDeviceContext[@"orientation"]
-            = UIDeviceOrientationIsPortrait(self.deviceWrapper.orientation) ? @"portrait"
-                                                                            : @"landscape";
+            = SENTRY_UIDeviceOrientationIsPortrait(
+                  (SENTRY_UIDeviceOrientation)self.deviceWrapper.orientation)
+            ? @"portrait"
+            : @"landscape";
     }
 
     if (self.deviceWrapper.isBatteryMonitoringEnabled) {
         extraDeviceContext[@"charging"]
-            = self.deviceWrapper.batteryState == UIDeviceBatteryStateCharging ? @(YES) : @(NO);
+            = self.deviceWrapper.batteryState == SENTRY_UIDeviceBatteryStateCharging ? @(YES)
+                                                                                     : @(NO);
         extraDeviceContext[@"battery_level"] = @((int)(self.deviceWrapper.batteryLevel * 100));
     }
 #endif
