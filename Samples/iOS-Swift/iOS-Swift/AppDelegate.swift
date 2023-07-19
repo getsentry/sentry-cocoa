@@ -79,16 +79,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             metricKit.receiveReports()
         }
 
-        let domainIdentifier = "io.sentry.sample.iOS-Swift.fileprovider" // Replace with your unique domain identifier
+        let domainIdentifier = "io.sentry.sample.iOS-Swift.fileprovider"
         NSFileProviderManager.add(NSFileProviderDomain(identifier: NSFileProviderDomainIdentifier(domainIdentifier), displayName: "Sentry", pathRelativeToDocumentStorage: "/Sentry" )) { error in
             if let error = error {
-                // Handle any errors that occurred during domain registration
-                print("Error adding domain: \(error)")
-            } else {
-                // Domain registration succeeded
-                print("Domain added successfully!")
+                print("Error adding domain for file provider: \(error)")
             }
-
         }
 
         return true

@@ -18,7 +18,6 @@ class FileProviderExtension: NSFileProviderExtension {
     }
 
     func invalidate() {
-        // TODO: cleanup any resources
     }
 
     override func item(for identifier: NSFileProviderItemIdentifier) throws -> NSFileProviderItem {
