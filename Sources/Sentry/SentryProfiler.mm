@@ -44,7 +44,6 @@
 
 #    if SENTRY_HAS_UIKIT
 #        import "SentryScreenFrames.h"
-#        import <UIKit/UIKit.h>
 #    endif // SENTRY_HAS_UIKIT
 
 const int kSentryProfilerFrequencyHz = 101;
@@ -298,7 +297,7 @@ serializedProfileData(
     [SentryDependencyContainer.sharedInstance.notificationCenterWrapper
         addObserver:self
            selector:@selector(backgroundAbort)
-               name:UIApplicationWillResignActiveNotification
+               name:SENTRY_UIApplicationWillResignActiveNotification
              object:nil];
 #    endif // SENTRY_HAS_UIKIT
 

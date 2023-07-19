@@ -130,7 +130,7 @@ writeJSONDataToMemory(const char *const data, const int length, void *const user
     tryJson(sentrycrashjson_addFloatingPointElement(context, "alpha", view.alpha));
     tryJson(sentrycrashjson_addBooleanElement(context, "visible", !view.hidden));
 
-    if ([view.nextResponder isKindOfClass:[UIViewController self]]) {
+    if ([view.nextResponder isKindOfClass:SENTRY_UIViewController]) {
         UIViewController *vc = (UIViewController *)view.nextResponder;
         if (vc.view == view) {
             const char *viewControllerClassName =

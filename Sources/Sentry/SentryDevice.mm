@@ -170,7 +170,7 @@ sentry_getOSName(void)
 #if TARGET_OS_MACCATALYST
     return @"Catalyst";
 #elif SENTRY_HAS_UIKIT
-    return UIDevice.currentDevice.systemName;
+    return [SENTRY_UIDevice currentDevice].systemName;
 #else
     return @"macOS";
 #endif // SENTRY_HAS_UIKIT
@@ -182,7 +182,7 @@ sentry_getOSVersion(void)
 #if TARGET_OS_WATCH
     return WKInterfaceDevice.currentDevice.systemVersion;
 #elif SENTRY_HAS_UIKIT
-    return UIDevice.currentDevice.systemVersion;
+    return [SENTRY_UIDevice currentDevice].systemVersion;
 #else
     // based off of
     // https://github.com/lmirosevic/GBDeviceInfo/blob/98dd3c75bb0e1f87f3e0fd909e52dcf0da4aa47d/GBDeviceInfo/GBDeviceInfo_OSX.m#L107-L133

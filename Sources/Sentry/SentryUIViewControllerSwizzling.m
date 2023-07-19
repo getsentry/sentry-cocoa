@@ -3,6 +3,7 @@
 #if SENTRY_HAS_UIKIT
 
 #    import "SentryDefaultObjCRuntimeWrapper.h"
+#    import "SentryDefines.h"
 #    import "SentryLog.h"
 #    import "SentryNSProcessInfoWrapper.h"
 #    import "SentrySubClassFinder.h"
@@ -15,6 +16,7 @@
 #    import <UIViewController+Sentry.h>
 #    import <objc/runtime.h>
 
+// !!!: forces linkage to UIKit; must be moved to separate target
 /**
  * @c swizzleRootViewControllerFromUIApplication: requires an object that conforms to
  * @c SentryUIApplication to swizzle it, this way, instead of relying on @c UIApplication, we can
@@ -67,7 +69,7 @@ SentryUIViewControllerSwizzling ()
 
 - (void)start
 {
-    id<SentryUIApplication> app = [self findApp];
+    UIApplication *app = [self findApp];
     if (app != nil) {
 
         // If an app targets, for example, iOS 13 or lower, the UIKit inits the initial/root view
@@ -85,7 +87,7 @@ SentryUIViewControllerSwizzling ()
                 [NSNotificationCenter.defaultCenter
                     addObserver:self
                        selector:@selector(swizzleRootViewControllerFromSceneDelegateNotification:)
-                           name:UISceneWillConnectNotification
+                           name:SENTRY_UISceneWillConnectNotification
                          object:nil];
             } else {
                 SENTRY_LOG_DEBUG(@"UIViewControllerSwizzling: iOS version older then 13. There is "
@@ -112,15 +114,15 @@ SentryUIViewControllerSwizzling ()
     SentryUIViewControllerPerformanceTracker.shared.inAppLogic = self.inAppLogic;
 }
 
-- (id<SentryUIApplication>)findApp
+- (UIApplication *)findApp
 {
-    if (![UIApplication respondsToSelector:@selector(sharedApplication)]) {
+    if (![SENTRY_UIApplication respondsToSelector:@selector(sharedApplication)]) {
         SENTRY_LOG_DEBUG(
             @"UIViewControllerSwizzling: UIApplication doesn't respond to sharedApplication.");
         return nil;
     }
 
-    UIApplication *app = [UIApplication performSelector:@selector(sharedApplication)];
+    UIApplication *app = [SENTRY_UIApplication performSelector:@selector(sharedApplication)];
 
     if (app == nil) {
         SENTRY_LOG_DEBUG(@"UIViewControllerSwizzling: UIApplication.sharedApplication is nil.");
@@ -130,7 +132,7 @@ SentryUIViewControllerSwizzling ()
     return app;
 }
 
-- (void)swizzleAllSubViewControllersInApp:(id<SentryUIApplication>)app
+- (void)swizzleAllSubViewControllersInApp:(UIApplication *)app
 {
     if (app.delegate == nil) {
         SENTRY_LOG_DEBUG(@"UIViewControllerSwizzling: App delegate is nil. Skipping swizzling "
@@ -217,11 +219,11 @@ SentryUIViewControllerSwizzling ()
 - (void)swizzleRootViewControllerFromSceneDelegateNotification:(NSNotification *)notification
 {
     if (@available(iOS 13.0, tvOS 13.0, *)) {
-        if (![notification.name isEqualToString:UISceneWillConnectNotification])
+        if (![notification.name isEqualToString:SENTRY_UISceneWillConnectNotification])
             return;
 
         [NSNotificationCenter.defaultCenter removeObserver:self
-                                                      name:UISceneWillConnectNotification
+                                                      name:SENTRY_UISceneWillConnectNotification
                                                     object:nil];
 
         // The object of a UISceneWillConnectNotification should be a NSWindowScene
@@ -241,7 +243,7 @@ SentryUIViewControllerSwizzling ()
 
         NSArray *windowList = windows;
         for (id window in windowList) {
-            if ([window isKindOfClass:[UIWindow class]]
+            if ([window isKindOfClass:SENTRY_UIWindow]
                 && ((UIWindow *)window).rootViewController != nil) {
                 [self
                     swizzleRootViewControllerAndDescendant:((UIWindow *)window).rootViewController];
@@ -254,7 +256,7 @@ SentryUIViewControllerSwizzling ()
     }
 }
 
-- (BOOL)swizzleRootViewControllerFromUIApplication:(id<SentryUIApplication>)app
+- (BOOL)swizzleRootViewControllerFromUIApplication:(UIApplication *)app
 {
     if (app.delegate == nil) {
         SENTRY_LOG_DEBUG(@"UIViewControllerSwizzling: App delegate is nil. Skipping "
@@ -316,7 +318,7 @@ SentryUIViewControllerSwizzling ()
 - (void)swizzleUIViewController
 {
     SEL selector = NSSelectorFromString(@"loadView");
-    SentrySwizzleInstanceMethod(UIViewController.class, selector, SentrySWReturnType(void),
+    SentrySwizzleInstanceMethod(SENTRY_UIViewController, selector, SentrySWReturnType(void),
         SentrySWArguments(), SentrySWReplacement({
             [SentryUIViewControllerPerformanceTracker.shared
                 viewControllerLoadView:self
@@ -356,7 +358,7 @@ SentryUIViewControllerSwizzling ()
     // workaround, we skip swizzling the loadView and accept that the SKD doesn't create a span for
     // loadView if the UIViewController doesn't implement it.
     SEL selector = NSSelectorFromString(@"loadView");
-    IMP viewControllerImp = class_getMethodImplementation([UIViewController class], selector);
+    IMP viewControllerImp = class_getMethodImplementation(SENTRY_UIViewController, selector);
     IMP classLoadViewImp = class_getMethodImplementation(class, selector);
     if (viewControllerImp == classLoadViewImp) {
         return;

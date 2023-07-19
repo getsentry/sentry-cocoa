@@ -37,6 +37,8 @@
 // #define SentryCrashLogger_LocalLevel TRACE
 #import "SentryCrashLogger.h"
 
+#import "SentryDefines.h"
+
 #import <CommonCrypto/CommonDigest.h>
 #import <Foundation/Foundation.h>
 #if SentryCrashCRASH_HAS_UIKIT
@@ -394,9 +396,10 @@ getDeviceAndAppHash(void)
     NSMutableData *data = nil;
 
 #if SentryCrashCRASH_HAS_UIDEVICE
-    if ([[UIDevice currentDevice] respondsToSelector:@selector(identifierForVendor)]) {
+    UIDevice *currentDevice = [SENTRY_UIDevice currentDevice];
+    if ([currentDevice respondsToSelector:@selector(identifierForVendor)]) {
         data = [NSMutableData dataWithLength:16];
-        [[UIDevice currentDevice].identifierForVendor getUUIDBytes:data.mutableBytes];
+        [currentDevice.identifierForVendor getUUIDBytes:data.mutableBytes];
     } else
 #endif
     {
@@ -530,8 +533,9 @@ initialize(void)
         const struct mach_header *header = _dyld_get_image_header(0);
 
 #if SentryCrashCRASH_HAS_UIDEVICE
-        g_systemData.systemName = cString([UIDevice currentDevice].systemName);
-        g_systemData.systemVersion = cString([UIDevice currentDevice].systemVersion);
+        UIDevice *currentDevice = [SENTRY_UIDevice currentDevice];
+        g_systemData.systemName = cString(currentDevice.systemName);
+        g_systemData.systemVersion = cString(currentDevice.systemVersion);
 #else
 #    if SentryCrashCRASH_HOST_MAC
         g_systemData.systemName = "macOS";

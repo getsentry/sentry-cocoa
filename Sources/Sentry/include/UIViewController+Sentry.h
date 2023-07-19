@@ -5,6 +5,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+// !!!: forces UIKit linkage; has to be moved to separate target
 @interface
 UIViewController (Sentry)
 

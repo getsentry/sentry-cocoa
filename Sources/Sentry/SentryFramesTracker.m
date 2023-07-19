@@ -14,8 +14,6 @@
 #    import <SentryScreenFrames.h>
 #    include <stdatomic.h>
 
-#    import <UIKit/UIKit.h>
-
 #    if SENTRY_TARGET_PROFILING_SUPPORTED
 /** A mutable version of @c SentryFrameInfoTimeSeries so we can accumulate results. */
 typedef NSMutableArray<NSDictionary<NSString *, NSNumber *> *> SentryMutableFrameInfoTimeSeries;

@@ -2,6 +2,7 @@
 #import "SentryBreadcrumb.h"
 #import "SentryBreadcrumbDelegate.h"
 #import "SentryCurrentDateProvider.h"
+#import "SentryDefines.h"
 #import "SentryDependencyContainer.h"
 #import "SentryLog.h"
 #import "SentryNSNotificationCenterWrapper.h"
@@ -33,7 +34,7 @@ SentrySystemEventBreadcrumbs ()
 - (void)startWithDelegate:(id<SentryBreadcrumbDelegate>)delegate
 {
 #if TARGET_OS_IOS
-    UIDevice *currentDevice = [UIDevice currentDevice];
+    UIDevice *currentDevice = [SENTRY_UIDevice currentDevice];
     [self startWithDelegate:delegate currentDevice:currentDevice];
 #else
     SENTRY_LOG_DEBUG(@"NO iOS -> [SentrySystemEventsBreadcrumbs.start] does nothing.");
@@ -45,18 +46,21 @@ SentrySystemEventBreadcrumbs ()
 #if TARGET_OS_IOS
     // Remove the observers with the most specific detail possible, see
     // https://developer.apple.com/documentation/foundation/nsnotificationcenter/1413994-removeobserver
-    [self.notificationCenterWrapper removeObserver:self name:UIKeyboardDidShowNotification];
-    [self.notificationCenterWrapper removeObserver:self name:UIKeyboardDidHideNotification];
+    [self.notificationCenterWrapper removeObserver:self name:SENTRY_UIKeyboardDidShowNotification];
+    [self.notificationCenterWrapper removeObserver:self name:SENTRY_UIKeyboardDidHideNotification];
+    [self.notificationCenterWrapper
+        removeObserver:self
+                  name:SENTRY_UIApplicationUserDidTakeScreenshotNotification];
+    [self.notificationCenterWrapper
+        removeObserver:self
+                  name:SENTRY_UIDeviceBatteryLevelDidChangeNotification];
+    [self.notificationCenterWrapper
+        removeObserver:self
+                  name:SENTRY_UIDeviceBatteryStateDidChangeNotification];
     [self.notificationCenterWrapper removeObserver:self
-                                              name:UIApplicationUserDidTakeScreenshotNotification];
+                                              name:SENTRY_UIDeviceOrientationDidChangeNotification];
     [self.notificationCenterWrapper removeObserver:self
-                                              name:UIDeviceBatteryLevelDidChangeNotification];
-    [self.notificationCenterWrapper removeObserver:self
-                                              name:UIDeviceBatteryStateDidChangeNotification];
-    [self.notificationCenterWrapper removeObserver:self
-                                              name:UIDeviceOrientationDidChangeNotification];
-    [self.notificationCenterWrapper removeObserver:self
-                                              name:UIDeviceOrientationDidChangeNotification];
+                                              name:SENTRY_UIDeviceOrientationDidChangeNotification];
 #endif
 }
 
@@ -98,13 +102,13 @@ SentrySystemEventBreadcrumbs ()
     // Posted when the battery level changes.
     [self.notificationCenterWrapper addObserver:self
                                        selector:@selector(batteryStateChanged:)
-                                           name:UIDeviceBatteryLevelDidChangeNotification
+                                           name:SENTRY_UIDeviceBatteryLevelDidChangeNotification
                                          object:currentDevice];
 
     // Posted when battery state changes.
     [self.notificationCenterWrapper addObserver:self
                                        selector:@selector(batteryStateChanged:)
-                                           name:UIDeviceBatteryStateDidChangeNotification
+                                           name:SENTRY_UIDeviceBatteryStateDidChangeNotification
                                          object:currentDevice];
 }
 
@@ -128,15 +132,15 @@ SentrySystemEventBreadcrumbs ()
     UIDeviceBatteryState currentState = [currentDevice batteryState];
 
     BOOL isPlugged = NO; // UIDeviceBatteryStateUnknown or UIDeviceBatteryStateUnplugged
-    if ((currentState == UIDeviceBatteryStateCharging)
-        || (currentState == UIDeviceBatteryStateFull)) {
+    if ((currentState == SENTRY_UIDeviceBatteryStateCharging)
+        || (currentState == SENTRY_UIDeviceBatteryStateFull)) {
         isPlugged = YES;
     }
     float currentLevel = [currentDevice batteryLevel];
     NSMutableDictionary<NSString *, id> *batteryData = [NSMutableDictionary new];
 
     // W3C spec says level must be null if it is unknown
-    if ((currentState != UIDeviceBatteryStateUnknown) && (currentLevel != -1.0)) {
+    if ((currentState != SENTRY_UIDeviceBatteryStateUnknown) && (currentLevel != -1.0)) {
         float w3cLevel = (currentLevel * 100);
         batteryData[@"level"] = @(w3cLevel);
     } else {
@@ -156,7 +160,7 @@ SentrySystemEventBreadcrumbs ()
     // Posted when the orientation of the device changes.
     [self.notificationCenterWrapper addObserver:self
                                        selector:@selector(orientationChanged:)
-                                           name:UIDeviceOrientationDidChangeNotification
+                                           name:SENTRY_UIDeviceOrientationDidChangeNotification
                                          object:currentDevice];
 }
 
@@ -166,15 +170,16 @@ SentrySystemEventBreadcrumbs ()
     SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:kSentryLevelInfo
                                                              category:@"device.orientation"];
 
-    UIDeviceOrientation currentOrientation = currentDevice.orientation;
+    SENTRY_UIDeviceOrientation currentOrientation
+        = (SENTRY_UIDeviceOrientation)currentDevice.orientation;
 
     // Ignore changes in device orientation if unknown, face up, or face down.
-    if (!UIDeviceOrientationIsValidInterfaceOrientation(currentOrientation)) {
+    if (!SENTRY_UIDeviceOrientationIsValidInterfaceOrientation(currentOrientation)) {
         SENTRY_LOG_DEBUG(@"currentOrientation is unknown.");
         return;
     }
 
-    if (UIDeviceOrientationIsLandscape(currentOrientation)) {
+    if (SENTRY_UIDeviceOrientationIsLandscape(currentOrientation)) {
         crumb.data = @{ @"position" : @"landscape" };
     } else {
         crumb.data = @{ @"position" : @"portrait" };
@@ -188,12 +193,12 @@ SentrySystemEventBreadcrumbs ()
     // Posted immediately after the display of the keyboard.
     [self.notificationCenterWrapper addObserver:self
                                        selector:@selector(systemEventTriggered:)
-                                           name:UIKeyboardDidShowNotification];
+                                           name:SENTRY_UIKeyboardDidShowNotification];
 
     // Posted immediately after the dismissal of the keyboard.
     [self.notificationCenterWrapper addObserver:self
                                        selector:@selector(systemEventTriggered:)
-                                           name:UIKeyboardDidHideNotification];
+                                           name:SENTRY_UIKeyboardDidHideNotification];
 }
 
 - (void)systemEventTriggered:(NSNotification *)notification
@@ -208,9 +213,10 @@ SentrySystemEventBreadcrumbs ()
 - (void)initScreenshotObserver
 {
     // it's only about the action, but not the SS itself
-    [self.notificationCenterWrapper addObserver:self
-                                       selector:@selector(systemEventTriggered:)
-                                           name:UIApplicationUserDidTakeScreenshotNotification];
+    [self.notificationCenterWrapper
+        addObserver:self
+           selector:@selector(systemEventTriggered:)
+               name:SENTRY_UIApplicationUserDidTakeScreenshotNotification];
 }
 
 - (void)initTimezoneObserver

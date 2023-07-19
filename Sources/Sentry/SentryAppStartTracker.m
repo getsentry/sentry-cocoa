@@ -4,6 +4,7 @@
 
 #    import "SentryAppStartMeasurement.h"
 #    import "SentryAppStateManager.h"
+#    import "SentryDefines.h"
 #    import "SentryLog.h"
 #    import "SentrySysctl.h"
 #    import <Foundation/Foundation.h>
@@ -15,7 +16,6 @@
 #    import <SentryInternalNotificationNames.h>
 #    import <SentryLog.h>
 #    import <SentrySDK+Private.h>
-#    import <UIKit/UIKit.h>
 
 static NSDate *runtimeInit = nil;
 static BOOL isActivePrewarm = NO;
@@ -95,20 +95,22 @@ SentryAppStartTracker ()
     // @main of a SwiftUI  we set the timestamp here.
     self.didFinishLaunchingTimestamp = [SentryDependencyContainer.sharedInstance.dateProvider date];
 
-    [NSNotificationCenter.defaultCenter addObserver:self
-                                           selector:@selector(didFinishLaunching)
-                                               name:UIApplicationDidFinishLaunchingNotification
-                                             object:nil];
+    [NSNotificationCenter.defaultCenter
+        addObserver:self
+           selector:@selector(didFinishLaunching)
+               name:SENTRY_UIApplicationDidFinishLaunchingNotification
+             object:nil];
 
     [NSNotificationCenter.defaultCenter addObserver:self
                                            selector:@selector(didBecomeVisible)
-                                               name:UIWindowDidBecomeVisibleNotification
+                                               name:SENTRY_UIWindowDidBecomeVisibleNotification
                                              object:nil];
 
-    [NSNotificationCenter.defaultCenter addObserver:self
-                                           selector:@selector(didEnterBackground)
-                                               name:UIApplicationDidEnterBackgroundNotification
-                                             object:nil];
+    [NSNotificationCenter.defaultCenter
+        addObserver:self
+           selector:@selector(didEnterBackground)
+               name:SENTRY_UIApplicationDidEnterBackgroundNotification
+             object:nil];
 
     if (PrivateSentrySDKOnly.appStartMeasurementHybridSDKMode) {
         [self buildAppStartMeasurement];
@@ -277,17 +279,19 @@ SentryAppStartTracker ()
 {
     // Remove the observers with the most specific detail possible, see
     // https://developer.apple.com/documentation/foundation/nsnotificationcenter/1413994-removeobserver
-    [NSNotificationCenter.defaultCenter removeObserver:self
-                                                  name:UIApplicationDidFinishLaunchingNotification
-                                                object:nil];
+    [NSNotificationCenter.defaultCenter
+        removeObserver:self
+                  name:SENTRY_UIApplicationDidFinishLaunchingNotification
+                object:nil];
 
     [NSNotificationCenter.defaultCenter removeObserver:self
-                                                  name:UIWindowDidBecomeVisibleNotification
+                                                  name:SENTRY_UIWindowDidBecomeVisibleNotification
                                                 object:nil];
 
-    [NSNotificationCenter.defaultCenter removeObserver:self
-                                                  name:UIApplicationDidEnterBackgroundNotification
-                                                object:nil];
+    [NSNotificationCenter.defaultCenter
+        removeObserver:self
+                  name:SENTRY_UIApplicationDidEnterBackgroundNotification
+                object:nil];
 
 #    if TEST
     self.isRunning = NO;

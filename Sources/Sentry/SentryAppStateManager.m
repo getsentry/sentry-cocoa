@@ -1,4 +1,5 @@
 #import "SentryCrashSysCtl.h"
+#import "SentryDefines.h"
 #import "SentrySysctl.h"
 #import <Foundation/Foundation.h>
 #import <SentryAppState.h>
@@ -181,10 +182,11 @@ SentryAppStateManager ()
     // Is the current process being traced or not? If it is a debugger is attached.
     bool isDebugging = self.crashWrapper.isBeingTraced;
 
-    NSString *vendorId = [UIDevice.currentDevice.identifierForVendor UUIDString];
+    UIDevice *device = [SENTRY_UIDevice currentDevice];
+    NSString *vendorId = [device.identifierForVendor UUIDString];
 
     return [[SentryAppState alloc] initWithReleaseName:self.options.releaseName
-                                             osVersion:UIDevice.currentDevice.systemVersion
+                                             osVersion:device.systemVersion
                                               vendorId:vendorId
                                            isDebugging:isDebugging
                                    systemBootTimestamp:self.sysctl.systemBootTimestamp];

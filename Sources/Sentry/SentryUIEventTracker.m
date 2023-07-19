@@ -137,7 +137,7 @@ SentryUIEventTracker ()
                     transactionName, bindToScope ? @"YES" : @"NO");
             }];
 
-            if ([[sender class] isSubclassOfClass:[UIView class]]) {
+            if ([[sender class] isSubclassOfClass:SENTRY_UIView]) {
                 UIView *view = sender;
                 if (view.accessibilityIdentifier) {
                     [transaction setTagValue:view.accessibilityIdentifier
@@ -171,10 +171,10 @@ SentryUIEventTracker ()
 - (NSString *)getOperation:(id)sender
 {
     Class senderClass = [sender class];
-    if ([senderClass isSubclassOfClass:[UIButton class]] ||
-        [senderClass isSubclassOfClass:[UIBarButtonItem class]] ||
-        [senderClass isSubclassOfClass:[UISegmentedControl class]] ||
-        [senderClass isSubclassOfClass:[UIPageControl class]]) {
+    if ([senderClass isSubclassOfClass:SENTRY_UIButton] ||
+        [senderClass isSubclassOfClass:SENTRY_UIBarButtonItem] ||
+        [senderClass isSubclassOfClass:SENTRY_UISegmentedControl] ||
+        [senderClass isSubclassOfClass:SENTRY_UIPageControl]) {
         return SentrySpanOperationUIActionClick;
     }
 

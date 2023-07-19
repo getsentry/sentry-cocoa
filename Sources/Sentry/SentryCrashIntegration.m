@@ -214,7 +214,7 @@ SentryCrashIntegration ()
     // For MacCatalyst the UIDevice returns the current version of MacCatalyst and not the
     // macOSVersion. Therefore we have to use NSProcessInfo.
 #if SENTRY_HAS_UIKIT && !TARGET_OS_MACCATALYST
-    [osData setValue:[UIDevice currentDevice].systemVersion forKey:@"version"];
+    [osData setValue:[SENTRY_UIDevice currentDevice].systemVersion forKey:@"version"];
 #else
     NSOperatingSystemVersion version = [NSProcessInfo processInfo].operatingSystemVersion;
     NSString *systemVersion = [NSString stringWithFormat:@"%d.%d.%d", (int)version.majorVersion,

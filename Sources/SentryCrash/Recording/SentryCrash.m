@@ -37,6 +37,7 @@
 #import "SentryCrashReportFields.h"
 #import "SentryCrashReportStore.h"
 #import "SentryCrashSystemCapabilities.h"
+#import "SentryDefines.h"
 #import "SentryDependencyContainer.h"
 #import "SentryNSNotificationCenterWrapper.h"
 #import <NSData+Sentry.h>
@@ -45,9 +46,6 @@
 #import "SentryCrashLogger.h"
 
 #include <inttypes.h>
-#if SentryCrashCRASH_HAS_UIKIT
-#    import <UIKit/UIKit.h>
-#endif
 
 // ============================================================================
 #pragma mark - Globals -
@@ -258,19 +256,19 @@ SentryCrash ()
 #if SentryCrashCRASH_HAS_UIAPPLICATION
     [self.notificationCenter addObserver:self
                                 selector:@selector(applicationDidBecomeActive)
-                                    name:UIApplicationDidBecomeActiveNotification];
+                                    name:SENTRY_UIApplicationDidBecomeActiveNotification];
     [self.notificationCenter addObserver:self
                                 selector:@selector(applicationWillResignActive)
-                                    name:UIApplicationWillResignActiveNotification];
+                                    name:SENTRY_UIApplicationWillResignActiveNotification];
     [self.notificationCenter addObserver:self
                                 selector:@selector(applicationDidEnterBackground)
-                                    name:UIApplicationDidEnterBackgroundNotification];
+                                    name:SENTRY_UIApplicationDidEnterBackgroundNotification];
     [self.notificationCenter addObserver:self
                                 selector:@selector(applicationWillEnterForeground)
-                                    name:UIApplicationWillEnterForegroundNotification];
+                                    name:SENTRY_UIApplicationWillEnterForegroundNotification];
     [self.notificationCenter addObserver:self
                                 selector:@selector(applicationWillTerminate)
-                                    name:UIApplicationWillTerminateNotification];
+                                    name:SENTRY_UIApplicationWillTerminateNotification];
 #endif
 #if SentryCrashCRASH_HAS_NSEXTENSION
     [self.notificationCenter addObserver:self
@@ -299,11 +297,16 @@ SentryCrash ()
     sentrycrash_uninstall();
 
 #if SentryCrashCRASH_HAS_UIAPPLICATION
-    [self.notificationCenter removeObserver:self name:UIApplicationDidBecomeActiveNotification];
-    [self.notificationCenter removeObserver:self name:UIApplicationWillResignActiveNotification];
-    [self.notificationCenter removeObserver:self name:UIApplicationDidEnterBackgroundNotification];
-    [self.notificationCenter removeObserver:self name:UIApplicationWillEnterForegroundNotification];
-    [self.notificationCenter removeObserver:self name:UIApplicationWillTerminateNotification];
+    [self.notificationCenter removeObserver:self
+                                       name:SENTRY_UIApplicationDidBecomeActiveNotification];
+    [self.notificationCenter removeObserver:self
+                                       name:SENTRY_UIApplicationWillResignActiveNotification];
+    [self.notificationCenter removeObserver:self
+                                       name:SENTRY_UIApplicationDidEnterBackgroundNotification];
+    [self.notificationCenter removeObserver:self
+                                       name:SENTRY_UIApplicationWillEnterForegroundNotification];
+    [self.notificationCenter removeObserver:self
+                                       name:SENTRY_UIApplicationWillTerminateNotification];
 #endif
 #if SentryCrashCRASH_HAS_NSEXTENSION
     [self.notificationCenter removeObserver:self name:NSExtensionHostDidBecomeActiveNotification];

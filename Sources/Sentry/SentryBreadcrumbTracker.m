@@ -66,8 +66,9 @@ SentryBreadcrumbTracker ()
 - (void)trackApplicationUIKitNotifications
 {
 #if SENTRY_HAS_UIKIT
-    NSNotificationName foregroundNotificationName = UIApplicationDidBecomeActiveNotification;
-    NSNotificationName backgroundNotificationName = UIApplicationDidEnterBackgroundNotification;
+    NSNotificationName foregroundNotificationName = SENTRY_UIApplicationDidBecomeActiveNotification;
+    NSNotificationName backgroundNotificationName
+        = SENTRY_UIApplicationDidEnterBackgroundNotification;
 #elif TARGET_OS_OSX || TARGET_OS_MACCATALYST
     NSNotificationName foregroundNotificationName = NSApplicationDidBecomeActiveNotification;
     // Will resign Active notification is the nearest one to
@@ -81,7 +82,7 @@ SentryBreadcrumbTracker ()
     // not available for macOS
 #if SENTRY_HAS_UIKIT
     [NSNotificationCenter.defaultCenter
-        addObserverForName:UIApplicationDidReceiveMemoryWarningNotification
+        addObserverForName:SENTRY_UIApplicationDidReceiveMemoryWarningNotification
                     object:nil
                      queue:nil
                 usingBlock:^(NSNotification *notification) {
@@ -144,7 +145,7 @@ SentryBreadcrumbTracker ()
 #if SENTRY_HAS_UIKIT
 + (BOOL)avoidSender:(id)sender forTarget:(id)target action:(NSString *)action
 {
-    if ([sender isKindOfClass:UITextField.self]) {
+    if ([sender isKindOfClass:SENTRY_UITextField]) {
         // This is required to avoid creating breadcrumbs for every key pressed in a text field.
         // Textfield may invoke many types of event, in order to check if is a
         // `UIControlEventEditingChanged` we need to compare the current action to all events
@@ -152,8 +153,11 @@ SentryBreadcrumbTracker ()
         // same action for different events, but this trade off is acceptable because using the same
         // action for `.editingChanged` and another event is not supposed to happen.
         UITextField *textField = sender;
-        NSArray<NSString *> *actions = [textField actionsForTarget:target
-                                                   forControlEvent:UIControlEventEditingChanged];
+        NSArray<NSString *> *actions = [textField
+            actionsForTarget:target
+             forControlEvent:(UIControlEvents)
+                                 SENTRY_UIControlEventEditingChanged]; // ???: does this cast force
+                                                                       // linking UIKit?
         return [actions containsObject:action];
     }
     return NO;
@@ -171,7 +175,8 @@ SentryBreadcrumbTracker ()
 
             NSDictionary *data = nil;
             for (UITouch *touch in event.allTouches) {
-                if (touch.phase == UITouchPhaseCancelled || touch.phase == UITouchPhaseEnded) {
+                if (touch.phase == SENTRY_UITouchPhaseCancelled
+                    || touch.phase == SENTRY_UITouchPhaseEnded) {
                     data = [SentryBreadcrumbTracker extractDataFromView:touch.view];
                 }
             }
@@ -201,7 +206,7 @@ SentryBreadcrumbTracker ()
 
     static const void *swizzleViewDidAppearKey = &swizzleViewDidAppearKey;
     SEL selector = NSSelectorFromString(@"viewDidAppear:");
-    SentrySwizzleInstanceMethod(UIViewController.class, selector, SentrySWReturnType(void),
+    SentrySwizzleInstanceMethod(SENTRY_UIViewController, selector, SentrySWReturnType(void),
         SentrySWArguments(BOOL animated), SentrySWReplacement({
             if (nil != [SentrySDK.currentHub getClient]) {
                 SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:kSentryLevelInfo
@@ -235,7 +240,7 @@ SentryBreadcrumbTracker ()
         [result setValue:view.accessibilityIdentifier forKey:@"accessibilityIdentifier"];
     }
 
-    if ([view isKindOfClass:UIButton.class]) {
+    if ([view isKindOfClass:SENTRY_UIButton]) {
         UIButton *button = (UIButton *)view;
         if (button.currentTitle && ![button.currentTitle isEqual:@""]) {
             [result setValue:[button currentTitle] forKey:@"title"];
