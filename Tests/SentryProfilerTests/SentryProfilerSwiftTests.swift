@@ -30,6 +30,7 @@ class SentryProfilerSwiftTests: XCTestCase {
         lazy var dispatchFactory = TestDispatchFactory()
         var metricTimerFactory: TestDispatchSourceWrapper?
         lazy var timeoutTimerFactory = TestSentryNSTimerFactory()
+        let dispatchQueueWrapper = TestSentryDispatchQueueWrapper()
 
         let currentDateProvider = TestCurrentDateProvider()
 
@@ -63,11 +64,25 @@ class SentryProfilerSwiftTests: XCTestCase {
         }
 
         /// Advance the mock date provider, start a new transaction and return its handle.
-        func newTransaction(testingAppLaunchSpans: Bool = false) throws -> SentryTracer {
-            if testingAppLaunchSpans {
-                return try XCTUnwrap(hub.startTransaction(name: transactionName, operation: SentrySpanOperationUILoad) as? SentryTracer)
+        func newTransaction(testingAppLaunchSpans: Bool = false, automaticTransaction: Bool = false, idleTimeout: TimeInterval? = nil) throws -> SentryTracer {
+            let operation = testingAppLaunchSpans ? SentrySpanOperationUILoad : transactionOperation
+
+            if automaticTransaction {
+                return hub.startTransaction(
+                    with: TransactionContext(name: transactionName, operation: operation),
+                    bindToScope: false,
+                    customSamplingContext: [:],
+                    configuration: SentryTracerConfiguration(block: {
+                        if let idleTimeout = idleTimeout {
+                            $0.idleTimeout = idleTimeout
+                        }
+                        $0.dispatchQueueWrapper = self.dispatchQueueWrapper
+                        $0.waitForChildren = true
+                        $0.timerFactory = self.timeoutTimerFactory
+                    }))
             }
-            return try XCTUnwrap(hub.startTransaction(name: transactionName, operation: transactionOperation) as? SentryTracer)
+
+            return try XCTUnwrap(hub.startTransaction(name: transactionName, operation: operation) as? SentryTracer)
         }
 
         // mocking
@@ -412,29 +427,59 @@ class SentryProfilerSwiftTests: XCTestCase {
     }
 
     /// based on ``SentryTracerTests.testFinish_WaitForAllChildren_ExceedsMaxDuration_NoTransactionCaptured``
-    func testProfilerCleanedUpAfterTransactionDiscarded_ExceedsMaxDuration() {
-
+    func testProfilerCleanedUpAfterTransactionDiscarded_ExceedsMaxDuration() throws {
+        XCTAssertEqual(SentryProfiler.currentProfiledTracers(), UInt(0))
+        let sut = try fixture.newTransaction(automaticTransaction: true)
+        XCTAssertEqual(SentryProfiler.currentProfiledTracers(), UInt(1))
+        fixture.currentDateProvider.advance(by: 500)
+        sut.finish()
+        XCTAssertEqual(self.fixture.client?.captureEventWithScopeInvocations.count, 0)
     }
 
     /// based on ``SentryTracerTests.testFinish_IdleTimeout_ExceedsMaxDuration_NoTransactionCaptured``
-    func testProfilerCleanedUpAfterTransactionDiscarded_IdleTimeout_ExceedsMaxDuration() {
-
+    func testProfilerCleanedUpAfterTransactionDiscarded_IdleTimeout_ExceedsMaxDuration() throws {
+        XCTAssertEqual(SentryProfiler.currentProfiledTracers(), UInt(0))
+        let sut = try fixture.newTransaction(automaticTransaction: true, idleTimeout: 1)
+        XCTAssertEqual(SentryProfiler.currentProfiledTracers(), UInt(1))
+        fixture.currentDateProvider.advance(by: 500)
+        sut.finish()
+        XCTAssertEqual(self.fixture.client?.captureEventWithScopeInvocations.count, 0)
     }
 
     /// based on ``SentryTracerTests.testIdleTimeout_NoChildren_TransactionNotCaptured``
-    func testProfilerCleanedUpAfterTransactionDiscarded_IdleTimeout_NoChildren() {
-
+    func testProfilerCleanedUpAfterTransactionDiscarded_IdleTimeout_NoChildren() throws {
+        XCTAssertEqual(SentryProfiler.currentProfiledTracers(), UInt(0))
+        let span = try fixture.newTransaction(automaticTransaction: true, idleTimeout: 1)
+        XCTAssertEqual(SentryProfiler.currentProfiledTracers(), UInt(1))
+        fixture.currentDateProvider.advance(by: 500)
+        fixture.dispatchQueueWrapper.invokeLastDispatchAfter()
+        XCTAssert(span.isFinished)
+        XCTAssertEqual(self.fixture.client?.captureEventWithScopeInvocations.count, 0)
     }
 
     /// based on ``SentryTracerTests.testIdleTransaction_CreatingDispatchBlockFails_NoTransactionCaptured``
-    func testProfilerCleanedUpAfterTransactionDiscarded_IdleTransaction_CreatingDispatchBlockFails() {
-
+    func testProfilerCleanedUpAfterTransactionDiscarded_IdleTransaction_CreatingDispatchBlockFails() throws {
+        fixture.dispatchQueueWrapper.createDispatchBlockReturnsNULL = true
+        XCTAssertEqual(SentryProfiler.currentProfiledTracers(), UInt(0))
+        let span = try fixture.newTransaction(automaticTransaction: true, idleTimeout: 1)
+        XCTAssertEqual(SentryProfiler.currentProfiledTracers(), UInt(1))
+        fixture.currentDateProvider.advance(by: 500)
+        span.finish()
+        XCTAssertEqual(self.fixture.client?.captureEventWithScopeInvocations.count, 0)
     }
 
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
     /// based on ``SentryTracerTests.testFinish_WaitForAllChildren_StartTimeModified_NoTransactionCaptured``
-    func testProfilerCleanedUpAfterTransactionDiscarded_WaitForAllChildren_StartTimeModified() {
-
+    func testProfilerCleanedUpAfterTransactionDiscarded_WaitForAllChildren_StartTimeModified() throws {
+        XCTAssertEqual(SentryProfiler.currentProfiledTracers(), UInt(0))
+        let appStartMeasurement = fixture.getAppStartMeasurement(type: .cold)
+        SentrySDK.setAppStartMeasurement(appStartMeasurement)
+        fixture.currentDateProvider.advance(by: 1)
+        let sut = try fixture.newTransaction(testingAppLaunchSpans: true, automaticTransaction: true)
+        XCTAssertEqual(SentryProfiler.currentProfiledTracers(), UInt(1))
+        fixture.currentDateProvider.advance(by: 499)
+        sut.finish()
+        XCTAssertEqual(self.fixture.client?.captureEventWithScopeInvocations.count, 0)
     }
 #endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
 }
