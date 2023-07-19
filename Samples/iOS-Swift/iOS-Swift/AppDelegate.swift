@@ -1,5 +1,6 @@
 import Sentry
 import UIKit
+import FileProvider
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -77,7 +78,19 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         if #available(iOS 15.0, *) {
             metricKit.receiveReports()
         }
-        
+
+        let domainIdentifier = "io.sentry.sample.iOS-Swift.fileprovider" // Replace with your unique domain identifier
+        NSFileProviderManager.add(NSFileProviderDomain(identifier:  NSFileProviderDomainIdentifier(domainIdentifier), displayName: "Sentry", pathRelativeToDocumentStorage: "/Sentry" ))  { error in
+            if let error = error {
+                // Handle any errors that occurred during domain registration
+                print("Error adding domain: \(error)")
+            } else {
+                // Domain registration succeeded
+                print("Domain added successfully!")
+            }
+
+        }
+
         return true
     }
     

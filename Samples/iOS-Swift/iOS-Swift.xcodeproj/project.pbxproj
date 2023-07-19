@@ -87,6 +87,13 @@
 		D8D7BB4A2750067900044146 /* UIAssert.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8D7BB492750067900044146 /* UIAssert.swift */; };
 		D8D7BB4C2750095800044146 /* UIViewExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8D7BB4B2750095800044146 /* UIViewExtension.swift */; };
 		D8D7BB4E27501B9400044146 /* SpanObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8D7BB4D27501B9400044146 /* SpanObserver.swift */; };
+		D8DA2B552A67D32E004C81E8 /* UniformTypeIdentifiers.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D8DA2B542A67D32E004C81E8 /* UniformTypeIdentifiers.framework */; };
+		D8DA2B582A67D32E004C81E8 /* FileProviderExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8DA2B572A67D32E004C81E8 /* FileProviderExtension.swift */; };
+		D8DA2B5A2A67D32E004C81E8 /* FileProviderItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8DA2B592A67D32E004C81E8 /* FileProviderItem.swift */; };
+		D8DA2B5C2A67D32E004C81E8 /* FileProviderEnumerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8DA2B5B2A67D32E004C81E8 /* FileProviderEnumerator.swift */; };
+		D8DA2B622A67D32E004C81E8 /* SentryFileProvider.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = D8DA2B532A67D32E004C81E8 /* SentryFileProvider.appex */; platformFilter = ios; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		D8DA2B6D2A67D38F004C81E8 /* Sentry.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 630853322440C44F00DDE4CE /* Sentry.framework */; };
+		D8DA2B6E2A67D38F004C81E8 /* Sentry.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 630853322440C44F00DDE4CE /* Sentry.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		D8DBDA76274D591F00007380 /* TableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8DBDA75274D591F00007380 /* TableViewController.swift */; };
 		D8DBDA78274D5FC400007380 /* SplitViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8DBDA77274D5FC400007380 /* SplitViewController.swift */; };
 		D8F01DEA2A1376B5008F4996 /* InfoForBreadcrumbController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F01DE92A1376B5008F4996 /* InfoForBreadcrumbController.swift */; };
@@ -193,6 +200,13 @@
 			remoteGlobalIDString = D8269A38274C095E00BD5BD5;
 			remoteInfo = "iOS13-Swift";
 		};
+		D8DA2B5F2A67D32E004C81E8 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 637AFD9E243B02760034958B /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = D8DA2B522A67D32E004C81E8;
+			remoteInfo = SentryFileProvider;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -259,6 +273,28 @@
 			dstSubfolderSpec = 10;
 			files = (
 				D8B56CF1273A8D97004DF238 /* Sentry.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D8DA2B612A67D32E004C81E8 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				D8DA2B622A67D32E004C81E8 /* SentryFileProvider.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D8DA2B6F2A67D38F004C81E8 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				D8DA2B6E2A67D38F004C81E8 /* Sentry.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -331,6 +367,13 @@
 		D8D7BB492750067900044146 /* UIAssert.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIAssert.swift; sourceTree = "<group>"; };
 		D8D7BB4B2750095800044146 /* UIViewExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIViewExtension.swift; sourceTree = "<group>"; };
 		D8D7BB4D27501B9400044146 /* SpanObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpanObserver.swift; sourceTree = "<group>"; };
+		D8DA2B532A67D32E004C81E8 /* SentryFileProvider.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = SentryFileProvider.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		D8DA2B542A67D32E004C81E8 /* UniformTypeIdentifiers.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UniformTypeIdentifiers.framework; path = System/Library/Frameworks/UniformTypeIdentifiers.framework; sourceTree = SDKROOT; };
+		D8DA2B572A67D32E004C81E8 /* FileProviderExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileProviderExtension.swift; sourceTree = "<group>"; };
+		D8DA2B592A67D32E004C81E8 /* FileProviderItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileProviderItem.swift; sourceTree = "<group>"; };
+		D8DA2B5B2A67D32E004C81E8 /* FileProviderEnumerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileProviderEnumerator.swift; sourceTree = "<group>"; };
+		D8DA2B5D2A67D32E004C81E8 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		D8DA2B5E2A67D32E004C81E8 /* SentryFileProvider.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = SentryFileProvider.entitlements; sourceTree = "<group>"; };
 		D8DBDA75274D591F00007380 /* TableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TableViewController.swift; sourceTree = "<group>"; };
 		D8DBDA77274D5FC400007380 /* SplitViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplitViewController.swift; sourceTree = "<group>"; };
 		D8F01DE92A1376B5008F4996 /* InfoForBreadcrumbController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InfoForBreadcrumbController.swift; sourceTree = "<group>"; };
@@ -392,6 +435,15 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		D8DA2B502A67D32E004C81E8 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D8DA2B552A67D32E004C81E8 /* UniformTypeIdentifiers.framework in Frameworks */,
+				D8DA2B6D2A67D38F004C81E8 /* Sentry.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -411,6 +463,7 @@
 		634C7EC124406A4200AFDE9F /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				D8DA2B542A67D32E004C81E8 /* UniformTypeIdentifiers.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -418,11 +471,12 @@
 		637AFD9D243B02760034958B = {
 			isa = PBXGroup;
 			children = (
-				848A2576286E3490008A8858 /* PerformanceBenchmarks */,
 				6308532C2440C44F00DDE4CE /* Sentry.xcodeproj */,
 				637AFDA8243B02760034958B /* iOS-Swift */,
 				7B64386926A6C544000D0F65 /* iOS-SwiftUITests */,
 				D840D521273A07F400CDF142 /* iOS-SwiftClip */,
+				D8DA2B562A67D32E004C81E8 /* SentryFileProvider */,
+				848A2576286E3490008A8858 /* PerformanceBenchmarks */,
 				D8269A3A274C095E00BD5BD5 /* iOS13-Swift */,
 				D85DAA4A274C244F004DF43C /* iOS13-SwiftTests */,
 				637AFDA7243B02760034958B /* Products */,
@@ -441,6 +495,7 @@
 				D8269A39274C095E00BD5BD5 /* iOS13-Swift.app */,
 				D85DAA49274C244F004DF43C /* iOS13-SwiftTests.xctest */,
 				848A2573286E3351008A8858 /* PerformanceBenchmarks.xctest */,
+				D8DA2B532A67D32E004C81E8 /* SentryFileProvider.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -534,6 +589,18 @@
 			path = "iOS13-SwiftTests";
 			sourceTree = "<group>";
 		};
+		D8DA2B562A67D32E004C81E8 /* SentryFileProvider */ = {
+			isa = PBXGroup;
+			children = (
+				D8DA2B572A67D32E004C81E8 /* FileProviderExtension.swift */,
+				D8DA2B592A67D32E004C81E8 /* FileProviderItem.swift */,
+				D8DA2B5B2A67D32E004C81E8 /* FileProviderEnumerator.swift */,
+				D8DA2B5D2A67D32E004C81E8 /* Info.plist */,
+				D8DA2B5E2A67D32E004C81E8 /* SentryFileProvider.entitlements */,
+			);
+			path = SentryFileProvider;
+			sourceTree = "<group>";
+		};
 		D8DBDA73274D4DF900007380 /* ViewControllers */ = {
 			isa = PBXGroup;
 			children = (
@@ -599,12 +666,14 @@
 				637AFDA4243B02760034958B /* Resources */,
 				630853552440C60F00DDE4CE /* Embed Frameworks */,
 				D840D535273A07F600CDF142 /* Embed App Clips */,
+				D8DA2B612A67D32E004C81E8 /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 				630853522440C60800DDE4CE /* PBXTargetDependency */,
 				D840D533273A07F600CDF142 /* PBXTargetDependency */,
+				D8DA2B602A67D32E004C81E8 /* PBXTargetDependency */,
 			);
 			name = "iOS-Swift";
 			productName = "iOS-Swift";
@@ -705,13 +774,31 @@
 			productReference = D85DAA49274C244F004DF43C /* iOS13-SwiftTests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
+		D8DA2B522A67D32E004C81E8 /* SentryFileProvider */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = D8DA2B6C2A67D32F004C81E8 /* Build configuration list for PBXNativeTarget "SentryFileProvider" */;
+			buildPhases = (
+				D8DA2B4F2A67D32E004C81E8 /* Sources */,
+				D8DA2B502A67D32E004C81E8 /* Frameworks */,
+				D8DA2B512A67D32E004C81E8 /* Resources */,
+				D8DA2B6F2A67D38F004C81E8 /* Embed Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = SentryFileProvider;
+			productName = SentryFileProvider;
+			productReference = D8DA2B532A67D32E004C81E8 /* SentryFileProvider.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
 		637AFD9E243B02760034958B /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastSwiftUpdateCheck = 1310;
+				LastSwiftUpdateCheck = 1430;
 				LastUpgradeCheck = 1200;
 				ORGANIZATIONNAME = Sentry;
 				TargetAttributes = {
@@ -735,6 +822,9 @@
 					D85DAA48274C244F004DF43C = {
 						CreatedOnToolsVersion = 13.1;
 						TestTargetID = D8269A38274C095E00BD5BD5;
+					};
+					D8DA2B522A67D32E004C81E8 = {
+						CreatedOnToolsVersion = 14.3.1;
 					};
 				};
 			};
@@ -763,6 +853,7 @@
 				D840D51F273A07F400CDF142 /* iOS-SwiftClip */,
 				D8269A38274C095E00BD5BD5 /* iOS13-Swift */,
 				D85DAA48274C244F004DF43C /* iOS13-SwiftTests */,
+				D8DA2B522A67D32E004C81E8 /* SentryFileProvider */,
 			);
 		};
 /* End PBXProject section */
@@ -865,6 +956,13 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		D85DAA47274C244F004DF43C /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D8DA2B512A67D32E004C81E8 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -979,6 +1077,16 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		D8DA2B4F2A67D32E004C81E8 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D8DA2B582A67D32E004C81E8 /* FileProviderExtension.swift in Sources */,
+				D8DA2B5A2A67D32E004C81E8 /* FileProviderItem.swift in Sources */,
+				D8DA2B5C2A67D32E004C81E8 /* FileProviderEnumerator.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -1016,6 +1124,11 @@
 			isa = PBXTargetDependency;
 			target = D8269A38274C095E00BD5BD5 /* iOS13-Swift */;
 			targetProxy = D85DAA4F274C244F004DF43C /* PBXContainerItemProxy */;
+		};
+		D8DA2B602A67D32E004C81E8 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = D8DA2B522A67D32E004C81E8 /* SentryFileProvider */;
+			targetProxy = D8DA2B5F2A67D32E004C81E8 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -1959,6 +2072,126 @@
 			};
 			name = Release;
 		};
+		D8DA2B632A67D32F004C81E8 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CODE_SIGN_ENTITLEMENTS = SentryFileProvider/SentryFileProvider.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 97JCY7859U;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = SentryFileProvider/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = SentryFileProvider;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2023 Sentry. All rights reserved.";
+				IPHONEOS_DEPLOYMENT_TARGET = 16.4;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "io.sentry.sample.iOS-Swift.SentryFileProvider";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		D8DA2B642A67D32F004C81E8 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CODE_SIGN_ENTITLEMENTS = SentryFileProvider/SentryFileProvider.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Distribution";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Distribution";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 97JCY7859U;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = SentryFileProvider/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = SentryFileProvider;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2023 Sentry. All rights reserved.";
+				IPHONEOS_DEPLOYMENT_TARGET = 16.4;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "io.sentry.sample.iOS-Swift.SentryFileProvider";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		D8DA2B652A67D32F004C81E8 /* TestCI */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CODE_SIGN_ENTITLEMENTS = SentryFileProvider/SentryFileProvider.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 97JCY7859U;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = SentryFileProvider/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = SentryFileProvider;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2023 Sentry. All rights reserved.";
+				IPHONEOS_DEPLOYMENT_TARGET = 16.4;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "io.sentry.sample.iOS-Swift.SentryFileProvider";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = TestCI;
+		};
+		D8DA2B662A67D32F004C81E8 /* Test */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CODE_SIGN_ENTITLEMENTS = SentryFileProvider/SentryFileProvider.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 97JCY7859U;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = SentryFileProvider/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = SentryFileProvider;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2023 Sentry. All rights reserved.";
+				IPHONEOS_DEPLOYMENT_TARGET = 16.4;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "io.sentry.sample.iOS-Swift.SentryFileProvider";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Test;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -2035,6 +2268,17 @@
 				D85DAA53274C244F004DF43C /* Release */,
 				84D4FE8E28ECD1ED00EDAAFE /* TestCI */,
 				84D4FE8628ECD1EA00EDAAFE /* Test */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		D8DA2B6C2A67D32F004C81E8 /* Build configuration list for PBXNativeTarget "SentryFileProvider" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D8DA2B632A67D32F004C81E8 /* Debug */,
+				D8DA2B642A67D32F004C81E8 /* Release */,
+				D8DA2B652A67D32F004C81E8 /* TestCI */,
+				D8DA2B662A67D32F004C81E8 /* Test */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
