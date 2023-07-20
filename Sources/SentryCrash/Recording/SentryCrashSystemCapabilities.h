@@ -68,7 +68,8 @@
 #    define SentryCrashCRASH_HAS_STRNSTR 0
 #endif
 
-#if (SentryCrashCRASH_HOST_IOS || SentryCrashCRASH_HOST_TV || SentryCrashCRASH_HOST_WATCH) && !SENTRY_IGNORE_UIKIT
+#if (SentryCrashCRASH_HOST_IOS || SentryCrashCRASH_HOST_TV || SentryCrashCRASH_HOST_WATCH)         \
+    && !SENTRY_IGNORE_UIKIT
 #    define SentryCrashCRASH_HAS_UIKIT 1
 #else
 #    define SentryCrashCRASH_HAS_UIKIT 0
