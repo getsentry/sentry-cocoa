@@ -6,6 +6,10 @@
 
 - Reduced macOS SDK footprint by 2% (#3157) with similar changes for tvOS and watchOS (#3158, #3159, #3161)
 
+### Features
+
+- Add SENTRY_IGNORE_UIKIT compiler directive to avoid linking with UIKIT (#3178)
+
 ### Fixes
 
 - Fix a crash in SentryCoreDataTracker for nil error params (#3152)
