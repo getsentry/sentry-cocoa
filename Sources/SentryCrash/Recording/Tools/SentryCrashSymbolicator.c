@@ -50,7 +50,7 @@
  */
 #define CALL_INSTRUCTION_FROM_RETURN_ADDRESS(A) (DETAG_INSTRUCTION_ADDRESS((A)) - 1)
 
-static bool
+bool
 sentrycrashsymbolicator_symbolicate_stack_entry(SentryCrashStackEntry *stackEntry, bool asyncUnsafe)
 {
 

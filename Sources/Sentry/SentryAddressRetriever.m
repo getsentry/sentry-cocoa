@@ -1,4 +1,5 @@
 #import "SentryAddressRetriever.h"
+#import "SentryCrashSymbolicator.h"
 #import <Foundation/Foundation.h>
 #import <SentryFormatter.h>
 #import <dlfcn.h>
@@ -19,9 +20,7 @@ NSString *_Nullable sentry_retrieveAddressForObject(NSObject *instance, SEL aSel
 uint64_t
 sentry_convertHexAddressToUInt64(NSString *hexAddress)
 {
-
     NSScanner *scanner = [NSScanner scannerWithString:hexAddress];
-
     [scanner scanString:@"0x" intoString:nil];
 
     uint64_t value = 0;
@@ -33,15 +32,12 @@ sentry_convertHexAddressToUInt64(NSString *hexAddress)
 NSString *
 getSymbolAddressForInstructionAddress(NSString *instructionAddress)
 {
-    Dl_info symbolsBuffer;
+    SentryCrashStackEntry stackEntry;
+    stackEntry.address = sentry_convertHexAddressToUInt64(instructionAddress);
 
-    bool symbols_succeed = false;
+    sentrycrashsymbolicator_symbolicate_stack_entry(&stackEntry, false);
 
-    symbols_succeed
-        = dladdr((void *)sentry_convertHexAddressToUInt64(instructionAddress), &symbolsBuffer) != 0;
-    uintptr_t symbolAddress = (uintptr_t)symbolsBuffer.dli_saddr;
-
-    return sentry_formatHexAddressUInt64(symbolAddress);
+    return sentry_formatHexAddressUInt64(stackEntry.symbolAddress);
 }
 
 NSString *_Nullable sentry_retrieveAddressForClass(Class clazz, SEL aSelector)

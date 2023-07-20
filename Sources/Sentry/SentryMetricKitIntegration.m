@@ -5,6 +5,9 @@
 #    import "SentryInternalDefines.h"
 #    import "SentryScope.h"
 #    import <Foundation/Foundation.h>
+#    import <SentryAddressRetriever.h>
+#    import <SentryCrashStackEntryMapper.h>
+#    import <SentryCrashSymbolicator.h>
 #    import <SentryDebugMeta.h>
 #    import <SentryDependencyContainer.h>
 #    import <SentryEvent.h>
@@ -14,6 +17,7 @@
 #    import <SentryInAppLogic.h>
 #    import <SentryLog.h>
 #    import <SentryMechanism.h>
+#    import <SentryNSDataSwizzling.h>
 #    import <SentrySDK+Private.h>
 #    import <SentryStacktrace.h>
 #    import <SentryThread.h>
@@ -49,6 +53,7 @@ SentryMetricKitIntegration ()
 @property (nonatomic, strong, nullable) SentryMXManager *metricKitManager;
 @property (nonatomic, strong) NSMeasurementFormatter *measurementFormatter;
 @property (nonatomic, strong) SentryInAppLogic *inAppLogic;
+@property (nonatomic, strong) SentryCrashStackEntryMapper *stackEntryMapper;
 
 @end
 
@@ -68,6 +73,9 @@ SentryMetricKitIntegration ()
     self.measurementFormatter.unitOptions = NSMeasurementFormatterUnitOptionsProvidedUnit;
     self.inAppLogic = [[SentryInAppLogic alloc] initWithInAppIncludes:options.inAppIncludes
                                                         inAppExcludes:options.inAppExcludes];
+    self.stackEntryMapper =
+        [[SentryCrashStackEntryMapper alloc] initWithInAppLogic:self.inAppLogic
+                                               binaryImageCache:SentryBinaryImageCache.shared];
 
     return YES;
 }
@@ -215,14 +223,68 @@ SentryMetricKitIntegration ()
 
         event.debugMeta = [self extractDebugMetaFromMXCallStacks:callStackTree.callStacks];
 
-        // The crash event can be way from the past. We don't want to impact the current session.
-        // Therefore we don't call captureCrashEvent.
-        [SentrySDK captureEvent:event];
+        if ([self shouldCaptureEvent:event]) {
+            // The crash event can be way from the past. We don't want to impact the current
+            // session. Therefore we don't call captureCrashEvent.
+            [SentrySDK captureEvent:event];
+        }
+
     } else {
         for (SentryMXCallStack *callStack in callStackTree.callStacks) {
             [self buildAndCaptureMXEventFor:callStack.callStackRootFrames params:params];
         }
     }
+}
+
+- (BOOL)shouldCaptureEvent:(SentryEvent *)event
+{
+    if ([self isCausedBySDK:event.threads.firstObject.stacktrace.frames]) {
+        return NO;
+    }
+
+    return YES;
+}
+
+- (BOOL)isCausedBySDK:(NSArray<SentryFrame *> *)frames
+{
+    // Checks if the first non system library frame stems from the selector.
+    // If it does, the MX diagnostic stems from the specified selector
+    for (SentryFrame *frame in frames) {
+        NSString *currentSymbolAddress = getSymbolAddressForInstructionAddress(frame.imageAddress);
+
+        SEL selector = NSSelectorFromString(@"swizzleNSData:");
+        NSString *symbolAddress
+            = sentry_retrieveAddressForClass(SentryNSDataSwizzling.class, selector);
+
+        if ([symbolAddress isEqualToString:currentSymbolAddress]) {
+            return YES;
+        }
+
+        if (![self isSystemLibraryFrame:frame]) {
+            return NO;
+        }
+    }
+
+    return YES;
+}
+
+/**
+ * Will only work if we can properly symbolicate locally and get the full paths of the binary
+ * images.
+ */
+- (BOOL)isSystemLibraryFrame:(SentryFrame *)frame
+{
+    NSSet<NSString *> *systemLibraryPaths =
+        [NSSet setWithObjects:@"/System/Library/", @"/usr/lib/", nil];
+
+    for (NSString *systemLibraryPath in systemLibraryPaths) {
+        NSString *fieldWithPath = frame.package;
+        if (fieldWithPath && [fieldWithPath hasPrefix:systemLibraryPath]) {
+            return YES;
+        }
+    }
+
+    return NO;
 }
 
 /**
@@ -335,7 +397,11 @@ SentryMetricKitIntegration ()
     event.threads = @[ thread ];
     event.debugMeta = [self extractDebugMetaFromMXFrames:frames];
 
-    [SentrySDK captureEvent:event];
+    if ([self shouldCaptureEvent:event]) {
+        // The crash event can be way from the past. We don't want to impact the current session.
+        // Therefore we don't call captureCrashEvent.
+        [SentrySDK captureEvent:event];
+    }
 }
 
 - (SentryEvent *)createEvent:(SentryMXExceptionParams *)params
@@ -385,11 +451,21 @@ SentryMetricKitIntegration ()
 
     for (SentryMXFrame *mxFrame in mxFrames) {
         SentryFrame *frame = [[SentryFrame alloc] init];
-        frame.package = mxFrame.binaryName;
-        frame.inApp = @([self.inAppLogic isInApp:mxFrame.binaryName]);
-        frame.instructionAddress = sentry_formatHexAddressUInt64(mxFrame.address);
-        uint64_t imageAddress = mxFrame.address - mxFrame.offsetIntoBinaryTextSegment;
-        frame.imageAddress = sentry_formatHexAddressUInt64(imageAddress);
+
+        // TODO symbolication is not working properly
+        SentryCrashStackEntry stackEntry;
+        stackEntry.address = mxFrame.address;
+        bool success = sentrycrashsymbolicator_symbolicate_stack_entry(&stackEntry, false);
+
+        if (success) {
+            frame = [self.stackEntryMapper sentryCrashStackEntryToSentryFrame:stackEntry];
+        } else {
+            frame.package = mxFrame.binaryName;
+            frame.inApp = @([self.inAppLogic isInApp:mxFrame.binaryName]);
+
+            uint64_t imageAddress = mxFrame.address - mxFrame.offsetIntoBinaryTextSegment;
+            frame.imageAddress = sentry_formatHexAddressUInt64(imageAddress);
+        }
 
         [frames addObject:frame];
     }

@@ -33,6 +33,15 @@ extern "C" {
 #include "SentryCrashStackCursor.h"
 #include <stdbool.h>
 
+/** Symbolicate a stack entry.
+ *
+ * @param stackEntry The stackEntry to symbolicate.
+ *
+ * @return True if successful.
+ */
+bool sentrycrashsymbolicator_symbolicate_stack_entry(
+    SentryCrashStackEntry *stackEntry, bool asyncUnsafe);
+
 /** Symbolicate a stack cursor.
  *
  * @param cursor The cursor to symbolicate.
