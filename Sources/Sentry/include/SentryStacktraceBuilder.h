@@ -51,11 +51,6 @@ SENTRY_NO_INIT
 
 - (SentryStacktrace *)buildStackTraceFromStackEntries:(SentryCrashStackEntry *)entries
                                                amount:(unsigned int)amount;
-
-- (nullable NSString *)retrieveAddressForSelector:(SEL)aSelector instance:(NSObject *)instance;
-
-- (nullable NSString *)retrieveAddressForSelector:(SEL)aSelector clazz:(Class)clazz;
-
 @end
 
 NS_ASSUME_NONNULL_END
