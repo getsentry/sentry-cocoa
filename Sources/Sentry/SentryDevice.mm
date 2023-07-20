@@ -181,7 +181,7 @@ sentry_getOSVersion(void)
 {
 #if TARGET_OS_WATCH
     return WKInterfaceDevice.currentDevice.systemVersion;
-#elif TARGET_OS_IOS
+#elif TARGET_OS_IOS || TARGET_OS_TV
 #    if SENTRY_HAS_UIKIT
     return UIDevice.currentDevice.systemVersion;
 #    else
