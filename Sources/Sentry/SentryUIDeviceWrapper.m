@@ -61,9 +61,9 @@ SentryUIDeviceWrapper ()
     [self stop];
 }
 
-- (SENTRY_UIDeviceOrientation)orientation
+- (UIDeviceOrientation)orientation
 {
-    return (SENTRY_UIDeviceOrientation)[SENTRY_UIDevice currentDevice].orientation;
+    return (UIDeviceOrientation)[SENTRY_UIDevice currentDevice].orientation;
 }
 
 - (BOOL)isBatteryMonitoringEnabled
@@ -71,9 +71,9 @@ SentryUIDeviceWrapper ()
     return [SENTRY_UIDevice currentDevice].isBatteryMonitoringEnabled;
 }
 
-- (SENTRY_UIDeviceBatteryState)batteryState
+- (UIDeviceBatteryState)batteryState
 {
-    return (SENTRY_UIDeviceBatteryState)[SENTRY_UIDevice currentDevice].batteryState;
+    return (UIDeviceBatteryState)[SENTRY_UIDevice currentDevice].batteryState;
 }
 
 - (float)batteryLevel

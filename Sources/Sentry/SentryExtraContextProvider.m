@@ -59,18 +59,16 @@ SentryExtraContextProvider ()
     extraDeviceContext[@"processor_count"] = @([self.processInfoWrapper processorCount]);
 
 #if TARGET_OS_IOS
-    if (self.deviceWrapper.orientation != SENTRY_UIDeviceOrientationUnknown) {
+    if (self.deviceWrapper.orientation != UIDeviceOrientationUnknown) {
         extraDeviceContext[@"orientation"]
-            = SENTRY_UIDeviceOrientationIsPortrait(
-                  (SENTRY_UIDeviceOrientation)self.deviceWrapper.orientation)
+            = UIDeviceOrientationIsPortrait((UIDeviceOrientation)self.deviceWrapper.orientation)
             ? @"portrait"
             : @"landscape";
     }
 
     if (self.deviceWrapper.isBatteryMonitoringEnabled) {
         extraDeviceContext[@"charging"]
-            = self.deviceWrapper.batteryState == SENTRY_UIDeviceBatteryStateCharging ? @(YES)
-                                                                                     : @(NO);
+            = self.deviceWrapper.batteryState == UIDeviceBatteryStateCharging ? @(YES) : @(NO);
         extraDeviceContext[@"battery_level"] = @((int)(self.deviceWrapper.batteryLevel * 100));
     }
 #endif

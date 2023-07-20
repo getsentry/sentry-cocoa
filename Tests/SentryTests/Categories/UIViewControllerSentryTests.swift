@@ -1,11 +1,10 @@
 import XCTest
 
-#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+#if (os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)) && SENTRY_USE_UIKIT
 class UIViewControllerSentryTests: XCTestCase {
 
     func testOnlyOneViewController() {
         let viewController = UIViewController()
-        
         XCTAssertEqual([viewController], viewController.sentry_descendantViewControllers)
     }
     
@@ -37,4 +36,4 @@ class UIViewControllerSentryTests: XCTestCase {
     }
 }
 
-#endif
+#endif // (os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)) && SENTRY_USE_UIKIT

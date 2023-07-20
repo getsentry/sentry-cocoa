@@ -10,9 +10,9 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)init;
 - (instancetype)initWithDispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper;
 - (void)stop;
-- (SENTRY_UIDeviceOrientation)orientation;
+- (UIDeviceOrientation)orientation;
 - (BOOL)isBatteryMonitoringEnabled;
-- (SENTRY_UIDeviceBatteryState)batteryState;
+- (UIDeviceBatteryState)batteryState;
 - (float)batteryLevel;
 #endif
 

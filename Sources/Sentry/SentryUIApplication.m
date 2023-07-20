@@ -35,8 +35,8 @@
     if (@available(iOS 13.0, tvOS 13.0, *)) {
         NSArray<UIScene *> *scenes = [self getApplicationConnectedScenes:app];
         for (UIScene *scene in scenes) {
-            if (scene.activationState == SENTRY_UISceneActivationStateForegroundActive
-                && scene.delegate && [scene.delegate respondsToSelector:@selector(window)]) {
+            if (scene.activationState == UISceneActivationStateForegroundActive && scene.delegate &&
+                [scene.delegate respondsToSelector:@selector(window)]) {
                 id window = [scene.delegate performSelector:@selector(window)];
                 if (window) {
                     [result addObject:window];

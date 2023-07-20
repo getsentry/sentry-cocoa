@@ -127,15 +127,15 @@ SentrySystemEventBreadcrumbs ()
     UIDeviceBatteryState currentState = [currentDevice batteryState];
 
     BOOL isPlugged = NO; // UIDeviceBatteryStateUnknown or UIDeviceBatteryStateUnplugged
-    if ((currentState == SENTRY_UIDeviceBatteryStateCharging)
-        || (currentState == SENTRY_UIDeviceBatteryStateFull)) {
+    if ((currentState == UIDeviceBatteryStateCharging)
+        || (currentState == UIDeviceBatteryStateFull)) {
         isPlugged = YES;
     }
     float currentLevel = [currentDevice batteryLevel];
     NSMutableDictionary<NSString *, id> *batteryData = [NSMutableDictionary new];
 
     // W3C spec says level must be null if it is unknown
-    if ((currentState != SENTRY_UIDeviceBatteryStateUnknown) && (currentLevel != -1.0)) {
+    if ((currentState != UIDeviceBatteryStateUnknown) && (currentLevel != -1.0)) {
         float w3cLevel = (currentLevel * 100);
         batteryData[@"level"] = @(w3cLevel);
     } else {
@@ -165,16 +165,15 @@ SentrySystemEventBreadcrumbs ()
     SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:kSentryLevelInfo
                                                              category:@"device.orientation"];
 
-    SENTRY_UIDeviceOrientation currentOrientation
-        = (SENTRY_UIDeviceOrientation)currentDevice.orientation;
+    UIDeviceOrientation currentOrientation = currentDevice.orientation;
 
     // Ignore changes in device orientation if unknown, face up, or face down.
-    if (!SENTRY_UIDeviceOrientationIsValidInterfaceOrientation(currentOrientation)) {
+    if (!UIDeviceOrientationIsValidInterfaceOrientation(currentOrientation)) {
         SENTRY_LOG_DEBUG(@"currentOrientation is unknown.");
         return;
     }
 
-    if (SENTRY_UIDeviceOrientationIsLandscape(currentOrientation)) {
+    if (UIDeviceOrientationIsLandscape(currentOrientation)) {
         crumb.data = @{ @"position" : @"landscape" };
     } else {
         crumb.data = @{ @"position" : @"portrait" };

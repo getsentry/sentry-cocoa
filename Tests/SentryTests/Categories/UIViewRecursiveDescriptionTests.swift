@@ -1,7 +1,7 @@
 @testable import Sentry
 import XCTest
 
-#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+#if (os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)) && SENTRY_USE_UIKIT
 class UIViewRecursiveDescriptionTests: XCTestCase {
     func testSimpleView() {
         let view = UIView()
@@ -27,4 +27,4 @@ class UIViewRecursiveDescriptionTests: XCTestCase {
         XCTAssertEqual(description, expected.joined(separator: "\n") + "\n")
     }
 }
-#endif
+#endif // (os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)) && SENTRY_USE_UIKIT

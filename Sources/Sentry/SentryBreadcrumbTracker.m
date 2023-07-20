@@ -143,7 +143,7 @@ SentryBreadcrumbTracker ()
 #if SENTRY_HAS_UIKIT
 + (BOOL)avoidSender:(id)sender forTarget:(id)target action:(NSString *)action
 {
-    if ([sender isKindOfClass:SENTRY_UITextField]) {
+    if ([sender isKindOfClass:[SENTRY_UITextField class]]) {
         // This is required to avoid creating breadcrumbs for every key pressed in a text field.
         // Textfield may invoke many types of event, in order to check if is a
         // `UIControlEventEditingChanged` we need to compare the current action to all events
@@ -153,9 +153,8 @@ SentryBreadcrumbTracker ()
         UITextField *textField = sender;
         NSArray<NSString *> *actions = [textField
             actionsForTarget:target
-             forControlEvent:(UIControlEvents)
-                                 SENTRY_UIControlEventEditingChanged]; // ???: does this cast force
-                                                                       // linking UIKit?
+             forControlEvent:(UIControlEvents)UIControlEventEditingChanged]; // ???: does this cast
+                                                                             // force linking UIKit?
         return [actions containsObject:action];
     }
     return NO;
@@ -173,8 +172,7 @@ SentryBreadcrumbTracker ()
 
             NSDictionary *data = nil;
             for (UITouch *touch in event.allTouches) {
-                if (touch.phase == SENTRY_UITouchPhaseCancelled
-                    || touch.phase == SENTRY_UITouchPhaseEnded) {
+                if (touch.phase == UITouchPhaseCancelled || touch.phase == UITouchPhaseEnded) {
                     data = [SentryBreadcrumbTracker extractDataFromView:touch.view];
                 }
             }
@@ -238,7 +236,7 @@ SentryBreadcrumbTracker ()
         [result setValue:view.accessibilityIdentifier forKey:@"accessibilityIdentifier"];
     }
 
-    if ([view isKindOfClass:SENTRY_UIButton]) {
+    if ([view isKindOfClass:[SENTRY_UIButton class]]) {
         UIButton *button = (UIButton *)view;
         if (button.currentTitle && ![button.currentTitle isEqual:@""]) {
             [result setValue:[button currentTitle] forKey:@"title"];

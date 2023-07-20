@@ -242,7 +242,7 @@ SentryUIViewControllerSwizzling ()
 
         NSArray *windowList = windows;
         for (id window in windowList) {
-            if ([window isKindOfClass:SENTRY_UIWindow]
+            if ([window isKindOfClass:[SENTRY_UIWindow class]]
                 && ((UIWindow *)window).rootViewController != nil) {
                 [self
                     swizzleRootViewControllerAndDescendant:((UIWindow *)window).rootViewController];
@@ -359,7 +359,8 @@ SentryUIViewControllerSwizzling ()
     // workaround, we skip swizzling the loadView and accept that the SKD doesn't create a span for
     // loadView if the UIViewController doesn't implement it.
     SEL selector = NSSelectorFromString(@"loadView");
-    IMP viewControllerImp = class_getMethodImplementation(SENTRY_UIViewController, selector);
+    IMP viewControllerImp
+        = class_getMethodImplementation([SENTRY_UIViewController class], selector);
     IMP classLoadViewImp = class_getMethodImplementation(class, selector);
     if (viewControllerImp == classLoadViewImp) {
         return;
