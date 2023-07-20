@@ -3,7 +3,7 @@
 #if __has_include("SentryDefines.h")
 #    import "SentryDefines.h"
 #else
-#    define SENTRY_HAS_UIKIT (TARGET_OS_IOS || TARGET_OS_TV)
+#    define SENTRY_HAS_UIKIT ((TARGET_OS_IOS || TARGET_OS_TV) && !SENTRY_IGNORE_UIKIT)
 #endif
 
 #if __has_include("SentryLog.h")
@@ -181,8 +181,17 @@ sentry_getOSVersion(void)
 {
 #if TARGET_OS_WATCH
     return WKInterfaceDevice.currentDevice.systemVersion;
-#elif SENTRY_HAS_UIKIT
+#elif TARGET_OS_IOS
+#if SENTRY_HAS_UIKIT
     return UIDevice.currentDevice.systemVersion;
+#else
+    if ([[NSProcessInfo processInfo] respondsToSelector:@selector(operatingSystemVersion)]) {
+        const auto version = [[NSProcessInfo processInfo] operatingSystemVersion];
+        return [NSString stringWithFormat:@"%ld.%ld.%ld", (long)version.majorVersion,
+                         (long)version.minorVersion, (long)version.patchVersion];
+    }
+    return @"";
+#endif
 #else
     // based off of
     // https://github.com/lmirosevic/GBDeviceInfo/blob/98dd3c75bb0e1f87f3e0fd909e52dcf0da4aa47d/GBDeviceInfo/GBDeviceInfo_OSX.m#L107-L133

@@ -13,7 +13,7 @@ SentryUIDeviceWrapper ()
 
 @implementation SentryUIDeviceWrapper
 
-#if TARGET_OS_IOS
+#if TARGET_OS_IOS && SENTRY_HAS_UIKIT
 
 - (instancetype)init
 {

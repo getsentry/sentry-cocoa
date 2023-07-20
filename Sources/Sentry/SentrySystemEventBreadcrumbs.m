@@ -7,7 +7,7 @@
 #import "SentryNSNotificationCenterWrapper.h"
 
 // all those notifications are not available for tvOS
-#if TARGET_OS_IOS
+#if TARGET_OS_IOS && SENTRY_HAS_UIKIT
 #    import <UIKit/UIKit.h>
 #endif
 
@@ -32,7 +32,7 @@ SentrySystemEventBreadcrumbs ()
 
 - (void)startWithDelegate:(id<SentryBreadcrumbDelegate>)delegate
 {
-#if TARGET_OS_IOS
+#if TARGET_OS_IOS && SENTRY_HAS_UIKIT
     UIDevice *currentDevice = [UIDevice currentDevice];
     [self startWithDelegate:delegate currentDevice:currentDevice];
 #else
@@ -42,7 +42,7 @@ SentrySystemEventBreadcrumbs ()
 
 - (void)stop
 {
-#if TARGET_OS_IOS
+#if TARGET_OS_IOS && SENTRY_HAS_UIKIT
     // Remove the observers with the most specific detail possible, see
     // https://developer.apple.com/documentation/foundation/nsnotificationcenter/1413994-removeobserver
     [self.notificationCenterWrapper removeObserver:self name:UIKeyboardDidShowNotification];
@@ -67,7 +67,7 @@ SentrySystemEventBreadcrumbs ()
     [self.notificationCenterWrapper removeObserver:self];
 }
 
-#if TARGET_OS_IOS
+#if TARGET_OS_IOS && SENTRY_HAS_UIKIT
 /**
  * Only used for testing, call startWithDelegate instead.
  */
@@ -88,7 +88,7 @@ SentrySystemEventBreadcrumbs ()
 }
 #endif
 
-#if TARGET_OS_IOS
+#if TARGET_OS_IOS && SENTRY_HAS_UIKIT
 - (void)initBatteryObserver:(UIDevice *)currentDevice
 {
     if (currentDevice.batteryMonitoringEnabled == NO) {

@@ -10,7 +10,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface SentryUIDeviceWrapper : NSObject
 
-#if TARGET_OS_IOS
+#if TARGET_OS_IOS && SENTRY_HAS_UIKIT
 - (instancetype)init;
 - (instancetype)initWithDispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper;
 - (void)stop;

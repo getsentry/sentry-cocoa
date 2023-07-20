@@ -68,13 +68,13 @@
 #    define SentryCrashCRASH_HAS_STRNSTR 0
 #endif
 
-#if SentryCrashCRASH_HOST_IOS || SentryCrashCRASH_HOST_TV || SentryCrashCRASH_HOST_WATCH
+#if (SentryCrashCRASH_HOST_IOS || SentryCrashCRASH_HOST_TV || SentryCrashCRASH_HOST_WATCH) && !SENTRY_IGNORE_UIKIT
 #    define SentryCrashCRASH_HAS_UIKIT 1
 #else
 #    define SentryCrashCRASH_HAS_UIKIT 0
 #endif
 
-#if SentryCrashCRASH_HOST_IOS || SentryCrashCRASH_HOST_TV
+#if (SentryCrashCRASH_HOST_IOS || SentryCrashCRASH_HOST_TV) && !SENTRY_IGNORE_UIKIT
 #    define SentryCrashCRASH_HAS_UIAPPLICATION 1
 #else
 #    define SentryCrashCRASH_HAS_UIAPPLICATION 0
@@ -92,7 +92,7 @@
 #    define SentryCrashCRASH_HAS_MESSAGEUI 0
 #endif
 
-#if SentryCrashCRASH_HOST_IOS || SentryCrashCRASH_HOST_TV
+#if (SentryCrashCRASH_HOST_IOS || SentryCrashCRASH_HOST_TV) && !SENTRY_IGNORE_UIKIT
 #    define SentryCrashCRASH_HAS_UIDEVICE 1
 #else
 #    define SentryCrashCRASH_HAS_UIDEVICE 0

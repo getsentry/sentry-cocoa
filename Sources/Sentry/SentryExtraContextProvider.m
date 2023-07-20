@@ -57,7 +57,7 @@ SentryExtraContextProvider ()
     extraDeviceContext[@"free_storage"] = @(self.crashWrapper.freeStorageSize);
     extraDeviceContext[@"processor_count"] = @([self.processInfoWrapper processorCount]);
 
-#if TARGET_OS_IOS
+#if TARGET_OS_IOS && SENTRY_HAS_UIKIT
     if (self.deviceWrapper.orientation != UIDeviceOrientationUnknown) {
         extraDeviceContext[@"orientation"]
             = UIDeviceOrientationIsPortrait(self.deviceWrapper.orientation) ? @"portrait"
