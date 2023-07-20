@@ -258,10 +258,12 @@ class SentryProfilerSwiftTests: XCTestCase {
 
         func createConcurrentSpansWithMetrics() throws {
             XCTAssertFalse(SentryProfiler.isCurrentlyProfiling())
+            XCTAssertEqual(SentryProfiler.currentProfiledTracers(), UInt(0))
 
-            for _ in 0 ..< numberOfTransactions {
+            for i in 0 ..< numberOfTransactions {
                 let span = try fixture.newTransaction()
                 XCTAssertTrue(SentryProfiler.isCurrentlyProfiling())
+                XCTAssertEqual(SentryProfiler.currentProfiledTracers(), UInt(i + 1))
                 spans.append(span)
                 fixture.currentDateProvider.advanceBy(nanoseconds: 100)
             }
@@ -272,12 +274,14 @@ class SentryProfilerSwiftTests: XCTestCase {
                 try fixture.gatherMockedMetrics(span: span)
                 XCTAssertTrue(SentryProfiler.isCurrentlyProfiling())
                 span.finish()
+                XCTAssertEqual(SentryProfiler.currentProfiledTracers(), UInt(numberOfTransactions - i - 1))
 
                 try self.assertValidProfileData()
                 try self.assertMetricsPayload(metricsBatches: i + 1)
             }
             
             XCTAssertFalse(SentryProfiler.isCurrentlyProfiling())
+            XCTAssertEqual(SentryProfiler.currentProfiledTracers(), UInt(0))
         }
 
         try createConcurrentSpansWithMetrics()
@@ -438,6 +442,18 @@ class SentryProfilerSwiftTests: XCTestCase {
             XCTAssertEqual(SentryProfiler.currentProfiledTracers(), UInt(1))
             fixture.currentDateProvider.advance(by: 500)
             sut.finish()
+        }
+        try performTransaction()
+        XCTAssertEqual(SentryProfiler.currentProfiledTracers(), UInt(0))
+        XCTAssertEqual(self.fixture.client?.captureEventWithScopeInvocations.count, 0)
+    }
+
+    func testProfilerCleanedUpAfterInFlightTransactionDeallocated() throws {
+        XCTAssertEqual(SentryProfiler.currentProfiledTracers(), UInt(0))
+        func performTransaction() throws {
+            let sut = try fixture.newTransaction(automaticTransaction: true)
+            XCTAssertEqual(SentryProfiler.currentProfiledTracers(), UInt(1))
+            XCTAssertFalse(sut.isFinished)
         }
         try performTransaction()
         XCTAssertEqual(SentryProfiler.currentProfiledTracers(), UInt(0))
