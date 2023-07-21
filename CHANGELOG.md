@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Reclaim memory used by profiler when transactions are discarded (#3154)
+
 ## 8.9.2
 
 ### Improvements

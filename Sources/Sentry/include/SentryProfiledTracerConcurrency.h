@@ -18,6 +18,12 @@ SENTRY_EXTERN_C_BEGIN
 void trackProfilerForTracer(SentryProfiler *profiler, SentryTracer *tracer);
 
 /**
+ * For transactions that will be discarded, clean up the bookkeeping state associated with them to
+ * reclaim the memory they're using.
+ */
+void discardProfilerForTracer(SentryTracer *tracer);
+
+/**
  * Return the profiler instance associated with the tracer. If it was the last tracer for the
  * associated profiler, stop that profiler. Copy any recorded @c SentryScreenFrames data into the
  * profiler instance, and if this is the last profiler being tracked, reset the
@@ -27,6 +33,7 @@ SentryProfiler *_Nullable profilerForFinishedTracer(SentryTracer *tracer);
 
 #    if defined(TEST) || defined(TESTCI)
 void resetConcurrencyTracking(void);
+NSUInteger currentProfiledTracers(void);
 #    endif // defined(TEST) || defined(TESTCI)
 
 SENTRY_EXTERN_C_END
