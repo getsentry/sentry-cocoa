@@ -1,11 +1,16 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Reclaim memory used by profiler when transactions are discarded (#3154)
+
 ## 8.9.2
 
 ### Improvements
 
 - Reduced macOS SDK footprint by 2% (#3157) with similar changes for tvOS and watchOS (#3158, #3159, #3161)
-- Reclaim memory used by profiler when transactions are discarded (#3154)
 
 ### Fixes
 

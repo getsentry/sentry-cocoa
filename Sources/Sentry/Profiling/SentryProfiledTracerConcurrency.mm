@@ -93,6 +93,10 @@ discardProfilerForTracer(SentryTracer *tracer)
     const auto tracerKey = tracer.traceId.sentryIdString;
     const auto profiler = _gTracersToProfilers[tracerKey];
 
+    if (profiler == nil) {
+        return;
+    }
+
     _unsafe_cleanUpProfiler(profiler, tracerKey);
 
 #    if SENTRY_HAS_UIKIT
