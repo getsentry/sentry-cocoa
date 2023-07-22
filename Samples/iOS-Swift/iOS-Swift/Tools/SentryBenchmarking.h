@@ -1,4 +1,4 @@
-#import <Foundation/Foundation.h>
+#import <UIKit/UIKit.h>
 #import <mach/host_info.h>
 #import <mach/thread_info.h>
 
@@ -15,6 +15,20 @@ extern uint64_t dispatch_benchmark(size_t count, void (^block)(void));
  */
 @interface SentryPowerReading : NSObject
 @property struct task_power_info_v2 info;
+/**
+ * From @c UIDevice.batteryLevel
+ * @warning: From docs: "Notifications for battery level change are sent no more frequently than
+ * once per minute. Don’t attempt to calculate battery drainage rate or battery time remaining;
+ * drainage rate can change frequently depending on built-in applications as well as your
+ * application."
+ * @note From docs: "-1.0 if UIDeviceBatteryStateUnknown"
+ * @warning apparently setting batteryMonitoringEnabled YES from multiple threads can cause a crash
+ */
+@property float batteryLevel;
+/** From @c NSProcessInfo.lowPowerModeEnabled */
+@property BOOL lowPowerModeEnabled;
+/** From @c NSProcessInfo.thermalState */
+@property NSProcessInfoThermalState thermalState;
 - (uint64_t)totalCPU;
 - (uint64_t)totalGPU;
 @end
@@ -26,6 +40,8 @@ extern uint64_t dispatch_benchmark(size_t count, void (^block)(void));
 @property uint64_t systemTicks;
 @property uint64_t userTicks;
 @property uint64_t idleTicks;
+/** From @c NSProcessInfo.activeProcessorCount */
+@property NSUInteger activeProcessorCount;
 
 /** The amount of system and user ticks. */
 - (uint64_t)totalTicks;
@@ -51,6 +67,7 @@ extern uint64_t dispatch_benchmark(size_t count, void (^block)(void));
 @interface SentryBenchmarkSample : NSObject
 @property NSDictionary<NSString *, SentryThreadBasicInfo *> *threadInfos;
 @property NSArray<NSNumber *> *cpuUsagePerCore;
+@property SentryPowerReading *power;
 @end
 
 /**

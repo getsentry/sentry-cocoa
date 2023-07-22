@@ -131,10 +131,29 @@
     return _info.gpu_energy.task_gpu_utilisation;
 }
 
+- (NSString *)_thermalStateName
+{
+    switch (_thermalState) {
+    case NSProcessInfoThermalStateNominal:
+        return @"nominal";
+    case NSProcessInfoThermalStateFair:
+        return @"fair";
+    case NSProcessInfoThermalStateSerious:
+        return @"serious";
+    case NSProcessInfoThermalStateCritical:
+        return @"critical";
+    default:
+        NSAssert(NO, @"unknown thermal state: %lld", (long long)_thermalState);
+    }
+}
+
 - (NSString *)description
 {
-    const auto string = [NSMutableString
-        stringWithFormat:@"totalCPU: %llu; totalGPU: %llu", [self totalCPU], [self totalGPU]];
+    const auto string =
+        [NSMutableString stringWithFormat:@"battery level: %.3f; low power mode? %@; thermalState: "
+                                          @"%@; totalCPU: %llu; totalGPU: %llu",
+                         _batteryLevel, _lowPowerModeEnabled ? @YES : @NO, [self _thermalStateName],
+                         [self totalCPU], [self totalGPU]];
 #if defined(__arm__) || defined(__arm64__)
     [string appendFormat:@"; task energy: %llu nanojoules", _info.task_energy];
 #endif // defined(__arm__) || defined(__arm64__)
@@ -153,6 +172,7 @@
         _userTicks = data.cpu_ticks[CPU_STATE_USER] + data.cpu_ticks[CPU_STATE_NICE];
         _idleTicks = data.cpu_ticks[CPU_STATE_IDLE];
     }
+    _activeProcessorCount = NSProcessInfo.processInfo.activeProcessorCount;
     return self;
 }
 
@@ -163,7 +183,8 @@
 
 - (NSString *)description
 {
-    return [NSString stringWithFormat:@"CPU ticks: %llu", [self totalTicks]];
+    return [NSString stringWithFormat:@"CPU ticks: %llu; active processors: %lu", [self totalTicks],
+                     (unsigned long)_activeProcessorCount];
 }
 
 @end
@@ -477,12 +498,14 @@ NSDictionary<NSString *, SentryThreadBasicInfo *> *_Nullable aggregateCPUUsagePe
     const auto sample = [[SentryBenchmarkSample alloc] init];
     sample.threadInfos = cpuInfoByThread();
     sample.cpuUsagePerCore = cpuUsagePerCore(nil);
+    sample.power = [self powerUsage:nil];
     [samples addObject:sample];
 }
 
 + (void)start
 {
     startReading = [self gatherBenchmarkReading];
+    UIDevice.currentDevice.batteryMonitoringEnabled = YES;
 
     const auto attr = dispatch_queue_attr_make_with_qos_class(
         DISPATCH_QUEUE_CONCURRENT, QOS_CLASS_USER_INTERACTIVE, 0);
@@ -545,20 +568,6 @@ NSDictionary<NSString *, SentryThreadBasicInfo *> *_Nullable aggregateCPUUsagePe
     return result;
 }
 
-/*
- * from https://developer.apple.com/forums/thread/91160
- *  powerInfo.task_energy is the total energy used by all threads
- *  - returned by calling task_info with TASK_POWER_INFO_V2
- *  - which calls task_power_info_locked
- *  - calculated by task_energy() (defined in darwin-xnu/osfmk/kern/task.c)
- *  - using ml_energy_stat (defined in darwin-xnu/osfmk/arm64/machine_routines.c)
- *  - which returns (thread_t)t->machine.energy_estimate_nj
- *
- * darwin-xnu/tests/task_info.c uses TASK_POWER_INFO_V2_COUNT for the size parameter
- *
- * TODO: can this be done per thread like the implementation of task_energy does? how to import the
- * kernel calls?
- */
 + (nullable SentryPowerReading *)powerUsage:(NSError **)error
 {
     struct task_power_info_v2 powerInfo;
@@ -583,6 +592,8 @@ NSDictionary<NSString *, SentryThreadBasicInfo *> *_Nullable aggregateCPUUsagePe
 
     const auto reading = [[SentryPowerReading alloc] init];
     reading.info = powerInfo;
+    reading.batteryLevel = UIDevice.currentDevice.batteryLevel;
+    NSLog(@"Power reading: %@", reading);
     return reading;
 }
 
