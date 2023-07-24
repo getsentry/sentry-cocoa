@@ -5,6 +5,7 @@
 ### Fixes
 
 - Reclaim memory used by profiler when transactions are discarded (#3154)
+- Crashed session not being reported as crashed (#3183)
 
 ## 8.9.2
 
