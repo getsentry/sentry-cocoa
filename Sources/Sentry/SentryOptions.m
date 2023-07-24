@@ -54,6 +54,8 @@ NSString *const kSentryDefaultEnvironment = @"production";
 
 + (NSArray<NSString *> *)defaultIntegrations
 {
+    // The order of integrations here is important.
+    // SentryCrashIntegration needs to be initialized before SentryAutoSessionTrackingIntegration.
     NSMutableArray<NSString *> *defaultIntegrations =
         @[
             NSStringFromClass([SentryCrashIntegration class]),
