@@ -396,7 +396,8 @@
 
 - (void)testSentryCrashIntegrationIsFirst
 {
-    XCTAssertEqualObjects(SentryOptions.defaultIntegrations.firstObject, NSStringFromClass([SentryCrashIntegration class]));
+    XCTAssertEqualObjects(SentryOptions.defaultIntegrations.firstObject,
+        NSStringFromClass([SentryCrashIntegration class]));
 }
 
 - (void)testSampleRateWithDict
