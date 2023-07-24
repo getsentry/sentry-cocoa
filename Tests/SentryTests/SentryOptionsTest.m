@@ -394,6 +394,11 @@
         @"Default integrations are not set correctly");
 }
 
+- (void)testSentryCrashIntegrationIsFirst
+{
+    XCTAssertEqualObjects(SentryOptions.defaultIntegrations.firstObject, NSStringFromClass([SentryCrashIntegration class]));
+}
+
 - (void)testSampleRateWithDict
 {
     NSNumber *sampleRate = @0.1;
