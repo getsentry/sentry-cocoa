@@ -56,6 +56,7 @@ NSString *const kSentryDefaultEnvironment = @"production";
 {
     NSMutableArray<NSString *> *defaultIntegrations =
         @[
+            NSStringFromClass([SentryCrashIntegration class]),
 #if SENTRY_HAS_UIKIT
             NSStringFromClass([SentryAppStartTrackingIntegration class]),
             NSStringFromClass([SentryFramesTrackingIntegration class]),
@@ -69,7 +70,6 @@ NSString *const kSentryDefaultEnvironment = @"production";
             NSStringFromClass([SentryAutoBreadcrumbTrackingIntegration class]),
             NSStringFromClass([SentryAutoSessionTrackingIntegration class]),
             NSStringFromClass([SentryCoreDataTrackingIntegration class]),
-            NSStringFromClass([SentryCrashIntegration class]),
             NSStringFromClass([SentryFileIOTrackingIntegration class]),
             NSStringFromClass([SentryNetworkTrackingIntegration class]),
             NSStringFromClass([SentrySwiftAsyncIntegration class])
