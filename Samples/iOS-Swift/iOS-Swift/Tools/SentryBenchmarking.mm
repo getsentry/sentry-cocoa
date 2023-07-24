@@ -21,7 +21,7 @@
 
     _results = [[SentryBenchmarkReading alloc] init];
 
-    _results.wallClockTime = end.wallClockTime - start.wallClockTime;
+    _results.machTime = end.machTime - start.machTime;
 
     _results.cpu = [[SentryCPUReading alloc] init];
     _results.cpu.systemTicks = end.cpu.systemTicks - start.cpu.systemTicks;
@@ -57,7 +57,7 @@
         end.power.info.task_pset_switches - start.power.info.task_pset_switches
     };
 
-    _results.contextSwitches = end.contextSwitches - start.contextSwitches;
+    //    _results.contextSwitches = end.contextSwitches - start.contextSwitches;
 
     _sampledResults = aggregatedSampleResult;
 
@@ -67,19 +67,33 @@
 - (NSString *)description
 {
     return [NSString
-        stringWithFormat:
-            @"Start/end esults:\nwall clock time: %llu\n%@\ncumulative sampled results:\n%@",
-        _results.wallClockTime, _results.description, _sampledResults.description];
+        stringWithFormat:@"Start/end esults:\nmach time: %llu\n%@\ncumulative sampled results:\n%@",
+        _results.machTime, _results.description, _sampledResults.description];
 }
 
 @end
 
 @implementation SentryBenchmarkReading
 
+- (instancetype)initWithError:(NSError *__autoreleasing _Nullable *)error
+{
+    if (!(self = [super init])) {
+        if (@available(macOS 10.12, iOS 10.0, tvOS 10.0, watchOS 3.0, *)) {
+            _machTime = clock_gettime_nsec_np(CLOCK_UPTIME_RAW);
+        } else {
+            _machTime = mach_absolute_time();
+        }
+        _cpu = [[SentryCPUReading alloc] initWithError:error];
+        _power = [[SentryPowerReading alloc] initWithError:error];
+        _taskEvents = [[SentryTaskEventsReading alloc] initWithError:error];
+    }
+    return nil;
+}
+
 - (NSString *)description
 {
-    return [NSString stringWithFormat:@"cpu:\n%@;\npower:\n%@; contextSwitches: %llu",
-                     self.cpu.description, self.power.description, self.contextSwitches];
+    return [NSString stringWithFormat:@"cpu:\n%@\npower:\n%@\ntask events:\n%@",
+                     self.cpu.description, self.power.description, self.taskEvents.description];
 }
 
 @end
@@ -120,6 +134,38 @@
 @end
 
 @implementation SentryPowerReading
+
+- (instancetype)initWithError:(NSError *__autoreleasing _Nullable *)error
+{
+    if ((self = [super init])) {
+        struct task_power_info_v2 powerInfo;
+
+        mach_msg_type_number_t size = TASK_POWER_INFO_V2_COUNT;
+
+        task_t task = mach_task_self();
+        kern_return_t kr = task_info(task, TASK_POWER_INFO_V2, (task_info_t)&powerInfo, &size);
+        if (kr != KERN_SUCCESS) {
+            if (error) {
+                *error = [NSError
+                    errorWithDomain:@"io.sentry.error.benchmarking"
+                               code:1
+                           userInfo:@{
+                               NSLocalizedFailureReasonErrorKey : [NSString
+                                   stringWithFormat:
+                                       @"Error with task_info(…TASK_POWER_INFO_V2…): %d.", kr]
+                           }];
+            }
+            return nil;
+        }
+
+        _info = powerInfo;
+        _batteryLevel = UIDevice.currentDevice.batteryLevel;
+        _thermalState = NSProcessInfo.processInfo.thermalState;
+        _lowPowerModeEnabled = NSProcessInfo.processInfo.lowPowerModeEnabled;
+        NSLog(@"Power reading: %@", self.description);
+    }
+    return self;
+}
 
 - (uint64_t)totalCPU
 {
@@ -162,17 +208,67 @@
 
 @end
 
+@implementation SentryTaskEventsReading
+
+- (instancetype)initWithError:(NSError *__autoreleasing _Nullable *)error
+{
+    if ((self = [super init])) {
+        task_events_info info;
+        mach_msg_type_number_t count = TASK_EVENTS_INFO_COUNT;
+        const auto status
+            = task_info(mach_task_self(), TASK_EVENTS_INFO, (task_info_t)&info, &count);
+        if (status != KERN_SUCCESS) {
+            if (error) {
+                *error = [NSError
+                    errorWithDomain:@"io.sentry.error.benchmarking"
+                               code:3
+                           userInfo:@{
+                               NSLocalizedFailureReasonErrorKey : [NSString
+                                   stringWithFormat:@"task_info reported an error: %d", status]
+                           }];
+            }
+            return nil;
+        }
+    }
+    return self;
+}
+
+- (NSString *)description
+{
+    // TODO: implement
+    return [NSString stringWithFormat:@""];
+}
+
+@end
+
 @implementation SentryCPUReading
 
-- (instancetype)initWithData:(host_cpu_load_info_data_t)data
+- (instancetype)initWithError:(NSError **)error
 {
-    self = [super init];
-    if (self) {
+    if ((self = [super init])) {
+        kern_return_t kr;
+        mach_msg_type_number_t count = HOST_CPU_LOAD_INFO_COUNT;
+        host_cpu_load_info_data_t data;
+
+        kr = host_statistics(mach_host_self(), HOST_CPU_LOAD_INFO, (int *)&data, &count);
+        if (kr != KERN_SUCCESS) {
+            if (error) {
+                *error =
+                    [NSError errorWithDomain:@"io.sentry.error.benchmarking"
+                                        code:4
+                                    userInfo:@{
+                                        NSLocalizedFailureReasonErrorKey : [NSString
+                                            stringWithFormat:@"task_info reported an error: %d", kr]
+                                    }];
+            }
+            return nil;
+        }
+
         _systemTicks = data.cpu_ticks[CPU_STATE_SYSTEM];
         _userTicks = data.cpu_ticks[CPU_STATE_USER] + data.cpu_ticks[CPU_STATE_NICE];
         _idleTicks = data.cpu_ticks[CPU_STATE_IDLE];
+        _activeProcessorCount = NSProcessInfo.processInfo.activeProcessorCount;
     }
-    _activeProcessorCount = NSProcessInfo.processInfo.activeProcessorCount;
     return self;
 }
 
@@ -196,6 +292,11 @@ microsecondsFromTimeValue(time_value_t value)
 }
 
 @implementation SentryThreadBasicInfo
+
+- (nonnull instancetype)initWithError:(NSError *__autoreleasing _Nullable *_Nullable)error
+{
+    return nil; // TODO: implement
+}
 
 - (NSString *)description
 {
@@ -479,32 +580,18 @@ NSDictionary<NSString *, SentryThreadBasicInfo *> *_Nullable aggregateCPUUsagePe
 
 @implementation SentryBenchmarking
 
-+ (SentryBenchmarkReading *)gatherBenchmarkReading
-{
-    const auto reading = [[SentryBenchmarkReading alloc] init];
-    if (@available(macOS 10.12, iOS 10.0, tvOS 10.0, watchOS 3.0, *)) {
-        reading.wallClockTime = clock_gettime_nsec_np(CLOCK_UPTIME_RAW);
-    } else {
-        reading.wallClockTime = mach_absolute_time();
-    }
-    reading.cpu = [self cpuTicks:nil];
-    reading.power = [self powerUsage:nil];
-    reading.contextSwitches = [[self numContextSwitches:nil] longLongValue];
-    return reading;
-}
-
 + (void)recordSample
 {
     const auto sample = [[SentryBenchmarkSample alloc] init];
     sample.threadInfos = cpuInfoByThread();
     sample.cpuUsagePerCore = cpuUsagePerCore(nil);
-    sample.power = [self powerUsage:nil];
+    sample.power = [[SentryPowerReading alloc] initWithError:nil];
     [samples addObject:sample];
 }
 
 + (void)start
 {
-    startReading = [self gatherBenchmarkReading];
+    startReading = [[SentryBenchmarkReading alloc] init];
     UIDevice.currentDevice.batteryMonitoringEnabled = YES;
 
     const auto attr = dispatch_queue_attr_make_with_qos_class(
@@ -553,7 +640,7 @@ NSDictionary<NSString *, SentryThreadBasicInfo *> *_Nullable aggregateCPUUsagePe
 {
     dispatch_cancel(source);
     [self recordSample];
-    const auto endReading = [self gatherBenchmarkReading];
+    const auto endReading = [[SentryBenchmarkReading alloc] initWithError:nil];
 
     const auto sampleResult = [[SentrySampledBenchmarkResults alloc] init];
     sampleResult.aggregatedThreadInfo = aggregateCPUUsagePerThread();
@@ -566,78 +653,6 @@ NSDictionary<NSString *, SentryThreadBasicInfo *> *_Nullable aggregateCPUUsagePe
     [samples removeAllObjects];
 
     return result;
-}
-
-+ (nullable SentryPowerReading *)powerUsage:(NSError **)error
-{
-    struct task_power_info_v2 powerInfo;
-
-    mach_msg_type_number_t size = TASK_POWER_INFO_V2_COUNT;
-
-    task_t task = mach_task_self();
-    kern_return_t kr = task_info(task, TASK_POWER_INFO_V2, (task_info_t)&powerInfo, &size);
-    if (kr != KERN_SUCCESS) {
-        if (error) {
-            *error = [NSError
-                errorWithDomain:@"io.sentry.error.benchmarking"
-                           code:1
-                       userInfo:@{
-                           NSLocalizedFailureReasonErrorKey : [NSString
-                               stringWithFormat:@"Error with task_info(…TASK_POWER_INFO_V2…): %d.",
-                               kr]
-                       }];
-        }
-        return nil;
-    }
-
-    const auto reading = [[SentryPowerReading alloc] init];
-    reading.info = powerInfo;
-    reading.batteryLevel = UIDevice.currentDevice.batteryLevel;
-    NSLog(@"Power reading: %@", reading);
-    return reading;
-}
-
-+ (nullable NSNumber *)numContextSwitches:(NSError **)error
-{
-    task_events_info info;
-    mach_msg_type_number_t count = TASK_EVENTS_INFO_COUNT;
-    const auto status = task_info(mach_task_self(), TASK_EVENTS_INFO, (task_info_t)&info, &count);
-    if (status != KERN_SUCCESS) {
-        if (error) {
-            *error =
-                [NSError errorWithDomain:@"io.sentry.error.benchmarking"
-                                    code:3
-                                userInfo:@{
-                                    NSLocalizedFailureReasonErrorKey : [NSString
-                                        stringWithFormat:@"task_info reported an error: %d", status]
-                                }];
-        }
-        return nil;
-    }
-    return @(info.csw);
-}
-
-+ (nullable SentryCPUReading *)cpuTicks:(NSError **)error
-{
-    kern_return_t kr;
-    mach_msg_type_number_t count = HOST_CPU_LOAD_INFO_COUNT;
-    host_cpu_load_info_data_t data;
-
-    kr = host_statistics(mach_host_self(), HOST_CPU_LOAD_INFO, (int *)&data, &count);
-    if (kr != KERN_SUCCESS) {
-        if (error) {
-            *error = [NSError
-                errorWithDomain:@"io.sentry.error.benchmarking"
-                           code:4
-                       userInfo:@{
-                           NSLocalizedFailureReasonErrorKey :
-                               [NSString stringWithFormat:@"task_info reported an error: %d", kr]
-                       }];
-        }
-        return nil;
-    }
-
-    return [[SentryCPUReading alloc] initWithData:data];
 }
 
 @end

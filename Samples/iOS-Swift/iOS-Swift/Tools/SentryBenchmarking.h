@@ -1,5 +1,6 @@
 #import <UIKit/UIKit.h>
 #import <mach/host_info.h>
+#import <mach/task_info.h>
 #import <mach/thread_info.h>
 
 NS_ASSUME_NONNULL_BEGIN
@@ -7,6 +8,7 @@ NS_ASSUME_NONNULL_BEGIN
 extern uint64_t dispatch_benchmark(size_t count, void (^block)(void));
 
 @interface SentryThreadBasicInfo : NSObject
+- (instancetype)initWithError:(NSError **)error;
 @property struct thread_basic_info threadInfo;
 @end
 
@@ -14,6 +16,7 @@ extern uint64_t dispatch_benchmark(size_t count, void (^block)(void));
  * The amount of power that's been consumed since system boot at the moment the info is gathered.
  */
 @interface SentryPowerReading : NSObject
+- (instancetype)initWithError:(NSError **)error;
 @property struct task_power_info_v2 info;
 /**
  * From @c UIDevice.batteryLevel
@@ -33,10 +36,16 @@ extern uint64_t dispatch_benchmark(size_t count, void (^block)(void));
 - (uint64_t)totalGPU;
 @end
 
+@interface SentryTaskEventsReading : NSObject
+- (instancetype)initWithError:(NSError **)error;
+@property struct task_events_info data;
+@end
+
 /**
  * The amount of ticks that have occurred since system boot at the moment the info is gathered.
  */
 @interface SentryCPUReading : NSObject
+- (instancetype)initWithError:(NSError **)error;
 @property uint64_t systemTicks;
 @property uint64_t userTicks;
 @property uint64_t idleTicks;
@@ -53,10 +62,12 @@ extern uint64_t dispatch_benchmark(size_t count, void (^block)(void));
  * the difference can be taken to compute the result.
  */
 @interface SentryBenchmarkReading : NSObject
-@property uint64_t wallClockTime;
+- (instancetype)initWithError:(NSError **)error;
+@property uint64_t machTime;
+@property NSDate *timestamp;
 @property SentryCPUReading *cpu;
 @property SentryPowerReading *power;
-@property uint64_t contextSwitches;
+@property SentryTaskEventsReading *taskEvents;
 @end
 
 /**
