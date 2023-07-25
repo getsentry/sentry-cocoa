@@ -18,7 +18,7 @@
 #    define SENTRY_HAS_METRIC_KIT 0
 #endif
 
-#if __has_include(<UIKit/UIKit.h>)
+#if SENTRY_HAS_UIKIT
 
 #    import <UIKit/UIKit.h>
 
@@ -131,9 +131,9 @@
             @"UIApplicationWillEnterForegroundNotification"
 #        define SENTRY_UIApplicationWillEnterForegroundNotification                                \
             @"UIApplicationWillEnterForegroundNotification"
-#    endif // !defined(SENTRY_USE_UIKIT)
+#    endif // CONFIGURATION != Debug_Use_UIKit
 
-#endif //  __has_include(<UIKit/UIKit.h>)
+#endif // SENTRY_HAS_UIKIT
 
 #define SENTRY_NO_INIT                                                                             \
     -(instancetype)init NS_UNAVAILABLE;                                                            \
