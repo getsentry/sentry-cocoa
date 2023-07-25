@@ -77,6 +77,7 @@ extern uint64_t dispatch_benchmark(size_t count, void (^block)(void));
  * wrapper around one reading at a moment in time.
  */
 @interface SentryBenchmarkSample : NSObject
+@property uint64_t machTime;
 @property NSDictionary<NSString *, SentryThreadBasicInfo *> *threadInfos;
 @property NSArray<NSNumber *> *cpuUsagePerCore;
 @property SentryPowerReading *power;

@@ -6,6 +6,7 @@
 //  Copyright © 2023 Sentry. All rights reserved.
 //
 
+import CoreLocation
 import UIKit
 
 @available(iOS 13.0, *)
@@ -28,13 +29,27 @@ class ProfilingViewController: UIViewController {
         navigationController?.pushViewController(EfficientTableViewController(style: .insetGrouped), animated: true)
     }
 
+    @IBAction func startGPSUpdates(_ sender: Any) {
+        CLLocationManager().startUpdatingLocation()
+    }
+
+    @IBAction func endGPSUpdates(_ sender: Any) {
+        CLLocationManager().stopUpdatingLocation()
+    }
+
+    var shouldDrainBattery = false
     @IBAction func drainBattery() {
+        shouldDrainBattery = true
         for _ in 0..<ProcessInfo.processInfo.processorCount {
-            DispatchQueue.global(qos: .userInteractive).async {
+            DispatchQueue.global(qos: .userInitiated).async {
                 self._drainBattery()
             }
         }
-        _drainBattery()
+//        _drainBattery()
+    }
+
+    @IBAction func endDrainBattery() {
+        shouldDrainBattery = false
     }
 
     func _drainBattery() {
@@ -55,9 +70,10 @@ class ProfilingViewController: UIViewController {
                     return c < d
                 }
             }))
-//            print("result: " + results.map({
-//                NSString(format: "%.5f", $0) as String
-//            }).joined(separator: ", "))
+
+            if !shouldDrainBattery {
+                break
+            }
         }
     }
 }

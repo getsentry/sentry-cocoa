@@ -14,6 +14,16 @@ const auto frequencyHz = 10;
 const auto intervalNs = 1e9 / frequencyHz;
 
 uint64_t
+machTime(void)
+{
+    if (@available(macOS 10.12, iOS 10.0, tvOS 10.0, watchOS 3.0, *)) {
+        return clock_gettime_nsec_np(CLOCK_UPTIME_RAW);
+    } else {
+        return mach_absolute_time();
+    }
+}
+
+uint64_t
 microsecondsFromTimeValue(time_value_t value)
 {
     return value.seconds * 1e6 + value.microseconds;
@@ -304,6 +314,7 @@ NSDictionary<NSString *, SentryThreadBasicInfo *> *_Nullable aggregateCPUUsagePe
         end.power.info.task_pset_switches - start.power.info.task_pset_switches
     };
 
+    // TODO: diff all task events
     //    _results.contextSwitches = end.contextSwitches - start.contextSwitches;
 
     _sampledResults = aggregatedSampleResult;
@@ -325,11 +336,7 @@ NSDictionary<NSString *, SentryThreadBasicInfo *> *_Nullable aggregateCPUUsagePe
 - (instancetype)initWithError:(NSError *__autoreleasing _Nullable *)error
 {
     if (!(self = [super init])) {
-        if (@available(macOS 10.12, iOS 10.0, tvOS 10.0, watchOS 3.0, *)) {
-            _machTime = clock_gettime_nsec_np(CLOCK_UPTIME_RAW);
-        } else {
-            _machTime = mach_absolute_time();
-        }
+        _machTime = machTime();
         _cpu = [[SentryCPUReading alloc] initWithError:error];
         _power = [[SentryPowerReading alloc] initWithError:error];
         _taskEvents = [[SentryTaskEventsReading alloc] initWithError:error];
@@ -409,7 +416,6 @@ NSDictionary<NSString *, SentryThreadBasicInfo *> *_Nullable aggregateCPUUsagePe
         _batteryLevel = UIDevice.currentDevice.batteryLevel;
         _thermalState = NSProcessInfo.processInfo.thermalState;
         _lowPowerModeEnabled = NSProcessInfo.processInfo.lowPowerModeEnabled;
-        NSLog(@"Power reading: %@", self.description);
     }
     return self;
 }
@@ -571,9 +577,14 @@ NSDictionary<NSString *, SentryThreadBasicInfo *> *_Nullable aggregateCPUUsagePe
 - (instancetype)initWithError:(NSError **)error
 {
     if ((self = [super init])) {
+        _machTime = machTime();
         _threadInfos = cpuInfoByThread();
         _cpuUsagePerCore = cpuUsagePerCore(error);
         _power = [[SentryPowerReading alloc] initWithError:nil];
+
+#if defined(__arm__) || defined(__arm64__)
+        NSLog(@"%llu %llu %llu", _machTime, _power.totalCPU, _power.info.task_energy);
+#endif // defined(__arm__) || defined(__arm64__)
     }
     return self;
 }
@@ -583,8 +594,8 @@ NSDictionary<NSString *, SentryThreadBasicInfo *> *_Nullable aggregateCPUUsagePe
     const auto cores = [NSMutableArray array];
     [_cpuUsagePerCore enumerateObjectsUsingBlock:^(NSNumber *_Nonnull obj, NSUInteger idx,
         BOOL *_Nonnull stop) { [cores addObject:obj.stringValue]; }];
-    return [NSString stringWithFormat:@"Thread infos: %@\nCore infos: %@", _threadInfos,
-                     [cores componentsJoinedByString:@", "]];
+    return [NSString stringWithFormat:@"mach time: %llu; Thread infos: %@\nCore infos: %@",
+                     _machTime, _threadInfos, [cores componentsJoinedByString:@", "]];
 }
 
 @end
