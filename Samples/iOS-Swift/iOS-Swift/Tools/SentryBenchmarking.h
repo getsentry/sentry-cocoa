@@ -8,7 +8,8 @@ NS_ASSUME_NONNULL_BEGIN
 extern uint64_t dispatch_benchmark(size_t count, void (^block)(void));
 
 @interface SentryThreadBasicInfo : NSObject
-- (instancetype)initWithError:(NSError **)error;
+- (nonnull instancetype)initForThread:(int)thread
+                                error:(NSError *__autoreleasing _Nullable *_Nullable)error;
 @property struct thread_basic_info threadInfo;
 @end
 
@@ -109,11 +110,13 @@ extern uint64_t dispatch_benchmark(size_t count, void (^block)(void));
 
 @interface SentryBenchmarking : NSObject
 
++ (instancetype)shared;
+
 /**
  * Gather some initial readings on system components and spin up an in-app sampling
  * profiler to gather information on per-thread CPU usages throughout the benchmark.
  */
-+ (void)start;
+- (void)start;
 
 /**
  * Return statistics on CPU usage by the profiler and test app for
@@ -122,13 +125,13 @@ extern uint64_t dispatch_benchmark(size_t count, void (^block)(void));
  * profiler user time, app system time and app user time, which can be used to calculate the
  * overhead of the profiler; or, if an error occurred, returns @c nil .
  */
-+ (nullable NSString *)stopAndReturnProfilerThreadUsage;
+- (nullable NSString *)stopAndReturnProfilerThreadUsage;
 
 /**
  * Gather final readings and return their diff, along with the aggregated results from
  * sampling-based data like per-thread CPU time.
  */
-+ (SentryBenchmarkResult *)stop;
+- (SentryBenchmarkResult *)stop;
 
 @end
 

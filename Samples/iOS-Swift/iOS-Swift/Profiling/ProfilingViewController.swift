@@ -12,11 +12,11 @@ import UIKit
 class ProfilingViewController: UIViewController {
 
     @IBAction func startBenchmark(_ sender: Any) {
-        SentryBenchmarking.start()
+        SentryBenchmarking.shared().start()
     }
 
     @IBAction func stopBenchmark(_ sender: Any) {
-        print("[iOS-Swift] benchmarking results:\n" + SentryBenchmarking.stop().description)
+        print("[iOS-Swift] benchmarking results:\n" + SentryBenchmarking.shared().stop().description)
         try! print("[iOS-Swift] machine info:\n" + SentryMachineInfo.cpuInfo().description)
     }
 

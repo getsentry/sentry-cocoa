@@ -9,6 +9,253 @@
 
 #define SENTRY_BENCHMARKING_THREAD_NAME "io.sentry.benchmark.sampler-thread"
 
+namespace {
+const auto frequencyHz = 10;
+const auto intervalNs = 1e9 / frequencyHz;
+
+uint64_t
+microsecondsFromTimeValue(time_value_t value)
+{
+    return value.seconds * 1e6 + value.microseconds;
+}
+
+NSArray<NSNumber *> *
+aggregatedCPUUsagePerCore(NSArray<SentryBenchmarkSample *> *samples)
+{
+    const auto totalUsages = [NSMutableArray<NSNumber *> array];
+    for (SentryBenchmarkSample *sample in samples) {
+        [sample.cpuUsagePerCore enumerateObjectsUsingBlock:^(
+            NSNumber *_Nonnull obj, NSUInteger idx, BOOL *_Nonnull stop) {
+            if (totalUsages.count <= idx) {
+                totalUsages[idx] = obj;
+            } else {
+                totalUsages[idx] = @(totalUsages[idx].doubleValue + obj.doubleValue);
+            }
+        }];
+    }
+    const auto averageUsages = [NSMutableArray<NSNumber *> array];
+    for (NSNumber *totalUsage in totalUsages) {
+        [averageUsages addObject:@(totalUsage.doubleValue / samples.count)];
+    }
+    return averageUsages;
+}
+
+processor_info_array_t _Nullable processorInfo(natural_t *numCPUs, NSError **error)
+{
+    processor_info_array_t cpuInfo;
+    mach_msg_type_number_t numCPUInfo = PROCESSOR_CPU_LOAD_INFO_COUNT;
+    auto status = host_processor_info(
+        mach_host_self(), PROCESSOR_CPU_LOAD_INFO, numCPUs, &cpuInfo, &numCPUInfo);
+    if (status != KERN_SUCCESS) {
+        if (error) {
+            *error = [NSError
+                errorWithDomain:@"io.sentry.error.benchmarking"
+                           code:2
+                       userInfo:@ {
+                           NSLocalizedFailureReasonErrorKey : [NSString
+                               stringWithFormat:@"host_processor_info reported an error: %d",
+                               status]
+                       }];
+        }
+        return NULL;
+    }
+    return cpuInfo;
+}
+
+/**
+ * @return The CPU usage per core, where the order of results corresponds to the core number as
+ * returned by the underlying system call, e.g. @c @[ @c <core-0-CPU-usage>, @c <core-1-CPU-usage>,
+ * @c ...] .
+ */
+NSArray<NSNumber *> *
+cpuUsagePerCore(NSError **error)
+{
+    natural_t numCPUsA = 0U;
+    const auto first = processorInfo(&numCPUsA, error);
+    if (first == NULL) {
+        return nil;
+    }
+
+    // htop sleeps for 75 milliseconds between two samples:
+    // https://github.com/htop-dev/htop/blob/37d30a3a7d6c96da018c960d6b6bfe11cc718aa8/CommandLine.c#L402-L405
+    std::this_thread::sleep_for(std::chrono::milliseconds(75));
+
+    natural_t numCPUsB = 0U;
+    const auto second = processorInfo(&numCPUsB, error);
+    if (second == NULL) {
+        return nil;
+    }
+
+    NSCAssert(numCPUsA == numCPUsB, @"Different number of cpus reported between calls");
+
+    NSMutableArray *result = [NSMutableArray arrayWithCapacity:numCPUsA];
+
+    auto totalTicks = 0.0;
+    for (natural_t state = 0U; state < CPU_STATE_MAX; ++state) {
+        totalTicks += second[state] - first[state];
+    }
+
+    for (natural_t core = 0U; core < numCPUsA; ++core) {
+        const auto indexBase = CPU_STATE_MAX * core;
+        const float user = (second[indexBase + CPU_STATE_USER] - first[indexBase + CPU_STATE_USER])
+            * 100.0 / totalTicks;
+        const float sys
+            = (second[indexBase + CPU_STATE_SYSTEM] - first[indexBase + CPU_STATE_SYSTEM]) * 100.0
+            / totalTicks;
+        const float nice = (second[indexBase + CPU_STATE_NICE] - first[indexBase + CPU_STATE_NICE])
+            * 100.0 / totalTicks;
+        [result addObject:@(user + sys + nice)];
+    }
+
+    return result;
+}
+
+/// @note: Implementation ported from @c SentryThreadHandle.hpp .
+NSDictionary<NSString *, SentryThreadBasicInfo *> *
+cpuInfoByThread(void)
+{
+    const auto dict = [NSMutableDictionary<NSString *, SentryThreadBasicInfo *> dictionary];
+    mach_msg_type_number_t count;
+    thread_act_array_t list;
+
+    if (task_threads(mach_task_self(), &list, &count) == KERN_SUCCESS) {
+        for (decltype(count) i = 0; i < count; i++) {
+            const auto thread = list[i];
+
+            // get thread name to check for the sampling profiler thread
+            const auto handle = pthread_from_mach_thread_np(thread);
+            std::string namestr;
+            if (handle == nullptr) {
+                continue;
+            }
+            char name[128];
+            if (pthread_getname_np(handle, name, sizeof(name)) != 0) {
+                continue;
+            }
+            namestr = std::string(name);
+            if (namestr.length() == 0) {
+                namestr = std::to_string(thread);
+            }
+
+            if (namestr == SENTRY_BENCHMARKING_THREAD_NAME) {
+                continue;
+            }
+
+            dict[[NSString stringWithUTF8String:namestr.c_str()]] =
+                [[SentryThreadBasicInfo alloc] initForThread:thread error:nil];
+        }
+    }
+    vm_deallocate(mach_task_self(), reinterpret_cast<vm_address_t>(list), sizeof(*list) * count);
+    return dict;
+}
+
+NSDictionary<NSString *, SentryThreadBasicInfo *> *_Nullable aggregateCPUUsagePerThread(
+    NSArray<SentryBenchmarkSample *> *samples)
+{
+    if (samples.count < 2) {
+        printf("[Sentry Benchmark] not enough samples were gathered to compute CPU usage.\n");
+        return nil;
+    }
+
+    const auto userTimeTotals = [NSMutableDictionary<NSString *, NSNumber *> dictionary];
+    const auto systemTimeTotals = [NSMutableDictionary<NSString *, NSNumber *> dictionary];
+    const auto suspendCountTotals = [NSMutableDictionary<NSString *, NSNumber *> dictionary];
+    const auto sleepTimeTotals = [NSMutableDictionary<NSString *, NSNumber *> dictionary];
+    const auto cpuUsages =
+        [NSMutableDictionary<NSString *, NSMutableArray<NSNumber *> *> dictionary];
+    for (auto i = 0; i < samples.count - 2; i++) {
+        const auto lastSample = samples[i];
+        const auto thisSample = samples[i + 1];
+
+        const auto afterKeys = [NSSet<NSString *> setWithArray:thisSample.threadInfos.allKeys];
+        const auto persistedThreads =
+            [NSMutableSet<NSString *> setWithArray:lastSample.threadInfos.allKeys];
+        [persistedThreads intersectSet:afterKeys];
+        const auto destroyedThreads =
+            [NSMutableSet<NSString *> setWithArray:lastSample.threadInfos.allKeys];
+        [destroyedThreads minusSet:persistedThreads];
+
+        for (NSString *key : persistedThreads) {
+            const auto lastThreadInfo = lastSample.threadInfos[key].threadInfo;
+            const auto thisThreadInfo = thisSample.threadInfos[key].threadInfo;
+
+            const auto lastSystemTime_ms = microsecondsFromTimeValue(lastThreadInfo.system_time);
+            const auto thisSystemTime_ms = microsecondsFromTimeValue(thisThreadInfo.system_time);
+
+            const auto lastUserTime_ms = microsecondsFromTimeValue(lastThreadInfo.user_time);
+            const auto thisUserTime_ms = microsecondsFromTimeValue(thisThreadInfo.user_time);
+
+            const auto lastSleepTime_s = lastThreadInfo.sleep_time;
+            const auto thisSleepTime_s = thisThreadInfo.sleep_time;
+
+            const auto lastSuspendCount = lastThreadInfo.suspend_count;
+            const auto thisSuspendCount = thisThreadInfo.suspend_count;
+
+            const auto lastCPUUsage = lastThreadInfo.cpu_usage;
+            const auto thisCPUUsage = thisThreadInfo.cpu_usage;
+
+            if (thisSystemTime_ms + thisUserTime_ms < lastSystemTime_ms + lastUserTime_ms) {
+                // thread id was *likely* reassigned to a new thread since last sample
+                [destroyedThreads addObject:key];
+                continue;
+            }
+
+            const auto systemTimeDelta = thisSystemTime_ms - lastSystemTime_ms;
+            const auto userTimeDelta = thisUserTime_ms - lastUserTime_ms;
+            const auto sleepTimeDelta = thisSleepTime_s - lastSleepTime_s;
+            const auto suspendCountDelta = thisSuspendCount - lastSuspendCount;
+
+            if (!systemTimeTotals[key]) {
+                systemTimeTotals[key] = @(systemTimeDelta);
+                userTimeTotals[key] = @(userTimeDelta);
+                sleepTimeTotals[key] = @(sleepTimeDelta);
+                suspendCountTotals[key] = @(suspendCountDelta);
+                cpuUsages[key] = [NSMutableArray<NSNumber *>
+                    arrayWithObjects:@(lastCPUUsage), @(thisCPUUsage), nil];
+            } else {
+                systemTimeTotals[key] = @(systemTimeDelta + systemTimeTotals[key].integerValue);
+                userTimeTotals[key] = @(userTimeDelta + userTimeTotals[key].integerValue);
+                sleepTimeTotals[key] = @(sleepTimeDelta + sleepTimeTotals[key].integerValue);
+                suspendCountTotals[key] =
+                    @(suspendCountDelta + suspendCountTotals[key].integerValue);
+                [cpuUsages[key] addObject:@(lastCPUUsage)];
+                [cpuUsages[key] addObject:@(thisCPUUsage)];
+            }
+        }
+    }
+    const auto cpuUsageAverages = [NSMutableDictionary<NSString *, NSNumber *> dictionary];
+    [cpuUsages enumerateKeysAndObjectsUsingBlock:^(
+        NSString *_Nonnull key, NSMutableArray<NSNumber *> *_Nonnull obj, BOOL *_Nonnull stop) {
+        auto total = 0;
+        for (NSNumber *cpuUsage in obj) {
+            total += cpuUsage.intValue;
+        }
+        cpuUsageAverages[key] = @((double)total / obj.count);
+    }];
+
+    const auto aggregatedThreadInfos =
+        [NSMutableDictionary<NSString *, SentryThreadBasicInfo *> dictionary];
+    for (NSString *key in userTimeTotals.allKeys) {
+        thread_basic_info threadInfo;
+
+        // !!!: we'll store the time totals only in microseconds; they are 32 bit int fields, so can
+        // represent up to about 35 minutes each
+        threadInfo.user_time = { 0, userTimeTotals[key].intValue };
+        threadInfo.system_time = { 0, systemTimeTotals[key].intValue };
+
+        threadInfo.sleep_time = sleepTimeTotals[key].intValue;
+        threadInfo.cpu_usage = cpuUsageAverages[key].intValue;
+        threadInfo.suspend_count = suspendCountTotals[key].intValue;
+
+        const auto threadInfoWrapper = [[SentryThreadBasicInfo alloc] init];
+        threadInfoWrapper.threadInfo = threadInfo;
+        aggregatedThreadInfos[key] = threadInfoWrapper;
+    }
+
+    return aggregatedThreadInfos;
+}
+} // namespace
+
 @implementation SentryBenchmarkResult
 
 - (instancetype)initWithStart:(SentryBenchmarkReading *)start
@@ -229,14 +476,18 @@
             }
             return nil;
         }
+        _data = info;
     }
     return self;
 }
 
 - (NSString *)description
 {
-    // TODO: implement
-    return [NSString stringWithFormat:@""];
+    return [NSString
+        stringWithFormat:@"faults: %d; pageins: %d; cow_faults: %d; messages_sent: %d; "
+                         @"messages_received: %d; syscalls_mach: %d; syscalls_unix: %d; csw: %d",
+        _data.faults, _data.pageins, _data.cow_faults, _data.messages_sent, _data.messages_received,
+        _data.syscalls_mach, _data.syscalls_unix, _data.csw];
 }
 
 @end
@@ -285,17 +536,22 @@
 
 @end
 
-uint64_t
-microsecondsFromTimeValue(time_value_t value)
-{
-    return value.seconds * 1e6 + value.microseconds;
-}
-
 @implementation SentryThreadBasicInfo
 
-- (nonnull instancetype)initWithError:(NSError *__autoreleasing _Nullable *_Nullable)error
+- (nonnull instancetype)initForThread:(int)thread
+                                error:(NSError *__autoreleasing _Nullable *_Nullable)error
 {
-    return nil; // TODO: implement
+    if ((self = [super init])) {
+        mach_msg_type_number_t count = THREAD_BASIC_INFO_COUNT;
+        thread_basic_info_data_t data;
+        // MACH_SEND_INVALID_DEST is returned when the thread no longer exists
+        if (thread_info(thread, THREAD_BASIC_INFO, reinterpret_cast<thread_info_t>(&data), &count)
+            == KERN_SUCCESS) {
+            const auto threadInfo = [[SentryThreadBasicInfo alloc] init];
+            threadInfo.threadInfo = data;
+        }
+    }
+    return self;
 }
 
 - (NSString *)description
@@ -312,6 +568,16 @@ microsecondsFromTimeValue(time_value_t value)
 
 @implementation SentryBenchmarkSample
 
+- (instancetype)initWithError:(NSError **)error
+{
+    if ((self = [super init])) {
+        _threadInfos = cpuInfoByThread();
+        _cpuUsagePerCore = cpuUsagePerCore(error);
+        _power = [[SentryPowerReading alloc] initWithError:nil];
+    }
+    return self;
+}
+
 - (NSString *)description
 {
     const auto cores = [NSMutableArray array];
@@ -323,295 +589,55 @@ microsecondsFromTimeValue(time_value_t value)
 
 @end
 
-namespace {
-const auto frequencyHz = 10;
-const auto intervalNs = 1e9 / frequencyHz;
+@implementation SentryBenchmarking {
+    NSMutableArray<SentryBenchmarkSample *> *samples;
 
-const auto samples = [NSMutableArray<SentryBenchmarkSample *> array];
+    dispatch_source_t source;
+    dispatch_queue_t queue;
 
-dispatch_source_t source;
-dispatch_queue_t queue;
-
-SentryBenchmarkReading *startReading;
-
-NSArray<NSNumber *> *
-aggregatedCPUUsagePerCore()
-{
-    const auto totalUsages = [NSMutableArray<NSNumber *> array];
-    for (SentryBenchmarkSample *sample in samples) {
-        [sample.cpuUsagePerCore enumerateObjectsUsingBlock:^(
-            NSNumber *_Nonnull obj, NSUInteger idx, BOOL *_Nonnull stop) {
-            if (totalUsages.count <= idx) {
-                totalUsages[idx] = obj;
-            } else {
-                totalUsages[idx] = @(totalUsages[idx].doubleValue + obj.doubleValue);
-            }
-        }];
-    }
-    const auto averageUsages = [NSMutableArray<NSNumber *> array];
-    for (NSNumber *totalUsage in totalUsages) {
-        [averageUsages addObject:@(totalUsage.doubleValue / samples.count)];
-    }
-    return averageUsages;
+    SentryBenchmarkReading *startReading;
 }
 
-processor_info_array_t _Nullable processorInfo(natural_t *numCPUs, NSError **error)
+- (instancetype)init
 {
-    processor_info_array_t cpuInfo;
-    mach_msg_type_number_t numCPUInfo = PROCESSOR_CPU_LOAD_INFO_COUNT;
-    auto status = host_processor_info(
-        mach_host_self(), PROCESSOR_CPU_LOAD_INFO, numCPUs, &cpuInfo, &numCPUInfo);
-    if (status != KERN_SUCCESS) {
-        if (error) {
-            *error = [NSError
-                errorWithDomain:@"io.sentry.error.benchmarking"
-                           code:2
-                       userInfo:@ {
-                           NSLocalizedFailureReasonErrorKey : [NSString
-                               stringWithFormat:@"host_processor_info reported an error: %d",
-                               status]
-                       }];
-        }
-        return NULL;
+    if ((self = [super init])) {
+        samples = [NSMutableArray<SentryBenchmarkSample *> array];
+
+        const auto attr = dispatch_queue_attr_make_with_qos_class(
+            DISPATCH_QUEUE_CONCURRENT, QOS_CLASS_USER_INTERACTIVE, 0);
+        const auto leewayNs = intervalNs / 2;
+        queue = dispatch_queue_create("io.sentry.benchmark.gcd-scheduler", attr);
+        source = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, queue);
+        dispatch_source_set_event_handler(source,
+            ^{ [self->samples addObject:[[SentryBenchmarkSample alloc] initWithError:nil]]; });
+        dispatch_source_set_timer(
+            source, dispatch_time(DISPATCH_TIME_NOW, intervalNs), intervalNs, leewayNs);
     }
-    return cpuInfo;
+    return self;
 }
 
-/**
- * @return The CPU usage per core, where the order of results corresponds to the core number as
- * returned by the underlying system call, e.g. @c @[ @c <core-0-CPU-usage>, @c <core-1-CPU-usage>,
- * @c ...] .
- */
-NSArray<NSNumber *> *
-cpuUsagePerCore(NSError **error)
++ (instancetype)shared
 {
-    natural_t numCPUsA = 0U;
-    const auto first = processorInfo(&numCPUsA, error);
-    if (first == NULL) {
-        return nil;
-    }
-
-    // htop sleeps for 75 milliseconds between two samples:
-    // https://github.com/htop-dev/htop/blob/37d30a3a7d6c96da018c960d6b6bfe11cc718aa8/CommandLine.c#L402-L405
-    std::this_thread::sleep_for(std::chrono::milliseconds(75));
-
-    natural_t numCPUsB = 0U;
-    const auto second = processorInfo(&numCPUsB, error);
-    if (second == NULL) {
-        return nil;
-    }
-
-    NSCAssert(numCPUsA == numCPUsB, @"Different number of cpus reported between calls");
-
-    NSMutableArray *result = [NSMutableArray arrayWithCapacity:numCPUsA];
-
-    auto totalTicks = 0.0;
-    for (natural_t state = 0U; state < CPU_STATE_MAX; ++state) {
-        totalTicks += second[state] - first[state];
-    }
-
-    for (natural_t core = 0U; core < numCPUsA; ++core) {
-        const auto indexBase = CPU_STATE_MAX * core;
-        const float user = (second[indexBase + CPU_STATE_USER] - first[indexBase + CPU_STATE_USER])
-            * 100.0 / totalTicks;
-        const float sys
-            = (second[indexBase + CPU_STATE_SYSTEM] - first[indexBase + CPU_STATE_SYSTEM]) * 100.0
-            / totalTicks;
-        const float nice = (second[indexBase + CPU_STATE_NICE] - first[indexBase + CPU_STATE_NICE])
-            * 100.0 / totalTicks;
-        [result addObject:@(user + sys + nice)];
-    }
-
-    return result;
+    static SentryBenchmarking *benchmarker;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{ benchmarker = [[self alloc] init]; });
+    return benchmarker;
 }
 
-/// @note: Implementation ported from @c SentryThreadHandle.hpp .
-NSDictionary<NSString *, SentryThreadBasicInfo *> *
-cpuInfoByThread(void)
-{
-    const auto dict = [NSMutableDictionary<NSString *, SentryThreadBasicInfo *> dictionary];
-    mach_msg_type_number_t count;
-    thread_act_array_t list;
-
-    if (task_threads(mach_task_self(), &list, &count) == KERN_SUCCESS) {
-        for (decltype(count) i = 0; i < count; i++) {
-            const auto thread = list[i];
-
-            // get thread name to check for the sampling profiler thread
-            const auto handle = pthread_from_mach_thread_np(thread);
-            std::string namestr;
-            if (handle == nullptr) {
-                continue;
-            }
-            char name[128];
-            if (pthread_getname_np(handle, name, sizeof(name)) != 0) {
-                continue;
-            }
-            namestr = std::string(name);
-            if (namestr.length() == 0) {
-                namestr = std::to_string(thread);
-            }
-
-            if (namestr == SENTRY_BENCHMARKING_THREAD_NAME) {
-                continue;
-            }
-
-            mach_msg_type_number_t count = THREAD_BASIC_INFO_COUNT;
-            thread_basic_info_data_t data;
-            // MACH_SEND_INVALID_DEST is returned when the thread no longer exists
-            if (thread_info(
-                    thread, THREAD_BASIC_INFO, reinterpret_cast<thread_info_t>(&data), &count)
-                == KERN_SUCCESS) {
-                const auto threadInfo = [[SentryThreadBasicInfo alloc] init];
-                threadInfo.threadInfo = data;
-                dict[[NSString stringWithUTF8String:namestr.c_str()]] = threadInfo;
-            }
-        }
-    }
-    vm_deallocate(mach_task_self(), reinterpret_cast<vm_address_t>(list), sizeof(*list) * count);
-    return dict;
-}
-
-NSDictionary<NSString *, SentryThreadBasicInfo *> *_Nullable aggregateCPUUsagePerThread()
-{
-    if (samples.count < 2) {
-        printf("[Sentry Benchmark] not enough samples were gathered to compute CPU usage.\n");
-        return nil;
-    }
-
-    const auto userTimeTotals = [NSMutableDictionary<NSString *, NSNumber *> dictionary];
-    const auto systemTimeTotals = [NSMutableDictionary<NSString *, NSNumber *> dictionary];
-    const auto suspendCountTotals = [NSMutableDictionary<NSString *, NSNumber *> dictionary];
-    const auto sleepTimeTotals = [NSMutableDictionary<NSString *, NSNumber *> dictionary];
-    const auto cpuUsages =
-        [NSMutableDictionary<NSString *, NSMutableArray<NSNumber *> *> dictionary];
-    for (auto i = 0; i < samples.count - 2; i++) {
-        const auto lastSample = samples[i];
-        const auto thisSample = samples[i + 1];
-
-        const auto afterKeys = [NSSet<NSString *> setWithArray:thisSample.threadInfos.allKeys];
-        const auto persistedThreads =
-            [NSMutableSet<NSString *> setWithArray:lastSample.threadInfos.allKeys];
-        [persistedThreads intersectSet:afterKeys];
-        const auto destroyedThreads =
-            [NSMutableSet<NSString *> setWithArray:lastSample.threadInfos.allKeys];
-        [destroyedThreads minusSet:persistedThreads];
-
-        for (NSString *key : persistedThreads) {
-            const auto lastThreadInfo = lastSample.threadInfos[key].threadInfo;
-            const auto thisThreadInfo = thisSample.threadInfos[key].threadInfo;
-
-            const auto lastSystemTime_ms = microsecondsFromTimeValue(lastThreadInfo.system_time);
-            const auto thisSystemTime_ms = microsecondsFromTimeValue(thisThreadInfo.system_time);
-
-            const auto lastUserTime_ms = microsecondsFromTimeValue(lastThreadInfo.user_time);
-            const auto thisUserTime_ms = microsecondsFromTimeValue(thisThreadInfo.user_time);
-
-            const auto lastSleepTime_s = lastThreadInfo.sleep_time;
-            const auto thisSleepTime_s = thisThreadInfo.sleep_time;
-
-            const auto lastSuspendCount = lastThreadInfo.suspend_count;
-            const auto thisSuspendCount = thisThreadInfo.suspend_count;
-
-            const auto lastCPUUsage = lastThreadInfo.cpu_usage;
-            const auto thisCPUUsage = thisThreadInfo.cpu_usage;
-
-            if (thisSystemTime_ms + thisUserTime_ms < lastSystemTime_ms + lastUserTime_ms) {
-                // thread id was *likely* reassigned to a new thread since last sample
-                [destroyedThreads addObject:key];
-                continue;
-            }
-
-            const auto systemTimeDelta = thisSystemTime_ms - lastSystemTime_ms;
-            const auto userTimeDelta = thisUserTime_ms - lastUserTime_ms;
-            const auto sleepTimeDelta = thisSleepTime_s - lastSleepTime_s;
-            const auto suspendCountDelta = thisSuspendCount - lastSuspendCount;
-
-            if (!systemTimeTotals[key]) {
-                systemTimeTotals[key] = @(systemTimeDelta);
-                userTimeTotals[key] = @(userTimeDelta);
-                sleepTimeTotals[key] = @(sleepTimeDelta);
-                suspendCountTotals[key] = @(suspendCountDelta);
-                cpuUsages[key] = [NSMutableArray<NSNumber *>
-                    arrayWithObjects:@(lastCPUUsage), @(thisCPUUsage), nil];
-            } else {
-                systemTimeTotals[key] = @(systemTimeDelta + systemTimeTotals[key].integerValue);
-                userTimeTotals[key] = @(userTimeDelta + userTimeTotals[key].integerValue);
-                sleepTimeTotals[key] = @(sleepTimeDelta + sleepTimeTotals[key].integerValue);
-                suspendCountTotals[key] =
-                    @(suspendCountDelta + suspendCountTotals[key].integerValue);
-                [cpuUsages[key] addObject:@(lastCPUUsage)];
-                [cpuUsages[key] addObject:@(thisCPUUsage)];
-            }
-        }
-    }
-    const auto cpuUsageAverages = [NSMutableDictionary<NSString *, NSNumber *> dictionary];
-    [cpuUsages enumerateKeysAndObjectsUsingBlock:^(
-        NSString *_Nonnull key, NSMutableArray<NSNumber *> *_Nonnull obj, BOOL *_Nonnull stop) {
-        auto total = 0;
-        for (NSNumber *cpuUsage in obj) {
-            total += cpuUsage.intValue;
-        }
-        cpuUsageAverages[key] = @((double)total / obj.count);
-    }];
-
-    const auto aggregatedThreadInfos =
-        [NSMutableDictionary<NSString *, SentryThreadBasicInfo *> dictionary];
-    for (NSString *key in userTimeTotals.allKeys) {
-        thread_basic_info threadInfo;
-
-        // !!!: we'll store the time totals only in microseconds; they are 32 bit int fields, so can
-        // represent up to about 35 minutes each
-        threadInfo.user_time = { 0, userTimeTotals[key].intValue };
-        threadInfo.system_time = { 0, systemTimeTotals[key].intValue };
-
-        threadInfo.sleep_time = sleepTimeTotals[key].intValue;
-        threadInfo.cpu_usage = cpuUsageAverages[key].intValue;
-        threadInfo.suspend_count = suspendCountTotals[key].intValue;
-
-        const auto threadInfoWrapper = [[SentryThreadBasicInfo alloc] init];
-        threadInfoWrapper.threadInfo = threadInfo;
-        aggregatedThreadInfos[key] = threadInfoWrapper;
-    }
-
-    return aggregatedThreadInfos;
-}
-} // namespace
-
-@implementation SentryBenchmarking
-
-+ (void)recordSample
-{
-    const auto sample = [[SentryBenchmarkSample alloc] init];
-    sample.threadInfos = cpuInfoByThread();
-    sample.cpuUsagePerCore = cpuUsagePerCore(nil);
-    sample.power = [[SentryPowerReading alloc] initWithError:nil];
-    [samples addObject:sample];
-}
-
-+ (void)start
+- (void)start
 {
     startReading = [[SentryBenchmarkReading alloc] init];
     UIDevice.currentDevice.batteryMonitoringEnabled = YES;
 
-    const auto attr = dispatch_queue_attr_make_with_qos_class(
-        DISPATCH_QUEUE_CONCURRENT, QOS_CLASS_USER_INTERACTIVE, 0);
-    const auto leewayNs = intervalNs / 2;
-    queue = dispatch_queue_create("io.sentry.benchmark.gcd-scheduler", attr);
-    source = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, queue);
-    dispatch_source_set_event_handler(source, ^{ [self recordSample]; });
-    dispatch_source_set_timer(
-        source, dispatch_time(DISPATCH_TIME_NOW, intervalNs), intervalNs, leewayNs);
     dispatch_resume(source);
 }
 
-+ (NSString *)stopAndReturnProfilerThreadUsage
+- (NSString *)stopAndReturnProfilerThreadUsage
 {
     dispatch_cancel(source);
-    [self recordSample];
 
     const NSMutableDictionary<NSString *, SentryThreadBasicInfo *> *aggregatedResults =
-        [aggregateCPUUsagePerThread() mutableCopy];
+        [aggregateCPUUsagePerThread(samples) mutableCopy];
     [samples removeAllObjects];
     if (!aggregatedResults) {
         return nil;
@@ -636,15 +662,15 @@ NSDictionary<NSString *, SentryThreadBasicInfo *> *_Nullable aggregateCPUUsagePe
                      profilerUserTime_ms, appSystemTime_ms, appUserTime_ms];
 }
 
-+ (SentryBenchmarkResult *)stop
+- (SentryBenchmarkResult *)stop
 {
     dispatch_cancel(source);
-    [self recordSample];
+
     const auto endReading = [[SentryBenchmarkReading alloc] initWithError:nil];
 
     const auto sampleResult = [[SentrySampledBenchmarkResults alloc] init];
-    sampleResult.aggregatedThreadInfo = aggregateCPUUsagePerThread();
-    sampleResult.aggregatedCPUUsagePerCore = aggregatedCPUUsagePerCore();
+    sampleResult.aggregatedThreadInfo = aggregateCPUUsagePerThread(samples);
+    sampleResult.aggregatedCPUUsagePerCore = aggregatedCPUUsagePerCore(samples);
     sampleResult.allSamples = [samples copy];
     const auto result = [[SentryBenchmarkResult alloc] initWithStart:startReading
                                                                  end:endReading
