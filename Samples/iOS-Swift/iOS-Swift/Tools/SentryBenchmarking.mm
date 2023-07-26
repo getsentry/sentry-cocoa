@@ -12,6 +12,7 @@
 namespace {
 const auto frequencyHz = 10;
 const auto intervalNs = 1e9 / frequencyHz;
+const auto instantaneousReadingStaggerMs = 75;
 
 uint64_t
 machTime(void)
@@ -88,7 +89,7 @@ cpuUsagePerCore(NSError **error)
 
     // htop sleeps for 75 milliseconds between two samples:
     // https://github.com/htop-dev/htop/blob/37d30a3a7d6c96da018c960d6b6bfe11cc718aa8/CommandLine.c#L402-L405
-    std::this_thread::sleep_for(std::chrono::milliseconds(75));
+    std::this_thread::sleep_for(std::chrono::milliseconds(instantaneousReadingStaggerMs));
 
     natural_t numCPUsB = 0U;
     const auto second = processorInfo(&numCPUsB, error);
@@ -399,27 +400,34 @@ NSDictionary<NSString *, SentryThreadBasicInfo *> *_Nullable aggregateCPUUsagePe
 - (instancetype)initWithError:(NSError *__autoreleasing _Nullable *)error
 {
     if ((self = [super init])) {
-        struct task_power_info_v2 powerInfo;
+        const auto first = [self powerInfoWithError:nil];
+        // same 75 ms sleep like htop as we do for cpu usage per core
+        std::this_thread::sleep_for(std::chrono::milliseconds(instantaneousReadingStaggerMs));
+        const auto second = [self powerInfoWithError:nil];
 
-        mach_msg_type_number_t size = TASK_POWER_INFO_V2_COUNT;
-
-        task_t task = mach_task_self();
-        kern_return_t kr = task_info(task, TASK_POWER_INFO_V2, (task_info_t)&powerInfo, &size);
-        if (kr != KERN_SUCCESS) {
-            if (error) {
-                *error = [NSError
-                    errorWithDomain:@"io.sentry.error.benchmarking"
-                               code:1
-                           userInfo:@{
-                               NSLocalizedFailureReasonErrorKey : [NSString
-                                   stringWithFormat:
-                                       @"Error with task_info(…TASK_POWER_INFO_V2…): %d.", kr]
-                           }];
-            }
-            return nil;
-        }
-
-        _info = powerInfo;
+        _info = {
+            { second.cpu_energy.total_user - first.cpu_energy.total_user,
+                second.cpu_energy.total_system - first.cpu_energy.total_system,
+                second.cpu_energy.task_interrupt_wakeups - first.cpu_energy.task_interrupt_wakeups,
+                second.cpu_energy.task_platform_idle_wakeups
+                    - first.cpu_energy.task_platform_idle_wakeups,
+                second.cpu_energy.task_timer_wakeups_bin_1
+                    - first.cpu_energy.task_timer_wakeups_bin_1,
+                second.cpu_energy.task_timer_wakeups_bin_2
+                    - first.cpu_energy.task_timer_wakeups_bin_2 },
+            { second.gpu_energy.task_gpu_utilisation - first.gpu_energy.task_gpu_utilisation,
+                second.gpu_energy.task_gpu_stat_reserved0
+                    - first.gpu_energy.task_gpu_stat_reserved0,
+                second.gpu_energy.task_gpu_stat_reserved1
+                    - first.gpu_energy.task_gpu_stat_reserved1,
+                second.gpu_energy.task_gpu_stat_reserved2
+                    - first.gpu_energy.task_gpu_stat_reserved2 },
+#if defined(__arm__) || defined(__arm64__)
+            second.task_energy - first.task_energy,
+#endif /* defined(__arm__) || defined(__arm64__) */
+            second.task_ptime - first.task_ptime,
+            second.task_pset_switches - first.task_pset_switches,
+        };
 
         UIDevice *_Nonnull device = UIDevice.currentDevice;
         _batteryLevel = device.batteryLevel;
@@ -430,6 +438,29 @@ NSDictionary<NSString *, SentryThreadBasicInfo *> *_Nullable aggregateCPUUsagePe
         _lowPowerModeEnabled = processInfo.lowPowerModeEnabled;
     }
     return self;
+}
+
+- (struct task_power_info_v2)powerInfoWithError:(NSError **)error
+{
+    struct task_power_info_v2 powerInfo;
+
+    mach_msg_type_number_t size = TASK_POWER_INFO_V2_COUNT;
+
+    task_t task = mach_task_self();
+    kern_return_t kr = task_info(task, TASK_POWER_INFO_V2, (task_info_t)&powerInfo, &size);
+    if (kr != KERN_SUCCESS) {
+        if (error) {
+            *error = [NSError
+                errorWithDomain:@"io.sentry.error.benchmarking"
+                           code:1
+                       userInfo:@{
+                           NSLocalizedFailureReasonErrorKey : [NSString
+                               stringWithFormat:@"Error with task_info(…TASK_POWER_INFO_V2…): %d.",
+                               kr]
+                       }];
+        }
+    }
+    return powerInfo;
 }
 
 - (uint64_t)totalCPU

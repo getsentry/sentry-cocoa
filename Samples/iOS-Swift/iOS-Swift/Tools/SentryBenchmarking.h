@@ -18,6 +18,8 @@ extern uint64_t dispatch_benchmark(size_t count, void (^block)(void));
  */
 @interface SentryPowerReading : NSObject
 - (instancetype)initWithError:(NSError **)error;
+/** This structure as returned from @c task_info gives the amounts since process/device launch; we
+ * take the difference between two staggered readings to calculate an "instantaneous" amount. */
 @property struct task_power_info_v2 info;
 /**
  * From @c UIDevice.batteryLevel
@@ -89,6 +91,7 @@ extern uint64_t dispatch_benchmark(size_t count, void (^block)(void));
 @interface SentryBenchmarkSample : NSObject
 @property uint64_t machTime;
 @property NSDictionary<NSString *, SentryThreadBasicInfo *> *threadInfos;
+/** */
 @property NSArray<NSNumber *> *cpuUsagePerCore;
 @property SentryPowerReading *power;
 @property SentryScreenReading *device;
