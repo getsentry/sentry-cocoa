@@ -30,7 +30,6 @@
 		84A5D72629D2705000388BFA /* ProfilingUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84A5D72529D2705000388BFA /* ProfilingUITests.swift */; };
 		84A5D72D29D2708D00388BFA /* UITestHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84A5D72C29D2708D00388BFA /* UITestHelpers.swift */; };
 		84AB90712A5001000054C99A /* ProfilingViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84AB90702A5001000054C99A /* ProfilingViewController.swift */; };
-		84AB90762A5003160054C99A /* Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84AB90732A5003160054C99A /* Helpers.swift */; };
 		84B527B928DD24BA00475E8D /* SentryDeviceTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 84B527B728DD24BA00475E8D /* SentryDeviceTests.mm */; };
 		84B527BD28DD25E400475E8D /* SentryDevice.mm in Sources */ = {isa = PBXBuildFile; fileRef = 84B527BC28DD25E400475E8D /* SentryDevice.mm */; };
 		84BE546F287503F100ACC735 /* SentrySDKPerformanceBenchmarkTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 84BE546E287503F100ACC735 /* SentrySDKPerformanceBenchmarkTests.m */; };
@@ -294,14 +293,12 @@
 		84A5D72529D2705000388BFA /* ProfilingUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfilingUITests.swift; sourceTree = "<group>"; };
 		84A5D72C29D2708D00388BFA /* UITestHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UITestHelpers.swift; sourceTree = "<group>"; };
 		84AB90702A5001000054C99A /* ProfilingViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfilingViewController.swift; sourceTree = "<group>"; };
-		84AB90732A5003160054C99A /* Helpers.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Helpers.swift; sourceTree = "<group>"; };
 		84B527B728DD24BA00475E8D /* SentryDeviceTests.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = SentryDeviceTests.mm; path = ../../../Tests/SentryTests/Helper/SentryDeviceTests.mm; sourceTree = "<group>"; };
 		84B527BB28DD25E400475E8D /* SentryDevice.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SentryDevice.h; path = ../../../Sources/Sentry/include/SentryDevice.h; sourceTree = "<group>"; };
 		84B527BC28DD25E400475E8D /* SentryDevice.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = SentryDevice.mm; path = ../../../Sources/Sentry/SentryDevice.mm; sourceTree = "<group>"; };
 		84BE546E287503F100ACC735 /* SentrySDKPerformanceBenchmarkTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentrySDKPerformanceBenchmarkTests.m; sourceTree = "<group>"; };
 		84BE54782876451D00ACC735 /* SentryProcessInfo.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SentryProcessInfo.h; sourceTree = "<group>"; };
 		84BE54792876451D00ACC735 /* SentryProcessInfo.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentryProcessInfo.m; sourceTree = "<group>"; };
-		84C47AE229FC8BD300DAEB8A /* MultithreadingTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MultithreadingTests.swift; sourceTree = "<group>"; };
 		84FB8125284001B800F3A94A /* SentryBenchmarking.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SentryBenchmarking.h; sourceTree = "<group>"; };
 		84FB8129284001B800F3A94A /* SentryBenchmarking.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = SentryBenchmarking.mm; sourceTree = "<group>"; };
 		84FB812C2840021B00F3A94A /* iOS-Swift-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "iOS-Swift-Bridging-Header.h"; sourceTree = "<group>"; };
@@ -483,7 +480,6 @@
 				D8C33E2529FBB8D90071B75A /* UIEventBreadcrumbTests.swift */,
 				84A5D72C29D2708D00388BFA /* UITestHelpers.swift */,
 				84A5D72529D2705000388BFA /* ProfilingUITests.swift */,
-				84C47AE229FC8BD300DAEB8A /* MultithreadingTests.swift */,
 				84B527B728DD24BA00475E8D /* SentryDeviceTests.mm */,
 				84B527BB28DD25E400475E8D /* SentryDevice.h */,
 				84B527BC28DD25E400475E8D /* SentryDevice.mm */,
@@ -508,7 +504,6 @@
 			isa = PBXGroup;
 			children = (
 				84AB90702A5001000054C99A /* ProfilingViewController.swift */,
-				84AB90732A5003160054C99A /* Helpers.swift */,
 			);
 			path = Profiling;
 			sourceTree = "<group>";
@@ -903,7 +898,6 @@
 				D8444E4C275E38090042F4DE /* UIViewControllerExtension.swift in Sources */,
 				637AFDAE243B02760034958B /* ViewController.swift in Sources */,
 				0AABE2EA28855FF80057ED69 /* PermissionsViewController.swift in Sources */,
-				84AB90762A5003160054C99A /* Helpers.swift in Sources */,
 				7B5525B32938B5B5006A2932 /* DiskWriteException.swift in Sources */,
 				D8F3D062274EBD4800B56F8C /* SpanExtension.swift in Sources */,
 				637AFDAA243B02760034958B /* AppDelegate.swift in Sources */,
