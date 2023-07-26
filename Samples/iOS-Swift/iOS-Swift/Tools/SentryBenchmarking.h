@@ -29,6 +29,7 @@ extern uint64_t dispatch_benchmark(size_t count, void (^block)(void));
  * @warning apparently setting batteryMonitoringEnabled YES from multiple threads can cause a crash
  */
 @property float batteryLevel;
+@property UIDeviceBatteryState batteryState;
 /** From @c NSProcessInfo.lowPowerModeEnabled */
 @property BOOL lowPowerModeEnabled;
 /** From @c NSProcessInfo.thermalState */
@@ -71,6 +72,15 @@ extern uint64_t dispatch_benchmark(size_t count, void (^block)(void));
 @property SentryTaskEventsReading *taskEvents;
 @end
 
+@interface SentryScreenReading : NSObject
+- (instancetype)initWithError:(NSError **)error;
+@property CGFloat displayBrightness;
+/** A comment in UIScreen.h states this specifically can incur performance costs. */
+@property BOOL wantsSoftwareDimming;
+/** Screen is being captured, eg by AirPlay, mirroring etc. */
+@property BOOL captured;
+@end
+
 /**
  * For data that must be sampled because there are a variable amount of data points (threads may be
  * created or destroyed during the benchmark) or cannot be summed (like CPU usage percentage), a
@@ -81,6 +91,7 @@ extern uint64_t dispatch_benchmark(size_t count, void (^block)(void));
 @property NSDictionary<NSString *, SentryThreadBasicInfo *> *threadInfos;
 @property NSArray<NSNumber *> *cpuUsagePerCore;
 @property SentryPowerReading *power;
+@property SentryScreenReading *device;
 @end
 
 /**

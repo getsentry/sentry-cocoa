@@ -314,8 +314,15 @@ NSDictionary<NSString *, SentryThreadBasicInfo *> *_Nullable aggregateCPUUsagePe
         end.power.info.task_pset_switches - start.power.info.task_pset_switches
     };
 
-    // TODO: diff all task events
-    //    _results.contextSwitches = end.contextSwitches - start.contextSwitches;
+    _results.taskEvents = [[SentryTaskEventsReading alloc] init];
+    _results.taskEvents.data = { end.taskEvents.data.faults - start.taskEvents.data.faults,
+        end.taskEvents.data.pageins - start.taskEvents.data.pageins,
+        end.taskEvents.data.cow_faults - start.taskEvents.data.cow_faults,
+        end.taskEvents.data.messages_sent - start.taskEvents.data.messages_sent,
+        end.taskEvents.data.messages_received - start.taskEvents.data.messages_received,
+        end.taskEvents.data.syscalls_mach - start.taskEvents.data.syscalls_mach,
+        end.taskEvents.data.syscalls_unix - start.taskEvents.data.syscalls_unix,
+        end.taskEvents.data.csw - start.taskEvents.data.csw };
 
     _sampledResults = aggregatedSampleResult;
 
@@ -413,9 +420,14 @@ NSDictionary<NSString *, SentryThreadBasicInfo *> *_Nullable aggregateCPUUsagePe
         }
 
         _info = powerInfo;
-        _batteryLevel = UIDevice.currentDevice.batteryLevel;
-        _thermalState = NSProcessInfo.processInfo.thermalState;
-        _lowPowerModeEnabled = NSProcessInfo.processInfo.lowPowerModeEnabled;
+
+        UIDevice *_Nonnull device = UIDevice.currentDevice;
+        _batteryLevel = device.batteryLevel;
+        _batteryState = device.batteryState;
+
+        NSProcessInfo *_Nonnull processInfo = NSProcessInfo.processInfo;
+        _thermalState = processInfo.thermalState;
+        _lowPowerModeEnabled = processInfo.lowPowerModeEnabled;
     }
     return self;
 }
@@ -443,16 +455,35 @@ NSDictionary<NSString *, SentryThreadBasicInfo *> *_Nullable aggregateCPUUsagePe
         return @"critical";
     default:
         NSAssert(NO, @"unknown thermal state: %lld", (long long)_thermalState);
+        return nil;
+    }
+}
+
+- (NSString *)nameForBatteryState:(UIDeviceBatteryState)state
+{
+    switch (state) {
+    case UIDeviceBatteryStateCharging:
+        return @"charging";
+    case UIDeviceBatteryStateFull:
+        return @"full";
+    case UIDeviceBatteryStateUnknown:
+        return @"unknown";
+    case UIDeviceBatteryStateUnplugged:
+        return @"unplugged";
+    default:
+        NSAssert(NO, @"unexpected battery state value: %ld", (long)state);
+        return nil;
     }
 }
 
 - (NSString *)description
 {
-    const auto string =
-        [NSMutableString stringWithFormat:@"battery level: %.3f; low power mode? %@; thermalState: "
-                                          @"%@; totalCPU: %llu; totalGPU: %llu",
-                         _batteryLevel, _lowPowerModeEnabled ? @YES : @NO, [self _thermalStateName],
-                         [self totalCPU], [self totalGPU]];
+    const auto string = [NSMutableString
+        stringWithFormat:
+            @"battery state: %@; battery level: %.3f; low power mode? %@; thermalState: "
+            @"%@; totalCPU: %llu; totalGPU: %llu",
+        [self nameForBatteryState:_batteryState], _batteryLevel, _lowPowerModeEnabled ? @YES : @NO,
+        [self _thermalStateName], [self totalCPU], [self totalGPU]];
 #if defined(__arm__) || defined(__arm64__)
     [string appendFormat:@"; task energy: %llu nanojoules", _info.task_energy];
 #endif // defined(__arm__) || defined(__arm64__)
@@ -572,6 +603,28 @@ NSDictionary<NSString *, SentryThreadBasicInfo *> *_Nullable aggregateCPUUsagePe
 
 @end
 
+@implementation SentryScreenReading
+
+- (instancetype)initWithError:(NSError **)error
+{
+    if ((self = [super init])) {
+        UIScreen *screen = UIScreen.mainScreen;
+        _displayBrightness = screen.brightness;
+        _wantsSoftwareDimming = screen.wantsSoftwareDimming;
+        _captured = screen.captured;
+    }
+    return self;
+}
+
+- (NSString *)description
+{
+    return [NSString
+        stringWithFormat:@"screen brightness: %.1f; software dimming: %@; captured: %@",
+        _displayBrightness, _wantsSoftwareDimming ? @"YES" : @"NO", _captured ? @"YES" : @"NO"];
+}
+
+@end
+
 @implementation SentryBenchmarkSample
 
 - (instancetype)initWithError:(NSError **)error
@@ -580,6 +633,7 @@ NSDictionary<NSString *, SentryThreadBasicInfo *> *_Nullable aggregateCPUUsagePe
         _machTime = machTime();
         _threadInfos = cpuInfoByThread();
         _cpuUsagePerCore = cpuUsagePerCore(error);
+        _device = [[SentryScreenReading alloc] initWithError:nil];
         _power = [[SentryPowerReading alloc] initWithError:nil];
 
 #if defined(__arm__) || defined(__arm64__)
@@ -594,8 +648,9 @@ NSDictionary<NSString *, SentryThreadBasicInfo *> *_Nullable aggregateCPUUsagePe
     const auto cores = [NSMutableArray array];
     [_cpuUsagePerCore enumerateObjectsUsingBlock:^(NSNumber *_Nonnull obj, NSUInteger idx,
         BOOL *_Nonnull stop) { [cores addObject:obj.stringValue]; }];
-    return [NSString stringWithFormat:@"mach time: %llu; Thread infos: %@\nCore infos: %@",
-                     _machTime, _threadInfos, [cores componentsJoinedByString:@", "]];
+    return [NSString
+        stringWithFormat:@"mach time: %llu;\ndevice info: %@\nThread infos: %@\nCore infos: %@",
+        _machTime, _device, _threadInfos, [cores componentsJoinedByString:@", "]];
 }
 
 @end
