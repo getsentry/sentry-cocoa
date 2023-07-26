@@ -29,30 +29,13 @@
 		848A256F286E3351008A8858 /* Sentry.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 630853322440C44F00DDE4CE /* Sentry.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		84A5D72629D2705000388BFA /* ProfilingUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84A5D72529D2705000388BFA /* ProfilingUITests.swift */; };
 		84A5D72D29D2708D00388BFA /* UITestHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84A5D72C29D2708D00388BFA /* UITestHelpers.swift */; };
-		84AB8DD42A4F873D0054C99A /* 1.json in Resources */ = {isa = PBXBuildFile; fileRef = 84AB8D572A4F873D0054C99A /* 1.json */; };
-		84AB8DD62A4F873D0054C99A /* 2.json in Resources */ = {isa = PBXBuildFile; fileRef = 84AB8D592A4F873D0054C99A /* 2.json */; };
-		84AB8DD92A4F873D0054C99A /* 3.json in Resources */ = {isa = PBXBuildFile; fileRef = 84AB8D5C2A4F873D0054C99A /* 3.json */; };
-		84AB8DDD2A4F873D0054C99A /* 4.json in Resources */ = {isa = PBXBuildFile; fileRef = 84AB8D602A4F873D0054C99A /* 4.json */; };
-		84AB8DE02A4F873D0054C99A /* 5.json in Resources */ = {isa = PBXBuildFile; fileRef = 84AB8D632A4F873D0054C99A /* 5.json */; };
-		84AB8DE62A4F873D0054C99A /* 4.log in Resources */ = {isa = PBXBuildFile; fileRef = 84AB8D6F2A4F873D0054C99A /* 4.log */; };
-		84AB8DEA2A4F873D0054C99A /* 5.log in Resources */ = {isa = PBXBuildFile; fileRef = 84AB8D732A4F873D0054C99A /* 5.log */; };
-		84AB8DFD2A4F873D0054C99A /* 2.log in Resources */ = {isa = PBXBuildFile; fileRef = 84AB8D862A4F873D0054C99A /* 2.log */; };
-		84AB8E012A4F873D0054C99A /* 3.log in Resources */ = {isa = PBXBuildFile; fileRef = 84AB8D8A2A4F873D0054C99A /* 3.log */; };
-		84AB8E092A4F873D0054C99A /* 1.log in Resources */ = {isa = PBXBuildFile; fileRef = 84AB8D922A4F873D0054C99A /* 1.log */; };
 		84AB90712A5001000054C99A /* ProfilingViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84AB90702A5001000054C99A /* ProfilingViewController.swift */; };
-		84AB90752A5003160054C99A /* EfficientTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84AB90722A5003160054C99A /* EfficientTableViewController.swift */; };
 		84AB90762A5003160054C99A /* Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84AB90732A5003160054C99A /* Helpers.swift */; };
-		84AB90772A5003160054C99A /* InefficientTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84AB90742A5003160054C99A /* InefficientTableViewController.swift */; };
 		84B527B928DD24BA00475E8D /* SentryDeviceTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 84B527B728DD24BA00475E8D /* SentryDeviceTests.mm */; };
 		84B527BD28DD25E400475E8D /* SentryDevice.mm in Sources */ = {isa = PBXBuildFile; fileRef = 84B527BC28DD25E400475E8D /* SentryDevice.mm */; };
 		84BE546F287503F100ACC735 /* SentrySDKPerformanceBenchmarkTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 84BE546E287503F100ACC735 /* SentrySDKPerformanceBenchmarkTests.m */; };
 		84BE547E287645B900ACC735 /* SentryProcessInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = 84BE54792876451D00ACC735 /* SentryProcessInfo.m */; };
 		84C47AEC29FC8F4B00DAEB8A /* SentryBenchmarking.mm in Sources */ = {isa = PBXBuildFile; fileRef = 84FB8129284001B800F3A94A /* SentryBenchmarking.mm */; };
-		84D288A12A4EA431005A7FF5 /* 3.PNG in Resources */ = {isa = PBXBuildFile; fileRef = 84D288612A4EA42F005A7FF5 /* 3.PNG */; };
-		84D288A62A4EA431005A7FF5 /* 4.PNG in Resources */ = {isa = PBXBuildFile; fileRef = 84D288662A4EA42F005A7FF5 /* 4.PNG */; };
-		84D288AC2A4EA431005A7FF5 /* 5.PNG in Resources */ = {isa = PBXBuildFile; fileRef = 84D2886C2A4EA430005A7FF5 /* 5.PNG */; };
-		84D288B02A4EA431005A7FF5 /* 1.PNG in Resources */ = {isa = PBXBuildFile; fileRef = 84D288702A4EA430005A7FF5 /* 1.PNG */; };
-		84D288D72A4EA431005A7FF5 /* 2.PNG in Resources */ = {isa = PBXBuildFile; fileRef = 84D288972A4EA431005A7FF5 /* 2.PNG */; };
 		84FB812A284001B800F3A94A /* SentryBenchmarking.mm in Sources */ = {isa = PBXBuildFile; fileRef = 84FB8129284001B800F3A94A /* SentryBenchmarking.mm */; };
 		84FB812B284001B800F3A94A /* SentryBenchmarking.mm in Sources */ = {isa = PBXBuildFile; fileRef = 84FB8129284001B800F3A94A /* SentryBenchmarking.mm */; };
 		8E8C57AF25EF16E6001CEEFA /* TraceTestViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E8C57AE25EF16E6001CEEFA /* TraceTestViewController.swift */; };
@@ -310,20 +293,8 @@
 		848A2578286E3490008A8858 /* PerformanceBenchmarks-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "PerformanceBenchmarks-Info.plist"; sourceTree = "<group>"; };
 		84A5D72529D2705000388BFA /* ProfilingUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfilingUITests.swift; sourceTree = "<group>"; };
 		84A5D72C29D2708D00388BFA /* UITestHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UITestHelpers.swift; sourceTree = "<group>"; };
-		84AB8D572A4F873D0054C99A /* 1.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = 1.json; sourceTree = "<group>"; };
-		84AB8D592A4F873D0054C99A /* 2.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = 2.json; sourceTree = "<group>"; };
-		84AB8D5C2A4F873D0054C99A /* 3.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = 3.json; sourceTree = "<group>"; };
-		84AB8D602A4F873D0054C99A /* 4.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = 4.json; sourceTree = "<group>"; };
-		84AB8D632A4F873D0054C99A /* 5.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = 5.json; sourceTree = "<group>"; };
-		84AB8D6F2A4F873D0054C99A /* 4.log */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = 4.log; sourceTree = "<group>"; };
-		84AB8D732A4F873D0054C99A /* 5.log */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = 5.log; sourceTree = "<group>"; };
-		84AB8D862A4F873D0054C99A /* 2.log */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = 2.log; sourceTree = "<group>"; };
-		84AB8D8A2A4F873D0054C99A /* 3.log */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = 3.log; sourceTree = "<group>"; };
-		84AB8D922A4F873D0054C99A /* 1.log */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = 1.log; sourceTree = "<group>"; };
 		84AB90702A5001000054C99A /* ProfilingViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfilingViewController.swift; sourceTree = "<group>"; };
-		84AB90722A5003160054C99A /* EfficientTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EfficientTableViewController.swift; sourceTree = "<group>"; };
 		84AB90732A5003160054C99A /* Helpers.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Helpers.swift; sourceTree = "<group>"; };
-		84AB90742A5003160054C99A /* InefficientTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InefficientTableViewController.swift; sourceTree = "<group>"; };
 		84B527B728DD24BA00475E8D /* SentryDeviceTests.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = SentryDeviceTests.mm; path = ../../../Tests/SentryTests/Helper/SentryDeviceTests.mm; sourceTree = "<group>"; };
 		84B527BB28DD25E400475E8D /* SentryDevice.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SentryDevice.h; path = ../../../Sources/Sentry/include/SentryDevice.h; sourceTree = "<group>"; };
 		84B527BC28DD25E400475E8D /* SentryDevice.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = SentryDevice.mm; path = ../../../Sources/Sentry/SentryDevice.mm; sourceTree = "<group>"; };
@@ -331,11 +302,6 @@
 		84BE54782876451D00ACC735 /* SentryProcessInfo.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SentryProcessInfo.h; sourceTree = "<group>"; };
 		84BE54792876451D00ACC735 /* SentryProcessInfo.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentryProcessInfo.m; sourceTree = "<group>"; };
 		84C47AE229FC8BD300DAEB8A /* MultithreadingTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MultithreadingTests.swift; sourceTree = "<group>"; };
-		84D288612A4EA42F005A7FF5 /* 3.PNG */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = 3.PNG; sourceTree = "<group>"; };
-		84D288662A4EA42F005A7FF5 /* 4.PNG */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = 4.PNG; sourceTree = "<group>"; };
-		84D2886C2A4EA430005A7FF5 /* 5.PNG */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = 5.PNG; sourceTree = "<group>"; };
-		84D288702A4EA430005A7FF5 /* 1.PNG */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = 1.PNG; sourceTree = "<group>"; };
-		84D288972A4EA431005A7FF5 /* 2.PNG */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = 2.PNG; sourceTree = "<group>"; };
 		84FB8125284001B800F3A94A /* SentryBenchmarking.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SentryBenchmarking.h; sourceTree = "<group>"; };
 		84FB8129284001B800F3A94A /* SentryBenchmarking.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = SentryBenchmarking.mm; sourceTree = "<group>"; };
 		84FB812C2840021B00F3A94A /* iOS-Swift-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "iOS-Swift-Bridging-Header.h"; sourceTree = "<group>"; };
@@ -538,54 +504,13 @@
 			path = PerformanceBenchmarks;
 			sourceTree = "<group>";
 		};
-		84AB8D4F2A4F873D0054C99A /* json */ = {
-			isa = PBXGroup;
-			children = (
-				84AB8D572A4F873D0054C99A /* 1.json */,
-				84AB8D592A4F873D0054C99A /* 2.json */,
-				84AB8D5C2A4F873D0054C99A /* 3.json */,
-				84AB8D602A4F873D0054C99A /* 4.json */,
-				84AB8D632A4F873D0054C99A /* 5.json */,
-			);
-			path = json;
-			sourceTree = "<group>";
-		};
-		84AB8D6C2A4F873D0054C99A /* logfiles */ = {
-			isa = PBXGroup;
-			children = (
-				84AB8D922A4F873D0054C99A /* 1.log */,
-				84AB8D862A4F873D0054C99A /* 2.log */,
-				84AB8D8A2A4F873D0054C99A /* 3.log */,
-				84AB8D6F2A4F873D0054C99A /* 4.log */,
-				84AB8D732A4F873D0054C99A /* 5.log */,
-			);
-			path = logfiles;
-			sourceTree = "<group>";
-		};
 		84AB90782A50031B0054C99A /* Profiling */ = {
 			isa = PBXGroup;
 			children = (
-				84AB8D4F2A4F873D0054C99A /* json */,
-				84AB8D6C2A4F873D0054C99A /* logfiles */,
-				84D287D02A4E9D27005A7FF5 /* images */,
 				84AB90702A5001000054C99A /* ProfilingViewController.swift */,
-				84AB90722A5003160054C99A /* EfficientTableViewController.swift */,
 				84AB90732A5003160054C99A /* Helpers.swift */,
-				84AB90742A5003160054C99A /* InefficientTableViewController.swift */,
 			);
 			path = Profiling;
-			sourceTree = "<group>";
-		};
-		84D287D02A4E9D27005A7FF5 /* images */ = {
-			isa = PBXGroup;
-			children = (
-				84D288702A4EA430005A7FF5 /* 1.PNG */,
-				84D288972A4EA431005A7FF5 /* 2.PNG */,
-				84D288612A4EA42F005A7FF5 /* 3.PNG */,
-				84D288662A4EA42F005A7FF5 /* 4.PNG */,
-				84D2886C2A4EA430005A7FF5 /* 5.PNG */,
-			);
-			path = images;
 			sourceTree = "<group>";
 		};
 		D8269A3A274C095E00BD5BD5 /* iOS13-Swift */ = {
@@ -910,27 +835,12 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				84AB8DD62A4F873D0054C99A /* 2.json in Resources */,
-				84AB8DE02A4F873D0054C99A /* 5.json in Resources */,
-				84AB8DE62A4F873D0054C99A /* 4.log in Resources */,
-				84D288B02A4EA431005A7FF5 /* 1.PNG in Resources */,
-				84AB8DD42A4F873D0054C99A /* 1.json in Resources */,
 				D890CD3C26CEE2FA001246CF /* NibViewController.xib in Resources */,
-				84AB8E092A4F873D0054C99A /* 1.log in Resources */,
 				7BFC8B0626D4D24B000D3504 /* LoremIpsum.txt in Resources */,
 				637AFDB6243B02770034958B /* LaunchScreen.storyboard in Resources */,
 				7B3427F825876A5200056519 /* Tongariro.jpg in Resources */,
-				84AB8E012A4F873D0054C99A /* 3.log in Resources */,
 				637AFDB3243B02770034958B /* Assets.xcassets in Resources */,
-				84D288D72A4EA431005A7FF5 /* 2.PNG in Resources */,
-				84AB8DD92A4F873D0054C99A /* 3.json in Resources */,
-				84AB8DDD2A4F873D0054C99A /* 4.json in Resources */,
-				84AB8DEA2A4F873D0054C99A /* 5.log in Resources */,
-				84D288A12A4EA431005A7FF5 /* 3.PNG in Resources */,
 				637AFDB1243B02760034958B /* Main.storyboard in Resources */,
-				84AB8DFD2A4F873D0054C99A /* 2.log in Resources */,
-				84D288AC2A4EA431005A7FF5 /* 5.PNG in Resources */,
-				84D288A62A4EA431005A7FF5 /* 4.PNG in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -991,7 +901,6 @@
 				8478A28E2A3BA1FB00067A91 /* SentryMachineInfo.mm in Sources */,
 				D845F35B27BAD4CC00A4D7A2 /* SentryData.xcdatamodeld in Sources */,
 				D8444E4C275E38090042F4DE /* UIViewControllerExtension.swift in Sources */,
-				84AB90752A5003160054C99A /* EfficientTableViewController.swift in Sources */,
 				637AFDAE243B02760034958B /* ViewController.swift in Sources */,
 				0AABE2EA28855FF80057ED69 /* PermissionsViewController.swift in Sources */,
 				84AB90762A5003160054C99A /* Helpers.swift in Sources */,
@@ -1006,7 +915,6 @@
 				8E8C57AF25EF16E6001CEEFA /* TraceTestViewController.swift in Sources */,
 				84AB90712A5001000054C99A /* ProfilingViewController.swift in Sources */,
 				84FB812A284001B800F3A94A /* SentryBenchmarking.mm in Sources */,
-				84AB90772A5003160054C99A /* InefficientTableViewController.swift in Sources */,
 				D8F3D052274E572F00B56F8C /* DSNStorage.swift in Sources */,
 				D8F3D054274E572F00B56F8C /* RandomErrors.swift in Sources */,
 				D80D021329EE93630084393D /* ErrorsViewController.swift in Sources */,

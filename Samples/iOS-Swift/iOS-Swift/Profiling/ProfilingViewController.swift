@@ -21,14 +21,6 @@ class ProfilingViewController: UIViewController {
         try! print("[iOS-Swift] machine info:\n" + SentryMachineInfo.cpuInfo().description)
     }
 
-    @IBAction func mainThreadOnlyTest(_ sender: Any) {
-        navigationController?.pushViewController(InefficientTableViewController(style: .insetGrouped), animated: true)
-    }
-
-    @IBAction func multithreadedTest(_ sender: Any) {
-        navigationController?.pushViewController(EfficientTableViewController(style: .insetGrouped), animated: true)
-    }
-
     @IBAction func startGPSUpdates(_ sender: Any) {
         CLLocationManager().startUpdatingLocation()
     }

@@ -136,7 +136,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" alignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="jya-5z-xKN">
-                                <rect key="frame" x="0.0" y="64" width="320" height="196"/>
+                                <rect key="frame" x="0.0" y="64" width="320" height="140"/>
                                 <subviews>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="WT1-e8-Q3X">
                                         <rect key="frame" x="109.5" y="0.0" width="101" height="28"/>
@@ -158,26 +158,8 @@
                                             <action selector="stopBenchmark:" destination="VqS-l1-kwe" eventType="touchUpInside" id="p5r-VY-ekm"/>
                                         </connections>
                                     </button>
-                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Gyd-4X-dcz">
-                                        <rect key="frame" x="104" y="56" width="112" height="28"/>
-                                        <fontDescription key="fontDescription" type="system" pointSize="13"/>
-                                        <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
-                                        <state key="normal" title="Multithreaded test"/>
-                                        <connections>
-                                            <action selector="multithreadedTest:" destination="NZr-bH-g9o" eventType="touchUpInside" id="UMn-Zn-hRj"/>
-                                        </connections>
-                                    </button>
-                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="TSF-4S-jFj">
-                                        <rect key="frame" x="96" y="84" width="128" height="28"/>
-                                        <fontDescription key="fontDescription" type="system" pointSize="13"/>
-                                        <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
-                                        <state key="normal" title="Main thread only test"/>
-                                        <connections>
-                                            <action selector="mainThreadOnlyTest:" destination="NZr-bH-g9o" eventType="touchUpInside" id="bUE-pa-lvY"/>
-                                        </connections>
-                                    </button>
                                     <stackView opaque="NO" contentMode="scaleToFill" alignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="itu-iY-Klc">
-                                        <rect key="frame" x="87.5" y="112" width="145" height="28"/>
+                                        <rect key="frame" x="87.5" y="56" width="145" height="28"/>
                                         <subviews>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="WRh-RF-8t8">
                                                 <rect key="frame" x="0.0" y="0.0" width="111" height="28"/>
@@ -200,7 +182,7 @@
                                         </subviews>
                                     </stackView>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Izf-kp-3cx">
-                                        <rect key="frame" x="104" y="140" width="112" height="28"/>
+                                        <rect key="frame" x="104" y="84" width="112" height="28"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="13"/>
                                         <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
                                         <state key="normal" title="Start GPS updates"/>
@@ -209,7 +191,7 @@
                                         </connections>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Zew-hW-Mn9">
-                                        <rect key="frame" x="107" y="168" width="106" height="28"/>
+                                        <rect key="frame" x="107" y="112" width="106" height="28"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="13"/>
                                         <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
                                         <state key="normal" title="End GPS updates"/>
