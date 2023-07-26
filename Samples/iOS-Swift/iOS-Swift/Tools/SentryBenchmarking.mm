@@ -668,7 +668,18 @@ NSDictionary<NSString *, SentryThreadBasicInfo *> *_Nullable aggregateCPUUsagePe
         _power = [[SentryPowerReading alloc] initWithError:nil];
 
 #if defined(__arm__) || defined(__arm64__)
-        NSLog(@"%llu %llu %llu", _machTime, _power.totalCPU, _power.info.task_energy);
+        static dispatch_once_t onceToken;
+        static int fd;
+        dispatch_once(&onceToken, ^{
+            const char *path = [NSSearchPathForDirectoriesInDomains(
+                                    NSApplicationSupportDirectory, NSUserDomainMask, YES)
+                                    .firstObject stringByAppendingString:@"SentryBenchmark.txt"]
+                                   .UTF8String;
+            fd = open(path, O_RDWR | O_CREAT | O_TRUNC, 0644);
+        });
+        const auto string = [NSString stringWithFormat:@"%llu %llu %llu\n", _machTime,
+                                      _power.totalCPU, _power.info.task_energy];
+        write(fd, string.UTF8String, string.length);
 #endif // defined(__arm__) || defined(__arm64__)
     }
     return self;
