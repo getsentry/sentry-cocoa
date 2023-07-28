@@ -685,14 +685,15 @@ int sampleCount = 0;
                         .firstObject stringByAppendingPathComponent:@"benchmark.csv"]
                     .UTF8String;
             benchmarkLog = open(cpuEnergyLogPath, O_RDWR | O_CREAT | O_TRUNC, 0644);
-            const auto string = @"Sample,CPU Energy,Task Energy,Screen Brightness,Battery "
-                                @"Level,Cumulative CPU Energy,Cumulative Task Energy\n";
+            const auto string
+                = @"Sample,Mach Timestamp,CPU Energy,Task Energy,Screen Brightness,Battery "
+                  @"Level,Cumulative CPU Energy,Cumulative Task Energy\n";
             write(benchmarkLog, string.UTF8String, string.length);
         });
 
         const auto string =
-            [NSString stringWithFormat:@"%d,%llu,%llu,%.2f,%.2f,%llu,%llu,\n", sampleCount++,
-                      _power.totalInstantaneousCPU, _power.instantaneousInfo.task_energy,
+            [NSString stringWithFormat:@"%d,%llu,%llu,%llu,%.2f,%.2f,%llu,%llu,\n", sampleCount++,
+                      _machTime, _power.totalInstantaneousCPU, _power.instantaneousInfo.task_energy,
                       _device.displayBrightness, _power.batteryLevel, _power.totalCumulativeCPU,
                       _power.cumulativeInfo.task_energy];
         write(benchmarkLog, string.UTF8String, string.length);
