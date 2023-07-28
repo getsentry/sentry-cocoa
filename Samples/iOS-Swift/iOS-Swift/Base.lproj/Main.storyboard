@@ -136,7 +136,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" alignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="jya-5z-xKN">
-                                <rect key="frame" x="0.0" y="64" width="320" height="224"/>
+                                <rect key="frame" x="0.0" y="64" width="320" height="196"/>
                                 <subviews>
                                     <stackView opaque="NO" contentMode="scaleToFill" alignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="DOu-47-e6X">
                                         <rect key="frame" x="93" y="0.0" width="134" height="28"/>
@@ -163,31 +163,8 @@
                                             </button>
                                         </subviews>
                                     </stackView>
-                                    <stackView opaque="NO" contentMode="scaleToFill" alignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="itu-iY-Klc">
-                                        <rect key="frame" x="87.5" y="28" width="145" height="28"/>
-                                        <subviews>
-                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="WRh-RF-8t8">
-                                                <rect key="frame" x="0.0" y="0.0" width="111" height="28"/>
-                                                <fontDescription key="fontDescription" type="system" pointSize="13"/>
-                                                <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
-                                                <state key="normal" title="Drain battery start"/>
-                                                <connections>
-                                                    <action selector="drainBattery" destination="NZr-bH-g9o" eventType="touchUpInside" id="RBA-hF-FNu"/>
-                                                </connections>
-                                            </button>
-                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="TQa-XX-1l5">
-                                                <rect key="frame" x="111" y="0.0" width="34" height="28"/>
-                                                <fontDescription key="fontDescription" type="system" pointSize="13"/>
-                                                <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
-                                                <state key="normal" title=" / end"/>
-                                                <connections>
-                                                    <action selector="endDrainBattery" destination="NZr-bH-g9o" eventType="touchUpInside" id="rq8-zJ-obT"/>
-                                                </connections>
-                                            </button>
-                                        </subviews>
-                                    </stackView>
                                     <stackView opaque="NO" contentMode="scaleToFill" alignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="cUN-Lh-mGL">
-                                        <rect key="frame" x="74.5" y="56" width="171" height="28"/>
+                                        <rect key="frame" x="74.5" y="28" width="171" height="28"/>
                                         <subviews>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Izf-kp-3cx">
                                                 <rect key="frame" x="0.0" y="0.0" width="137" height="28"/>
@@ -210,7 +187,7 @@
                                         </subviews>
                                     </stackView>
                                     <stackView opaque="NO" contentMode="scaleToFill" alignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="m0X-j3-N5j">
-                                        <rect key="frame" x="75.5" y="84" width="169" height="28"/>
+                                        <rect key="frame" x="75.5" y="56" width="169" height="28"/>
                                         <subviews>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="vLg-ta-caQ">
                                                 <rect key="frame" x="0.0" y="0.0" width="135" height="28"/>
@@ -233,7 +210,7 @@
                                         </subviews>
                                     </stackView>
                                     <stackView opaque="NO" contentMode="scaleToFill" alignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="LqU-hQ-XGw">
-                                        <rect key="frame" x="97" y="112" width="126" height="28"/>
+                                        <rect key="frame" x="97" y="84" width="126" height="28"/>
                                         <subviews>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="X23-2K-XhG">
                                                 <rect key="frame" x="0.0" y="0.0" width="92" height="28"/>
@@ -256,7 +233,7 @@
                                         </subviews>
                                     </stackView>
                                     <stackView opaque="NO" contentMode="scaleToFill" alignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="XBF-1v-xEP">
-                                        <rect key="frame" x="101.5" y="140" width="117" height="28"/>
+                                        <rect key="frame" x="101.5" y="112" width="117" height="28"/>
                                         <subviews>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="WBg-BJ-XXl">
                                                 <rect key="frame" x="0.0" y="0.0" width="83" height="28"/>
@@ -280,7 +257,7 @@
                                         </subviews>
                                     </stackView>
                                     <stackView opaque="NO" contentMode="scaleToFill" alignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="cZl-dR-LgU">
-                                        <rect key="frame" x="81.5" y="168" width="157" height="28"/>
+                                        <rect key="frame" x="81.5" y="140" width="157" height="28"/>
                                         <subviews>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="dvE-JN-Csy">
                                                 <rect key="frame" x="0.0" y="0.0" width="123" height="28"/>
@@ -303,7 +280,7 @@
                                         </subviews>
                                     </stackView>
                                     <stackView opaque="NO" contentMode="scaleToFill" alignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="API-NN-2Zk">
-                                        <rect key="frame" x="68" y="196" width="184" height="28"/>
+                                        <rect key="frame" x="68" y="168" width="184" height="28"/>
                                         <subviews>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="sK6-Pb-svh">
                                                 <rect key="frame" x="0.0" y="0.0" width="150" height="28"/>
@@ -328,7 +305,7 @@
                                 </subviews>
                             </stackView>
                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" alignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="hFG-bX-qLp">
-                                <rect key="frame" x="10" y="342" width="300" height="159.5"/>
+                                <rect key="frame" x="10" y="314" width="300" height="159.5"/>
                                 <subviews>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Work threads:" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="t2C-jL-6qO">
                                         <rect key="frame" x="97" y="0.0" width="106.5" height="20.5"/>

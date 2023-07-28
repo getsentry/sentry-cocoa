@@ -38,22 +38,7 @@ class WorkThread: Thread {
 }
 
 var cpuWorkthreads = Set<Thread>()
-var shouldDrainBattery = false
 
 func _projectedRange(factor: Float, min: Int, max: Int) -> Int {
     Int(factor * Float(max - min)) + min
-}
-
-func _drainBattery() {
-    while true {
-        _doSomeWork()
-
-        if !shouldDrainBattery {
-            break
-        }
-    }
-}
-
-class ProfilingCPUWork: NSObject {
-
 }

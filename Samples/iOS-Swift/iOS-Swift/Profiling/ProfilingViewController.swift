@@ -80,19 +80,6 @@ class ProfilingViewController: UIViewController {
         peripheralManager.stopAdvertising()
     }
 
-    @IBAction func drainBattery() {
-        shouldDrainBattery = true
-        for _ in 0..<ProcessInfo.processInfo.processorCount {
-            DispatchQueue.global(qos: .userInitiated).async {
-                _drainBattery()
-            }
-        }
-    }
-
-    @IBAction func endDrainBattery() {
-        shouldDrainBattery = false
-    }
-
     @IBAction func startCPUWork() {
         _adjustWorkThreadsToCurrentRequirement()
     }
