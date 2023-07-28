@@ -1,11 +1,3 @@
-//
-//  ProfilingNetworkScanner.swift
-//  iOS-Swift
-//
-//  Created by Andrew McKnight on 7/28/23.
-//  Copyright © 2023 Sentry. All rights reserved.
-//
-
 import UIKit
 
 class ProfilingNetworkScanner: NSObject {

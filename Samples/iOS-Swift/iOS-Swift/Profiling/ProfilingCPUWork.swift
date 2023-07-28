@@ -1,11 +1,3 @@
-//
-//  ProfilingCPUWork.swift
-//  iOS-Swift
-//
-//  Created by Andrew McKnight on 7/28/23.
-//  Copyright © 2023 Sentry. All rights reserved.
-//
-
 import UIKit
 
 // the following threads/interval defaults achieve about 100% (out of 600%) CPU usage on an iPhone 14 Pro

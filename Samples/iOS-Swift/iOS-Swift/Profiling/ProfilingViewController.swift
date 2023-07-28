@@ -1,11 +1,3 @@
-//
-//  ProfilingViewController.swift
-//  iOS-Swift
-//
-//  Created by Andrew McKnight on 6/30/23.
-//  Copyright © 2023 Sentry. All rights reserved.
-//
-
 import CoreBluetooth
 import CoreLocation
 import UIKit
