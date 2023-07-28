@@ -11,6 +11,7 @@
 
 namespace {
 const auto frequencyHz = 10;
+// const auto frequencyHz = 0.01667; // use low frequency for long-lasting battery drain test
 const auto intervalNs = 1e9 / frequencyHz;
 const auto instantaneousReadingStaggerMs = 75;
 
@@ -662,10 +663,27 @@ NSDictionary<NSString *, SentryThreadBasicInfo *> *_Nullable aggregateCPUUsagePe
 
 @end
 
-static int benchmarkLog;
 int sampleCount = 0;
 
 @implementation SentryBenchmarkSample
+
+- (void)writeToFile:(NSString *)cpuEnergyLogPath
+             string:(NSString *_Nonnull)string
+        prepareFile:(BOOL)prepareFile
+{
+    int flags = O_RDWR | O_CREAT;
+    if (prepareFile) {
+        flags |= O_TRUNC;
+    } else {
+        flags |= O_APPEND;
+    }
+    const auto benchmarkLog = open(cpuEnergyLogPath.UTF8String, flags, 0644);
+    NSAssert(benchmarkLog > 0, @"failed to open file");
+    auto result = write(benchmarkLog, string.UTF8String, string.length);
+    NSAssert(result > 0, @"failed to write to file");
+    result = close(benchmarkLog);
+    NSAssert(result == KERN_SUCCESS, @"Failed to close file");
+}
 
 - (instancetype)initWithError:(NSError **)error
 {
@@ -678,17 +696,15 @@ int sampleCount = 0;
 
 #if defined(__arm__) || defined(__arm64__)
         static dispatch_once_t onceToken;
-        static const char *cpuEnergyLogPath;
+        static NSString *cpuEnergyLogPath;
         dispatch_once(&onceToken, ^{
             cpuEnergyLogPath =
                 [NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES)
-                        .firstObject stringByAppendingPathComponent:@"benchmark.csv"]
-                    .UTF8String;
-            benchmarkLog = open(cpuEnergyLogPath, O_RDWR | O_CREAT | O_TRUNC, 0644);
+                        .firstObject stringByAppendingPathComponent:@"benchmark.csv"];
             const auto string
                 = @"Sample,Mach Timestamp,CPU Energy,Task Energy,Screen Brightness,Battery "
                   @"Level,Cumulative CPU Energy,Cumulative Task Energy\n";
-            write(benchmarkLog, string.UTF8String, string.length);
+            [self writeToFile:cpuEnergyLogPath string:string prepareFile:YES];
         });
 
         const auto string =
@@ -696,7 +712,7 @@ int sampleCount = 0;
                       _machTime, _power.totalInstantaneousCPU, _power.instantaneousInfo.task_energy,
                       _device.displayBrightness, _power.batteryLevel, _power.totalCumulativeCPU,
                       _power.cumulativeInfo.task_energy];
-        write(benchmarkLog, string.UTF8String, string.length);
+        [self writeToFile:cpuEnergyLogPath string:string prepareFile:NO];
 #endif // defined(__arm__) || defined(__arm64__)
     }
     return self;
@@ -802,8 +818,6 @@ int sampleCount = 0;
                                               aggregatedSampleResult:sampleResult];
 
     [samples removeAllObjects];
-
-    close(benchmarkLog);
 
     return result;
 }
