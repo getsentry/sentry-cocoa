@@ -148,6 +148,8 @@ extern uint64_t dispatch_benchmark(size_t count, void (^block)(void));
  */
 - (SentryBenchmarkResult *)stop;
 
++ (uint64_t)machTime;
+
 @end
 
 NS_ASSUME_NONNULL_END

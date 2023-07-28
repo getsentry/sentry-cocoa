@@ -54,5 +54,7 @@
 	</array>
 	<key>UIUserInterfaceStyle</key>
 	<string>Light</string>
+	<key>NSBluetoothAlwaysUsageDescription</key>
+	<string>This app may use bluetooth to test certain measurement functionality.</string>
 </dict>
 </plist>

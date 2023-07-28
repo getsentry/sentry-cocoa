@@ -82,7 +82,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     //swiftlint:enable function_body_length
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        
+        SentryBenchmarking.shared().start()
+
         AppDelegate.startSentry()
         
         if #available(iOS 15.0, *) {

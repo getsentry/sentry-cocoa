@@ -656,6 +656,9 @@ NSDictionary<NSString *, SentryThreadBasicInfo *> *_Nullable aggregateCPUUsagePe
 
 @end
 
+static int benchmarkLog;
+int sampleCount = 0;
+
 @implementation SentryBenchmarkSample
 
 - (instancetype)initWithError:(NSError **)error
@@ -669,17 +672,20 @@ NSDictionary<NSString *, SentryThreadBasicInfo *> *_Nullable aggregateCPUUsagePe
 
 #if defined(__arm__) || defined(__arm64__)
         static dispatch_once_t onceToken;
-        static int fd;
         dispatch_once(&onceToken, ^{
-            const char *path = [NSSearchPathForDirectoriesInDomains(
-                                    NSApplicationSupportDirectory, NSUserDomainMask, YES)
-                                    .firstObject stringByAppendingString:@"SentryBenchmark.txt"]
-                                   .UTF8String;
-            fd = open(path, O_RDWR | O_CREAT | O_TRUNC, 0644);
+            const char *cpuEnergyLogPath =
+                [NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES)
+                        .firstObject stringByAppendingPathComponent:@"benchmark.csv"]
+                    .UTF8String;
+            benchmarkLog = open(cpuEnergyLogPath, O_RDWR | O_CREAT | O_TRUNC, 0644);
+
+            const auto string = @"Sample,CPU Energy,Task Energy,Screen Brightness,Battery Level\n";
+            write(benchmarkLog, string.UTF8String, string.length);
         });
-        const auto string = [NSString stringWithFormat:@"%llu %llu %llu\n", _machTime,
-                                      _power.totalCPU, _power.info.task_energy];
-        write(fd, string.UTF8String, string.length);
+        const auto string =
+            [NSString stringWithFormat:@"%d,%llu,%llu,%.2f,%.2f,\n", sampleCount++, _power.totalCPU,
+                      _power.info.task_energy, _device.displayBrightness, _power.batteryLevel];
+        write(benchmarkLog, string.UTF8String, string.length);
 #endif // defined(__arm__) || defined(__arm64__)
     }
     return self;
@@ -786,7 +792,14 @@ NSDictionary<NSString *, SentryThreadBasicInfo *> *_Nullable aggregateCPUUsagePe
 
     [samples removeAllObjects];
 
+    close(benchmarkLog);
+
     return result;
+}
+
++ (uint64_t)machTime
+{
+    return machTime();
 }
 
 @end
