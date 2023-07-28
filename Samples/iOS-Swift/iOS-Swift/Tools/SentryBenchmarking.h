@@ -20,7 +20,9 @@ extern uint64_t dispatch_benchmark(size_t count, void (^block)(void));
 - (instancetype)initWithError:(NSError **)error;
 /** This structure as returned from @c task_info gives the amounts since process/device launch; we
  * take the difference between two staggered readings to calculate an "instantaneous" amount. */
-@property struct task_power_info_v2 info;
+@property struct task_power_info_v2 instantaneousInfo;
+/** The raw result from calling @c task_info. For an "instantaneous" reading, use */
+@property struct task_power_info_v2 cumulativeInfo;
 /**
  * From @c UIDevice.batteryLevel
  * @warning: From docs: "Notifications for battery level change are sent no more frequently than
@@ -36,8 +38,8 @@ extern uint64_t dispatch_benchmark(size_t count, void (^block)(void));
 @property BOOL lowPowerModeEnabled;
 /** From @c NSProcessInfo.thermalState */
 @property NSProcessInfoThermalState thermalState;
-- (uint64_t)totalCPU;
-- (uint64_t)totalGPU;
+- (uint64_t)totalInstantaneousCPU;
+- (uint64_t)totalCumulativeCPU;
 @end
 
 @interface SentryTaskEventsReading : NSObject

@@ -287,32 +287,34 @@ NSDictionary<NSString *, SentryThreadBasicInfo *> *_Nullable aggregateCPUUsagePe
     _results.cpu.idleTicks = end.cpu.idleTicks - start.cpu.idleTicks;
 
     _results.power = [[SentryPowerReading alloc] init];
-    _results.power.info = /* task_power_info_v2 */ {
-        /* task_power_info_data_t */ {
-            end.power.info.cpu_energy.total_user - start.power.info.cpu_energy.total_user,
-            end.power.info.cpu_energy.total_system - start.power.info.cpu_energy.total_system,
-            end.power.info.cpu_energy.task_interrupt_wakeups
-                - start.power.info.cpu_energy.task_interrupt_wakeups,
-            end.power.info.cpu_energy.task_platform_idle_wakeups
-                - start.power.info.cpu_energy.task_platform_idle_wakeups,
-            end.power.info.cpu_energy.task_timer_wakeups_bin_1
-                - start.power.info.cpu_energy.task_timer_wakeups_bin_1,
-            end.power.info.cpu_energy.task_timer_wakeups_bin_2
-                - start.power.info.cpu_energy.task_timer_wakeups_bin_2 },
+    _results.power.instantaneousInfo = /* task_power_info_v2 */ {
+        /* task_power_info_data_t */ { end.power.instantaneousInfo.cpu_energy.total_user
+                - start.power.instantaneousInfo.cpu_energy.total_user,
+            end.power.instantaneousInfo.cpu_energy.total_system
+                - start.power.instantaneousInfo.cpu_energy.total_system,
+            end.power.instantaneousInfo.cpu_energy.task_interrupt_wakeups
+                - start.power.instantaneousInfo.cpu_energy.task_interrupt_wakeups,
+            end.power.instantaneousInfo.cpu_energy.task_platform_idle_wakeups
+                - start.power.instantaneousInfo.cpu_energy.task_platform_idle_wakeups,
+            end.power.instantaneousInfo.cpu_energy.task_timer_wakeups_bin_1
+                - start.power.instantaneousInfo.cpu_energy.task_timer_wakeups_bin_1,
+            end.power.instantaneousInfo.cpu_energy.task_timer_wakeups_bin_2
+                - start.power.instantaneousInfo.cpu_energy.task_timer_wakeups_bin_2 },
         /* gpu_energy_data */
-        { end.power.info.gpu_energy.task_gpu_utilisation
-                - start.power.info.gpu_energy.task_gpu_utilisation,
-            end.power.info.gpu_energy.task_gpu_stat_reserved0
-                - start.power.info.gpu_energy.task_gpu_stat_reserved1,
-            end.power.info.gpu_energy.task_gpu_stat_reserved1
-                - start.power.info.gpu_energy.task_gpu_stat_reserved1,
-            end.power.info.gpu_energy.task_gpu_stat_reserved2
-                - start.power.info.gpu_energy.task_gpu_stat_reserved2 },
+        { end.power.instantaneousInfo.gpu_energy.task_gpu_utilisation
+                - start.power.instantaneousInfo.gpu_energy.task_gpu_utilisation,
+            end.power.instantaneousInfo.gpu_energy.task_gpu_stat_reserved0
+                - start.power.instantaneousInfo.gpu_energy.task_gpu_stat_reserved1,
+            end.power.instantaneousInfo.gpu_energy.task_gpu_stat_reserved1
+                - start.power.instantaneousInfo.gpu_energy.task_gpu_stat_reserved1,
+            end.power.instantaneousInfo.gpu_energy.task_gpu_stat_reserved2
+                - start.power.instantaneousInfo.gpu_energy.task_gpu_stat_reserved2 },
 #if defined(__arm__) || defined(__arm64__)
-        end.power.info.task_energy - start.power.info.task_energy,
+        end.power.instantaneousInfo.task_energy - start.power.instantaneousInfo.task_energy,
 #endif /* defined(__arm__) || defined(__arm64__) */
-        end.power.info.task_ptime - start.power.info.task_ptime,
-        end.power.info.task_pset_switches - start.power.info.task_pset_switches
+        end.power.instantaneousInfo.task_ptime - start.power.instantaneousInfo.task_ptime,
+        end.power.instantaneousInfo.task_pset_switches
+            - start.power.instantaneousInfo.task_pset_switches
     };
 
     _results.taskEvents = [[SentryTaskEventsReading alloc] init];
@@ -401,32 +403,35 @@ NSDictionary<NSString *, SentryThreadBasicInfo *> *_Nullable aggregateCPUUsagePe
 {
     if ((self = [super init])) {
         const auto first = [self powerInfoWithError:nil];
+
         // same 75 ms sleep like htop as we do for cpu usage per core
         std::this_thread::sleep_for(std::chrono::milliseconds(instantaneousReadingStaggerMs));
-        const auto second = [self powerInfoWithError:nil];
+        _cumulativeInfo = [self powerInfoWithError:nil];
 
-        _info = {
-            { second.cpu_energy.total_user - first.cpu_energy.total_user,
-                second.cpu_energy.total_system - first.cpu_energy.total_system,
-                second.cpu_energy.task_interrupt_wakeups - first.cpu_energy.task_interrupt_wakeups,
-                second.cpu_energy.task_platform_idle_wakeups
+        _instantaneousInfo = {
+            { _cumulativeInfo.cpu_energy.total_user - first.cpu_energy.total_user,
+                _cumulativeInfo.cpu_energy.total_system - first.cpu_energy.total_system,
+                _cumulativeInfo.cpu_energy.task_interrupt_wakeups
+                    - first.cpu_energy.task_interrupt_wakeups,
+                _cumulativeInfo.cpu_energy.task_platform_idle_wakeups
                     - first.cpu_energy.task_platform_idle_wakeups,
-                second.cpu_energy.task_timer_wakeups_bin_1
+                _cumulativeInfo.cpu_energy.task_timer_wakeups_bin_1
                     - first.cpu_energy.task_timer_wakeups_bin_1,
-                second.cpu_energy.task_timer_wakeups_bin_2
+                _cumulativeInfo.cpu_energy.task_timer_wakeups_bin_2
                     - first.cpu_energy.task_timer_wakeups_bin_2 },
-            { second.gpu_energy.task_gpu_utilisation - first.gpu_energy.task_gpu_utilisation,
-                second.gpu_energy.task_gpu_stat_reserved0
+            { _cumulativeInfo.gpu_energy.task_gpu_utilisation
+                    - first.gpu_energy.task_gpu_utilisation,
+                _cumulativeInfo.gpu_energy.task_gpu_stat_reserved0
                     - first.gpu_energy.task_gpu_stat_reserved0,
-                second.gpu_energy.task_gpu_stat_reserved1
+                _cumulativeInfo.gpu_energy.task_gpu_stat_reserved1
                     - first.gpu_energy.task_gpu_stat_reserved1,
-                second.gpu_energy.task_gpu_stat_reserved2
+                _cumulativeInfo.gpu_energy.task_gpu_stat_reserved2
                     - first.gpu_energy.task_gpu_stat_reserved2 },
 #if defined(__arm__) || defined(__arm64__)
-            second.task_energy - first.task_energy,
+            _cumulativeInfo.task_energy - first.task_energy,
 #endif /* defined(__arm__) || defined(__arm64__) */
-            second.task_ptime - first.task_ptime,
-            second.task_pset_switches - first.task_pset_switches,
+            _cumulativeInfo.task_ptime - first.task_ptime,
+            _cumulativeInfo.task_pset_switches - first.task_pset_switches,
         };
 
         UIDevice *_Nonnull device = UIDevice.currentDevice;
@@ -463,14 +468,14 @@ NSDictionary<NSString *, SentryThreadBasicInfo *> *_Nullable aggregateCPUUsagePe
     return powerInfo;
 }
 
-- (uint64_t)totalCPU
+- (uint64_t)totalInstantaneousCPU
 {
-    return _info.cpu_energy.total_system + _info.cpu_energy.total_user;
+    return _instantaneousInfo.cpu_energy.total_system + _instantaneousInfo.cpu_energy.total_user;
 }
 
-- (uint64_t)totalGPU
+- (uint64_t)totalCumulativeCPU
 {
-    return _info.gpu_energy.task_gpu_utilisation;
+    return _cumulativeInfo.cpu_energy.total_system + _cumulativeInfo.cpu_energy.total_user;
 }
 
 - (NSString *)_thermalStateName
@@ -514,9 +519,10 @@ NSDictionary<NSString *, SentryThreadBasicInfo *> *_Nullable aggregateCPUUsagePe
             @"battery state: %@; battery level: %.3f; low power mode? %@; thermalState: "
             @"%@; totalCPU: %llu; totalGPU: %llu",
         [self nameForBatteryState:_batteryState], _batteryLevel, _lowPowerModeEnabled ? @YES : @NO,
-        [self _thermalStateName], [self totalCPU], [self totalGPU]];
+        [self _thermalStateName], [self totalInstantaneousCPU],
+        _instantaneousInfo.gpu_energy.task_gpu_utilisation];
 #if defined(__arm__) || defined(__arm64__)
-    [string appendFormat:@"; task energy: %llu nanojoules", _info.task_energy];
+    [string appendFormat:@"; task energy: %llu nanojoules", _instantaneousInfo.task_energy];
 #endif // defined(__arm__) || defined(__arm64__)
     return string;
 }
@@ -672,19 +678,23 @@ int sampleCount = 0;
 
 #if defined(__arm__) || defined(__arm64__)
         static dispatch_once_t onceToken;
+        static const char *cpuEnergyLogPath;
         dispatch_once(&onceToken, ^{
-            const char *cpuEnergyLogPath =
+            cpuEnergyLogPath =
                 [NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES)
                         .firstObject stringByAppendingPathComponent:@"benchmark.csv"]
                     .UTF8String;
             benchmarkLog = open(cpuEnergyLogPath, O_RDWR | O_CREAT | O_TRUNC, 0644);
-
-            const auto string = @"Sample,CPU Energy,Task Energy,Screen Brightness,Battery Level\n";
+            const auto string = @"Sample,CPU Energy,Task Energy,Screen Brightness,Battery "
+                                @"Level,Cumulative CPU Energy,Cumulative Task Energy\n";
             write(benchmarkLog, string.UTF8String, string.length);
         });
+
         const auto string =
-            [NSString stringWithFormat:@"%d,%llu,%llu,%.2f,%.2f,\n", sampleCount++, _power.totalCPU,
-                      _power.info.task_energy, _device.displayBrightness, _power.batteryLevel];
+            [NSString stringWithFormat:@"%d,%llu,%llu,%.2f,%.2f,%llu,%llu,\n", sampleCount++,
+                      _power.totalInstantaneousCPU, _power.instantaneousInfo.task_energy,
+                      _device.displayBrightness, _power.batteryLevel, _power.totalCumulativeCPU,
+                      _power.cumulativeInfo.task_energy];
         write(benchmarkLog, string.UTF8String, string.length);
 #endif // defined(__arm__) || defined(__arm64__)
     }
