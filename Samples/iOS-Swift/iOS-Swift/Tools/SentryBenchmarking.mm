@@ -751,8 +751,7 @@ int sampleCount = 0;
         source = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, queue);
         dispatch_source_set_event_handler(source,
             ^{ [self->samples addObject:[[SentryBenchmarkSample alloc] initWithError:nil]]; });
-        dispatch_source_set_timer(
-            source, dispatch_time(DISPATCH_TIME_NOW, intervalNs), intervalNs, leewayNs);
+        dispatch_source_set_timer(source, DISPATCH_TIME_NOW, intervalNs, leewayNs);
     }
     return self;
 }
