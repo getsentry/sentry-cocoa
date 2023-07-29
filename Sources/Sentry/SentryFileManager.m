@@ -608,7 +608,7 @@ SentryFileManager ()
 
 - (void)storeTimezoneOffset:(NSInteger)offset
 {
-    NSString *timezoneOffsetString = [NSString stringWithFormat:@"%zd", offset];
+    NSString *timezoneOffsetString = [NSString stringWithFormat:@"%ld", (long)offset];
     SENTRY_LOG_DEBUG(@"Persisting timezone offset: %@", timezoneOffsetString);
     @synchronized(self.timezoneOffsetFilePath) {
         if (![self writeData:[timezoneOffsetString dataUsingEncoding:NSUTF8StringEncoding]
