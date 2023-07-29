@@ -63,35 +63,45 @@ class ViewController: UIViewController {
     @IBAction func stopTransaction(_ sender: UIButton) {
         highlightButton(sender)
 
+        defer {
+            if spans.isEmpty {
+                NotificationCenter.default.removeObserver(self, name: profilerNotification, object: nil)
+            }
+        }
+
+        func showConfirmation(span: Span) {
+            DispatchQueue.main.async {
+                let confirmation = UIAlertController(title: "Finished span \(span.spanId.sentrySpanIdString)", message: nil, preferredStyle: .alert)
+                confirmation.addAction(UIAlertAction(title: "OK", style: .default))
+                self.present(confirmation, animated: true)
+            }
+        }
+
+        func finishSpan(span: Span) {
+            span.finish()
+            self.spans.remove(at: self.spans.firstIndex(where: { testSpan in
+                testSpan.spanId == span.spanId
+            })!)
+            showConfirmation(span: span)
+        }
+
+        if spans.count == 1 {
+            finishSpan(span: spans[0])
+            return
+        }
+
         let alert = UIAlertController(title: "Choose span to stop", message: nil, preferredStyle: .actionSheet)
         spans.forEach { span in
             alert.addAction(UIAlertAction(title: span.spanId.sentrySpanIdString, style: .default, handler: { _ in
-
-                func showConfirmation() {
-                    DispatchQueue.main.async {
-                        let confirmation = UIAlertController(title: "Finished span \(span.spanId.sentrySpanIdString)", message: nil, preferredStyle: .alert)
-                        confirmation.addAction(UIAlertAction(title: "OK", style: .default))
-                        self.present(confirmation, animated: true)
-                    }
-                }
-
-                func finishSpan() {
-                    span.finish()
-                    self.spans.remove(at: self.spans.firstIndex(where: { testSpan in
-                        testSpan.spanId == span.spanId
-                    })!)
-                    showConfirmation()
-                }
-
                 let threadPicker = UIAlertController(title: "From thread:", message: nil, preferredStyle: .actionSheet)
                 threadPicker.addAction(UIAlertAction(title: "Main thread", style: .default, handler: { _ in
                     DispatchQueue.main.async {
-                        finishSpan()
+                        finishSpan(span: span)
                     }
                 }))
                 threadPicker.addAction(UIAlertAction(title: "BG thread", style: .default, handler: { _ in
                     Thread.detachNewThread {
-                        finishSpan()
+                        finishSpan(span: span)
                     }
                 }))
                 threadPicker.addAction(UIAlertAction(title: "Cancel", style: .cancel))
@@ -100,8 +110,6 @@ class ViewController: UIViewController {
         }
         alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
         present(alert, animated: true)
-
-        NotificationCenter.default.removeObserver(self, name: profilerNotification, object: nil)
     }
 
     @IBAction func captureTransaction(_ sender: UIButton) {
