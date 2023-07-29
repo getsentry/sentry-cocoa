@@ -16,7 +16,7 @@ final class ProfilingUITests: XCTestCase {
      */
     func testProfilingGPUInfo() throws {
         // We don't need to test this on multiple OSes right now, and older versions seem to have issues; older devices or VM images running simulators might just be slower. Latest OS is enough coverage for our needs for now.
-        guard #available(iOS 15.0, *) else {Samples / iOS - Swift / iOS - Swift / ViewController.swift
+        guard #available(iOS 15.0, *) else {
            throw XCTSkip("Only run on iOS 15 and above.")
         }
 
