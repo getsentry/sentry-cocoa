@@ -3,7 +3,7 @@ import CoreLocation
 import UIKit
 
 @available(iOS 13.0, *)
-class ProfilingViewController: UIViewController {
+class ProfilingViewController: UIViewController, CLLocationManagerDelegate {
 
     @IBOutlet weak var workThreadLabel: UILabel!
     @IBOutlet weak var workIntensityFactorLabel: UILabel!
@@ -37,20 +37,37 @@ class ProfilingViewController: UIViewController {
         try! print("[iOS-Swift] machine info:\n" + SentryMachineInfo.cpuInfo().description)
     }
 
+    var locationManager: CLLocationManager?
     @IBAction func startGPSUpdates(_ sender: Any) {
-        CLLocationManager().startUpdatingLocation()
+        defer { locationManager?.startUpdatingLocation() }
+        guard locationManager == nil else { return }
+        locationManager = CLLocationManager()
+        locationManager?.delegate = self
     }
 
     @IBAction func endGPSUpdates(_ sender: Any) {
-        CLLocationManager().stopUpdatingLocation()
+        locationManager?.stopUpdatingLocation()
+        locationManager = nil
+    }
+
+    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+        print("locations: \(locations)")
     }
 
     @IBAction func startHeadingUpdates(_ sender: Any) {
-        CLLocationManager().startUpdatingHeading()
+        defer { locationManager?.startUpdatingHeading() }
+        guard locationManager == nil else { return }
+        locationManager = CLLocationManager()
+        locationManager?.delegate = self
     }
 
     @IBAction func endHeadingUpdates(_ sender: Any) {
-        CLLocationManager().stopUpdatingHeading()
+        locationManager?.stopUpdatingHeading()
+        locationManager = nil
+    }
+
+    func locationManager(_ manager: CLLocationManager, didUpdateHeading newHeading: CLHeading) {
+        print("headings: \(newHeading)")
     }
 
     var networkScanner: ProfilingNetworkScanner?
