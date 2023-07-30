@@ -330,13 +330,13 @@ serializedProfileData(
 
 #    pragma mark - Public
 
-+ (void)startWithTracer:(SentryTracer *)tracer
++ (void)startWithTracer:(SentryId *)traceId
 {
     std::lock_guard<std::mutex> l(_gProfilerLock);
 
     if (_gCurrentProfiler && [_gCurrentProfiler isRunning]) {
         SENTRY_LOG_DEBUG(@"A profiler is already running.");
-        trackProfilerForTracer(_gCurrentProfiler, tracer);
+        trackProfilerForTracer(_gCurrentProfiler, traceId);
         return;
     }
 
@@ -346,7 +346,7 @@ serializedProfileData(
         return;
     }
 
-    trackProfilerForTracer(_gCurrentProfiler, tracer);
+    trackProfilerForTracer(_gCurrentProfiler, traceId);
 }
 
 + (BOOL)isCurrentlyProfiling
@@ -358,7 +358,7 @@ serializedProfileData(
 + (nullable SentryEnvelopeItem *)createProfilingEnvelopeItemForTransaction:
     (SentryTransaction *)transaction
 {
-    const auto profiler = profilerForFinishedTracer(transaction.trace);
+    const auto profiler = profilerForFinishedTracer(transaction.trace.traceId);
     if (!profiler) {
         SENTRY_LOG_WARN(@"Expected a profiler for tracer id %@ but none was found",
             transaction.trace.traceId.sentryIdString);
