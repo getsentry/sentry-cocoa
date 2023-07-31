@@ -341,21 +341,21 @@ serializedProfileData(NSDictionary<NSString *, id> *profileData, uint64_t startS
 + (nullable SentryEnvelopeItem *)createProfilingEnvelopeItemForTransaction:
     (SentryTransaction *)transaction
 {
-    const auto profiler = profilerForFinishedTracer(transaction.trace.traceId);
-    if (!profiler) {
-        SENTRY_LOG_WARN(@"Expected a profiler for tracer id %@ but none was found",
-            transaction.trace.traceId.sentryIdString);
+    const auto payload = [self collectProfileBetween:transaction.startSystemTime
+                                                 and:transaction.endSystemTime
+                                            forTrace:transaction.trace.traceId
+                                               onHub:transaction.trace.hub];
+    if (payload == nil) {
         return nil;
     }
 
-    const auto payload = [profiler serializeForTransaction:transaction];
+    [self updateProfilePayload:payload forTransaction:transaction];
+    return [self createEnvelopeItemForProfilePayload:payload];
+}
 
-#    if defined(TEST) || defined(TESTCI)
-    [NSNotificationCenter.defaultCenter postNotificationName:@"SentryProfileCompleteNotification"
-                                                      object:nil
-                                                    userInfo:payload];
-#    endif // defined(TEST) || defined(TESTCI)
-
++ (nullable SentryEnvelopeItem *)createEnvelopeItemForProfilePayload:
+    (NSDictionary<NSString *, id> *)payload;
+{
     const auto JSONData = [SentrySerialization dataWithJSONObject:payload];
     if (JSONData == nil) {
         SENTRY_LOG_DEBUG(@"Failed to encode profile to JSON.");
@@ -369,20 +369,29 @@ serializedProfileData(NSDictionary<NSString *, id> *profileData, uint64_t startS
 
 #    pragma mark - Private
 
-- (NSDictionary<NSString *, id> *)serializeForTransaction:(SentryTransaction *)transaction
++ (NSMutableDictionary<NSString *, id> *)collectProfileBetween:(uint64_t)startSystemTime
+                                                           and:(uint64_t)endSystemTime
+                                                      forTrace:(SentryId *)traceId
+                                                         onHub:(SentryHub *)hub;
 {
-    NSMutableDictionary<NSString *, id> *payload = serializedProfileData(
-        [self._state copyProfilingData], transaction.startSystemTime, transaction.endSystemTime,
-        self.profileId, profilerTruncationReasonName(_truncationReason),
-        [_metricProfiler serializeBetween:transaction.startSystemTime
-                                      and:transaction.endSystemTime],
-        [_debugImageProvider getDebugImagesCrashed:NO], transaction.trace.hub
-#    if SENTRY_HAS_UIKIT
-        ,
-        self._screenFrameData
-#    endif // SENTRY_HAS_UIKIT
-    );
+    const auto profiler = profilerForFinishedTracer(traceId);
+    if (!profiler) {
+        return nil;
+    }
 
+    const auto payload = [profiler serializeBetween:startSystemTime and:endSystemTime onHub:hub];
+
+#    if defined(TEST) || defined(TESTCI)
+    [NSNotificationCenter.defaultCenter postNotificationName:@"SentryProfileCompleteNotification"
+                                                      object:nil
+                                                    userInfo:payload];
+#    endif // defined(TEST) || defined(TESTCI)
+    return payload;
+}
+
++ (void)updateProfilePayload:(NSMutableDictionary<NSString *, id> *)payload
+              forTransaction:(SentryTransaction *)transaction;
+{
     payload[@"platform"] = transaction.platform;
     payload[@"transaction"] = @{
         @"id" : transaction.eventId.sentryIdString,
@@ -399,8 +408,21 @@ serializedProfileData(NSDictionary<NSString *, id> *profileData, uint64_t startS
     } else {
         payload[@"timestamp"] = [timestamp sentry_toIso8601String];
     }
+}
 
-    return payload;
+- (NSMutableDictionary<NSString *, id> *)serializeBetween:(uint64_t)startSystemTime
+                                                      and:(uint64_t)endSystemTime
+                                                    onHub:(SentryHub *)hub;
+{
+    return serializedProfileData([self._state copyProfilingData], startSystemTime, endSystemTime,
+        self.profileId, profilerTruncationReasonName(_truncationReason),
+        [_metricProfiler serializeBetween:startSystemTime and:endSystemTime],
+        [_debugImageProvider getDebugImagesCrashed:NO], hub
+#    if SENTRY_HAS_UIKIT
+        ,
+        self._screenFrameData
+#    endif // SENTRY_HAS_UIKIT
+    );
 }
 
 - (void)timeoutAbort
