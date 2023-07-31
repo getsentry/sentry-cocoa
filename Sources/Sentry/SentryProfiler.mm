@@ -85,8 +85,8 @@ profilerTruncationReasonName(SentryProfilerTruncationReason reason)
  * for it.
  */
 NSArray<SentrySerializedMetricReading *> *
-sliceGPUData(SentryFrameInfoTimeSeries *frameInfo, SentryTransaction *transaction,
-    BOOL useMostRecentRecording)
+sliceGPUData(SentryFrameInfoTimeSeries *frameInfo, uint64_t startSystemTime,
+    uint64_t endSystemTime BOOL useMostRecentRecording)
 {
     auto slicedGPUEntries = [NSMutableArray<SentrySerializedMetricEntry *> array];
     __block NSNumber *nearestPredecessorValue;
@@ -94,19 +94,19 @@ sliceGPUData(SentryFrameInfoTimeSeries *frameInfo, SentryTransaction *transactio
         NSDictionary<NSString *, NSNumber *> *_Nonnull obj, NSUInteger idx, BOOL *_Nonnull stop) {
         const auto timestamp = obj[@"timestamp"].unsignedLongLongValue;
 
-        if (!orderedChronologically(transaction.startSystemTime, timestamp)) {
+        if (!orderedChronologically(startSystemTime, timestamp)) {
             SENTRY_LOG_DEBUG(@"GPU info recorded (%llu) before transaction start (%llu), "
                              @"will not report it.",
-                timestamp, transaction.startSystemTime);
+                timestamp, startSystemTime);
             nearestPredecessorValue = obj[@"value"];
             return;
         }
 
-        if (!orderedChronologically(timestamp, transaction.endSystemTime)) {
+        if (!orderedChronologically(timestamp, endSystemTime)) {
             SENTRY_LOG_DEBUG(@"GPU info recorded after transaction finished, won't record.");
             return;
         }
-        const auto relativeTimestamp = getDurationNs(transaction.startSystemTime, timestamp);
+        const auto relativeTimestamp = getDurationNs(startSystemTime, timestamp);
 
         [slicedGPUEntries addObject:@ {
             @"elapsed_since_start_ns" : sentry_stringForUInt64(relativeTimestamp),
@@ -126,21 +126,20 @@ sliceGPUData(SentryFrameInfoTimeSeries *frameInfo, SentryTransaction *transactio
 /** Given an array of samples with absolute timestamps, return the serialized JSON mapping with
  * their data, with timestamps normalized relative to the provided transaction's start time. */
 NSArray<NSDictionary *> *
-serializedSamplesWithRelativeTimestamps(
-    NSArray<SentrySample *> *samples, SentryTransaction *transaction)
+serializedSamplesWithRelativeTimestamps(NSArray<SentrySample *> *samples, uint64_t startSystemTime)
 {
     const auto result = [NSMutableArray<NSDictionary *> array];
     [samples enumerateObjectsUsingBlock:^(
         SentrySample *_Nonnull sample, NSUInteger idx, BOOL *_Nonnull stop) {
         // This shouldn't happen as we would've filtered out any such samples, but we should still
         // guard against it before calling getDurationNs as a defensive measure
-        if (!orderedChronologically(transaction.startSystemTime, sample.absoluteTimestamp)) {
+        if (!orderedChronologically(startSystemTime, sample.absoluteTimestamp)) {
             SENTRY_LOG_WARN(@"Filtered sample not chronological with transaction.");
             return;
         }
         const auto dict = [NSMutableDictionary dictionaryWithDictionary:@ {
-            @"elapsed_since_start_ns" : sentry_stringForUInt64(
-                getDurationNs(transaction.startSystemTime, sample.absoluteTimestamp)),
+            @"elapsed_since_start_ns" :
+                sentry_stringForUInt64(getDurationNs(startSystemTime, sample.absoluteTimestamp)),
             @"thread_id" : sentry_stringForUInt64(sample.threadID),
             @"stack_id" : sample.stackIndex,
         }];
@@ -153,11 +152,11 @@ serializedSamplesWithRelativeTimestamps(
     return result;
 }
 
-NSDictionary<NSString *, id> *
-serializedProfileData(
-    NSDictionary<NSString *, id> *profileData, SentryTransaction *transaction, SentryId *profileID,
-    NSString *truncationReason, NSDictionary<NSString *, id> *serializedMetrics,
-    NSArray<SentryDebugMeta *> *debugMeta, SentryHub *hub
+NSMutableDictionary<NSString *, id> *
+serializedProfileData(NSDictionary<NSString *, id> *profileData, uint64_t startSystemTime,
+    uint64_t endSystemTime, SentryId *profileID, NSString *truncationReason,
+    NSDictionary<NSString *, id> *serializedMetrics, NSArray<SentryDebugMeta *> *debugMeta,
+    SentryHub *hub
 #    if SENTRY_HAS_UIKIT
     ,
     SentryScreenFrames *gpuData
@@ -176,7 +175,7 @@ serializedProfileData(
     }
 
     // slice the profile data to only include the samples/metrics within the transaction
-    const auto slicedSamples = slicedProfileSamples(samples, transaction);
+    const auto slicedSamples = slicedProfileSamples(samples, startSystemTime, endSystemTime);
     if (slicedSamples.count < 2) {
         SENTRY_LOG_DEBUG(@"Not enough samples in profile during the transaction");
         [hub.getClient recordLostEvent:kSentryDataCategoryProfile
@@ -185,7 +184,7 @@ serializedProfileData(
     }
     const auto payload = [NSMutableDictionary<NSString *, id> dictionary];
     NSMutableDictionary<NSString *, id> *const profile = [profileData[@"profile"] mutableCopy];
-    profile[@"samples"] = serializedSamplesWithRelativeTimestamps(slicedSamples, transaction);
+    profile[@"samples"] = serializedSamplesWithRelativeTimestamps(slicedSamples, startSystemTime);
     payload[@"profile"] = profile;
 
     payload[@"version"] = @"1";
@@ -214,26 +213,8 @@ serializedProfileData(
 
     payload[@"profile_id"] = profileID.sentryIdString;
     payload[@"truncation_reason"] = truncationReason;
-    payload[@"platform"] = transaction.platform;
     payload[@"environment"] = hub.scope.environmentString ?: hub.getClient.options.environment;
-
-    const auto timestamp = transaction.trace.originalStartTimestamp;
-    if (UNLIKELY(timestamp == nil)) {
-        SENTRY_LOG_WARN(@"There was no start timestamp on the provided transaction. Falling back "
-                        @"to old behavior of using the current time.");
-        payload[@"timestamp"] =
-            [[SentryDependencyContainer.sharedInstance.dateProvider date] sentry_toIso8601String];
-    } else {
-        payload[@"timestamp"] = [timestamp sentry_toIso8601String];
-    }
-
     payload[@"release"] = hub.getClient.options.releaseName;
-    payload[@"transaction"] = @ {
-        @"id" : transaction.eventId.sentryIdString,
-        @"trace_id" : transaction.trace.traceId.sentryIdString,
-        @"name" : transaction.transaction,
-        @"active_thread_id" : [transaction.trace.transactionContext sentry_threadInfo].threadId
-    };
 
     // add the gathered metrics
     auto metrics = serializedMetrics;
@@ -241,23 +222,25 @@ serializedProfileData(
 #    if SENTRY_HAS_UIKIT
     const auto mutableMetrics =
         [NSMutableDictionary<NSString *, id> dictionaryWithDictionary:metrics];
-    const auto slowFrames
-        = sliceGPUData(gpuData.slowFrameTimestamps, transaction, /*useMostRecentRecording */ NO);
+    const auto slowFrames = sliceGPUData(gpuData.slowFrameTimestamps, startSystemTime,
+        endSystemTime, /*useMostRecentRecording */ NO);
     if (slowFrames.count > 0) {
         mutableMetrics[@"slow_frame_renders"] =
             @ { @"unit" : @"nanosecond", @"values" : slowFrames };
     }
 
-    const auto frozenFrames = sliceGPUData(gpuData.frozenFrameTimestamps, transaction,
-        /*useMostRecentRecording */ NO);
+    const auto frozenFrames
+        = sliceGPUData(gpuData.frozenFrameTimestamps, startSystemTime, endSystemTime,
+            /*useMostRecentRecording */ NO);
     if (frozenFrames.count > 0) {
         mutableMetrics[@"frozen_frame_renders"] =
             @ { @"unit" : @"nanosecond", @"values" : frozenFrames };
     }
 
     if (slowFrames.count > 0 || frozenFrames.count > 0) {
-        const auto frameRates = sliceGPUData(gpuData.frameRateTimestamps, transaction,
-            /*useMostRecentRecording */ YES);
+        const auto frameRates
+            = sliceGPUData(gpuData.frameRateTimestamps, startSystemTime, endSystemTime,
+                /*useMostRecentRecording */ YES);
         if (frameRates.count > 0) {
             mutableMetrics[@"screen_frame_rates"] = @ { @"unit" : @"hz", @"values" : frameRates };
         }
@@ -388,8 +371,9 @@ serializedProfileData(
 
 - (NSDictionary<NSString *, id> *)serializeForTransaction:(SentryTransaction *)transaction
 {
-    return serializedProfileData([self._state copyProfilingData], transaction, self.profileId,
-        profilerTruncationReasonName(_truncationReason),
+    NSMutableDictionary<NSString *, id> *payload = serializedProfileData(
+        [self._state copyProfilingData], transaction.startSystemTime, transaction.endSystemTime,
+        self.profileId, profilerTruncationReasonName(_truncationReason),
         [_metricProfiler serializeForTransaction:transaction],
         [_debugImageProvider getDebugImagesCrashed:NO], transaction.trace.hub
 #    if SENTRY_HAS_UIKIT
@@ -397,6 +381,25 @@ serializedProfileData(
         self._screenFrameData
 #    endif // SENTRY_HAS_UIKIT
     );
+
+    payload[@"platform"] = transaction.platform;
+    payload[@"transaction"] = @{
+        @"id" : transaction.eventId.sentryIdString,
+        @"trace_id" : transaction.trace.traceId.sentryIdString,
+        @"name" : transaction.transaction,
+        @"active_thread_id" : [transaction.trace.transactionContext sentry_threadInfo].threadId
+    };
+    const auto timestamp = transaction.trace.originalStartTimestamp;
+    if (UNLIKELY(timestamp == nil)) {
+        SENTRY_LOG_WARN(@"There was no start timestamp on the provided transaction. Falling back "
+                        @"to old behavior of using the current time.");
+        payload[@"timestamp"] =
+            [[SentryDependencyContainer.sharedInstance.dateProvider date] sentry_toIso8601String];
+    } else {
+        payload[@"timestamp"] = [timestamp sentry_toIso8601String];
+    }
+
+    return payload;
 }
 
 - (void)timeoutAbort
