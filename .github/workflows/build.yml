@@ -16,6 +16,7 @@ on:
       - Sentry.xcworkspace
       - Sentry.xcodeproj
       - Gemfile.lock
+      - 'Package.swift'
 
 jobs:
   # We had issues that the release build was broken on main.

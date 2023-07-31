@@ -1,5 +1,12 @@
 # Changelog
 
+
+## Unreleased
+
+### Fixes
+ 
+- Remove linker settings from Package.swift (#3188)
+
 ## 8.9.3
 
 ### Fixes
