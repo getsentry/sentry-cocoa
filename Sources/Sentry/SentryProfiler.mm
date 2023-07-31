@@ -374,7 +374,8 @@ serializedProfileData(NSDictionary<NSString *, id> *profileData, uint64_t startS
     NSMutableDictionary<NSString *, id> *payload = serializedProfileData(
         [self._state copyProfilingData], transaction.startSystemTime, transaction.endSystemTime,
         self.profileId, profilerTruncationReasonName(_truncationReason),
-        [_metricProfiler serializeForTransaction:transaction],
+        [_metricProfiler serializeBetween:transaction.startSystemTime
+                                      and:transaction.endSystemTime],
         [_debugImageProvider getDebugImagesCrashed:NO], transaction.trace.hub
 #    if SENTRY_HAS_UIKIT
         ,
