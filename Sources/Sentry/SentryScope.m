@@ -565,7 +565,7 @@ SentryScope ()
     }
 
     if (event.exceptions.count > 0 && newContext[@"trace"] == nil) {
-        //If this is an error event we need to add the distributed trace context.
+        // If this is an error event we need to add the distributed trace context.
         newContext[@"trace"] = [self.propagationContext traceContextForEvent];
     }
 

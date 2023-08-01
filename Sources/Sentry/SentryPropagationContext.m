@@ -41,11 +41,10 @@
                                             sampleRate:nil];
 }
 
-- (NSDictionary<NSString *, NSString *> *) traceContextForEvent {
-    return @{
-        @"span_id" : self.spanId.sentrySpanIdString,
-        @"trace_id" : self.traceId.sentryIdString
-    };
+- (NSDictionary<NSString *, NSString *> *)traceContextForEvent
+{
+    return
+        @{ @"span_id" : self.spanId.sentrySpanIdString, @"trace_id" : self.traceId.sentryIdString };
 }
 
 @end
