@@ -277,6 +277,15 @@ class SentryScopeSwiftTests: XCTestCase {
         XCTAssertEqual(context as? [String: [String: String]],
                        actual?.context as? [String: [String: String]])
     }
+
+    func testApplyToEvent_EventWithError_contextHasTrace() {
+        let event = fixture.event
+        event.exceptions = [Exception(value: "Error", type: "Exception")]
+
+        let actual = fixture.scope.applyTo(event: event, maxBreadcrumbs: 10)
+
+        XCTAssertNotNil(actual?.context?["trace"])
+    }
     
     func testApplyToEvent_EventWithContext_MergesContext() {
         let context = NSMutableDictionary(dictionary: [

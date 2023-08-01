@@ -352,7 +352,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
     SentryTracer *tracer = [SentryTracer getTracer:span];
     if (tracer == nil)
-        return SentrySDK.currentHub.scope.propagationContext.traceContext;
+        return scope.propagationContext.traceContext;
 
     return [[SentryTraceContext alloc] initWithTracer:tracer scope:scope options:_options];
 }

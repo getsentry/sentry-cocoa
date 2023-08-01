@@ -12,6 +12,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic, readonly) SentryTraceHeader *traceHeader;
 
+- (NSDictionary<NSString *, NSString *> *) traceContextForEvent;
+
 @end
 
 NS_ASSUME_NONNULL_END
