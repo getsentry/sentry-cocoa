@@ -1,14 +1,11 @@
 #!/bin/bash
+set -euo pipefail
 
-# When enableThreadSanitizer is enabled and ThreadSanitizer finds an issue, 
+# When enableThreadSanitizer is enabled and ThreadSanitizer finds an issue,
 # the logs only show failing tests, but don't highlight the threading issues.
 # Therefore we print a hint to find the threading issues.
-
 env NSUnbufferedIO=YES xcodebuild -workspace Sentry.xcworkspace -scheme Sentry -configuration Test -enableThreadSanitizer YES \
-    -destination "platform=iOS Simulator,OS=latest,name=iPhone 11" \
-    # The test works when having thread sanitizer not enabled, we have no clue why it fails, and threading issues will be caught
-    # even when it is disabled.
-    -skip-testing:"Sentry/SentrySessionTestsSwift/testInitWithJson_IfJsonContainsWrongValues_SessionIsNil" \
+    -destination "platform=iOS Simulator,OS=14.4,name=iPhone 11" \
     test | tee thread-sanitizer.log | xcpretty -t
 
 testStatus=$?

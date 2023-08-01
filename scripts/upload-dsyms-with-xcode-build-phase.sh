@@ -1,5 +1,5 @@
 #!/bin/bash
-set -uox pipefail
+set -euxo pipefail
 
 # Use this script to apply a patch so Xcode uploads the iOS-Swift's dSYMs to
 # Sentry during Xcode's build phase.
