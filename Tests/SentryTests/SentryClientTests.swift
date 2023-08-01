@@ -1371,8 +1371,9 @@ class SentryClientTest: XCTestCase {
         let transaction = fixture.transaction
         let client = fixture.getSut()
         client.capture(event: transaction)
-        
+
         XCTAssertNotNil(fixture.transportAdapter.sendEventWithTraceStateInvocations.first?.traceContext)
+        XCTAssertEqual(fixture.transportAdapter.sendEventWithTraceStateInvocations.first?.traceContext?.traceId, transaction.trace.traceId)
     }
     
     func testCaptureEvent_traceInScope_sendTraceState() {
@@ -1383,10 +1384,22 @@ class SentryClientTest: XCTestCase {
         
         let client = fixture.getSut()
         client.capture(event: event, scope: scope)
-        
-        client.capture(event: event)
-        
+
         XCTAssertNotNil(fixture.transportAdapter.sendEventWithTraceStateInvocations.first?.traceContext)
+        XCTAssertEqual(fixture.transportAdapter.sendEventWithTraceStateInvocations.first?.traceContext?.traceId, fixture.trace.traceId)
+    }
+
+    func testCaptureEvent_sendDefaultTraceState() {
+        let event = Event(level: SentryLevel.warning)
+        event.message = fixture.message
+
+        let client = fixture.getSut()
+        client.capture(event: event)
+
+        let traceContext = fixture.transportAdapter.sendEventWithTraceStateInvocations.first?.traceContext
+
+        XCTAssertNotNil(traceContext)
+        XCTAssertEqual(traceContext?.traceId, SentrySDK.currentHub().scope.propagationContext.traceContext?.traceId)
     }
 
     func test_AddCrashReportAttacment_withViewHierarchy() {

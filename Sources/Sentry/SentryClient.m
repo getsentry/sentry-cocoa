@@ -47,6 +47,7 @@
 #import "SentryUser.h"
 #import "SentryUserFeedback.h"
 #import "SentryWatchdogTerminationTracker.h"
+#import "SentryPropagationContext.h"
 
 #if SENTRY_HAS_UIKIT
 #    import <UIKit/UIKit.h>
@@ -351,7 +352,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
     SentryTracer *tracer = [SentryTracer getTracer:span];
     if (tracer == nil)
-        return nil;
+        return SentrySDK.currentHub.scope.propagationContext.traceContext;
 
     return [[SentryTraceContext alloc] initWithTracer:tracer scope:scope options:_options];
 }

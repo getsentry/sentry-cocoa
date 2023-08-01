@@ -215,3 +215,4 @@
 #import "SentryTimeToDisplayTracker.h"
 #import "SentryTracerConfiguration.h"
 #import "TestSentryViewHierarchy.h"
+#import "SentryPropagationContext.h"

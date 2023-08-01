@@ -1,4 +1,4 @@
-#import "SentryScope.h"
+#import "SentryScope+Private.h"
 #import "NSMutableDictionary+Sentry.h"
 #import "SentryAttachment+Private.h"
 #import "SentryBreadcrumb.h"
@@ -13,6 +13,7 @@
 #import "SentryTracer.h"
 #import "SentryTransactionContext.h"
 #import "SentryUser.h"
+#import "SentryPropagationContext.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -71,6 +72,8 @@ SentryScope ()
 
 @property (nonatomic, retain) NSMutableArray<id<SentryScopeObserver>> *observers;
 
+@property (atomic, strong) SentryPropagationContext * propagationContext;
+
 @end
 
 @implementation SentryScope {
@@ -91,6 +94,7 @@ SentryScope ()
         self.fingerprintArray = [NSMutableArray new];
         _spanLock = [[NSObject alloc] init];
         self.observers = [NSMutableArray new];
+        self.propagationContext = [[SentryPropagationContext alloc] init];
     }
     return self;
 }
@@ -110,6 +114,7 @@ SentryScope ()
         [_fingerprintArray addObjectsFromArray:[scope fingerprints]];
         [_attachmentArray addObjectsFromArray:[scope attachments]];
 
+        self.propagationContext = [[SentryPropagationContext alloc] init];
         self.maxBreadcrumbs = scope.maxBreadcrumbs;
         self.userObject = scope.userObject.copy;
         self.distString = scope.distString;

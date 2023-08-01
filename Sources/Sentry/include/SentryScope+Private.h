@@ -3,7 +3,7 @@
 #import "SentryScope.h"
 #import "SentryScopeObserver.h"
 
-@class SentryAttachment;
+@class SentryAttachment, SentryPropagationContext;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -15,6 +15,8 @@ SentryScope (Private)
 @property (atomic, strong, readonly) NSArray<SentryAttachment *> *attachments;
 
 @property (atomic, strong) SentryUser *_Nullable userObject;
+
+@property (atomic, strong) SentryPropagationContext * propagationContext;
 
 @property (atomic, strong)
     NSMutableDictionary<NSString *, NSDictionary<NSString *, id> *> *contextDictionary;
