@@ -6,11 +6,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface SentryPropagationContext : NSObject
 
-@property (nonatomic, strong) SentryId * traceId;
-@property (nonatomic, strong) SentrySpanId * spanId;
-@property (nonatomic, readonly, nullable) SentryTraceContext * traceContext;
+@property (nonatomic, strong) SentryId *traceId;
+@property (nonatomic, strong) SentrySpanId *spanId;
+@property (nonatomic, readonly, nullable) SentryTraceContext *traceContext;
 
-@property (nonatomic, readonly) SentryTraceHeader * traceHeader;
+@property (nonatomic, readonly) SentryTraceHeader *traceHeader;
 
 @end
 

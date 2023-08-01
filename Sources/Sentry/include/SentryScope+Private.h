@@ -16,7 +16,7 @@ SentryScope (Private)
 
 @property (atomic, strong) SentryUser *_Nullable userObject;
 
-@property (atomic, strong) SentryPropagationContext * propagationContext;
+@property (atomic, strong) SentryPropagationContext *propagationContext;
 
 @property (atomic, strong)
     NSMutableDictionary<NSString *, NSDictionary<NSString *, id> *> *contextDictionary;
