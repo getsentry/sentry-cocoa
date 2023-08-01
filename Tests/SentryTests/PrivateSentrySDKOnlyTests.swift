@@ -120,6 +120,33 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
         XCTAssertEqual(PrivateSentrySDKOnly.options.enabled, true)
     }
     
+    /**
+      * Smoke Tests profiling via PrivateSentrySDKOnly. Actual profiling unit tests are done elsewhere.
+     */
+    func testProfiling() {
+        let options = Options()
+        options.dsn = TestConstants.dsnAsString(username: "SentryFramesTrackingIntegrationTests")
+        let client = TestClient(options: options)
+        SentrySDK.setCurrentHub(TestHub(client: client, andScope: nil))
+        
+        let traceIdA = SentryId()
+        
+        let startTime = PrivateSentrySDKOnly.startProfiling(forTrace: traceIdA)
+        XCTAssertGreaterThan(startTime, 0)
+        Thread.sleep(forTimeInterval: 0.2)
+        let payload = PrivateSentrySDKOnly.collectProfile(forTrace: traceIdA, since: startTime)
+        XCTAssertNotNil(payload)
+        XCTAssertNotNil(payload?["debug_meta"])
+        XCTAssertNotNil(payload?["device"])
+        XCTAssertNotNil(payload?["measurements"])
+        XCTAssertNotNil(payload?["profile_id"])
+        let profile = payload?["profile"] as? NSDictionary
+        XCTAssertNotNil(profile?["thread_metadata"])
+        XCTAssertNotNil(profile?["samples"])
+        XCTAssertNotNil(profile?["stacks"])
+        XCTAssertNotNil(profile?["frames"])
+    }
+
     #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
     
     func testIsFramesTrackingRunning() {
@@ -146,6 +173,6 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
         XCTAssertEqual(UInt(frozen), currentFrames.frozen)
         XCTAssertEqual(UInt(slow), currentFrames.slow)
     }
-
+    
     #endif
 }

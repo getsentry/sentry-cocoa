@@ -8,6 +8,7 @@
 @class SentryFramesTracker;
 #endif // SENTRY_HAS_UIKIT
 @class SentryTransaction;
+@class SentryHub;
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
@@ -70,6 +71,13 @@ SENTRY_EXTERN_C_END
 + (nullable SentryEnvelopeItem *)createProfilingEnvelopeItemForTransaction:
     (SentryTransaction *)transaction;
 
+/**
+ * Collect profile data corresponding with the given traceId and time period.
+ * */
++ (nullable NSMutableDictionary<NSString *, id> *)collectProfileBetween:(uint64_t)startSystemTime
+                                                                    and:(uint64_t)endSystemTime
+                                                               forTrace:(SentryId *)traceId
+                                                                  onHub:(SentryHub *)hub;
 @end
 
 NS_ASSUME_NONNULL_END

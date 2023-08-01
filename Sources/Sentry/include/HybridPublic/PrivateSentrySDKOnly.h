@@ -80,6 +80,18 @@ typedef void (^SentryOnAppStartMeasurementAvailable)(
  */
 + (NSDictionary *)getExtraContext;
 
+/**
+ * Start a profiler session associated with the given @c SentryId.
+ * @return The system time when the profiler session started.
+ */
++ (uint64_t)startProfilingForTrace:(SentryId *)traceId;
+
+/**
+ * Collect a profiler session data associated with the given @c SentryId.
+ */
++ (nullable NSDictionary<NSString *, id> *)collectProfileForTrace:(SentryId *)traceId
+                                                            since:(uint64_t)startSystemTime;
+
 @property (class, nullable, nonatomic, copy)
     SentryOnAppStartMeasurementAvailable onAppStartMeasurementAvailable;
 

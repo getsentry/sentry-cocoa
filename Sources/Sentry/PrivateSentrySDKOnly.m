@@ -1,11 +1,13 @@
 #import "PrivateSentrySDKOnly.h"
 #import "SentryBreadcrumb+Private.h"
 #import "SentryClient.h"
+#import "SentryCurrentDateProvider.h"
 #import "SentryDebugImageProvider.h"
 #import "SentryExtraContextProvider.h"
 #import "SentryHub+Private.h"
 #import "SentryInstallation.h"
 #import "SentryMeta.h"
+#import "SentryProfiler.h"
 #import "SentrySDK+Private.h"
 #import "SentrySerialization.h"
 #import "SentryUser+Private.h"
@@ -115,6 +117,22 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
 + (NSDictionary *)getExtraContext
 {
     return [[SentryExtraContextProvider sharedInstance] getExtraContext];
+}
+
++ (uint64_t)startProfilingForTrace:(SentryId *)traceId;
+{
+    [SentryProfiler startWithTracer:traceId];
+    return SentryDependencyContainer.sharedInstance.dateProvider.systemTime;
+}
+
++ (nullable NSDictionary<NSString *, id> *)collectProfileForTrace:(SentryId *)traceId
+                                                            since:(uint64_t)startSystemTime;
+{
+    return [SentryProfiler
+        collectProfileBetween:startSystemTime
+                          and:SentryDependencyContainer.sharedInstance.dateProvider.systemTime
+                     forTrace:traceId
+                        onHub:[SentrySDK currentHub]];
 }
 
 #if SENTRY_HAS_UIKIT

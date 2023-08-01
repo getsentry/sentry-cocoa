@@ -367,12 +367,10 @@ serializedProfileData(NSDictionary<NSString *, id> *profileData, uint64_t startS
     return [[SentryEnvelopeItem alloc] initWithHeader:header data:JSONData];
 }
 
-#    pragma mark - Private
-
-+ (NSMutableDictionary<NSString *, id> *)collectProfileBetween:(uint64_t)startSystemTime
-                                                           and:(uint64_t)endSystemTime
-                                                      forTrace:(SentryId *)traceId
-                                                         onHub:(SentryHub *)hub;
++ (nullable NSMutableDictionary<NSString *, id> *)collectProfileBetween:(uint64_t)startSystemTime
+                                                                    and:(uint64_t)endSystemTime
+                                                               forTrace:(SentryId *)traceId
+                                                                  onHub:(SentryHub *)hub;
 {
     const auto profiler = profilerForFinishedTracer(traceId);
     if (!profiler) {
@@ -388,6 +386,8 @@ serializedProfileData(NSDictionary<NSString *, id> *profileData, uint64_t startS
 #    endif // defined(TEST) || defined(TESTCI)
     return payload;
 }
+
+#    pragma mark - Private
 
 + (void)updateProfilePayload:(NSMutableDictionary<NSString *, id> *)payload
               forTransaction:(SentryTransaction *)transaction;
