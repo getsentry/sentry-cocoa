@@ -119,6 +119,7 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
     return [[SentryExtraContextProvider sharedInstance] getExtraContext];
 }
 
+#if SENTRY_TARGET_PROFILING_SUPPORTED
 + (uint64_t)startProfilingForTrace:(SentryId *)traceId;
 {
     [SentryProfiler startWithTracer:traceId];
@@ -134,6 +135,7 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
                      forTrace:traceId
                         onHub:[SentrySDK currentHub]];
 }
+#endif
 
 #if SENTRY_HAS_UIKIT
 

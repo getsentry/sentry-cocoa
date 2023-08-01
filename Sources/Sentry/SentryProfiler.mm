@@ -85,8 +85,8 @@ profilerTruncationReasonName(SentryProfilerTruncationReason reason)
  * for it.
  */
 NSArray<SentrySerializedMetricReading *> *
-sliceGPUData(SentryFrameInfoTimeSeries *frameInfo, uint64_t startSystemTime,
-    uint64_t endSystemTime BOOL useMostRecentRecording)
+sliceGPUData(SentryFrameInfoTimeSeries *frameInfo, uint64_t startSystemTime, uint64_t endSystemTime,
+    BOOL useMostRecentRecording)
 {
     auto slicedGPUEntries = [NSMutableArray<SentrySerializedMetricEntry *> array];
     __block NSNumber *nearestPredecessorValue;
