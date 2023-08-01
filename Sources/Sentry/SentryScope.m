@@ -1,4 +1,3 @@
-#import "SentryScope+Private.h"
 #import "NSMutableDictionary+Sentry.h"
 #import "SentryAttachment+Private.h"
 #import "SentryBreadcrumb.h"
@@ -7,13 +6,14 @@
 #import "SentryGlobalEventProcessor.h"
 #import "SentryLevelMapper.h"
 #import "SentryLog.h"
+#import "SentryPropagationContext.h"
+#import "SentryScope+Private.h"
 #import "SentryScopeObserver.h"
 #import "SentrySession.h"
 #import "SentrySpan.h"
 #import "SentryTracer.h"
 #import "SentryTransactionContext.h"
 #import "SentryUser.h"
-#import "SentryPropagationContext.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -72,7 +72,7 @@ SentryScope ()
 
 @property (nonatomic, retain) NSMutableArray<id<SentryScopeObserver>> *observers;
 
-@property (atomic, strong) SentryPropagationContext * propagationContext;
+@property (atomic, strong) SentryPropagationContext *propagationContext;
 
 @end
 

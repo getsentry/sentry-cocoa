@@ -32,6 +32,7 @@
 #import "SentryMeta.h"
 #import "SentryNSError.h"
 #import "SentryOptions+Private.h"
+#import "SentryPropagationContext.h"
 #import "SentrySDK+Private.h"
 #import "SentryScope+Private.h"
 #import "SentrySession.h"
@@ -47,7 +48,6 @@
 #import "SentryUser.h"
 #import "SentryUserFeedback.h"
 #import "SentryWatchdogTerminationTracker.h"
-#import "SentryPropagationContext.h"
 
 #if SENTRY_HAS_UIKIT
 #    import <UIKit/UIKit.h>
