@@ -129,11 +129,17 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
 + (nullable NSDictionary<NSString *, id> *)collectProfileForTrace:(SentryId *)traceId
                                                             since:(uint64_t)startSystemTime;
 {
-    return [SentryProfiler
+    NSMutableDictionary<NSString *, id> *payload = [SentryProfiler
         collectProfileBetween:startSystemTime
                           and:SentryDependencyContainer.sharedInstance.dateProvider.systemTime
                      forTrace:traceId
                         onHub:[SentrySDK currentHub]];
+
+    if (payload != nil) {
+        payload[@"platform"] = @"cocoa";
+    }
+
+    return payload;
 }
 #endif
 
