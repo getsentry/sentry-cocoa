@@ -1,7 +1,10 @@
 # Changelog
 
-
 ## Unreleased
+
+### Features
+
+- Distributed tracing without performance (#3196)
 
 ### Fixes
  
