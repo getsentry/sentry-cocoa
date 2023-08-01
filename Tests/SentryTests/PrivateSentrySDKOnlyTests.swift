@@ -120,6 +120,8 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
         XCTAssertEqual(PrivateSentrySDKOnly.options.enabled, true)
     }
 
+    #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+
     /**
       * Smoke Tests profiling via PrivateSentrySDKOnly. Actual profiling unit tests are done elsewhere.
      */
@@ -147,8 +149,6 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
         XCTAssertNotNil(profile?["stacks"])
         XCTAssertNotNil(profile?["frames"])
     }
-
-    #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
 
     func testIsFramesTrackingRunning() {
         XCTAssertFalse(PrivateSentrySDKOnly.isFramesTrackingRunning)
