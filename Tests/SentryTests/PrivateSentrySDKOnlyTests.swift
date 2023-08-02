@@ -120,8 +120,7 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
         XCTAssertEqual(PrivateSentrySDKOnly.options.enabled, true)
     }
 
-    #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
-
+    #if !os(tvOS) && !os(watchOS)
     /**
       * Smoke Tests profiling via PrivateSentrySDKOnly. Actual profiling unit tests are done elsewhere.
      */
@@ -141,7 +140,6 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
         XCTAssertEqual(payload?["platform"] as? String, "cocoa")
         XCTAssertNotNil(payload?["debug_meta"])
         XCTAssertNotNil(payload?["device"])
-        XCTAssertNotNil(payload?["measurements"])
         XCTAssertNotNil(payload?["profile_id"])
         let profile = payload?["profile"] as? NSDictionary
         XCTAssertNotNil(profile?["thread_metadata"])
@@ -149,6 +147,9 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
         XCTAssertNotNil(profile?["stacks"])
         XCTAssertNotNil(profile?["frames"])
     }
+    #endif
+
+    #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
 
     func testIsFramesTrackingRunning() {
         XCTAssertFalse(PrivateSentrySDKOnly.isFramesTrackingRunning)

@@ -2,7 +2,6 @@
 #import "SentryAppStartMeasurement.h"
 #import "SentryEnvelope.h"
 #import "SentryEnvelopeItemType.h"
-#import "SentryProfilingConditionals.h"
 #import "SentryScreenFrames.h"
 
 @class SentryDebugMeta, SentryAppStartMeasurement, SentryScreenFrames, SentryOptions,
