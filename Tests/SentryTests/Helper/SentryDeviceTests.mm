@@ -91,7 +91,7 @@
 #if TARGET_OS_OSX
     SENTRY_ASSERT_PREFIX(osVersion, @"10.", @"11.", @"12.", @"13.");
 #elif TARGET_OS_IOS || TARGET_OS_MACCATALYST || TARGET_OS_TV
-    SENTRY_ASSERT_PREFIX(osVersion, @"9.", @"10.", @"11.", @"12.", @"13.", @"14.", @"15.", @"16.");
+    SENTRY_ASSERT_PREFIX(osVersion, @"9.", @"10.", @"11.", @"12.", @"13.", @"14.", @"15.", @"16.", @"17.");
 #elif TARGET_OS_WATCH
     SENTRY_ASSERT_PREFIX(osVersion, @"2.", @"3.", @"4.", @"5.", @"6.", @"7.", @"8.", @"9.");
 #else
