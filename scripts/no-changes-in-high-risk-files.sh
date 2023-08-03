@@ -1,5 +1,5 @@
 #!/bin/bash
-set -euox pipefail
+set -euxo pipefail
 
 # To update the sha run the command in ACTUAL and copy the result in EXPECTED.
 
