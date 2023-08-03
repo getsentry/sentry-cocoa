@@ -71,7 +71,7 @@ static int64_t const DATA_BYTES_SENT = 652;
 
 - (NSURLRequest *)currentRequest NS_UNAVAILABLE;
 
-- (NSURLSessionTaskState) state;
+- (NSURLSessionTaskState)state;
 
 @end
 
