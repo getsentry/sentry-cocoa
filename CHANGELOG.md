@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+- Add required reason API (#3206)
 
 ## 8.9.4
 
