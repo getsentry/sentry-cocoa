@@ -129,6 +129,9 @@ parseBacktraceSymbolsFunctionName(const char *symbol)
                 [stack addObject:frameIndex];
             }
         }
+#    if defined(DEBUG)
+        free(symbols);
+#    endif
 
         const auto sample = [[SentrySample alloc] init];
         sample.absoluteTimestamp = backtrace.absoluteTimestamp;

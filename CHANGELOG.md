@@ -6,9 +6,12 @@
 
 - Distributed tracing without performance (#3196)
 
+## 8.9.4
+
 ### Fixes
  
 - Remove linker settings from Package.swift (#3188)
+- Free memory returned by backtrace_symbols() in debug builds ([#3202](https://github.com/getsentry/sentry-cocoa/pull/3202))
 
 ## 8.9.3
 
