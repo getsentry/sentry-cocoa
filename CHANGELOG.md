@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+
+- WatchOS build for Xcode 15 (#3204)
 
 ## 8.9.4
 
