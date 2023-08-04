@@ -1,4 +1,4 @@
-// swift-tools-version:5.1
+// swift-tools-version:5.3
 import PackageDescription
 
 let package = Package(
@@ -17,6 +17,9 @@ let package = Package(
             sources: [
                 "Sentry/",
                 "SentryCrash/"
+            ],
+            resources: [
+                        .copy("Resources/PrivacyInfo.xcprivacy")
             ],
             publicHeadersPath: "Sentry/Public/",
             cxxSettings: [
