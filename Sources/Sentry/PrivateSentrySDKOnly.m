@@ -141,7 +141,7 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
 
     return payload;
 }
-#endif
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
 #if SENTRY_HAS_UIKIT
 
