@@ -51,6 +51,7 @@
     }
 
     NSMutableArray *result = [NSMutableArray arrayWithCapacity:numCPUs];
+    float coreTotal = 0.f;
     for (natural_t core = 0U; core < numCPUs; ++core) {
         const auto indexBase = CPU_STATE_MAX * core;
         const float user
@@ -65,7 +66,11 @@
         const auto total = inUse + idle;
         const auto usagePercent = inUse / total * 100.f;
         [result addObject:@(usagePercent)];
+
+        coreTotal += usagePercent;
     }
+
+    NSLog(@"CPU usages (total: %.1f): %@", coreTotal, result);
 
     return result;
 }
