@@ -2,7 +2,9 @@
 #import "SentryError.h"
 #import <mach/mach.h>
 
-@implementation SentrySystemWrapper
+@implementation SentrySystemWrapper {
+    processor_info_array_t previousCPUInfo;
+}
 
 - (SentryRAMBytes)memoryFootprintBytes:(NSError *__autoreleasing _Nullable *)error
 {
@@ -43,13 +45,22 @@
         return nil;
     }
 
+    if (previousCPUInfo == NULL) {
+        previousCPUInfo = cpuInfo;
+        return nil;
+    }
+
     NSMutableArray *result = [NSMutableArray arrayWithCapacity:numCPUs];
     for (natural_t core = 0U; core < numCPUs; ++core) {
         const auto indexBase = CPU_STATE_MAX * core;
-        const float user = cpuInfo[indexBase + CPU_STATE_USER];
-        const float sys = cpuInfo[indexBase + CPU_STATE_SYSTEM];
-        const float nice = cpuInfo[indexBase + CPU_STATE_NICE];
-        const float idle = cpuInfo[indexBase + CPU_STATE_IDLE];
+        const float user
+            = cpuInfo[indexBase + CPU_STATE_USER] - previousCPUInfo[indexBase + CPU_STATE_USER];
+        const float sys
+            = cpuInfo[indexBase + CPU_STATE_SYSTEM] - previousCPUInfo[indexBase + CPU_STATE_SYSTEM];
+        const float nice
+            = cpuInfo[indexBase + CPU_STATE_NICE] - previousCPUInfo[indexBase + CPU_STATE_NICE];
+        const float idle
+            = cpuInfo[indexBase + CPU_STATE_IDLE] - previousCPUInfo[indexBase + CPU_STATE_IDLE];
         const auto inUse = user + sys + nice;
         const auto total = inUse + idle;
         const auto usagePercent = inUse / total * 100.f;

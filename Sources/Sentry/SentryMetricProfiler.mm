@@ -196,6 +196,10 @@ SentrySerializedMetricEntry *_Nullable serializeValuesWithNormalizedTime(
         return;
     }
 
+    if (result == nil) {
+        return;
+    }
+
     @synchronized(self) {
         [result enumerateObjectsUsingBlock:^(
             NSNumber *_Nonnull usage, NSUInteger core, BOOL *_Nonnull stop) {
