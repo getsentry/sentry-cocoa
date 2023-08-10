@@ -6,6 +6,7 @@
 #import "SentryExtraContextProvider.h"
 #import "SentryHub+Private.h"
 #import "SentryInstallation.h"
+#import "SentryInternalDefines.h"
 #import "SentryMeta.h"
 #import "SentryProfiler.h"
 #import "SentrySDK+Private.h"
@@ -136,7 +137,7 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
                         onHub:[SentrySDK currentHub]];
 
     if (payload != nil) {
-        payload[@"platform"] = @"cocoa";
+        payload[@"platform"] = SentryPlatformName;
     }
 
     return payload;
