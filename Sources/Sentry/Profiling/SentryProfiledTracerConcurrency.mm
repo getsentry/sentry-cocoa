@@ -6,7 +6,6 @@
 #    import "SentryInternalDefines.h"
 #    import "SentryLog.h"
 #    import "SentryProfiler+Private.h"
-#    import "SentryTracer.h"
 #    include <mutex>
 
 #    if SENTRY_HAS_UIKIT
@@ -55,12 +54,12 @@ _unsafe_cleanUpProfiler(SentryProfiler *profiler, NSString *tracerKey)
 std::mutex _gStateLock;
 
 void
-trackProfilerForTracer(SentryProfiler *profiler, SentryTracer *tracer)
+trackProfilerForTracer(SentryProfiler *profiler, SentryId *traceId)
 {
     std::lock_guard<std::mutex> l(_gStateLock);
 
     const auto profilerKey = profiler.profileId.sentryIdString;
-    const auto tracerKey = tracer.traceId.sentryIdString;
+    const auto tracerKey = traceId.sentryIdString;
 
     SENTRY_LOG_DEBUG(
         @"Tracking relationship between profiler id %@ and tracer id %@", profilerKey, tracerKey);
@@ -83,14 +82,14 @@ trackProfilerForTracer(SentryProfiler *profiler, SentryTracer *tracer)
 }
 
 void
-discardProfilerForTracer(SentryTracer *tracer)
+discardProfilerForTracer(SentryId *traceId)
 {
     std::lock_guard<std::mutex> l(_gStateLock);
 
     SENTRY_CASSERT(_gTracersToProfilers != nil && _gProfilersToTracers != nil,
         @"Structures should have already been initialized by the time they are being queried");
 
-    const auto tracerKey = tracer.traceId.sentryIdString;
+    const auto tracerKey = traceId.sentryIdString;
     const auto profiler = _gTracersToProfilers[tracerKey];
 
     if (profiler == nil) {
@@ -106,14 +105,14 @@ discardProfilerForTracer(SentryTracer *tracer)
 #    endif // SENTRY_HAS_UIKIT
 }
 
-SentryProfiler *_Nullable profilerForFinishedTracer(SentryTracer *tracer)
+SentryProfiler *_Nullable profilerForFinishedTracer(SentryId *traceId)
 {
     std::lock_guard<std::mutex> l(_gStateLock);
 
     SENTRY_CASSERT(_gTracersToProfilers != nil && _gProfilersToTracers != nil,
         @"Structures should have already been initialized by the time they are being queried");
 
-    const auto tracerKey = tracer.traceId.sentryIdString;
+    const auto tracerKey = traceId.sentryIdString;
     const auto profiler = _gTracersToProfilers[tracerKey];
 
     if (!SENTRY_CASSERT_RETURN(profiler != nil,
