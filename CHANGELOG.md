@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Fix CPU usage collection for upcoming visualization in profiling flamecharts (#3214)
 
 ## 8.9.4
 
