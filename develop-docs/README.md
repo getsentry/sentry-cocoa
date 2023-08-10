@@ -34,7 +34,7 @@ You can include the `--force` option to regenerate an existing profile.
 
 ### Help
 
-Reach out to @philipphofmann or @armcknight if you need access to the match git repository.
+Reach out to a [CODEOWNER](https://github.com/getsentry/sentry-cocoa/blob/main/.github/CODEOWNERS) if you need access to the match git repository.
 
 ## Unit Tests with Thread Sanitizer
 
