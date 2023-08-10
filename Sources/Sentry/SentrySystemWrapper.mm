@@ -53,34 +53,35 @@
             *error = NSErrorFromSentryErrorWithKernelError(
                 kSentryErrorKernel, @"task_threads reported an error.", taskThreadsStatus);
         }
+        vm_deallocate(
+            mach_task_self(), reinterpret_cast<vm_address_t>(list), sizeof(*list) * count);
         return nil;
     }
 
     auto usage = 0.f;
-    const auto threads = [NSMutableArray array];
     for (decltype(count) i = 0; i < count; i++) {
         const auto thread = list[i];
 
         mach_msg_type_number_t infoSize = THREAD_BASIC_INFO_COUNT;
         thread_basic_info_data_t data;
-        // MACH_SEND_INVALID_DEST is returned when the thread no longer exists
         const auto threadInfoStatus = thread_info(
             thread, THREAD_BASIC_INFO, reinterpret_cast<thread_info_t>(&data), &infoSize);
         if (threadInfoStatus != KERN_SUCCESS) {
             if (error) {
                 *error = NSErrorFromSentryErrorWithKernelError(
-                    kSentryErrorKernel, @"thread_info reported an error.", taskThreadsStatus);
+                    kSentryErrorKernel, @"task_threads reported an error.", taskThreadsStatus);
             }
+            vm_deallocate(
+                mach_task_self(), reinterpret_cast<vm_address_t>(list), sizeof(*list) * count);
             return nil;
         }
 
-        [threads addObject:@(data.cpu_usage)];
         usage += data.cpu_usage / processorCount;
     }
 
     vm_deallocate(mach_task_self(), reinterpret_cast<vm_address_t>(list), sizeof(*list) * count);
 
-    NSLog(@"CPU usage: %f; per thread: %@", usage, [threads componentsJoinedByString:@", "]);
+    NSLog(@"CPU usage: %f", usage);
 
     return @(usage);
 }
