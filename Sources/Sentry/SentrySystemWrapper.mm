@@ -1,9 +1,21 @@
 #import "SentrySystemWrapper.h"
+#import "SentryDependencyContainer.h"
 #import "SentryError.h"
+#import "SentryNSProcessInfoWrapper.h"
 #import <mach/mach.h>
+#include <thread>
 
 @implementation SentrySystemWrapper {
-    processor_info_array_t previousCPUInfo;
+    float processorCount;
+}
+
+- (instancetype)init
+{
+    if ((self = [super init])) {
+        processorCount
+            = (float)SentryDependencyContainer.sharedInstance.processInfoWrapper.processorCount;
+    }
+    return self;
 }
 
 - (SentryRAMBytes)memoryFootprintBytes:(NSError *__autoreleasing _Nullable *)error
@@ -30,49 +42,47 @@
     return footprintBytes;
 }
 
-- (NSArray<NSNumber *> *)cpuUsagePerCore:(NSError **)error
+- (NSNumber *)cpuUsageWithError:(NSError **)error
 {
-    natural_t numCPUs = 0U;
-    processor_info_array_t cpuInfo;
-    mach_msg_type_number_t numCPUInfo;
-    const auto status = host_processor_info(
-        mach_host_self(), PROCESSOR_CPU_LOAD_INFO, &numCPUs, &cpuInfo, &numCPUInfo);
-    if (status != KERN_SUCCESS) {
+    mach_msg_type_number_t count;
+    thread_act_array_t list;
+
+    const auto taskThreadsStatus = task_threads(mach_task_self(), &list, &count);
+    if (taskThreadsStatus != KERN_SUCCESS) {
         if (error) {
             *error = NSErrorFromSentryErrorWithKernelError(
-                kSentryErrorKernel, @"host_processor_info reported an error.", status);
+                kSentryErrorKernel, @"task_threads reported an error.", taskThreadsStatus);
         }
         return nil;
     }
 
-    if (previousCPUInfo == NULL) {
-        previousCPUInfo = cpuInfo;
-        return nil;
+    auto usage = 0.f;
+    const auto threads = [NSMutableArray array];
+    for (decltype(count) i = 0; i < count; i++) {
+        const auto thread = list[i];
+
+        mach_msg_type_number_t infoSize = THREAD_BASIC_INFO_COUNT;
+        thread_basic_info_data_t data;
+        // MACH_SEND_INVALID_DEST is returned when the thread no longer exists
+        const auto threadInfoStatus = thread_info(
+            thread, THREAD_BASIC_INFO, reinterpret_cast<thread_info_t>(&data), &infoSize);
+        if (threadInfoStatus != KERN_SUCCESS) {
+            if (error) {
+                *error = NSErrorFromSentryErrorWithKernelError(
+                    kSentryErrorKernel, @"thread_info reported an error.", taskThreadsStatus);
+            }
+            return nil;
+        }
+
+        [threads addObject:@(data.cpu_usage)];
+        usage += data.cpu_usage / processorCount;
     }
 
-    NSMutableArray *result = [NSMutableArray arrayWithCapacity:numCPUs];
-    float coreTotal = 0.f;
-    for (natural_t core = 0U; core < numCPUs; ++core) {
-        const auto indexBase = CPU_STATE_MAX * core;
-        const float user
-            = cpuInfo[indexBase + CPU_STATE_USER] - previousCPUInfo[indexBase + CPU_STATE_USER];
-        const float sys
-            = cpuInfo[indexBase + CPU_STATE_SYSTEM] - previousCPUInfo[indexBase + CPU_STATE_SYSTEM];
-        const float nice
-            = cpuInfo[indexBase + CPU_STATE_NICE] - previousCPUInfo[indexBase + CPU_STATE_NICE];
-        const float idle
-            = cpuInfo[indexBase + CPU_STATE_IDLE] - previousCPUInfo[indexBase + CPU_STATE_IDLE];
-        const auto inUse = user + sys + nice;
-        const auto total = inUse + idle;
-        const auto usagePercent = inUse / total * 100.f;
-        [result addObject:@(usagePercent)];
+    vm_deallocate(mach_task_self(), reinterpret_cast<vm_address_t>(list), sizeof(*list) * count);
 
-        coreTotal += usagePercent;
-    }
+    NSLog(@"CPU usage: %f; per thread: %@", usage, [threads componentsJoinedByString:@", "]);
 
-    NSLog(@"CPU usages (total: %.1f): %@", coreTotal, result);
-
-    return result;
+    return @(usage);
 }
 
 @end
