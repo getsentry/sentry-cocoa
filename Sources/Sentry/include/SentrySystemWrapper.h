@@ -26,6 +26,8 @@ typedef mach_vm_size_t SentryRAMBytes;
  */
 - (nullable NSArray<NSNumber *> *)cpuUsagePerCore:(NSError **)error;
 
+- (nullable NSNumber *)cpuEnergyUsageWithError:(NSError **)error;
+
 @end
 
 NS_ASSUME_NONNULL_END

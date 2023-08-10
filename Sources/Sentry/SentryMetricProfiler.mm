@@ -29,6 +29,7 @@
 
 NSString *const kSentryMetricProfilerSerializationKeyMemoryFootprint = @"memory_footprint";
 NSString *const kSentryMetricProfilerSerializationKeyCPUUsageFormat = @"cpu_usage_%d";
+NSString *const kSentryMetricProfilerSerializationKeyCPUEnergyUsage = @"cpu_energy_usage";
 
 NSString *const kSentryMetricProfilerSerializationUnitBytes = @"byte";
 NSString *const kSentryMetricProfilerSerializationUnitPercentage = @"percent";
@@ -82,6 +83,9 @@ SentrySerializedMetricEntry *_Nullable serializeValuesWithNormalizedTime(
     NSMutableDictionary<NSNumber *, NSMutableArray<SentryMetricReading *> *> *_cpuUsage;
 
     NSMutableArray<SentryMetricReading *> *_memoryFootprint;
+
+    NSNumber *previousEnergyReading;
+    NSMutableArray<SentryMetricReading *> *_cpuEnergyUsage;
 }
 
 - (instancetype)init
@@ -98,6 +102,7 @@ SentrySerializedMetricEntry *_Nullable serializeValuesWithNormalizedTime(
         }
 
         _memoryFootprint = [NSMutableArray<SentryMetricReading *> array];
+        _cpuEnergyUsage = [NSMutableArray<SentryMetricReading *> array];
     }
     return self;
 }
@@ -123,8 +128,10 @@ SentrySerializedMetricEntry *_Nullable serializeValuesWithNormalizedTime(
                                                       and:(uint64_t)endSystemTime;
 {
     NSArray<SentryMetricReading *> *memoryFootprint;
+    NSArray<SentryMetricReading *> *cpuEnergyUsage;
     NSDictionary<NSNumber *, NSArray<SentryMetricReading *> *> *cpuUsage;
     @synchronized(self) {
+        cpuEnergyUsage = [NSArray<SentryMetricReading *> arrayWithArray:_cpuEnergyUsage];
         memoryFootprint = [NSArray<SentryMetricReading *> arrayWithArray:_memoryFootprint];
         cpuUsage = [NSDictionary<NSNumber *, NSArray<SentryMetricReading *> *>
             dictionaryWithDictionary:_cpuUsage];
@@ -134,6 +141,11 @@ SentrySerializedMetricEntry *_Nullable serializeValuesWithNormalizedTime(
     if (memoryFootprint.count > 0) {
         dict[kSentryMetricProfilerSerializationKeyMemoryFootprint]
             = serializeValuesWithNormalizedTime(memoryFootprint,
+                kSentryMetricProfilerSerializationUnitBytes, startSystemTime, endSystemTime);
+    }
+    if (cpuEnergyUsage.count > 0) {
+        dict[kSentryMetricProfilerSerializationKeyCPUEnergyUsage]
+            = serializeValuesWithNormalizedTime(cpuEnergyUsage,
                 kSentryMetricProfilerSerializationUnitBytes, startSystemTime, endSystemTime);
     }
 
@@ -167,6 +179,7 @@ SentrySerializedMetricEntry *_Nullable serializeValuesWithNormalizedTime(
               eventHandler:^{
                   [weakSelf recordCPUPercentagePerCore];
                   [weakSelf recordMemoryFootprint];
+                  [weakSelf recordEnergyUsageEstimate];
               }];
 }
 
@@ -202,6 +215,29 @@ SentrySerializedMetricEntry *_Nullable serializeValuesWithNormalizedTime(
             NSNumber *_Nonnull usage, NSUInteger core, BOOL *_Nonnull stop) {
             [_cpuUsage[@(core)] addObject:[self metricReadingForValue:usage]];
         }];
+    }
+}
+
+- (void)recordEnergyUsageEstimate
+{
+    NSError *error;
+    const auto reading =
+        [SentryDependencyContainer.sharedInstance.systemWrapper cpuEnergyUsageWithError:&error];
+    if (error) {
+        SENTRY_LOG_ERROR(@"Failed to read CPU energy usage: %@", error);
+        return;
+    }
+
+    if (previousEnergyReading == nil) {
+        previousEnergyReading = reading;
+        return;
+    }
+
+    const auto value = reading.unsignedIntegerValue - previousEnergyReading.unsignedIntegerValue;
+    previousEnergyReading = reading;
+
+    @synchronized(self) {
+        [_cpuEnergyUsage addObject:[self metricReadingForValue:@(value)]];
     }
 }
 

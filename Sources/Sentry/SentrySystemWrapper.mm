@@ -59,4 +59,22 @@
     return result;
 }
 
+- (NSNumber *)cpuEnergyUsageWithError:(NSError **)error
+{
+    struct task_power_info_v2 powerInfo;
+
+    mach_msg_type_number_t size = TASK_POWER_INFO_V2_COUNT;
+
+    task_t task = mach_task_self();
+    kern_return_t kr = task_info(task, TASK_POWER_INFO_V2, (task_info_t)&powerInfo, &size);
+    if (kr != KERN_SUCCESS) {
+        if (error) {
+            *error = NSErrorFromSentryErrorWithKernelError(
+                kSentryErrorKernel, @"Error with task_info(…TASK_POWER_INFO_V2…).", kr);
+            ;
+        }
+    }
+    return @(powerInfo.cpu_energy.total_system + powerInfo.cpu_energy.total_user);
+}
+
 @end
