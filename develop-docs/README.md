@@ -12,7 +12,29 @@ This repository follows the [codesiging.guide](https://codesigning.guide/) in co
 Therefore the sample apps use manual code signing, see [fastlane docs](https://docs.fastlane.tools/codesigning/xcode-project/):
 > In most cases, fastlane will work out of the box with Xcode 9 and up if you selected manual code signing and choose a provisioning profile name for each of your targets.
 
-Reach out to @philipphofmann if you need access to the match git repository.
+### Creating new App Identifiers
+
+E.g. if you create a new extension target, like a File Provider for iOS-Swift, make sure it has a unique bundle identifier like `io.sentry.sample.iOS-Swift.FileProvider`. Then, run the following terminal command:
+
+```
+rbenv exec bundle exec fastlane produce -u andrew.mcknight@sentry.io --skip_itc -a io.sentry.sample.iOS-Swift.FileProvider
+```
+
+You'll be prompted for an Apple Developer Portal 2FA code, and the description for the identifier; in this example, "Sentry Cocoa Sample Swift File Provider Extension".
+
+### Creating provisioning profiles
+
+For an existing app identifier, run the terminal command, after changing the email address in the Matchfile to your personal ADP account's:
+
+```
+rbenv exec bundle exec fastlane match development --app_identifier io.sentry.sample.iOS-Swift.FileProvider
+```
+
+You can include the `--force` option to regenerate an existing profile.
+
+### Help
+
+Reach out to a [CODEOWNER](https://github.com/getsentry/sentry-cocoa/blob/main/.github/CODEOWNERS) if you need access to the match git repository.
 
 ## Unit Tests with Thread Sanitizer
 
