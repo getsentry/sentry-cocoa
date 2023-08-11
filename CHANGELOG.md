@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+- Record energy usage estimates for profiling (#3217)
 
 ## 8.9.4
 
