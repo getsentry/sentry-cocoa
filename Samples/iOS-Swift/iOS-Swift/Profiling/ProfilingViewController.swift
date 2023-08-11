@@ -1,12 +1,10 @@
-import CoreLocation
 import UIKit
 
 @available(iOS 13.0, *)
-class ProfilingViewController: UIViewController, CLLocationManagerDelegate, UITextFieldDelegate {
+class ProfilingViewController: UIViewController, UITextFieldDelegate {
 
     @IBOutlet weak var workThreadLabel: UILabel!
     @IBOutlet weak var workIntensityFactorLabel: UILabel!
-    @IBOutlet weak var minWorkIntensityLabel: UILabel!
 
     @IBOutlet weak var workThreadSlider: UISlider!
     @IBOutlet weak var workIntervalSlider: UISlider!
@@ -39,48 +37,6 @@ class ProfilingViewController: UIViewController, CLLocationManagerDelegate, UITe
         valueTextField.isHidden = false
         valueTextField.text = value
         print("[iOS-Swift] benchmarking results:\n\(value)")
-    }
-
-    var locationManager: CLLocationManager?
-    @IBAction func startGPSUpdates(_ sender: UIButton) {
-        highlightButton(sender)
-        defer { locationManager?.startUpdatingLocation() }
-        guard locationManager == nil else { return }
-        locationManager = CLLocationManager()
-        locationManager?.delegate = self
-    }
-
-    @IBAction func endGPSUpdates(_ sender: UIButton) {
-        highlightButton(sender)
-        locationManager?.stopUpdatingLocation()
-        locationManager = nil
-    }
-
-    @IBAction func startHeadingUpdates(_ sender: UIButton) {
-        highlightButton(sender)
-        defer { locationManager?.startUpdatingHeading() }
-        guard locationManager == nil else { return }
-        locationManager = CLLocationManager()
-        locationManager?.delegate = self
-    }
-
-    @IBAction func endHeadingUpdates(_ sender: UIButton) {
-        highlightButton(sender)
-        locationManager?.stopUpdatingHeading()
-        locationManager = nil
-    }
-
-    var networkScanner: ProfilingNetworkScanner?
-    @IBAction func startNetworkWork(_ sender: UIButton) {
-        highlightButton(sender)
-        guard networkScanner == nil else { return }
-        networkScanner = ProfilingNetworkScanner()
-        networkScanner?.start()
-    }
-
-    @IBAction func endNetworkWork(_ sender: UIButton) {
-        highlightButton(sender)
-        networkScanner?.end()
     }
 
     @IBAction func startCPUWork(_ sender: UIButton) {
@@ -122,16 +78,6 @@ class ProfilingViewController: UIViewController, CLLocationManagerDelegate, UITe
         view.backgroundColor = .init(white: CGFloat(sender.value), alpha: 1)
     }
 
-    // MARK: CLLocationManagerDelegate
-
-    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-        print("locations: \(locations)")
-    }
-
-    func locationManager(_ manager: CLLocationManager, didUpdateHeading newHeading: CLHeading) {
-        print("headings: \(newHeading)")
-    }
-
     // MARK: UITextFieldDelegate
 
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
@@ -148,7 +94,6 @@ class ProfilingViewController: UIViewController, CLLocationManagerDelegate, UITe
         if diff == 0 {
             return
         } else if diff > 0 {
-    //            print("creating \(diff) threads")
             for _ in 0 ..< diff {
                 let thread = WorkThread()
                 thread.qualityOfService = .userInteractive
@@ -157,7 +102,6 @@ class ProfilingViewController: UIViewController, CLLocationManagerDelegate, UITe
             }
         } else {
             let absDiff = abs(diff)
-    //            print("removing \(absDiff) threads")
             for _ in 0 ..< absDiff {
                 let thread = cpuWorkthreads.removeFirst()
                 thread.cancel()
@@ -169,6 +113,5 @@ class ProfilingViewController: UIViewController, CLLocationManagerDelegate, UITe
         let minInterval = (minWorkIntensityTextField.text! as NSString).integerValue
         let maxInterval = (maxWorkIntensityTextField.text! as NSString).integerValue
         workIntervalMicros = UInt32(_projectedRange(factor: workIntervalSlider.value, min: minInterval, max: maxInterval))
-    //        print("workIntervalMicros: \(workIntervalMicros)")
     }
 }
