@@ -15,6 +15,7 @@ class ProfilingViewController: UIViewController, CLLocationManagerDelegate, UITe
     @IBOutlet weak var minThreadsTextField: UITextField!
     @IBOutlet weak var minWorkIntensityTextField: UITextField!
     @IBOutlet weak var maxWorkIntensityTextField: UITextField!
+    @IBOutlet weak var valueTextField: UITextField!
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -27,57 +28,63 @@ class ProfilingViewController: UIViewController, CLLocationManagerDelegate, UITe
         }
     }
 
-    @IBAction func startBenchmark(_ sender: Any) {
+    @IBAction func startBenchmark(_ sender: UIButton) {
+        highlightButton(sender)
         SentryBenchmarking.startBenchmark()
     }
 
-    @IBAction func stopBenchmark(_ sender: Any) {
-        let alert = UIAlertController(title: "Benchmark results", message: nil, preferredStyle: .alert)
-        alert.addTextField { textField in
-            textField.accessibilityIdentifier = "io.sentry.benchmark.value-marshaling-text-field"
-        }
-        alert.addAction(UIAlertAction(title: "OK", style: .default))
-        present(alert, animated: false)
-        print("[iOS-Swift] benchmarking results:\n" + SentryBenchmarking.stopBenchmark()!.description)
+    @IBAction func stopBenchmark(_ sender: UIButton) {
+        highlightButton(sender)
+        let value = SentryBenchmarking.stopBenchmark()!
+        valueTextField.isHidden = false
+        valueTextField.text = value
+        print("[iOS-Swift] benchmarking results:\n\(value)")
     }
 
     var locationManager: CLLocationManager?
-    @IBAction func startGPSUpdates(_ sender: Any) {
+    @IBAction func startGPSUpdates(_ sender: UIButton) {
+        highlightButton(sender)
         defer { locationManager?.startUpdatingLocation() }
         guard locationManager == nil else { return }
         locationManager = CLLocationManager()
         locationManager?.delegate = self
     }
 
-    @IBAction func endGPSUpdates(_ sender: Any) {
+    @IBAction func endGPSUpdates(_ sender: UIButton) {
+        highlightButton(sender)
         locationManager?.stopUpdatingLocation()
         locationManager = nil
     }
 
-    @IBAction func startHeadingUpdates(_ sender: Any) {
+    @IBAction func startHeadingUpdates(_ sender: UIButton) {
+        highlightButton(sender)
         defer { locationManager?.startUpdatingHeading() }
         guard locationManager == nil else { return }
         locationManager = CLLocationManager()
         locationManager?.delegate = self
     }
 
-    @IBAction func endHeadingUpdates(_ sender: Any) {
+    @IBAction func endHeadingUpdates(_ sender: UIButton) {
+        highlightButton(sender)
         locationManager?.stopUpdatingHeading()
         locationManager = nil
     }
 
     var networkScanner: ProfilingNetworkScanner?
-    @IBAction func startNetworkWork(_ sender: Any) {
+    @IBAction func startNetworkWork(_ sender: UIButton) {
+        highlightButton(sender)
         guard networkScanner == nil else { return }
         networkScanner = ProfilingNetworkScanner()
         networkScanner?.start()
     }
 
-    @IBAction func endNetworkWork(_ sender: Any) {
+    @IBAction func endNetworkWork(_ sender: UIButton) {
+        highlightButton(sender)
         networkScanner?.end()
     }
 
-    @IBAction func startCPUWork() {
+    @IBAction func startCPUWork(_ sender: UIButton) {
+        highlightButton(sender)
         _adjustWorkThreadsToCurrentRequirement()
     }
 
@@ -93,7 +100,8 @@ class ProfilingViewController: UIViewController, CLLocationManagerDelegate, UITe
         _adjustWorkThreadsToCurrentRequirement()
     }
 
-    @IBAction func endCPUWork() {
+    @IBAction func endCPUWork(_ sender: UIButton) {
+        highlightButton(sender)
         cpuWorkthreads.forEach { $0.cancel() }
         cpuWorkthreads.removeAll()
     }

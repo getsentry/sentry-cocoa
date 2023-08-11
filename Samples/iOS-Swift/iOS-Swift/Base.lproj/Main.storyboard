@@ -271,6 +271,12 @@
                                             </button>
                                         </subviews>
                                     </stackView>
+                                    <textField hidden="YES" opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="248" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="uTM-T7-Gv6">
+                                        <rect key="frame" x="0.0" y="140" width="320" height="0.0"/>
+                                        <accessibility key="accessibilityConfiguration" identifier="io.sentry.benchmark.value-marshaling-text-field"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                        <textInputTraits key="textInputTraits"/>
+                                    </textField>
                                 </subviews>
                             </stackView>
                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" alignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="hFG-bX-qLp">
@@ -372,6 +378,7 @@
                         <constraints>
                             <constraint firstItem="qkf-ZZ-JCy" firstAttribute="width" secondItem="3iU-yQ-Fps" secondAttribute="width" constant="-20" id="4Tm-cW-EjA"/>
                             <constraint firstItem="hFG-bX-qLp" firstAttribute="top" secondItem="jya-5z-xKN" secondAttribute="bottom" constant="54" id="8eK-Fm-Btg"/>
+                            <constraint firstItem="uTM-T7-Gv6" firstAttribute="width" secondItem="3iU-yQ-Fps" secondAttribute="width" id="F6o-He-EMh"/>
                             <constraint firstItem="5og-4W-kmj" firstAttribute="width" secondItem="3iU-yQ-Fps" secondAttribute="width" multiplier="0.75" id="H7T-Y6-UFg"/>
                             <constraint firstItem="3iU-yQ-Fps" firstAttribute="bottom" relation="greaterThanOrEqual" secondItem="jya-5z-xKN" secondAttribute="bottom" id="Ne1-tD-tNR"/>
                             <constraint firstItem="hFG-bX-qLp" firstAttribute="centerX" secondItem="jya-5z-xKN" secondAttribute="centerX" id="SeD-eQ-6Mz"/>
@@ -387,6 +394,7 @@
                         <outlet property="maxWorkIntensityTextField" destination="rJh-QS-fAl" id="u9q-Sj-6SY"/>
                         <outlet property="minThreadsTextField" destination="sCM-tI-skI" id="D0Z-yT-LbU"/>
                         <outlet property="minWorkIntensityTextField" destination="CuN-wx-fvQ" id="Eik-Z2-7M7"/>
+                        <outlet property="valueTextField" destination="uTM-T7-Gv6" id="M59-lx-juE"/>
                         <outlet property="workIntensityFactorLabel" destination="cAO-gr-3HC" id="BvB-NZ-TXI"/>
                         <outlet property="workIntervalSlider" destination="N8m-ny-upJ" id="3MU-ZK-5qD"/>
                         <outlet property="workThreadLabel" destination="t2C-jL-6qO" id="aKk-dv-UPk"/>
