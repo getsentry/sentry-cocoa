@@ -2,8 +2,10 @@
 #include <chrono>
 #include <mach/clock.h>
 #include <mach/mach.h>
+#import <mach/mach_time.h>
 #include <pthread.h>
 #include <string>
+#import <sys/sysctl.h>
 #import <thread>
 
 #define SENTRY_BENCHMARK_GCD_BASED
@@ -69,12 +71,15 @@ NSMutableArray<NSDictionary<NSString *, NSArray<NSNumber *> *> *> *samples =
 
 dispatch_source_t source;
 dispatch_queue_t queue;
+
+uint64_t startTime;
 }
 
 @implementation SentryBenchmarking
 
 + (void)startBenchmark
 {
+    startTime = mach_absolute_time();
     const auto attr = dispatch_queue_attr_make_with_qos_class(
         DISPATCH_QUEUE_CONCURRENT, QOS_CLASS_USER_INTERACTIVE, 0);
     const auto leewayNs = intervalNs / 2;
@@ -88,6 +93,7 @@ dispatch_queue_t queue;
 
 + (NSString *)stopBenchmark
 {
+    const auto endTime = mach_absolute_time();
     dispatch_cancel(source);
 
     [samples addObject:cpuInfoByThread()];
@@ -99,6 +105,7 @@ dispatch_queue_t queue;
 
     const auto systemTimeTotals = [NSMutableDictionary<NSString *, NSNumber *> dictionary];
     const auto userTimeTotals = [NSMutableDictionary<NSString *, NSNumber *> dictionary];
+    const auto cpuUsages = [NSMutableArray<NSNumber *> array];
     for (auto i = 0; i < samples.count - 2; i++) {
         const auto before = samples[i];
         const auto after = samples[i + 1];
@@ -114,6 +121,7 @@ dispatch_queue_t queue;
             const auto thisSystemTime = after[key][0].integerValue;
             const auto lastUserTime = before[key][1].integerValue;
             const auto thisUserTime = after[key][1].integerValue;
+            const auto thisCPUUsage = after[key][2].floatValue;
             if (thisSystemTime + thisUserTime < lastSystemTime + lastUserTime) {
                 // thread id was reassigned to a new thread since last sample
                 [destroyedThreads addObject:key];
@@ -128,6 +136,9 @@ dispatch_queue_t queue;
                 systemTimeTotals[key] = @(systemTimeDelta + systemTimeTotals[key].integerValue);
                 userTimeTotals[key] = @(userTimeDelta + userTimeTotals[key].integerValue);
             }
+            if ([key isEqualToString:@"io.sentry.SamplingProfiler"]) {
+                [cpuUsages addObject:@(thisCPUUsage)];
+            }
         }
     }
 
@@ -141,6 +152,21 @@ dispatch_queue_t queue;
         = ((NSNumber *)[systemTimeTotals.allValues valueForKeyPath:@"@sum.self"]).integerValue;
     const auto appUserTime
         = ((NSNumber *)[userTimeTotals.allValues valueForKeyPath:@"@sum.self"]).integerValue;
+
+    const auto profilerTotalTicks = profilerSystemTime + profilerUserTime;
+    const auto wallClockDurationSec = (endTime - startTime) / 1e9;
+    const auto workRateHz = profilerTotalTicks / wallClockDurationSec;
+
+    uint32_t clockRateHz = 0;
+    size_t size = sizeof(clockRateHz);
+    int mib[2];
+    mib[0] = CTL_HW;
+    mib[1] = KERN_CLOCKRATE;
+    sysctl(mib, 2, &clockRateHz, &size, NULL, 0);
+
+    const auto percentage = workRateHz / clockRateHz * 100.f;
+
+    NSLog(@"percentage: %f", percentage);
 
     return [NSString stringWithFormat:@"%ld,%ld,%ld,%ld", profilerSystemTime, profilerUserTime,
                      appSystemTime, appUserTime];

@@ -36,6 +36,12 @@ class ProfilingViewController: UIViewController, CLLocationManagerDelegate, UITe
     }
 
     @IBAction func stopBenchmark(_ sender: Any) {
+        let alert = UIAlertController(title: "Benchmark results", message: nil, preferredStyle: .alert)
+        alert.addTextField { textField in
+            textField.accessibilityIdentifier = "io.sentry.benchmark.value-marshaling-text-field"
+        }
+        alert.addAction(UIAlertAction(title: "OK", style: .default))
+        present(alert, animated: false)
         print("[iOS-Swift] benchmarking results:\n" + SentryBenchmarking.stopBenchmark()!.description)
     }
 
