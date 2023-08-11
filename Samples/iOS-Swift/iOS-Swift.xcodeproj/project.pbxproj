@@ -21,6 +21,7 @@
 		7B64386B26A6C544000D0F65 /* LaunchUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B64386A26A6C544000D0F65 /* LaunchUITests.swift */; };
 		7B79000429028C7300A7F467 /* MetricKitManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B79000329028C7300A7F467 /* MetricKitManager.swift */; };
 		7BFC8B0626D4D24B000D3504 /* LoremIpsum.txt in Resources */ = {isa = PBXBuildFile; fileRef = 7BFC8B0526D4D24B000D3504 /* LoremIpsum.txt */; };
+		842401422A86BB8A00317266 /* SentryDevice.mm in Sources */ = {isa = PBXBuildFile; fileRef = 84B527BC28DD25E400475E8D /* SentryDevice.mm */; };
 		844DA821282584C300E6B62E /* CoreDataViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F57BC427BBD787000D09D4 /* CoreDataViewController.swift */; };
 		844DA822282584F700E6B62E /* SentryData.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = D845F35927BAD4CC00A4D7A2 /* SentryData.xcdatamodeld */; };
 		848A256B286E3351008A8858 /* Sentry.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 630853322440C44F00DDE4CE /* Sentry.framework */; };
@@ -893,6 +894,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				D8F3D05F274E6A8B00B56F8C /* AssertView.swift in Sources */,
+				842401422A86BB8A00317266 /* SentryDevice.mm in Sources */,
 				D890CD3F26CEE31B001246CF /* NibViewController.swift in Sources */,
 				D845F35B27BAD4CC00A4D7A2 /* SentryData.xcdatamodeld in Sources */,
 				D8444E4C275E38090042F4DE /* UIViewControllerExtension.swift in Sources */,

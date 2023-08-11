@@ -150,7 +150,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" alignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="jya-5z-xKN">
-                                <rect key="frame" x="0.0" y="64" width="320" height="196"/>
+                                <rect key="frame" x="0.0" y="64" width="320" height="140"/>
                                 <subviews>
                                     <stackView opaque="NO" contentMode="scaleToFill" alignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="DOu-47-e6X">
                                         <rect key="frame" x="93" y="0.0" width="134" height="28"/>
@@ -271,56 +271,10 @@
                                             </button>
                                         </subviews>
                                     </stackView>
-                                    <stackView opaque="NO" contentMode="scaleToFill" alignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="cZl-dR-LgU">
-                                        <rect key="frame" x="81.5" y="140" width="157" height="28"/>
-                                        <subviews>
-                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="dvE-JN-Csy">
-                                                <rect key="frame" x="0.0" y="0.0" width="123" height="28"/>
-                                                <fontDescription key="fontDescription" type="system" pointSize="13"/>
-                                                <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
-                                                <state key="normal" title="Bluetooth scan start"/>
-                                                <connections>
-                                                    <action selector="startBluetoothScan:" destination="NZr-bH-g9o" eventType="touchUpInside" id="eph-tq-D9Z"/>
-                                                </connections>
-                                            </button>
-                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="MOK-uc-pHE">
-                                                <rect key="frame" x="123" y="0.0" width="34" height="28"/>
-                                                <fontDescription key="fontDescription" type="system" pointSize="13"/>
-                                                <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
-                                                <state key="normal" title=" / end"/>
-                                                <connections>
-                                                    <action selector="endBluetoothScan:" destination="NZr-bH-g9o" eventType="touchUpInside" id="eud-rk-jzA"/>
-                                                </connections>
-                                            </button>
-                                        </subviews>
-                                    </stackView>
-                                    <stackView opaque="NO" contentMode="scaleToFill" alignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="API-NN-2Zk">
-                                        <rect key="frame" x="68" y="168" width="184" height="28"/>
-                                        <subviews>
-                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="sK6-Pb-svh">
-                                                <rect key="frame" x="0.0" y="0.0" width="150" height="28"/>
-                                                <fontDescription key="fontDescription" type="system" pointSize="13"/>
-                                                <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
-                                                <state key="normal" title="Bluetooth advertise start"/>
-                                                <connections>
-                                                    <action selector="startBluetoothAdvertise:" destination="NZr-bH-g9o" eventType="touchUpInside" id="qIy-Dw-NQf"/>
-                                                </connections>
-                                            </button>
-                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="o6c-cX-kXx">
-                                                <rect key="frame" x="150" y="0.0" width="34" height="28"/>
-                                                <fontDescription key="fontDescription" type="system" pointSize="13"/>
-                                                <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
-                                                <state key="normal" title=" / end"/>
-                                                <connections>
-                                                    <action selector="endBluetoothAdvertise:" destination="NZr-bH-g9o" eventType="touchUpInside" id="XS9-BR-L3r"/>
-                                                </connections>
-                                            </button>
-                                        </subviews>
-                                    </stackView>
                                 </subviews>
                             </stackView>
                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" alignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="hFG-bX-qLp">
-                                <rect key="frame" x="10" y="314" width="300" height="159.5"/>
+                                <rect key="frame" x="10" y="258" width="300" height="159.5"/>
                                 <subviews>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Work threads:" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="t2C-jL-6qO">
                                         <rect key="frame" x="97" y="0.0" width="106.5" height="20.5"/>
@@ -646,7 +600,7 @@
             <objects>
                 <navigationController id="5CD-RQ-aBU" sceneMemberID="viewController">
                     <navigationBar key="navigationBar" contentMode="scaleToFill" id="SjT-Zj-cMF">
-                        <rect key="frame" x="0.0" y="20" width="320" height="50"/>
+                        <rect key="frame" x="0.0" y="20" width="320" height="44"/>
                         <autoresizingMask key="autoresizingMask"/>
                     </navigationBar>
                     <connections>

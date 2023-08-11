@@ -1,4 +1,3 @@
-import CoreBluetooth
 import CoreLocation
 import UIKit
 
@@ -16,9 +15,6 @@ class ProfilingViewController: UIViewController, CLLocationManagerDelegate, UITe
     @IBOutlet weak var minThreadsTextField: UITextField!
     @IBOutlet weak var minWorkIntensityTextField: UITextField!
     @IBOutlet weak var maxWorkIntensityTextField: UITextField!
-
-    let centralManager = CBCentralManager()
-    let peripheralManager = CBPeripheralManager()
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -79,22 +75,6 @@ class ProfilingViewController: UIViewController, CLLocationManagerDelegate, UITe
 
     @IBAction func endNetworkWork(_ sender: Any) {
         networkScanner?.end()
-    }
-
-    @IBAction func startBluetoothScan(_ sender: Any) {
-        centralManager.scanForPeripherals(withServices: nil)
-    }
-
-    @IBAction func endBluetoothScan(_ sender: Any) {
-        centralManager.stopScan()
-    }
-
-    @IBAction func startBluetoothAdvertise(_ sender: Any) {
-        peripheralManager.startAdvertising([CBAdvertisementDataServiceUUIDsKey: [UUID(), UUID(), UUID()]])
-    }
-
-    @IBAction func endBluetoothAdvertise(_ sender: Any) {
-        peripheralManager.stopAdvertising()
     }
 
     @IBAction func startCPUWork() {
