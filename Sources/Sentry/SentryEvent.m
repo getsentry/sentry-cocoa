@@ -8,6 +8,7 @@
 #import "SentryEvent+Private.h"
 #import "SentryException.h"
 #import "SentryId.h"
+#import "SentryInternalDefines.h"
 #import "SentryLevelMapper.h"
 #import "SentryMessage.h"
 #import "SentryMeta.h"
@@ -31,7 +32,7 @@ NS_ASSUME_NONNULL_BEGIN
     if (self) {
         self.eventId = [[SentryId alloc] init];
         self.level = level;
-        self.platform = @"cocoa";
+        self.platform = SentryPlatformName;
         self.timestamp = [SentryDependencyContainer.sharedInstance.dateProvider date];
     }
     return self;
@@ -53,7 +54,7 @@ NS_ASSUME_NONNULL_BEGIN
     NSMutableDictionary *serializedData = @{
         @"event_id" : self.eventId.sentryIdString,
         @"timestamp" : @(self.timestamp.timeIntervalSince1970),
-        @"platform" : @"cocoa",
+        @"platform" : SentryPlatformName,
     }
                                               .mutableCopy;
 

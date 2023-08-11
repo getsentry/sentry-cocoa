@@ -45,23 +45,22 @@ namespace {
  */
 SentrySerializedMetricEntry *_Nullable serializeValuesWithNormalizedTime(
     NSArray<SentryMetricReading *> *absoluteTimestampValues, NSString *unit,
-    SentryTransaction *transaction)
+    uint64_t startSystemTime, uint64_t endSystemTime)
 {
     const auto *timestampNormalizedValues = [NSMutableArray<SentrySerializedMetricReading *> array];
     [absoluteTimestampValues enumerateObjectsUsingBlock:^(
         SentryMetricReading *_Nonnull reading, NSUInteger idx, BOOL *_Nonnull stop) {
         // if the metric reading wasn't recorded until the transaction ended, don't include it
-        if (!orderedChronologically(reading.absoluteTimestamp, transaction.endSystemTime)) {
+        if (!orderedChronologically(reading.absoluteTimestamp, endSystemTime)) {
             return;
         }
 
         // if the metric reading was taken before the transaction started, don't include it
-        if (!orderedChronologically(transaction.startSystemTime, reading.absoluteTimestamp)) {
+        if (!orderedChronologically(startSystemTime, reading.absoluteTimestamp)) {
             return;
         }
 
-        const auto relativeTimestamp
-            = getDurationNs(transaction.startSystemTime, reading.absoluteTimestamp);
+        const auto relativeTimestamp = getDurationNs(startSystemTime, reading.absoluteTimestamp);
 
         [timestampNormalizedValues addObject:@ {
             @"elapsed_since_start_ns" : sentry_stringForUInt64(relativeTimestamp),
@@ -108,7 +107,8 @@ SentrySerializedMetricEntry *_Nullable serializeValuesWithNormalizedTime(
     [_dispatchSource cancel];
 }
 
-- (NSMutableDictionary<NSString *, id> *)serializeForTransaction:(SentryTransaction *)transaction
+- (NSMutableDictionary<NSString *, id> *)serializeBetween:(uint64_t)startSystemTime
+                                                      and:(uint64_t)endSystemTime;
 {
     NSArray<SentryMetricReading *> *memoryFootprint;
     NSArray<SentryMetricReading *> *cpuUsage;
@@ -120,13 +120,14 @@ SentrySerializedMetricEntry *_Nullable serializeValuesWithNormalizedTime(
     const auto dict = [NSMutableDictionary<NSString *, id> dictionary];
     if (memoryFootprint.count > 0) {
         dict[kSentryMetricProfilerSerializationKeyMemoryFootprint]
-            = serializeValuesWithNormalizedTime(
-                memoryFootprint, kSentryMetricProfilerSerializationUnitBytes, transaction);
+            = serializeValuesWithNormalizedTime(memoryFootprint,
+                kSentryMetricProfilerSerializationUnitBytes, startSystemTime, endSystemTime);
     }
 
     if (cpuUsage.count > 0) {
-        dict[kSentryMetricProfilerSerializationKeyCPUUsage] = serializeValuesWithNormalizedTime(
-            cpuUsage, kSentryMetricProfilerSerializationUnitPercentage, transaction);
+        dict[kSentryMetricProfilerSerializationKeyCPUUsage]
+            = serializeValuesWithNormalizedTime(cpuUsage,
+                kSentryMetricProfilerSerializationUnitPercentage, startSystemTime, endSystemTime);
     }
 
     return dict;

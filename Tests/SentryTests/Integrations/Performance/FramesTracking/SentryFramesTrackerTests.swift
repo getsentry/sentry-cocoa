@@ -3,31 +3,31 @@ import XCTest
 
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
 class SentryFramesTrackerTests: XCTestCase {
-    
+
     private class Fixture {
-        
+
         var displayLinkWrapper: TestDisplayLinkWrapper
         var queue: DispatchQueue
         lazy var hub = TestHub(client: nil, andScope: nil)
         lazy var tracer = SentryTracer(transactionContext: TransactionContext(name: "test transaction", operation: "test operation"), hub: hub)
-        
+
         init() {
             displayLinkWrapper = TestDisplayLinkWrapper()
             queue = DispatchQueue(label: "SentryFramesTrackerTests", qos: .background, attributes: [.concurrent])
         }
-        
+
         lazy var sut: SentryFramesTracker = SentryFramesTracker(displayLinkWrapper: displayLinkWrapper)
     }
-    
+
     private var fixture: Fixture!
-    
+
     override func setUp() {
         super.setUp()
         fixture = Fixture()
 
 #if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
         // the profiler must be running for the frames tracker to record frame rate info etc, validated in assertProfilingData()
-        SentryProfiler.start(with: fixture.tracer)
+        SentryProfiler.start(withTracer: fixture.tracer.traceId)
 #endif
     }
 
@@ -35,28 +35,28 @@ class SentryFramesTrackerTests: XCTestCase {
         super.tearDown()
         clearTestState()
     }
-    
+
     func testIsNotRunning_WhenNotStarted() {
         XCTAssertFalse(fixture.sut.isRunning)
     }
-    
+
     func testIsRunning_WhenStarted() {
         let sut = fixture.sut
         sut.start()
         XCTAssertTrue(sut.isRunning)
     }
-    
+
     func testIsNotRunning_WhenStopped() {
         let sut = fixture.sut
         sut.start()
         sut.stop()
         XCTAssertFalse(sut.isRunning)
     }
-    
+
     func testSlowFrame() throws {
         let sut = fixture.sut
         sut.start()
-        
+
         fixture.displayLinkWrapper.call()
         _ = fixture.displayLinkWrapper.fastestSlowFrame()
         fixture.displayLinkWrapper.normalFrame()
@@ -64,11 +64,11 @@ class SentryFramesTrackerTests: XCTestCase {
 
         try assert(slow: 2, frozen: 0, total: 3)
     }
-    
+
     func testFrozenFrame() throws {
         let sut = fixture.sut
         sut.start()
-        
+
         fixture.displayLinkWrapper.call()
         _ = fixture.displayLinkWrapper.fastestSlowFrame()
         _ = fixture.displayLinkWrapper.fastestFrozenFrame()
@@ -91,7 +91,7 @@ class SentryFramesTrackerTests: XCTestCase {
     func testPerformanceOfTrackingFrames() throws {
         let sut = fixture.sut
         sut.start()
-        
+
         let frames: UInt = 1_000
         self.measure {
             for _ in 0 ..< frames {

@@ -15,10 +15,11 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-NSDictionary<NSString *, id> *serializedProfileData(
-    NSDictionary<NSString *, id> *profileData, SentryTransaction *transaction, SentryId *profileID,
-    NSString *truncationReason, NSDictionary<NSString *, id> *serializedMetrics,
-    NSArray<SentryDebugMeta *> *debugMeta, SentryHub *hub
+NSMutableDictionary<NSString *, id> *serializedProfileData(
+    NSDictionary<NSString *, id> *profileData, uint64_t startSystemTime, uint64_t endSystemTime,
+    SentryId *profileID, NSString *truncationReason,
+    NSDictionary<NSString *, id> *serializedMetrics, NSArray<SentryDebugMeta *> *debugMeta,
+    SentryHub *hub
 #    if SENTRY_HAS_UIKIT
     ,
     SentryScreenFrames *gpuData

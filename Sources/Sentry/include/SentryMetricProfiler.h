@@ -58,8 +58,9 @@ typedef NSDictionary<NSString *, id /* <NSString, NSArray<SentrySerializedMetric
  * }
  * @endcode
  */
-- (NSMutableDictionary<NSString *, SentrySerializedMetricEntry *> *)serializeForTransaction:
-    (SentryTransaction *)transaction;
+- (NSMutableDictionary<NSString *, SentrySerializedMetricEntry *> *)
+    serializeBetween:(uint64_t)startSystemTime
+                 and:(uint64_t)endSystemTime;
 
 @end
 
