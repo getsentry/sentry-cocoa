@@ -230,22 +230,22 @@ SentryNetworkTracker ()
         return;
     }
     NSString *baggageHeader = @"";
-    
+
     if (baggage != nil) {
         baggageHeader =
-        [baggage toHTTPHeaderWithOriginalBaggage:
-         [SentrySerialization
-          decodeBaggage:sessionTask.currentRequest
-             .allHTTPHeaderFields[SENTRY_BAGGAGE_HEADER]]];
+            [baggage toHTTPHeaderWithOriginalBaggage:
+                         [SentrySerialization
+                             decodeBaggage:sessionTask.currentRequest
+                                               .allHTTPHeaderFields[SENTRY_BAGGAGE_HEADER]]];
     }
-    
+
     // First we check if the current request is mutable, so we could easily add a new
     // header. Otherwise we try to change the current request for a new one with the extra
     // header.
     if ([sessionTask.currentRequest isKindOfClass:[NSMutableURLRequest class]]) {
         NSMutableURLRequest *currentRequest = (NSMutableURLRequest *)sessionTask.currentRequest;
         [currentRequest setValue:traceHeader.value forHTTPHeaderField:SENTRY_TRACE_HEADER];
-        
+
         if (baggageHeader.length > 0) {
             [currentRequest setValue:baggageHeader forHTTPHeaderField:SENTRY_BAGGAGE_HEADER];
         }
@@ -257,15 +257,15 @@ SentryNetworkTracker ()
         SEL setCurrentRequestSelector = NSSelectorFromString(@"setCurrentRequest:");
         if ([sessionTask respondsToSelector:setCurrentRequestSelector]) {
             NSMutableURLRequest *newRequest = [sessionTask.currentRequest mutableCopy];
-            
+
             [newRequest setValue:traceHeader.value forHTTPHeaderField:SENTRY_TRACE_HEADER];
-            
+
             if (baggageHeader.length > 0) {
                 [newRequest setValue:baggageHeader forHTTPHeaderField:SENTRY_BAGGAGE_HEADER];
             }
-            
+
             void (*func)(id, SEL, id param)
-            = (void *)[sessionTask methodForSelector:setCurrentRequestSelector];
+                = (void *)[sessionTask methodForSelector:setCurrentRequestSelector];
             func(sessionTask, setCurrentRequestSelector, newRequest);
         }
     }
