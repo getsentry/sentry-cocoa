@@ -3,7 +3,8 @@
 #import "SentryScope.h"
 #import "SentryScopeObserver.h"
 
-@class SentryAttachment, SentryPropagationContext;
+@class SentryAttachment;
+@class SentryPropagationContext;
 
 NS_ASSUME_NONNULL_BEGIN
 

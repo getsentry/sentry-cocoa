@@ -118,7 +118,7 @@ SentryNetworkTracker ()
 
 - (BOOL)sessionTaskRequiresPropagation:(NSURLSessionTask *)sessionTask
 {
-    return [sessionTask currentRequest] &&
+    return sessionTask.currentRequest != nil &&
         [self isTargetMatch:sessionTask.currentRequest.URL
                 withTargets:SentrySDK.options.tracePropagationTargets];
 }
