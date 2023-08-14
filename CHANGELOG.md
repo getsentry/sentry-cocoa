@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Hybrid SDK support
+
+- Allow profiling from hybrid SDKs (([#3194]https://github.com/getsentry/sentry-cocoa/pull/3194))
 
 ## 8.9.4
 
