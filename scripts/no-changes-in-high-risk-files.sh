@@ -1,11 +1,11 @@
 #!/bin/bash
-set -euxo pipefail
+set -euo pipefail
 
 # To update the sha run the command in ACTUAL and copy the result in EXPECTED.
 
 ACTUAL=$(shasum -a 256 ./Sources/Sentry/SentryNSURLSessionTaskSearch.m ./Sources/Sentry/SentryNetworkTracker.m ./Sources/Sentry/SentryUIViewControllerSwizzling.m ./Sources/Sentry/SentryNSDataSwizzling.m ./Sources/Sentry/SentrySubClassFinder.m ./Sources/Sentry/SentryCoreDataSwizzling.m ./Sources/Sentry/SentrySwizzleWrapper.m ./Sources/Sentry/include/SentrySwizzle.h ./Sources/Sentry/SentrySwizzle.m)
 EXPECTED="819d5ca5e3db2ac23c859b14c149b7f0754d3ae88bea1dba92c18f49a81da0e1  ./Sources/Sentry/SentryNSURLSessionTaskSearch.m
-6d0920d91649a7173a52b4229db0b204b66677cb4033d9ca28917f3423276517  ./Sources/Sentry/SentryNetworkTracker.m
+996c22fc6ad3d90b38caca4fb81f244896849965d49e28dcae9481de0bf0fcae  ./Sources/Sentry/SentryNetworkTracker.m
 128dee523c75c121e9b8b767d84a2a137e5b60498c9f3ba604aad3c935d780d0  ./Sources/Sentry/SentryUIViewControllerSwizzling.m
 e95e62ec7363984f20c78643bb7d992a41a740f97e1befb71525ac34caf88b37  ./Sources/Sentry/SentryNSDataSwizzling.m
 9ad05dd8dd29788cba994736fdcd3bbde59a94e32612640d11f4f9c38ad6610e  ./Sources/Sentry/SentrySubClassFinder.m
