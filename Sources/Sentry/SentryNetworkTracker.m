@@ -224,50 +224,50 @@ SentryNetworkTracker ()
              traceHeader:(SentryTraceHeader *)traceHeader
                toRequest:(NSURLSessionTask *)sessionTask
 {
-    if ([self sessionTaskRequiresPropagation:sessionTask]) {
-        NSString *baggageHeader = @"";
-
-        if (baggage != nil) {
-            baggageHeader =
-                [baggage toHTTPHeaderWithOriginalBaggage:
-                             [SentrySerialization
-                                 decodeBaggage:sessionTask.currentRequest
-                                                   .allHTTPHeaderFields[SENTRY_BAGGAGE_HEADER]]];
-        }
-
-        // First we check if the current request is mutable, so we could easily add a new
-        // header. Otherwise we try to change the current request for a new one with the extra
-        // header.
-        if ([sessionTask.currentRequest isKindOfClass:[NSMutableURLRequest class]]) {
-            NSMutableURLRequest *currentRequest = (NSMutableURLRequest *)sessionTask.currentRequest;
-            [currentRequest setValue:traceHeader.value forHTTPHeaderField:SENTRY_TRACE_HEADER];
-
-            if (baggageHeader.length > 0) {
-                [currentRequest setValue:baggageHeader forHTTPHeaderField:SENTRY_BAGGAGE_HEADER];
-            }
-        } else {
-            // Even though NSURLSessionTask doesn't have 'setCurrentRequest', some subclasses
-            // do. For those subclasses we replace the currentRequest with a mutable one with
-            // the additional trace header. Since NSURLSessionTask is a public class and can be
-            // override, we believe this is not considered a private api.
-            SEL setCurrentRequestSelector = NSSelectorFromString(@"setCurrentRequest:");
-            if ([sessionTask respondsToSelector:setCurrentRequestSelector]) {
-                NSMutableURLRequest *newRequest = [sessionTask.currentRequest mutableCopy];
-
-                [newRequest setValue:traceHeader.value forHTTPHeaderField:SENTRY_TRACE_HEADER];
-
-                if (baggageHeader.length > 0) {
-                    [newRequest setValue:baggageHeader forHTTPHeaderField:SENTRY_BAGGAGE_HEADER];
-                }
-
-                void (*func)(id, SEL, id param)
-                    = (void *)[sessionTask methodForSelector:setCurrentRequestSelector];
-                func(sessionTask, setCurrentRequestSelector, newRequest);
-            }
-        }
-    } else {
+    if (![self sessionTaskRequiresPropagation:sessionTask]) {
         SENTRY_LOG_DEBUG(@"Not adding trace_id and baggage headers for %@",
             sessionTask.currentRequest.URL.absoluteString);
+        return;
+    }
+    NSString *baggageHeader = @"";
+    
+    if (baggage != nil) {
+        baggageHeader =
+        [baggage toHTTPHeaderWithOriginalBaggage:
+         [SentrySerialization
+          decodeBaggage:sessionTask.currentRequest
+             .allHTTPHeaderFields[SENTRY_BAGGAGE_HEADER]]];
+    }
+    
+    // First we check if the current request is mutable, so we could easily add a new
+    // header. Otherwise we try to change the current request for a new one with the extra
+    // header.
+    if ([sessionTask.currentRequest isKindOfClass:[NSMutableURLRequest class]]) {
+        NSMutableURLRequest *currentRequest = (NSMutableURLRequest *)sessionTask.currentRequest;
+        [currentRequest setValue:traceHeader.value forHTTPHeaderField:SENTRY_TRACE_HEADER];
+        
+        if (baggageHeader.length > 0) {
+            [currentRequest setValue:baggageHeader forHTTPHeaderField:SENTRY_BAGGAGE_HEADER];
+        }
+    } else {
+        // Even though NSURLSessionTask doesn't have 'setCurrentRequest', some subclasses
+        // do. For those subclasses we replace the currentRequest with a mutable one with
+        // the additional trace header. Since NSURLSessionTask is a public class and can be
+        // override, we believe this is not considered a private api.
+        SEL setCurrentRequestSelector = NSSelectorFromString(@"setCurrentRequest:");
+        if ([sessionTask respondsToSelector:setCurrentRequestSelector]) {
+            NSMutableURLRequest *newRequest = [sessionTask.currentRequest mutableCopy];
+            
+            [newRequest setValue:traceHeader.value forHTTPHeaderField:SENTRY_TRACE_HEADER];
+            
+            if (baggageHeader.length > 0) {
+                [newRequest setValue:baggageHeader forHTTPHeaderField:SENTRY_BAGGAGE_HEADER];
+            }
+            
+            void (*func)(id, SEL, id param)
+            = (void *)[sessionTask methodForSelector:setCurrentRequestSelector];
+            func(sessionTask, setCurrentRequestSelector, newRequest);
+        }
     }
 }
 
