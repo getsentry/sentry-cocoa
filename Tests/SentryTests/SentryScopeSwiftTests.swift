@@ -150,7 +150,8 @@ class SentryScopeSwiftTests: XCTestCase {
     
     func testApplyToEvent() {
         let actual = fixture.scope.applyTo(event: fixture.event, maxBreadcrumbs: 10)
-        
+        let actualContext = actual?.context as? [String: [String: String]]
+
         XCTAssertEqual(fixture.tags, actual?.tags)
         XCTAssertEqual(fixture.extra, actual?.extra as? [String: String])
         XCTAssertEqual(fixture.user, actual?.user)
@@ -159,7 +160,8 @@ class SentryScopeSwiftTests: XCTestCase {
         XCTAssertEqual(fixture.fingerprint, actual?.fingerprint)
         XCTAssertEqual(fixture.level, actual?.level)
         XCTAssertEqual([fixture.breadcrumb], actual?.breadcrumbs)
-        XCTAssertEqual(fixture.context, actual?.context as? [String: [String: String]])
+        XCTAssertEqual(fixture.context["c"], actualContext?["c"])
+        XCTAssertNotNil(actualContext?["trace"])
     }
     
     func testApplyToEvent_EventWithTags() {
@@ -267,7 +269,8 @@ class SentryScopeSwiftTests: XCTestCase {
     }
     
     func testApplyToEvent_EventWithContext() {
-        let context = NSMutableDictionary(dictionary: ["my": ["extra": "context"]])
+        let context = NSMutableDictionary(dictionary: ["my": ["extra": "context"],
+                                                       "trace": fixture.scope.propagationContext.traceForEvent() ])
         let event = fixture.event
         event.context = context as? [String: [String: String]]
         
@@ -289,7 +292,7 @@ class SentryScopeSwiftTests: XCTestCase {
     
     func testApplyToEvent_EventWithContext_MergesContext() {
         let context = NSMutableDictionary(dictionary: [
-            "first": ["a": "b", "c": "d"]])
+            "first": ["a": "b", "c": "d"], "trace": fixture.scope.propagationContext.traceForEvent()])
         let event = fixture.event
         event.context = context as? [String: [String: String]]
         
