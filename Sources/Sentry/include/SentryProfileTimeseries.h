@@ -11,7 +11,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 NSArray<SentrySample *> *_Nullable slicedProfileSamples(
-    NSArray<SentrySample *> *samples, SentryTransaction *transaction);
+    NSArray<SentrySample *> *samples, uint64_t startSystemTime, uint64_t endSystemTime);
 
 NS_ASSUME_NONNULL_END
 
