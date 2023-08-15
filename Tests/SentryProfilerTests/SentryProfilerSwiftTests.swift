@@ -54,6 +54,7 @@ class SentryProfilerSwiftTests: XCTestCase {
 
             systemWrapper.overrides.cpuUsage = NSNumber(value: mockCPUUsage)
             systemWrapper.overrides.memoryFootprintBytes = mockMemoryFootprint
+            systemWrapper.overrides.cpuEnergyUsage = mockEnergyUsage
 
 #if !os(macOS)
             SentryDependencyContainer.sharedInstance().framesTracker = framesTracker
@@ -88,7 +89,8 @@ class SentryProfilerSwiftTests: XCTestCase {
 
         let mockCPUUsage = 66.6
         let mockMemoryFootprint: SentryRAMBytes = 123_455
-        let mockUsageReadingsPerBatch = 2
+        let mockEnergyUsage: NSNumber = 99_876
+        let mockUsageReadingsPerBatch = 3
 
 #if !os(macOS)
         // SentryFramesTracker starts assuming a frame rate of 60 Hz and will only log an update if it changes, so the first value here needs to be different for it to register.
@@ -112,8 +114,9 @@ class SentryProfilerSwiftTests: XCTestCase {
             // clear out any errors that might've been set in previous calls
             systemWrapper.overrides.cpuUsageError = nil
             systemWrapper.overrides.memoryFootprintError = nil
+            systemWrapper.overrides.cpuEnergyUsageError = nil
 
-            // gather mock cpu usages and memory footprints
+            // gather mocked metrics readings
             for _ in 0..<mockUsageReadingsPerBatch {
                 self.metricTimerFactory?.fire()
             }
@@ -197,6 +200,7 @@ class SentryProfilerSwiftTests: XCTestCase {
             // mock errors gathering cpu usage and memory footprint and fire a callback for them to ensure they don't add more information to the payload
             systemWrapper.overrides.cpuUsageError = NSError(domain: "test-error", code: 0)
             systemWrapper.overrides.memoryFootprintError = NSError(domain: "test-error", code: 1)
+            systemWrapper.overrides.cpuEnergyUsageError = NSError(domain: "test-error", code: 2)
             metricTimerFactory?.fire()
         }
 
@@ -599,6 +603,9 @@ private extension SentryProfilerSwiftTests {
         try assertMetricValue(measurements: measurements, key: kSentryMetricProfilerSerializationKeyCPUUsage, numberOfReadings: expectedUsageReadings, expectedValue: fixture.mockCPUUsage, transaction: transaction)
 
         try assertMetricValue(measurements: measurements, key: kSentryMetricProfilerSerializationKeyMemoryFootprint, numberOfReadings: expectedUsageReadings, expectedValue: fixture.mockMemoryFootprint, transaction: transaction)
+
+        // we wind up with one less energy reading. since we must use the difference between readings to get actual values, the first one is only the baseline reading.
+        try assertMetricValue(measurements: measurements, key: kSentryMetricProfilerSerializationKeyCPUEnergyUsage, numberOfReadings: expectedUsageReadings - 1, expectedValue: fixture.mockEnergyUsage, transaction: transaction)
 
 #if !os(macOS)
         try assertMetricEntries(measurements: measurements, key: kSentryProfilerSerializationKeySlowFrameRenders, expectedEntries: fixture.expectedSlowFrames, transaction: transaction)
