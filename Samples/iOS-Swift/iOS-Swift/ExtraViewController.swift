@@ -206,6 +206,13 @@ class ExtraViewController: UIViewController {
         AppDelegate.startSentry()
     }
 
+    @IBAction func causeFrozenFrames(_ sender: Any) {
+        var a = String()
+        for i in 0..<100_000_000 {
+            a.append(String(i))
+        }
+    }
+
     private func calcPi() -> Double {
         var denominator = 1.0
         var pi = 0.0
