@@ -18,9 +18,6 @@ let package = Package(
                 "Sentry/",
                 "SentryCrash/"
             ],
-            resources: [
-                        .copy("Resources/PrivacyInfo.xcprivacy")
-            ],
             publicHeadersPath: "Sentry/Public/",
             cxxSettings: [
                 .define("GCC_ENABLE_CPP_EXCEPTIONS", to: "YES"),
@@ -40,6 +37,9 @@ let package = Package(
                  path: "Sources",
                  sources: [
                     "Swift"
+                 ],
+                 resources: [
+                    .process("Resources/PrivacyInfo.xcprivacy")
                  ]
                ),
         .target ( name: "SentrySwiftUI",
