@@ -94,6 +94,7 @@
     SENTRY_ASSERT_PREFIX(
         osVersion, @"9.", @"10.", @"11.", @"12.", @"13.", @"14.", @"15.", @"16.", @"17.");
 #elif TARGET_OS_WATCH
+    // TODO: create a watch UI test target to test this branch
     SENTRY_ASSERT_PREFIX(osVersion, @"2.", @"3.", @"4.", @"5.", @"6.", @"7.", @"8.", @"9.");
 #else
     XCTFail(@"Unexpected OS.");
@@ -122,8 +123,7 @@
     // cannot.
     SENTRY_ASSERT_EQUAL(osName, @"tvOS");
 #elif TARGET_OS_WATCH
-    // TODO: create a watch UI test target to test this branch as it cannot run on the watch
-    // simulator
+    // TODO: create a watch UI test target to test this branch
     SENTRY_ASSERT_EQUAL(osName, @"watchOS");
 #else
     XCTFail(@"Unexpected device OS");

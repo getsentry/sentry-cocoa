@@ -5,6 +5,18 @@
 ### Features
 
 - Record energy usage estimates for profiling (#3217)
+## 8.9.6
+
+### Fixed
+
+- WatchOS build for Xcode 15 (#3204)
+- Fix CPU usage collection for upcoming visualization in profiling flamecharts (#3214)
+
+## 8.9.5
+
+### Hybrid SDK support
+
+- Allow profiling from hybrid SDKs (#3194)
 
 ## 8.9.4
 

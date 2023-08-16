@@ -8,12 +8,8 @@ class SentrySystemWrapperTests: XCTestCase {
 
     func testCPUUsageReportsData() throws {
         XCTAssertNoThrow({
-            let cpuUsages = try self.fixture.systemWrapper.cpuUsagePerCore()
-            XCTAssertGreaterThan(cpuUsages.count, 0)
-            let range = 0.0 ... 100.0
-            cpuUsages.forEach {
-                XCTAssert(range.contains($0.doubleValue))
-            }
+            let cpuUsage = try XCTUnwrap(self.fixture.systemWrapper.cpuUsage())
+            XCTAssert((0.0 ... 100.0).contains(cpuUsage.doubleValue))
         })
     }
 
