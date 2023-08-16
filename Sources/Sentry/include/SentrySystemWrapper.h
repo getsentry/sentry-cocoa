@@ -26,6 +26,12 @@ typedef mach_vm_size_t SentryRAMBytes;
  */
 - (nullable NSArray<NSNumber *> *)cpuUsagePerCore:(NSError **)error;
 
+/**
+ * @return The cumulative amount of nanojoules expended by the CPU for this task since process
+ * start.
+ */
+- (nullable NSNumber *)cpuEnergyUsageWithError:(NSError **)error;
+
 @end
 
 NS_ASSUME_NONNULL_END
