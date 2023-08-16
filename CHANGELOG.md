@@ -2,8 +2,9 @@
 
 ## Unreleased
 
-### Fixes
+### Fixed
 
+- WatchOS build for Xcode 15 (#3204)
 - Fix CPU usage collection for upcoming visualization in profiling flamecharts (#3214)
 
 ## 8.9.5
