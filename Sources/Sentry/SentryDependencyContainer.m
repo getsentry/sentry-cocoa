@@ -21,6 +21,7 @@
 #import <SentrySysctl.h>
 #import <SentryThreadWrapper.h>
 #import <SentryViewHierarchy.h>
+#import "SentryRandom.h"
 
 #if SENTRY_HAS_UIKIT
 #    import "SentryFramesTracker.h"

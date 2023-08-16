@@ -47,6 +47,7 @@
 #import "SentryUser.h"
 #import "SentryUserFeedback.h"
 #import "SentryWatchdogTerminationTracker.h"
+#import "SentryRandom.h"
 
 #if SENTRY_HAS_UIKIT
 #    import <UIKit/UIKit.h>
