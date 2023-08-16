@@ -5,6 +5,7 @@
 #import "SentryDisplayLinkWrapper.h"
 #import "SentryNSProcessInfoWrapper.h"
 #import "SentryNSTimerFactory.h"
+#import "SentryRandom.h"
 #import "SentrySystemWrapper.h"
 #import "SentryUIApplication.h"
 #import <SentryAppStateManager.h>
@@ -21,7 +22,6 @@
 #import <SentrySysctl.h>
 #import <SentryThreadWrapper.h>
 #import <SentryViewHierarchy.h>
-#import "SentryRandom.h"
 
 #if SENTRY_HAS_UIKIT
 #    import "SentryFramesTracker.h"
