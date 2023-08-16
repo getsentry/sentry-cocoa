@@ -26,13 +26,16 @@ class ViewController: UIViewController {
         dataTask.resume()
     }
 
-    var span: Span?
+    var spans = [Span]()
     let profilerNotification = NSNotification.Name("SentryProfileCompleteNotification")
-    
+
     @IBAction func startTransaction(_ sender: UIButton) {
         highlightButton(sender)
-        guard span == nil else { return }
-        span = SentrySDK.startTransaction(name: "Manual Transaction", operation: "Manual Operation")
+        startNewTransaction()
+    }
+
+    fileprivate func startNewTransaction() {
+        spans.append(SentrySDK.startTransaction(name: "Manual Transaction", operation: "Manual Operation"))
 
         NotificationCenter.default.addObserver(forName: profilerNotification, object: nil, queue: nil) { note in
             DispatchQueue.main.async {
@@ -49,12 +52,64 @@ class ViewController: UIViewController {
         }
     }
 
+    @IBAction func startTransactionFromOtherThread(_ sender: UIButton) {
+        highlightButton(sender)
+
+        Thread.detachNewThread {
+            self.startNewTransaction()
+        }
+    }
+
     @IBAction func stopTransaction(_ sender: UIButton) {
         highlightButton(sender)
-        span?.finish()
-        span = nil
 
-        NotificationCenter.default.removeObserver(self, name: profilerNotification, object: nil)
+        defer {
+            if spans.isEmpty {
+                NotificationCenter.default.removeObserver(self, name: profilerNotification, object: nil)
+            }
+        }
+
+        func showConfirmation(span: Span) {
+            DispatchQueue.main.async {
+                let confirmation = UIAlertController(title: "Finished span \(span.spanId.sentrySpanIdString)", message: nil, preferredStyle: .alert)
+                confirmation.addAction(UIAlertAction(title: "OK", style: .default))
+                self.present(confirmation, animated: true)
+            }
+        }
+
+        func finishSpan(span: Span) {
+            span.finish()
+            self.spans.remove(at: self.spans.firstIndex(where: { testSpan in
+                testSpan.spanId == span.spanId
+            })!)
+            showConfirmation(span: span)
+        }
+
+        if spans.count == 1 {
+            finishSpan(span: spans[0])
+            return
+        }
+
+        let alert = UIAlertController(title: "Choose span to stop", message: nil, preferredStyle: .actionSheet)
+        spans.forEach { span in
+            alert.addAction(UIAlertAction(title: span.spanId.sentrySpanIdString, style: .default, handler: { _ in
+                let threadPicker = UIAlertController(title: "From thread:", message: nil, preferredStyle: .actionSheet)
+                threadPicker.addAction(UIAlertAction(title: "Main thread", style: .default, handler: { _ in
+                    DispatchQueue.main.async {
+                        finishSpan(span: span)
+                    }
+                }))
+                threadPicker.addAction(UIAlertAction(title: "BG thread", style: .default, handler: { _ in
+                    Thread.detachNewThread {
+                        finishSpan(span: span)
+                    }
+                }))
+                threadPicker.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+                self.present(threadPicker, animated: true)
+            }))
+        }
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+        present(alert, animated: true)
     }
 
     @IBAction func captureTransaction(_ sender: UIButton) {
