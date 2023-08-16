@@ -9,16 +9,25 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @interface
-SentryScope (Private)
+SentryScope ()
 
-@property (atomic, copy, readonly, nullable) NSString *environmentString;
+/**
+ * The environment used in this scope.
+ */
+@property (atomic, copy) NSString *_Nullable environmentString;
 
 @property (atomic, strong, readonly) NSArray<SentryAttachment *> *attachments;
 
+/**
+ * Set global user -> thus will be sent with every event
+ */
 @property (atomic, strong) SentryUser *_Nullable userObject;
 
 @property (atomic, strong) SentryPropagationContext *propagationContext;
 
+/**
+ * used to add values in event context.
+ */
 @property (atomic, strong)
     NSMutableDictionary<NSString *, NSDictionary<NSString *, id> *> *contextDictionary;
 
