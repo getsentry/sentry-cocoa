@@ -54,7 +54,7 @@ class SentryProfilerSwiftTests: XCTestCase {
 
             systemWrapper.overrides.cpuUsage = NSNumber(value: mockCPUUsage)
             systemWrapper.overrides.memoryFootprintBytes = mockMemoryFootprint
-            systemWrapper.overrides.cpuEnergyUsage = mockEnergyUsage
+            systemWrapper.overrides.cpuEnergyUsage = 0
 
 #if !os(macOS)
             SentryDependencyContainer.sharedInstance().framesTracker = framesTracker
@@ -89,7 +89,7 @@ class SentryProfilerSwiftTests: XCTestCase {
 
         let mockCPUUsage = 66.6
         let mockMemoryFootprint: SentryRAMBytes = 123_455
-        let mockEnergyUsage: NSNumber = 99_876
+        let mockEnergyUsage: NSNumber = 5
         let mockUsageReadingsPerBatch = 3
 
 #if !os(macOS)
@@ -119,6 +119,9 @@ class SentryProfilerSwiftTests: XCTestCase {
             // gather mocked metrics readings
             for _ in 0..<mockUsageReadingsPerBatch {
                 self.metricTimerFactory?.fire()
+
+                // because energy readings are computed as the difference between sequential cumulative readings, we must increment the mock value by the expected result each iteration
+                systemWrapper.overrides.cpuEnergyUsage = NSNumber(value: systemWrapper.overrides.cpuEnergyUsage!.intValue + mockEnergyUsage.intValue)
             }
 
     #if !os(macOS)
