@@ -165,7 +165,7 @@ static BOOL appStartMeasurementRead;
     if (_configuration.profilesSamplerDecision.decision == kSentrySampleDecisionYes) {
         _isProfiling = YES;
         _startSystemTime = SentryDependencyContainer.sharedInstance.dateProvider.systemTime;
-        [SentryProfiler startWithTracer:self];
+        [SentryProfiler startWithTracer:self.traceId];
     }
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
@@ -176,7 +176,7 @@ static BOOL appStartMeasurementRead;
 {
 #if SENTRY_TARGET_PROFILING_SUPPORTED
     if (self.isProfiling) {
-        discardProfilerForTracer(self);
+        discardProfilerForTracer(self.traceId);
     }
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 }

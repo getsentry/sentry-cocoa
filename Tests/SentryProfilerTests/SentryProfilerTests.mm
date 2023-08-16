@@ -101,14 +101,11 @@ using namespace sentry::profiling;
 
     const auto operations = 50;
 
-    const auto context = [[SentrySpanContext alloc] initWithOperation:@"test trace"];
-    const auto trace = [[SentryTracer alloc] initWithContext:context];
-    const auto transaction = [[SentryTransaction alloc] initWithTrace:trace children:@[]];
-    transaction.startSystemTime = arc4random() % sampleIdx;
-    const auto remainingTime = sampleIdx - transaction.startSystemTime;
+    const auto startSystemTime = arc4random() % sampleIdx;
+    const auto remainingTime = sampleIdx - startSystemTime;
     const auto minDuration = 10;
-    transaction.endSystemTime = transaction.startSystemTime
-        + (arc4random() % (remainingTime - minDuration) + minDuration + 1);
+    const auto endSystemTime
+        = startSystemTime + (arc4random() % (remainingTime - minDuration) + minDuration + 1);
 
     const auto sliceExpectation =
         [self expectationWithDescription:@"all slice operations complete"];
@@ -116,7 +113,8 @@ using namespace sentry::profiling;
 
     void (^sliceBlock)(void) = ^(void) {
         [state mutate:^(SentryProfilerMutableState *mutableState) {
-            __unused const auto slice = slicedProfileSamples(mutableState.samples, transaction);
+            __unused const auto slice
+                = slicedProfileSamples(mutableState.samples, startSystemTime, endSystemTime);
             [sliceExpectation fulfill];
         }];
     };
@@ -176,19 +174,8 @@ using namespace sentry::profiling;
     // serialize the data as if it were captured in a transaction envelope
     const auto profileData = [state copyProfilingData];
 
-    const auto context = [[SentrySpanContext alloc] initWithOperation:@"test trace"];
-    const auto trace = [[SentryTracer alloc] initWithContext:context];
-    const auto transaction = [[SentryTransaction alloc] initWithTrace:trace children:@[]];
-    transaction.transaction = @"someTransaction";
-    transaction.trace.transactionContext =
-        [[SentryTransactionContext alloc] initWithName:@"someTransaction"
-                                             operation:@"someOperation"];
-    transaction.trace.transactionContext.threadInfo = [[SentryThread alloc] initWithThreadId:@1];
-    transaction.startSystemTime = 1;
-    transaction.endSystemTime = 2;
-
     const auto profileID = [[SentryId alloc] init];
-    const auto serialization = serializedProfileData(profileData, transaction, profileID,
+    const auto serialization = serializedProfileData(profileData, 1, 2, profileID,
         profilerTruncationReasonName(SentryProfilerTruncationReasonNormal), @{}, @[],
         [[SentryHub alloc] initWithClient:nil andScope:nil]
 #    if SENTRY_HAS_UIKIT
