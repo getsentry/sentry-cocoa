@@ -39,7 +39,7 @@ let package = Package(
                     "Swift"
                  ],
                  resources: [
-                    .process("Resources/PrivacyInfo.xcprivacy")
+                    .copy("Resources/PrivacyInfo.xcprivacy")
                  ]
                ),
         .target ( name: "SentrySwiftUI",
