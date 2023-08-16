@@ -9,7 +9,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 SENTRY_EXTERN NSString *const kSentryMetricProfilerSerializationKeyMemoryFootprint;
-SENTRY_EXTERN NSString *const kSentryMetricProfilerSerializationKeyCPUUsageFormat;
+SENTRY_EXTERN NSString *const kSentryMetricProfilerSerializationKeyCPUUsage;
 
 SENTRY_EXTERN NSString *const kSentryMetricProfilerSerializationUnitBytes;
 SENTRY_EXTERN NSString *const kSentryMetricProfilerSerializationUnitPercentage;
@@ -58,8 +58,9 @@ typedef NSDictionary<NSString *, id /* <NSString, NSArray<SentrySerializedMetric
  * }
  * @endcode
  */
-- (NSMutableDictionary<NSString *, SentrySerializedMetricEntry *> *)serializeForTransaction:
-    (SentryTransaction *)transaction;
+- (NSMutableDictionary<NSString *, SentrySerializedMetricEntry *> *)
+    serializeBetween:(uint64_t)startSystemTime
+                 and:(uint64_t)endSystemTime;
 
 @end
 

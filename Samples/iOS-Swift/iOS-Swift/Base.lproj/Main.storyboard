@@ -19,27 +19,41 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="equalSpacing" translatesAutoresizingMaskIntoConstraints="NO" id="Cod-iq-tSj">
-                                <rect key="frame" x="89" y="137.5" width="142" height="308"/>
+                                <rect key="frame" x="30.5" y="137.5" width="259" height="308"/>
                                 <subviews>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="cdR-H3-8fr">
-                                        <rect key="frame" x="0.0" y="0.0" width="142" height="28"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="259" height="28"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="13"/>
                                         <state key="normal" title="Capture Transaction"/>
                                         <connections>
                                             <action selector="captureTransaction:" destination="BYZ-38-t0r" eventType="touchUpInside" id="kff-pT-Uf4"/>
                                         </connections>
                                     </button>
-                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="60A-0I-s24">
-                                        <rect key="frame" x="0.0" y="28" width="142" height="28"/>
-                                        <fontDescription key="fontDescription" type="system" pointSize="13"/>
-                                        <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
-                                        <state key="normal" title="Start transaction"/>
-                                        <connections>
-                                            <action selector="startTransaction:" destination="BYZ-38-t0r" eventType="touchUpInside" id="QEI-9L-E5C"/>
-                                        </connections>
-                                    </button>
+                                    <stackView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="I38-4R-JYf">
+                                        <rect key="frame" x="0.0" y="28" width="259" height="28"/>
+                                        <subviews>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="60A-0I-s24">
+                                                <rect key="frame" x="0.0" y="0.0" width="187" height="28"/>
+                                                <fontDescription key="fontDescription" type="system" pointSize="13"/>
+                                                <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
+                                                <state key="normal" title="Start transaction (main thread)"/>
+                                                <connections>
+                                                    <action selector="startTransaction:" destination="BYZ-38-t0r" eventType="touchUpInside" id="QEI-9L-E5C"/>
+                                                </connections>
+                                            </button>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="80k-Lr-YpF">
+                                                <rect key="frame" x="187" y="0.0" width="72" height="28"/>
+                                                <fontDescription key="fontDescription" type="system" pointSize="13"/>
+                                                <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
+                                                <state key="normal" title=" (bg thread)"/>
+                                                <connections>
+                                                    <action selector="startTransactionFromOtherThread:" destination="BYZ-38-t0r" eventType="touchUpInside" id="ZEH-BE-vTP"/>
+                                                </connections>
+                                            </button>
+                                        </subviews>
+                                    </stackView>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="M4W-xc-mEo">
-                                        <rect key="frame" x="0.0" y="56" width="142" height="28"/>
+                                        <rect key="frame" x="0.0" y="56" width="259" height="28"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="13"/>
                                         <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
                                         <state key="normal" title="Stop transaction"/>
@@ -48,7 +62,7 @@
                                         </connections>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="LvU-yx-01i">
-                                        <rect key="frame" x="0.0" y="84" width="142" height="28"/>
+                                        <rect key="frame" x="0.0" y="84" width="259" height="28"/>
                                         <accessibility key="accessibilityConfiguration" identifier="showNibButton"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="13"/>
                                         <state key="normal" title="Nib Controller"/>
@@ -57,7 +71,7 @@
                                         </connections>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="RjO-LN-eHj">
-                                        <rect key="frame" x="0.0" y="112" width="142" height="28"/>
+                                        <rect key="frame" x="0.0" y="112" width="259" height="28"/>
                                         <accessibility key="accessibilityConfiguration" identifier="showTableViewButton"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="13"/>
                                         <state key="normal" title="Table Controller"/>
@@ -66,7 +80,7 @@
                                         </connections>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ok0-hq-2kK">
-                                        <rect key="frame" x="0.0" y="140" width="142" height="28"/>
+                                        <rect key="frame" x="0.0" y="140" width="259" height="28"/>
                                         <accessibility key="accessibilityConfiguration" identifier="showSplitViewButton"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="13"/>
                                         <state key="normal" title="Split Controller"/>
@@ -75,7 +89,7 @@
                                         </connections>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Jwi-v3-e8T">
-                                        <rect key="frame" x="0.0" y="168" width="142" height="28"/>
+                                        <rect key="frame" x="0.0" y="168" width="259" height="28"/>
                                         <accessibility key="accessibilityConfiguration" identifier="loremIpsumButton"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="13"/>
                                         <state key="normal" title="Lorem Ipsum Controller"/>
@@ -84,7 +98,7 @@
                                         </connections>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="cTC-V8-T1j">
-                                        <rect key="frame" x="0.0" y="196" width="142" height="28"/>
+                                        <rect key="frame" x="0.0" y="196" width="259" height="28"/>
                                         <accessibility key="accessibilityConfiguration" identifier="useCoreData"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="13"/>
                                         <state key="normal" title="Core Data Tests "/>
@@ -93,7 +107,7 @@
                                         </connections>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Ld2-mz-wQD">
-                                        <rect key="frame" x="0.0" y="224" width="142" height="28"/>
+                                        <rect key="frame" x="0.0" y="224" width="259" height="28"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="13"/>
                                         <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
                                         <state key="normal" title="Performance scenarios"/>
@@ -102,7 +116,7 @@
                                         </connections>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="8CV-WC-ffq">
-                                        <rect key="frame" x="0.0" y="252" width="142" height="28"/>
+                                        <rect key="frame" x="0.0" y="252" width="259" height="28"/>
                                         <accessibility key="accessibilityConfiguration" identifier="testNavigationTransactionButton"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="13"/>
                                         <state key="normal" title="Load Image Controller"/>
@@ -111,7 +125,7 @@
                                         </connections>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="mjD-vZ-Wtp" userLabel="UIClick Transaction">
-                                        <rect key="frame" x="0.0" y="280" width="142" height="28"/>
+                                        <rect key="frame" x="0.0" y="280" width="259" height="28"/>
                                         <accessibility key="accessibilityConfiguration" identifier="uiClickTransactionButton"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="13"/>
                                         <state key="normal" title="UIClick Transaction"/>
@@ -498,10 +512,10 @@
                                 <rect key="frame" x="8" y="80" width="304" height="455"/>
                                 <subviews>
                                     <stackView opaque="NO" contentMode="scaleToFill" distribution="fillEqually" translatesAutoresizingMaskIntoConstraints="NO" id="Yzg-QH-aPg">
-                                        <rect key="frame" x="0.0" y="0.0" width="304" height="196"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="304" height="224"/>
                                         <subviews>
                                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="equalSpacing" translatesAutoresizingMaskIntoConstraints="NO" id="FaL-DP-Rl6">
-                                                <rect key="frame" x="0.0" y="0.0" width="152" height="196"/>
+                                                <rect key="frame" x="0.0" y="0.0" width="152" height="224"/>
                                                 <subviews>
                                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="oag-iN-lAn">
                                                         <rect key="frame" x="0.0" y="0.0" width="152" height="28"/>
@@ -561,10 +575,19 @@
                                                             <action selector="flush:" destination="VqS-l1-kwe" eventType="touchUpInside" id="Noh-VX-qnf"/>
                                                         </connections>
                                                     </button>
+                                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="M3X-e9-STj">
+                                                        <rect key="frame" x="0.0" y="196" width="152" height="28"/>
+                                                        <fontDescription key="fontDescription" type="system" pointSize="13"/>
+                                                        <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
+                                                        <state key="normal" title="Cause frozen frames"/>
+                                                        <connections>
+                                                            <action selector="causeFrozenFrames:" destination="VqS-l1-kwe" eventType="touchUpInside" id="B96-yJ-Yof"/>
+                                                        </connections>
+                                                    </button>
                                                 </subviews>
                                             </stackView>
                                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="equalSpacing" translatesAutoresizingMaskIntoConstraints="NO" id="ULj-Tl-kYs">
-                                                <rect key="frame" x="152" y="0.0" width="152" height="196"/>
+                                                <rect key="frame" x="152" y="0.0" width="152" height="224"/>
                                                 <subviews>
                                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="weS-d7-IY1">
                                                         <rect key="frame" x="0.0" y="0.0" width="152" height="28"/>
@@ -575,7 +598,7 @@
                                                         </connections>
                                                     </button>
                                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ckT-1E-GWZ">
-                                                        <rect key="frame" x="0.0" y="33.5" width="152" height="28"/>
+                                                        <rect key="frame" x="0.0" y="39" width="152" height="28"/>
                                                         <fontDescription key="fontDescription" type="system" pointSize="13"/>
                                                         <state key="normal" title="Close SDK"/>
                                                         <connections>
@@ -583,7 +606,7 @@
                                                         </connections>
                                                     </button>
                                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="rpD-Rf-xbz">
-                                                        <rect key="frame" x="0.0" y="67" width="152" height="28"/>
+                                                        <rect key="frame" x="0.0" y="78.5" width="152" height="28"/>
                                                         <fontDescription key="fontDescription" type="system" pointSize="13"/>
                                                         <state key="normal" title="ANR fully blocking"/>
                                                         <connections>
@@ -591,7 +614,7 @@
                                                         </connections>
                                                     </button>
                                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="2e4-48-rLl">
-                                                        <rect key="frame" x="0.0" y="101" width="152" height="28"/>
+                                                        <rect key="frame" x="0.0" y="117.5" width="152" height="28"/>
                                                         <fontDescription key="fontDescription" type="system" pointSize="13"/>
                                                         <state key="normal" title="ANR filling run loop"/>
                                                         <connections>
@@ -599,7 +622,7 @@
                                                         </connections>
                                                     </button>
                                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="F0l-xf-cQd">
-                                                        <rect key="frame" x="0.0" y="134.5" width="152" height="28"/>
+                                                        <rect key="frame" x="0.0" y="157" width="152" height="28"/>
                                                         <fontDescription key="fontDescription" type="system" pointSize="13"/>
                                                         <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
                                                         <state key="normal" title="Start 100 threads"/>
@@ -608,7 +631,7 @@
                                                         </connections>
                                                     </button>
                                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Evt-B9-zEC">
-                                                        <rect key="frame" x="0.0" y="168" width="152" height="28"/>
+                                                        <rect key="frame" x="0.0" y="196" width="152" height="28"/>
                                                         <accessibility key="accessibilityConfiguration" identifier="breadcrumbInfoButton"/>
                                                         <fontDescription key="fontDescription" type="system" pointSize="13"/>
                                                         <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
@@ -622,22 +645,22 @@
                                         </subviews>
                                     </stackView>
                                     <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="fillEqually" translatesAutoresizingMaskIntoConstraints="NO" id="omd-Rj-xhq">
-                                        <rect key="frame" x="0.0" y="196" width="304" height="259"/>
+                                        <rect key="frame" x="0.0" y="224" width="304" height="231"/>
                                         <subviews>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="eMF-4u-JGE">
-                                                <rect key="frame" x="8" y="32" width="288" height="34"/>
+                                                <rect key="frame" x="8" y="32" width="288" height="29"/>
                                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                                 <nil key="textColor"/>
                                                 <nil key="highlightedColor"/>
                                             </label>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="DSN  " textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="FXp-oI-RdR">
-                                                <rect key="frame" x="8" y="66" width="288" height="33.5"/>
+                                                <rect key="frame" x="8" y="61" width="288" height="29.5"/>
                                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                                 <nil key="textColor"/>
                                                 <nil key="highlightedColor"/>
                                             </label>
                                             <textField opaque="NO" contentMode="scaleToFill" verticalHuggingPriority="249" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" textAlignment="natural" minimumFontSize="17" clearButtonMode="whileEditing" translatesAutoresizingMaskIntoConstraints="NO" id="wzO-lb-yFR">
-                                                <rect key="frame" x="8" y="99.5" width="288" height="34"/>
+                                                <rect key="frame" x="8" y="90.5" width="288" height="29"/>
                                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                                 <textInputTraits key="textInputTraits"/>
                                                 <connections>
@@ -645,21 +668,21 @@
                                                 </connections>
                                             </textField>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="te3-IR-L1y">
-                                                <rect key="frame" x="8" y="133.5" width="288" height="34"/>
+                                                <rect key="frame" x="8" y="119.5" width="288" height="29"/>
                                                 <state key="normal" title="Reset DSN"/>
                                                 <connections>
                                                     <action selector="resetDSN:" destination="VqS-l1-kwe" eventType="touchUpInside" id="3LJ-al-JGc"/>
                                                 </connections>
                                             </button>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Frames" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="xua-qE-dXN" userLabel="frames">
-                                                <rect key="frame" x="8" y="167.5" width="288" height="33.5"/>
+                                                <rect key="frame" x="8" y="148.5" width="288" height="29.5"/>
                                                 <accessibility key="accessibilityConfiguration" identifier="framesStatsLabel"/>
                                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                                 <nil key="textColor"/>
                                                 <nil key="highlightedColor"/>
                                             </label>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Last breadcrumb" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="4M5-qM-BM9" userLabel="breadcrumb">
-                                                <rect key="frame" x="8" y="201" width="288" height="34"/>
+                                                <rect key="frame" x="8" y="178" width="288" height="29"/>
                                                 <accessibility key="accessibilityConfiguration" identifier="breadcrumbLabel"/>
                                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                                 <nil key="textColor"/>

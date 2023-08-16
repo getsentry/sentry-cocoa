@@ -1,6 +1,7 @@
 import Sentry
 import SwiftUI
 
+@available(watchOSApplicationExtension 7.0, *)
 struct ContentView: View {
     
     @StateObject var viewModel = ContentViewModel()
@@ -89,6 +90,7 @@ class ContentViewModel: ObservableObject {
     }
 }
 
+@available(watchOSApplicationExtension 7.0, *)
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
         ContentView()

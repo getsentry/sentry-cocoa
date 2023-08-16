@@ -52,8 +52,7 @@ class SentryProfilerSwiftTests: XCTestCase {
             SentryDependencyContainer.sharedInstance().dispatchFactory = dispatchFactory
             SentryDependencyContainer.sharedInstance().timerFactory = timeoutTimerFactory
 
-            systemWrapper.overrides.cpuUsagePerCore = mockCPUUsages.map { NSNumber(value: $0) }
-            processInfoWrapper.overrides.processorCount = UInt(mockCPUUsages.count)
+            systemWrapper.overrides.cpuUsage = NSNumber(value: mockCPUUsage)
             systemWrapper.overrides.memoryFootprintBytes = mockMemoryFootprint
 
 #if !os(macOS)
@@ -87,7 +86,7 @@ class SentryProfilerSwiftTests: XCTestCase {
 
         // mocking
 
-        let mockCPUUsages = [12.4, 63.5, 1.4, 4.6]
+        let mockCPUUsage = 66.6
         let mockMemoryFootprint: SentryRAMBytes = 123_455
         let mockUsageReadingsPerBatch = 2
 
@@ -597,10 +596,7 @@ private extension SentryProfilerSwiftTests {
 
         let expectedUsageReadings = fixture.mockUsageReadingsPerBatch * metricsBatches
 
-        for (i, expectedUsage) in fixture.mockCPUUsages.enumerated() {
-            let key = NSString(format: kSentryMetricProfilerSerializationKeyCPUUsageFormat as NSString, i) as String
-            try assertMetricValue(measurements: measurements, key: key, numberOfReadings: expectedUsageReadings, expectedValue: expectedUsage, transaction: transaction)
-        }
+        try assertMetricValue(measurements: measurements, key: kSentryMetricProfilerSerializationKeyCPUUsage, numberOfReadings: expectedUsageReadings, expectedValue: fixture.mockCPUUsage, transaction: transaction)
 
         try assertMetricValue(measurements: measurements, key: kSentryMetricProfilerSerializationKeyMemoryFootprint, numberOfReadings: expectedUsageReadings, expectedValue: fixture.mockMemoryFootprint, transaction: transaction)
 
