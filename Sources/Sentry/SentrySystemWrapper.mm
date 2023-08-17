@@ -81,8 +81,6 @@
 
     vm_deallocate(mach_task_self(), reinterpret_cast<vm_address_t>(list), sizeof(*list) * count);
 
-    NSLog(@"CPU usage: %f", usage);
-
     return @(usage);
 }
 
