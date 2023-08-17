@@ -5,6 +5,11 @@
 ### Features
 
 - Add required reason API (#3206)
+- Record energy usage estimates for profiling (#3217)
+
+### Fixes
+
+- Remove a noisy NSLog (#3227)
 
 ## 8.9.6
 
@@ -17,7 +22,7 @@
 
 ### Hybrid SDK support
 
-- Allow profiling from hybrid SDKs (([#3194]https://github.com/getsentry/sentry-cocoa/pull/3194))
+- Allow profiling from hybrid SDKs (#3194)
 
 ## 8.9.4
 
