@@ -13,6 +13,6 @@ Pod::Spec.new do |s|
   s.requires_arc = true
   s.frameworks = 'Foundation'
   s.swift_versions = "5.5"
-  s.dependency "Sentry/HybridSDK", "8.9.6"
+  s.dependency "Sentry/HybridSDK", "8.10.0"
   s.source_files = "HybridTest.swift"
 end
