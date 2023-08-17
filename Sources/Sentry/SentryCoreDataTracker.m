@@ -44,23 +44,18 @@
     }];
 
     if (fetchSpan) {
-        [SentryLog
-            logWithMessage:[NSString stringWithFormat:
-                                         @"SentryCoreDataTracker automatically "
-                                         @"started a new span with description: %@, operation: %@",
-                                     fetchSpan.description, SENTRY_COREDATA_FETCH_OPERATION]
-                  andLevel:kSentryLevelDebug];
+        SENTRY_LOG_DEBUG(@"SentryCoreDataTracker automatically started a new span with "
+                         @"description: %@, operation: %@",
+            fetchSpan.description, fetchSpan.operation);
     } else {
-        [SentryLog
-            logWithMessage:
-                @"managedObjectContext:executeFetchRequest:error:originalImp: fetchSpan is nil."
-                  andLevel:kSentryLevelError];
+        SENTRY_LOG_ERROR(
+            @"managedObjectContext:executeFetchRequest:error:originalImp: fetchSpan is nil.");
     }
 
     NSArray *result = original(request, error);
 
     if (fetchSpan) {
-        [self mainThreadExtraInfo:fetchSpan];
+        [self addExtraInfoToSpan:fetchSpan withContext:context];
 
         [fetchSpan setDataValue:[NSNumber numberWithInteger:result.count] forKey:@"read_count"];
         [fetchSpan
@@ -78,35 +73,34 @@
                  originalImp:(BOOL(NS_NOESCAPE ^)(NSError **))original
 {
 
-    __block id<SentrySpan> fetchSpan = nil;
+    __block id<SentrySpan> saveSpan = nil;
     if (context.hasChanges) {
         __block NSDictionary<NSString *, NSDictionary *> *operations =
             [self groupEntitiesOperations:context];
 
         [SentrySDK.currentHub.scope useSpan:^(id<SentrySpan> _Nullable span) {
-            fetchSpan = [span startChildWithOperation:SENTRY_COREDATA_SAVE_OPERATION
-                                          description:[self descriptionForOperations:operations
-                                                                           inContext:context]];
-            fetchSpan.origin = SentryTraceOriginAutoDBCoreData;
-            if (fetchSpan) {
-                [SentryLog
-                    logWithMessage:[NSString
-                                       stringWithFormat:@"SentryCoreDataTracker automatically "
-                                                        @"started a new span with description: %@, "
-                                                        @"operation: %@",
-                                       fetchSpan.description, SENTRY_COREDATA_FETCH_OPERATION]
-                          andLevel:kSentryLevelDebug];
-
-                [fetchSpan setDataValue:operations forKey:@"operations"];
-            }
+            saveSpan = [span startChildWithOperation:SENTRY_COREDATA_SAVE_OPERATION
+                                         description:[self descriptionForOperations:operations
+                                                                          inContext:context]];
+            saveSpan.origin = SentryTraceOriginAutoDBCoreData;
         }];
+
+        if (saveSpan) {
+            SENTRY_LOG_DEBUG(@"SentryCoreDataTracker automatically started a new span with "
+                             @"description: %@, operation: %@",
+                saveSpan.description, saveSpan.operation);
+
+            [saveSpan setDataValue:operations forKey:@"operations"];
+        } else {
+            SENTRY_LOG_ERROR(@"managedObjectContext:save:originalImp: saveSpan is nil");
+        }
     }
 
     BOOL result = original(error);
 
-    if (fetchSpan) {
-        [self mainThreadExtraInfo:fetchSpan];
-        [fetchSpan finishWithStatus:result ? kSentrySpanStatusOk : kSentrySpanStatusInternalError];
+    if (saveSpan) {
+        [self addExtraInfoToSpan:saveSpan withContext:context];
+        [saveSpan finishWithStatus:result ? kSentrySpanStatusOk : kSentrySpanStatusInternalError];
 
         SENTRY_LOG_DEBUG(@"SentryCoreDataTracker automatically finished span with status: %@",
             result ? @"ok" : @"error");
@@ -115,11 +109,24 @@
     return result;
 }
 
-- (void)mainThreadExtraInfo:(SentrySpan *)span
+- (void)addExtraInfoToSpan:(SentrySpan *)span withContext:(NSManagedObjectContext *)context
 {
     BOOL isMainThread = [NSThread isMainThread];
 
     [span setDataValue:@(isMainThread) forKey:BLOCKED_MAIN_THREAD];
+    NSMutableArray<NSString *> *systems = [NSMutableArray<NSString *> array];
+    NSMutableArray<NSString *> *names = [NSMutableArray<NSString *> array];
+    [context.persistentStoreCoordinator.persistentStores enumerateObjectsUsingBlock:^(
+        __kindof NSPersistentStore *_Nonnull obj, NSUInteger idx, BOOL *_Nonnull stop) {
+        [systems addObject:obj.type];
+        if (obj.URL != nil) {
+            [names addObject:obj.URL.path];
+        } else {
+            [names addObject:@"(null)"];
+        }
+    }];
+    [span setDataValue:[systems componentsJoinedByString:@";"] forKey:@"db.system"];
+    [span setDataValue:[names componentsJoinedByString:@";"] forKey:@"db.name"];
 
     if (!isMainThread) {
         return;
