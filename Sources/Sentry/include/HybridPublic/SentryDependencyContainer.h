@@ -1,5 +1,4 @@
 #import "SentryDefines.h"
-#import "SentryRandom.h"
 
 @class SentryANRTracker;
 @class SentryAppStateManager;
@@ -15,6 +14,7 @@
 @class SentrySwizzleWrapper;
 @class SentrySystemWrapper;
 @class SentryThreadWrapper;
+@protocol SentryRandom;
 
 #if SENTRY_HAS_METRIC_KIT
 @class SentryMXManager;
