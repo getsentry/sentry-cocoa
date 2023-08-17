@@ -5,6 +5,11 @@
 ### Features
 
 - Record energy usage estimates for profiling (#3217)
+
+### Fixes
+
+- Remove a noisy NSLog (#3227)
+
 ## 8.9.6
 
 ### Fixed
