@@ -187,7 +187,7 @@
                                                 <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
                                                 <state key="normal" title="CPU work start"/>
                                                 <connections>
-                                                    <action selector="startCPUWork" destination="NZr-bH-g9o" eventType="touchUpInside" id="4h1-2K-XzP"/>
+                                                    <action selector="startCPUWork:" destination="NZr-bH-g9o" eventType="touchUpInside" id="fQT-4h-e8s"/>
                                                 </connections>
                                             </button>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="u5B-G9-xXW">
@@ -196,7 +196,7 @@
                                                 <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
                                                 <state key="normal" title=" / end"/>
                                                 <connections>
-                                                    <action selector="endCPUWork" destination="NZr-bH-g9o" eventType="touchUpInside" id="al7-Ak-w1K"/>
+                                                    <action selector="endCPUWork:" destination="NZr-bH-g9o" eventType="touchUpInside" id="Azd-Hi-Q3W"/>
                                                 </connections>
                                             </button>
                                         </subviews>
