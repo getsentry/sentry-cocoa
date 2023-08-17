@@ -273,7 +273,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     // Sentry uses the error domain and code on the mechanism for gouping
     SentryMechanism *mechanism = [[SentryMechanism alloc] initWithType:@"NSError"];
     SentryMechanismMeta *mechanismMeta = [[SentryMechanismMeta alloc] init];
-    mechanismMeta.error = [[SentryNSError alloc] initWithDomain:error.domain code:error.code];
+    mechanismMeta.error = [[SentryNSError alloc] initWithError:error];
     mechanism.meta = mechanismMeta;
     // The description of the error can be especially useful for error from swift that
     // use a simple enum.
