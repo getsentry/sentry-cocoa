@@ -9,8 +9,12 @@ class TestSentryReachability: SentryReachability {
         self.block = block
     }
 
+    func setReachabilityState(state: String) {
+        block?(state != SentryConnectivityNone, state)
+    }
+
     func triggerNetworkReachable() {
-        block?(true, "wifi")
+        block?(true, SentryConnectivityWiFi)
     }
     
     var stopMonitoringInvocations = Invocations<Void>()

@@ -3,8 +3,10 @@
 #import "SentryBreadcrumbDelegate.h"
 #import "SentryClient.h"
 #import "SentryDefines.h"
+#import "SentryDependencyContainer.h"
 #import "SentryHub.h"
 #import "SentryLog.h"
+#import "SentryReachability.h"
 #import "SentrySDK+Private.h"
 #import "SentryScope.h"
 #import "SentrySwift.h"
@@ -45,6 +47,7 @@ SentryBreadcrumbTracker ()
     _delegate = delegate;
     [self addEnabledCrumb];
     [self trackApplicationUIKitNotifications];
+    [self trackNetworkConnectivityChanges];
 }
 
 - (void)startSwizzle
@@ -118,6 +121,20 @@ SentryBreadcrumbTracker ()
                                                                   withDataValue:@"foreground"];
                                                 }];
 #endif
+}
+
+- (void)trackNetworkConnectivityChanges
+{
+    [SentryDependencyContainer.sharedInstance.reachability
+           monitorURL:[NSURL URLWithString:@"https://sentry.io"]
+        usingCallback:^(BOOL connected, NSString *_Nonnull typeDescription) {
+            SentryBreadcrumb *crumb =
+                [[SentryBreadcrumb alloc] initWithLevel:kSentryLevelInfo
+                                               category:@"device.connectivity"];
+            crumb.type = @"connectivity";
+            crumb.data = [NSDictionary dictionaryWithObject:typeDescription forKey:@"connectivity"];
+            [self.delegate addBreadcrumb:crumb];
+        }];
 }
 
 - (void)addBreadcrumbWithType:(NSString *)type

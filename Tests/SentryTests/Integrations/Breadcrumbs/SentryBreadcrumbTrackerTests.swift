@@ -30,6 +30,31 @@ class SentryBreadcrumbTrackerTests: XCTestCase {
         XCTAssertEqual(0, dict?.count)
     }
 
+    func testNetworkConnectivityChangeBreadcrumbs() throws {
+        let testReachability = TestSentryReachability()
+        SentryDependencyContainer.sharedInstance().reachability = testReachability
+        let sut = SentryBreadcrumbTracker(swizzleWrapper: SentrySwizzleWrapper.sharedInstance)
+        sut.start(with: delegate)
+        let states = [SentryConnectivityCellular,
+        SentryConnectivityWiFi,
+        SentryConnectivityNone,
+        SentryConnectivityWiFi,
+        SentryConnectivityCellular,
+        SentryConnectivityWiFi
+        ]
+        states.forEach {
+            testReachability.setReachabilityState(state: $0)
+        }
+        sut.stop()
+        XCTAssertEqual(delegate.addCrumbInvocations.count, states.count + 1) // 1 breadcrumb for the tracker start
+        try states.enumerated().forEach {
+            let crumb = delegate.addCrumbInvocations.invocations[$0.offset + 1]
+            XCTAssertEqual(crumb.type, "connectivity")
+            XCTAssertEqual(crumb.category, "device.connectivity")
+            XCTAssertEqual(try XCTUnwrap(crumb.data?["connectivity"] as? String), $0.element)
+        }
+    }
+
     func testSwizzlingStarted_ViewControllerAppears_AddsUILifeCycleBreadcrumb() {
         let scope = Scope()
         let client = TestClient(options: Options())

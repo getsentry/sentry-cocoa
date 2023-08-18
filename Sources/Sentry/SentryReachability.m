@@ -36,9 +36,9 @@ static NSMutableDictionary<NSString *, SentryConnectivityChangeBlock>
 static SCNetworkReachabilityFlags sentry_current_reachability_state
     = kSCNetworkReachabilityFlagsUninitialized;
 
-static NSString *const SentryConnectivityCellular = @"cellular";
-static NSString *const SentryConnectivityWiFi = @"wifi";
-static NSString *const SentryConnectivityNone = @"none";
+NSString *const SentryConnectivityCellular = @"cellular";
+NSString *const SentryConnectivityWiFi = @"wifi";
+NSString *const SentryConnectivityNone = @"none";
 
 /**
  * Check whether the connectivity change should be noted or ignored.

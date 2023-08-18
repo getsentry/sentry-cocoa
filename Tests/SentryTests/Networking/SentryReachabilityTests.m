@@ -20,20 +20,20 @@
 
 - (void)testConnectivityRepresentations
 {
-    XCTAssertEqualObjects(@"none", SentryConnectivityFlagRepresentation(0));
-    XCTAssertEqualObjects(
-        @"none", SentryConnectivityFlagRepresentation(kSCNetworkReachabilityFlagsIsDirect));
+    XCTAssertEqualObjects(SentryConnectivityNone, SentryConnectivityFlagRepresentation(0));
+    XCTAssertEqualObjects(SentryConnectivityNone,
+        SentryConnectivityFlagRepresentation(kSCNetworkReachabilityFlagsIsDirect));
 #    if SENTRY_HAS_UIKIT
     // kSCNetworkReachabilityFlagsIsWWAN does not exist on macOS
-    XCTAssertEqualObjects(
-        @"none", SentryConnectivityFlagRepresentation(kSCNetworkReachabilityFlagsIsWWAN));
-    XCTAssertEqualObjects(@"cellular",
+    XCTAssertEqualObjects(SentryConnectivityNone,
+        SentryConnectivityFlagRepresentation(kSCNetworkReachabilityFlagsIsWWAN));
+    XCTAssertEqualObjects(SentryConnectivityCellular,
         SentryConnectivityFlagRepresentation(
             kSCNetworkReachabilityFlagsIsWWAN | kSCNetworkReachabilityFlagsReachable));
 #    endif // SENTRY_HAS_UIKIT
-    XCTAssertEqualObjects(
-        @"wifi", SentryConnectivityFlagRepresentation(kSCNetworkReachabilityFlagsReachable));
-    XCTAssertEqualObjects(@"wifi",
+    XCTAssertEqualObjects(SentryConnectivityWiFi,
+        SentryConnectivityFlagRepresentation(kSCNetworkReachabilityFlagsReachable));
+    XCTAssertEqualObjects(SentryConnectivityWiFi,
         SentryConnectivityFlagRepresentation(
             kSCNetworkReachabilityFlagsReachable | kSCNetworkReachabilityFlagsIsDirect));
 }

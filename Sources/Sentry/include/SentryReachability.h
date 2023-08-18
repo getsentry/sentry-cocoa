@@ -24,6 +24,7 @@
 // THE SOFTWARE.
 //
 
+#import "SentryDefines.h"
 #import <Foundation/Foundation.h>
 
 #if !TARGET_OS_WATCH
@@ -37,6 +38,10 @@ void SentryConnectivityCallback(
 NSString *SentryConnectivityFlagRepresentation(SCNetworkReachabilityFlags flags);
 
 BOOL SentryConnectivityShouldReportChange(SCNetworkReachabilityFlags flags);
+
+SENTRY_EXTERN NSString *const SentryConnectivityCellular;
+SENTRY_EXTERN NSString *const SentryConnectivityWiFi;
+SENTRY_EXTERN NSString *const SentryConnectivityNone;
 
 /**
  * Function signature to connectivity monitoring callback of @c SentryReachability
