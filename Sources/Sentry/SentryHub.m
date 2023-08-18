@@ -7,7 +7,6 @@
 #import "SentryEvent+Private.h"
 #import "SentryFileManager.h"
 #import "SentryHub+Private.h"
-#import "SentryHub+Test.h"
 #import "SentryId.h"
 #import "SentryLevelMapper.h"
 #import "SentryLog.h"
@@ -46,6 +45,8 @@ SentryHub ()
 @property (nonatomic, strong) SentryProfilesSampler *profilesSampler;
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 @property (nonatomic) NSUInteger errorsBeforeSession;
+@property (nonatomic, strong) NSMutableArray<id<SentryIntegrationProtocol>> *installedIntegrations;
+@property (nonatomic, strong) NSMutableSet<NSString *> *installedIntegrationNames;
 
 @end
 
