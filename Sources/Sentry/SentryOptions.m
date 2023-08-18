@@ -1,4 +1,3 @@
-#import "SentryOptions.h"
 #import "SentryANRTracker.h"
 #import "SentryANRTrackingIntegration.h"
 #import "SentryAutoBreadcrumbTrackingIntegration.h"
@@ -12,6 +11,7 @@
 #import "SentryLog.h"
 #import "SentryMeta.h"
 #import "SentryNetworkTrackingIntegration.h"
+#import "SentryOptions+Private.h"
 #import "SentrySDK.h"
 #import "SentryScope.h"
 #import "SentrySwiftAsyncIntegration.h"
@@ -34,12 +34,7 @@
 SentryOptions ()
 
 @property (nullable, nonatomic, copy, readonly) NSNumber *defaultSampleRate;
-@property (nullable, nonatomic, copy, readonly) NSNumber *defaultTracesSampleRate;
 
-#if SENTRY_TARGET_PROFILING_SUPPORTED
-@property (nullable, nonatomic, copy, readonly) NSNumber *defaultProfilesSampleRate;
-@property (nonatomic, assign) BOOL enableProfiling_DEPRECATED_TEST_ONLY;
-#endif
 @end
 
 NSString *const kSentryDefaultEnvironment = @"production";
