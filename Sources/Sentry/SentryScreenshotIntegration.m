@@ -57,7 +57,7 @@ saveScreenShot(const char *path)
     // We don't take screenshots if the event is a crash or metric kit event.
     if ((event.exceptions == nil && event.error == nil) || event.isCrashEvent
 #    if SENTRY_HAS_METRIC_KIT
-        || event.isMetricKitEvent
+        || [event isMetricKitEvent]
 #    endif // SENTRY_HAS_METRIC_KIT
     ) {
         return attachments;
