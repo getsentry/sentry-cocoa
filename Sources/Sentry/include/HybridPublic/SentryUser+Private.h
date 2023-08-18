@@ -1,9 +1,7 @@
-#import "SentryDefines.h"
-#import "SentrySerializable.h"
 #import "SentryUser.h"
 
 @interface
-SentryUser (Private)
+SentryUser ()
 
 /**
  * Initializes a SentryUser from a dictionary.
