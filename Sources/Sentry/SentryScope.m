@@ -1,4 +1,3 @@
-#import "SentryScope.h"
 #import "NSMutableDictionary+Sentry.h"
 #import "SentryAttachment+Private.h"
 #import "SentryBreadcrumb.h"
@@ -7,6 +6,7 @@
 #import "SentryGlobalEventProcessor.h"
 #import "SentryLevelMapper.h"
 #import "SentryLog.h"
+#import "SentryScope+Private.h"
 #import "SentryScopeObserver.h"
 #import "SentrySession.h"
 #import "SentrySpan.h"
@@ -20,11 +20,6 @@ NS_ASSUME_NONNULL_BEGIN
 SentryScope ()
 
 /**
- * Set global user -> thus will be sent with every event
- */
-@property (atomic, strong) SentryUser *_Nullable userObject;
-
-/**
  * Set global tags -> these will be sent with every event
  */
 @property (atomic, strong) NSMutableDictionary<NSString *, NSString *> *tagDictionary;
@@ -35,12 +30,6 @@ SentryScope ()
 @property (atomic, strong) NSMutableDictionary<NSString *, id> *extraDictionary;
 
 /**
- * used to add values in event context.
- */
-@property (atomic, strong)
-    NSMutableDictionary<NSString *, NSDictionary<NSString *, id> *> *contextDictionary;
-
-/**
  * Contains the breadcrumbs which will be sent with the event
  */
 @property (atomic, strong) NSMutableArray<SentryBreadcrumb *> *breadcrumbArray;
@@ -49,11 +38,6 @@ SentryScope ()
  * This distribution of the application.
  */
 @property (atomic, copy) NSString *_Nullable distString;
-
-/**
- * The environment used in this scope.
- */
-@property (atomic, copy) NSString *_Nullable environmentString;
 
 /**
  * Set the fingerprint of an event to determine the grouping
