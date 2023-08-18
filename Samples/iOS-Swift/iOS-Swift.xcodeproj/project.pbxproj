@@ -21,6 +21,7 @@
 		7B64386B26A6C544000D0F65 /* LaunchUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B64386A26A6C544000D0F65 /* LaunchUITests.swift */; };
 		7B79000429028C7300A7F467 /* MetricKitManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B79000329028C7300A7F467 /* MetricKitManager.swift */; };
 		7BFC8B0626D4D24B000D3504 /* LoremIpsum.txt in Resources */ = {isa = PBXBuildFile; fileRef = 7BFC8B0526D4D24B000D3504 /* LoremIpsum.txt */; };
+		842401422A86BB8A00317266 /* SentryDevice.mm in Sources */ = {isa = PBXBuildFile; fileRef = 84B527BC28DD25E400475E8D /* SentryDevice.mm */; };
 		844DA821282584C300E6B62E /* CoreDataViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F57BC427BBD787000D09D4 /* CoreDataViewController.swift */; };
 		844DA822282584F700E6B62E /* SentryData.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = D845F35927BAD4CC00A4D7A2 /* SentryData.xcdatamodeld */; };
 		848A256B286E3351008A8858 /* Sentry.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 630853322440C44F00DDE4CE /* Sentry.framework */; };
@@ -28,11 +29,14 @@
 		848A256F286E3351008A8858 /* Sentry.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 630853322440C44F00DDE4CE /* Sentry.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		84A5D72629D2705000388BFA /* ProfilingUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84A5D72529D2705000388BFA /* ProfilingUITests.swift */; };
 		84A5D72D29D2708D00388BFA /* UITestHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84A5D72C29D2708D00388BFA /* UITestHelpers.swift */; };
+		84AB90712A5001000054C99A /* ProfilingViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84AB90702A5001000054C99A /* ProfilingViewController.swift */; };
+		84ACC43C2A73CB5900932A18 /* ProfilingNetworkScanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84ACC43B2A73CB5900932A18 /* ProfilingNetworkScanner.swift */; };
+		84ACC4432A73CD0700932A18 /* ProfilingCPUWork.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84ACC4422A73CD0700932A18 /* ProfilingCPUWork.swift */; };
 		84B527B928DD24BA00475E8D /* SentryDeviceTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 84B527B728DD24BA00475E8D /* SentryDeviceTests.mm */; };
 		84B527BD28DD25E400475E8D /* SentryDevice.mm in Sources */ = {isa = PBXBuildFile; fileRef = 84B527BC28DD25E400475E8D /* SentryDevice.mm */; };
 		84BE546F287503F100ACC735 /* SentrySDKPerformanceBenchmarkTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 84BE546E287503F100ACC735 /* SentrySDKPerformanceBenchmarkTests.m */; };
 		84BE547E287645B900ACC735 /* SentryProcessInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = 84BE54792876451D00ACC735 /* SentryProcessInfo.m */; };
-		84FB8120283EEDB900F3A94A /* PerformanceViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84FB811F283EEDB900F3A94A /* PerformanceViewController.swift */; };
+		84C47AEC29FC8F4B00DAEB8A /* SentryBenchmarking.mm in Sources */ = {isa = PBXBuildFile; fileRef = 84FB8129284001B800F3A94A /* SentryBenchmarking.mm */; };
 		84FB812A284001B800F3A94A /* SentryBenchmarking.mm in Sources */ = {isa = PBXBuildFile; fileRef = 84FB8129284001B800F3A94A /* SentryBenchmarking.mm */; };
 		84FB812B284001B800F3A94A /* SentryBenchmarking.mm in Sources */ = {isa = PBXBuildFile; fileRef = 84FB8129284001B800F3A94A /* SentryBenchmarking.mm */; };
 		8E8C57AF25EF16E6001CEEFA /* TraceTestViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E8C57AE25EF16E6001CEEFA /* TraceTestViewController.swift */; };
@@ -77,7 +81,6 @@
 		D8444E57275F795D0042F4DE /* UIViewControllerExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8444E4B275E38090042F4DE /* UIViewControllerExtension.swift */; };
 		D845F35B27BAD4CC00A4D7A2 /* SentryData.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = D845F35927BAD4CC00A4D7A2 /* SentryData.xcdatamodeld */; };
 		D85DAA4C274C244F004DF43C /* LaunchUITest.swift in Sources */ = {isa = PBXBuildFile; fileRef = D85DAA4B274C244F004DF43C /* LaunchUITest.swift */; };
-		D88E666828732AE000153425 /* PerformanceViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84FB811F283EEDB900F3A94A /* PerformanceViewController.swift */; };
 		D890CD3C26CEE2FA001246CF /* NibViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = D890CD3B26CEE2FA001246CF /* NibViewController.xib */; };
 		D890CD3F26CEE31B001246CF /* NibViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D890CD3E26CEE31B001246CF /* NibViewController.swift */; };
 		D8B56CF0273A8D97004DF238 /* Sentry.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 630853322440C44F00DDE4CE /* Sentry.framework */; };
@@ -289,13 +292,15 @@
 		848A2578286E3490008A8858 /* PerformanceBenchmarks-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "PerformanceBenchmarks-Info.plist"; sourceTree = "<group>"; };
 		84A5D72529D2705000388BFA /* ProfilingUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfilingUITests.swift; sourceTree = "<group>"; };
 		84A5D72C29D2708D00388BFA /* UITestHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UITestHelpers.swift; sourceTree = "<group>"; };
+		84AB90702A5001000054C99A /* ProfilingViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfilingViewController.swift; sourceTree = "<group>"; };
+		84ACC43B2A73CB5900932A18 /* ProfilingNetworkScanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfilingNetworkScanner.swift; sourceTree = "<group>"; };
+		84ACC4422A73CD0700932A18 /* ProfilingCPUWork.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfilingCPUWork.swift; sourceTree = "<group>"; };
 		84B527B728DD24BA00475E8D /* SentryDeviceTests.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = SentryDeviceTests.mm; path = ../../../Tests/SentryTests/Helper/SentryDeviceTests.mm; sourceTree = "<group>"; };
 		84B527BB28DD25E400475E8D /* SentryDevice.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SentryDevice.h; path = ../../../Sources/Sentry/include/SentryDevice.h; sourceTree = "<group>"; };
 		84B527BC28DD25E400475E8D /* SentryDevice.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = SentryDevice.mm; path = ../../../Sources/Sentry/SentryDevice.mm; sourceTree = "<group>"; };
 		84BE546E287503F100ACC735 /* SentrySDKPerformanceBenchmarkTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentrySDKPerformanceBenchmarkTests.m; sourceTree = "<group>"; };
 		84BE54782876451D00ACC735 /* SentryProcessInfo.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SentryProcessInfo.h; sourceTree = "<group>"; };
 		84BE54792876451D00ACC735 /* SentryProcessInfo.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentryProcessInfo.m; sourceTree = "<group>"; };
-		84FB811F283EEDB900F3A94A /* PerformanceViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PerformanceViewController.swift; sourceTree = "<group>"; };
 		84FB8125284001B800F3A94A /* SentryBenchmarking.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SentryBenchmarking.h; sourceTree = "<group>"; };
 		84FB8129284001B800F3A94A /* SentryBenchmarking.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = SentryBenchmarking.mm; sourceTree = "<group>"; };
 		84FB812C2840021B00F3A94A /* iOS-Swift-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "iOS-Swift-Bridging-Header.h"; sourceTree = "<group>"; };
@@ -455,6 +460,7 @@
 				63F93AA9245AC91600A500DB /* iOS-Swift.entitlements */,
 				637AFDA9243B02760034958B /* AppDelegate.swift */,
 				637AFDAD243B02760034958B /* ViewController.swift */,
+				84AB90782A50031B0054C99A /* Profiling */,
 				D80D021229EE93630084393D /* ErrorsViewController.swift */,
 				D80D021929EE936F0084393D /* ExtraViewController.swift */,
 				637AFDAF243B02760034958B /* Main.storyboard */,
@@ -494,6 +500,16 @@
 				848A2578286E3490008A8858 /* PerformanceBenchmarks-Info.plist */,
 			);
 			path = PerformanceBenchmarks;
+			sourceTree = "<group>";
+		};
+		84AB90782A50031B0054C99A /* Profiling */ = {
+			isa = PBXGroup;
+			children = (
+				84AB90702A5001000054C99A /* ProfilingViewController.swift */,
+				84ACC4422A73CD0700932A18 /* ProfilingCPUWork.swift */,
+				84ACC43B2A73CB5900932A18 /* ProfilingNetworkScanner.swift */,
+			);
+			path = Profiling;
 			sourceTree = "<group>";
 		};
 		D8269A3A274C095E00BD5BD5 /* iOS13-Swift */ = {
@@ -544,7 +560,6 @@
 				D8DBDA77274D5FC400007380 /* SplitViewController.swift */,
 				D8F3D056274E574200B56F8C /* LoremIpsumViewController.swift */,
 				D8F57BC427BBD787000D09D4 /* CoreDataViewController.swift */,
-				84FB811F283EEDB900F3A94A /* PerformanceViewController.swift */,
 				0AABE2E928855FF80057ED69 /* PermissionsViewController.swift */,
 				D8C33E1E29FBB1F70071B75A /* UIEventBreadcrumbsController.swift */,
 				D8F01DE92A1376B5008F4996 /* InfoForBreadcrumbController.swift */,
@@ -879,13 +894,13 @@
 			buildActionMask = 2147483647;
 			files = (
 				D8F3D05F274E6A8B00B56F8C /* AssertView.swift in Sources */,
+				842401422A86BB8A00317266 /* SentryDevice.mm in Sources */,
 				D890CD3F26CEE31B001246CF /* NibViewController.swift in Sources */,
 				D845F35B27BAD4CC00A4D7A2 /* SentryData.xcdatamodeld in Sources */,
 				D8444E4C275E38090042F4DE /* UIViewControllerExtension.swift in Sources */,
 				637AFDAE243B02760034958B /* ViewController.swift in Sources */,
 				0AABE2EA28855FF80057ED69 /* PermissionsViewController.swift in Sources */,
 				7B5525B32938B5B5006A2932 /* DiskWriteException.swift in Sources */,
-				84FB8120283EEDB900F3A94A /* PerformanceViewController.swift in Sources */,
 				D8F3D062274EBD4800B56F8C /* SpanExtension.swift in Sources */,
 				637AFDAA243B02760034958B /* AppDelegate.swift in Sources */,
 				D8F57BC527BBD787000D09D4 /* CoreDataViewController.swift in Sources */,
@@ -894,7 +909,9 @@
 				D8DBDA76274D591F00007380 /* TableViewController.swift in Sources */,
 				D8C33E1F29FBB1F70071B75A /* UIEventBreadcrumbsController.swift in Sources */,
 				8E8C57AF25EF16E6001CEEFA /* TraceTestViewController.swift in Sources */,
+				84AB90712A5001000054C99A /* ProfilingViewController.swift in Sources */,
 				84FB812A284001B800F3A94A /* SentryBenchmarking.mm in Sources */,
+				84ACC4432A73CD0700932A18 /* ProfilingCPUWork.swift in Sources */,
 				D8F3D052274E572F00B56F8C /* DSNStorage.swift in Sources */,
 				D8F3D054274E572F00B56F8C /* RandomErrors.swift in Sources */,
 				D80D021329EE93630084393D /* ErrorsViewController.swift in Sources */,
@@ -903,6 +920,7 @@
 				D8D7BB4A2750067900044146 /* UIAssert.swift in Sources */,
 				D8F3D057274E574200B56F8C /* LoremIpsumViewController.swift in Sources */,
 				D8DBDA78274D5FC400007380 /* SplitViewController.swift in Sources */,
+				84ACC43C2A73CB5900932A18 /* ProfilingNetworkScanner.swift in Sources */,
 				D80D021A29EE936F0084393D /* ExtraViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -914,6 +932,7 @@
 				84A5D72629D2705000388BFA /* ProfilingUITests.swift in Sources */,
 				84A5D72D29D2708D00388BFA /* UITestHelpers.swift in Sources */,
 				84B527B928DD24BA00475E8D /* SentryDeviceTests.mm in Sources */,
+				84C47AEC29FC8F4B00DAEB8A /* SentryBenchmarking.mm in Sources */,
 				7B64386B26A6C544000D0F65 /* LaunchUITests.swift in Sources */,
 				84B527BD28DD25E400475E8D /* SentryDevice.mm in Sources */,
 				D8C33E2629FBB8D90071B75A /* UIEventBreadcrumbTests.swift in Sources */,
@@ -956,7 +975,6 @@
 				D8269A3E274C095E00BD5BD5 /* SceneDelegate.swift in Sources */,
 				D8444E54275F794D0042F4DE /* SpanObserver.swift in Sources */,
 				D8269A55274C0F9A00BD5BD5 /* TraceTestViewController.swift in Sources */,
-				D88E666828732AE000153425 /* PerformanceViewController.swift in Sources */,
 				D80D021C29EE9E400084393D /* ExtraViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1196,7 +1214,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 8.9.5;
+				MARKETING_VERSION = 8.10.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "io.sentry.sample.iOS-Swift";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "match Development io.sentry.sample.iOS-Swift";
@@ -1225,7 +1243,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 8.9.5;
+				MARKETING_VERSION = 8.10.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "io.sentry.sample.iOS-Swift";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "match AppStore io.sentry.sample.iOS-Swift";
@@ -1372,6 +1390,7 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_PREPROCESSOR_DEFINITIONS = "TEST=1";
@@ -1595,6 +1614,7 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_PREPROCESSOR_DEFINITIONS = "TESTCI=1";
@@ -1870,7 +1890,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 8.9.5;
+				MARKETING_VERSION = 8.10.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "io.sentry.sample.iOS-Swift.Clip";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "match Development io.sentry.sample.iOS-Swift.Clip";
@@ -1905,7 +1925,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 8.9.5;
+				MARKETING_VERSION = 8.10.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "io.sentry.sample.iOS-Swift.Clip";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "match AppStore io.sentry.sample.iOS-Swift.Clip";
