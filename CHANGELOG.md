@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+- Record changes to network connectivity in breadcrumbs (#3232)
+
 ## 8.10.0
 
 ### Features
