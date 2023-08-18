@@ -36,7 +36,7 @@ platform :ios do
       value: new_version
     )
 
-    sentryInfoPlistPath = "./Sources/Sentry/Info.plist"
+    sentryInfoPlistPath = "./Sources/Resources/Info.plist"
     set_info_plist_value(
       path: sentryInfoPlistPath,
       key: "CFBundleShortVersionString",
