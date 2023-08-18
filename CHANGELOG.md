@@ -4,6 +4,7 @@
 
 ### Features
 
+- Add required reason API (#3206)
 - Record energy usage estimates for profiling (#3217)
 
 ### Fixes
