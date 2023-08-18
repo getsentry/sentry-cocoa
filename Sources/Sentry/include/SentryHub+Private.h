@@ -16,9 +16,13 @@ NS_ASSUME_NONNULL_BEGIN
 @interface
 SentryHub ()
 
-- (NSArray<id<SentryIntegrationProtocol>> *)installedIntegrations;
-- (NSSet<NSString *> *)installedIntegrationNames;
 @property (nullable, nonatomic, strong) SentrySession *session;
+
+/**
+ * Every integration starts with "Sentry" and ends with "Integration". To keep the payload of the
+ * event small we remove both.
+ */
+- (NSMutableSet<NSString *> *)trimmedInstalledIntegrationNames;
 
 - (void)addInstalledIntegration:(id<SentryIntegrationProtocol>)integration name:(NSString *)name;
 - (void)removeAllIntegrations;

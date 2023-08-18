@@ -689,17 +689,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
     id integrations = event.extra[@"__sentry_sdk_integrations"];
     if (!integrations) {
-        integrations = [NSMutableArray new];
-
-        for (NSString *integration in SentrySDK.currentHub.installedIntegrationNames) {
-            // Every integration starts with "Sentry" and ends with "Integration". To keep the
-            // payload of the event small we remove both.
-            NSString *withoutSentry = [integration stringByReplacingOccurrencesOfString:@"Sentry"
-                                                                             withString:@""];
-            NSString *trimmed = [withoutSentry stringByReplacingOccurrencesOfString:@"Integration"
-                                                                         withString:@""];
-            [integrations addObject:trimmed];
-        }
+        integrations = [SentrySDK.currentHub trimmedInstalledIntegrationNames];
 
 #if SENTRY_HAS_UIKIT
         if (self.options.enablePreWarmedAppStartTracing) {

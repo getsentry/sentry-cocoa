@@ -115,6 +115,7 @@
 #import "SentryHttpStatusCodeRange+Private.h"
 #import "SentryHttpTransport.h"
 #import "SentryHub+Private.h"
+#import "SentryHub+Test.h"
 #import "SentryHub+TestInit.h"
 #import "SentryId.h"
 #import "SentryInAppLogic.h"

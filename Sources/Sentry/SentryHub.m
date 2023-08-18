@@ -7,6 +7,7 @@
 #import "SentryEvent+Private.h"
 #import "SentryFileManager.h"
 #import "SentryHub+Private.h"
+#import "SentryHub+Test.h"
 #import "SentryId.h"
 #import "SentryLevelMapper.h"
 #import "SentryLog.h"
@@ -44,8 +45,6 @@ SentryHub ()
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 @property (nonatomic, strong) SentryProfilesSampler *profilesSampler;
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
-@property (nonatomic, strong) NSMutableArray<id<SentryIntegrationProtocol>> *installedIntegrations;
-@property (nonatomic, strong) NSMutableSet<NSString *> *installedIntegrationNames;
 @property (nonatomic) NSUInteger errorsBeforeSession;
 
 @end
@@ -687,6 +686,23 @@ SentryHub ()
 {
     [_client close];
     SENTRY_LOG_DEBUG(@"Closed the Hub.");
+}
+
+#pragma mark - Protected
+
+- (NSMutableSet<NSString *> *)trimmedInstalledIntegrationNames
+{
+    NSMutableSet<NSString *> *integrations = [NSMutableSet<NSString *> set];
+    for (NSString *integration in SentrySDK.currentHub.installedIntegrationNames) {
+        // Every integration starts with "Sentry" and ends with "Integration". To keep the
+        // payload of the event small we remove both.
+        NSString *withoutSentry = [integration stringByReplacingOccurrencesOfString:@"Sentry"
+                                                                         withString:@""];
+        NSString *trimmed = [withoutSentry stringByReplacingOccurrencesOfString:@"Integration"
+                                                                     withString:@""];
+        [integrations addObject:trimmed];
+    }
+    return integrations;
 }
 
 @end
