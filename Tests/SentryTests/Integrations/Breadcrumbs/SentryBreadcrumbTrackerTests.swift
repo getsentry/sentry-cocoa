@@ -45,18 +45,19 @@ class SentryBreadcrumbTrackerTests: XCTestCase {
         viewController.title = "test title"
         viewController.viewDidAppear(false)
 
-        let crumbs = Dynamic(scope).breadcrumbArray.asArray as? [Breadcrumb]
+        let crumbs = delegate.addCrumbInvocations.invocations
 
-        XCTAssertEqual(1, crumbs?.count)
+        // one breadcrumb for starting the tracker, and a second one for the swizzled viewDidAppear
+        XCTAssertEqual(2, crumbs.count)
 
-        let lifeCycleCrumb = crumbs?[0]
-        XCTAssertEqual("navigation", lifeCycleCrumb?.type)
-        XCTAssertEqual("ui.lifecycle", lifeCycleCrumb?.category)
-        XCTAssertEqual("false", lifeCycleCrumb?.data?["beingPresented"] as? String)
-        XCTAssertEqual("UIViewController", lifeCycleCrumb?.data?["screen"] as? String)
-        XCTAssertEqual("test title", lifeCycleCrumb?.data?["title"] as? String)
-        XCTAssertEqual("false", lifeCycleCrumb?.data?["beingPresented"] as? String)
-        XCTAssertEqual("UINavigationController", lifeCycleCrumb?.data?["parentViewController"] as? String)
+        let lifeCycleCrumb = crumbs[1]
+        XCTAssertEqual("navigation", lifeCycleCrumb.type)
+        XCTAssertEqual("ui.lifecycle", lifeCycleCrumb.category)
+        XCTAssertEqual("false", lifeCycleCrumb.data?["beingPresented"] as? String)
+        XCTAssertEqual("UIViewController", lifeCycleCrumb.data?["screen"] as? String)
+        XCTAssertEqual("test title", lifeCycleCrumb.data?["title"] as? String)
+        XCTAssertEqual("false", lifeCycleCrumb.data?["beingPresented"] as? String)
+        XCTAssertEqual("UINavigationController", lifeCycleCrumb.data?["parentViewController"] as? String)
         
         clearTestState()
     }

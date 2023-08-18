@@ -5,7 +5,6 @@
 #import "SentryDefines.h"
 #import "SentryHub.h"
 #import "SentryLog.h"
-#import "SentrySDK+Private.h"
 #import "SentryScope.h"
 #import "SentrySwift.h"
 #import "SentrySwizzle.h"
@@ -201,17 +200,15 @@ SentryBreadcrumbTracker ()
 
     static const void *swizzleViewDidAppearKey = &swizzleViewDidAppearKey;
     SEL selector = NSSelectorFromString(@"viewDidAppear:");
+    __weak id<SentryBreadcrumbDelegate> delegate = self.delegate;
     SentrySwizzleInstanceMethod(UIViewController.class, selector, SentrySWReturnType(void),
         SentrySWArguments(BOOL animated), SentrySWReplacement({
-            if (nil != [SentrySDK.currentHub getClient]) {
-                SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:kSentryLevelInfo
-                                                                         category:@"ui.lifecycle"];
-                crumb.type = @"navigation";
-                crumb.data = [SentryBreadcrumbTracker fetchInfoAboutViewController:self];
+            SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:kSentryLevelInfo
+                                                                     category:@"ui.lifecycle"];
+            crumb.type = @"navigation";
+            crumb.data = [SentryBreadcrumbTracker fetchInfoAboutViewController:self];
+            [delegate addBreadcrumb:crumb];
 
-                // Adding crumb via the SDK calls SentryBeforeBreadcrumbCallback
-                [SentrySDK addBreadcrumb:crumb];
-            }
             SentrySWCallOriginal(animated);
         }),
         SentrySwizzleModeOncePerClassAndSuperclasses, swizzleViewDidAppearKey);
