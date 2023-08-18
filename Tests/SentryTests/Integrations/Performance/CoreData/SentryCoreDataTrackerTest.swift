@@ -353,20 +353,3 @@ private extension SentryCoreDataTrackerTests {
     }
     
 }
-
-//class TestCoreDataStack {
-//    lazy var managedObjectModel = TestNSManagedObjectModel()
-//    lazy var persistentStoreCoordinator = TestNSPersistentStoreCoordinator(managedObjectModel: managedObjectModel)
-//    lazy var managedObjectContext = TestNSManagedObjectContext()
-//}
-//
-//class TestNSManagedObjectModel: NSManagedObjectModel {
-//
-//}
-//
-//class TestNSPersistentStoreCoordinator: NSPersistentStoreCoordinator {
-//    override init(managedObjectModel model: NSManagedObjectModel) {
-//        super.init(managedObjectModel: model)
-//        try! addPersistentStore(ofType: NSInMemoryStoreType, configurationName: nil, at: nil)
-//    }
-//}

@@ -132,8 +132,8 @@ class TestNSManagedObjectContext: NSManagedObjectContext {
     }
 
     override var hasChanges: Bool {
-        return  ((inserted?.count ?? 0) > 0) ||
+        return ((inserted?.count ?? 0) > 0) ||
         ((deleted?.count ?? 0) > 0) ||
-        ((updated?.count ?? 0) > 0)
+        ((updated?.count ?? 0) > 0) || super.hasChanges
     }
 }
