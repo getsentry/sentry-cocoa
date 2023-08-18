@@ -6,7 +6,8 @@
 
 @end
 
-@interface SentryCrash (private)
+@interface
+SentryCrash ()
 
 - (NSString *)clearBundleName:(NSString *)filename;
 
