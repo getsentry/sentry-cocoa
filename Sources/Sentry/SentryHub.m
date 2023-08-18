@@ -44,9 +44,9 @@ SentryHub ()
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 @property (nonatomic, strong) SentryProfilesSampler *profilesSampler;
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
-@property (nonatomic) NSUInteger errorsBeforeSession;
 @property (nonatomic, strong) NSMutableArray<id<SentryIntegrationProtocol>> *installedIntegrations;
 @property (nonatomic, strong) NSMutableSet<NSString *> *installedIntegrationNames;
+@property (nonatomic) NSUInteger errorsBeforeSession;
 
 @end
 
