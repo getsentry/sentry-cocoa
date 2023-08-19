@@ -68,7 +68,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
     }
     
     // Test for GH-581
-    func testReleaseNamePassedToSentryCrash() {
+    func testReleaseNamePassedToSentryCrash() throws {
         let releaseName = "1.0.0"
         let dist = "14G60"
         // The start of the SDK installs all integrations
@@ -79,20 +79,18 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         }
         
         // To test this properly we need SentryCrash and SentryCrashIntegration installed and registered on the current hub of the SDK.
-        
-        let instance = SentryCrash.sharedInstance()
-        let userInfo = (instance?.userInfo ?? ["": ""]) as Dictionary
+
+        let userInfo = try XCTUnwrap(SentryDependencyContainer.sharedInstance().crashReporter.userInfo)
         assertUserInfoField(userInfo: userInfo, key: "release", expected: releaseName)
         assertUserInfoField(userInfo: userInfo, key: "dist", expected: dist)
     }
     
-    func testContext_IsPassedToSentryCrash() {
+    func testContext_IsPassedToSentryCrash() throws {
         SentrySDK.start { options in
             options.dsn = SentryCrashIntegrationTests.dsnAsString
         }
         
-        let instance = SentryCrash.sharedInstance()
-        let userInfo = (instance?.userInfo ?? ["": ""]) as Dictionary
+        let userInfo = try XCTUnwrap(SentryDependencyContainer.sharedInstance().crashReporter.userInfo)
         let context = userInfo["context"] as? [String: Any]
         
         assertContext(context: context)

@@ -185,7 +185,7 @@ SentryCrashIntegration ()
         userInfo[@"release"] = self.options.releaseName;
         userInfo[@"dist"] = self.options.dist;
 
-        [SentryCrash.sharedInstance setUserInfo:userInfo];
+        [SentryDependencyContainer.sharedInstance.crashReporter setUserInfo:userInfo];
 
         [outerScope addObserver:self.scopeObserver];
     }];

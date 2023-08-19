@@ -38,7 +38,8 @@ NS_ASSUME_NONNULL_BEGIN
     SentryCrashTestInstallation *installation =
         [[SentryCrashTestInstallation alloc] initForTesting];
     self.notificationCenter = [[TestNSNotificationCenterWrapper alloc] init];
-    [[SentryCrash sharedInstance] setSentryNSNotificationCenterWrapper:self.notificationCenter];
+    [SentryDependencyContainer.sharedInstance.crashReporter
+        setSentryNSNotificationCenterWrapper:self.notificationCenter];
     return installation;
 }
 
@@ -48,7 +49,8 @@ NS_ASSUME_NONNULL_BEGIN
 
     [installation install];
 
-    SentryCrashMonitorType monitorsAfterInstall = [SentryCrash sharedInstance].monitoring;
+    SentryCrashMonitorType monitorsAfterInstall
+        = SentryDependencyContainer.sharedInstance.crashReporter.monitoring;
 
     [installation uninstall];
 
@@ -73,8 +75,8 @@ NS_ASSUME_NONNULL_BEGIN
 
     [installation install];
 
-    SentryCrash *sentryCrash = [SentryCrash sharedInstance];
-    SentryCrashMonitorType monitorsAfterInstall = sentryCrash.monitoring;
+    SentryCrashMonitorType monitorsAfterInstall
+        = SentryDependencyContainer.sharedInstance.crashReporter.monitoring;
     CrashHandlerData *crashHandlerDataAfterInstall = [installation g_crashHandlerData];
 
     // To ensure multiple calls in a row work
@@ -104,7 +106,7 @@ NS_ASSUME_NONNULL_BEGIN
             monitorsAfterInstall:(SentryCrashMonitorType)monitorsAfterInstall
     crashHandlerDataAfterInstall:(CrashHandlerData *)crashHandlerDataAfterInstall
 {
-    SentryCrash *sentryCrash = [SentryCrash sharedInstance];
+    SentryCrash *sentryCrash = SentryDependencyContainer.sharedInstance.crashReporter;
     XCTAssertNotEqual(NULL, [installation g_crashHandlerData]);
     XCTAssertEqual(monitorsAfterInstall, sentryCrash.monitoring);
     XCTAssertEqual(monitorsAfterInstall, sentrycrashcm_getActiveMonitors());
@@ -119,7 +121,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)assertUninstalled:(SentryCrashTestInstallation *)installation
      monitorsAfterInstall:(SentryCrashMonitorType)monitorsAfterInstall
 {
-    SentryCrash *sentryCrash = [SentryCrash sharedInstance];
+    SentryCrash *sentryCrash = SentryDependencyContainer.sharedInstance.crashReporter;
     XCTAssertEqual(NULL, [installation g_crashHandlerData]);
     XCTAssertEqual(SentryCrashMonitorTypeNone, sentryCrash.monitoring);
     XCTAssertEqual(SentryCrashMonitorTypeNone, sentrycrashcm_getActiveMonitors());

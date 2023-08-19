@@ -35,6 +35,7 @@
 #import "SentryRandom.h"
 #import "SentrySDK+Private.h"
 #import "SentrySDK+Tests.h"
+#import "SentryScopeSyncC.h"
 #import "SentrySession.h"
 #import "SentrySwizzleWrapper.h"
 #import "SentrySystemWrapper.h"

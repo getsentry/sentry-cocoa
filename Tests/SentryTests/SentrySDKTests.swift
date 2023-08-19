@@ -187,7 +187,7 @@ class SentrySDKTests: XCTestCase {
     }
     
     func testCrashedLastRun() {
-        XCTAssertEqual(SentryCrash.sharedInstance().crashedLastLaunch, SentrySDK.crashedLastRun) 
+        XCTAssertEqual(SentryDependencyContainer.sharedInstance().crashReporter.crashedLastLaunch, SentrySDK.crashedLastRun) 
     }
     
     func testCaptureCrashEvent() {
