@@ -6,6 +6,7 @@
 #import "SentryNSProcessInfoWrapper.h"
 #import "SentryNSTimerFactory.h"
 #import "SentryRandom.h"
+#import "SentrySysctl.h"
 #import "SentrySystemWrapper.h"
 #import "SentryUIApplication.h"
 #import <SentryAppStateManager.h>
@@ -93,6 +94,18 @@ static NSObject *sentryDependencyContainerLock;
         }
     }
     return _crashWrapper;
+}
+
+- (SentrySysctl *)sysctlWrapper
+{
+    if (_sysctlWrapper == nil) {
+        @synchronized(sentryDependencyContainerLock) {
+            if (_sysctlWrapper == nil) {
+                _sysctlWrapper = [[SentrySysctl alloc] init];
+            }
+        }
+    }
+    return _sysctlWrapper;
 }
 
 - (SentryThreadWrapper *)threadWrapper
