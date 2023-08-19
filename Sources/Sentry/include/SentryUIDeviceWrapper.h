@@ -18,7 +18,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (BOOL)isBatteryMonitoringEnabled;
 - (UIDeviceBatteryState)batteryState;
 - (float)batteryLevel;
-#endif
+#endif // TARGET_OS_IOS
 
 @end
 
