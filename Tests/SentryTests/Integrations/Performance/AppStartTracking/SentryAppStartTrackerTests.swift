@@ -37,7 +37,6 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
                 options: options,
                 crashWrapper: crashWrapper,
                 fileManager: fileManager,
-                sysctl: sysctl,
                 dispatchQueueWrapper: dispatchQueue,
                 notificationCenterWrapper: SentryNSNotificationCenterWrapper()
             )

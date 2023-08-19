@@ -76,7 +76,6 @@ static NSObject *sentryDependencyContainerLock;
                 [[SentryAppStateManager alloc] initWithOptions:options
                                                   crashWrapper:self.crashWrapper
                                                    fileManager:self.fileManager
-                                                        sysctl:[[SentrySysctl alloc] init]
                                           dispatchQueueWrapper:self.dispatchQueueWrapper
                                      notificationCenterWrapper:self.notificationCenterWrapper];
         }
