@@ -64,6 +64,7 @@ class SentryClientTest: XCTestCase {
             crashWrapper.internalFreeStorageSize = 345_678
             
             extraContentProvider = SentryExtraContextProvider(crashWrapper: crashWrapper, deviceWrapper: deviceWrapper, processInfoWrapper: processWrapper)
+            SentryDependencyContainer.sharedInstance().extraContextProvider = extraContentProvider
         }
 
         func getSut(configureOptions: (Options) -> Void = { _ in }) -> SentryClient {
@@ -82,8 +83,7 @@ class SentryClientTest: XCTestCase {
                     threadInspector: threadInspector,
                     random: random,
                     locale: locale,
-                    timezone: timezone,
-                    extraContextProvider: extraContentProvider
+                    timezone: timezone
                 )
             } catch {
                 XCTFail("Options could not be created")

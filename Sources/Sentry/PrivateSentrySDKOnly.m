@@ -117,7 +117,7 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
 
 + (NSDictionary *)getExtraContext
 {
-    return [[SentryExtraContextProvider sharedInstance] getExtraContext];
+    return [SentryDependencyContainer.sharedInstance.extraContextProvider getExtraContext];
 }
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED

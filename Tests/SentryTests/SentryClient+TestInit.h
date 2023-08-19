@@ -1,4 +1,3 @@
-#import "SentryExtraContextProvider.h"
 #import "SentryRandom.h"
 #import "SentryTransport.h"
 #import <Sentry/Sentry.h>
@@ -30,8 +29,7 @@ SentryClient ()
                 threadInspector:(SentryThreadInspector *)threadInspector
                          random:(id<SentryRandom>)random
                          locale:(NSLocale *)locale
-                       timezone:(NSTimeZone *)timezone
-           extraContextProvider:(SentryExtraContextProvider *)extraContextProvider;
+                       timezone:(NSTimeZone *)timezone;
 
 @end
 
