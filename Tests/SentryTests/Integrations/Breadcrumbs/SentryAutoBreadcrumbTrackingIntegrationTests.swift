@@ -84,8 +84,9 @@ class SentryAutoBreadcrumbTrackingIntegrationTests: XCTestCase {
     }
     
     private func install(sut: SentryAutoBreadcrumbTrackingIntegration, options: Options = Options()) throws {
-        
-        fixture.systemEventBreadcrumbs = SentryTestSystemEventBreadcrumbs(fileManager: try TestFileManager(options: options), andNotificationCenterWrapper: TestNSNotificationCenterWrapper())
+
+        SentryDependencyContainer.sharedInstance().notificationCenterWrapper = TestNSNotificationCenterWrapper()
+        fixture.systemEventBreadcrumbs = SentryTestSystemEventBreadcrumbs(fileManager: try TestFileManager(options: options))
         
         sut.install(with: options, breadcrumbTracker: fixture.tracker, systemEventBreadcrumbs: fixture.systemEventBreadcrumbs!)
     }

@@ -22,9 +22,7 @@ SentryAutoSessionTrackingIntegration ()
         return NO;
     }
 
-    SentrySessionTracker *tracker = [[SentrySessionTracker alloc]
-           initWithOptions:options
-        notificationCenter:[SentryDependencyContainer sharedInstance].notificationCenterWrapper];
+    SentrySessionTracker *tracker = [[SentrySessionTracker alloc] initWithOptions:options];
     [tracker start];
     self.tracker = tracker;
 

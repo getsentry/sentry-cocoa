@@ -1,7 +1,7 @@
 #import "SentryDefines.h"
 
 @class SentryOptions, SentryCrashWrapper, SentryAppState, SentryFileManager, SentrySysctl,
-    SentryDispatchQueueWrapper, SentryNSNotificationCenterWrapper;
+    SentryDispatchQueueWrapper;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -14,8 +14,7 @@ SENTRY_NO_INIT
                    crashWrapper:(SentryCrashWrapper *)crashWrapper
                     fileManager:(SentryFileManager *)fileManager
                          sysctl:(SentrySysctl *)sysctl
-           dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
-      notificationCenterWrapper:(SentryNSNotificationCenterWrapper *)notificationCenterWrapper;
+           dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper;
 
 #if SENTRY_HAS_UIKIT
 
@@ -26,8 +25,8 @@ SENTRY_NO_INIT
 /**
  * Builds the current app state.
  * @discussion The systemBootTimestamp is calculated by taking the current time and subtracting
- * @c NSProcesInfo.systemUptime . @c NSProcesInfo.systemUptime returns the amount of time the system
- * has been awake since the last time it was restarted. This means This is a good enough
+ * @c NSProcessInfo.systemUptime . @c NSProcessInfo.systemUptime returns the amount of time the
+ * system has been awake since the last time it was restarted. This means This is a good enough
  * approximation about the timestamp the system booted.
  */
 - (SentryAppState *)buildCurrentAppState;

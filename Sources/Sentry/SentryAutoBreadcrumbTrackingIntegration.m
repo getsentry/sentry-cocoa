@@ -29,11 +29,9 @@ SentryAutoBreadcrumbTrackingIntegration ()
              breadcrumbTracker:[[SentryBreadcrumbTracker alloc]
                                    initWithSwizzleWrapper:[SentryDependencyContainer sharedInstance]
                                                               .swizzleWrapper]
-        systemEventBreadcrumbs:
-            [[SentrySystemEventBreadcrumbs alloc]
-                         initWithFileManager:[SentryDependencyContainer sharedInstance].fileManager
-                andNotificationCenterWrapper:[SentryDependencyContainer sharedInstance]
-                                                 .notificationCenterWrapper]];
+        systemEventBreadcrumbs:[[SentrySystemEventBreadcrumbs alloc]
+                                   initWithFileManager:[SentryDependencyContainer sharedInstance]
+                                                           .fileManager]];
 
     return YES;
 }

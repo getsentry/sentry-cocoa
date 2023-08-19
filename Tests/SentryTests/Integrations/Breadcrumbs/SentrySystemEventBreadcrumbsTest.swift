@@ -23,12 +23,12 @@ class SentrySystemEventBreadcrumbsTest: XCTestCase {
             SentryDependencyContainer.sharedInstance().dateProvider = currentDateProvider
 
             fileManager = try! TestFileManager(options: options)
+            SentryDependencyContainer.sharedInstance().notificationCenterWrapper = notificationCenterWrapper
         }
 
         func getSut(currentDevice: UIDevice? = UIDevice.current) -> SentrySystemEventBreadcrumbs {
             let systemEvents = SentrySystemEventBreadcrumbs(
-                fileManager: fileManager,
-                andNotificationCenterWrapper: notificationCenterWrapper
+                fileManager: fileManager
             )
             systemEvents.start(with: self.delegate, currentDevice: currentDevice)
             

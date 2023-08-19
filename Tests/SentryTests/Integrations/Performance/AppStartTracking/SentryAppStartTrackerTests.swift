@@ -36,8 +36,7 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
                 crashWrapper: crashWrapper,
                 fileManager: fileManager,
                 sysctl: sysctl,
-                dispatchQueueWrapper: dispatchQueue,
-                notificationCenterWrapper: SentryNSNotificationCenterWrapper()
+                dispatchQueueWrapper: dispatchQueue
             )
             
             runtimeInitTimestamp = SentryDependencyContainer.sharedInstance().dateProvider.date().addingTimeInterval(0.2)

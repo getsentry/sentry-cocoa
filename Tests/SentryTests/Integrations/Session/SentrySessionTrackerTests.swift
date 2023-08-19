@@ -27,10 +27,11 @@ class SentrySessionTrackerTests: XCTestCase {
             client = TestClient(options: options)
             
             sentryCrash = TestSentryCrashWrapper.sharedInstance()
+            SentryDependencyContainer.sharedInstance().notificationCenterWrapper = notificationCenter
         }
         
         func getSut() -> SessionTracker {
-            return SessionTracker(options: options, notificationCenter: notificationCenter)
+            return SessionTracker(options: options)
         }
         
         func setNewHubToSDK() {

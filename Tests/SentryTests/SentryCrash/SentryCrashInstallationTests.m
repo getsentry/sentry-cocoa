@@ -38,7 +38,9 @@ NS_ASSUME_NONNULL_BEGIN
     SentryCrashTestInstallation *installation =
         [[SentryCrashTestInstallation alloc] initForTesting];
     self.notificationCenter = [[TestNSNotificationCenterWrapper alloc] init];
-    [[SentryCrash sharedInstance] setSentryNSNotificationCenterWrapper:self.notificationCenter];
+
+    SentryDependencyContainer.sharedInstance.notificationCenterWrapper = self.notificationCenter;
+
     return installation;
 }
 

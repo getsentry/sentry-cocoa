@@ -44,8 +44,6 @@ typedef enum {
 
 static NSString *const SENTRYCRASH_REPORT_ATTACHMENTS_ITEM = @"attachments";
 
-@class SentryNSNotificationCenterWrapper;
-
 /**
  * Reports any crashes that occur in the application.
  *
@@ -239,12 +237,6 @@ static NSString *const SENTRYCRASH_REPORT_ATTACHMENTS_ITEM = @"attachments";
  * @param reportID An ID of report to delete.
  */
 - (void)deleteReportWithID:(NSNumber *)reportID;
-
-/**
- * Only needed for testing.
- */
-- (void)setSentryNSNotificationCenterWrapper:
-    (SentryNSNotificationCenterWrapper *)notificationCenter;
 
 @end
 

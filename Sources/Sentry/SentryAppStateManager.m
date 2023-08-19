@@ -5,6 +5,7 @@
 #import <SentryAppStateManager.h>
 #import <SentryCrashWrapper.h>
 #import <SentryCurrentDateProvider.h>
+#import <SentryDependencyContainer.h>
 #import <SentryDispatchQueueWrapper.h>
 #import <SentryFileManager.h>
 #import <SentryNSNotificationCenterWrapper.h>
@@ -12,7 +13,6 @@
 
 #if SENTRY_HAS_UIKIT
 #    import <SentryInternalNotificationNames.h>
-#    import <SentryNSNotificationCenterWrapper.h>
 #    import <UIKit/UIKit.h>
 #endif
 
@@ -24,7 +24,6 @@ SentryAppStateManager ()
 @property (nonatomic, strong) SentryFileManager *fileManager;
 @property (nonatomic, strong) SentrySysctl *sysctl;
 @property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueue;
-@property (nonatomic, strong) SentryNSNotificationCenterWrapper *notificationCenterWrapper;
 @property (nonatomic) NSInteger startCount;
 
 @end
@@ -36,7 +35,6 @@ SentryAppStateManager ()
                     fileManager:(SentryFileManager *)fileManager
                          sysctl:(SentrySysctl *)sysctl
            dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
-      notificationCenterWrapper:(SentryNSNotificationCenterWrapper *)notificationCenterWrapper
 {
     if (self = [super init]) {
         self.options = options;
@@ -44,7 +42,6 @@ SentryAppStateManager ()
         self.fileManager = fileManager;
         self.sysctl = sysctl;
         self.dispatchQueue = dispatchQueueWrapper;
-        self.notificationCenterWrapper = notificationCenterWrapper;
         self.startCount = 0;
     }
     return self;
@@ -55,21 +52,23 @@ SentryAppStateManager ()
 - (void)start
 {
     if (self.startCount == 0) {
-        [self.notificationCenterWrapper
+        SentryNSNotificationCenterWrapper *notificationCenterWrapper
+            = SentryDependencyContainer.sharedInstance.notificationCenterWrapper;
+        [notificationCenterWrapper
             addObserver:self
                selector:@selector(didBecomeActive)
                    name:SentryNSNotificationCenterWrapper.didBecomeActiveNotificationName];
 
-        [self.notificationCenterWrapper addObserver:self
-                                           selector:@selector(didBecomeActive)
-                                               name:SentryHybridSdkDidBecomeActiveNotificationName];
+        [notificationCenterWrapper addObserver:self
+                                      selector:@selector(didBecomeActive)
+                                          name:SentryHybridSdkDidBecomeActiveNotificationName];
 
-        [self.notificationCenterWrapper
+        [notificationCenterWrapper
             addObserver:self
                selector:@selector(willResignActive)
                    name:SentryNSNotificationCenterWrapper.willResignActiveNotificationName];
 
-        [self.notificationCenterWrapper
+        [notificationCenterWrapper
             addObserver:self
                selector:@selector(willTerminate)
                    name:SentryNSNotificationCenterWrapper.willTerminateNotificationName];
@@ -104,19 +103,20 @@ SentryAppStateManager ()
     if (self.startCount == 0) {
         // Remove the observers with the most specific detail possible, see
         // https://developer.apple.com/documentation/foundation/nsnotificationcenter/1413994-removeobserver
-        [self.notificationCenterWrapper
+        SentryNSNotificationCenterWrapper *notificationCenterWrapper
+            = SentryDependencyContainer.sharedInstance.notificationCenterWrapper;
+        [notificationCenterWrapper
             removeObserver:self
                       name:SentryNSNotificationCenterWrapper.didBecomeActiveNotificationName];
 
-        [self.notificationCenterWrapper
-            removeObserver:self
-                      name:SentryHybridSdkDidBecomeActiveNotificationName];
+        [notificationCenterWrapper removeObserver:self
+                                             name:SentryHybridSdkDidBecomeActiveNotificationName];
 
-        [self.notificationCenterWrapper
+        [notificationCenterWrapper
             removeObserver:self
                       name:SentryNSNotificationCenterWrapper.willResignActiveNotificationName];
 
-        [self.notificationCenterWrapper
+        [notificationCenterWrapper
             removeObserver:self
                       name:SentryNSNotificationCenterWrapper.willTerminateNotificationName];
     }
@@ -126,7 +126,7 @@ SentryAppStateManager ()
 {
     // In dealloc it's safe to unsubscribe for all, see
     // https://developer.apple.com/documentation/foundation/nsnotificationcenter/1413994-removeobserver
-    [self.notificationCenterWrapper removeObserver:self];
+    [SentryDependencyContainer.sharedInstance.notificationCenterWrapper removeObserver:self];
 }
 
 /**

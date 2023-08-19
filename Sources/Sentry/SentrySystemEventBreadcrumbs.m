@@ -15,17 +15,14 @@
 SentrySystemEventBreadcrumbs ()
 @property (nonatomic, weak) id<SentryBreadcrumbDelegate> delegate;
 @property (nonatomic, strong) SentryFileManager *fileManager;
-@property (nonatomic, strong) SentryNSNotificationCenterWrapper *notificationCenterWrapper;
 @end
 
 @implementation SentrySystemEventBreadcrumbs
 
 - (instancetype)initWithFileManager:(SentryFileManager *)fileManager
-       andNotificationCenterWrapper:(SentryNSNotificationCenterWrapper *)notificationCenterWrapper
 {
     if (self = [super init]) {
         _fileManager = fileManager;
-        _notificationCenterWrapper = notificationCenterWrapper;
     }
     return self;
 }
@@ -45,18 +42,16 @@ SentrySystemEventBreadcrumbs ()
 #if TARGET_OS_IOS
     // Remove the observers with the most specific detail possible, see
     // https://developer.apple.com/documentation/foundation/nsnotificationcenter/1413994-removeobserver
-    [self.notificationCenterWrapper removeObserver:self name:UIKeyboardDidShowNotification];
-    [self.notificationCenterWrapper removeObserver:self name:UIKeyboardDidHideNotification];
-    [self.notificationCenterWrapper removeObserver:self
-                                              name:UIApplicationUserDidTakeScreenshotNotification];
-    [self.notificationCenterWrapper removeObserver:self
-                                              name:UIDeviceBatteryLevelDidChangeNotification];
-    [self.notificationCenterWrapper removeObserver:self
-                                              name:UIDeviceBatteryStateDidChangeNotification];
-    [self.notificationCenterWrapper removeObserver:self
-                                              name:UIDeviceOrientationDidChangeNotification];
-    [self.notificationCenterWrapper removeObserver:self
-                                              name:UIDeviceOrientationDidChangeNotification];
+    SentryNSNotificationCenterWrapper *notificationCenterWrapper
+        = SentryDependencyContainer.sharedInstance.notificationCenterWrapper;
+    [notificationCenterWrapper removeObserver:self name:UIKeyboardDidShowNotification];
+    [notificationCenterWrapper removeObserver:self name:UIKeyboardDidHideNotification];
+    [notificationCenterWrapper removeObserver:self
+                                         name:UIApplicationUserDidTakeScreenshotNotification];
+    [notificationCenterWrapper removeObserver:self name:UIDeviceBatteryLevelDidChangeNotification];
+    [notificationCenterWrapper removeObserver:self name:UIDeviceBatteryStateDidChangeNotification];
+    [notificationCenterWrapper removeObserver:self name:UIDeviceOrientationDidChangeNotification];
+    [notificationCenterWrapper removeObserver:self name:UIDeviceOrientationDidChangeNotification];
 #endif
 }
 
@@ -64,7 +59,7 @@ SentrySystemEventBreadcrumbs ()
 {
     // In dealloc it's safe to unsubscribe for all, see
     // https://developer.apple.com/documentation/foundation/nsnotificationcenter/1413994-removeobserver
-    [self.notificationCenterWrapper removeObserver:self];
+    [SentryDependencyContainer.sharedInstance.notificationCenterWrapper removeObserver:self];
 }
 
 #if TARGET_OS_IOS
@@ -94,18 +89,20 @@ SentrySystemEventBreadcrumbs ()
     if (currentDevice.batteryMonitoringEnabled == NO) {
         currentDevice.batteryMonitoringEnabled = YES;
     }
+    SentryNSNotificationCenterWrapper *notificationCenterWrapper
+        = SentryDependencyContainer.sharedInstance.notificationCenterWrapper;
 
     // Posted when the battery level changes.
-    [self.notificationCenterWrapper addObserver:self
-                                       selector:@selector(batteryStateChanged:)
-                                           name:UIDeviceBatteryLevelDidChangeNotification
-                                         object:currentDevice];
+    [notificationCenterWrapper addObserver:self
+                                  selector:@selector(batteryStateChanged:)
+                                      name:UIDeviceBatteryLevelDidChangeNotification
+                                    object:currentDevice];
 
     // Posted when battery state changes.
-    [self.notificationCenterWrapper addObserver:self
-                                       selector:@selector(batteryStateChanged:)
-                                           name:UIDeviceBatteryStateDidChangeNotification
-                                         object:currentDevice];
+    [notificationCenterWrapper addObserver:self
+                                  selector:@selector(batteryStateChanged:)
+                                      name:UIDeviceBatteryStateDidChangeNotification
+                                    object:currentDevice];
 }
 
 - (void)batteryStateChanged:(NSNotification *)notification
@@ -154,10 +151,11 @@ SentrySystemEventBreadcrumbs ()
     }
 
     // Posted when the orientation of the device changes.
-    [self.notificationCenterWrapper addObserver:self
-                                       selector:@selector(orientationChanged:)
-                                           name:UIDeviceOrientationDidChangeNotification
-                                         object:currentDevice];
+    [SentryDependencyContainer.sharedInstance.notificationCenterWrapper
+        addObserver:self
+           selector:@selector(orientationChanged:)
+               name:UIDeviceOrientationDidChangeNotification
+             object:currentDevice];
 }
 
 - (void)orientationChanged:(NSNotification *)notification
@@ -185,15 +183,17 @@ SentrySystemEventBreadcrumbs ()
 
 - (void)initKeyboardVisibilityObserver
 {
+    SentryNSNotificationCenterWrapper *notificationCenterWrapper
+        = SentryDependencyContainer.sharedInstance.notificationCenterWrapper;
     // Posted immediately after the display of the keyboard.
-    [self.notificationCenterWrapper addObserver:self
-                                       selector:@selector(systemEventTriggered:)
-                                           name:UIKeyboardDidShowNotification];
+    [notificationCenterWrapper addObserver:self
+                                  selector:@selector(systemEventTriggered:)
+                                      name:UIKeyboardDidShowNotification];
 
     // Posted immediately after the dismissal of the keyboard.
-    [self.notificationCenterWrapper addObserver:self
-                                       selector:@selector(systemEventTriggered:)
-                                           name:UIKeyboardDidHideNotification];
+    [notificationCenterWrapper addObserver:self
+                                  selector:@selector(systemEventTriggered:)
+                                      name:UIKeyboardDidHideNotification];
 }
 
 - (void)systemEventTriggered:(NSNotification *)notification
@@ -208,9 +208,10 @@ SentrySystemEventBreadcrumbs ()
 - (void)initScreenshotObserver
 {
     // it's only about the action, but not the SS itself
-    [self.notificationCenterWrapper addObserver:self
-                                       selector:@selector(systemEventTriggered:)
-                                           name:UIApplicationUserDidTakeScreenshotNotification];
+    [SentryDependencyContainer.sharedInstance.notificationCenterWrapper
+        addObserver:self
+           selector:@selector(systemEventTriggered:)
+               name:UIApplicationUserDidTakeScreenshotNotification];
 }
 
 - (void)initTimezoneObserver
@@ -227,9 +228,10 @@ SentrySystemEventBreadcrumbs ()
     }
 
     // Posted when the timezone of the device changed
-    [self.notificationCenterWrapper addObserver:self
-                                       selector:@selector(timezoneEventTriggered)
-                                           name:NSSystemTimeZoneDidChangeNotification];
+    [SentryDependencyContainer.sharedInstance.notificationCenterWrapper
+        addObserver:self
+           selector:@selector(timezoneEventTriggered)
+               name:NSSystemTimeZoneDidChangeNotification];
 }
 
 - (void)timezoneEventTriggered
