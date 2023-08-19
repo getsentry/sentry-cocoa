@@ -9,6 +9,7 @@
 #import "SentryRandom.h"
 #import "SentrySystemWrapper.h"
 #import "SentryUIApplication.h"
+#import "SentryUIDeviceWrapper.h"
 #import <SentryAppStateManager.h>
 #import <SentryClient+Private.h>
 #import <SentryCrashWrapper.h>
@@ -153,6 +154,17 @@ static NSObject *sentryDependencyContainerLock;
 }
 
 #if SENTRY_HAS_UIKIT
+- (SentryUIDeviceWrapper *)uiDeviceWrapper
+{
+    if (_uiDeviceWrapper == nil) {
+        @synchronized(sentryDependencyContainerLock) {
+            if (_uiDeviceWrapper == nil) {
+                _uiDeviceWrapper = [[SentryUIDeviceWrapper alloc] init];
+            }
+        }
+    }
+    return _uiDeviceWrapper;
+}
 - (SentryScreenshot *)screenshot
 {
     if (_screenshot == nil) {

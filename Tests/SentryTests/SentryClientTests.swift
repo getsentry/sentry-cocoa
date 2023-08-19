@@ -62,8 +62,10 @@ class SentryClientTest: XCTestCase {
             crashWrapper.internalFreeMemorySize = 123_456
             crashWrapper.internalAppMemorySize = 234_567
             crashWrapper.internalFreeStorageSize = 345_678
+
+            SentryDependencyContainer.sharedInstance().uiDeviceWrapper = deviceWrapper
             
-            extraContentProvider = SentryExtraContextProvider(crashWrapper: crashWrapper, deviceWrapper: deviceWrapper, processInfoWrapper: processWrapper)
+            extraContentProvider = SentryExtraContextProvider(crashWrapper: crashWrapper, processInfoWrapper: processWrapper)
         }
 
         func getSut(configureOptions: (Options) -> Void = { _ in }) -> SentryClient {

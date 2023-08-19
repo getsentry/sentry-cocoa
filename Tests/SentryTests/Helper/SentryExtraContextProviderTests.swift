@@ -9,9 +9,9 @@ final class SentryExtraContextProviderTests: XCTestCase {
         let processWrapper = TestSentryNSProcessInfoWrapper()
         
         func getSut() -> SentryExtraContextProvider {
+            SentryDependencyContainer.sharedInstance().uiDeviceWrapper = deviceWrapper
             return SentryExtraContextProvider(
                     crashWrapper: crashWrapper,
-                    deviceWrapper: deviceWrapper,
                     processInfoWrapper: processWrapper)
         }
     }

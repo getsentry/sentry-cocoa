@@ -12,7 +12,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 #if TARGET_OS_IOS
 - (instancetype)init;
-- (instancetype)initWithDispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper;
 - (void)stop;
 - (UIDeviceOrientation)orientation;
 - (BOOL)isBatteryMonitoringEnabled;

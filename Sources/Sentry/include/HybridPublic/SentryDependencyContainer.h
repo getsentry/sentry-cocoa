@@ -15,6 +15,7 @@
 @class SentrySwizzleWrapper;
 @class SentrySystemWrapper;
 @class SentryThreadWrapper;
+@class SentryUIDeviceWrapper;
 @protocol SentryRandom;
 
 #if SENTRY_HAS_METRIC_KIT
@@ -56,6 +57,7 @@ SENTRY_NO_INIT
 @property (nonatomic, strong) SentryNSTimerFactory *timerFactory;
 @property (nonatomic, strong) SentryCurrentDateProvider *dateProvider;
 @property (nonatomic, strong) SentryBinaryImageCache *binaryImageCache;
+@property (nonatomic, strong) SentryUIDeviceWrapper *uiDeviceWrapper;
 
 #if SENTRY_HAS_UIKIT
 @property (nonatomic, strong) SentryFramesTracker *framesTracker;
