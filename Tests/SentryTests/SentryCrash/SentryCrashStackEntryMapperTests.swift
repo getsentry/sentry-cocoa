@@ -10,7 +10,7 @@ class SentryCrashStackEntryMapperTests: XCTestCase {
     
     override func setUp() {
         super.setUp()
-        sut = SentryCrashStackEntryMapper(inAppLogic: SentryInAppLogic(inAppIncludes: [bundleExecutable], inAppExcludes: []), binaryImageCache: SentryBinaryImageCache.shared)
+        sut = SentryCrashStackEntryMapper(inAppLogic: SentryInAppLogic(inAppIncludes: [bundleExecutable], inAppExcludes: []))
     }
 
     func testSymbolAddress() {
@@ -72,8 +72,8 @@ class SentryCrashStackEntryMapperTests: XCTestCase {
 
     func testImageFromCache() {
         var image = createCrashBinaryImage(2_488_998_912)
-        SentryBinaryImageCache.shared.start()
-        SentryBinaryImageCache.shared.binaryImageAdded(&image)
+        SentryDependencyContainer.sharedInstance().binaryImageCache.start()
+        SentryDependencyContainer.sharedInstance().binaryImageCache.binaryImageAdded(&image)
 
         var cursor = SentryCrashStackCursor()
         cursor.stackEntry.address = 2_488_998_950
@@ -83,7 +83,7 @@ class SentryCrashStackEntryMapperTests: XCTestCase {
         XCTAssertEqual("0x00000000945b1c00", frame.imageAddress ?? "")
         XCTAssertEqual("Expected Name at 2488998912", frame.package)
 
-        SentryBinaryImageCache.shared.stop()
+        SentryDependencyContainer.sharedInstance().binaryImageCache.stop()
     }
     
     private func getFrameWithImageName(imageName: String) -> Frame {
