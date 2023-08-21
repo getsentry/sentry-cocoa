@@ -1,6 +1,18 @@
 # Changelog
 
-## Unreleased
+## 8.10.0
+
+### Features
+
+- Add required reason API (#3206)
+- Record energy usage estimates for profiling (#3217)
+
+### Fixes
+
+- Remove a noisy NSLog (#3227)
+- WatchOS build for Xcode 15 (#3204)
+
+## 8.9.6
 
 ### Features
 
@@ -8,14 +20,13 @@
 
 ### Fixed
 
-- WatchOS build for Xcode 15 (#3204)
 - Fix CPU usage collection for upcoming visualization in profiling flamecharts (#3214)
 
 ## 8.9.5
 
 ### Hybrid SDK support
 
-- Allow profiling from hybrid SDKs (([#3194]https://github.com/getsentry/sentry-cocoa/pull/3194))
+- Allow profiling from hybrid SDKs (#3194)
 
 ## 8.9.4
 

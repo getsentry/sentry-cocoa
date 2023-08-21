@@ -7,6 +7,9 @@ public class TestSentrySystemWrapper: SentrySystemWrapper {
 
         public var cpuUsageError: NSError?
         public var cpuUsage: NSNumber?
+
+        public var cpuEnergyUsageError: NSError?
+        public var cpuEnergyUsage: NSNumber?
     }
 
     public var overrides = Override()
@@ -24,5 +27,12 @@ public class TestSentrySystemWrapper: SentrySystemWrapper {
             throw errorOverride
         }
         return try overrides.cpuUsage ?? super.cpuUsage()
+    }
+
+    public override func cpuEnergyUsage() throws -> NSNumber {
+        if let errorOverride = overrides.cpuEnergyUsageError {
+            throw errorOverride
+        }
+        return try overrides.cpuEnergyUsage ?? super.cpuEnergyUsage()
     }
 }
