@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+- Distributed tracing without performance (#3196)
+
+### Features
+
 ## 8.10.0
 
 ### Features
@@ -13,10 +19,6 @@
 - WatchOS build for Xcode 15 (#3204)
 
 ## 8.9.6
-
-### Features
-
-- Distributed tracing without performance (#3196)
 
 ### Fixed
 
