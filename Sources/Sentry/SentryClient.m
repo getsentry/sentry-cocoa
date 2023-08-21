@@ -389,16 +389,15 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     if (preparedEvent == nil) {
         return SentryId.empty;
     }
-    
+
     SentryTraceContext *traceContext = [self getTraceStateWithEvent:event withScope:scope];
 
     NSArray *attachments = scope.attachments;
     if (self.attachmentProcessors.count) {
-        for (id<SentryClientAttachmentProcessor> attachmentProcessor in self
-             .attachmentProcessors) {
-                 attachments = [attachmentProcessor processAttachments:attachments
-                                                              forEvent:preparedEvent];
-             }
+        for (id<SentryClientAttachmentProcessor> attachmentProcessor in self.attachmentProcessors) {
+            attachments = [attachmentProcessor processAttachments:attachments
+                                                         forEvent:preparedEvent];
+        }
     }
 
     [self.transportAdapter sendEvent:preparedEvent
@@ -433,7 +432,10 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
             return event.eventId;
         }
 
-        [self.transportAdapter sendEvent:event withSession:session traceContext:traceContext attachments:attachments];
+        [self.transportAdapter sendEvent:event
+                             withSession:session
+                            traceContext:traceContext
+                             attachments:attachments];
 
         return event.eventId;
     }
