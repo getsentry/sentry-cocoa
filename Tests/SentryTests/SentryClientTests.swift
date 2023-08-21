@@ -525,7 +525,8 @@ class SentryClientTest: XCTestCase {
 
     func testCaptureErrorWithSession() {
         let sessionBlockExpectation = expectation(description: "session block gets called")
-        let eventId = fixture.getSut().captureError(error, with: Scope()) {
+        let scope = Scope()
+        let eventId = fixture.getSut().captureError(error, with: scope) {
             sessionBlockExpectation.fulfill()
             return self.fixture.session
         }
@@ -536,6 +537,9 @@ class SentryClientTest: XCTestCase {
         if let eventWithSessionArguments = fixture.transportAdapter.sentEventsWithSessionTraceState.last {
             assertValidErrorEvent(eventWithSessionArguments.event, error)
             XCTAssertEqual(fixture.session, eventWithSessionArguments.session)
+            
+            XCTAssertEqual(eventWithSessionArguments.traceContext?.traceId, 
+                           scope.propagationContext.traceContext?.traceId)
         }
     }
     
