@@ -2,7 +2,10 @@
 #import "SentryRandom.h"
 #import "SentryTransport.h"
 
-@class SentryCrashWrapper, SentryThreadInspector, SentryTransportAdapter;
+@class SentryCrashWrapper;
+@class SentryDispatchQueueWrapper;
+@class SentryThreadInspector;
+@class SentryTransportAdapter;
 
 NS_ASSUME_NONNULL_BEGIN
 
