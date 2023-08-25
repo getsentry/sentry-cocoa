@@ -124,7 +124,7 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
     /**
       * Smoke Tests profiling via PrivateSentrySDKOnly. Actual profiling unit tests are done elsewhere.
      */
-    func testProfiling() {
+    func testProfilingStartAndCollect() {
         let options = Options()
         options.dsn = TestConstants.dsnAsString(username: "SentryFramesTrackingIntegrationTests")
         let client = TestClient(options: options)
@@ -132,10 +132,10 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
 
         let traceIdA = SentryId()
 
-        let startTime = PrivateSentrySDKOnly.startProfiling(forTrace: traceIdA)
+        let startTime = PrivateSentrySDKOnly.startProfiler(forTrace: traceIdA)
         XCTAssertGreaterThan(startTime, 0)
         Thread.sleep(forTimeInterval: 0.2)
-        let payload = PrivateSentrySDKOnly.collectProfile(forTrace: traceIdA, since: startTime)
+        let payload = PrivateSentrySDKOnly.collectProfileBetween(startTime, and: startTime + 200_000_000, forTrace: traceIdA)
         XCTAssertNotNil(payload)
         XCTAssertEqual(payload?["platform"] as? String, "cocoa")
         XCTAssertNotNil(payload?["debug_meta"])
@@ -146,6 +146,27 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
         XCTAssertNotNil(profile?["samples"])
         XCTAssertNotNil(profile?["stacks"])
         XCTAssertNotNil(profile?["frames"])
+    }
+
+    func testProfilingDiscard() {
+        let options = Options()
+        options.dsn = TestConstants.dsnAsString(username: "SentryFramesTrackingIntegrationTests")
+        let client = TestClient(options: options)
+        SentrySDK.setCurrentHub(TestHub(client: client, andScope: nil))
+
+        let traceIdA = SentryId()
+
+        let startTime = PrivateSentrySDKOnly.startProfiler(forTrace: traceIdA)
+        XCTAssertGreaterThan(startTime, 0)
+        Thread.sleep(forTimeInterval: 0.2)
+        PrivateSentrySDKOnly.discardProfiler(forTrace: traceIdA)
+        // how can we test that that this fails with an NCAssert failure?
+        //        XCTAssertThrowsError(
+        //            PrivateSentrySDKOnly.collectProfileBetween(
+        //            startTime, and: startTime + 200_000_000, forTrace: traceIdA)
+        //        ) { error in
+        //            XCTAssertTrue(error is NSException)
+        //        }
     }
     #endif
 
