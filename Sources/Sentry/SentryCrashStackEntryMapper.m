@@ -1,4 +1,6 @@
 #import "SentryCrashStackEntryMapper.h"
+#import "SentryBinaryImageCache.h"
+#import "SentryDependencyContainer.h"
 #import "SentryFormatter.h"
 #import "SentryFrame.h"
 #import "SentryInAppLogic.h"
@@ -10,18 +12,15 @@ NS_ASSUME_NONNULL_BEGIN
 SentryCrashStackEntryMapper ()
 
 @property (nonatomic, strong) SentryInAppLogic *inAppLogic;
-@property (nonatomic, strong) SentryBinaryImageCache *binaryImageCache;
 
 @end
 
 @implementation SentryCrashStackEntryMapper
 
 - (instancetype)initWithInAppLogic:(SentryInAppLogic *)inAppLogic
-                  binaryImageCache:(SentryBinaryImageCache *)binaryImageCache
 {
     if (self = [super init]) {
         self.inAppLogic = inAppLogic;
-        self.binaryImageCache = binaryImageCache;
     }
     return self;
 }
@@ -42,7 +41,8 @@ SentryCrashStackEntryMapper ()
     // If there is no symbolication, because debug was disabled
     // we get image from the cache.
     if (stackEntry.imageAddress == 0 && stackEntry.imageName == NULL) {
-        SentryBinaryImageInfo *info = [_binaryImageCache imageByAddress:stackEntry.address];
+        SentryBinaryImageInfo *info = [SentryDependencyContainer.sharedInstance.binaryImageCache
+            imageByAddress:stackEntry.address];
 
         frame.imageAddress = sentry_formatHexAddressUInt64(info.address);
         frame.package = info.name;
