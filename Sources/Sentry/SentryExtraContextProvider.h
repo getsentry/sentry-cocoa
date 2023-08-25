@@ -1,7 +1,8 @@
-#import "SentryCrashWrapper.h"
-#import "SentryNSProcessInfoWrapper.h"
-#import "SentryUIDeviceWrapper.h"
 #import <Foundation/Foundation.h>
+
+@class SentryCrashWrapper;
+@class SentryNSProcessInfoWrapper;
+@class SentryUIDeviceWrapper;
 
 NS_ASSUME_NONNULL_BEGIN
 
