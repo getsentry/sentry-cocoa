@@ -1,4 +1,5 @@
 #import "SentryCoreDataTracker+Test.h"
+#import <Foundation/Foundation.h>
 
 @implementation
 SentryCoreDataTracker (Test)

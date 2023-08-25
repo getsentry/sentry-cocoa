@@ -1,5 +1,6 @@
 #import "SentryTestObjCRuntimeWrapper.h"
 #import "SentryDefaultObjCRuntimeWrapper.h"
+#import <Foundation/Foundation.h>
 #import <objc/runtime.h>
 
 @interface
