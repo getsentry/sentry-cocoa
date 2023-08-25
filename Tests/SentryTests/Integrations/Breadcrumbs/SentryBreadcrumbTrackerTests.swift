@@ -48,7 +48,10 @@ class SentryBreadcrumbTrackerTests: XCTestCase {
         let crumbs = delegate.addCrumbInvocations.invocations
 
         // one breadcrumb for starting the tracker, and a second one for the swizzled viewDidAppear
-        XCTAssertEqual(2, crumbs.count)
+        guard crumbs.count == 2 else {
+            XCTFail("Expected exactly 2 breadcrumbs")
+            return
+        }
 
         let lifeCycleCrumb = crumbs[1]
         XCTAssertEqual("navigation", lifeCycleCrumb.type)
