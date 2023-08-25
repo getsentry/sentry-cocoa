@@ -1,5 +1,4 @@
 #import "SentryInitializeForGettingSubclassesNotCalled.h"
-#import <Foundation/Foundation.h>
 
 @implementation SentryInitializeForGettingSubclassesNotCalled
 

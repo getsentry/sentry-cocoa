@@ -3,7 +3,6 @@
 #import "SentryMeta.h"
 #import "SentryNSURLRequest.h"
 #import "SentryOptions+HybridSDKs.h"
-#import <Sentry/Sentry.h>
 #import <XCTest/XCTest.h>
 
 @interface SentryDsnTests : XCTestCase
