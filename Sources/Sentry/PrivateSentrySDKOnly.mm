@@ -12,6 +12,7 @@
 #import "SentryProfiler.h"
 #import "SentrySDK+Private.h"
 #import "SentrySerialization.h"
+#import "SentryThreadHandle.hpp"
 #import "SentryUser+Private.h"
 #import "SentryViewHierarchy.h"
 #import <SentryBreadcrumb.h>
@@ -140,6 +141,10 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
 
     if (payload != nil) {
         payload[@"platform"] = SentryPlatformName;
+        payload[@"transaction"] = @{
+            @"active_thread_id" :
+                [NSNumber numberWithLongLong:sentry::profiling::ThreadHandle::current()->tid()]
+        };
     }
 
     return payload;

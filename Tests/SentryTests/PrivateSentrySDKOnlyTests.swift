@@ -146,6 +146,9 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
         XCTAssertNotNil(profile?["samples"])
         XCTAssertNotNil(profile?["stacks"])
         XCTAssertNotNil(profile?["frames"])
+        let transactionInfo = payload?["transaction"] as? NSDictionary
+        XCTAssertNotNil(transactionInfo)
+        XCTAssertGreaterThan(transactionInfo?["active_thread_id"] as! Int64, 0)
     }
 
     func testProfilingDiscard() {
