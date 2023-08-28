@@ -41,6 +41,7 @@ SentryBreadcrumbTracker ()
 
 - (void)startWithDelegate:(id<SentryBreadcrumbDelegate>)delegate
 {
+    NSLog(@"Starting %@ with delegate: %@", self, delegate);
     _delegate = delegate;
     [self addEnabledCrumb];
     [self trackApplicationUIKitNotifications];
@@ -201,6 +202,33 @@ SentryBreadcrumbTracker ()
     static const void *swizzleViewDidAppearKey = &swizzleViewDidAppearKey;
     SEL selector = NSSelectorFromString(@"viewDidAppear:");
     __weak id<SentryBreadcrumbDelegate> delegate = self.delegate;
+    SentryBreadcrumbTracker *__weak tracker = self;
+
+    //    [SentrySwizzle
+    //        swizzleInstanceMethod:selector
+    //                      inClass:UIViewController.class
+    //                newImpFactory:^id(SentrySwizzleInfo *swizzleInfo) {
+    //                    return ^(__unsafe_unretained id self,
+    //                        BOOL animated) {
+    //                        SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc]
+    //                        initWithLevel:kSentryLevelInfo
+    //                                                                                 category:@"ui.lifecycle"];
+    //                        crumb.type = @"navigation";
+    //                        crumb.data = [SentryBreadcrumbTracker
+    //                        fetchInfoAboutViewController:self];
+    //
+    //                        NSLog(@"tracker: %@; __weak id<SentryBreadcrumbDelegate>: %@; crumb:
+    //                        %@", tracker, delegate, crumb);
+    //
+    //                        [delegate addBreadcrumb:crumb];
+    //
+    //                        ((void (*)(__unsafe_unretained id, SEL))[swizzleInfo
+    //                        getOriginalImplementation])(self, selector);
+    //                    };
+    //                }
+    //                         mode:SentrySwizzleModeOncePerClassAndSuperclasses
+    //                          key:swizzleViewDidAppearKey];
+
     SentrySwizzleInstanceMethod(UIViewController.class, selector, SentrySWReturnType(void),
         SentrySWArguments(BOOL animated), SentrySWReplacement({
             SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:kSentryLevelInfo
@@ -208,7 +236,8 @@ SentryBreadcrumbTracker ()
             crumb.type = @"navigation";
             crumb.data = [SentryBreadcrumbTracker fetchInfoAboutViewController:self];
 
-            NSLog(@"__weak id<SentryBreadcrumbDelegate>: %@; crumb: %@", delegate, crumb);
+            NSLog(@"tracker: %@; __weak id<SentryBreadcrumbDelegate>: %@; crumb: %@", tracker,
+                delegate, crumb);
 
             [delegate addBreadcrumb:crumb];
 

@@ -43,6 +43,8 @@ class SentryBreadcrumbTrackerTests: XCTestCase {
         let viewController = UIViewController()
         _ = UINavigationController(rootViewController: viewController)
         viewController.title = "test title"
+        print("delegate: \(String(describing: delegate))")
+        print("tracker: \(sut); SentryBreadcrumbTracker.delegate: \(String(describing: Dynamic(sut).delegate.asObject))")
         viewController.viewDidAppear(false)
 
         let crumbs = delegate.addCrumbInvocations.invocations
