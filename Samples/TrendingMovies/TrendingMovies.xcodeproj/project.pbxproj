@@ -58,8 +58,6 @@
 		844A3561282B2B9B00C6D1DF /* VideoCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 844A352D282B2B9B00C6D1DF /* VideoCollectionViewCell.swift */; };
 		844A3574282B4B6500C6D1DF /* TUSafariActivity.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 844A3570282B4B6500C6D1DF /* TUSafariActivity.xcframework */; };
 		844A3575282B4B6500C6D1DF /* TUSafariActivity.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 844A3570282B4B6500C6D1DF /* TUSafariActivity.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		844A3576282B4B6500C6D1DF /* FaceAware.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 844A3571282B4B6500C6D1DF /* FaceAware.xcframework */; };
-		844A3577282B4B6500C6D1DF /* FaceAware.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 844A3571282B4B6500C6D1DF /* FaceAware.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		844A3578282B4B6500C6D1DF /* Kingfisher.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 844A3572282B4B6500C6D1DF /* Kingfisher.xcframework */; };
 		844A3579282B4B6500C6D1DF /* Kingfisher.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 844A3572282B4B6500C6D1DF /* Kingfisher.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		844A357A282B4B6500C6D1DF /* KingfisherSwiftUI.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 844A3573282B4B6500C6D1DF /* KingfisherSwiftUI.xcframework */; };
@@ -70,6 +68,34 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		039F53352A96A5660034F766 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 844A3565282B3E4500C6D1DF /* Sentry.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = D81A3488291D0AC0005A27A9;
+			remoteInfo = SentryPrivate;
+		};
+		039F53372A96A5660034F766 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 844A3565282B3E4500C6D1DF /* Sentry.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = D8199DAA29376E9B0074249E;
+			remoteInfo = SentrySwiftUI;
+		};
+		039F53392A96A5660034F766 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 844A3565282B3E4500C6D1DF /* Sentry.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 8431EFD929B27B1100D8DC56;
+			remoteInfo = SentryProfilerTests;
+		};
+		039F533B2A96A5660034F766 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 844A3565282B3E4500C6D1DF /* Sentry.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 8431F00A29B284F200D8DC56;
+			remoteInfo = SentryTestUtils;
+		};
 		844A356A282B3E4500C6D1DF /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 844A3565282B3E4500C6D1DF /* Sentry.xcodeproj */;
@@ -104,7 +130,6 @@
 				844A357B282B4B6500C6D1DF /* KingfisherSwiftUI.xcframework in Embed Frameworks */,
 				844A3575282B4B6500C6D1DF /* TUSafariActivity.xcframework in Embed Frameworks */,
 				844A359D282DAA6100C6D1DF /* Sentry.framework in Embed Frameworks */,
-				844A3577282B4B6500C6D1DF /* FaceAware.xcframework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -183,7 +208,6 @@
 				844A357A282B4B6500C6D1DF /* KingfisherSwiftUI.xcframework in Frameworks */,
 				844A3574282B4B6500C6D1DF /* TUSafariActivity.xcframework in Frameworks */,
 				844A359C282DAA6100C6D1DF /* Sentry.framework in Frameworks */,
-				844A3576282B4B6500C6D1DF /* FaceAware.xcframework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -390,6 +414,10 @@
 			children = (
 				844A356B282B3E4500C6D1DF /* Sentry.framework */,
 				844A356D282B3E4500C6D1DF /* SentryTests.xctest */,
+				039F53362A96A5660034F766 /* SentryPrivate.framework */,
+				039F53382A96A5660034F766 /* SentrySwiftUI.framework */,
+				039F533A2A96A5660034F766 /* SentryProfilerTests.xctest */,
+				039F533C2A96A5660034F766 /* libSentryTestUtils.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -498,6 +526,34 @@
 /* End PBXProject section */
 
 /* Begin PBXReferenceProxy section */
+		039F53362A96A5660034F766 /* SentryPrivate.framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.framework;
+			path = SentryPrivate.framework;
+			remoteRef = 039F53352A96A5660034F766 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		039F53382A96A5660034F766 /* SentrySwiftUI.framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.framework;
+			path = SentrySwiftUI.framework;
+			remoteRef = 039F53372A96A5660034F766 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		039F533A2A96A5660034F766 /* SentryProfilerTests.xctest */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.cfbundle;
+			path = SentryProfilerTests.xctest;
+			remoteRef = 039F53392A96A5660034F766 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		039F533C2A96A5660034F766 /* libSentryTestUtils.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libSentryTestUtils.a;
+			remoteRef = 039F533B2A96A5660034F766 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
 		844A356B282B3E4500C6D1DF /* Sentry.framework */ = {
 			isa = PBXReferenceProxy;
 			fileType = wrapper.framework;

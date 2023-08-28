@@ -2,7 +2,7 @@ import XCTest
 
 class SentryBinaryImageCacheTests: XCTestCase {
     var sut: SentryBinaryImageCache {
-        SentryBinaryImageCache.shared
+        SentryDependencyContainer.sharedInstance().binaryImageCache
     }
 
     override func setUp() {

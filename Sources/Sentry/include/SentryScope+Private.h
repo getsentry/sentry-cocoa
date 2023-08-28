@@ -11,10 +11,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface
 SentryScope ()
 
-/**
- * The environment used in this scope.
- */
-@property (atomic, copy) NSString *_Nullable environmentString;
+@property (atomic, copy, nullable) NSString *environmentString;
 
 @property (atomic, strong, readonly) NSArray<SentryAttachment *> *attachments;
 
