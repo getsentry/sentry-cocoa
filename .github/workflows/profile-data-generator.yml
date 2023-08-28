@@ -17,6 +17,9 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - run: ./scripts/ci-select-xcode.sh 13.4.1
+      - uses: ruby/setup-ruby@v1
+        with:
+          bundler-cache: true
       - name: Install SentryCli
         run: brew install getsentry/tools/sentry-cli
       - name: Cache Carthage dependencies

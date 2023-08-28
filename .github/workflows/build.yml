@@ -27,7 +27,9 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - run: ./scripts/ci-select-xcode.sh
-
+      - uses: ruby/setup-ruby@v1
+        with:
+          bundler-cache: true
       - name: Run Fastlane
         env:
           APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
