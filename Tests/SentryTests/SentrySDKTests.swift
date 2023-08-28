@@ -125,12 +125,12 @@ class SentrySDKTests: XCTestCase {
             options.debug = true
         }
 
-        XCTAssertNotNil(SentryBinaryImageCache.shared.cache)
-        XCTAssertGreaterThan(SentryBinaryImageCache.shared.cache.count, 0)
+        XCTAssertNotNil(SentryDependencyContainer.sharedInstance().binaryImageCache.cache)
+        XCTAssertGreaterThan(SentryDependencyContainer.sharedInstance().binaryImageCache.cache.count, 0)
 
         SentrySDK.close()
 
-        XCTAssertNil(SentryBinaryImageCache.shared.cache)
+        XCTAssertNil(SentryDependencyContainer.sharedInstance().binaryImageCache.cache)
     }
     
     func testStartWithConfigureOptions_NoDsn() throws {

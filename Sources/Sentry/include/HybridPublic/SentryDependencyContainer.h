@@ -2,6 +2,7 @@
 
 @class SentryANRTracker;
 @class SentryAppStateManager;
+@class SentryBinaryImageCache;
 @class SentryCrash;
 @class SentryCrashWrapper;
 @class SentryCurrentDateProvider;
@@ -56,6 +57,7 @@ SENTRY_NO_INIT
 @property (nonatomic, strong) SentryDispatchFactory *dispatchFactory;
 @property (nonatomic, strong) SentryNSTimerFactory *timerFactory;
 @property (nonatomic, strong) SentryCurrentDateProvider *dateProvider;
+@property (nonatomic, strong) SentryBinaryImageCache *binaryImageCache;
 
 #if SENTRY_HAS_UIKIT
 @property (nonatomic, strong) SentryFramesTracker *framesTracker;

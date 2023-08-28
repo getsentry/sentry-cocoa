@@ -1,5 +1,6 @@
 #import "SentryBinaryImageCache.h"
 #import "SentryCrashBinaryImageCache.h"
+#import "SentryDependencyContainer.h"
 
 static void binaryImageWasAdded(const SentryCrashBinaryImage *image);
 
@@ -16,14 +17,6 @@ SentryBinaryImageCache ()
 @end
 
 @implementation SentryBinaryImageCache
-
-+ (SentryBinaryImageCache *)shared
-{
-    static SentryBinaryImageCache *instance = nil;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{ instance = [[self alloc] init]; });
-    return instance;
-}
 
 - (void)start
 {
@@ -111,11 +104,11 @@ SentryBinaryImageCache ()
 static void
 binaryImageWasAdded(const SentryCrashBinaryImage *image)
 {
-    [SentryBinaryImageCache.shared binaryImageAdded:image];
+    [SentryDependencyContainer.sharedInstance.binaryImageCache binaryImageAdded:image];
 }
 
 static void
 binaryImageWasRemoved(const SentryCrashBinaryImage *image)
 {
-    [SentryBinaryImageCache.shared binaryImageRemoved:image];
+    [SentryDependencyContainer.sharedInstance.binaryImageCache binaryImageRemoved:image];
 }

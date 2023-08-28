@@ -151,7 +151,7 @@ static NSUInteger startInvocations;
     [SentrySDK installIntegrations];
 
     [SentryCrashWrapper.sharedInstance startBinaryImageCache];
-    [SentryBinaryImageCache.shared start];
+    [SentryDependencyContainer.sharedInstance.binaryImageCache start];
 }
 
 + (void)startWithConfigureOptions:(void (^)(SentryOptions *options))configureOptions
@@ -410,7 +410,7 @@ static NSUInteger startInvocations;
     [SentryDependencyContainer reset];
 
     [SentryCrashWrapper.sharedInstance stopBinaryImageCache];
-    [SentryBinaryImageCache.shared stop];
+    [SentryDependencyContainer.sharedInstance.binaryImageCache stop];
 
     SENTRY_LOG_DEBUG(@"SDK closed!");
 }

@@ -1,4 +1,5 @@
 #import "SentryANRTracker.h"
+#import "SentryBinaryImageCache.h"
 #import "SentryCurrentDateProvider.h"
 #import "SentryDispatchFactory.h"
 #import "SentryDispatchQueueWrapper.h"
@@ -150,6 +151,18 @@ static NSObject *sentryDependencyContainerLock;
         }
     }
     return _random;
+}
+
+- (SentryBinaryImageCache *)binaryImageCache
+{
+    if (_binaryImageCache == nil) {
+        @synchronized(sentryDependencyContainerLock) {
+            if (_binaryImageCache == nil) {
+                _binaryImageCache = [[SentryBinaryImageCache alloc] init];
+            }
+        }
+    }
+    return _binaryImageCache;
 }
 
 #if SENTRY_HAS_UIKIT
