@@ -57,7 +57,7 @@ jobs:
           path: |
             DerivedData/Build/Products/Test-iphoneos/iOS-SwiftUITests-Runner.app
           key: ios-swift-for-ui-testing-cache-key-${{ hashFiles('Samples/iOS-Swift/iOS-SwiftUITests/**') }}-Xcode-${{ matrix.xcode }}
-      - run: fastlane build_ios_swift_for_tests
+      - run: bundle exec fastlane build_ios_swift_for_tests
         env:
           APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
           APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
@@ -66,7 +66,7 @@ jobs:
           MATCH_GIT_PRIVATE_KEY: ${{ secrets.MATCH_GIT_PRIVATE_KEY }}
           MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
           MATCH_USERNAME: ${{ secrets.MATCH_USERNAME }}
-      - run: fastlane build_ios_swift_ui_test
+      - run: bundle exec fastlane build_ios_swift_ui_test
         env:
           APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
           APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
