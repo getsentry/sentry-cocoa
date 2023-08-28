@@ -26,13 +26,6 @@ API_UNAVAILABLE(tvos, watchos)
 
 @end
 
-@interface
-SentryEvent (MetricKit)
-
-@property (nonatomic, readonly) BOOL isMetricKitEvent;
-
-@end
-
 NS_ASSUME_NONNULL_END
 
 #endif // SENTRY_HAS_METRIC_KIT
