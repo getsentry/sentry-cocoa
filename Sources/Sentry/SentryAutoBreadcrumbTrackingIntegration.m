@@ -73,6 +73,7 @@ SentryAutoBreadcrumbTrackingIntegration ()
 
 - (void)addBreadcrumb:(SentryBreadcrumb *)crumb
 {
+    NSLog(@"crumb: %@", crumb);
     [SentrySDK addBreadcrumb:crumb];
 }
 

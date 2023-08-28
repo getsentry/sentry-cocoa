@@ -207,6 +207,9 @@ SentryBreadcrumbTracker ()
                                                                      category:@"ui.lifecycle"];
             crumb.type = @"navigation";
             crumb.data = [SentryBreadcrumbTracker fetchInfoAboutViewController:self];
+
+            NSLog(@"__weak id<SentryBreadcrumbDelegate>: %@; crumb: %@", delegate, crumb);
+
             [delegate addBreadcrumb:crumb];
 
             SentrySWCallOriginal(animated);
