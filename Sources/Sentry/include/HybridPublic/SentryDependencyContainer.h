@@ -15,7 +15,6 @@
 @class SentrySwizzleWrapper;
 @class SentrySystemWrapper;
 @class SentryThreadWrapper;
-@class SentryUIDeviceWrapper;
 @protocol SentryRandom;
 
 #if SENTRY_HAS_METRIC_KIT
@@ -26,6 +25,7 @@
 @class SentryFramesTracker;
 @class SentryScreenshot;
 @class SentryUIApplication;
+@class SentryUIDeviceWrapper;
 @class SentryViewHierarchy;
 #endif
 

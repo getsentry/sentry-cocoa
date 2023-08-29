@@ -5,11 +5,15 @@ final class SentryExtraContextProviderTests: XCTestCase {
 
     private class Fixture {
         let crashWrapper = TestSentryCrashWrapper.sharedInstance()
+#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
         let deviceWrapper = TestSentryUIDeviceWrapper()
+#endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
         let processWrapper = TestSentryNSProcessInfoWrapper()
         
         func getSut() -> SentryExtraContextProvider {
+            #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
             SentryDependencyContainer.sharedInstance().uiDeviceWrapper = deviceWrapper
+            #endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
             return SentryExtraContextProvider(
                     crashWrapper: crashWrapper,
                     processInfoWrapper: processWrapper)

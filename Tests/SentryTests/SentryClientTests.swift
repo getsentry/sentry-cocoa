@@ -29,7 +29,9 @@ class SentryClientTest: XCTestCase {
         let trace = SentryTracer(transactionContext: TransactionContext(name: "SomeTransaction", operation: "SomeOperation"), hub: nil)
         let transaction: Transaction
         let crashWrapper = TestSentryCrashWrapper.sharedInstance()
+        #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
         let deviceWrapper = TestSentryUIDeviceWrapper()
+        #endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
         let processWrapper = TestSentryNSProcessInfoWrapper()
         let extraContentProvider: SentryExtraContextProvider
         let locale = Locale(identifier: "en_US")
@@ -63,7 +65,9 @@ class SentryClientTest: XCTestCase {
             crashWrapper.internalAppMemorySize = 234_567
             crashWrapper.internalFreeStorageSize = 345_678
 
+            #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
             SentryDependencyContainer.sharedInstance().uiDeviceWrapper = deviceWrapper
+#endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
             
             extraContentProvider = SentryExtraContextProvider(crashWrapper: crashWrapper, processInfoWrapper: processWrapper)
         }
