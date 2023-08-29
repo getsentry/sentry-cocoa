@@ -3,6 +3,7 @@
 ## Unreleased
 
 - Distributed tracing without performance (#3196)
+- Add "data use" in privacy manifests ()
 
 ### Features
 
