@@ -1,4 +1,8 @@
-#import <Sentry/Sentry.h>
+#import "SentryScope.h"
+
+@class SentryUser;
+@class SentryBreadcrumb;
+@class SentryAttachment;
 
 NS_ASSUME_NONNULL_BEGIN
 

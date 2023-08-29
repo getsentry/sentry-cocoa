@@ -1,5 +1,4 @@
-#import "SentryScope+Properties.h"
-#import <Sentry/Sentry.h>
+#import "SentryScope.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
