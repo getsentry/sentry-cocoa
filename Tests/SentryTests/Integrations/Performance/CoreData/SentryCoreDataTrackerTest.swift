@@ -331,6 +331,8 @@ private extension SentryCoreDataTrackerTests {
 
     func assertDataAndFrames(dbSpan: Span, expectedOperation: String, expectedDescription: String, mainThread: Bool) {
         XCTAssertEqual(dbSpan.operation, expectedOperation)
+        XCTAssertEqual(dbSpan.origin, "auto.db.core_data")
+        XCTAssertEqual(dbSpan.data["read_count"] as? Int, 1)
         XCTAssertEqual(dbSpan.spanDescription, expectedDescription)
         XCTAssertEqual(dbSpan.data["blocked_main_thread"] as? Bool ?? false, mainThread)
         XCTAssertEqual(try XCTUnwrap(dbSpan.data["db.system"] as? String), "SQLite")
