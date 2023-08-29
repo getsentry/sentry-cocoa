@@ -1,5 +1,4 @@
 #import "NSData+SentryCompression.h"
-#import <Sentry/Sentry.h>
 #import <XCTest/XCTest.h>
 
 @interface SentryNSDataCompressionTests : XCTestCase

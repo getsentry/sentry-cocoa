@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+- Distributed tracing without performance (#3196)
+
+### Features
+
 ## 8.10.0
 
 ### Features

@@ -1,4 +1,3 @@
-import FaceAware
 import Kingfisher
 import UIKit
 
@@ -19,9 +18,9 @@ class CreditCollectionViewCell: UICollectionViewCell {
     var profileImage: UIImage? {
         didSet {
             if let profileImage = profileImage {
-                profileImageView.set(image: profileImage, focusOnFaces: true)
+                profileImageView.image = profileImage
             } else {
-                profileImageView.set(image: UIImage(named: CreditCollectionViewCell.placeholderImageName), focusOnFaces: false)
+                profileImageView.image = UIImage(named: CreditCollectionViewCell.placeholderImageName)
             }
         }
     }

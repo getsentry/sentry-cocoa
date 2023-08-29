@@ -44,7 +44,7 @@ class SentryTransportAdapterTests: XCTestCase {
 
     func testSendFaultyAttachment_FaultyAttachmentGetsDropped() {
         let event = TestData.event
-        sut.send(event: event, attachments: [fixture.faultyAttachment, fixture.attachment])
+        sut.send(event: event, traceContext: nil, attachments: [fixture.faultyAttachment, fixture.attachment])
         
         let expectedEnvelope = SentryEnvelope(id: event.eventId, items: [
             SentryEnvelopeItem(event: event),
