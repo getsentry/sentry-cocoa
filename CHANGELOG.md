@@ -6,6 +6,8 @@
 
 ### Features
 
+- Report database backing store information for Core Data (#3231)
+
 ## 8.10.0
 
 ### Features
