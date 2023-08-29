@@ -6,6 +6,7 @@
 #import "SentryGlobalEventProcessor.h"
 #import "SentryLevelMapper.h"
 #import "SentryLog.h"
+#import "SentryPropagationContext.h"
 #import "SentryScope+Private.h"
 #import "SentryScopeObserver.h"
 #import "SentrySession.h"
@@ -75,6 +76,7 @@ SentryScope ()
         self.fingerprintArray = [NSMutableArray new];
         _spanLock = [[NSObject alloc] init];
         self.observers = [NSMutableArray new];
+        self.propagationContext = [[SentryPropagationContext alloc] init];
     }
     return self;
 }
@@ -94,6 +96,7 @@ SentryScope ()
         [_fingerprintArray addObjectsFromArray:[scope fingerprints]];
         [_attachmentArray addObjectsFromArray:[scope attachments]];
 
+        self.propagationContext = [[SentryPropagationContext alloc] init];
         self.maxBreadcrumbs = scope.maxBreadcrumbs;
         self.userObject = scope.userObject.copy;
         self.distString = scope.distString;
@@ -542,6 +545,12 @@ SentryScope ()
             newContext[@"trace"] = [span serialize];
         }
     }
+
+    if (newContext[@"trace"] == nil) {
+        // If this is an error event we need to add the distributed trace context.
+        newContext[@"trace"] = [self.propagationContext traceContextForEvent];
+    }
+
     event.context = newContext;
     return event;
 }
