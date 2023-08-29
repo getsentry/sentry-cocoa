@@ -27,7 +27,9 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - run: ./scripts/ci-select-xcode.sh
-
+      - uses: ruby/setup-ruby@v1
+        with:
+          bundler-cache: true
       - name: Run Fastlane
         env:
           APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
@@ -37,7 +39,7 @@ jobs:
           MATCH_GIT_PRIVATE_KEY: ${{ secrets.MATCH_GIT_PRIVATE_KEY }}
           MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
           MATCH_USERNAME: ${{ secrets.MATCH_USERNAME }}
-        run: fastlane build_ios_swift
+        run: bundle exec fastlane build_ios_swift
         shell: sh
 
   build-sample:
