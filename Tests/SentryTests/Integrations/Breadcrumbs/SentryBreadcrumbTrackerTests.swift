@@ -7,13 +7,13 @@ class SentryBreadcrumbTrackerTests: XCTestCase {
     
     override func setUp() {
         super.setUp()
-        
         delegate = SentryBreadcrumbTestDelegate()
     }
     
     override func tearDown() {
         super.tearDown()
         delegate = nil
+        clearTestState()
     }
     
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
