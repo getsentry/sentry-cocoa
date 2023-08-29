@@ -57,13 +57,13 @@ SENTRY_NO_INIT
 @property (nonatomic, strong) SentryNSTimerFactory *timerFactory;
 @property (nonatomic, strong) SentryCurrentDateProvider *dateProvider;
 @property (nonatomic, strong) SentryBinaryImageCache *binaryImageCache;
-@property (nonatomic, strong) SentryUIDeviceWrapper *uiDeviceWrapper;
 
 #if SENTRY_HAS_UIKIT
 @property (nonatomic, strong) SentryFramesTracker *framesTracker;
 @property (nonatomic, strong) SentryScreenshot *screenshot;
 @property (nonatomic, strong) SentryViewHierarchy *viewHierarchy;
 @property (nonatomic, strong) SentryUIApplication *application;
+@property (nonatomic, strong) SentryUIDeviceWrapper *uiDeviceWrapper;
 #endif
 
 - (SentryANRTracker *)getANRTracker:(NSTimeInterval)timeout;

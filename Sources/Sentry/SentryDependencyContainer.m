@@ -8,7 +8,6 @@
 #import "SentryNSTimerFactory.h"
 #import "SentryRandom.h"
 #import "SentrySystemWrapper.h"
-#import "SentryUIApplication.h"
 #import "SentryUIDeviceWrapper.h"
 #import <SentryAppStateManager.h>
 #import <SentryClient+Private.h>
@@ -18,15 +17,17 @@
 #import <SentryHub.h>
 #import <SentryNSNotificationCenterWrapper.h>
 #import <SentrySDK+Private.h>
-#import <SentryScreenshot.h>
 #import <SentrySwift.h>
 #import <SentrySwizzleWrapper.h>
 #import <SentrySysctl.h>
 #import <SentryThreadWrapper.h>
-#import <SentryViewHierarchy.h>
 
 #if SENTRY_HAS_UIKIT
 #    import "SentryFramesTracker.h"
+#    import "SentryUIApplication.h"
+#    import "SentryUIDeviceWrapper.h"
+#    import <SentryScreenshot.h>
+#    import <SentryViewHierarchy.h>
 #endif // SENTRY_HAS_UIKIT
 
 @implementation SentryDependencyContainer
@@ -165,6 +166,7 @@ static NSObject *sentryDependencyContainerLock;
     }
     return _uiDeviceWrapper;
 }
+
 - (SentryScreenshot *)screenshot
 {
     if (_screenshot == nil) {
