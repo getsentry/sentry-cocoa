@@ -31,6 +31,12 @@ SentryBreadcrumbTracker ()
 
 @implementation SentryBreadcrumbTracker
 
+- (instancetype)init
+{
+    NSLog(@"%@", NSThread.callStackSymbols);
+    return [super init];
+}
+
 - (void)startWithDelegate:(id<SentryBreadcrumbDelegate>)delegate
 {
     NSLog(@"Starting %@ with delegate: %@", self, delegate);
