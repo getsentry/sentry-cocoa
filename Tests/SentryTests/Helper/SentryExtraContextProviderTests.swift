@@ -5,13 +5,17 @@ final class SentryExtraContextProviderTests: XCTestCase {
 
     private class Fixture {
         let crashWrapper = TestSentryCrashWrapper.sharedInstance()
+#if os(iOS) || targetEnvironment(macCatalyst)
         let deviceWrapper = TestSentryUIDeviceWrapper()
+#endif // os(iOS) || targetEnvironment(macCatalyst)
         let processWrapper = TestSentryNSProcessInfoWrapper()
         
         func getSut() -> SentryExtraContextProvider {
+            #if os(iOS) || targetEnvironment(macCatalyst)
+            SentryDependencyContainer.sharedInstance().uiDeviceWrapper = deviceWrapper
+            #endif // os(iOS) || targetEnvironment(macCatalyst)
             return SentryExtraContextProvider(
                     crashWrapper: crashWrapper,
-                    deviceWrapper: deviceWrapper,
                     processInfoWrapper: processWrapper)
         }
     }
@@ -39,7 +43,7 @@ final class SentryExtraContextProviderTests: XCTestCase {
     }
     
     func testExtraDeviceInfo() {
-#if os(iOS)
+#if os(iOS) || targetEnvironment(macCatalyst)
         let sut = fixture.getSut()
         fixture.deviceWrapper.internalOrientation = .landscapeLeft
         fixture.deviceWrapper.internalBatteryState = .full
@@ -51,7 +55,7 @@ final class SentryExtraContextProviderTests: XCTestCase {
         XCTAssertEqual(device?["orientation"] as? String, "landscape")
         XCTAssertEqual(device?["charging"] as? Bool, false)
         XCTAssertEqual(device?["battery_level"] as? UInt, 44)
-#endif
+#endif // os(iOS) || targetEnvironment(macCatalyst)
     }
     
     func testExtraProcessInfo() {
