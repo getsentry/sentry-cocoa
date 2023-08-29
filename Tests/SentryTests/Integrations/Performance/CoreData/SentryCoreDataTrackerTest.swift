@@ -322,9 +322,10 @@ private extension SentryCoreDataTrackerTests {
             return [someEntity]
         }
 
-        let dbSpan = try XCTUnwrap(transaction.children.first)
-
         XCTAssertEqual(result?.count, 1)
+
+        let dbSpan = try XCTUnwrap(transaction.children.first)
+        XCTAssertEqual(dbSpan.data["read_count"] as? Int, 1)
 
         assertDataAndFrames(dbSpan: dbSpan, expectedOperation: SENTRY_COREDATA_FETCH_OPERATION, expectedDescription: expectedDescription, mainThread: mainThread)
     }
@@ -332,7 +333,6 @@ private extension SentryCoreDataTrackerTests {
     func assertDataAndFrames(dbSpan: Span, expectedOperation: String, expectedDescription: String, mainThread: Bool) {
         XCTAssertEqual(dbSpan.operation, expectedOperation)
         XCTAssertEqual(dbSpan.origin, "auto.db.core_data")
-        XCTAssertEqual(dbSpan.data["read_count"] as? Int, 1)
         XCTAssertEqual(dbSpan.spanDescription, expectedDescription)
         XCTAssertEqual(dbSpan.data["blocked_main_thread"] as? Bool ?? false, mainThread)
         XCTAssertEqual(try XCTUnwrap(dbSpan.data["db.system"] as? String), "SQLite")
