@@ -29,9 +29,9 @@ class SentryClientTest: XCTestCase {
         let trace = SentryTracer(transactionContext: TransactionContext(name: "SomeTransaction", operation: "SomeOperation"), hub: nil)
         let transaction: Transaction
         let crashWrapper = TestSentryCrashWrapper.sharedInstance()
-        #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+        #if os(iOS) || targetEnvironment(macCatalyst)
         let deviceWrapper = TestSentryUIDeviceWrapper()
-        #endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+        #endif // os(iOS) || targetEnvironment(macCatalyst)
         let processWrapper = TestSentryNSProcessInfoWrapper()
         let extraContentProvider: SentryExtraContextProvider
         let locale = Locale(identifier: "en_US")
@@ -65,9 +65,9 @@ class SentryClientTest: XCTestCase {
             crashWrapper.internalAppMemorySize = 234_567
             crashWrapper.internalFreeStorageSize = 345_678
 
-            #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+            #if os(iOS) || targetEnvironment(macCatalyst)
             SentryDependencyContainer.sharedInstance().uiDeviceWrapper = deviceWrapper
-#endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+#endif // os(iOS) || targetEnvironment(macCatalyst)
             
             extraContentProvider = SentryExtraContextProvider(crashWrapper: crashWrapper, processInfoWrapper: processWrapper)
         }
@@ -714,7 +714,7 @@ class SentryClientTest: XCTestCase {
     }
 
     func testCaptureEvent_DeviceProperties_OtherValues() {
-#if os(iOS)
+#if os(iOS) || targetEnvironment(macCatalyst)
         fixture.deviceWrapper.internalOrientation = .landscapeLeft
         fixture.deviceWrapper.internalBatteryState = .full
 
@@ -727,7 +727,7 @@ class SentryClientTest: XCTestCase {
             let charging = actual.context?["device"]?["charging"] as? Bool
             XCTAssertEqual(charging, false)
         }
-#endif
+#endif // os(iOS) || targetEnvironment(macCatalyst)
     }
 
     func testCaptureEvent_AddCurrentCulture() {

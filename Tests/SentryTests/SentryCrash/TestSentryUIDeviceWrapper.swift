@@ -1,6 +1,6 @@
 import Sentry
 
-#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+#if os(iOS) || targetEnvironment(macCatalyst)
 class TestSentryUIDeviceWrapper: SentryUIDeviceWrapper {
     var internalOrientation = UIDeviceOrientation.portrait
     var internalIsBatteryMonitoringEnabled = true
@@ -23,4 +23,4 @@ class TestSentryUIDeviceWrapper: SentryUIDeviceWrapper {
         return internalBatteryState
     }
 }
-#endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+#endif // os(iOS) || targetEnvironment(macCatalyst)
