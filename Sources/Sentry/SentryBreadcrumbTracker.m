@@ -162,6 +162,7 @@ SentryBreadcrumbTracker ()
 - (void)swizzleSendAction
 {
 #if SENTRY_HAS_UIKIT
+    SentryBreadcrumbTracker *__weak weakSelf = self;
     [SentryDependencyContainer.sharedInstance.swizzleWrapper
         swizzleSendAction:^(NSString *action, id target, id sender, UIEvent *event) {
             if ([SentryBreadcrumbTracker avoidSender:sender forTarget:target action:action]) {
@@ -180,7 +181,7 @@ SentryBreadcrumbTracker ()
             crumb.type = @"user";
             crumb.message = action;
             crumb.data = data;
-            [self.delegate addBreadcrumb:crumb];
+            [weakSelf.delegate addBreadcrumb:crumb];
         }
                    forKey:SentryBreadcrumbTrackerSwizzleSendAction];
 
@@ -200,8 +201,7 @@ SentryBreadcrumbTracker ()
 
     static const void *swizzleViewDidAppearKey = &swizzleViewDidAppearKey;
     SEL selector = NSSelectorFromString(@"viewDidAppear:");
-    __weak id<SentryBreadcrumbDelegate> delegate = self.delegate;
-    SentryBreadcrumbTracker *__weak tracker = self;
+    SentryBreadcrumbTracker *__weak weakSelf = self;
 
     //    [SentrySwizzle
     //        swizzleInstanceMethod:selector
@@ -235,10 +235,10 @@ SentryBreadcrumbTracker ()
             crumb.type = @"navigation";
             crumb.data = [SentryBreadcrumbTracker fetchInfoAboutViewController:self];
 
-            NSLog(@"tracker: %@; __weak id<SentryBreadcrumbDelegate>: %@; crumb: %@", tracker,
-                delegate, crumb);
+            NSLog(@"tracker: %@; __weak id<SentryBreadcrumbDelegate>: %@; crumb: %@", weakSelf,
+                weakSelf.delegate, crumb);
 
-            [delegate addBreadcrumb:crumb];
+            [weakSelf.delegate addBreadcrumb:crumb];
 
             SentrySWCallOriginal(animated);
         }),
