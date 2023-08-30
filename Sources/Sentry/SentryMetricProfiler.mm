@@ -32,7 +32,7 @@ NSString *const kSentryMetricProfilerSerializationKeyCPUEnergyUsage = @"cpu_ener
 
 NSString *const kSentryMetricProfilerSerializationUnitBytes = @"byte";
 NSString *const kSentryMetricProfilerSerializationUnitPercentage = @"percent";
-NSString *const kSentryMetricProfilerSerializationUnitNanoJoules = @"nanojoules";
+NSString *const kSentryMetricProfilerSerializationUnitNanoJoules = @"nanojoule";
 
 // Currently set to 10 Hz as we don't anticipate much utility out of a higher resolution when
 // sampling CPU usage and memory footprint, and we want to minimize the overhead of making the
