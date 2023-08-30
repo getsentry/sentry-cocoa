@@ -32,6 +32,7 @@ NSString *const kSentryMetricProfilerSerializationKeyCPUEnergyUsage = @"cpu_ener
 
 NSString *const kSentryMetricProfilerSerializationUnitBytes = @"byte";
 NSString *const kSentryMetricProfilerSerializationUnitPercentage = @"percent";
+NSString *const kSentryMetricProfilerSerializationUnitNanoJoules = @"nanojoules";
 
 // Currently set to 10 Hz as we don't anticipate much utility out of a higher resolution when
 // sampling CPU usage and memory footprint, and we want to minimize the overhead of making the
@@ -133,7 +134,7 @@ SentrySerializedMetricEntry *_Nullable serializeValuesWithNormalizedTime(
     if (cpuEnergyUsage.count > 0) {
         dict[kSentryMetricProfilerSerializationKeyCPUEnergyUsage]
             = serializeValuesWithNormalizedTime(cpuEnergyUsage,
-                kSentryMetricProfilerSerializationUnitBytes, startSystemTime, endSystemTime);
+                kSentryMetricProfilerSerializationUnitNanoJoules, startSystemTime, endSystemTime);
     }
 
     if (cpuUsage.count > 0) {

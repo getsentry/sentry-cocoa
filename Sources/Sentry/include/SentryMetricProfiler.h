@@ -14,6 +14,7 @@ SENTRY_EXTERN NSString *const kSentryMetricProfilerSerializationKeyCPUEnergyUsag
 
 SENTRY_EXTERN NSString *const kSentryMetricProfilerSerializationUnitBytes;
 SENTRY_EXTERN NSString *const kSentryMetricProfilerSerializationUnitPercentage;
+SENTRY_EXTERN NSString *const kSentryMetricProfilerSerializationUnitNanoJoules;
 
 // The next two types are technically the same as far as the type system is concerned, but they
 // actually contain different mixes of value types, so define them separately. If they ever change,
