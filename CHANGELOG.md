@@ -7,6 +7,10 @@
 - Distributed tracing without performance (#3196)
 - Report database backing store information for Core Data (#3231)
 
+### Fixes
+
+- Report correct units (nanojoules) for profiling energy metrics (#3262)
+
 ## 8.10.0
 
 ### Features
