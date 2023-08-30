@@ -12,7 +12,7 @@ e95e62ec7363984f20c78643bb7d992a41a740f97e1befb71525ac34caf88b37  ./Sources/Sent
 59db11da66e6ac0058526be0be08b57cdccd3727033e85164a631b205e972134  ./Sources/Sentry/SentryCoreDataSwizzling.m
 4a041cf2704ca4a8cc1df76bc955781ddd29c3e515aef49898d248d4016e0315  ./Sources/Sentry/SentrySwizzleWrapper.m
 b1c642450170358cab39b4cc6cd546f27c41b12eacb90c3ad93f87733d46e56c  ./Sources/Sentry/include/SentrySwizzle.h
-f97128c823f92d1c2ec37e5e3b2914f7488a94043af6a8344e348f1a14425f47  ./Sources/Sentry/SentrySwizzle.m"
+dab874a6adcaeddc3bfdf05119fc37ae4ba2a8230d3a4e92b193cd80924a2083  ./Sources/Sentry/SentrySwizzle.m"
 
 if [ "$ACTUAL" = "$EXPECTED" ]; then
     echo "No changes in high risk files."
