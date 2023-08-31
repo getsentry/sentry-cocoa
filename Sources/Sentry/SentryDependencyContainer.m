@@ -8,7 +8,7 @@
 #import "SentryNSTimerFactory.h"
 #import "SentryRandom.h"
 #import "SentrySystemWrapper.h"
-#import "SentryUIApplication.h"
+#import "SentryUIDeviceWrapper.h"
 #import <SentryAppStateManager.h>
 #import <SentryClient+Private.h>
 #import <SentryCrash.h>
@@ -18,16 +18,21 @@
 #import <SentryHub.h>
 #import <SentryNSNotificationCenterWrapper.h>
 #import <SentrySDK+Private.h>
-#import <SentryScreenshot.h>
 #import <SentrySwift.h>
 #import <SentrySwizzleWrapper.h>
 #import <SentrySysctl.h>
 #import <SentryThreadWrapper.h>
-#import <SentryViewHierarchy.h>
 
 #if SENTRY_HAS_UIKIT
 #    import "SentryFramesTracker.h"
+#    import "SentryUIApplication.h"
+#    import <SentryScreenshot.h>
+#    import <SentryViewHierarchy.h>
 #endif // SENTRY_HAS_UIKIT
+
+#if TARGET_OS_IOS
+#    import "SentryUIDeviceWrapper.h"
+#endif // TARGET_OS_IOS
 
 @implementation SentryDependencyContainer
 
@@ -165,6 +170,20 @@ static NSObject *sentryDependencyContainerLock;
     return _binaryImageCache;
 }
 
+#if TARGET_OS_IOS
+- (SentryUIDeviceWrapper *)uiDeviceWrapper
+{
+    if (_uiDeviceWrapper == nil) {
+        @synchronized(sentryDependencyContainerLock) {
+            if (_uiDeviceWrapper == nil) {
+                _uiDeviceWrapper = [[SentryUIDeviceWrapper alloc] init];
+            }
+        }
+    }
+    return _uiDeviceWrapper;
+}
+#endif // TARGET_OS_IOS
+
 #if SENTRY_HAS_UIKIT
 - (SentryScreenshot *)screenshot
 {
@@ -221,7 +240,7 @@ static NSObject *sentryDependencyContainerLock;
     if (_swizzleWrapper == nil) {
         @synchronized(sentryDependencyContainerLock) {
             if (_swizzleWrapper == nil) {
-                _swizzleWrapper = SentrySwizzleWrapper.sharedInstance;
+                _swizzleWrapper = [[SentrySwizzleWrapper alloc] init];
             }
         }
     }

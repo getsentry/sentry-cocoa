@@ -1,5 +1,4 @@
 #import "SentrySerialization.h"
-#import <Sentry/Sentry.h>
 #import <XCTest/XCTest.h>
 
 @interface SentrySerializationNilTests : XCTestCase

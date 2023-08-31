@@ -8,7 +8,6 @@ NS_ASSUME_NONNULL_BEGIN
 SentryUIDeviceWrapper ()
 @property (nonatomic) BOOL cleanupDeviceOrientationNotifications;
 @property (nonatomic) BOOL cleanupBatteryMonitoring;
-@property (strong, nonatomic) SentryDispatchQueueWrapper *dispatchQueueWrapper;
 @end
 
 @implementation SentryUIDeviceWrapper
@@ -17,15 +16,8 @@ SentryUIDeviceWrapper ()
 
 - (instancetype)init
 {
-    return [self initWithDispatchQueueWrapper:[SentryDependencyContainer sharedInstance]
-                                                  .dispatchQueueWrapper];
-}
-
-- (instancetype)initWithDispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
-{
     if (self = [super init]) {
-        self.dispatchQueueWrapper = dispatchQueueWrapper;
-        [self.dispatchQueueWrapper dispatchSyncOnMainQueue:^{
+        [SentryDependencyContainer.sharedInstance.dispatchQueueWrapper dispatchSyncOnMainQueue:^{
             // Needed to read the device orientation on demand
             if (!UIDevice.currentDevice.isGeneratingDeviceOrientationNotifications) {
                 self.cleanupDeviceOrientationNotifications = YES;
@@ -44,7 +36,7 @@ SentryUIDeviceWrapper ()
 
 - (void)stop
 {
-    [self.dispatchQueueWrapper dispatchSyncOnMainQueue:^{
+    [SentryDependencyContainer.sharedInstance.dispatchQueueWrapper dispatchSyncOnMainQueue:^{
         if (self.cleanupDeviceOrientationNotifications) {
             [UIDevice.currentDevice endGeneratingDeviceOrientationNotifications];
         }

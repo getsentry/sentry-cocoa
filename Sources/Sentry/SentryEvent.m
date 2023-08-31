@@ -17,6 +17,11 @@
 #import "SentryThread.h"
 #import "SentryUser.h"
 
+#if SENTRY_HAS_METRIC_KIT
+#    import "SentryMechanism.h"
+#    import "SentryMetricKitIntegration.h"
+#endif // SENTRY_HAS_METRIC_KIT
+
 NS_ASSUME_NONNULL_BEGIN
 
 @implementation SentryEvent
@@ -171,6 +176,30 @@ NS_ASSUME_NONNULL_BEGIN
     }
     return crumbs;
 }
+
+#if SENTRY_HAS_METRIC_KIT
+
+- (BOOL)isMetricKitEvent
+{
+    if (self.exceptions == nil || self.exceptions.count != 1) {
+        return NO;
+    }
+
+    NSArray<NSString *> *metricKitMechanisms = @[
+        SentryMetricKitDiskWriteExceptionMechanism, SentryMetricKitCpuExceptionMechanism,
+        SentryMetricKitHangDiagnosticMechanism, @"MXCrashDiagnostic"
+    ];
+
+    SentryException *exception = self.exceptions[0];
+    if (exception.mechanism != nil &&
+        [metricKitMechanisms containsObject:exception.mechanism.type]) {
+        return YES;
+    } else {
+        return NO;
+    }
+}
+
+#endif // SENTRY_HAS_METRIC_KIT
 
 @end
 
