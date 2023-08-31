@@ -581,7 +581,7 @@ class SentryNetworkTrackerTests: XCTestCase {
         XCTAssertEqual(task.currentRequest?.allHTTPHeaderFields?["sentry-trace"] ?? "", expectedTraceHeader)
     }
 
-    func testNoHeadersWhenDisabled() {
+    func testDefaultHeadersWhenDisabled() {
         let sut = fixture.getSut()
         sut.disable()
 
@@ -589,17 +589,21 @@ class SentryNetworkTrackerTests: XCTestCase {
         _ = startTransaction() as! SentryTracer
         sut.urlSessionTaskResume(task)
 
-        XCTAssertNil(task.currentRequest?.allHTTPHeaderFields?["baggage"])
-        XCTAssertNil(task.currentRequest?.allHTTPHeaderFields?["sentry-trace"])
+        let expectedTraceHeader = SentrySDK.currentHub().scope.propagationContext.traceHeader.value()
+        let expectedBaggageHeader = SentrySDK.currentHub().scope.propagationContext.traceContext?.toBaggage().toHTTPHeader()
+        XCTAssertEqual(task.currentRequest?.allHTTPHeaderFields?["baggage"] ?? "", expectedBaggageHeader)
+        XCTAssertEqual(task.currentRequest?.allHTTPHeaderFields?["sentry-trace"] ?? "", expectedTraceHeader)
     }
 
-    func testNoHeadersWhenNoTransaction() {
+    func testDefaultHeadersWhenNoTransaction() {
         let sut = fixture.getSut()
         let task = createDataTask()
         sut.urlSessionTaskResume(task)
 
-        XCTAssertNil(task.currentRequest?.allHTTPHeaderFields?["baggage"])
-        XCTAssertNil(task.currentRequest?.allHTTPHeaderFields?["sentry-trace"])
+        let expectedTraceHeader = SentrySDK.currentHub().scope.propagationContext.traceHeader.value()
+        let expectedBaggageHeader = SentrySDK.currentHub().scope.propagationContext.traceContext?.toBaggage().toHTTPHeader()
+        XCTAssertEqual(task.currentRequest?.allHTTPHeaderFields?["baggage"] ?? "", expectedBaggageHeader)
+        XCTAssertEqual(task.currentRequest?.allHTTPHeaderFields?["sentry-trace"] ?? "", expectedTraceHeader)
     }
 
     func testNoHeadersForWrongUrl() {

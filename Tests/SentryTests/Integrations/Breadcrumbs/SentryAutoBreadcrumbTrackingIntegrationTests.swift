@@ -5,7 +5,7 @@ import XCTest
 class SentryAutoBreadcrumbTrackingIntegrationTests: XCTestCase {
     
     private class Fixture {
-        let tracker = SentryTestBreadcrumbTracker(swizzleWrapper: SentrySwizzleWrapper.sharedInstance)
+        let tracker = SentryTestBreadcrumbTracker()
         
         var systemEventBreadcrumbs: SentryTestSystemEventBreadcrumbs?
         

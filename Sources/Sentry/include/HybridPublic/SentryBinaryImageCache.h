@@ -1,4 +1,3 @@
-#import "SentryDefines.h"
 #import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
@@ -15,9 +14,6 @@ NS_ASSUME_NONNULL_BEGIN
  * performance.
  */
 @interface SentryBinaryImageCache : NSObject
-SENTRY_NO_INIT
-
-@property (nonatomic, readonly, class) SentryBinaryImageCache *shared;
 
 - (void)start;
 

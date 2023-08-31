@@ -1,6 +1,5 @@
 #import "SentryCrashWrapper.h"
 #import "SentryNSProcessInfoWrapper.h"
-#import "SentryUIDeviceWrapper.h"
 #import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
@@ -13,7 +12,6 @@ NS_ASSUME_NONNULL_BEGIN
 + (instancetype)sharedInstance;
 
 - (instancetype)initWithCrashWrapper:(SentryCrashWrapper *)crashWrapper
-                       deviceWrapper:(SentryUIDeviceWrapper *)deviceWrapper
                   processInfoWrapper:(SentryNSProcessInfoWrapper *)processInfoWrapper;
 
 - (NSDictionary *)getExtraContext;

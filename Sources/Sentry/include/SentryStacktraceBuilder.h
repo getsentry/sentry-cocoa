@@ -1,4 +1,3 @@
-#import "SentryBinaryImageCache.h"
 #import "SentryCrashMachineContext.h"
 #import "SentryCrashStackCursor.h"
 #include "SentryCrashThread.h"
