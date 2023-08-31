@@ -203,6 +203,15 @@ SentryBreadcrumbTracker ()
     SEL selector = NSSelectorFromString(@"viewDidAppear:");
     SentryBreadcrumbTracker *__weak weakSelf = self;
 
+    SentrySwizzleMode mode = SentrySwizzleModeOncePerClassAndSuperclasses;
+
+#    if defined(TEST) || defined(TESTCI)
+    // some tests need to swizzle multiple times, once for each test case. but since they're in the
+    // same process, if they set something other than "always", subsequent swizzles fail. override
+    // it here for tests
+    mode = SentrySwizzleModeAlways;
+#    endif // defined(TEST) || defined(TESTCI)
+
     SentrySwizzleInstanceMethod(UIViewController.class, selector, SentrySWReturnType(void),
         SentrySWArguments(BOOL animated), SentrySWReplacement({
             SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:kSentryLevelInfo
@@ -217,7 +226,7 @@ SentryBreadcrumbTracker ()
 
             SentrySWCallOriginal(animated);
         }),
-        SentrySwizzleModeOncePerClassAndSuperclasses, swizzleViewDidAppearKey);
+        mode, swizzleViewDidAppearKey);
 #    pragma clang diagnostic pop
 #else
     SENTRY_LOG_DEBUG(@"NO UIKit -> [SentryBreadcrumbTracker swizzleViewDidAppear] does nothing.");
