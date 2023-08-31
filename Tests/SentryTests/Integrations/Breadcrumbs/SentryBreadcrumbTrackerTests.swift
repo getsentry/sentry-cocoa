@@ -32,7 +32,7 @@ class SentryBreadcrumbTrackerTests: XCTestCase {
     func testNetworkConnectivityChangeBreadcrumbs() throws {
         let testReachability = TestSentryReachability()
         SentryDependencyContainer.sharedInstance().reachability = testReachability
-        let sut = SentryBreadcrumbTracker(swizzleWrapper: SentrySwizzleWrapper.sharedInstance)
+        let sut = SentryBreadcrumbTracker()
         sut.start(with: delegate)
         let states = [SentryConnectivityCellular,
         SentryConnectivityWiFi,
