@@ -252,9 +252,9 @@ SentryCrash ()
         return false;
     }
 
+#if SentryCrashCRASH_HAS_UIAPPLICATION
     SentryNSNotificationCenterWrapper *notificationCenterWrapper
         = SentryDependencyContainer.sharedInstance.notificationCenterWrapper;
-#if SentryCrashCRASH_HAS_UIAPPLICATION
     [notificationCenterWrapper addObserver:self
                                   selector:@selector(applicationDidBecomeActive)
                                       name:UIApplicationDidBecomeActiveNotification];
@@ -272,6 +272,8 @@ SentryCrash ()
                                       name:UIApplicationWillTerminateNotification];
 #endif
 #if SentryCrashCRASH_HAS_NSEXTENSION
+    SentryNSNotificationCenterWrapper *notificationCenterWrapper
+        = SentryDependencyContainer.sharedInstance.notificationCenterWrapper;
     [notificationCenterWrapper addObserver:self
                                   selector:@selector(applicationDidBecomeActive)
                                       name:NSExtensionHostDidBecomeActiveNotification];
@@ -297,9 +299,9 @@ SentryCrash ()
     self.onCrash = NULL;
     sentrycrash_uninstall();
 
+#if SentryCrashCRASH_HAS_UIAPPLICATION
     SentryNSNotificationCenterWrapper *notificationCenterWrapper
         = SentryDependencyContainer.sharedInstance.notificationCenterWrapper;
-#if SentryCrashCRASH_HAS_UIAPPLICATION
     [notificationCenterWrapper removeObserver:self name:UIApplicationDidBecomeActiveNotification];
     [notificationCenterWrapper removeObserver:self name:UIApplicationWillResignActiveNotification];
     [notificationCenterWrapper removeObserver:self
@@ -309,6 +311,8 @@ SentryCrash ()
     [notificationCenterWrapper removeObserver:self name:UIApplicationWillTerminateNotification];
 #endif
 #if SentryCrashCRASH_HAS_NSEXTENSION
+    SentryNSNotificationCenterWrapper *notificationCenterWrapper
+        = SentryDependencyContainer.sharedInstance.notificationCenterWrapper;
     [notificationCenterWrapper removeObserver:self name:NSExtensionHostDidBecomeActiveNotification];
     [notificationCenterWrapper removeObserver:self
                                          name:NSExtensionHostWillResignActiveNotification];
