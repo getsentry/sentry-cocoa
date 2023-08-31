@@ -34,7 +34,7 @@ class SentrySwizzleWrapperTests: XCTestCase {
         super.setUp()
         
         fixture = Fixture()
-        sut = SentrySwizzleWrapper.sharedInstance
+        sut = SentryDependencyContainer.sharedInstance().swizzleWrapper
     }
     
     override func tearDown() {

@@ -9,7 +9,6 @@
 SentryExtraContextProvider ()
 
 @property (nonatomic, strong) SentryCrashWrapper *crashWrapper;
-@property (nonatomic, strong) SentryUIDeviceWrapper *deviceWrapper;
 @property (nonatomic, strong) SentryNSProcessInfoWrapper *processInfoWrapper;
 
 @end
@@ -28,17 +27,13 @@ SentryExtraContextProvider ()
 {
     return
         [self initWithCrashWrapper:[SentryCrashWrapper sharedInstance]
-                     deviceWrapper:[[SentryUIDeviceWrapper alloc] init]
                 processInfoWrapper:[SentryDependencyContainer.sharedInstance processInfoWrapper]];
 }
 
-- (instancetype)initWithCrashWrapper:(id)crashWrapper
-                       deviceWrapper:(id)deviceWrapper
-                  processInfoWrapper:(id)processInfoWrapper
+- (instancetype)initWithCrashWrapper:(id)crashWrapper processInfoWrapper:(id)processInfoWrapper
 {
     if (self = [super init]) {
         self.crashWrapper = crashWrapper;
-        self.deviceWrapper = deviceWrapper;
         self.processInfoWrapper = processInfoWrapper;
     }
     return self;
@@ -58,16 +53,16 @@ SentryExtraContextProvider ()
     extraDeviceContext[@"processor_count"] = @([self.processInfoWrapper processorCount]);
 
 #if TARGET_OS_IOS
-    if (self.deviceWrapper.orientation != UIDeviceOrientationUnknown) {
+    SentryUIDeviceWrapper *deviceWrapper = SentryDependencyContainer.sharedInstance.uiDeviceWrapper;
+    if (deviceWrapper.orientation != UIDeviceOrientationUnknown) {
         extraDeviceContext[@"orientation"]
-            = UIDeviceOrientationIsPortrait(self.deviceWrapper.orientation) ? @"portrait"
-                                                                            : @"landscape";
+            = UIDeviceOrientationIsPortrait(deviceWrapper.orientation) ? @"portrait" : @"landscape";
     }
 
-    if (self.deviceWrapper.isBatteryMonitoringEnabled) {
+    if (deviceWrapper.isBatteryMonitoringEnabled) {
         extraDeviceContext[@"charging"]
-            = self.deviceWrapper.batteryState == UIDeviceBatteryStateCharging ? @(YES) : @(NO);
-        extraDeviceContext[@"battery_level"] = @((int)(self.deviceWrapper.batteryLevel * 100));
+            = deviceWrapper.batteryState == UIDeviceBatteryStateCharging ? @(YES) : @(NO);
+        extraDeviceContext[@"battery_level"] = @((int)(deviceWrapper.batteryLevel * 100));
     }
 #endif
     return extraDeviceContext;

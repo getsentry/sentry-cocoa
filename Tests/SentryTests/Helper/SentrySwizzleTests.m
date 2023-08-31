@@ -1,5 +1,4 @@
 #import "SentrySwizzle.h"
-#import <Sentry/Sentry.h>
 #import <XCTest/XCTest.h>
 
 #pragma mark - HELPER CLASSES -

@@ -26,7 +26,11 @@
 @class SentryScreenshot;
 @class SentryUIApplication;
 @class SentryViewHierarchy;
-#endif
+#endif // SENTRY_HAS_UIKIT
+
+#if TARGET_OS_IOS
+@class SentryUIDeviceWrapper;
+#endif // TARGET_OS_IOS
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -62,7 +66,11 @@ SENTRY_NO_INIT
 @property (nonatomic, strong) SentryScreenshot *screenshot;
 @property (nonatomic, strong) SentryViewHierarchy *viewHierarchy;
 @property (nonatomic, strong) SentryUIApplication *application;
-#endif
+#endif // SENTRY_HAS_UIKIT
+
+#if TARGET_OS_IOS
+@property (nonatomic, strong) SentryUIDeviceWrapper *uiDeviceWrapper;
+#endif // TARGET_OS_IOS
 
 - (SentryANRTracker *)getANRTracker:(NSTimeInterval)timeout;
 
