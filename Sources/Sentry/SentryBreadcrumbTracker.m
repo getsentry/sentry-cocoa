@@ -203,31 +203,6 @@ SentryBreadcrumbTracker ()
     SEL selector = NSSelectorFromString(@"viewDidAppear:");
     SentryBreadcrumbTracker *__weak weakSelf = self;
 
-    //    [SentrySwizzle
-    //        swizzleInstanceMethod:selector
-    //                      inClass:UIViewController.class
-    //                newImpFactory:^id(SentrySwizzleInfo *swizzleInfo) {
-    //                    return ^(__unsafe_unretained id self,
-    //                        BOOL animated) {
-    //                        SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc]
-    //                        initWithLevel:kSentryLevelInfo
-    //                                                                                 category:@"ui.lifecycle"];
-    //                        crumb.type = @"navigation";
-    //                        crumb.data = [SentryBreadcrumbTracker
-    //                        fetchInfoAboutViewController:self];
-    //
-    //                        NSLog(@"tracker: %@; __weak id<SentryBreadcrumbDelegate>: %@; crumb:
-    //                        %@", tracker, delegate, crumb);
-    //
-    //                        [delegate addBreadcrumb:crumb];
-    //
-    //                        ((void (*)(__unsafe_unretained id, SEL))[swizzleInfo
-    //                        getOriginalImplementation])(self, selector);
-    //                    };
-    //                }
-    //                         mode:SentrySwizzleModeOncePerClassAndSuperclasses
-    //                          key:swizzleViewDidAppearKey];
-
     SentrySwizzleInstanceMethod(UIViewController.class, selector, SentrySWReturnType(void),
         SentrySWArguments(BOOL animated), SentrySWReplacement({
             SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:kSentryLevelInfo
