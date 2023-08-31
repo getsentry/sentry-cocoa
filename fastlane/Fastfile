@@ -36,7 +36,7 @@ platform :ios do
       value: new_version
     )
 
-    sentryInfoPlistPath = "./Sources/Sentry/Info.plist"
+    sentryInfoPlistPath = "./Sources/Resources/Info.plist"
     set_info_plist_value(
       path: sentryInfoPlistPath,
       key: "CFBundleShortVersionString",
@@ -263,8 +263,9 @@ platform :ios do
 
   desc "Build Perf-test app without Sentry"
   lane :build_perf_test_app_plain do
-
-    setup_ci
+    setup_ci(
+      force: true
+    )
 
     sync_code_signing(
       type: "development",
@@ -287,7 +288,9 @@ platform :ios do
 
   desc "Build Perf-test app with Sentry"
   lane :build_perf_test_app_sentry do
-    setup_ci
+    setup_ci(
+      force: true
+    )
 
     sync_code_signing(
       type: "development",

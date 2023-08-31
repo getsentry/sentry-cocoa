@@ -29,7 +29,9 @@ class SentryClientTest: XCTestCase {
         let trace = SentryTracer(transactionContext: TransactionContext(name: "SomeTransaction", operation: "SomeOperation"), hub: nil)
         let transaction: Transaction
         let crashWrapper = TestSentryCrashWrapper.sharedInstance()
+        #if os(iOS) || targetEnvironment(macCatalyst)
         let deviceWrapper = TestSentryUIDeviceWrapper()
+        #endif // os(iOS) || targetEnvironment(macCatalyst)
         let processWrapper = TestSentryNSProcessInfoWrapper()
         let extraContentProvider: SentryExtraContextProvider
         let locale = Locale(identifier: "en_US")
@@ -62,8 +64,12 @@ class SentryClientTest: XCTestCase {
             crashWrapper.internalFreeMemorySize = 123_456
             crashWrapper.internalAppMemorySize = 234_567
             crashWrapper.internalFreeStorageSize = 345_678
+
+            #if os(iOS) || targetEnvironment(macCatalyst)
+            SentryDependencyContainer.sharedInstance().uiDeviceWrapper = deviceWrapper
+#endif // os(iOS) || targetEnvironment(macCatalyst)
             
-            extraContentProvider = SentryExtraContextProvider(crashWrapper: crashWrapper, deviceWrapper: deviceWrapper, processInfoWrapper: processWrapper)
+            extraContentProvider = SentryExtraContextProvider(crashWrapper: crashWrapper, processInfoWrapper: processWrapper)
         }
 
         func getSut(configureOptions: (Options) -> Void = { _ in }) -> SentryClient {
@@ -521,7 +527,8 @@ class SentryClientTest: XCTestCase {
 
     func testCaptureErrorWithSession() throws {
         let sessionBlockExpectation = expectation(description: "session block gets called")
-        let eventId = fixture.getSut().captureError(error, with: Scope()) {
+        let scope = Scope()
+        let eventId = fixture.getSut().captureError(error, with: scope) {
             sessionBlockExpectation.fulfill()
             return self.fixture.session
         }
@@ -532,6 +539,9 @@ class SentryClientTest: XCTestCase {
         if let eventWithSessionArguments = fixture.transportAdapter.sentEventsWithSessionTraceState.last {
             try assertValidErrorEvent(eventWithSessionArguments.event, error)
             XCTAssertEqual(fixture.session, eventWithSessionArguments.session)
+            
+            XCTAssertEqual(eventWithSessionArguments.traceContext?.traceId, 
+                           scope.propagationContext.traceContext?.traceId)
         }
     }
     
@@ -682,7 +692,7 @@ class SentryClientTest: XCTestCase {
         }
     }
     
-#if os(iOS)
+#if os(iOS) || targetEnvironment(macCatalyst)
     func testCaptureEvent_DeviceProperties() throws {
         fixture.getSut().capture(event: TestData.event)
 
@@ -712,7 +722,7 @@ class SentryClientTest: XCTestCase {
             XCTAssertEqual(charging, false)
         }
     }
-#endif // os(iOS)
+#endif // os(iOS) || targetEnvironment(macCatalyst)
 
     func testCaptureEvent_AddCurrentCulture() throws {
         fixture.getSut().capture(event: TestData.event)
@@ -1365,11 +1375,12 @@ class SentryClientTest: XCTestCase {
         let transaction = fixture.transaction
         let client = fixture.getSut()
         client.capture(event: transaction)
-        
+
         XCTAssertNotNil(fixture.transportAdapter.sendEventWithTraceStateInvocations.first?.traceContext)
+        XCTAssertEqual(fixture.transportAdapter.sendEventWithTraceStateInvocations.first?.traceContext?.traceId, transaction.trace.traceId)
     }
     
-    func testCaptureEvent_traceInScope_sendTraceState() {
+    func testCaptureEvent_sendTraceState() {
         let event = Event(level: SentryLevel.warning)
         event.message = fixture.message
         let scope = Scope()
@@ -1377,10 +1388,9 @@ class SentryClientTest: XCTestCase {
         
         let client = fixture.getSut()
         client.capture(event: event, scope: scope)
-        
-        client.capture(event: event)
-        
+
         XCTAssertNotNil(fixture.transportAdapter.sendEventWithTraceStateInvocations.first?.traceContext)
+        XCTAssertEqual(fixture.transportAdapter.sendEventWithTraceStateInvocations.first?.traceContext?.traceId, fixture.trace.traceId)
     }
 
     func test_AddCrashReportAttacment_withViewHierarchy() {

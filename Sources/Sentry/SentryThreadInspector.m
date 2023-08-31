@@ -69,8 +69,7 @@ getStackEntriesFromThread(SentryCrashThread thread, struct SentryCrashMachineCon
         [[SentryInAppLogic alloc] initWithInAppIncludes:options.inAppIncludes
                                           inAppExcludes:options.inAppExcludes];
     SentryCrashStackEntryMapper *crashStackEntryMapper =
-        [[SentryCrashStackEntryMapper alloc] initWithInAppLogic:inAppLogic
-                                               binaryImageCache:SentryBinaryImageCache.shared];
+        [[SentryCrashStackEntryMapper alloc] initWithInAppLogic:inAppLogic];
     SentryStacktraceBuilder *stacktraceBuilder =
         [[SentryStacktraceBuilder alloc] initWithCrashStackEntryMapper:crashStackEntryMapper];
     stacktraceBuilder.symbolicate = options.debug;

@@ -1,6 +1,7 @@
 #import "SentryBinaryImageCache+Private.h"
 #import "SentryCrashBinaryImageCache.h"
 #import "SentryCrashWrapper.h"
+#import "SentryDependencyContainer.h"
 #import <XCTest/XCTest.h>
 
 #include <mach-o/dyld.h>
@@ -262,7 +263,7 @@ delayAddBinaryImage(void)
 {
     sentrycrashbic_startCache();
 
-    SentryBinaryImageCache *imageCache = SentryBinaryImageCache.shared;
+    SentryBinaryImageCache *imageCache = SentryDependencyContainer.sharedInstance.binaryImageCache;
     [imageCache start];
     // by calling start, SentryBinaryImageCache will register a callback with
     // `SentryCrashBinaryImageCache` that should be called for every image already cached.
