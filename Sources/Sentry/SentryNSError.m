@@ -24,7 +24,7 @@ SentryNSError ()
         _domain = error.domain;
         _code = error.code;
 
-        if (@available(iOS 14.5, *)) {
+        if (@available(iOS 14.5, tvOS 14.5, macOS 11.3, *)) {
             NSMutableArray<SentryNSError *> *underlyingErrors =
                 [NSMutableArray<SentryNSError *> array];
             [error.underlyingErrors enumerateObjectsUsingBlock:^(
