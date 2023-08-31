@@ -26,9 +26,7 @@ SentryAutoBreadcrumbTrackingIntegration ()
     }
 
     [self installWithOptions:options
-             breadcrumbTracker:[[SentryBreadcrumbTracker alloc]
-                                   initWithSwizzleWrapper:[SentryDependencyContainer sharedInstance]
-                                                              .swizzleWrapper]
+             breadcrumbTracker:[[SentryBreadcrumbTracker alloc] init]
         systemEventBreadcrumbs:
             [[SentrySystemEventBreadcrumbs alloc]
                          initWithFileManager:[SentryDependencyContainer sharedInstance].fileManager

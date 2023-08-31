@@ -12,7 +12,6 @@ NS_ASSUME_NONNULL_BEGIN
 @interface SentryExtraContextProvider : NSObject
 
 - (instancetype)initWithCrashWrapper:(SentryCrashWrapper *)crashWrapper
-                       deviceWrapper:(SentryUIDeviceWrapper *)deviceWrapper
                   processInfoWrapper:(SentryNSProcessInfoWrapper *)processInfoWrapper;
 
 - (NSDictionary *)getExtraContext;

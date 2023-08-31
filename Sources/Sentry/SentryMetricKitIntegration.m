@@ -449,31 +449,6 @@ SentryMetricKitIntegration ()
 
 @end
 
-@implementation
-SentryEvent (MetricKit)
-
-- (BOOL)isMetricKitEvent
-{
-    if (self.exceptions == nil || self.exceptions.count != 1) {
-        return NO;
-    }
-
-    NSArray<NSString *> *metricKitMechanisms = @[
-        SentryMetricKitDiskWriteExceptionMechanism, SentryMetricKitCpuExceptionMechanism,
-        SentryMetricKitHangDiagnosticMechanism, @"MXCrashDiagnostic"
-    ];
-
-    SentryException *exception = self.exceptions[0];
-    if (exception.mechanism != nil &&
-        [metricKitMechanisms containsObject:exception.mechanism.type]) {
-        return YES;
-    } else {
-        return NO;
-    }
-}
-
-@end
-
 NS_ASSUME_NONNULL_END
 
 #endif // SENTRY_HAS_METRIC_KIT

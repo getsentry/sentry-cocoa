@@ -1,8 +1,16 @@
 #import "NSDate+SentryExtras.h"
+#import "SentryBreadcrumb.h"
 #import "SentryCrashReportConverter.h"
+#import "SentryDebugMeta.h"
+#import "SentryEvent.h"
+#import "SentryException.h"
+#import "SentryFrame.h"
 #import "SentryInAppLogic.h"
+#import "SentryMechanism.h"
 #import "SentryMechanismMeta.h"
-#import <Sentry/Sentry.h>
+#import "SentryStacktrace.h"
+#import "SentryThread.h"
+#import "SentryUser.h"
 #import <XCTest/XCTest.h>
 
 @interface SentryCrashReportConverterTests : XCTestCase

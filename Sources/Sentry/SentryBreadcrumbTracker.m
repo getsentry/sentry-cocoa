@@ -3,6 +3,7 @@
 #import "SentryBreadcrumbDelegate.h"
 #import "SentryClient.h"
 #import "SentryDefines.h"
+#import "SentryDependencyContainer.h"
 #import "SentryHub.h"
 #import "SentryLog.h"
 #import "SentrySDK+Private.h"
@@ -25,20 +26,11 @@ static NSString *const SentryBreadcrumbTrackerSwizzleSendAction
 @interface
 SentryBreadcrumbTracker ()
 
-@property (nonatomic, strong) SentrySwizzleWrapper *swizzleWrapper;
 @property (nonatomic, weak) id<SentryBreadcrumbDelegate> delegate;
 
 @end
 
 @implementation SentryBreadcrumbTracker
-
-- (instancetype)initWithSwizzleWrapper:(SentrySwizzleWrapper *)swizzleWrapper
-{
-    if (self = [super init]) {
-        self.swizzleWrapper = swizzleWrapper;
-    }
-    return self;
-}
 
 - (void)startWithDelegate:(id<SentryBreadcrumbDelegate>)delegate
 {
@@ -58,7 +50,8 @@ SentryBreadcrumbTracker ()
     // All breadcrumbs are guarded by checking the client of the current hub, which we remove when
     // uninstalling the SDK. Therefore, we don't clean up everything.
 #if SENTRY_HAS_UIKIT
-    [self.swizzleWrapper removeSwizzleSendActionForKey:SentryBreadcrumbTrackerSwizzleSendAction];
+    [SentryDependencyContainer.sharedInstance.swizzleWrapper
+        removeSwizzleSendActionForKey:SentryBreadcrumbTrackerSwizzleSendAction];
 #endif
     _delegate = nil;
 }
@@ -163,7 +156,7 @@ SentryBreadcrumbTracker ()
 - (void)swizzleSendAction
 {
 #if SENTRY_HAS_UIKIT
-    [self.swizzleWrapper
+    [SentryDependencyContainer.sharedInstance.swizzleWrapper
         swizzleSendAction:^(NSString *action, id target, id sender, UIEvent *event) {
             if ([SentryBreadcrumbTracker avoidSender:sender forTarget:target action:action]) {
                 return;

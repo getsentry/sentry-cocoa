@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+- Distributed tracing without performance (#3196)
+- Report database backing store information for Core Data (#3231)
+- Add "data use" in privacy manifests (#3259)
+
 ## 8.10.0
 
 ### Features

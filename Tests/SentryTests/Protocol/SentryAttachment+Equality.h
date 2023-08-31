@@ -1,4 +1,4 @@
-#import <Sentry/Sentry.h>
+#import "SentryAttachment.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
