@@ -8,6 +8,10 @@
 - Report database backing store information for Core Data (#3231)
 - Add "data use" in privacy manifests (#3259)
 
+### Fixes
+
+- Report correct units (nanojoules) for profiling energy metrics (#3262)
+
 ## 8.10.0
 
 ### Features
