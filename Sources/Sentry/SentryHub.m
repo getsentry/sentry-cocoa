@@ -691,9 +691,9 @@ SentryHub ()
 
 #pragma mark - Protected
 
-- (NSMutableSet<NSString *> *)trimmedInstalledIntegrationNames
+- (NSMutableArray<NSString *> *)trimmedInstalledIntegrationNames
 {
-    NSMutableSet<NSString *> *integrations = [NSMutableSet<NSString *> set];
+    NSMutableArray<NSString *> *integrations = [NSMutableArray<NSString *> array];
     for (NSString *integration in SentrySDK.currentHub.installedIntegrationNames) {
         // Every integration starts with "Sentry" and ends with "Integration". To keep the
         // payload of the event small we remove both.

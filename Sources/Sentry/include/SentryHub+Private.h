@@ -22,7 +22,7 @@ SentryHub ()
  * Every integration starts with "Sentry" and ends with "Integration". To keep the payload of the
  * event small we remove both.
  */
-- (NSMutableSet<NSString *> *)trimmedInstalledIntegrationNames;
+- (NSMutableArray<NSString *> *)trimmedInstalledIntegrationNames;
 
 - (void)addInstalledIntegration:(id<SentryIntegrationProtocol>)integration name:(NSString *)name;
 - (void)removeAllIntegrations;
