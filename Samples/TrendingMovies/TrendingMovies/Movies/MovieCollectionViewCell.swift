@@ -155,7 +155,7 @@ class MovieCollectionViewCell: UICollectionViewCell {
 private func blurPosterImage(_ image: UIImage, completion: @escaping (UIImage?) -> Void) {
     let efficiently = ProcessInfo.processInfo.arguments.contains("--io.sentry.sample.trending-movies.launch-arg.efficient-implementation")
     func performBlur() {
-        let blurredImage = ImageEffects.createBlurredBackdrop(image: image, downsamplingFactor: 1.0, blurRadius: 20.0, tintColor: nil, saturationDeltaFactor: 2.0)
+        let blurredImage = ImageEffects.createBlurredBackdrop(image: image, downsamplingFactor: 0.87, blurRadius: 20.0, tintColor: nil, saturationDeltaFactor: 2.0)
         if efficiently {
             DispatchQueue.main.async {
                 completion(blurredImage)

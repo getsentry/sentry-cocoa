@@ -1,11 +1,6 @@
 import Foundation
 
 public class TestTransportAdapter: SentryTransportAdapter {
-    
-    public override func send(event: Event, attachments: [Attachment]) {
-        self.send(event: event, traceContext: nil, attachments: attachments)
-    }
-    
     public override func send(_ event: Event, session: SentrySession, attachments: [Attachment]) {
         self.send(event, with: session, traceContext: nil, attachments: attachments)
     }

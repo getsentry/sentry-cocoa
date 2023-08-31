@@ -5,11 +5,15 @@
 ### Features
 
 - Record changes to network connectivity in breadcrumbs (#3232)
+- Distributed tracing without performance (#3196)
+- Report database backing store information for Core Data (#3231)
+- Add "data use" in privacy manifests (#3259)
 
 ## 8.10.0
 
 ### Features
 
+- Add required reason API (#3206)
 - Record energy usage estimates for profiling (#3217)
 
 ### Fixes

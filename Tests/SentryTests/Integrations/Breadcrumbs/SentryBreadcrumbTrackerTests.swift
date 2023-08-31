@@ -19,14 +19,13 @@ class SentryBreadcrumbTrackerTests: XCTestCase {
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
     
     func testStopRemovesSwizzleSendAction() {
-        let swizzleWrapper = SentrySwizzleWrapper.sharedInstance
-        let sut = SentryBreadcrumbTracker(swizzleWrapper: swizzleWrapper)
+        let sut = SentryBreadcrumbTracker()
 
         sut.start(with: delegate)
         sut.startSwizzle()
         sut.stop()
 
-        let dict = Dynamic(swizzleWrapper).swizzleSendActionCallbacks().asDictionary
+        let dict = Dynamic(SentryDependencyContainer.sharedInstance().swizzleWrapper).swizzleSendActionCallbacks().asDictionary
         XCTAssertEqual(0, dict?.count)
     }
 
@@ -61,7 +60,7 @@ class SentryBreadcrumbTrackerTests: XCTestCase {
         let hub = TestHub(client: client, andScope: scope)
         SentrySDK.setCurrentHub(hub)
         
-        let sut = SentryBreadcrumbTracker(swizzleWrapper: SentrySwizzleWrapper.sharedInstance)
+        let sut = SentryBreadcrumbTracker()
         sut.start(with: delegate)
         sut.startSwizzle()
 

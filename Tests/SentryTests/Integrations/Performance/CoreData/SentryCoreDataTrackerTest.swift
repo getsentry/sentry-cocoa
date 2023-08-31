@@ -5,7 +5,10 @@ import XCTest
 class SentryCoreDataTrackerTests: XCTestCase {
     
     private class Fixture {
-        let context = TestNSManagedObjectContext()
+        let coreDataStack = TestCoreDataStack()
+        lazy var context: TestNSManagedObjectContext = {
+            coreDataStack.managedObjectContext
+        }()
         let threadInspector = TestThreadInspector.instance
         let imageProvider = TestDebugImageProvider()
         
@@ -51,121 +54,121 @@ class SentryCoreDataTrackerTests: XCTestCase {
         XCTAssertEqual(SENTRY_COREDATA_SAVE_OPERATION, "db.sql.transaction")
     }
     
-    func testFetchRequest() {
+    func testFetchRequest() throws {
         let fetch = NSFetchRequest<TestEntity>(entityName: "TestEntity")
-        assertRequest(fetch, expectedDescription: "SELECT 'TestEntity'")
+        try assertRequest(fetch, expectedDescription: "SELECT 'TestEntity'")
     }
 
     func testFetchRequestBackgroundThread() {
         let expect = expectation(description: "Operation in background thread")
         DispatchQueue.global(qos: .default).async {
             let fetch = NSFetchRequest<TestEntity>(entityName: "TestEntity")
-            self.assertRequest(fetch, expectedDescription: "SELECT 'TestEntity'", mainThread: false)
+            try? self.assertRequest(fetch, expectedDescription: "SELECT 'TestEntity'", mainThread: false)
             expect.fulfill()
         }
 
         wait(for: [expect], timeout: 1.0)
     }
     
-    func test_FetchRequest_WithPredicate() {
+    func test_FetchRequest_WithPredicate() throws {
         let fetch = NSFetchRequest<TestEntity>(entityName: "TestEntity")
         fetch.predicate = NSPredicate(format: "field1 = %@ and field2 = %@", argumentArray: ["First Argument", 2])
-        assertRequest(fetch, expectedDescription: "SELECT 'TestEntity' WHERE field1 == %@ AND field2 == %@")
+        try assertRequest(fetch, expectedDescription: "SELECT 'TestEntity' WHERE field1 == %@ AND field2 == %@")
     }
     
-    func test_FetchRequest_WithSortAscending() {
+    func test_FetchRequest_WithSortAscending() throws {
         let fetch = NSFetchRequest<TestEntity>(entityName: "TestEntity")
         fetch.sortDescriptors = [NSSortDescriptor(key: "field1", ascending: true)]
-        assertRequest(fetch, expectedDescription: "SELECT 'TestEntity' SORT BY field1")
+        try assertRequest(fetch, expectedDescription: "SELECT 'TestEntity' SORT BY field1")
     }
     
-    func test_FetchRequest_WithSortDescending() {
+    func test_FetchRequest_WithSortDescending() throws {
         let fetch = NSFetchRequest<TestEntity>(entityName: "TestEntity")
         fetch.sortDescriptors = [NSSortDescriptor(key: "field1", ascending: false)]
-        assertRequest(fetch, expectedDescription: "SELECT 'TestEntity' SORT BY field1 DESCENDING")
+        try assertRequest(fetch, expectedDescription: "SELECT 'TestEntity' SORT BY field1 DESCENDING")
     }
     
-    func test_FetchRequest_WithSortTwoFields() {
+    func test_FetchRequest_WithSortTwoFields() throws {
         let fetch = NSFetchRequest<TestEntity>(entityName: "TestEntity")
         fetch.sortDescriptors = [NSSortDescriptor(key: "field1", ascending: false), NSSortDescriptor(key: "field2", ascending: true)]
-        assertRequest(fetch, expectedDescription: "SELECT 'TestEntity' SORT BY field1 DESCENDING, field2")
+        try assertRequest(fetch, expectedDescription: "SELECT 'TestEntity' SORT BY field1 DESCENDING, field2")
     }
     
-    func test_FetchRequest_WithPredicateAndSort() {
+    func test_FetchRequest_WithPredicateAndSort() throws {
         let fetch = NSFetchRequest<TestEntity>(entityName: "TestEntity")
         fetch.predicate = NSPredicate(format: "field1 = %@", argumentArray: ["First Argument"])
         fetch.sortDescriptors = [NSSortDescriptor(key: "field1", ascending: false)]
-        assertRequest(fetch, expectedDescription: "SELECT 'TestEntity' WHERE field1 == %@ SORT BY field1 DESCENDING")
+        try assertRequest(fetch, expectedDescription: "SELECT 'TestEntity' WHERE field1 == %@ SORT BY field1 DESCENDING")
     }
     
-    func test_Save_1Insert_1Entity() {
+    func test_Save_1Insert_1Entity() throws {
         fixture.context.inserted = [fixture.testEntity()]
-        assertSave("INSERTED 1 'TestEntity'")
+        try assertSave("INSERTED 1 'TestEntity'")
     }
 
     func testSaveBackgroundThread() {
         let expect = expectation(description: "Operation in background thread")
         DispatchQueue.global(qos: .default).async {
             self.fixture.context.inserted = [self.fixture.testEntity()]
-            self.assertSave("INSERTED 1 'TestEntity'", mainThread: false)
+            try? self.assertSave("INSERTED 1 'TestEntity'", mainThread: false)
             expect.fulfill()
         }
 
         wait(for: [expect], timeout: 1.0)
     }
     
-    func test_Save_2Insert_1Entity() {
+    func test_Save_2Insert_1Entity() throws {
         fixture.context.inserted = [fixture.testEntity(), fixture.testEntity()]
-        assertSave("INSERTED 2 'TestEntity'")
+        try assertSave("INSERTED 2 'TestEntity'")
     }
     
-    func test_Save_2Insert_2Entity() {
+    func test_Save_2Insert_2Entity() throws {
         fixture.context.inserted = [fixture.testEntity(), fixture.secondTestEntity()]
-        assertSave("INSERTED 2 items")
+        try assertSave("INSERTED 2 items")
     }
     
-    func test_Save_1Update_1Entity() {
+    func test_Save_1Update_1Entity() throws {
         fixture.context.updated = [fixture.testEntity()]
-        assertSave("UPDATED 1 'TestEntity'")
+        try assertSave("UPDATED 1 'TestEntity'")
     }
     
-    func test_Save_2Update_1Entity() {
+    func test_Save_2Update_1Entity() throws {
         fixture.context.updated = [fixture.testEntity(), fixture.testEntity()]
-        assertSave("UPDATED 2 'TestEntity'")
+        try assertSave("UPDATED 2 'TestEntity'")
     }
     
-    func test_Save_2Update_2Entity() {
+    func test_Save_2Update_2Entity() throws {
         fixture.context.updated = [fixture.testEntity(), fixture.secondTestEntity()]
-        assertSave("UPDATED 2 items")
+        try assertSave("UPDATED 2 items")
     }
     
-    func test_Save_1Delete_1Entity() {
+    func test_Save_1Delete_1Entity() throws {
         fixture.context.deleted = [fixture.testEntity()]
-        assertSave("DELETED 1 'TestEntity'")
+        try assertSave("DELETED 1 'TestEntity'")
     }
     
-    func test_Save_2Delete_1Entity() {
+    func test_Save_2Delete_1Entity() throws {
         fixture.context.deleted = [fixture.testEntity(), fixture.testEntity()]
-        assertSave("DELETED 2 'TestEntity'")
+        try assertSave("DELETED 2 'TestEntity'")
     }
     
-    func test_Save_2Delete_2Entity() {
+    func test_Save_2Delete_2Entity() throws {
         fixture.context.deleted = [fixture.testEntity(), fixture.secondTestEntity()]
-        assertSave("DELETED 2 items")
+        try assertSave("DELETED 2 items")
     }
     
-    func test_Save_Insert_Update_Delete_1Entity() {
+    func test_Save_Insert_Update_Delete_1Entity() throws {
         fixture.context.inserted = [fixture.testEntity()]
         fixture.context.updated = [fixture.testEntity()]
         fixture.context.deleted = [fixture.testEntity()]
-        assertSave("INSERTED 1 'TestEntity', UPDATED 1 'TestEntity', DELETED 1 'TestEntity'")
+        try assertSave("INSERTED 1 'TestEntity', UPDATED 1 'TestEntity', DELETED 1 'TestEntity'")
     }
     
-    func test_Save_Insert_Update_Delete_2Entity() {
+    func test_Save_Insert_Update_Delete_2Entity() throws {
         fixture.context.inserted = [fixture.testEntity(), fixture.secondTestEntity()]
         fixture.context.updated = [fixture.testEntity(), fixture.secondTestEntity()]
         fixture.context.deleted = [fixture.testEntity(), fixture.secondTestEntity()]
-        assertSave("INSERTED 2 items, UPDATED 2 items, DELETED 2 items")
+        try assertSave("INSERTED 2 items, UPDATED 2 items, DELETED 2 items")
     }
     
     func test_Operation_InData() {
@@ -288,8 +291,12 @@ class SentryCoreDataTrackerTests: XCTestCase {
         
         XCTAssertEqual(transaction.children.count, 0)
     }
-    
-    func assertSave(_ expectedDescription: String, mainThread: Bool = true) {
+
+}
+
+private extension SentryCoreDataTrackerTests {
+
+    func assertSave(_ expectedDescription: String, mainThread: Bool = true) throws {
         let sut = fixture.getSut()
         
         let transaction = startTransaction()
@@ -298,26 +305,12 @@ class SentryCoreDataTrackerTests: XCTestCase {
             return true
         })
 
-        guard let dbSpan = try? XCTUnwrap(transaction.children.first) else {
-            XCTFail("Span for DB operation don't exist.")
-            return
-        }
-
-        XCTAssertEqual(dbSpan.operation, SENTRY_COREDATA_SAVE_OPERATION)
-        XCTAssertEqual(dbSpan.spanDescription, expectedDescription)
-        XCTAssertEqual(dbSpan.data["blocked_main_thread"] as? Bool ?? false, mainThread)
-
-        if mainThread {
-            guard let frames = (dbSpan as? SentrySpan)?.frames else {
-                XCTFail("File IO Span in the main thread has no frames")
-                return
-            }
-            XCTAssertEqual(frames.first, TestData.mainFrame)
-            XCTAssertEqual(frames.last, TestData.testFrame)
-        }
+        let dbSpan = try XCTUnwrap(transaction.children.first)
+        
+        assertDataAndFrames(dbSpan: dbSpan, expectedOperation: SENTRY_COREDATA_SAVE_OPERATION, expectedDescription: expectedDescription, mainThread: mainThread)
     }
     
-    func assertRequest(_ fetch: NSFetchRequest<TestEntity>, expectedDescription: String, mainThread: Bool = true) {
+    func assertRequest(_ fetch: NSFetchRequest<TestEntity>, expectedDescription: String, mainThread: Bool = true) throws {
         let transaction = startTransaction()
         let sut = fixture.getSut()
         
@@ -325,21 +318,25 @@ class SentryCoreDataTrackerTests: XCTestCase {
         
         let someEntity = fixture.testEntity()
         
-        let result = try?  sut.fetchManagedObjectContext(context, request: fetch) { _, _ in
+        let result = try? sut.fetchManagedObjectContext(context, request: fetch) { _, _ in
             return [someEntity]
         }
 
-        guard let dbSpan = try? XCTUnwrap(transaction.children.first) else {
-            XCTFail("Span for DB operation don't exist.")
-            return
-        }
-
         XCTAssertEqual(result?.count, 1)
-        XCTAssertEqual(dbSpan.operation, SENTRY_COREDATA_FETCH_OPERATION)
+
+        let dbSpan = try XCTUnwrap(transaction.children.first)
+        XCTAssertEqual(dbSpan.data["read_count"] as? Int, 1)
+
+        assertDataAndFrames(dbSpan: dbSpan, expectedOperation: SENTRY_COREDATA_FETCH_OPERATION, expectedDescription: expectedDescription, mainThread: mainThread)
+    }
+
+    func assertDataAndFrames(dbSpan: Span, expectedOperation: String, expectedDescription: String, mainThread: Bool) {
+        XCTAssertEqual(dbSpan.operation, expectedOperation)
         XCTAssertEqual(dbSpan.origin, "auto.db.core_data")
         XCTAssertEqual(dbSpan.spanDescription, expectedDescription)
-        XCTAssertEqual(dbSpan.data["read_count"] as? Int, 1)
         XCTAssertEqual(dbSpan.data["blocked_main_thread"] as? Bool ?? false, mainThread)
+        XCTAssertEqual(try XCTUnwrap(dbSpan.data["db.system"] as? String), "SQLite")
+        XCTAssert(try XCTUnwrap(dbSpan.data["db.name"] as? NSString).contains(TestCoreDataStack.databaseFilename))
 
         if mainThread {
             guard let frames = (dbSpan as? SentrySpan)?.frames else {
@@ -357,37 +354,4 @@ class SentryCoreDataTrackerTests: XCTestCase {
         return SentrySDK.startTransaction(name: "TestTransaction", operation: "TestTransaction", bindToScope: true) as! SentryTracer
     }
     
-}
-
-class TestNSManagedObjectContext: NSManagedObjectContext {
-    
-    var inserted: Set<NSManagedObject>?
-    var updated: Set<NSManagedObject>?
-    var deleted: Set<NSManagedObject>?
-    
-    override var insertedObjects: Set<NSManagedObject> {
-        inserted ?? []
-    }
-    
-    override var updatedObjects: Set<NSManagedObject> {
-        updated ?? []
-    }
-    
-    override var deletedObjects: Set<NSManagedObject> {
-        deleted ?? []
-    }
-    
-    init() {
-        super.init(concurrencyType: .mainQueueConcurrencyType)
-    }
-    
-    required init?(coder: NSCoder) {
-        super.init(coder: coder)
-    }
-    
-    override var hasChanges: Bool {
-        return  ((inserted?.count ?? 0) > 0) ||
-        ((deleted?.count ?? 0) > 0) ||
-        ((updated?.count ?? 0) > 0)
-    }
 }
