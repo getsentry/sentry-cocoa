@@ -600,7 +600,7 @@ NSString *const kSentryDefaultEnvironment = @"production";
     return self.enableProfiling;
 }
 #    pragma clang diagnostic pop
-#endif
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
 /**
  * Checks if the passed in block is actually of type block. We can't check if the block matches a
