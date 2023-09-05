@@ -28,7 +28,7 @@ jobs:
     name: Swift Lint
     runs-on: macos-13
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - run: swiftlint --version
       - name: Run SwiftLint
         run: swiftlint --strict
@@ -37,7 +37,7 @@ jobs:
     name: Xcode Analyze
     runs-on: macos-13
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - run: ./scripts/ci-select-xcode.sh
       - run: make analyze
 
@@ -51,7 +51,7 @@ jobs:
         library_type: ['dynamic', 'static']
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - run: ./scripts/ci-select-xcode.sh
       # We need to update the spec-repo, because it can happen that it is not up to date and then the lint fails.
       - run: pod repo update
@@ -63,7 +63,7 @@ jobs:
     runs-on: macos-13
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - run: ./scripts/ci-select-xcode.sh
       - run: pod repo update
       - name: Validate HybridPod Podspec
@@ -73,5 +73,5 @@ jobs:
     name: No changes in high risk files
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - run: ./scripts/no-changes-in-high-risk-files.sh

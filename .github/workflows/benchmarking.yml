@@ -25,7 +25,7 @@ jobs:
     name: Build app and test runner
     runs-on: macos-13
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - run: ./scripts/ci-select-xcode.sh
       - uses: ruby/setup-ruby@v1
         with:
@@ -86,7 +86,7 @@ jobs:
       matrix:
         suite: ['High-end device', 'Mid-range device', 'Low-end device']
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: actions/download-artifact@v3
         with:
           name: DerivedData-Xcode
@@ -102,7 +102,7 @@ jobs:
     runs-on: macos-13
     steps:
       - name: Git checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - run: ./scripts/ci-select-xcode.sh
       - uses: ruby/setup-ruby@v1
         with:

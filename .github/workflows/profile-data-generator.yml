@@ -15,7 +15,7 @@ jobs:
     name: Build app and test runner
     runs-on: macos-12
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - run: ./scripts/ci-select-xcode.sh 13.4.1
       - uses: ruby/setup-ruby@v1
         with:
@@ -87,7 +87,7 @@ jobs:
       matrix:
         suite: ['High-end device', 'Mid-range device']
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: actions/download-artifact@v3
         with:
           name: data-generator-build-products

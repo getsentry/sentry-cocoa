@@ -32,7 +32,7 @@ jobs:
     name: Build test server
     runs-on: macos-13
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Cache for Test Server
         id: cache_test_server
         uses: actions/cache@v3
@@ -142,7 +142,7 @@ jobs:
             test-destination-os: "latest"
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: actions/download-artifact@v3
         with:
           name: test-server
@@ -253,7 +253,7 @@ jobs:
     needs: [build-test-server]
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - uses: actions/download-artifact@v3
         with:
@@ -284,7 +284,7 @@ jobs:
         target: ["ios_swift", "ios_objc", "tvos_swift"]
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - run: ./scripts/ci-select-xcode.sh
 
       # GitHub Actions sometimes fail to launch the UI tests. Therefore we retry
@@ -318,7 +318,7 @@ jobs:
             device: "iPhone 8 (16.1)"
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - run: ./scripts/ci-select-xcode.sh ${{matrix.xcode}}
 
       # GitHub Actions sometimes fail to launch the UI tests. Therefore we retry
@@ -340,7 +340,7 @@ jobs:
     runs-on: macos-13
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - run: ./scripts/ci-select-xcode.sh
 
       # GitHub Actions sometimes fail to launch the UI tests. Therefore we retry
