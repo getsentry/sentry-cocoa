@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+- Rename "http.method" to "http.request.method" for network Spans #3268
+
 ## 8.11.0
 
 ### Features
