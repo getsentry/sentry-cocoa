@@ -33,13 +33,11 @@ SentryBreadcrumbTracker ()
 
 - (instancetype)init
 {
-    NSLog(@"%@", NSThread.callStackSymbols);
     return [super init];
 }
 
 - (void)startWithDelegate:(id<SentryBreadcrumbDelegate>)delegate
 {
-    NSLog(@"Starting %@ with delegate: %@", self, delegate);
     _delegate = delegate;
     [self addEnabledCrumb];
     [self trackApplicationUIKitNotifications];
@@ -218,9 +216,6 @@ SentryBreadcrumbTracker ()
                                                                      category:@"ui.lifecycle"];
             crumb.type = @"navigation";
             crumb.data = [SentryBreadcrumbTracker fetchInfoAboutViewController:self];
-
-            NSLog(@"tracker: %@; __weak id<SentryBreadcrumbDelegate>: %@; crumb: %@", weakSelf,
-                weakSelf.delegate, crumb);
 
             [weakSelf.delegate addBreadcrumb:crumb];
 

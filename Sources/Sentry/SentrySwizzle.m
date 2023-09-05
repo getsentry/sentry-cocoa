@@ -153,23 +153,18 @@ swizzledClassesForKey(const void *key)
             NSSet<Class> *swizzledClasses = swizzledClassesForKey(key);
             if (mode == SentrySwizzleModeOncePerClass) {
                 if ([swizzledClasses containsObject:classToSwizzle]) {
-                    NSLog(@"already swizzled %@ on class %@", NSStringFromSelector(selector),
-                        classToSwizzle);
                     return NO;
                 }
             } else if (mode == SentrySwizzleModeOncePerClassAndSuperclasses) {
                 for (Class currentClass = classToSwizzle; nil != currentClass;
                      currentClass = class_getSuperclass(currentClass)) {
                     if ([swizzledClasses containsObject:currentClass]) {
-                        NSLog(@"already swizzled %@ on superclass %@",
-                            NSStringFromSelector(selector), classToSwizzle);
                         return NO;
                     }
                 }
             }
         }
 
-        NSLog(@"swizzling %@ on %@", NSStringFromSelector(selector), classToSwizzle);
         swizzle(classToSwizzle, selector, factoryBlock);
 
         if (key) {
