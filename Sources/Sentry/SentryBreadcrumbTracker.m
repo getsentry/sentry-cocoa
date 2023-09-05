@@ -7,7 +7,6 @@
 #import "SentryHub.h"
 #import "SentryLog.h"
 #import "SentryReachability.h"
-#import "SentrySDK+Private.h"
 #import "SentryScope.h"
 #import "SentrySwift.h"
 #import "SentrySwizzle.h"
@@ -32,11 +31,6 @@ SentryBreadcrumbTracker ()
 @end
 
 @implementation SentryBreadcrumbTracker
-
-- (instancetype)init
-{
-    return [super init];
-}
 
 - (void)startWithDelegate:(id<SentryBreadcrumbDelegate>)delegate
 {
