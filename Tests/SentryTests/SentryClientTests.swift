@@ -70,6 +70,7 @@ class SentryClientTest: XCTestCase {
 #endif // os(iOS) || targetEnvironment(macCatalyst)
             
             extraContentProvider = SentryExtraContextProvider(crashWrapper: crashWrapper, processInfoWrapper: processWrapper)
+            SentryDependencyContainer.sharedInstance().extraContextProvider = extraContentProvider
         }
 
         func getSut(configureOptions: (Options) -> Void = { _ in }) -> SentryClient {
@@ -88,8 +89,7 @@ class SentryClientTest: XCTestCase {
                     threadInspector: threadInspector,
                     random: random,
                     locale: locale,
-                    timezone: timezone,
-                    extraContextProvider: extraContentProvider
+                    timezone: timezone
                 )
             } catch {
                 XCTFail("Options could not be created")
