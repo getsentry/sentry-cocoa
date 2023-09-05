@@ -179,7 +179,7 @@ SentryNetworkTracker ()
                                                             safeUrl.sanitizedUrl]];
                 netSpan.origin = SentryTraceOriginAutoHttpNSURLSession;
 
-                [netSpan setDataValue:sessionTask.currentRequest.HTTPMethod forKey:@"http.method"];
+                [netSpan setDataValue:sessionTask.currentRequest.HTTPMethod forKey:@"http.request.method"];
                 [netSpan setDataValue:safeUrl.sanitizedUrl forKey:@"url"];
                 [netSpan setDataValue:@"fetch" forKey:@"type"];
 
