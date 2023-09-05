@@ -1,10 +1,15 @@
 # Changelog
 
-## 8.11.0
+## Unreleased
 
 ### Features
 
 - Record changes to network connectivity in breadcrumbs (#3232)
+
+## 8.11.0
+
+### Features
+
 - Distributed tracing without performance (#3196)
 - Report database backing store information for Core Data (#3231)
 - Add "data use" in privacy manifests (#3259)
