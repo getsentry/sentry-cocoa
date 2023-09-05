@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+- Enrich error events with any underlying NSErrors reported by Cocoa APIs (#3230)
+
 ## 8.11.0
 
 ### Features
