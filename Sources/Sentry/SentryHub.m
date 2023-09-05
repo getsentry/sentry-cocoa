@@ -1,4 +1,3 @@
-#import "SentryHub.h"
 #import "SentryClient+Private.h"
 #import "SentryCrashWrapper.h"
 #import "SentryCurrentDateProvider.h"
@@ -7,6 +6,7 @@
 #import "SentryEnvelopeItemType.h"
 #import "SentryEvent+Private.h"
 #import "SentryFileManager.h"
+#import "SentryHub+Private.h"
 #import "SentryId.h"
 #import "SentryLevelMapper.h"
 #import "SentryLog.h"
@@ -38,7 +38,6 @@ NS_ASSUME_NONNULL_BEGIN
 SentryHub ()
 
 @property (nullable, nonatomic, strong) SentryClient *client;
-@property (nullable, nonatomic, strong) SentrySession *session;
 @property (nullable, nonatomic, strong) SentryScope *scope;
 @property (nonatomic, strong) SentryCrashWrapper *crashWrapper;
 @property (nonatomic, strong) SentryTracesSampler *tracesSampler;
@@ -558,6 +557,11 @@ SentryHub ()
 
 - (void)removeAllIntegrations
 {
+    for (NSObject<SentryIntegrationProtocol> *integration in self.installedIntegrations) {
+        if ([integration respondsToSelector:@selector(uninstall)]) {
+            [integration uninstall];
+        }
+    }
     @synchronized(_integrationsLock) {
         [_installedIntegrations removeAllObjects];
         [_installedIntegrationNames removeAllObjects];
@@ -683,6 +687,23 @@ SentryHub ()
 {
     [_client close];
     SENTRY_LOG_DEBUG(@"Closed the Hub.");
+}
+
+#pragma mark - Protected
+
+- (NSMutableArray<NSString *> *)trimmedInstalledIntegrationNames
+{
+    NSMutableArray<NSString *> *integrations = [NSMutableArray<NSString *> array];
+    for (NSString *integration in SentrySDK.currentHub.installedIntegrationNames) {
+        // Every integration starts with "Sentry" and ends with "Integration". To keep the
+        // payload of the event small we remove both.
+        NSString *withoutSentry = [integration stringByReplacingOccurrencesOfString:@"Sentry"
+                                                                         withString:@""];
+        NSString *trimmed = [withoutSentry stringByReplacingOccurrencesOfString:@"Integration"
+                                                                     withString:@""];
+        [integrations addObject:trimmed];
+    }
+    return integrations;
 }
 
 @end

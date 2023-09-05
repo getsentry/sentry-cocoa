@@ -25,7 +25,7 @@ jobs:
     name: Release Build of iOS Swift
     runs-on: macos-13
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - run: ./scripts/ci-select-xcode.sh
       - uses: ruby/setup-ruby@v1
         with:
@@ -54,7 +54,7 @@ jobs:
           - iOS13-Swift
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - run: ./scripts/ci-select-xcode.sh
 
       # Disable code signing. We just want to make sure these compile.
@@ -71,7 +71,7 @@ jobs:
     name: Sample watchOS
     runs-on: macos-12
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - run: ./scripts/ci-select-xcode.sh 13.4.1
       - run: make build-for-watchos
 
@@ -88,7 +88,7 @@ jobs:
     name: Build XCFramework
     runs-on: macos-13
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - run: ./scripts/ci-select-xcode.sh 
       - run: make build-xcframework
         shell: sh
@@ -114,7 +114,7 @@ jobs:
     runs-on: macos-13
     needs: build-xcframework
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: actions/download-artifact@v3
         with:
           name: ${{ github.sha }}
@@ -129,7 +129,7 @@ jobs:
     name: Validate Swift Package Manager
     runs-on: macos-13
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Set SPM revision to current git commit
         run: >-
           if [[ "${{ github.event.pull_request.head.sha }}" != "" ]]; then
@@ -146,7 +146,7 @@ jobs:
     name: Validate Swift Package Manager Dynamic
     runs-on: macos-13
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Set SPM revision to current git commit
         run: >-
           if [[ "${{ github.event.pull_request.head.sha }}" != "" ]]; then
@@ -163,6 +163,6 @@ jobs:
     name: Build with Swift
     runs-on: macos-13
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - run: swift build
         shell: sh

@@ -15,14 +15,6 @@ SentryExtraContextProvider ()
 
 @implementation SentryExtraContextProvider
 
-+ (instancetype)sharedInstance
-{
-    static SentryExtraContextProvider *instance = nil;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{ instance = [[self alloc] init]; });
-    return instance;
-}
-
 - (instancetype)init
 {
     return
