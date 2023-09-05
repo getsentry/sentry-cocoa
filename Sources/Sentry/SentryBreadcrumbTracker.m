@@ -33,6 +33,11 @@ SentryBreadcrumbTracker ()
 
 @implementation SentryBreadcrumbTracker
 
+- (instancetype)init
+{
+    return [super init];
+}
+
 - (void)startWithDelegate:(id<SentryBreadcrumbDelegate>)delegate
 {
     _delegate = delegate;
@@ -172,6 +177,7 @@ SentryBreadcrumbTracker ()
 - (void)swizzleSendAction
 {
 #if SENTRY_HAS_UIKIT
+    SentryBreadcrumbTracker *__weak weakSelf = self;
     [SentryDependencyContainer.sharedInstance.swizzleWrapper
         swizzleSendAction:^(NSString *action, id target, id sender, UIEvent *event) {
             if ([SentryBreadcrumbTracker avoidSender:sender forTarget:target action:action]) {
@@ -190,7 +196,7 @@ SentryBreadcrumbTracker ()
             crumb.type = @"user";
             crumb.message = action;
             crumb.data = data;
-            [self.delegate addBreadcrumb:crumb];
+            [weakSelf.delegate addBreadcrumb:crumb];
         }
                    forKey:SentryBreadcrumbTrackerSwizzleSendAction];
 
@@ -210,20 +216,29 @@ SentryBreadcrumbTracker ()
 
     static const void *swizzleViewDidAppearKey = &swizzleViewDidAppearKey;
     SEL selector = NSSelectorFromString(@"viewDidAppear:");
+    SentryBreadcrumbTracker *__weak weakSelf = self;
+
+    SentrySwizzleMode mode = SentrySwizzleModeOncePerClassAndSuperclasses;
+
+#    if defined(TEST) || defined(TESTCI)
+    // some tests need to swizzle multiple times, once for each test case. but since they're in the
+    // same process, if they set something other than "always", subsequent swizzles fail. override
+    // it here for tests
+    mode = SentrySwizzleModeAlways;
+#    endif // defined(TEST) || defined(TESTCI)
+
     SentrySwizzleInstanceMethod(UIViewController.class, selector, SentrySWReturnType(void),
         SentrySWArguments(BOOL animated), SentrySWReplacement({
-            if (nil != [SentrySDK.currentHub getClient]) {
-                SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:kSentryLevelInfo
-                                                                         category:@"ui.lifecycle"];
-                crumb.type = @"navigation";
-                crumb.data = [SentryBreadcrumbTracker fetchInfoAboutViewController:self];
+            SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:kSentryLevelInfo
+                                                                     category:@"ui.lifecycle"];
+            crumb.type = @"navigation";
+            crumb.data = [SentryBreadcrumbTracker fetchInfoAboutViewController:self];
 
-                // Adding crumb via the SDK calls SentryBeforeBreadcrumbCallback
-                [SentrySDK addBreadcrumb:crumb];
-            }
+            [weakSelf.delegate addBreadcrumb:crumb];
+
             SentrySWCallOriginal(animated);
         }),
-        SentrySwizzleModeOncePerClassAndSuperclasses, swizzleViewDidAppearKey);
+        mode, swizzleViewDidAppearKey);
 #    pragma clang diagnostic pop
 #else
     SENTRY_LOG_DEBUG(@"NO UIKit -> [SentryBreadcrumbTracker swizzleViewDidAppear] does nothing.");

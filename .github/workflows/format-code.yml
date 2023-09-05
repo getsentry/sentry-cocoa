@@ -15,7 +15,7 @@ jobs:
     name: Format Code
     runs-on: macos-13
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       ## Update internal list of formulae to the latest
       - run: brew update
       - name: Install Clang-Format

@@ -384,16 +384,10 @@ static NSUInteger startInvocations;
 + (void)close
 {
     SENTRY_LOG_DEBUG(@"Starting to close SDK.");
-    // pop the hub and unset
-    SentryHub *hub = SentrySDK.currentHub;
 
-    // Uninstall all the integrations
-    for (NSObject<SentryIntegrationProtocol> *integration in hub.installedIntegrations) {
-        if ([integration respondsToSelector:@selector(uninstall)]) {
-            [integration uninstall];
-        }
-    }
+    SentryHub *hub = SentrySDK.currentHub;
     [hub removeAllIntegrations];
+
     SENTRY_LOG_DEBUG(@"Uninstalled all integrations.");
 
 #if SENTRY_HAS_UIKIT

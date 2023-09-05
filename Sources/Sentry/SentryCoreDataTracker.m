@@ -10,6 +10,7 @@
 #import "SentryScope+Private.h"
 #import "SentrySpanProtocol.h"
 @import SentryPrivate;
+#import "SentrySpan.h"
 #import "SentryStacktrace.h"
 #import "SentryThreadInspector.h"
 #import "SentryTraceOrigins.h"

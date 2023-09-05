@@ -1,6 +1,8 @@
-#import "SentryCrashWrapper.h"
-#import "SentryNSProcessInfoWrapper.h"
 #import <Foundation/Foundation.h>
+
+@class SentryCrashWrapper;
+@class SentryNSProcessInfoWrapper;
+@class SentryUIDeviceWrapper;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -8,8 +10,6 @@ NS_ASSUME_NONNULL_BEGIN
  * Provider of dynamic context data that we need to read at the time of an exception.
  */
 @interface SentryExtraContextProvider : NSObject
-
-+ (instancetype)sharedInstance;
 
 - (instancetype)initWithCrashWrapper:(SentryCrashWrapper *)crashWrapper
                   processInfoWrapper:(SentryNSProcessInfoWrapper *)processInfoWrapper;
