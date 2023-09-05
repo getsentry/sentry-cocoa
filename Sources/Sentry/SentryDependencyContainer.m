@@ -4,6 +4,7 @@
 #import "SentryDispatchFactory.h"
 #import "SentryDispatchQueueWrapper.h"
 #import "SentryDisplayLinkWrapper.h"
+#import "SentryExtraContextProvider.h"
 #import "SentryNSProcessInfoWrapper.h"
 #import "SentryNSTimerFactory.h"
 #import "SentryRandom.h"
@@ -99,6 +100,18 @@ static NSObject *sentryDependencyContainerLock;
         }
     }
     return _crashWrapper;
+}
+
+- (SentryExtraContextProvider *)extraContextProvider
+{
+    if (_extraContextProvider == nil) {
+        @synchronized(sentryDependencyContainerLock) {
+            if (_extraContextProvider == nil) {
+                _extraContextProvider = [[SentryExtraContextProvider alloc] init];
+            }
+        }
+    }
+    return _extraContextProvider;
 }
 
 - (SentryThreadWrapper *)threadWrapper

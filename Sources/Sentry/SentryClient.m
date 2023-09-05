@@ -64,7 +64,6 @@ SentryClient ()
 @property (nonatomic, strong) id<SentryRandom> random;
 @property (nonatomic, strong) NSLocale *locale;
 @property (nonatomic, strong) NSTimeZone *timezone;
-@property (nonatomic, strong) SentryExtraContextProvider *extraContextProvider;
 
 @end
 
@@ -124,8 +123,6 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     SentryThreadInspector *threadInspector =
         [[SentryThreadInspector alloc] initWithOptions:options];
 
-    SentryExtraContextProvider *extraContextProvider = [SentryExtraContextProvider sharedInstance];
-
     return [self initWithOptions:options
                 transportAdapter:transportAdapter
                      fileManager:fileManager
@@ -133,8 +130,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                  threadInspector:threadInspector
                           random:[SentryDependencyContainer sharedInstance].random
                           locale:[NSLocale autoupdatingCurrentLocale]
-                        timezone:[NSCalendar autoupdatingCurrentCalendar].timeZone
-            extraContextProvider:extraContextProvider];
+                        timezone:[NSCalendar autoupdatingCurrentCalendar].timeZone];
 }
 
 - (instancetype)initWithOptions:(SentryOptions *)options
@@ -145,7 +141,6 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                          random:(id<SentryRandom>)random
                          locale:(NSLocale *)locale
                        timezone:(NSTimeZone *)timezone
-           extraContextProvider:(SentryExtraContextProvider *)extraContentProvider
 {
     if (self = [super init]) {
         _isEnabled = YES;
@@ -158,7 +153,6 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         self.locale = locale;
         self.timezone = timezone;
         self.attachmentProcessors = [[NSMutableArray alloc] init];
-        self.extraContextProvider = extraContentProvider;
 
         if (deleteOldEnvelopeItems) {
             [fileManager deleteOldEnvelopeItems];
@@ -782,7 +776,8 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
 - (void)applyExtraDeviceContextToEvent:(SentryEvent *)event
 {
-    NSDictionary *extraContext = [[self extraContextProvider] getExtraContext];
+    NSDictionary *extraContext =
+        [SentryDependencyContainer.sharedInstance.extraContextProvider getExtraContext];
     [self modifyContext:event
                     key:@"device"
                   block:^(NSMutableDictionary *device) {
