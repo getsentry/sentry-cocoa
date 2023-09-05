@@ -7,13 +7,13 @@ class SentryBreadcrumbTrackerTests: XCTestCase {
     
     override func setUp() {
         super.setUp()
-        
         delegate = SentryBreadcrumbTestDelegate()
     }
     
     override func tearDown() {
         super.tearDown()
         delegate = nil
+        clearTestState()
     }
     
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
@@ -42,20 +42,26 @@ class SentryBreadcrumbTrackerTests: XCTestCase {
         let viewController = UIViewController()
         _ = UINavigationController(rootViewController: viewController)
         viewController.title = "test title"
+        print("delegate: \(String(describing: delegate))")
+        print("tracker: \(sut); SentryBreadcrumbTracker.delegate: \(String(describing: Dynamic(sut).delegate.asObject))")
         viewController.viewDidAppear(false)
 
-        let crumbs = Dynamic(scope).breadcrumbArray.asArray as? [Breadcrumb]
+        let crumbs = delegate.addCrumbInvocations.invocations
 
-        XCTAssertEqual(1, crumbs?.count)
+        // one breadcrumb for starting the tracker, and a second one for the swizzled viewDidAppear
+        guard crumbs.count == 2 else {
+            XCTFail("Expected exactly 2 breadcrumbs, got: \(crumbs)")
+            return
+        }
 
-        let lifeCycleCrumb = crumbs?[0]
-        XCTAssertEqual("navigation", lifeCycleCrumb?.type)
-        XCTAssertEqual("ui.lifecycle", lifeCycleCrumb?.category)
-        XCTAssertEqual("false", lifeCycleCrumb?.data?["beingPresented"] as? String)
-        XCTAssertEqual("UIViewController", lifeCycleCrumb?.data?["screen"] as? String)
-        XCTAssertEqual("test title", lifeCycleCrumb?.data?["title"] as? String)
-        XCTAssertEqual("false", lifeCycleCrumb?.data?["beingPresented"] as? String)
-        XCTAssertEqual("UINavigationController", lifeCycleCrumb?.data?["parentViewController"] as? String)
+        let lifeCycleCrumb = crumbs[1]
+        XCTAssertEqual("navigation", lifeCycleCrumb.type)
+        XCTAssertEqual("ui.lifecycle", lifeCycleCrumb.category)
+        XCTAssertEqual("false", lifeCycleCrumb.data?["beingPresented"] as? String)
+        XCTAssertEqual("UIViewController", lifeCycleCrumb.data?["screen"] as? String)
+        XCTAssertEqual("test title", lifeCycleCrumb.data?["title"] as? String)
+        XCTAssertEqual("false", lifeCycleCrumb.data?["beingPresented"] as? String)
+        XCTAssertEqual("UINavigationController", lifeCycleCrumb.data?["parentViewController"] as? String)
         
         clearTestState()
     }
