@@ -37,7 +37,9 @@ SentryBreadcrumbTracker ()
     _delegate = delegate;
     [self addEnabledCrumb];
     [self trackApplicationUIKitNotifications];
+#if !TARGET_OS_WATCH
     [self trackNetworkConnectivityChanges];
+#endif // !TARGET_OS_WATCH
 }
 
 - (void)startSwizzle
