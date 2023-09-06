@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Remove warning about non-portable path to file "SentryDsn.h" (#3270)x
+
 ## 8.11.0
 
 ### Features
