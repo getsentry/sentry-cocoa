@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Fixes
+
+- Remove warning about non-portable path to file "SentryDsn.h" (#3270)
+
 ### Features
 
 - Rename "http.method" to "http.request.method" for network Spans #3268
