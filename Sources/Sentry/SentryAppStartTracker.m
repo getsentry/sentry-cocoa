@@ -32,7 +32,6 @@ SentryAppStartTracker ()
 @property (nonatomic, strong) SentryAppState *previousAppState;
 @property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueue;
 @property (nonatomic, strong) SentryAppStateManager *appStateManager;
-@property (nonatomic, strong) SentrySysctl *sysctl;
 @property (nonatomic, assign) BOOL wasInBackground;
 @property (nonatomic, strong) NSDate *didFinishLaunchingTimestamp;
 @property (nonatomic, assign) BOOL enablePreWarmedAppStartTracing;
@@ -55,13 +54,11 @@ SentryAppStartTracker ()
 
 - (instancetype)initWithDispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
                              appStateManager:(SentryAppStateManager *)appStateManager
-                                      sysctl:(SentrySysctl *)sysctl
               enablePreWarmedAppStartTracing:(BOOL)enablePreWarmedAppStartTracing
 {
     if (self = [super init]) {
         self.dispatchQueue = dispatchQueueWrapper;
         self.appStateManager = appStateManager;
-        self.sysctl = sysctl;
         self.previousAppState = [self.appStateManager loadPreviousAppState];
         self.wasInBackground = NO;
         self.didFinishLaunchingTimestamp =
@@ -170,14 +167,15 @@ SentryAppStartTracker ()
         // https://eisel.me/startup
         NSTimeInterval appStartDuration = 0.0;
         NSDate *appStartTimestamp;
+        SentrySysctl *sysctl = SentryDependencyContainer.sharedInstance.sysctlWrapper;
         if (isPreWarmed) {
             appStartDuration = [[SentryDependencyContainer.sharedInstance.dateProvider date]
-                timeIntervalSinceDate:self.sysctl.moduleInitializationTimestamp];
-            appStartTimestamp = self.sysctl.moduleInitializationTimestamp;
+                timeIntervalSinceDate:sysctl.moduleInitializationTimestamp];
+            appStartTimestamp = sysctl.moduleInitializationTimestamp;
         } else {
             appStartDuration = [[SentryDependencyContainer.sharedInstance.dateProvider date]
-                timeIntervalSinceDate:self.sysctl.processStartTimestamp];
-            appStartTimestamp = self.sysctl.processStartTimestamp;
+                timeIntervalSinceDate:sysctl.processStartTimestamp];
+            appStartTimestamp = sysctl.processStartTimestamp;
         }
 
         // Safety check to not report app starts that are completely off.
@@ -199,14 +197,14 @@ SentryAppStartTracker ()
             appStartDuration = 0;
         }
 
-        SentryAppStartMeasurement *appStartMeasurement = [[SentryAppStartMeasurement alloc]
-                             initWithType:appStartType
-                              isPreWarmed:isPreWarmed
-                        appStartTimestamp:appStartTimestamp
-                                 duration:appStartDuration
-                     runtimeInitTimestamp:runtimeInit
-            moduleInitializationTimestamp:self.sysctl.moduleInitializationTimestamp
-              didFinishLaunchingTimestamp:self.didFinishLaunchingTimestamp];
+        SentryAppStartMeasurement *appStartMeasurement =
+            [[SentryAppStartMeasurement alloc] initWithType:appStartType
+                                                isPreWarmed:isPreWarmed
+                                          appStartTimestamp:appStartTimestamp
+                                                   duration:appStartDuration
+                                       runtimeInitTimestamp:runtimeInit
+                              moduleInitializationTimestamp:sysctl.moduleInitializationTimestamp
+                                didFinishLaunchingTimestamp:self.didFinishLaunchingTimestamp];
 
         SentrySDK.appStartMeasurement = appStartMeasurement;
     };

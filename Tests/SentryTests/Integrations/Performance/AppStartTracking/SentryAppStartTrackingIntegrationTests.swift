@@ -114,8 +114,6 @@ class SentryAppStartTrackingIntegrationTests: NotificationCenterTestCase {
 
         XCTAssertEqual(appStateManager, SentryDependencyContainer.sharedInstance().appStateManager)
 
-        _ = try XCTUnwrap(Dynamic(tracker).sysctl.asObject as? SentrySysctl, "Tracker does not have a Sysctl")
-
         XCTAssertTrue(tracker.isRunning, "AppStartTracking should be running")
     }
     

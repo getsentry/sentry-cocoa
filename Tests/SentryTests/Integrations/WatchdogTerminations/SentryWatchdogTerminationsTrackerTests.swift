@@ -18,6 +18,7 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
         let dispatchQueue = TestSentryDispatchQueueWrapper()
         
         init() {
+            SentryDependencyContainer.sharedInstance().sysctlWrapper = sysctl
             options = Options()
             options.maxBreadcrumbs = 2
             options.dsn = SentryWatchdogTerminationTrackerTests.dsnAsString
@@ -40,7 +41,6 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
                 options: options,
                 crashWrapper: crashWrapper,
                 fileManager: fileManager,
-                sysctl: sysctl,
                 dispatchQueueWrapper: self.dispatchQueue
             )
             let logic = SentryWatchdogTerminationLogic(
