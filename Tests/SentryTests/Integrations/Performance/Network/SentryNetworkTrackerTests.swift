@@ -837,7 +837,7 @@ class SentryNetworkTrackerTests: XCTestCase {
         }
         
         let path = span.data["url"] as? String
-        let method = span.data["http.method"] as? String
+        let method = span.data["http.request.method"] as? String
         let requestType = span.data["type"] as? String
         let query = span.data["http.query"] as? String
         let fragment = span.data["http.fragment"] as? String
