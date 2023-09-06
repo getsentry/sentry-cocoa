@@ -30,12 +30,13 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
             SentryDependencyContainer.sharedInstance().dateProvider = currentDate
             
             fileManager = try! SentryFileManager(options: options, dispatchQueueWrapper: dispatchQueue)
+
+            SentryDependencyContainer.sharedInstance().sysctlWrapper = sysctl
             
             appStateManager = SentryAppStateManager(
                 options: options,
                 crashWrapper: crashWrapper,
                 fileManager: fileManager,
-                sysctl: sysctl,
                 dispatchQueueWrapper: dispatchQueue,
                 notificationCenterWrapper: SentryNSNotificationCenterWrapper()
             )
@@ -49,7 +50,6 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
             let sut = SentryAppStartTracker(
                 dispatchQueueWrapper: TestSentryDispatchQueueWrapper(),
                 appStateManager: appStateManager,
-                sysctl: sysctl,
                 enablePreWarmedAppStartTracing: enablePreWarmedAppStartTracing
             )
             return sut
