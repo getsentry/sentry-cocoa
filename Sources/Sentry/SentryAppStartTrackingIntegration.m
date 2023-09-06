@@ -10,7 +10,6 @@
 #    import <SentryCrashWrapper.h>
 #    import <SentryDependencyContainer.h>
 #    import <SentryDispatchQueueWrapper.h>
-#    import <SentrySysctl.h>
 
 @interface
 SentryAppStartTrackingIntegration ()
@@ -28,15 +27,12 @@ SentryAppStartTrackingIntegration ()
         return NO;
     }
 
-    SentrySysctl *sysctl = [[SentrySysctl alloc] init];
-
     SentryAppStateManager *appStateManager =
         [SentryDependencyContainer sharedInstance].appStateManager;
 
     self.tracker = [[SentryAppStartTracker alloc]
           initWithDispatchQueueWrapper:[[SentryDispatchQueueWrapper alloc] init]
                        appStateManager:appStateManager
-                                sysctl:sysctl
         enablePreWarmedAppStartTracing:options.enablePreWarmedAppStartTracing];
     [self.tracker start];
 

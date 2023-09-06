@@ -6,6 +6,10 @@
 
 - Remove warning about non-portable path to file "SentryDsn.h" (#3270)x
 
+### Features
+
+- Rename "http.method" to "http.request.method" for network Spans #3268
+
 ## 8.11.0
 
 ### Features

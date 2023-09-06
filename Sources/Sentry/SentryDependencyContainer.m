@@ -4,9 +4,11 @@
 #import "SentryDispatchFactory.h"
 #import "SentryDispatchQueueWrapper.h"
 #import "SentryDisplayLinkWrapper.h"
+#import "SentryExtraContextProvider.h"
 #import "SentryNSProcessInfoWrapper.h"
 #import "SentryNSTimerFactory.h"
 #import "SentryRandom.h"
+#import "SentrySysctl.h"
 #import "SentrySystemWrapper.h"
 #import "SentryUIDeviceWrapper.h"
 #import <SentryAppStateManager.h>
@@ -81,7 +83,6 @@ static NSObject *sentryDependencyContainerLock;
                 [[SentryAppStateManager alloc] initWithOptions:options
                                                   crashWrapper:self.crashWrapper
                                                    fileManager:self.fileManager
-                                                        sysctl:[[SentrySysctl alloc] init]
                                           dispatchQueueWrapper:self.dispatchQueueWrapper
                                      notificationCenterWrapper:self.notificationCenterWrapper];
         }
@@ -99,6 +100,30 @@ static NSObject *sentryDependencyContainerLock;
         }
     }
     return _crashWrapper;
+}
+
+- (SentrySysctl *)sysctlWrapper
+{
+    if (_sysctlWrapper == nil) {
+        @synchronized(sentryDependencyContainerLock) {
+            if (_sysctlWrapper == nil) {
+                _sysctlWrapper = [[SentrySysctl alloc] init];
+            }
+        }
+    }
+    return _sysctlWrapper;
+}
+
+- (SentryExtraContextProvider *)extraContextProvider
+{
+    if (_extraContextProvider == nil) {
+        @synchronized(sentryDependencyContainerLock) {
+            if (_extraContextProvider == nil) {
+                _extraContextProvider = [[SentryExtraContextProvider alloc] init];
+            }
+        }
+    }
+    return _extraContextProvider;
 }
 
 - (SentryThreadWrapper *)threadWrapper

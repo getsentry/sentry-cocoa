@@ -8,11 +8,13 @@
 @class SentryDebugImageProvider;
 @class SentryDispatchFactory;
 @class SentryDispatchQueueWrapper;
+@class SentryExtraContextProvider;
 @class SentryFileManager;
 @class SentryNSNotificationCenterWrapper;
 @class SentryNSProcessInfoWrapper;
 @class SentryNSTimerFactory;
 @class SentrySwizzleWrapper;
+@class SentrySysctl;
 @class SentrySystemWrapper;
 @class SentryThreadWrapper;
 @protocol SentryRandom;
@@ -60,6 +62,8 @@ SENTRY_NO_INIT
 @property (nonatomic, strong) SentryNSTimerFactory *timerFactory;
 @property (nonatomic, strong) SentryCurrentDateProvider *dateProvider;
 @property (nonatomic, strong) SentryBinaryImageCache *binaryImageCache;
+@property (nonatomic, strong) SentryExtraContextProvider *extraContextProvider;
+@property (nonatomic, strong) SentrySysctl *sysctlWrapper;
 
 #if SENTRY_HAS_UIKIT
 @property (nonatomic, strong) SentryFramesTracker *framesTracker;

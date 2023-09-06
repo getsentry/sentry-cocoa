@@ -1,4 +1,5 @@
 #import "SentryCrashSysCtl.h"
+#import "SentryDependencyContainer.h"
 #import "SentrySysctl.h"
 #import <Foundation/Foundation.h>
 #import <SentryAppState.h>
@@ -22,7 +23,6 @@ SentryAppStateManager ()
 @property (nonatomic, strong) SentryOptions *options;
 @property (nonatomic, strong) SentryCrashWrapper *crashWrapper;
 @property (nonatomic, strong) SentryFileManager *fileManager;
-@property (nonatomic, strong) SentrySysctl *sysctl;
 @property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueue;
 @property (nonatomic, strong) SentryNSNotificationCenterWrapper *notificationCenterWrapper;
 @property (nonatomic) NSInteger startCount;
@@ -34,7 +34,6 @@ SentryAppStateManager ()
 - (instancetype)initWithOptions:(SentryOptions *)options
                    crashWrapper:(SentryCrashWrapper *)crashWrapper
                     fileManager:(SentryFileManager *)fileManager
-                         sysctl:(SentrySysctl *)sysctl
            dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
       notificationCenterWrapper:(SentryNSNotificationCenterWrapper *)notificationCenterWrapper
 {
@@ -42,7 +41,6 @@ SentryAppStateManager ()
         self.options = options;
         self.crashWrapper = crashWrapper;
         self.fileManager = fileManager;
-        self.sysctl = sysctl;
         self.dispatchQueue = dispatchQueueWrapper;
         self.notificationCenterWrapper = notificationCenterWrapper;
         self.startCount = 0;
@@ -187,7 +185,8 @@ SentryAppStateManager ()
                                              osVersion:UIDevice.currentDevice.systemVersion
                                               vendorId:vendorId
                                            isDebugging:isDebugging
-                                   systemBootTimestamp:self.sysctl.systemBootTimestamp];
+                                   systemBootTimestamp:SentryDependencyContainer.sharedInstance
+                                                           .sysctlWrapper.systemBootTimestamp];
 }
 
 - (SentryAppState *)loadPreviousAppState
