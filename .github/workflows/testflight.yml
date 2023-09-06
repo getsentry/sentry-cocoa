@@ -20,7 +20,7 @@ jobs:
     name: Build and Upload iOS-Swift to Testflight
     runs-on: macos-13
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - run: ./scripts/ci-select-xcode.sh
       - uses: ruby/setup-ruby@v1
         with:

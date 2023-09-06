@@ -1,6 +1,6 @@
 #import "SentryDefines.h"
 
-@class SentryOptions, SentryCrashWrapper, SentryAppState, SentryFileManager, SentrySysctl,
+@class SentryOptions, SentryCrashWrapper, SentryAppState, SentryFileManager,
     SentryDispatchQueueWrapper, SentryNSNotificationCenterWrapper;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -13,7 +13,6 @@ SENTRY_NO_INIT
 - (instancetype)initWithOptions:(SentryOptions *)options
                    crashWrapper:(SentryCrashWrapper *)crashWrapper
                     fileManager:(SentryFileManager *)fileManager
-                         sysctl:(SentrySysctl *)sysctl
            dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
       notificationCenterWrapper:(SentryNSNotificationCenterWrapper *)notificationCenterWrapper;
 

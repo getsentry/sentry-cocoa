@@ -4,7 +4,8 @@
 
 #    import "SentryCurrentDateProvider.h"
 
-@class SentryDispatchQueueWrapper, SentryAppStateManager, SentrySysctl;
+@class SentryDispatchQueueWrapper;
+@class SentryAppStateManager;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -21,7 +22,6 @@ SENTRY_NO_INIT
 
 - (instancetype)initWithDispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
                              appStateManager:(SentryAppStateManager *)appStateManager
-                                      sysctl:(SentrySysctl *)sysctl
               enablePreWarmedAppStartTracing:(BOOL)enablePreWarmedAppStartTracing;
 
 - (void)start;
