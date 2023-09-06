@@ -4,7 +4,7 @@
 
 ### Fixes
 
-- Remove warning about non-portable path to file "SentryDsn.h" (#3270)x
+- Remove warning about non-portable path to file "SentryDsn.h" (#3270)
 
 ### Features
 
