@@ -42,8 +42,8 @@ public class Invocations<T> {
     }
     
     public func record(_ invocation: T) {
-        queue.async(flags: .barrier) {
-            self._invocations.append(invocation)
+        queue.async(flags: .barrier) { [weak self] in
+            self?._invocations.append(invocation)
         }
     }
 }
