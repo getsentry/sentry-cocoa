@@ -5,6 +5,7 @@
 ### Fixes
 
 - Remove warning about non-portable path to file "SentryDsn.h" (#3270)
+- Gather metric readings fully covering the duration of a profile (#3272)
 
 ### Features
 
