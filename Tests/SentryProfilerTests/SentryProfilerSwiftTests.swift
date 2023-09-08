@@ -205,6 +205,11 @@ class SentryProfilerSwiftTests: XCTestCase {
             systemWrapper.overrides.memoryFootprintError = NSError(domain: "test-error", code: 1)
             systemWrapper.overrides.cpuEnergyUsageError = NSError(domain: "test-error", code: 2)
             metricTimerFactory?.fire()
+
+            // clear out errors for the profile end sample collection
+            systemWrapper.overrides.cpuUsageError = nil
+            systemWrapper.overrides.memoryFootprintError = nil
+            systemWrapper.overrides.cpuEnergyUsageError = nil
         }
 
         // app start simulation
@@ -658,7 +663,7 @@ private extension SentryProfilerSwiftTests {
     func assertMetricValue<T: Equatable>(measurements: [String: Any], key: String, numberOfReadings: Int, expectedValue: T? = nil, transaction: Transaction, expectedUnits: String) throws {
         let metricContainer = try XCTUnwrap(measurements[key] as? [String: Any])
         let values = try XCTUnwrap(metricContainer["values"] as? [[String: Any]])
-        XCTAssertEqual(values.count, numberOfReadings, "Wrong number of values under \(key)")
+        XCTAssertEqual(values.count, numberOfReadings + 1, "Wrong number of values under \(key). Need the expected number of samples, plus a profile end reading")
 
         if let expectedValue = expectedValue {
             let actualValue = try XCTUnwrap(values[0]["value"] as? T)

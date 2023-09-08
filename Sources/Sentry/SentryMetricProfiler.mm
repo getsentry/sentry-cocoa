@@ -111,6 +111,9 @@ SentrySerializedMetricEntry *_Nullable serializeValuesWithNormalizedTime(
 - (void)stop
 {
     [_dispatchSource cancel];
+
+    // make sure we have a measurement at the end of the profile
+    [self recordMetrics];
 }
 
 - (NSMutableDictionary<NSString *, id> *)serializeBetween:(uint64_t)startSystemTime
@@ -159,11 +162,15 @@ SentrySerializedMetricEntry *_Nullable serializeValuesWithNormalizedTime(
                  queueName:"io.sentry.metric-profiler"
                 attributes:dispatch_queue_attr_make_with_qos_class(
                                DISPATCH_QUEUE_CONCURRENT, QOS_CLASS_UTILITY, 0)
-              eventHandler:^{
-                  [weakSelf recordCPUsage];
-                  [weakSelf recordMemoryFootprint];
-                  [weakSelf recordEnergyUsageEstimate];
-              }];
+              eventHandler:^{ [weakSelf recordMetrics]; }];
+}
+
+- (void)recordMetrics
+{
+    SENTRY_LOG_DEBUG(@"Recording profiling metrics sample");
+    [self recordCPUsage];
+    [self recordMemoryFootprint];
+    [self recordEnergyUsageEstimate];
 }
 
 - (void)recordMemoryFootprint
