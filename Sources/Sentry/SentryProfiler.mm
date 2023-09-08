@@ -320,6 +320,7 @@ serializedProfileData(NSDictionary<NSString *, id> *profileData, uint64_t startS
     if (_gCurrentProfiler && [_gCurrentProfiler isRunning]) {
         SENTRY_LOG_DEBUG(@"A profiler is already running.");
         trackProfilerForTracer(_gCurrentProfiler, traceId);
+        [_gCurrentProfiler->_metricProfiler recordMetrics];
         return;
     }
 
@@ -414,6 +415,9 @@ serializedProfileData(NSDictionary<NSString *, id> *profileData, uint64_t startS
                                                       and:(uint64_t)endSystemTime
                                                     onHub:(SentryHub *)hub;
 {
+    if (self.isRunning) {
+        [_metricProfiler recordMetrics];
+    }
     return serializedProfileData([self._state copyProfilingData], startSystemTime, endSystemTime,
         self.profileId, profilerTruncationReasonName(_truncationReason),
         [_metricProfiler serializeBetween:startSystemTime and:endSystemTime],
