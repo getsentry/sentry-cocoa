@@ -260,7 +260,7 @@ class SentryProfilerSwiftTests: XCTestCase {
         try fixture.gatherMockedMetrics(span: span)
         self.fixture.currentDateProvider.advanceBy(nanoseconds: 1.toNanoSeconds())
         span.finish()
-        try self.assertMetricsPayload(expectedUsageReadings: fixture.mockUsageReadingsPerBatch + 1)
+        try self.assertMetricsPayload(expectedUsageReadings: fixture.mockUsageReadingsPerBatch + 2) // including one sample at the start and the end
     }
 
     func testConcurrentProfilingTransactions() throws {
@@ -272,6 +272,7 @@ class SentryProfilerSwiftTests: XCTestCase {
             XCTAssertEqual(SentryProfiler.currentProfiledTracers(), UInt(0))
 
             for i in 0 ..< numberOfTransactions {
+                print("creating new concurrent transaction for test")
                 let span = try fixture.newTransaction()
 
                 // because energy readings are computed as the difference between sequential cumulative readings, we must increment the mock value by the expected result each iteration
@@ -289,10 +290,16 @@ class SentryProfilerSwiftTests: XCTestCase {
                 try fixture.gatherMockedMetrics(span: span)
                 XCTAssertTrue(SentryProfiler.isCurrentlyProfiling())
                 span.finish()
-                XCTAssertEqual(SentryProfiler.currentProfiledTracers(), UInt(numberOfTransactions - i - 1))
+                XCTAssertEqual(SentryProfiler.currentProfiledTracers(), UInt(numberOfTransactions - (i + 1)))
 
                 try self.assertValidProfileData()
-                try self.assertMetricsPayload(expectedUsageReadings: fixture.mockUsageReadingsPerBatch * (i + 1) + numberOfTransactions + i)
+
+                // this is a complicated number to come up with, see the explanation for each part...
+                let expectedUsageReadings = fixture.mockUsageReadingsPerBatch * (i + 1) // since we fire mock metrics readings for each concurrent span,
+                                                                                        // we need to accumulate across the number of spans each iteration
+                    + numberOfTransactions // and then, add the number of spans that were created to account for the start reading for each span
+                    + 1 // and the end reading for this span
+                try self.assertMetricsPayload(expectedUsageReadings: expectedUsageReadings, oneLessEnergyReading: i == 0)
             }
             
             XCTAssertFalse(SentryProfiler.isCurrentlyProfiling())

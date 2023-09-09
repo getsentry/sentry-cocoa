@@ -320,6 +320,7 @@ serializedProfileData(NSDictionary<NSString *, id> *profileData, uint64_t startS
     if (_gCurrentProfiler && [_gCurrentProfiler isRunning]) {
         SENTRY_LOG_DEBUG(@"A profiler is already running.");
         trackProfilerForTracer(_gCurrentProfiler, traceId);
+        // record a new metric sample for every concurrent span start
         [_gCurrentProfiler->_metricProfiler recordMetrics];
         return;
     }
@@ -337,6 +338,15 @@ serializedProfileData(NSDictionary<NSString *, id> *profileData, uint64_t startS
 {
     std::lock_guard<std::mutex> l(_gProfilerLock);
     return [_gCurrentProfiler isRunning];
+}
+
++ (void)recordMetrics
+{
+    std::lock_guard<std::mutex> l(_gProfilerLock);
+    if (_gCurrentProfiler == nil) {
+        return;
+    }
+    [_gCurrentProfiler->_metricProfiler recordMetrics];
 }
 
 + (nullable SentryEnvelopeItem *)createProfilingEnvelopeItemForTransaction:
@@ -415,9 +425,6 @@ serializedProfileData(NSDictionary<NSString *, id> *profileData, uint64_t startS
                                                       and:(uint64_t)endSystemTime
                                                     onHub:(SentryHub *)hub;
 {
-    if (self.isRunning) {
-        [_metricProfiler recordMetrics];
-    }
     return serializedProfileData([self._state copyProfilingData], startSystemTime, endSystemTime,
         self.profileId, profilerTruncationReasonName(_truncationReason),
         [_metricProfiler serializeBetween:startSystemTime and:endSystemTime],
