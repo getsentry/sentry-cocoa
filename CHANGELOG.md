@@ -5,6 +5,7 @@
 ### Fixes
 
 - Remove warning about non-portable path to file "SentryDsn.h" (#3270)
+- Ensure GPU frame data is always sent with profiles even if `enableAutoPerformanceTracing` is `NO` (#3273)
 
 ### Features
 
