@@ -5,6 +5,7 @@
 ### Fixes
 
 - Remove warning about non-portable path to file "SentryDsn.h" (#3270)
+- Remove spammy logs (#3284)
 
 ### Features
 
