@@ -277,8 +277,10 @@ serializedProfileData(NSDictionary<NSString *, id> *profileData, uint64_t startS
     SENTRY_LOG_DEBUG(@"Initialized new SentryProfiler %@", self);
     _debugImageProvider = [SentryDependencyContainer sharedInstance].debugImageProvider;
 
+#    if SENTRY_HAS_UIKIT
     // the frame tracker may not be running if SentryOptions.enableAutoPerformanceTracing is NO
     [SentryDependencyContainer.sharedInstance.framesTracker start];
+#    endif // SENTRY_HAS_UIKIT
 
     [self start];
     [self scheduleTimeoutTimer];
@@ -464,11 +466,13 @@ serializedProfileData(NSDictionary<NSString *, id> *profileData, uint64_t startS
         return;
     }
 
+#    if SENTRY_HAS_UIKIT
     // if SentryOptions.enableAutoPerformanceTracing is NO, then we need to stop the frames tracker
     // from running outside of profiles because it isn't needed for anything else
     if (![[[[SentrySDK currentHub] getClient] options] enableAutoPerformanceTracing]) {
         [SentryDependencyContainer.sharedInstance.framesTracker stop];
     }
+#    endif // SENTRY_HAS_UIKIT
 
     _profiler->stopSampling();
     SENTRY_LOG_DEBUG(@"Stopped profiler %@.", self);
