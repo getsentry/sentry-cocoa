@@ -15,6 +15,7 @@
 #    import "SentryEnvelopeItemType.h"
 #    import "SentryEvent+Private.h"
 #    import "SentryFormatter.h"
+#    import "SentryFramesTracker.h"
 #    import "SentryHub+Private.h"
 #    import "SentryId.h"
 #    import "SentryInternalDefines.h"
@@ -26,6 +27,7 @@
 #    import "SentryProfileTimeseries.h"
 #    import "SentryProfiledTracerConcurrency.h"
 #    import "SentryProfilerState+ObjCpp.h"
+#    import "SentrySDK+Private.h"
 #    import "SentrySample.h"
 #    import "SentrySamplingProfiler.hpp"
 #    import "SentryScope+Private.h"
@@ -274,6 +276,12 @@ serializedProfileData(
 
     SENTRY_LOG_DEBUG(@"Initialized new SentryProfiler %@", self);
     _debugImageProvider = [SentryDependencyContainer sharedInstance].debugImageProvider;
+
+#    if SENTRY_HAS_UIKIT
+    // the frame tracker may not be running if SentryOptions.enableAutoPerformanceTracing is NO
+    [SentryDependencyContainer.sharedInstance.framesTracker start];
+#    endif // SENTRY_HAS_UIKIT
+
     [self start];
     [self scheduleTimeoutTimer];
 
@@ -457,6 +465,14 @@ serializedProfileData(
         SENTRY_LOG_WARN(@"Profiler is not currently running.");
         return;
     }
+
+#    if SENTRY_HAS_UIKIT
+    // if SentryOptions.enableAutoPerformanceTracing is NO, then we need to stop the frames tracker
+    // from running outside of profiles because it isn't needed for anything else
+    if (![[[[SentrySDK currentHub] getClient] options] enableAutoPerformanceTracing]) {
+        [SentryDependencyContainer.sharedInstance.framesTracker stop];
+    }
+#    endif // SENTRY_HAS_UIKIT
 
     _profiler->stopSampling();
     SENTRY_LOG_DEBUG(@"Stopped profiler %@.", self);
