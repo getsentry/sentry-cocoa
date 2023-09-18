@@ -555,7 +555,6 @@ serializedProfileData(
 - (BOOL)isRunning
 {
     if (_profiler == nullptr) {
-        SENTRY_LOG_WARN(@"No profiler instance found.");
         return NO;
     }
     return _profiler->isSampling();
