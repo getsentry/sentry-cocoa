@@ -65,6 +65,12 @@ SENTRY_EXTERN_C_END
 + (BOOL)isCurrentlyProfiling;
 
 /**
+ * Immediately record a sample of profiling metrics. Helps get full coverage of concurrent spans
+ * when they're ended.
+ */
++ (void)recordMetrics;
+
+/**
  * Given a transaction, return an envelope item containing any corresponding profile data to be
  * attached to the transaction envelope.
  * */

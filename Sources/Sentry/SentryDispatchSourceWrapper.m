@@ -15,8 +15,7 @@
         _queueWrapper = queueWrapper;
         _source = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, queueWrapper.queue);
         dispatch_source_set_event_handler(_source, eventHandler);
-        dispatch_source_set_timer(
-            _source, dispatch_time(DISPATCH_TIME_NOW, interval), interval, leeway);
+        dispatch_source_set_timer(_source, dispatch_time(DISPATCH_TIME_NOW, 0), interval, leeway);
         dispatch_resume(_source);
     }
     return self;

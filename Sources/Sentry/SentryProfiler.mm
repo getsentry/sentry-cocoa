@@ -328,6 +328,8 @@ serializedProfileData(
     if (_gCurrentProfiler && [_gCurrentProfiler isRunning]) {
         SENTRY_LOG_DEBUG(@"A profiler is already running.");
         trackProfilerForTracer(_gCurrentProfiler, traceId);
+        // record a new metric sample for every concurrent span start
+        [_gCurrentProfiler->_metricProfiler recordMetrics];
         return;
     }
 
@@ -344,6 +346,15 @@ serializedProfileData(
 {
     std::lock_guard<std::mutex> l(_gProfilerLock);
     return [_gCurrentProfiler isRunning];
+}
+
++ (void)recordMetrics
+{
+    std::lock_guard<std::mutex> l(_gProfilerLock);
+    if (_gCurrentProfiler == nil) {
+        return;
+    }
+    [_gCurrentProfiler->_metricProfiler recordMetrics];
 }
 
 + (nullable SentryEnvelopeItem *)createProfilingEnvelopeItemForTransaction:
