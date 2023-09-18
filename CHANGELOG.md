@@ -9,7 +9,8 @@
 
 ### Features
 
-- Rename "http.method" to "http.request.method" for network Spans #3268
+- Rename "http.method" to "http.request.method" for network Spans (#3268)
+- Add Sampling Decision to Trace Envelope Header (#)
 
 ## 8.11.0
 
