@@ -5,6 +5,7 @@
 ### Fixes
 
 - Remove warning about non-portable path to file "SentryDsn.h" (#3270)
+- Privacy manifest collection purposes type (#3276)
 
 ### Features
 
