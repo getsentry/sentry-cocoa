@@ -6,6 +6,7 @@
 
 - Remove warning about non-portable path to file "SentryDsn.h" (#3270)
 - Privacy manifest collection purposes type (#3276)
+- Fix how profiles were identified in the backend for grouping and issue correlation purposes (#3282)
 
 ### Features
 

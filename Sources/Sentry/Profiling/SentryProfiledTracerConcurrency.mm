@@ -37,7 +37,7 @@ namespace {
 void
 _unsafe_cleanUpProfiler(SentryProfiler *profiler, NSString *tracerKey)
 {
-    const auto profilerKey = profiler.profileId.sentryIdString;
+    const auto profilerKey = profiler.profilerId.sentryIdString;
 
     [_gTracersToProfilers removeObjectForKey:tracerKey];
     _gProfilersToTracers[profilerKey] = @(_gProfilersToTracers[profilerKey].unsignedIntValue - 1);
@@ -58,7 +58,7 @@ trackProfilerForTracer(SentryProfiler *profiler, SentryId *traceId)
 {
     std::lock_guard<std::mutex> l(_gStateLock);
 
-    const auto profilerKey = profiler.profileId.sentryIdString;
+    const auto profilerKey = profiler.profilerId.sentryIdString;
     const auto tracerKey = traceId.sentryIdString;
 
     SENTRY_LOG_DEBUG(

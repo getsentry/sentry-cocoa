@@ -153,10 +153,10 @@ serializedSamplesWithRelativeTimestamps(NSArray<SentrySample *> *samples, uint64
 }
 
 NSMutableDictionary<NSString *, id> *
-serializedProfileData(NSDictionary<NSString *, id> *profileData, uint64_t startSystemTime,
-    uint64_t endSystemTime, SentryId *profileID, NSString *truncationReason,
-    NSDictionary<NSString *, id> *serializedMetrics, NSArray<SentryDebugMeta *> *debugMeta,
-    SentryHub *hub
+serializedProfileData(
+    NSDictionary<NSString *, id> *profileData, uint64_t startSystemTime, uint64_t endSystemTime,
+    NSString *truncationReason, NSDictionary<NSString *, id> *serializedMetrics,
+    NSArray<SentryDebugMeta *> *debugMeta, SentryHub *hub
 #    if SENTRY_HAS_UIKIT
     ,
     SentryScreenFrames *gpuData
@@ -211,7 +211,7 @@ serializedProfileData(NSDictionary<NSString *, id> *profileData, uint64_t startS
         @"model" : isEmulated ? sentry_getSimulatorDeviceModel() : sentry_getDeviceModel()
     };
 
-    payload[@"profile_id"] = profileID.sentryIdString;
+    payload[@"profile_id"] = [[[SentryId alloc] init] sentryIdString];
     payload[@"truncation_reason"] = truncationReason;
     payload[@"environment"] = hub.scope.environmentString ?: hub.getClient.options.environment;
     payload[@"release"] = hub.getClient.options.releaseName;
@@ -270,7 +270,7 @@ serializedProfileData(NSDictionary<NSString *, id> *profileData, uint64_t startS
         return nil;
     }
 
-    _profileId = [[SentryId alloc] init];
+    _profilerId = [[SentryId alloc] init];
 
     SENTRY_LOG_DEBUG(@"Initialized new SentryProfiler %@", self);
     _debugImageProvider = [SentryDependencyContainer sharedInstance].debugImageProvider;
@@ -415,7 +415,7 @@ serializedProfileData(NSDictionary<NSString *, id> *profileData, uint64_t startS
                                                     onHub:(SentryHub *)hub;
 {
     return serializedProfileData([self._state copyProfilingData], startSystemTime, endSystemTime,
-        self.profileId, profilerTruncationReasonName(_truncationReason),
+        profilerTruncationReasonName(_truncationReason),
         [_metricProfiler serializeBetween:startSystemTime and:endSystemTime],
         [_debugImageProvider getDebugImagesCrashed:NO], hub
 #    if SENTRY_HAS_UIKIT
