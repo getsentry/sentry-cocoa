@@ -39,7 +39,7 @@ SENTRY_EXTERN_C_END
  */
 @interface SentryProfiler : NSObject
 
-@property (strong, nonatomic) SentryId *profileId;
+@property (strong, nonatomic) SentryId *profilerId;
 
 /**
  * Start a profiler, if one isn't already running.

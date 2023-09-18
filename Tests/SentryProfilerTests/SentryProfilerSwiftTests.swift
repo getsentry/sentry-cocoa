@@ -312,7 +312,6 @@ class SentryProfilerSwiftTests: XCTestCase {
         spans.removeAll()
 #if !os(macOS)
         fixture.resetGPUExpectations()
-        fixture.displayLinkWrapper.call()
 #endif
 
         try createConcurrentSpansWithMetrics()
