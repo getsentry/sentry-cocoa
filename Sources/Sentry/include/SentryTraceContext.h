@@ -53,6 +53,11 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nullable, nonatomic, strong) NSString *sampleRate;
 
 /**
+ * Value indicating whether the trace was sampled.
+ */
+@property (nullable, nonatomic, strong) NSString *sampled;
+
+/**
  * Initializes a SentryTraceContext with given properties.
  */
 - (instancetype)initWithTraceId:(SentryId *)traceId
@@ -61,7 +66,8 @@ NS_ASSUME_NONNULL_BEGIN
                     environment:(nullable NSString *)environment
                     transaction:(nullable NSString *)transaction
                     userSegment:(nullable NSString *)userSegment
-                     sampleRate:(nullable NSString *)sampleRate;
+                     sampleRate:(nullable NSString *)sampleRate
+                        sampled:(nullable NSString *)sampled;
 
 /**
  * Initializes a SentryTraceContext with data from scope and options.
