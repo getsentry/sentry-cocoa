@@ -599,6 +599,9 @@ static BOOL appStartMeasurementRead;
     transaction.transaction = self.transactionContext.name;
 #if SENTRY_TARGET_PROFILING_SUPPORTED
     transaction.startSystemTime = self.startSystemTime;
+    if (self.isProfiling) {
+        [SentryProfiler recordMetrics];
+    }
     transaction.endSystemTime = SentryDependencyContainer.sharedInstance.dateProvider.systemTime;
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 

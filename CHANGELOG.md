@@ -5,6 +5,10 @@
 ### Fixes
 
 - Remove warning about non-portable path to file "SentryDsn.h" (#3270)
+- Privacy manifest collection purposes type (#3276)
+- Fix how profiles were identified in the backend for grouping and issue correlation purposes (#3282)
+- Ensure GPU frame data is always sent with profiles even if `enableAutoPerformanceTracing` is `NO` (#3273)
+- Gather metric readings fully covering the duration of a profile (#3272)
 - Remove spammy logs (#3284)
 
 ### Features
