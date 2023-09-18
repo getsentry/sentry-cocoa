@@ -15,6 +15,7 @@
 #    import "SentryEnvelopeItemType.h"
 #    import "SentryEvent+Private.h"
 #    import "SentryFormatter.h"
+#    import "SentryFramesTracker.h"
 #    import "SentryHub+Private.h"
 #    import "SentryId.h"
 #    import "SentryInternalDefines.h"
@@ -26,6 +27,7 @@
 #    import "SentryProfileTimeseries.h"
 #    import "SentryProfiledTracerConcurrency.h"
 #    import "SentryProfilerState+ObjCpp.h"
+#    import "SentrySDK+Private.h"
 #    import "SentrySample.h"
 #    import "SentrySamplingProfiler.hpp"
 #    import "SentryScope+Private.h"
@@ -153,10 +155,10 @@ serializedSamplesWithRelativeTimestamps(NSArray<SentrySample *> *samples, uint64
 }
 
 NSMutableDictionary<NSString *, id> *
-serializedProfileData(NSDictionary<NSString *, id> *profileData, uint64_t startSystemTime,
-    uint64_t endSystemTime, SentryId *profileID, NSString *truncationReason,
-    NSDictionary<NSString *, id> *serializedMetrics, NSArray<SentryDebugMeta *> *debugMeta,
-    SentryHub *hub
+serializedProfileData(
+    NSDictionary<NSString *, id> *profileData, uint64_t startSystemTime, uint64_t endSystemTime,
+    NSString *truncationReason, NSDictionary<NSString *, id> *serializedMetrics,
+    NSArray<SentryDebugMeta *> *debugMeta, SentryHub *hub
 #    if SENTRY_HAS_UIKIT
     ,
     SentryScreenFrames *gpuData
@@ -211,7 +213,7 @@ serializedProfileData(NSDictionary<NSString *, id> *profileData, uint64_t startS
         @"model" : isEmulated ? sentry_getSimulatorDeviceModel() : sentry_getDeviceModel()
     };
 
-    payload[@"profile_id"] = profileID.sentryIdString;
+    payload[@"profile_id"] = [[[SentryId alloc] init] sentryIdString];
     payload[@"truncation_reason"] = truncationReason;
     payload[@"environment"] = hub.scope.environmentString ?: hub.getClient.options.environment;
     payload[@"release"] = hub.getClient.options.releaseName;
@@ -270,10 +272,16 @@ serializedProfileData(NSDictionary<NSString *, id> *profileData, uint64_t startS
         return nil;
     }
 
-    _profileId = [[SentryId alloc] init];
+    _profilerId = [[SentryId alloc] init];
 
     SENTRY_LOG_DEBUG(@"Initialized new SentryProfiler %@", self);
     _debugImageProvider = [SentryDependencyContainer sharedInstance].debugImageProvider;
+
+#    if SENTRY_HAS_UIKIT
+    // the frame tracker may not be running if SentryOptions.enableAutoPerformanceTracing is NO
+    [SentryDependencyContainer.sharedInstance.framesTracker start];
+#    endif // SENTRY_HAS_UIKIT
+
     [self start];
     [self scheduleTimeoutTimer];
 
@@ -320,6 +328,8 @@ serializedProfileData(NSDictionary<NSString *, id> *profileData, uint64_t startS
     if (_gCurrentProfiler && [_gCurrentProfiler isRunning]) {
         SENTRY_LOG_DEBUG(@"A profiler is already running.");
         trackProfilerForTracer(_gCurrentProfiler, traceId);
+        // record a new metric sample for every concurrent span start
+        [_gCurrentProfiler->_metricProfiler recordMetrics];
         return;
     }
 
@@ -336,6 +346,15 @@ serializedProfileData(NSDictionary<NSString *, id> *profileData, uint64_t startS
 {
     std::lock_guard<std::mutex> l(_gProfilerLock);
     return [_gCurrentProfiler isRunning];
+}
+
++ (void)recordMetrics
+{
+    std::lock_guard<std::mutex> l(_gProfilerLock);
+    if (_gCurrentProfiler == nil) {
+        return;
+    }
+    [_gCurrentProfiler->_metricProfiler recordMetrics];
 }
 
 + (nullable SentryEnvelopeItem *)createProfilingEnvelopeItemForTransaction:
@@ -415,7 +434,7 @@ serializedProfileData(NSDictionary<NSString *, id> *profileData, uint64_t startS
                                                     onHub:(SentryHub *)hub;
 {
     return serializedProfileData([self._state copyProfilingData], startSystemTime, endSystemTime,
-        self.profileId, profilerTruncationReasonName(_truncationReason),
+        profilerTruncationReasonName(_truncationReason),
         [_metricProfiler serializeBetween:startSystemTime and:endSystemTime],
         [_debugImageProvider getDebugImagesCrashed:NO], hub
 #    if SENTRY_HAS_UIKIT
@@ -457,6 +476,14 @@ serializedProfileData(NSDictionary<NSString *, id> *profileData, uint64_t startS
         SENTRY_LOG_WARN(@"Profiler is not currently running.");
         return;
     }
+
+#    if SENTRY_HAS_UIKIT
+    // if SentryOptions.enableAutoPerformanceTracing is NO, then we need to stop the frames tracker
+    // from running outside of profiles because it isn't needed for anything else
+    if (![[[[SentrySDK currentHub] getClient] options] enableAutoPerformanceTracing]) {
+        [SentryDependencyContainer.sharedInstance.framesTracker stop];
+    }
+#    endif // SENTRY_HAS_UIKIT
 
     _profiler->stopSampling();
     SENTRY_LOG_DEBUG(@"Stopped profiler %@.", self);
@@ -528,7 +555,6 @@ serializedProfileData(NSDictionary<NSString *, id> *profileData, uint64_t startS
 - (BOOL)isRunning
 {
     if (_profiler == nullptr) {
-        SENTRY_LOG_WARN(@"No profiler instance found.");
         return NO;
     }
     return _profiler->isSampling();

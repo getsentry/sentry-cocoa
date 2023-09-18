@@ -13,7 +13,7 @@
 #import <XCTest/XCTest.h>
 
 @interface
-SentryBreadcrumbTracker (Private)
+SentryBreadcrumbTracker ()
 
 + (NSString *)sanitizeViewControllerName:(NSString *)controller;
 
