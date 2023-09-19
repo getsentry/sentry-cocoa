@@ -86,7 +86,7 @@ SentryANRTracker ()
 
         [self.dispatchQueueWrapper dispatchAsyncOnMainQueue:^{
             atomic_store_explicit(&ticksSinceUiUpdate, 0, memory_order_relaxed);
-            
+
             if (reported) {
                 SENTRY_LOG_WARN(@"ANR stopped.");
 
@@ -116,7 +116,8 @@ SentryANRTracker ()
             continue;
         }
 
-        if (atomic_load_explicit(&ticksSinceUiUpdate, memory_order_relaxed) >= reportThreshold && !reported) {
+        if (atomic_load_explicit(&ticksSinceUiUpdate, memory_order_relaxed) >= reportThreshold
+            && !reported) {
             reported = YES;
 
             if (![self.crashWrapper isApplicationInForeground]) {
