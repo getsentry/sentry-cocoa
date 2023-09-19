@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- App hang tick counter race condition (#3290)
+
 ## 8.12.0
 
 ### Fixes
