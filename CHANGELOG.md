@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Start SDK only in the main thread (#3291)
+
 ## 8.12.0
 
 ### Fixes
