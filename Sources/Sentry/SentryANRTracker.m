@@ -5,6 +5,7 @@
 #import "SentryDispatchQueueWrapper.h"
 #import "SentryLog.h"
 #import "SentryThreadWrapper.h"
+#import <stdatomic.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -64,7 +65,7 @@ SentryANRTracker ()
         state = kSentryANRTrackerRunning;
     }
 
-    __block NSInteger ticksSinceUiUpdate = 0;
+    __block atomic_int ticksSinceUiUpdate = 0;
     __block BOOL reported = NO;
 
     NSInteger reportThreshold = 5;
@@ -81,11 +82,11 @@ SentryANRTracker ()
         NSDate *blockDeadline = [[SentryDependencyContainer.sharedInstance.dateProvider date]
             dateByAddingTimeInterval:self.timeoutInterval];
 
-        ticksSinceUiUpdate++;
+        atomic_fetch_add_explicit(&ticksSinceUiUpdate, 1, memory_order_relaxed);
 
         [self.dispatchQueueWrapper dispatchAsyncOnMainQueue:^{
-            ticksSinceUiUpdate = 0;
-
+            atomic_store_explicit(&ticksSinceUiUpdate, 0, memory_order_relaxed);
+            
             if (reported) {
                 SENTRY_LOG_WARN(@"ANR stopped.");
 
@@ -115,7 +116,7 @@ SentryANRTracker ()
             continue;
         }
 
-        if (ticksSinceUiUpdate >= reportThreshold && !reported) {
+        if (atomic_load_explicit(&ticksSinceUiUpdate, memory_order_relaxed) >= reportThreshold && !reported) {
             reported = YES;
 
             if (![self.crashWrapper isApplicationInForeground]) {
