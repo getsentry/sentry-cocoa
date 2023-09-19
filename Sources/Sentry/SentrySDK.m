@@ -14,6 +14,8 @@
 #import "SentryMeta.h"
 #import "SentryOptions+Private.h"
 #import "SentryScope.h"
+#import "SentryDispatchQueueWrapper.h"
+
 
 @interface
 SentrySDK ()
@@ -134,24 +136,26 @@ static NSUInteger startInvocations;
 
 + (void)startWithOptions:(SentryOptions *)options
 {
-    startInvocations++;
+    [SentryDependencyContainer.sharedInstance.dispatchQueueWrapper dispatchSyncOnMainQueue:^{
+        startInvocations++;
 
-    [SentryLog configure:options.debug diagnosticLevel:options.diagnosticLevel];
+        [SentryLog configure:options.debug diagnosticLevel:options.diagnosticLevel];
 
-    SentryClient *newClient = [[SentryClient alloc] initWithOptions:options];
-    [newClient.fileManager moveAppStateToPreviousAppState];
-    [newClient.fileManager moveBreadcrumbsToPreviousBreadcrumbs];
+        SentryClient *newClient = [[SentryClient alloc] initWithOptions:options];
+        [newClient.fileManager moveAppStateToPreviousAppState];
+        [newClient.fileManager moveBreadcrumbsToPreviousBreadcrumbs];
 
-    SentryScope *scope
-        = options.initialScope([[SentryScope alloc] initWithMaxBreadcrumbs:options.maxBreadcrumbs]);
-    // The Hub needs to be initialized with a client so that closing a session
-    // can happen.
-    [SentrySDK setCurrentHub:[[SentryHub alloc] initWithClient:newClient andScope:scope]];
-    SENTRY_LOG_DEBUG(@"SDK initialized! Version: %@", SentryMeta.versionString);
-    [SentrySDK installIntegrations];
+        SentryScope *scope
+            = options.initialScope([[SentryScope alloc] initWithMaxBreadcrumbs:options.maxBreadcrumbs]);
+        // The Hub needs to be initialized with a client so that closing a session
+        // can happen.
+        [SentrySDK setCurrentHub:[[SentryHub alloc] initWithClient:newClient andScope:scope]];
+        SENTRY_LOG_DEBUG(@"SDK initialized! Version: %@", SentryMeta.versionString);
+        [SentrySDK installIntegrations];
 
-    [SentryCrashWrapper.sharedInstance startBinaryImageCache];
-    [SentryDependencyContainer.sharedInstance.binaryImageCache start];
+        [SentryCrashWrapper.sharedInstance startBinaryImageCache];
+        [SentryDependencyContainer.sharedInstance.binaryImageCache start];
+    }];
 }
 
 + (void)startWithConfigureOptions:(void (^)(SentryOptions *options))configureOptions
