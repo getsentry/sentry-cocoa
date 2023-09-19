@@ -22,6 +22,9 @@
     -(instancetype)init NS_UNAVAILABLE;                                                            \
     +(instancetype) new NS_UNAVAILABLE;
 
+#define SENTRY_TRUE_STRING @"true"
+#define SENTRY_FALSE_STRING @"false"
+
 @class SentryEvent, SentryBreadcrumb, SentrySamplingContext;
 @protocol SentrySpan;
 

@@ -50,12 +50,12 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * Sample rate used for this trace.
  */
-@property (nullable, nonatomic, strong) NSString *sampleRate;
+@property (nullable, nonatomic, readonly) NSString *sampleRate;
 
 /**
  * Value indicating whether the trace was sampled.
  */
-@property (nullable, nonatomic, strong) NSString *sampled;
+@property (nullable, nonatomic, readonly) NSString *sampled;
 
 /**
  * Initializes a SentryTraceContext with given properties.

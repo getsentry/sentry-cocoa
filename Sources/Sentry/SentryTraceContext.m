@@ -10,6 +10,7 @@
 #import "SentryTracer.h"
 #import "SentryTransactionContext.h"
 #import "SentryUser.h"
+#import "SentryDefines.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -68,7 +69,7 @@ NS_ASSUME_NONNULL_BEGIN
 
     NSString *sampled = nil;
     if (tracer.sampled != kSentrySampleDecisionUndecided) {
-        sampled = tracer.sampled == kSentrySampleDecisionYes ? @"true" : @"false";
+        sampled = tracer.sampled == kSentrySampleDecisionYes ? SENTRY_TRUE_STRING : SENTRY_FALSE_STRING;
     }
 
     return [self initWithTraceId:tracer.traceId
