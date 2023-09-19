@@ -4,7 +4,7 @@
 
 ### Fixes
 
-- App hang tick counter race condition (#3290)
+- App hang with race condition for tick counter (#3290)
 
 ## 8.12.0
 
