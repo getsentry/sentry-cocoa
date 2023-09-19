@@ -8,14 +8,13 @@
 #import "SentryCrash.h"
 #import "SentryCrashWrapper.h"
 #import "SentryDependencyContainer.h"
+#import "SentryDispatchQueueWrapper.h"
 #import "SentryFileManager.h"
 #import "SentryHub+Private.h"
 #import "SentryLog.h"
 #import "SentryMeta.h"
 #import "SentryOptions+Private.h"
 #import "SentryScope.h"
-#import "SentryDispatchQueueWrapper.h"
-
 
 @interface
 SentrySDK ()
@@ -145,8 +144,8 @@ static NSUInteger startInvocations;
         [newClient.fileManager moveAppStateToPreviousAppState];
         [newClient.fileManager moveBreadcrumbsToPreviousBreadcrumbs];
 
-        SentryScope *scope
-            = options.initialScope([[SentryScope alloc] initWithMaxBreadcrumbs:options.maxBreadcrumbs]);
+        SentryScope *scope = options.initialScope(
+            [[SentryScope alloc] initWithMaxBreadcrumbs:options.maxBreadcrumbs]);
         // The Hub needs to be initialized with a client so that closing a session
         // can happen.
         [SentrySDK setCurrentHub:[[SentryHub alloc] initWithClient:newClient andScope:scope]];
