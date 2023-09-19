@@ -9,6 +9,11 @@
 ### Features
 
 - Record changes to network connectivity in breadcrumbs (#3232)
+## Unreleased
+
+### Fixes
+
+- App hang tick counter race condition (#3290)
 
 ## 8.12.0
 
