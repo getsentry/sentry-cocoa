@@ -1,5 +1,5 @@
 #import "SentryPropagationContext.h"
-#import "SentryDSN.h"
+#import "SentryDsn.h"
 #import "SentryHub+Private.h"
 #import "SentryId.h"
 #import "SentryOptions+Private.h"

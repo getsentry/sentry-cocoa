@@ -108,6 +108,14 @@ SentrySerializedMetricEntry *_Nullable serializeValuesWithNormalizedTime(
     [self registerSampler];
 }
 
+- (void)recordMetrics
+{
+    SENTRY_LOG_DEBUG(@"Recording profiling metrics sample");
+    [self recordCPUsage];
+    [self recordMemoryFootprint];
+    [self recordEnergyUsageEstimate];
+}
+
 - (void)stop
 {
     [_dispatchSource cancel];
@@ -159,11 +167,7 @@ SentrySerializedMetricEntry *_Nullable serializeValuesWithNormalizedTime(
                  queueName:"io.sentry.metric-profiler"
                 attributes:dispatch_queue_attr_make_with_qos_class(
                                DISPATCH_QUEUE_CONCURRENT, QOS_CLASS_UTILITY, 0)
-              eventHandler:^{
-                  [weakSelf recordCPUsage];
-                  [weakSelf recordMemoryFootprint];
-                  [weakSelf recordEnergyUsageEstimate];
-              }];
+              eventHandler:^{ [weakSelf recordMetrics]; }];
 }
 
 - (void)recordMemoryFootprint

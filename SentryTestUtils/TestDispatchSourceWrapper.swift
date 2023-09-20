@@ -10,6 +10,7 @@ public class TestDispatchSourceWrapper: SentryDispatchSourceWrapper {
     public init(eventHandler: @escaping () -> Void) {
         self.overrides.eventHandler = eventHandler
         super.init()
+        eventHandler() // SentryDispatchSourceWrapper constructs a timer so that it fires with no initial delay
     }
 
     public override func cancel() {

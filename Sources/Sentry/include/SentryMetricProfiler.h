@@ -42,6 +42,8 @@ typedef NSDictionary<NSString *, id /* <NSString, NSArray<SentrySerializedMetric
 @interface SentryMetricProfiler : NSObject
 
 - (void)start;
+/** Record a metrics sample. Helps ensure full metric coverage for concurrent spans. */
+- (void)recordMetrics;
 - (void)stop;
 
 /**
