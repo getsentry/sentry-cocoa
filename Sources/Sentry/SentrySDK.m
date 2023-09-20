@@ -159,7 +159,8 @@ static NSUInteger startInvocations;
     if (NSThread.isMainThread) {
         startSDK();
     } else {
-        [SentryDependencyContainer.sharedInstance.dispatchQueueWrapper dispatchAsyncOnMainQueue:startSDK];
+        [SentryDependencyContainer.sharedInstance.dispatchQueueWrapper
+            dispatchAsyncOnMainQueue:startSDK];
     }
 }
 
