@@ -14,6 +14,7 @@
 #import "SentryMeta.h"
 #import "SentryOptions+Private.h"
 #import "SentryScope.h"
+#import "SentryUIDeviceWrapper.h"
 
 @interface
 SentrySDK ()
@@ -152,6 +153,9 @@ static NSUInteger startInvocations;
 
     [SentryCrashWrapper.sharedInstance startBinaryImageCache];
     [SentryDependencyContainer.sharedInstance.binaryImageCache start];
+#if TARGET_OS_IOS
+    [SentryDependencyContainer.sharedInstance.uiDeviceWrapper start];
+#endif
 }
 
 + (void)startWithConfigureOptions:(void (^)(SentryOptions *options))configureOptions
@@ -401,11 +405,13 @@ static NSUInteger startInvocations;
 
     [SentrySDK setCurrentHub:nil];
 
-    [SentryDependencyContainer reset];
-
     [SentryCrashWrapper.sharedInstance stopBinaryImageCache];
     [SentryDependencyContainer.sharedInstance.binaryImageCache stop];
+#if TARGET_OS_IOS
+    [SentryDependencyContainer.sharedInstance.uiDeviceWrapper stop];
+#endif
 
+    [SentryDependencyContainer reset];
     SENTRY_LOG_DEBUG(@"SDK closed!");
 }
 

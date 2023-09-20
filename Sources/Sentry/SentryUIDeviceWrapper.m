@@ -1,6 +1,7 @@
 #import "SentryUIDeviceWrapper.h"
 #import "SentryDependencyContainer.h"
 #import "SentryDispatchQueueWrapper.h"
+#import "SentryThreadWrapper.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -14,29 +15,25 @@ SentryUIDeviceWrapper ()
 
 #if TARGET_OS_IOS
 
-- (instancetype)init
-{
-    if (self = [super init]) {
-        [SentryDependencyContainer.sharedInstance.dispatchQueueWrapper dispatchSyncOnMainQueue:^{
-            // Needed to read the device orientation on demand
-            if (!UIDevice.currentDevice.isGeneratingDeviceOrientationNotifications) {
-                self.cleanupDeviceOrientationNotifications = YES;
-                [UIDevice.currentDevice beginGeneratingDeviceOrientationNotifications];
-            }
+- (void)start {
+    [SentryThreadWrapper onMainThread:^{
+        // Needed to read the device orientation on demand
+        if (!UIDevice.currentDevice.isGeneratingDeviceOrientationNotifications) {
+            self.cleanupDeviceOrientationNotifications = YES;
+            [UIDevice.currentDevice beginGeneratingDeviceOrientationNotifications];
+        }
 
-            // Needed so we can read the battery level
-            if (!UIDevice.currentDevice.isBatteryMonitoringEnabled) {
-                self.cleanupBatteryMonitoring = YES;
-                UIDevice.currentDevice.batteryMonitoringEnabled = YES;
-            }
-        }];
-    }
-    return self;
+        // Needed so we can read the battery level
+        if (!UIDevice.currentDevice.isBatteryMonitoringEnabled) {
+            self.cleanupBatteryMonitoring = YES;
+            UIDevice.currentDevice.batteryMonitoringEnabled = YES;
+        }
+    }];
 }
 
 - (void)stop
 {
-    [SentryDependencyContainer.sharedInstance.dispatchQueueWrapper dispatchSyncOnMainQueue:^{
+    [SentryThreadWrapper onMainThread:^{
         if (self.cleanupDeviceOrientationNotifications) {
             [UIDevice.currentDevice endGeneratingDeviceOrientationNotifications];
         }
