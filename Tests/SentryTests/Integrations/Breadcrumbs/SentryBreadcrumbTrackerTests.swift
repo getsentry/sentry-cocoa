@@ -29,6 +29,31 @@ class SentryBreadcrumbTrackerTests: XCTestCase {
         XCTAssertEqual(0, dict?.count)
     }
 
+    func testNetworkConnectivityChangeBreadcrumbs() throws {
+        let testReachability = TestSentryReachability()
+        SentryDependencyContainer.sharedInstance().reachability = testReachability
+        let sut = SentryBreadcrumbTracker()
+        sut.start(with: delegate)
+        let states = [SentryConnectivityCellular,
+        SentryConnectivityWiFi,
+        SentryConnectivityNone,
+        SentryConnectivityWiFi,
+        SentryConnectivityCellular,
+        SentryConnectivityWiFi
+        ]
+        states.forEach {
+            testReachability.setReachabilityState(state: $0)
+        }
+        sut.stop()
+        XCTAssertEqual(delegate.addCrumbInvocations.count, states.count + 1) // 1 breadcrumb for the tracker start
+        try states.enumerated().forEach {
+            let crumb = delegate.addCrumbInvocations.invocations[$0.offset + 1]
+            XCTAssertEqual(crumb.type, "connectivity")
+            XCTAssertEqual(crumb.category, "device.connectivity")
+            XCTAssertEqual(try XCTUnwrap(crumb.data?["connectivity"] as? String), $0.element)
+        }
+    }
+
     func testSwizzlingStarted_ViewControllerAppears_AddsUILifeCycleBreadcrumb() {
         let scope = Scope()
         let client = TestClient(options: Options())
@@ -48,13 +73,13 @@ class SentryBreadcrumbTrackerTests: XCTestCase {
 
         let crumbs = delegate.addCrumbInvocations.invocations
 
-        // one breadcrumb for starting the tracker, and a second one for the swizzled viewDidAppear
-        guard crumbs.count == 2 else {
-            XCTFail("Expected exactly 2 breadcrumbs, got: \(crumbs)")
+        // one breadcrumb for starting the tracker, one for the first reachability breadcrumb and one final one for the swizzled viewDidAppear
+        guard crumbs.count == 3 else {
+            XCTFail("Expected exactly 3 breadcrumbs, got: \(crumbs)")
             return
         }
 
-        let lifeCycleCrumb = crumbs[1]
+        let lifeCycleCrumb = crumbs[2]
         XCTAssertEqual("navigation", lifeCycleCrumb.type)
         XCTAssertEqual("ui.lifecycle", lifeCycleCrumb.category)
         XCTAssertEqual("false", lifeCycleCrumb.data?["beingPresented"] as? String)
