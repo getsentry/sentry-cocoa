@@ -58,7 +58,8 @@ static NSObject *sentryDependencyContainerLock;
     instance = [[SentryDependencyContainer alloc] init];
 }
 
-- (instancetype)init {
+- (instancetype)init
+{
     if (self = [super init]) {
         _dispatchQueueWrapper = [[SentryDispatchQueueWrapper alloc] init];
         _random = [[SentryRandom alloc] init];
