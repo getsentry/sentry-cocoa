@@ -299,7 +299,7 @@ typedef struct __CFRuntimeBase {
 /* In the following, N1 and N2 specify an inclusive range N2..N1 with N1 >= N2
  */
 #define __CFBitfieldMask(N1, N2) ((((UInt32)~0UL) << (31UL - (N1) + (N2))) >> (31UL - N1))
-#define __CFBitfieldGetValue(V, N1, N2) (((V) & __CFBitfieldMask(N1, N2)) >> (N2))
+#define __CFBitfieldGetValue(V, N1, N2) (((V)&__CFBitfieldMask(N1, N2)) >> (N2))
 
 // ======================================================================
 #pragma mark - CF-1153.18/CFString.c -
