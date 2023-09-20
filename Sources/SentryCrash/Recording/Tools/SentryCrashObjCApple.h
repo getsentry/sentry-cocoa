@@ -288,8 +288,8 @@ typedef struct __CFRuntimeBase {
 #    define __CF_BIG_ENDIAN__ 0
 #endif
 
-#define CF_INFO_BITS (!!(__CF_BIG_ENDIAN__)*3)
-#define CF_RC_BITS (!!(__CF_LITTLE_ENDIAN__)*3)
+#define CF_INFO_BITS (!!(__CF_BIG_ENDIAN__) * 3)
+#define CF_RC_BITS (!!(__CF_LITTLE_ENDIAN__) * 3)
 
 /* Bit manipulation macros */
 /* Bits are numbered from 31 on left to 0 on right */
