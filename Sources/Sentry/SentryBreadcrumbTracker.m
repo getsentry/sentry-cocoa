@@ -24,13 +24,20 @@ static NSString *const SentryBreadcrumbTrackerSwizzleSendAction
     = @"SentryBreadcrumbTrackerSwizzleSendAction";
 
 @interface
-SentryBreadcrumbTracker ()
+SentryBreadcrumbTracker () <SentryReachabilityObserver>
 
 @property (nonatomic, weak) id<SentryBreadcrumbDelegate> delegate;
 
 @end
 
 @implementation SentryBreadcrumbTracker
+
+#if !TARGET_OS_WATCH
+- (void)dealloc
+{
+    [SentryDependencyContainer.sharedInstance.reachability removeObserver:self];
+}
+#endif // !TARGET_OS_WATCH
 
 - (void)startWithDelegate:(id<SentryBreadcrumbDelegate>)delegate
 {
@@ -120,8 +127,8 @@ SentryBreadcrumbTracker ()
 - (void)trackNetworkConnectivityChanges
 {
     [SentryDependencyContainer.sharedInstance.reachability
-           monitorURL:[NSURL URLWithString:@"https://sentry.io"]
-        usingCallback:^(BOOL connected, NSString *_Nonnull typeDescription) {
+         addObserver:self
+        withCallback:^(BOOL connected, NSString *_Nonnull typeDescription) {
             SentryBreadcrumb *crumb =
                 [[SentryBreadcrumb alloc] initWithLevel:kSentryLevelInfo
                                                category:@"device.connectivity"];

@@ -50,6 +50,9 @@ SENTRY_EXTERN NSString *const SentryConnectivityNone;
  */
 typedef void (^SentryConnectivityChangeBlock)(BOOL connected, NSString *typeDescription);
 
+@protocol SentryReachabilityObserver <NSObject>
+@end
+
 /**
  * Monitors network connectivity using @c SCNetworkReachability callbacks,
  * providing a customizable callback block invoked when connectivity changes.
@@ -58,18 +61,15 @@ typedef void (^SentryConnectivityChangeBlock)(BOOL connected, NSString *typeDesc
 
 /**
  * Invoke a block each time network connectivity changes
- * @param URL The URL monitored for changes. Should be equivalent to
- * @c BugsnagConfiguration.notifyURL .
  * @param block The block called when connectivity changes
  */
-- (void)monitorURL:(NSURL *)URL usingCallback:(SentryConnectivityChangeBlock)block;
+- (void)addObserver:(id<SentryReachabilityObserver>)observer
+       withCallback:(SentryConnectivityChangeBlock)block;
 
 /**
  * Stop monitoring the URL previously configured with @c monitorURL:usingCallback:
  */
-- (void)stopMonitoring;
-
-- (NSString *)keyForInstance;
+- (void)removeObserver:(id<SentryReachabilityObserver>)observer;
 
 @end
 

@@ -27,7 +27,7 @@
 static NSTimeInterval const cachedEnvelopeSendDelay = 0.1;
 
 @interface
-SentryHttpTransport ()
+SentryHttpTransport () <SentryReachabilityObserver>
 
 @property (nonatomic, strong) SentryFileManager *fileManager;
 @property (nonatomic, strong) id<SentryRequestManager> requestManager;
@@ -37,9 +37,6 @@ SentryHttpTransport ()
 @property (nonatomic, strong) SentryEnvelopeRateLimit *envelopeRateLimit;
 @property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueue;
 @property (nonatomic, strong) dispatch_group_t dispatchGroup;
-#if !TARGET_OS_WATCH
-@property (nonatomic, strong) SentryReachability *reachability;
-#endif // !TARGET_OS_WATCH
 
 #if TEST || TESTCI
 @property (nullable, nonatomic, strong) void (^startFlushCallback)(void);
@@ -73,9 +70,6 @@ SentryHttpTransport ()
               rateLimits:(id<SentryRateLimits>)rateLimits
        envelopeRateLimit:(SentryEnvelopeRateLimit *)envelopeRateLimit
     dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
-#if !TARGET_OS_WATCH
-            reachability:(SentryReachability *)reachability
-#endif // !TARGET_OS_WATCH
 {
     if (self = [super init]) {
         self.options = options;
@@ -95,33 +89,33 @@ SentryHttpTransport ()
         [self sendAllCachedEnvelopes];
 
 #if !TARGET_OS_WATCH
-        self.reachability = reachability;
         __weak SentryHttpTransport *weakSelf = self;
-        [self.reachability monitorURL:[NSURL URLWithString:@"https://sentry.io"]
-                        usingCallback:^(BOOL connected, NSString *_Nonnull typeDescription) {
-                            if (weakSelf == nil) {
-                                SENTRY_LOG_DEBUG(@"WeakSelf is nil. Not doing anything.");
-                                return;
-                            }
+        [SentryDependencyContainer.sharedInstance.reachability
+             addObserver:self
+            withCallback:^(BOOL connected, NSString *_Nonnull typeDescription) {
+                if (weakSelf == nil) {
+                    SENTRY_LOG_DEBUG(@"WeakSelf is nil. Not doing anything.");
+                    return;
+                }
 
-                            if (connected) {
-                                SENTRY_LOG_DEBUG(@"Internet connection is back.");
-                                [weakSelf sendAllCachedEnvelopes];
-                            } else {
-                                SENTRY_LOG_DEBUG(@"Lost internet connection.");
-                            }
-                        }];
-#endif
+                if (connected) {
+                    SENTRY_LOG_DEBUG(@"Internet connection is back.");
+                    [weakSelf sendAllCachedEnvelopes];
+                } else {
+                    SENTRY_LOG_DEBUG(@"Lost internet connection.");
+                }
+            }];
+#endif // !TARGET_OS_WATCH
     }
     return self;
 }
 
+#if !TARGET_OS_WATCH
 - (void)dealloc
 {
-#if !TARGET_OS_WATCH
-    [self.reachability stopMonitoring];
-#endif
+    [SentryDependencyContainer.sharedInstance.reachability removeObserver:self];
 }
+#endif // !TARGET_OS_WATCH
 
 - (void)sendEnvelope:(SentryEnvelope *)envelope
 {
