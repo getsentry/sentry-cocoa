@@ -36,7 +36,7 @@ SentryUIDeviceWrapper ()
 {
     BOOL needsCleanUp = self.cleanupDeviceOrientationNotifications;
     BOOL needsDisablingBattery = self.cleanupBatteryMonitoring;
-    
+
     [SentryThreadWrapper onMainThread:^{
         if (needsCleanUp) {
             [UIDevice.currentDevice endGeneratingDeviceOrientationNotifications];
