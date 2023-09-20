@@ -15,7 +15,8 @@ SentryUIDeviceWrapper ()
 
 #if TARGET_OS_IOS
 
-- (void)start {
+- (void)start
+{
     [SentryThreadWrapper onMainThread:^{
         // Needed to read the device orientation on demand
         if (!UIDevice.currentDevice.isGeneratingDeviceOrientationNotifications) {
