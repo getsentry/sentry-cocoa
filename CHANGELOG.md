@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Remove sync call to main thread from SentryUIDeviceWrapper (#3295)
+
 ## 8.12.0
 
 ### Fixes
