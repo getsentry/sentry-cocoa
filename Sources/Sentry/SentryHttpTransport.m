@@ -27,7 +27,10 @@
 static NSTimeInterval const cachedEnvelopeSendDelay = 0.1;
 
 @interface
-SentryHttpTransport () <SentryReachabilityObserver>
+SentryHttpTransport ()
+#if !TARGET_OS_WATCH
+    <SentryReachabilityObserver>
+#endif // !TARGET_OS_WATCH
 
 @property (nonatomic, strong) SentryFileManager *fileManager;
 @property (nonatomic, strong) id<SentryRequestManager> requestManager;

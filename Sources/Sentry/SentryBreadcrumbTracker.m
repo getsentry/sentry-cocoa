@@ -24,7 +24,10 @@ static NSString *const SentryBreadcrumbTrackerSwizzleSendAction
     = @"SentryBreadcrumbTrackerSwizzleSendAction";
 
 @interface
-SentryBreadcrumbTracker () <SentryReachabilityObserver>
+SentryBreadcrumbTracker ()
+#if !TARGET_OS_WATCH
+    <SentryReachabilityObserver>
+#endif // !TARGET_OS_WATCH
 
 @property (nonatomic, weak) id<SentryBreadcrumbDelegate> delegate;
 
