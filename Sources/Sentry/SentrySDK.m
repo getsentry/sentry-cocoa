@@ -135,7 +135,7 @@ static NSUInteger startInvocations;
 
 + (void)startWithOptions:(SentryOptions *)options
 {
-    [SentryDependencyContainer.sharedInstance.dispatchQueueWrapper dispatchSyncOnMainQueue:^{
+    void (^startSDK)(void) = ^{
         startInvocations++;
 
         [SentryLog configure:options.debug diagnosticLevel:options.diagnosticLevel];
@@ -154,7 +154,13 @@ static NSUInteger startInvocations;
 
         [SentryCrashWrapper.sharedInstance startBinaryImageCache];
         [SentryDependencyContainer.sharedInstance.binaryImageCache start];
-    }];
+    };
+
+    if (NSThread.isMainThread) {
+        startSDK();
+    } else {
+        [SentryDependencyContainer.sharedInstance.dispatchQueueWrapper dispatchAsyncOnMainQueue:startSDK];
+    }
 }
 
 + (void)startWithConfigureOptions:(void (^)(SentryOptions *options))configureOptions
