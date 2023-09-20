@@ -407,6 +407,7 @@ static NSUInteger startInvocations;
 
     [SentryCrashWrapper.sharedInstance stopBinaryImageCache];
     [SentryDependencyContainer.sharedInstance.binaryImageCache stop];
+
 #if TARGET_OS_IOS
     [SentryDependencyContainer.sharedInstance.uiDeviceWrapper stop];
 #endif
