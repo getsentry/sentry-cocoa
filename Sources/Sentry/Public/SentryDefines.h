@@ -118,8 +118,8 @@ static DEPRECATED_MSG_ATTRIBUTE(
 
 static NSUInteger const defaultMaxBreadcrumbs = 100;
 
-static NSString * _Nonnull const kSentryTrueString = @"true";
-static NSString * _Nonnull const kSentryFalseString = @"false";
+static NSString *_Nonnull const kSentryTrueString = @"true";
+static NSString *_Nonnull const kSentryFalseString = @"false";
 
 /**
  * Transaction name source.
