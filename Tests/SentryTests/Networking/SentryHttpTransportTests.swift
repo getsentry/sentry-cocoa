@@ -45,6 +45,8 @@ class SentryHttpTransportTests: XCTestCase {
         let queue = DispatchQueue(label: "SentryHttpTransportTests", qos: .userInitiated, attributes: [.concurrent, .initiallyInactive])
 
         init() {
+            SentryDependencyContainer.sharedInstance().reachability = reachability
+            
             currentDateProvider = TestCurrentDateProvider()
             SentryDependencyContainer.sharedInstance().dateProvider = currentDateProvider
 
@@ -111,8 +113,7 @@ class SentryHttpTransportTests: XCTestCase {
                 requestBuilder: requestBuilder,
                 rateLimits: rateLimits,
                 envelopeRateLimit: EnvelopeRateLimit(rateLimits: rateLimits),
-                dispatchQueueWrapper: dispatchQueueWrapper,
-                reachability: reachability
+                dispatchQueueWrapper: dispatchQueueWrapper
             )
 
 #else // os(watchOS)
