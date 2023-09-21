@@ -22,9 +22,6 @@
     -(instancetype)init NS_UNAVAILABLE;                                                            \
     +(instancetype) new NS_UNAVAILABLE;
 
-#define SENTRY_TRUE_STRING @"true"
-#define SENTRY_FALSE_STRING @"false"
-
 @class SentryEvent, SentryBreadcrumb, SentrySamplingContext;
 @protocol SentrySpan;
 
@@ -120,6 +117,9 @@ static DEPRECATED_MSG_ATTRIBUTE(
       };
 
 static NSUInteger const defaultMaxBreadcrumbs = 100;
+
+static NSString * _Nonnull const kSentryTrueString = @"true";
+static NSString * _Nonnull const kSentryFalseString = @"false";
 
 /**
  * Transaction name source.
