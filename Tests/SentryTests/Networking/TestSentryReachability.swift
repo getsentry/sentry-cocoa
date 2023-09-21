@@ -5,16 +5,20 @@ import SentryTestUtils
 class TestSentryReachability: SentryReachability {
     var block: SentryConnectivityChangeBlock?
 
-    override func monitorURL(_ URL: URL, usingCallback block: @escaping SentryConnectivityChangeBlock) {
+    override func add(_ observer: SentryReachabilityObserver, withCallback block: @escaping SentryConnectivityChangeBlock) {
         self.block = block
     }
 
+    func setReachabilityState(state: String) {
+        block?(state != SentryConnectivityNone, state)
+    }
+
     func triggerNetworkReachable() {
-        block?(true, "wifi")
+        block?(true, SentryConnectivityWiFi)
     }
     
     var stopMonitoringInvocations = Invocations<Void>()
-    override func stopMonitoring() {
+    override func remove(_ observer: SentryReachabilityObserver) {
         stopMonitoringInvocations.record(Void())
     }
 }
