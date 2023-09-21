@@ -6,6 +6,10 @@
 
 - Start SDK only in the main thread (#3291)
 
+### Features
+
+- Record changes to network connectivity in breadcrumbs (#3232)
+
 ## 8.12.0
 
 ### Fixes
