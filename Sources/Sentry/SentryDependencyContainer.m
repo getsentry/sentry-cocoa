@@ -35,6 +35,10 @@
 #    import "SentryUIDeviceWrapper.h"
 #endif // TARGET_OS_IOS
 
+#if !TARGET_OS_WATCH
+#    import "SentryReachability.h"
+#endif // !TARGET_OS_WATCH
+
 @implementation SentryDependencyContainer
 
 static SentryDependencyContainer *instance;
@@ -367,5 +371,19 @@ static NSObject *sentryDependencyContainerLock;
 }
 
 #endif // SENTRY_HAS_METRIC_KIT
+
+#if !TARGET_OS_WATCH
+- (SentryReachability *)reachability
+{
+    if (_reachability == nil) {
+        @synchronized(sentryDependencyContainerLock) {
+            if (_reachability == nil) {
+                _reachability = [[SentryReachability alloc] init];
+            }
+        }
+    }
+    return _reachability;
+}
+#endif // !TARGET_OS_WATCH
 
 @end

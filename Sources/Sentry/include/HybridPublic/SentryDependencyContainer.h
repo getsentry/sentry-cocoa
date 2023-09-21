@@ -34,6 +34,10 @@
 @class SentryUIDeviceWrapper;
 #endif // TARGET_OS_IOS
 
+#if !TARGET_OS_WATCH
+@class SentryReachability;
+#endif // !TARGET_OS_WATCH
+
 NS_ASSUME_NONNULL_BEGIN
 
 @interface SentryDependencyContainer : NSObject
@@ -75,6 +79,10 @@ SENTRY_NO_INIT
 #if TARGET_OS_IOS
 @property (nonatomic, strong) SentryUIDeviceWrapper *uiDeviceWrapper;
 #endif // TARGET_OS_IOS
+
+#if !TARGET_OS_WATCH
+@property (nonatomic, strong) SentryReachability *reachability;
+#endif // !TARGET_OS_WATCH
 
 - (SentryANRTracker *)getANRTracker:(NSTimeInterval)timeout;
 
