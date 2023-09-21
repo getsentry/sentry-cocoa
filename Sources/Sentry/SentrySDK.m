@@ -15,6 +15,7 @@
 #import "SentryMeta.h"
 #import "SentryOptions+Private.h"
 #import "SentryScope.h"
+#import "SentryThreadWrapper.h"
 
 @interface
 SentrySDK ()
@@ -135,7 +136,7 @@ static NSUInteger startInvocations;
 
 + (void)startWithOptions:(SentryOptions *)options
 {
-    void (^startSDK)(void) = ^{
+    [SentryThreadWrapper onMainThread:^{
         startInvocations++;
 
         [SentryLog configure:options.debug diagnosticLevel:options.diagnosticLevel];
@@ -154,14 +155,7 @@ static NSUInteger startInvocations;
 
         [SentryCrashWrapper.sharedInstance startBinaryImageCache];
         [SentryDependencyContainer.sharedInstance.binaryImageCache start];
-    };
-
-    if (NSThread.isMainThread) {
-        startSDK();
-    } else {
-        [SentryDependencyContainer.sharedInstance.dispatchQueueWrapper
-            dispatchAsyncOnMainQueue:startSDK];
-    }
+    }];
 }
 
 + (void)startWithConfigureOptions:(void (^)(SentryOptions *options))configureOptions
