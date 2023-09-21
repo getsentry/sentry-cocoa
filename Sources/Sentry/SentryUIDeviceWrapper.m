@@ -1,7 +1,6 @@
 #import "SentryUIDeviceWrapper.h"
 #import "SentryDependencyContainer.h"
 #import "SentryDispatchQueueWrapper.h"
-#import "SentryThreadWrapper.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -17,8 +16,7 @@ SentryUIDeviceWrapper ()
 
 - (void)start
 {
-    [SentryThreadWrapper onMainThread:^{
-        // Needed to read the device orientation on demand
+    [SentryDependencyContainer.sharedInstance.dispatchQueueWrapper dispatchOnMainQueue:^{
         if (!UIDevice.currentDevice.isGeneratingDeviceOrientationNotifications) {
             self.cleanupDeviceOrientationNotifications = YES;
             [UIDevice.currentDevice beginGeneratingDeviceOrientationNotifications];
@@ -37,7 +35,7 @@ SentryUIDeviceWrapper ()
     BOOL needsCleanUp = self.cleanupDeviceOrientationNotifications;
     BOOL needsDisablingBattery = self.cleanupBatteryMonitoring;
 
-    [SentryThreadWrapper onMainThread:^{
+    [SentryDependencyContainer.sharedInstance.dispatchQueueWrapper dispatchOnMainQueue:^{
         if (needsCleanUp) {
             [UIDevice.currentDevice endGeneratingDeviceOrientationNotifications];
         }
