@@ -28,10 +28,6 @@
 	<string>Testing location permissions</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Testing location permissions</string>
-	<key>UIBackgroundModes</key>
-	<array>
-		<string>fetch</string>
-	</array>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>
