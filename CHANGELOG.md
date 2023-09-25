@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- App hang being reported from background (#3298)
+
 ## 8.13.0
 
 ### Fixes
