@@ -156,9 +156,9 @@ static NSUInteger startInvocations;
 
         [SentryCrashWrapper.sharedInstance startBinaryImageCache];
         [SentryDependencyContainer.sharedInstance.binaryImageCache start];
-        #if TARGET_OS_IOS
+#if TARGET_OS_IOS
         [SentryDependencyContainer.sharedInstance.uiDeviceWrapper start];
-        #endif
+#endif
     }];
 }
 
