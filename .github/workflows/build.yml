@@ -5,19 +5,6 @@ on:
       - main
       - release/**
 
-  pull_request:
-    paths:
-      - 'Sources/**'
-      - 'test-server/**'
-      - 'Samples/**'
-      - '.github/workflows/build.yml'
-      - 'fastlane/**'
-      - 'scripts/ci-select-xcode.sh'
-      - Sentry.xcworkspace
-      - Sentry.xcodeproj
-      - Gemfile.lock
-      - 'Package.swift'
-
 jobs:
   # We had issues that the release build was broken on main.
   # With this we catch potential issues already in the PR.
