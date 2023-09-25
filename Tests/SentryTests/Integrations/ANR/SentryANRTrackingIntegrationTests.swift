@@ -108,7 +108,23 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         
         assertNoEventCaptured()
     }
-    
+#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+    func testANRDetected_ButBackground_EventNotCaptured() {
+
+        class BackgroundSentryUIApplication : SentryUIApplication {
+            override var applicationState: UIApplication.State { .background }
+        }
+
+        givenInitializedTracker()
+        setUpThreadInspector()
+        //SentryDependencyContainer.sharedInstance().application = BackgroundSentryUIApplication()
+
+        Dynamic(sut).anrDetected()
+
+        assertNoEventCaptured()
+    }
+#endif
+
     func testDealloc_CallsUninstall() {
         givenInitializedTracker()
         
@@ -137,7 +153,7 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
     
     private func setUpThreadInspector(addThreads: Bool = true) {
         let threadInspector = TestThreadInspector.instance
-        
+
         if addThreads {
             
             let frame1 = Sentry.Frame()
@@ -165,3 +181,4 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         SentrySDK.currentHub().getClient()?.threadInspector = threadInspector
     }
 }
+

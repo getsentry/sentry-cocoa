@@ -12,6 +12,11 @@ NS_ASSUME_NONNULL_BEGIN
 @interface SentryUIApplication : NSObject
 
 /**
+ * Returns the application state available at @c NSApplication.sharedApplication.applicationState
+ */
+@property (nonatomic, readonly) UIApplicationState applicationState;
+
+/**
  * Application shared UIApplication instance.
  */
 @property (nonatomic, readonly, nullable) UIApplication *sharedApplication;
