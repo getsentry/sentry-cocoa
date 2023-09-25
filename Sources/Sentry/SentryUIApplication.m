@@ -54,7 +54,8 @@
     return result;
 }
 
-- (UIApplicationState)applicationState {
+- (UIApplicationState)applicationState
+{
     return self.sharedApplication.applicationState;
 }
 

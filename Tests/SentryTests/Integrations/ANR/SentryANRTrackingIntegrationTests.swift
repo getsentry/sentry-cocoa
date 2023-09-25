@@ -111,7 +111,7 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
     func testANRDetected_ButBackground_EventNotCaptured() {
 
-        class BackgroundSentryUIApplication : SentryUIApplication {
+        class BackgroundSentryUIApplication: SentryUIApplication {
             override var applicationState: UIApplication.State { .background }
         }
 
@@ -181,4 +181,3 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         SentrySDK.currentHub().getClient()?.threadInspector = threadInspector
     }
 }
-

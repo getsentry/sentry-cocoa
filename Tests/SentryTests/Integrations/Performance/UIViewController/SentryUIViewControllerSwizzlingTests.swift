@@ -289,7 +289,6 @@ class MockApplication: NSObject, SentryUIApplicationProtocol {
         self.delegate = delegate
     }
 
-
 }
 
 // swiftlint:disable prohibited_super_call
