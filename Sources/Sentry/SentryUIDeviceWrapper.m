@@ -14,33 +14,32 @@ SentryUIDeviceWrapper ()
 
 #if TARGET_OS_IOS
 
-- (instancetype)init
+- (void)start
 {
-    if (self = [super init]) {
-        [SentryDependencyContainer.sharedInstance.dispatchQueueWrapper dispatchSyncOnMainQueue:^{
-            // Needed to read the device orientation on demand
-            if (!UIDevice.currentDevice.isGeneratingDeviceOrientationNotifications) {
-                self.cleanupDeviceOrientationNotifications = YES;
-                [UIDevice.currentDevice beginGeneratingDeviceOrientationNotifications];
-            }
+    [SentryDependencyContainer.sharedInstance.dispatchQueueWrapper dispatchOnMainQueue:^{
+        if (!UIDevice.currentDevice.isGeneratingDeviceOrientationNotifications) {
+            self.cleanupDeviceOrientationNotifications = YES;
+            [UIDevice.currentDevice beginGeneratingDeviceOrientationNotifications];
+        }
 
-            // Needed so we can read the battery level
-            if (!UIDevice.currentDevice.isBatteryMonitoringEnabled) {
-                self.cleanupBatteryMonitoring = YES;
-                UIDevice.currentDevice.batteryMonitoringEnabled = YES;
-            }
-        }];
-    }
-    return self;
+        // Needed so we can read the battery level
+        if (!UIDevice.currentDevice.isBatteryMonitoringEnabled) {
+            self.cleanupBatteryMonitoring = YES;
+            UIDevice.currentDevice.batteryMonitoringEnabled = YES;
+        }
+    }];
 }
 
 - (void)stop
 {
-    [SentryDependencyContainer.sharedInstance.dispatchQueueWrapper dispatchSyncOnMainQueue:^{
-        if (self.cleanupDeviceOrientationNotifications) {
+    BOOL needsCleanUp = self.cleanupDeviceOrientationNotifications;
+    BOOL needsDisablingBattery = self.cleanupBatteryMonitoring;
+
+    [SentryDependencyContainer.sharedInstance.dispatchQueueWrapper dispatchOnMainQueue:^{
+        if (needsCleanUp) {
             [UIDevice.currentDevice endGeneratingDeviceOrientationNotifications];
         }
-        if (self.cleanupBatteryMonitoring) {
+        if (needsDisablingBattery) {
             UIDevice.currentDevice.batteryMonitoringEnabled = NO;
         }
     }];

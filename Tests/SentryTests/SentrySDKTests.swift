@@ -585,7 +585,24 @@ class SentrySDKTests: XCTestCase {
         XCTAssertTrue(testTTDTracker.registerFullDisplayCalled)
     }
 #endif
-    
+
+#if os(iOS)
+    func testSentryUIDeviceWrapperStarted() {
+        let deviceWrapper = TestSentryUIDeviceWrapper()
+        SentryDependencyContainer.sharedInstance().uiDeviceWrapper = deviceWrapper
+        SentrySDK.start(options: fixture.options)
+        XCTAssertTrue(deviceWrapper.started)
+    }
+
+    func testSentryUIDeviceWrapperStopped() {
+        let deviceWrapper = TestSentryUIDeviceWrapper()
+        SentryDependencyContainer.sharedInstance().uiDeviceWrapper = deviceWrapper
+        SentrySDK.start(options: fixture.options)
+        SentrySDK.close()
+        XCTAssertFalse(deviceWrapper.started)
+    }
+#endif
+
     func testClose_SetsClientToNil() {
         SentrySDK.start { options in
             options.dsn = SentrySDKTests.dsnAsString

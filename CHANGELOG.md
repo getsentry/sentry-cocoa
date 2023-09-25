@@ -5,6 +5,7 @@
 ### Fixes
 
 - Start SDK only in the main thread (#3291)
+- Remove sync call to main thread from SentryUIDeviceWrapper (#3295)
 
 ### Features
 
@@ -23,7 +24,8 @@
 
 ### Features
 
-- Rename "http.method" to "http.request.method" for network Spans #3268
+- Rename "http.method" to "http.request.method" for network Spans (#3268)
+- Add Sampling Decision to Trace Envelope Header (#3286)
 
 ## 8.11.0
 
