@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Fixes
+
+- Remove sync call to main thread from SentryUIDeviceWrapper (#3295)
+
 ### Features
 
 - Record changes to network connectivity in breadcrumbs (#3232)
