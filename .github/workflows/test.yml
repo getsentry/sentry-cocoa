@@ -71,8 +71,6 @@ jobs:
   # We don't run all unit tests with Thread Sanitizer enabled because
   # that adds a significant overhead.
   thread-sanitizer:
-    # Disabled for now, see https://github.com/getsentry/sentry-cocoa/issues/3200
-    if: false 
     name: Unit iOS - Thread Sanitizer
     runs-on: macos-13
     # When there are threading issues the tests sometimes keep hanging
