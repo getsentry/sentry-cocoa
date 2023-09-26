@@ -9,6 +9,7 @@
 ### Features
 
 - Record changes to network connectivity in breadcrumbs (#3232)
+- Add Sampling Decision to Trace Envelope Header (#3286)
 
 ## 8.12.0
 
@@ -24,7 +25,6 @@
 ### Features
 
 - Rename "http.method" to "http.request.method" for network Spans (#3268)
-- Add Sampling Decision to Trace Envelope Header (#3286)
 
 ## 8.11.0
 
