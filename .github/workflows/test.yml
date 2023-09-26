@@ -71,7 +71,7 @@ jobs:
   unit-tests:
     name: Unit ${{matrix.platform}} - Xcode ${{matrix.xcode}} - OS ${{matrix.test-destination-os}}
     runs-on: ${{matrix.runs-on}}
-    timeout-minutes: 30 # something is taking much longer for this job, maybe the beta simulator is slow to launch (armcknight 19 Sept 2023)
+    timeout-minutes: 40 # something is taking much longer for this job, maybe the beta simulator is slow to launch (armcknight 19 Sept 2023)
     needs: build-test-server
 
     strategy:
