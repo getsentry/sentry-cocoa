@@ -74,7 +74,7 @@ jobs:
     name: Unit iOS - Thread Sanitizer
     runs-on: macos-13
     # When there are threading issues the tests sometimes keep hanging
-    timeout-minutes: 20
+    timeout-minutes: 30
     needs: [build-test-server]
 
     steps:
@@ -92,7 +92,7 @@ jobs:
       - run: ./scripts/ci-select-xcode.sh
 
       - name: Running tests with ThreadSanitizer
-        run: ./scripts/xcode-test.sh 
+        run: ./scripts/tests-with-thread-sanitizer.sh
 
       - name: Archiving Test Logs
         uses: actions/upload-artifact@v3

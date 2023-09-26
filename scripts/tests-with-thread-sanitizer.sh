@@ -6,7 +6,6 @@ set -euo pipefail
 # Therefore we print a hint to find the threading issues.
 env NSUnbufferedIO=YES xcodebuild -workspace Sentry.xcworkspace -scheme Sentry -configuration Test -enableThreadSanitizer YES \
     -destination "platform=iOS Simulator,OS=latest,name=iPhone 14" \
-    -skip-testing:"Sentry/SentryThreadInspectorTests/testStacktraceHasFrames_forEveryThread" \
     test | tee thread-sanitizer.log | xcpretty -t
 
 testStatus=$?
