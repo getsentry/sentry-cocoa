@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Remove "duplicate library" warning (#3312)
+
 ## 8.13.0
 
 ### Fixes
