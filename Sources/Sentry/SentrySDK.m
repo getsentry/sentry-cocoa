@@ -14,6 +14,7 @@
 #import "SentryMeta.h"
 #import "SentryOptions+Private.h"
 #import "SentryScope.h"
+#import "SentryUIDeviceWrapper.h"
 
 @interface
 SentrySDK ()
@@ -151,7 +152,10 @@ static NSUInteger startInvocations;
     [SentrySDK installIntegrations];
 
     [SentryCrashWrapper.sharedInstance startBinaryImageCache];
-    [SentryBinaryImageCache.shared start];
+    [SentryDependencyContainer.sharedInstance.binaryImageCache start];
+#if TARGET_OS_IOS
+    [SentryDependencyContainer.sharedInstance.uiDeviceWrapper start];
+#endif
 }
 
 + (void)startWithConfigureOptions:(void (^)(SentryOptions *options))configureOptions
@@ -384,16 +388,10 @@ static NSUInteger startInvocations;
 + (void)close
 {
     SENTRY_LOG_DEBUG(@"Starting to close SDK.");
-    // pop the hub and unset
-    SentryHub *hub = SentrySDK.currentHub;
 
-    // Uninstall all the integrations
-    for (NSObject<SentryIntegrationProtocol> *integration in hub.installedIntegrations) {
-        if ([integration respondsToSelector:@selector(uninstall)]) {
-            [integration uninstall];
-        }
-    }
+    SentryHub *hub = SentrySDK.currentHub;
     [hub removeAllIntegrations];
+
     SENTRY_LOG_DEBUG(@"Uninstalled all integrations.");
 
 #if SENTRY_HAS_UIKIT
@@ -407,11 +405,14 @@ static NSUInteger startInvocations;
 
     [SentrySDK setCurrentHub:nil];
 
-    [SentryDependencyContainer reset];
-
     [SentryCrashWrapper.sharedInstance stopBinaryImageCache];
-    [SentryBinaryImageCache.shared stop];
+    [SentryDependencyContainer.sharedInstance.binaryImageCache stop];
 
+#if TARGET_OS_IOS
+    [SentryDependencyContainer.sharedInstance.uiDeviceWrapper stop];
+#endif
+
+    [SentryDependencyContainer reset];
     SENTRY_LOG_DEBUG(@"SDK closed!");
 }
 

@@ -8,6 +8,7 @@
 @class SentryFramesTracker;
 #endif // SENTRY_HAS_UIKIT
 @class SentryTransaction;
+@class SentryHub;
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
@@ -38,12 +39,12 @@ SENTRY_EXTERN_C_END
  */
 @interface SentryProfiler : NSObject
 
-@property (strong, nonatomic) SentryId *profileId;
+@property (strong, nonatomic) SentryId *profilerId;
 
 /**
  * Start a profiler, if one isn't already running.
  */
-+ (void)startWithTracer:(SentryTracer *)tracer;
++ (void)startWithTracer:(SentryId *)traceId;
 
 /**
  * Stop the profiler if it is running.
@@ -64,12 +65,25 @@ SENTRY_EXTERN_C_END
 + (BOOL)isCurrentlyProfiling;
 
 /**
+ * Immediately record a sample of profiling metrics. Helps get full coverage of concurrent spans
+ * when they're ended.
+ */
++ (void)recordMetrics;
+
+/**
  * Given a transaction, return an envelope item containing any corresponding profile data to be
  * attached to the transaction envelope.
  * */
 + (nullable SentryEnvelopeItem *)createProfilingEnvelopeItemForTransaction:
     (SentryTransaction *)transaction;
 
+/**
+ * Collect profile data corresponding with the given traceId and time period.
+ * */
++ (nullable NSMutableDictionary<NSString *, id> *)collectProfileBetween:(uint64_t)startSystemTime
+                                                                    and:(uint64_t)endSystemTime
+                                                               forTrace:(SentryId *)traceId
+                                                                  onHub:(SentryHub *)hub;
 @end
 
 NS_ASSUME_NONNULL_END

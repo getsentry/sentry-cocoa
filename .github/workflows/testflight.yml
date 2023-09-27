@@ -20,9 +20,11 @@ jobs:
     name: Build and Upload iOS-Swift to Testflight
     runs-on: macos-13
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - run: ./scripts/ci-select-xcode.sh
-      - run: bundle install
+      - uses: ruby/setup-ruby@v1
+        with:
+          bundler-cache: true
 
       # We upload a new version to TestFlight on every commit on main
       # So we need to bump the build number each time

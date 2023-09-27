@@ -66,7 +66,7 @@ class SentrySDKTests: XCTestCase {
         
         givenSdkWithHubButNoClient()
         
-        if let autoSessionTracking = SentrySDK.currentHub().installedIntegrations.first(where: { it in
+        if let autoSessionTracking = SentrySDK.currentHub().installedIntegrations().first(where: { it in
             it is SentryAutoSessionTrackingIntegration
         }) as? SentryAutoSessionTrackingIntegration {
             autoSessionTracking.stop()
@@ -125,12 +125,12 @@ class SentrySDKTests: XCTestCase {
             options.debug = true
         }
 
-        XCTAssertNotNil(SentryBinaryImageCache.shared.cache)
-        XCTAssertGreaterThan(SentryBinaryImageCache.shared.cache.count, 0)
+        XCTAssertNotNil(SentryDependencyContainer.sharedInstance().binaryImageCache.cache)
+        XCTAssertGreaterThan(SentryDependencyContainer.sharedInstance().binaryImageCache.cache.count, 0)
 
         SentrySDK.close()
 
-        XCTAssertNil(SentryBinaryImageCache.shared.cache)
+        XCTAssertNil(SentryDependencyContainer.sharedInstance().binaryImageCache.cache)
     }
     
     func testStartWithConfigureOptions_NoDsn() throws {
@@ -395,7 +395,7 @@ class SentrySDKTests: XCTestCase {
         XCTAssert(transaction === newSpan)
     }
     
-    func testInstallIntegrations() {
+    func testInstallIntegrations() throws {
         let options = Options()
         options.dsn = "mine"
         options.integrations = ["SentryTestIntegration", "SentryTestIntegration", "IDontExist"]
@@ -403,8 +403,7 @@ class SentrySDKTests: XCTestCase {
         SentrySDK.start(options: options)
         
         assertIntegrationsInstalled(integrations: ["SentryTestIntegration"])
-        let integration = SentrySDK.currentHub().installedIntegrations.first
-        XCTAssertTrue(integration is SentryTestIntegration)
+        let integration = SentrySDK.currentHub().installedIntegrations().first
         if let testIntegration = integration as? SentryTestIntegration {
             XCTAssertEqual(options.dsn, testIntegration.options.dsn)
             XCTAssertEqual(options.integrations, testIntegration.options.integrations)
@@ -541,7 +540,7 @@ class SentrySDKTests: XCTestCase {
         
         let hub = SentrySDK.currentHub()
         SentrySDK.close()
-        XCTAssertEqual(0, hub.installedIntegrations.count)
+        XCTAssertEqual(0, hub.installedIntegrations().count)
         assertIntegrationsInstalled(integrations: [])
     }
 
@@ -586,7 +585,24 @@ class SentrySDKTests: XCTestCase {
         XCTAssertTrue(testTTDTracker.registerFullDisplayCalled)
     }
 #endif
-    
+
+#if os(iOS)
+    func testSentryUIDeviceWrapperStarted() {
+        let deviceWrapper = TestSentryUIDeviceWrapper()
+        SentryDependencyContainer.sharedInstance().uiDeviceWrapper = deviceWrapper
+        SentrySDK.start(options: fixture.options)
+        XCTAssertTrue(deviceWrapper.started)
+    }
+
+    func testSentryUIDeviceWrapperStopped() {
+        let deviceWrapper = TestSentryUIDeviceWrapper()
+        SentryDependencyContainer.sharedInstance().uiDeviceWrapper = deviceWrapper
+        SentrySDK.start(options: fixture.options)
+        SentrySDK.close()
+        XCTAssertFalse(deviceWrapper.started)
+    }
+#endif
+
     func testClose_SetsClientToNil() {
         SentrySDK.start { options in
             options.dsn = SentrySDKTests.dsnAsString
@@ -703,7 +719,7 @@ class SentrySDKTests: XCTestCase {
     }
     
     private func assertIntegrationsInstalled(integrations: [String]) {
-        XCTAssertEqual(integrations.count, SentrySDK.currentHub().installedIntegrations.count)
+        XCTAssertEqual(integrations.count, SentrySDK.currentHub().installedIntegrations().count)
         integrations.forEach { integration in
             if let integrationClass = NSClassFromString(integration) {
                 XCTAssertTrue(SentrySDK.currentHub().isIntegrationInstalled(integrationClass), "\(integration) not installed")

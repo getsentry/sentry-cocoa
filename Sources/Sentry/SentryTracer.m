@@ -165,11 +165,20 @@ static BOOL appStartMeasurementRead;
     if (_configuration.profilesSamplerDecision.decision == kSentrySampleDecisionYes) {
         _isProfiling = YES;
         _startSystemTime = SentryDependencyContainer.sharedInstance.dateProvider.systemTime;
-        [SentryProfiler startWithTracer:self];
+        [SentryProfiler startWithTracer:self.traceId];
     }
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
     return self;
+}
+
+- (void)dealloc
+{
+#if SENTRY_TARGET_PROFILING_SUPPORTED
+    if (self.isProfiling) {
+        discardProfilerForTracer(self.traceId);
+    }
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED
 }
 
 - (nullable SentryTracer *)tracer
@@ -590,6 +599,9 @@ static BOOL appStartMeasurementRead;
     transaction.transaction = self.transactionContext.name;
 #if SENTRY_TARGET_PROFILING_SUPPORTED
     transaction.startSystemTime = self.startSystemTime;
+    if (self.isProfiling) {
+        [SentryProfiler recordMetrics];
+    }
     transaction.endSystemTime = SentryDependencyContainer.sharedInstance.dateProvider.systemTime;
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
@@ -830,16 +842,6 @@ static BOOL appStartMeasurementRead;
 {
     return _startTimeChanged ? _originalStartTimestamp : self.startTimestamp;
 }
-
-#if SENTRY_TARGET_PROFILING_SUPPORTED && (defined(TEST) || defined(TESTCI))
-// this just calls through to SentryProfiledTracerConcurrency.resetConcurrencyTracking(). we have to
-// do this through SentryTracer because SentryProfiledTracerConcurrency cannot be included in test
-// targets via ObjC bridging headers because it contains C++.
-+ (void)resetConcurrencyTracking
-{
-    resetConcurrencyTracking();
-}
-#endif // SENTRY_TARGET_PROFILING_SUPPORTED && (defined(TEST) || defined(TESTCI))
 
 @end
 

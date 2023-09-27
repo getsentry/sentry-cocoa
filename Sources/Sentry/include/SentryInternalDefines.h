@@ -2,6 +2,7 @@
 #import <Foundation/Foundation.h>
 
 static NSString *const SentryDebugImageType = @"macho";
+static NSString *const SentryPlatformName = @"cocoa";
 
 /**
  * Abort if assertion fails in debug, and log a warning if it fails in production.

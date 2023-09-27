@@ -10,7 +10,6 @@
 #    import "SentryEvent+Private.h"
 #    import "SentryFormatter.h"
 #    import "SentryLog.h"
-#    import "SentryNSProcessInfoWrapper.h"
 #    import "SentryNSTimerFactory.h"
 #    import "SentrySystemWrapper.h"
 #    import "SentryTime.h"
@@ -28,10 +27,12 @@
 @end
 
 NSString *const kSentryMetricProfilerSerializationKeyMemoryFootprint = @"memory_footprint";
-NSString *const kSentryMetricProfilerSerializationKeyCPUUsageFormat = @"cpu_usage_%d";
+NSString *const kSentryMetricProfilerSerializationKeyCPUUsage = @"cpu_usage";
+NSString *const kSentryMetricProfilerSerializationKeyCPUEnergyUsage = @"cpu_energy_usage";
 
 NSString *const kSentryMetricProfilerSerializationUnitBytes = @"byte";
 NSString *const kSentryMetricProfilerSerializationUnitPercentage = @"percent";
+NSString *const kSentryMetricProfilerSerializationUnitNanoJoules = @"nanojoule";
 
 // Currently set to 10 Hz as we don't anticipate much utility out of a higher resolution when
 // sampling CPU usage and memory footprint, and we want to minimize the overhead of making the
@@ -46,23 +47,22 @@ namespace {
  */
 SentrySerializedMetricEntry *_Nullable serializeValuesWithNormalizedTime(
     NSArray<SentryMetricReading *> *absoluteTimestampValues, NSString *unit,
-    SentryTransaction *transaction)
+    uint64_t startSystemTime, uint64_t endSystemTime)
 {
     const auto *timestampNormalizedValues = [NSMutableArray<SentrySerializedMetricReading *> array];
     [absoluteTimestampValues enumerateObjectsUsingBlock:^(
         SentryMetricReading *_Nonnull reading, NSUInteger idx, BOOL *_Nonnull stop) {
         // if the metric reading wasn't recorded until the transaction ended, don't include it
-        if (!orderedChronologically(reading.absoluteTimestamp, transaction.endSystemTime)) {
+        if (!orderedChronologically(reading.absoluteTimestamp, endSystemTime)) {
             return;
         }
 
         // if the metric reading was taken before the transaction started, don't include it
-        if (!orderedChronologically(transaction.startSystemTime, reading.absoluteTimestamp)) {
+        if (!orderedChronologically(startSystemTime, reading.absoluteTimestamp)) {
             return;
         }
 
-        const auto relativeTimestamp
-            = getDurationNs(transaction.startSystemTime, reading.absoluteTimestamp);
+        const auto relativeTimestamp = getDurationNs(startSystemTime, reading.absoluteTimestamp);
 
         [timestampNormalizedValues addObject:@ {
             @"elapsed_since_start_ns" : sentry_stringForUInt64(relativeTimestamp),
@@ -79,26 +79,19 @@ SentrySerializedMetricEntry *_Nullable serializeValuesWithNormalizedTime(
 @implementation SentryMetricProfiler {
     SentryDispatchSourceWrapper *_dispatchSource;
 
-    /// arrays of readings keyed on NSNumbers representing the core number for the set of readings
-    NSMutableDictionary<NSNumber *, NSMutableArray<SentryMetricReading *> *> *_cpuUsage;
-
+    NSMutableArray<SentryMetricReading *> *_cpuUsage;
     NSMutableArray<SentryMetricReading *> *_memoryFootprint;
+
+    NSNumber *previousEnergyReading;
+    NSMutableArray<SentryMetricReading *> *_cpuEnergyUsage;
 }
 
 - (instancetype)init
 {
     if (self = [super init]) {
-        _cpuUsage =
-            [NSMutableDictionary<NSNumber *, NSMutableArray<SentryMetricReading *> *> dictionary];
-        const auto processorCount
-            = SentryDependencyContainer.sharedInstance.processInfoWrapper.processorCount;
-        SENTRY_LOG_DEBUG(
-            @"Preparing %lu arrays for CPU core usage readings", (long unsigned)processorCount);
-        for (NSUInteger core = 0; core < processorCount; core++) {
-            _cpuUsage[@(core)] = [NSMutableArray<SentryMetricReading *> array];
-        }
-
+        _cpuUsage = [NSMutableArray<SentryMetricReading *> array];
         _memoryFootprint = [NSMutableArray<SentryMetricReading *> array];
+        _cpuEnergyUsage = [NSMutableArray<SentryMetricReading *> array];
     }
     return self;
 }
@@ -115,37 +108,48 @@ SentrySerializedMetricEntry *_Nullable serializeValuesWithNormalizedTime(
     [self registerSampler];
 }
 
+- (void)recordMetrics
+{
+    SENTRY_LOG_DEBUG(@"Recording profiling metrics sample");
+    [self recordCPUsage];
+    [self recordMemoryFootprint];
+    [self recordEnergyUsageEstimate];
+}
+
 - (void)stop
 {
     [_dispatchSource cancel];
 }
 
-- (NSMutableDictionary<NSString *, id> *)serializeForTransaction:(SentryTransaction *)transaction
+- (NSMutableDictionary<NSString *, id> *)serializeBetween:(uint64_t)startSystemTime
+                                                      and:(uint64_t)endSystemTime;
 {
     NSArray<SentryMetricReading *> *memoryFootprint;
-    NSDictionary<NSNumber *, NSArray<SentryMetricReading *> *> *cpuUsage;
+    NSArray<SentryMetricReading *> *cpuEnergyUsage;
+    NSArray<SentryMetricReading *> *cpuUsage;
     @synchronized(self) {
+        cpuEnergyUsage = [NSArray<SentryMetricReading *> arrayWithArray:_cpuEnergyUsage];
         memoryFootprint = [NSArray<SentryMetricReading *> arrayWithArray:_memoryFootprint];
-        cpuUsage = [NSDictionary<NSNumber *, NSArray<SentryMetricReading *> *>
-            dictionaryWithDictionary:_cpuUsage];
+        cpuUsage = [NSArray<SentryMetricReading *> arrayWithArray:_cpuUsage];
     }
 
     const auto dict = [NSMutableDictionary<NSString *, id> dictionary];
     if (memoryFootprint.count > 0) {
         dict[kSentryMetricProfilerSerializationKeyMemoryFootprint]
-            = serializeValuesWithNormalizedTime(
-                memoryFootprint, kSentryMetricProfilerSerializationUnitBytes, transaction);
+            = serializeValuesWithNormalizedTime(memoryFootprint,
+                kSentryMetricProfilerSerializationUnitBytes, startSystemTime, endSystemTime);
+    }
+    if (cpuEnergyUsage.count > 0) {
+        dict[kSentryMetricProfilerSerializationKeyCPUEnergyUsage]
+            = serializeValuesWithNormalizedTime(cpuEnergyUsage,
+                kSentryMetricProfilerSerializationUnitNanoJoules, startSystemTime, endSystemTime);
     }
 
-    [cpuUsage enumerateKeysAndObjectsUsingBlock:^(NSNumber *_Nonnull core,
-        NSArray<SentryMetricReading *> *_Nonnull readings, BOOL *_Nonnull stop) {
-        if (readings.count > 0) {
-            dict[[NSString stringWithFormat:kSentryMetricProfilerSerializationKeyCPUUsageFormat,
-                           core.intValue]]
-                = serializeValuesWithNormalizedTime(
-                    readings, kSentryMetricProfilerSerializationUnitPercentage, transaction);
-        }
-    }];
+    if (cpuUsage.count > 0) {
+        dict[kSentryMetricProfilerSerializationKeyCPUUsage]
+            = serializeValuesWithNormalizedTime(cpuUsage,
+                kSentryMetricProfilerSerializationUnitPercentage, startSystemTime, endSystemTime);
+    }
 
     return dict;
 }
@@ -163,10 +167,7 @@ SentrySerializedMetricEntry *_Nullable serializeValuesWithNormalizedTime(
                  queueName:"io.sentry.metric-profiler"
                 attributes:dispatch_queue_attr_make_with_qos_class(
                                DISPATCH_QUEUE_CONCURRENT, QOS_CLASS_UTILITY, 0)
-              eventHandler:^{
-                  [weakSelf recordCPUPercentagePerCore];
-                  [weakSelf recordMemoryFootprint];
-              }];
+              eventHandler:^{ [weakSelf recordMetrics]; }];
 }
 
 - (void)recordMemoryFootprint
@@ -185,22 +186,46 @@ SentrySerializedMetricEntry *_Nullable serializeValuesWithNormalizedTime(
     }
 }
 
-- (void)recordCPUPercentagePerCore
+- (void)recordCPUsage
 {
     NSError *error;
     const auto result =
-        [SentryDependencyContainer.sharedInstance.systemWrapper cpuUsagePerCore:&error];
+        [SentryDependencyContainer.sharedInstance.systemWrapper cpuUsageWithError:&error];
 
     if (error) {
         SENTRY_LOG_ERROR(@"Failed to read CPU usages: %@", error);
         return;
     }
 
+    if (result == nil) {
+        return;
+    }
+
     @synchronized(self) {
-        [result enumerateObjectsUsingBlock:^(
-            NSNumber *_Nonnull usage, NSUInteger core, BOOL *_Nonnull stop) {
-            [_cpuUsage[@(core)] addObject:[self metricReadingForValue:usage]];
-        }];
+        [_cpuUsage addObject:[self metricReadingForValue:result]];
+    }
+}
+
+- (void)recordEnergyUsageEstimate
+{
+    NSError *error;
+    const auto reading =
+        [SentryDependencyContainer.sharedInstance.systemWrapper cpuEnergyUsageWithError:&error];
+    if (error) {
+        SENTRY_LOG_ERROR(@"Failed to read CPU energy usage: %@", error);
+        return;
+    }
+
+    if (previousEnergyReading == nil) {
+        previousEnergyReading = reading;
+        return;
+    }
+
+    const auto value = reading.unsignedIntegerValue - previousEnergyReading.unsignedIntegerValue;
+    previousEnergyReading = reading;
+
+    @synchronized(self) {
+        [_cpuEnergyUsage addObject:[self metricReadingForValue:@(value)]];
     }
 }
 

@@ -394,6 +394,12 @@
         @"Default integrations are not set correctly");
 }
 
+- (void)testSentryCrashIntegrationIsFirst
+{
+    XCTAssertEqualObjects(SentryOptions.defaultIntegrations.firstObject,
+        NSStringFromClass([SentryCrashIntegration class]));
+}
+
 - (void)testSampleRateWithDict
 {
     NSNumber *sampleRate = @0.1;
@@ -795,10 +801,8 @@
 - (void)testChanging_enableTracing_afterSetting_tracesSampler
 {
     SentryOptions *options = [[SentryOptions alloc] init];
-    options.tracesSampler = ^NSNumber *(SentrySamplingContext *__unused samplingContext)
-    {
-        return @0.1;
-    };
+    options.tracesSampler
+        = ^NSNumber *(SentrySamplingContext *__unused samplingContext) { return @0.1; };
     options.enableTracing = NO;
     XCTAssertNil(options.tracesSampleRate);
     options.enableTracing = FALSE;
@@ -1155,10 +1159,8 @@
 
 - (void)testInitialScope
 {
-    SentryScope * (^initialScope)(SentryScope *) = ^SentryScope *(SentryScope *scope)
-    {
-        return scope;
-    };
+    SentryScope * (^initialScope)(SentryScope *)
+        = ^SentryScope *(SentryScope *scope) { return scope; };
     SentryOptions *options = [self getValidOptions:@{ @"initialScope" : initialScope }];
     XCTAssertIdentical(initialScope, options.initialScope);
 }

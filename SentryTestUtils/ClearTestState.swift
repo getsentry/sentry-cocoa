@@ -29,8 +29,8 @@ class TestCleanup: NSObject {
         setenv("ActivePrewarm", "0", 1)
         SentryAppStartTracker.load()
         SentryUIViewControllerPerformanceTracker.shared.enableWaitForFullDisplay = false
-        SentrySwizzleWrapper.sharedInstance.removeAllCallbacks()
-        #endif
+        SentryDependencyContainer.sharedInstance().swizzleWrapper.removeAllCallbacks()
+        #endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
 
         SentryDependencyContainer.reset()
         Dynamic(SentryGlobalEventProcessor.shared()).removeAllProcessors()
@@ -40,7 +40,7 @@ class TestCleanup: NSObject {
 
 #if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
         SentryProfiler.getCurrent().stop(for: .normal)
-        SentryTracer.resetConcurrencyTracking()
+        SentryProfiler.resetConcurrencyTracking()
 #endif // os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
 
         #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)

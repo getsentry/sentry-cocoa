@@ -1,4 +1,5 @@
 #!/bin/bash
+set -euo pipefail
 
 # We borrow the tests of Home Assistant under the Apache license: https://github.com/home-assistant/iOS.
 #The following steps checkout Home Assistant and apply a github patch to the project. The patch adds
@@ -43,4 +44,3 @@ bundle exec fastlane test
 
 cd "$current_dir"
 rm -f -r "./integration-test"
-

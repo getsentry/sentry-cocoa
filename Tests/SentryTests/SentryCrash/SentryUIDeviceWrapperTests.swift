@@ -5,7 +5,9 @@ import XCTest
 class SentryUIDeviceWrapperTests: XCTestCase {
     func testExecutesLogicViaDispatchQueue() {
         let dispatchQueue = TestSentryDispatchQueueWrapper()
-        let sut = SentryUIDeviceWrapper(dispatchQueueWrapper: dispatchQueue)
+        SentryDependencyContainer.sharedInstance().dispatchQueueWrapper = dispatchQueue
+        let sut = SentryUIDeviceWrapper()
+        sut.start()
         XCTAssertEqual(dispatchQueue.blockOnMainInvocations.count, 1)
 
         sut.stop()

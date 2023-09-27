@@ -827,8 +827,8 @@ class SentryHubTests: XCTestCase {
         
         group.waitWithTimeout()
         
-        XCTAssertEqual(innerLoopAmount * outerLoopAmount, sut.installedIntegrations.count)
-        XCTAssertEqual(innerLoopAmount * outerLoopAmount, sut.installedIntegrationNames.count)
+        XCTAssertEqual(innerLoopAmount * outerLoopAmount, sut.installedIntegrations().count)
+        XCTAssertEqual(innerLoopAmount * outerLoopAmount, sut.installedIntegrationNames().count)
         
     }
     
@@ -850,11 +850,11 @@ class SentryHubTests: XCTestCase {
                     sut.hasIntegration(integrationName)
                     sut.isIntegrationInstalled(EmptyIntegration.self)
                 }
-                XCTAssertLessThanOrEqual(0, sut.installedIntegrations.count)
-                sut.installedIntegrations.forEach { XCTAssertNotNil($0) }
+                XCTAssertLessThanOrEqual(0, sut.installedIntegrations().count)
+                sut.installedIntegrations().forEach { XCTAssertNotNil($0) }
                 
-                XCTAssertLessThanOrEqual(0, sut.installedIntegrationNames.count)
-                sut.installedIntegrationNames.forEach { XCTAssertNotNil($0) }
+                XCTAssertLessThanOrEqual(0, sut.installedIntegrationNames().count)
+                sut.installedIntegrationNames().forEach { XCTAssertNotNil($0) }
                 sut.removeAllIntegrations()
                 
                 group.leave()

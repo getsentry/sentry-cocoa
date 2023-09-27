@@ -294,4 +294,9 @@
     @throw @"currentRequest not available";
 }
 
+- (NSURLSessionTaskState)state
+{
+    return NSURLSessionTaskStateRunning;
+}
+
 @end

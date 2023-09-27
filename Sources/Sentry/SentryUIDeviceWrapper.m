@@ -8,49 +8,38 @@ NS_ASSUME_NONNULL_BEGIN
 SentryUIDeviceWrapper ()
 @property (nonatomic) BOOL cleanupDeviceOrientationNotifications;
 @property (nonatomic) BOOL cleanupBatteryMonitoring;
-@property (strong, nonatomic) SentryDispatchQueueWrapper *dispatchQueueWrapper;
 @end
 
 @implementation SentryUIDeviceWrapper
 
 #if TARGET_OS_IOS
 
-- (instancetype)init
+- (void)start
 {
-    return [self initWithDispatchQueueWrapper:[SentryDependencyContainer sharedInstance]
-                                                  .dispatchQueueWrapper];
-}
+    [SentryDependencyContainer.sharedInstance.dispatchQueueWrapper dispatchOnMainQueue:^{
+        if (!UIDevice.currentDevice.isGeneratingDeviceOrientationNotifications) {
+            self.cleanupDeviceOrientationNotifications = YES;
+            [UIDevice.currentDevice beginGeneratingDeviceOrientationNotifications];
+        }
 
-- (instancetype)initWithDispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
-{
-    if (self = [super init]) {
-        UIDevice *device = [SENTRY_UIDevice currentDevice];
-        self.dispatchQueueWrapper = dispatchQueueWrapper;
-        [self.dispatchQueueWrapper dispatchSyncOnMainQueue:^{
-            // Needed to read the device orientation on demand
-            if (!device.isGeneratingDeviceOrientationNotifications) {
-                self.cleanupDeviceOrientationNotifications = YES;
-                [device beginGeneratingDeviceOrientationNotifications];
-            }
-
-            // Needed so we can read the battery level
-            if (!device.isBatteryMonitoringEnabled) {
-                self.cleanupBatteryMonitoring = YES;
-                device.batteryMonitoringEnabled = YES;
-            }
-        }];
-    }
-    return self;
+        // Needed so we can read the battery level
+        if (!UIDevice.currentDevice.isBatteryMonitoringEnabled) {
+            self.cleanupBatteryMonitoring = YES;
+            UIDevice.currentDevice.batteryMonitoringEnabled = YES;
+        }
+    }];
 }
 
 - (void)stop
 {
-    [self.dispatchQueueWrapper dispatchSyncOnMainQueue:^{
-        UIDevice *device = [SENTRY_UIDevice currentDevice];
-        if (self.cleanupDeviceOrientationNotifications) {
+    BOOL needsCleanUp = self.cleanupDeviceOrientationNotifications;
+    BOOL needsDisablingBattery = self.cleanupBatteryMonitoring;
+    UIDevice *device = [SENTRY_UIDevice currentDevice];
+    [SentryDependencyContainer.sharedInstance.dispatchQueueWrapper dispatchOnMainQueue:^{
+        if (needsCleanUp) {
             [device endGeneratingDeviceOrientationNotifications];
         }
-        if (self.cleanupBatteryMonitoring) {
+        if (needsDisablingBattery) {
             device.batteryMonitoringEnabled = NO;
         }
     }];

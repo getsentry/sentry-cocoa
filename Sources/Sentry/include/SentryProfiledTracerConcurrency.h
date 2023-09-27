@@ -1,9 +1,9 @@
+#import "../Public/SentryId.h"
 #import "SentryCompiler.h"
 #import "SentryProfilingConditionals.h"
 #import <Foundation/Foundation.h>
 
 @class SentryProfiler;
-@class SentryTracer;
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
@@ -15,7 +15,13 @@ SENTRY_EXTERN_C_BEGIN
  * Associate the provided profiler and tracer so that profiling data may be retrieved by the tracer
  * when it is ready to transmit its envelope.
  */
-void trackProfilerForTracer(SentryProfiler *profiler, SentryTracer *tracer);
+void trackProfilerForTracer(SentryProfiler *profiler, SentryId *traceId);
+
+/**
+ * For transactions that will be discarded, clean up the bookkeeping state associated with them to
+ * reclaim the memory they're using.
+ */
+void discardProfilerForTracer(SentryId *traceId);
 
 /**
  * Return the profiler instance associated with the tracer. If it was the last tracer for the
@@ -23,10 +29,11 @@ void trackProfilerForTracer(SentryProfiler *profiler, SentryTracer *tracer);
  * profiler instance, and if this is the last profiler being tracked, reset the
  * @c SentryFramesTracker data.
  */
-SentryProfiler *_Nullable profilerForFinishedTracer(SentryTracer *tracer);
+SentryProfiler *_Nullable profilerForFinishedTracer(SentryId *traceId);
 
 #    if defined(TEST) || defined(TESTCI)
 void resetConcurrencyTracking(void);
+NSUInteger currentProfiledTracers(void);
 #    endif // defined(TEST) || defined(TESTCI)
 
 SENTRY_EXTERN_C_END

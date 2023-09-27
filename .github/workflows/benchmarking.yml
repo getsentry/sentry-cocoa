@@ -25,8 +25,11 @@ jobs:
     name: Build app and test runner
     runs-on: macos-13
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - run: ./scripts/ci-select-xcode.sh
+      - uses: ruby/setup-ruby@v1
+        with:
+          bundler-cache: true
       - name: Install SentryCli
         run: brew install getsentry/tools/sentry-cli
       - run: git apply ./scripts/set-device-tests-environment.patch
@@ -45,7 +48,7 @@ jobs:
           path: |
             DerivedData/Build/Products/Debug-iphoneos/PerformanceBenchmarks-Runner.app
           key: ios-swift-for-ui-testing-cache-key-${{ hashFiles('Samples/iOS-Swift/PerformanceBenchmarks/**') }}
-      - run: fastlane build_ios_swift_for_tests
+      - run: bundle exec fastlane build_ios_swift_for_tests
         env:
           APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
           APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
@@ -54,7 +57,7 @@ jobs:
           MATCH_GIT_PRIVATE_KEY: ${{ secrets.MATCH_GIT_PRIVATE_KEY }}
           MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
           MATCH_USERNAME: ${{ secrets.MATCH_USERNAME }}
-      - run: fastlane build_ios_benchmark_test
+      - run: bundle exec fastlane build_ios_benchmark_test
         env:
           APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
           APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
@@ -83,7 +86,7 @@ jobs:
       matrix:
         suite: ['High-end device', 'Mid-range device', 'Low-end device']
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: actions/download-artifact@v3
         with:
           name: DerivedData-Xcode
@@ -99,8 +102,11 @@ jobs:
     runs-on: macos-13
     steps:
       - name: Git checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - run: ./scripts/ci-select-xcode.sh
+      - uses: ruby/setup-ruby@v1
+        with:
+          bundler-cache: true
       - uses: actions/cache@v3
         id: app-plain-cache
         with:
@@ -108,7 +114,7 @@ jobs:
           key: ${{ github.workflow }}-${{ github.job }}-appplain-${{ hashFiles('fastlane/Fastfile', 'Tests/Perf/test-app-plain/**') }}
       - name: Build test app plain
         if: steps.app-plain-cache.outputs['cache-hit'] != 'true'
-        run: fastlane build_perf_test_app_plain
+        run: bundle exec fastlane build_perf_test_app_plain
         env:
           APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
           APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
@@ -118,7 +124,7 @@ jobs:
           MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
           MATCH_USERNAME: ${{ secrets.MATCH_USERNAME }}
       - name: Build test app with sentry
-        run: fastlane build_perf_test_app_sentry
+        run: bundle exec fastlane build_perf_test_app_sentry
         env:
           APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
           APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}

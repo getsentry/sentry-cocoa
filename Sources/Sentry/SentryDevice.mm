@@ -178,7 +178,8 @@ NSString *
 sentry_getOSVersion(void)
 {
 #if TARGET_OS_WATCH
-    return WKInterfaceDevice.currentDevice.systemVersion;
+    // This function is only used for profiling, and profiling don't run for watchOS
+    return @"";
 #elif SENTRY_HAS_UIKIT
     return [SENTRY_UIDevice currentDevice].systemVersion;
 #else

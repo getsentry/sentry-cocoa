@@ -206,6 +206,13 @@ class ExtraViewController: UIViewController {
         AppDelegate.startSentry()
     }
 
+    @IBAction func causeFrozenFrames(_ sender: Any) {
+        var a = String()
+        for i in 0..<100_000_000 {
+            a.append(String(i))
+        }
+    }
+
     private func calcPi() -> Double {
         var denominator = 1.0
         var pi = 0.0
@@ -221,17 +228,5 @@ class ExtraViewController: UIViewController {
         }
 
         return pi
-    }
-
-    func highlightButton(_ sender: UIButton) {
-        let originalLayerColor = sender.layer.backgroundColor
-        let originalTitleColor = sender.titleColor(for: .normal)
-        sender.layer.backgroundColor = UIColor.blue.cgColor
-        sender.setTitleColor(.white, for: .normal)
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-            sender.layer.backgroundColor = originalLayerColor
-            sender.setTitleColor(originalTitleColor, for: .normal)
-            sender.titleLabel?.textColor = originalTitleColor
-        }
     }
 }

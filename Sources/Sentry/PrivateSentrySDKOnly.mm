@@ -1,13 +1,18 @@
 #import "PrivateSentrySDKOnly.h"
 #import "SentryBreadcrumb+Private.h"
 #import "SentryClient.h"
+#import "SentryCurrentDateProvider.h"
 #import "SentryDebugImageProvider.h"
 #import "SentryExtraContextProvider.h"
 #import "SentryHub+Private.h"
 #import "SentryInstallation.h"
+#import "SentryInternalDefines.h"
 #import "SentryMeta.h"
+#import "SentryProfiledTracerConcurrency.h"
+#import "SentryProfiler.h"
 #import "SentrySDK+Private.h"
 #import "SentrySerialization.h"
+#import "SentryThreadHandle.hpp"
 #import "SentryUser+Private.h"
 #import "SentryViewHierarchy.h"
 #import <SentryBreadcrumb.h>
@@ -114,8 +119,43 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
 
 + (NSDictionary *)getExtraContext
 {
-    return [[SentryExtraContextProvider sharedInstance] getExtraContext];
+    return [SentryDependencyContainer.sharedInstance.extraContextProvider getExtraContext];
 }
+
+#if SENTRY_TARGET_PROFILING_SUPPORTED
++ (uint64_t)startProfilerForTrace:(SentryId *)traceId;
+{
+    [SentryProfiler startWithTracer:traceId];
+    return SentryDependencyContainer.sharedInstance.dateProvider.systemTime;
+}
+
++ (nullable NSDictionary<NSString *, id> *)collectProfileBetween:(uint64_t)startSystemTime
+                                                             and:(uint64_t)endSystemTime
+                                                        forTrace:(SentryId *)traceId;
+{
+    NSMutableDictionary<NSString *, id> *payload =
+        [SentryProfiler collectProfileBetween:startSystemTime
+                                          and:endSystemTime
+                                     forTrace:traceId
+                                        onHub:[SentrySDK currentHub]];
+
+    if (payload != nil) {
+        payload[@"platform"] = SentryPlatformName;
+        payload[@"transaction"] = @{
+            @"active_thread_id" :
+                [NSNumber numberWithLongLong:sentry::profiling::ThreadHandle::current()->tid()]
+        };
+    }
+
+    return payload;
+}
+
++ (void)discardProfilerForTrace:(SentryId *)traceId;
+{
+    discardProfilerForTracer(traceId);
+}
+
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
 #if SENTRY_HAS_UIKIT
 

@@ -1,4 +1,5 @@
 #!/bin/bash
+set -euo pipefail
 
 # Ensure the swizzling of network classes doesn't break the normal functionality of web requests.
 # We borrow the tests of Alamofire under the MIT license: https://github.com/Alamofire/Alamofire.

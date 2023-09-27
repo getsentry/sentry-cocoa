@@ -203,7 +203,6 @@ SentryMetricKitIntegration ()
     if (callStackTree.callStackPerThread) {
         SentryEvent *event = [self createEvent:params];
 
-        event.timestamp = params.timeStampBegin;
         event.threads = [self convertToSentryThreads:callStackTree];
 
         SentryThread *crashedThread = event.threads[0];
@@ -322,7 +321,6 @@ SentryMetricKitIntegration ()
                           params:(SentryMXExceptionParams *)params
 {
     SentryEvent *event = [self createEvent:params];
-    event.timestamp = params.timeStampBegin;
 
     SentryThread *thread = [[SentryThread alloc] initWithThreadId:@0];
     thread.crashed = @(!params.handled);
@@ -341,6 +339,7 @@ SentryMetricKitIntegration ()
 - (SentryEvent *)createEvent:(SentryMXExceptionParams *)params
 {
     SentryEvent *event = [[SentryEvent alloc] initWithLevel:params.level];
+    event.timestamp = params.timeStampBegin;
 
     SentryException *exception = [[SentryException alloc] initWithValue:params.exceptionValue
                                                                    type:params.exceptionType];
@@ -445,31 +444,6 @@ SentryMetricKitIntegration ()
     }
 
     return [debugMetas allValues];
-}
-
-@end
-
-@implementation
-SentryEvent (MetricKit)
-
-- (BOOL)isMetricKitEvent
-{
-    if (self.exceptions == nil || self.exceptions.count != 1) {
-        return NO;
-    }
-
-    NSArray<NSString *> *metricKitMechanisms = @[
-        SentryMetricKitDiskWriteExceptionMechanism, SentryMetricKitCpuExceptionMechanism,
-        SentryMetricKitHangDiagnosticMechanism, @"MXCrashDiagnostic"
-    ];
-
-    SentryException *exception = self.exceptions[0];
-    if (exception.mechanism != nil &&
-        [metricKitMechanisms containsObject:exception.mechanism.type]) {
-        return YES;
-    } else {
-        return NO;
-    }
 }
 
 @end

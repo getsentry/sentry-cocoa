@@ -1,9 +1,10 @@
-#import "SentryExtraContextProvider.h"
 #import "SentryRandom.h"
 #import "SentryTransport.h"
-#import <Sentry/Sentry.h>
 
-@class SentryCrashWrapper, SentryThreadInspector, SentryTransportAdapter, SentryUIDeviceWrapper;
+@class SentryCrashWrapper;
+@class SentryDispatchQueueWrapper;
+@class SentryThreadInspector;
+@class SentryTransportAdapter;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -30,8 +31,7 @@ SentryClient ()
                 threadInspector:(SentryThreadInspector *)threadInspector
                          random:(id<SentryRandom>)random
                          locale:(NSLocale *)locale
-                       timezone:(NSTimeZone *)timezone
-           extraContextProvider:(SentryExtraContextProvider *)extraContextProvider;
+                       timezone:(NSTimeZone *)timezone;
 
 @end
 

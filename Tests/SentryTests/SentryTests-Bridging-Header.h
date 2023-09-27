@@ -1,7 +1,9 @@
 #if !TARGET_OS_WATCH
 #    import "SentryReachability.h"
 #endif // !TARGET_OS_WATCH
+
 #import "SentryDefines.h"
+#import "SentryProfilingConditionals.h"
 
 #if SENTRY_HAS_METRIC_KIT
 #    import "SentryMetricKitIntegration.h"
@@ -18,6 +20,14 @@
 #    import "SentryUIViewControllerSwizzling+Test.h"
 #    import "SentryUIViewControllerSwizzling.h"
 #endif // SENTRY_HAS_UIKIT
+
+#if SENTRY_TARGET_PROFILING_SUPPORTED
+#    import "SentryMetricProfiler.h"
+#    import "SentryProfiler+Private.h"
+#    import "SentryProfiler+Test.h"
+#    import "SentryProfilerMocksSwiftCompatible.h"
+#    import "SentryProfilerState.h"
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
 #import "NSData+Sentry.h"
 #import "NSData+SentryCompression.h"
@@ -105,7 +115,7 @@
 #import "SentryHttpStatusCodeRange+Private.h"
 #import "SentryHttpTransport.h"
 #import "SentryHub+Private.h"
-#import "SentryHub+TestInit.h"
+#import "SentryHub+Test.h"
 #import "SentryId.h"
 #import "SentryInAppLogic.h"
 #import "SentryInitializeForGettingSubclassesNotCalled.h"
@@ -118,7 +128,6 @@
 #import "SentryMechanism.h"
 #import "SentryMechanismMeta.h"
 #import "SentryMeta.h"
-#import "SentryMetricProfiler.h"
 #import "SentryMigrateSessionInit.h"
 #import "SentryNSDataTracker.h"
 #import "SentryNSError.h"
@@ -137,10 +146,6 @@
 #import "SentryPerformanceTracker.h"
 #import "SentryPerformanceTrackingIntegration.h"
 #import "SentryPredicateDescriptor.h"
-#import "SentryProfiler+Private.h"
-#import "SentryProfiler+Test.h"
-#import "SentryProfilerMocksSwiftCompatible.h"
-#import "SentryProfilerState.h"
 #import "SentryQueueableRequestManager.h"
 #import "SentryRandom.h"
 #import "SentryRateLimitParser.h"
@@ -205,6 +210,7 @@
 #import "SentryMeasurementValue.h"
 #import "SentryNSProcessInfoWrapper.h"
 #import "SentryPerformanceTracker+Testing.h"
+#import "SentryPropagationContext.h"
 #import "SentrySampleDecision+Private.h"
 #import "SentrySpanOperations.h"
 #import "SentryTimeToDisplayTracker.h"

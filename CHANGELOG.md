@@ -1,6 +1,86 @@
 # Changelog
 
-## Unreleased
+## 8.13.0
+
+### Fixes
+
+- Remove sync call to main thread from SentryUIDeviceWrapper (#3295)
+
+### Features
+
+- Record changes to network connectivity in breadcrumbs (#3232)
+- Add Sampling Decision to Trace Envelope Header (#3286)
+
+## 8.12.0
+
+### Fixes
+
+- Remove warning about non-portable path to file "SentryDsn.h" (#3270)
+- Privacy manifest collection purposes type (#3276)
+- Fix how profiles were identified in the backend for grouping and issue correlation purposes (#3282)
+- Ensure GPU frame data is always sent with profiles even if `enableAutoPerformanceTracing` is `NO` (#3273)
+- Gather metric readings fully covering the duration of a profile (#3272)
+- Remove spammy logs (#3284)
+
+### Features
+
+- Rename "http.method" to "http.request.method" for network Spans (#3268)
+
+## 8.11.0
+
+### Features
+
+- Distributed tracing without performance (#3196)
+- Report database backing store information for Core Data (#3231)
+- Add "data use" in privacy manifests (#3259)
+- Add required reason API (#3206)
+
+### Fixes
+
+- Report correct units (nanojoules) for profiling energy metrics (#3262)
+
+## 8.10.0
+
+### Features
+
+- Record energy usage estimates for profiling (#3217)
+
+### Fixes
+
+- Remove a noisy NSLog (#3227)
+- WatchOS build for Xcode 15 (#3204)
+
+## 8.9.6
+
+### Fixed
+
+- Fix CPU usage collection for upcoming visualization in profiling flamecharts (#3214)
+
+## 8.9.5
+
+### Hybrid SDK support
+
+- Allow profiling from hybrid SDKs (#3194)
+
+## 8.9.4
+
+### Fixes
+ 
+- Remove linker settings from Package.swift (#3188)
+- Free memory returned by backtrace_symbols() in debug builds ([#3202](https://github.com/getsentry/sentry-cocoa/pull/3202))
+
+## 8.9.3
+
+### Fixes
+
+- Reclaim memory used by profiler when transactions are discarded (#3154)
+- Crashed session not being reported as crashed (#3183)
+
+## 8.9.2
+
+## Important Note
+
+**Do not use this version** if you use Release Health. It introduces a bug where crashed Sessions would not be reported correctly. This has been fixed in [version `8.9.3`](https://github.com/getsentry/sentry-cocoa/releases/tag/8.9.3).
 
 ### Improvements
 

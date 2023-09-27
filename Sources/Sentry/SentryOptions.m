@@ -1,4 +1,3 @@
-#import "SentryOptions.h"
 #import "SentryANRTracker.h"
 #import "SentryANRTrackingIntegration.h"
 #import "SentryAutoBreadcrumbTrackingIntegration.h"
@@ -12,6 +11,7 @@
 #import "SentryLog.h"
 #import "SentryMeta.h"
 #import "SentryNetworkTrackingIntegration.h"
+#import "SentryOptions+Private.h"
 #import "SentrySDK.h"
 #import "SentryScope.h"
 #import "SentrySwiftAsyncIntegration.h"
@@ -34,12 +34,7 @@
 SentryOptions ()
 
 @property (nullable, nonatomic, copy, readonly) NSNumber *defaultSampleRate;
-@property (nullable, nonatomic, copy, readonly) NSNumber *defaultTracesSampleRate;
 
-#if SENTRY_TARGET_PROFILING_SUPPORTED
-@property (nullable, nonatomic, copy, readonly) NSNumber *defaultProfilesSampleRate;
-@property (nonatomic, assign) BOOL enableProfiling_DEPRECATED_TEST_ONLY;
-#endif
 @end
 
 NSString *const kSentryDefaultEnvironment = @"production";
@@ -54,8 +49,11 @@ NSString *const kSentryDefaultEnvironment = @"production";
 
 + (NSArray<NSString *> *)defaultIntegrations
 {
+    // The order of integrations here is important.
+    // SentryCrashIntegration needs to be initialized before SentryAutoSessionTrackingIntegration.
     NSMutableArray<NSString *> *defaultIntegrations =
         @[
+            NSStringFromClass([SentryCrashIntegration class]),
 #if SENTRY_HAS_UIKIT
             NSStringFromClass([SentryAppStartTrackingIntegration class]),
             NSStringFromClass([SentryFramesTrackingIntegration class]),
@@ -69,7 +67,6 @@ NSString *const kSentryDefaultEnvironment = @"production";
             NSStringFromClass([SentryAutoBreadcrumbTrackingIntegration class]),
             NSStringFromClass([SentryAutoSessionTrackingIntegration class]),
             NSStringFromClass([SentryCoreDataTrackingIntegration class]),
-            NSStringFromClass([SentryCrashIntegration class]),
             NSStringFromClass([SentryFileIOTrackingIntegration class]),
             NSStringFromClass([SentryNetworkTrackingIntegration class]),
             NSStringFromClass([SentrySwiftAsyncIntegration class])
@@ -603,7 +600,7 @@ NSString *const kSentryDefaultEnvironment = @"production";
     return self.enableProfiling;
 }
 #    pragma clang diagnostic pop
-#endif
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
 /**
  * Checks if the passed in block is actually of type block. We can't check if the block matches a

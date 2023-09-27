@@ -551,6 +551,11 @@ class SentryFileManagerTests: XCTestCase {
         XCTAssertEqual(sut.readTimezoneOffset(), 7_200)
     }
 
+    func testtestStoreAndReadNegativeTimezoneOffset() {
+        sut.storeTimezoneOffset(-1_000)
+        XCTAssertEqual(sut.readTimezoneOffset(), -1_000)
+    }
+
     func testStoreDeleteTimezoneOffset() {
         sut.storeTimezoneOffset(7_200)
         sut.deleteTimezoneOffset()

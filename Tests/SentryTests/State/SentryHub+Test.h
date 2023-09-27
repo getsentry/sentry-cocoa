@@ -13,6 +13,9 @@ SentryHub ()
                       andScope:(SentryScope *_Nullable)scope
                andCrashWrapper:(SentryCrashWrapper *)crashAdapter;
 
+- (NSArray<id<SentryIntegrationProtocol>> *)installedIntegrations;
+- (NSSet<NSString *> *)installedIntegrationNames;
+
 @end
 
 NS_ASSUME_NONNULL_END

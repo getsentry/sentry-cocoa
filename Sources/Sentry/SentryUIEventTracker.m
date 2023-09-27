@@ -3,6 +3,7 @@
 #if SENTRY_HAS_UIKIT
 
 #    import "SentrySwizzleWrapper.h"
+#    import <SentryDependencyContainer.h>
 #    import <SentryHub+Private.h>
 #    import <SentryLog.h>
 #    import <SentrySDK+Private.h>
@@ -23,7 +24,6 @@ static NSString *const SentryUIEventTrackerSwizzleSendAction
 @interface
 SentryUIEventTracker ()
 
-@property (nonatomic, strong) SentrySwizzleWrapper *swizzleWrapper;
 @property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueueWrapper;
 @property (nonatomic, assign) NSTimeInterval idleTimeout;
 @property (nullable, nonatomic, strong) NSMutableArray<SentryTracer *> *activeTransactions;
@@ -32,12 +32,10 @@ SentryUIEventTracker ()
 
 @implementation SentryUIEventTracker
 
-- (instancetype)initWithSwizzleWrapper:(SentrySwizzleWrapper *)swizzleWrapper
-                  dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
-                           idleTimeout:(NSTimeInterval)idleTimeout
+- (instancetype)initWithDispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
+                                 idleTimeout:(NSTimeInterval)idleTimeout
 {
     if (self = [super init]) {
-        self.swizzleWrapper = swizzleWrapper;
         self.dispatchQueueWrapper = dispatchQueueWrapper;
         self.idleTimeout = idleTimeout;
         self.activeTransactions = [NSMutableArray new];
@@ -47,7 +45,7 @@ SentryUIEventTracker ()
 
 - (void)start
 {
-    [self.swizzleWrapper
+    [SentryDependencyContainer.sharedInstance.swizzleWrapper
         swizzleSendAction:^(NSString *action, id target, id sender, UIEvent *event) {
             if (target == nil) {
                 SENTRY_LOG_DEBUG(@"Target was nil for action %@; won't capture in transaction "
@@ -164,7 +162,8 @@ SentryUIEventTracker ()
 
 - (void)stop
 {
-    [self.swizzleWrapper removeSwizzleSendActionForKey:SentryUIEventTrackerSwizzleSendAction];
+    [SentryDependencyContainer.sharedInstance.swizzleWrapper
+        removeSwizzleSendActionForKey:SentryUIEventTrackerSwizzleSendAction];
 }
 
 - (NSString *)getOperation:(id)sender
