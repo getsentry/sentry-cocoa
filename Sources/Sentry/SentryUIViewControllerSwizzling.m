@@ -12,7 +12,6 @@
 #    import <SentryDispatchQueueWrapper.h>
 #    import <SentryInAppLogic.h>
 #    import <SentryOptions.h>
-#    import <UIViewController+Sentry.h>
 #    import <objc/runtime.h>
 
 // !!!: forces linkage to UIKit; must be moved to separate target
@@ -291,23 +290,34 @@ SentryUIViewControllerSwizzling ()
 
 - (void)swizzleRootViewControllerAndDescendant:(UIViewController *)rootViewController
 {
-    //    NSArray<UIViewController *> *allViewControllers
-    //        = rootViewController.sentry_descendantViewControllers;
-    //
-    //    for (UIViewController *viewController in allViewControllers) {
-    //        Class viewControllerClass = [viewController class];
-    //        if (viewControllerClass != nil) {
-    //            SENTRY_LOG_DEBUG(@"UIViewControllerSwizzling Calling swizzleRootViewController.");
-    //            [self swizzleViewControllerSubClass:viewControllerClass];
-    //
-    //            // We can't get the image name with the app delegate class for some apps.
-    //            Therefore, we
-    //            // use the rootViewController and its subclasses as a fallback.  The following
-    //            method
-    //            // ensures we don't swizzle ViewControllers of UIKit.
-    //            [self swizzleUIViewControllersOfClassesInImageOf:viewControllerClass];
-    //        }
-    //    }
+    // The implementation of UIViewController makes sure a parent can't be a child of his child.
+    // Therefore, we can assume the parent child relationship is correct.
+
+    NSMutableArray<UIViewController *> *allViewControllers = [NSMutableArray new];
+    [allViewControllers addObject:rootViewController];
+
+    NSMutableArray<UIViewController *> *toAdd =
+        [NSMutableArray arrayWithArray:rootViewController.childViewControllers];
+
+    while (toAdd.count > 0) {
+        UIViewController *viewController = [toAdd lastObject];
+        [allViewControllers addObject:viewController];
+        [toAdd removeLastObject];
+        [toAdd addObjectsFromArray:viewController.childViewControllers];
+    }
+
+    for (UIViewController *viewController in allViewControllers) {
+        Class viewControllerClass = [viewController class];
+        if (viewControllerClass != nil) {
+            SENTRY_LOG_DEBUG(@"UIViewControllerSwizzling Calling swizzleRootViewController.");
+            [self swizzleViewControllerSubClass:viewControllerClass];
+
+            // We can't get the image name with the app delegate class for some apps. Therefore, we
+            // use the rootViewController and its subclasses as a fallback.  The following method
+            // ensures we don't swizzle ViewControllers of UIKit.
+            [self swizzleUIViewControllersOfClassesInImageOf:viewControllerClass];
+        }
+    }
 }
 
 /**
