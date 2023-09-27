@@ -13,6 +13,7 @@ OS=${2:-latest}
 REF_NAME="${3-HEAD}"
 IS_LOCAL_BUILD="${4:-ci}"
 COMMAND="${5:-test}"
+SANITIZER="${6:-none}"
 DESTINATION=""
 CONFIGURATION=""
 
@@ -74,6 +75,21 @@ case $COMMAND in
     ;;
 esac
 
+case $SANITIZER in
+"TSAN")
+    SANITIZER_ARGUMENT="-enableThreadSanitizer YES"
+    ;;
+"ASAN")
+    SANITIZER_ARGUMENT="-enableAddressSanitizer YES"
+    ;;
+"UBSAN")
+    SANITIZER_ARGUMENT="-enableUndefinedBehaviorSanitizer YES"
+    ;;
+*)
+    SANITIZER_ARGUMENT=""
+    ;;
+esac
+
 if [ $RUN_BUILD_FOR_TESTING == true ]; then
     # build everything for testing
     env NSUnbufferedIO=YES xcodebuild \
@@ -81,6 +97,7 @@ if [ $RUN_BUILD_FOR_TESTING == true ]; then
         -scheme Sentry \
         -configuration $CONFIGURATION \
         -destination "$DESTINATION" -quiet \
+        $SANITIZER_ARGUMENT \
         build-for-testing
 fi
 
@@ -91,6 +108,7 @@ if [ $RUN_TEST_WITHOUT_BUILDING == true ]; then
         -scheme Sentry \
         -configuration $CONFIGURATION \
         -destination "$DESTINATION" \
+        $SANITIZER_ARGUMENT \
         test-without-building |
         tee raw-test-output.log |
         $RUBY_ENV_ARGS xcpretty -t &&

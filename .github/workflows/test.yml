@@ -92,7 +92,7 @@ jobs:
       - run: ./scripts/ci-select-xcode.sh
 
       - name: Running tests with ThreadSanitizer
-        run: ./scripts/tests-with-thread-sanitizer.sh
+        run: ./scripts/xcode-test.sh 
 
       - name: Archiving Test Logs
         uses: actions/upload-artifact@v3
