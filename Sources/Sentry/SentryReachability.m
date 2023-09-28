@@ -99,7 +99,8 @@ SentryConnectivityCallback(
 }
 
 void
-SentryConnectivityReset(void) {
+SentryConnectivityReset(void)
+{
     [sentry_reachability_change_blocks removeAllObjects];
     sentry_current_reachability_state = kSCNetworkReachabilityFlagsUninitialized;
 }
