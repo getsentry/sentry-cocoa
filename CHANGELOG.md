@@ -5,11 +5,18 @@
 ### Fixes
 
 - Start SDK only in the main thread (#3291)
+- Remove "duplicate library" warning (#3312)
+
+## 8.13.0
+
+### Fixes
+
 - Remove sync call to main thread from SentryUIDeviceWrapper (#3295)
 
 ### Features
 
 - Record changes to network connectivity in breadcrumbs (#3232)
+- Add Sampling Decision to Trace Envelope Header (#3286)
 
 ## 8.12.0
 
@@ -25,7 +32,6 @@
 ### Features
 
 - Rename "http.method" to "http.request.method" for network Spans (#3268)
-- Add Sampling Decision to Trace Envelope Header (#3286)
 
 ## 8.11.0
 

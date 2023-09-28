@@ -22,6 +22,7 @@ on:
       - 'scripts/ci-select-xcode.sh'
       - 'scripts/no-changes-in-high-risk-files.sh'
       - 'Sentry.xcodeproj/**'
+      - '*.podspec'
 
 jobs:
   swift-lint:
