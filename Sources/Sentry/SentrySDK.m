@@ -137,7 +137,7 @@ static NSUInteger startInvocations;
 
 + (void)startWithOptions:(SentryOptions *)options
 {
-    [SentryThreadWrapper onMainThread:^{
+ //   [SentryThreadWrapper onMainThread:^{
         startInvocations++;
 
         [SentryLog configure:options.debug diagnosticLevel:options.diagnosticLevel];
@@ -159,7 +159,7 @@ static NSUInteger startInvocations;
 #if TARGET_OS_IOS
         [SentryDependencyContainer.sharedInstance.uiDeviceWrapper start];
 #endif
-    }];
+//    }];
 }
 
 + (void)startWithConfigureOptions:(void (^)(SentryOptions *options))configureOptions
