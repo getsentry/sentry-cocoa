@@ -139,21 +139,21 @@ static NSUInteger startInvocations;
 {
     [SentryThreadWrapper onMainThread:^{
         startInvocations++;
-        
+
         [SentryLog configure:options.debug diagnosticLevel:options.diagnosticLevel];
-        
+
         SentryClient *newClient = [[SentryClient alloc] initWithOptions:options];
         [newClient.fileManager moveAppStateToPreviousAppState];
         [newClient.fileManager moveBreadcrumbsToPreviousBreadcrumbs];
-        
-        SentryScope *scope
-        = options.initialScope([[SentryScope alloc] initWithMaxBreadcrumbs:options.maxBreadcrumbs]);
+
+        SentryScope *scope = options.initialScope(
+            [[SentryScope alloc] initWithMaxBreadcrumbs:options.maxBreadcrumbs]);
         // The Hub needs to be initialized with a client so that closing a session
         // can happen.
         [SentrySDK setCurrentHub:[[SentryHub alloc] initWithClient:newClient andScope:scope]];
         SENTRY_LOG_DEBUG(@"SDK initialized! Version: %@", SentryMeta.versionString);
         [SentrySDK installIntegrations];
-        
+
         [SentryCrashWrapper.sharedInstance startBinaryImageCache];
         [SentryDependencyContainer.sharedInstance.binaryImageCache start];
 #if TARGET_OS_IOS
