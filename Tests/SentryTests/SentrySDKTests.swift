@@ -664,7 +664,7 @@ class SentrySDKTests: XCTestCase {
         }
         wait(for: [expect], timeout: 0.5)
 
-        let mainThreadIntegration = SentrySDK.currentHub().installedIntegrations().first as? MainThreadTestIntegration
+        let mainThreadIntegration = SentrySDK.currentHub().installedIntegrations().first { integration in integration is MainThreadTestIntegration } as? MainThreadTestIntegration
         XCTAssertEqual(mainThreadIntegration?.installedInTheMainThread, true, "SDK is not being initialized in the main thread")
     }
 
