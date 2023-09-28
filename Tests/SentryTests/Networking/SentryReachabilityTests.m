@@ -2,8 +2,7 @@
 #import "SentryReachability.h"
 #import <XCTest/XCTest.h>
 
-void
-SentryConnectivityReset(void);
+void SentryConnectivityReset(void);
 
 @interface TestSentryReachabilityObserver : NSObject <SentryReachabilityObserver>
 @end
