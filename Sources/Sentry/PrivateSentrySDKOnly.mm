@@ -179,17 +179,21 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
     return SentryDependencyContainer.sharedInstance.framesTracker.currentFrames;
 }
 
+#    if UIKIT_LINKED
+
 + (NSArray<NSData *> *)captureScreenshots
 {
     return [SentryDependencyContainer.sharedInstance.screenshot takeScreenshots];
 }
+
+#    endif // UIKIT_LINKED
 
 + (NSData *)captureViewHierarchy
 {
     return [SentryDependencyContainer.sharedInstance.viewHierarchy fetchViewHierarchy];
 }
 
-#endif
+#endif // SENTRY_HAS_UIKIT
 
 + (SentryUser *)userWithDictionary:(NSDictionary *)dictionary
 {

@@ -20,7 +20,9 @@
 #    import "SentryAppStartTrackingIntegration.h"
 #    import "SentryFramesTrackingIntegration.h"
 #    import "SentryPerformanceTrackingIntegration.h"
-#    import "SentryScreenshotIntegration.h"
+#    if UIKIT_LINKED
+#        import "SentryScreenshotIntegration.h"
+#    endif // UIKIT_LINKED
 #    import "SentryUIEventTrackingIntegration.h"
 #    import "SentryViewHierarchyIntegration.h"
 #    import "SentryWatchdogTerminationTrackingIntegration.h"
@@ -58,7 +60,9 @@ NSString *const kSentryDefaultEnvironment = @"production";
             NSStringFromClass([SentryAppStartTrackingIntegration class]),
             NSStringFromClass([SentryFramesTrackingIntegration class]),
             NSStringFromClass([SentryPerformanceTrackingIntegration class]),
+#    if UIKIT_LINKED
             NSStringFromClass([SentryScreenshotIntegration class]),
+#    endif // UIKIT_LINKED
             NSStringFromClass([SentryUIEventTrackingIntegration class]),
             NSStringFromClass([SentryViewHierarchyIntegration class]),
             NSStringFromClass([SentryWatchdogTerminationTrackingIntegration class]),
@@ -112,7 +116,9 @@ NSString *const kSentryDefaultEnvironment = @"production";
         _enableTracingManual = NO;
 #if SENTRY_HAS_UIKIT
         self.enableUIViewControllerTracing = YES;
+#    if UIKIT_LINKED
         self.attachScreenshot = NO;
+#    endif // UIKIT_LINKED
         self.attachViewHierarchy = NO;
         self.enableUserInteractionTracing = YES;
         self.idleTimeout = 3.0;
@@ -379,8 +385,10 @@ NSString *const kSentryDefaultEnvironment = @"production";
     [self setBool:options[@"enableUIViewControllerTracing"]
             block:^(BOOL value) { self->_enableUIViewControllerTracing = value; }];
 
+#    if UIKIT_LINKED
     [self setBool:options[@"attachScreenshot"]
             block:^(BOOL value) { self->_attachScreenshot = value; }];
+#    endif // UIKIT_LINKED
 
     [self setBool:options[@"attachViewHierarchy"]
             block:^(BOOL value) { self->_attachViewHierarchy = value; }];

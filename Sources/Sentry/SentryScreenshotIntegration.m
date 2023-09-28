@@ -1,6 +1,6 @@
 #import "SentryScreenshotIntegration.h"
 
-#if SENTRY_HAS_UIKIT
+#if UIKIT_LINKED
 
 #    import "SentryAttachment.h"
 #    import "SentryCrashC.h"
@@ -84,4 +84,4 @@ saveScreenShot(const char *path)
 
 @end
 
-#endif // SENTRY_HAS_UIKIT
+#endif // UIKIT_LINKED

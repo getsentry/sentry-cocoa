@@ -62,10 +62,12 @@ NS_ASSUME_NONNULL_BEGIN
         return NO;
     }
 
+#    if UIKIT_LINKED
     if ((integrationOptions & kIntegrationOptionAttachScreenshot) && !options.attachScreenshot) {
         [self logWithOptionName:@"attachScreenshot"];
         return NO;
     }
+#    endif // UIKIT_LINKED
 
     if ((integrationOptions & kIntegrationOptionEnableUserInteractionTracing)
         && !options.enableUserInteractionTracing) {

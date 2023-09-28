@@ -60,7 +60,7 @@
 #    define SENTRY_UIApplicationWillEnterForegroundNotification                                    \
         UIApplicationWillEnterForegroundNotification
 
-#    if CONFIGURATION != Debug_Use_UIKit
+#    if !UIKIT_LINKED
 #        undef SENTRY_UIDevice
 #        undef SENTRY_UIButton
 #        undef SENTRY_UITextField
@@ -131,8 +131,7 @@
             @"UIApplicationWillEnterForegroundNotification"
 #        define SENTRY_UIApplicationWillEnterForegroundNotification                                \
             @"UIApplicationWillEnterForegroundNotification"
-#    endif // CONFIGURATION != Debug_Use_UIKit
-
+#    endif // !UIKIT_LINKED
 #endif // SENTRY_HAS_UIKIT
 
 #define SENTRY_NO_INIT                                                                             \

@@ -162,6 +162,8 @@ static NSObject *sentryDependencyContainerLock;
 #endif // TARGET_OS_IOS
 
 #if SENTRY_HAS_UIKIT
+
+#    if UIKIT_LINKED
 - (SentryScreenshot *)screenshot
 {
     if (_screenshot == nil) {
@@ -173,6 +175,7 @@ static NSObject *sentryDependencyContainerLock;
     }
     return _screenshot;
 }
+#    endif // UIKIT_LINKED
 
 - (SentryViewHierarchy *)viewHierarchy
 {

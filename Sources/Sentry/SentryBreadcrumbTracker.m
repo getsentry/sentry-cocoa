@@ -173,10 +173,9 @@ SentryBreadcrumbTracker ()
         // same action for different events, but this trade off is acceptable because using the same
         // action for `.editingChanged` and another event is not supposed to happen.
         UITextField *textField = sender;
-        NSArray<NSString *> *actions = [textField
-            actionsForTarget:target
-             forControlEvent:(UIControlEvents)UIControlEventEditingChanged]; // ???: does this cast
-                                                                             // force linking UIKit?
+        NSArray<NSString *> *actions =
+            [textField actionsForTarget:target
+                        forControlEvent:(UIControlEvents)UIControlEventEditingChanged];
         return [actions containsObject:action];
     }
     return NO;

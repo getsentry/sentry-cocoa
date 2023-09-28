@@ -12,20 +12,8 @@
 #    import <SentryDispatchQueueWrapper.h>
 #    import <SentryInAppLogic.h>
 #    import <SentryOptions.h>
+#    import <SentryUIApplication.h>
 #    import <objc/runtime.h>
-
-// !!!: forces linkage to UIKit; must be moved to separate target
-/**
- * @c swizzleRootViewControllerFromUIApplication: requires an object that conforms to
- * @c SentryUIApplication to swizzle it, this way, instead of relying on @c UIApplication, we can
- * test with a mock class.
- *
- * This category makes @c UIApplication conform to
- * @c SentryUIApplication in order to be used by @c SentryUIViewControllerSwizzling .
- */
-//@interface
-// UIApplication (SentryUIApplication) <SentryUIApplication>
-//@end
 
 @interface
 SentryUIViewControllerSwizzling ()
@@ -67,7 +55,7 @@ SentryUIViewControllerSwizzling ()
 
 - (void)start
 {
-    UIApplication *app = [self findApp];
+    SentryUIApplication *app = [[SentryUIApplication alloc] init];
     if (app != nil) {
 
         // If an app targets, for example, iOS 13 or lower, the UIKit inits the initial/root view
@@ -112,33 +100,15 @@ SentryUIViewControllerSwizzling ()
     SentryUIViewControllerPerformanceTracker.shared.inAppLogic = self.inAppLogic;
 }
 
-- (UIApplication *)findApp
+- (void)swizzleAllSubViewControllersInApp:(SentryUIApplication *)app
 {
-    if (![SENTRY_UIApplication respondsToSelector:@selector(sharedApplication)]) {
-        SENTRY_LOG_DEBUG(
-            @"UIViewControllerSwizzling: UIApplication doesn't respond to sharedApplication.");
-        return nil;
-    }
-
-    UIApplication *app = [SENTRY_UIApplication performSelector:@selector(sharedApplication)];
-
-    if (app == nil) {
-        SENTRY_LOG_DEBUG(@"UIViewControllerSwizzling: UIApplication.sharedApplication is nil.");
-        return nil;
-    }
-
-    return app;
-}
-
-- (void)swizzleAllSubViewControllersInApp:(UIApplication *)app
-{
-    if (app.delegate == nil) {
+    if (app.sharedApplication.delegate == nil) {
         SENTRY_LOG_DEBUG(@"UIViewControllerSwizzling: App delegate is nil. Skipping swizzling "
                          @"UIViewControllers in the app image.");
         return;
     }
 
-    [self swizzleUIViewControllersOfClassesInImageOf:[app.delegate class]];
+    [self swizzleUIViewControllersOfClassesInImageOf:[app.sharedApplication.delegate class]];
 }
 
 - (void)swizzleUIViewControllersOfClassesInImageOf:(Class)class
@@ -254,28 +224,28 @@ SentryUIViewControllerSwizzling ()
     }
 }
 
-- (BOOL)swizzleRootViewControllerFromUIApplication:(UIApplication *)app
+- (BOOL)swizzleRootViewControllerFromUIApplication:(SentryUIApplication *)app
 {
-    if (app.delegate == nil) {
+    if (app.sharedApplication.delegate == nil) {
         SENTRY_LOG_DEBUG(@"UIViewControllerSwizzling: App delegate is nil. Skipping "
                          @"swizzleRootViewControllerFromAppDelegate.");
         return NO;
     }
 
     // Check if delegate responds to window, which it doesn't have to.
-    if (![app.delegate respondsToSelector:@selector(window)]) {
+    if (![app.sharedApplication.delegate respondsToSelector:@selector(window)]) {
         SENTRY_LOG_DEBUG(@"UIViewControllerSwizzling: UIApplicationDelegate.window is nil. "
                          @"Skipping swizzleRootViewControllerFromAppDelegate.");
         return NO;
     }
 
-    if (app.delegate.window == nil) {
+    if (app.sharedApplication.delegate.window == nil) {
         SENTRY_LOG_DEBUG(@"UIViewControllerSwizzling: UIApplicationDelegate.window is nil. "
                          @"Skipping swizzleRootViewControllerFromAppDelegate.");
         return NO;
     }
 
-    UIViewController *rootViewController = app.delegate.window.rootViewController;
+    UIViewController *rootViewController = app.sharedApplication.delegate.window.rootViewController;
     if (rootViewController == nil) {
         SENTRY_LOG_DEBUG(
             @"UIViewControllerSwizzling: UIApplicationDelegate.window.rootViewController is nil. "

@@ -71,7 +71,9 @@ SENTRY_NO_INIT
 
 #if SENTRY_HAS_UIKIT
 @property (nonatomic, strong) SentryFramesTracker *framesTracker;
+#    if UIKIT_LINKED
 @property (nonatomic, strong) SentryScreenshot *screenshot;
+#    endif // UIKIT_LINKED
 @property (nonatomic, strong) SentryViewHierarchy *viewHierarchy;
 @property (nonatomic, strong) SentryUIApplication *application;
 #endif // SENTRY_HAS_UIKIT

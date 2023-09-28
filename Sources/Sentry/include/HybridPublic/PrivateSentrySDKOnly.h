@@ -132,10 +132,12 @@ typedef void (^SentryOnAppStartMeasurementAvailable)(
 
 @property (class, nonatomic, assign, readonly) SentryScreenFrames *currentScreenFrames;
 
+#    if UIKIT_LINKED
 + (NSArray<NSData *> *)captureScreenshots;
+#    endif // UIKIT_LINKED
 
 + (NSData *)captureViewHierarchy;
-#endif
+#endif // SENTRY_HAS_UIKIT
 
 + (SentryUser *)userWithDictionary:(NSDictionary *)dictionary;
 

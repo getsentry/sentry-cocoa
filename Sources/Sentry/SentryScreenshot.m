@@ -1,6 +1,6 @@
 #import "SentryScreenshot.h"
 
-#if SENTRY_HAS_UIKIT
+#if UIKIT_LINKED
 
 #    import "SentryCompiler.h"
 #    import "SentryDependencyContainer.h"
@@ -52,27 +52,25 @@
             continue;
         }
 
-        // !!!: these will force UIKit linkage
-        //        UIGraphicsBeginImageContext(size);
-        //
-        //        if ([window drawViewHierarchyInRect:window.bounds afterScreenUpdates:false]) {
-        //            UIImage *img = UIGraphicsGetImageFromCurrentImageContext();
-        //            // this shouldn't happen now that we discard windows with either 0 height or 0
-        //            width,
-        //            // but still, we shouldn't send any images with either one.
-        //            if (LIKELY(img.size.width > 0 && img.size.height > 0)) {
-        //                NSData *bytes = UIImagePNGRepresentation(img);
-        //                if (bytes && bytes.length > 0) {
-        //                    [result addObject:bytes];
-        //                }
-        //            }
-        //        }
-        //
-        //        UIGraphicsEndImageContext();
+        UIGraphicsBeginImageContext(size);
+
+        if ([window drawViewHierarchyInRect:window.bounds afterScreenUpdates:false]) {
+            UIImage *img = UIGraphicsGetImageFromCurrentImageContext();
+            // this shouldn't happen now that we discard windows with either 0 height or 0 width,
+            // but still, we shouldn't send any images with either one.
+            if (LIKELY(img.size.width > 0 && img.size.height > 0)) {
+                NSData *bytes = UIImagePNGRepresentation(img);
+                if (bytes && bytes.length > 0) {
+                    [result addObject:bytes];
+                }
+            }
+        }
+
+        UIGraphicsEndImageContext();
     }
     return result;
 }
 
 @end
 
-#endif // SENTRY_HAS_UIKIT
+#endif // UIKIT_LINKED

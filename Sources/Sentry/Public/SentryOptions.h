@@ -206,11 +206,13 @@ NS_SWIFT_NAME(Options)
  */
 @property (nonatomic, assign) BOOL enableUIViewControllerTracing;
 
+#    if UIKIT_LINKED
 /**
  * Automatically attaches a screenshot when capturing an error or exception.
  * @note Default value is @c NO .
  */
 @property (nonatomic, assign) BOOL attachScreenshot;
+#    endif // UIKIT_LINKED
 
 /**
  * @warning This is an experimental feature and may still have bugs.
