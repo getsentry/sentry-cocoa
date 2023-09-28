@@ -137,29 +137,29 @@ static NSUInteger startInvocations;
 
 + (void)startWithOptions:(SentryOptions *)options
 {
- //   [SentryThreadWrapper onMainThread:^{
-        startInvocations++;
+    //   [SentryThreadWrapper onMainThread:^{
+    startInvocations++;
 
-        [SentryLog configure:options.debug diagnosticLevel:options.diagnosticLevel];
+    [SentryLog configure:options.debug diagnosticLevel:options.diagnosticLevel];
 
-        SentryClient *newClient = [[SentryClient alloc] initWithOptions:options];
-        [newClient.fileManager moveAppStateToPreviousAppState];
-        [newClient.fileManager moveBreadcrumbsToPreviousBreadcrumbs];
+    SentryClient *newClient = [[SentryClient alloc] initWithOptions:options];
+    [newClient.fileManager moveAppStateToPreviousAppState];
+    [newClient.fileManager moveBreadcrumbsToPreviousBreadcrumbs];
 
-        SentryScope *scope = options.initialScope(
-            [[SentryScope alloc] initWithMaxBreadcrumbs:options.maxBreadcrumbs]);
-        // The Hub needs to be initialized with a client so that closing a session
-        // can happen.
-        [SentrySDK setCurrentHub:[[SentryHub alloc] initWithClient:newClient andScope:scope]];
-        SENTRY_LOG_DEBUG(@"SDK initialized! Version: %@", SentryMeta.versionString);
-        [SentrySDK installIntegrations];
+    SentryScope *scope
+        = options.initialScope([[SentryScope alloc] initWithMaxBreadcrumbs:options.maxBreadcrumbs]);
+    // The Hub needs to be initialized with a client so that closing a session
+    // can happen.
+    [SentrySDK setCurrentHub:[[SentryHub alloc] initWithClient:newClient andScope:scope]];
+    SENTRY_LOG_DEBUG(@"SDK initialized! Version: %@", SentryMeta.versionString);
+    [SentrySDK installIntegrations];
 
-        [SentryCrashWrapper.sharedInstance startBinaryImageCache];
-        [SentryDependencyContainer.sharedInstance.binaryImageCache start];
+    [SentryCrashWrapper.sharedInstance startBinaryImageCache];
+    [SentryDependencyContainer.sharedInstance.binaryImageCache start];
 #if TARGET_OS_IOS
-        [SentryDependencyContainer.sharedInstance.uiDeviceWrapper start];
+    [SentryDependencyContainer.sharedInstance.uiDeviceWrapper start];
 #endif
-//    }];
+    //    }];
 }
 
 + (void)startWithConfigureOptions:(void (^)(SentryOptions *options))configureOptions
