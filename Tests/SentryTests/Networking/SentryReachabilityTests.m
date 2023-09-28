@@ -2,6 +2,9 @@
 #import "SentryReachability.h"
 #import <XCTest/XCTest.h>
 
+void
+SentryConnectivityReset(void);
+
 @interface TestSentryReachabilityObserver : NSObject <SentryReachabilityObserver>
 @end
 @implementation TestSentryReachabilityObserver
@@ -22,6 +25,7 @@
 - (void)tearDown
 {
     self.reachability = nil;
+    SentryConnectivityReset();
 }
 
 - (void)testConnectivityRepresentations
