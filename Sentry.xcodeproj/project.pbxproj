@@ -1027,7 +1027,7 @@
 		63AA75951EB8AEDB00D153DE /* SentryTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentryTests.m; sourceTree = "<group>"; };
 		63AA759B1EB8AEF500D153DE /* Sentry.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Sentry.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		63AA75C51EB8B00100D153DE /* Sentry.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Sentry.xcconfig; sourceTree = "<group>"; };
-		63AA75C71EB8B06100D153DE /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		63AA75C71EB8B06100D153DE /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = Info.plist; path = ../Resources/Info.plist; sourceTree = "<group>"; };
 		63AA75ED1EB8B3C400D153DE /* SentryClient.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SentryClient.m; sourceTree = "<group>"; };
 		63AA76651EB8CB2F00D153DE /* SentryTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SentryTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		63AA76781EB8D20500D153DE /* SentryLog.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SentryLog.m; sourceTree = "<group>"; };
@@ -1518,7 +1518,7 @@
 		7D9B079F23D1E89800C5FC8E /* SentryMeta.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SentryMeta.h; path = include/SentryMeta.h; sourceTree = "<group>"; };
 		7DAC588E23D8B2E0001CF26B /* SentryGlobalEventProcessor.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentryGlobalEventProcessor.m; sourceTree = "<group>"; };
 		7DB3A684238EA75E00A2D442 /* SentryHttpTransport.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentryHttpTransport.m; sourceTree = "<group>"; };
-		7DC27E9823995F97006998B5 /* Sentry.modulemap */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.module-map"; path = Sentry.modulemap; sourceTree = "<group>"; };
+		7DC27E9823995F97006998B5 /* Sentry.modulemap */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.module-map"; name = Sentry.modulemap; path = ../Resources/Sentry.modulemap; sourceTree = "<group>"; };
 		7DC27EC323997EB7006998B5 /* SentryAutoBreadcrumbTrackingIntegration.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SentryAutoBreadcrumbTrackingIntegration.h; path = include/SentryAutoBreadcrumbTrackingIntegration.h; sourceTree = "<group>"; };
 		7DC27EC423997EB7006998B5 /* SentryAutoBreadcrumbTrackingIntegration.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentryAutoBreadcrumbTrackingIntegration.m; sourceTree = "<group>"; };
 		7DC830FF239826280043DD9A /* SentryIntegrationProtocol.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SentryIntegrationProtocol.h; path = Public/SentryIntegrationProtocol.h; sourceTree = "<group>"; };
@@ -4695,11 +4695,9 @@
 					"$(inherited)",
 				);
 				GCC_WARN_SHADOW = YES;
-				INFOPLIST_FILE = Sources/Resources/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_DYLIB_INSTALL_NAME = "$(DYLIB_INSTALL_NAME_BASE:standardizepath)/$(EXECUTABLE_PATH)";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				MODULEMAP_FILE = "$(SRCROOT)/Sources/Resources/Sentry.modulemap";
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CFLAGS = "-DCARTHAGE_$(CARTHAGE)";
 				PRODUCT_BUNDLE_IDENTIFIER = io.sentry.Sentry;
@@ -4734,11 +4732,9 @@
 				GCC_C_LANGUAGE_STANDARD = "compiler-default";
 				GCC_OPTIMIZATION_LEVEL = s;
 				GCC_WARN_SHADOW = YES;
-				INFOPLIST_FILE = Sources/Resources/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_DYLIB_INSTALL_NAME = "$(DYLIB_INSTALL_NAME_BASE:standardizepath)/$(EXECUTABLE_PATH)";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				MODULEMAP_FILE = "$(SRCROOT)/Sources/Resources/Sentry.modulemap";
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_CFLAGS = "-DCARTHAGE_$(CARTHAGE)";
 				PRODUCT_BUNDLE_IDENTIFIER = io.sentry.Sentry;
@@ -4889,11 +4885,9 @@
 					"TESTCI=1",
 				);
 				GCC_WARN_SHADOW = YES;
-				INFOPLIST_FILE = Sources/Resources/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_DYLIB_INSTALL_NAME = "$(DYLIB_INSTALL_NAME_BASE:standardizepath)/$(EXECUTABLE_PATH)";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				MODULEMAP_FILE = "$(SRCROOT)/Sources/Resources/Sentry.modulemap";
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CFLAGS = "-DCARTHAGE_$(CARTHAGE)";
 				PRODUCT_BUNDLE_IDENTIFIER = io.sentry.Sentry;
@@ -5236,11 +5230,9 @@
 				GCC_C_LANGUAGE_STANDARD = "compiler-default";
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_WARN_SHADOW = YES;
-				INFOPLIST_FILE = Sources/Resources/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_DYLIB_INSTALL_NAME = "$(DYLIB_INSTALL_NAME_BASE:standardizepath)/$(EXECUTABLE_PATH)";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				MODULEMAP_FILE = "$(SRCROOT)/Sources/Resources/Sentry.modulemap";
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CFLAGS = "-DCARTHAGE_$(CARTHAGE)";
 				PRODUCT_BUNDLE_IDENTIFIER = io.sentry.Sentry;
