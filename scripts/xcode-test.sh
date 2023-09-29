@@ -27,7 +27,7 @@ case $PLATFORM in
     ;;
 
 "iOS")
-    DESTINATION="platform=iOS Simulator,OS=$OS,name=iPhone 8"
+    DESTINATION="platform=iOS Simulator,OS=$OS,name=iPhone 14"
     ;;
 
 "tvOS")
