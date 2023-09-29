@@ -44,6 +44,10 @@
 #include <mach-o/dyld.h>
 #include <mach/mach.h>
 
+#if UIKIT_LINKED
+#    import <UIKit/UIKit.h>
+#endif // UIKIT_LINKED
+
 typedef struct {
     const char *systemName;
     const char *systemVersion;

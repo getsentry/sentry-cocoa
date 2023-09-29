@@ -14,6 +14,7 @@
 #if UIKIT_LINKED
 #    import <SentryInternalNotificationNames.h>
 #    import <SentryNSNotificationCenterWrapper.h>
+#    import <UIKit/UIKit.h>
 #endif
 
 @interface

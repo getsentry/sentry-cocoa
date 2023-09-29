@@ -14,7 +14,11 @@
 
 #if SENTRY_TARGET_MACOS
 #    import <Cocoa/Cocoa.h>
-#endif // !TARGET_OS_WATCH
+#endif // SENTRY_TARGET_MACOS
+
+#if UIKIT_LINKED
+#    import <UIKit/UIKit.h>
+#endif // UIKIT_LINKED
 
 NS_ASSUME_NONNULL_BEGIN
 

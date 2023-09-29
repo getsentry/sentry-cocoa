@@ -16,6 +16,7 @@
 #    import <SentryInternalNotificationNames.h>
 #    import <SentryLog.h>
 #    import <SentrySDK+Private.h>
+#    import <UIKit/UIKit.h>
 
 static NSDate *runtimeInit = nil;
 static BOOL isActivePrewarm = NO;

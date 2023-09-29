@@ -20,6 +20,10 @@
 #    import <WatchKit/WatchKit.h>
 #endif
 
+#if UIKIT_LINKED
+#    import <UIKit/UIKit.h>
+#endif // UIKIT_LINKED
+
 namespace {
 /**
  * @brief Get an iOS hardware model name, or for mac devices, either the hardware model name or CPU

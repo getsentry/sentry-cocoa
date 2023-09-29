@@ -5,6 +5,10 @@
 #import <objc/runtime.h>
 #import <string.h>
 
+#if UIKIT_LINKED
+#    import <UIKit/UIKit.h>
+#endif // UIKIT_LINKED
+
 @interface
 SentrySubClassFinder ()
 

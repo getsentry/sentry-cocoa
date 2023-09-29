@@ -46,6 +46,7 @@
 
 #    if UIKIT_LINKED
 #        import "SentryScreenFrames.h"
+#        import <UIKit/UIKit.h>
 #    endif // UIKIT_LINKED
 
 const int kSentryProfilerFrequencyHz = 101;

@@ -2,7 +2,7 @@
 
 #if UIKIT_LINKED
 
-#    import <QuartzCore/QuartzCore.h>
+#    import <UIKit/UIKit.h>
 
 @implementation SentryDisplayLinkWrapper {
     CADisplayLink *displayLink;
@@ -20,7 +20,6 @@
 
 - (void)linkWithTarget:(id)target selector:(SEL)sel
 {
-    // ???: Need to weak link QuartzCore/CADisplayLink?
     displayLink = [CADisplayLink displayLinkWithTarget:target selector:sel];
     [displayLink addToRunLoop:[NSRunLoop mainRunLoop] forMode:NSRunLoopCommonModes];
 }

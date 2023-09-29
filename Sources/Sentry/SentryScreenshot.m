@@ -6,6 +6,7 @@
 #    import "SentryDependencyContainer.h"
 #    import "SentryDispatchQueueWrapper.h"
 #    import "SentryUIApplication.h"
+#    import <UIKit/UIKit.h>
 
 @implementation SentryScreenshot
 

@@ -2,7 +2,9 @@
 
 #if UIKIT_LINKED
 
-@class SentrySpan, SentryInAppLogic;
+@class SentrySpan;
+@class SentryInAppLogic;
+@class UIViewController;
 
 NS_ASSUME_NONNULL_BEGIN
 

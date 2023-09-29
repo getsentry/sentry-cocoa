@@ -4,6 +4,7 @@
 
 @class SentrySpan;
 @class SentryTracer;
+@class UIViewController;
 
 NS_ASSUME_NONNULL_BEGIN
 

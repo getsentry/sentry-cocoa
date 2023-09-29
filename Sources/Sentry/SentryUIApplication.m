@@ -2,6 +2,8 @@
 
 #if UIKIT_LINKED
 
+#    import <UIKit/UIKit.h>
+
 @implementation SentryUIApplication
 
 - (UIApplication *)sharedApplication

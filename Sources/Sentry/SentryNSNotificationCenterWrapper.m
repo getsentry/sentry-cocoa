@@ -6,6 +6,10 @@
 #    import <Cocoa/Cocoa.h>
 #endif
 
+#if UIKIT_LINKED
+#    import <UIKit/UIKit.h>
+#endif // UIKIT_LINKED
+
 NS_ASSUME_NONNULL_BEGIN
 
 @implementation SentryNSNotificationCenterWrapper

@@ -9,6 +9,8 @@
 
 #if TARGET_OS_IOS && UIKIT_LINKED
 
+#    import <UIKit/UIKit.h>
+
 @interface
 SentrySystemEventBreadcrumbs ()
 @property (nonatomic, weak) id<SentryBreadcrumbDelegate> delegate;

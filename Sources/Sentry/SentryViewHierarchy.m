@@ -7,6 +7,7 @@
 #    import "SentryDependencyContainer.h"
 #    import "SentryLog.h"
 #    import "SentryUIApplication.h"
+#    import <UIKit/UIKit.h>
 
 @import SentryPrivate;
 

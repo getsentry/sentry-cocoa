@@ -2,16 +2,16 @@
 #import "SentryLog.h"
 #import "SentrySwizzle.h"
 
+#if UIKIT_LINKED
+#    import <UIKit/UIKit.h>
+
 NS_ASSUME_NONNULL_BEGIN
 
 @implementation SentrySwizzleWrapper
 
-#if UIKIT_LINKED
 static NSMutableDictionary<NSString *, SentrySwizzleSendActionCallback>
     *sentrySwizzleSendActionCallbacks;
-#endif
 
-#if UIKIT_LINKED
 + (void)initialize
 {
     if (self == [SentrySwizzleWrapper class]) {
@@ -76,8 +76,9 @@ static NSMutableDictionary<NSString *, SentrySwizzleSendActionCallback>
 {
     return sentrySwizzleSendActionCallbacks.count > 0;
 }
-#endif
 
 @end
 
 NS_ASSUME_NONNULL_END
+
+#endif // UIKIT_LINKED
