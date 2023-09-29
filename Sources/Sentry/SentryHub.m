@@ -24,9 +24,9 @@
 #import "SentryTransaction.h"
 #import "SentryTransactionContext+Private.h"
 
-#if SENTRY_HAS_UIKIT
+#if UIKIT_LINKED
 #    import "SentryUIViewControllerPerformanceTracker.h"
-#endif // SENTRY_HAS_UIKIT
+#endif // UIKIT_LINKED
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 #    import "SentryProfilesSampler.h"
@@ -666,13 +666,13 @@ SentryHub ()
 
 - (void)reportFullyDisplayed
 {
-#if SENTRY_HAS_UIKIT
+#if UIKIT_LINKED
     if (_client.options.enableTimeToFullDisplayTracing) {
         [SentryUIViewControllerPerformanceTracker.shared reportFullyDisplayed];
     } else {
         SENTRY_LOG_DEBUG(@"The options `enableTimeToFullDisplay` is disabled.");
     }
-#endif // SENTRY_HAS_UIKIT
+#endif // UIKIT_LINKED
 }
 
 - (void)flush:(NSTimeInterval)timeout

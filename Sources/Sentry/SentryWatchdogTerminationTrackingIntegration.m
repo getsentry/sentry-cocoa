@@ -1,6 +1,6 @@
 #import <SentryWatchdogTerminationTrackingIntegration.h>
 
-#if SENTRY_HAS_UIKIT
+#if UIKIT_LINKED
 
 #    import "SentryScope+Private.h"
 #    import <SentryAppState.h>
@@ -119,4 +119,4 @@ SentryWatchdogTerminationTrackingIntegration ()
 
 NS_ASSUME_NONNULL_END
 
-#endif // SENTRY_HAS_UIKIT
+#endif // UIKIT_LINKED

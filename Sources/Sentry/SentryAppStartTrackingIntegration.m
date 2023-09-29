@@ -1,6 +1,6 @@
 #import "SentryAppStartTrackingIntegration.h"
 
-#if SENTRY_HAS_UIKIT
+#if UIKIT_LINKED
 
 #    import "SentryAppStartTracker.h"
 #    import "SentryLog.h"
@@ -58,4 +58,4 @@ SentryAppStartTrackingIntegration ()
 
 @end
 
-#endif // SENTRY_HAS_UIKIT
+#endif // UIKIT_LINKED

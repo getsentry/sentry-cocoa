@@ -1,6 +1,6 @@
 #import "SentryTimeToDisplayTracker.h"
 
-#if SENTRY_HAS_UIKIT
+#if UIKIT_LINKED
 
 #    import "SentryCurrentDateProvider.h"
 #    import "SentryDependencyContainer.h"
@@ -130,4 +130,4 @@ SentryTimeToDisplayTracker () <SentryFramesTrackerListener>
 
 @end
 
-#endif // SENTRY_HAS_UIKIT
+#endif // UIKIT_LINKED

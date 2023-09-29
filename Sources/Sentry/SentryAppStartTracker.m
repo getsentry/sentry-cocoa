@@ -1,6 +1,6 @@
 #import <SentryAppStartTracker.h>
 
-#if SENTRY_HAS_UIKIT
+#if UIKIT_LINKED
 
 #    import "SentryAppStartMeasurement.h"
 #    import "SentryAppStateManager.h"
@@ -92,30 +92,28 @@ SentryAppStartTracker ()
     // @main of a SwiftUI  we set the timestamp here.
     self.didFinishLaunchingTimestamp = [SentryDependencyContainer.sharedInstance.dateProvider date];
 
-    [NSNotificationCenter.defaultCenter
-        addObserver:self
-           selector:@selector(didFinishLaunching)
-               name:SENTRY_UIApplicationDidFinishLaunchingNotification
-             object:nil];
+    [NSNotificationCenter.defaultCenter addObserver:self
+                                           selector:@selector(didFinishLaunching)
+                                               name:UIApplicationDidFinishLaunchingNotification
+                                             object:nil];
 
     [NSNotificationCenter.defaultCenter addObserver:self
                                            selector:@selector(didBecomeVisible)
-                                               name:SENTRY_UIWindowDidBecomeVisibleNotification
+                                               name:UIWindowDidBecomeVisibleNotification
                                              object:nil];
 
-    [NSNotificationCenter.defaultCenter
-        addObserver:self
-           selector:@selector(didEnterBackground)
-               name:SENTRY_UIApplicationDidEnterBackgroundNotification
-             object:nil];
+    [NSNotificationCenter.defaultCenter addObserver:self
+                                           selector:@selector(didEnterBackground)
+                                               name:UIApplicationDidEnterBackgroundNotification
+                                             object:nil];
 
     if (PrivateSentrySDKOnly.appStartMeasurementHybridSDKMode) {
         [self buildAppStartMeasurement];
     }
 
-#    if SENTRY_HAS_UIKIT
+#    if UIKIT_LINKED
     [self.appStateManager start];
-#    endif // SENTRY_HAS_UIKIT
+#    endif // UIKIT_LINKED
 
     self.isRunning = YES;
 }
@@ -277,19 +275,17 @@ SentryAppStartTracker ()
 {
     // Remove the observers with the most specific detail possible, see
     // https://developer.apple.com/documentation/foundation/nsnotificationcenter/1413994-removeobserver
-    [NSNotificationCenter.defaultCenter
-        removeObserver:self
-                  name:SENTRY_UIApplicationDidFinishLaunchingNotification
-                object:nil];
-
     [NSNotificationCenter.defaultCenter removeObserver:self
-                                                  name:SENTRY_UIWindowDidBecomeVisibleNotification
+                                                  name:UIApplicationDidFinishLaunchingNotification
                                                 object:nil];
 
-    [NSNotificationCenter.defaultCenter
-        removeObserver:self
-                  name:SENTRY_UIApplicationDidEnterBackgroundNotification
-                object:nil];
+    [NSNotificationCenter.defaultCenter removeObserver:self
+                                                  name:UIWindowDidBecomeVisibleNotification
+                                                object:nil];
+
+    [NSNotificationCenter.defaultCenter removeObserver:self
+                                                  name:UIApplicationDidEnterBackgroundNotification
+                                                object:nil];
 
 #    if TEST
     self.isRunning = NO;
@@ -314,4 +310,4 @@ SentryAppStartTracker ()
 
 @end
 
-#endif // SENTRY_HAS_UIKIT
+#endif // UIKIT_LINKED

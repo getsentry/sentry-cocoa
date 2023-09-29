@@ -3,7 +3,7 @@
 #if __has_include("SentryDefines.h")
 #    import "SentryDefines.h"
 #else
-#    define SENTRY_HAS_UIKIT (TARGET_OS_IOS || TARGET_OS_TV)
+#    define UIKIT_LINKED (TARGET_OS_IOS || TARGET_OS_TV)
 #endif
 
 #if __has_include("SentryLog.h")
@@ -45,7 +45,7 @@ namespace {
 NSString *
 getHardwareDescription(int type)
 {
-#if SENTRY_HAS_UIKIT && !TARGET_OS_SIMULATOR
+#if UIKIT_LINKED && !TARGET_OS_SIMULATOR
     NSCAssert(
         type != HW_MODEL, @"Don't call this method with HW_MODEL for (non-simulator) iOS devices");
 #endif
@@ -167,11 +167,11 @@ sentry_getOSName(void)
 {
 #if TARGET_OS_MACCATALYST
     return @"Catalyst";
-#elif SENTRY_HAS_UIKIT
-    return [SENTRY_UIDevice currentDevice].systemName;
+#elif UIKIT_LINKED
+    return [UIDevice currentDevice].systemName;
 #else
     return @"macOS";
-#endif // SENTRY_HAS_UIKIT
+#endif // UIKIT_LINKED
 }
 
 NSString *
@@ -180,8 +180,8 @@ sentry_getOSVersion(void)
 #if TARGET_OS_WATCH
     // This function is only used for profiling, and profiling don't run for watchOS
     return @"";
-#elif SENTRY_HAS_UIKIT
-    return [SENTRY_UIDevice currentDevice].systemVersion;
+#elif UIKIT_LINKED
+    return [UIDevice currentDevice].systemVersion;
 #else
     // based off of
     // https://github.com/lmirosevic/GBDeviceInfo/blob/98dd3c75bb0e1f87f3e0fd909e52dcf0da4aa47d/GBDeviceInfo/GBDeviceInfo_OSX.m#L107-L133
@@ -190,18 +190,11 @@ sentry_getOSVersion(void)
         return [NSString stringWithFormat:@"%ld.%ld.%ld", (long)version.majorVersion,
                          (long)version.minorVersion, (long)version.patchVersion];
     } else {
-        SInt32 major, minor, patch;
-
-#    pragma clang diagnostic push
-#    pragma clang diagnostic ignored "-Wdeprecated-declarations"
-        Gestalt(gestaltSystemVersionMajor, &major);
-        Gestalt(gestaltSystemVersionMinor, &minor);
-        Gestalt(gestaltSystemVersionBugFix, &patch);
-#    pragma clang diagnostic pop
-
-        return [NSString stringWithFormat:@"%d.%d.%d", major, minor, patch];
+        NSOperatingSystemVersion version = NSProcessInfo.processInfo.operatingSystemVersion;
+        return [NSString stringWithFormat:@"%ld.%ld.%ld", version.majorVersion,
+                         version.minorVersion, version.patchVersion];
     }
-#endif // SENTRY_HAS_UIKIT
+#endif
 }
 
 NSString *
@@ -226,13 +219,13 @@ sentry_getDeviceModel(void)
     }
 #    endif // defined(HW_PRODUCT)
 
-#    if SENTRY_HAS_UIKIT
+#    if UIKIT_LINKED
     // iPhone/iPad or TV devices
     return getHardwareDescription(HW_MACHINE);
 #    else
     // macs and watch devices TODO: test on watch devices, may need to separate TARGET_OS_WATCH
     return getHardwareDescription(HW_MODEL);
-#    endif // SENTRY_HAS_UIKIT
+#    endif // UIKIT_LINKED
 #endif // TARGET_OS_SIMULATOR
 }
 

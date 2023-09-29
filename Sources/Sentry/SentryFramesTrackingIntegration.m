@@ -1,6 +1,6 @@
 #import "SentryFramesTrackingIntegration.h"
 
-#if SENTRY_HAS_UIKIT
+#if UIKIT_LINKED
 
 #    import "PrivateSentrySDKOnly.h"
 #    import "SentryDependencyContainer.h"
@@ -53,4 +53,4 @@ SentryFramesTrackingIntegration ()
 
 NS_ASSUME_NONNULL_END
 
-#endif // SENTRY_HAS_UIKIT
+#endif // UIKIT_LINKED

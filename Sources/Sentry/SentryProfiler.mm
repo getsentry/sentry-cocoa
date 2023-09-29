@@ -44,9 +44,9 @@
 #    import <cstdint>
 #    import <memory>
 
-#    if SENTRY_HAS_UIKIT
+#    if UIKIT_LINKED
 #        import "SentryScreenFrames.h"
-#    endif // SENTRY_HAS_UIKIT
+#    endif // UIKIT_LINKED
 
 const int kSentryProfilerFrequencyHz = 101;
 NSTimeInterval kSentryProfilerTimeoutInterval = 30;
@@ -73,7 +73,7 @@ profilerTruncationReasonName(SentryProfilerTruncationReason reason)
     }
 }
 
-#    if SENTRY_HAS_UIKIT
+#    if UIKIT_LINKED
 /**
  * Convert the data structure that records timestamps for GPU frame render info from
  * SentryFramesTracker to the structure expected for profiling metrics, and throw out any that
@@ -122,7 +122,7 @@ sliceGPUData(SentryFrameInfoTimeSeries *frameInfo, uint64_t startSystemTime, uin
     }
     return slicedGPUEntries;
 }
-#    endif // SENTRY_HAS_UIKIT
+#    endif // UIKIT_LINKED
 
 /** Given an array of samples with absolute timestamps, return the serialized JSON mapping with
  * their data, with timestamps normalized relative to the provided transaction's start time. */
@@ -158,10 +158,10 @@ serializedProfileData(
     NSDictionary<NSString *, id> *profileData, uint64_t startSystemTime, uint64_t endSystemTime,
     NSString *truncationReason, NSDictionary<NSString *, id> *serializedMetrics,
     NSArray<SentryDebugMeta *> *debugMeta, SentryHub *hub
-#    if SENTRY_HAS_UIKIT
+#    if UIKIT_LINKED
     ,
     SentryScreenFrames *gpuData
-#    endif // SENTRY_HAS_UIKIT
+#    endif // UIKIT_LINKED
 )
 {
     NSMutableArray<SentrySample *> *const samples = profileData[@"profile"][@"samples"];
@@ -220,7 +220,7 @@ serializedProfileData(
     // add the gathered metrics
     auto metrics = serializedMetrics;
 
-#    if SENTRY_HAS_UIKIT
+#    if UIKIT_LINKED
     const auto mutableMetrics =
         [NSMutableDictionary<NSString *, id> dictionaryWithDictionary:metrics];
     const auto slowFrames = sliceGPUData(gpuData.slowFrameTimestamps, startSystemTime,
@@ -247,7 +247,7 @@ serializedProfileData(
         }
     }
     metrics = mutableMetrics;
-#    endif // SENTRY_HAS_UIKIT
+#    endif // UIKIT_LINKED
 
     if (metrics.count > 0) {
         payload[@"measurements"] = metrics;
@@ -276,21 +276,21 @@ serializedProfileData(
     SENTRY_LOG_DEBUG(@"Initialized new SentryProfiler %@", self);
     _debugImageProvider = [SentryDependencyContainer sharedInstance].debugImageProvider;
 
-#    if SENTRY_HAS_UIKIT
+#    if UIKIT_LINKED
     // the frame tracker may not be running if SentryOptions.enableAutoPerformanceTracing is NO
     [SentryDependencyContainer.sharedInstance.framesTracker start];
-#    endif // SENTRY_HAS_UIKIT
+#    endif // UIKIT_LINKED
 
     [self start];
     [self scheduleTimeoutTimer];
 
-#    if SENTRY_HAS_UIKIT
+#    if UIKIT_LINKED
     [SentryDependencyContainer.sharedInstance.notificationCenterWrapper
         addObserver:self
            selector:@selector(backgroundAbort)
-               name:SENTRY_UIApplicationWillResignActiveNotification
+               name:UIApplicationWillResignActiveNotification
              object:nil];
-#    endif // SENTRY_HAS_UIKIT
+#    endif // UIKIT_LINKED
 
     return self;
 }
@@ -436,10 +436,10 @@ serializedProfileData(
         profilerTruncationReasonName(_truncationReason),
         [_metricProfiler serializeBetween:startSystemTime and:endSystemTime],
         [_debugImageProvider getDebugImagesCrashed:NO], hub
-#    if SENTRY_HAS_UIKIT
+#    if UIKIT_LINKED
         ,
         self._screenFrameData
-#    endif // SENTRY_HAS_UIKIT
+#    endif // UIKIT_LINKED
     );
 }
 
@@ -476,13 +476,13 @@ serializedProfileData(
         return;
     }
 
-#    if SENTRY_HAS_UIKIT
+#    if UIKIT_LINKED
     // if SentryOptions.enableAutoPerformanceTracing is NO, then we need to stop the frames tracker
     // from running outside of profiles because it isn't needed for anything else
     if (![[[[SentrySDK currentHub] getClient] options] enableAutoPerformanceTracing]) {
         [SentryDependencyContainer.sharedInstance.framesTracker stop];
     }
-#    endif // SENTRY_HAS_UIKIT
+#    endif // UIKIT_LINKED
 
     _profiler->stopSampling();
     SENTRY_LOG_DEBUG(@"Stopped profiler %@.", self);

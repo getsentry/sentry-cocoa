@@ -12,7 +12,7 @@
 #import "SentrySwizzle.h"
 #import "SentrySwizzleWrapper.h"
 
-#if TARGET_OS_OSX || TARGET_OS_MACCATALYST
+#if SENTRY_TARGET_MACOS
 #    import <Cocoa/Cocoa.h>
 #endif // !TARGET_OS_WATCH
 
@@ -60,20 +60,19 @@ SentryBreadcrumbTracker ()
 {
     // All breadcrumbs are guarded by checking the client of the current hub, which we remove when
     // uninstalling the SDK. Therefore, we don't clean up everything.
-#if SENTRY_HAS_UIKIT
+#if UIKIT_LINKED
     [SentryDependencyContainer.sharedInstance.swizzleWrapper
         removeSwizzleSendActionForKey:SentryBreadcrumbTrackerSwizzleSendAction];
-#endif // SENTRY_HAS_UIKIT
+#endif // UIKIT_LINKED
     _delegate = nil;
 }
 
 - (void)trackApplicationUIKitNotifications
 {
-#if SENTRY_HAS_UIKIT
-    NSNotificationName foregroundNotificationName = SENTRY_UIApplicationDidBecomeActiveNotification;
-    NSNotificationName backgroundNotificationName
-        = SENTRY_UIApplicationDidEnterBackgroundNotification;
-#elif TARGET_OS_OSX || TARGET_OS_MACCATALYST
+#if UIKIT_LINKED
+    NSNotificationName foregroundNotificationName = UIApplicationDidBecomeActiveNotification;
+    NSNotificationName backgroundNotificationName = UIApplicationDidEnterBackgroundNotification;
+#elif SENTRY_TARGET_MACOS
     NSNotificationName foregroundNotificationName = NSApplicationDidBecomeActiveNotification;
     // Will resign Active notification is the nearest one to
     // UIApplicationDidEnterBackgroundNotification
@@ -84,9 +83,9 @@ SentryBreadcrumbTracker ()
 #endif // !TARGET_OS_WATCH
 
     // not available for macOS
-#if SENTRY_HAS_UIKIT
+#if UIKIT_LINKED
     [NSNotificationCenter.defaultCenter
-        addObserverForName:SENTRY_UIApplicationDidReceiveMemoryWarningNotification
+        addObserverForName:UIApplicationDidReceiveMemoryWarningNotification
                     object:nil
                      queue:nil
                 usingBlock:^(NSNotification *notification) {
@@ -98,9 +97,9 @@ SentryBreadcrumbTracker ()
                     crumb.message = @"Low memory";
                     [self.delegate addBreadcrumb:crumb];
                 }];
-#endif // SENTRY_HAS_UIKIT
+#endif // UIKIT_LINKED
 
-#if !TARGET_OS_WATCH
+#if UIKIT_LINKED || SENTRY_TARGET_MACOS
     [NSNotificationCenter.defaultCenter addObserverForName:backgroundNotificationName
                                                     object:nil
                                                      queue:nil
@@ -122,7 +121,7 @@ SentryBreadcrumbTracker ()
                                                                     withDataKey:@"state"
                                                                   withDataValue:@"foreground"];
                                                 }];
-#endif // !TARGET_OS_WATCH
+#endif // UIKIT_LINKED || SENTRY_TARGET_MACOS
 }
 
 #if !TARGET_OS_WATCH
@@ -162,10 +161,10 @@ SentryBreadcrumbTracker ()
     [self.delegate addBreadcrumb:crumb];
 }
 
-#if SENTRY_HAS_UIKIT
+#if UIKIT_LINKED
 + (BOOL)avoidSender:(id)sender forTarget:(id)target action:(NSString *)action
 {
-    if ([sender isKindOfClass:[SENTRY_UITextField class]]) {
+    if ([sender isKindOfClass:[UITextField class]]) {
         // This is required to avoid creating breadcrumbs for every key pressed in a text field.
         // Textfield may invoke many types of event, in order to check if is a
         // `UIControlEventEditingChanged` we need to compare the current action to all events
@@ -180,11 +179,11 @@ SentryBreadcrumbTracker ()
     }
     return NO;
 }
-#endif // SENTRY_HAS_UIKIT
+#endif // UIKIT_LINKED
 
 - (void)swizzleSendAction
 {
-#if SENTRY_HAS_UIKIT
+#if UIKIT_LINKED
     SentryBreadcrumbTracker *__weak weakSelf = self;
     [SentryDependencyContainer.sharedInstance.swizzleWrapper
         swizzleSendAction:^(NSString *action, id target, id sender, UIEvent *event) {
@@ -208,14 +207,14 @@ SentryBreadcrumbTracker ()
         }
                    forKey:SentryBreadcrumbTrackerSwizzleSendAction];
 
-#else // !SENTRY_HAS_UIKIT
+#else // !UIKIT_LINKED
     SENTRY_LOG_DEBUG(@"NO UIKit -> [SentryBreadcrumbTracker swizzleSendAction] does nothing.");
-#endif // SENTRY_HAS_UIKIT
+#endif // UIKIT_LINKED
 }
 
 - (void)swizzleViewDidAppear
 {
-#if SENTRY_HAS_UIKIT
+#if UIKIT_LINKED
 
     // SentrySwizzleInstanceMethod declaration shadows a local variable. The swizzling is working
     // fine and we accept this warning.
@@ -235,7 +234,7 @@ SentryBreadcrumbTracker ()
     mode = SentrySwizzleModeAlways;
 #    endif // defined(TEST) || defined(TESTCI)
 
-    SentrySwizzleInstanceMethod(SENTRY_UIViewController, selector, SentrySWReturnType(void),
+    SentrySwizzleInstanceMethod(UIViewController, selector, SentrySWReturnType(void),
         SentrySWArguments(BOOL animated), SentrySWReplacement({
             SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:kSentryLevelInfo
                                                                      category:@"ui.lifecycle"];
@@ -248,12 +247,12 @@ SentryBreadcrumbTracker ()
         }),
         mode, swizzleViewDidAppearKey);
 #    pragma clang diagnostic pop
-#else // !SENTRY_HAS_UIKIT
+#else // !UIKIT_LINKED
     SENTRY_LOG_DEBUG(@"NO UIKit -> [SentryBreadcrumbTracker swizzleViewDidAppear] does nothing.");
-#endif // SENTRY_HAS_UIKIT
+#endif // UIKIT_LINKED
 }
 
-#if SENTRY_HAS_UIKIT
+#if UIKIT_LINKED
 + (NSDictionary *)extractDataFromView:(UIView *)view
 {
     NSMutableDictionary *result =
@@ -267,7 +266,7 @@ SentryBreadcrumbTracker ()
         [result setValue:view.accessibilityIdentifier forKey:@"accessibilityIdentifier"];
     }
 
-    if ([view isKindOfClass:[SENTRY_UIButton class]]) {
+    if ([view isKindOfClass:[UIButton class]]) {
         UIButton *button = (UIButton *)view;
         if (button.currentTitle && ![button.currentTitle isEqual:@""]) {
             [result setValue:[button currentTitle] forKey:@"title"];
@@ -312,7 +311,7 @@ SentryBreadcrumbTracker ()
 
     return info;
 }
-#endif // SENTRY_HAS_UIKIT
+#endif // UIKIT_LINKED
 
 @end
 

@@ -2,6 +2,8 @@
 #import "SentryDependencyContainer.h"
 #import "SentryDispatchQueueWrapper.h"
 
+#if TARGET_OS_IOS && UIKIT_LINKED
+
 NS_ASSUME_NONNULL_BEGIN
 
 @interface
@@ -11,8 +13,6 @@ SentryUIDeviceWrapper ()
 @end
 
 @implementation SentryUIDeviceWrapper
-
-#if TARGET_OS_IOS
 
 - (void)start
 {
@@ -34,7 +34,7 @@ SentryUIDeviceWrapper ()
 {
     BOOL needsCleanUp = self.cleanupDeviceOrientationNotifications;
     BOOL needsDisablingBattery = self.cleanupBatteryMonitoring;
-    UIDevice *device = [SENTRY_UIDevice currentDevice];
+    UIDevice *device = [UIDevice currentDevice];
     [SentryDependencyContainer.sharedInstance.dispatchQueueWrapper dispatchOnMainQueue:^{
         if (needsCleanUp) {
             [device endGeneratingDeviceOrientationNotifications];
@@ -52,26 +52,26 @@ SentryUIDeviceWrapper ()
 
 - (UIDeviceOrientation)orientation
 {
-    return (UIDeviceOrientation)[SENTRY_UIDevice currentDevice].orientation;
+    return (UIDeviceOrientation)[UIDevice currentDevice].orientation;
 }
 
 - (BOOL)isBatteryMonitoringEnabled
 {
-    return [SENTRY_UIDevice currentDevice].isBatteryMonitoringEnabled;
+    return [UIDevice currentDevice].isBatteryMonitoringEnabled;
 }
 
 - (UIDeviceBatteryState)batteryState
 {
-    return (UIDeviceBatteryState)[SENTRY_UIDevice currentDevice].batteryState;
+    return (UIDeviceBatteryState)[UIDevice currentDevice].batteryState;
 }
 
 - (float)batteryLevel
 {
-    return [SENTRY_UIDevice currentDevice].batteryLevel;
+    return [UIDevice currentDevice].batteryLevel;
 }
-
-#endif
 
 @end
 
 NS_ASSUME_NONNULL_END
+
+#endif // TARGET_OS_IOS && UIKIT_LINKED

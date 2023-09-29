@@ -6,133 +6,17 @@
 #    define SENTRY_EXTERN extern __attribute__((visibility("default")))
 #endif
 
-#if TARGET_OS_IOS || TARGET_OS_TV
-#    define SENTRY_HAS_UIKIT 1
+#if SENTRY_TARGET_MACOS
+#    define SENTRY_TARGET_MACOS 1
 #else
-#    define SENTRY_HAS_UIKIT 0
+#    define SENTRY_TARGET_MACOS 0
 #endif
 
-#if TARGET_OS_IOS || TARGET_OS_OSX || TARGET_OS_MACCATALYST
+#if TARGET_OS_IOS || SENTRY_TARGET_MACOS
 #    define SENTRY_HAS_METRIC_KIT 1
 #else
 #    define SENTRY_HAS_METRIC_KIT 0
 #endif
-
-#if SENTRY_HAS_UIKIT
-
-#    import <UIKit/UIKit.h>
-
-#    define SENTRY_UIDevice UIDevice
-#    define SENTRY_UIButton UIButton
-#    define SENTRY_UITextField UITextField
-#    define SENTRY_UIViewController UIViewController
-#    define SENTRY_UIView UIView
-#    define SENTRY_UIBarButtonItem UIBarButtonItem
-#    define SENTRY_UISegmentedControl UISegmentedControl
-#    define SENTRY_UIPageControl UIPageControl
-#    define SENTRY_UIApplication UIApplication
-#    define SENTRY_UIWindow UIWindow
-
-#    define SENTRY_UIApplicationDidBecomeActiveNotification UIApplicationDidBecomeActiveNotification
-#    define SENTRY_UIApplicationWillResignActiveNotification                                       \
-        UIApplicationWillResignActiveNotification
-#    define SENTRY_UIApplicationWillTerminateNotification UIApplicationWillTerminateNotification
-#    define SENTRY_UIKeyboardDidShowNotification UIKeyboardDidShowNotification
-#    define SENTRY_UIKeyboardDidHideNotification UIKeyboardDidHideNotification
-#    define SENTRY_UIApplicationUserDidTakeScreenshotNotification                                  \
-        UIApplicationUserDidTakeScreenshotNotification
-#    define SENTRY_UIDeviceBatteryLevelDidChangeNotification                                       \
-        UIDeviceBatteryLevelDidChangeNotification
-#    define SENTRY_UIDeviceBatteryStateDidChangeNotification                                       \
-        UIDeviceBatteryStateDidChangeNotification
-#    define SENTRY_UIDeviceOrientationDidChangeNotification UIDeviceOrientationDidChangeNotification
-#    define SENTRY_UIDeviceOrientationDidChangeNotification UIDeviceOrientationDidChangeNotification
-#    define SENTRY_UIApplicationDidEnterBackgroundNotification                                     \
-        UIApplicationDidEnterBackgroundNotification
-#    define SENTRY_UIApplicationDidReceiveMemoryWarningNotification                                \
-        UIApplicationDidReceiveMemoryWarningNotification
-#    define SENTRY_UIApplicationDidFinishLaunchingNotification                                     \
-        UIApplicationDidFinishLaunchingNotification
-#    define SENTRY_UIWindowDidBecomeVisibleNotification UIWindowDidBecomeVisibleNotification
-#    define SENTRY_UISceneWillConnectNotification UISceneWillConnectNotification
-#    define SENTRY_UIApplicationWillEnterForegroundNotification                                    \
-        UIApplicationWillEnterForegroundNotification
-#    define SENTRY_UIApplicationWillEnterForegroundNotification                                    \
-        UIApplicationWillEnterForegroundNotification
-
-#    if !UIKIT_LINKED
-#        undef SENTRY_UIDevice
-#        undef SENTRY_UIButton
-#        undef SENTRY_UITextField
-#        undef SENTRY_UIViewController
-#        undef SENTRY_UIView
-#        undef SENTRY_UIBarButtonItem
-#        undef SENTRY_UISegmentedControl
-#        undef SENTRY_UIPageControl
-#        undef SENTRY_UIApplication
-#        undef SENTRY_UIWindow
-
-#        undef SENTRY_UIApplicationDidBecomeActiveNotification
-#        undef SENTRY_UIApplicationWillResignActiveNotification
-#        undef SENTRY_UIApplicationWillTerminateNotification
-#        undef SENTRY_UIKeyboardDidShowNotification
-#        undef SENTRY_UIKeyboardDidHideNotification
-#        undef SENTRY_UIApplicationUserDidTakeScreenshotNotification
-#        undef SENTRY_UIDeviceBatteryLevelDidChangeNotification
-#        undef SENTRY_UIDeviceBatteryStateDidChangeNotification
-#        undef SENTRY_UIDeviceOrientationDidChangeNotification
-#        undef SENTRY_UIDeviceOrientationDidChangeNotification
-#        undef SENTRY_UIApplicationDidEnterBackgroundNotification
-#        undef SENTRY_UIApplicationDidReceiveMemoryWarningNotification
-#        undef SENTRY_UIApplicationDidFinishLaunchingNotification
-#        undef SENTRY_UIWindowDidBecomeVisibleNotification
-#        undef SENTRY_UISceneWillConnectNotification
-#        undef SENTRY_UIApplicationWillEnterForegroundNotification
-#        undef SENTRY_UIApplicationWillEnterForegroundNotification
-
-#        define SENTRY_UIDevice NSClassFromString(@"UIDevice")
-#        define SENTRY_UIButton NSClassFromString(@"UIButton")
-#        define SENTRY_UITextField NSClassFromString(@"UITextField")
-#        define SENTRY_UIViewController NSClassFromString(@"UIViewController")
-#        define SENTRY_UIView NSClassFromString(@"UIView")
-#        define SENTRY_UIBarButtonItem NSClassFromString(@"UIBarButtonItem")
-#        define SENTRY_UISegmentedControl NSClassFromString(@"UISegmentedControl")
-#        define SENTRY_UIPageControl NSClassFromString(@"UIPageControl")
-#        define SENTRY_UIApplication NSClassFromString(@"UIApplication")
-#        define SENTRY_UIWindow NSClassFromString(@"UIWindow")
-
-#        define SENTRY_UIApplicationDidBecomeActiveNotification                                    \
-            @"UIApplicationDidBecomeActiveNotification"
-#        define SENTRY_UIApplicationWillResignActiveNotification                                   \
-            @"UIApplicationWillResignActiveNotification"
-#        define SENTRY_UIApplicationWillTerminateNotification                                      \
-            @"UIApplicationWillTerminateNotification"
-#        define SENTRY_UIKeyboardDidShowNotification @"UIKeyboardDidShowNotification"
-#        define SENTRY_UIKeyboardDidHideNotification @"UIKeyboardDidHideNotification"
-#        define SENTRY_UIApplicationUserDidTakeScreenshotNotification                              \
-            @"UIApplicationUserDidTakeScreenshotNotification"
-#        define SENTRY_UIDeviceBatteryLevelDidChangeNotification                                   \
-            @"UIDeviceBatteryLevelDidChangeNotification"
-#        define SENTRY_UIDeviceBatteryStateDidChangeNotification                                   \
-            @"UIDeviceBatteryStateDidChangeNotification"
-#        define SENTRY_UIDeviceOrientationDidChangeNotification                                    \
-            @"UIDeviceOrientationDidChangeNotification"
-#        define SENTRY_UIDeviceOrientationDidChangeNotification                                    \
-            @"UIDeviceOrientationDidChangeNotification"
-#        define SENTRY_UIApplicationDidEnterBackgroundNotification                                 \
-            @"UIApplicationDidEnterBackgroundNotification"
-#        define SENTRY_UIApplicationDidReceiveMemoryWarningNotification                            \
-            @"UIApplicationDidReceiveMemoryWarningNotification"
-#        define SENTRY_UIApplicationDidFinishLaunchingNotification                                 \
-            @"UIApplicationDidFinishLaunchingNotification"
-#        define SENTRY_UIWindowDidBecomeVisibleNotification @"UIWindowDidBecomeVisibleNotification"
-#        define SENTRY_UISceneWillConnectNotification @"UISceneWillConnectNotification"
-#        define SENTRY_UIApplicationWillEnterForegroundNotification                                \
-            @"UIApplicationWillEnterForegroundNotification"
-#        define SENTRY_UIApplicationWillEnterForegroundNotification                                \
-            @"UIApplicationWillEnterForegroundNotification"
-#    endif // !UIKIT_LINKED
-#endif // SENTRY_HAS_UIKIT
 
 #define SENTRY_NO_INIT                                                                             \
     -(instancetype)init NS_UNAVAILABLE;                                                            \

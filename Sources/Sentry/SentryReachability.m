@@ -47,13 +47,13 @@ NSString *const SentryConnectivityNone = @"none";
 BOOL
 SentryConnectivityShouldReportChange(SCNetworkReachabilityFlags flags)
 {
-#    if SENTRY_HAS_UIKIT
+#    if UIKIT_LINKED
     // kSCNetworkReachabilityFlagsIsWWAN does not exist on macOS
     const SCNetworkReachabilityFlags importantFlags
         = kSCNetworkReachabilityFlagsIsWWAN | kSCNetworkReachabilityFlagsReachable;
-#    else // !SENTRY_HAS_UIKIT
+#    else // !UIKIT_LINKED
     const SCNetworkReachabilityFlags importantFlags = kSCNetworkReachabilityFlagsReachable;
-#    endif // SENTRY_HAS_UIKIT
+#    endif // UIKIT_LINKED
 
     // Check if the reported state is different from the last known state (if any)
     SCNetworkReachabilityFlags newFlags = flags & importantFlags;
@@ -72,13 +72,13 @@ NSString *
 SentryConnectivityFlagRepresentation(SCNetworkReachabilityFlags flags)
 {
     BOOL connected = (flags & kSCNetworkReachabilityFlagsReachable) != 0;
-#    if SENTRY_HAS_UIKIT
+#    if UIKIT_LINKED
     return connected ? ((flags & kSCNetworkReachabilityFlagsIsWWAN) ? SentryConnectivityCellular
                                                                     : SentryConnectivityWiFi)
                      : SentryConnectivityNone;
-#    else // !SENTRY_HAS_UIKIT
+#    else // !UIKIT_LINKED
     return connected ? SentryConnectivityWiFi : SentryConnectivityNone;
-#    endif // SENTRY_HAS_UIKIT
+#    endif // UIKIT_LINKED
 }
 
 /**

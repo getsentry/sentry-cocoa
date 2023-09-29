@@ -7,6 +7,8 @@
 #import "SentryLog.h"
 #import "SentryNSNotificationCenterWrapper.h"
 
+#if TARGET_OS_IOS && UIKIT_LINKED
+
 @interface
 SentrySystemEventBreadcrumbs ()
 @property (nonatomic, weak) id<SentryBreadcrumbDelegate> delegate;
@@ -28,35 +30,26 @@ SentrySystemEventBreadcrumbs ()
 
 - (void)startWithDelegate:(id<SentryBreadcrumbDelegate>)delegate
 {
-#if TARGET_OS_IOS
-    UIDevice *currentDevice = [SENTRY_UIDevice currentDevice];
+    UIDevice *currentDevice = [UIDevice currentDevice];
     [self startWithDelegate:delegate currentDevice:currentDevice];
-#else
-    SENTRY_LOG_DEBUG(@"NO iOS -> [SentrySystemEventsBreadcrumbs.start] does nothing.");
-#endif
 }
 
 - (void)stop
 {
-#if TARGET_OS_IOS
     // Remove the observers with the most specific detail possible, see
     // https://developer.apple.com/documentation/foundation/nsnotificationcenter/1413994-removeobserver
-    [self.notificationCenterWrapper removeObserver:self name:SENTRY_UIKeyboardDidShowNotification];
-    [self.notificationCenterWrapper removeObserver:self name:SENTRY_UIKeyboardDidHideNotification];
-    [self.notificationCenterWrapper
-        removeObserver:self
-                  name:SENTRY_UIApplicationUserDidTakeScreenshotNotification];
-    [self.notificationCenterWrapper
-        removeObserver:self
-                  name:SENTRY_UIDeviceBatteryLevelDidChangeNotification];
-    [self.notificationCenterWrapper
-        removeObserver:self
-                  name:SENTRY_UIDeviceBatteryStateDidChangeNotification];
+    [self.notificationCenterWrapper removeObserver:self name:UIKeyboardDidShowNotification];
+    [self.notificationCenterWrapper removeObserver:self name:UIKeyboardDidHideNotification];
     [self.notificationCenterWrapper removeObserver:self
-                                              name:SENTRY_UIDeviceOrientationDidChangeNotification];
+                                              name:UIApplicationUserDidTakeScreenshotNotification];
     [self.notificationCenterWrapper removeObserver:self
-                                              name:SENTRY_UIDeviceOrientationDidChangeNotification];
-#endif
+                                              name:UIDeviceBatteryLevelDidChangeNotification];
+    [self.notificationCenterWrapper removeObserver:self
+                                              name:UIDeviceBatteryStateDidChangeNotification];
+    [self.notificationCenterWrapper removeObserver:self
+                                              name:UIDeviceOrientationDidChangeNotification];
+    [self.notificationCenterWrapper removeObserver:self
+                                              name:UIDeviceOrientationDidChangeNotification];
 }
 
 - (void)dealloc
@@ -66,7 +59,6 @@ SentrySystemEventBreadcrumbs ()
     [self.notificationCenterWrapper removeObserver:self];
 }
 
-#if TARGET_OS_IOS
 /**
  * Only used for testing, call startWithDelegate instead.
  */
@@ -85,9 +77,7 @@ SentrySystemEventBreadcrumbs ()
     [self initScreenshotObserver];
     [self initTimezoneObserver];
 }
-#endif
 
-#if TARGET_OS_IOS
 - (void)initBatteryObserver:(UIDevice *)currentDevice
 {
     if (currentDevice.batteryMonitoringEnabled == NO) {
@@ -97,13 +87,13 @@ SentrySystemEventBreadcrumbs ()
     // Posted when the battery level changes.
     [self.notificationCenterWrapper addObserver:self
                                        selector:@selector(batteryStateChanged:)
-                                           name:SENTRY_UIDeviceBatteryLevelDidChangeNotification
+                                           name:UIDeviceBatteryLevelDidChangeNotification
                                          object:currentDevice];
 
     // Posted when battery state changes.
     [self.notificationCenterWrapper addObserver:self
                                        selector:@selector(batteryStateChanged:)
-                                           name:SENTRY_UIDeviceBatteryStateDidChangeNotification
+                                           name:UIDeviceBatteryStateDidChangeNotification
                                          object:currentDevice];
 }
 
@@ -155,7 +145,7 @@ SentrySystemEventBreadcrumbs ()
     // Posted when the orientation of the device changes.
     [self.notificationCenterWrapper addObserver:self
                                        selector:@selector(orientationChanged:)
-                                           name:SENTRY_UIDeviceOrientationDidChangeNotification
+                                           name:UIDeviceOrientationDidChangeNotification
                                          object:currentDevice];
 }
 
@@ -187,12 +177,12 @@ SentrySystemEventBreadcrumbs ()
     // Posted immediately after the display of the keyboard.
     [self.notificationCenterWrapper addObserver:self
                                        selector:@selector(systemEventTriggered:)
-                                           name:SENTRY_UIKeyboardDidShowNotification];
+                                           name:UIKeyboardDidShowNotification];
 
     // Posted immediately after the dismissal of the keyboard.
     [self.notificationCenterWrapper addObserver:self
                                        selector:@selector(systemEventTriggered:)
-                                           name:SENTRY_UIKeyboardDidHideNotification];
+                                           name:UIKeyboardDidHideNotification];
 }
 
 - (void)systemEventTriggered:(NSNotification *)notification
@@ -207,10 +197,9 @@ SentrySystemEventBreadcrumbs ()
 - (void)initScreenshotObserver
 {
     // it's only about the action, but not the SS itself
-    [self.notificationCenterWrapper
-        addObserver:self
-           selector:@selector(systemEventTriggered:)
-               name:SENTRY_UIApplicationUserDidTakeScreenshotNotification];
+    [self.notificationCenterWrapper addObserver:self
+                                       selector:@selector(systemEventTriggered:)
+                                           name:UIApplicationUserDidTakeScreenshotNotification];
 }
 
 - (void)initTimezoneObserver
@@ -265,6 +254,6 @@ SentrySystemEventBreadcrumbs ()
         storeTimezoneOffset:SentryDependencyContainer.sharedInstance.dateProvider.timezoneOffset];
 }
 
-#endif
-
 @end
+
+#endif // TARGET_OS_IOS && UIKIT_LINKED

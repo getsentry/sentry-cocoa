@@ -23,12 +23,12 @@
 @class SentryMXManager;
 #endif // SENTRY_HAS_METRIC_KIT
 
-#if SENTRY_HAS_UIKIT
+#if UIKIT_LINKED
 @class SentryFramesTracker;
 @class SentryScreenshot;
 @class SentryUIApplication;
 @class SentryViewHierarchy;
-#endif // SENTRY_HAS_UIKIT
+#endif // UIKIT_LINKED
 
 #if TARGET_OS_IOS
 @class SentryUIDeviceWrapper;
@@ -69,14 +69,14 @@ SENTRY_NO_INIT
 @property (nonatomic, strong) SentryExtraContextProvider *extraContextProvider;
 @property (nonatomic, strong) SentrySysctl *sysctlWrapper;
 
-#if SENTRY_HAS_UIKIT
+#if UIKIT_LINKED
 @property (nonatomic, strong) SentryFramesTracker *framesTracker;
 #    if UIKIT_LINKED
 @property (nonatomic, strong) SentryScreenshot *screenshot;
 #    endif // UIKIT_LINKED
 @property (nonatomic, strong) SentryViewHierarchy *viewHierarchy;
 @property (nonatomic, strong) SentryUIApplication *application;
-#endif // SENTRY_HAS_UIKIT
+#endif // UIKIT_LINKED
 
 #if TARGET_OS_IOS
 @property (nonatomic, strong) SentryUIDeviceWrapper *uiDeviceWrapper;

@@ -25,11 +25,11 @@ SentrySubClassFinder ()
     return self;
 }
 
-#if SENTRY_HAS_UIKIT
+#if UIKIT_LINKED
 - (void)actOnSubclassesOfViewControllerInImage:(NSString *)imageName block:(void (^)(Class))block;
 {
     [self.dispatchQueue dispatchAsyncWithBlock:^{
-        Class viewControllerClass = [SENTRY_UIViewController class];
+        Class viewControllerClass = [UIViewController class];
         if (viewControllerClass == nil) {
             SENTRY_LOG_DEBUG(@"UIViewController class not found.");
             return;
@@ -74,7 +74,7 @@ SentrySubClassFinder ()
         }];
     }];
 }
-#endif // SENTRY_HAS_UIKIT
+#endif // UIKIT_LINKED
 
 - (BOOL)isClass:(Class)childClass subClassOf:(Class)parentClass
 {

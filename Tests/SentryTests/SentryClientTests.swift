@@ -760,7 +760,7 @@ class SentryClientTest: XCTestCase {
         }
     }
 
-#if SENTRY_HAS_UIKIT
+#if UIKIT_LINKED
     func testCaptureExceptionWithAppStateInForegroudDoNotAddIfAppStateNil() {
         let event = TestData.event
         fixture.getSut().capture(event: event)

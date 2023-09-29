@@ -1,6 +1,6 @@
 #import "SentryUIViewControllerSwizzling.h"
 
-#if SENTRY_HAS_UIKIT
+#if UIKIT_LINKED
 
 #    import "SentryDefaultObjCRuntimeWrapper.h"
 #    import "SentryDefines.h"
@@ -73,7 +73,7 @@ SentryUIViewControllerSwizzling ()
                 [NSNotificationCenter.defaultCenter
                     addObserver:self
                        selector:@selector(swizzleRootViewControllerFromSceneDelegateNotification:)
-                           name:SENTRY_UISceneWillConnectNotification
+                           name:UISceneWillConnectNotification
                          object:nil];
             } else {
                 SENTRY_LOG_DEBUG(@"UIViewControllerSwizzling: iOS version older then 13. There is "
@@ -187,11 +187,11 @@ SentryUIViewControllerSwizzling ()
 - (void)swizzleRootViewControllerFromSceneDelegateNotification:(NSNotification *)notification
 {
     if (@available(iOS 13.0, tvOS 13.0, *)) {
-        if (![notification.name isEqualToString:SENTRY_UISceneWillConnectNotification])
+        if (![notification.name isEqualToString:UISceneWillConnectNotification])
             return;
 
         [NSNotificationCenter.defaultCenter removeObserver:self
-                                                      name:SENTRY_UISceneWillConnectNotification
+                                                      name:UISceneWillConnectNotification
                                                     object:nil];
 
         // The object of a UISceneWillConnectNotification should be a NSWindowScene
@@ -211,7 +211,7 @@ SentryUIViewControllerSwizzling ()
 
         NSArray *windowList = windows;
         for (id window in windowList) {
-            if ([window isKindOfClass:[SENTRY_UIWindow class]]
+            if ([window isKindOfClass:[UIWindow class]]
                 && ((UIWindow *)window).rootViewController != nil) {
                 [self
                     swizzleRootViewControllerAndDescendant:((UIWindow *)window).rootViewController];
@@ -299,7 +299,7 @@ SentryUIViewControllerSwizzling ()
 - (void)swizzleUIViewController
 {
     SEL selector = NSSelectorFromString(@"loadView");
-    SentrySwizzleInstanceMethod(SENTRY_UIViewController, selector, SentrySWReturnType(void),
+    SentrySwizzleInstanceMethod(UIViewController, selector, SentrySWReturnType(void),
         SentrySWArguments(), SentrySWReplacement({
             [SentryUIViewControllerPerformanceTracker.shared
                 viewControllerLoadView:self
@@ -339,8 +339,7 @@ SentryUIViewControllerSwizzling ()
     // workaround, we skip swizzling the loadView and accept that the SKD doesn't create a span for
     // loadView if the UIViewController doesn't implement it.
     SEL selector = NSSelectorFromString(@"loadView");
-    IMP viewControllerImp
-        = class_getMethodImplementation([SENTRY_UIViewController class], selector);
+    IMP viewControllerImp = class_getMethodImplementation([UIViewController class], selector);
     IMP classLoadViewImp = class_getMethodImplementation(class, selector);
     if (viewControllerImp == classLoadViewImp) {
         return;
@@ -428,4 +427,4 @@ SentryUIViewControllerSwizzling ()
 
 #    pragma clang diagnostic pop
 
-#endif // SENTRY_HAS_UIKIT
+#endif // UIKIT_LINKED

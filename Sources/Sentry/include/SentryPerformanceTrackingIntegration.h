@@ -1,6 +1,6 @@
 #import "SentryDefines.h"
 
-#if SENTRY_HAS_UIKIT
+#if UIKIT_LINKED
 
 #    import "SentryBaseIntegration.h"
 #    import "SentryIntegrationProtocol.h"
@@ -19,4 +19,4 @@ NS_ASSUME_NONNULL_BEGIN
 
 NS_ASSUME_NONNULL_END
 
-#endif // SENTRY_HAS_UIKIT
+#endif // UIKIT_LINKED

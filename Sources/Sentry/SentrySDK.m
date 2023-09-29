@@ -153,9 +153,9 @@ static NSUInteger startInvocations;
 
     [SentryCrashWrapper.sharedInstance startBinaryImageCache];
     [SentryDependencyContainer.sharedInstance.binaryImageCache start];
-#if TARGET_OS_IOS
+#if TARGET_OS_IOS && UIKIT_LINKED
     [SentryDependencyContainer.sharedInstance.uiDeviceWrapper start];
-#endif
+#endif // TARGET_OS_IOS && UIKIT_LINKED
 }
 
 + (void)startWithConfigureOptions:(void (^)(SentryOptions *options))configureOptions
@@ -394,7 +394,7 @@ static NSUInteger startInvocations;
 
     SENTRY_LOG_DEBUG(@"Uninstalled all integrations.");
 
-#if SENTRY_HAS_UIKIT
+#if UIKIT_LINKED
     // force the AppStateManager to unsubscribe, see
     // https://github.com/getsentry/sentry-cocoa/issues/2455
     [[SentryDependencyContainer sharedInstance].appStateManager stopWithForce:YES];
@@ -408,9 +408,9 @@ static NSUInteger startInvocations;
     [SentryCrashWrapper.sharedInstance stopBinaryImageCache];
     [SentryDependencyContainer.sharedInstance.binaryImageCache stop];
 
-#if TARGET_OS_IOS
+#if TARGET_OS_IOS && UIKIT_LINKED
     [SentryDependencyContainer.sharedInstance.uiDeviceWrapper stop];
-#endif
+#endif // TARGET_OS_IOS && UIKIT_LINKED
 
     [SentryDependencyContainer reset];
     SENTRY_LOG_DEBUG(@"SDK closed!");

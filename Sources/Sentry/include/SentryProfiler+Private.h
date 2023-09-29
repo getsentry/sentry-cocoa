@@ -8,9 +8,9 @@
 @class SentryProfilerState;
 @class SentrySample;
 @class SentryHub;
-#    if SENTRY_HAS_UIKIT
+#    if UIKIT_LINKED
 @class SentryScreenFrames;
-#    endif // SENTRY_HAS_UIKIT
+#    endif // UIKIT_LINKED
 @class SentryTransaction;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -19,19 +19,19 @@ NSMutableDictionary<NSString *, id> *serializedProfileData(
     NSDictionary<NSString *, id> *profileData, uint64_t startSystemTime, uint64_t endSystemTime,
     NSString *truncationReason, NSDictionary<NSString *, id> *serializedMetrics,
     NSArray<SentryDebugMeta *> *debugMeta, SentryHub *hub
-#    if SENTRY_HAS_UIKIT
+#    if UIKIT_LINKED
     ,
     SentryScreenFrames *gpuData
-#    endif // SENTRY_HAS_UIKIT
+#    endif // UIKIT_LINKED
 );
 
 @interface
 SentryProfiler ()
 
 @property (strong, nonatomic) SentryProfilerState *_state;
-#    if SENTRY_HAS_UIKIT
+#    if UIKIT_LINKED
 @property (strong, nonatomic) SentryScreenFrames *_screenFrameData;
-#    endif // SENTRY_HAS_UIKIT
+#    endif // UIKIT_LINKED
 
 @end
 

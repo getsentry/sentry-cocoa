@@ -1,6 +1,6 @@
 #import "SentryUIViewControllerPerformanceTracker.h"
 
-#if SENTRY_HAS_UIKIT
+#if UIKIT_LINKED
 
 #    import "SentryFramesTracker.h"
 #    import "SentryHub.h"
@@ -404,4 +404,4 @@ SentryUIViewControllerPerformanceTracker ()
 
 @end
 
-#endif // SENTRY_HAS_UIKIT
+#endif // UIKIT_LINKED

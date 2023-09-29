@@ -2,7 +2,7 @@
 
 #import "SentryDefines.h"
 
-#if TARGET_OS_OSX || TARGET_OS_MACCATALYST
+#if SENTRY_TARGET_MACOS
 #    import <Cocoa/Cocoa.h>
 #endif
 
@@ -10,23 +10,23 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation SentryNSNotificationCenterWrapper
 
-#if SENTRY_HAS_UIKIT
+#if UIKIT_LINKED
 + (NSNotificationName)didBecomeActiveNotificationName
 {
-    return SENTRY_UIApplicationDidBecomeActiveNotification;
+    return UIApplicationDidBecomeActiveNotification;
 }
 
 + (NSNotificationName)willResignActiveNotificationName
 {
-    return SENTRY_UIApplicationWillResignActiveNotification;
+    return UIApplicationWillResignActiveNotification;
 }
 
 + (NSNotificationName)willTerminateNotificationName
 {
-    return SENTRY_UIApplicationWillTerminateNotification;
+    return UIApplicationWillTerminateNotification;
 }
 
-#elif TARGET_OS_OSX || TARGET_OS_MACCATALYST
+#elif SENTRY_TARGET_MACOS
 + (NSNotificationName)didBecomeActiveNotificationName
 {
     return NSApplicationDidBecomeActiveNotification;

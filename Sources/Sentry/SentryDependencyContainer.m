@@ -24,12 +24,12 @@
 #import <SentrySysctl.h>
 #import <SentryThreadWrapper.h>
 
-#if SENTRY_HAS_UIKIT
+#if UIKIT_LINKED
 #    import "SentryFramesTracker.h"
 #    import "SentryUIApplication.h"
 #    import <SentryScreenshot.h>
 #    import <SentryViewHierarchy.h>
-#endif // SENTRY_HAS_UIKIT
+#endif // UIKIT_LINKED
 
 #if TARGET_OS_IOS
 #    import "SentryUIDeviceWrapper.h"
@@ -147,7 +147,7 @@ static NSObject *sentryDependencyContainerLock;
     }
 }
 
-#if TARGET_OS_IOS
+#if TARGET_OS_IOS && UIKIT_LINKED
 - (SentryUIDeviceWrapper *)uiDeviceWrapper
 {
     if (_uiDeviceWrapper == nil) {
@@ -159,9 +159,9 @@ static NSObject *sentryDependencyContainerLock;
     }
     return _uiDeviceWrapper;
 }
-#endif // TARGET_OS_IOS
+#endif // TARGET_OS_IOS && UIKIT_LINKED
 
-#if SENTRY_HAS_UIKIT
+#if UIKIT_LINKED
 
 #    if UIKIT_LINKED
 - (SentryScreenshot *)screenshot
@@ -213,7 +213,7 @@ static NSObject *sentryDependencyContainerLock;
     }
     return _framesTracker;
 }
-#endif // SENTRY_HAS_UIKIT
+#endif // UIKIT_LINKED
 
 - (SentrySwizzleWrapper *)swizzleWrapper
 {

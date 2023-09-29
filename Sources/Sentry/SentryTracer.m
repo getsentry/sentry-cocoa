@@ -34,24 +34,24 @@
 #    import "SentryProfilesSampler.h"
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
-#if SENTRY_HAS_UIKIT
+#if UIKIT_LINKED
 #    import "SentryAppStartMeasurement.h"
 #    import "SentryFramesTracker.h"
 #    import "SentryUIViewControllerPerformanceTracker.h"
 #    import <SentryScreenFrames.h>
-#endif // SENTRY_HAS_UIKIT
+#endif // UIKIT_LINKED
 
 NS_ASSUME_NONNULL_BEGIN
 
 static const void *spanTimestampObserver = &spanTimestampObserver;
 
-#if SENTRY_HAS_UIKIT
+#if UIKIT_LINKED
 /**
  * The maximum amount of seconds the app start measurement end time and the start time of the
  * transaction are allowed to be apart.
  */
 static const NSTimeInterval SENTRY_APP_START_MEASUREMENT_DIFFERENCE = 5.0;
-#endif // SENTRY_HAS_UIKIT
+#endif // UIKIT_LINKED
 
 static const NSTimeInterval SENTRY_AUTO_TRANSACTION_MAX_DURATION = 500.0;
 static const NSTimeInterval SENTRY_AUTO_TRANSACTION_DEADLINE = 30.0;
@@ -79,9 +79,9 @@ SentryTracer ()
     /** Wether the tracer should wait for child spans to finish before finishing itself. */
     SentryTraceContext *_traceContext;
 
-#if SENTRY_HAS_UIKIT
+#if UIKIT_LINKED
     SentryAppStartMeasurement *appStartMeasurement;
-#endif // SENTRY_HAS_UIKIT
+#endif // UIKIT_LINKED
     NSMutableDictionary<NSString *, SentryMeasurementValue *> *_measurements;
     dispatch_block_t _idleTimeoutBlock;
     NSMutableArray<id<SentrySpan>> *_children;
@@ -89,11 +89,11 @@ SentryTracer ()
     NSDate *_originalStartTimestamp;
     NSObject *_idleTimeoutLock;
 
-#if SENTRY_HAS_UIKIT
+#if UIKIT_LINKED
     NSUInteger initTotalFrames;
     NSUInteger initSlowFrames;
     NSUInteger initFrozenFrames;
-#endif // SENTRY_HAS_UIKIT
+#endif // UIKIT_LINKED
 }
 
 static NSObject *appStartMeasurementLock;
@@ -136,9 +136,9 @@ static BOOL appStartMeasurementRead;
         _configuration.timerFactory = [[SentryNSTimerFactory alloc] init];
     }
 
-#if SENTRY_HAS_UIKIT
+#if UIKIT_LINKED
     appStartMeasurement = [self getAppStartMeasurement];
-#endif // SENTRY_HAS_UIKIT
+#endif // UIKIT_LINKED
 
     _idleTimeoutLock = [[NSObject alloc] init];
     if ([self hasIdleTimeout]) {
@@ -149,7 +149,7 @@ static BOOL appStartMeasurementRead;
         [self startDeadlineTimer];
     }
 
-#if SENTRY_HAS_UIKIT
+#if UIKIT_LINKED
     // Store current amount of frames at the beginning to be able to calculate the amount of
     // frames at the end of the transaction.
     SentryFramesTracker *framesTracker = SentryDependencyContainer.sharedInstance.framesTracker;
@@ -159,7 +159,7 @@ static BOOL appStartMeasurementRead;
         initSlowFrames = currentFrames.slow;
         initFrozenFrames = currentFrames.frozen;
     }
-#endif // SENTRY_HAS_UIKIT
+#endif // UIKIT_LINKED
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
     if (_configuration.profilesSamplerDecision.decision == kSentrySampleDecisionYes) {
@@ -471,11 +471,11 @@ static BOOL appStartMeasurementRead;
         self.finishCallback = nil;
     }
 
-#if SENTRY_HAS_UIKIT
+#if UIKIT_LINKED
     if (appStartMeasurement != nil) {
         [self updateStartTime:appStartMeasurement.appStartTimestamp];
     }
-#endif // SENTRY_HAS_UIKIT
+#endif // UIKIT_LINKED
 
     // Prewarming can execute code up to viewDidLoad of a UIViewController, and keep the app in the
     // background. This can lead to auto-generated transactions lasting for minutes or even hours.
@@ -578,12 +578,12 @@ static BOOL appStartMeasurementRead;
 - (SentryTransaction *)toTransaction
 {
     NSUInteger capacity;
-#if SENTRY_HAS_UIKIT
+#if UIKIT_LINKED
     NSArray<id<SentrySpan>> *appStartSpans = [self buildAppStartSpans];
     capacity = _children.count + appStartSpans.count;
 #else
     capacity = _children.count;
-#endif // SENTRY_HAS_UIKIT
+#endif // UIKIT_LINKED
 
     NSMutableArray<id<SentrySpan>> *spans = [[NSMutableArray alloc] initWithCapacity:capacity];
 
@@ -591,9 +591,9 @@ static BOOL appStartMeasurementRead;
         [spans addObjectsFromArray:_children];
     }
 
-#if SENTRY_HAS_UIKIT
+#if UIKIT_LINKED
     [spans addObjectsFromArray:appStartSpans];
-#endif // SENTRY_HAS_UIKIT
+#endif // UIKIT_LINKED
 
     SentryTransaction *transaction = [[SentryTransaction alloc] initWithTrace:self children:spans];
     transaction.transaction = self.transactionContext.name;
@@ -623,14 +623,14 @@ static BOOL appStartMeasurementRead;
                                                                     isCrash:NO];
     }
 
-#if SENTRY_HAS_UIKIT
+#if UIKIT_LINKED
     [self addMeasurements:transaction];
-#endif // SENTRY_HAS_UIKIT
+#endif // UIKIT_LINKED
 
     return transaction;
 }
 
-#if SENTRY_HAS_UIKIT
+#if UIKIT_LINKED
 
 - (nullable SentryAppStartMeasurement *)getAppStartMeasurement
 {
@@ -796,7 +796,7 @@ static BOOL appStartMeasurementRead;
     }
 }
 
-#endif // SENTRY_HAS_UIKIT
+#endif // UIKIT_LINKED
 
 - (id<SentrySpan>)buildSpan:(SentrySpanId *)parentId
                   operation:(NSString *)operation

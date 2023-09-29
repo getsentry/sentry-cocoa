@@ -1,6 +1,6 @@
 #import <SentryUIEventTracker.h>
 
-#if SENTRY_HAS_UIKIT
+#if UIKIT_LINKED
 
 #    import "SentrySwizzleWrapper.h"
 #    import <SentryDependencyContainer.h>
@@ -134,7 +134,7 @@ SentryUIEventTracker ()
                     transactionName, bindToScope ? @"YES" : @"NO");
             }];
 
-            if ([[sender class] isSubclassOfClass:[SENTRY_UIView class]]) {
+            if ([[sender class] isSubclassOfClass:[UIView class]]) {
                 UIView *view = sender;
                 if (view.accessibilityIdentifier) {
                     [transaction setTagValue:view.accessibilityIdentifier
@@ -169,10 +169,10 @@ SentryUIEventTracker ()
 - (NSString *)getOperation:(id)sender
 {
     Class senderClass = [sender class];
-    if ([senderClass isSubclassOfClass:[SENTRY_UIButton class]] ||
-        [senderClass isSubclassOfClass:[SENTRY_UIBarButtonItem class]] ||
-        [senderClass isSubclassOfClass:[SENTRY_UISegmentedControl class]] ||
-        [senderClass isSubclassOfClass:[SENTRY_UIPageControl class]]) {
+    if ([senderClass isSubclassOfClass:[UIButton class]] ||
+        [senderClass isSubclassOfClass:[UIBarButtonItem class]] ||
+        [senderClass isSubclassOfClass:[UISegmentedControl class]] ||
+        [senderClass isSubclassOfClass:[UIPageControl class]]) {
         return SentrySpanOperationUIActionClick;
     }
 
@@ -218,4 +218,4 @@ SentryUIEventTracker ()
 
 NS_ASSUME_NONNULL_END
 
-#endif // SENTRY_HAS_UIKIT
+#endif // UIKIT_LINKED

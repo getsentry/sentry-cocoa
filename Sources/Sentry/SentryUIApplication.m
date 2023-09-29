@@ -1,15 +1,15 @@
 #import "SentryUIApplication.h"
 
-#if SENTRY_HAS_UIKIT
+#if UIKIT_LINKED
 
 @implementation SentryUIApplication
 
 - (UIApplication *)sharedApplication
 {
-    if (![SENTRY_UIApplication respondsToSelector:@selector(sharedApplication)])
+    if (![UIApplication respondsToSelector:@selector(sharedApplication)])
         return nil;
 
-    return [SENTRY_UIApplication performSelector:@selector(sharedApplication)];
+    return [UIApplication performSelector:@selector(sharedApplication)];
 }
 
 - (nullable id<UIApplicationDelegate>)getApplicationDelegate:(UIApplication *)application
@@ -56,4 +56,4 @@
 
 @end
 
-#endif // SENTRY_HAS_UIKIT
+#endif // UIKIT_LINKED

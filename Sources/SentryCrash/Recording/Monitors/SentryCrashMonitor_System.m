@@ -392,13 +392,13 @@ getDeviceAndAppHash(void)
 {
     NSMutableData *data = nil;
 
-#if SentryCrashCRASH_HAS_UIDEVICE
-    UIDevice *currentDevice = [SENTRY_UIDevice currentDevice];
+#if UIKIT_LINKED
+    UIDevice *currentDevice = [UIDevice currentDevice];
     if ([currentDevice respondsToSelector:@selector(identifierForVendor)]) {
         data = [NSMutableData dataWithLength:16];
         [currentDevice.identifierForVendor getUUIDBytes:data.mutableBytes];
     } else
-#endif
+#endif // UIKIT_LINKED
     {
         data = [NSMutableData dataWithLength:6];
         sentrycrashsysctl_getMacAddress("en0", [data mutableBytes]);
@@ -530,7 +530,7 @@ initialize(void)
         const struct mach_header *header = _dyld_get_image_header(0);
 
 #if SentryCrashCRASH_HAS_UIDEVICE
-        UIDevice *currentDevice = [SENTRY_UIDevice currentDevice];
+        UIDevice *currentDevice = [UIDevice currentDevice];
         g_systemData.systemName = cString(currentDevice.systemName);
         g_systemData.systemVersion = cString(currentDevice.systemVersion);
 #else

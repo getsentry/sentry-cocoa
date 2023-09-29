@@ -1,6 +1,6 @@
 #import "SentryDefines.h"
 
-#if SENTRY_HAS_UIKIT
+#if UIKIT_LINKED
 
 #    import "SentryBaseIntegration.h"
 #    import "SentryIntegrationProtocol.h"
@@ -9,4 +9,4 @@
 
 @end
 
-#endif // SENTRY_HAS_UIKIT
+#endif // UIKIT_LINKED

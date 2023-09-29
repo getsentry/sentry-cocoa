@@ -1,6 +1,6 @@
 #import <SentryScreenFrames.h>
 
-#if SENTRY_HAS_UIKIT
+#if UIKIT_LINKED
 
 @implementation SentryScreenFrames
 

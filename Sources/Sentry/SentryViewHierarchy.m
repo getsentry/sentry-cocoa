@@ -1,6 +1,6 @@
 #import "SentryViewHierarchy.h"
 
-#if SENTRY_HAS_UIKIT
+#if UIKIT_LINKED
 
 #    import "SentryCrashFileUtils.h"
 #    import "SentryCrashJSONCodec.h"
@@ -128,7 +128,7 @@ writeJSONDataToMemory(const char *const data, const int length, void *const user
     tryJson(sentrycrashjson_addFloatingPointElement(context, "alpha", view.alpha));
     tryJson(sentrycrashjson_addBooleanElement(context, "visible", !view.hidden));
 
-    if ([view.nextResponder isKindOfClass:[SENTRY_UIViewController class]]) {
+    if ([view.nextResponder isKindOfClass:[UIViewController class]]) {
         UIViewController *vc = (UIViewController *)view.nextResponder;
         if (vc.view == view) {
             const char *viewControllerClassName =
@@ -149,4 +149,4 @@ writeJSONDataToMemory(const char *const data, const int length, void *const user
 
 @end
 
-#endif // SENTRY_HAS_UIKIT
+#endif // UIKIT_LINKED

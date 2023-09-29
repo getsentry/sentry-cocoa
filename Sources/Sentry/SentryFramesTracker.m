@@ -1,6 +1,6 @@
 #import "SentryFramesTracker.h"
 
-#if SENTRY_HAS_UIKIT
+#if UIKIT_LINKED
 
 #    import "SentryCompiler.h"
 #    import "SentryCurrentDateProvider.h"
@@ -230,4 +230,4 @@ slowFrameThreshold(uint64_t actualFramesPerSecond)
 
 @end
 
-#endif // SENTRY_HAS_UIKIT
+#endif // UIKIT_LINKED

@@ -1,6 +1,6 @@
 #import "SentryAppStartMeasurement.h"
 
-#if SENTRY_HAS_UIKIT
+#if UIKIT_LINKED
 
 #    import "NSDate+SentryExtras.h"
 #    import <Foundation/Foundation.h>
@@ -45,4 +45,4 @@
 
 @end
 
-#endif // SENTRY_HAS_UIKIT
+#endif // UIKIT_LINKED

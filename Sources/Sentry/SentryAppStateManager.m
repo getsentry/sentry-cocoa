@@ -11,7 +11,7 @@
 #import <SentryNSNotificationCenterWrapper.h>
 #import <SentryOptions.h>
 
-#if SENTRY_HAS_UIKIT
+#if UIKIT_LINKED
 #    import <SentryInternalNotificationNames.h>
 #    import <SentryNSNotificationCenterWrapper.h>
 #endif
@@ -47,7 +47,7 @@ SentryAppStateManager ()
     return self;
 }
 
-#if SENTRY_HAS_UIKIT
+#if UIKIT_LINKED
 
 - (void)start
 {
@@ -178,7 +178,7 @@ SentryAppStateManager ()
     // Is the current process being traced or not? If it is a debugger is attached.
     bool isDebugging = self.crashWrapper.isBeingTraced;
 
-    UIDevice *device = [SENTRY_UIDevice currentDevice];
+    UIDevice *device = [UIDevice currentDevice];
     NSString *vendorId = [device.identifierForVendor UUIDString];
 
     return [[SentryAppState alloc] initWithReleaseName:self.options.releaseName

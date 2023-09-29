@@ -1,6 +1,6 @@
 #import "SentryViewHierarchyIntegration.h"
 
-#if SENTRY_HAS_UIKIT
+#if UIKIT_LINKED
 #    import "SentryAttachment+Private.h"
 #    import "SentryCrashC.h"
 #    import "SentryDependencyContainer.h"

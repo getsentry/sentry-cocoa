@@ -55,7 +55,7 @@ NS_ASSUME_NONNULL_BEGIN
         return NO;
     }
 
-#if SENTRY_HAS_UIKIT
+#if UIKIT_LINKED
     if ((integrationOptions & kIntegrationOptionEnableUIViewControllerTracing)
         && !options.enableUIViewControllerTracing) {
         [self logWithOptionName:@"enableUIViewControllerTracing"];
@@ -134,7 +134,7 @@ NS_ASSUME_NONNULL_BEGIN
         return NO;
     }
 
-#if SENTRY_HAS_UIKIT
+#if UIKIT_LINKED
     if ((integrationOptions & kIntegrationOptionAttachViewHierarchy)
         && !options.attachViewHierarchy) {
         [self logWithOptionName:@"attachViewHierarchy"];

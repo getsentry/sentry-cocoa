@@ -2,18 +2,18 @@
 #import <Foundation/Foundation.h>
 
 @class SentryCrashWrapper, SentryDispatchQueueWrapper;
-#if SENTRY_HAS_UIKIT
+#if UIKIT_LINKED
 @class SentryWatchdogTerminationLogic;
-#endif // SENTRY_HAS_UIKIT
+#endif // UIKIT_LINKED
 
 @interface SentrySessionCrashedHandler : NSObject
 
-#if SENTRY_HAS_UIKIT
+#if UIKIT_LINKED
 - (instancetype)initWithCrashWrapper:(SentryCrashWrapper *)crashWrapper
             watchdogTerminationLogic:(SentryWatchdogTerminationLogic *)watchdogTerminationLogic;
 #else
 - (instancetype)initWithCrashWrapper:(SentryCrashWrapper *)crashWrapper;
-#endif // SENTRY_HAS_UIKIT
+#endif // UIKIT_LINKED
 
 /**
  * When a crash happened the current session is ended as crashed, stored at a different

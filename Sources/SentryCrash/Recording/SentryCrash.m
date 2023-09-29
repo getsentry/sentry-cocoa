@@ -45,6 +45,10 @@
 // #define SentryCrashLogger_LocalLevel TRACE
 #import "SentryCrashLogger.h"
 
+#if UIKIT_LINKED
+#    import <UIKit/UIKit.h>
+#endif
+
 #include <inttypes.h>
 
 // ============================================================================
@@ -253,23 +257,23 @@ SentryCrash ()
         return false;
     }
 
-#if SentryCrashCRASH_HAS_UIAPPLICATION
+#if UIKIT_LINKED
     [self.notificationCenter addObserver:self
                                 selector:@selector(applicationDidBecomeActive)
-                                    name:SENTRY_UIApplicationDidBecomeActiveNotification];
+                                    name:UIApplicationDidBecomeActiveNotification];
     [self.notificationCenter addObserver:self
                                 selector:@selector(applicationWillResignActive)
-                                    name:SENTRY_UIApplicationWillResignActiveNotification];
+                                    name:UIApplicationWillResignActiveNotification];
     [self.notificationCenter addObserver:self
                                 selector:@selector(applicationDidEnterBackground)
-                                    name:SENTRY_UIApplicationDidEnterBackgroundNotification];
+                                    name:UIApplicationDidEnterBackgroundNotification];
     [self.notificationCenter addObserver:self
                                 selector:@selector(applicationWillEnterForeground)
-                                    name:SENTRY_UIApplicationWillEnterForegroundNotification];
+                                    name:UIApplicationWillEnterForegroundNotification];
     [self.notificationCenter addObserver:self
                                 selector:@selector(applicationWillTerminate)
-                                    name:SENTRY_UIApplicationWillTerminateNotification];
-#endif
+                                    name:UIApplicationWillTerminateNotification];
+#endif // UIKIT_LINKED
 #if SentryCrashCRASH_HAS_NSEXTENSION
     [self.notificationCenter addObserver:self
                                 selector:@selector(applicationDidBecomeActive)
@@ -283,7 +287,7 @@ SentryCrash ()
     [self.notificationCenter addObserver:self
                                 selector:@selector(applicationWillEnterForeground)
                                     name:NSExtensionHostWillEnterForegroundNotification];
-#endif
+#endif // SentryCrashCRASH_HAS_NSEXTENSION
 
     return true;
 }
@@ -296,18 +300,13 @@ SentryCrash ()
     self.onCrash = NULL;
     sentrycrash_uninstall();
 
-#if SentryCrashCRASH_HAS_UIAPPLICATION
-    [self.notificationCenter removeObserver:self
-                                       name:SENTRY_UIApplicationDidBecomeActiveNotification];
-    [self.notificationCenter removeObserver:self
-                                       name:SENTRY_UIApplicationWillResignActiveNotification];
-    [self.notificationCenter removeObserver:self
-                                       name:SENTRY_UIApplicationDidEnterBackgroundNotification];
-    [self.notificationCenter removeObserver:self
-                                       name:SENTRY_UIApplicationWillEnterForegroundNotification];
-    [self.notificationCenter removeObserver:self
-                                       name:SENTRY_UIApplicationWillTerminateNotification];
-#endif
+#if UIKIT_LINKED
+    [self.notificationCenter removeObserver:self name:UIApplicationDidBecomeActiveNotification];
+    [self.notificationCenter removeObserver:self name:UIApplicationWillResignActiveNotification];
+    [self.notificationCenter removeObserver:self name:UIApplicationDidEnterBackgroundNotification];
+    [self.notificationCenter removeObserver:self name:UIApplicationWillEnterForegroundNotification];
+    [self.notificationCenter removeObserver:self name:UIApplicationWillTerminateNotification];
+#endif // UIKIT_LINKED
 #if SentryCrashCRASH_HAS_NSEXTENSION
     [self.notificationCenter removeObserver:self name:NSExtensionHostDidBecomeActiveNotification];
     [self.notificationCenter removeObserver:self name:NSExtensionHostWillResignActiveNotification];

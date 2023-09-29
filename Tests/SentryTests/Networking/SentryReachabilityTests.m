@@ -29,14 +29,14 @@
     XCTAssertEqualObjects(SentryConnectivityNone, SentryConnectivityFlagRepresentation(0));
     XCTAssertEqualObjects(SentryConnectivityNone,
         SentryConnectivityFlagRepresentation(kSCNetworkReachabilityFlagsIsDirect));
-#    if SENTRY_HAS_UIKIT
+#    if UIKIT_LINKED
     // kSCNetworkReachabilityFlagsIsWWAN does not exist on macOS
     XCTAssertEqualObjects(SentryConnectivityNone,
         SentryConnectivityFlagRepresentation(kSCNetworkReachabilityFlagsIsWWAN));
     XCTAssertEqualObjects(SentryConnectivityCellular,
         SentryConnectivityFlagRepresentation(
             kSCNetworkReachabilityFlagsIsWWAN | kSCNetworkReachabilityFlagsReachable));
-#    endif // SENTRY_HAS_UIKIT
+#    endif // UIKIT_LINKED
     XCTAssertEqualObjects(SentryConnectivityWiFi,
         SentryConnectivityFlagRepresentation(kSCNetworkReachabilityFlagsReachable));
     XCTAssertEqualObjects(SentryConnectivityWiFi,

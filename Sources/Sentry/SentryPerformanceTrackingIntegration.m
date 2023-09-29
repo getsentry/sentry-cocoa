@@ -1,6 +1,6 @@
 #import "SentryPerformanceTrackingIntegration.h"
 
-#if SENTRY_HAS_UIKIT
+#if UIKIT_LINKED
 
 #    import "SentryDefaultObjCRuntimeWrapper.h"
 #    import "SentryDependencyContainer.h"
@@ -59,4 +59,4 @@ SentryPerformanceTrackingIntegration ()
 
 @end
 
-#endif // SENTRY_HAS_UIKIT
+#endif // UIKIT_LINKED
