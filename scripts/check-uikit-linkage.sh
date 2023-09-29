@@ -2,7 +2,7 @@
 
 #!/bin/bash
 
-set -eo
+set -eoux pipefail
 
 CONFIGURATION="${1}"
 DERIVED_DATA_PATH="${2}"
@@ -10,6 +10,7 @@ DERIVED_DATA_PATH="${2}"
 SENTRY_BUILD_PRODUCT_PATH="$DERIVED_DATA_PATH/Build/Products/$CONFIGURATION-iphonesimulator/Sentry.framework/Sentry"
 
 stat $SENTRY_BUILD_PRODUCT_PATH
+
 MATCHES=$(otool -L $SENTRY_BUILD_PRODUCT_PATH | grep -c UIKit.framework)
 if [ $MATCHES != 0 ]; then
     echo "UIKit.framework linkage found."
