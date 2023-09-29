@@ -533,17 +533,18 @@ initialize(void)
         NSDictionary *infoDict = [mainBundle infoDictionary];
         const struct mach_header *header = _dyld_get_image_header(0);
 
-#if SentryCrashCRASH_HAS_UIDEVICE
-        UIDevice *currentDevice = [UIDevice currentDevice];
-        g_systemData.systemName = cString(currentDevice.systemName);
-        g_systemData.systemVersion = cString(currentDevice.systemVersion);
-#else
-#    if SentryCrashCRASH_HOST_MAC
+#if SentryCrashCRASH_HOST_IOS
+        g_systemData.systemName = "iOS";
+#elif SentryCrashCRASH_HOST_TV
+        g_systemData.systemName = "tvOS";
+#elif SentryCrashCRASH_HOST_MAC
         g_systemData.systemName = "macOS";
-#    endif
-#    if SentryCrashCRASH_HOST_WATCH
+#elif SentryCrashCRASH_HOST_WATCH
         g_systemData.systemName = "watchOS";
-#    endif
+#else
+        g_systemData.systemName = "unknown";
+#endif
+
         NSOperatingSystemVersion version = { 0, 0, 0 };
         if (@available(macOS 10.10, *)) {
             version = [NSProcessInfo processInfo].operatingSystemVersion;
@@ -557,7 +558,7 @@ initialize(void)
                                       (int)version.minorVersion, (int)version.patchVersion];
         }
         g_systemData.systemVersion = cString(systemVersion);
-#endif
+
         if (isSimulatorBuild()) {
             g_systemData.machine
                 = cString([NSProcessInfo processInfo].environment[@"SIMULATOR_MODEL_IDENTIFIER"]);
