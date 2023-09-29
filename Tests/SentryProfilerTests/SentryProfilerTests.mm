@@ -177,7 +177,7 @@ using namespace sentry::profiling;
     const auto serialization = serializedProfileData(
         profileData, 1, 2, profilerTruncationReasonName(SentryProfilerTruncationReasonNormal), @{},
         @[], [[SentryHub alloc] initWithClient:nil andScope:nil]
-#    if UIKIT_LINKED
+#    if SENTRY_HAS_UIKIT
         ,
         [[SentryScreenFrames alloc] initWithTotal:5
                                            frozen:6
@@ -185,7 +185,7 @@ using namespace sentry::profiling;
                               slowFrameTimestamps:@[]
                             frozenFrameTimestamps:@[]
                               frameRateTimestamps:@[]]
-#    endif // UIKIT_LINKED
+#    endif // SENTRY_HAS_UIKIT
     );
 
     // cause the data structures to be modified again: add new addresses

@@ -199,20 +199,20 @@ NS_SWIFT_NAME(Options)
  */
 @property (nonatomic) SentryScope * (^initialScope)(SentryScope *);
 
-#if UIKIT_LINKED
+#if SENTRY_HAS_UIKIT
 /**
  * When enabled, the SDK tracks performance for UIViewController subclasses.
  * @note The default is @c YES .
  */
 @property (nonatomic, assign) BOOL enableUIViewControllerTracing;
 
-#    if UIKIT_LINKED
+#    if SENTRY_HAS_UIKIT
 /**
  * Automatically attaches a screenshot when capturing an error or exception.
  * @note Default value is @c NO .
  */
 @property (nonatomic, assign) BOOL attachScreenshot;
-#    endif // UIKIT_LINKED
+#    endif // SENTRY_HAS_UIKIT
 
 /**
  * @warning This is an experimental feature and may still have bugs.
@@ -248,7 +248,7 @@ NS_SWIFT_NAME(Options)
  */
 @property (nonatomic, assign) BOOL enablePreWarmedAppStartTracing;
 
-#endif // UIKIT_LINKED
+#endif // SENTRY_HAS_UIKIT
 
 /**
  * When enabled, the SDK tracks performance for HTTP requests if auto performance tracking and

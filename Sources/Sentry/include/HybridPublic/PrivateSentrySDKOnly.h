@@ -122,7 +122,7 @@ typedef void (^SentryOnAppStartMeasurementAvailable)(
  */
 @property (class, nonatomic, assign) BOOL appStartMeasurementHybridSDKMode;
 
-#if UIKIT_LINKED
+#if SENTRY_HAS_UIKIT
 /**
  * Allows hybrid SDKs to enable frame tracking measurements despite other options.
  */
@@ -132,12 +132,12 @@ typedef void (^SentryOnAppStartMeasurementAvailable)(
 
 @property (class, nonatomic, assign, readonly) SentryScreenFrames *currentScreenFrames;
 
-#    if UIKIT_LINKED
+#    if SENTRY_HAS_UIKIT
 + (NSArray<NSData *> *)captureScreenshots;
-#    endif // UIKIT_LINKED
+#    endif // SENTRY_HAS_UIKIT
 
 + (NSData *)captureViewHierarchy;
-#endif // UIKIT_LINKED
+#endif // SENTRY_HAS_UIKIT
 
 + (SentryUser *)userWithDictionary:(NSDictionary *)dictionary;
 

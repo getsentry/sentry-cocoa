@@ -2,7 +2,7 @@
 #import "SentryDependencyContainer.h"
 #import "SentryDispatchQueueWrapper.h"
 
-#if TARGET_OS_IOS && UIKIT_LINKED
+#if TARGET_OS_IOS && SENTRY_HAS_UIKIT
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -74,4 +74,4 @@ SentryUIDeviceWrapper ()
 
 NS_ASSUME_NONNULL_END
 
-#endif // TARGET_OS_IOS && UIKIT_LINKED
+#endif // TARGET_OS_IOS && SENTRY_HAS_UIKIT

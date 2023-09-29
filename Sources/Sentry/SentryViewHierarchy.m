@@ -1,6 +1,6 @@
 #import "SentryViewHierarchy.h"
 
-#if UIKIT_LINKED
+#if SENTRY_HAS_UIKIT
 
 #    import "SentryCrashFileUtils.h"
 #    import "SentryCrashJSONCodec.h"
@@ -150,4 +150,4 @@ writeJSONDataToMemory(const char *const data, const int length, void *const user
 
 @end
 
-#endif // UIKIT_LINKED
+#endif // SENTRY_HAS_UIKIT

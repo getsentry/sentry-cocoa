@@ -16,17 +16,17 @@
 #import "SentryScope.h"
 #import "SentrySwiftAsyncIntegration.h"
 
-#if UIKIT_LINKED
+#if SENTRY_HAS_UIKIT
 #    import "SentryAppStartTrackingIntegration.h"
 #    import "SentryFramesTrackingIntegration.h"
 #    import "SentryPerformanceTrackingIntegration.h"
-#    if UIKIT_LINKED
+#    if SENTRY_HAS_UIKIT
 #        import "SentryScreenshotIntegration.h"
-#    endif // UIKIT_LINKED
+#    endif // SENTRY_HAS_UIKIT
 #    import "SentryUIEventTrackingIntegration.h"
 #    import "SentryViewHierarchyIntegration.h"
 #    import "SentryWatchdogTerminationTrackingIntegration.h"
-#endif // UIKIT_LINKED
+#endif // SENTRY_HAS_UIKIT
 
 #if SENTRY_HAS_METRIC_KIT
 #    import "SentryMetricKitIntegration.h"
@@ -56,13 +56,13 @@ NSString *const kSentryDefaultEnvironment = @"production";
     NSMutableArray<NSString *> *defaultIntegrations =
         @[
             NSStringFromClass([SentryCrashIntegration class]),
-#if UIKIT_LINKED
+#if SENTRY_HAS_UIKIT
             NSStringFromClass([SentryAppStartTrackingIntegration class]),
             NSStringFromClass([SentryFramesTrackingIntegration class]),
             NSStringFromClass([SentryPerformanceTrackingIntegration class]),
-#    if UIKIT_LINKED
+#    if SENTRY_HAS_UIKIT
             NSStringFromClass([SentryScreenshotIntegration class]),
-#    endif // UIKIT_LINKED
+#    endif // SENTRY_HAS_UIKIT
             NSStringFromClass([SentryUIEventTrackingIntegration class]),
             NSStringFromClass([SentryViewHierarchyIntegration class]),
             NSStringFromClass([SentryWatchdogTerminationTrackingIntegration class]),
@@ -114,11 +114,11 @@ NSString *const kSentryDefaultEnvironment = @"production";
 
         _enableTracing = NO;
         _enableTracingManual = NO;
-#if UIKIT_LINKED
+#if SENTRY_HAS_UIKIT
         self.enableUIViewControllerTracing = YES;
-#    if UIKIT_LINKED
+#    if SENTRY_HAS_UIKIT
         self.attachScreenshot = NO;
-#    endif // UIKIT_LINKED
+#    endif // SENTRY_HAS_UIKIT
         self.attachViewHierarchy = NO;
         self.enableUserInteractionTracing = YES;
         self.idleTimeout = 3.0;
@@ -381,14 +381,14 @@ NSString *const kSentryDefaultEnvironment = @"production";
         self.initialScope = options[@"initialScope"];
     }
 
-#if UIKIT_LINKED
+#if SENTRY_HAS_UIKIT
     [self setBool:options[@"enableUIViewControllerTracing"]
             block:^(BOOL value) { self->_enableUIViewControllerTracing = value; }];
 
-#    if UIKIT_LINKED
+#    if SENTRY_HAS_UIKIT
     [self setBool:options[@"attachScreenshot"]
             block:^(BOOL value) { self->_attachScreenshot = value; }];
-#    endif // UIKIT_LINKED
+#    endif // SENTRY_HAS_UIKIT
 
     [self setBool:options[@"attachViewHierarchy"]
             block:^(BOOL value) { self->_attachViewHierarchy = value; }];

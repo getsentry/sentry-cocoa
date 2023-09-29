@@ -7,7 +7,7 @@
 #import "SentryLog.h"
 #import "SentryNSNotificationCenterWrapper.h"
 
-#if TARGET_OS_IOS && UIKIT_LINKED
+#if TARGET_OS_IOS && SENTRY_HAS_UIKIT
 
 #    import <UIKit/UIKit.h>
 
@@ -258,4 +258,4 @@ SentrySystemEventBreadcrumbs ()
 
 @end
 
-#endif // TARGET_OS_IOS && UIKIT_LINKED
+#endif // TARGET_OS_IOS && SENTRY_HAS_UIKIT

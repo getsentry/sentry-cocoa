@@ -1,6 +1,6 @@
 #import "SentryWatchdogTerminationScopeObserver.h"
 
-#if UIKIT_LINKED
+#if SENTRY_HAS_UIKIT
 
 #    import <SentryBreadcrumb.h>
 #    import <SentryFileManager.h>
@@ -164,4 +164,4 @@ SentryWatchdogTerminationScopeObserver ()
 
 @end
 
-#endif // UIKIT_LINKED
+#endif // SENTRY_HAS_UIKIT

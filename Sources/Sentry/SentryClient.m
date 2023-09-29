@@ -562,7 +562,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
             event.threads = [self.threadInspector getCurrentThreads];
         }
 
-#if UIKIT_LINKED
+#if SENTRY_HAS_UIKIT
         SentryAppStateManager *manager = [SentryDependencyContainer sharedInstance].appStateManager;
         SentryAppState *appState = [manager loadPreviousAppState];
         BOOL inForeground = [appState isActive];
@@ -689,7 +689,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     if (!integrations) {
         integrations = [SentrySDK.currentHub trimmedInstalledIntegrationNames];
 
-#if UIKIT_LINKED
+#if SENTRY_HAS_UIKIT
         if (self.options.enablePreWarmedAppStartTracing) {
             [integrations addObject:@"PreWarmedAppStartTracing"];
         }

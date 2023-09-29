@@ -47,7 +47,7 @@ SentryWatchdogTerminationTracker ()
 
 - (void)start
 {
-#if UIKIT_LINKED
+#if SENTRY_HAS_UIKIT
     [self.appStateManager start];
 
     [self.dispatchQueue dispatchAsyncWithBlock:^{
@@ -85,18 +85,18 @@ SentryWatchdogTerminationTracker ()
             [SentrySDK captureCrashEvent:event];
         }
     }];
-#else // !UIKIT_LINKED
+#else // !SENTRY_HAS_UIKIT
     SENTRY_LOG_INFO(
         @"NO UIKit -> SentryWatchdogTerminationTracker will not track Watchdog Terminations.");
     return;
-#endif // UIKIT_LINKED
+#endif // SENTRY_HAS_UIKIT
 }
 
 - (void)stop
 {
-#if UIKIT_LINKED
+#if SENTRY_HAS_UIKIT
     [self.appStateManager stop];
-#endif // UIKIT_LINKED
+#endif // SENTRY_HAS_UIKIT
 }
 
 @end

@@ -9,7 +9,7 @@
 #    import "SentryMetricKitIntegration.h"
 #endif // SENTRY_HAS_METRIC_KIT
 
-#if UIKIT_LINKED
+#if SENTRY_HAS_UIKIT
 #    import "MockUIScene.h"
 #    import "SentryFramesTracker+TestInit.h"
 #    import "SentryUIApplication+Test.h"
@@ -19,7 +19,7 @@
 #    import "SentryUIViewControllerPerformanceTracker.h"
 #    import "SentryUIViewControllerSwizzling+Test.h"
 #    import "SentryUIViewControllerSwizzling.h"
-#endif // UIKIT_LINKED
+#endif // SENTRY_HAS_UIKIT
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 #    import "SentryMetricProfiler.h"

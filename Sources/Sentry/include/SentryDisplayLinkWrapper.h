@@ -1,6 +1,6 @@
 #import "SentryDefines.h"
 
-#if UIKIT_LINKED
+#if SENTRY_HAS_UIKIT
 
 NS_ASSUME_NONNULL_BEGIN
 

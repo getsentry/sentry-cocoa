@@ -5,9 +5,9 @@
 #import <objc/runtime.h>
 #import <string.h>
 
-#if UIKIT_LINKED
+#if SENTRY_HAS_UIKIT
 #    import <UIKit/UIKit.h>
-#endif // UIKIT_LINKED
+#endif // SENTRY_HAS_UIKIT
 
 @interface
 SentrySubClassFinder ()
@@ -29,7 +29,7 @@ SentrySubClassFinder ()
     return self;
 }
 
-#if UIKIT_LINKED
+#if SENTRY_HAS_UIKIT
 - (void)actOnSubclassesOfViewControllerInImage:(NSString *)imageName block:(void (^)(Class))block;
 {
     [self.dispatchQueue dispatchAsyncWithBlock:^{
@@ -78,7 +78,7 @@ SentrySubClassFinder ()
         }];
     }];
 }
-#endif // UIKIT_LINKED
+#endif // SENTRY_HAS_UIKIT
 
 - (BOOL)isClass:(Class)childClass subClassOf:(Class)parentClass
 {

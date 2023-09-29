@@ -44,10 +44,10 @@
 #    import <cstdint>
 #    import <memory>
 
-#    if UIKIT_LINKED
+#    if SENTRY_HAS_UIKIT
 #        import "SentryScreenFrames.h"
 #        import <UIKit/UIKit.h>
-#    endif // UIKIT_LINKED
+#    endif // SENTRY_HAS_UIKIT
 
 const int kSentryProfilerFrequencyHz = 101;
 NSTimeInterval kSentryProfilerTimeoutInterval = 30;
@@ -74,7 +74,7 @@ profilerTruncationReasonName(SentryProfilerTruncationReason reason)
     }
 }
 
-#    if UIKIT_LINKED
+#    if SENTRY_HAS_UIKIT
 /**
  * Convert the data structure that records timestamps for GPU frame render info from
  * SentryFramesTracker to the structure expected for profiling metrics, and throw out any that
@@ -123,7 +123,7 @@ sliceGPUData(SentryFrameInfoTimeSeries *frameInfo, uint64_t startSystemTime, uin
     }
     return slicedGPUEntries;
 }
-#    endif // UIKIT_LINKED
+#    endif // SENTRY_HAS_UIKIT
 
 /** Given an array of samples with absolute timestamps, return the serialized JSON mapping with
  * their data, with timestamps normalized relative to the provided transaction's start time. */
@@ -159,10 +159,10 @@ serializedProfileData(
     NSDictionary<NSString *, id> *profileData, uint64_t startSystemTime, uint64_t endSystemTime,
     NSString *truncationReason, NSDictionary<NSString *, id> *serializedMetrics,
     NSArray<SentryDebugMeta *> *debugMeta, SentryHub *hub
-#    if UIKIT_LINKED
+#    if SENTRY_HAS_UIKIT
     ,
     SentryScreenFrames *gpuData
-#    endif // UIKIT_LINKED
+#    endif // SENTRY_HAS_UIKIT
 )
 {
     NSMutableArray<SentrySample *> *const samples = profileData[@"profile"][@"samples"];
@@ -221,7 +221,7 @@ serializedProfileData(
     // add the gathered metrics
     auto metrics = serializedMetrics;
 
-#    if UIKIT_LINKED
+#    if SENTRY_HAS_UIKIT
     const auto mutableMetrics =
         [NSMutableDictionary<NSString *, id> dictionaryWithDictionary:metrics];
     const auto slowFrames = sliceGPUData(gpuData.slowFrameTimestamps, startSystemTime,
@@ -248,7 +248,7 @@ serializedProfileData(
         }
     }
     metrics = mutableMetrics;
-#    endif // UIKIT_LINKED
+#    endif // SENTRY_HAS_UIKIT
 
     if (metrics.count > 0) {
         payload[@"measurements"] = metrics;
@@ -277,21 +277,21 @@ serializedProfileData(
     SENTRY_LOG_DEBUG(@"Initialized new SentryProfiler %@", self);
     _debugImageProvider = [SentryDependencyContainer sharedInstance].debugImageProvider;
 
-#    if UIKIT_LINKED
+#    if SENTRY_HAS_UIKIT
     // the frame tracker may not be running if SentryOptions.enableAutoPerformanceTracing is NO
     [SentryDependencyContainer.sharedInstance.framesTracker start];
-#    endif // UIKIT_LINKED
+#    endif // SENTRY_HAS_UIKIT
 
     [self start];
     [self scheduleTimeoutTimer];
 
-#    if UIKIT_LINKED
+#    if SENTRY_HAS_UIKIT
     [SentryDependencyContainer.sharedInstance.notificationCenterWrapper
         addObserver:self
            selector:@selector(backgroundAbort)
                name:UIApplicationWillResignActiveNotification
              object:nil];
-#    endif // UIKIT_LINKED
+#    endif // SENTRY_HAS_UIKIT
 
     return self;
 }
@@ -437,10 +437,10 @@ serializedProfileData(
         profilerTruncationReasonName(_truncationReason),
         [_metricProfiler serializeBetween:startSystemTime and:endSystemTime],
         [_debugImageProvider getDebugImagesCrashed:NO], hub
-#    if UIKIT_LINKED
+#    if SENTRY_HAS_UIKIT
         ,
         self._screenFrameData
-#    endif // UIKIT_LINKED
+#    endif // SENTRY_HAS_UIKIT
     );
 }
 
@@ -477,13 +477,13 @@ serializedProfileData(
         return;
     }
 
-#    if UIKIT_LINKED
+#    if SENTRY_HAS_UIKIT
     // if SentryOptions.enableAutoPerformanceTracing is NO, then we need to stop the frames tracker
     // from running outside of profiles because it isn't needed for anything else
     if (![[[[SentrySDK currentHub] getClient] options] enableAutoPerformanceTracing]) {
         [SentryDependencyContainer.sharedInstance.framesTracker stop];
     }
-#    endif // UIKIT_LINKED
+#    endif // SENTRY_HAS_UIKIT
 
     _profiler->stopSampling();
     SENTRY_LOG_DEBUG(@"Stopped profiler %@.", self);

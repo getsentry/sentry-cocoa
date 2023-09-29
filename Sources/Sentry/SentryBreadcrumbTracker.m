@@ -16,9 +16,9 @@
 #    import <Cocoa/Cocoa.h>
 #endif // SENTRY_TARGET_MACOS
 
-#if UIKIT_LINKED
+#if SENTRY_HAS_UIKIT
 #    import <UIKit/UIKit.h>
-#endif // UIKIT_LINKED
+#endif // SENTRY_HAS_UIKIT
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -64,16 +64,16 @@ SentryBreadcrumbTracker ()
 {
     // All breadcrumbs are guarded by checking the client of the current hub, which we remove when
     // uninstalling the SDK. Therefore, we don't clean up everything.
-#if UIKIT_LINKED
+#if SENTRY_HAS_UIKIT
     [SentryDependencyContainer.sharedInstance.swizzleWrapper
         removeSwizzleSendActionForKey:SentryBreadcrumbTrackerSwizzleSendAction];
-#endif // UIKIT_LINKED
+#endif // SENTRY_HAS_UIKIT
     _delegate = nil;
 }
 
 - (void)trackApplicationUIKitNotifications
 {
-#if UIKIT_LINKED
+#if SENTRY_HAS_UIKIT
     NSNotificationName foregroundNotificationName = UIApplicationDidBecomeActiveNotification;
     NSNotificationName backgroundNotificationName = UIApplicationDidEnterBackgroundNotification;
 #elif SENTRY_TARGET_MACOS
@@ -87,7 +87,7 @@ SentryBreadcrumbTracker ()
 #endif // !TARGET_OS_WATCH
 
     // not available for macOS
-#if UIKIT_LINKED
+#if SENTRY_HAS_UIKIT
     [NSNotificationCenter.defaultCenter
         addObserverForName:UIApplicationDidReceiveMemoryWarningNotification
                     object:nil
@@ -101,9 +101,9 @@ SentryBreadcrumbTracker ()
                     crumb.message = @"Low memory";
                     [self.delegate addBreadcrumb:crumb];
                 }];
-#endif // UIKIT_LINKED
+#endif // SENTRY_HAS_UIKIT
 
-#if UIKIT_LINKED || SENTRY_TARGET_MACOS
+#if SENTRY_HAS_UIKIT || SENTRY_TARGET_MACOS
     [NSNotificationCenter.defaultCenter addObserverForName:backgroundNotificationName
                                                     object:nil
                                                      queue:nil
@@ -125,7 +125,7 @@ SentryBreadcrumbTracker ()
                                                                     withDataKey:@"state"
                                                                   withDataValue:@"foreground"];
                                                 }];
-#endif // UIKIT_LINKED || SENTRY_TARGET_MACOS
+#endif // SENTRY_HAS_UIKIT || SENTRY_TARGET_MACOS
 }
 
 #if !TARGET_OS_WATCH
@@ -165,7 +165,7 @@ SentryBreadcrumbTracker ()
     [self.delegate addBreadcrumb:crumb];
 }
 
-#if UIKIT_LINKED
+#if SENTRY_HAS_UIKIT
 + (BOOL)avoidSender:(id)sender forTarget:(id)target action:(NSString *)action
 {
     if ([sender isKindOfClass:[UITextField class]]) {
@@ -183,11 +183,11 @@ SentryBreadcrumbTracker ()
     }
     return NO;
 }
-#endif // UIKIT_LINKED
+#endif // SENTRY_HAS_UIKIT
 
 - (void)swizzleSendAction
 {
-#if UIKIT_LINKED
+#if SENTRY_HAS_UIKIT
     SentryBreadcrumbTracker *__weak weakSelf = self;
     [SentryDependencyContainer.sharedInstance.swizzleWrapper
         swizzleSendAction:^(NSString *action, id target, id sender, UIEvent *event) {
@@ -211,14 +211,14 @@ SentryBreadcrumbTracker ()
         }
                    forKey:SentryBreadcrumbTrackerSwizzleSendAction];
 
-#else // !UIKIT_LINKED
+#else // !SENTRY_HAS_UIKIT
     SENTRY_LOG_DEBUG(@"NO UIKit -> [SentryBreadcrumbTracker swizzleSendAction] does nothing.");
-#endif // UIKIT_LINKED
+#endif // SENTRY_HAS_UIKIT
 }
 
 - (void)swizzleViewDidAppear
 {
-#if UIKIT_LINKED
+#if SENTRY_HAS_UIKIT
 
     // SentrySwizzleInstanceMethod declaration shadows a local variable. The swizzling is working
     // fine and we accept this warning.
@@ -251,12 +251,12 @@ SentryBreadcrumbTracker ()
         }),
         mode, swizzleViewDidAppearKey);
 #    pragma clang diagnostic pop
-#else // !UIKIT_LINKED
+#else // !SENTRY_HAS_UIKIT
     SENTRY_LOG_DEBUG(@"NO UIKit -> [SentryBreadcrumbTracker swizzleViewDidAppear] does nothing.");
-#endif // UIKIT_LINKED
+#endif // SENTRY_HAS_UIKIT
 }
 
-#if UIKIT_LINKED
+#if SENTRY_HAS_UIKIT
 + (NSDictionary *)extractDataFromView:(UIView *)view
 {
     NSMutableDictionary *result =
@@ -315,7 +315,7 @@ SentryBreadcrumbTracker ()
 
     return info;
 }
-#endif // UIKIT_LINKED
+#endif // SENTRY_HAS_UIKIT
 
 @end
 

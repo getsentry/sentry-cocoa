@@ -44,9 +44,9 @@
 #include <mach-o/dyld.h>
 #include <mach/mach.h>
 
-#if UIKIT_LINKED
+#if SENTRY_HAS_UIKIT
 #    import <UIKit/UIKit.h>
-#endif // UIKIT_LINKED
+#endif // SENTRY_HAS_UIKIT
 
 typedef struct {
     const char *systemName;
@@ -396,13 +396,13 @@ getDeviceAndAppHash(void)
 {
     NSMutableData *data = nil;
 
-#if UIKIT_LINKED
+#if SENTRY_HAS_UIKIT
     UIDevice *currentDevice = [UIDevice currentDevice];
     if ([currentDevice respondsToSelector:@selector(identifierForVendor)]) {
         data = [NSMutableData dataWithLength:16];
         [currentDevice.identifierForVendor getUUIDBytes:data.mutableBytes];
     } else
-#endif // UIKIT_LINKED
+#endif // SENTRY_HAS_UIKIT
     {
         data = [NSMutableData dataWithLength:6];
         sentrycrashsysctl_getMacAddress("en0", [data mutableBytes]);

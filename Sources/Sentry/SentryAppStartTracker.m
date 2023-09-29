@@ -1,6 +1,6 @@
 #import <SentryAppStartTracker.h>
 
-#if UIKIT_LINKED
+#if SENTRY_HAS_UIKIT
 
 #    import "SentryAppStartMeasurement.h"
 #    import "SentryAppStateManager.h"
@@ -112,9 +112,9 @@ SentryAppStartTracker ()
         [self buildAppStartMeasurement];
     }
 
-#    if UIKIT_LINKED
+#    if SENTRY_HAS_UIKIT
     [self.appStateManager start];
-#    endif // UIKIT_LINKED
+#    endif // SENTRY_HAS_UIKIT
 
     self.isRunning = YES;
 }
@@ -311,4 +311,4 @@ SentryAppStartTracker ()
 
 @end
 
-#endif // UIKIT_LINKED
+#endif // SENTRY_HAS_UIKIT

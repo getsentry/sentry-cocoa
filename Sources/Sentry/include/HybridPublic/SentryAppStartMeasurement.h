@@ -1,6 +1,6 @@
 #import "PrivatesHeader.h"
 
-#if UIKIT_LINKED
+#if SENTRY_HAS_UIKIT
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -74,4 +74,4 @@ SENTRY_NO_INIT
 
 NS_ASSUME_NONNULL_END
 
-#endif // UIKIT_LINKED
+#endif // SENTRY_HAS_UIKIT

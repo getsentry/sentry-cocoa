@@ -13,26 +13,26 @@
 SentrySessionCrashedHandler ()
 
 @property (nonatomic, strong) SentryCrashWrapper *crashWrapper;
-#if UIKIT_LINKED
+#if SENTRY_HAS_UIKIT
 @property (nonatomic, strong) SentryWatchdogTerminationLogic *watchdogTerminationLogic;
-#endif // UIKIT_LINKED
+#endif // SENTRY_HAS_UIKIT
 
 @end
 
 @implementation SentrySessionCrashedHandler
 
-#if UIKIT_LINKED
+#if SENTRY_HAS_UIKIT
 - (instancetype)initWithCrashWrapper:(SentryCrashWrapper *)crashWrapper
             watchdogTerminationLogic:(SentryWatchdogTerminationLogic *)watchdogTerminationLogic
 #else
 - (instancetype)initWithCrashWrapper:(SentryCrashWrapper *)crashWrapper
-#endif // UIKIT_LINKED
+#endif // SENTRY_HAS_UIKIT
 {
     self = [self init];
     self.crashWrapper = crashWrapper;
-#if UIKIT_LINKED
+#if SENTRY_HAS_UIKIT
     self.watchdogTerminationLogic = watchdogTerminationLogic;
-#endif // UIKIT_LINKED
+#endif // SENTRY_HAS_UIKIT
 
     return self;
 }
@@ -40,9 +40,9 @@ SentrySessionCrashedHandler ()
 - (void)endCurrentSessionAsCrashedWhenCrashOrOOM
 {
     if (self.crashWrapper.crashedLastLaunch
-#if UIKIT_LINKED
+#if SENTRY_HAS_UIKIT
         || [self.watchdogTerminationLogic isWatchdogTermination]
-#endif // UIKIT_LINKED
+#endif // SENTRY_HAS_UIKIT
     ) {
         SentryFileManager *fileManager = [[[SentrySDK currentHub] getClient] fileManager];
 

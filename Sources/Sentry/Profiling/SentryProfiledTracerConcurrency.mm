@@ -8,11 +8,11 @@
 #    import "SentryProfiler+Private.h"
 #    include <mutex>
 
-#    if UIKIT_LINKED
+#    if SENTRY_HAS_UIKIT
 #        import "SentryDependencyContainer.h"
 #        import "SentryFramesTracker.h"
 #        import "SentryScreenFrames.h"
-#    endif // UIKIT_LINKED
+#    endif // SENTRY_HAS_UIKIT
 
 /**
  * a mapping of profilers to the number of tracers that started them that are still in-flight and
@@ -98,11 +98,11 @@ discardProfilerForTracer(SentryId *traceId)
 
     _unsafe_cleanUpProfiler(profiler, tracerKey);
 
-#    if UIKIT_LINKED
+#    if SENTRY_HAS_UIKIT
     if (_gProfilersToTracers.count == 0) {
         [SentryDependencyContainer.sharedInstance.framesTracker resetProfilingTimestamps];
     }
-#    endif // UIKIT_LINKED
+#    endif // SENTRY_HAS_UIKIT
 }
 
 SentryProfiler *_Nullable profilerForFinishedTracer(SentryId *traceId)
@@ -122,13 +122,13 @@ SentryProfiler *_Nullable profilerForFinishedTracer(SentryId *traceId)
 
     _unsafe_cleanUpProfiler(profiler, tracerKey);
 
-#    if UIKIT_LINKED
+#    if SENTRY_HAS_UIKIT
     profiler._screenFrameData =
         [SentryDependencyContainer.sharedInstance.framesTracker.currentFrames copy];
     if (_gProfilersToTracers.count == 0) {
         [SentryDependencyContainer.sharedInstance.framesTracker resetProfilingTimestamps];
     }
-#    endif // UIKIT_LINKED
+#    endif // SENTRY_HAS_UIKIT
 
     return profiler;
 }

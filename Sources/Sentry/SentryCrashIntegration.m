@@ -16,7 +16,7 @@
 #import <SentrySDK+Private.h>
 #import <SentrySysctl.h>
 
-#if UIKIT_LINKED
+#if SENTRY_HAS_UIKIT
 #    import "SentryUIApplication.h"
 #    import <UIKit/UIKit.h>
 #endif
@@ -68,7 +68,7 @@ SentryCrashIntegration ()
 
     self.options = options;
 
-#if UIKIT_LINKED
+#if SENTRY_HAS_UIKIT
     SentryAppStateManager *appStateManager =
         [SentryDependencyContainer sharedInstance].appStateManager;
     SentryWatchdogTerminationLogic *logic =
@@ -81,7 +81,7 @@ SentryCrashIntegration ()
 #else
     self.crashedSessionHandler =
         [[SentrySessionCrashedHandler alloc] initWithCrashWrapper:self.crashAdapter];
-#endif // UIKIT_LINKED
+#endif // SENTRY_HAS_UIKIT
 
     self.scopeObserver =
         [[SentryCrashScopeObserver alloc] initWithMaxBreadcrumbs:options.maxBreadcrumbs];
@@ -213,7 +213,7 @@ SentryCrashIntegration ()
 
     // For MacCatalyst the UIDevice returns the current version of MacCatalyst and not the
     // macOSVersion. Therefore we have to use NSProcessInfo.
-#if UIKIT_LINKED && !TARGET_OS_MACCATALYST
+#if SENTRY_HAS_UIKIT && !TARGET_OS_MACCATALYST
     [osData setValue:[UIDevice currentDevice].systemVersion forKey:@"version"];
 #else
     NSOperatingSystemVersion version = [NSProcessInfo processInfo].operatingSystemVersion;
@@ -271,7 +271,7 @@ SentryCrashIntegration ()
     NSString *locale = [[NSLocale autoupdatingCurrentLocale] objectForKey:NSLocaleIdentifier];
     [deviceData setValue:locale forKey:LOCALE_KEY];
 
-#if UIKIT_LINKED
+#if SENTRY_HAS_UIKIT
 
     NSArray<UIWindow *> *appWindows = SentryDependencyContainer.sharedInstance.application.windows;
     if ([appWindows count] > 0) {

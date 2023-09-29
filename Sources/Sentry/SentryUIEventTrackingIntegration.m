@@ -1,6 +1,6 @@
 #import "SentryUIEventTrackingIntegration.h"
 
-#if UIKIT_LINKED
+#if SENTRY_HAS_UIKIT
 
 #    import <SentryDependencyContainer.h>
 #    import <SentryLog.h>
@@ -49,4 +49,4 @@ SentryUIEventTrackingIntegration ()
 
 @end
 
-#endif // UIKIT_LINKED
+#endif // SENTRY_HAS_UIKIT

@@ -1,7 +1,7 @@
 #import "SentryFileManager.h"
 #import <Foundation/Foundation.h>
 
-#if TARGET_OS_IOS && UIKIT_LINKED
+#if TARGET_OS_IOS && SENTRY_HAS_UIKIT
 
 #    import <UIKit/UIKit.h>
 
@@ -29,4 +29,4 @@ SENTRY_NO_INIT
 
 NS_ASSUME_NONNULL_END
 
-#endif // TARGET_OS_IOS && UIKIT_LINKED
+#endif // TARGET_OS_IOS && SENTRY_HAS_UIKIT

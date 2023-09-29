@@ -1,6 +1,6 @@
 #import "SentryUIViewControllerSwizzling.h"
 
-#if UIKIT_LINKED
+#if SENTRY_HAS_UIKIT
 
 #    import "SentryDefaultObjCRuntimeWrapper.h"
 #    import "SentryDefines.h"
@@ -428,4 +428,4 @@ SentryUIViewControllerSwizzling ()
 
 #    pragma clang diagnostic pop
 
-#endif // UIKIT_LINKED
+#endif // SENTRY_HAS_UIKIT

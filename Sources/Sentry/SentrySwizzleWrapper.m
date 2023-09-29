@@ -2,7 +2,7 @@
 #import "SentryLog.h"
 #import "SentrySwizzle.h"
 
-#if UIKIT_LINKED
+#if SENTRY_HAS_UIKIT
 #    import <UIKit/UIKit.h>
 
 NS_ASSUME_NONNULL_BEGIN
@@ -81,4 +81,4 @@ static NSMutableDictionary<NSString *, SentrySwizzleSendActionCallback>
 
 NS_ASSUME_NONNULL_END
 
-#endif // UIKIT_LINKED
+#endif // SENTRY_HAS_UIKIT

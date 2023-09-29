@@ -521,7 +521,7 @@
         @"maxAttachmentSize" : [NSNull null],
         @"sendDefaultPii" : [NSNull null],
         @"enableAutoPerformanceTracing" : [NSNull null],
-#if UIKIT_LINKED
+#if SENTRY_HAS_UIKIT
         @"enableUIViewControllerTracing" : [NSNull null],
         @"attachScreenshot" : [NSNull null],
 #endif
@@ -573,7 +573,7 @@
     XCTAssertEqual(20 * 1024 * 1024, options.maxAttachmentSize);
     XCTAssertEqual(NO, options.sendDefaultPii);
     XCTAssertTrue(options.enableAutoPerformanceTracing);
-#if UIKIT_LINKED
+#if SENTRY_HAS_UIKIT
     XCTAssertTrue(options.enableUIViewControllerTracing);
     XCTAssertFalse(options.attachScreenshot);
     XCTAssertEqual(3.0, options.idleTimeout);
@@ -705,7 +705,7 @@
     [self testBooleanField:@"enableAutoPerformanceTracing"];
 }
 
-#if UIKIT_LINKED
+#if SENTRY_HAS_UIKIT
 - (void)testEnableUIViewControllerTracing
 {
     [self testBooleanField:@"enableUIViewControllerTracing"];

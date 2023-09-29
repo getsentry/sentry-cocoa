@@ -6,15 +6,15 @@
 #    import <Cocoa/Cocoa.h>
 #endif
 
-#if UIKIT_LINKED
+#if SENTRY_HAS_UIKIT
 #    import <UIKit/UIKit.h>
-#endif // UIKIT_LINKED
+#endif // SENTRY_HAS_UIKIT
 
 NS_ASSUME_NONNULL_BEGIN
 
 @implementation SentryNSNotificationCenterWrapper
 
-#if UIKIT_LINKED
+#if SENTRY_HAS_UIKIT
 + (NSNotificationName)didBecomeActiveNotificationName
 {
     return UIApplicationDidBecomeActiveNotification;

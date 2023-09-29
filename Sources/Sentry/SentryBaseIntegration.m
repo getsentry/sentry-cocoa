@@ -55,19 +55,19 @@ NS_ASSUME_NONNULL_BEGIN
         return NO;
     }
 
-#if UIKIT_LINKED
+#if SENTRY_HAS_UIKIT
     if ((integrationOptions & kIntegrationOptionEnableUIViewControllerTracing)
         && !options.enableUIViewControllerTracing) {
         [self logWithOptionName:@"enableUIViewControllerTracing"];
         return NO;
     }
 
-#    if UIKIT_LINKED
+#    if SENTRY_HAS_UIKIT
     if ((integrationOptions & kIntegrationOptionAttachScreenshot) && !options.attachScreenshot) {
         [self logWithOptionName:@"attachScreenshot"];
         return NO;
     }
-#    endif // UIKIT_LINKED
+#    endif // SENTRY_HAS_UIKIT
 
     if ((integrationOptions & kIntegrationOptionEnableUserInteractionTracing)
         && !options.enableUserInteractionTracing) {
@@ -134,7 +134,7 @@ NS_ASSUME_NONNULL_BEGIN
         return NO;
     }
 
-#if UIKIT_LINKED
+#if SENTRY_HAS_UIKIT
     if ((integrationOptions & kIntegrationOptionAttachViewHierarchy)
         && !options.attachViewHierarchy) {
         [self logWithOptionName:@"attachViewHierarchy"];

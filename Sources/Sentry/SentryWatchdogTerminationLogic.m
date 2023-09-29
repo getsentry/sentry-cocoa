@@ -1,6 +1,6 @@
 #import <SentryWatchdogTerminationLogic.h>
 
-#if UIKIT_LINKED
+#if SENTRY_HAS_UIKIT
 
 #    import <Foundation/Foundation.h>
 #    import <SentryAppState.h>
@@ -109,4 +109,4 @@ SentryWatchdogTerminationLogic ()
 
 @end
 
-#endif // UIKIT_LINKED
+#endif // SENTRY_HAS_UIKIT

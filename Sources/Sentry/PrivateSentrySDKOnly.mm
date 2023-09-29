@@ -25,7 +25,7 @@
 
 static SentryOnAppStartMeasurementAvailable _onAppStartMeasurementAvailable;
 static BOOL _appStartMeasurementHybridSDKMode = NO;
-#if UIKIT_LINKED
+#if SENTRY_HAS_UIKIT
 static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
 #endif
 
@@ -157,7 +157,7 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
 
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
-#if UIKIT_LINKED
+#if SENTRY_HAS_UIKIT
 
 + (BOOL)framesTrackingMeasurementHybridSDKMode
 {
@@ -179,21 +179,21 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
     return SentryDependencyContainer.sharedInstance.framesTracker.currentFrames;
 }
 
-#    if UIKIT_LINKED
+#    if SENTRY_HAS_UIKIT
 
 + (NSArray<NSData *> *)captureScreenshots
 {
     return [SentryDependencyContainer.sharedInstance.screenshot takeScreenshots];
 }
 
-#    endif // UIKIT_LINKED
+#    endif // SENTRY_HAS_UIKIT
 
 + (NSData *)captureViewHierarchy
 {
     return [SentryDependencyContainer.sharedInstance.viewHierarchy fetchViewHierarchy];
 }
 
-#endif // UIKIT_LINKED
+#endif // SENTRY_HAS_UIKIT
 
 + (SentryUser *)userWithDictionary:(NSDictionary *)dictionary
 {

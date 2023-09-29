@@ -1,6 +1,6 @@
 #import "SentryScreenshot.h"
 
-#if UIKIT_LINKED
+#if SENTRY_HAS_UIKIT
 
 #    import "SentryCompiler.h"
 #    import "SentryDependencyContainer.h"
@@ -74,4 +74,4 @@
 
 @end
 
-#endif // UIKIT_LINKED
+#endif // SENTRY_HAS_UIKIT

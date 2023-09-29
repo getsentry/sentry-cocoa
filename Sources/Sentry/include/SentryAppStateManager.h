@@ -16,7 +16,7 @@ SENTRY_NO_INIT
            dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
       notificationCenterWrapper:(SentryNSNotificationCenterWrapper *)notificationCenterWrapper;
 
-#if UIKIT_LINKED
+#if SENTRY_HAS_UIKIT
 
 - (void)start;
 - (void)stop;

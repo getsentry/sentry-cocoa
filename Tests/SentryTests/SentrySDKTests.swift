@@ -463,7 +463,7 @@ class SentrySDKTests: XCTestCase {
         XCTAssertEqual(SentrySDK.options, fixture.options)
     }
 
-#if UIKIT_LINKED
+#if SENTRY_HAS_UIKIT
     func testSetAppStartMeasurement_CallsPrivateSDKCallback() {
         let appStartMeasurement = TestData.getAppStartMeasurement(type: .warm)
         
@@ -484,7 +484,7 @@ class SentrySDKTests: XCTestCase {
         
         XCTAssertEqual(SentrySDK.getAppStartMeasurement(), appStartMeasurement)
     }
-#endif // UIKIT_LINKED
+#endif // SENTRY_HAS_UIKIT
     
     func testSDKStartInvocations() {
         XCTAssertEqual(0, SentrySDK.startInvocations)
@@ -544,7 +544,7 @@ class SentrySDKTests: XCTestCase {
         assertIntegrationsInstalled(integrations: [])
     }
 
-#if UIKIT_LINKED
+#if SENTRY_HAS_UIKIT
     func testClose_StopsAppStateManager() {
         SentrySDK.start { options in
             options.dsn = SentrySDKTests.dsnAsString
@@ -654,7 +654,7 @@ class SentrySDKTests: XCTestCase {
         XCTAssertEqual(flushTimeout, transport.flushInvocations.first)
     }
     
-#if UIKIT_LINKED
+#if SENTRY_HAS_UIKIT
     
     func testSetAppStartMeasurementConcurrently() {
         func setAppStartMeasurement(_ queue: DispatchQueue, _ i: Int) {
@@ -708,7 +708,7 @@ class SentrySDKTests: XCTestCase {
         XCTAssertEqual(result.count, 3)
     }
 
-#endif // UIKIT_LINKED
+#endif // SENTRY_HAS_UIKIT
 
     private func givenSdkWithHub() {
         SentrySDK.setCurrentHub(fixture.hub)

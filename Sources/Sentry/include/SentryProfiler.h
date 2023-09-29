@@ -4,9 +4,9 @@
 #import <Foundation/Foundation.h>
 
 @class SentryEnvelopeItem;
-#if UIKIT_LINKED
+#if SENTRY_HAS_UIKIT
 @class SentryFramesTracker;
-#endif // UIKIT_LINKED
+#endif // SENTRY_HAS_UIKIT
 @class SentryTransaction;
 @class SentryHub;
 

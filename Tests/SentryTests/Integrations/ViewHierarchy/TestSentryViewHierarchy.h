@@ -1,6 +1,6 @@
 #import "SentryDefines.h"
 
-#if UIKIT_LINKED
+#if SENTRY_HAS_UIKIT
 
 #    import "SentryCrashJSONCodec.h"
 #    import "SentryViewHierarchy.h"
@@ -15,4 +15,4 @@ SentryViewHierarchy (Test)
                     userData:(void *const)userData;
 @end
 
-#endif // UIKIT_LINKED
+#endif // SENTRY_HAS_UIKIT

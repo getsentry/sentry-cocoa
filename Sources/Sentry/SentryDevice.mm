@@ -3,7 +3,7 @@
 #if __has_include("SentryDefines.h")
 #    import "SentryDefines.h"
 #else
-#    define UIKIT_LINKED (TARGET_OS_IOS || TARGET_OS_TV)
+#    define SENTRY_HAS_UIKIT (TARGET_OS_IOS || TARGET_OS_TV)
 #endif
 
 #if __has_include("SentryLog.h")
@@ -20,9 +20,9 @@
 #    import <WatchKit/WatchKit.h>
 #endif
 
-#if UIKIT_LINKED
+#if SENTRY_HAS_UIKIT
 #    import <UIKit/UIKit.h>
-#endif // UIKIT_LINKED
+#endif // SENTRY_HAS_UIKIT
 
 namespace {
 /**
@@ -49,7 +49,7 @@ namespace {
 NSString *
 getHardwareDescription(int type)
 {
-#if UIKIT_LINKED && !TARGET_OS_SIMULATOR
+#if SENTRY_HAS_UIKIT && !TARGET_OS_SIMULATOR
     NSCAssert(
         type != HW_MODEL, @"Don't call this method with HW_MODEL for (non-simulator) iOS devices");
 #endif
@@ -171,11 +171,11 @@ sentry_getOSName(void)
 {
 #if TARGET_OS_MACCATALYST
     return @"Catalyst";
-#elif UIKIT_LINKED
+#elif SENTRY_HAS_UIKIT
     return [UIDevice currentDevice].systemName;
 #else
     return @"macOS";
-#endif // UIKIT_LINKED
+#endif // SENTRY_HAS_UIKIT
 }
 
 NSString *
@@ -184,7 +184,7 @@ sentry_getOSVersion(void)
 #if TARGET_OS_WATCH
     // This function is only used for profiling, and profiling don't run for watchOS
     return @"";
-#elif UIKIT_LINKED
+#elif SENTRY_HAS_UIKIT
     return [UIDevice currentDevice].systemVersion;
 #else
     // based off of
@@ -223,13 +223,13 @@ sentry_getDeviceModel(void)
     }
 #    endif // defined(HW_PRODUCT)
 
-#    if UIKIT_LINKED
+#    if SENTRY_HAS_UIKIT
     // iPhone/iPad or TV devices
     return getHardwareDescription(HW_MACHINE);
 #    else
     // macs and watch devices TODO: test on watch devices, may need to separate TARGET_OS_WATCH
     return getHardwareDescription(HW_MODEL);
-#    endif // UIKIT_LINKED
+#    endif // SENTRY_HAS_UIKIT
 #endif // TARGET_OS_SIMULATOR
 }
 

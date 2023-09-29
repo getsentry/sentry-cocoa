@@ -11,7 +11,7 @@
 #import <SentryNSNotificationCenterWrapper.h>
 #import <SentryOptions.h>
 
-#if UIKIT_LINKED
+#if SENTRY_HAS_UIKIT
 #    import <SentryInternalNotificationNames.h>
 #    import <SentryNSNotificationCenterWrapper.h>
 #    import <UIKit/UIKit.h>
@@ -48,7 +48,7 @@ SentryAppStateManager ()
     return self;
 }
 
-#if UIKIT_LINKED
+#if SENTRY_HAS_UIKIT
 
 - (void)start
 {

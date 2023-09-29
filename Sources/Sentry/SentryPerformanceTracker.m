@@ -9,9 +9,9 @@
 #import "SentryTracer.h"
 #import "SentryTransactionContext+Private.h"
 
-#if UIKIT_LINKED
+#if SENTRY_HAS_UIKIT
 #    import "SentryUIEventTracker.h"
-#endif // UIKIT_LINKED
+#endif // SENTRY_HAS_UIKIT
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -67,7 +67,7 @@ SentryPerformanceTracker () <SentryTracerDelegate>
             if (span == nil) {
                 bindToScope = YES;
             }
-#if UIKIT_LINKED
+#if SENTRY_HAS_UIKIT
             else {
                 if ([SentryUIEventTracker isUIEventOperation:span.operation]) {
                     SENTRY_LOG_DEBUG(
@@ -76,7 +76,7 @@ SentryPerformanceTracker () <SentryTracerDelegate>
                     bindToScope = YES;
                 }
             }
-#endif // UIKIT_LINKED
+#endif // SENTRY_HAS_UIKIT
 
             SENTRY_LOG_DEBUG(@"Creating new transaction bound to scope: %d", bindToScope);
 

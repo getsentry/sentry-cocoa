@@ -1,6 +1,6 @@
 #import "SentryDefines.h"
 
-#if UIKIT_LINKED
+#if SENTRY_HAS_UIKIT
 
 @class SentrySpan;
 @class SentryTracer;
@@ -37,4 +37,4 @@ SENTRY_NO_INIT
 
 NS_ASSUME_NONNULL_END
 
-#endif // UIKIT_LINKED
+#endif // SENTRY_HAS_UIKIT
