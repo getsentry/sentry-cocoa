@@ -171,6 +171,7 @@ jobs:
     name: Check UIKit linkage (Debug)
     runs-on: macos-13
     steps:
+      - uses: actions/checkout@v4
       - name: Build for Debug
         run: ./scripts/xcode-test.sh "iOS" "latest" $GITHUB_REF_NAME ci build Debug_without_UIKit uikit-check-build
       - name: Ensure no UIKit
@@ -180,6 +181,7 @@ jobs:
     name: Check UIKit linkage (Release)
     runs-on: macos-13
     steps:
+      - uses: actions/checkout@v4
       - name: Build for Release
         run: ./scripts/xcode-test.sh "iOS" "latest" $GITHUB_REF_NAME ci build Release_without_UIKit uikit-check-build
       - name: Ensure no UIKit
