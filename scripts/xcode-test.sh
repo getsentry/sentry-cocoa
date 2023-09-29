@@ -13,8 +13,8 @@ OS=${2:-latest}
 REF_NAME="${3-HEAD}"
 IS_LOCAL_BUILD="${4:-ci}"
 COMMAND="${5:-test}"
-DESTINATION=""
-CONFIGURATION=""
+CONFIGURATION_OVERRIDE="${6}"
+DERIVED_DATA_PATH="${7}"
 
 case $PLATFORM in
 
@@ -40,15 +40,19 @@ case $PLATFORM in
     ;;
 esac
 
-case $REF_NAME in
-"main")
-    CONFIGURATION="TestCI"
-    ;;
+if [ -n $CONFIGURATION_OVERRIDE ]; then
+    CONFIGURATION=$CONFIGURATION_OVERRIDE
+else
+    case $REF_NAME in
+    "main")
+        CONFIGURATION="TestCI"
+        ;;
 
-*)
-    CONFIGURATION="Test"
-    ;;
-esac
+    *)
+        CONFIGURATION="Test"
+        ;;
+    esac
+fi
 
 case $IS_LOCAL_BUILD in
 "ci")
@@ -60,22 +64,40 @@ case $IS_LOCAL_BUILD in
 esac
 
 case $COMMAND in
+"build")
+    RUN_BUILD=true
+    RUN_BUILD_FOR_TESTING=false
+    RUN_TEST_WITHOUT_BUILDING=false
+    ;;
 "build-for-testing")
+    RUN_BUILD=false
     RUN_BUILD_FOR_TESTING=true
     RUN_TEST_WITHOUT_BUILDING=false
     ;;
 "test-without-building")
+    RUN_BUILD=false
     RUN_BUILD_FOR_TESTING=false
     RUN_TEST_WITHOUT_BUILDING=true
     ;;
 *)
+    RUN_BUILD=false
     RUN_BUILD_FOR_TESTING=true
     RUN_TEST_WITHOUT_BUILDING=true
     ;;
 esac
 
+if [ $RUN_BUILD == true ]; then
+    env NSUnbufferedIO=YES xcodebuild \
+        -workspace Sentry.xcworkspace \
+        -scheme Sentry \
+        -configuration $CONFIGURATION \
+        -destination "$DESTINATION" \
+        -derivedDataPath $DERIVED_DATA_PATH \
+        -quiet \
+        build
+fi
+
 if [ $RUN_BUILD_FOR_TESTING == true ]; then
-    # build everything for testing
     env NSUnbufferedIO=YES xcodebuild \
         -workspace Sentry.xcworkspace \
         -scheme Sentry \
@@ -85,7 +107,6 @@ if [ $RUN_BUILD_FOR_TESTING == true ]; then
 fi
 
 if [ $RUN_TEST_WITHOUT_BUILDING == true ]; then
-    # run the tests
     env NSUnbufferedIO=YES xcodebuild \
         -workspace Sentry.xcworkspace \
         -scheme Sentry \
