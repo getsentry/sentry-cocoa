@@ -256,11 +256,11 @@ GEM
     simctl (1.6.10)
       CFPropertyList
       naturally
-    slather (2.7.4)
+    slather (2.7.5)
       CFPropertyList (>= 2.2, < 4)
       activesupport
       clamp (~> 1.3)
-      nokogiri (>= 1.13.9)
+      nokogiri (>= 1.14.3)
       xcodeproj (~> 1.21)
     terminal-notifier (2.0.0)
     terminal-table (3.0.2)
