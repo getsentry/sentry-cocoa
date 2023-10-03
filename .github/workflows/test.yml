@@ -112,7 +112,7 @@ jobs:
             platform: "iOS"
             xcode: "15.0"
             test-destination-os: "latest"
-            device: "iPhone 14"
+            device: "iPhone 15"
 
           # macOS 11
           - runs-on: macos-11
