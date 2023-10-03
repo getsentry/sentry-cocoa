@@ -71,7 +71,7 @@ jobs:
   unit-tests:
     name: Unit ${{matrix.platform}} - Xcode ${{matrix.xcode}} - OS ${{matrix.test-destination-os}}
     runs-on: ${{matrix.runs-on}}
-    timeout-minutes: 40 # something is taking much longer for this job, maybe the beta simulator is slow to launch (armcknight 19 Sept 2023)
+    timeout-minutes: 20
     needs: build-test-server
 
     strategy:
@@ -182,6 +182,14 @@ jobs:
           sudo mkdir -p /Library/Developer/CoreSimulator/Profiles/Runtimes
           sudo ln -s /Applications/Xcode_12.5.1.app/Contents/Developer/Platforms/iPhoneOS.platform/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS.simruntime /Library/Developer/CoreSimulator/Profiles/Runtimes/iOS\ 14.5.simruntime
           xcrun simctl create custom-test-device "iPhone 8" "com.apple.CoreSimulator.SimRuntime.iOS-14-5"
+
+      # Workaround with a symlink pointed out in: https://github.com/actions/virtual-environments/issues/551#issuecomment-637344435
+      - name: Prepare iOS 17 simulator
+        if: ${{ matrix.platform == 'iOS' && matrix.xcode == '15'}}
+        run: |
+          sudo mkdir -p /Library/Developer/CoreSimulator/Profiles/Runtimes
+          sudo ln -s /Applications/Xcode_15.app/Contents/Developer/Platforms/iPhoneOS.platform/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS.simruntime /Library/Developer/CoreSimulator/Profiles/Runtimes/iOS\ 17.simruntime
+          xcrun simctl create custom-test-device "iPhone 15" "com.apple.CoreSimulator.SimRuntime.iOS-17"
 
       - name: Install Slather
         run: gem install slather
