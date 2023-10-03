@@ -108,7 +108,7 @@ jobs:
             device: "iPhone 14"
 
           # iOS 17
-          - runs-on: macos-13
+          - runs-on: macos-13-arm64
             platform: "iOS"
             xcode: "15.0"
             test-destination-os: "latest"
@@ -182,14 +182,6 @@ jobs:
           sudo mkdir -p /Library/Developer/CoreSimulator/Profiles/Runtimes
           sudo ln -s /Applications/Xcode_12.5.1.app/Contents/Developer/Platforms/iPhoneOS.platform/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS.simruntime /Library/Developer/CoreSimulator/Profiles/Runtimes/iOS\ 14.5.simruntime
           xcrun simctl create custom-test-device "iPhone 8" "com.apple.CoreSimulator.SimRuntime.iOS-14-5"
-
-      # Workaround with a symlink pointed out in: https://github.com/actions/virtual-environments/issues/551#issuecomment-637344435
-      - name: Prepare iOS 17 simulator
-        if: ${{ matrix.platform == 'iOS' && matrix.xcode == '15.0'}}
-        run: |
-          sudo mkdir -p /Library/Developer/CoreSimulator/Profiles/Runtimes
-          sudo ln -s /Applications/Xcode_15.app/Contents/Developer/Platforms/iPhoneOS.platform/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS.simruntime /Library/Developer/CoreSimulator/Profiles/Runtimes/iOS\ 17.simruntime
-          xcrun simctl create custom-test-device "iPhone 15" "com.apple.CoreSimulator.SimRuntime.iOS-17"
 
       - name: Install Slather
         run: gem install slather
