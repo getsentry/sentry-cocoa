@@ -4,7 +4,7 @@
 
 ### Fixes
 
-- App hang being reported from background (#3298)
+- Reporting app hangs from background (#3298)
 - Remove "duplicate library" warning (#3312)
 
 ## 8.13.0
