@@ -27,21 +27,29 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             options.tracesSampleRate = 1.0
             options.sessionTrackingIntervalMillis = 5_000
             options.profilesSampleRate = 1.0
+#if SENTRY_HAS_UIKIT
             options.attachScreenshot = true
             options.attachViewHierarchy = true
+#endif // SENTRY_HAS_UIKIT
             options.environment = "test-app"
             options.enableTimeToFullDisplayTracing = true
 
             let isBenchmarking = ProcessInfo.processInfo.arguments.contains("--io.sentry.test.benchmarking")
 
             // the benchmark test starts and stops a custom transaction using a UIButton, and automatic user interaction tracing stops the transaction that begins with that button press after the idle timeout elapses, stopping the profiler (only one profiler runs regardless of the number of concurrent transactions)
+#if SENTRY_HAS_UIKIT
             options.enableUserInteractionTracing = !isBenchmarking && !ProcessInfo.processInfo.arguments.contains("--disable-ui-tracing")
+#endif // SENTRY_HAS_UIKIT
             options.enableAutoPerformanceTracing = !isBenchmarking && !ProcessInfo.processInfo.arguments.contains("--disable-auto-performance-tracing")
+#if SENTRY_HAS_UIKIT
             options.enablePreWarmedAppStartTracing = !isBenchmarking
+#endif // SENTRY_HAS_UIKIT
 
             options.enableFileIOTracing = !ProcessInfo.processInfo.arguments.contains("--disable-file-io-tracing")
             options.enableAutoBreadcrumbTracking = !ProcessInfo.processInfo.arguments.contains("--disable-automatic-breadcrumbs")
+#if SENTRY_HAS_UIKIT
             options.enableUIViewControllerTracing = !ProcessInfo.processInfo.arguments.contains("--disable-uiviewcontroller-tracing")
+#endif // SENTRY_HAS_UIKIT
             options.enableNetworkTracking = !ProcessInfo.processInfo.arguments.contains("--disable-network-tracking")
             options.enableCoreDataTracing = !ProcessInfo.processInfo.arguments.contains("--disable-core-data-tracing")
             options.enableNetworkBreadcrumbs = !ProcessInfo.processInfo.arguments.contains("--disable-network-breadcrumbs")
