@@ -1,4 +1,5 @@
-//
+//  Copied from https://github.com/mhdhejazi/Dynamic/blob/772883073d044bc754d401cabb6574624eb3778f/Sources/Dynamic/Logger.swift
+// 
 //  Dynamic
 //  Created by Mhd Hejazi on 4/15/20.
 //  Copyright © 2020 Samabox. All rights reserved.

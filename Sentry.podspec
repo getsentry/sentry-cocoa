@@ -15,7 +15,6 @@ Pod::Spec.new do |s|
   s.module_name  = "Sentry"
   s.requires_arc = true
   s.frameworks = 'Foundation'
-  s.libraries = 'z', 'c++'
   s.swift_versions = "5.5"
   s.pod_target_xcconfig = {
       'GCC_ENABLE_CPP_EXCEPTIONS' => 'YES',
