@@ -156,7 +156,8 @@ SentryConnectivityReset(void)
     [self removeReachabilityNotification];
 }
 
-- (void)removeReachabilityNotification {
+- (void)removeReachabilityNotification
+{
     sentry_current_reachability_state = kSCNetworkReachabilityFlagsUninitialized;
 
     if (_sentry_reachability_ref == nil) {
