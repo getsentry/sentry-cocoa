@@ -7,7 +7,9 @@ class SentryAutoBreadcrumbTrackingIntegrationTests: XCTestCase {
     private class Fixture {
         let tracker = SentryTestBreadcrumbTracker()
         
+#if os(iOS)
         var systemEventBreadcrumbs: SentryTestSystemEventBreadcrumbs?
+#endif // os(iOS)
         
         var sut: SentryAutoBreadcrumbTrackingIntegration {
             return SentryAutoBreadcrumbTrackingIntegration()
@@ -68,7 +70,9 @@ class SentryAutoBreadcrumbTrackingIntegrationTests: XCTestCase {
         SentrySDK.setCurrentHub(hub)
         
         let crumb = TestData.crumb
+#if os(iOS)
         fixture.systemEventBreadcrumbs?.startWithdelegateInvocations.first?.add(crumb)
+#endif // os(iOS)
         
         let serializedScope = scope.serialize()
                 
@@ -85,9 +89,13 @@ class SentryAutoBreadcrumbTrackingIntegrationTests: XCTestCase {
     
     private func install(sut: SentryAutoBreadcrumbTrackingIntegration, options: Options = Options()) throws {
         
+#if os(iOS)
         fixture.systemEventBreadcrumbs = SentryTestSystemEventBreadcrumbs(fileManager: try TestFileManager(options: options), andNotificationCenterWrapper: TestNSNotificationCenterWrapper())
-        
         sut.install(with: options, breadcrumbTracker: fixture.tracker, systemEventBreadcrumbs: fixture.systemEventBreadcrumbs!)
+#else
+        sut.install(with: options, breadcrumbTracker: fixture.tracker)
+#endif // os(iOS)
+        
     }
 }
 
@@ -105,6 +113,8 @@ private class SentryTestBreadcrumbTracker: SentryBreadcrumbTracker {
 
 }
 
+#if os(iOS)
+
 private class SentryTestSystemEventBreadcrumbs: SentrySystemEventBreadcrumbs {
     
     let startWithdelegateInvocations = Invocations<SentryBreadcrumbDelegate>()
@@ -112,3 +122,5 @@ private class SentryTestSystemEventBreadcrumbs: SentrySystemEventBreadcrumbs {
         startWithdelegateInvocations.record(delegate)
     }
 }
+
+#endif // os(iOS)
