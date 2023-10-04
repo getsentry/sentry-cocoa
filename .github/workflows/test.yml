@@ -107,13 +107,6 @@ jobs:
             test-destination-os: "16.4"
             device: "iPhone 14"
 
-          # iOS 17
-          - runs-on: macos-13-arm64
-            platform: "iOS"
-            xcode: "15.0"
-            test-destination-os: "latest"
-            device: "iPhone 15"
-
           # macOS 11
           - runs-on: macos-11
             platform: "macOS"
