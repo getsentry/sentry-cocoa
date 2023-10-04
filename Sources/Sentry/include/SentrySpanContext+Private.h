@@ -1,10 +1,9 @@
-#import <SentryDefines.h>
 #import <SentrySpanContext.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
 @interface
-SentrySpanContext (Private)
+SentrySpanContext ()
 
 - (instancetype)initWithOperation:(NSString *)operation
                            origin:(NSString *)origin

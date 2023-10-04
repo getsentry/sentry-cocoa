@@ -7,6 +7,7 @@ class SentryUIDeviceWrapperTests: XCTestCase {
         let dispatchQueue = TestSentryDispatchQueueWrapper()
         SentryDependencyContainer.sharedInstance().dispatchQueueWrapper = dispatchQueue
         let sut = SentryUIDeviceWrapper()
+        sut.start()
         XCTAssertEqual(dispatchQueue.blockOnMainInvocations.count, 1)
 
         sut.stop()
