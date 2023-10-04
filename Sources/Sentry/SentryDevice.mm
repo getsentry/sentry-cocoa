@@ -191,11 +191,6 @@ sentry_getOSVersion(void)
     return [NSString stringWithFormat:@"%ld.%ld.%ld", (long)version.majorVersion,
                      (long)version.minorVersion, (long)version.patchVersion];
 #endif // SENTRY_HAS_UIKIT
-    NSOperatingSystemVersion version = NSProcessInfo.processInfo.operatingSystemVersion;
-    return [NSString stringWithFormat:@"%ld.%ld.%ld", version.majorVersion, version.minorVersion,
-                     version.patchVersion];
-}
-#endif
 }
 
 NSString *
