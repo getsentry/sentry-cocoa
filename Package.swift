@@ -1,9 +1,9 @@
-// swift-tools-version:5.3
+// swift-tools-version:5.9
 import PackageDescription
 
 let package = Package(
     name: "Sentry",
-    platforms: [.iOS(.v11), .macOS(.v10_13), .tvOS(.v11), .watchOS(.v4), .xrOS(.v1)],
+    platforms: [.iOS(.v11), .macOS(.v10_13), .tvOS(.v11), .watchOS(.v4), .visionOS(.v1)],
     products: [
         .library(name: "Sentry", targets: ["Sentry"]),
         .library(name: "Sentry-Dynamic", type: .dynamic, targets: ["Sentry"]),
