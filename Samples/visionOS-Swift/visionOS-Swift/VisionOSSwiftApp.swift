@@ -2,7 +2,7 @@ import Sentry
 import SwiftUI
 
 @main
-struct visionOS_SwiftApp: App {
+struct VisionOSSwiftApp: App {
 
     init() {
         SentrySDK.start { options in

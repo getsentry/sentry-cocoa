@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		D84C37E32ACDC4A000EF74BE /* visionOS_SwiftApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = D84C37E22ACDC4A000EF74BE /* visionOS_SwiftApp.swift */; };
+		D84C37E32ACDC4A000EF74BE /* VisionOSSwiftApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = D84C37E22ACDC4A000EF74BE /* VisionOSSwiftApp.swift */; };
 		D84C37E52ACDC4A000EF74BE /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D84C37E42ACDC4A000EF74BE /* ContentView.swift */; };
 		D84C37E92ACDC4A100EF74BE /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D84C37E82ACDC4A100EF74BE /* Assets.xcassets */; };
 		D84C37EC2ACDC4A100EF74BE /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D84C37EB2ACDC4A100EF74BE /* Preview Assets.xcassets */; };
@@ -31,7 +31,7 @@
 
 /* Begin PBXFileReference section */
 		D84C37DB2ACDC4A000EF74BE /* visionOS-Swift.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "visionOS-Swift.app"; sourceTree = BUILT_PRODUCTS_DIR; };
-		D84C37E22ACDC4A000EF74BE /* visionOS_SwiftApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = visionOS_SwiftApp.swift; sourceTree = "<group>"; };
+		D84C37E22ACDC4A000EF74BE /* VisionOSSwiftApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisionOSSwiftApp.swift; sourceTree = "<group>"; };
 		D84C37E42ACDC4A000EF74BE /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		D84C37E82ACDC4A100EF74BE /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		D84C37EB2ACDC4A100EF74BE /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
@@ -71,7 +71,7 @@
 		D84C37DD2ACDC4A000EF74BE /* visionOS-Swift */ = {
 			isa = PBXGroup;
 			children = (
-				D84C37E22ACDC4A000EF74BE /* visionOS_SwiftApp.swift */,
+				D84C37E22ACDC4A000EF74BE /* VisionOSSwiftApp.swift */,
 				D84C37E42ACDC4A000EF74BE /* ContentView.swift */,
 				D84C37E82ACDC4A100EF74BE /* Assets.xcassets */,
 				D84C37ED2ACDC4A100EF74BE /* Info.plist */,
@@ -170,7 +170,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				D84C37E52ACDC4A000EF74BE /* ContentView.swift in Sources */,
-				D84C37E32ACDC4A000EF74BE /* visionOS_SwiftApp.swift in Sources */,
+				D84C37E32ACDC4A000EF74BE /* VisionOSSwiftApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
