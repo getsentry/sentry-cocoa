@@ -173,7 +173,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Build for Debug
-        run: ./scripts/xcode-test.sh "iOS" "latest" $GITHUB_REF_NAME ci build Debug_without_UIKit uikit-check-build
+        run: ./scripts/xcode-test.sh "iOS" "latest" $GITHUB_REF_NAME ci build "iPhone 14" Debug_without_UIKit uikit-check-build
       - name: Ensure no UIKit
         run: ./scripts/check-uikit-linkage.sh Debug_without_UIKit uikit-check-build
 
@@ -183,6 +183,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Build for Release
-        run: ./scripts/xcode-test.sh "iOS" "latest" $GITHUB_REF_NAME ci build Release_without_UIKit uikit-check-build
+        run: ./scripts/xcode-test.sh "iOS" "latest" $GITHUB_REF_NAME ci build "iPhone 14" Release_without_UIKit uikit-check-build
       - name: Ensure no UIKit
         run: ./scripts/check-uikit-linkage.sh Release_without_UIKit uikit-check-build
