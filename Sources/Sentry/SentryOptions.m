@@ -632,4 +632,44 @@ NSString *const kSentryDefaultEnvironment = @"production";
     return [block isKindOfClass:blockClass];
 }
 
+#if !SENTRY_HAS_UIKIT
+
+- (void)setEnableUIViewControllerTracing:(BOOL)enableUIViewControllerTracing
+{
+    SENTRY_LOG_WARN(@"enableUIViewControllerTracing only works with UIKit enabled. Ensure you're "
+                    @"using the right configuration of Sentry that links UIKit.");
+}
+
+- (void)setAttachScreenshot:(BOOL)attachScreenshot
+{
+    SENTRY_LOG_WARN(@"attachScreenshot only works with UIKit enabled. Ensure you're using the "
+                    @"right configuration of Sentry that links UIKit.");
+}
+
+- (void)setAttachViewHierarchy:(BOOL)attachViewHierarchy
+{
+    SENTRY_LOG_WARN(@"attachViewHierarchy only works with UIKit enabled. Ensure you're using the "
+                    @"right configuration of Sentry that links UIKit.");
+}
+
+- (void)setEnableUserInteractionTracing:(BOOL)enableUserInteractionTracing
+{
+    SENTRY_LOG_WARN(@"enableUserInteractionTracing only works with UIKit enabled. Ensure you're "
+                    @"using the right configuration of Sentry that links UIKit.");
+}
+
+- (void)setIdleTimeout:(NSTimeInterval)idleTimeout
+{
+    SENTRY_LOG_WARN(@"idleTimeout only works with UIKit enabled. Ensure you're using the right "
+                    @"configuration of Sentry that links UIKit.");
+}
+
+- (void)setEnablePreWarmedAppStartTracing:(BOOL)enablePreWarmedAppStartTracing
+{
+    SENTRY_LOG_WARN(@"enablePreWarmedAppStartTracing only works with UIKit enabled. Ensure you're "
+                    @"using the right configuration of Sentry that links UIKit.");
+}
+
+#endif // !SENTRY_HAS_UIKIT
+
 @end

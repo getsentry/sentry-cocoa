@@ -199,7 +199,6 @@ NS_SWIFT_NAME(Options)
  */
 @property (nonatomic) SentryScope * (^initialScope)(SentryScope *);
 
-#if SENTRY_HAS_UIKIT
 /**
  * When enabled, the SDK tracks performance for UIViewController subclasses.
  * @note The default is @c YES .
@@ -245,8 +244,6 @@ NS_SWIFT_NAME(Options)
  * @note Default value is @c NO .
  */
 @property (nonatomic, assign) BOOL enablePreWarmedAppStartTracing;
-
-#endif // SENTRY_HAS_UIKIT
 
 /**
  * When enabled, the SDK tracks performance for HTTP requests if auto performance tracking and
