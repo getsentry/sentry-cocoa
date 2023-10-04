@@ -12,10 +12,6 @@
 
 - Remove sync call to main thread from SentryUIDeviceWrapper (#3295)
 
-### Fixes
-
-- App hang with race condition for tick counter (#3290)
-
 ### Features
 
 - Record changes to network connectivity in breadcrumbs (#3232)
