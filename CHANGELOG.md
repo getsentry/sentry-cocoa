@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- App hang with race condition for tick counter (#3290)
+
 ## 8.13.0
 
 ### Fixes
@@ -13,11 +19,6 @@
 ### Features
 
 - Record changes to network connectivity in breadcrumbs (#3232)
-## Unreleased
-
-### Fixes
-
-- App hang with race condition for tick counter (#3290)
 
 ## 8.12.0
 
