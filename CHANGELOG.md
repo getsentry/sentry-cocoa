@@ -5,6 +5,7 @@
 ### Fixes
 
 - Remove "duplicate library" warning (#3312)
+- Remove unnecessaries build settings (#3325)
 
 ## 8.13.0
 
