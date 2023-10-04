@@ -19,6 +19,7 @@ let package = Package(
                 "SentryCrash/"
             ],
             publicHeadersPath: "Sentry/Public/",
+            cSettings: [.unsafeFlags(["-DSENTRY_UIKIT_LINKED=1"])],
             cxxSettings: [
                 .define("GCC_ENABLE_CPP_EXCEPTIONS", to: "YES"),
                 .headerSearchPath("Sentry/include"),
@@ -31,8 +32,7 @@ let package = Package(
                 .headerSearchPath("SentryCrash/Reporting/Filters"),
                 .headerSearchPath("SentryCrash/Reporting/Filters/Tools"),
                 .headerSearchPath("SentryCrash/Reporting/Tools")
-            ],
-            cSettings: [.unsafeFlags(["-DSENTRY_UIKIT_LINKED=1"])]
+            ]
         ),
         .target( name: "SentryPrivate",
                  path: "Sources",
