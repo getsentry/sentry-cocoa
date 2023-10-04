@@ -1,6 +1,10 @@
 # Changelog
 
-## Unreleased
+## 8.13.0
+
+### Fixes
+
+- Remove sync call to main thread from SentryUIDeviceWrapper (#3295)
 
 ### Fixes
 
@@ -9,6 +13,11 @@
 ### Features
 
 - Record changes to network connectivity in breadcrumbs (#3232)
+## Unreleased
+
+### Fixes
+
+- App hang with race condition for tick counter (#3290)
 
 ## 8.12.0
 
@@ -23,7 +32,8 @@
 
 ### Features
 
-- Rename "http.method" to "http.request.method" for network Spans #3268
+- Rename "http.method" to "http.request.method" for network Spans (#3268)
+- Add Sampling Decision to Trace Envelope Header (#3286)
 
 ## 8.11.0
 

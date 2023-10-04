@@ -38,7 +38,8 @@
                                            environment:options.environment
                                            transaction:nil
                                            userSegment:scope.userObject.segment
-                                            sampleRate:nil];
+                                            sampleRate:nil
+                                               sampled:nil];
 }
 
 - (NSDictionary<NSString *, NSString *> *)traceContextForEvent
