@@ -13,8 +13,9 @@ OS=${2:-latest}
 REF_NAME="${3-HEAD}"
 IS_LOCAL_BUILD="${4:-ci}"
 COMMAND="${5:-test}"
-CONFIGURATION_OVERRIDE="${6}"
-DERIVED_DATA_PATH="${7:-}"
+DEVICE=${6:-iPhone 14}
+CONFIGURATION_OVERRIDE="${7}"
+DERIVED_DATA_PATH="${8:-}"
 
 case $PLATFORM in
 
@@ -27,7 +28,7 @@ case $PLATFORM in
     ;;
 
 "iOS")
-    DESTINATION="platform=iOS Simulator,OS=$OS,name=iPhone 14"
+    DESTINATION="platform=iOS Simulator,OS=$OS,name=$DEVICE"
     ;;
 
 "tvOS")
