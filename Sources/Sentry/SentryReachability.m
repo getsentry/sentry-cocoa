@@ -1,5 +1,5 @@
-//
-//  SentryReachability.m
+// Adapted from
+// https://github.com/bugsnag/bugsnag-cocoa/blob/2f373f21b965f1b13d7070662e2d35f46c17d975/Bugsnag/Delivery/BSGConnectivity.m
 //
 //  Created by Jamie Lynch on 2017-09-04.
 //

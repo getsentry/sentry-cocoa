@@ -5,6 +5,7 @@
 ### Fixes
 
 - Start SDK only in the main thread (#3291)
+- App hang with race condition for tick counter (#3290)
 - Remove "duplicate library" warning (#3312)
 
 ## 8.13.0
