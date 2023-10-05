@@ -18,6 +18,10 @@
 #    define SENTRY_HAS_METRIC_KIT 0
 #endif
 
+#ifndef TARGET_OS_VISION
+#define TARGET_OS_VISION 0
+#endif
+
 #define SENTRY_NO_INIT                                                                             \
     -(instancetype)init NS_UNAVAILABLE;                                                            \
     +(instancetype) new NS_UNAVAILABLE;
