@@ -168,7 +168,7 @@ SentryBreadcrumbTracker ()
 #if SENTRY_HAS_UIKIT
 + (BOOL)avoidSender:(id)sender forTarget:(id)target action:(NSString *)action
 {
-    if ([sender isKindOfClass:[UITextField class]]) {
+    if ([sender isKindOfClass:UITextField.self]) {
         // This is required to avoid creating breadcrumbs for every key pressed in a text field.
         // Textfield may invoke many types of event, in order to check if is a
         // `UIControlEventEditingChanged` we need to compare the current action to all events
@@ -176,9 +176,8 @@ SentryBreadcrumbTracker ()
         // same action for different events, but this trade off is acceptable because using the same
         // action for `.editingChanged` and another event is not supposed to happen.
         UITextField *textField = sender;
-        NSArray<NSString *> *actions =
-            [textField actionsForTarget:target
-                        forControlEvent:(UIControlEvents)UIControlEventEditingChanged];
+        NSArray<NSString *> *actions = [textField actionsForTarget:target
+                                                   forControlEvent:UIControlEventEditingChanged];
         return [actions containsObject:action];
     }
     return NO;
@@ -238,7 +237,7 @@ SentryBreadcrumbTracker ()
     mode = SentrySwizzleModeAlways;
 #    endif // defined(TEST) || defined(TESTCI)
 
-    SentrySwizzleInstanceMethod(UIViewController, selector, SentrySWReturnType(void),
+    SentrySwizzleInstanceMethod(UIViewController.class, selector, SentrySWReturnType(void),
         SentrySWArguments(BOOL animated), SentrySWReplacement({
             SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:kSentryLevelInfo
                                                                      category:@"ui.lifecycle"];
@@ -270,7 +269,7 @@ SentryBreadcrumbTracker ()
         [result setValue:view.accessibilityIdentifier forKey:@"accessibilityIdentifier"];
     }
 
-    if ([view isKindOfClass:[UIButton class]]) {
+    if ([view isKindOfClass:UIButton.class]) {
         UIButton *button = (UIButton *)view;
         if (button.currentTitle && ![button.currentTitle isEqual:@""]) {
             [result setValue:[button currentTitle] forKey:@"title"];
