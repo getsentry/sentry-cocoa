@@ -59,9 +59,11 @@ SentryAutoBreadcrumbTrackingIntegration ()
     self.breadcrumbTracker = breadcrumbTracker;
     [self.breadcrumbTracker startWithDelegate:self];
 
+#if SENTRY_HAS_UIKIT
     if (options.enableSwizzling) {
         [self.breadcrumbTracker startSwizzle];
     }
+#endif // SENTRY_HAS_UIKIT
 
 #if TARGET_OS_IOS && SENTRY_HAS_UIKIT
     self.systemEventBreadcrumbs = systemEventBreadcrumbs;

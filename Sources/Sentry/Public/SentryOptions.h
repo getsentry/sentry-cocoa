@@ -201,12 +201,14 @@ NS_SWIFT_NAME(Options)
 
 /**
  * When enabled, the SDK tracks performance for UIViewController subclasses.
+ * @note This feature is only available on builds that link @c UIKit .
  * @note The default is @c YES .
  */
 @property (nonatomic, assign) BOOL enableUIViewControllerTracing;
 
 /**
  * Automatically attaches a screenshot when capturing an error or exception.
+ * @note This feature is only available on builds that link @c UIKit .
  * @note Default value is @c NO .
  */
 @property (nonatomic, assign) BOOL attachScreenshot;
@@ -215,6 +217,7 @@ NS_SWIFT_NAME(Options)
  * @warning This is an experimental feature and may still have bugs.
  * @brief Automatically attaches a textual representation of the view hierarchy when capturing an
  * error event.
+ * @note This feature is only available on builds that link @c UIKit .
  * @note Default value is @c NO .
  */
 @property (nonatomic, assign) BOOL attachViewHierarchy;
@@ -222,6 +225,7 @@ NS_SWIFT_NAME(Options)
 /**
  * When enabled, the SDK creates transactions for UI events like buttons clicks, switch toggles,
  * and other ui elements that uses UIControl @c sendAction:to:forEvent:
+ * @note This feature is only available on builds that link @c UIKit .
  * @note Default value is @c YES .
  */
 @property (nonatomic, assign) BOOL enableUserInteractionTracing;
@@ -229,6 +233,7 @@ NS_SWIFT_NAME(Options)
 /**
  * How long an idle transaction waits for new children after all its child spans finished. Only UI
  * event transactions are idle transactions.
+ * @note This feature is only available on builds that link @c UIKit .
  * @note The default is 3 seconds.
  */
 @property (nonatomic, assign) NSTimeInterval idleTimeout;
@@ -241,6 +246,7 @@ NS_SWIFT_NAME(Options)
  * @note You can filter for different app start types in Discover with
  * @c app_start_type:cold.prewarmed ,
  * @c app_start_type:warm.prewarmed , @c app_start_type:cold , and @c app_start_type:warm .
+ * @note This feature is only available on builds that link @c UIKit .
  * @note Default value is @c NO .
  */
 @property (nonatomic, assign) BOOL enablePreWarmedAppStartTracing;

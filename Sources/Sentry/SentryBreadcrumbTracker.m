@@ -48,17 +48,19 @@ SentryBreadcrumbTracker ()
 {
     _delegate = delegate;
     [self addEnabledCrumb];
-    [self trackApplicationUIKitNotifications];
+    [self trackApplicationNotifications];
 #if !TARGET_OS_WATCH
     [self trackNetworkConnectivityChanges];
 #endif // !TARGET_OS_WATCH
 }
 
+#if SENTRY_HAS_UIKIT
 - (void)startSwizzle
 {
     [self swizzleSendAction];
     [self swizzleViewDidAppear];
 }
+#endif // SENTRY_HAS_UIKIT
 
 - (void)stop
 {
@@ -71,7 +73,7 @@ SentryBreadcrumbTracker ()
     _delegate = nil;
 }
 
-- (void)trackApplicationUIKitNotifications
+- (void)trackApplicationNotifications
 {
 #if SENTRY_HAS_UIKIT
     NSNotificationName foregroundNotificationName = UIApplicationDidBecomeActiveNotification;
@@ -83,7 +85,7 @@ SentryBreadcrumbTracker ()
     NSNotificationName backgroundNotificationName = NSApplicationWillResignActiveNotification;
 #else // TARGET_OS_WATCH
     SENTRY_LOG_DEBUG(@"NO UIKit, OSX and Catalyst -> [SentryBreadcrumbTracker "
-                     @"trackApplicationUIKitNotifications] does nothing.");
+                     @"trackApplicationNotifications] does nothing.");
 #endif // !TARGET_OS_WATCH
 
     // not available for macOS
@@ -184,9 +186,9 @@ SentryBreadcrumbTracker ()
 }
 #endif // SENTRY_HAS_UIKIT
 
+#if SENTRY_HAS_UIKIT
 - (void)swizzleSendAction
 {
-#if SENTRY_HAS_UIKIT
     SentryBreadcrumbTracker *__weak weakSelf = self;
     [SentryDependencyContainer.sharedInstance.swizzleWrapper
         swizzleSendAction:^(NSString *action, id target, id sender, UIEvent *event) {
@@ -209,15 +211,12 @@ SentryBreadcrumbTracker ()
             [weakSelf.delegate addBreadcrumb:crumb];
         }
                    forKey:SentryBreadcrumbTrackerSwizzleSendAction];
-
-#else // !SENTRY_HAS_UIKIT
-    SENTRY_LOG_DEBUG(@"NO UIKit -> [SentryBreadcrumbTracker swizzleSendAction] does nothing.");
-#endif // SENTRY_HAS_UIKIT
 }
+#endif // SENTRY_HAS_UIKIT
 
+#if SENTRY_HAS_UIKIT
 - (void)swizzleViewDidAppear
 {
-#if SENTRY_HAS_UIKIT
 
     // SentrySwizzleInstanceMethod declaration shadows a local variable. The swizzling is working
     // fine and we accept this warning.
@@ -250,12 +249,8 @@ SentryBreadcrumbTracker ()
         }),
         mode, swizzleViewDidAppearKey);
 #    pragma clang diagnostic pop
-#else // !SENTRY_HAS_UIKIT
-    SENTRY_LOG_DEBUG(@"NO UIKit -> [SentryBreadcrumbTracker swizzleViewDidAppear] does nothing.");
-#endif // SENTRY_HAS_UIKIT
 }
 
-#if SENTRY_HAS_UIKIT
 + (NSDictionary *)extractDataFromView:(UIView *)view
 {
     NSMutableDictionary *result =
