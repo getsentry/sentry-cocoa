@@ -1,22 +1,32 @@
-#import "SentryDefines.h"
+#import "UIViewController+Sentry.h"
 
 #if SENTRY_HAS_UIKIT
-#    import <UIKit/UIKit.h>
 
-NS_ASSUME_NONNULL_BEGIN
-
-@interface
+@implementation
 UIViewController (Sentry)
 
-/**
- * An array of view controllers that are descendants, meaning children, grandchildren, ... , of the
- * current view controller.
- */
-@property (nonatomic, readonly, strong)
-    NSArray<UIViewController *> *sentry_descendantViewControllers;
+- (NSArray<UIViewController *> *)sentry_descendantViewControllers
+{
+
+    // The implementation of UIViewController makes sure a parent can't be a child of his child.
+    // Therefore, we can assume the parent child relationship is correct.
+
+    NSMutableArray<UIViewController *> *allViewControllers = [NSMutableArray new];
+    [allViewControllers addObject:self];
+
+    NSMutableArray<UIViewController *> *toAdd =
+        [NSMutableArray arrayWithArray:self.childViewControllers];
+
+    while (toAdd.count > 0) {
+        UIViewController *viewController = [toAdd lastObject];
+        [allViewControllers addObject:viewController];
+        [toAdd removeLastObject];
+        [toAdd addObjectsFromArray:viewController.childViewControllers];
+    }
+
+    return allViewControllers;
+}
 
 @end
-
-NS_ASSUME_NONNULL_END
 
 #endif // SENTRY_HAS_UIKIT
