@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Features
+
+- Add visionOS support (#3328)
+
 ### Fixes
 
 - App hang with race condition for tick counter (#3290)
