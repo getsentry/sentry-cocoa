@@ -6,7 +6,13 @@
 #    define SENTRY_EXTERN extern __attribute__((visibility("default")))
 #endif
 
-#if (TARGET_OS_IOS || TARGET_OS_TV) && SENTRY_UIKIT_LINKED
+#if TARGET_OS_IOS || TARGET_OS_TV
+#    define SENTRY_UIKIT_AVAILABLE 1
+#else
+#    define SENTRY_UIKIT_AVAILABLE 0
+#endif
+
+#if SENTRY_UIKIT_AVAILABLE && SENTRY_UIKIT_LINKED
 #    define SENTRY_HAS_UIKIT 1
 #else
 #    define SENTRY_HAS_UIKIT 0
