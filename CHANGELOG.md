@@ -7,6 +7,7 @@
 - Start SDK on the main thread (#3291)
 - App hang with race condition for tick counter (#3290)
 - Remove "duplicate library" warning (#3312)
+- Remove unnecessaries build settings (#3325)
 
 ## 8.13.0
 
