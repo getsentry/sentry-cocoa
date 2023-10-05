@@ -163,8 +163,7 @@ class SentryUIViewControllerSwizzlingTests: XCTestCase {
     }
     
     func testSwizzle_fromApplication_noDelegate() {
-        let result = fixture.sut.swizzleRootViewController(from: MockApplication())
-        XCTAssertFalse(result)
+        XCTAssertFalse(fixture.sut.swizzleRootViewController(from: MockApplication()))
     }
     
     func testSwizzle_fromApplication_noWindowMethod() {
@@ -269,14 +268,7 @@ class SentryUIViewControllerSwizzlingTests: XCTestCase {
     }
 }
 
-class MockUIApplication: UIApplication {
-    init(delegate: UIApplicationDelegate?) {
-        super.init()
-        self.delegate = delegate
-    }
-}
-
-class MockApplication: SentryUIApplication {
+class MockApplication: NSObject, SentryUIApplicationProtocol {
     class MockApplicationDelegate: NSObject, UIApplicationDelegate {
         var window: UIWindow?
         
@@ -287,22 +279,14 @@ class MockApplication: SentryUIApplication {
     
     class MockApplicationDelegateNoWindow: NSObject, UIApplicationDelegate {
     }
-
+    
+    weak var delegate: UIApplicationDelegate?
+    
     override init() {
     }
-
-    override var sharedApplication: UIApplication? {
-        get {
-            super.sharedApplication
-        }
-        set(newValue) {
-            super.sharedApplication = newValue
-        }
-    }
-
+    
     init(_ delegate: UIApplicationDelegate?) {
-        super.init()
-        self.sharedApplication = MockUIApplication(delegate: delegate)
+        self.delegate = delegate
     }
 }
 

@@ -16,6 +16,18 @@
 #    import <UIKit/UIKit.h>
 #    import <objc/runtime.h>
 
+/**
+ * @c swizzleRootViewControllerFromUIApplication: requires an object that conforms to
+ * @c SentryUIApplication to swizzle it, this way, instead of relying on @c UIApplication, we can
+ * test with a mock class.
+ *
+ * This category makes @c UIApplication conform to
+ * @c SentryUIApplication in order to be used by @c SentryUIViewControllerSwizzling .
+ */
+@interface
+UIApplication (SentryUIApplication) <SentryUIApplication>
+@end
+
 @interface
 SentryUIViewControllerSwizzling ()
 
@@ -56,7 +68,7 @@ SentryUIViewControllerSwizzling ()
 
 - (void)start
 {
-    SentryUIApplication *app = [[SentryUIApplication alloc] init];
+    id<SentryUIApplication> app = [self findApp];
     if (app != nil) {
 
         // If an app targets, for example, iOS 13 or lower, the UIKit inits the initial/root view
@@ -101,15 +113,33 @@ SentryUIViewControllerSwizzling ()
     SentryUIViewControllerPerformanceTracker.shared.inAppLogic = self.inAppLogic;
 }
 
-- (void)swizzleAllSubViewControllersInApp:(SentryUIApplication *)app
+- (id<SentryUIApplication>)findApp
 {
-    if (app.sharedApplication.delegate == nil) {
+    if (![UIApplication respondsToSelector:@selector(sharedApplication)]) {
+        SENTRY_LOG_DEBUG(
+            @"UIViewControllerSwizzling: UIApplication doesn't respond to sharedApplication.");
+        return nil;
+    }
+
+    UIApplication *app = [UIApplication performSelector:@selector(sharedApplication)];
+
+    if (app == nil) {
+        SENTRY_LOG_DEBUG(@"UIViewControllerSwizzling: UIApplication.sharedApplication is nil.");
+        return nil;
+    }
+
+    return app;
+}
+
+- (void)swizzleAllSubViewControllersInApp:(id<SentryUIApplication>)app
+{
+    if (app.delegate == nil) {
         SENTRY_LOG_DEBUG(@"UIViewControllerSwizzling: App delegate is nil. Skipping swizzling "
                          @"UIViewControllers in the app image.");
         return;
     }
 
-    [self swizzleUIViewControllersOfClassesInImageOf:[app.sharedApplication.delegate class]];
+    [self swizzleUIViewControllersOfClassesInImageOf:[app.delegate class]];
 }
 
 - (void)swizzleUIViewControllersOfClassesInImageOf:(Class)class
@@ -225,28 +255,28 @@ SentryUIViewControllerSwizzling ()
     }
 }
 
-- (BOOL)swizzleRootViewControllerFromUIApplication:(SentryUIApplication *)app
+- (BOOL)swizzleRootViewControllerFromUIApplication:(id<SentryUIApplication>)app
 {
-    if (app.sharedApplication.delegate == nil) {
+    if (app.delegate == nil) {
         SENTRY_LOG_DEBUG(@"UIViewControllerSwizzling: App delegate is nil. Skipping "
                          @"swizzleRootViewControllerFromAppDelegate.");
         return NO;
     }
 
     // Check if delegate responds to window, which it doesn't have to.
-    if (![app.sharedApplication.delegate respondsToSelector:@selector(window)]) {
+    if (![app.delegate respondsToSelector:@selector(window)]) {
         SENTRY_LOG_DEBUG(@"UIViewControllerSwizzling: UIApplicationDelegate.window is nil. "
                          @"Skipping swizzleRootViewControllerFromAppDelegate.");
         return NO;
     }
 
-    if (app.sharedApplication.delegate.window == nil) {
+    if (app.delegate.window == nil) {
         SENTRY_LOG_DEBUG(@"UIViewControllerSwizzling: UIApplicationDelegate.window is nil. "
                          @"Skipping swizzleRootViewControllerFromAppDelegate.");
         return NO;
     }
 
-    UIViewController *rootViewController = app.sharedApplication.delegate.window.rootViewController;
+    UIViewController *rootViewController = app.delegate.window.rootViewController;
     if (rootViewController == nil) {
         SENTRY_LOG_DEBUG(
             @"UIViewControllerSwizzling: UIApplicationDelegate.window.rootViewController is nil. "
@@ -300,7 +330,7 @@ SentryUIViewControllerSwizzling ()
 - (void)swizzleUIViewController
 {
     SEL selector = NSSelectorFromString(@"loadView");
-    SentrySwizzleInstanceMethod(UIViewController, selector, SentrySWReturnType(void),
+    SentrySwizzleInstanceMethod(UIViewController.class, selector, SentrySWReturnType(void),
         SentrySWArguments(), SentrySWReplacement({
             [SentryUIViewControllerPerformanceTracker.shared
                 viewControllerLoadView:self

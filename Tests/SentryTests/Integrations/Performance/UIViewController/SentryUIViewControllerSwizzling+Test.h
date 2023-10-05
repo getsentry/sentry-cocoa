@@ -15,9 +15,9 @@ SentryUIViewControllerSwizzling (Test)
 
 - (void)swizzleRootViewControllerAndDescendant:(UIViewController *)rootViewController;
 
-- (BOOL)swizzleRootViewControllerFromUIApplication:(SentryUIApplication *)app;
+- (BOOL)swizzleRootViewControllerFromUIApplication:(id<SentryUIApplication>)app;
 
-- (void)swizzleAllSubViewControllersInApp:(SentryUIApplication *)app;
+- (void)swizzleAllSubViewControllersInApp:(id<SentryUIApplication>)app;
 
 - (void)swizzleUIViewControllersOfClassesInImageOf:(nullable Class)class;
 

@@ -76,6 +76,9 @@
                <Test
                   Identifier = "SentrySubClassFinderTests/testActOnSubclassesOfViewController()">
                </Test>
+               <Test
+                  Identifier = "SentryThreadInspectorTests/testStacktraceHasFrames_forEveryThread()">
+               </Test>
             </SkippedTests>
          </TestableReference>
          <TestableReference
@@ -91,7 +94,7 @@
       </Testables>
    </TestAction>
    <LaunchAction
-      buildConfiguration = "Debug"
+      buildConfiguration = "Test"
       selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
       launchStyle = "0"
