@@ -14,6 +14,7 @@
 #    import <SentryOptions.h>
 #    import <SentryUIApplication.h>
 #    import <UIKit/UIKit.h>
+#    import <UIViewController+Sentry.h>
 #    import <objc/runtime.h>
 
 /**
@@ -291,21 +292,8 @@ SentryUIViewControllerSwizzling ()
 
 - (void)swizzleRootViewControllerAndDescendant:(UIViewController *)rootViewController
 {
-    // The implementation of UIViewController makes sure a parent can't be a child of his child.
-    // Therefore, we can assume the parent child relationship is correct.
-
-    NSMutableArray<UIViewController *> *allViewControllers = [NSMutableArray new];
-    [allViewControllers addObject:rootViewController];
-
-    NSMutableArray<UIViewController *> *toAdd =
-        [NSMutableArray arrayWithArray:rootViewController.childViewControllers];
-
-    while (toAdd.count > 0) {
-        UIViewController *viewController = [toAdd lastObject];
-        [allViewControllers addObject:viewController];
-        [toAdd removeLastObject];
-        [toAdd addObjectsFromArray:viewController.childViewControllers];
-    }
+    NSArray<UIViewController *> *allViewControllers
+        = rootViewController.sentry_descendantViewControllers;
 
     for (UIViewController *viewController in allViewControllers) {
         Class viewControllerClass = [viewController class];
