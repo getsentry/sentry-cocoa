@@ -71,7 +71,7 @@ class SentryAutoBreadcrumbTrackingIntegrationTests: XCTestCase {
         
         let crumb = TestData.crumb
 #if os(iOS)
-        fixture.systemEventBreadcrumbs?.startWithdelegateInvocations.first?.add(crumb)
+        fixture.systemEventBreadcrumbs?.startWithDelegateInvocations.first?.add(crumb)
 #endif // os(iOS)
         
         let serializedScope = scope.serialize()
@@ -117,9 +117,9 @@ private class SentryTestBreadcrumbTracker: SentryBreadcrumbTracker {
 
 private class SentryTestSystemEventBreadcrumbs: SentrySystemEventBreadcrumbs {
     
-    let startWithdelegateInvocations = Invocations<SentryBreadcrumbDelegate>()
+    let startWithDelegateInvocations = Invocations<SentryBreadcrumbDelegate>()
     override func start(with delegate: SentryBreadcrumbDelegate) {
-        startWithdelegateInvocations.record(delegate)
+        startWithDelegateInvocations.record(delegate)
     }
 }
 
