@@ -157,43 +157,66 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
 
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
-#if SENTRY_HAS_UIKIT
-
 + (BOOL)framesTrackingMeasurementHybridSDKMode
 {
+#if SENTRY_HAS_UIKIT
     return _framesTrackingMeasurementHybridSDKMode;
+#else
+    SENTRY_LOG_WARN(
+        @"framesTrackingMeasurementHybridSDKMode is only available for builds that link UIKit.");
+    return NO;
+#endif // SENTRY_HAS_UIKIT
 }
 
 + (void)setFramesTrackingMeasurementHybridSDKMode:(BOOL)framesTrackingMeasurementHybridSDKMode
 {
+#if SENTRY_HAS_UIKIT
     _framesTrackingMeasurementHybridSDKMode = framesTrackingMeasurementHybridSDKMode;
+#else
+    SENTRY_LOG_WARN(
+        @"framesTrackingMeasurementHybridSDKMode is only available for builds that link UIKit.");
+#endif // SENTRY_HAS_UIKIT
 }
 
 + (BOOL)isFramesTrackingRunning
 {
+#if SENTRY_HAS_UIKIT
     return SentryDependencyContainer.sharedInstance.framesTracker.isRunning;
+#else
+    SENTRY_LOG_WARN(@"isFramesTrackingRunning is only available for builds that link UIKit.");
+    return NO;
+#endif // SENTRY_HAS_UIKIT
 }
 
 + (SentryScreenFrames *)currentScreenFrames
 {
+#if SENTRY_HAS_UIKIT
     return SentryDependencyContainer.sharedInstance.framesTracker.currentFrames;
+#else
+    SENTRY_LOG_WARN(@"currentScreenFrames is only available for builds that link UIKit.");
+    return nil;
+#endif // SENTRY_HAS_UIKIT
 }
-
-#    if SENTRY_HAS_UIKIT
 
 + (NSArray<NSData *> *)captureScreenshots
 {
+#if SENTRY_HAS_UIKIT
     return [SentryDependencyContainer.sharedInstance.screenshot takeScreenshots];
+#else
+    SENTRY_LOG_WARN(@"captureScreenshots is only available for builds that link UIKit.");
+    return nil;
+#endif // SENTRY_HAS_UIKIT
 }
-
-#    endif // SENTRY_HAS_UIKIT
 
 + (NSData *)captureViewHierarchy
 {
+#if SENTRY_HAS_UIKIT
     return [SentryDependencyContainer.sharedInstance.viewHierarchy fetchViewHierarchy];
-}
-
+#else
+    SENTRY_LOG_WARN(@"captureViewHierarchy is only available for builds that link UIKit.");
+    return nil;
 #endif // SENTRY_HAS_UIKIT
+}
 
 + (SentryUser *)userWithDictionary:(NSDictionary *)dictionary
 {
