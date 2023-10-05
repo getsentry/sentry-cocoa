@@ -134,7 +134,7 @@
 {
     const auto modelName = sentry_getDeviceModel();
     XCTAssertNotEqual(modelName.length, 0U);
-#if SENTRY_TARGET_MACOS
+#if TARGET_OS_OSX || TARGET_OS_MACCATALYST
     NSString *VMware = @"VMware";
     NSString *mac = @"Mac";
     BOOL containsExpectedDevice =
