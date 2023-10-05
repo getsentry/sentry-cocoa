@@ -19,7 +19,7 @@
 #endif
 
 #ifndef TARGET_OS_VISION
-#define TARGET_OS_VISION 0
+#    define TARGET_OS_VISION 0
 #endif
 
 #define SENTRY_NO_INIT                                                                             \
