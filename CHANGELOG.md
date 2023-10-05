@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Features
+
+- Sentry can now be used without linking UIKit; this is helpful for using the SDK in certain app extension contexts (#3175)
+
 ### Fixes
 
 - App hang with race condition for tick counter (#3290)
