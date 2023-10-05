@@ -139,3 +139,13 @@ Finally, you have to configure the rendering server in Visual Studio Code. For t
 Save the settings and you should be able to render a diagram.
 
 You can find the official guide here: [configure a rendering server](https://marketplace.visualstudio.com/items?itemName=jebbs.plantuml#user-content-use-plantuml-server-as-render).
+
+## UIKit
+
+Some customers would like to not link UIKit for various reasons. Either they simply may not want to use our UIKit functionality, or they actually cannot link to it in certain circumstances, like a File Provider app extension.
+
+There are two build configurations they can use for this: `Debug_without_UIKit` and `Release_without_UIKit`, that are essentially the same as `Debug` and `Release` with the following differences:
+- they set `CLANG_MODULES_AUTOLINK` to `NO`. This avoids a load command being automatically inserted for any UIKit API that make their way into the type system during compilation of SDK sources
+- `GCC_PREPROCESSOR_DEFINITIONS` now has an additional setting `SENTRY_UIKIT_LINKED=1` for all configurations _except_ `Debug_without_UIKit` and `Release_without_UIKit`. This is now part of the definition of `SENTRY_HAS_UIKIT` in `SentryDefines.h` that is used to conditionally compile out any code that would otherwise use UIKit API and cause UIKit to be automatically linked as described above
+
+There are two jobs in `.github/workflows/build.yml` that will build each of the new configs and use `otool -L` to ensure that UIKit does not appear as a load command in the build products.
