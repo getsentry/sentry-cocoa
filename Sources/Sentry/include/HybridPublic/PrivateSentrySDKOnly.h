@@ -100,7 +100,7 @@ typedef void (^SentryOnAppStartMeasurementAvailable)(
  * This only needs to be called in case you haven't collected the profile (and don't intend to).
  */
 + (void)discardProfilerForTrace:(SentryId *)traceId;
-#endif
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
 @property (class, nullable, nonatomic, copy)
     SentryOnAppStartMeasurementAvailable onAppStartMeasurementAvailable;
