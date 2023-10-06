@@ -632,44 +632,68 @@ NSString *const kSentryDefaultEnvironment = @"production";
     return [block isKindOfClass:blockClass];
 }
 
-#if !SENTRY_HAS_UIKIT
+#if SENTRY_UIKIT_AVAILABLE
 
 - (void)setEnableUIViewControllerTracing:(BOOL)enableUIViewControllerTracing
 {
+#    if SENTRY_HAS_UIKIT
+    _enableUIViewControllerTracing = enableUIViewControllerTracing;
+#    else
     SENTRY_LOG_WARN(@"enableUIViewControllerTracing only works with UIKit enabled. Ensure you're "
                     @"using the right configuration of Sentry that links UIKit.");
+#    endif // SENTRY_HAS_UIKIT
 }
 
 - (void)setAttachScreenshot:(BOOL)attachScreenshot
 {
+#    if SENTRY_HAS_UIKIT
+    _attachScreenshot = attachScreenshot;
+#    else
     SENTRY_LOG_WARN(@"attachScreenshot only works with UIKit enabled. Ensure you're using the "
                     @"right configuration of Sentry that links UIKit.");
+#    endif // SENTRY_HAS_UIKIT
 }
 
 - (void)setAttachViewHierarchy:(BOOL)attachViewHierarchy
 {
+#    if SENTRY_HAS_UIKIT
+    _attachViewHierarchy = attachViewHierarchy;
+#    else
     SENTRY_LOG_WARN(@"attachViewHierarchy only works with UIKit enabled. Ensure you're using the "
                     @"right configuration of Sentry that links UIKit.");
+#    endif // SENTRY_HAS_UIKIT
 }
 
 - (void)setEnableUserInteractionTracing:(BOOL)enableUserInteractionTracing
 {
+#    if SENTRY_HAS_UIKIT
+    _enableUserInteractionTracing = enableUserInteractionTracing;
+#    else
     SENTRY_LOG_WARN(@"enableUserInteractionTracing only works with UIKit enabled. Ensure you're "
                     @"using the right configuration of Sentry that links UIKit.");
+#    endif // SENTRY_HAS_UIKIT
 }
 
 - (void)setIdleTimeout:(NSTimeInterval)idleTimeout
 {
+#    if SENTRY_HAS_UIKIT
+    _idleTimeout = idleTimeout;
+#    else
     SENTRY_LOG_WARN(@"idleTimeout only works with UIKit enabled. Ensure you're using the right "
                     @"configuration of Sentry that links UIKit.");
+#    endif // SENTRY_HAS_UIKIT
 }
 
 - (void)setEnablePreWarmedAppStartTracing:(BOOL)enablePreWarmedAppStartTracing
 {
+#    if SENTRY_HAS_UIKIT
+    _enablePreWarmedAppStartTracing = enablePreWarmedAppStartTracing;
+#    else
     SENTRY_LOG_WARN(@"enablePreWarmedAppStartTracing only works with UIKit enabled. Ensure you're "
                     @"using the right configuration of Sentry that links UIKit.");
+#    endif // SENTRY_HAS_UIKIT
 }
 
-#endif // !SENTRY_HAS_UIKIT
+#endif // SENTRY_UIKIT_AVAILABLE
 
 @end

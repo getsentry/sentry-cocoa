@@ -199,6 +199,7 @@ NS_SWIFT_NAME(Options)
  */
 @property (nonatomic) SentryScope * (^initialScope)(SentryScope *);
 
+#if SENTRY_UIKIT_AVAILABLE
 /**
  * When enabled, the SDK tracks performance for UIViewController subclasses.
  * @note This feature is only available on builds that link @c UIKit .
@@ -237,7 +238,6 @@ NS_SWIFT_NAME(Options)
  * @note The default is 3 seconds.
  */
 @property (nonatomic, assign) NSTimeInterval idleTimeout;
-
 /**
  * @warning This is an experimental feature and may still have bugs.
  * @brief Report pre-warmed app starts by dropping the first app start spans if pre-warming paused
@@ -250,6 +250,7 @@ NS_SWIFT_NAME(Options)
  * @note Default value is @c NO .
  */
 @property (nonatomic, assign) BOOL enablePreWarmedAppStartTracing;
+#endif // SENTRY_UIKIT_AVAILABLE
 
 /**
  * When enabled, the SDK tracks performance for HTTP requests if auto performance tracking and

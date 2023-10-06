@@ -147,9 +147,10 @@ static NSObject *sentryDependencyContainerLock;
     }
 }
 
-#if TARGET_OS_IOS && SENTRY_HAS_UIKIT
+#if TARGET_OS_IOS
 - (SentryUIDeviceWrapper *)uiDeviceWrapper
 {
+#    if SENTRY_HAS_UIKIT
     if (_uiDeviceWrapper == nil) {
         @synchronized(sentryDependencyContainerLock) {
             if (_uiDeviceWrapper == nil) {
@@ -158,14 +159,17 @@ static NSObject *sentryDependencyContainerLock;
         }
     }
     return _uiDeviceWrapper;
+#    else
+    SENTRY_LOG_DEBUG(@"uiDeviceWrapper is not available in build that don't link UIKit.");
+    return nil;
+#    endif // SENTRY_HAS_UIKIT
 }
-#endif // TARGET_OS_IOS && SENTRY_HAS_UIKIT
+#endif // TARGET_OS_IOS
 
-#if SENTRY_HAS_UIKIT
-
-#    if SENTRY_HAS_UIKIT
+#if SENTRY_UIKIT_AVAILABLE
 - (SentryScreenshot *)screenshot
 {
+#    if SENTRY_HAS_UIKIT
     if (_screenshot == nil) {
         @synchronized(sentryDependencyContainerLock) {
             if (_screenshot == nil) {
@@ -174,11 +178,15 @@ static NSObject *sentryDependencyContainerLock;
         }
     }
     return _screenshot;
-}
+#    else
+    SENTRY_LOG_DEBUG(@"screenshot is not available in build that don't link UIKit.");
+    return nil;
 #    endif // SENTRY_HAS_UIKIT
+}
 
 - (SentryViewHierarchy *)viewHierarchy
 {
+#    if SENTRY_HAS_UIKIT
     if (_viewHierarchy == nil) {
         @synchronized(sentryDependencyContainerLock) {
             if (_viewHierarchy == nil) {
@@ -187,10 +195,15 @@ static NSObject *sentryDependencyContainerLock;
         }
     }
     return _viewHierarchy;
+#    else
+    SENTRY_LOG_DEBUG(@"viewHierarchy is not available in build that don't link UIKit.");
+    return nil;
+#    endif // SENTRY_HAS_UIKIT
 }
 
 - (SentryUIApplication *)application
 {
+#    if SENTRY_HAS_UIKIT
     if (_application == nil) {
         @synchronized(sentryDependencyContainerLock) {
             if (_application == nil) {
@@ -199,10 +212,15 @@ static NSObject *sentryDependencyContainerLock;
         }
     }
     return _application;
+#    else
+    SENTRY_LOG_DEBUG(@"application is not available in build that don't link UIKit.");
+    return nil;
+#    endif // SENTRY_HAS_UIKIT
 }
 
 - (SentryFramesTracker *)framesTracker
 {
+#    if SENTRY_HAS_UIKIT
     if (_framesTracker == nil) {
         @synchronized(sentryDependencyContainerLock) {
             if (_framesTracker == nil) {
@@ -212,10 +230,15 @@ static NSObject *sentryDependencyContainerLock;
         }
     }
     return _framesTracker;
+#    else
+    SENTRY_LOG_DEBUG(@"framesTracker is not available in build that don't link UIKit.");
+    return nil;
+#    endif // SENTRY_HAS_UIKIT
 }
 
 - (SentrySwizzleWrapper *)swizzleWrapper
 {
+#    if SENTRY_HAS_UIKIT
     if (_swizzleWrapper == nil) {
         @synchronized(sentryDependencyContainerLock) {
             if (_swizzleWrapper == nil) {
@@ -224,8 +247,12 @@ static NSObject *sentryDependencyContainerLock;
         }
     }
     return _swizzleWrapper;
+#    else
+    SENTRY_LOG_DEBUG(@"uiDeviceWrapper is not available in build that don't link UIKit.");
+    return nil;
+#    endif // SENTRY_HAS_UIKIT
 }
-#endif // SENTRY_HAS_UIKIT
+#endif // SENTRY_UIKIT_AVAILABLE
 
 - (SentryANRTracker *)getANRTracker:(NSTimeInterval)timeout
 {

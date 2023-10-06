@@ -6,12 +6,16 @@
 #    define SENTRY_EXTERN extern __attribute__((visibility("default")))
 #endif
 
+// SENTRY_UIKIT_AVAILABLE basically means: are we on a platform where we can link UIKit?
 #if TARGET_OS_IOS || TARGET_OS_TV
 #    define SENTRY_UIKIT_AVAILABLE 1
 #else
 #    define SENTRY_UIKIT_AVAILABLE 0
 #endif
 
+// SENTRY_HAS_UIKIT means we're on a platform that can link UIKit and we're building a configuration
+// that will allow it to be autolinked. SENTRY_UIKIT_LINKED is set in GCC_PREPROCESSOR_DEFINITIONS
+// for configurations that we will allow to link UIKit by setting CLANG_MODULES_AUTOLINK to YES.
 #if SENTRY_UIKIT_AVAILABLE && SENTRY_UIKIT_LINKED
 #    define SENTRY_HAS_UIKIT 1
 #else
