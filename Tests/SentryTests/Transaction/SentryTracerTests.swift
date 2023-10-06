@@ -93,6 +93,7 @@ class SentryTracerTests: XCTestCase {
                 customSamplingContext: [:],
                 configuration: SentryTracerConfiguration(block: {
                     $0.waitForChildren = waitForChildren
+                    $0.dispatchQueueWrapper = self.dispatchQueue
                     $0.timerFactory = self.timerFactory
                 }))
             return tracer
@@ -160,7 +161,9 @@ class SentryTracerTests: XCTestCase {
     }
 
     func testDeadlineTimer_FinishesTransactionAndChildren() {
+        fixture.dispatchQueue.blockBeforeMainBlock = { true }
         let sut = fixture.getSut()
+        
         let child1 = sut.startChild(operation: fixture.transactionOperation)
         let child2 = sut.startChild(operation: fixture.transactionOperation)
         let child3 = sut.startChild(operation: fixture.transactionOperation)
@@ -175,6 +178,44 @@ class SentryTracerTests: XCTestCase {
         XCTAssertEqual(child1.status, .deadlineExceeded)
         XCTAssertEqual(child2.status, .deadlineExceeded)
         XCTAssertEqual(child3.status, .ok)
+    }
+    
+    func testDeadlineTimer_StartedAndCancelledOnMainThread() {
+        fixture.dispatchQueue.blockBeforeMainBlock = { true }
+        
+        let sut = fixture.getSut()
+        let child1 = sut.startChild(operation: fixture.transactionOperation)
+
+        fixture.timerFactory.fire()
+        
+        XCTAssertEqual(sut.status, .deadlineExceeded)
+        XCTAssertEqual(child1.status, .deadlineExceeded)
+        XCTAssertEqual(2, fixture.dispatchQueue.blockOnMainInvocations.count, "The NSTimer must be started and cancelled on the main thread.")
+    }
+    
+    func testDeadlineTimer_WhenCancelling_IsInvalidated() {
+        fixture.dispatchQueue.blockBeforeMainBlock = { true }
+        
+        let sut = fixture.getSut()
+        let timer: Timer? = Dynamic(sut).deadlineTimer
+        _ = sut.startChild(operation: fixture.transactionOperation)
+
+        fixture.timerFactory.fire()
+        
+        XCTAssertNil(Dynamic(sut).deadlineTimer.asObject, "DeadlineTimer should be nil.")
+        XCTAssertFalse(timer?.isValid ?? true)
+    }
+    
+    func testDeadlineTimer_FiresAfterTracerDeallocated() {
+        fixture.dispatchQueue.blockBeforeMainBlock = { true }
+        
+        // Added internal function so the tracer gets deallocated after executing this function.
+        func startTracer() {
+            _ = fixture.getSut()
+        }
+        startTracer()
+
+        fixture.timerFactory.fire()
     }
 
     func testFramesofSpans_SetsDebugMeta() {
