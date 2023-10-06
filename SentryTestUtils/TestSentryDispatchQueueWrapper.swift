@@ -23,25 +23,27 @@ public class TestSentryDispatchQueueWrapper: SentryDispatchQueueWrapper {
         dispatchAsyncInvocations.invocations.last?()
     }
     
-    public var blockOnMainInvocations = Invocations<() -> Void>()
+    // Keeping track of the blocks can lead to memory leaks. Therefore,
+    // we only keep track of the number of invocations.
+    public var blockOnMainInvocations = Invocations<Void>()
     public var blockBeforeMainBlock: () -> Bool = { true }
 
     public override func dispatch(onMainQueue block: @escaping () -> Void) {
-        blockOnMainInvocations.record(block)
+        blockOnMainInvocations.record(Void())
         if blockBeforeMainBlock() {
             block()
         }
     }
 
     public override func dispatchAsync(onMainQueue block: @escaping () -> Void) {
-        blockOnMainInvocations.record(block)
+        blockOnMainInvocations.record(Void())
         if blockBeforeMainBlock() {
             block()
         }
     }
 
     public override func dispatchSync(onMainQueue block: @escaping () -> Void) {
-        blockOnMainInvocations.record(block)
+        blockOnMainInvocations.record(Void())
         if blockBeforeMainBlock() {
             block()
         }
