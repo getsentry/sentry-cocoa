@@ -1,4 +1,4 @@
-#import "../Public/SentryId.h"
+#import "SentryId.h"
 #import "SentryCompiler.h"
 #import "SentryProfilingConditionals.h"
 #import <Foundation/Foundation.h>
