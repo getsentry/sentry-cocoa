@@ -7,6 +7,7 @@
 - App hang with race condition for tick counter (#3290)
 - Remove "duplicate library" warning (#3312)
 - Remove unnecessaries build settings (#3325)
+- Crash in SentryTracer when cancelling timer #3333
 
 ## 8.13.0
 
