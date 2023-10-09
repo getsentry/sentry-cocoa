@@ -7,6 +7,7 @@
 - App hang with race condition for tick counter (#3290)
 - Remove "duplicate library" warning (#3312)
 - Remove unnecessaries build settings (#3325)
+- Fix multiple issues in Reachability (#3338)
 
 ## 8.13.0
 
