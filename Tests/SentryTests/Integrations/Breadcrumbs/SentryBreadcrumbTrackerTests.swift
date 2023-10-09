@@ -31,7 +31,9 @@ class SentryBreadcrumbTrackerTests: XCTestCase {
 
     func testNetworkConnectivityChangeBreadcrumbs() throws {
         let testReachability = TestSentryReachability()
+        
         SentryDependencyContainer.sharedInstance().reachability = testReachability
+        
         let sut = SentryBreadcrumbTracker()
         sut.start(with: delegate)
         let states = [SentryConnectivityCellular,
@@ -56,6 +58,12 @@ class SentryBreadcrumbTrackerTests: XCTestCase {
 
     func testSwizzlingStarted_ViewControllerAppears_AddsUILifeCycleBreadcrumb() {
         let testReachability = TestSentryReachability()
+        
+        // We already test the network breadcrumbs in a test above. Using the `TestReachability`
+        // makes this test more stable, as using the real implementation sometimes leads to
+        // test failure, cause sometimes the dispatch queue responsible for reporting the reachability
+        // status takes some time and then there isn't a network breadcrumb available. This test
+        // doesn't validate the network breadcrumb anyways.
         SentryDependencyContainer.sharedInstance().reachability = testReachability
         
         let scope = Scope()
