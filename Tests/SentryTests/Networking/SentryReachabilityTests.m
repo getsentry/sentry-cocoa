@@ -1,3 +1,4 @@
+#import "SentryLog.h"
 #import "SentryReachability+Private.h"
 #import "SentryReachability.h"
 #import <XCTest/XCTest.h>
@@ -19,6 +20,7 @@
 
 - (void)connectivityChanged:(BOOL)connected typeDescription:(nonnull NSString *)typeDescription
 {
+    NSLog(@"Received connectivity notification: %i; type: %@", connected, typeDescription);
     [self.expectation fulfill];
 }
 

@@ -109,10 +109,13 @@ SentryConnectivityCallback(
 
         BOOL connected = (flags & kSCNetworkReachabilityFlagsReachable) != 0;
 
+        SENTRY_LOG_DEBUG(@"Notifying observers...");
         for (id<SentryReachabilityObserver> observer in sentry_reachability_observers) {
+            SENTRY_LOG_DEBUG(@"Notifying %@", observer);
             [observer connectivityChanged:connected
                           typeDescription:SentryConnectivityFlagRepresentation(flags)];
         }
+        SENTRY_LOG_DEBUG(@"Finished notifying observers.");
     }
 }
 
@@ -161,7 +164,9 @@ SentryConnectivityCallback(
 
 - (void)removeObserver:(id<SentryReachabilityObserver>)observer
 {
+    SENTRY_LOG_DEBUG(@"Removing observer: %@", observer);
     @synchronized(sentry_reachability_observers) {
+        SENTRY_LOG_DEBUG(@"Entered synchronized region of removeObserver");
         [sentry_reachability_observers removeObject:observer];
 
         [self unsetCallbackIfNeeded];
@@ -179,21 +184,22 @@ SentryConnectivityCallback(
 - (void)unsetCallbackIfNeeded
 {
     if (sentry_reachability_observers.count > 0) {
+        SENTRY_LOG_DEBUG(
+            @"Other observers still registered, will not unset reachability callback.");
         return;
     }
 
     sentry_current_reachability_state = kSCNetworkReachabilityFlagsUninitialized;
 
-    if (_sentry_reachability_ref == nil) {
-        SENTRY_LOG_WARN(@"No reachability ref to unregister.");
-        return;
+    if (_sentry_reachability_ref != nil) {
+        SENTRY_LOG_DEBUG(@"removing callback for reachability ref %@", _sentry_reachability_ref);
+        SCNetworkReachabilitySetCallback(_sentry_reachability_ref, NULL, NULL);
+        SCNetworkReachabilitySetDispatchQueue(_sentry_reachability_ref, NULL);
+        _sentry_reachability_ref = nil;
     }
 
-    SENTRY_LOG_DEBUG(@"removing callback for reachability ref %@", _sentry_reachability_ref);
-    SCNetworkReachabilitySetCallback(_sentry_reachability_ref, NULL, NULL);
-    SCNetworkReachabilitySetDispatchQueue(_sentry_reachability_ref, NULL);
+    SENTRY_LOG_DEBUG(@"Cleaning up reachability queue.");
     sentry_reachability_queue = nil;
-    _sentry_reachability_ref = nil;
 }
 
 @end
