@@ -58,6 +58,9 @@ SentryConnectivityShouldReportChange(SCNetworkReachabilityFlags flags)
     // Check if the reported state is different from the last known state (if any)
     SCNetworkReachabilityFlags newFlags = flags & importantFlags;
     if (newFlags == sentry_current_reachability_state) {
+        SENTRY_LOG_DEBUG(@"No change in reachability state. SentryConnectivityShouldReportChange "
+                         @"will return NO for flags %u, sentry_current_reachability_state %u",
+            flags, sentry_current_reachability_state);
         return NO;
     }
 
@@ -89,14 +92,26 @@ void
 SentryConnectivityCallback(
     __unused SCNetworkReachabilityRef target, SCNetworkReachabilityFlags flags, __unused void *info)
 {
+    SENTRY_LOG_DEBUG(
+        @"SentryConnectivityCallback called with target: %@; flags: %u", target, flags);
     @synchronized(sentry_reachability_observers) {
-        if (sentry_reachability_observers && SentryConnectivityShouldReportChange(flags)) {
-            BOOL connected = (flags & kSCNetworkReachabilityFlagsReachable) != 0;
+        SENTRY_LOG_DEBUG(@"Entered synchronized region of SentryConnectivityCallback");
+        if (!sentry_reachability_observers) {
+            SENTRY_LOG_DEBUG(@"No reachability observers registered. Nothing to do.");
+            return;
+        }
+        if (!SentryConnectivityShouldReportChange(flags)) {
+            SENTRY_LOG_DEBUG(@"SentryConnectivityShouldReportChange returned NO for flags %u, will "
+                             @"not report change to observers.",
+                flags);
+            return;
+        }
 
-            for (id<SentryReachabilityObserver> observer in sentry_reachability_observers) {
-                [observer connectivityChanged:connected
-                              typeDescription:SentryConnectivityFlagRepresentation(flags)];
-            }
+        BOOL connected = (flags & kSCNetworkReachabilityFlagsReachable) != 0;
+
+        for (id<SentryReachabilityObserver> observer in sentry_reachability_observers) {
+            [observer connectivityChanged:connected
+                          typeDescription:SentryConnectivityFlagRepresentation(flags)];
         }
     }
 }
