@@ -654,18 +654,19 @@ class SentrySDKTests: XCTestCase {
         XCTAssertEqual(flushTimeout, transport.flushInvocations.first)
     }
 
-    func testStartInTheMainThread() {
+    func testStartOnTheMainThread() {
         let expect = expectation(description: "SDK Initialization")
         DispatchQueue.global(qos: .background).async {
             SentrySDK.start { options in
-                MainThreadTestIntegration.replaceIntegrationsOn(options)
+                options.integrations = [ NSStringFromClass(MainThreadTestIntegration.self) ]
             }
+            
+            let mainThreadIntegration = SentrySDK.currentHub().installedIntegrations().first { integration in integration is MainThreadTestIntegration } as? MainThreadTestIntegration
+            XCTAssertEqual(mainThreadIntegration?.installedInTheMainThread, true, "SDK is not being initialized in the main thread")
+            
             expect.fulfill()
         }
-        wait(for: [expect], timeout: 0.5)
-
-        let mainThreadIntegration = SentrySDK.currentHub().installedIntegrations().first { integration in integration is MainThreadTestIntegration } as? MainThreadTestIntegration
-        XCTAssertEqual(mainThreadIntegration?.installedInTheMainThread, true, "SDK is not being initialized in the main thread")
+        wait(for: [expect], timeout: 1.0)
     }
 
 #if SENTRY_HAS_UIKIT

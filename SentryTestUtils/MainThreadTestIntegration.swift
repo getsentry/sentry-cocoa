@@ -9,8 +9,4 @@ public class MainThreadTestIntegration: NSObject, SentryIntegrationProtocol {
         installedInTheMainThread = Thread.isMainThread
         return true
     }
-
-    public static func replaceIntegrationsOn(_ options: Options) {
-        options.integrations = [ NSStringFromClass(MainThreadTestIntegration.self) ]
-    }
 }

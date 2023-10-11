@@ -137,7 +137,10 @@ static NSUInteger startInvocations;
 
 + (void)startWithOptions:(SentryOptions *)options
 {
-    [SentryThreadWrapper onMainThread:^{
+    // We have to call the init on the main thread synchronously to guarantee the SDK gets
+    // initialized. Otherwise, users would init the SDK, and calls directly after would have
+    // undefined behavior as the SDK might not be initialized yet.
+    [SentryThreadWrapper onMainThreadSync:^{
         startInvocations++;
 
         [SentryLog configure:options.debug diagnosticLevel:options.diagnosticLevel];
