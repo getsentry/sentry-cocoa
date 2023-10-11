@@ -69,8 +69,8 @@ void SentryConnectivityReset(void);
 - (void)testMultipleReachabilityObservers
 {
     SentryReachability *reachability = [[SentryReachability alloc] init];
-    // Disable the rechability callbacks, cause we call the callbacks manually.
-    // Otherwise, the rechability callbacks kick it at some point and make the tests flaky.
+    // Disable the reachability callbacks, cause we call the callbacks manually.
+    // Otherwise, the reachability callbacks are called during later unrelated tests causing flakes.
     reachability.setReachabilityCallback = NO;
 
     XCTestExpectation *aExp =
