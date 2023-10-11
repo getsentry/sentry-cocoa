@@ -272,11 +272,18 @@ static BOOL appStartMeasurementRead;
 
 - (void)cancelDeadlineTimer
 {
+    // If the main thread is busy the tracer could be dealloc ated in between.
+    __weak SentryTracer *weakSelf = self;
+
     // The timer must be invalidated from the thread on which the timer was installed, see
     // https://developer.apple.com/documentation/foundation/nstimer/1415405-invalidate#1770468
     [_configuration.dispatchQueueWrapper dispatchOnMainQueue:^{
-        [self.deadlineTimer invalidate];
-        self.deadlineTimer = nil;
+        if (weakSelf == nil) {
+            SENTRY_LOG_DEBUG(@"WeakSelf is nil. Not invalidating deadlineTimer.");
+            return;
+        }
+        [weakSelf.deadlineTimer invalidate];
+        weakSelf.deadlineTimer = nil;
     }];
 }
 

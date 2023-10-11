@@ -193,6 +193,44 @@ class SentryTracerTests: XCTestCase {
         XCTAssertEqual(2, fixture.dispatchQueue.blockOnMainInvocations.count, "The NSTimer must be started and cancelled on the main thread.")
     }
     
+    func testCancelDeadlineTimer_TracerDeallocated() {
+        var invocations = 0
+        fixture.dispatchQueue.blockBeforeMainBlock = {
+            // The second invocation the block for invalidating the timer
+            // which we want to call manually below.
+            if invocations == 1 {
+                return false
+            }
+            
+            invocations += 1
+            return true
+        }
+        
+        var timer: Timer?
+        
+        // Added internal function so the tracer gets deallocated after executing this function.
+        func startTracer() {
+            let sut = fixture.getSut()
+            timer = Dynamic(sut).deadlineTimer.asObject as! Timer?
+            sut.finish()
+        }
+        startTracer()
+        
+        // The TestHub keeps a reference to the tracer in capturedEventsWithScopes.
+        // We have to clear the captured events so the tracer gets deallocated.
+        fixture.hub.capturedEventsWithScopes.removeAll()
+
+        fixture.timerFactory.fire()
+        
+        let invalidateTimerBlock = fixture.dispatchQueue.blockOnMainInvocations.last
+        if invalidateTimerBlock != nil {
+            invalidateTimerBlock!()
+        }
+        
+        // Ensure the timer was not invalidated
+        XCTAssertTrue(timer?.isValid ?? false)
+    }
+    
     func testDeadlineTimer_WhenCancelling_IsInvalidated() {
         fixture.dispatchQueue.blockBeforeMainBlock = { true }
         
