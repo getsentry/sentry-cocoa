@@ -269,7 +269,15 @@ jobs:
       - run: ./scripts/ci-select-xcode.sh
 
       - name: Running tests with ThreadSanitizer
-        run: ./scripts/xcode-test.sh iOS "iPhone 14" TSAN "Sentry/SentryThreadInspectorTests/testStacktraceHasFrames_forEveryThread" "Sentry/SentryThreadInspectorTests/testGetCurrentThreadWithStackTrack_TooManyThreads" "SentryTests/SentryNSDataTrackerTests/testWriteAtomically_CheckTransaction_FilterOut_nonProcessFrames" "SentryTests/SentryFileManagerTests/testDefaultMaxEnvelopesConcurrent" "SentryTests/SentryCrashBinaryImageCacheTests/testAddBinaryImageInParallel" "SentryTests/SentryANRTrackerTests/testMultipleListeners" "SentryTests/SentryANRTrackerTests/testAppSuspended_NoANR"
+        run: |
+            ./scripts/xcode-test.sh iOS "iPhone 14" TSAN \
+                "Sentry/SentryThreadInspectorTests/testStacktraceHasFrames_forEveryThread" \
+                "Sentry/SentryThreadInspectorTests/testGetCurrentThreadWithStackTrack_TooManyThreads" \
+                "SentryTests/SentryNSDataTrackerTests/testWriteAtomically_CheckTransaction_FilterOut_nonProcessFrames" \
+                "SentryTests/SentryFileManagerTests/testDefaultMaxEnvelopesConcurrent" \
+                "SentryTests/SentryCrashBinaryImageCacheTests/testAddBinaryImageInParallel" \
+                "SentryTests/SentryANRTrackerTests/testMultipleListeners" "SentryTests/SentryANRTrackerTests/testAppSuspended_NoANR" \
+                "SentryTests.SentryFileIOTrackingIntegrationTests test_DataConsistency_readPath"
 
       - name: Archiving Test Logs
         uses: actions/upload-artifact@v3
