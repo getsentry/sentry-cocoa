@@ -10,7 +10,7 @@ public class MainThreadTestIntegration: NSObject, SentryIntegrationProtocol {
         return true
     }
 
-    public static func replaceOptionIntegrations(_ options: Options) {
+    public static func replaceIntegrationsOn(_ options: Options) {
         options.integrations = [ NSStringFromClass(MainThreadTestIntegration.self) ]
     }
 }

@@ -658,7 +658,7 @@ class SentrySDKTests: XCTestCase {
         let expect = expectation(description: "SDK Initialization")
         DispatchQueue.global(qos: .background).async {
             SentrySDK.start { options in
-                MainThreadTestIntegration.replaceOptionIntegrations(options)
+                MainThreadTestIntegration.replaceIntegrationsOn(options)
             }
             expect.fulfill()
         }
