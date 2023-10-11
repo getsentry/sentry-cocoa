@@ -800,7 +800,10 @@ class SentryHttpTransportTests: XCTestCase {
     }
     
     func testDealloc_StopsReachabilityMonitoring() {
-        _ = fixture.sut
+        func deallocSut() {
+            _ = fixture.sut
+        }
+        deallocSut()
 
         XCTAssertEqual(1, fixture.reachability.stopMonitoringInvocations.count)
     }
