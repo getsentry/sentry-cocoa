@@ -3054,6 +3054,7 @@
 				62F226B829A37C270038080D /* SentryBooleanSerialization.h */,
 				62F226B629A37C120038080D /* SentryBooleanSerialization.m */,
 				62B86CFB29F052BB008F3947 /* SentryTestLogConfig.m */,
+				D87FA2882AB9EB06007DE933 /* MainThreadTestIntegration.swift */,
 			);
 			path = TestUtils;
 			sourceTree = "<group>";
@@ -3184,7 +3185,6 @@
 				84281C4D2A579A0C00EE88F2 /* SentryProfilerMocksSwiftCompatible.mm */,
 				84AC61DA29F7654A009EEF61 /* TestDispatchSourceWrapper.swift */,
 				84A5D75A29D5170700388BFA /* TimeInterval+Sentry.swift */,
-				D87FA2882AB9EB06007DE933 /* MainThreadTestIntegration.swift */,
 				7B30B68126527C55006B2752 /* TestDisplayLinkWrapper.swift */,
 				8E25C97425F8511A00DC215B /* TestRandom.swift */,
 				7BE3C7762445E50A00A38442 /* TestCurrentDateProvider.swift */,

@@ -28,15 +28,6 @@ NS_ASSUME_NONNULL_BEGIN
     }
 }
 
-+ (void)onMainThreadSync:(void (^)(void))block
-{
-    if ([NSThread isMainThread]) {
-        block();
-    } else {
-        dispatch_sync(dispatch_get_main_queue(), block);
-    }
-}
-
 @end
 
 NS_ASSUME_NONNULL_END

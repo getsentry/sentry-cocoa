@@ -23,16 +23,6 @@ NS_ASSUME_NONNULL_BEGIN
  */
 + (void)onMainThread:(void (^)(void))block;
 
-/**
- * Ensure a block runs on the main thread. If called from the main thread, execute the block
- * synchronously. If called from a non-main thread, then dispatch the block to the main queue
- * synchronously.
- *
- * @warning If the main thread is blocked by anything, this will also block the call to this
- * function.
- */
-+ (void)onMainThreadSync:(void (^)(void))block;
-
 @end
 
 NS_ASSUME_NONNULL_END
