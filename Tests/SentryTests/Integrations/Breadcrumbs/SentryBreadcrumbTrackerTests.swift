@@ -31,7 +31,9 @@ class SentryBreadcrumbTrackerTests: XCTestCase {
 
     func testNetworkConnectivityChangeBreadcrumbs() throws {
         let testReachability = TestSentryReachability()
+        
         SentryDependencyContainer.sharedInstance().reachability = testReachability
+        
         let sut = SentryBreadcrumbTracker()
         sut.start(with: delegate)
         let states = [SentryConnectivityCellular,
@@ -55,6 +57,15 @@ class SentryBreadcrumbTrackerTests: XCTestCase {
     }
 
     func testSwizzlingStarted_ViewControllerAppears_AddsUILifeCycleBreadcrumb() {
+        let testReachability = TestSentryReachability()
+        
+        // We already test the network breadcrumbs in a test above. Using the `TestReachability`
+        // makes this test more stable, as using the real implementation sometimes leads to
+        // test failure, cause sometimes the dispatch queue responsible for reporting the reachability
+        // status takes some time and then there isn't a network breadcrumb available. This test
+        // doesn't validate the network breadcrumb anyways.
+        SentryDependencyContainer.sharedInstance().reachability = testReachability
+        
         let scope = Scope()
         let client = TestClient(options: Options())
         let hub = TestHub(client: client, andScope: scope)
@@ -74,12 +85,12 @@ class SentryBreadcrumbTrackerTests: XCTestCase {
         let crumbs = delegate.addCrumbInvocations.invocations
 
         // one breadcrumb for starting the tracker, one for the first reachability breadcrumb and one final one for the swizzled viewDidAppear
-        guard crumbs.count == 3 else {
-            XCTFail("Expected exactly 3 breadcrumbs, got: \(crumbs)")
+        guard crumbs.count == 2 else {
+            XCTFail("Expected exactly 2 breadcrumbs, got: \(crumbs)")
             return
         }
 
-        let lifeCycleCrumb = crumbs[2]
+        let lifeCycleCrumb = crumbs[1]
         XCTAssertEqual("navigation", lifeCycleCrumb.type)
         XCTAssertEqual("ui.lifecycle", lifeCycleCrumb.category)
         XCTAssertEqual("false", lifeCycleCrumb.data?["beingPresented"] as? String)

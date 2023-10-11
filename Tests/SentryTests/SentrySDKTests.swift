@@ -653,7 +653,25 @@ class SentrySDKTests: XCTestCase {
         
         XCTAssertEqual(flushTimeout, transport.flushInvocations.first)
     }
-    
+
+    func testStartOnTheMainThread() {
+        
+        let expectation = expectation(description: "MainThreadTestIntegration install called")
+        MainThreadTestIntegration.expectation = expectation
+        
+        DispatchQueue.global(qos: .background).async {
+            SentrySDK.start { options in
+                options.integrations = [ NSStringFromClass(MainThreadTestIntegration.self) ]
+            }
+        }
+        
+        wait(for: [expectation], timeout: 1.0)
+        
+        let mainThreadIntegration = SentrySDK.currentHub().installedIntegrations().first { integration in integration is MainThreadTestIntegration } as? MainThreadTestIntegration
+        XCTAssertEqual(mainThreadIntegration?.installedInTheMainThread, true, "SDK is not being initialized in the main thread")
+        
+    }
+
 #if SENTRY_HAS_UIKIT
     
     func testSetAppStartMeasurementConcurrently() {
@@ -771,5 +789,19 @@ class SentrySDKTests: XCTestCase {
     
     private func advanceTime(bySeconds: TimeInterval) {
         fixture.currentDate.setDate(date: SentryDependencyContainer.sharedInstance().dateProvider.date().addingTimeInterval(bySeconds))
+    }
+}
+
+public class MainThreadTestIntegration: NSObject, SentryIntegrationProtocol {
+    
+    static var expectation: XCTestExpectation?
+
+    public var installedInTheMainThread = false
+
+    public func install(with options: Options) -> Bool {
+        installedInTheMainThread = Thread.isMainThread
+        MainThreadTestIntegration.expectation?.fulfill()
+        MainThreadTestIntegration.expectation = nil
+        return true
     }
 }

@@ -31,10 +31,10 @@
 
 static const SCNetworkReachabilityFlags kSCNetworkReachabilityFlagsUninitialized = UINT32_MAX;
 
-static NSMutableDictionary<NSString *, SentryConnectivityChangeBlock>
-    *sentry_reachability_change_blocks;
+static NSHashTable<id<SentryReachabilityObserver>> *sentry_reachability_observers;
 static SCNetworkReachabilityFlags sentry_current_reachability_state
     = kSCNetworkReachabilityFlagsUninitialized;
+static dispatch_queue_t sentry_reachability_queue;
 
 NSString *const SentryConnectivityCellular = @"cellular";
 NSString *const SentryConnectivityWiFi = @"wifi";
@@ -58,6 +58,9 @@ SentryConnectivityShouldReportChange(SCNetworkReachabilityFlags flags)
     // Check if the reported state is different from the last known state (if any)
     SCNetworkReachabilityFlags newFlags = flags & importantFlags;
     if (newFlags == sentry_current_reachability_state) {
+        SENTRY_LOG_DEBUG(@"No change in reachability state. SentryConnectivityShouldReportChange "
+                         @"will return NO for flags %u, sentry_current_reachability_state %u",
+            flags, sentry_current_reachability_state);
         return NO;
     }
 
@@ -89,13 +92,43 @@ void
 SentryConnectivityCallback(
     __unused SCNetworkReachabilityRef target, SCNetworkReachabilityFlags flags, __unused void *info)
 {
-    if (sentry_reachability_change_blocks && SentryConnectivityShouldReportChange(flags)) {
+    SENTRY_LOG_DEBUG(
+        @"SentryConnectivityCallback called with target: %@; flags: %u", target, flags);
+
+    @synchronized(sentry_reachability_observers) {
+        SENTRY_LOG_DEBUG(
+            @"Entered synchronized region of SentryConnectivityCallback with target: %@; flags: %u",
+            target, flags);
+
+        if (sentry_reachability_observers.count == 0) {
+            SENTRY_LOG_DEBUG(@"No reachability observers registered. Nothing to do.");
+            return;
+        }
+
+        if (!SentryConnectivityShouldReportChange(flags)) {
+            SENTRY_LOG_DEBUG(@"SentryConnectivityShouldReportChange returned NO for flags %u, will "
+                             @"not report change to observers.",
+                flags);
+            return;
+        }
+
         BOOL connected = (flags & kSCNetworkReachabilityFlagsReachable) != 0;
 
-        for (SentryConnectivityChangeBlock block in sentry_reachability_change_blocks.allValues) {
-            block(connected, SentryConnectivityFlagRepresentation(flags));
+        SENTRY_LOG_DEBUG(@"Notifying observers...");
+        for (id<SentryReachabilityObserver> observer in sentry_reachability_observers) {
+            SENTRY_LOG_DEBUG(@"Notifying %@", observer);
+            [observer connectivityChanged:connected
+                          typeDescription:SentryConnectivityFlagRepresentation(flags)];
         }
+        SENTRY_LOG_DEBUG(@"Finished notifying observers.");
     }
+}
+
+void
+SentryConnectivityReset(void)
+{
+    [sentry_reachability_observers removeAllObjects];
+    sentry_current_reachability_state = kSCNetworkReachabilityFlagsUninitialized;
 }
 
 @implementation SentryReachability
@@ -103,60 +136,99 @@ SentryConnectivityCallback(
 + (void)initialize
 {
     if (self == [SentryReachability class]) {
-        sentry_reachability_change_blocks = [NSMutableDictionary new];
+        sentry_reachability_observers = [NSHashTable weakObjectsHashTable];
     }
 }
 
-- (void)dealloc
+- (instancetype)init
 {
-    for (id<SentryReachabilityObserver> observer in sentry_reachability_change_blocks.allKeys) {
-        [self removeObserver:observer];
+    if (self = [super init]) {
+        self.setReachabilityCallback = YES;
     }
+
+    return self;
 }
 
-- (void)addObserver:(id<SentryReachabilityObserver>)observer
-       withCallback:(SentryConnectivityChangeBlock)block;
+- (void)addObserver:(id<SentryReachabilityObserver>)observer;
 {
-    sentry_reachability_change_blocks[[observer description]] = block;
+    SENTRY_LOG_DEBUG(@"Adding observer: %@", observer);
+    @synchronized(sentry_reachability_observers) {
+        SENTRY_LOG_DEBUG(@"Synchronized to add observer: %@", observer);
+        if ([sentry_reachability_observers containsObject:observer]) {
+            SENTRY_LOG_DEBUG(@"Observer already added. Doing nothing.");
+            return;
+        }
 
-    if (sentry_current_reachability_state != kSCNetworkReachabilityFlagsUninitialized) {
-        return;
-    }
+        [sentry_reachability_observers addObject:observer];
 
-    static dispatch_once_t once_t;
-    static dispatch_queue_t reachabilityQueue;
-    dispatch_once(&once_t, ^{
-        reachabilityQueue
+        if (sentry_reachability_observers.count > 1) {
+            return;
+        }
+
+        if (!self.setReachabilityCallback) {
+            SENTRY_LOG_DEBUG(@"Skipping setting reachability callback.");
+            return;
+        }
+
+        sentry_reachability_queue
             = dispatch_queue_create("io.sentry.cocoa.connectivity", DISPATCH_QUEUE_SERIAL);
-    });
+        _sentry_reachability_ref = SCNetworkReachabilityCreateWithName(NULL, "sentry.io");
+        if (!_sentry_reachability_ref) { // Can be null if a bad hostname was specified
+            return;
+        }
 
-    _sentry_reachability_ref = SCNetworkReachabilityCreateWithName(NULL, "sentry.io");
-    if (!_sentry_reachability_ref) { // Can be null if a bad hostname was specified
-        return;
+        SENTRY_LOG_DEBUG(@"registering callback for reachability ref %@", _sentry_reachability_ref);
+        SCNetworkReachabilitySetCallback(
+            _sentry_reachability_ref, SentryConnectivityCallback, NULL);
+        SCNetworkReachabilitySetDispatchQueue(_sentry_reachability_ref, sentry_reachability_queue);
     }
-
-    SENTRY_LOG_DEBUG(@"registering callback for reachability ref %@", _sentry_reachability_ref);
-    SCNetworkReachabilitySetCallback(_sentry_reachability_ref, SentryConnectivityCallback, NULL);
-    SCNetworkReachabilitySetDispatchQueue(_sentry_reachability_ref, reachabilityQueue);
 }
 
 - (void)removeObserver:(id<SentryReachabilityObserver>)observer
 {
-    [sentry_reachability_change_blocks removeObjectForKey:[observer description]];
-    if (sentry_reachability_change_blocks.allValues.count > 0) {
+    SENTRY_LOG_DEBUG(@"Removing observer: %@", observer);
+    @synchronized(sentry_reachability_observers) {
+        SENTRY_LOG_DEBUG(@"Synchronized to remove observer: %@", observer);
+        [sentry_reachability_observers removeObject:observer];
+
+        [self unsetReachabilityCallbackIfNeeded];
+    }
+}
+
+- (void)removeAllObservers
+{
+    SENTRY_LOG_DEBUG(@"Removing all observers.");
+    @synchronized(sentry_reachability_observers) {
+        SENTRY_LOG_DEBUG(@"Synchronized to remove all observers.");
+        [sentry_reachability_observers removeAllObjects];
+        [self unsetReachabilityCallbackIfNeeded];
+    }
+}
+
+- (void)unsetReachabilityCallbackIfNeeded
+{
+    if (sentry_reachability_observers.count > 0) {
+        SENTRY_LOG_DEBUG(
+            @"Other observers still registered, will not unset reachability callback.");
+        return;
+    }
+
+    if (!self.setReachabilityCallback) {
+        SENTRY_LOG_DEBUG(@"Skipping unsetting reachability callback.");
         return;
     }
 
     sentry_current_reachability_state = kSCNetworkReachabilityFlagsUninitialized;
 
-    if (_sentry_reachability_ref == nil) {
-        SENTRY_LOG_WARN(@"No reachability ref to unregister.");
-        return;
+    if (_sentry_reachability_ref != nil) {
+        SENTRY_LOG_DEBUG(@"removing callback for reachability ref %@", _sentry_reachability_ref);
+        SCNetworkReachabilitySetCallback(_sentry_reachability_ref, NULL, NULL);
+        SCNetworkReachabilitySetDispatchQueue(_sentry_reachability_ref, NULL);
+        _sentry_reachability_ref = nil;
     }
 
-    SENTRY_LOG_DEBUG(@"removing callback for reachability ref %@", _sentry_reachability_ref);
-    SCNetworkReachabilitySetCallback(_sentry_reachability_ref, NULL, NULL);
-    SCNetworkReachabilitySetDispatchQueue(_sentry_reachability_ref, NULL);
+    SENTRY_LOG_DEBUG(@"Cleaning up reachability queue.");
+    sentry_reachability_queue = nil;
 }
 
 @end

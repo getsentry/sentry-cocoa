@@ -71,6 +71,9 @@ SentryBreadcrumbTracker ()
         removeSwizzleSendActionForKey:SentryBreadcrumbTrackerSwizzleSendAction];
 #endif // SENTRY_HAS_UIKIT
     _delegate = nil;
+#if !TARGET_OS_WATCH
+    [self stopTrackNetworkConnectivityChanges];
+#endif // !TARGET_OS_WATCH
 }
 
 - (void)trackApplicationNotifications
@@ -133,17 +136,23 @@ SentryBreadcrumbTracker ()
 #if !TARGET_OS_WATCH
 - (void)trackNetworkConnectivityChanges
 {
-    [SentryDependencyContainer.sharedInstance.reachability
-         addObserver:self
-        withCallback:^(BOOL connected, NSString *_Nonnull typeDescription) {
-            SentryBreadcrumb *crumb =
-                [[SentryBreadcrumb alloc] initWithLevel:kSentryLevelInfo
-                                               category:@"device.connectivity"];
-            crumb.type = @"connectivity";
-            crumb.data = [NSDictionary dictionaryWithObject:typeDescription forKey:@"connectivity"];
-            [self.delegate addBreadcrumb:crumb];
-        }];
+    [SentryDependencyContainer.sharedInstance.reachability addObserver:self];
 }
+
+- (void)stopTrackNetworkConnectivityChanges
+{
+    [SentryDependencyContainer.sharedInstance.reachability removeObserver:self];
+}
+
+- (void)connectivityChanged:(BOOL)connected typeDescription:(nonnull NSString *)typeDescription
+{
+    SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:kSentryLevelInfo
+                                                             category:@"device.connectivity"];
+    crumb.type = @"connectivity";
+    crumb.data = [NSDictionary dictionaryWithObject:typeDescription forKey:@"connectivity"];
+    [self.delegate addBreadcrumb:crumb];
+}
+
 #endif // !TARGET_OS_WATCH
 
 - (void)addBreadcrumbWithType:(NSString *)type

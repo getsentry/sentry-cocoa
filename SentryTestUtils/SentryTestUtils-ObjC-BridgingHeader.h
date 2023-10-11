@@ -39,6 +39,7 @@
 #import "SentryNetworkTracker.h"
 #import "SentryPerformanceTracker+Testing.h"
 #import "SentryRandom.h"
+#import "SentryReachability.h"
 #import "SentrySDK+Private.h"
 #import "SentrySDK+Tests.h"
 #import "SentrySession.h"
