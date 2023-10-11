@@ -94,12 +94,15 @@ SentryConnectivityCallback(
 {
     SENTRY_LOG_DEBUG(
         @"SentryConnectivityCallback called with target: %@; flags: %u", target, flags);
+
     @synchronized(sentry_reachability_observers) {
         SENTRY_LOG_DEBUG(@"Entered synchronized region of SentryConnectivityCallback");
+
         if (!sentry_reachability_observers) {
             SENTRY_LOG_DEBUG(@"No reachability observers registered. Nothing to do.");
             return;
         }
+
         if (!SentryConnectivityShouldReportChange(flags)) {
             SENTRY_LOG_DEBUG(@"SentryConnectivityShouldReportChange returned NO for flags %u, will "
                              @"not report change to observers.",
@@ -117,6 +120,13 @@ SentryConnectivityCallback(
         }
         SENTRY_LOG_DEBUG(@"Finished notifying observers.");
     }
+}
+
+void
+SentryConnectivityReset(void)
+{
+    [sentry_reachability_observers removeAllObjects];
+    sentry_current_reachability_state = kSCNetworkReachabilityFlagsUninitialized;
 }
 
 @implementation SentryReachability
