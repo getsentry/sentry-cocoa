@@ -98,6 +98,13 @@ SentryConnectivityCallback(
     }
 }
 
+void
+SentryConnectivityReset(void)
+{
+    [sentry_reachability_change_blocks removeAllObjects];
+    sentry_current_reachability_state = kSCNetworkReachabilityFlagsUninitialized;
+}
+
 @implementation SentryReachability
 
 + (void)initialize
@@ -109,9 +116,8 @@ SentryConnectivityCallback(
 
 - (void)dealloc
 {
-    for (id<SentryReachabilityObserver> observer in sentry_reachability_change_blocks.allKeys) {
-        [self removeObserver:observer];
-    }
+    sentry_reachability_change_blocks = [NSMutableDictionary dictionary];
+    [self removeReachabilityNotification];
 }
 
 - (void)addObserver:(id<SentryReachabilityObserver>)observer
@@ -147,6 +153,11 @@ SentryConnectivityCallback(
         return;
     }
 
+    [self removeReachabilityNotification];
+}
+
+- (void)removeReachabilityNotification
+{
     sentry_current_reachability_state = kSCNetworkReachabilityFlagsUninitialized;
 
     if (_sentry_reachability_ref == nil) {
