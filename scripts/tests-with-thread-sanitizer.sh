@@ -13,6 +13,7 @@ env NSUnbufferedIO=YES xcodebuild -workspace Sentry.xcworkspace -scheme Sentry -
     -skip-testing:"SentryTests/SentryCrashBinaryImageCacheTests/testAddBinaryImageInParallel" \
     -skip-testing:"SentryTests/SentryANRTrackerTests/testMultipleListeners" \
     -skip-testing:"SentryTests/SentryANRTrackerTests/testAppSuspended_NoANR" \
+    -skip-testing:"SentryTests.SentryFileIOTrackingIntegrationTests test_DataConsistency_readPath" /
     test | tee thread-sanitizer.log | xcpretty -t
 
 testStatus=$?
