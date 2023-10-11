@@ -98,7 +98,7 @@ SentryConnectivityCallback(
     @synchronized(sentry_reachability_observers) {
         SENTRY_LOG_DEBUG(@"Entered synchronized region of SentryConnectivityCallback");
 
-        if (!sentry_reachability_observers) {
+        if (sentry_reachability_observers.count == 0) {
             SENTRY_LOG_DEBUG(@"No reachability observers registered. Nothing to do.");
             return;
         }
@@ -179,7 +179,7 @@ SentryConnectivityReset(void)
         SENTRY_LOG_DEBUG(@"Entered synchronized region of removeObserver");
         [sentry_reachability_observers removeObject:observer];
 
-        [self unsetCallbackIfNeeded];
+        [self unsetReachabilityCallbackIfNeeded];
     }
 }
 
@@ -187,11 +187,11 @@ SentryConnectivityReset(void)
 {
     @synchronized(sentry_reachability_observers) {
         [sentry_reachability_observers removeAllObjects];
-        [self unsetCallbackIfNeeded];
+        [self unsetReachabilityCallbackIfNeeded];
     }
 }
 
-- (void)unsetCallbackIfNeeded
+- (void)unsetReachabilityCallbackIfNeeded
 {
     if (sentry_reachability_observers.count > 0) {
         SENTRY_LOG_DEBUG(
@@ -199,11 +199,6 @@ SentryConnectivityReset(void)
         return;
     }
 
-    [self removeReachabilityNotification];
-}
-
-- (void)removeReachabilityNotification
-{
     sentry_current_reachability_state = kSCNetworkReachabilityFlagsUninitialized;
 
     if (_sentry_reachability_ref != nil) {

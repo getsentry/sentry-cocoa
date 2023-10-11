@@ -109,5 +109,48 @@ void SentryConnectivityReset(void);
     [reachability removeObserver:a];
 }
 
+- (void)testNoObservers
+{
+    SentryReachability *reachability = [[SentryReachability alloc] init];
+
+    XCTestExpectation *aExp =
+        [self expectationWithDescription:
+                  @"reachability state change for observer monitoring https://sentry.io"];
+    [aExp setInverted:YES];
+    TestSentryReachabilityObserver *a =
+        [[TestSentryReachabilityObserver alloc] initWithExpectation:aExp];
+    [reachability addObserver:a];
+    [reachability removeObserver:a];
+
+    SentryConnectivityCallback(
+        reachability.sentry_reachability_ref, kSCNetworkReachabilityFlagsReachable, nil);
+
+    [self waitForExpectations:@[ aExp ] timeout:1.0];
+}
+
+- (void)testReportSameReachabilityState_OnlyCalledOnce
+{
+    SentryReachability *reachability = [[SentryReachability alloc] init];
+
+    XCTestExpectation *aExp =
+        [self expectationWithDescription:
+                  @"reachability state change for observer monitoring https://sentry.io"];
+    aExp.expectedFulfillmentCount = 1;
+    TestSentryReachabilityObserver *a =
+        [[TestSentryReachabilityObserver alloc] initWithExpectation:aExp];
+    [reachability addObserver:a];
+
+    SentryConnectivityCallback(
+        reachability.sentry_reachability_ref, kSCNetworkReachabilityFlagsReachable, nil);
+    SentryConnectivityCallback(
+        reachability.sentry_reachability_ref, kSCNetworkReachabilityFlagsReachable, nil);
+    SentryConnectivityCallback(
+        reachability.sentry_reachability_ref, kSCNetworkReachabilityFlagsReachable, nil);
+
+    [self waitForExpectations:@[ aExp ] timeout:1.0];
+
+    [reachability removeObserver:a];
+}
+
 @end
 #endif // !TARGET_OS_WATCH
