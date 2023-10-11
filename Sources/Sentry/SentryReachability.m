@@ -96,7 +96,7 @@ SentryConnectivityCallback(
         @"SentryConnectivityCallback called with target: %@; flags: %u", target, flags);
 
     @synchronized(sentry_reachability_observers) {
-        SENTRY_LOG_DEBUG(@"Entered synchronized region of SentryConnectivityCallback");
+        SENTRY_LOG_DEBUG(@"Entered synchronized region of SentryConnectivityCallback with target: %@; flags: %u", target, flags);
 
         if (sentry_reachability_observers.count == 0) {
             SENTRY_LOG_DEBUG(@"No reachability observers registered. Nothing to do.");
@@ -149,7 +149,9 @@ SentryConnectivityReset(void)
 
 - (void)addObserver:(id<SentryReachabilityObserver>)observer;
 {
+    SENTRY_LOG_DEBUG(@"Adding observer: %@", observer);
     @synchronized(sentry_reachability_observers) {
+        SENTRY_LOG_DEBUG(@"Synchronized to add observer: %@", observer);
         if ([sentry_reachability_observers containsObject:observer]) {
             SENTRY_LOG_DEBUG(@"Observer already added. Doing nothing.");
             return;
@@ -184,7 +186,7 @@ SentryConnectivityReset(void)
 {
     SENTRY_LOG_DEBUG(@"Removing observer: %@", observer);
     @synchronized(sentry_reachability_observers) {
-        SENTRY_LOG_DEBUG(@"Entered synchronized region of removeObserver");
+        SENTRY_LOG_DEBUG(@"Synchronized to remove observer: %@", observer);
         [sentry_reachability_observers removeObject:observer];
 
         [self unsetReachabilityCallbackIfNeeded];
@@ -193,7 +195,9 @@ SentryConnectivityReset(void)
 
 - (void)removeAllObservers
 {
+    SENTRY_LOG_DEBUG(@"Removing all observers.");
     @synchronized(sentry_reachability_observers) {
+        SENTRY_LOG_DEBUG(@"Synchronized to remove all observers.");
         [sentry_reachability_observers removeAllObjects];
         [self unsetReachabilityCallbackIfNeeded];
     }
