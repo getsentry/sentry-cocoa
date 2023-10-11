@@ -64,7 +64,7 @@ SENTRY_EXTERN NSString *const SentryConnectivityNone;
 /**
  * Only needed for testing.
  */
-@property (nonatomic) BOOL setReachabilityCallback;
+@property (nonatomic, assign) BOOL setReachabilityCallback;
 
 /**
  * Add an observer which is called each time network connectivity changes.

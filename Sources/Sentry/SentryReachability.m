@@ -150,9 +150,19 @@ SentryConnectivityReset(void)
 - (void)addObserver:(id<SentryReachabilityObserver>)observer;
 {
     @synchronized(sentry_reachability_observers) {
+        if ([sentry_reachability_observers containsObject:observer]) {
+            SENTRY_LOG_DEBUG(@"Observer already added. Doing nothing.");
+            return;
+        }
+
         [sentry_reachability_observers addObject:observer];
 
         if (sentry_reachability_observers.count > 1) {
+            return;
+        }
+
+        if (!self.setReachabilityCallback) {
+            SENTRY_LOG_DEBUG(@"Skipping setting reachability callback.");
             return;
         }
 
@@ -164,10 +174,8 @@ SentryConnectivityReset(void)
         }
 
         SENTRY_LOG_DEBUG(@"registering callback for reachability ref %@", _sentry_reachability_ref);
-        if (self.setReachabilityCallback) {
-            SCNetworkReachabilitySetCallback(
-                _sentry_reachability_ref, SentryConnectivityCallback, NULL);
-        }
+        SCNetworkReachabilitySetCallback(
+            _sentry_reachability_ref, SentryConnectivityCallback, NULL);
         SCNetworkReachabilitySetDispatchQueue(_sentry_reachability_ref, sentry_reachability_queue);
     }
 }
@@ -196,6 +204,11 @@ SentryConnectivityReset(void)
     if (sentry_reachability_observers.count > 0) {
         SENTRY_LOG_DEBUG(
             @"Other observers still registered, will not unset reachability callback.");
+        return;
+    }
+
+    if (!self.setReachabilityCallback) {
+        SENTRY_LOG_DEBUG(@"Skipping unsetting reachability callback.");
         return;
     }
 

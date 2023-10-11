@@ -1,20 +1,19 @@
 import XCTest
 
-final class SentryReachabilitySwiftTests: XCTestCase, SentryReachabilityObserver {
+final class SentryReachabilitySwiftTests: XCTestCase {
 
     func testAddRemoveFromMultipleThreads() throws {
         let sut = SentryReachability()
         testConcurrentModifications(writeWork: {_ in
-            sut.add(self)
+            sut.add(TestReachabilityObserver())
         }, readWork: {
-            sut.remove(self)
+            sut.removeAllObservers()
         })
-        
-        sut.removeAllObservers()
     }
-    
+}
+
+class TestReachabilityObserver: NSObject, SentryReachabilityObserver {
     func connectivityChanged(_ connected: Bool, typeDescription: String) {
         // Do nothing
     }
-
 }
