@@ -10,14 +10,22 @@ set -euxo pipefail
 
 PLATFORM="${1}"
 OS=${2:-latest}
-DEVICE=${6:-iPhone 14}
 REF_NAME="${3-HEAD}"
 IS_LOCAL_BUILD="${4:-ci}"
 COMMAND="${5:-test}"
-SANITIZER="${6:-none}"
-DESTINATION=""
-CONFIGURATION=""
+DEVICE=${6:-iPhone 14}
+SANITIZER="${7:-none}"
 
+# get an arbitrary list of test identifiers to skip at the end of regular arguments
+for i in {1..7}; do
+    shift
+done
+SKIPPED_TESTS=""
+for z in $@; do
+    SKIPPED_TESTS+="-skip-test:$z "
+done
+
+DESTINATION=""
 case $PLATFORM in
 
 "macOS")
@@ -42,6 +50,7 @@ case $PLATFORM in
     ;;
 esac
 
+CONFIGURATION=""
 case $REF_NAME in
 "main")
     CONFIGURATION="TestCI"
@@ -110,6 +119,7 @@ if [ $RUN_TEST_WITHOUT_BUILDING == true ]; then
         -configuration $CONFIGURATION \
         -destination "$DESTINATION" \
         $SANITIZER_ARGUMENT \
+        $SKIPPED_TESTS \
         test-without-building |
         tee raw-test-output.log |
         $RUBY_ENV_ARGS xcpretty -t &&
