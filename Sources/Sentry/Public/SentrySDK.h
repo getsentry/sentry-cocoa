@@ -29,7 +29,7 @@ SENTRY_NO_INIT
  * set a valid DSN.
  *
  * @discussion Call this method on the main thread. When calling it from a background thread, the
- * SDK starts on the main thread async and can take some time until the SDK is fully launched.
+ * SDK starts on the main thread async.
  */
 + (void)startWithOptions:(SentryOptions *)options NS_SWIFT_NAME(start(options:));
 
@@ -38,7 +38,7 @@ SENTRY_NO_INIT
  * set a valid DSN.
  *
  * @discussion Call this method on the main thread. When calling it from a background thread, the
- * SDK starts on the main thread async and can take some time until the SDK is fully launched.
+ * SDK starts on the main thread async.
  */
 + (void)startWithConfigureOptions:(void (^)(SentryOptions *options))configureOptions
     NS_SWIFT_NAME(start(configureOptions:));
