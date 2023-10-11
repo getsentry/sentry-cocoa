@@ -96,7 +96,9 @@ SentryConnectivityCallback(
         @"SentryConnectivityCallback called with target: %@; flags: %u", target, flags);
 
     @synchronized(sentry_reachability_observers) {
-        SENTRY_LOG_DEBUG(@"Entered synchronized region of SentryConnectivityCallback with target: %@; flags: %u", target, flags);
+        SENTRY_LOG_DEBUG(
+            @"Entered synchronized region of SentryConnectivityCallback with target: %@; flags: %u",
+            target, flags);
 
         if (sentry_reachability_observers.count == 0) {
             SENTRY_LOG_DEBUG(@"No reachability observers registered. Nothing to do.");
