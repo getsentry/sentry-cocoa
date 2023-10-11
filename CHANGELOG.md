@@ -1,5 +1,15 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Always start SDK on the main thread (#3291)
+- App hang with race condition for tick counter (#3290)
+- Remove "duplicate library" warning (#3312)
+- Fix multiple issues in Reachability (#3338)
+- Remove unnecessary build settings (#3325)
+
 ## 8.13.0
 
 ### Fixes
@@ -9,6 +19,7 @@
 ### Features
 
 - Record changes to network connectivity in breadcrumbs (#3232)
+- Add Sampling Decision to Trace Envelope Header (#3286)
 
 ## 8.12.0
 
@@ -24,7 +35,6 @@
 ### Features
 
 - Rename "http.method" to "http.request.method" for network Spans (#3268)
-- Add Sampling Decision to Trace Envelope Header (#3286)
 
 ## 8.11.0
 

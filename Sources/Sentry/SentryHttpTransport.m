@@ -92,28 +92,23 @@ SentryHttpTransport ()
         [self sendAllCachedEnvelopes];
 
 #if !TARGET_OS_WATCH
-        __weak SentryHttpTransport *weakSelf = self;
-        [SentryDependencyContainer.sharedInstance.reachability
-             addObserver:self
-            withCallback:^(BOOL connected, NSString *_Nonnull typeDescription) {
-                if (weakSelf == nil) {
-                    SENTRY_LOG_DEBUG(@"WeakSelf is nil. Not doing anything.");
-                    return;
-                }
-
-                if (connected) {
-                    SENTRY_LOG_DEBUG(@"Internet connection is back.");
-                    [weakSelf sendAllCachedEnvelopes];
-                } else {
-                    SENTRY_LOG_DEBUG(@"Lost internet connection.");
-                }
-            }];
+        [SentryDependencyContainer.sharedInstance.reachability addObserver:self];
 #endif // !TARGET_OS_WATCH
     }
     return self;
 }
 
 #if !TARGET_OS_WATCH
+- (void)connectivityChanged:(BOOL)connected typeDescription:(nonnull NSString *)typeDescription
+{
+    if (connected) {
+        SENTRY_LOG_DEBUG(@"Internet connection is back.");
+        [self sendAllCachedEnvelopes];
+    } else {
+        SENTRY_LOG_DEBUG(@"Lost internet connection.");
+    }
+}
+
 - (void)dealloc
 {
     [SentryDependencyContainer.sharedInstance.reachability removeObserver:self];
