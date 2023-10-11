@@ -4,6 +4,7 @@
 
 ### Fixes
 
+- Always start SDK on the main thread (#3291)
 - App hang with race condition for tick counter (#3290)
 - Remove "duplicate library" warning (#3312)
 - Fix multiple issues in Reachability (#3338)

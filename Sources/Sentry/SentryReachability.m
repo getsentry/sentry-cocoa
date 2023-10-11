@@ -119,6 +119,13 @@ SentryConnectivityCallback(
     }
 }
 
+void
+SentryConnectivityReset(void)
+{
+    [sentry_reachability_change_blocks removeAllObjects];
+    sentry_current_reachability_state = kSCNetworkReachabilityFlagsUninitialized;
+}
+
 @implementation SentryReachability
 
 + (void)initialize
@@ -189,6 +196,11 @@ SentryConnectivityCallback(
         return;
     }
 
+    [self removeReachabilityNotification];
+}
+
+- (void)removeReachabilityNotification
+{
     sentry_current_reachability_state = kSCNetworkReachabilityFlagsUninitialized;
 
     if (_sentry_reachability_ref != nil) {
