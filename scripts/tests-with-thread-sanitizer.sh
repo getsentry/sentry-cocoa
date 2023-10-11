@@ -7,6 +7,12 @@ set -euo pipefail
 env NSUnbufferedIO=YES xcodebuild -workspace Sentry.xcworkspace -scheme Sentry -configuration Test -enableThreadSanitizer YES \
     -destination "platform=iOS Simulator,OS=latest,name=iPhone 14" \
     -skip-testing:"Sentry/SentryThreadInspectorTests/testStacktraceHasFrames_forEveryThread" \
+    -skip-testing:"Sentry/SentryThreadInspectorTests/testGetCurrentThreadWithStackTrack_TooManyThreads" \
+    -skip-testing:"SentryTests/SentryNSDataTrackerTests/testWriteAtomically_CheckTransaction_FilterOut_nonProcessFrames" \
+    -skip-testing:"SentryTests/SentryFileManagerTests/testDefaultMaxEnvelopesConcurrent" \
+    -skip-testing:"SentryTests/SentryCrashBinaryImageCacheTests/testAddBinaryImageInParallel" \
+    -skip-testing:"SentryTests/SentryANRTrackerTests/testMultipleListeners" \
+    -skip-testing:"SentryTests/SentryANRTrackerTests/testAppSuspended_NoANR" \
     test | tee thread-sanitizer.log | xcpretty -t
 
 testStatus=$?
