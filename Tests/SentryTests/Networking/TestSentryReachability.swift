@@ -3,18 +3,24 @@
 import SentryTestUtils
 
 class TestSentryReachability: SentryReachability {
-    var block: SentryConnectivityChangeBlock?
+    
+    private var observers: NSHashTable<SentryReachabilityObserver> = NSHashTable.weakObjects()
 
-    override func add(_ observer: SentryReachabilityObserver, withCallback block: @escaping SentryConnectivityChangeBlock) {
-        self.block = block
+    override func add(_ observer: SentryReachabilityObserver) {
+        observers.add(observer)
     }
 
     func setReachabilityState(state: String) {
-        block?(state != SentryConnectivityNone, state)
+        for observer in observers.allObjects {
+            observer.connectivityChanged(state != SentryConnectivityNone, typeDescription: state)
+        }
+        
     }
 
     func triggerNetworkReachable() {
-        block?(true, SentryConnectivityWiFi)
+        for observer in observers.allObjects {
+            observer.connectivityChanged(true, typeDescription: SentryConnectivityWiFi)
+        }
     }
     
     var stopMonitoringInvocations = Invocations<Void>()

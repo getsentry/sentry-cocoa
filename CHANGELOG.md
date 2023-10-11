@@ -7,6 +7,7 @@
 - Always start SDK on the main thread (#3291)
 - App hang with race condition for tick counter (#3290)
 - Remove "duplicate library" warning (#3312)
+- Fix multiple issues in Reachability (#3338)
 - Remove unnecessary build settings (#3325)
 
 ## 8.13.0
