@@ -10,6 +10,7 @@ set -euxo pipefail
 
 PLATFORM="${1}"
 OS=${2:-latest}
+DEVICE=${6:-iPhone 14}
 REF_NAME="${3-HEAD}"
 IS_LOCAL_BUILD="${4:-ci}"
 COMMAND="${5:-test}"
@@ -27,7 +28,7 @@ case $PLATFORM in
     ;;
 
 "iOS")
-    DESTINATION="platform=iOS Simulator,OS=$OS,name=iPhone 8"
+    DESTINATION="platform=iOS Simulator,OS=$OS,name=$DEVICE"
     ;;
 
 "tvOS")
