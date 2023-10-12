@@ -124,13 +124,6 @@ SentryConnectivityCallback(
     }
 }
 
-void
-SentryConnectivityReset(void)
-{
-    [sentry_reachability_observers removeAllObjects];
-    sentry_current_reachability_state = kSCNetworkReachabilityFlagsUninitialized;
-}
-
 @implementation SentryReachability
 
 + (void)initialize
@@ -191,7 +184,9 @@ SentryConnectivityReset(void)
         SENTRY_LOG_DEBUG(@"Synchronized to remove observer: %@", observer);
         [sentry_reachability_observers removeObject:observer];
 
-        [self unsetReachabilityCallbackIfNeeded];
+        if (sentry_reachability_observers.count == 0) {
+            [self unsetReachabilityCallback];
+        }
     }
 }
 
@@ -201,23 +196,12 @@ SentryConnectivityReset(void)
     @synchronized(sentry_reachability_observers) {
         SENTRY_LOG_DEBUG(@"Synchronized to remove all observers.");
         [sentry_reachability_observers removeAllObjects];
-        [self unsetReachabilityCallbackIfNeeded];
+        [self unsetReachabilityCallback];
     }
 }
 
-- (void)unsetReachabilityCallbackIfNeeded
+- (void)unsetReachabilityCallback
 {
-    if (sentry_reachability_observers.count > 0) {
-        SENTRY_LOG_DEBUG(
-            @"Other observers still registered, will not unset reachability callback.");
-        return;
-    }
-
-    if (!self.setReachabilityCallback) {
-        SENTRY_LOG_DEBUG(@"Skipping unsetting reachability callback.");
-        return;
-    }
-
     sentry_current_reachability_state = kSCNetworkReachabilityFlagsUninitialized;
 
     if (_sentry_reachability_ref != nil) {
