@@ -43,14 +43,16 @@ SENTRY_EXTERN NSString *const SentryConnectivityCellular;
 SENTRY_EXTERN NSString *const SentryConnectivityWiFi;
 SENTRY_EXTERN NSString *const SentryConnectivityNone;
 
+@protocol SentryReachabilityObserver <NSObject>
+
 /**
- * Function signature to connectivity monitoring callback of @c SentryReachability
+ * Called when network connectivity changes.
+ *
  * @param connected @c YES if the monitored URL is reachable
  * @param typeDescription a textual representation of the connection type
  */
-typedef void (^SentryConnectivityChangeBlock)(BOOL connected, NSString *typeDescription);
+- (void)connectivityChanged:(BOOL)connected typeDescription:(NSString *)typeDescription;
 
-@protocol SentryReachabilityObserver <NSObject>
 @end
 
 /**
@@ -60,16 +62,21 @@ typedef void (^SentryConnectivityChangeBlock)(BOOL connected, NSString *typeDesc
 @interface SentryReachability : NSObject
 
 /**
- * Invoke a block each time network connectivity changes
- * @param block The block called when connectivity changes
+ * Only needed for testing.
  */
-- (void)addObserver:(id<SentryReachabilityObserver>)observer
-       withCallback:(SentryConnectivityChangeBlock)block;
+@property (nonatomic, assign) BOOL setReachabilityCallback;
+
+/**
+ * Add an observer which is called each time network connectivity changes.
+ */
+- (void)addObserver:(id<SentryReachabilityObserver>)observer;
 
 /**
  * Stop monitoring the URL previously configured with @c monitorURL:usingCallback:
  */
 - (void)removeObserver:(id<SentryReachabilityObserver>)observer;
+
+- (void)removeAllObservers;
 
 @end
 
