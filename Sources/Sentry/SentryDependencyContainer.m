@@ -161,7 +161,9 @@ static NSObject *sentryDependencyContainerLock;
     }
     return _uiDeviceWrapper;
 #    else
-    SENTRY_LOG_DEBUG(@"uiDeviceWrapper is not available in build that don't link UIKit.");
+    SENTRY_LOG_DEBUG(
+        @"SentryDependencyContainer.uiDeviceWrapper only works with UIKit enabled. Ensure you're "
+        @"using the right configuration of Sentry that links UIKit.");
     return nil;
 #    endif // SENTRY_HAS_UIKIT
 }
@@ -180,7 +182,9 @@ static NSObject *sentryDependencyContainerLock;
     }
     return _screenshot;
 #    else
-    SENTRY_LOG_DEBUG(@"screenshot is not available in build that don't link UIKit.");
+    SENTRY_LOG_DEBUG(
+        @"SentryDependencyContainer.screenshot only works with UIKit enabled. Ensure you're "
+        @"using the right configuration of Sentry that links UIKit.");
     return nil;
 #    endif // SENTRY_HAS_UIKIT
 }
@@ -197,7 +201,9 @@ static NSObject *sentryDependencyContainerLock;
     }
     return _viewHierarchy;
 #    else
-    SENTRY_LOG_DEBUG(@"viewHierarchy is not available in build that don't link UIKit.");
+    SENTRY_LOG_DEBUG(
+        @"SentryDependencyContainer.viewHierarchy only works with UIKit enabled. Ensure you're "
+        @"using the right configuration of Sentry that links UIKit.");
     return nil;
 #    endif // SENTRY_HAS_UIKIT
 }
@@ -214,7 +220,9 @@ static NSObject *sentryDependencyContainerLock;
     }
     return _application;
 #    else
-    SENTRY_LOG_DEBUG(@"application is not available in build that don't link UIKit.");
+    SENTRY_LOG_DEBUG(
+        @"SentryDependencyContainer.application only works with UIKit enabled. Ensure you're "
+        @"using the right configuration of Sentry that links UIKit.");
     return nil;
 #    endif // SENTRY_HAS_UIKIT
 }
@@ -232,7 +240,9 @@ static NSObject *sentryDependencyContainerLock;
     }
     return _framesTracker;
 #    else
-    SENTRY_LOG_DEBUG(@"framesTracker is not available in build that don't link UIKit.");
+    SENTRY_LOG_DEBUG(
+        @"SentryDependencyContainer.framesTracker only works with UIKit enabled. Ensure you're "
+        @"using the right configuration of Sentry that links UIKit.");
     return nil;
 #    endif // SENTRY_HAS_UIKIT
 }
@@ -249,7 +259,9 @@ static NSObject *sentryDependencyContainerLock;
     }
     return _swizzleWrapper;
 #    else
-    SENTRY_LOG_DEBUG(@"uiDeviceWrapper is not available in build that don't link UIKit.");
+    SENTRY_LOG_DEBUG(
+        @"SentryDependencyContainer.uiDeviceWrapper only works with UIKit enabled. Ensure you're "
+        @"using the right configuration of Sentry that links UIKit.");
     return nil;
 #    endif // SENTRY_HAS_UIKIT
 }

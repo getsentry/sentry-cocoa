@@ -9,6 +9,10 @@ NS_ASSUME_NONNULL_BEGIN
 typedef NSArray<NSDictionary<NSString *, NSNumber *> *> SentryFrameInfoTimeSeries;
 #    endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
+/**
+ * @warning This feature is not available in @c Debug_without_UIKit and @c Release_without_UIKit
+ * configurations even when targeting iOS or tvOS platforms.
+ */
 @interface SentryScreenFrames : NSObject
 #    if SENTRY_TARGET_PROFILING_SUPPORTED
                                 <NSCopying>

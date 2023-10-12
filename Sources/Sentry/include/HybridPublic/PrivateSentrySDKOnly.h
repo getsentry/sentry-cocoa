@@ -125,15 +125,33 @@ typedef void (^SentryOnAppStartMeasurementAvailable)(
 #if SENTRY_UIKIT_AVAILABLE
 /**
  * Allows hybrid SDKs to enable frame tracking measurements despite other options.
+ * @warning This feature is not available in @c Debug_without_UIKit and @c Release_without_UIKit
+ * configurations even when targeting iOS or tvOS platforms.
  */
 @property (class, nonatomic, assign) BOOL framesTrackingMeasurementHybridSDKMode;
 
+/**
+ * @warning This feature is not available in @c Debug_without_UIKit and @c Release_without_UIKit
+ * configurations even when targeting iOS or tvOS platforms.
+ */
 @property (class, nonatomic, assign, readonly) BOOL isFramesTrackingRunning;
 
+/**
+ * @warning This feature is not available in @c Debug_without_UIKit and @c Release_without_UIKit
+ * configurations even when targeting iOS or tvOS platforms.
+ */
 @property (class, nonatomic, assign, readonly) SentryScreenFrames *currentScreenFrames;
 
+/**
+ * @warning This feature is not available in @c Debug_without_UIKit and @c Release_without_UIKit
+ * configurations even when targeting iOS or tvOS platforms.
+ */
 + (NSArray<NSData *> *)captureScreenshots;
 
+/**
+ * @warning This feature is not available in @c Debug_without_UIKit and @c Release_without_UIKit
+ * configurations even when targeting iOS or tvOS platforms.
+ */
 + (NSData *)captureViewHierarchy;
 #endif // SENTRY_UIKIT_AVAILABLE
 

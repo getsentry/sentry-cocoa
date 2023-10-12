@@ -34,7 +34,8 @@
         moduleInitializationTimestamp:[NSDate dateWithTimeIntervalSince1970:0]
           didFinishLaunchingTimestamp:didFinishLaunchingTimestamp];
 #    else
-    SENTRY_LOG_DEBUG(@"SentryAppStartMeasurement is only available in builds that link UIKit.");
+    SENTRY_LOG_DEBUG(@"SentryAppStartMeasurement only works with UIKit enabled. Ensure you're "
+                     @"using the right configuration of Sentry that links UIKit.");
     return nil;
 #    endif // SENTRY_HAS_UIKIT
 }
@@ -60,80 +61,48 @@
 
     return self;
 #    else
-    SENTRY_LOG_DEBUG(@"SentryAppStartMeasurement is only available in builds that link UIKit.");
+    SENTRY_LOG_DEBUG(@"SentryAppStartMeasurement only works with UIKit enabled. Ensure you're "
+                     @"using the right configuration of Sentry that links UIKit.");
     return nil;
 #    endif // SENTRY_HAS_UIKIT
 }
 
+#    if SENTRY_HAS_UIKIT
 - (SentryAppStartType)type
 {
-#    if SENTRY_HAS_UIKIT
     return _type;
-#    else
-    SENTRY_LOG_DEBUG(@"type is only available in builds that link UIKit.");
-    return SentryAppStartTypeUnknown;
-#    endif // SENTRY_HAS_UIKIT
 }
 
 - (BOOL)isPreWarmed
 {
-#    if SENTRY_HAS_UIKIT
     return _isPreWarmed;
-#    else
-    SENTRY_LOG_DEBUG(@"isPreWarmed is only available in builds that link UIKit.");
-    return NO;
-#    endif // SENTRY_HAS_UIKIT
 }
 
 - (NSTimeInterval)duration
 {
-#    if SENTRY_HAS_UIKIT
     return _duration;
-#    else
-    SENTRY_LOG_DEBUG(@"duration is only available in builds that link UIKit.");
-    return 0.0;
-#    endif // SENTRY_HAS_UIKIT
 }
 
 - (NSDate *)appStartTimestamp
 {
-#    if SENTRY_HAS_UIKIT
     return _appStartTimestamp;
-#    else
-    SENTRY_LOG_DEBUG(@"appStartTimestamp is only available in builds that link UIKit.");
-    return nil;
-#    endif // SENTRY_HAS_UIKIT
 }
 
 - (NSDate *)runtimeInitTimestamp
 {
-#    if SENTRY_HAS_UIKIT
     return _runtimeInitTimestamp;
-#    else
-    SENTRY_LOG_DEBUG(@"runtimeInitTimestamp is only available in builds that link UIKit.");
-    return nil;
-#    endif // SENTRY_HAS_UIKIT
 }
 
 - (NSDate *)moduleInitializationTimestamp
 {
-#    if SENTRY_HAS_UIKIT
     return _moduleInitializationTimestamp;
-#    else
-    SENTRY_LOG_DEBUG(@"moduleInitializationTimestamp is only available in builds that link UIKit.");
-    return nil;
-#    endif // SENTRY_HAS_UIKIT
 }
 
 - (NSDate *)didFinishLaunchingTimestamp
 {
-#    if SENTRY_HAS_UIKIT
     return _didFinishLaunchingTimestamp;
-#    else
-    SENTRY_LOG_DEBUG(@"didFinishLaunchingTimestamp is only available in builds that link UIKit.");
-    return nil;
-#    endif // SENTRY_HAS_UIKIT
 }
+#    endif // SENTRY_HAS_UIKIT
 
 @end
 
