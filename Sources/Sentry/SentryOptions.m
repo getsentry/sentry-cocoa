@@ -7,6 +7,7 @@
 #import "SentryDsn.h"
 #import "SentryFileIOTrackingIntegration.h"
 #import "SentryHttpStatusCodeRange.h"
+#import "SentryInternalDefines.h"
 #import "SentryLevelMapper.h"
 #import "SentryLog.h"
 #import "SentryMeta.h"
@@ -20,7 +21,9 @@
 #    import "SentryAppStartTrackingIntegration.h"
 #    import "SentryFramesTrackingIntegration.h"
 #    import "SentryPerformanceTrackingIntegration.h"
-#    import "SentryScreenshotIntegration.h"
+#    if SENTRY_HAS_UIKIT
+#        import "SentryScreenshotIntegration.h"
+#    endif // SENTRY_HAS_UIKIT
 #    import "SentryUIEventTrackingIntegration.h"
 #    import "SentryViewHierarchyIntegration.h"
 #    import "SentryWatchdogTerminationTrackingIntegration.h"
@@ -58,7 +61,9 @@ NSString *const kSentryDefaultEnvironment = @"production";
             NSStringFromClass([SentryAppStartTrackingIntegration class]),
             NSStringFromClass([SentryFramesTrackingIntegration class]),
             NSStringFromClass([SentryPerformanceTrackingIntegration class]),
+#    if SENTRY_HAS_UIKIT
             NSStringFromClass([SentryScreenshotIntegration class]),
+#    endif // SENTRY_HAS_UIKIT
             NSStringFromClass([SentryUIEventTrackingIntegration class]),
             NSStringFromClass([SentryViewHierarchyIntegration class]),
             NSStringFromClass([SentryWatchdogTerminationTrackingIntegration class]),
@@ -112,7 +117,9 @@ NSString *const kSentryDefaultEnvironment = @"production";
         _enableTracingManual = NO;
 #if SENTRY_HAS_UIKIT
         self.enableUIViewControllerTracing = YES;
+#    if SENTRY_HAS_UIKIT
         self.attachScreenshot = NO;
+#    endif // SENTRY_HAS_UIKIT
         self.attachViewHierarchy = NO;
         self.enableUserInteractionTracing = YES;
         self.idleTimeout = 3.0;
@@ -379,8 +386,10 @@ NSString *const kSentryDefaultEnvironment = @"production";
     [self setBool:options[@"enableUIViewControllerTracing"]
             block:^(BOOL value) { self->_enableUIViewControllerTracing = value; }];
 
+#    if SENTRY_HAS_UIKIT
     [self setBool:options[@"attachScreenshot"]
             block:^(BOOL value) { self->_attachScreenshot = value; }];
+#    endif // SENTRY_HAS_UIKIT
 
     [self setBool:options[@"attachViewHierarchy"]
             block:^(BOOL value) { self->_attachViewHierarchy = value; }];
@@ -623,5 +632,75 @@ NSString *const kSentryDefaultEnvironment = @"production";
 
     return [block isKindOfClass:blockClass];
 }
+
+#if SENTRY_UIKIT_AVAILABLE
+
+- (void)setEnableUIViewControllerTracing:(BOOL)enableUIViewControllerTracing
+{
+#    if SENTRY_HAS_UIKIT
+    _enableUIViewControllerTracing = enableUIViewControllerTracing;
+#    else
+    SENTRY_GRACEFUL_FATAL(
+        @"enableUIViewControllerTracing only works with UIKit enabled. Ensure you're "
+        @"using the right configuration of Sentry that links UIKit.");
+#    endif // SENTRY_HAS_UIKIT
+}
+
+- (void)setAttachScreenshot:(BOOL)attachScreenshot
+{
+#    if SENTRY_HAS_UIKIT
+    _attachScreenshot = attachScreenshot;
+#    else
+    SENTRY_GRACEFUL_FATAL(
+        @"attachScreenshot only works with UIKit enabled. Ensure you're using the "
+        @"right configuration of Sentry that links UIKit.");
+#    endif // SENTRY_HAS_UIKIT
+}
+
+- (void)setAttachViewHierarchy:(BOOL)attachViewHierarchy
+{
+#    if SENTRY_HAS_UIKIT
+    _attachViewHierarchy = attachViewHierarchy;
+#    else
+    SENTRY_GRACEFUL_FATAL(
+        @"attachViewHierarchy only works with UIKit enabled. Ensure you're using the "
+        @"right configuration of Sentry that links UIKit.");
+#    endif // SENTRY_HAS_UIKIT
+}
+
+- (void)setEnableUserInteractionTracing:(BOOL)enableUserInteractionTracing
+{
+#    if SENTRY_HAS_UIKIT
+    _enableUserInteractionTracing = enableUserInteractionTracing;
+#    else
+    SENTRY_GRACEFUL_FATAL(
+        @"enableUserInteractionTracing only works with UIKit enabled. Ensure you're "
+        @"using the right configuration of Sentry that links UIKit.");
+#    endif // SENTRY_HAS_UIKIT
+}
+
+- (void)setIdleTimeout:(NSTimeInterval)idleTimeout
+{
+#    if SENTRY_HAS_UIKIT
+    _idleTimeout = idleTimeout;
+#    else
+    SENTRY_GRACEFUL_FATAL(
+        @"idleTimeout only works with UIKit enabled. Ensure you're using the right "
+        @"configuration of Sentry that links UIKit.");
+#    endif // SENTRY_HAS_UIKIT
+}
+
+- (void)setEnablePreWarmedAppStartTracing:(BOOL)enablePreWarmedAppStartTracing
+{
+#    if SENTRY_HAS_UIKIT
+    _enablePreWarmedAppStartTracing = enablePreWarmedAppStartTracing;
+#    else
+    SENTRY_GRACEFUL_FATAL(
+        @"enablePreWarmedAppStartTracing only works with UIKit enabled. Ensure you're "
+        @"using the right configuration of Sentry that links UIKit.");
+#    endif // SENTRY_HAS_UIKIT
+}
+
+#endif // SENTRY_UIKIT_AVAILABLE
 
 @end

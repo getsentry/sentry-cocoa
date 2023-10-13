@@ -199,15 +199,19 @@ NS_SWIFT_NAME(Options)
  */
 @property (nonatomic) SentryScope * (^initialScope)(SentryScope *);
 
-#if SENTRY_HAS_UIKIT
+#if SENTRY_UIKIT_AVAILABLE
 /**
  * When enabled, the SDK tracks performance for UIViewController subclasses.
+ * @warning This feature is not available in @c Debug_without_UIKit and @c Release_without_UIKit
+ * configurations even when targeting iOS or tvOS platforms.
  * @note The default is @c YES .
  */
 @property (nonatomic, assign) BOOL enableUIViewControllerTracing;
 
 /**
  * Automatically attaches a screenshot when capturing an error or exception.
+ * @warning This feature is not available in @c Debug_without_UIKit and @c Release_without_UIKit
+ * configurations even when targeting iOS or tvOS platforms.
  * @note Default value is @c NO .
  */
 @property (nonatomic, assign) BOOL attachScreenshot;
@@ -216,6 +220,8 @@ NS_SWIFT_NAME(Options)
  * @warning This is an experimental feature and may still have bugs.
  * @brief Automatically attaches a textual representation of the view hierarchy when capturing an
  * error event.
+ * @warning This feature is not available in @c Debug_without_UIKit and @c Release_without_UIKit
+ * configurations even when targeting iOS or tvOS platforms.
  * @note Default value is @c NO .
  */
 @property (nonatomic, assign) BOOL attachViewHierarchy;
@@ -223,6 +229,8 @@ NS_SWIFT_NAME(Options)
 /**
  * When enabled, the SDK creates transactions for UI events like buttons clicks, switch toggles,
  * and other ui elements that uses UIControl @c sendAction:to:forEvent:
+ * @warning This feature is not available in @c Debug_without_UIKit and @c Release_without_UIKit
+ * configurations even when targeting iOS or tvOS platforms.
  * @note Default value is @c YES .
  */
 @property (nonatomic, assign) BOOL enableUserInteractionTracing;
@@ -230,10 +238,11 @@ NS_SWIFT_NAME(Options)
 /**
  * How long an idle transaction waits for new children after all its child spans finished. Only UI
  * event transactions are idle transactions.
+ * @warning This feature is not available in @c Debug_without_UIKit and @c Release_without_UIKit
+ * configurations even when targeting iOS or tvOS platforms.
  * @note The default is 3 seconds.
  */
 @property (nonatomic, assign) NSTimeInterval idleTimeout;
-
 /**
  * @warning This is an experimental feature and may still have bugs.
  * @brief Report pre-warmed app starts by dropping the first app start spans if pre-warming paused
@@ -242,11 +251,12 @@ NS_SWIFT_NAME(Options)
  * @note You can filter for different app start types in Discover with
  * @c app_start_type:cold.prewarmed ,
  * @c app_start_type:warm.prewarmed , @c app_start_type:cold , and @c app_start_type:warm .
+ * @warning This feature is not available in @c Debug_without_UIKit and @c Release_without_UIKit
+ * configurations even when targeting iOS or tvOS platforms.
  * @note Default value is @c NO .
  */
 @property (nonatomic, assign) BOOL enablePreWarmedAppStartTracing;
-
-#endif // SENTRY_HAS_UIKIT
+#endif // SENTRY_UIKIT_AVAILABLE
 
 /**
  * When enabled, the SDK tracks performance for HTTP requests if auto performance tracking and

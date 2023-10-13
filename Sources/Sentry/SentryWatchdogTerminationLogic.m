@@ -8,7 +8,6 @@
 #    import <SentryCrashWrapper.h>
 #    import <SentryOptions.h>
 #    import <SentrySDK+Private.h>
-#    import <UIKit/UIKit.h>
 
 @interface
 SentryWatchdogTerminationLogic ()

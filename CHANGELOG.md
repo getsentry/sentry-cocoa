@@ -4,6 +4,7 @@
 
 ### Features
 
+- Sentry can now be used without linking UIKit; this is helpful for using the SDK in certain app extension contexts (#3175)
 - GA of MetricKit integration (#3340)
 
 Once enabled, this feature subscribes to [MetricKit's](https://developer.apple.com/documentation/metrickit) [MXDiagnosticPayload](https://developer.apple.com/documentation/metrickit/mxdiagnosticpayload) data, converts it to events, and sends it to Sentry.
