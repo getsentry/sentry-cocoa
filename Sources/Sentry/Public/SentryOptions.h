@@ -467,7 +467,8 @@ NS_SWIFT_NAME(Options)
 #if SENTRY_HAS_METRIC_KIT
 
 /**
- * @warning This is an experimental feature and may still have bugs.
+ * Use this feature to enable the Sentry MetricKit integration.
+ *
  * @brief When enabled, the SDK sends @c MXDiskWriteExceptionDiagnostic, @c MXCPUExceptionDiagnostic
  * and
  * @c MXHangDiagnostic to Sentry. The SDK supports this feature from iOS 15 and later and macOS 12
