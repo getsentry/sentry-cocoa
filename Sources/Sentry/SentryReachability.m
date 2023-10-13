@@ -165,6 +165,10 @@ SentryConnectivityCallback(
 
         sentry_reachability_queue
             = dispatch_queue_create("io.sentry.cocoa.connectivity", DISPATCH_QUEUE_SERIAL);
+        // Ensure to call CFRelease for the return value of SCNetworkReachabilityCreateWithName, see
+        // https://developer.apple.com/documentation/systemconfiguration/1514904-scnetworkreachabilitycreatewithn?language=objc
+        // and
+        // https://developer.apple.com/documentation/systemconfiguration/scnetworkreachability?language=objc
         _sentry_reachability_ref = SCNetworkReachabilityCreateWithName(NULL, "sentry.io");
         if (!_sentry_reachability_ref) { // Can be null if a bad hostname was specified
             return;
@@ -208,6 +212,7 @@ SentryConnectivityCallback(
         SENTRY_LOG_DEBUG(@"removing callback for reachability ref %@", _sentry_reachability_ref);
         SCNetworkReachabilitySetCallback(_sentry_reachability_ref, NULL, NULL);
         SCNetworkReachabilitySetDispatchQueue(_sentry_reachability_ref, NULL);
+        CFRelease(_sentry_reachability_ref);
         _sentry_reachability_ref = nil;
     }
 
