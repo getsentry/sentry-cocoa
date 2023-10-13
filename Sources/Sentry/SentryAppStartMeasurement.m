@@ -67,43 +67,6 @@
 #    endif // SENTRY_HAS_UIKIT
 }
 
-#    if SENTRY_HAS_UIKIT
-- (SentryAppStartType)type
-{
-    return _type;
-}
-
-- (BOOL)isPreWarmed
-{
-    return _isPreWarmed;
-}
-
-- (NSTimeInterval)duration
-{
-    return _duration;
-}
-
-- (NSDate *)appStartTimestamp
-{
-    return _appStartTimestamp;
-}
-
-- (NSDate *)runtimeInitTimestamp
-{
-    return _runtimeInitTimestamp;
-}
-
-- (NSDate *)moduleInitializationTimestamp
-{
-    return _moduleInitializationTimestamp;
-}
-
-- (NSDate *)didFinishLaunchingTimestamp
-{
-    return _didFinishLaunchingTimestamp;
-}
-#    endif // SENTRY_HAS_UIKIT
-
 @end
 
 #endif // SENTRY_UIKIT_AVAILABLE
