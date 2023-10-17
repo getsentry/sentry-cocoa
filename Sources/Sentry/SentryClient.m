@@ -46,6 +46,7 @@
 #import "SentryTransport.h"
 #import "SentryTransportAdapter.h"
 #import "SentryTransportFactory.h"
+#import "SentryUIApplication.h"
 #import "SentryUser.h"
 #import "SentryUserFeedback.h"
 #import "SentryWatchdogTerminationTracker.h"
@@ -784,6 +785,17 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                     key:@"app"
                   block:^(NSMutableDictionary *app) {
                       [app addEntriesFromDictionary:extraContext[@"app"]];
+#if SENTRY_HAS_UIKIT
+                      if (app[@"view_names"] == nil) {
+                          NSArray *viewControllers = SentryDependencyContainer.sharedInstance
+                                                         .application.relevantViewControllers;
+                          NSMutableArray *vcsNames = [NSMutableArray array];
+                          for (id vc in viewControllers) {
+                              [vcsNames addObject:[SwiftDescriptor getObjectClassName:vc]];
+                          }
+                          app[@"view_names"] = vcsNames;
+                      }
+#endif
                   }];
 }
 

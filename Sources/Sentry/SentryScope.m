@@ -530,6 +530,13 @@ SentryScope ()
         [newContext mergeEntriesFromDictionary:event.context];
     }
 
+    if (self.screen != nil) {
+        if (newContext[@"app"] == nil) {
+            newContext[@"app"] = [NSMutableDictionary dictionary];
+        }
+        [(NSMutableDictionary *)newContext[@"app"] setObject:@[ self.screen ] forKey:@"view_names"];
+    }
+
     if (self.span != nil) {
         id<SentrySpan> span;
         @synchronized(_spanLock) {
