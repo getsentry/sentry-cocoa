@@ -56,6 +56,81 @@
     return result;
 }
 
+- (NSArray<UIViewController *> *)relevantViewControllers
+{
+    NSMutableArray * result = [NSMutableArray array];
+    
+    NSArray<UIWindow *> * windows = [self windows];
+    if ([windows count] == 0) return nil;
+    
+    for (UIWindow* window in windows) {
+        UIViewController * vc = [self relevantViewControllerFromWindow:window];
+        if (vc != NULL) {
+            [result addObject:vc];
+        }
+    }
+    
+    return result;
+}
+
+- (UIViewController *)relevantViewControllerFromWindow:(UIWindow *)window {
+    UIViewController * topVC = window.rootViewController;
+    
+    while (topVC != NULL) {
+        //If the view controller is presenting another one, usually in a modal form.
+        if (topVC.presentedViewController != NULL) {
+            topVC = topVC.presentedViewController;
+            continue;;
+        }
+        
+        //The top view controller is meant for navigation and not content
+        if ([self isHierarchicViewController:topVC]) {
+            topVC = [self relevantViewControllerFromHierarchy:topVC];
+            continue;
+        }
+        
+        UIViewController* relevantChild = NULL;
+        for (UIViewController* childVC in topVC.childViewControllers) {
+            //Sometimes a view controller is used as container for a navigation controller
+            //If the navigation is ocuppaing the whole view controller we will consider this the case.
+            if ([self isHierarchicViewController:childVC] && CGRectEqualToRect(childVC.view.frame, topVC.view.bounds)) {
+                relevantChild = childVC;
+                break;
+            }
+        }
+        
+        if (relevantChild != NULL) {
+            topVC = relevantChild;
+            continue;
+        }
+        
+        break;
+    }
+    
+    return topVC;
+}
+
+- (BOOL)isHierarchicViewController:(UIViewController *)viewController {
+    return [viewController isKindOfClass:UINavigationController.class] ||
+    [viewController isKindOfClass:UITabBarController.class] ||
+    [viewController isKindOfClass:UISplitViewController.class];
+}
+
+- (UIViewController *)relevantViewControllerFromHierarchy:(UIViewController *)hierarchicVC {
+    if ([hierarchicVC isKindOfClass:UINavigationController.class]) {
+        return [(UINavigationController *)hierarchicVC topViewController];
+    }
+    if ([hierarchicVC isKindOfClass:UITabBarController.class]) {
+        UITabBarController * tbController = (UITabBarController *)hierarchicVC;
+        return [tbController.viewControllers objectAtIndex:tbController.selectedIndex];
+    }
+    if ([hierarchicVC isKindOfClass:UISplitViewController.class]) {
+        UISplitViewController * splitVC = (UISplitViewController *)hierarchicVC;
+        return [[splitVC viewControllers] objectAtIndex:1];
+    }
+    return NULL;
+}
+
 @end
 
 #endif // SENTRY_HAS_UIKIT

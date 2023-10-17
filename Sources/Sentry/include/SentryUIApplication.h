@@ -5,6 +5,7 @@
 @class UIApplication;
 @class UIScene;
 @class UIWindow;
+@class UIViewController;
 @protocol UIApplicationDelegate;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -34,6 +35,12 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (NSArray<UIScene *> *)getApplicationConnectedScenes:(UIApplication *)application
     API_AVAILABLE(ios(13.0), tvos(13.0));
+
+/**
+ * Return the most relevant view controller being presented in the app.
+ */
+- (NSArray<UIViewController *> *)relevantViewControllers;
+
 @end
 
 NS_ASSUME_NONNULL_END
