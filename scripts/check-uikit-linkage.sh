@@ -12,10 +12,19 @@ SENTRY_BUILD_PRODUCT_PATH="$DERIVED_DATA_PATH/Build/Products/$CONFIGURATION-ipho
 stat $SENTRY_BUILD_PRODUCT_PATH
 
 MATCHES=$(otool -L $SENTRY_BUILD_PRODUCT_PATH | grep -c UIKit.framework ||:)
-echo "hi"
-if [ $MATCHES != 0 ]; then
-    echo "UIKit.framework linkage found."
-    exit 67
-fi
 
-echo "Success! UIKit.framework not linked."
+case "${3}" in
+"linked")
+    if [ $MATCHES == 0 ]; then
+        echo "UIKit.framework linkage not found."
+        exit 1
+    fi
+    echo "Success! UIKit.framework linked."
+    ;;
+"nolink")
+    if [ $MATCHES != 0 ]; then
+        echo "UIKit.framework linkage found."
+        exit 1
+    fi
+    echo "Success! UIKit.framework not linked."
+;;

@@ -167,15 +167,35 @@ jobs:
       - run: swift build
         shell: sh
 
-  check-uikit-linkage-debug:
-    name: Check UIKit linkage (Debug)
+  check-uikit-linkage-debug-UIKitless:
+    name: Check UIKit linkage (Debug_without_UIKit)
     runs-on: macos-13
     steps:
       - uses: actions/checkout@v4
       - name: Build for Debug
         run: ./scripts/xcode-test.sh "iOS" "latest" $GITHUB_REF_NAME ci build "iPhone 14" Debug_without_UIKit uikit-check-build
       - name: Ensure no UIKit
-        run: ./scripts/check-uikit-linkage.sh Debug_without_UIKit uikit-check-build
+        run: ./scripts/check-uikit-linkage.sh Debug_without_UIKit uikit-check-build unlinked
+
+  check-uikit-linkage-release-UIKitless:
+    name: Check UIKit linkage (Release_without_UIKit)
+    runs-on: macos-13
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build for Release
+        run: ./scripts/xcode-test.sh "iOS" "latest" $GITHUB_REF_NAME ci build "iPhone 14" Release_without_UIKit uikit-check-build
+      - name: Ensure no UIKit
+        run: ./scripts/check-uikit-linkage.sh Release_without_UIKit uikit-check-build unlinked
+
+  check-uikit-linkage-debug:
+    name: Check UIKit linkage (Debug)
+    runs-on: macos-13
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build for Debug
+        run: ./scripts/xcode-test.sh "iOS" "latest" $GITHUB_REF_NAME ci build "iPhone 14" Debug uikit-check-build
+      - name: Ensure no UIKit
+        run: ./scripts/check-uikit-linkage.sh Debug uikit-check-build linked
 
   check-uikit-linkage-release:
     name: Check UIKit linkage (Release)
@@ -183,6 +203,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Build for Release
-        run: ./scripts/xcode-test.sh "iOS" "latest" $GITHUB_REF_NAME ci build "iPhone 14" Release_without_UIKit uikit-check-build
+        run: ./scripts/xcode-test.sh "iOS" "latest" $GITHUB_REF_NAME ci build "iPhone 14" Release uikit-check-build
       - name: Ensure no UIKit
-        run: ./scripts/check-uikit-linkage.sh Release_without_UIKit uikit-check-build
+        run: ./scripts/check-uikit-linkage.sh Release uikit-check-build linked
