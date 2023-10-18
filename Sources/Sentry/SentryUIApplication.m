@@ -133,7 +133,9 @@
     }
     if ([hierarchicVC isKindOfClass:UISplitViewController.class]) {
         UISplitViewController *splitVC = (UISplitViewController *)hierarchicVC;
-        return [[splitVC viewControllers] objectAtIndex:1];
+        if (splitVC.viewControllers.count > 1) {
+            return [[splitVC viewControllers] objectAtIndex:1];
+        }
     }
     return NULL;
 }
