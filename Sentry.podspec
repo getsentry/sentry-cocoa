@@ -20,7 +20,6 @@ Pod::Spec.new do |s|
       'GCC_ENABLE_CPP_EXCEPTIONS' => 'YES',
       'CLANG_CXX_LANGUAGE_STANDARD' => 'c++14',
       'CLANG_CXX_LIBRARY' => 'libc++',
-      'GCC_PREPROCESSOR_DEFINITIONS' => 'SENTRY_UIKIT_LINKED=1'
   }
   s.watchos.pod_target_xcconfig = {
       'OTHER_LDFLAGS' => '$(inherited) -framework WatchKit'
