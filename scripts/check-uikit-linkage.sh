@@ -21,7 +21,7 @@ case "${3}" in
     fi
     echo "Success! UIKit.framework linked."
     ;;
-"nolink")
+"unlinked")
     if [ $MATCHES != 0 ]; then
         echo "UIKit.framework linkage found."
         exit 1
@@ -29,7 +29,7 @@ case "${3}" in
     echo "Success! UIKit.framework not linked."
     ;;
 *)
-    echo "Provide an argument for either 'linked' or 'nolink' UIKit check."
+    echo "Provide an argument for either 'linked' or 'unlinked' UIKit check."
     exit 1
     ;;
 esac
