@@ -168,7 +168,7 @@ jobs:
         shell: sh
 
   check-uikit-linkage-debug-UIKitless:
-    name: Check UIKit linkage (Debug_without_UIKit)
+    name: Check no UIKit linkage (Debug_without_UIKit)
     runs-on: macos-13
     steps:
       - uses: actions/checkout@v4
@@ -178,7 +178,7 @@ jobs:
         run: ./scripts/check-uikit-linkage.sh Debug_without_UIKit uikit-check-build unlinked
 
   check-uikit-linkage-release-UIKitless:
-    name: Check UIKit linkage (Release_without_UIKit)
+    name: Check no UIKit linkage (Release_without_UIKit)
     runs-on: macos-13
     steps:
       - uses: actions/checkout@v4

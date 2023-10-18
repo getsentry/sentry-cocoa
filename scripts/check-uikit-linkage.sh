@@ -27,4 +27,9 @@ case "${3}" in
         exit 1
     fi
     echo "Success! UIKit.framework not linked."
-;;
+    ;;
+*)
+    echo "Provide an argument for either 'linked' or 'nolink' UIKit check."
+    exit 1
+    ;;
+esac
