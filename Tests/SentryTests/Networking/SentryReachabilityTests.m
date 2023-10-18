@@ -69,30 +69,41 @@
 
 - (void)testMultipleReachabilityObservers
 {
+    NSLog(@"[Sentry] [TEST] creating observer A");
     TestSentryReachabilityObserver *observerA = [[TestSentryReachabilityObserver alloc] init];
+    NSLog(@"[Sentry] [TEST] adding observer A as reachability observer");
     [self.reachability addObserver:observerA];
 
+    NSLog(@"[Sentry] [TEST] throwaway reachability callback, setting to reachable");
     SentryConnectivityCallback(self.reachability.sentry_reachability_ref,
         kSCNetworkReachabilityFlagsReachable, nil); // ignored, as it's the first callback
+    NSLog(@"[Sentry] [TEST] reachability callback to set to intervention required");
     SentryConnectivityCallback(self.reachability.sentry_reachability_ref,
         kSCNetworkReachabilityFlagsInterventionRequired, nil);
 
+    NSLog(@"[Sentry] [TEST] creating observer B");
     TestSentryReachabilityObserver *observerB = [[TestSentryReachabilityObserver alloc] init];
+    NSLog(@"[Sentry] [TEST] adding observer B as reachability observer");
     [self.reachability addObserver:observerB];
 
+    NSLog(@"[Sentry] [TEST] reachability callback to set to back to reachable");
     SentryConnectivityCallback(
         self.reachability.sentry_reachability_ref, kSCNetworkReachabilityFlagsReachable, nil);
+    NSLog(@"[Sentry] [TEST] reachability callback to set to back to intervention required");
     SentryConnectivityCallback(self.reachability.sentry_reachability_ref,
         kSCNetworkReachabilityFlagsInterventionRequired, nil);
 
+    NSLog(@"[Sentry] [TEST] removing observer B as reachability observer");
     [self.reachability removeObserver:observerB];
 
+    NSLog(@"[Sentry] [TEST] reachability callback to set to back to reachable");
     SentryConnectivityCallback(
         self.reachability.sentry_reachability_ref, kSCNetworkReachabilityFlagsReachable, nil);
 
     XCTAssertEqual(5, observerA.connectivityChangedInvocations);
     XCTAssertEqual(2, observerB.connectivityChangedInvocations);
 
+    NSLog(@"[Sentry] [TEST] removing observer A as reachability observer");
     [self.reachability removeObserver:observerA];
 }
 
