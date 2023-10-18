@@ -14,9 +14,9 @@
 #endif
 
 // SENTRY_HAS_UIKIT means we're on a platform that can link UIKit and we're building a configuration
-// that will allow it to be autolinked. SENTRY_UIKIT_LINKED is set in GCC_PREPROCESSOR_DEFINITIONS
-// for configurations that we will allow to link UIKit by setting CLANG_MODULES_AUTOLINK to YES.
-#if SENTRY_UIKIT_AVAILABLE && SENTRY_UIKIT_LINKED
+// that will allow it to be autolinked. SENTRY_NO_UIKIT is set in GCC_PREPROCESSOR_DEFINITIONS
+// for configurations that we will not allow to link UIKit by setting CLANG_MODULES_AUTOLINK to NO.
+#if SENTRY_UIKIT_AVAILABLE && !SENTRY_NO_UIKIT
 #    define SENTRY_HAS_UIKIT 1
 #else
 #    define SENTRY_HAS_UIKIT 0
