@@ -12,6 +12,8 @@ The MetricKit integration subscribes to [MXHangDiagnostic](https://developer.app
 [MXDiskWriteExceptionDiagnostic](https://developer.apple.com/documentation/metrickit/mxdiskwriteexceptiondiagnostic),
 and [MXCPUExceptionDiagnostic](https://developer.apple.com/documentation/metrickit/mxcpuexceptiondiagnostic).
 
+- Added screen name to app context (#3346)
+
 ## 8.13.1
 
 ### Fixes
