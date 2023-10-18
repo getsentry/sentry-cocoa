@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- SPM builds warning about "unsafe settings" (#3348)
+
 ## 8.14.0
 
 ### Features
