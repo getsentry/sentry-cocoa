@@ -2,6 +2,6 @@ PRODUCT_NAME = Sentry
 INFOPLIST_FILE = Sources/Resources/Info.plist
 PRODUCT_BUNDLE_IDENTIFIER = io.sentry.Sentry
 
-CURRENT_PROJECT_VERSION = 8.14.0
+CURRENT_PROJECT_VERSION = 8.14.1
 
 MODULEMAP_FILE = $(SRCROOT)/Sources/Resources/Sentry.modulemap
