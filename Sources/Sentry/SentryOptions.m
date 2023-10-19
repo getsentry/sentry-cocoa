@@ -61,13 +61,11 @@ NSString *const kSentryDefaultEnvironment = @"production";
             NSStringFromClass([SentryAppStartTrackingIntegration class]),
             NSStringFromClass([SentryFramesTrackingIntegration class]),
             NSStringFromClass([SentryPerformanceTrackingIntegration class]),
-#    if SENTRY_HAS_UIKIT
             NSStringFromClass([SentryScreenshotIntegration class]),
-#    endif // SENTRY_HAS_UIKIT
             NSStringFromClass([SentryUIEventTrackingIntegration class]),
             NSStringFromClass([SentryViewHierarchyIntegration class]),
             NSStringFromClass([SentryWatchdogTerminationTrackingIntegration class]),
-#endif
+#endif // SENTRY_HAS_UIKIT
             NSStringFromClass([SentryANRTrackingIntegration class]),
             NSStringFromClass([SentryAutoBreadcrumbTrackingIntegration class]),
             NSStringFromClass([SentryAutoSessionTrackingIntegration class]),
@@ -117,14 +115,12 @@ NSString *const kSentryDefaultEnvironment = @"production";
         _enableTracingManual = NO;
 #if SENTRY_HAS_UIKIT
         self.enableUIViewControllerTracing = YES;
-#    if SENTRY_HAS_UIKIT
         self.attachScreenshot = NO;
-#    endif // SENTRY_HAS_UIKIT
         self.attachViewHierarchy = NO;
         self.enableUserInteractionTracing = YES;
         self.idleTimeout = 3.0;
         self.enablePreWarmedAppStartTracing = NO;
-#endif
+#endif // SENTRY_HAS_UIKIT
         self.enableAppHangTracking = YES;
         self.appHangTimeoutInterval = 2.0;
         self.enableAutoBreadcrumbTracking = YES;
@@ -137,7 +133,7 @@ NSString *const kSentryDefaultEnvironment = @"production";
         _enableProfiling = NO;
         _defaultProfilesSampleRate = nil;
         self.profilesSampleRate = _defaultProfilesSampleRate;
-#endif
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED
         self.enableCoreDataTracing = YES;
         _enableSwizzling = YES;
         self.sendClientReports = YES;
@@ -148,7 +144,7 @@ NSString *const kSentryDefaultEnvironment = @"production";
         if (dsn.length > 0) {
             self.dsn = dsn;
         }
-#endif
+#endif // TARGET_OS_OSX
 
         // Use the name of the bundle’s executable file as inAppInclude, so SentryInAppLogic
         // marks frames coming from there as inApp. With this approach, the SDK marks public
@@ -194,7 +190,7 @@ NSString *const kSentryDefaultEnvironment = @"production";
         if (@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, *)) {
             self.enableMetricKit = NO;
         }
-#endif
+#endif // SENTRY_HAS_METRIC_KIT
     }
     return self;
 }
@@ -386,10 +382,8 @@ NSString *const kSentryDefaultEnvironment = @"production";
     [self setBool:options[@"enableUIViewControllerTracing"]
             block:^(BOOL value) { self->_enableUIViewControllerTracing = value; }];
 
-#    if SENTRY_HAS_UIKIT
     [self setBool:options[@"attachScreenshot"]
             block:^(BOOL value) { self->_attachScreenshot = value; }];
-#    endif // SENTRY_HAS_UIKIT
 
     [self setBool:options[@"attachViewHierarchy"]
             block:^(BOOL value) { self->_attachViewHierarchy = value; }];
@@ -403,7 +397,7 @@ NSString *const kSentryDefaultEnvironment = @"production";
 
     [self setBool:options[@"enablePreWarmedAppStartTracing"]
             block:^(BOOL value) { self->_enablePreWarmedAppStartTracing = value; }];
-#endif
+#endif // SENTRY_HAS_UIKIT
 
     [self setBool:options[@"enableAppHangTracking"]
             block:^(BOOL value) { self->_enableAppHangTracking = value; }];
@@ -461,7 +455,7 @@ NSString *const kSentryDefaultEnvironment = @"production";
 
     [self setBool:options[@"enableProfiling"]
             block:^(BOOL value) { self->_enableProfiling = value; }];
-#endif
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
     [self setBool:options[@"sendClientReports"]
             block:^(BOOL value) { self->_sendClientReports = value; }];
@@ -486,7 +480,7 @@ NSString *const kSentryDefaultEnvironment = @"production";
         [self setBool:options[@"enableMetricKit"]
                 block:^(BOOL value) { self->_enableMetricKit = value; }];
     }
-#endif
+#endif // SENTRY_HAS_METRIC_KIT
 
     return YES;
 }
