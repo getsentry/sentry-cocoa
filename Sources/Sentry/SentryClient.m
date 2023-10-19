@@ -786,17 +786,17 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                   block:^(NSMutableDictionary *app) {
                       [app addEntriesFromDictionary:extraContext[@"app"]];
 #if SENTRY_HAS_UIKIT
-        if ([NSThread isMainThread]) {
-            if (app[@"view_names"] == nil) {
-                NSArray *viewControllers = SentryDependencyContainer.sharedInstance
-                    .application.relevantViewControllers;
-                NSMutableArray *vcsNames = [NSMutableArray array];
-                for (id vc in viewControllers) {
-                    [vcsNames addObject:[SwiftDescriptor getObjectClassName:vc]];
-                }
-                app[@"view_names"] = vcsNames;
-            }
-        }
+                      if ([NSThread isMainThread]) {
+                          if (app[@"view_names"] == nil) {
+                              NSArray *viewControllers = SentryDependencyContainer.sharedInstance
+                                                             .application.relevantViewControllers;
+                              NSMutableArray *vcsNames = [NSMutableArray array];
+                              for (id vc in viewControllers) {
+                                  [vcsNames addObject:[SwiftDescriptor getObjectClassName:vc]];
+                              }
+                              app[@"view_names"] = vcsNames;
+                          }
+                      }
 #endif
                   }];
 }
