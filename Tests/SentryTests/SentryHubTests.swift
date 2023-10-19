@@ -870,7 +870,7 @@ class SentryHubTests: XCTestCase {
                                                             ["values":
                                                                 [
                                                                     ["mechanism":
-                                                                        ["handled": NSNumber(booleanLiteral: false)]
+                                                                        ["handled": false]
                                                                     ]
                                                                 ]                                                            
                                                             ]
@@ -882,10 +882,10 @@ class SentryHubTests: XCTestCase {
                                                             ["values":
                                                                 [
                                                                     ["mechanism":
-                                                                        ["handled": NSNumber(booleanLiteral: true)]
+                                                                        ["handled": true]
                                                                     ],
                                                                     ["mechanism":
-                                                                        ["handled": NSNumber(booleanLiteral: true)]
+                                                                        ["handled": true]
                                                                     ]
                                                                 ]
                                                             ]
@@ -897,10 +897,10 @@ class SentryHubTests: XCTestCase {
                                                             ["values":
                                                                 [
                                                                     ["mechanism":
-                                                                        ["handled": NSNumber(booleanLiteral: true)]
+                                                                        ["handled": true]
                                                                     ],
                                                                     ["mechanism":
-                                                                        ["handled": NSNumber(booleanLiteral: false)]
+                                                                        ["handled": false]
                                                                     ]
                                                                 ]
                                                             ]
@@ -912,10 +912,10 @@ class SentryHubTests: XCTestCase {
                                                             ["values":
                                                                 [
                                                                     ["mechanism":
-                                                                        ["handled": NSNumber(booleanLiteral: true)]
+                                                                        ["handled": true]
                                                                     ],
                                                                     ["mechanism":
-                                                                        ["other-key": NSNumber(booleanLiteral: false)]
+                                                                        ["other-key": false]
                                                                     ]
                                                                 ]
                                                             ]
