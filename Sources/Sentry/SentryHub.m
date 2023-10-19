@@ -657,11 +657,7 @@ SentryHub ()
         NSDictionary *mechanism = exception[@"mechanism"];
         NSNumber *handled = mechanism[@"handled"];
 
-        if (handled == nil) {
-            continue;
-        }
-
-        if ([handled boolValue] == NO) {
+        if (handled != nil && [handled boolValue] == NO) {
             return NO;
         }
     }

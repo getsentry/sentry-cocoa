@@ -864,6 +864,67 @@ class SentryHubTests: XCTestCase {
         group.wait()
     }
     
+    func testEventContainsOnlyHandledErrors() {
+        let sut = fixture.getSut()
+        XCTAssertFalse(sut.eventContainsOnlyHandledErrors(["exception":
+                                                            ["values":
+                                                                [
+                                                                    ["mechanism":
+                                                                        ["handled": NSNumber(booleanLiteral: false)]
+                                                                    ]
+                                                                ]                                                            
+                                                            ]
+                                                          ]
+                                                         )
+        )
+        
+        XCTAssertTrue(sut.eventContainsOnlyHandledErrors(["exception":
+                                                            ["values":
+                                                                [
+                                                                    ["mechanism":
+                                                                        ["handled": NSNumber(booleanLiteral: true)]
+                                                                    ],
+                                                                    ["mechanism":
+                                                                        ["handled": NSNumber(booleanLiteral: true)]
+                                                                    ]
+                                                                ]
+                                                            ]
+                                                         ]
+                                                        )
+                      )
+        
+        XCTAssertFalse(sut.eventContainsOnlyHandledErrors(["exception":
+                                                            ["values":
+                                                                [
+                                                                    ["mechanism":
+                                                                        ["handled": NSNumber(booleanLiteral: true)]
+                                                                    ],
+                                                                    ["mechanism":
+                                                                        ["handled": NSNumber(booleanLiteral: false)]
+                                                                    ]
+                                                                ]
+                                                            ]
+                                                         ]
+                                                        )
+                      )
+                      
+        XCTAssertTrue(sut.eventContainsOnlyHandledErrors(["exception":
+                                                            ["values":
+                                                                [
+                                                                    ["mechanism":
+                                                                        ["handled": NSNumber(booleanLiteral: true)]
+                                                                    ],
+                                                                    ["mechanism":
+                                                                        ["other-key": NSNumber(booleanLiteral: false)]
+                                                                    ]
+                                                                ]
+                                                            ]
+                                                         ]
+                                                        )
+                      )
+                      
+    }
+    
     private func captureEventEnvelope(level: SentryLevel) {
         let event = TestData.event
         event.level = level
