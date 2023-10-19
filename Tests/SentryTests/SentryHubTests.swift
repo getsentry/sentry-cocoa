@@ -2,6 +2,7 @@ import Sentry
 import SentryTestUtils
 import XCTest
 
+// swiftlint:disable file_length
 class SentryHubTests: XCTestCase {
     
     private static let dsnAsString = TestConstants.dsnAsString(username: "SentryHubTests")
@@ -656,6 +657,14 @@ class SentryHubTests: XCTestCase {
         assertSessionWithIncrementedErrorCountedAdded()
     }
     
+    func testCaptureEnvelope_WithEventWithoutExceptionMechanism() {
+        sut.startSession()
+        
+        captureFatalEventWithoutExceptionMechanism()
+        
+        assertSessionWithIncrementedErrorCountedAdded()
+    }
+    
     func testCaptureEnvelope_WithEventWithFatal() {
         sut.startSession()
         
@@ -864,9 +873,46 @@ class SentryHubTests: XCTestCase {
         group.wait()
     }
     
+    func testEventContainsOnlyHandledErrors() {
+        let sut = fixture.getSut()
+        XCTAssertFalse(sut.eventContainsOnlyHandledErrors(["exception":
+                                                            ["values":
+                                                                [["mechanism": ["handled": false]]]
+                                                            ]
+                                                          ]))
+        
+        XCTAssertTrue(sut.eventContainsOnlyHandledErrors(["exception":
+                                                            ["values":
+                                                                [["mechanism": ["handled": true]],
+                                                                 ["mechanism": ["handled": true]]]
+                                                            ]
+                                                         ]))
+        
+        XCTAssertFalse(sut.eventContainsOnlyHandledErrors(["exception":
+                                                            ["values":
+                                                                [["mechanism": ["handled": true]],
+                                                                 ["mechanism": ["handled": false]]]
+                                                            ]
+                                                          ]))
+        
+        XCTAssertTrue(sut.eventContainsOnlyHandledErrors(["exception":
+                                                            ["values":
+                                                                [["mechanism": ["handled": true]],
+                                                                 ["mechanism": ["other-key": false]]]
+                                                            ]
+                                                         ]))
+    }
+    
     private func captureEventEnvelope(level: SentryLevel) {
         let event = TestData.event
         event.level = level
+        sut.capture(SentryEnvelope(event: event))
+    }
+    
+    private func captureFatalEventWithoutExceptionMechanism() {
+        let event = TestData.event
+        event.level = SentryLevel.fatal
+        event.exceptions?[0].mechanism = nil
         sut.capture(SentryEnvelope(event: event))
     }
     
