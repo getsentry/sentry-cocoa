@@ -876,28 +876,28 @@ class SentryHubTests: XCTestCase {
         let sut = fixture.getSut()
         XCTAssertFalse(sut.eventContainsOnlyHandledErrors(["exception":
                                                             ["values":
-                                                                [["mechanism":["handled": false]]]
+                                                                [["mechanism": ["handled": false]]]
                                                             ]
                                                           ]))
         
         XCTAssertTrue(sut.eventContainsOnlyHandledErrors(["exception":
                                                             ["values":
-                                                                [["mechanism":["handled": true]],
-                                                                 ["mechanism":["handled": true]]]
+                                                                [["mechanism": ["handled": true]],
+                                                                 ["mechanism": ["handled": true]]]
                                                             ]
                                                          ]))
         
         XCTAssertFalse(sut.eventContainsOnlyHandledErrors(["exception":
                                                             ["values":
-                                                                [["mechanism":["handled": true]],
-                                                                 ["mechanism":["handled": false]]]
+                                                                [["mechanism": ["handled": true]],
+                                                                 ["mechanism": ["handled": false]]]
                                                             ]
                                                           ]))
         
         XCTAssertTrue(sut.eventContainsOnlyHandledErrors(["exception":
                                                             ["values":
-                                                                [["mechanism":["handled": true]],
-                                                                 ["mechanism":["other-key": false]]]
+                                                                [["mechanism": ["handled": true]],
+                                                                 ["mechanism": ["other-key": false]]]
                                                             ]
                                                          ]))
     }
