@@ -44,7 +44,7 @@ GIT-REF := $(shell git rev-parse --abbrev-ref HEAD)
 
 test:
 	@echo "--> Running all tests"
-	./scripts/xcode-test.sh iOS latest $(GIT-REF) YES
+	./scripts/xcode-test.sh iOS latest $(GIT-REF) YES test Test
 	./scripts/xcode-slowest-tests.sh
 .PHONY: test
 

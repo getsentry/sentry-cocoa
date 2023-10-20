@@ -22,11 +22,11 @@ class SentryAppStateManagerTests: XCTestCase {
         }
 
         func getSut() -> SentryAppStateManager {
+            SentryDependencyContainer.sharedInstance().sysctlWrapper = TestSysctl()
             return SentryAppStateManager(
                 options: options,
                 crashWrapper: TestSentryCrashWrapper.sharedInstance(),
                 fileManager: fileManager,
-                sysctl: TestSysctl(),
                 dispatchQueueWrapper: TestSentryDispatchQueueWrapper(),
                 notificationCenterWrapper: notificationCenterWrapper
             )

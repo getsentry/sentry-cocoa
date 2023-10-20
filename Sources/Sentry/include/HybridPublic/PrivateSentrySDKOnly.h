@@ -100,7 +100,7 @@ typedef void (^SentryOnAppStartMeasurementAvailable)(
  * This only needs to be called in case you haven't collected the profile (and don't intend to).
  */
 + (void)discardProfilerForTrace:(SentryId *)traceId;
-#endif
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
 @property (class, nullable, nonatomic, copy)
     SentryOnAppStartMeasurementAvailable onAppStartMeasurementAvailable;
@@ -122,20 +122,38 @@ typedef void (^SentryOnAppStartMeasurementAvailable)(
  */
 @property (class, nonatomic, assign) BOOL appStartMeasurementHybridSDKMode;
 
-#if SENTRY_HAS_UIKIT
+#if SENTRY_UIKIT_AVAILABLE
 /**
  * Allows hybrid SDKs to enable frame tracking measurements despite other options.
+ * @warning This feature is not available in @c Debug_without_UIKit and @c Release_without_UIKit
+ * configurations even when targeting iOS or tvOS platforms.
  */
 @property (class, nonatomic, assign) BOOL framesTrackingMeasurementHybridSDKMode;
 
+/**
+ * @warning This feature is not available in @c Debug_without_UIKit and @c Release_without_UIKit
+ * configurations even when targeting iOS or tvOS platforms.
+ */
 @property (class, nonatomic, assign, readonly) BOOL isFramesTrackingRunning;
 
+/**
+ * @warning This feature is not available in @c Debug_without_UIKit and @c Release_without_UIKit
+ * configurations even when targeting iOS or tvOS platforms.
+ */
 @property (class, nonatomic, assign, readonly) SentryScreenFrames *currentScreenFrames;
 
+/**
+ * @warning This feature is not available in @c Debug_without_UIKit and @c Release_without_UIKit
+ * configurations even when targeting iOS or tvOS platforms.
+ */
 + (NSArray<NSData *> *)captureScreenshots;
 
+/**
+ * @warning This feature is not available in @c Debug_without_UIKit and @c Release_without_UIKit
+ * configurations even when targeting iOS or tvOS platforms.
+ */
 + (NSData *)captureViewHierarchy;
-#endif
+#endif // SENTRY_UIKIT_AVAILABLE
 
 + (SentryUser *)userWithDictionary:(NSDictionary *)dictionary;
 

@@ -29,7 +29,43 @@ class SentryBreadcrumbTrackerTests: XCTestCase {
         XCTAssertEqual(0, dict?.count)
     }
 
+    func testNetworkConnectivityChangeBreadcrumbs() throws {
+        let testReachability = TestSentryReachability()
+        
+        SentryDependencyContainer.sharedInstance().reachability = testReachability
+        
+        let sut = SentryBreadcrumbTracker()
+        sut.start(with: delegate)
+        let states = [SentryConnectivityCellular,
+        SentryConnectivityWiFi,
+        SentryConnectivityNone,
+        SentryConnectivityWiFi,
+        SentryConnectivityCellular,
+        SentryConnectivityWiFi
+        ]
+        states.forEach {
+            testReachability.setReachabilityState(state: $0)
+        }
+        sut.stop()
+        XCTAssertEqual(delegate.addCrumbInvocations.count, states.count + 1) // 1 breadcrumb for the tracker start
+        try states.enumerated().forEach {
+            let crumb = delegate.addCrumbInvocations.invocations[$0.offset + 1]
+            XCTAssertEqual(crumb.type, "connectivity")
+            XCTAssertEqual(crumb.category, "device.connectivity")
+            XCTAssertEqual(try XCTUnwrap(crumb.data?["connectivity"] as? String), $0.element)
+        }
+    }
+
     func testSwizzlingStarted_ViewControllerAppears_AddsUILifeCycleBreadcrumb() {
+        let testReachability = TestSentryReachability()
+        
+        // We already test the network breadcrumbs in a test above. Using the `TestReachability`
+        // makes this test more stable, as using the real implementation sometimes leads to
+        // test failure, cause sometimes the dispatch queue responsible for reporting the reachability
+        // status takes some time and then there isn't a network breadcrumb available. This test
+        // doesn't validate the network breadcrumb anyways.
+        SentryDependencyContainer.sharedInstance().reachability = testReachability
+        
         let scope = Scope()
         let client = TestClient(options: Options())
         let hub = TestHub(client: client, andScope: scope)
@@ -48,7 +84,7 @@ class SentryBreadcrumbTrackerTests: XCTestCase {
 
         let crumbs = delegate.addCrumbInvocations.invocations
 
-        // one breadcrumb for starting the tracker, and a second one for the swizzled viewDidAppear
+        // one breadcrumb for starting the tracker, one for the first reachability breadcrumb and one final one for the swizzled viewDidAppear
         guard crumbs.count == 2 else {
             XCTFail("Expected exactly 2 breadcrumbs, got: \(crumbs)")
             return

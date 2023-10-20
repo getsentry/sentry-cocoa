@@ -37,13 +37,16 @@
 // #define SentryCrashLogger_LocalLevel TRACE
 #import "SentryCrashLogger.h"
 
+#import "SentryDefines.h"
+
 #import <CommonCrypto/CommonDigest.h>
 #import <Foundation/Foundation.h>
-#if SentryCrashCRASH_HAS_UIKIT
-#    import <UIKit/UIKit.h>
-#endif
 #include <mach-o/dyld.h>
 #include <mach/mach.h>
+
+#if SENTRY_HAS_UIKIT
+#    import <UIKit/UIKit.h>
+#endif // SENTRY_HAS_UIKIT
 
 typedef struct {
     const char *systemName;
@@ -393,12 +396,13 @@ getDeviceAndAppHash(void)
 {
     NSMutableData *data = nil;
 
-#if SentryCrashCRASH_HAS_UIDEVICE
-    if ([[UIDevice currentDevice] respondsToSelector:@selector(identifierForVendor)]) {
+#if SENTRY_HAS_UIKIT
+    UIDevice *currentDevice = [UIDevice currentDevice];
+    if ([currentDevice respondsToSelector:@selector(identifierForVendor)]) {
         data = [NSMutableData dataWithLength:16];
-        [[UIDevice currentDevice].identifierForVendor getUUIDBytes:data.mutableBytes];
+        [currentDevice.identifierForVendor getUUIDBytes:data.mutableBytes];
     } else
-#endif
+#endif // SENTRY_HAS_UIKIT
     {
         data = [NSMutableData dataWithLength:6];
         sentrycrashsysctl_getMacAddress("en0", [data mutableBytes]);
@@ -529,16 +533,18 @@ initialize(void)
         NSDictionary *infoDict = [mainBundle infoDictionary];
         const struct mach_header *header = _dyld_get_image_header(0);
 
-#if SentryCrashCRASH_HAS_UIDEVICE
-        g_systemData.systemName = cString([UIDevice currentDevice].systemName);
-        g_systemData.systemVersion = cString([UIDevice currentDevice].systemVersion);
-#else
-#    if SentryCrashCRASH_HOST_MAC
+#if SentryCrashCRASH_HOST_IOS
+        g_systemData.systemName = "iOS";
+#elif SentryCrashCRASH_HOST_TV
+        g_systemData.systemName = "tvOS";
+#elif SentryCrashCRASH_HOST_MAC
         g_systemData.systemName = "macOS";
-#    endif
-#    if SentryCrashCRASH_HOST_WATCH
+#elif SentryCrashCRASH_HOST_WATCH
         g_systemData.systemName = "watchOS";
-#    endif
+#else
+        g_systemData.systemName = "unknown";
+#endif
+
         NSOperatingSystemVersion version = { 0, 0, 0 };
         if (@available(macOS 10.10, *)) {
             version = [NSProcessInfo processInfo].operatingSystemVersion;
@@ -552,7 +558,7 @@ initialize(void)
                                       (int)version.minorVersion, (int)version.patchVersion];
         }
         g_systemData.systemVersion = cString(systemVersion);
-#endif
+
         if (isSimulatorBuild()) {
             g_systemData.machine
                 = cString([NSProcessInfo processInfo].environment[@"SIMULATOR_MODEL_IDENTIFIER"]);
