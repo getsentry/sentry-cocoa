@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Missing `mechanism.handled` is not considered crash (#3353)
+
 ## 8.14.1
 
 ### Fixes
