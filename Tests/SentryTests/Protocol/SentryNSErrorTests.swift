@@ -1,4 +1,3 @@
-import SentryTestUtils
 import XCTest
 
 class SentryNSErrorTests: XCTestCase {

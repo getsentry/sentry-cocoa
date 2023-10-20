@@ -138,8 +138,8 @@ NS_SWIFT_NAME(Event)
 @property (nonatomic, strong) NSArray<SentryThread *> *_Nullable threads;
 
 /**
- * General information about the @c SentryException. Multiple exception indicate a chain of
- * exception encountered, starting with the oldest at the beginning of the array.
+ * General information about the @c SentryException. Multiple exceptions indicate a chain of
+ * exceptions encountered, starting with the oldest at the beginning of the array.
  */
 @property (nonatomic, strong) NSArray<SentryException *> *_Nullable exceptions;
 
