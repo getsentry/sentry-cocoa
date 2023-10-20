@@ -524,6 +524,21 @@ class SentryClientTest: XCTestCase {
             XCTAssertEqual(url.absoluteString, actual.context!["user info"]!["url"] as? String)
         }
     }
+    
+    func testCaptureErrorWithNestedUnderlyingErrors() throws {
+        let error = NSError(domain: "domain1", code: 100, userInfo: [
+            NSUnderlyingErrorKey: NSError(domain: "domain2", code: 101, userInfo: [
+                NSUnderlyingErrorKey: NSError(domain: "domain3", code: 102)
+            ])
+        ])
+        
+        fixture.getSut().capture(error: error)
+        
+        let lastSentEventArguments = try XCTUnwrap(fixture.transportAdapter.sendEventWithTraceStateInvocations.last)
+        XCTAssertEqual(try XCTUnwrap(lastSentEventArguments.event.exceptions).count, 3)
+        XCTAssertEqual(try XCTUnwrap(lastSentEventArguments.event.exceptions?.first?.mechanism?.meta?.error).code, 102)
+        XCTAssertEqual(try XCTUnwrap(lastSentEventArguments.event.exceptions?.last?.mechanism?.meta?.error).code, 100)
+    }
 
     func testCaptureErrorWithSession() throws {
         let sessionBlockExpectation = expectation(description: "session block gets called")
