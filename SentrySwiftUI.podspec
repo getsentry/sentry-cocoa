@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name         = "SentrySwiftUI"
-  s.version      = "8.14.1"
+  s.version      = "8.14.2"
   s.summary      = "Sentry client for SwiftUI"
   s.homepage     = "https://github.com/getsentry/sentry-cocoa"
   s.license      = "mit"
@@ -19,5 +19,5 @@ Pod::Spec.new do |s|
   s.watchos.framework = 'WatchKit'
 
   s.source_files = "Sources/SentrySwiftUI/**/*.{swift,h,m}"
-  s.dependency 'Sentry', "8.14.1"
+  s.dependency 'Sentry', "8.14.2"
 end
