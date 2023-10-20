@@ -642,7 +642,7 @@ SentryHub ()
 
             SentryLevel level = sentryLevelForString(eventJson[@"level"]);
             if (level >= kSentryLevelError) {
-                *handled = [self eventContainsOnlyHandledErrors:eventJson];
+                *handled = [self eventContainsUnhandledError:eventJson];
                 return YES;
             }
         }
@@ -650,14 +650,14 @@ SentryHub ()
     return NO;
 }
 
-- (BOOL)eventContainsOnlyHandledErrors:(NSDictionary *)eventDictionary
+- (BOOL)eventContainsUnhandledError:(NSDictionary *)eventDictionary
 {
     NSArray *exceptions = eventDictionary[@"exception"][@"values"];
     for (NSDictionary *exception in exceptions) {
         NSDictionary *mechanism = exception[@"mechanism"];
         NSNumber *handled = mechanism[@"handled"];
 
-        if (handled != nil && [handled boolValue] == NO) {
+        if ([handled boolValue] == NO) {
             return NO;
         }
     }
