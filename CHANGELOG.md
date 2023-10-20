@@ -5,6 +5,7 @@
 ### Features
 
 - Enrich error events with any underlying NSErrors reported by Cocoa APIs (#3230)
+
 ### Fixes
 
 - Missing `mechanism.handled` is not considered crash (#3353)
