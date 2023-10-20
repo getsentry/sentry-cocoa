@@ -20,7 +20,8 @@
 
 - (void)connectivityChanged:(BOOL)connected typeDescription:(nonnull NSString *)typeDescription
 {
-    NSLog(@"Received connectivity notification: %i; type: %@", connected, typeDescription);
+    printf("Received connectivity notification: %i; type: %s\n", connected,
+        typeDescription.UTF8String);
     self.connectivityChangedInvocations++;
 }
 
@@ -69,41 +70,41 @@
 
 - (void)testMultipleReachabilityObservers
 {
-    NSLog(@"[Sentry] [TEST] creating observer A");
+    printf("[Sentry] [TEST] creating observer A\n");
     TestSentryReachabilityObserver *observerA = [[TestSentryReachabilityObserver alloc] init];
-    NSLog(@"[Sentry] [TEST] adding observer A as reachability observer");
+    printf("[Sentry] [TEST] adding observer A as reachability observer\n");
     [self.reachability addObserver:observerA];
 
-    NSLog(@"[Sentry] [TEST] throwaway reachability callback, setting to reachable");
+    printf("[Sentry] [TEST] throwaway reachability callback, setting to reachable\n");
     SentryConnectivityCallback(self.reachability.sentry_reachability_ref,
         kSCNetworkReachabilityFlagsReachable, nil); // ignored, as it's the first callback
-    NSLog(@"[Sentry] [TEST] reachability callback to set to intervention required");
+    printf("[Sentry] [TEST] reachability callback to set to intervention required\n");
     SentryConnectivityCallback(self.reachability.sentry_reachability_ref,
         kSCNetworkReachabilityFlagsInterventionRequired, nil);
 
-    NSLog(@"[Sentry] [TEST] creating observer B");
+    printf("[Sentry] [TEST] creating observer B\n");
     TestSentryReachabilityObserver *observerB = [[TestSentryReachabilityObserver alloc] init];
-    NSLog(@"[Sentry] [TEST] adding observer B as reachability observer");
+    printf("[Sentry] [TEST] adding observer B as reachability observer\n");
     [self.reachability addObserver:observerB];
 
-    NSLog(@"[Sentry] [TEST] reachability callback to set to back to reachable");
+    printf("[Sentry] [TEST] reachability callback to set to back to reachable\n");
     SentryConnectivityCallback(
         self.reachability.sentry_reachability_ref, kSCNetworkReachabilityFlagsReachable, nil);
-    NSLog(@"[Sentry] [TEST] reachability callback to set to back to intervention required");
+    printf("[Sentry] [TEST] reachability callback to set to back to intervention required\n");
     SentryConnectivityCallback(self.reachability.sentry_reachability_ref,
         kSCNetworkReachabilityFlagsInterventionRequired, nil);
 
-    NSLog(@"[Sentry] [TEST] removing observer B as reachability observer");
+    printf("[Sentry] [TEST] removing observer B as reachability observer\n");
     [self.reachability removeObserver:observerB];
 
-    NSLog(@"[Sentry] [TEST] reachability callback to set to back to reachable");
+    printf("[Sentry] [TEST] reachability callback to set to back to reachable\n");
     SentryConnectivityCallback(
         self.reachability.sentry_reachability_ref, kSCNetworkReachabilityFlagsReachable, nil);
 
     XCTAssertEqual(5, observerA.connectivityChangedInvocations);
     XCTAssertEqual(2, observerB.connectivityChangedInvocations);
 
-    NSLog(@"[Sentry] [TEST] removing observer A as reachability observer");
+    printf("[Sentry] [TEST] removing observer A as reachability observer\n");
     [self.reachability removeObserver:observerA];
 }
 
