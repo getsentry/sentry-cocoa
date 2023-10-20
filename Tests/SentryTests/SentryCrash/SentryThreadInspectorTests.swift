@@ -90,18 +90,27 @@ class SentryThreadInspectorTests: XCTestCase {
 
         let sut = self.fixture.getSut(testWithRealMachineContextWrapper: true)
 
+        let lock = NSLock()
         for _ in 0..<expect.expectedFulfillmentCount {
             Thread.detachNewThread {
                 expect.fulfill()
-                while self.fixture.keepThreadAlive {
+                lock.lock()
+                var keepThreadAlive = self.fixture.keepThreadAlive
+                lock.unlock()
+                while keepThreadAlive {
                     Thread.sleep(forTimeInterval: 0.001)
+                    lock.lock()
+                    keepThreadAlive = self.fixture.keepThreadAlive
+                    lock.unlock()
                 }
             }
         }
 
         wait(for: [expect], timeout: 5)
         let suspendedThreads = sut.getCurrentThreadsWithStackTrace()
+        lock.lock()
         fixture.keepThreadAlive = false
+        lock.unlock()
         XCTAssertEqual(suspendedThreads.count, 0)
     }
 

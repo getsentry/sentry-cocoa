@@ -252,10 +252,10 @@ SentryFileManager ()
 - (NSString *)storeEnvelope:(SentryEnvelope *)envelope
 {
     NSData *envelopeData = [SentrySerialization dataWithEnvelope:envelope error:nil];
-    NSString *path =
-        [self.envelopesPath stringByAppendingPathComponent:[self uniqueAscendingJsonName]];
 
     @synchronized(self) {
+        NSString *path =
+            [self.envelopesPath stringByAppendingPathComponent:[self uniqueAscendingJsonName]];
         SENTRY_LOG_DEBUG(@"Writing envelope to path: %@", path);
 
         if (![self writeData:envelopeData toPath:path]) {

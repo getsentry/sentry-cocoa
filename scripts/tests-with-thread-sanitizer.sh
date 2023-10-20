@@ -1,11 +1,13 @@
 #!/bin/bash
-set -euo pipefail
+set -euox pipefail
 
 # When enableThreadSanitizer is enabled and ThreadSanitizer finds an issue,
 # the logs only show failing tests, but don't highlight the threading issues.
-# Therefore we print a hint to find the threading issues.
-env NSUnbufferedIO=YES xcodebuild -workspace Sentry.xcworkspace -scheme Sentry -configuration Test -enableThreadSanitizer YES \
-    -destination "platform=iOS Simulator,OS=14.4,name=iPhone 11" \
+# Therefore we print a hint to find the threading issues. Profiler doesn't
+# run when it detects TSAN is present, so we skip those tests.
+env NSUnbufferedIO=YES CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO xcodebuild -workspace Sentry.xcworkspace -scheme Sentry -configuration Test -enableThreadSanitizer YES \
+    -destination "platform=iOS Simulator,OS=latest,name=iPhone 14" \
+    -skip-testing:"SentryProfilerTests" \
     test | tee thread-sanitizer.log | xcpretty -t
 
 testStatus=$?

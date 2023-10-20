@@ -25,6 +25,7 @@ SentrySpan ()
 @implementation SentrySpan {
     NSMutableDictionary<NSString *, id> *_data;
     NSMutableDictionary<NSString *, id> *_tags;
+    NSObject *_stateLock;
     BOOL _isFinished;
 }
 
@@ -34,6 +35,7 @@ SentrySpan ()
         self.startTimestamp = [SentryDependencyContainer.sharedInstance.dateProvider date];
         _data = [[NSMutableDictionary alloc] init];
         _tags = [[NSMutableDictionary alloc] init];
+        _stateLock = [[NSObject alloc] init];
         _isFinished = NO;
 
         _status = kSentrySpanStatusUndefined;
@@ -133,7 +135,9 @@ SentrySpan ()
 
 - (BOOL)isFinished
 {
-    return _isFinished;
+    @synchronized(_stateLock) {
+        return _isFinished;
+    }
 }
 
 - (void)finish
@@ -145,7 +149,9 @@ SentrySpan ()
 - (void)finishWithStatus:(SentrySpanStatus)status
 {
     self.status = status;
-    _isFinished = YES;
+    @synchronized(_stateLock) {
+        _isFinished = YES;
+    }
     if (self.timestamp == nil) {
         self.timestamp = [SentryDependencyContainer.sharedInstance.dateProvider date];
         SENTRY_LOG_DEBUG(@"Setting span timestamp: %@ at system time %llu", self.timestamp,
