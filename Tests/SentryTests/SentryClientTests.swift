@@ -277,6 +277,59 @@ class SentryClientTest: XCTestCase {
         eventId.assertIsEmpty()
     }
     
+#if os(iOS) || targetEnvironment(macCatalyst)
+    func testCaptureEventWithCurrentScreen() {
+        SentryDependencyContainer.sharedInstance().application = TestSentryUIApplication()
+        
+        let event = Event()
+        event.exceptions = [ Exception(value: "", type: "")]
+        
+        fixture.getSut().capture(event: event, scope: fixture.scope)
+        
+        assertLastSentEventWithAttachment { event in
+            let viewName = event.context?["app"]?["view_names"] as? [String]
+            XCTAssertEqual(viewName?.first, "ClientTestViewController")
+        }
+    }
+    
+    func testCaptureEventWithNoCurrentScreenInBackground() {
+        SentryDependencyContainer.sharedInstance().application = TestSentryUIApplication()
+        
+        let event = Event()
+        event.exceptions = [ Exception(value: "", type: "")]
+        
+        let group = DispatchGroup()
+        group.enter()
+        DispatchQueue.global().async {
+            self.fixture.getSut().capture(event: event, scope: self.fixture.scope)
+            group.leave()
+        }
+        group.enter()
+        let _ = group.wait(timeout: .now() + 1)
+        
+        assertLastSentEventWithAttachment { event in
+            let viewName = event.context?["app"]?["view_names"] as? [String]
+            XCTAssertNil(viewName)
+        }
+    }
+    
+    func testCaptureEvent DontOverrideScopeCurrentScreen() {
+        SentryDependencyContainer.sharedInstance().application = TestSentryUIApplication()
+        
+        let event = Event()
+        event.exceptions = [ Exception(value: "", type: "")]
+        
+        let scope = fixture.scope
+        scope.screen = "Some Screen"
+        fixture.getSut().capture(event: event, scope: scope)
+        
+        assertLastSentEventWithAttachment { event in
+            let viewName = event.context?["app"]?["view_names"] as? [String]
+            XCTAssertEqual(viewName?.first, "Some Screen")
+        }
+    }
+#endif
+    
     func test_AttachmentProcessor_CaptureEvent() {
         let sut = fixture.getSut()
         let event = Event()
@@ -1621,6 +1674,17 @@ class SentryClientTest: XCTestCase {
         }
     }
     
+#if os(iOS) || targetEnvironment(macCatalyst)
+    class TestSentryUIApplication: SentryUIApplication {
+        override func relevantViewControllers() -> [UIViewController] {
+            return [ClientTestViewController()]
+        }
+    }
+    
+    class ClientTestViewController: UIViewController {
+        
+    }
+#endif
 }
 
 enum SentryClientError: Error {
