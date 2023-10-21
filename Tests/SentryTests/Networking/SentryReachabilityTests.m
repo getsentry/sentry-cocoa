@@ -78,26 +78,24 @@
     printf("[Sentry] [TEST] throwaway reachability callback, setting to reachable\n");
     SentryConnectivityCallback(self.reachability.sentry_reachability_ref,
         kSCNetworkReachabilityFlagsReachable, nil); // ignored, as it's the first callback
-    printf("[Sentry] [TEST] reachability callback to set to intervention required\n");
-    SentryConnectivityCallback(self.reachability.sentry_reachability_ref,
-        kSCNetworkReachabilityFlagsInterventionRequired, nil);
+    printf("[Sentry] [TEST] reachability callback set to unreachable\n");
+    SentryConnectivityCallback(self.reachability.sentry_reachability_ref, 0, nil);
 
     printf("[Sentry] [TEST] creating observer B\n");
     TestSentryReachabilityObserver *observerB = [[TestSentryReachabilityObserver alloc] init];
     printf("[Sentry] [TEST] adding observer B as reachability observer\n");
     [self.reachability addObserver:observerB];
 
-    printf("[Sentry] [TEST] reachability callback to set to back to reachable\n");
+    printf("[Sentry] [TEST] reachability callback set back to reachable\n");
     SentryConnectivityCallback(
         self.reachability.sentry_reachability_ref, kSCNetworkReachabilityFlagsReachable, nil);
-    printf("[Sentry] [TEST] reachability callback to set to back to intervention required\n");
-    SentryConnectivityCallback(self.reachability.sentry_reachability_ref,
-        kSCNetworkReachabilityFlagsInterventionRequired, nil);
+    printf("[Sentry] [TEST] reachability callback set back to unreachable\n");
+    SentryConnectivityCallback(self.reachability.sentry_reachability_ref, 0, nil);
 
     printf("[Sentry] [TEST] removing observer B as reachability observer\n");
     [self.reachability removeObserver:observerB];
 
-    printf("[Sentry] [TEST] reachability callback to set to back to reachable\n");
+    printf("[Sentry] [TEST] reachability callback set back to reachable\n");
     SentryConnectivityCallback(
         self.reachability.sentry_reachability_ref, kSCNetworkReachabilityFlagsReachable, nil);
 
