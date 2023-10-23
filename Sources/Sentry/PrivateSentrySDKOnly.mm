@@ -27,7 +27,7 @@ static SentryOnAppStartMeasurementAvailable _onAppStartMeasurementAvailable;
 static BOOL _appStartMeasurementHybridSDKMode = NO;
 #if SENTRY_HAS_UIKIT
 static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
-#endif
+#endif // SENTRY_HAS_UIKIT
 
 + (void)storeEnvelope:(SentryEnvelope *)envelope
 {
@@ -157,39 +157,76 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
 
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
-#if SENTRY_HAS_UIKIT
-
 + (BOOL)framesTrackingMeasurementHybridSDKMode
 {
+#if SENTRY_HAS_UIKIT
     return _framesTrackingMeasurementHybridSDKMode;
+#else
+    SENTRY_LOG_DEBUG(@"PrivateSentrySDKOnly.framesTrackingMeasurementHybridSDKMode only works with "
+                     @"UIKit enabled. Ensure you're "
+                     @"using the right configuration of Sentry that links UIKit.");
+    return NO;
+#endif // SENTRY_HAS_UIKIT
 }
 
 + (void)setFramesTrackingMeasurementHybridSDKMode:(BOOL)framesTrackingMeasurementHybridSDKMode
 {
+#if SENTRY_HAS_UIKIT
     _framesTrackingMeasurementHybridSDKMode = framesTrackingMeasurementHybridSDKMode;
+#else
+    SENTRY_LOG_DEBUG(@"PrivateSentrySDKOnly.framesTrackingMeasurementHybridSDKMode only works with "
+                     @"UIKit enabled. Ensure you're "
+                     @"using the right configuration of Sentry that links UIKit.");
+#endif // SENTRY_HAS_UIKIT
 }
 
 + (BOOL)isFramesTrackingRunning
 {
+#if SENTRY_HAS_UIKIT
     return SentryDependencyContainer.sharedInstance.framesTracker.isRunning;
+#else
+    SENTRY_LOG_DEBUG(@"PrivateSentrySDKOnly.isFramesTrackingRunning only works with UIKit enabled. "
+                     @"Ensure you're "
+                     @"using the right configuration of Sentry that links UIKit.");
+    return NO;
+#endif // SENTRY_HAS_UIKIT
 }
 
 + (SentryScreenFrames *)currentScreenFrames
 {
+#if SENTRY_HAS_UIKIT
     return SentryDependencyContainer.sharedInstance.framesTracker.currentFrames;
+#else
+    SENTRY_LOG_DEBUG(
+        @"PrivateSentrySDKOnly.currentScreenFrames only works with UIKit enabled. Ensure you're "
+        @"using the right configuration of Sentry that links UIKit.");
+    return nil;
+#endif // SENTRY_HAS_UIKIT
 }
 
 + (NSArray<NSData *> *)captureScreenshots
 {
+#if SENTRY_HAS_UIKIT
     return [SentryDependencyContainer.sharedInstance.screenshot takeScreenshots];
+#else
+    SENTRY_LOG_DEBUG(
+        @"PrivateSentrySDKOnly.captureScreenshots only works with UIKit enabled. Ensure you're "
+        @"using the right configuration of Sentry that links UIKit.");
+    return nil;
+#endif // SENTRY_HAS_UIKIT
 }
 
 + (NSData *)captureViewHierarchy
 {
+#if SENTRY_HAS_UIKIT
     return [SentryDependencyContainer.sharedInstance.viewHierarchy fetchViewHierarchy];
+#else
+    SENTRY_LOG_DEBUG(
+        @"PrivateSentrySDKOnly.captureViewHierarchy only works with UIKit enabled. Ensure you're "
+        @"using the right configuration of Sentry that links UIKit.");
+    return nil;
+#endif // SENTRY_HAS_UIKIT
 }
-
-#endif
 
 + (SentryUser *)userWithDictionary:(NSDictionary *)dictionary
 {

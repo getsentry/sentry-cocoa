@@ -4,6 +4,7 @@
 
 #    import "SentryAppStartMeasurement.h"
 #    import "SentryAppStateManager.h"
+#    import "SentryDefines.h"
 #    import "SentryLog.h"
 #    import "SentrySysctl.h"
 #    import <Foundation/Foundation.h>

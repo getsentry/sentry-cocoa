@@ -52,6 +52,7 @@
             // scale=1.000000
             continue;
         }
+
         UIGraphicsBeginImageContext(size);
 
         if ([window drawViewHierarchyInRect:window.bounds afterScreenUpdates:false]) {

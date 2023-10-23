@@ -159,9 +159,9 @@ static NSUInteger startInvocations;
 
         [SentryCrashWrapper.sharedInstance startBinaryImageCache];
         [SentryDependencyContainer.sharedInstance.binaryImageCache start];
-#if TARGET_OS_IOS
+#if TARGET_OS_IOS && SENTRY_HAS_UIKIT
         [SentryDependencyContainer.sharedInstance.uiDeviceWrapper start];
-#endif
+#endif // TARGET_OS_IOS && SENTRY_HAS_UIKIT
     }];
 }
 
@@ -415,9 +415,9 @@ static NSUInteger startInvocations;
     [SentryCrashWrapper.sharedInstance stopBinaryImageCache];
     [SentryDependencyContainer.sharedInstance.binaryImageCache stop];
 
-#if TARGET_OS_IOS
+#if TARGET_OS_IOS && SENTRY_HAS_UIKIT
     [SentryDependencyContainer.sharedInstance.uiDeviceWrapper stop];
-#endif
+#endif // TARGET_OS_IOS && SENTRY_HAS_UIKIT
 
     [SentryDependencyContainer reset];
     SENTRY_LOG_DEBUG(@"SDK closed!");
