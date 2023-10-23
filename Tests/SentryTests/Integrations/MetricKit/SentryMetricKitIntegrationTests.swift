@@ -269,7 +269,7 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         XCTAssertEqual(exceptionType, exception.type)
         XCTAssertEqual(exceptionValue, exception.value)
         XCTAssertEqual(exceptionMechanism, exception.mechanism?.type)
-        XCTAssertEqual(handled, exception.mechanism?.handled?.boolValue)
+        XCTAssertEqual(handled, exception.mechanism?.handled.boolValue)
         XCTAssertEqual(true, exception.mechanism?.synthetic)
         XCTAssertEqual(event?.threads?.first?.threadId, exception.threadId)
         

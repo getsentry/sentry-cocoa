@@ -33,7 +33,7 @@ SENTRY_NO_INIT
  * Flag indicating whether the exception has been handled by the user
  * (e.g. via @c try..catch )
  */
-@property (nonatomic, copy) NSNumber *_Nullable handled;
+@property (nonatomic, copy) NSNumber *handled;
 
 /**
  * An optional flag indicating a synthetic exception. For more info visit
