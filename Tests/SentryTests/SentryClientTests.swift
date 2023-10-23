@@ -313,7 +313,7 @@ class SentryClientTest: XCTestCase {
         }
     }
     
-    func testCaptureEvent DontOverrideScopeCurrentScreen() {
+    func testCaptureEventDontOverrideScopeCurrentScreen() {
         SentryDependencyContainer.sharedInstance().application = TestSentryUIApplication()
         
         let event = Event()
