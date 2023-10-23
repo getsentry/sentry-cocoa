@@ -93,8 +93,13 @@ class SentryStacktraceBuilderTests: XCTestCase {
             waitForAsyncToRun.fulfill()
             XCTAssertGreaterThanOrEqual(filteredFrames, 3, "The Stacktrace must include the async callers.")
         }
-
-        wait(for: [waitForAsyncToRun], timeout: 10)
+        
+        // observed the async task taking a long time to finish if TSAN is attached
+        var timeout = 1
+        if threadSanitizerIsPresent() {
+            timeout = 10
+        }
+        wait(for: [waitForAsyncToRun], timeout: timeout)
     }
 
     func testConcurrentStacktraces_noStitching() throws {
@@ -115,7 +120,13 @@ class SentryStacktraceBuilderTests: XCTestCase {
             waitForAsyncToRun.fulfill()
             XCTAssertGreaterThanOrEqual(filteredFrames, 1, "The Stacktrace must have only one function.")
         }
-        wait(for: [waitForAsyncToRun], timeout: 10)
+        
+        // observed the async task taking a long time to finish if TSAN is attached
+        var timeout = 1
+        if threadSanitizerIsPresent() {
+            timeout = 10
+        }
+        wait(for: [waitForAsyncToRun], timeout: timeout)
     }
 
     @available(macOS 12.0, iOS 15.0, watchOS 8.0, tvOS 15.0, *)
