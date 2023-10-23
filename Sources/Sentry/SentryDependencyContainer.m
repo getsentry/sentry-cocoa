@@ -60,6 +60,12 @@ static NSObject *sentryDependencyContainerLock;
 
 + (void)reset
 {
+#if !TARGET_OS_WATCH
+    if (instance) {
+        [instance->_reachability removeAllObservers];
+    }
+#endif // !TARGET_OS_WATCH
+
     instance = [[SentryDependencyContainer alloc] init];
 }
 
