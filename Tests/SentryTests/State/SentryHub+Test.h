@@ -16,6 +16,7 @@ SentryHub ()
 - (NSArray<id<SentryIntegrationProtocol>> *)installedIntegrations;
 - (NSSet<NSString *> *)installedIntegrationNames;
 
+- (BOOL)eventContainsOnlyHandledErrors:(NSDictionary *)eventDictionary;
 @end
 
 NS_ASSUME_NONNULL_END

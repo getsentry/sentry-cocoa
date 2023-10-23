@@ -6,6 +6,10 @@
 
 - Improve OOM detection by ignoring system reboot (#3352)
 
+### Fixes
+
+- Missing `mechanism.handled` is not considered crash (#3353)
+
 ## 8.14.1
 
 ### Fixes
