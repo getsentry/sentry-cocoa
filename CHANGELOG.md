@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+- Improve OOM detection by ignoring system reboot (#3352)
+
 ## 8.14.1
 
 ### Fixes
