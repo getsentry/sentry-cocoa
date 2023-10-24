@@ -139,7 +139,7 @@
         }
     }
     if ([containerVC isKindOfClass:UIPageViewController.class]) {
-        UIPageViewController* pageVC = (UIPageViewController*)containerVC;
+        UIPageViewController *pageVC = (UIPageViewController *)containerVC;
         if (pageVC.viewControllers.count > 0) {
             return [[pageVC viewControllers] objectAtIndex:0];
         }

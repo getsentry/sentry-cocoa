@@ -786,7 +786,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                   block:^(NSMutableDictionary *app) {
                       [app addEntriesFromDictionary:extraContext[@"app"]];
 #if SENTRY_HAS_UIKIT
-                      if ([NSThread isMainThread]) {
+                      void (^addViewName)(void) = ^{
                           if (app[@"view_names"] == nil) {
                               NSArray *viewControllers = SentryDependencyContainer.sharedInstance
                                                              .application.relevantViewControllers;
@@ -796,7 +796,11 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                               }
                               app[@"view_names"] = vcsNames;
                           }
-                      }
+                      };
+
+                      [[SentryDependencyContainer.sharedInstance dispatchQueueWrapper]
+                          dispatchSyncOnMainQueue:addViewName
+                                          timeout:0.001];
 #endif
                   }];
 }

@@ -292,7 +292,7 @@ class SentryClientTest: XCTestCase {
         }
     }
     
-    func testCaptureEventWithNoCurrentScreenInBackground() {
+    func testCaptureEventWithNoCurrentScreenMainIsLocked() {
         SentryDependencyContainer.sharedInstance().application = TestSentryUIApplication()
         
         let event = Event()
