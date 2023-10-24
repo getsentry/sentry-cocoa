@@ -97,7 +97,7 @@
             // Sometimes a view controller is used as container for a navigation controller
             // If the navigation is occupating the whole view controller we will consider this the
             // case.
-            if ([self isHierarchicViewController:childVC]
+            if ([self isContainerViewController:childVC]
                 && CGRectEqualToRect(childVC.view.frame, topVC.view.bounds)) {
                 relevantChild = childVC;
                 break;
@@ -119,23 +119,29 @@
 {
     return [viewController isKindOfClass:UINavigationController.class] ||
         [viewController isKindOfClass:UITabBarController.class] ||
-        [viewController isKindOfClass:UISplitViewController.class];
+        [viewController isKindOfClass:UISplitViewController.class] ||
+        [viewController isKindOfClass:UIPageViewController.class];
 }
 
-- (UIViewController *)relevantViewControllerFromHierarchy:(UIViewController *)hierarchicVC
+- (UIViewController *)relevantViewControllerFromHierarchy:(UIViewController *)containerVC
 {
-    if ([hierarchicVC isKindOfClass:UINavigationController.class]) {
-        return [(UINavigationController *)hierarchicVC topViewController];
+    if ([containerVC isKindOfClass:UINavigationController.class]) {
+        return [(UINavigationController *)containerVC topViewController];
     }
-    if ([hierarchicVC isKindOfClass:UITabBarController.class]) {
-        UITabBarController *tbController = (UITabBarController *)hierarchicVC;
+    if ([containerVC isKindOfClass:UITabBarController.class]) {
+        UITabBarController *tbController = (UITabBarController *)containerVC;
         return [tbController.viewControllers objectAtIndex:tbController.selectedIndex];
     }
-    if ([hierarchicVC isKindOfClass:UISplitViewController.class]) {
-        UISplitViewController *splitVC = (UISplitViewController *)hierarchicVC;
+    if ([containerVC isKindOfClass:UISplitViewController.class]) {
+        UISplitViewController *splitVC = (UISplitViewController *)containerVC;
         if (splitVC.viewControllers.count > 1) {
             return [[splitVC viewControllers] objectAtIndex:1];
         }
+    }
+    if ([containerVC isKindOfClass:UIPageViewController.class]) {
+        UIPageViewController* pageVC = (UIPageViewController*)containerVC;
+        
+        return [[pageVC viewControllers] objectAtIndex:0];
     }
     return NULL;
 }
