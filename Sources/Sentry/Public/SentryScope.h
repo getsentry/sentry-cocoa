@@ -25,7 +25,7 @@ NS_SWIFT_NAME(Scope)
  * The current screen being presented to the user.
  * If nil, the SDK will try to figure it out the current screen being presented.
  */
-@property (nullable, nonatomic, strong) NSString *screen;
+@property (nullable, nonatomic, copy) NSString *screen;
 
 - (instancetype)initWithMaxBreadcrumbs:(NSInteger)maxBreadcrumbs NS_DESIGNATED_INITIALIZER;
 - (instancetype)init;

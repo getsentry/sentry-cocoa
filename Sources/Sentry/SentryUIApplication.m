@@ -95,7 +95,7 @@
         UIViewController *relevantChild = NULL;
         for (UIViewController *childVC in topVC.childViewControllers) {
             // Sometimes a view controller is used as container for a navigation controller
-            // If the navigation is ocuppaing the whole view controller we will consider this the
+            // If the navigation is occupating the whole view controller we will consider this the
             // case.
             if ([self isHierarchicViewController:childVC]
                 && CGRectEqualToRect(childVC.view.frame, topVC.view.bounds)) {
@@ -115,7 +115,7 @@
     return topVC;
 }
 
-- (BOOL)isHierarchicViewController:(UIViewController *)viewController
+- (BOOL)isContainerViewController:(UIViewController *)viewController
 {
     return [viewController isKindOfClass:UINavigationController.class] ||
         [viewController isKindOfClass:UITabBarController.class] ||
