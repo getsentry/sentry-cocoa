@@ -14,8 +14,6 @@ testStatus=$?
 
 if [ $testStatus -eq 0 ]; then
     echo "ThreadSanitizer didn't find problems."
-    exit 0
 else
     echo "ThreadSanitizer found problems or one of the tests failed. Search for \"ThreadSanitizer\" in the thread-sanitizer.log artifact for more details."
-    exit 1
 fi
