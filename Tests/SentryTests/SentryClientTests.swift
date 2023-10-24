@@ -286,7 +286,7 @@ class SentryClientTest: XCTestCase {
         
         fixture.getSut().capture(event: event, scope: fixture.scope)
         
-        assertLastSentEventWithAttachment { event in
+        try? assertLastSentEventWithAttachment { event in
             let viewName = event.context?["app"]?["view_names"] as? [String]
             XCTAssertEqual(viewName?.first, "ClientTestViewController")
         }
@@ -307,7 +307,7 @@ class SentryClientTest: XCTestCase {
         group.enter()
         let _ = group.wait(timeout: .now() + 1)
         
-        assertLastSentEventWithAttachment { event in
+        try? assertLastSentEventWithAttachment { event in
             let viewName = event.context?["app"]?["view_names"] as? [String]
             XCTAssertNil(viewName)
         }
@@ -323,7 +323,7 @@ class SentryClientTest: XCTestCase {
         scope.screen = "Some Screen"
         fixture.getSut().capture(event: event, scope: scope)
         
-        assertLastSentEventWithAttachment { event in
+        try? assertLastSentEventWithAttachment { event in
             let viewName = event.context?["app"]?["view_names"] as? [String]
             XCTAssertEqual(viewName?.first, "Some Screen")
         }
