@@ -95,7 +95,7 @@ class SentryStacktraceBuilderTests: XCTestCase {
         }
         
         // observed the async task taking a long time to finish if TSAN is attached
-        var timeout = 1
+        var timeout: TimeInterval = 1
         if threadSanitizerIsPresent() {
             timeout = 10
         }
@@ -122,7 +122,7 @@ class SentryStacktraceBuilderTests: XCTestCase {
         }
         
         // observed the async task taking a long time to finish if TSAN is attached
-        var timeout = 1
+        var timeout: TimeInterval = 1
         if threadSanitizerIsPresent() {
             timeout = 10
         }
