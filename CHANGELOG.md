@@ -1,14 +1,17 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+- Improve OOM detection by ignoring system reboot (#3352)
+- Add screen name to app context (#3346)
+
 ## 8.14.2
 
 ### Features
 
 - Enrich error events with any underlying NSErrors reported by Cocoa APIs (#3230)
-
-### Features
-
-- Improve OOM detection by ignoring system reboot (#3352)
 
 ### Fixes
 
@@ -33,8 +36,6 @@ Once enabled, this feature subscribes to [MetricKit's](https://developer.apple.c
 The MetricKit integration subscribes to [MXHangDiagnostic](https://developer.apple.com/documentation/metrickit/mxhangdiagnostic),
 [MXDiskWriteExceptionDiagnostic](https://developer.apple.com/documentation/metrickit/mxdiskwriteexceptiondiagnostic),
 and [MXCPUExceptionDiagnostic](https://developer.apple.com/documentation/metrickit/mxcpuexceptiondiagnostic).
-
-- Add screen name to app context (#3346)
 
 ## 8.13.1
 
