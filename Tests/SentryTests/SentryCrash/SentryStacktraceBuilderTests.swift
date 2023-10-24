@@ -94,11 +94,13 @@ class SentryStacktraceBuilderTests: XCTestCase {
             XCTAssertGreaterThanOrEqual(filteredFrames, 3, "The Stacktrace must include the async callers.")
         }
         
-        // observed the async task taking a long time to finish if TSAN is attached
         var timeout: TimeInterval = 1
+        #if !os(watchOS) && !os(tvOS)
+        // observed the async task taking a long time to finish if TSAN is attached
         if threadSanitizerIsPresent() {
             timeout = 10
         }
+        #endif // !os(watchOS) || !os(tvOS)
         wait(for: [waitForAsyncToRun], timeout: timeout)
     }
 
@@ -121,11 +123,13 @@ class SentryStacktraceBuilderTests: XCTestCase {
             XCTAssertGreaterThanOrEqual(filteredFrames, 1, "The Stacktrace must have only one function.")
         }
         
-        // observed the async task taking a long time to finish if TSAN is attached
         var timeout: TimeInterval = 1
+        #if !os(watchOS) && !os(tvOS)
+        // observed the async task taking a long time to finish if TSAN is attached
         if threadSanitizerIsPresent() {
             timeout = 10
         }
+        #endif // !os(watchOS) || !os(tvOS)
         wait(for: [waitForAsyncToRun], timeout: timeout)
     }
 
