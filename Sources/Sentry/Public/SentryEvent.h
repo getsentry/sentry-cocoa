@@ -24,7 +24,7 @@ NS_SWIFT_NAME(Event)
 /**
  * The error of the event. This property adds convenience to access the error directly in
  * @c beforeSend. This property is not serialized. Instead when preparing the event the
- * @c SentryClient puts the error into exceptions.
+ * @c SentryClient puts the error and any underlying errors into exceptions.
  */
 @property (nonatomic, copy) NSError *_Nullable error;
 
@@ -138,8 +138,8 @@ NS_SWIFT_NAME(Event)
 @property (nonatomic, strong) NSArray<SentryThread *> *_Nullable threads;
 
 /**
- * General information about the @c SentryException, usually there is only one
- * exception in the array.
+ * General information about the @c SentryException. Multiple exceptions indicate a chain of
+ * exceptions encountered, starting with the oldest at the beginning of the array.
  */
 @property (nonatomic, strong) NSArray<SentryException *> *_Nullable exceptions;
 

@@ -1,3 +1,4 @@
+import SentryTestUtils
 import XCTest
 
 class SentryMechanismMetaTests: XCTestCase {
@@ -19,8 +20,8 @@ class SentryMechanismMetaTests: XCTestCase {
             return
         }
         let nsError = expected.error! as SentryNSError
-        XCTAssertEqual(nsError.domain, error["domain"] as? String)
-        XCTAssertEqual(nsError.code, error["code"] as? Int)
+        XCTAssertEqual(Dynamic(nsError).domain, error["domain"] as? String)
+        XCTAssertEqual(Dynamic(nsError).code, error["code"] as? Int)
         
         guard let signal = actual["signal"] as? [String: Any] else {
             XCTFail("The serialization doesn't contain signal")

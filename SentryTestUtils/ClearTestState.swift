@@ -33,10 +33,6 @@ class TestCleanup: NSObject {
         
         #endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
         
-#if !os(watchOS)
-        SentryDependencyContainer.sharedInstance().reachability.removeAllObservers()
-#endif // !os(watchOS)
-        
         SentryDependencyContainer.reset()
         Dynamic(SentryGlobalEventProcessor.shared()).removeAllProcessors()
         SentryPerformanceTracker.shared.clear()
