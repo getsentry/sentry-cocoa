@@ -7,6 +7,8 @@
 @class UIWindow;
 @protocol UIApplicationDelegate;
 
+typedef NS_ENUM(NSInteger, UIApplicationState);
+
 NS_ASSUME_NONNULL_BEGIN
 
 /**
@@ -17,7 +19,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * Returns the application state available at @c NSApplication.sharedApplication.applicationState
  */
-@property (nonatomic, readonly) UIApplicationState* applicationState;
+@property (nonatomic, readonly) UIApplicationState applicationState;
 
 /**
  * Application shared UIApplication instance.
