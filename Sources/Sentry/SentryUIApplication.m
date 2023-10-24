@@ -66,7 +66,7 @@
 
     for (UIWindow *window in windows) {
         UIViewController *vc = [self relevantViewControllerFromWindow:window];
-        if (vc != NULL) {
+        if (vc != nil) {
             [result addObject:vc];
         }
     }
@@ -78,21 +78,21 @@
 {
     UIViewController *topVC = window.rootViewController;
 
-    while (topVC != NULL) {
+    while (topVC != nil) {
         // If the view controller is presenting another one, usually in a modal form.
-        if (topVC.presentedViewController != NULL) {
+        if (topVC.presentedViewController != nil) {
             topVC = topVC.presentedViewController;
             continue;
             ;
         }
 
         // The top view controller is meant for navigation and not content
-        if ([self isHierarchicViewController:topVC]) {
+        if ([self isContainerViewController:topVC]) {
             topVC = [self relevantViewControllerFromHierarchy:topVC];
             continue;
         }
 
-        UIViewController *relevantChild = NULL;
+        UIViewController *relevantChild = nil;
         for (UIViewController *childVC in topVC.childViewControllers) {
             // Sometimes a view controller is used as container for a navigation controller
             // If the navigation is occupating the whole view controller we will consider this the
@@ -104,7 +104,7 @@
             }
         }
 
-        if (relevantChild != NULL) {
+        if (relevantChild != nil) {
             topVC = relevantChild;
             continue;
         }
@@ -140,10 +140,11 @@
     }
     if ([containerVC isKindOfClass:UIPageViewController.class]) {
         UIPageViewController* pageVC = (UIPageViewController*)containerVC;
-        
-        return [[pageVC viewControllers] objectAtIndex:0];
+        if (pageVC.viewControllers.count > 0) {
+            return [[pageVC viewControllers] objectAtIndex:0];
+        }
     }
-    return NULL;
+    return nil;
 }
 
 @end

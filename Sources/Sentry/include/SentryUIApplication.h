@@ -39,7 +39,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * Return the most relevant view controller being presented in the app.
  */
-- (NSArray<UIViewController *> *)relevantViewControllers;
+- (nullable NSArray<UIViewController *> *)relevantViewControllers;
 
 @end
 
