@@ -6,6 +6,10 @@
 
 - Enrich error events with any underlying NSErrors reported by Cocoa APIs (#3230)
 
+### Features
+
+- Improve OOM detection by ignoring system reboot (#3352)
+
 ### Fixes
 
 - Missing `mechanism.handled` is not considered crash (#3353)

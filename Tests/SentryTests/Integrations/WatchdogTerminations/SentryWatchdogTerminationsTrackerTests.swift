@@ -216,7 +216,18 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
         sut.start()
         assertNoOOMSent()
     }
-    
+
+    func testDifferentBootTime_NoOOM() {
+        sut = fixture.getSut(usingRealFileManager: true)
+        sut.start()
+        let appState = SentryAppState(releaseName: fixture.options.releaseName ?? "", osVersion: UIDevice.current.systemVersion, vendorId: TestData.someUUID, isDebugging: false, systemBootTimestamp: fixture.sysctl.systemBootTimestamp.addingTimeInterval(1))
+
+        givenPreviousAppState(appState: appState)
+        fixture.mockFileManager.moveAppStateToPreviousAppState()
+        sut.start()
+        assertNoOOMSent()
+    }
+
     func testAppWasInForeground_OOM() {
         sut = fixture.getSut(usingRealFileManager: true)
 

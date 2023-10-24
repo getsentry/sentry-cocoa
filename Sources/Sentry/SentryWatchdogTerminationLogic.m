@@ -60,6 +60,11 @@ SentryWatchdogTerminationLogic ()
         return NO;
     }
 
+    // The app may have been terminated due to device reboot
+    if (previousAppState.systemBootTimestamp != currentAppState.systemBootTimestamp) {
+        return NO;
+    }
+
     // This value can change when installing test builds using Xcode or when installing an app
     // on a device using ad-hoc distribution.
     if (![currentAppState.vendorId isEqualToString:previousAppState.vendorId]) {
