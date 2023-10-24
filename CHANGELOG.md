@@ -5,13 +5,10 @@
 ### Features
 
 - Improve OOM detection by ignoring system reboot (#3352)
+- Enrich error events with any underlying NSErrors reported by Cocoa APIs (#3230)
 - Add screen name to app context (#3346)
 
 ## 8.14.2
-
-### Features
-
-- Enrich error events with any underlying NSErrors reported by Cocoa APIs (#3230)
 
 ### Fixes
 
