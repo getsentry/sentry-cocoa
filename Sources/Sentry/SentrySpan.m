@@ -45,7 +45,9 @@ SentrySpan ()
         } else {
             NSString *threadName = [SentryDependencyContainer.sharedInstance.threadInspector
                 getThreadName:currentThread];
-            _data[SPAN_DATA_THREAD_NAME] = threadName;
+            if (threadName.length > 0) {
+                _data[SPAN_DATA_THREAD_NAME] = threadName;
+            }
         }
 
         _tags = [[NSMutableDictionary alloc] init];

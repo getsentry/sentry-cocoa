@@ -61,7 +61,7 @@ class SentrySpanTests: XCTestCase {
         XCTAssertEqual(NSNumber(value: threadId), span.data["thread.id"] as! NSNumber)
     }
     
-    func testInit_SetsThreadInfoAsSpanData_FromBackGroundThread() {
+    func testInit_SetsThreadInfoAsSpanData_FromBackgroundThread() {
         let expect = expectation(description: "Thread must be called.")
         
         Thread.detachNewThread {
@@ -70,6 +70,23 @@ class SentrySpanTests: XCTestCase {
             
             let span = self.fixture.getSut()
             XCTAssertEqual(threadName, span.data["thread.name"] as! String)
+            let threadId = sentrycrashthread_self()
+            XCTAssertEqual(NSNumber(value: threadId), span.data["thread.id"] as! NSNumber)
+            
+            expect.fulfill()
+        }
+        
+        wait(for: [expect], timeout: 0.1)
+    }
+    
+    func testInit_SetsThreadInfoAsSpanData_FromBackgroundThreadWithNoName() {
+        let expect = expectation(description: "Thread must be called.")
+        
+        Thread.detachNewThread {
+            Thread.current.name = ""
+            
+            let span = self.fixture.getSut()
+            XCTAssertNil(span.data["thread.name"])
             let threadId = sentrycrashthread_self()
             XCTAssertEqual(NSNumber(value: threadId), span.data["thread.id"] as! NSNumber)
             
