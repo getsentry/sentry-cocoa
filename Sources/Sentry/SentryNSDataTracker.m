@@ -190,7 +190,7 @@ SentryNSDataTracker ()
 {
     BOOL isMainThread = [NSThread isMainThread];
 
-    [span setDataValue:@(isMainThread) forKey:BLOCKED_MAIN_THREAD];
+    [span setDataValue:@(isMainThread) forKey:SPAN_DATA_BLOCKED_MAIN_THREAD];
 
     if (!isMainThread) {
         return;
@@ -210,7 +210,7 @@ SentryNSDataTracker ()
         // and only the 'main' frame remains in the stack
         // therefore, there is nothing to do about it
         // and we should not report it as an issue.
-        [span setDataValue:@(NO) forKey:BLOCKED_MAIN_THREAD];
+        [span setDataValue:@(NO) forKey:SPAN_DATA_BLOCKED_MAIN_THREAD];
     } else {
         [((SentrySpan *)span) setFrames:frames];
     }

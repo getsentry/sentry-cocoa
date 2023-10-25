@@ -59,4 +59,6 @@ static NSString *const SentryPlatformName = @"cocoa";
         (__cond_result);                                                                           \
     })
 
-#define BLOCKED_MAIN_THREAD @"blocked_main_thread"
+#define SPAN_DATA_BLOCKED_MAIN_THREAD @"blocked_main_thread"
+#define SPAN_DATA_THREAD_ID @"thread.id"
+#define SPAN_DATA_THREAD_NAME @"thread.name"
