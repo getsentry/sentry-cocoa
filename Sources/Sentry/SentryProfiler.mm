@@ -12,7 +12,7 @@
 #    import "SentryDispatchFactory.h"
 #    import "SentryDispatchSourceWrapper.h"
 #    import "SentryEnvelope.h"
-#import "SentryEnvelopeItemHeader.h"
+#    import "SentryEnvelopeItemHeader.h"
 #    import "SentryEnvelopeItemType.h"
 #    import "SentryEvent+Private.h"
 #    import "SentryFormatter.h"
