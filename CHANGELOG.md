@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+- Add thread id and name to span data (#3359)
+
 ## 8.14.2
 
 ### Features
