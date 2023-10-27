@@ -1,3 +1,6 @@
+#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+
+import SentryTestUtils
 import XCTest
 
 class SentryWatchdogTerminationScopeObserverTests: XCTestCase {
@@ -17,7 +20,7 @@ class SentryWatchdogTerminationScopeObserverTests: XCTestCase {
 
             options = Options()
             options.dsn = SentryWatchdogTerminationScopeObserverTests.dsn
-            fileManager = try! SentryFileManager(options: options, andCurrentDateProvider: currentDate)
+            fileManager = try! SentryFileManager(options: options, dispatchQueueWrapper: TestSentryDispatchQueueWrapper())
         }
 
         func getSut() -> SentryWatchdogTerminationScopeObserver {
@@ -153,3 +156,5 @@ class SentryWatchdogTerminationScopeObserverTests: XCTestCase {
             XCTAssertEqual(1, fixture.fileManager.readPreviousBreadcrumbs().count)
         }
 }
+
+#endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)

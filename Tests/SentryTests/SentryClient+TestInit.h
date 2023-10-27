@@ -1,8 +1,10 @@
 #import "SentryRandom.h"
 #import "SentryTransport.h"
-#import <Sentry/Sentry.h>
 
-@class SentryCrashWrapper, SentryThreadInspector, SentryTransportAdapter, SentryUIDeviceWrapper;
+@class SentryCrashWrapper;
+@class SentryDispatchQueueWrapper;
+@class SentryThreadInspector;
+@class SentryTransportAdapter;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -10,18 +12,24 @@ NS_ASSUME_NONNULL_BEGIN
 SentryClient ()
 
 - (_Nullable instancetype)initWithOptions:(SentryOptions *)options
-                            dispatchQueue:(SentryDispatchQueueWrapper *)dispatchQueue;
+                            dispatchQueue:(SentryDispatchQueueWrapper *)dispatchQueue
+                   deleteOldEnvelopeItems:(BOOL)deleteOldEnvelopeItems;
 
 - (_Nullable instancetype)initWithOptions:(SentryOptions *)options
-                              fileManager:(SentryFileManager *)fileManager;
+                              fileManager:(SentryFileManager *)fileManager
+                   deleteOldEnvelopeItems:(BOOL)deleteOldEnvelopeItems;
+
+- (instancetype)initWithOptions:(SentryOptions *)options
+                    fileManager:(SentryFileManager *)fileManager
+         deleteOldEnvelopeItems:(BOOL)deleteOldEnvelopeItems
+               transportAdapter:(SentryTransportAdapter *)transportAdapter;
 
 - (instancetype)initWithOptions:(SentryOptions *)options
                transportAdapter:(SentryTransportAdapter *)transportAdapter
                     fileManager:(SentryFileManager *)fileManager
+         deleteOldEnvelopeItems:(BOOL)deleteOldEnvelopeItems
                 threadInspector:(SentryThreadInspector *)threadInspector
                          random:(id<SentryRandom>)random
-                   crashWrapper:(SentryCrashWrapper *)crashWrapper
-                  deviceWrapper:(SentryUIDeviceWrapper *)deviceWrapper
                          locale:(NSLocale *)locale
                        timezone:(NSTimeZone *)timezone;
 

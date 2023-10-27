@@ -22,6 +22,7 @@ class TraceTestViewController: UIViewController {
         }
         let session = URLSession(configuration: URLSessionConfiguration.default)
         let dataTask = session.dataTask(with: imgUrl) { (data, _, error) in
+            //Simulated delay in the download
             DispatchQueue.main.async {
                 if let err = error {
                     SentrySDK.capture(error: err)
@@ -29,6 +30,7 @@ class TraceTestViewController: UIViewController {
                     self.imageView.image = UIImage(data: image)
                     self.appendLifeCycleStep("GET https://sentry-brand.storage.googleapis.com/sentry-logo-black.png")
                 }
+                SentrySDK.reportFullyDisplayed()
             }
         }
         
@@ -71,9 +73,9 @@ class TraceTestViewController: UIViewController {
                 return
             }
 
-            UIAssert.isEqual(child.data["url"] as? String, "/sentry-logo-black.png", "Could not read url data value")
+            UIAssert.isEqual(child.data["url"] as? String, "https://sentry-brand.storage.googleapis.com/sentry-logo-black.png", "Could not read url data value")
 
-            UIAssert.isEqual(child.tags["http.status_code"], "200", "Could not read status_code tag value")
+            UIAssert.isEqual(child.data["http.response.status_code"] as? String, "200", "Could not read status_code tag value")
 
             UIAssert.checkForViewControllerLifeCycle(span, viewController: "TraceTestViewController", stepsToCheck: self.lifeCycleSteps)
         }

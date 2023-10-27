@@ -1,4 +1,4 @@
-// swift-tools-version:5.1
+// swift-tools-version:5.3
 import PackageDescription
 
 let package = Package(
@@ -31,16 +31,15 @@ let package = Package(
                 .headerSearchPath("SentryCrash/Reporting/Filters"),
                 .headerSearchPath("SentryCrash/Reporting/Filters/Tools"),
                 .headerSearchPath("SentryCrash/Reporting/Tools")
-            ],
-            linkerSettings: [
-                .linkedLibrary("z"),
-                .linkedLibrary("c++")
             ]
         ),
         .target( name: "SentryPrivate",
                  path: "Sources",
                  sources: [
                     "Swift"
+                 ],
+                 resources: [
+                    .copy("Resources/PrivacyInfo.xcprivacy")
                  ]
                ),
         .target ( name: "SentrySwiftUI",

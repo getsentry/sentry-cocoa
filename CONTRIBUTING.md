@@ -89,7 +89,7 @@ This means if homebrew updates the [formula](https://formulae.brew.sh/formula/) 
 
 ## Linting
 
-We use [Swiftlint](https://github.com/realm/SwiftLint) and Clang-Format. For Swiftlint we keep a seperate [config file](/Tests/.swiftlint) for the tests. To run all the linters locally execute:
+We use [Swiftlint](https://github.com/realm/SwiftLint) and Clang-Format. For SwiftLint, we keep a multiple config files for the tests and samples, cause some rules don't make sense for testing and sample code. To run all the linters locally execute:
 
 ```sh
 make lint

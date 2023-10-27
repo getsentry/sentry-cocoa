@@ -6,8 +6,13 @@
 
 @end
 
-@interface SentryCrash (private)
+@interface
+SentryCrash ()
+
+- (NSString *)clearBundleName:(NSString *)filename;
+
 - (NSArray *)getAttachmentPaths:(int64_t)reportID;
+
 @end
 
 @implementation SentryCrashTests
@@ -41,6 +46,15 @@
         initWithBasePath:[self.tempPath stringByAppendingPathComponent:@"Reports"]];
     NSArray *files = [sentryCrash getAttachmentPaths:12];
     XCTAssertEqual(files.count, 2);
+}
+
+- (void)test_cleanBundleName
+{
+    SentryCrash *sentryCrash = [[SentryCrash alloc] init];
+
+    NSString *clearedBundleName = [sentryCrash clearBundleName:@"Sentry/Test"];
+
+    XCTAssertEqualObjects(clearedBundleName, @"Sentry-Test");
 }
 
 - (void)test_getScreenshots_NoFiles

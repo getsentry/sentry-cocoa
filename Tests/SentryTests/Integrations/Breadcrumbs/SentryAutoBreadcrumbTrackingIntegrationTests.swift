@@ -1,12 +1,15 @@
 import Sentry
+import SentryTestUtils
 import XCTest
 
 class SentryAutoBreadcrumbTrackingIntegrationTests: XCTestCase {
     
     private class Fixture {
-        let tracker = SentryTestBreadcrumbTracker(swizzleWrapper: SentrySwizzleWrapper.sharedInstance)
+        let breadcrumbTracker = SentryTestBreadcrumbTracker()
         
-        var systemEventBreadcrumbs: SentryTestSystemEventBreadcrumbs?
+#if os(iOS)
+        var systemEventBreadcrumbTracker: SentryTestSystemEventBreadcrumbs?
+#endif // os(iOS)
         
         var sut: SentryAutoBreadcrumbTrackingIntegration {
             return SentryAutoBreadcrumbTrackingIntegration()
@@ -24,14 +27,15 @@ class SentryAutoBreadcrumbTrackingIntegrationTests: XCTestCase {
         super.tearDown()
         clearTestState()
     }
-
+    
+#if os(iOS)
     func testInstallWithSwizzleEnabled_StartSwizzleCalled() throws {
         let sut = fixture.sut
         
         try self.install(sut: sut)
         
-        XCTAssertEqual(1, fixture.tracker.startInvocations.count)
-        XCTAssertEqual(1, fixture.tracker.startSwizzleInvocations.count)
+        XCTAssertEqual(1, fixture.breadcrumbTracker.startInvocations.count)
+        XCTAssertEqual(1, fixture.breadcrumbTracker.startSwizzleInvocations.count)
     }
     
     func testInstallWithSwizzleDisabled_StartSwizzleNotCalled() throws {
@@ -42,9 +46,10 @@ class SentryAutoBreadcrumbTrackingIntegrationTests: XCTestCase {
         
         try self.install(sut: sut, options: options)
         
-        XCTAssertEqual(1, fixture.tracker.startInvocations.count)
-        XCTAssertEqual(0, fixture.tracker.startSwizzleInvocations.count)
+        XCTAssertEqual(1, fixture.breadcrumbTracker.startInvocations.count)
+        XCTAssertEqual(0, fixture.breadcrumbTracker.startSwizzleInvocations.count)
     }
+#endif // os(iOS)
 
     func test_enableAutoBreadcrumbTracking_Disabled() {
         let options = Options()
@@ -56,6 +61,7 @@ class SentryAutoBreadcrumbTrackingIntegrationTests: XCTestCase {
         XCTAssertFalse(result)
     }
     
+#if os(iOS)
     func testInstall() throws {
         let options = Options()
         
@@ -67,7 +73,7 @@ class SentryAutoBreadcrumbTrackingIntegrationTests: XCTestCase {
         SentrySDK.setCurrentHub(hub)
         
         let crumb = TestData.crumb
-        fixture.systemEventBreadcrumbs?.startWithdelegateInvocations.first?.add(crumb)
+        fixture.systemEventBreadcrumbTracker?.startWithDelegateInvocations.first?.add(crumb)
         
         let serializedScope = scope.serialize()
                 
@@ -81,33 +87,44 @@ class SentryAutoBreadcrumbTrackingIntegrationTests: XCTestCase {
             }
         }
     }
+#endif // os(iOS)
     
     private func install(sut: SentryAutoBreadcrumbTrackingIntegration, options: Options = Options()) throws {
         
-        fixture.systemEventBreadcrumbs = SentryTestSystemEventBreadcrumbs(fileManager: try TestFileManager(options: options), andCurrentDateProvider: TestCurrentDateProvider(), andNotificationCenterWrapper: TestNSNotificationCenterWrapper())
+#if os(iOS)
+        fixture.systemEventBreadcrumbTracker = SentryTestSystemEventBreadcrumbs(fileManager: try TestFileManager(options: options), andNotificationCenterWrapper: TestNSNotificationCenterWrapper())
+        sut.install(with: options, breadcrumbTracker: fixture.breadcrumbTracker, systemEventBreadcrumbs: fixture.systemEventBreadcrumbTracker!)
+#else
+        sut.install(with: options, breadcrumbTracker: fixture.breadcrumbTracker)
+#endif // os(iOS)
         
-        sut.install(with: options, breadcrumbTracker: fixture.tracker, systemEventBreadcrumbs: fixture.systemEventBreadcrumbs!)
     }
 }
 
 private class SentryTestBreadcrumbTracker: SentryBreadcrumbTracker {
     
-    let startInvocations = Invocations<Void>()
-    override func start() {
-        startInvocations.record(Void())
+    let startInvocations = Invocations<SentryBreadcrumbDelegate>()
+    override func start(with delegate: SentryBreadcrumbDelegate) {
+        startInvocations.record(delegate)
     }
     
+#if os(iOS)
     let startSwizzleInvocations = Invocations<Void>()
     override func startSwizzle() {
         startSwizzleInvocations.record(Void())
     }
+#endif // os(iOS)
 
 }
+
+#if os(iOS)
 
 private class SentryTestSystemEventBreadcrumbs: SentrySystemEventBreadcrumbs {
     
-    let startWithdelegateInvocations = Invocations<SentrySystemEventBreadcrumbsDelegate>()
-    override func start(with delegate: SentrySystemEventBreadcrumbsDelegate) {
-        startWithdelegateInvocations.record(delegate)
+    let startWithDelegateInvocations = Invocations<SentryBreadcrumbDelegate>()
+    override func start(with delegate: SentryBreadcrumbDelegate) {
+        startWithDelegateInvocations.record(delegate)
     }
 }
+
+#endif // os(iOS)

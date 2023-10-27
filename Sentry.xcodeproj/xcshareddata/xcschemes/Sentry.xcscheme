@@ -62,25 +62,10 @@
                   Identifier = "SentryCrashReportStore_Tests/testCrashReportCount1">
                </Test>
                <Test
-                  Identifier = "SentryFileIOTrackingIntegrationTests/test_DataConsistency_readPath()">
-               </Test>
-               <Test
-                  Identifier = "SentryFileIOTrackingIntegrationTests/test_DataConsistency_readUrl()">
-               </Test>
-               <Test
-                  Identifier = "SentryNSErrorTests/testSerializeWithUnderlyingNSException()">
-               </Test>
-               <Test
-                  Identifier = "SentryNetworkTrackerIntegrationTests/testGetRequest_SpanCreatedAndBaggageHeaderAdded()">
+                  Identifier = "SentryCrashReportStore_Tests/testDeleteAllReports">
                </Test>
                <Test
                   Identifier = "SentryProfilerSwiftTests/testConcurrentSpansWithTimeout()">
-               </Test>
-               <Test
-                  Identifier = "SentryProfilerSwiftTests/testMetricProfiler()">
-               </Test>
-               <Test
-                  Identifier = "SentryProfilerSwiftTests/testProfileTimeoutTimer()">
                </Test>
                <Test
                   Identifier = "SentrySDKIntegrationTestsBase">
@@ -89,18 +74,22 @@
                   Identifier = "SentrySessionGeneratorTests/testSendSessions()">
                </Test>
                <Test
-                  Identifier = "SentryStacktraceBuilderTests/testAsyncStacktraces()">
-               </Test>
-               <Test
                   Identifier = "SentrySubClassFinderTests/testActOnSubclassesOfViewController()">
                </Test>
                <Test
-                  Identifier = "SentryUIApplicationTests/test_applicationWithScenes()">
-               </Test>
-               <Test
-                  Identifier = "SentryUIApplicationTests/test_applicationWithScenes_noWindow()">
+                  Identifier = "SentryThreadInspectorTests/testStacktraceHasFrames_forEveryThread()">
                </Test>
             </SkippedTests>
+         </TestableReference>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "8431EECF29B27B1100D8DC56"
+               BuildableName = "SentryProfilerTests.xctest"
+               BlueprintName = "SentryProfilerTests"
+               ReferencedContainer = "container:Sentry.xcodeproj">
+            </BuildableReference>
          </TestableReference>
       </Testables>
    </TestAction>

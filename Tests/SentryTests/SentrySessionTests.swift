@@ -1,3 +1,4 @@
+import SentryTestUtils
 import XCTest
 
 class SentrySessionTestsSwift: XCTestCase {
@@ -7,7 +8,7 @@ class SentrySessionTestsSwift: XCTestCase {
     override func setUp() {
         super.setUp()
         currentDateProvider = TestCurrentDateProvider()
-        CurrentDate.setCurrentDateProvider(currentDateProvider)
+        SentryDependencyContainer.sharedInstance().dateProvider = currentDateProvider
     }
     
     func testEndSession() {

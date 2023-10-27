@@ -3,11 +3,11 @@
 #import "SentryClient+Private.h"
 #import "SentryCrashMachineContext.h"
 #import "SentryCrashWrapper.h"
-#import "SentryDefaultCurrentDateProvider.h"
 #import "SentryDispatchQueueWrapper.h"
 #import "SentryEvent.h"
 #import "SentryException.h"
 #import "SentryHub+Private.h"
+#import "SentryLog.h"
 #import "SentryMechanism.h"
 #import "SentrySDK+Private.h"
 #import "SentryStacktrace.h"
@@ -54,15 +54,25 @@ SentryANRTrackingIntegration ()
     [self.tracker removeListener:self];
 }
 
+- (void)dealloc
+{
+    [self uninstall];
+}
+
 - (void)anrDetected
 {
     SentryThreadInspector *threadInspector = SentrySDK.currentHub.getClient.threadInspector;
 
-    NSString *message = [NSString stringWithFormat:@"App hanging for at least %li ms.",
-                                  (long)(self.options.appHangTimeoutInterval * 1000)];
-
     NSArray<SentryThread *> *threads = [threadInspector getCurrentThreadsWithStackTrace];
 
+    if (threads.count == 0) {
+        SENTRY_LOG_WARN(@"Getting current thread returned an empty list. Can't create AppHang "
+                        @"event without a stacktrace.");
+        return;
+    }
+
+    NSString *message = [NSString stringWithFormat:@"App hanging for at least %li ms.",
+                                  (long)(self.options.appHangTimeoutInterval * 1000)];
     SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelError];
     SentryException *sentryException = [[SentryException alloc] initWithValue:message
                                                                          type:@"App Hanging"];

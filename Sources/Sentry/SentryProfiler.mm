@@ -1,50 +1,56 @@
-#import "SentryProfiler.h"
+#import "SentryProfiler+Private.h"
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 #    import "NSDate+SentryExtras.h"
-#    import "SentryBacktrace.hpp"
 #    import "SentryClient+Private.h"
-#    import "SentryCurrentDate.h"
+#    import "SentryCurrentDateProvider.h"
 #    import "SentryDebugImageProvider.h"
 #    import "SentryDebugMeta.h"
 #    import "SentryDefines.h"
 #    import "SentryDependencyContainer.h"
 #    import "SentryDevice.h"
+#    import "SentryDispatchFactory.h"
+#    import "SentryDispatchSourceWrapper.h"
 #    import "SentryEnvelope.h"
 #    import "SentryEnvelopeItemType.h"
+#    import "SentryEvent+Private.h"
+#    import "SentryFormatter.h"
 #    import "SentryFramesTracker.h"
-#    import "SentryHexAddressFormatter.h"
 #    import "SentryHub+Private.h"
 #    import "SentryId.h"
 #    import "SentryInternalDefines.h"
 #    import "SentryLog.h"
 #    import "SentryMetricProfiler.h"
+#    import "SentryNSNotificationCenterWrapper.h"
 #    import "SentryNSProcessInfoWrapper.h"
-#    import "SentryNSTimerWrapper.h"
+#    import "SentryNSTimerFactory.h"
+#    import "SentryProfileTimeseries.h"
+#    import "SentryProfiledTracerConcurrency.h"
+#    import "SentryProfilerState+ObjCpp.h"
+#    import "SentrySDK+Private.h"
+#    import "SentrySample.h"
 #    import "SentrySamplingProfiler.hpp"
 #    import "SentryScope+Private.h"
-#    import "SentryScreenFrames.h"
 #    import "SentrySerialization.h"
 #    import "SentrySpanId.h"
 #    import "SentrySystemWrapper.h"
 #    import "SentryThread.h"
+#    import "SentryThreadWrapper.h"
 #    import "SentryTime.h"
+#    import "SentryTracer+Private.h"
 #    import "SentryTransaction.h"
 #    import "SentryTransactionContext+Private.h"
-
-#    if defined(DEBUG)
-#        include <execinfo.h>
-#    endif
 
 #    import <cstdint>
 #    import <memory>
 
-#    if TARGET_OS_IOS
+#    if SENTRY_HAS_UIKIT
+#        import "SentryScreenFrames.h"
 #        import <UIKit/UIKit.h>
-#    endif
+#    endif // SENTRY_HAS_UIKIT
 
 const int kSentryProfilerFrequencyHz = 101;
-NSString *const kTestStringConst = @"test";
+NSTimeInterval kSentryProfilerTimeoutInterval = 30;
 
 NSString *const kSentryProfilerSerializationKeySlowFrameRenders = @"slow_frame_renders";
 NSString *const kSentryProfilerSerializationKeyFrozenFrameRenders = @"frozen_frame_renders";
@@ -52,116 +58,8 @@ NSString *const kSentryProfilerSerializationKeyFrameRates = @"screen_frame_rates
 
 using namespace sentry::profiling;
 
-NSString *
-parseBacktraceSymbolsFunctionName(const char *symbol)
-{
-    static NSRegularExpression *regex = nil;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        regex = [NSRegularExpression
-            regularExpressionWithPattern:@"\\d+\\s+\\S+\\s+0[xX][0-9a-fA-F]+\\s+(.+)\\s+\\+\\s+\\d+"
-                                 options:0
-                                   error:nil];
-    });
-    const auto symbolNSStr = [NSString stringWithUTF8String:symbol];
-    const auto match = [regex firstMatchInString:symbolNSStr
-                                         options:0
-                                           range:NSMakeRange(0, [symbolNSStr length])];
-    if (match == nil) {
-        return symbolNSStr;
-    }
-    return [symbolNSStr substringWithRange:[match rangeAtIndex:1]];
-}
-
-void
-processBacktrace(const Backtrace &backtrace,
-    NSMutableDictionary<NSString *, NSMutableDictionary *> *threadMetadata,
-    NSMutableDictionary<NSString *, NSDictionary *> *queueMetadata,
-    NSMutableArray<NSDictionary<NSString *, id> *> *samples,
-    NSMutableArray<NSMutableArray<NSNumber *> *> *stacks,
-    NSMutableArray<NSDictionary<NSString *, id> *> *frames,
-    NSMutableDictionary<NSString *, NSNumber *> *frameIndexLookup, uint64_t startTimestamp,
-    NSMutableDictionary<NSString *, NSNumber *> *stackIndexLookup)
-{
-    const auto threadID = [@(backtrace.threadMetadata.threadID) stringValue];
-    NSString *queueAddress = nil;
-    if (backtrace.queueMetadata.address != 0) {
-        queueAddress = sentry_formatHexAddress(@(backtrace.queueMetadata.address));
-    }
-    NSMutableDictionary<NSString *, id> *metadata = threadMetadata[threadID];
-    if (metadata == nil) {
-        metadata = [NSMutableDictionary<NSString *, id> dictionary];
-        threadMetadata[threadID] = metadata;
-    }
-    if (!backtrace.threadMetadata.name.empty() && metadata[@"name"] == nil) {
-        metadata[@"name"] = [NSString stringWithUTF8String:backtrace.threadMetadata.name.c_str()];
-    }
-    if (backtrace.threadMetadata.priority != -1 && metadata[@"priority"] == nil) {
-        metadata[@"priority"] = @(backtrace.threadMetadata.priority);
-    }
-    if (queueAddress != nil && queueMetadata[queueAddress] == nil
-        && backtrace.queueMetadata.label != nullptr) {
-        queueMetadata[queueAddress] =
-            @ { @"label" : [NSString stringWithUTF8String:backtrace.queueMetadata.label->c_str()] };
-    }
-#    if defined(DEBUG)
-    const auto symbols
-        = backtrace_symbols(reinterpret_cast<void *const *>(backtrace.addresses.data()),
-            static_cast<int>(backtrace.addresses.size()));
-#    endif
-
-    const auto stack = [NSMutableArray<NSNumber *> array];
-    for (std::vector<uintptr_t>::size_type backtraceAddressIdx = 0;
-         backtraceAddressIdx < backtrace.addresses.size(); backtraceAddressIdx++) {
-        const auto instructionAddress
-            = sentry_formatHexAddress(@(backtrace.addresses[backtraceAddressIdx]));
-
-        const auto frameIndex = frameIndexLookup[instructionAddress];
-        if (frameIndex == nil) {
-            const auto frame = [NSMutableDictionary<NSString *, id> dictionary];
-            frame[@"instruction_addr"] = instructionAddress;
-#    if defined(DEBUG)
-            frame[@"function"] = parseBacktraceSymbolsFunctionName(symbols[backtraceAddressIdx]);
-#    endif
-            [stack addObject:@(frames.count)];
-            frameIndexLookup[instructionAddress] = @(frames.count);
-            [frames addObject:frame];
-        } else {
-            [stack addObject:frameIndex];
-        }
-    }
-
-    const auto sample = [NSMutableDictionary<NSString *, id> dictionary];
-    sample[@"elapsed_since_start_ns"] =
-        [@(getDurationNs(startTimestamp, backtrace.absoluteTimestamp)) stringValue];
-    sample[@"thread_id"] = threadID;
-    if (queueAddress != nil) {
-        sample[@"queue_address"] = queueAddress;
-    }
-
-    const auto stackKey = [stack componentsJoinedByString:@"|"];
-    const auto stackIndex = stackIndexLookup[stackKey];
-    if (stackIndex) {
-        sample[@"stack_id"] = stackIndex;
-    } else {
-        const auto nextStackIndex = @(stacks.count);
-        sample[@"stack_id"] = nextStackIndex;
-        stackIndexLookup[stackKey] = nextStackIndex;
-        [stacks addObject:stack];
-    }
-
-    [samples addObject:sample];
-}
-
 std::mutex _gProfilerLock;
-NSMutableDictionary<SentrySpanId *, SentryProfiler *> *_gProfilersPerSpanID;
 SentryProfiler *_Nullable _gCurrentProfiler;
-SentryNSProcessInfoWrapper *_gCurrentProcessInfoWrapper;
-SentrySystemWrapper *_gCurrentSystemWrapper;
-SentryNSTimerWrapper *_gCurrentTimerWrapper;
-#    if SENTRY_HAS_UIKIT
-SentryFramesTracker *_gCurrentFramesTracker;
-#    endif // SENTRY_HAS_UIKIT
 
 NSString *
 profilerTruncationReasonName(SentryProfilerTruncationReason reason)
@@ -177,95 +75,195 @@ profilerTruncationReasonName(SentryProfilerTruncationReason reason)
 }
 
 #    if SENTRY_HAS_UIKIT
-NSArray *
-processFrameRenders(
-    SentryFrameInfoTimeSeries *frameInfo, uint64_t profileStart, uint64_t profileDuration)
+/**
+ * Convert the data structure that records timestamps for GPU frame render info from
+ * SentryFramesTracker to the structure expected for profiling metrics, and throw out any that
+ * didn't occur within the profile time.
+ * @param useMostRecentRecording @c SentryFramesTracker doesn't stop running once it starts.
+ * Although we reset the profiling timestamps each time the profiler stops and starts, concurrent
+ * transactions that start after the first one won't have a screen frame rate recorded within their
+ * timeframe, because it will have already been recorded for the first transaction and isn't
+ * recorded again unless the system changes it. In these cases, use the most recently recorded data
+ * for it.
+ */
+NSArray<SentrySerializedMetricReading *> *
+sliceGPUData(SentryFrameInfoTimeSeries *frameInfo, uint64_t startSystemTime, uint64_t endSystemTime,
+    BOOL useMostRecentRecording)
 {
-    auto relativeFrameInfo = [NSMutableArray array];
+    auto slicedGPUEntries = [NSMutableArray<SentrySerializedMetricEntry *> array];
+    __block NSNumber *nearestPredecessorValue;
     [frameInfo enumerateObjectsUsingBlock:^(
         NSDictionary<NSString *, NSNumber *> *_Nonnull obj, NSUInteger idx, BOOL *_Nonnull stop) {
-        const auto frameRenderStart
-            = timeIntervalToNanoseconds(obj[@"start_timestamp"].doubleValue);
+        const auto timestamp = obj[@"timestamp"].unsignedLongLongValue;
 
-#        if defined(TEST) || defined(TESTCI)
-        // we don't currently validate the timestamps in tests, and the mock doesn't provide
-        // realistic ones, so they'd fail the checks below. just write them directly into the data
-        // structure so we can count *how many* were recorded
-        [relativeFrameInfo addObject:@{
-            @"elapsed_since_start_ns" : @(frameRenderStart),
-            @"value" : @(frameRenderStart),
-        }];
-        return;
-#        else // if not testing, ie, development or production
-        if (frameRenderStart < profileStart) {
+        if (!orderedChronologically(startSystemTime, timestamp)) {
+            SENTRY_LOG_DEBUG(@"GPU info recorded (%llu) before transaction start (%llu), "
+                             @"will not report it.",
+                timestamp, startSystemTime);
+            nearestPredecessorValue = obj[@"value"];
             return;
         }
-        const auto frameRenderEnd = timeIntervalToNanoseconds(obj[@"end_timestamp"].doubleValue);
-        const auto frameRenderEndRelativeToProfileStart = getDurationNs(profileStart, frameRenderEnd);
-        if (frameRenderEndRelativeToProfileStart > profileDuration) {
-            SENTRY_LOG_DEBUG(@"The last slow/frozen frame extended past the end of the profile, "
-                             @"will not report it.");
+
+        if (!orderedChronologically(timestamp, endSystemTime)) {
+            SENTRY_LOG_DEBUG(@"GPU info recorded after transaction finished, won't record.");
             return;
         }
-        const auto frameRenderStartRelativeToProfileStartNs = getDurationNs(profileStart, frameRenderStart);
-        const auto frameRenderDurationNs = frameRenderEndRelativeToProfileStart - frameRenderStartRelativeToProfileStartNs;
-        [relativeFrameInfo addObject:@{
-            @"elapsed_since_start_ns" : @(frameRenderStartRelativeToProfileStartNs),
-            @"value" : @(frameRenderDurationNs),
+        const auto relativeTimestamp = getDurationNs(startSystemTime, timestamp);
+
+        [slicedGPUEntries addObject:@ {
+            @"elapsed_since_start_ns" : sentry_stringForUInt64(relativeTimestamp),
+            @"value" : obj[@"value"],
         }];
-#        endif // defined(TEST) || defined(TESTCI)
     }];
-    return relativeFrameInfo;
-}
-
-NSArray<NSDictionary *> *
-processFrameRates(SentryFrameInfoTimeSeries *frameRates, uint64_t start)
-{
-    if (frameRates.count == 0) {
-        return nil;
+    if (useMostRecentRecording && slicedGPUEntries.count == 0 && nearestPredecessorValue != nil) {
+        [slicedGPUEntries addObject:@ {
+            @"elapsed_since_start_ns" : @"0",
+            @"value" : nearestPredecessorValue,
+        }];
     }
-    auto relativeFrameRates = [NSMutableArray array];
-    [frameRates enumerateObjectsUsingBlock:^(
-        NSDictionary<NSString *, NSNumber *> *_Nonnull obj, NSUInteger idx, BOOL *_Nonnull stop) {
-        const auto timestamp = (uint64_t)(obj[@"timestamp"].doubleValue * 1e9);
-        const auto refreshRate = obj[@"frame_rate"];
-        uint64_t relativeTimestamp = 0;
-        if (timestamp >= start) {
-            relativeTimestamp = getDurationNs(start, timestamp);
-        }
-        [relativeFrameRates addObject:@{
-            @"elapsed_since_start_ns" : @(relativeTimestamp),
-            @"value" : refreshRate,
-        }];
-    }];
-    return relativeFrameRates;
+    return slicedGPUEntries;
 }
 #    endif // SENTRY_HAS_UIKIT
 
+/** Given an array of samples with absolute timestamps, return the serialized JSON mapping with
+ * their data, with timestamps normalized relative to the provided transaction's start time. */
+NSArray<NSDictionary *> *
+serializedSamplesWithRelativeTimestamps(NSArray<SentrySample *> *samples, uint64_t startSystemTime)
+{
+    const auto result = [NSMutableArray<NSDictionary *> array];
+    [samples enumerateObjectsUsingBlock:^(
+        SentrySample *_Nonnull sample, NSUInteger idx, BOOL *_Nonnull stop) {
+        // This shouldn't happen as we would've filtered out any such samples, but we should still
+        // guard against it before calling getDurationNs as a defensive measure
+        if (!orderedChronologically(startSystemTime, sample.absoluteTimestamp)) {
+            SENTRY_LOG_WARN(@"Filtered sample not chronological with transaction.");
+            return;
+        }
+        const auto dict = [NSMutableDictionary dictionaryWithDictionary:@ {
+            @"elapsed_since_start_ns" :
+                sentry_stringForUInt64(getDurationNs(startSystemTime, sample.absoluteTimestamp)),
+            @"thread_id" : sentry_stringForUInt64(sample.threadID),
+            @"stack_id" : sample.stackIndex,
+        }];
+        if (sample.queueAddress) {
+            dict[@"queue_address"] = sample.queueAddress;
+        }
+
+        [result addObject:dict];
+    }];
+    return result;
+}
+
+NSMutableDictionary<NSString *, id> *
+serializedProfileData(
+    NSDictionary<NSString *, id> *profileData, uint64_t startSystemTime, uint64_t endSystemTime,
+    NSString *truncationReason, NSDictionary<NSString *, id> *serializedMetrics,
+    NSArray<SentryDebugMeta *> *debugMeta, SentryHub *hub
+#    if SENTRY_HAS_UIKIT
+    ,
+    SentryScreenFrames *gpuData
+#    endif // SENTRY_HAS_UIKIT
+)
+{
+    NSMutableArray<SentrySample *> *const samples = profileData[@"profile"][@"samples"];
+    // We need at least two samples to be able to draw a stack frame for any given function: one
+    // sample for the start of the frame and another for the end. Otherwise we would only have a
+    // stack frame with 0 duration, which wouldn't make sense.
+    if ([samples count] < 2) {
+        SENTRY_LOG_DEBUG(@"Not enough samples in profile");
+        [hub.getClient recordLostEvent:kSentryDataCategoryProfile
+                                reason:kSentryDiscardReasonEventProcessor];
+        return nil;
+    }
+
+    // slice the profile data to only include the samples/metrics within the transaction
+    const auto slicedSamples = slicedProfileSamples(samples, startSystemTime, endSystemTime);
+    if (slicedSamples.count < 2) {
+        SENTRY_LOG_DEBUG(@"Not enough samples in profile during the transaction");
+        [hub.getClient recordLostEvent:kSentryDataCategoryProfile
+                                reason:kSentryDiscardReasonEventProcessor];
+        return nil;
+    }
+    const auto payload = [NSMutableDictionary<NSString *, id> dictionary];
+    NSMutableDictionary<NSString *, id> *const profile = [profileData[@"profile"] mutableCopy];
+    profile[@"samples"] = serializedSamplesWithRelativeTimestamps(slicedSamples, startSystemTime);
+    payload[@"profile"] = profile;
+
+    payload[@"version"] = @"1";
+    const auto debugImages = [NSMutableArray<NSDictionary<NSString *, id> *> new];
+    for (SentryDebugMeta *debugImage in debugMeta) {
+        [debugImages addObject:[debugImage serialize]];
+    }
+    if (debugImages.count > 0) {
+        payload[@"debug_meta"] = @ { @"images" : debugImages };
+    }
+
+    payload[@"os"] = @ {
+        @"name" : sentry_getOSName(),
+        @"version" : sentry_getOSVersion(),
+        @"build_number" : sentry_getOSBuildNumber()
+    };
+
+    const auto isEmulated = sentry_isSimulatorBuild();
+    payload[@"device"] = @{
+        @"architecture" : sentry_getCPUArchitecture(),
+        @"is_emulator" : @(isEmulated),
+        @"locale" : NSLocale.currentLocale.localeIdentifier,
+        @"manufacturer" : @"Apple",
+        @"model" : isEmulated ? sentry_getSimulatorDeviceModel() : sentry_getDeviceModel()
+    };
+
+    payload[@"profile_id"] = [[[SentryId alloc] init] sentryIdString];
+    payload[@"truncation_reason"] = truncationReason;
+    payload[@"environment"] = hub.scope.environmentString ?: hub.getClient.options.environment;
+    payload[@"release"] = hub.getClient.options.releaseName;
+
+    // add the gathered metrics
+    auto metrics = serializedMetrics;
+
+#    if SENTRY_HAS_UIKIT
+    const auto mutableMetrics =
+        [NSMutableDictionary<NSString *, id> dictionaryWithDictionary:metrics];
+    const auto slowFrames = sliceGPUData(gpuData.slowFrameTimestamps, startSystemTime,
+        endSystemTime, /*useMostRecentRecording */ NO);
+    if (slowFrames.count > 0) {
+        mutableMetrics[@"slow_frame_renders"] =
+            @ { @"unit" : @"nanosecond", @"values" : slowFrames };
+    }
+
+    const auto frozenFrames
+        = sliceGPUData(gpuData.frozenFrameTimestamps, startSystemTime, endSystemTime,
+            /*useMostRecentRecording */ NO);
+    if (frozenFrames.count > 0) {
+        mutableMetrics[@"frozen_frame_renders"] =
+            @ { @"unit" : @"nanosecond", @"values" : frozenFrames };
+    }
+
+    if (slowFrames.count > 0 || frozenFrames.count > 0) {
+        const auto frameRates
+            = sliceGPUData(gpuData.frameRateTimestamps, startSystemTime, endSystemTime,
+                /*useMostRecentRecording */ YES);
+        if (frameRates.count > 0) {
+            mutableMetrics[@"screen_frame_rates"] = @ { @"unit" : @"hz", @"values" : frameRates };
+        }
+    }
+    metrics = mutableMetrics;
+#    endif // SENTRY_HAS_UIKIT
+
+    if (metrics.count > 0) {
+        payload[@"measurements"] = metrics;
+    }
+
+    return payload;
+}
+
 @implementation SentryProfiler {
-    NSMutableDictionary<NSString *, id> *_profile;
-    uint64_t _startTimestamp;
-    NSDate *_startDate;
-    uint64_t _endTimestamp;
-    NSDate *_endDate;
     std::shared_ptr<SamplingProfiler> _profiler;
     SentryMetricProfiler *_metricProfiler;
     SentryDebugImageProvider *_debugImageProvider;
-    thread::TIDType _mainThreadID;
 
-    NSMutableArray<SentrySpanId *> *_spansInFlight;
-    NSMutableArray<SentryTransaction *> *_transactions;
     SentryProfilerTruncationReason _truncationReason;
-    SentryScreenFrames *_frameInfo;
     NSTimer *_timeoutTimer;
-    SentryHub *__weak _hub;
-}
-
-+ (void)initialize
-{
-    if (self == [SentryProfiler class]) {
-        _gProfilersPerSpanID = [NSMutableDictionary<SentrySpanId *, SentryProfiler *> dictionary];
-    }
 }
 
 - (instancetype)init
@@ -274,215 +272,226 @@ processFrameRates(SentryFrameInfoTimeSeries *frameRates, uint64_t start)
         return nil;
     }
 
+    _profilerId = [[SentryId alloc] init];
+
     SENTRY_LOG_DEBUG(@"Initialized new SentryProfiler %@", self);
     _debugImageProvider = [SentryDependencyContainer sharedInstance].debugImageProvider;
-    _mainThreadID = ThreadHandle::current()->tid();
-    _spansInFlight = [NSMutableArray<SentrySpanId *> array];
-    _transactions = [NSMutableArray<SentryTransaction *> array];
+
+#    if SENTRY_HAS_UIKIT
+    // the frame tracker may not be running if SentryOptions.enableAutoPerformanceTracing is NO
+    [SentryDependencyContainer.sharedInstance.framesTracker start];
+#    endif // SENTRY_HAS_UIKIT
+
+    [self start];
+    [self scheduleTimeoutTimer];
+
+#    if SENTRY_HAS_UIKIT
+    [SentryDependencyContainer.sharedInstance.notificationCenterWrapper
+        addObserver:self
+           selector:@selector(backgroundAbort)
+               name:UIApplicationWillResignActiveNotification
+             object:nil];
+#    endif // SENTRY_HAS_UIKIT
+
     return self;
+}
+
+/**
+ * Schedule a timeout timer on the main thread.
+ * @warning from NSTimer.h: Timers scheduled in an async context may never fire.
+ */
+- (void)scheduleTimeoutTimer
+{
+    __weak SentryProfiler *weakSelf = self;
+
+    [SentryThreadWrapper onMainThread:^{
+        if (![weakSelf isRunning]) {
+            return;
+        }
+
+        SentryProfiler *strongSelf = weakSelf;
+        strongSelf->_timeoutTimer = [SentryDependencyContainer.sharedInstance.timerFactory
+            scheduledTimerWithTimeInterval:kSentryProfilerTimeoutInterval
+                                    target:self
+                                  selector:@selector(timeoutAbort)
+                                  userInfo:nil
+                                   repeats:NO];
+    }];
 }
 
 #    pragma mark - Public
 
-+ (void)startForSpanID:(SentrySpanId *)spanID hub:(SentryHub *)hub
-{
-    NSTimeInterval timeoutInterval = 30;
-#    if defined(TEST) || defined(TESTCI)
-    timeoutInterval = 1;
-#    endif
-    [self startForSpanID:spanID hub:hub timeoutInterval:timeoutInterval];
-}
-
-+ (void)startForSpanID:(SentrySpanId *)spanID
-                   hub:(SentryHub *)hub
-       timeoutInterval:(NSTimeInterval)timeoutInterval
++ (void)startWithTracer:(SentryId *)traceId
 {
     std::lock_guard<std::mutex> l(_gProfilerLock);
 
+    if (_gCurrentProfiler && [_gCurrentProfiler isRunning]) {
+        SENTRY_LOG_DEBUG(@"A profiler is already running.");
+        trackProfilerForTracer(_gCurrentProfiler, traceId);
+        // record a new metric sample for every concurrent span start
+        [_gCurrentProfiler->_metricProfiler recordMetrics];
+        return;
+    }
+
+    _gCurrentProfiler = [[SentryProfiler alloc] init];
     if (_gCurrentProfiler == nil) {
-        _gCurrentProfiler = [[SentryProfiler alloc] init];
-        if (_gCurrentProfiler == nil) {
-            SENTRY_LOG_WARN(@"Profiler was not initialized, will not proceed.");
-            return;
-        }
-#    if SENTRY_HAS_UIKIT
-        [_gCurrentFramesTracker resetProfilingTimestamps];
-#    endif // SENTRY_HAS_UIKIT
-        [_gCurrentProfiler start];
-        _gCurrentProfiler->_timeoutTimer =
-            [NSTimer scheduledTimerWithTimeInterval:timeoutInterval
-                                             target:self
-                                           selector:@selector(timeoutAbort)
-                                           userInfo:nil
-                                            repeats:NO];
-#    if SENTRY_HAS_UIKIT
-        [[NSNotificationCenter defaultCenter] addObserver:self
-                                                 selector:@selector(backgroundAbort)
-                                                     name:UIApplicationWillResignActiveNotification
-                                                   object:nil];
-#    endif // SENTRY_HAS_UIKIT
-        _gCurrentProfiler->_hub = hub;
-    }
-
-    SENTRY_LOG_DEBUG(
-        @"Tracking span with ID %@ with profiler %@", spanID.sentrySpanIdString, _gCurrentProfiler);
-    [_gCurrentProfiler->_spansInFlight addObject:spanID];
-    _gProfilersPerSpanID[spanID] = _gCurrentProfiler;
-}
-
-+ (void)stopProfilingSpan:(id<SentrySpan>)span
-{
-    std::lock_guard<std::mutex> l(_gProfilerLock);
-
-    if (_gCurrentProfiler == nil) {
-        SENTRY_LOG_DEBUG(@"No profiler tracking span with id %@", span.spanId.sentrySpanIdString);
+        SENTRY_LOG_WARN(@"Profiler was not initialized, will not proceed.");
         return;
     }
 
-    [_gCurrentProfiler->_spansInFlight removeObject:span.spanId];
-    if (_gCurrentProfiler->_spansInFlight.count == 0) {
-        SENTRY_LOG_DEBUG(@"Stopping profiler %@ because span with id %@ was last being profiled.",
-            _gCurrentProfiler, span.spanId.sentrySpanIdString);
-        [self stopProfilerForReason:SentryProfilerTruncationReasonNormal];
-    }
+    trackProfilerForTracer(_gCurrentProfiler, traceId);
 }
 
-+ (void)dropTransaction:(SentryTransaction *)transaction
-{
-    std::lock_guard<std::mutex> l(_gProfilerLock);
-
-    const auto spanID = transaction.trace.spanId;
-    const auto profiler = _gProfilersPerSpanID[spanID];
-    if (profiler == nil) {
-        SENTRY_LOG_DEBUG(@"No profiler tracking span with id %@", spanID.sentrySpanIdString);
-        return;
-    }
-
-    [self captureEnvelopeIfFinished:profiler spanID:spanID];
-}
-
-+ (void)linkTransaction:(SentryTransaction *)transaction
-{
-    std::lock_guard<std::mutex> l(_gProfilerLock);
-
-    const auto spanID = transaction.trace.spanId;
-    SentryProfiler *profiler = _gProfilersPerSpanID[spanID];
-    if (profiler == nil) {
-        SENTRY_LOG_DEBUG(@"No profiler tracking span with id %@", spanID.sentrySpanIdString);
-        return;
-    }
-
-    SENTRY_LOG_DEBUG(@"Found profiler waiting for span with ID %@: %@",
-        transaction.trace.spanId.sentrySpanIdString, profiler);
-    [profiler addTransaction:transaction];
-
-    [self captureEnvelopeIfFinished:profiler spanID:spanID];
-}
-
-+ (BOOL)isRunning
++ (BOOL)isCurrentlyProfiling
 {
     std::lock_guard<std::mutex> l(_gProfilerLock);
     return [_gCurrentProfiler isRunning];
 }
 
-#    pragma mark - Testing
-
-+ (void)useSystemWrapper:(SentrySystemWrapper *)systemWrapper
++ (void)recordMetrics
 {
     std::lock_guard<std::mutex> l(_gProfilerLock);
-    _gCurrentSystemWrapper = systemWrapper;
+    if (_gCurrentProfiler == nil) {
+        return;
+    }
+    [_gCurrentProfiler->_metricProfiler recordMetrics];
 }
 
-+ (void)useProcessInfoWrapper:(SentryNSProcessInfoWrapper *)processInfoWrapper
++ (nullable SentryEnvelopeItem *)createProfilingEnvelopeItemForTransaction:
+    (SentryTransaction *)transaction
 {
-    std::lock_guard<std::mutex> l(_gProfilerLock);
-    _gCurrentProcessInfoWrapper = processInfoWrapper;
+    const auto payload = [self collectProfileBetween:transaction.startSystemTime
+                                                 and:transaction.endSystemTime
+                                            forTrace:transaction.trace.traceId
+                                               onHub:transaction.trace.hub];
+    if (payload == nil) {
+        return nil;
+    }
+
+    [self updateProfilePayload:payload forTransaction:transaction];
+    return [self createEnvelopeItemForProfilePayload:payload];
 }
 
-+ (void)useTimerWrapper:(SentryNSTimerWrapper *)timerWrapper
++ (nullable SentryEnvelopeItem *)createEnvelopeItemForProfilePayload:
+    (NSDictionary<NSString *, id> *)payload;
 {
-    std::lock_guard<std::mutex> l(_gProfilerLock);
-    _gCurrentTimerWrapper = timerWrapper;
+    const auto JSONData = [SentrySerialization dataWithJSONObject:payload];
+    if (JSONData == nil) {
+        SENTRY_LOG_DEBUG(@"Failed to encode profile to JSON.");
+        return nil;
+    }
+
+    const auto header = [[SentryEnvelopeItemHeader alloc] initWithType:SentryEnvelopeItemTypeProfile
+                                                                length:JSONData.length];
+    return [[SentryEnvelopeItem alloc] initWithHeader:header data:JSONData];
 }
 
-#    if SENTRY_HAS_UIKIT
-+ (void)useFramesTracker:(SentryFramesTracker *)framesTracker
++ (nullable NSMutableDictionary<NSString *, id> *)collectProfileBetween:(uint64_t)startSystemTime
+                                                                    and:(uint64_t)endSystemTime
+                                                               forTrace:(SentryId *)traceId
+                                                                  onHub:(SentryHub *)hub;
 {
-    std::lock_guard<std::mutex> l(_gProfilerLock);
-    _gCurrentFramesTracker = framesTracker;
+    const auto profiler = profilerForFinishedTracer(traceId);
+    if (!profiler) {
+        return nil;
+    }
+
+    const auto payload = [profiler serializeBetween:startSystemTime and:endSystemTime onHub:hub];
+
+#    if defined(TEST) || defined(TESTCI)
+    [NSNotificationCenter.defaultCenter postNotificationName:@"SentryProfileCompleteNotification"
+                                                      object:nil
+                                                    userInfo:payload];
+#    endif // defined(TEST) || defined(TESTCI)
+    return payload;
 }
-#    endif // SENTRY_HAS_UIKIT
 
 #    pragma mark - Private
 
-+ (void)captureEnvelopeIfFinished:(SentryProfiler *)profiler spanID:(SentrySpanId *)spanID
++ (void)updateProfilePayload:(NSMutableDictionary<NSString *, id> *)payload
+              forTransaction:(SentryTransaction *)transaction;
 {
-    [_gProfilersPerSpanID removeObjectForKey:spanID];
-    [profiler->_spansInFlight removeObject:spanID];
-    if (profiler->_spansInFlight.count == 0) {
-        [profiler captureEnvelope];
-        [profiler->_transactions removeAllObjects];
-        SENTRY_LOG_DEBUG(@"Span %@ was last being tracked.", spanID.sentrySpanIdString);
+    payload[@"platform"] = transaction.platform;
+    payload[@"transaction"] = @{
+        @"id" : transaction.eventId.sentryIdString,
+        @"trace_id" : transaction.trace.traceId.sentryIdString,
+        @"name" : transaction.transaction,
+        @"active_thread_id" : [transaction.trace.transactionContext sentry_threadInfo].threadId
+    };
+    const auto timestamp = transaction.trace.originalStartTimestamp;
+    if (UNLIKELY(timestamp == nil)) {
+        SENTRY_LOG_WARN(@"There was no start timestamp on the provided transaction. Falling back "
+                        @"to old behavior of using the current time.");
+        payload[@"timestamp"] =
+            [[SentryDependencyContainer.sharedInstance.dateProvider date] sentry_toIso8601String];
     } else {
-        SENTRY_LOG_DEBUG(@"Profiler %@ is waiting for more spans to complete: %@.", profiler,
-            profiler->_spansInFlight);
+        payload[@"timestamp"] = [timestamp sentry_toIso8601String];
     }
 }
 
-+ (void)timeoutAbort
+- (NSMutableDictionary<NSString *, id> *)serializeBetween:(uint64_t)startSystemTime
+                                                      and:(uint64_t)endSystemTime
+                                                    onHub:(SentryHub *)hub;
 {
-    std::lock_guard<std::mutex> l(_gProfilerLock);
-
-    if (_gCurrentProfiler == nil) {
-        SENTRY_LOG_DEBUG(@"No current profiler to stop.");
-        return;
-    }
-
-    SENTRY_LOG_DEBUG(@"Stopping profiler %@ due to timeout.", _gCurrentProfiler);
-    [self stopProfilerForReason:SentryProfilerTruncationReasonTimeout];
-}
-
-+ (void)backgroundAbort
-{
-    std::lock_guard<std::mutex> l(_gProfilerLock);
-
-    if (_gCurrentProfiler == nil) {
-        SENTRY_LOG_DEBUG(@"No current profiler to stop.");
-        return;
-    }
-
-    SENTRY_LOG_DEBUG(@"Stopping profiler %@ due to timeout.", _gCurrentProfiler);
-    [self stopProfilerForReason:SentryProfilerTruncationReasonAppMovedToBackground];
-}
-
-+ (void)stopProfilerForReason:(SentryProfilerTruncationReason)reason
-{
-    [_gCurrentProfiler->_timeoutTimer invalidate];
-    [_gCurrentProfiler stop];
-    _gCurrentProfiler->_truncationReason = reason;
+    return serializedProfileData([self._state copyProfilingData], startSystemTime, endSystemTime,
+        profilerTruncationReasonName(_truncationReason),
+        [_metricProfiler serializeBetween:startSystemTime and:endSystemTime],
+        [_debugImageProvider getDebugImagesCrashed:NO], hub
 #    if SENTRY_HAS_UIKIT
-    _gCurrentProfiler->_frameInfo = _gCurrentFramesTracker.currentFrames;
-    [_gCurrentFramesTracker resetProfilingTimestamps];
+        ,
+        self._screenFrameData
 #    endif // SENTRY_HAS_UIKIT
-    _gCurrentProfiler = nil;
+    );
+}
+
+- (void)timeoutAbort
+{
+    if (![self isRunning]) {
+        SENTRY_LOG_WARN(@"Current profiler is not running.");
+        return;
+    }
+
+    SENTRY_LOG_DEBUG(@"Stopping profiler %@ due to timeout.", self);
+    [self stopForReason:SentryProfilerTruncationReasonTimeout];
+}
+
+- (void)backgroundAbort
+{
+    if (![self isRunning]) {
+        SENTRY_LOG_WARN(@"Current profiler is not running.");
+        return;
+    }
+
+    SENTRY_LOG_DEBUG(@"Stopping profiler %@ due to timeout.", self);
+    [self stopForReason:SentryProfilerTruncationReasonAppMovedToBackground];
+}
+
+- (void)stopForReason:(SentryProfilerTruncationReason)reason
+{
+    [_timeoutTimer invalidate];
+    [_metricProfiler stop];
+    _truncationReason = reason;
+
+    if (![self isRunning]) {
+        SENTRY_LOG_WARN(@"Profiler is not currently running.");
+        return;
+    }
+
+#    if SENTRY_HAS_UIKIT
+    // if SentryOptions.enableAutoPerformanceTracing is NO, then we need to stop the frames tracker
+    // from running outside of profiles because it isn't needed for anything else
+    if (![[[[SentrySDK currentHub] getClient] options] enableAutoPerformanceTracing]) {
+        [SentryDependencyContainer.sharedInstance.framesTracker stop];
+    }
+#    endif // SENTRY_HAS_UIKIT
+
+    _profiler->stopSampling();
+    SENTRY_LOG_DEBUG(@"Stopped profiler %@.", self);
 }
 
 - (void)startMetricProfiler
 {
-    if (_gCurrentSystemWrapper == nil) {
-        _gCurrentSystemWrapper = [[SentrySystemWrapper alloc] init];
-    }
-    if (_gCurrentProcessInfoWrapper == nil) {
-        _gCurrentProcessInfoWrapper = [[SentryNSProcessInfoWrapper alloc] init];
-    }
-    if (_gCurrentTimerWrapper == nil) {
-        _gCurrentTimerWrapper = [[SentryNSTimerWrapper alloc] init];
-    }
-    _metricProfiler =
-        [[SentryMetricProfiler alloc] initWithProfileStartTime:_startTimestamp
-                                            processInfoWrapper:_gCurrentProcessInfoWrapper
-                                                 systemWrapper:_gCurrentSystemWrapper
-                                                  timerWrapper:_gCurrentTimerWrapper];
+    _metricProfiler = [[SentryMetricProfiler alloc] init];
     [_metricProfiler start];
 }
 
@@ -497,261 +506,50 @@ processFrameRates(SentryFrameInfoTimeSeries *frameRates, uint64_t start)
     return;
 #            pragma clang diagnostic push
 #            pragma clang diagnostic ignored "-Wunreachable-code"
-#        endif
-#    endif
-    @synchronized(self) {
-#    pragma clang diagnostic pop
-        if (_profiler != nullptr) {
-            _profiler->stopSampling();
-        }
-        _profile = [NSMutableDictionary<NSString *, id> dictionary];
-        const auto sampledProfile = [NSMutableDictionary<NSString *, id> dictionary];
+#        endif // __has_feature(thread_sanitizer)
+#    endif // defined(__has_feature)
 
-        /*
-         * Maintain an index of unique frames to avoid duplicating large amounts of data. Every
-         * unique frame is stored in an array, and every time a stack trace is captured for a
-         * sample, the stack is stored as an array of integers indexing into the array of frames.
-         * Stacks are thusly also stored as unique elements in their own index, an array of arrays
-         * of frame indices, and each sample references a stack by index, to deduplicate common
-         * stacks between samples, such as when the same deep function call runs across multiple
-         * samples.
-         *
-         * E.g. if we have the following samples in the following function call stacks:
-         *
-         *              v sample1    v sample2               v sample3    v sample4
-         * |-foo--------|------------|-----|    |-abc--------|------------|-----|
-         *    |-bar-----|------------|--|          |-def-----|------------|--|
-         *      |-baz---|------------|-|             |-ghi---|------------|-|
-         *
-         * Then we'd wind up with the following structures:
-         *
-         * frames: [
-         *   { function: foo, instruction_addr: ... },
-         *   { function: bar, instruction_addr: ... },
-         *   { function: baz, instruction_addr: ... },
-         *   { function: abc, instruction_addr: ... },
-         *   { function: def, instruction_addr: ... },
-         *   { function: ghi, instruction_addr: ... }
-         * ]
-         * stacks: [ [0, 1, 2], [3, 4, 5] ]
-         * samples: [
-         *   { stack_id: 0, ... },
-         *   { stack_id: 0, ... },
-         *   { stack_id: 1, ... },
-         *   { stack_id: 1, ... }
-         * ]
-         */
-        const auto samples = [NSMutableArray<NSDictionary<NSString *, id> *> array];
-        const auto stacks = [NSMutableArray<NSMutableArray<NSNumber *> *> array];
-        const auto frames = [NSMutableArray<NSDictionary<NSString *, id> *> array];
-        const auto frameIndexLookup = [NSMutableDictionary<NSString *, NSNumber *> dictionary];
-        const auto stackIndexLookup = [NSMutableDictionary<NSString *, NSNumber *> dictionary];
-        sampledProfile[@"samples"] = samples;
-        sampledProfile[@"stacks"] = stacks;
-        sampledProfile[@"frames"] = frames;
-
-        const auto threadMetadata =
-            [NSMutableDictionary<NSString *, NSMutableDictionary *> dictionary];
-        const auto queueMetadata = [NSMutableDictionary<NSString *, NSDictionary *> dictionary];
-        sampledProfile[@"thread_metadata"] = threadMetadata;
-        sampledProfile[@"queue_metadata"] = queueMetadata;
-        _profile[@"profile"] = sampledProfile;
-        _startTimestamp = getAbsoluteTime();
-        _startDate = [SentryCurrentDate date];
-
-        SENTRY_LOG_DEBUG(@"Starting profiler %@ at system time %llu.", self, _startTimestamp);
-
-        __weak const auto weakSelf = self;
-        _profiler = std::make_shared<SamplingProfiler>(
-            [weakSelf, threadMetadata, queueMetadata, samples, mainThreadID = _mainThreadID, frames,
-                frameIndexLookup, stacks, stackIndexLookup](auto &backtrace) {
-                const auto strongSelf = weakSelf;
-                if (strongSelf == nil) {
-                    SENTRY_LOG_WARN(
-                        @"Profiler instance no longer exists, cannot process next sample.");
-                    return;
-                }
-                processBacktrace(backtrace, threadMetadata, queueMetadata, samples, stacks, frames,
-                    frameIndexLookup, strongSelf->_startTimestamp, stackIndexLookup);
-            },
-            kSentryProfilerFrequencyHz);
-        _profiler->startSampling();
-
-        [self startMetricProfiler];
-    }
-}
-
-- (void)addTransaction:(nonnull SentryTransaction *)transaction
-{
-    NSParameterAssert(transaction);
-    if (transaction == nil) {
-        SENTRY_LOG_WARN(@"Received nil transaction!");
+    if (_profiler != nullptr) {
+        // This theoretically shouldn't be possible as long as we're checking for nil and running
+        // profilers in +[start], but technically we should still cover nilness here as well. So,
+        // we'll just bail and let the current one continue to do whatever it's already doing:
+        // either currently sampling, or waiting to be queried and provide profile data to
+        // SentryTracer for upload with transaction envelopes, so as not to lose that data.
+        SENTRY_LOG_WARN(
+            @"There is already a private profiler instance present, will not start a new one.");
         return;
     }
 
-    SENTRY_LOG_DEBUG(@"Adding transaction %@ to list of profiled transactions for profiler %@.",
-        transaction, self);
-    if (_transactions == nil) {
-        _transactions = [NSMutableArray<SentryTransaction *> array];
-    }
-    [_transactions addObject:transaction];
-}
+    // Pop the clang diagnostic to ignore unreachable code for TSAN runs
+#    if defined(__has_feature)
+#        if __has_feature(thread_sanitizer)
+#            pragma clang diagnostic pop
+#        endif // __has_feature(thread_sanitizer)
+#    endif // defined(__has_feature)
 
-- (void)stop
-{
-    @synchronized(self) {
-        if (_profiler == nullptr || !_profiler->isSampling()) {
-            return;
-        }
+    SENTRY_LOG_DEBUG(@"Starting profiler.");
 
-        _profiler->stopSampling();
-        _endTimestamp = getAbsoluteTime();
-        _endDate = [SentryCurrentDate date];
-        [_metricProfiler stop];
-        SENTRY_LOG_DEBUG(@"Stopped profiler %@ at system time: %llu.", self, _endTimestamp);
-    }
-}
+    SentryProfilerState *const state = [[SentryProfilerState alloc] init];
+    self._state = state;
+    _profiler = std::make_shared<SamplingProfiler>(
+        [state](auto &backtrace) {
+    // in test, we'll overwrite the sample's timestamp to one mocked by SentryCurrentDate
+    // etal. Doing this in a unified way between tests and production required extensive
+    // changes to the C++ layer, so we opted for this solution to avoid any potential
+    // breakages or performance hits there.
+#    if defined(TEST) || defined(TESTCI)
+            Backtrace backtraceCopy = backtrace;
+            backtraceCopy.absoluteTimestamp
+                = SentryDependencyContainer.sharedInstance.dateProvider.systemTime;
+            [state appendBacktrace:backtraceCopy];
+#    else
+            [state appendBacktrace:backtrace];
+#    endif // defined(TEST) || defined(TESTCI)
+        },
+        kSentryProfilerFrequencyHz);
+    _profiler->startSampling();
 
-- (void)captureEnvelope
-{
-    NSMutableDictionary<NSString *, id> *profile = nil;
-    NSMutableDictionary<NSString *, id> *metrics;
-    @synchronized(self) {
-        profile = [_profile mutableCopy];
-        metrics = [_metricProfiler serialize];
-    }
-
-    if ([((NSArray *)profile[@"profile"][@"samples"]) count] < 2) {
-        SENTRY_LOG_DEBUG(@"No samples located in profile");
-        return;
-    }
-
-    profile[@"version"] = @"1";
-    const auto debugImages = [NSMutableArray<NSDictionary<NSString *, id> *> new];
-    const auto debugMeta = [_debugImageProvider getDebugImages];
-    for (SentryDebugMeta *debugImage in debugMeta) {
-        [debugImages addObject:[debugImage serialize]];
-    }
-    if (debugImages.count > 0) {
-        profile[@"debug_meta"] = @{ @"images" : debugImages };
-    }
-
-    profile[@"os"] = @{
-        @"name" : sentry_getOSName(),
-        @"version" : sentry_getOSVersion(),
-        @"build_number" : sentry_getOSBuildNumber()
-    };
-
-    const auto isEmulated = sentry_isSimulatorBuild();
-    profile[@"device"] = @{
-        @"architecture" : sentry_getCPUArchitecture(),
-        @"is_emulator" : @(isEmulated),
-        @"locale" : NSLocale.currentLocale.localeIdentifier,
-        @"manufacturer" : @"Apple",
-        @"model" : isEmulated ? sentry_getSimulatorDeviceModel() : sentry_getDeviceModel()
-    };
-
-    const auto profileID = [[SentryId alloc] init];
-    profile[@"profile_id"] = profileID.sentryIdString;
-    const auto profileDuration = getDurationNs(_startTimestamp, _endTimestamp);
-    profile[@"duration_ns"] = [@(profileDuration) stringValue];
-    profile[@"truncation_reason"] = profilerTruncationReasonName(_truncationReason);
-    profile[@"platform"] = _transactions.firstObject.platform;
-    profile[@"environment"] = _hub.scope.environmentString ?: _hub.getClient.options.environment;
-    profile[@"timestamp"] = [[SentryCurrentDate date] sentry_toIso8601String];
-    profile[@"release"] = _hub.getClient.options.releaseName;
-
-    profile[@"measurements"] = metrics;
-
-#    if SENTRY_HAS_UIKIT
-    const auto slowTimestamps
-        = processFrameRenders(_frameInfo.slowFrameTimestamps, _startTimestamp, profileDuration);
-    if (slowTimestamps.count > 0) {
-        metrics[kSentryProfilerSerializationKeySlowFrameRenders] =
-            @{ @"unit" : @"nanosecond", @"values" : slowTimestamps };
-    }
-
-    const auto frozenTimestamps
-        = processFrameRenders(_frameInfo.frozenFrameTimestamps, _startTimestamp, profileDuration);
-    if (frozenTimestamps.count > 0) {
-        metrics[kSentryProfilerSerializationKeyFrozenFrameRenders] =
-            @{ @"unit" : @"nanosecond", @"values" : frozenTimestamps };
-    }
-
-    const auto frameRates = processFrameRates(_frameInfo.frameRateTimestamps, _startTimestamp);
-    if (frameRates.count > 0) {
-        metrics[kSentryProfilerSerializationKeyFrameRates] =
-            @{ @"unit" : @"hz", @"values" : frameRates };
-    }
-#    endif // SENTRY_HAS_UIKIT
-
-    // populate info from all transactions that occurred while profiler was running
-    auto transactionsInfo = [NSMutableArray array];
-    SENTRY_LOG_DEBUG(@"Profile start timestamp: %@ absolute time: %llu", _startDate,
-        (unsigned long long)_startTimestamp);
-    SENTRY_LOG_DEBUG(@"Profile end timestamp: %@ absolute time: %llu", _endDate,
-        (unsigned long long)_endTimestamp);
-    for (SentryTransaction *transaction in _transactions) {
-        SENTRY_LOG_DEBUG(@"Transaction %@ start timestamp: %@", transaction.trace.traceId,
-            transaction.startTimestamp);
-        SENTRY_LOG_DEBUG(
-            @"Transaction %@ end timestamp: %@", transaction.trace.traceId, transaction.timestamp);
-        const auto relativeStart =
-            [NSString stringWithFormat:@"%llu",
-                      [transaction.startTimestamp compare:_startDate] == NSOrderedAscending
-                          ? 0
-                          : timeIntervalToNanoseconds(
-                              [transaction.startTimestamp timeIntervalSinceDate:_startDate])];
-
-        NSString *relativeEnd;
-        if ([transaction.timestamp compare:_endDate] == NSOrderedDescending) {
-            relativeEnd = [NSString stringWithFormat:@"%llu", profileDuration];
-        } else {
-            const auto profileStartToTransactionEndInterval =
-                [transaction.timestamp timeIntervalSinceDate:_startDate];
-            if (profileStartToTransactionEndInterval < 0) {
-                SENTRY_LOG_DEBUG(@"Transaction %@ ended before the profiler started, won't "
-                                 @"associate it with this profile.",
-                    transaction.trace.traceId.sentryIdString);
-                continue;
-            } else {
-                const auto profileStartToTransactionEnd_ns
-                    = timeIntervalToNanoseconds(profileStartToTransactionEndInterval);
-                relativeEnd = [NSString
-                    stringWithFormat:@"%llu", (unsigned long long)profileStartToTransactionEnd_ns];
-            }
-        }
-        [transactionsInfo addObject:@{
-            @"id" : transaction.eventId.sentryIdString,
-            @"trace_id" : transaction.trace.traceId.sentryIdString,
-            @"name" : transaction.transaction,
-            @"relative_start_ns" : relativeStart,
-            @"relative_end_ns" : relativeEnd,
-            @"active_thread_id" : [transaction.trace.transactionContext sentry_threadInfo].threadId
-        }];
-    }
-
-    if (transactionsInfo.count == 0) {
-        SENTRY_LOG_DEBUG(@"No transactions to associate with this profile, will not upload.");
-        return;
-    }
-    profile[@"transactions"] = transactionsInfo;
-
-    NSError *error = nil;
-    const auto JSONData = [SentrySerialization dataWithJSONObject:profile error:&error];
-    if (JSONData == nil) {
-        SENTRY_LOG_DEBUG(@"Failed to encode profile to JSON: %@", error);
-        return;
-    }
-
-    const auto header = [[SentryEnvelopeItemHeader alloc] initWithType:SentryEnvelopeItemTypeProfile
-                                                                length:JSONData.length];
-    const auto item = [[SentryEnvelopeItem alloc] initWithHeader:header data:JSONData];
-    const auto envelopeHeader = [[SentryEnvelopeHeader alloc] initWithId:profileID];
-    const auto envelope = [[SentryEnvelope alloc] initWithHeader:envelopeHeader singleItem:item];
-
-    SENTRY_LOG_DEBUG(@"Capturing profile envelope.");
-    [_hub captureEnvelope:envelope];
+    [self startMetricProfiler];
 }
 
 - (BOOL)isRunning
@@ -761,6 +559,28 @@ processFrameRates(SentryFrameInfoTimeSeries *frameRates, uint64_t start)
     }
     return _profiler->isSampling();
 }
+
+#    pragma mark - Testing helpers
+
+#    if defined(TEST) || defined(TESTCI)
++ (SentryProfiler *)getCurrentProfiler
+{
+    return _gCurrentProfiler;
+}
+
+// this just calls through to SentryProfiledTracerConcurrency.resetConcurrencyTracking(). we have to
+// do this through SentryTracer because SentryProfiledTracerConcurrency cannot be included in test
+// targets via ObjC bridging headers because it contains C++.
++ (void)resetConcurrencyTracking
+{
+    resetConcurrencyTracking();
+}
+
++ (NSUInteger)currentProfiledTracers
+{
+    return currentProfiledTracers();
+}
+#    endif // defined(TEST) || defined(TESTCI)
 
 @end
 

@@ -5,9 +5,10 @@
 #import "SentryFileManager.h"
 #import "SentryFrame.h"
 #import "SentryHub+Private.h"
+#import "SentryInternalDefines.h"
 #import "SentryLog.h"
+#import "SentryNSProcessInfoWrapper.h"
 #import "SentryOptions.h"
-#import "SentryProcessInfoWrapper.h"
 #import "SentrySDK+Private.h"
 #import "SentryScope+Private.h"
 #import "SentrySpan.h"
@@ -15,6 +16,7 @@
 #import "SentryStacktrace.h"
 #import "SentryThread.h"
 #import "SentryThreadInspector.h"
+#import "SentryTraceOrigins.h"
 #import "SentryTracer.h"
 
 const NSString *SENTRY_TRACKING_COUNTER_KEY = @"SENTRY_TRACKING_COUNTER_KEY";
@@ -25,14 +27,14 @@ SentryNSDataTracker ()
 @property (nonatomic, assign) BOOL isEnabled;
 @property (nonatomic, strong) NSMutableSet<NSData *> *processingData;
 @property (nonatomic, strong) SentryThreadInspector *threadInspector;
-@property (nonatomic, strong) SentryProcessInfoWrapper *processInfoWrapper;
+@property (nonatomic, strong) SentryNSProcessInfoWrapper *processInfoWrapper;
 
 @end
 
 @implementation SentryNSDataTracker
 
 - (instancetype)initWithThreadInspector:(SentryThreadInspector *)threadInspector
-                     processInfoWrapper:(SentryProcessInfoWrapper *)processInfoWrapper
+                     processInfoWrapper:(SentryNSProcessInfoWrapper *)processInfoWrapper
 {
     if (self = [super init]) {
         _processInfoWrapper = processInfoWrapper;
@@ -165,6 +167,7 @@ SentryNSDataTracker ()
         ioSpan = [span startChildWithOperation:operation
                                    description:[self transactionDescriptionForFile:path
                                                                           fileSize:size]];
+        ioSpan.origin = SentryTraceOriginAutoNSData;
     }];
 
     if (ioSpan == nil) {
@@ -187,7 +190,7 @@ SentryNSDataTracker ()
 {
     BOOL isMainThread = [NSThread isMainThread];
 
-    [span setDataValue:@(isMainThread) forKey:@"blocked_main_thread"];
+    [span setDataValue:@(isMainThread) forKey:SPAN_DATA_BLOCKED_MAIN_THREAD];
 
     if (!isMainThread) {
         return;
@@ -207,7 +210,7 @@ SentryNSDataTracker ()
         // and only the 'main' frame remains in the stack
         // therefore, there is nothing to do about it
         // and we should not report it as an issue.
-        [span setDataValue:@(NO) forKey:@"blocked_main_thread"];
+        [span setDataValue:@(NO) forKey:SPAN_DATA_BLOCKED_MAIN_THREAD];
     } else {
         [((SentrySpan *)span) setFrames:frames];
     }

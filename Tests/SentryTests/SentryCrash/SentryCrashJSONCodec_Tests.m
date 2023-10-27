@@ -1,3 +1,4 @@
+// Adapted from: https://github.com/kstenerud/KSCrash
 //
 //  SentryCrashJSONCodec_Tests.m
 //
@@ -1669,6 +1670,22 @@ addJSONData(const char *data, int length, void *userData)
     XCTAssertNotNil(result);
     XCTAssertNil(error);
     return result;
+}
+
+- (void)testFastUIntEncode
+{
+    char *expectedJson = "{\"uint\":1234567890}";
+
+    NSMutableData *encodedData = [NSMutableData data];
+    SentryCrashJSONEncodeContext context = { 0 };
+    sentrycrashjson_beginEncode(&context, false, addJSONData, (__bridge void *)(encodedData));
+    sentrycrashjson_beginObject(&context, NULL);
+    sentrycrashjson_addUIntegerElement(&context, "uint", 1234567890);
+    sentrycrashjson_endContainer(&context);
+    sentrycrashjson_endEncode(&context);
+    [encodedData appendBytes:"\0" length:1];
+
+    [self expectEquivalentJSON:encodedData.bytes toJSON:expectedJson];
 }
 
 @end

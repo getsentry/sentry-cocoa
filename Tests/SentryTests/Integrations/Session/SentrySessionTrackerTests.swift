@@ -1,10 +1,10 @@
 @testable import Sentry
+import SentryTestUtils
 import XCTest
 
 class SentrySessionTrackerTests: XCTestCase {
     
     private static let dsnAsString = TestConstants.dsnAsString(username: "SentrySessionTrackerTests")
-    private static let dsn = TestConstants.dsn(username: "SentrySessionTrackerTests")
     
     private class Fixture {
         
@@ -15,7 +15,7 @@ class SentrySessionTrackerTests: XCTestCase {
 
         let notificationCenter = TestNSNotificationCenterWrapper()
         let dispatchQueue = TestSentryDispatchQueueWrapper()
-        lazy var fileManager = try! SentryFileManager(options: options, andCurrentDateProvider: currentDateProvider, dispatchQueueWrapper: dispatchQueue)
+        lazy var fileManager = try! SentryFileManager(options: options, dispatchQueueWrapper: dispatchQueue)
         
         init() {
             options = Options()
@@ -30,11 +30,11 @@ class SentrySessionTrackerTests: XCTestCase {
         }
         
         func getSut() -> SessionTracker {
-            return SessionTracker(options: options, currentDateProvider: currentDateProvider, notificationCenter: notificationCenter)
+            return SessionTracker(options: options, notificationCenter: notificationCenter)
         }
         
         func setNewHubToSDK() {
-            let hub = SentryHub(client: client, andScope: nil, andCrashWrapper: self.sentryCrash, andCurrentDateProvider: currentDateProvider)
+            let hub = SentryHub(client: client, andScope: nil, andCrashWrapper: self.sentryCrash)
             SentrySDK.setCurrentHub(hub)
         }
     }
@@ -42,14 +42,17 @@ class SentrySessionTrackerTests: XCTestCase {
     private var fixture: Fixture!
     private var sut: SessionTracker!
     
+    override class func setUp() {
+        super.setUp()
+        clearTestState()
+    }
+    
     override func setUp() {
         super.setUp()
         
-        clearTestState()
-        
         fixture = Fixture()
         
-        CurrentDate.setCurrentDateProvider(fixture.currentDateProvider)
+        SentryDependencyContainer.sharedInstance().dateProvider = fixture.currentDateProvider
 
         fixture.fileManager.deleteCurrentSession()
         fixture.fileManager.deleteCrashedSession()

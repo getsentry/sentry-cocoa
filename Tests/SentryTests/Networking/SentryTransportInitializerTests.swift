@@ -1,10 +1,10 @@
 @testable import Sentry
+import SentryTestUtils
 import XCTest
 
 class SentryTransportInitializerTests: XCTestCase {
     
     private static let dsnAsString = TestConstants.dsnAsString(username: "SentryTransportInitializerTests")
-    private static let dsn = TestConstants.dsn(username: "SentryTransportInitializerTests")
     
     private var fileManager: SentryFileManager!
     
@@ -12,7 +12,7 @@ class SentryTransportInitializerTests: XCTestCase {
         super.setUp()
         let options = Options()
         options.dsn = SentryTransportInitializerTests.dsnAsString
-        fileManager = try! SentryFileManager(options: options, andCurrentDateProvider: TestCurrentDateProvider(), dispatchQueueWrapper: TestSentryDispatchQueueWrapper())
+        fileManager = try! SentryFileManager(options: options, dispatchQueueWrapper: TestSentryDispatchQueueWrapper())
     }
 
     func testDefault() throws {

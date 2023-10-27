@@ -7,13 +7,8 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate {
         // Perform any final initialization of your application.
         
         SentrySDK.start { options in
-            options.dsn = "https://a92d50327ac74b8b9aa4ea80eccfb267@o447951.ingest.sentry.io/5428557"
-            options.beforeSend = { event in
-                return event
-            }
+            options.dsn = "https://6cc9bae94def43cab8444a99e0031c28@o447951.ingest.sentry.io/5428557"
             options.debug = true
-            options.sessionTrackingIntervalMillis = 5_000
-            options.enableFileIOTracing = true
         }
         
         SentrySDK.configureScope { scope in

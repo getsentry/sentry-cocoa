@@ -18,13 +18,21 @@
         app.launchArguments =
             [app.launchArguments arrayByAddingObject:@"--io.sentry.test.benchmarking"];
         [app launch];
-        [app.buttons[@"Performance scenarios"] tap];
+        [app.tabBars[@"Tab Bar"].buttons[@"Transactions"] tap];
+
+        [app.buttons[@"Start transaction (main thread)"] tap];
+
+        [app.tabBars[@"Tab Bar"].buttons[@"Profiling"] tap];
+
+        [app.buttons[@"Benchmark start"] tap];
 
         // after navigating to the test, the test app will do CPU intensive work until hitting the
         // stop button. wait 15 seconds so that work can be done while the profiler does its thing,
         // and the benchmarking observation in the test app will record how much CPU time is used by
         // everything
         sleep(15);
+
+        [app.buttons[@"io.sentry.iOS-Swift.button.benchmark-end"] tap];
 
         XCUIElement *textField = app.textFields[@"io.sentry.benchmark.value-marshaling-text-field"];
         if (![textField waitForExistenceWithTimeout:5.0]) {

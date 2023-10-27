@@ -1,4 +1,5 @@
 @testable import Sentry
+import SentryTestUtils
 import XCTest
 
 class SentrySystemEventBreadcrumbsTest: XCTestCase {
@@ -8,7 +9,7 @@ class SentrySystemEventBreadcrumbsTest: XCTestCase {
     
     private class Fixture {
         let options: Options
-        let delegate = SentrySystemEventBreadcrumbTestDelegate()
+        let delegate = SentryBreadcrumbTestDelegate()
         let fileManager: TestFileManager
         var currentDateProvider = TestCurrentDateProvider()
         let notificationCenterWrapper = TestNSNotificationCenterWrapper()
@@ -19,14 +20,14 @@ class SentrySystemEventBreadcrumbsTest: XCTestCase {
             options.releaseName = "SentrySessionTrackerIntegrationTests"
             options.sessionTrackingIntervalMillis = 10_000
             options.environment = "debug"
+            SentryDependencyContainer.sharedInstance().dateProvider = currentDateProvider
 
-            fileManager = try! TestFileManager(options: options, andCurrentDateProvider: currentDateProvider)
+            fileManager = try! TestFileManager(options: options)
         }
 
         func getSut(currentDevice: UIDevice? = UIDevice.current) -> SentrySystemEventBreadcrumbs {
             let systemEvents = SentrySystemEventBreadcrumbs(
                 fileManager: fileManager,
-                andCurrentDateProvider: currentDateProvider,
                 andNotificationCenterWrapper: notificationCenterWrapper
             )
             systemEvents.start(with: self.delegate, currentDevice: currentDevice)
@@ -35,7 +36,7 @@ class SentrySystemEventBreadcrumbsTest: XCTestCase {
         }
     }
 
-    private let fixture = Fixture()
+    private lazy var fixture = Fixture()
     private var sut: SentrySystemEventBreadcrumbs!
     
     internal class MyUIDevice: UIDevice {
@@ -127,7 +128,7 @@ class SentrySystemEventBreadcrumbsTest: XCTestCase {
             
             XCTAssertEqual("device.event", crumb.category)
             XCTAssertEqual("system", crumb.type)
-            XCTAssertEqual(.info, crumb.level)
+            XCTAssertEqual(SentryLevel.info, crumb.level)
             
             XCTAssertNotNil(crumb.data, "no breadcrumb.data")
             
@@ -181,7 +182,7 @@ class SentrySystemEventBreadcrumbsTest: XCTestCase {
             
             XCTAssertEqual("device.orientation", crumb.category)
             XCTAssertEqual("navigation", crumb.type)
-            XCTAssertEqual(.info, crumb.level)
+            XCTAssertEqual(SentryLevel.info, crumb.level)
             
             XCTAssertNotNil(crumb.data, "no breadcrumb.data")
             
@@ -234,7 +235,7 @@ class SentrySystemEventBreadcrumbsTest: XCTestCase {
 
         assertBreadcrumbAction(action: "TIMEZONE_CHANGE") { data in
             XCTAssertEqual(data["previous_seconds_from_gmt"] as? Int, 0)
-            XCTAssertEqual(data["current_seconds_from_gmt"] as? Int, 7_200)
+            XCTAssertEqual(data["current_seconds_from_gmt"] as? Int64, 7_200)
         }
     }
 
@@ -247,7 +248,7 @@ class SentrySystemEventBreadcrumbsTest: XCTestCase {
 
         assertBreadcrumbAction(action: "TIMEZONE_CHANGE") { data in
             XCTAssertEqual(data["previous_seconds_from_gmt"] as? Int, 0)
-            XCTAssertEqual(data["current_seconds_from_gmt"] as? Int, 7_200)
+            XCTAssertEqual(data["current_seconds_from_gmt"] as? Int64, 7_200)
         }
     }
 
@@ -268,7 +269,7 @@ class SentrySystemEventBreadcrumbsTest: XCTestCase {
        
             XCTAssertEqual("device.event", crumb.category)
             XCTAssertEqual("system", crumb.type)
-            XCTAssertEqual(.info, crumb.level)
+            XCTAssertEqual(SentryLevel.info, crumb.level)
             
             if let data = crumb.data {
                 XCTAssertEqual(action, data["action"] as? String)
@@ -280,12 +281,4 @@ class SentrySystemEventBreadcrumbsTest: XCTestCase {
     }
     
     #endif
-}
-
-class SentrySystemEventBreadcrumbTestDelegate: NSObject, SentrySystemEventBreadcrumbsDelegate {
-    
-    var addCrumbInvocations = Invocations<Breadcrumb>()
-    func add(_ crumb: Breadcrumb) {
-        addCrumbInvocations.record(crumb)
-    }
 }

@@ -1,5 +1,5 @@
 #!/bin/bash
-set -uox pipefail
+set -euxo pipefail
 
 # This is a helper script for GitHub Actions Matrix.
 # If we would specify the destinations in the GitHub Actions
@@ -12,63 +12,110 @@ PLATFORM="${1}"
 OS=${2:-latest}
 REF_NAME="${3-HEAD}"
 IS_LOCAL_BUILD="${4:-ci}"
-DESTINATION=""
-CONFIGURATION=""
+COMMAND="${5:-test}"
+DEVICE=${6:-iPhone 14}
+CONFIGURATION_OVERRIDE="${7}"
+DERIVED_DATA_PATH="${8:-}"
 
 case $PLATFORM in
 
-    "macOS")
-        DESTINATION="platform=macOS"
-        ;;
+"macOS")
+    DESTINATION="platform=macOS"
+    ;;
 
-    "Catalyst")
-        DESTINATION="platform=macOS,variant=Mac Catalyst"
-        ;;
+"Catalyst")
+    DESTINATION="platform=macOS,variant=Mac Catalyst"
+    ;;
 
-    "iOS")
-        DESTINATION="platform=iOS Simulator,OS=$OS,name=iPhone 8"
-        ;;
+"iOS")
+    DESTINATION="platform=iOS Simulator,OS=$OS,name=$DEVICE"
+    ;;
 
-    "tvOS")
-        DESTINATION="platform=tvOS Simulator,OS=$OS,name=Apple TV"
-        ;;
+"tvOS")
+    DESTINATION="platform=tvOS Simulator,OS=$OS,name=Apple TV"
+    ;;
 
-    *)
-        echo "Xcode Test: Can't find destination for platform '$PLATFORM'";
-        exit 1;
-        ;;
+*)
+    echo "Xcode Test: Can't find destination for platform '$PLATFORM'"
+    exit 1
+    ;;
 esac
 
-case $REF_NAME in
+if [ -n $CONFIGURATION_OVERRIDE ]; then
+    CONFIGURATION=$CONFIGURATION_OVERRIDE
+else
+    case $REF_NAME in
     "main")
         CONFIGURATION="TestCI"
         ;;
-    
+
     *)
         CONFIGURATION="Test"
         ;;
-esac
+    esac
+fi
 
 case $IS_LOCAL_BUILD in
-    "ci")
-        RUBY_ENV_ARGS=""
-        ;;
-    *)
-        RUBY_ENV_ARGS="rbenv exec bundle exec"
-        ;;
+"ci")
+    RUBY_ENV_ARGS=""
+    ;;
+*)
+    RUBY_ENV_ARGS="rbenv exec bundle exec"
+    ;;
 esac
 
-if [ $PLATFORM == "iOS" -a $OS == "12.4" ]; then
-    # Skip some tests that fail on iOS 12.4.
-    env NSUnbufferedIO=YES xcodebuild -workspace Sentry.xcworkspace \
-        -scheme Sentry -configuration $CONFIGURATION \
+case $COMMAND in
+"build")
+    RUN_BUILD=true
+    RUN_BUILD_FOR_TESTING=false
+    RUN_TEST_WITHOUT_BUILDING=false
+    ;;
+"build-for-testing")
+    RUN_BUILD=false
+    RUN_BUILD_FOR_TESTING=true
+    RUN_TEST_WITHOUT_BUILDING=false
+    ;;
+"test-without-building")
+    RUN_BUILD=false
+    RUN_BUILD_FOR_TESTING=false
+    RUN_TEST_WITHOUT_BUILDING=true
+    ;;
+*)
+    RUN_BUILD=false
+    RUN_BUILD_FOR_TESTING=true
+    RUN_TEST_WITHOUT_BUILDING=true
+    ;;
+esac
+
+if [ $RUN_BUILD == true ]; then
+    env NSUnbufferedIO=YES xcodebuild \
+        -workspace Sentry.xcworkspace \
+        -scheme Sentry \
+        -configuration $CONFIGURATION \
         -destination "$DESTINATION" \
-        -skip-testing:"SentryTests/SentrySDKTests/testMemoryFootprintOfAddingBreadcrumbs" \
-        -skip-testing:"SentryTests/SentrySDKTests/testMemoryFootprintOfTransactions" \
-        test | tee raw-test-output.log | $RUBY_ENV_ARGS xcpretty -t && slather coverage --configuration $CONFIGURATION && exit ${PIPESTATUS[0]}
-else
-    env NSUnbufferedIO=YES xcodebuild -workspace Sentry.xcworkspace \
-        -scheme Sentry -configuration $CONFIGURATION \
+        -derivedDataPath $DERIVED_DATA_PATH \
+        -quiet \
+        build
+fi
+
+if [ $RUN_BUILD_FOR_TESTING == true ]; then
+    env NSUnbufferedIO=YES xcodebuild \
+        -workspace Sentry.xcworkspace \
+        -scheme Sentry \
+        -configuration $CONFIGURATION \
+        -destination "$DESTINATION" -quiet \
+        build-for-testing
+fi
+
+if [ $RUN_TEST_WITHOUT_BUILDING == true ]; then
+    env NSUnbufferedIO=YES xcodebuild \
+        -workspace Sentry.xcworkspace \
+        -scheme Sentry \
+        -configuration $CONFIGURATION \
         -destination "$DESTINATION" \
-        test | tee raw-test-output.log | $RUBY_ENV_ARGS xcpretty -t && slather coverage --configuration $CONFIGURATION && exit ${PIPESTATUS[0]}
+        test-without-building |
+        tee raw-test-output.log |
+        $RUBY_ENV_ARGS xcpretty -t &&
+        slather coverage --configuration $CONFIGURATION &&
+        exit ${PIPESTATUS[0]}
 fi

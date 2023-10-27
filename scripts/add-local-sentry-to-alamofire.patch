@@ -1,0 +1,126 @@
+diff --git a/Alamofire.xcodeproj/project.pbxproj b/Alamofire.xcodeproj/project.pbxproj
+index 3882645e..a1c24fdf 100644
+--- a/Alamofire.xcodeproj/project.pbxproj
++++ b/Alamofire.xcodeproj/project.pbxproj
+@@ -410,6 +410,7 @@
+ 		4CFB030F1D7D2FA20056F249 /* utf8_string.txt in Resources */ = {isa = PBXBuildFile; fileRef = 4CFB02F41D7D2FA20056F249 /* utf8_string.txt */; };
+ 		4DD67C251A5C590000ED2280 /* Alamofire.swift in Sources */ = {isa = PBXBuildFile; fileRef = F897FF4019AA800700AB5182 /* Alamofire.swift */; };
+ 		8035DB621BAB492500466CB3 /* Alamofire.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F8111E3319A95C8B0040E7D1 /* Alamofire.framework */; };
++		D8D0FEC029ED312200BA68B6 /* Sentry in Frameworks */ = {isa = PBXBuildFile; productRef = D8D0FEBF29ED312200BA68B6 /* Sentry */; };
+ 		E4202FD01B667AA100C997FB /* ParameterEncoding.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4CE2724E1AF88FB500F1D59A /* ParameterEncoding.swift */; };
+ 		E4202FD21B667AA100C997FB /* ResponseSerialization.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4CDE2C451AF89FF300BABAE5 /* ResponseSerialization.swift */; };
+ 		E4202FD41B667AA100C997FB /* Alamofire.swift in Sources */ = {isa = PBXBuildFile; fileRef = F897FF4019AA800700AB5182 /* Alamofire.swift */; };
+@@ -570,6 +571,7 @@
+ 		B39E2F871C1A72F8002DA1A9 /* certPEM.crt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = certPEM.crt; path = selfSignedAndMalformedCerts/certPEM.crt; sourceTree = "<group>"; };
+ 		B39E2F891C1A72F8002DA1A9 /* randomGibberish.crt */ = {isa = PBXFileReference; lastKnownFileType = file; name = randomGibberish.crt; path = selfSignedAndMalformedCerts/randomGibberish.crt; sourceTree = "<group>"; };
+ 		B39E2F8A1C1A72F8002DA1A9 /* keyDER.der */ = {isa = PBXFileReference; lastKnownFileType = file; name = keyDER.der; path = selfSignedAndMalformedCerts/keyDER.der; sourceTree = "<group>"; };
++		D8D0FEBD29ED310A00BA68B6 /* sentry-cocoa */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = "sentry-cocoa"; path = ../..; sourceTree = "<group>"; };
+ 		E4202FE01B667AA100C997FB /* Alamofire.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Alamofire.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+ 		F8111E3319A95C8B0040E7D1 /* Alamofire.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Alamofire.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+ 		F8111E3719A95C8B0040E7D1 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+@@ -638,6 +640,7 @@
+ 			buildActionMask = 2147483647;
+ 			files = (
+ 				8035DB621BAB492500466CB3 /* Alamofire.framework in Frameworks */,
++				D8D0FEC029ED312200BA68B6 /* Sentry in Frameworks */,
+ 			);
+ 			runOnlyForDeploymentPostprocessing = 0;
+ 		};
+@@ -976,14 +979,31 @@
+ 			name = "Varying Encoding Types and Extensions";
+ 			sourceTree = "<group>";
+ 		};
++		D8D0FEBC29ED310A00BA68B6 /* Packages */ = {
++			isa = PBXGroup;
++			children = (
++				D8D0FEBD29ED310A00BA68B6 /* sentry-cocoa */,
++			);
++			name = Packages;
++			sourceTree = "<group>";
++		};
++		D8D0FEBE29ED312200BA68B6 /* Frameworks */ = {
++			isa = PBXGroup;
++			children = (
++			);
++			name = Frameworks;
++			sourceTree = "<group>";
++		};
+ 		F8111E2919A95C8B0040E7D1 = {
+ 			isa = PBXGroup;
+ 			children = (
++				D8D0FEBC29ED310A00BA68B6 /* Packages */,
+ 				4CE292381EF4B116008DA555 /* Deployment */,
+ 				4CE292301EF4A386008DA555 /* Documentation */,
+ 				F8111E3519A95C8B0040E7D1 /* Source */,
+ 				F8111E3F19A95C8B0040E7D1 /* Tests */,
+ 				F8111E3419A95C8B0040E7D1 /* Products */,
++				D8D0FEBE29ED312200BA68B6 /* Frameworks */,
+ 			);
+ 			indentWidth = 4;
+ 			sourceTree = "<group>";
+@@ -1206,6 +1226,9 @@
+ 				F8111E6619A967880040E7D1 /* PBXTargetDependency */,
+ 			);
+ 			name = "Alamofire iOS Tests";
++			packageProductDependencies = (
++				D8D0FEBF29ED312200BA68B6 /* Sentry */,
++			);
+ 			productName = AlamofireTests;
+ 			productReference = F8111E3E19A95C8B0040E7D1 /* Alamofire iOS Tests.xctest */;
+ 			productType = "com.apple.product-type.bundle.unit-test";
+@@ -2379,6 +2402,13 @@
+ 			defaultConfigurationName = Release;
+ 		};
+ /* End XCConfigurationList section */
++
++/* Begin XCSwiftPackageProductDependency section */
++		D8D0FEBF29ED312200BA68B6 /* Sentry */ = {
++			isa = XCSwiftPackageProductDependency;
++			productName = Sentry;
++		};
++/* End XCSwiftPackageProductDependency section */
+ 	};
+ 	rootObject = F8111E2A19A95C8B0040E7D1 /* Project object */;
+ }
+diff --git a/Tests/BaseTestCase.swift b/Tests/BaseTestCase.swift
+index 1eeafe7a..d24465ec 100644
+--- a/Tests/BaseTestCase.swift
++++ b/Tests/BaseTestCase.swift
+@@ -25,8 +25,37 @@
+ import Alamofire
+ import Foundation
+ import XCTest
++import Sentry
++
++private var SentryInitialized = false
+ 
+ class BaseTestCase: XCTestCase {
++    private static var transaction: Span!
++
++    override class func setUp() {
++        super.setUp()
++
++        if (!SentryInitialized) {
++            SentrySDK.start { options in
++                options.dsn = "https://6cc9bae94def43cab8444a99e0031c28@o447951.ingest.sentry.io/5428557"
++                options.environment = "integration-tests"
++                options.tracesSampleRate = 1.0
++                options.enableFileIOTracing = true
++                options.profilesSampleRate = 1.0
++            }
++
++            SentryInitialized = true
++        }
++
++        // Bind transaction to scope so we add spans to it
++        transaction = SentrySDK.startTransaction(name: "Alamofire", operation: "alamofire", bindToScope: true)
++    }
++
++    override class func tearDown() {
++        super.tearDown()
++        transaction.finish()
++    }
++
+     let timeout: TimeInterval = 10
+ 
+     var testDirectoryURL: URL {

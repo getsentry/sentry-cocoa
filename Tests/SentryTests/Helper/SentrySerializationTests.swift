@@ -4,7 +4,7 @@ class SentrySerializationTests: XCTestCase {
     
     private class Fixture {
         static var invalidData = "hi".data(using: .utf8)!
-        static var traceContext = SentryTraceContext(trace: SentryId(), publicKey: "PUBLIC_KEY", releaseName: "RELEASE_NAME", environment: "TEST", transaction: "transaction", userSegment: "some segment", sampleRate: "0.25")
+        static var traceContext = SentryTraceContext(trace: SentryId(), publicKey: "PUBLIC_KEY", releaseName: "RELEASE_NAME", environment: "TEST", transaction: "transaction", userSegment: "some segment", sampleRate: "0.25", sampled: "true")
     }
 
     func testSerializationFailsWithInvalidJSONObject() {
@@ -12,18 +12,7 @@ class SentrySerializationTests: XCTestCase {
             "valid object": "hi, i'm a valid object",
             "invalid object": NSDate()
         ]
-
-        var data: Data?
-        let exp = expectation(description: "Should throw error")
-        do {
-            data = try SentrySerialization.data(withJSONObject: json)
-        } catch {
-            exp.fulfill()
-            //Depending of the iOS version, the underlying type of NSDate may change.
-            //Knowing that we have an error is enough.
-            XCTAssertTrue(error.localizedDescription.starts(with: "Event cannot be converted to JSON (Invalid type in JSON write"))
-        }
-        waitForExpectations(timeout: 1)
+        let data = SentrySerialization.data(withJSONObject: json)
         XCTAssertNil(data)
     }
 
@@ -33,6 +22,8 @@ class SentrySerializationTests: XCTestCase {
 
         let item = SentryEnvelopeItem(event: event)
         let envelope = SentryEnvelope(id: event.eventId, singleItem: item)
+        envelope.header.sentAt = Date(timeIntervalSince1970: 9_001)
+        
         // Sanity check
         XCTAssertEqual(event.eventId, envelope.header.eventId)
         XCTAssertEqual(1, envelope.items.count)
@@ -46,6 +37,7 @@ class SentrySerializationTests: XCTestCase {
             XCTAssertEqual(envelope.items[0].header.length, deserializedEnvelope.items[0].header.length)
             XCTAssertEqual(envelope.items[0].data, deserializedEnvelope.items[0].data)
             XCTAssertNil(deserializedEnvelope.header.traceContext)
+            XCTAssertEqual(Date(timeIntervalSince1970: 9_001), deserializedEnvelope.header.sentAt)
         }
     }
 
@@ -131,7 +123,7 @@ class SentrySerializationTests: XCTestCase {
     }
     
     func testSentryEnvelopeSerializer_TraceStateWithoutUser() {
-        let trace = SentryTraceContext(trace: SentryId(), publicKey: "PUBLIC_KEY", releaseName: "RELEASE_NAME", environment: "TEST", transaction: "transaction", userSegment: nil, sampleRate: nil)
+        let trace = SentryTraceContext(trace: SentryId(), publicKey: "PUBLIC_KEY", releaseName: "RELEASE_NAME", environment: "TEST", transaction: "transaction", userSegment: nil, sampleRate: nil, sampled: nil)
         
         let envelopeHeader = SentryEnvelopeHeader(id: nil, traceContext: trace)
         let envelope = SentryEnvelope(header: envelopeHeader, singleItem: createItemWithEmptyAttachment())
@@ -198,9 +190,9 @@ class SentrySerializationTests: XCTestCase {
         let dict = SentrySession(releaseName: "1.0.0").serialize()
         let session = SentrySession(jsonObject: dict)!
         
-        let data = try SentrySerialization.data(with: session)
+        let data = SentrySerialization.data(with: session)
         
-        XCTAssertNotNil(SentrySerialization.session(with: data))
+        XCTAssertNotNil(SentrySerialization.session(with: data!))
     }
     
     func testSerializeSessionWithNoReleaseName() throws {
@@ -208,7 +200,7 @@ class SentrySerializationTests: XCTestCase {
         dict["attrs"] = nil // Remove release name
         let session = SentrySession(jsonObject: dict)!
         
-        let data = try SentrySerialization.data(with: session)
+        let data = SentrySerialization.data(with: session)!
         
         XCTAssertNil(SentrySerialization.session(with: data))
     }
@@ -217,7 +209,7 @@ class SentrySerializationTests: XCTestCase {
         let dict = SentrySession(releaseName: "").serialize()
         let session = SentrySession(jsonObject: dict)!
         
-        let data = try SentrySerialization.data(with: session)
+        let data = SentrySerialization.data(with: session)!
         
         XCTAssertNil(SentrySerialization.session(with: data))
     }
@@ -225,7 +217,7 @@ class SentrySerializationTests: XCTestCase {
     func testSerializeSessionWithGarbageInDict() throws {
         var dict = SentrySession(releaseName: "").serialize()
         dict["started"] = "20"
-        let data = try SentrySerialization.data(withJSONObject: dict)
+        let data = SentrySerialization.data(withJSONObject: dict)!
         
         XCTAssertNil(SentrySerialization.session(with: data))
     }
@@ -252,7 +244,7 @@ class SentrySerializationTests: XCTestCase {
     
     func testAppStateWithValidData_ReturnsValidAppState() throws {
         let appState = TestData.appState
-        let appStateData = try SentrySerialization.data(withJSONObject: appState.serialize())
+        let appStateData = SentrySerialization.data(withJSONObject: appState.serialize())!
         
         let actual = SentrySerialization.appState(with: appStateData)
         

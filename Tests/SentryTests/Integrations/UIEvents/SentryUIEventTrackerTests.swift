@@ -1,4 +1,5 @@
 import Sentry
+import SentryTestUtils
 import XCTest
 
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
@@ -13,10 +14,11 @@ class SentryUIEventTrackerTests: XCTestCase {
 
         init () {
             dispatchQueue.blockBeforeMainBlock = { false }
+            SentryDependencyContainer.sharedInstance().swizzleWrapper = swizzleWrapper
         }
         
         func getSut() -> SentryUIEventTracker {
-            return SentryUIEventTracker(swizzleWrapper: swizzleWrapper, dispatchQueueWrapper: dispatchQueue, idleTimeout: 3.0)
+            return SentryUIEventTracker(dispatchQueueWrapper: dispatchQueue, idleTimeout: 3.0)
         }
     }
 

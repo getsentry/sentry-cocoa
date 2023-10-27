@@ -9,22 +9,21 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         SentrySDK.start { options in
             options.dsn = "https://6cc9bae94def43cab8444a99e0031c28@o447951.ingest.sentry.io/5428557"
             options.debug = true
-            options.sessionTrackingIntervalMillis = 5_000
-            // Sampling 100% - In Production you probably want to adjust this
             options.tracesSampleRate = 1.0
-            options.enableFileIOTracing = true
             if ProcessInfo.processInfo.arguments.contains("--io.sentry.profiling.enable") {
                 options.profilesSampleRate = 1
             }
-        }
-        
-        SentrySDK.configureScope { scope in
-            if let path = Bundle.main.path(forResource: "Tongariro", ofType: "jpg") {
-                scope.addAttachment(Attachment(path: path, filename: "Tongariro.jpg", contentType: "image/jpeg"))
-            }
             
-            if let data = "hello".data(using: .utf8) {
-                scope.addAttachment(Attachment(data: data, filename: "log.txt"))
+            options.initialScope = { scope in
+                if let path = Bundle.main.path(forResource: "Tongariro", ofType: "jpg") {
+                    scope.addAttachment(Attachment(path: path, filename: "Tongariro.jpg", contentType: "image/jpeg"))
+                }
+                
+                if let data = "hello".data(using: .utf8) {
+                    scope.addAttachment(Attachment(data: data, filename: "log.txt"))
+                }
+                
+                return scope
             }
         }
     }

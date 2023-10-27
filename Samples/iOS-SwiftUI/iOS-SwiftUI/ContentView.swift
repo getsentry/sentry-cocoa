@@ -123,77 +123,85 @@ struct ContentView: View {
                     Text(getCurrentTracer()?.transactionContext.spanId.sentrySpanIdString ?? "NO ID")
                         .accessibilityIdentifier("TRANSACTION_ID")
                     
+                    Text(getCurrentTracer()?.transactionContext.origin ?? "NO ORIGIN")
+                        .accessibilityIdentifier("TRACE_ORIGIN")
+                    
                     SentryTracedView("Child Span") {
                         VStack {
                             Text(getCurrentSpan()?.spanDescription ?? "NO SPAN")
                                 .accessibilityIdentifier("CHILD_NAME")
                             Text(getCurrentSpan()?.parentSpanId?.sentrySpanIdString ?? "NO SPAN")
                                 .accessibilityIdentifier("CHILD_PARENT_SPANID")
+                            
+                            Text(getCurrentSpan()?.origin ?? "NO CHILD ORIGIN")
+                                .accessibilityIdentifier("CHILD_TRACE_ORIGIN")
                         }
                     }
+                    HStack (spacing: 30) {
+                        VStack(spacing: 16) {
 
-                    Button(action: addBreadcrumbAction) {
-                        Text("Add Breadcrumb")
-                    }
-                    
-                    Button(action: captureMessageAction) {
-                        Text("Capture Message")
-                    }
-                    
-                    Button(action: captureUserFeedbackAction) {
-                        Text("Capture User Feedback")
-                    }
-                    
-                    Button(action: captureErrorAction) {
-                        Text("Capture Error")
-                    }
-                    
-                    Button(action: captureNSExceptionAction) {
-                        Text("Capture NSException")
-                    }
-
-                    VStack(spacing: 16) {
-
-                        Button(action: captureTransactionAction) {
-                            Text("Capture Transaction")
-                        }
-
-                        Button(action: {
-                            SentrySDK.crash()
-                        }) {
-                            Text("Crash")
-                        }
-                        
-                        Button(action: {
-                            DispatchQueue.main.async {
-                                self.asyncCrash1()
+                            Button(action: addBreadcrumbAction) {
+                                Text("Add Breadcrumb")
                             }
-                        }) {
-                            Text("Async Crash")
-                        }
-                        
-                        Button(action: oomCrashAction) {
-                            Text("OOM Crash")
-                        }
-                        
-                        NavigationLink(destination: SecondView()) {
-                            Text("Show Detail View 1")
-                        }
-                        
-                        NavigationLink(destination: LoremIpsumView()) {
-                            Text("Lorem Ipsum")
-                        }
 
-                        NavigationLink(destination: UIKitScreen()) {
-                            Text("UIKit Screen")
-                        }
+                            Button(action: captureMessageAction) {
+                                Text("Capture Message")
+                            }
 
-                        NavigationLink(destination: FormScreen()) {
-                            Text("Form Screen")
-                        }
+                            Button(action: captureUserFeedbackAction) {
+                                Text("Capture User Feedback")
+                            }
 
-                        SecondView()
+                            Button(action: captureErrorAction) {
+                                Text("Capture Error")
+                            }
+
+                            Button(action: captureNSExceptionAction) {
+                                Text("Capture NSException")
+                            }
+
+                            Button(action: captureTransactionAction) {
+                                Text("Capture Transaction")
+                            }
+
+                        }
+                        VStack(spacing: 16) {
+                            Button(action: {
+                                SentrySDK.crash()
+                            }) {
+                                Text("Crash")
+                            }
+                            
+                            Button(action: {
+                                DispatchQueue.main.async {
+                                    self.asyncCrash1()
+                                }
+                            }) {
+                                Text("Async Crash")
+                            }
+                            
+                            Button(action: oomCrashAction) {
+                                Text("OOM Crash")
+                            }
+                            
+                            NavigationLink(destination: SecondView()) {
+                                Text("Show Detail View 1")
+                            }
+                            
+                            NavigationLink(destination: LoremIpsumView()) {
+                                Text("Lorem Ipsum")
+                            }
+                            
+                            NavigationLink(destination: UIKitScreen()) {
+                                Text("UIKit Screen")
+                            }
+                            
+                            NavigationLink(destination: FormScreen()) {
+                                Text("Form Screen")
+                            }
+                        }
                     }
+                    SecondView()
                 }
             }
         }

@@ -1,3 +1,4 @@
+import SentryTestUtils
 import XCTest
 
 class SentryNSDataTrackerTests: XCTestCase {
@@ -5,7 +6,7 @@ class SentryNSDataTrackerTests: XCTestCase {
     private class Fixture {
         
         let filePath = "Some Path"
-        let sentryPath = try! TestFileManager(options: Options(), andCurrentDateProvider: DefaultCurrentDateProvider.sharedInstance()).sentryPath 
+        let sentryPath = try! TestFileManager(options: Options()).sentryPath 
         let dateProvider = TestCurrentDateProvider()
         let data = "SOME DATA".data(using: .utf8)!
         let threadInspector = TestThreadInspector.instance
@@ -17,8 +18,11 @@ class SentryNSDataTrackerTests: XCTestCase {
 
             threadInspector.allThreads = [TestData.thread2]
 
-            let result = SentryNSDataTracker(threadInspector: threadInspector, processInfoWrapper: TestProcessInfoWrapper())
-            CurrentDate.setCurrentDateProvider(dateProvider)
+            let processInfoWrapper = TestSentryNSProcessInfoWrapper()
+            processInfoWrapper.overrides.processDirectoryPath = "sentrytest"
+
+            let result = SentryNSDataTracker(threadInspector: threadInspector, processInfoWrapper: processInfoWrapper)
+            SentryDependencyContainer.sharedInstance().dateProvider = dateProvider
             result.enable()
             return result
         }
@@ -293,6 +297,7 @@ class SentryNSDataTrackerTests: XCTestCase {
     private func assertDataSpan(_ span: Span?, path: String, operation: String, size: Int, mainThread: Bool = true ) {
         XCTAssertNotNil(span)
         XCTAssertEqual(span?.operation, operation)
+        XCTAssertEqual(span?.origin, "auto.file.ns_data")
         XCTAssertTrue(span?.isFinished ?? false)
         XCTAssertEqual(span?.data["file.size"] as? Int, size)
         XCTAssertEqual(span?.data["file.path"] as? String, path)
@@ -312,7 +317,7 @@ class SentryNSDataTrackerTests: XCTestCase {
         if operation == SENTRY_FILE_READ_OPERATION {
             XCTAssertEqual(span?.spanDescription, lastComponent)
         } else {
-            let bytesDescription = ByteCountFormatter.string(fromByteCount: Int64(size), countStyle: .binary)
+            let bytesDescription = SentryByteCountFormatter.bytesCountDescription( UInt(size))
             XCTAssertEqual(span?.spanDescription ?? "", "\(lastComponent) (\(bytesDescription))")
         }
     }

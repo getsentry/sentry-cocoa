@@ -1,4 +1,5 @@
 import Sentry
+import SentryTestUtils
 import SwiftUI
 import XCTest
 
@@ -177,7 +178,7 @@ class SentryNetworkTrackerIntegrationTests: XCTestCase {
         XCTAssertEqual(SENTRY_NETWORK_REQUEST_OPERATION, networkSpan.operation)
         XCTAssertEqual("GET \(SentryNetworkTrackerIntegrationTests.testBaggageURL)", networkSpan.spanDescription)
         
-        XCTAssertEqual("200", networkSpan.tags["http.status_code"])
+        XCTAssertEqual("200", networkSpan.data["http.response.status_code"] as? String)
     }
 
     func testGetRequest_CompareSentryTraceHeader() {

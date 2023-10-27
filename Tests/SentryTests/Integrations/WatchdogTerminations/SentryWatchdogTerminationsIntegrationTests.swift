@@ -1,3 +1,6 @@
+#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+
+import SentryTestUtils
 import XCTest
 
 class SentryWatchdogTerminationIntegrationTests: XCTestCase {
@@ -17,12 +20,12 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
             
             crashWrapper = TestSentryCrashWrapper.sharedInstance()
             SentryDependencyContainer.sharedInstance().crashWrapper = crashWrapper
-            SentryDependencyContainer.sharedInstance().fileManager = try! SentryFileManager(options: options, andCurrentDateProvider: currentDate)
+            SentryDependencyContainer.sharedInstance().fileManager = try! SentryFileManager(options: options, dispatchQueueWrapper: TestSentryDispatchQueueWrapper())
 
-            let hub = SentryHub(client: client, andScope: nil, andCrashWrapper: crashWrapper, andCurrentDateProvider: currentDate)
+            let hub = SentryHub(client: client, andScope: nil, andCrashWrapper: crashWrapper)
             SentrySDK.setCurrentHub(hub)
             
-            fileManager = try! SentryFileManager(options: options, andCurrentDateProvider: currentDate, dispatchQueueWrapper: dispatchQueue)
+            fileManager = try! SentryFileManager(options: options, dispatchQueueWrapper: dispatchQueue)
         }
     }
     
@@ -122,3 +125,5 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
     }
     
 }
+
+#endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)

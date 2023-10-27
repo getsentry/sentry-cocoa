@@ -1,4 +1,5 @@
 import Sentry
+import SentryTestUtils
 import XCTest
 
 class SentrySpanTests: XCTestCase {
@@ -28,7 +29,7 @@ class SentrySpanTests: XCTestCase {
         }
         
         func getSut(client: SentryClient) -> Span {
-            let hub = SentryHub(client: client, andScope: nil, andCrashWrapper: TestSentryCrashWrapper.sharedInstance(), andCurrentDateProvider: currentDateProvider)
+            let hub = SentryHub(client: client, andScope: nil, andCrashWrapper: TestSentryCrashWrapper.sharedInstance())
             return hub.startTransaction(name: someTransaction, operation: someOperation)
         }
         
@@ -42,7 +43,7 @@ class SentrySpanTests: XCTestCase {
         SentryLog.setLogOutput(logOutput)
 
         fixture = Fixture()
-        CurrentDate.setCurrentDateProvider(fixture.currentDateProvider)
+        SentryDependencyContainer.sharedInstance().dateProvider = fixture.currentDateProvider
     }
     
     func testInitAndCheckForTimestamps() {
@@ -50,6 +51,49 @@ class SentrySpanTests: XCTestCase {
         XCTAssertNotNil(span.startTimestamp)
         XCTAssertNil(span.timestamp)
         XCTAssertFalse(span.isFinished)
+    }
+    
+    func testInit_SetsMainThreadInfoAsSpanData() {
+        let span = fixture.getSut()
+        XCTAssertEqual("main", span.data["thread.name"] as! String)
+        
+        let threadId = sentrycrashthread_self()
+        XCTAssertEqual(NSNumber(value: threadId), span.data["thread.id"] as! NSNumber)
+    }
+    
+    func testInit_SetsThreadInfoAsSpanData_FromBackgroundThread() {
+        let expect = expectation(description: "Thread must be called.")
+        
+        Thread.detachNewThread {
+            let threadName = "test-thread-name"
+            Thread.current.name = threadName
+            
+            let span = self.fixture.getSut()
+            XCTAssertEqual(threadName, span.data["thread.name"] as! String)
+            let threadId = sentrycrashthread_self()
+            XCTAssertEqual(NSNumber(value: threadId), span.data["thread.id"] as! NSNumber)
+            
+            expect.fulfill()
+        }
+        
+        wait(for: [expect], timeout: 0.1)
+    }
+    
+    func testInit_SetsThreadInfoAsSpanData_FromBackgroundThreadWithNoName() {
+        let expect = expectation(description: "Thread must be called.")
+        
+        Thread.detachNewThread {
+            Thread.current.name = ""
+            
+            let span = self.fixture.getSut()
+            XCTAssertNil(span.data["thread.name"])
+            let threadId = sentrycrashthread_self()
+            XCTAssertEqual(NSNumber(value: threadId), span.data["thread.id"] as! NSNumber)
+            
+            expect.fulfill()
+        }
+        
+        wait(for: [expect], timeout: 0.1)
     }
     
     func testFinish() {
@@ -190,11 +234,11 @@ class SentrySpanTests: XCTestCase {
 
         span.setData(value: fixture.extraValue, key: fixture.extraKey)
         
-        XCTAssertEqual(span.data.count, 1)
+        XCTAssertEqual(span.data.count, 3)
         XCTAssertEqual(span.data[fixture.extraKey] as! String, fixture.extraValue)
         
         span.removeData(key: fixture.extraKey)
-        XCTAssertEqual(span.data.count, 0)
+        XCTAssertEqual(span.data.count, 2, "Only expected thread.name and thread.id in data.")
         XCTAssertNil(span.data[fixture.extraKey])
     }
     
@@ -229,22 +273,25 @@ class SentrySpanTests: XCTestCase {
         XCTAssertEqual(serialization["op"] as? String, span.operation)
         XCTAssertEqual(serialization["description"] as? String, span.spanDescription)
         XCTAssertEqual(serialization["status"] as? String, nameForSentrySpanStatus(span.status))
-        XCTAssertEqual(serialization["sampled"] as? String, nameForSentrySampleDecision(span.sampled))
+        XCTAssertEqual(serialization["sampled"] as? NSNumber, valueForSentrySampleDecision(span.sampled))
         XCTAssertEqual(serialization["timestamp"] as? TimeInterval, TestData.timestamp.timeIntervalSince1970)
         XCTAssertEqual(serialization["start_timestamp"] as? TimeInterval, TestData.timestamp.timeIntervalSince1970)
         XCTAssertEqual(serialization["type"] as? String, SENTRY_TRACE_TYPE)
-        XCTAssertEqual(serialization["sampled"] as? String, "true")
+        XCTAssertEqual(serialization["sampled"] as? NSNumber, true)
         XCTAssertNotNil(serialization["data"])
         XCTAssertNotNil(serialization["tags"])
-        XCTAssertEqual((serialization["data"] as! Dictionary)[fixture.extraKey], fixture.extraValue)
+        
+        let data = serialization["data"] as? [String: Any]
+        XCTAssertEqual(data?[fixture.extraKey] as! String, fixture.extraValue)
         XCTAssertEqual((serialization["tags"] as! Dictionary)[fixture.extraKey], fixture.extraValue)
+        XCTAssertEqual("manual", serialization["origin"] as? String)
     }
 
     func testSerialization_NoFrames() {
         let span = SentrySpan(tracer: fixture.tracer, context: SpanContext(operation: "test"))
         let serialization = span.serialize()
 
-        XCTAssertNil(serialization["data"])
+        XCTAssertEqual(2, (serialization["data"] as? [String: Any])?.count, "Only expected thread.name and thread.id in data.")
     }
 
     func testSerialization_withFrames() {
@@ -267,7 +314,8 @@ class SentrySpanTests: XCTestCase {
         span.finish()
 
         let serialization = span.serialize()
-        XCTAssertEqual((serialization["data"] as! Dictionary)["date"], "1970-01-01T00:00:10.000Z")
+        let data = serialization["data"] as? [String: Any]
+        XCTAssertEqual(data?["date"] as? String, "1970-01-01T00:00:10.000Z")
     }
 
     func testSanitizeDataSpan() {
@@ -277,14 +325,15 @@ class SentrySpanTests: XCTestCase {
         span.finish()
 
         let serialization = span.serialize()
-        XCTAssertEqual((serialization["data"] as! Dictionary)["date"], "1970-01-01T00:00:10.000Z")
+        let data = serialization["data"] as? [String: Any]
+        XCTAssertEqual(data?["date"] as? String, "1970-01-01T00:00:10.000Z")
     }
     
     func testSerialization_WithNoDataAndTag() {
         let span = fixture.getSut()
         
         let serialization = span.serialize()
-        XCTAssertNil(serialization["data"])
+        XCTAssertEqual(2, (serialization["data"] as? [String: Any])?.count, "Only expected thread.name and thread.id in data.")
         XCTAssertNil(serialization["tag"])
     }
     
@@ -325,7 +374,8 @@ class SentrySpanTests: XCTestCase {
         let sut = SentrySpan(tracer: fixture.tracer, context: SpanContext(operation: "test"))
         sut.setExtra(value: 0, key: "key")
         
-        XCTAssertEqual(["key": 0], sut.data as! [String: Int])
+        let data = sut.data as [String: Any]
+        XCTAssertEqual(0, data["key"] as? Int)
     }
          
     func testSpanWithoutTracer_StartChild_ReturnsNoOpSpan() {
@@ -372,7 +422,8 @@ class SentrySpanTests: XCTestCase {
         
         queue.activate()
         group.wait()
-        XCTAssertEqual(span.data.count, outerLoop * innerLoop)
+        let threadDataItemCount = 2
+        XCTAssertEqual(span.data.count, outerLoop * innerLoop + threadDataItemCount)
     }
 
     func testSpanStatusNames() {

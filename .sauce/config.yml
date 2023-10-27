@@ -8,15 +8,20 @@ defaults:
   timeout: 20m
 
 xcuitest:
-  app: ./DerivedData/Build/Products/Debug-iphoneos/iOS-Swift.app
-  testApp: ./DerivedData/Build/Products/Debug-iphoneos/iOS-SwiftUITests-Runner.app
+  app: ./DerivedData/Build/Products/Test-iphoneos/iOS-Swift.app
+  testApp: ./DerivedData/Build/Products/Test-iphoneos/iOS-SwiftUITests-Runner.app
 
 suites:
+
+  - name: "iOS-16"
+    devices:
+      - name: "iPhone.*"
+        platformVersion: "16"
    
   - name: "iOS-15"
     devices:
       - name: "iPhone.*"
-        platformVersion: "15.4"
+        platformVersion: "15"
 
   - name: "iPhone-Pro"
     devices:
@@ -26,22 +31,22 @@ suites:
   - name: "iOS-14"
     devices:
       - name: "iPhone.*"
-        platformVersion: "14.8"
+        platformVersion: "14"
 
   - name: "iOS-13"
     devices:
       - name: "iPhone.*"
-        platformVersion: "13.7"
+        platformVersion: "13"
 
   - name: "iOS-12"
     devices:
       - name: "iPhone.*"
-        platformVersion: "12.5.5"
+        platformVersion: "12"
 
   - name: "iOS-11"
     devices:
       - name: "iPhone.*"
-        platformVersion: "11.4.1"
+        platformVersion: "11"
       
 artifacts:
   download:

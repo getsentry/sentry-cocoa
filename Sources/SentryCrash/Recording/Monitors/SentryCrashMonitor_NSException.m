@@ -1,3 +1,4 @@
+// Adapted from: https://github.com/kstenerud/KSCrash
 //
 //  SentryCrashMonitor_NSException.m
 //
@@ -103,7 +104,6 @@ handleException(NSException *exception)
             SentryCrashLOG_DEBUG(@"Calling original exception handler.");
             g_previousUncaughtExceptionHandler(exception);
         }
-        sentrycrash_async_backtrace_decref(cursor.async_caller);
     }
 }
 
@@ -137,13 +137,13 @@ setEnabled(bool isEnabled)
 }
 
 static bool
-isEnabled()
+isEnabled(void)
 {
     return g_isEnabled;
 }
 
 SentryCrashMonitorAPI *
-sentrycrashcm_nsexception_getAPI()
+sentrycrashcm_nsexception_getAPI(void)
 {
     static SentryCrashMonitorAPI api = { .setEnabled = setEnabled, .isEnabled = isEnabled };
     return &api;

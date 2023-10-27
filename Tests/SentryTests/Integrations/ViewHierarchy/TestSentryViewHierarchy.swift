@@ -1,11 +1,11 @@
-import Foundation
-
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+
 class TestSentryViewHierarchy: SentryViewHierarchy {
 
     var result: Data?
     var viewHierarchyResult: Int32 = 0
     var processViewHierarchyCallback: (() -> Void)?
+    var saveFilePathUsed: String?
 
     override func fetch() -> Data? {
         guard let result = self.result
@@ -13,6 +13,11 @@ class TestSentryViewHierarchy: SentryViewHierarchy {
             return super.fetch()
         }
         return result
+    }
+
+    override func save(_ filePath: String) -> Bool {
+        saveFilePathUsed = filePath
+        return true
     }
 
     override func viewHierarchy(from view: UIView!, into context: UnsafeMutablePointer<SentryCrashJSONEncodeContext>!) -> Int32 {
@@ -24,4 +29,4 @@ class TestSentryViewHierarchy: SentryViewHierarchy {
         return super .processViewHierarchy(windows, add: addJSONDataFunc, userData: userData)
     }
 }
-#endif
+#endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)

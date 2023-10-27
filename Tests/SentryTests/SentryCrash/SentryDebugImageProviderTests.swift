@@ -57,7 +57,7 @@ class SentryDebugImageProviderTests: XCTestCase {
     
     func testThreeImages() {
         let sut = fixture.getSut(images: fixture.getTestImages())
-        let actual = sut.getDebugImages()
+        let actual = sut.getDebugImagesCrashed(false)
         
         XCTAssertEqual(3, actual.count)
         
@@ -77,7 +77,7 @@ class SentryDebugImageProviderTests: XCTestCase {
         let image = SentryDebugImageProviderTests.createSentryCrashBinaryImage(vmAddress: 0)
         
         let sut = fixture.getSut(images: [image])
-        let actual = sut.getDebugImages()
+        let actual = sut.getDebugImagesCrashed(false)
         
         XCTAssertNil(actual[0].imageVmAddress)
     }
@@ -86,7 +86,7 @@ class SentryDebugImageProviderTests: XCTestCase {
         func testWith(value: UInt64) {
             let image = SentryDebugImageProviderTests.createSentryCrashBinaryImage(size: value)
             let sut = fixture.getSut(images: [image])
-            let actual = sut.getDebugImages()
+            let actual = sut.getDebugImagesCrashed(false)
             XCTAssertEqual(NSNumber(value: value), actual[0].imageSize)
         }
         
@@ -99,7 +99,7 @@ class SentryDebugImageProviderTests: XCTestCase {
         func testWith(value: UInt64, expected: String) {
             let image = SentryDebugImageProviderTests.createSentryCrashBinaryImage(address: value)
             let sut = fixture.getSut(images: [image])
-            let actual = sut.getDebugImages()
+            let actual = sut.getDebugImagesCrashed(false)
             
             XCTAssertEqual(1, actual.count)
             
@@ -114,7 +114,7 @@ class SentryDebugImageProviderTests: XCTestCase {
     }
     
     func testNoImages() {
-        let actual = fixture.getSut().getDebugImages()
+        let actual = fixture.getSut().getDebugImagesCrashed(false)
         
         XCTAssertEqual(0, actual.count)
     }
@@ -127,7 +127,7 @@ class SentryDebugImageProviderTests: XCTestCase {
         frame.imageAddress = "0x0000000105705000"
         thread.stacktrace = SentryStacktrace(frames: [frame], registers: [:])
         
-        var actual = sut.getDebugImages(for: [thread])
+        var actual = sut.getDebugImages(for: [thread], isCrash: false)
         
         XCTAssertEqual(actual.count, 1)
         XCTAssertEqual(actual[0].codeFile, "dyld_sim")
@@ -139,7 +139,7 @@ class SentryDebugImageProviderTests: XCTestCase {
         frame3.imageAddress = "0x000000017ca5e400"
         thread.stacktrace = SentryStacktrace(frames: [frame2, frame3], registers: [:])
         
-        actual = sut.getDebugImages(for: [thread])
+        actual = sut.getDebugImages(for: [thread], isCrash: false)
         
         XCTAssertEqual(actual.count, 2)
         XCTAssertEqual(actual[0].codeFile, "UIKit")
@@ -152,7 +152,7 @@ class SentryDebugImageProviderTests: XCTestCase {
     func test_NoImage_ForThread_WithoutStackTrace() {
         let sut = fixture.getSut(images: fixture.getTestImages())
         let thread = SentryThread(threadId: NSNumber(value: 1))
-        let actual = sut.getDebugImages(for: [thread])
+        let actual = sut.getDebugImages(for: [thread], isCrash: false)
         
         XCTAssertEqual(actual.count, 0)
     }

@@ -8,14 +8,18 @@ on:
     paths:
       - 'Sources/Sentry/Public/**'
       - 'Samples/TrendingMovies/**'
+      - '.github/workflows/profile-data-generator.yml'
 
 jobs:
   build-profile-data-generator-targets:
     name: Build app and test runner
     runs-on: macos-12
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - run: ./scripts/ci-select-xcode.sh 13.4.1
+      - uses: ruby/setup-ruby@v1
+        with:
+          bundler-cache: true
       - name: Install SentryCli
         run: brew install getsentry/tools/sentry-cli
       - name: Cache Carthage dependencies
@@ -42,7 +46,7 @@ jobs:
           path: |
             DerivedData/Build/Products/Debug-iphoneos/ProfileDataGeneratorUITest-Runner.app
           key: profiledatagenerator-test-runner-app-cache-key-${{ hashFiles('Samples/TrendingMovies/ProfileDataGeneratorUITest/**') }}
-      - run: fastlane build_trending_movies
+      - run: bundle exec fastlane build_trending_movies
         if: steps.cache-trending-movies-app.outputs.cache-hit != 'true'
         env:
           APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
@@ -52,7 +56,7 @@ jobs:
           MATCH_GIT_PRIVATE_KEY: ${{ secrets.MATCH_GIT_PRIVATE_KEY }}
           MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
           MATCH_USERNAME: ${{ secrets.MATCH_USERNAME }}
-      - run: fastlane build_profile_data_generator_ui_test
+      - run: bundle exec fastlane build_profile_data_generator_ui_test
         if: steps.cache-profiledatagenerator-test-runner-app.outputs.cache-hit != 'true'
         env:
           APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
@@ -83,7 +87,7 @@ jobs:
       matrix:
         suite: ['High-end device', 'Mid-range device']
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: actions/download-artifact@v3
         with:
           name: data-generator-build-products

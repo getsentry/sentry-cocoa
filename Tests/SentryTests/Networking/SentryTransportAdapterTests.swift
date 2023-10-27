@@ -1,4 +1,5 @@
 import Sentry
+import SentryTestUtils
 import XCTest
 
 class SentryTransportAdapterTests: XCTestCase {
@@ -11,9 +12,7 @@ class SentryTransportAdapterTests: XCTestCase {
         let attachment = Attachment(data: Data(), filename: "test.txt")
         
         var sut: SentryTransportAdapter {
-            get {
-                return SentryTransportAdapter(transport: transport, options: options)
-            }
+            return SentryTransportAdapter(transport: transport, options: options)
         }
     }
 
@@ -23,8 +22,8 @@ class SentryTransportAdapterTests: XCTestCase {
     override func setUp() {
         super.setUp()
         
-        CurrentDate.setCurrentDateProvider(TestCurrentDateProvider())
-
+        SentryDependencyContainer.sharedInstance().dateProvider = TestCurrentDateProvider()
+        
         fixture = Fixture()
         sut = fixture.sut
     }
@@ -45,7 +44,7 @@ class SentryTransportAdapterTests: XCTestCase {
 
     func testSendFaultyAttachment_FaultyAttachmentGetsDropped() {
         let event = TestData.event
-        sut.send(event: event, attachments: [fixture.faultyAttachment, fixture.attachment])
+        sut.send(event: event, traceContext: nil, attachments: [fixture.faultyAttachment, fixture.attachment])
         
         let expectedEnvelope = SentryEnvelope(id: event.eventId, items: [
             SentryEnvelopeItem(event: event),

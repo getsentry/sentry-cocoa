@@ -1,5 +1,7 @@
-#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
 import Sentry
+import SentryTestUtils
+
+#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
 import UIKit
 #endif
 
@@ -7,12 +9,10 @@ class TestData {
     
     static let timestamp = Date(timeIntervalSince1970: 10)
     static var timestampAs8601String: String {
-        get {
-            (timestamp as NSDate).sentry_toIso8601String()
-        }
+        (timestamp as NSDate).sentry_toIso8601String()
     }
     static let sdk = ["name": SentryMeta.sdkName, "version": SentryMeta.versionString]
-    static let context = ["context": ["c": "a", "date": timestamp]]
+    static let context: [String: [String: Any]] = ["context": ["c": "a", "date": timestamp]]
     
     static var crumb: Breadcrumb {
         let crumb = Breadcrumb()
@@ -20,7 +20,7 @@ class TestData {
         crumb.timestamp = timestamp
         crumb.type = "user"
         crumb.message = "Clicked something"
-        crumb.data = ["some": ["data": "data", "date": timestamp]]
+        crumb.data = ["some": ["data": "data", "date": timestamp] as [String: Any]]
         return crumb
     }
     
@@ -61,9 +61,19 @@ class TestData {
         user.username = "user123"
         user.ipAddress = "127.0.0.1"
         user.segment = "segmentA"
-        user.data = ["some": ["data": "data", "date": timestamp]]
+        user.name = "User"
+        user.geo = geo
+        user.data = ["some": ["data": "data", "date": timestamp] as [String: Any]] 
         
         return user
+    }
+    
+    static var geo: Geo {
+        let geo = Geo()
+        geo.city = "Vienna"
+        geo.countryCode = "at"
+        geo.region = "Vienna"
+        return geo
     }
     
     static var debugMeta: DebugMeta {
@@ -223,6 +233,10 @@ class TestData {
     static var dataAttachment: Attachment {
         return Attachment(data: "hello".data(using: .utf8)!, filename: "file.txt")
     }
+
+    static var spanContext: SpanContext {
+        SpanContext(operation: "Test Context")
+    }
     
     enum SampleError: Error {
         case bestDeveloper
@@ -243,6 +257,8 @@ class TestData {
         event.exceptions = [exception]
         return event
     }
+
+#if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
     
     static var metricKitEvent: Event {
         let event = Event(level: .warning)
@@ -251,6 +267,8 @@ class TestData {
         event.exceptions = [exception]
         return event
     }
+
+#endif // os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
     
     static func scopeWith(observer: SentryScopeObserver) -> Scope {
         let scope = Scope()
@@ -303,7 +321,9 @@ class TestData {
         
         return request
     }
-    
+
+    #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+
     static func getAppStartMeasurement(type: SentryAppStartType, appStartTimestamp: Date = TestData.timestamp) -> SentryAppStartMeasurement {
         let appStartDuration = 0.5
         let main = appStartTimestamp.addingTimeInterval(0.15)
@@ -312,4 +332,6 @@ class TestData {
         
         return SentryAppStartMeasurement(type: type, isPreWarmed: false, appStartTimestamp: appStartTimestamp, duration: appStartDuration, runtimeInitTimestamp: runtimeInit, moduleInitializationTimestamp: main, didFinishLaunchingTimestamp: didFinishLaunching)
     }
+
+    #endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
 }

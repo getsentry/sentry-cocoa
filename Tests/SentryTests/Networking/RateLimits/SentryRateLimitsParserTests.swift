@@ -1,4 +1,5 @@
 @testable import Sentry
+import SentryTestUtils
 import XCTest
 
 class SentryRateLimitsParserTests: XCTestCase {
@@ -7,13 +8,13 @@ class SentryRateLimitsParserTests: XCTestCase {
     
     override func setUp() {
         super.setUp()
-        CurrentDate.setCurrentDateProvider(TestCurrentDateProvider())
+        SentryDependencyContainer.sharedInstance().dateProvider = TestCurrentDateProvider()
         sut = RateLimitParser()
     }
     
     func testOneQuotaOneCategory() {
         let expected = [
-            SentryDataCategory.transaction.asNSNumber: CurrentDate.date().addingTimeInterval(50)
+            SentryDataCategory.transaction.asNSNumber: SentryDependencyContainer.sharedInstance().dateProvider.date().addingTimeInterval(50)
         ]
         
         let actual = sut.parse("50:transaction:key")
@@ -28,7 +29,7 @@ class SentryRateLimitsParserTests: XCTestCase {
      */
     func testIgnoreReasonCode() {
         let expected = [
-            SentryDataCategory.transaction.asNSNumber: CurrentDate.date().addingTimeInterval(50)
+            SentryDataCategory.transaction.asNSNumber: SentryDependencyContainer.sharedInstance().dateProvider.date().addingTimeInterval(50)
         ]
         
         let actual = sut.parse("50:transaction:key:reason")
@@ -37,7 +38,7 @@ class SentryRateLimitsParserTests: XCTestCase {
     }
     
     func testOneQuotaTwoCategories() {
-        let retryAfter = CurrentDate.date().addingTimeInterval(50)
+        let retryAfter = SentryDependencyContainer.sharedInstance().dateProvider.date().addingTimeInterval(50)
         let expected = [
             SentryDataCategory.transaction.asNSNumber: retryAfter,
             SentryDataCategory.error.asNSNumber: retryAfter
@@ -49,9 +50,9 @@ class SentryRateLimitsParserTests: XCTestCase {
     }
 
     func testTwoQuotasMultipleCategories() {
-        let retryAfter2700 = CurrentDate.date().addingTimeInterval(2_700)
+        let retryAfter2700 = SentryDependencyContainer.sharedInstance().dateProvider.date().addingTimeInterval(2_700)
         let expected = [
-            SentryDataCategory.transaction.asNSNumber: CurrentDate.date().addingTimeInterval(50),
+            SentryDataCategory.transaction.asNSNumber: SentryDependencyContainer.sharedInstance().dateProvider.date().addingTimeInterval(50),
             SentryDataCategory.error.asNSNumber: retryAfter2700,
             SentryDataCategory.default.asNSNumber: retryAfter2700,
             SentryDataCategory.attachment.asNSNumber: retryAfter2700
@@ -64,7 +65,7 @@ class SentryRateLimitsParserTests: XCTestCase {
     
     func testKeepMaximumRateLimit() {
         let expected = [
-            SentryDataCategory.transaction.asNSNumber: CurrentDate.date().addingTimeInterval(50)
+            SentryDataCategory.transaction.asNSNumber: SentryDependencyContainer.sharedInstance().dateProvider.date().addingTimeInterval(50)
         ]
         
         let actual = sut.parse("3:transaction:key,50:transaction:key,5:transaction:key")
@@ -73,7 +74,7 @@ class SentryRateLimitsParserTests: XCTestCase {
     }
     
     func testInvalidRetryAfter() {
-        let expected = [SentryDataCategory.default.asNSNumber: CurrentDate.date().addingTimeInterval(1)]
+        let expected = [SentryDataCategory.default.asNSNumber: SentryDependencyContainer.sharedInstance().dateProvider.date().addingTimeInterval(1)]
         
         let actual = sut.parse("A1:transaction:key, 1:default:organization, -20:B:org, 0:event:key")
         
@@ -81,7 +82,7 @@ class SentryRateLimitsParserTests: XCTestCase {
     }
     
     func testAllCategories() {
-        let expected = [SentryDataCategory.all.asNSNumber: CurrentDate.date().addingTimeInterval(1_000)]
+        let expected = [SentryDataCategory.all.asNSNumber: SentryDependencyContainer.sharedInstance().dateProvider.date().addingTimeInterval(1_000)]
         
         let actual = sut.parse("1000::organization ")
         
@@ -89,7 +90,7 @@ class SentryRateLimitsParserTests: XCTestCase {
     }
     
     func testOneUnknownAndOneKnownCategory() {
-        let expected = [SentryDataCategory.error.asNSNumber: CurrentDate.date().addingTimeInterval(2)]
+        let expected = [SentryDataCategory.error.asNSNumber: SentryDependencyContainer.sharedInstance().dateProvider.date().addingTimeInterval(2)]
         
         let actual = sut.parse("2:foobar;error:organization")
         
@@ -102,7 +103,7 @@ class SentryRateLimitsParserTests: XCTestCase {
     }
     
     func testAllKnownCategories() {
-        let date = CurrentDate.date().addingTimeInterval(1)
+        let date = SentryDependencyContainer.sharedInstance().dateProvider.date().addingTimeInterval(1)
         let expected = [
             SentryDataCategory.default.asNSNumber: date,
             SentryDataCategory.error.asNSNumber: date,
@@ -119,8 +120,8 @@ class SentryRateLimitsParserTests: XCTestCase {
     }
     
     func testWhitespacesSpacesAreRemoved() {
-        let retryAfter10 = CurrentDate.date().addingTimeInterval(10)
-        let expected = [SentryDataCategory.all.asNSNumber: CurrentDate.date().addingTimeInterval(67),
+        let retryAfter10 = SentryDependencyContainer.sharedInstance().dateProvider.date().addingTimeInterval(10)
+        let expected = [SentryDataCategory.all.asNSNumber: SentryDependencyContainer.sharedInstance().dateProvider.date().addingTimeInterval(67),
                         SentryDataCategory.transaction.asNSNumber: retryAfter10,
                         SentryDataCategory.error.asNSNumber: retryAfter10
         ]
@@ -143,7 +144,7 @@ class SentryRateLimitsParserTests: XCTestCase {
     
     func testValidHeaderAndGarbage() {
         let expected = [
-            SentryDataCategory.transaction.asNSNumber: CurrentDate.date().addingTimeInterval(50)
+            SentryDataCategory.transaction.asNSNumber: SentryDependencyContainer.sharedInstance().dateProvider.date().addingTimeInterval(50)
         ]
         
         let actual = sut.parse("A9813Hell,50:transaction:key,123Garbage")

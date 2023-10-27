@@ -80,4 +80,10 @@ class SentryIdTests: XCTestCase {
     func testHash_IsDifferentWhenObjectsAreDifferent() {
         XCTAssertNotEqual(SentryId(uuid: UUID()).hash, SentryId(uuid: fixture.uuid).hash)
     }
+    
+    func testConcurrentReadsOfEmpty() {
+        testConcurrentModifications { _ in
+            XCTAssertNotNil(SentryId.empty)
+        }
+    }
 }

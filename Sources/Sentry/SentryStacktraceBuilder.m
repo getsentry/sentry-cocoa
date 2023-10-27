@@ -24,6 +24,7 @@ SentryStacktraceBuilder ()
 {
     if (self = [super init]) {
         self.crashStackEntryMapper = crashStackEntryMapper;
+        self.symbolicate = NO;
     }
     return self;
 }
@@ -40,11 +41,11 @@ SentryStacktraceBuilder ()
             // skip the marker frame
             continue;
         }
-        if (stackCursor.symbolicate(&stackCursor)) {
-            [frames addObject:[self.crashStackEntryMapper mapStackEntryWithCursor:stackCursor]];
+        if (self.symbolicate == false || stackCursor.symbolicate(&stackCursor)) {
+            frame = [self.crashStackEntryMapper mapStackEntryWithCursor:stackCursor];
+            [frames addObject:frame];
         }
     }
-    sentrycrash_async_backtrace_decref(stackCursor.async_caller);
 
     NSArray<SentryFrame *> *framesCleared = [SentryFrameRemover removeNonSdkFrames:frames];
 
@@ -86,7 +87,7 @@ SentryStacktraceBuilder ()
 - (SentryStacktrace *)buildStacktraceForThread:(SentryCrashThread)thread
                                        context:(struct SentryCrashMachineContext *)context
 {
-    sentrycrashmc_getContextForThread(thread, context, false);
+    sentrycrashmc_getContextForThread(thread, context, NO);
     SentryCrashStackCursor stackCursor;
     sentrycrashsc_initWithMachineContext(&stackCursor, MAX_STACKTRACE_LENGTH, context);
 

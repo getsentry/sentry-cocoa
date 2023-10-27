@@ -9,10 +9,14 @@
 #import "SentryQueueableRequestManager.h"
 #import "SentryRateLimitParser.h"
 #import "SentryRateLimits.h"
-#import "SentryReachability.h"
+
 #import "SentryRetryAfterHeaderParser.h"
 #import "SentryTransport.h"
 #import <Foundation/Foundation.h>
+
+#if !TARGET_OS_WATCH
+#    import "SentryReachability.h"
+#endif // !TARGET_OS_WATCH
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -57,8 +61,7 @@ SentryTransportFactory ()
                                          requestBuilder:[[SentryNSURLRequestBuilder alloc] init]
                                              rateLimits:rateLimits
                                       envelopeRateLimit:envelopeRateLimit
-                                   dispatchQueueWrapper:dispatchQueueWrapper
-                                           reachability:[[SentryReachability alloc] init]];
+                                   dispatchQueueWrapper:dispatchQueueWrapper];
 }
 
 @end

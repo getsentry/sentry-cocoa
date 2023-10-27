@@ -15,18 +15,17 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             options.sessionTrackingIntervalMillis = 5_000
             // Sampling 100% - In Production you probably want to adjust this
             options.tracesSampleRate = 1.0
-            options.enableFileIOTracing = true
-            options.enableUserInteractionTracing = true
             options.enableAppHangTracking = true
-        }
-        
-        SentrySDK.configureScope { scope in
-            if let path = Bundle.main.path(forResource: "Tongariro", ofType: "jpg") {
-                scope.addAttachment(Attachment(path: path, filename: "Tongariro.jpg", contentType: "image/jpeg"))
-            }
             
-            if let data = "hello".data(using: .utf8) {
-                scope.addAttachment(Attachment(data: data, filename: "log.txt"))
+            options.initialScope = { scope in
+                if let path = Bundle.main.path(forResource: "Tongariro", ofType: "jpg") {
+                    scope.addAttachment(Attachment(path: path, filename: "Tongariro.jpg", contentType: "image/jpeg"))
+                }
+                
+                if let data = "hello".data(using: .utf8) {
+                    scope.addAttachment(Attachment(data: data, filename: "log.txt"))
+                }
+                return scope
             }
         }
 

@@ -1,3 +1,4 @@
+import SentryTestUtils
 import XCTest
 
 class SentryEnvelopeTests: XCTestCase {
@@ -23,11 +24,9 @@ class SentryEnvelopeTests: XCTestCase {
         }
 
         var breadcrumb: Breadcrumb {
-            get {
-                let crumb = Breadcrumb(level: SentryLevel.debug, category: "ui.lifecycle")
-                crumb.message = "first breadcrumb"
-                return crumb
-            }
+            let crumb = Breadcrumb(level: SentryLevel.debug, category: "ui.lifecycle")
+            crumb.message = "first breadcrumb"
+            return crumb
         }
 
         var event: Event {
@@ -54,7 +53,7 @@ class SentryEnvelopeTests: XCTestCase {
 
     override func setUp() {
         super.setUp()
-        CurrentDate.setCurrentDateProvider(TestCurrentDateProvider())
+        SentryDependencyContainer.sharedInstance().dateProvider = TestCurrentDateProvider()
     }
     
     override func tearDown() {
@@ -159,7 +158,7 @@ class SentryEnvelopeTests: XCTestCase {
     
     func testInitSentryEnvelopeHeader_SetIdAndTraceState() {
         let eventId = SentryId()
-        let traceContext = SentryTraceContext(trace: SentryId(), publicKey: "publicKey", releaseName: "releaseName", environment: "environment", transaction: "transaction", userSegment: nil, sampleRate: nil)
+        let traceContext = SentryTraceContext(trace: SentryId(), publicKey: "publicKey", releaseName: "releaseName", environment: "environment", transaction: "transaction", userSegment: nil, sampleRate: nil, sampled: nil)
         
         let envelopeHeader = SentryEnvelopeHeader(id: eventId, traceContext: traceContext)
         XCTAssertEqual(eventId, envelopeHeader.eventId)
@@ -176,7 +175,7 @@ class SentryEnvelopeTests: XCTestCase {
         let event = fixture.event
         let envelope = SentryEnvelope(event: event)
 
-        let expectedData = try SentrySerialization.data(withJSONObject: event.serialize())
+        let expectedData = SentrySerialization.data(withJSONObject: event.serialize())!
 
         XCTAssertEqual(event.eventId, envelope.header.eventId)
         XCTAssertEqual(1, envelope.items.count)
@@ -205,7 +204,7 @@ class SentryEnvelopeTests: XCTestCase {
             json.assertContains(event.releaseName ?? "", "releaseName")
             json.assertContains(event.environment ?? "", "environment")
             
-            json.assertContains(String(format: "%.0f", CurrentDate.date().timeIntervalSince1970), "timestamp")
+            json.assertContains(String(format: "%.0f", SentryDependencyContainer.sharedInstance().dateProvider.date().timeIntervalSince1970), "timestamp")
         }
     }
     
@@ -221,7 +220,7 @@ class SentryEnvelopeTests: XCTestCase {
         XCTAssertEqual("user_report", item?.header.type)
         XCTAssertNotNil(item?.data)
         
-        let expectedData = try SentrySerialization.data(withJSONObject: userFeedback.serialize())
+        let expectedData = SentrySerialization.data(withJSONObject: userFeedback.serialize())!
 
         let actual = String(data: item?.data ?? Data(), encoding: .utf8)?.sorted()
         let expected = String(data: expectedData, encoding: .utf8)?.sorted()

@@ -5,8 +5,7 @@ import SwiftUI
 import SentryInternal
 #endif
 
-///
-/// This feature is EXPERIMENTAL.
+/// - warning: This is an experimental feature and may still have bugs.
 ///
 /// A control to measure the performance of your views and send the result as a transaction to Sentry.io.
 ///
@@ -41,6 +40,8 @@ public struct SentryTracedView<Content: View>: View {
     let content: () -> Content
     let name: String
     let nameSource: SentryTransactionNameSource
+    
+    let traceOrigin = "auto.ui.swift_ui"
 
     public init(_ viewName: String? = nil, content: @escaping () -> Content) {
         self.content = content
@@ -66,7 +67,7 @@ public struct SentryTracedView<Content: View>: View {
         var transactionCreated = false
         if SentryPerformanceTracker.shared.activeSpanId() == nil {
             transactionCreated = true
-            let transactionId = SentryPerformanceTracker.shared.startSpan(withName: self.name, nameSource: nameSource, operation: "ui.load")
+            let transactionId = SentryPerformanceTracker.shared.startSpan(withName: self.name, nameSource: nameSource, operation: "ui.load", origin: self.traceOrigin)
             SentryPerformanceTracker.shared.pushActiveSpan(transactionId)
 
             //According to Apple's documentation, the call to `body` needs to be fast
@@ -79,7 +80,7 @@ public struct SentryTracedView<Content: View>: View {
             }
         }
 
-        let id = SentryPerformanceTracker.shared.startSpan(withName: transactionCreated ? "\(self.name) - body" : self.name, nameSource: nameSource, operation: "ui.load")
+        let id = SentryPerformanceTracker.shared.startSpan(withName: transactionCreated ? "\(self.name) - body" : self.name, nameSource: nameSource, operation: "ui.load", origin: self.traceOrigin)
 
         SentryPerformanceTracker.shared.pushActiveSpan(id)
         defer {
@@ -93,11 +94,9 @@ public struct SentryTracedView<Content: View>: View {
     }
 }
 
-///
-/// This feature is EXPERIMENTAL.
-///
 @available(iOS 13, macOS 10.15, tvOS 13, watchOS 6.0, *)
 public extension View {
+    /// - warning: This is an experimental feature and may still have bugs.
     func sentryTrace(_ viewName: String? = nil) -> some View {
         return SentryTracedView(viewName) {
             return self

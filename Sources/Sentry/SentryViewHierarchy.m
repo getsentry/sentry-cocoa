@@ -1,15 +1,15 @@
 #import "SentryViewHierarchy.h"
-#import "SentryCrashFileUtils.h"
-#import "SentryCrashJSONCodec.h"
-#import "SentryDependencyContainer.h"
-#import "SentryLog.h"
-#import "SentryUIApplication.h"
-#import "UIView+Sentry.h"
-
-@import SentryPrivate;
 
 #if SENTRY_HAS_UIKIT
+
+#    import "SentryCrashFileUtils.h"
+#    import "SentryCrashJSONCodec.h"
+#    import "SentryDependencyContainer.h"
+#    import "SentryLog.h"
+#    import "SentryUIApplication.h"
 #    import <UIKit/UIKit.h>
+
+@import SentryPrivate;
 
 static int
 writeJSONDataToFile(const char *const data, const int length, void *const userData)
@@ -37,7 +37,7 @@ writeJSONDataToMemory(const char *const data, const int length, void *const user
     int fd = open(path, O_RDWR | O_CREAT | O_TRUNC, 0644);
     if (fd < 0) {
         SENTRY_LOG_DEBUG(@"Could not open file %s for writing: %s", path, strerror(errno));
-        return false;
+        return NO;
     }
 
     BOOL result = [self processViewHierarchy:windows addFunction:writeJSONDataToFile userData:&fd];
@@ -81,7 +81,7 @@ writeJSONDataToMemory(const char *const data, const int length, void *const user
 {
 
     __block SentryCrashJSONEncodeContext JSONContext;
-    sentrycrashjson_beginEncode(&JSONContext, false, addJSONDataFunc, userData);
+    sentrycrashjson_beginEncode(&JSONContext, NO, addJSONDataFunc, userData);
 
     int (^serializeJson)(void) = ^int() {
         int result;
@@ -104,9 +104,9 @@ writeJSONDataToMemory(const char *const data, const int length, void *const user
     if (result != SentryCrashJSON_OK) {
         SENTRY_LOG_DEBUG(
             @"Could not create view hierarchy json: %s", sentrycrashjson_stringForError(result));
-        return false;
+        return NO;
     }
-    return true;
+    return YES;
 }
 
 - (int)viewHierarchyFromView:(UIView *)view intoContext:(SentryCrashJSONEncodeContext *)context
@@ -129,7 +129,7 @@ writeJSONDataToMemory(const char *const data, const int length, void *const user
     tryJson(sentrycrashjson_addFloatingPointElement(context, "alpha", view.alpha));
     tryJson(sentrycrashjson_addBooleanElement(context, "visible", !view.hidden));
 
-    if ([view.nextResponder isKindOfClass:[UIViewController self]]) {
+    if ([view.nextResponder isKindOfClass:[UIViewController class]]) {
         UIViewController *vc = (UIViewController *)view.nextResponder;
         if (vc.view == view) {
             const char *viewControllerClassName =
@@ -150,4 +150,4 @@ writeJSONDataToMemory(const char *const data, const int length, void *const user
 
 @end
 
-#endif
+#endif // SENTRY_HAS_UIKIT

@@ -1,11 +1,12 @@
 import Sentry
+import SentryTestUtils
 import XCTest
 
 class SentryEventTests: XCTestCase {
 
     func testInitWithLevel() {
         let dateProvider = TestCurrentDateProvider()
-        CurrentDate.setCurrentDateProvider(dateProvider)
+        SentryDependencyContainer.sharedInstance().dateProvider = dateProvider
         
         let event = Event(level: .debug)
         

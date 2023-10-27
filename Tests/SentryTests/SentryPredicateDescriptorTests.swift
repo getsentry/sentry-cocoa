@@ -81,12 +81,12 @@ class SentryPredicateDescriptorTests: XCTestCase {
     }
     
     func test_andCompound() {
-        let pred = NSPredicate(format: "field1 = %@ and field2 = %@")
+        let pred = NSPredicate(format: "field1 = %@ and field2 = %@", "arg1", "arg2")
         assertPredicate(predicate: pred, expectedResult: "field1 == %@ AND field2 == %@")
     }
     
     func test_orCompound() {
-        let pred = NSPredicate(format: "field1 = %@ or field2 = %@")
+        let pred = NSPredicate(format: "field1 = %@ or field2 = %@", "arg1", "arg2")
         assertPredicate(predicate: pred, expectedResult: "field1 == %@ OR field2 == %@")
     }
     

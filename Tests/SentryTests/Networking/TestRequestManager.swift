@@ -1,4 +1,5 @@
 import Foundation
+import SentryTestUtils
 
 public class TestRequestManager: NSObject, RequestManager {
     
@@ -16,6 +17,9 @@ public class TestRequestManager: NSObject, RequestManager {
     }
     
     var responseDelay = 0.0
+    let responseDispatchGroup = DispatchGroup()
+    var waitForResponseDispatchGroup = false
+    
     public func add( _ request: URLRequest, completionHandler: SentryRequestOperationFinished? = nil) {
         
         requests.record(request)
@@ -24,6 +28,11 @@ public class TestRequestManager: NSObject, RequestManager {
         let error = self.nextError
         group.enter()
         queue.asyncAfter(deadline: .now() + responseDelay, execute: {
+            
+            if self.waitForResponseDispatchGroup {
+                self.responseDispatchGroup.waitWithTimeout()
+            }
+            
             if let handler = completionHandler {
                 handler(response, error)
             }

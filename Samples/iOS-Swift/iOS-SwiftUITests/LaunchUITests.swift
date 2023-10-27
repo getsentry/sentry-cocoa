@@ -1,18 +1,16 @@
 import XCTest
 
 class LaunchUITests: XCTestCase {
-
     private let app: XCUIApplication = XCUIApplication()
 
     override func setUp() {
         super.setUp()
-        
         continueAfterFailure = false
         XCUIDevice.shared.orientation = .portrait
+        app.launchEnvironment["io.sentry.ui-test.test-name"] = name
         app.launch()
         
-        waitForExistenseOfMainScreen()
-        checkSlowAndFrozenFrames()
+        waitForExistenceOfMainScreen()
     }
     
     override func tearDown() {
@@ -25,58 +23,66 @@ class LaunchUITests: XCTestCase {
         //If we introduce a bug in the crash report process we will catch it with tests for iOS 13 or above.
         //For some reason is not possible to use @available(iOS 13, *) in the test function.
         if #available(iOS 13, *) {
-            app.buttons["crash"].tap()
-            if app.buttons["crash"].exists {
+            app.buttons["Crash the app"].tap()
+            if app.buttons["Crash the app"].exists {
                 XCTFail("App did not crashed")
             }
 
             app.launch()
-            waitForExistenseOfMainScreen()
+            waitForExistenceOfMainScreen()
         }
     }
 
     func testBreadcrumbData() {
+        app.buttons["Extra"].tap()
+
         let breadcrumbLabel = app.staticTexts["breadcrumbLabel"]
         breadcrumbLabel.waitForExistence("Breadcrumb label not found.")
-        XCTAssertEqual(breadcrumbLabel.label, "{ category: ui.lifecycle, parentViewController: UINavigationController, beingPresented: false, window_isKeyWindow: true, is_window_rootViewController: false }")
-      }
+        XCTAssertEqual(breadcrumbLabel.label, "{ category: ui.lifecycle, parentViewController: UITabBarController, beingPresented: false, window_isKeyWindow: true, is_window_rootViewController: false }")
+    }
 
     func testLoremIpsum() {
+        app.buttons["Transactions"].tap()
         app.buttons["loremIpsumButton"].tap()
         app.textViews.firstMatch.waitForExistence("Lorem Ipsum not loaded.")
     }
     
     func testNavigationTransaction() {
+        app.buttons["Transactions"].tap()
         app.buttons["testNavigationTransactionButton"].tap()
         app.images.firstMatch.waitForExistence("Navigation transaction not loaded.")
         assertApp()
     }
     
     func testShowNib() {
+        app.buttons["Transactions"].tap()
         app.buttons["showNibButton"].tap()
         app.buttons["lonelyButton"].waitForExistence("Nib ViewController not loaded.")
         assertApp()
     }
     
     func testUiClickTransaction() {
+        app.buttons["Transactions"].tap()
         app.buttons["uiClickTransactionButton"].tap()
     }
     
     func testCaptureError() {
-        app.buttons["Error"].tap()
+        app.buttons["Capture Error"].tap()
     }
     
     func testCaptureException() {
-        app.buttons["NSException"].tap()
+        app.buttons["Capture NSException"].tap()
     }
     
     func testShowTableView() {
+        app.buttons["Transactions"].tap()
         app.buttons["showTableViewButton"].tap()
         app.navigationBars.buttons.element(boundBy: 0).waitForExistence("TableView not loaded.")
         assertApp()
     }
     
     func testSplitView() {
+        app.buttons["Transactions"].tap()
         app.buttons["showSplitViewButton"].tap()
         
         let app = XCUIApplication()
@@ -87,12 +93,38 @@ class LaunchUITests: XCTestCase {
             assertApp()
         }
     }
-        
-    private func waitForExistenseOfMainScreen() {
-        app.buttons["captureMessageButton"].waitForExistence( "Home Screen doesn't exist.")
+
+    func testCheckSlowAndFrozenFrames() {
+        app.buttons["Extra"].tap()
+        checkSlowAndFrozenFrames()
+    }
+
+    /**
+     * We received a customer report that ASAN reports a use-after-free error after
+     * calling UIImage(named:) with an empty string argument. Recording another
+     * transaction leads to the ASAN error.
+     */
+    func testUseAfterFreeAfterUIImageNamedEmptyString() throws {
+        guard #available(iOS 14, *) else {
+            throw XCTSkip("Only run for iOS 14 or later")
+        }
+
+        let app = XCUIApplication()
+
+        // this primes the state required according to the customer report, by setting a UIImageView.image property to a UIImage(named: "")
+        app/*@START_MENU_TOKEN@*/.staticTexts["Use-after-free"]/*[[".buttons[\"Use-after-free\"].staticTexts[\"Use-after-free\"]",".staticTexts[\"Use-after-free\"]"],[[[-1,1],[-1,0]]],[0]]@END_MENU_TOKEN@*/.tap()
+
+        // this causes another transaction to be recorded which hits the codepath necessary for the ASAN to trip
+        app.tabBars["Tab Bar"].buttons["Extra"].tap()
+    }
+}
+
+private extension LaunchUITests {
+    func waitForExistenceOfMainScreen() {
+        app.waitForExistence( "Home Screen doesn't exist.")
     }
     
-    private func checkSlowAndFrozenFrames() {
+    func checkSlowAndFrozenFrames() {
         let frameStatsLabel = app.staticTexts["framesStatsLabel"]
         frameStatsLabel.waitForExistence("Frame statistics message not found.")
         
@@ -111,19 +143,11 @@ class LaunchUITests: XCTestCase {
         XCTAssertTrue(0.5 > frozenFramesPercentage, "Too many frozen frames.")
     }
     
-    private func assertApp() {
+    func assertApp() {
         let confirmation = app.staticTexts["ASSERT_MESSAGE"]
         let errorMessage = app.staticTexts["ASSERT_ERROR"]
         confirmation.waitForExistence("Assertion Message Not Found")
         
         XCTAssertTrue(confirmation.label == "ASSERT: SUCCESS", errorMessage.label)
-    }
-    
-}
-
-extension XCUIElement {
-
-    func waitForExistence(_ message: String) {
-        XCTAssertTrue(self.waitForExistence(timeout: TimeInterval(10)), message)
     }
 }

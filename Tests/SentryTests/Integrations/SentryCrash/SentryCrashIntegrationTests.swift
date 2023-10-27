@@ -1,9 +1,9 @@
+import SentryTestUtils
 import XCTest
 
 class SentryCrashIntegrationTests: NotificationCenterTestCase {
     
     private static let dsnAsString = TestConstants.dsnAsString(username: "SentryCrashIntegrationTests")
-    private static let dsn = TestConstants.dsn(username: "SentryCrashIntegrationTests")
     
     private class Fixture {
         let dispatchQueueWrapper = TestSentryDispatchQueueWrapper()
@@ -13,6 +13,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         let sentryCrash: TestSentryCrashWrapper
         
         init() {
+            SentryDependencyContainer.sharedInstance().sysctlWrapper = TestSysctl()
             sentryCrash = TestSentryCrashWrapper.sharedInstance()
             sentryCrash.internalActiveDurationSinceLastCrash = 5.0
             sentryCrash.internalCrashedLastLaunch = true
@@ -21,7 +22,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
             options.dsn = SentryCrashIntegrationTests.dsnAsString
             options.releaseName = TestData.appState.releaseName
             
-            client = TestClient(options: options, fileManager: try! SentryFileManager(options: options, andCurrentDateProvider: CurrentDate.getProvider()!, dispatchQueueWrapper: dispatchQueueWrapper))
+            client = TestClient(options: options, fileManager: try! SentryFileManager(options: options, dispatchQueueWrapper: dispatchQueueWrapper), deleteOldEnvelopeItems: false)
             hub = TestHub(client: client, andScope: nil)
         }
         
@@ -51,7 +52,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
     
     override func setUp() {
         super.setUp()
-        CurrentDate.setCurrentDateProvider(TestCurrentDateProvider())
+        SentryDependencyContainer.sharedInstance().dateProvider = TestCurrentDateProvider()
         
         fixture.client.fileManager.deleteCurrentSession()
         fixture.client.fileManager.deleteCrashedSession()
@@ -175,7 +176,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         XCTAssertEqual(session, fileManager.readCurrentSession())
         XCTAssertNil(fileManager.readCrashedSession())
     }
-    
+
     func testEndSessionAsCrashed_NoCurrentSession() {
         let (sut, _) = givenSutWithGlobalHub()
         
@@ -185,33 +186,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         XCTAssertNil(fileManager.readCurrentSession())
         XCTAssertNil(fileManager.readCrashedSession())
     }
-    
-    func testInstall_WhenStitchAsyncCallsEnabled_CallsInstallAsyncHooks() {
-        let sut = fixture.getSut()
-        
-        let options = Options()
-        options.stitchAsyncCode = true
-        sut.install(with: options)
-        
-        XCTAssertTrue(fixture.sentryCrash.installAsyncHooksCalled)
-    }
-    
-    func testInstall_WhenStitchAsyncCallsDisabled_DoesNotCallInstallAsyncHooks() {
-        fixture.getSut().install(with: Options())
-        
-        XCTAssertFalse(fixture.sentryCrash.installAsyncHooksCalled)
-    }
-
-    func testUninstall_CallsUninstallAsyncHooks() {
-        let sut = fixture.getSut()
-
-        sut.install(with: Options())
-
-        sut.uninstall()
-
-        XCTAssertTrue(fixture.sentryCrash.uninstallAsyncHooksCalled)
-    }
-    
+            
     func testUninstall_DoesNotUpdateLocale_OnLocaleDidChangeNotification() {
         let (sut, hub) = givenSutWithGlobalHubAndCrashWrapper()
 
@@ -272,7 +247,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         api?.pointee.setEnabled(true)
         
         let transport = TestTransport()
-        let client = SentryClient(options: fixture.options)
+        let client = SentryClient(options: fixture.options, fileManager: try TestFileManager(options: fixture.options), deleteOldEnvelopeItems: false)
         Dynamic(client).transportAdapter = TestTransportAdapter(transport: transport, options: fixture.options)
         hub.bindClient(client)
         
@@ -305,14 +280,14 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
     
     private func givenCrashedSession() -> SentrySession {
         let session = givenCurrentSession()
-        session.endCrashed(withTimestamp: CurrentDate.date().addingTimeInterval(5))
+        session.endCrashed(withTimestamp: SentryDependencyContainer.sharedInstance().dateProvider.date().addingTimeInterval(5))
         
         return session
     }
     
     #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
     private func givenOOMAppState() {
-        let appState = SentryAppState(releaseName: TestData.appState.releaseName, osVersion: UIDevice.current.systemVersion, vendorId: UIDevice.current.identifierForVendor?.uuidString ?? "", isDebugging: false, systemBootTimestamp: CurrentDate.date())
+        let appState = SentryAppState(releaseName: TestData.appState.releaseName, osVersion: UIDevice.current.systemVersion, vendorId: UIDevice.current.identifierForVendor?.uuidString ?? "", isDebugging: false, systemBootTimestamp: SentryDependencyContainer.sharedInstance().dateProvider.date())
         appState.isActive = true
         fixture.client.fileManager.store(appState)
         fixture.client.fileManager.moveAppStateToPreviousAppState()
@@ -404,6 +379,6 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
     }
     
     private func advanceTime(bySeconds: TimeInterval) {
-        (CurrentDate.getProvider() as! TestCurrentDateProvider).setDate(date: CurrentDate.date().addingTimeInterval(bySeconds))
+        (SentryDependencyContainer.sharedInstance().dateProvider as! TestCurrentDateProvider).setDate(date: SentryDependencyContainer.sharedInstance().dateProvider.date().addingTimeInterval(bySeconds))
     }
 }

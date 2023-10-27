@@ -2,10 +2,11 @@
 #import "SentryCrashDefaultMachineContextWrapper.h"
 #import "SentryCrashMachineContextWrapper.h"
 #import "SentryCrashStackEntryMapper.h"
+#import "SentryDependencyContainer.h"
 #import "SentryInAppLogic.h"
 #import "SentryNSDataTracker.h"
+#import "SentryNSProcessInfoWrapper.h"
 #import "SentryOptions+Private.h"
-#import "SentryProcessInfoWrapper.h"
 #import "SentryStacktraceBuilder.h"
 #import "SentrySwizzle.h"
 #import "SentryThreadInspector.h"
@@ -32,8 +33,8 @@ SentryNSDataSwizzling ()
 - (void)startWithOptions:(SentryOptions *)options
 {
     self.dataTracker = [[SentryNSDataTracker alloc]
-        initWithThreadInspector:[self buildThreadInspectorForOptions:options]
-             processInfoWrapper:[[SentryProcessInfoWrapper alloc] init]];
+        initWithThreadInspector:[[SentryThreadInspector alloc] initWithOptions:options]
+             processInfoWrapper:[SentryDependencyContainer.sharedInstance processInfoWrapper]];
     [self.dataTracker enable];
     [SentryNSDataSwizzling swizzleNSData];
 }
@@ -41,21 +42,6 @@ SentryNSDataSwizzling ()
 - (void)stop
 {
     [self.dataTracker disable];
-}
-
-- (SentryThreadInspector *)buildThreadInspectorForOptions:(SentryOptions *)options
-{
-    SentryInAppLogic *inAppLogic =
-        [[SentryInAppLogic alloc] initWithInAppIncludes:options.inAppIncludes
-                                          inAppExcludes:options.inAppExcludes];
-    SentryCrashStackEntryMapper *crashStackEntryMapper =
-        [[SentryCrashStackEntryMapper alloc] initWithInAppLogic:inAppLogic];
-    SentryStacktraceBuilder *stacktraceBuilder =
-        [[SentryStacktraceBuilder alloc] initWithCrashStackEntryMapper:crashStackEntryMapper];
-    id<SentryCrashMachineContextWrapper> machineContextWrapper =
-        [[SentryCrashDefaultMachineContextWrapper alloc] init];
-    return [[SentryThreadInspector alloc] initWithStacktraceBuilder:stacktraceBuilder
-                                           andMachineContextWrapper:machineContextWrapper];
 }
 
 // SentrySwizzleInstanceMethod declaration shadows a local variable. The swizzling is working

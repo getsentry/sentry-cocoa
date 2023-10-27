@@ -1,8 +1,16 @@
 #import "NSDate+SentryExtras.h"
+#import "SentryBreadcrumb.h"
 #import "SentryCrashReportConverter.h"
+#import "SentryDebugMeta.h"
+#import "SentryEvent.h"
+#import "SentryException.h"
+#import "SentryFrame.h"
 #import "SentryInAppLogic.h"
+#import "SentryMechanism.h"
 #import "SentryMechanismMeta.h"
-#import <Sentry/Sentry.h>
+#import "SentryStacktrace.h"
+#import "SentryThread.h"
+#import "SentryUser.h"
 #import <XCTest/XCTest.h>
 
 @interface SentryCrashReportConverterTests : XCTestCase
@@ -282,8 +290,8 @@
 
 - (void)testFatalError
 {
-    [self isValidReport:@"Resources/fatal-error-notable-adresses"];
-    NSDictionary *rawCrash = [self getCrashReport:@"Resources/fatal-error-notable-adresses"];
+    [self isValidReport:@"Resources/fatal-error-notable-addresses"];
+    NSDictionary *rawCrash = [self getCrashReport:@"Resources/fatal-error-notable-addresses"];
     SentryCrashReportConverter *reportConverter =
         [[SentryCrashReportConverter alloc] initWithReport:rawCrash inAppLogic:self.inAppLogic];
     SentryEvent *event = [reportConverter convertReportToEvent];
@@ -327,8 +335,8 @@
 
 - (void)testUserInfo
 {
-    [self isValidReport:@"Resources/fatal-error-notable-adresses"];
-    NSDictionary *rawCrash = [self getCrashReport:@"Resources/fatal-error-notable-adresses"];
+    [self isValidReport:@"Resources/fatal-error-notable-addresses"];
+    NSDictionary *rawCrash = [self getCrashReport:@"Resources/fatal-error-notable-addresses"];
     SentryCrashReportConverter *reportConverter =
         [[SentryCrashReportConverter alloc] initWithReport:rawCrash inAppLogic:self.inAppLogic];
     reportConverter.userContext = @{

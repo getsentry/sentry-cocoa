@@ -1,4 +1,5 @@
 import CoreData
+import SentryTestUtils
 import XCTest
 
 class SentryCoreDataTrackingIntegrationTests: XCTestCase {
@@ -35,11 +36,11 @@ class SentryCoreDataTrackingIntegrationTests: XCTestCase {
     func test_InstallAndUninstall() {
         let sut = fixture.getSut()
         
-        XCTAssertNil(SentryCoreDataSwizzling.sharedInstance.middleware)
+        XCTAssertNil(SentryCoreDataSwizzling.sharedInstance.coreDataTracker)
         sut.install(with: fixture.options)
-        XCTAssertNotNil(SentryCoreDataSwizzling.sharedInstance.middleware)
+        XCTAssertNotNil(SentryCoreDataSwizzling.sharedInstance.coreDataTracker)
         sut.uninstall()
-        XCTAssertNil(SentryCoreDataSwizzling.sharedInstance.middleware)
+        XCTAssertNil(SentryCoreDataSwizzling.sharedInstance.coreDataTracker)
     }
     
     func test_Install_swizzlingDisabled() {
@@ -109,9 +110,9 @@ class SentryCoreDataTrackingIntegrationTests: XCTestCase {
     private func assert_DontInstall(_ confOptions: ((Options) -> Void)) {
         let sut = fixture.getSut()
         confOptions(fixture.options)
-        XCTAssertNil(SentryCoreDataSwizzling.sharedInstance.middleware)
+        XCTAssertNil(SentryCoreDataSwizzling.sharedInstance.coreDataTracker)
         sut.install(with: fixture.options)
-        XCTAssertNil(SentryCoreDataSwizzling.sharedInstance.middleware)
+        XCTAssertNil(SentryCoreDataSwizzling.sharedInstance.coreDataTracker)
     }
     
     private func startTransaction() -> SentryTracer {

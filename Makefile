@@ -19,8 +19,12 @@ endif
 lint:
 	@echo "--> Running Swiftlint and Clang-Format"
 	./scripts/check-clang-format.py -r Sources Tests
-	swiftlint
+	swiftlint --strict
 .PHONY: lint
+
+no-changes-in-high-risk-files:
+	@echo "--> Checking if there are changes in high risk files"
+	./scripts/no-changes-in-high-risk-files.sh
 
 format: format-clang format-swift
 
@@ -40,13 +44,20 @@ GIT-REF := $(shell git rev-parse --abbrev-ref HEAD)
 
 test:
 	@echo "--> Running all tests"
-	./scripts/xcode-test.sh iOS latest $(GIT-REF) YES
+	./scripts/xcode-test.sh iOS latest $(GIT-REF) YES test Test
+	./scripts/xcode-slowest-tests.sh
 .PHONY: test
 
 run-test-server:
 	cd ./test-server && swift build
 	cd ./test-server && swift run &
 .PHONY: run-test-server
+
+test-alamofire:
+	./scripts/test-alamofire.sh
+
+test-homekit:
+	./scripts/test-homekit.sh
 
 analyze:
 	rm -rf analyzer
@@ -57,7 +68,7 @@ analyze:
 # For more info check out: https://github.com/Carthage/Carthage/releases/tag/0.38.0
 build-xcframework:
 	@echo "--> Carthage: creating Sentry xcframework"
-	carthage build --use-xcframeworks --no-skip-current
+	carthage build --use-xcframeworks --no-skip-current --verbose > build-xcframework.log
 # use ditto here to avoid clobbering symlinks which exist in macOS frameworks
 	ditto -c -k -X --rsrc --keepParent Carthage Sentry.xcframework.zip
 

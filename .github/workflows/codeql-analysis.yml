@@ -4,13 +4,15 @@ on:
   push:
     branches: [main]
   pull_request:
+    branches:
+      - main
   schedule:
     - cron: '40 4 * * 6'
 
 jobs:
   analyze:
     name: Analyze
-    runs-on: macos-11
+    runs-on: macos-13
 
     strategy:
       fail-fast: false
@@ -19,10 +21,10 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@17573ee1cc1b9d061760f3a006fc4aac4f944fd5 # pin@v2
+        uses: github/codeql-action/init@cdcdbb579706841c47f7063dda365e292e5cad7a # pin@v2
         with:
           languages: ${{ matrix.language }}
 
@@ -32,7 +34,7 @@ jobs:
           -workspace Sentry.xcworkspace
           -scheme Sentry
           -configuration Release
-          -destination platform="iOS Simulator,OS=latest,name=iPhone 11 Pro"
+          -destination platform="iOS Simulator,OS=latest,name=iPhone 14 Pro" | xcpretty && exit ${PIPESTATUS[0]}
 
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@17573ee1cc1b9d061760f3a006fc4aac4f944fd5 # pin@v2
+        uses: github/codeql-action/analyze@cdcdbb579706841c47f7063dda365e292e5cad7a # pin@v2

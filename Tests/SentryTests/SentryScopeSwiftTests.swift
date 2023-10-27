@@ -1,3 +1,4 @@
+import SentryTestUtils
 import XCTest
 
 class SentryScopeSwiftTests: XCTestCase {
@@ -28,15 +29,24 @@ class SentryScopeSwiftTests: XCTestCase {
             user = User(userId: "id")
             user.email = "user@sentry.io"
             user.username = "user123"
+            user.ipAddress = "127.0.0.1"
+            user.segment = "segmentA"
+            user.name = "User"
             user.ipAddress = ipAddress
-            user.data = ["some": ["data": "data", "date": date]]
             
+            let geo = Geo()
+            geo.city = "Vienna"
+            geo.countryCode = "at"
+            geo.region = "Vienna"
+            user.geo = geo
+            user.data = ["some": ["data": "data", "date": date] as [String: Any]]
+
             breadcrumb = Breadcrumb()
             breadcrumb.level = SentryLevel.info
             breadcrumb.timestamp = date
             breadcrumb.type = "user"
             breadcrumb.message = "Clicked something"
-            breadcrumb.data = ["some": ["data": "data", "date": date]]
+            breadcrumb.data = ["some": ["data": "data", "date": date] as [String: Any]]
             
             scope = Scope(maxBreadcrumbs: maxBreadcrumbs)
             scope.setUser(user)
@@ -64,9 +74,7 @@ class SentryScopeSwiftTests: XCTestCase {
         }
         
         var dateAs8601String: String {
-            get {
-                (date as NSDate).sentry_toIso8601String()
-            }
+            (date as NSDate).sentry_toIso8601String()
         }
     }
     
@@ -108,10 +116,42 @@ class SentryScopeSwiftTests: XCTestCase {
         XCTAssertNil(actual["transaction"])
         XCTAssertNotNil(actual["breadcrumbs"])
     }
+
+    func testInitWithScope() {
+        let scope = fixture.scope
+        scope.span = fixture.transaction
+
+        let snapshot = scope.serialize() as! [String: AnyHashable]
+
+        let cloned = Scope(scope: scope)
+        XCTAssertEqual(cloned.serialize() as! [String: AnyHashable], snapshot)
+
+        let (event1, event2) = (Event(), Event())
+        (event1.timestamp, event2.timestamp) = (fixture.date, fixture.date)
+        event2.eventId = event1.eventId
+        scope.applyTo(event: event1, maxBreadcrumbs: 10)
+        cloned.applyTo(event: event2, maxBreadcrumbs: 10)
+        XCTAssertEqual(
+            event1.serialize() as! [String: AnyHashable],
+            event2.serialize() as! [String: AnyHashable]
+        )
+
+        cloned.setExtras(["aa": "b"])
+        cloned.setTags(["ab": "c"])
+        cloned.addBreadcrumb(Breadcrumb(level: .debug, category: "http2"))
+        cloned.setUser(User(userId: "aid"))
+        cloned.setContext(value: ["ae": "af"], key: "myContext")
+        cloned.setDist("a456")
+        cloned.setEnvironment("a789")
+
+        XCTAssertEqual(scope.serialize() as! [String: AnyHashable], snapshot)
+        XCTAssertNotEqual(scope.serialize() as! [String: AnyHashable], cloned.serialize() as! [String: AnyHashable])
+    }
     
     func testApplyToEvent() {
         let actual = fixture.scope.applyTo(event: fixture.event, maxBreadcrumbs: 10)
-        
+        let actualContext = actual?.context as? [String: [String: String]]
+
         XCTAssertEqual(fixture.tags, actual?.tags)
         XCTAssertEqual(fixture.extra, actual?.extra as? [String: String])
         XCTAssertEqual(fixture.user, actual?.user)
@@ -120,7 +160,8 @@ class SentryScopeSwiftTests: XCTestCase {
         XCTAssertEqual(fixture.fingerprint, actual?.fingerprint)
         XCTAssertEqual(fixture.level, actual?.level)
         XCTAssertEqual([fixture.breadcrumb], actual?.breadcrumbs)
-        XCTAssertEqual(fixture.context, actual?.context as? [String: [String: String]])
+        XCTAssertEqual(fixture.context["c"], actualContext?["c"])
+        XCTAssertNotNil(actualContext?["trace"])
     }
     
     func testApplyToEvent_EventWithTags() {
@@ -228,7 +269,8 @@ class SentryScopeSwiftTests: XCTestCase {
     }
     
     func testApplyToEvent_EventWithContext() {
-        let context = NSMutableDictionary(dictionary: ["my": ["extra": "context"]])
+        let context = NSMutableDictionary(dictionary: ["my": ["extra": "context"],
+                                                       "trace": fixture.scope.propagationContext.traceForEvent() ])
         let event = fixture.event
         event.context = context as? [String: [String: String]]
         
@@ -238,10 +280,19 @@ class SentryScopeSwiftTests: XCTestCase {
         XCTAssertEqual(context as? [String: [String: String]],
                        actual?.context as? [String: [String: String]])
     }
+
+    func testApplyToEvent_EventWithError_contextHasTrace() {
+        let event = fixture.event
+        event.exceptions = [Exception(value: "Error", type: "Exception")]
+
+        let actual = fixture.scope.applyTo(event: event, maxBreadcrumbs: 10)
+
+        XCTAssertNotNil(actual?.context?["trace"])
+    }
     
     func testApplyToEvent_EventWithContext_MergesContext() {
         let context = NSMutableDictionary(dictionary: [
-            "first": ["a": "b", "c": "d"]])
+            "first": ["a": "b", "c": "d"], "trace": fixture.scope.propagationContext.traceForEvent()])
         let event = fixture.event
         event.context = context as? [String: [String: String]]
         
@@ -296,12 +347,17 @@ class SentryScopeSwiftTests: XCTestCase {
     }
     
     func testPeformanceOfSyncToSentryCrash() {
+        // To avoid spamming the test logs
+        SentryLog.configure(true, diagnosticLevel: .error)
+        
         let scope = fixture.scope
         scope.add(SentryCrashScopeObserver(maxBreadcrumbs: 100))
         
         self.measure {
             modifyScope(scope: scope)
         }
+        
+        setTestDefaultLogLevel()
     }
     
     func testPeformanceOfSyncToSentryCrash_OneCrumb() {
@@ -317,28 +373,13 @@ class SentryScopeSwiftTests: XCTestCase {
     
     // With this test we test if modifications from multiple threads don't lead to a crash.
     func testModifyingFromMultipleThreads() {
-        let queue = DispatchQueue(label: "SentryScopeTests", qos: .userInteractive, attributes: [.concurrent, .initiallyInactive])
-        let group = DispatchGroup()
-        
         let scope = fixture.scope
         
-        for _ in 0...2 {
-            group.enter()
-            queue.async {
-                
-                // The number is kept small for the CI to not take too long.
-                // If you really want to test this increase to 100_000 or so.
-                for _ in 0...10 {
-                    // Simulate some real world modifications of the user
-                    self.modifyScope(scope: scope)
-                }
-                
-                group.leave()
-            }
-        }
-        
-        queue.activate()
-        group.waitWithTimeout(timeout: 500)
+        // The number is kept small for the CI to not take too long.
+        // If you really want to test this increase to 100_000 or so.
+        testConcurrentModifications(asyncWorkItems: 2, writeLoopCount: 10, writeWork: { _ in
+            self.modifyScope(scope: scope)
+        })
     }
     
     func testScopeObserver_setUser() {
