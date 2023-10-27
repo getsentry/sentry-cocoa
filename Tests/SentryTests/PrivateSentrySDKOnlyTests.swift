@@ -95,7 +95,7 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
 #endif // SENTRY_HAS_UIKIT
 
     func testGetInstallationId() {
-        XCTAssertEqual(SentryInstallation.id(with: Options()), PrivateSentrySDKOnly.installationID)
+        XCTAssertEqual(SentryInstallation.id(withCacheDirectoryPath: "/var/tmp"), PrivateSentrySDKOnly.installationID)
     }
 
     func testSendAppStartMeasurement() {

@@ -12,7 +12,7 @@ class SentrySessionTestsSwift: XCTestCase {
     }
     
     func testEndSession() {
-        let session = SentrySession(releaseName: "0.1.0")
+        let session = SentrySession(releaseName: "0.1.0", cacheDirectoryPath: nil)
         let date = currentDateProvider.date().addingTimeInterval(1)
         session.endExited(withTimestamp: date)
         
@@ -22,7 +22,7 @@ class SentrySessionTestsSwift: XCTestCase {
     }
     
     func testInitAndDurationNilWhenSerialize() {
-        let session1 = SentrySession(releaseName: "1.4.0")
+        let session1 = SentrySession(releaseName: "1.4.0", cacheDirectoryPath: nil)
         var json = session1.serialize()
         json.removeValue(forKey: "init")
         json.removeValue(forKey: "duration")
@@ -42,7 +42,7 @@ class SentrySessionTestsSwift: XCTestCase {
         let user = User()
         user.email = "someone@sentry.io"
 
-        let session = SentrySession(releaseName: "1.0.0")
+        let session = SentrySession(releaseName: "1.0.0", cacheDirectoryPath: nil)
         session.user = user
         let copiedSession = session.copy() as! SentrySession
 
@@ -55,7 +55,7 @@ class SentrySessionTestsSwift: XCTestCase {
     
     func testInitWithJson_Status_MapsToCorrectStatus() {
         func testStatus(status: SentrySessionStatus, statusAsString: String) {
-            let expected = SentrySession(releaseName: "release")
+            let expected = SentrySession(releaseName: "release", cacheDirectoryPath: nil)
             var serialized = expected.serialize()
             serialized["status"] = statusAsString
             let actual = SentrySession(jsonObject: serialized)!
@@ -93,14 +93,14 @@ class SentrySessionTestsSwift: XCTestCase {
     }
     
     func withValue(setValue: (inout [String: Any]) -> Void) {
-        let expected = SentrySession(releaseName: "release")
+        let expected = SentrySession(releaseName: "release", cacheDirectoryPath: nil)
         var serialized = expected.serialize()
         setValue(&serialized)
         XCTAssertNil(SentrySession(jsonObject: serialized))
     }
     
     func testSerialize_Bools() {
-        let session = SentrySession(releaseName: "")
+        let session = SentrySession(releaseName: "", cacheDirectoryPath: nil)
 
         var json = session.serialize()
         json["init"] = 2

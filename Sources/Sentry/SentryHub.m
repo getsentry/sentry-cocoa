@@ -103,7 +103,7 @@ SentryHub ()
         if (_session != nil) {
             lastSession = _session;
         }
-        _session = [[SentrySession alloc] initWithReleaseName:options.releaseName];
+        _session = [[SentrySession alloc] initWithReleaseName:options.releaseName cacheDirectoryPath:options.cacheDirectoryPath];
 
         if (_errorsBeforeSession > 0 && options.enableAutoSessionTracking == YES) {
             _session.errors = _errorsBeforeSession;

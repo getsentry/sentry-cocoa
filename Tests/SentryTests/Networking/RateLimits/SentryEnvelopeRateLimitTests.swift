@@ -85,7 +85,7 @@ class SentryEnvelopeRateLimitTests: XCTestCase {
         }
         
         for _ in 0...2 {
-            let session = SentrySession(releaseName: "")
+            let session = SentrySession(releaseName: "", cacheDirectoryPath: nil)
             envelopeItems.append(SentryEnvelopeItem(session: session))
         }
         

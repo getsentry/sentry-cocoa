@@ -187,7 +187,7 @@ class SentrySerializationTests: XCTestCase {
     }
     
     func testSerializeSession() throws {
-        let dict = SentrySession(releaseName: "1.0.0").serialize()
+        let dict = SentrySession(releaseName: "1.0.0", cacheDirectoryPath: nil).serialize()
         let session = SentrySession(jsonObject: dict)!
         
         let data = SentrySerialization.data(with: session)
@@ -196,7 +196,7 @@ class SentrySerializationTests: XCTestCase {
     }
     
     func testSerializeSessionWithNoReleaseName() throws {
-        var dict = SentrySession(releaseName: "1.0.0").serialize()
+        var dict = SentrySession(releaseName: "1.0.0", cacheDirectoryPath: nil).serialize()
         dict["attrs"] = nil // Remove release name
         let session = SentrySession(jsonObject: dict)!
         
@@ -206,7 +206,7 @@ class SentrySerializationTests: XCTestCase {
     }
     
     func testSerializeSessionWithEmptyReleaseName() throws {
-        let dict = SentrySession(releaseName: "").serialize()
+        let dict = SentrySession(releaseName: "", cacheDirectoryPath: nil).serialize()
         let session = SentrySession(jsonObject: dict)!
         
         let data = SentrySerialization.data(with: session)!
@@ -215,7 +215,7 @@ class SentrySerializationTests: XCTestCase {
     }
     
     func testSerializeSessionWithGarbageInDict() throws {
-        var dict = SentrySession(releaseName: "").serialize()
+        var dict = SentrySession(releaseName: "", cacheDirectoryPath: nil).serialize()
         dict["started"] = "20"
         let data = SentrySerialization.data(withJSONObject: dict)!
         

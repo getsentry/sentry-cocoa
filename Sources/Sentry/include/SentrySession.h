@@ -19,6 +19,7 @@ typedef NS_ENUM(NSUInteger, SentrySessionStatus) {
 SENTRY_NO_INIT
 
 - (instancetype)initWithReleaseName:(NSString *)releaseName;
+- (instancetype)initWithReleaseName:(NSString *)releaseName cacheDirectoryPath:(nullable NSString*)cacheDirectoryPath;
 
 /**
  * Initializes @c SentrySession from a JSON object.

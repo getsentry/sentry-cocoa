@@ -43,13 +43,13 @@
  * WARNING: Only call async-safe functions from this function! DO NOT call
  * Objective-C methods!!!
  */
-@property (atomic, readwrite, assign) SentryCrashReportWriteCallback onCrash;
+@property (nullable, atomic, readwrite, assign) SentryCrashReportWriteCallback onCrash;
 
 /** Install this installation. Call this instead of -[SentryCrash install] to
  * install with everything needed for your particular backend.
- * If you wish to use default cache directory, pass null
+ * If you wish to use default cache directory, pass @c nil .
  */
-- (void)install:(NSString *)customCacheDirectory;
+- (void)install:(nullable NSString *)customCacheDirectory;
 
 /**
  * Call this instead of `-[SentryCrash uninstall]`.
@@ -65,13 +65,13 @@
  *
  * @param onCompletion Called when sending is complete (nil = ignore).
  */
-- (void)sendAllReportsWithCompletion:(SentryCrashReportFilterCompletion)onCompletion;
+- (void)sendAllReportsWithCompletion:(nullable SentryCrashReportFilterCompletion)onCompletion;
 
 /** Add a filter that gets executed before all normal filters.
  * Prepended filters will be executed in the order in which they were added.
  *
  * @param filter the filter to prepend.
  */
-- (void)addPreFilter:(id<SentryCrashReportFilter>)filter;
+- (void)addPreFilter:(nonnull id<SentryCrashReportFilter>)filter;
 
 @end

@@ -1,6 +1,5 @@
 #import "SentryInstallation.h"
 #import "SentryDefines.h"
-#import "SentryOptions.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -8,7 +7,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 static NSString *volatile installationString;
 
-+ (NSString *)idWithOptions:(SentryOptions *)options
++ (NSString *)idWithCacheDirectoryPath:(NSString *)cacheDirectoryPath
 {
     if (nil != installationString) {
         return installationString;
@@ -18,7 +17,7 @@ static NSString *volatile installationString;
             return installationString;
         }
 
-        NSString *cachePath = options.cacheDirectoryPath;
+        NSString *cachePath = cacheDirectoryPath;
         NSString *installationFilePath = [cachePath stringByAppendingPathComponent:@"INSTALLATION"];
         NSData *installationData = [NSData dataWithContentsOfFile:installationFilePath];
 
