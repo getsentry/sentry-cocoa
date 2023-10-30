@@ -147,6 +147,11 @@
     return nil;
 }
 
+- (UIApplicationState)applicationState
+{
+    return self.sharedApplication.applicationState;
+}
+
 @end
 
 #endif // SENTRY_HAS_UIKIT

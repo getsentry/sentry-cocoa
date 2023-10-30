@@ -8,12 +8,19 @@
 @class UIViewController;
 @protocol UIApplicationDelegate;
 
+typedef NS_ENUM(NSInteger, UIApplicationState);
+
 NS_ASSUME_NONNULL_BEGIN
 
 /**
  * A helper tool to retrieve informations from the application instance.
  */
 @interface SentryUIApplication : NSObject
+
+/**
+ * Returns the application state available at @c NSApplication.sharedApplication.applicationState
+ */
+@property (nonatomic, readonly) UIApplicationState applicationState;
 
 /**
  * Application shared UIApplication instance.
