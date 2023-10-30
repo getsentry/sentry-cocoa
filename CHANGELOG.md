@@ -4,7 +4,7 @@
 
 ### Features
 
-- Add visionOS support (#3328)
+- Add experimental visionOS support (#3328)
 - Add thread id and name to span data (#3359)
 
 ## 8.14.2
