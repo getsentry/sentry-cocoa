@@ -45,12 +45,7 @@ SentryCrashThread mainThreadID;
             andBuffer:(char *const)buffer
          andBufLength:(int)bufLength;
 {
-    bool result = sentrycrashthread_getThreadName(thread, buffer, bufLength);
-    if (result == true) {
-        return YES;
-    } else {
-        return NO;
-    }
+    return sentrycrashthread_getThreadName(thread, buffer, bufLength) == true;
 }
 
 - (BOOL)isMainThread:(SentryCrashThread)thread
