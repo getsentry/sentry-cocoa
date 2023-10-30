@@ -390,6 +390,7 @@ static BOOL appStartMeasurementRead;
 
 - (void)getCurrentScreen
 {
+#if SENTRY_HAS_UIKIT
     __weak SentryTracer *weakSelf = self;
     void (^saveViewNames)(void) = ^{
         NSArray *vcs = SentryDependencyContainer.sharedInstance.application.relevantViewControllers;
@@ -411,6 +412,7 @@ static BOOL appStartMeasurementRead;
     // before retrieving the current view controller, the event will not have this information.
     [SentryDependencyContainer.sharedInstance.dispatchQueueWrapper
         dispatchAsyncOnMainQueue:saveViewNames];
+#endif
 }
 
 - (NSArray<id<SentrySpan>> *)children
