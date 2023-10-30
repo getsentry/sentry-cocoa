@@ -6,6 +6,10 @@
 #    define SENTRY_EXTERN extern __attribute__((visibility("default")))
 #endif
 
+#ifndef TARGET_OS_VISION
+#    define TARGET_OS_VISION 0
+#endif
+
 // SENTRY_UIKIT_AVAILABLE basically means: are we on a platform where we can link UIKit?
 #if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_VISION
 #    define SENTRY_UIKIT_AVAILABLE 1
@@ -32,10 +36,6 @@
 #    define SENTRY_HAS_METRIC_KIT 1
 #else
 #    define SENTRY_HAS_METRIC_KIT 0
-#endif
-
-#ifndef TARGET_OS_VISION
-#    define TARGET_OS_VISION 0
 #endif
 
 #define SENTRY_NO_INIT                                                                             \
