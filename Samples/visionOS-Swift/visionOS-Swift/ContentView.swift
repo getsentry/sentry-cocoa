@@ -1,5 +1,6 @@
 import RealityKit
 import Sentry
+import SentrySwiftUI
 import SwiftUI
 
 struct ContentView: View {
@@ -12,20 +13,6 @@ struct ContentView: View {
     }
 
     var captureMessageAction: () -> Void = {
-        func delayNonBlocking(timeout: Double = 0.2) {
-            let group = DispatchGroup()
-            group.enter()
-            let queue = DispatchQueue(label: "delay", qos: .background, attributes: [])
-
-            queue.asyncAfter(deadline: .now() + timeout) {
-                group.leave()
-            }
-
-            group.wait()
-        }
-
-        delayNonBlocking(timeout: 5)
-
         SentrySDK.capture(message: "Yeah captured a message")
     }
 
@@ -37,7 +24,7 @@ struct ContentView: View {
         }
 
         let userFeedback = UserFeedback(eventId: eventId)
-        userFeedback.comments = "It broke on tvOS-Swift. I don't know why, but this happens."
+        userFeedback.comments = "It broke on visionOS-Swift. I don't know why, but this happens."
         userFeedback.email = "john@me.com"
         userFeedback.name = "John Me"
         SentrySDK.capture(userFeedback: userFeedback)
@@ -109,49 +96,66 @@ struct ContentView: View {
     }
 
     var body: some View {
-        VStack {
-            Text("Sentry VisionPro Sample")
-            Button(action: addBreadcrumbAction) {
-                Text("Add Breadcrumb")
-            }
-
-            Button(action: captureMessageAction) {
-                Text("Capture Message")
-            }
-            .accessibility(identifier: "captureMessageButton")
-
-            Button(action: captureUserFeedbackAction) {
-                Text("Capture User Feedback")
-            }
-
-            Button(action: captureErrorAction) {
-                Text("Capture Error")
-            }
-
-            Button(action: captureNSExceptionAction) {
-                Text("Capture NSException")
-            }
-
-            Button(action: captureTransactionAction) {
-                Text("Capture Transaction")
-            }
-
-            Button(action: {
-                SentrySDK.crash()
-            }) {
-                Text("Crash")
-            }
-
-            Button(action: {
-                DispatchQueue.main.async {
-                    self.asyncCrash1()
+        SentryTracedView("Content View Body") {
+            NavigationStack {
+                HStack {
+                    VStack {
+                        Button(action: addBreadcrumbAction) {
+                            Text("Add Breadcrumb")
+                        }
+                        
+                        Button(action: captureMessageAction) {
+                            Text("Capture Message")
+                        }
+                        .accessibility(identifier: "captureMessageButton")
+                        
+                        Button(action: captureUserFeedbackAction) {
+                            Text("Capture User Feedback")
+                        }
+                        
+                        Button(action: captureErrorAction) {
+                            Text("Capture Error")
+                        }
+                        
+                        Button(action: captureNSExceptionAction) {
+                            Text("Capture NSException")
+                        }
+                        
+                        Button(action: captureTransactionAction) {
+                            Text("Capture Transaction")
+                        }
+                    }
+                    VStack {
+                        
+                        Button(action: {
+                            SentrySDK.crash()
+                        }) {
+                            Text("Crash")
+                        }
+                        
+                        Button(action: {
+                            DispatchQueue.main.async {
+                                self.asyncCrash1()
+                            }
+                        }) {
+                            Text("Async Crash")
+                        }
+                        
+                        Button(action: oomCrashAction) {
+                            Text("OOM Crash")
+                        }
+                        
+                        Button(action: {
+                            Thread.sleep(forTimeInterval: 3.0)
+                        }) {
+                            Text("Cause ANR")
+                        }
+                        
+                        NavigationLink(destination: LoremIpsumView()) {
+                            Text("Show Detail View 1")
+                        }
+                    }
                 }
-            }) {
-                Text("Async Crash")
-            }
-
-            Button(action: oomCrashAction) {
-                Text("OOM Crash")
             }
         }
         .padding()

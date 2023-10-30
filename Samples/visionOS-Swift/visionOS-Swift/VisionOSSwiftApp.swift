@@ -10,6 +10,8 @@ struct VisionOSSwiftApp: App {
             options.debug = true
             options.tracesSampleRate = 1.0
             options.profilesSampleRate = 1.0
+            options.attachScreenshot = true
+            options.attachViewHierarchy = true
         }
     }
 
