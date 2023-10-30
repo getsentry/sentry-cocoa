@@ -5,11 +5,13 @@
 #import "SentryDispatchQueueWrapper.h"
 #import "SentryDisplayLinkWrapper.h"
 #import "SentryExtraContextProvider.h"
+#import "SentryLog.h"
 #import "SentryNSProcessInfoWrapper.h"
 #import "SentryNSTimerFactory.h"
 #import "SentryRandom.h"
 #import "SentrySysctl.h"
 #import "SentrySystemWrapper.h"
+#import "SentryThreadInspector.h"
 #import "SentryUIDeviceWrapper.h"
 #import <SentryAppStateManager.h>
 #import <SentryClient+Private.h>
@@ -59,6 +61,12 @@ static NSObject *sentryDependencyContainerLock;
 
 + (void)reset
 {
+#if !TARGET_OS_WATCH
+    if (instance) {
+        [instance->_reachability removeAllObservers];
+    }
+#endif // !TARGET_OS_WATCH
+
     instance = [[SentryDependencyContainer alloc] init];
 }
 
@@ -125,6 +133,19 @@ static NSObject *sentryDependencyContainerLock;
     return _sysctlWrapper;
 }
 
+- (SentryThreadInspector *)threadInspector
+{
+    if (_threadInspector == nil) {
+        @synchronized(sentryDependencyContainerLock) {
+            if (_threadInspector == nil) {
+                SentryOptions *options = [[[SentrySDK currentHub] getClient] options];
+                _threadInspector = [[SentryThreadInspector alloc] initWithOptions:options];
+            }
+        }
+    }
+    return _threadInspector;
+}
+
 - (SentryExtraContextProvider *)extraContextProvider
 {
     if (_extraContextProvider == nil) {
@@ -150,6 +171,7 @@ static NSObject *sentryDependencyContainerLock;
 #if TARGET_OS_IOS
 - (SentryUIDeviceWrapper *)uiDeviceWrapper
 {
+#    if SENTRY_HAS_UIKIT
     if (_uiDeviceWrapper == nil) {
         @synchronized(sentryDependencyContainerLock) {
             if (_uiDeviceWrapper == nil) {
@@ -158,12 +180,19 @@ static NSObject *sentryDependencyContainerLock;
         }
     }
     return _uiDeviceWrapper;
+#    else
+    SENTRY_LOG_DEBUG(
+        @"SentryDependencyContainer.uiDeviceWrapper only works with UIKit enabled. Ensure you're "
+        @"using the right configuration of Sentry that links UIKit.");
+    return nil;
+#    endif // SENTRY_HAS_UIKIT
 }
 #endif // TARGET_OS_IOS
 
-#if SENTRY_HAS_UIKIT
+#if SENTRY_UIKIT_AVAILABLE
 - (SentryScreenshot *)screenshot
 {
+#    if SENTRY_HAS_UIKIT
     if (_screenshot == nil) {
         @synchronized(sentryDependencyContainerLock) {
             if (_screenshot == nil) {
@@ -172,10 +201,17 @@ static NSObject *sentryDependencyContainerLock;
         }
     }
     return _screenshot;
+#    else
+    SENTRY_LOG_DEBUG(
+        @"SentryDependencyContainer.screenshot only works with UIKit enabled. Ensure you're "
+        @"using the right configuration of Sentry that links UIKit.");
+    return nil;
+#    endif // SENTRY_HAS_UIKIT
 }
 
 - (SentryViewHierarchy *)viewHierarchy
 {
+#    if SENTRY_HAS_UIKIT
     if (_viewHierarchy == nil) {
         @synchronized(sentryDependencyContainerLock) {
             if (_viewHierarchy == nil) {
@@ -184,10 +220,17 @@ static NSObject *sentryDependencyContainerLock;
         }
     }
     return _viewHierarchy;
+#    else
+    SENTRY_LOG_DEBUG(
+        @"SentryDependencyContainer.viewHierarchy only works with UIKit enabled. Ensure you're "
+        @"using the right configuration of Sentry that links UIKit.");
+    return nil;
+#    endif // SENTRY_HAS_UIKIT
 }
 
 - (SentryUIApplication *)application
 {
+#    if SENTRY_HAS_UIKIT
     if (_application == nil) {
         @synchronized(sentryDependencyContainerLock) {
             if (_application == nil) {
@@ -196,10 +239,17 @@ static NSObject *sentryDependencyContainerLock;
         }
     }
     return _application;
+#    else
+    SENTRY_LOG_DEBUG(
+        @"SentryDependencyContainer.application only works with UIKit enabled. Ensure you're "
+        @"using the right configuration of Sentry that links UIKit.");
+    return nil;
+#    endif // SENTRY_HAS_UIKIT
 }
 
 - (SentryFramesTracker *)framesTracker
 {
+#    if SENTRY_HAS_UIKIT
     if (_framesTracker == nil) {
         @synchronized(sentryDependencyContainerLock) {
             if (_framesTracker == nil) {
@@ -209,11 +259,17 @@ static NSObject *sentryDependencyContainerLock;
         }
     }
     return _framesTracker;
+#    else
+    SENTRY_LOG_DEBUG(
+        @"SentryDependencyContainer.framesTracker only works with UIKit enabled. Ensure you're "
+        @"using the right configuration of Sentry that links UIKit.");
+    return nil;
+#    endif // SENTRY_HAS_UIKIT
 }
-#endif // SENTRY_HAS_UIKIT
 
 - (SentrySwizzleWrapper *)swizzleWrapper
 {
+#    if SENTRY_HAS_UIKIT
     if (_swizzleWrapper == nil) {
         @synchronized(sentryDependencyContainerLock) {
             if (_swizzleWrapper == nil) {
@@ -222,7 +278,14 @@ static NSObject *sentryDependencyContainerLock;
         }
     }
     return _swizzleWrapper;
+#    else
+    SENTRY_LOG_DEBUG(
+        @"SentryDependencyContainer.uiDeviceWrapper only works with UIKit enabled. Ensure you're "
+        @"using the right configuration of Sentry that links UIKit.");
+    return nil;
+#    endif // SENTRY_HAS_UIKIT
 }
+#endif // SENTRY_UIKIT_AVAILABLE
 
 - (SentryANRTracker *)getANRTracker:(NSTimeInterval)timeout
 {

@@ -201,7 +201,7 @@ SentryCrashIntegration ()
     // OS
     NSMutableDictionary *osData = [NSMutableDictionary new];
 
-#if TARGET_OS_OSX || TARGET_OS_MACCATALYST
+#if SENTRY_TARGET_MACOS
     [osData setValue:@"macOS" forKey:@"name"];
 #elif TARGET_OS_IOS
     [osData setValue:@"iOS" forKey:@"name"];

@@ -12,11 +12,13 @@
 #import "SentrySwizzle.h"
 #import "SentrySwizzleWrapper.h"
 
+#if SENTRY_TARGET_MACOS
+#    import <Cocoa/Cocoa.h>
+#endif // SENTRY_TARGET_MACOS
+
 #if SENTRY_HAS_UIKIT
 #    import <UIKit/UIKit.h>
-#elif TARGET_OS_OSX || TARGET_OS_MACCATALYST
-#    import <Cocoa/Cocoa.h>
-#endif // !TARGET_OS_WATCH
+#endif // SENTRY_HAS_UIKIT
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -46,17 +48,19 @@ SentryBreadcrumbTracker ()
 {
     _delegate = delegate;
     [self addEnabledCrumb];
-    [self trackApplicationUIKitNotifications];
+    [self trackApplicationNotifications];
 #if !TARGET_OS_WATCH
     [self trackNetworkConnectivityChanges];
 #endif // !TARGET_OS_WATCH
 }
 
+#if SENTRY_HAS_UIKIT
 - (void)startSwizzle
 {
     [self swizzleSendAction];
     [self swizzleViewDidAppear];
 }
+#endif // SENTRY_HAS_UIKIT
 
 - (void)stop
 {
@@ -67,21 +71,24 @@ SentryBreadcrumbTracker ()
         removeSwizzleSendActionForKey:SentryBreadcrumbTrackerSwizzleSendAction];
 #endif // SENTRY_HAS_UIKIT
     _delegate = nil;
+#if !TARGET_OS_WATCH
+    [self stopTrackNetworkConnectivityChanges];
+#endif // !TARGET_OS_WATCH
 }
 
-- (void)trackApplicationUIKitNotifications
+- (void)trackApplicationNotifications
 {
 #if SENTRY_HAS_UIKIT
     NSNotificationName foregroundNotificationName = UIApplicationDidBecomeActiveNotification;
     NSNotificationName backgroundNotificationName = UIApplicationDidEnterBackgroundNotification;
-#elif TARGET_OS_OSX || TARGET_OS_MACCATALYST
+#elif SENTRY_TARGET_MACOS
     NSNotificationName foregroundNotificationName = NSApplicationDidBecomeActiveNotification;
     // Will resign Active notification is the nearest one to
     // UIApplicationDidEnterBackgroundNotification
     NSNotificationName backgroundNotificationName = NSApplicationWillResignActiveNotification;
 #else // TARGET_OS_WATCH
     SENTRY_LOG_DEBUG(@"NO UIKit, OSX and Catalyst -> [SentryBreadcrumbTracker "
-                     @"trackApplicationUIKitNotifications] does nothing.");
+                     @"trackApplicationNotifications] does nothing.");
 #endif // !TARGET_OS_WATCH
 
     // not available for macOS
@@ -101,7 +108,7 @@ SentryBreadcrumbTracker ()
                 }];
 #endif // SENTRY_HAS_UIKIT
 
-#if !TARGET_OS_WATCH && !TARGET_OS_VISION
+#if SENTRY_HAS_UIKIT || SENTRY_TARGET_MACOS && !TARGET_OS_VISION
     [NSNotificationCenter.defaultCenter addObserverForName:backgroundNotificationName
                                                     object:nil
                                                      queue:nil
@@ -123,23 +130,29 @@ SentryBreadcrumbTracker ()
                                                                     withDataKey:@"state"
                                                                   withDataValue:@"foreground"];
                                                 }];
-#endif // !TARGET_OS_WATCH
+#endif // SENTRY_HAS_UIKIT || SENTRY_TARGET_MACOS
 }
 
 #if !TARGET_OS_WATCH
 - (void)trackNetworkConnectivityChanges
 {
-    [SentryDependencyContainer.sharedInstance.reachability
-         addObserver:self
-        withCallback:^(BOOL connected, NSString *_Nonnull typeDescription) {
-            SentryBreadcrumb *crumb =
-                [[SentryBreadcrumb alloc] initWithLevel:kSentryLevelInfo
-                                               category:@"device.connectivity"];
-            crumb.type = @"connectivity";
-            crumb.data = [NSDictionary dictionaryWithObject:typeDescription forKey:@"connectivity"];
-            [self.delegate addBreadcrumb:crumb];
-        }];
+    [SentryDependencyContainer.sharedInstance.reachability addObserver:self];
 }
+
+- (void)stopTrackNetworkConnectivityChanges
+{
+    [SentryDependencyContainer.sharedInstance.reachability removeObserver:self];
+}
+
+- (void)connectivityChanged:(BOOL)connected typeDescription:(nonnull NSString *)typeDescription
+{
+    SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:kSentryLevelInfo
+                                                             category:@"device.connectivity"];
+    crumb.type = @"connectivity";
+    crumb.data = [NSDictionary dictionaryWithObject:typeDescription forKey:@"connectivity"];
+    [self.delegate addBreadcrumb:crumb];
+}
+
 #endif // !TARGET_OS_WATCH
 
 - (void)addBreadcrumbWithType:(NSString *)type
@@ -182,9 +195,9 @@ SentryBreadcrumbTracker ()
 }
 #endif // SENTRY_HAS_UIKIT
 
+#if SENTRY_HAS_UIKIT
 - (void)swizzleSendAction
 {
-#if SENTRY_HAS_UIKIT
     SentryBreadcrumbTracker *__weak weakSelf = self;
     [SentryDependencyContainer.sharedInstance.swizzleWrapper
         swizzleSendAction:^(NSString *action, id target, id sender, UIEvent *event) {
@@ -207,15 +220,12 @@ SentryBreadcrumbTracker ()
             [weakSelf.delegate addBreadcrumb:crumb];
         }
                    forKey:SentryBreadcrumbTrackerSwizzleSendAction];
-
-#else // !SENTRY_HAS_UIKIT
-    SENTRY_LOG_DEBUG(@"NO UIKit -> [SentryBreadcrumbTracker swizzleSendAction] does nothing.");
-#endif // SENTRY_HAS_UIKIT
 }
+#endif // SENTRY_HAS_UIKIT
 
+#if SENTRY_HAS_UIKIT
 - (void)swizzleViewDidAppear
 {
-#if SENTRY_HAS_UIKIT
 
     // SentrySwizzleInstanceMethod declaration shadows a local variable. The swizzling is working
     // fine and we accept this warning.
@@ -248,12 +258,8 @@ SentryBreadcrumbTracker ()
         }),
         mode, swizzleViewDidAppearKey);
 #    pragma clang diagnostic pop
-#else // !SENTRY_HAS_UIKIT
-    SENTRY_LOG_DEBUG(@"NO UIKit -> [SentryBreadcrumbTracker swizzleViewDidAppear] does nothing.");
-#endif // SENTRY_HAS_UIKIT
 }
 
-#if SENTRY_HAS_UIKIT
 + (NSDictionary *)extractDataFromView:(UIView *)view
 {
     NSMutableDictionary *result =

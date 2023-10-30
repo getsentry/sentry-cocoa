@@ -5,6 +5,13 @@ static NSString *const SentryDebugImageType = @"macho";
 static NSString *const SentryPlatformName = @"cocoa";
 
 /**
+ * Abort in debug, and log a warning in production.
+ */
+#define SENTRY_GRACEFUL_FATAL(...)                                                                 \
+    SENTRY_LOG_WARN(__VA_ARGS__);                                                                  \
+    NSAssert(NO, __VA_ARGS__);
+
+/**
  * Abort if assertion fails in debug, and log a warning if it fails in production.
  */
 #define SENTRY_ASSERT(cond, ...)                                                                   \
@@ -52,4 +59,6 @@ static NSString *const SentryPlatformName = @"cocoa";
         (__cond_result);                                                                           \
     })
 
-#define BLOCKED_MAIN_THREAD @"blocked_main_thread"
+#define SPAN_DATA_BLOCKED_MAIN_THREAD @"blocked_main_thread"
+#define SPAN_DATA_THREAD_ID @"thread.id"
+#define SPAN_DATA_THREAD_NAME @"thread.name"

@@ -40,11 +40,6 @@ ONLY_ACTIVE_ARCH[config=Debug] = YES
 GCC_OPTIMIZATION_LEVEL[config=Debug] = 0
 COPY_PHASE_STRIP[config=Debug] = NO
 
-LD_RUNPATH_SEARCH_PATHS[sdk=macosx*] = $(inherited) @executable_path/../Frameworks @loader_path/../Frameworks;
-LD_RUNPATH_SEARCH_PATHS[sdk=iphone*] = $(inherited) @executable_path/Frameworks @loader_path/Frameworks;
-LD_RUNPATH_SEARCH_PATHS[sdk=watch*] = $(inherited) @executable_path/Frameworks @loader_path/Frameworks;
-LD_RUNPATH_SEARCH_PATHS[sdk=appletv*] = $(inherited) @executable_path/Frameworks @loader_path/Frameworks;
-
 OTHER_LDFLAGS[sdk=watch*] = $(inherited) -framework WatchKit
 
 SUPPORTS_MACCATALYST = YES

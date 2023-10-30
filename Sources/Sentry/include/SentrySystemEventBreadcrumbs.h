@@ -1,9 +1,9 @@
 #import "SentryFileManager.h"
 #import <Foundation/Foundation.h>
 
-#if TARGET_OS_IOS
+#if TARGET_OS_IOS && SENTRY_HAS_UIKIT
+
 #    import <UIKit/UIKit.h>
-#endif
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -19,14 +19,14 @@ SENTRY_NO_INIT
 
 - (void)startWithDelegate:(id<SentryBreadcrumbDelegate>)delegate;
 
-#if TARGET_OS_IOS
 - (void)startWithDelegate:(id<SentryBreadcrumbDelegate>)delegate
             currentDevice:(nullable UIDevice *)currentDevice;
 - (void)timezoneEventTriggered;
-#endif
 
 - (void)stop;
 
 @end
 
 NS_ASSUME_NONNULL_END
+
+#endif // TARGET_OS_IOS && SENTRY_HAS_UIKIT

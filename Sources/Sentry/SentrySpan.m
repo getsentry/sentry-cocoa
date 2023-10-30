@@ -1,10 +1,12 @@
 #import "SentrySpan.h"
 #import "NSDate+SentryExtras.h"
 #import "NSDictionary+SentrySanitize.h"
+#import "SentryCrashThread.h"
 #import "SentryCurrentDateProvider.h"
 #import "SentryDependencyContainer.h"
 #import "SentryFrame.h"
 #import "SentryId.h"
+#import "SentryInternalDefines.h"
 #import "SentryLog.h"
 #import "SentryMeasurementValue.h"
 #import "SentryNoOpSpan.h"
@@ -12,6 +14,7 @@
 #import "SentrySerializable.h"
 #import "SentrySpanContext.h"
 #import "SentrySpanId.h"
+#import "SentryThreadInspector.h"
 #import "SentryTime.h"
 #import "SentryTraceHeader.h"
 #import "SentryTracer.h"
@@ -33,6 +36,20 @@ SentrySpan ()
     if (self = [super init]) {
         self.startTimestamp = [SentryDependencyContainer.sharedInstance.dateProvider date];
         _data = [[NSMutableDictionary alloc] init];
+
+        SentryCrashThread currentThread = sentrycrashthread_self();
+        _data[SPAN_DATA_THREAD_ID] = @(currentThread);
+
+        if ([NSThread isMainThread]) {
+            _data[SPAN_DATA_THREAD_NAME] = @"main";
+        } else {
+            NSString *threadName = [SentryDependencyContainer.sharedInstance.threadInspector
+                getThreadName:currentThread];
+            if (threadName.length > 0) {
+                _data[SPAN_DATA_THREAD_NAME] = threadName;
+            }
+        }
+
         _tags = [[NSMutableDictionary alloc] init];
         _isFinished = NO;
 

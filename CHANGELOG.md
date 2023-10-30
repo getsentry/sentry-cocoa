@@ -5,11 +5,52 @@
 ### Features
 
 - Add visionOS support (#3328)
+- Add thread id and name to span data (#3359)
+
+## 8.14.2
+
+### Features
+
+- Enrich error events with any underlying NSErrors reported by Cocoa APIs (#3230)
+
+### Features
+
+- Improve OOM detection by ignoring system reboot (#3352)
 
 ### Fixes
 
+- Missing `mechanism.handled` is not considered crash (#3353)
+
+## 8.14.1
+
+### Fixes
+
+- SPM build failure involving "unsafe settings" (#3348)
+
+## 8.14.0
+
+### Features
+
+- Sentry can now be used without linking UIKit; this is helpful for using the SDK in certain app extension contexts (#3175)  
+**Warning:** this breaks some SPM integrations. Use 8.14.1 if you integrate using SPM.
+
+- GA of MetricKit integration (#3340)
+
+Once enabled, this feature subscribes to [MetricKit's](https://developer.apple.com/documentation/metrickit) [MXDiagnosticPayload](https://developer.apple.com/documentation/metrickit/mxdiagnosticpayload) data, converts it to events, and sends it to Sentry.
+The MetricKit integration subscribes to [MXHangDiagnostic](https://developer.apple.com/documentation/metrickit/mxhangdiagnostic),
+[MXDiskWriteExceptionDiagnostic](https://developer.apple.com/documentation/metrickit/mxdiskwriteexceptiondiagnostic),
+and [MXCPUExceptionDiagnostic](https://developer.apple.com/documentation/metrickit/mxcpuexceptiondiagnostic).
+
+## 8.13.1
+
+### Fixes
+
+- Always start SDK on the main thread (#3291)
 - App hang with race condition for tick counter (#3290)
 - Remove "duplicate library" warning (#3312)
+- Fix multiple issues in Reachability (#3338)
+- Remove unnecessary build settings (#3325)
+- Crash in SentryTracer when cancelling timer (#3333)
 
 ## 8.13.0
 

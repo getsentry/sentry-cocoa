@@ -30,7 +30,7 @@ class ExtraViewController: UIViewController {
         }
 
         SentrySDK.reportFullyDisplayed()
-
+        
         Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { _ in
             self.framesLabel?.text = "Frames Total:\(PrivateSentrySDKOnly.currentScreenFrames.total) Slow:\(PrivateSentrySDKOnly.currentScreenFrames.slow) Frozen:\(PrivateSentrySDKOnly.currentScreenFrames.frozen)"
         }

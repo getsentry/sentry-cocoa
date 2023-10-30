@@ -8,7 +8,6 @@
 #    import <SentryCrashWrapper.h>
 #    import <SentryOptions.h>
 #    import <SentrySDK+Private.h>
-#    import <UIKit/UIKit.h>
 
 @interface
 SentryWatchdogTerminationLogic ()
@@ -58,6 +57,11 @@ SentryWatchdogTerminationLogic ()
 
     // The OS was upgraded
     if (![currentAppState.osVersion isEqualToString:previousAppState.osVersion]) {
+        return NO;
+    }
+
+    // The app may have been terminated due to device reboot
+    if (previousAppState.systemBootTimestamp != currentAppState.systemBootTimestamp) {
         return NO;
     }
 

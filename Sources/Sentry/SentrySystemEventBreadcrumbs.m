@@ -2,14 +2,14 @@
 #import "SentryBreadcrumb.h"
 #import "SentryBreadcrumbDelegate.h"
 #import "SentryCurrentDateProvider.h"
+#import "SentryDefines.h"
 #import "SentryDependencyContainer.h"
 #import "SentryLog.h"
 #import "SentryNSNotificationCenterWrapper.h"
 
-// all those notifications are not available for tvOS
-#if TARGET_OS_IOS
+#if TARGET_OS_IOS && SENTRY_HAS_UIKIT
+
 #    import <UIKit/UIKit.h>
-#endif
 
 @interface
 SentrySystemEventBreadcrumbs ()
@@ -32,17 +32,12 @@ SentrySystemEventBreadcrumbs ()
 
 - (void)startWithDelegate:(id<SentryBreadcrumbDelegate>)delegate
 {
-#if TARGET_OS_IOS
     UIDevice *currentDevice = [UIDevice currentDevice];
     [self startWithDelegate:delegate currentDevice:currentDevice];
-#else
-    SENTRY_LOG_DEBUG(@"NO iOS -> [SentrySystemEventsBreadcrumbs.start] does nothing.");
-#endif
 }
 
 - (void)stop
 {
-#if TARGET_OS_IOS
     // Remove the observers with the most specific detail possible, see
     // https://developer.apple.com/documentation/foundation/nsnotificationcenter/1413994-removeobserver
     [self.notificationCenterWrapper removeObserver:self name:UIKeyboardDidShowNotification];
@@ -57,7 +52,6 @@ SentrySystemEventBreadcrumbs ()
                                               name:UIDeviceOrientationDidChangeNotification];
     [self.notificationCenterWrapper removeObserver:self
                                               name:UIDeviceOrientationDidChangeNotification];
-#endif
 }
 
 - (void)dealloc
@@ -67,7 +61,6 @@ SentrySystemEventBreadcrumbs ()
     [self.notificationCenterWrapper removeObserver:self];
 }
 
-#if TARGET_OS_IOS
 /**
  * Only used for testing, call startWithDelegate instead.
  */
@@ -86,9 +79,7 @@ SentrySystemEventBreadcrumbs ()
     [self initScreenshotObserver];
     [self initTimezoneObserver];
 }
-#endif
 
-#if TARGET_OS_IOS
 - (void)initBatteryObserver:(UIDevice *)currentDevice
 {
     if (currentDevice.batteryMonitoringEnabled == NO) {
@@ -265,6 +256,6 @@ SentrySystemEventBreadcrumbs ()
         storeTimezoneOffset:SentryDependencyContainer.sharedInstance.dateProvider.timezoneOffset];
 }
 
-#endif
-
 @end
+
+#endif // TARGET_OS_IOS && SENTRY_HAS_UIKIT

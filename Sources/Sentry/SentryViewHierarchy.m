@@ -7,7 +7,6 @@
 #    import "SentryDependencyContainer.h"
 #    import "SentryLog.h"
 #    import "SentryUIApplication.h"
-#    import "UIView+Sentry.h"
 #    import <UIKit/UIKit.h>
 
 @import SentryPrivate;
@@ -130,7 +129,7 @@ writeJSONDataToMemory(const char *const data, const int length, void *const user
     tryJson(sentrycrashjson_addFloatingPointElement(context, "alpha", view.alpha));
     tryJson(sentrycrashjson_addBooleanElement(context, "visible", !view.hidden));
 
-    if ([view.nextResponder isKindOfClass:[UIViewController self]]) {
+    if ([view.nextResponder isKindOfClass:[UIViewController class]]) {
         UIViewController *vc = (UIViewController *)view.nextResponder;
         if (vc.view == view) {
             const char *viewControllerClassName =

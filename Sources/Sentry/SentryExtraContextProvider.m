@@ -1,6 +1,7 @@
 #import "SentryExtraContextProvider.h"
 #import "SentryCrashIntegration.h"
 #import "SentryCrashWrapper.h"
+#import "SentryDefines.h"
 #import "SentryDependencyContainer.h"
 #import "SentryNSProcessInfoWrapper.h"
 #import "SentryUIDeviceWrapper.h"
@@ -44,7 +45,7 @@ SentryExtraContextProvider ()
     extraDeviceContext[@"free_storage"] = @(self.crashWrapper.freeStorageSize);
     extraDeviceContext[@"processor_count"] = @([self.processInfoWrapper processorCount]);
 
-#if TARGET_OS_IOS
+#if TARGET_OS_IOS && SENTRY_HAS_UIKIT
     SentryUIDeviceWrapper *deviceWrapper = SentryDependencyContainer.sharedInstance.uiDeviceWrapper;
     if (deviceWrapper.orientation != UIDeviceOrientationUnknown) {
         extraDeviceContext[@"orientation"]
@@ -56,7 +57,7 @@ SentryExtraContextProvider ()
             = deviceWrapper.batteryState == UIDeviceBatteryStateCharging ? @(YES) : @(NO);
         extraDeviceContext[@"battery_level"] = @((int)(deviceWrapper.batteryLevel * 100));
     }
-#endif
+#endif // TARGET_OS_IOS && SENTRY_HAS_UIKIT
     return extraDeviceContext;
 }
 
