@@ -278,7 +278,7 @@ SentryCrashIntegration ()
 
     NSArray<UIWindow *> *appWindows = SentryDependencyContainer.sharedInstance.application.windows;
     if ([appWindows count] > 0) {
-        UIWindowScene *appScreen = appWindows.firstObject.windowScene;
+        UIScreen *appScreen = appWindows.firstObject.screen;
         if (appScreen != nil) {
             [deviceData setValue:@(appScreen.bounds.size.height) forKey:@"screen_height_pixels"];
             [deviceData setValue:@(appScreen.bounds.size.width) forKey:@"screen_width_pixels"];
