@@ -76,7 +76,12 @@
 
 - (NSArray<UIViewController *> *)relevantViewControllerFromWindow:(UIWindow *)window
 {
-    NSMutableArray<UIViewController *> *result = @[ window.rootViewController ].mutableCopy;
+    UIViewController* rootViewController = window.rootViewController;
+    if (rootViewController == nil) {
+        return nil;
+    }
+    
+    NSMutableArray<UIViewController *> *result = @[ rootViewController  ].mutableCopy;
     NSUInteger index = 0;
 
     while (index < result.count) {
