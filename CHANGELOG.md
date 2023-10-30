@@ -18,6 +18,7 @@
 
 ### Fixes
 
+- Reporting app hangs from background (#3298)
 - Missing `mechanism.handled` is not considered crash (#3353)
 
 ## 8.14.1
@@ -39,6 +40,7 @@ Once enabled, this feature subscribes to [MetricKit's](https://developer.apple.c
 The MetricKit integration subscribes to [MXHangDiagnostic](https://developer.apple.com/documentation/metrickit/mxhangdiagnostic),
 [MXDiskWriteExceptionDiagnostic](https://developer.apple.com/documentation/metrickit/mxdiskwriteexceptiondiagnostic),
 and [MXCPUExceptionDiagnostic](https://developer.apple.com/documentation/metrickit/mxcpuexceptiondiagnostic).
+
 
 ## 8.13.1
 
