@@ -6,6 +6,10 @@
 
 - Add thread id and name to span data (#3359)
 
+### Improvements
+
+- Stop sending empty thread names (#3361)
+
 ## 8.14.2
 
 ### Features
