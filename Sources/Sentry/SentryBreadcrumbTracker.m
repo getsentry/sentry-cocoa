@@ -108,7 +108,7 @@ SentryBreadcrumbTracker ()
                 }];
 #endif // SENTRY_HAS_UIKIT
 
-#if SENTRY_HAS_UIKIT || SENTRY_TARGET_MACOS && !TARGET_OS_VISION
+#if SENTRY_HAS_UIKIT || SENTRY_TARGET_MACOS
     [NSNotificationCenter.defaultCenter addObserverForName:backgroundNotificationName
                                                     object:nil
                                                      queue:nil

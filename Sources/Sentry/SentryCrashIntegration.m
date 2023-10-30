@@ -209,6 +209,8 @@ SentryCrashIntegration ()
     [osData setValue:@"tvOS" forKey:@"name"];
 #elif TARGET_OS_WATCH
     [osData setValue:@"watchOS" forKey:@"name"];
+#elif TARGET_OS_VISION
+    [osData setValue:@"visionOS" forKey:@"name"];
 #endif
 
     // For MacCatalyst the UIDevice returns the current version of MacCatalyst and not the
@@ -271,11 +273,12 @@ SentryCrashIntegration ()
     NSString *locale = [[NSLocale autoupdatingCurrentLocale] objectForKey:NSLocaleIdentifier];
     [deviceData setValue:locale forKey:LOCALE_KEY];
 
-#if SENTRY_HAS_UIKIT
+// The UIWindowScene is unavailable on visionOS
+#if SENTRY_HAS_UIKIT && !TARGET_OS_VISION
 
     NSArray<UIWindow *> *appWindows = SentryDependencyContainer.sharedInstance.application.windows;
     if ([appWindows count] > 0) {
-        UIScreen *appScreen = appWindows.firstObject.screen;
+        UIWindowScene *appScreen = appWindows.firstObject.windowScene;
         if (appScreen != nil) {
             [deviceData setValue:@(appScreen.bounds.size.height) forKey:@"screen_height_pixels"];
             [deviceData setValue:@(appScreen.bounds.size.width) forKey:@"screen_width_pixels"];
