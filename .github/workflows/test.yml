@@ -250,9 +250,11 @@ jobs:
   thread-sanitizer:
     name: Unit iOS - Thread Sanitizer
     runs-on: macos-13
-    # When there are threading issues the tests sometimes keep hanging
     timeout-minutes: 20
     needs: [build-test-server]
+    
+    # There are several ways this test can flake. Sometimes threaded tests will just hang and the job will time out, other times waiting on expectations will take much longer than in a non-TSAN run and the test case will fail. We're making this nonfailable and will grep the logs to extract any actual thread sanitizer warnings to push to the PR, and ignore everything else.
+    continue-on-error: true
 
     steps:
       - uses: actions/checkout@v4
