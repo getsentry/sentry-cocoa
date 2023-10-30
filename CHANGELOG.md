@@ -6,6 +6,10 @@
 
 - Add thread id and name to span data (#3359)
 
+### Fixes
+
+- Work around edge case with a thread info syscall sometimes returning an invalid pointer, leading to a crash (#3364)
+
 ## 8.14.2
 
 ### Features
