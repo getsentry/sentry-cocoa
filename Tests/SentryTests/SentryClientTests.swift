@@ -313,19 +313,28 @@ class SentryClientTest: XCTestCase {
         }
     }
     
-    func testCaptureEventDontOverrideScopeCurrentScreen() {
+    func testCaptureTransactionWithScreen() {
         SentryDependencyContainer.sharedInstance().application = TestSentryUIApplication()
         
-        let event = Event()
-        event.exceptions = [ Exception(value: "", type: "")]
-        
-        let scope = fixture.scope
-        scope.screen = "Some Screen"
-        fixture.getSut().capture(event: event, scope: scope)
+        let event = Transaction(trace: SentryTracer(context: SpanContext(operation: "test")), children: [])
+        event.screens = ["AnotherScreen"]
+        fixture.getSut().capture(event: event, scope: fixture.scope)
         
         try? assertLastSentEventWithAttachment { event in
             let viewName = event.context?["app"]?["view_names"] as? [String]
-            XCTAssertEqual(viewName?.first, "Some Screen")
+            XCTAssertEqual(viewName?.first, "AnotherScreen")
+        }
+    }
+    
+    func testCaptureTransactionWithoutScreen() {
+        SentryDependencyContainer.sharedInstance().application = TestSentryUIApplication()
+        
+        let event = Transaction(trace: SentryTracer(context: SpanContext(operation: "test")), children: [])
+        fixture.getSut().capture(event: event, scope: fixture.scope)
+        
+        try? assertLastSentEventWithAttachment { event in
+            let viewName = event.context?["app"]?["view_names"] as? [String]
+            XCTAssertEqual(viewName?.first, "ClientTestViewController")
         }
     }
 #endif

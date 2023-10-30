@@ -65,30 +65,32 @@
         return nil;
 
     for (UIWindow *window in windows) {
-        UIViewController *vc = [self relevantViewControllerFromWindow:window];
-        if (vc != nil) {
-            [result addObject:vc];
+        NSArray<UIViewController *> *vcs = [self relevantViewControllerFromWindow:window];
+        if (vcs != nil) {
+            [result addObjectsFromArray:vcs];
         }
     }
 
     return result;
 }
 
-- (UIViewController *)relevantViewControllerFromWindow:(UIWindow *)window
+- (NSArray<UIViewController *> *)relevantViewControllerFromWindow:(UIWindow *)window
 {
-    UIViewController *topVC = window.rootViewController;
+    NSMutableArray<UIViewController *> *result = @[ window.rootViewController ].mutableCopy;
+    NSUInteger index = 0;
 
-    while (topVC != nil) {
+    while (index < result.count) {
+        UIViewController *topVC = result[index];
         // If the view controller is presenting another one, usually in a modal form.
         if (topVC.presentedViewController != nil) {
-            topVC = topVC.presentedViewController;
+            [result replaceObjectAtIndex:index withObject:topVC.presentedViewController];
             continue;
-            ;
         }
 
         // The top view controller is meant for navigation and not content
         if ([self isContainerViewController:topVC]) {
-            topVC = [self relevantViewControllerFromHierarchy:topVC];
+            [result removeObjectAtIndex:index];
+            [result addObjectsFromArray:[self relevantViewControllerFromContainer:topVC]];
             continue;
         }
 
@@ -105,14 +107,14 @@
         }
 
         if (relevantChild != nil) {
-            topVC = relevantChild;
+            [result replaceObjectAtIndex:index withObject:topVC];
             continue;
         }
 
-        break;
+        index++;
     }
 
-    return topVC;
+    return result;
 }
 
 - (BOOL)isContainerViewController:(UIViewController *)viewController
@@ -123,25 +125,26 @@
         [viewController isKindOfClass:UIPageViewController.class];
 }
 
-- (UIViewController *)relevantViewControllerFromHierarchy:(UIViewController *)containerVC
+- (nullable NSArray<UIViewController *> *)relevantViewControllerFromContainer:
+    (UIViewController *)containerVC
 {
     if ([containerVC isKindOfClass:UINavigationController.class]) {
-        return [(UINavigationController *)containerVC topViewController];
+        return @[ [(UINavigationController *)containerVC topViewController] ];
     }
     if ([containerVC isKindOfClass:UITabBarController.class]) {
         UITabBarController *tbController = (UITabBarController *)containerVC;
-        return [tbController.viewControllers objectAtIndex:tbController.selectedIndex];
+        return @[ [tbController.viewControllers objectAtIndex:tbController.selectedIndex] ];
     }
     if ([containerVC isKindOfClass:UISplitViewController.class]) {
         UISplitViewController *splitVC = (UISplitViewController *)containerVC;
         if (splitVC.viewControllers.count > 1) {
-            return [[splitVC viewControllers] objectAtIndex:1];
+            return [splitVC viewControllers];
         }
     }
     if ([containerVC isKindOfClass:UIPageViewController.class]) {
         UIPageViewController *pageVC = (UIPageViewController *)containerVC;
         if (pageVC.viewControllers.count > 0) {
-            return [[pageVC viewControllers] objectAtIndex:0];
+            return @[ [[pageVC viewControllers] objectAtIndex:0] ];
         }
     }
     return nil;

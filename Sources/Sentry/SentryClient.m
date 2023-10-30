@@ -809,24 +809,36 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                     key:@"app"
                   block:^(NSMutableDictionary *app) {
                       [app addEntriesFromDictionary:extraContext[@"app"]];
-#if SENTRY_HAS_UIKIT
-                      void (^addViewName)(void) = ^{
-                          if (app[@"view_names"] == nil) {
-                              NSArray *viewControllers = SentryDependencyContainer.sharedInstance
-                                                             .application.relevantViewControllers;
-                              NSMutableArray *vcsNames = [NSMutableArray array];
-                              for (id vc in viewControllers) {
-                                  [vcsNames addObject:[SwiftDescriptor getObjectClassName:vc]];
-                              }
-                              app[@"view_names"] = vcsNames;
-                          }
-                      };
-
-                      [[SentryDependencyContainer.sharedInstance dispatchQueueWrapper]
-                          dispatchSyncOnMainQueue:addViewName
-                                          timeout:0.001];
-#endif
+                      [self addViewNamesToContext:app event:event];
                   }];
+}
+
+- (void)addViewNamesToContext:(NSMutableDictionary *)appContext event:(SentryEvent *)event
+{
+#if SENTRY_HAS_UIKIT
+    if ([event isKindOfClass:[SentryTransaction class]]) {
+        SentryTransaction *transaction = (SentryTransaction *)event;
+        if ([transaction.screens count] > 0) {
+            appContext[@"view_names"] = transaction.screens;
+        }
+    }
+
+    if (appContext[@"view_names"] == nil) {
+        void (^addViewName)(void) = ^{
+            NSArray *viewControllers
+                = SentryDependencyContainer.sharedInstance.application.relevantViewControllers;
+            NSMutableArray *vcsNames = [NSMutableArray array];
+            for (id vc in viewControllers) {
+                [vcsNames addObject:[SwiftDescriptor getObjectClassName:vc]];
+            }
+            appContext[@"view_names"] = vcsNames;
+        };
+
+        [[SentryDependencyContainer.sharedInstance dispatchQueueWrapper]
+            dispatchSyncOnMainQueue:addViewName
+                            timeout:0.001];
+    }
+#endif
 }
 
 - (void)removeExtraDeviceContextFromEvent:(SentryEvent *)event

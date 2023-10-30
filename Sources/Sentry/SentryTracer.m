@@ -23,10 +23,12 @@
 #import "SentryTracer+Private.h"
 #import "SentryTransaction.h"
 #import "SentryTransactionContext.h"
+#import "SentryUIApplication.h"
 #import <NSMutableDictionary+Sentry.h>
 #import <SentryDispatchQueueWrapper.h>
 #import <SentryMeasurementValue.h>
 #import <SentrySpanOperations.h>
+@import SentryPrivate;
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 #    import "SentryProfiledTracerConcurrency.h"
@@ -93,6 +95,7 @@ SentryTracer ()
     NSUInteger initTotalFrames;
     NSUInteger initSlowFrames;
     NSUInteger initFrozenFrames;
+    NSMutableArray<NSString *> *viewNames;
 #endif // SENTRY_HAS_UIKIT
 }
 
@@ -138,6 +141,7 @@ static BOOL appStartMeasurementRead;
 
 #if SENTRY_HAS_UIKIT
     appStartMeasurement = [self getAppStartMeasurement];
+    [self getCurrentScreen];
 #endif // SENTRY_HAS_UIKIT
 
     _idleTimeoutLock = [[NSObject alloc] init];
@@ -382,6 +386,31 @@ static BOOL appStartMeasurementRead;
         }
     }
     return _traceContext;
+}
+
+- (void)getCurrentScreen
+{
+    __weak SentryTracer *weakSelf = self;
+    void (^saveViewNames)(void) = ^{
+        NSArray *vcs = SentryDependencyContainer.sharedInstance.application.relevantViewControllers;
+        NSMutableArray *vcsNames = [NSMutableArray array];
+        for (UIViewController *vc in vcs) {
+            [vcsNames addObject:[SwiftDescriptor getObjectClassName:vc]];
+        }
+
+        // Since viewNames is a field, we can't access a field from a weak reference that could be
+        // dereferenced. Thats why we need this auxiliary variable.
+        SentryTracer *_self = weakSelf;
+        if (_self) {
+            _self->viewNames = vcsNames;
+        }
+    };
+
+    // We need to retrieve the current view controller on the main thread.
+    // If the transaction is called from a background thread and finishes
+    // before retrieving the current view controller, the event will not have this information.
+    [SentryDependencyContainer.sharedInstance.dispatchQueueWrapper
+        dispatchAsyncOnMainQueue:saveViewNames];
 }
 
 - (NSArray<id<SentrySpan>> *)children
@@ -641,6 +670,10 @@ static BOOL appStartMeasurementRead;
 
 #if SENTRY_HAS_UIKIT
     [self addMeasurements:transaction];
+
+    if ([viewNames count] > 0) {
+        transaction.screens = viewNames;
+    }
 #endif // SENTRY_HAS_UIKIT
 
     return transaction;
