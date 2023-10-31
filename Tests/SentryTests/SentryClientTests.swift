@@ -315,14 +315,32 @@ class SentryClientTest: XCTestCase {
     
     func testCaptureTransactionWithScreen() {
         SentryDependencyContainer.sharedInstance().application = TestSentryUIApplication()
-        
-        let event = Transaction(trace: SentryTracer(context: SpanContext(operation: "test")), children: [])
-        event.screens = ["AnotherScreen"]
-        fixture.getSut().capture(event: event, scope: fixture.scope)
-        
-        try? assertLastSentEventWithAttachment { event in
-            let viewName = event.context?["app"]?["view_names"] as? [String]
-            XCTAssertEqual(viewName?.first, "AnotherScreen")
+        let tracer = SentryTracer(transactionContext: TransactionContext(operation: "Operation"), hub: nil)
+        if let event = Dynamic(tracer).toTransaction() as Transaction? {
+            fixture.getSut().capture(event: event, scope: fixture.scope)
+            
+            try? assertLastSentEventWithAttachment { event in
+                let viewName = event.context?["app"]?["view_names"] as? [String]
+                XCTAssertEqual(viewName?.first, "ClientTestViewController")
+            }
+        } else {
+            XCTFail("Could not get transaction from tracer")
+        }
+    }
+    
+    func testCaptureTransactionWithChangeScreen() {
+        SentryDependencyContainer.sharedInstance().application = TestSentryUIApplication()
+        let tracer = SentryTracer(transactionContext: TransactionContext(operation: "Operation"), hub: nil)
+        if let event = Dynamic(tracer).toTransaction() as Transaction? {
+            event.viewNames = ["AnotherScreen"]
+            fixture.getSut().capture(event: event, scope: fixture.scope)
+            
+            try? assertLastSentEventWithAttachment { event in
+                let viewName = event.context?["app"]?["view_names"] as? [String]
+                XCTAssertEqual(viewName?.first, "AnotherScreen")
+            }
+        } else {
+            XCTFail("Could not get transaction from tracer")
         }
     }
     
@@ -334,7 +352,7 @@ class SentryClientTest: XCTestCase {
         
         try? assertLastSentEventWithAttachment { event in
             let viewName = event.context?["app"]?["view_names"] as? [String]
-            XCTAssertEqual(viewName?.first, "ClientTestViewController")
+            XCTAssertNil(viewName)
         }
     }
 #endif

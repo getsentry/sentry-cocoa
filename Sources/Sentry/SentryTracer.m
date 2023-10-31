@@ -95,7 +95,7 @@ SentryTracer ()
     NSUInteger initTotalFrames;
     NSUInteger initSlowFrames;
     NSUInteger initFrozenFrames;
-    NSMutableArray<NSString *> *viewNames;
+    NSArray<NSString *> *viewNames;
 #endif // SENTRY_HAS_UIKIT
 }
 
@@ -141,7 +141,7 @@ static BOOL appStartMeasurementRead;
 
 #if SENTRY_HAS_UIKIT
     appStartMeasurement = [self getAppStartMeasurement];
-    [self getCurrentScreen];
+    viewNames = [SentryDependencyContainer.sharedInstance.application relevantViewControllersNames];
 #endif // SENTRY_HAS_UIKIT
 
     _idleTimeoutLock = [[NSObject alloc] init];
@@ -387,33 +387,6 @@ static BOOL appStartMeasurementRead;
     }
     return _traceContext;
 }
-
-#if SENTRY_HAS_UIKIT
-- (void)getCurrentScreen
-{
-    __weak SentryTracer *weakSelf = self;
-    void (^saveViewNames)(void) = ^{
-        NSArray *vcs = SentryDependencyContainer.sharedInstance.application.relevantViewControllers;
-        NSMutableArray *vcsNames = [NSMutableArray array];
-        for (UIViewController *vc in vcs) {
-            [vcsNames addObject:[SwiftDescriptor getObjectClassName:vc]];
-        }
-
-        // Since viewNames is a field, we can't access a field from a weak reference that could be
-        // dereferenced. Thats why we need this auxiliary variable.
-        SentryTracer *_self = weakSelf;
-        if (_self) {
-            _self->viewNames = vcsNames;
-        }
-    };
-
-    // We need to retrieve the current view controller on the main thread.
-    // If the transaction is called from a background thread and finishes
-    // before retrieving the current view controller, the event will not have this information.
-    [SentryDependencyContainer.sharedInstance.dispatchQueueWrapper
-        dispatchAsyncOnMainQueue:saveViewNames];
-}
-#endif
 
 - (NSArray<id<SentrySpan>> *)children
 {
@@ -674,7 +647,7 @@ static BOOL appStartMeasurementRead;
     [self addMeasurements:transaction];
 
     if ([viewNames count] > 0) {
-        transaction.screens = viewNames;
+        transaction.viewNames = viewNames;
     }
 #endif // SENTRY_HAS_UIKIT
 

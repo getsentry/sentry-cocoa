@@ -1,4 +1,7 @@
 #import "SentryUIApplication.h"
+#import "SentryDependencyContainer.h"
+#import "SentryDispatchQueueWrapper.h"
+@import SentryPrivate;
 
 #if SENTRY_HAS_UIKIT
 
@@ -74,6 +77,28 @@
 
     return result;
 }
+
+- (nullable NSArray<NSString *> *)relevantViewControllersNames {
+    __block NSArray<NSString *> * result = nil;
+    
+    void (^addViewNames)(void) = ^{
+        NSArray *viewControllers
+            = SentryDependencyContainer.sharedInstance.application.relevantViewControllers;
+        NSMutableArray *vcsNames =
+            [[NSMutableArray alloc] initWithCapacity:viewControllers.count];
+        for (id vc in viewControllers) {
+            [vcsNames addObject:[SwiftDescriptor getObjectClassName:vc]];
+        }
+        result = [NSArray arrayWithArray:vcsNames];
+    };
+
+    [[SentryDependencyContainer.sharedInstance dispatchQueueWrapper]
+        dispatchSyncOnMainQueue:addViewNames
+                        timeout:0.01];
+    
+    return result;
+}
+
 
 - (NSArray<UIViewController *> *)relevantViewControllerFromWindow:(UIWindow *)window
 {
