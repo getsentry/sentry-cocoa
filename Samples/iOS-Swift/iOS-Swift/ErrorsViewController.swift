@@ -26,11 +26,7 @@ class ErrorsViewController: UIViewController {
     }
 
     @IBAction func crash(_ sender: UIButton) {
-        //SentrySDK.crash()
-        
-        DispatchQueue.global().async {
-            SentrySDK.capture(message: "dae")
-        }
+       SentrySDK.crash()
     }
 
     // swiftlint:disable force_unwrapping
