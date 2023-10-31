@@ -62,7 +62,7 @@
     if ([windows count] == 0) {
         return nil;
     }
-        
+
     NSMutableArray *result = [NSMutableArray array];
 
     for (UIWindow *window in windows) {
@@ -82,7 +82,8 @@
         return nil;
     }
 
-    NSMutableArray<UIViewController *> *result = [NSMutableArray<UIViewController *> arrayWithObject:rootViewController];
+    NSMutableArray<UIViewController *> *result =
+        [NSMutableArray<UIViewController *> arrayWithObject:rootViewController];
     NSUInteger index = 0;
 
     while (index < result.count) {
