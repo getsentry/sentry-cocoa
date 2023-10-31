@@ -89,7 +89,16 @@
         UIViewController *topVC = result[index];
         // If the view controller is presenting another one, usually in a modal form.
         if (topVC.presentedViewController != nil) {
+            
+            if ([topVC.presentationController isKindOfClass:UIAlertController.class]) {
+                //If the view controller being presented is an Alert, we know that
+                //we reached the end of the view controller stack and the presenter is
+                //the top view controller.
+                break;
+            }
+            
             [result replaceObjectAtIndex:index withObject:topVC.presentedViewController];
+            
             continue;
         }
 

@@ -44,7 +44,10 @@ NS_ASSUME_NONNULL_BEGIN
     API_AVAILABLE(ios(13.0), tvos(13.0));
 
 /**
- * Return the most relevant view controller being presented in the app.
+ * Retrieve the topmost view controllers currently presented in the app.
+ * In the case of a multi-screen iPad app, it will contain the most relevant
+ * view controller for each screen. If the topmost view controller
+ * is a split view controller, all of its sides are reported.
  */
 - (nullable NSArray<UIViewController *> *)relevantViewControllers;
 

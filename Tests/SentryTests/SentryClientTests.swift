@@ -277,7 +277,7 @@ class SentryClientTest: XCTestCase {
         eventId.assertIsEmpty()
     }
     
-#if os(iOS) || targetEnvironment(macCatalyst)
+#if os(iOS) || targetEnvironment(macCatalyst) || os(tvOS)
     func testCaptureEventWithCurrentScreen() {
         SentryDependencyContainer.sharedInstance().application = TestSentryUIApplication()
         
