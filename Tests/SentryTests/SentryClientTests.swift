@@ -1691,7 +1691,7 @@ class SentryClientTest: XCTestCase {
         }
     }
     
-#if os(iOS) || targetEnvironment(macCatalyst)
+#if os(iOS) || targetEnvironment(macCatalyst) || os(tvOS)
     class TestSentryUIApplication: SentryUIApplication {
         override func relevantViewControllers() -> [UIViewController] {
             return [ClientTestViewController()]
