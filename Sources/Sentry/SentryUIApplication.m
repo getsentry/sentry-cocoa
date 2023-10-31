@@ -78,14 +78,14 @@
     return result;
 }
 
-- (nullable NSArray<NSString *> *)relevantViewControllersNames {
-    __block NSArray<NSString *> * result = nil;
-    
+- (nullable NSArray<NSString *> *)relevantViewControllersNames
+{
+    __block NSArray<NSString *> *result = nil;
+
     void (^addViewNames)(void) = ^{
         NSArray *viewControllers
             = SentryDependencyContainer.sharedInstance.application.relevantViewControllers;
-        NSMutableArray *vcsNames =
-            [[NSMutableArray alloc] initWithCapacity:viewControllers.count];
+        NSMutableArray *vcsNames = [[NSMutableArray alloc] initWithCapacity:viewControllers.count];
         for (id vc in viewControllers) {
             [vcsNames addObject:[SwiftDescriptor getObjectClassName:vc]];
         }
@@ -95,10 +95,9 @@
     [[SentryDependencyContainer.sharedInstance dispatchQueueWrapper]
         dispatchSyncOnMainQueue:addViewNames
                         timeout:0.01];
-    
+
     return result;
 }
-
 
 - (NSArray<UIViewController *> *)relevantViewControllerFromWindow:(UIWindow *)window
 {

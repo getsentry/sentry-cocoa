@@ -824,7 +824,8 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
             appContext[@"view_names"] = transaction.viewNames;
         }
     } else {
-        appContext[@"view_names"] = [SentryDependencyContainer.sharedInstance.application relevantViewControllersNames];
+        appContext[@"view_names"] =
+            [SentryDependencyContainer.sharedInstance.application relevantViewControllersNames];
     }
 }
 #endif // SENTRY_HAS_UIKIT
