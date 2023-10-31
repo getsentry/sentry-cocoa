@@ -821,15 +821,15 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     if ([event isKindOfClass:[SentryTransaction class]]) {
         SentryTransaction *transaction = (SentryTransaction *)event;
         if ([transaction.screens count] > 0) {
-            appContext[@"view_names"] = transaction.screens;
+            appContext[@"view_names"] = transaction.viewNames;
         }
     }
 
     if (appContext[@"view_names"] == nil) {
-        void (^addViewName)(void) = ^{
+        void (^addViewNames)(void) = ^{
             NSArray *viewControllers
                 = SentryDependencyContainer.sharedInstance.application.relevantViewControllers;
-            NSMutableArray *vcsNames = [NSMutableArray array];
+            NSMutableArray *vcsNames = [[NSMutableArray alloc] initWithCapacity:viewControllers.count];
             for (id vc in viewControllers) {
                 [vcsNames addObject:[SwiftDescriptor getObjectClassName:vc]];
             }
@@ -837,8 +837,8 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         };
 
         [[SentryDependencyContainer.sharedInstance dispatchQueueWrapper]
-            dispatchSyncOnMainQueue:addViewName
-                            timeout:0.001];
+            dispatchSyncOnMainQueue:addViewNames
+                            timeout:0.01];
     }
 }
 #endif // SENTRY_HAS_UIKIT
