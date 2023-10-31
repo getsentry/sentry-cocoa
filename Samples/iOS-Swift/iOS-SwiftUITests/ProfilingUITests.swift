@@ -24,7 +24,7 @@ final class ProfilingUITests: XCTestCase {
         XCUIApplication().tabBars["Tab Bar"].buttons["Transactions"].tap()
         app.buttons["Start transaction (main thread)"].afterWaitingForExistence("Couldn't find button to start transaction").tap()
         XCUIApplication().tabBars["Tab Bar"].buttons["Extra"].tap()
-        app.buttons["ANR filling run loop"].afterWaitingForExistence("Couldn't find button to ANR").tap()
+        app.buttons["Cause frozen frames"].afterWaitingForExistence("Couldn't find button to cause frozen frames").tap()
         XCUIApplication().tabBars["Tab Bar"].buttons["Transactions"].tap()
         app.buttons["Stop transaction"].afterWaitingForExistence("Couldn't find button to end transaction").tap()
 
