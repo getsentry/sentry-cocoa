@@ -26,7 +26,7 @@ class ErrorsViewController: UIViewController {
     }
 
     @IBAction func crash(_ sender: UIButton) {
-       SentrySDK.crash()
+        SentrySDK.crash()
     }
 
     // swiftlint:disable force_unwrapping
