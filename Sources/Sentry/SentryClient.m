@@ -829,7 +829,8 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         void (^addViewNames)(void) = ^{
             NSArray *viewControllers
                 = SentryDependencyContainer.sharedInstance.application.relevantViewControllers;
-            NSMutableArray *vcsNames = [[NSMutableArray alloc] initWithCapacity:viewControllers.count];
+            NSMutableArray *vcsNames =
+                [[NSMutableArray alloc] initWithCapacity:viewControllers.count];
             for (id vc in viewControllers) {
                 [vcsNames addObject:[SwiftDescriptor getObjectClassName:vc]];
             }
