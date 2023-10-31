@@ -809,13 +809,15 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                     key:@"app"
                   block:^(NSMutableDictionary *app) {
                       [app addEntriesFromDictionary:extraContext[@"app"]];
+#if SENTRY_HAS_UIKIT
                       [self addViewNamesToContext:app event:event];
+#endif // SENTRY_HAS_UIKIT
                   }];
 }
 
+#if SENTRY_HAS_UIKIT
 - (void)addViewNamesToContext:(NSMutableDictionary *)appContext event:(SentryEvent *)event
 {
-#if SENTRY_HAS_UIKIT
     if ([event isKindOfClass:[SentryTransaction class]]) {
         SentryTransaction *transaction = (SentryTransaction *)event;
         if ([transaction.screens count] > 0) {
@@ -838,8 +840,8 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
             dispatchSyncOnMainQueue:addViewName
                             timeout:0.001];
     }
-#endif
 }
+#endif // SENTRY_HAS_UIKIT
 
 - (void)removeExtraDeviceContextFromEvent:(SentryEvent *)event
 {

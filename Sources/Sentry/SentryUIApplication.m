@@ -58,11 +58,12 @@
 
 - (NSArray<UIViewController *> *)relevantViewControllers
 {
-    NSMutableArray *result = [NSMutableArray array];
-
     NSArray<UIWindow *> *windows = [self windows];
-    if ([windows count] == 0)
+    if ([windows count] == 0) {
         return nil;
+    }
+        
+    NSMutableArray *result = [NSMutableArray array];
 
     for (UIWindow *window in windows) {
         NSArray<UIViewController *> *vcs = [self relevantViewControllerFromWindow:window];
@@ -81,7 +82,7 @@
         return nil;
     }
 
-    NSMutableArray<UIViewController *> *result = @[ rootViewController ].mutableCopy;
+    NSMutableArray<UIViewController *> *result = [NSMutableArray<UIViewController *> arrayWithObject:rootViewController];
     NSUInteger index = 0;
 
     while (index < result.count) {
@@ -102,7 +103,7 @@
         UIViewController *relevantChild = nil;
         for (UIViewController *childVC in topVC.childViewControllers) {
             // Sometimes a view controller is used as container for a navigation controller
-            // If the navigation is occupating the whole view controller we will consider this the
+            // If the navigation is occupying the whole view controller we will consider this the
             // case.
             if ([self isContainerViewController:childVC]
                 && CGRectEqualToRect(childVC.view.frame, topVC.view.bounds)) {
