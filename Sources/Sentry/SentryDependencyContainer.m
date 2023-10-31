@@ -11,6 +11,7 @@
 #import "SentryRandom.h"
 #import "SentrySysctl.h"
 #import "SentrySystemWrapper.h"
+#import "SentryThreadInspector.h"
 #import "SentryUIDeviceWrapper.h"
 #import <SentryAppStateManager.h>
 #import <SentryClient+Private.h>
@@ -130,6 +131,19 @@ static NSObject *sentryDependencyContainerLock;
         }
     }
     return _sysctlWrapper;
+}
+
+- (SentryThreadInspector *)threadInspector
+{
+    if (_threadInspector == nil) {
+        @synchronized(sentryDependencyContainerLock) {
+            if (_threadInspector == nil) {
+                SentryOptions *options = [[[SentrySDK currentHub] getClient] options];
+                _threadInspector = [[SentryThreadInspector alloc] initWithOptions:options];
+            }
+        }
+    }
+    return _threadInspector;
 }
 
 - (SentryExtraContextProvider *)extraContextProvider

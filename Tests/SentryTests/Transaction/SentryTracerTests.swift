@@ -1110,7 +1110,8 @@ class SentryTracerTests: XCTestCase {
         let sut = fixture.getSut()
         sut.setExtra(value: 0, key: "key")
         
-        XCTAssertEqual(["key": 0], sut.data as! [String: Int])
+        let data = sut.data as [String: Any]
+        XCTAssertEqual(0, data["key"] as? Int)
     }
 
     private func advanceTime(bySeconds: TimeInterval) {

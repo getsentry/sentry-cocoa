@@ -114,7 +114,7 @@
 {
     BOOL isMainThread = [NSThread isMainThread];
 
-    [span setDataValue:@(isMainThread) forKey:BLOCKED_MAIN_THREAD];
+    [span setDataValue:@(isMainThread) forKey:SPAN_DATA_BLOCKED_MAIN_THREAD];
     NSMutableArray<NSString *> *systems = [NSMutableArray<NSString *> array];
     NSMutableArray<NSString *> *names = [NSMutableArray<NSString *> array];
     [context.persistentStoreCoordinator.persistentStores enumerateObjectsUsingBlock:^(
