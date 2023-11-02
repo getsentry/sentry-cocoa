@@ -10,7 +10,6 @@
 
 - Stop sending empty thread names (#3361)
 - Work around edge case with a thread info kernel call sometimes returning invalid data, leading to a crash (#3364)
-- Reading applicationState in the background (#3372)
 
 ## 8.14.2
 
