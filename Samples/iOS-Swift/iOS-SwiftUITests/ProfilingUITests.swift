@@ -20,12 +20,12 @@ final class ProfilingUITests: XCTestCase {
            throw XCTSkip("Only run on iOS 15 and above.")
         }
 
-        XCUIApplication().tabBars["Tab Bar"].buttons["Extra"].tap()
-        XCUIApplication().tabBars["Tab Bar"].buttons["Transactions"].tap()
+        app.tabBars["Tab Bar"].buttons["Extra"].tap()
+        app.tabBars["Tab Bar"].buttons["Transactions"].tap()
         app.buttons["Start transaction (main thread)"].afterWaitingForExistence("Couldn't find button to start transaction").tap()
-        XCUIApplication().tabBars["Tab Bar"].buttons["Extra"].tap()
+        app.tabBars["Tab Bar"].buttons["Extra"].tap()
         app.buttons["ANR filling run loop"].afterWaitingForExistence("Couldn't find button to ANR").tap()
-        XCUIApplication().tabBars["Tab Bar"].buttons["Transactions"].tap()
+        app.tabBars["Tab Bar"].buttons["Transactions"].tap()
         app.buttons["Stop transaction"].afterWaitingForExistence("Couldn't find button to end transaction").tap()
 
         let textField = app.textFields["io.sentry.ui-tests.profile-marshaling-text-field"]
