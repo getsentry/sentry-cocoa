@@ -3,7 +3,6 @@
 #import "SentryClient+Private.h"
 #import "SentryCrashMachineContext.h"
 #import "SentryCrashWrapper.h"
-#import "SentryDependencyContainer.h"
 #import "SentryDispatchQueueWrapper.h"
 #import "SentryEvent.h"
 #import "SentryException.h"
@@ -15,12 +14,8 @@
 #import "SentryThread.h"
 #import "SentryThreadInspector.h"
 #import "SentryThreadWrapper.h"
-#import "SentryUIApplication.h"
+#import <SentryDependencyContainer.h>
 #import <SentryOptions+Private.h>
-
-#if SENTRY_HAS_UIKIT
-#    import <UIKit/UIKit.h>
-#endif
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -66,14 +61,6 @@ SentryANRTrackingIntegration ()
 
 - (void)anrDetected
 {
-#if SENTRY_HAS_UIKIT
-    // If the app is not active, the main thread may be blocked or too busy.
-    // Since there is no UI for the user to interact, there is no need to report app hang.
-    if (SentryDependencyContainer.sharedInstance.application.applicationState
-        != UIApplicationStateActive) {
-        return;
-    }
-#endif
     SentryThreadInspector *threadInspector = SentrySDK.currentHub.getClient.threadInspector;
 
     NSArray<SentryThread *> *threads = [threadInspector getCurrentThreadsWithStackTrace];
