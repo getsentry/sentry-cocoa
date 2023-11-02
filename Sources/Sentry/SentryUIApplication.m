@@ -152,7 +152,7 @@
         }
 
         if (relevantChild != nil) {
-            [result replaceObjectAtIndex:index withObject:topVC];
+            [result replaceObjectAtIndex:index withObject:relevantChild];
             continue;
         }
 
