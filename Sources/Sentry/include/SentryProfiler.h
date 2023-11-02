@@ -44,7 +44,7 @@ SENTRY_EXTERN_C_END
 /**
  * Start a profiler, if one isn't already running.
  */
-+ (void)startWithTracer:(SentryId *)traceId;
++ (BOOL)startWithTracer:(SentryId *)traceId;
 
 /**
  * Stop the profiler if it is running.
