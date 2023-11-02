@@ -129,8 +129,13 @@
 
         // The top view controller is meant for navigation and not content
         if ([self isContainerViewController:topVC]) {
-            [result removeObjectAtIndex:index];
-            [result addObjectsFromArray:[self relevantViewControllerFromContainer:topVC]];
+            NSArray<UIViewController *> * contentViewController = [self relevantViewControllerFromContainer:topVC];
+            if (contentViewController != nil && contentViewController.count > 0) {
+                [result removeObjectAtIndex:index];
+                [result addObjectsFromArray:contentViewController];
+            } else {
+                break;
+            }
             continue;
         }
 
@@ -173,7 +178,12 @@
     }
     if ([containerVC isKindOfClass:UITabBarController.class]) {
         UITabBarController *tbController = (UITabBarController *)containerVC;
-        return @[ [tbController.viewControllers objectAtIndex:tbController.selectedIndex] ];
+        NSInteger selectedIndex = tbController.selectedIndex;
+        if (tbController.viewControllers.count > selectedIndex){
+            return @[ [tbController.viewControllers objectAtIndex:selectedIndex] ];
+        } else {
+            return nil;
+        }
     }
     if ([containerVC isKindOfClass:UISplitViewController.class]) {
         UISplitViewController *splitVC = (UISplitViewController *)containerVC;
