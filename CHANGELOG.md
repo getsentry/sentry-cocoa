@@ -7,6 +7,11 @@
 - Add experimental visionOS support (#3328)
 - Add thread id and name to span data (#3359)
 
+### Fixes
+
+- Stop sending empty thread names (#3361)
+- Work around edge case with a thread info kernel call sometimes returning invalid data, leading to a crash (#3364)
+
 ## 8.14.2
 
 ### Features
@@ -19,6 +24,7 @@
 
 ### Fixes
 
+- Reporting app hangs from background (#3298)
 - Missing `mechanism.handled` is not considered crash (#3353)
 
 ## 8.14.1
@@ -40,6 +46,7 @@ Once enabled, this feature subscribes to [MetricKit's](https://developer.apple.c
 The MetricKit integration subscribes to [MXHangDiagnostic](https://developer.apple.com/documentation/metrickit/mxhangdiagnostic),
 [MXDiskWriteExceptionDiagnostic](https://developer.apple.com/documentation/metrickit/mxdiskwriteexceptiondiagnostic),
 and [MXCPUExceptionDiagnostic](https://developer.apple.com/documentation/metrickit/mxcpuexceptiondiagnostic).
+
 
 ## 8.13.1
 

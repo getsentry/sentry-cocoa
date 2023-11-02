@@ -31,7 +31,7 @@ SENTRY_NO_INIT
  */
 - (NSArray<SentryThread *> *)getCurrentThreadsWithStackTrace;
 
-- (NSString *)getThreadName:(SentryCrashThread)thread;
+- (nullable NSString *)getThreadName:(SentryCrashThread)thread;
 
 @end
 

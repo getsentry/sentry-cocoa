@@ -7,6 +7,7 @@
 #import "SentryDispatchQueueWrapper.h"
 #import "SentryDsn.h"
 #import "SentryEnvelope.h"
+#import "SentryEnvelopeItemHeader.h"
 #import "SentryError.h"
 #import "SentryEvent.h"
 #import "SentryFileContents.h"
