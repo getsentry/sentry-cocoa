@@ -7,6 +7,11 @@
 - Add thread id and name to span data (#3359)
 - Add screen name to app context (#3346)
 
+### Fixes
+
+- Stop sending empty thread names (#3361)
+- Work around edge case with a thread info kernel call sometimes returning invalid data, leading to a crash (#3364)
+
 ## 8.14.2
 
 ### Features
