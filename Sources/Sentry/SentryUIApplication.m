@@ -1,4 +1,6 @@
 #import "SentryUIApplication.h"
+#import "SentryDependencyContainer.h"
+#import "SentryNSNotificationCenterWrapper.h"
 
 #if SENTRY_HAS_UIKIT
 
@@ -11,15 +13,16 @@
 - (instancetype)init
 {
     if (self = [super init]) {
-        [NSNotificationCenter.defaultCenter addObserver:self
-                                               selector:@selector(didEnterBackground)
-                                                   name:UIApplicationDidEnterBackgroundNotification
-                                                 object:nil];
 
-        [NSNotificationCenter.defaultCenter addObserver:self
-                                               selector:@selector(didBecomeActive)
-                                                   name:UIApplicationDidBecomeActiveNotification
-                                                 object:nil];
+        [SentryDependencyContainer.sharedInstance.notificationCenterWrapper
+            addObserver:self
+               selector:@selector(didEnterBackground)
+                   name:UIApplicationDidEnterBackgroundNotification];
+
+        [SentryDependencyContainer.sharedInstance.notificationCenterWrapper
+            addObserver:self
+               selector:@selector(didBecomeActive)
+                   name:UIApplicationDidBecomeActiveNotification];
         // We store the application state when the app is initialized
         // and we keep track of its changes by the notifications
         // this way we avoid calling sharedApplication in a background thread
@@ -30,7 +33,7 @@
 
 - (void)dealloc
 {
-    [NSNotificationCenter.defaultCenter removeObserver:self];
+    [SentryDependencyContainer.sharedInstance.notificationCenterWrapper removeObserver:self];
 }
 
 - (UIApplication *)sharedApplication
