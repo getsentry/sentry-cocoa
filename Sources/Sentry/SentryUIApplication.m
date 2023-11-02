@@ -8,20 +8,21 @@
     UIApplicationState appState;
 }
 
-- (instancetype)init{
+- (instancetype)init
+{
     if (self = [super init]) {
         [NSNotificationCenter.defaultCenter addObserver:self
                                                selector:@selector(didEnterBackground)
                                                    name:UIApplicationDidEnterBackgroundNotification
                                                  object:nil];
-        
+
         [NSNotificationCenter.defaultCenter addObserver:self
                                                selector:@selector(didBecomeActive)
                                                    name:UIApplicationDidBecomeActiveNotification
                                                  object:nil];
-        //We store the application state when the app is initialized
-        //and we keep track of its changes by the notifications
-        //this way we avoid calling sharedApplication in a background thread
+        // We store the application state when the app is initialized
+        // and we keep track of its changes by the notifications
+        // this way we avoid calling sharedApplication in a background thread
         appState = self.sharedApplication.applicationState;
     }
     return self;
@@ -87,11 +88,13 @@
     return appState;
 }
 
-- (void)didEnterBackground {
+- (void)didEnterBackground
+{
     appState = UIApplicationStateBackground;
 }
 
-- (void)didBecomeActive {
+- (void)didBecomeActive
+{
     appState = UIApplicationStateActive;
 }
 
