@@ -129,7 +129,8 @@
 
         // The top view controller is meant for navigation and not content
         if ([self isContainerViewController:topVC]) {
-            NSArray<UIViewController *> * contentViewController = [self relevantViewControllerFromContainer:topVC];
+            NSArray<UIViewController *> *contentViewController =
+                [self relevantViewControllerFromContainer:topVC];
             if (contentViewController != nil && contentViewController.count > 0) {
                 [result removeObjectAtIndex:index];
                 [result addObjectsFromArray:contentViewController];
@@ -179,7 +180,7 @@
     if ([containerVC isKindOfClass:UITabBarController.class]) {
         UITabBarController *tbController = (UITabBarController *)containerVC;
         NSInteger selectedIndex = tbController.selectedIndex;
-        if (tbController.viewControllers.count > selectedIndex){
+        if (tbController.viewControllers.count > selectedIndex) {
             return @[ [tbController.viewControllers objectAtIndex:selectedIndex] ];
         } else {
             return nil;
