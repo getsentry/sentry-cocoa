@@ -78,6 +78,7 @@ class SentryHubTests: XCTestCase {
         fixture.fileManager.deleteAppState()
         fixture.fileManager.deleteTimestampLastInForeground()
         fixture.fileManager.deleteAllEnvelopes()
+        clearTestState()
     }
     
     func testBeforeBreadcrumbWithoutCallbackStoresBreadcrumb() {

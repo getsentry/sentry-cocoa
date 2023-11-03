@@ -27,6 +27,7 @@ class SentryFramesTrackingIntegrationTests: XCTestCase {
     
     override func tearDown() {
         PrivateSentrySDKOnly.framesTrackingMeasurementHybridSDKMode = false
+        clearTestState()
         super.tearDown()
     }
     
