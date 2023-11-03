@@ -62,6 +62,20 @@ using namespace sentry::profiling;
 std::mutex _gProfilerLock;
 SentryProfiler *_Nullable _gCurrentProfiler;
 
+BOOL
+threadSanitizerIsPresent(void)
+{
+#    if defined(__has_feature)
+#        if __has_feature(thread_sanitizer)
+    return YES;
+#            pragma clang diagnostic push
+#            pragma clang diagnostic ignored "-Wunreachable-code"
+#        endif // __has_feature(thread_sanitizer)
+#    endif // defined(__has_feature)
+
+    return NO;
+}
+
 NSString *
 profilerTruncationReasonName(SentryProfilerTruncationReason reason)
 {
@@ -498,17 +512,10 @@ serializedProfileData(
 
 - (void)start
 {
-// Disable profiling when running with TSAN because it produces a TSAN false
-// positive, similar to the situation described here:
-// https://github.com/envoyproxy/envoy/issues/2561
-#    if defined(__has_feature)
-#        if __has_feature(thread_sanitizer)
-    SENTRY_LOG_DEBUG(@"Disabling profiling when running with TSAN");
-    return;
-#            pragma clang diagnostic push
-#            pragma clang diagnostic ignored "-Wunreachable-code"
-#        endif // __has_feature(thread_sanitizer)
-#    endif // defined(__has_feature)
+    if (threadSanitizerIsPresent()) {
+        SENTRY_LOG_DEBUG(@"Disabling profiling when running with TSAN");
+        return;
+    }
 
     if (_profiler != nullptr) {
         // This theoretically shouldn't be possible as long as we're checking for nil and running

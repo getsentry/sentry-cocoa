@@ -174,6 +174,11 @@ private extension SentryFramesTrackerTests {
 
 #if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
     func assertProfilingData(slow: UInt? = nil, frozen: UInt? = nil, frameRates: UInt? = nil) throws {
+        if threadSanitizerIsPresent() {
+            // profiling data will not have been gathered with TSAN running
+            return
+        }
+        
         func assertFrameInfo(frame: [String: NSNumber]) throws {
             XCTAssertNotNil(frame["timestamp"], "Expected a timestamp for the frame.")
             XCTAssertNotNil(frame["value"], "Expected a duration value for the frame.")

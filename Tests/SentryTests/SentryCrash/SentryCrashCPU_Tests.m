@@ -40,9 +40,26 @@
 
 - (void)testCPUState
 {
+    NSObject *notificationObject = [[NSObject alloc] init];
     TestThread *thread = [[TestThread alloc] init];
+    thread.notificationObject = notificationObject;
+
+    XCTestExpectation *exp = [self expectationWithDescription:@"thread started"];
+    [NSNotificationCenter.defaultCenter
+        addObserverForName:@"io.sentry.test.TestThread.main"
+                    object:notificationObject
+                     queue:nil
+                usingBlock:^(NSNotification *_Nonnull __unused notification) {
+                    [NSNotificationCenter.defaultCenter
+                        removeObserver:self
+                                  name:@"io.sentry.test.TestThread.main"
+                                object:notificationObject];
+                    [exp fulfill];
+                }];
+
     [thread start];
-    [NSThread sleepForTimeInterval:0.1];
+    [self waitForExpectationsWithTimeout:1 handler:nil];
+
     kern_return_t kr;
     kr = thread_suspend(thread.thread);
     XCTAssertTrue(kr == KERN_SUCCESS, @"");

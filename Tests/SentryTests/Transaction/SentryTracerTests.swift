@@ -193,7 +193,13 @@ class SentryTracerTests: XCTestCase {
         XCTAssertEqual(2, fixture.dispatchQueue.blockOnMainInvocations.count, "The NSTimer must be started and cancelled on the main thread.")
     }
     
-    func testCancelDeadlineTimer_TracerDeallocated() {
+    func testCancelDeadlineTimer_TracerDeallocated() throws {
+#if !os(tvOS) && !os(watchOS)
+        if threadSanitizerIsPresent() {
+            throw XCTSkip("doesn't currently work with TSAN enabled. the tracer instance remains retained by something in the TSAN dylib, and we cannot debug the memory graph with TSAN attached to see what is retaining it. it's likely out of our control.")
+        }
+#endif // !os(tvOS) && !os(watchOS)
+        
         var invocations = 0
         fixture.dispatchQueue.blockBeforeMainBlock = {
             // The second invocation the block for invalidating the timer
@@ -551,7 +557,13 @@ class SentryTracerTests: XCTestCase {
         XCTAssertEqual(expectedEndTimestamp, sut.timestamp)
     }
     
-    func testIdleTimeout_TracerDeallocated() {
+    func testIdleTimeout_TracerDeallocated() throws {
+#if !os(tvOS) && !os(watchOS)
+        if threadSanitizerIsPresent() {
+            throw XCTSkip("doesn't currently work with TSAN enabled. the tracer instance remains retained by something in the TSAN dylib, and we cannot debug the memory graph with TSAN attached to see what is retaining it. it's likely out of our control.")
+        }
+#endif // !os(tvOS) && !os(watchOS)
+        
         // Interact with sut in extra function so ARC deallocates it
         func getSut() {
             let sut = fixture.getSut(idleTimeout: fixture.idleTimeout, dispatchQueueWrapper: fixture.dispatchQueue)
@@ -561,6 +573,7 @@ class SentryTracerTests: XCTestCase {
         
         getSut()
             
+        // dispatch the idle timeout block manually
         for dispatchAfterBlock in fixture.dispatchQueue.dispatchAfterInvocations.invocations {
             dispatchAfterBlock.block()
         }

@@ -28,6 +28,12 @@ SENTRY_EXTERN NSString *const kSentryProfilerSerializationKeyFrameRates;
 
 SENTRY_EXTERN_C_BEGIN
 
+/**
+ * Disable profiling when running with TSAN because it produces a TSAN false positive, similar to
+ * the situation described here: https://github.com/envoyproxy/envoy/issues/2561
+ */
+BOOL threadSanitizerIsPresent(void);
+
 NSString *profilerTruncationReasonName(SentryProfilerTruncationReason reason);
 
 SENTRY_EXTERN_C_END
