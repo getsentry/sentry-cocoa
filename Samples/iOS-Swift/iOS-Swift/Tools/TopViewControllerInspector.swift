@@ -72,15 +72,19 @@ class TopViewControllerInspector: UIView {
     }
     
     static func show() {
-        if shared == nil {
-            shared = TopViewControllerInspector()
+        if shared != nil {
+            return
         }
         
-        guard let appDelegate = UIApplication.shared.delegate, let window = appDelegate.window else { return }
+        let inspector = TopViewControllerInspector()
         
-        guard let window, let shared else { return }
-        shared.frame = window.bounds
+        guard let appDelegate = UIApplication.shared.delegate, 
+                let window = appDelegate.window,
+                let bounds = window?.bounds else { return }
         
-        window.addSubview(shared)
+        inspector.frame = bounds
+        window?.addSubview(inspector)
+        
+        shared = inspector
     }
 }
