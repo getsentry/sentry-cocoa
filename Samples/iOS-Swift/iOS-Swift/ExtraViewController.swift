@@ -195,6 +195,10 @@ class ExtraViewController: UIViewController {
         highlightButton(sender)
         SentrySDK.flush(timeout: 5)
     }
+    
+    @IBAction func showTopVCInspector(_ sender: UIButton) {
+        TopViewControllerInspector.show()
+    }
 
     @IBAction func close(_ sender: UIButton) {
         highlightButton(sender)

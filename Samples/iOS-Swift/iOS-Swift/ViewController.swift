@@ -151,4 +151,11 @@ class ViewController: UIViewController {
         controller.title = "CoreData"
         navigationController?.pushViewController(controller, animated: false)
     }
+    
+    @IBAction func showPageController(_ sender: UIButton) {
+        highlightButton(sender)
+        let controller = PageViewController()
+        controller.title = "Page View Controller"
+        navigationController?.pushViewController(controller, animated: false)
+    }
 }

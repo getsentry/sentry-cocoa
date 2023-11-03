@@ -217,7 +217,7 @@
     }
     if ([containerVC isKindOfClass:UISplitViewController.class]) {
         UISplitViewController *splitVC = (UISplitViewController *)containerVC;
-        if (splitVC.viewControllers.count > 1) {
+        if (splitVC.viewControllers.count > 0) {
             return [splitVC viewControllers];
         }
     }
