@@ -331,7 +331,7 @@ serializedProfileData(
         trackProfilerForTracer(_gCurrentProfiler, traceId);
         // record a new metric sample for every concurrent span start
         [_gCurrentProfiler->_metricProfiler recordMetrics];
-        return NO;
+        return YES;
     }
 
     _gCurrentProfiler = [[SentryProfiler alloc] init];
