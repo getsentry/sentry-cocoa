@@ -18,6 +18,13 @@
 #import "SentryThreadWrapper.h"
 #import "SentryUIDeviceWrapper.h"
 
+//This is way to force SentrySDK to initialize in the calling thread
+//Unreal SDK will need this
+#ifndef SENTRY_INIT_USES_MAINTHREAD
+#define SENTRY_INIT_USES_MAINTHREAD 1
+#endif //SENTRY_INIT_USES_MAINTHREAD
+
+
 @interface
 SentrySDK ()
 
@@ -140,7 +147,9 @@ static NSUInteger startInvocations;
     // We accept the tradeoff that the SDK might not be fully initialized directly after
     // initializing it on a background thread because scheduling the init synchronously on the main
     // thread could lead to deadlocks.
+#if SENTRY_INIT_USES_MAINTHREAD
     [SentryThreadWrapper onMainThread:^{
+#endif
         startInvocations++;
 
         [SentryLog configure:options.debug diagnosticLevel:options.diagnosticLevel];
@@ -162,7 +171,9 @@ static NSUInteger startInvocations;
 #if TARGET_OS_IOS && SENTRY_HAS_UIKIT
         [SentryDependencyContainer.sharedInstance.uiDeviceWrapper start];
 #endif // TARGET_OS_IOS && SENTRY_HAS_UIKIT
+#if SENTRY_INIT_USES_MAINTHREAD
     }];
+#endif
 }
 
 + (void)startWithConfigureOptions:(void (^)(SentryOptions *options))configureOptions
