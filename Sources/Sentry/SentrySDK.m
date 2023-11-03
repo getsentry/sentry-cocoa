@@ -18,12 +18,11 @@
 #import "SentryThreadWrapper.h"
 #import "SentryUIDeviceWrapper.h"
 
-//This is way to force SentrySDK to initialize in the calling thread
-//Unreal SDK will need this
+// This is way to force SentrySDK to initialize in the calling thread
+// Unreal SDK will need this
 #ifndef SENTRY_INIT_USES_MAINTHREAD
-#define SENTRY_INIT_USES_MAINTHREAD 1
-#endif //SENTRY_INIT_USES_MAINTHREAD
-
+#    define SENTRY_INIT_USES_MAINTHREAD 1
+#endif // SENTRY_INIT_USES_MAINTHREAD
 
 @interface
 SentrySDK ()
