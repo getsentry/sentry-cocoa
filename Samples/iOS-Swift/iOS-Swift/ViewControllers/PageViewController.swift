@@ -5,12 +5,14 @@ class PageViewController: UIPageViewController, UIPageViewControllerDataSource {
     
     class RedViewController: UIViewController {
         override func viewDidLoad() {
+            super.viewDidLoad()
             view.backgroundColor = .red
         }
     }
     
     class GreenViewController: UIViewController {
         override func viewDidLoad() {
+            super.viewDidLoad()
             view.backgroundColor = .green
         }
     }
