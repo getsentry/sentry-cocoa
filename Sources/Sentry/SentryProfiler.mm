@@ -364,7 +364,7 @@ serializedProfileData(
 {
     const auto payload = [self collectProfileBetween:transaction.startSystemTime
                                                  and:transaction.endSystemTime
-                                            forTrace:transaction.trace.concurrencyID
+                                            forTrace:transaction.trace.internalID
                                                onHub:transaction.trace.hub];
     if (payload == nil) {
         return nil;

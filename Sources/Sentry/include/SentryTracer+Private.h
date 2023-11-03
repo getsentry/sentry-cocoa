@@ -6,9 +6,10 @@ SentryTracer ()
 @property (nonatomic, strong) SentryHub *hub;
 
 /**
- * We need an unchanging identifier to track concurrent tracers against a static profiler.
- * @c SentryTracer.traceId can be changed by consumers so is unfit for this purpose.
+ * We need an immutable identifier to e.g. track concurrent tracers against a static profiler where
+ * we can use the same ID as a key in the concurrent bookkeeping. @c SentryTracer.traceId can be
+ * changed by consumers so is unfit for this purpose.
  */
-@property (nonatomic, strong) SentryId *concurrencyID;
+@property (nonatomic, strong, readonly) SentryId *internalID;
 
 @end

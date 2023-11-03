@@ -164,8 +164,8 @@ static BOOL appStartMeasurementRead;
 #if SENTRY_TARGET_PROFILING_SUPPORTED
     if (_configuration.profilesSamplerDecision.decision == kSentrySampleDecisionYes) {
         _startSystemTime = SentryDependencyContainer.sharedInstance.dateProvider.systemTime;
-        _concurrencyID = [[SentryId alloc] init];
-        _isProfiling = [SentryProfiler startWithTracer:_concurrencyID];
+        _internalID = [[SentryId alloc] init];
+        _isProfiling = [SentryProfiler startWithTracer:_internalID];
     }
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
