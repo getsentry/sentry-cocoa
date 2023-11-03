@@ -4,29 +4,23 @@
 
 ### Features
 
+- Enrich error events with any underlying NSErrors reported by Cocoa APIs (#3230)
 - Add experimental visionOS support (#3328)
+- Improve OOM detection by ignoring system reboot (#3352)
 - Add thread id and name to span data (#3359)
 
 ### Fixes
 
+- Reporting app hangs from background (#3298)
+- Thread sanitizer data race warnings in ANR tracker, network tracker and span finish (#3303)
 - Stop sending empty thread names (#3361)
 - Work around edge case with a thread info kernel call sometimes returning invalid data, leading to a crash (#3364)
-- Thread sanitizer data race warnings in ANR tracker, network tracker and span finish (#3303)
 - Crashes when trace ID is externally modified or profiler fails to initialize (#3365)
 
 ## 8.14.2
 
-### Features
-
-- Enrich error events with any underlying NSErrors reported by Cocoa APIs (#3230)
-
-### Features
-
-- Improve OOM detection by ignoring system reboot (#3352)
-
 ### Fixes
 
-- Reporting app hangs from background (#3298)
 - Missing `mechanism.handled` is not considered crash (#3353)
 
 ## 8.14.1
