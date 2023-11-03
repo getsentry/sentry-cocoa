@@ -176,7 +176,7 @@ static BOOL appStartMeasurementRead;
 {
 #if SENTRY_TARGET_PROFILING_SUPPORTED
     if (self.isProfiling) {
-        discardProfilerForTracer(self.traceId);
+        discardProfilerForTracer(self.internalID);
     }
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 }
