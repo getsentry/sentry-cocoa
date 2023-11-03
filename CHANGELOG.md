@@ -11,6 +11,7 @@
 
 - Stop sending empty thread names (#3361)
 - Work around edge case with a thread info kernel call sometimes returning invalid data, leading to a crash (#3364)
+- Thread sanitizer data race warnings in ANR tracker, network tracker and span finish (#3303)
 
 ## 8.14.2
 
