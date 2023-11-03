@@ -23,6 +23,7 @@
 #import "SentryTraceHeader.h"
 #import "SentryTraceOrigins.h"
 #import "SentryTracer.h"
+#import "SentryUser.h"
 #import <objc/runtime.h>
 @import SentryPrivate;
 
@@ -216,7 +217,10 @@ SentryNetworkTracker ()
 - (void)addTraceWithoutTransactionToTask:(NSURLSessionTask *)sessionTask
 {
     SentryPropagationContext *propagationContext = SentrySDK.currentHub.scope.propagationContext;
-    [self addBaggageHeader:[[propagationContext traceContext] toBaggage]
+    SentryTraceContext *traceContext =
+        [propagationContext getTraceContext:SentrySDK.currentHub.client.options
+                                userSegment:SentrySDK.currentHub.scope.userObject.segment];
+    [self addBaggageHeader:[traceContext toBaggage]
                traceHeader:[propagationContext traceHeader]
                  toRequest:sessionTask];
 }

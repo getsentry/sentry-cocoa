@@ -555,8 +555,9 @@ class SentryClientTest: XCTestCase {
             try assertValidErrorEvent(eventWithSessionArguments.event, error)
             XCTAssertEqual(fixture.session, eventWithSessionArguments.session)
             
-            XCTAssertEqual(eventWithSessionArguments.traceContext?.traceId, 
-                           scope.propagationContext.traceContext?.traceId)
+            let expectedTraceContext = scope.propagationContext.getTraceContext(options: Options(), userSegment: "segment")
+            XCTAssertEqual(eventWithSessionArguments.traceContext?.traceId,
+                           expectedTraceContext.traceId)
         }
     }
     

@@ -590,7 +590,8 @@ class SentryNetworkTrackerTests: XCTestCase {
         sut.urlSessionTaskResume(task)
 
         let expectedTraceHeader = SentrySDK.currentHub().scope.propagationContext.traceHeader.value()
-        let expectedBaggageHeader = SentrySDK.currentHub().scope.propagationContext.traceContext?.toBaggage().toHTTPHeader()
+        let traceContext = SentrySDK.currentHub().scope.propagationContext.getTraceContext(options: self.fixture.options, userSegment: self.fixture.scope.userObject?.segment)
+        let expectedBaggageHeader = traceContext.toBaggage().toHTTPHeader()
         XCTAssertEqual(task.currentRequest?.allHTTPHeaderFields?["baggage"] ?? "", expectedBaggageHeader)
         XCTAssertEqual(task.currentRequest?.allHTTPHeaderFields?["sentry-trace"] ?? "", expectedTraceHeader)
     }
@@ -601,7 +602,8 @@ class SentryNetworkTrackerTests: XCTestCase {
         sut.urlSessionTaskResume(task)
 
         let expectedTraceHeader = SentrySDK.currentHub().scope.propagationContext.traceHeader.value()
-        let expectedBaggageHeader = SentrySDK.currentHub().scope.propagationContext.traceContext?.toBaggage().toHTTPHeader()
+        let traceContext = SentrySDK.currentHub().scope.propagationContext.getTraceContext(options: self.fixture.options, userSegment: self.fixture.scope.userObject?.segment)
+        let expectedBaggageHeader = traceContext.toBaggage().toHTTPHeader()
         XCTAssertEqual(task.currentRequest?.allHTTPHeaderFields?["baggage"] ?? "", expectedBaggageHeader)
         XCTAssertEqual(task.currentRequest?.allHTTPHeaderFields?["sentry-trace"] ?? "", expectedTraceHeader)
     }

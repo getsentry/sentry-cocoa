@@ -10,6 +10,7 @@
 
 - Stop sending empty thread names (#3361)
 - Work around edge case with a thread info kernel call sometimes returning invalid data, leading to a crash (#3364)
+- Crash when initializing SentryHub manually (#3374)
 
 ## 8.14.2
 

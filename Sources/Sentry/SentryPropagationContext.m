@@ -28,16 +28,16 @@
                                               sampled:kSentrySampleDecisionNo];
 }
 
-- (SentryTraceContext *)traceContext
+- (SentryTraceContext *)getTraceContext:(SentryOptions *)options
+                            userSegment:(nullable NSString *)userSegment
 {
-    SentryOptions *options = SentrySDK.options;
-    SentryScope *scope = SentrySDK.currentHub.scope;
+
     return [[SentryTraceContext alloc] initWithTraceId:self.traceId
                                              publicKey:options.parsedDsn.url.user
                                            releaseName:options.releaseName
                                            environment:options.environment
                                            transaction:nil
-                                           userSegment:scope.userObject.segment
+                                           userSegment:userSegment
                                             sampleRate:nil
                                                sampled:nil];
 }
