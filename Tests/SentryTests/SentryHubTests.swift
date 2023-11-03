@@ -57,7 +57,7 @@ class SentryHubTests: XCTestCase {
     }
     
     private var fixture: Fixture!
-    private var sut: SentryHub!
+    private lazy var sut = fixture.getSut()
     
     override func setUp() {
         super.setUp()
@@ -67,8 +67,6 @@ class SentryHubTests: XCTestCase {
         fixture.fileManager.deleteAppState()
         fixture.fileManager.deleteTimestampLastInForeground()
         fixture.fileManager.deleteAllEnvelopes()
-        
-        sut = fixture.getSut()
     }
     
     override func tearDown() {
