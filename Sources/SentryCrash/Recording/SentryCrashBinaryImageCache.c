@@ -75,9 +75,12 @@ static sentrycrashbic_cacheChangeCallback imageRemovedCallback = NULL;
 static void
 binaryImageAdded(const struct mach_header *header, intptr_t slide)
 {
+    pthread_mutex_lock(&binaryImagesMutex);
     if (tailNode == NULL) {
+        pthread_mutex_unlock(&binaryImagesMutex);
         return;
     }
+    pthread_mutex_unlock(&binaryImagesMutex);
     Dl_info info;
     if (!dladdr(header, &info) || info.dli_fname == NULL) {
         return;

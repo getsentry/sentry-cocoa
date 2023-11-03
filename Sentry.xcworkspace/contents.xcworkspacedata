@@ -31,6 +31,9 @@
       <FileRef
          location = "group:Samples/iOS-Swift/iOS-Swift.xcodeproj">
       </FileRef>
+      <FileRef
+         location = "group:Samples/visionOS-Swift/visionOS-Swift.xcodeproj">
+      </FileRef>
    </Group>
    <FileRef
       location = "group:Sentry.xcodeproj">
