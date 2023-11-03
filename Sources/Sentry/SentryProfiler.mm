@@ -336,7 +336,7 @@ serializedProfileData(
 
 #    pragma mark - Public
 
-+ (void)startWithTracer:(SentryId *)traceId
++ (BOOL)startWithTracer:(SentryId *)traceId
 {
     std::lock_guard<std::mutex> l(_gProfilerLock);
 
@@ -345,16 +345,17 @@ serializedProfileData(
         trackProfilerForTracer(_gCurrentProfiler, traceId);
         // record a new metric sample for every concurrent span start
         [_gCurrentProfiler->_metricProfiler recordMetrics];
-        return;
+        return YES;
     }
 
     _gCurrentProfiler = [[SentryProfiler alloc] init];
     if (_gCurrentProfiler == nil) {
         SENTRY_LOG_WARN(@"Profiler was not initialized, will not proceed.");
-        return;
+        return NO;
     }
 
     trackProfilerForTracer(_gCurrentProfiler, traceId);
+    return YES;
 }
 
 + (BOOL)isCurrentlyProfiling
@@ -377,7 +378,7 @@ serializedProfileData(
 {
     const auto payload = [self collectProfileBetween:transaction.startSystemTime
                                                  and:transaction.endSystemTime
-                                            forTrace:transaction.trace.traceId
+                                            forTrace:transaction.trace.internalID
                                                onHub:transaction.trace.hub];
     if (payload == nil) {
         return nil;
