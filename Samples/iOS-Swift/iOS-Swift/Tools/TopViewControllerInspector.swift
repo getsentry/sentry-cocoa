@@ -76,7 +76,9 @@ class TopViewControllerInspector: UIView {
             shared = TopViewControllerInspector()
         }
         
-        guard let window = (UIApplication.shared.delegate as? AppDelegate)?.window, let shared else { return }
+        guard let appDelegate = UIApplication.shared.delegate, let window = appDelegate.window else { return }
+        
+        guard let window, let shared else { return }
         shared.frame = window.bounds
         
         window.addSubview(shared)
