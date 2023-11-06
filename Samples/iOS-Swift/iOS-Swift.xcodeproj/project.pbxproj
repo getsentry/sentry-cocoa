@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		0AAAB8572887F7C60011845C /* PermissionsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AABE2E928855FF80057ED69 /* PermissionsViewController.swift */; };
 		0AABE2EA28855FF80057ED69 /* PermissionsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AABE2E928855FF80057ED69 /* PermissionsViewController.swift */; };
+		62C07D5C2AF3E3F500894688 /* BaseUITest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62C07D5B2AF3E3F500894688 /* BaseUITest.swift */; };
 		630853532440C60F00DDE4CE /* Sentry.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 630853322440C44F00DDE4CE /* Sentry.framework */; };
 		637AFDAA243B02760034958B /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 637AFDA9243B02760034958B /* AppDelegate.swift */; };
 		637AFDAE243B02760034958B /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 637AFDAD243B02760034958B /* ViewController.swift */; };
@@ -275,6 +276,7 @@
 
 /* Begin PBXFileReference section */
 		0AABE2E928855FF80057ED69 /* PermissionsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PermissionsViewController.swift; sourceTree = "<group>"; };
+		62C07D5B2AF3E3F500894688 /* BaseUITest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseUITest.swift; sourceTree = "<group>"; };
 		6308532C2440C44F00DDE4CE /* Sentry.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = Sentry.xcodeproj; path = ../../Sentry.xcodeproj; sourceTree = "<group>"; };
 		637AFDA6243B02760034958B /* iOS-Swift.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "iOS-Swift.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		637AFDA9243B02760034958B /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -487,6 +489,7 @@
 			isa = PBXGroup;
 			children = (
 				D83A30DF279F1F5C00372D0A /* fatal-error-binary-images-message2.json */,
+				62C07D5B2AF3E3F500894688 /* BaseUITest.swift */,
 				7B64386A26A6C544000D0F65 /* LaunchUITests.swift */,
 				D8C33E2529FBB8D90071B75A /* UIEventBreadcrumbTests.swift */,
 				84A5D72C29D2708D00388BFA /* UITestHelpers.swift */,
@@ -944,6 +947,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				62C07D5C2AF3E3F500894688 /* BaseUITest.swift in Sources */,
 				84A5D72629D2705000388BFA /* ProfilingUITests.swift in Sources */,
 				84A5D72D29D2708D00388BFA /* UITestHelpers.swift in Sources */,
 				84B527B928DD24BA00475E8D /* SentryDeviceTests.mm in Sources */,

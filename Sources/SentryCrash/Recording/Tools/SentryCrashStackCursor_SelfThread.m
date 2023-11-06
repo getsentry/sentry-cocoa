@@ -25,6 +25,7 @@
 
 #include "SentryCrashStackCursor_SelfThread.h"
 #include "SentryCrashStackCursor_Backtrace.h"
+#import "SentryLog.h"
 #include <execinfo.h>
 
 // #define SentryCrashLogger_LocalLevel TRACE
@@ -57,17 +58,23 @@ sentrycrashsc_initSelfThread(SentryCrashStackCursor *cursor, int skipEntries)
     int backtraceLength;
     if (@available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)) {
         if (stitchSwiftAsync) {
+            SENTRY_LOG_DEBUG(@"Retrieving backtrace with async swift stitching...");
             backtraceLength
                 = (int)backtrace_async((void **)context->backtrace, MAX_BACKTRACE_LENGTH, NULL);
         } else {
+            SENTRY_LOG_DEBUG(@"Retrieving backtrace without async swift stitching...");
             backtraceLength = backtrace((void **)context->backtrace, MAX_BACKTRACE_LENGTH);
         }
     } else {
+        SENTRY_LOG_DEBUG(
+            @"Retrieving backtrace without async swift stitching (old platform versions)...");
         backtraceLength = backtrace((void **)context->backtrace, MAX_BACKTRACE_LENGTH);
     }
 #else
+    SENTRY_LOG_DEBUG(@"Retrieving backtrace without async swift stitching (old Xcode versions)...");
     int backtraceLength = backtrace((void **)context->backtrace, MAX_BACKTRACE_LENGTH);
 #endif
 
+    SENTRY_LOG_DEBUG(@"Finished retrieving backtrace.");
     sentrycrashsc_initWithBacktrace(cursor, context->backtrace, backtraceLength, skipEntries + 1);
 }
