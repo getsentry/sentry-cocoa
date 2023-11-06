@@ -27,12 +27,18 @@ SENTRY_NO_INIT
 /**
  * Inits and configures Sentry (SentryHub, SentryClient) and sets up all integrations. Make sure to
  * set a valid DSN.
+ *
+ * @discussion Call this method on the main thread. When calling it from a background thread, the
+ * SDK starts on the main thread async.
  */
 + (void)startWithOptions:(SentryOptions *)options NS_SWIFT_NAME(start(options:));
 
 /**
  * Inits and configures Sentry (SentryHub, SentryClient) and sets up all integrations. Make sure to
  * set a valid DSN.
+ *
+ * @discussion Call this method on the main thread. When calling it from a background thread, the
+ * SDK starts on the main thread async.
  */
 + (void)startWithConfigureOptions:(void (^)(SentryOptions *options))configureOptions
     NS_SWIFT_NAME(start(configureOptions:));

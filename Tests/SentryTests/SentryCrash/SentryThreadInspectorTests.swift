@@ -90,18 +90,27 @@ class SentryThreadInspectorTests: XCTestCase {
 
         let sut = self.fixture.getSut(testWithRealMachineContextWrapper: true)
 
+        let lock = NSLock()
         for _ in 0..<expect.expectedFulfillmentCount {
             Thread.detachNewThread {
                 expect.fulfill()
-                while self.fixture.keepThreadAlive {
+                lock.lock()
+                var keepThreadAlive = self.fixture.keepThreadAlive
+                lock.unlock()
+                while keepThreadAlive {
                     Thread.sleep(forTimeInterval: 0.001)
+                    lock.lock()
+                    keepThreadAlive = self.fixture.keepThreadAlive
+                    lock.unlock()
                 }
             }
         }
 
         wait(for: [expect], timeout: 5)
         let suspendedThreads = sut.getCurrentThreadsWithStackTrace()
+        lock.lock()
         fixture.keepThreadAlive = false
+        lock.unlock()
         XCTAssertEqual(suspendedThreads.count, 0)
     }
 
@@ -182,15 +191,27 @@ class SentryThreadInspectorTests: XCTestCase {
         XCTAssertEqual(threadName, actual[0].name)
     }
     
-    func testThreadNameIsNull() {
-        fixture.testMachineContextWrapper.threadName = nil
+    func testGetThreadName_EmptyThreadName() {
+        fixture.testMachineContextWrapper.threadName = ""
         fixture.testMachineContextWrapper.threadCount = 1
         
         let actual = fixture.getSut().getCurrentThreads()
         XCTAssertEqual(1, actual.count)
         
         let thread = actual[0]
-        XCTAssertEqual("", thread.name)
+        XCTAssertNil(thread.name)
+    }
+    
+    func testGetThreadNameFails() {
+        fixture.testMachineContextWrapper.threadName = ""
+        fixture.testMachineContextWrapper.getThreadNameSucceeds = false
+        fixture.testMachineContextWrapper.threadCount = 1
+        
+        let actual = fixture.getSut().getCurrentThreads()
+        XCTAssertEqual(1, actual.count)
+        
+        let thread = actual[0]
+        XCTAssertNil(thread.name)
     }
     
     func testLongThreadName() {
@@ -270,16 +291,22 @@ private class TestMachineContextWrapper: NSObject, SentryCrashMachineContextWrap
         mockThreads?[Int(index)].threadId ?? 0
     }
     
-    var threadName: String? = ""
-    func getThreadName(_ thread: SentryCrashThread, andBuffer buffer: UnsafeMutablePointer<Int8>, andBufLength bufLength: Int32) {
+    var threadName: String = ""
+    var getThreadNameSucceeds = true
+    func getThreadName(_ thread: SentryCrashThread, andBuffer buffer: UnsafeMutablePointer<Int8>, andBufLength bufLength: Int32) -> Bool {
         if let mocks = mockThreads, let index = mocks.firstIndex(where: { $0.threadId == thread }) {
             strcpy(buffer, mocks[index].name)
-        } else if threadName != nil {
+            return true
+        }
+        
+        if getThreadNameSucceeds {
             strcpy(buffer, threadName)
+            return true
         } else {
             _ = Array(repeating: 0, count: Int(bufLength)).withUnsafeBufferPointer { bufferPointer in
                 strcpy(buffer, bufferPointer.baseAddress)
             }
+            return false
         }
     }
     

@@ -1,22 +1,6 @@
 import XCTest
 
-class LaunchUITests: XCTestCase {
-    private let app: XCUIApplication = XCUIApplication()
-
-    override func setUp() {
-        super.setUp()
-        continueAfterFailure = false
-        XCUIDevice.shared.orientation = .portrait
-        app.launchEnvironment["io.sentry.ui-test.test-name"] = name
-        app.launch()
-        
-        waitForExistenceOfMainScreen()
-    }
-    
-    override func tearDown() {
-        app.terminate()
-        super.tearDown()
-    }
+class LaunchUITests: BaseUITest {
 
     func testCrashRecovery() {
         //We will be removing this test from iOS 12 because it fails during CI, which looks like a bug that we cannot reproduce.
@@ -120,9 +104,6 @@ class LaunchUITests: XCTestCase {
 }
 
 private extension LaunchUITests {
-    func waitForExistenceOfMainScreen() {
-        app.waitForExistence( "Home Screen doesn't exist.")
-    }
     
     func checkSlowAndFrozenFrames() {
         let frameStatsLabel = app.staticTexts["framesStatsLabel"]

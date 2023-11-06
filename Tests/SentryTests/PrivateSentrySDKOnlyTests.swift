@@ -124,7 +124,10 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
     /**
       * Smoke Tests profiling via PrivateSentrySDKOnly. Actual profiling unit tests are done elsewhere.
      */
-    func testProfilingStartAndCollect() {
+    func testProfilingStartAndCollect() throws {
+        if threadSanitizerIsPresent() {
+            throw XCTSkip("Profiler does not run if thread sanitizer is attached.")
+        }
         let options = Options()
         options.dsn = TestConstants.dsnAsString(username: "SentryFramesTrackingIntegrationTests")
         let client = TestClient(options: options)
@@ -148,7 +151,7 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
         XCTAssertNotNil(profile?["frames"])
         let transactionInfo = payload?["transaction"] as? NSDictionary
         XCTAssertNotNil(transactionInfo)
-        XCTAssertGreaterThan(transactionInfo?["active_thread_id"] as! Int64, 0)
+        XCTAssertGreaterThan(try XCTUnwrap(transactionInfo?["active_thread_id"] as? Int64), 0)
     }
 
     func testProfilingDiscard() {

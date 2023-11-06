@@ -45,6 +45,8 @@ class SentryHttpTransportTests: XCTestCase {
         let queue = DispatchQueue(label: "SentryHttpTransportTests", qos: .userInitiated, attributes: [.concurrent, .initiallyInactive])
 
         init() {
+            SentryDependencyContainer.sharedInstance().reachability = reachability
+            
             currentDateProvider = TestCurrentDateProvider()
             SentryDependencyContainer.sharedInstance().dateProvider = currentDateProvider
 
@@ -111,8 +113,7 @@ class SentryHttpTransportTests: XCTestCase {
                 requestBuilder: requestBuilder,
                 rateLimits: rateLimits,
                 envelopeRateLimit: EnvelopeRateLimit(rateLimits: rateLimits),
-                dispatchQueueWrapper: dispatchQueueWrapper,
-                reachability: reachability
+                dispatchQueueWrapper: dispatchQueueWrapper
             )
 
 #else // os(watchOS)
@@ -154,6 +155,7 @@ class SentryHttpTransportTests: XCTestCase {
         super.tearDown()
         fixture.fileManager.deleteAllEnvelopes()
         fixture.requestManager.waitForAllRequests()
+        clearTestState()
     }
 
     func testInitSendsCachedEnvelopes() {
@@ -799,7 +801,10 @@ class SentryHttpTransportTests: XCTestCase {
     }
     
     func testDealloc_StopsReachabilityMonitoring() {
-        _ = fixture.sut
+        func deallocSut() {
+            _ = fixture.sut
+        }
+        deallocSut()
 
         XCTAssertEqual(1, fixture.reachability.stopMonitoringInvocations.count)
     }

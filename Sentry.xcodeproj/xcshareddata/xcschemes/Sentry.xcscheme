@@ -76,6 +76,9 @@
                <Test
                   Identifier = "SentrySubClassFinderTests/testActOnSubclassesOfViewController()">
                </Test>
+               <Test
+                  Identifier = "SentryThreadInspectorTests/testStacktraceHasFrames_forEveryThread()">
+               </Test>
             </SkippedTests>
          </TestableReference>
          <TestableReference

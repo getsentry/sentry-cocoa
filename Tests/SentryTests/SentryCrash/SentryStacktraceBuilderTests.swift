@@ -8,6 +8,7 @@ class SentryStacktraceBuilderTests: XCTestCase {
         let queue = DispatchQueue(label: "SentryStacktraceBuilderTests")
 
         var sut: SentryStacktraceBuilder {
+            SentryDependencyContainer.sharedInstance().reachability = TestSentryReachability()
             let res = SentryStacktraceBuilder(crashStackEntryMapper: SentryCrashStackEntryMapper(inAppLogic: SentryInAppLogic(inAppIncludes: [], inAppExcludes: [])))
             res.symbolicate = true
             return res
@@ -15,11 +16,15 @@ class SentryStacktraceBuilderTests: XCTestCase {
     }
 
     private var fixture: Fixture!
+    
+    override class func setUp() {
+        super.setUp()
+        clearTestState()
+    }
 
     override func setUp() {
         super.setUp()
         fixture = Fixture()
-        clearTestState()
     }
 
     override func tearDown() {
@@ -70,48 +75,76 @@ class SentryStacktraceBuilderTests: XCTestCase {
         XCTAssertTrue(filteredFrames.count == 1, "The frames must be ordered from caller to callee, or oldest to youngest.")
     }
 
-    func testConcurrentStacktraces() {
-        guard #available(macOS 12.0, iOS 15.0, watchOS 8.0, tvOS 15.0, *) else { return }
+    func testConcurrentStacktraces() throws {
+        guard #available(macOS 12.0, iOS 15.0, watchOS 8.0, tvOS 15.0, *) else {
+            throw XCTSkip("Not available for earlier platform versions")
+        }
 
         SentrySDK.start { options in
             options.dsn = TestConstants.dsnAsString(username: "SentryStacktraceBuilderTests")
             options.swiftAsyncStacktraces = true
+            options.debug = true
         }
 
         let waitForAsyncToRun = expectation(description: "Wait async functions")
         Task {
+            print("\(Date()) [Sentry] [TEST] running async task...")
             let filteredFrames = await self.firstFrame()
             waitForAsyncToRun.fulfill()
             XCTAssertGreaterThanOrEqual(filteredFrames, 3, "The Stacktrace must include the async callers.")
         }
-        wait(for: [waitForAsyncToRun], timeout: 1)
+        
+        var timeout: TimeInterval = 1
+        #if !os(watchOS) && !os(tvOS)
+        // observed the async task taking a long time to finish if TSAN is attached
+        if threadSanitizerIsPresent() {
+            timeout = 10
+        }
+        #endif // !os(watchOS) || !os(tvOS)
+        wait(for: [waitForAsyncToRun], timeout: timeout)
     }
 
-    func testConcurrentStacktraces_noStitching() {
-        guard #available(macOS 12.0, iOS 15.0, watchOS 8.0, tvOS 15.0, *) else { return }
+    func testConcurrentStacktraces_noStitching() throws {
+        guard #available(macOS 12.0, iOS 15.0, watchOS 8.0, tvOS 15.0, *) else {
+            throw XCTSkip("Not available for earlier platform versions")
+        }
 
         SentrySDK.start { options in
             options.dsn = TestConstants.dsnAsString(username: "SentryStacktraceBuilderTests")
             options.swiftAsyncStacktraces = false
+            options.debug = true
         }
 
         let waitForAsyncToRun = expectation(description: "Wait async functions")
         Task {
+            print("\(Date()) [Sentry] [TEST] running async task...")
             let filteredFrames = await self.firstFrame()
             waitForAsyncToRun.fulfill()
             XCTAssertGreaterThanOrEqual(filteredFrames, 1, "The Stacktrace must have only one function.")
         }
-        wait(for: [waitForAsyncToRun], timeout: 1)
+        
+        var timeout: TimeInterval = 1
+        #if !os(watchOS) && !os(tvOS)
+        // observed the async task taking a long time to finish if TSAN is attached
+        if threadSanitizerIsPresent() {
+            timeout = 10
+        }
+        #endif // !os(watchOS) || !os(tvOS)
+        wait(for: [waitForAsyncToRun], timeout: timeout)
     }
 
     @available(macOS 12.0, iOS 15.0, watchOS 8.0, tvOS 15.0, *)
     func firstFrame() async -> Int {
+        print("\(Date()) [Sentry] [TEST] first async frame about to await...")
         return await innerFrame1()
     }
 
     @available(macOS 12.0, iOS 15.0, watchOS 8.0, tvOS 15.0, *)
     func innerFrame1() async -> Int {
-        await Task { @MainActor in }.value
+        print("\(Date()) [Sentry] [TEST] second async frame about to await on task...")
+        await Task { @MainActor in
+            print("\(Date()) [Sentry] [TEST] executing task inside second async frame...")
+        }.value
         return await innerFrame2()
     }
 
@@ -122,37 +155,7 @@ class SentryStacktraceBuilderTests: XCTestCase {
         let filteredFrames = actual.frames
             .compactMap({ $0.function })
             .filter { needed.contains(where: $0.contains) }
+        print("\(Date()) [Sentry] [TEST] returning filtered frames.")
         return filteredFrames.count
-
-    }
-
-    func asyncFrame1(expect: XCTestExpectation) {
-        fixture.queue.asyncAfter(deadline: DispatchTime.now()) {
-            self.asyncFrame2(expect: expect)
-        }
-    }
-    
-    func asyncFrame2(expect: XCTestExpectation) {
-        fixture.queue.async {
-            self.asyncAssertion(expect: expect)
-        }
-    }
-    
-    func asyncAssertion(expect: XCTestExpectation) {
-        let actual = fixture.sut.buildStacktraceForCurrentThread()
-
-        let filteredFrames = actual.frames.filter { frame in
-            return frame.function?.contains("testAsyncStacktraces") ?? false ||
-            frame.function?.contains("asyncFrame1") ?? false ||
-            frame.function?.contains("asyncFrame2") ?? false
-        }
-        let startFrames = actual.frames.filter { frame in
-            return frame.stackStart?.boolValue ?? false
-        }
-
-        XCTAssertTrue(filteredFrames.count >= 3, "The Stacktrace must include the async callers.")
-        XCTAssertTrue(startFrames.count >= 3, "The Stacktrace must have async continuation markers.")
-
-        expect.fulfill()
     }
 }

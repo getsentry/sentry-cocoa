@@ -3,6 +3,7 @@
 #if SENTRY_HAS_UIKIT
 
 #    import "SentryDefaultObjCRuntimeWrapper.h"
+#    import "SentryDefines.h"
 #    import "SentryLog.h"
 #    import "SentryNSProcessInfoWrapper.h"
 #    import "SentrySubClassFinder.h"
@@ -11,6 +12,7 @@
 #    import <SentryDispatchQueueWrapper.h>
 #    import <SentryInAppLogic.h>
 #    import <SentryOptions.h>
+#    import <SentryUIApplication.h>
 #    import <UIKit/UIKit.h>
 #    import <UIViewController+Sentry.h>
 #    import <objc/runtime.h>

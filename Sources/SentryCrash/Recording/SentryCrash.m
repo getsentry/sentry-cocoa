@@ -37,6 +37,7 @@
 #import "SentryCrashReportFields.h"
 #import "SentryCrashReportStore.h"
 #import "SentryCrashSystemCapabilities.h"
+#import "SentryDefines.h"
 #import "SentryDependencyContainer.h"
 #import "SentryNSNotificationCenterWrapper.h"
 #import <NSData+Sentry.h>
@@ -44,10 +45,11 @@
 // #define SentryCrashLogger_LocalLevel TRACE
 #import "SentryCrashLogger.h"
 
-#include <inttypes.h>
-#if SentryCrashCRASH_HAS_UIKIT
+#if SENTRY_HAS_UIKIT
 #    import <UIKit/UIKit.h>
 #endif
+
+#include <inttypes.h>
 
 // ============================================================================
 #pragma mark - Globals -
@@ -252,7 +254,7 @@ SentryCrash ()
         return false;
     }
 
-#if SentryCrashCRASH_HAS_UIAPPLICATION
+#if SENTRY_HAS_UIKIT
     SentryNSNotificationCenterWrapper *notificationCenterWrapper
         = SentryDependencyContainer.sharedInstance.notificationCenterWrapper;
     [notificationCenterWrapper addObserver:self
@@ -270,7 +272,7 @@ SentryCrash ()
     [notificationCenterWrapper addObserver:self
                                   selector:@selector(applicationWillTerminate)
                                       name:UIApplicationWillTerminateNotification];
-#endif
+#endif // SENTRY_HAS_UIKIT
 #if SentryCrashCRASH_HAS_NSEXTENSION
     SentryNSNotificationCenterWrapper *notificationCenterWrapper
         = SentryDependencyContainer.sharedInstance.notificationCenterWrapper;
@@ -286,7 +288,7 @@ SentryCrash ()
     [notificationCenterWrapper addObserver:self
                                   selector:@selector(applicationWillEnterForeground)
                                       name:NSExtensionHostWillEnterForegroundNotification];
-#endif
+#endif // SentryCrashCRASH_HAS_NSEXTENSION
 
     return true;
 }
@@ -299,7 +301,7 @@ SentryCrash ()
     self.onCrash = NULL;
     sentrycrash_uninstall();
 
-#if SentryCrashCRASH_HAS_UIAPPLICATION
+#if SENTRY_HAS_UIKIT
     SentryNSNotificationCenterWrapper *notificationCenterWrapper
         = SentryDependencyContainer.sharedInstance.notificationCenterWrapper;
     [notificationCenterWrapper removeObserver:self name:UIApplicationDidBecomeActiveNotification];
@@ -309,7 +311,7 @@ SentryCrash ()
     [notificationCenterWrapper removeObserver:self
                                          name:UIApplicationWillEnterForegroundNotification];
     [notificationCenterWrapper removeObserver:self name:UIApplicationWillTerminateNotification];
-#endif
+#endif // SENTRY_HAS_UIKIT
 #if SentryCrashCRASH_HAS_NSEXTENSION
     SentryNSNotificationCenterWrapper *notificationCenterWrapper
         = SentryDependencyContainer.sharedInstance.notificationCenterWrapper;

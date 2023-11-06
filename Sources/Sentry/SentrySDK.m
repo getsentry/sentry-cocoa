@@ -8,12 +8,15 @@
 #import "SentryCrash.h"
 #import "SentryCrashWrapper.h"
 #import "SentryDependencyContainer.h"
+#import "SentryDispatchQueueWrapper.h"
 #import "SentryFileManager.h"
 #import "SentryHub+Private.h"
 #import "SentryLog.h"
 #import "SentryMeta.h"
 #import "SentryOptions+Private.h"
 #import "SentryScope.h"
+#import "SentryThreadWrapper.h"
+#import "SentryUIDeviceWrapper.h"
 
 @interface
 SentrySDK ()
@@ -134,9 +137,14 @@ static NSUInteger startInvocations;
 
 + (void)startWithOptions:(SentryOptions *)options
 {
-    startInvocations++;
-
     [SentryLog configure:options.debug diagnosticLevel:options.diagnosticLevel];
+
+    // We accept the tradeoff that the SDK might not be fully initialized directly after
+    // initializing it on a background thread because scheduling the init synchronously on the main
+    // thread could lead to deadlocks.
+    SENTRY_LOG_DEBUG(@"Starting SDK...");
+
+    startInvocations++;
 
     SentryClient *newClient = [[SentryClient alloc] initWithOptions:options];
     [newClient.fileManager moveAppStateToPreviousAppState];
@@ -148,10 +156,18 @@ static NSUInteger startInvocations;
     // can happen.
     [SentrySDK setCurrentHub:[[SentryHub alloc] initWithClient:newClient andScope:scope]];
     SENTRY_LOG_DEBUG(@"SDK initialized! Version: %@", SentryMeta.versionString);
-    [SentrySDK installIntegrations];
 
-    [SentryCrashWrapper.sharedInstance startBinaryImageCache];
-    [SentryDependencyContainer.sharedInstance.binaryImageCache start];
+    SENTRY_LOG_DEBUG(@"Dispatching init work required to run on main thread.");
+    [SentryThreadWrapper onMainThread:^{
+        SENTRY_LOG_DEBUG(@"SDK main thread init started...");
+        [SentrySDK installIntegrations];
+
+        [SentryCrashWrapper.sharedInstance startBinaryImageCache];
+        [SentryDependencyContainer.sharedInstance.binaryImageCache start];
+#if TARGET_OS_IOS && SENTRY_HAS_UIKIT
+        [SentryDependencyContainer.sharedInstance.uiDeviceWrapper start];
+#endif // TARGET_OS_IOS && SENTRY_HAS_UIKIT
+    }];
 }
 
 + (void)startWithConfigureOptions:(void (^)(SentryOptions *options))configureOptions
@@ -401,11 +417,14 @@ static NSUInteger startInvocations;
 
     [SentrySDK setCurrentHub:nil];
 
-    [SentryDependencyContainer reset];
-
     [SentryCrashWrapper.sharedInstance stopBinaryImageCache];
     [SentryDependencyContainer.sharedInstance.binaryImageCache stop];
 
+#if TARGET_OS_IOS && SENTRY_HAS_UIKIT
+    [SentryDependencyContainer.sharedInstance.uiDeviceWrapper stop];
+#endif // TARGET_OS_IOS && SENTRY_HAS_UIKIT
+
+    [SentryDependencyContainer reset];
     SENTRY_LOG_DEBUG(@"SDK closed!");
 }
 

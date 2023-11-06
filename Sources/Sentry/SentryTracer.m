@@ -163,9 +163,9 @@ static BOOL appStartMeasurementRead;
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
     if (_configuration.profilesSamplerDecision.decision == kSentrySampleDecisionYes) {
-        _isProfiling = YES;
         _startSystemTime = SentryDependencyContainer.sharedInstance.dateProvider.systemTime;
-        [SentryProfiler startWithTracer:self.traceId];
+        _internalID = [[SentryId alloc] init];
+        _isProfiling = [SentryProfiler startWithTracer:_internalID];
     }
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
@@ -176,7 +176,7 @@ static BOOL appStartMeasurementRead;
 {
 #if SENTRY_TARGET_PROFILING_SUPPORTED
     if (self.isProfiling) {
-        discardProfilerForTracer(self.traceId);
+        discardProfilerForTracer(self.internalID);
     }
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 }
@@ -235,11 +235,16 @@ static BOOL appStartMeasurementRead;
 - (void)startDeadlineTimer
 {
     __weak SentryTracer *weakSelf = self;
-    [SentryThreadWrapper onMainThread:^{
+    [_configuration.dispatchQueueWrapper dispatchOnMainQueue:^{
         weakSelf.deadlineTimer = [weakSelf.configuration.timerFactory
             scheduledTimerWithTimeInterval:SENTRY_AUTO_TRANSACTION_DEADLINE
                                    repeats:NO
                                      block:^(NSTimer *_Nonnull timer) {
+                                         if (weakSelf == nil) {
+                                             SENTRY_LOG_DEBUG(@"WeakSelf is nil. Not calling "
+                                                              @"deadlineTimerFired.");
+                                             return;
+                                         }
                                          [weakSelf deadlineTimerFired];
                                      }];
     }];
@@ -267,8 +272,19 @@ static BOOL appStartMeasurementRead;
 
 - (void)cancelDeadlineTimer
 {
-    [self.deadlineTimer invalidate];
-    self.deadlineTimer = nil;
+    // If the main thread is busy the tracer could be dealloc ated in between.
+    __weak SentryTracer *weakSelf = self;
+
+    // The timer must be invalidated from the thread on which the timer was installed, see
+    // https://developer.apple.com/documentation/foundation/nstimer/1415405-invalidate#1770468
+    [_configuration.dispatchQueueWrapper dispatchOnMainQueue:^{
+        if (weakSelf == nil) {
+            SENTRY_LOG_DEBUG(@"WeakSelf is nil. Not invalidating deadlineTimer.");
+            return;
+        }
+        [weakSelf.deadlineTimer invalidate];
+        weakSelf.deadlineTimer = nil;
+    }];
 }
 
 - (id<SentrySpan>)getActiveSpan

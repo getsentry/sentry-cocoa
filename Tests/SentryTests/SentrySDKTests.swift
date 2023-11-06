@@ -585,7 +585,24 @@ class SentrySDKTests: XCTestCase {
         XCTAssertTrue(testTTDTracker.registerFullDisplayCalled)
     }
 #endif
-    
+
+#if os(iOS)
+    func testSentryUIDeviceWrapperStarted() {
+        let deviceWrapper = TestSentryUIDeviceWrapper()
+        SentryDependencyContainer.sharedInstance().uiDeviceWrapper = deviceWrapper
+        SentrySDK.start(options: fixture.options)
+        XCTAssertTrue(deviceWrapper.started)
+    }
+
+    func testSentryUIDeviceWrapperStopped() {
+        let deviceWrapper = TestSentryUIDeviceWrapper()
+        SentryDependencyContainer.sharedInstance().uiDeviceWrapper = deviceWrapper
+        SentrySDK.start(options: fixture.options)
+        SentrySDK.close()
+        XCTAssertFalse(deviceWrapper.started)
+    }
+#endif
+
     func testClose_SetsClientToNil() {
         SentrySDK.start { options in
             options.dsn = SentrySDKTests.dsnAsString
@@ -636,7 +653,27 @@ class SentrySDKTests: XCTestCase {
         
         XCTAssertEqual(flushTimeout, transport.flushInvocations.first)
     }
-    
+
+    func testStartOnTheMainThread() throws {
+        let expectation = expectation(description: "MainThreadTestIntegration install called")
+        MainThreadTestIntegration.expectation = expectation
+        
+        print("[Sentry] [TEST] [\(#file):\(#line) Dispatching to nonmain queue.")
+        DispatchQueue.global(qos: .background).async {
+            print("[Sentry] [TEST] [\(#file):\(#line) About to start SDK from nonmain queue.")
+            SentrySDK.start { options in
+                print("[Sentry] [TEST] [\(#file):\(#line) configuring options.")
+                options.integrations = [ NSStringFromClass(MainThreadTestIntegration.self) ]
+            }
+        }
+        
+        wait(for: [expectation], timeout: 1.0)
+        
+        let mainThreadIntegration = try XCTUnwrap(SentrySDK.currentHub().installedIntegrations().first as? MainThreadTestIntegration)
+        XCTAssert(mainThreadIntegration.installedInTheMainThread, "SDK is not being initialized in the main thread")
+        
+    }
+
 #if SENTRY_HAS_UIKIT
     
     func testSetAppStartMeasurementConcurrently() {
@@ -754,5 +791,20 @@ class SentrySDKTests: XCTestCase {
     
     private func advanceTime(bySeconds: TimeInterval) {
         fixture.currentDate.setDate(date: SentryDependencyContainer.sharedInstance().dateProvider.date().addingTimeInterval(bySeconds))
+    }
+}
+
+public class MainThreadTestIntegration: NSObject, SentryIntegrationProtocol {
+    
+    static var expectation: XCTestExpectation?
+
+    public var installedInTheMainThread = false
+
+    public func install(with options: Options) -> Bool {
+        print("[Sentry] [TEST] [\(#file):\(#line) starting install.")
+        installedInTheMainThread = Thread.isMainThread
+        MainThreadTestIntegration.expectation?.fulfill()
+        MainThreadTestIntegration.expectation = nil
+        return true
     }
 }

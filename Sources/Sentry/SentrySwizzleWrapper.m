@@ -2,16 +2,16 @@
 #import "SentryLog.h"
 #import "SentrySwizzle.h"
 
+#if SENTRY_HAS_UIKIT
+#    import <UIKit/UIKit.h>
+
 NS_ASSUME_NONNULL_BEGIN
 
 @implementation SentrySwizzleWrapper
 
-#if SENTRY_HAS_UIKIT
 static NSMutableDictionary<NSString *, SentrySwizzleSendActionCallback>
     *sentrySwizzleSendActionCallbacks;
-#endif
 
-#if SENTRY_HAS_UIKIT
 + (void)initialize
 {
     if (self == [SentrySwizzleWrapper class]) {
@@ -33,7 +33,7 @@ static NSMutableDictionary<NSString *, SentrySwizzleSendActionCallback>
 #    pragma clang diagnostic ignored "-Wshadow"
     static const void *swizzleSendActionKey = &swizzleSendActionKey;
     SEL selector = NSSelectorFromString(@"sendAction:to:from:forEvent:");
-    SentrySwizzleInstanceMethod(UIApplication.class, selector, SentrySWReturnType(BOOL),
+    SentrySwizzleInstanceMethod(UIApplication, selector, SentrySWReturnType(BOOL),
         SentrySWArguments(SEL action, id target, id sender, UIEvent * event), SentrySWReplacement({
             [SentrySwizzleWrapper sendActionCalled:action target:target sender:sender event:event];
             return SentrySWCallOriginal(action, target, sender, event);
@@ -76,8 +76,9 @@ static NSMutableDictionary<NSString *, SentrySwizzleSendActionCallback>
 {
     return sentrySwizzleSendActionCallbacks.count > 0;
 }
-#endif
 
 @end
 
 NS_ASSUME_NONNULL_END
+
+#endif // SENTRY_HAS_UIKIT

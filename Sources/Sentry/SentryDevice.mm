@@ -16,9 +16,13 @@
 
 #import "SentryDevice.h"
 #import <sys/sysctl.h>
+#if TARGET_OS_WATCH
+#    import <WatchKit/WatchKit.h>
+#endif
+
 #if SENTRY_HAS_UIKIT
 #    import <UIKit/UIKit.h>
-#endif
+#endif // SENTRY_HAS_UIKIT
 
 namespace {
 /**
@@ -168,7 +172,7 @@ sentry_getOSName(void)
 #if TARGET_OS_MACCATALYST
     return @"Catalyst";
 #elif SENTRY_HAS_UIKIT
-    return UIDevice.currentDevice.systemName;
+    return [UIDevice currentDevice].systemName;
 #else
     return @"macOS";
 #endif // SENTRY_HAS_UIKIT
@@ -181,26 +185,11 @@ sentry_getOSVersion(void)
     // This function is only used for profiling, and profiling don't run for watchOS
     return @"";
 #elif SENTRY_HAS_UIKIT
-    return UIDevice.currentDevice.systemVersion;
+    return [UIDevice currentDevice].systemVersion;
 #else
-    // based off of
-    // https://github.com/lmirosevic/GBDeviceInfo/blob/98dd3c75bb0e1f87f3e0fd909e52dcf0da4aa47d/GBDeviceInfo/GBDeviceInfo_OSX.m#L107-L133
-    if ([[NSProcessInfo processInfo] respondsToSelector:@selector(operatingSystemVersion)]) {
-        const auto version = [[NSProcessInfo processInfo] operatingSystemVersion];
-        return [NSString stringWithFormat:@"%ld.%ld.%ld", (long)version.majorVersion,
-                         (long)version.minorVersion, (long)version.patchVersion];
-    } else {
-        SInt32 major, minor, patch;
-
-#    pragma clang diagnostic push
-#    pragma clang diagnostic ignored "-Wdeprecated-declarations"
-        Gestalt(gestaltSystemVersionMajor, &major);
-        Gestalt(gestaltSystemVersionMinor, &minor);
-        Gestalt(gestaltSystemVersionBugFix, &patch);
-#    pragma clang diagnostic pop
-
-        return [NSString stringWithFormat:@"%d.%d.%d", major, minor, patch];
-    }
+    const auto version = [[NSProcessInfo processInfo] operatingSystemVersion];
+    return [NSString stringWithFormat:@"%ld.%ld.%ld", (long)version.majorVersion,
+                     (long)version.minorVersion, (long)version.patchVersion];
 #endif // SENTRY_HAS_UIKIT
 }
 

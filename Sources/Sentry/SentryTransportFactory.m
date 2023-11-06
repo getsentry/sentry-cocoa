@@ -61,11 +61,7 @@ SentryTransportFactory ()
                                          requestBuilder:[[SentryNSURLRequestBuilder alloc] init]
                                              rateLimits:rateLimits
                                       envelopeRateLimit:envelopeRateLimit
-                                   dispatchQueueWrapper:dispatchQueueWrapper
-#if !TARGET_OS_WATCH
-                                           reachability:[[SentryReachability alloc] init]
-#endif // !TARGET_OS_WATCH
-    ];
+                                   dispatchQueueWrapper:dispatchQueueWrapper];
 }
 
 @end

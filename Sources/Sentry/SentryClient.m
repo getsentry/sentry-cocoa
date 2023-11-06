@@ -50,10 +50,6 @@
 #import "SentryUserFeedback.h"
 #import "SentryWatchdogTerminationTracker.h"
 
-#if SENTRY_HAS_UIKIT
-#    import <UIKit/UIKit.h>
-#endif
-
 NS_ASSUME_NONNULL_BEGIN
 
 @interface
@@ -240,6 +236,34 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 {
     SentryEvent *event = [[SentryEvent alloc] initWithError:error];
 
+    // flatten any recursive description of underlying errors into a list, to ultimately report them
+    // as a list of exceptions with error mechanisms, sorted oldest to newest (so, the leaf node
+    // underlying error as oldest, with the root as the newest)
+    NSMutableArray<NSError *> *errors = [NSMutableArray<NSError *> arrayWithObject:error];
+    NSError *underlyingError = error.userInfo[NSUnderlyingErrorKey];
+    while (underlyingError != nil) {
+        [errors addObject:underlyingError];
+        underlyingError = underlyingError.userInfo[NSUnderlyingErrorKey];
+    }
+
+    NSMutableArray<SentryException *> *exceptions = [NSMutableArray<SentryException *> array];
+    [errors enumerateObjectsWithOptions:NSEnumerationReverse
+                             usingBlock:^(NSError *_Nonnull nextError, NSUInteger __unused idx,
+                                 BOOL *_Nonnull __unused stop) {
+                                 [exceptions addObject:[self exceptionForError:nextError]];
+                             }];
+
+    event.exceptions = exceptions;
+
+    // Once the UI displays the mechanism data we can the userInfo from the event.context using only
+    // the root error's userInfo.
+    [self setUserInfo:[error.userInfo sentry_sanitize] withEvent:event];
+
+    return event;
+}
+
+- (SentryException *)exceptionForError:(NSError *)error
+{
     NSString *exceptionValue;
 
     // If the error has a debug description, use that.
@@ -278,12 +302,8 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     NSDictionary<NSString *, id> *userInfo = [error.userInfo sentry_sanitize];
     mechanism.data = userInfo;
     exception.mechanism = mechanism;
-    event.exceptions = @[ exception ];
 
-    // Once the UI displays the mechanism data we can the userInfo from the event.context.
-    [self setUserInfo:userInfo withEvent:event];
-
-    return event;
+    return exception;
 }
 
 - (SentryId *)captureCrashEvent:(SentryEvent *)event withScope:(SentryScope *)scope

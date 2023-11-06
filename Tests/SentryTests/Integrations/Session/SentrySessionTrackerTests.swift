@@ -43,10 +43,13 @@ class SentrySessionTrackerTests: XCTestCase {
     private var fixture: Fixture!
     private var sut: SessionTracker!
     
+    override class func setUp() {
+        super.setUp()
+        clearTestState()
+    }
+    
     override func setUp() {
         super.setUp()
-        
-        clearTestState()
         
         fixture = Fixture()
         
