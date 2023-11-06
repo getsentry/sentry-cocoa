@@ -46,4 +46,10 @@ public class Invocations<T> {
             self._invocations.append(invocation)
         }
     }
+    
+    public func removeAll() {
+        queue.async(flags: .barrier) {
+            self._invocations.removeAll()
+        }
+    }
 }

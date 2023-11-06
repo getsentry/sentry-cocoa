@@ -139,10 +139,10 @@ class SentryTransactionTests: XCTestCase {
         
         // when
         let serializedTransaction = sut.serialize()
-        let serializedTransactionExtra = try! XCTUnwrap(serializedTransaction["extra"] as? [String: String])
+        let serializedTransactionExtra = try! XCTUnwrap(serializedTransaction["extra"] as? [String: Any])
         
         // then
-        XCTAssertEqual(serializedTransactionExtra, [fixture.testKey: fixture.testValue])
+        XCTAssertEqual(serializedTransactionExtra[fixture.testKey] as! String, fixture.testValue)
     }
     
     func testSerialize_shouldPreserveExtraFromScope() {
@@ -156,10 +156,10 @@ class SentryTransactionTests: XCTestCase {
 
         // when
         let serializedTransaction = sut.serialize()
-        let serializedTransactionExtra = try! XCTUnwrap(serializedTransaction["extra"] as? [String: String])
+        let serializedTransactionExtra = try! XCTUnwrap(serializedTransaction["extra"] as? [String: Any])
         
         // then
-        XCTAssertEqual(serializedTransactionExtra, [fixture.testKey: fixture.testValue])
+        XCTAssertEqual(serializedTransactionExtra[fixture.testKey] as! String, fixture.testValue)
     }
     
     func testSerializeOrigin() throws {

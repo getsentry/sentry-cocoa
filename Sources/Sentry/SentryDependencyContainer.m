@@ -5,11 +5,13 @@
 #import "SentryDispatchQueueWrapper.h"
 #import "SentryDisplayLinkWrapper.h"
 #import "SentryExtraContextProvider.h"
+#import "SentryLog.h"
 #import "SentryNSProcessInfoWrapper.h"
 #import "SentryNSTimerFactory.h"
 #import "SentryRandom.h"
 #import "SentrySysctl.h"
 #import "SentrySystemWrapper.h"
+#import "SentryThreadInspector.h"
 #import "SentryUIDeviceWrapper.h"
 #import <SentryAppStateManager.h>
 #import <SentryClient+Private.h>
@@ -36,6 +38,10 @@
 #    import "SentryUIDeviceWrapper.h"
 #endif // TARGET_OS_IOS
 
+#if !TARGET_OS_WATCH
+#    import "SentryReachability.h"
+#endif // !TARGET_OS_WATCH
+
 @implementation SentryDependencyContainer
 
 static SentryDependencyContainer *instance;
@@ -45,24 +51,37 @@ static NSObject *sentryDependencyContainerLock;
 {
     if (self == [SentryDependencyContainer class]) {
         sentryDependencyContainerLock = [[NSObject alloc] init];
+        instance = [[SentryDependencyContainer alloc] init];
     }
 }
 
 + (instancetype)sharedInstance
 {
-    @synchronized(sentryDependencyContainerLock) {
-        if (instance == nil) {
-            instance = [[self alloc] init];
-        }
-        return instance;
-    }
+    return instance;
 }
 
 + (void)reset
 {
-    @synchronized(sentryDependencyContainerLock) {
-        instance = nil;
+#if !TARGET_OS_WATCH
+    if (instance) {
+        [instance->_reachability removeAllObservers];
     }
+#endif // !TARGET_OS_WATCH
+
+    instance = [[SentryDependencyContainer alloc] init];
+}
+
+- (instancetype)init
+{
+    if (self = [super init]) {
+        _dispatchQueueWrapper = [[SentryDispatchQueueWrapper alloc] init];
+        _random = [[SentryRandom alloc] init];
+        _threadWrapper = [[SentryThreadWrapper alloc] init];
+        _binaryImageCache = [[SentryBinaryImageCache alloc] init];
+        _debugImageProvider = [[SentryDebugImageProvider alloc] init];
+        _dateProvider = [[SentryCurrentDateProvider alloc] init];
+    }
+    return self;
 }
 
 - (SentryFileManager *)fileManager
@@ -103,6 +122,18 @@ static NSObject *sentryDependencyContainerLock;
     return _crashWrapper;
 }
 
+- (SentryCrash *)crashReporter
+{
+    if (_crashReporter == nil) {
+        @synchronized(sentryDependencyContainerLock) {
+            if (_crashReporter == nil) {
+                _crashReporter = [[SentryCrash alloc] init];
+            }
+        }
+    }
+    return _crashReporter;
+}
+
 - (SentrySysctl *)sysctlWrapper
 {
     if (_sysctlWrapper == nil) {
@@ -113,6 +144,19 @@ static NSObject *sentryDependencyContainerLock;
         }
     }
     return _sysctlWrapper;
+}
+
+- (SentryThreadInspector *)threadInspector
+{
+    if (_threadInspector == nil) {
+        @synchronized(sentryDependencyContainerLock) {
+            if (_threadInspector == nil) {
+                SentryOptions *options = [[[SentrySDK currentHub] getClient] options];
+                _threadInspector = [[SentryThreadInspector alloc] initWithOptions:options];
+            }
+        }
+    }
+    return _threadInspector;
 }
 
 - (SentryExtraContextProvider *)extraContextProvider
@@ -127,40 +171,6 @@ static NSObject *sentryDependencyContainerLock;
     return _extraContextProvider;
 }
 
-- (SentryCrash *)crashReporter
-{
-    if (_crashReporter == nil) {
-        @synchronized(sentryDependencyContainerLock) {
-            if (_crashReporter == nil) {
-                _crashReporter = [[SentryCrash alloc] init];
-            }
-        }
-    }
-    return _crashReporter;
-}
-
-- (SentryThreadWrapper *)threadWrapper
-{
-    if (_threadWrapper == nil) {
-        @synchronized(sentryDependencyContainerLock) {
-            if (_threadWrapper == nil) {
-                _threadWrapper = [[SentryThreadWrapper alloc] init];
-            }
-        }
-    }
-    return _threadWrapper;
-}
-
-- (SentryDispatchQueueWrapper *)dispatchQueueWrapper
-{
-    @synchronized(sentryDependencyContainerLock) {
-        if (_dispatchQueueWrapper == nil) {
-            _dispatchQueueWrapper = [[SentryDispatchQueueWrapper alloc] init];
-        }
-        return _dispatchQueueWrapper;
-    }
-}
-
 - (SentryNSNotificationCenterWrapper *)notificationCenterWrapper
 {
     @synchronized(sentryDependencyContainerLock) {
@@ -171,33 +181,10 @@ static NSObject *sentryDependencyContainerLock;
     }
 }
 
-- (id<SentryRandom>)random
-{
-    if (_random == nil) {
-        @synchronized(sentryDependencyContainerLock) {
-            if (_random == nil) {
-                _random = [[SentryRandom alloc] init];
-            }
-        }
-    }
-    return _random;
-}
-
-- (SentryBinaryImageCache *)binaryImageCache
-{
-    if (_binaryImageCache == nil) {
-        @synchronized(sentryDependencyContainerLock) {
-            if (_binaryImageCache == nil) {
-                _binaryImageCache = [[SentryBinaryImageCache alloc] init];
-            }
-        }
-    }
-    return _binaryImageCache;
-}
-
 #if TARGET_OS_IOS
 - (SentryUIDeviceWrapper *)uiDeviceWrapper
 {
+#    if SENTRY_HAS_UIKIT
     if (_uiDeviceWrapper == nil) {
         @synchronized(sentryDependencyContainerLock) {
             if (_uiDeviceWrapper == nil) {
@@ -206,12 +193,19 @@ static NSObject *sentryDependencyContainerLock;
         }
     }
     return _uiDeviceWrapper;
+#    else
+    SENTRY_LOG_DEBUG(
+        @"SentryDependencyContainer.uiDeviceWrapper only works with UIKit enabled. Ensure you're "
+        @"using the right configuration of Sentry that links UIKit.");
+    return nil;
+#    endif // SENTRY_HAS_UIKIT
 }
 #endif // TARGET_OS_IOS
 
-#if SENTRY_HAS_UIKIT
+#if SENTRY_UIKIT_AVAILABLE
 - (SentryScreenshot *)screenshot
 {
+#    if SENTRY_HAS_UIKIT
     if (_screenshot == nil) {
         @synchronized(sentryDependencyContainerLock) {
             if (_screenshot == nil) {
@@ -220,10 +214,17 @@ static NSObject *sentryDependencyContainerLock;
         }
     }
     return _screenshot;
+#    else
+    SENTRY_LOG_DEBUG(
+        @"SentryDependencyContainer.screenshot only works with UIKit enabled. Ensure you're "
+        @"using the right configuration of Sentry that links UIKit.");
+    return nil;
+#    endif // SENTRY_HAS_UIKIT
 }
 
 - (SentryViewHierarchy *)viewHierarchy
 {
+#    if SENTRY_HAS_UIKIT
     if (_viewHierarchy == nil) {
         @synchronized(sentryDependencyContainerLock) {
             if (_viewHierarchy == nil) {
@@ -232,10 +233,17 @@ static NSObject *sentryDependencyContainerLock;
         }
     }
     return _viewHierarchy;
+#    else
+    SENTRY_LOG_DEBUG(
+        @"SentryDependencyContainer.viewHierarchy only works with UIKit enabled. Ensure you're "
+        @"using the right configuration of Sentry that links UIKit.");
+    return nil;
+#    endif // SENTRY_HAS_UIKIT
 }
 
 - (SentryUIApplication *)application
 {
+#    if SENTRY_HAS_UIKIT
     if (_application == nil) {
         @synchronized(sentryDependencyContainerLock) {
             if (_application == nil) {
@@ -244,10 +252,17 @@ static NSObject *sentryDependencyContainerLock;
         }
     }
     return _application;
+#    else
+    SENTRY_LOG_DEBUG(
+        @"SentryDependencyContainer.application only works with UIKit enabled. Ensure you're "
+        @"using the right configuration of Sentry that links UIKit.");
+    return nil;
+#    endif // SENTRY_HAS_UIKIT
 }
 
 - (SentryFramesTracker *)framesTracker
 {
+#    if SENTRY_HAS_UIKIT
     if (_framesTracker == nil) {
         @synchronized(sentryDependencyContainerLock) {
             if (_framesTracker == nil) {
@@ -257,11 +272,17 @@ static NSObject *sentryDependencyContainerLock;
         }
     }
     return _framesTracker;
+#    else
+    SENTRY_LOG_DEBUG(
+        @"SentryDependencyContainer.framesTracker only works with UIKit enabled. Ensure you're "
+        @"using the right configuration of Sentry that links UIKit.");
+    return nil;
+#    endif // SENTRY_HAS_UIKIT
 }
-#endif // SENTRY_HAS_UIKIT
 
 - (SentrySwizzleWrapper *)swizzleWrapper
 {
+#    if SENTRY_HAS_UIKIT
     if (_swizzleWrapper == nil) {
         @synchronized(sentryDependencyContainerLock) {
             if (_swizzleWrapper == nil) {
@@ -270,20 +291,14 @@ static NSObject *sentryDependencyContainerLock;
         }
     }
     return _swizzleWrapper;
+#    else
+    SENTRY_LOG_DEBUG(
+        @"SentryDependencyContainer.uiDeviceWrapper only works with UIKit enabled. Ensure you're "
+        @"using the right configuration of Sentry that links UIKit.");
+    return nil;
+#    endif // SENTRY_HAS_UIKIT
 }
-
-- (SentryDebugImageProvider *)debugImageProvider
-{
-    if (_debugImageProvider == nil) {
-        @synchronized(sentryDependencyContainerLock) {
-            if (_debugImageProvider == nil) {
-                _debugImageProvider = [[SentryDebugImageProvider alloc] init];
-            }
-        }
-    }
-
-    return _debugImageProvider;
-}
+#endif // SENTRY_UIKIT_AVAILABLE
 
 - (SentryANRTracker *)getANRTracker:(NSTimeInterval)timeout
 {
@@ -350,18 +365,6 @@ static NSObject *sentryDependencyContainerLock;
     return _timerFactory;
 }
 
-- (SentryCurrentDateProvider *)dateProvider
-{
-    if (_dateProvider == nil) {
-        @synchronized(sentryDependencyContainerLock) {
-            if (_dateProvider == nil) {
-                _dateProvider = [[SentryCurrentDateProvider alloc] init];
-            }
-        }
-    }
-    return _dateProvider;
-}
-
 #if SENTRY_HAS_METRIC_KIT
 - (SentryMXManager *)metricKitManager
 {
@@ -380,5 +383,19 @@ static NSObject *sentryDependencyContainerLock;
 }
 
 #endif // SENTRY_HAS_METRIC_KIT
+
+#if !TARGET_OS_WATCH
+- (SentryReachability *)reachability
+{
+    if (_reachability == nil) {
+        @synchronized(sentryDependencyContainerLock) {
+            if (_reachability == nil) {
+                _reachability = [[SentryReachability alloc] init];
+            }
+        }
+    }
+    return _reachability;
+}
+#endif // !TARGET_OS_WATCH
 
 @end

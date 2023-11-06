@@ -1,6 +1,8 @@
 import SentryTestUtils
 import XCTest
 
+#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+
 extension SentrySwizzleWrapper {
     
     static func hasItems() -> Bool {
@@ -14,8 +16,6 @@ extension SentrySwizzleWrapper {
 }
 
 class SentrySwizzleWrapperTests: XCTestCase {
-    
-#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
     
     private class Fixture {
         let actionName = #selector(someMethod).description
@@ -112,7 +112,7 @@ class SentrySwizzleWrapperTests: XCTestCase {
     private func sendActionCalled() {
         Dynamic(SentrySwizzleWrapper.self).sendActionCalled(#selector(someMethod), target: nil, sender: nil, event: self.fixture.event)
     }
-
-#endif
     
 }
+
+#endif

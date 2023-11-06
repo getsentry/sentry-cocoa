@@ -13,6 +13,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         let sentryCrash: TestSentryCrashWrapper
         
         init() {
+            SentryDependencyContainer.sharedInstance().sysctlWrapper = TestSysctl()
             sentryCrash = TestSentryCrashWrapper.sharedInstance()
             sentryCrash.internalActiveDurationSinceLastCrash = 5.0
             sentryCrash.internalCrashedLastLaunch = true

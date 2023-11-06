@@ -3,6 +3,7 @@
 #import "SentryCurrentDateProvider.h"
 #import "SentryDependencyContainer.h"
 #import "SentryEnvelope.h"
+#import "SentryEnvelopeItemHeader.h"
 #import "SentryEnvelopeItemType.h"
 #import "SentryEvent+Private.h"
 #import "SentryFileManager.h"
@@ -642,7 +643,7 @@ SentryHub ()
 
             SentryLevel level = sentryLevelForString(eventJson[@"level"]);
             if (level >= kSentryLevelError) {
-                *handled = [self eventContainsUnhandledError:eventJson];
+                *handled = [self eventContainsOnlyHandledErrors:eventJson];
                 return YES;
             }
         }
@@ -650,14 +651,14 @@ SentryHub ()
     return NO;
 }
 
-- (BOOL)eventContainsUnhandledError:(NSDictionary *)eventDictionary
+- (BOOL)eventContainsOnlyHandledErrors:(NSDictionary *)eventDictionary
 {
     NSArray *exceptions = eventDictionary[@"exception"][@"values"];
     for (NSDictionary *exception in exceptions) {
         NSDictionary *mechanism = exception[@"mechanism"];
         NSNumber *handled = mechanism[@"handled"];
 
-        if ([handled boolValue] == NO) {
+        if (handled != nil && [handled boolValue] == NO) {
             return NO;
         }
     }

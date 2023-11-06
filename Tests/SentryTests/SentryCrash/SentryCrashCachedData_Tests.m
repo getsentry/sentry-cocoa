@@ -38,10 +38,27 @@
     sentrycrashccd_close();
 
     NSString *expectedName = @"This is a test thread";
-    TestThread *thread = [TestThread new];
+    NSObject *notificationObject = [[NSObject alloc] init];
+    TestThread *thread = [[TestThread alloc] init];
+    thread.notificationObject = notificationObject;
     thread.name = expectedName;
+
+    XCTestExpectation *exp = [self expectationWithDescription:@"thread started"];
+    [NSNotificationCenter.defaultCenter
+        addObserverForName:@"io.sentry.test.TestThread.main"
+                    object:notificationObject
+                     queue:nil
+                usingBlock:^(NSNotification *_Nonnull __unused notification) {
+                    [NSNotificationCenter.defaultCenter
+                        removeObserver:self
+                                  name:@"io.sentry.test.TestThread.main"
+                                object:notificationObject];
+                    [exp fulfill];
+                }];
+
     [thread start];
-    [NSThread sleepForTimeInterval:0.1];
+    [self waitForExpectationsWithTimeout:1 handler:nil];
+
     sentrycrashccd_init(10);
     [NSThread sleepForTimeInterval:0.1];
     [thread cancel];

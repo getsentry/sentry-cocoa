@@ -19,8 +19,8 @@ SDKROOT__CARTHAGE_ = iphoneos
 // entirely non-platform–derived, e.g. based upon `XCODE_VERSION_MAJOR`.
 // Note: Carthage, unfortunately, as current of v0.34.0 queries rather harshly on the platform values below
 // ⋯ quite early in the process, queried values not compiled into Carthage will cause hard errors.
-SUPPORTED_PLATFORMS = macosx iphoneos iphonesimulator watchos watchsimulator appletvos appletvsimulator
-TARGETED_DEVICE_FAMILY = 1,2,3,4
+SUPPORTED_PLATFORMS = macosx iphoneos iphonesimulator watchos watchsimulator appletvos appletvsimulator xros xrsimulator
+TARGETED_DEVICE_FAMILY = 1,2,3,4,7
 SKIP_INSTALL = YES
 DEFINES_MODULE = YES
 DYLIB_COMPATIBILITY_VERSION = 1
@@ -39,11 +39,6 @@ CLANG_ENABLE_MODULES = YES
 ONLY_ACTIVE_ARCH[config=Debug] = YES
 GCC_OPTIMIZATION_LEVEL[config=Debug] = 0
 COPY_PHASE_STRIP[config=Debug] = NO
-
-LD_RUNPATH_SEARCH_PATHS[sdk=macosx*] = $(inherited) @executable_path/../Frameworks @loader_path/../Frameworks;
-LD_RUNPATH_SEARCH_PATHS[sdk=iphone*] = $(inherited) @executable_path/Frameworks @loader_path/Frameworks;
-LD_RUNPATH_SEARCH_PATHS[sdk=watch*] = $(inherited) @executable_path/Frameworks @loader_path/Frameworks;
-LD_RUNPATH_SEARCH_PATHS[sdk=appletv*] = $(inherited) @executable_path/Frameworks @loader_path/Frameworks;
 
 OTHER_LDFLAGS[sdk=watch*] = $(inherited) -framework WatchKit
 

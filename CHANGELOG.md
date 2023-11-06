@@ -1,5 +1,86 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+- Enrich error events with any underlying NSErrors reported by Cocoa APIs (#3230)
+- Add experimental visionOS support (#3328)
+- Improve OOM detection by ignoring system reboot (#3352)
+- Add thread id and name to span data (#3359)
+
+### Fixes
+
+- Reporting app hangs from background (#3298)
+- Thread sanitizer data race warnings in ANR tracker, network tracker and span finish (#3303)
+- Stop sending empty thread names (#3361)
+- Work around edge case with a thread info kernel call sometimes returning invalid data, leading to a crash (#3364)
+- Crashes when trace ID is externally modified or profiler fails to initialize (#3365)
+
+## 8.14.2
+
+### Fixes
+
+- Missing `mechanism.handled` is not considered crash (#3353)
+
+## 8.14.1
+
+### Fixes
+
+- SPM build failure involving "unsafe settings" (#3348)
+
+## 8.14.0
+
+### Features
+
+- Sentry can now be used without linking UIKit; this is helpful for using the SDK in certain app extension contexts (#3175)  
+**Warning:** this breaks some SPM integrations. Use 8.14.1 if you integrate using SPM.
+
+- GA of MetricKit integration (#3340)
+
+Once enabled, this feature subscribes to [MetricKit's](https://developer.apple.com/documentation/metrickit) [MXDiagnosticPayload](https://developer.apple.com/documentation/metrickit/mxdiagnosticpayload) data, converts it to events, and sends it to Sentry.
+The MetricKit integration subscribes to [MXHangDiagnostic](https://developer.apple.com/documentation/metrickit/mxhangdiagnostic),
+[MXDiskWriteExceptionDiagnostic](https://developer.apple.com/documentation/metrickit/mxdiskwriteexceptiondiagnostic),
+and [MXCPUExceptionDiagnostic](https://developer.apple.com/documentation/metrickit/mxcpuexceptiondiagnostic).
+
+
+## 8.13.1
+
+### Fixes
+
+- Always start SDK on the main thread (#3291)
+- App hang with race condition for tick counter (#3290)
+- Remove "duplicate library" warning (#3312)
+- Fix multiple issues in Reachability (#3338)
+- Remove unnecessary build settings (#3325)
+- Crash in SentryTracer when cancelling timer (#3333)
+
+## 8.13.0
+
+### Fixes
+
+- Remove sync call to main thread from SentryUIDeviceWrapper (#3295)
+
+### Features
+
+- Record changes to network connectivity in breadcrumbs (#3232)
+- Add Sampling Decision to Trace Envelope Header (#3286)
+
+## 8.12.0
+
+### Fixes
+
+- Remove warning about non-portable path to file "SentryDsn.h" (#3270)
+- Privacy manifest collection purposes type (#3276)
+- Fix how profiles were identified in the backend for grouping and issue correlation purposes (#3282)
+- Ensure GPU frame data is always sent with profiles even if `enableAutoPerformanceTracing` is `NO` (#3273)
+- Gather metric readings fully covering the duration of a profile (#3272)
+- Remove spammy logs (#3284)
+
+### Features
+
+- Rename "http.method" to "http.request.method" for network Spans (#3268)
+
 ## 8.11.0
 
 ### Features

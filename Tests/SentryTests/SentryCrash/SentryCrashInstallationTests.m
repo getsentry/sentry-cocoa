@@ -64,9 +64,9 @@ NS_ASSUME_NONNULL_BEGIN
     [installation install];
     [installation uninstall];
 
-#if SentryCrashCRASH_HAS_UIAPPLICATION
+#if SENTRY_UIKIT_AVAILABLE
     XCTAssertEqual(5, self.notificationCenter.removeObserverWithNameInvocationsCount);
-#endif
+#endif // SENTRY_UIKIT_AVAILABLE
 }
 
 - (void)testUninstall_Install

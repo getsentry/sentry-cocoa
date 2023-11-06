@@ -14,6 +14,8 @@
 #    import "SentryTraceOrigins.h"
 #    import "SentryTracer.h"
 
+#    import <UIKit/UIKit.h>
+
 @interface
 SentryTimeToDisplayTracker () <SentryFramesTrackerListener>
 

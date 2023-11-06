@@ -45,6 +45,32 @@ class SentryUIApplicationTests: XCTestCase {
 
         XCTAssertEqual(sut.windows?.count, 0)
     }
+    
+    @available(iOS 13.0, tvOS 13.0, *)
+    func test_ApplicationState() {
+        let notificationCenter = TestNSNotificationCenterWrapper()
+        notificationCenter.ignoreRemoveObserver = true
+        SentryDependencyContainer.sharedInstance().notificationCenterWrapper = notificationCenter
+        
+        let sut = MockSentryUIApplicationTests()
+        XCTAssertEqual(sut.applicationState, .active)
+        
+        notificationCenter.addObserverInvocations.invocations.forEach { (observer: Any, selector: Selector, name: NSNotification.Name) in
+            if name == UIApplication.didEnterBackgroundNotification {
+                sut.perform(selector, with: observer)
+            }
+        }
+        
+        XCTAssertEqual(sut.applicationState, .background)
+        
+        notificationCenter.addObserverInvocations.invocations.forEach { (observer: Any, selector: Selector, name: NSNotification.Name) in
+            if name == UIApplication.didBecomeActiveNotification {
+                sut.perform(selector, with: observer)
+            }
+        }
+        
+        XCTAssertEqual(sut.applicationState, .active)
+    }
 
     private class TestApplicationDelegate: NSObject, UIApplicationDelegate {
         var window: UIWindow?

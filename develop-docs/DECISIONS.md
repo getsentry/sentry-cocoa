@@ -127,3 +127,16 @@ This way, if these files are changed, we will be reminded to test the changes wi
 Additionally, two new 'make' commands(test-alamofire, test-homekit) are being added to the project to assist in testing the Sentry SDK in third-party projects.
 
 Related to [GH-2916](https://github.com/getsentry/sentry-cocoa/pull/2916)
+
+## Async SDK init on main thread
+
+Date: October 11th 2023
+Contributors: @philipphofmann, @brustolin
+
+We decided to initialize the SDK on the main thread async when being initialized from a background thread.
+We accept the tradeoff that the SDK might not be fully initialized directly after initializing it on a background
+thread because scheduling the init synchronously on the main thread could lead to deadlocks, such as https://github.com/getsentry/sentry-cocoa/issues/3277.
+
+Related links:
+
+- https://github.com/getsentry/sentry-cocoa/pull/3291

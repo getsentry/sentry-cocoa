@@ -1,10 +1,12 @@
 #import "SentrySpan.h"
 #import "NSDate+SentryExtras.h"
 #import "NSDictionary+SentrySanitize.h"
+#import "SentryCrashThread.h"
 #import "SentryCurrentDateProvider.h"
 #import "SentryDependencyContainer.h"
 #import "SentryFrame.h"
 #import "SentryId.h"
+#import "SentryInternalDefines.h"
 #import "SentryLog.h"
 #import "SentryMeasurementValue.h"
 #import "SentryNoOpSpan.h"
@@ -12,6 +14,7 @@
 #import "SentrySerializable.h"
 #import "SentrySpanContext.h"
 #import "SentrySpanId.h"
+#import "SentryThreadInspector.h"
 #import "SentryTime.h"
 #import "SentryTraceHeader.h"
 #import "SentryTracer.h"
@@ -25,6 +28,7 @@ SentrySpan ()
 @implementation SentrySpan {
     NSMutableDictionary<NSString *, id> *_data;
     NSMutableDictionary<NSString *, id> *_tags;
+    NSObject *_stateLock;
     BOOL _isFinished;
 }
 
@@ -33,7 +37,19 @@ SentrySpan ()
     if (self = [super init]) {
         self.startTimestamp = [SentryDependencyContainer.sharedInstance.dateProvider date];
         _data = [[NSMutableDictionary alloc] init];
+
+        SentryCrashThread currentThread = sentrycrashthread_self();
+        _data[SPAN_DATA_THREAD_ID] = @(currentThread);
+
+        if ([NSThread isMainThread]) {
+            _data[SPAN_DATA_THREAD_NAME] = @"main";
+        } else {
+            _data[SPAN_DATA_THREAD_NAME] = [SentryDependencyContainer.sharedInstance.threadInspector
+                getThreadName:currentThread];
+        }
+
         _tags = [[NSMutableDictionary alloc] init];
+        _stateLock = [[NSObject alloc] init];
         _isFinished = NO;
 
         _status = kSentrySpanStatusUndefined;
@@ -133,7 +149,9 @@ SentrySpan ()
 
 - (BOOL)isFinished
 {
-    return _isFinished;
+    @synchronized(_stateLock) {
+        return _isFinished;
+    }
 }
 
 - (void)finish
@@ -145,7 +163,9 @@ SentrySpan ()
 - (void)finishWithStatus:(SentrySpanStatus)status
 {
     self.status = status;
-    _isFinished = YES;
+    @synchronized(_stateLock) {
+        _isFinished = YES;
+    }
     if (self.timestamp == nil) {
         self.timestamp = [SentryDependencyContainer.sharedInstance.dateProvider date];
         SENTRY_LOG_DEBUG(@"Setting span timestamp: %@ at system time %llu", self.timestamp,

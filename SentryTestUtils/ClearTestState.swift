@@ -30,8 +30,9 @@ class TestCleanup: NSObject {
         SentryAppStartTracker.load()
         SentryUIViewControllerPerformanceTracker.shared.enableWaitForFullDisplay = false
         SentryDependencyContainer.sharedInstance().swizzleWrapper.removeAllCallbacks()
+        
         #endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
-
+        
         SentryDependencyContainer.reset()
         Dynamic(SentryGlobalEventProcessor.shared()).removeAllProcessors()
         SentryPerformanceTracker.shared.clear()
