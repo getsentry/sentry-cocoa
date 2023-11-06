@@ -1,15 +1,6 @@
 import XCTest
 
-final class ProfilingUITests: XCTestCase {
-    private let app: XCUIApplication = XCUIApplication()
-
-    override func setUpWithError() throws {
-        try super.setUpWithError()
-        continueAfterFailure = false
-        XCUIDevice.shared.orientation = .portrait
-        app.launchEnvironment["io.sentry.ui-test.test-name"] = name
-        app.launch()
-    }
+final class ProfilingUITests: BaseUITest {
 
     /**
      * We had a bug where we forgot to install the frames tracker into the profiler, so weren't sending any GPU frame information with profiles. Since it's not possible to enforce such installation via the compiler, we test for the results we expect here, by starting a transaction, triggering an ANR which will cause degraded frame rendering, stop the transaction, and inspect the profile payload.
