@@ -1,4 +1,5 @@
 @testable import Sentry
+import SentryTestUtils
 import XCTest
 
 /** Some of the test parameters are copied during debbuging a working implementation.
@@ -11,6 +12,11 @@ class SentryCrashStackEntryMapperTests: XCTestCase {
     override func setUp() {
         super.setUp()
         sut = SentryCrashStackEntryMapper(inAppLogic: SentryInAppLogic(inAppIncludes: [bundleExecutable], inAppExcludes: []))
+    }
+    
+    override func tearDown() {
+        super.tearDown()
+        clearTestState()
     }
 
     func testSymbolAddress() {

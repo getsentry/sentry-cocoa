@@ -1,3 +1,4 @@
+import SentryTestUtils
 import XCTest
 
 class SentryCrashReportTests: XCTestCase {
@@ -32,6 +33,7 @@ class SentryCrashReportTests: XCTestCase {
         super.tearDown()
         
         deleteTestDir()
+        clearTestState()
     }
         
     func testScopeInCrashReport_IsSameAsSerializingIt() {

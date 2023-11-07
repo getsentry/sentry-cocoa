@@ -17,6 +17,11 @@ class SentryDefaultRateLimitsTests: XCTestCase {
         sut = DefaultRateLimits(retryAfterHeaderParser: RetryAfterHeaderParser(httpDateParser: HttpDateParser()), andRateLimitParser: RateLimitParser())
     }
     
+    override func tearDown() {
+        super.tearDown()
+        clearTestState()
+    }
+    
     func testNoUpdateCalled() {
         XCTAssertFalse(sut.isRateLimitActive(SentryDataCategory.default))
     }

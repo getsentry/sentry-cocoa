@@ -33,6 +33,11 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         timeStampBegin = SentryDependencyContainer.sharedInstance().dateProvider.date().addingTimeInterval(21.23)
         timeStampEnd = timeStampBegin
     }
+    
+    override func tearDown() {
+        super.tearDown()
+        clearTestState()
+    }
 
     func testOptionEnabled_MetricKitManagerInitialized() {
         if #available(iOS 15, macOS 12, macCatalyst 15, *) {
