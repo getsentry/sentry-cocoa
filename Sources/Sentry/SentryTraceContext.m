@@ -83,6 +83,20 @@ NS_ASSUME_NONNULL_BEGIN
                          sampled:sampled];
 }
 
+- (instancetype)initWithTraceId:(SentryId *)traceId
+                        options:(SentryOptions *)options
+                    userSegment:(nullable NSString *)userSegment
+{
+    return [[SentryTraceContext alloc] initWithTraceId:traceId
+                                             publicKey:options.parsedDsn.url.user
+                                           releaseName:options.releaseName
+                                           environment:options.environment
+                                           transaction:nil
+                                           userSegment:userSegment
+                                            sampleRate:nil
+                                               sampled:nil];
+}
+
 - (nullable instancetype)initWithDict:(NSDictionary<NSString *, id> *)dictionary
 {
     SentryId *traceId = [[SentryId alloc] initWithUUIDString:dictionary[@"trace_id"]];

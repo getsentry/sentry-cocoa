@@ -218,8 +218,10 @@ SentryNetworkTracker ()
 {
     SentryPropagationContext *propagationContext = SentrySDK.currentHub.scope.propagationContext;
     SentryTraceContext *traceContext =
-        [propagationContext getTraceContext:SentrySDK.currentHub.client.options
-                                userSegment:SentrySDK.currentHub.scope.userObject.segment];
+        [[SentryTraceContext alloc] initWithTraceId:propagationContext.traceId
+                                            options:SentrySDK.currentHub.client.options
+                                        userSegment:SentrySDK.currentHub.scope.userObject.segment];
+
     [self addBaggageHeader:[traceContext toBaggage]
                traceHeader:[propagationContext traceHeader]
                  toRequest:sessionTask];

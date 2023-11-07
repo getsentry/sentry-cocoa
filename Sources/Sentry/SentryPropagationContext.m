@@ -28,20 +28,6 @@
                                               sampled:kSentrySampleDecisionNo];
 }
 
-- (SentryTraceContext *)getTraceContext:(SentryOptions *)options
-                            userSegment:(nullable NSString *)userSegment
-{
-
-    return [[SentryTraceContext alloc] initWithTraceId:self.traceId
-                                             publicKey:options.parsedDsn.url.user
-                                           releaseName:options.releaseName
-                                           environment:options.environment
-                                           transaction:nil
-                                           userSegment:userSegment
-                                            sampleRate:nil
-                                               sampled:nil];
-}
-
 - (NSDictionary<NSString *, NSString *> *)traceContextForEvent
 {
     return
