@@ -262,11 +262,8 @@ SentryCrashInstallation ()
 {
     SentryCrash *handler = [SentryCrash sharedInstance];
     
-    if (customCacheDirectory != nil) {
-        handler.basePath = customCacheDirectory;
-    }
-    
     @synchronized(handler) {
+        handler.basePath = customCacheDirectory;
         g_crashHandlerData = self.crashHandlerData;
         handler.onCrash = crashCallback;
         [handler install];

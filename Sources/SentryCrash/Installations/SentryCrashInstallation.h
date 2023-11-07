@@ -43,13 +43,13 @@
  * WARNING: Only call async-safe functions from this function! DO NOT call
  * Objective-C methods!!!
  */
-@property (nullable, atomic, readwrite, assign) SentryCrashReportWriteCallback onCrash;
+@property (atomic, readwrite, assign) SentryCrashReportWriteCallback _Null_unspecified onCrash;
 
 /** Install this installation. Call this instead of -[SentryCrash install] to
  * install with everything needed for your particular backend.
  * If you wish to use default cache directory, pass @c nil .
  */
-- (void)install:(nullable NSString *)customCacheDirectory;
+- (void)install:(nonnull NSString *)customCacheDirectory;
 
 /**
  * Call this instead of `-[SentryCrash uninstall]`.

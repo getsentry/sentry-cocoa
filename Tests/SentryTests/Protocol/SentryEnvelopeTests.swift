@@ -166,7 +166,7 @@ class SentryEnvelopeTests: XCTestCase {
     }
     
     func testInitSentryEnvelopeWithSession_DefaultSdkInfoIsSet() {
-        let envelope = SentryEnvelope(session: SentrySession(releaseName: "1.1.1", cacheDirectoryPath: nil))
+        let envelope = SentryEnvelope(session: SentrySession(releaseName: "1.1.1", distinctId: ""))
         
         XCTAssertEqual(defaultSdkInfo, envelope.header.sdkInfo)
     }

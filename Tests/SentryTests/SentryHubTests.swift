@@ -39,7 +39,7 @@ class SentryHubTests: XCTestCase {
             
             SentryDependencyContainer.sharedInstance().dateProvider = currentDateProvider
             
-            crashedSession = SentrySession(releaseName: "1.0.0", cacheDirectoryPath: nil)
+            crashedSession = SentrySession(releaseName: "1.0.0", distinctId: "")
             crashedSession.endCrashed(withTimestamp: currentDateProvider.date())
             crashedSession.environment = options.environment
         }
@@ -717,7 +717,7 @@ class SentryHubTests: XCTestCase {
     }
     
     func testCaptureEnvelope_WithSession() {
-        let envelope = SentryEnvelope(session: SentrySession(releaseName: "", cacheDirectoryPath: nil))
+        let envelope = SentryEnvelope(session: SentrySession(releaseName: "", distinctId: ""))
         sut.capture(envelope)
         
         XCTAssertEqual(1, fixture.client.captureEnvelopeInvocations.count)

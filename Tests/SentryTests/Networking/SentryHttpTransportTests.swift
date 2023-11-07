@@ -62,7 +62,7 @@ class SentryHttpTransportTests: XCTestCase {
             eventEnvelope.header.sentAt = SentryDependencyContainer.sharedInstance().dateProvider.date()
             eventWithAttachmentRequest = buildRequest(eventEnvelope)
 
-            session = SentrySession(releaseName: "2.0.1", cacheDirectoryPath: nil)
+            session = SentrySession(releaseName: "2.0.1", distinctId: "")
             sessionEnvelope = SentryEnvelope(id: nil, singleItem: SentryEnvelopeItem(session: session))
             sessionEnvelope.header.sentAt = SentryDependencyContainer.sharedInstance().dateProvider.date()
             sessionRequest = buildRequest(sessionEnvelope)
@@ -253,7 +253,7 @@ class SentryHttpTransportTests: XCTestCase {
 
     func testSendAllCachedEnvelopes() {
         givenNoInternetConnection()
-        let envelope = SentryEnvelope(session: SentrySession(releaseName: "1.9.0", cacheDirectoryPath: nil))
+        let envelope = SentryEnvelope(session: SentrySession(releaseName: "1.9.0", distinctId: ""))
         sendEnvelope(envelope: envelope)
         sendEnvelope()
 

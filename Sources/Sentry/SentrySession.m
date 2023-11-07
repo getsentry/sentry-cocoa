@@ -2,10 +2,8 @@
 #import "NSMutableDictionary+Sentry.h"
 #import "SentryCurrentDateProvider.h"
 #import "SentryDependencyContainer.h"
-#import "SentryInstallation.h"
 #import "SentryLog.h"
 #import "SentrySession+Private.h"
-#import "SentryOptions.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -33,7 +31,7 @@ nameForSentrySessionStatus(SentrySessionStatus status)
  * Default private constructor. We don't name it init to avoid the overlap with the default init of
  * NSObject, which is not available as we specified in the header with SENTRY_NO_INIT.
  */
-- (instancetype)initDefault:(nullable NSString*)cacheDirectoryPath
+- (instancetype)initDefault:(NSString*)distinctId
 {
     if (self = [super init]) {
         _sessionId = [NSUUID UUID];
@@ -41,30 +39,15 @@ nameForSentrySessionStatus(SentrySessionStatus status)
         _status = kSentrySessionStatusOk;
         _sequence = 1;
         _errors = 0;
-        
-        if (cacheDirectoryPath == nil) {
-            _distinctId = [SentryInstallation idWithCacheDirectoryPath:SentryOptions.defaultCacheDirectoryPath];
-        }
-        else {
-            _distinctId = [SentryInstallation idWithCacheDirectoryPath:cacheDirectoryPath];
-        }
+        _distinctId = distinctId;
     }
 
     return self;
 }
 
-- (instancetype)initWithReleaseName:(NSString *)releaseName
+- (instancetype)initWithReleaseName:(NSString *)releaseName distinctId:(NSString*)distinctId
 {
-    if (self = [self initDefault:nil]) {
-        _init = @YES;
-        _releaseName = releaseName;
-    }
-    return self;
-}
-
-- (instancetype)initWithReleaseName:(NSString *)releaseName cacheDirectoryPath:(nullable NSString*)cacheDirectoryPath
-{
-    if (self = [self initDefault:cacheDirectoryPath]) {
+    if (self = [self initDefault:distinctId]) {
         _init = @YES;
         _releaseName = releaseName;
     }

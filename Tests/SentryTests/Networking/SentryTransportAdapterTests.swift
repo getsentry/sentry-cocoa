@@ -29,7 +29,7 @@ class SentryTransportAdapterTests: XCTestCase {
     }
     
     func testSendEventWithSession_SendsCorrectEnvelope() throws {
-        let session = SentrySession(releaseName: "1.0.1", cacheDirectoryPath: nil)
+        let session = SentrySession(releaseName: "1.0.1", distinctId: "")
         let event = TestData.event
         sut.send(event, session: session, attachments: [fixture.attachment])
         

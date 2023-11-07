@@ -426,7 +426,7 @@ class SentrySDKTests: XCTestCase {
         XCTAssertEqual(1, fixture.client.captureSessionInvocations.count)
         
         let actual = fixture.client.captureSessionInvocations.first
-        let expected = SentrySession(releaseName: fixture.options.releaseName ?? "", cacheDirectoryPath: nil)
+        let expected = SentrySession(releaseName: fixture.options.releaseName ?? "", distinctId: "")
         
         XCTAssertEqual(expected.flagInit, actual?.flagInit)
         XCTAssertEqual(expected.errors, actual?.errors)

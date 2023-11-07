@@ -618,7 +618,7 @@ class SentryScopeSwiftTests: XCTestCase {
         scope.clearBreadcrumbs()
         scope.addBreadcrumb(self.fixture.breadcrumb)
         
-        scope.applyTo(session: SentrySession(releaseName: "1.0.0", cacheDirectoryPath: nil))
+        scope.applyTo(session: SentrySession(releaseName: "1.0.0", distinctId: ""))
         
         scope.setFingerprint(nil)
         scope.setFingerprint(["finger", "print"])
@@ -650,7 +650,7 @@ class SentryScopeSwiftTests: XCTestCase {
         scope.setEnvironment("env")
         scope.setLevel(SentryLevel.debug)
         
-        scope.applyTo(session: SentrySession(releaseName: "1.0.0", cacheDirectoryPath: nil))
+        scope.applyTo(session: SentrySession(releaseName: "1.0.0", distinctId: ""))
         scope.applyTo(event: TestData.event, maxBreadcrumbs: 5)
         
         scope.serialize()

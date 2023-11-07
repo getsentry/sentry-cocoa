@@ -40,7 +40,7 @@ class SentryClientTest: XCTestCase {
         let dispatchQueue = TestSentryDispatchQueueWrapper()
         
         init() {
-            session = SentrySession(releaseName: "release", cacheDirectoryPath: nil)
+            session = SentrySession(releaseName: "release", distinctId: "")
             session.incrementErrors()
 
             message = SentryMessage(formatted: messageAsString)
@@ -336,7 +336,7 @@ class SentryClientTest: XCTestCase {
         
         sut.add(processor)
         sut.captureError(error, with: Scope()) {
-            return SentrySession(releaseName: "", cacheDirectoryPath: nil)
+            return SentrySession(releaseName: "", distinctId: "")
         }
         
         let sentAttachments = fixture.transportAdapter.sendEventWithTraceStateInvocations.first?.attachments ?? []
@@ -883,14 +883,14 @@ class SentryClientTest: XCTestCase {
     }
 
     func testCaptureSession() {
-        let session = SentrySession(releaseName: "release", cacheDirectoryPath: nil)
+        let session = SentrySession(releaseName: "release", distinctId: "")
         fixture.getSut().capture(session: session)
 
         assertLastSentEnvelopeIsASession()
     }
     
     func testCaptureSessionWithoutReleaseName() {
-        let session = SentrySession(releaseName: "", cacheDirectoryPath: nil)
+        let session = SentrySession(releaseName: "", distinctId: "")
         
         fixture.getSut().capture(session: session)
         fixture.getSut().capture(exception, with: Scope()) {
@@ -1264,7 +1264,7 @@ class SentryClientTest: XCTestCase {
         fixture.getSut().capture(message: "any message")
         
         try assertLastSentEvent { actual in
-            XCTAssertEqual(SentryInstallation.id(withCacheDirectoryPath: "/var/tmp"), actual.user?.userId)
+            XCTAssertEqual(SentryInstallation.id(withCacheDirectoryPath: PrivateSentrySDKOnly.options.cacheDirectoryPath), actual.user?.userId)
         }
     }
     

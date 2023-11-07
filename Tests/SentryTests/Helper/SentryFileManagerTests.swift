@@ -14,7 +14,7 @@ class SentryFileManagerTests: XCTestCase {
         
         let options: Options
 
-        let session = SentrySession(releaseName: "1.0.0", cacheDirectoryPath: nil)
+        let session = SentrySession(releaseName: "1.0.0", distinctId: "")
         let sessionEnvelope: SentryEnvelope
 
         let sessionUpdate: SentrySession
@@ -98,7 +98,7 @@ class SentryFileManagerTests: XCTestCase {
     
     func testInitDoesNotOverrideDirectories() {
         sut.store(TestConstants.envelope)
-        sut.storeCurrentSession(SentrySession(releaseName: "1.0.0", cacheDirectoryPath: nil))
+        sut.storeCurrentSession(SentrySession(releaseName: "1.0.0", distinctId: ""))
         sut.storeTimestampLast(inForeground: Date())
 
         _ = try! SentryFileManager(options: fixture.options, dispatchQueueWrapper: TestSentryDispatchQueueWrapper())
@@ -281,7 +281,7 @@ class SentryFileManagerTests: XCTestCase {
     func testMigrateSessionInit_SessionUpdateIsLast() {
         sut.store(fixture.sessionEnvelope)
         // just some other session
-        sut.store(SentryEnvelope(session: SentrySession(releaseName: "1.0.0", cacheDirectoryPath: nil)))
+        sut.store(SentryEnvelope(session: SentrySession(releaseName: "1.0.0", distinctId: "")))
         for _ in 0...(fixture.maxCacheItems - 3) {
             sut.store(TestConstants.envelope)
         }
@@ -408,7 +408,7 @@ class SentryFileManagerTests: XCTestCase {
     }
 
     func testStoreAndReadCurrentSession() {
-        let expectedSession = SentrySession(releaseName: "1.0.0", cacheDirectoryPath: nil)
+        let expectedSession = SentrySession(releaseName: "1.0.0", distinctId: "")
         sut.storeCurrentSession(expectedSession)
         let actualSession = sut.readCurrentSession()
         XCTAssertTrue(expectedSession.distinctId == actualSession?.distinctId)
@@ -416,21 +416,21 @@ class SentryFileManagerTests: XCTestCase {
     }
     
     func testStoreAndReadCrashedSession() {
-        let expectedSession = SentrySession(releaseName: "1.0.0", cacheDirectoryPath: nil)
+        let expectedSession = SentrySession(releaseName: "1.0.0", distinctId: "")
         sut.storeCrashedSession(expectedSession)
         let actualSession = sut.readCrashedSession()
         XCTAssertTrue(expectedSession.distinctId == actualSession?.distinctId)
     }
 
     func testStoreDeleteCurrentSession() {
-        sut.storeCurrentSession(SentrySession(releaseName: "1.0.0", cacheDirectoryPath: nil))
+        sut.storeCurrentSession(SentrySession(releaseName: "1.0.0", distinctId: ""))
         sut.deleteCurrentSession()
         let actualSession = sut.readCurrentSession()
         XCTAssertNil(actualSession)
     }
     
     func testStoreDeleteCrashedSession() {
-        sut.storeCrashedSession(SentrySession(releaseName: "1.0.0", cacheDirectoryPath: nil))
+        sut.storeCrashedSession(SentrySession(releaseName: "1.0.0", distinctId: ""))
         sut.deleteCrashedSession()
         let actualSession = sut.readCrashedSession()
         XCTAssertNil(actualSession)
@@ -460,7 +460,7 @@ class SentryFileManagerTests: XCTestCase {
     func testDeleteAllFolders() {
         storeEvent()
         sut.store(TestConstants.envelope)
-        sut.storeCurrentSession(SentrySession(releaseName: "1.0.1", cacheDirectoryPath: nil))
+        sut.storeCurrentSession(SentrySession(releaseName: "1.0.1", distinctId: ""))
         
         sut.deleteAllFolders()
 
