@@ -4,6 +4,11 @@ import XCTest
 
 class SentryCurrentDateTests: XCTestCase {
 
+    override func tearDown() {
+        super.tearDown()
+        clearTestState()
+    }
+    
     func testSetNoCurrentDateProvider() {
         let firstDate = Date()
         let secondDate = SentryDependencyContainer.sharedInstance().dateProvider.date()

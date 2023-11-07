@@ -5,6 +5,7 @@
 #import "SentryCrashMonitor.h"
 #import "SentryCrashMonitor_MachException.h"
 #import "SentryCrashSystemCapabilities.h"
+#import "SentryDependencyContainer.h"
 #import "SentryNSNotificationCenterWrapper.h"
 #import "SentryTests-Swift.h"
 #import <XCTest/XCTest.h>
@@ -32,6 +33,12 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 @implementation SentryCrashInstallationTests
+
+- (void)tearDown
+{
+    [super tearDown];
+    [SentryDependencyContainer reset];
+}
 
 #pragma mark - Tests
 
