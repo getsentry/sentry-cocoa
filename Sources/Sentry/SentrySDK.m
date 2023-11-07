@@ -137,24 +137,29 @@ static NSUInteger startInvocations;
 
 + (void)startWithOptions:(SentryOptions *)options
 {
+    [SentryLog configure:options.debug diagnosticLevel:options.diagnosticLevel];
+
     // We accept the tradeoff that the SDK might not be fully initialized directly after
     // initializing it on a background thread because scheduling the init synchronously on the main
     // thread could lead to deadlocks.
+    SENTRY_LOG_DEBUG(@"Starting SDK...");
+
+    startInvocations++;
+
+    SentryClient *newClient = [[SentryClient alloc] initWithOptions:options];
+    [newClient.fileManager moveAppStateToPreviousAppState];
+    [newClient.fileManager moveBreadcrumbsToPreviousBreadcrumbs];
+
+    SentryScope *scope
+        = options.initialScope([[SentryScope alloc] initWithMaxBreadcrumbs:options.maxBreadcrumbs]);
+    // The Hub needs to be initialized with a client so that closing a session
+    // can happen.
+    [SentrySDK setCurrentHub:[[SentryHub alloc] initWithClient:newClient andScope:scope]];
+    SENTRY_LOG_DEBUG(@"SDK initialized! Version: %@", SentryMeta.versionString);
+
+    SENTRY_LOG_DEBUG(@"Dispatching init work required to run on main thread.");
     [SentryThreadWrapper onMainThread:^{
-        startInvocations++;
-
-        [SentryLog configure:options.debug diagnosticLevel:options.diagnosticLevel];
-
-        SentryClient *newClient = [[SentryClient alloc] initWithOptions:options];
-        [newClient.fileManager moveAppStateToPreviousAppState];
-        [newClient.fileManager moveBreadcrumbsToPreviousBreadcrumbs];
-
-        SentryScope *scope = options.initialScope(
-            [[SentryScope alloc] initWithMaxBreadcrumbs:options.maxBreadcrumbs]);
-        // The Hub needs to be initialized with a client so that closing a session
-        // can happen.
-        [SentrySDK setCurrentHub:[[SentryHub alloc] initWithClient:newClient andScope:scope]];
-        SENTRY_LOG_DEBUG(@"SDK initialized! Version: %@", SentryMeta.versionString);
+        SENTRY_LOG_DEBUG(@"SDK main thread init started...");
         [SentrySDK installIntegrations];
 
         [SentryCrashWrapper.sharedInstance startBinaryImageCache];

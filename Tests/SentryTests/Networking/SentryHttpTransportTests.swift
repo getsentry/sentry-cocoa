@@ -155,6 +155,7 @@ class SentryHttpTransportTests: XCTestCase {
         super.tearDown()
         fixture.fileManager.deleteAllEnvelopes()
         fixture.requestManager.waitForAllRequests()
+        clearTestState()
     }
 
     func testInitSendsCachedEnvelopes() {

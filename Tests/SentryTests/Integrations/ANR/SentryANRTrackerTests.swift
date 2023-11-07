@@ -45,6 +45,7 @@ class SentryANRTrackerTests: XCTestCase, SentryANRTrackerDelegate {
         
         wait(for: [fixture.threadWrapper.threadFinishedExpectation], timeout: 5)
         XCTAssertEqual(0, fixture.threadWrapper.threads.count)
+        clearTestState()
     }
     
     func start() {
