@@ -4,7 +4,7 @@
 
 ### Features 
 
-- Add cache directory option ([#2711](https://github.com/getsentry/sentry-cocoa/pull/2711))
+- Add cache directory option ([#3369](https://github.com/getsentry/sentry-cocoa/pull/3369))
 ### Features
 
 - Add thread id and name to span data (#3359)
