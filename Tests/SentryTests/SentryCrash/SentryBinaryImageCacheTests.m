@@ -100,6 +100,7 @@ delayAddBinaryImage(void)
     sentry_resetFuncForAddRemoveImage();
     sentrycrashbic_stopCache();
     sentry_setFuncForBeforeAdd(NULL);
+    [SentryDependencyContainer reset];
 }
 
 - (void)testStartCache
