@@ -68,6 +68,9 @@
                   Identifier = "SentryProfilerSwiftTests/testConcurrentSpansWithTimeout()">
                </Test>
                <Test
+                  Identifier = "SentryReachabilityTest/testMultipleReachabilityObservers">
+               </Test>
+               <Test
                   Identifier = "SentrySDKIntegrationTestsBase">
                </Test>
                <Test

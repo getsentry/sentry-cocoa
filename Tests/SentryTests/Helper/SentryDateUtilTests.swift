@@ -9,7 +9,11 @@ class SentryDateUtilTests: XCTestCase {
         super.setUp()
         currentDateProvider = TestCurrentDateProvider()
         SentryDependencyContainer.sharedInstance().dateProvider = currentDateProvider
-        
+    }
+    
+    override func tearDown() {
+        super.tearDown()
+        clearTestState()
     }
     
     func testIsInFutureWithFutureDte() {

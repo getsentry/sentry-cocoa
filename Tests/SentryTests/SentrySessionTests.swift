@@ -11,6 +11,11 @@ class SentrySessionTestsSwift: XCTestCase {
         SentryDependencyContainer.sharedInstance().dateProvider = currentDateProvider
     }
     
+    override func tearDown() {
+        super.tearDown()
+        clearTestState()
+    }
+    
     func testEndSession() {
         let session = SentrySession(releaseName: "0.1.0")
         let date = currentDateProvider.date().addingTimeInterval(1)

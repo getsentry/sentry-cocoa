@@ -1,7 +1,13 @@
+import SentryTestUtils
 import XCTest
 
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
 class SentryUIApplicationTests: XCTestCase {
+    
+    override func tearDown() {
+        super.tearDown()
+        clearTestState()
+    }
 
     func test_noScene_delegateWithNoWindow() {
         let sut = MockSentryUIApplicationTests()

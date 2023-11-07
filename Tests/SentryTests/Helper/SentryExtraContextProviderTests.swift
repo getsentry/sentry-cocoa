@@ -27,6 +27,11 @@ final class SentryExtraContextProviderTests: XCTestCase {
         fixture = Fixture()
     }
     
+    override func tearDown() {
+        super.tearDown()
+        clearTestState()
+    }
+    
     func testExtraCrashInfo() throws {
         let sut = fixture.getSut()
         fixture.crashWrapper.internalFreeMemorySize = 123_456
