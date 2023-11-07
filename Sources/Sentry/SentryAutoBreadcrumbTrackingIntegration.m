@@ -31,11 +31,9 @@ SentryAutoBreadcrumbTrackingIntegration ()
     [self installWithOptions:options
              breadcrumbTracker:[[SentryBreadcrumbTracker alloc] init]
 #if TARGET_OS_IOS && SENTRY_HAS_UIKIT
-        systemEventBreadcrumbs:
-            [[SentrySystemEventBreadcrumbs alloc]
-                         initWithFileManager:[SentryDependencyContainer sharedInstance].fileManager
-                andNotificationCenterWrapper:[SentryDependencyContainer sharedInstance]
-                                                 .notificationCenterWrapper]
+        systemEventBreadcrumbs:[[SentrySystemEventBreadcrumbs alloc]
+                                   initWithFileManager:[SentryDependencyContainer sharedInstance]
+                                                           .fileManager]
 #endif // TARGET_OS_IOS && SENTRY_HAS_UIKIT
     ];
 
