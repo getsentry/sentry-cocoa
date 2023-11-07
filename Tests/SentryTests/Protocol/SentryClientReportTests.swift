@@ -3,6 +3,11 @@ import SentryTestUtils
 import XCTest
 
 class SentryClientReportTests: XCTestCase {
+    
+    override func tearDown() {
+        super.tearDown()
+        clearTestState()
+    }
 
     func testSerialize() {
         SentryDependencyContainer.sharedInstance().dateProvider = TestCurrentDateProvider()
