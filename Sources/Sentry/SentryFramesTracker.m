@@ -58,6 +58,7 @@ slowFrameThreshold(uint64_t actualFramesPerSecond)
         _displayLinkWrapper = displayLinkWrapper;
         _listeners = [NSHashTable weakObjectsHashTable];
         [self resetFrames];
+        SENTRY_LOG_DEBUG(@"Initialized frame tracker %@", self);
     }
     return self;
 }
@@ -146,7 +147,8 @@ slowFrameThreshold(uint64_t actualFramesPerSecond)
         && frameDuration <= SentryFrozenFrameThreshold) {
         _slowFrames++;
 #    if SENTRY_TARGET_PROFILING_SUPPORTED
-        SENTRY_LOG_DEBUG(@"Capturing slow frame starting at %llu.", thisFrameSystemTimestamp);
+        SENTRY_LOG_DEBUG(@"Capturing slow frame starting at %llu (frame tracker: %@).",
+            thisFrameSystemTimestamp, self);
         [self recordTimestamp:thisFrameSystemTimestamp
                         value:@(thisFrameSystemTimestamp - self.previousFrameSystemTimestamp)
                         array:self.slowFrameTimestamps];

@@ -3,6 +3,11 @@ import XCTest
 
 #if os(iOS)
 class SentryUIDeviceWrapperTests: XCTestCase {
+    override func tearDown() {
+        super.tearDown()
+        clearTestState()
+    }
+    
     func testExecutesLogicViaDispatchQueue() {
         let dispatchQueue = TestSentryDispatchQueueWrapper()
         SentryDependencyContainer.sharedInstance().dispatchQueueWrapper = dispatchQueue

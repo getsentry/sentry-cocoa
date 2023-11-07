@@ -1,4 +1,5 @@
 #import "SentryThreadWrapper.h"
+#import "SentryLog.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -22,8 +23,10 @@ NS_ASSUME_NONNULL_BEGIN
 + (void)onMainThread:(void (^)(void))block
 {
     if ([NSThread isMainThread]) {
+        SENTRY_LOG_DEBUG(@"Already on main thread.");
         block();
     } else {
+        SENTRY_LOG_DEBUG(@"Dispatching asynchronously to main queue.");
         dispatch_async(dispatch_get_main_queue(), block);
     }
 }

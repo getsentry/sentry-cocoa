@@ -18,6 +18,15 @@ class SentryThreadTests: XCTestCase {
         XCTAssertTrue(actual["main"] as! Bool)
     }
     
+    func testSerialize_ThreadNameNil() {
+        let thread = TestData.thread
+        thread.name = nil
+        
+        let actual = thread.serialize()
+        
+        XCTAssertNil(actual["name"])
+    }
+    
     func testSerialize_Bools() {
         let thread = SentryThread(threadId: 0)
         

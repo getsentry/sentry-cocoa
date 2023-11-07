@@ -1,22 +1,6 @@
 import XCTest
 
-class UIEventBreadcrumbTests: XCTestCase {
-    private let app: XCUIApplication = XCUIApplication()
-
-    override func setUp() {
-        super.setUp()
-        continueAfterFailure = false
-        XCUIDevice.shared.orientation = .portrait
-        app.launchEnvironment["io.sentry.ui-test.test-name"] = name
-        app.launch()
-
-        waitForExistenceOfMainScreen()
-    }
-
-    override func tearDown() {
-        app.terminate()
-        super.tearDown()
-    }
+class UIEventBreadcrumbTests: BaseUITest {
 
     func testNoBreadcrumbForTextFieldEditingChanged() {
         app.buttons["Extra"].tap()
@@ -43,9 +27,5 @@ class UIEventBreadcrumbTests: XCTestCase {
         let info = app.staticTexts["infoLabel"].label
 
         XCTAssertNotEqual(info, "ERROR")
-    }
-
-    func waitForExistenceOfMainScreen() {
-        app.waitForExistence( "Home Screen doesn't exist.")
     }
 }

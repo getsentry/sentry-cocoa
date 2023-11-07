@@ -46,6 +46,7 @@ class SentryAppStateManagerTests: XCTestCase {
     override func tearDown() {
         super.tearDown()
         fixture.fileManager.deleteAppState()
+        clearTestState()
     }
 
     func testStartStoresAppState() {

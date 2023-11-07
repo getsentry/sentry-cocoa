@@ -56,16 +56,13 @@ class SentryEnvelopeTests: XCTestCase {
         SentryDependencyContainer.sharedInstance().dateProvider = TestCurrentDateProvider()
     }
     
-    override func tearDown() {
-        super.tearDown()
-        do {
-            let fileManager = FileManager.default
-            if fileManager.fileExists(atPath: fixture.path) {
-                try fileManager.removeItem(atPath: fixture.path)
-            }
-        } catch {
-            XCTFail("Couldn't delete files.")
+    override func tearDownWithError() throws {
+        try super.tearDownWithError()
+        let fileManager = FileManager.default
+        if fileManager.fileExists(atPath: fixture.path) {
+            try fileManager.removeItem(atPath: fixture.path)
         }
+        clearTestState()
     }
 
     private let defaultSdkInfo = SentrySdkInfo(name: SentryMeta.sdkName, andVersion: SentryMeta.versionString)

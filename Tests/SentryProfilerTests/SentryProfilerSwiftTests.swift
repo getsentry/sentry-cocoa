@@ -263,6 +263,15 @@ class SentryProfilerSwiftTests: XCTestCase {
         try self.assertMetricsPayload(expectedUsageReadings: fixture.mockUsageReadingsPerBatch + 2) // including one sample at the start and the end
     }
 
+    func testTransactionWithMutatedTracerID() throws {
+        let span = try fixture.newTransaction()
+        addMockSamples()
+        self.fixture.currentDateProvider.advanceBy(nanoseconds: 1.toNanoSeconds())
+        span.traceId = SentryId()
+        span.finish()
+        try self.assertValidProfileData()
+    }
+
     func testConcurrentProfilingTransactions() throws {
         let numberOfTransactions = 10
         var spans = [Span]()

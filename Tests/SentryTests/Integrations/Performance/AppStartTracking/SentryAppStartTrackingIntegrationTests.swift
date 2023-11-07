@@ -23,6 +23,7 @@ class SentryAppStartTrackingIntegrationTests: NotificationCenterTestCase {
     override class func setUp() {
         super.setUp()
         SentryLog.configure(true, diagnosticLevel: .debug)
+        clearTestState()
     }
     
     override func setUp() {
@@ -38,6 +39,7 @@ class SentryAppStartTrackingIntegrationTests: NotificationCenterTestCase {
         PrivateSentrySDKOnly.appStartMeasurementHybridSDKMode = false
         SentrySDK.setAppStartMeasurement(nil)
         sut.stop()
+        clearTestState()
     }
     
     func testAppStartMeasuringEnabledAndSampleRate_properlySetupTracker() throws {

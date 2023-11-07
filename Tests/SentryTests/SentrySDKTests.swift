@@ -654,21 +654,23 @@ class SentrySDKTests: XCTestCase {
         XCTAssertEqual(flushTimeout, transport.flushInvocations.first)
     }
 
-    func testStartOnTheMainThread() {
-        
+    func testStartOnTheMainThread() throws {
         let expectation = expectation(description: "MainThreadTestIntegration install called")
         MainThreadTestIntegration.expectation = expectation
         
+        print("[Sentry] [TEST] [\(#file):\(#line) Dispatching to nonmain queue.")
         DispatchQueue.global(qos: .background).async {
+            print("[Sentry] [TEST] [\(#file):\(#line) About to start SDK from nonmain queue.")
             SentrySDK.start { options in
+                print("[Sentry] [TEST] [\(#file):\(#line) configuring options.")
                 options.integrations = [ NSStringFromClass(MainThreadTestIntegration.self) ]
             }
         }
         
         wait(for: [expectation], timeout: 1.0)
         
-        let mainThreadIntegration = SentrySDK.currentHub().installedIntegrations().first { integration in integration is MainThreadTestIntegration } as? MainThreadTestIntegration
-        XCTAssertEqual(mainThreadIntegration?.installedInTheMainThread, true, "SDK is not being initialized in the main thread")
+        let mainThreadIntegration = try XCTUnwrap(SentrySDK.currentHub().installedIntegrations().first as? MainThreadTestIntegration)
+        XCTAssert(mainThreadIntegration.installedInTheMainThread, "SDK is not being initialized in the main thread")
         
     }
 
@@ -799,6 +801,7 @@ public class MainThreadTestIntegration: NSObject, SentryIntegrationProtocol {
     public var installedInTheMainThread = false
 
     public func install(with options: Options) -> Bool {
+        print("[Sentry] [TEST] [\(#file):\(#line) starting install.")
         installedInTheMainThread = Thread.isMainThread
         MainThreadTestIntegration.expectation?.fulfill()
         MainThreadTestIntegration.expectation = nil

@@ -12,6 +12,11 @@ class SentryRateLimitsParserTests: XCTestCase {
         sut = RateLimitParser()
     }
     
+    override func tearDown() {
+        super.tearDown()
+        clearTestState()
+    }
+    
     func testOneQuotaOneCategory() {
         let expected = [
             SentryDataCategory.transaction.asNSNumber: SentryDependencyContainer.sharedInstance().dateProvider.date().addingTimeInterval(50)

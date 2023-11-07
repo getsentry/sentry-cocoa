@@ -125,6 +125,9 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
       * Smoke Tests profiling via PrivateSentrySDKOnly. Actual profiling unit tests are done elsewhere.
      */
     func testProfilingStartAndCollect() throws {
+        if threadSanitizerIsPresent() {
+            throw XCTSkip("Profiler does not run if thread sanitizer is attached.")
+        }
         let options = Options()
         options.dsn = TestConstants.dsnAsString(username: "SentryFramesTrackingIntegrationTests")
         let client = TestClient(options: options)

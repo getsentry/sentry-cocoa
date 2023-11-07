@@ -46,6 +46,11 @@ class SentrySpanTests: XCTestCase {
         SentryDependencyContainer.sharedInstance().dateProvider = fixture.currentDateProvider
     }
     
+    override func tearDown() {
+        super.tearDown()
+        clearTestState()
+    }
+    
     func testInitAndCheckForTimestamps() {
         let span = fixture.getSut()
         XCTAssertNotNil(span.startTimestamp)

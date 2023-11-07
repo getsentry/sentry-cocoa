@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name         = "Sentry"
-  s.version      = "8.14.2"
+  s.version      = "8.15.0"
   s.summary      = "Sentry client for cocoa"
   s.homepage     = "https://github.com/getsentry/sentry-cocoa"
   s.license      = "mit"
@@ -12,6 +12,7 @@ Pod::Spec.new do |s|
   s.osx.deployment_target = "10.13"
   s.tvos.deployment_target = "11.0"
   s.watchos.deployment_target = "4.0"
+  s.visionos.deployment_target = "1.0"
   s.module_name  = "Sentry"
   s.requires_arc = true
   s.frameworks = 'Foundation'
@@ -26,7 +27,7 @@ Pod::Spec.new do |s|
   }
 
   s.default_subspecs = ['Core']
-  s.dependency "SentryPrivate", "8.14.2"
+  s.dependency "SentryPrivate", "8.15.0"
 
   s.subspec 'Core' do |sp|
       sp.source_files = "Sources/Sentry/**/*.{h,hpp,m,mm,c,cpp}",

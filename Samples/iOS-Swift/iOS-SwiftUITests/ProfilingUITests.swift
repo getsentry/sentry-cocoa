@@ -1,15 +1,6 @@
 import XCTest
 
-final class ProfilingUITests: XCTestCase {
-    private let app: XCUIApplication = XCUIApplication()
-
-    override func setUpWithError() throws {
-        try super.setUpWithError()
-        continueAfterFailure = false
-        XCUIDevice.shared.orientation = .portrait
-        app.launchEnvironment["io.sentry.ui-test.test-name"] = name
-        app.launch()
-    }
+final class ProfilingUITests: BaseUITest {
 
     /**
      * We had a bug where we forgot to install the frames tracker into the profiler, so weren't sending any GPU frame information with profiles. Since it's not possible to enforce such installation via the compiler, we test for the results we expect here, by starting a transaction, triggering an ANR which will cause degraded frame rendering, stop the transaction, and inspect the profile payload.
@@ -24,7 +15,7 @@ final class ProfilingUITests: XCTestCase {
         XCUIApplication().tabBars["Tab Bar"].buttons["Transactions"].tap()
         app.buttons["Start transaction (main thread)"].afterWaitingForExistence("Couldn't find button to start transaction").tap()
         XCUIApplication().tabBars["Tab Bar"].buttons["Extra"].tap()
-        app.buttons["ANR filling run loop"].afterWaitingForExistence("Couldn't find button to ANR").tap()
+        app.buttons["Cause frozen frames"].afterWaitingForExistence("Couldn't find button to cause frozen frames").tap()
         XCUIApplication().tabBars["Tab Bar"].buttons["Transactions"].tap()
         app.buttons["Stop transaction"].afterWaitingForExistence("Couldn't find button to end transaction").tap()
 

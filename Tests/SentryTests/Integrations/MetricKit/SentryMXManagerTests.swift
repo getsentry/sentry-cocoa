@@ -12,6 +12,11 @@ import MetricKit
 #endif
 
 final class SentryMXManagerTests: XCTestCase {
+    
+    override func tearDown() {
+        super.tearDown()
+        clearTestState()
+    }
 
     func testReceiveNoPayloads() {
         if #available(iOS 15, macOS 12, macCatalyst 15, *) {
