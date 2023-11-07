@@ -33,15 +33,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation SentryCrashInstallationTests
 
-- (SentryCrashTestInstallation *)getSut
-{
-    SentryCrashTestInstallation *installation =
-        [[SentryCrashTestInstallation alloc] initForTesting];
-    self.notificationCenter = [[TestNSNotificationCenterWrapper alloc] init];
-    [SentryDependencyContainer.sharedInstance.crashReporter
-        setSentryNSNotificationCenterWrapper:self.notificationCenter];
-    return installation;
-}
+#pragma mark - Tests
 
 - (void)testUninstall
 {
@@ -99,7 +91,19 @@ NS_ASSUME_NONNULL_BEGIN
 
 #if SentryCrashCRASH_HAS_UIAPPLICATION
     XCTAssertEqual(55, self.notificationCenter.removeObserverWithNameInvocationsCount);
-#endif
+#endif // SentryCrashCRASH_HAS_UIAPPLICATION
+}
+
+#pragma mark - Private
+
+- (SentryCrashTestInstallation *)getSut
+{
+    SentryCrashTestInstallation *installation =
+        [[SentryCrashTestInstallation alloc] initForTesting];
+    self.notificationCenter = [[TestNSNotificationCenterWrapper alloc] init];
+    [SentryDependencyContainer.sharedInstance.crashReporter
+        setSentryNSNotificationCenterWrapper:self.notificationCenter];
+    return installation;
 }
 
 - (void)assertReinstalled:(SentryCrashTestInstallation *)installation
