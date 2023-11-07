@@ -3,6 +3,7 @@
 @class SentryANRTracker;
 @class SentryAppStateManager;
 @class SentryBinaryImageCache;
+@class SentryCrash;
 @class SentryCrashWrapper;
 @class SentryCurrentDateProvider;
 @class SentryDebugImageProvider;
@@ -54,6 +55,7 @@ SENTRY_NO_INIT
 @property (nonatomic, strong) SentryFileManager *fileManager;
 @property (nonatomic, strong) SentryAppStateManager *appStateManager;
 @property (nonatomic, strong) SentryCrashWrapper *crashWrapper;
+@property (nonatomic, strong) SentryCrash *crashReporter;
 @property (nonatomic, strong) SentryThreadWrapper *threadWrapper;
 @property (nonatomic, strong) id<SentryRandom> random;
 @property (nonatomic, strong) SentrySwizzleWrapper *swizzleWrapper;
