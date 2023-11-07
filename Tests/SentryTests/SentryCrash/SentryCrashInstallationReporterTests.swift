@@ -21,6 +21,7 @@ class SentryCrashInstallationReporterTests: XCTestCase {
         super.tearDown()
         sentrycrash_deleteAllReports()
         clearTestState()
+        sut.uninstall()
     }
     
     func testReportIsSentAndDeleted() throws {

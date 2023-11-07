@@ -15,6 +15,7 @@
 #import "SentryUIDeviceWrapper.h"
 #import <SentryAppStateManager.h>
 #import <SentryClient+Private.h>
+#import <SentryCrash.h>
 #import <SentryCrashWrapper.h>
 #import <SentryDebugImageProvider.h>
 #import <SentryDependencyContainer.h>
@@ -118,6 +119,18 @@ static NSObject *sentryDependencyContainerLock;
         }
     }
     return _crashWrapper;
+}
+
+- (SentryCrash *)crashReporter
+{
+    if (_crashReporter == nil) {
+        @synchronized(sentryDependencyContainerLock) {
+            if (_crashReporter == nil) {
+                _crashReporter = [[SentryCrash alloc] init];
+            }
+        }
+    }
+    return _crashReporter;
 }
 
 - (SentrySysctl *)sysctlWrapper

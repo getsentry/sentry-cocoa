@@ -51,9 +51,9 @@
 
 #    ifdef __LP64__
 #        define MACH_ERROR_CODE_MASK 0xFFFFFFFFFFFFFFFF
-#    else
+#    else // !__LP64__
 #        define MACH_ERROR_CODE_MASK 0xFFFFFFFF
-#    endif
+#    endif // __LP64__
 
 // ============================================================================
 #    pragma mark - Types -
@@ -267,7 +267,7 @@ sentrycrashcm_hasReservedThreads(void)
     return g_primaryMachThread != 0 && g_secondaryMachThread != 0;
 }
 
-#else
+#else // !SentryCrashCRASH_HAS_MACH
 bool
 sentrycrashcm_isReservedThread(thread_t thread)
 {
@@ -280,7 +280,7 @@ sentrycrashcm_hasReservedThreads(void)
     return false;
 }
 
-#endif
+#endif // SentryCrashCRASH_HAS_MACH
 
 #if SentryCrashCRASH_HAS_MACH
 
@@ -560,7 +560,7 @@ addContextualInfoToEvent(struct SentryCrash_MonitorContext *eventContext)
     }
 }
 
-#endif
+#endif // SentryCrashCRASH_HAS_MACH
 
 SentryCrashMonitorAPI *
 sentrycrashcm_machexception_getAPI(void)
@@ -570,7 +570,7 @@ sentrycrashcm_machexception_getAPI(void)
         .setEnabled = setEnabled,
         .isEnabled = isEnabled,
         .addContextualInfoToEvent = addContextualInfoToEvent
-#endif
+#endif // SentryCrashCRASH_HAS_MACH
     };
     return &api;
 }

@@ -78,7 +78,7 @@ class SentryCrashReportTests: XCTestCase {
      * UserInfo is picked up by the crash report when writing a new report.
      */
     private func serializeToCrashReport(scope: Scope) {
-        SentryCrash.sharedInstance().userInfo = scope.serialize()
+        SentryDependencyContainer.sharedInstance().crashReporter.userInfo = scope.serialize()
     }
     
     private func deleteTestDir() {

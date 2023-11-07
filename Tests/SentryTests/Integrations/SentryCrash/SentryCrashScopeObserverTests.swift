@@ -1,3 +1,4 @@
+import SentryTestUtils
 import XCTest
 
 class SentryCrashScopeObserverTests: XCTestCase {
@@ -17,16 +18,9 @@ class SentryCrashScopeObserverTests: XCTestCase {
     
     private let fixture = Fixture()
     
-    override func setUp() {
-        super.setUp()
-        sentrycrash_scopesync_reset()
-        SentryCrash.sharedInstance().userInfo = nil
-    }
-    
     override func tearDown() {
         super.tearDown()
-        sentrycrash_scopesync_reset()
-        SentryCrash.sharedInstance().userInfo = nil
+        clearTestState()
     }
 
     func testUser() {
