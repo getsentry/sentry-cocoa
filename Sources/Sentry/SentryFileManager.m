@@ -641,11 +641,6 @@ SentryFileManager ()
 {
     NSString *cachePath = options.cacheDirectoryPath;
 
-    if (cachePath == nil) {
-        cachePath = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES)
-                        .firstObject;
-    }
-
     SENTRY_LOG_DEBUG(@"SentryFileManager.cachePath: %@", cachePath);
 
     self.basePath = [cachePath stringByAppendingPathComponent:@"io.sentry"];
