@@ -199,7 +199,6 @@
 #import "TestNSURLRequestBuilder.h"
 #import "TestSentryCrashWrapper.h"
 #import "TestSentrySpan.h"
-#import "TestUrlSession.h"
 #import "URLSessionTaskMock.h"
 @import SentryPrivate;
 #import "SentryBinaryImageCache+Private.h"
