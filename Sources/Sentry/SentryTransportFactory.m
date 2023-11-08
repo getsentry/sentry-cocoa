@@ -14,10 +14,6 @@
 #import "SentryTransport.h"
 #import <Foundation/Foundation.h>
 
-#if !TARGET_OS_WATCH
-#    import "SentryReachability.h"
-#endif // !TARGET_OS_WATCH
-
 NS_ASSUME_NONNULL_BEGIN
 
 @interface
