@@ -7,9 +7,9 @@ class ErrorsViewController: UIViewController {
     @IBOutlet weak var imageView: UIImageView!
     private let dispatchQueue = DispatchQueue(label: "ErrorsViewController", attributes: .concurrent)
     private let diskWriteException = DiskWriteException()
-
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
         SentrySDK.reportFullyDisplayed()
     }
 
