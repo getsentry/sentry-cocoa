@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+- Add screen name to app context (#3346)
+
 ## 8.15.1
 
 ### Fixes
@@ -14,7 +20,6 @@
 - Add experimental visionOS support (#3328)
 - Improve OOM detection by ignoring system reboot (#3352)
 - Add thread id and name to span data (#3359)
-- Add screen name to app context (#3346)
 
 ### Fixes
 

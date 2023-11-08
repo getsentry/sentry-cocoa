@@ -1,23 +1,6 @@
 import XCTest
 
-class TopViewControllerTests: XCTestCase {
-    private let app: XCUIApplication = XCUIApplication()
-    
-    override func setUp() {
-        super.setUp()
-        continueAfterFailure = false
-        XCUIDevice.shared.orientation = .portrait
-        app.launchEnvironment["io.sentry.ui-test.test-name"] = name
-        app.launch()
-        
-        waitForExistenceOfMainScreen()
-    }
-    
-    override func tearDown() {
-        app.terminate()
-        super.tearDown()
-    }
-    
+class TopViewControllerTests: BaseUITest {
     func testTabBarViewController() {
         openInspector()
         
@@ -81,9 +64,5 @@ class TopViewControllerTests: XCTestCase {
     func openInspector() {
         app.buttons["Extra"].tap()
         app.buttons["TOPVCBTN"].tap()
-    }
-    
-    func waitForExistenceOfMainScreen() {
-        app.waitForExistence( "Home Screen doesn't exist.")
     }
 }
