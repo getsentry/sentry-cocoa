@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Crash when initializing SentryHub manually (#3374)
+
 ## 8.15.0
 
 ### Features

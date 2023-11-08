@@ -371,7 +371,9 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     }
 
     if (event.error || event.exceptions.count > 0) {
-        return scope.propagationContext.traceContext;
+        return [[SentryTraceContext alloc] initWithTraceId:scope.propagationContext.traceId
+                                                   options:self.options
+                                               userSegment:scope.userObject.segment];
     }
 
     return nil;

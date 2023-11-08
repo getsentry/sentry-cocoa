@@ -88,6 +88,40 @@ class SentryTraceContextTests: XCTestCase {
         XCTAssertNil(traceContext)
     }
     
+    func testInitTraceIdOptionsSegment_WithOptionsAndSegment() throws {
+        let options = Options()
+        options.dsn = TestConstants.realDSN
+    
+        let traceId = SentryId()
+        let traceContext = SentryTraceContext(trace: traceId, options: options, userSegment: "segment")
+        
+        XCTAssertEqual(options.parsedDsn?.url.user, traceContext.publicKey)
+        XCTAssertEqual(traceId, traceContext.traceId)
+        XCTAssertEqual(options.releaseName, traceContext.releaseName)
+        XCTAssertEqual(options.environment, traceContext.environment)
+        XCTAssertNil(traceContext.transaction)
+        XCTAssertEqual("segment", traceContext.userSegment)
+        XCTAssertNil(traceContext.sampleRate)
+        XCTAssertNil(traceContext.sampled)
+    }
+    
+    func testInitTraceIdOptionsSegment_WithOptionsOnly() throws {
+        let options = Options()
+        options.dsn = TestConstants.realDSN
+    
+        let traceId = SentryId()
+        let traceContext = SentryTraceContext(trace: traceId, options: options, userSegment: nil)
+        
+        XCTAssertEqual(options.parsedDsn?.url.user, traceContext.publicKey)
+        XCTAssertEqual(traceId, traceContext.traceId)
+        XCTAssertEqual(options.releaseName, traceContext.releaseName)
+        XCTAssertEqual(options.environment, traceContext.environment)
+        XCTAssertNil(traceContext.transaction)
+        XCTAssertNil(traceContext.userSegment)
+        XCTAssertNil(traceContext.sampleRate)
+        XCTAssertNil(traceContext.sampled)
+    }
+    
     func test_toBaggage() {
         let traceContext = SentryTraceContext(
             trace: fixture.traceId,
