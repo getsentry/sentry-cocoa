@@ -1,10 +1,12 @@
 #pragma once
 
-#include <cerrno>
-#include <cstring>
-#include <string>
-#include <unistd.h>
-#include <vector>
+#if !defined(DEBUG)
+
+#    include <cerrno>
+#    include <cstring>
+#    include <string>
+#    include <unistd.h>
+#    include <vector>
 
 namespace sentry {
 namespace profiling {
@@ -19,12 +21,22 @@ namespace profiling {
 } // namespace profiling
 } // namespace sentry
 
-#define SENTRY_PROF_LOG_DEBUG(...)                                                                 \
-    sentry::profiling::log(sentry::profiling::LogLevel::Debug, __VA_ARGS__)
-#define SENTRY_PROF_LOG_WARN(...)                                                                  \
-    sentry::profiling::log(sentry::profiling::LogLevel::Warning, __VA_ARGS__)
-#define SENTRY_PROF_LOG_ERROR(...)                                                                 \
-    sentry::profiling::log(sentry::profiling::LogLevel::Error, __VA_ARGS__)
+#    define SENTRY_PROF_LOG_DEBUG(...)                                                             \
+        sentry::profiling::log(sentry::profiling::LogLevel::Debug, __VA_ARGS__)
+#    define SENTRY_PROF_LOG_WARN(...)                                                              \
+        sentry::profiling::log(sentry::profiling::LogLevel::Warning, __VA_ARGS__)
+#    define SENTRY_PROF_LOG_ERROR(...)                                                             \
+        sentry::profiling::log(sentry::profiling::LogLevel::Error, __VA_ARGS__)
+
+#else
+
+// don't do anything with these in production until we can get a logging solution in place that
+// doesn't use NSLog
+#    define SENTRY_PROF_LOG_DEBUG(...)
+#    define SENTRY_PROF_LOG_WARN(...)
+#    define SENTRY_PROF_LOG_ERROR(...)
+
+#endif // !defined(DEBUG)
 
 /**
  * Logs the error code returned by executing `statement`, and returns the
