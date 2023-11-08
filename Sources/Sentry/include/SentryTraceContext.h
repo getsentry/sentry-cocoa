@@ -87,6 +87,17 @@ NS_ASSUME_NONNULL_BEGIN
                                 options:(SentryOptions *)options;
 
 /**
+ * Initializes a SentryTraceContext with data from a traceID, options and userSegment.
+ *
+ *  @param traceId The current tracer.
+ *  @param options The current active options.
+ *  @param userSegment You can retrieve this usually from the `scope.userObject.segment`.
+ */
+- (instancetype)initWithTraceId:(SentryId *)traceId
+                        options:(SentryOptions *)options
+                    userSegment:(nullable NSString *)userSegment;
+
+/**
  * Create a SentryBaggage with the information of this SentryTraceContext.
  */
 - (SentryBaggage *)toBaggage;

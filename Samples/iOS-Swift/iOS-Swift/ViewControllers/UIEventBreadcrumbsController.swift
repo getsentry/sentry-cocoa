@@ -24,6 +24,11 @@ class UIEventBreadcrumbController: UIViewController {
             self.lastBreadcrumbLabel.text = breadcrumb.message ?? "#EMPTY#"
         }
     }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        SentrySDK.reportFullyDisplayed()
+    }
 
     @objc func textFieldFocus(_ sender: Any) {
     }

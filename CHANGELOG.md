@@ -8,6 +8,11 @@
 ### Features
 
 - Add thread id and name to span data (#3359)
+## 8.15.1
+
+### Fixes
+
+- Crash when initializing SentryHub manually (#3374)
 
 ## 8.15.0
 

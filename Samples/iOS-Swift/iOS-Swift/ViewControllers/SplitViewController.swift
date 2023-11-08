@@ -14,8 +14,8 @@ class SplitViewController: UISplitViewController {
         initialize()
     }
 
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
         SentrySDK.reportFullyDisplayed()
     }
     
@@ -25,13 +25,9 @@ class SplitViewController: UISplitViewController {
 }
 
 class SplitRootViewController: UIViewController {
-    
-    override func viewDidLoad() {
-        super.viewDidLoad()
-    }
 
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
         SentrySDK.reportFullyDisplayed()
     }
     
@@ -68,13 +64,9 @@ class SecondarySplitViewController: UIViewController {
         spanObserver = createTransactionObserver(forCallback: assertTransaction)
     }
 
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        SentrySDK.reportFullyDisplayed()
-    }
-    
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
+        SentrySDK.reportFullyDisplayed()
     }
      
     func assertTransaction(span: Span) {

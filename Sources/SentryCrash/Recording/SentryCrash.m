@@ -91,15 +91,6 @@ SentryCrash ()
 #pragma mark - Lifecycle -
 // ============================================================================
 
-+ (instancetype)sharedInstance
-{
-    static SentryCrash *sharedInstance = nil;
-    static dispatch_once_t onceToken;
-
-    dispatch_once(&onceToken, ^{ sharedInstance = [[SentryCrash alloc] init]; });
-    return sharedInstance;
-}
-
 - (id)init
 {
     return [self initWithBasePath:[self getBasePath]];

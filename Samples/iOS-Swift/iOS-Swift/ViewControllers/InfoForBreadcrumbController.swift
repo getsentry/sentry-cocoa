@@ -6,6 +6,11 @@ class InfoForBreadcrumbController: UIViewController {
 
     @IBOutlet var button: UIButton!
     @IBOutlet var label: UILabel!
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        SentrySDK.reportFullyDisplayed()
+    }
 
     @IBAction func buttonPressed(_ sender: Any) {
         guard let view = self.view,

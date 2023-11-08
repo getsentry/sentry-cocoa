@@ -187,10 +187,6 @@ static NSString *const SENTRYCRASH_REPORT_ATTACHMENTS_ITEM = @"attachments";
 
 #pragma mark - API -
 
-/** Get the singleton instance of the crash reporter.
- */
-+ (SentryCrash *)sharedInstance;
-
 /** Install the crash reporter.
  * The reporter will record crashes, but will not send any crash reports unless
  * sink is set.
