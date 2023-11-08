@@ -28,6 +28,11 @@ class SentryTransportAdapterTests: XCTestCase {
         sut = fixture.sut
     }
     
+    override func tearDown() {
+        super.tearDown()
+        clearTestState()
+    }
+    
     func testSendEventWithSession_SendsCorrectEnvelope() throws {
         let session = SentrySession(releaseName: "1.0.1")
         let event = TestData.event

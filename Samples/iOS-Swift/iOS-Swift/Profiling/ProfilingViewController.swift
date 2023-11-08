@@ -25,6 +25,11 @@ class ProfilingViewController: UIViewController, UITextFieldDelegate {
             $0?.delegate = self
         }
     }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        SentrySDK.reportFullyDisplayed()
+    }
 
     @IBAction func startBenchmark(_ sender: UIButton) {
         highlightButton(sender)

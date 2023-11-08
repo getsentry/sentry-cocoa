@@ -3,6 +3,11 @@ import SentryTestUtils
 import XCTest
 
 class SentryEventTests: XCTestCase {
+    
+    override func tearDown() {
+        super.tearDown()
+        clearTestState()
+    }
 
     func testInitWithLevel() {
         let dateProvider = TestCurrentDateProvider()

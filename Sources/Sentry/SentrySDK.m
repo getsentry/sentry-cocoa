@@ -338,7 +338,7 @@ static NSUInteger startInvocations;
 
 + (BOOL)crashedLastRun
 {
-    return SentryCrash.sharedInstance.crashedLastLaunch;
+    return SentryDependencyContainer.sharedInstance.crashReporter.crashedLastLaunch;
 }
 
 + (void)startSession

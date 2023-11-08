@@ -57,7 +57,7 @@ class SentryHubTests: XCTestCase {
     }
     
     private var fixture: Fixture!
-    private var sut: SentryHub!
+    private lazy var sut = fixture.getSut()
     
     override func setUp() {
         super.setUp()
@@ -67,8 +67,6 @@ class SentryHubTests: XCTestCase {
         fixture.fileManager.deleteAppState()
         fixture.fileManager.deleteTimestampLastInForeground()
         fixture.fileManager.deleteAllEnvelopes()
-        
-        sut = fixture.getSut()
     }
     
     override func tearDown() {
@@ -78,6 +76,18 @@ class SentryHubTests: XCTestCase {
         fixture.fileManager.deleteAppState()
         fixture.fileManager.deleteTimestampLastInForeground()
         fixture.fileManager.deleteAllEnvelopes()
+        clearTestState()
+    }
+    
+    func testCaptureErrorWithRealDSN() {
+        let sentryOption = Options()
+        sentryOption.dsn = "https://6cc9bae94def43cab8444a99e0031c28@o447951.ingest.sentry.io/5428557"
+                
+        let scope = Scope()
+        let sentryHub = SentryHub(client: SentryClient(options: sentryOption), andScope: scope)
+
+        let error = NSError(domain: "Test.CaptureErrorWithRealDSN", code: 12)
+        sentryHub.capture(error: error)
     }
     
     func testBeforeBreadcrumbWithoutCallbackStoresBreadcrumb() {

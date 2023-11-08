@@ -28,14 +28,11 @@ class ExtraViewController: UIViewController {
         if let uiTestName = ProcessInfo.processInfo.environment["io.sentry.ui-test.test-name"] {
             uiTestNameLabel.text = uiTestName
         }
-
-        SentrySDK.reportFullyDisplayed()
         
         Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { _ in
             self.framesLabel?.text = "Frames Total:\(PrivateSentrySDKOnly.currentScreenFrames.total) Slow:\(PrivateSentrySDKOnly.currentScreenFrames.slow) Frozen:\(PrivateSentrySDKOnly.currentScreenFrames.frozen)"
         }
 
-        SentrySDK.reportFullyDisplayed()
     }
 
     override func viewDidAppear(_ animated: Bool) {
@@ -55,6 +52,8 @@ class ExtraViewController: UIViewController {
             self.breadcrumbLabel?.text = "{ category: \(breadcrumb["category"] ?? "nil"), parentViewController: \(data["parentViewController"] ?? "nil"), beingPresented: \(data["beingPresented"] ?? "nil"), window_isKeyWindow: \(data["window_isKeyWindow"] ?? "nil"), is_window_rootViewController: \(data["is_window_rootViewController"] ?? "nil") }"
 
         }
+        
+        SentrySDK.reportFullyDisplayed()
     }
 
     @IBAction func dsnChanged(_ sender: UITextField) {

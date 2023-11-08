@@ -48,5 +48,7 @@ class TestCleanup: NSObject {
         PrivateSentrySDKOnly.onAppStartMeasurementAvailable = nil
         SentrySDK.setAppStartMeasurement(nil)
         #endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+
+        sentrycrash_scopesync_reset()
     }
 }
