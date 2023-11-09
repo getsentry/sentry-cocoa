@@ -478,7 +478,7 @@ serializedProfileData(
         return;
     }
 
-    SENTRY_LOG_DEBUG(@"Stopping profiler %@ due to timeout.", self);
+    SENTRY_LOG_DEBUG(@"Stopping profiler %@ due to app moving to background.", self);
     [self stopForReason:SentryProfilerTruncationReasonAppMovedToBackground];
 }
 

@@ -32,8 +32,12 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-void SentryConnectivityCallback(
-    SCNetworkReachabilityRef target, SCNetworkReachabilityFlags flags, void *_Nullable);
+void SentryConnectivityCallback(SCNetworkReachabilityFlags flags);
+
+/**
+ * Needed for testing.
+ */
+void SentrySetReachabilityIgnoreActualCallback(BOOL value);
 
 NSString *SentryConnectivityFlagRepresentation(SCNetworkReachabilityFlags flags);
 
@@ -60,11 +64,6 @@ SENTRY_EXTERN NSString *const SentryConnectivityNone;
  * providing a customizable callback block invoked when connectivity changes.
  */
 @interface SentryReachability : NSObject
-
-/**
- * Only needed for testing.
- */
-@property (nonatomic, assign) BOOL setReachabilityCallback;
 
 /**
  * Add an observer which is called each time network connectivity changes.

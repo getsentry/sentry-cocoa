@@ -8,6 +8,12 @@
 ### Features
 
 - Add thread id and name to span data (#3359)
+## 8.15.2
+
+### Fixes
+
+- Crash when logging from certain profiling contexts (#3390)
+
 ## 8.15.1
 
 ### Fixes
