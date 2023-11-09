@@ -28,6 +28,8 @@
 #import "SentryCrashReportFilter.h"
 #import "SentryCrashReportWriter.h"
 
+NS_ASSUME_NONNULL_BEGIN
+
 /**
  * Crash system installation which handles backend-specific details.
  *
@@ -43,13 +45,13 @@
  * WARNING: Only call async-safe functions from this function! DO NOT call
  * Objective-C methods!!!
  */
-@property (atomic, readwrite, assign) SentryCrashReportWriteCallback _Null_unspecified onCrash;
+@property (atomic, readwrite, assign) SentryCrashReportWriteCallback onCrash;
 
 /** Install this installation. Call this instead of -[SentryCrash install] to
  * install with everything needed for your particular backend.
  * If you wish to use default cache directory, pass @c nil .
  */
-- (void)install:(nonnull NSString *)customCacheDirectory;
+- (void)install:(NSString *)customCacheDirectory;
 
 /**
  * Call this instead of `-[SentryCrash uninstall]`.
@@ -72,6 +74,8 @@
  *
  * @param filter the filter to prepend.
  */
-- (void)addPreFilter:(nonnull id<SentryCrashReportFilter>)filter;
+- (void)addPreFilter:(id<SentryCrashReportFilter>)filter;
 
 @end
+
+NS_ASSUME_NONNULL_END
