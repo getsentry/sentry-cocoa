@@ -1593,7 +1593,6 @@
 		84AF45A529A7FFA500FBB177 /* SentryProfiledTracerConcurrency.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = SentryProfiledTracerConcurrency.mm; sourceTree = "<group>"; };
 		84B7FA3B29B2866200AD93B1 /* SentryTestUtils-ObjC-BridgingHeader.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "SentryTestUtils-ObjC-BridgingHeader.h"; sourceTree = "<group>"; };
 		84B7FA4729B2995A00AD93B1 /* DeploymentTargets.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = DeploymentTargets.xcconfig; sourceTree = "<group>"; };
-		84C404B02ABA9F9C007F69C5 /* SentryReachability+Private.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "SentryReachability+Private.h"; sourceTree = "<group>"; };
 		84C47B2B2A09239100DAEB8A /* .codecov.yml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = .codecov.yml; sourceTree = "<group>"; };
 		84E4F5692914F020004C7358 /* Brewfile */ = {isa = PBXFileReference; indentWidth = 2; lastKnownFileType = text; path = Brewfile; sourceTree = "<group>"; tabWidth = 2; };
 		84F993C32A62A74000EC0190 /* SentryCurrentDateProvider.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentryCurrentDateProvider.m; sourceTree = "<group>"; };
@@ -1889,7 +1888,6 @@
 				84AC61D129F7541E009EEF61 /* SentryDispatchSourceWrapper.m */,
 				0AAE202028ED9BCC00D0CD80 /* SentryReachability.h */,
 				0AAE201D28ED9B9400D0CD80 /* SentryReachability.m */,
-				84C404B02ABA9F9C007F69C5 /* SentryReachability+Private.h */,
 			);
 			name = Networking;
 			sourceTree = "<group>";
