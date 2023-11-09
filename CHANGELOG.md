@@ -4,7 +4,7 @@
 
 ### Fixes
 
-- Infinite loop when parsing MetricKit data (#3394)
+- Infinite loop when parsing MetricKit data (#3395)
 
 ## 8.15.2
 
