@@ -282,9 +282,14 @@ SentryMetricKitIntegration ()
             if (noChildren && lastUnprocessedSibling) {
                 [self captureEventNotPerThread:stackTraceFrames params:params];
 
-                // Pop all siblings
-                for (int i = 0; i < parentFrame.subFrames.count; i++) {
+                if (parentFrame == nil) {
+                    // No parent frames
                     [stackTraceFrames removeLastObject];
+                } else {
+                    // Pop all siblings
+                    for (int i = 0; i < parentFrame.subFrames.count; i++) {
+                        [stackTraceFrames removeLastObject];
+                    }
                 }
             } else {
                 SentryMXFrame *nonProcessedSubFrame =

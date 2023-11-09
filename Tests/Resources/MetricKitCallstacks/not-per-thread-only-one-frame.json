@@ -1,0 +1,23 @@
+{
+  "callStacks": [
+    {
+      "callStackRootFrames": [
+        {
+          "binaryUUID": "810E428A-F26D-37BB-BB0F-609CBB4718C7",
+          "offsetIntoBinaryTextSegment": 6659,
+          "sampleCount": 92,
+          "binaryName" : "libsystem_pthread.dylib",
+          "address": 9111738884
+        },
+        {
+          "binaryUUID": "810E428A-F26D-37BB-BB0F-609CBB4718C7",
+          "offsetIntoBinaryTextSegment": 6659,
+          "sampleCount": 92,
+          "binaryName" : "libsystem_pthread.dylib",
+          "address": 9111738884
+        }
+      ]
+    }
+  ],
+  "callStackPerThread": false
+}

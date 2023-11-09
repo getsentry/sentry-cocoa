@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Infinite loop when parsing MetricKit data (#3394)
+
 ## 8.15.2
 
 ### Fixes
