@@ -95,7 +95,7 @@ final class SentryMXManagerTests: XCTestCase {
         
         let callStackTree = TestMXCallStackTree()
         if withCallStackJSON {
-            callStackTree.overrides.jsonRepresentation = try contentsOfResource("metric-kit-callstack-per-thread")
+            callStackTree.overrides.jsonRepresentation = try contentsOfResource("MetricKitCallstacks/per-thread")
         }
         
         let crashDiagnostic = TestMXCrashDiagnostic()
