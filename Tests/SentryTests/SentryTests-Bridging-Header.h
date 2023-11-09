@@ -13,6 +13,7 @@
 #    import "MockUIScene.h"
 #    import "SentryFramesTracker+TestInit.h"
 #    import "SentryUIApplication.h"
+#    import "SentryUIApplication+Private.h"
 #    import "SentryUIDeviceWrapper.h"
 #    import "SentryUIEventTracker.h"
 #    import "SentryUIEventTrackingIntegration.h"
