@@ -6,6 +6,10 @@
 
 - Add screen name to app context (#3346)
 
+### Fixes
+
+- Crash when logging from certain profiling contexts (#3390)
+
 ## 8.15.1
 
 ### Fixes
