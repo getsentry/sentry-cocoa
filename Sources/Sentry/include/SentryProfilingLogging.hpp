@@ -30,8 +30,11 @@ namespace profiling {
 
 #else
 
-// don't do anything with these in production until we can get a logging solution in place that
-// doesn't use NSLog
+// Don't do anything with these in production until we can get a logging solution in place that
+// doesn't use NSLog. We can't use NSLog in these codepaths because it takes a lock, and if the
+// profiler's sampling thread is terminated before it can release that lock, then subsequent
+// attempts to acquire it can cause a crash.
+// See https://github.com/getsentry/sentry-cocoa/issues/3336#issuecomment-1802892052 for more info.
 #    define SENTRY_PROF_LOG_DEBUG(...)
 #    define SENTRY_PROF_LOG_WARN(...)
 #    define SENTRY_PROF_LOG_ERROR(...)
