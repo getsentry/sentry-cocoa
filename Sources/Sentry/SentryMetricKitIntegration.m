@@ -233,7 +233,7 @@ SentryMetricKitIntegration ()
  * it reports that frame with its siblings and ancestors as a stacktrace.
  *
  * In the following example, the algorithm starts with frame 0, continues until frame 6, and reports
- * a stacktrace. Then it pops all sibling, goes back up to frame 3, and continues the search.
+ * a stacktrace. Then it pops all sibling frames, goes back up to frame 3, and continues the search.
  * @code
  * | frame 0 |
  *      | frame 1 |
@@ -249,6 +249,29 @@ SentryMetricKitIntegration ()
  *      | frame 11 |
  *          | frame 12 |
  *          | frame 13 |    -> stack trace consists of [10, 11, 12, 13]
+ * @endcode
+ *
+ * The above stacktrace turns into the following two trees.
+ * @code
+ *     0
+ *     |
+ *     1
+ *    / \   \
+ *   3   2  9
+ *   |   |
+ *   4   3
+ *   |   |
+ *   5   7
+ *   |   |
+ *   6   8
+ *
+ *     10
+ *      |
+ *     11
+ *      |
+ *     12
+ *      |
+ *     13
  * @endcode
  */
 - (void)buildAndCaptureMXEventFor:(NSArray<SentryMXFrame *> *)rootFrames
@@ -286,7 +309,7 @@ SentryMetricKitIntegration ()
                     // No parent frames
                     [stackTraceFrames removeLastObject];
                 } else {
-                    // Pop all siblings
+                    // Pop all sibling frames
                     for (int i = 0; i < parentFrame.subFrames.count; i++) {
                         [stackTraceFrames removeLastObject];
                     }
@@ -299,7 +322,7 @@ SentryMetricKitIntegration ()
                 // Keep adding sub frames
                 if (nonProcessedSubFrame != nil) {
                     [stackTraceFrames addObject:nonProcessedSubFrame];
-                } // Keep adding siblings
+                } // Keep adding sibling frames
                 else if (firstUnprocessedSibling != nil) {
                     [stackTraceFrames addObject:firstUnprocessedSibling];
                 } // Keep popping
