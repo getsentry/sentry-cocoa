@@ -38,6 +38,7 @@
 
 #if SENTRY_HAS_UIKIT
 #    import "SentryAppStartMeasurement.h"
+#    import "SentryBuildAppStartSpans.h"
 #    import "SentryFramesTracker.h"
 #    import "SentryUIViewControllerPerformanceTracker.h"
 #    import <SentryScreenFrames.h>
@@ -599,7 +600,7 @@ static BOOL appStartMeasurementRead;
 {
     NSUInteger capacity;
 #if SENTRY_HAS_UIKIT
-    NSArray<id<SentrySpan>> *appStartSpans = [self buildAppStartSpans];
+    NSArray<id<SentrySpan>> *appStartSpans = sentryBuildAppStartSpans(self, appStartMeasurement);
     capacity = _children.count + appStartSpans.count;
 #else
     capacity = _children.count;
@@ -704,72 +705,6 @@ static BOOL appStartMeasurementRead;
     return measurement;
 }
 
-- (NSArray<SentrySpan *> *)buildAppStartSpans
-{
-    if (appStartMeasurement == nil) {
-        return @[];
-    }
-
-    NSString *operation;
-    NSString *type;
-
-    switch (appStartMeasurement.type) {
-    case SentryAppStartTypeCold:
-        operation = @"app.start.cold";
-        type = @"Cold Start";
-        break;
-    case SentryAppStartTypeWarm:
-        operation = @"app.start.warm";
-        type = @"Warm Start";
-        break;
-    default:
-        return @[];
-    }
-
-    NSMutableArray<SentrySpan *> *appStartSpans = [NSMutableArray array];
-
-    NSDate *appStartEndTimestamp = [appStartMeasurement.appStartTimestamp
-        dateByAddingTimeInterval:appStartMeasurement.duration];
-
-    SentrySpan *appStartSpan = [self buildSpan:self.spanId operation:operation description:type];
-    [appStartSpan setStartTimestamp:appStartMeasurement.appStartTimestamp];
-    [appStartSpan setTimestamp:appStartEndTimestamp];
-
-    [appStartSpans addObject:appStartSpan];
-
-    if (!appStartMeasurement.isPreWarmed) {
-        SentrySpan *premainSpan = [self buildSpan:appStartSpan.spanId
-                                        operation:operation
-                                      description:@"Pre Runtime Init"];
-        [premainSpan setStartTimestamp:appStartMeasurement.appStartTimestamp];
-        [premainSpan setTimestamp:appStartMeasurement.runtimeInitTimestamp];
-        [appStartSpans addObject:premainSpan];
-
-        SentrySpan *runtimeInitSpan = [self buildSpan:appStartSpan.spanId
-                                            operation:operation
-                                          description:@"Runtime Init to Pre Main Initializers"];
-        [runtimeInitSpan setStartTimestamp:appStartMeasurement.runtimeInitTimestamp];
-        [runtimeInitSpan setTimestamp:appStartMeasurement.moduleInitializationTimestamp];
-        [appStartSpans addObject:runtimeInitSpan];
-    }
-
-    SentrySpan *appInitSpan = [self buildSpan:appStartSpan.spanId
-                                    operation:operation
-                                  description:@"UIKit and Application Init"];
-    [appInitSpan setStartTimestamp:appStartMeasurement.moduleInitializationTimestamp];
-    [appInitSpan setTimestamp:appStartMeasurement.didFinishLaunchingTimestamp];
-    [appStartSpans addObject:appInitSpan];
-
-    SentrySpan *frameRenderSpan = [self buildSpan:appStartSpan.spanId
-                                        operation:operation
-                                      description:@"Initial Frame Render"];
-    [frameRenderSpan setStartTimestamp:appStartMeasurement.didFinishLaunchingTimestamp];
-    [frameRenderSpan setTimestamp:appStartEndTimestamp];
-    [appStartSpans addObject:frameRenderSpan];
-
-    return appStartSpans;
-}
-
 - (void)addMeasurements:(SentryTransaction *)transaction
 {
     if (appStartMeasurement != nil && appStartMeasurement.type != SentryAppStartTypeUnknown) {
@@ -821,22 +756,6 @@ static BOOL appStartMeasurementRead;
 }
 
 #endif // SENTRY_HAS_UIKIT
-
-- (id<SentrySpan>)buildSpan:(SentrySpanId *)parentId
-                  operation:(NSString *)operation
-                description:(NSString *)description
-{
-    SentrySpanContext *context =
-        [[SentrySpanContext alloc] initWithTraceId:self.traceId
-                                            spanId:[[SentrySpanId alloc] init]
-                                          parentId:parentId
-                                         operation:operation
-                                   spanDescription:description
-                                            origin:SentryTraceOriginAutoAppStart
-                                           sampled:self.sampled];
-
-    return [[SentrySpan alloc] initWithTracer:self context:context];
-}
 
 /**
  * Internal. Only needed for testing.
