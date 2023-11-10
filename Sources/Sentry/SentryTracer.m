@@ -1,6 +1,5 @@
 #import "NSDictionary+SentrySanitize.h"
 #import "PrivateSentrySDKOnly.h"
-#import "SentryBuildAppStartSpans.h"
 #import "SentryClient.h"
 #import "SentryCurrentDateProvider.h"
 #import "SentryDebugImageProvider.h"
@@ -37,6 +36,7 @@
 
 #if SENTRY_HAS_UIKIT
 #    import "SentryAppStartMeasurement.h"
+#    import "SentryBuildAppStartSpans.h"
 #    import "SentryFramesTracker.h"
 #    import "SentryUIViewControllerPerformanceTracker.h"
 #    import <SentryScreenFrames.h>
