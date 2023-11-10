@@ -22,10 +22,10 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
     override func setUpWithError() throws {
         try super.setUpWithError()
         
-        let contentsPerThread = try contentsOfResource("metric-kit-callstack-per-thread")
+        let contentsPerThread = try contentsOfResource("MetricKitCallstacks/per-thread")
         callStackTreePerThread = try SentryMXCallStackTree.from(data: contentsPerThread)
         
-        let contentsNotPerThread = try contentsOfResource("metric-kit-callstack-not-per-thread")
+        let contentsNotPerThread = try contentsOfResource("MetricKitCallstacks/not-per-thread")
         callStackTreeNotPerThread = try SentryMXCallStackTree.from(data: contentsNotPerThread)
         
         // Starting from iOS 15 MetricKit payloads are delivered immediately, so

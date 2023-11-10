@@ -12,28 +12,28 @@ import MetricKit
 final class SentryMXCallStackTreeTests: XCTestCase {
     
     func testDecodeCallStackTree_PerThread() throws {
-        let contents = try contentsOfResource("metric-kit-callstack-per-thread")
+        let contents = try contentsOfResource("MetricKitCallstacks/per-thread")
         let callStackTree = try SentryMXCallStackTree.from(data: contents)
         
         try assertCallStackTree(callStackTree, callStackCount: 2)
     }
     
     func testDecodeCallStackTree_NotPerThread() throws {
-        let contents = try contentsOfResource("metric-kit-callstack-not-per-thread")
+        let contents = try contentsOfResource("MetricKitCallstacks/not-per-thread")
         let callStackTree = try SentryMXCallStackTree.from(data: contents)
         
         try assertCallStackTree(callStackTree, perThread: false, framesAmount: 14, threadAttributed: nil, subFrameCount: [2, 4, 0])
     }
     
     func testDecodeCallStackTree_UnknownFieldsPayload() throws {
-        let contents = try contentsOfResource("metric-kit-callstack-tree-unknown-fields")
+        let contents = try contentsOfResource("MetricKitCallstacks/tree-unknown-fields")
         let callStackTree = try SentryMXCallStackTree.from(data: contents)
         
         try assertCallStackTree(callStackTree)
     }
     
     func testDecodeCallStackTree_RealPayload() throws {
-        let contents = try contentsOfResource("metric-kit-callstack-tree-real")
+        let contents = try contentsOfResource("MetricKitCallstacks/tree-real")
         let callStackTree = try SentryMXCallStackTree.from(data: contents)
         
         XCTAssertNotNil(callStackTree)
@@ -45,7 +45,7 @@ final class SentryMXCallStackTreeTests: XCTestCase {
     }
     
     func testDecodeCallStackTree_GarbagePayload() throws {
-        let contents = try contentsOfResource("metric-kit-callstack-tree-garbage")
+        let contents = try contentsOfResource("MetricKitCallstacks/tree-garbage")
         XCTAssertThrowsError(try SentryMXCallStackTree.from(data: contents))
     }
     
