@@ -140,3 +140,20 @@ thread because scheduling the init synchronously on the main thread could lead t
 Related links:
 
 - https://github.com/getsentry/sentry-cocoa/pull/3291
+
+
+## Dependency Injection Strategy
+
+Date: November 10th 2023
+Contributors: @philipphofmann, @armcknight
+
+Internal classes should ask for all dependencies via their constructor to improve testability.
+Public classes should use constructor only asking for a minimal set of public classes and use the
+`SentryDependencyContainer`` for resolving internal dependencies. They can and should use an
+internal constructor asking for all dependencies like internal classes to improve testability.
+A good example of a public class is [SentryClient](https://github.com/getsentry/sentry-cocoa/blob/e89dc54f3fd0c7ad010d9a6c7cb02ac178f3fc33/Sources/Sentry/Public/SentryClient.h#L15-L20),
+and for an internal one [SentryTransport](https://github.com/getsentry/sentry-cocoa/blob/e89dc54f3fd0c7ad010d9a6c7cb02ac178f3fc33/Sources/Sentry/include/SentryHttpTransport.h).
+
+Related links:
+
+- [GH PR discussion](https://github.com/getsentry/sentry-cocoa/pull/3246#discussion_r1385134001)
