@@ -234,6 +234,13 @@ SentryMetricKitIntegration ()
  *
  * In the following example, the algorithm starts with frame 0, continues until frame 6, and reports
  * a stacktrace. Then it pops all sibling frames, goes back up to frame 3, and continues the search.
+ *
+ * It is worth noting that for the first stacktrace [0, 1, 3, 4, 5, 6] frame 2 is not included
+ * because the logic only includes direct siblings and direct anchestors. Frame 3 is an anchestor of
+ * [4,5,6], frame 1 of frame 3, but frame 2 is not a direct anchestor of [4,5,6]. It's the sibling
+ * of the direct ancestor frame 3. Although this might seem a bit unlogical, that is what
+ * observations of MetricKit data unveiled.
+ *
  * @code
  * | frame 0 |
  *      | frame 1 |
