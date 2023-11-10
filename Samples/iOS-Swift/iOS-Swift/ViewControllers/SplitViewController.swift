@@ -64,6 +64,15 @@ class SecondarySplitViewController: UIViewController {
         spanObserver = createTransactionObserver(forCallback: assertTransaction)
     }
 
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        SentrySDK.reportFullyDisplayed()
+        
+        if let topvc = TopViewControllerInspector.shared {
+            topvc.bringToFront()
+        }
+    }
+    
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         SentrySDK.reportFullyDisplayed()

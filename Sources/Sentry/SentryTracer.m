@@ -23,10 +23,12 @@
 #import "SentryTracer+Private.h"
 #import "SentryTransaction.h"
 #import "SentryTransactionContext.h"
+#import "SentryUIApplication.h"
 #import <NSMutableDictionary+Sentry.h>
 #import <SentryDispatchQueueWrapper.h>
 #import <SentryMeasurementValue.h>
 #import <SentrySpanOperations.h>
+@import SentryPrivate;
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 #    import "SentryProfiledTracerConcurrency.h"
@@ -93,6 +95,7 @@ SentryTracer ()
     NSUInteger initTotalFrames;
     NSUInteger initSlowFrames;
     NSUInteger initFrozenFrames;
+    NSArray<NSString *> *viewNames;
 #endif // SENTRY_HAS_UIKIT
 }
 
@@ -138,6 +141,7 @@ static BOOL appStartMeasurementRead;
 
 #if SENTRY_HAS_UIKIT
     appStartMeasurement = [self getAppStartMeasurement];
+    viewNames = [SentryDependencyContainer.sharedInstance.application relevantViewControllersNames];
 #endif // SENTRY_HAS_UIKIT
 
     _idleTimeoutLock = [[NSObject alloc] init];
@@ -641,6 +645,10 @@ static BOOL appStartMeasurementRead;
 
 #if SENTRY_HAS_UIKIT
     [self addMeasurements:transaction];
+
+    if ([viewNames count] > 0) {
+        transaction.viewNames = viewNames;
+    }
 #endif // SENTRY_HAS_UIKIT
 
     return transaction;
