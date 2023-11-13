@@ -82,6 +82,11 @@
 		D8444E57275F795D0042F4DE /* UIViewControllerExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8444E4B275E38090042F4DE /* UIViewControllerExtension.swift */; };
 		D845F35B27BAD4CC00A4D7A2 /* SentryData.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = D845F35927BAD4CC00A4D7A2 /* SentryData.xcdatamodeld */; };
 		D85DAA4C274C244F004DF43C /* LaunchUITest.swift in Sources */ = {isa = PBXBuildFile; fileRef = D85DAA4B274C244F004DF43C /* LaunchUITest.swift */; };
+		D8832B132AF4F7FE00C522B0 /* TopViewControllerInspector.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8832B122AF4F7FE00C522B0 /* TopViewControllerInspector.swift */; };
+		D8832B1A2AF5000F00C522B0 /* TopViewControllerInspector.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8832B122AF4F7FE00C522B0 /* TopViewControllerInspector.swift */; };
+		D8832B1C2AF5101300C522B0 /* TopViewControllerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8832B1B2AF5101300C522B0 /* TopViewControllerTests.swift */; };
+		D8832B1E2AF52D0500C522B0 /* PageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8832B1D2AF52D0500C522B0 /* PageViewController.swift */; };
+		D8832B1F2AF535B200C522B0 /* PageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8832B1D2AF52D0500C522B0 /* PageViewController.swift */; };
 		D890CD3C26CEE2FA001246CF /* NibViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = D890CD3B26CEE2FA001246CF /* NibViewController.xib */; };
 		D890CD3F26CEE31B001246CF /* NibViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D890CD3E26CEE31B001246CF /* NibViewController.swift */; };
 		D8B56CF0273A8D97004DF238 /* Sentry.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 630853322440C44F00DDE4CE /* Sentry.framework */; };
@@ -330,6 +335,10 @@
 		D845F35A27BAD4CC00A4D7A2 /* Person.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Person.xcdatamodel; sourceTree = "<group>"; };
 		D85DAA49274C244F004DF43C /* iOS13-SwiftTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "iOS13-SwiftTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		D85DAA4B274C244F004DF43C /* LaunchUITest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaunchUITest.swift; sourceTree = "<group>"; };
+		D8832B122AF4F7FE00C522B0 /* TopViewControllerInspector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TopViewControllerInspector.swift; sourceTree = "<group>"; };
+		D8832B192AF4FE2000C522B0 /* SentryUIApplication.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SentryUIApplication.h; sourceTree = "<group>"; };
+		D8832B1B2AF5101300C522B0 /* TopViewControllerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TopViewControllerTests.swift; sourceTree = "<group>"; };
+		D8832B1D2AF52D0500C522B0 /* PageViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PageViewController.swift; sourceTree = "<group>"; };
 		D88E666D28732B6700153425 /* iOS13-Swift-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "iOS13-Swift-Bridging-Header.h"; sourceTree = "<group>"; };
 		D890CD3B26CEE2FA001246CF /* NibViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = NibViewController.xib; sourceTree = "<group>"; };
 		D890CD3E26CEE31B001246CF /* NibViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NibViewController.swift; sourceTree = "<group>"; };
@@ -490,6 +499,7 @@
 				84B527BC28DD25E400475E8D /* SentryDevice.mm */,
 				D83A30C7279EFD6E00372D0A /* ClearTestState.swift */,
 				7B64386C26A6C544000D0F65 /* Info.plist */,
+				D8832B1B2AF5101300C522B0 /* TopViewControllerTests.swift */,
 			);
 			path = "iOS-SwiftUITests";
 			sourceTree = "<group>";
@@ -566,6 +576,7 @@
 				0AABE2E928855FF80057ED69 /* PermissionsViewController.swift */,
 				D8C33E1E29FBB1F70071B75A /* UIEventBreadcrumbsController.swift */,
 				D8F01DE92A1376B5008F4996 /* InfoForBreadcrumbController.swift */,
+				D8832B1D2AF52D0500C522B0 /* PageViewController.swift */,
 			);
 			path = ViewControllers;
 			sourceTree = "<group>";
@@ -574,6 +585,7 @@
 			isa = PBXGroup;
 			children = (
 				7B79000329028C7300A7F467 /* MetricKitManager.swift */,
+				D8832B122AF4F7FE00C522B0 /* TopViewControllerInspector.swift */,
 				84FB8125284001B800F3A94A /* SentryBenchmarking.h */,
 				84FB8129284001B800F3A94A /* SentryBenchmarking.mm */,
 				D8F3D04F274E572F00B56F8C /* DSNStorage.swift */,
@@ -583,6 +595,7 @@
 				84FB812C2840021B00F3A94A /* iOS-Swift-Bridging-Header.h */,
 				7B5525B22938B5B5006A2932 /* DiskWriteException.swift */,
 				D8F01DF02A1377D0008F4996 /* SentryExposure.h */,
+				D8832B192AF4FE2000C522B0 /* SentryUIApplication.h */,
 			);
 			path = Tools;
 			sourceTree = "<group>";
@@ -902,6 +915,7 @@
 				D845F35B27BAD4CC00A4D7A2 /* SentryData.xcdatamodeld in Sources */,
 				D8444E4C275E38090042F4DE /* UIViewControllerExtension.swift in Sources */,
 				637AFDAE243B02760034958B /* ViewController.swift in Sources */,
+				D8832B132AF4F7FE00C522B0 /* TopViewControllerInspector.swift in Sources */,
 				0AABE2EA28855FF80057ED69 /* PermissionsViewController.swift in Sources */,
 				7B5525B32938B5B5006A2932 /* DiskWriteException.swift in Sources */,
 				D8F3D062274EBD4800B56F8C /* SpanExtension.swift in Sources */,
@@ -909,6 +923,7 @@
 				D8F57BC527BBD787000D09D4 /* CoreDataViewController.swift in Sources */,
 				D8D7BB4E27501B9400044146 /* SpanObserver.swift in Sources */,
 				D8F01DEA2A1376B5008F4996 /* InfoForBreadcrumbController.swift in Sources */,
+				D8832B1E2AF52D0500C522B0 /* PageViewController.swift in Sources */,
 				D8DBDA76274D591F00007380 /* TableViewController.swift in Sources */,
 				D8C33E1F29FBB1F70071B75A /* UIEventBreadcrumbsController.swift in Sources */,
 				8E8C57AF25EF16E6001CEEFA /* TraceTestViewController.swift in Sources */,
@@ -939,6 +954,7 @@
 				84C47AEC29FC8F4B00DAEB8A /* SentryBenchmarking.mm in Sources */,
 				7B64386B26A6C544000D0F65 /* LaunchUITests.swift in Sources */,
 				84B527BD28DD25E400475E8D /* SentryDevice.mm in Sources */,
+				D8832B1C2AF5101300C522B0 /* TopViewControllerTests.swift in Sources */,
 				D8C33E2629FBB8D90071B75A /* UIEventBreadcrumbTests.swift in Sources */,
 				D83A30C8279EFD6E00372D0A /* ClearTestState.swift in Sources */,
 			);
@@ -957,6 +973,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D8832B1A2AF5000F00C522B0 /* TopViewControllerInspector.swift in Sources */,
 				D8444E56275F79590042F4DE /* UIViewExtension.swift in Sources */,
 				D8269A57274C0FA100BD5BD5 /* NibViewController.swift in Sources */,
 				D8269A4E274C09A400BD5BD5 /* SwiftUIViewController.swift in Sources */,
@@ -967,6 +984,7 @@
 				D8269A58274C0FC700BD5BD5 /* ViewController.swift in Sources */,
 				844DA821282584C300E6B62E /* CoreDataViewController.swift in Sources */,
 				D8444E55275F79570042F4DE /* SpanExtension.swift in Sources */,
+				D8832B1F2AF535B200C522B0 /* PageViewController.swift in Sources */,
 				D8444E51275F79240042F4DE /* AssertView.swift in Sources */,
 				844DA822282584F700E6B62E /* SentryData.xcdatamodeld in Sources */,
 				D8F3D053274E572F00B56F8C /* DSNStorage.swift in Sources */,

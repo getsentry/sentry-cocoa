@@ -56,6 +56,25 @@ NS_ASSUME_NONNULL_BEGIN
     }
 }
 
+- (BOOL)dispatchSyncOnMainQueue:(void (^)(void))block timeout:(NSTimeInterval)timeout
+{
+    if ([NSThread isMainThread]) {
+        block();
+    } else {
+        dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
+
+        dispatch_async(dispatch_get_main_queue(), ^{
+            block();
+            dispatch_semaphore_signal(semaphore);
+        });
+
+        dispatch_time_t timeout_t
+            = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(timeout * NSEC_PER_SEC));
+        return dispatch_semaphore_wait(semaphore, timeout_t) == 0;
+    }
+    return YES;
+}
+
 - (void)dispatchAfter:(NSTimeInterval)interval block:(dispatch_block_t)block
 {
     dispatch_time_t delta = (int64_t)(interval * NSEC_PER_SEC);

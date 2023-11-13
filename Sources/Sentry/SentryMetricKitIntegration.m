@@ -233,7 +233,14 @@ SentryMetricKitIntegration ()
  * it reports that frame with its siblings and ancestors as a stacktrace.
  *
  * In the following example, the algorithm starts with frame 0, continues until frame 6, and reports
- * a stacktrace. Then it pops all sibling, goes back up to frame 3, and continues the search.
+ * a stacktrace. Then it pops all sibling frames, goes back up to frame 3, and continues the search.
+ *
+ * It is worth noting that for the first stacktrace [0, 1, 3, 4, 5, 6] frame 2 is not included
+ * because the logic only includes direct siblings and direct ancestors. Frame 3 is an ancestors of
+ * [4,5,6], frame 1 of frame 3, but frame 2 is not a direct ancestors of [4,5,6]. It's the sibling
+ * of the direct ancestor frame 3. Although this might seem a bit illogical, that is what
+ * observations of MetricKit data unveiled.
+ *
  * @code
  * | frame 0 |
  *      | frame 1 |
@@ -249,6 +256,29 @@ SentryMetricKitIntegration ()
  *      | frame 11 |
  *          | frame 12 |
  *          | frame 13 |    -> stack trace consists of [10, 11, 12, 13]
+ * @endcode
+ *
+ * The above stacktrace turns into the following two trees.
+ * @code
+ *     0
+ *     |
+ *     1
+ *    / \   \
+ *   3   2  9
+ *   |   |
+ *   4   3
+ *   |   |
+ *   5   7
+ *   |   |
+ *   6   8
+ *
+ *     10
+ *      |
+ *     11
+ *      |
+ *     12
+ *      |
+ *     13
  * @endcode
  */
 - (void)buildAndCaptureMXEventFor:(NSArray<SentryMXFrame *> *)rootFrames
@@ -282,9 +312,14 @@ SentryMetricKitIntegration ()
             if (noChildren && lastUnprocessedSibling) {
                 [self captureEventNotPerThread:stackTraceFrames params:params];
 
-                // Pop all siblings
-                for (int i = 0; i < parentFrame.subFrames.count; i++) {
+                if (parentFrame == nil) {
+                    // No parent frames
                     [stackTraceFrames removeLastObject];
+                } else {
+                    // Pop all sibling frames
+                    for (int i = 0; i < parentFrame.subFrames.count; i++) {
+                        [stackTraceFrames removeLastObject];
+                    }
                 }
             } else {
                 SentryMXFrame *nonProcessedSubFrame =
@@ -294,7 +329,7 @@ SentryMetricKitIntegration ()
                 // Keep adding sub frames
                 if (nonProcessedSubFrame != nil) {
                     [stackTraceFrames addObject:nonProcessedSubFrame];
-                } // Keep adding siblings
+                } // Keep adding sibling frames
                 else if (firstUnprocessedSibling != nil) {
                     [stackTraceFrames addObject:firstUnprocessedSibling];
                 } // Keep popping
