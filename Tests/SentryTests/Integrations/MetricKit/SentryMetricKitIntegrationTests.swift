@@ -136,6 +136,43 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         }
     }
     
+    func testCPUExceptionDiagnostic_OnlyOneFrame() throws {
+        if #available(iOS 15, macOS 12, macCatalyst 15, *) {
+            givenSDKWithHubWithScope()
+            
+            let sut = SentryMetricKitIntegration()
+            givenInstalledWithEnabled(sut)
+            
+            let contents = try contentsOfResource("MetricKitCallstacks/not-per-thread-only-one-frame")
+            let callStackTree = try SentryMXCallStackTree.from(data: contents)
+            
+            let mxDelegate = sut as SentryMXManagerDelegate
+            mxDelegate.didReceiveCpuExceptionDiagnostic(TestMXCPUExceptionDiagnostic(), callStackTree: callStackTree, timeStampBegin: timeStampBegin, timeStampEnd: timeStampEnd)
+            
+            guard let client = SentrySDK.currentHub().getClient() as? TestClient else {
+                XCTFail("Hub Client is not a `TestClient`")
+                return
+            }
+            
+            let invocations = client.captureEventWithScopeInvocations.invocations
+            XCTAssertEqual(2, client.captureEventWithScopeInvocations.count)
+            
+            try assertEvent(event: invocations[0].event)
+            try assertEvent(event: invocations[1].event)
+            
+            func assertEvent(event: Event) throws {
+                let sentryFrames = try XCTUnwrap(event.threads?.first?.stacktrace?.frames, "Event has no frames.")
+                
+                XCTAssertEqual(1, sentryFrames.count)
+                let frame = sentryFrames.first
+                XCTAssertEqual("<redacted>", frame?.function)
+                XCTAssertEqual("0x000000021f1a0001", frame?.imageAddress)
+                XCTAssertEqual("libsystem_pthread.dylib", frame?.package)
+                XCTAssertFalse(frame?.inApp?.boolValue ?? true)
+            }
+        }
+    }
+    
     func testDiskWriteExceptionDiagnostic() throws {
         if #available(iOS 15, macOS 12, macCatalyst 15, *) {
             givenSDKWithHubWithScope()
