@@ -47,117 +47,123 @@ SentryUIEventTracker ()
 {
     [SentryDependencyContainer.sharedInstance.swizzleWrapper
         swizzleSendAction:^(NSString *action, id target, id sender, UIEvent *event) {
-            if (target == nil) {
-                SENTRY_LOG_DEBUG(@"Target was nil for action %@; won't capture in transaction "
-                                 @"(sender: %@; event: %@)",
-                    action, sender, event);
-                return;
-            }
-
-            if (sender == nil) {
-                SENTRY_LOG_DEBUG(@"Sender was nil for action %@; won't capture in transaction "
-                                 @"(target: %@; event: %@)",
-                    action, sender, event);
-                return;
-            }
-
-            // When using an application delegate with SwiftUI we receive touch events here, but
-            // the target class name looks something like
-            // _TtC7SwiftUIP33_64A26C7A8406856A733B1A7B593971F711Coordinator.primaryActionTriggered,
-            // which is unacceptable for a transaction name. Ideally, we should somehow shorten
-            // the long name.
-
-            NSString *targetClass = NSStringFromClass([target class]);
-            if ([targetClass containsString:@"SwiftUI"]) {
-                SENTRY_LOG_DEBUG(@"Won't record transaction for SwiftUI target event.");
-                return;
-            }
-
-            NSString *transactionName = [self getTransactionName:action target:targetClass];
-
-            // There might be more active transactions stored, but only the last one might still be
-            // active with a timeout. The others are already waiting for their children to finish
-            // without a timeout.
-            SentryTracer *currentActiveTransaction;
-            @synchronized(self.activeTransactions) {
-                currentActiveTransaction = self.activeTransactions.lastObject;
-            }
-
-            BOOL sameAction =
-                [currentActiveTransaction.transactionContext.name isEqualToString:transactionName];
-            if (sameAction) {
-                SENTRY_LOG_DEBUG(@"Dispatching idle timeout for transaction with span id %@",
-                    currentActiveTransaction.spanId.sentrySpanIdString);
-                [currentActiveTransaction dispatchIdleTimeout];
-                return;
-            }
-
-            [currentActiveTransaction finish];
-
-            if (currentActiveTransaction) {
-                SENTRY_LOG_DEBUG(@"SentryUIEventTracker finished transaction %@ (span ID %@)",
-                    currentActiveTransaction.transactionContext.name,
-                    currentActiveTransaction.spanId.sentrySpanIdString);
-            }
-
-            NSString *operation = [self getOperation:sender];
-
-            SentryTransactionContext *context =
-                [[SentryTransactionContext alloc] initWithName:transactionName
-                                                    nameSource:kSentryTransactionNameSourceComponent
-                                                     operation:operation
-                                                        origin:SentryTraceOriginUIEventTracker];
-
-            __block SentryTracer *transaction;
-            [SentrySDK.currentHub.scope useSpan:^(id<SentrySpan> _Nullable span) {
-                BOOL ongoingScreenLoadTransaction
-                    = span != nil && [span.operation isEqualToString:SentrySpanOperationUILoad];
-                BOOL ongoingManualTransaction = span != nil
-                    && ![span.operation isEqualToString:SentrySpanOperationUILoad]
-                    && ![span.operation containsString:SentrySpanOperationUIAction];
-
-                BOOL bindToScope = !ongoingScreenLoadTransaction && !ongoingManualTransaction;
-
-                transaction = [SentrySDK.currentHub
-                    startTransactionWithContext:context
-                                    bindToScope:bindToScope
-                          customSamplingContext:@{}
-                                  configuration:[SentryTracerConfiguration configurationWithBlock:^(
-                                                    SentryTracerConfiguration *config) {
-                                      config.idleTimeout = self.idleTimeout;
-                                      config.waitForChildren = YES;
-                                      config.dispatchQueueWrapper = self.dispatchQueueWrapper;
-                                  }]];
-
-                SENTRY_LOG_DEBUG(@"SentryUIEventTracker automatically started a new transaction "
-                                 @"with name: %@, bindToScope: %@",
-                    transactionName, bindToScope ? @"YES" : @"NO");
-            }];
-
-            if ([[sender class] isSubclassOfClass:[UIView class]]) {
-                UIView *view = sender;
-                if (view.accessibilityIdentifier) {
-                    [transaction setTagValue:view.accessibilityIdentifier
-                                      forKey:@"accessibilityIdentifier"];
-                }
-            }
-
-            transaction.finishCallback = ^(SentryTracer *tracer) {
-                @synchronized(self.activeTransactions) {
-                    [self.activeTransactions removeObject:tracer];
-                    SENTRY_LOG_DEBUG(
-                        @"Active transactions after removing tracer for span ID %@: %@",
-                        tracer.spanId.sentrySpanIdString, self.activeTransactions);
-                }
-            };
-            @synchronized(self.activeTransactions) {
-                SENTRY_LOG_DEBUG(
-                    @"Adding transaction %@ to list of active transactions (currently %@)",
-                    transaction.spanId.sentrySpanIdString, self.activeTransactions);
-                [self.activeTransactions addObject:transaction];
-            }
+            [self sendActionCallback:action target:target sender:sender event:event];
         }
                    forKey:SentryUIEventTrackerSwizzleSendAction];
+}
+
+- (void)sendActionCallback:(NSString *)action
+                    target:(nullable id)target
+                    sender:(nullable id)sender
+                     event:(nullable UIEvent *)event
+{
+    if (target == nil) {
+        SENTRY_LOG_DEBUG(@"Target was nil for action %@; won't capture in transaction "
+                         @"(sender: %@; event: %@)",
+            action, sender, event);
+        return;
+    }
+
+    if (sender == nil) {
+        SENTRY_LOG_DEBUG(@"Sender was nil for action %@; won't capture in transaction "
+                         @"(target: %@; event: %@)",
+            action, sender, event);
+        return;
+    }
+
+    // When using an application delegate with SwiftUI we receive touch events here, but
+    // the target class name looks something like
+    // _TtC7SwiftUIP33_64A26C7A8406856A733B1A7B593971F711Coordinator.primaryActionTriggered,
+    // which is unacceptable for a transaction name. Ideally, we should somehow shorten
+    // the long name.
+
+    NSString *targetClass = NSStringFromClass([target class]);
+    if ([targetClass containsString:@"SwiftUI"]) {
+        SENTRY_LOG_DEBUG(@"Won't record transaction for SwiftUI target event.");
+        return;
+    }
+
+    NSString *transactionName = [self getTransactionName:action target:targetClass];
+
+    // There might be more active transactions stored, but only the last one might still be
+    // active with a timeout. The others are already waiting for their children to finish
+    // without a timeout.
+    SentryTracer *currentActiveTransaction;
+    @synchronized(self.activeTransactions) {
+        currentActiveTransaction = self.activeTransactions.lastObject;
+    }
+
+    BOOL sameAction =
+        [currentActiveTransaction.transactionContext.name isEqualToString:transactionName];
+    if (sameAction) {
+        SENTRY_LOG_DEBUG(@"Dispatching idle timeout for transaction with span id %@",
+            currentActiveTransaction.spanId.sentrySpanIdString);
+        [currentActiveTransaction dispatchIdleTimeout];
+        return;
+    }
+
+    [currentActiveTransaction finish];
+
+    if (currentActiveTransaction) {
+        SENTRY_LOG_DEBUG(@"SentryUIEventTracker finished transaction %@ (span ID %@)",
+            currentActiveTransaction.transactionContext.name,
+            currentActiveTransaction.spanId.sentrySpanIdString);
+    }
+
+    NSString *operation = [self getOperation:sender];
+
+    SentryTransactionContext *context =
+        [[SentryTransactionContext alloc] initWithName:transactionName
+                                            nameSource:kSentryTransactionNameSourceComponent
+                                             operation:operation
+                                                origin:SentryTraceOriginUIEventTracker];
+
+    __block SentryTracer *transaction;
+    [SentrySDK.currentHub.scope useSpan:^(id<SentrySpan> _Nullable span) {
+        BOOL ongoingScreenLoadTransaction
+            = span != nil && [span.operation isEqualToString:SentrySpanOperationUILoad];
+        BOOL ongoingManualTransaction = span != nil
+            && ![span.operation isEqualToString:SentrySpanOperationUILoad]
+            && ![span.operation containsString:SentrySpanOperationUIAction];
+
+        BOOL bindToScope = !ongoingScreenLoadTransaction && !ongoingManualTransaction;
+
+        transaction = [SentrySDK.currentHub
+            startTransactionWithContext:context
+                            bindToScope:bindToScope
+                  customSamplingContext:@{}
+                          configuration:[SentryTracerConfiguration configurationWithBlock:^(
+                                            SentryTracerConfiguration *config) {
+                              config.idleTimeout = self.idleTimeout;
+                              config.waitForChildren = YES;
+                              config.dispatchQueueWrapper = self.dispatchQueueWrapper;
+                          }]];
+
+        SENTRY_LOG_DEBUG(@"SentryUIEventTracker automatically started a new transaction with name: "
+                         @"%@, bindToScope: %@",
+            transactionName, bindToScope ? @"YES" : @"NO");
+    }];
+
+    if ([[sender class] isSubclassOfClass:[UIView class]]) {
+        UIView *view = sender;
+        if (view.accessibilityIdentifier) {
+            [transaction setTagValue:view.accessibilityIdentifier
+                              forKey:@"accessibilityIdentifier"];
+        }
+    }
+
+    transaction.finishCallback = ^(SentryTracer *tracer) {
+        @synchronized(self.activeTransactions) {
+            [self.activeTransactions removeObject:tracer];
+            SENTRY_LOG_DEBUG(@"Active transactions after removing tracer for span ID %@: %@",
+                tracer.spanId.sentrySpanIdString, self.activeTransactions);
+        }
+    };
+    @synchronized(self.activeTransactions) {
+        SENTRY_LOG_DEBUG(@"Adding transaction %@ to list of active transactions (currently %@)",
+            transaction.spanId.sentrySpanIdString, self.activeTransactions);
+        [self.activeTransactions addObject:transaction];
+    }
 }
 
 - (void)stop
