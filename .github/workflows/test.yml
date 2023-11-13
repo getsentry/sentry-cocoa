@@ -9,6 +9,7 @@ on:
     paths:
       - "Sources/**"
       - "Tests/**"
+      - "SentryTestUtils/**"
       - "test-server/**"
       - "Samples/**"
       - ".github/workflows/test.yml"

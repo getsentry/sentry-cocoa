@@ -22,10 +22,10 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
     override func setUpWithError() throws {
         try super.setUpWithError()
         
-        let contentsPerThread = try contentsOfResource("metric-kit-callstack-per-thread")
+        let contentsPerThread = try contentsOfResource("MetricKitCallstacks/per-thread")
         callStackTreePerThread = try SentryMXCallStackTree.from(data: contentsPerThread)
         
-        let contentsNotPerThread = try contentsOfResource("metric-kit-callstack-not-per-thread")
+        let contentsNotPerThread = try contentsOfResource("MetricKitCallstacks/not-per-thread")
         callStackTreeNotPerThread = try SentryMXCallStackTree.from(data: contentsNotPerThread)
         
         // Starting from iOS 15 MetricKit payloads are delivered immediately, so
@@ -133,6 +133,43 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
             mxDelegate.didReceiveCpuExceptionDiagnostic(TestMXCPUExceptionDiagnostic(), callStackTree: callStackTreeNotPerThread, timeStampBegin: timeStampBegin, timeStampEnd: timeStampEnd)
             
             try assertNotPerThread(exceptionType: "MXCPUException", exceptionValue: "MXCPUException totalCPUTime:2.2 ms totalSampledTime:5.5 ms", exceptionMechanism: "mx_cpu_exception")
+        }
+    }
+    
+    func testCPUExceptionDiagnostic_OnlyOneFrame() throws {
+        if #available(iOS 15, macOS 12, macCatalyst 15, *) {
+            givenSDKWithHubWithScope()
+            
+            let sut = SentryMetricKitIntegration()
+            givenInstalledWithEnabled(sut)
+            
+            let contents = try contentsOfResource("MetricKitCallstacks/not-per-thread-only-one-frame")
+            let callStackTree = try SentryMXCallStackTree.from(data: contents)
+            
+            let mxDelegate = sut as SentryMXManagerDelegate
+            mxDelegate.didReceiveCpuExceptionDiagnostic(TestMXCPUExceptionDiagnostic(), callStackTree: callStackTree, timeStampBegin: timeStampBegin, timeStampEnd: timeStampEnd)
+            
+            guard let client = SentrySDK.currentHub().getClient() as? TestClient else {
+                XCTFail("Hub Client is not a `TestClient`")
+                return
+            }
+            
+            let invocations = client.captureEventWithScopeInvocations.invocations
+            XCTAssertEqual(2, client.captureEventWithScopeInvocations.count)
+            
+            try assertEvent(event: invocations[0].event)
+            try assertEvent(event: invocations[1].event)
+            
+            func assertEvent(event: Event) throws {
+                let sentryFrames = try XCTUnwrap(event.threads?.first?.stacktrace?.frames, "Event has no frames.")
+                
+                XCTAssertEqual(1, sentryFrames.count)
+                let frame = sentryFrames.first
+                XCTAssertEqual("<redacted>", frame?.function)
+                XCTAssertEqual("0x000000021f1a0001", frame?.imageAddress)
+                XCTAssertEqual("libsystem_pthread.dylib", frame?.package)
+                XCTAssertFalse(frame?.inApp?.boolValue ?? true)
+            }
         }
     }
     

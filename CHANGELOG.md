@@ -2,12 +2,15 @@
 
 ## Unreleased
 
-### Features 
-
-- Add cache directory option ([#3369](https://github.com/getsentry/sentry-cocoa/pull/3369))
 ### Features
 
-- Add thread id and name to span data (#3359)
+- Add screen name to app context (#3346)
+- Add cache directory option (#3369)
+
+### Fixes
+
+- Infinite loop when parsing MetricKit data (#3395)
+
 ## 8.15.2
 
 ### Fixes

@@ -500,6 +500,9 @@ NS_SWIFT_NAME(Options)
 @property (nonatomic) BOOL enableTimeToFullDisplayTracing;
 
 /**
+ * This feature is only available from Xcode 13 and from macOS 12.0, iOS 15.0, tvOS 15.0,
+ * watchOS 8.0.
+ *
  * @warning This is an experimental feature and may still have bugs.
  * @brief Stitches the call to Swift Async functions in one consecutive stack trace.
  * @note Default value is @c NO .
