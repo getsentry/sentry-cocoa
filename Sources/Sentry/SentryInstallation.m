@@ -5,13 +5,13 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation SentryInstallation
 
-+ (NSMutableDictionary*)installationStringsByCacheDirectoryPaths
++ (NSMutableDictionary<NSString*, NSString*>*)installationStringsByCacheDirectoryPaths
 {
     static dispatch_once_t once;
     static NSMutableDictionary* dictionary;
     
     dispatch_once(&once, ^{
-        dictionary = [[NSMutableDictionary alloc] init];
+        dictionary = [NSMutableDictionary dictionary];
     });
     return dictionary;
 }

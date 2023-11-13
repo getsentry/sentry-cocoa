@@ -27,7 +27,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         }
         
         var session: SentrySession {
-            let session = SentrySession(releaseName: "1.0.0", distinctId: "")
+            let session = SentrySession(releaseName: "1.0.0", distinctId: "some-id")
             session.incrementErrors()
             
             return session

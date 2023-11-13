@@ -40,7 +40,7 @@ class SentryClientTest: XCTestCase {
         let dispatchQueue = TestSentryDispatchQueueWrapper()
         
         init() {
-            session = SentrySession(releaseName: "release", distinctId: "")
+            session = SentrySession(releaseName: "release", distinctId: "some-id")
             session.incrementErrors()
 
             message = SentryMessage(formatted: messageAsString)
@@ -416,7 +416,7 @@ class SentryClientTest: XCTestCase {
         
         sut.add(processor)
         sut.captureError(error, with: Scope()) {
-            return SentrySession(releaseName: "", distinctId: "")
+            return SentrySession(releaseName: "", distinctId: "some-id")
         }
         
         let sentAttachments = fixture.transportAdapter.sendEventWithTraceStateInvocations.first?.attachments ?? []
@@ -964,14 +964,14 @@ class SentryClientTest: XCTestCase {
     }
 
     func testCaptureSession() {
-        let session = SentrySession(releaseName: "release", distinctId: "")
+        let session = SentrySession(releaseName: "release", distinctId: "some-id")
         fixture.getSut().capture(session: session)
 
         assertLastSentEnvelopeIsASession()
     }
     
     func testCaptureSessionWithoutReleaseName() {
-        let session = SentrySession(releaseName: "", distinctId: "")
+        let session = SentrySession(releaseName: "", distinctId: "some-id")
         
         fixture.getSut().capture(session: session)
         fixture.getSut().capture(exception, with: Scope()) {

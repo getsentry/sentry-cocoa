@@ -40,10 +40,7 @@
 #import "SentryDefines.h"
 #import "SentryDependencyContainer.h"
 #import "SentryNSNotificationCenterWrapper.h"
-#import "SentrySDK+Private.h"
 #import <NSData+Sentry.h>
-#import <SentryClient+Private.h>
-#import <SentryHub.h>
 
 // #define SentryCrashLogger_LocalLevel TRACE
 #import "SentryCrashLogger.h"

@@ -9,15 +9,6 @@ NS_SWIFT_NAME(Options)
 @interface SentryOptions : NSObject
 
 /**
- * The path to store SDK data, like events, transactions, profiles, raw crash data, etc. We
- recommend only changing this when the default, e.g., in security environments, can't be accessed.
- * 
- * @note The default is `NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask,
- YES)`.
- */
-@property (nonatomic, copy) NSString *cacheDirectoryPath;
-
-/**
  * The DSN tells the SDK where to send the events to. If this value is not provided, the SDK will
  * not send any events.
  */
@@ -511,6 +502,15 @@ NS_SWIFT_NAME(Options)
  * @note Default value is @c NO .
  */
 @property (nonatomic, assign) BOOL swiftAsyncStacktraces;
+
+/**
+ * The path to store SDK data, like events, transactions, profiles, raw crash data, etc. We
+ recommend only changing this when the default, e.g., in security environments, can't be accessed.
+ *
+ * @note The default is `NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask,
+ YES)`.
+ */
+@property (nonatomic, copy) NSString *cacheDirectoryPath;
 @end
 
 NS_ASSUME_NONNULL_END
