@@ -44,6 +44,7 @@ NSString *const SentryConnectivityNone = @"none";
 void
 SentrySetReachabilityIgnoreActualCallback(BOOL value)
 {
+    SENTRY_LOG_DEBUG(@"Setting ignore actual callback to %@", value ? @"YES" : @"NO");
     sentry_reachability_ignore_actual_callback = value;
 }
 
@@ -155,6 +156,15 @@ SentryReachability ()
     }
 }
 
+- (instancetype)init
+{
+    if (self = [super init]) {
+        self.skipRegisteringActualCallbacks = NO;
+    }
+
+    return self;
+}
+
 - (void)addObserver:(id<SentryReachabilityObserver>)observer;
 {
     SENTRY_LOG_DEBUG(@"Adding observer: %@", observer);
@@ -168,6 +178,11 @@ SentryReachability ()
         [sentry_reachability_observers addObject:observer];
 
         if (sentry_reachability_observers.count > 1) {
+            return;
+        }
+
+        if (self.skipRegisteringActualCallbacks) {
+            SENTRY_LOG_DEBUG(@"Skip registering actual callbacks");
             return;
         }
 
@@ -214,6 +229,10 @@ SentryReachability ()
 
 - (void)unsetReachabilityCallback
 {
+    if (self.skipRegisteringActualCallbacks) {
+        SENTRY_LOG_DEBUG(@"Skip unsetting actual callbacks");
+    }
+
     sentry_current_reachability_state = kSCNetworkReachabilityFlagsUninitialized;
 
     if (_sentry_reachability_ref != nil) {

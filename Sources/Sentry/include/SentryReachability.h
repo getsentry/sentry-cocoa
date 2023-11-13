@@ -66,6 +66,12 @@ SENTRY_EXTERN NSString *const SentryConnectivityNone;
 @interface SentryReachability : NSObject
 
 /**
+ * Only needed for testing. Use this flag to skip registering and unregistering the actual callbacks
+ * to SCNetworkReachability to minimize side effects.
+ */
+@property (nonatomic, assign) BOOL skipRegisteringActualCallbacks;
+
+/**
  * Add an observer which is called each time network connectivity changes.
  */
 - (void)addObserver:(id<SentryReachabilityObserver>)observer;
