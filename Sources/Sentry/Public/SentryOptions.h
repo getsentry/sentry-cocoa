@@ -9,8 +9,11 @@ NS_SWIFT_NAME(Options)
 @interface SentryOptions : NSObject
 
 /**
- * Optional, custom cache directory. Use when default one can not be accessed, e.g. in security
- * environment.
+ * The path to store SDK data, like events, transactions, profiles, raw crash data, etc. We
+ recommend only changing this when the default, e.g., in security environments, can't be accessed.
+ * 
+ * @note The default is `NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask,
+ YES)`.
  */
 @property (nonatomic, copy) NSString *cacheDirectoryPath;
 
