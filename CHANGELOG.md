@@ -2,15 +2,15 @@
 
 ## Unreleased
 
+### Features
+
+- Add screen name to app context (#3346)
+
 ### Fixes
 
 - Infinite loop when parsing MetricKit data (#3395)
 
 ## 8.15.2
-
-### Features
-
-- Add screen name to app context (#3346)
 
 ### Fixes
 
