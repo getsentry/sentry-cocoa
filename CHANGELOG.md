@@ -8,6 +8,10 @@
 
 ## 8.15.2
 
+### Features
+
+- Add screen name to app context (#3346)
+
 ### Fixes
 
 - Crash when logging from certain profiling contexts (#3390)
