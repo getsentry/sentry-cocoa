@@ -49,7 +49,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 /** Install this installation. Call this instead of -[SentryCrash install] to
  * install with everything needed for your particular backend.
- * If you wish to use default cache directory, pass @c nil .
  */
 - (void)install:(NSString *)customCacheDirectory;
 

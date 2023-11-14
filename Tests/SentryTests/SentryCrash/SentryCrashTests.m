@@ -50,7 +50,7 @@ SentryCrash ()
 
 - (void)test_cleanBundleName
 {
-    SentryCrash *sentryCrash = [[SentryCrash alloc] init];
+    SentryCrash *sentryCrash = [[SentryCrash alloc] initWithBasePath:[self.tempPath stringByAppendingPathComponent:@"Something"]];
 
     NSString *clearedBundleName = [sentryCrash clearBundleName:@"Sentry/Test"];
 

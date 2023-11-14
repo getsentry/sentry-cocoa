@@ -1,9 +1,15 @@
 #import "SentryInstallation.h"
 #import "SentryDefines.h"
+#import "SentryLog.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@implementation SentryInstallation
+@interface SentryInstallation (Private)
+@property(class, nonatomic, readonly) NSMutableDictionary<NSString*, NSString*>* installationStringsByCacheDirectoryPaths;
+@end
+
+@implementation SentryInstallation (Private)
+@dynamic installationStringsByCacheDirectoryPaths;
 
 + (NSMutableDictionary<NSString*, NSString*>*)installationStringsByCacheDirectoryPaths
 {
@@ -15,6 +21,9 @@ NS_ASSUME_NONNULL_BEGIN
     });
     return dictionary;
 }
+@end
+
+@implementation SentryInstallation
 
 + (NSString *)idWithCacheDirectoryPath:(NSString *)cacheDirectoryPath
 {
@@ -33,7 +42,10 @@ NS_ASSUME_NONNULL_BEGIN
             installationString = [NSUUID UUID].UUIDString;
             NSData *installationStringData = [installationString dataUsingEncoding:NSUTF8StringEncoding];
             NSFileManager *fileManager = [NSFileManager defaultManager];
-            [fileManager createFileAtPath:installationFilePath contents:installationStringData attributes:nil];
+            
+            if (![fileManager createFileAtPath:installationFilePath contents:installationStringData attributes:nil]) {
+                SENTRY_LOG_ERROR(@"Error creating file at path %@", installationFilePath);
+            }
         } else {
             installationString = [[NSString alloc] initWithData:installationData encoding:NSUTF8StringEncoding];
         }

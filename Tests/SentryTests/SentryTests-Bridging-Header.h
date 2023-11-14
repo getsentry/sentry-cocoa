@@ -123,6 +123,7 @@
 #import "SentryInAppLogic.h"
 #import "SentryInitializeForGettingSubclassesNotCalled.h"
 #import "SentryInstallation.h"
+#import "SentryInstallation+Test.h"
 #import "SentryInternalNotificationNames.h"
 #import "SentryLevelMapper.h"
 #import "SentryLog+TestInit.h"

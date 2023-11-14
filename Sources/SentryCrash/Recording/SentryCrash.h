@@ -56,10 +56,12 @@ static NSString *const SENTRYCRASH_REPORT_ATTACHMENTS_ITEM = @"attachments";
 
 #pragma mark - Configuration -
 
-/** Init SentryCrash instance with custom base path. */
-- (id)initWithBasePath:(NSString *)basePath;
+- (instancetype)init NS_UNAVAILABLE;
 
-/** Cache directory path. Either the default path or a custom one set from options. */
+/** Init SentryCrash instance with custom base path. */
+- (instancetype)initWithBasePath:(NSString *)basePath NS_DESIGNATED_INITIALIZER;
+
+/** Cache directory base path. */
 @property (nonatomic, readwrite, retain) NSString *basePath;
 
 /** A dictionary containing any info you'd like to appear in crash reports. Must
