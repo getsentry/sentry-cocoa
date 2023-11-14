@@ -16,6 +16,7 @@
 #    import "SentryUIApplication.h"
 #    import "SentryUIDeviceWrapper.h"
 #    import "SentryUIEventTracker.h"
+#    import "SentryUIEventTrackerTransactionMode.h"
 #    import "SentryUIEventTrackingIntegration.h"
 #    import "SentryUIViewControllerPerformanceTracker.h"
 #    import "SentryUIViewControllerSwizzling+Test.h"
@@ -163,6 +164,7 @@
 #import "SentryScreenshot.h"
 #import "SentryScreenshotIntegration.h"
 #import "SentrySdkInfo.h"
+
 #import "SentrySerialization.h"
 #import "SentrySession+Private.h"
 #import "SentrySessionTracker.h"

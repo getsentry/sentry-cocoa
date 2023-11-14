@@ -10,15 +10,17 @@ class SentryUIEventTrackerTests: XCTestCase {
         let target = FirstViewController()
         let hub = SentryHub(client: TestClient(options: Options()), andScope: nil)
         let dispatchQueue = TestSentryDispatchQueueWrapper()
+        let uiEventTrackerMode: SentryUIEventTrackerMode
         let button = UIButton()
 
         init () {
             dispatchQueue.blockBeforeMainBlock = { false }
             SentryDependencyContainer.sharedInstance().swizzleWrapper = swizzleWrapper
+            uiEventTrackerMode = SentryUIEventTrackerTransactionMode(dispatchQueueWrapper: dispatchQueue, idleTimeout: 3.0)
         }
         
         func getSut() -> SentryUIEventTracker {
-            return SentryUIEventTracker(dispatchQueueWrapper: dispatchQueue, idleTimeout: 3.0)
+            return SentryUIEventTracker(mode: uiEventTrackerMode)
         }
     }
 
@@ -246,13 +248,13 @@ class SentryUIEventTrackerTests: XCTestCase {
     }
     
     private func getInternalTransactions() -> [SentryTracer] {
-        return try! XCTUnwrap(Dynamic(sut).activeTransactions.asArray as? [SentryTracer])
+        return try! XCTUnwrap(Dynamic(self.fixture.uiEventTrackerMode).activeTransactions.asArray as? [SentryTracer])
     }
     
     private func assertTransaction(name: String, operation: String, nameSource: SentryTransactionNameSource = .component) {
         let span = try! XCTUnwrap(SentrySDK.span as? SentryTracer)
         
-        let transactions = try! XCTUnwrap(Dynamic(sut).activeTransactions.asArray as? [SentryTracer])
+        let transactions = try! XCTUnwrap(Dynamic(self.fixture.uiEventTrackerMode).activeTransactions.asArray as? [SentryTracer])
         XCTAssertEqual(1, transactions.count)
         XCTAssertTrue(span === transactions.first)
         
