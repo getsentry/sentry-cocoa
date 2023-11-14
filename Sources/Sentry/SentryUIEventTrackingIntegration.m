@@ -8,6 +8,7 @@
 #    import <SentryOptions+Private.h>
 #    import <SentryOptions.h>
 #    import <SentryUIEventTracker.h>
+#    import <SentryUIEventTrackerTransactionMode.h>
 
 @interface
 SentryUIEventTrackingIntegration ()
@@ -25,9 +26,11 @@ SentryUIEventTrackingIntegration ()
     }
 
     SentryDependencyContainer *dependencies = [SentryDependencyContainer sharedInstance];
-    self.uiEventTracker =
-        [[SentryUIEventTracker alloc] initWithDispatchQueueWrapper:dependencies.dispatchQueueWrapper
-                                                       idleTimeout:options.idleTimeout];
+    SentryUIEventTrackerTransactionMode *mode = [[SentryUIEventTrackerTransactionMode alloc]
+        initWithDispatchQueueWrapper:dependencies.dispatchQueueWrapper
+                         idleTimeout:options.idleTimeout];
+
+    self.uiEventTracker = [[SentryUIEventTracker alloc] initWithMode:mode];
 
     [self.uiEventTracker start];
 
