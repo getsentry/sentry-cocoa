@@ -13,9 +13,9 @@
 
 ### Improvements
 
-- Build XCFramework with Xcode 15
+- Build XCFramework with Xcode 15 (#3415)
 
-The XCFramwork attached to GitHub releases is now built with Xcode 15.
+The XCFramework attached to GitHub releases is now built with Xcode 15.
 
 ## 8.15.2
 
