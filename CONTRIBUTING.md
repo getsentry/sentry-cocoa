@@ -44,6 +44,7 @@ Test guidelines:
 * Make use of the fixture pattern for test setup code. For examples, checkout [SentryClientTest](/Tests/SentryTests/SentryClientTest.swift) or [SentryHttpTransportTests](/Tests/SentryTests/SentryHttpTransportTests.swift).
 * Use [TestData](/Tests/SentryTests/Protocol/TestData.swift) when possible to avoid setting up data classes with test values.
 * Name the variable of the class you are testing `sut`, which stands for [system under test](https://en.wikipedia.org/wiki/System_under_test).
+* We prefer using [Nimble](https://github.com/Quick/Nimble) over XCTest for test assertions.
 
 Test can either be ran inside from Xcode or via
 
