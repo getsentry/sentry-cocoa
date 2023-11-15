@@ -11,6 +11,12 @@
 - Infinite loop when parsing MetricKit data (#3395)
 - Fix incorrect implementation in #3398 to work around a profiling crash (#3405)
 
+### Improvements
+
+- Build XCFramework with Xcode 15
+
+The XCFramwork attached to GitHub releases is now built with Xcode 15.
+
 ## 8.15.2
 
 ### Fixes
