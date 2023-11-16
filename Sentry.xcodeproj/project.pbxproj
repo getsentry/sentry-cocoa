@@ -6306,7 +6306,7 @@
 			repositoryURL = "https://github.com/Quick/Nimble";
 			requirement = {
 				kind = exactVersion;
-				version = 11.0.0;
+				version = 10.0.0;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */
