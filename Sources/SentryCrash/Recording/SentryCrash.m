@@ -63,6 +63,8 @@ SentryCrash ()
 @property (nonatomic, readwrite, assign) BOOL monitoringFromUninstalledToRestore;
 @property (nonatomic, strong) SentryNSNotificationCenterWrapper *notificationCenter;
 
+- (NSString *)getBundleName;
+
 @end
 
 @implementation SentryCrash

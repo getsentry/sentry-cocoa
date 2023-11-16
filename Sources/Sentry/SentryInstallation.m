@@ -4,12 +4,11 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SentryInstallation (Private)
+@interface SentryInstallation ()
 @property(class, nonatomic, readonly) NSMutableDictionary<NSString*, NSString*>* installationStringsByCacheDirectoryPaths;
 @end
 
-@implementation SentryInstallation (Private)
-@dynamic installationStringsByCacheDirectoryPaths;
+@implementation SentryInstallation
 
 + (NSMutableDictionary<NSString*, NSString*>*)installationStringsByCacheDirectoryPaths
 {
@@ -21,9 +20,6 @@ NS_ASSUME_NONNULL_BEGIN
     });
     return dictionary;
 }
-@end
-
-@implementation SentryInstallation
 
 + (NSString *)idWithCacheDirectoryPath:(NSString *)cacheDirectoryPath
 {

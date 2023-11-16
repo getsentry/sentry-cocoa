@@ -28,6 +28,7 @@
 #import "SentryCrashMonitorType.h"
 #import "SentryCrashReportFilter.h"
 #import "SentryCrashReportWriter.h"
+#import "SentryDefines.h"
 
 typedef enum {
     SentryCrashDemangleLanguageNone = 0,
@@ -55,8 +56,7 @@ static NSString *const SENTRYCRASH_REPORT_ATTACHMENTS_ITEM = @"attachments";
 @interface SentryCrash : NSObject
 
 #pragma mark - Configuration -
-
-- (instancetype)init NS_UNAVAILABLE;
+SENTRY_NO_INIT
 
 /** Init SentryCrash instance with custom base path. */
 - (instancetype)initWithBasePath:(NSString *)basePath NS_DESIGNATED_INITIALIZER;
