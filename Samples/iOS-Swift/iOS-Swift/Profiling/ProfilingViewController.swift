@@ -119,4 +119,10 @@ class ProfilingViewController: UIViewController, UITextFieldDelegate {
         let maxInterval = (maxWorkIntensityTextField.text! as NSString).integerValue
         workIntervalMicros = UInt32(_projectedRange(factor: workIntervalSlider.value, min: minInterval, max: maxInterval))
     }
+    
+    @IBAction func closeSDKOnNewThread(_ sender: Any) {
+        Thread.detachNewThread {
+            SentrySDK.close()
+        }
+    }
 }

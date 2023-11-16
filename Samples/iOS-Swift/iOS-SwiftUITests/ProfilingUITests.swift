@@ -38,4 +38,14 @@ final class ProfilingUITests: BaseUITest {
         let frameRateValues = try XCTUnwrap(frameRates["values"] as? [[String: Any]])
         XCTAssertFalse(frameRateValues.isEmpty)
     }
+    
+    func testInvalidPointerToFrameRateTimestampsInDisplayLinkCallback() {
+        let app = XCUIApplication()
+        let tabBar = app.tabBars["Tab Bar"]
+        tabBar.buttons["Transactions"].tap()
+        app.staticTexts["Start transaction (main thread)"].tap()
+        tabBar.buttons["Profiling"].tap()
+        app.staticTexts["Close SDK on New Thread"].tap()
+        tabBar.buttons["Transactions"].tap()
+    }
 }
