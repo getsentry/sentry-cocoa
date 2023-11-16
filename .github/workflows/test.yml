@@ -108,6 +108,13 @@ jobs:
             test-destination-os: "16.4"
             device: "iPhone 14"
 
+          # iOS 17
+          - runs-on: macos-13
+            platform: "iOS"
+            xcode: "15.0.1"
+            test-destination-os: "latest"
+            device: "iPhone 14"
+
           # macOS 11
           - runs-on: macos-11
             platform: "macOS"
@@ -120,10 +127,16 @@ jobs:
             xcode: "13.4.1"
             test-destination-os: "latest"
 
-            # macOS 13
+          # macOS 13
           - runs-on: macos-13
             platform: "macOS"
             xcode: "14.3"
+            test-destination-os: "latest"
+          
+          # macOS 14
+          - runs-on: macos-13
+            platform: "macOS"
+            xcode: "15.0.1"
             test-destination-os: "latest"
 
           # Catalyst. We only test the latest version, as
@@ -144,6 +157,12 @@ jobs:
           - runs-on: macos-13
             platform: "tvOS"
             xcode: "14.3"
+            test-destination-os: "latest"
+
+          # tvOS 17
+          - runs-on: macos-13
+            platform: "tvOS"
+            xcode: "15.0.1"
             test-destination-os: "latest"
 
     steps:
