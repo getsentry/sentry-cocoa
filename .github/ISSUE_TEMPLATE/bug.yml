@@ -10,6 +10,7 @@ body:
       multiple: true
       options:
         - iOS
+        - iPadOS
         - tvOS
         - macOS
         - watchOS
