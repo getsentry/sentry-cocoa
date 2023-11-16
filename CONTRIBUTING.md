@@ -44,7 +44,11 @@ Test guidelines:
 * Make use of the fixture pattern for test setup code. For examples, checkout [SentryClientTest](/Tests/SentryTests/SentryClientTest.swift) or [SentryHttpTransportTests](/Tests/SentryTests/SentryHttpTransportTests.swift).
 * Use [TestData](/Tests/SentryTests/Protocol/TestData.swift) when possible to avoid setting up data classes with test values.
 * Name the variable of the class you are testing `sut`, which stands for [system under test](https://en.wikipedia.org/wiki/System_under_test).
-* We prefer using [Nimble](https://github.com/Quick/Nimble) over XCTest for test assertions.
+* We prefer using [Nimble](https://github.com/Quick/Nimble) over XCTest for test assertions. We can't use the latest Nimble version and are stuck
+with [v10.0.0](https://github.com/Quick/Nimble/releases/tag/v10.0.0), cause it's the latest one that still supports Xcode 13.2.1, which we use in CI for
+running our tests. [v11.0.0](https://github.com/Quick/Nimble/releases/tag/v11.0.0) already requires Swift 5.6 / Xcode 13.3.
+
+
 
 Test can either be ran inside from Xcode or via
 
