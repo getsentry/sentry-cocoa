@@ -44,7 +44,8 @@ NS_ASSUME_NONNULL_BEGIN
             NSFileManager *fileManager = [NSFileManager defaultManager];
             
             if (![fileManager createFileAtPath:installationFilePath contents:installationStringData attributes:nil]) {
-                SENTRY_LOG_ERROR(@"Error creating file at path %@", installationFilePath);
+                SENTRY_LOG_ERROR(
+                    @"Failed to store installationID file at path %@", installationFilePath);
             }
         } else {
             installationString = [[NSString alloc] initWithData:installationData encoding:NSUTF8StringEncoding];
