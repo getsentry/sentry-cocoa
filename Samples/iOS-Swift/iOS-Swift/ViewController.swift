@@ -4,20 +4,52 @@ import UIKit
 class ViewController: UIViewController {
 
     private let dispatchQueue = DispatchQueue(label: "ViewController", attributes: .concurrent)
+    private var timer: Timer?
 
     override func viewDidLoad() {
         super.viewDidLoad()
         SentrySDK.reportFullyDisplayed()
     }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        periodicallyDoWork()
+    }
+    
+    override func viewDidDisappear(_ animated: Bool) {
+        super .viewDidDisappear(animated)
+        self.timer?.invalidate()
+    }
+    
+    private func periodicallyDoWork() {
+
+        self.timer = Timer.scheduledTimer(withTimeInterval: 5.0, repeats: true) { _ in
+            self.dispatchQueue.async {
+                self.loadSentryBrandImage()
+                Thread.sleep(forTimeInterval: 1.0)
+                self.loadLoremIpsumFile()
+            }
+        }
+        RunLoop.current.add(self.timer!, forMode: .common)
+        self.timer!.fire()
+    }
 
     @IBAction func uiClickTransaction(_ sender: UIButton) {
         highlightButton(sender)
+       
+        loadLoremIpsumFile()
+        loadSentryBrandImage()
+    }
+    
+    private func loadLoremIpsumFile() {
         dispatchQueue.async {
             if let path = Bundle.main.path(forResource: "LoremIpsum", ofType: "txt") {
                 _ = FileManager.default.contents(atPath: path)
             }
         }
-
+    }
+    
+    private func loadSentryBrandImage() {
         guard let imgUrl = URL(string: "https://sentry-brand.storage.googleapis.com/sentry-logo-black.png") else {
             return
         }

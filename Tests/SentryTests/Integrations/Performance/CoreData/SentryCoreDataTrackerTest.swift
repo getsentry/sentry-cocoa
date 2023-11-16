@@ -20,7 +20,7 @@ class SentryCoreDataTrackerTests: XCTestCase {
             let processInfoWrapper = TestSentryNSProcessInfoWrapper()
             processInfoWrapper.overrides.processDirectoryPath = "sentrytest"
 
-            return SentryCoreDataTracker(threadInspector: threadInspector, processInfoWrapper: processInfoWrapper)
+            return SentryCoreDataTracker(threadInspector: threadInspector, processInfoWrapper: processInfoWrapper, autoSpanStarter: SentryAutoSpanOnScopeStarter())
         }
 
         func testEntity() -> TestEntity {

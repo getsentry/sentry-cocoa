@@ -25,7 +25,8 @@ SentryCoreDataTrackingIntegration ()
 
     self.tracker = [[SentryCoreDataTracker alloc]
         initWithThreadInspector:[[SentryThreadInspector alloc] initWithOptions:options]
-             processInfoWrapper:[SentryDependencyContainer.sharedInstance processInfoWrapper]];
+             processInfoWrapper:[SentryDependencyContainer.sharedInstance processInfoWrapper]
+                autoSpanStarter:SentryDependencyContainer.sharedInstance.autoSpanStarter];
     [SentryCoreDataSwizzling.sharedInstance startWithTracker:self.tracker];
 
     return YES;

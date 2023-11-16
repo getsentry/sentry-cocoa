@@ -10,6 +10,7 @@
 #import "SentryScope+Private.h"
 #import "SentrySpanProtocol.h"
 @import SentryPrivate;
+#import "SentryAutoSpanStarter.h"
 #import "SentrySpan.h"
 #import "SentryStacktrace.h"
 #import "SentryThreadInspector.h"
@@ -19,10 +20,12 @@
     SentryPredicateDescriptor *predicateDescriptor;
     SentryThreadInspector *_threadInspector;
     SentryNSProcessInfoWrapper *_processInfoWrapper;
+    id<SentryAutoSpanStarter> autoSpanStarter;
 }
 
 - (instancetype)initWithThreadInspector:(SentryThreadInspector *)threadInspector
-                     processInfoWrapper:(SentryNSProcessInfoWrapper *)processInfoWrapper;
+                     processInfoWrapper:(SentryNSProcessInfoWrapper *)processInfoWrapper
+                        autoSpanStarter:(id<SentryAutoSpanStarter>)autoSpanStarter;
 {
     if (self = [super init]) {
         predicateDescriptor = [[SentryPredicateDescriptor alloc] init];

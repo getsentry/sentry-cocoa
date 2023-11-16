@@ -1,4 +1,6 @@
 #import "SentryANRTracker.h"
+#import "SentryAutoSpanOnScopeStarter.h"
+#import "SentryAutoSpanTransactionCarrierStarter.h"
 #import "SentryBinaryImageCache.h"
 #import "SentryCurrentDateProvider.h"
 #import "SentryDispatchFactory.h"
@@ -157,6 +159,26 @@ static NSObject *sentryDependencyContainerLock;
         }
     }
     return _threadInspector;
+}
+
+- (SentryThreadInspector *)autoSpanStarter
+{
+    if (_autoSpanStarter == nil) {
+        @synchronized(sentryDependencyContainerLock) {
+            if (_autoSpanStarter == nil) {
+                SentryOptions *options = [[[SentrySDK currentHub] getClient] options];
+
+                if (options.enableSendAllAutoPerformanceSpans) {
+                    _autoSpanStarter = [[SentryAutoSpanTransactionCarrierStarter alloc]
+                        initWithDispatchQueueWrapper:self.dispatchQueueWrapper
+                                         idleTimeout:15.0];
+                } else {
+                    _autoSpanStarter = [[SentryAutoSpanOnScopeStarter alloc] init];
+                }
+            }
+        }
+    }
+    return _autoSpanStarter;
 }
 
 - (SentryExtraContextProvider *)extraContextProvider

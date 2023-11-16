@@ -21,7 +21,7 @@ class SentryNSDataTrackerTests: XCTestCase {
             let processInfoWrapper = TestSentryNSProcessInfoWrapper()
             processInfoWrapper.overrides.processDirectoryPath = "sentrytest"
 
-            let result = SentryNSDataTracker(threadInspector: threadInspector, processInfoWrapper: processInfoWrapper)
+            let result = SentryNSDataTracker(threadInspector: threadInspector, processInfoWrapper: processInfoWrapper, autoSpanStarter: SentryAutoSpanOnScopeStarter())
             SentryDependencyContainer.sharedInstance().dateProvider = dateProvider
             result.enable()
             return result

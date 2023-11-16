@@ -107,6 +107,8 @@ SentryTransaction ()
         return @"view";
     case kSentryTransactionNameSourceComponent:
         return @"component";
+    case kSentryTransactionNameSourceCarrier:
+        return @"carrier";
     case kSentryTransactionNameSourceTask:
         return @"task";
     }

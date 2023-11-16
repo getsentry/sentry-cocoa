@@ -1,4 +1,5 @@
 #import "SentryNetworkTrackingIntegration.h"
+#import "SentryDependencyContainer.h"
 #import "SentryLog.h"
 #import "SentryNSURLSessionTaskSearch.h"
 #import "SentryNetworkTracker.h"
@@ -28,6 +29,9 @@
     if (options.enableCaptureFailedRequests) {
         [SentryNetworkTracker.sharedInstance enableCaptureFailedRequests];
     }
+
+    [SentryNetworkTracker.sharedInstance
+        setAutoSpanStarter:SentryDependencyContainer.sharedInstance.autoSpanStarter];
 
     if (shouldEnableNetworkTracking || options.enableNetworkBreadcrumbs
         || options.enableCaptureFailedRequests) {

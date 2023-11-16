@@ -110,7 +110,6 @@ SentrySerializedMetricEntry *_Nullable serializeValuesWithNormalizedTime(
 
 - (void)recordMetrics
 {
-    SENTRY_LOG_DEBUG(@"Recording profiling metrics sample");
     [self recordCPUsage];
     [self recordMemoryFootprint];
     [self recordEnergyUsageEstimate];

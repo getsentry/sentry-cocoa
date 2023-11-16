@@ -1,4 +1,5 @@
 #import "SentryNetworkTracker.h"
+#import "SentryAutoSpanStarter.h"
 #import "SentryBaggage.h"
 #import "SentryBreadcrumb.h"
 #import "SentryClient+Private.h"
@@ -42,6 +43,7 @@ SentryNetworkTracker ()
 @property (nonatomic, assign) BOOL isNetworkTrackingEnabled;
 @property (nonatomic, assign) BOOL isNetworkBreadcrumbEnabled;
 @property (nonatomic, assign) BOOL isCaptureFailedRequestsEnabled;
+@property (nonatomic, strong) id<SentryAutoSpanStarter> autoSpanStarter;
 
 @end
 
@@ -93,6 +95,11 @@ SentryNetworkTracker ()
         _isNetworkTrackingEnabled = NO;
         _isCaptureFailedRequestsEnabled = NO;
     }
+}
+
+- (void)setAutoSpanStarter:(id<SentryAutoSpanStarter>)autoSpanStarter
+{
+    _autoSpanStarter = autoSpanStarter;
 }
 
 - (BOOL)isTargetMatch:(NSURL *)URL withTargets:(NSArray *)targets
@@ -170,7 +177,7 @@ SentryNetworkTracker ()
             return;
         }
 
-        [SentrySDK.currentHub.scope useSpan:^(id<SentrySpan> _Nullable innerSpan) {
+        [self.autoSpanStarter startSpan:^(id<SentrySpan> _Nullable innerSpan) {
             if (innerSpan != nil) {
                 span = innerSpan;
                 netSpan =

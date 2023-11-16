@@ -7,12 +7,14 @@ static NSString *const SENTRY_COREDATA_FETCH_OPERATION = @"db.sql.query";
 static NSString *const SENTRY_COREDATA_SAVE_OPERATION = @"db.sql.transaction";
 
 @class SentryThreadInspector, SentryNSProcessInfoWrapper;
+@protocol SentryAutoSpanStarter;
 
 @interface SentryCoreDataTracker : NSObject
 SENTRY_NO_INIT
 
 - (instancetype)initWithThreadInspector:(SentryThreadInspector *)threadInspector
-                     processInfoWrapper:(SentryNSProcessInfoWrapper *)processInfoWrapper;
+                     processInfoWrapper:(SentryNSProcessInfoWrapper *)processInfoWrapper
+                        autoSpanStarter:(id<SentryAutoSpanStarter>)autoSpanStarter;
 
 - (NSArray *)managedObjectContext:(NSManagedObjectContext *)context
               executeFetchRequest:(NSFetchRequest *)request

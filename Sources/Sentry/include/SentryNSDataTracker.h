@@ -7,12 +7,14 @@ static NSString *const SENTRY_FILE_WRITE_OPERATION = @"file.write";
 static NSString *const SENTRY_FILE_READ_OPERATION = @"file.read";
 
 @class SentryThreadInspector, SentryNSProcessInfoWrapper;
+@protocol SentryAutoSpanStarter;
 
 @interface SentryNSDataTracker : NSObject
 SENTRY_NO_INIT
 
 - (instancetype)initWithThreadInspector:(SentryThreadInspector *)threadInspector
-                     processInfoWrapper:(SentryNSProcessInfoWrapper *)processInfoWrapper;
+                     processInfoWrapper:(SentryNSProcessInfoWrapper *)processInfoWrapper
+                        autoSpanStarter:(id<SentryAutoSpanStarter>)autoSpanStarter;
 
 - (void)enable;
 

@@ -5,3 +5,4 @@ static NSString *const SentrySpanOperationUILoadInitialDisplay = @"ui.load.initi
 static NSString *const SentrySpanOperationUILoadFullDisplay = @"ui.load.full_display";
 static NSString *const SentrySpanOperationUIAction = @"ui.action";
 static NSString *const SentrySpanOperationUIActionClick = @"ui.action.click";
+static NSString *const SentrySpanOperationCarrierTransaction = @"carrier";

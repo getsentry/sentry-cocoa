@@ -1,4 +1,5 @@
 #import "SentryNSDataTracker.h"
+#import "SentryAutoSpanStarter.h"
 #import "SentryByteCountFormatter.h"
 #import "SentryClient+Private.h"
 #import "SentryDependencyContainer.h"
@@ -28,6 +29,7 @@ SentryNSDataTracker ()
 @property (nonatomic, strong) NSMutableSet<NSData *> *processingData;
 @property (nonatomic, strong) SentryThreadInspector *threadInspector;
 @property (nonatomic, strong) SentryNSProcessInfoWrapper *processInfoWrapper;
+@property (nonatomic, strong) id<SentryAutoSpanStarter> autoSpanStarter;
 
 @end
 
@@ -35,10 +37,12 @@ SentryNSDataTracker ()
 
 - (instancetype)initWithThreadInspector:(SentryThreadInspector *)threadInspector
                      processInfoWrapper:(SentryNSProcessInfoWrapper *)processInfoWrapper
+                        autoSpanStarter:(id<SentryAutoSpanStarter>)autoSpanStarter
 {
     if (self = [super init]) {
         _processInfoWrapper = processInfoWrapper;
         _threadInspector = threadInspector;
+        _autoSpanStarter = autoSpanStarter;
     }
     return self;
 }
@@ -163,7 +167,7 @@ SentryNSDataTracker ()
     }
 
     __block id<SentrySpan> ioSpan;
-    [SentrySDK.currentHub.scope useSpan:^(id<SentrySpan> _Nullable span) {
+    [self.autoSpanStarter startSpan:^(id<SentrySpan> _Nullable span) {
         ioSpan = [span startChildWithOperation:operation
                                    description:[self transactionDescriptionForFile:path
                                                                           fileSize:size]];
