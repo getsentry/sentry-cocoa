@@ -143,6 +143,16 @@ class SentryFramesTrackerTests: XCTestCase {
 
         XCTAssertEqual(callbackCalls, 1)
     }
+    
+    func testDealloc_CallsStop() {
+        
+        func sutIsDeallocatedAfterCallingMe() {
+            _ = SentryFramesTracker(displayLinkWrapper: fixture.displayLinkWrapper)
+        }
+        sutIsDeallocatedAfterCallingMe()
+        
+        XCTAssertEqual(1, fixture.displayLinkWrapper.invalidateInvocations.count)
+    }
 }
 
 private class FrameTrackerListener: NSObject, SentryFramesTrackerListener {
