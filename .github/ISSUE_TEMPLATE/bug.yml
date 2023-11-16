@@ -3,15 +3,32 @@ description: Tell us about something that's not working the way we (probably) in
 labels: ["Platform: Cocoa", "Type: Bug"]
 body:
   - type: dropdown
-    id: environment
+    id: platform
     attributes:
       label: Platform
       description: Which platform do you use?
+      multiple: true
       options:
         - iOS
+        - iPadOS
         - tvOS
         - macOS
         - watchOS
+        - visionOS
+    validations:
+      required: true
+
+  - type: dropdown
+    id: environment
+    attributes:
+      label: Environment
+      description: In which environment does this happen?
+      multiple: true
+      options:
+        - Production
+        - Develop
+        - TestFlight
+        - Other
     validations:
       required: true
 
