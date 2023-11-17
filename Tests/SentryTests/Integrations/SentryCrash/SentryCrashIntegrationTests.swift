@@ -77,6 +77,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
             options.dsn = SentryCrashIntegrationTests.dsnAsString
             options.releaseName = releaseName
             options.dist = dist
+            options.setIntegrations([SentryCrashIntegration.self])
         }
         
         // To test this properly we need SentryCrash and SentryCrashIntegration installed and registered on the current hub of the SDK.
@@ -89,6 +90,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
     func testContext_IsPassedToSentryCrash() throws {
         SentrySDK.start { options in
             options.dsn = SentryCrashIntegrationTests.dsnAsString
+            options.setIntegrations([SentryCrashIntegration.self])
         }
         
         let userInfo = try XCTUnwrap(SentryDependencyContainer.sharedInstance().crashReporter.userInfo)

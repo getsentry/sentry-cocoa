@@ -165,6 +165,7 @@
 #import "SentryScreenshot.h"
 #import "SentryScreenshotIntegration.h"
 #import "SentrySdkInfo.h"
+#import "SentrySwiftAsyncIntegration.h"
 
 #import "SentrySerialization.h"
 #import "SentrySession+Private.h"
