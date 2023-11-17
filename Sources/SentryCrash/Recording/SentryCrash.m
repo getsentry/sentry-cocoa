@@ -231,7 +231,7 @@ SentryCrash ()
                              @"reporting disabled.");
         return NO;
     }
-    
+
     // Restore previous monitors when uninstall was called previously
     if (self.monitoringFromUninstalledToRestore
         && self.monitoringWhenUninstalled != SentryCrashMonitorTypeNone) {
@@ -239,9 +239,9 @@ SentryCrash ()
         self.monitoringWhenUninstalled = SentryCrashMonitorTypeNone;
         self.monitoringFromUninstalledToRestore = NO;
     }
-    
+
     NSString *pathEnd = [@"SentryCrash" stringByAppendingPathComponent:[self getBundleName]];
-    NSString* installPath = [self.basePath stringByAppendingPathComponent:pathEnd];
+    NSString *installPath = [self.basePath stringByAppendingPathComponent:pathEnd];
 
     _monitoring = sentrycrash_install(self.bundleName.UTF8String, installPath.UTF8String);
     if (self.monitoring == 0) {

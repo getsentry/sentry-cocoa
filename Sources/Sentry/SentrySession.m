@@ -31,7 +31,7 @@ nameForSentrySessionStatus(SentrySessionStatus status)
  * Default private constructor. We don't name it init to avoid the overlap with the default init of
  * NSObject, which is not available as we specified in the header with SENTRY_NO_INIT.
  */
-- (instancetype)initDefault:(NSString*)distinctId
+- (instancetype)initDefault:(NSString *)distinctId
 {
     if (self = [super init]) {
         _sessionId = [NSUUID UUID];
@@ -45,7 +45,7 @@ nameForSentrySessionStatus(SentrySessionStatus status)
     return self;
 }
 
-- (instancetype)initWithReleaseName:(NSString *)releaseName distinctId:(NSString*)distinctId
+- (instancetype)initWithReleaseName:(NSString *)releaseName distinctId:(NSString *)distinctId
 {
     if (self = [self initDefault:distinctId]) {
         _init = @YES;

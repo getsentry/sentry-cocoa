@@ -40,4 +40,3 @@ final class SentryInstallationTests: XCTestCase {
         XCTAssertEqual(id1, SentryInstallation.id(withCacheDirectoryPath: basePath))
     }
 }
-
