@@ -80,6 +80,7 @@ class SentrySDKTests: XCTestCase {
         SentrySDK.start { options in
             options.dsn = SentrySDKTests.dsnAsString
             options.maxBreadcrumbs = 0
+            options.setIntegrations([])
         }
 
         SentrySDK.addBreadcrumb(Breadcrumb(level: SentryLevel.warning, category: "test"))
@@ -123,6 +124,7 @@ class SentrySDKTests: XCTestCase {
     func testStartStopBinaryImageCache() {
         SentrySDK.start { options in
             options.debug = true
+            options.removeAllIntegrations()
         }
 
         XCTAssertNotNil(SentryDependencyContainer.sharedInstance().binaryImageCache.cache)
@@ -136,6 +138,7 @@ class SentrySDKTests: XCTestCase {
     func testStartWithConfigureOptions_NoDsn() throws {
         SentrySDK.start { options in
             options.debug = true
+            options.removeAllIntegrations()
         }
         
         let options = SentrySDK.currentHub().getClient()?.options
@@ -148,6 +151,7 @@ class SentrySDKTests: XCTestCase {
     func testStartWithConfigureOptions_WrongDsn() throws {
         SentrySDK.start { options in
             options.dsn = "wrong"
+            options.removeAllIntegrations()
         }
         
         let options = SentrySDK.currentHub().getClient()?.options
@@ -164,6 +168,7 @@ class SentrySDKTests: XCTestCase {
                 wasBeforeSendCalled = true
                 return event
             }
+            options.removeAllIntegrations()
         }
         
         SentrySDK.capture(message: "")
@@ -181,6 +186,7 @@ class SentrySDKTests: XCTestCase {
                 XCTAssertEqual(123, Dynamic(suggested).maxBreadcrumbs)
                 return scope
             }
+            options.removeAllIntegrations()
         }
         XCTAssertEqual("me", SentrySDK.currentHub().scope.userObject?.userId)
         XCTAssertIdentical(scope, SentrySDK.currentHub().scope)
@@ -412,7 +418,7 @@ class SentrySDKTests: XCTestCase {
     
     func testInstallIntegrations_NoIntegrations() {
         SentrySDK.start { options in
-            options.integrations = []
+            options.removeAllIntegrations()
         }
         
         assertIntegrationsInstalled(integrations: [])
@@ -491,6 +497,7 @@ class SentrySDKTests: XCTestCase {
         
         SentrySDK.start { options in
             options.dsn = SentrySDKTests.dsnAsString
+            options.removeAllIntegrations()
         }
         
         XCTAssertEqual(1, SentrySDK.startInvocations)
@@ -504,6 +511,7 @@ class SentrySDKTests: XCTestCase {
         
         SentrySDK.start { options in
             options.dsn = SentrySDKTests.dsnAsString
+            options.removeAllIntegrations()
         }
         XCTAssertTrue(SentrySDK.isEnabled)
         
@@ -515,6 +523,7 @@ class SentrySDKTests: XCTestCase {
         
         SentrySDK.start { options in
             options.dsn = SentrySDKTests.dsnAsString
+            options.removeAllIntegrations()
         }
         XCTAssertTrue(SentrySDK.isEnabled)
     }
@@ -522,6 +531,7 @@ class SentrySDKTests: XCTestCase {
     func testClose_ResetsDependencyContainer() {
         SentrySDK.start { options in
             options.dsn = SentrySDKTests.dsnAsString
+            options.removeAllIntegrations()
         }
         
         let first = SentryDependencyContainer.sharedInstance()
@@ -536,9 +546,12 @@ class SentrySDKTests: XCTestCase {
     func testClose_ClearsIntegrations() {
         SentrySDK.start { options in
             options.dsn = SentrySDKTests.dsnAsString
+            options.swiftAsyncStacktraces = true
+            options.setIntegrations([SentrySwiftAsyncIntegration.self])
         }
         
         let hub = SentrySDK.currentHub()
+        XCTAssertEqual(1, hub.installedIntegrations().count)
         SentrySDK.close()
         XCTAssertEqual(0, hub.installedIntegrations().count)
         assertIntegrationsInstalled(integrations: [])
@@ -549,6 +562,7 @@ class SentrySDKTests: XCTestCase {
         SentrySDK.start { options in
             options.dsn = SentrySDKTests.dsnAsString
             options.tracesSampleRate = 1
+            options.removeAllIntegrations()
         }
 
         let appStateManager = SentryDependencyContainer.sharedInstance().appStateManager
@@ -557,6 +571,7 @@ class SentrySDKTests: XCTestCase {
         SentrySDK.start { options in
             options.dsn = SentrySDKTests.dsnAsString
             options.tracesSampleRate = 1
+            options.removeAllIntegrations()
         }
 
         XCTAssertEqual(appStateManager.startCount, 2)
@@ -606,6 +621,7 @@ class SentrySDKTests: XCTestCase {
     func testClose_SetsClientToNil() {
         SentrySDK.start { options in
             options.dsn = SentrySDKTests.dsnAsString
+            options.removeAllIntegrations()
         }
         
         SentrySDK.close()
@@ -616,6 +632,7 @@ class SentrySDKTests: XCTestCase {
     func testClose_ClosesClient() {
         SentrySDK.start { options in
             options.dsn = SentrySDKTests.dsnAsString
+            options.removeAllIntegrations()
         }
         
         let client = SentrySDK.currentHub().client()
@@ -627,6 +644,7 @@ class SentrySDKTests: XCTestCase {
     func testClose_CallsFlushCorrectlyOnTransport() throws {
         SentrySDK.start { options in
             options.dsn = SentrySDKTests.dsnAsString
+            options.removeAllIntegrations()
         }
         
         let transport = TestTransport()
@@ -641,6 +659,7 @@ class SentrySDKTests: XCTestCase {
     func testFlush_CallsFlushCorrectlyOnTransport() throws {
         SentrySDK.start { options in
             options.dsn = SentrySDKTests.dsnAsString
+            options.removeAllIntegrations()
         }
         
         let transport = TestTransport()

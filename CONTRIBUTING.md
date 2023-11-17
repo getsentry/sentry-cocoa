@@ -47,6 +47,7 @@ Test guidelines:
 * We prefer using [Nimble](https://github.com/Quick/Nimble) over XCTest for test assertions. We can't use the latest Nimble version and are stuck
 with [v10.0.0](https://github.com/Quick/Nimble/releases/tag/v10.0.0), cause it's the latest one that still supports Xcode 13.2.1, which we use in CI for
 running our tests. [v11.0.0](https://github.com/Quick/Nimble/releases/tag/v11.0.0) already requires Swift 5.6 / Xcode 13.3.
+* When calling `SentrySDK.start` in a test, specify only the minimum integrations required to minimize side effects for tests and reduce flakiness.
 
 
 
