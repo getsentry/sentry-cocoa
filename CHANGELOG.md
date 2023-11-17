@@ -5,6 +5,7 @@
 ### Features
 
 - Add screen name to app context (#3346)
+- Add cache directory option (#3369)
 
 ### Fixes
 
