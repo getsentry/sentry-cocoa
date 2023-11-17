@@ -105,10 +105,12 @@ SentryHub ()
         if (_session != nil) {
             lastSession = _session;
         }
-        
-        NSString* distinctId = [SentryInstallation idWithCacheDirectoryPath:options.cacheDirectoryPath];
-        
-        _session = [[SentrySession alloc] initWithReleaseName:options.releaseName distinctId:distinctId];
+
+        NSString *distinctId =
+            [SentryInstallation idWithCacheDirectoryPath:options.cacheDirectoryPath];
+
+        _session = [[SentrySession alloc] initWithReleaseName:options.releaseName
+                                                   distinctId:distinctId];
 
         if (_errorsBeforeSession > 0 && options.enableAutoSessionTracking == YES) {
             _session.errors = _errorsBeforeSession;

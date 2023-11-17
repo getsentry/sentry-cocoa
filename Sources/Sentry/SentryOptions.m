@@ -185,8 +185,9 @@ NSString *const kSentryDefaultEnvironment = @"production";
         SentryHttpStatusCodeRange *defaultHttpStatusCodeRange =
             [[SentryHttpStatusCodeRange alloc] initWithMin:500 max:599];
         self.failedRequestStatusCodes = @[ defaultHttpStatusCodeRange ];
-        self.cacheDirectoryPath = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES)
-            .firstObject;
+        self.cacheDirectoryPath
+            = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES)
+                  .firstObject;
 
 #if SENTRY_HAS_METRIC_KIT
         if (@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, *)) {

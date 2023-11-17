@@ -18,7 +18,7 @@ typedef NS_ENUM(NSUInteger, SentrySessionStatus) {
 @interface SentrySession : NSObject <SentrySerializable, NSCopying>
 SENTRY_NO_INIT
 
-- (instancetype)initWithReleaseName:(NSString *)releaseName distinctId:(NSString*)distinctId;
+- (instancetype)initWithReleaseName:(NSString *)releaseName distinctId:(NSString *)distinctId;
 
 /**
  * Initializes @c SentrySession from a JSON object.

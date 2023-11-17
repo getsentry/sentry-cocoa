@@ -9,7 +9,8 @@
 
 - (void)testInitDefaultValues
 {
-    SentrySession *session = [[SentrySession alloc] initWithReleaseName:@"1.0.0" distinctId:@"some-id"];
+    SentrySession *session = [[SentrySession alloc] initWithReleaseName:@"1.0.0"
+                                                             distinctId:@"some-id"];
     XCTAssertNotNil(session.sessionId);
     XCTAssertEqual(1, session.sequence);
     XCTAssertEqual(0, session.errors);
@@ -26,7 +27,8 @@
 
 - (void)testSerializeDefaultValues
 {
-    SentrySession *expected = [[SentrySession alloc] initWithReleaseName:@"1.0.0" distinctId:@"some-id"];
+    SentrySession *expected = [[SentrySession alloc] initWithReleaseName:@"1.0.0"
+                                                              distinctId:@"some-id"];
     NSDictionary<NSString *, id> *json = [expected serialize];
     SentrySession *actual = [[SentrySession alloc] initWithJSONObject:json];
 
@@ -51,7 +53,8 @@
 
 - (void)testSerializeExtraFieldsEndedSessionWithNilStatus
 {
-    SentrySession *expected = [[SentrySession alloc] initWithReleaseName:@"io.sentry@5.0.0-test" distinctId:@"some-id"];
+    SentrySession *expected = [[SentrySession alloc] initWithReleaseName:@"io.sentry@5.0.0-test"
+                                                              distinctId:@"some-id"];
     NSDate *timestamp = [NSDate date];
     [expected endSessionExitedWithTimestamp:timestamp];
     expected.environment = @"prod";
