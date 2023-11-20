@@ -44,7 +44,7 @@
 #    import "SentryReachability.h"
 #endif // !TARGET_OS_WATCH
 
-static const NSTimeInterval SENTRY_CARRIER_TRANSACTION_TIMEOUT = 10.0;
+static const NSTimeInterval SENTRY_CARRIER_TRANSACTION_IDLE_TIMEOUT = 3.0;
 
 @implementation SentryDependencyContainer
 
@@ -174,7 +174,7 @@ static NSObject *sentryDependencyContainerLock;
                 if (options.enableSendAllAutoPerformanceSpans) {
                     _autoSpanStarter = [[SentryAutoSpanTransactionCarrierStarter alloc]
                         initWithDispatchQueueWrapper:self.dispatchQueueWrapper
-                                         idleTimeout:SENTRY_CARRIER_TRANSACTION_TIMEOUT];
+                                         idleTimeout:SENTRY_CARRIER_TRANSACTION_IDLE_TIMEOUT];
                 } else {
                     _autoSpanStarter = [[SentryAutoSpanOnScopeStarter alloc] init];
                 }

@@ -9,7 +9,7 @@ final class CarrierTransactionIntegrationTests: XCTestCase {
         clearTestState()
     }
 
-    private let timeout = 10.0
+    private let timeout = 3.0
     private let dispatchQueue = TestSentryDispatchQueueWrapper()
     
     private func givenSpanStarter() -> SentryAutoSpanTransactionCarrierStarter {
@@ -18,7 +18,6 @@ final class CarrierTransactionIntegrationTests: XCTestCase {
 
     func testNoTransactionBoundToScope() {
         let spanCreator = AutoSpanCreator(spanStarter: self.givenSpanStarter())
-        
         spanCreator.createAutoSpan()
         
         let span = SentrySDK.span
@@ -27,19 +26,27 @@ final class CarrierTransactionIntegrationTests: XCTestCase {
         expect(span).to(beAnInstanceOf(SentryTracer.self))
     }
 
-    func testTimetTimesOut() {
+    func testTimerTimesOut_WithFinishedSpans() {
         let hub = TestHub(client: nil, andScope: nil)
         SentrySDK.setCurrentHub(hub)
         
         let spanCreator = AutoSpanCreator(spanStarter: self.givenSpanStarter())
-        
         spanCreator.createAutoSpan()
-        let span = SentrySDK.span
         
-        dispatchQueue.invokeLastDispatchAfter()
+        let span = try! XCTUnwrap(SentrySDK.span as? SentryTracer)
+        expect(span.transactionContext.name) == "CarrierTransaction"
+        expect(span.isFinished) == false
+        
+        timerTimesOut()
         
         expect(hub.capturedTransactionsWithScope.count) == 1
-        expect(span?.isFinished) == true
+        expect(span.isFinished) == true
+        expect(span.status) == .undefined
+        expect(SentrySDK.span) == nil
+    }
+    
+    private func timerTimesOut() {
+        dispatchQueue.invokeLastDispatchAfter()
     }
 }
 
@@ -53,7 +60,14 @@ class AutoSpanCreator {
     
     func createAutoSpan() {
         spanStarter.startSpan { span in
-            span?.startChild(operation: "file.read")
+            let fileSpan = span?.startChild(operation: "file.read")
+            fileSpan?.finish()
+        }
+    }
+    
+    func createAutoSpanWithUnfinishedSpans() {
+        spanStarter.startSpan { span in
+            _ = span?.startChild(operation: "file.read")
         }
     }
     

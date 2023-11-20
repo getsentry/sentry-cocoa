@@ -4,7 +4,7 @@ import XCTest
 
 final class SentryAutoSpanTransactionCarrierStarterTests: XCTestCase {
     
-    private let timeout = 10.0
+    private let timeout = 3.0
     private let dispatchQueue = TestSentryDispatchQueueWrapper()
     
     private func givenSut() -> SentryAutoSpanTransactionCarrierStarter {
