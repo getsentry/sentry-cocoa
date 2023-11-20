@@ -10,7 +10,7 @@ final class SentryAutoSpanTransactionCarrierStarterTests: XCTestCase {
     private func givenSut() -> SentryAutoSpanTransactionCarrierStarter {
         return SentryAutoSpanTransactionCarrierStarter(dispatchQueueWrapper: dispatchQueue, idleTimeout: timeout)
     }
-
+    
     func testScopeHasSpan_StartSpanReturnsSpanOfScope() {
         let hub = TestHub(client: nil, andScope: nil)
         SentrySDK.setCurrentHub(hub)
