@@ -3,6 +3,8 @@ import UIKit
 
 class ViewController: UIViewController {
 
+    @IBOutlet weak var anrFillingRunLoopButton: UIButton!
+    
     private let dispatchQueue = DispatchQueue(label: "ViewController", attributes: .concurrent)
     private var timer: Timer?
 
@@ -142,6 +144,10 @@ class ViewController: UIViewController {
         }
         alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
         present(alert, animated: true)
+    }
+    
+    @IBAction func anrFillingRunLoop(_ sender: Any) {
+        triggerANRFillingRunLoop(button: self.anrFillingRunLoopButton)
     }
 
     @IBAction func captureTransaction(_ sender: UIButton) {
