@@ -25,7 +25,7 @@ class SentrySessionGeneratorTests: NotificationCenterTestCase {
     override func setUp() {
         super.setUp()
         
-        options = Options()
+        options = Options.noIntegrations()
         options.dsn = TestConstants.realDSN
         
         options.releaseName = "Release Health"

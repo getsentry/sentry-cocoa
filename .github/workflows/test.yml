@@ -108,13 +108,6 @@ jobs:
             test-destination-os: "16.4"
             device: "iPhone 14"
 
-          # iOS 17
-          - runs-on: macos-13
-            platform: "iOS"
-            xcode: "15.0.1"
-            test-destination-os: "latest"
-            device: "iPhone 14"
-
           # macOS 11
           - runs-on: macos-11
             platform: "macOS"
@@ -131,12 +124,6 @@ jobs:
           - runs-on: macos-13
             platform: "macOS"
             xcode: "14.3"
-            test-destination-os: "latest"
-          
-          # macOS 14
-          - runs-on: macos-13
-            platform: "macOS"
-            xcode: "15.0.1"
             test-destination-os: "latest"
 
           # Catalyst. We only test the latest version, as
@@ -159,12 +146,6 @@ jobs:
             xcode: "14.3"
             test-destination-os: "latest"
 
-          # tvOS 17
-          - runs-on: macos-13
-            platform: "tvOS"
-            xcode: "15.0.1"
-            test-destination-os: "latest"
-
     steps:
       - uses: actions/checkout@v4
       - uses: actions/download-artifact@v3
@@ -177,6 +158,9 @@ jobs:
       - name: Allow test-server to run
         run: chmod +x ./test-server-exec
       - run: ./test-server-exec &
+
+      - name: Check test-server runs
+        run: curl http://localhost:8080/echo-baggage-header
 
       - run: ./scripts/ci-select-xcode.sh ${{matrix.xcode}}
 

@@ -79,6 +79,7 @@ class SentryClientTest: XCTestCase {
                 let options = try Options(dict: [
                     "dsn": SentryClientTest.dsn
                 ])
+                options.removeAllIntegrations()
                 configureOptions(options)
 
                 client = SentryClient(
