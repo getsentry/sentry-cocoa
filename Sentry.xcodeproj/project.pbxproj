@@ -1893,13 +1893,13 @@
 			name = SentryAutoSpanStarter;
 			sourceTree = "<group>";
 		};
-		62D3F7B72B0B68620046BA28 /* AutoSpansStarter */ = {
+		62D3F7B72B0B68620046BA28 /* AutoSpanStarter */ = {
 			isa = PBXGroup;
 			children = (
 				62D3F7B82B0B688E0046BA28 /* SentryAutoSpanTransactionCarrierStarterTests.swift */,
 				62D3F7BA2B0B73E10046BA28 /* SentryAutoSpanOnScopeStarterTests.swift */,
 			);
-			path = AutoSpansStarter;
+			path = AutoSpanStarter;
 			sourceTree = "<group>";
 		};
 		630436001EBCB87500C4D3FA /* Networking */ = {
@@ -2712,7 +2712,7 @@
 		7B6C5ED4264E62B60010D138 /* Transaction */ = {
 			isa = PBXGroup;
 			children = (
-				62D3F7B72B0B68620046BA28 /* AutoSpansStarter */,
+				62D3F7B72B0B68620046BA28 /* AutoSpanStarter */,
 				7B6C5ED5264E62CA0010D138 /* SentryTransactionTests.swift */,
 				8EC4CF4F25C3A0070093DEE9 /* SentrySpanContextTests.swift */,
 				8E70B0FC25CB72BE002B3155 /* SentrySpanTests.swift */,
