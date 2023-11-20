@@ -41,9 +41,10 @@ class SentrySDKTests: XCTestCase {
             scope = Scope()
             scope.setTag(value: "value", key: "key")
             
-            options = Options()
+            options = Options.noIntegrations()
             options.dsn = SentrySDKTests.dsnAsString
             options.releaseName = "1.0.0"
+            
             client = TestClient(options: options)!
             hub = SentryHub(client: client, andScope: scope, andCrashWrapper: TestSentryCrashWrapper.sharedInstance())
             

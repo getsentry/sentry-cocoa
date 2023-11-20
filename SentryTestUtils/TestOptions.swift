@@ -11,4 +11,10 @@ public extension Options {
     func removeAllIntegrations() {
         self.integrations = []
     }
+    
+    static func noIntegrations() -> Options {
+        let options = Options()
+        options.removeAllIntegrations()
+        return options
+    }
 }
