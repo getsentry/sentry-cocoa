@@ -27,7 +27,7 @@ class ViewController: UIViewController {
             self.dispatchQueue.async {
                 self.loadSentryBrandImage()
                 Thread.sleep(forTimeInterval: 1.0)
-                self.loadLoremIpsumFile()
+                self.readLoremIpsumFile()
             }
         }
         RunLoop.current.add(self.timer!, forMode: .common)
@@ -37,11 +37,11 @@ class ViewController: UIViewController {
     @IBAction func uiClickTransaction(_ sender: UIButton) {
         highlightButton(sender)
        
-        loadLoremIpsumFile()
+        readLoremIpsumFile()
         loadSentryBrandImage()
     }
     
-    private func loadLoremIpsumFile() {
+    private func readLoremIpsumFile() {
         dispatchQueue.async {
             if let path = Bundle.main.path(forResource: "LoremIpsum", ofType: "txt") {
                 _ = FileManager.default.contents(atPath: path)

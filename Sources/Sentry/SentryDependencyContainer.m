@@ -129,7 +129,8 @@ static NSObject *sentryDependencyContainerLock;
     if (_crashReporter == nil) {
         @synchronized(sentryDependencyContainerLock) {
             if (_crashReporter == nil) {
-                _crashReporter = [[SentryCrash alloc] init];
+                SentryOptions *options = [[[SentrySDK currentHub] getClient] options];
+                _crashReporter = [[SentryCrash alloc] initWithBasePath:options.cacheDirectoryPath];
             }
         }
     }

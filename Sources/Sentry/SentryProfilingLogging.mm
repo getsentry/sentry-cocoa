@@ -1,6 +1,6 @@
 #include "SentryProfilingLogging.hpp"
 
-#if !defined(DEBUG)
+#if defined(DEBUG)
 
 #    import "SentryLog.h"
 
@@ -44,4 +44,4 @@ namespace profiling {
 } // namespace profiling
 } // namespace sentry
 
-#endif // !defined(DEBUG)
+#endif // defined(DEBUG)

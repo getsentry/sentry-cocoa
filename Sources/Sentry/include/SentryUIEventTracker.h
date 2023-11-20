@@ -5,12 +5,12 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @class SentryDispatchQueueWrapper;
+@protocol SentryUIEventTrackerMode;
 
 @interface SentryUIEventTracker : NSObject
 SENTRY_NO_INIT
 
-- (instancetype)initWithDispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
-                                 idleTimeout:(NSTimeInterval)idleTimeout;
+- (instancetype)initWithMode:(id<SentryUIEventTrackerMode>)mode;
 
 - (void)start;
 - (void)stop;

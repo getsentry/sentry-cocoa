@@ -209,12 +209,6 @@ slowFrameThreshold(uint64_t actualFramesPerSecond)
 #    endif // SENTRY_TARGET_PROFILING_SUPPORTED
 }
 
-- (void)stop
-{
-    _isRunning = NO;
-    [self.displayLinkWrapper invalidate];
-}
-
 - (void)addListener:(id<SentryFramesTrackerListener>)listener
 {
 
@@ -228,6 +222,17 @@ slowFrameThreshold(uint64_t actualFramesPerSecond)
     @synchronized(self.listeners) {
         [self.listeners removeObject:listener];
     }
+}
+
+- (void)stop
+{
+    _isRunning = NO;
+    [self.displayLinkWrapper invalidate];
+}
+
+- (void)dealloc
+{
+    [self stop];
 }
 
 @end

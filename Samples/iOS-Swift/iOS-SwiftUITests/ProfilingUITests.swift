@@ -28,11 +28,11 @@ final class ProfilingUITests: BaseUITest {
         let profileDict = try XCTUnwrap(try JSONSerialization.jsonObject(with: profileData) as? [String: Any])
 
         let metrics = try XCTUnwrap(profileDict["measurements"] as? [String: Any])
-        let slowFrames = try XCTUnwrap(metrics["slow_frame_renders"] as? [String: Any])
-        let slowFrameValues = try XCTUnwrap(slowFrames["values"] as? [[String: Any]])
+        // We can only be sure about frozen frames when triggering an ANR.
+        // It could be that there is no slow frame for the captured transaction.
         let frozenFrames = try XCTUnwrap(metrics["frozen_frame_renders"] as? [String: Any])
         let frozenFrameValues = try XCTUnwrap(frozenFrames["values"] as? [[String: Any]])
-        XCTAssertFalse(slowFrameValues.isEmpty && frozenFrameValues.isEmpty)
+        XCTAssertFalse(frozenFrameValues.isEmpty, "The test triggered an ANR while the transaction is running. There must be at least one frozen frame, but there was none.")
 
         let frameRates = try XCTUnwrap(metrics["screen_frame_rates"] as? [String: Any])
         let frameRateValues = try XCTUnwrap(frameRates["values"] as? [[String: Any]])

@@ -43,9 +43,11 @@ public class TestDisplayLinkWrapper: SentryDisplayLinkWrapper {
         return dateProvider.systemTime().toTimeInterval() + currentFrameRate.tickDuration
     }
 
+    public var invalidateInvocations = Invocations<Void>()
     public override func invalidate() {
         target = nil
         selector = nil
+        invalidateInvocations.record(Void())
     }
     
     public func call() {
