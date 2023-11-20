@@ -51,6 +51,7 @@
 #import "SentryAutoBreadcrumbTrackingIntegration.h"
 #import "SentryAutoSessionTrackingIntegration.h"
 #import "SentryAutoSpanOnScopeStarter.h"
+#import "SentryAutoSpanTransactionCarrierStarter.h"
 #import "SentryBaggage.h"
 #import "SentryBooleanSerialization.h"
 #import "SentryBreadcrumbDelegate.h"

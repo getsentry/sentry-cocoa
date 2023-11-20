@@ -150,6 +150,5 @@ typedef NS_ENUM(NSInteger, SentryTransactionNameSource) {
     kSentryTransactionNameSourceRoute,
     kSentryTransactionNameSourceView,
     kSentryTransactionNameSourceComponent,
-    kSentryTransactionNameSourceCarrier,
     kSentryTransactionNameSourceTask
 };

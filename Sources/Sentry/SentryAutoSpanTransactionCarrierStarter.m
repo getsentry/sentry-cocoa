@@ -45,7 +45,7 @@ SentryAutoSpanTransactionCarrierStarter ()
             SENTRY_LOG_DEBUG(@"Creating carrier transaction.");
             SentryTransactionContext *context =
                 [[SentryTransactionContext alloc] initWithName:@"CarrierTransaction"
-                                                    nameSource:kSentryTransactionNameSourceCarrier
+                                                    nameSource:kSentryTransactionNameSourceComponent
                                                      operation:SentrySpanOperationCarrierTransaction
                                                         origin:SentryTraceOriginCarrierTransaction];
 
