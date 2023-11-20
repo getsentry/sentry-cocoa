@@ -3,6 +3,11 @@ import SentryTestUtils
 import XCTest
 
 final class SentryAutoSpanOnScopeStarterTests: XCTestCase {
+    
+    override func tearDown() {
+        super.tearDown()
+        clearTestState()
+    }
 
     func testStartSpanUsesSpanOnScope() throws {
         let hub = TestHub(client: nil, andScope: nil)
