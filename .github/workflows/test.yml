@@ -54,9 +54,6 @@ jobs:
         working-directory: test-server
         run: cp $(swift build --show-bin-path -c release)/Run test-server-exec
 
-      - name: Check test-server running
-        run: curl http://localhost:8080/echo-baggage-header
-
       - name: Archiving DerivedData
         uses: actions/upload-artifact@v3
         with:
@@ -180,6 +177,9 @@ jobs:
       - name: Allow test-server to run
         run: chmod +x ./test-server-exec
       - run: ./test-server-exec &
+
+      - name: Check test-server runs
+        run: curl http://localhost:8080/echo-baggage-header
 
       - run: ./scripts/ci-select-xcode.sh ${{matrix.xcode}}
 
