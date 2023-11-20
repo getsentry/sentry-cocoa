@@ -159,6 +159,9 @@ jobs:
         run: chmod +x ./test-server-exec
       - run: ./test-server-exec &
 
+      - name: Check test-server runs
+        run: curl http://localhost:8080/echo-baggage-header
+
       - run: ./scripts/ci-select-xcode.sh ${{matrix.xcode}}
 
       # Workaround with a symlink pointed out in: https://github.com/actions/virtual-environments/issues/551#issuecomment-637344435
