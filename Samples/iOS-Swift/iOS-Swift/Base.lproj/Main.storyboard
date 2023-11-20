@@ -63,7 +63,7 @@
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="LvU-yx-01i" userLabel="triggerANRRunLoop">
                                         <rect key="frame" x="0.0" y="84" width="259" height="28"/>
-                                        <accessibility key="accessibilityConfiguration" identifier="showNibButton"/>
+                                        <accessibility key="accessibilityConfiguration" identifier="anrFillingRunLoop"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="13"/>
                                         <state key="normal" title="ANR filling run loop"/>
                                         <connections>
