@@ -135,7 +135,8 @@ class SentryNetworkTrackerIntegrationTests: XCTestCase {
         let expect = expectation(description: "Callback Expectation")
         let session = URLSession(configuration: URLSessionConfiguration.default)
         
-        let dataTask = session.dataTask(with: SentryNetworkTrackerIntegrationTests.testBaggageURL) { (_, _, _) in
+        let dataTask = session.dataTask(with: SentryNetworkTrackerIntegrationTests.testBaggageURL) { (_, _, error) in
+            self.assertNetworkError(error)
             expect.fulfill()
         }
         
@@ -158,7 +159,8 @@ class SentryNetworkTrackerIntegrationTests: XCTestCase {
         let expect = expectation(description: "Request completed")
         let session = URLSession(configuration: URLSessionConfiguration.default)
 
-        let dataTask = session.dataTask(with: SentryNetworkTrackerIntegrationTests.testBaggageURL) { (data, _, _) in
+        let dataTask = session.dataTask(with: SentryNetworkTrackerIntegrationTests.testBaggageURL) { (data, _, error) in
+            self.assertNetworkError(error)
             let response = String(data: data ?? Data(), encoding: .utf8) ?? ""
             
             let expectedBaggageHeader = transaction.traceContext.toBaggage().toHTTPHeader()
@@ -187,7 +189,8 @@ class SentryNetworkTrackerIntegrationTests: XCTestCase {
         let expect = expectation(description: "Request completed")
         let session = URLSession(configuration: URLSessionConfiguration.default)
         var response: String?
-        let dataTask = session.dataTask(with: SentryNetworkTrackerIntegrationTests.testTraceURL) { (data, _, _) in
+        let dataTask = session.dataTask(with: SentryNetworkTrackerIntegrationTests.testTraceURL) { (data, _, error) in
+            self.assertNetworkError(error)
             response = String(data: data ?? Data(), encoding: .utf8) ?? ""
             expect.fulfill()
         }
@@ -242,7 +245,9 @@ class SentryNetworkTrackerIntegrationTests: XCTestCase {
 
         let session = URLSession(configuration: URLSessionConfiguration.default)
 
-        let dataTask = session.dataTask(with: SentryNetworkTrackerIntegrationTests.clientErrorTraceURL) { (_, _, _) in }
+        let dataTask = session.dataTask(with: SentryNetworkTrackerIntegrationTests.clientErrorTraceURL) { (_, _, error) in
+            self.assertNetworkError(error)
+        }
 
         dataTask.resume()
         wait(for: [expect], timeout: 5)
@@ -280,6 +285,12 @@ class SentryNetworkTrackerIntegrationTests: XCTestCase {
         let result = sut.install(with: options)
         
         XCTAssertFalse(result)
+    }
+    
+    private func assertNetworkError(_ error: Error?) {
+        if error != nil {
+            XCTFail("Failed to complete request : \(String(describing: error))")
+        }
     }
 }
 
