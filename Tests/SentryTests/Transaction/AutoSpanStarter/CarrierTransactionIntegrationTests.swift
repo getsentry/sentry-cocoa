@@ -26,7 +26,7 @@ final class CarrierTransactionIntegrationTests: XCTestCase {
         expect(span).to(beAnInstanceOf(SentryTracer.self))
     }
 
-    func testTimerTimesOut_WithFinishedSpans() {
+    func testFinishingLastSpan_StartsIdleTimeout_SendsNoTransaction() {
         let hub = TestHub(client: nil, andScope: nil)
         SentrySDK.setCurrentHub(hub)
         
@@ -37,7 +37,22 @@ final class CarrierTransactionIntegrationTests: XCTestCase {
         expect(span.transactionContext.name) == "CarrierTransaction"
         expect(span.isFinished) == false
         
-        timerTimesOut()
+        expect(self.dispatchQueue.dispatchAfterInvocations.count) == 2
+        expect(hub.capturedTransactionsWithScope.count) == 0
+    }
+    
+    func testAllSpansFinished_IdleTimeoutFires_SendsTransaction() {
+        let hub = TestHub(client: nil, andScope: nil)
+        SentrySDK.setCurrentHub(hub)
+        
+        let spanCreator = AutoSpanCreator(spanStarter: self.givenSpanStarter())
+        spanCreator.createAutoSpan()
+        
+        let span = try! XCTUnwrap(SentrySDK.span as? SentryTracer)
+        
+        expect(hub.capturedTransactionsWithScope.count) == 0
+        
+        idleTimeoutTimesOut()
         
         expect(hub.capturedTransactionsWithScope.count) == 1
         expect(span.isFinished) == true
@@ -45,7 +60,45 @@ final class CarrierTransactionIntegrationTests: XCTestCase {
         expect(SentrySDK.span) == nil
     }
     
-    private func timerTimesOut() {
+    func testSpansContinuouslyCreated_SendsTransaction() {
+        let hub = TestHub(client: nil, andScope: nil)
+        SentrySDK.setCurrentHub(hub)
+        
+        let spanCreator = AutoSpanCreator(spanStarter: self.givenSpanStarter())
+        spanCreator.createSpansContinuously()
+        
+        let span = try! XCTUnwrap(SentrySDK.span as? SentryTracer)
+        
+        expect(hub.capturedTransactionsWithScope.count) == 0
+        
+        idleTimeoutTimesOut()
+        
+        expect(hub.capturedTransactionsWithScope.count) == 1
+        expect(span.isFinished) == true
+        expect(span.status) == .undefined
+        expect(SentrySDK.span) == nil
+    }
+    
+    func testDeadlineTimerTimesOut_WithUnFinishedSpans() {
+        let hub = TestHub(client: nil, andScope: nil)
+        SentrySDK.setCurrentHub(hub)
+        
+        let spanCreator = AutoSpanCreator(spanStarter: self.givenSpanStarter())
+        spanCreator.createAutoSpan()
+        
+        let span = try! XCTUnwrap(SentrySDK.span as? SentryTracer)
+        expect(span.transactionContext.name) == "CarrierTransaction"
+        expect(span.isFinished) == false
+        
+        idleTimeoutTimesOut()
+        
+        expect(hub.capturedTransactionsWithScope.count) == 1
+        expect(span.isFinished) == true
+        expect(span.status) == .undefined
+        expect(SentrySDK.span) == nil
+    }
+    
+    private func idleTimeoutTimesOut() {
         dispatchQueue.invokeLastDispatchAfter()
     }
 }
@@ -53,6 +106,7 @@ final class CarrierTransactionIntegrationTests: XCTestCase {
 class AutoSpanCreator {
     
     private let spanStarter: SentryAutoSpanStarter
+    private let dispatchQueue = DispatchQueue(label: "AutoSpanCreator")
     
     init(spanStarter: SentryAutoSpanStarter) {
         self.spanStarter = spanStarter
@@ -68,6 +122,16 @@ class AutoSpanCreator {
     func createAutoSpanWithUnfinishedSpans() {
         spanStarter.startSpan { span in
             _ = span?.startChild(operation: "file.read")
+        }
+    }
+    
+    func createSpansContinuously() {
+        spanStarter.startSpan { span in
+            let fileSpan = span?.startChild(operation: "file.read")
+            fileSpan?.finish()
+            self.dispatchQueue.async {
+                
+            }
         }
     }
     
