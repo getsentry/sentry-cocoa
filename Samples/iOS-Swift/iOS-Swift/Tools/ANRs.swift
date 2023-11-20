@@ -1,4 +1,5 @@
 import Foundation
+import UIKit
 
 func triggerANRFillingRunLoop(button: UIButton) {
     let dispatchQueue = DispatchQueue(label: "ANR")
