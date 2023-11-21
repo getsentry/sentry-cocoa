@@ -9,6 +9,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation SentryBaseIntegration
 
++ (void)load
+{
+    NSLog(@"%llu %s", clock_gettime_nsec_np(CLOCK_UPTIME_RAW), __PRETTY_FUNCTION__);
+}
+
 - (NSString *)integrationName
 {
     return NSStringFromClass([self classForCoder]);

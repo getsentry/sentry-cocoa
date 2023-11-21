@@ -4,6 +4,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation SentryMeasurementValue
 
++ (void)load
+{
+    NSLog(@"%llu %s", clock_gettime_nsec_np(CLOCK_UPTIME_RAW), __PRETTY_FUNCTION__);
+}
+
 - (instancetype)initWithValue:(NSNumber *)value
 {
     if (self = [super init]) {

@@ -10,6 +10,11 @@ https://github.com/AFNetworking/AFNetworking/blob/4eaec5b586ddd897ebeda896e332a6
 
 @implementation SentryNSURLSessionTaskSearch
 
++ (void)load
+{
+    NSLog(@"%llu %s", clock_gettime_nsec_np(CLOCK_UPTIME_RAW), __PRETTY_FUNCTION__);
+}
+
 /**
  * WARNING: This code can easily lead to bad behavior, like crashes or messing up HTTP requests. Be
  * careful when changing it.

@@ -17,6 +17,11 @@ SentryTransportAdapter ()
 
 @implementation SentryTransportAdapter
 
++ (void)load
+{
+    NSLog(@"%llu %s", clock_gettime_nsec_np(CLOCK_UPTIME_RAW), __PRETTY_FUNCTION__);
+}
+
 - (instancetype)initWithTransport:(id<SentryTransport>)transport options:(SentryOptions *)options
 {
     if (self = [super init]) {

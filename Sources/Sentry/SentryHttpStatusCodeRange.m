@@ -4,6 +4,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation SentryHttpStatusCodeRange
 
++ (void)load
+{
+    NSLog(@"%llu %s", clock_gettime_nsec_np(CLOCK_UPTIME_RAW), __PRETTY_FUNCTION__);
+}
+
 - (instancetype)initWithMin:(NSInteger)min max:(NSInteger)max
 {
     if (self = [super init]) {

@@ -10,6 +10,11 @@ NS_ASSUME_NONNULL_BEGIN
 @implementation
 NSData (SentryCompression)
 
++ (void)load
+{
+    NSLog(@"%llu %s", clock_gettime_nsec_np(CLOCK_UPTIME_RAW), __PRETTY_FUNCTION__);
+}
+
 - (NSData *_Nullable)sentry_gzippedWithCompressionLevel:(NSInteger)compressionLevel
                                                   error:(NSError *_Nullable *_Nullable)error
 {

@@ -22,6 +22,11 @@ saveScreenShot(const char *path)
 
 @implementation SentryScreenshotIntegration
 
++ (void)load
+{
+    NSLog(@"%llu %s", clock_gettime_nsec_np(CLOCK_UPTIME_RAW), __PRETTY_FUNCTION__);
+}
+
 - (BOOL)installWithOptions:(nonnull SentryOptions *)options
 {
     if (![super installWithOptions:options]) {

@@ -3,6 +3,11 @@
 
 @implementation SentrySwiftAsyncIntegration
 
++ (void)load
+{
+    NSLog(@"%llu %s", clock_gettime_nsec_np(CLOCK_UPTIME_RAW), __PRETTY_FUNCTION__);
+}
+
 - (BOOL)installWithOptions:(nonnull SentryOptions *)options
 {
     sentrycrashsc_setSwiftAsyncStitching(options.swiftAsyncStacktraces);

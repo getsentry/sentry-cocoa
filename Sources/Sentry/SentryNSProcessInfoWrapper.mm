@@ -22,6 +22,11 @@
 #    define SENTRY_BINARY_EXECUTABLE_PATH NSBundle.mainBundle.executablePath;
 #endif
 
++ (void)load
+{
+    NSLog(@"%llu %s", clock_gettime_nsec_np(CLOCK_UPTIME_RAW), __PRETTY_FUNCTION__);
+}
+
 + (SentryNSProcessInfoWrapper *)shared
 {
     static SentryNSProcessInfoWrapper *instance = nil;

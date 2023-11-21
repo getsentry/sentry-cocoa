@@ -13,6 +13,11 @@ static const auto kSentryDefaultSamplingDecision = kSentrySampleDecisionUndecide
 
 @implementation SentryTransactionContext
 
++ (void)load
+{
+    NSLog(@"%llu %s", clock_gettime_nsec_np(CLOCK_UPTIME_RAW), __PRETTY_FUNCTION__);
+}
+
 #pragma mark - Public
 
 - (instancetype)initWithName:(NSString *)name operation:(NSString *)operation

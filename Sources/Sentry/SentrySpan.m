@@ -44,6 +44,11 @@ SentrySpan ()
 #endif // SENTRY_HAS_UIKIT
 }
 
++ (void)load
+{
+    NSLog(@"%llu %s", clock_gettime_nsec_np(CLOCK_UPTIME_RAW), __PRETTY_FUNCTION__);
+}
+
 - (instancetype)initWithContext:(SentrySpanContext *)context
 #if SENTRY_HAS_UIKIT
                   framesTracker:(nullable SentryFramesTracker *)framesTracker;

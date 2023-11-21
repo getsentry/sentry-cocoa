@@ -30,6 +30,11 @@ SentryWatchdogTerminationTrackingIntegration ()
 
 @implementation SentryWatchdogTerminationTrackingIntegration
 
++ (void)load
+{
+    NSLog(@"%llu %s", clock_gettime_nsec_np(CLOCK_UPTIME_RAW), __PRETTY_FUNCTION__);
+}
+
 - (instancetype)init
 {
     if (self = [super init]) {

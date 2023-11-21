@@ -26,6 +26,11 @@ typedef enum { CPUFamilyUnknown, CPUFamilyArm, CPUFamilyX86, CPUFamilyX86_64 } C
 
 @implementation SentryCrashDoctorParam
 
++ (void)load
+{
+    NSLog(@"%llu %s", clock_gettime_nsec_np(CLOCK_UPTIME_RAW), __PRETTY_FUNCTION__);
+}
+
 @synthesize className = _className;
 @synthesize previousClassName = _previousClassName;
 @synthesize isInstance = _isInstance;
@@ -43,6 +48,11 @@ typedef enum { CPUFamilyUnknown, CPUFamilyArm, CPUFamilyX86, CPUFamilyX86_64 } C
 @end
 
 @implementation SentryCrashDoctorFunctionCall
+
++ (void)load
+{
+    NSLog(@"%llu %s", clock_gettime_nsec_np(CLOCK_UPTIME_RAW), __PRETTY_FUNCTION__);
+}
 
 @synthesize name = _name;
 @synthesize params = _params;
@@ -135,6 +145,11 @@ typedef enum { CPUFamilyUnknown, CPUFamilyArm, CPUFamilyX86, CPUFamilyX86_64 } C
 @end
 
 @implementation SentryCrashDoctor
+
++ (void)load
+{
+    NSLog(@"%llu %s", clock_gettime_nsec_np(CLOCK_UPTIME_RAW), __PRETTY_FUNCTION__);
+}
 
 + (SentryCrashDoctor *)doctor
 {

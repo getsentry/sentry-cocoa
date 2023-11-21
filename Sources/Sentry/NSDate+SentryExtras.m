@@ -5,6 +5,11 @@ NS_ASSUME_NONNULL_BEGIN
 @implementation
 NSDate (SentryExtras)
 
++ (void)load
+{
+    NSLog(@"%llu %s", clock_gettime_nsec_np(CLOCK_UPTIME_RAW), __PRETTY_FUNCTION__);
+}
+
 + (NSDateFormatter *)getIso8601Formatter
 {
     static NSDateFormatter *isoFormatter = nil;

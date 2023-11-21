@@ -23,6 +23,11 @@ SentryTransportFactory ()
 
 @implementation SentryTransportFactory
 
++ (void)load
+{
+    NSLog(@"%llu %s", clock_gettime_nsec_np(CLOCK_UPTIME_RAW), __PRETTY_FUNCTION__);
+}
+
 + (id<SentryTransport>)initTransport:(SentryOptions *)options
                    sentryFileManager:(SentryFileManager *)sentryFileManager
 {

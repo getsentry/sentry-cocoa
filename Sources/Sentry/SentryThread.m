@@ -6,6 +6,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation SentryThread
 
++ (void)load
+{
+    NSLog(@"%llu %s", clock_gettime_nsec_np(CLOCK_UPTIME_RAW), __PRETTY_FUNCTION__);
+}
+
 - (instancetype)initWithThreadId:(NSNumber *)threadId
 {
     self = [super init];

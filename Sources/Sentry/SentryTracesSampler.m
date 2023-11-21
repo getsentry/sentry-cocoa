@@ -9,6 +9,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation SentryTracesSamplerDecision
 
++ (void)load
+{
+    NSLog(@"%llu %s", clock_gettime_nsec_np(CLOCK_UPTIME_RAW), __PRETTY_FUNCTION__);
+}
+
 - (instancetype)initWithDecision:(SentrySampleDecision)decision
                    forSampleRate:(nullable NSNumber *)sampleRate
 {
@@ -23,6 +28,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation SentryTracesSampler {
     SentryOptions *_options;
+}
+
++ (void)load
+{
+    NSLog(@"%llu %s", clock_gettime_nsec_np(CLOCK_UPTIME_RAW), __PRETTY_FUNCTION__);
 }
 
 - (instancetype)initWithOptions:(SentryOptions *)options random:(id<SentryRandom>)random

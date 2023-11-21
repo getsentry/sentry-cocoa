@@ -17,6 +17,11 @@ SentrySwizzleInfo ()
 
 @implementation SentrySwizzleInfo
 
++ (void)load
+{
+    NSLog(@"%llu %s", clock_gettime_nsec_np(CLOCK_UPTIME_RAW), __PRETTY_FUNCTION__);
+}
+
 - (SentrySwizzleOriginalIMP)getOriginalImplementation
 {
     NSAssert(_impProviderBlock, @"_impProviderBlock can't be missing");
@@ -40,6 +45,11 @@ SentrySwizzleInfo ()
 #pragma mark └ SentrySwizzle
 
 @implementation SentrySwizzle
+
++ (void)load
+{
+    NSLog(@"%llu %s", clock_gettime_nsec_np(CLOCK_UPTIME_RAW), __PRETTY_FUNCTION__);
+}
 
 static void
 swizzle(Class classToSwizzle, SEL selector, SentrySwizzleImpFactoryBlock factoryBlock)

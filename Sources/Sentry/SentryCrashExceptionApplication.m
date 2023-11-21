@@ -5,6 +5,11 @@
 
 @implementation SentryCrashExceptionApplication
 
++ (void)load
+{
+    NSLog(@"%llu %s", clock_gettime_nsec_np(CLOCK_UPTIME_RAW), __PRETTY_FUNCTION__);
+}
+
 #if TARGET_OS_OSX
 
 - (void)reportException:(NSException *)exception

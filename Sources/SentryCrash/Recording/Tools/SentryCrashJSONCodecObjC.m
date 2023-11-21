@@ -97,6 +97,11 @@ SentryCrashJSONCodec ()
 
 @implementation SentryCrashJSONCodec
 
++ (void)load
+{
+    NSLog(@"%llu %s", clock_gettime_nsec_np(CLOCK_UPTIME_RAW), __PRETTY_FUNCTION__);
+}
+
 #pragma mark Properties
 
 @synthesize topLevelContainer = _topLevelContainer;

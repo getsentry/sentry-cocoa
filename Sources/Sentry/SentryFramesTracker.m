@@ -56,6 +56,11 @@ slowFrameThreshold(uint64_t actualFramesPerSecond)
     unsigned int _frozenFrames;
 }
 
++ (void)load
+{
+    NSLog(@"%llu %s", clock_gettime_nsec_np(CLOCK_UPTIME_RAW), __PRETTY_FUNCTION__);
+}
+
 - (instancetype)initWithDisplayLinkWrapper:(SentryDisplayLinkWrapper *)displayLinkWrapper
                               dateProvider:(SentryCurrentDateProvider *)dateProvider
                  keepDelayedFramesDuration:(CFTimeInterval)keepDelayedFramesDuration

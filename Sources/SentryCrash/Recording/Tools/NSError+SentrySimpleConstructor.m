@@ -30,6 +30,11 @@
 @implementation
 NSError (SentrySimpleConstructor)
 
++ (void)load
+{
+    NSLog(@"%llu %s", clock_gettime_nsec_np(CLOCK_UPTIME_RAW), __PRETTY_FUNCTION__);
+}
+
 + (NSError *)sentryErrorWithDomain:(NSString *)domain
                               code:(NSInteger)code
                        description:(NSString *)fmt, ...
@@ -80,4 +85,9 @@ NSError (SentrySimpleConstructor)
 @interface sentrycrashobjc_NSError_SimpleConstructor_AOG8G : NSObject
 @end
 @implementation sentrycrashobjc_NSError_SimpleConstructor_AOG8G
+
++ (void)load
+{
+    NSLog(@"%llu %s", clock_gettime_nsec_np(CLOCK_UPTIME_RAW), __PRETTY_FUNCTION__);
+}
 @end

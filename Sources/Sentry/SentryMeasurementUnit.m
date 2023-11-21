@@ -4,6 +4,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation SentryMeasurementUnit
 
++ (void)load
+{
+    NSLog(@"%llu %s", clock_gettime_nsec_np(CLOCK_UPTIME_RAW), __PRETTY_FUNCTION__);
+}
+
 - (instancetype)initWithUnit:(NSString *)unit
 {
     if (self = [super init]) {
@@ -25,6 +30,11 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 @implementation SentryMeasurementUnitDuration
+
++ (void)load
+{
+    NSLog(@"%llu %s", clock_gettime_nsec_np(CLOCK_UPTIME_RAW), __PRETTY_FUNCTION__);
+}
 
 + (SentryMeasurementUnitDuration *)nanosecond
 {
@@ -69,6 +79,11 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 @implementation SentryMeasurementUnitInformation
+
++ (void)load
+{
+    NSLog(@"%llu %s", clock_gettime_nsec_np(CLOCK_UPTIME_RAW), __PRETTY_FUNCTION__);
+}
 
 + (SentryMeasurementUnitInformation *)bit
 {
@@ -143,6 +158,11 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 @implementation SentryMeasurementUnitFraction
+
++ (void)load
+{
+    NSLog(@"%llu %s", clock_gettime_nsec_np(CLOCK_UPTIME_RAW), __PRETTY_FUNCTION__);
+}
 
 + (SentryMeasurementUnitFraction *)ratio
 {

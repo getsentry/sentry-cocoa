@@ -4,6 +4,11 @@
 
 @implementation SentryDispatchFactory
 
++ (void)load
+{
+    NSLog(@"%llu %s", clock_gettime_nsec_np(CLOCK_UPTIME_RAW), __PRETTY_FUNCTION__);
+}
+
 - (SentryDispatchQueueWrapper *)queueWithName:(const char *)name
                                    attributes:(dispatch_queue_attr_t)attributes
 {

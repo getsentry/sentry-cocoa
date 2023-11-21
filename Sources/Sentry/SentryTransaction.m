@@ -15,6 +15,11 @@ SentryTransaction ()
 
 @implementation SentryTransaction
 
++ (void)load
+{
+    NSLog(@"%llu %s", clock_gettime_nsec_np(CLOCK_UPTIME_RAW), __PRETTY_FUNCTION__);
+}
+
 - (instancetype)initWithTrace:(SentryTracer *)trace children:(NSArray<id<SentrySpan>> *)children
 {
     if (self = [super init]) {

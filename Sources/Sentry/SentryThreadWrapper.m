@@ -5,6 +5,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation SentryThreadWrapper
 
++ (void)load
+{
+    NSLog(@"%llu %s", clock_gettime_nsec_np(CLOCK_UPTIME_RAW), __PRETTY_FUNCTION__);
+}
+
 - (void)sleepForTimeInterval:(NSTimeInterval)timeInterval
 {
     [NSThread sleepForTimeInterval:timeInterval];
