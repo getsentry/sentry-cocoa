@@ -1,4 +1,4 @@
-#import <Foundation/Foundation.h>
+#import "SentryDefines.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -7,7 +7,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 
 NS_SWIFT_NAME(SpanId)
-@interface SentrySpanId : NSObject <NSCopying>
+@interface SentrySpanId : SENTRY_BASE_OBJECT <NSCopying>
 
 /**
  * Creates a SentrySpanId with a random 16 character Id.

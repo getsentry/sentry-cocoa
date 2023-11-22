@@ -13,7 +13,7 @@
 
 typedef enum { CPUFamilyUnknown, CPUFamilyArm, CPUFamilyX86, CPUFamilyX86_64 } CPUFamily;
 
-@interface SentryCrashDoctorParam : NSObject
+@interface SentryCrashDoctorParam : SENTRY_BASE_OBJECT
 
 @property (nonatomic, readwrite, retain) NSString *className;
 @property (nonatomic, readwrite, retain) NSString *previousClassName;
@@ -40,7 +40,7 @@ typedef enum { CPUFamilyUnknown, CPUFamilyArm, CPUFamilyX86, CPUFamilyX86_64 } C
 
 @end
 
-@interface SentryCrashDoctorFunctionCall : NSObject
+@interface SentryCrashDoctorFunctionCall : SENTRY_BASE_OBJECT
 
 @property (nonatomic, readwrite, retain) NSString *name;
 @property (nonatomic, readwrite, retain) NSArray *params;

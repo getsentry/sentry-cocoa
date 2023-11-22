@@ -55,7 +55,7 @@ crashCallback(const SentryCrashReportWriter *writer)
     }
 }
 
-@interface SentryCrashInstReportField : NSObject
+@interface SentryCrashInstReportField : SENTRY_BASE_OBJECT
 
 @property (nonatomic, readonly, assign) int index;
 @property (nonatomic, readonly, assign) ReportField *field;

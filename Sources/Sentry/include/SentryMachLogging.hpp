@@ -1,6 +1,5 @@
 #pragma once
 
-#include "SentryProfilingConditionals.h"
 #include "SentryProfilingLogging.hpp"
 #include <mach/kern_return.h>
 #include <mach/message.h>

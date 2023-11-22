@@ -6,7 +6,7 @@ NS_ASSUME_NONNULL_BEGIN
  * An HTTP status code range.
  */
 NS_SWIFT_NAME(HttpStatusCodeRange)
-@interface SentryHttpStatusCodeRange : NSObject
+@interface SentryHttpStatusCodeRange : SENTRY_BASE_OBJECT
 SENTRY_NO_INIT
 
 @property (nonatomic, readonly) NSInteger min;

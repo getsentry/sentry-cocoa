@@ -4,13 +4,13 @@
 #    import "PrivatesHeader.h"
 #endif
 
-#import <Foundation/Foundation.h>
+#import "SentryDefines.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 @class SentryNSTimerFactory, SentryDispatchQueueWrapper, SentryProfilesSamplerDecision;
 
-@interface SentryTracerConfiguration : NSObject
+@interface SentryTracerConfiguration : SENTRY_BASE_OBJECT
 
 /**
  * Return an instance of SentryTracerConfiguration with default values.

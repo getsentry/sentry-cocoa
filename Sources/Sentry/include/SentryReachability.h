@@ -25,7 +25,6 @@
 //
 
 #import "SentryDefines.h"
-#import <Foundation/Foundation.h>
 
 #if !TARGET_OS_WATCH
 #    import <SystemConfiguration/SystemConfiguration.h>
@@ -66,7 +65,7 @@ SENTRY_EXTERN NSString *const SentryConnectivityNone;
  * Monitors network connectivity using @c SCNetworkReachability callbacks,
  * providing a customizable callback block invoked when connectivity changes.
  */
-@interface SentryReachability : NSObject
+@interface SentryReachability : SENTRY_BASE_OBJECT
 
 #    if TEST || TESTCI
 

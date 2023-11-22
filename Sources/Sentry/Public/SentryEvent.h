@@ -1,5 +1,3 @@
-#import <Foundation/Foundation.h>
-
 #import "SentryDefines.h"
 #import "SentrySerializable.h"
 
@@ -9,7 +7,7 @@ NS_ASSUME_NONNULL_BEGIN
     SentryBreadcrumb, SentryId, SentryMessage, SentryRequest;
 
 NS_SWIFT_NAME(Event)
-@interface SentryEvent : NSObject <SentrySerializable>
+@interface SentryEvent : SENTRY_BASE_OBJECT <SentrySerializable>
 
 /**
  * This will be set by the initializer.

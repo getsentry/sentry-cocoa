@@ -7,7 +7,7 @@ NS_ASSUME_NONNULL_BEGIN
  * You can use an attachment to store additional files alongside an event.
  */
 NS_SWIFT_NAME(Attachment)
-@interface SentryAttachment : NSObject
+@interface SentryAttachment : SENTRY_BASE_OBJECT
 SENTRY_NO_INIT
 
 /**

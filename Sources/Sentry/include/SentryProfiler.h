@@ -1,7 +1,6 @@
 #import "SentryCompiler.h"
-#import "SentryProfilingConditionals.h"
+#import "SentryDefines.h"
 #import "SentrySpan.h"
-#import <Foundation/Foundation.h>
 
 @class SentryEnvelopeItem;
 #if SENTRY_HAS_UIKIT
@@ -43,7 +42,7 @@ SENTRY_EXTERN_C_END
  * @warning A main assumption is that profile start/stop must be contained within range of time of
  * the first concurrent transaction's start time and last one's end time.
  */
-@interface SentryProfiler : NSObject
+@interface SentryProfiler : SENTRY_BASE_OBJECT
 
 @property (strong, nonatomic) SentryId *profilerId;
 

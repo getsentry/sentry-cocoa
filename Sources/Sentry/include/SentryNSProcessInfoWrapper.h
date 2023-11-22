@@ -1,8 +1,8 @@
-#import <Foundation/Foundation.h>
+#import "SentryDefines.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SentryNSProcessInfoWrapper : NSObject
+@interface SentryNSProcessInfoWrapper : SENTRY_BASE_OBJECT
 
 @property (nonatomic, readonly) NSString *processDirectoryPath;
 @property (nullable, nonatomic, readonly) NSString *processPath;

@@ -1,12 +1,11 @@
 #import "SentryDefines.h"
-#import "SentryProfilingConditionals.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 @class SentryDsn, SentryMeasurementValue, SentryHttpStatusCodeRange, SentryScope;
 
 NS_SWIFT_NAME(Options)
-@interface SentryOptions : NSObject
+@interface SentryOptions : SENTRY_BASE_OBJECT
 
 /**
  * The DSN tells the SDK where to send the events to. If this value is not provided, the SDK will

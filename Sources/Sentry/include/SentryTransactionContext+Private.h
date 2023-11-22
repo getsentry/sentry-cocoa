@@ -1,4 +1,4 @@
-#include "SentryProfilingConditionals.h"
+#include "SentryDefines.h"
 #import "SentryTransactionContext.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -42,7 +42,7 @@ SentryTransactionContext ()
 @property (nonatomic, strong) SentryThread *threadInfo;
 
 - (SentryThread *)sentry_threadInfo;
-#endif
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
 @end
 

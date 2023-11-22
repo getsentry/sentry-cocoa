@@ -1,5 +1,4 @@
 #import "SentryDefines.h"
-#import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -15,7 +14,7 @@ typedef mach_vm_size_t SentryRAMBytes;
  * A wrapper around low-level system APIs that are found in headers such as @c <sys/...> and
  * @c <mach/...>.
  */
-@interface SentrySystemWrapper : NSObject
+@interface SentrySystemWrapper : SENTRY_BASE_OBJECT
 
 - (SentryRAMBytes)memoryFootprintBytes:(NSError **)error;
 

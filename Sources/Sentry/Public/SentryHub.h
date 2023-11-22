@@ -6,7 +6,7 @@
     SentryUserFeedback, SentryTransactionContext;
 
 NS_ASSUME_NONNULL_BEGIN
-@interface SentryHub : NSObject
+@interface SentryHub : SENTRY_BASE_OBJECT
 SENTRY_NO_INIT
 
 - (instancetype)initWithClient:(SentryClient *_Nullable)client

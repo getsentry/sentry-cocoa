@@ -1,5 +1,4 @@
 #import "SentryDefines.h"
-#import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -27,7 +26,7 @@ NS_ASSUME_NONNULL_BEGIN
  * /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS.simruntime/Contents/Resources/RuntimeRoot/System/Library/...
  *
  */
-@interface SentryInAppLogic : NSObject
+@interface SentryInAppLogic : SENTRY_BASE_OBJECT
 SENTRY_NO_INIT
 
 @property (nonnull, readonly) NSArray<NSString *> *inAppIncludes;

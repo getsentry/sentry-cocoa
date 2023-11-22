@@ -1,11 +1,11 @@
-#import <Foundation/Foundation.h>
+#import "SentryDefines.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 /**
  * A wrapper around NSThread functions for testability.
  */
-@interface SentryThreadWrapper : NSObject
+@interface SentryThreadWrapper : SENTRY_BASE_OBJECT
 
 - (void)sleepForTimeInterval:(NSTimeInterval)timeInterval;
 

@@ -1,8 +1,8 @@
-#import <Foundation/Foundation.h>
+#import "SentryDefines.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SentryBinaryImageInfo : NSObject
+@interface SentryBinaryImageInfo : SENTRY_BASE_OBJECT
 @property (nonatomic, strong) NSString *name;
 @property (nonatomic) uint64_t address;
 @property (nonatomic) uint64_t size;
@@ -13,7 +13,7 @@ NS_ASSUME_NONNULL_BEGIN
  * information in a sorted collection that will be used to symbolicate frames with better
  * performance.
  */
-@interface SentryBinaryImageCache : NSObject
+@interface SentryBinaryImageCache : SENTRY_BASE_OBJECT
 
 - (void)start;
 

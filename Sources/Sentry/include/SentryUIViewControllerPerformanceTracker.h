@@ -24,7 +24,7 @@ static NSString *const SENTRY_UI_PERFORMANCE_TRACKER_TTD_TRACKER
  * Class responsible to track UI performance.
  * This class is intended to be used in a swizzled context.
  */
-@interface SentryUIViewControllerPerformanceTracker : NSObject
+@interface SentryUIViewControllerPerformanceTracker : SENTRY_BASE_OBJECT
 
 @property (nonatomic, readonly, class) SentryUIViewControllerPerformanceTracker *shared;
 

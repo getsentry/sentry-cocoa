@@ -14,7 +14,7 @@ typedef NS_ENUM(NSUInteger, SentryAppStartType) {
  * @warning This feature is not available in @c Debug_without_UIKit and @c Release_without_UIKit
  * configurations even when targeting iOS or tvOS platforms.
  */
-@interface SentryAppStartMeasurement : NSObject
+@interface SentryAppStartMeasurement : SENTRY_BASE_OBJECT
 SENTRY_NO_INIT
 
 /**

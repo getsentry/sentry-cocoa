@@ -13,7 +13,7 @@ NS_ASSUME_NONNULL_BEGIN
  * SentryTransport. It is a layer between the SentryClient and the transport to keep the
  * SentryClient small and make testing easier for the SentryClient.
  */
-@interface SentryTransportAdapter : NSObject
+@interface SentryTransportAdapter : SENTRY_BASE_OBJECT
 SENTRY_NO_INIT
 
 - (instancetype)initWithTransport:(id<SentryTransport>)transport options:(SentryOptions *)options;

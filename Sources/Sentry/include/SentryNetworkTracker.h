@@ -1,4 +1,4 @@
-#import <Foundation/Foundation.h>
+#import "SentryDefines.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -9,7 +9,7 @@ static NSString *const SENTRY_NETWORK_REQUEST_TRACKER_SPAN = @"SENTRY_NETWORK_RE
 static NSString *const SENTRY_NETWORK_REQUEST_TRACKER_BREADCRUMB
     = @"SENTRY_NETWORK_REQUEST_TRACKER_BREADCRUMB";
 
-@interface SentryNetworkTracker : NSObject
+@interface SentryNetworkTracker : SENTRY_BASE_OBJECT
 
 @property (class, readonly, nonatomic) SentryNetworkTracker *sharedInstance;
 

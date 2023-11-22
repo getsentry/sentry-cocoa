@@ -1,12 +1,11 @@
 #import "SentryDefines.h"
-#import <Foundation/Foundation.h>
 
 @class SentryCrashWrapper, SentryDispatchQueueWrapper;
 #if SENTRY_HAS_UIKIT
 @class SentryWatchdogTerminationLogic;
 #endif // SENTRY_HAS_UIKIT
 
-@interface SentrySessionCrashedHandler : NSObject
+@interface SentrySessionCrashedHandler : SENTRY_BASE_OBJECT
 
 #if SENTRY_HAS_UIKIT
 - (instancetype)initWithCrashWrapper:(SentryCrashWrapper *)crashWrapper

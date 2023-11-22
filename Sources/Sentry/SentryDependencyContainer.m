@@ -8,6 +8,7 @@
 #import "SentryLog.h"
 #import "SentryNSProcessInfoWrapper.h"
 #import "SentryNSTimerFactory.h"
+#import "SentryOptions.h"
 #import "SentryRandom.h"
 #import "SentrySysctl.h"
 #import "SentrySystemWrapper.h"

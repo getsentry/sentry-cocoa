@@ -1,6 +1,4 @@
 #import "SentryDefines.h"
-#import "SentryProfilingConditionals.h"
-#import <Foundation/Foundation.h>
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
@@ -39,7 +37,7 @@ typedef NSDictionary<NSString *, id /* <NSString, NSArray<SentrySerializedMetric
  * A profiler that gathers various time-series and event-based metrics on the app process, such as
  * CPU and memory usage timeseries and thermal and memory pressure warning notifications.
  */
-@interface SentryMetricProfiler : NSObject
+@interface SentryMetricProfiler : SENTRY_BASE_OBJECT
 
 - (void)start;
 /** Record a metrics sample. Helps ensure full metric coverage for concurrent spans. */

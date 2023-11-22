@@ -1,10 +1,10 @@
-#import <Foundation/Foundation.h>
+#import "SentryDefines.h"
 
 @class SentryFrame;
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SentryFrameRemover : NSObject
+@interface SentryFrameRemover : SENTRY_BASE_OBJECT
 
 /**
  * Removes Sentry SDK frames until a frame from a different package is found.

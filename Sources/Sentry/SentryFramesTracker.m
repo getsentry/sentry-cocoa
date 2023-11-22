@@ -9,7 +9,6 @@
 #    import "SentryDisplayLinkWrapper.h"
 #    import "SentryLog.h"
 #    import "SentryProfiler.h"
-#    import "SentryProfilingConditionals.h"
 #    import "SentryTime.h"
 #    import "SentryTracer.h"
 #    import <SentryScreenFrames.h>

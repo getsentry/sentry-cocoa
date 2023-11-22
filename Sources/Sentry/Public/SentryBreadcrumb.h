@@ -1,4 +1,4 @@
-#import <Foundation/Foundation.h>
+#import "SentryDefines.h"
 
 #import "SentryDefines.h"
 #import "SentrySerializable.h"
@@ -6,7 +6,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 NS_SWIFT_NAME(Breadcrumb)
-@interface SentryBreadcrumb : NSObject <SentrySerializable>
+@interface SentryBreadcrumb : SENTRY_BASE_OBJECT <SentrySerializable>
 
 /**
  * Level of breadcrumb

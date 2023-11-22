@@ -6,7 +6,7 @@ typedef SentryEvent *__nullable (^SentryEventProcessor)(SentryEvent *_Nonnull ev
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SentryGlobalEventProcessor : NSObject
+@interface SentryGlobalEventProcessor : SENTRY_BASE_OBJECT
 SENTRY_NO_INIT
 
 @property (nonatomic, strong) NSMutableArray<SentryEventProcessor> *processors;

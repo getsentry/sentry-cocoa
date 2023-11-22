@@ -1,4 +1,4 @@
-#import <Foundation/Foundation.h>
+#import "SentryDefines.h"
 
 #pragma mark - Macros Based API
 
@@ -137,7 +137,7 @@ typedef void (*SentrySwizzleOriginalIMP)(void /* id, SEL, ... */);
  * @c SentrySwizzleInfo is used in the new implementation block to get and call
  * original implementation of the swizzled method.
  */
-@interface SentrySwizzleInfo : NSObject
+@interface SentrySwizzleInfo : SENTRY_BASE_OBJECT
 
 /**
  * Returns the original implementation of the swizzled method.
@@ -205,7 +205,7 @@ typedef NS_ENUM(NSUInteger, SentrySwizzleMode) {
     SentrySwizzleModeOncePerClassAndSuperclasses = 2
 };
 
-@interface SentrySwizzle : NSObject
+@interface SentrySwizzle : SENTRY_BASE_OBJECT
 
 #pragma mark └ Swizzle Instance Method
 

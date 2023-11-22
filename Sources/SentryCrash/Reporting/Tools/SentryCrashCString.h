@@ -25,12 +25,12 @@
 // THE SOFTWARE.
 //
 
-#import <Foundation/Foundation.h>
+#import "SentryDefines.h"
 
 /**
  * A string, stored C style with null termination.
  */
-@interface SentryCrashCString : NSObject
+@interface SentryCrashCString : SENTRY_BASE_OBJECT
 
 /** Length of the string in bytes (not characters!). Length does not include
  * null terminator. */

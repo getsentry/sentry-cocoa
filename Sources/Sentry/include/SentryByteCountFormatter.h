@@ -1,4 +1,4 @@
-#import <Foundation/Foundation.h>
+#import "SentryDefines.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -8,7 +8,7 @@ NS_ASSUME_NONNULL_BEGIN
  * and the result changes according to the device configuration.
  * With our own formatter we can control the result.
  */
-@interface SentryByteCountFormatter : NSObject
+@interface SentryByteCountFormatter : SENTRY_BASE_OBJECT
 
 + (NSString *)bytesCountDescription:(unsigned long)bytes;
 

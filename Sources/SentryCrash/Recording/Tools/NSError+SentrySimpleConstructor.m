@@ -82,7 +82,7 @@ NSError (SentrySimpleConstructor)
 
 @end
 
-@interface sentrycrashobjc_NSError_SimpleConstructor_AOG8G : NSObject
+@interface sentrycrashobjc_NSError_SimpleConstructor_AOG8G : SENTRY_BASE_OBJECT
 @end
 @implementation sentrycrashobjc_NSError_SimpleConstructor_AOG8G
 

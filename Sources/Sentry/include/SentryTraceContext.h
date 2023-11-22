@@ -1,20 +1,17 @@
+#import "SentryDefines.h"
+
 #if __has_include(<Sentry/SentrySerializable.h>)
 #    import <Sentry/SentrySerializable.h>
 #else
 #    import "SentrySerializable.h"
 #endif
 
-#if __has_include(<Sentry/SentryId.h>)
-#    import <Sentry/SentryId.h>
-#else
-#    import "SentryId.h"
-#endif
-
 NS_ASSUME_NONNULL_BEGIN
 
-@class SentryScope, SentryOptions, SentryTracer, SentryUser, SentryBaggage;
+@protocol SentrySerializable;
+@class SentryId, SentryScope, SentryOptions, SentryTracer, SentryUser, SentryBaggage;
 
-@interface SentryTraceContext : NSObject <SentrySerializable>
+@interface SentryTraceContext : SENTRY_BASE_OBJECT <SentrySerializable>
 
 /**
  * UUID V4 encoded as a hexadecimal sequence with no dashes (e.g. 771a43a4192642f0b136d5159a501700)

@@ -1,5 +1,5 @@
+#import "SentryDefines.h"
 #import "SentryRateLimits.h"
-#import <Foundation/Foundation.h>
 
 @protocol SentryEnvelopeRateLimitDelegate;
 
@@ -8,7 +8,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 NS_SWIFT_NAME(EnvelopeRateLimit)
-@interface SentryEnvelopeRateLimit : NSObject
+@interface SentryEnvelopeRateLimit : SENTRY_BASE_OBJECT
 
 - (instancetype)initWithRateLimits:(id<SentryRateLimits>)sentryRateLimits;
 

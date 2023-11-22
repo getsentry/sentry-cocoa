@@ -38,6 +38,19 @@
 #    define SENTRY_HAS_METRIC_KIT 0
 #endif
 
+#if __has_include(<Sentry/SentryProfilingConditionals.h>)
+#    import <Sentry/SentryProfilingConditionals.h>
+#else
+#    import "SentryProfilingConditionals.h"
+#endif
+
+#if SENTRY_TARGET_PROFILING_SUPPORTED
+#    import "SentryBaseObject.h"
+#    define SENTRY_BASE_OBJECT SentryBaseObject
+#else
+#    define SENTRY_BASE_OBJECT NSObject
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED
+
 #define SENTRY_NO_INIT                                                                             \
     -(instancetype)init NS_UNAVAILABLE;                                                            \
     +(instancetype) new NS_UNAVAILABLE;

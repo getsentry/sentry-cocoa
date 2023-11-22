@@ -4,7 +4,7 @@
 /**
  * A wrapper around the objc runtime functions for testability.
  */
-@interface SentryDefaultObjCRuntimeWrapper : NSObject <SentryObjCRuntimeWrapper>
+@interface SentryDefaultObjCRuntimeWrapper : SENTRY_BASE_OBJECT <SentryObjCRuntimeWrapper>
 SENTRY_NO_INIT
 
 + (instancetype)sharedInstance;

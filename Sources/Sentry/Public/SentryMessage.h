@@ -1,6 +1,5 @@
 #import "SentryDefines.h"
 #import "SentrySerializable.h"
-#import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -9,7 +8,7 @@ NS_ASSUME_NONNULL_BEGIN
  * and structured parameters. This can help to group similar messages into the same issue.
  * @see https://develop.sentry.dev/sdk/event-payloads/message/
  */
-@interface SentryMessage : NSObject <SentrySerializable>
+@interface SentryMessage : SENTRY_BASE_OBJECT <SentrySerializable>
 SENTRY_NO_INIT
 
 /**

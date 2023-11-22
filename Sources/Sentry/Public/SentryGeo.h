@@ -1,6 +1,5 @@
 #import "SentryDefines.h"
 #import "SentrySerializable.h"
-#import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -15,7 +14,7 @@ NS_ASSUME_NONNULL_BEGIN
 ///   }
 /// }
 NS_SWIFT_NAME(Geo)
-@interface SentryGeo : NSObject <SentrySerializable, NSCopying>
+@interface SentryGeo : SENTRY_BASE_OBJECT <SentrySerializable, NSCopying>
 
 /**
  * Optional: Human readable city name.

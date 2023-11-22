@@ -1,11 +1,11 @@
-#import <Foundation/Foundation.h>
+#import "SentryDefines.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 @class SentryTransactionContext;
 
 NS_SWIFT_NAME(SamplingContext)
-@interface SentrySamplingContext : NSObject
+@interface SentrySamplingContext : SENTRY_BASE_OBJECT
 
 /**
  * Transaction context.

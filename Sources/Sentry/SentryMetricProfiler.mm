@@ -19,7 +19,7 @@
  * A storage class for metric readings, with one property for the reading value itself, whether it
  * be bytes of memory, % CPU etc, and another for the absolute system time it was recorded at.
  */
-@interface SentryMetricReading : NSObject
+@interface SentryMetricReading : SENTRY_BASE_OBJECT
 @property (strong, nonatomic) NSNumber *value;
 @property (assign, nonatomic) uint64_t absoluteTimestamp;
 @end

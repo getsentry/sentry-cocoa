@@ -3,7 +3,6 @@
 #endif // !TARGET_OS_WATCH
 
 #import "SentryDefines.h"
-#import "SentryProfilingConditionals.h"
 
 #if SENTRY_HAS_METRIC_KIT
 #    import "SentryMetricKitIntegration.h"

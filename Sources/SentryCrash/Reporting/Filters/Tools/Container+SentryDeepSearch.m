@@ -26,6 +26,7 @@
 //
 
 #import "Container+SentryDeepSearch.h"
+#import "SentryDefines.h"
 
 #pragma mark - Base functionality
 
@@ -256,7 +257,7 @@ NSArray (DeepSearch)
 
 @end
 
-@interface sentrycrashobjc_DeepSearchP5EM1B9 : NSObject
+@interface sentrycrashobjc_DeepSearchP5EM1B9 : SENTRY_BASE_OBJECT
 @end
 @implementation sentrycrashobjc_DeepSearchP5EM1B9
 

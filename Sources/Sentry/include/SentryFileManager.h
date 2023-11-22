@@ -14,7 +14,7 @@ NS_ASSUME_NONNULL_BEGIN
 @class SentrySession;
 
 NS_SWIFT_NAME(SentryFileManager)
-@interface SentryFileManager : NSObject
+@interface SentryFileManager : SENTRY_BASE_OBJECT
 SENTRY_NO_INIT
 
 @property (nonatomic, readonly) NSString *sentryPath;

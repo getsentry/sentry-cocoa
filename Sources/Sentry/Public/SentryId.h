@@ -1,4 +1,4 @@
-#import <Foundation/Foundation.h>
+#import "SentryDefines.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -9,7 +9,7 @@ NS_ASSUME_NONNULL_BEGIN
  * "12c2d058-d584-4270-9aa2-eca08bf20986".
  * @note It is recommended to omit dashes and use UUID v4 in cases.
  */
-@interface SentryId : NSObject
+@interface SentryId : SENTRY_BASE_OBJECT
 
 /**
  * Creates a @c SentryId with a random UUID.

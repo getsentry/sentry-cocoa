@@ -19,7 +19,7 @@ NS_ASSUME_NONNULL_BEGIN
  * seconds, and it executes all events in time. Instead, what matters is how long the main thread
  * needs to execute a newly added event to the run loop.
  */
-@interface SentryANRTracker : NSObject
+@interface SentryANRTracker : SENTRY_BASE_OBJECT
 SENTRY_NO_INIT
 
 - (instancetype)initWithTimeoutInterval:(NSTimeInterval)timeoutInterval

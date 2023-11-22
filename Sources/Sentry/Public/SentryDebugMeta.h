@@ -1,4 +1,4 @@
-#import <Foundation/Foundation.h>
+#import "SentryDefines.h"
 
 #import "SentrySerializable.h"
 
@@ -14,7 +14,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @c SentryDebugImage in a future version.
  */
 NS_SWIFT_NAME(DebugMeta)
-@interface SentryDebugMeta : NSObject <SentrySerializable>
+@interface SentryDebugMeta : SENTRY_BASE_OBJECT <SentrySerializable>
 
 /**
  * The UUID of the image. Use @c debugID when using "macho" as the @c type .

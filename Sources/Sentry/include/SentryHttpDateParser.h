@@ -1,4 +1,4 @@
-#import <Foundation/Foundation.h>
+#import "SentryDefines.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -8,7 +8,7 @@ NS_ASSUME_NONNULL_BEGIN
  * SentryHttpDateParser is thread safe.
  */
 NS_SWIFT_NAME(HttpDateParser)
-@interface SentryHttpDateParser : NSObject
+@interface SentryHttpDateParser : SENTRY_BASE_OBJECT
 
 - (NSDate *_Nullable)dateFromString:(NSString *)string;
 

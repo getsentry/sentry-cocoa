@@ -1,5 +1,4 @@
-#import "SentryProfilingConditionals.h"
-#import <Foundation/Foundation.h>
+#import "SentryDefines.h"
 
 /*
  * This file should not contain any C++ interfaces so it can be used from Swift tests. See
@@ -25,7 +24,7 @@ NSString *parseBacktraceSymbolsFunctionName(const char *symbol);
 
 @class SentrySample;
 
-@interface SentryProfilerMutableState : NSObject
+@interface SentryProfilerMutableState : SENTRY_BASE_OBJECT
 @property (nonatomic, strong, readonly) NSMutableArray<SentrySample *> *samples;
 @property (nonatomic, strong, readonly) NSMutableArray<NSArray<NSNumber *> *> *stacks;
 @property (nonatomic, strong, readonly) NSMutableArray<NSDictionary<NSString *, id> *> *frames;
@@ -74,7 +73,7 @@ NSString *parseBacktraceSymbolsFunctionName(const char *symbol);
     NSMutableDictionary<NSString *, NSNumber *> *stackIndexLookup;
 @end
 
-@interface SentryProfilerState : NSObject
+@interface SentryProfilerState : SENTRY_BASE_OBJECT
 // All functions are safe to call from multiple threads concurrently
 - (void)mutate:(void (^)(SentryProfilerMutableState *))block;
 - (NSDictionary<NSString *, id> *)copyProfilingData;

@@ -25,7 +25,7 @@
 // THE SOFTWARE.
 //
 
-#import <Foundation/Foundation.h>
+#import "SentryDefines.h"
 
 /**
  * Simpler interface for constructing NSError objects.

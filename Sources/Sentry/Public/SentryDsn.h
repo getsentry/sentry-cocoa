@@ -1,8 +1,8 @@
-#import <Foundation/Foundation.h>
+#import "SentryDefines.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SentryDsn : NSObject
+@interface SentryDsn : SENTRY_BASE_OBJECT
 
 @property (nonatomic, strong, readonly) NSURL *url;
 

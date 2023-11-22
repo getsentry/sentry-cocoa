@@ -1,4 +1,4 @@
-#import <Foundation/Foundation.h>
+#import "SentryDefines.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -7,7 +7,7 @@ NS_ASSUME_NONNULL_BEGIN
  * This class is used for CoreData and omits variable values
  * and doesn't convert CoreData unsupported instructions.
  */
-@interface SentryPredicateDescriptor : NSObject
+@interface SentryPredicateDescriptor : SENTRY_BASE_OBJECT
 
 - (NSString *)predicateDescription:(NSPredicate *)predicate;
 

@@ -1,11 +1,11 @@
-#import <Foundation/Foundation.h>
+#import "SentryDefines.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 /**
  * A wrapper around DispatchQueue functions for testability.
  */
-@interface SentryDispatchQueueWrapper : NSObject
+@interface SentryDispatchQueueWrapper : SENTRY_BASE_OBJECT
 
 @property (strong, nonatomic) dispatch_queue_t queue;
 

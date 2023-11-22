@@ -1,12 +1,11 @@
 #import "SentryDefines.h"
 #import "SentryObjCRuntimeWrapper.h"
-#import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
 @class SentryDispatchQueueWrapper, SentryDefaultObjCRuntimeWrapper;
 
-@interface SentrySubClassFinder : NSObject
+@interface SentrySubClassFinder : SENTRY_BASE_OBJECT
 SENTRY_NO_INIT
 
 - (instancetype)initWithDispatchQueue:(SentryDispatchQueueWrapper *)dispatchQueue

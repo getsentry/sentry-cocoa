@@ -2,7 +2,6 @@
 #import "SentryCrashStackCursor.h"
 #include "SentryCrashThread.h"
 #import "SentryDefines.h"
-#import <Foundation/Foundation.h>
 
 @class SentryStacktrace, SentryFrameRemover, SentryCrashStackEntryMapper;
 
@@ -10,7 +9,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /** Uses SentryCrash internally to retrieve the stacktrace.
  */
-@interface SentryStacktraceBuilder : NSObject
+@interface SentryStacktraceBuilder : SENTRY_BASE_OBJECT
 SENTRY_NO_INIT
 
 /**

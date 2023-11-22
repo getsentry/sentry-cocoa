@@ -9,7 +9,7 @@ NS_ASSUME_NONNULL_BEGIN
  * Adds additional information about what happened to an event.
  */
 NS_SWIFT_NAME(UserFeedback)
-@interface SentryUserFeedback : NSObject <SentrySerializable>
+@interface SentryUserFeedback : SENTRY_BASE_OBJECT <SentrySerializable>
 SENTRY_NO_INIT
 
 /**

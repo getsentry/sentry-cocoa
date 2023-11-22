@@ -4,14 +4,13 @@
 #import "SentryRateLimits.h"
 #import "SentryRequestManager.h"
 #import "SentryTransport.h"
-#import <Foundation/Foundation.h>
 
 @class SentryOptions, SentryDispatchQueueWrapper, SentryNSURLRequestBuilder;
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SentryHttpTransport
-    : NSObject <SentryTransport, SentryEnvelopeRateLimitDelegate, SentryFileManagerDelegate>
+@interface SentryHttpTransport : SENTRY_BASE_OBJECT <SentryTransport,
+                                     SentryEnvelopeRateLimitDelegate, SentryFileManagerDelegate>
 SENTRY_NO_INIT
 
 - (id)initWithOptions:(SentryOptions *)options

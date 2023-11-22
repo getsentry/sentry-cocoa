@@ -1,4 +1,4 @@
-#import <Foundation/Foundation.h>
+#import "SentryDefines.h"
 
 #import "SentryDefines.h"
 #import "SentrySerializable.h"
@@ -7,7 +7,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @class SentryFrame;
 
-@interface SentryStacktrace : NSObject <SentrySerializable>
+@interface SentryStacktrace : SENTRY_BASE_OBJECT <SentrySerializable>
 SENTRY_NO_INIT
 
 /**

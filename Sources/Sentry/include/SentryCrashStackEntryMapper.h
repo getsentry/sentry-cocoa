@@ -1,13 +1,12 @@
 #import "SentryCrashDynamicLinker.h"
 #import "SentryCrashStackCursor.h"
 #import "SentryDefines.h"
-#import <Foundation/Foundation.h>
 
 @class SentryFrame, SentryInAppLogic;
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SentryCrashStackEntryMapper : NSObject
+@interface SentryCrashStackEntryMapper : SENTRY_BASE_OBJECT
 SENTRY_NO_INIT
 
 - (instancetype)initWithInAppLogic:(SentryInAppLogic *)inAppLogic;

@@ -1,19 +1,11 @@
 #import "PrivatesHeader.h"
 
-#if COCOAPODS
-@class SentrySdkInfo, SentryTraceContext;
-#else
-#    import "SentrySdkInfo.h"
-#    import "SentryTraceContext.h"
-
-#endif
-
-@class SentryEvent, SentrySession, SentryId, SentryUserFeedback, SentryAttachment,
-    SentryTransaction, SentryClientReport, SentryEnvelopeItemHeader;
+@class SentrySdkInfo, SentryTraceContext, SentryEvent, SentrySession, SentryId, SentryUserFeedback,
+    SentryAttachment, SentryTransaction, SentryClientReport, SentryEnvelopeItemHeader;
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SentryEnvelopeHeader : NSObject
+@interface SentryEnvelopeHeader : SENTRY_BASE_OBJECT
 SENTRY_NO_INIT
 
 /**
@@ -70,7 +62,7 @@ SENTRY_NO_INIT
 
 @end
 
-@interface SentryEnvelopeItem : NSObject
+@interface SentryEnvelopeItem : SENTRY_BASE_OBJECT
 SENTRY_NO_INIT
 
 - (instancetype)initWithEvent:(SentryEvent *)event;
@@ -93,7 +85,7 @@ SENTRY_NO_INIT
 
 @end
 
-@interface SentryEnvelope : NSObject
+@interface SentryEnvelope : SENTRY_BASE_OBJECT
 SENTRY_NO_INIT
 
 // If no event, or no data related to event, id will be null

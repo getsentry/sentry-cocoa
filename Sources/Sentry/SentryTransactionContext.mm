@@ -1,6 +1,6 @@
 #import "SentryTransactionContext.h"
+#include "SentryDefines.h"
 #import "SentryLog.h"
-#include "SentryProfilingConditionals.h"
 #import "SentrySpanContext+Private.h"
 #import "SentryThread.h"
 #include "SentryThreadHandle.hpp"
@@ -131,7 +131,7 @@ static const auto kSentryDefaultSamplingDecision = kSentrySampleDecisionUndecide
 #if SENTRY_TARGET_PROFILING_SUPPORTED
     const auto threadID = sentry::profiling::ThreadHandle::current()->tid();
     self.threadInfo = [[SentryThread alloc] initWithThreadId:@(threadID)];
-#endif
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED
 }
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
@@ -139,7 +139,7 @@ static const auto kSentryDefaultSamplingDecision = kSentrySampleDecisionUndecide
 {
     return self.threadInfo;
 }
-#endif
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
 - (void)commonInitWithName:(NSString *)name
                     source:(SentryTransactionNameSource)source

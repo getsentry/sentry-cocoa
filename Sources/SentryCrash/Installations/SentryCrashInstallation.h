@@ -27,6 +27,7 @@
 
 #import "SentryCrashReportFilter.h"
 #import "SentryCrashReportWriter.h"
+#import "SentryDefines.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -37,7 +38,7 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * This is an abstract class.
  */
-@interface SentryCrashInstallation : NSObject
+@interface SentryCrashInstallation : SENTRY_BASE_OBJECT
 
 /** C Function to call during a crash report to give the callee an opportunity
  * to add to the report. NULL = ignore.

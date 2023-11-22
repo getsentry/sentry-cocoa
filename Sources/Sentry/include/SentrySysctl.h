@@ -5,7 +5,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * A wrapper around sysctl for testability.
  */
-@interface SentrySysctl : NSObject
+@interface SentrySysctl : SENTRY_BASE_OBJECT
 
 /**
  * Returns the time the system was booted with a precision of microseconds.

@@ -10,7 +10,7 @@ NS_ASSUME_NONNULL_BEGIN
 static NSString const *SENTRY_TRACE_TYPE = @"trace";
 
 NS_SWIFT_NAME(SpanContext)
-@interface SentrySpanContext : NSObject <SentrySerializable>
+@interface SentrySpanContext : SENTRY_BASE_OBJECT <SentrySerializable>
 SENTRY_NO_INIT
 
 /**

@@ -1,4 +1,4 @@
-#import <Foundation/Foundation.h>
+#import "SentryDefines.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -11,7 +11,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
-@interface SentryRandom : NSObject <SentryRandom>
+@interface SentryRandom : SENTRY_BASE_OBJECT <SentryRandom>
 
 - (double)nextNumber;
 

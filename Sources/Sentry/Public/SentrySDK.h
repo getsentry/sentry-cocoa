@@ -11,7 +11,7 @@ NS_ASSUME_NONNULL_BEGIN
  * The main entry point for the SentrySDK.
  * We recommend using @c +[startWithConfigureOptions:] to initialize Sentry.
  */
-@interface SentrySDK : NSObject
+@interface SentrySDK : SENTRY_BASE_OBJECT
 SENTRY_NO_INIT
 
 /**

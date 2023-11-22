@@ -7,7 +7,7 @@ NS_ASSUME_NONNULL_BEGIN
 @class SentryDispatchQueueWrapper;
 @protocol SentryUIEventTrackerMode;
 
-@interface SentryUIEventTracker : NSObject
+@interface SentryUIEventTracker : SENTRY_BASE_OBJECT
 SENTRY_NO_INIT
 
 - (instancetype)initWithMode:(id<SentryUIEventTrackerMode>)mode;

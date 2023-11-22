@@ -1,5 +1,5 @@
+#import "SentryDefines.h"
 #import "SentryFileManager.h"
-#import <Foundation/Foundation.h>
 
 #if TARGET_OS_IOS && SENTRY_HAS_UIKIT
 
@@ -11,7 +11,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @protocol SentryBreadcrumbDelegate;
 
-@interface SentrySystemEventBreadcrumbs : NSObject
+@interface SentrySystemEventBreadcrumbs : SENTRY_BASE_OBJECT
 SENTRY_NO_INIT
 
 - (instancetype)initWithFileManager:(SentryFileManager *)fileManager

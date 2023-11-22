@@ -13,7 +13,7 @@ NS_ASSUME_NONNULL_BEGIN
  * the init flag. If none is found we delete the envelope. We don't migrate other envelope items as
  * events.
  */
-@interface SentryMigrateSessionInit : NSObject
+@interface SentryMigrateSessionInit : SENTRY_BASE_OBJECT
 SENTRY_NO_INIT
 
 /**

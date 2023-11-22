@@ -1,9 +1,9 @@
-#import <Foundation/Foundation.h>
+#import "SentryDefines.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 NS_SWIFT_NAME(DateUtil)
-@interface SentryDateUtil : NSObject
+@interface SentryDateUtil : SENTRY_BASE_OBJECT
 
 + (BOOL)isInFuture:(NSDate *_Nullable)date;
 

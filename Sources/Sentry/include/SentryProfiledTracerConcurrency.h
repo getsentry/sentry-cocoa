@@ -1,7 +1,6 @@
 #import "SentryCompiler.h"
+#import "SentryDefines.h"
 #import "SentryId.h"
-#import "SentryProfilingConditionals.h"
-#import <Foundation/Foundation.h>
 
 @class SentryProfiler;
 

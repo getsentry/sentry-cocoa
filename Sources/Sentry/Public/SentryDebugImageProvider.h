@@ -1,4 +1,4 @@
-#import <Foundation/Foundation.h>
+#import "SentryDefines.h"
 
 @class SentryDebugMeta, SentryThread, SentryFrame;
 
@@ -8,7 +8,7 @@ NS_ASSUME_NONNULL_BEGIN
  * Reserved for hybrid SDKs that the debug image list for symbolication.
  * @todo This class should be renamed to @c SentryDebugImage in a future version.
  */
-@interface SentryDebugImageProvider : NSObject
+@interface SentryDebugImageProvider : SENTRY_BASE_OBJECT
 
 - (instancetype)init;
 

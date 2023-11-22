@@ -10,7 +10,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @c NSNotificationCenter would call with Dynamic and ensure that sut properly subscribes to
  * @c NSNotificationCenter.
  */
-@interface SentryNSNotificationCenterWrapper : NSObject
+@interface SentryNSNotificationCenterWrapper : SENTRY_BASE_OBJECT
 
 #if SENTRY_HAS_UIKIT || SENTRY_TARGET_MACOS
 @property (nonatomic, readonly, copy, class) NSNotificationName didBecomeActiveNotificationName;

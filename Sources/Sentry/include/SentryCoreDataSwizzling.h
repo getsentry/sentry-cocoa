@@ -1,13 +1,11 @@
-
 #import "SentryDefines.h"
 #import <CoreData/CoreData.h>
-#import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
 @class SentryCoreDataTracker;
 
-@interface SentryCoreDataSwizzling : NSObject
+@interface SentryCoreDataSwizzling : SENTRY_BASE_OBJECT
 SENTRY_NO_INIT
 
 @property (class, readonly, nonatomic) SentryCoreDataSwizzling *sharedInstance;

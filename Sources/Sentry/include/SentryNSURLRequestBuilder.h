@@ -1,4 +1,4 @@
-#import <Foundation/Foundation.h>
+#import "SentryDefines.h"
 
 @class SentryEnvelope, SentryDsn;
 
@@ -7,7 +7,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * A wrapper around SentryNSURLRequest for testability
  */
-@interface SentryNSURLRequestBuilder : NSObject
+@interface SentryNSURLRequestBuilder : SENTRY_BASE_OBJECT
 
 - (NSURLRequest *)createEnvelopeRequest:(SentryEnvelope *)envelope
                                     dsn:(SentryDsn *)dsn

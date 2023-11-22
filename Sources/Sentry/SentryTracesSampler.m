@@ -1,6 +1,7 @@
 #import "SentryTracesSampler.h"
 #import "SentryDependencyContainer.h"
 #import "SentryOptions.h"
+#import "SentryRandom.h"
 #import "SentrySamplingContext.h"
 #import "SentryTransactionContext.h"
 #import <SentryOptions+Private.h>

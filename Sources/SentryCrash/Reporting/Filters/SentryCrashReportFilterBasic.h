@@ -26,6 +26,7 @@
 //
 
 #import "SentryCrashReportFilter.h"
+#import "SentryDefines.h"
 
 /**
  * Very basic filter that passes through reports untouched.
@@ -33,7 +34,7 @@
  * Input: Anything.
  * Output: Same as input (passthrough).
  */
-@interface SentryCrashReportFilterPassthrough : NSObject <SentryCrashReportFilter>
+@interface SentryCrashReportFilterPassthrough : SENTRY_BASE_OBJECT <SentryCrashReportFilter>
 
 + (SentryCrashReportFilterPassthrough *)filter;
 
@@ -46,7 +47,7 @@
  * Input: Anything
  * Output: NSDictionary
  */
-@interface SentryCrashReportFilterCombine : NSObject <SentryCrashReportFilter>
+@interface SentryCrashReportFilterCombine : SENTRY_BASE_OBJECT <SentryCrashReportFilter>
 
 /** Constructor.
  *
@@ -73,7 +74,7 @@
  * Input: Depends on what's in the pipeline.
  * Output: Depends on what's in the pipeline.
  */
-@interface SentryCrashReportFilterPipeline : NSObject <SentryCrashReportFilter>
+@interface SentryCrashReportFilterPipeline : SENTRY_BASE_OBJECT <SentryCrashReportFilter>
 
 /** The filters in this pipeline. */
 @property (nonatomic, readonly, retain) NSArray *filters;
@@ -98,7 +99,7 @@
 /**
  * Extracts data associated with a key from each report.
  */
-@interface SentryCrashReportFilterObjectForKey : NSObject <SentryCrashReportFilter>
+@interface SentryCrashReportFilterObjectForKey : SENTRY_BASE_OBJECT <SentryCrashReportFilter>
 
 /** Constructor.
  *
@@ -127,7 +128,7 @@
  * Input: NSDictionary
  * Output: NSString
  */
-@interface SentryCrashReportFilterConcatenate : NSObject <SentryCrashReportFilter>
+@interface SentryCrashReportFilterConcatenate : SENTRY_BASE_OBJECT <SentryCrashReportFilter>
 
 /** Constructor.
  *
@@ -160,7 +161,7 @@
  * Input: NSDictionary
  * Output: NSDictionary
  */
-@interface SentryCrashReportFilterSubset : NSObject <SentryCrashReportFilter>
+@interface SentryCrashReportFilterSubset : SENTRY_BASE_OBJECT <SentryCrashReportFilter>
 
 /** Constructor.
  *
@@ -182,7 +183,7 @@
  * Input: NSData
  * Output: NSString
  */
-@interface SentryCrashReportFilterDataToString : NSObject <SentryCrashReportFilter>
+@interface SentryCrashReportFilterDataToString : SENTRY_BASE_OBJECT <SentryCrashReportFilter>
 
 + (SentryCrashReportFilterDataToString *)filter;
 
@@ -194,7 +195,7 @@
  * Input: NSString
  * Output: NSData
  */
-@interface SentryCrashReportFilterStringToData : NSObject <SentryCrashReportFilter>
+@interface SentryCrashReportFilterStringToData : SENTRY_BASE_OBJECT <SentryCrashReportFilter>
 
 + (SentryCrashReportFilterStringToData *)filter;
 

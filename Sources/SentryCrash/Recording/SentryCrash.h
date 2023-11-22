@@ -53,7 +53,7 @@ static NSString *const SENTRYCRASH_REPORT_ATTACHMENTS_ITEM = @"attachments";
  * The crash reports will be located in
  * $APP_HOME/Library/Caches/SentryCrashReports
  */
-@interface SentryCrash : NSObject
+@interface SentryCrash : SENTRY_BASE_OBJECT
 
 #pragma mark - Configuration -
 SENTRY_NO_INIT

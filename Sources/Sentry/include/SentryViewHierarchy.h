@@ -4,7 +4,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SentryViewHierarchy : NSObject
+@interface SentryViewHierarchy : SENTRY_BASE_OBJECT
 
 - (nullable NSData *)fetchViewHierarchy;
 

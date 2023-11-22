@@ -1,12 +1,11 @@
 #import "SentryCrash.h"
 #import "SentryDefines.h"
-#import <Foundation/Foundation.h>
 
 @class SentryInAppLogic, SentryCrashWrapper, SentryDispatchQueueWrapper;
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SentryCrashReportSink : NSObject <SentryCrashReportFilter>
+@interface SentryCrashReportSink : SENTRY_BASE_OBJECT <SentryCrashReportFilter>
 SENTRY_NO_INIT
 
 - (instancetype)initWithInAppLogic:(SentryInAppLogic *)inAppLogic

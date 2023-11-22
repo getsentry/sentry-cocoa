@@ -1,8 +1,8 @@
-#import <Foundation/Foundation.h>
+#import "SentryDefines.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SentryFileContents : NSObject
+@interface SentryFileContents : SENTRY_BASE_OBJECT
 
 - (instancetype)initWithPath:(NSString *)path andContents:(NSData *)contents;
 

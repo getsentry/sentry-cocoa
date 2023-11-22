@@ -6,7 +6,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 static int const SENTRY_BAGGAGE_MAX_SIZE = 8192;
 
-@interface SentrySerialization : NSObject
+@interface SentrySerialization : SENTRY_BASE_OBJECT
 
 + (NSData *_Nullable)dataWithJSONObject:(NSDictionary *)dictionary;
 

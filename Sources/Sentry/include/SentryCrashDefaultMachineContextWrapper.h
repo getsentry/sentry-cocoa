@@ -1,9 +1,10 @@
 #import "SentryCrashMachineContextWrapper.h"
-#import <Foundation/Foundation.h>
+#import "SentryDefines.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SentryCrashDefaultMachineContextWrapper : NSObject <SentryCrashMachineContextWrapper>
+@interface SentryCrashDefaultMachineContextWrapper
+    : SENTRY_BASE_OBJECT <SentryCrashMachineContextWrapper>
 
 @end
 

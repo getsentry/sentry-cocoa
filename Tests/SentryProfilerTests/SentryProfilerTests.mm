@@ -1,3 +1,4 @@
+#import "SentryDefines.h"
 #import "SentryEvent+Private.h"
 #import "SentryHub+Test.h"
 #import "SentryId.h"
@@ -6,7 +7,6 @@
 #import "SentryProfiler+Test.h"
 #import "SentryProfilerMocks.h"
 #import "SentryProfilerState+ObjCpp.h"
-#import "SentryProfilingConditionals.h"
 #import "SentryScreenFrames.h"
 #import "SentryThread.h"
 #import "SentryTransaction.h"

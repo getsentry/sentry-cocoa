@@ -1,10 +1,11 @@
 #import "SentryDataCategory.h"
+#import "SentryDefines.h"
 #import "SentryDiscardReason.h"
 #import "SentrySerializable.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SentryDiscardedEvent : NSObject <SentrySerializable>
+@interface SentryDiscardedEvent : SENTRY_BASE_OBJECT <SentrySerializable>
 SENTRY_NO_INIT
 
 - (instancetype)initWithReason:(SentryDiscardReason)reason

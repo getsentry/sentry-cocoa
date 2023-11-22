@@ -8,7 +8,7 @@ NS_ASSUME_NONNULL_BEGIN
 static NSString *const SENTRY_TRACE_HEADER = @"sentry-trace";
 
 NS_SWIFT_NAME(TraceHeader)
-@interface SentryTraceHeader : NSObject
+@interface SentryTraceHeader : SENTRY_BASE_OBJECT
 SENTRY_NO_INIT
 /**
  * Trace ID.

@@ -1,7 +1,7 @@
 #import "SentryClient.h"
+#import "SentryDefines.h"
 #import "SentryHub.h"
 #import "SentryOptions.h"
-#import "SentryProfilingConditionals.h"
 #import "SentrySpan.h"
 #import "SentryTests-Swift.h"
 #import "SentryTracer.h"

@@ -1,4 +1,4 @@
-#import <Foundation/Foundation.h>
+#import "SentryDefines.h"
 
 #import "SentryDefines.h"
 #import "SentrySerializable.h"
@@ -8,7 +8,7 @@ NS_ASSUME_NONNULL_BEGIN
 @class SentryStacktrace, SentryMechanism;
 
 NS_SWIFT_NAME(Exception)
-@interface SentryException : NSObject <SentrySerializable>
+@interface SentryException : SENTRY_BASE_OBJECT <SentrySerializable>
 SENTRY_NO_INIT
 
 /**

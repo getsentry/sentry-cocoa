@@ -1,4 +1,4 @@
-#import <Foundation/Foundation.h>
+#import "SentryDefines.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -11,7 +11,7 @@ NS_ASSUME_NONNULL_BEGIN
  applies to all categories. scope: This can be ignored by SDKs.
  */
 NS_SWIFT_NAME(RateLimitParser)
-@interface SentryRateLimitParser : NSObject
+@interface SentryRateLimitParser : SENTRY_BASE_OBJECT
 
 - (NSDictionary<NSNumber *, NSDate *> *)parse:(NSString *)header;
 

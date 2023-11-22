@@ -42,7 +42,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SentryDependencyContainer : NSObject
+@interface SentryDependencyContainer : SENTRY_BASE_OBJECT
 SENTRY_NO_INIT
 
 + (instancetype)sharedInstance;

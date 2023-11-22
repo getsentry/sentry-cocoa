@@ -28,7 +28,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SentryMXExceptionParams : NSObject
+@interface SentryMXExceptionParams : SENTRY_BASE_OBJECT
 
 @property (nonatomic, assign) BOOL handled;
 @property (nonatomic, assign) SentryLevel level;

@@ -5,7 +5,7 @@
  * but the original file has reference to other header that we don't need here.
  */
 
-#import <Foundation/Foundation.h>
+#import "SentryDefines.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -23,7 +23,7 @@ typedef NS_ENUM(NSInteger, SentryTransactionNameSource) {
 
 typedef NS_ENUM(NSUInteger, SentrySpanStatus);
 
-@interface SentryPerformanceTracker : NSObject
+@interface SentryPerformanceTracker : SENTRY_BASE_OBJECT
 
 @property (nonatomic, class, readonly) SentryPerformanceTracker *shared;
 

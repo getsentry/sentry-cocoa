@@ -8,7 +8,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @class SentryDispatchQueueWrapper;
 
-@interface SentryUIDeviceWrapper : NSObject
+@interface SentryUIDeviceWrapper : SENTRY_BASE_OBJECT
 
 - (void)start;
 - (void)stop;

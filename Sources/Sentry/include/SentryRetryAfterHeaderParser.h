@@ -1,4 +1,4 @@
-#import <Foundation/Foundation.h>
+#import "SentryDefines.h"
 
 @class SentryHttpDateParser;
 
@@ -9,7 +9,7 @@ NS_ASSUME_NONNULL_BEGIN
  https://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.37
 */
 NS_SWIFT_NAME(RetryAfterHeaderParser)
-@interface SentryRetryAfterHeaderParser : NSObject
+@interface SentryRetryAfterHeaderParser : SENTRY_BASE_OBJECT
 
 - (instancetype)initWithHttpDateParser:(SentryHttpDateParser *)httpDateParser;
 

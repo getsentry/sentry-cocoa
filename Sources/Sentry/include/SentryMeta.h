@@ -1,8 +1,8 @@
-#import <Foundation/Foundation.h>
+#import "SentryDefines.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SentryMeta : NSObject
+@interface SentryMeta : SENTRY_BASE_OBJECT
 
 /**
  * Return a version string e.g: 1.2.3 (3)

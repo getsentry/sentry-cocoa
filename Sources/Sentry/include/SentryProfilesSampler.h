@@ -1,4 +1,4 @@
-#import "SentryProfilingConditionals.h"
+#import "SentryDefines.h"
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
@@ -10,7 +10,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @class SentryOptions, SentrySamplingContext, SentryTracesSamplerDecision;
 
-@interface SentryProfilesSamplerDecision : NSObject
+@interface SentryProfilesSamplerDecision : SENTRY_BASE_OBJECT
 
 @property (nonatomic, readonly) SentrySampleDecision decision;
 
@@ -21,7 +21,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
-@interface SentryProfilesSampler : NSObject
+@interface SentryProfilesSampler : SENTRY_BASE_OBJECT
 
 /**
  *  A random number generator

@@ -13,7 +13,7 @@ NS_ASSUME_NONNULL_BEGIN
  * https://docs.sentry.io/platforms/apple/enriching-events/scopes/#whats-a-scope-whats-a-hub
  */
 NS_SWIFT_NAME(Scope)
-@interface SentryScope : NSObject <SentrySerializable>
+@interface SentryScope : SENTRY_BASE_OBJECT <SentrySerializable>
 
 /**
  * Returns current Span or Transaction.

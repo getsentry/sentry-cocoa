@@ -1,12 +1,11 @@
 #import "SentryCrashMachineContextWrapper.h"
 #import "SentryDefines.h"
-#import <Foundation/Foundation.h>
 
 @class SentryThread, SentryStacktraceBuilder, SentryStacktrace, SentryOptions;
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SentryThreadInspector : NSObject
+@interface SentryThreadInspector : SENTRY_BASE_OBJECT
 SENTRY_NO_INIT
 
 - (id)initWithStacktraceBuilder:(SentryStacktraceBuilder *)stacktraceBuilder

@@ -15,7 +15,7 @@ NS_ASSUME_NONNULL_BEGIN
  * thread. This has the downside of the scope not being 100% up to date when a crash happens and, of
  * course, lots of CPU overhead.
  */
-@interface SentryCrashScopeObserver : NSObject <SentryScopeObserver>
+@interface SentryCrashScopeObserver : SENTRY_BASE_OBJECT <SentryScopeObserver>
 SENTRY_NO_INIT
 
 - (instancetype)initWithMaxBreadcrumbs:(NSInteger)maxBreadcrumbs;

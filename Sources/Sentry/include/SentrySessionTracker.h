@@ -1,5 +1,4 @@
 #import "SentryDefines.h"
-#import <Foundation/Foundation.h>
 
 @class SentryEvent, SentryOptions, SentryCurrentDateProvider, SentryNSNotificationCenterWrapper;
 
@@ -8,7 +7,7 @@
  * https://docs.sentry.io/workflow/releases/health/#session
  */
 NS_SWIFT_NAME(SessionTracker)
-@interface SentrySessionTracker : NSObject
+@interface SentrySessionTracker : SENTRY_BASE_OBJECT
 SENTRY_NO_INIT
 
 - (instancetype)initWithOptions:(SentryOptions *)options

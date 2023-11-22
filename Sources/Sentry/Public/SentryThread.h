@@ -5,7 +5,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @class SentryStacktrace;
 
-@interface SentryThread : NSObject <SentrySerializable>
+@interface SentryThread : SENTRY_BASE_OBJECT <SentrySerializable>
 SENTRY_NO_INIT
 
 /**

@@ -13,7 +13,7 @@ typedef void (^SentrySwizzleSendActionCallback)(
  * A wrapper around swizzling for testability and to only swizzle once when multiple implementations
  * need to be called for the same swizzled method.
  */
-@interface SentrySwizzleWrapper : NSObject
+@interface SentrySwizzleWrapper : SENTRY_BASE_OBJECT
 
 - (void)swizzleSendAction:(SentrySwizzleSendActionCallback)callback forKey:(NSString *)key;
 

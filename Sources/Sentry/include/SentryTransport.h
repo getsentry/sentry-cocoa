@@ -23,7 +23,7 @@ NS_SWIFT_NAME(Transport)
 
 #if TEST || TESTCI
 - (void)setStartFlushCallback:(void (^)(void))callback;
-#endif
+#endif // TEST || TESTCI
 
 @end
 

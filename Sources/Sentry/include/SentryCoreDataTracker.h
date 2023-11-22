@@ -8,7 +8,7 @@ static NSString *const SENTRY_COREDATA_SAVE_OPERATION = @"db.sql.transaction";
 
 @class SentryThreadInspector, SentryNSProcessInfoWrapper;
 
-@interface SentryCoreDataTracker : NSObject
+@interface SentryCoreDataTracker : SENTRY_BASE_OBJECT
 SENTRY_NO_INIT
 
 - (instancetype)initWithThreadInspector:(SentryThreadInspector *)threadInspector

@@ -2,8 +2,6 @@
 
 #if SENTRY_HAS_UIKIT
 
-#    import "SentryProfilingConditionals.h"
-
 @class SentryOptions, SentryDisplayLinkWrapper, SentryScreenFrames;
 @class SentryCurrentDateProvider;
 
@@ -20,7 +18,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * Tracks total, frozen and slow frames for iOS, tvOS, and Mac Catalyst.
  */
-@interface SentryFramesTracker : NSObject
+@interface SentryFramesTracker : SENTRY_BASE_OBJECT
 
 - (instancetype)initWithDisplayLinkWrapper:(SentryDisplayLinkWrapper *)displayLinkWrapper
                               dateProvider:(SentryCurrentDateProvider *)dateProvider

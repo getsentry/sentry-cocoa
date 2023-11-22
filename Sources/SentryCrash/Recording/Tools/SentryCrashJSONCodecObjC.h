@@ -25,7 +25,7 @@
 // THE SOFTWARE.
 //
 
-#import <Foundation/Foundation.h>
+#import "SentryDefines.h"
 
 /** Optional behavior when encoding JSON data */
 typedef enum {
@@ -64,7 +64,7 @@ typedef enum {
 /**
  * Encodes and decodes UTF-8 JSON data.
  */
-@interface SentryCrashJSONCodec : NSObject
+@interface SentryCrashJSONCodec : SENTRY_BASE_OBJECT
 
 /** Encode an object to JSON data.
  *

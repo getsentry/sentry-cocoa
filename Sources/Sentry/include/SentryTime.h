@@ -1,5 +1,4 @@
 #import "SentryCompiler.h"
-#import "SentryProfilingConditionals.h"
 #import <stdbool.h>
 #import <stdint.h>
 

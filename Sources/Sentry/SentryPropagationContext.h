@@ -1,10 +1,10 @@
-#import <Foundation/Foundation.h>
+#import "SentryDefines.h"
 
 @class SentryId, SentrySpanId, SentryTraceContext, SentryTraceHeader;
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SentryPropagationContext : NSObject
+@interface SentryPropagationContext : SENTRY_BASE_OBJECT
 
 @property (nonatomic, strong) SentryId *traceId;
 @property (nonatomic, strong) SentrySpanId *spanId;

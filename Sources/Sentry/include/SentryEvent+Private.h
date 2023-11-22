@@ -1,7 +1,4 @@
-#import "SentryDefines.h"
 #import "SentryEvent.h"
-#import "SentryProfilingConditionals.h"
-#import <Foundation/Foundation.h>
 
 @interface
 SentryEvent ()

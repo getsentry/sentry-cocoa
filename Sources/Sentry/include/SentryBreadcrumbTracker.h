@@ -4,7 +4,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @protocol SentryBreadcrumbDelegate;
 
-@interface SentryBreadcrumbTracker : NSObject
+@interface SentryBreadcrumbTracker : SENTRY_BASE_OBJECT
 
 - (void)startWithDelegate:(id<SentryBreadcrumbDelegate>)delegate;
 #if SENTRY_HAS_UIKIT

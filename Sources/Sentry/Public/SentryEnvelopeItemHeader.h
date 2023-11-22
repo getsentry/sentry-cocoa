@@ -1,8 +1,9 @@
+#import "SentryDefines.h"
 #import "SentrySerializable.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SentryEnvelopeItemHeader : NSObject <SentrySerializable>
+@interface SentryEnvelopeItemHeader : SENTRY_BASE_OBJECT <SentrySerializable>
 SENTRY_NO_INIT
 
 - (instancetype)initWithType:(NSString *)type length:(NSUInteger)length NS_DESIGNATED_INITIALIZER;

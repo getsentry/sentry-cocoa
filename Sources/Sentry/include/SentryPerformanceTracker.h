@@ -10,7 +10,7 @@ NS_ASSUME_NONNULL_BEGIN
  * Tracks performance synchronizing span with its child's.
  * @note A span will be finished only when all its children are finished.
  */
-@interface SentryPerformanceTracker : NSObject
+@interface SentryPerformanceTracker : SENTRY_BASE_OBJECT
 
 /**
  * A static instance of performance tracker.

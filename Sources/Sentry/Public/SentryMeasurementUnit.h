@@ -13,7 +13,7 @@ NS_ASSUME_NONNULL_BEGIN
  * measurement values in the UI.
  */
 NS_SWIFT_NAME(MeasurementUnit)
-@interface SentryMeasurementUnit : NSObject <NSCopying>
+@interface SentryMeasurementUnit : SENTRY_BASE_OBJECT <NSCopying>
 SENTRY_NO_INIT
 
 /**

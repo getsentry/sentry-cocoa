@@ -4,7 +4,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SentryUIEventTrackerTransactionMode : NSObject <SentryUIEventTrackerMode>
+@interface SentryUIEventTrackerTransactionMode : SENTRY_BASE_OBJECT <SentryUIEventTrackerMode>
 SENTRY_NO_INIT
 
 - (instancetype)initWithIdleTimeout:(NSTimeInterval)idleTimeout;

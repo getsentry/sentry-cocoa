@@ -1,11 +1,11 @@
 #import "SentryDataCategory.h"
-#import <Foundation/Foundation.h>
+#import "SentryDefines.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 /** A thread safe wrapper around a dictionary to store rate limits.
  */
-@interface SentryConcurrentRateLimitsDictionary : NSObject
+@interface SentryConcurrentRateLimitsDictionary : SENTRY_BASE_OBJECT
 
 /**
  Adds the passed rate limit for the given category. If a rate limit already

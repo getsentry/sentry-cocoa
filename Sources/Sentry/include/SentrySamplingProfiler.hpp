@@ -69,4 +69,4 @@ namespace profiling {
 } // namespace profiling
 } // namespace sentry
 
-#endif
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED

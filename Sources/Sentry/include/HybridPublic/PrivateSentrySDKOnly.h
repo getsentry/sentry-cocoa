@@ -23,7 +23,7 @@ typedef void (^SentryOnAppStartMeasurementAvailable)(
  * on purpose so users don't see it in code completion when typing Sentry. We also add only at the
  * end to make it more obvious you shouldn't use it.
  */
-@interface PrivateSentrySDKOnly : NSObject
+@interface PrivateSentrySDKOnly : SENTRY_BASE_OBJECT
 
 /**
  * For storing an envelope synchronously to disk.

@@ -1,11 +1,11 @@
+#import "SentryDefines.h"
 #import "SentrySerializable.h"
-#import <Foundation/Foundation.h>
 
 @class SentryDiscardedEvent;
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SentryClientReport : NSObject <SentrySerializable>
+@interface SentryClientReport : SENTRY_BASE_OBJECT <SentrySerializable>
 SENTRY_NO_INIT
 
 - (instancetype)initWithDiscardedEvents:(NSArray<SentryDiscardedEvent *> *)discardedEvents;

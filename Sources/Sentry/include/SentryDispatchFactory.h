@@ -1,4 +1,4 @@
-#import <Foundation/Foundation.h>
+#import "SentryDefines.h"
 
 @class SentryDispatchQueueWrapper;
 @class SentryDispatchSourceWrapper;
@@ -9,7 +9,7 @@ NS_ASSUME_NONNULL_BEGIN
  * A type of object that vends wrappers for dispatch queues and sources, which can be subclassed to
  * vend their mocked test subclasses.
  */
-@interface SentryDispatchFactory : NSObject
+@interface SentryDispatchFactory : SENTRY_BASE_OBJECT
 
 /**
  * Generate a new @c SentryDispatchQueueWrapper .

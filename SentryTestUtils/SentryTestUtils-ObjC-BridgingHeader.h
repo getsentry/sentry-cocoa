@@ -14,8 +14,6 @@
 #    import "SentryUIViewControllerPerformanceTracker.h"
 #endif // SENTRY_HAS_UIKIT
 
-#import "SentryProfilingConditionals.h"
-
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 #    import "SentryProfiler+Test.h"
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED

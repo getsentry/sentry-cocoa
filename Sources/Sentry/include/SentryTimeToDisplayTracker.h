@@ -15,7 +15,7 @@ NS_ASSUME_NONNULL_BEGIN
  * the @c SentryTracer wait for children feature to keep transaction open long
  * enough to wait for a full display report if @c waitForFullDisplay is true.
  */
-@interface SentryTimeToDisplayTracker : NSObject
+@interface SentryTimeToDisplayTracker : SENTRY_BASE_OBJECT
 SENTRY_NO_INIT
 
 @property (nullable, nonatomic, weak, readonly) SentrySpan *initialDisplaySpan;

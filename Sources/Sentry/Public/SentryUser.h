@@ -7,7 +7,7 @@ NS_ASSUME_NONNULL_BEGIN
 @class SentryGeo;
 
 NS_SWIFT_NAME(User)
-@interface SentryUser : NSObject <SentrySerializable, NSCopying>
+@interface SentryUser : SENTRY_BASE_OBJECT <SentrySerializable, NSCopying>
 
 /**
  * Optional: Id of the user

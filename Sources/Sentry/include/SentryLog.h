@@ -4,7 +4,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SentryLog : NSObject
+@interface SentryLog : SENTRY_BASE_OBJECT
 SENTRY_NO_INIT
 
 + (void)configure:(BOOL)debug diagnosticLevel:(SentryLevel)level;

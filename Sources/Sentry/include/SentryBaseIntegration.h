@@ -1,5 +1,5 @@
+#import "SentryDefines.h"
 #import "SentryOptions.h"
-#import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -25,7 +25,7 @@ typedef NS_OPTIONS(NSUInteger, SentryIntegrationOption) {
     kIntegrationOptionEnableMetricKit = 1 << 17,
 };
 
-@interface SentryBaseIntegration : NSObject
+@interface SentryBaseIntegration : SENTRY_BASE_OBJECT
 
 - (NSString *)integrationName;
 - (BOOL)installWithOptions:(SentryOptions *)options;

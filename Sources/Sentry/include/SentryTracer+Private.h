@@ -12,4 +12,8 @@ SentryTracer ()
  */
 @property (nonatomic, strong, readonly) SentryId *internalID;
 
+#if SENTRY_TARGET_PROFILING_SUPPORTED
++ (void)startLaunchProfile;
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED
+
 @end

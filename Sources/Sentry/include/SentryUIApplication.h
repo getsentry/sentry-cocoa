@@ -15,7 +15,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * A helper tool to retrieve informations from the application instance.
  */
-@interface SentryUIApplication : NSObject
+@interface SentryUIApplication : SENTRY_BASE_OBJECT
 
 /**
  * Returns the application state available at @c NSApplication.sharedApplication.applicationState

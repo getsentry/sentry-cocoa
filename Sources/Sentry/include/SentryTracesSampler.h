@@ -1,11 +1,12 @@
-#import "SentryRandom.h"
+#import "SentryDefines.h"
 #import "SentrySampleDecision.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
+@protocol SentryRandom;
 @class SentryOptions, SentrySamplingContext;
 
-@interface SentryTracesSamplerDecision : NSObject
+@interface SentryTracesSamplerDecision : SENTRY_BASE_OBJECT
 
 @property (nonatomic, readonly) SentrySampleDecision decision;
 
@@ -16,7 +17,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
-@interface SentryTracesSampler : NSObject
+@interface SentryTracesSampler : SENTRY_BASE_OBJECT
 
 /**
  *  A random number generator

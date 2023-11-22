@@ -7,9 +7,9 @@
 //  Copyright (c) 2012 Karl Stenerud. All rights reserved.
 //
 
-#import <Foundation/Foundation.h>
+#import "SentryDefines.h"
 
-@interface SentryCrashDoctor : NSObject
+@interface SentryCrashDoctor : SENTRY_BASE_OBJECT
 
 + (SentryCrashDoctor *)doctor;
 

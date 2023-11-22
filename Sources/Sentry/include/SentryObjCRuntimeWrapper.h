@@ -1,4 +1,4 @@
-#import <Foundation/Foundation.h>
+#import "SentryDefines.h"
 
 @protocol SentryObjCRuntimeWrapper <NSObject>
 

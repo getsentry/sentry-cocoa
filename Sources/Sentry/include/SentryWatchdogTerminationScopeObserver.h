@@ -14,7 +14,7 @@ NS_ASSUME_NONNULL_BEGIN
  * This class doesn't need to be thread safe as the scope already calls the scope observers in a
  * thread safe manner.
  */
-@interface SentryWatchdogTerminationScopeObserver : NSObject <SentryScopeObserver>
+@interface SentryWatchdogTerminationScopeObserver : SENTRY_BASE_OBJECT <SentryScopeObserver>
 SENTRY_NO_INIT
 
 - (instancetype)initWithMaxBreadcrumbs:(NSInteger)maxBreadcrumbs
