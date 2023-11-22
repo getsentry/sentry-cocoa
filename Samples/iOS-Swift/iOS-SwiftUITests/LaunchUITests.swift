@@ -1,4 +1,3 @@
-import Nimble
 import XCTest
 
 class LaunchUITests: BaseUITest {
@@ -85,10 +84,10 @@ class LaunchUITests: BaseUITest {
         let (totalFrames, slowFrames, frozenFrames) = getFramesStats()
        
         let slowFramesPercentage = Double(slowFrames) / Double(totalFrames)
-        expect(slowFramesPercentage).to(beLessThan(0.5), description: "Too many slow frames.")
+        XCTAssertTrue(0.5 > slowFramesPercentage, "Too many slow frames.")
         
         let frozenFramesPercentage = Double(frozenFrames) / Double(totalFrames)
-        expect(frozenFramesPercentage).to(beLessThan(0.5), description: "Too many frozen frames.")
+        XCTAssertTrue(0.5 > frozenFramesPercentage, "Too many frozen frames.")
     }
     
     func testCheckTotalFrames() {
@@ -121,8 +120,8 @@ class LaunchUITests: BaseUITest {
         
         let actualTotalFrames = Double(endTotalFrames - startTotalFrames)
         
-        expect(actualTotalFrames) >= expectedMinimumTotalFrames
-        expect(actualTotalFrames) <= expectedMaximumTotalFrames
+        XCTAssertGreaterThanOrEqual(actualTotalFrames, expectedMinimumTotalFrames, "Actual frames:\(actualTotalFrames) should be greater than \(expectedMinimumTotalFrames) with frame rate of \(maximumFramesPerSecond)")
+        XCTAssertLessThanOrEqual(actualTotalFrames, expectedMaximumTotalFrames, "Actual frames:\(actualTotalFrames) should be less than \(expectedMaximumTotalFrames) with frame rate of \(maximumFramesPerSecond)")
     }
 
     /**
