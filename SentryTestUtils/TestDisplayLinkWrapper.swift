@@ -30,7 +30,9 @@ public class TestDisplayLinkWrapper: SentryDisplayLinkWrapper {
         self.dateProvider = dateProvider
     }
 
+    public var linkInvocations = Invocations<Void>()
     public override func link(withTarget target: Any, selector sel: Selector) {
+        linkInvocations.record(Void())
         self.target = target as AnyObject
         self.selector = sel
     }

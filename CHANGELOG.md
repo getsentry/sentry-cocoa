@@ -5,6 +5,7 @@
 ### Fixes
 
 - Finish transaction for external view controllers (#3440)
+- Fix inaccurate number of frames for transactions (#3439)
 
 ## 8.16.0
 

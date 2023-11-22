@@ -1,3 +1,4 @@
+import Nimble
 import SentryTestUtils
 import XCTest
 
@@ -37,20 +38,39 @@ class SentryFramesTrackerTests: XCTestCase {
     }
 
     func testIsNotRunning_WhenNotStarted() {
-        XCTAssertFalse(fixture.sut.isRunning)
+        expect(self.fixture.sut.isRunning) == false
     }
 
     func testIsRunning_WhenStarted() {
         let sut = fixture.sut
         sut.start()
-        XCTAssertTrue(sut.isRunning)
+        expect(self.fixture.sut.isRunning) == true
+    }
+    
+    func testStartTwice_SubscribesOnceToDisplayLink() {
+        let sut = fixture.sut
+        sut.start()
+        sut.start()
+        
+        expect(self.fixture.displayLinkWrapper.linkInvocations.count) == 1
     }
 
     func testIsNotRunning_WhenStopped() {
         let sut = fixture.sut
         sut.start()
         sut.stop()
-        XCTAssertFalse(sut.isRunning)
+        
+        expect(self.fixture.sut.isRunning) == false
+    }
+    
+    func testStartAfterStopped_SubscribesTwiceToDisplayLink() {
+        let sut = fixture.sut
+        sut.start()
+        sut.stop()
+        sut.start()
+        
+        expect(sut.isRunning) == true
+        expect(self.fixture.displayLinkWrapper.linkInvocations.count) == 2
     }
 
     func testSlowFrame() throws {
