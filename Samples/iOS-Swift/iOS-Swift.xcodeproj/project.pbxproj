@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		0AAAB8572887F7C60011845C /* PermissionsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AABE2E928855FF80057ED69 /* PermissionsViewController.swift */; };
 		0AABE2EA28855FF80057ED69 /* PermissionsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AABE2E928855FF80057ED69 /* PermissionsViewController.swift */; };
+		6268F2C22B0DF9920019DA38 /* Nimble in Frameworks */ = {isa = PBXBuildFile; productRef = 6268F2C12B0DF9920019DA38 /* Nimble */; };
 		629EC8AD2B0B537400858855 /* ANRs.swift in Sources */ = {isa = PBXBuildFile; fileRef = 629EC8AC2B0B537400858855 /* ANRs.swift */; };
 		629EC8BB2B0B5BAE00858855 /* ANRs.swift in Sources */ = {isa = PBXBuildFile; fileRef = 629EC8AC2B0B537400858855 /* ANRs.swift */; };
 		62C07D5C2AF3E3F500894688 /* BaseUITest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62C07D5B2AF3E3F500894688 /* BaseUITest.swift */; };
@@ -376,6 +377,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				D83A30D1279F0A7C00372D0A /* Sentry.framework in Frameworks */,
+				6268F2C22B0DF9920019DA38 /* Nimble in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -662,6 +664,9 @@
 				7B64386E26A6C544000D0F65 /* PBXTargetDependency */,
 			);
 			name = "iOS-SwiftUITests";
+			packageProductDependencies = (
+				6268F2C12B0DF9920019DA38 /* Nimble */,
+			);
 			productName = "iOS-SwiftUITests";
 			productReference = 7B64386826A6C544000D0F65 /* iOS-SwiftUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
@@ -782,6 +787,9 @@
 				Base,
 			);
 			mainGroup = 637AFD9D243B02760034958B;
+			packageReferences = (
+				6268F2C02B0DF9920019DA38 /* XCRemoteSwiftPackageReference "Nimble" */,
+			);
 			productRefGroup = 637AFDA7243B02760034958B /* Products */;
 			projectDirPath = "";
 			projectReferences = (
@@ -1291,7 +1299,7 @@
 				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = 97JCY7859U;
 				INFOPLIST_FILE = "iOS-SwiftUITests/Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -1315,7 +1323,7 @@
 				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = 97JCY7859U;
 				INFOPLIST_FILE = "iOS-SwiftUITests/Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -1476,7 +1484,7 @@
 				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = 97JCY7859U;
 				INFOPLIST_FILE = "iOS-SwiftUITests/Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -1700,7 +1708,7 @@
 				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = 97JCY7859U;
 				INFOPLIST_FILE = "iOS-SwiftUITests/Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -2088,6 +2096,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		6268F2C02B0DF9920019DA38 /* XCRemoteSwiftPackageReference "Nimble" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/Quick/Nimble";
+			requirement = {
+				kind = exactVersion;
+				version = 10.0.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		6268F2C12B0DF9920019DA38 /* Nimble */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 6268F2C02B0DF9920019DA38 /* XCRemoteSwiftPackageReference "Nimble" */;
+			productName = Nimble;
+		};
+/* End XCSwiftPackageProductDependency section */
 
 /* Begin XCVersionGroup section */
 		D845F35927BAD4CC00A4D7A2 /* SentryData.xcdatamodeld */ = {
