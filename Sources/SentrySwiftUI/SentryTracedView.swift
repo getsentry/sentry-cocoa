@@ -5,8 +5,6 @@ import SwiftUI
 import SentryInternal
 #endif
 
-/// - warning: This is an experimental feature and may still have bugs.
-///
 /// A control to measure the performance of your views and send the result as a transaction to Sentry.io.
 ///
 /// You create a transaction by wrapping your views with this.
@@ -96,7 +94,6 @@ public struct SentryTracedView<Content: View>: View {
 
 @available(iOS 13, macOS 10.15, tvOS 13, watchOS 6.0, *)
 public extension View {
-    /// - warning: This is an experimental feature and may still have bugs.
     func sentryTrace(_ viewName: String? = nil) -> some View {
         return SentryTracedView(viewName) {
             return self
