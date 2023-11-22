@@ -4,14 +4,6 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface
-SentryInAppLogic ()
-
-@property (nonatomic, copy, readonly) NSArray<NSString *> *inAppIncludes;
-@property (nonatomic, copy, readonly) NSArray<NSString *> *inAppExcludes;
-
-@end
-
 @implementation SentryInAppLogic
 
 - (instancetype)initWithInAppIncludes:(NSArray<NSString *> *)inAppIncludes

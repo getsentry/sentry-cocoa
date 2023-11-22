@@ -99,6 +99,19 @@ SentryBinaryImageCache ()
     return -1; // Address not found
 }
 
+- (nullable NSString *)pathForImage:(NSString *)binaryName
+{
+    @synchronized(self) {
+        for (SentryBinaryImageInfo *info in _cache) {
+            if ([[info.name.lastPathComponent lowercaseString]
+                    isEqualToString:binaryName.lowercaseString]) {
+                return info.name;
+            }
+        }
+    }
+    return nil;
+}
+
 @end
 
 static void

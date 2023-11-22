@@ -733,6 +733,7 @@
 		D808FB88281AB33C009A2A33 /* SentryUIEventTrackerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D808FB86281AB31D009A2A33 /* SentryUIEventTrackerTests.swift */; };
 		D808FB8B281BCE96009A2A33 /* TestSentrySwizzleWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = D808FB89281BCE46009A2A33 /* TestSentrySwizzleWrapper.swift */; };
 		D808FB92281BF6EC009A2A33 /* SentryUIEventTrackingIntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D808FB90281BF6E9009A2A33 /* SentryUIEventTrackingIntegrationTests.swift */; };
+		D80C990B2B0DFE410052F311 /* ExternalUIViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D80C990A2B0DFE410052F311 /* ExternalUIViewController.swift */; };
 		D8137D54272B53070082656C /* TestSentrySpan.m in Sources */ = {isa = PBXBuildFile; fileRef = D8137D53272B53070082656C /* TestSentrySpan.m */; };
 		D8199DBE29376EDE0074249E /* SentryInternal.h in Headers */ = {isa = PBXBuildFile; fileRef = D8199DB829376ECC0074249E /* SentryInternal.h */; };
 		D8199DBF29376EE20074249E /* SentryInternal.m in Sources */ = {isa = PBXBuildFile; fileRef = D8199DB929376ECC0074249E /* SentryInternal.m */; };
@@ -1676,6 +1677,7 @@
 		D808FB86281AB31D009A2A33 /* SentryUIEventTrackerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryUIEventTrackerTests.swift; sourceTree = "<group>"; };
 		D808FB89281BCE46009A2A33 /* TestSentrySwizzleWrapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestSentrySwizzleWrapper.swift; sourceTree = "<group>"; };
 		D808FB90281BF6E9009A2A33 /* SentryUIEventTrackingIntegrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryUIEventTrackingIntegrationTests.swift; sourceTree = "<group>"; };
+		D80C990A2B0DFE410052F311 /* ExternalUIViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExternalUIViewController.swift; sourceTree = "<group>"; };
 		D8105B8D297FD16800299F03 /* SentryPerformanceTracker+Testing.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "SentryPerformanceTracker+Testing.h"; sourceTree = "<group>"; };
 		D8137D52272B53070082656C /* TestSentrySpan.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TestSentrySpan.h; sourceTree = "<group>"; };
 		D8137D53272B53070082656C /* TestSentrySpan.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TestSentrySpan.m; sourceTree = "<group>"; };
@@ -3199,6 +3201,7 @@
 				844EDC7829415AB300C86F34 /* TestSentrySystemWrapper.swift */,
 				844EDCE72947DCD700C86F34 /* TestSentryNSTimerFactory.swift */,
 				84B7FA3B29B2866200AD93B1 /* SentryTestUtils-ObjC-BridgingHeader.h */,
+				D80C990A2B0DFE410052F311 /* ExternalUIViewController.swift */,
 			);
 			path = SentryTestUtils;
 			sourceTree = "<group>";
@@ -4489,6 +4492,7 @@
 				84AC61DB29F7654A009EEF61 /* TestDispatchSourceWrapper.swift in Sources */,
 				8431F01729B2851500D8DC56 /* TestSentrySystemWrapper.swift in Sources */,
 				84281C632A579D0700EE88F2 /* SentryProfilerMocks.mm in Sources */,
+				D80C990B2B0DFE410052F311 /* ExternalUIViewController.swift in Sources */,
 				84B7FA4129B28CD200AD93B1 /* TestSentryDispatchQueueWrapper.swift in Sources */,
 				84B7FA3E29B28ADD00AD93B1 /* TestClient.swift in Sources */,
 			);
@@ -5219,7 +5223,7 @@
 				DEVELOPMENT_TEAM = "";
 				EXECUTABLE_PREFIX = lib;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
-				MACH_O_TYPE = staticlib;
+				MACH_O_TYPE = mh_dylib;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = io.sentry.SentryTestUtils;
@@ -5373,7 +5377,7 @@
 				DEVELOPMENT_TEAM = "";
 				EXECUTABLE_PREFIX = lib;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
-				MACH_O_TYPE = staticlib;
+				MACH_O_TYPE = mh_dylib;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = io.sentry.SentryTestUtils;
@@ -5404,7 +5408,7 @@
 				DEVELOPMENT_TEAM = "";
 				EXECUTABLE_PREFIX = lib;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
-				MACH_O_TYPE = staticlib;
+				MACH_O_TYPE = mh_dylib;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = io.sentry.SentryTestUtils;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -5434,7 +5438,7 @@
 				DEVELOPMENT_TEAM = "";
 				EXECUTABLE_PREFIX = lib;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
-				MACH_O_TYPE = staticlib;
+				MACH_O_TYPE = mh_dylib;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = io.sentry.SentryTestUtils;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -5464,7 +5468,7 @@
 				DEVELOPMENT_TEAM = "";
 				EXECUTABLE_PREFIX = lib;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
-				MACH_O_TYPE = staticlib;
+				MACH_O_TYPE = mh_dylib;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = io.sentry.SentryTestUtils;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -5724,7 +5728,7 @@
 				DEVELOPMENT_TEAM = "";
 				EXECUTABLE_PREFIX = lib;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
-				MACH_O_TYPE = staticlib;
+				MACH_O_TYPE = mh_dylib;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = io.sentry.SentryTestUtils;
 				PRODUCT_NAME = "$(TARGET_NAME)";

@@ -22,6 +22,12 @@ class SentryUIViewControllerSwizzlingTests: XCTestCase {
                 cString: class_getImageName(SentryUIViewControllerSwizzlingTests.self)!,
                 encoding: .utf8)! as NSString
             options.add(inAppInclude: imageName.lastPathComponent)
+            
+            let externalImageName = String(
+                cString: class_getImageName(ExternalUIViewController.self)!,
+                encoding: .utf8)! as NSString
+            options.add(inAppInclude: externalImageName.lastPathComponent)
+            
             return options
         }
         
@@ -55,6 +61,20 @@ class SentryUIViewControllerSwizzlingTests: XCTestCase {
     override func tearDown() {
         super.tearDown()
         clearTestState()
+    }
+    
+    func testExternalViewControllerImage() {
+        //Test to ensure ExternalUIViewController exists in an external lib
+        //just in case someone changes the settings of the `SentryTestUtils` lib
+        let imageName = String(
+            cString: class_getImageName(SentryUIViewControllerSwizzlingTests.self)!,
+            encoding: .utf8)! as NSString
+        
+        let externalImageName = String(
+            cString: class_getImageName(ExternalUIViewController.self)!,
+            encoding: .utf8)! as NSString
+        
+        XCTAssertNotEqual(externalImageName, imageName)
     }
 
     func testShouldSwizzle_TestViewController() {
@@ -121,6 +141,14 @@ class SentryUIViewControllerSwizzlingTests: XCTestCase {
         } else {
             XCTAssertEqual(swizzler.viewControllers.count, 0)
         }
+    }
+    
+    func testSwizzlingOfExternalLibs() {
+        let sut = fixture.sut
+        sut.start()
+        let controller = ExternalUIViewController()
+        controller.loadView()
+        XCTAssertNotNil(SentrySDK.span)
     }
     
     func testSwizzle_fromScene_invalidNotification_NoObject() {

@@ -19,7 +19,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="equalSpacing" translatesAutoresizingMaskIntoConstraints="NO" id="Cod-iq-tSj">
-                                <rect key="frame" x="30.5" y="137.5" width="259" height="308"/>
+                                <rect key="frame" x="30.5" y="123.5" width="259" height="336"/>
                                 <subviews>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="cdR-H3-8fr">
                                         <rect key="frame" x="0.0" y="0.0" width="259" height="28"/>
@@ -132,6 +132,15 @@
                                         <connections>
                                             <action selector="showPageController:" destination="BYZ-38-t0r" eventType="touchUpInside" id="593-oc-O0p"/>
                                             <action selector="uiClickTransaction:" destination="BYZ-38-t0r" eventType="touchUpInside" id="UJy-CY-NIQ"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="tvP-G7-z60">
+                                        <rect key="frame" x="0.0" y="308" width="259" height="28"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="13"/>
+                                        <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
+                                        <state key="normal" title="External View Controller"/>
+                                        <connections>
+                                            <segue destination="oCp-Df-BWS" kind="show" id="iFk-us-OK4"/>
                                         </connections>
                                     </button>
                                 </subviews>
@@ -376,6 +385,22 @@
                 <placeholder placeholderIdentifier="IBFirstResponder" id="JzG-vp-oCD" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="1020" y="1685"/>
+        </scene>
+        <!--External View Controller-->
+        <scene sceneID="FBQ-Cn-whQ">
+            <objects>
+                <viewController id="oCp-Df-BWS" customClass="ExternalViewController" customModule="iOS_External" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="xra-iw-aq3">
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <viewLayoutGuide key="safeArea" id="Hqn-KI-o6p"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                    </view>
+                    <navigationItem key="navigationItem" id="AWo-oj-ODl"/>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="CiN-t1-bFc" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="649" y="2399"/>
         </scene>
         <!--Navigation Controller-->
         <scene sceneID="0gQ-IO-Fn5">

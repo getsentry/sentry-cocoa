@@ -160,10 +160,11 @@ static NSUInteger startInvocations;
     SENTRY_LOG_DEBUG(@"Dispatching init work required to run on main thread.");
     [SentryThreadWrapper onMainThread:^{
         SENTRY_LOG_DEBUG(@"SDK main thread init started...");
-        [SentrySDK installIntegrations];
 
         [SentryCrashWrapper.sharedInstance startBinaryImageCache];
         [SentryDependencyContainer.sharedInstance.binaryImageCache start];
+
+        [SentrySDK installIntegrations];
 #if TARGET_OS_IOS && SENTRY_HAS_UIKIT
         [SentryDependencyContainer.sharedInstance.uiDeviceWrapper start];
 #endif // TARGET_OS_IOS && SENTRY_HAS_UIKIT

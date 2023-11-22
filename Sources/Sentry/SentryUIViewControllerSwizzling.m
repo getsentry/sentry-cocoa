@@ -2,8 +2,10 @@
 
 #if SENTRY_HAS_UIKIT
 
+#    import "SentryBinaryImageCache.h"
 #    import "SentryDefaultObjCRuntimeWrapper.h"
 #    import "SentryDefines.h"
+#    import "SentryDependencyContainer.h"
 #    import "SentryLog.h"
 #    import "SentryNSProcessInfoWrapper.h"
 #    import "SentrySubClassFinder.h"
@@ -69,6 +71,15 @@ SentryUIViewControllerSwizzling ()
 
 - (void)start
 {
+    SentryBinaryImageCache *imageCache = SentryDependencyContainer.sharedInstance.binaryImageCache;
+
+    for (NSString *string in self.inAppLogic.inAppIncludes) {
+        NSString *pathToImage = [imageCache pathForImage:string];
+        if (pathToImage != nil) {
+            [self swizzleUIViewControllersOfImage:pathToImage];
+        }
+    }
+
     id<SentryUIApplication> app = [self findApp];
     if (app != nil) {
 
@@ -94,19 +105,6 @@ SentryUIViewControllerSwizzling ()
                                  @"no UISceneWillConnectNotification notification. Could not find "
                                  @"a rootViewController");
             }
-        }
-
-        [self swizzleAllSubViewControllersInApp:app];
-    } else {
-        // If we can't find an UIApplication instance we may use the current process path as the
-        // image name. This mostly happens with SwiftUI projects.
-        NSString *processImage = self.processInfoWrapper.processPath;
-        if (processImage) {
-            [self swizzleUIViewControllersOfImage:processImage];
-        } else {
-            SENTRY_LOG_DEBUG(
-                @"UIViewControllerSwizzling: Did not found image name from current process. "
-                @"Skipping Swizzling of view controllers");
         }
     }
 
