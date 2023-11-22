@@ -1,4 +1,5 @@
 #import "FileBasedTestCase.h"
+#import "SentryCrash+Test.h"
 #import "SentryCrash.h"
 #include "SentryCrashReportStore.h"
 
@@ -50,7 +51,8 @@ SentryCrash ()
 
 - (void)test_cleanBundleName
 {
-    SentryCrash *sentryCrash = [[SentryCrash alloc] init];
+    SentryCrash *sentryCrash = [[SentryCrash alloc]
+        initWithBasePath:[self.tempPath stringByAppendingPathComponent:@"Something"]];
 
     NSString *clearedBundleName = [sentryCrash clearBundleName:@"Sentry/Test"];
 
@@ -73,6 +75,28 @@ SentryCrash ()
         initWithBasePath:[self.tempPath stringByAppendingPathComponent:@"ReportsFake"]];
     NSArray *files = [sentryCrash getAttachmentPaths:12];
     XCTAssertEqual(files.count, 0);
+}
+
+- (void)test_installFailsWithNilBasePath
+{
+    SentryCrash *sentryCrash = [[SentryCrash alloc] initWithBasePath:nil];
+    XCTAssertEqual([sentryCrash install], NO);
+}
+
+- (void)test_install
+{
+    SentryCrash *sentryCrash = [[SentryCrash alloc] initWithBasePath:self.tempPath];
+    NSString *pathEnd = [@"SentryCrash" stringByAppendingPathComponent:[sentryCrash getBundleName]];
+    NSString *installPath = [self.tempPath stringByAppendingPathComponent:pathEnd];
+
+    XCTAssertEqual([sentryCrash install], YES);
+    XCTAssertTrue([NSFileManager.defaultManager fileExistsAtPath:installPath]);
+    XCTAssertTrue([NSFileManager.defaultManager
+        fileExistsAtPath:[installPath stringByAppendingPathComponent:@"Reports"]]);
+    XCTAssertTrue([NSFileManager.defaultManager
+        fileExistsAtPath:[installPath stringByAppendingPathComponent:@"Data"]]);
+    XCTAssertTrue([NSFileManager.defaultManager
+        fileExistsAtPath:[installPath stringByAppendingPathComponent:@"Data/CrashState.json"]]);
 }
 
 - (void)initReport:(uint64_t)reportId withScreenshots:(int)amount

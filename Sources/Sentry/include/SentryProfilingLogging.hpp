@@ -1,6 +1,6 @@
 #pragma once
 
-#if !defined(DEBUG)
+#if defined(DEBUG)
 
 #    include <cerrno>
 #    include <cstring>
@@ -39,7 +39,7 @@ namespace profiling {
 #    define SENTRY_PROF_LOG_WARN(...)
 #    define SENTRY_PROF_LOG_ERROR(...)
 
-#endif // !defined(DEBUG)
+#endif // defined(DEBUG)
 
 /**
  * Logs the error code returned by executing `statement`, and returns the

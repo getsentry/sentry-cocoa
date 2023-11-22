@@ -751,7 +751,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     // identify the user.
     if (event.user == nil) {
         SentryUser *user = [[SentryUser alloc] init];
-        user.userId = [SentryInstallation id];
+        user.userId = [SentryInstallation idWithCacheDirectoryPath:self.options.cacheDirectoryPath];
         event.user = user;
     }
 }

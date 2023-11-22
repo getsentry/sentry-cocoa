@@ -12,7 +12,7 @@ class SentryCrashInstallationReporterTests: XCTestCase {
     override func setUp() {
         super.setUp()
         sut = SentryCrashInstallationReporter(inAppLogic: SentryInAppLogic(inAppIncludes: [], inAppExcludes: []), crashWrapper: TestSentryCrashWrapper.sharedInstance(), dispatchQueue: TestSentryDispatchQueueWrapper())
-        sut.install()
+        sut.install(PrivateSentrySDKOnly.options.cacheDirectoryPath)
         // Works only if SentryCrash is installed
         sentrycrash_deleteAllReports()
     }
@@ -51,6 +51,7 @@ class SentryCrashInstallationReporterTests: XCTestCase {
     private func sdkStarted() {
         SentrySDK.start { options in
             options.dsn = SentryCrashInstallationReporterTests.dsnAsString
+            options.setIntegrations([SentryCrashIntegration.self])
         }
         let options = Options()
         options.dsn = SentryCrashInstallationReporterTests.dsnAsString

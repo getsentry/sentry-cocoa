@@ -86,7 +86,7 @@ SentryCrashIntegration ()
     self.scopeObserver =
         [[SentryCrashScopeObserver alloc] initWithMaxBreadcrumbs:options.maxBreadcrumbs];
 
-    [self startCrashHandler];
+    [self startCrashHandler:options.cacheDirectoryPath];
 
     [self configureScope];
 
@@ -98,7 +98,7 @@ SentryCrashIntegration ()
     return kIntegrationOptionEnableCrashHandler;
 }
 
-- (void)startCrashHandler
+- (void)startCrashHandler:(NSString *)cacheDirectory
 {
     void (^block)(void) = ^{
         BOOL canSendReports = NO;
@@ -115,7 +115,7 @@ SentryCrashIntegration ()
             canSendReports = YES;
         }
 
-        [installation install];
+        [installation install:cacheDirectory];
 
         // We need to send the crashed event together with the crashed session in the same envelope
         // to have proper statistics in release health. To achieve this we need both synchronously

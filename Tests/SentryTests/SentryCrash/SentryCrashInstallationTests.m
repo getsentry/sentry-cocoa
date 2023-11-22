@@ -46,7 +46,7 @@ NS_ASSUME_NONNULL_BEGIN
 {
     SentryCrashTestInstallation *installation = [self getSut];
 
-    [installation install];
+    [installation install:@"/private/tmp"];
 
     SentryCrashMonitorType monitorsAfterInstall
         = SentryDependencyContainer.sharedInstance.crashReporter.monitoring;
@@ -60,7 +60,7 @@ NS_ASSUME_NONNULL_BEGIN
 {
     SentryCrashTestInstallation *installation = [self getSut];
 
-    [installation install];
+    [installation install:@"/private/tmp"];
     [installation uninstall];
 
 #if SENTRY_UIKIT_AVAILABLE
@@ -72,7 +72,7 @@ NS_ASSUME_NONNULL_BEGIN
 {
     SentryCrashTestInstallation *installation = [self getSut];
 
-    [installation install];
+    [installation install:@"/private/tmp"];
 
     SentryCrashMonitorType monitorsAfterInstall
         = SentryDependencyContainer.sharedInstance.crashReporter.monitoring;
@@ -81,7 +81,7 @@ NS_ASSUME_NONNULL_BEGIN
     // To ensure multiple calls in a row work
     for (int i = 0; i < 10; i++) {
         [installation uninstall];
-        [installation install];
+        [installation install:@"/private/tmp"];
     }
 
     [self assertReinstalled:installation
@@ -91,7 +91,7 @@ NS_ASSUME_NONNULL_BEGIN
     [installation uninstall];
     [self assertUninstalled:installation monitorsAfterInstall:monitorsAfterInstall];
 
-    [installation install];
+    [installation install:@"/private/tmp"];
     [self assertReinstalled:installation
                 monitorsAfterInstall:monitorsAfterInstall
         crashHandlerDataAfterInstall:crashHandlerDataAfterInstall];

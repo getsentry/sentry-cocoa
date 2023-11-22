@@ -17,7 +17,7 @@ class SentryUIViewControllerSwizzlingTests: XCTestCase {
         }
         
         var options: Options {
-            let options = Options()
+            let options = Options.noIntegrations()
             let imageName = String(
                 cString: class_getImageName(SentryUIViewControllerSwizzlingTests.self)!,
                 encoding: .utf8)! as NSString
