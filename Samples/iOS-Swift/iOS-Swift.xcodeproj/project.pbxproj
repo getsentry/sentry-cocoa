@@ -662,6 +662,8 @@
 				7B64386E26A6C544000D0F65 /* PBXTargetDependency */,
 			);
 			name = "iOS-SwiftUITests";
+			packageProductDependencies = (
+			);
 			productName = "iOS-SwiftUITests";
 			productReference = 7B64386826A6C544000D0F65 /* iOS-SwiftUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
@@ -782,6 +784,9 @@
 				Base,
 			);
 			mainGroup = 637AFD9D243B02760034958B;
+			packageReferences = (
+				6268F2C02B0DF9920019DA38 /* XCRemoteSwiftPackageReference "Nimble" */,
+			);
 			productRefGroup = 637AFDA7243B02760034958B /* Products */;
 			projectDirPath = "";
 			projectReferences = (
@@ -1291,7 +1296,7 @@
 				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = 97JCY7859U;
 				INFOPLIST_FILE = "iOS-SwiftUITests/Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -1315,7 +1320,7 @@
 				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = 97JCY7859U;
 				INFOPLIST_FILE = "iOS-SwiftUITests/Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -1476,7 +1481,7 @@
 				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = 97JCY7859U;
 				INFOPLIST_FILE = "iOS-SwiftUITests/Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -1700,7 +1705,7 @@
 				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = 97JCY7859U;
 				INFOPLIST_FILE = "iOS-SwiftUITests/Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -2088,6 +2093,17 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		6268F2C02B0DF9920019DA38 /* XCRemoteSwiftPackageReference "Nimble" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/Quick/Nimble";
+			requirement = {
+				kind = exactVersion;
+				version = 10.0.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCVersionGroup section */
 		D845F35927BAD4CC00A4D7A2 /* SentryData.xcdatamodeld */ = {
