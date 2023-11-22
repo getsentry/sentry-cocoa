@@ -61,17 +61,26 @@
                                             <action selector="stopTransaction:" destination="BYZ-38-t0r" eventType="touchUpInside" id="r2S-U5-Af9"/>
                                         </connections>
                                     </button>
-                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="LvU-yx-01i">
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="LvU-yx-01i" userLabel="triggerANRRunLoop">
                                         <rect key="frame" x="0.0" y="84" width="259" height="28"/>
+                                        <accessibility key="accessibilityConfiguration" identifier="anrFillingRunLoop"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="13"/>
+                                        <state key="normal" title="ANR filling run loop"/>
+                                        <connections>
+                                            <action selector="anrFillingRunLoop:" destination="BYZ-38-t0r" eventType="touchUpInside" id="uqP-sv-C4a"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="5IM-MG-9GW">
+                                        <rect key="frame" x="0.0" y="112" width="259" height="28"/>
                                         <accessibility key="accessibilityConfiguration" identifier="showNibButton"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="13"/>
                                         <state key="normal" title="Nib Controller"/>
                                         <connections>
-                                            <action selector="showNibController:" destination="BYZ-38-t0r" eventType="touchUpInside" id="E8m-GA-zvY"/>
+                                            <action selector="showNibController:" destination="BYZ-38-t0r" eventType="touchUpInside" id="KQh-0W-Thz"/>
                                         </connections>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="RjO-LN-eHj">
-                                        <rect key="frame" x="0.0" y="112" width="259" height="28"/>
+                                        <rect key="frame" x="0.0" y="140" width="259" height="28"/>
                                         <accessibility key="accessibilityConfiguration" identifier="showTableViewButton"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="13"/>
                                         <state key="normal" title="Table Controller"/>
@@ -80,7 +89,7 @@
                                         </connections>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ok0-hq-2kK">
-                                        <rect key="frame" x="0.0" y="140" width="259" height="28"/>
+                                        <rect key="frame" x="0.0" y="168" width="259" height="28"/>
                                         <accessibility key="accessibilityConfiguration" identifier="showSplitViewButton"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="13"/>
                                         <state key="normal" title="Split Controller"/>
@@ -89,7 +98,7 @@
                                         </connections>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Jwi-v3-e8T">
-                                        <rect key="frame" x="0.0" y="168" width="259" height="28"/>
+                                        <rect key="frame" x="0.0" y="196" width="259" height="28"/>
                                         <accessibility key="accessibilityConfiguration" identifier="loremIpsumButton"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="13"/>
                                         <state key="normal" title="Lorem Ipsum Controller"/>
@@ -98,7 +107,7 @@
                                         </connections>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="cTC-V8-T1j">
-                                        <rect key="frame" x="0.0" y="196" width="259" height="28"/>
+                                        <rect key="frame" x="0.0" y="224" width="259" height="28"/>
                                         <accessibility key="accessibilityConfiguration" identifier="useCoreData"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="13"/>
                                         <state key="normal" title="Core Data Tests "/>
@@ -107,7 +116,7 @@
                                         </connections>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="8CV-WC-ffq">
-                                        <rect key="frame" x="0.0" y="224" width="259" height="28"/>
+                                        <rect key="frame" x="0.0" y="252" width="259" height="28"/>
                                         <accessibility key="accessibilityConfiguration" identifier="testNavigationTransactionButton"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="13"/>
                                         <state key="normal" title="Load Image Controller"/>
@@ -116,7 +125,7 @@
                                         </connections>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="mjD-vZ-Wtp" userLabel="UIClick Transaction">
-                                        <rect key="frame" x="0.0" y="252" width="259" height="28"/>
+                                        <rect key="frame" x="0.0" y="280" width="259" height="28"/>
                                         <accessibility key="accessibilityConfiguration" identifier="uiClickTransactionButton"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="13"/>
                                         <state key="normal" title="UIClick Transaction"/>
@@ -125,7 +134,7 @@
                                         </connections>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="PdX-TT-kn8" userLabel="Page Controller">
-                                        <rect key="frame" x="0.0" y="280" width="259" height="28"/>
+                                        <rect key="frame" x="0.0" y="308" width="259" height="28"/>
                                         <accessibility key="accessibilityConfiguration" identifier="pageControllerBtn"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="13"/>
                                         <state key="normal" title="Page Controller"/>
@@ -155,6 +164,9 @@
                     </view>
                     <tabBarItem key="tabBarItem" title="Transactions" image="clock.fill" catalog="system" selectedImage="clock.fill" id="ypv-KA-BBe"/>
                     <navigationItem key="navigationItem" title="Sentry Test App (Swift)" id="Ddh-Ww-vzM"/>
+                    <connections>
+                        <outlet property="anrFillingRunLoopButton" destination="LvU-yx-01i" id="Epa-mo-uMP"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>

@@ -84,6 +84,7 @@ class SentryStacktraceBuilderTests: XCTestCase {
             options.dsn = TestConstants.dsnAsString(username: "SentryStacktraceBuilderTests")
             options.swiftAsyncStacktraces = true
             options.debug = true
+            options.setIntegrations([SentryCrashIntegration.self, SentrySwiftAsyncIntegration.self])
         }
 
         let waitForAsyncToRun = expectation(description: "Wait async functions")
@@ -113,6 +114,7 @@ class SentryStacktraceBuilderTests: XCTestCase {
             options.dsn = TestConstants.dsnAsString(username: "SentryStacktraceBuilderTests")
             options.swiftAsyncStacktraces = false
             options.debug = true
+            options.setIntegrations([SentryCrashIntegration.self, SentrySwiftAsyncIntegration.self])
         }
 
         let waitForAsyncToRun = expectation(description: "Wait async functions")

@@ -36,26 +36,38 @@ class SentryViewHierarchyIntegrationTests: XCTestCase {
     }
 
     func test_attachViewHierarchy() {
-        SentrySDK.start { $0.attachViewHierarchy = false }
+        SentrySDK.start {
+            $0.attachViewHierarchy = false
+            $0.setIntegrations([SentryViewHierarchyIntegration.self])
+        }
         XCTAssertEqual(SentrySDK.currentHub().getClient()?.attachmentProcessors.count, 0)
         XCTAssertFalse(sentrycrash_hasSaveViewHierarchyCallback())
     }
 
     func test_attachViewHierarchy_enabled() {
-        SentrySDK.start { $0.attachViewHierarchy = true }
+        SentrySDK.start {
+            $0.attachViewHierarchy = true
+            $0.setIntegrations([SentryViewHierarchyIntegration.self])
+        }
         XCTAssertEqual(SentrySDK.currentHub().getClient()?.attachmentProcessors.count, 1)
         XCTAssertTrue(sentrycrash_hasSaveViewHierarchyCallback())
     }
 
     func test_uninstall() {
-        SentrySDK.start { $0.attachViewHierarchy = true }
+        SentrySDK.start {
+            $0.attachViewHierarchy = true
+            $0.setIntegrations([SentryViewHierarchyIntegration.self])
+        }
         SentrySDK.close()
         XCTAssertNil(SentrySDK.currentHub().getClient()?.attachmentProcessors)
         XCTAssertFalse(sentrycrash_hasSaveViewHierarchyCallback())
     }
 
     func test_integrationAddFileName() {
-        SentrySDK.start { $0.attachViewHierarchy = true }
+        SentrySDK.start {
+            $0.attachViewHierarchy = true
+            $0.setIntegrations([SentryViewHierarchyIntegration.self])
+        }
         saveViewHierarchy("/test/path")
         XCTAssertEqual("/test/path/view-hierarchy.json", fixture.viewHierarchy.saveFilePathUsed)
     }

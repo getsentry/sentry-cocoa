@@ -40,7 +40,7 @@ class SentryClientTest: XCTestCase {
         let dispatchQueue = TestSentryDispatchQueueWrapper()
         
         init() {
-            session = SentrySession(releaseName: "release")
+            session = SentrySession(releaseName: "release", distinctId: "some-id")
             session.incrementErrors()
 
             message = SentryMessage(formatted: messageAsString)
@@ -79,6 +79,7 @@ class SentryClientTest: XCTestCase {
                 let options = try Options(dict: [
                     "dsn": SentryClientTest.dsn
                 ])
+                options.removeAllIntegrations()
                 configureOptions(options)
 
                 client = SentryClient(
@@ -416,7 +417,7 @@ class SentryClientTest: XCTestCase {
         
         sut.add(processor)
         sut.captureError(error, with: Scope()) {
-            return SentrySession(releaseName: "")
+            return SentrySession(releaseName: "", distinctId: "some-id")
         }
         
         let sentAttachments = fixture.transportAdapter.sendEventWithTraceStateInvocations.first?.attachments ?? []
@@ -964,14 +965,14 @@ class SentryClientTest: XCTestCase {
     }
 
     func testCaptureSession() {
-        let session = SentrySession(releaseName: "release")
+        let session = SentrySession(releaseName: "release", distinctId: "some-id")
         fixture.getSut().capture(session: session)
 
         assertLastSentEnvelopeIsASession()
     }
     
     func testCaptureSessionWithoutReleaseName() {
-        let session = SentrySession(releaseName: "")
+        let session = SentrySession(releaseName: "", distinctId: "some-id")
         
         fixture.getSut().capture(session: session)
         fixture.getSut().capture(exception, with: Scope()) {
@@ -1345,7 +1346,7 @@ class SentryClientTest: XCTestCase {
         fixture.getSut().capture(message: "any message")
         
         try assertLastSentEvent { actual in
-            XCTAssertEqual(SentryInstallation.id(), actual.user?.userId)
+            XCTAssertEqual(SentryInstallation.id(withCacheDirectoryPath: PrivateSentrySDKOnly.options.cacheDirectoryPath), actual.user?.userId)
         }
     }
     

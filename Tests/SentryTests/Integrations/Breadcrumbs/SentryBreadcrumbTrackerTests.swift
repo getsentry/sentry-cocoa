@@ -75,9 +75,16 @@ class SentryBreadcrumbTrackerTests: XCTestCase {
         sut.start(with: delegate)
         sut.startSwizzle()
 
+        // Using UINavigationController as a parent doesn't work on tvOS 17.0
+        // for an unknown reason. Therefore, we manually set the parent.
+        class ParentUIViewController: UIViewController {
+            
+        }
+        let parentController = ParentUIViewController()
         let viewController = UIViewController()
-        _ = UINavigationController(rootViewController: viewController)
+        parentController.addChild(viewController)
         viewController.title = "test title"
+        
         print("delegate: \(String(describing: delegate))")
         print("tracker: \(sut); SentryBreadcrumbTracker.delegate: \(String(describing: Dynamic(sut).delegate.asObject))")
         viewController.viewDidAppear(false)
@@ -97,7 +104,7 @@ class SentryBreadcrumbTrackerTests: XCTestCase {
         XCTAssertEqual("UIViewController", lifeCycleCrumb.data?["screen"] as? String)
         XCTAssertEqual("test title", lifeCycleCrumb.data?["title"] as? String)
         XCTAssertEqual("false", lifeCycleCrumb.data?["beingPresented"] as? String)
-        XCTAssertEqual("UINavigationController", lifeCycleCrumb.data?["parentViewController"] as? String)
+        XCTAssertEqual("ParentUIViewController", lifeCycleCrumb.data?["parentViewController"] as? String)
         
         clearTestState()
     }

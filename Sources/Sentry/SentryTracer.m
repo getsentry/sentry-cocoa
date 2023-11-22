@@ -277,7 +277,7 @@ static BOOL appStartMeasurementRead;
 
 - (void)cancelDeadlineTimer
 {
-    // If the main thread is busy the tracer could be dealloc ated in between.
+    // If the main thread is busy the tracer could be deallocated in between.
     __weak SentryTracer *weakSelf = self;
 
     // The timer must be invalidated from the thread on which the timer was installed, see

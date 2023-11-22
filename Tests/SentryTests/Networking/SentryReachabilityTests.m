@@ -35,11 +35,13 @@
 
 - (void)setUp
 {
-    self.reachability = [[SentryReachability alloc] init];
     // Ignore the actual reachability callbacks, cause we call the callbacks manually.
     // Otherwise, the actual reachability callbacks are called during later unrelated tests causing
     // flakes.
     SentrySetReachabilityIgnoreActualCallback(YES);
+
+    self.reachability = [[SentryReachability alloc] init];
+    self.reachability.skipRegisteringActualCallbacks = YES;
 }
 
 - (void)tearDown
@@ -142,6 +144,20 @@
 
     XCTAssertEqual(1, observer.connectivityChangedInvocations);
 
+    [self.reachability removeObserver:observer];
+}
+
+/**
+ * We only want to make sure running the actual registering and unregistering callbacks doesn't
+ * crash.
+ */
+- (void)testRegisteringActualCallbacks
+{
+    self.reachability.skipRegisteringActualCallbacks = NO;
+
+    TestSentryReachabilityObserver *observer = [[TestSentryReachabilityObserver alloc] init];
+
+    [self.reachability addObserver:observer];
     [self.reachability removeObserver:observer];
 }
 

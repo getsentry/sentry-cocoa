@@ -120,7 +120,7 @@ jobs:
             xcode: "13.4.1"
             test-destination-os: "latest"
 
-            # macOS 13
+          # macOS 13
           - runs-on: macos-13
             platform: "macOS"
             xcode: "14.3"
@@ -158,6 +158,9 @@ jobs:
       - name: Allow test-server to run
         run: chmod +x ./test-server-exec
       - run: ./test-server-exec &
+
+      - name: Check test-server runs
+        run: curl http://localhost:8080/echo-baggage-header
 
       - run: ./scripts/ci-select-xcode.sh ${{matrix.xcode}}
 

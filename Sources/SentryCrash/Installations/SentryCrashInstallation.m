@@ -259,10 +259,11 @@ SentryCrashInstallation ()
     }
 }
 
-- (void)install
+- (void)install:(NSString *)customCacheDirectory
 {
     SentryCrash *handler = SentryDependencyContainer.sharedInstance.crashReporter;
     @synchronized(handler) {
+        handler.basePath = customCacheDirectory;
         g_crashHandlerData = self.crashHandlerData;
         handler.onCrash = crashCallback;
         [handler install];

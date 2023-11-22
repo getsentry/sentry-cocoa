@@ -59,10 +59,11 @@
 SentryCrash ()
 
 @property (nonatomic, readwrite, retain) NSString *bundleName;
-@property (nonatomic, readwrite, retain) NSString *basePath;
 @property (nonatomic, readwrite, assign) SentryCrashMonitorType monitoringWhenUninstalled;
 @property (nonatomic, readwrite, assign) BOOL monitoringFromUninstalledToRestore;
 @property (nonatomic, strong) SentryNSNotificationCenterWrapper *notificationCenter;
+
+- (NSString *)getBundleName;
 
 @end
 
@@ -89,21 +90,11 @@ SentryCrash ()
 #pragma mark - Lifecycle -
 // ============================================================================
 
-- (id)init
-{
-    return [self initWithBasePath:[self getBasePath]];
-}
-
-- (id)initWithBasePath:(NSString *)basePath
+- (instancetype)initWithBasePath:(NSString *)basePath
 {
     if ((self = [super init])) {
         self.bundleName = [self getBundleName];
         self.basePath = basePath;
-        if (self.basePath == nil) {
-            SentryCrashLOG_ERROR(@"Failed to initialize crash handler. Crash "
-                                 @"reporting disabled.");
-            return nil;
-        }
         self.deleteBehaviorAfterSendAll = SentryCrashCDeleteAlways;
         self.introspectMemory = YES;
         self.maxReportCount = 5;
@@ -235,6 +226,12 @@ SentryCrash ()
 
 - (BOOL)install
 {
+    if (self.basePath == nil) {
+        SentryCrashLOG_ERROR(@"Failed to initialize crash handler. Crash "
+                             @"reporting disabled.");
+        return NO;
+    }
+
     // Restore previous monitors when uninstall was called previously
     if (self.monitoringFromUninstalledToRestore
         && self.monitoringWhenUninstalled != SentryCrashMonitorTypeNone) {
@@ -243,7 +240,10 @@ SentryCrash ()
         self.monitoringFromUninstalledToRestore = NO;
     }
 
-    _monitoring = sentrycrash_install(self.bundleName.UTF8String, self.basePath.UTF8String);
+    NSString *pathEnd = [@"SentryCrash" stringByAppendingPathComponent:[self getBundleName]];
+    NSString *installPath = [self.basePath stringByAppendingPathComponent:pathEnd];
+
+    _monitoring = sentrycrash_install(self.bundleName.UTF8String, installPath.UTF8String);
     if (self.monitoring == 0) {
         return false;
     }
@@ -538,23 +538,6 @@ SYNTHESIZE_CRASH_STATE_PROPERTY(BOOL, crashedLastLaunch)
     NSString *bundleName =
         [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleName"] ?: @"Unknown";
     return [self clearBundleName:bundleName];
-}
-
-- (NSString *)getBasePath
-{
-    NSArray *directories
-        = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
-    if ([directories count] == 0) {
-        SentryCrashLOG_ERROR(@"Could not locate cache directory path.");
-        return nil;
-    }
-    NSString *cachePath = [directories objectAtIndex:0];
-    if ([cachePath length] == 0) {
-        SentryCrashLOG_ERROR(@"Could not locate cache directory path.");
-        return nil;
-    }
-    NSString *pathEnd = [@"SentryCrash" stringByAppendingPathComponent:[self getBundleName]];
-    return [cachePath stringByAppendingPathComponent:pathEnd];
 }
 
 @end

@@ -63,7 +63,7 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
 
 + (NSString *)installationID
 {
-    return [SentryInstallation id];
+    return [SentryInstallation idWithCacheDirectoryPath:self.options.cacheDirectoryPath];
 }
 
 + (SentryOptions *)options
