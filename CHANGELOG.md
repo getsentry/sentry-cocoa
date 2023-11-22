@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Finish transaction for external view controllers (#3440)
+
 ## 8.16.0
 
 ### Features
@@ -10,7 +16,6 @@
 ### Fixes
 
 - Infinite loop when parsing MetricKit data (#3395)
-- Finish transaction for external view controllers (#3440)
 - Fix incorrect implementation in #3398 to work around a profiling crash (#3405)
 - Fix crash in SentryFramesTracker (#3424)
 
