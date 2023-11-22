@@ -18,6 +18,7 @@ class SentryUIViewControllerSwizzlingTests: XCTestCase {
         
         var options: Options {
             let options = Options.noIntegrations()
+            
             let imageName = String(
                 cString: class_getImageName(SentryUIViewControllerSwizzlingTests.self)!,
                 encoding: .utf8)! as NSString
@@ -105,7 +106,16 @@ class SentryUIViewControllerSwizzlingTests: XCTestCase {
         fixture.sut.start()
         let controller = TestViewController()
         controller.loadView()
+        let span = SentrySDK.span
+        
+        //To finish the transaction we need to finish `initialDisplay` span
+        //by calling `viewWillAppear` and reporting a new frame
+        controller.viewWillAppear(false)
+        Dynamic(SentryDependencyContainer.sharedInstance().framesTracker).reportNewFrame()
+        
         XCTAssertNotNil(SentrySDK.span)
+        controller.viewDidAppear(false)
+        XCTAssertTrue(span?.isFinished == true)
     }
     
     func testViewControllerWithLoadView_TransactionBoundToScope() {
