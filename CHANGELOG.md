@@ -9,6 +9,7 @@
 ### Fixes
 
 - Infinite loop when parsing MetricKit data (#3395)
+- Finish transaction for external view controllers (#3440)
 
 ## 8.15.2
 
