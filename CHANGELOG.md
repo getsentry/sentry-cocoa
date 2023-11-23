@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Crash when dereferencing an invalid thread pointer (#3443)
+
 ## 8.16.1
 
 ### Fixes
