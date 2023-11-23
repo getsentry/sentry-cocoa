@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Features
+
+- SwiftUI support is no longer in Beta (#3441) 
+
 ### Fixes
 
 - Fix inaccurate number of frames for transactions (#3439)
