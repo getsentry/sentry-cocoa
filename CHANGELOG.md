@@ -1,6 +1,12 @@
 # Changelog
 
-## Unreleased
+## 8.16.1
+
+### Fixes
+
+- Fix inaccurate number of frames for transactions (#3439)
+
+## 8.16.0
 
 ### Features
 

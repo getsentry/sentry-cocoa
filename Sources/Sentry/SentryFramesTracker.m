@@ -93,7 +93,12 @@ slowFrameThreshold(uint64_t actualFramesPerSecond)
 
 - (void)start
 {
+    if (_isRunning) {
+        return;
+    }
+
     _isRunning = YES;
+
     [_displayLinkWrapper linkWithTarget:self selector:@selector(displayLinkCallback)];
 }
 
