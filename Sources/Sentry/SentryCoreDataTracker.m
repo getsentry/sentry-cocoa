@@ -20,7 +20,7 @@
     SentryPredicateDescriptor *predicateDescriptor;
     SentryThreadInspector *_threadInspector;
     SentryNSProcessInfoWrapper *_processInfoWrapper;
-    id<SentryAutoSpanStarter> autoSpanStarter;
+    id<SentryAutoSpanStarter> _autoSpanStarter;
 }
 
 - (instancetype)initWithThreadInspector:(SentryThreadInspector *)threadInspector
@@ -31,6 +31,7 @@
         predicateDescriptor = [[SentryPredicateDescriptor alloc] init];
         _threadInspector = threadInspector;
         _processInfoWrapper = processInfoWrapper;
+        _autoSpanStarter = autoSpanStarter;
     }
     return self;
 }
@@ -41,7 +42,7 @@
                       originalImp:(NSArray *(NS_NOESCAPE ^)(NSFetchRequest *, NSError **))original
 {
     __block id<SentrySpan> fetchSpan;
-    [SentrySDK.currentHub.scope useSpan:^(id<SentrySpan> _Nullable span) {
+    [_autoSpanStarter startSpan:^(id<SentrySpan> _Nullable span) {
         fetchSpan = [span startChildWithOperation:SENTRY_COREDATA_FETCH_OPERATION
                                       description:[self descriptionFromRequest:request]];
         fetchSpan.origin = SentryTraceOriginAutoDBCoreData;
@@ -82,7 +83,7 @@
         __block NSDictionary<NSString *, NSDictionary *> *operations =
             [self groupEntitiesOperations:context];
 
-        [SentrySDK.currentHub.scope useSpan:^(id<SentrySpan> _Nullable span) {
+        [_autoSpanStarter startSpan:^(id<SentrySpan> _Nullable span) {
             saveSpan = [span startChildWithOperation:SENTRY_COREDATA_SAVE_OPERATION
                                          description:[self descriptionForOperations:operations
                                                                           inContext:context]];

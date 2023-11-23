@@ -1,6 +1,5 @@
 #import "SentryANRTracker.h"
 #import "SentryAutoSpanOnScopeStarter.h"
-#import "SentryAutoSpanTransactionCarrierStarter.h"
 #import "SentryBinaryImageCache.h"
 #import "SentryCurrentDateProvider.h"
 #import "SentryDispatchFactory.h"
@@ -43,8 +42,6 @@
 #if !TARGET_OS_WATCH
 #    import "SentryReachability.h"
 #endif // !TARGET_OS_WATCH
-
-static const NSTimeInterval SENTRY_CARRIER_TRANSACTION_IDLE_TIMEOUT = 3.0;
 
 @implementation SentryDependencyContainer
 
@@ -169,15 +166,7 @@ static NSObject *sentryDependencyContainerLock;
     if (_autoSpanStarter == nil) {
         @synchronized(sentryDependencyContainerLock) {
             if (_autoSpanStarter == nil) {
-                SentryOptions *options = [[[SentrySDK currentHub] getClient] options];
-
-                if (options.enableSendAllAutoPerformanceSpans) {
-                    _autoSpanStarter = [[SentryAutoSpanTransactionCarrierStarter alloc]
-                        initWithDispatchQueueWrapper:self.dispatchQueueWrapper
-                                         idleTimeout:SENTRY_CARRIER_TRANSACTION_IDLE_TIMEOUT];
-                } else {
-                    _autoSpanStarter = [[SentryAutoSpanOnScopeStarter alloc] init];
-                }
+                _autoSpanStarter = [[SentryAutoSpanOnScopeStarter alloc] init];
             }
         }
     }

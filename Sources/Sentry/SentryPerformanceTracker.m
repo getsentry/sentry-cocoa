@@ -1,5 +1,4 @@
 #import "SentryPerformanceTracker.h"
-#import "SentryAutoSpanTransactionCarrierStarter.h"
 #import "SentryHub+Private.h"
 #import "SentryLog.h"
 #import "SentrySDK+Private.h"
@@ -67,23 +66,17 @@ SentryPerformanceTracker () <SentryTracerDelegate>
             BOOL bindToScope = NO;
             if (span == nil) {
                 bindToScope = YES;
-            } else {
+            }
 #if SENTRY_HAS_UIKIT
+            else {
                 if ([SentryUIEventTracker isUIEventOperation:span.operation]) {
                     SENTRY_LOG_DEBUG(
                         @"Cancelling previous UI event span %@", span.spanId.sentrySpanIdString);
                     [span finishWithStatus:kSentrySpanStatusCancelled];
                     bindToScope = YES;
                 }
-#endif // SENTRY_HAS_UIKIT
-                if ([SentryAutoSpanTransactionCarrierStarter isCarrierTransaction:span.operation]) {
-                    SENTRY_LOG_DEBUG(@"Finishing Carrier transaction before starting a screen load "
-                                     @"transaction %@",
-                        span.spanId.sentrySpanIdString);
-                    [span finishWithStatus:kSentrySpanStatusOk];
-                    bindToScope = YES;
-                }
             }
+#endif // SENTRY_HAS_UIKIT
 
             SENTRY_LOG_DEBUG(@"Creating new transaction bound to scope: %d", bindToScope);
 

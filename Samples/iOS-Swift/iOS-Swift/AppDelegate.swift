@@ -35,8 +35,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             let isBenchmarking = ProcessInfo.processInfo.arguments.contains("--io.sentry.test.benchmarking")
 
             // the benchmark test starts and stops a custom transaction using a UIButton, and automatic user interaction tracing stops the transaction that begins with that button press after the idle timeout elapses, stopping the profiler (only one profiler runs regardless of the number of concurrent transactions)
-            options.enableUserInteractionTracing = false
-            options.enableSendAllAutoPerformanceSpans = true
+            options.enableUserInteractionTracing = !isBenchmarking && !ProcessInfo.processInfo.arguments.contains("--disable-ui-tracing")
             options.enableAutoPerformanceTracing = !isBenchmarking && !ProcessInfo.processInfo.arguments.contains("--disable-auto-performance-tracing")
             options.enablePreWarmedAppStartTracing = !isBenchmarking
 

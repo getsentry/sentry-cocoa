@@ -112,7 +112,6 @@ NSString *const kSentryDefaultEnvironment = @"production";
         self.initialScope = ^SentryScope *(SentryScope *scope) { return scope; };
 
         _enableTracing = NO;
-        _enableSendAllAutoPerformanceSpans = NO;
         _enableTracingManual = NO;
 #if SENTRY_HAS_UIKIT
         self.enableUIViewControllerTracing = YES;
@@ -432,11 +431,6 @@ NSString *const kSentryDefaultEnvironment = @"production";
         self.enableTracing = [options[@"enableTracing"] boolValue];
     }
 
-    if ([options[@"enableSendAllAutoPerformanceSpans"] isKindOfClass:NSNumber.self]) {
-        self.enableSendAllAutoPerformanceSpans =
-            [options[@"enableSendAllAutoPerformanceSpans"] boolValue];
-    }
-
     if ([options[@"inAppIncludes"] isKindOfClass:[NSArray class]]) {
         NSArray<NSString *> *inAppIncludes =
             [options[@"inAppIncludes"] filteredArrayUsingPredicate:isNSString];
@@ -675,22 +669,10 @@ NSString *const kSentryDefaultEnvironment = @"production";
 #    endif // SENTRY_HAS_UIKIT
 }
 
-- (void)setEnableSendAllAutoPerformanceSpans:(BOOL)enableSendAllAutoPerformanceSpans
-{
-    _enableSendAllAutoPerformanceSpans = enableSendAllAutoPerformanceSpans;
-    if (_enableSendAllAutoPerformanceSpans) {
-        [self setEnableUserInteractionTracing:NO];
-    }
-}
-
 - (void)setEnableUserInteractionTracing:(BOOL)enableUserInteractionTracing
 {
 #    if SENTRY_HAS_UIKIT
-    if (_enableSendAllAutoPerformanceSpans) {
-        _enableUserInteractionTracing = NO;
-    } else {
-        _enableUserInteractionTracing = enableUserInteractionTracing;
-    }
+    _enableUserInteractionTracing = enableUserInteractionTracing;
 #    else
     SENTRY_GRACEFUL_FATAL(
         @"enableUserInteractionTracing only works with UIKit enabled. Ensure you're "

@@ -594,7 +594,6 @@
     XCTAssertEqual(20 * 1024 * 1024, options.maxAttachmentSize);
     XCTAssertEqual(NO, options.sendDefaultPii);
     XCTAssertTrue(options.enableAutoPerformanceTracing);
-    XCTAssertFalse(options.enableSendAllAutoPerformanceSpans);
 #if SENTRY_HAS_UIKIT
     XCTAssertTrue(options.enableUIViewControllerTracing);
     XCTAssertFalse(options.attachScreenshot);
@@ -727,22 +726,7 @@
     [self testBooleanField:@"enableAutoPerformanceTracing"];
 }
 
-- (void)testEnableSendAllAutoPerformanceSpans
-{
-    [self testBooleanField:@"enableSendAllAutoPerformanceSpans" defaultValue:NO];
-}
-
 #if SENTRY_HAS_UIKIT
-- (void)testEnableSendAllAutoPerformanceSpans_DisablesUserInteractionTracing
-{
-    SentryOptions *options = [[SentryOptions alloc] init];
-    options.enableSendAllAutoPerformanceSpans = YES;
-    XCTAssertFalse(options.enableUserInteractionTracing);
-
-    options.enableUserInteractionTracing = YES;
-    XCTAssertFalse(options.enableUserInteractionTracing);
-}
-
 - (void)testEnableUIViewControllerTracing
 {
     [self testBooleanField:@"enableUIViewControllerTracing"];

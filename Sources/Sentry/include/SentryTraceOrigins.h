@@ -2,7 +2,6 @@
 
 static NSString *const SentryTraceOriginManual = @"manual";
 static NSString *const SentryTraceOriginUIEventTracker = @"auto.ui.event_tracker";
-static NSString *const SentryTraceOriginCarrierTransaction = @"auto.carrier";
 
 static NSString *const SentryTraceOriginAutoAppStart = @"auto.app.start";
 static NSString *const SentryTraceOriginAutoNSData = @"auto.file.ns_data";
