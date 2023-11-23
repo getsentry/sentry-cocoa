@@ -11,11 +11,13 @@ class SentryUIViewControllerSwizzlingTests: XCTestCase {
         let objcRuntimeWrapper = SentryTestObjCRuntimeWrapper()
         let subClassFinder: TestSubClassFinder
         let processInfoWrapper = SentryNSProcessInfoWrapper()
+        let binaryImageCache : SentryBinaryImageCache
         
         init() {
             subClassFinder = TestSubClassFinder(dispatchQueue: dispatchQueue, objcRuntimeWrapper: objcRuntimeWrapper)
+            binaryImageCache = SentryDependencyContainer.sharedInstance().binaryImageCache
         }
-        
+         
         var options: Options {
             let options = Options.noIntegrations()
             
@@ -33,15 +35,15 @@ class SentryUIViewControllerSwizzlingTests: XCTestCase {
         }
         
         var sut: SentryUIViewControllerSwizzling {
-            return SentryUIViewControllerSwizzling(options: options, dispatchQueue: dispatchQueue, objcRuntimeWrapper: objcRuntimeWrapper, subClassFinder: subClassFinder, processInfoWrapper: processInfoWrapper)
+            return SentryUIViewControllerSwizzling(options: options, dispatchQueue: dispatchQueue, objcRuntimeWrapper: objcRuntimeWrapper, subClassFinder: subClassFinder, processInfoWrapper: processInfoWrapper, binaryImageCache: binaryImageCache)
         }
         
         var sutWithDefaultObjCRuntimeWrapper: SentryUIViewControllerSwizzling {
-            return SentryUIViewControllerSwizzling(options: options, dispatchQueue: dispatchQueue, objcRuntimeWrapper: SentryDefaultObjCRuntimeWrapper.sharedInstance(), subClassFinder: subClassFinder, processInfoWrapper: processInfoWrapper)
+            return SentryUIViewControllerSwizzling(options: options, dispatchQueue: dispatchQueue, objcRuntimeWrapper: SentryDefaultObjCRuntimeWrapper.sharedInstance(), subClassFinder: subClassFinder, processInfoWrapper: processInfoWrapper, binaryImageCache: binaryImageCache)
         }
         
         var testableSut: TestSentryUIViewControllerSwizzling {
-            return TestSentryUIViewControllerSwizzling(options: options, dispatchQueue: dispatchQueue, objcRuntimeWrapper: objcRuntimeWrapper, subClassFinder: subClassFinder, processInfoWrapper: processInfoWrapper)
+            return TestSentryUIViewControllerSwizzling(options: options, dispatchQueue: dispatchQueue, objcRuntimeWrapper: objcRuntimeWrapper, subClassFinder: subClassFinder, processInfoWrapper: processInfoWrapper, binaryImageCache: binaryImageCache)
         }
         
         var delegate: MockApplication.MockApplicationDelegate {
@@ -75,7 +77,7 @@ class SentryUIViewControllerSwizzlingTests: XCTestCase {
             cString: class_getImageName(ExternalUIViewController.self)!,
             encoding: .utf8)! as NSString
         
-        XCTAssertNotEqual(externalImageName, imageName)
+        XCTAssertNotEqual(externalImageName, imageName, "ExternalUIViewController is not in an external library.")
     }
 
     func testShouldSwizzle_TestViewController() {
@@ -226,46 +228,6 @@ class SentryUIViewControllerSwizzlingTests: XCTestCase {
         // We must keep one strong reference to the delegate. The mock has only a weak.
         let delegate = fixture.delegate
         XCTAssertTrue(fixture.sut.swizzleRootViewController(from: MockApplication(delegate)))
-    }
-    
-    func testSwizzleSubViewControllers_ImageNameIsNULL_NotCalled() {
-        let imageName = UnsafeMutablePointer<CChar>(nil)
-        fixture.objcRuntimeWrapper.imageName = UnsafePointer(imageName)
-        
-        // We must keep one strong reference to the delegate. The mock has only a weak.
-        let delegate = fixture.delegate
-        fixture.sut.swizzleAllSubViewControllers(inApp: MockApplication(delegate))
-        
-        XCTAssertEqual(0, fixture.subClassFinder.invocations.count)
-    }
-    
-    func testSwizzleSubViewControllers_ImageName_Called() {
-        let imageName = "imageName"
-        let bytes: [CChar] = imageName.cString(using: .ascii)!
-        let pointer = UnsafeMutablePointer<CChar>.allocate(capacity: bytes.count)
-        pointer.initialize(from: bytes, count: bytes.count)
-        fixture.objcRuntimeWrapper.imageName = UnsafePointer(pointer)
-        
-        // We must keep one strong reference to the delegate. The mock has only a weak.
-        let delegate = fixture.delegate
-        fixture.sut.swizzleAllSubViewControllers(inApp: MockApplication(delegate))
-        
-        XCTAssertEqual(1, fixture.subClassFinder.invocations.count)
-        
-        XCTAssertEqual(imageName, fixture.subClassFinder.invocations.first?.imageName)
-    }
-    
-    func testSwizzleSubViewControllers_ImageNameIsGarbage_NotCalled() {
-        let bytes: [CChar] = [0, 2, 3, 4]
-        let pointer = UnsafeMutablePointer<CChar>.allocate(capacity: bytes.count)
-        pointer.initialize(from: bytes, count: bytes.count)
-        fixture.objcRuntimeWrapper.imageName = UnsafePointer(pointer)
-        
-        // We must keep one strong reference to the delegate. The mock has only a weak.
-        let delegate = fixture.delegate
-        fixture.sut.swizzleAllSubViewControllers(inApp: MockApplication(delegate))
-        
-        XCTAssertEqual(0, fixture.subClassFinder.invocations.count)
     }
     
     func testSwizzleUIViewControllersOfClassesInImageOf_ClassIsNull() {

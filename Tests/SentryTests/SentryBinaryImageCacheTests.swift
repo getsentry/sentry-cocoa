@@ -1,4 +1,5 @@
 import XCTest
+import Nimble
 
 class SentryBinaryImageCacheTests: XCTestCase {
     var sut: SentryBinaryImageCache {
@@ -94,6 +95,17 @@ class SentryBinaryImageCacheTests: XCTestCase {
         XCTAssertEqual(sut.image(byAddress: 400)?.name, "Expected Name at 400")
         XCTAssertNil(sut.image(byAddress: 300))
         XCTAssertNil(sut.image(byAddress: 399))
+    }
+    
+    func testImagePathByName() {
+        var binaryImage = createCrashBinaryImage(0)
+        sut.binaryImageAdded(&binaryImage)
+        
+        let path = sut.path(forImage: "Expected Name at 0")
+        expect(path) == "Expected Name at 0"
+        
+        let didNotFind = sut.path(forImage: "Another_Image")
+        expect(didNotFind) == nil
     }
 
     func createCrashBinaryImage(_ address: UInt) -> SentryCrashBinaryImage {
