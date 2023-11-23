@@ -11,7 +11,7 @@ class SentryUIViewControllerSwizzlingTests: XCTestCase {
         let objcRuntimeWrapper = SentryTestObjCRuntimeWrapper()
         let subClassFinder: TestSubClassFinder
         let processInfoWrapper = SentryNSProcessInfoWrapper()
-        let binaryImageCache : SentryBinaryImageCache
+        let binaryImageCache: SentryBinaryImageCache
         
         init() {
             subClassFinder = TestSubClassFinder(dispatchQueue: dispatchQueue, objcRuntimeWrapper: objcRuntimeWrapper)
