@@ -43,7 +43,7 @@ SentryPerformanceTrackingIntegration ()
             subClassFinder:subClassFinder
         processInfoWrapper:[SentryDependencyContainer.sharedInstance processInfoWrapper]
           binaryImageCache:[SentryDependencyContainer.sharedInstance binaryImageCache]];
-    
+
     [self.swizzling start];
     SentryUIViewControllerPerformanceTracker.shared.enableWaitForFullDisplay
         = options.enableTimeToFullDisplayTracing;

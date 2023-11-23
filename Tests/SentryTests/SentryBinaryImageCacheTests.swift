@@ -1,5 +1,5 @@
-import XCTest
 import Nimble
+import XCTest
 
 class SentryBinaryImageCacheTests: XCTestCase {
     var sut: SentryBinaryImageCache {
