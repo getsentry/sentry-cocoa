@@ -45,6 +45,9 @@ namespace profiling {
     ThreadHandle::current() noexcept
     {
         const auto thread = pthread_mach_thread_np(pthread_self());
+        if (thread == (mach_port_t)NULL) {
+            return nullptr;
+        }
         return std::make_unique<ThreadHandle>(thread);
     }
 

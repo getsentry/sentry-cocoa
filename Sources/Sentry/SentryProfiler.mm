@@ -428,12 +428,16 @@ serializedProfileData(
               forTransaction:(SentryTransaction *)transaction;
 {
     payload[@"platform"] = transaction.platform;
+
+    const auto activeThreadID =
+        [transaction.trace.transactionContext sentry_threadInfo].threadId ?: @(-1);
     payload[@"transaction"] = @{
         @"id" : transaction.eventId.sentryIdString,
         @"trace_id" : transaction.trace.traceId.sentryIdString,
         @"name" : transaction.transaction,
-        @"active_thread_id" : [transaction.trace.transactionContext sentry_threadInfo].threadId
+        @"active_thread_id" : activeThreadID
     };
+
     const auto timestamp = transaction.trace.originalStartTimestamp;
     if (UNLIKELY(timestamp == nil)) {
         SENTRY_LOG_WARN(@"There was no start timestamp on the provided transaction. Falling back "

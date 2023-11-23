@@ -116,25 +116,31 @@ static const auto kSentryDefaultSamplingDecision = kSentrySampleDecisionUndecide
         _name = [NSString stringWithString:name];
         _nameSource = source;
         self.parentSampled = parentSampled;
+#if SENTRY_TARGET_PROFILING_SUPPORTED
         [self getThreadInfo];
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED
     }
     return self;
 }
 
+#if SENTRY_TARGET_PROFILING_SUPPORTED
 - (void)getThreadInfo
 {
-#if SENTRY_TARGET_PROFILING_SUPPORTED
-    const auto threadID = sentry::profiling::ThreadHandle::current()->tid();
+    const auto thread = sentry::profiling::ThreadHandle::current();
+    if (thread == nullptr) {
+        return;
+    }
+    const auto threadID = thread->tid();
     self.threadInfo = [[SentryThread alloc] initWithThreadId:@(threadID)];
-#endif
 }
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
-- (SentryThread *)sentry_threadInfo
+- (nullable SentryThread *)sentry_threadInfo
 {
     return self.threadInfo;
 }
-#endif
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
 - (void)commonInitWithName:(NSString *)name
                     source:(SentryTransactionNameSource)source
@@ -143,7 +149,9 @@ static const auto kSentryDefaultSamplingDecision = kSentrySampleDecisionUndecide
     _name = [NSString stringWithString:name];
     _nameSource = source;
     self.parentSampled = parentSampled;
+#if SENTRY_TARGET_PROFILING_SUPPORTED
     [self getThreadInfo];
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED
     SENTRY_LOG_DEBUG(@"Created transaction context with name %@", name);
 }
 

@@ -826,7 +826,7 @@ private extension SentryProfilerSwiftTests {
         XCTAssertNotEqual(SentryId.empty, linkedTransactionTraceId)
 
         let activeThreadId = try XCTUnwrap(linkedTransactionInfo["active_thread_id"] as? NSNumber)
-        XCTAssertEqual(activeThreadId, latestTransaction.trace.transactionContext.sentry_threadInfo().threadId)
+        XCTAssertEqual(activeThreadId, try XCTUnwrap(latestTransaction.trace.transactionContext.sentry_threadInfo()).threadId)
 
         for sample in samples {
             let timestamp = try XCTUnwrap(sample["elapsed_since_start_ns"] as? NSString)

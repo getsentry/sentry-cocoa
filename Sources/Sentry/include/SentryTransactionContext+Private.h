@@ -37,12 +37,15 @@ SentryTransactionContext ()
                parentSampled:(SentrySampleDecision)parentSampled;
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
-// This is currently only exposed for testing purposes, see -[SentryProfilerTests
-// testProfilerMutationDuringSerialization]
-@property (nonatomic, strong) SentryThread *threadInfo;
 
-- (SentryThread *)sentry_threadInfo;
-#endif
+// This is currently only exposed for testing purposes, see -[SentryProfilerTests
+// testProfilerMutationDuringSerialization]. Can be null if there was a problem
+// getting the current thread info from the underlying API.
+@property (nonatomic, strong, nullable) SentryThread *threadInfo;
+
+- (nullable SentryThread *)sentry_threadInfo;
+
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
 @end
 
