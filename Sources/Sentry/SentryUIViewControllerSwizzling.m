@@ -79,8 +79,8 @@ SentryUIViewControllerSwizzling ()
         if (pathToImage != nil) {
             [self swizzleUIViewControllersOfImage:pathToImage];
         } else {
-            SENTRY_LOG_DEBUG(
-                @"UIViewControllerSwizzling: Failed to find binary image for %@ module.", include);
+            SENTRY_LOG_WARN(
+                @"Failed to find the binary image for inAppInclude <@%> and, therefore can't instrument UIViewControllers in that binary", include);
         }
     }
 
