@@ -40,6 +40,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
+BOOL sentryShouldAddSlowFrozenFramesData(
+    NSInteger totalFrames, NSInteger slowFrames, NSInteger frozenFrames);
+
 NS_ASSUME_NONNULL_END
 
 #endif // SENTRY_HAS_UIKIT
