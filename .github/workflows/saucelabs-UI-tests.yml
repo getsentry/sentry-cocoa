@@ -1,9 +1,5 @@
 name: Sauce Labs UI Tests
 on:
-  # Schedule the UI tests so we can see in Sentry how the duration of transactions
-  # changes over time.
-  schedule:
-    - cron: '0 0 * * *'
   push:
     branches:
       - main
