@@ -104,7 +104,7 @@ SentryBinaryImageCache ()
     @synchronized(self) {
         for (SentryBinaryImageInfo *info in _cache) {
             if ([[info.name.lastPathComponent lowercaseString]
-                    isEqualToString:binaryName.lowercaseString]) {
+                    hasPrefix:binaryName.lowercaseString]) {
                 return info.name;
             }
         }
