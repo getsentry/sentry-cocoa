@@ -1,10 +1,12 @@
 # Changelog
 
-## 8.16.1
+## 8.17.0
 
 ### Features
 
 - SwiftUI support is no longer in Beta (#3441) 
+
+## 8.16.1
 
 ### Fixes
 
