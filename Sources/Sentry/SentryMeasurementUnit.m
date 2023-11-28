@@ -6,7 +6,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (void)load
 {
-    NSLog(@"%llu %s", clock_gettime_nsec_np(CLOCK_UPTIME_RAW), __PRETTY_FUNCTION__);
+    printf("%llu %s\n", clock_gettime_nsec_np(CLOCK_UPTIME_RAW), __PRETTY_FUNCTION__);
 }
 
 - (instancetype)initWithUnit:(NSString *)unit
@@ -33,7 +33,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (void)load
 {
-    NSLog(@"%llu %s", clock_gettime_nsec_np(CLOCK_UPTIME_RAW), __PRETTY_FUNCTION__);
+    printf("%llu %s\n", clock_gettime_nsec_np(CLOCK_UPTIME_RAW), __PRETTY_FUNCTION__);
 }
 
 + (SentryMeasurementUnitDuration *)nanosecond
@@ -82,7 +82,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (void)load
 {
-    NSLog(@"%llu %s", clock_gettime_nsec_np(CLOCK_UPTIME_RAW), __PRETTY_FUNCTION__);
+    printf("%llu %s\n", clock_gettime_nsec_np(CLOCK_UPTIME_RAW), __PRETTY_FUNCTION__);
 }
 
 + (SentryMeasurementUnitInformation *)bit
@@ -161,7 +161,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (void)load
 {
-    NSLog(@"%llu %s", clock_gettime_nsec_np(CLOCK_UPTIME_RAW), __PRETTY_FUNCTION__);
+    printf("%llu %s\n", clock_gettime_nsec_np(CLOCK_UPTIME_RAW), __PRETTY_FUNCTION__);
 }
 
 + (SentryMeasurementUnitFraction *)ratio

@@ -4,7 +4,7 @@
 
 + (void)load
 {
-    NSLog(@"%llu %s", clock_gettime_nsec_np(CLOCK_UPTIME_RAW), __PRETTY_FUNCTION__);
+    printf("%llu %s\n", clock_gettime_nsec_np(CLOCK_UPTIME_RAW), __PRETTY_FUNCTION__);
 }
 
 // Don't remove the static keyword. If you do the compiler adds the constant name to the global

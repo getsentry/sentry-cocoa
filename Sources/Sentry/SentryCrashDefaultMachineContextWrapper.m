@@ -22,7 +22,7 @@ SentryCrashThread mainThreadID;
 
 + (void)load
 {
-    NSLog(@"%llu %s", clock_gettime_nsec_np(CLOCK_UPTIME_RAW), __PRETTY_FUNCTION__);
+    printf("%llu %s\n", clock_gettime_nsec_np(CLOCK_UPTIME_RAW), __PRETTY_FUNCTION__);
     mainThreadID = pthread_mach_thread_np(pthread_self());
 }
 

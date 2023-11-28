@@ -43,7 +43,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (void)load
 {
-    NSLog(@"%llu %s", clock_gettime_nsec_np(CLOCK_UPTIME_RAW), __PRETTY_FUNCTION__);
+    printf("%llu %s\n", clock_gettime_nsec_np(CLOCK_UPTIME_RAW), __PRETTY_FUNCTION__);
 }
 
 @end
@@ -61,7 +61,7 @@ SentryMetricKitIntegration ()
 
 + (void)load
 {
-    NSLog(@"%llu %s", clock_gettime_nsec_np(CLOCK_UPTIME_RAW), __PRETTY_FUNCTION__);
+    printf("%llu %s\n", clock_gettime_nsec_np(CLOCK_UPTIME_RAW), __PRETTY_FUNCTION__);
 }
 
 - (BOOL)installWithOptions:(SentryOptions *)options

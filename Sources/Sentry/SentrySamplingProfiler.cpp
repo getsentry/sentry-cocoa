@@ -147,6 +147,7 @@ namespace profiling {
             return;
         }
 
+        printf("%llu started sampling\n", clock_gettime_nsec_np(CLOCK_UPTIME_RAW));
         SENTRY_PROF_LOG_KERN_RETURN(clock_alarm(clock_, TIME_RELATIVE, delaySpec_, port_));
     }
 
