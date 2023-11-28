@@ -1,6 +1,7 @@
 #import "SentryBinaryImageCache.h"
 #import "SentryCrashBinaryImageCache.h"
 #import "SentryDependencyContainer.h"
+#import "SentryInAppLogic.h"
 
 static void binaryImageWasAdded(const SentryCrashBinaryImage *image);
 
@@ -99,12 +100,11 @@ SentryBinaryImageCache ()
     return -1; // Address not found
 }
 
-- (nullable NSString *)pathForImage:(NSString *)binaryName
+- (nullable NSString *)pathForInAppInclude:(NSString *)inAppInclude
 {
     @synchronized(self) {
         for (SentryBinaryImageInfo *info in _cache) {
-            if ([[info.name.lastPathComponent lowercaseString]
-                    hasPrefix:binaryName.lowercaseString]) {
+            if ([SentryInAppLogic isImageNameInApp:info.name inAppInclude:inAppInclude]) {
                 return info.name;
             }
         }

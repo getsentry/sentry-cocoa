@@ -74,14 +74,14 @@ SentryUIViewControllerSwizzling ()
 
 - (void)start
 {
-    for (NSString *include in self.inAppLogic.inAppIncludes) {
-        NSString *pathToImage = [self.binaryImageCache pathForImage:include];
+    for (NSString *inAppInclude in self.inAppLogic.inAppIncludes) {
+        NSString *pathToImage = [self.binaryImageCache pathForInAppInclude:inAppInclude];
         if (pathToImage != nil) {
             [self swizzleUIViewControllersOfImage:pathToImage];
         } else {
             SENTRY_LOG_WARN(@"Failed to find the binary image for inAppInclude <%@> and, therefore "
                             @"can't instrument UIViewControllers in that binary",
-                include);
+                inAppInclude);
         }
     }
 

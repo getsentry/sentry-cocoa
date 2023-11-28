@@ -76,6 +76,8 @@ SENTRY_NO_INIT
  */
 - (BOOL)isClassInApp:(Class)targetClass;
 
++ (BOOL)isImageNameInApp:(NSString *)imageName inAppInclude:(NSString *)inAppInclude;
+
 @end
 
 NS_ASSUME_NONNULL_END
