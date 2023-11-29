@@ -43,12 +43,6 @@
 		84FB812A284001B800F3A94A /* SentryBenchmarking.mm in Sources */ = {isa = PBXBuildFile; fileRef = 84FB8129284001B800F3A94A /* SentryBenchmarking.mm */; };
 		84FB812B284001B800F3A94A /* SentryBenchmarking.mm in Sources */ = {isa = PBXBuildFile; fileRef = 84FB8129284001B800F3A94A /* SentryBenchmarking.mm */; };
 		8E8C57AF25EF16E6001CEEFA /* TraceTestViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E8C57AE25EF16E6001CEEFA /* TraceTestViewController.swift */; };
-		D80C98F22B0D077E0052F311 /* iOS_External.h in Headers */ = {isa = PBXBuildFile; fileRef = D80C98F12B0D077E0052F311 /* iOS_External.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		D80C98F52B0D077E0052F311 /* iOS_External.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D80C98EF2B0D077E0052F311 /* iOS_External.framework */; };
-		D80C98F62B0D077E0052F311 /* iOS_External.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = D80C98EF2B0D077E0052F311 /* iOS_External.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		D80C99082B0D07DA0052F311 /* ExternalViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D80C99072B0D07DA0052F311 /* ExternalViewController.swift */; };
-		D80C991B2B0E1B820052F311 /* Sentry.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 630853322440C44F00DDE4CE /* Sentry.framework */; };
-		D80C991C2B0E1B820052F311 /* Sentry.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 630853322440C44F00DDE4CE /* Sentry.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		D80D021329EE93630084393D /* ErrorsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D80D021229EE93630084393D /* ErrorsViewController.swift */; };
 		D80D021A29EE936F0084393D /* ExtraViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D80D021929EE936F0084393D /* ExtraViewController.swift */; };
 		D80D021B29EE9E3D0084393D /* ErrorsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D80D021229EE93630084393D /* ErrorsViewController.swift */; };
@@ -175,13 +169,6 @@
 			remoteGlobalIDString = 8431F00A29B284F200D8DC56;
 			remoteInfo = SentryTestUtils;
 		};
-		D80C98F32B0D077E0052F311 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 637AFD9E243B02760034958B /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = D80C98EE2B0D077E0052F311;
-			remoteInfo = "iOS-External";
-		};
 		D8105B5B297E792200299F03 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 6308532C2440C44F00DDE4CE /* Sentry.xcodeproj */;
@@ -210,6 +197,13 @@
 			remoteGlobalIDString = D840D51F273A07F400CDF142;
 			remoteInfo = "iOS-SwiftClip";
 		};
+		D84DAD702B177DB2003CF120 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 6308532C2440C44F00DDE4CE /* Sentry.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = D84DAD4D2B17428D003CF120;
+			remoteInfo = SentryTestUtilsDynamic;
+		};
 		D85DAA4F274C244F004DF43C /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 637AFD9E243B02760034958B /* Project object */;
@@ -227,7 +221,6 @@
 			dstSubfolderSpec = 10;
 			files = (
 				D83A30D8279F159D00372D0A /* Sentry.framework in Embed Frameworks */,
-				D80C98F62B0D077E0052F311 /* iOS_External.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -250,17 +243,6 @@
 			dstSubfolderSpec = 10;
 			files = (
 				848A256F286E3351008A8858 /* Sentry.framework in Embed Frameworks */,
-			);
-			name = "Embed Frameworks";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		D80C991D2B0E1B820052F311 /* Embed Frameworks */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 10;
-			files = (
-				D80C991C2B0E1B820052F311 /* Sentry.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -340,9 +322,6 @@
 		84FB8129284001B800F3A94A /* SentryBenchmarking.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = SentryBenchmarking.mm; sourceTree = "<group>"; };
 		84FB812C2840021B00F3A94A /* iOS-Swift-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "iOS-Swift-Bridging-Header.h"; sourceTree = "<group>"; };
 		8E8C57AE25EF16E6001CEEFA /* TraceTestViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TraceTestViewController.swift; sourceTree = "<group>"; };
-		D80C98EF2B0D077E0052F311 /* iOS_External.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = iOS_External.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		D80C98F12B0D077E0052F311 /* iOS_External.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = iOS_External.h; sourceTree = "<group>"; };
-		D80C99072B0D07DA0052F311 /* ExternalViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExternalViewController.swift; sourceTree = "<group>"; };
 		D80D021229EE93630084393D /* ErrorsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ErrorsViewController.swift; sourceTree = "<group>"; };
 		D80D021929EE936F0084393D /* ExtraViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExtraViewController.swift; sourceTree = "<group>"; };
 		D8269A39274C095E00BD5BD5 /* iOS13-Swift.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "iOS13-Swift.app"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -396,7 +375,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				630853532440C60F00DDE4CE /* Sentry.framework in Frameworks */,
-				D80C98F52B0D077E0052F311 /* iOS_External.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -413,14 +391,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				848A256B286E3351008A8858 /* Sentry.framework in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		D80C98EC2B0D077E0052F311 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				D80C991B2B0E1B820052F311 /* Sentry.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -460,6 +430,7 @@
 				D8105B5C297E792200299F03 /* SentrySwiftUI.framework */,
 				84B7FA5B29B2A86500AD93B1 /* SentryProfilerTests.xctest */,
 				84B7FA5D29B2A86500AD93B1 /* libSentryTestUtils.a */,
+				D84DAD712B177DB2003CF120 /* SentryTestUtilsDynamic.framework */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -481,7 +452,6 @@
 				D840D521273A07F400CDF142 /* iOS-SwiftClip */,
 				D8269A3A274C095E00BD5BD5 /* iOS13-Swift */,
 				D85DAA4A274C244F004DF43C /* iOS13-SwiftTests */,
-				D80C98F02B0D077E0052F311 /* iOS-External */,
 				637AFDA7243B02760034958B /* Products */,
 				634C7EC124406A4200AFDE9F /* Frameworks */,
 			);
@@ -498,7 +468,6 @@
 				D8269A39274C095E00BD5BD5 /* iOS13-Swift.app */,
 				D85DAA49274C244F004DF43C /* iOS13-SwiftTests.xctest */,
 				848A2573286E3351008A8858 /* PerformanceBenchmarks.xctest */,
-				D80C98EF2B0D077E0052F311 /* iOS_External.framework */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -565,15 +534,6 @@
 				84ACC43B2A73CB5900932A18 /* ProfilingNetworkScanner.swift */,
 			);
 			path = Profiling;
-			sourceTree = "<group>";
-		};
-		D80C98F02B0D077E0052F311 /* iOS-External */ = {
-			isa = PBXGroup;
-			children = (
-				D80C98F12B0D077E0052F311 /* iOS_External.h */,
-				D80C99072B0D07DA0052F311 /* ExternalViewController.swift */,
-			);
-			path = "iOS-External";
 			sourceTree = "<group>";
 		};
 		D8269A3A274C095E00BD5BD5 /* iOS13-Swift */ = {
@@ -672,17 +632,6 @@
 		};
 /* End PBXGroup section */
 
-/* Begin PBXHeadersBuildPhase section */
-		D80C98EA2B0D077E0052F311 /* Headers */ = {
-			isa = PBXHeadersBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				D80C98F22B0D077E0052F311 /* iOS_External.h in Headers */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-/* End PBXHeadersBuildPhase section */
-
 /* Begin PBXNativeTarget section */
 		637AFDA5243B02760034958B /* iOS-Swift */ = {
 			isa = PBXNativeTarget;
@@ -699,7 +648,6 @@
 			dependencies = (
 				630853522440C60800DDE4CE /* PBXTargetDependency */,
 				D840D533273A07F600CDF142 /* PBXTargetDependency */,
-				D80C98F42B0D077E0052F311 /* PBXTargetDependency */,
 			);
 			name = "iOS-Swift";
 			productName = "iOS-Swift";
@@ -747,25 +695,6 @@
 			productName = "iOS-SwiftUITests";
 			productReference = 848A2573286E3351008A8858 /* PerformanceBenchmarks.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
-		};
-		D80C98EE2B0D077E0052F311 /* iOS-External */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = D80C99002B0D077E0052F311 /* Build configuration list for PBXNativeTarget "iOS-External" */;
-			buildPhases = (
-				D80C98EA2B0D077E0052F311 /* Headers */,
-				D80C98EB2B0D077E0052F311 /* Sources */,
-				D80C98EC2B0D077E0052F311 /* Frameworks */,
-				D80C98ED2B0D077E0052F311 /* Resources */,
-				D80C991D2B0E1B820052F311 /* Embed Frameworks */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-			);
-			name = "iOS-External";
-			productName = "iOS-External";
-			productReference = D80C98EF2B0D077E0052F311 /* iOS_External.framework */;
-			productType = "com.apple.product-type.framework";
 		};
 		D8269A38274C095E00BD5BD5 /* iOS13-Swift */ = {
 			isa = PBXNativeTarget;
@@ -842,10 +771,6 @@
 						LastSwiftMigration = 1340;
 						TestTargetID = 637AFDA5243B02760034958B;
 					};
-					D80C98EE2B0D077E0052F311 = {
-						CreatedOnToolsVersion = 15.0.1;
-						LastSwiftMigration = 1500;
-					};
 					D8269A38274C095E00BD5BD5 = {
 						CreatedOnToolsVersion = 13.1;
 					};
@@ -886,7 +811,6 @@
 				D840D51F273A07F400CDF142 /* iOS-SwiftClip */,
 				D8269A38274C095E00BD5BD5 /* iOS13-Swift */,
 				D85DAA48274C244F004DF43C /* iOS13-SwiftTests */,
-				D80C98EE2B0D077E0052F311 /* iOS-External */,
 			);
 		};
 /* End PBXProject section */
@@ -934,6 +858,13 @@
 			remoteRef = D81A3499291D0B2C005A27A9 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
+		D84DAD712B177DB2003CF120 /* SentryTestUtilsDynamic.framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.framework;
+			path = SentryTestUtilsDynamic.framework;
+			remoteRef = D84DAD702B177DB2003CF120 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
 /* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
@@ -963,13 +894,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				848A256D286E3351008A8858 /* fatal-error-binary-images-message2.json in Resources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		D80C98ED2B0D077E0052F311 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1070,14 +994,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		D80C98EB2B0D077E0052F311 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				D80C99082B0D07DA0052F311 /* ExternalViewController.swift in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		D8269A35274C095E00BD5BD5 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -1151,11 +1067,6 @@
 			isa = PBXTargetDependency;
 			target = 637AFDA5243B02760034958B /* iOS-Swift */;
 			targetProxy = 848A2564286E3351008A8858 /* PBXContainerItemProxy */;
-		};
-		D80C98F42B0D077E0052F311 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = D80C98EE2B0D077E0052F311 /* iOS-External */;
-			targetProxy = D80C98F32B0D077E0052F311 /* PBXContainerItemProxy */;
 		};
 		D83A30CB279F075800372D0A /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -1938,180 +1849,6 @@
 			};
 			name = TestCI;
 		};
-		D80C98F72B0D077E0052F311 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
-				CLANG_ENABLE_MODULES = YES;
-				CODE_SIGN_IDENTITY = "iPhone Developer";
-				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
-				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 1;
-				DEFINES_MODULE = YES;
-				DEVELOPMENT_TEAM = "";
-				DYLIB_COMPATIBILITY_VERSION = 1;
-				DYLIB_CURRENT_VERSION = 1;
-				DYLIB_INSTALL_NAME_BASE = "@rpath";
-				ENABLE_MODULE_VERIFIER = YES;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
-				GCC_C_LANGUAGE_STANDARD = gnu17;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2023 Sentry. All rights reserved.";
-				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@loader_path/Frameworks",
-				);
-				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
-				MARKETING_VERSION = 1.0;
-				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
-				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu17 gnu++20";
-				PRODUCT_BUNDLE_IDENTIFIER = "io.sentry.iOS-External";
-				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
-				PROVISIONING_PROFILE_SPECIFIER = "";
-				SKIP_INSTALL = YES;
-				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
-				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				VERSIONING_SYSTEM = "apple-generic";
-				VERSION_INFO_PREFIX = "";
-			};
-			name = Debug;
-		};
-		D80C98F82B0D077E0052F311 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
-				CLANG_ENABLE_MODULES = YES;
-				CODE_SIGN_IDENTITY = "iPhone Distribution";
-				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Distribution";
-				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 1;
-				DEFINES_MODULE = YES;
-				DEVELOPMENT_TEAM = "";
-				DYLIB_COMPATIBILITY_VERSION = 1;
-				DYLIB_CURRENT_VERSION = 1;
-				DYLIB_INSTALL_NAME_BASE = "@rpath";
-				ENABLE_MODULE_VERIFIER = YES;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
-				GCC_C_LANGUAGE_STANDARD = gnu17;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2023 Sentry. All rights reserved.";
-				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@loader_path/Frameworks",
-				);
-				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
-				MARKETING_VERSION = 1.0;
-				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
-				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu17 gnu++20";
-				PRODUCT_BUNDLE_IDENTIFIER = "io.sentry.iOS-External";
-				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
-				PROVISIONING_PROFILE_SPECIFIER = "";
-				SKIP_INSTALL = YES;
-				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				VERSIONING_SYSTEM = "apple-generic";
-				VERSION_INFO_PREFIX = "";
-			};
-			name = Release;
-		};
-		D80C98F92B0D077E0052F311 /* TestCI */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
-				CLANG_ENABLE_MODULES = YES;
-				CODE_SIGN_IDENTITY = "iPhone Developer";
-				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
-				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 1;
-				DEFINES_MODULE = YES;
-				DEVELOPMENT_TEAM = "";
-				DYLIB_COMPATIBILITY_VERSION = 1;
-				DYLIB_CURRENT_VERSION = 1;
-				DYLIB_INSTALL_NAME_BASE = "@rpath";
-				ENABLE_MODULE_VERIFIER = YES;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
-				GCC_C_LANGUAGE_STANDARD = gnu17;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2023 Sentry. All rights reserved.";
-				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@loader_path/Frameworks",
-				);
-				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
-				MARKETING_VERSION = 1.0;
-				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
-				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu17 gnu++20";
-				PRODUCT_BUNDLE_IDENTIFIER = "io.sentry.iOS-External";
-				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
-				PROVISIONING_PROFILE_SPECIFIER = "";
-				SKIP_INSTALL = YES;
-				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				VERSIONING_SYSTEM = "apple-generic";
-				VERSION_INFO_PREFIX = "";
-			};
-			name = TestCI;
-		};
-		D80C98FA2B0D077E0052F311 /* Test */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
-				CLANG_ENABLE_MODULES = YES;
-				CODE_SIGN_IDENTITY = "iPhone Developer";
-				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
-				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 1;
-				DEFINES_MODULE = YES;
-				DEVELOPMENT_TEAM = "";
-				DYLIB_COMPATIBILITY_VERSION = 1;
-				DYLIB_CURRENT_VERSION = 1;
-				DYLIB_INSTALL_NAME_BASE = "@rpath";
-				ENABLE_MODULE_VERIFIER = YES;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
-				GCC_C_LANGUAGE_STANDARD = gnu17;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2023 Sentry. All rights reserved.";
-				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@loader_path/Frameworks",
-				);
-				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
-				MARKETING_VERSION = 1.0;
-				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
-				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu17 gnu++20";
-				PRODUCT_BUNDLE_IDENTIFIER = "io.sentry.iOS-External";
-				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
-				PROVISIONING_PROFILE_SPECIFIER = "";
-				SKIP_INSTALL = YES;
-				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				VERSIONING_SYSTEM = "apple-generic";
-				VERSION_INFO_PREFIX = "";
-			};
-			name = Test;
-		};
 		D8269A4A274C096000BD5BD5 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -2333,17 +2070,6 @@
 				848A2572286E3351008A8858 /* Release */,
 				84D4FE8B28ECD1ED00EDAAFE /* TestCI */,
 				84D4FE8328ECD1EA00EDAAFE /* Test */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		D80C99002B0D077E0052F311 /* Build configuration list for PBXNativeTarget "iOS-External" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				D80C98F72B0D077E0052F311 /* Debug */,
-				D80C98F82B0D077E0052F311 /* Release */,
-				D80C98F92B0D077E0052F311 /* TestCI */,
-				D80C98FA2B0D077E0052F311 /* Test */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
