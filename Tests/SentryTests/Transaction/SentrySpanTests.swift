@@ -523,6 +523,27 @@ class SentrySpanTests: XCTestCase {
         wait(for: [expectation], timeout: 1.0)
     }
     
+    func testAddSlowFrozenFramesToData_WithPreexistingCounts() {
+        let (displayLinkWrapper, framesTracker) = givenFramesTracker()
+        let preexistingSlow = 1
+        let preexistingFrozen = 2
+        let preexistingNormal = 3
+        displayLinkWrapper.renderFrames(preexistingSlow, preexistingFrozen, preexistingNormal)
+        
+        let sut = SentrySpan(context: SpanContext(operation: "TEST"), framesTracker: framesTracker)
+        
+        let slow = 7
+        let frozen = 8
+        let normal = 9
+        displayLinkWrapper.renderFrames(slow, frozen, normal)
+        
+        sut.finish()
+        
+        expect(sut.data["frames.total"] as? NSNumber) == NSNumber(value: slow + frozen + normal)
+        expect(sut.data["frames.slow"] as? NSNumber) == NSNumber(value: slow)
+        expect(sut.data["frames.frozen"] as? NSNumber) == NSNumber(value: frozen)
+    }
+    
     func testNoFramesTracker_NoFramesAddedToData() {
         let sut = SentrySpan(context: SpanContext(operation: "TEST"), framesTracker: nil)
         
