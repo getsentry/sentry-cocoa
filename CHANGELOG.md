@@ -6,6 +6,7 @@
 ### Fixes 
 
 - Crash when UINavigationController doesn't have rootViewController (#3455)
+- Crash when synchronizing invalid JSON breadcrumbs to SentryWatchdogTermination (#3458)
 
 ## 8.17.0
 
