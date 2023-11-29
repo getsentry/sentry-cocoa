@@ -48,11 +48,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (BOOL)isImageNameInApp:(NSString *)imageName inAppInclude:(NSString *)inAppInclude
 {
-    if ([imageName.lastPathComponent.lowercaseString hasPrefix:inAppInclude.lowercaseString]) {
-        return YES;
-    }
-
-    return NO;
+    return [imageName.lastPathComponent.lowercaseString hasPrefix:inAppInclude.lowercaseString];
 }
 
 @end
