@@ -17,9 +17,9 @@ class SentrySpanTests: XCTestCase {
         let currentDateProvider = TestCurrentDateProvider()
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
         let tracer = SentryTracer(context: SpanContext(operation: "TEST"), framesTracker: nil)
-        #else
+#else
         let tracer = SentryTracer(context: SpanContext(operation: "TEST"))
-        #endif
+#endif
 
         init() {
             options = Options()
