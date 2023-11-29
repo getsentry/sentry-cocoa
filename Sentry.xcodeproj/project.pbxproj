@@ -675,6 +675,7 @@
 		861265F92404EC1500C4AFDE /* NSArray+SentrySanitize.h in Headers */ = {isa = PBXBuildFile; fileRef = 861265F72404EC1500C4AFDE /* NSArray+SentrySanitize.h */; };
 		861265FA2404EC1500C4AFDE /* NSArray+SentrySanitize.m in Sources */ = {isa = PBXBuildFile; fileRef = 861265F82404EC1500C4AFDE /* NSArray+SentrySanitize.m */; };
 		8A889F842B17562900D53E50 /* ci_post_xcodebuild.sh in Resources */ = {isa = PBXBuildFile; fileRef = 8A889F832B17562900D53E50 /* ci_post_xcodebuild.sh */; };
+		8A889FBC2B176F7A00D53E50 /* ci_post_clone.sh in Resources */ = {isa = PBXBuildFile; fileRef = 8A889FBB2B176F7A00D53E50 /* ci_post_clone.sh */; };
 		8E0551E026A7A63C00400526 /* TestProtocolClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E0551DF26A7A63C00400526 /* TestProtocolClient.swift */; };
 		8E133FA225E72DEF00ABD0BF /* SentrySamplingContext.m in Sources */ = {isa = PBXBuildFile; fileRef = 8E133FA025E72DEF00ABD0BF /* SentrySamplingContext.m */; };
 		8E133FA625E72EB400ABD0BF /* SentrySamplingContext.h in Headers */ = {isa = PBXBuildFile; fileRef = 8E133FA525E72EB400ABD0BF /* SentrySamplingContext.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -1617,6 +1618,7 @@
 		861265F72404EC1500C4AFDE /* NSArray+SentrySanitize.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "NSArray+SentrySanitize.h"; path = "include/NSArray+SentrySanitize.h"; sourceTree = "<group>"; };
 		861265F82404EC1500C4AFDE /* NSArray+SentrySanitize.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSArray+SentrySanitize.m"; sourceTree = "<group>"; };
 		8A889F832B17562900D53E50 /* ci_post_xcodebuild.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = ci_post_xcodebuild.sh; sourceTree = "<group>"; };
+		8A889FBB2B176F7A00D53E50 /* ci_post_clone.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = ci_post_clone.sh; sourceTree = "<group>"; };
 		8E0551DF26A7A63C00400526 /* TestProtocolClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestProtocolClient.swift; sourceTree = "<group>"; };
 		8E133FA025E72DEF00ABD0BF /* SentrySamplingContext.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentrySamplingContext.m; sourceTree = "<group>"; };
 		8E133FA525E72EB400ABD0BF /* SentrySamplingContext.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SentrySamplingContext.h; path = Public/SentrySamplingContext.h; sourceTree = "<group>"; };
@@ -3232,6 +3234,7 @@
 			isa = PBXGroup;
 			children = (
 				8A889F832B17562900D53E50 /* ci_post_xcodebuild.sh */,
+				8A889FBB2B176F7A00D53E50 /* ci_post_clone.sh */,
 			);
 			path = ci_scipts;
 			sourceTree = "<group>";
@@ -3972,6 +3975,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				D8B0542E2A7D2C720056BAF6 /* PrivacyInfo.xcprivacy in Resources */,
+				8A889FBC2B176F7A00D53E50 /* ci_post_clone.sh in Resources */,
 				8A889F842B17562900D53E50 /* ci_post_xcodebuild.sh in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
