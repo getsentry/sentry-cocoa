@@ -2,6 +2,7 @@
 
 import Sentry
 import SentryTestUtils
+import SentryTestUtilsDynamic
 import XCTest
 
 class SentryUIViewControllerSwizzlingTests: XCTestCase {
