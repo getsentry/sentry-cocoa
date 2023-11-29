@@ -3792,6 +3792,7 @@
 				63AA75961EB8AEF500D153DE /* Sources */,
 				63AA75971EB8AEF500D153DE /* Frameworks */,
 				63AA75991EB8AEF500D153DE /* Resources */,
+				8A889FBA2B17684A00D53E50 /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -4006,6 +4007,26 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		8A889FBA2B17684A00D53E50 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\nif which sentry-cli >/dev/null; then\nexport SENTRY_ORG=danielszoketest\nexport SENTRY_PROJECT=python\nERROR=$(sentry-cli debug-files upload --include-sources \"$DWARF_DSYM_FOLDER_PATH\" --force-foreground 2>&1 >/dev/null)\nif [ ! $? -eq 0 ]; then\necho \"error: sentry-cli - $ERROR\"\nfi\nelse\necho \"error: sentry-cli not installed, download from https://github.com/getsentry/sentry-cli/releases\"\nfi\n\n";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		63AA75961EB8AEF500D153DE /* Sources */ = {
