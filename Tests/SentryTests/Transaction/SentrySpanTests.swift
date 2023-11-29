@@ -502,8 +502,7 @@ class SentrySpanTests: XCTestCase {
     func testDontAddZeroSlowFrozenFrames_WhenSpanStartedBackgroundThread() {
         let (displayLinkWrapper, framesTracker) = givenFramesTracker()
         
-        let dispatchGroup = DispatchGroup()
-        dispatchGroup.enter()
+        let expectation = expectation(description: "SpanStarted on a background thread")
         DispatchQueue.global().async {
             let sut = SentrySpan(context: SpanContext(operation: "TEST"), framesTracker: framesTracker)
             
@@ -518,10 +517,10 @@ class SentrySpanTests: XCTestCase {
             expect(sut.data["frames.slow"]) == nil
             expect(sut.data["frames.frozen"]) == nil
             
-            dispatchGroup.leave()
+            expectation.fulfill()
         }
         
-        dispatchGroup.wait()
+        wait(for: [expectation], timeout: 1.0)
     }
     
     func testNoFramesTracker_NoFramesAddedToData() {
