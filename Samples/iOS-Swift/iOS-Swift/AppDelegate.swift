@@ -31,6 +31,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             options.attachViewHierarchy = true
             options.environment = "test-app"
             options.enableTimeToFullDisplayTracing = true
+            
+            options.add(inAppInclude: "iOS_External")
 
             let isBenchmarking = ProcessInfo.processInfo.arguments.contains("--io.sentry.test.benchmarking")
 
