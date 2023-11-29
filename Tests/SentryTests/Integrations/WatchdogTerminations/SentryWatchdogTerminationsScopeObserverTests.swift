@@ -9,6 +9,7 @@ class SentryWatchdogTerminationScopeObserverTests: XCTestCase {
     
     private class Fixture {
         let breadcrumb: Breadcrumb
+        let invalidJSONbreadcrumb: [String: Double]
         let options: Options
         let fileManager: SentryFileManager
         let currentDate = TestCurrentDateProvider()
@@ -17,6 +18,8 @@ class SentryWatchdogTerminationScopeObserverTests: XCTestCase {
         init() {
             breadcrumb = TestData.crumb
             breadcrumb.data = nil
+          
+            invalidJSONbreadcrumb = [ "invalid": Double.infinity ]
 
             options = Options()
             options.dsn = SentryWatchdogTerminationScopeObserverTests.dsn
@@ -47,6 +50,17 @@ class SentryWatchdogTerminationScopeObserverTests: XCTestCase {
         fixture.fileManager.deleteAllFolders()
     }
 
+    // Test that we're storing the serialized breadcrumb in a proper JSON string
+    func testStoreInvalidJSONBreadcrumb() throws {
+        let breadcrumb = fixture.invalidJSONbreadcrumb
+
+        sut.addSerializedBreadcrumb(breadcrumb)
+
+        let fileOneContents = try String(contentsOfFile: fixture.fileManager.breadcrumbsFilePathOne)
+        let firstLine = fileOneContents.split(separator: "\n").first
+        XCTAssertNil(firstLine)
+    }
+  
     // Test that we're storing the serialized breadcrumb in a proper JSON string
     func testStoreBreadcrumb() throws {
         let breadcrumb = fixture.breadcrumb.serialize() as! [String: String]
