@@ -1061,7 +1061,7 @@ class SentryTracerTests: XCTestCase {
     
     func testChangeStartTimeStamp_RemovesFramesMeasurement() throws {
         let sut = fixture.getSut()
-        fixture.displayLinkWrapper.givenFrames(1, 1, 1)
+        fixture.displayLinkWrapper.renderFrames(1, 1, 1)
         sut.updateStartTime(try XCTUnwrap(sut.startTimestamp).addingTimeInterval(-1))
         
         sut.finish()
@@ -1076,7 +1076,7 @@ class SentryTracerTests: XCTestCase {
         let frozenFrames = 1
         let normalFrames = 100
         let totalFrames = slowFrames + frozenFrames + normalFrames
-        fixture.displayLinkWrapper.givenFrames(slowFrames, frozenFrames, normalFrames)
+        fixture.displayLinkWrapper.renderFrames(slowFrames, frozenFrames, normalFrames)
         
         sut.finish()
         
@@ -1093,7 +1093,7 @@ class SentryTracerTests: XCTestCase {
     }
     
     func testNegativeFramesAmount_NoMeasurementAdded() {
-        fixture.displayLinkWrapper.givenFrames(10, 10, 10)
+        fixture.displayLinkWrapper.renderFrames(10, 10, 10)
         
         let sut = fixture.getSut()
         

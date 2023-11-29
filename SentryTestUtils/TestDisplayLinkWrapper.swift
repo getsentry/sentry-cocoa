@@ -99,7 +99,7 @@ public class TestDisplayLinkWrapper: SentryDisplayLinkWrapper {
         call()
     }
     
-    public func givenFrames(_ slow: Int, _ frozen: Int, _ normal: Int) {
+    public func renderFrames(_ slow: Int, _ frozen: Int, _ normal: Int) {
         self.call()
 
         for _ in 0..<slow {

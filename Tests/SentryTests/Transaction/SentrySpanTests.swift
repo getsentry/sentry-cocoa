@@ -478,7 +478,7 @@ class SentrySpanTests: XCTestCase {
         let slow = 2
         let frozen = 1
         let normal = 100
-        displayLinkWrapper.givenFrames(slow, frozen, normal)
+        displayLinkWrapper.renderFrames(slow, frozen, normal)
         
         sut.finish()
         
@@ -510,7 +510,7 @@ class SentrySpanTests: XCTestCase {
             let slow = 2
             let frozen = 1
             let normal = 100
-            displayLinkWrapper.givenFrames(slow, frozen, normal)
+            displayLinkWrapper.renderFrames(slow, frozen, normal)
             
             sut.finish()
             
