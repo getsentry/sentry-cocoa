@@ -21,7 +21,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (nullable SentryBinaryImageInfo *)imageByAddress:(const uint64_t)address;
 
-- (nullable NSString *)pathForImage:(NSString *)binaryName;
+- (nullable NSString *)pathForInAppInclude:(NSString *)inAppInclude;
 
 @end
 

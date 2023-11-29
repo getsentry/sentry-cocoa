@@ -103,16 +103,16 @@ class SentryBinaryImageCacheTests: XCTestCase {
         sut.binaryImageAdded(&binaryImage)
         sut.binaryImageAdded(&binaryImage2)
         
-        let path = sut.path(forImage: "Expected Name at 0")
+        let path = sut.pathFor(inAppInclude: "Expected Name at 0")
         expect(path) == "Expected Name at 0"
         
-        let path2 = sut.path(forImage: "Expected Name at 1")
+        let path2 = sut.pathFor(inAppInclude: "Expected Name at 1")
         expect(path2) == "Expected Name at 1"
         
-        let path3 = sut.path(forImage: "Expected")
+        let path3 = sut.pathFor(inAppInclude: "Expected")
         expect(path3) == "Expected Name at 0"
         
-        let didNotFind = sut.path(forImage: "Name at 0")
+        let didNotFind = sut.pathFor(inAppInclude: "Name at 0")
         expect(didNotFind) == nil
     }
 

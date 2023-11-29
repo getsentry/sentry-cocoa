@@ -24,7 +24,7 @@ NS_ASSUME_NONNULL_BEGIN
     }
 
     for (NSString *inAppInclude in self.inAppIncludes) {
-        if ([imageName.lastPathComponent.lowercaseString hasPrefix:inAppInclude.lowercaseString])
+        if ([SentryInAppLogic isImageNameInApp:imageName inAppInclude:inAppInclude])
             return YES;
     }
 
@@ -44,6 +44,11 @@ NS_ASSUME_NONNULL_BEGIN
 
     NSString *classImageName = [NSString stringWithCString:imageName encoding:NSUTF8StringEncoding];
     return [self isInApp:classImageName];
+}
+
++ (BOOL)isImageNameInApp:(NSString *)imageName inAppInclude:(NSString *)inAppInclude
+{
+    return [imageName.lastPathComponent.lowercaseString hasPrefix:inAppInclude.lowercaseString];
 }
 
 @end
