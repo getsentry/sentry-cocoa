@@ -114,6 +114,7 @@ class SentryUIViewControllerSwizzlingTests: XCTestCase {
         //To finish the transaction we need to finish `initialDisplay` span
         //by calling `viewWillAppear` and reporting a new frame
         controller.viewWillAppear(false)
+        //This will call SentryTimeToDisplayTracker.framesTrackerHasNewFrame and finish the span its managing.
         Dynamic(SentryDependencyContainer.sharedInstance().framesTracker).reportNewFrame()
         
         XCTAssertNotNil(SentrySDK.span)
