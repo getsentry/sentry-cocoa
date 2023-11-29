@@ -6,6 +6,11 @@
 
 - Add slow and frozen frames to spans (#3450)
 
+### Fixes 
+
+- Crash when UINavigationController doesn't have rootViewController (#3455)
+- Crash when synchronizing invalid JSON breadcrumbs to SentryWatchdogTermination (#3458)
+
 ## 8.17.0
 
 ### Features
@@ -16,6 +21,7 @@
 
 ### Fixes
 
+- Finish transaction for external view controllers (#3440)
 - Fix inaccurate number of frames for transactions (#3439)
 
 ## 8.16.0

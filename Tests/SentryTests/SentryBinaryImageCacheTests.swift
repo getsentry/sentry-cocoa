@@ -1,3 +1,4 @@
+import Nimble
 import XCTest
 
 class SentryBinaryImageCacheTests: XCTestCase {
@@ -94,6 +95,25 @@ class SentryBinaryImageCacheTests: XCTestCase {
         XCTAssertEqual(sut.image(byAddress: 400)?.name, "Expected Name at 400")
         XCTAssertNil(sut.image(byAddress: 300))
         XCTAssertNil(sut.image(byAddress: 399))
+    }
+    
+    func testImagePathByName() {
+        var binaryImage = createCrashBinaryImage(0)
+        var binaryImage2 = createCrashBinaryImage(1)
+        sut.binaryImageAdded(&binaryImage)
+        sut.binaryImageAdded(&binaryImage2)
+        
+        let path = sut.pathFor(inAppInclude: "Expected Name at 0")
+        expect(path) == "Expected Name at 0"
+        
+        let path2 = sut.pathFor(inAppInclude: "Expected Name at 1")
+        expect(path2) == "Expected Name at 1"
+        
+        let path3 = sut.pathFor(inAppInclude: "Expected")
+        expect(path3) == "Expected Name at 0"
+        
+        let didNotFind = sut.pathFor(inAppInclude: "Name at 0")
+        expect(didNotFind) == nil
     }
 
     func createCrashBinaryImage(_ address: UInt) -> SentryCrashBinaryImage {
