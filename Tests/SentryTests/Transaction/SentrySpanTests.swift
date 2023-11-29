@@ -402,10 +402,10 @@ class SentrySpanTests: XCTestCase {
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
             let tracer = SentryTracer(context: SpanContext(operation: "TEST"), framesTracker: nil)
             return SentrySpan(tracer: tracer, context: SpanContext(operation: ""), framesTracker: nil)
-            #else
+#else
             let tracer = SentryTracer(context: SpanContext(operation: "TEST"))
             return SentrySpan(tracer: tracer, context: SpanContext(operation: ""))
-            #endif
+#endif
         }
         
         let sut = sutGenerator()
