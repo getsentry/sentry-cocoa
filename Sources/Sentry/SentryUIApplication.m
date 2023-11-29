@@ -204,7 +204,10 @@
     (UIViewController *)containerVC
 {
     if ([containerVC isKindOfClass:UINavigationController.class]) {
-        return @[ [(UINavigationController *)containerVC topViewController] ];
+        if ([(UINavigationController *)containerVC topViewController]) {
+            return @[ [(UINavigationController *)containerVC topViewController] ];
+        }
+        return nil;
     }
     if ([containerVC isKindOfClass:UITabBarController.class]) {
         UITabBarController *tbController = (UITabBarController *)containerVC;
