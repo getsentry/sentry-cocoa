@@ -246,10 +246,10 @@ BOOL
 sentryShouldAddSlowFrozenFramesData(
     NSInteger totalFrames, NSInteger slowFrames, NSInteger frozenFrames)
 {
-    BOOL allBiggerThanZero = totalFrames >= 0 && slowFrames >= 0 && frozenFrames >= 0;
+    BOOL allBiggerThanOrEqualToZero = totalFrames >= 0 && slowFrames >= 0 && frozenFrames >= 0;
     BOOL oneBiggerThanZero = totalFrames > 0 || slowFrames > 0 || frozenFrames > 0;
 
-    return allBiggerThanZero && oneBiggerThanZero;
+    return allBiggerThanOrEqualToZero && oneBiggerThanZero;
 }
 
 #endif // SENTRY_HAS_UIKIT
