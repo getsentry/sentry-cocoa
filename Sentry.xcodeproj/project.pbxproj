@@ -2019,7 +2019,7 @@
 		6327C5C91EB8A783004E799B = {
 			isa = PBXGroup;
 			children = (
-				8A889F822B1755F700D53E50 /* ci_scipts */,
+				8A889F822B1755F700D53E50 /* ci_scripts */,
 				843BD6282AD8752300B0098F /* .clang-format */,
 				844A34C3282B278500C6D1DF /* .github */,
 				844DA81628246D5000E6B62E /* .gitignore */,
@@ -3230,13 +3230,13 @@
 			path = SentryTestUtils;
 			sourceTree = "<group>";
 		};
-		8A889F822B1755F700D53E50 /* ci_scipts */ = {
+		8A889F822B1755F700D53E50 /* ci_scripts */ = {
 			isa = PBXGroup;
 			children = (
 				8A889F832B17562900D53E50 /* ci_post_xcodebuild.sh */,
 				8A889FBB2B176F7A00D53E50 /* ci_post_clone.sh */,
 			);
-			path = ci_scipts;
+			path = ci_scripts;
 			sourceTree = "<group>";
 		};
 		8E25C94F25F836AB00DC215B /* Tools */ = {
