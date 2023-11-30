@@ -7,7 +7,7 @@
 
 - Crash when UINavigationController doesn't have rootViewController (#3455)
 - Crash when synchronizing invalid JSON breadcrumbs to SentryWatchdogTermination (#3458)
-- Threading issues in binary image cache (#3467)
+- Threading issues in binary image cache (#3468)
 
 ## 8.17.0
 
