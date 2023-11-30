@@ -133,7 +133,7 @@ class SentryBinaryImageCacheTests: XCTestCase {
             }
         }
         
-        wait(for: [expectation])
+        waitForExpectations(timeout: 1)
     }
 
     func createCrashBinaryImage(_ address: UInt) -> SentryCrashBinaryImage {
