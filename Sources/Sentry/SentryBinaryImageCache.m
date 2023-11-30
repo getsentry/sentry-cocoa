@@ -2,6 +2,7 @@
 #import "SentryCrashBinaryImageCache.h"
 #import "SentryDependencyContainer.h"
 #import "SentryInAppLogic.h"
+#import "SentryLog.h"
 
 static void binaryImageWasAdded(const SentryCrashBinaryImage *image);
 
@@ -35,8 +36,21 @@ SentryBinaryImageCache ()
 
 - (void)binaryImageAdded:(const SentryCrashBinaryImage *)image
 {
+    if (image->name == NULL) {
+        SENTRY_LOG_WARN(@"The image name was NULL. Can't add image to cache.");
+        return;
+    }
+
+    NSString *imageName = [NSString stringWithCString:image->name encoding:NSUTF8StringEncoding];
+
+    if (imageName == nil) {
+        SENTRY_LOG_WARN(@"Couldn't convert the cString image name to an NSString. This could be "
+                        @"due to a different encoding than NSUTF8StringEncoding of the cString..");
+        return;
+    }
+
     SentryBinaryImageInfo *newImage = [[SentryBinaryImageInfo alloc] init];
-    newImage.name = [NSString stringWithCString:image->name encoding:NSUTF8StringEncoding];
+    newImage.name = imageName;
     newImage.address = image->address;
     newImage.size = image->size;
 

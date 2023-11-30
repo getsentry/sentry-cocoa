@@ -1,4 +1,5 @@
 import Nimble
+import SentryTestUtils
 import XCTest
 
 class SentryBinaryImageCacheTests: XCTestCase {
@@ -114,6 +115,54 @@ class SentryBinaryImageCacheTests: XCTestCase {
         
         let didNotFind = sut.pathFor(inAppInclude: "Name at 0")
         expect(didNotFind) == nil
+    }
+    
+    func testBinaryImageWithNULLName_DoesNotAddImage() {
+        let address = UInt64(100)
+    
+        var binaryImage = SentryCrashBinaryImage(
+            address: address,
+            vmAddress: 0,
+            size: 100,
+            name: nil,
+            uuid: nil,
+            cpuType: 1,
+            cpuSubType: 1,
+            majorVersion: 1,
+            minorVersion: 0,
+            revisionVersion: 0,
+            crashInfoMessage: nil,
+            crashInfoMessage2: nil
+        )
+        
+        sut.binaryImageAdded(&binaryImage)
+        expect(self.sut.image(byAddress: address)) == nil
+        expect(self.sut.cache.count) == 0
+    }
+    
+    func testBinaryImageNameDifferentEncoding_DoesNotAddImage() {
+        let name = NSString(string: "こんにちは") // "Hello" in Japanese
+        let nameCString = name.cString(using: NSShiftJISStringEncoding)
+        let address = UInt64(100)
+    
+        var binaryImage = SentryCrashBinaryImage(
+            address: address,
+            vmAddress: 0,
+            size: 100,
+            name: nameCString,
+            uuid: nil,
+            cpuType: 1,
+            cpuSubType: 1,
+            majorVersion: 1,
+            minorVersion: 0,
+            revisionVersion: 0,
+            crashInfoMessage: nil,
+            crashInfoMessage2: nil
+        )
+        
+        sut.binaryImageAdded(&binaryImage)
+        expect(self.sut.image(byAddress: address)) == nil
+        expect(self.sut.cache.count) == 0
     }
 
     func createCrashBinaryImage(_ address: UInt) -> SentryCrashBinaryImage {
