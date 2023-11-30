@@ -4,7 +4,6 @@
 
 #    import "SentryCompiler.h"
 #    import "SentryCurrentDateProvider.h"
-#    import "SentryDependencyContainer.h"
 #    import "SentryDisplayLinkWrapper.h"
 #    import "SentryLog.h"
 #    import "SentryProfiler.h"
@@ -21,11 +20,42 @@ typedef NSMutableArray<NSDictionary<NSString *, NSNumber *> *> SentryMutableFram
 
 static CFTimeInterval const SentryFrozenFrameThreshold = 0.7;
 static CFTimeInterval const SentryPreviousFrameInitialValue = -1;
+static NSInteger const SentryDelayedFramesCapacity = 1024;
+
+@interface SentryDelayedFrame : NSObject
+SENTRY_NO_INIT
+
+- (instancetype)initWithStartTimestamp:(uint64_t)startSystemTimestamp
+                      expectedDuration:(CFTimeInterval)expectedDuration
+                        actualDuration:(CFTimeInterval)actualDuration;
+
+@property (nonatomic, readonly) uint64_t startSystemTimestamp;
+@property (nonatomic, readonly) CFTimeInterval expectedDuration;
+@property (nonatomic, readonly) CFTimeInterval actualDuration;
+
+@end
+
+@implementation SentryDelayedFrame
+
+- (instancetype)initWithStartTimestamp:(uint64_t)startSystemTimestamp
+                      expectedDuration:(CFTimeInterval)expectedDuration
+                        actualDuration:(CFTimeInterval)actualDuration
+{
+    if (self = [super init]) {
+        _startSystemTimestamp = startSystemTimestamp;
+        _expectedDuration = expectedDuration;
+        _actualDuration = actualDuration;
+    }
+    return self;
+}
+
+@end
 
 @interface
 SentryFramesTracker ()
 
 @property (nonatomic, strong, readonly) SentryDisplayLinkWrapper *displayLinkWrapper;
+@property (nonatomic, strong, readonly) SentryCurrentDateProvider *dateProvider;
 @property (nonatomic, assign) CFTimeInterval previousFrameTimestamp;
 @property (nonatomic) uint64_t previousFrameSystemTimestamp;
 @property (nonatomic, strong) NSHashTable<id<SentryFramesTrackerListener>> *listeners;
@@ -34,6 +64,12 @@ SentryFramesTracker ()
 @property (nonatomic, readwrite) SentryMutableFrameInfoTimeSeries *slowFrameTimestamps;
 @property (nonatomic, readwrite) SentryMutableFrameInfoTimeSeries *frameRateTimestamps;
 #    endif // SENTRY_TARGET_PROFILING_SUPPORTED
+
+/**
+ * The delayed frames are stored as a ring buffer to minimize memory footprint.
+ */
+@property (nonatomic, strong) NSMutableArray<SentryDelayedFrame *> *delayedFrames;
+@property (nonatomic) uint8_t delayedFrameWriteIndex;
 
 @end
 
@@ -52,11 +88,15 @@ slowFrameThreshold(uint64_t actualFramesPerSecond)
 }
 
 - (instancetype)initWithDisplayLinkWrapper:(SentryDisplayLinkWrapper *)displayLinkWrapper
+                              dateProvider:(SentryCurrentDateProvider *)dateProvider;
 {
     if (self = [super init]) {
         _isRunning = NO;
         _displayLinkWrapper = displayLinkWrapper;
+        _dateProvider = dateProvider;
         _listeners = [NSHashTable weakObjectsHashTable];
+        _delayedFrames = [[NSMutableArray alloc] initWithCapacity:SentryDelayedFramesCapacity];
+        _delayedFrameWriteIndex = 0;
         [self resetFrames];
         SENTRY_LOG_DEBUG(@"Initialized frame tracker %@", self);
     }
@@ -105,8 +145,7 @@ slowFrameThreshold(uint64_t actualFramesPerSecond)
 - (void)displayLinkCallback
 {
     CFTimeInterval thisFrameTimestamp = self.displayLinkWrapper.timestamp;
-    uint64_t thisFrameSystemTimestamp
-        = SentryDependencyContainer.sharedInstance.dateProvider.systemTime;
+    uint64_t thisFrameSystemTimestamp = self.dateProvider.systemTime;
 
     if (self.previousFrameTimestamp == SentryPreviousFrameInitialValue) {
         self.previousFrameTimestamp = thisFrameTimestamp;
@@ -167,6 +206,13 @@ slowFrameThreshold(uint64_t actualFramesPerSecond)
                         array:self.frozenFrameTimestamps];
 #    endif // SENTRY_TARGET_PROFILING_SUPPORTED
     }
+
+    if (frameDuration > slowFrameThreshold(currentFrameRate)) {
+        [self recordDelayedFrame:self.previousFrameSystemTimestamp
+                expectedDuration:slowFrameThreshold(currentFrameRate)
+                  actualDuration:frameDuration];
+    }
+
     _totalFrames++;
     self.previousFrameTimestamp = thisFrameTimestamp;
     self.previousFrameSystemTimestamp = thisFrameSystemTimestamp;
@@ -212,6 +258,100 @@ slowFrameThreshold(uint64_t actualFramesPerSecond)
                                               frozen:_frozenFrames
                                                 slow:_slowFrames];
 #    endif // SENTRY_TARGET_PROFILING_SUPPORTED
+}
+
+- (void)recordDelayedFrame:(uint64_t)startSystemTimestamp
+          expectedDuration:(CFTimeInterval)expectedDuration
+            actualDuration:(CFTimeInterval)actualDuration
+{
+    @synchronized(self.delayedFrames) {
+        SENTRY_LOG_DEBUG(@"FrameDelay: Record expected:%f ms actual %f ms", expectedDuration * 1000,
+            actualDuration * 1000);
+        SentryDelayedFrame *delayedFrame =
+            [[SentryDelayedFrame alloc] initWithStartTimestamp:startSystemTimestamp
+                                              expectedDuration:expectedDuration
+                                                actualDuration:actualDuration];
+        if (self.delayedFrames.count < SentryDelayedFramesCapacity) {
+            [self.delayedFrames addObject:delayedFrame];
+        } else {
+            self.delayedFrames[self.delayedFrameWriteIndex] = delayedFrame;
+        }
+
+        self.delayedFrameWriteIndex
+            = (self.delayedFrameWriteIndex + 1) % SentryDelayedFramesCapacity;
+    }
+}
+
+- (CFTimeInterval)getFrameDelay:(uint64_t)startSystemTimestamp
+             endSystemTimestamp:(uint64_t)endSystemTimestamp
+{
+    CFTimeInterval delay = 0.0;
+
+    if (startSystemTimestamp >= endSystemTimestamp) {
+        return delay;
+    }
+
+    @synchronized(self.delayedFrames) {
+
+        // Although we use a ring buffer, and it could take a while until we get to frames within
+        // the time interval for which we want to return frame delay, we don't want to use a normal
+        // for loop with accessing the elements by index because NSFastEnumeration is faster than a
+        // normal for loop and in the worst case we need to iterate over all elements anyways. A
+        // binary search to find the first and last delayed frame in our time interval doesn't help
+        // either because, again, we need to iterate over all elements in the worst case.
+
+        uint64_t oldestDelayedFrameStartTimestamp = UINT64_MAX;
+        uint64_t newestDelayedFrameEndTimestamp = 0;
+
+        for (SentryDelayedFrame *frame in self.delayedFrames) {
+            if (frame.startSystemTimestamp < oldestDelayedFrameStartTimestamp) {
+                oldestDelayedFrameStartTimestamp = frame.startSystemTimestamp;
+            }
+
+            uint64_t frameEndSystemTimeStamp
+                = frame.startSystemTimestamp + timeIntervalToNanoseconds(frame.actualDuration);
+            if (frame.startSystemTimestamp < newestDelayedFrameEndTimestamp) {
+                newestDelayedFrameEndTimestamp = frameEndSystemTimeStamp;
+            }
+        }
+
+        if (oldestDelayedFrameStartTimestamp > startSystemTimestamp) {
+            return -1.0;
+        }
+
+        if (newestDelayedFrameEndTimestamp < endSystemTimestamp) {
+            return -1.0;
+        }
+
+        for (SentryDelayedFrame *frame in self.delayedFrames) {
+            NSDate *startDate =
+                [NSDate dateWithTimeIntervalSinceReferenceDate:nanosecondsToTimeInterval(
+                                                                   startSystemTimestamp)];
+            NSDate *endDate =
+                [NSDate dateWithTimeIntervalSinceReferenceDate:nanosecondsToTimeInterval(
+                                                                   endSystemTimestamp)];
+
+            CFTimeInterval delayStartTime
+                = nanosecondsToTimeInterval(frame.startSystemTimestamp) + frame.expectedDuration;
+            NSDate *frameDelayStartDate =
+                [NSDate dateWithTimeIntervalSinceReferenceDate:delayStartTime];
+
+            NSDateInterval *frameDelayDateInterval =
+                [[NSDateInterval alloc] initWithStartDate:startDate endDate:endDate];
+
+            // Only use the date interval for the actual delay
+            NSDateInterval *frameDateInterval = [[NSDateInterval alloc]
+                initWithStartDate:frameDelayStartDate
+                         duration:(frame.actualDuration - frame.expectedDuration)];
+
+            if ([frameDelayDateInterval intersectsDateInterval:frameDateInterval]) {
+                NSDateInterval *intersection =
+                    [frameDelayDateInterval intersectionWithDateInterval:frameDateInterval];
+                delay = delay + intersection.duration;
+            }
+        }
+    }
+    return delay;
 }
 
 - (void)addListener:(id<SentryFramesTrackerListener>)listener

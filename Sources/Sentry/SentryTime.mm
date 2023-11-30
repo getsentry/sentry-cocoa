@@ -15,6 +15,13 @@ timeIntervalToNanoseconds(double seconds)
     return (uint64_t)(seconds * 1e9);
 }
 
+double
+nanosecondsToTimeInterval(uint64_t nanoseconds)
+{
+    NSCAssert(nanoseconds <= UINT64_MAX, @"Nanoseconds must not exceed UINT64_MAX");
+    return (double)nanoseconds / 1e9;
+}
+
 uint64_t
 getAbsoluteTime(void)
 {

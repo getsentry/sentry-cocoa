@@ -5,6 +5,7 @@
 #    import "SentryProfilingConditionals.h"
 
 @class SentryOptions, SentryDisplayLinkWrapper, SentryScreenFrames;
+@class SentryCurrentDateProvider;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -21,7 +22,8 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @interface SentryFramesTracker : NSObject
 
-- (instancetype)initWithDisplayLinkWrapper:(SentryDisplayLinkWrapper *)displayLinkWrapper;
+- (instancetype)initWithDisplayLinkWrapper:(SentryDisplayLinkWrapper *)displayLinkWrapper
+                              dateProvider:(SentryCurrentDateProvider *)dateProvider;
 
 @property (nonatomic, assign, readonly) SentryScreenFrames *currentFrames;
 @property (nonatomic, assign, readonly) BOOL isRunning;
@@ -33,6 +35,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)start;
 - (void)stop;
+
+- (CFTimeInterval)getFrameDelay:(uint64_t)startSystemTimestamp
+             endSystemTimestamp:(uint64_t)endSystemTimestamp;
 
 - (void)addListener:(id<SentryFramesTrackerListener>)listener;
 

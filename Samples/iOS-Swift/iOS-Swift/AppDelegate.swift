@@ -66,7 +66,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 scope.setTag(value: "swift", key: "language")
                
                 let user = User(userId: "1")
-                user.email = "tony@example.com"
+                user.email = "philipp@example.com"
                 scope.setUser(user)
 
                 if let path = Bundle.main.path(forResource: "Tongariro", ofType: "jpg") {

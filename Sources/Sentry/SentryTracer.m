@@ -751,13 +751,22 @@ static BOOL appStartMeasurementRead;
         NSInteger slowFrames = currentFrames.slow - initSlowFrames;
         NSInteger frozenFrames = currentFrames.frozen - initFrozenFrames;
 
+        CFTimeInterval frameDelay = [framesTracker
+                 getFrameDelay:self.startSystemTime
+            endSystemTimestamp:SentryDependencyContainer.sharedInstance.dateProvider.systemTime];
+
         if (sentryShouldAddSlowFrozenFramesData(totalFrames, slowFrames, frozenFrames)) {
             [self setMeasurement:@"frames_total" value:@(totalFrames)];
             [self setMeasurement:@"frames_slow" value:@(slowFrames)];
             [self setMeasurement:@"frames_frozen" value:@(frozenFrames)];
+            [self setMeasurement:@"frames_delay"
+                           value:@(frameDelay)
+                            unit:SentryMeasurementUnitDuration.second];
 
-            SENTRY_LOG_DEBUG(@"Frames for transaction \"%@\" Total:%ld Slow:%ld Frozen:%ld",
-                self.operation, (long)totalFrames, (long)slowFrames, (long)frozenFrames);
+            SENTRY_LOG_DEBUG(@"FrameDelay: Frames for transaction \"%@\" Total:%ld Slow:%ld "
+                             @"Frozen:%ld delay:%f ms",
+                self.operation, (long)totalFrames, (long)slowFrames, (long)frozenFrames,
+                frameDelay * 1000);
         }
     }
 }

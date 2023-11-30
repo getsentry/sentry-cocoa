@@ -11,6 +11,8 @@ SENTRY_EXTERN_C_BEGIN
  */
 uint64_t timeIntervalToNanoseconds(double seconds);
 
+double nanosecondsToTimeInterval(uint64_t nanoseconds);
+
 /**
  * Returns the absolute timestamp, which has no defined reference point or unit
  * as it is platform dependent.

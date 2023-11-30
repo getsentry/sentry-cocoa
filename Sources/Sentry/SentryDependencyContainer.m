@@ -268,7 +268,8 @@ static NSObject *sentryDependencyContainerLock;
         @synchronized(sentryDependencyContainerLock) {
             if (_framesTracker == nil) {
                 _framesTracker = [[SentryFramesTracker alloc]
-                    initWithDisplayLinkWrapper:[[SentryDisplayLinkWrapper alloc] init]];
+                    initWithDisplayLinkWrapper:[[SentryDisplayLinkWrapper alloc] init]
+                                  dateProvider:self.dateProvider];
             }
         }
     }
