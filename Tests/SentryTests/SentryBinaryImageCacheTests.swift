@@ -115,6 +115,26 @@ class SentryBinaryImageCacheTests: XCTestCase {
         let didNotFind = sut.pathFor(inAppInclude: "Name at 0")
         expect(didNotFind) == nil
     }
+    
+    func testAddingImagesWhileStoppingAndStartingOnDifferentThread() {
+        let count = 1_000
+        
+        let expectation = expectation(description: "Add images on background thread")
+        expectation.expectedFulfillmentCount = count
+        
+        for i in 0..<count {
+            DispatchQueue.global().async {
+                var binaryImage0 = self.createCrashBinaryImage(UInt(i * 10))
+                self.sut.binaryImageAdded(&binaryImage0)
+                
+                self.sut.stop()
+                self.sut.start()
+                expectation.fulfill()
+            }
+        }
+        
+        waitForExpectations(timeout: 1)
+    }
 
     func createCrashBinaryImage(_ address: UInt) -> SentryCrashBinaryImage {
         let name = "Expected Name at \(address)"

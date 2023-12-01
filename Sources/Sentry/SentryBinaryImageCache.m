@@ -21,16 +21,20 @@ SentryBinaryImageCache ()
 
 - (void)start
 {
-    _cache = [NSMutableArray array];
-    sentrycrashbic_registerAddedCallback(&binaryImageWasAdded);
-    sentrycrashbic_registerRemovedCallback(&binaryImageWasRemoved);
+    @synchronized(self) {
+        _cache = [NSMutableArray array];
+        sentrycrashbic_registerAddedCallback(&binaryImageWasAdded);
+        sentrycrashbic_registerRemovedCallback(&binaryImageWasRemoved);
+    }
 }
 
 - (void)stop
 {
-    sentrycrashbic_registerAddedCallback(NULL);
-    sentrycrashbic_registerRemovedCallback(NULL);
-    _cache = nil;
+    @synchronized(self) {
+        sentrycrashbic_registerAddedCallback(NULL);
+        sentrycrashbic_registerRemovedCallback(NULL);
+        _cache = nil;
+    }
 }
 
 - (void)binaryImageAdded:(const SentryCrashBinaryImage *)image
