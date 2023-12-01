@@ -40,6 +40,11 @@ SentryBinaryImageCache ()
 
 - (void)binaryImageAdded:(const SentryCrashBinaryImage *)image
 {
+    if (image == NULL) {
+        SENTRY_LOG_WARN(@"The image is NULL. Can't add NULL to cache.");
+        return;
+    }
+
     if (image->name == NULL) {
         SENTRY_LOG_WARN(@"The image name was NULL. Can't add image to cache.");
         return;
@@ -78,6 +83,11 @@ SentryBinaryImageCache ()
 
 - (void)binaryImageRemoved:(const SentryCrashBinaryImage *)image
 {
+    if (image == NULL) {
+        SENTRY_LOG_WARN(@"The image is NULL. Can't remove it from the cache.");
+        return;
+    }
+
     @synchronized(self) {
         NSInteger index = [self indexOfImage:image->address];
         if (index >= 0) {

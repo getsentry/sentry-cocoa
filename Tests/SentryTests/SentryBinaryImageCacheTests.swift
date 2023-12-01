@@ -42,6 +42,12 @@ class SentryBinaryImageCacheTests: XCTestCase {
         XCTAssertEqual(sut.cache.first?.name, "Expected Name at 0")
         XCTAssertEqual(sut.cache[1].name, "Expected Name at 100")
     }
+    
+    func testBinaryImageAdded_IsNull() {
+        sut.binaryImageAdded(nil)
+        
+        expect(self.sut.cache.count) == 0
+    }
 
     func testBinaryImageRemoved() {
         var binaryImage0 = createCrashBinaryImage(0)
@@ -74,6 +80,15 @@ class SentryBinaryImageCacheTests: XCTestCase {
         sut.binaryImageRemoved(&binaryImage2)
         XCTAssertEqual(sut.cache.count, 0)
         XCTAssertNil(sut.image(byAddress: 240))
+    }
+    
+    func testBinaryImageRemoved_IsNull() {
+        var binaryImage = createCrashBinaryImage(0)
+        sut.binaryImageAdded(&binaryImage)
+        
+        sut.binaryImageRemoved(nil)
+        
+        expect(self.sut.cache.count) == 1
     }
 
     func testImageNameByAddress() {
