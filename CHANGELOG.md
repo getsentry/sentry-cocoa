@@ -8,6 +8,7 @@
 - Crash when UINavigationController doesn't have rootViewController (#3455)
 - Crash when synchronizing invalid JSON breadcrumbs to SentryWatchdogTermination (#3458)
 - Threading issues in binary image cache (#3468)
+- Finish transaction for external view controllers (#3440)
 
 ## 8.17.0
 
@@ -19,7 +20,6 @@
 
 ### Fixes
 
-- Finish transaction for external view controllers (#3440)
 - Fix inaccurate number of frames for transactions (#3439)
 
 ## 8.16.0
