@@ -1,4 +1,5 @@
 import Nimble
+import SentryTestUtils
 import XCTest
 
 class SentryBinaryImageCacheTests: XCTestCase {
@@ -41,6 +42,12 @@ class SentryBinaryImageCacheTests: XCTestCase {
         XCTAssertEqual(sut.cache.first?.name, "Expected Name at 0")
         XCTAssertEqual(sut.cache[1].name, "Expected Name at 100")
     }
+    
+    func testBinaryImageAdded_IsNull() {
+        sut.binaryImageAdded(nil)
+        
+        expect(self.sut.cache.count) == 0
+    }
 
     func testBinaryImageRemoved() {
         var binaryImage0 = createCrashBinaryImage(0)
@@ -73,6 +80,15 @@ class SentryBinaryImageCacheTests: XCTestCase {
         sut.binaryImageRemoved(&binaryImage2)
         XCTAssertEqual(sut.cache.count, 0)
         XCTAssertNil(sut.image(byAddress: 240))
+    }
+    
+    func testBinaryImageRemoved_IsNull() {
+        var binaryImage = createCrashBinaryImage(0)
+        sut.binaryImageAdded(&binaryImage)
+        
+        sut.binaryImageRemoved(nil)
+        
+        expect(self.sut.cache.count) == 1
     }
 
     func testImageNameByAddress() {
@@ -114,6 +130,56 @@ class SentryBinaryImageCacheTests: XCTestCase {
         
         let didNotFind = sut.pathFor(inAppInclude: "Name at 0")
         expect(didNotFind) == nil
+    }
+    
+    func testBinaryImageWithNULLName_DoesNotAddImage() {
+        let address = UInt64(100)
+    
+        var binaryImage = SentryCrashBinaryImage(
+            address: address,
+            vmAddress: 0,
+            size: 100,
+            name: nil,
+            uuid: nil,
+            cpuType: 1,
+            cpuSubType: 1,
+            majorVersion: 1,
+            minorVersion: 0,
+            revisionVersion: 0,
+            crashInfoMessage: nil,
+            crashInfoMessage2: nil
+        )
+        
+        sut.binaryImageAdded(&binaryImage)
+        expect(self.sut.image(byAddress: address)) == nil
+        expect(self.sut.cache.count) == 0
+    }
+    
+    func testBinaryImageNameDifferentEncoding_DoesNotAddImage() {
+        let name = NSString(string: "こんにちは") // "Hello" in Japanese
+        // 8 = NSShiftJISStringEncoding
+        // Passing NSShiftJISStringEncoding directly doesn't work on older Xcode versions.
+        let nameCString = name.cString(using: UInt(8))
+        let address = UInt64(100)
+    
+        var binaryImage = SentryCrashBinaryImage(
+            address: address,
+            vmAddress: 0,
+            size: 100,
+            name: nameCString,
+            uuid: nil,
+            cpuType: 1,
+            cpuSubType: 1,
+            majorVersion: 1,
+            minorVersion: 0,
+            revisionVersion: 0,
+            crashInfoMessage: nil,
+            crashInfoMessage2: nil
+        )
+        
+        sut.binaryImageAdded(&binaryImage)
+        expect(self.sut.image(byAddress: address)) == nil
+        expect(self.sut.cache.count) == 0
     }
     
     func testAddingImagesWhileStoppingAndStartingOnDifferentThread() {

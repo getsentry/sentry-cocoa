@@ -7,6 +7,7 @@
 
 - Crash when UINavigationController doesn't have rootViewController (#3455)
 - Crash when synchronizing invalid JSON breadcrumbs to SentryWatchdogTermination (#3458)
+- Check for NULL in binary image cache (#3469)
 - Threading issues in binary image cache (#3468)
 - Finish transaction for external view controllers (#3440)
 
