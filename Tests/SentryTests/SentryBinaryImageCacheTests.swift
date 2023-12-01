@@ -157,7 +157,9 @@ class SentryBinaryImageCacheTests: XCTestCase {
     
     func testBinaryImageNameDifferentEncoding_DoesNotAddImage() {
         let name = NSString(string: "こんにちは") // "Hello" in Japanese
-        let nameCString = name.cString(using: NSShiftJISStringEncoding)
+        // 8 = NSShiftJISStringEncoding
+        // Passing NSShiftJISStringEncoding directly doesn't work on older Xcode versions.
+        let nameCString = name.cString(using: UInt(8))
         let address = UInt64(100)
     
         var binaryImage = SentryCrashBinaryImage(
