@@ -40,6 +40,7 @@ SentrySpan ()
     NSUInteger initSlowFrames;
     NSUInteger initFrozenFrames;
     SentryFramesTracker *_framesTracker;
+    uint64_t startSystemTime;
 #endif // SENTRY_HAS_UIKIT
 }
 
@@ -50,6 +51,7 @@ SentrySpan ()
 {
     if (self = [super init]) {
         self.startTimestamp = [SentryDependencyContainer.sharedInstance.dateProvider date];
+        startSystemTime = SentryDependencyContainer.sharedInstance.dateProvider.systemTime;
         _data = [[NSMutableDictionary alloc] init];
 
         SentryCrashThread currentThread = sentrycrashthread_self();
@@ -208,6 +210,13 @@ SentrySpan ()
 #if SENTRY_HAS_UIKIT
     if (_framesTracker.isRunning) {
 
+        CFTimeInterval framesDelay = [_framesTracker
+                 getFrameDelay:startSystemTime
+            endSystemTimestamp:SentryDependencyContainer.sharedInstance.dateProvider.systemTime];
+        if (framesDelay >= 0) {
+            [self setDataValue:@(framesDelay) forKey:@"frames.delay"];
+        }
+
         SentryScreenFrames *currentFrames = _framesTracker.currentFrames;
         NSInteger totalFrames = currentFrames.total - initTotalFrames;
         NSInteger slowFrames = currentFrames.slow - initSlowFrames;
@@ -218,8 +227,9 @@ SentrySpan ()
             [self setDataValue:@(slowFrames) forKey:@"frames.slow"];
             [self setDataValue:@(frozenFrames) forKey:@"frames.frozen"];
 
-            SENTRY_LOG_DEBUG(@"Frames for span \"%@\" Total:%ld Slow:%ld Frozen:%ld",
-                self.operation, (long)totalFrames, (long)slowFrames, (long)frozenFrames);
+            SENTRY_LOG_DEBUG(@"Frames for span \"%@\" Total:%ld Slow:%ld Frozen:%ld Delay:%f ms",
+                self.operation, (long)totalFrames, (long)slowFrames, (long)frozenFrames,
+                framesDelay * 1000);
         }
     }
 

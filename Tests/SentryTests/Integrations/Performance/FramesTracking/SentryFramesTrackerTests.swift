@@ -22,6 +22,8 @@ class SentryFramesTrackerTests: XCTestCase {
     }
 
     private var fixture: Fixture!
+    
+    private let frameDelayCapacity = 1_024
 
     override func setUp() {
         super.setUp()
@@ -153,6 +155,33 @@ class SentryFramesTrackerTests: XCTestCase {
     }
     
     /**
+     * When there is no frame information around yet, because the frame about to be drawn is still delayed,
+     * the delay should be returned as such.
+     *
+     * [nf][ ------- ?? ------ ]   |  nf = normal frame,  ?? = No frame information
+     * [----  time interval ----]
+     */
+    func testFrameDelay_NoFrameRenderedButShouldHave_DelayReturned() {
+        let sut = fixture.sut
+        sut.start()
+
+        let startDate = fixture.dateProvider.systemTime()
+        
+        let displayLink = fixture.displayLinkWrapper
+        displayLink.call()
+        displayLink.normalFrame()
+        
+        let delayWithoutFrameRecord = 1.0
+        fixture.dateProvider.advance(by: delayWithoutFrameRecord)
+        let endDate = fixture.dateProvider.systemTime()
+        
+        let expectedDelay = delayWithoutFrameRecord - slowFrameThreshold(displayLink.currentFrameRate.rawValue)
+        
+        let actualFrameDelay = sut.getFrameDelay(startDate, endSystemTimestamp: endDate)
+        expect(actualFrameDelay).to(beCloseTo(expectedDelay, within: 0.0001))
+    }
+    
+    /**
      * The following test validates one delayed frame starting before time interval and ending with the time interval.
      *
      * [----  delayed frame ---- ]
@@ -204,6 +233,24 @@ class SentryFramesTrackerTests: XCTestCase {
         testFrameDelay(timeIntervalAfterFrameStart: timeIntervalAfterFrameStart, timeIntervalBeforeFrameEnd: timeIntervalBeforeFrameEnd, expectedDelay: expectedDelay)
     }
     
+    private func testFrameDelay(timeIntervalAfterFrameStart: TimeInterval = 0.0, timeIntervalBeforeFrameEnd: TimeInterval = 0.0, expectedDelay: TimeInterval) {
+        let sut = fixture.sut
+        sut.start()
+
+        let slowFrameStartDate = fixture.dateProvider.systemTime()
+        
+        let displayLink = fixture.displayLinkWrapper
+        displayLink.call()
+        _ = displayLink.slowestSlowFrame()
+        
+        let endDate = fixture.dateProvider.systemTime() - timeIntervalToNanoseconds(timeIntervalBeforeFrameEnd)
+        
+        let startDate = slowFrameStartDate + timeIntervalToNanoseconds(timeIntervalAfterFrameStart)
+        
+        let actualFrameDelay = sut.getFrameDelay(startDate, endSystemTimestamp: endDate)
+        expect(actualFrameDelay).to(beCloseTo(expectedDelay, within: 0.0001))
+    }
+    
     /**
      * The following test validates two delayed frames. The delay of the first one is fully added to the frame delay.
      * No delay of the second frame is added because only the expected frame duration overlaps with the time interval.
@@ -232,25 +279,7 @@ class SentryFramesTrackerTests: XCTestCase {
         expect(actualFrameDelay).to(beCloseTo(expectedDelay, within: 0.0001))
     }
     
-    private func testFrameDelay(timeIntervalAfterFrameStart: TimeInterval = 0.0, timeIntervalBeforeFrameEnd: TimeInterval = 0.0, expectedDelay: TimeInterval) {
-        let sut = fixture.sut
-        sut.start()
-
-        let slowFrameStartDate = fixture.dateProvider.systemTime()
-        
-        let displayLink = fixture.displayLinkWrapper
-        displayLink.call()
-        _ = displayLink.slowestSlowFrame()
-        
-        let endDate = fixture.dateProvider.systemTime() - timeIntervalToNanoseconds(timeIntervalBeforeFrameEnd)
-        
-        let startDate = slowFrameStartDate + timeIntervalToNanoseconds(timeIntervalAfterFrameStart)
-        
-        let actualFrameDelay = sut.getFrameDelay(startDate, endSystemTimestamp: endDate)
-        expect(actualFrameDelay).to(beCloseTo(expectedDelay, within: 0.0001))
-    }
-    
-    func testFrameDelay_WithStartBeforeEnd_Returns0() {
+    func testFrameDelay_WithStartBeforeEnd_ReturnsMinusOne() {
         let sut = fixture.sut
         sut.start()
         
@@ -259,58 +288,94 @@ class SentryFramesTrackerTests: XCTestCase {
         _ = displayLink.slowestSlowFrame()
         
         let actualFrameDelay = sut.getFrameDelay(1, endSystemTimestamp: 0)
-        expect(actualFrameDelay).to(beCloseTo(0.0, within: 0.0001))
+        expect(actualFrameDelay) == -1.0
     }
     
-    func testFrameDelay_LongestTimeStamp() {
+    func testFrameDelay_LongestTimeStamp_ReturnsMinusOne() {
         let sut = fixture.sut
         sut.start()
         
         let displayLink = fixture.displayLinkWrapper
         displayLink.call()
         _ = displayLink.slowestSlowFrame()
-        
-        let expectedDelay = displayLink.frozenFrameThreshold - slowFrameThreshold(displayLink.currentFrameRate.rawValue)
 
-        let actualFrameDelay = sut.getFrameDelay(0, endSystemTimestamp: UInt64.max)
-        expect(actualFrameDelay).to(beCloseTo(expectedDelay, within: 0.0001))
-    }
-    
-    func testFrameDelay_TimeSpanBiggerThanRecordOfDelayedFrames_Return0() {
-        let sut = fixture.sut
-        sut.start()
-        
-        let capacity = 1_024
-        
-        let displayLink = fixture.displayLinkWrapper
-        displayLink.call()
-        
-        for _ in 0..<(capacity * 2) {
-            _ = displayLink.slowestSlowFrame()
-        }
-
-        // We don't know what the frame delay was as the timespan is bigger
         let actualFrameDelay = sut.getFrameDelay(0, endSystemTimestamp: UInt64.max)
         expect(actualFrameDelay) == -1.0
     }
     
-    func testFrameDelay_KeepAddingSlowFrames_OnlyTheLast1024SlowFramesAreReturned() {
+    func testFrameDelay_KeepAddingSlowFrames_OnlyTheCapacityFramesReturned() {
+        let displayLink = fixture.displayLinkWrapper
         let sut = fixture.sut
         sut.start()
         
-        let capacity = 1_024
+        let startSystemTimeStamp = givenDelayedFramesCapacityFull()
         
-        let displayLink = fixture.displayLinkWrapper
-        displayLink.call()
+        let endDate = fixture.dateProvider.systemTime()
         
-        for _ in 0..<(capacity * 2) {
-            _ = displayLink.slowestSlowFrame()
-        }
-        
-        let expectedDelay = (displayLink.frozenFrameThreshold - slowFrameThreshold(displayLink.currentFrameRate.rawValue)) * Double(capacity)
+        let expectedDelay = (displayLink.frozenFrameThreshold - slowFrameThreshold(displayLink.currentFrameRate.rawValue)) * Double(frameDelayCapacity)
 
-        let actualFrameDelay = sut.getFrameDelay(0, endSystemTimestamp: UInt64.max)
+        let actualFrameDelay = sut.getFrameDelay(startSystemTimeStamp, endSystemTimestamp: endDate)
         expect(actualFrameDelay).to(beCloseTo(expectedDelay, within: 0.0001))
+    }
+    
+    func testFrameDelay_CapacityFull_FrameInformationMissing_DelayReturned() {
+        let sut = fixture.sut
+        let displayLink = fixture.displayLinkWrapper
+        sut.start()
+        
+        let startSystemTimeStamp = givenDelayedFramesCapacityFull()
+        
+        let delayWithoutFrameRecord = 2.0
+        fixture.dateProvider.advance(by: delayWithoutFrameRecord)
+        let endDate = fixture.dateProvider.systemTime()
+        
+        let delayNotRecorded = delayWithoutFrameRecord - slowFrameThreshold(displayLink.currentFrameRate.rawValue)
+        
+        let expectedDelay = (displayLink.frozenFrameThreshold - slowFrameThreshold(displayLink.currentFrameRate.rawValue)) * Double(frameDelayCapacity) + delayNotRecorded
+
+        let actualFrameDelay = sut.getFrameDelay(startSystemTimeStamp, endSystemTimestamp: endDate)
+        expect(actualFrameDelay).to(beCloseTo(expectedDelay, within: 0.0001))
+    }
+    
+    func testFrameDelay_CapacityFull_StartTimeTooEarly_ReturnsMinusOne() {
+        let sut = fixture.sut
+        sut.start()
+        
+        let startSystemTimeStamp = givenDelayedFramesCapacityFull()
+        
+        let endDate = fixture.dateProvider.systemTime()
+        
+        let actualFrameDelay = sut.getFrameDelay(startSystemTimeStamp - 1, endSystemTimestamp: endDate)
+        expect(actualFrameDelay).to(beCloseTo(-1, within: 0.0001), description: "startSystemTimeStamp starts one nanosecond before the oldest slow frame. Therefore the frame delay can't be calculated and should me 0.")
+    }
+    
+    func testFrameDelay_FramesTrackerNotRunning_ReturnsMinusOne() {
+        let sut = fixture.sut
+        sut.start()
+        
+        let startSystemTimeStamp = givenDelayedFramesCapacityFull()
+        
+        sut.stop()
+        
+        let endDate = fixture.dateProvider.systemTime()
+        
+        let actualFrameDelay = sut.getFrameDelay(startSystemTimeStamp, endSystemTimestamp: endDate)
+        expect(actualFrameDelay) == -1.0
+    }
+    
+    func testFrameDelay_RestartTracker_ReturnsMinusOne() {
+        let sut = fixture.sut
+        sut.start()
+        
+        let startSystemTimeStamp = givenDelayedFramesCapacityFull()
+        
+        sut.stop()
+        sut.start()
+        
+        let endDate = fixture.dateProvider.systemTime()
+        
+        let actualFrameDelay = sut.getFrameDelay(startSystemTimeStamp, endSystemTimestamp: endDate)
+        expect(actualFrameDelay) == -1.0
     }
 
     func testAddListener() {
@@ -363,6 +428,18 @@ class SentryFramesTrackerTests: XCTestCase {
         sutIsDeallocatedAfterCallingMe()
         
         XCTAssertEqual(1, fixture.displayLinkWrapper.invalidateInvocations.count)
+    }
+    
+    private func givenDelayedFramesCapacityFull() -> UInt64 {
+        let displayLink = fixture.displayLinkWrapper
+        displayLink.call()
+        
+        for _ in 0..<(frameDelayCapacity + 1) {
+            _ = displayLink.slowestSlowFrame()
+        }
+        
+        // Where the second frame starts
+        return timeIntervalToNanoseconds(displayLink.frozenFrameThreshold)
     }
 }
 

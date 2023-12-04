@@ -58,6 +58,7 @@ SentryFramesTracker ()
 @property (nonatomic, strong, readonly) SentryCurrentDateProvider *dateProvider;
 @property (nonatomic, assign) CFTimeInterval previousFrameTimestamp;
 @property (nonatomic) uint64_t previousFrameSystemTimestamp;
+@property (nonatomic) uint64_t currentFrameRate;
 @property (nonatomic, strong) NSHashTable<id<SentryFramesTrackerListener>> *listeners;
 #    if SENTRY_TARGET_PROFILING_SUPPORTED
 @property (nonatomic, readwrite) SentryMutableFrameInfoTimeSeries *frozenFrameTimestamps;
@@ -95,8 +96,8 @@ slowFrameThreshold(uint64_t actualFramesPerSecond)
         _displayLinkWrapper = displayLinkWrapper;
         _dateProvider = dateProvider;
         _listeners = [NSHashTable weakObjectsHashTable];
-        _delayedFrames = [[NSMutableArray alloc] initWithCapacity:SentryDelayedFramesCapacity];
-        _delayedFrameWriteIndex = 0;
+
+        _currentFrameRate = 60;
         [self resetFrames];
         SENTRY_LOG_DEBUG(@"Initialized frame tracker %@", self);
     }
@@ -120,6 +121,8 @@ slowFrameThreshold(uint64_t actualFramesPerSecond)
 #    if SENTRY_TARGET_PROFILING_SUPPORTED
     [self resetProfilingTimestamps];
 #    endif // SENTRY_TARGET_PROFILING_SUPPORTED
+
+    [self resetDelayedFramesTimeStamps];
 }
 
 #    if SENTRY_TARGET_PROFILING_SUPPORTED
@@ -130,6 +133,17 @@ slowFrameThreshold(uint64_t actualFramesPerSecond)
     self.frameRateTimestamps = [SentryMutableFrameInfoTimeSeries array];
 }
 #    endif // SENTRY_TARGET_PROFILING_SUPPORTED
+
+- (void)resetDelayedFramesTimeStamps
+{
+    _delayedFrames = [[NSMutableArray alloc] initWithCapacity:SentryDelayedFramesCapacity];
+    SentryDelayedFrame *initialFrame =
+        [[SentryDelayedFrame alloc] initWithStartTimestamp:[self.dateProvider systemTime]
+                                          expectedDuration:0
+                                            actualDuration:0];
+    [_delayedFrames addObject:initialFrame];
+    _delayedFrameWriteIndex = 1;
+}
 
 - (void)start
 {
@@ -161,11 +175,11 @@ slowFrameThreshold(uint64_t actualFramesPerSecond)
     // need to check the frame rate for every callback.
     // targetTimestamp is only available on iOS 10.0 and tvOS 10.0 and above. We use a fallback of
     // 60 fps.
-    uint64_t currentFrameRate = 60;
+    _currentFrameRate = 60;
     if (UNLIKELY((self.displayLinkWrapper.targetTimestamp == self.displayLinkWrapper.timestamp))) {
-        currentFrameRate = 60;
+        _currentFrameRate = 60;
     } else {
-        currentFrameRate = (uint64_t)round(
+        _currentFrameRate = (uint64_t)round(
             (1 / (self.displayLinkWrapper.targetTimestamp - self.displayLinkWrapper.timestamp)));
     }
 
@@ -174,12 +188,12 @@ slowFrameThreshold(uint64_t actualFramesPerSecond)
         BOOL hasNoFrameRatesYet = self.frameRateTimestamps.count == 0;
         uint64_t previousFrameRate
             = self.frameRateTimestamps.lastObject[@"value"].unsignedLongLongValue;
-        BOOL frameRateChanged = previousFrameRate != currentFrameRate;
+        BOOL frameRateChanged = previousFrameRate != _currentFrameRate;
         BOOL shouldRecordNewFrameRate = hasNoFrameRatesYet || frameRateChanged;
         if (shouldRecordNewFrameRate) {
             SENTRY_LOG_DEBUG(@"Recording new frame rate at %llu.", thisFrameSystemTimestamp);
             [self recordTimestamp:thisFrameSystemTimestamp
-                            value:@(currentFrameRate)
+                            value:@(_currentFrameRate)
                             array:self.frameRateTimestamps];
         }
     }
@@ -187,7 +201,7 @@ slowFrameThreshold(uint64_t actualFramesPerSecond)
 
     CFTimeInterval frameDuration = thisFrameTimestamp - self.previousFrameTimestamp;
 
-    if (frameDuration > slowFrameThreshold(currentFrameRate)
+    if (frameDuration > slowFrameThreshold(_currentFrameRate)
         && frameDuration <= SentryFrozenFrameThreshold) {
         _slowFrames++;
 #    if SENTRY_TARGET_PROFILING_SUPPORTED
@@ -207,9 +221,9 @@ slowFrameThreshold(uint64_t actualFramesPerSecond)
 #    endif // SENTRY_TARGET_PROFILING_SUPPORTED
     }
 
-    if (frameDuration > slowFrameThreshold(currentFrameRate)) {
+    if (frameDuration > slowFrameThreshold(_currentFrameRate)) {
         [self recordDelayedFrame:self.previousFrameSystemTimestamp
-                expectedDuration:slowFrameThreshold(currentFrameRate)
+                expectedDuration:slowFrameThreshold(_currentFrameRate)
                   actualDuration:frameDuration];
     }
 
@@ -285,11 +299,33 @@ slowFrameThreshold(uint64_t actualFramesPerSecond)
 - (CFTimeInterval)getFrameDelay:(uint64_t)startSystemTimestamp
              endSystemTimestamp:(uint64_t)endSystemTimestamp
 {
-    CFTimeInterval delay = 0.0;
+    CFTimeInterval cantCalculateFrameDelay = -1.0;
+
+    if (_isRunning == NO) {
+        SENTRY_LOG_DEBUG(@"Not calculating frames delay because frames tracker isn't running.");
+        return cantCalculateFrameDelay;
+    }
 
     if (startSystemTimestamp >= endSystemTimestamp) {
-        return delay;
+        SENTRY_LOG_DEBUG(@"Not calculating frames delay because startSystemTimestamp is before  "
+                         @"endSystemTimestamp");
+        return cantCalculateFrameDelay;
     }
+
+    if (endSystemTimestamp > self.dateProvider.systemTime) {
+        SENTRY_LOG_DEBUG(@"Not calculating frames delay endSystemTimestamp is in the future.");
+        return cantCalculateFrameDelay;
+    }
+
+    // Check if there is an delayed frame going on but not recorded yet.
+    CFTimeInterval thisFrameTimestamp = self.displayLinkWrapper.timestamp;
+    CFTimeInterval frameDuration = thisFrameTimestamp - self.previousFrameTimestamp;
+    CFTimeInterval ongoingDelayedFrame = 0.0;
+    if (frameDuration > slowFrameThreshold(_currentFrameRate)) {
+        ongoingDelayedFrame = frameDuration - slowFrameThreshold(_currentFrameRate);
+    }
+
+    CFTimeInterval delay = ongoingDelayedFrame;
 
     @synchronized(self.delayedFrames) {
 
@@ -301,26 +337,15 @@ slowFrameThreshold(uint64_t actualFramesPerSecond)
         // either because, again, we need to iterate over all elements in the worst case.
 
         uint64_t oldestDelayedFrameStartTimestamp = UINT64_MAX;
-        uint64_t newestDelayedFrameEndTimestamp = 0;
 
         for (SentryDelayedFrame *frame in self.delayedFrames) {
             if (frame.startSystemTimestamp < oldestDelayedFrameStartTimestamp) {
                 oldestDelayedFrameStartTimestamp = frame.startSystemTimestamp;
             }
-
-            uint64_t frameEndSystemTimeStamp
-                = frame.startSystemTimestamp + timeIntervalToNanoseconds(frame.actualDuration);
-            if (frame.startSystemTimestamp < newestDelayedFrameEndTimestamp) {
-                newestDelayedFrameEndTimestamp = frameEndSystemTimeStamp;
-            }
         }
 
         if (oldestDelayedFrameStartTimestamp > startSystemTimestamp) {
-            return -1.0;
-        }
-
-        if (newestDelayedFrameEndTimestamp < endSystemTimestamp) {
-            return -1.0;
+            return cantCalculateFrameDelay;
         }
 
         for (SentryDelayedFrame *frame in self.delayedFrames) {
@@ -373,6 +398,7 @@ slowFrameThreshold(uint64_t actualFramesPerSecond)
 {
     _isRunning = NO;
     [self.displayLinkWrapper invalidate];
+    [self resetDelayedFramesTimeStamps];
 }
 
 - (void)dealloc
