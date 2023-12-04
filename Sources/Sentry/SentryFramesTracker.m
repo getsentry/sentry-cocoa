@@ -4,6 +4,7 @@
 
 #    import "SentryCompiler.h"
 #    import "SentryCurrentDateProvider.h"
+#    import "SentryDelayedFrame.h"
 #    import "SentryDisplayLinkWrapper.h"
 #    import "SentryLog.h"
 #    import "SentryProfiler.h"
@@ -21,35 +22,6 @@ typedef NSMutableArray<NSDictionary<NSString *, NSNumber *> *> SentryMutableFram
 static CFTimeInterval const SentryFrozenFrameThreshold = 0.7;
 static CFTimeInterval const SentryPreviousFrameInitialValue = -1;
 static NSInteger const SentryDelayedFramesCapacity = 1024;
-
-@interface SentryDelayedFrame : NSObject
-SENTRY_NO_INIT
-
-- (instancetype)initWithStartTimestamp:(uint64_t)startSystemTimestamp
-                      expectedDuration:(CFTimeInterval)expectedDuration
-                        actualDuration:(CFTimeInterval)actualDuration;
-
-@property (nonatomic, readonly) uint64_t startSystemTimestamp;
-@property (nonatomic, readonly) CFTimeInterval expectedDuration;
-@property (nonatomic, readonly) CFTimeInterval actualDuration;
-
-@end
-
-@implementation SentryDelayedFrame
-
-- (instancetype)initWithStartTimestamp:(uint64_t)startSystemTimestamp
-                      expectedDuration:(CFTimeInterval)expectedDuration
-                        actualDuration:(CFTimeInterval)actualDuration
-{
-    if (self = [super init]) {
-        _startSystemTimestamp = startSystemTimestamp;
-        _expectedDuration = expectedDuration;
-        _actualDuration = actualDuration;
-    }
-    return self;
-}
-
-@end
 
 @interface
 SentryFramesTracker ()
