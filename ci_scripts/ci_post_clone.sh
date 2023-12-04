@@ -1,5 +1,7 @@
 #!/bin/sh
 
+curl https://sh.rustup.rs -sSf | sh  # install Cargo
+
 cd ~
 git clone https://github.com/getsentry/sentry-cli.git
 cd sentry-cli
