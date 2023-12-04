@@ -22,8 +22,6 @@ class SentryFramesTrackerTests: XCTestCase {
     }
 
     private var fixture: Fixture!
-    
-    private let frameDelayCapacity = 2_048
 
     override func setUp() {
         super.setUp()
@@ -308,40 +306,42 @@ class SentryFramesTrackerTests: XCTestCase {
         let sut = fixture.sut
         sut.start()
         
-        let startSystemTime = givenDelayedFramesCapacityFull()
+        let startSystemTime = givenMoreDelayedFramesThanTransactionMaxDuration()
         
         let endSystemTime = fixture.dateProvider.systemTime()
         
-        let expectedDelay = (displayLink.frozenFrameThreshold - slowFrameThreshold(displayLink.currentFrameRate.rawValue)) * Double(frameDelayCapacity)
+        let expectedDelay = (displayLink.frozenFrameThreshold - slowFrameThreshold(displayLink.currentFrameRate.rawValue))
 
         let actualFrameDelay = sut.getFrameDelay(startSystemTime, endSystemTimestamp: endSystemTime)
         expect(actualFrameDelay).to(beCloseTo(expectedDelay, within: 0.0001))
     }
     
-    func testFrameDelay_CapacityFull_FrameInformationMissing_DelayReturned() {
+    func testFrameDelay_MoreThanTransactionMaxDuration_FrameInformationMissing_DelayReturned() {
         let sut = fixture.sut
         let displayLink = fixture.displayLinkWrapper
         sut.start()
         
-        let startSystemTime = givenDelayedFramesCapacityFull()
+        let startSystemTime = givenMoreDelayedFramesThanTransactionMaxDuration()
         
         let delayWithoutFrameRecord = 2.0
         fixture.dateProvider.advance(by: delayWithoutFrameRecord)
         let endSystemTime = fixture.dateProvider.systemTime()
         
-        let delayNotRecorded = delayWithoutFrameRecord - slowFrameThreshold(displayLink.currentFrameRate.rawValue)
+        let slowFrames = sut.currentFrames.slow
+        let slowestSlowFrameDelay = (displayLink.frozenFrameThreshold - slowFrameThreshold(displayLink.currentFrameRate.rawValue))
         
-        let expectedDelay = (displayLink.frozenFrameThreshold - slowFrameThreshold(displayLink.currentFrameRate.rawValue)) * Double(frameDelayCapacity) + delayNotRecorded
+        let delayNotRecorded = delayWithoutFrameRecord - slowFrameThreshold(displayLink.currentFrameRate.rawValue)
+        let expectedDelay = slowestSlowFrameDelay * Double(slowFrames) + delayNotRecorded
 
         let actualFrameDelay = sut.getFrameDelay(startSystemTime, endSystemTimestamp: endSystemTime)
         expect(actualFrameDelay).to(beCloseTo(expectedDelay, within: 0.0001))
     }
     
-    func testFrameDelay_CapacityFull_StartTimeTooEarly_ReturnsMinusOne() {
+    func testFrameDelay_MoreThanTransactionMaxDuration_StartTimeTooEarly_ReturnsMinusOne() {
         let sut = fixture.sut
         sut.start()
         
-        let startSystemTime = givenDelayedFramesCapacityFull()
+        let startSystemTime = givenMoreDelayedFramesThanTransactionMaxDuration()
         
         let endSystemTime = fixture.dateProvider.systemTime()
         
@@ -353,7 +353,7 @@ class SentryFramesTrackerTests: XCTestCase {
         let sut = fixture.sut
         sut.start()
         
-        let startSystemTime = givenDelayedFramesCapacityFull()
+        let startSystemTime = givenMoreDelayedFramesThanTransactionMaxDuration()
         
         sut.stop()
         
@@ -367,7 +367,7 @@ class SentryFramesTrackerTests: XCTestCase {
         let sut = fixture.sut
         sut.start()
         
-        let startSystemTimeStamp = givenDelayedFramesCapacityFull()
+        let startSystemTimeStamp = givenMoreDelayedFramesThanTransactionMaxDuration()
         
         sut.stop()
         sut.start()
@@ -382,7 +382,7 @@ class SentryFramesTrackerTests: XCTestCase {
         let sut = fixture.sut
         sut.start()
         
-        let startSystemTimeStamp = givenDelayedFramesCapacityFull()
+        let startSystemTimeStamp = givenMoreDelayedFramesThanTransactionMaxDuration()
         let endSystemTime = fixture.dateProvider.systemTime()
         
         let loopSize = 1_000
@@ -400,7 +400,7 @@ class SentryFramesTrackerTests: XCTestCase {
             }
         }
         
-        _ = givenDelayedFramesCapacityFull()
+        _ = givenMoreDelayedFramesThanTransactionMaxDuration()
         
         wait(for: [expectation], timeout: 3.0)
     }
@@ -448,7 +448,6 @@ class SentryFramesTrackerTests: XCTestCase {
     }
     
     func testDealloc_CallsStop() {
-        
         func sutIsDeallocatedAfterCallingMe() {
             _ = SentryFramesTracker(displayLinkWrapper: fixture.displayLinkWrapper, dateProvider: fixture.dateProvider)
         }
@@ -457,11 +456,13 @@ class SentryFramesTrackerTests: XCTestCase {
         XCTAssertEqual(1, fixture.displayLinkWrapper.invalidateInvocations.count)
     }
     
-    private func givenDelayedFramesCapacityFull() -> UInt64 {
+    private func givenMoreDelayedFramesThanTransactionMaxDuration() -> UInt64 {
         let displayLink = fixture.displayLinkWrapper
         displayLink.call()
         
-        for _ in 0..<(frameDelayCapacity + 1) {
+        let transactionMaxDurationNS = timeIntervalToNanoseconds(SENTRY_AUTO_TRANSACTION_MAX_DURATION)
+        
+        while transactionMaxDurationNS >= fixture.dateProvider.systemTime() {
             _ = displayLink.slowestSlowFrame()
         }
         

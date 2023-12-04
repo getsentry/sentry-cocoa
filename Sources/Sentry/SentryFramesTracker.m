@@ -22,28 +22,6 @@ typedef NSMutableArray<NSDictionary<NSString *, NSNumber *> *> SentryMutableFram
 static CFTimeInterval const SentryFrozenFrameThreshold = 0.7;
 static CFTimeInterval const SentryPreviousFrameInitialValue = -1;
 
-/**
- * We chose a ring buffer to keep a record of delayed frames because we don't want to do bookkeeping
- * of running transactions and spans to know when we can remove delayed frames data, considering
- * single-span ingestion on the horizon.
- *
- * The deadline for auto-generated transactions is 30 seconds (SENTRY_AUTO_TRANSACTION_DEADLINE),
- * and the max duration is 500 seconds (SENTRY_AUTO_TRANSACTION_MAX_DURATION). Continuous delayed
- * frames slightly over the threshold are unlikely. Instead, we expect longer delays. To guarantee
- * reporting correct values for all possible scenarios, we would need to choose a ring buffer size
- * of 500 * 118 = 59.000. The SentryDelayedFrame has three properties, with each allocating 8 bytes.
- * The overhead of an NSObject is considered to be an extra 8 bytes on 64-bit architecture. So,
- * allocating one SentryDelayedFrame should be 32 bytes. With a ring buffer size of 59.000, we would
- * allocate 59.000 * 32 ≈ 1,8 MiB, which is too much memory for this feature. Instead, we have to
- * use a smaller size.
- *
- * Let's assume a frame rate of 120 fps, 5% of frame being delayed for roughly 10 ms, which means we
- * roughly have to record 6 delayed frames per second. This would mean we need a buffer size of 6 *
- * 500 (SENTRY_AUTO_TRANSACTION_DEADLINE) = 3.000. Transactions being that long are unlikely, so
- * let's go with 2048 elements, allocating 2048 * 32 bytes = 64 KiB.
- */
-static NSInteger const SentryDelayedFramesCapacity = 2048;
-
 @interface
 SentryFramesTracker ()
 
@@ -126,7 +104,7 @@ slowFrameThreshold(uint64_t actualFramesPerSecond)
 
 - (void)resetDelayedFramesTimeStamps
 {
-    _delayedFrames = [[NSMutableArray alloc] initWithCapacity:SentryDelayedFramesCapacity];
+    _delayedFrames = [NSMutableArray array];
     SentryDelayedFrame *initialFrame =
         [[SentryDelayedFrame alloc] initWithStartTimestamp:[self.dateProvider systemTime]
                                           expectedDuration:0
@@ -269,21 +247,45 @@ slowFrameThreshold(uint64_t actualFramesPerSecond)
             actualDuration:(CFTimeInterval)actualDuration
 {
     @synchronized(self.delayedFrames) {
+        [self removeOldDelayedFrames];
+
         SENTRY_LOG_DEBUG(@"FrameDelay: Record expected:%f ms actual %f ms", expectedDuration * 1000,
             actualDuration * 1000);
         SentryDelayedFrame *delayedFrame =
             [[SentryDelayedFrame alloc] initWithStartTimestamp:startSystemTimestamp
                                               expectedDuration:expectedDuration
                                                 actualDuration:actualDuration];
-        if (self.delayedFrames.count < SentryDelayedFramesCapacity) {
-            [self.delayedFrames addObject:delayedFrame];
-        } else {
-            self.delayedFrames[self.delayedFrameWriteIndex] = delayedFrame;
-        }
-
-        self.delayedFrameWriteIndex
-            = (self.delayedFrameWriteIndex + 1) % SentryDelayedFramesCapacity;
+        [self.delayedFrames addObject:delayedFrame];
     }
+}
+
+/**
+ * Removes delayed frame that are older than current time minus
+ * SENTRY_AUTO_TRANSACTION_MAX_DURATION.
+ * @note Make sure to call this in a @synchronized block.
+ */
+- (void)removeOldDelayedFrames
+{
+    u_int64_t transactionMaxDurationNS
+        = timeIntervalToNanoseconds(SENTRY_AUTO_TRANSACTION_MAX_DURATION);
+
+    uint64_t removeFramesBeforeSystemTimeStamp
+        = _dateProvider.systemTime - transactionMaxDurationNS;
+    if (_dateProvider.systemTime < transactionMaxDurationNS) {
+        removeFramesBeforeSystemTimeStamp = 0;
+    }
+
+    NSInteger i = 0;
+    for (SentryDelayedFrame *frame in self.delayedFrames) {
+        uint64_t frameEndSystemTimeStamp
+            = frame.startSystemTimestamp + timeIntervalToNanoseconds(frame.actualDuration);
+        if (frameEndSystemTimeStamp < removeFramesBeforeSystemTimeStamp) {
+            i++;
+        } else {
+            break;
+        }
+    }
+    [self.delayedFrames removeObjectsInRange:NSMakeRange(0, i)];
 }
 
 - (CFTimeInterval)getFrameDelay:(uint64_t)startSystemTimestamp
