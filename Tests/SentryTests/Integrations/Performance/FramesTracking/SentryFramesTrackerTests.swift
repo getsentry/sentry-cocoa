@@ -137,7 +137,7 @@ class SentryFramesTrackerTests: XCTestCase {
         let sut = fixture.sut
         sut.start()
 
-        let startDate = fixture.dateProvider.systemTime()
+        let startSystemTime = fixture.dateProvider.systemTime()
         
         let displayLink = fixture.displayLinkWrapper
         displayLink.call()
@@ -146,11 +146,11 @@ class SentryFramesTrackerTests: XCTestCase {
         displayLink.normalFrame()
         _ = displayLink.slowestSlowFrame()
         
-        let endDate = fixture.dateProvider.systemTime()
+        let endSystemTime = fixture.dateProvider.systemTime()
         
         let expectedDelay = displayLink.timeEpsilon + displayLink.frozenFrameThreshold - slowFrameThreshold(displayLink.currentFrameRate.rawValue)
         
-        let actualFrameDelay = sut.getFrameDelay(startDate, endSystemTimestamp: endDate)
+        let actualFrameDelay = sut.getFrameDelay(startSystemTime, endSystemTimestamp: endSystemTime)
         expect(actualFrameDelay).to(beCloseTo(expectedDelay, within: 0.0001))
     }
     
@@ -165,7 +165,7 @@ class SentryFramesTrackerTests: XCTestCase {
         let sut = fixture.sut
         sut.start()
 
-        let startDate = fixture.dateProvider.systemTime()
+        let startSystemTime = fixture.dateProvider.systemTime()
         
         let displayLink = fixture.displayLinkWrapper
         displayLink.call()
@@ -173,11 +173,11 @@ class SentryFramesTrackerTests: XCTestCase {
         
         let delayWithoutFrameRecord = 1.0
         fixture.dateProvider.advance(by: delayWithoutFrameRecord)
-        let endDate = fixture.dateProvider.systemTime()
+        let endSystemTime = fixture.dateProvider.systemTime()
         
         let expectedDelay = delayWithoutFrameRecord - slowFrameThreshold(displayLink.currentFrameRate.rawValue)
         
-        let actualFrameDelay = sut.getFrameDelay(startDate, endSystemTimestamp: endDate)
+        let actualFrameDelay = sut.getFrameDelay(startSystemTime, endSystemTimestamp: endSystemTime)
         expect(actualFrameDelay).to(beCloseTo(expectedDelay, within: 0.0001))
     }
     
@@ -237,17 +237,17 @@ class SentryFramesTrackerTests: XCTestCase {
         let sut = fixture.sut
         sut.start()
 
-        let slowFrameStartDate = fixture.dateProvider.systemTime()
+        let slowFrameStartSystemTime = fixture.dateProvider.systemTime()
         
         let displayLink = fixture.displayLinkWrapper
         displayLink.call()
         _ = displayLink.slowestSlowFrame()
         
-        let endDate = fixture.dateProvider.systemTime() - timeIntervalToNanoseconds(timeIntervalBeforeFrameEnd)
+        let endSystemTime = fixture.dateProvider.systemTime() - timeIntervalToNanoseconds(timeIntervalBeforeFrameEnd)
         
-        let startDate = slowFrameStartDate + timeIntervalToNanoseconds(timeIntervalAfterFrameStart)
+        let startSystemTime = slowFrameStartSystemTime + timeIntervalToNanoseconds(timeIntervalAfterFrameStart)
         
-        let actualFrameDelay = sut.getFrameDelay(startDate, endSystemTimestamp: endDate)
+        let actualFrameDelay = sut.getFrameDelay(startSystemTime, endSystemTimestamp: endSystemTime)
         expect(actualFrameDelay).to(beCloseTo(expectedDelay, within: 0.0001))
     }
     
@@ -262,7 +262,7 @@ class SentryFramesTrackerTests: XCTestCase {
         let sut = fixture.sut
         sut.start()
 
-        let startDate = fixture.dateProvider.systemTime()
+        let startSystemTime = fixture.dateProvider.systemTime()
         
         let displayLink = fixture.displayLinkWrapper
         displayLink.call()
@@ -271,11 +271,11 @@ class SentryFramesTrackerTests: XCTestCase {
         _ = displayLink.fastestSlowFrame()
         
         let timeIntervalBeforeFrameEnd = slowFrameThreshold(displayLink.currentFrameRate.rawValue) - 0.005
-        let endDate = fixture.dateProvider.systemTime() - timeIntervalToNanoseconds(timeIntervalBeforeFrameEnd)
+        let endSystemTime = fixture.dateProvider.systemTime() - timeIntervalToNanoseconds(timeIntervalBeforeFrameEnd)
         
         let expectedDelay = displayLink.frozenFrameThreshold - slowFrameThreshold(displayLink.currentFrameRate.rawValue)
         
-        let actualFrameDelay = sut.getFrameDelay(startDate, endSystemTimestamp: endDate)
+        let actualFrameDelay = sut.getFrameDelay(startSystemTime, endSystemTimestamp: endSystemTime)
         expect(actualFrameDelay).to(beCloseTo(expectedDelay, within: 0.0001))
     }
     
@@ -308,13 +308,13 @@ class SentryFramesTrackerTests: XCTestCase {
         let sut = fixture.sut
         sut.start()
         
-        let startSystemTimeStamp = givenDelayedFramesCapacityFull()
+        let startSystemTime = givenDelayedFramesCapacityFull()
         
-        let endDate = fixture.dateProvider.systemTime()
+        let endSystemTime = fixture.dateProvider.systemTime()
         
         let expectedDelay = (displayLink.frozenFrameThreshold - slowFrameThreshold(displayLink.currentFrameRate.rawValue)) * Double(frameDelayCapacity)
 
-        let actualFrameDelay = sut.getFrameDelay(startSystemTimeStamp, endSystemTimestamp: endDate)
+        let actualFrameDelay = sut.getFrameDelay(startSystemTime, endSystemTimestamp: endSystemTime)
         expect(actualFrameDelay).to(beCloseTo(expectedDelay, within: 0.0001))
     }
     
@@ -323,17 +323,17 @@ class SentryFramesTrackerTests: XCTestCase {
         let displayLink = fixture.displayLinkWrapper
         sut.start()
         
-        let startSystemTimeStamp = givenDelayedFramesCapacityFull()
+        let startSystemTime = givenDelayedFramesCapacityFull()
         
         let delayWithoutFrameRecord = 2.0
         fixture.dateProvider.advance(by: delayWithoutFrameRecord)
-        let endDate = fixture.dateProvider.systemTime()
+        let endSystemTime = fixture.dateProvider.systemTime()
         
         let delayNotRecorded = delayWithoutFrameRecord - slowFrameThreshold(displayLink.currentFrameRate.rawValue)
         
         let expectedDelay = (displayLink.frozenFrameThreshold - slowFrameThreshold(displayLink.currentFrameRate.rawValue)) * Double(frameDelayCapacity) + delayNotRecorded
 
-        let actualFrameDelay = sut.getFrameDelay(startSystemTimeStamp, endSystemTimestamp: endDate)
+        let actualFrameDelay = sut.getFrameDelay(startSystemTime, endSystemTimestamp: endSystemTime)
         expect(actualFrameDelay).to(beCloseTo(expectedDelay, within: 0.0001))
     }
     
@@ -341,11 +341,11 @@ class SentryFramesTrackerTests: XCTestCase {
         let sut = fixture.sut
         sut.start()
         
-        let startSystemTimeStamp = givenDelayedFramesCapacityFull()
+        let startSystemTime = givenDelayedFramesCapacityFull()
         
-        let endDate = fixture.dateProvider.systemTime()
+        let endSystemTime = fixture.dateProvider.systemTime()
         
-        let actualFrameDelay = sut.getFrameDelay(startSystemTimeStamp - 1, endSystemTimestamp: endDate)
+        let actualFrameDelay = sut.getFrameDelay(startSystemTime - 1, endSystemTimestamp: endSystemTime)
         expect(actualFrameDelay).to(beCloseTo(-1, within: 0.0001), description: "startSystemTimeStamp starts one nanosecond before the oldest slow frame. Therefore the frame delay can't be calculated and should me 0.")
     }
     
@@ -353,13 +353,13 @@ class SentryFramesTrackerTests: XCTestCase {
         let sut = fixture.sut
         sut.start()
         
-        let startSystemTimeStamp = givenDelayedFramesCapacityFull()
+        let startSystemTime = givenDelayedFramesCapacityFull()
         
         sut.stop()
         
-        let endDate = fixture.dateProvider.systemTime()
+        let endSystemTime = fixture.dateProvider.systemTime()
         
-        let actualFrameDelay = sut.getFrameDelay(startSystemTimeStamp, endSystemTimestamp: endDate)
+        let actualFrameDelay = sut.getFrameDelay(startSystemTime, endSystemTimestamp: endSystemTime)
         expect(actualFrameDelay) == -1.0
     }
     
@@ -372,10 +372,37 @@ class SentryFramesTrackerTests: XCTestCase {
         sut.stop()
         sut.start()
         
-        let endDate = fixture.dateProvider.systemTime()
+        let endSystemTime = fixture.dateProvider.systemTime()
         
-        let actualFrameDelay = sut.getFrameDelay(startSystemTimeStamp, endSystemTimestamp: endDate)
+        let actualFrameDelay = sut.getFrameDelay(startSystemTimeStamp, endSystemTimestamp: endSystemTime)
         expect(actualFrameDelay) == -1.0
+    }
+    
+    func testFrameDelay_GetInfoFromBackgroundThreadWhileAdding() {
+        let sut = fixture.sut
+        sut.start()
+        
+        let startSystemTimeStamp = givenDelayedFramesCapacityFull()
+        let endSystemTime = fixture.dateProvider.systemTime()
+        
+        let loopSize = 1_000
+        let expectation = expectation(description: "Get Frames Delays")
+        expectation.expectedFulfillmentCount = loopSize
+        
+        for _ in 0..<loopSize {
+            DispatchQueue.global().async {
+                
+                let actualFrameDelay = sut.getFrameDelay(startSystemTimeStamp, endSystemTimestamp: endSystemTime)
+                
+                expect(actualFrameDelay) >= -1
+                
+                expectation.fulfill()
+            }
+        }
+        
+        _ = givenDelayedFramesCapacityFull()
+        
+        wait(for: [expectation], timeout: 3.0)
     }
 
     func testAddListener() {
