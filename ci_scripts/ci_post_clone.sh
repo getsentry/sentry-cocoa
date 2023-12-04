@@ -1,7 +1,6 @@
 #!/bin/sh
 
-brew install rustup  # install Cargo
-rustup-init
+curl https://sh.rustup.rs -sSf | sh -s -- -y
 
 cd ~
 git clone https://github.com/getsentry/sentry-cli.git
