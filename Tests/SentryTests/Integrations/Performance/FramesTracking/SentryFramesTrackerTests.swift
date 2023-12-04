@@ -23,7 +23,7 @@ class SentryFramesTrackerTests: XCTestCase {
 
     private var fixture: Fixture!
     
-    private let frameDelayCapacity = 1_024
+    private let frameDelayCapacity = 2_048
 
     override func setUp() {
         super.setUp()

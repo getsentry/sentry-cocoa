@@ -21,7 +21,28 @@ typedef NSMutableArray<NSDictionary<NSString *, NSNumber *> *> SentryMutableFram
 
 static CFTimeInterval const SentryFrozenFrameThreshold = 0.7;
 static CFTimeInterval const SentryPreviousFrameInitialValue = -1;
-static NSInteger const SentryDelayedFramesCapacity = 1024;
+
+/**
+ * We chose a ring buffer to keep a record of delayed frames because we don't want to do bookkeeping
+ * of running transactions and spans to know when we can remove delayed frames data, considering
+ * single-span ingestion on the horizon.
+ *
+ * The deadline for auto-generated transactions is 30 seconds (SENTRY_AUTO_TRANSACTION_DEADLINE),
+ * and the max duration is 500 seconds (SENTRY_AUTO_TRANSACTION_MAX_DURATION). Continuous delayed
+ * frames slightly over the threshold are unlikely. Instead, we expect longer delays. To guarantee
+ * reporting correct values for all possible scenarios, we would need to choose a ring buffer size
+ * of 500 * 118 = 59.000. The SentryDelayedFrame has three properties, with each allocating 8 bytes.
+ * The overhead of an NSObject is considered to be an extra 8 bytes on 64-bit architecture. So,
+ * allocating one SentryDelayedFrame should be 32 bytes. With a ring buffer size of 59.000, we would
+ * allocate 59.000 * 32 ≈ 1,8 MiB, which is too much memory for this feature. Instead, we have to
+ * use a smaller size.
+ *
+ * Let's assume a frame rate of 120 fps, 5% of frame being delayed for roughly 10 ms, which means we
+ * roughly have to record 6 delayed frames per second. This would mean we need a buffer size of 6 *
+ * 500 (SENTRY_AUTO_TRANSACTION_DEADLINE) = 3.000. Transactions being that long are unlikely, so
+ * let's go with 2048 elements, allocating 2048 * 32 bytes = 64 KiB.
+ */
+static NSInteger const SentryDelayedFramesCapacity = 2048;
 
 @interface
 SentryFramesTracker ()
@@ -38,9 +59,6 @@ SentryFramesTracker ()
 @property (nonatomic, readwrite) SentryMutableFrameInfoTimeSeries *frameRateTimestamps;
 #    endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
-/**
- * The delayed frames are stored as a ring buffer to minimize memory footprint.
- */
 @property (nonatomic, strong) NSMutableArray<SentryDelayedFrame *> *delayedFrames;
 @property (nonatomic) uint8_t delayedFrameWriteIndex;
 
