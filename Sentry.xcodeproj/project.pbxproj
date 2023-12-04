@@ -3162,7 +3162,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\nif which sentry-cli >/dev/null; then\nexport SENTRY_ORG=danielszoketest\nexport SENTRY_PROJECT=python\nERROR=$(~/sentry-cli/target/release/sentry-cli debug-files upload --include-sources \"$DWARF_DSYM_FOLDER_PATH\" --force-foreground)\nif [ ! $? -eq 0 ]; then\necho \"error: sentry-cli - $ERROR\"\nfi\nelse\necho \"error: sentry-cli not installed, download from https://github.com/getsentry/sentry-cli/releases\"\nfi\n\n";
+			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\nexport SENTRY_ORG=danielszoketest\nexport SENTRY_PROJECT=python\nERROR=$(~/sentry-cli/target/release/sentry-cli debug-files upload --include-sources \"$DWARF_DSYM_FOLDER_PATH\" --force-foreground)\nif [ ! $? -eq 0 ]; then\necho \"error: sentry-cli - $ERROR\"\nfi \n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
