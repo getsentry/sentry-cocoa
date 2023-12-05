@@ -48,8 +48,6 @@ SentryDelayedFramesTracker ()
     @synchronized(self.delayedFrames) {
         [self removeOldDelayedFrames];
 
-        SENTRY_LOG_DEBUG(@"FrameDelay: Record expected:%f ms actual %f ms", expectedDuration * 1000,
-            actualDuration * 1000);
         SentryDelayedFrame *delayedFrame =
             [[SentryDelayedFrame alloc] initWithStartTimestamp:startSystemTimestamp
                                               expectedDuration:expectedDuration
@@ -148,27 +146,31 @@ SentryDelayedFramesTracker ()
             break;
         }
 
+        // We need to calculate the intersections of the queried TimestampInterval
+        // (startSystemTimestamp - endSystemTimestamp) with the recorded frame delays. Doing that
+        // with NSDateInterval makes things easier. Therefore, we convert the system timestamps to
+        // NSDate objects, although they don't represent the correct dates. We only need to know how
+        // long the intersections are to calculate the frame delay and not precisely when.
+
         NSDate *startDate = [NSDate
             dateWithTimeIntervalSinceReferenceDate:nanosecondsToTimeInterval(startSystemTimestamp)];
         NSDate *endDate = [NSDate
             dateWithTimeIntervalSinceReferenceDate:nanosecondsToTimeInterval(endSystemTimestamp)];
+        NSDateInterval *queryDateInterval = [[NSDateInterval alloc] initWithStartDate:startDate
+                                                                              endDate:endDate];
 
         CFTimeInterval delayStartTime
             = nanosecondsToTimeInterval(frame.startSystemTimestamp) + frame.expectedDuration;
         NSDate *frameDelayStartDate =
             [NSDate dateWithTimeIntervalSinceReferenceDate:delayStartTime];
 
-        NSDateInterval *frameDelayDateInterval = [[NSDateInterval alloc] initWithStartDate:startDate
-                                                                                   endDate:endDate];
-
-        // Only use the date interval for the actual delay
-        NSDateInterval *frameDateInterval = [[NSDateInterval alloc]
+        NSDateInterval *frameDelayDateInterval = [[NSDateInterval alloc]
             initWithStartDate:frameDelayStartDate
                      duration:(frame.actualDuration - frame.expectedDuration)];
 
-        if ([frameDelayDateInterval intersectsDateInterval:frameDateInterval]) {
+        if ([queryDateInterval intersectsDateInterval:frameDelayDateInterval]) {
             NSDateInterval *intersection =
-                [frameDelayDateInterval intersectionWithDateInterval:frameDateInterval];
+                [queryDateInterval intersectionWithDateInterval:frameDelayDateInterval];
             delay = delay + intersection.duration;
         }
     }
