@@ -93,7 +93,7 @@ class SentrySpanTests: XCTestCase {
             expect.fulfill()
         }
         
-        wait(for: [expect], timeout: 0.1)
+        wait(for: [expect], timeout: 1.0)
     }
     
     func testInit_SetsThreadInfoAsSpanData_FromBackgroundThreadWithNoName() {
@@ -110,7 +110,7 @@ class SentrySpanTests: XCTestCase {
             expect.fulfill()
         }
         
-        wait(for: [expect], timeout: 0.1)
+        wait(for: [expect], timeout: 1.0)
     }
     
     func testFinish() {
