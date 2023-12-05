@@ -5,6 +5,7 @@
 #    import "SentryCompiler.h"
 #    import "SentryCurrentDateProvider.h"
 #    import "SentryDelayedFrame.h"
+#    import "SentryDelayedFramesTracker.h"
 #    import "SentryDisplayLinkWrapper.h"
 #    import "SentryLog.h"
 #    import "SentryProfiler.h"
@@ -37,8 +38,7 @@ SentryFramesTracker ()
 @property (nonatomic, readwrite) SentryMutableFrameInfoTimeSeries *frameRateTimestamps;
 #    endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
-@property (nonatomic, strong) NSMutableArray<SentryDelayedFrame *> *delayedFrames;
-@property (nonatomic, assign) CFTimeInterval keepDelayedFramesDuration;
+@property (nonatomic, strong) SentryDelayedFramesTracker *delayedFramesTracker;
 
 @end
 
@@ -64,7 +64,10 @@ slowFrameThreshold(uint64_t actualFramesPerSecond)
         _isRunning = NO;
         _displayLinkWrapper = displayLinkWrapper;
         _dateProvider = dateProvider;
-        _keepDelayedFramesDuration = keepDelayedFramesDuration;
+        _delayedFramesTracker = [[SentryDelayedFramesTracker alloc]
+            initWithKeepDelayedFramesDuration:keepDelayedFramesDuration
+                                 dateProvider:dateProvider];
+
         _listeners = [NSHashTable weakObjectsHashTable];
 
         _currentFrameRate = 60;
@@ -92,7 +95,7 @@ slowFrameThreshold(uint64_t actualFramesPerSecond)
     [self resetProfilingTimestamps];
 #    endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
-    [self resetDelayedFramesTimeStamps];
+    [self.delayedFramesTracker resetDelayedFramesTimeStamps];
 }
 
 #    if SENTRY_TARGET_PROFILING_SUPPORTED
@@ -103,16 +106,6 @@ slowFrameThreshold(uint64_t actualFramesPerSecond)
     self.frameRateTimestamps = [SentryMutableFrameInfoTimeSeries array];
 }
 #    endif // SENTRY_TARGET_PROFILING_SUPPORTED
-
-- (void)resetDelayedFramesTimeStamps
-{
-    _delayedFrames = [NSMutableArray array];
-    SentryDelayedFrame *initialFrame =
-        [[SentryDelayedFrame alloc] initWithStartTimestamp:[self.dateProvider systemTime]
-                                          expectedDuration:0
-                                            actualDuration:0];
-    [_delayedFrames addObject:initialFrame];
-}
 
 - (void)start
 {
@@ -191,9 +184,9 @@ slowFrameThreshold(uint64_t actualFramesPerSecond)
     }
 
     if (frameDuration > slowFrameThreshold(_currentFrameRate)) {
-        [self recordDelayedFrame:self.previousFrameSystemTimestamp
-                expectedDuration:slowFrameThreshold(_currentFrameRate)
-                  actualDuration:frameDuration];
+        [self.delayedFramesTracker recordDelayedFrame:self.previousFrameSystemTimestamp
+                                     expectedDuration:slowFrameThreshold(_currentFrameRate)
+                                       actualDuration:frameDuration];
     }
 
     _totalFrames++;
@@ -243,137 +236,15 @@ slowFrameThreshold(uint64_t actualFramesPerSecond)
 #    endif // SENTRY_TARGET_PROFILING_SUPPORTED
 }
 
-- (void)recordDelayedFrame:(uint64_t)startSystemTimestamp
-          expectedDuration:(CFTimeInterval)expectedDuration
-            actualDuration:(CFTimeInterval)actualDuration
-{
-    @synchronized(self.delayedFrames) {
-        [self removeOldDelayedFrames];
-
-        SENTRY_LOG_DEBUG(@"FrameDelay: Record expected:%f ms actual %f ms", expectedDuration * 1000,
-            actualDuration * 1000);
-        SentryDelayedFrame *delayedFrame =
-            [[SentryDelayedFrame alloc] initWithStartTimestamp:startSystemTimestamp
-                                              expectedDuration:expectedDuration
-                                                actualDuration:actualDuration];
-        [self.delayedFrames addObject:delayedFrame];
-    }
-}
-
-/**
- * Removes delayed frame that are older than current time minus
- * SENTRY_AUTO_TRANSACTION_MAX_DURATION.
- * @note Make sure to call this in a @synchronized block.
- */
-- (void)removeOldDelayedFrames
-{
-    u_int64_t transactionMaxDurationNS = timeIntervalToNanoseconds(_keepDelayedFramesDuration);
-
-    uint64_t removeFramesBeforeSystemTimeStamp
-        = _dateProvider.systemTime - transactionMaxDurationNS;
-    if (_dateProvider.systemTime < transactionMaxDurationNS) {
-        removeFramesBeforeSystemTimeStamp = 0;
-    }
-
-    NSInteger i = 0;
-    for (SentryDelayedFrame *frame in self.delayedFrames) {
-        uint64_t frameEndSystemTimeStamp
-            = frame.startSystemTimestamp + timeIntervalToNanoseconds(frame.actualDuration);
-        if (frameEndSystemTimeStamp < removeFramesBeforeSystemTimeStamp) {
-            i++;
-        } else {
-            break;
-        }
-    }
-    [self.delayedFrames removeObjectsInRange:NSMakeRange(0, i)];
-}
-
 - (CFTimeInterval)getFramesDelay:(uint64_t)startSystemTimestamp
               endSystemTimestamp:(uint64_t)endSystemTimestamp
 {
-    CFTimeInterval cantCalculateFrameDelayReturnValue = -1.0;
-
-    if (_isRunning == NO) {
-        SENTRY_LOG_DEBUG(@"Not calculating frames delay because frames tracker isn't running.");
-        return cantCalculateFrameDelayReturnValue;
-    }
-
-    if (startSystemTimestamp >= endSystemTimestamp) {
-        SENTRY_LOG_DEBUG(@"Not calculating frames delay because startSystemTimestamp is before  "
-                         @"endSystemTimestamp");
-        return cantCalculateFrameDelayReturnValue;
-    }
-
-    if (endSystemTimestamp > self.dateProvider.systemTime) {
-        SENTRY_LOG_DEBUG(
-            @"Not calculating frames delay because endSystemTimestamp is in the future.");
-        return cantCalculateFrameDelayReturnValue;
-    }
-
-    NSArray<SentryDelayedFrame *> *frames;
-    @synchronized(self.delayedFrames) {
-        uint64_t oldestDelayedFrameStartTimestamp = UINT64_MAX;
-        SentryDelayedFrame *oldestDelayedFrame = self.delayedFrames.firstObject;
-        if (oldestDelayedFrame != nil) {
-            oldestDelayedFrameStartTimestamp = oldestDelayedFrame.startSystemTimestamp;
-        }
-
-        if (oldestDelayedFrameStartTimestamp > startSystemTimestamp) {
-            SENTRY_LOG_DEBUG(@"Not calculating frames delay because the record of delayed frames "
-                             @"doesn't go back enough in time.");
-            return cantCalculateFrameDelayReturnValue;
-        }
-
-        // Copy as late as possible to avoid allocating unnecessary memory.
-        frames = self.delayedFrames.copy;
-    }
-
-    // Check if there is an delayed frame going on but not recorded yet.
-    CFTimeInterval thisFrameTimestamp = self.displayLinkWrapper.timestamp;
-    CFTimeInterval frameDuration = thisFrameTimestamp - self.previousFrameTimestamp;
-    CFTimeInterval ongoingDelayedFrame = 0.0;
-    if (frameDuration > slowFrameThreshold(_currentFrameRate)) {
-        ongoingDelayedFrame = frameDuration - slowFrameThreshold(_currentFrameRate);
-    }
-
-    CFTimeInterval delay = ongoingDelayedFrame;
-
-    // Iterate in reverse order, as younger frame delays are more likely to match the queried
-    // period.
-    for (SentryDelayedFrame *frame in frames.reverseObjectEnumerator) {
-
-        uint64_t frameEndSystemTimeStamp
-            = frame.startSystemTimestamp + timeIntervalToNanoseconds(frame.actualDuration);
-        if (frameEndSystemTimeStamp < startSystemTimestamp) {
-            break;
-        }
-
-        NSDate *startDate = [NSDate
-            dateWithTimeIntervalSinceReferenceDate:nanosecondsToTimeInterval(startSystemTimestamp)];
-        NSDate *endDate = [NSDate
-            dateWithTimeIntervalSinceReferenceDate:nanosecondsToTimeInterval(endSystemTimestamp)];
-
-        CFTimeInterval delayStartTime
-            = nanosecondsToTimeInterval(frame.startSystemTimestamp) + frame.expectedDuration;
-        NSDate *frameDelayStartDate =
-            [NSDate dateWithTimeIntervalSinceReferenceDate:delayStartTime];
-
-        NSDateInterval *frameDelayDateInterval = [[NSDateInterval alloc] initWithStartDate:startDate
-                                                                                   endDate:endDate];
-
-        // Only use the date interval for the actual delay
-        NSDateInterval *frameDateInterval = [[NSDateInterval alloc]
-            initWithStartDate:frameDelayStartDate
-                     duration:(frame.actualDuration - frame.expectedDuration)];
-
-        if ([frameDelayDateInterval intersectsDateInterval:frameDateInterval]) {
-            NSDateInterval *intersection =
-                [frameDelayDateInterval intersectionWithDateInterval:frameDateInterval];
-            delay = delay + intersection.duration;
-        }
-    }
-
-    return delay;
+    return [self.delayedFramesTracker getFramesDelay:startSystemTimestamp
+                                  endSystemTimestamp:endSystemTimestamp
+                                           isRunning:_isRunning
+                                  thisFrameTimestamp:self.displayLinkWrapper.timestamp
+                              previousFrameTimestamp:self.previousFrameTimestamp
+                                  slowFrameThreshold:slowFrameThreshold(_currentFrameRate)];
 }
 
 - (void)addListener:(id<SentryFramesTrackerListener>)listener
@@ -395,7 +266,7 @@ slowFrameThreshold(uint64_t actualFramesPerSecond)
 {
     _isRunning = NO;
     [self.displayLinkWrapper invalidate];
-    [self resetDelayedFramesTimeStamps];
+    [self.delayedFramesTracker resetDelayedFramesTimeStamps];
 }
 
 - (void)dealloc
