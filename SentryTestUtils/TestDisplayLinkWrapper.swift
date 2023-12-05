@@ -21,13 +21,20 @@ public class TestDisplayLinkWrapper: SentryDisplayLinkWrapper {
     public var target: AnyObject!
     public var selector: Selector!
     public var currentFrameRate: FrameRate = .low
-    public let frozenFrameThreshold = 0.7
+    let frozenFrameThreshold = 0.7
+    public let slowestSlowFrameDuration: Double
+    public let fastestFrozenFrameDuration: Double
+    
     public var dateProvider: TestCurrentDateProvider
     /// The smallest magnitude of time that is significant to how frames are classified as normal/slow/frozen.
     public let timeEpsilon = 0.001
 
     public init(dateProvider: TestCurrentDateProvider = TestCurrentDateProvider()) {
         self.dateProvider = dateProvider
+        // The test date provider converts the duration from UInt64 to a double back and forth.
+        // Therefore we have rounding issues, and subtract or add the timeEpsilon.
+        slowestSlowFrameDuration = frozenFrameThreshold - timeEpsilon
+        fastestFrozenFrameDuration = frozenFrameThreshold + timeEpsilon
     }
 
     public var linkInvocations = Invocations<Void>()
@@ -80,16 +87,15 @@ public class TestDisplayLinkWrapper: SentryDisplayLinkWrapper {
     }
     
     public func slowestSlowFrame() -> CFTimeInterval {
-        dateProvider.advance(by: frozenFrameThreshold)
+        dateProvider.advance(by: slowestSlowFrameDuration)
         call()
-        return frozenFrameThreshold
+        return slowestSlowFrameDuration
     }
 
     public func fastestFrozenFrame() -> CFTimeInterval {
-        let duration: Double = frozenFrameThreshold + timeEpsilon
-        dateProvider.advance(by: duration)
+        dateProvider.advance(by: fastestFrozenFrameDuration)
         call()
-        return duration
+        return fastestFrozenFrameDuration
     }
 
     /// There's no upper bound for a frozen frame, except maybe for the watchdog time limit.

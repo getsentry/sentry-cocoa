@@ -23,7 +23,8 @@ NS_ASSUME_NONNULL_BEGIN
 @interface SentryFramesTracker : NSObject
 
 - (instancetype)initWithDisplayLinkWrapper:(SentryDisplayLinkWrapper *)displayLinkWrapper
-                              dateProvider:(SentryCurrentDateProvider *)dateProvider;
+                              dateProvider:(SentryCurrentDateProvider *)dateProvider
+                 keepDelayedFramesDuration:(CFTimeInterval)keepDelayedFramesDuration;
 
 @property (nonatomic, assign, readonly) SentryScreenFrames *currentFrames;
 @property (nonatomic, assign, readonly) BOOL isRunning;
