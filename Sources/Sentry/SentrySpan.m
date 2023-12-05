@@ -57,21 +57,20 @@ SentrySpan ()
 
         if ([NSThread isMainThread]) {
             _data[SPAN_DATA_THREAD_NAME] = @"main";
-
-#if SENTRY_HAS_UIKIT
-            // Only track frames if running on main thread.
-            _framesTracker = framesTracker;
-            if (_framesTracker.isRunning) {
-                SentryScreenFrames *currentFrames = _framesTracker.currentFrames;
-                initTotalFrames = currentFrames.total;
-                initSlowFrames = currentFrames.slow;
-                initFrozenFrames = currentFrames.frozen;
-            }
-#endif // SENTRY_HAS_UIKIT
         } else {
             _data[SPAN_DATA_THREAD_NAME] = [SentryDependencyContainer.sharedInstance.threadInspector
                 getThreadName:currentThread];
         }
+
+#if SENTRY_HAS_UIKIT
+        _framesTracker = framesTracker;
+        if (_framesTracker.isRunning) {
+            SentryScreenFrames *currentFrames = _framesTracker.currentFrames;
+            initTotalFrames = currentFrames.total;
+            initSlowFrames = currentFrames.slow;
+            initFrozenFrames = currentFrames.frozen;
+        }
+#endif // SENTRY_HAS_UIKIT
 
         _tags = [[NSMutableDictionary alloc] init];
         _stateLock = [[NSObject alloc] init];
