@@ -195,7 +195,7 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
         let slow = 2
         let frozen = 1
         let normal = 100
-        displayLink.givenFrames(slow, frozen, normal)
+        displayLink.renderFrames(slow, frozen, normal)
 
         let currentFrames = PrivateSentrySDKOnly.currentScreenFrames
         XCTAssertEqual(UInt(slow + frozen + normal), currentFrames.total)

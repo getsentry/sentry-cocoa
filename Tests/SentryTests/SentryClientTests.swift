@@ -348,7 +348,7 @@ class SentryClientTest: XCTestCase {
     func testCaptureTransactionWithoutScreen() {
         SentryDependencyContainer.sharedInstance().application = TestSentryUIApplication()
         
-        let event = Transaction(trace: SentryTracer(context: SpanContext(operation: "test")), children: [])
+        let event = Transaction(trace: SentryTracer(context: SpanContext(operation: "test"), framesTracker: nil), children: [])
         fixture.getSut().capture(event: event, scope: fixture.scope)
         
         try? assertLastSentEventWithAttachment { event in

@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+## Features
+
+- Add slow and frozen frames to spans (#3450)
+
 ## 8.17.1
 
 ### Fixes 

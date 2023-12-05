@@ -242,4 +242,14 @@ slowFrameThreshold(uint64_t actualFramesPerSecond)
 
 @end
 
+BOOL
+sentryShouldAddSlowFrozenFramesData(
+    NSInteger totalFrames, NSInteger slowFrames, NSInteger frozenFrames)
+{
+    BOOL allBiggerThanOrEqualToZero = totalFrames >= 0 && slowFrames >= 0 && frozenFrames >= 0;
+    BOOL oneBiggerThanZero = totalFrames > 0 || slowFrames > 0 || frozenFrames > 0;
+
+    return allBiggerThanOrEqualToZero && oneBiggerThanZero;
+}
+
 #endif // SENTRY_HAS_UIKIT

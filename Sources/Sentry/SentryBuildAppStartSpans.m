@@ -22,7 +22,7 @@ sentryBuildAppStartSpan(
                                             origin:SentryTraceOriginAutoAppStart
                                            sampled:tracer.sampled];
 
-    return [[SentrySpan alloc] initWithTracer:tracer context:context];
+    return [[SentrySpan alloc] initWithTracer:tracer context:context framesTracker:nil];
 }
 
 NSArray<SentrySpan *> *

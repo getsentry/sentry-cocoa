@@ -123,7 +123,11 @@ static BOOL appStartMeasurementRead;
                                        hub:(nullable SentryHub *)hub
                              configuration:(SentryTracerConfiguration *)configuration;
 {
-    if (!(self = [super initWithContext:transactionContext])) {
+    if (!(self = [super initWithContext:transactionContext
+#if SENTRY_HAS_UIKIT
+                          framesTracker:SentryDependencyContainer.sharedInstance.framesTracker
+#endif // SENTRY_HAS_UIKIT
+    ])) {
         return nil;
     }
 
@@ -351,7 +355,13 @@ static BOOL appStartMeasurementRead;
                                    spanDescription:description
                                            sampled:self.sampled];
 
-    SentrySpan *child = [[SentrySpan alloc] initWithTracer:self context:context];
+    SentrySpan *child =
+        [[SentrySpan alloc] initWithTracer:self
+                                   context:context
+#if SENTRY_HAS_UIKIT
+                             framesTracker:SentryDependencyContainer.sharedInstance.framesTracker
+#endif // SENTRY_HAS_UIKIT
+    ];
     child.startTimestamp = [SentryDependencyContainer.sharedInstance.dateProvider date];
     SENTRY_LOG_DEBUG(@"Started child span %@ under %@", child.spanId.sentrySpanIdString,
         parentId.sentrySpanIdString);
@@ -741,10 +751,7 @@ static BOOL appStartMeasurementRead;
         NSInteger slowFrames = currentFrames.slow - initSlowFrames;
         NSInteger frozenFrames = currentFrames.frozen - initFrozenFrames;
 
-        BOOL allBiggerThanZero = totalFrames >= 0 && slowFrames >= 0 && frozenFrames >= 0;
-        BOOL oneBiggerThanZero = totalFrames > 0 || slowFrames > 0 || frozenFrames > 0;
-
-        if (allBiggerThanZero && oneBiggerThanZero) {
+        if (sentryShouldAddSlowFrozenFramesData(totalFrames, slowFrames, frozenFrames)) {
             [self setMeasurement:@"frames_total" value:@(totalFrames)];
             [self setMeasurement:@"frames_slow" value:@(slowFrames)];
             [self setMeasurement:@"frames_frozen" value:@(frozenFrames)];

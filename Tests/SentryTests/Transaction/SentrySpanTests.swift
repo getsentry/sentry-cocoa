@@ -1,3 +1,4 @@
+import Nimble
 import Sentry
 import SentryTestUtils
 import XCTest
@@ -14,7 +15,11 @@ class SentrySpanTests: XCTestCase {
         let extraValue = "extra_value"
         let options: Options
         let currentDateProvider = TestCurrentDateProvider()
+#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+        let tracer = SentryTracer(context: SpanContext(operation: "TEST"), framesTracker: nil)
+#else
         let tracer = SentryTracer(context: SpanContext(operation: "TEST"))
+#endif
 
         init() {
             options = Options()
@@ -33,6 +38,13 @@ class SentrySpanTests: XCTestCase {
             return hub.startTransaction(name: someTransaction, operation: someOperation)
         }
         
+        func getSutWithTracer() -> SentrySpan {
+#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+            return SentrySpan(tracer: tracer, context: SpanContext(operation: someOperation, sampled: .undecided), framesTracker: nil)
+#else
+            return SentrySpan(tracer: tracer, context: SpanContext(operation: someOperation, sampled: .undecided))
+#endif
+        }
     }
     
     override func setUp() {
@@ -142,7 +154,7 @@ class SentrySpanTests: XCTestCase {
     }
 
     func testFinishSpanWithDefaultTimestamp() {
-        let span = SentrySpan(tracer: fixture.tracer, context: SpanContext(operation: fixture.someOperation, sampled: .undecided))
+        let span = fixture.getSutWithTracer()
         span.finish()
 
         XCTAssertEqual(span.startTimestamp, TestData.timestamp)
@@ -152,7 +164,7 @@ class SentrySpanTests: XCTestCase {
     }
 
     func testFinishSpanWithCustomTimestamp() {
-        let span = SentrySpan(tracer: fixture.tracer, context: SpanContext(operation: fixture.someOperation, sampled: .undecided))
+        let span = fixture.getSutWithTracer()
         span.timestamp = Date(timeIntervalSince1970: 123)
         span.finish()
 
@@ -292,15 +304,15 @@ class SentrySpanTests: XCTestCase {
         XCTAssertEqual("manual", serialization["origin"] as? String)
     }
 
-    func testSerialization_NoFrames() {
-        let span = SentrySpan(tracer: fixture.tracer, context: SpanContext(operation: "test"))
+    func testSerialization_NoStacktraceFrames() {
+        let span = fixture.getSutWithTracer()
         let serialization = span.serialize()
 
         XCTAssertEqual(2, (serialization["data"] as? [String: Any])?.count, "Only expected thread.name and thread.id in data.")
     }
 
-    func testSerialization_withFrames() {
-        let span = SentrySpan(tracer: fixture.tracer, context: SpanContext(operation: "test"))
+    func testSerialization_withStacktraceFrames() {
+        let span = fixture.getSutWithTracer()
         span.frames = [TestData.mainFrame, TestData.testFrame]
 
         let serialization = span.serialize()
@@ -324,7 +336,7 @@ class SentrySpanTests: XCTestCase {
     }
 
     func testSanitizeDataSpan() {
-        let span = SentrySpan(tracer: fixture.tracer, context: SpanContext(operation: fixture.someOperation, sampled: .undecided))
+        let span = fixture.getSutWithTracer()
 
         span.setData(value: Date(timeIntervalSince1970: 10), key: "date")
         span.finish()
@@ -365,7 +377,7 @@ class SentrySpanTests: XCTestCase {
     }
     
     func testTraceHeaderUndecided() {
-        let span = SentrySpan(tracer: fixture.tracer, context: SpanContext(operation: fixture.someOperation, sampled: .undecided))
+        let span = fixture.getSutWithTracer()
         let header = span.toTraceHeader()
         
         XCTAssertEqual(header.traceId, span.traceId)
@@ -376,7 +388,7 @@ class SentrySpanTests: XCTestCase {
     
     @available(*, deprecated)
     func testSetExtra_ForwardsToSetData() {
-        let sut = SentrySpan(tracer: fixture.tracer, context: SpanContext(operation: "test"))
+        let sut = fixture.getSutWithTracer()
         sut.setExtra(value: 0, key: "key")
         
         let data = sut.data as [String: Any]
@@ -387,8 +399,13 @@ class SentrySpanTests: XCTestCase {
         // Span has a weak reference to tracer. If we don't keep a reference
         // to the tracer ARC will deallocate the tracer.
         let sutGenerator: () -> Span = {
+#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+            let tracer = SentryTracer(context: SpanContext(operation: "TEST"), framesTracker: nil)
+            return SentrySpan(tracer: tracer, context: SpanContext(operation: ""), framesTracker: nil)
+#else
             let tracer = SentryTracer(context: SpanContext(operation: "TEST"))
             return SentrySpan(tracer: tracer, context: SpanContext(operation: ""))
+#endif
         }
         
         let sut = sutGenerator()
@@ -451,4 +468,99 @@ class SentrySpanTests: XCTestCase {
         XCTAssertEqual(nameForSentrySpanStatus(.outOfRange), kSentrySpanStatusNameOutOfRange)
         XCTAssertEqual(nameForSentrySpanStatus(.dataLoss), kSentrySpanStatusNameDataLoss)
     }
+    
+#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+    func testAddSlowFrozenFramesToData() {
+        let (displayLinkWrapper, framesTracker) = givenFramesTracker()
+        
+        let sut = SentrySpan(context: SpanContext(operation: "TEST"), framesTracker: framesTracker)
+        
+        let slow = 2
+        let frozen = 1
+        let normal = 100
+        displayLinkWrapper.renderFrames(slow, frozen, normal)
+        
+        sut.finish()
+        
+        expect(sut.data["frames.total"] as? NSNumber) == NSNumber(value: slow + frozen + normal)
+        expect(sut.data["frames.slow"] as? NSNumber) == NSNumber(value: slow)
+        expect(sut.data["frames.frozen"] as? NSNumber) == NSNumber(value: frozen)
+    }
+    
+    func testDontAddAllZeroSlowFrozenFramesToData() {
+        let (_, framesTracker) = givenFramesTracker()
+        
+        let sut = SentrySpan(context: SpanContext(operation: "TEST"), framesTracker: framesTracker)
+        
+        sut.finish()
+        
+        expect(sut.data["frames.total"]) == nil
+        expect(sut.data["frames.slow"]) == nil
+        expect(sut.data["frames.frozen"]) == nil
+    }
+    
+    func testDontAddZeroSlowFrozenFrames_WhenSpanStartedBackgroundThread() {
+        let (displayLinkWrapper, framesTracker) = givenFramesTracker()
+        
+        let expectation = expectation(description: "SpanStarted on a background thread")
+        DispatchQueue.global().async {
+            let sut = SentrySpan(context: SpanContext(operation: "TEST"), framesTracker: framesTracker)
+            
+            let slow = 2
+            let frozen = 1
+            let normal = 100
+            displayLinkWrapper.renderFrames(slow, frozen, normal)
+            
+            sut.finish()
+            
+            expect(sut.data["frames.total"]) == nil
+            expect(sut.data["frames.slow"]) == nil
+            expect(sut.data["frames.frozen"]) == nil
+            
+            expectation.fulfill()
+        }
+        
+        wait(for: [expectation], timeout: 1.0)
+    }
+    
+    func testAddSlowFrozenFramesToData_WithPreexistingCounts() {
+        let (displayLinkWrapper, framesTracker) = givenFramesTracker()
+        let preexistingSlow = 1
+        let preexistingFrozen = 2
+        let preexistingNormal = 3
+        displayLinkWrapper.renderFrames(preexistingSlow, preexistingFrozen, preexistingNormal)
+        
+        let sut = SentrySpan(context: SpanContext(operation: "TEST"), framesTracker: framesTracker)
+        
+        let slow = 7
+        let frozen = 8
+        let normal = 9
+        displayLinkWrapper.renderFrames(slow, frozen, normal)
+        
+        sut.finish()
+        
+        expect(sut.data["frames.total"] as? NSNumber) == NSNumber(value: slow + frozen + normal)
+        expect(sut.data["frames.slow"] as? NSNumber) == NSNumber(value: slow)
+        expect(sut.data["frames.frozen"] as? NSNumber) == NSNumber(value: frozen)
+    }
+    
+    func testNoFramesTracker_NoFramesAddedToData() {
+        let sut = SentrySpan(context: SpanContext(operation: "TEST"), framesTracker: nil)
+        
+        sut.finish()
+        
+        expect(sut.data["frames.total"]) == nil
+        expect(sut.data["frames.slow"]) == nil
+        expect(sut.data["frames.frozen"]) == nil
+    }
+    
+    private func givenFramesTracker() -> (TestDisplayLinkWrapper, SentryFramesTracker) {
+        let displayLinkWrapper = TestDisplayLinkWrapper()
+        let framesTracker = SentryFramesTracker(displayLinkWrapper: displayLinkWrapper)
+        framesTracker.start()
+        displayLinkWrapper.call()
+        
+        return (displayLinkWrapper, framesTracker)
+    }
+#endif
 }
