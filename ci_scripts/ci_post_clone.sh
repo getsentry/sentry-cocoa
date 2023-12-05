@@ -6,5 +6,5 @@ source ~/.cargo/env
 cd ~
 git clone https://github.com/getsentry/sentry-cli.git
 cd sentry-cli
-git revert 40f86f6
+git checkout szokeasaurusrex/check-revert-optimizations
 cargo build --release
