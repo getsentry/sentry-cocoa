@@ -211,7 +211,7 @@ SentrySpan ()
     if (_framesTracker.isRunning) {
 
         CFTimeInterval framesDelay = [_framesTracker
-                 getFrameDelay:startSystemTime
+                getFramesDelay:startSystemTime
             endSystemTimestamp:SentryDependencyContainer.sharedInstance.dateProvider.systemTime];
         if (framesDelay >= 0) {
             [self setDataValue:@(framesDelay) forKey:@"frames.delay"];

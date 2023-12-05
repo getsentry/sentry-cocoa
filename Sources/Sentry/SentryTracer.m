@@ -751,7 +751,7 @@ static BOOL appStartMeasurementRead;
         NSInteger frozenFrames = currentFrames.frozen - initFrozenFrames;
 
         CFTimeInterval framesDelay = [framesTracker
-                 getFrameDelay:self.startSystemTime
+                getFramesDelay:self.startSystemTime
             endSystemTimestamp:SentryDependencyContainer.sharedInstance.dateProvider.systemTime];
         if (framesDelay >= 0) {
             [self setMeasurement:@"frames_delay"

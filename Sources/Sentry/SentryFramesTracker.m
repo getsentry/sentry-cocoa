@@ -288,26 +288,26 @@ slowFrameThreshold(uint64_t actualFramesPerSecond)
     [self.delayedFrames removeObjectsInRange:NSMakeRange(0, i)];
 }
 
-- (CFTimeInterval)getFrameDelay:(uint64_t)startSystemTimestamp
-             endSystemTimestamp:(uint64_t)endSystemTimestamp
+- (CFTimeInterval)getFramesDelay:(uint64_t)startSystemTimestamp
+              endSystemTimestamp:(uint64_t)endSystemTimestamp
 {
-    CFTimeInterval cantCalculateFrameDelay = -1.0;
+    CFTimeInterval cantCalculateFrameDelayReturnValue = -1.0;
 
     if (_isRunning == NO) {
         SENTRY_LOG_DEBUG(@"Not calculating frames delay because frames tracker isn't running.");
-        return cantCalculateFrameDelay;
+        return cantCalculateFrameDelayReturnValue;
     }
 
     if (startSystemTimestamp >= endSystemTimestamp) {
         SENTRY_LOG_DEBUG(@"Not calculating frames delay because startSystemTimestamp is before  "
                          @"endSystemTimestamp");
-        return cantCalculateFrameDelay;
+        return cantCalculateFrameDelayReturnValue;
     }
 
     if (endSystemTimestamp > self.dateProvider.systemTime) {
         SENTRY_LOG_DEBUG(
             @"Not calculating frames delay because endSystemTimestamp is in the future.");
-        return cantCalculateFrameDelay;
+        return cantCalculateFrameDelayReturnValue;
     }
 
     NSArray<SentryDelayedFrame *> *frames;
@@ -321,7 +321,7 @@ slowFrameThreshold(uint64_t actualFramesPerSecond)
         if (oldestDelayedFrameStartTimestamp > startSystemTimestamp) {
             SENTRY_LOG_DEBUG(@"Not calculating frames delay because the record of delayed frames "
                              @"doesn't go back enough in time.");
-            return cantCalculateFrameDelay;
+            return cantCalculateFrameDelayReturnValue;
         }
 
         // Copy as late as possible to avoid allocating unnecessary memory.
