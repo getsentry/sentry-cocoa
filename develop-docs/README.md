@@ -42,6 +42,7 @@ CI runs the unit tests for one job with thread sanitizer enabled to detect race 
 The Test scheme of Sentry uses `TSAN_OPTIONS` to specify the [suppression file](../Tests/ThreadSanitizer.sup) to ignore false positives or known issues.
 It's worth noting that you can use the `$(PROJECT_DIR)` to specify the path to the suppression file.
 To run the unit tests with the thread sanitizer enabled in Xcode click on edit scheme, go to tests, then open diagnostics, and enable Thread Sanitizer.
+The profiler doesn't work with TSAN attached, so tests that run the profiler will be skipped.
 
 ### Further Reading
 
@@ -91,54 +92,9 @@ Ensure to not commit the patch file after running this script, which then contai
 ./scripts/upload-dsyms-with-xcode-build-phase.sh YOUR_AUTH_TOKEN
 ```
 
-## Auto UI Performance Class Overview
-
-![Auto UI Performance Class Overview](./auto-ui-performance-tracking.svg)
-
-## Performance API Overview
-
-![Performance API Overview](./performance-api.svg)
-
 ## Generating classes
 
 You can use the `generate-classes.sh` to generate ViewControllers and other classes to emulate a large project. This is useful, for example, to test the performance of swizzling in a large project without having to check in thousands of lines of code.
-
-## Generating Diagrams
-
-The diagrams are created with [PlantUml](http://plantuml.com). The advantage of PlantUml
-over other diagram tools is that you describe the diagrams with text, and you don't have
-to worry about UML and layout, which can be time-consuming for changes. Furthermore, the
-diagrams can be stored in git.
-
-With [Visual Studio Code](https://code.visualstudio.com/) and the
-[PlantUml Plugin](https://marketplace.visualstudio.com/items?itemName=jebbs.plantuml#user-content-use-plantuml-server-as-render)
-you can create diagrams, view them and export them. If you don't want to use Visual Studio Code,
-there are many [alternatives](http://plantuml.com/running).
-
-For learning the syntax and quickly playing around you can check out [Plant Text](https://www.planttext.com/).
-
-### Visual Studio Code Setup
-
-Visual Studio Code needs a rendering engine for PlantUml. We recommend using the following Docker image:
-
-```sh
-docker run -d -p 8080:8080 plantuml/plantuml-server:jetty
-```
-
-To ensure the rendering server is running properly, visit with `localhost:8080`.
-
-Finally, you have to configure the rendering server in Visual Studio Code. For this, open the settings of Visual Studio Code. Choose `Extensions > PlantUML configuration`. Click on `Edit in settings.json`. Then paste the following into the config:
-
-```json
-{
-  "plantuml.server": "http://localhost:8080",
-  "plantuml.render": "PlantUMLServer"
-}
-```
-
-Save the settings and you should be able to render a diagram.
-
-You can find the official guide here: [configure a rendering server](https://marketplace.visualstudio.com/items?itemName=jebbs.plantuml#user-content-use-plantuml-server-as-render).
 
 ## UIKit
 
@@ -149,3 +105,9 @@ There are two build configurations they can use for this: `Debug_without_UIKit` 
 - `GCC_PREPROCESSOR_DEFINITIONS` has an additional setting `SENTRY_NO_UIKIT=1`. This is now part of the definition of `SENTRY_HAS_UIKIT` in `SentryDefines.h` that is used to conditionally compile out any code that would otherwise use UIKit API and cause UIKit to be automatically linked as described above. There is another macro `SENTRY_UIKIT_AVAILABLE` defined as `SENTRY_HAS_UIKIT` used to be, meaning simply that compilation is targeting a platform where UIKit is available to be used. This is used in headers we deliver in the framework bundle to compile out declarations that rely on UIKit, and their corresponding implementations are switched over `SENTRY_HAS_UIKIT` to either provide the logic for configurations that link UIKit, or to provide a stub delivering a default value (`nil`, `0.0`, `NO` etc) and a warning log for publicly facing things like SentryOptions, or debug log for internal things like SentryDependencyContainer.
 
 There are two jobs in `.github/workflows/build.yml` that will build each of the new configs and use `otool -L` to ensure that UIKit does not appear as a load command in the build products.
+ 
+This feature is experimental and is currently not compatible with SPM.
+
+## Logging
+
+We have a set of macros for debugging at various levels defined in SentryLog.h. These are not async-safe; to log from special places like crash handlers, see SentryCrashLogger.h; see the headerdocs in that header for how to work with those logging macros. There are also separate macros in SentryProfilingLogging.hpp specifically for the profiler; these are completely compiled out of release builds due to https://github.com/getsentry/sentry-cocoa/issues/3336.

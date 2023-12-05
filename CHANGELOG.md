@@ -5,11 +5,15 @@
 ## Features
 
 - Add slow and frozen frames to spans (#3450)
+## 8.17.1
 
 ### Fixes 
 
 - Crash when UINavigationController doesn't have rootViewController (#3455)
 - Crash when synchronizing invalid JSON breadcrumbs to SentryWatchdogTermination (#3458)
+- Check for NULL in binary image cache (#3469)
+- Threading issues in binary image cache (#3468)
+- Finish transaction for external view controllers (#3440)
 
 ## 8.17.0
 
@@ -21,7 +25,6 @@
 
 ### Fixes
 
-- Finish transaction for external view controllers (#3440)
 - Fix inaccurate number of frames for transactions (#3439)
 
 ## 8.16.0
@@ -88,7 +91,8 @@ The XCFramework attached to GitHub releases is now built with Xcode 15.
 
 ### Features
 
-- Sentry can now be used without linking UIKit; this is helpful for using the SDK in certain app extension contexts (#3175)  
+- Sentry can now be used without linking UIKit; this is helpful for using the SDK in certain app extension contexts (#3175)
+**Note:** this is an experimental feature not yet available for with SPM.
 **Warning:** this breaks some SPM integrations. Use 8.14.1 if you integrate using SPM.
 
 - GA of MetricKit integration (#3340)

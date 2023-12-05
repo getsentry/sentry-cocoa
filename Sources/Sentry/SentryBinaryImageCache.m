@@ -2,6 +2,7 @@
 #import "SentryCrashBinaryImageCache.h"
 #import "SentryDependencyContainer.h"
 #import "SentryInAppLogic.h"
+#import "SentryLog.h"
 
 static void binaryImageWasAdded(const SentryCrashBinaryImage *image);
 
@@ -21,22 +22,44 @@ SentryBinaryImageCache ()
 
 - (void)start
 {
-    _cache = [NSMutableArray array];
-    sentrycrashbic_registerAddedCallback(&binaryImageWasAdded);
-    sentrycrashbic_registerRemovedCallback(&binaryImageWasRemoved);
+    @synchronized(self) {
+        _cache = [NSMutableArray array];
+        sentrycrashbic_registerAddedCallback(&binaryImageWasAdded);
+        sentrycrashbic_registerRemovedCallback(&binaryImageWasRemoved);
+    }
 }
 
 - (void)stop
 {
-    sentrycrashbic_registerAddedCallback(NULL);
-    sentrycrashbic_registerRemovedCallback(NULL);
-    _cache = nil;
+    @synchronized(self) {
+        sentrycrashbic_registerAddedCallback(NULL);
+        sentrycrashbic_registerRemovedCallback(NULL);
+        _cache = nil;
+    }
 }
 
 - (void)binaryImageAdded:(const SentryCrashBinaryImage *)image
 {
+    if (image == NULL) {
+        SENTRY_LOG_WARN(@"The image is NULL. Can't add NULL to cache.");
+        return;
+    }
+
+    if (image->name == NULL) {
+        SENTRY_LOG_WARN(@"The image name was NULL. Can't add image to cache.");
+        return;
+    }
+
+    NSString *imageName = [NSString stringWithCString:image->name encoding:NSUTF8StringEncoding];
+
+    if (imageName == nil) {
+        SENTRY_LOG_WARN(@"Couldn't convert the cString image name to an NSString. This could be "
+                        @"due to a different encoding than NSUTF8StringEncoding of the cString..");
+        return;
+    }
+
     SentryBinaryImageInfo *newImage = [[SentryBinaryImageInfo alloc] init];
-    newImage.name = [NSString stringWithCString:image->name encoding:NSUTF8StringEncoding];
+    newImage.name = imageName;
     newImage.address = image->address;
     newImage.size = image->size;
 
@@ -60,6 +83,11 @@ SentryBinaryImageCache ()
 
 - (void)binaryImageRemoved:(const SentryCrashBinaryImage *)image
 {
+    if (image == NULL) {
+        SENTRY_LOG_WARN(@"The image is NULL. Can't remove it from the cache.");
+        return;
+    }
+
     @synchronized(self) {
         NSInteger index = [self indexOfImage:image->address];
         if (index >= 0) {
