@@ -51,6 +51,7 @@ class SentryProfilerSwiftTests: XCTestCase {
             }
             SentryDependencyContainer.sharedInstance().dispatchFactory = dispatchFactory
             SentryDependencyContainer.sharedInstance().timerFactory = timeoutTimerFactory
+            SentryDependencyContainer.sharedInstance().dispatchQueueWrapper = dispatchQueueWrapper
 
             systemWrapper.overrides.cpuUsage = NSNumber(value: mockCPUUsage)
             systemWrapper.overrides.memoryFootprintBytes = mockMemoryFootprint
@@ -76,7 +77,6 @@ class SentryProfilerSwiftTests: XCTestCase {
                         if let idleTimeout = idleTimeout {
                             $0.idleTimeout = idleTimeout
                         }
-                        $0.dispatchQueueWrapper = self.dispatchQueueWrapper
                         $0.waitForChildren = true
                         $0.timerFactory = self.timeoutTimerFactory
                     }))
