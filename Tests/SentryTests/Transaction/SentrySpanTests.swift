@@ -499,7 +499,7 @@ class SentrySpanTests: XCTestCase {
         expect(sut.data["frames.frozen"]) == nil
     }
     
-    func testDontAddZeroSlowFrozenFrames_WhenSpanStartedBackgroundThread() {
+    func testAddZeroSlowFrozenFrames_WhenSpanStartedBackgroundThread() {
         let (displayLinkWrapper, framesTracker) = givenFramesTracker()
         
         let expectation = expectation(description: "SpanStarted on a background thread")
@@ -513,10 +513,9 @@ class SentrySpanTests: XCTestCase {
             
             sut.finish()
             
-            expect(sut.data["frames.total"]) == nil
-            expect(sut.data["frames.slow"]) == nil
-            expect(sut.data["frames.frozen"]) == nil
-            
+            expect(sut.data["frames.total"] as? NSNumber) == NSNumber(value: slow + frozen + normal)
+            expect(sut.data["frames.slow"] as? NSNumber) == NSNumber(value: slow)
+            expect(sut.data["frames.frozen"] as? NSNumber) == NSNumber(value: frozen)
             expectation.fulfill()
         }
         
