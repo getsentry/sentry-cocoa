@@ -84,6 +84,20 @@ class SentryFramesTrackerTests: XCTestCase {
 
         try assert(slow: 2, frozen: 0, total: 3)
     }
+    
+    func testMultipleSlowestSlowFrames() throws {
+        let sut = fixture.sut
+        sut.start()
+
+        fixture.displayLinkWrapper.call()
+        
+        let slowFramesCount: UInt = 20
+        for _ in 0..<slowFramesCount {
+            _ = fixture.displayLinkWrapper.slowestSlowFrame()
+        }
+
+        try assert(slow: slowFramesCount, frozen: 0, total: slowFramesCount)
+    }
 
     func testFrozenFrame() throws {
         let sut = fixture.sut
@@ -94,6 +108,20 @@ class SentryFramesTrackerTests: XCTestCase {
         _ = fixture.displayLinkWrapper.fastestFrozenFrame()
 
         try assert(slow: 1, frozen: 1, total: 2)
+    }
+    
+    func testMultipleFastestFrozenFrames() throws {
+        let sut = fixture.sut
+        sut.start()
+
+        fixture.displayLinkWrapper.call()
+        
+        let frozenFramesCount: UInt = 20
+        for _ in 0..<frozenFramesCount {
+            _ = fixture.displayLinkWrapper.fastestFrozenFrame()
+        }
+
+        try assert(slow: 0, frozen: frozenFramesCount, total: frozenFramesCount)
     }
 
     func testFrameRateChange() throws {
