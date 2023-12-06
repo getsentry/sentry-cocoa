@@ -109,19 +109,16 @@ class LaunchUITests: BaseUITest {
         let endDate = Date()
         
         let secondsBetween = endDate.timeIntervalSince(startDate)
-        
-        // Retrieving the number of frames from the text label is inaccurate.
-        // Therefore, we add a one-second tolerance for the expected amount of frames.
-        // We only want to validate if the number of total frames is entirely off.
-        let maximumFramesPerSecond = Double(UIScreen.main.maximumFramesPerSecond)
-        
-        let expectedMinimumTotalFrames = (secondsBetween - 1.0) * maximumFramesPerSecond
-        let expectedMaximumTotalFrames = (secondsBetween + 1.0) * maximumFramesPerSecond
+  
+        // We don't calculate the min and max values based on the frame rate, as it could have changed while waiting for them to render.
+        // Instead, we pick the minimum value based on 60fps and the maximum value based on 120fps.
+        let expectedMinimumTotalFrames = (secondsBetween - 1.0) * 60
+        let expectedMaximumTotalFrames = (secondsBetween + 1.0) * 120
         
         let actualTotalFrames = Double(endTotalFrames - startTotalFrames)
         
-        XCTAssertGreaterThanOrEqual(actualTotalFrames, expectedMinimumTotalFrames, "Actual frames:\(actualTotalFrames) should be greater than \(expectedMinimumTotalFrames) with frame rate of \(maximumFramesPerSecond)")
-        XCTAssertLessThanOrEqual(actualTotalFrames, expectedMaximumTotalFrames, "Actual frames:\(actualTotalFrames) should be less than \(expectedMaximumTotalFrames) with frame rate of \(maximumFramesPerSecond)")
+        XCTAssertGreaterThanOrEqual(actualTotalFrames, expectedMinimumTotalFrames, "Actual frames:\(actualTotalFrames) should be greater than \(expectedMinimumTotalFrames)")
+        XCTAssertLessThanOrEqual(actualTotalFrames, expectedMaximumTotalFrames, "Actual frames:\(actualTotalFrames) should be less than \(expectedMaximumTotalFrames)")
     }
 
     /**
