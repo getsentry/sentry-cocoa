@@ -4,7 +4,7 @@
 
 ## Features
 
-- Add slow and frozen frames to spans (#3450)
+- Add frames delay to transactions (#3487)
 - Add slow and frozen frames to spans (#3450, #3478)
 
 ## 8.17.1
