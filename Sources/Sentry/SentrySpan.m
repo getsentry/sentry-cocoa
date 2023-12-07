@@ -50,7 +50,6 @@ SentrySpan ()
 {
     if (self = [super init]) {
         self.startTimestamp = [SentryDependencyContainer.sharedInstance.dateProvider date];
-        startSystemTime = SentryDependencyContainer.sharedInstance.dateProvider.systemTime;
         _data = [[NSMutableDictionary alloc] init];
 
         SentryCrashThread currentThread = sentrycrashthread_self();

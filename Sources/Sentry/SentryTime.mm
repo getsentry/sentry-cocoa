@@ -21,13 +21,6 @@ nanosecondsToTimeInterval(uint64_t nanoseconds)
     return (double)nanoseconds / NSEC_PER_SEC;
 }
 
-double
-nanosecondsToTimeInterval(uint64_t nanoseconds)
-{
-    NSCAssert(nanoseconds <= UINT64_MAX, @"Nanoseconds must not exceed UINT64_MAX");
-    return (double)nanoseconds / 1e9;
-}
-
 uint64_t
 getAbsoluteTime(void)
 {
