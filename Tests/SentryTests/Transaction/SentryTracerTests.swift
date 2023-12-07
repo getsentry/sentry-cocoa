@@ -1075,7 +1075,7 @@ class SentryTracerTests: XCTestCase {
         expect(measurements?.count) == 1
         
         let framesDelay = measurements?["frames_delay"] as? [String: NSNumber]
-        expect(framesDelay?["value"] as? NSNumber).to(beCloseTo(0.0, within: 0.0001))
+        expect(framesDelay?["value"]).to(beCloseTo(0.0, within: 0.0001))
     }
     
     func testAddFramesMeasurement() {
@@ -1105,7 +1105,7 @@ class SentryTracerTests: XCTestCase {
         let expectedFrameDuration = slowFrameThreshold(displayLink.currentFrameRate.rawValue)
         let expectedDelay = displayLink.slowestSlowFrameDuration + displayLink.fastestFrozenFrameDuration - expectedFrameDuration * 2 as NSNumber
         
-        expect(framesDelay?["value"] as? NSNumber).to(beCloseTo(expectedDelay, within: 0.0001))
+        expect(framesDelay?["value"]).to(beCloseTo(expectedDelay, within: 0.0001))
         expect(SentrySDK.getAppStartMeasurement()) == nil
     }
     
@@ -1123,7 +1123,7 @@ class SentryTracerTests: XCTestCase {
         
         let measurements = serializedTransaction["measurements"] as? [String: [String: Any]]
         let framesDelay = measurements?["frames_delay"] as? [String: NSNumber]
-        expect(framesDelay?["value"] as? NSNumber).to(beCloseTo(0.0, within: 0.0001))
+        expect(framesDelay?["value"]).to(beCloseTo(0.0, within: 0.0001))
     }
     
     func testNegativeFramesAmount_NoMeasurementAdded() {
