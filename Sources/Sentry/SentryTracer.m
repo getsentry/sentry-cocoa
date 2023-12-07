@@ -61,6 +61,7 @@ static const NSTimeInterval SENTRY_AUTO_TRANSACTION_DEADLINE = 30.0;
 @interface
 SentryTracer ()
 
+@property (nonatomic) uint64_t startSystemTime;
 @property (nonatomic) SentrySpanStatus finishStatus;
 /** This property is different from @c isFinished. While @c isFinished states if the tracer is
  * actually finished, this property tells you if finish was called on the tracer. Calling
@@ -72,7 +73,6 @@ SentryTracer ()
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 @property (nonatomic) BOOL isProfiling;
-@property (nonatomic) uint64_t startSystemTime;
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
 @end
@@ -130,6 +130,7 @@ static BOOL appStartMeasurementRead;
         return nil;
     }
 
+    _startSystemTime = SentryDependencyContainer.sharedInstance.dateProvider.systemTime;
     _configuration = configuration;
 
     self.transactionContext = transactionContext;
@@ -171,7 +172,6 @@ static BOOL appStartMeasurementRead;
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
     if (_configuration.profilesSamplerDecision.decision == kSentrySampleDecisionYes) {
-        _startSystemTime = SentryDependencyContainer.sharedInstance.dateProvider.systemTime;
         _internalID = [[SentryId alloc] init];
         _isProfiling = [SentryProfiler startWithTracer:_internalID];
     }
