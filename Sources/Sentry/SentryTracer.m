@@ -754,9 +754,7 @@ static BOOL appStartMeasurementRead;
                 getFramesDelay:self.startSystemTime
             endSystemTimestamp:SentryDependencyContainer.sharedInstance.dateProvider.systemTime];
         if (framesDelay >= 0) {
-            [self setMeasurement:@"frames_delay"
-                           value:@(framesDelay)
-                            unit:SentryMeasurementUnitDuration.second];
+            [self setMeasurement:@"frames_delay" value:@(framesDelay)];
         }
 
         if (sentryShouldAddSlowFrozenFramesData(totalFrames, slowFrames, frozenFrames)) {
