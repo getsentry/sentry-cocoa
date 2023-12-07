@@ -21,9 +21,10 @@ public class TestDisplayLinkWrapper: SentryDisplayLinkWrapper {
     public var target: AnyObject!
     public var selector: Selector!
     public var currentFrameRate: FrameRate = .low
-    let frozenFrameThreshold = 0.7
-    public let slowestSlowFrameDuration: Double
-    public let fastestFrozenFrameDuration: Double
+    
+    private let frozenFrameThreshold = 0.7
+    private let slowestSlowFrameDuration: Double
+    private let fastestFrozenFrameDuration: Double
     
     public var dateProvider: TestCurrentDateProvider
     /// The smallest magnitude of time that is significant to how frames are classified as normal/slow/frozen.

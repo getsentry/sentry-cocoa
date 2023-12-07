@@ -11,6 +11,7 @@ SENTRY_EXTERN_C_BEGIN
  */
 uint64_t timeIntervalToNanoseconds(double seconds);
 
+/** Converts integer nanoseconds to a @c NSTimeInterval. */
 double nanosecondsToTimeInterval(uint64_t nanoseconds);
 
 /**

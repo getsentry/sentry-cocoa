@@ -40,7 +40,6 @@ SentrySpan ()
     NSUInteger initSlowFrames;
     NSUInteger initFrozenFrames;
     SentryFramesTracker *_framesTracker;
-    uint64_t startSystemTime;
 #endif // SENTRY_HAS_UIKIT
 }
 
@@ -74,6 +73,16 @@ SentrySpan ()
             _data[SPAN_DATA_THREAD_NAME] = [SentryDependencyContainer.sharedInstance.threadInspector
                 getThreadName:currentThread];
         }
+
+#if SENTRY_HAS_UIKIT
+        _framesTracker = framesTracker;
+        if (_framesTracker.isRunning) {
+            SentryScreenFrames *currentFrames = _framesTracker.currentFrames;
+            initTotalFrames = currentFrames.total;
+            initSlowFrames = currentFrames.slow;
+            initFrozenFrames = currentFrames.frozen;
+        }
+#endif // SENTRY_HAS_UIKIT
 
         _tags = [[NSMutableDictionary alloc] init];
         _stateLock = [[NSObject alloc] init];
@@ -210,13 +219,6 @@ SentrySpan ()
 #if SENTRY_HAS_UIKIT
     if (_framesTracker.isRunning) {
 
-        CFTimeInterval framesDelay = [_framesTracker
-                getFramesDelay:startSystemTime
-            endSystemTimestamp:SentryDependencyContainer.sharedInstance.dateProvider.systemTime];
-        if (framesDelay >= 0) {
-            [self setDataValue:@(framesDelay) forKey:@"frames.delay"];
-        }
-
         SentryScreenFrames *currentFrames = _framesTracker.currentFrames;
         NSInteger totalFrames = currentFrames.total - initTotalFrames;
         NSInteger slowFrames = currentFrames.slow - initSlowFrames;
@@ -227,9 +229,8 @@ SentrySpan ()
             [self setDataValue:@(slowFrames) forKey:@"frames.slow"];
             [self setDataValue:@(frozenFrames) forKey:@"frames.frozen"];
 
-            SENTRY_LOG_DEBUG(@"Frames for span \"%@\" Total:%ld Slow:%ld Frozen:%ld Delay:%f ms",
-                self.operation, (long)totalFrames, (long)slowFrames, (long)frozenFrames,
-                framesDelay * 1000);
+            SENTRY_LOG_DEBUG(@"Frames for span \"%@\" Total:%ld Slow:%ld Frozen:%ld",
+                self.operation, (long)totalFrames, (long)slowFrames, (long)frozenFrames);
         }
     }
 

@@ -6,10 +6,6 @@ init: setup-git
 	rbenv exec gem update bundler
 	rbenv exec bundle update
 
-.PHONY: init-samples
-init-samples: init
-	cd Samples/TrendingMovies && carthage update --use-xcframeworks
-
 .PHONY: setup-git
 setup-git:
 ifneq (, $(shell which pre-commit))

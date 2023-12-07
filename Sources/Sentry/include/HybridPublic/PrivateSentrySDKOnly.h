@@ -91,9 +91,9 @@ typedef void (^SentryOnAppStartMeasurementAvailable)(
  * Collect a profiler session data associated with the given @c SentryId.
  * This also discards the profiler.
  */
-+ (nullable NSDictionary<NSString *, id> *)collectProfileBetween:(uint64_t)startSystemTime
-                                                             and:(uint64_t)endSystemTime
-                                                        forTrace:(SentryId *)traceId;
++ (nullable NSMutableDictionary<NSString *, id> *)collectProfileBetween:(uint64_t)startSystemTime
+                                                                    and:(uint64_t)endSystemTime
+                                                               forTrace:(SentryId *)traceId;
 
 /**
  * Discard profiler session data associated with the given @c SentryId.

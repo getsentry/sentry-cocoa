@@ -2,8 +2,10 @@
 
 #if SENTRY_HAS_UIKIT
 
+#    import "SentryBinaryImageCache.h"
 #    import "SentryDefaultObjCRuntimeWrapper.h"
 #    import "SentryDefines.h"
+#    import "SentryDependencyContainer.h"
 #    import "SentryLog.h"
 #    import "SentryNSProcessInfoWrapper.h"
 #    import "SentrySubClassFinder.h"
@@ -38,6 +40,7 @@ SentryUIViewControllerSwizzling ()
 @property (nonatomic, strong) SentrySubClassFinder *subClassFinder;
 @property (nonatomic, strong) NSMutableSet<NSString *> *imagesActedOnSubclassesOfUIViewControllers;
 @property (nonatomic, strong) SentryNSProcessInfoWrapper *processInfoWrapper;
+@property (nonatomic, strong) SentryBinaryImageCache *binaryImageCache;
 
 @end
 
@@ -48,6 +51,7 @@ SentryUIViewControllerSwizzling ()
              objcRuntimeWrapper:(id<SentryObjCRuntimeWrapper>)objcRuntimeWrapper
                  subClassFinder:(SentrySubClassFinder *)subClassFinder
              processInfoWrapper:(SentryNSProcessInfoWrapper *)processInfoWrapper
+               binaryImageCache:(SentryBinaryImageCache *)binaryImageCache
 {
     if (self = [super init]) {
         self.inAppLogic = [[SentryInAppLogic alloc] initWithInAppIncludes:options.inAppIncludes
@@ -57,6 +61,7 @@ SentryUIViewControllerSwizzling ()
         self.subClassFinder = subClassFinder;
         self.imagesActedOnSubclassesOfUIViewControllers = [NSMutableSet new];
         self.processInfoWrapper = processInfoWrapper;
+        self.binaryImageCache = binaryImageCache;
     }
 
     return self;
@@ -69,6 +74,17 @@ SentryUIViewControllerSwizzling ()
 
 - (void)start
 {
+    for (NSString *inAppInclude in self.inAppLogic.inAppIncludes) {
+        NSString *pathToImage = [self.binaryImageCache pathForInAppInclude:inAppInclude];
+        if (pathToImage != nil) {
+            [self swizzleUIViewControllersOfImage:pathToImage];
+        } else {
+            SENTRY_LOG_WARN(@"Failed to find the binary image for inAppInclude <%@> and, therefore "
+                            @"can't instrument UIViewControllers in that binary",
+                inAppInclude);
+        }
+    }
+
     id<SentryUIApplication> app = [self findApp];
     if (app != nil) {
 
@@ -95,19 +111,6 @@ SentryUIViewControllerSwizzling ()
                                  @"a rootViewController");
             }
         }
-
-        [self swizzleAllSubViewControllersInApp:app];
-    } else {
-        // If we can't find an UIApplication instance we may use the current process path as the
-        // image name. This mostly happens with SwiftUI projects.
-        NSString *processImage = self.processInfoWrapper.processPath;
-        if (processImage) {
-            [self swizzleUIViewControllersOfImage:processImage];
-        } else {
-            SENTRY_LOG_DEBUG(
-                @"UIViewControllerSwizzling: Did not found image name from current process. "
-                @"Skipping Swizzling of view controllers");
-        }
     }
 
     [self swizzleUIViewController];
@@ -130,17 +133,6 @@ SentryUIViewControllerSwizzling ()
     }
 
     return app;
-}
-
-- (void)swizzleAllSubViewControllersInApp:(id<SentryUIApplication>)app
-{
-    if (app.delegate == nil) {
-        SENTRY_LOG_DEBUG(@"UIViewControllerSwizzling: App delegate is nil. Skipping swizzling "
-                         @"UIViewControllers in the app image.");
-        return;
-    }
-
-    [self swizzleUIViewControllersOfClassesInImageOf:[app.delegate class]];
 }
 
 - (void)swizzleUIViewControllersOfClassesInImageOf:(Class)class

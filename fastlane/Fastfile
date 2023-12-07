@@ -56,8 +56,6 @@ platform :ios do
        app_identifier: ["io.sentry.sample.iOS-Swift",
          "io.sentry.sample.iOS-Swift.Clip",
          "io.sentry.iOS-SwiftUITests.xctrunner",
-         "io.sentry.sample.movies.ProfileDataGeneratorUITest",
-         "io.sentry.sample.TrendingMovies",
          "io.sentry.cocoa.perf-test-app-plain",
          "io.sentry.*",
          "io.sentry.iOS-Benchmarking.xctrunner",
@@ -69,8 +67,6 @@ platform :ios do
        app_identifier: ["io.sentry.sample.iOS-Swift",
          "io.sentry.sample.iOS-Swift.Clip",
          "io.sentry.iOS-SwiftUITests.xctrunner",
-         "io.sentry.sample.movies.ProfileDataGeneratorUITest",
-         "io.sentry.sample.TrendingMovies",
          "io.sentry.cocoa.perf-test-app-plain",
          "io.sentry.*",
          "io.sentry.iOS-Benchmarking.xctrunner",
@@ -160,47 +156,6 @@ platform :ios do
       xcargs: "build-for-testing",
       derived_data_path: "DerivedData",
       skip_archive: true
-    )
-
-    delete_keychain(name: "fastlane_tmp_keychain") unless is_ci
-  end
-
-  desc 'Build an XCode UI test target that exercises the Trending Movies test app to generate and upload profile data for testing/development purposes throughout the rest of the Sentry stack.'
-  lane :build_profile_data_generator_ui_test do
-
-    setup_ci(
-      force: true
-    )
-
-    sync_code_signing(
-      type: "development",
-      readonly: true,
-      app_identifier: ["io.sentry.sample.TrendingMovies", "io.sentry.sample.movies.ProfileDataGeneratorUITest.xctrunner"]
-    )
-
-    # don't use gym here because it always appends a "build" command which fails, since this is a test target not configured for running
-    sh "set -o pipefail && xcodebuild -workspace ../Sentry.xcworkspace -scheme ProfileDataGeneratorUITest -derivedDataPath ../DerivedData -destination 'generic/platform=iOS' build-for-testing | xcpretty"
-
-    delete_keychain(name: "fastlane_tmp_keychain") unless is_ci
-  end
-
-  lane :build_trending_movies do
-
-    setup_ci(
-      force: true
-    )
-
-    sync_code_signing(
-      type: "development",
-      readonly: true,
-      app_identifier: ["io.sentry.sample.TrendingMovies"]
-    )
-
-    build_app(
-      workspace: "Sentry.xcworkspace",
-      scheme: "TrendingMovies",
-      derived_data_path: "DerivedData",
-      skip_archive: true,
     )
 
     delete_keychain(name: "fastlane_tmp_keychain") unless is_ci
