@@ -70,17 +70,23 @@ SentryDelayedFramesTracker ()
         removeFramesBeforeSystemTimeStamp = 0;
     }
 
-    NSInteger i = 0;
-    for (SentryDelayedFrame *frame in self.delayedFrames) {
+    NSUInteger left = 0;
+    NSUInteger right = self.delayedFrames.count;
+
+    while (left < right) {
+        NSUInteger mid = (left + right) / 2;
+        SentryDelayedFrame *midFrame = self.delayedFrames[mid];
+
         uint64_t frameEndSystemTimeStamp
-            = frame.startSystemTimestamp + timeIntervalToNanoseconds(frame.actualDuration);
-        if (frameEndSystemTimeStamp < removeFramesBeforeSystemTimeStamp) {
-            i++;
+            = midFrame.startSystemTimestamp + timeIntervalToNanoseconds(midFrame.actualDuration);
+        if (frameEndSystemTimeStamp >= removeFramesBeforeSystemTimeStamp) {
+            right = mid;
         } else {
-            break;
+            left = mid + 1;
         }
     }
-    [self.delayedFrames removeObjectsInRange:NSMakeRange(0, i)];
+
+    [self.delayedFrames removeObjectsInRange:NSMakeRange(0, left)];
 }
 
 - (CFTimeInterval)getFramesDelay:(uint64_t)startSystemTimestamp
