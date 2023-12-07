@@ -1101,6 +1101,23 @@ class SentryTracerTests: XCTestCase {
         expect(SentrySDK.getAppStartMeasurement()) == nil
     }
     
+    func testFramesDelay_WhenBeingZero() {
+        let sut = fixture.getSut()
+        
+        let displayLink = fixture.displayLinkWrapper
+        let normalFrames = 100
+        displayLink.renderFrames(0, 0, normalFrames)
+        
+        sut.finish()
+        
+        expect(self.fixture.hub.capturedEventsWithScopes.count) == 1
+        let serializedTransaction = fixture.hub.capturedEventsWithScopes.first!.event.serialize()
+        
+        let measurements = serializedTransaction["measurements"] as? [String: [String: Any]]
+        let framesDelay = measurements?["frames_delay"] as? [String: NSNumber]
+        expect(framesDelay?["value"] as? NSNumber).to(beCloseTo(0.0, within: 0.0001))
+    }
+    
     func testNegativeFramesAmount_NoMeasurementAdded() {
         fixture.displayLinkWrapper.renderFrames(10, 10, 10)
         
