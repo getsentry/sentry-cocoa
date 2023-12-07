@@ -1060,14 +1060,22 @@ class SentryTracerTests: XCTestCase {
     
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
     
-    func testChangeStartTimeStamp_RemovesFramesMeasurement() throws {
+    func testChangeStartTimeStamp_OnlyFramesDelayAdded() throws {
         let sut = fixture.getSut()
-        fixture.displayLinkWrapper.renderFrames(1, 1, 1)
+        fixture.displayLinkWrapper.renderFrames(0, 0, 100)
         sut.updateStartTime(try XCTUnwrap(sut.startTimestamp).addingTimeInterval(-1))
         
         sut.finish()
         
-        assertNoMeasurementsAdded()
+        expect(self.fixture.hub.capturedEventsWithScopes.count) == 1
+        let serializedTransaction = fixture.hub.capturedEventsWithScopes.first!.event.serialize()
+        
+        let measurements = serializedTransaction["measurements"] as? [String: [String: Any]]
+        
+        expect(measurements?.count) == 1
+        
+        let framesDelay = measurements?["frames_delay"] as? [String: NSNumber]
+        expect(framesDelay?["value"] as? NSNumber).to(beCloseTo(0.0, within: 0.0001))
     }
     
     func testAddFramesMeasurement() {

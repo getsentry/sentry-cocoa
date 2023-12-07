@@ -743,29 +743,33 @@ static BOOL appStartMeasurementRead;
 
     // Frames
     SentryFramesTracker *framesTracker = SentryDependencyContainer.sharedInstance.framesTracker;
-    if (framesTracker.isRunning && !_startTimeChanged) {
 
-        SentryScreenFrames *currentFrames = framesTracker.currentFrames;
-        NSInteger totalFrames = currentFrames.total - initTotalFrames;
-        NSInteger slowFrames = currentFrames.slow - initSlowFrames;
-        NSInteger frozenFrames = currentFrames.frozen - initFrozenFrames;
-
+    if (framesTracker.isRunning) {
         CFTimeInterval framesDelay = [framesTracker
                 getFramesDelay:self.startSystemTime
             endSystemTimestamp:SentryDependencyContainer.sharedInstance.dateProvider.systemTime];
+
         if (framesDelay >= 0) {
             [self setMeasurement:@"frames_delay" value:@(framesDelay)];
+            SENTRY_LOG_DEBUG(@"Frames Delay:%f ms", framesDelay * 1000);
         }
 
-        if (sentryShouldAddSlowFrozenFramesData(totalFrames, slowFrames, frozenFrames)) {
-            [self setMeasurement:@"frames_total" value:@(totalFrames)];
-            [self setMeasurement:@"frames_slow" value:@(slowFrames)];
-            [self setMeasurement:@"frames_frozen" value:@(frozenFrames)];
+        if (!_startTimeChanged) {
+            SentryScreenFrames *currentFrames = framesTracker.currentFrames;
+            NSInteger totalFrames = currentFrames.total - initTotalFrames;
+            NSInteger slowFrames = currentFrames.slow - initSlowFrames;
+            NSInteger frozenFrames = currentFrames.frozen - initFrozenFrames;
 
-            SENTRY_LOG_DEBUG(@"Frames for transaction \"%@\" Total:%ld Slow:%ld "
-                             @"Frozen:%ld Delay:%f ms",
-                self.operation, (long)totalFrames, (long)slowFrames, (long)frozenFrames,
-                framesDelay * 1000);
+            if (sentryShouldAddSlowFrozenFramesData(totalFrames, slowFrames, frozenFrames)) {
+                [self setMeasurement:@"frames_total" value:@(totalFrames)];
+                [self setMeasurement:@"frames_slow" value:@(slowFrames)];
+                [self setMeasurement:@"frames_frozen" value:@(frozenFrames)];
+
+                SENTRY_LOG_DEBUG(@"Frames for transaction \"%@\" Total:%ld Slow:%ld "
+                                 @"Frozen:%ld Delay:%f ms",
+                    self.operation, (long)totalFrames, (long)slowFrames, (long)frozenFrames,
+                    framesDelay * 1000);
+            }
         }
     }
 }
