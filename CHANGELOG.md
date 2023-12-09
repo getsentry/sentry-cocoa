@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+## Fixes
+
+- Fix typo in BUILD_LIBRARY_FOR_DISTRIBUTION variable in Makefile (#3488)
+
 ## Features
 
 - Add slow and frozen frames to spans (#3450, #3478)
