@@ -1,7 +1,7 @@
 import Sentry
 import UIKit
 
-class ViewController: UIViewController {
+class TransactionsViewController: UIViewController {
 
     @IBOutlet weak var anrFillingRunLoopButton: UIButton!
     
