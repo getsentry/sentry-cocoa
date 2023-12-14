@@ -264,6 +264,63 @@ class SentryFramesTrackerTests: XCTestCase {
         testFrameDelay(timeIntervalAfterFrameStart: timeIntervalAfterFrameStart, timeIntervalBeforeFrameEnd: timeIntervalBeforeFrameEnd, expectedDelay: expectedDelay)
     }
     
+    func testDelayedFrames_NoRecordedFrames_MinusOne() {
+        fixture.dateProvider.advance(by: 2.0)
+        
+        let sut = fixture.sut
+        sut.start()
+        
+        let startSystemTime = fixture.dateProvider.systemTime()
+        
+        fixture.dateProvider.advance(by: 0.001)
+        
+        let endSystemTime = fixture.dateProvider.systemTime()
+        
+        let actualFrameDelay = sut.getFramesDelay(startSystemTime, endSystemTimestamp: endSystemTime)
+        expect(actualFrameDelay) == -1
+    }
+    
+    func testDelayedFrames_NoRecordedDelayedFrames_ReturnsZero() {
+        fixture.dateProvider.advance(by: 2.0)
+        
+        let sut = fixture.sut
+        sut.start()
+        
+        let displayLink = fixture.displayLinkWrapper
+        displayLink.call()
+        
+        let startSystemTime = fixture.dateProvider.systemTime()
+        
+        fixture.dateProvider.advance(by: 0.001)
+        
+        let endSystemTime = fixture.dateProvider.systemTime()
+        
+        let actualFrameDelay = sut.getFramesDelay(startSystemTime, endSystemTimestamp: endSystemTime)
+        expect(actualFrameDelay).to(beCloseTo(0.0, within: 0.0001))
+    }
+    
+    func testDelayedFrames_NoRecordedDelayedFrames_ButFrameIsDelayed_ReturnsDelay() {
+        fixture.dateProvider.advance(by: 2.0)
+        
+        let sut = fixture.sut
+        sut.start()
+        
+        let displayLink = fixture.displayLinkWrapper
+        displayLink.call()
+        
+        let startSystemTime = fixture.dateProvider.systemTime()
+        
+        let delay = 0.5
+        fixture.dateProvider.advance(by: delay)
+        
+        let endSystemTime = fixture.dateProvider.systemTime()
+        
+        let expectedDelay = delay - slowFrameThreshold(fixture.displayLinkWrapper.currentFrameRate.rawValue)
+        
+        let actualFrameDelay = sut.getFramesDelay(startSystemTime, endSystemTimestamp: endSystemTime)
+        expect(actualFrameDelay).to(beCloseTo(expectedDelay, within: 0.0001))
+    }
+    
     private func testFrameDelay(timeIntervalAfterFrameStart: TimeInterval = 0.0, timeIntervalBeforeFrameEnd: TimeInterval = 0.0, expectedDelay: TimeInterval) {
         let sut = fixture.sut
         sut.start()

@@ -115,6 +115,11 @@ SentryDelayedFramesTracker ()
         return cantCalculateFrameDelayReturnValue;
     }
 
+    if (previousFrameTimestamp < 0) {
+        SENTRY_LOG_DEBUG(@"Not calculating frames delay because no frames yet recorded.");
+        return cantCalculateFrameDelayReturnValue;
+    }
+
     NSArray<SentryDelayedFrame *> *frames;
     @synchronized(self.delayedFrames) {
         uint64_t oldestDelayedFrameStartTimestamp = UINT64_MAX;
