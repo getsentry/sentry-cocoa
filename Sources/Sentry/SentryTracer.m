@@ -56,12 +56,12 @@ static const void *spanTimestampObserver = &spanTimestampObserver;
 static const NSTimeInterval SENTRY_APP_START_MEASUREMENT_DIFFERENCE = 5.0;
 #endif // SENTRY_HAS_UIKIT
 
-static const NSTimeInterval SENTRY_AUTO_TRANSACTION_MAX_DURATION = 500.0;
 static const NSTimeInterval SENTRY_AUTO_TRANSACTION_DEADLINE = 30.0;
 
 @interface
 SentryTracer ()
 
+@property (nonatomic) uint64_t startSystemTime;
 @property (nonatomic) SentrySpanStatus finishStatus;
 /** This property is different from @c isFinished. While @c isFinished states if the tracer is
  * actually finished, this property tells you if finish was called on the tracer. Calling
@@ -73,7 +73,6 @@ SentryTracer ()
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 @property (nonatomic) BOOL isProfiling;
-@property (nonatomic) uint64_t startSystemTime;
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
 @end
@@ -131,6 +130,7 @@ static BOOL appStartMeasurementRead;
         return nil;
     }
 
+    _startSystemTime = SentryDependencyContainer.sharedInstance.dateProvider.systemTime;
     _configuration = configuration;
 
     self.transactionContext = transactionContext;
@@ -172,7 +172,6 @@ static BOOL appStartMeasurementRead;
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
     if (_configuration.profilesSamplerDecision.decision == kSentrySampleDecisionYes) {
-        _startSystemTime = SentryDependencyContainer.sharedInstance.dateProvider.systemTime;
         _internalID = [[SentryId alloc] init];
         _isProfiling = [SentryProfiler startWithTracer:_internalID];
     }
@@ -608,8 +607,11 @@ static BOOL appStartMeasurementRead;
 
 - (SentryTransaction *)toTransaction
 {
+
     NSUInteger capacity;
 #if SENTRY_HAS_UIKIT
+    [self addFrameStatistics];
+
     NSArray<id<SentrySpan>> *appStartSpans = sentryBuildAppStartSpans(self, appStartMeasurement);
     capacity = _children.count + appStartSpans.count;
 #else
@@ -655,7 +657,7 @@ static BOOL appStartMeasurementRead;
     }
 
 #if SENTRY_HAS_UIKIT
-    [self addMeasurements:transaction];
+    [self addAppStartMeasurements:transaction];
 
     if ([viewNames count] > 0) {
         transaction.viewNames = viewNames;
@@ -715,7 +717,7 @@ static BOOL appStartMeasurementRead;
     return measurement;
 }
 
-- (void)addMeasurements:(SentryTransaction *)transaction
+- (void)addAppStartMeasurements:(SentryTransaction *)transaction
 {
     if (appStartMeasurement != nil && appStartMeasurement.type != SentryAppStartTypeUnknown) {
         NSString *type = nil;
@@ -741,23 +743,36 @@ static BOOL appStartMeasurementRead;
             [transaction setContext:context];
         }
     }
+}
 
-    // Frames
+- (void)addFrameStatistics
+{
     SentryFramesTracker *framesTracker = SentryDependencyContainer.sharedInstance.framesTracker;
-    if (framesTracker.isRunning && !_startTimeChanged) {
+    if (framesTracker.isRunning) {
+        CFTimeInterval framesDelay = [framesTracker
+                getFramesDelay:self.startSystemTime
+            endSystemTimestamp:SentryDependencyContainer.sharedInstance.dateProvider.systemTime];
 
-        SentryScreenFrames *currentFrames = framesTracker.currentFrames;
-        NSInteger totalFrames = currentFrames.total - initTotalFrames;
-        NSInteger slowFrames = currentFrames.slow - initSlowFrames;
-        NSInteger frozenFrames = currentFrames.frozen - initFrozenFrames;
+        if (framesDelay >= 0) {
+            [self setDataValue:@(framesDelay) forKey:@"frames.delay"];
+            SENTRY_LOG_DEBUG(@"Frames Delay:%f ms", framesDelay * 1000);
+        }
 
-        if (sentryShouldAddSlowFrozenFramesData(totalFrames, slowFrames, frozenFrames)) {
-            [self setMeasurement:@"frames_total" value:@(totalFrames)];
-            [self setMeasurement:@"frames_slow" value:@(slowFrames)];
-            [self setMeasurement:@"frames_frozen" value:@(frozenFrames)];
+        if (!_startTimeChanged) {
+            SentryScreenFrames *currentFrames = framesTracker.currentFrames;
+            NSInteger totalFrames = currentFrames.total - initTotalFrames;
+            NSInteger slowFrames = currentFrames.slow - initSlowFrames;
+            NSInteger frozenFrames = currentFrames.frozen - initFrozenFrames;
 
-            SENTRY_LOG_DEBUG(@"Frames for transaction \"%@\" Total:%ld Slow:%ld Frozen:%ld",
-                self.operation, (long)totalFrames, (long)slowFrames, (long)frozenFrames);
+            if (sentryShouldAddSlowFrozenFramesData(totalFrames, slowFrames, frozenFrames)) {
+                [self setMeasurement:@"frames_total" value:@(totalFrames)];
+                [self setMeasurement:@"frames_slow" value:@(slowFrames)];
+                [self setMeasurement:@"frames_frozen" value:@(frozenFrames)];
+
+                SENTRY_LOG_DEBUG(@"Frames for transaction \"%@\" Total:%ld Slow:%ld "
+                                 @"Frozen:%ld",
+                    self.operation, (long)totalFrames, (long)slowFrames, (long)frozenFrames);
+            }
         }
     }
 }

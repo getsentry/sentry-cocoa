@@ -36,7 +36,7 @@ class SentryProfilerSwiftTests: XCTestCase {
 
 #if !os(macOS)
         lazy var displayLinkWrapper = TestDisplayLinkWrapper(dateProvider: currentDateProvider)
-        lazy var framesTracker = SentryFramesTracker(displayLinkWrapper: displayLinkWrapper)
+        lazy var framesTracker = SentryFramesTracker(displayLinkWrapper: displayLinkWrapper, dateProvider: currentDateProvider, keepDelayedFramesDuration: 0)
 #endif
 
         init() {

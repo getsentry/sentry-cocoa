@@ -1,8 +1,6 @@
 import Foundation
 
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
-/// The smallest magnitude of time that is significant to how frames are classified as normal/slow/frozen.
-let timeEpsilon = 0.001
 
 public enum GPUFrame {
     case normal
@@ -25,10 +23,12 @@ public class TestDisplayLinkWrapper: SentryDisplayLinkWrapper {
     public var currentFrameRate: FrameRate = .low
     
     private let frozenFrameThreshold = 0.7
-    private let slowestSlowFrameDuration: Double
-    private let fastestFrozenFrameDuration: Double
+    public let slowestSlowFrameDuration: Double
+    public let fastestFrozenFrameDuration: Double
     
     public var dateProvider: TestCurrentDateProvider
+    /// The smallest magnitude of time that is significant to how frames are classified as normal/slow/frozen.
+    public let timeEpsilon = 0.001
 
     public init(dateProvider: TestCurrentDateProvider = TestCurrentDateProvider()) {
         self.dateProvider = dateProvider
