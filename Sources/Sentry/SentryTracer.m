@@ -607,10 +607,11 @@ static BOOL appStartMeasurementRead;
 
 - (SentryTransaction *)toTransaction
 {
-    [self setFramesStatistics];
 
     NSUInteger capacity;
 #if SENTRY_HAS_UIKIT
+    [self addFrameStatistics];
+
     NSArray<id<SentrySpan>> *appStartSpans = sentryBuildAppStartSpans(self, appStartMeasurement);
     capacity = _children.count + appStartSpans.count;
 #else
@@ -656,7 +657,7 @@ static BOOL appStartMeasurementRead;
     }
 
 #if SENTRY_HAS_UIKIT
-    [self addMeasurements:transaction];
+    [self addAppStartMeasurements:transaction];
 
     if ([viewNames count] > 0) {
         transaction.viewNames = viewNames;
@@ -716,7 +717,7 @@ static BOOL appStartMeasurementRead;
     return measurement;
 }
 
-- (void)addMeasurements:(SentryTransaction *)transaction
+- (void)addAppStartMeasurements:(SentryTransaction *)transaction
 {
     if (appStartMeasurement != nil && appStartMeasurement.type != SentryAppStartTypeUnknown) {
         NSString *type = nil;
@@ -744,7 +745,7 @@ static BOOL appStartMeasurementRead;
     }
 }
 
-- (void)setFramesStatistics
+- (void)addFrameStatistics
 {
     SentryFramesTracker *framesTracker = SentryDependencyContainer.sharedInstance.framesTracker;
     if (framesTracker.isRunning) {
