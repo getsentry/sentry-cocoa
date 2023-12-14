@@ -240,8 +240,7 @@ slowFrameThreshold(uint64_t actualFramesPerSecond)
     return [self.delayedFramesTracker getFramesDelay:startSystemTimestamp
                                   endSystemTimestamp:endSystemTimestamp
                                            isRunning:_isRunning
-                                  thisFrameTimestamp:self.displayLinkWrapper.timestamp
-                              previousFrameTimestamp:self.previousFrameTimestamp
+                        previousFrameSystemTimestamp:self.previousFrameSystemTimestamp
                                   slowFrameThreshold:slowFrameThreshold(_currentFrameRate)];
 }
 

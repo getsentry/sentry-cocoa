@@ -92,8 +92,7 @@ SentryDelayedFramesTracker ()
 - (CFTimeInterval)getFramesDelay:(uint64_t)startSystemTimestamp
               endSystemTimestamp:(uint64_t)endSystemTimestamp
                        isRunning:(BOOL)isRunning
-              thisFrameTimestamp:(CFTimeInterval)thisFrameTimestamp
-          previousFrameTimestamp:(CFTimeInterval)previousFrameTimestamp
+    previousFrameSystemTimestamp:(uint64_t)previousFrameSystemTimestamp
               slowFrameThreshold:(CFTimeInterval)slowFrameThreshold
 {
     CFTimeInterval cantCalculateFrameDelayReturnValue = -1.0;
@@ -115,12 +114,12 @@ SentryDelayedFramesTracker ()
         return cantCalculateFrameDelayReturnValue;
     }
 
-    if (previousFrameTimestamp < 0) {
+    if (previousFrameSystemTimestamp == 0) {
         SENTRY_LOG_DEBUG(@"Not calculating frames delay because no frames yet recorded.");
         return cantCalculateFrameDelayReturnValue;
     }
 
-    NSArray<SentryDelayedFrame *> *frames;
+    NSMutableArray<SentryDelayedFrame *> *frames;
     @synchronized(self.delayedFrames) {
         uint64_t oldestDelayedFrameStartTimestamp = UINT64_MAX;
         SentryDelayedFrame *oldestDelayedFrame = self.delayedFrames.firstObject;
@@ -135,17 +134,17 @@ SentryDelayedFramesTracker ()
         }
 
         // Copy as late as possible to avoid allocating unnecessary memory.
-        frames = self.delayedFrames.copy;
+        frames = self.delayedFrames.mutableCopy;
     }
 
-    // Check if there is an delayed frame going on but not recorded yet.
-    CFTimeInterval frameDuration = thisFrameTimestamp - previousFrameTimestamp;
-    CFTimeInterval ongoingDelayedFrame = 0.0;
-    if (frameDuration > slowFrameThreshold) {
-        ongoingDelayedFrame = frameDuration - slowFrameThreshold;
-    }
+    // Add a delayed frame for a potentially ongoing but not recorded delayed frame
+    SentryDelayedFrame *currentFrameDelay = [[SentryDelayedFrame alloc]
+        initWithStartTimestamp:previousFrameSystemTimestamp
+              expectedDuration:slowFrameThreshold
+                actualDuration:nanosecondsToTimeInterval(
+                                   endSystemTimestamp - previousFrameSystemTimestamp)];
 
-    CFTimeInterval delay = ongoingDelayedFrame;
+    [frames addObject:currentFrameDelay];
 
     // We need to calculate the intersections of the queried TimestampInterval
     // (startSystemTimestamp - endSystemTimestamp) with the recorded frame delays. Doing that
@@ -160,6 +159,8 @@ SentryDelayedFramesTracker ()
     NSDateInterval *queryDateInterval = [[NSDateInterval alloc] initWithStartDate:startDate
                                                                           endDate:endDate];
 
+    CFTimeInterval delay = 0.0;
+
     // Iterate in reverse order, as younger frame delays are more likely to match the queried
     // period.
     for (SentryDelayedFrame *frame in frames.reverseObjectEnumerator) {
@@ -170,23 +171,42 @@ SentryDelayedFramesTracker ()
             break;
         }
 
-        CFTimeInterval delayStartTime
-            = nanosecondsToTimeInterval(frame.startSystemTimestamp) + frame.expectedDuration;
-        NSDate *frameDelayStartDate =
-            [NSDate dateWithTimeIntervalSinceReferenceDate:delayStartTime];
+        delay = delay + [self calculateDelay:frame queryDateInterval:queryDateInterval];
+    }
 
-        NSDateInterval *frameDelayDateInterval = [[NSDateInterval alloc]
-            initWithStartDate:frameDelayStartDate
-                     duration:(frame.actualDuration - frame.expectedDuration)];
-
-        if ([queryDateInterval intersectsDateInterval:frameDelayDateInterval]) {
-            NSDateInterval *intersection =
-                [queryDateInterval intersectionWithDateInterval:frameDelayDateInterval];
-            delay = delay + intersection.duration;
-        }
+    uint64_t queryTimeDuration = endSystemTimestamp - startSystemTimestamp;
+    if (queryTimeDuration < timeIntervalToNanoseconds(delay)) {
+        SENTRY_LOG_ERROR(
+            @"Not calculating frames delay because delay %f is longer than query time: %llu.",
+            delay, queryTimeDuration);
+        return cantCalculateFrameDelayReturnValue;
     }
 
     return delay;
+}
+
+- (CFTimeInterval)calculateDelay:(SentryDelayedFrame *)delayedFrame
+               queryDateInterval:(NSDateInterval *)queryDateInterval
+{
+    CFTimeInterval delayStartTime = nanosecondsToTimeInterval(delayedFrame.startSystemTimestamp)
+        + delayedFrame.expectedDuration;
+    NSDate *frameDelayStartDate = [NSDate dateWithTimeIntervalSinceReferenceDate:delayStartTime];
+
+    NSTimeInterval duration = delayedFrame.actualDuration - delayedFrame.expectedDuration;
+    if (duration < 0) {
+        return 0.0;
+    }
+
+    NSDateInterval *frameDelayDateInterval =
+        [[NSDateInterval alloc] initWithStartDate:frameDelayStartDate duration:duration];
+
+    if ([queryDateInterval intersectsDateInterval:frameDelayDateInterval]) {
+        NSDateInterval *intersection =
+            [queryDateInterval intersectionWithDateInterval:frameDelayDateInterval];
+        return intersection.duration;
+    } else {
+        return 0.0;
+    }
 }
 
 @end
