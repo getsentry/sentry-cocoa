@@ -142,6 +142,19 @@ SentryDelayedFramesTracker ()
 
     CFTimeInterval delay = ongoingDelayedFrame;
 
+    // We need to calculate the intersections of the queried TimestampInterval
+    // (startSystemTimestamp - endSystemTimestamp) with the recorded frame delays. Doing that
+    // with NSDateInterval makes things easier. Therefore, we convert the system timestamps to
+    // NSDate objects, although they don't represent the correct dates. We only need to know how
+    // long the intersections are to calculate the frame delay and not precisely when.
+
+    NSDate *startDate = [NSDate
+        dateWithTimeIntervalSinceReferenceDate:nanosecondsToTimeInterval(startSystemTimestamp)];
+    NSDate *endDate = [NSDate
+        dateWithTimeIntervalSinceReferenceDate:nanosecondsToTimeInterval(endSystemTimestamp)];
+    NSDateInterval *queryDateInterval = [[NSDateInterval alloc] initWithStartDate:startDate
+                                                                          endDate:endDate];
+
     // Iterate in reverse order, as younger frame delays are more likely to match the queried
     // period.
     for (SentryDelayedFrame *frame in frames.reverseObjectEnumerator) {
@@ -151,19 +164,6 @@ SentryDelayedFramesTracker ()
         if (frameEndSystemTimeStamp < startSystemTimestamp) {
             break;
         }
-
-        // We need to calculate the intersections of the queried TimestampInterval
-        // (startSystemTimestamp - endSystemTimestamp) with the recorded frame delays. Doing that
-        // with NSDateInterval makes things easier. Therefore, we convert the system timestamps to
-        // NSDate objects, although they don't represent the correct dates. We only need to know how
-        // long the intersections are to calculate the frame delay and not precisely when.
-
-        NSDate *startDate = [NSDate
-            dateWithTimeIntervalSinceReferenceDate:nanosecondsToTimeInterval(startSystemTimestamp)];
-        NSDate *endDate = [NSDate
-            dateWithTimeIntervalSinceReferenceDate:nanosecondsToTimeInterval(endSystemTimestamp)];
-        NSDateInterval *queryDateInterval = [[NSDateInterval alloc] initWithStartDate:startDate
-                                                                              endDate:endDate];
 
         CFTimeInterval delayStartTime
             = nanosecondsToTimeInterval(frame.startSystemTimestamp) + frame.expectedDuration;
