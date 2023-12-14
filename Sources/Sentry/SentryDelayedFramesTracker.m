@@ -174,14 +174,6 @@ SentryDelayedFramesTracker ()
         delay = delay + [self calculateDelay:frame queryDateInterval:queryDateInterval];
     }
 
-    uint64_t queryTimeDuration = endSystemTimestamp - startSystemTimestamp;
-    if (queryTimeDuration < timeIntervalToNanoseconds(delay)) {
-        SENTRY_LOG_ERROR(
-            @"Not calculating frames delay because delay %f is longer than query time: %llu.",
-            delay, queryTimeDuration);
-        return cantCalculateFrameDelayReturnValue;
-    }
-
     return delay;
 }
 
