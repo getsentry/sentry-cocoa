@@ -607,17 +607,7 @@ static BOOL appStartMeasurementRead;
 
 - (SentryTransaction *)toTransaction
 {
-    SentryFramesTracker *framesTracker = SentryDependencyContainer.sharedInstance.framesTracker;
-    if (framesTracker.isRunning) {
-        CFTimeInterval framesDelay = [framesTracker
-                getFramesDelay:self.startSystemTime
-            endSystemTimestamp:SentryDependencyContainer.sharedInstance.dateProvider.systemTime];
-
-        if (framesDelay >= 0) {
-            [self setDataValue:@(framesDelay) forKey:@"frames.delay"];
-            SENTRY_LOG_DEBUG(@"Frames Delay:%f ms", framesDelay * 1000);
-        }
-    }
+    [self setFramesStatistics];
 
     NSUInteger capacity;
 #if SENTRY_HAS_UIKIT
@@ -752,11 +742,21 @@ static BOOL appStartMeasurementRead;
             [transaction setContext:context];
         }
     }
+}
 
-    // Frames
+- (void)setFramesStatistics
+{
     SentryFramesTracker *framesTracker = SentryDependencyContainer.sharedInstance.framesTracker;
-
     if (framesTracker.isRunning) {
+        CFTimeInterval framesDelay = [framesTracker
+                getFramesDelay:self.startSystemTime
+            endSystemTimestamp:SentryDependencyContainer.sharedInstance.dateProvider.systemTime];
+
+        if (framesDelay >= 0) {
+            [self setDataValue:@(framesDelay) forKey:@"frames.delay"];
+            SENTRY_LOG_DEBUG(@"Frames Delay:%f ms", framesDelay * 1000);
+        }
+
         if (!_startTimeChanged) {
             SentryScreenFrames *currentFrames = framesTracker.currentFrames;
             NSInteger totalFrames = currentFrames.total - initTotalFrames;
