@@ -1070,12 +1070,10 @@ class SentryTracerTests: XCTestCase {
         expect(self.fixture.hub.capturedEventsWithScopes.count) == 1
         let serializedTransaction = fixture.hub.capturedEventsWithScopes.first!.event.serialize()
         
-        let measurements = serializedTransaction["measurements"] as? [String: [String: Any]]
+        let extra = serializedTransaction["extra"] as? [String: Any]
         
-        expect(measurements?.count) == 1
-        
-        let framesDelay = measurements?["frames_delay"] as? [String: NSNumber]
-        expect(framesDelay?["value"]).to(beCloseTo(0.0, within: 0.0001))
+        let framesDelay = extra?["frames.delay"] as? NSNumber
+        expect(framesDelay).to(beCloseTo(0.0, within: 0.0001))
     }
     
     func testAddFramesMeasurement() {
@@ -1101,11 +1099,13 @@ class SentryTracerTests: XCTestCase {
         expect(measurements?["frames_slow"] as? [String: Int]) == ["value": slowFrames]
         expect(measurements?["frames_frozen"] as? [String: Int]) == ["value": frozenFrames]
         
-        let framesDelay = measurements?["frames_delay"] as? [String: NSNumber]
+        let extra = serializedTransaction["extra"] as? [String: Any]
+        let framesDelay = extra?["frames.delay"] as? NSNumber
+        
         let expectedFrameDuration = slowFrameThreshold(displayLink.currentFrameRate.rawValue)
         let expectedDelay = displayLink.slowestSlowFrameDuration + displayLink.fastestFrozenFrameDuration - expectedFrameDuration * 2 as NSNumber
         
-        expect(framesDelay?["value"]).to(beCloseTo(expectedDelay, within: 0.0001))
+        expect(framesDelay).to(beCloseTo(expectedDelay, within: 0.0001))
         expect(SentrySDK.getAppStartMeasurement()) == nil
     }
     
@@ -1119,11 +1119,11 @@ class SentryTracerTests: XCTestCase {
         sut.finish()
         
         expect(self.fixture.hub.capturedEventsWithScopes.count) == 1
-        let serializedTransaction = fixture.hub.capturedEventsWithScopes.first!.event.serialize()
         
-        let measurements = serializedTransaction["measurements"] as? [String: [String: Any]]
-        let framesDelay = measurements?["frames_delay"] as? [String: NSNumber]
-        expect(framesDelay?["value"]).to(beCloseTo(0.0, within: 0.0001))
+        let serializedTransaction = fixture.hub.capturedEventsWithScopes.first!.event.serialize()
+        let extra = serializedTransaction["extra"] as? [String: Any]
+        let framesDelay = extra?["frames.delay"] as? NSNumber
+        expect(framesDelay).to(beCloseTo(0.0, within: 0.0001))
     }
     
     func testNegativeFramesAmount_NoMeasurementAdded() {
