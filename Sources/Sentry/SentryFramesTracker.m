@@ -138,9 +138,7 @@ slowFrameThreshold(uint64_t actualFramesPerSecond)
     // targetTimestamp is only available on iOS 10.0 and tvOS 10.0 and above. We use a fallback of
     // 60 fps.
     _currentFrameRate = 60;
-    if (UNLIKELY((self.displayLinkWrapper.targetTimestamp == self.displayLinkWrapper.timestamp))) {
-        _currentFrameRate = 60;
-    } else {
+    if (self.displayLinkWrapper.targetTimestamp != self.displayLinkWrapper.timestamp) {
         _currentFrameRate = (uint64_t)round(
             (1 / (self.displayLinkWrapper.targetTimestamp - self.displayLinkWrapper.timestamp)));
     }
