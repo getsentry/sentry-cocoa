@@ -16,21 +16,11 @@ commit_hash="$3"
 # Define the hotfix branch name
 hotfix_branch="hotfix/$version"
 
-# Checkout the specified tag
-git checkout tags/8.17.1
-
-# Create a new branch
+git checkout "tags/$tag"
 git checkout -b "$hotfix_branch"
-
-# Cherry-pick the specified commit
 git cherry-pick "$commit_hash"
-
-# Commit the changes
 git commit -m "Merge commit $commit_hash into $hotfix_branch"
+git push origin "$hotfix_branch"
 
-# Push the changes to the remote repository
-#git push origin "$hotfix_branch"
-
-# Inform the user about the successful completion
 echo "Hotfix branch $hotfix_branch created and pushed successfully."
 
