@@ -29,7 +29,7 @@ git cherry-pick "$commit_hash"
 git commit -m "Merge commit $commit_hash into $hotfix_branch"
 
 # Push the changes to the remote repository
-git push origin "$hotfix_branch"
+#git push origin "$hotfix_branch"
 
 # Inform the user about the successful completion
 echo "Hotfix branch $hotfix_branch created and pushed successfully."
