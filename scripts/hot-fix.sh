@@ -16,11 +16,11 @@ commit_hash="$3"
 # Define the hotfix branch name
 hotfix_branch="hotfix/$version"
 
+# Checkout the specified tag
+git checkout tags/8.17.1
+
 # Create a new branch
 git checkout -b "$hotfix_branch"
-
-# Checkout the specified tag into the hotfix branch
-git checkout "$tag" -b "$hotfix_branch"
 
 # Cherry-pick the specified commit
 git cherry-pick "$commit_hash"
