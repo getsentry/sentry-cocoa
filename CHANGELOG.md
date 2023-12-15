@@ -1,5 +1,16 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+- Add frames delay to transactions (#3487)
+- Add slow and frozen frames to spans (#3450, #3478)
+
+### Fixes
+
+- **Fix marking manual sessions as crashed (#3501)**: When turning off autoSessionTracking and manually starting and ending sessions, the SDK didn't mark sessions as crashed when sending a crash event to Sentry. This is fixed now.
+
 ## 8.17.1
 
 ### Fixes 
