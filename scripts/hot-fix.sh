@@ -19,8 +19,8 @@ hotfix_branch="hotfix/$version"
 git checkout "tags/$tag"
 git checkout -b "$hotfix_branch"
 git cherry-pick "$commit_hash"
-git commit -m "Merge commit $commit_hash into $hotfix_branch"
-git push origin "$hotfix_branch"
+#git commit -m "Merge commit $commit_hash into $hotfix_branch"
+#git push origin "$hotfix_branch"
 
 echo "Hotfix branch $hotfix_branch created and pushed successfully."
 
