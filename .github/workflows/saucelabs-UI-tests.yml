@@ -78,7 +78,7 @@ jobs:
         run: |
           sentry-cli --auth-token ${{ secrets.SENTRY_AUTH_TOKEN }} upload-dif --org sentry-sdks --project sentry-cocoa DerivedData/Build/Products/Test-iphoneos/iOS-Swift.app.dSYM
       - name: Archiving DerivedData
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: DerivedData-Xcode-${{matrix.xcode}}
           path: |
