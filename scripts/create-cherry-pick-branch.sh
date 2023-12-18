@@ -1,6 +1,9 @@
 #!/bin/bash
 
-#Creates a hotfix branch from given tag and commit
+#Creates a new branch from given tag and cherry pick commit.
+#This helps to make a hotfix release by updating given version
+#with the merge commit of a specific PR.
+
 #run this from sentry-cocoa root directory
 
 if [ "$#" -ne 3 ]; then
