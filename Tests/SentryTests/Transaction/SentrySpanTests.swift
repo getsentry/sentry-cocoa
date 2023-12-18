@@ -499,30 +499,7 @@ class SentrySpanTests: XCTestCase {
         expect(sut.data["frames.frozen"]) == nil
     }
     
-    func testAddZeroSlowFrozenFrames_WhenSpanStartedBackgroundThread() {
-        let (displayLinkWrapper, framesTracker) = givenFramesTracker()
-        
-        let expectation = expectation(description: "SpanStarted on a background thread")
-        DispatchQueue.global().async {
-            let sut = SentrySpan(context: SpanContext(operation: "TEST"), framesTracker: framesTracker)
-            
-            let slow = 2
-            let frozen = 1
-            let normal = 100
-            displayLinkWrapper.renderFrames(slow, frozen, normal)
-            
-            sut.finish()
-            
-            expect(sut.data["frames.total"] as? NSNumber) == NSNumber(value: slow + frozen + normal)
-            expect(sut.data["frames.slow"] as? NSNumber) == NSNumber(value: slow)
-            expect(sut.data["frames.frozen"] as? NSNumber) == NSNumber(value: frozen)
-            expectation.fulfill()
-        }
-        
-        wait(for: [expectation], timeout: 1.0)
-    }
-    
-    func testAddSlowFrozenFramesToData_WithPreexistingCounts() {
+    func testAddFrameStatisticsToData_WithPreexistingCounts() {
         let (displayLinkWrapper, framesTracker) = givenFramesTracker()
         let preexistingSlow = 1
         let preexistingFrozen = 2
@@ -531,16 +508,24 @@ class SentrySpanTests: XCTestCase {
         
         let sut = SentrySpan(context: SpanContext(operation: "TEST"), framesTracker: framesTracker)
         
-        let slow = 7
-        let frozen = 8
-        let normal = 9
-        displayLinkWrapper.renderFrames(slow, frozen, normal)
+        let slowFrames = 1
+        let frozenFrames = 1
+        let normalFrames = 100
+        let totalFrames = slowFrames + frozenFrames + normalFrames
+        _ = displayLinkWrapper.slowestSlowFrame()
+        _ = displayLinkWrapper.fastestFrozenFrame()
+        displayLinkWrapper.renderFrames(0, 0, normalFrames)
         
         sut.finish()
         
-        expect(sut.data["frames.total"] as? NSNumber) == NSNumber(value: slow + frozen + normal)
-        expect(sut.data["frames.slow"] as? NSNumber) == NSNumber(value: slow)
-        expect(sut.data["frames.frozen"] as? NSNumber) == NSNumber(value: frozen)
+        expect(sut.data["frames.total"] as? NSNumber) == NSNumber(value: totalFrames)
+        expect(sut.data["frames.slow"] as? NSNumber) == NSNumber(value: slowFrames)
+        expect(sut.data["frames.frozen"] as? NSNumber) == NSNumber(value: frozenFrames)
+        
+        let expectedFrameDuration = slowFrameThreshold(displayLinkWrapper.currentFrameRate.rawValue)
+        let expectedDelay = displayLinkWrapper.slowestSlowFrameDuration + displayLinkWrapper.fastestFrozenFrameDuration - expectedFrameDuration * 2 as NSNumber
+        
+        expect(sut.data["frames.delay"] as? NSNumber).to(beCloseTo(expectedDelay, within: 0.0001))
     }
     
     func testNoFramesTracker_NoFramesAddedToData() {
@@ -551,11 +536,12 @@ class SentrySpanTests: XCTestCase {
         expect(sut.data["frames.total"]) == nil
         expect(sut.data["frames.slow"]) == nil
         expect(sut.data["frames.frozen"]) == nil
+        expect(sut.data["frames.delay"]) == nil
     }
     
     private func givenFramesTracker() -> (TestDisplayLinkWrapper, SentryFramesTracker) {
-        let displayLinkWrapper = TestDisplayLinkWrapper()
-        let framesTracker = SentryFramesTracker(displayLinkWrapper: displayLinkWrapper, dateProvider: TestCurrentDateProvider(), keepDelayedFramesDuration: 0)
+        let displayLinkWrapper = TestDisplayLinkWrapper(dateProvider: self.fixture.currentDateProvider)
+        let framesTracker = SentryFramesTracker(displayLinkWrapper: displayLinkWrapper, dateProvider: self.fixture.currentDateProvider, keepDelayedFramesDuration: 10)
         framesTracker.start()
         displayLinkWrapper.call()
         

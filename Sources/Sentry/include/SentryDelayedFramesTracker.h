@@ -45,8 +45,7 @@ SENTRY_NO_INIT
  * delay.
  * @param endSystemTimestamp The end system time stamp for the time interval to query frames delay.
  * @param isRunning Wether the frames tracker is running or not.
- * @param thisFrameTimestamp The timestamp of the current frame.
- * @param previousFrameTimestamp The timestamp of the previous frame.
+ * @param previousFrameSystemTimestamp The system timestamp of the previous frame.
  * @param slowFrameThreshold The threshold for a slow frame. For 60 fps this is roughly 16.67 ms.
  *
  * @return the frames delay duration or -1 if it can't calculate the frames delay.
@@ -54,8 +53,7 @@ SENTRY_NO_INIT
 - (CFTimeInterval)getFramesDelay:(uint64_t)startSystemTimestamp
               endSystemTimestamp:(uint64_t)endSystemTimestamp
                        isRunning:(BOOL)isRunning
-              thisFrameTimestamp:(CFTimeInterval)thisFrameTimestamp
-          previousFrameTimestamp:(CFTimeInterval)previousFrameTimestamp
+    previousFrameSystemTimestamp:(uint64_t)previousFrameSystemTimestamp
               slowFrameThreshold:(CFTimeInterval)slowFrameThreshold;
 
 @end
