@@ -243,7 +243,7 @@ SentryFileManager ()
             if (error.code == NSFileNoSuchFileError) {
                 SENTRY_LOG_DEBUG(@"No file to delete at %@", path);
             } else {
-                SENTRY_LOG_ERROR(@"Couldn't delete file at %@ because of %@", path, error);
+                SENTRY_LOG_ERROR(@"Error occurred while deleting file at %@ because of %@", path, error);
             }
         } else {
             SENTRY_LOG_DEBUG(@"Successfully deleted file at %@", path);
