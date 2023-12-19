@@ -246,7 +246,7 @@ SentryFileManager ()
                 SENTRY_LOG_ERROR(@"Couldn't delete file at %@ because of %@", path, error);
             }
         } else {
-            SENTRY_LOG_DEBUG(@"Deleted file at %@", path);
+            SENTRY_LOG_DEBUG(@"Successfully deleted file at %@", path);
         }
     }
 }
