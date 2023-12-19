@@ -28,7 +28,7 @@ class SentryTimeToDisplayTrackerTest: XCTestCase {
         func getTracer() throws -> SentryTracer {
             let options = Options()
             let hub = TestHub(client: SentryClient(options: options, fileManager: try TestFileManager(options: options), deleteOldEnvelopeItems: false), andScope: nil)
-            return SentryTracer(transactionContext: TransactionContext(operation: "Test Operation"), hub: hub, configuration: SentryTracerConfiguration(block: {
+            return SentryTracer(transactionContext: TransactionContext(operation: "ui.load"), hub: hub, configuration: SentryTracerConfiguration(block: {
                 $0.waitForChildren = true
                 $0.timerFactory = self.timerFactory
                 $0.dispatchQueueWrapper = TestSentryDispatchQueueWrapper()
@@ -67,6 +67,7 @@ class SentryTimeToDisplayTrackerTest: XCTestCase {
         expect(ttidSpan.isFinished) == false
         
         fixture.displayLinkWrapper.normalFrame()
+        tracer.finish()
 
         expect(ttidSpan.timestamp) == fixture.dateProvider.date()
         expect(ttidSpan.isFinished) == true
@@ -97,8 +98,7 @@ class SentryTimeToDisplayTrackerTest: XCTestCase {
 
         expect(ttidSpan?.isFinished) == true
         expect(ttidSpan?.timestamp) == Date(timeIntervalSince1970: 9)
-        
-        assertMeasurement(tracer: tracer, name: "time_to_initial_display", duration: 2_000)
+        expect(tracer.measurements["time_to_initial_display"]) == nil
 
         fixture.dateProvider.setDate(date: Date(timeIntervalSince1970: 11))
         sut.reportFullyDisplayed()
@@ -188,6 +188,7 @@ class SentryTimeToDisplayTrackerTest: XCTestCase {
         
         fixture.dateProvider.setDate(date: Date(timeIntervalSince1970: 12))
         fixture.displayLinkWrapper.normalFrame()
+        tracer.finish()
         
         expect(sut.initialDisplaySpan?.isFinished) == true
         expect(sut.initialDisplaySpan?.timestamp) == Date(timeIntervalSince1970: 12)
@@ -283,6 +284,74 @@ class SentryTimeToDisplayTrackerTest: XCTestCase {
         
         expect(sut.fullDisplaySpan) == nil
         expect(tracer.measurements["time_to_full_display"]) == nil
+    }
+    
+    func testTracerWithAppStartData_notWaitingForFullDisplay() throws {
+        let appStartMeasurement = TestData.getAppStartMeasurement(type: .cold, appStartTimestamp: Date(timeIntervalSince1970: 6))
+        SentrySDK.setAppStartMeasurement(appStartMeasurement)
+        
+        fixture.dateProvider.setDate(date: Date(timeIntervalSince1970: 7))
+
+        let sut = fixture.getSut(for: UIViewController(), waitForFullDisplay: false)
+        let tracer = try fixture.getTracer()
+
+        sut.start(for: tracer)
+
+        fixture.dateProvider.setDate(date: Date(timeIntervalSince1970: 8))
+        sut.reportInitialDisplay()
+        fixture.displayLinkWrapper.normalFrame()
+        
+        fixture.dateProvider.setDate(date: Date(timeIntervalSince1970: 9))
+        sut.reportFullyDisplayed()
+        fixture.displayLinkWrapper.normalFrame()
+        
+        tracer.finish()
+        
+        let ttidSpan = sut.initialDisplaySpan
+        expect(ttidSpan?.isFinished) == true
+        expect(ttidSpan?.startTimestamp) == tracer.startTimestamp
+        expect(ttidSpan?.timestamp) == Date(timeIntervalSince1970: 8)
+        assertMeasurement(tracer: tracer, name: "time_to_initial_display", duration: 2_000)
+
+        expect(sut.fullDisplaySpan) == nil
+        expect(tracer.measurements["time_to_full_display"]) == nil
+        
+        expect(Dynamic(self.fixture.framesTracker).listeners.count) == 0
+    }
+    
+    func testTracerWithAppStartData_waitingForFullDisplay() throws {
+        let appStartMeasurement = TestData.getAppStartMeasurement(type: .cold, appStartTimestamp: Date(timeIntervalSince1970: 6))
+        SentrySDK.setAppStartMeasurement(appStartMeasurement)
+        
+        fixture.dateProvider.setDate(date: Date(timeIntervalSince1970: 7))
+
+        let sut = fixture.getSut(for: UIViewController(), waitForFullDisplay: true)
+        let tracer = try fixture.getTracer()
+
+        sut.start(for: tracer)
+
+        fixture.dateProvider.setDate(date: Date(timeIntervalSince1970: 8))
+        sut.reportInitialDisplay()
+        fixture.displayLinkWrapper.normalFrame()
+        
+        fixture.dateProvider.setDate(date: Date(timeIntervalSince1970: 9))
+        sut.reportFullyDisplayed()
+        fixture.displayLinkWrapper.normalFrame()
+        
+        tracer.finish()
+        
+        let ttidSpan = sut.initialDisplaySpan
+
+        expect(ttidSpan?.isFinished) == true
+        expect(ttidSpan?.startTimestamp) == tracer.startTimestamp
+        expect(ttidSpan?.timestamp) == Date(timeIntervalSince1970: 8)
+        assertMeasurement(tracer: tracer, name: "time_to_initial_display", duration: 2_000)
+
+        expect(sut.fullDisplaySpan?.startTimestamp) == ttidSpan?.startTimestamp
+        expect(sut.fullDisplaySpan?.timestamp) == Date(timeIntervalSince1970: 9)
+        assertMeasurement(tracer: tracer, name: "time_to_full_display", duration: 3_000)
+        
+        expect(Dynamic(self.fixture.framesTracker).listeners.count) == 0
     }
 
     func assertMeasurement(tracer: SentryTracer, name: String, duration: TimeInterval) {

@@ -10,6 +10,7 @@
 ### Fixes
 
 - TTFD waits for next drawn frame (#3505)
+- Fix TTID/TTFD for app start transactions (#3512)
 
 ## 8.17.2
 
