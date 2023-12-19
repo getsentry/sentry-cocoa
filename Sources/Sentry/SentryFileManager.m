@@ -241,7 +241,7 @@ SentryFileManager ()
     @synchronized(self) {
         if (![fileManager removeItemAtPath:path error:&error]) {
             if (error.code == NSFileNoSuchFileError) {
-                SENTRY_LOG_DEBUG(@"Tried to delete file but it doesn't exist at %@", path);
+                SENTRY_LOG_DEBUG(@"No file to delete at %@", path);
             } else {
                 SENTRY_LOG_ERROR(@"Couldn't delete file at %@ because of %@", path, error);
             }
