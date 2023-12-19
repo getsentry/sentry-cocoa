@@ -310,12 +310,37 @@ class SentryFramesTrackerTests: XCTestCase {
         
         let startSystemTime = fixture.dateProvider.systemTime()
         
-        let delay = 0.5
+        let delay = 0.02
         fixture.dateProvider.advance(by: delay)
         
         let endSystemTime = fixture.dateProvider.systemTime()
         
         let expectedDelay = delay - slowFrameThreshold(fixture.displayLinkWrapper.currentFrameRate.rawValue)
+        
+        let actualFrameDelay = sut.getFramesDelay(startSystemTime, endSystemTimestamp: endSystemTime)
+        expect(actualFrameDelay).to(beCloseTo(expectedDelay, within: 0.0001))
+    }
+    
+    func testDelayedFrames_FrameIsDelayedSmallerThanSlowFrameThreshold_ReturnsDelay() {
+        fixture.dateProvider.advance(by: 2.0)
+        
+        let sut = fixture.sut
+        sut.start()
+        
+        let displayLink = fixture.displayLinkWrapper
+        displayLink.call()
+        displayLink.normalFrame()
+        
+        fixture.dateProvider.advance(by: slowFrameThreshold(fixture.displayLinkWrapper.currentFrameRate.rawValue))
+        
+        let startSystemTime = fixture.dateProvider.systemTime()
+        
+        let delay = 0.0001
+        fixture.dateProvider.advance(by: delay)
+        
+        let endSystemTime = fixture.dateProvider.systemTime()
+        
+        let expectedDelay = delay
         
         let actualFrameDelay = sut.getFramesDelay(startSystemTime, endSystemTimestamp: endSystemTime)
         expect(actualFrameDelay).to(beCloseTo(expectedDelay, within: 0.0001))
