@@ -29,7 +29,7 @@ SENTRY_NO_INIT
 
 - (void)startForTracer:(SentryTracer *)tracer;
 
-- (void)reportReadyToDisplay;
+- (void)reportInitialDisplay;
 
 - (void)reportFullyDisplayed;
 

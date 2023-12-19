@@ -6,6 +6,11 @@
 
 - Add frames delay to transactions and spans (#3487, #3496)
 - Add slow and frozen frames to spans (#3450, #3478)
+
+### Fixes
+
+- TTFD waits for next drawn frame (#3505)
+
 ## 8.17.2
 
 ### Fixes
