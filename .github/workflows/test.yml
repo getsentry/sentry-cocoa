@@ -55,14 +55,14 @@ jobs:
         run: cp $(swift build --show-bin-path -c release)/Run test-server-exec
 
       - name: Archiving DerivedData
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: test-server
           path: |
             ./test-server/test-server-exec
 
       - name: Archiving Raw Test Logs
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: ${{  failure() || cancelled() }}
         with:
           name: test-server-build-log-${{matrix.platform}}-xcode-${{matrix.xcode}}-os-${{matrix.test-destination-os}}
@@ -148,7 +148,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: test-server
 
@@ -200,7 +200,7 @@ jobs:
         run: ./scripts/xcode-slowest-tests.sh
 
       - name: Archiving DerivedData Logs
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: steps.build_tests.outcome == 'failure'
         with:
           name: derived-data-${{matrix.platform}}-xcode-${{matrix.xcode}}-os-${{matrix.test-destination-os}}
@@ -208,7 +208,7 @@ jobs:
             /Users/runner/Library/Developer/Xcode/DerivedData/**/Logs/**
 
       - name: Archiving Raw Test Logs
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: ${{  failure() || cancelled() }}
         with:
           name: raw-test-output-${{matrix.platform}}-xcode-${{matrix.xcode}}-os-${{matrix.test-destination-os}}
@@ -216,7 +216,7 @@ jobs:
             raw-test-output.log
 
       - name: Archiving Crash Logs
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: ${{  failure() || cancelled() }}
         with:
           name: crash-logs-${{matrix.platform}}-xcode-${{matrix.xcode}}-os-${{matrix.test-destination-os}}
@@ -263,7 +263,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: test-server
 
@@ -278,7 +278,7 @@ jobs:
         run: ./scripts/tests-with-thread-sanitizer.sh
 
       - name: Archiving Test Logs
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: ${{  failure() || cancelled() }}
         with:
           name: thread-sanitizer
@@ -301,7 +301,7 @@ jobs:
         shell: sh
 
       - name: Archiving Raw Test Logs
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: ${{  failure() || cancelled() }}
         with:
           name: raw-uitest-output-${{matrix.target}}
@@ -335,7 +335,7 @@ jobs:
         shell: sh
 
       - name: Archiving Raw Test Logs
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: ${{  failure() || cancelled() }}
         with:
           name: raw-swiftui-test-output-${{matrix.platform}}-xcode-${{matrix.xcode}}-os-${{matrix.test-destination-os}}
@@ -357,7 +357,7 @@ jobs:
         shell: sh
 
       - name: Archiving Raw Test Logs
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: ${{  failure() || cancelled() }}
         with:
           name: raw-uitest-output-asan
