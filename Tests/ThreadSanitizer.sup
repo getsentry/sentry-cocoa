@@ -23,3 +23,6 @@ race:disable
 race:URLSessionDataTaskMock
 race:getOriginalImplementation
 race:SentrySpanContext
+
+# Ignore SentryFramesTracer:getFramesDelay. Visit the method for the explanation.
+race:getFramesDelay
