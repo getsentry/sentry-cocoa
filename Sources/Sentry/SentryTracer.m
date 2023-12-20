@@ -491,6 +491,12 @@ static BOOL appStartMeasurementRead;
         }
         [super finishWithStatus:_finishStatus];
     }
+#if SENTRY_HAS_UIKIT
+    if (appStartMeasurement != nil) {
+        [self updateStartTime:appStartMeasurement.appStartTimestamp];
+    }
+#endif // SENTRY_HAS_UIKIT
+
     [self.delegate tracerDidFinish:self];
 
     if (self.finishCallback) {
@@ -500,12 +506,6 @@ static BOOL appStartMeasurementRead;
         // potential retain cycles.
         self.finishCallback = nil;
     }
-
-#if SENTRY_HAS_UIKIT
-    if (appStartMeasurement != nil) {
-        [self updateStartTime:appStartMeasurement.appStartTimestamp];
-    }
-#endif // SENTRY_HAS_UIKIT
 
     // Prewarming can execute code up to viewDidLoad of a UIViewController, and keep the app in the
     // background. This can lead to auto-generated transactions lasting for minutes or even hours.
