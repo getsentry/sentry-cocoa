@@ -125,7 +125,8 @@ static const auto kSentryDefaultSamplingDecision = kSentrySampleDecisionUndecide
 {
 #if SENTRY_TARGET_PROFILING_SUPPORTED
     const auto thread = sentry::profiling::ThreadHandle::current();
-    self.threadInfo = [[SentryThread alloc] initWithThreadId:(thread == nullptr) ? @0 : @(thread->tid())];
+    self.threadInfo =
+        [[SentryThread alloc] initWithThreadId:(thread == nullptr) ? @0 : @(thread->tid())];
 #endif
 }
 

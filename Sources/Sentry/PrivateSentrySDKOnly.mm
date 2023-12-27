@@ -142,9 +142,8 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
     if (payload != nil) {
         const auto thread = sentry::profiling::ThreadHandle::current();
         payload[@"platform"] = SentryPlatformName;
-        payload[@"transaction"] = @{
-            @"active_thread_id" : (thread == nullptr) ? @0 : @(thread->tid())
-        };
+        payload[@"transaction"] =
+            @{ @"active_thread_id" : (thread == nullptr) ? @0 : @(thread->tid()) };
     }
 
     return payload;

@@ -80,7 +80,7 @@ namespace profiling {
         if (current == nullptr) {
             return std::make_pair(threads, nullptr);
         }
-        
+
         if (SENTRY_PROF_LOG_KERN_RETURN(task_threads(mach_task_self(), &list, &count))
             == KERN_SUCCESS) {
             for (decltype(count) i = 0; i < count; i++) {
