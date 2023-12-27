@@ -11,6 +11,7 @@
 
 - TTFD waits for next drawn frame (#3505)
 - Fix TTID/TTFD for app start transactions (#3512): TTID/TTFD spans and measurements for app start transaction now include the app start duration.
+- Check MACH_PORT_VALID on return from pthread_mach_thread_np (#3520)
 
 ## 8.17.2
 
