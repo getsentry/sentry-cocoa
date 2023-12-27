@@ -140,10 +140,10 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
                                         onHub:[SentrySDK currentHub]];
 
     if (payload != nil) {
+        const auto thread = sentry::profiling::ThreadHandle::current();
         payload[@"platform"] = SentryPlatformName;
         payload[@"transaction"] = @{
-            @"active_thread_id" :
-                [NSNumber numberWithLongLong:sentry::profiling::ThreadHandle::current()->tid()]
+            @"active_thread_id" : (thread == nullptr) ? @0 : @(thread->tid())
         };
     }
 

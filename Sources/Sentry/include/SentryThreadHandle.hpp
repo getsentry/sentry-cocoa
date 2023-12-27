@@ -56,6 +56,8 @@ namespace profiling {
         /**
          * @return A handle to the currently executing thread, which is acquired
          * in a non async-signal-safe manner.
+         *
+         * Returns nullptr if the current thread could not be retrieved.
          */
         static std::unique_ptr<ThreadHandle> current() noexcept;
 
@@ -69,6 +71,8 @@ namespace profiling {
          * the threads in the current process, excluding the current thread (the
          * thread that this function is being called on), and the second element
          * is a handle to the current thread.
+         *
+         * Returns ({}, nullptr) if the current thread could not be retrieved.
          */
         static std::pair<std::vector<std::unique_ptr<ThreadHandle>>, std::unique_ptr<ThreadHandle>>
         allExcludingCurrent() noexcept;
