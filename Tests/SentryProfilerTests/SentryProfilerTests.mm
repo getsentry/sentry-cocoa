@@ -75,18 +75,15 @@ using namespace sentry::profiling;
         // avoid overlapping any simulated data values
         const auto threadID = thread + threads;
         const auto threadPriority = thread + threads * 2;
-        const auto queue = thread + threads * 3;
         uint64_t address = thread + threads * 4;
 
         const auto threadName = [[NSString stringWithFormat:@"testThread-%d", thread]
             cStringUsingEncoding:NSUTF8StringEncoding];
-        const auto queueLabel = std::string([[NSString stringWithFormat:@"testQueue-%d", thread]
-            cStringUsingEncoding:NSUTF8StringEncoding]);
         const auto addresses
             = std::vector<std::uintptr_t>({ address + 1, address + 2, address + 3 });
 
         auto backtrace
-            = mockBacktrace(threadID, threadPriority, threadName, queue, queueLabel, addresses);
+            = mockBacktrace(threadID, threadPriority, threadName, addresses);
 
         for (auto sample = 0; sample < samplesPerThread; sample++) {
             backtrace.absoluteTimestamp = sampleIdx; // simulate 1 sample per nanosecond
@@ -119,7 +116,7 @@ using namespace sentry::profiling;
         }];
     };
 
-    const auto backtrace = mockBacktrace(12345568910, 666, "testThread", 9876543210, "testQueue",
+    const auto backtrace = mockBacktrace(12345568910, 666, "testThread",
         std::vector<std::uintptr_t>({ 777, 888, 789 }));
 
     const auto mutateExpectation =
@@ -162,7 +159,7 @@ using namespace sentry::profiling;
     {
         // leave thread name as nil so it can be overwritten later
         auto backtrace = mockBacktrace(
-            1, 2, nullptr, 3, "testQueue-1", std::vector<std::uintptr_t>({ 0x4, 0x5, 0x6 }));
+            1, 2, nullptr, std::vector<std::uintptr_t>({ 0x4, 0x5, 0x6 }));
 
         backtrace.absoluteTimestamp = 1;
         [state appendBacktrace:backtrace];
@@ -190,8 +187,7 @@ using namespace sentry::profiling;
 
     // cause the data structures to be modified again: add new addresses
     {
-        const auto backtrace = mockBacktrace(12345568910, 666, "newThread-2", 9876543210,
-            "newQueue-2", std::vector<std::uintptr_t>({ 0x777, 0x888, 0x999 }));
+        const auto backtrace = mockBacktrace(12345568910, 666, "newThread-2", std::vector<std::uintptr_t>({ 0x777, 0x888, 0x999 }));
         [state appendBacktrace:backtrace];
     }
 
@@ -199,7 +195,7 @@ using namespace sentry::profiling;
     // subdictionary contents
     {
         auto backtrace = mockBacktrace(
-            1, 2, "testThread-1", 3, "testQueue-1", std::vector<std::uintptr_t>({ 0x4, 0x5, 0x6 }));
+            1, 2, "testThread-1", std::vector<std::uintptr_t>({ 0x4, 0x5, 0x6 }));
         backtrace.absoluteTimestamp = 6;
         [state appendBacktrace:backtrace];
     }
@@ -235,12 +231,12 @@ using namespace sentry::profiling;
     SentryProfilerState *state = [[SentryProfilerState alloc] init];
 
     // record an initial backtrace
-    const auto backtrace1 = mockBacktrace(12345568910, 666, "testThread", 9876543210, "testQueue",
+    const auto backtrace1 = mockBacktrace(12345568910, 666, "testThread",
         std::vector<std::uintptr_t>({ 0x123, 0x456, 0x789 }));
     [state appendBacktrace:backtrace1];
 
     // record a second backtrace with some common addresses to test frame deduplication
-    const auto backtrace2 = mockBacktrace(12345568910, 666, "testThread", 9876543210, "testQueue",
+    const auto backtrace2 = mockBacktrace(12345568910, 666, "testThread",
         std::vector<std::uintptr_t>({ 0x777, 0x888, 0x789 }));
     [state appendBacktrace:backtrace2];
 
