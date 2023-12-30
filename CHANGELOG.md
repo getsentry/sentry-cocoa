@@ -11,6 +11,7 @@
 
 - TTFD waits for next drawn frame (#3505)
 - Fix TTID/TTFD for app start transactions (#3512): TTID/TTFD spans and measurements for app start transaction now include the app start duration.
+- Remove dispatch queue metadata collection to fix crash (#3522)
 
 ## 8.17.2
 
