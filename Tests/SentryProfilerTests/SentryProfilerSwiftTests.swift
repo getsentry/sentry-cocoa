@@ -293,7 +293,8 @@ class SentryProfilerSwiftTests: XCTestCase {
                 fixture.currentDateProvider.advanceBy(nanoseconds: 100)
             }
 
-            addMockSamples()
+            let threadMetadata = ThreadMetadata(id: 1, priority: 2, name: "test-thread")
+            addMockSamples(threadMetadata: threadMetadata)
 
             for (i, span) in spans.enumerated() {
                 try fixture.gatherMockedMetrics(span: span)
@@ -301,7 +302,7 @@ class SentryProfilerSwiftTests: XCTestCase {
                 span.finish()
                 XCTAssertEqual(SentryProfiler.currentProfiledTracers(), UInt(numberOfTransactions - (i + 1)))
 
-                try self.assertValidProfileData()
+                try self.assertValidProfileData(expectedThreadMetadata: [threadMetadata])
 
                 // this is a complicated number to come up with, see the explanation for each part...
                 let expectedUsageReadings = fixture.mockUsageReadingsPerBatch * (i + 1) // since we fire mock metrics readings for each concurrent span,
@@ -767,6 +768,7 @@ private extension SentryProfilerSwiftTests {
             }
         } else {
             XCTAssertFalse(try threadMetadata.values.compactMap { $0["priority"] }.filter { try XCTUnwrap($0 as? Int) > 0 }.isEmpty)
+            XCTAssertFalse(try threadMetadata.values.compactMap { $0["name"] }.filter { try XCTUnwrap($0 as? String) == "main" }.isEmpty)
         }
 
         let samples = try XCTUnwrap(sampledProfile["samples"] as? [[String: Any]])

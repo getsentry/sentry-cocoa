@@ -5,6 +5,8 @@
 #    import "SentryProfileTimeseries.h"
 #    import "SentrySample.h"
 #    import <mutex>
+#    import <mach/mach_types.h>
+#    import <mach/port.h>
 
 #    if defined(DEBUG)
 #        include <execinfo.h>
@@ -53,12 +55,21 @@ parseBacktraceSymbolsFunctionName(const char *symbol)
 @implementation SentryProfilerState {
     SentryProfilerMutableState *_mutableState;
     std::mutex _lock;
+    thread_t _mainThreadID;
 }
 
 - (instancetype)init
 {
     if (self = [super init]) {
         _mutableState = [[SentryProfilerMutableState alloc] init];
+        _mainThreadID = 0;
+        if ([NSThread isMainThread]) {
+            [self cacheMainThreadID];
+        } else {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [self cacheMainThreadID];
+            });
+        }
     }
     return self;
 }
@@ -68,6 +79,15 @@ parseBacktraceSymbolsFunctionName(const char *symbol)
     NSParameterAssert(block);
     std::lock_guard<std::mutex> l(_lock);
     block(_mutableState);
+}
+
+- (void)cacheMainThreadID {
+    std::lock_guard<std::mutex> l(_lock);
+    NSAssert([NSThread isMainThread], @"Must be called on main thread");
+    const auto currentThread = pthread_mach_thread_np(pthread_self());
+    if (MACH_PORT_VALID(currentThread)) {
+        _mainThreadID = currentThread;
+    }
 }
 
 - (void)appendBacktrace:(const Backtrace &)backtrace
@@ -80,9 +100,13 @@ parseBacktraceSymbolsFunctionName(const char *symbol)
             metadata = [NSMutableDictionary<NSString *, id> dictionary];
             state.threadMetadata[threadID] = metadata;
         }
-        if (!backtrace.threadMetadata.name.empty() && metadata[@"name"] == nil) {
-            metadata[@"name"] =
-                [NSString stringWithUTF8String:backtrace.threadMetadata.name.c_str()];
+        if (metadata[@"name"] == nil) {
+            if (!backtrace.threadMetadata.name.empty()) {
+                metadata[@"name"] =
+                    [NSString stringWithUTF8String:backtrace.threadMetadata.name.c_str()];
+            } else if (self->_mainThreadID != 0 && backtrace.threadMetadata.threadID == self->_mainThreadID) {
+                metadata[@"name"] = @"main";
+            }
         }
         if (backtrace.threadMetadata.priority != -1 && metadata[@"priority"] == nil) {
             metadata[@"priority"] = @(backtrace.threadMetadata.priority);
