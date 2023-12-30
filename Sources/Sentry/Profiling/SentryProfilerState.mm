@@ -4,9 +4,9 @@
 #    import "SentryFormatter.h"
 #    import "SentryProfileTimeseries.h"
 #    import "SentrySample.h"
-#    import <mutex>
 #    import <mach/mach_types.h>
 #    import <mach/port.h>
+#    import <mutex>
 
 #    if defined(DEBUG)
 #        include <execinfo.h>
@@ -66,9 +66,7 @@ parseBacktraceSymbolsFunctionName(const char *symbol)
         if ([NSThread isMainThread]) {
             [self cacheMainThreadID];
         } else {
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [self cacheMainThreadID];
-            });
+            dispatch_async(dispatch_get_main_queue(), ^{ [self cacheMainThreadID]; });
         }
     }
     return self;
@@ -81,7 +79,8 @@ parseBacktraceSymbolsFunctionName(const char *symbol)
     block(_mutableState);
 }
 
-- (void)cacheMainThreadID {
+- (void)cacheMainThreadID
+{
     std::lock_guard<std::mutex> l(_lock);
     NSAssert([NSThread isMainThread], @"Must be called on main thread");
     const auto currentThread = pthread_mach_thread_np(pthread_self());
@@ -104,7 +103,8 @@ parseBacktraceSymbolsFunctionName(const char *symbol)
             if (!backtrace.threadMetadata.name.empty()) {
                 metadata[@"name"] =
                     [NSString stringWithUTF8String:backtrace.threadMetadata.name.c_str()];
-            } else if (self->_mainThreadID != 0 && backtrace.threadMetadata.threadID == self->_mainThreadID) {
+            } else if (self->_mainThreadID != 0
+                && backtrace.threadMetadata.threadID == self->_mainThreadID) {
                 metadata[@"name"] = @"main";
             }
         }

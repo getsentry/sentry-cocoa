@@ -3,7 +3,8 @@
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
 Backtrace
-mockBacktrace(thread::TIDType threadID, const int threadPriority, const char *threadName, std::vector<std::uintptr_t> addresses)
+mockBacktrace(thread::TIDType threadID, const int threadPriority, const char *threadName,
+    std::vector<std::uintptr_t> addresses)
 {
     ThreadMetadata threadMetadata;
     if (threadName != nullptr) {
