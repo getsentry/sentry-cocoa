@@ -12,6 +12,7 @@
 - TTFD waits for next drawn frame (#3505)
 - Fix TTID/TTFD for app start transactions (#3512): TTID/TTFD spans and measurements for app start transaction now include the app start duration.
 - Fix a race condition in SentryTracer (#3523)
+- Missing transactions when not calling `reportFullyDisplayed` (#3477)
 
 ## 8.17.2
 

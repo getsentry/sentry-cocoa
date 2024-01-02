@@ -26,11 +26,6 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property (nonatomic) BOOL waitForChildren;
 
-/**
- * A dispatch queue wrapper to intermediate between the tracer and dispatch calls.
- */
-@property (nonatomic, strong, nullable) SentryDispatchQueueWrapper *dispatchQueueWrapper;
-
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 /**
  * Whether to sample a profile corresponding to this transaction
