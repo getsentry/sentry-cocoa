@@ -28,6 +28,7 @@
 - Check for NULL in binary image cache (#3469)
 - Threading issues in binary image cache (#3468)
 - Finish transaction for external view controllers (#3440)
+- Missing transactions when not calling `reportFullyDisplayed` (#3477)
 
 ## 8.17.0
 
