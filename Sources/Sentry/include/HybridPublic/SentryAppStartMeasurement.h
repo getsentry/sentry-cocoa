@@ -21,18 +21,6 @@ SENTRY_NO_INIT
  * Initializes SentryAppStartMeasurement with the given parameters.
  */
 - (instancetype)initWithType:(SentryAppStartType)type
-              appStartTimestamp:(NSDate *)appStartTimestamp
-                       duration:(NSTimeInterval)duration
-           runtimeInitTimestamp:(NSDate *)runtimeInitTimestamp
-    didFinishLaunchingTimestamp:(NSDate *)didFinishLaunchingTimestamp
-    DEPRECATED_MSG_ATTRIBUTE("Use "
-                             "initWithType:appStartTimestamp:duration:mainTimestamp:"
-                             "runtimeInitTimestamp:didFinishLaunchingTimestamp instead.");
-
-/**
- * Initializes SentryAppStartMeasurement with the given parameters.
- */
-- (instancetype)initWithType:(SentryAppStartType)type
                       isPreWarmed:(BOOL)isPreWarmed
                 appStartTimestamp:(NSDate *)appStartTimestamp
                          duration:(NSTimeInterval)duration
