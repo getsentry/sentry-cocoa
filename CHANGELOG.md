@@ -12,6 +12,7 @@
 - TTFD waits for next drawn frame (#3505)
 - Fix TTID/TTFD for app start transactions (#3512): TTID/TTFD spans and measurements for app start transaction now include the app start duration.
 - Fix a race condition in SentryTracer (#3523)
+- Missing transactions when not calling `reportFullyDisplayed` (#3477)
 
 ## 8.17.2
 
@@ -28,7 +29,6 @@
 - Check for NULL in binary image cache (#3469)
 - Threading issues in binary image cache (#3468)
 - Finish transaction for external view controllers (#3440)
-- Missing transactions when not calling `reportFullyDisplayed` (#3477)
 
 ## 8.17.0
 
