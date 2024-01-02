@@ -425,7 +425,9 @@ static BOOL appStartMeasurementRead;
 {
     SENTRY_LOG_DEBUG(@"Finished trace with traceID: %@ and status: %@", self.traceId.sentryIdString,
         nameForSentrySpanStatus(status));
-    self.wasFinishCalled = YES;
+    @synchronized(self) {
+        self.wasFinishCalled = YES;
+    }
     _finishStatus = status;
     [self canBeFinished];
 }
@@ -441,18 +443,21 @@ static BOOL appStartMeasurementRead;
     }
 
     BOOL hasUnfinishedChildSpansToWaitFor = [self hasUnfinishedChildSpansToWaitFor];
-    if (!self.wasFinishCalled && !hasUnfinishedChildSpansToWaitFor && [self hasIdleTimeout]) {
-        SENTRY_LOG_DEBUG(
-            @"Span with id %@ isn't waiting on children and needs idle timeout dispatched.",
-            self.spanId.sentrySpanIdString);
-        [self dispatchIdleTimeout];
-        return;
-    }
 
-    if (!self.wasFinishCalled || hasUnfinishedChildSpansToWaitFor) {
-        SENTRY_LOG_DEBUG(@"Span with id %@ has children but isn't waiting for them right now.",
-            self.spanId.sentrySpanIdString);
-        return;
+    @synchronized(self) {
+        if (!self.wasFinishCalled && !hasUnfinishedChildSpansToWaitFor && [self hasIdleTimeout]) {
+            SENTRY_LOG_DEBUG(
+                @"Span with id %@ isn't waiting on children and needs idle timeout dispatched.",
+                self.spanId.sentrySpanIdString);
+            [self dispatchIdleTimeout];
+            return;
+        }
+
+        if (!self.wasFinishCalled || hasUnfinishedChildSpansToWaitFor) {
+            SENTRY_LOG_DEBUG(@"Span with id %@ has children but isn't waiting for them right now.",
+                self.spanId.sentrySpanIdString);
+            return;
+        }
     }
 
     [self finishInternal];
