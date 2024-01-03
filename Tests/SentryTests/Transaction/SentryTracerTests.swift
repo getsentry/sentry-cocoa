@@ -52,6 +52,7 @@ class SentryTracerTests: XCTestCase {
             dispatchQueue.blockBeforeMainBlock = { false }
 
             SentryDependencyContainer.sharedInstance().dateProvider = currentDateProvider
+            SentryDependencyContainer.sharedInstance().dispatchQueueWrapper = dispatchQueue
             appStart = currentDateProvider.date()
             appStartEnd = appStart.addingTimeInterval(appStartDuration)
             
@@ -87,30 +88,16 @@ class SentryTracerTests: XCTestCase {
         }
         #endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
         
-        func getSut(waitForChildren: Bool = true) -> SentryTracer {
+        func getSut(waitForChildren: Bool = true, idleTimeout: TimeInterval = 0.0) -> SentryTracer {
             let tracer = hub.startTransaction(
                 with: transactionContext,
                 bindToScope: false,
                 customSamplingContext: [:],
                 configuration: SentryTracerConfiguration(block: {
                     $0.waitForChildren = waitForChildren
-                    $0.dispatchQueueWrapper = self.dispatchQueue
                     $0.timerFactory = self.timerFactory
-                }))
-            return tracer
-        }
-        
-        func getSut(idleTimeout: TimeInterval = 0.0, dispatchQueueWrapper: SentryDispatchQueueWrapper) -> SentryTracer {
-            let tracer = hub.startTransaction(
-                with: transactionContext,
-                bindToScope: false,
-                customSamplingContext: [:],
-                configuration: SentryTracerConfiguration(block: {
                     $0.idleTimeout = idleTimeout
-                    $0.dispatchQueueWrapper = dispatchQueueWrapper
-                    $0.waitForChildren = true
-                })
-            )
+                }))
             return tracer
         }
     }
@@ -283,7 +270,7 @@ class SentryTracerTests: XCTestCase {
     }
 
     func testDeadlineTimer_OnlyForAutoTransactions() {
-        let sut = fixture.getSut(idleTimeout: fixture.idleTimeout, dispatchQueueWrapper: fixture.dispatchQueue)
+        let sut = fixture.getSut(idleTimeout: fixture.idleTimeout)
         let child1 = sut.startChild(operation: fixture.transactionOperation)
         let child2 = sut.startChild(operation: fixture.transactionOperation)
         let child3 = sut.startChild(operation: fixture.transactionOperation)
@@ -306,12 +293,14 @@ class SentryTracerTests: XCTestCase {
     }
     
     func testDeadlineTimer_MultipleSpansFinishedInParallel() {
-        let sut = fixture.getSut(idleTimeout: 0.01, dispatchQueueWrapper: SentryDispatchQueueWrapper())
+        SentryDependencyContainer.sharedInstance().dispatchQueueWrapper = SentryDispatchQueueWrapper()
+        let sut = fixture.getSut(idleTimeout: 0.01)
         
         testConcurrentModifications(writeWork: { _ in
             let child = sut.startChild(operation: self.fixture.transactionOperation)
             child.finish()
         })
+        SentryDependencyContainer.sharedInstance().dispatchQueueWrapper = fixture.dispatchQueue
     }
 
     func testFinish_CheckDefaultStatus() {
@@ -323,7 +312,7 @@ class SentryTracerTests: XCTestCase {
     
     func testIdleTransactionWithStatus_KeepsStatusWhenAutoFinishing() {
         let status = SentrySpanStatus.aborted
-        let sut = fixture.getSut(idleTimeout: fixture.idleTimeout, dispatchQueueWrapper: fixture.dispatchQueue)
+        let sut = fixture.getSut(idleTimeout: fixture.idleTimeout)
         sut.status = status
         
         let child = sut.startChild(operation: fixture.transactionOperation)
@@ -339,13 +328,13 @@ class SentryTracerTests: XCTestCase {
     func testIdleTransaction_CreatingDispatchBlockFails_NoTransactionCaptured() {
         fixture.dispatchQueue.createDispatchBlockReturnsNULL = true
         
-        let sut = fixture.getSut(idleTimeout: fixture.idleTimeout, dispatchQueueWrapper: fixture.dispatchQueue)
+        let sut = fixture.getSut(idleTimeout: fixture.idleTimeout)
         
         assertTransactionNotCaptured(sut)
     }
     
     func testIdleTransaction_CreatingDispatchBlockFailsForFirstChild_FinishesTransaction() {
-        let sut = fixture.getSut(idleTimeout: fixture.idleTimeout, dispatchQueueWrapper: fixture.dispatchQueue)
+        let sut = fixture.getSut(idleTimeout: fixture.idleTimeout)
         
         fixture.dispatchQueue.createDispatchBlockReturnsNULL = true
         
@@ -426,7 +415,7 @@ class SentryTracerTests: XCTestCase {
     #endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
     
     func testFinish_IdleTimeout_ExceedsMaxDuration_NoTransactionCaptured() {
-        let sut = fixture.getSut(idleTimeout: fixture.idleTimeout, dispatchQueueWrapper: fixture.dispatchQueue)
+        let sut = fixture.getSut(idleTimeout: fixture.idleTimeout)
         
         advanceTime(bySeconds: 500)
         
@@ -436,7 +425,7 @@ class SentryTracerTests: XCTestCase {
     }
     
     func testIdleTimeout_NoChildren_TransactionNotCaptured() {
-        _ = fixture.getSut(idleTimeout: fixture.idleTimeout, dispatchQueueWrapper: fixture.dispatchQueue)
+        _ = fixture.getSut(idleTimeout: fixture.idleTimeout)
         
         fixture.dispatchQueue.invokeLastDispatchAfter()
         
@@ -444,7 +433,7 @@ class SentryTracerTests: XCTestCase {
     }
     
     func testIdleTimeout_NoChildren_SpanOnScopeUnset() {
-        let sut = fixture.getSut(idleTimeout: fixture.idleTimeout, dispatchQueueWrapper: fixture.dispatchQueue)
+        let sut = fixture.getSut(idleTimeout: fixture.idleTimeout)
         
         fixture.hub.scope.span = sut
         
@@ -454,7 +443,7 @@ class SentryTracerTests: XCTestCase {
     }
     
     func testIdleTimeout_InvokesDispatchAfterWithCorrectWhen() {
-        _ = fixture.getSut(idleTimeout: fixture.idleTimeout, dispatchQueueWrapper: fixture.dispatchQueue)
+        _ = fixture.getSut(idleTimeout: fixture.idleTimeout)
         
         fixture.dispatchQueue.invokeLastDispatchAfter()
         
@@ -462,7 +451,7 @@ class SentryTracerTests: XCTestCase {
     }
     
     func testIdleTimeout_SpanAdded_IdleTimeoutCancelled() {
-        let sut = fixture.getSut(idleTimeout: fixture.idleTimeout, dispatchQueueWrapper: fixture.dispatchQueue)
+        let sut = fixture.getSut(idleTimeout: fixture.idleTimeout)
         
         sut.startChild(operation: fixture.transactionOperation)
         
@@ -471,7 +460,8 @@ class SentryTracerTests: XCTestCase {
     }
     
     func testIdleTimeoutWithRealDispatchQueue_SpanAdded_IdleTimeoutCancelled() {
-        let sut = fixture.getSut(idleTimeout: 0.1, dispatchQueueWrapper: SentryDispatchQueueWrapper())
+        SentryDependencyContainer.sharedInstance().dispatchQueueWrapper = SentryDispatchQueueWrapper()
+        let sut = fixture.getSut(idleTimeout: 0.1)
         
         let child = sut.startChild(operation: fixture.transactionOperation)
         let grandChild = child.startChild(operation: fixture.transactionOperation)
@@ -481,10 +471,11 @@ class SentryTracerTests: XCTestCase {
         delayNonBlocking(timeout: 0.5)
         
         assertOneTransactionCaptured(sut)
+        SentryDependencyContainer.sharedInstance().dispatchQueueWrapper = fixture.dispatchQueue
     }
     
     func testIdleTimeout_TwoChildren_FirstFinishes_WaitsForTheOther() {
-        let sut = fixture.getSut(idleTimeout: fixture.idleTimeout, dispatchQueueWrapper: fixture.dispatchQueue)
+        let sut = fixture.getSut(idleTimeout: fixture.idleTimeout)
         
         let child1 = sut.startChild(operation: fixture.transactionOperation)
         let child2 = sut.startChild(operation: fixture.transactionOperation)
@@ -502,7 +493,7 @@ class SentryTracerTests: XCTestCase {
     }
     
     func testIdleTimeout_ChildSpanFinished_IdleStarted() {
-        let sut = fixture.getSut(idleTimeout: fixture.idleTimeout, dispatchQueueWrapper: fixture.dispatchQueue)
+        let sut = fixture.getSut(idleTimeout: fixture.idleTimeout)
         XCTAssertEqual(1, fixture.dispatchQueue.dispatchAfterInvocations.count)
         
         let child = sut.startChild(operation: fixture.transactionOperation)
@@ -525,7 +516,7 @@ class SentryTracerTests: XCTestCase {
     }
     
     func testIdleTimeout_TimesOut_TrimsEndTimestamp() {
-        let sut = fixture.getSut(idleTimeout: fixture.idleTimeout, dispatchQueueWrapper: fixture.dispatchQueue)
+        let sut = fixture.getSut(idleTimeout: fixture.idleTimeout)
         
         let child1 = sut.startChild(operation: fixture.transactionOperation)
         advanceTime(bySeconds: 1.0)
@@ -544,7 +535,7 @@ class SentryTracerTests: XCTestCase {
     }
     
     func testIdleTimeout_CallFinish_TrimsEndTimestamp() {
-        let sut = fixture.getSut(idleTimeout: fixture.idleTimeout, dispatchQueueWrapper: fixture.dispatchQueue)
+        let sut = fixture.getSut(idleTimeout: fixture.idleTimeout)
         
         let child = sut.startChild(operation: fixture.transactionOperation)
         advanceTime(bySeconds: 1.0)
@@ -567,7 +558,7 @@ class SentryTracerTests: XCTestCase {
         
         // Interact with sut in extra function so ARC deallocates it
         func getSut() {
-            let sut = fixture.getSut(idleTimeout: fixture.idleTimeout, dispatchQueueWrapper: fixture.dispatchQueue)
+            let sut = fixture.getSut(idleTimeout: fixture.idleTimeout)
             
             _ = sut.startChild(operation: fixture.transactionOperation)
         }
@@ -598,7 +589,7 @@ class SentryTracerTests: XCTestCase {
     }
     
     func testIdleTimeoutWithUnfinishedChildren_TimesOut_TrimsEndTimestamp() {
-        let sut = fixture.getSut(idleTimeout: fixture.idleTimeout, dispatchQueueWrapper: fixture.dispatchQueue)
+        let sut = fixture.getSut(idleTimeout: fixture.idleTimeout)
         
         let child1 = sut.startChild(operation: fixture.transactionOperation)
         advanceTime(bySeconds: 1.0)
@@ -616,7 +607,7 @@ class SentryTracerTests: XCTestCase {
     }
     
     func testIdleTimeout_CallFinish_WaitsForChildren_DoesntStartTimeout() {
-        let sut = fixture.getSut(idleTimeout: fixture.idleTimeout, dispatchQueueWrapper: fixture.dispatchQueue)
+        let sut = fixture.getSut(idleTimeout: fixture.idleTimeout)
         
         let child = sut.startChild(operation: fixture.transactionOperation)
         XCTAssertEqual(1, fixture.dispatchQueue.dispatchAfterInvocations.count)
@@ -931,7 +922,7 @@ class SentryTracerTests: XCTestCase {
     func testFinishCallback_CalledWhenTracerFinishes() {
         let callbackExpectation = expectation(description: "FinishCallback called")
         
-        let sut = fixture.getSut(idleTimeout: fixture.idleTimeout, dispatchQueueWrapper: fixture.dispatchQueue)
+        let sut = fixture.getSut(idleTimeout: fixture.idleTimeout)
         
         let block: (SentryTracer) -> Void = { tracer in
             XCTAssertEqual(sut, tracer)

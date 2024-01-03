@@ -11,8 +11,10 @@
 
 - TTFD waits for next drawn frame (#3505)
 - Fix TTID/TTFD for app start transactions (#3512): TTID/TTFD spans and measurements for app start transaction now include the app start duration.
+- Crash when adding a crumb for a timezone change (#3524)
 - Fix a race condition in SentryTracer (#3523)
 - App start ends when first frame is drawn when performanceV2 is enabled (#3530)
+- Missing transactions when not calling `reportFullyDisplayed` (#3477)
 
 ## 8.17.2
 
