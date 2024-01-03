@@ -13,6 +13,7 @@
 - Fix TTID/TTFD for app start transactions (#3512): TTID/TTFD spans and measurements for app start transaction now include the app start duration.
 - Crash when adding a crumb for a timezone change (#3524)
 - Fix a race condition in SentryTracer (#3523)
+- Missing transactions when not calling `reportFullyDisplayed` (#3477)
 
 ## 8.17.2
 

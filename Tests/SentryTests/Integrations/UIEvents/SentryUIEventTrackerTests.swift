@@ -16,7 +16,8 @@ class SentryUIEventTrackerTests: XCTestCase {
         init () {
             dispatchQueue.blockBeforeMainBlock = { false }
             SentryDependencyContainer.sharedInstance().swizzleWrapper = swizzleWrapper
-            uiEventTrackerMode = SentryUIEventTrackerTransactionMode(dispatchQueueWrapper: dispatchQueue, idleTimeout: 3.0)
+            SentryDependencyContainer.sharedInstance().dispatchQueueWrapper = dispatchQueue
+            uiEventTrackerMode = SentryUIEventTrackerTransactionMode(idleTimeout: 3.0)
         }
         
         func getSut() -> SentryUIEventTracker {
