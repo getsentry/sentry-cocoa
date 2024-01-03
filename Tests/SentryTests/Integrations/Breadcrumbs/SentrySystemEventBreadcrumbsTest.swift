@@ -1,3 +1,4 @@
+import Nimble
 @testable import Sentry
 import SentryTestUtils
 import XCTest
@@ -249,6 +250,20 @@ class SentrySystemEventBreadcrumbsTest: XCTestCase {
         assertBreadcrumbAction(action: "TIMEZONE_CHANGE") { data in
             XCTAssertEqual(data["previous_seconds_from_gmt"] as? Int, 0)
             XCTAssertEqual(data["current_seconds_from_gmt"] as? Int64, 7_200)
+        }
+    }
+    
+    func testTimezoneChangeNotificationBreadcrumb_NoStoredTimezoneOffset() {
+        sut = fixture.getSut(currentDevice: nil)
+
+        fixture.currentDateProvider.timezoneOffsetValue = 7_200
+        fixture.fileManager.deleteTimezoneOffset()
+
+        sut.timezoneEventTriggered()
+
+        assertBreadcrumbAction(action: "TIMEZONE_CHANGE") { data in
+            expect(data["previous_seconds_from_gmt"]) == nil
+            expect(data["current_seconds_from_gmt"] as? Int64) == 7_200
         }
     }
 
