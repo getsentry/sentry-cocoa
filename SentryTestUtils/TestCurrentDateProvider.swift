@@ -6,12 +6,13 @@ public class TestCurrentDateProvider: CurrentDateProvider {
     private var internalDate = defaultStartingDate
     private var internalSystemTime: UInt64 = 0
     public var driftTimeForEveryRead = false
+    public var driftTimeInterval = 0.1
     
     public override func date() -> Date {
 
         defer {
             if driftTimeForEveryRead {
-                internalDate = internalDate.addingTimeInterval(0.1)
+                internalDate = internalDate.addingTimeInterval(driftTimeInterval)
             }
         }
 

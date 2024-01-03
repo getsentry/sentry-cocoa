@@ -517,16 +517,26 @@ class SentryFramesTrackerTests: XCTestCase {
         
         wait(for: [expectation], timeout: 3.0)
     }
-
-    func testAddListener() {
+    
+    func testAddMultipleListeners_AllCalledWithSameDate() {
         let sut = fixture.sut
-        let listener = FrameTrackerListener()
+        let listener1 = FrameTrackerListener()
+        let listener2 = FrameTrackerListener()
         sut.start()
-        sut.add(listener)
+        sut.add(listener1)
+        sut.add(listener2)
+        
+        fixture.dateProvider.driftTimeForEveryRead = true
 
         fixture.displayLinkWrapper.normalFrame()
+        var expectedFrameDate = fixture.dateProvider.date()
+        expectedFrameDate.addTimeInterval(-fixture.dateProvider.driftTimeInterval)
 
-        XCTAssertTrue(listener.newFrameReported)
+        expect(listener1.newFrameInvocations.count) == 1
+        expect(listener1.newFrameInvocations.first?.timeIntervalSince1970) == expectedFrameDate.timeIntervalSince1970
+        
+        expect(listener2.newFrameInvocations.count) == 1
+        expect(listener2.newFrameInvocations.first?.timeIntervalSince1970) == expectedFrameDate.timeIntervalSince1970
     }
 
     func testRemoveListener() {
@@ -538,7 +548,7 @@ class SentryFramesTrackerTests: XCTestCase {
 
         fixture.displayLinkWrapper.normalFrame()
 
-        XCTAssertFalse(listener.newFrameReported)
+        expect(listener.newFrameInvocations.count) == 0
     }
 
     func testReleasedListener() {
@@ -594,10 +604,11 @@ class SentryFramesTrackerTests: XCTestCase {
 }
 
 private class FrameTrackerListener: NSObject, SentryFramesTrackerListener {
-    var newFrameReported = false
+    
+    var newFrameInvocations = Invocations<Date>()
     var callback: (() -> Void)?
-    func framesTrackerHasNewFrame() {
-        newFrameReported = true
+    func framesTrackerHasNewFrame(_ newFrameDate: Date) {
+        newFrameInvocations.record(newFrameDate)
         callback?()
     }
 }

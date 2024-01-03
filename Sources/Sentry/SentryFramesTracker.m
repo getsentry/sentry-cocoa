@@ -200,8 +200,10 @@ slowFrameThreshold(uint64_t actualFramesPerSecond)
         localListeners = [self.listeners allObjects];
     }
 
+    NSDate *newFrameDate = [self.dateProvider date];
+
     for (id<SentryFramesTrackerListener> listener in localListeners) {
-        [listener framesTrackerHasNewFrame];
+        [listener framesTrackerHasNewFrame:newFrameDate];
     }
 }
 
