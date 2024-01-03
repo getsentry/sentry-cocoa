@@ -714,8 +714,23 @@ class SentryTracerTests: XCTestCase {
 
         assertAppStartMeasurementOn(transaction: fixture.hub.capturedEventsWithScopes.first!.event as! Transaction, appStartMeasurement: appStartMeasurement)
     }
+    
+    func testAddAppStartMeasurementWhileTransactionRunning_PutOnNextAutoUITransaction() {
+        let appStartMeasurement = fixture.getAppStartMeasurement(type: .warm)
+        
+        advanceTime(bySeconds: -(fixture.appStartDuration + 4))
 
-    func testAddColdStartMeasurement_PutOnFirstStartedTransaction() {
+        let sut = fixture.getSut()
+        advanceTime(bySeconds: 1)
+        SentrySDK.setAppStartMeasurement(appStartMeasurement)
+        sut.finish()
+        
+        expect(self.fixture.hub.capturedEventsWithScopes.count) == 1
+
+        assertAppStartMeasurementOn(transaction: fixture.hub.capturedEventsWithScopes.first!.event as! Transaction, appStartMeasurement: appStartMeasurement)
+    }
+    
+    func testAddAppStartMeasurement_PutOnFirstFinishedAutoUITransaction() {
         let appStartMeasurement = fixture.getAppStartMeasurement(type: .warm)
         SentrySDK.setAppStartMeasurement(appStartMeasurement)
 
@@ -728,14 +743,16 @@ class SentryTracerTests: XCTestCase {
         advanceTime(bySeconds: 0.5)
         secondTransaction.finish()
 
-        XCTAssertEqual(1, fixture.hub.capturedEventsWithScopes.count)
-        let serializedSecondTransaction = fixture.hub.capturedEventsWithScopes.first!.event.serialize()
-        XCTAssertNil(serializedSecondTransaction["measurements"])
+        expect(self.fixture.hub.capturedEventsWithScopes.count) == 1
 
         firstTransaction.finish()
         
-        XCTAssertEqual(2, fixture.hub.capturedEventsWithScopes.count)
-        assertAppStartMeasurementOn(transaction: fixture.hub.capturedEventsWithScopes.invocations[1].event as! Transaction, appStartMeasurement: appStartMeasurement)
+        expect(self.fixture.hub.capturedEventsWithScopes.count) == 2
+        
+        let serializedFirstTransaction = fixture.hub.capturedEventsWithScopes.invocations[1].event.serialize()
+        expect(serializedFirstTransaction["measurements"]) == nil
+        
+        assertAppStartMeasurementOn(transaction: fixture.hub.capturedEventsWithScopes.invocations[0].event as! Transaction, appStartMeasurement: appStartMeasurement)
     }
     
     func testAddUnknownAppStartMeasurement_NotPutOnNextTransaction() {

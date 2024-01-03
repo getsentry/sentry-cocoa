@@ -147,7 +147,6 @@ static BOOL appStartMeasurementRead;
     }
 
 #if SENTRY_HAS_UIKIT
-    appStartMeasurement = [self getAppStartMeasurement];
     viewNames = [SentryDependencyContainer.sharedInstance.application relevantViewControllersNames];
 #endif // SENTRY_HAS_UIKIT
 
@@ -501,6 +500,8 @@ static BOOL appStartMeasurementRead;
         [super finishWithStatus:_finishStatus];
     }
 #if SENTRY_HAS_UIKIT
+    appStartMeasurement = [self getAppStartMeasurement];
+
     if (appStartMeasurement != nil) {
         [self updateStartTime:appStartMeasurement.appStartTimestamp];
     }

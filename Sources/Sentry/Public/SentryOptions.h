@@ -192,6 +192,17 @@ NS_SWIFT_NAME(Options)
 @property (nonatomic, assign) BOOL enableAutoPerformanceTracing;
 
 /**
+ * @warning This is an experimental feature and may still have bugs.
+ *
+ * Sentry works on reworking the whole performance offering with the code Mobile Starfish, which
+ * aims to provide better insights into the performance of mobile apps and highlight clear actions
+ * to improve app performance to developers. This feature flag enables experimental features that
+ * impact the v1 performance offering and would require a major version update. Sentry aims to
+ * include most features in the next major by default.
+ */
+@property (nonatomic, assign) BOOL enablePerformanceV2;
+
+/**
  * A block that configures the initial scope when starting the SDK.
  * @discussion The block receives a suggested default scope. You can either
  * configure and return this, or create your own scope instead.

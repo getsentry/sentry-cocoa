@@ -37,7 +37,8 @@ SENTRY_NO_INIT
 
 /**
  * How long the app start took. From appStartTimestamp to when the SDK creates the
- * AppStartMeasurement, which is done when the OS posts UIWindowDidBecomeVisibleNotification.
+ * AppStartMeasurement, which is done when the OS posts UIWindowDidBecomeVisibleNotification and
+ * when `enablePerformanceV2` is enabled when the app draws it's first frame.
  */
 @property (readonly, nonatomic, assign) NSTimeInterval duration;
 

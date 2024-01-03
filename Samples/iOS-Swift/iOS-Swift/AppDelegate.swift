@@ -31,6 +31,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             options.attachViewHierarchy = true
             options.environment = "test-app"
             options.enableTimeToFullDisplayTracing = true
+            options.enablePerformanceV2 = true
             
             options.add(inAppInclude: "iOS_External")
 
