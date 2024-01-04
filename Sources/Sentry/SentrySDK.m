@@ -43,7 +43,7 @@ static NSObject *sentrySDKappStartMeasurementLock;
  * reenable the integrations.
  */
 static NSUInteger startInvocations;
-static NSDate *startTimestamp = nil;
+static NSDate *_Nullable startTimestamp = nil;
 
 + (void)initialize
 {
