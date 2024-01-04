@@ -924,7 +924,7 @@ class SentryNetworkTrackerTests: XCTestCase {
     func createDataTask(method: String = "GET", modifyRequest: ((URLRequest) -> (URLRequest))? = nil) -> URLSessionDataTaskMock {
         var request = URLRequest(url: SentryNetworkTrackerTests.fullUrl)
         request.httpMethod = method
-        if let modifyRequest {
+        if let modifyRequest = modifyRequest {
            request = modifyRequest(request)
         }
         return URLSessionDataTaskMock(request: request)
