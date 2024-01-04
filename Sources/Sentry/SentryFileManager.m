@@ -46,11 +46,6 @@ SentryFileManager ()
 
 @implementation SentryFileManager
 
-+ (void)load
-{
-    NSLog(@"%llu %s", clock_gettime_nsec_np(CLOCK_UPTIME_RAW), __PRETTY_FUNCTION__);
-}
-
 - (nullable instancetype)initWithOptions:(SentryOptions *)options error:(NSError **)error
 {
     return [self initWithOptions:options

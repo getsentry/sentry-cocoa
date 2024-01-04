@@ -9,11 +9,6 @@ static void binaryImageWasAdded(const SentryCrashBinaryImage *image);
 static void binaryImageWasRemoved(const SentryCrashBinaryImage *image);
 
 @implementation SentryBinaryImageInfo
-
-+ (void)load
-{
-    NSLog(@"%llu %s", clock_gettime_nsec_np(CLOCK_UPTIME_RAW), __PRETTY_FUNCTION__);
-}
 @end
 
 @interface
@@ -24,11 +19,6 @@ SentryBinaryImageCache ()
 @end
 
 @implementation SentryBinaryImageCache
-
-+ (void)load
-{
-    NSLog(@"%llu %s", clock_gettime_nsec_np(CLOCK_UPTIME_RAW), __PRETTY_FUNCTION__);
-}
 
 - (void)start
 {

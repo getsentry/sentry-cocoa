@@ -6,11 +6,6 @@
     dispatch_source_t _source;
 }
 
-+ (void)load
-{
-    NSLog(@"%llu %s", clock_gettime_nsec_np(CLOCK_UPTIME_RAW), __PRETTY_FUNCTION__);
-}
-
 - (instancetype)initTimerWithInterval:(uint64_t)interval
                                leeway:(uint64_t)leeway
                                 queue:(SentryDispatchQueueWrapper *)queueWrapper

@@ -29,11 +29,6 @@ writeJSONDataToMemory(const char *const data, const int length, void *const user
 
 @implementation SentryViewHierarchy
 
-+ (void)load
-{
-    NSLog(@"%llu %s", clock_gettime_nsec_np(CLOCK_UPTIME_RAW), __PRETTY_FUNCTION__);
-}
-
 - (BOOL)saveViewHierarchy:(NSString *)filePath
 {
     NSArray<UIWindow *> *windows = [SentryDependencyContainer.sharedInstance.application windows];

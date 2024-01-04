@@ -19,11 +19,6 @@
 }
 #    endif // SENTRY_HAS_UIKIT
 
-+ (void)load
-{
-    NSLog(@"%llu %s", clock_gettime_nsec_np(CLOCK_UPTIME_RAW), __PRETTY_FUNCTION__);
-}
-
 - (instancetype)initWithType:(SentryAppStartType)type
                       isPreWarmed:(BOOL)isPreWarmed
                 appStartTimestamp:(NSDate *)appStartTimestamp

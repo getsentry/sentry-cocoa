@@ -10,11 +10,6 @@
 
 @implementation SentryScreenshot
 
-+ (void)load
-{
-    NSLog(@"%llu %s", clock_gettime_nsec_np(CLOCK_UPTIME_RAW), __PRETTY_FUNCTION__);
-}
-
 - (NSArray<NSData *> *)appScreenshots
 {
     __block NSArray *result;

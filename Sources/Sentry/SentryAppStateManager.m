@@ -31,11 +31,6 @@ SentryAppStateManager ()
 
 @implementation SentryAppStateManager
 
-+ (void)load
-{
-    NSLog(@"%llu %s", clock_gettime_nsec_np(CLOCK_UPTIME_RAW), __PRETTY_FUNCTION__);
-}
-
 - (instancetype)initWithOptions:(SentryOptions *)options
                    crashWrapper:(SentryCrashWrapper *)crashWrapper
                     fileManager:(SentryFileManager *)fileManager

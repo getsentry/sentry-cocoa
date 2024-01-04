@@ -155,11 +155,6 @@ SentryReachability ()
 
 @implementation SentryReachability
 
-+ (void)load
-{
-    NSLog(@"%llu %s", clock_gettime_nsec_np(CLOCK_UPTIME_RAW), __PRETTY_FUNCTION__);
-}
-
 + (void)initialize
 {
     if (self == [SentryReachability class]) {

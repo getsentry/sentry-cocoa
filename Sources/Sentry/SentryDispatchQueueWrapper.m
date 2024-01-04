@@ -6,11 +6,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation SentryDispatchQueueWrapper
 
-+ (void)load
-{
-    NSLog(@"%llu %s", clock_gettime_nsec_np(CLOCK_UPTIME_RAW), __PRETTY_FUNCTION__);
-}
-
 - (instancetype)init
 {
     // DISPATCH_QUEUE_SERIAL_WITH_AUTORELEASE_POOL is requires iOS 10. Since we are targeting

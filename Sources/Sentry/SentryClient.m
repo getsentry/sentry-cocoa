@@ -68,11 +68,6 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
 @implementation SentryClient
 
-+ (void)load
-{
-    NSLog(@"%llu %s", clock_gettime_nsec_np(CLOCK_UPTIME_RAW), __PRETTY_FUNCTION__);
-}
-
 - (_Nullable instancetype)initWithOptions:(SentryOptions *)options
 {
     return [self initWithOptions:options

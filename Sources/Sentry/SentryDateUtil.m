@@ -11,11 +11,6 @@ SentryDateUtil ()
 
 @implementation SentryDateUtil
 
-+ (void)load
-{
-    NSLog(@"%llu %s", clock_gettime_nsec_np(CLOCK_UPTIME_RAW), __PRETTY_FUNCTION__);
-}
-
 + (BOOL)isInFuture:(NSDate *_Nullable)date
 {
     if (date == nil)

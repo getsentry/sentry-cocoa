@@ -10,11 +10,6 @@ SentryBreadcrumb ()
 
 @implementation SentryBreadcrumb
 
-+ (void)load
-{
-    NSLog(@"%llu %s", clock_gettime_nsec_np(CLOCK_UPTIME_RAW), __PRETTY_FUNCTION__);
-}
-
 - (instancetype)initWithDictionary:(NSDictionary *)dictionary
 {
     if (self = [super init]) {

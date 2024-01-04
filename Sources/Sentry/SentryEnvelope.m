@@ -19,11 +19,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation SentryEnvelopeHeader
 
-+ (void)load
-{
-    NSLog(@"%llu %s", clock_gettime_nsec_np(CLOCK_UPTIME_RAW), __PRETTY_FUNCTION__);
-}
-
 // id can be null if no event in the envelope or attachment related to event
 - (instancetype)initWithId:(SentryId *_Nullable)eventId
 {
@@ -56,11 +51,6 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 @implementation SentryEnvelopeItem
-
-+ (void)load
-{
-    NSLog(@"%llu %s", clock_gettime_nsec_np(CLOCK_UPTIME_RAW), __PRETTY_FUNCTION__);
-}
 
 - (instancetype)initWithHeader:(SentryEnvelopeItemHeader *)header data:(NSData *)data
 {
@@ -211,11 +201,6 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 @implementation SentryEnvelope
-
-+ (void)load
-{
-    NSLog(@"%llu %s", clock_gettime_nsec_np(CLOCK_UPTIME_RAW), __PRETTY_FUNCTION__);
-}
 
 - (instancetype)initWithSession:(SentrySession *)session
 {

@@ -18,11 +18,6 @@ SentryUIEventTrackingIntegration ()
 
 @implementation SentryUIEventTrackingIntegration
 
-+ (void)load
-{
-    NSLog(@"%llu %s", clock_gettime_nsec_np(CLOCK_UPTIME_RAW), __PRETTY_FUNCTION__);
-}
-
 - (BOOL)installWithOptions:(SentryOptions *)options
 {
     if (![super installWithOptions:options]) {

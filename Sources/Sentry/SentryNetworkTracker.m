@@ -48,11 +48,6 @@ SentryNetworkTracker ()
 
 @implementation SentryNetworkTracker
 
-+ (void)load
-{
-    NSLog(@"%llu %s", clock_gettime_nsec_np(CLOCK_UPTIME_RAW), __PRETTY_FUNCTION__);
-}
-
 + (SentryNetworkTracker *)sharedInstance
 {
     static SentryNetworkTracker *instance = nil;

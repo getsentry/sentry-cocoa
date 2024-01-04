@@ -35,11 +35,6 @@
 
 @implementation SentryCrashReportFilterPassthrough
 
-+ (void)load
-{
-    NSLog(@"%llu %s", clock_gettime_nsec_np(CLOCK_UPTIME_RAW), __PRETTY_FUNCTION__);
-}
-
 + (SentryCrashReportFilterPassthrough *)filter
 {
     return [[self alloc] init];
@@ -64,11 +59,6 @@ SentryCrashReportFilterCombine ()
 @end
 
 @implementation SentryCrashReportFilterCombine
-
-+ (void)load
-{
-    NSLog(@"%llu %s", clock_gettime_nsec_np(CLOCK_UPTIME_RAW), __PRETTY_FUNCTION__);
-}
 
 @synthesize filters = _filters;
 @synthesize keys = _keys;
@@ -215,11 +205,6 @@ SentryCrashReportFilterPipeline ()
 
 @implementation SentryCrashReportFilterPipeline
 
-+ (void)load
-{
-    NSLog(@"%llu %s", clock_gettime_nsec_np(CLOCK_UPTIME_RAW), __PRETTY_FUNCTION__);
-}
-
 @synthesize filters = _filters;
 
 + (SentryCrashReportFilterPipeline *)filterWithFilters:(id)firstFilter, ...
@@ -319,11 +304,6 @@ SentryCrashReportFilterObjectForKey ()
 
 @implementation SentryCrashReportFilterObjectForKey
 
-+ (void)load
-{
-    NSLog(@"%llu %s", clock_gettime_nsec_np(CLOCK_UPTIME_RAW), __PRETTY_FUNCTION__);
-}
-
 @synthesize key = _key;
 @synthesize allowNotFound = _allowNotFound;
 
@@ -379,11 +359,6 @@ SentryCrashReportFilterConcatenate ()
 @end
 
 @implementation SentryCrashReportFilterConcatenate
-
-+ (void)load
-{
-    NSLog(@"%llu %s", clock_gettime_nsec_np(CLOCK_UPTIME_RAW), __PRETTY_FUNCTION__);
-}
 
 @synthesize separatorFmt = _separatorFmt;
 @synthesize keys = _keys;
@@ -451,11 +426,6 @@ SentryCrashReportFilterSubset ()
 
 @implementation SentryCrashReportFilterSubset
 
-+ (void)load
-{
-    NSLog(@"%llu %s", clock_gettime_nsec_np(CLOCK_UPTIME_RAW), __PRETTY_FUNCTION__);
-}
-
 @synthesize keyPaths = _keyPaths;
 
 + (SentryCrashReportFilterSubset *)filterWithKeys:(id)firstKeyPath, ...
@@ -513,11 +483,6 @@ SentryCrashReportFilterSubset ()
 
 @implementation SentryCrashReportFilterDataToString
 
-+ (void)load
-{
-    NSLog(@"%llu %s", clock_gettime_nsec_np(CLOCK_UPTIME_RAW), __PRETTY_FUNCTION__);
-}
-
 + (SentryCrashReportFilterDataToString *)filter
 {
     return [[self alloc] init];
@@ -538,11 +503,6 @@ SentryCrashReportFilterSubset ()
 @end
 
 @implementation SentryCrashReportFilterStringToData
-
-+ (void)load
-{
-    NSLog(@"%llu %s", clock_gettime_nsec_np(CLOCK_UPTIME_RAW), __PRETTY_FUNCTION__);
-}
 
 + (SentryCrashReportFilterStringToData *)filter
 {

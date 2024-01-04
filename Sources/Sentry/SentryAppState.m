@@ -5,11 +5,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation SentryAppState
 
-+ (void)load
-{
-    NSLog(@"%llu %s", clock_gettime_nsec_np(CLOCK_UPTIME_RAW), __PRETTY_FUNCTION__);
-}
-
 - (instancetype)initWithReleaseName:(NSString *)releaseName
                           osVersion:(NSString *)osVersion
                            vendorId:(NSString *)vendorId

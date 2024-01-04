@@ -14,11 +14,6 @@ static SentryLevel diagnosticLevel = kSentryLevelError;
 static SentryLogOutput *logOutput;
 static NSObject *logConfigureLock;
 
-+ (void)load
-{
-    NSLog(@"%llu %s", clock_gettime_nsec_np(CLOCK_UPTIME_RAW), __PRETTY_FUNCTION__);
-}
-
 + (void)initialize
 {
     logConfigureLock = [[NSObject alloc] init];

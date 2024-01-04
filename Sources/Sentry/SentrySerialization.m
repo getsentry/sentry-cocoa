@@ -16,11 +16,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation SentrySerialization
 
-+ (void)load
-{
-    NSLog(@"%llu %s", clock_gettime_nsec_np(CLOCK_UPTIME_RAW), __PRETTY_FUNCTION__);
-}
-
 + (NSData *_Nullable)dataWithJSONObject:(NSDictionary *)dictionary
 {
     if (![NSJSONSerialization isValidJSONObject:dictionary]) {

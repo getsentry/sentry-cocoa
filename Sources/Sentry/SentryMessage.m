@@ -7,11 +7,6 @@ const NSUInteger MAX_STRING_LENGTH = 8192;
 
 @implementation SentryMessage
 
-+ (void)load
-{
-    NSLog(@"%llu %s", clock_gettime_nsec_np(CLOCK_UPTIME_RAW), __PRETTY_FUNCTION__);
-}
-
 - (instancetype)initWithFormatted:(NSString *)formatted
 {
     if (self = [super init]) {

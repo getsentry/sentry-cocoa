@@ -35,11 +35,6 @@ parseBacktraceSymbolsFunctionName(const char *symbol)
 
 @implementation SentryProfilerMutableState
 
-+ (void)load
-{
-    NSLog(@"%llu %s", clock_gettime_nsec_np(CLOCK_UPTIME_RAW), __PRETTY_FUNCTION__);
-}
-
 - (instancetype)init
 {
     if (self = [super init]) {
@@ -59,11 +54,6 @@ parseBacktraceSymbolsFunctionName(const char *symbol)
 @implementation SentryProfilerState {
     SentryProfilerMutableState *_mutableState;
     std::mutex _lock;
-}
-
-+ (void)load
-{
-    NSLog(@"%llu %s", clock_gettime_nsec_np(CLOCK_UPTIME_RAW), __PRETTY_FUNCTION__);
 }
 
 - (instancetype)init

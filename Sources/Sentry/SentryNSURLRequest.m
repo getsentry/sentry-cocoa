@@ -25,11 +25,6 @@ SentryNSURLRequest ()
 
 @implementation SentryNSURLRequest
 
-+ (void)load
-{
-    NSLog(@"%llu %s", clock_gettime_nsec_np(CLOCK_UPTIME_RAW), __PRETTY_FUNCTION__);
-}
-
 - (_Nullable instancetype)initStoreRequestWithDsn:(SentryDsn *)dsn
                                          andEvent:(SentryEvent *)event
                                  didFailWithError:(NSError *_Nullable *_Nullable)error

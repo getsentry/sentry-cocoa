@@ -7,11 +7,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation SentryException
 
-+ (void)load
-{
-    NSLog(@"%llu %s", clock_gettime_nsec_np(CLOCK_UPTIME_RAW), __PRETTY_FUNCTION__);
-}
-
 - (instancetype)initWithValue:(NSString *)value type:(NSString *)type
 {
     self = [super init];

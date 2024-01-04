@@ -3,11 +3,6 @@
 
 @implementation SentryEnvelopeAttachmentHeader
 
-+ (void)load
-{
-    NSLog(@"%llu %s", clock_gettime_nsec_np(CLOCK_UPTIME_RAW), __PRETTY_FUNCTION__);
-}
-
 - (instancetype)initWithType:(NSString *)type length:(NSUInteger)length
 {
     if (self = [super initWithType:type length:length]) {

@@ -6,11 +6,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation SentryInAppLogic
 
-+ (void)load
-{
-    NSLog(@"%llu %s", clock_gettime_nsec_np(CLOCK_UPTIME_RAW), __PRETTY_FUNCTION__);
-}
-
 - (instancetype)initWithInAppIncludes:(NSArray<NSString *> *)inAppIncludes
                         inAppExcludes:(NSArray<NSString *> *)inAppExcludes
 {

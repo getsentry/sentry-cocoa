@@ -7,11 +7,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation SentryStacktrace
 
-+ (void)load
-{
-    NSLog(@"%llu %s", clock_gettime_nsec_np(CLOCK_UPTIME_RAW), __PRETTY_FUNCTION__);
-}
-
 - (instancetype)initWithFrames:(NSArray<SentryFrame *> *)frames
                      registers:(NSDictionary<NSString *, NSString *> *)registers
 {

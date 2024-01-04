@@ -178,11 +178,6 @@ removeObjectForKeyPath(id container, NSString *keyPath)
 @implementation
 NSDictionary (DeepSearch)
 
-+ (void)load
-{
-    NSLog(@"%llu %s", clock_gettime_nsec_np(CLOCK_UPTIME_RAW), __PRETTY_FUNCTION__);
-}
-
 - (id)sentry_objectForDeepKey:(NSArray *)deepKey
 {
     return objectForDeepKey(self, deepKey);
@@ -220,11 +215,6 @@ NSDictionary (DeepSearch)
 @implementation
 NSArray (DeepSearch)
 
-+ (void)load
-{
-    NSLog(@"%llu %s", clock_gettime_nsec_np(CLOCK_UPTIME_RAW), __PRETTY_FUNCTION__);
-}
-
 - (id)sentry_objectForDeepKey:(NSArray *)deepKey
 {
     return objectForDeepKey(self, deepKey);
@@ -260,9 +250,4 @@ NSArray (DeepSearch)
 @interface sentrycrashobjc_DeepSearchP5EM1B9 : SENTRY_BASE_OBJECT
 @end
 @implementation sentrycrashobjc_DeepSearchP5EM1B9
-
-+ (void)load
-{
-    NSLog(@"%llu %s", clock_gettime_nsec_np(CLOCK_UPTIME_RAW), __PRETTY_FUNCTION__);
-}
 @end

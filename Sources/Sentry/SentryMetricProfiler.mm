@@ -24,11 +24,6 @@
 @property (assign, nonatomic) uint64_t absoluteTimestamp;
 @end
 @implementation SentryMetricReading
-
-+ (void)load
-{
-    NSLog(@"%llu %s", clock_gettime_nsec_np(CLOCK_UPTIME_RAW), __PRETTY_FUNCTION__);
-}
 @end
 
 NSString *const kSentryMetricProfilerSerializationKeyMemoryFootprint = @"memory_footprint";
@@ -89,11 +84,6 @@ SentrySerializedMetricEntry *_Nullable serializeValuesWithNormalizedTime(
 
     NSNumber *previousEnergyReading;
     NSMutableArray<SentryMetricReading *> *_cpuEnergyUsage;
-}
-
-+ (void)load
-{
-    NSLog(@"%llu %s", clock_gettime_nsec_np(CLOCK_UPTIME_RAW), __PRETTY_FUNCTION__);
 }
 
 - (instancetype)init

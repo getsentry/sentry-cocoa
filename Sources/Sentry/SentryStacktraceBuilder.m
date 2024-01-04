@@ -21,11 +21,6 @@ SentryStacktraceBuilder ()
 
 @implementation SentryStacktraceBuilder
 
-+ (void)load
-{
-    NSLog(@"%llu %s", clock_gettime_nsec_np(CLOCK_UPTIME_RAW), __PRETTY_FUNCTION__);
-}
-
 - (id)initWithCrashStackEntryMapper:(SentryCrashStackEntryMapper *)crashStackEntryMapper
 {
     if (self = [super init]) {

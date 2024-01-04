@@ -10,11 +10,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation SentryMigrateSessionInit
 
-+ (void)load
-{
-    NSLog(@"%llu %s", clock_gettime_nsec_np(CLOCK_UPTIME_RAW), __PRETTY_FUNCTION__);
-}
-
 + (BOOL)migrateSessionInit:(SentryEnvelope *)envelope
           envelopesDirPath:(NSString *)envelopesDirPath
          envelopeFilePaths:(NSArray<NSString *> *)envelopeFilePaths;

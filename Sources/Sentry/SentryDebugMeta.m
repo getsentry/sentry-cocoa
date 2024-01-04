@@ -4,11 +4,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation SentryDebugMeta
 
-+ (void)load
-{
-    NSLog(@"%llu %s", clock_gettime_nsec_np(CLOCK_UPTIME_RAW), __PRETTY_FUNCTION__);
-}
-
 - (instancetype)init
 {
     return [super init];

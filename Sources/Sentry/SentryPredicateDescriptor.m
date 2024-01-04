@@ -2,11 +2,6 @@
 
 @implementation SentryPredicateDescriptor
 
-+ (void)load
-{
-    NSLog(@"%llu %s", clock_gettime_nsec_np(CLOCK_UPTIME_RAW), __PRETTY_FUNCTION__);
-}
-
 - (NSString *)predicateDescription:(NSPredicate *)predicate
 {
     if ([predicate isKindOfClass:[NSCompoundPredicate class]]) {

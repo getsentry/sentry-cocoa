@@ -57,11 +57,6 @@ SentryHub ()
     NSObject *_integrationsLock;
 }
 
-+ (void)load
-{
-    NSLog(@"%llu %s", clock_gettime_nsec_np(CLOCK_UPTIME_RAW), __PRETTY_FUNCTION__);
-}
-
 - (instancetype)initWithClient:(nullable SentryClient *)client
                       andScope:(nullable SentryScope *)scope
 {

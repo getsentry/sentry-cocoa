@@ -6,11 +6,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation SentryGeo
 
-+ (void)load
-{
-    NSLog(@"%llu %s", clock_gettime_nsec_np(CLOCK_UPTIME_RAW), __PRETTY_FUNCTION__);
-}
-
 - (id)copyWithZone:(nullable NSZone *)zone
 {
     SentryGeo *copy = [[[self class] allocWithZone:zone] init];
