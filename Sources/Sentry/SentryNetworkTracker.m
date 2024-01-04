@@ -239,11 +239,11 @@ SentryNetworkTracker ()
     NSString *baggageHeader = @"";
 
     if (baggage != nil) {
-        NSDictionary* originalBaggage = [SentrySerialization decodeBaggage:sessionTask.currentRequest
-            .allHTTPHeaderFields[SENTRY_BAGGAGE_HEADER]];
-        
+        NSDictionary *originalBaggage = [SentrySerialization
+            decodeBaggage:sessionTask.currentRequest.allHTTPHeaderFields[SENTRY_BAGGAGE_HEADER]];
+
         if (originalBaggage[@"sentry-trace_id"] == nil) {
-            baggageHeader = [baggage toHTTPHeaderWithOriginalBaggage: originalBaggage];
+            baggageHeader = [baggage toHTTPHeaderWithOriginalBaggage:originalBaggage];
         }
     }
 
@@ -252,7 +252,7 @@ SentryNetworkTracker ()
     // header.
     if ([sessionTask.currentRequest isKindOfClass:[NSMutableURLRequest class]]) {
         NSMutableURLRequest *currentRequest = (NSMutableURLRequest *)sessionTask.currentRequest;
-        
+
         if ([currentRequest valueForHTTPHeaderField:SENTRY_TRACE_HEADER] == nil) {
             [currentRequest setValue:traceHeader.value forHTTPHeaderField:SENTRY_TRACE_HEADER];
         }
