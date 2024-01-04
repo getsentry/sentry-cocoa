@@ -18,6 +18,11 @@ on:
       - Gemfile.lock
       - 'Package.swift'
 
+# https://docs.github.com/en/actions/using-jobs/using-concurrency#example-using-a-fallback-value
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
 jobs:
   # We had issues that the release build was broken on main.
   # With this we catch potential issues already in the PR.
