@@ -7,6 +7,7 @@
 #import "SentryClient+Private.h"
 #import "SentryCrash.h"
 #import "SentryCrashWrapper.h"
+#import "SentryCurrentDateProvider.h"
 #import "SentryDependencyContainer.h"
 #import "SentryDispatchQueueWrapper.h"
 #import "SentryFileManager.h"
@@ -42,6 +43,7 @@ static NSObject *sentrySDKappStartMeasurementLock;
  * reenable the integrations.
  */
 static NSUInteger startInvocations;
+static NSDate *_Nullable startTimestamp = nil;
 
 + (void)initialize
 {
@@ -135,6 +137,22 @@ static NSUInteger startInvocations;
     startInvocations = value;
 }
 
+/**
+ * Not public, only for internal use.
+ */
++ (nullable NSDate *)startTimestamp
+{
+    return startTimestamp;
+}
+
+/**
+ * Only needed for testing.
+ */
++ (void)setStartTimestamp:(NSDate *)value
+{
+    startTimestamp = value;
+}
+
 + (void)startWithOptions:(SentryOptions *)options
 {
     [SentryLog configure:options.debug diagnosticLevel:options.diagnosticLevel];
@@ -145,6 +163,7 @@ static NSUInteger startInvocations;
     SENTRY_LOG_DEBUG(@"Starting SDK...");
 
     startInvocations++;
+    startTimestamp = [SentryDependencyContainer.sharedInstance.dateProvider date];
 
     SentryClient *newClient = [[SentryClient alloc] initWithOptions:options];
     [newClient.fileManager moveAppStateToPreviousAppState];
@@ -401,6 +420,8 @@ static NSUInteger startInvocations;
 + (void)close
 {
     SENTRY_LOG_DEBUG(@"Starting to close SDK.");
+
+    startTimestamp = nil;
 
     SentryHub *hub = SentrySDK.currentHub;
     [hub removeAllIntegrations];
