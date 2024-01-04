@@ -92,7 +92,7 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
     func testPerformanceV2_UsesRenderedFrameAsEndTimeStamp() {
         fixture.enablePerformanceV2 = true
         
-        startApp()
+        startApp(callDisplayLink: true)
         
         assertValidStart(type: .cold, expectedDuration: 0.45)
     }
@@ -100,7 +100,7 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
     func testPerformanceV2_RemovesFramesTrackerListener() {
         fixture.enablePerformanceV2 = true
         
-        startApp()
+        startApp(callDisplayLink: true)
         
         advanceTime(bySeconds: 0.05)
         fixture.displayLinkWrapper.normalFrame()
