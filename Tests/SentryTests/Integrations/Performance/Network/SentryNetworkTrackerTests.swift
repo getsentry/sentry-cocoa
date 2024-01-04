@@ -571,7 +571,7 @@ class SentryNetworkTrackerTests: XCTestCase {
     
     func testDontOverrideBaggageHeader() {
         let sut = fixture.getSut()
-        let task = createDataTask() {
+        let task = createDataTask {
             var request = $0
             request.setValue("sentry-trace_id=something", forHTTPHeaderField: "baggage")
             return request
@@ -595,7 +595,7 @@ class SentryNetworkTrackerTests: XCTestCase {
     
     func testDontOverrideTraceHeader() {
         let sut = fixture.getSut()
-        let task = createDataTask() {
+        let task = createDataTask {
             var request = $0
             request.setValue("test", forHTTPHeaderField: "sentry-trace")
             return request
@@ -921,7 +921,7 @@ class SentryNetworkTrackerTests: XCTestCase {
         XCTAssertEqual(duration, expectedDuration)
     }
     
-    func createDataTask(method: String = "GET", modifyRequest : ((URLRequest)->(URLRequest))? = nil) -> URLSessionDataTaskMock {
+    func createDataTask(method: String = "GET", modifyRequest: ((URLRequest) -> (URLRequest))? = nil) -> URLSessionDataTaskMock {
         var request = URLRequest(url: SentryNetworkTrackerTests.fullUrl)
         request.httpMethod = method
         if let modifyRequest {

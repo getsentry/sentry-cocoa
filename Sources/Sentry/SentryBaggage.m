@@ -38,7 +38,7 @@
 {
     NSMutableDictionary *information
         = originalBaggage.mutableCopy ?: [[NSMutableDictionary alloc] init];
-    
+
     [information setValue:_traceId.sentryIdString forKey:@"sentry-trace_id"];
     [information setValue:_publicKey forKey:@"sentry-public_key"];
 
