@@ -21,7 +21,7 @@ SentrySubClassFinder ()
 
 + (void)load
 {
-    printf("%llu %s\n", clock_gettime_nsec_np(CLOCK_UPTIME_RAW), __PRETTY_FUNCTION__);
+    NSLog(@"%llu %s", clock_gettime_nsec_np(CLOCK_UPTIME_RAW), __PRETTY_FUNCTION__);
 }
 
 - (instancetype)initWithDispatchQueue:(SentryDispatchQueueWrapper *)dispatchQueue

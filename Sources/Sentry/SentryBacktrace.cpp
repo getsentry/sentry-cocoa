@@ -106,7 +106,6 @@ namespace profiling {
         const std::shared_ptr<ThreadMetadataCache> &cache)
     {
         const auto pair = ThreadHandle::allExcludingCurrent();
-        printf("%llu: gathering next sample of backtraces\n", getAbsoluteTime());
         for (const auto &thread : pair.first) {
             Backtrace bt;
             // This one is probably safe to call while the thread is suspended, but
@@ -116,8 +115,6 @@ namespace profiling {
 
             // Log an empty stack for an idle thread, we don't need to walk the stack.
             if (thread->isIdle()) {
-                printf("%llu: thread %llu is idle, not walking stack\n", getAbsoluteTime(),
-                    thread->tid());
                 bt.threadMetadata.threadID = thread->tid();
                 bt.threadMetadata.priority = -1;
                 f(bt);

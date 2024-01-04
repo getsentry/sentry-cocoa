@@ -12,7 +12,7 @@ https://github.com/AFNetworking/AFNetworking/blob/4eaec5b586ddd897ebeda896e332a6
 
 + (void)load
 {
-    printf("%llu %s\n", clock_gettime_nsec_np(CLOCK_UPTIME_RAW), __PRETTY_FUNCTION__);
+    NSLog(@"%llu %s", clock_gettime_nsec_np(CLOCK_UPTIME_RAW), __PRETTY_FUNCTION__);
 }
 
 /**

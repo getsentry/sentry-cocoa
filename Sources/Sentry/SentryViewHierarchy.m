@@ -31,7 +31,7 @@ writeJSONDataToMemory(const char *const data, const int length, void *const user
 
 + (void)load
 {
-    printf("%llu %s\n", clock_gettime_nsec_np(CLOCK_UPTIME_RAW), __PRETTY_FUNCTION__);
+    NSLog(@"%llu %s", clock_gettime_nsec_np(CLOCK_UPTIME_RAW), __PRETTY_FUNCTION__);
 }
 
 - (BOOL)saveViewHierarchy:(NSString *)filePath

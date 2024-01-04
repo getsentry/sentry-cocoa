@@ -4,15 +4,15 @@ set -euo pipefail
 # To update the sha run the command in ACTUAL and copy the result in EXPECTED.
 
 ACTUAL=$(shasum -a 256 ./Sources/Sentry/SentryNSURLSessionTaskSearch.m ./Sources/Sentry/SentryNetworkTracker.m ./Sources/Sentry/SentryUIViewControllerSwizzling.m ./Sources/Sentry/SentryNSDataSwizzling.m ./Sources/Sentry/SentrySubClassFinder.m ./Sources/Sentry/SentryCoreDataSwizzling.m ./Sources/Sentry/SentrySwizzleWrapper.m ./Sources/Sentry/include/SentrySwizzle.h ./Sources/Sentry/SentrySwizzle.m)
-EXPECTED="d27b6ef94d0b4cabe592fe2ceeedaf85d2bd91f9b976cc52898cf7f1d9cb12e8  ./Sources/Sentry/SentryNSURLSessionTaskSearch.m
-8bbeac08099a0565b074f55734eba3808b121d465d481f7e904b5da4e29295d1  ./Sources/Sentry/SentryNetworkTracker.m
-55df7fb3b01775493e7626413e420944cad8fc1988403d283cf6a8750a039ebd  ./Sources/Sentry/SentryUIViewControllerSwizzling.m
-435cabc968874a15178fc28cf73f0256a480ae035a5001fb6ebeb545a713c3e6  ./Sources/Sentry/SentryNSDataSwizzling.m
-71323c65464c5f959d7f9b26b9ef713feb199864a008b646c515de55d688d13c  ./Sources/Sentry/SentrySubClassFinder.m
-aef2e11f9784138a712cb29b05bc98e59ae5aeefbcdc3af2705dc273bd658fb4  ./Sources/Sentry/SentryCoreDataSwizzling.m
-0bd685438c4f8405c4fc43bb83cf5ea52a9a811f9b9c56aa1f375c21b13e6eba  ./Sources/Sentry/SentrySwizzleWrapper.m
+EXPECTED="894bf150506dde6ad9b1dbb7439a2abe3960d702fc0c21775b33ed7dee1b43d5  ./Sources/Sentry/SentryNSURLSessionTaskSearch.m
+8ee3071726d3af38a96361d3066b8be12ef1f74f774d6292ee0acc240d9e53a4  ./Sources/Sentry/SentryNetworkTracker.m
+fba389d928c7237f532f27a3e6afc9ab31f4ddcee4faaf32756974d9bbb44014  ./Sources/Sentry/SentryUIViewControllerSwizzling.m
+9d64737c0bdb8be3f3dac151b6bdfef8dcee4c2cde9b8be02b31db7d4ff5b460  ./Sources/Sentry/SentryNSDataSwizzling.m
+15144d9891dcce34fe1fbc61d67c9cc6c858f914dd863b9311ef33637d501498  ./Sources/Sentry/SentrySubClassFinder.m
+7c4578dc1a015a6d574172a28791c79d53349e529391f8db11d3f375786b9f5a  ./Sources/Sentry/SentryCoreDataSwizzling.m
+f2ba2c472c074bf19aec141dc5b7f1a7f6f0cc9aeccdb8299d0aee3bf90f8125  ./Sources/Sentry/SentrySwizzleWrapper.m
 b1b9778dcdeea02377ed7ec6e2ea413c6ea23d72b142ef47c5aebb6824ba63e0  ./Sources/Sentry/include/SentrySwizzle.h
-6752c1cb757816df2817c75650bc85bed8ff906e43eeb3c0b6fed68762ed1aac  ./Sources/Sentry/SentrySwizzle.m"
+4e85f76b275c1765593f178a8b13fa5249d3740fcefcbd9bb3722d38165542b1  ./Sources/Sentry/SentrySwizzle.m"
 
 if [ "$ACTUAL" = "$EXPECTED" ]; then
     echo "No changes in high risk files."

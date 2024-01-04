@@ -37,7 +37,7 @@ parseBacktraceSymbolsFunctionName(const char *symbol)
 
 + (void)load
 {
-    printf("%llu %s\n", clock_gettime_nsec_np(CLOCK_UPTIME_RAW), __PRETTY_FUNCTION__);
+    NSLog(@"%llu %s", clock_gettime_nsec_np(CLOCK_UPTIME_RAW), __PRETTY_FUNCTION__);
 }
 
 - (instancetype)init
@@ -63,7 +63,7 @@ parseBacktraceSymbolsFunctionName(const char *symbol)
 
 + (void)load
 {
-    printf("%llu %s\n", clock_gettime_nsec_np(CLOCK_UPTIME_RAW), __PRETTY_FUNCTION__);
+    NSLog(@"%llu %s", clock_gettime_nsec_np(CLOCK_UPTIME_RAW), __PRETTY_FUNCTION__);
 }
 
 - (instancetype)init
@@ -118,15 +118,12 @@ parseBacktraceSymbolsFunctionName(const char *symbol)
 #    endif
 
         const auto stack = [NSMutableArray<NSNumber *> array];
-        printf("%llu Processing next stacktrace of size %zu\n",
-            clock_gettime_nsec_np(CLOCK_UPTIME_RAW), backtrace.addresses.size());
         for (std::vector<uintptr_t>::size_type backtraceAddressIdx = 0;
              backtraceAddressIdx < backtrace.addresses.size(); backtraceAddressIdx++) {
             const auto instructionAddress
                 = sentry_formatHexAddressUInt64(backtrace.addresses[backtraceAddressIdx]);
 
             const auto frameIndex = state.frameIndexLookup[instructionAddress];
-
             if (frameIndex == nil) {
                 const auto frame = [NSMutableDictionary<NSString *, id> dictionary];
                 frame[@"instruction_addr"] = instructionAddress;
@@ -139,7 +136,6 @@ parseBacktraceSymbolsFunctionName(const char *symbol)
                 state.frameIndexLookup[instructionAddress] = newFrameIndex;
                 [state.frames addObject:frame];
             } else {
-                printf("Already recorded function name; recording frame index\n");
                 [stack addObject:frameIndex];
             }
         }
