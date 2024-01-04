@@ -6,6 +6,7 @@
 
 - Add frames delay to transactions and spans (#3487, #3496)
 - Add slow and frozen frames to spans (#3450, #3478)
+- Split up UIKit and App Init App Start Span (#3534)
 - Prewarmed App Start Tracing is stable (#3536)
 
 ### Fixes

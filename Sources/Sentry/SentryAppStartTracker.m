@@ -216,6 +216,7 @@ SentryAppStartTracker () <SentryFramesTrackerListener>
                                                    duration:appStartDuration
                                        runtimeInitTimestamp:runtimeInit
                               moduleInitializationTimestamp:sysctl.moduleInitializationTimestamp
+                                          sdkStartTimestamp:SentrySDK.startTimestamp
                                 didFinishLaunchingTimestamp:self.didFinishLaunchingTimestamp];
 
         SentrySDK.appStartMeasurement = appStartMeasurement;

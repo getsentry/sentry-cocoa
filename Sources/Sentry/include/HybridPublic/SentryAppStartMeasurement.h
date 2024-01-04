@@ -26,6 +26,7 @@ SENTRY_NO_INIT
                          duration:(NSTimeInterval)duration
              runtimeInitTimestamp:(NSDate *)runtimeInitTimestamp
     moduleInitializationTimestamp:(NSDate *)moduleInitializationTimestamp
+                sdkStartTimestamp:(NSDate *)sdkStartTimestamp
       didFinishLaunchingTimestamp:(NSDate *)didFinishLaunchingTimestamp;
 
 /**
@@ -57,6 +58,11 @@ SENTRY_NO_INIT
  * When application main function is called.
  */
 @property (readonly, nonatomic, strong) NSDate *moduleInitializationTimestamp;
+
+/**
+ * When the SentrySDK start method is called.
+ */
+@property (readonly, nonatomic, strong) NSDate *sdkStartTimestamp;
 
 /**
  * When OS posts UIApplicationDidFinishLaunchingNotification.
