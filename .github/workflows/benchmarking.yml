@@ -20,6 +20,11 @@ on:
       - 'scripts/ci-select-xcode.sh'
       - 'scripts/set-device-tests-environment.patch'
 
+# https://docs.github.com/en/actions/using-jobs/using-concurrency#example-using-a-fallback-value
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
 jobs:
   build-benchmark-test-target:
     name: Build app and test runner
