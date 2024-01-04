@@ -15,6 +15,7 @@
     NSDate *_appStartTimestamp;
     NSDate *_runtimeInitTimestamp;
     NSDate *_moduleInitializationTimestamp;
+    NSDate *_sdkStartTimestamp;
     NSDate *_didFinishLaunchingTimestamp;
 }
 #    endif // SENTRY_HAS_UIKIT
@@ -25,6 +26,7 @@
                          duration:(NSTimeInterval)duration
              runtimeInitTimestamp:(NSDate *)runtimeInitTimestamp
     moduleInitializationTimestamp:(NSDate *)moduleInitializationTimestamp
+                sdkStartTimestamp:(NSDate *)sdkStartTimestamp
       didFinishLaunchingTimestamp:(NSDate *)didFinishLaunchingTimestamp
 {
 #    if SENTRY_HAS_UIKIT
@@ -35,6 +37,7 @@
         _duration = duration;
         _runtimeInitTimestamp = runtimeInitTimestamp;
         _moduleInitializationTimestamp = moduleInitializationTimestamp;
+        _sdkStartTimestamp = sdkStartTimestamp;
         _didFinishLaunchingTimestamp = didFinishLaunchingTimestamp;
     }
 
