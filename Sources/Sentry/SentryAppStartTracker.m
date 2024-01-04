@@ -120,7 +120,8 @@ SentryAppStartTracker () <SentryFramesTrackerListener>
                                              object:nil];
 
     if (PrivateSentrySDKOnly.appStartMeasurementHybridSDKMode) {
-        [self buildAppStartMeasurement];
+        [self
+            buildAppStartMeasurement:[SentryDependencyContainer.sharedInstance.dateProvider date]];
     }
 
 #    if SENTRY_HAS_UIKIT
@@ -130,7 +131,7 @@ SentryAppStartTracker () <SentryFramesTrackerListener>
     self.isRunning = YES;
 }
 
-- (void)buildAppStartMeasurement
+- (void)buildAppStartMeasurement:(NSDate *)appStartEnd
 {
     void (^block)(void) = ^(void) {
         [self stop];
@@ -181,12 +182,11 @@ SentryAppStartTracker () <SentryFramesTrackerListener>
         NSDate *appStartTimestamp;
         SentrySysctl *sysctl = SentryDependencyContainer.sharedInstance.sysctlWrapper;
         if (isPreWarmed) {
-            appStartDuration = [[SentryDependencyContainer.sharedInstance.dateProvider date]
-                timeIntervalSinceDate:sysctl.moduleInitializationTimestamp];
+            appStartDuration =
+                [appStartEnd timeIntervalSinceDate:sysctl.moduleInitializationTimestamp];
             appStartTimestamp = sysctl.moduleInitializationTimestamp;
         } else {
-            appStartDuration = [[SentryDependencyContainer.sharedInstance.dateProvider date]
-                timeIntervalSinceDate:sysctl.processStartTimestamp];
+            appStartDuration = [appStartEnd timeIntervalSinceDate:sysctl.processStartTimestamp];
             appStartTimestamp = sysctl.processStartTimestamp;
         }
 
@@ -240,16 +240,17 @@ SentryAppStartTracker () <SentryFramesTrackerListener>
 - (void)didBecomeVisible
 {
     if (!_enablePerformanceV2) {
-        [self buildAppStartMeasurement];
+        [self
+            buildAppStartMeasurement:[SentryDependencyContainer.sharedInstance.dateProvider date]];
     }
 }
 
 /**
  * This is when the first frame is drawn.
  */
-- (void)framesTrackerHasNewFrame
+- (void)framesTrackerHasNewFrame:(NSDate *)newFrameDate
 {
-    [self buildAppStartMeasurement];
+    [self buildAppStartMeasurement:newFrameDate];
 }
 
 - (SentryAppStartType)getStartType

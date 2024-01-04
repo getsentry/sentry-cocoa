@@ -16,7 +16,7 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
         let crashWrapper = TestSentryCrashWrapper.sharedInstance()
         let appStateManager: SentryAppStateManager
         var displayLinkWrapper = TestDisplayLinkWrapper()
-        var framesTracker: SentryFramesTracker
+        private let framesTracker: SentryFramesTracker
         let dispatchQueue = TestSentryDispatchQueueWrapper()
         var enablePreWarmedAppStartTracing = true
         var enablePerformanceV2 = false
@@ -46,7 +46,6 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
             )
             
             framesTracker = SentryFramesTracker(displayLinkWrapper: displayLinkWrapper, dateProvider: currentDate, keepDelayedFramesDuration: 0)
-            SentryDependencyContainer.sharedInstance().framesTracker = framesTracker
             framesTracker.start()
             
             runtimeInitTimestamp = SentryDependencyContainer.sharedInstance().dateProvider.date().addingTimeInterval(0.2)
@@ -93,7 +92,7 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
     func testPerformanceV2_UsesRenderedFrameAsEndTimeStamp() {
         fixture.enablePerformanceV2 = true
         
-        startApp()
+        startApp(callDisplayLink: true)
         
         assertValidStart(type: .cold, expectedDuration: 0.45)
     }
@@ -101,7 +100,7 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
     func testPerformanceV2_RemovesFramesTrackerListener() {
         fixture.enablePerformanceV2 = true
         
-        startApp()
+        startApp(callDisplayLink: true)
         
         advanceTime(bySeconds: 0.05)
         fixture.displayLinkWrapper.normalFrame()
@@ -358,7 +357,7 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
         advanceTime(bySeconds: 0.3)
     }
     
-    private func startApp(processStartTimeStamp: Date? = nil, runtimeInitTimestamp: Date? = nil, moduleInitializationTimestamp: Date? = nil) {
+    private func startApp(processStartTimeStamp: Date? = nil, runtimeInitTimestamp: Date? = nil, moduleInitializationTimestamp: Date? = nil, callDisplayLink: Bool = false) {
         givenProcessStartTimestamp(processStartTimestamp: processStartTimeStamp)
         
         sut = fixture.sut
@@ -375,8 +374,12 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
         uiWindowDidBecomeVisible()
         didBecomeActive()
         
-        advanceTime(bySeconds: 0.05)
-        fixture.displayLinkWrapper.normalFrame()
+        if callDisplayLink {
+            advanceTime(bySeconds: 0.05)
+            fixture.currentDate.driftTimeForEveryRead = true
+            fixture.displayLinkWrapper.normalFrame()
+            fixture.currentDate.driftTimeForEveryRead = false
+        }
     }
     
     private func hybridAppStart() {
