@@ -17,6 +17,7 @@
 - Use correct rendered frames timestamp for TTID/TTFD and app start (#3531)
 
 - Missing transactions when not calling `reportFullyDisplayed` (#3477)
+- Don't override `sentry-trace` and `baggage` headers ()
 
 ## 8.17.2
 
