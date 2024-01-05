@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Don't use main thread for app hang screenshot and view hierarchy (#3547)
+
 ## 8.18.0
 
 ### Features
