@@ -55,7 +55,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             options.sessionTrackingIntervalMillis = 5_000
             options.attachScreenshot = true
             options.attachViewHierarchy = true
+#if targetEnvironment(simulator)
             options.environment = "test-app"
+#else
+            options.environment = "device-tests"
+            options.enableWatchdogTerminationTracking = false // The UI tests generate false OOMs
+#endif
             options.enableTimeToFullDisplayTracing = true
             options.enablePerformanceV2 = true
             

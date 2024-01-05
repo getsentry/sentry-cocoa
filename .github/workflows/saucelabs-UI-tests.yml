@@ -11,7 +11,6 @@ on:
       - '.github/workflows/saucelabs-UI-tests.yml'
       - 'fastlane/**'
       - '.sauce/config.yml'
-      - 'scripts/set-device-tests-environment.patch'
       - 'scripts/ci-select-xcode.sh'
 
       # run the workflow any time an Xcode scheme changes for one of the sample apps with a UI test suite we run in saucelabs
@@ -45,7 +44,6 @@ jobs:
           bundler-cache: true
       - name: Install SentryCli
         run: brew install getsentry/tools/sentry-cli
-      - run: git apply ./scripts/set-device-tests-environment.patch
       - name: Cache iOS-Swift App and dSYM build products
         id: ios-swift-cache
         uses: actions/cache@v3
