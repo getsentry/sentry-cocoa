@@ -69,6 +69,19 @@ class SentryFramesTrackerTests: XCTestCase {
         expect(self.fixture.sut.isRunning) == false
     }
     
+    func testRestFrames_WhenStopped() throws {
+        let sut = fixture.sut
+        sut.start()
+        
+        let displayLink = fixture.displayLinkWrapper
+        displayLink.call()
+        displayLink.normalFrame()
+        
+        sut.stop()
+        
+        try assert(slow: 0, frozen: 0, total: 0)
+    }
+    
     func testStartAfterStopped_SubscribesTwiceToDisplayLink() {
         let sut = fixture.sut
         sut.start()
@@ -549,6 +562,22 @@ class SentryFramesTrackerTests: XCTestCase {
         fixture.displayLinkWrapper.normalFrame()
 
         expect(listener.newFrameInvocations.count) == 0
+    }
+    
+    func testListenerNotCalledAfterCallingStop() {
+        let sut = fixture.sut
+        let listener1 = FrameTrackerListener()
+        let listener2 = FrameTrackerListener()
+        sut.start()
+        sut.add(listener1)
+        sut.stop()
+        sut.start()
+        sut.add(listener2)
+
+        fixture.displayLinkWrapper.normalFrame()
+
+        expect(listener1.newFrameInvocations.count) == 0
+        expect(listener2.newFrameInvocations.count) == 1
     }
 
     func testReleasedListener() {
