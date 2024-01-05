@@ -83,7 +83,6 @@ slowFrameThreshold(uint64_t actualFramesPerSecond)
     _displayLinkWrapper = displayLinkWrapper;
 }
 
-/** Internal for testing */
 - (void)resetFrames
 {
     _totalFrames = 0;
@@ -277,6 +276,9 @@ slowFrameThreshold(uint64_t actualFramesPerSecond)
     _isRunning = NO;
     [self.displayLinkWrapper invalidate];
     [self.delayedFramesTracker resetDelayedFramesTimeStamps];
+    @synchronized(self.listeners) {
+        [self.listeners removeAllObjects];
+    }
 }
 
 - (void)dealloc

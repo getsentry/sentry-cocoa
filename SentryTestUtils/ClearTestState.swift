@@ -26,9 +26,6 @@ class TestCleanup: NSObject {
         setTestDefaultLogLevel()
 
         #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
-        let framesTracker = SentryDependencyContainer.sharedInstance().framesTracker
-        framesTracker.stop()
-        framesTracker.resetFrames()
 
         setenv("ActivePrewarm", "0", 1)
         SentryAppStartTracker.load()

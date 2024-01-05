@@ -29,7 +29,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             options.profilesSampleRate = 1.0
             options.attachScreenshot = true
             options.attachViewHierarchy = true
-            options.environment = "test-app"
             options.enableTimeToFullDisplayTracing = true
             options.enablePerformanceV2 = true
             
@@ -65,7 +64,16 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             }
             
             options.initialScope = { scope in
-                scope.setEnvironment("debug")
+                let processInfoEnvironment = ProcessInfo.processInfo.environment["io.sentry.sdk-environment"]
+                
+                if processInfoEnvironment != nil {
+                    scope.setEnvironment(processInfoEnvironment)
+                } else if isBenchmarking {
+                    scope.setEnvironment("benchmarking")
+                } else {
+                    scope.setEnvironment("debug")
+                }
+                
                 scope.setTag(value: "swift", key: "language")
                
                 let user = User(userId: "1")

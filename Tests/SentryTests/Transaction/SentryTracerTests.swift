@@ -26,6 +26,7 @@ class SentryTracerTests: XCTestCase {
         let hub: TestHub
         let scope: Scope
         let dispatchQueue = TestSentryDispatchQueueWrapper()
+        let debugImageProvider = TestDebugImageProvider()
         let timerFactory = TestSentryNSTimerFactory()
         
         let transactionName = "Some Transaction"
@@ -53,6 +54,9 @@ class SentryTracerTests: XCTestCase {
 
             SentryDependencyContainer.sharedInstance().dateProvider = currentDateProvider
             SentryDependencyContainer.sharedInstance().dispatchQueueWrapper = dispatchQueue
+            
+            debugImageProvider.debugImages = [TestData.debugImage]
+            SentryDependencyContainer.sharedInstance().debugImageProvider = debugImageProvider
             appStart = currentDateProvider.date()
             appStartEnd = appStart.addingTimeInterval(appStartDuration)
             
@@ -864,6 +868,28 @@ class SentryTracerTests: XCTestCase {
         sut.finish()
         
         assertAppStartMeasurementNotPutOnTransaction()
+    }
+    
+    func testAppStartTransaction_AddsDebugMeta() {
+        let appStartMeasurement = fixture.getAppStartMeasurement(type: .cold)
+        SentrySDK.setAppStartMeasurement(appStartMeasurement)
+
+        whenFinishingAutoUITransaction(startTimestamp: 5)
+        
+        expect(self.fixture.hub.capturedEventsWithScopes.count) == 1
+        let serializedTransaction = fixture.hub.capturedEventsWithScopes.first?.event.serialize()
+        
+        let debugMeta = serializedTransaction?["debug_meta"] as? [String: Any]
+        expect(debugMeta?.count) == fixture.debugImageProvider.getDebugImagesCrashed(false).count
+    }
+    
+    func testNoAppStartTransaction_AddsNoDebugMeta() {
+        whenFinishingAutoUITransaction(startTimestamp: 5)
+        
+        expect(self.fixture.hub.capturedEventsWithScopes.count) == 1
+        let serializedTransaction = fixture.hub.capturedEventsWithScopes.first?.event.serialize()
+        
+        expect(serializedTransaction?["debug_meta"]) == nil
     }
 
 #endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
