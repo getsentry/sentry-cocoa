@@ -34,11 +34,6 @@
     return self;
 }
 
-- (NSString *)toHTTPHeader
-{
-    return [self toHTTPHeaderWithOriginalBaggage:nil];
-}
-
 - (NSString *)toHTTPHeaderWithOriginalBaggage:(NSDictionary *_Nullable)originalBaggage
 {
     NSMutableDictionary *information

@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+- Send debug meta for app start transactions (#3543)
+
 ## 8.18.0
 
 ### Features
@@ -19,6 +25,7 @@
 - Use correct rendered frames timestamp for TTID/TTFD and app start (#3531)
 
 - Missing transactions when not calling `reportFullyDisplayed` (#3477)
+- Don't override `sentry-trace` and `baggage` headers (#3540)
 
 ## 8.17.2
 

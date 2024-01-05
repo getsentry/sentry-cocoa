@@ -71,6 +71,7 @@ SentryTracer ()
 @property (nonatomic, nullable, strong) NSTimer *deadlineTimer;
 @property (nonnull, strong) SentryTracerConfiguration *configuration;
 @property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueue;
+@property (nonatomic, strong) SentryDebugImageProvider *debugImageProvider;
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 @property (nonatomic) BOOL isProfiling;
@@ -134,6 +135,7 @@ static BOOL appStartMeasurementRead;
     _startSystemTime = SentryDependencyContainer.sharedInstance.dateProvider.systemTime;
     _configuration = configuration;
     _dispatchQueue = SentryDependencyContainer.sharedInstance.dispatchQueueWrapper;
+    _debugImageProvider = SentryDependencyContainer.sharedInstance.debugImageProvider;
 
     self.transactionContext = transactionContext;
     _children = [[NSMutableArray alloc] init];
@@ -751,6 +753,10 @@ static BOOL appStartMeasurementRead;
             NSDictionary *appContext = @{ @"app" : @ { @"start_type" : appStartType } };
             [context mergeEntriesFromDictionary:appContext];
             [transaction setContext:context];
+
+            // The backend calculates statistics on the number and size of debug images for app
+            // start transactions. Therefore, we add all debug images here.
+            transaction.debugMeta = [self.debugImageProvider getDebugImagesCrashed:NO];
         }
     }
 }
