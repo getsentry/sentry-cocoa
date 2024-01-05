@@ -9,6 +9,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+static BOOL _appIsHanging = NO;
+
 typedef NS_ENUM(NSInteger, SentryANRTrackerState) {
     kSentryANRTrackerNotRunning = 1,
     kSentryANRTrackerRunning,
@@ -138,6 +140,8 @@ SentryANRTracker ()
 
 - (void)ANRDetected
 {
+    _appIsHanging = YES;
+
     NSArray *localListeners;
     @synchronized(self.listeners) {
         localListeners = [self.listeners allObjects];
@@ -150,6 +154,7 @@ SentryANRTracker ()
 
 - (void)ANRStopped
 {
+    _appIsHanging = NO;
     NSArray *targets;
     @synchronized(self.listeners) {
         targets = [self.listeners allObjects];
@@ -203,6 +208,11 @@ SentryANRTracker ()
         SENTRY_LOG_INFO(@"Stopping ANR detection");
         state = kSentryANRTrackerStopping;
     }
+}
+
++ (BOOL)appIsHanging
+{
+    return _appIsHanging;
 }
 
 @end

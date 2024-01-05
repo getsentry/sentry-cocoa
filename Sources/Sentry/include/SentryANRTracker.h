@@ -22,6 +22,8 @@ NS_ASSUME_NONNULL_BEGIN
 @interface SentryANRTracker : NSObject
 SENTRY_NO_INIT
 
+@property (nonatomic, readonly, class) BOOL appIsHanging;
+
 - (instancetype)initWithTimeoutInterval:(NSTimeInterval)timeoutInterval
                            crashWrapper:(SentryCrashWrapper *)crashWrapper
                    dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper

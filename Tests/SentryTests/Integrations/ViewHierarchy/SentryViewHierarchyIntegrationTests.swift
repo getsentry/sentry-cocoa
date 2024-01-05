@@ -123,6 +123,32 @@ class SentryViewHierarchyIntegrationTests: XCTestCase {
         XCTAssertEqual(newAttachmentList?.count, 1)
         XCTAssertEqual(newAttachmentList?.first, attachment)
     }
+    
+    func test_backgroundForAppHangs() {
+        let sut = fixture.getSut()
+        let testVH = TestSentryViewHierarchy()
+        SentryDependencyContainer.sharedInstance().viewHierarchy = testVH
+        
+        let event = Event()
+        event.exceptions = [Sentry.Exception(value: "test", type: "App Hanging")]
+
+        var newAttachmentList: [Attachment]?
+        
+        let ex = expectation(description: "Attachment Added")
+        
+        testVH.processViewHierarchyCallback = {
+            ex.fulfill()
+            XCTAssertFalse(Thread.isMainThread)
+        }
+        
+        let dispatch = DispatchQueue(label: "background")
+        dispatch.async {
+            newAttachmentList = sut.processAttachments([], for: event)
+        }
+        
+        wait(for: [ex], timeout: 1)
+        XCTAssertEqual(newAttachmentList?.count, 1)
+    }
 }
 
 #endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)

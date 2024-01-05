@@ -5,6 +5,7 @@
 #    import "SentryCrashFileUtils.h"
 #    import "SentryCrashJSONCodec.h"
 #    import "SentryDependencyContainer.h"
+#    import "SentryDispatchQueueWrapper.h"
 #    import "SentryLog.h"
 #    import "SentryUIApplication.h"
 #    import <UIKit/UIKit.h>
@@ -46,26 +47,28 @@ writeJSONDataToMemory(const char *const data, const int length, void *const user
     return result;
 }
 
+- (NSData *)appViewHierarchy
+{
+    __block NSData *result;
+
+    void (^fetchViewHierarchy)(void) = ^{ result = [self fetchViewHierarchy]; };
+
+    [[SentryDependencyContainer sharedInstance].dispatchQueueWrapper
+        dispatchSyncOnMainQueue:fetchViewHierarchy];
+
+    return result;
+}
+
 - (NSData *)fetchViewHierarchy
 {
-    __block NSMutableData *result = [[NSMutableData alloc] init];
+    NSMutableData *result = [[NSMutableData alloc] init];
+    NSArray<UIWindow *> *windows = [SentryDependencyContainer.sharedInstance.application windows];
 
-    void (^save)(void) = ^{
-        NSArray<UIWindow *> *windows =
-            [SentryDependencyContainer.sharedInstance.application windows];
+    if (![self processViewHierarchy:windows
+                        addFunction:writeJSONDataToMemory
+                           userData:(__bridge void *)(result)]) {
 
-        if (![self processViewHierarchy:windows
-                            addFunction:writeJSONDataToMemory
-                               userData:(__bridge void *)(result)]) {
-
-            result = nil;
-        }
-    };
-
-    if ([NSThread isMainThread]) {
-        save();
-    } else {
-        dispatch_sync(dispatch_get_main_queue(), save);
+        result = nil;
     }
 
     return result;

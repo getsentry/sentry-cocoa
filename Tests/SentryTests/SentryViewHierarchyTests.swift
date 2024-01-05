@@ -169,7 +169,7 @@ class SentryViewHierarchyTests: XCTestCase {
         XCTAssertNil(result)
     }
 
-    func test_fetchFromBackgroundTest() {
+    func test_appViewHierarchyFromBackgroundTest() {
         let sut = TestSentryViewHierarchy()
         let window = UIWindow(frame: CGRect(x: 0, y: 0, width: 10, height: 10))
         fixture.uiApplication.windows = [window]
@@ -182,13 +182,13 @@ class SentryViewHierarchyTests: XCTestCase {
 
         let dispatch = DispatchQueue(label: "background")
         dispatch.async {
-            let _ = sut.fetch()
+            let _ = sut.appViewHierarchy()
         }
 
         wait(for: [ex], timeout: 1)
     }
 
-    func test_fetch_usesMainThread() {
+    func test_appViewHierarchy_usesMainThread() {
         let sut = TestSentryViewHierarchy()
         let window = UIWindow(frame: CGRect(x: 0, y: 0, width: 10, height: 10))
         fixture.uiApplication.windows = [window]
@@ -196,7 +196,7 @@ class SentryViewHierarchyTests: XCTestCase {
         let ex = expectation(description: "Running on background Thread")
         let dispatch = DispatchQueue(label: "background")
         dispatch.async {
-            let _ = sut.fetch()
+            let _ = sut.appViewHierarchy()
             ex.fulfill()
         }
 

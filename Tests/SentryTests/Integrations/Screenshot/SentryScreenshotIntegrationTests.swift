@@ -171,6 +171,29 @@ class SentryScreenshotIntegrationTests: XCTestCase {
         
     }
     
+    func test_backgroundForAppHangs() {
+        let sut = fixture.getSut()
+        let testVH = TestSentryScreenshot()
+        SentryDependencyContainer.sharedInstance().screenshot = testVH
+        
+        let event = Event()
+        event.exceptions = [Sentry.Exception(value: "test", type: "App Hanging")]
+
+        let ex = expectation(description: "Attachment Added")
+        
+        testVH.processViewHierarchyCallback = {
+            ex.fulfill()
+            XCTAssertFalse(Thread.isMainThread)
+        }
+        
+        let dispatch = DispatchQueue(label: "background")
+        dispatch.async {
+            sut.processAttachments([], for: event)
+        }
+        
+        wait(for: [ex], timeout: 1)
+    }
+    
 }
 
 #endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
