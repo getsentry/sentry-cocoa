@@ -276,7 +276,6 @@ slowFrameThreshold(uint64_t actualFramesPerSecond)
     _isRunning = NO;
     [self.displayLinkWrapper invalidate];
     [self.delayedFramesTracker resetDelayedFramesTimeStamps];
-    [self resetFrames];
     @synchronized(self.listeners) {
         [self.listeners removeAllObjects];
     }

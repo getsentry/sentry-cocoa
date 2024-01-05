@@ -69,7 +69,7 @@ class SentryFramesTrackerTests: XCTestCase {
         expect(self.fixture.sut.isRunning) == false
     }
     
-    func testRestFrames_WhenStopped() throws {
+    func testKeepFrames_WhenStopped() throws {
         let sut = fixture.sut
         sut.start()
         
@@ -79,7 +79,7 @@ class SentryFramesTrackerTests: XCTestCase {
         
         sut.stop()
         
-        try assert(slow: 0, frozen: 0, total: 0)
+        try assert(slow: 0, frozen: 0, total: 1)
     }
     
     func testStartAfterStopped_SubscribesTwiceToDisplayLink() {
@@ -646,13 +646,13 @@ private extension SentryFramesTrackerTests {
     func assert(slow: UInt? = nil, frozen: UInt? = nil, total: UInt? = nil, frameRates: UInt? = nil) throws {
         let currentFrames = fixture.sut.currentFrames
         if let total = total {
-            XCTAssertEqual(total, currentFrames.total)
+            expect(currentFrames.total) == total
         }
         if let slow = slow {
-            XCTAssertEqual(slow, currentFrames.slow)
+            expect(currentFrames.slow) == slow
         }
         if let frozen = frozen {
-            XCTAssertEqual(frozen, currentFrames.frozen)
+            expect(currentFrames.frozen) == frozen
         }
 
 #if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
