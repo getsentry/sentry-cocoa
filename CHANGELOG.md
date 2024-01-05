@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+- Send debug meta for app start transactions (#3543)
+
 ## 8.18.0
 
 ### Features
