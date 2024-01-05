@@ -51,9 +51,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                     return NSNumber(value: (profilesSamplerValue as NSString).integerValue)
                 }
             }
-            
-            options.profileAppLaunches = args.contains("--io.sentry.test.profilesAppLaunches")
-            
+                        
             options.sessionTrackingIntervalMillis = 5_000
             options.attachScreenshot = true
             options.attachViewHierarchy = true
