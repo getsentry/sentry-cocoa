@@ -20,13 +20,41 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 return event
             }
             options.debug = true
+            
             if #available(iOS 15.0, *) {
                 options.enableMetricKit = true
             }
-            // Sampling 100% - In Production you probably want to adjust this
-            options.tracesSampleRate = 1.0
+            
+            let args = ProcessInfo.processInfo.arguments
+            let env = ProcessInfo.processInfo.environment
+            
+            var tracesSampleRate: NSNumber = 1
+            if let tracesSampleRateOverride = env["--io.sentry.tracesSampleRate"] {
+               tracesSampleRate = NSNumber(value: (tracesSampleRateOverride as NSString).integerValue)
+            }
+            options.tracesSampleRate = tracesSampleRate
+            
+            if let tracesSamplerValue = env["--io.sentry.tracersSamplerValue"] {
+                options.tracesSampler = { _ in
+                    return NSNumber(value: (tracesSamplerValue as NSString).integerValue)
+                }
+            }
+            
+            var profilesSampleRate: NSNumber = 1
+            if let profilesSampleRateOverride = env["--io.sentry.profilesSampleRate"] {
+               profilesSampleRate = NSNumber(value: (profilesSampleRateOverride as NSString).integerValue)
+            }
+            options.profilesSampleRate = profilesSampleRate
+            
+            if let profilesSamplerValue = env["--io.sentry.profilesSamplerValue"] {
+                options.profilesSampler = { _ in
+                    return NSNumber(value: (profilesSamplerValue as NSString).integerValue)
+                }
+            }
+            
+            options.profileAppLaunches = args.contains("--io.sentry.test.profilesAppLaunches")
+            
             options.sessionTrackingIntervalMillis = 5_000
-            options.profilesSampleRate = 1.0
             options.attachScreenshot = true
             options.attachViewHierarchy = true
             options.environment = "test-app"
@@ -35,24 +63,24 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             
             options.add(inAppInclude: "iOS_External")
 
-            let isBenchmarking = ProcessInfo.processInfo.arguments.contains("--io.sentry.test.benchmarking")
+            let isBenchmarking = args.contains("--io.sentry.test.benchmarking")
 
             // the benchmark test starts and stops a custom transaction using a UIButton, and automatic user interaction tracing stops the transaction that begins with that button press after the idle timeout elapses, stopping the profiler (only one profiler runs regardless of the number of concurrent transactions)
-            options.enableUserInteractionTracing = !isBenchmarking && !ProcessInfo.processInfo.arguments.contains("--disable-ui-tracing")
-            options.enableAutoPerformanceTracing = !isBenchmarking && !ProcessInfo.processInfo.arguments.contains("--disable-auto-performance-tracing")
+            options.enableUserInteractionTracing = !isBenchmarking && !args.contains("--disable-ui-tracing")
+            options.enableAutoPerformanceTracing = !isBenchmarking && !args.contains("--disable-auto-performance-tracing")
             options.enablePreWarmedAppStartTracing = !isBenchmarking
 
-            options.enableFileIOTracing = !ProcessInfo.processInfo.arguments.contains("--disable-file-io-tracing")
-            options.enableAutoBreadcrumbTracking = !ProcessInfo.processInfo.arguments.contains("--disable-automatic-breadcrumbs")
-            options.enableUIViewControllerTracing = !ProcessInfo.processInfo.arguments.contains("--disable-uiviewcontroller-tracing")
-            options.enableNetworkTracking = !ProcessInfo.processInfo.arguments.contains("--disable-network-tracking")
-            options.enableCoreDataTracing = !ProcessInfo.processInfo.arguments.contains("--disable-core-data-tracing")
-            options.enableNetworkBreadcrumbs = !ProcessInfo.processInfo.arguments.contains("--disable-network-breadcrumbs")
-            options.enableSwizzling = !ProcessInfo.processInfo.arguments.contains("--disable-swizzling")
-            options.enableCrashHandler = !ProcessInfo.processInfo.arguments.contains("--disable-crash-handler")
+            options.enableFileIOTracing = !args.contains("--disable-file-io-tracing")
+            options.enableAutoBreadcrumbTracking = !args.contains("--disable-automatic-breadcrumbs")
+            options.enableUIViewControllerTracing = !args.contains("--disable-uiviewcontroller-tracing")
+            options.enableNetworkTracking = !args.contains("--disable-network-tracking")
+            options.enableCoreDataTracing = !args.contains("--disable-core-data-tracing")
+            options.enableNetworkBreadcrumbs = !args.contains("--disable-network-breadcrumbs")
+            options.enableSwizzling = !args.contains("--disable-swizzling")
+            options.enableCrashHandler = !args.contains("--disable-crash-handler")
 
             // because we run CPU for 15 seconds at full throttle, we trigger ANR issues being sent. disable such during benchmarks.
-            options.enableAppHangTracking = !isBenchmarking && !ProcessInfo.processInfo.arguments.contains("--disable-anr-tracking")
+            options.enableAppHangTracking = !isBenchmarking && !args.contains("--disable-anr-tracking")
             options.appHangTimeoutInterval = 2
             options.enableCaptureFailedRequests = true
             let httpStatusCodeRange = HttpStatusCodeRange(min: 400, max: 599)
@@ -86,6 +114,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         
+        print("[iOS-Swift] launch arguments: \(ProcessInfo.processInfo.arguments)")
+        print("[iOS-Swift] environment: \(ProcessInfo.processInfo.environment)")
+        
+        maybeWipeData()
         AppDelegate.startSentry()
         
         if #available(iOS 15.0, *) {
@@ -113,5 +145,20 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // swiftlint:disable force_cast
         return _metricKit as! MetricKitManager
         // swiftlint:enable force_cast
+    }
+}
+
+private extension AppDelegate {
+    func maybeWipeData() {
+        if ProcessInfo.processInfo.arguments.contains("--io.sentry.wipe-data") {
+            print("[iOS-Swift] removing app data")
+            let appSupport = NSSearchPathForDirectoriesInDomains(.applicationSupportDirectory, .userDomainMask, true).first!
+            let cache = NSSearchPathForDirectoriesInDomains(.cachesDirectory, .userDomainMask, true).first!
+            for path in [appSupport, cache] {
+                for item in FileManager.default.enumerator(atPath: path)! {
+                    try! FileManager.default.removeItem(atPath: (path as NSString).appendingPathComponent((item as! String)))
+                }
+            }
+        }
     }
 }
