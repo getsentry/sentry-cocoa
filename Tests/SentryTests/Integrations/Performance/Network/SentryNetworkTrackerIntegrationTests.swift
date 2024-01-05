@@ -164,7 +164,7 @@ class SentryNetworkTrackerIntegrationTests: XCTestCase {
             self.assertNetworkError(error)
             let response = String(data: data ?? Data(), encoding: .utf8) ?? ""
             
-            let expectedBaggageHeader = transaction.traceContext.toBaggage().toHTTPHeader()
+            let expectedBaggageHeader = transaction.traceContext.toBaggage().toHTTPHeader(withOriginalBaggage: nil)
             XCTAssertEqual(expectedBaggageHeader, response)
 
             expect.fulfill()
