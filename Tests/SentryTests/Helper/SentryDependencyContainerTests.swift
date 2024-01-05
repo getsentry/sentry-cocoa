@@ -1,6 +1,7 @@
 import Nimble
 import XCTest
 
+#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
 final class SentryDependencyContainerTests: XCTestCase {
     
     func testReset_CallsFramesTrackerStop() throws {
@@ -11,3 +12,4 @@ final class SentryDependencyContainerTests: XCTestCase {
         expect(framesTracker.isRunning) == false
     }
 }
+#endif
