@@ -5,6 +5,7 @@
 
 @class SentryAttachment;
 @class SentryPropagationContext;
+@class SentrySession;
 
 NS_ASSUME_NONNULL_BEGIN
 

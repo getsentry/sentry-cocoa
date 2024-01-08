@@ -11,6 +11,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 static NSTimeInterval const SentryTracerDefaultTimeout = 3.0;
 
+static const NSTimeInterval SENTRY_AUTO_TRANSACTION_MAX_DURATION = 500.0;
+
 @protocol SentryTracerDelegate
 
 /**

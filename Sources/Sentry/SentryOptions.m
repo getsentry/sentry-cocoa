@@ -105,6 +105,7 @@ NSString *const kSentryDefaultEnvironment = @"production";
         self.maxAttachmentSize = 20 * 1024 * 1024;
         self.sendDefaultPii = NO;
         self.enableAutoPerformanceTracing = YES;
+        self.enablePerformanceV2 = NO;
         self.enableCaptureFailedRequests = YES;
         self.environment = kSentryDefaultEnvironment;
         self.enableTimeToFullDisplayTracing = NO;
@@ -374,6 +375,9 @@ NSString *const kSentryDefaultEnvironment = @"production";
 
     [self setBool:options[@"enableAutoPerformanceTracing"]
             block:^(BOOL value) { self->_enableAutoPerformanceTracing = value; }];
+
+    [self setBool:options[@"enablePerformanceV2"]
+            block:^(BOOL value) { self->_enablePerformanceV2 = value; }];
 
     [self setBool:options[@"enableCaptureFailedRequests"]
             block:^(BOOL value) { self->_enableCaptureFailedRequests = value; }];

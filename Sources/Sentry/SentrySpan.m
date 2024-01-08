@@ -35,6 +35,7 @@ SentrySpan ()
     NSMutableDictionary<NSString *, id> *_tags;
     NSObject *_stateLock;
     BOOL _isFinished;
+    uint64_t _startSystemTime;
 #if SENTRY_HAS_UIKIT
     NSUInteger initTotalFrames;
     NSUInteger initSlowFrames;
@@ -49,6 +50,7 @@ SentrySpan ()
 #endif // SENTRY_HAS_UIKIT
 {
     if (self = [super init]) {
+        _startSystemTime = SentryDependencyContainer.sharedInstance.dateProvider.systemTime;
         self.startTimestamp = [SentryDependencyContainer.sharedInstance.dateProvider date];
         _data = [[NSMutableDictionary alloc] init];
 
@@ -206,6 +208,14 @@ SentrySpan ()
 
 #if SENTRY_HAS_UIKIT
     if (_framesTracker.isRunning) {
+
+        CFTimeInterval framesDelay = [_framesTracker
+                getFramesDelay:_startSystemTime
+            endSystemTimestamp:SentryDependencyContainer.sharedInstance.dateProvider.systemTime];
+
+        if (framesDelay >= 0) {
+            [self setDataValue:@(framesDelay) forKey:@"frames.delay"];
+        }
 
         SentryScreenFrames *currentFrames = _framesTracker.currentFrames;
         NSInteger totalFrames = currentFrames.total - initTotalFrames;

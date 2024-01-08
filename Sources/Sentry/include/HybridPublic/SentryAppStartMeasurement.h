@@ -21,23 +21,12 @@ SENTRY_NO_INIT
  * Initializes SentryAppStartMeasurement with the given parameters.
  */
 - (instancetype)initWithType:(SentryAppStartType)type
-              appStartTimestamp:(NSDate *)appStartTimestamp
-                       duration:(NSTimeInterval)duration
-           runtimeInitTimestamp:(NSDate *)runtimeInitTimestamp
-    didFinishLaunchingTimestamp:(NSDate *)didFinishLaunchingTimestamp
-    DEPRECATED_MSG_ATTRIBUTE("Use "
-                             "initWithType:appStartTimestamp:duration:mainTimestamp:"
-                             "runtimeInitTimestamp:didFinishLaunchingTimestamp instead.");
-
-/**
- * Initializes SentryAppStartMeasurement with the given parameters.
- */
-- (instancetype)initWithType:(SentryAppStartType)type
                       isPreWarmed:(BOOL)isPreWarmed
                 appStartTimestamp:(NSDate *)appStartTimestamp
                          duration:(NSTimeInterval)duration
              runtimeInitTimestamp:(NSDate *)runtimeInitTimestamp
     moduleInitializationTimestamp:(NSDate *)moduleInitializationTimestamp
+                sdkStartTimestamp:(NSDate *)sdkStartTimestamp
       didFinishLaunchingTimestamp:(NSDate *)didFinishLaunchingTimestamp;
 
 /**
@@ -49,7 +38,8 @@ SENTRY_NO_INIT
 
 /**
  * How long the app start took. From appStartTimestamp to when the SDK creates the
- * AppStartMeasurement, which is done when the OS posts UIWindowDidBecomeVisibleNotification.
+ * AppStartMeasurement, which is done when the OS posts UIWindowDidBecomeVisibleNotification and
+ * when `enablePerformanceV2` is enabled when the app draws it's first frame.
  */
 @property (readonly, nonatomic, assign) NSTimeInterval duration;
 
@@ -68,6 +58,11 @@ SENTRY_NO_INIT
  * When application main function is called.
  */
 @property (readonly, nonatomic, strong) NSDate *moduleInitializationTimestamp;
+
+/**
+ * When the SentrySDK start method is called.
+ */
+@property (readonly, nonatomic, strong) NSDate *sdkStartTimestamp;
 
 /**
  * When OS posts UIApplicationDidFinishLaunchingNotification.

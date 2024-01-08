@@ -36,7 +36,7 @@ class SentryProfilerSwiftTests: XCTestCase {
 
 #if !os(macOS)
         lazy var displayLinkWrapper = TestDisplayLinkWrapper(dateProvider: currentDateProvider)
-        lazy var framesTracker = SentryFramesTracker(displayLinkWrapper: displayLinkWrapper)
+        lazy var framesTracker = SentryFramesTracker(displayLinkWrapper: displayLinkWrapper, dateProvider: currentDateProvider, keepDelayedFramesDuration: 0)
 #endif
 
         init() {
@@ -51,6 +51,7 @@ class SentryProfilerSwiftTests: XCTestCase {
             }
             SentryDependencyContainer.sharedInstance().dispatchFactory = dispatchFactory
             SentryDependencyContainer.sharedInstance().timerFactory = timeoutTimerFactory
+            SentryDependencyContainer.sharedInstance().dispatchQueueWrapper = dispatchQueueWrapper
 
             systemWrapper.overrides.cpuUsage = NSNumber(value: mockCPUUsage)
             systemWrapper.overrides.memoryFootprintBytes = mockMemoryFootprint
@@ -76,7 +77,6 @@ class SentryProfilerSwiftTests: XCTestCase {
                         if let idleTimeout = idleTimeout {
                             $0.idleTimeout = idleTimeout
                         }
-                        $0.dispatchQueueWrapper = self.dispatchQueueWrapper
                         $0.waitForChildren = true
                         $0.timerFactory = self.timeoutTimerFactory
                     }))
@@ -228,7 +228,8 @@ class SentryProfilerSwiftTests: XCTestCase {
             appStart = preWarmed ? main : appStart
             appStartDuration = preWarmed ? appStartDuration - runtimeInitDuration - mainDuration : appStartDuration
             appStartEnd = appStart.addingTimeInterval(appStartDuration)
-            return SentryAppStartMeasurement(type: type, isPreWarmed: preWarmed, appStartTimestamp: appStart, duration: appStartDuration, runtimeInitTimestamp: runtimeInit, moduleInitializationTimestamp: main, didFinishLaunchingTimestamp: didFinishLaunching)
+            return SentryAppStartMeasurement(type: type, isPreWarmed: preWarmed, appStartTimestamp: appStart, duration: appStartDuration, runtimeInitTimestamp: runtimeInit, moduleInitializationTimestamp: main,
+                                             sdkStartTimestamp: appStart, didFinishLaunchingTimestamp: didFinishLaunching)
         }
         #endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
     }

@@ -10,9 +10,17 @@ race:monitorCachedData
 race:TestThread.m
 race:uninstallExceptionHandler
 
-# These methods use Double-Checked Locking and ThreadSanitizers produces
-# false alarms for them.
+# ------------------ Double Checked Locks ------------------ #
+# ThreadSanitizers produces false alarms for double-checked
+# locks.
+
 race:getAppStartMeasurement
+
+# SentryDependencyContainer
+race:application
+race:threadInspector
+
+# ------------------ End: Double Checked Locks -------------- #
 
 # Races to fix
 race:returnResponse
@@ -23,3 +31,6 @@ race:disable
 race:URLSessionDataTaskMock
 race:getOriginalImplementation
 race:SentrySpanContext
+
+# Ignore SentryFramesTracer:getFramesDelay. Visit the method for the explanation.
+race:getFramesDelay

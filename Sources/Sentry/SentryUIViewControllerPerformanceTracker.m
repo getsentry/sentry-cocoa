@@ -182,7 +182,7 @@ SentryUIViewControllerPerformanceTracker ()
 
         SentryTimeToDisplayTracker *ttdTracker
             = objc_getAssociatedObject(controller, &SENTRY_UI_PERFORMANCE_TRACKER_TTD_TRACKER);
-        [ttdTracker reportReadyToDisplay];
+        [ttdTracker reportInitialDisplay];
     };
 
     [self limitOverride:@"viewWillAppear"

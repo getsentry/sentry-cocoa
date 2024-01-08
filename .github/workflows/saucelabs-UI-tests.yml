@@ -11,12 +11,16 @@ on:
       - '.github/workflows/saucelabs-UI-tests.yml'
       - 'fastlane/**'
       - '.sauce/config.yml'
-      - 'scripts/set-device-tests-environment.patch'
       - 'scripts/ci-select-xcode.sh'
 
       # run the workflow any time an Xcode scheme changes for one of the sample apps with a UI test suite we run in saucelabs
       - 'Samples/iOS-Swift/iOS-Swift.xcodeproj/xcshareddata/xcschemes/iOS-SwiftUITests.xcscheme'
       - 'Samples/iOS-Swift/iOS-Swift.xcodeproj/xcshareddata/xcschemes/iOS-Swift.xcscheme'
+
+# https://docs.github.com/en/actions/using-jobs/using-concurrency#example-using-a-fallback-value
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
 
 jobs:
   build-ui-tests:
@@ -40,7 +44,6 @@ jobs:
           bundler-cache: true
       - name: Install SentryCli
         run: brew install getsentry/tools/sentry-cli
-      - run: git apply ./scripts/set-device-tests-environment.patch
       - name: Cache iOS-Swift App and dSYM build products
         id: ios-swift-cache
         uses: actions/cache@v3
@@ -78,7 +81,7 @@ jobs:
         run: |
           sentry-cli --auth-token ${{ secrets.SENTRY_AUTH_TOKEN }} upload-dif --org sentry-sdks --project sentry-cocoa DerivedData/Build/Products/Test-iphoneos/iOS-Swift.app.dSYM
       - name: Archiving DerivedData
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: DerivedData-Xcode-${{matrix.xcode}}
           path: |
@@ -115,7 +118,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: DerivedData-Xcode-${{ matrix.xcode }}
 
