@@ -18,7 +18,6 @@ on:
       - '.sauce/benchmarking-config.yml'
       - 'fastlane/**'
       - 'scripts/ci-select-xcode.sh'
-      - 'scripts/set-device-tests-environment.patch'
 
 # https://docs.github.com/en/actions/using-jobs/using-concurrency#example-using-a-fallback-value
 concurrency:
@@ -37,7 +36,6 @@ jobs:
           bundler-cache: true
       - name: Install SentryCli
         run: brew install getsentry/tools/sentry-cli
-      - run: git apply ./scripts/set-device-tests-environment.patch
       - name: Cache iOS-Swift App and dSYM build products
         id: ios-swift-cache
         uses: actions/cache@v3
