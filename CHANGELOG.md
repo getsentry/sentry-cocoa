@@ -6,6 +6,10 @@
 
 - Send debug meta for app start transactions (#3543)
 
+### Fixes
+
+- Fix typo in BUILD_LIBRARY_FOR_DISTRIBUTION variable in Makefile (#3488)
+
 ## 8.18.0
 
 ### Features
