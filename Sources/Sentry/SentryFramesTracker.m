@@ -83,7 +83,6 @@ slowFrameThreshold(uint64_t actualFramesPerSecond)
     _displayLinkWrapper = displayLinkWrapper;
 }
 
-/** Internal for testing */
 - (void)resetFrames
 {
     _totalFrames = 0;
@@ -200,8 +199,10 @@ slowFrameThreshold(uint64_t actualFramesPerSecond)
         localListeners = [self.listeners allObjects];
     }
 
+    NSDate *newFrameDate = [self.dateProvider date];
+
     for (id<SentryFramesTrackerListener> listener in localListeners) {
-        [listener framesTrackerHasNewFrame];
+        [listener framesTrackerHasNewFrame:newFrameDate];
     }
 }
 
@@ -234,6 +235,17 @@ slowFrameThreshold(uint64_t actualFramesPerSecond)
 #    endif // SENTRY_TARGET_PROFILING_SUPPORTED
 }
 
+/**
+ * The ThreadSanitizer ignores this method; see ThreadSanitizer.sup.
+ *
+ * We accept the data race of the two properties _currentFrameRate and previousFrameSystemTimestamp,
+ * that are updated on the main thread in the displayLinkCallback. This method only reads these
+ * properties. In most scenarios, this method will be called on the main thread, for which no
+ * synchronization is needed. When calling this function from a background thread, the frames delay
+ * statistics don't need to be that accurate because background spans contribute less to delayed
+ * frames. We prefer having not 100% correct frames delay numbers for background spans instead of
+ * adding the overhead of synchronization.
+ */
 - (CFTimeInterval)getFramesDelay:(uint64_t)startSystemTimestamp
               endSystemTimestamp:(uint64_t)endSystemTimestamp
 {
@@ -264,6 +276,9 @@ slowFrameThreshold(uint64_t actualFramesPerSecond)
     _isRunning = NO;
     [self.displayLinkWrapper invalidate];
     [self.delayedFramesTracker resetDelayedFramesTimeStamps];
+    @synchronized(self.listeners) {
+        [self.listeners removeAllObjects];
+    }
 }
 
 - (void)dealloc

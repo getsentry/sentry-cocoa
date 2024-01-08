@@ -31,7 +31,6 @@ class SentryTimeToDisplayTrackerTest: XCTestCase {
             return SentryTracer(transactionContext: TransactionContext(operation: "ui.load"), hub: hub, configuration: SentryTracerConfiguration(block: {
                 $0.waitForChildren = true
                 $0.timerFactory = self.timerFactory
-                $0.dispatchQueueWrapper = TestSentryDispatchQueueWrapper()
             }))
         }
     }
@@ -41,6 +40,7 @@ class SentryTimeToDisplayTrackerTest: XCTestCase {
     override func setUp() {
         super.setUp()
         SentryDependencyContainer.sharedInstance().dateProvider = fixture.dateProvider
+        SentryDependencyContainer.sharedInstance().dispatchQueueWrapper = TestSentryDispatchQueueWrapper()
     }
 
     override func tearDown() {

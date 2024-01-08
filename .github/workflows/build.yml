@@ -18,6 +18,11 @@ on:
       - Gemfile.lock
       - 'Package.swift'
 
+# https://docs.github.com/en/actions/using-jobs/using-concurrency#example-using-a-fallback-value
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
 jobs:
   # We had issues that the release build was broken on main.
   # With this we catch potential issues already in the PR.
@@ -94,7 +99,7 @@ jobs:
         shell: sh
 
       - name: Archiving XCFramework.zip
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ github.sha }}
           if-no-files-found: error
@@ -102,7 +107,7 @@ jobs:
             ${{ github.workspace }}/*.zip
 
       - name: Archive build log if failed
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: ${{  failure() || cancelled() }}
         with:
           name: raw-build-output-build-xcframework
@@ -115,7 +120,7 @@ jobs:
     needs: build-xcframework
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: ${{ github.sha }}
       - run: ./scripts/ci-select-xcode.sh 15.0.1

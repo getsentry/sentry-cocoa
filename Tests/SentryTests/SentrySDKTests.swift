@@ -1,3 +1,4 @@
+import Nimble
 @testable import Sentry
 import SentryTestUtils
 import XCTest
@@ -502,6 +503,23 @@ class SentrySDKTests: XCTestCase {
         }
         
         XCTAssertEqual(1, SentrySDK.startInvocations)
+    }
+    
+    func testSDKStartTimestamp() {
+        let currentDateProvider = TestCurrentDateProvider()
+        SentryDependencyContainer.sharedInstance().dateProvider = currentDateProvider
+        
+        expect(SentrySDK.startTimestamp) == nil
+        
+        SentrySDK.start { options in
+            options.dsn = SentrySDKTests.dsnAsString
+            options.removeAllIntegrations()
+        }
+        
+        expect(SentrySDK.startTimestamp) == currentDateProvider.date()
+        
+        SentrySDK.close()
+        expect(SentrySDK.startTimestamp) == nil
     }
     
     func testIsEnabled() {

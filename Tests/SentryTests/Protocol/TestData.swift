@@ -328,9 +328,10 @@ class TestData {
         let appStartDuration = 0.5
         let main = appStartTimestamp.addingTimeInterval(0.15)
         let runtimeInit = appStartTimestamp.addingTimeInterval(0.05)
-        let didFinishLaunching = appStartTimestamp.addingTimeInterval(0.3)
+        let sdkStart = appStartTimestamp.addingTimeInterval(0.1)
+        let didFinishLaunching = appStartTimestamp.addingTimeInterval(0.2)
         
-        return SentryAppStartMeasurement(type: type, isPreWarmed: false, appStartTimestamp: appStartTimestamp, duration: appStartDuration, runtimeInitTimestamp: runtimeInit, moduleInitializationTimestamp: main, didFinishLaunchingTimestamp: didFinishLaunching)
+        return SentryAppStartMeasurement(type: type, isPreWarmed: false, appStartTimestamp: appStartTimestamp, duration: appStartDuration, runtimeInitTimestamp: runtimeInit, moduleInitializationTimestamp: main, sdkStartTimestamp: sdkStart, didFinishLaunchingTimestamp: didFinishLaunching)
     }
 
     #endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)

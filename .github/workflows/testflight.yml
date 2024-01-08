@@ -52,7 +52,7 @@ jobs:
           bundle exec fastlane ios_swift_to_testflight
 
       - name: Archiving
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: dSYMs
           path: |

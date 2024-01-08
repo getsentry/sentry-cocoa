@@ -2,16 +2,34 @@
 
 ## Unreleased
 
+### Fixes
+
+- Remove dispatch queue metadata collection to fix crash (#3522)
+
+### Features
+
+- Send debug meta for app start transactions (#3543)
+
+## 8.18.0
+
 ### Features
 
 - Add frames delay to transactions and spans (#3487, #3496)
 - Add slow and frozen frames to spans (#3450, #3478)
+- Split up UIKit and App Init App Start Span (#3534)
+- Prewarmed App Start Tracing is stable (#3536)
 
 ### Fixes
 
 - TTFD waits for next drawn frame (#3505)
 - Fix TTID/TTFD for app start transactions (#3512): TTID/TTFD spans and measurements for app start transaction now include the app start duration.
-- Remove dispatch queue metadata collection to fix crash (#3522)
+- Crash when adding a crumb for a timezone change (#3524)
+- Fix a race condition in SentryTracer (#3523)
+- App start ends when first frame is drawn when performanceV2 is enabled (#3530)
+- Use correct rendered frames timestamp for TTID/TTFD and app start (#3531)
+
+- Missing transactions when not calling `reportFullyDisplayed` (#3477)
+- Don't override `sentry-trace` and `baggage` headers (#3540)
 
 ## 8.17.2
 

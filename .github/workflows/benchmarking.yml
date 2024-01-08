@@ -20,6 +20,11 @@ on:
       - 'scripts/ci-select-xcode.sh'
       - 'scripts/set-device-tests-environment.patch'
 
+# https://docs.github.com/en/actions/using-jobs/using-concurrency#example-using-a-fallback-value
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
 jobs:
   build-benchmark-test-target:
     name: Build app and test runner
@@ -70,7 +75,7 @@ jobs:
         run: |
           sentry-cli --auth-token ${{ secrets.SENTRY_AUTH_TOKEN }} upload-dif --org sentry-sdks --project sentry-cocoa DerivedData/Build/Products/Debug-iphoneos/iOS-Swift.app.dSYM
       - name: Archiving DerivedData
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: DerivedData-Xcode
           path: |
@@ -87,7 +92,7 @@ jobs:
         suite: ['High-end device', 'Mid-range device', 'Low-end device']
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: DerivedData-Xcode
       - run: npm install -g saucectl@0.107.2

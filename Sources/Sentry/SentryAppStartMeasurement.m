@@ -15,30 +15,10 @@
     NSDate *_appStartTimestamp;
     NSDate *_runtimeInitTimestamp;
     NSDate *_moduleInitializationTimestamp;
+    NSDate *_sdkStartTimestamp;
     NSDate *_didFinishLaunchingTimestamp;
 }
 #    endif // SENTRY_HAS_UIKIT
-
-- (instancetype)initWithType:(SentryAppStartType)type
-              appStartTimestamp:(NSDate *)appStartTimestamp
-                       duration:(NSTimeInterval)duration
-           runtimeInitTimestamp:(NSDate *)runtimeInitTimestamp
-    didFinishLaunchingTimestamp:(NSDate *)didFinishLaunchingTimestamp
-{
-#    if SENTRY_HAS_UIKIT
-    return [self initWithType:type
-                          isPreWarmed:NO
-                    appStartTimestamp:appStartTimestamp
-                             duration:duration
-                 runtimeInitTimestamp:runtimeInitTimestamp
-        moduleInitializationTimestamp:[NSDate dateWithTimeIntervalSince1970:0]
-          didFinishLaunchingTimestamp:didFinishLaunchingTimestamp];
-#    else
-    SENTRY_LOG_DEBUG(@"SentryAppStartMeasurement only works with UIKit enabled. Ensure you're "
-                     @"using the right configuration of Sentry that links UIKit.");
-    return nil;
-#    endif // SENTRY_HAS_UIKIT
-}
 
 - (instancetype)initWithType:(SentryAppStartType)type
                       isPreWarmed:(BOOL)isPreWarmed
@@ -46,6 +26,7 @@
                          duration:(NSTimeInterval)duration
              runtimeInitTimestamp:(NSDate *)runtimeInitTimestamp
     moduleInitializationTimestamp:(NSDate *)moduleInitializationTimestamp
+                sdkStartTimestamp:(NSDate *)sdkStartTimestamp
       didFinishLaunchingTimestamp:(NSDate *)didFinishLaunchingTimestamp
 {
 #    if SENTRY_HAS_UIKIT
@@ -56,6 +37,7 @@
         _duration = duration;
         _runtimeInitTimestamp = runtimeInitTimestamp;
         _moduleInitializationTimestamp = moduleInitializationTimestamp;
+        _sdkStartTimestamp = sdkStartTimestamp;
         _didFinishLaunchingTimestamp = didFinishLaunchingTimestamp;
     }
 
