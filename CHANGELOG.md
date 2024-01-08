@@ -4,6 +4,7 @@
 
 ### Features
 
+- Add visionOS as device family (#3548)
 - Send debug meta for app start transactions (#3543)
 
 ## 8.18.0
