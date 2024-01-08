@@ -1,3 +1,4 @@
+import Nimble
 import SentryTestUtils
 import XCTest
 
@@ -108,9 +109,21 @@ class SentryAppStartTrackingIntegrationTests: NotificationCenterTestCase {
         
         XCTAssertFalse(result)
     }
+    
+    func test_PerformanceV2Enabled() {
+        let options = fixture.options
+        options.enablePerformanceV2 = true
+        
+        expect(self.sut.install(with: options)) == true
+        
+        let tracker = Dynamic(sut).tracker.asAnyObject as? SentryAppStartTracker
+        expect(Dynamic(tracker).enablePerformanceV2.asBool) == true
+    }
 
     func assertTrackerSetupAndRunning(_ tracker: SentryAppStartTracker) throws {
         _ = try XCTUnwrap(Dynamic(tracker).dispatchQueue.asAnyObject as? SentryDispatchQueueWrapper, "Tracker does not have a dispatch queue.")
+        
+        expect(Dynamic(tracker).enablePerformanceV2.asBool) == false
 
         let appStateManager = Dynamic(tracker).appStateManager.asObject as? SentryAppStateManager
 

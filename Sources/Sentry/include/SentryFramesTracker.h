@@ -13,7 +13,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @protocol SentryFramesTrackerListener
 
-- (void)framesTrackerHasNewFrame;
+- (void)framesTrackerHasNewFrame:(NSDate *)newFrameDate;
 
 @end
 

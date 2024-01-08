@@ -726,6 +726,11 @@
     [self testBooleanField:@"enableAutoPerformanceTracing"];
 }
 
+- (void)testEnablePerformanceV2
+{
+    [self testBooleanField:@"enablePerformanceV2" defaultValue:NO];
+}
+
 #if SENTRY_HAS_UIKIT
 - (void)testEnableUIViewControllerTracing
 {
