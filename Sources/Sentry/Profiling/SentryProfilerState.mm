@@ -4,6 +4,7 @@
 #    import "SentryFormatter.h"
 #    import "SentryProfileTimeseries.h"
 #    import "SentrySample.h"
+#    import "SentryThreadWrapper.h"
 #    import <mach/mach_types.h>
 #    import <mach/port.h>
 #    import <mutex>
@@ -63,11 +64,7 @@ parseBacktraceSymbolsFunctionName(const char *symbol)
     if (self = [super init]) {
         _mutableState = [[SentryProfilerMutableState alloc] init];
         _mainThreadID = 0;
-        if ([NSThread isMainThread]) {
-            [self cacheMainThreadID];
-        } else {
-            dispatch_async(dispatch_get_main_queue(), ^{ [self cacheMainThreadID]; });
-        }
+        [SentryThreadWrapper onMainThread:^{ [self cacheMainThreadID]; }];
     }
     return self;
 }
