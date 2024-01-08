@@ -63,7 +63,6 @@ static NSString *const SENTRY_BAGGAGE_HEADER = @"baggage";
                      sampleRate:(nullable NSString *)sampleRate
                         sampled:(nullable NSString *)sampled;
 
-- (NSString *)toHTTPHeader;
 - (NSString *)toHTTPHeaderWithOriginalBaggage:(NSDictionary *_Nullable)originalBaggage;
 
 @end
