@@ -16,8 +16,6 @@ using namespace std;
                           threadID:(uint64_t)threadID
                     threadPriority:(const int)threadPriority
                         threadName:(nullable NSString *)threadName
-                      queueAddress:(uint64_t)queueAddress
-                        queueLabel:(NSString *)queueLabel
                          addresses:(NSArray<NSNumber *> *)addresses
 {
     auto backtraceAddresses = std::vector<std::uintptr_t>();
@@ -27,8 +25,7 @@ using namespace std;
     }
 
     auto backtrace = mockBacktrace(threadID, threadPriority,
-        [threadName cStringUsingEncoding:NSUTF8StringEncoding], queueAddress,
-        [queueLabel cStringUsingEncoding:NSUTF8StringEncoding], backtraceAddresses);
+        [threadName cStringUsingEncoding:NSUTF8StringEncoding], backtraceAddresses);
     backtrace.absoluteTimestamp = SentryDependencyContainer.sharedInstance.dateProvider.systemTime;
     [state appendBacktrace:backtrace];
 }

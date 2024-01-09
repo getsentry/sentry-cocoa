@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Fixes
+
+- Remove dispatch queue metadata collection to fix crash (#3522)
+
 ### Features
 
 - Send debug meta for app start transactions (#3543)

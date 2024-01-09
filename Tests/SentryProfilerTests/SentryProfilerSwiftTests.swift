@@ -294,7 +294,8 @@ class SentryProfilerSwiftTests: XCTestCase {
                 fixture.currentDateProvider.advanceBy(nanoseconds: 100)
             }
 
-            addMockSamples()
+            let threadMetadata = ThreadMetadata(id: 1, priority: 2, name: "test-thread")
+            addMockSamples(threadMetadata: threadMetadata)
 
             for (i, span) in spans.enumerated() {
                 try fixture.gatherMockedMetrics(span: span)
@@ -302,7 +303,7 @@ class SentryProfilerSwiftTests: XCTestCase {
                 span.finish()
                 XCTAssertEqual(SentryProfiler.currentProfiledTracers(), UInt(numberOfTransactions - (i + 1)))
 
-                try self.assertValidProfileData()
+                try self.assertValidProfileData(expectedThreadMetadata: [threadMetadata])
 
                 // this is a complicated number to come up with, see the explanation for each part...
                 let expectedUsageReadings = fixture.mockUsageReadingsPerBatch * (i + 1) // since we fire mock metrics readings for each concurrent span,
@@ -341,8 +342,7 @@ class SentryProfilerSwiftTests: XCTestCase {
         fixture.currentDateProvider.advanceBy(nanoseconds: 1.toNanoSeconds())
         let expectedAddressesA: [NSNumber] = [0x1, 0x2, 0x3]
         let expectedThreadMetadataA = ThreadMetadata(id: 1, priority: 2, name: "test-thread1")
-        let expectedQueueMetadataA = QueueMetadata(address: 3, label: "test-queue1")
-        addMockSamples(threadMetadata: expectedThreadMetadataA, queueMetadata: expectedQueueMetadataA, addresses: expectedAddressesA)
+        addMockSamples(threadMetadata: expectedThreadMetadataA, addresses: expectedAddressesA)
 
         // time out profiler for span A
         fixture.currentDateProvider.advanceBy(nanoseconds: 30.toNanoSeconds())
@@ -355,16 +355,15 @@ class SentryProfilerSwiftTests: XCTestCase {
         fixture.currentDateProvider.advanceBy(nanoseconds: 0.5.toNanoSeconds())
         let expectedAddressesB: [NSNumber] = [0x7, 0x8, 0x9]
         let expectedThreadMetadataB = ThreadMetadata(id: 4, priority: 5, name: "test-thread2")
-        let expectedQueueMetadataB = QueueMetadata(address: 6, label: "test-queue2")
-        addMockSamples(threadMetadata: expectedThreadMetadataB, queueMetadata: expectedQueueMetadataB, addresses: expectedAddressesB)
+        addMockSamples(threadMetadata: expectedThreadMetadataB, addresses: expectedAddressesB)
 
         // finish span B and check profile data
         spanB.finish()
-        try self.assertValidProfileData(expectedAddresses: expectedAddressesB, expectedThreadMetadata: [expectedThreadMetadataB], expectedQueueMetadata: [expectedQueueMetadataB])
+        try self.assertValidProfileData(expectedAddresses: expectedAddressesB, expectedThreadMetadata: [expectedThreadMetadataB])
 
         // finish span A and check profile data
         spanA.finish()
-        try self.assertValidProfileData(expectedAddresses: expectedAddressesA, expectedThreadMetadata: [expectedThreadMetadataA], expectedQueueMetadata: [expectedQueueMetadataA])
+        try self.assertValidProfileData(expectedAddresses: expectedAddressesA, expectedThreadMetadata: [expectedThreadMetadataA])
     }
 
     func testProfileTimeoutTimer() throws {
@@ -571,14 +570,14 @@ private extension SentryProfilerSwiftTests {
         return try XCTUnwrap(envelope.event as? Transaction)
     }
 
-    func addMockSamples(threadMetadata: ThreadMetadata = ThreadMetadata(id: 1, priority: 2, name: "test-thread"), queueMetadata: QueueMetadata = QueueMetadata(address: 3, label: "test-queue"), addresses: [NSNumber] = [0x3, 0x4, 0x5]) {
+    func addMockSamples(threadMetadata: ThreadMetadata = ThreadMetadata(id: 1, priority: 2, name: "test-thread"), addresses: [NSNumber] = [0x3, 0x4, 0x5]) {
         let state = SentryProfiler.getCurrent()._state
         fixture.currentDateProvider.advanceBy(nanoseconds: 1)
-        SentryProfilerMocksSwiftCompatible.appendMockBacktrace(to: state, threadID: threadMetadata.id, threadPriority: threadMetadata.priority, threadName: threadMetadata.name, queueAddress: queueMetadata.address, queueLabel: queueMetadata.label, addresses: addresses)
+        SentryProfilerMocksSwiftCompatible.appendMockBacktrace(to: state, threadID: threadMetadata.id, threadPriority: threadMetadata.priority, threadName: threadMetadata.name, addresses: addresses)
         fixture.currentDateProvider.advanceBy(nanoseconds: 1)
-        SentryProfilerMocksSwiftCompatible.appendMockBacktrace(to: state, threadID: threadMetadata.id, threadPriority: threadMetadata.priority, threadName: threadMetadata.name, queueAddress: queueMetadata.address, queueLabel: queueMetadata.label, addresses: addresses)
+        SentryProfilerMocksSwiftCompatible.appendMockBacktrace(to: state, threadID: threadMetadata.id, threadPriority: threadMetadata.priority, threadName: threadMetadata.name, addresses: addresses)
         fixture.currentDateProvider.advanceBy(nanoseconds: 1)
-        SentryProfilerMocksSwiftCompatible.appendMockBacktrace(to: state, threadID: threadMetadata.id, threadPriority: threadMetadata.priority, threadName: threadMetadata.name, queueAddress: queueMetadata.address, queueLabel: queueMetadata.label, addresses: addresses)
+        SentryProfilerMocksSwiftCompatible.appendMockBacktrace(to: state, threadID: threadMetadata.id, threadPriority: threadMetadata.priority, threadName: threadMetadata.name, addresses: addresses)
     }
 
     struct UIKitParameters {
@@ -710,12 +709,7 @@ private extension SentryProfilerSwiftTests {
         var name: String
     }
 
-    struct QueueMetadata {
-        var address: UInt64
-        var label: String
-    }
-
-    func assertValidProfileData(transactionEnvironment: String = kSentryDefaultEnvironment, shouldTimeout: Bool = false, expectedAddresses: [NSNumber]? = nil, expectedThreadMetadata: [ThreadMetadata]? = nil, expectedQueueMetadata: [QueueMetadata]? = nil) throws {
+    func assertValidProfileData(transactionEnvironment: String = kSentryDefaultEnvironment, shouldTimeout: Bool = false, expectedAddresses: [NSNumber]? = nil, expectedThreadMetadata: [ThreadMetadata]? = nil) throws {
         let data = try getLatestProfileData()
         let profile = try XCTUnwrap(try JSONSerialization.jsonObject(with: data) as? [String: Any])
 
@@ -764,7 +758,6 @@ private extension SentryProfilerSwiftTests {
 
         let sampledProfile = try XCTUnwrap(profile["profile"] as? [String: Any])
         let threadMetadata = try XCTUnwrap(sampledProfile["thread_metadata"] as? [String: [String: Any]])
-        let queueMetadata = try XCTUnwrap(sampledProfile["queue_metadata"] as? [String: [String: Any]])
         XCTAssertFalse(threadMetadata.isEmpty)
         if let expectedThreadMetadata = expectedThreadMetadata {
             try expectedThreadMetadata.forEach {
@@ -776,16 +769,7 @@ private extension SentryProfilerSwiftTests {
             }
         } else {
             XCTAssertFalse(try threadMetadata.values.compactMap { $0["priority"] }.filter { try XCTUnwrap($0 as? Int) > 0 }.isEmpty)
-        }
-        XCTAssertFalse(queueMetadata.isEmpty)
-        if let expectedQueueMetadata = expectedQueueMetadata {
-            try expectedQueueMetadata.forEach {
-                let actualQueueMetadata = try XCTUnwrap(queueMetadata[sentry_formatHexAddressUInt64($0.address)])
-                let actualQueueLabel = try XCTUnwrap(actualQueueMetadata["label"] as? String)
-                XCTAssertEqual(actualQueueLabel, $0.label)
-            }
-        } else {
-            XCTAssertFalse(try XCTUnwrap(try XCTUnwrap(queueMetadata.first?.value)["label"] as? String).isEmpty)
+            XCTAssertFalse(try threadMetadata.values.compactMap { $0["name"] }.filter { try XCTUnwrap($0 as? String) == "main" }.isEmpty)
         }
 
         let samples = try XCTUnwrap(sampledProfile["samples"] as? [[String: Any]])
