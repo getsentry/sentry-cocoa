@@ -41,10 +41,12 @@ jobs:
         with:
           script: |
             const highRiskFiles = process.env.HIGH_RISK_FILES;
+            const fileList = highRiskFiles.split(',').map(file => `* ${file.trim()}`).join('\\n');
             github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: `🚨 Detected changes in high risk files. Take an extra careful look on these: \n${highRiskFiles}.`
+              body: `🚨 Detected changes in high risk files. Take an extra careful look on these:\\n${fileList}`
             })
+            
         
