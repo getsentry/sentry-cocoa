@@ -41,7 +41,7 @@ jobs:
         with:
           script: |
             const highRiskFiles = process.env.HIGH_RISK_FILES;
-            const fileList = highRiskFiles.split(',').map(file => `* ${file}`).join('\n');
+            const fileList = highRiskFiles.split(',').map(file => `- [ ] ${file}`).join('\n');
             github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
