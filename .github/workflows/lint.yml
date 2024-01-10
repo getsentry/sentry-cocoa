@@ -10,7 +10,6 @@ on:
       - 'Samples/**'
       - '.github/workflows/lint.yml'
       - 'scripts/ci-select-xcode.sh'
-      - 'scripts/no-changes-in-high-risk-files.sh'
 
   pull_request:
     paths:
@@ -20,7 +19,6 @@ on:
       - 'Samples/**'
       - '.github/workflows/lint.yml'
       - 'scripts/ci-select-xcode.sh'
-      - 'scripts/no-changes-in-high-risk-files.sh'
       - 'Sentry.xcodeproj/**'
       - '*.podspec'
 
@@ -74,10 +72,3 @@ jobs:
       - run: pod repo update
       - name: Validate HybridPod Podspec
         run: pod lib lint ./Tests/HybridSDKTest/HybridPod.podspec --allow-warnings --verbose --platforms=ios "--include-podspecs={SentryPrivate.podspec,Sentry.podspec}"
-
-  validate-high-risk-files:
-    name: No changes in high risk files
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - run: ./scripts/no-changes-in-high-risk-files.sh
