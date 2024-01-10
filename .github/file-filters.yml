@@ -1,12 +1,12 @@
 # This is used by the action https://github.com/dorny/paths-filter (which we have forked to https://github.com/getsentry/paths-filter)
 
 high_risk_files: &high_risk_files
-  - '/Sources/Sentry/SentryNSURLSessionTaskSearch.m'
-  - '/Sources/Sentry/SentryNetworkTracker.m'
-  - '/Sources/Sentry/SentryUIViewControllerSwizzling.m'
-  - '/Sources/Sentry/SentryNSDataSwizzling.m'
-  - '/Sources/Sentry/SentrySubClassFinder.m'
-  - '/Sources/Sentry/SentryCoreDataSwizzling.m'
-  - '/Sources/Sentry/SentrySwizzleWrapper.m'
-  - '/Sources/Sentry/include/SentrySwizzle.h'
-  - '/Sources/Sentry/SentrySwizzle.m'
+  - 'Sources/Sentry/SentryNSURLSessionTaskSearch.m'
+  - 'Sources/Sentry/SentryNetworkTracker.m'
+  - 'Sources/Sentry/SentryUIViewControllerSwizzling.m'
+  - 'Sources/Sentry/SentryNSDataSwizzling.m'
+  - 'Sources/Sentry/SentrySubClassFinder.m'
+  - 'Sources/Sentry/SentryCoreDataSwizzling.m'
+  - 'Sources/Sentry/SentrySwizzleWrapper.m'
+  - 'Sources/Sentry/include/SentrySwizzle.h'
+  - 'Sources/Sentry/SentrySwizzle.m'
