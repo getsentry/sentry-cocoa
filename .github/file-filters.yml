@@ -1,6 +1,6 @@
 # This is used by the action https://github.com/dorny/paths-filter (which we have forked to https://github.com/getsentry/paths-filter)
 
-high_risk_files: &high_risk_files
+high_risk_code: &high_risk_code
   - 'Sources/Sentry/SentryNSURLSessionTaskSearch.m'
   - 'Sources/Sentry/SentryNetworkTracker.m'
   - 'Sources/Sentry/SentryUIViewControllerSwizzling.m'

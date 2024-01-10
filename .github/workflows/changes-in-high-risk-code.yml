@@ -1,4 +1,4 @@
-name: Changes In High Risk Files
+name: Changes In High Risk Code
 on:
   pull_request:
 
@@ -13,8 +13,8 @@ jobs:
     runs-on: ubuntu-latest
     # Map a step output to a job output
     outputs:
-      high_risk_files: ${{ steps.changes.outputs.high_risk_files }}
-      high_risk_files_files: ${{ steps.changes.outputs.high_risk_files_files }}
+      high_risk_code: ${{ steps.changes.outputs.high_risk_code }}
+      high_risk_code_files: ${{ steps.changes.outputs.high_risk_code_files }}
     steps:
       - uses: actions/checkout@v4
       - name: Get changed files
@@ -28,18 +28,18 @@ jobs:
           # Paths to files will be available in `${FILTER_NAME}_files` output variable.
           list-files: csv
 
-  validate-high-risk-files:
-    if: needs.files-changed.outputs.high_risk_files == 'true'
+  validate-high-risk-code:
+    if: needs.files-changed.outputs.high_risk_code == 'true'
     needs: files-changed
     runs-on: ubuntu-latest
     steps:
       - name: Comment on PR to notify of changes in high risk files
         uses: actions/github-script@v7
         env:
-          HIGH_RISK_FILES: ${{ needs.files-changed.outputs.high_risk_files_files }}
+          high_risk_code: ${{ needs.files-changed.outputs.high_risk_code_files }}
         with:
           script: |
-            const highRiskFiles = process.env.HIGH_RISK_FILES;
+            const highRiskFiles = process.env.high_risk_code;
             const fileList = highRiskFiles.split(',').map(file => `- [ ] ${file}`).join('\n');
             github.rest.issues.createComment({
               issue_number: context.issue.number,
