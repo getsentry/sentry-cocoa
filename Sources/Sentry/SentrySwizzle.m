@@ -131,6 +131,7 @@ swizzledClassesForKey(const void *key)
         swizzledClasses = [NSMutableSet new];
         [classesDictionary setObject:swizzledClasses forKey:keyValue];
     }
+    // some comment
     return swizzledClasses;
 }
 
