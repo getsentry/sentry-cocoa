@@ -45,7 +45,7 @@ jobs:
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: `### 🚨 Detected changes in high risk code 🚨 \n Take an extra careful look at the following files:\n ${fileList}`
+              body: `### 🚨 Detected changes in high risk code 🚨 \n High-risk code can easily blow up and is hard to test. We had severe bugs in the past. Be extra careful when changing these files, and have an extra careful look at these::\n ${fileList}`
             })
             
         
