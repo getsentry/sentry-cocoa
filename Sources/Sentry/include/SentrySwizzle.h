@@ -4,6 +4,7 @@
 
 /**
  * A macro for wrapping the return type of the swizzled method.
+ * Test.
  */
 #define SentrySWReturnType(type) type
 
