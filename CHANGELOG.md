@@ -10,6 +10,7 @@
 
 - Fix typo in BUILD_LIBRARY_FOR_DISTRIBUTION variable in Makefile (#3488)
 - Remove dispatch queue metadata collection to fix crash (#3522)
+- Move header reference out of "extern C" (#3538)
 
 ## 8.18.0
 
@@ -28,7 +29,6 @@
 - Fix a race condition in SentryTracer (#3523)
 - App start ends when first frame is drawn when performanceV2 is enabled (#3530)
 - Use correct rendered frames timestamp for TTID/TTFD and app start (#3531)
-- Move header reference out of "extern C" (#3538)
 - Missing transactions when not calling `reportFullyDisplayed` (#3477)
 - Don't override `sentry-trace` and `baggage` headers (#3540)
 
