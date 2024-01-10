@@ -2,7 +2,6 @@ name: Changes In High Risk Files
 on:
   pull_request:
 
-
 # https://docs.github.com/en/actions/using-jobs/using-concurrency#example-using-a-fallback-value
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
@@ -46,7 +45,7 @@ jobs:
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: `### 🚨 Detected changes in high risk files 🚨 \n Take an extra careful look on these:\n ${fileList}`
+              body: `### 🚨 Detected changes in high risk files 🚨 \n Take an extra careful look at the following files:\n ${fileList}`
             })
             
         
