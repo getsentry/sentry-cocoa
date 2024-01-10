@@ -41,5 +41,5 @@ jobs:
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: '👋 Thanks for reporting!'
+              body: '🚨 Detected changes in high risk files. Take an extra careful look on these: ${FILTER_NAME}_files.'
             })
