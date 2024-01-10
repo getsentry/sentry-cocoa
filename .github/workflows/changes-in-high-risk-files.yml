@@ -37,11 +37,9 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            const issue_number = context.issue.number;
-            github.issues.createComment({
-              issue_number: issue_number,
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: 'Detected changes in high risk files. Take an extra careful look on these: ${FILTER_NAME}_files.'
-            });
-      
+              body: '👋 Thanks for reporting!'
+            })
