@@ -143,6 +143,12 @@ NS_SWIFT_NAME(Options)
 @property (nonatomic, assign) BOOL enableAutoSessionTracking;
 
 /**
+ * Whether to attach the top level `operationName` node of HTTP json requests to HTTP breadcrumbs
+ * @note Default is @c NO.
+ */
+@property (nonatomic, assign) BOOL enableGraphQLOperationTracking;
+
+/**
  * Whether to enable Watchdog Termination tracking or not.
  * @note This feature requires the @c SentryCrashIntegration being enabled, otherwise it would
  * falsely report every crash as watchdog termination.

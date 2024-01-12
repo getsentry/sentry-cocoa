@@ -17,7 +17,7 @@ class SentryNetworkTrackerTests: XCTestCase {
         let dateProvider = TestCurrentDateProvider()
         let options: Options
         let scope: Scope
-        let nsUrlRequest = NSURLRequest(url: SentryNetworkTrackerTests.fullUrl)
+        let nsUrlRequest = NSMutableURLRequest(url: SentryNetworkTrackerTests.fullUrl)
         let client: TestClient!
         let hub: TestHub!
         let securityHeader = [ "X-FORWARDED-FOR": "value",
@@ -48,6 +48,7 @@ class SentryNetworkTrackerTests: XCTestCase {
             result.enableNetworkTracking()
             result.enableNetworkBreadcrumbs()
             result.enableCaptureFailedRequests()
+            result.enableGraphQLOperationTracking()
             return result
         }
     }
@@ -337,8 +338,41 @@ class SentryNetworkTrackerTests: XCTestCase {
         XCTAssertEqual(breadcrumb!.data!["response_body_size"] as! Int64, DATA_BYTES_RECEIVED)
         XCTAssertEqual(breadcrumb!.data!["http.query"] as? String, "query=value&query2=value2")
         XCTAssertEqual(breadcrumb!.data!["http.fragment"] as? String, "fragment")
+        XCTAssertNil(breadcrumb!.data!["graphql"])
     }
-    
+
+    func testBreadcrumb_GraphQLEnabled() {
+        let body = """
+        {
+            "operationName": "someOperationName",
+            "variables":{"a": 1},
+            "query":"query someOperationName {\\n  someField\\n}\\n"
+        }
+        """
+        fixture.nsUrlRequest.httpBody = body.data(using: .utf8)
+        fixture.nsUrlRequest.setValue("application/json", forHTTPHeaderField: "content-type")
+        assertStatus(status: .ok, state: .completed, response: createResponse(code: 200))
+
+        let breadcrumbs = Dynamic(fixture.scope).breadcrumbArray as [Breadcrumb]?
+        let breadcrumb = breadcrumbs!.first
+        XCTAssertEqual(breadcrumb!.data!["graphql"] as? String, "someOperationName")
+    }
+
+    func testBreadcrumb_GraphQLEnabledInvalidData() {
+        let body = """
+        [
+            {"message": "arrays are valid json"}
+        ]
+        """
+        fixture.nsUrlRequest.httpBody = body.data(using: .utf8)
+        fixture.nsUrlRequest.setValue("application/json", forHTTPHeaderField: "content-type")
+        assertStatus(status: .ok, state: .completed, response: createResponse(code: 200))
+
+        let breadcrumbs = Dynamic(fixture.scope).breadcrumbArray as [Breadcrumb]?
+        let breadcrumb = breadcrumbs!.first
+        XCTAssertNil(breadcrumb!.data!["graphql"])
+    }
+
     func testNoBreadcrumb_DisablingBreadcrumb() {
         assertStatus(status: .ok, state: .completed, response: createResponse(code: 200)) {
             $0.disable()
@@ -868,13 +902,15 @@ class SentryNetworkTrackerTests: XCTestCase {
         let requestType = span.data["type"] as? String
         let query = span.data["http.query"] as? String
         let fragment = span.data["http.fragment"] as? String
+        let graphql = span.data["graphql"] as? String
 
         XCTAssertEqual(path, "https://www.domain.com/api")
         XCTAssertEqual(method, task.currentRequest!.httpMethod)
         XCTAssertEqual(requestType, "fetch")
         XCTAssertEqual(query, "query=value&query2=value2")
         XCTAssertEqual(fragment, "fragment")
-                
+        XCTAssertNil(graphql)
+
         XCTAssertEqual(span.status, status)
         XCTAssertNil(task.observationInfo)
     }
@@ -925,6 +961,11 @@ class SentryNetworkTrackerTests: XCTestCase {
     func createDataTask(method: String = "GET", modifyRequest: ((URLRequest) -> (URLRequest))? = nil) -> URLSessionDataTaskMock {
         var request = URLRequest(url: SentryNetworkTrackerTests.fullUrl)
         request.httpMethod = method
+        request.httpBody = fixture.nsUrlRequest.httpBody
+        fixture.nsUrlRequest.allHTTPHeaderFields?.forEach { key, value in
+            request.setValue(value, forHTTPHeaderField: key)
+        }
+
         if let modifyRequest = modifyRequest {
            request = modifyRequest(request)
         }
