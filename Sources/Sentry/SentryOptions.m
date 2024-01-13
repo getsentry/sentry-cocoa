@@ -199,6 +199,7 @@ NSString *const kSentryDefaultEnvironment = @"production";
     return self;
 }
 
+/** Only exposed via `SentryOptions+HybridSDKs.h`. */
 - (_Nullable instancetype)initWithDict:(NSDictionary<NSString *, id> *)options
                       didFailWithError:(NSError *_Nullable *_Nullable)error
 {
@@ -707,5 +708,137 @@ NSString *const kSentryDefaultEnvironment = @"production";
 }
 
 #endif // SENTRY_UIKIT_AVAILABLE
+
+#if defined(DEGUG)
+- (NSString *)description
+{
+    NSMutableArray<NSString *> *optionsDescription = [NSMutableArray<NSString *> array];
+    [optionsDescription addObject:[NSString stringWithFormat:@"dsn: %@", self.dsn]];
+    [optionsDescription addObject:[NSString stringWithFormat:@"parsedDsn: %@", self.parsedDsn]];
+    [optionsDescription
+        addObject:[NSString stringWithFormat:@"debug: %@", self.debug ? @"YES" : @"NO"]];
+    [optionsDescription addObject:[NSString stringWithFormat:@"diagnosticLevel: %@",
+                                            nameForSentryLevel(self.diagnosticLevel)]];
+    [optionsDescription addObject:[NSString stringWithFormat:@"releaseName: %@", self.releaseName]];
+    [optionsDescription addObject:[NSString stringWithFormat:@"dist: %@", self.dist]];
+    [optionsDescription addObject:[NSString stringWithFormat:@"environment: %@", self.environment]];
+    [optionsDescription
+        addObject:[NSString stringWithFormat:@"enabled: %@", self.enabled ? @"YES" : @"NO"]];
+    [optionsDescription addObject:[NSString stringWithFormat:@"shutdownTimeInterval: %f",
+                                            self.shutdownTimeInterval]];
+    [optionsDescription addObject:[NSString stringWithFormat:@"enableCrashHandler: %@",
+                                            self.enableCrashHandler ? @"YES" : @"NO"]];
+    [optionsDescription addObject:[NSString stringWithFormat:@"maxBreadcrumbs: %lu",
+                                            (unsigned long)self.maxBreadcrumbs]];
+    [optionsDescription addObject:[NSString stringWithFormat:@"enableNetworkBreadcrumbs: %@",
+                                            self.enableNetworkBreadcrumbs ? @"YES" : @"NO"]];
+    [optionsDescription addObject:[NSString stringWithFormat:@"maxCacheItems: %lu",
+                                            (unsigned long)self.maxCacheItems]];
+    [optionsDescription addObject:[NSString stringWithFormat:@"beforeSend: %@", self.beforeSend]];
+    [optionsDescription
+        addObject:[NSString stringWithFormat:@"beforeBreadcrumb: %@", self.beforeBreadcrumb]];
+    [optionsDescription
+        addObject:[NSString stringWithFormat:@"onCrashedLastRun: %@", self.onCrashedLastRun]];
+    [optionsDescription
+        addObject:[NSString stringWithFormat:@"integrations: %@", self.integrations]];
+    [optionsDescription addObject:[NSString stringWithFormat:@"sampleRate: %@", self.sampleRate]];
+    [optionsDescription addObject:[NSString stringWithFormat:@"enableAutoSessionTracking: %@",
+                                            self.enableAutoSessionTracking ? @"YES" : @"NO"]];
+    [optionsDescription
+        addObject:[NSString stringWithFormat:@"enableWatchdogTerminationTracking: %@",
+                            self.enableWatchdogTerminationTracking ? @"YES" : @"NO"]];
+    [optionsDescription addObject:[NSString stringWithFormat:@"sessionTrackingIntervalMillis: %lu",
+                                            (unsigned long)self.sessionTrackingIntervalMillis]];
+    [optionsDescription addObject:[NSString stringWithFormat:@"attachStacktrace: %@",
+                                            self.attachStacktrace ? @"YES" : @"NO"]];
+    [optionsDescription addObject:[NSString stringWithFormat:@"maxAttachmentSize: %lu",
+                                            (unsigned long)self.maxAttachmentSize]];
+    [optionsDescription addObject:[NSString stringWithFormat:@"sendDefaultPii: %@",
+                                            self.sendDefaultPii ? @"YES" : @"NO"]];
+    [optionsDescription addObject:[NSString stringWithFormat:@"enableAutoPerformanceTracing: %@",
+                                            self.enableAutoPerformanceTracing ? @"YES" : @"NO"]];
+    [optionsDescription addObject:[NSString stringWithFormat:@"enablePerformanceV2: %@",
+                                            self.enablePerformanceV2 ? @"YES" : @"NO"]];
+#    if SENTRY_UIKIT_AVAILABLE
+    [optionsDescription addObject:[NSString stringWithFormat:@"enableUIViewControllerTracing: %@",
+                                            self.enableUIViewControllerTracing ? @"YES" : @"NO"]];
+    [optionsDescription addObject:[NSString stringWithFormat:@"attachScreenshot: %@",
+                                            self.attachScreenshot ? @"YES" : @"NO"]];
+    [optionsDescription addObject:[NSString stringWithFormat:@"attachViewHierarchy: %@",
+                                            self.attachViewHierarchy ? @"YES" : @"NO"]];
+    [optionsDescription addObject:[NSString stringWithFormat:@"enableUserInteractionTracing: %@",
+                                            self.enableUserInteractionTracing ? @"YES" : @"NO"]];
+    [optionsDescription addObject:[NSString stringWithFormat:@"idleTimeout: %f", self.idleTimeout]];
+    [optionsDescription addObject:[NSString stringWithFormat:@"enablePreWarmedAppStartTracing: %@",
+                                            self.enablePreWarmedAppStartTracing ? @"YES" : @"NO"]];
+#    endif // SENTRY_UIKIT_AVAILABLE
+    [optionsDescription addObject:[NSString stringWithFormat:@"enableNetworkTracking: %@",
+                                            self.enableNetworkTracking ? @"YES" : @"NO"]];
+    [optionsDescription addObject:[NSString stringWithFormat:@"enableFileIOTracing: %@",
+                                            self.enableFileIOTracing ? @"YES" : @"NO"]];
+    [optionsDescription addObject:[NSString stringWithFormat:@"enableTracing: %@",
+                                            self.enableTracing ? @"YES" : @"NO"]];
+    [optionsDescription
+        addObject:[NSString stringWithFormat:@"tracesSampleRate: %@", self.tracesSampleRate]];
+    [optionsDescription
+        addObject:[NSString stringWithFormat:@"tracesSampler: %@", self.tracesSampler]];
+    [optionsDescription addObject:[NSString stringWithFormat:@"isTracingEnabled: %@",
+                                            self.isTracingEnabled ? @"YES" : @"NO"]];
+    [optionsDescription
+        addObject:[NSString stringWithFormat:@"inAppIncludes: %@", self.inAppIncludes]];
+    [optionsDescription
+        addObject:[NSString stringWithFormat:@"inAppExcludes: %@", self.inAppExcludes]];
+    [optionsDescription
+        addObject:[NSString stringWithFormat:@"urlSessionDelegate: %@", self.urlSessionDelegate]];
+    [optionsDescription addObject:[NSString stringWithFormat:@"enableSwizzling: %@",
+                                            self.enableSwizzling ? @"YES" : @"NO"]];
+    [optionsDescription addObject:[NSString stringWithFormat:@"enableCoreDataTracing: %@",
+                                            self.enableCoreDataTracing ? @"YES" : @"NO"]];
+#    if SENTRY_TARGET_PROFILING_SUPPORTED
+    [optionsDescription addObject:[NSString stringWithFormat:@"profileAppLaunches: %@",
+                                            self.profileAppLaunches ? @"YES" : @"NO"]];
+    [optionsDescription
+        addObject:[NSString stringWithFormat:@"profilesSampleRate: %@", self.profilesSampleRate]];
+    [optionsDescription
+        addObject:[NSString stringWithFormat:@"profilesSampler: %@", self.profilesSampler]];
+    [optionsDescription addObject:[NSString stringWithFormat:@"isProfilingEnabled: %@",
+                                            self.isProfilingEnabled ? @"YES" : @"NO"]];
+#        pragma clang diagnostic push
+#        pragma clang diagnostic ignored "-Wdeprecated"
+    [optionsDescription addObject:[NSString stringWithFormat:@"enableProfiling (deprecated): %@",
+                                            self.enableProfiling ? @"YES" : @"NO"]];
+#        pragma clang diagnostic pop
+#    endif // SENTRY_TARGET_PROFILING_SUPPORTED
+    [optionsDescription addObject:[NSString stringWithFormat:@"sendClientReports: %@",
+                                            self.sendClientReports ? @"YES" : @"NO"]];
+    [optionsDescription addObject:[NSString stringWithFormat:@"enableAppHangTracking: %@",
+                                            self.enableAppHangTracking ? @"YES" : @"NO"]];
+    [optionsDescription addObject:[NSString stringWithFormat:@"appHangTimeoutInterval: %f",
+                                            self.appHangTimeoutInterval]];
+    [optionsDescription addObject:[NSString stringWithFormat:@"enableAutoBreadcrumbTracking: %@",
+                                            self.enableAutoBreadcrumbTracking ? @"YES" : @"NO"]];
+    [optionsDescription addObject:[NSString stringWithFormat:@"tracePropagationTargets: %@",
+                                            self.tracePropagationTargets]];
+    [optionsDescription addObject:[NSString stringWithFormat:@"enableCaptureFailedRequests: %@",
+                                            self.enableCaptureFailedRequests ? @"YES" : @"NO"]];
+    [optionsDescription addObject:[NSString stringWithFormat:@"failedRequestStatusCodes: %@",
+                                            self.failedRequestStatusCodes]];
+    [optionsDescription addObject:[NSString stringWithFormat:@"failedRequestTargets: %@",
+                                            self.failedRequestTargets]];
+#    if SENTRY_HAS_METRIC_KIT
+    if (@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, *)) {
+        [optionsDescription addObject:[NSString stringWithFormat:@"enableMetricKit: %@",
+                                                self.enableMetricKit ? @"YES" : @"NO"]];
+    }
+#    endif // SENTRY_HAS_METRIC_KIT
+    [optionsDescription addObject:[NSString stringWithFormat:@"enableTimeToFullDisplayTracing: %@",
+                                            self.enableTimeToFullDisplayTracing ? @"YES" : @"NO"]];
+    [optionsDescription addObject:[NSString stringWithFormat:@"swiftAsyncStacktraces: %@",
+                                            self.swiftAsyncStacktraces ? @"YES" : @"NO"]];
+    [optionsDescription
+        addObject:[NSString stringWithFormat:@"cacheDirectoryPath: %@", self.cacheDirectoryPath]];
+    return [optionsDescription componentsJoinedByString:@"\n"];
+}
+#endif // defined(DEGUG)
 
 @end
