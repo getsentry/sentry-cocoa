@@ -5,6 +5,7 @@
 ### Features
 
 - Send debug meta for app start transactions (#3543)
+- Automatically profile app launches (#3529)
 
 ### Fixes
 

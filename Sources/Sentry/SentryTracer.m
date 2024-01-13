@@ -5,11 +5,13 @@
 #import "SentryDebugImageProvider.h"
 #import "SentryDependencyContainer.h"
 #import "SentryEvent+Private.h"
+#import "SentryFileManager.h"
 #import "SentryHub+Private.h"
 #import "SentryLog.h"
 #import "SentryNSTimerFactory.h"
 #import "SentryNoOpSpan.h"
 #import "SentryProfilingConditionals.h"
+#import "SentryRandom.h"
 #import "SentrySDK+Private.h"
 #import "SentryScope.h"
 #import "SentrySpan.h"
@@ -21,6 +23,7 @@
 #import "SentryTraceContext.h"
 #import "SentryTraceOrigins.h"
 #import "SentryTracer+Private.h"
+#import "SentryTracesSampler.h"
 #import "SentryTransaction.h"
 #import "SentryTransactionContext.h"
 #import "SentryUIApplication.h"
@@ -101,8 +104,118 @@ SentryTracer ()
 #endif // SENTRY_HAS_UIKIT
 }
 
+#if SENTRY_TARGET_PROFILING_SUPPORTED
+static NSObject *appLaunchTraceLock;
+static SentryId *_Nullable appLaunchTraceId;
+BOOL isTracingAppLaunch;
+static uint64_t appLaunchSystemTime;
+SentryTracesSamplerDecision *appLaunchTraceSamplerDecision;
+SentryProfilesSamplerDecision *appLaunchProfilerSamplerDecision;
+
+/**
+ * Decision tree:
+ * ```
+ * ─ is there a configuration file?
+ *   ├── yes: SentryTracesSampler sampling decision?
+ *   │   ├── yes: SentryProfilesSampler sampling decision?
+ *   │   │   ├── yes: ✅ trace app launch
+ *   │   │   └── no: ❌ do not trace app launch
+ *   │   └── no: ❌ do not trace app launch
+ *   └── no: ❌ do not trace app launch
+ * ```
+ */
++ (BOOL)shouldTraceAppLaunch
+{
+    [SentryFileManager load];
+
+    NSString *configFilePath = [SentryFileManager sentryLaunchConfigPath];
+
+    if (![[NSFileManager defaultManager] fileExistsAtPath:configFilePath]) {
+        SENTRY_LOG_DEBUG(@"No launch profile config file.");
+        return NO;
+    }
+
+    // get app launch configuration options
+    NSError *error;
+    NSData *configData = [NSData dataWithContentsOfFile:configFilePath options:0 error:&error];
+    if (error != nil) {
+        // we can't read the config file? bail out
+        SENTRY_LOG_DEBUG(@"Couldn't read launch profile config file: %@.", error);
+        return NO;
+    }
+
+    if (configData == nil) {
+        SENTRY_LOG_DEBUG(@"The profile config file was empty.");
+        return NO;
+    }
+
+    error = nil;
+    // a map of strings to numeric values for sample rates or boolean values for
+    // enabling/disabling launch tracing
+    NSDictionary<NSString *, NSNumber *> *launchConfig =
+        [NSJSONSerialization JSONObjectWithData:configData options:0 error:&error];
+    if (error != nil) {
+        SENTRY_LOG_DEBUG(@"Couldn't deserialize launch profile config file: %@", error);
+        return NO;
+    }
+
+    double tracesSampleRate = [launchConfig[@"tracesSampleRate"] doubleValue];
+    double profilesSampleRate = [launchConfig[@"profilesSampleRate"] doubleValue];
+    if (tracesSampleRate == 0 || profilesSampleRate == 0) {
+        SENTRY_LOG_DEBUG(@"Sampling out this launch trace due to sample rate of 0.");
+        return NO;
+    }
+
+    [SentryTracesSampler load];
+    [SentryProfilesSampler load];
+    [SentryRandom load];
+
+    SentryRandom *random = [[SentryRandom alloc] init];
+    appLaunchTraceSamplerDecision = [SentryTracesSampler calcSample:tracesSampleRate random:random];
+    if (appLaunchTraceSamplerDecision.decision != kSentrySampleDecisionYes) {
+        SENTRY_LOG_DEBUG(@"Sampling out this launch trace due to sample decision NO.");
+        return NO;
+    }
+
+    appLaunchProfilerSamplerDecision = [SentryProfilesSampler calcSample:profilesSampleRate
+                                                                  random:random];
+    return appLaunchProfilerSamplerDecision.decision == kSentrySampleDecisionYes;
+}
+
++ (void)startLaunchProfile
+{
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        [SentryLog load];
+#    if defined(DEBUG)
+        // quick and dirty way to get debug logging this early in the process run. this will get
+        // overwritten once SentrySDK.startWithOptions is called according to the values of
+        // SentryOptions.debug and SentryOptions.diagnosticLevel
+        [SentryLog configure:YES diagnosticLevel:kSentryLevelDebug];
+#    endif // defined(DEBUG)
+
+        if (![self shouldTraceAppLaunch]) {
+            return;
+        }
+
+        appLaunchSystemTime = SentryDependencyContainer.sharedInstance.dateProvider.systemTime;
+        appLaunchTraceLock = [[NSObject alloc] init];
+        appLaunchTraceId = [[SentryId alloc] init];
+
+        SENTRY_LOG_INFO(@"Starting app launch profile at %llu", appLaunchSystemTime);
+    });
+}
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED
+
 static NSObject *appStartMeasurementLock;
 static BOOL appStartMeasurementRead;
+
+#if SENTRY_TARGET_PROFILING_SUPPORTED
++ (void)load
+{
+    [self startLaunchProfile];
+}
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
 + (void)initialize
 {
@@ -174,11 +287,29 @@ static BOOL appStartMeasurementRead;
 #endif // SENTRY_HAS_UIKIT
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
-    if (_configuration.profilesSamplerDecision.decision == kSentrySampleDecisionYes) {
-        _internalID = [[SentryId alloc] init];
-        _isProfiling = [SentryProfiler startWithTracer:_internalID];
+    BOOL isTracingAppLaunchValue;
+    @synchronized(appLaunchTraceLock) {
+        isTracingAppLaunchValue = isTracingAppLaunch;
+    }
+    if (isTracingAppLaunchValue) {
+        _internalID = appLaunchTraceId;
+        SENTRY_LOG_DEBUG(
+            @"App launch profile in progress, will attach to trace %@", _internalID.sentryIdString);
+        appLaunchTraceId = nil;
+        _isProfiling = isTracingAppLaunchValue;
+        _startSystemTime = appLaunchSystemTime;
+    } else {
+        if (_configuration.profilesSamplerDecision.decision == kSentrySampleDecisionYes) {
+            _internalID = [[SentryId alloc] init];
+            if ((_isProfiling = [SentryProfiler startWithTracer:_internalID])) {
+                SENTRY_LOG_DEBUG(@"Started profiler for trace %@", _internalID.sentryIdString);
+            }
+            _startSystemTime = SentryDependencyContainer.sharedInstance.dateProvider.systemTime;
+        }
     }
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
+
+    SENTRY_LOG_DEBUG(@"Started tracer with id: %@", transactionContext.traceId);
 
     return self;
 }
@@ -567,6 +698,13 @@ static BOOL appStartMeasurementRead;
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
     if (self.isProfiling) {
+        // as long as this isn't used for any conditional branching logic, and is just being set to
+        // NO, we don't need to synchronize the read here
+        if (isTracingAppLaunch) {
+            @synchronized(appLaunchTraceLock) {
+                isTracingAppLaunch = NO;
+            }
+        }
         [self captureTransactionWithProfile:transaction];
         return;
     }
@@ -642,12 +780,14 @@ static BOOL appStartMeasurementRead;
 
     SentryTransaction *transaction = [[SentryTransaction alloc] initWithTrace:self children:spans];
     transaction.transaction = self.transactionContext.name;
+
 #if SENTRY_TARGET_PROFILING_SUPPORTED
-    transaction.startSystemTime = self.startSystemTime;
     if (self.isProfiling) {
+        transaction.startSystemTime = self.startSystemTime;
         [SentryProfiler recordMetrics];
+        transaction.endSystemTime
+            = SentryDependencyContainer.sharedInstance.dateProvider.systemTime;
     }
-    transaction.endSystemTime = SentryDependencyContainer.sharedInstance.dateProvider.systemTime;
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
     NSMutableArray *framesOfAllSpans = [NSMutableArray array];

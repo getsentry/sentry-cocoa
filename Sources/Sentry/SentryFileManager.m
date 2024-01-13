@@ -46,6 +46,37 @@ SentryFileManager ()
 
 @implementation SentryFileManager
 
++ (NSString *)sentryApplicationSupportPath
+{
+    static NSString *sentryApplicationSupportPath;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        NSArray *paths = NSSearchPathForDirectoriesInDomains(
+            NSApplicationSupportDirectory, NSUserDomainMask, YES);
+        NSString *applicationSupportDirectory = [paths firstObject];
+        sentryApplicationSupportPath =
+            [applicationSupportDirectory stringByAppendingPathComponent:@"io.sentry"];
+
+        NSError *error;
+        if (![self createDirectoryIfNotExists:sentryApplicationSupportPath error:&error]) {
+            SENTRY_LOG_ERROR(
+                @"Failed to create directory %@: %@", sentryApplicationSupportPath, error);
+        }
+    });
+    return sentryApplicationSupportPath;
+}
+
++ (NSString *)sentryLaunchConfigPath
+{
+    static NSString *sentryLaunchConfigPath;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        sentryLaunchConfigPath = [[SentryFileManager sentryApplicationSupportPath]
+            stringByAppendingPathComponent:@"launchConfig"];
+    });
+    return sentryLaunchConfigPath;
+}
+
 - (nullable instancetype)initWithOptions:(SentryOptions *)options error:(NSError **)error
 {
     return [self initWithOptions:options
@@ -65,10 +96,10 @@ SentryFileManager ()
         self.eventsPath = [self.sentryPath stringByAppendingPathComponent:@"events"];
         [self removeFileAtPath:self.eventsPath];
 
-        if (![self createDirectoryIfNotExists:self.sentryPath error:error]) {
+        if (![[self class] createDirectoryIfNotExists:self.sentryPath error:error]) {
             return nil;
         }
-        if (![self createDirectoryIfNotExists:self.envelopesPath error:error]) {
+        if (![[self class] createDirectoryIfNotExists:self.envelopesPath error:error]) {
             return nil;
         }
 
@@ -217,7 +248,7 @@ SentryFileManager ()
 {
     [self removeFileAtPath:self.envelopesPath];
     NSError *error;
-    if (![self createDirectoryIfNotExists:self.envelopesPath error:&error]) {
+    if (![[self class] createDirectoryIfNotExists:self.envelopesPath error:&error]) {
         SENTRY_LOG_ERROR(@"Couldn't create envelopes path.");
     }
 }
@@ -429,7 +460,7 @@ SentryFileManager ()
 - (BOOL)writeData:(NSData *)data toPath:(NSString *)path
 {
     NSError *error;
-    if (![self createDirectoryIfNotExists:self.sentryPath error:&error]) {
+    if (![[self class] createDirectoryIfNotExists:self.sentryPath error:&error]) {
         SENTRY_LOG_ERROR(@"File I/O not available at path %@: %@", path, error);
         return NO;
     }
@@ -669,7 +700,7 @@ SentryFileManager ()
     self.envelopesPath = [self.sentryPath stringByAppendingPathComponent:EnvelopesPathComponent];
 }
 
-- (BOOL)createDirectoryIfNotExists:(NSString *)path error:(NSError **)error
++ (BOOL)createDirectoryIfNotExists:(NSString *)path error:(NSError **)error
 {
     if (![[NSFileManager defaultManager] createDirectoryAtPath:path
                                    withIntermediateDirectories:YES

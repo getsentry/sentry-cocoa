@@ -23,6 +23,8 @@ SENTRY_NO_INIT
 @property (nonatomic, readonly) NSString *previousBreadcrumbsFilePathOne;
 @property (nonatomic, readonly) NSString *previousBreadcrumbsFilePathTwo;
 
++ (NSString *)sentryLaunchConfigPath;
+
 - (nullable instancetype)initWithOptions:(SentryOptions *)options error:(NSError **)error;
 
 - (nullable instancetype)initWithOptions:(SentryOptions *)options

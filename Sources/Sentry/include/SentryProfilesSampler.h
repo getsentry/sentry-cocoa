@@ -2,13 +2,13 @@
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
-#    import "SentryRandom.h"
 #    import "SentrySampleDecision.h"
 #    import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
 @class SentryOptions, SentrySamplingContext, SentryTracesSamplerDecision;
+@protocol SentryRandom;
 
 @interface SentryProfilesSamplerDecision : NSObject
 
@@ -47,6 +47,8 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (SentryProfilesSamplerDecision *)sample:(SentrySamplingContext *)context
                     tracesSamplerDecision:(SentryTracesSamplerDecision *)tracesSamplerDecision;
+
++ (SentryProfilesSamplerDecision *)calcSample:(double)rate random:(id<SentryRandom>)random;
 
 @end
 

@@ -4,6 +4,7 @@
 
 #    import "SentryDependencyContainer.h"
 #    import "SentryOptions+Private.h"
+#    import "SentryRandom.h"
 #    import "SentryTracesSampler.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -79,7 +80,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (SentryProfilesSamplerDecision *)calcSample:(double)rate
 {
-    double r = [self.random nextNumber];
+    return [[self class] calcSample:rate random:self.random];
+}
+
++ (SentryProfilesSamplerDecision *)calcSample:(double)rate random:(id<SentryRandom>)random
+{
+    double r = [random nextNumber];
     SentrySampleDecision decision = r <= rate ? kSentrySampleDecisionYes : kSentrySampleDecisionNo;
     return
         [[SentryProfilesSamplerDecision alloc] initWithDecision:decision

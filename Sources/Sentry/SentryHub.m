@@ -382,21 +382,40 @@ SentryHub ()
                         customSamplingContext:(NSDictionary<NSString *, id> *)customSamplingContext
                                 configuration:(SentryTracerConfiguration *)configuration
 {
-    SentrySamplingContext *samplingContext =
-        [[SentrySamplingContext alloc] initWithTransactionContext:transactionContext
-                                            customSamplingContext:customSamplingContext];
+    SentryTracesSamplerDecision *samplerDecision;
 
-    SentryTracesSamplerDecision *samplerDecision = [_tracesSampler sample:samplingContext];
+    // in order to sample launch profiles, we must have already computed the trace/profile sampling
+    // decisions, so that we don't run the profiler for a launch that it would eventually be decided
+    // to sample out, thus incurring unnecessary overhead. They are stored in a static reference in
+    // SentryTracer; access them here so that we can properly start the needed trace that will
+    // contain the launch profile.
+#if SENTRY_TARGET_PROFILING_SUPPORTED
+    SENTRY_LOG_DEBUG(@"Checking for a possible app launch sample decision...");
+    SentryProfilesSamplerDecision *profilesSamplerDecision;
+    if (isTracingAppLaunch) {
+        SENTRY_LOG_DEBUG(@"Launch profiler is running.");
+        samplerDecision = appLaunchTraceSamplerDecision;
+        profilesSamplerDecision = appLaunchProfilerSamplerDecision;
+    } else {
+        SENTRY_LOG_DEBUG(@"Not running an app launch profile.");
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED
+
+        SentrySamplingContext *samplingContext =
+            [[SentrySamplingContext alloc] initWithTransactionContext:transactionContext
+                                                customSamplingContext:customSamplingContext];
+
+        samplerDecision = [_tracesSampler sample:samplingContext];
+
+#if SENTRY_TARGET_PROFILING_SUPPORTED
+        profilesSamplerDecision = [_profilesSampler sample:samplingContext
+                                     tracesSamplerDecision:samplerDecision];
+        configuration.profilesSamplerDecision = profilesSamplerDecision;
+    }
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED"
+
     transactionContext = [self transactionContext:transactionContext
                                       withSampled:samplerDecision.decision];
     transactionContext.sampleRate = samplerDecision.sampleRate;
-
-#if SENTRY_TARGET_PROFILING_SUPPORTED
-    SentryProfilesSamplerDecision *profilesSamplerDecision =
-        [_profilesSampler sample:samplingContext tracesSamplerDecision:samplerDecision];
-
-    configuration.profilesSamplerDecision = profilesSamplerDecision;
-#endif // SENTRY_TARGET_PROFILING_SUPPORTED"
 
     SentryTracer *tracer = [[SentryTracer alloc] initWithTransactionContext:transactionContext
                                                                         hub:self

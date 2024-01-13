@@ -1,3 +1,5 @@
+#import "SentryDefines.h"
+#import "SentryProfilingConditionals.h"
 #import "SentrySpan.h"
 #import "SentrySpanProtocol.h"
 #import "SentryTracerConfiguration.h"
@@ -5,9 +7,30 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class SentryHub, SentryTransactionContext, SentryTraceHeader, SentryTraceContext,
-    SentryNSTimerFactory, SentryDispatchQueueWrapper, SentryTracer, SentryProfilesSamplerDecision,
-    SentryMeasurementValue;
+@class SentryDispatchQueueWrapper;
+@class SentryHub;
+@class SentryMeasurementValue;
+@class SentryNSTimerFactory;
+@class SentryProfilesSamplerDecision;
+@class SentryTraceContext;
+@class SentryTraceHeader;
+@class SentryTracer;
+@class SentryTracesSamplerDecision;
+@class SentryTransactionContext;
+
+#if SENTRY_TARGET_PROFILING_SUPPORTED
+/**
+ * This is calculated when @c +[SentryTracer @c load] is called, so we don't run the
+ * profiler for a launch and then later have the @c tracesSamplerDecision return @c NO, throwing
+ * out the data and effectively having caused unnecessary launch overhead. We expose this here so
+ * that in the place where the hub requests a sampling decision on whether to start a trace, if it's
+ * for the SDK start trace, this decision is used, so that we don't recompute it and possibly get
+ * a disagreement.
+ */
+SENTRY_EXTERN SentryTracesSamplerDecision *appLaunchTraceSamplerDecision;
+SENTRY_EXTERN SentryProfilesSamplerDecision *appLaunchProfilerSamplerDecision;
+SENTRY_EXTERN BOOL isTracingAppLaunch;
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
 static NSTimeInterval const SentryTracerDefaultTimeout = 3.0;
 

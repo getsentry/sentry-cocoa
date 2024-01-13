@@ -36,7 +36,7 @@ static NSString *const SentryPlatformName = @"cocoa";
  */
 #define SENTRY_ASSERT_RETURN(cond, ...)                                                            \
     ({                                                                                             \
-        const auto __cond_result = (cond);                                                         \
+        BOOL __cond_result = (cond);                                                               \
         if (!__cond_result) {                                                                      \
             SENTRY_LOG_WARN(__VA_ARGS__);                                                          \
             NSAssert(NO, __VA_ARGS__);                                                             \
@@ -51,7 +51,7 @@ static NSString *const SentryPlatformName = @"cocoa";
  */
 #define SENTRY_CASSERT_RETURN(cond, ...)                                                           \
     ({                                                                                             \
-        const auto __cond_result = (cond);                                                         \
+        BOOL __cond_result = (cond);                                                               \
         if (!__cond_result) {                                                                      \
             SENTRY_LOG_WARN(__VA_ARGS__);                                                          \
             NSCAssert(NO, __VA_ARGS__);                                                            \
