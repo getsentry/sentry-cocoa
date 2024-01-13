@@ -1,20 +1,23 @@
 import UIKit
 
-@available(iOS 13.0, *)
+@available(iOS 16.0, *)
 class ProfilingViewController: UIViewController, UITextFieldDelegate {
-
+    
     @IBOutlet weak var workThreadLabel: UILabel!
     @IBOutlet weak var workIntensityFactorLabel: UILabel!
-
+    
     @IBOutlet weak var workThreadSlider: UISlider!
     @IBOutlet weak var workIntervalSlider: UISlider!
-
+    
     @IBOutlet weak var maxThreadsTextField: UITextField!
     @IBOutlet weak var minThreadsTextField: UITextField!
     @IBOutlet weak var minWorkIntensityTextField: UITextField!
     @IBOutlet weak var maxWorkIntensityTextField: UITextField!
     @IBOutlet weak var valueTextField: UITextField!
-
+    
+    @IBOutlet weak var profilingUITestDataMarshalingTextField: UITextField!
+    @IBOutlet weak var profilingUITestDataMarshalingStatus: UILabel!
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         minWorkIntensityTextField.text = String(defaultLongestIntervalMicros)
@@ -24,73 +27,125 @@ class ProfilingViewController: UIViewController, UITextFieldDelegate {
         [maxThreadsTextField, minThreadsTextField, minWorkIntensityTextField, maxWorkIntensityTextField].forEach {
             $0?.delegate = self
         }
+        profilingUITestDataMarshalingTextField.accessibilityLabel = "io.sentry.ui-tests.profile-marshaling-text-field"
     }
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         SentrySDK.reportFullyDisplayed()
     }
-
+    
     @IBAction func startBenchmark(_ sender: UIButton) {
         highlightButton(sender)
         SentryBenchmarking.startBenchmark()
     }
-
+    
     @IBAction func stopBenchmark(_ sender: UIButton) {
         highlightButton(sender)
         let value = SentryBenchmarking.stopBenchmark()!
         valueTextField.isHidden = false
         valueTextField.text = value
-        print("[iOS-Swift] benchmarking results:\n\(value)")
+        print("[iOS-Swift] [Profiling] benchmarking results:\n\(value)")
     }
-
+    
     @IBAction func startCPUWork(_ sender: UIButton) {
         highlightButton(sender)
         _adjustWorkThreadsToCurrentRequirement()
     }
-
+    
     @IBAction func minWorkThreadCountChanged(_ sender: Any) {
         _adjustWorkThreadsToCurrentRequirement()
     }
-
+    
     @IBAction func workThreadSliderChanged(_ sender: Any) {
         _adjustWorkThreadsToCurrentRequirement()
     }
-
+    
     @IBAction func maxWorkThreadCountChanged(_ sender: Any) {
         _adjustWorkThreadsToCurrentRequirement()
     }
-
+    
     @IBAction func endCPUWork(_ sender: UIButton) {
         highlightButton(sender)
         cpuWorkthreads.forEach { $0.cancel() }
         cpuWorkthreads.removeAll()
     }
-
+    
     @IBAction func minWorkIntervalChanged(_ sender: Any) {
         _adjustWorkIntervalToCurrentRequirements()
     }
-
+    
     @IBAction func workIntensityChanged(_ sender: UISlider) {
         _adjustWorkIntervalToCurrentRequirements()
     }
-
+    
     @IBAction func maxWorkIntervalChanged(_ sender: Any) {
         _adjustWorkIntervalToCurrentRequirements()
     }
-
+    
     @IBAction func bgBrightnessChanged(_ sender: UISlider) {
         view.backgroundColor = .init(white: CGFloat(sender.value), alpha: 1)
     }
-
+    
+    @IBAction func viewLaunchConfig(_ sender: Any) {
+        let launchConfigPath = ((NSSearchPathForDirectoriesInDomains(.applicationSupportDirectory, .userDomainMask, true).first! as NSString).appendingPathComponent("io.sentry") as NSString).appendingPathComponent("launchConfig")
+        let url = URL(fileURLWithPath: launchConfigPath)
+        handleContents(file: url)
+    }
+    
+    @IBAction func viewLastProfile(_ sender: Any) {
+        profilingUITestDataMarshalingTextField.text = "<fetching...>"
+        withProfile(fileName: "profile") { file in
+            handleContents(file: file)
+        }
+    }
+    
+    @IBAction func viewLaunchProfile(_ sender: Any) {
+        profilingUITestDataMarshalingTextField.text = "<fetching...>"
+        withProfile(fileName: "launchProfile") { file in
+            handleContents(file: file)
+        }
+    }
+        
     // MARK: UITextFieldDelegate
-
+    
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         textField.resignFirstResponder()
     }
+}
 
-    // MARK: Private
-
+// MARK: Private
+@available(iOS 16.0, *)
+extension ProfilingViewController {
+    func withProfile(fileName: String, block: (URL?) -> Void) {
+        let appSupportDirectory = NSSearchPathForDirectoriesInDomains(.applicationSupportDirectory, .userDomainMask, true).first!
+        for file in FileManager.default.enumerator(at: URL(filePath: appSupportDirectory), includingPropertiesForKeys: [URLResourceKey.nameKey])! {
+            let url = file as! URL
+            if url.absoluteString.contains(fileName) {
+                block(url)
+                return
+            }
+        }
+        block(nil)
+    }
+    
+    func handleContents(file: URL?) {
+        guard let file = file else {
+            profilingUITestDataMarshalingTextField.text = "<missing>"
+            profilingUITestDataMarshalingStatus.text = "❌"
+            return
+        }
+        guard let data = try? Data(contentsOf: file) else {
+            profilingUITestDataMarshalingTextField.text = "<empty>"
+            profilingUITestDataMarshalingStatus.text = "❌"
+            return
+        }
+        let contents = data.base64EncodedString()
+        print("[iOS-Swift] [Profiling] contents of file at \(file): \(String(data: data, encoding: .utf8))")
+        profilingUITestDataMarshalingTextField.text = contents
+        profilingUITestDataMarshalingStatus.text = "✅"
+    }
+    
     func _adjustWorkThreadsToCurrentRequirement() {
         let maxThreads = (maxThreadsTextField.text! as NSString).integerValue
         let minThreads = (minThreadsTextField.text! as NSString).integerValue
