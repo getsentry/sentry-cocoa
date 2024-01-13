@@ -28,7 +28,6 @@ NS_ASSUME_NONNULL_BEGIN
  * a disagreement.
  */
 SENTRY_EXTERN SentryTracesSamplerDecision *appLaunchTraceSamplerDecision;
-SENTRY_EXTERN SentryProfilesSamplerDecision *appLaunchProfilerSamplerDecision;
 SENTRY_EXTERN BOOL isTracingAppLaunch;
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 

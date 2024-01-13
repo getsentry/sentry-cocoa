@@ -391,11 +391,9 @@ SentryHub ()
     // contain the launch profile.
 #if SENTRY_TARGET_PROFILING_SUPPORTED
     SENTRY_LOG_DEBUG(@"Checking for a possible app launch sample decision...");
-    SentryProfilesSamplerDecision *profilesSamplerDecision;
     if (isTracingAppLaunch) {
         SENTRY_LOG_DEBUG(@"Launch profiler is running.");
         samplerDecision = appLaunchTraceSamplerDecision;
-        profilesSamplerDecision = appLaunchProfilerSamplerDecision;
     } else {
         SENTRY_LOG_DEBUG(@"Not running an app launch profile.");
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
@@ -405,11 +403,7 @@ SentryHub ()
                                                 customSamplingContext:customSamplingContext];
 
         samplerDecision = [_tracesSampler sample:samplingContext];
-
 #if SENTRY_TARGET_PROFILING_SUPPORTED
-        profilesSamplerDecision = [_profilesSampler sample:samplingContext
-                                     tracesSamplerDecision:samplerDecision];
-        configuration.profilesSamplerDecision = profilesSamplerDecision;
     }
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED"
 

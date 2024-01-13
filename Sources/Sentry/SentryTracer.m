@@ -110,7 +110,6 @@ static SentryId *_Nullable appLaunchTraceId;
 BOOL isTracingAppLaunch;
 static uint64_t appLaunchSystemTime;
 SentryTracesSamplerDecision *appLaunchTraceSamplerDecision;
-SentryProfilesSamplerDecision *appLaunchProfilerSamplerDecision;
 
 /**
  * Decision tree:
@@ -177,9 +176,8 @@ SentryProfilesSamplerDecision *appLaunchProfilerSamplerDecision;
         return NO;
     }
 
-    appLaunchProfilerSamplerDecision = [SentryProfilesSampler calcSample:profilesSampleRate
-                                                                  random:random];
-    return appLaunchProfilerSamplerDecision.decision == kSentrySampleDecisionYes;
+    return [[SentryProfilesSampler calcSample:profilesSampleRate random:random] decision]
+        == kSentrySampleDecisionYes;
 }
 
 + (void)startLaunchProfile
