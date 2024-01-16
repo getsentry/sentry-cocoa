@@ -201,6 +201,10 @@ SentryTracesSamplerDecision *appLaunchTraceSamplerDecision;
         appLaunchTraceId = [[SentryId alloc] init];
 
         SENTRY_LOG_INFO(@"Starting app launch profile at %llu", appLaunchSystemTime);
+
+        // don't worry about synchronizing the write here, as there should be no other tracing
+        // activity going on this early in the process. this codepath is also behind a dispatch_once
+        isTracingAppLaunch = [SentryProfiler startWithTracer:appLaunchTraceId];
     });
 }
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
