@@ -376,13 +376,13 @@ NS_SWIFT_NAME(Options)
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 /**
+ * @warning This is an experimental feature and may still have bugs.
  * Set to @c YES to run the profiler as early as possible in an app launch, before you would
  * normally have the opportunity to call @c SentrySDK.start . If enabled, the @c tracesSampleRate
  * and @c profilesSampleRate are persisted to disk and read on the next app launch to decide whether
  * to profile that launch.
  * @see @c tracesSampler and @c profilesSampler for more information on how they work for this
  * feature.
- * @warning This is an experimental feature and may still have bugs.
  */
 @property (nonatomic, assign) BOOL profileAppLaunches;
 
