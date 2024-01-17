@@ -171,66 +171,13 @@ samplingContextForAppLaunches(void)
 void
 configureLaunchProfiling(SentryOptions *options)
 {
-    // ???: do we need both options.enableAutoPerformanceTracing and
-    // ???: options.enableUIViewControllerTracing, or does one imply the other?
-    if (options.profileAppLaunches && options.enableAutoPerformanceTracing
+    BOOL shouldProfileNextLaunch = options.profileAppLaunches
+        && options.enableAutoPerformanceTracing
 #    if SENTRY_UIKIT_AVAILABLE
         && options.enableUIViewControllerTracing
 #    endif // SENTRY_UIKIT_AVAILABLE
-        && options.enableSwizzling && options.enableTracing) {
-        [SentryDependencyContainer.sharedInstance.dispatchQueueWrapper dispatchAsyncWithBlock:^{
-            SENTRY_LOG_DEBUG(@"Writing app launch profile config file...");
-            SentrySamplingContext *appLaunchSamplingContext;
-            NSNumber *resolvedTracesSampleRate;
-            if (options.tracesSampler != nil) {
-                appLaunchSamplingContext = samplingContextForAppLaunches();
-                resolvedTracesSampleRate = options.tracesSampler(appLaunchSamplingContext);
-                SENTRY_LOG_DEBUG(
-                    @"Got sample rate of %@ from tracesSampler.", resolvedTracesSampleRate);
-            } else if (options.tracesSampleRate != nil) {
-                resolvedTracesSampleRate = options.tracesSampleRate;
-                SENTRY_LOG_DEBUG(
-                    @"Got numerical traces sample rate of %@.", resolvedTracesSampleRate);
-            }
-
-            if (!SENTRY_CASSERT_RETURN(resolvedTracesSampleRate != nil,
-                    @"We should always have a traces sample rate when configuring the SDK.")) {
-                return;
-            }
-
-            NSNumber *resolvedProfilesSampleRate;
-            if (options.profilesSampler != nil) {
-                if (appLaunchSamplingContext == nil) {
-                    appLaunchSamplingContext = samplingContextForAppLaunches();
-                }
-                resolvedProfilesSampleRate = options.profilesSampler(appLaunchSamplingContext);
-                SENTRY_LOG_DEBUG(
-                    @"Got sample rate of %@ from profilesSampler.", resolvedProfilesSampleRate);
-            } else if (options.profilesSampleRate != nil) {
-                resolvedProfilesSampleRate = options.profilesSampleRate;
-                SENTRY_LOG_DEBUG(
-                    @"Got numerical profiles sample rate of %@.", resolvedProfilesSampleRate);
-            }
-
-            if (!SENTRY_CASSERT_RETURN(resolvedProfilesSampleRate != nil,
-                    @"We should always have a profiles sample rate when configuring the SDK.")) {
-                return;
-            }
-
-            NSMutableDictionary<NSString *, NSNumber *> *json =
-                [NSMutableDictionary<NSString *, NSNumber *> dictionary];
-            json[@"tracesSampleRate"] = resolvedTracesSampleRate;
-            json[@"profilesSampleRate"] = resolvedProfilesSampleRate;
-
-            NSData *data = [SentrySerialization dataWithJSONObject:json];
-            NSError *error;
-            NSString *path = [SentryFileManager sentryLaunchConfigPath];
-            if (![data writeToFile:path options:NSDataWritingAtomic error:&error]) {
-                SENTRY_LOG_ERROR(
-                    @"Failed to write launch config data to file: %@ (%@).", path, error);
-            }
-        }];
-    } else {
+        && options.enableSwizzling && options.enableTracing;
+    if (!shouldProfileNextLaunch) {
 #    if SENTRY_UIKIT_AVAILABLE
         SENTRY_LOG_DEBUG(
             @"Won't write app launch config file due to specified options configuration: "
@@ -248,6 +195,57 @@ configureLaunchProfiling(SentryOptions *options)
             options.enableSwizzling, options.enableTracing);
 #    endif // SENTRY_UIKIT_AVAILABLE
     }
+
+    [SentryDependencyContainer.sharedInstance.dispatchQueueWrapper dispatchAsyncWithBlock:^{
+        SENTRY_LOG_DEBUG(@"Writing app launch profile config file...");
+        SentrySamplingContext *appLaunchSamplingContext;
+        NSNumber *resolvedTracesSampleRate;
+        if (options.tracesSampler != nil) {
+            appLaunchSamplingContext = samplingContextForAppLaunches();
+            resolvedTracesSampleRate = options.tracesSampler(appLaunchSamplingContext);
+            SENTRY_LOG_DEBUG(
+                @"Got sample rate of %@ from tracesSampler.", resolvedTracesSampleRate);
+        } else if (options.tracesSampleRate != nil) {
+            resolvedTracesSampleRate = options.tracesSampleRate;
+            SENTRY_LOG_DEBUG(@"Got numerical traces sample rate of %@.", resolvedTracesSampleRate);
+        }
+
+        if (!SENTRY_CASSERT_RETURN(resolvedTracesSampleRate != nil,
+                @"We should always have a traces sample rate when configuring the SDK.")) {
+            return;
+        }
+
+        NSNumber *resolvedProfilesSampleRate;
+        if (options.profilesSampler != nil) {
+            if (appLaunchSamplingContext == nil) {
+                appLaunchSamplingContext = samplingContextForAppLaunches();
+            }
+            resolvedProfilesSampleRate = options.profilesSampler(appLaunchSamplingContext);
+            SENTRY_LOG_DEBUG(
+                @"Got sample rate of %@ from profilesSampler.", resolvedProfilesSampleRate);
+        } else if (options.profilesSampleRate != nil) {
+            resolvedProfilesSampleRate = options.profilesSampleRate;
+            SENTRY_LOG_DEBUG(
+                @"Got numerical profiles sample rate of %@.", resolvedProfilesSampleRate);
+        }
+
+        if (!SENTRY_CASSERT_RETURN(resolvedProfilesSampleRate != nil,
+                @"We should always have a profiles sample rate when configuring the SDK.")) {
+            return;
+        }
+
+        NSMutableDictionary<NSString *, NSNumber *> *json =
+            [NSMutableDictionary<NSString *, NSNumber *> dictionary];
+        json[@"tracesSampleRate"] = resolvedTracesSampleRate;
+        json[@"profilesSampleRate"] = resolvedProfilesSampleRate;
+
+        NSData *data = [SentrySerialization dataWithJSONObject:json];
+        NSError *error;
+        NSString *path = [SentryFileManager sentryLaunchConfigPath];
+        if (![data writeToFile:path options:NSDataWritingAtomic error:&error]) {
+            SENTRY_LOG_ERROR(@"Failed to write launch config data to file: %@ (%@).", path, error);
+        }
+    }];
 }
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
