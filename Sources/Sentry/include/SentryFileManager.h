@@ -1,5 +1,6 @@
 #import "SentryDataCategory.h"
 #import "SentryDefines.h"
+#import "SentryProfilingConditionals.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -22,8 +23,6 @@ SENTRY_NO_INIT
 @property (nonatomic, readonly) NSString *breadcrumbsFilePathTwo;
 @property (nonatomic, readonly) NSString *previousBreadcrumbsFilePathOne;
 @property (nonatomic, readonly) NSString *previousBreadcrumbsFilePathTwo;
-
-+ (NSString *)sentryLaunchConfigPath;
 
 - (nullable instancetype)initWithOptions:(SentryOptions *)options error:(NSError **)error;
 
@@ -85,6 +84,11 @@ SENTRY_NO_INIT
 - (NSNumber *_Nullable)readTimezoneOffset;
 - (void)storeTimezoneOffset:(NSInteger)offset;
 - (void)deleteTimezoneOffset;
+
+#if SENTRY_TARGET_PROFILING_SUPPORTED
++ (void)writeAppLaunchProfilingConfig:(NSDictionary<NSString *, NSNumber *> *)config;
++ (nullable NSDictionary<NSString *, NSNumber *> *)appLaunchProfilingConfig;
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
 @end
 

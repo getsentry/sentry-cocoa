@@ -14,7 +14,6 @@
 #    import "SentryProfilesSampler.h"
 #    import "SentryRandom.h"
 #    import "SentrySamplingContext.h"
-#    import "SentrySerialization.h"
 #    import "SentryTracesSampler.h"
 #    import "SentryTransactionContext.h"
 
@@ -103,13 +102,7 @@ configureLaunchProfiling(SentryOptions *options)
             [NSMutableDictionary<NSString *, NSNumber *> dictionary];
         json[@"tracesSampleRate"] = resolvedTracesSampleRate;
         json[@"profilesSampleRate"] = resolvedProfilesSampleRate;
-
-        NSData *data = [SentrySerialization dataWithJSONObject:json];
-        NSError *error;
-        NSString *path = [SentryFileManager sentryLaunchConfigPath];
-        if (![data writeToFile:path options:NSDataWritingAtomic error:&error]) {
-            SENTRY_LOG_ERROR(@"Failed to write launch config data to file: %@ (%@).", path, error);
-        }
+        [SentryFileManager writeAppLaunchProfilingConfig:json];
     }];
 }
 
@@ -130,34 +123,9 @@ shouldTraceAppLaunch(void)
 {
     [SentryFileManager load];
 
-    NSString *configFilePath = [SentryFileManager sentryLaunchConfigPath];
-
-    if (![[NSFileManager defaultManager] fileExistsAtPath:configFilePath]) {
-        SENTRY_LOG_DEBUG(@"No launch profile config file.");
-        return NO;
-    }
-
-    // get app launch configuration options
-    NSError *error;
-    NSData *configData = [NSData dataWithContentsOfFile:configFilePath options:0 error:&error];
-    if (error != nil) {
-        // we can't read the config file? bail out
-        SENTRY_LOG_DEBUG(@"Couldn't read launch profile config file: %@.", error);
-        return NO;
-    }
-
-    if (configData == nil) {
-        SENTRY_LOG_DEBUG(@"The profile config file was empty.");
-        return NO;
-    }
-
-    error = nil;
-    // a map of strings to numeric values for sample rates or boolean values for
-    // enabling/disabling launch tracing
     NSDictionary<NSString *, NSNumber *> *launchConfig =
-        [NSJSONSerialization JSONObjectWithData:configData options:0 error:&error];
-    if (error != nil) {
-        SENTRY_LOG_DEBUG(@"Couldn't deserialize launch profile config file: %@", error);
+        [SentryFileManager appLaunchProfilingConfig];
+    if (launchConfig == nil) {
         return NO;
     }
 

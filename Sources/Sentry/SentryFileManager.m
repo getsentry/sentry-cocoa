@@ -46,37 +46,6 @@ SentryFileManager ()
 
 @implementation SentryFileManager
 
-+ (NSString *)sentryApplicationSupportPath
-{
-    static NSString *sentryApplicationSupportPath;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        NSArray *paths = NSSearchPathForDirectoriesInDomains(
-            NSApplicationSupportDirectory, NSUserDomainMask, YES);
-        NSString *applicationSupportDirectory = [paths firstObject];
-        sentryApplicationSupportPath =
-            [applicationSupportDirectory stringByAppendingPathComponent:@"io.sentry"];
-
-        NSError *error;
-        if (![self createDirectoryIfNotExists:sentryApplicationSupportPath error:&error]) {
-            SENTRY_LOG_ERROR(
-                @"Failed to create directory %@: %@", sentryApplicationSupportPath, error);
-        }
-    });
-    return sentryApplicationSupportPath;
-}
-
-+ (NSString *)sentryLaunchConfigPath
-{
-    static NSString *sentryLaunchConfigPath;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        sentryLaunchConfigPath = [[SentryFileManager sentryApplicationSupportPath]
-            stringByAppendingPathComponent:@"launchConfig"];
-    });
-    return sentryLaunchConfigPath;
-}
-
 - (nullable instancetype)initWithOptions:(SentryOptions *)options error:(NSError **)error
 {
     return [self initWithOptions:options
@@ -713,6 +682,85 @@ SentryFileManager ()
     }
     return YES;
 }
+
+#if SENTRY_TARGET_PROFILING_SUPPORTED
++ (NSString *)sentryApplicationSupportPath
+{
+    static NSString *sentryApplicationSupportPath;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        NSArray *paths = NSSearchPathForDirectoriesInDomains(
+            NSApplicationSupportDirectory, NSUserDomainMask, YES);
+        NSString *applicationSupportDirectory = [paths firstObject];
+        sentryApplicationSupportPath =
+            [applicationSupportDirectory stringByAppendingPathComponent:@"io.sentry"];
+
+        NSError *error;
+        if (![self createDirectoryIfNotExists:sentryApplicationSupportPath error:&error]) {
+            SENTRY_LOG_ERROR(
+                @"Failed to create directory %@: %@", sentryApplicationSupportPath, error);
+        }
+    });
+    return sentryApplicationSupportPath;
+}
+
++ (NSString *)sentryLaunchConfigPath
+{
+    static NSString *sentryLaunchConfigPath;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        sentryLaunchConfigPath = [[SentryFileManager sentryApplicationSupportPath]
+            stringByAppendingPathComponent:@"launchConfig"];
+    });
+    return sentryLaunchConfigPath;
+}
+
++ (void)writeAppLaunchProfilingConfig:(NSDictionary<NSString *, NSNumber *> *)config
+{
+    NSData *data = [SentrySerialization dataWithJSONObject:config];
+    NSError *error;
+    NSString *path = [SentryFileManager sentryLaunchConfigPath];
+    if (![data writeToFile:path options:NSDataWritingAtomic error:&error]) {
+        SENTRY_LOG_ERROR(@"Failed to write launch config data to file: %@ (%@).", path, error);
+    }
+}
+
++ (nullable NSDictionary<NSString *, NSNumber *> *)appLaunchProfilingConfig
+{
+    NSString *configFilePath = [SentryFileManager sentryLaunchConfigPath];
+
+    if (![[NSFileManager defaultManager] fileExistsAtPath:configFilePath]) {
+        SENTRY_LOG_DEBUG(@"No launch profile config file.");
+        return nil;
+    }
+
+    // get app launch configuration options
+    NSError *error;
+    NSData *configData = [NSData dataWithContentsOfFile:configFilePath options:0 error:&error];
+    if (error != nil) {
+        // we can't read the config file? bail out
+        SENTRY_LOG_DEBUG(@"Couldn't read launch profile config file: %@.", error);
+        return nil;
+    }
+
+    if (configData == nil) {
+        SENTRY_LOG_DEBUG(@"The profile config file was empty.");
+        return nil;
+    }
+
+    error = nil;
+    // a map of strings to numeric values for sample rates or boolean values for
+    // enabling/disabling launch tracing
+    NSDictionary<NSString *, NSNumber *> *launchConfig =
+        [NSJSONSerialization JSONObjectWithData:configData options:0 error:&error];
+    if (error != nil) {
+        SENTRY_LOG_DEBUG(@"Couldn't deserialize launch profile config file: %@", error);
+        return nil;
+    }
+
+    return launchConfig;
+}
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
 @end
 
