@@ -709,8 +709,9 @@ SentryFileManager ()
     static NSString *sentryLaunchConfigPath;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        sentryLaunchConfigPath = [[SentryFileManager sentryApplicationSupportPath]
-            stringByAppendingPathComponent:@"launchConfig"];
+        sentryLaunchConfigPath = [[[SentryFileManager sentryApplicationSupportPath]
+            stringByAppendingPathComponent:@"launchConfig.json"]
+            stringByAppendingPathExtension:@"dat"];
     });
     return sentryLaunchConfigPath;
 }
