@@ -31,6 +31,7 @@
 #endif // SENTRY_HAS_UIKIT
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
+#    import "SentryLaunchProfiling.h"
 #    import "SentryProfilesSampler.h"
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED"
 
