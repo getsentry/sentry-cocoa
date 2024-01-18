@@ -310,9 +310,9 @@ NS_SWIFT_NAME(Options)
  * @c 0.01 collects 1% of all trace data.
  * @note The value needs to be >= 0.0 and \<= 1.0. When setting a value out of range the SDK sets it
  * to the default of @c 0 .
- * @note If @c profileAppLaunches is @c YES , this function will be called during SDK start with
- * @c SentrySamplingContext.forNextAppLaunch set to @c YES, and the result will be persisted to disk
- * for use on the next app launch.
+ * @note If @c enableAppLaunchProfiling is @c YES , this function will be called during SDK start
+ * with @c SentrySamplingContext.forNextAppLaunch set to @c YES, and the result will be persisted to
+ * disk for use on the next app launch.
  */
 @property (nullable, nonatomic) SentryTracesSamplerCallback tracesSampler;
 
@@ -384,7 +384,7 @@ NS_SWIFT_NAME(Options)
  * @see @c tracesSampler and @c profilesSampler for more information on how they work for this
  * feature.
  */
-@property (nonatomic, assign) BOOL profileAppLaunches;
+@property (nonatomic, assign) BOOL enableAppLaunchProfiling;
 
 /**
  * @note Profiling is not supported on watchOS or tvOS.
@@ -403,9 +403,9 @@ NS_SWIFT_NAME(Options)
  * A callback to a user defined profiles sampler function. This is similar to setting
  * @c profilesSampleRate  but instead of a static value, the callback function will be called to
  * determine the sample rate.
- * @note If @c profileAppLaunches is @c YES , this function will be called during SDK start with
- * @c SentrySamplingContext.forNextAppLaunch set to @c YES, and the result will be persisted to disk
- * for use on the next app launch.
+ * @note If @c enableAppLaunchProfiling is @c YES , this function will be called during SDK start
+ * with @c SentrySamplingContext.forNextAppLaunch set to @c YES, and the result will be persisted to
+ * disk for use on the next app launch.
  */
 @property (nullable, nonatomic) SentryTracesSamplerCallback profilesSampler;
 

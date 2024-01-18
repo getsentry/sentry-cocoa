@@ -36,7 +36,7 @@ samplingContextForAppLaunches(void)
 void
 configureLaunchProfiling(SentryOptions *options)
 {
-    BOOL shouldProfileNextLaunch = options.profileAppLaunches
+    BOOL shouldProfileNextLaunch = options.enableAppLaunchProfiling
         && options.enableAutoPerformanceTracing
 #    if SENTRY_UIKIT_AVAILABLE
         && options.enableUIViewControllerTracing
@@ -46,17 +46,17 @@ configureLaunchProfiling(SentryOptions *options)
 #    if SENTRY_UIKIT_AVAILABLE
         SENTRY_LOG_DEBUG(
             @"Won't write app launch config file due to specified options configuration: "
-            @"options.profileAppLaunches: %d; options.enableAutoPerformanceTracing: %d; "
+            @"options.enableAppLaunchProfiling: %d; options.enableAutoPerformanceTracing: %d; "
             @"options.enableUIViewControllerTracing: %d; options.enableSwizzling: %d; "
             @"options.enableTracing: %d",
-            options.profileAppLaunches, options.enableAutoPerformanceTracing,
+            options.enableAppLaunchProfiling, options.enableAutoPerformanceTracing,
             options.enableUIViewControllerTracing, options.enableSwizzling, options.enableTracing);
 #    else
         SENTRY_LOG_DEBUG(
             @"Won't write app launch config file due to specified options configuration: "
-            @"options.profileAppLaunches: %d; options.enableAutoPerformanceTracing: %d; "
+            @"options.enableAppLaunchProfiling: %d; options.enableAutoPerformanceTracing: %d; "
             @"options.enableSwizzling: %d; options.enableTracing: %d",
-            options.profileAppLaunches, options.enableAutoPerformanceTracing,
+            options.enableAppLaunchProfiling, options.enableAutoPerformanceTracing,
             options.enableSwizzling, options.enableTracing);
 #    endif // SENTRY_UIKIT_AVAILABLE
     }

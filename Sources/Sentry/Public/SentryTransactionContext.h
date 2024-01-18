@@ -27,7 +27,7 @@ SENTRY_NO_INIT
 @property (nonatomic, strong, nullable) NSNumber *sampleRate;
 
 /**
- * If app launch profiling is enabled via @c SentryOptions.profileAppLaunches and
+ * If app launch profiling is enabled via @c SentryOptions.enableAppLaunchProfiling and
  * @c SentryOptions.tracesSampler and/or @c SentryOptions.profilesSampler are defined,
  * @c SentrySDK.startWithOptions will call the sampler function with this property set to @c YES ,
  * and the returned value will be stored to disk for the next launch to calculate a sampling
