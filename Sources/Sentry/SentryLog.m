@@ -14,14 +14,10 @@ static SentryLevel diagnosticLevel = kSentryLevelError;
 static SentryLogOutput *logOutput;
 static NSObject *logConfigureLock;
 
-+ (void)load
++ (void)configure:(BOOL)debug diagnosticLevel:(SentryLevel)level
 {
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{ logConfigureLock = [[NSObject alloc] init]; });
-}
-
-+ (void)configure:(BOOL)debug diagnosticLevel:(SentryLevel)level
-{
     @synchronized(logConfigureLock) {
         isDebug = debug;
         diagnosticLevel = level;

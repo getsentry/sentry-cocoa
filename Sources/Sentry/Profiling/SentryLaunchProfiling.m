@@ -156,7 +156,6 @@ startLaunchProfile(void)
 {
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        [SentryLog load];
 #    if defined(DEBUG)
         // quick and dirty way to get debug logging this early in the process run. this will get
         // overwritten once SentrySDK.startWithOptions is called according to the values of
