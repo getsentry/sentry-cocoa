@@ -56,7 +56,7 @@ NS_ASSUME_NONNULL_BEGIN
             }
         }
         if (callbackDecision != nil) {
-            return [self calcSample:callbackDecision.doubleValue];
+            return [self calcSample:callbackDecision];
         }
     }
 
@@ -66,23 +66,23 @@ NS_ASSUME_NONNULL_BEGIN
                forSampleRate:context.transactionContext.sampleRate];
 
     if (_options.tracesSampleRate != nil)
-        return [self calcSample:_options.tracesSampleRate.doubleValue];
+        return [self calcSample:_options.tracesSampleRate];
 
     return [[SentryTracesSamplerDecision alloc] initWithDecision:kSentrySampleDecisionNo
                                                    forSampleRate:nil];
 }
 
-- (SentryTracesSamplerDecision *)calcSample:(double)rate
+- (SentryTracesSamplerDecision *)calcSample:(NSNumber *)rate
 {
     return [[self class] calcSample:rate random:self.random];
 }
 
-+ (SentryTracesSamplerDecision *)calcSample:(double)rate random:(id<SentryRandom>)random
++ (SentryTracesSamplerDecision *)calcSample:(NSNumber *)rate random:(id<SentryRandom>)random
 {
     double r = [random nextNumber];
-    SentrySampleDecision decision = r <= rate ? kSentrySampleDecisionYes : kSentrySampleDecisionNo;
-    return [[SentryTracesSamplerDecision alloc] initWithDecision:decision
-                                                   forSampleRate:[NSNumber numberWithDouble:rate]];
+    SentrySampleDecision decision
+        = r <= rate.doubleValue ? kSentrySampleDecisionYes : kSentrySampleDecisionNo;
+    return [[SentryTracesSamplerDecision alloc] initWithDecision:decision forSampleRate:rate];
 }
 
 @end

@@ -98,57 +98,21 @@ configureLaunchProfiling(SentryOptions *options)
             return;
         }
 
-        NSMutableDictionary<NSString *, NSNumber *> *json =
-            [NSMutableDictionary<NSString *, NSNumber *> dictionary];
-        json[@"tracesSampleRate"] = resolvedTracesSampleRate;
-        json[@"profilesSampleRate"] = resolvedProfilesSampleRate;
-        [SentryFileManager writeAppLaunchProfilingConfig:json];
+        id<SentryRandom> random = SentryDependencyContainer.sharedInstance.random;
+        if ([[SentryTracesSampler calcSample:resolvedTracesSampleRate random:random] decision]
+            != kSentrySampleDecisionYes) {
+            [SentryFileManager removeAppLaunchProfilingMarkerFile];
+            return;
+        }
+
+        if ([[SentryProfilesSampler calcSample:resolvedProfilesSampleRate random:random] decision]
+            != kSentrySampleDecisionYes) {
+            [SentryFileManager removeAppLaunchProfilingMarkerFile];
+            return;
+        }
+
+        [SentryFileManager writeAppLaunchProfilingMarkerFile];
     }];
-}
-
-/**
- * Decision tree:
- * ```
- * ─ is there a configuration file?
- *   ├── yes: SentryTracesSampler sampling decision?
- *   │   ├── yes: SentryProfilesSampler sampling decision?
- *   │   │   ├── yes: ✅ trace app launch
- *   │   │   └── no: ❌ do not trace app launch
- *   │   └── no: ❌ do not trace app launch
- *   └── no: ❌ do not trace app launch
- * ```
- */
-BOOL
-shouldTraceAppLaunch(void)
-{
-    [SentryFileManager load];
-
-    NSDictionary<NSString *, NSNumber *> *launchConfig =
-        [SentryFileManager appLaunchProfilingConfig];
-    if (launchConfig == nil) {
-        return NO;
-    }
-
-    double tracesSampleRate = [launchConfig[@"tracesSampleRate"] doubleValue];
-    double profilesSampleRate = [launchConfig[@"profilesSampleRate"] doubleValue];
-    if (tracesSampleRate == 0 || profilesSampleRate == 0) {
-        SENTRY_LOG_DEBUG(@"Sampling out this launch trace due to sample rate of 0.");
-        return NO;
-    }
-
-    [SentryTracesSampler load];
-    [SentryProfilesSampler load];
-    [SentryRandom load];
-
-    SentryRandom *random = [[SentryRandom alloc] init];
-    appLaunchTraceSamplerDecision = [SentryTracesSampler calcSample:tracesSampleRate random:random];
-    if (appLaunchTraceSamplerDecision.decision != kSentrySampleDecisionYes) {
-        SENTRY_LOG_DEBUG(@"Sampling out this launch trace due to sample decision NO.");
-        return NO;
-    }
-
-    return [[SentryProfilesSampler calcSample:profilesSampleRate random:random] decision]
-        == kSentrySampleDecisionYes;
 }
 
 void
@@ -163,7 +127,7 @@ startLaunchProfile(void)
         [SentryLog configure:YES diagnosticLevel:kSentryLevelDebug];
 #    endif // defined(DEBUG)
 
-        if (!shouldTraceAppLaunch()) {
+        if (!appLaunchProfileMarkerFileExists()) {
             return;
         }
 

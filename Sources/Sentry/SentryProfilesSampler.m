@@ -56,12 +56,12 @@ NS_ASSUME_NONNULL_BEGIN
                 }
             }
             if (callbackDecision != nil) {
-                return [self calcSample:callbackDecision.doubleValue];
+                return [self calcSample:callbackDecision];
             }
         }
 
         if (_options.profilesSampleRate != nil) {
-            return [self calcSample:_options.profilesSampleRate.doubleValue];
+            return [self calcSample:_options.profilesSampleRate];
         }
 
         // Backward compatibility for clients that are still using the enableProfiling option.
@@ -78,18 +78,17 @@ NS_ASSUME_NONNULL_BEGIN
                                                      forSampleRate:nil];
 }
 
-- (SentryProfilesSamplerDecision *)calcSample:(double)rate
+- (SentryProfilesSamplerDecision *)calcSample:(NSNumber *)rate
 {
     return [[self class] calcSample:rate random:self.random];
 }
 
-+ (SentryProfilesSamplerDecision *)calcSample:(double)rate random:(id<SentryRandom>)random
++ (SentryProfilesSamplerDecision *)calcSample:(NSNumber *)rate random:(id<SentryRandom>)random
 {
     double r = [random nextNumber];
-    SentrySampleDecision decision = r <= rate ? kSentrySampleDecisionYes : kSentrySampleDecisionNo;
-    return
-        [[SentryProfilesSamplerDecision alloc] initWithDecision:decision
-                                                  forSampleRate:[NSNumber numberWithDouble:rate]];
+    SentrySampleDecision decision
+        = r <= rate.doubleValue ? kSentrySampleDecisionYes : kSentrySampleDecisionNo;
+    return [[SentryProfilesSamplerDecision alloc] initWithDecision:decision forSampleRate:rate];
 }
 
 @end

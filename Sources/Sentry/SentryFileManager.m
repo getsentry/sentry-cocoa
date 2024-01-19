@@ -11,6 +11,7 @@
 #import "SentryError.h"
 #import "SentryEvent.h"
 #import "SentryFileContents.h"
+#import "SentryInternalDefines.h"
 #import "SentryLog.h"
 #import "SentryMigrateSessionInit.h"
 #import "SentryOptions.h"
@@ -19,6 +20,21 @@
 NS_ASSUME_NONNULL_BEGIN
 
 NSString *const EnvelopesPathComponent = @"envelopes";
+
+BOOL
+createDirectoryIfNotExists(NSString *path, NSError **error)
+{
+    if (![[NSFileManager defaultManager] createDirectoryAtPath:path
+                                   withIntermediateDirectories:YES
+                                                    attributes:nil
+                                                         error:error]) {
+        *error = NSErrorFromSentryErrorWithUnderlyingError(kSentryErrorFileIO,
+            [NSString stringWithFormat:@"Failed to create the directory at path %@.", path],
+            *error);
+        return NO;
+    }
+    return YES;
+}
 
 @interface
 SentryFileManager ()
@@ -65,10 +81,10 @@ SentryFileManager ()
         self.eventsPath = [self.sentryPath stringByAppendingPathComponent:@"events"];
         [self removeFileAtPath:self.eventsPath];
 
-        if (![[self class] createDirectoryIfNotExists:self.sentryPath error:error]) {
+        if (!createDirectoryIfNotExists(self.sentryPath, error)) {
             return nil;
         }
-        if (![[self class] createDirectoryIfNotExists:self.envelopesPath error:error]) {
+        if (!createDirectoryIfNotExists(self.envelopesPath, error)) {
             return nil;
         }
 
@@ -217,7 +233,7 @@ SentryFileManager ()
 {
     [self removeFileAtPath:self.envelopesPath];
     NSError *error;
-    if (![[self class] createDirectoryIfNotExists:self.envelopesPath error:&error]) {
+    if (!createDirectoryIfNotExists(self.envelopesPath, &error)) {
         SENTRY_LOG_ERROR(@"Couldn't create envelopes path.");
     }
 }
@@ -429,7 +445,7 @@ SentryFileManager ()
 - (BOOL)writeData:(NSData *)data toPath:(NSString *)path
 {
     NSError *error;
-    if (![[self class] createDirectoryIfNotExists:self.sentryPath error:&error]) {
+    if (!createDirectoryIfNotExists(self.sentryPath, &error)) {
         SENTRY_LOG_ERROR(@"File I/O not available at path %@: %@", path, error);
         return NO;
     }
@@ -669,22 +685,9 @@ SentryFileManager ()
     self.envelopesPath = [self.sentryPath stringByAppendingPathComponent:EnvelopesPathComponent];
 }
 
-+ (BOOL)createDirectoryIfNotExists:(NSString *)path error:(NSError **)error
-{
-    if (![[NSFileManager defaultManager] createDirectoryAtPath:path
-                                   withIntermediateDirectories:YES
-                                                    attributes:nil
-                                                         error:error]) {
-        *error = NSErrorFromSentryErrorWithUnderlyingError(kSentryErrorFileIO,
-            [NSString stringWithFormat:@"Failed to create the directory at path %@.", path],
-            *error);
-        return NO;
-    }
-    return YES;
-}
-
 #if SENTRY_TARGET_PROFILING_SUPPORTED
-+ (NSString *)sentryApplicationSupportPath
+NSString *
+sentryApplicationSupportPath(void)
 {
     static NSString *sentryApplicationSupportPath;
     static dispatch_once_t onceToken;
@@ -696,7 +699,7 @@ SentryFileManager ()
             [applicationSupportDirectory stringByAppendingPathComponent:@"io.sentry"];
 
         NSError *error;
-        if (![self createDirectoryIfNotExists:sentryApplicationSupportPath error:&error]) {
+        if (!createDirectoryIfNotExists(sentryApplicationSupportPath, &error)) {
             SENTRY_LOG_ERROR(
                 @"Failed to create directory %@: %@", sentryApplicationSupportPath, error);
         }
@@ -704,62 +707,38 @@ SentryFileManager ()
     return sentryApplicationSupportPath;
 }
 
-+ (NSString *)sentryLaunchConfigPath
+NSString *
+launchProfileMarkerPath(void)
 {
     static NSString *sentryLaunchConfigPath;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        sentryLaunchConfigPath = [[[SentryFileManager sentryApplicationSupportPath]
-            stringByAppendingPathComponent:@"launchConfig.json"]
-            stringByAppendingPathExtension:@"dat"];
+        sentryLaunchConfigPath =
+            [sentryApplicationSupportPath() stringByAppendingPathComponent:@"profileLaunch"];
     });
     return sentryLaunchConfigPath;
 }
 
-+ (void)writeAppLaunchProfilingConfig:(NSDictionary<NSString *, NSNumber *> *)config
+BOOL
+appLaunchProfileMarkerFileExists(void)
 {
-    NSData *data = [SentrySerialization dataWithJSONObject:config];
-    NSError *error;
-    NSString *path = [SentryFileManager sentryLaunchConfigPath];
-    if (![data writeToFile:path options:NSDataWritingAtomic error:&error]) {
-        SENTRY_LOG_ERROR(@"Failed to write launch config data to file: %@ (%@).", path, error);
-    }
+    return access(launchProfileMarkerPath().UTF8String, F_OK) == 0;
 }
 
-+ (nullable NSDictionary<NSString *, NSNumber *> *)appLaunchProfilingConfig
++ (void)writeAppLaunchProfilingMarkerFile
 {
-    NSString *configFilePath = [SentryFileManager sentryLaunchConfigPath];
+    SENTRY_ASSERT([[NSFileManager defaultManager] createFileAtPath:launchProfileMarkerPath()
+                                                          contents:nil
+                                                        attributes:nil],
+        @"Failed to write launch profile marker file.");
+}
 
-    if (![[NSFileManager defaultManager] fileExistsAtPath:configFilePath]) {
-        SENTRY_LOG_DEBUG(@"No launch profile config file.");
-        return nil;
-    }
-
-    // get app launch configuration options
++ (void)removeAppLaunchProfilingMarkerFile
+{
     NSError *error;
-    NSData *configData = [NSData dataWithContentsOfFile:configFilePath options:0 error:&error];
-    if (error != nil) {
-        // we can't read the config file? bail out
-        SENTRY_LOG_DEBUG(@"Couldn't read launch profile config file: %@.", error);
-        return nil;
-    }
-
-    if (configData == nil) {
-        SENTRY_LOG_DEBUG(@"The profile config file was empty.");
-        return nil;
-    }
-
-    error = nil;
-    // a map of strings to numeric values for sample rates or boolean values for
-    // enabling/disabling launch tracing
-    NSDictionary<NSString *, NSNumber *> *launchConfig =
-        [NSJSONSerialization JSONObjectWithData:configData options:0 error:&error];
-    if (error != nil) {
-        SENTRY_LOG_DEBUG(@"Couldn't deserialize launch profile config file: %@", error);
-        return nil;
-    }
-
-    return launchConfig;
+    SENTRY_ASSERT([[NSFileManager defaultManager] removeItemAtPath:launchProfileMarkerPath()
+                                                             error:&error],
+        @"Failed to remove launch profile marker file: %@", error);
 }
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 

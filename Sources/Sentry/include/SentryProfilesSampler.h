@@ -48,7 +48,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (SentryProfilesSamplerDecision *)sample:(SentrySamplingContext *)context
                     tracesSamplerDecision:(SentryTracesSamplerDecision *)tracesSamplerDecision;
 
-+ (SentryProfilesSamplerDecision *)calcSample:(double)rate random:(id<SentryRandom>)random;
++ (SentryProfilesSamplerDecision *)calcSample:(NSNumber *)rate random:(id<SentryRandom>)random;
 
 @end
 
