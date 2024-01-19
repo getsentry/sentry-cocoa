@@ -119,6 +119,9 @@ void
 startLaunchProfile(void)
 {
     static dispatch_once_t onceToken;
+    // this function is called from SentryTracer.load but in the future we may expose access
+    // directly to customers, and we'll want to ensure it only runs once. dispatch_once is an
+    // efficient operation so it's fine to leave this in the launch path in any case.
     dispatch_once(&onceToken, ^{
 #    if defined(DEBUG)
         // quick and dirty way to get debug logging this early in the process run. this will get
