@@ -735,9 +735,14 @@ appLaunchProfileMarkerFileExists(void)
 
 + (void)removeAppLaunchProfilingMarkerFile
 {
+    NSFileManager *fm = [NSFileManager defaultManager];
+    NSString *path = launchProfileMarkerPath();
+    if (![fm fileExistsAtPath:path]) {
+        return;
+    }
+
     NSError *error;
-    SENTRY_ASSERT([[NSFileManager defaultManager] removeItemAtPath:launchProfileMarkerPath()
-                                                             error:&error],
+    SENTRY_ASSERT([fm removeItemAtPath:path error:&error],
         @"Failed to remove launch profile marker file: %@", error);
 }
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
