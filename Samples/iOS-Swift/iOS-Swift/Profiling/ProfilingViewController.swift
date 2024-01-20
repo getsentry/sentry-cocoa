@@ -15,6 +15,7 @@ class ProfilingViewController: UIViewController, UITextFieldDelegate {
     @IBOutlet weak var maxWorkIntensityTextField: UITextField!
     @IBOutlet weak var valueTextField: UITextField!
     
+    @IBOutlet weak var launchProfilingMarkerFileCheckButton: UIButton!
     @IBOutlet weak var profilingUITestDataMarshalingTextField: UITextField!
     @IBOutlet weak var profilingUITestDataMarshalingStatus: UILabel!
     
@@ -28,6 +29,7 @@ class ProfilingViewController: UIViewController, UITextFieldDelegate {
             $0?.delegate = self
         }
         profilingUITestDataMarshalingTextField.accessibilityLabel = "io.sentry.ui-tests.profile-marshaling-text-field"
+        launchProfilingMarkerFileCheckButton.accessibilityLabel = "io.sentry.ui-tests.app-launch-profile-marker-file-button"
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -87,10 +89,13 @@ class ProfilingViewController: UIViewController, UITextFieldDelegate {
         view.backgroundColor = .init(white: CGFloat(sender.value), alpha: 1)
     }
     
-    @IBAction func viewLaunchConfig(_ sender: Any) {
-        let launchConfigPath = ((NSSearchPathForDirectoriesInDomains(.applicationSupportDirectory, .userDomainMask, true).first! as NSString).appendingPathComponent("io.sentry") as NSString).appendingPathComponent("launchConfig")
-        let url = URL(fileURLWithPath: launchConfigPath)
-        handleContents(file: url)
+    @IBAction func checkLaunchProfilingMarkerFile(_ sender: Any) {
+        let launchProfileMarkerPath = ((NSSearchPathForDirectoriesInDomains(.applicationSupportDirectory, .userDomainMask, true).first! as NSString).appendingPathComponent("io.sentry") as NSString).appendingPathComponent("profileLaunch")
+        if FileManager.default.fileExists(atPath: launchProfileMarkerPath) {
+            profilingUITestDataMarshalingTextField.text = "<exists>"
+        } else {
+            profilingUITestDataMarshalingTextField.text = "<missing>"
+        }
     }
     
     @IBAction func viewLastProfile(_ sender: Any) {

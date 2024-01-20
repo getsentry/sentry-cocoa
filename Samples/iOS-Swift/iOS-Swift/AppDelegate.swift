@@ -52,7 +52,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 }
             }
 
-            options.profileAppLaunches = args.contains("--profile-app-launches")
+            options.enableAppLaunchProfiling = args.contains("--profile-app-launches")
 
             options.sessionTrackingIntervalMillis = 5_000
             options.attachScreenshot = true

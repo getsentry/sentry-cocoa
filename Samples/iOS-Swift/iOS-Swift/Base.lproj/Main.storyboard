@@ -223,22 +223,22 @@
                                             </button>
                                         </subviews>
                                     </stackView>
-                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Pcb-L7-DFD">
-                                        <rect key="frame" x="102.5" y="56" width="115" height="28"/>
-                                        <fontDescription key="fontDescription" type="system" pointSize="13"/>
-                                        <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
-                                        <state key="normal" title="View launch config"/>
-                                        <connections>
-                                            <action selector="viewLaunchConfig:" destination="NZr-bH-g9o" eventType="touchUpInside" id="dq1-Ng-UNd"/>
-                                        </connections>
-                                    </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="vwa-d9-1BM">
-                                        <rect key="frame" x="111.5" y="84" width="97" height="28"/>
+                                        <rect key="frame" x="111.5" y="56" width="97" height="28"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="13"/>
                                         <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
                                         <state key="normal" title="View last profile"/>
                                         <connections>
                                             <action selector="viewLastProfile:" destination="NZr-bH-g9o" eventType="touchUpInside" id="7Xd-19-rsP"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="keL-m5-7hv">
+                                        <rect key="frame" x="33.5" y="84" width="253" height="28"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="13"/>
+                                        <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
+                                        <state key="normal" title="Check launch profile marker file existence"/>
+                                        <connections>
+                                            <action selector="checkLaunchProfilingMarkerFile:" destination="NZr-bH-g9o" eventType="touchUpInside" id="IcT-D3-Oya"/>
                                         </connections>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="F1h-qu-BzX">
@@ -391,6 +391,7 @@
                     </view>
                     <tabBarItem key="tabBarItem" title="Profiling" image="flame.fill" catalog="system" selectedImage="flame.fill" id="Wfx-IJ-h9f"/>
                     <connections>
+                        <outlet property="launchProfilingMarkerFileCheckButton" destination="keL-m5-7hv" id="s2U-XE-Flv"/>
                         <outlet property="maxThreadsTextField" destination="COd-X5-alN" id="6Pn-Be-aUe"/>
                         <outlet property="maxWorkIntensityTextField" destination="rJh-QS-fAl" id="u9q-Sj-6SY"/>
                         <outlet property="minThreadsTextField" destination="sCM-tI-skI" id="D0Z-yT-LbU"/>

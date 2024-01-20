@@ -5,17 +5,10 @@ import XCTest
 class ProfilingUITests: BaseUITest {    
     override var automaticallyManageAppSession: Bool { false }
     
+    // this will run before the non-async BaseUITest.setUp, so we can bail out before running any of the logic in there
     override func setUp() async throws {
         try await super.setUp()
-        
-        guard shouldRunProfilingUITest() else {
-           throw XCTSkip("iOS version too old for profiling test.")
-        }
-        
-        app.launchArguments.append(contentsOf: [
-            "--io.sentry.wipe-data" // wipe all the profiles stored to disk, and any launch profiling config files, before running each test
-        ]
-        )
+        try checkOSVersionForProfilingTest()
     }
     
     func testProfiledAppLaunches() throws {
@@ -80,11 +73,10 @@ class ProfilingUITests: BaseUITest {
 }
 
 extension ProfilingUITests {
-    func shouldRunProfilingUITest() -> Bool {
-        if #available(iOS 16.0, *) {
-            return true
-        } else {
-            return false
+    // We don't need to test these on multiple OSes right now, and older versions seem to have issues; older devices or VM images running simulators might just be slower. Latest OS is enough coverage for our needs for now.
+    func checkOSVersionForProfilingTest() throws {
+        guard #available(iOS 16.0, *) else {
+            throw XCTSkip("iOS version too old for profiling test.")
         }
     }
     
@@ -105,6 +97,12 @@ extension ProfilingUITests {
         return try XCTUnwrap(try JSONSerialization.jsonObject(with: data) as? [String: Any])
     }
     
+    func checkLaunchProfileMarkerFileExistence() throws -> Bool {
+        app.buttons["io.sentry.ui-tests.app-launch-profile-marker-file-button"].afterWaitingForExistence("Couldn't find app launch profile marker file check button").tap()
+        let string = try XCTUnwrap(app.textFields["io.sentry.ui-tests.profile-marshaling-text-field"].afterWaitingForExistence("Couldn't find data marshaling text field.").value as? NSString)
+        return string == "<exists>"
+    }
+    
     func goToTransactions() {
         app.tabBars["Tab Bar"].buttons["Transactions"].tap()
     }
@@ -121,10 +119,6 @@ extension ProfilingUITests {
         app.tabBars["Tab Bar"].buttons["Profiling"].afterWaitingForExistence("Couldn't find profiling tab bar button").tap()
     }
     
-    func retrieveLaunchProfilingConfig() {
-        app.buttons["View launch config"].afterWaitingForExistence("Couldn't find button to view launch config").tap()
-    }
-    
     func retrieveLastProfileData() {
         app.buttons["View last profile"].afterWaitingForExistence("Couldn't find button to view last profile").tap()
     }
@@ -133,19 +127,10 @@ extension ProfilingUITests {
         app.buttons["View launch profile"].afterWaitingForExistence("Couldn't find button to view launch profile").tap()
     }
 
-    func assertLaunchProfile(ran: Bool) throws {
+    func assertLaunchProfile() throws {
         retrieveLaunchProfileData()
         
-        var lastProfile: [String: Any]
-        do {
-            lastProfile = try marshalJSONDictionaryFromApp()
-        } catch {
-            guard ran else {
-                return
-            }
-            throw error
-        }
-        
+        var lastProfile = try marshalJSONDictionaryFromApp()
         let sampledProfile = try XCTUnwrap(lastProfile["profile"] as? [String: Any])
         let stacks = try XCTUnwrap(sampledProfile["stacks"] as? [[Int]])
         let frames = try XCTUnwrap(sampledProfile["frames"] as? [[String: Any]])
@@ -170,27 +155,6 @@ extension ProfilingUITests {
         
         // ???: can we assert that this stack was on the main thread?
         // TODO: yes! need to correlate the samples.[].stack_id with samples.[].thread_id
-    }
-    
-    func assertLaunchProfileConfig(expectedFile: Bool, expectedProfilesSampleRate: Int? = nil, expectedTracesSampleRate: Int? = nil) throws {
-        retrieveLaunchProfilingConfig()
-        var launchConfig: [String: Any]
-        
-        do {
-            launchConfig = try marshalJSONDictionaryFromApp()
-        } catch {
-            guard expectedFile else {
-                return
-            }
-            throw error
-        }
-        
-        if let expectedProfilesSampleRate = expectedProfilesSampleRate {
-            XCTAssertEqual(try XCTUnwrap(launchConfig["profilesSampleRate"] as? Int), expectedProfilesSampleRate)
-        }
-        if let expectedTracesSampleRate = expectedTracesSampleRate {
-            XCTAssertEqual(try XCTUnwrap(launchConfig["tracesSampleRate"] as? Int), expectedTracesSampleRate)
-        }
     }
      
     /**
@@ -258,27 +222,23 @@ extension ProfilingUITests {
         
         launchApp()
         
-        try performAssertions(
-            shouldProfileThisLaunch: shouldProfileThisLaunch,
-            shouldProfileNextLaunch: shouldEnableLaunchProfilingOptionForNextLaunch && !(shouldDisableTracing || shouldDisableSwizzling || shouldDisableAutoPerformanceTracking || shouldDisableUIViewControllerTracing),
-            expectedProfilesSampleRate: resolvedProfilesSampleRate,
-            expectedTracesSampleRate: resolvedTracesSampleRate
-        )
+        let sdkOptionsConfigurationAllowsLaunchProfiling = !(shouldDisableTracing || shouldDisableSwizzling || shouldDisableAutoPerformanceTracking || shouldDisableUIViewControllerTracing)
+        
+        // these tests only set sample rates to 0 or 1, or don't provide an override (and the sample app sets them to 1 by default)
+        let sampleRatesAllowLaunchProfiling = (resolvedTracesSampleRate == nil || resolvedTracesSampleRate! == 1) && (resolvedProfilesSampleRate == nil || resolvedProfilesSampleRate == 1)
+        
+        let shouldProfileNextLaunch = shouldEnableLaunchProfilingOptionForNextLaunch && sdkOptionsConfigurationAllowsLaunchProfiling && sampleRatesAllowLaunchProfiling
+        
+        try performAssertions(shouldProfileThisLaunch: shouldProfileThisLaunch, shouldProfileNextLaunch: shouldProfileNextLaunch)
     }
     
-    func performAssertions(shouldProfileThisLaunch: Bool,
-                           shouldProfileNextLaunch: Bool,
-                           expectedProfilesSampleRate: Int? = nil,
-                           expectedTracesSampleRate: Int? = nil
-    ) throws {
+    func performAssertions(shouldProfileThisLaunch: Bool, shouldProfileNextLaunch: Bool ) throws {
         goToProfiling()
         
-        if shouldProfileNextLaunch {
-            try assertLaunchProfileConfig(expectedFile: shouldProfileNextLaunch, expectedProfilesSampleRate: expectedProfilesSampleRate, expectedTracesSampleRate: expectedTracesSampleRate)
-        }
+        XCTAssertEqual(shouldProfileNextLaunch, try checkLaunchProfileMarkerFileExistence())
         
         if shouldProfileThisLaunch {
-            try assertLaunchProfile(ran: shouldProfileThisLaunch)
+            try assertLaunchProfile()
         }
     }
 }
