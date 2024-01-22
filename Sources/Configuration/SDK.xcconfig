@@ -1,6 +1,5 @@
 #include "DeploymentTargets.xcconfig"
 
-// Note: Carthage queries rather harshly on the platform values below quite early in the process, queried values not compiled into Carthage will cause errors.
 SUPPORTED_PLATFORMS = macosx iphoneos iphonesimulator watchos watchsimulator appletvos appletvsimulator xros xrsimulator
 TARGETED_DEVICE_FAMILY = 1,2,3,4,7
 SKIP_INSTALL = YES
