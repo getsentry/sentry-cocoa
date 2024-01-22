@@ -4,6 +4,7 @@ on:
     branches:
       - main
       - release/**
+      - feat/visionos-carthage
 
   pull_request:
     paths:
@@ -94,7 +95,7 @@ jobs:
     runs-on: macos-13
     steps:
       - uses: actions/checkout@v4
-      - run: ./scripts/ci-select-xcode.sh 15.0.1
+      - run: ./scripts/ci-select-xcode.sh 15.2
       - run: make build-xcframework
         shell: sh
 
@@ -123,7 +124,7 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           name: ${{ github.sha }}
-      - run: ./scripts/ci-select-xcode.sh 15.0.1
+      - run: ./scripts/ci-select-xcode.sh 15.2
       - run: make build-xcframework-sample
         shell: sh
 
