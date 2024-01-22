@@ -1,24 +1,6 @@
 #include "DeploymentTargets.xcconfig"
 
-SDKROOT = $(SDKROOT__CARTHAGE_$(CARTHAGE)) //  basically, iphoneos (unless «CARTHAGE» == «YES»)
-// Carthage relies on this assumption, years standing — that SDKROOT is default or explicitly
-// set to `macosx` (or equivalent) under the ‘single target, multiple platform’ paradigm
-// because of a xcodebuild bug involving the sdk flag and implicit dependency: see «Carthage/Carthage#347».
-SDKROOT__CARTHAGE_YES = macosx
-// Importantly, the below two lines appease «Xcode.app», and get the UI to show Mac Catalyst destinations.
-SDKROOT__CARTHAGE_NO = iphoneos
-SDKROOT__CARTHAGE_ = iphoneos
-// …in order for ‘single target, multiple platform’ extrapolations to hold true,
-// all the above relies on the ability of Xcode GUI, xcodebuild, and Carthage via xcodebuild to
-// override «SDKROOT» based on selected destination (particularly for appletv* and watchos* platforms.)
-// …if the override behavior ever breaks, expect weird output and the probable need to migrate away from
-// the ‘single target, multiple platform’ paradigm.
-
-// …`SUPPORTED_PLATFORMS`, in service of ‘single target, multiple platform’ extrapolation, must never
-// engage in dollar-parentheses syntax — unless that dollar-parentheses basis is
-// entirely non-platform–derived, e.g. based upon `XCODE_VERSION_MAJOR`.
-// Note: Carthage, unfortunately, as current of v0.34.0 queries rather harshly on the platform values below
-// ⋯ quite early in the process, queried values not compiled into Carthage will cause hard errors.
+// Note: Carthage queries rather harshly on the platform values below quite early in the process, queried values not compiled into Carthage will cause errors.
 SUPPORTED_PLATFORMS = macosx iphoneos iphonesimulator watchos watchsimulator appletvos appletvsimulator xros xrsimulator
 TARGETED_DEVICE_FAMILY = 1,2,3,4,7
 SKIP_INSTALL = YES
