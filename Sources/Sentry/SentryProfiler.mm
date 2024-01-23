@@ -52,6 +52,7 @@
 
 #    if defined(TEST) || defined(TESTCI)
 #        import "SentryFileManager+Test.h"
+#        import "SentryLaunchProfiling.h"
 
 @interface
 SentryProfiler (SlowLoad)
