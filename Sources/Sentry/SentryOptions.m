@@ -466,6 +466,9 @@ NSString *const kSentryDefaultEnvironment = @"production";
 
     [self setBool:options[@"enableProfiling"]
             block:^(BOOL value) { self->_enableProfiling = value; }];
+
+    [self setBool:options[NSStringFromSelector(@selector(enableAppLaunchProfiling))]
+            block:^(BOOL value) { self->_enableAppLaunchProfiling = value; }];
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
     [self setBool:options[@"sendClientReports"]
