@@ -32,94 +32,96 @@ samplingContextForAppLaunches(void)
     return [[SentrySamplingContext alloc] initWithTransactionContext:transactionContext];
 }
 
+BOOL
+shouldProfileNextLaunch(SentryOptions *options)
+{
+    BOOL shouldProfileNextLaunch = options.enableAppLaunchProfiling
+        && options.enableAutoPerformanceTracing
+#    if SENTRY_UIKIT_AVAILABLE
+        && options.enableUIViewControllerTracing
+#    endif // SENTRY_UIKIT_AVAILABLE
+        && options.enableSwizzling && options.enableTracing;
+    if (!shouldProfileNextLaunch) {
+#    if SENTRY_UIKIT_AVAILABLE
+        SENTRY_LOG_DEBUG(
+            @"Won't profile next launch due to specified options configuration: "
+            @"options.enableAppLaunchProfiling: %d; options.enableAutoPerformanceTracing: %d; "
+            @"options.enableUIViewControllerTracing: %d; options.enableSwizzling: %d; "
+            @"options.enableTracing: %d",
+            options.enableAppLaunchProfiling, options.enableAutoPerformanceTracing,
+            options.enableUIViewControllerTracing, options.enableSwizzling, options.enableTracing);
+#    else
+        SENTRY_LOG_DEBUG(
+            @"Won't profile next launch due to specified options configuration: "
+            @"options.enableAppLaunchProfiling: %d; options.enableAutoPerformanceTracing: %d; "
+            @"options.enableSwizzling: %d; options.enableTracing: %d",
+            options.enableAppLaunchProfiling, options.enableAutoPerformanceTracing,
+            options.enableSwizzling, options.enableTracing);
+#    endif // SENTRY_UIKIT_AVAILABLE
+
+        return NO;
+    }
+
+    SentrySamplingContext *appLaunchSamplingContext;
+    NSNumber *resolvedTracesSampleRate;
+    if (options.tracesSampler != nil) {
+        appLaunchSamplingContext = samplingContextForAppLaunches();
+        resolvedTracesSampleRate = options.tracesSampler(appLaunchSamplingContext);
+        SENTRY_LOG_DEBUG(@"Got sample rate of %@ from tracesSampler.", resolvedTracesSampleRate);
+    } else if (options.tracesSampleRate != nil) {
+        resolvedTracesSampleRate = options.tracesSampleRate;
+        SENTRY_LOG_DEBUG(@"Got numerical traces sample rate of %@.", resolvedTracesSampleRate);
+    }
+
+    if ([resolvedTracesSampleRate compare:@0] == NSOrderedSame) {
+        SENTRY_LOG_DEBUG(@"Sampling out the launch trace due to missing or 0%% sample rate.");
+        return NO;
+    }
+
+    id<SentryRandom> random = SentryDependencyContainer.sharedInstance.random;
+    if ([[SentryTracesSampler calcSample:resolvedTracesSampleRate random:random] decision]
+        != kSentrySampleDecisionYes) {
+        SENTRY_LOG_DEBUG(@"Sampling out the launch trace.");
+        return NO;
+    }
+
+    NSNumber *resolvedProfilesSampleRate;
+    if (options.profilesSampler != nil) {
+        if (appLaunchSamplingContext == nil) {
+            appLaunchSamplingContext = samplingContextForAppLaunches();
+        }
+        resolvedProfilesSampleRate = options.profilesSampler(appLaunchSamplingContext);
+        SENTRY_LOG_DEBUG(
+            @"Got sample rate of %@ from profilesSampler.", resolvedProfilesSampleRate);
+    } else if (options.profilesSampleRate != nil) {
+        resolvedProfilesSampleRate = options.profilesSampleRate;
+        SENTRY_LOG_DEBUG(@"Got numerical profiles sample rate of %@.", resolvedProfilesSampleRate);
+    }
+
+    if ([resolvedProfilesSampleRate compare:@0] == NSOrderedSame) {
+        SENTRY_LOG_DEBUG(@"Sampling out the launch profile due to missing or 0%% sample rate.");
+        return NO;
+    }
+
+    if ([[SentryProfilesSampler calcSample:resolvedProfilesSampleRate random:random] decision]
+        != kSentrySampleDecisionYes) {
+        SENTRY_LOG_DEBUG(@"Sampling out the launch profile.");
+        return NO;
+    }
+
+    SENTRY_LOG_DEBUG(@"Will profile the next launch.");
+    return YES;
+}
+
 void
 configureLaunchProfiling(SentryOptions *options)
 {
     [SentryDependencyContainer.sharedInstance.dispatchQueueWrapper dispatchAsyncWithBlock:^{
-        BOOL shouldProfileNextLaunch = options.enableAppLaunchProfiling
-            && options.enableAutoPerformanceTracing
-#    if SENTRY_UIKIT_AVAILABLE
-            && options.enableUIViewControllerTracing
-#    endif // SENTRY_UIKIT_AVAILABLE
-            && options.enableSwizzling && options.enableTracing;
-        if (!shouldProfileNextLaunch) {
-#    if SENTRY_UIKIT_AVAILABLE
-            SENTRY_LOG_DEBUG(
-                @"Won't profile next launch due to specified options configuration: "
-                @"options.enableAppLaunchProfiling: %d; options.enableAutoPerformanceTracing: %d; "
-                @"options.enableUIViewControllerTracing: %d; options.enableSwizzling: %d; "
-                @"options.enableTracing: %d",
-                options.enableAppLaunchProfiling, options.enableAutoPerformanceTracing,
-                options.enableUIViewControllerTracing, options.enableSwizzling,
-                options.enableTracing);
-#    else
-            SENTRY_LOG_DEBUG(
-                             @"Won't profile next launch due to specified options configuration: "
-                             @"options.enableAppLaunchProfiling: %d; options.enableAutoPerformanceTracing: %d; "
-                             @"options.enableSwizzling: %d; options.enableTracing: %d",
-                             options.enableAppLaunchProfiling, options.enableAutoPerformanceTracing,
-                             options.enableSwizzling, options.enableTracing);
-#    endif // SENTRY_UIKIT_AVAILABLE
-
+        if (shouldProfileNextLaunch(options)) {
+            [SentryFileManager writeAppLaunchProfilingMarkerFile];
+        } else {
             [SentryFileManager removeAppLaunchProfilingMarkerFile];
-            return;
         }
-
-        SentrySamplingContext *appLaunchSamplingContext;
-        NSNumber *resolvedTracesSampleRate;
-        if (options.tracesSampler != nil) {
-            appLaunchSamplingContext = samplingContextForAppLaunches();
-            resolvedTracesSampleRate = options.tracesSampler(appLaunchSamplingContext);
-            SENTRY_LOG_DEBUG(
-                @"Got sample rate of %@ from tracesSampler.", resolvedTracesSampleRate);
-        } else if (options.tracesSampleRate != nil) {
-            resolvedTracesSampleRate = options.tracesSampleRate;
-            SENTRY_LOG_DEBUG(@"Got numerical traces sample rate of %@.", resolvedTracesSampleRate);
-        }
-
-        if ([resolvedTracesSampleRate compare:@0] == NSOrderedSame) {
-            SENTRY_LOG_DEBUG(@"Sampling out the launch trace due to missing or 0%% sample rate.");
-            [SentryFileManager removeAppLaunchProfilingMarkerFile];
-            return;
-        }
-
-        id<SentryRandom> random = SentryDependencyContainer.sharedInstance.random;
-        if ([[SentryTracesSampler calcSample:resolvedTracesSampleRate random:random] decision]
-            != kSentrySampleDecisionYes) {
-            SENTRY_LOG_DEBUG(@"Sampling out the launch trace.");
-            [SentryFileManager removeAppLaunchProfilingMarkerFile];
-            return;
-        }
-
-        NSNumber *resolvedProfilesSampleRate;
-        if (options.profilesSampler != nil) {
-            if (appLaunchSamplingContext == nil) {
-                appLaunchSamplingContext = samplingContextForAppLaunches();
-            }
-            resolvedProfilesSampleRate = options.profilesSampler(appLaunchSamplingContext);
-            SENTRY_LOG_DEBUG(
-                @"Got sample rate of %@ from profilesSampler.", resolvedProfilesSampleRate);
-        } else if (options.profilesSampleRate != nil) {
-            resolvedProfilesSampleRate = options.profilesSampleRate;
-            SENTRY_LOG_DEBUG(
-                @"Got numerical profiles sample rate of %@.", resolvedProfilesSampleRate);
-        }
-
-        if ([resolvedProfilesSampleRate compare:@0] == NSOrderedSame) {
-            SENTRY_LOG_DEBUG(@"Sampling out the launch profile due to missing or 0%% sample rate.");
-            [SentryFileManager removeAppLaunchProfilingMarkerFile];
-            return;
-        }
-
-        if ([[SentryProfilesSampler calcSample:resolvedProfilesSampleRate random:random] decision]
-            != kSentrySampleDecisionYes) {
-            SENTRY_LOG_DEBUG(@"Sampling out the launch profile.");
-            [SentryFileManager removeAppLaunchProfilingMarkerFile];
-            return;
-        }
-
-        SENTRY_LOG_DEBUG(@"Will profile the next launch.");
-        [SentryFileManager writeAppLaunchProfilingMarkerFile];
     }];
 }
 
