@@ -10,6 +10,8 @@
 
 - Fix typo in BUILD_LIBRARY_FOR_DISTRIBUTION variable in Makefile (#3488)
 - Remove dispatch queue metadata collection to fix crash (#3522)
+- Fix synchronization issue in FramesTracker (#3571)
+
 
 ## 8.18.0
 

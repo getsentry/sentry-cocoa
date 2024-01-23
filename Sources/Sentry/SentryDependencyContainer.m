@@ -275,6 +275,7 @@ static NSObject *sentryDependencyContainerLock;
                 _framesTracker = [[SentryFramesTracker alloc]
                     initWithDisplayLinkWrapper:[[SentryDisplayLinkWrapper alloc] init]
                                   dateProvider:self.dateProvider
+                          dispatchQueueWrapper:self.dispatchQueueWrapper
                      keepDelayedFramesDuration:SENTRY_AUTO_TRANSACTION_MAX_DURATION];
             }
         }
