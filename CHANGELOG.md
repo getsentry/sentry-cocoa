@@ -10,6 +10,7 @@
 
 - Fix typo in BUILD_LIBRARY_FOR_DISTRIBUTION variable in Makefile (#3488)
 - Remove dispatch queue metadata collection to fix crash (#3522)
+- Make SentryScope.useSpan non-blocking (#3568)
 
 ## 8.18.0
 

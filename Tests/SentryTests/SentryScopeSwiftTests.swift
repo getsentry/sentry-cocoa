@@ -260,6 +260,49 @@ class SentryScopeSwiftTests: XCTestCase {
         }
     }
     
+    func testUseSpanLock_DoesNotBlock_WithBlockingCallback() {
+        let scope = fixture.scope
+        let queue = DispatchQueue(label: "test-queue", attributes: [.initiallyInactive, .concurrent])
+        let expect = expectation(description: "useSpan callback is non-blocking")
+        
+        let condition = NSCondition()
+        var useSpanCalled = false
+        
+        queue.async {
+            scope.useSpan { _ in
+                condition.lock()
+                while !useSpanCalled {
+                    condition.wait()
+                }
+                condition.unlock()
+            }
+        }
+        
+        queue.async {
+            scope.useSpan { _ in
+                useSpanCalled = true
+                condition.broadcast()
+                expect.fulfill()
+            }
+        }
+        
+        queue.activate()
+        
+        wait(for: [expect], timeout: 0.1)
+    }
+    
+    func testUseSpanLock_IsReentrant() {
+        let expect = expectation(description: "finish on time")
+        let scope = fixture.scope
+        scope.useSpan { _ in
+            scope.useSpan { _ in
+                expect.fulfill()
+            }
+
+        }
+        wait(for: [expect], timeout: 0.1)
+    }
+    
     func testUseSpanForClear() {
         fixture.scope.span = fixture.transaction
         fixture.scope.useSpan { (_) in

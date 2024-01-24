@@ -141,9 +141,11 @@ SentryScope ()
 
 - (void)useSpan:(SentrySpanCallback)callback
 {
+    id<SentrySpan> localSpan = nil;
     @synchronized(_spanLock) {
-        callback(_span);
+        localSpan = _span;
     }
+    callback(localSpan);
 }
 
 - (void)clear
