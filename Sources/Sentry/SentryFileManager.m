@@ -87,6 +87,9 @@ SentryFileManager ()
         if (!createDirectoryIfNotExists(self.envelopesPath, error)) {
             return nil;
         }
+        if (!createDirectoryIfNotExists(sentryApplicationSupportPath(), error)) {
+            return nil;
+        }
 
         self.currentFileCounter = 0;
         self.maxEnvelopes = options.maxCacheItems;
@@ -686,6 +689,11 @@ SentryFileManager ()
 }
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
+/**
+ * @note This method must be statically accessible because it will be called during app launch,
+ * before any instance of @c SentryFileManager exists, and so wouldn't be able to access this path
+ * from an objc property on it like the other paths.
+ */
 NSString *
 sentryApplicationSupportPath(void)
 {
@@ -697,12 +705,6 @@ sentryApplicationSupportPath(void)
         NSString *applicationSupportDirectory = [paths firstObject];
         sentryApplicationSupportPath =
             [applicationSupportDirectory stringByAppendingPathComponent:@"io.sentry"];
-
-        NSError *error;
-        if (!createDirectoryIfNotExists(sentryApplicationSupportPath, &error)) {
-            SENTRY_LOG_ERROR(
-                @"Failed to create directory %@: %@", sentryApplicationSupportPath, error);
-        }
     });
     return sentryApplicationSupportPath;
 }
