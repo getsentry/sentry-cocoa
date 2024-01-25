@@ -432,7 +432,7 @@ writeProfileFile(NSDictionary<NSString *, id> *payload)
 {
     NSData *data = [SentrySerialization dataWithJSONObject:payload];
     NSFileManager *fm = [NSFileManager defaultManager];
-    NSString *appSupportDirPath = SentryFileManager.sentryApplicationSupportPath;
+    NSString *appSupportDirPath = sentryApplicationSupportPath();
 
     if (![fm fileExistsAtPath:appSupportDirPath]) {
         SENTRY_LOG_DEBUG(@"Creating app support directory.");

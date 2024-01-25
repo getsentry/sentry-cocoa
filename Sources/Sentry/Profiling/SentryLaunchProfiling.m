@@ -1,4 +1,4 @@
-#import "SentryLaunchProfiling.h"
+#import "SentryLaunchProfiling+Tests.h"
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
@@ -24,12 +24,6 @@ NSObject *appLaunchTraceLock;
 uint64_t appLaunchSystemTime;
 static NSString *const kSentryLaunchProfileConfigKeyTracesSampleRate = @"traces";
 static NSString *const kSentryLaunchProfileConfigKeyProfilesSampleRate = @"profiles";
-
-typedef struct {
-    BOOL shouldProfile;
-    SentrySamplerDecision *tracesDecision;
-    SentrySamplerDecision *profilesDecision;
-} SentryLaunchProfileConfig;
 
 #    pragma mark - Private
 

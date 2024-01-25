@@ -2,6 +2,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+SENTRY_EXTERN NSString *sentryApplicationSupportPath(void);
+
 @interface
 SentryFileManager ()
 

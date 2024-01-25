@@ -6,8 +6,6 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-SENTRY_EXTERN BOOL shouldProfileNextLaunch(SentryOptions *options);
-
 @interface
 SentrySDK ()
 
