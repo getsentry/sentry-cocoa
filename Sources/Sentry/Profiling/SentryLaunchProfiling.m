@@ -11,28 +11,26 @@
 #    import "SentryLog.h"
 #    import "SentryOptions.h"
 #    import "SentryProfiler.h"
-#    import "SentryProfilesSampler.h"
 #    import "SentryRandom.h"
+#    import "SentrySamplerDecision.h"
+#    import "SentrySampling.h"
 #    import "SentrySamplingContext.h"
-#    import "SentryTracesSampler.h"
 #    import "SentryTransactionContext.h"
 
-SentryTracesSamplerDecision *appLaunchTraceSamplerDecision;
 BOOL isTracingAppLaunch;
 SentryId *_Nullable appLaunchTraceId;
 NSObject *appLaunchTraceLock;
 uint64_t appLaunchSystemTime;
+NSString *const kSentryLaunchProfileConfigKeyTracesSampleRate = @"traces";
+NSString *const kSentryLaunchProfileConfigKeyProfilesSampleRate = @"profiles";
 
-SentrySamplingContext *
-samplingContextForAppLaunches(void)
-{
-    SentryTransactionContext *transactionContext =
-        [[SentryTransactionContext alloc] initWithName:@"app.launch" operation:@"profile"];
-    transactionContext.forNextAppLaunch = YES;
-    return [[SentrySamplingContext alloc] initWithTransactionContext:transactionContext];
-}
+typedef struct {
+    BOOL shouldProfile;
+    SentrySamplerDecision *tracesDecision;
+    SentrySamplerDecision *profilesDecision;
+} SentryLaunchProfileConfig;
 
-BOOL
+SentryLaunchProfileConfig
 shouldProfileNextLaunch(SentryOptions *options)
 {
     BOOL shouldProfileNextLaunch = options.enableAppLaunchProfiling
@@ -59,68 +57,53 @@ shouldProfileNextLaunch(SentryOptions *options)
             options.enableSwizzling, options.enableTracing);
 #    endif // SENTRY_UIKIT_AVAILABLE
 
-        return NO;
+        return (SentryLaunchProfileConfig) { NO, nil, nil };
     }
 
-    SentrySamplingContext *appLaunchSamplingContext;
-    NSNumber *resolvedTracesSampleRate;
-    if (options.tracesSampler != nil) {
-        appLaunchSamplingContext = samplingContextForAppLaunches();
-        resolvedTracesSampleRate = options.tracesSampler(appLaunchSamplingContext);
-        SENTRY_LOG_DEBUG(@"Got sample rate of %@ from tracesSampler.", resolvedTracesSampleRate);
-    } else if (options.tracesSampleRate != nil) {
-        resolvedTracesSampleRate = options.tracesSampleRate;
-        SENTRY_LOG_DEBUG(@"Got numerical traces sample rate of %@.", resolvedTracesSampleRate);
-    }
+    SentryTransactionContext *transactionContext =
+        [[SentryTransactionContext alloc] initWithName:@"app.launch" operation:@"profile"];
+    transactionContext.forNextAppLaunch = YES;
+    SentrySamplingContext *context =
+        [[SentrySamplingContext alloc] initWithTransactionContext:transactionContext];
 
-    if ([resolvedTracesSampleRate compare:@0] == NSOrderedSame) {
-        SENTRY_LOG_DEBUG(@"Sampling out the launch trace due to missing or 0%% sample rate.");
-        return NO;
-    }
-
-    id<SentryRandom> random = SentryDependencyContainer.sharedInstance.random;
-    if ([[SentryTracesSampler calcSample:resolvedTracesSampleRate random:random] decision]
-        != kSentrySampleDecisionYes) {
+    SentrySamplerDecision *tracesSamplerDecision = sampleTrace(context, options);
+    if (tracesSamplerDecision.decision != kSentrySampleDecisionYes) {
         SENTRY_LOG_DEBUG(@"Sampling out the launch trace.");
-        return NO;
+        return (SentryLaunchProfileConfig) { NO, nil, nil };
     }
 
-    NSNumber *resolvedProfilesSampleRate;
-    if (options.profilesSampler != nil) {
-        if (appLaunchSamplingContext == nil) {
-            appLaunchSamplingContext = samplingContextForAppLaunches();
-        }
-        resolvedProfilesSampleRate = options.profilesSampler(appLaunchSamplingContext);
-        SENTRY_LOG_DEBUG(
-            @"Got sample rate of %@ from profilesSampler.", resolvedProfilesSampleRate);
-    } else if (options.profilesSampleRate != nil) {
-        resolvedProfilesSampleRate = options.profilesSampleRate;
-        SENTRY_LOG_DEBUG(@"Got numerical profiles sample rate of %@.", resolvedProfilesSampleRate);
-    }
-
-    if ([resolvedProfilesSampleRate compare:@0] == NSOrderedSame) {
-        SENTRY_LOG_DEBUG(@"Sampling out the launch profile due to missing or 0%% sample rate.");
-        return NO;
-    }
-
-    if ([[SentryProfilesSampler calcSample:resolvedProfilesSampleRate random:random] decision]
-        != kSentrySampleDecisionYes) {
+    SentrySamplerDecision *profilesSamplerDecision
+        = sampleProfile(context, tracesSamplerDecision, options);
+    if (profilesSamplerDecision.decision != kSentrySampleDecisionYes) {
         SENTRY_LOG_DEBUG(@"Sampling out the launch profile.");
-        return NO;
+        return (SentryLaunchProfileConfig) { NO, nil, nil };
     }
 
     SENTRY_LOG_DEBUG(@"Will profile the next launch.");
-    return YES;
+    return (SentryLaunchProfileConfig) { YES, tracesSamplerDecision, profilesSamplerDecision };
+}
+
+NSDictionary<NSString *, NSNumber *> *
+lastLaunchSampleRates(void)
+{
+    return appLaunchProfileConfiguration();
 }
 
 void
 configureLaunchProfiling(SentryOptions *options)
 {
     [SentryDependencyContainer.sharedInstance.dispatchQueueWrapper dispatchAsyncWithBlock:^{
-        if (shouldProfileNextLaunch(options)) {
-            [SentryFileManager writeAppLaunchProfilingMarkerFile];
+        SentryLaunchProfileConfig config = shouldProfileNextLaunch(options);
+        if (config.shouldProfile) {
+            NSMutableDictionary<NSString *, NSNumber *> *configDict =
+                [NSMutableDictionary<NSString *, NSNumber *> dictionary];
+            configDict[kSentryLaunchProfileConfigKeyTracesSampleRate]
+                = config.tracesDecision.sampleRate;
+            configDict[kSentryLaunchProfileConfigKeyProfilesSampleRate]
+                = config.profilesDecision.sampleRate;
+            writeAppLaunchProfilingConfigFile(configDict);
         } else {
-            [SentryFileManager removeAppLaunchProfilingMarkerFile];
+            removeAppLaunchProfilingConfigFile();
         }
     }];
 }
@@ -140,7 +123,7 @@ startLaunchProfile(void)
         [SentryLog configure:YES diagnosticLevel:kSentryLevelDebug];
 #    endif // defined(DEBUG)
 
-        if (!appLaunchProfileMarkerFileExists()) {
+        if (!appLaunchProfileConfigFileExists()) {
             return;
         }
 

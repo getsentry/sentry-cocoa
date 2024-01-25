@@ -87,27 +87,35 @@ SENTRY_NO_INIT
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 /**
- * @return @c YES if a launch profile marker file is present, @c NO otherwise. If a marker file is
+ * @return @c YES if a launch profile config file is present, @c NO otherwise. If a config file is
  * present, this means that a sample decision of @c YES was computed using the resolved traces and
  * profiles sample rates provided in the previous launch's call to @c SentrySDK.startWithOptions .
  * @note This is implemented as a C function instead of an Objective-C method in the interest of
  * fast execution at launch time.
  */
-SENTRY_EXTERN BOOL appLaunchProfileMarkerFileExists(void);
+SENTRY_EXTERN BOOL appLaunchProfileConfigFileExists(void);
 
 /**
- * Write a marker file to signify that on the next app launch that the profiler should automatically
- * run at load time.
+ * Retrieve the contents of the launch profile config file, which stores the sample rates used to
+ * decide whether or not to profile this launch.
  */
-+ (void)writeAppLaunchProfilingMarkerFile;
+SENTRY_EXTERN NSMutableDictionary<NSString *, NSNumber *> *_Nullable appLaunchProfileConfiguration(
+    void);
 
 /**
- * Remove an existing launch profile marker file. One may have been present from a previous
- * configuration to run the launch profiler, and then the eventual call to
- * @c SentrySDK.startWithOptions provided sample rates that lead to calculating something other than
- * @c kSentrySampleDecisionYes for traces and profiles.
+ * Write a config file that stores the sample rates used to determine whether this launch should
+ * have been profiled.
  */
-+ (void)removeAppLaunchProfilingMarkerFile;
+SENTRY_EXTERN void writeAppLaunchProfilingConfigFile(
+    NSMutableDictionary<NSString *, NSNumber *> *config);
+
+/**
+ * Remove an existing launch profile config file. If this launch was profiled, then a config file is
+ * present, and if the following call to @c SentrySDK.startWithOptions determines the next launch
+ * should not be profiled, then we must remove the config file, or the next launch would see it and
+ * start the profiler.
+ */
+SENTRY_EXTERN void removeAppLaunchProfilingConfigFile(void);
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
 @end

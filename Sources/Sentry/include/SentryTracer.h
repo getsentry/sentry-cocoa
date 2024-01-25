@@ -11,11 +11,9 @@ NS_ASSUME_NONNULL_BEGIN
 @class SentryHub;
 @class SentryMeasurementValue;
 @class SentryNSTimerFactory;
-@class SentryProfilesSamplerDecision;
 @class SentryTraceContext;
 @class SentryTraceHeader;
 @class SentryTracer;
-@class SentryTracesSamplerDecision;
 @class SentryTransactionContext;
 
 static NSTimeInterval const SentryTracerDefaultTimeout = 3.0;

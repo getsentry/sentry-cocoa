@@ -708,7 +708,7 @@ sentryApplicationSupportPath(void)
 }
 
 NSString *
-launchProfileMarkerPath(void)
+launchProfileConfigFilePath(void)
 {
     static NSString *sentryLaunchConfigPath;
     static dispatch_once_t onceToken;
@@ -719,30 +719,41 @@ launchProfileMarkerPath(void)
     return sentryLaunchConfigPath;
 }
 
-BOOL
-appLaunchProfileMarkerFileExists(void)
+NSMutableDictionary<NSString *, NSNumber *> *_Nullable appLaunchProfileConfiguration(void)
 {
-    return access(launchProfileMarkerPath().UTF8String, F_OK) == 0;
+    NSError *error;
+    NSMutableDictionary<NSString *, NSNumber *> *config =
+        [NSMutableDictionary<NSString *, NSNumber *>
+            dictionaryWithContentsOfFile:launchProfileConfigFilePath()];
+    SENTRY_CASSERT(
+        error == nil, @"Encountered error trying to retrieve app launch profile config: %@", error);
+    return config;
 }
 
-+ (void)writeAppLaunchProfilingMarkerFile
+BOOL
+appLaunchProfileConfigFileExists(void)
 {
-    SENTRY_ASSERT([[NSFileManager defaultManager] createFileAtPath:launchProfileMarkerPath()
-                                                          contents:nil
-                                                        attributes:nil],
+    return access(launchProfileConfigFilePath().UTF8String, F_OK) == 0;
+}
+
+void
+writeAppLaunchProfilingConfigFile(NSMutableDictionary<NSString *, NSNumber *> *config)
+{
+    SENTRY_CASSERT([config writeToFile:launchProfileConfigFilePath() atomically:YES],
         @"Failed to write launch profile marker file.");
 }
 
-+ (void)removeAppLaunchProfilingMarkerFile
+void
+removeAppLaunchProfilingConfigFile(void)
 {
     NSFileManager *fm = [NSFileManager defaultManager];
-    NSString *path = launchProfileMarkerPath();
+    NSString *path = launchProfileConfigFilePath();
     if (![fm fileExistsAtPath:path]) {
         return;
     }
 
     NSError *error;
-    SENTRY_ASSERT([fm removeItemAtPath:path error:&error],
+    SENTRY_CASSERT([fm removeItemAtPath:path error:&error],
         @"Failed to remove launch profile marker file: %@", error);
 }
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED

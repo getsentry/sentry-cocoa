@@ -13,6 +13,7 @@
 #import "SentryProfilingConditionals.h"
 #import "SentryRandom.h"
 #import "SentrySDK+Private.h"
+#import "SentrySamplerDecision.h"
 #import "SentryScope.h"
 #import "SentrySpan.h"
 #import "SentrySpanContext+Private.h"
@@ -23,7 +24,6 @@
 #import "SentryTraceContext.h"
 #import "SentryTraceOrigins.h"
 #import "SentryTracer+Private.h"
-#import "SentryTracesSampler.h"
 #import "SentryTransaction.h"
 #import "SentryTransactionContext.h"
 #import "SentryUIApplication.h"
@@ -37,7 +37,6 @@
 #    import "SentryLaunchProfiling.h"
 #    import "SentryProfiledTracerConcurrency.h"
 #    import "SentryProfiler.h"
-#    import "SentryProfilesSampler.h"
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
 #if SENTRY_HAS_UIKIT

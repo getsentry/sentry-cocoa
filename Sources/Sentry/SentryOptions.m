@@ -521,17 +521,18 @@ NSString *const kSentryDefaultEnvironment = @"production";
 {
     if (sampleRate == nil) {
         _sampleRate = nil;
-    } else if ([self isValidSampleRate:sampleRate]) {
+    } else if (isValidSampleRate(sampleRate)) {
         _sampleRate = sampleRate;
     } else {
         _sampleRate = _defaultSampleRate;
     }
 }
 
-- (BOOL)isValidSampleRate:(NSNumber *)sampleRate
+BOOL
+isValidSampleRate(NSNumber *sampleRate)
 {
-    // Same valid range, so we can reuse the logic.
-    return [self isValidTracesSampleRate:sampleRate];
+    double rate = [sampleRate doubleValue];
+    return rate >= 0 && rate <= 1.0;
 }
 
 - (void)setEnableTracing:(BOOL)enableTracing
@@ -551,7 +552,7 @@ NSString *const kSentryDefaultEnvironment = @"production";
 {
     if (tracesSampleRate == nil) {
         _tracesSampleRate = nil;
-    } else if ([self isValidTracesSampleRate:tracesSampleRate]) {
+    } else if (isValidSampleRate(tracesSampleRate)) {
         _tracesSampleRate = tracesSampleRate;
         if (!_enableTracingManual) {
             _enableTracing = YES;
@@ -569,12 +570,6 @@ NSString *const kSentryDefaultEnvironment = @"production";
     }
 }
 
-- (BOOL)isValidTracesSampleRate:(NSNumber *)tracesSampleRate
-{
-    double rate = [tracesSampleRate doubleValue];
-    return rate >= 0 && rate <= 1.0;
-}
-
 - (BOOL)isTracingEnabled
 {
     return _enableTracing
@@ -583,16 +578,11 @@ NSString *const kSentryDefaultEnvironment = @"production";
 }
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
-- (BOOL)isValidProfilesSampleRate:(NSNumber *)profilesSampleRate
-{
-    return [self isValidTracesSampleRate:profilesSampleRate];
-}
-
 - (void)setProfilesSampleRate:(NSNumber *)profilesSampleRate
 {
     if (profilesSampleRate == nil) {
         _profilesSampleRate = nil;
-    } else if ([self isValidProfilesSampleRate:profilesSampleRate]) {
+    } else if (isValidSampleRate(profilesSampleRate)) {
         _profilesSampleRate = profilesSampleRate;
     } else {
         _profilesSampleRate = _defaultProfilesSampleRate;
