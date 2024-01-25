@@ -7,6 +7,7 @@
 #import "SentryEvent+Private.h"
 #import "SentryFileManager.h"
 #import "SentryHub+Private.h"
+#import "SentryInternalDefines.h"
 #import "SentryLog.h"
 #import "SentryNSTimerFactory.h"
 #import "SentryNoOpSpan.h"
@@ -189,6 +190,7 @@ static BOOL appStartMeasurementRead;
         isTracingAppLaunchValue = isTracingAppLaunch;
     }
     if (isTracingAppLaunchValue) {
+        SENTRY_ASSERT(appLaunchTraceId != nil, @"Expected an app launch trace ID.");
         _internalID = appLaunchTraceId;
         SENTRY_LOG_DEBUG(
             @"App launch profile in progress, will attach to trace %@", _internalID.sentryIdString);

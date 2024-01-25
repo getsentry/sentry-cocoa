@@ -22,14 +22,16 @@ BOOL isTracingAppLaunch;
 SentryId *_Nullable appLaunchTraceId;
 NSObject *appLaunchTraceLock;
 uint64_t appLaunchSystemTime;
-NSString *const kSentryLaunchProfileConfigKeyTracesSampleRate = @"traces";
-NSString *const kSentryLaunchProfileConfigKeyProfilesSampleRate = @"profiles";
+static NSString *const kSentryLaunchProfileConfigKeyTracesSampleRate = @"traces";
+static NSString *const kSentryLaunchProfileConfigKeyProfilesSampleRate = @"profiles";
 
 typedef struct {
     BOOL shouldProfile;
     SentrySamplerDecision *tracesDecision;
     SentrySamplerDecision *profilesDecision;
 } SentryLaunchProfileConfig;
+
+#    pragma mark - Private
 
 SentryLaunchProfileConfig
 shouldProfileNextLaunch(SentryOptions *options)
@@ -84,11 +86,7 @@ shouldProfileNextLaunch(SentryOptions *options)
     return (SentryLaunchProfileConfig) { YES, tracesSamplerDecision, profilesSamplerDecision };
 }
 
-NSDictionary<NSString *, NSNumber *> *
-lastLaunchSampleRates(void)
-{
-    return appLaunchProfileConfiguration();
-}
+#    pragma mark - Public
 
 void
 configureLaunchProfiling(SentryOptions *options)
@@ -117,16 +115,16 @@ startLaunchProfile(void)
     // directly to customers, and we'll want to ensure it only runs once. dispatch_once is an
     // efficient operation so it's fine to leave this in the launch path in any case.
     dispatch_once(&onceToken, ^{
+        if (!appLaunchProfileConfigFileExists()) {
+            return;
+        }
+
 #    if defined(DEBUG)
         // quick and dirty way to get debug logging this early in the process run. this will get
         // overwritten once SentrySDK.startWithOptions is called according to the values of
         // SentryOptions.debug and SentryOptions.diagnosticLevel
         [SentryLog configure:YES diagnosticLevel:kSentryLevelDebug];
 #    endif // defined(DEBUG)
-
-        if (!appLaunchProfileConfigFileExists()) {
-            return;
-        }
 
         appLaunchSystemTime = SentryDependencyContainer.sharedInstance.dateProvider.systemTime;
         appLaunchTraceLock = [[NSObject alloc] init];
@@ -144,7 +142,7 @@ BOOL
 injectLaunchSamplerDecisions(
     SentryTransactionContext *transactionContext, SentryTracerConfiguration *configuration)
 {
-    NSDictionary<NSString *, NSNumber *> *rates = lastLaunchSampleRates();
+    NSDictionary<NSString *, NSNumber *> *rates = appLaunchProfileConfiguration();
     NSNumber *profilesRate = rates[kSentryLaunchProfileConfigKeyProfilesSampleRate];
     NSNumber *tracesRate = rates[kSentryLaunchProfileConfigKeyTracesSampleRate];
     if (profilesRate == nil || tracesRate == nil) {

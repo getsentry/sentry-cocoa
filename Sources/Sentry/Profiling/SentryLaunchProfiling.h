@@ -16,12 +16,14 @@ SENTRY_EXTERN SentryId *_Nullable appLaunchTraceId;
 SENTRY_EXTERN uint64_t appLaunchSystemTime;
 SENTRY_EXTERN NSObject *appLaunchTraceLock;
 
-SENTRY_EXTERN NSString *const kSentryLaunchProfileConfigKeyTracesSampleRate;
-SENTRY_EXTERN NSString *const kSentryLaunchProfileConfigKeyProfilesSampleRate;
-SENTRY_EXTERN NSDictionary<NSString *, NSNumber *> *lastLaunchSampleRates(void);
-
 void startLaunchProfile(void);
 
+/*
+ * Write a file to disk containing sample rates for profiles and traces. The presence of this file
+ * will let the profiler know to start on the app launch, and the sample rates contained will help
+ * thread sampling decisions through to SentryHub later when it needs to start a transaction for the
+ * profile to be attached to.
+ */
 void configureLaunchProfiling(SentryOptions *options);
 
 /**
