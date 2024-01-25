@@ -15,6 +15,7 @@
 #    import "SentrySamplerDecision.h"
 #    import "SentrySampling.h"
 #    import "SentrySamplingContext.h"
+#    import "SentryTracerConfiguration.h"
 #    import "SentryTransactionContext.h"
 
 BOOL isTracingAppLaunch;
@@ -137,6 +138,23 @@ startLaunchProfile(void)
         // activity going on this early in the process. this codepath is also behind a dispatch_once
         isTracingAppLaunch = [SentryProfiler startWithTracer:appLaunchTraceId];
     });
+}
+
+BOOL
+injectLaunchSamplerDecisions(
+    SentryTransactionContext *transactionContext, SentryTracerConfiguration *configuration)
+{
+    NSDictionary<NSString *, NSNumber *> *rates = lastLaunchSampleRates();
+    NSNumber *profilesRate = rates[kSentryLaunchProfileConfigKeyProfilesSampleRate];
+    NSNumber *tracesRate = rates[kSentryLaunchProfileConfigKeyTracesSampleRate];
+    if (profilesRate == nil || tracesRate == nil) {
+        return NO;
+    }
+    configuration.profilesSamplerDecision =
+        [[SentrySamplerDecision alloc] initWithDecision:kSentrySampleDecisionYes
+                                          forSampleRate:profilesRate];
+    transactionContext.sampleRate = rates[kSentryLaunchProfileConfigKeyTracesSampleRate];
+    return YES;
 }
 
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
