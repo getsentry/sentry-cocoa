@@ -373,14 +373,23 @@ SentryHub ()
                         customSamplingContext:(NSDictionary<NSString *, id> *)customSamplingContext
                                 configuration:(SentryTracerConfiguration *)configuration
 {
+
+    BOOL applySampling = YES;
+
 #if SENTRY_TARGET_PROFILING_SUPPORTED
-    // in order to sample launch profiles, we must have already computed the trace/profile sampling
-    // decisions, so that we don't run the profiler for a launch that it would eventually be decided
-    // to sample out, thus incurring unnecessary overhead. retrieve the sample rates form the config
-    // file and use them to start the transaction here, so we don't wind up with disagreeing sample
-    // decisions that lead to wasting the overhead from a launch profile.
-    if (!isTracingAppLaunch || !injectLaunchSamplerDecisions(transactionContext, configuration)) {
+    // in order to sample launch profiles, we compute the trace/profile sampling decisions in
+    // SentrySDK.startWithOptions and if the decisions evaluate to yes, we write a config file with
+    // the actual sampling rates used, and the presence of this file indicates to the profiler on
+    // the next launch that it should take the profile. then, we need a transaction to attach it to,
+    // so we also don't want to reevaluate the sampling logic and possibly sample out the
+    // transaction it would be attached to, thus rendering the profile as wasted overhead for the
+    // launch. here we can assume a sample decision of yes, and we retrieve the sample rates to
+    // inject into the context/configuration
+    applySampling
+        = isTracingAppLaunch && injectLaunchSamplerDecisions(transactionContext, configuration);
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
+
+    if (applySampling) {
         SentrySamplingContext *samplingContext =
             [[SentrySamplingContext alloc] initWithTransactionContext:transactionContext
                                                 customSamplingContext:customSamplingContext];
@@ -392,8 +401,8 @@ SentryHub ()
 #if SENTRY_TARGET_PROFILING_SUPPORTED
         configuration.profilesSamplerDecision
             = sampleProfile(samplingContext, tracesSamplerDecision, _client.options);
-    }
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
+    }
 
     SentryTracer *tracer = [[SentryTracer alloc] initWithTransactionContext:transactionContext
                                                                         hub:self
