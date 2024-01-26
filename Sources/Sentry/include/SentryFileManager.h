@@ -99,8 +99,7 @@ SENTRY_EXTERN BOOL appLaunchProfileConfigFileExists(void);
  * Retrieve the contents of the launch profile config file, which stores the sample rates used to
  * decide whether or not to profile this launch.
  */
-SENTRY_EXTERN NSMutableDictionary<NSString *, NSNumber *> *_Nullable appLaunchProfileConfiguration(
-    void);
+SENTRY_EXTERN NSDictionary<NSString *, NSNumber *> *_Nullable appLaunchProfileConfiguration(void);
 
 /**
  * Write a config file that stores the sample rates used to determine whether this launch should

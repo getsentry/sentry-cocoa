@@ -709,24 +709,25 @@ sentryApplicationSupportPath(void)
     return sentryApplicationSupportPath;
 }
 
-NSString *
-launchProfileConfigFilePath(void)
+NSURL *
+launchProfileConfigFileURL(void)
 {
-    static NSString *sentryLaunchConfigPath;
+    static NSURL *sentryLaunchConfigFileURL;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        sentryLaunchConfigPath =
-            [sentryApplicationSupportPath() stringByAppendingPathComponent:@"profileLaunch"];
+        sentryLaunchConfigFileURL =
+            [NSURL fileURLWithPath:[sentryApplicationSupportPath()
+                                       stringByAppendingPathComponent:@"profileLaunch"]];
     });
-    return sentryLaunchConfigPath;
+    return sentryLaunchConfigFileURL;
 }
 
-NSMutableDictionary<NSString *, NSNumber *> *_Nullable appLaunchProfileConfiguration(void)
+NSDictionary<NSString *, NSNumber *> *_Nullable appLaunchProfileConfiguration(void)
 {
     NSError *error;
-    NSMutableDictionary<NSString *, NSNumber *> *config =
-        [NSMutableDictionary<NSString *, NSNumber *>
-            dictionaryWithContentsOfFile:launchProfileConfigFilePath()];
+    NSDictionary<NSString *, NSNumber *> *config = [NSDictionary<NSString *, NSNumber *>
+        dictionaryWithContentsOfURL:launchProfileConfigFileURL()
+                              error:&error];
     SENTRY_CASSERT(
         error == nil, @"Encountered error trying to retrieve app launch profile config: %@", error);
     return config;
@@ -735,21 +736,22 @@ NSMutableDictionary<NSString *, NSNumber *> *_Nullable appLaunchProfileConfigura
 BOOL
 appLaunchProfileConfigFileExists(void)
 {
-    return access(launchProfileConfigFilePath().UTF8String, F_OK) == 0;
+    return access(launchProfileConfigFileURL().path.UTF8String, F_OK) == 0;
 }
 
 void
 writeAppLaunchProfilingConfigFile(NSMutableDictionary<NSString *, NSNumber *> *config)
 {
-    SENTRY_CASSERT([config writeToFile:launchProfileConfigFilePath() atomically:YES],
-        @"Failed to write launch profile marker file.");
+    NSError *error;
+    SENTRY_CASSERT([config writeToURL:launchProfileConfigFileURL() error:&error],
+        @"Failed to write launch profile marker file: %@.", error);
 }
 
 void
 removeAppLaunchProfilingConfigFile(void)
 {
     NSFileManager *fm = [NSFileManager defaultManager];
-    NSString *path = launchProfileConfigFilePath();
+    NSString *path = launchProfileConfigFileURL().path;
     if (![fm fileExistsAtPath:path]) {
         return;
     }
