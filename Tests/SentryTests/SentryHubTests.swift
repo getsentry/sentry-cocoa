@@ -810,6 +810,22 @@ class SentryHubTests: XCTestCase {
     }
 #endif
     
+    func testStartTransaction_WhenSamplerNil_NotSampled() {
+        SentryDependencyContainer.sharedInstance().random = TestRandom(value: 0.5)
+        assertSampler(expected: .no) { options in
+            options.tracesSampleRate = 0.49
+            options.tracesSampler = { _ in return nil }
+        }
+    }
+    
+    func testStartTransaction_WhenSamplerNil_Sampled() {
+        SentryDependencyContainer.sharedInstance().random = TestRandom(value: 0.5)
+        assertSampler(expected: .yes) { options in
+            options.tracesSampleRate = 0.50
+            options.tracesSampler = { _ in return nil }
+        }
+    }
+    
     private func addBreadcrumbThroughConfigureScope(_ hub: SentryHub) {
         hub.configureScope({ scope in
             scope.addBreadcrumb(self.fixture.crumb)

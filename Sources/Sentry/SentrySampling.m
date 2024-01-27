@@ -1,5 +1,6 @@
 #import "SentrySampling.h"
 #import "SentryDependencyContainer.h"
+#import "SentryInternalDefines.h"
 #import "SentryOptions.h"
 #import "SentryRandom.h"
 #import "SentrySampleDecision.h"
@@ -16,16 +17,16 @@ NS_ASSUME_NONNULL_BEGIN
  * @return A sample rate if the specified sampler callback was defined on @c SentryOptions and
  * returned a valid value, @c nil otherwise.
  */
-NSNumber *_Nullable samplerCallbackRate(
-    SentryTracesSamplerCallback callback, SentrySamplingContext *context, SentryOptions *options)
+NSNumber *_Nullable samplerCallbackRate(SentryTracesSamplerCallback _Nullable callback,
+    SentrySamplingContext *context, NSNumber *defaultSampleRate)
 {
     if (callback == nil) {
         return nil;
     }
 
     NSNumber *callbackRate = callback(context);
-    if (callbackRate == nil || !isValidSampleRate(callbackRate)) {
-        return options.defaultTracesSampleRate;
+    if (!isValidSampleRate(callbackRate)) {
+        return defaultSampleRate;
     }
 
     return callbackRate;
@@ -56,17 +57,20 @@ calcSampleFromNumericalRate(NSNumber *rate)
 SentrySamplerDecision *
 sampleTrace(SentrySamplingContext *context, SentryOptions *options)
 {
+    // check this transaction's sampling decision, if already decided
     if (context.transactionContext.sampled != kSentrySampleDecisionUndecided) {
         return
             [[SentrySamplerDecision alloc] initWithDecision:context.transactionContext.sampled
                                               forSampleRate:context.transactionContext.sampleRate];
     }
 
-    NSNumber *callbackRate = samplerCallbackRate(options.tracesSampler, context, options);
+    NSNumber *callbackRate
+        = samplerCallbackRate(options.tracesSampler, context, SENTRY_DEFAULT_TRACES_SAMPLE_RATE);
     if (callbackRate != nil) {
         return calcSample(callbackRate);
     }
 
+    // check the _parent_ transaction's sampling decision, if any
     if (context.transactionContext.parentSampled != kSentrySampleDecisionUndecided) {
         return
             [[SentrySamplerDecision alloc] initWithDecision:context.transactionContext.parentSampled
@@ -99,7 +103,8 @@ sampleProfile(SentrySamplingContext *context, SentrySamplerDecision *tracesSampl
     }
 #    pragma clang diagnostic pop
 
-    NSNumber *callbackRate = samplerCallbackRate(options.profilesSampler, context, options);
+    NSNumber *callbackRate = samplerCallbackRate(
+        options.profilesSampler, context, SENTRY_DEFAULT_PROFILES_SAMPLE_RATE);
     if (callbackRate != nil) {
         return calcSample(callbackRate);
     }

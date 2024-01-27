@@ -4,6 +4,10 @@
 static NSString *const SentryDebugImageType = @"macho";
 static NSString *const SentryPlatformName = @"cocoa";
 
+#define SENTRY_DEFAULT_SAMPLE_RATE @1
+#define SENTRY_DEFAULT_TRACES_SAMPLE_RATE @0
+#define SENTRY_DEFAULT_PROFILES_SAMPLE_RATE @0
+
 /**
  * Abort in debug, and log a warning in production.
  */

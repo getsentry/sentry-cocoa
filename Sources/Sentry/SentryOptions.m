@@ -33,13 +33,6 @@
 #    import "SentryMetricKitIntegration.h"
 #endif // SENTRY_HAS_METRIC_KIT
 
-@interface
-SentryOptions ()
-
-@property (nullable, nonatomic, copy, readonly) NSNumber *defaultSampleRate;
-
-@end
-
 NSString *const kSentryDefaultEnvironment = @"production";
 
 @implementation SentryOptions {
@@ -96,8 +89,7 @@ NSString *const kSentryDefaultEnvironment = @"production";
         self.maxBreadcrumbs = defaultMaxBreadcrumbs;
         self.maxCacheItems = 30;
         _integrations = SentryOptions.defaultIntegrations;
-        _defaultSampleRate = @1;
-        self.sampleRate = _defaultSampleRate;
+        self.sampleRate = SENTRY_DEFAULT_SAMPLE_RATE;
         self.enableAutoSessionTracking = YES;
         self.enableWatchdogTerminationTracking = YES;
         self.sessionTrackingIntervalMillis = [@30000 unsignedIntValue];
@@ -128,12 +120,10 @@ NSString *const kSentryDefaultEnvironment = @"production";
         self.enableNetworkTracking = YES;
         self.enableFileIOTracing = YES;
         self.enableNetworkBreadcrumbs = YES;
-        _defaultTracesSampleRate = nil;
-        self.tracesSampleRate = _defaultTracesSampleRate;
+        self.tracesSampleRate = SENTRY_DEFAULT_TRACES_SAMPLE_RATE;
 #if SENTRY_TARGET_PROFILING_SUPPORTED
         _enableProfiling = NO;
-        _defaultProfilesSampleRate = nil;
-        self.profilesSampleRate = _defaultProfilesSampleRate;
+        self.profilesSampleRate = SENTRY_DEFAULT_PROFILES_SAMPLE_RATE;
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
         self.enableCoreDataTracing = YES;
         _enableSwizzling = YES;
@@ -520,11 +510,11 @@ NSString *const kSentryDefaultEnvironment = @"production";
 - (void)setSampleRate:(NSNumber *)sampleRate
 {
     if (sampleRate == nil) {
-        _sampleRate = nil;
+        _sampleRate = SENTRY_DEFAULT_SAMPLE_RATE;
     } else if (isValidSampleRate(sampleRate)) {
         _sampleRate = sampleRate;
     } else {
-        _sampleRate = _defaultSampleRate;
+        _sampleRate = SENTRY_DEFAULT_SAMPLE_RATE;
     }
 }
 
@@ -551,14 +541,14 @@ isValidSampleRate(NSNumber *sampleRate)
 - (void)setTracesSampleRate:(NSNumber *)tracesSampleRate
 {
     if (tracesSampleRate == nil) {
-        _tracesSampleRate = nil;
+        _tracesSampleRate = SENTRY_DEFAULT_TRACES_SAMPLE_RATE;
     } else if (isValidSampleRate(tracesSampleRate)) {
         _tracesSampleRate = tracesSampleRate;
         if (!_enableTracingManual) {
             _enableTracing = YES;
         }
     } else {
-        _tracesSampleRate = _defaultTracesSampleRate;
+        _tracesSampleRate = SENTRY_DEFAULT_TRACES_SAMPLE_RATE;
     }
 }
 
@@ -581,11 +571,11 @@ isValidSampleRate(NSNumber *sampleRate)
 - (void)setProfilesSampleRate:(NSNumber *)profilesSampleRate
 {
     if (profilesSampleRate == nil) {
-        _profilesSampleRate = nil;
+        _profilesSampleRate = SENTRY_DEFAULT_PROFILES_SAMPLE_RATE;
     } else if (isValidSampleRate(profilesSampleRate)) {
         _profilesSampleRate = profilesSampleRate;
     } else {
-        _profilesSampleRate = _defaultProfilesSampleRate;
+        _profilesSampleRate = SENTRY_DEFAULT_PROFILES_SAMPLE_RATE;
     }
 }
 

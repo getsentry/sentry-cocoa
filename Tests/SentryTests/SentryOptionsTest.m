@@ -429,7 +429,7 @@
 {
     SentryOptions *options = [[SentryOptions alloc] init];
     options.sampleRate = nil;
-    XCTAssertNil(options.sampleRate);
+    XCTAssert([options.sampleRate isEqualToNumber:@0]);
 }
 
 - (void)testSampleRateLowerBound
@@ -859,7 +859,7 @@
     options.enableTracing = YES;
     options.tracesSampler = sampler;
     XCTAssertTrue(options.enableTracing);
-    options.tracesSampleRate = nil;
+    options.tracesSampleRate = @0;
     XCTAssertTrue(options.enableTracing);
 
     options.enableTracing = NO;
@@ -879,7 +879,7 @@
 {
     SentryOptions *options = [self getValidOptions:@{}];
 
-    XCTAssertNil(options.tracesSampleRate);
+    XCTAssert([options.tracesSampleRate isEqualToNumber:@0]);
 }
 
 - (void)testTracesSampleRate_SetToNil
@@ -887,6 +887,7 @@
     SentryOptions *options = [[SentryOptions alloc] init];
     options.tracesSampleRate = nil;
     XCTAssertNil(options.tracesSampleRate);
+    XCTAssert([options.tracesSampleRate isEqualToNumber:@0]);
 }
 
 - (void)testTracesSampleRateLowerBound
@@ -999,7 +1000,7 @@
 {
     SentryOptions *options = [self getValidOptions:@{}];
 
-    XCTAssertNil(options.profilesSampleRate);
+    XCTAssert([options.profilesSampleRate isEqualToNumber:@0]);
 }
 
 - (void)testProfilesSampleRate_SetToNil
@@ -1007,6 +1008,7 @@
     SentryOptions *options = [[SentryOptions alloc] init];
     options.profilesSampleRate = nil;
     XCTAssertNil(options.profilesSampleRate);
+    XCTAssert([options.profilesSampleRate isEqualToNumber:@0]);
 }
 
 - (void)testProfilesSampleRateLowerBound

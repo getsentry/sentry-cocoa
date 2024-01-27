@@ -434,7 +434,7 @@ class SentryProfilerSwiftTests: XCTestCase {
 
     func testStartTransaction_WhenProfilesSampleRateAndProfilesSamplerNil() throws {
         try assertProfilesSampler(expectedDecision: .no) { options in
-            options.profilesSampleRate = nil
+            options.profilesSampleRate = 0
             options.profilesSampler = { _ in return nil }
         }
     }
@@ -830,7 +830,7 @@ private extension SentryProfilerSwiftTests {
     func assertProfilesSampler(expectedDecision: SentrySampleDecision, options: (Options) -> Void) throws {
         let fixtureOptions = fixture.options
         fixtureOptions.tracesSampleRate = 1.0
-        fixtureOptions.profilesSampleRate = nil
+        fixtureOptions.profilesSampleRate = 0
         fixtureOptions.profilesSampler = { _ in
             switch expectedDecision {
             case .undecided, .no:
