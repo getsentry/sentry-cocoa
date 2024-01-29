@@ -3,6 +3,7 @@
 import Sentry
 import SentryTestUtils
 import XCTest
+import Nimble
 
 class SentryViewHierarchyIntegrationTests: XCTestCase {
 
@@ -147,7 +148,7 @@ class SentryViewHierarchyIntegrationTests: XCTestCase {
         }
         
         wait(for: [ex], timeout: 1)
-        XCTAssertEqual(newAttachmentList?.count, 1)
+        expect(newAttachmentList?.count) == 1
     }
 }
 
