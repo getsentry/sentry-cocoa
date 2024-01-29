@@ -46,7 +46,7 @@ class SentryViewHierarchyTests: XCTestCase {
 
         fixture.uiApplication.windows = [firstWindow, secondWindow]
 
-        guard let descriptions = self.fixture.sut.fetch() else {
+        guard let descriptions = self.fixture.sut.appViewHierarchy() else {
             XCTFail("Could not serialize view hierarchy")
             return
         }
@@ -62,7 +62,7 @@ class SentryViewHierarchyTests: XCTestCase {
         window.accessibilityIdentifier = "WindowId"
 
         fixture.uiApplication.windows = [window]
-        guard let data = self.fixture.sut.fetch()
+        guard let data = self.fixture.sut.appViewHierarchy()
         else {
             XCTFail("Could not serialize view hierarchy")
             return
@@ -76,7 +76,7 @@ class SentryViewHierarchyTests: XCTestCase {
 
         fixture.uiApplication.windows = [window]
 
-        guard let data = self.fixture.sut.fetch()
+        guard let data = self.fixture.sut.appViewHierarchy()
         else {
             XCTFail("Could not serialize view hierarchy")
             return
@@ -96,7 +96,7 @@ class SentryViewHierarchyTests: XCTestCase {
 
         fixture.uiApplication.windows = [firstWindow]
 
-        guard let descriptions = self.fixture.sut.fetch()
+        guard let descriptions = self.fixture.sut.appViewHierarchy()
         else {
             XCTFail("Could not serialize view hierarchy")
             return
@@ -120,7 +120,7 @@ class SentryViewHierarchyTests: XCTestCase {
 
         fixture.uiApplication.windows = [firstWindow]
 
-        guard let descriptions = self.fixture.sut.fetch()
+        guard let descriptions = self.fixture.sut.appViewHierarchy()
         else {
             XCTFail("Could not serialize view hierarchy")
             return
@@ -165,7 +165,7 @@ class SentryViewHierarchyTests: XCTestCase {
         window.accessibilityIdentifier = "WindowId"
 
         fixture.uiApplication.windows = [window]
-        let result = sut.fetch()
+        let result = sut.appViewHierarchy()
         XCTAssertNil(result)
     }
 
@@ -182,7 +182,7 @@ class SentryViewHierarchyTests: XCTestCase {
 
         let dispatch = DispatchQueue(label: "background")
         dispatch.async {
-            let _ = sut.appViewHierarchy()
+            let _ = sut.appViewHierarchyFromMainThread()
         }
 
         wait(for: [ex], timeout: 1)
@@ -196,12 +196,12 @@ class SentryViewHierarchyTests: XCTestCase {
         let ex = expectation(description: "Running on background Thread")
         let dispatch = DispatchQueue(label: "background")
         dispatch.async {
-            let _ = sut.appViewHierarchy()
+            let _ = sut.appViewHierarchyFromMainThread()
             ex.fulfill()
         }
 
         wait(for: [ex], timeout: 1)
-        XCTAssertTrue(fixture.uiApplication.calledOnMainThread, "fetchViewHierarchy is not using the main thread to get UI windows")
+        XCTAssertTrue(fixture.uiApplication.calledOnMainThread, "appViewHierarchy is not using the main thread to get UI windows")
     }
 
     class TestSentryUIApplication: SentryUIApplication {

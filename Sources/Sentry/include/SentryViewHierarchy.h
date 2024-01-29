@@ -10,12 +10,12 @@ NS_ASSUME_NONNULL_BEGIN
  Get the view hierarchy in a json format.
  Always runs in the main thread.
  */
-- (nullable NSData *)appViewHierarchy;
+- (nullable NSData *)appViewHierarchyFromMainThread;
 
 /**
  Get the view hierarchy in a json format.
  */
-- (nullable NSData *)fetchViewHierarchy;
+- (nullable NSData *)appViewHierarchy;
 
 /**
  * Save the current app view hierarchy in the given file path.

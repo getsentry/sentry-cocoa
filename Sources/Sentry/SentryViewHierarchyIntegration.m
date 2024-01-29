@@ -75,11 +75,10 @@ saveViewHierarchy(const char *reportDirectoryPath)
 
     // If the event is an App hanging event, we cant take the
     // view hierarchy in the main thread because it's blocked.
-    if (event.exceptions.count == 1 &&
-        [event.exceptions.firstObject.type isEqualToString:@"App Hanging"]) {
-        viewHierarchy = [SentryDependencyContainer.sharedInstance.viewHierarchy fetchViewHierarchy];
-    } else {
+    if (event.isAppHangEvent) {
         viewHierarchy = [SentryDependencyContainer.sharedInstance.viewHierarchy appViewHierarchy];
+    } else {
+        viewHierarchy = [SentryDependencyContainer.sharedInstance.viewHierarchy appViewHierarchyFromMainThread];
     }
 
     SentryAttachment *attachment =

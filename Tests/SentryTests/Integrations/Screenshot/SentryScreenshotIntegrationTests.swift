@@ -186,8 +186,7 @@ class SentryScreenshotIntegrationTests: XCTestCase {
             XCTAssertFalse(Thread.isMainThread)
         }
         
-        let dispatch = DispatchQueue(label: "background")
-        dispatch.async {
+        DispatchQueue.global().async {
             sut.processAttachments([], for: event)
         }
         

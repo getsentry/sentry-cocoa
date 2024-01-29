@@ -201,6 +201,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 #endif // SENTRY_HAS_METRIC_KIT
 
+- (bool)isAppHangEvent {
+    return self.exceptions.count == 1 && [self.exceptions.firstObject.type isEqualToString:@"App Hanging"];
+}
+
 @end
 
 NS_ASSUME_NONNULL_END

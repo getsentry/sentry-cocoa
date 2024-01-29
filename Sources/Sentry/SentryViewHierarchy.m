@@ -47,11 +47,11 @@ writeJSONDataToMemory(const char *const data, const int length, void *const user
     return result;
 }
 
-- (NSData *)appViewHierarchy
+- (NSData *)appViewHierarchyFromMainThread
 {
     __block NSData *result;
 
-    void (^fetchViewHierarchy)(void) = ^{ result = [self fetchViewHierarchy]; };
+    void (^fetchViewHierarchy)(void) = ^{ result = [self appViewHierarchy]; };
 
     [[SentryDependencyContainer sharedInstance].dispatchQueueWrapper
         dispatchSyncOnMainQueue:fetchViewHierarchy];
@@ -59,7 +59,7 @@ writeJSONDataToMemory(const char *const data, const int length, void *const user
     return result;
 }
 
-- (NSData *)fetchViewHierarchy
+- (NSData *)appViewHierarchy
 {
     NSMutableData *result = [[NSMutableData alloc] init];
     NSArray<UIWindow *> *windows = [SentryDependencyContainer.sharedInstance.application windows];
