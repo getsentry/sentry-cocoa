@@ -608,6 +608,7 @@ class SentryFramesTrackerTests: XCTestCase {
         XCTAssertEqual(1, fixture.displayLinkWrapper.invalidateInvocations.count)
     }
     
+#if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
     func testResetProfilingTimestamps_FromBackgroundThread() {
         let sut = fixture.sut
         sut.start()
@@ -626,6 +627,7 @@ class SentryFramesTrackerTests: XCTestCase {
             self.fixture.displayLinkWrapper.normalFrame()
         }
     }
+#endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
     
     private func givenMoreDelayedFramesThanTransactionMaxDuration(_ framesTracker: SentryFramesTracker) -> (UInt64, UInt, Double) {
         let displayLink = fixture.displayLinkWrapper
