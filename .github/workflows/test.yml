@@ -41,7 +41,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Cache for Test Server
         id: cache_test_server
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ./test-server/.build
           key: test-server-${{ hashFiles('./test-server') }}

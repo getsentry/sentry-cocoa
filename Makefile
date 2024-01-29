@@ -18,10 +18,6 @@ lint:
 	swiftlint --strict
 .PHONY: lint
 
-no-changes-in-high-risk-files:
-	@echo "--> Checking if there are changes in high risk files"
-	./scripts/no-changes-in-high-risk-files.sh
-
 format: format-clang format-swift
 
 # Format ObjC, ObjC++, C, and C++
