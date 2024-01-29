@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Features
+
+- Add VisionOS Support for Carthage (#3565)
+
 ### Fixes 
 
 - Move header reference out of "extern C" (#3538)
@@ -11,7 +15,6 @@
 ### Features
 
 - Send debug meta for app start transactions (#3543)
-- Add VisionOS Support for Carthage (#3565)
 
 ### Fixes
 
