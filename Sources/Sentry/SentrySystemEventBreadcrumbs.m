@@ -105,6 +105,8 @@ SentrySystemEventBreadcrumbs ()
     UIDevice *currentDevice = notification.object;
     // The object of an NSNotification may be nil.
     if (currentDevice == nil) {
+        SENTRY_LOG_DEBUG(
+            @"UIDevice of NSNotification was nil. Won't create battery changed breadcrumb.");
         return;
     }
 
