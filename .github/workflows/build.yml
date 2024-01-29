@@ -91,10 +91,12 @@ jobs:
 
   build-xcframework:
     name: Build XCFramework
-    runs-on: macos-13
+    # The macos-13 uses an Intel processor and doesn't compile the XCFramework for visionOS. 
+    # The large image compiles on arm64 and successfully creates the XCFramework for visionOS.
+    runs-on: macos-13-xlarge
     steps:
       - uses: actions/checkout@v4
-      - run: ./scripts/ci-select-xcode.sh 15.0.1
+      - run: ./scripts/ci-select-xcode.sh 15.2
       - run: make build-xcframework
         shell: sh
 
@@ -116,14 +118,14 @@ jobs:
 
   validate-xcframework:
     name: Validate XCFramework
-    runs-on: macos-13
+    runs-on: macos-13-xlarge
     needs: build-xcframework
     steps:
       - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
         with:
           name: ${{ github.sha }}
-      - run: ./scripts/ci-select-xcode.sh 15.0.1
+      - run: ./scripts/ci-select-xcode.sh 15.2
       - run: make build-xcframework-sample
         shell: sh
 
