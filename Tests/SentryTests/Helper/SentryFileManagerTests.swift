@@ -148,7 +148,7 @@ class SentryFileManagerTests: XCTestCase {
     func testDeleteOldEnvelopes_LogsIgnoreDSStoreFiles() throws {
         let logOutput = TestLogOutput()
         SentryLog.setLogOutput(logOutput)
-        SentryLog.configure(true, diagnosticLevel: .warning)
+        SentryLog.configure(true, diagnosticLevel: .debug)
         
         let dsStoreFile = "\(sut.basePath)/.DS_Store"
         
@@ -157,7 +157,8 @@ class SentryFileManagerTests: XCTestCase {
         
         sut.deleteOldEnvelopeItems()
         
-        expect(logOutput.loggedMessages.count) == 1
+        let logMessages = logOutput.loggedMessages.filter { $0.contains("Ignoring .DS_Store file when building envelopes path at path") }
+        expect(logMessages.count) == 1
         
         try FileManager.default.removeItem(atPath: dsStoreFile)
     }
