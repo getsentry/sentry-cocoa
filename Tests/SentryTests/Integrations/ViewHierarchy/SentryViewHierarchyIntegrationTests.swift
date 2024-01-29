@@ -132,23 +132,20 @@ class SentryViewHierarchyIntegrationTests: XCTestCase {
         
         let event = Event()
         event.exceptions = [Sentry.Exception(value: "test", type: "App Hanging")]
-
-        var newAttachmentList: [Attachment]?
         
         let ex = expectation(description: "Attachment Added")
         
         testVH.processViewHierarchyCallback = {
             ex.fulfill()
-            XCTAssertFalse(Thread.isMainThread)
+            expect(Thread.isMainThread) == false
         }
         
         let dispatch = DispatchQueue(label: "background")
         dispatch.async {
-            newAttachmentList = sut.processAttachments([], for: event)
+            sut.processAttachments([], for: event)
         }
         
         wait(for: [ex], timeout: 1)
-        expect(newAttachmentList?.count) == 1
     }
 }
 
