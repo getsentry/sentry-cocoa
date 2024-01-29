@@ -2,15 +2,24 @@
 
 ## Unreleased
 
+### Fixes 
+
+- Move header reference out of "extern C" (#3538)
+- Clarify FramesTracker log message (#3570)
+
+## 8.19.0
+
 ### Features
 
 - Send debug meta for app start transactions (#3543)
+- Add VisionOS Support for Carthage (#3565)
 
 ### Fixes
 
 - Fix typo in BUILD_LIBRARY_FOR_DISTRIBUTION variable in Makefile (#3488)
 - Remove dispatch queue metadata collection to fix crash (#3522)
-- Clarify FramesTracker log message (#3570)
+- Make SentryScope.useSpan non-blocking (#3568)
+- Don't override `sentry-trace` and `baggage` headers (#3540)
 
 ## 8.18.0
 
@@ -29,9 +38,7 @@
 - Fix a race condition in SentryTracer (#3523)
 - App start ends when first frame is drawn when performanceV2 is enabled (#3530)
 - Use correct rendered frames timestamp for TTID/TTFD and app start (#3531)
-
 - Missing transactions when not calling `reportFullyDisplayed` (#3477)
-- Don't override `sentry-trace` and `baggage` headers (#3540)
 
 ## 8.17.2
 
