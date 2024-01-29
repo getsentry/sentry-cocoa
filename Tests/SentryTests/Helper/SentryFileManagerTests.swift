@@ -1,3 +1,4 @@
+import Nimble
 import Sentry
 import SentryTestUtils
 import XCTest
@@ -142,6 +143,58 @@ class SentryFileManagerTests: XCTestCase {
         sut.deleteOldEnvelopeItems()
 
         XCTAssertEqual(sut.getAllEnvelopes().count, 0)
+    }
+    
+    func testDeleteOldEnvelopes_LogsIgnoreDSStoreFiles() throws {
+        let logOutput = TestLogOutput()
+        SentryLog.setLogOutput(logOutput)
+        SentryLog.configure(true, diagnosticLevel: .warning)
+        
+        let dsStoreFile = "\(sut.basePath)/.DS_Store"
+        
+        let result = FileManager.default.createFile(atPath: dsStoreFile, contents: "some data".data(using: .utf8))
+        expect(result) == true
+        
+        sut.deleteOldEnvelopeItems()
+        
+        expect(logOutput.loggedMessages.count) == 1
+        
+        try FileManager.default.removeItem(atPath: dsStoreFile)
+    }
+    
+    func testDeleteOldEnvelopes_LogsDebugForTextFiles() throws {
+        let logOutput = TestLogOutput()
+        SentryLog.setLogOutput(logOutput)
+        SentryLog.configure(true, diagnosticLevel: .debug)
+        
+        let sut = fixture.getSut()
+        
+        let textFilePath = "\(sut.basePath)/something.txt"
+        
+        let result = FileManager.default.createFile(atPath: textFilePath, contents: "some data".data(using: .utf8))
+        expect(result) == true
+        
+        sut.deleteOldEnvelopeItems()
+        
+        let logMessages = logOutput.loggedMessages.filter { $0.contains("Ignoring non directory when deleting old envelopes at path") }
+        expect(logMessages.count) == 1
+        
+        try FileManager.default.removeItem(atPath: textFilePath)
+    }
+    
+    func testGetEnvelopesPath_ForNonExistentPath_LogsWarning() throws {
+        let logOutput = TestLogOutput()
+        SentryLog.setLogOutput(logOutput)
+        SentryLog.configure(true, diagnosticLevel: .debug)
+        
+        let sut = fixture.getSut()
+        
+        let textFilePath = "\(sut.basePath)/something.txt"
+        
+        expect(sut.getEnvelopesPath(textFilePath)) == nil
+        
+        let logMessages = logOutput.loggedMessages.filter { $0.contains("Could not get attributes of item at path") }
+        expect(logMessages.count) == 1
     }
     
     func testDeleteOldEnvelopes_WithEmptyDSN() throws {

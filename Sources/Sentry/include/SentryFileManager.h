@@ -17,6 +17,7 @@ NS_SWIFT_NAME(SentryFileManager)
 @interface SentryFileManager : NSObject
 SENTRY_NO_INIT
 
+@property (nonatomic, readonly) NSString *basePath;
 @property (nonatomic, readonly) NSString *sentryPath;
 @property (nonatomic, readonly) NSString *breadcrumbsFilePathOne;
 @property (nonatomic, readonly) NSString *breadcrumbsFilePathTwo;
@@ -54,6 +55,11 @@ SENTRY_NO_INIT
 - (void)deleteAllFolders;
 
 - (void)deleteOldEnvelopeItems;
+
+/**
+ * Only used for testing.
+ */
+- (nullable NSString *)getEnvelopesPath:(NSString *)filePath;
 
 /**
  * Get all envelopes sorted ascending by the @c timeIntervalSince1970 the envelope was stored and if

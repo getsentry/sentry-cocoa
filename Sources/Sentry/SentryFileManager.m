@@ -167,27 +167,48 @@ SentryFileManager ()
 - (void)deleteOldEnvelopesFromAllSentryPaths
 {
     // First we find all directories in the base path, these are all the various hashed DSN paths
-    for (NSString *path in [self allFilesInFolder:self.basePath]) {
-        NSString *fullPath = [self.basePath stringByAppendingPathComponent:path];
-        NSDictionary *dict = [[NSFileManager defaultManager] attributesOfItemAtPath:fullPath
-                                                                              error:nil];
-        if (!dict || dict[NSFileType] != NSFileTypeDirectory) {
-            SENTRY_LOG_WARN(@"Could not get NSFileTypeDirectory from %@", fullPath);
-            continue;
-        }
-
-        // If the options don't have a DSN the sentry path doesn't contain a hash and the envelopes
-        // folder is stored in the base path.
-        NSString *envelopesPath;
-        if ([fullPath hasSuffix:EnvelopesPathComponent]) {
-            envelopesPath = fullPath;
-        } else {
-            envelopesPath = [fullPath stringByAppendingPathComponent:EnvelopesPathComponent];
-        }
+    for (NSString *filePath in [self allFilesInFolder:self.basePath]) {
+        NSString *envelopesPath = [self getEnvelopesPath:filePath];
 
         // Then we will remove all old items from the envelopes subdirectory
         [self deleteOldEnvelopesFromPath:envelopesPath];
     }
+}
+
+- (nullable NSString *)getEnvelopesPath:(NSString *)filePath
+{
+    NSString *fullPath = [self.basePath stringByAppendingPathComponent:filePath];
+
+    if ([fullPath hasSuffix:@".DS_Store"]) {
+        SENTRY_LOG_DEBUG(
+            @"Ignoring .DS_Store file when building envelopes path at path: %@", fullPath);
+        return nil;
+    }
+
+    NSError *error = nil;
+    NSDictionary *dict = [[NSFileManager defaultManager] attributesOfItemAtPath:fullPath
+                                                                          error:&error];
+    if (error != nil) {
+        SENTRY_LOG_WARN(@"Could not get attributes of item at path %@. Error: %@", fullPath, error);
+        return nil;
+    }
+
+    if (dict[NSFileType] != NSFileTypeDirectory) {
+        SENTRY_LOG_DEBUG(
+            @"Ignoring non directory when deleting old envelopes at path: %@", fullPath);
+        return nil;
+    }
+
+    // If the options don't have a DSN the sentry path doesn't contain a hash and the envelopes
+    // folder is stored in the base path.
+    NSString *envelopesPath;
+    if ([fullPath hasSuffix:EnvelopesPathComponent]) {
+        envelopesPath = fullPath;
+    } else {
+        envelopesPath = [fullPath stringByAppendingPathComponent:EnvelopesPathComponent];
+    }
+
+    return envelopesPath;
 }
 
 - (void)deleteOldEnvelopesFromPath:(NSString *)envelopesPath

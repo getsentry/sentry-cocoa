@@ -11,6 +11,7 @@
 - Move header reference out of "extern C" (#3538)
 - Clarify FramesTracker log message (#3570)
 - Fix synchronization issue in FramesTracker (#3571)
+- Fix SentryFileManager logs warning for .DS_Files (#3584)
 
 ## 8.19.0
 
