@@ -1,3 +1,4 @@
+import Nimble
 import SentryTestUtils
 import XCTest
 
@@ -258,6 +259,67 @@ class SentryScopeSwiftTests: XCTestCase {
         fixture.scope.useSpan { (span) in
             XCTAssert(span === self.fixture.transaction)
         }
+    }
+    
+    func testUseSpanLock_DoesNotBlock_WithBlockingCallback() {
+        let scope = fixture.scope
+        let queue = DispatchQueue(label: "test-queue", attributes: [.initiallyInactive, .concurrent])
+        let expect = expectation(description: "useSpan callback is non-blocking")
+        
+        let condition = NSCondition()
+        var useSpanCalled = false
+        
+        queue.async {
+            scope.useSpan { _ in
+                condition.lock()
+                while !useSpanCalled {
+                    condition.wait()
+                }
+                condition.unlock()
+            }
+        }
+        
+        queue.async {
+            scope.useSpan { _ in
+                useSpanCalled = true
+                condition.broadcast()
+                expect.fulfill()
+            }
+        }
+        
+        queue.activate()
+        
+        wait(for: [expect], timeout: 0.1)
+    }
+    
+    func testUseSpanLock_IsReentrant() {
+        let expect = expectation(description: "finish on time")
+        let scope = fixture.scope
+        scope.useSpan { _ in
+            scope.useSpan { _ in
+                expect.fulfill()
+            }
+
+        }
+        wait(for: [expect], timeout: 0.1)
+    }
+    
+    func testMaxBreadcrumbs_IsZero() {
+        let scope = Scope(maxBreadcrumbs: 0)
+        
+        scope.addBreadcrumb(fixture.breadcrumb)
+        
+        let serialized = scope.serialize()
+        expect(serialized["breadcrumbs"]) == nil
+    }
+    
+    func testMaxBreadcrumbs_IsNegative() {
+        let scope = Scope(maxBreadcrumbs: Int.min)
+        
+        scope.addBreadcrumb(fixture.breadcrumb)
+        
+        let serialized = scope.serialize()
+        expect(serialized["breadcrumbs"]) == nil
     }
     
     func testUseSpanForClear() {

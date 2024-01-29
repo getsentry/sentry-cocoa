@@ -11,7 +11,6 @@ on:
       - '.github/workflows/saucelabs-UI-tests.yml'
       - 'fastlane/**'
       - '.sauce/config.yml'
-      - 'scripts/set-device-tests-environment.patch'
       - 'scripts/ci-select-xcode.sh'
 
       # run the workflow any time an Xcode scheme changes for one of the sample apps with a UI test suite we run in saucelabs
@@ -45,10 +44,9 @@ jobs:
           bundler-cache: true
       - name: Install SentryCli
         run: brew install getsentry/tools/sentry-cli
-      - run: git apply ./scripts/set-device-tests-environment.patch
       - name: Cache iOS-Swift App and dSYM build products
         id: ios-swift-cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: |
             DerivedData/Build/Products/Test-iphoneos/iOS-Swift.app.dSYM
@@ -56,7 +54,7 @@ jobs:
           key: ios-swift-for-ui-testing-cache-key-${{ hashFiles('Samples/iOS-Swift/iOS-Swift/**') }}-Xcode-${{ matrix.xcode }}-${{ hashFiles('Sources/Sentry/**') }}
       - name: Cache iOS-Swift UI Test Runner App build product
         id: ios-swift-uitest-runner-cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: |
             DerivedData/Build/Products/Test-iphoneos/iOS-SwiftUITests-Runner.app
@@ -124,7 +122,7 @@ jobs:
         with:
           name: DerivedData-Xcode-${{ matrix.xcode }}
 
-      - run: npm install -g saucectl@0.107.2
+      - run: npm install -g saucectl@0.171.0
 
       # As Sauce Labs is a bit flaky we retry 5 times
       - name: Run Tests in SauceLab
