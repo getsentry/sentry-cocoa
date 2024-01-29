@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes 
+
+- Move header reference out of "extern C" (#3538)
+
 ## 8.19.0
 
 ### Features
@@ -30,7 +36,6 @@
 - Fix a race condition in SentryTracer (#3523)
 - App start ends when first frame is drawn when performanceV2 is enabled (#3530)
 - Use correct rendered frames timestamp for TTID/TTFD and app start (#3531)
-
 - Missing transactions when not calling `reportFullyDisplayed` (#3477)
 
 ## 8.17.2
