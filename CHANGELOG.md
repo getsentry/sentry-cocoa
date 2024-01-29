@@ -4,6 +4,7 @@
 
 ### Features
 
+- Add visionOS as device family (#3548)
 - Add VisionOS Support for Carthage (#3565)
 
 ### Fixes 
