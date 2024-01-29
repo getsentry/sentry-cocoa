@@ -4,6 +4,9 @@
 #    import "SentryFormatter.h"
 #    import "SentryProfileTimeseries.h"
 #    import "SentrySample.h"
+#    import "SentryThreadWrapper.h"
+#    import <mach/mach_types.h>
+#    import <mach/port.h>
 #    import <mutex>
 
 #    if defined(DEBUG)
@@ -42,7 +45,6 @@ parseBacktraceSymbolsFunctionName(const char *symbol)
         _stacks = [NSMutableArray<NSArray<NSNumber *> *> array];
         _frames = [NSMutableArray<NSDictionary<NSString *, id> *> array];
         _threadMetadata = [NSMutableDictionary<NSString *, NSMutableDictionary *> dictionary];
-        _queueMetadata = [NSMutableDictionary<NSString *, NSDictionary *> dictionary];
         _frameIndexLookup = [NSMutableDictionary<NSString *, NSNumber *> dictionary];
         _stackIndexLookup = [NSMutableDictionary<NSString *, NSNumber *> dictionary];
     }
@@ -54,12 +56,15 @@ parseBacktraceSymbolsFunctionName(const char *symbol)
 @implementation SentryProfilerState {
     SentryProfilerMutableState *_mutableState;
     std::mutex _lock;
+    thread_t _mainThreadID;
 }
 
 - (instancetype)init
 {
     if (self = [super init]) {
         _mutableState = [[SentryProfilerMutableState alloc] init];
+        _mainThreadID = 0;
+        [SentryThreadWrapper onMainThread:^{ [self cacheMainThreadID]; }];
     }
     return self;
 }
@@ -71,35 +76,37 @@ parseBacktraceSymbolsFunctionName(const char *symbol)
     block(_mutableState);
 }
 
+- (void)cacheMainThreadID
+{
+    std::lock_guard<std::mutex> l(_lock);
+    NSAssert([NSThread isMainThread], @"Must be called on main thread");
+    const auto currentThread = pthread_mach_thread_np(pthread_self());
+    if (MACH_PORT_VALID(currentThread)) {
+        _mainThreadID = currentThread;
+    }
+}
+
 - (void)appendBacktrace:(const Backtrace &)backtrace
 {
     [self mutate:^(SentryProfilerMutableState *state) {
         const auto threadID = sentry_stringForUInt64(backtrace.threadMetadata.threadID);
 
-        NSString *queueAddress = nil;
-        if (backtrace.queueMetadata.address != 0) {
-            queueAddress = sentry_formatHexAddressUInt64(backtrace.queueMetadata.address);
-        }
         NSMutableDictionary<NSString *, id> *metadata = state.threadMetadata[threadID];
         if (metadata == nil) {
             metadata = [NSMutableDictionary<NSString *, id> dictionary];
             state.threadMetadata[threadID] = metadata;
         }
-        if (!backtrace.threadMetadata.name.empty() && metadata[@"name"] == nil) {
-            metadata[@"name"] =
-                [NSString stringWithUTF8String:backtrace.threadMetadata.name.c_str()];
+        if (metadata[@"name"] == nil) {
+            if (!backtrace.threadMetadata.name.empty()) {
+                metadata[@"name"] =
+                    [NSString stringWithUTF8String:backtrace.threadMetadata.name.c_str()];
+            } else if (self->_mainThreadID != 0
+                && backtrace.threadMetadata.threadID == self->_mainThreadID) {
+                metadata[@"name"] = @"main";
+            }
         }
         if (backtrace.threadMetadata.priority != -1 && metadata[@"priority"] == nil) {
             metadata[@"priority"] = @(backtrace.threadMetadata.priority);
-        }
-        if (queueAddress != nil && state.queueMetadata[queueAddress] == nil
-            && backtrace.queueMetadata.label != nullptr) {
-            NSString *const labelNSStr =
-                [NSString stringWithUTF8String:backtrace.queueMetadata.label->c_str()];
-            // -[NSString stringWithUTF8String:] can return `nil` for malformed string data
-            if (labelNSStr != nil) {
-                state.queueMetadata[queueAddress] = @ { @"label" : labelNSStr };
-            }
         }
 #    if defined(DEBUG)
         const auto symbols
@@ -136,9 +143,6 @@ parseBacktraceSymbolsFunctionName(const char *symbol)
         const auto sample = [[SentrySample alloc] init];
         sample.absoluteTimestamp = backtrace.absoluteTimestamp;
         sample.threadID = backtrace.threadMetadata.threadID;
-        if (queueAddress != nil) {
-            sample.queueAddress = queueAddress;
-        }
 
         const auto stackKey = [stack componentsJoinedByString:@"|"];
         const auto stackIndex = state.stackIndexLookup[stackKey];
@@ -162,8 +166,6 @@ parseBacktraceSymbolsFunctionName(const char *symbol)
     NSMutableArray<SentrySample *> *const samples = [_mutableState.samples copy];
     NSMutableArray<NSArray<NSNumber *> *> *const stacks = [_mutableState.stacks copy];
     NSMutableArray<NSDictionary<NSString *, id> *> *const frames = [_mutableState.frames copy];
-    NSMutableDictionary<NSString *, NSDictionary *> *const queueMetadata =
-        [_mutableState.queueMetadata copy];
 
     // thread metadata contains a mutable substructure, so it's not enough to perform a copy of
     // the top-level dictionary, we need to go deeper to copy the mutable subdictionaries
@@ -177,7 +179,6 @@ parseBacktraceSymbolsFunctionName(const char *symbol)
             @"stacks" : stacks,
             @"frames" : frames,
             @"thread_metadata" : threadMetadata,
-            @"queue_metadata" : queueMetadata
         }
     };
 }

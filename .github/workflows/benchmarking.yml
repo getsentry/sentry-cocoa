@@ -18,7 +18,6 @@ on:
       - '.sauce/benchmarking-config.yml'
       - 'fastlane/**'
       - 'scripts/ci-select-xcode.sh'
-      - 'scripts/set-device-tests-environment.patch'
 
 # https://docs.github.com/en/actions/using-jobs/using-concurrency#example-using-a-fallback-value
 concurrency:
@@ -37,10 +36,9 @@ jobs:
           bundler-cache: true
       - name: Install SentryCli
         run: brew install getsentry/tools/sentry-cli
-      - run: git apply ./scripts/set-device-tests-environment.patch
       - name: Cache iOS-Swift App and dSYM build products
         id: ios-swift-cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: |
             DerivedData/Build/Products/Debug-iphoneos/iOS-Swift.app.dSYM
@@ -48,7 +46,7 @@ jobs:
           key: ios-swift-for-ui-testing-cache-key-${{ hashFiles('Samples/iOS-Swift/iOS-Swift/**') }}-${{ hashFiles('Sources/Sentry/**') }}
       - name: Cache iOS-Swift UI Test Runner App build product
         id: ios-swift-benchmark-runner-cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: |
             DerivedData/Build/Products/Debug-iphoneos/PerformanceBenchmarks-Runner.app
@@ -112,7 +110,7 @@ jobs:
       - uses: ruby/setup-ruby@v1
         with:
           bundler-cache: true
-      - uses: actions/cache@v3
+      - uses: actions/cache@v4
         id: app-plain-cache
         with:
           path: Tests/Perf/test-app-plain.ipa

@@ -159,38 +159,7 @@ namespace profiling {
             const auto depth = backtrace(*thread, *pair.second, addresses, stackBounds,
                 &reachedEndOfStack, kMaxBacktraceDepth, 0);
 
-            // Retrieving queue metadata *must* be done after suspending the thread,
-            // because otherwise the queue could be deallocated in the middle of us
-            // trying to read from it. This doesn't use any of the pthread APIs, only
-            // thread_info, so the above comment about the deadlock does not apply here.
-            const auto queueAddress = thread->dispatchQueueAddress();
-            if (queueAddress != 0) {
-                // This operation is read-only and does not result in any heap allocations.
-                auto cachedMetadata = cache->metadataForQueue(queueAddress);
-
-                // Copy the queue label onto the stack to avoid a heap allocation.
-                char newQueueLabel[256];
-                *newQueueLabel = '\0';
-                if (cachedMetadata.address == 0) {
-                    // There's no cached metadata, so we should try to read it.
-                    const auto queue = reinterpret_cast<dispatch_queue_t *>(queueAddress);
-                    const auto queueLabel = dispatch_queue_get_label(*queue);
-                    strlcpy(newQueueLabel, queueLabel, sizeof(newQueueLabel));
-                }
-
-                thread->resume();
-
-                if (cachedMetadata.address == 0) {
-                    cachedMetadata.address = queueAddress;
-                    // These cause heap allocations but it's safe now since the thread has
-                    // been resumed above.
-                    cachedMetadata.label = std::make_shared<std::string>(newQueueLabel);
-                    cache->setQueueMetadata(cachedMetadata);
-                }
-                bt.queueMetadata = std::move(cachedMetadata);
-            } else {
-                thread->resume();
-            }
+            thread->resume();
 
             // ############################################
             // END DEADLOCK WARNING
