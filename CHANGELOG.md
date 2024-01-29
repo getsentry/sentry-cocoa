@@ -2,19 +2,22 @@
 
 ## Unreleased
 
+### Features
+
+- Add VisionOS Support for Carthage (#3565)
+
 ### Fixes 
 
 - Move header reference out of "extern C" (#3538)
 - Clarify FramesTracker log message (#3570)
 - Fix rare battery breadcrumbs crash (#3582)
-
+- Fix synchronization issue in FramesTracker (#3571)
 
 ## 8.19.0
 
 ### Features
 
 - Send debug meta for app start transactions (#3543)
-- Add VisionOS Support for Carthage (#3565)
 
 ### Fixes
 
