@@ -36,7 +36,7 @@
 #endif
 
 #ifndef TARGET_OS_VISION
-#define TARGET_OS_VISION 0
+#    define TARGET_OS_VISION 0
 #endif
 
 #define SentryCrashCRASH_HOST_IOS (SentryCrashCRASH_HOST_APPLE && TARGET_OS_IOS)
