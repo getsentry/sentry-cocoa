@@ -51,7 +51,7 @@
 #    endif // SENTRY_HAS_UIKIT
 
 #    if defined(TEST) || defined(TESTCI)
-#        import "SentryFileManager+Test.h"
+#        import "SentryFileManager.h"
 #        import "SentryLaunchProfiling.h"
 
 @interface

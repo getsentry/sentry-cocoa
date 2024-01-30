@@ -14,6 +14,10 @@ NS_ASSUME_NONNULL_BEGIN
 @class SentryOptions;
 @class SentrySession;
 
+#if SENTRY_TARGET_PROFILING_SUPPORTED
+SENTRY_EXTERN NSString *sentryApplicationSupportPath(void);
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED
+
 NS_SWIFT_NAME(SentryFileManager)
 @interface SentryFileManager : NSObject
 SENTRY_NO_INIT
