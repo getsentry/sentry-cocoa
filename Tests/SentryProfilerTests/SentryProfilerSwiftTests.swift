@@ -16,8 +16,6 @@ class SentryProfilerSwiftTests: XCTestCase {
         lazy var hub: SentryHub = {
             let hub = SentryHub(client: client, andScope: scope)
             hub.bindClient(client)
-            Dynamic(hub).tracesSampler.random = TestRandom(value: 1.0)
-            Dynamic(hub).profilesSampler.random = TestRandom(value: 0.5)
             return hub
         }()
         let scope = Scope()
@@ -52,6 +50,8 @@ class SentryProfilerSwiftTests: XCTestCase {
             SentryDependencyContainer.sharedInstance().dispatchFactory = dispatchFactory
             SentryDependencyContainer.sharedInstance().timerFactory = timeoutTimerFactory
             SentryDependencyContainer.sharedInstance().dispatchQueueWrapper = dispatchQueueWrapper
+            
+            SentryDependencyContainer.sharedInstance().random = TestRandom(value: 0.5)
 
             systemWrapper.overrides.cpuUsage = NSNumber(value: mockCPUUsage)
             systemWrapper.overrides.memoryFootprintBytes = mockMemoryFootprint
@@ -843,10 +843,7 @@ private extension SentryProfilerSwiftTests {
             }
         }
         options(fixtureOptions)
-
-        let hub = fixture.hub
-        Dynamic(hub).tracesSampler.random = TestRandom(value: 1.0)
-
+        
         let span = try fixture.newTransaction()
         addMockSamples()
         fixture.currentDateProvider.advance(by: 5)
