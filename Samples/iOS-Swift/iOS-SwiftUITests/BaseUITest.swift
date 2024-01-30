@@ -4,7 +4,7 @@ class BaseUITest: XCTestCase {
     internal lazy var app: XCUIApplication = newAppSession()
     
     //swiftlint:disable implicit_getter
-    var automaticallyManageAppSession: Bool { get { true } }
+    var automaticallyLaunchAndTerminateApp: Bool { get { true } }
     //swiftlint:enable implicit_getter
     
     override func setUp() {
@@ -12,13 +12,13 @@ class BaseUITest: XCTestCase {
         continueAfterFailure = false
         XCUIDevice.shared.orientation = .portrait
         app.launchEnvironment["io.sentry.sdk-environment"] = "ui-tests"
-        if automaticallyManageAppSession {
+        if automaticallyLaunchAndTerminateApp {
             launchApp()
         }
     }
     
     override func tearDown() {
-        if automaticallyManageAppSession {
+        if automaticallyLaunchAndTerminateApp {
             app.terminate()
         }
         super.tearDown()

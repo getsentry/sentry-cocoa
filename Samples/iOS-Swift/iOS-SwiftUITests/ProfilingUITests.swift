@@ -3,7 +3,7 @@ import XCTest
 //swiftlint:disable function_body_length todo
 
 class ProfilingUITests: BaseUITest {    
-    override var automaticallyManageAppSession: Bool { false }
+    override var automaticallyLaunchAndTerminateApp: Bool { false }
     
     // this will run before the non-async BaseUITest.setUp, so we can bail out before running any of the logic in there
     override func setUp() async throws {
