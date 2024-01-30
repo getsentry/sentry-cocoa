@@ -1,6 +1,5 @@
 import UIKit
 
-@available(iOS 16.0, *)
 class ProfilingViewController: UIViewController, UITextFieldDelegate {
     
     @IBOutlet weak var workThreadLabel: UILabel!
@@ -120,11 +119,14 @@ class ProfilingViewController: UIViewController, UITextFieldDelegate {
 }
 
 // MARK: Private
-@available(iOS 16.0, *)
 extension ProfilingViewController {
     func withProfile(fileName: String, block: (URL?) -> Void) {
         let appSupportDirectory = NSSearchPathForDirectoriesInDomains(.applicationSupportDirectory, .userDomainMask, true).first!
-        for file in FileManager.default.enumerator(at: URL(filePath: appSupportDirectory), includingPropertiesForKeys: [URLResourceKey.nameKey])! {
+        guard let url = URL(string: appSupportDirectory) else {
+            block(nil)
+            return
+        }
+        for file in FileManager.default.enumerator(at: url, includingPropertiesForKeys: [URLResourceKey.nameKey])! {
             let url = file as! URL
             if url.absoluteString.contains(fileName) {
                 block(url)
