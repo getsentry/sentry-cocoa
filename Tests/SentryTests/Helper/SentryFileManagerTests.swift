@@ -1,3 +1,4 @@
+import Nimble
 import Sentry
 import SentryTestUtils
 import XCTest
@@ -476,6 +477,22 @@ class SentryFileManagerTests: XCTestCase {
         sut.deleteAllEnvelopes()
 
         XCTAssertEqual(0, sut.getAllEnvelopes().count)
+    }
+    
+    func testGetAllEnvelopesWhenNoEnvelopesPath_LogsInfoMessage() {
+        let logOutput = TestLogOutput()
+        SentryLog.setLogOutput(logOutput)
+        SentryLog.configure(true, diagnosticLevel: .debug)
+        
+        sut.deleteAllFolders()
+        sut.getAllEnvelopes()
+        
+        let debugLogMessages = logOutput.loggedMessages.filter { $0.contains("[Sentry] [info]") && $0.contains("Returning empty files list, as folder doesn't exist at path:") }
+        expect(debugLogMessages.count) == 1
+        
+        let errorMessages = logOutput.loggedMessages.filter { $0.contains("[Sentry] [error]") }
+        
+        expect(errorMessages.count) == 0
     }
     
     func testReadStoreDeleteAppState() {
