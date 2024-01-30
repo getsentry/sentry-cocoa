@@ -429,7 +429,7 @@
 {
     SentryOptions *options = [[SentryOptions alloc] init];
     options.sampleRate = nil;
-    XCTAssert([options.sampleRate isEqualToNumber:@0]);
+    XCTAssertEqual(options.sampleRate.doubleValue, 0);
 }
 
 - (void)testSampleRateLowerBound
@@ -878,8 +878,7 @@
 - (void)testDefaultTracesSampleRate
 {
     SentryOptions *options = [self getValidOptions:@{}];
-
-    XCTAssert([options.tracesSampleRate isEqualToNumber:@0]);
+    XCTAssertEqual(options.tracesSampleRate.doubleValue, 0);
 }
 
 - (void)testTracesSampleRate_SetToNil
@@ -887,7 +886,7 @@
     SentryOptions *options = [[SentryOptions alloc] init];
     options.tracesSampleRate = nil;
     XCTAssertNil(options.tracesSampleRate);
-    XCTAssert([options.tracesSampleRate isEqualToNumber:@0]);
+    XCTAssertEqual(options.tracesSampleRate.doubleValue, 0);
 }
 
 - (void)testTracesSampleRateLowerBound
@@ -903,7 +902,7 @@
 
     NSNumber *tooLow = @-0.01;
     options.tracesSampleRate = tooLow;
-    XCTAssertNil(options.tracesSampleRate);
+    XCTAssertEqual(options.tracesSampleRate.doubleValue, 0);
 }
 
 - (void)testTracesSampleRateUpperBound
@@ -919,7 +918,7 @@
 
     NSNumber *tooLow = @1.01;
     options.tracesSampleRate = tooLow;
-    XCTAssertNil(options.tracesSampleRate);
+    XCTAssertEqual(options.tracesSampleRate.doubleValue, 0);
 }
 
 - (double)tracesSamplerCallback:(NSDictionary *)context
@@ -1000,7 +999,7 @@
 {
     SentryOptions *options = [self getValidOptions:@{}];
 
-    XCTAssert([options.profilesSampleRate isEqualToNumber:@0]);
+    XCTAssertEqual(options.profilesSampleRate.doubleValue, 0);
 }
 
 - (void)testProfilesSampleRate_SetToNil
@@ -1008,7 +1007,7 @@
     SentryOptions *options = [[SentryOptions alloc] init];
     options.profilesSampleRate = nil;
     XCTAssertNil(options.profilesSampleRate);
-    XCTAssert([options.profilesSampleRate isEqualToNumber:@0]);
+    XCTAssertEqual(options.profilesSampleRate.doubleValue, 0);
 }
 
 - (void)testProfilesSampleRateLowerBound
@@ -1024,7 +1023,7 @@
 
     NSNumber *tooLow = @-0.01;
     options.profilesSampleRate = tooLow;
-    XCTAssertNil(options.profilesSampleRate);
+    XCTAssertEqual(options.profilesSampleRate.doubleValue, 0);
 }
 
 - (void)testProfilesSampleRateUpperBound
@@ -1040,7 +1039,7 @@
 
     NSNumber *tooLow = @1.01;
     options.profilesSampleRate = tooLow;
-    XCTAssertNil(options.profilesSampleRate);
+    XCTAssertEqual(options.profilesSampleRate.doubleValue, 0);
 }
 
 - (void)testIsProfilingEnabled_NothingSet_IsDisabled

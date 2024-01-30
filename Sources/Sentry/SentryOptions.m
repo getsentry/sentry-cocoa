@@ -120,10 +120,10 @@ NSString *const kSentryDefaultEnvironment = @"production";
         self.enableNetworkTracking = YES;
         self.enableFileIOTracing = YES;
         self.enableNetworkBreadcrumbs = YES;
-        self.tracesSampleRate = SENTRY_DEFAULT_TRACES_SAMPLE_RATE;
+        self.tracesSampleRate = nil;
 #if SENTRY_TARGET_PROFILING_SUPPORTED
         _enableProfiling = NO;
-        self.profilesSampleRate = SENTRY_DEFAULT_PROFILES_SAMPLE_RATE;
+        self.profilesSampleRate = nil;
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
         self.enableCoreDataTracing = YES;
         _enableSwizzling = YES;
@@ -510,7 +510,7 @@ NSString *const kSentryDefaultEnvironment = @"production";
 - (void)setSampleRate:(NSNumber *)sampleRate
 {
     if (sampleRate == nil) {
-        _sampleRate = SENTRY_DEFAULT_SAMPLE_RATE;
+        _sampleRate = nil;
     } else if (isValidSampleRate(sampleRate)) {
         _sampleRate = sampleRate;
     } else {
@@ -541,7 +541,7 @@ isValidSampleRate(NSNumber *sampleRate)
 - (void)setTracesSampleRate:(NSNumber *)tracesSampleRate
 {
     if (tracesSampleRate == nil) {
-        _tracesSampleRate = SENTRY_DEFAULT_TRACES_SAMPLE_RATE;
+        _tracesSampleRate = nil;
     } else if (isValidSampleRate(tracesSampleRate)) {
         _tracesSampleRate = tracesSampleRate;
         if (!_enableTracingManual) {
@@ -571,7 +571,7 @@ isValidSampleRate(NSNumber *sampleRate)
 - (void)setProfilesSampleRate:(NSNumber *)profilesSampleRate
 {
     if (profilesSampleRate == nil) {
-        _profilesSampleRate = SENTRY_DEFAULT_PROFILES_SAMPLE_RATE;
+        _profilesSampleRate = nil;
     } else if (isValidSampleRate(profilesSampleRate)) {
         _profilesSampleRate = profilesSampleRate;
     } else {
