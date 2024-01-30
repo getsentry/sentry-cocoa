@@ -4,12 +4,14 @@
 
 ### Features
 
+- Add visionOS as device family (#3548)
 - Add VisionOS Support for Carthage (#3565)
 
 ### Fixes 
 
 - Move header reference out of "extern C" (#3538)
 - Clarify FramesTracker log message (#3570)
+- Fix rare battery breadcrumbs crash (#3582)
 - Fix synchronization issue in FramesTracker (#3571)
 - Fix SentryFileManager logs warning for .DS_Files (#3584)
 
