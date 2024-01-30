@@ -206,11 +206,6 @@ class SentryFileManagerTests: XCTestCase {
         try SentryFileManager.createDirectory(atPath: "a")
     }
     
-    func testAllFilesInFolder() {
-        let files = sut.allFiles(inFolder: "x")
-        XCTAssertTrue(files.isEmpty)
-    }
-    
     func testDeleteFileNotExists() {
         let logOutput = TestLogOutput()
         SentryLog.setLogOutput(logOutput)

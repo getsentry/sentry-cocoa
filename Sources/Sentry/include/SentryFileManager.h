@@ -69,8 +69,6 @@ SENTRY_NO_INIT
 
 - (void)removeFileAtPath:(NSString *)path;
 
-- (NSArray<NSString *> *)allFilesInFolder:(NSString *)path;
-
 - (void)storeAppState:(SentryAppState *)appState;
 - (void)moveAppStateToPreviousAppState;
 - (SentryAppState *_Nullable)readAppState;
