@@ -87,9 +87,11 @@ SentryFileManager ()
         if (!createDirectoryIfNotExists(self.envelopesPath, error)) {
             return nil;
         }
+#if SENTRY_TARGET_PROFILING_SUPPORTED
         if (!createDirectoryIfNotExists(sentryApplicationSupportPath(), error)) {
             return nil;
         }
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
         self.currentFileCounter = 0;
         self.maxEnvelopes = options.maxCacheItems;
