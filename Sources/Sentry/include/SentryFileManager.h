@@ -13,7 +13,6 @@ NS_ASSUME_NONNULL_BEGIN
 @class SentryOptions;
 @class SentrySession;
 
-NS_SWIFT_NAME(SentryFileManager)
 @interface SentryFileManager : NSObject
 SENTRY_NO_INIT
 
