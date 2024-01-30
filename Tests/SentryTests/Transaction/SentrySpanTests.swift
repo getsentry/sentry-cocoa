@@ -113,7 +113,7 @@ class SentrySpanTests: XCTestCase {
         wait(for: [expect], timeout: 1.0)
     }
     
-    func testFinish() {
+    func testFinish() throws {
         let client = TestClient(options: fixture.options)!
         let span = fixture.getSut(client: client)
         
@@ -124,14 +124,14 @@ class SentrySpanTests: XCTestCase {
         XCTAssertTrue(span.isFinished)
         XCTAssertEqual(span.status, .ok)
         
-        let lastEvent = client.captureEventWithScopeInvocations.invocations[0].event
+        let lastEvent = try XCTUnwrap(client.captureEventWithScopeInvocations.invocations.first).event
         XCTAssertEqual(lastEvent.transaction, fixture.someTransaction)
         XCTAssertEqual(lastEvent.timestamp, TestData.timestamp)
         XCTAssertEqual(lastEvent.startTimestamp, TestData.timestamp)
         XCTAssertEqual(lastEvent.type, SentryEnvelopeItemTypeTransaction)
     }
     
-    func testFinish_Custom_Timestamp() {
+    func testFinish_Custom_Timestamp() throws {
         let client = TestClient(options: fixture.options)!
         let span = fixture.getSut(client: client)
         
@@ -146,7 +146,7 @@ class SentrySpanTests: XCTestCase {
         XCTAssertTrue(span.isFinished)
         XCTAssertEqual(span.status, .ok)
         
-        let lastEvent = client.captureEventWithScopeInvocations.invocations[0].event
+        let lastEvent = try XCTUnwrap(client.captureEventWithScopeInvocations.invocations.first).event
         XCTAssertEqual(lastEvent.transaction, fixture.someTransaction)
         XCTAssertEqual(lastEvent.timestamp, finishDate)
         XCTAssertEqual(lastEvent.startTimestamp, TestData.timestamp)
@@ -184,7 +184,7 @@ class SentrySpanTests: XCTestCase {
         XCTAssertTrue(span.isFinished)
     }
     
-    func testFinishWithChild() {
+    func testFinishWithChild() throws {
         let client = TestClient(options: fixture.options)!
         let span = fixture.getSut(client: client)
         let childSpan = span.startChild(operation: fixture.someOperation)
@@ -192,7 +192,7 @@ class SentrySpanTests: XCTestCase {
         childSpan.finish()
         span.finish()
         
-        let lastEvent = client.captureEventWithScopeInvocations.invocations[0].event
+        let lastEvent = try XCTUnwrap(client.captureEventWithScopeInvocations.invocations.first).event
         let serializedData = lastEvent.serialize()
         
         let spans = serializedData["spans"] as! [Any]
