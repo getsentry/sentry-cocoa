@@ -1233,6 +1233,15 @@
     XCTAssertTrue(options.swiftAsyncStacktraces);
 }
 
+- (void)testDebugDescription
+{
+    SentryOptions *options = [self getValidOptions:@{}];
+    NSLog(@"%@", options.debugDescription);
+    NSLog(@"here");
+}
+
+#pragma mark - Private
+
 - (void)assertArrayEquals:(NSArray<NSString *> *)expected actual:(NSArray<NSString *> *)actual
 {
     XCTAssertEqualObjects([expected sortedArrayUsingSelector:@selector(compare:)],
