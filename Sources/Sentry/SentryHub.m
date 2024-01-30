@@ -386,7 +386,7 @@ SentryHub ()
     // launch. here we can assume a sample decision of yes, and we retrieve the sample rates to
     // inject into the context/configuration
     applySampling
-        = isTracingAppLaunch && injectLaunchSamplerDecisions(transactionContext, configuration);
+        = !isTracingAppLaunch || injectLaunchSamplerDecisions(transactionContext, configuration);
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
     if (applySampling) {
