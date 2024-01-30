@@ -35,12 +35,17 @@
 #    define SentryCrashCRASH_HOST_ANDROID 1
 #endif
 
+#ifndef TARGET_OS_VISION
+#    define TARGET_OS_VISION 0
+#endif
+
 #define SentryCrashCRASH_HOST_IOS (SentryCrashCRASH_HOST_APPLE && TARGET_OS_IOS)
 #define SentryCrashCRASH_HOST_TV (SentryCrashCRASH_HOST_APPLE && TARGET_OS_TV)
 #define SentryCrashCRASH_HOST_WATCH (SentryCrashCRASH_HOST_APPLE && TARGET_OS_WATCH)
+#define SentryCrashCRASH_HOST_VISION (SentryCrashCRASH_HOST_APPLE && TARGET_OS_VISION)
 #define SentryCrashCRASH_HOST_MAC                                                                  \
     (SentryCrashCRASH_HOST_APPLE && TARGET_OS_MAC                                                  \
-        && !(TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_WATCH))
+        && !(TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_WATCH || TARGET_OS_VISION))
 
 #if SentryCrashCRASH_HOST_APPLE
 #    define SentryCrashCRASH_CAN_GET_MAC_ADDRESS 1

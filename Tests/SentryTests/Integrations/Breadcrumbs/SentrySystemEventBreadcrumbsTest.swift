@@ -121,6 +121,16 @@ class SentrySystemEventBreadcrumbsTest: XCTestCase {
         assertBatteryBreadcrumb(charging: false, level: 100)
     }
     
+    func testBatteryUIDeviceNilNotification() {
+        let currentDevice = MyUIDevice()
+        
+        sut = fixture.getSut(currentDevice: currentDevice)
+        
+        postBatteryLevelNotification(uiDevice: nil)
+        
+        expect(self.fixture.delegate.addCrumbInvocations.count) == 0
+    }
+    
     private func assertBatteryBreadcrumb(charging: Bool, level: Float) {
         
         XCTAssertEqual(1, fixture.delegate.addCrumbInvocations.count)
@@ -273,7 +283,7 @@ class SentrySystemEventBreadcrumbsTest: XCTestCase {
         XCTAssertEqual(fixture.notificationCenterWrapper.removeObserverWithNameInvocations.count, 7)
     }
     
-    private func postBatteryLevelNotification(uiDevice: UIDevice) {
+    private func postBatteryLevelNotification(uiDevice: UIDevice?) {
         Dynamic(sut).batteryStateChanged(Notification(name: UIDevice.batteryLevelDidChangeNotification, object: uiDevice))
     }
 

@@ -541,6 +541,8 @@ initialize(void)
         g_systemData.systemName = "macOS";
 #elif SentryCrashCRASH_HOST_WATCH
         g_systemData.systemName = "watchOS";
+#elif SentryCrashCRASH_HOST_VISION
+        g_systemData.systemName = "visionOS";
 #else
         g_systemData.systemName = "unknown";
 #endif

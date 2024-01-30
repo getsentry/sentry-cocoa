@@ -38,7 +38,7 @@ jobs:
         run: brew install getsentry/tools/sentry-cli
       - name: Cache iOS-Swift App and dSYM build products
         id: ios-swift-cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: |
             DerivedData/Build/Products/Debug-iphoneos/iOS-Swift.app.dSYM
@@ -46,7 +46,7 @@ jobs:
           key: ios-swift-for-ui-testing-cache-key-${{ hashFiles('Samples/iOS-Swift/iOS-Swift/**') }}-${{ hashFiles('Sources/Sentry/**') }}
       - name: Cache iOS-Swift UI Test Runner App build product
         id: ios-swift-benchmark-runner-cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: |
             DerivedData/Build/Products/Debug-iphoneos/PerformanceBenchmarks-Runner.app
@@ -93,7 +93,7 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           name: DerivedData-Xcode
-      - run: npm install -g saucectl@0.107.2
+      - run: npm install -g saucectl@0.171.0
       - name: Run Benchmarks in SauceLab
         env:
           SAUCE_USERNAME: ${{ secrets.SAUCE_USERNAME }}
@@ -110,7 +110,7 @@ jobs:
       - uses: ruby/setup-ruby@v1
         with:
           bundler-cache: true
-      - uses: actions/cache@v3
+      - uses: actions/cache@v4
         id: app-plain-cache
         with:
           path: Tests/Perf/test-app-plain.ipa
