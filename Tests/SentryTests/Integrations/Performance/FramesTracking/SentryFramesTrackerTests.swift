@@ -23,7 +23,7 @@ class SentryFramesTrackerTests: XCTestCase {
             slowestSlowFrameDelay = (displayLinkWrapper.slowestSlowFrameDuration - slowFrameThreshold(displayLinkWrapper.currentFrameRate.rawValue))
         }
 
-        lazy var sut: SentryFramesTracker = SentryFramesTracker(displayLinkWrapper: displayLinkWrapper, dateProvider: dateProvider, keepDelayedFramesDuration: keepDelayedFramesDuration)
+        lazy var sut: SentryFramesTracker = SentryFramesTracker(displayLinkWrapper: displayLinkWrapper, dateProvider: dateProvider, dispatchQueueWrapper: SentryDispatchQueueWrapper(), keepDelayedFramesDuration: keepDelayedFramesDuration)
     }
 
     private var fixture: Fixture!
@@ -601,12 +601,33 @@ class SentryFramesTrackerTests: XCTestCase {
     
     func testDealloc_CallsStop() {
         func sutIsDeallocatedAfterCallingMe() {
-            _ = SentryFramesTracker(displayLinkWrapper: fixture.displayLinkWrapper, dateProvider: fixture.dateProvider, keepDelayedFramesDuration: 0)
+            _ = SentryFramesTracker(displayLinkWrapper: fixture.displayLinkWrapper, dateProvider: fixture.dateProvider, dispatchQueueWrapper: SentryDispatchQueueWrapper(), keepDelayedFramesDuration: 0)
         }
         sutIsDeallocatedAfterCallingMe()
         
         XCTAssertEqual(1, fixture.displayLinkWrapper.invalidateInvocations.count)
     }
+    
+#if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
+    func testResetProfilingTimestamps_FromBackgroundThread() {
+        let sut = fixture.sut
+        sut.start()
+        
+        let queue = DispatchQueue(label: "reset profiling timestamps", attributes: [.initiallyInactive, .concurrent])
+        
+        for _ in 0..<10_000 {
+            queue.async {
+                sut.resetProfilingTimestamps()
+            }
+        }
+        
+        queue.activate()
+        
+        for _ in 0..<1_000 {
+            self.fixture.displayLinkWrapper.normalFrame()
+        }
+    }
+#endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
     
     private func givenMoreDelayedFramesThanTransactionMaxDuration(_ framesTracker: SentryFramesTracker) -> (UInt64, UInt, Double) {
         let displayLink = fixture.displayLinkWrapper
