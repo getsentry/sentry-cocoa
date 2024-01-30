@@ -6,6 +6,7 @@
 
 - Add visionOS as device family (#3548)
 - Add VisionOS Support for Carthage (#3565)
+- Automatically profile app launches (#3529)
 
 ### Fixes 
 
@@ -19,7 +20,6 @@
 ### Features
 
 - Send debug meta for app start transactions (#3543)
-- Automatically profile app launches (#3529)
 
 ### Fixes
 
