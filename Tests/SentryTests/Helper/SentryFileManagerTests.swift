@@ -157,7 +157,7 @@ class SentryFileManagerTests: XCTestCase {
         
         sut.deleteOldEnvelopeItems()
         
-        let logMessages = logOutput.loggedMessages.filter { $0.contains("Ignoring .DS_Store file when building envelopes path at path") }
+        let logMessages = logOutput.loggedMessages.filter { $0.contains("Ignoring .DS_Store file when building envelopes path at path: \(dsStoreFile)") }
         expect(logMessages.count) == 1
         
         try FileManager.default.removeItem(atPath: dsStoreFile)
@@ -177,7 +177,7 @@ class SentryFileManagerTests: XCTestCase {
         
         sut.deleteOldEnvelopeItems()
         
-        let logMessages = logOutput.loggedMessages.filter { $0.contains("Ignoring non directory when deleting old envelopes at path") }
+        let logMessages = logOutput.loggedMessages.filter { $0.contains("Ignoring non directory when deleting old envelopes at path: \(textFilePath)") }
         expect(logMessages.count) == 1
         
         try FileManager.default.removeItem(atPath: textFilePath)
@@ -190,11 +190,12 @@ class SentryFileManagerTests: XCTestCase {
         
         let sut = fixture.getSut()
         
-        let textFilePath = "\(sut.basePath)/something.txt"
+        let nonExistentFile = "nonExistentFile.txt"
+        let nonExistentFileFullPath = "\(sut.basePath)/\(nonExistentFile)"
         
-        expect(sut.getEnvelopesPath(textFilePath)) == nil
+        expect(sut.getEnvelopesPath(nonExistentFile)) == nil
         
-        let logMessages = logOutput.loggedMessages.filter { $0.contains("Could not get attributes of item at path") }
+        let logMessages = logOutput.loggedMessages.filter { $0.contains("Could not get attributes of item at path: \(nonExistentFileFullPath)") }
         expect(logMessages.count) == 1
     }
     

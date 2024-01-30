@@ -189,7 +189,8 @@ SentryFileManager ()
     NSDictionary *dict = [[NSFileManager defaultManager] attributesOfItemAtPath:fullPath
                                                                           error:&error];
     if (error != nil) {
-        SENTRY_LOG_WARN(@"Could not get attributes of item at path %@. Error: %@", fullPath, error);
+        SENTRY_LOG_WARN(
+            @"Could not get attributes of item at path: %@. Error: %@", fullPath, error);
         return nil;
     }
 
