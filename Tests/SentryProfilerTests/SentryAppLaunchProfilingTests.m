@@ -131,6 +131,7 @@
         @"profiling");
 }
 
+#    if SENTRY_HAS_UIKIT
 - (void)testDisablingUIViewControllerTracingOptionDisablesAppLaunchProfiling
 {
     XCTAssertFalse(
@@ -143,6 +144,7 @@
         @"sample rates of 1, but UIViewController tracing disabled should not enable launch "
         @"profiling");
 }
+#    endif // SENTRY_HAS_UIKIT
 
 - (SentryOptions *)defaultLaunchProfilingOptionsWithOverrides:
     (NSDictionary<NSString *, id> *)overrides
