@@ -14,6 +14,7 @@
 - Fix rare battery breadcrumbs crash (#3582)
 - Fix synchronization issue in FramesTracker (#3571)
 - Fix SentryFileManager logs warning for .DS_Files (#3584)
+- Fix FileManager logs info instead of error when a path doesn't exist (#3594)
 
 ## 8.19.0
 

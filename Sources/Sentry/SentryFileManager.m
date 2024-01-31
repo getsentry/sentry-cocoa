@@ -247,11 +247,16 @@ SentryFileManager ()
 - (NSArray<NSString *> *)allFilesInFolder:(NSString *)path
 {
     NSFileManager *fileManager = [NSFileManager defaultManager];
+    if (![fileManager fileExistsAtPath:path]) {
+        SENTRY_LOG_INFO(@"Returning empty files list, as folder doesn't exist at path: %@", path);
+        return @[];
+    }
+
     NSError *error = nil;
     NSArray<NSString *> *storedFiles = [fileManager contentsOfDirectoryAtPath:path error:&error];
-    if (nil != error) {
+    if (error != nil) {
         SENTRY_LOG_ERROR(@"Couldn't load files in folder %@: %@", path, error);
-        return [NSArray new];
+        return @[];
     }
     return [storedFiles sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)];
 }
@@ -661,7 +666,7 @@ SentryFileManager ()
 
 #pragma mark private methods
 
-- (void)createPathsWithOptions:(SentryOptions *_Nonnull)options
+- (void)createPathsWithOptions:(SentryOptions *)options
 {
     NSString *cachePath = options.cacheDirectoryPath;
 

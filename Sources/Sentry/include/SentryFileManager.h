@@ -13,7 +13,6 @@ NS_ASSUME_NONNULL_BEGIN
 @class SentryOptions;
 @class SentrySession;
 
-NS_SWIFT_NAME(SentryFileManager)
 @interface SentryFileManager : NSObject
 SENTRY_NO_INIT
 
@@ -74,8 +73,6 @@ SENTRY_NO_INIT
 - (SentryFileContents *_Nullable)getOldestEnvelope;
 
 - (void)removeFileAtPath:(NSString *)path;
-
-- (NSArray<NSString *> *)allFilesInFolder:(NSString *)path;
 
 - (void)storeAppState:(SentryAppState *)appState;
 - (void)moveAppStateToPreviousAppState;
