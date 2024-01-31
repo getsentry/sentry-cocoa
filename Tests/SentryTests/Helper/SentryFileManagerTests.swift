@@ -145,6 +145,69 @@ class SentryFileManagerTests: XCTestCase {
         XCTAssertEqual(sut.getAllEnvelopes().count, 0)
     }
     
+    func testDeleteOldEnvelopes_LogsIgnoreDSStoreFiles() throws {
+        let logOutput = TestLogOutput()
+        SentryLog.setLogOutput(logOutput)
+        SentryLog.configure(true, diagnosticLevel: .debug)
+        
+        let dsStoreFile = "\(sut.basePath)/.DS_Store"
+        
+        let result = FileManager.default.createFile(atPath: dsStoreFile, contents: "some data".data(using: .utf8))
+        expect(result) == true
+        
+        sut.deleteOldEnvelopeItems()
+        
+        let logMessages = logOutput.loggedMessages.filter {
+            $0.contains("[Sentry] [debug]") &&
+            $0.contains("Ignoring .DS_Store file when building envelopes path at path: \(dsStoreFile)")
+        }
+        expect(logMessages.count) == 1
+        
+        try FileManager.default.removeItem(atPath: dsStoreFile)
+    }
+    
+    func testDeleteOldEnvelopes_LogsDebugForTextFiles() throws {
+        let logOutput = TestLogOutput()
+        SentryLog.setLogOutput(logOutput)
+        SentryLog.configure(true, diagnosticLevel: .debug)
+        
+        let sut = fixture.getSut()
+        
+        let textFilePath = "\(sut.basePath)/something.txt"
+        
+        let result = FileManager.default.createFile(atPath: textFilePath, contents: "some data".data(using: .utf8))
+        expect(result) == true
+        
+        sut.deleteOldEnvelopeItems()
+        
+        let logMessages = logOutput.loggedMessages.filter {
+            $0.contains("[Sentry] [debug]") &&
+            $0.contains("Ignoring non directory when deleting old envelopes at path: \(textFilePath)")
+        }
+        expect(logMessages.count) == 1
+        
+        try FileManager.default.removeItem(atPath: textFilePath)
+    }
+    
+    func testGetEnvelopesPath_ForNonExistentPath_LogsWarning() throws {
+        let logOutput = TestLogOutput()
+        SentryLog.setLogOutput(logOutput)
+        SentryLog.configure(true, diagnosticLevel: .debug)
+        
+        let sut = fixture.getSut()
+        
+        let nonExistentFile = "nonExistentFile.txt"
+        let nonExistentFileFullPath = "\(sut.basePath)/\(nonExistentFile)"
+        
+        expect(sut.getEnvelopesPath(nonExistentFile)) == nil
+        
+        let logMessages = logOutput.loggedMessages.filter {
+            $0.contains("[Sentry] [warning]") &&
+            $0.contains("Could not get attributes of item at path: \(nonExistentFileFullPath)")
+        }
+        expect(logMessages.count) == 1
+    }
+    
     func testDeleteOldEnvelopes_WithEmptyDSN() throws {
         fixture.options.dsn = nil
         sut = fixture.getSut()
