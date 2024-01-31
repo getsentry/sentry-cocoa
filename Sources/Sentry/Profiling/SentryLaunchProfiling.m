@@ -37,11 +37,10 @@ SentryLaunchProfileConfig
 shouldProfileNextLaunch(SentryOptions *options)
 {
     BOOL shouldProfileNextLaunch = options.enableAppLaunchProfiling
-        && options.enableAutoPerformanceTracing
 #    if SENTRY_UIKIT_AVAILABLE
-        && options.enableUIViewControllerTracing
+        && options.enableUIViewControllerTracing && options.enableSwizzling
 #    endif // SENTRY_UIKIT_AVAILABLE
-        && options.enableSwizzling && options.enableTracing;
+        && options.enableAutoPerformanceTracing && options.enableTracing;
     if (!shouldProfileNextLaunch) {
 #    if SENTRY_UIKIT_AVAILABLE
         SENTRY_LOG_DEBUG(
