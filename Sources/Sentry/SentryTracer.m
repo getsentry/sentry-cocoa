@@ -602,6 +602,8 @@ static BOOL appStartMeasurementRead;
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
     if (self.isProfiling) {
+        [self captureTransactionWithProfile:transaction];
+
         // as long as this isn't used for any conditional branching logic, and is just being set to
         // NO, we don't need to synchronize the read here
         if (isTracingAppLaunch) {
@@ -609,7 +611,7 @@ static BOOL appStartMeasurementRead;
                 isTracingAppLaunch = NO;
             }
         }
-        [self captureTransactionWithProfile:transaction];
+
         return;
     }
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
