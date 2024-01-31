@@ -639,7 +639,7 @@ SentryFileManager ()
 
 #pragma mark private methods
 
-- (void)createPathsWithOptions:(SentryOptions *_Nonnull)options
+- (void)createPathsWithOptions:(SentryOptions *)options
 {
     NSString *cachePath = options.cacheDirectoryPath;
 
