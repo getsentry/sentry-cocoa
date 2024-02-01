@@ -5,7 +5,7 @@ final class SentryInstallationTests: XCTestCase {
     
     override func setUpWithError() throws {
         try super.setUpWithError()
-        // FileManager().temporaryDirectory already has a trailting slash
+        // FileManager().temporaryDirectory already has a trailing slash
         basePath = "\(FileManager().temporaryDirectory)\(UUID().uuidString)"
         try FileManager().createDirectory(atPath: basePath, withIntermediateDirectories: true)
         print("base path: \(basePath!)")
