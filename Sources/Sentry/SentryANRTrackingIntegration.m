@@ -88,7 +88,7 @@ SentryANRTrackingIntegration ()
                                   (long)(self.options.appHangTimeoutInterval * 1000)];
     SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelError];
     SentryException *sentryException = [[SentryException alloc] initWithValue:message
-                                                                         type:@"App Hanging"];
+                                                                         type:SentryANRExceptionType];
 
     sentryException.mechanism = [[SentryMechanism alloc] initWithType:@"AppHang"];
     sentryException.stacktrace = [threads[0] stacktrace];
