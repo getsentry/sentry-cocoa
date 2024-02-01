@@ -6,6 +6,9 @@
 
 - Cache installationID async to avoid file IO on the main thread when starting the SDK (#3601)
 
+### Fixes
+
+- Enable library evolution for SentryPrivate and SentrySwiftUI
 
 ## 8.20.0
 
