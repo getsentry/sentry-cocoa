@@ -163,6 +163,8 @@ class SentryClientTest: XCTestCase {
         
         let options = Options()
         options.dsn = SentryClientTest.dsn
+        // We have to put our cache into a subfolder of the default path, because on macOS we can't delete the default cache folder
+        options.cacheDirectoryPath = "\(options.cacheDirectoryPath)/cache"
         _ = SentryClient(options: options)
         
         expect(dispatchQueue.dispatchAsyncInvocations.count) == 1

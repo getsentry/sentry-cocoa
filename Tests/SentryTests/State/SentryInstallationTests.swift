@@ -11,7 +11,6 @@ final class SentryInstallationTests: XCTestCase {
         try super.setUpWithError()
         
         try FileManager().createDirectory(atPath: basePath, withIntermediateDirectories: true)
-        print("base path: \(basePath)")
     }
     
     override func tearDownWithError() throws {
