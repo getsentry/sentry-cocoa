@@ -1,5 +1,6 @@
 #import "NSDate+SentryExtras.h"
 #import "NSDictionary+SentrySanitize.h"
+#import "SentryANRTrackingIntegration.h"
 #import "SentryBreadcrumb.h"
 #import "SentryClient.h"
 #import "SentryCurrentDateProvider.h"
@@ -16,7 +17,6 @@
 #import "SentryStacktrace.h"
 #import "SentryThread.h"
 #import "SentryUser.h"
-#import "SentryANRTrackingIntegration.h"
 
 #if SENTRY_HAS_METRIC_KIT
 #    import "SentryMechanism.h"
@@ -202,8 +202,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 #endif // SENTRY_HAS_METRIC_KIT
 
-- (BOOL)isAppHangEvent {
-    return self.exceptions.count == 1 && [self.exceptions.firstObject.type isEqualToString:SentryANRExceptionType];
+- (BOOL)isAppHangEvent
+{
+    return self.exceptions.count == 1 &&
+        [self.exceptions.firstObject.type isEqualToString:SentryANRExceptionType];
 }
 
 @end

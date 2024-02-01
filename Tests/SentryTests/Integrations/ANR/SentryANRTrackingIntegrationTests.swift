@@ -1,6 +1,6 @@
+import Nimble
 import SentryTestUtils
 import XCTest
-import Nimble
 
 class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
     

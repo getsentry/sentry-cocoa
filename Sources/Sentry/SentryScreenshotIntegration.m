@@ -71,7 +71,8 @@ saveScreenShot(const char *path)
     if (event.isAppHangEvent) {
         screenshot = [SentryDependencyContainer.sharedInstance.screenshot appScreenshots];
     } else {
-        screenshot = [SentryDependencyContainer.sharedInstance.screenshot appScreenshotsFromMainThread];
+        screenshot =
+            [SentryDependencyContainer.sharedInstance.screenshot appScreenshotsFromMainThread];
     }
 
     NSMutableArray *result =

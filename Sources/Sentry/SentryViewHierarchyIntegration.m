@@ -78,7 +78,8 @@ saveViewHierarchy(const char *reportDirectoryPath)
     if (event.isAppHangEvent) {
         viewHierarchy = [SentryDependencyContainer.sharedInstance.viewHierarchy appViewHierarchy];
     } else {
-        viewHierarchy = [SentryDependencyContainer.sharedInstance.viewHierarchy appViewHierarchyFromMainThread];
+        viewHierarchy =
+            [SentryDependencyContainer.sharedInstance.viewHierarchy appViewHierarchyFromMainThread];
     }
 
     SentryAttachment *attachment =

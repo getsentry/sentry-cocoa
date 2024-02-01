@@ -1,9 +1,9 @@
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
 
+import Nimble
 import Sentry
 import SentryTestUtils
 import XCTest
-import Nimble
 
 class SentryViewHierarchyIntegrationTests: XCTestCase {
 
