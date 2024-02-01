@@ -1,19 +1,23 @@
+import Nimble
+import SentryTestUtils
 import XCTest
 
 final class SentryInstallationTests: XCTestCase {
-    var basePath: String!
+    
+    // FileManager().temporaryDirectory already has a trailing slash
+    let basePath = "\(FileManager().temporaryDirectory)\(UUID().uuidString)"
     
     override func setUpWithError() throws {
         try super.setUpWithError()
-        // FileManager().temporaryDirectory already has a trailing slash
-        basePath = "\(FileManager().temporaryDirectory)\(UUID().uuidString)"
         try FileManager().createDirectory(atPath: basePath, withIntermediateDirectories: true)
-        print("base path: \(basePath!)")
     }
     
     override func tearDownWithError() throws {
         super.tearDown()
-        try FileManager().removeItem(atPath: basePath)
+        let fileManager = FileManager.default
+        if fileManager.fileExists(atPath: basePath) {
+            try FileManager().removeItem(atPath: basePath)
+        }
     }
     
     func testSentryInstallationId() {
@@ -38,5 +42,34 @@ final class SentryInstallationTests: XCTestCase {
         let id1 = SentryInstallation.id(withCacheDirectoryPath: basePath)
         SentryInstallation.installationStringsByCacheDirectoryPaths.removeAllObjects()
         XCTAssertEqual(id1, SentryInstallation.id(withCacheDirectoryPath: basePath))
+    }
+    
+    func testCacheIDAsync_ExecutesOnBackgroundThread() {
+        let dispatchQueue = TestSentryDispatchQueueWrapper()
+        SentryDependencyContainer.sharedInstance().dispatchQueueWrapper = dispatchQueue
+        
+        SentryInstallation.cacheIDAsync(withCacheDirectoryPath: basePath)
+        
+        expect(dispatchQueue.dispatchAsyncInvocations.count) == 1
+    }
+    
+    func testCacheIDAsync_CashesID() throws {
+        let dispatchQueue = TestSentryDispatchQueueWrapper()
+        SentryDependencyContainer.sharedInstance().dispatchQueueWrapper = dispatchQueue
+        
+        SentryInstallation.cacheIDAsync(withCacheDirectoryPath: basePath)
+
+        let nonCachedID = SentryInstallation.id(withCacheDirectoryPathNonCached: basePath)
+        
+        // We remove the file containing the installation ID, but the cached ID is still in memory
+        try FileManager().removeItem(atPath: basePath)
+        
+        let nonCachedIDAfterDeletingFile = SentryInstallation.id(withCacheDirectoryPathNonCached: basePath)
+        expect(nonCachedIDAfterDeletingFile) == nil
+        
+        let cachedID = SentryInstallation.id(withCacheDirectoryPath: basePath)
+        
+        expect(cachedID) == nonCachedID
+
     }
 }
