@@ -93,7 +93,7 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           name: DerivedData-Xcode
-      - run: npm install -g saucectl@0.107.2
+      - run: npm install -g saucectl@0.171.0
       - name: Run Benchmarks in SauceLab
         env:
           SAUCE_USERNAME: ${{ secrets.SAUCE_USERNAME }}

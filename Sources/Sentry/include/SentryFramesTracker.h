@@ -6,6 +6,7 @@
 
 @class SentryOptions, SentryDisplayLinkWrapper, SentryScreenFrames;
 @class SentryCurrentDateProvider;
+@class SentryDispatchQueueWrapper;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -24,6 +25,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithDisplayLinkWrapper:(SentryDisplayLinkWrapper *)displayLinkWrapper
                               dateProvider:(SentryCurrentDateProvider *)dateProvider
+                      dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
                  keepDelayedFramesDuration:(CFTimeInterval)keepDelayedFramesDuration;
 
 @property (nonatomic, assign, readonly) SentryScreenFrames *currentFrames;

@@ -6,6 +6,7 @@
 #    import "SentryCurrentDateProvider.h"
 #    import "SentryDelayedFrame.h"
 #    import "SentryDelayedFramesTracker.h"
+#    import "SentryDispatchQueueWrapper.h"
 #    import "SentryDisplayLinkWrapper.h"
 #    import "SentryLog.h"
 #    import "SentryProfiler.h"
@@ -28,6 +29,7 @@ SentryFramesTracker ()
 
 @property (nonatomic, strong, readonly) SentryDisplayLinkWrapper *displayLinkWrapper;
 @property (nonatomic, strong, readonly) SentryCurrentDateProvider *dateProvider;
+@property (nonatomic, strong, readonly) SentryDispatchQueueWrapper *dispatchQueueWrapper;
 @property (nonatomic, assign) CFTimeInterval previousFrameTimestamp;
 @property (nonatomic) uint64_t previousFrameSystemTimestamp;
 @property (nonatomic) uint64_t currentFrameRate;
@@ -58,12 +60,14 @@ slowFrameThreshold(uint64_t actualFramesPerSecond)
 
 - (instancetype)initWithDisplayLinkWrapper:(SentryDisplayLinkWrapper *)displayLinkWrapper
                               dateProvider:(SentryCurrentDateProvider *)dateProvider
+                      dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
                  keepDelayedFramesDuration:(CFTimeInterval)keepDelayedFramesDuration
 {
     if (self = [super init]) {
         _isRunning = NO;
         _displayLinkWrapper = displayLinkWrapper;
         _dateProvider = dateProvider;
+        _dispatchQueueWrapper = dispatchQueueWrapper;
         _delayedFramesTracker = [[SentryDelayedFramesTracker alloc]
             initWithKeepDelayedFramesDuration:keepDelayedFramesDuration
                                  dateProvider:dateProvider];
@@ -91,7 +95,7 @@ slowFrameThreshold(uint64_t actualFramesPerSecond)
 
     self.previousFrameTimestamp = SentryPreviousFrameInitialValue;
 #    if SENTRY_TARGET_PROFILING_SUPPORTED
-    [self resetProfilingTimestamps];
+    [self resetProfilingTimestampsInternal];
 #    endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
     [self.delayedFramesTracker resetDelayedFramesTimeStamps];
@@ -100,10 +104,18 @@ slowFrameThreshold(uint64_t actualFramesPerSecond)
 #    if SENTRY_TARGET_PROFILING_SUPPORTED
 - (void)resetProfilingTimestamps
 {
+    // The DisplayLink callback always runs on the main thread. We dispatch this to the main thread
+    // instead to avoid using locks in the DisplayLink callback.
+    [self.dispatchQueueWrapper dispatchOnMainQueue:^{ [self resetProfilingTimestampsInternal]; }];
+}
+
+- (void)resetProfilingTimestampsInternal
+{
     self.frozenFrameTimestamps = [SentryMutableFrameInfoTimeSeries array];
     self.slowFrameTimestamps = [SentryMutableFrameInfoTimeSeries array];
     self.frameRateTimestamps = [SentryMutableFrameInfoTimeSeries array];
 }
+
 #    endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
 - (void)start
@@ -164,7 +176,7 @@ slowFrameThreshold(uint64_t actualFramesPerSecond)
         && frameDuration <= SentryFrozenFrameThreshold) {
         _slowFrames++;
 #    if SENTRY_TARGET_PROFILING_SUPPORTED
-        SENTRY_LOG_DEBUG(@"Capturing slow frame starting at %llu (frame tracker: %@).",
+        SENTRY_LOG_DEBUG(@"Detected slow frame starting at %llu (frame tracker: %@).",
             thisFrameSystemTimestamp, self);
         [self recordTimestamp:thisFrameSystemTimestamp
                         value:@(thisFrameSystemTimestamp - self.previousFrameSystemTimestamp)
@@ -173,7 +185,7 @@ slowFrameThreshold(uint64_t actualFramesPerSecond)
     } else if (frameDuration > SentryFrozenFrameThreshold) {
         _frozenFrames++;
 #    if SENTRY_TARGET_PROFILING_SUPPORTED
-        SENTRY_LOG_DEBUG(@"Capturing frozen frame starting at %llu.", thisFrameSystemTimestamp);
+        SENTRY_LOG_DEBUG(@"Detected frozen frame starting at %llu.", thisFrameSystemTimestamp);
         [self recordTimestamp:thisFrameSystemTimestamp
                         value:@(thisFrameSystemTimestamp - self.previousFrameSystemTimestamp)
                         array:self.frozenFrameTimestamps];
