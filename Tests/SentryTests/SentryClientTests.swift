@@ -1,3 +1,4 @@
+import Nimble
 import Sentry
 import SentryTestUtils
 import XCTest
@@ -154,6 +155,26 @@ class SentryClientTest: XCTestCase {
         _ = SentryClient(options: Options(), fileManager: fileManager, deleteOldEnvelopeItems: true)
         
         XCTAssertEqual(1, fileManager.deleteOldEnvelopeItemsInvocations.count)
+    }
+    
+    func testInitCachesInstallationIDAsync() throws {
+        let dispatchQueue = fixture.dispatchQueue
+        SentryDependencyContainer.sharedInstance().dispatchQueueWrapper = fixture.dispatchQueue
+        
+        let options = Options()
+        options.dsn = SentryClientTest.dsn
+        _ = SentryClient(options: options)
+        
+        expect(dispatchQueue.dispatchAsyncInvocations.count) == 1
+        
+        let nonCachedID = SentryInstallation.id(withCacheDirectoryPathNonCached: options.cacheDirectoryPath)
+        
+        // We remove the file containing the installation ID, but the cached ID is still in memory
+        try FileManager().removeItem(atPath: options.cacheDirectoryPath)
+        
+        let cachedID = SentryInstallation.id(withCacheDirectoryPath: options.cacheDirectoryPath)
+        
+        expect(cachedID) == nonCachedID
     }
     
     func testClientIsEnabled() {
