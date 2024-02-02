@@ -1240,6 +1240,12 @@
     NSLog(@"here");
 }
 
+- (void)testOptionsDebugDescriptionDoesntCrash
+{
+    SentryOptions *options = [self getValidOptions:@{}];
+    XCTAssertNotNil(options.debugDescription);
+}
+
 #pragma mark - Private
 
 - (void)assertArrayEquals:(NSArray<NSString *> *)expected actual:(NSArray<NSString *> *)actual
