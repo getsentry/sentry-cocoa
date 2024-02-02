@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+### Improvements
+
+- Cache installationID async to avoid file IO on the main thread when starting the SDK (#3601)
+
+
+## 8.20.0
+
 ### Features
 
 - Add visionOS as device family (#3548)
@@ -14,6 +21,8 @@
 - Clarify FramesTracker log message (#3570)
 - Fix rare battery breadcrumbs crash (#3582)
 - Fix synchronization issue in FramesTracker (#3571)
+- Fix SentryFileManager logs warning for .DS_Files (#3584)
+- Fix FileManager logs info instead of error when a path doesn't exist (#3594)
 
 ## 8.19.0
 
