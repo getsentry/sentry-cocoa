@@ -46,7 +46,7 @@ class ProfilingViewController: UIViewController, UITextFieldDelegate {
         let value = SentryBenchmarking.stopBenchmark()!
         valueTextField.isHidden = false
         valueTextField.text = value
-        print("[iOS-Swift] [Profiling] benchmarking results:\n\(value)")
+        print("[iOS-Swift] [ProfilingViewController] benchmarking results:\n\(value)")
     }
     
     @IBAction func startCPUWork(_ sender: UIButton) {
@@ -130,6 +130,7 @@ extension ProfilingViewController {
             let url = file as! URL
             if url.absoluteString.contains(fileName) {
                 block(url)
+                print("[iOS-Swift] [ProfilingViewController] removing file at \(url)")
                 try! FileManager.default.removeItem(at: url)
                 return
             }
@@ -149,7 +150,7 @@ extension ProfilingViewController {
             return
         }
         let contents = data.base64EncodedString()
-        print("[iOS-Swift] [Profiling] contents of file at \(file): \(String(data: data, encoding: .utf8))")
+        print("[iOS-Swift] [ProfilingViewController] contents of file at \(file): \(String(describing: String(data: data, encoding: .utf8)))")
         profilingUITestDataMarshalingTextField.text = contents
         profilingUITestDataMarshalingStatus.text = "✅"
     }
