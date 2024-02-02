@@ -151,6 +151,10 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         self.timezone = timezone;
         self.attachmentProcessors = [[NSMutableArray alloc] init];
 
+        // The SDK stores the installationID in a file. The first call requires file IO. To avoid
+        // executing this on the main thread, we cache the installationID async here.
+        [SentryInstallation cacheIDAsyncWithCacheDirectoryPath:options.cacheDirectoryPath];
+
         if (deleteOldEnvelopeItems) {
             [fileManager deleteOldEnvelopeItems];
         }
