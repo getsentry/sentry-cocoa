@@ -130,6 +130,7 @@ extension ProfilingViewController {
             let url = file as! URL
             if url.absoluteString.contains(fileName) {
                 block(url)
+                try! FileManager.default.removeItem(at: url)
                 return
             }
         }
