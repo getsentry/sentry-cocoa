@@ -1233,13 +1233,6 @@
     XCTAssertTrue(options.swiftAsyncStacktraces);
 }
 
-- (void)testDebugDescription
-{
-    SentryOptions *options = [self getValidOptions:@{}];
-    NSLog(@"%@", options.debugDescription);
-    NSLog(@"here");
-}
-
 - (void)testOptionsDebugDescriptionDoesntCrash
 {
     SentryOptions *options = [self getValidOptions:@{}];
