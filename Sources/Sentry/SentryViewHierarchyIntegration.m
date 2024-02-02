@@ -5,10 +5,10 @@
 #    import "SentryCrashC.h"
 #    import "SentryDependencyContainer.h"
 #    import "SentryEvent+Private.h"
+#    import "SentryException.h"
 #    import "SentryHub+Private.h"
 #    import "SentrySDK+Private.h"
 #    import "SentryViewHierarchy.h"
-
 #    if SENTRY_HAS_METRIC_KIT
 #        import "SentryMetricKitIntegration.h"
 #    endif // SENTRY_HAS_METRIC_KIT
@@ -71,8 +71,17 @@ saveViewHierarchy(const char *reportDirectoryPath)
 
     NSMutableArray<SentryAttachment *> *result = [NSMutableArray arrayWithArray:attachments];
 
-    NSData *viewHierarchy =
-        [SentryDependencyContainer.sharedInstance.viewHierarchy fetchViewHierarchy];
+    NSData *viewHierarchy;
+
+    // If the event is an App hanging event, we cant take the
+    // view hierarchy in the main thread because it's blocked.
+    if (event.isAppHangEvent) {
+        viewHierarchy = [SentryDependencyContainer.sharedInstance.viewHierarchy appViewHierarchy];
+    } else {
+        viewHierarchy =
+            [SentryDependencyContainer.sharedInstance.viewHierarchy appViewHierarchyFromMainThread];
+    }
+
     SentryAttachment *attachment =
         [[SentryAttachment alloc] initWithData:viewHierarchy
                                       filename:@"view-hierarchy.json"
