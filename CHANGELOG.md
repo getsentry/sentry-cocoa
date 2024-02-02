@@ -8,7 +8,8 @@
 
 ### Fixes
 
-- Enable library evolution for SentryPrivate and SentrySwiftUI
+- Enable library evolution for SentryPrivate and SentrySwiftUI (#3506)
+- Don't use main thread for app hang screenshot and view hierarchy (#3547)
 
 ## 8.20.0
 
