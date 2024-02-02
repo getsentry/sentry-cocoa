@@ -14,10 +14,10 @@ NS_ASSUME_NONNULL_BEGIN
 @class SentryOptions;
 @class SentrySession;
 
-NS_SWIFT_NAME(SentryFileManager)
 @interface SentryFileManager : NSObject
 SENTRY_NO_INIT
 
+@property (nonatomic, readonly) NSString *basePath;
 @property (nonatomic, readonly) NSString *sentryPath;
 @property (nonatomic, readonly) NSString *breadcrumbsFilePathOne;
 @property (nonatomic, readonly) NSString *breadcrumbsFilePathTwo;
@@ -57,6 +57,11 @@ SENTRY_NO_INIT
 - (void)deleteOldEnvelopeItems;
 
 /**
+ * Only used for testing.
+ */
+- (nullable NSString *)getEnvelopesPath:(NSString *)filePath;
+
+/**
  * Get all envelopes sorted ascending by the @c timeIntervalSince1970 the envelope was stored and if
  * two envelopes are stored at the same time sorted by the order they were stored.
  */
@@ -69,8 +74,6 @@ SENTRY_NO_INIT
 - (SentryFileContents *_Nullable)getOldestEnvelope;
 
 - (void)removeFileAtPath:(NSString *)path;
-
-- (NSArray<NSString *> *)allFilesInFolder:(NSString *)path;
 
 - (void)storeAppState:(SentryAppState *)appState;
 - (void)moveAppStateToPreviousAppState;
