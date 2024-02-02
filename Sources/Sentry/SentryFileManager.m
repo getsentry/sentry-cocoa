@@ -17,6 +17,10 @@
 #import "SentryOptions.h"
 #import "SentrySerialization.h"
 
+#if SENTRY_TARGET_PROFILING_SUPPORTED
+#    import "SentryLaunchProfiling.h"
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED
+
 NS_ASSUME_NONNULL_BEGIN
 
 NSString *const EnvelopesPathComponent = @"envelopes";
@@ -724,12 +728,32 @@ launchProfileConfigFileURL(void)
     return sentryLaunchConfigFileURL;
 }
 
+NSURL *
+launchProfileConfigBackupFileURL(void)
+{
+    static NSURL *sentryLaunchConfigFileURL;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        sentryLaunchConfigFileURL =
+            [[NSURL fileURLWithPath:[sentryApplicationSupportPath()
+                                        stringByAppendingPathComponent:@"profileLaunch"]]
+                URLByAppendingPathExtension:@"bak"];
+    });
+    return sentryLaunchConfigFileURL;
+}
+
 NSDictionary<NSString *, NSNumber *> *_Nullable appLaunchProfileConfiguration(void)
 {
     NSError *error;
-    NSDictionary<NSString *, NSNumber *> *config = [NSDictionary<NSString *, NSNumber *>
-        dictionaryWithContentsOfURL:launchProfileConfigFileURL()
-                              error:&error];
+    NSURL *configFileURL;
+    if (isTracingAppLaunch) {
+        configFileURL = launchProfileConfigBackupFileURL();
+    } else {
+        configFileURL = launchProfileConfigFileURL();
+    }
+    NSDictionary<NSString *, NSNumber *> *config =
+        [NSDictionary<NSString *, NSNumber *> dictionaryWithContentsOfURL:configFileURL
+                                                                    error:&error];
     SENTRY_CASSERT(
         error == nil, @"Encountered error trying to retrieve app launch profile config: %@", error);
     return config;
@@ -760,7 +784,39 @@ removeAppLaunchProfilingConfigFile(void)
 
     NSError *error;
     SENTRY_CASSERT([fm removeItemAtPath:path error:&error],
-        @"Failed to remove launch profile marker file: %@", error);
+        @"Failed to remove launch profile config file: %@", error);
+}
+
+void
+removeAppLaunchProfilingConfigBackupFile(void)
+{
+    NSFileManager *fm = [NSFileManager defaultManager];
+    NSString *path = launchProfileConfigBackupFileURL().path;
+    if (![fm fileExistsAtPath:path]) {
+        return;
+    }
+
+    NSError *error;
+    SENTRY_CASSERT([fm removeItemAtPath:path error:&error],
+        @"Failed to remove launch profile config file: %@", error);
+}
+
+void
+saveAppLaunchProfilingConfigFile(void)
+{
+    NSFileManager *fm = [NSFileManager defaultManager];
+    NSString *path = launchProfileConfigFileURL().path;
+    if (!SENTRY_CASSERT_RETURN([fm fileExistsAtPath:path],
+            @"Expect to have a current launch profile config to use for subsequent transaction.")) {
+        return;
+    }
+
+    NSError *error;
+    SENTRY_CASSERT([fm moveItemAtPath:path
+                               toPath:launchProfileConfigBackupFileURL().path
+                                error:&error],
+        @"Failed to backup launch profile config file for use to set up associated transaction: %@",
+        error);
 }
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 

@@ -101,7 +101,11 @@ configureLaunchProfiling(SentryOptions *options)
                 = config.profilesDecision.sampleRate;
             writeAppLaunchProfilingConfigFile(configDict);
         } else {
-            removeAppLaunchProfilingConfigFile();
+            if (isTracingAppLaunch) {
+                saveAppLaunchProfilingConfigFile();
+            } else {
+                removeAppLaunchProfilingConfigFile();
+            }
         }
     }];
 }
@@ -142,6 +146,9 @@ injectLaunchSamplerDecisions(
     SentryTransactionContext *transactionContext, SentryTracerConfiguration *configuration)
 {
     NSDictionary<NSString *, NSNumber *> *rates = appLaunchProfileConfiguration();
+    if (isTracingAppLaunch) {
+        removeAppLaunchProfilingConfigBackupFile();
+    }
     NSNumber *profilesRate = rates[kSentryLaunchProfileConfigKeyProfilesSampleRate];
     NSNumber *tracesRate = rates[kSentryLaunchProfileConfigKeyTracesSampleRate];
     if (profilesRate == nil || tracesRate == nil) {
