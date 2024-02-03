@@ -160,7 +160,11 @@ static NSDate *_Nullable startTimestamp = nil;
     // We accept the tradeoff that the SDK might not be fully initialized directly after
     // initializing it on a background thread because scheduling the init synchronously on the main
     // thread could lead to deadlocks.
-    SENTRY_LOG_DEBUG(@"Starting SDK with options: %@", options.debugDescription);
+    SENTRY_LOG_DEBUG(@"Starting SDK...");
+
+#if defined(DEBUG) || defined(TEST) || defined(TESTCI)
+    SENTRY_LOG_DEBUG(@"Configured options: %@", options.debugDescription);
+#endif // defined(DEBUG) || defined(TEST) || defined(TESTCI)
 
     startInvocations++;
     startTimestamp = [SentryDependencyContainer.sharedInstance.dateProvider date];

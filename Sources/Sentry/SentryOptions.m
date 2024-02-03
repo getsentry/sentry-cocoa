@@ -711,6 +711,7 @@ NSString *const kSentryDefaultEnvironment = @"production";
 
 #endif // SENTRY_UIKIT_AVAILABLE
 
+#if defined(DEBUG) || defined(TEST) || defined(TESTCI)
 - (NSString *)debugDescription
 {
     NSMutableString *propertiesDescription = [NSMutableString string];
@@ -724,11 +725,14 @@ NSString *const kSentryDefaultEnvironment = @"production";
                 NSString *propertyName = [NSString stringWithUTF8String:propName];
                 NSString *propertyValue = [[self valueForKey:propertyName] description];
                 [propertiesDescription appendFormat:@"  %@: %@\n", propertyName, propertyValue];
+            } else {
+                SENTRY_LOG_DEBUG(@"Failed to get a property name.");
             }
         }
         free(properties);
     }
     return [NSString stringWithFormat:@"<%@: {\n%@\n}>", self, propertiesDescription];
 }
+#endif // defined(DEBUG) || defined(TEST) || defined(TESTCI)
 
 @end
