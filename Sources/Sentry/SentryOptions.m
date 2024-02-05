@@ -562,6 +562,9 @@ isValidSampleRate(NSNumber *sampleRate)
 
 - (BOOL)isTracingEnabled
 {
+    // TODO: we need to also consider the stored app launch trace sample rate here, because this is
+    // called to see if SentryUIViewControllerPerformanceTracker should even be installed; if it is
+    // not installed, we don't get the automatic ui.load transaction to attach the profile to
     return _enableTracing
         && ((_tracesSampleRate != nil && [_tracesSampleRate doubleValue] > 0)
             || _tracesSampler != nil);
