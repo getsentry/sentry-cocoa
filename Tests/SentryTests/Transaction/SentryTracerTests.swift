@@ -152,6 +152,31 @@ class SentryTracerTests: XCTestCase {
             XCTAssertEqual(tracerTimestamp.timeIntervalSince1970, span["timestamp"] as? TimeInterval)
         }
     }
+    
+    func testFinish_ShouldIgnoreWaitForChildrenCallback() throws {
+        let sut = fixture.getSut()
+        
+        sut.shouldIgnoreWaitForChildrenCallback = { _ in
+            return true
+        }
+        let child = sut.startChild(operation: fixture.transactionOperation)
+        sut.finish()
+        
+        expect(child.status) == .deadlineExceeded
+        
+        assertOneTransactionCaptured(sut)
+    
+        let serialization = try getSerializedTransaction()
+        let spans = serialization["spans"]! as! [[String: Any]]
+        
+        let tracerTimestamp: NSDate = sut.timestamp! as NSDate
+        
+        expect(spans.count) == 1
+        let span = try XCTUnwrap(spans.first, "Expected first span not to be nil")
+        expect(span["timestamp"] as? TimeInterval) == tracerTimestamp.timeIntervalSince1970
+        
+        expect(sut.shouldIgnoreWaitForChildrenCallback) == nil
+    }
 
     func testDeadlineTimer_FinishesTransactionAndChildren() {
         fixture.dispatchQueue.blockBeforeMainBlock = { true }
