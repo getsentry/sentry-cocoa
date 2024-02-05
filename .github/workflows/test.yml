@@ -258,7 +258,7 @@ jobs:
   # that adds a significant overhead.
   thread-sanitizer:
     name: Unit iOS - Thread Sanitizer
-    runs-on: macos-13-xlarge
+    runs-on: macos-13
     timeout-minutes: 20
     needs: [build-test-server]
     
