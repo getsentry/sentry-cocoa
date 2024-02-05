@@ -361,7 +361,7 @@ jobs:
 
       # GitHub Actions sometimes fail to launch the UI tests. Therefore we retry
       - name: Run Fastlane
-        run: for i in {1..2}; do fastlane ui_tests_ios_swift device:"$iPhone 14 (17.2)" address_sanitizer:true && break ; done
+        run: for i in {1..2}; do fastlane ui_tests_ios_swift device:"iPhone 14 (17.2)" address_sanitizer:true && break ; done
         shell: sh
 
       - name: Archiving Raw Test Logs
