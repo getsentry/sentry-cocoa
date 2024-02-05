@@ -2,12 +2,17 @@
 
 class TestSentryScreenshot: SentryScreenshot {
     
-    var result: [Data]?
+    var result: [Data] = []
+    var processViewHierarchyCallback: (() -> Void)?
         
-    override func appScreenshots() -> [Data]? {
+    override func appScreenshots() -> [Data] {
+        processViewHierarchyCallback?()
         return result
     }
-    
+ 
+    override func appScreenshotsFromMainThread() -> [Data] {
+        return result
+    }
 }
 
 #endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)

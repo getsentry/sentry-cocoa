@@ -1,5 +1,16 @@
 # Changelog
 
+## Unreleased
+
+### Improvements
+
+- Cache installationID async to avoid file IO on the main thread when starting the SDK (#3601)
+
+### Fixes
+
+- Enable library evolution for SentryPrivate and SentrySwiftUI (#3603)
+- Don't use main thread for app hang screenshot and view hierarchy (#3547)
+
 ## 8.20.0
 
 ### Features
