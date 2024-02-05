@@ -13,8 +13,8 @@ on:
       - '.github/workflows/build.yml'
       - 'fastlane/**'
       - 'scripts/ci-select-xcode.sh'
-      - Sentry.xcworkspace
-      - Sentry.xcodeproj
+      - Sentry.xcworkspace/**
+      - Sentry.xcodeproj/**
       - Gemfile.lock
       - 'Package.swift'
 
