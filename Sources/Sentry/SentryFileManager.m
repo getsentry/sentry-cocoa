@@ -17,10 +17,6 @@
 #import "SentryOptions.h"
 #import "SentrySerialization.h"
 
-#if SENTRY_TARGET_PROFILING_SUPPORTED
-#    import "SentryLaunchProfiling.h"
-#endif // SENTRY_TARGET_PROFILING_SUPPORTED
-
 NS_ASSUME_NONNULL_BEGIN
 
 NSString *const EnvelopesPathComponent = @"envelopes";
@@ -38,6 +34,28 @@ createDirectoryIfNotExists(NSString *path, NSError **error)
         return NO;
     }
     return YES;
+}
+
+/**
+ * @warning This is called from a `@synchronized` context in instance methods, but doesn't require
+ * that when calling from other static functions. Make sure you pay attention to where this is used
+ * from.
+ */
+void
+_unsafe_removeFileAtPath(NSString *path)
+{
+    NSError *error = nil;
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    if (![fileManager removeItemAtPath:path error:&error]) {
+        if (error.code == NSFileNoSuchFileError) {
+            SENTRY_LOG_DEBUG(@"No file to delete at %@", path);
+        } else {
+            SENTRY_LOG_ERROR(
+                @"Error occurred while deleting file at %@ because of %@", path, error);
+        }
+    } else {
+        SENTRY_LOG_DEBUG(@"Successfully deleted file at %@", path);
+    }
 }
 
 @interface
@@ -288,19 +306,8 @@ SentryFileManager ()
 
 - (void)removeFileAtPath:(NSString *)path
 {
-    NSFileManager *fileManager = [NSFileManager defaultManager];
-    NSError *error = nil;
     @synchronized(self) {
-        if (![fileManager removeItemAtPath:path error:&error]) {
-            if (error.code == NSFileNoSuchFileError) {
-                SENTRY_LOG_DEBUG(@"No file to delete at %@", path);
-            } else {
-                SENTRY_LOG_ERROR(
-                    @"Error occurred while deleting file at %@ because of %@", path, error);
-            }
-        } else {
-            SENTRY_LOG_DEBUG(@"Successfully deleted file at %@", path);
-        }
+        _unsafe_removeFileAtPath(path);
     }
 }
 
@@ -771,16 +778,15 @@ launchProfileConfigBackupFileURL(void)
 
 NSDictionary<NSString *, NSNumber *> *_Nullable appLaunchProfileConfiguration(void)
 {
-    NSError *error;
-    NSURL *configFileURL;
-    if (isTracingAppLaunch) {
-        configFileURL = launchProfileConfigBackupFileURL();
-    } else {
-        configFileURL = launchProfileConfigFileURL();
+    NSURL *url = launchProfileConfigBackupFileURL();
+    if (![[NSFileManager defaultManager] fileExistsAtPath:url.path]) {
+        return nil;
     }
-    NSDictionary<NSString *, NSNumber *> *config =
-        [NSDictionary<NSString *, NSNumber *> dictionaryWithContentsOfURL:configFileURL
-                                                                    error:&error];
+
+    NSError *error;
+    NSDictionary<NSString *, NSNumber *> *config = [NSDictionary<NSString *, NSNumber *>
+        dictionaryWithContentsOfURL:launchProfileConfigBackupFileURL()
+                              error:&error];
     SENTRY_CASSERT(
         error == nil, @"Encountered error trying to retrieve app launch profile config: %@", error);
     return config;
@@ -803,45 +809,30 @@ writeAppLaunchProfilingConfigFile(NSMutableDictionary<NSString *, NSNumber *> *c
 void
 removeAppLaunchProfilingConfigFile(void)
 {
-    NSFileManager *fm = [NSFileManager defaultManager];
-    NSString *path = launchProfileConfigFileURL().path;
-    if (![fm fileExistsAtPath:path]) {
-        return;
-    }
-
-    NSError *error;
-    SENTRY_CASSERT([fm removeItemAtPath:path error:&error],
-        @"Failed to remove launch profile config file: %@", error);
+    _unsafe_removeFileAtPath(launchProfileConfigFileURL().path);
 }
 
 void
 removeAppLaunchProfilingConfigBackupFile(void)
 {
-    NSFileManager *fm = [NSFileManager defaultManager];
-    NSString *path = launchProfileConfigBackupFileURL().path;
-    if (![fm fileExistsAtPath:path]) {
-        return;
-    }
-
-    NSError *error;
-    SENTRY_CASSERT([fm removeItemAtPath:path error:&error],
-        @"Failed to remove launch profile config file: %@", error);
+    _unsafe_removeFileAtPath(launchProfileConfigBackupFileURL().path);
 }
 
 void
-saveAppLaunchProfilingConfigFile(void)
+backupAppLaunchProfilingConfigFile(void)
 {
     NSFileManager *fm = [NSFileManager defaultManager];
-    NSString *path = launchProfileConfigFileURL().path;
-    if (!SENTRY_CASSERT_RETURN([fm fileExistsAtPath:path],
+    NSString *fromPath = launchProfileConfigFileURL().path;
+    if (!SENTRY_CASSERT_RETURN([fm fileExistsAtPath:fromPath],
             @"Expect to have a current launch profile config to use for subsequent transaction.")) {
         return;
     }
 
+    NSString *toPath = launchProfileConfigBackupFileURL().path;
+    _unsafe_removeFileAtPath(toPath);
+
     NSError *error;
-    SENTRY_CASSERT([fm moveItemAtPath:path
-                               toPath:launchProfileConfigBackupFileURL().path
-                                error:&error],
+    SENTRY_CASSERT([fm moveItemAtPath:fromPath toPath:toPath error:&error],
         @"Failed to backup launch profile config file for use to set up associated transaction: %@",
         error);
 }

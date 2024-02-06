@@ -1,4 +1,4 @@
-#import "SentryInternalDefines.h"
+#import "SentryDefines.h"
 #import "SentryLaunchProfiling.h"
 
 @class SentrySamplerDecision;
@@ -13,5 +13,8 @@ typedef struct {
 } SentryLaunchProfileConfig;
 
 SENTRY_EXTERN SentryLaunchProfileConfig shouldProfileNextLaunch(SentryOptions *options);
+
+SENTRY_EXTERN NSString *const kSentryLaunchProfileConfigKeyTracesSampleRate;
+SENTRY_EXTERN NSString *const kSentryLaunchProfileConfigKeyProfilesSampleRate;
 
 NS_ASSUME_NONNULL_END

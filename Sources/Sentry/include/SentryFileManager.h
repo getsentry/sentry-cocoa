@@ -130,9 +130,9 @@ SENTRY_EXTERN void removeAppLaunchProfilingConfigFile(void);
  * launch; if there's no current app launch profile going, then we'd simply remove whatever config
  * file may exist, but if there is a launch profile going, we need to save the config that it used.
  */
-SENTRY_EXTERN void saveAppLaunchProfilingConfigFile(void);
+SENTRY_EXTERN void backupAppLaunchProfilingConfigFile(void);
 
-/*
+/**
  * Clean up the backup file saved off in the case that an app launch is in-flight when the SDK
  * configures subsequent launches not to profile, requiring the current config to be saved for the
  * associated transaction. This can be cleaned up when that transaction is started.
