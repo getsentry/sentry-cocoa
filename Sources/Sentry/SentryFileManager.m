@@ -42,7 +42,7 @@ createDirectoryIfNotExists(NSString *path, NSError **error)
  * from.
  */
 void
-_unsafe_removeFileAtPath(NSString *path)
+_non_thread_safe_removeFileAtPath(NSString *path)
 {
     NSError *error = nil;
     NSFileManager *fileManager = [NSFileManager defaultManager];
@@ -307,7 +307,7 @@ SentryFileManager ()
 - (void)removeFileAtPath:(NSString *)path
 {
     @synchronized(self) {
-        _unsafe_removeFileAtPath(path);
+        _non_thread_safe_removeFileAtPath(path);
     }
 }
 
@@ -809,13 +809,13 @@ writeAppLaunchProfilingConfigFile(NSMutableDictionary<NSString *, NSNumber *> *c
 void
 removeAppLaunchProfilingConfigFile(void)
 {
-    _unsafe_removeFileAtPath(launchProfileConfigFileURL().path);
+    _non_thread_safe_removeFileAtPath(launchProfileConfigFileURL().path);
 }
 
 void
 removeAppLaunchProfilingConfigBackupFile(void)
 {
-    _unsafe_removeFileAtPath(launchProfileConfigBackupFileURL().path);
+    _non_thread_safe_removeFileAtPath(launchProfileConfigBackupFileURL().path);
 }
 
 void
@@ -829,7 +829,7 @@ backupAppLaunchProfilingConfigFile(void)
     }
 
     NSString *toPath = launchProfileConfigBackupFileURL().path;
-    _unsafe_removeFileAtPath(toPath);
+    _non_thread_safe_removeFileAtPath(toPath);
 
     NSError *error;
     SENTRY_CASSERT([fm moveItemAtPath:fromPath toPath:toPath error:&error],
