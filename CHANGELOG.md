@@ -8,8 +8,9 @@
 
 ### Fixes
 
-- Enable library evolution for SentryPrivate and SentrySwiftUI (#3603)
 - Don't use main thread for app hang screenshot and view hierarchy (#3547)
+- Finish TTID span when transaction finishes (#3610)
+
 
 ## 8.20.0
 
