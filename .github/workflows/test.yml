@@ -107,7 +107,7 @@ jobs:
             device: "iPhone 8"
 
           # iOS 16
-          - runs-on: macos-13
+          - runs-on: macos-13-xlarge
             platform: "iOS"
             xcode: "14.3"
             test-destination-os: "16.4"
@@ -133,7 +133,7 @@ jobs:
             test-destination-os: "latest"
 
           # macOS 13
-          - runs-on: macos-13
+          - runs-on: macos-13-xlarge
             platform: "macOS"
             xcode: "14.3"
             test-destination-os: "latest"
@@ -159,7 +159,7 @@ jobs:
             test-destination-os: "latest"
 
           # tvOS 16
-          - runs-on: macos-13
+          - runs-on: macos-13-xlarge
             platform: "tvOS"
             xcode: "14.3"
             test-destination-os: "latest"
@@ -372,7 +372,7 @@ jobs:
 
   ui-tests-address-sanitizer:
     name: UI Tests with Address Sanitizer
-    runs-on: macos-13
+    runs-on: macos-13-xlarge
 
     steps:
       - uses: actions/checkout@v4
