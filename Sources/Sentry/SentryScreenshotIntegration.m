@@ -69,9 +69,10 @@ saveScreenShot(const char *path)
     if (event.isAppHangEvent) {
         return attachments;
     }
-    
-    NSArray * screenshot = [SentryDependencyContainer.sharedInstance.screenshot appScreenshotsFromMainThread];
-    
+
+    NSArray *screenshot =
+        [SentryDependencyContainer.sharedInstance.screenshot appScreenshotsFromMainThread];
+
     NSMutableArray *result =
         [NSMutableArray arrayWithCapacity:attachments.count + screenshot.count];
     [result addObjectsFromArray:attachments];
