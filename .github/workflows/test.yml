@@ -107,11 +107,18 @@ jobs:
             device: "iPhone 8"
 
           # iOS 16
-          - runs-on: macos-13
+          - runs-on: macos-13-xlarge
             platform: "iOS"
             xcode: "14.3"
             test-destination-os: "16.4"
             device: "iPhone 14"
+
+          # iOS 17
+          - runs-on: macos-14-xlarge
+            platform: "iOS"
+            xcode: "15.2"
+            test-destination-os: "17.2"
+            device: "iPhone 15"
 
           # macOS 11
           - runs-on: macos-11
@@ -126,17 +133,23 @@ jobs:
             test-destination-os: "latest"
 
           # macOS 13
-          - runs-on: macos-13
+          - runs-on: macos-13-xlarge
             platform: "macOS"
             xcode: "14.3"
+            test-destination-os: "latest"
+
+          # macOS 14
+          - runs-on: macos-14-xlarge
+            platform: "macOS"
+            xcode: "15.2"
             test-destination-os: "latest"
 
           # Catalyst. We only test the latest version, as
           # the risk something breaking on Catalyst and not
           # on an older iOS or macOS version is low.
-          - runs-on: macos-13
+          - runs-on: macos-14-xlarge
             platform: "Catalyst"
-            xcode: "14.3"
+            xcode: "15.2"
             test-destination-os: "latest"
 
           # tvOS 15
@@ -146,9 +159,15 @@ jobs:
             test-destination-os: "latest"
 
           # tvOS 16
-          - runs-on: macos-13
+          - runs-on: macos-13-xlarge
             platform: "tvOS"
             xcode: "14.3"
+            test-destination-os: "latest"
+
+          # tvOS 17
+          - runs-on: macos-14-xlarge
+            platform: "tvOS"
+            xcode: "15.2"
             test-destination-os: "latest"
 
     steps:
@@ -353,15 +372,15 @@ jobs:
 
   ui-tests-address-sanitizer:
     name: UI Tests with Address Sanitizer
-    runs-on: macos-13
+    runs-on: macos-13-xlarge
 
     steps:
       - uses: actions/checkout@v4
-      - run: ./scripts/ci-select-xcode.sh
+      - run: ./scripts/ci-select-xcode.sh 15.2
 
       # GitHub Actions sometimes fail to launch the UI tests. Therefore we retry
       - name: Run Fastlane
-        run: for i in {1..2}; do fastlane ui_tests_ios_swift device:"$iPhone 8 (15.5)" address_sanitizer:true && break ; done
+        run: for i in {1..2}; do fastlane ui_tests_ios_swift device:"iPhone 14 (17.2)" address_sanitizer:true && break ; done
         shell: sh
 
       - name: Archiving Raw Test Logs

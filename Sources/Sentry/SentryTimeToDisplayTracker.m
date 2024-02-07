@@ -64,7 +64,23 @@ SentryTimeToDisplayTracker () <SentryFramesTrackerListener>
     self.initialDisplaySpan.startTimestamp = tracer.startTimestamp;
 
     [SentryDependencyContainer.sharedInstance.framesTracker addListener:self];
+
+    [tracer setShouldIgnoreWaitForChildrenCallback:^(id<SentrySpan> span) {
+        if (span.origin == SentryTraceOriginAutoUITimeToDisplay) {
+            return YES;
+        } else {
+            return NO;
+        }
+    }];
     [tracer setFinishCallback:^(SentryTracer *_tracer) {
+        [SentryDependencyContainer.sharedInstance.framesTracker removeListener:self];
+
+        // The tracer finishes when the screen is fully displayed. Therefore, we must also finish
+        // the TTID span.
+        if (self.initialDisplaySpan.isFinished == NO) {
+            [self.initialDisplaySpan finish];
+        }
+
         // If the start time of the tracer changes, which is the case for app start transactions, we
         // also need to adapt the start time of our spans.
         self.initialDisplaySpan.startTimestamp = _tracer.startTimestamp;
