@@ -136,13 +136,13 @@ class SentryViewHierarchyIntegrationTests: XCTestCase {
         let ex = expectation(description: "Attachment Added")
         
         testVH.processViewHierarchyCallback = {
-            ex.fulfill()
-            expect(Thread.isMainThread) == false
+            XCTFail("Should not add view hierarchy to app hanging events")
         }
         
         let dispatch = DispatchQueue(label: "background")
         dispatch.async {
             sut.processAttachments([], for: event)
+            ex.fulfill()
         }
         
         wait(for: [ex], timeout: 1)
