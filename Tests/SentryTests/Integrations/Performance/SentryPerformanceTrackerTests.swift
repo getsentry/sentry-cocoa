@@ -187,22 +187,20 @@ class SentryPerformanceTrackerTests: XCTestCase {
         wait(for: [expect], timeout: 0)
     }
     
-    func testNotSampled() {
+    func testNotSampled() throws {
         fixture.client.options.tracesSampleRate = 0
         let sut = fixture.getSut()
         let spanId = sut.startSpan(withName: fixture.someTransaction, nameSource: .custom, operation: fixture.someOperation, origin: fixture.origin)
-        let span = sut.getSpan(spanId)
-        
-        XCTAssertEqual(span!.sampled, .no)
+        let span = try XCTUnwrap(sut.getSpan(spanId))
+        XCTAssertEqual(span.sampled, .no)
     }
     
-    func testSampled() {
+    func testSampled() throws {
         fixture.client.options.tracesSampleRate = 1
         let sut = fixture.getSut()
         let spanId = sut.startSpan(withName: fixture.someTransaction, nameSource: .custom, operation: fixture.someOperation, origin: fixture.origin)
-        let span = sut.getSpan(spanId)
-        
-        XCTAssertEqual(span!.sampled, .yes)
+        let span = try XCTUnwrap(sut.getSpan(spanId))
+        XCTAssertEqual(span.sampled, .yes)
     }
     
     func testFinishSpan() {
