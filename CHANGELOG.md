@@ -8,9 +8,8 @@
 
 ### Fixes
 
-- Don't use main thread for app hang screenshot and view hierarchy (#3547)
 - Finish TTID span when transaction finishes (#3610)
-
+- Dont take screenshot and view hierarchy for app hanging (#3620)
 
 ## 8.20.0
 

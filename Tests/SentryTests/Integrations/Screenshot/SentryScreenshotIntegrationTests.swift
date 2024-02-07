@@ -181,13 +181,13 @@ class SentryScreenshotIntegrationTests: XCTestCase {
 
         let ex = expectation(description: "Attachment Added")
         
-        testVH.processViewHierarchyCallback = {
-            ex.fulfill()
-            XCTAssertFalse(Thread.isMainThread)
+        testVH.processScreenshotsCallback = {
+            XCTFail("Should not add screenshots to App Hanging events")
         }
         
         DispatchQueue.global().async {
             sut.processAttachments([], for: event)
+            ex.fulfill()
         }
         
         wait(for: [ex], timeout: 1)
