@@ -2,7 +2,8 @@ import XCTest
 
 //swiftlint:disable function_body_length todo
 
-class ProfilingUITests: BaseUITest {    
+@available(iOS 16, *)
+class ProfilingUITests: BaseUITest {
     override var automaticallyLaunchAndTerminateApp: Bool { false }
     
     // this will run before the non-async BaseUITest.setUp, so we can bail out before running any of the logic in there
@@ -72,6 +73,7 @@ class ProfilingUITests: BaseUITest {
     }
 }
 
+@available(iOS 16, *)
 extension ProfilingUITests {
     // We don't need to test these on multiple OSes right now, and older versions seem to have issues; older devices or VM images running simulators might just be slower. Latest OS is enough coverage for our needs for now.
     func checkOSVersionForProfilingTest() throws {
