@@ -207,7 +207,7 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
 + (NSArray<NSData *> *)captureScreenshots
 {
 #if SENTRY_HAS_UIKIT
-    return [SentryDependencyContainer.sharedInstance.screenshot takeScreenshots];
+    return [SentryDependencyContainer.sharedInstance.screenshot appScreenshots];
 #else
     SENTRY_LOG_DEBUG(
         @"PrivateSentrySDKOnly.captureScreenshots only works with UIKit enabled. Ensure you're "
@@ -219,7 +219,7 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
 + (NSData *)captureViewHierarchy
 {
 #if SENTRY_HAS_UIKIT
-    return [SentryDependencyContainer.sharedInstance.viewHierarchy fetchViewHierarchy];
+    return [SentryDependencyContainer.sharedInstance.viewHierarchy appViewHierarchy];
 #else
     SENTRY_LOG_DEBUG(
         @"PrivateSentrySDKOnly.captureViewHierarchy only works with UIKit enabled. Ensure you're "

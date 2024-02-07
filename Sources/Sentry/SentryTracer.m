@@ -511,6 +511,10 @@ static BOOL appStartMeasurementRead;
 
     @synchronized(_children) {
         for (id<SentrySpan> span in _children) {
+            if (self.shouldIgnoreWaitForChildrenCallback != nil
+                && self.shouldIgnoreWaitForChildrenCallback(span)) {
+                continue;
+            }
             if (![span isFinished])
                 return YES;
         }
@@ -552,6 +556,10 @@ static BOOL appStartMeasurementRead;
         // The callback will only be executed once. No need to keep the reference and we avoid
         // potential retain cycles.
         self.finishCallback = nil;
+    }
+
+    if (self.shouldIgnoreWaitForChildrenCallback) {
+        self.shouldIgnoreWaitForChildrenCallback = nil;
     }
 
     // Prewarming can execute code up to viewDidLoad of a UIViewController, and keep the app in the

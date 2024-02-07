@@ -41,6 +41,8 @@ static const NSTimeInterval SENTRY_AUTO_TRANSACTION_MAX_DURATION = 500.0;
 
 @property (nullable, nonatomic, copy) void (^finishCallback)(SentryTracer *);
 
+@property (nullable, nonatomic, copy) BOOL (^shouldIgnoreWaitForChildrenCallback)(id<SentrySpan>);
+
 /**
  * Retrieves a trace context from this tracer.
  */
