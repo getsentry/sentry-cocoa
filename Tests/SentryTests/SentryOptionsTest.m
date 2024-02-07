@@ -1238,11 +1238,11 @@
     NSNumber *_Nullable (^tracesSampler)(void) = ^NSNumber *_Nullable { return nil; };
     SentryOptions *options = [self getValidOptions:@{
         @"tracesSampler" : tracesSampler,
-        @"profilesSampleRate" : @0.123,
+        @"sampleRate" : @0.123,
     }];
     NSString *debugDescription = options.debugDescription;
     XCTAssertNotNil(debugDescription);
-    XCTAssert([debugDescription containsString:@"profilesSampleRate: 0.123"]);
+    XCTAssert([debugDescription containsString:@"sampleRate: 0.123"]);
     XCTAssert([debugDescription containsString:@"tracesSampler: <__NSGlobalBlock__: "]);
 }
 
