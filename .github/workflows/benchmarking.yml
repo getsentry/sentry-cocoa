@@ -27,7 +27,7 @@ concurrency:
 jobs:
   build-benchmark-test-target:
     name: Build app and test runner
-    runs-on: macos-13
+    runs-on: macos-13-xlarge
     steps:
       - uses: actions/checkout@v4
       - run: ./scripts/ci-select-xcode.sh
@@ -102,7 +102,7 @@ jobs:
 
   app-metrics:
     name: Collect app metrics
-    runs-on: macos-13
+    runs-on: macos-13-xlarge
     steps:
       - name: Git checkout
         uses: actions/checkout@v4

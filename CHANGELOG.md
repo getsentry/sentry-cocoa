@@ -6,6 +6,11 @@
 
 - Cache installationID async to avoid file IO on the main thread when starting the SDK (#3601)
 
+### Fixes
+
+- Don't use main thread for app hang screenshot and view hierarchy (#3547)
+- Finish TTID span when transaction finishes (#3610)
+
 
 ## 8.20.0
 

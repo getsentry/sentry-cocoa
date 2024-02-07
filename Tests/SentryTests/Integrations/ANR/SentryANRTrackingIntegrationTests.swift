@@ -1,3 +1,4 @@
+import Nimble
 import SentryTestUtils
 import XCTest
 
@@ -28,7 +29,7 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
     }
     
     override func tearDown() {
-        sut.uninstall()
+        sut?.uninstall()
         clearTestState()
         super.tearDown()
     }
@@ -77,13 +78,14 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
                 return
             }
             
-            XCTAssertEqual(ex.mechanism?.type, "AppHang")
-            XCTAssertEqual(ex.type, "App Hanging")
-            XCTAssertEqual(ex.value, "App hanging for at least 4500 ms.")
-            XCTAssertNotNil(ex.stacktrace)
-            XCTAssertEqual(ex.stacktrace?.frames.first?.function, "main")
-            XCTAssertTrue(ex.stacktrace?.snapshot?.boolValue ?? false)
-            XCTAssertTrue(event?.threads?[0].current?.boolValue ?? false)
+            expect(ex.mechanism?.type) == "AppHang"
+            expect(ex.type) == "App Hanging"
+            expect(ex.value) == "App hanging for at least 4500 ms."
+            expect(ex.stacktrace) != nil
+            expect(ex.stacktrace?.frames.first?.function) == "main"
+            expect(ex.stacktrace?.snapshot?.boolValue) == true
+            expect(event?.threads?[0].current?.boolValue) == true
+            expect(event?.isAppHangEvent) == true
             
             guard let threads = event?.threads else {
                 XCTFail("ANR Exception not found")
@@ -144,6 +146,10 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         XCTAssertEqual(1, listeners?.count ?? 2)
     }
 
+    func testEventIsNotANR() {
+        expect(Event().isAppHangEvent) == false
+    }
+    
     private func givenInitializedTracker(isBeingTraced: Bool = false) {
         givenSdkWithHub()
         self.crashWrapper.internalIsBeingTraced = isBeingTraced
