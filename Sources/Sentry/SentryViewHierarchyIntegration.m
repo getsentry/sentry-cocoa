@@ -74,11 +74,12 @@ saveViewHierarchy(const char *reportDirectoryPath)
     if (event.isAppHangEvent) {
         return attachments;
     }
-    
+
     NSMutableArray<SentryAttachment *> *result = [NSMutableArray arrayWithArray:attachments];
-        
-    NSData * viewHierarchy = [SentryDependencyContainer.sharedInstance.viewHierarchy appViewHierarchyFromMainThread];
-    
+
+    NSData *viewHierarchy =
+        [SentryDependencyContainer.sharedInstance.viewHierarchy appViewHierarchyFromMainThread];
+
     SentryAttachment *attachment =
         [[SentryAttachment alloc] initWithData:viewHierarchy
                                       filename:@"view-hierarchy.json"
