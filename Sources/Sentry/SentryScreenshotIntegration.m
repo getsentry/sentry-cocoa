@@ -64,16 +64,14 @@ saveScreenShot(const char *path)
         return attachments;
     }
 
-    NSArray *screenshot;
-
     // If the event is an App hanging event, we cant take the
-    // screenshot in the main thread because it's blocked.
+    // screenshot because the the main thread it's blocked.
     if (event.isAppHangEvent) {
-        screenshot = [SentryDependencyContainer.sharedInstance.screenshot appScreenshots];
-    } else {
-        screenshot =
-            [SentryDependencyContainer.sharedInstance.screenshot appScreenshotsFromMainThread];
+        return attachments;
     }
+
+    NSArray *screenshot =
+        [SentryDependencyContainer.sharedInstance.screenshot appScreenshotsFromMainThread];
 
     NSMutableArray *result =
         [NSMutableArray arrayWithCapacity:attachments.count + screenshot.count];
