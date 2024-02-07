@@ -69,18 +69,16 @@ saveViewHierarchy(const char *reportDirectoryPath)
         return attachments;
     }
 
+    // If the event is an App hanging event, we cant take the
+    // view hierarchy because the main thread it's blocked.
+    if (event.isAppHangEvent) {
+        return attachments;
+    }
+
     NSMutableArray<SentryAttachment *> *result = [NSMutableArray arrayWithArray:attachments];
 
-    NSData *viewHierarchy;
-
-    // If the event is an App hanging event, we cant take the
-    // view hierarchy in the main thread because it's blocked.
-    if (event.isAppHangEvent) {
-        viewHierarchy = [SentryDependencyContainer.sharedInstance.viewHierarchy appViewHierarchy];
-    } else {
-        viewHierarchy =
-            [SentryDependencyContainer.sharedInstance.viewHierarchy appViewHierarchyFromMainThread];
-    }
+    NSData *viewHierarchy =
+        [SentryDependencyContainer.sharedInstance.viewHierarchy appViewHierarchyFromMainThread];
 
     SentryAttachment *attachment =
         [[SentryAttachment alloc] initWithData:viewHierarchy
