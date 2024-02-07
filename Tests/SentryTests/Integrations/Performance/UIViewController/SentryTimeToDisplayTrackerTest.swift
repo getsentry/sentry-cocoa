@@ -202,6 +202,33 @@ class SentryTimeToDisplayTrackerTest: XCTestCase {
         
         expect(Dynamic(self.fixture.framesTracker).listeners.count) == 0
     }
+    
+    func testTracerFinishesBeforeReportInitialDisplay_FinishesInitialDisplaySpan() throws {
+        let sut = fixture.getSut(for: UIViewController(), waitForFullDisplay: false)
+
+        fixture.dateProvider.setDate(date: Date(timeIntervalSince1970: 7))
+        let tracer = try fixture.getTracer()
+
+        sut.start(for: tracer)
+        expect(tracer.children.count) == 1
+        expect(Dynamic(self.fixture.framesTracker).listeners.count) == 1
+
+        let ttidSpan = try XCTUnwrap(tracer.children.first, "Expected a TTID span")
+        expect(ttidSpan.startTimestamp) == fixture.dateProvider.date()
+
+        fixture.dateProvider.setDate(date: Date(timeIntervalSince1970: 9))
+        
+        tracer.finish()
+
+        expect(ttidSpan.timestamp) == fixture.dateProvider.date()
+        expect(ttidSpan.isFinished) == true
+        expect(ttidSpan.spanDescription) == "UIViewController initial display"
+        expect(ttidSpan.status) == .ok
+
+        assertMeasurement(tracer: tracer, name: "time_to_initial_display", duration: 2_000)
+
+        expect(Dynamic(self.fixture.framesTracker).listeners.count) == 0
+    }
 
     func testCheckInitialTime() throws {
         fixture.dateProvider.setDate(date: Date(timeIntervalSince1970: 9))
