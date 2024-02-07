@@ -3,10 +3,10 @@
 class TestSentryScreenshot: SentryScreenshot {
     
     var result: [Data] = []
-    var processViewHierarchyCallback: (() -> Void)?
+    var processScreenshotsCallback: (() -> Void)?
         
     override func appScreenshots() -> [Data] {
-        processViewHierarchyCallback?()
+        processScreenshotsCallback?()
         return result
     }
  
