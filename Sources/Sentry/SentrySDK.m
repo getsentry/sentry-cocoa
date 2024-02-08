@@ -175,6 +175,10 @@ static NSDate *_Nullable startTimestamp = nil;
     // thread could lead to deadlocks.
     SENTRY_LOG_DEBUG(@"Starting SDK...");
 
+#if defined(DEBUG) || defined(TEST) || defined(TESTCI)
+    SENTRY_LOG_DEBUG(@"Configured options: %@", options.debugDescription);
+#endif // defined(DEBUG) || defined(TEST) || defined(TESTCI)
+
     startInvocations++;
     startTimestamp = [SentryDependencyContainer.sharedInstance.dateProvider date];
 
