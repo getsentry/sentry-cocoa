@@ -94,21 +94,18 @@ configureLaunchProfiling(SentryOptions *options)
 {
     [SentryDependencyContainer.sharedInstance.dispatchQueueWrapper dispatchAsyncWithBlock:^{
         SentryLaunchProfileConfig config = shouldProfileNextLaunch(options);
-        if (config.shouldProfile) {
-            NSMutableDictionary<NSString *, NSNumber *> *configDict =
-                [NSMutableDictionary<NSString *, NSNumber *> dictionary];
-            configDict[kSentryLaunchProfileConfigKeyTracesSampleRate]
-                = config.tracesDecision.sampleRate;
-            configDict[kSentryLaunchProfileConfigKeyProfilesSampleRate]
-                = config.profilesDecision.sampleRate;
-            writeAppLaunchProfilingConfigFile(configDict);
-        } else {
-            if (isTracingAppLaunch) {
-                backupAppLaunchProfilingConfigFile();
-            } else {
-                removeAppLaunchProfilingConfigFile();
-            }
+        if (!config.shouldProfile) {
+            removeAppLaunchProfilingConfigFile();
+            return;
         }
+
+        NSMutableDictionary<NSString *, NSNumber *> *configDict =
+            [NSMutableDictionary<NSString *, NSNumber *> dictionary];
+        configDict[kSentryLaunchProfileConfigKeyTracesSampleRate]
+            = config.tracesDecision.sampleRate;
+        configDict[kSentryLaunchProfileConfigKeyProfilesSampleRate]
+            = config.profilesDecision.sampleRate;
+        writeAppLaunchProfilingConfigFile(configDict);
     }];
 }
 
@@ -141,29 +138,19 @@ startLaunchProfile(void)
         SentryTransactionContext *context =
             [[SentryTransactionContext alloc] initWithName:@"launch" operation:@"app.lifecycle"];
         SentryTracerConfiguration *config = [SentryTracerConfiguration defaultConfiguration];
-        injectLaunchSamplerDecisions(context, config);
+        NSDictionary<NSString *, NSNumber *> *rates = appLaunchProfileConfiguration();
+        NSNumber *profilesRate = rates[kSentryLaunchProfileConfigKeyProfilesSampleRate];
+        NSNumber *tracesRate = rates[kSentryLaunchProfileConfigKeyTracesSampleRate];
+        if (profilesRate != nil && tracesRate != nil) {
+            config.profilesSamplerDecision =
+                [[SentrySamplerDecision alloc] initWithDecision:kSentrySampleDecisionYes
+                                                  forSampleRate:profilesRate];
+            context.sampleRate = tracesRate;
+        }
         launchTracer = [[SentryTracer alloc] initWithTransactionContext:context
                                                                     hub:nil
                                                           configuration:config];
     });
-}
-
-BOOL
-injectLaunchSamplerDecisions(
-    SentryTransactionContext *transactionContext, SentryTracerConfiguration *configuration)
-{
-    NSDictionary<NSString *, NSNumber *> *rates = appLaunchProfileConfiguration();
-    removeAppLaunchProfilingConfigBackupFile();
-    NSNumber *profilesRate = rates[kSentryLaunchProfileConfigKeyProfilesSampleRate];
-    NSNumber *tracesRate = rates[kSentryLaunchProfileConfigKeyTracesSampleRate];
-    if (profilesRate == nil || tracesRate == nil) {
-        return NO;
-    }
-    configuration.profilesSamplerDecision =
-        [[SentrySamplerDecision alloc] initWithDecision:kSentrySampleDecisionYes
-                                          forSampleRate:profilesRate];
-    transactionContext.sampleRate = tracesRate;
-    return YES;
 }
 
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED

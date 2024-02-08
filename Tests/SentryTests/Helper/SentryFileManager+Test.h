@@ -3,7 +3,6 @@
 NS_ASSUME_NONNULL_BEGIN
 
 SENTRY_EXTERN NSURL *launchProfileConfigFileURL(void);
-SENTRY_EXTERN NSURL *launchProfileConfigBackupFileURL(void);
 
 @interface
 SentryFileManager ()

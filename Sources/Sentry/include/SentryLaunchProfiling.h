@@ -28,14 +28,6 @@ void startLaunchProfile(void);
  */
 void configureLaunchProfiling(SentryOptions *options);
 
-/**
- * If there were previously persisted sampling rates sed when decidign the launch profile/trace,
- * inject them into the context and configuration.
- * @return @c YES if persisted rates were found and injected, @c NO otherwise.
- */
-BOOL injectLaunchSamplerDecisions(
-    SentryTransactionContext *transactionContext, SentryTracerConfiguration *configuration);
-
 NS_ASSUME_NONNULL_END
 
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED

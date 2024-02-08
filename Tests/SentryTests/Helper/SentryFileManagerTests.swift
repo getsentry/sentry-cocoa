@@ -730,7 +730,7 @@ extension SentryFileManagerTests {
     func testAppLaunchProfileConfiguration() throws {
         let expectedTracesSampleRate = 0.12
         let expectedProfilesSampleRate = 0.34
-        try ensureAppLaunchProfileConfig(tracesSampleRate: expectedTracesSampleRate, profilesSampleRate: expectedProfilesSampleRate, backup: true)
+        try ensureAppLaunchProfileConfig(tracesSampleRate: expectedTracesSampleRate, profilesSampleRate: expectedProfilesSampleRate)
         let config = appLaunchProfileConfiguration()
         let actualTracesSampleRate = try XCTUnwrap(config?[kSentryLaunchProfileConfigKeyTracesSampleRate]).doubleValue
         let actualProfilesSampleRate = try XCTUnwrap(config?[kSentryLaunchProfileConfigKeyProfilesSampleRate]).doubleValue
@@ -740,7 +740,7 @@ extension SentryFileManagerTests {
     
     // if a file isn't present when we expect it to be, like if there was an issue when we went to write it to disk
     func testAppLaunchProfileConfiguration_noConfigurationExists() throws {
-        try ensureAppLaunchProfileConfig(exists: false, backup: true)
+        try ensureAppLaunchProfileConfig(exists: false)
         expect(appLaunchProfileConfiguration()) == nil
     }
     
@@ -795,53 +795,12 @@ extension SentryFileManagerTests {
         removeAppLaunchProfilingConfigFile()
         expect(NSDictionary(contentsOf: launchProfileConfigFileURL())) == nil
     }
-    
-    func testBackupAppLaunchProfilingConfigFile() throws {
-        try ensureAppLaunchProfileConfig(exists: true)
-        try ensureAppLaunchProfileConfig(exists: false, backup: true)
-        expect(NSDictionary(contentsOf: launchProfileConfigFileURL())) != nil
-        expect(NSDictionary(contentsOf: launchProfileConfigBackupFileURL())) == nil
-        backupAppLaunchProfilingConfigFile()
-        expect(NSDictionary(contentsOf: launchProfileConfigFileURL())) == nil
-        expect(NSDictionary(contentsOf: launchProfileConfigBackupFileURL())) != nil
-    }
-    
-    // if a file is still present in the backup location, like if a crash occurred before it could be removed, or an error occurred when trying to remove it, make sure we overwrite it
-    func testBackupAppLaunchProfilingConfigFile_anotherBackupFilePresent() throws {
-        try ensureAppLaunchProfileConfig(exists: true, tracesSampleRate: 0.1, profilesSampleRate: 0.2)
-        try ensureAppLaunchProfileConfig(exists: true, tracesSampleRate: 0.3, profilesSampleRate: 0.4, backup: true)
-        expect(NSDictionary(contentsOf: launchProfileConfigFileURL())) != nil
-        expect(NSDictionary(contentsOf: launchProfileConfigBackupFileURL())) != nil
-        backupAppLaunchProfilingConfigFile()
-        expect(NSDictionary(contentsOf: launchProfileConfigFileURL())) == nil
-        expect(NSDictionary(contentsOf: launchProfileConfigBackupFileURL())) != nil
-    }
-    
-    func testRemoveAppLaunchProfilingConfigBackupFile() throws {
-        try ensureAppLaunchProfileConfig(exists: true, backup: true)
-        expect(NSDictionary(contentsOf: launchProfileConfigBackupFileURL())) != nil
-        removeAppLaunchProfilingConfigBackupFile()
-        expect(NSDictionary(contentsOf: launchProfileConfigBackupFileURL())) == nil
-    }
-    
-    // if there's not a file when we expect one, just make sure we don't crash
-    func testRemoveAppLaunchProfilingConfigBackupFile_noFileExists() throws {
-        try ensureAppLaunchProfileConfig(exists: false, backup: true)
-        expect(NSDictionary(contentsOf: launchProfileConfigBackupFileURL())) == nil
-        removeAppLaunchProfilingConfigBackupFile()
-        expect(NSDictionary(contentsOf: launchProfileConfigBackupFileURL())) == nil
-    }
 }
 
 // MARK: Private profiling tests
 private extension SentryFileManagerTests {
-    func ensureAppLaunchProfileConfig(exists: Bool = true, tracesSampleRate: Double = 1, profilesSampleRate: Double = 1, backup: Bool = false) throws {
-        let url: URL
-        if backup {
-            url = launchProfileConfigBackupFileURL()
-        } else {
-            url = launchProfileConfigFileURL()
-        }
+    func ensureAppLaunchProfileConfig(exists: Bool = true, tracesSampleRate: Double = 1, profilesSampleRate: Double = 1) throws {
+        let url = launchProfileConfigFileURL()
         
         if exists {
             let dict = [kSentryLaunchProfileConfigKeyTracesSampleRate: tracesSampleRate, kSentryLaunchProfileConfigKeyProfilesSampleRate: profilesSampleRate]
