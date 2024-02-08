@@ -2,7 +2,8 @@ import XCTest
 
 //swiftlint:disable function_body_length todo
 
-class ProfilingUITests: BaseUITest {    
+@available(iOS 16, *)
+class ProfilingUITests: BaseUITest {
     override var automaticallyLaunchAndTerminateApp: Bool { false }
     
     // this will run before the non-async BaseUITest.setUp, so we can bail out before running any of the logic in there
@@ -12,6 +13,7 @@ class ProfilingUITests: BaseUITest {
     }
     
     func testProfiledAppLaunches() throws {
+        app.launchArguments.append("--io.sentry.wipe-data")
         launchApp()
         
         // First launch enables in-app profiling by setting traces/profiles sample rates to 1 (which is the default configuration in the sample app), but not launch profiling; assert that we did not write a config to allow the next launch to be profiled
@@ -21,12 +23,12 @@ class ProfilingUITests: BaseUITest {
         try relaunchAndConfigureSubsequentLaunches(shouldProfileThisLaunch: false, shouldEnableLaunchProfilingOptionForNextLaunch: true)
         
         // this launch should run the profiler, then set the option to allow launch profiling to true, but set the numerical sample rates to 0 so that the next launch should not profile
-        try relaunchAndConfigureSubsequentLaunches(shouldProfileThisLaunch: false, shouldEnableLaunchProfilingOptionForNextLaunch: true, profilesSampleRate: 0, tracesSampleRate: 0)
+        try relaunchAndConfigureSubsequentLaunches(shouldProfileThisLaunch: true, shouldEnableLaunchProfilingOptionForNextLaunch: true, profilesSampleRate: 0, tracesSampleRate: 0)
         
         // this launch should not run the profiler; configure sampler functions returning 1 and numerical rates set to 0, which should result in a profile being taken as samplers override numerical rates
         try relaunchAndConfigureSubsequentLaunches(shouldProfileThisLaunch: false, shouldEnableLaunchProfilingOptionForNextLaunch: true, profilesSampleRate: 0, tracesSampleRate: 0, profilesSamplerValue: 1, tracesSamplerValue: 1)
         
-        // this launch has the configuration to run the profiler, but because swizzling is disabled, it will not run due to the ui.load transaction not being allowed to be created but configure it not to run the next launch due to disabling swizzling, which would override the option to enable launch profiling
+        // this launch has the configuration to run the profiler, but because swizzling is disabled, it will not be saved due to the ui.load transaction not being allowed to be created. it will also configure it to not run a profile for the next launch due to disabling swizzling, which would override the option to enable launch profiling. this specific scenario, where a previous launch configures a profile, but then something prevents the associated tx from running, is not automatically avoidable. in the future we will create a dummy transaction to attach the profile to.
         try relaunchAndConfigureSubsequentLaunches(shouldProfileThisLaunch: false, shouldEnableLaunchProfilingOptionForNextLaunch: true, shouldDisableSwizzling: true)
         
         // this launch should not run the profiler and configure it not to run the next launch due to disabling automatic performance tracking, which would override the option to enable launch profiling
@@ -72,6 +74,7 @@ class ProfilingUITests: BaseUITest {
     }
 }
 
+@available(iOS 16, *)
 extension ProfilingUITests {
     // We don't need to test these on multiple OSes right now, and older versions seem to have issues; older devices or VM images running simulators might just be slower. Latest OS is enough coverage for our needs for now.
     func checkOSVersionForProfilingTest() throws {
@@ -130,31 +133,46 @@ extension ProfilingUITests {
     func assertLaunchProfile() throws {
         retrieveLaunchProfileData()
         
-        var lastProfile = try marshalJSONDictionaryFromApp()
+        let lastProfile = try marshalJSONDictionaryFromApp()
         let sampledProfile = try XCTUnwrap(lastProfile["profile"] as? [String: Any])
         let stacks = try XCTUnwrap(sampledProfile["stacks"] as? [[Int]])
         let frames = try XCTUnwrap(sampledProfile["frames"] as? [[String: Any]])
-        let functions = stacks.map({ stack in
+        let stackFunctions = stacks.map({ stack in
             stack.map { stackFrame in
                 frames[stackFrame]["function"]
             }
         })
-        let stack = try XCTUnwrap(functions.first { nextStack in
-            let result = nextStack.contains { frame in
+        
+        // grab the first stack that contained frames from the fixture code that simulates a slow +[load] method
+        var stackID: Int?
+        let stack = try XCTUnwrap(stackFunctions.enumerated().first { nextStack in
+            let result = nextStack.element.contains { frame in
                 let result = (frame as! String).contains("+[SentryProfiler(SlowLoad) load]")
+                if result {
+                    stackID = nextStack.offset
+                }
                 return result
             }
             return result
-        }).map { any in
+        }).element.map { any in
             try XCTUnwrap(any as? String)
         }
+        guard stackID != nil else {
+            XCTFail("Didn't find the ID of the stack containing the target function")
+            return
+        }
         
+        // ensure that the stack doesn't contain any calls to main functions; this ensures we actually captured pre-main stacks
         XCTAssertFalse(stack.contains("main"))
         XCTAssertFalse(stack.contains("UIApplicationMain"))
         XCTAssertFalse(stack.contains("-[UIApplication _run]"))
         
-        // ???: can we assert that this stack was on the main thread?
-        // TODO: yes! need to correlate the samples.[].stack_id with samples.[].thread_id
+        // ensure that the stack happened on the main thread; this is a cross-check to make sure we didn't accidentally grab a stack from a different thread that wouldn't have had a call to main() anyways, thereby possibly missing the real stack that may have contained main() calls (but shouldn't for this test)
+        let samples = try XCTUnwrap(sampledProfile["samples"] as? [[String: Any]])
+        let sample = try XCTUnwrap(samples.first { nextSample in
+            try XCTUnwrap(nextSample["stack_id"] as? NSNumber).intValue == stackID
+        })
+        XCTAssert(try XCTUnwrap(sample["thread_id"] as? String) == "259") // the main thread is always ID 259
     }
      
     /**

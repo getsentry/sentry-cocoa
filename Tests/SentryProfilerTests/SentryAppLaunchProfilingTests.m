@@ -107,17 +107,6 @@
         @"but profiles sample rate of 0 should not enable launch profiling");
 }
 
-- (void)testDisablingSwizzlingOptionDisablesAppLaunchProfiling
-{
-    XCTAssertFalse(
-        shouldProfileNextLaunch(
-            [self defaultLaunchProfilingOptionsWithOverrides:@{ SENTRY_OPTION(
-                                                                 enableSwizzling, @NO) }])
-            .shouldProfile,
-        @"Default options with app launch profiling and tracing enabled, traces and profiles "
-        @"sample rates of 1, but swizzling disabled should not enable launch profiling");
-}
-
 - (void)testDisablingAutoPerformanceTracingOptionDisablesAppLaunchProfiling
 {
     XCTAssertFalse(
@@ -132,6 +121,17 @@
 }
 
 #    if SENTRY_HAS_UIKIT
+- (void)testDisablingSwizzlingOptionDisablesAppLaunchProfiling
+{
+    XCTAssertFalse(
+        shouldProfileNextLaunch(
+            [self defaultLaunchProfilingOptionsWithOverrides:@{ SENTRY_OPTION(
+                                                                 enableSwizzling, @NO) }])
+            .shouldProfile,
+        @"Default options with app launch profiling and tracing enabled, traces and profiles "
+        @"sample rates of 1, but swizzling disabled should not enable launch profiling");
+}
+
 - (void)testDisablingUIViewControllerTracingOptionDisablesAppLaunchProfiling
 {
     XCTAssertFalse(
