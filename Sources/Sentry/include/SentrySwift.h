@@ -1,10 +1,10 @@
 #ifndef SentrySwift_h
 #define SentrySwift_h
 
-#if __has_include("Sentry/Sentry-Swift.h")
-#    import "Sentry/Sentry-Swift.h"
-#else
+#if SWIFT_PACKAGE || COCOAPODS
 @import SentryPrivate;
+#else
+#import "Sentry/Sentry-Swift.h"
 #endif
 
 #endif
