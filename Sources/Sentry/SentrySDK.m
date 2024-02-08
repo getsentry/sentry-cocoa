@@ -164,6 +164,10 @@ static NSDate *_Nullable startTimestamp = nil;
 
 + (void)startWithOptions:(SentryOptions *)options
 {
+#if SENTRY_TARGET_PROFILING_SUPPORTED
+    stopLaunchProfile();
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED
+
     [SentryLog configure:options.debug diagnosticLevel:options.diagnosticLevel];
 
     // We accept the tradeoff that the SDK might not be fully initialized directly after

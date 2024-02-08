@@ -400,11 +400,13 @@ serializedProfileData(
 + (nullable SentryEnvelopeItem *)createProfilingEnvelopeItemForTransaction:
     (SentryTransaction *)transaction
 {
+    SENTRY_LOG_DEBUG(@"Creating profiling envelope item");
     const auto payload = [self collectProfileBetween:transaction.startSystemTime
                                                  and:transaction.endSystemTime
                                             forTrace:transaction.trace.internalID
                                                onHub:transaction.trace.hub];
     if (payload == nil) {
+        SENTRY_LOG_DEBUG(@"Payload was empty, will not create a profiling envelope item.");
         return nil;
     }
 

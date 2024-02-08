@@ -25,7 +25,7 @@ NSObject *appLaunchTraceLock;
 uint64_t appLaunchSystemTime;
 NSString *const kSentryLaunchProfileConfigKeyTracesSampleRate = @"traces";
 NSString *const kSentryLaunchProfileConfigKeyProfilesSampleRate = @"profiles";
-SentryTracer *launchTracer;
+SentryTracer *_Nullable launchTracer;
 
 #    pragma mark - Private
 
@@ -151,6 +151,17 @@ startLaunchProfile(void)
                                                                     hub:nil
                                                           configuration:config];
     });
+}
+
+void
+stopLaunchProfile(void)
+{
+    if (launchTracer == nil) {
+        SENTRY_LOG_DEBUG(@"No launch tracer present to stop.");
+    }
+
+    SENTRY_LOG_DEBUG(@"Finishing launch tracer.");
+    [launchTracer finish];
 }
 
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
