@@ -46,6 +46,8 @@ NSArray<SentrySample *> *_Nullable slicedProfileSamples(
         return nil;
     }
 
+    SENTRY_LOG_DEBUG(@"Finding relevant samples from %lu total.", (unsigned long)samples.count);
+
     const auto firstIndex =
         [samples indexOfObjectWithOptions:NSEnumerationConcurrent
                               passingTest:^BOOL(SentrySample *_Nonnull sample, NSUInteger idx,

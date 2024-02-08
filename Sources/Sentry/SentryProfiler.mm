@@ -50,10 +50,16 @@
 #        import <UIKit/UIKit.h>
 #    endif // SENTRY_HAS_UIKIT
 
-#    if defined(TEST) || defined(TESTCI)
+#    if defined(TEST) || defined(TESTCI) || defined(DEBUG)
 #        import "SentryFileManager.h"
 #        import "SentryLaunchProfiling.h"
 
+/**
+ * A category that overrides its `+[load]` method to deliberately take a long time to run, so we can
+ * see it show up in profile stack traces. Categories' `+[load]` methods are guaranteed to be called
+ * after all of a module's normal class' overrides, so we can be confident the ordering will always
+ * have started the launch profiler by the time this runs.
+ */
 @interface
 SentryProfiler (SlowLoad)
 @end
@@ -62,17 +68,19 @@ SentryProfiler (SlowLoad)
 SentryProfiler (SlowLoad)
 + (void)load
 {
+    SENTRY_LOG_DEBUG(@"Starting slow load method");
     if ([NSProcessInfo.processInfo.arguments containsObject:@"--io.sentry.slow-load-method"]) {
         NSMutableString *a = [NSMutableString string];
         // 1,000,000 iterations takes about 225 milliseconds in the iPhone 15 simulator on an
         // M2 macbook pro; we might have to adapt this for CI
-        for (NSUInteger i = 0; i < 1000000; i++) {
+        for (NSUInteger i = 0; i < 4000000; i++) {
             [a appendFormat:@"%d", arc4random() % 12345];
         }
     }
+    SENTRY_LOG_DEBUG(@"Finishing slow load method");
 }
 @end
-#    endif // defined(TEST) || defined(TESTCI)
+#    endif // defined(TEST) || defined(TESTCI) || defined(DEBUG)
 
 const int kSentryProfilerFrequencyHz = 101;
 NSTimeInterval kSentryProfilerTimeoutInterval = 30;
