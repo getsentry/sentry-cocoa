@@ -17,6 +17,8 @@
 #import "SentryScope.h"
 #import "SentrySwiftAsyncIntegration.h"
 
+#import <objc/runtime.h>
+
 #if SENTRY_HAS_UIKIT
 #    import "SentryAppStartTrackingIntegration.h"
 #    import "SentryFramesTrackingIntegration.h"
@@ -189,6 +191,7 @@ NSString *const kSentryDefaultEnvironment = @"production";
     return self;
 }
 
+/** Only exposed via `SentryOptions+HybridSDKs.h`. */
 - (_Nullable instancetype)initWithDict:(NSDictionary<NSString *, id> *)options
                       didFailWithError:(NSError *_Nullable *_Nullable)error
 {
@@ -690,5 +693,29 @@ isValidSampleRate(NSNumber *sampleRate)
 }
 
 #endif // SENTRY_UIKIT_AVAILABLE
+
+#if defined(DEBUG) || defined(TEST) || defined(TESTCI)
+- (NSString *)debugDescription
+{
+    NSMutableString *propertiesDescription = [NSMutableString string];
+    @autoreleasepool {
+        unsigned int outCount, i;
+        objc_property_t *properties = class_copyPropertyList([self class], &outCount);
+        for (i = 0; i < outCount; i++) {
+            objc_property_t property = properties[i];
+            const char *propName = property_getName(property);
+            if (propName) {
+                NSString *propertyName = [NSString stringWithUTF8String:propName];
+                NSString *propertyValue = [[self valueForKey:propertyName] description];
+                [propertiesDescription appendFormat:@"  %@: %@\n", propertyName, propertyValue];
+            } else {
+                SENTRY_LOG_DEBUG(@"Failed to get a property name.");
+            }
+        }
+        free(properties);
+    }
+    return [NSString stringWithFormat:@"<%@: {\n%@\n}>", self, propertiesDescription];
+}
+#endif // defined(DEBUG) || defined(TEST) || defined(TESTCI)
 
 @end
