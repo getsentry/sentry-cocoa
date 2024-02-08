@@ -18,7 +18,7 @@ SentrySamplerDecision *sampleTrace(SentrySamplingContext *context, SentryOptions
  * whether the trace corresponding to the profile was sampled.
  */
 SentrySamplerDecision *sampleProfile(SentrySamplingContext *context,
-    SentrySamplerDecision *tracesSamplerDecision, SentryOptions *options);
+    SentrySamplerDecision *tracesSamplerDecision, SentryOptions *_Nullable options);
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
 NS_ASSUME_NONNULL_END

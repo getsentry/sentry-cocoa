@@ -84,7 +84,7 @@ sampleTrace(SentrySamplingContext *context, SentryOptions *options)
 
 SentrySamplerDecision *
 sampleProfile(SentrySamplingContext *context, SentrySamplerDecision *tracesSamplerDecision,
-    SentryOptions *options)
+    SentryOptions *_Nullable options)
 {
     // Profiles are always undersampled with respect to traces. If the trace is not sampled,
     // the profile will not be either. If the trace is sampled, we can proceed to checking
