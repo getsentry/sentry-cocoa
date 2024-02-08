@@ -1,5 +1,4 @@
 import Sentry
-import SentryPrivate
 import SentryTestUtils
 import XCTest
 

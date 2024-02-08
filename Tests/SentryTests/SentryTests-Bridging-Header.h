@@ -205,7 +205,7 @@
 #import "TestSentryCrashWrapper.h"
 #import "TestSentrySpan.h"
 #import "URLSessionTaskMock.h"
-@import SentryPrivate;
+#import "Sentry/Sentry-Swift.h"
 #import "SentryBinaryImageCache+Private.h"
 #import "SentryCrashBinaryImageCache.h"
 #import "SentryDispatchFactory.h"

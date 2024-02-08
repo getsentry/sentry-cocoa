@@ -1,5 +1,4 @@
 import Foundation
-import SentryPrivate
 import XCTest
 
 class UrlSanitizedTests: XCTestCase {
