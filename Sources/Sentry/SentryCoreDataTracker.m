@@ -8,10 +8,10 @@
 #import "SentryPredicateDescriptor.h"
 #import "SentrySDK+Private.h"
 #import "SentryScope+Private.h"
-#import "SentrySpanProtocol.h"
-#import "SentrySwift.h"
 #import "SentrySpan.h"
+#import "SentrySpanProtocol.h"
 #import "SentryStacktrace.h"
+#import "SentrySwift.h"
 #import "SentryThreadInspector.h"
 #import "SentryTraceOrigins.h"
 

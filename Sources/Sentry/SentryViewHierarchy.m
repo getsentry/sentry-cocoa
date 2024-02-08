@@ -7,9 +7,9 @@
 #    import "SentryDependencyContainer.h"
 #    import "SentryDispatchQueueWrapper.h"
 #    import "SentryLog.h"
+#    import "SentrySwift.h"
 #    import "SentryUIApplication.h"
 #    import <UIKit/UIKit.h>
-#    import "SentrySwift.h"
 
 static int
 writeJSONDataToFile(const char *const data, const int length, void *const userData)
