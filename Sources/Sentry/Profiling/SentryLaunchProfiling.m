@@ -15,6 +15,7 @@
 #    import "SentrySamplerDecision.h"
 #    import "SentrySampling.h"
 #    import "SentrySamplingContext.h"
+#    import "SentryTracer.h"
 #    import "SentryTracerConfiguration.h"
 #    import "SentryTransactionContext.h"
 
@@ -24,6 +25,7 @@ NSObject *appLaunchTraceLock;
 uint64_t appLaunchSystemTime;
 NSString *const kSentryLaunchProfileConfigKeyTracesSampleRate = @"traces";
 NSString *const kSentryLaunchProfileConfigKeyProfilesSampleRate = @"profiles";
+SentryTracer *launchTracer;
 
 #    pragma mark - Private
 
@@ -118,7 +120,8 @@ startLaunchProfile(void)
     // directly to customers, and we'll want to ensure it only runs once. dispatch_once is an
     // efficient operation so it's fine to leave this in the launch path in any case.
     dispatch_once(&onceToken, ^{
-        if (!appLaunchProfileConfigFileExists()) {
+        isTracingAppLaunch = appLaunchProfileConfigFileExists();
+        if (!isTracingAppLaunch) {
             return;
         }
 
@@ -135,9 +138,13 @@ startLaunchProfile(void)
 
         SENTRY_LOG_INFO(@"Starting app launch profile at %llu", appLaunchSystemTime);
 
-        // don't worry about synchronizing the write here, as there should be no other tracing
-        // activity going on this early in the process. this codepath is also behind a dispatch_once
-        isTracingAppLaunch = [SentryProfiler startWithTracer:appLaunchTraceId];
+        SentryTransactionContext *context =
+            [[SentryTransactionContext alloc] initWithName:@"launch" operation:@"app.lifecycle"];
+        SentryTracerConfiguration *config = [SentryTracerConfiguration defaultConfiguration];
+        injectLaunchSamplerDecisions(context, config);
+        launchTracer = [[SentryTracer alloc] initWithTransactionContext:context
+                                                                    hub:nil
+                                                          configuration:config];
     });
 }
 
@@ -155,7 +162,7 @@ injectLaunchSamplerDecisions(
     configuration.profilesSamplerDecision =
         [[SentrySamplerDecision alloc] initWithDecision:kSentrySampleDecisionYes
                                           forSampleRate:profilesRate];
-    transactionContext.sampleRate = rates[kSentryLaunchProfileConfigKeyTracesSampleRate];
+    transactionContext.sampleRate = tracesRate;
     return YES;
 }
 

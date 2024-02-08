@@ -8,9 +8,11 @@
 @class SentryOptions;
 @class SentryTracerConfiguration;
 @class SentryTransactionContext;
+@class SentryTracer;
 
 NS_ASSUME_NONNULL_BEGIN
 
+SENTRY_EXTERN SentryTracer *launchTracer;
 SENTRY_EXTERN BOOL isTracingAppLaunch;
 SENTRY_EXTERN SentryId *_Nullable appLaunchTraceId;
 SENTRY_EXTERN uint64_t appLaunchSystemTime;
