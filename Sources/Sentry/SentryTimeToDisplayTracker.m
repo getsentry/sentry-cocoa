@@ -4,6 +4,7 @@
 
 #    import "SentryDependencyContainer.h"
 #    import "SentryFramesTracker.h"
+#    import "SentryLog.h"
 #    import "SentryMeasurementValue.h"
 #    import "SentrySpan.h"
 #    import "SentrySpanContext.h"
@@ -44,12 +45,14 @@ SentryTimeToDisplayTracker () <SentryFramesTrackerListener>
 
 - (void)startForTracer:(SentryTracer *)tracer
 {
+    SENTRY_LOG_DEBUG(@"Starting initial display span");
     self.initialDisplaySpan = [tracer
         startChildWithOperation:SentrySpanOperationUILoadInitialDisplay
                     description:[NSString stringWithFormat:@"%@ initial display", _controllerName]];
     self.initialDisplaySpan.origin = SentryTraceOriginAutoUITimeToDisplay;
 
     if (self.waitForFullDisplay) {
+        SENTRY_LOG_DEBUG(@"Starting full display span");
         self.fullDisplaySpan =
             [tracer startChildWithOperation:SentrySpanOperationUILoadFullDisplay
                                 description:[NSString stringWithFormat:@"%@ full display",
@@ -120,18 +123,17 @@ SentryTimeToDisplayTracker () <SentryFramesTrackerListener>
     // takes to the content of the screen to change.
     // Thats why we need to wait for the next frame to be drawn.
     if (_initialDisplayReported && self.initialDisplaySpan.isFinished == NO) {
+        SENTRY_LOG_DEBUG(@"Finishing initial display span");
         self.initialDisplaySpan.timestamp = newFrameDate;
-
         [self.initialDisplaySpan finish];
-
         if (!_waitForFullDisplay) {
             [SentryDependencyContainer.sharedInstance.framesTracker removeListener:self];
         }
     }
     if (_waitForFullDisplay && _fullyDisplayedReported && self.fullDisplaySpan.isFinished == NO
         && self.initialDisplaySpan.isFinished == YES) {
+        SENTRY_LOG_DEBUG(@"Finishing full display span");
         self.fullDisplaySpan.timestamp = newFrameDate;
-
         [self.fullDisplaySpan finish];
     }
 
