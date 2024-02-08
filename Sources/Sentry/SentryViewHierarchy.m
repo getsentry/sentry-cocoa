@@ -9,8 +9,7 @@
 #    import "SentryLog.h"
 #    import "SentryUIApplication.h"
 #    import <UIKit/UIKit.h>
-
-@import SentryPrivate;
+#    import "SentrySwift.h"
 
 static int
 writeJSONDataToFile(const char *const data, const int length, void *const userData)
