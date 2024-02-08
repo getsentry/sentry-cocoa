@@ -6,6 +6,7 @@
 #    import "SentryCrashC.h"
 #    import "SentryDependencyContainer.h"
 #    import "SentryEvent+Private.h"
+#    import "SentryException.h"
 #    import "SentryHub+Private.h"
 #    import "SentrySDK+Private.h"
 
@@ -63,7 +64,14 @@ saveScreenShot(const char *path)
         return attachments;
     }
 
-    NSArray *screenshot = [SentryDependencyContainer.sharedInstance.screenshot appScreenshots];
+    // If the event is an App hanging event, we cant take the
+    // screenshot because the the main thread it's blocked.
+    if (event.isAppHangEvent) {
+        return attachments;
+    }
+
+    NSArray *screenshot =
+        [SentryDependencyContainer.sharedInstance.screenshot appScreenshotsFromMainThread];
 
     NSMutableArray *result =
         [NSMutableArray arrayWithCapacity:attachments.count + screenshot.count];

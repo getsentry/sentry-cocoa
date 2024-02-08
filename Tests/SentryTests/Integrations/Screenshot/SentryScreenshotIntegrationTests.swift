@@ -171,6 +171,28 @@ class SentryScreenshotIntegrationTests: XCTestCase {
         
     }
     
+    func test_backgroundForAppHangs() {
+        let sut = fixture.getSut()
+        let testVH = TestSentryScreenshot()
+        SentryDependencyContainer.sharedInstance().screenshot = testVH
+        
+        let event = Event()
+        event.exceptions = [Sentry.Exception(value: "test", type: "App Hanging")]
+
+        let ex = expectation(description: "Attachment Added")
+        
+        testVH.processScreenshotsCallback = {
+            XCTFail("Should not add screenshots to App Hanging events")
+        }
+        
+        DispatchQueue.global().async {
+            sut.processAttachments([], for: event)
+            ex.fulfill()
+        }
+        
+        wait(for: [ex], timeout: 1)
+    }
+    
 }
 
 #endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)

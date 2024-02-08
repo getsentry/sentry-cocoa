@@ -1,5 +1,6 @@
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
 
+import Nimble
 import Sentry
 import SentryTestUtils
 import XCTest
@@ -122,6 +123,29 @@ class SentryViewHierarchyIntegrationTests: XCTestCase {
 
         XCTAssertEqual(newAttachmentList?.count, 1)
         XCTAssertEqual(newAttachmentList?.first, attachment)
+    }
+    
+    func test_backgroundForAppHangs() {
+        let sut = fixture.getSut()
+        let testVH = TestSentryViewHierarchy()
+        SentryDependencyContainer.sharedInstance().viewHierarchy = testVH
+        
+        let event = Event()
+        event.exceptions = [Sentry.Exception(value: "test", type: "App Hanging")]
+        
+        let ex = expectation(description: "Attachment Added")
+        
+        testVH.processViewHierarchyCallback = {
+            XCTFail("Should not add view hierarchy to app hanging events")
+        }
+        
+        let dispatch = DispatchQueue(label: "background")
+        dispatch.async {
+            sut.processAttachments([], for: event)
+            ex.fulfill()
+        }
+        
+        wait(for: [ex], timeout: 1)
     }
 }
 
