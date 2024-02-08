@@ -34,7 +34,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             }
             options.tracesSampleRate = tracesSampleRate
             
-            if let tracesSamplerValue = env["--io.sentry.tracersSamplerValue"] {
+            if let tracesSamplerValue = env["--io.sentry.tracesSamplerValue"] {
                 options.tracesSampler = { _ in
                     return NSNumber(value: (tracesSamplerValue as NSString).integerValue)
                 }
@@ -51,7 +51,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                     return NSNumber(value: (profilesSamplerValue as NSString).integerValue)
                 }
             }
-                        
+
+            options.enableAppLaunchProfiling = args.contains("--profile-app-launches")
+
             options.sessionTrackingIntervalMillis = 5_000
             options.attachScreenshot = true
             options.attachViewHierarchy = true
@@ -81,9 +83,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             options.enableNetworkBreadcrumbs = !args.contains("--disable-network-breadcrumbs")
             options.enableSwizzling = !args.contains("--disable-swizzling")
             options.enableCrashHandler = !args.contains("--disable-crash-handler")
+            options.enableTracing = !args.contains("--disable-tracing")
 
             // because we run CPU for 15 seconds at full throttle, we trigger ANR issues being sent. disable such during benchmarks.
             options.enableAppHangTracking = !isBenchmarking && !args.contains("--disable-anr-tracking")
+            options.enableWatchdogTerminationTracking = !isBenchmarking && !args.contains("--disable-watchdog-tracking")
             options.appHangTimeoutInterval = 2
             options.enableCaptureFailedRequests = true
             let httpStatusCodeRange = HttpStatusCodeRange(min: 400, max: 599)
@@ -96,7 +100,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             }
             
             options.initialScope = { scope in
-                let processInfoEnvironment = ProcessInfo.processInfo.environment["io.sentry.sdk-environment"]
+                let processInfoEnvironment = env["io.sentry.sdk-environment"]
                 
                 if processInfoEnvironment != nil {
                     scope.setEnvironment(processInfoEnvironment)
@@ -129,7 +133,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         print("[iOS-Swift] launch arguments: \(ProcessInfo.processInfo.arguments)")
         print("[iOS-Swift] environment: \(ProcessInfo.processInfo.environment)")
         
-        maybeWipeData()
         AppDelegate.startSentry()
         
         if #available(iOS 15.0, *) {
@@ -157,20 +160,5 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // swiftlint:disable force_cast
         return _metricKit as! MetricKitManager
         // swiftlint:enable force_cast
-    }
-}
-
-private extension AppDelegate {
-    func maybeWipeData() {
-        if ProcessInfo.processInfo.arguments.contains("--io.sentry.wipe-data") {
-            print("[iOS-Swift] removing app data")
-            let appSupport = NSSearchPathForDirectoriesInDomains(.applicationSupportDirectory, .userDomainMask, true).first!
-            let cache = NSSearchPathForDirectoriesInDomains(.cachesDirectory, .userDomainMask, true).first!
-            for path in [appSupport, cache] {
-                for item in FileManager.default.enumerator(atPath: path)! {
-                    try! FileManager.default.removeItem(atPath: (path as NSString).appendingPathComponent((item as! String)))
-                }
-            }
-        }
     }
 }

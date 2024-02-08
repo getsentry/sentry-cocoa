@@ -22,26 +22,25 @@ BOOL isTracingAppLaunch;
 SentryId *_Nullable appLaunchTraceId;
 NSObject *appLaunchTraceLock;
 uint64_t appLaunchSystemTime;
-static NSString *const kSentryLaunchProfileConfigKeyTracesSampleRate = @"traces";
-static NSString *const kSentryLaunchProfileConfigKeyProfilesSampleRate = @"profiles";
+NSString *const kSentryLaunchProfileConfigKeyTracesSampleRate = @"traces";
+NSString *const kSentryLaunchProfileConfigKeyProfilesSampleRate = @"profiles";
+
+#    pragma mark - Private
 
 typedef struct {
     BOOL shouldProfile;
-    SentrySamplerDecision *tracesDecision;
-    SentrySamplerDecision *profilesDecision;
+    SentrySamplerDecision *_Nullable tracesDecision;
+    SentrySamplerDecision *_Nullable profilesDecision;
 } SentryLaunchProfileConfig;
-
-#    pragma mark - Private
 
 SentryLaunchProfileConfig
 shouldProfileNextLaunch(SentryOptions *options)
 {
     BOOL shouldProfileNextLaunch = options.enableAppLaunchProfiling
-        && options.enableAutoPerformanceTracing
 #    if SENTRY_UIKIT_AVAILABLE
-        && options.enableUIViewControllerTracing
+        && options.enableUIViewControllerTracing && options.enableSwizzling
 #    endif // SENTRY_UIKIT_AVAILABLE
-        && options.enableSwizzling && options.enableTracing;
+        && options.enableAutoPerformanceTracing && options.enableTracing;
     if (!shouldProfileNextLaunch) {
 #    if SENTRY_UIKIT_AVAILABLE
         SENTRY_LOG_DEBUG(
@@ -102,7 +101,11 @@ configureLaunchProfiling(SentryOptions *options)
                 = config.profilesDecision.sampleRate;
             writeAppLaunchProfilingConfigFile(configDict);
         } else {
-            removeAppLaunchProfilingConfigFile();
+            if (isTracingAppLaunch) {
+                backupAppLaunchProfilingConfigFile();
+            } else {
+                removeAppLaunchProfilingConfigFile();
+            }
         }
     }];
 }
@@ -143,6 +146,7 @@ injectLaunchSamplerDecisions(
     SentryTransactionContext *transactionContext, SentryTracerConfiguration *configuration)
 {
     NSDictionary<NSString *, NSNumber *> *rates = appLaunchProfileConfiguration();
+    removeAppLaunchProfilingConfigBackupFile();
     NSNumber *profilesRate = rates[kSentryLaunchProfileConfigKeyProfilesSampleRate];
     NSNumber *tracesRate = rates[kSentryLaunchProfileConfigKeyTracesSampleRate];
     if (profilesRate == nil || tracesRate == nil) {

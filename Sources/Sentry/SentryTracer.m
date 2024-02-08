@@ -48,6 +48,11 @@
 #    import <SentryScreenFrames.h>
 #endif // SENTRY_HAS_UIKIT
 
+#if defined(TEST) || defined(TESTCI)
+#    import "SentryFileManager+Test.h"
+#    import "SentryInternalDefines.h"
+#endif // defined(TEST) || defined(TESTCI)
+
 NS_ASSUME_NONNULL_BEGIN
 
 static const void *spanTimestampObserver = &spanTimestampObserver;
@@ -605,6 +610,8 @@ static BOOL appStartMeasurementRead;
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
     if (self.isProfiling) {
+        [self captureTransactionWithProfile:transaction];
+
         // as long as this isn't used for any conditional branching logic, and is just being set to
         // NO, we don't need to synchronize the read here
         if (isTracingAppLaunch) {
@@ -612,7 +619,7 @@ static BOOL appStartMeasurementRead;
                 isTracingAppLaunch = NO;
             }
         }
-        [self captureTransactionWithProfile:transaction];
+
         return;
     }
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED

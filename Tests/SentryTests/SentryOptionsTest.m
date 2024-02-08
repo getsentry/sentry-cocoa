@@ -1192,6 +1192,14 @@
     XCTAssertIdentical(initialScope, options.initialScope);
 }
 
+#if SENTRY_TARGET_PROFILING_SUPPORTED
+- (void)testEnableAppLaunchProfilingDefaultValue
+{
+    SentryOptions *options = [self getValidOptions:@{}];
+    XCTAssertFalse(options.enableAppLaunchProfiling);
+}
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED
+
 - (SentryOptions *)getValidOptions:(NSDictionary<NSString *, id> *)dict
 {
     NSError *error = nil;

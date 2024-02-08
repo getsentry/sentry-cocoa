@@ -50,6 +50,30 @@
 #        import <UIKit/UIKit.h>
 #    endif // SENTRY_HAS_UIKIT
 
+#    if defined(TEST) || defined(TESTCI)
+#        import "SentryFileManager.h"
+#        import "SentryLaunchProfiling.h"
+
+@interface
+SentryProfiler (SlowLoad)
+@end
+
+@implementation
+SentryProfiler (SlowLoad)
++ (void)load
+{
+    if ([NSProcessInfo.processInfo.arguments containsObject:@"--io.sentry.slow-load-method"]) {
+        NSMutableString *a = [NSMutableString string];
+        // 1,000,000 iterations takes about 225 milliseconds in the iPhone 15 simulator on an
+        // M2 macbook pro; we might have to adapt this for CI
+        for (NSUInteger i = 0; i < 1000000; i++) {
+            [a appendFormat:@"%d", arc4random() % 12345];
+        }
+    }
+}
+@end
+#    endif // defined(TEST) || defined(TESTCI)
+
 const int kSentryProfilerFrequencyHz = 101;
 NSTimeInterval kSentryProfilerTimeoutInterval = 30;
 
@@ -402,6 +426,45 @@ serializedProfileData(
     return [[SentryEnvelopeItem alloc] initWithHeader:header data:JSONData];
 }
 
+#    if defined(TEST) || defined(TESTCI)
+void
+writeProfileFile(NSDictionary<NSString *, id> *payload)
+{
+    NSData *data = [SentrySerialization dataWithJSONObject:payload];
+    NSFileManager *fm = [NSFileManager defaultManager];
+    NSString *appSupportDirPath = sentryApplicationSupportPath();
+
+    if (![fm fileExistsAtPath:appSupportDirPath]) {
+        SENTRY_LOG_DEBUG(@"Creating app support directory.");
+        NSError *error;
+        if (!SENTRY_CASSERT_RETURN([fm createDirectoryAtPath:appSupportDirPath
+                                       withIntermediateDirectories:NO
+                                                        attributes:nil
+                                                             error:&error],
+                @"Failed to create sentry app support directory")) {
+            return;
+        }
+    } else {
+        SENTRY_LOG_DEBUG(@"App support directory already exists.");
+    }
+
+    NSString *pathToWrite;
+    if (isTracingAppLaunch) {
+        pathToWrite = [appSupportDirPath stringByAppendingPathComponent:@"launchProfile"];
+        if ([fm fileExistsAtPath:pathToWrite]) {
+            SENTRY_LOG_DEBUG(@"Already a launch profile file present.");
+            return;
+        }
+    } else {
+        pathToWrite = [appSupportDirPath stringByAppendingPathComponent:@"profile"];
+    }
+
+    SENTRY_LOG_DEBUG(@"Writing app launch profile to file.");
+    SENTRY_CASSERT(
+        [data writeToFile:pathToWrite atomically:YES], @"Failed to write profile to test file");
+}
+#    endif // defined(TEST) || defined(TESTCI)
+
 + (nullable NSMutableDictionary<NSString *, id> *)collectProfileBetween:(uint64_t)startSystemTime
                                                                     and:(uint64_t)endSystemTime
                                                                forTrace:(SentryId *)traceId
@@ -415,10 +478,9 @@ serializedProfileData(
     const auto payload = [profiler serializeBetween:startSystemTime and:endSystemTime onHub:hub];
 
 #    if defined(TEST) || defined(TESTCI)
-    [NSNotificationCenter.defaultCenter postNotificationName:@"SentryProfileCompleteNotification"
-                                                      object:nil
-                                                    userInfo:payload];
+    writeProfileFile(payload);
 #    endif // defined(TEST) || defined(TESTCI)
+
     return payload;
 }
 
