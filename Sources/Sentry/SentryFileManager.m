@@ -36,6 +36,28 @@ createDirectoryIfNotExists(NSString *path, NSError **error)
     return YES;
 }
 
+/**
+ * @warning This is called from a `@synchronized` context in instance methods, but doesn't require
+ * that when calling from other static functions. Make sure you pay attention to where this is used
+ * from.
+ */
+void
+_non_thread_safe_removeFileAtPath(NSString *path)
+{
+    NSError *error = nil;
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    if (![fileManager removeItemAtPath:path error:&error]) {
+        if (error.code == NSFileNoSuchFileError) {
+            SENTRY_LOG_DEBUG(@"No file to delete at %@", path);
+        } else {
+            SENTRY_LOG_ERROR(
+                @"Error occurred while deleting file at %@ because of %@", path, error);
+        }
+    } else {
+        SENTRY_LOG_DEBUG(@"Successfully deleted file at %@", path);
+    }
+}
+
 @interface
 SentryFileManager ()
 
@@ -284,19 +306,8 @@ SentryFileManager ()
 
 - (void)removeFileAtPath:(NSString *)path
 {
-    NSFileManager *fileManager = [NSFileManager defaultManager];
-    NSError *error = nil;
     @synchronized(self) {
-        if (![fileManager removeItemAtPath:path error:&error]) {
-            if (error.code == NSFileNoSuchFileError) {
-                SENTRY_LOG_DEBUG(@"No file to delete at %@", path);
-            } else {
-                SENTRY_LOG_ERROR(
-                    @"Error occurred while deleting file at %@ because of %@", path, error);
-            }
-        } else {
-            SENTRY_LOG_DEBUG(@"Successfully deleted file at %@", path);
-        }
+        _non_thread_safe_removeFileAtPath(path);
     }
 }
 
@@ -751,11 +762,30 @@ launchProfileConfigFileURL(void)
     return sentryLaunchConfigFileURL;
 }
 
+NSURL *
+launchProfileConfigBackupFileURL(void)
+{
+    static NSURL *sentryLaunchConfigFileURL;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        sentryLaunchConfigFileURL =
+            [[NSURL fileURLWithPath:[sentryApplicationSupportPath()
+                                        stringByAppendingPathComponent:@"profileLaunch"]]
+                URLByAppendingPathExtension:@"bak"];
+    });
+    return sentryLaunchConfigFileURL;
+}
+
 NSDictionary<NSString *, NSNumber *> *_Nullable appLaunchProfileConfiguration(void)
 {
+    NSURL *url = launchProfileConfigBackupFileURL();
+    if (![[NSFileManager defaultManager] fileExistsAtPath:url.path]) {
+        return nil;
+    }
+
     NSError *error;
     NSDictionary<NSString *, NSNumber *> *config = [NSDictionary<NSString *, NSNumber *>
-        dictionaryWithContentsOfURL:launchProfileConfigFileURL()
+        dictionaryWithContentsOfURL:launchProfileConfigBackupFileURL()
                               error:&error];
     SENTRY_CASSERT(
         error == nil, @"Encountered error trying to retrieve app launch profile config: %@", error);
@@ -779,15 +809,32 @@ writeAppLaunchProfilingConfigFile(NSMutableDictionary<NSString *, NSNumber *> *c
 void
 removeAppLaunchProfilingConfigFile(void)
 {
+    _non_thread_safe_removeFileAtPath(launchProfileConfigFileURL().path);
+}
+
+void
+removeAppLaunchProfilingConfigBackupFile(void)
+{
+    _non_thread_safe_removeFileAtPath(launchProfileConfigBackupFileURL().path);
+}
+
+void
+backupAppLaunchProfilingConfigFile(void)
+{
     NSFileManager *fm = [NSFileManager defaultManager];
-    NSString *path = launchProfileConfigFileURL().path;
-    if (![fm fileExistsAtPath:path]) {
+    NSString *fromPath = launchProfileConfigFileURL().path;
+    if (!SENTRY_CASSERT_RETURN([fm fileExistsAtPath:fromPath],
+            @"Expect to have a current launch profile config to use for subsequent transaction.")) {
         return;
     }
 
+    NSString *toPath = launchProfileConfigBackupFileURL().path;
+    _non_thread_safe_removeFileAtPath(toPath);
+
     NSError *error;
-    SENTRY_CASSERT([fm removeItemAtPath:path error:&error],
-        @"Failed to remove launch profile marker file: %@", error);
+    SENTRY_CASSERT([fm moveItemAtPath:fromPath toPath:toPath error:&error],
+        @"Failed to backup launch profile config file for use to set up associated transaction: %@",
+        error);
 }
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 

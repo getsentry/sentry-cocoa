@@ -22,8 +22,8 @@ BOOL isTracingAppLaunch;
 SentryId *_Nullable appLaunchTraceId;
 NSObject *appLaunchTraceLock;
 uint64_t appLaunchSystemTime;
-static NSString *const kSentryLaunchProfileConfigKeyTracesSampleRate = @"traces";
-static NSString *const kSentryLaunchProfileConfigKeyProfilesSampleRate = @"profiles";
+NSString *const kSentryLaunchProfileConfigKeyTracesSampleRate = @"traces";
+NSString *const kSentryLaunchProfileConfigKeyProfilesSampleRate = @"profiles";
 
 #    pragma mark - Private
 
@@ -101,7 +101,11 @@ configureLaunchProfiling(SentryOptions *options)
                 = config.profilesDecision.sampleRate;
             writeAppLaunchProfilingConfigFile(configDict);
         } else {
-            removeAppLaunchProfilingConfigFile();
+            if (isTracingAppLaunch) {
+                backupAppLaunchProfilingConfigFile();
+            } else {
+                removeAppLaunchProfilingConfigFile();
+            }
         }
     }];
 }
@@ -142,6 +146,7 @@ injectLaunchSamplerDecisions(
     SentryTransactionContext *transactionContext, SentryTracerConfiguration *configuration)
 {
     NSDictionary<NSString *, NSNumber *> *rates = appLaunchProfileConfiguration();
+    removeAppLaunchProfilingConfigBackupFile();
     NSNumber *profilesRate = rates[kSentryLaunchProfileConfigKeyProfilesSampleRate];
     NSNumber *tracesRate = rates[kSentryLaunchProfileConfigKeyTracesSampleRate];
     if (profilesRate == nil || tracesRate == nil) {
