@@ -762,6 +762,20 @@ launchProfileConfigFileURL(void)
     return sentryLaunchConfigFileURL;
 }
 
+NSURL *
+launchProfileConfigBackupFileURL(void)
+{
+    static NSURL *sentryLaunchConfigFileURL;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        sentryLaunchConfigFileURL =
+            [[NSURL fileURLWithPath:[sentryApplicationSupportPath()
+                                        stringByAppendingPathComponent:@"profileLaunch"]]
+                URLByAppendingPathExtension:@"bak"];
+    });
+    return sentryLaunchConfigFileURL;
+}
+
 NSDictionary<NSString *, NSNumber *> *_Nullable appLaunchProfileConfiguration(void)
 {
     NSURL *url = launchProfileConfigFileURL();
@@ -771,7 +785,9 @@ NSDictionary<NSString *, NSNumber *> *_Nullable appLaunchProfileConfiguration(vo
 
     NSError *error;
     NSDictionary<NSString *, NSNumber *> *config =
-        [NSDictionary<NSString *, NSNumber *> dictionaryWithContentsOfURL:url error:&error];
+        dictionaryWithContentsOfURL:launchProfileConfigBackupFileURL()
+                              error:&error];
+    [NSDictionary<NSString *, NSNumber *> dictionaryWithContentsOfURL:url error:&error];
     SENTRY_CASSERT(
         error == nil, @"Encountered error trying to retrieve app launch profile config: %@", error);
     return config;
