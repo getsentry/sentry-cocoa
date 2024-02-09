@@ -5,7 +5,7 @@
 ### Improvements
 
 - Cache installationID async to avoid file IO on the main thread when starting the SDK (#3601)
-- Remove SentryPrivate from Carthage and self build (#3623)
+- Remove SentryPrivate from Carthage and self build and Cocoapod (#3623)
 
 ### Fixes
 
