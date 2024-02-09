@@ -33,4 +33,4 @@ case $LIBRARY_TYPE in
     ;;
 esac
 
-pod lib lint --verbose --platforms="$PLATFORM" "$POD_SPEC".podspec "$INCLUDE_POD_SPECS" $EXTRA_ARGS
+pod lib lint --verbose --platforms="$PLATFORM" "$POD_SPEC".podspec $INCLUDE_POD_SPECS $EXTRA_ARGS
