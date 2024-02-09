@@ -2174,6 +2174,7 @@
 		6383953423ABA269000C1594 /* Integrations */ = {
 			isa = PBXGroup;
 			children = (
+				D80CD8D52B752FD9002F710B /* SessionReplay */,
 				7B08A3432924CF4E0059603A /* MetricKit */,
 				7B127B0B27CF6EF600A71ED2 /* ANR */,
 				7BE0DC33272AE74A004FA8B7 /* Breadcrumbs */,
@@ -3364,6 +3365,13 @@
 				D808FB90281BF6E9009A2A33 /* SentryUIEventTrackingIntegrationTests.swift */,
 			);
 			path = UIEvents;
+			sourceTree = "<group>";
+		};
+		D80CD8D52B752FD9002F710B /* SessionReplay */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = SessionReplay;
 			sourceTree = "<group>";
 		};
 		D8105B37297A86B800299F03 /* Recovered References */ = {
