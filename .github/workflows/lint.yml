@@ -71,4 +71,4 @@ jobs:
       - run: ./scripts/ci-select-xcode.sh
       - run: pod repo update
       - name: Validate HybridPod Podspec
-        run: pod lib lint ./Tests/HybridSDKTest/HybridPod.podspec --allow-warnings --verbose --platforms=ios "--include-podspecs={SentryPrivate.podspec,Sentry.podspec}"
+        run: pod lib lint ./Tests/HybridSDKTest/HybridPod.podspec --allow-warnings --verbose --platforms=ios "--include-podspecs={Sentry.podspec}"

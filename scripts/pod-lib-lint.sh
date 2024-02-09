@@ -10,11 +10,11 @@ EXTRA_ARGS=""
 case $POD_SPEC in
 
 "Sentry")
-    INCLUDE_POD_SPECS="--include-podspecs=SentryPrivate.podspec"
+    INCLUDE_POD_SPECS=""
     ;;
 
 "SentrySwiftUI")
-    INCLUDE_POD_SPECS="--include-podspecs={Sentry.podspec,SentryPrivate.podspec}"
+    INCLUDE_POD_SPECS="--include-podspecs=Sentry.podspec"
     ;;
 
 *)
