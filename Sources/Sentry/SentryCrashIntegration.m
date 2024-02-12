@@ -266,8 +266,6 @@ SentryCrashIntegration ()
     [deviceData setValue:systemInfo[@"freeMemorySize"] forKey:SentryDeviceContextFreeMemoryKey];
     [deviceData setValue:systemInfo[@"usableMemorySize"] forKey:@"usable_memory"];
     [deviceData setValue:systemInfo[@"memorySize"] forKey:@"memory_size"];
-    [deviceData setValue:systemInfo[@"totalStorageSize"] forKey:@"storage_size"];
-    [deviceData setValue:systemInfo[@"freeStorageSize"] forKey:@"free_storage"];
     [deviceData setValue:systemInfo[@"bootTime"] forKey:@"boot_time"];
 
     NSString *locale = [[NSLocale autoupdatingCurrentLocale] objectForKey:NSLocaleIdentifier];

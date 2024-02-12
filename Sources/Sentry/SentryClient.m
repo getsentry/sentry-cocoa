@@ -842,7 +842,6 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                     key:@"device"
                   block:^(NSMutableDictionary *device) {
                       [device removeObjectForKey:SentryDeviceContextFreeMemoryKey];
-                      [device removeObjectForKey:@"free_storage"];
                       [device removeObjectForKey:@"orientation"];
                       [device removeObjectForKey:@"charging"];
                       [device removeObjectForKey:@"battery_level"];

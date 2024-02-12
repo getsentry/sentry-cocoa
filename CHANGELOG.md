@@ -10,6 +10,7 @@
 
 - Finish TTID span when transaction finishes (#3610)
 - Dont take screenshot and view hierarchy for app hanging (#3620)
+- Remove `free_storage` and `total_storage` from the app context because Apple forbids the usage (#3627)
 
 ## 8.20.0
 
