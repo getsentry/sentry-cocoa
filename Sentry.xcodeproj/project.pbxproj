@@ -2183,6 +2183,7 @@
 				7BE0DC35272AE7BF004FA8B7 /* SentryCrash */,
 				D85596EF280580BE0041FF8B /* Screenshot */,
 				0A9BF4E028A114690068D266 /* ViewHierarchy */,
+				D80CD8D52B752FD9002F710B /* SessionReplay */,
 				7D7F0A5E23DF3D2C00A4629C /* SentryGlobalEventProcessor.h */,
 				7DAC588E23D8B2E0001CF26B /* SentryGlobalEventProcessor.m */,
 				7BA235622600B61200E12865 /* SentryInternalNotificationNames.h */,
@@ -3364,6 +3365,13 @@
 				D808FB90281BF6E9009A2A33 /* SentryUIEventTrackingIntegrationTests.swift */,
 			);
 			path = UIEvents;
+			sourceTree = "<group>";
+		};
+		D80CD8D52B752FD9002F710B /* SessionReplay */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = SessionReplay;
 			sourceTree = "<group>";
 		};
 		D8105B37297A86B800299F03 /* Recovered References */ = {
