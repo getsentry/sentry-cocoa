@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Features
+
+- Add Session Replay (#)
+
 ### Improvements
 
 - Cache installationID async to avoid file IO on the main thread when starting the SDK (#3601)
