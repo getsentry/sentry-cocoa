@@ -156,10 +156,6 @@ startLaunchProfile(void)
 void
 stopLaunchProfile(void)
 {
-    NSDictionary<NSString *, NSNumber *> *rates = appLaunchProfileConfiguration();
-    removeAppLaunchProfilingConfigBackupFile();
-    NSNumber *profilesRate = rates[kSentryLaunchProfileConfigKeyProfilesSampleRate];
-    NSNumber *tracesRate = rates[kSentryLaunchProfileConfigKeyTracesSampleRate];
     if (launchTracer == nil) {
         SENTRY_LOG_DEBUG(@"No launch tracer present to stop.");
     }

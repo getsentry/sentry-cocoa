@@ -74,19 +74,15 @@
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "--io.sentry.slow-load-method"
-            isEnabled = "YES">
-         </CommandLineArgument>
-         <CommandLineArgument
-            argument = "--profile-app-launches"
-            isEnabled = "YES">
-         </CommandLineArgument>
-         <CommandLineArgument
             argument = "--disable-watchdog-tracking"
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "--disable-tracing"
+            isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "--io.sentry.test.profilesAppLaunches"
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument

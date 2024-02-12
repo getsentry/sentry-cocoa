@@ -785,9 +785,7 @@ NSDictionary<NSString *, NSNumber *> *_Nullable appLaunchProfileConfiguration(vo
 
     NSError *error;
     NSDictionary<NSString *, NSNumber *> *config =
-        dictionaryWithContentsOfURL:launchProfileConfigBackupFileURL()
-                              error:&error];
-    [NSDictionary<NSString *, NSNumber *> dictionaryWithContentsOfURL:url error:&error];
+        [NSDictionary<NSString *, NSNumber *> dictionaryWithContentsOfURL:url error:&error];
     SENTRY_CASSERT(
         error == nil, @"Encountered error trying to retrieve app launch profile config: %@", error);
     return config;
