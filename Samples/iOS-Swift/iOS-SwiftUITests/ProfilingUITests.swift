@@ -40,8 +40,8 @@ class ProfilingUITests: BaseUITest {
         // this launch should not run the profiler and configure it not to run the next launch launch due to disabling tracing, which would override the option to enable launch profiling
         try relaunchAndConfigureSubsequentLaunches(shouldProfileThisLaunch: false, shouldEnableLaunchProfilingOptionForNextLaunch: true, shouldDisableTracing: true)
         
-        // make sure the profiler respects the last configuration not to run
-        try relaunchAndConfigureSubsequentLaunches(shouldProfileThisLaunch: false, shouldEnableLaunchProfilingOptionForNextLaunch: true)
+        // make sure the profiler respects the last configuration not to run; dont let another config file get written
+        try relaunchAndConfigureSubsequentLaunches(shouldProfileThisLaunch: false, shouldEnableLaunchProfilingOptionForNextLaunch: false)
     }
     
     /**

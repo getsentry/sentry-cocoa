@@ -74,6 +74,14 @@
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
+            argument = "--io.sentry.wipe-data"
+            isEnabled = "YES">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "--io.sentry.slow-load-method"
+            isEnabled = "YES">
+         </CommandLineArgument>
+         <CommandLineArgument
             argument = "--disable-watchdog-tracking"
             isEnabled = "NO">
          </CommandLineArgument>
@@ -82,8 +90,8 @@
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "--io.sentry.test.profilesAppLaunches"
-            isEnabled = "NO">
+            argument = "--profile-app-launches"
+            isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "--disable-crash-handler"
