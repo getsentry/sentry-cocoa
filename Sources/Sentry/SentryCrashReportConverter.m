@@ -114,13 +114,6 @@ SentryCrashReportConverter ()
         event.dist = self.userContext[@"dist"];
         event.environment = self.userContext[@"environment"];
 
-        NSMutableDictionary<NSString *, id> *userContext =
-            [[NSMutableDictionary alloc] initWithDictionary:self.userContext[@"context"]];
-        NSMutableDictionary<NSString *, id> *deviceContext =
-            [[NSMutableDictionary alloc] initWithDictionary:userContext[@"device"]];
-        [deviceContext removeObjectForKey:@"storage_size"];
-        [deviceContext removeObjectForKey:@"free_storage"];
-
         event.context = [self filteredUserContextContext];
         event.extra = self.userContext[@"extra"];
         event.tags = self.userContext[@"tags"];
