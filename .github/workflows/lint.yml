@@ -21,6 +21,7 @@ on:
       - 'scripts/ci-select-xcode.sh'
       - 'Sentry.xcodeproj/**'
       - '*.podspec'
+      - 'Gemfile.lock'
 
 # https://docs.github.com/en/actions/using-jobs/using-concurrency#example-using-a-fallback-value
 concurrency:
