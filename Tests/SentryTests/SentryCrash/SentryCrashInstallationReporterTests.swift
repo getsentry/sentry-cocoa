@@ -28,6 +28,44 @@ class SentryCrashInstallationReporterTests: XCTestCase {
         expect(sentrycrash_getReportCount()) == 0
     }
     
+    /**
+     * Validates that handling a crash report with the removed fields total_storage and free_storage works.
+     */
+    func testShouldCaptureCrashReportWithLegacyStorageInfo() throws {
+        givenSutWithStartedSDK()
+        
+        try givenStoredSentryCrashReport(resource: "Resources/crash-report-legacy-storage-info")
+
+        sut.sendAllReports { filteredReports, _, _ in
+            expect(filteredReports?.count) == 1
+        }
+        
+        expect(self.testClient.captureCrashEventInvocations.count) == 1
+        expect(sentrycrash_getReportCount()) == 0
+        
+        let event = self.testClient.captureCrashEventInvocations.last?.event
+        expect(event?.context?["device"]?["free_storage"]) == nil
+        // total_storage got converted to storage_size
+        expect(event?.context?["device"]?["storage_size"]) == nil
+    }
+    
+    func testShouldCaptureCrashReportWithoutDeviceContext() throws {
+        givenSutWithStartedSDK()
+        
+        try givenStoredSentryCrashReport(resource: "Resources/crash-report-without-device-context")
+
+        sut.sendAllReports { filteredReports, _, _ in
+            expect(filteredReports?.count) == 1
+        }
+        
+        expect(self.testClient.captureCrashEventInvocations.count) == 1
+        expect(sentrycrash_getReportCount()) == 0
+        
+        let event = self.testClient.captureCrashEventInvocations.last?.event
+        expect(event?.context?["device"]) == nil
+        expect(event?.context?["app"]?["app_name"] as? String) == "iOS-Swift"
+    }
+    
     func testFaultyReportIsNotSentAndDeleted() throws {
         givenSutWithStartedSDK()
         

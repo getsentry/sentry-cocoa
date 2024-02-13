@@ -113,7 +113,15 @@ SentryCrashReportConverter ()
 
         event.dist = self.userContext[@"dist"];
         event.environment = self.userContext[@"environment"];
-        event.context = self.userContext[@"context"];
+
+        NSMutableDictionary<NSString *, id> *userContext =
+            [[NSMutableDictionary alloc] initWithDictionary:self.userContext[@"context"]];
+        NSMutableDictionary<NSString *, id> *deviceContext =
+            [[NSMutableDictionary alloc] initWithDictionary:userContext[@"device"]];
+        [deviceContext removeObjectForKey:@"storage_size"];
+        [deviceContext removeObjectForKey:@"free_storage"];
+
+        event.context = [self filteredUserContextContext];
         event.extra = self.userContext[@"extra"];
         event.tags = self.userContext[@"tags"];
         //    event.level we do not set the level here since this always resulted
@@ -145,6 +153,36 @@ SentryCrashReportConverter ()
         SENTRY_LOG_ERROR(@"Could not convert report:%@", exception.description);
     }
     return nil;
+}
+
+/**
+ * storage_size and free_storage used `NSFileSystemFreeSize` and `NSFileSystemSize` internally,
+ * which Apple forbids sending off device; see
+ * https://developer.apple.com/documentation/bundleresources/privacy_manifest_files/describing_use_of_required_reason_api?language=objc
+ * While current crash reports no longer include this information, we want to remove it from older
+ * crash reports to respect Apple's privacy policy, which is mentioned in the link above.
+ */
+- (NSDictionary<NSString *, id> *)filteredUserContextContext
+{
+    if (self.userContext[@"context"] == nil) {
+        return nil;
+    }
+
+    NSMutableDictionary<NSString *, id> *context =
+        [[NSMutableDictionary alloc] initWithDictionary:self.userContext[@"context"]];
+
+    if (context[@"device"] == nil) {
+        return context;
+    }
+
+    NSMutableDictionary<NSString *, id> *deviceContext =
+        [[NSMutableDictionary alloc] initWithDictionary:context[@"device"]];
+    [deviceContext removeObjectForKey:@"storage_size"];
+    [deviceContext removeObjectForKey:@"free_storage"];
+
+    context[@"device"] = deviceContext;
+
+    return context;
 }
 
 - (SentryUser *_Nullable)convertUser
