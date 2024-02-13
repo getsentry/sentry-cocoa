@@ -5,6 +5,7 @@
 ### Improvements
 
 - Cache installationID async to avoid file IO on the main thread when starting the SDK (#3601)
+- Add reason for NSPrivacyAccessedAPICategoryFileTimestamp (#3626)
 
 ### Fixes
 
