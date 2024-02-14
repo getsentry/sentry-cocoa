@@ -3,6 +3,8 @@
 #import "SentryOptions+Private.h"
 #import "SentryProfilingConditionals.h"
 #import "SentrySDK+Tests.h"
+#import "SentryTraceOrigins.h"
+#import "SentryTransactionContext.h"
 #import <XCTest/XCTest.h>
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
@@ -11,6 +13,14 @@
 @end
 
 @implementation SentryAppLaunchProfilingTests
+
+- (void)testLaunchProfileTransactionContext
+{
+    SentryTransactionContext *actualContext = context(@1);
+    XCTAssertEqual(actualContext.nameSource, kSentryTransactionNameSourceCustom);
+    XCTAssert([actualContext.origin isEqualToString:SentryTraceOriginAutoAppStartProfile]);
+    XCTAssert(actualContext.sampled);
+}
 
 #    define SENTRY_OPTION(name, value)                                                             \
         NSStringFromSelector(@selector(name))                                                      \
@@ -145,6 +155,8 @@
         @"profiling");
 }
 #    endif // SENTRY_HAS_UIKIT
+
+#    pragma mark - Private
 
 - (SentryOptions *)defaultLaunchProfilingOptionsWithOverrides:
     (NSDictionary<NSString *, id> *)overrides
