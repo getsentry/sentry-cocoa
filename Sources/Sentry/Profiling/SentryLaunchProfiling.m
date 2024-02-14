@@ -19,6 +19,8 @@
 #    import "SentryTracerConfiguration.h"
 #    import "SentryTransactionContext.h"
 
+NS_ASSUME_NONNULL_BEGIN
+
 BOOL isTracingAppLaunch;
 NSString *const kSentryLaunchProfileConfigKeyTracesSampleRate = @"traces";
 NSString *const kSentryLaunchProfileConfigKeyProfilesSampleRate = @"profiles";
@@ -160,5 +162,7 @@ stopLaunchProfile(SentryHub *hub)
     launchTracer.hub = hub;
     [launchTracer finish];
 }
+
+NS_ASSUME_NONNULL_END
 
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
