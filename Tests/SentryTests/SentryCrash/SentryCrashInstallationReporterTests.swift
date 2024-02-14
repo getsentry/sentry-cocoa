@@ -44,9 +44,9 @@ class SentryCrashInstallationReporterTests: XCTestCase {
         expect(sentrycrash_getReportCount()) == 0
         
         let event = self.testClient.captureCrashEventInvocations.last?.event
-        expect(event?.context?["device"]?["free_storage"]) == nil
+        expect(event?.context?["device"]?["free_storage"] as? Int) == 278_914_420_736
         // total_storage got converted to storage_size
-        expect(event?.context?["device"]?["storage_size"]) == nil
+        expect(event?.context?["device"]?["storage_size"] as? Int) == 994_662_584_320
     }
     
     func testShouldCaptureCrashReportWithoutDeviceContext() throws {
