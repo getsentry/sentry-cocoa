@@ -124,20 +124,6 @@ SENTRY_EXTERN void writeAppLaunchProfilingConfigFile(
  */
 SENTRY_EXTERN void removeAppLaunchProfilingConfigFile(void);
 
-/**
- * Save a current launch profile config file for use when the associated transaction needs to be
- * started. This is when checking @c SentryOptions for whether to write a config for the next
- * launch; if there's no current app launch profile going, then we'd simply remove whatever config
- * file may exist, but if there is a launch profile going, we need to save the config that it used.
- */
-SENTRY_EXTERN void backupAppLaunchProfilingConfigFile(void);
-
-/**
- * Clean up the backup file saved off in the case that an app launch is in-flight when the SDK
- * configures subsequent launches not to profile, requiring the current config to be saved for the
- * associated transaction. This can be cleaned up when that transaction is started.
- */
-SENTRY_EXTERN void removeAppLaunchProfilingConfigBackupFile(void);
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
 @end
