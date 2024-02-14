@@ -4,6 +4,7 @@
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
+@class SentryHub;
 @class SentryId;
 @class SentryOptions;
 @class SentryTracerConfiguration;
@@ -20,7 +21,7 @@ SENTRY_EXTERN NSObject *appLaunchTraceLock;
 void startLaunchProfile(void);
 
 /** Stop any profiled trace that may be in flight from the start of the app launch. */
-void stopLaunchProfile(void);
+void stopLaunchProfile(SentryHub *hub);
 
 /**
  * Write a file to disk containing sample rates for profiles and traces. The presence of this file

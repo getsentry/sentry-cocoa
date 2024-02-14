@@ -15,7 +15,7 @@
 #    import "SentrySamplerDecision.h"
 #    import "SentrySampling.h"
 #    import "SentrySamplingContext.h"
-#    import "SentryTracer.h"
+#    import "SentryTracer+Private.h"
 #    import "SentryTracerConfiguration.h"
 #    import "SentryTransactionContext.h"
 
@@ -134,9 +134,10 @@ startLaunchProfile(void)
         appLaunchTraceId = [[SentryId alloc] init];
 
         SENTRY_LOG_INFO(@"Starting app launch profile at %llu", appLaunchSystemTime);
-
         SentryTransactionContext *context =
-            [[SentryTransactionContext alloc] initWithName:@"launch" operation:@"app.lifecycle"];
+            [[SentryTransactionContext alloc] initWithName:@"launch"
+                                                 operation:@"app.lifecycle"
+                                                   sampled:kSentrySampleDecisionYes];
         SentryTracerConfiguration *config = [SentryTracerConfiguration defaultConfiguration];
         NSDictionary<NSString *, NSNumber *> *rates = appLaunchProfileConfiguration();
         NSNumber *profilesRate = rates[kSentryLaunchProfileConfigKeyProfilesSampleRate];
@@ -154,13 +155,15 @@ startLaunchProfile(void)
 }
 
 void
-stopLaunchProfile(void)
+stopLaunchProfile(SentryHub *hub)
 {
     if (launchTracer == nil) {
         SENTRY_LOG_DEBUG(@"No launch tracer present to stop.");
     }
 
     SENTRY_LOG_DEBUG(@"Finishing launch tracer.");
+
+    launchTracer.hub = hub;
     [launchTracer finish];
 }
 
