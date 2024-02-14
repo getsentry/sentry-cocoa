@@ -10,7 +10,7 @@
 
 - (void)testCPUBenchmark
 {
-    XCTSkipIf(isSimulator() && !isDebugging());
+    //    XCTSkipIf(isSimulator() && !isDebugging());
 
     NSMutableArray *results = [NSMutableArray array];
     for (NSUInteger j = 0; j < 20; j++) {
