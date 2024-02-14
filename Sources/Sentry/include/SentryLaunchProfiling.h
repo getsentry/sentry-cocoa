@@ -13,9 +13,6 @@
 NS_ASSUME_NONNULL_BEGIN
 
 SENTRY_EXTERN BOOL isTracingAppLaunch;
-SENTRY_EXTERN SentryId *_Nullable appLaunchTraceId;
-SENTRY_EXTERN uint64_t appLaunchSystemTime;
-SENTRY_EXTERN NSObject *appLaunchTraceLock;
 
 /** Try to start a profiled trace for this app launch, if the configuration allows. */
 void startLaunchProfile(void);

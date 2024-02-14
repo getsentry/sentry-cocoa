@@ -20,12 +20,9 @@
 #    import "SentryTransactionContext.h"
 
 BOOL isTracingAppLaunch;
-SentryId *_Nullable appLaunchTraceId;
-NSObject *appLaunchTraceLock;
-uint64_t appLaunchSystemTime;
 NSString *const kSentryLaunchProfileConfigKeyTracesSampleRate = @"traces";
 NSString *const kSentryLaunchProfileConfigKeyProfilesSampleRate = @"profiles";
-SentryTracer *_Nullable launchTracer;
+static SentryTracer *_Nullable launchTracer;
 
 #    pragma mark - Private
 
@@ -129,11 +126,8 @@ startLaunchProfile(void)
         [SentryLog configure:YES diagnosticLevel:kSentryLevelDebug];
 #    endif // defined(DEBUG)
 
-        appLaunchSystemTime = SentryDependencyContainer.sharedInstance.dateProvider.systemTime;
-        appLaunchTraceLock = [[NSObject alloc] init];
-        appLaunchTraceId = [[SentryId alloc] init];
+        SENTRY_LOG_INFO(@"Starting app launch profile.");
 
-        SENTRY_LOG_INFO(@"Starting app launch profile at %llu", appLaunchSystemTime);
         SentryTransactionContext *context =
             [[SentryTransactionContext alloc] initWithName:@"launch"
                                                  operation:@"app.lifecycle"
