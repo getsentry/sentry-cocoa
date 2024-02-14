@@ -15,9 +15,10 @@
 #    import "SentrySamplerDecision.h"
 #    import "SentrySampling.h"
 #    import "SentrySamplingContext.h"
+#    import "SentryTraceOrigins.h"
 #    import "SentryTracer+Private.h"
 #    import "SentryTracerConfiguration.h"
-#    import "SentryTransactionContext.h"
+#    import "SentryTransactionContext+Private.h"
 
 BOOL isTracingAppLaunch;
 NSString *const kSentryLaunchProfileConfigKeyTracesSampleRate = @"traces";
@@ -130,7 +131,9 @@ startLaunchProfile(void)
 
         SentryTransactionContext *context =
             [[SentryTransactionContext alloc] initWithName:@"launch"
+                                                nameSource:kSentryTransactionNameSourceCustom
                                                  operation:@"app.lifecycle"
+                                                    origin:SentryTraceOriginAutoAppStartProfile
                                                    sampled:kSentrySampleDecisionYes];
         SentryTracerConfiguration *config = [SentryTracerConfiguration defaultConfiguration];
         NSDictionary<NSString *, NSNumber *> *rates = appLaunchProfileConfiguration();
