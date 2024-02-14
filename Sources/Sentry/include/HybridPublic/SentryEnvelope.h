@@ -68,6 +68,8 @@ SENTRY_NO_INIT
  */
 @property (nullable, nonatomic, copy) NSDate *sentAt;
 
++ (instancetype)empty;
+
 @end
 
 @interface SentryEnvelopeItem : NSObject

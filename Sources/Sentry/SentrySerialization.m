@@ -16,15 +16,15 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation SentrySerialization
 
-+ (NSData *_Nullable)dataWithJSONObject:(NSDictionary *)dictionary
++ (NSData *_Nullable)dataWithJSONObject:(id)jsonObject
 {
-    if (![NSJSONSerialization isValidJSONObject:dictionary]) {
+    if (![NSJSONSerialization isValidJSONObject:jsonObject]) {
         SENTRY_LOG_ERROR(@"Dictionary is not a valid JSON object.");
         return nil;
     }
 
     NSError *error = nil;
-    NSData *data = [NSJSONSerialization dataWithJSONObject:dictionary options:0 error:&error];
+    NSData *data = [NSJSONSerialization dataWithJSONObject:jsonObject options:0 error:&error];
     if (error) {
         SENTRY_LOG_ERROR(@"Internal error while serializing JSON: %@", error);
     }

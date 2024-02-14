@@ -38,6 +38,11 @@ SentryDateUtil ()
     }
 }
 
++ (long)javascriptDate:(NSDate *)date
+{
+    return (NSInteger)([date timeIntervalSince1970] * 1000);
+}
+
 @end
 
 NS_ASSUME_NONNULL_END

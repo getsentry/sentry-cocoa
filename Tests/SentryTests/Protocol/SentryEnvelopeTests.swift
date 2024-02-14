@@ -1,3 +1,4 @@
+import Nimble
 import SentryTestUtils
 import XCTest
 
@@ -233,6 +234,12 @@ class SentryEnvelopeTests: XCTestCase {
         XCTAssertEqual(UInt(attachment.data?.count ?? 0), envelopeItem.header.length)
         XCTAssertEqual(attachment.filename, envelopeItem.header.filename)
         XCTAssertEqual(attachment.contentType, envelopeItem.header.contentType)
+    }
+    
+    func testEmptyHeader() {
+        let sut = SentryEnvelopeHeader.empty()
+        expect(sut.eventId) == nil
+        expect(sut.traceContext) == nil
     }
     
     func testInitWithFileAttachment() {

@@ -5,3 +5,5 @@ static NSString *const SentryEnvelopeItemTypeTransaction = @"transaction";
 static NSString *const SentryEnvelopeItemTypeAttachment = @"attachment";
 static NSString *const SentryEnvelopeItemTypeClientReport = @"client_report";
 static NSString *const SentryEnvelopeItemTypeProfile = @"profile";
+static NSString *const SentryEnvelopeItemTypeReplayVideo = @"replay_video";
+static NSString *const SentryEnvelopeItemTypeReplayRecording = @"replay_recording";

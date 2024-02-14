@@ -8,7 +8,7 @@ static int const SENTRY_BAGGAGE_MAX_SIZE = 8192;
 
 @interface SentrySerialization : NSObject
 
-+ (NSData *_Nullable)dataWithJSONObject:(NSDictionary *)dictionary;
++ (NSData *_Nullable)dataWithJSONObject:(id)jsonObject;
 
 + (NSData *_Nullable)dataWithSession:(SentrySession *)session;
 

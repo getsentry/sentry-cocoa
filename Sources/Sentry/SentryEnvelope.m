@@ -48,6 +48,11 @@ NS_ASSUME_NONNULL_BEGIN
     return self;
 }
 
++ (instancetype)empty
+{
+    return [[SentryEnvelopeHeader alloc] initWithId:nil traceContext:nil];
+}
+
 @end
 
 @implementation SentryEnvelopeItem
