@@ -3,10 +3,12 @@
 #import "SentryEnvelope.h"
 #import "SentryEnvelopeItemHeader.h"
 #import "SentryEnvelopeItemType.h"
+#import "SentryLog.h"
 #import "SentryNSURLRequest.h"
 #import "SentryNSURLRequestBuilder.h"
 #import "SentryOptions.h"
 #import "SentrySerialization.h"
+#import "SentryTransport.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -17,6 +19,7 @@ SentrySpotlightTransport ()
 @property (nonatomic, strong) SentryNSURLRequestBuilder *requestBuilder;
 @property (nonatomic, strong) SentryOptions *options;
 @property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueue;
+@property (nonatomic, strong, nullable) NSURL *apiURL;
 
 @end
 
@@ -33,6 +36,7 @@ SentrySpotlightTransport ()
         self.requestManager = requestManager;
         self.requestBuilder = requestBuilder;
         self.dispatchQueue = dispatchQueueWrapper;
+        self.apiURL = [[NSURL alloc] initWithString:options.spotlightUrl];
     }
 
     return self;
@@ -40,32 +44,45 @@ SentrySpotlightTransport ()
 
 - (void)sendEnvelope:(SentryEnvelope *)envelope
 {
-
-    NSMutableArray<SentryEnvelopeItem *> *envelopeItems = [NSMutableArray new];
-    for (SentryEnvelopeItem *item in envelope.items) {
-        if ([item.header.type isEqualToString:SentryEnvelopeItemTypeEvent]) {
-            [envelopeItems addObject:item];
-        }
-        if ([item.header.type isEqualToString:SentryEnvelopeItemTypeTransaction]) {
-            [envelopeItems addObject:item];
-        }
+    if (self.apiURL == nil) {
+        SENTRY_LOG_WARN(@"Malformed Spotlight URL passed from the options. Not sending envelope to "
+                        @"Spotlight with URL:%@",
+            self.options.spotlightUrl);
+        return;
     }
 
-    SentryEnvelope *envelopeWithoutAttachments =
-        [[SentryEnvelope alloc] initWithHeader:envelope.header items:envelopeItems];
-
     [self.dispatchQueue dispatchAsyncWithBlock:^{
-        NSURL *apiURL = [[NSURL alloc] initWithString:@"http://localhost:8969/stream"];
+        // Spotlight can only handle the following envelope items.
+        // Not removing them leads to an error and events won't get displayed.
+        NSMutableArray<SentryEnvelopeItem *> *allowedEnvelopeItems = [NSMutableArray new];
+        for (SentryEnvelopeItem *item in envelope.items) {
+            if ([item.header.type isEqualToString:SentryEnvelopeItemTypeEvent]) {
+                [allowedEnvelopeItems addObject:item];
+            }
+            if ([item.header.type isEqualToString:SentryEnvelopeItemTypeTransaction]) {
+                [allowedEnvelopeItems addObject:item];
+            }
+        }
 
-        NSURLRequest *request =
-            [self.requestBuilder createEnvelopeRequest:envelopeWithoutAttachments
-                                                   url:apiURL
-                                      didFailWithError:nil];
+        SentryEnvelope *envelopeToSend =
+            [[SentryEnvelope alloc] initWithHeader:envelope.header items:allowedEnvelopeItems];
+
+        NSError *requestError = nil;
+        NSURLRequest *request = [self.requestBuilder createEnvelopeRequest:envelopeToSend
+                                                                       url:self.apiURL
+                                                          didFailWithError:&requestError];
+
+        if (requestError) {
+            SENTRY_LOG_ERROR(@"Unable to build envelope request with error %@", requestError);
+            return;
+        }
 
         [self.requestManager
                    addRequest:request
             completionHandler:^(NSHTTPURLResponse *_Nullable response, NSError *_Nullable error) {
-
+                if (error) {
+                    SENTRY_LOG_ERROR(@"Error while performing request %@", requestError);
+                }
             }];
     }];
 }
@@ -80,6 +97,13 @@ SentrySpotlightTransport ()
 {
     // Empty on purpose
 }
+
+#if TEST || TESTCI
+- (void)setStartFlushCallback:(nonnull void (^)(void))callback
+{
+    // Empty on purpose
+}
+#endif
 
 @end
 
