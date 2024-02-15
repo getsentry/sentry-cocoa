@@ -1,4 +1,5 @@
 import CoreLocation
+import LocalAuthentication
 import UIKit
 
 class PermissionsViewController: UIViewController {
@@ -18,9 +19,16 @@ class PermissionsViewController: UIViewController {
         button.addTarget(self, action: #selector(requestLocationPermission), for: .touchUpInside)
         return button
     }()
+    
+    private lazy var biometricButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.setTitle("Request Biometric Permission", for: .normal)
+        button.addTarget(self, action: #selector(requestBiometricPermission), for: .touchUpInside)
+        return button
+    }()
 
     private lazy var stackView: UIStackView = {
-        let stackView = UIStackView(arrangedSubviews: [pushPermissionButton, locationPermissionButton])
+        let stackView = UIStackView(arrangedSubviews: [pushPermissionButton, locationPermissionButton, biometricButton])
         stackView.axis = .vertical
         stackView.spacing = 10
         stackView.alignment = .center
@@ -70,6 +78,34 @@ class PermissionsViewController: UIViewController {
                 }
                 print(granted)
             }
+    }
+    
+    @objc func requestBiometricPermission() {
+        let context = LAContext()
+        var error: NSError?
+
+        if context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &error) {
+            let reason = "Identify yourself!"
+
+            context.evaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, localizedReason: reason) { success, _ in
+
+                DispatchQueue.main.async {
+                    if success {
+                        let crumb = Breadcrumb()
+                        crumb.message = "Biometry success"
+                        SentrySDK.addBreadcrumb(crumb)
+                    } else {
+                        let crumb = Breadcrumb()
+                        crumb.message = "Biometry failure"
+                        SentrySDK.addBreadcrumb(crumb)
+                    }
+                }
+            }
+        } else {
+            let ac = UIAlertController(title: "No biometry", message: "Couldn't access biometry.", preferredStyle: .alert)
+            ac.addAction(UIAlertAction(title: "OK", style: .default))
+            self.present(ac, animated: true)
+        }
     }
 }
 
