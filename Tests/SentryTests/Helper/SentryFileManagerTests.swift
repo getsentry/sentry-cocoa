@@ -795,6 +795,17 @@ extension SentryFileManagerTests {
         removeAppLaunchProfilingConfigFile()
         expect(NSDictionary(contentsOf: launchProfileConfigFileURL())) == nil
     }
+    
+    func testCheckForLaunchProfilingConfigFile_URLDoesNotExist() {
+        // cause the dispatch_once to initialize the internal value
+        _ = launchProfileConfigFileURL()
+
+        // set to nil to simulate exceptional environments
+        sentryLaunchConfigFileURL = nil
+
+        // make sure we return a default-off value and also don't crash the call to access()
+        expect(appLaunchProfileConfigFileExists()) == false
+    }
 }
 
 // MARK: Private profiling tests

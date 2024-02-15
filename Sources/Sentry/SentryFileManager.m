@@ -734,44 +734,37 @@ SentryFileManager ()
  * before any instance of @c SentryFileManager exists, and so wouldn't be able to access this path
  * from an objc property on it like the other paths.
  */
-NSString *
-sentryApplicationSupportPath(void)
+NSString *_Nullable sentryApplicationSupportPath(void)
 {
-    static NSString *sentryApplicationSupportPath;
+    static NSString *_Nullable sentryApplicationSupportPath = nil;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         NSArray *paths = NSSearchPathForDirectoriesInDomains(
             NSApplicationSupportDirectory, NSUserDomainMask, YES);
         NSString *applicationSupportDirectory = [paths firstObject];
+        if (applicationSupportDirectory == nil) {
+            SENTRY_LOG_WARN(@"No application support directory location reported.");
+            return;
+        }
         sentryApplicationSupportPath =
             [applicationSupportDirectory stringByAppendingPathComponent:@"io.sentry"];
     });
     return sentryApplicationSupportPath;
 }
 
-NSURL *
-launchProfileConfigFileURL(void)
-{
-    static NSURL *sentryLaunchConfigFileURL;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        sentryLaunchConfigFileURL =
-            [NSURL fileURLWithPath:[sentryApplicationSupportPath()
-                                       stringByAppendingPathComponent:@"profileLaunch"]];
-    });
-    return sentryLaunchConfigFileURL;
-}
+NSURL *_Nullable sentryLaunchConfigFileURL = nil;
 
-NSURL *
-launchProfileConfigBackupFileURL(void)
+NSURL *_Nullable launchProfileConfigFileURL(void)
 {
-    static NSURL *sentryLaunchConfigFileURL;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        sentryLaunchConfigFileURL =
-            [[NSURL fileURLWithPath:[sentryApplicationSupportPath()
-                                        stringByAppendingPathComponent:@"profileLaunch"]]
-                URLByAppendingPathExtension:@"bak"];
+        NSString *appSupportPath = sentryApplicationSupportPath();
+        if (appSupportPath == nil) {
+            SENTRY_LOG_WARN(@"No location available to write a launch profiling config.");
+            return;
+        }
+        sentryLaunchConfigFileURL = [NSURL
+            fileURLWithPath:[appSupportPath stringByAppendingPathComponent:@"profileLaunch"]];
     });
     return sentryLaunchConfigFileURL;
 }
@@ -794,7 +787,12 @@ NSDictionary<NSString *, NSNumber *> *_Nullable appLaunchProfileConfiguration(vo
 BOOL
 appLaunchProfileConfigFileExists(void)
 {
-    return access(launchProfileConfigFileURL().path.UTF8String, F_OK) == 0;
+    NSString *path = launchProfileConfigFileURL().path;
+    if (path == nil) {
+        return NO;
+    }
+
+    return access(path.UTF8String, F_OK) == 0;
 }
 
 void
@@ -802,7 +800,7 @@ writeAppLaunchProfilingConfigFile(NSMutableDictionary<NSString *, NSNumber *> *c
 {
     NSError *error;
     SENTRY_CASSERT([config writeToURL:launchProfileConfigFileURL() error:&error],
-        @"Failed to write launch profile marker file: %@.", error);
+        @"Failed to write launch profile config file: %@.", error);
 }
 
 void
