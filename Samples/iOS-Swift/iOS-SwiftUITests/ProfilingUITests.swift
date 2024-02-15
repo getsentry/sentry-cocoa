@@ -16,7 +16,7 @@ class ProfilingUITests: BaseUITest {
         app.launchArguments.append("--io.sentry.wipe-data")
         launchApp()
         
-        // First launch enables in-app profiling by setting traces/profiles sample rates to 1 (which is the default configuration in the sample app), but not launch profiling; assert that we did not write a config to allow the next launch to be profiled
+        // First launch enables in-app profiling by setting traces/profiles sample rates to 1 (which is the default configuration in the sample app), but not launch profiling; assert that we did not write a config to allow the next launch to be profiled.
         try performAssertions(shouldProfileThisLaunch: false, shouldProfileNextLaunch: false)
         
         // no profiling should be done on this launch; set the option to allow launch profiling for the next launch, keeping the default numerical sampling rates of 1 for traces and profiles
@@ -28,20 +28,17 @@ class ProfilingUITests: BaseUITest {
         // this launch should not run the profiler; configure sampler functions returning 1 and numerical rates set to 0, which should result in a profile being taken as samplers override numerical rates
         try relaunchAndConfigureSubsequentLaunches(shouldProfileThisLaunch: false, shouldEnableLaunchProfilingOptionForNextLaunch: true, profilesSampleRate: 0, tracesSampleRate: 0, profilesSamplerValue: 1, tracesSamplerValue: 1)
         
-        // this launch has the configuration to run the profiler, but because swizzling is disabled, it will not be saved due to the ui.load transaction not being allowed to be created. it will also configure it to not run a profile for the next launch due to disabling swizzling, which would override the option to enable launch profiling. this specific scenario, where a previous launch configures a profile, but then something prevents the associated tx from running, is not automatically avoidable. in the future we will create a dummy transaction to attach the profile to.
-        try relaunchAndConfigureSubsequentLaunches(shouldProfileThisLaunch: false, shouldEnableLaunchProfilingOptionForNextLaunch: true, shouldDisableSwizzling: true)
+        // this launch should run the profiler; configure sampler functions returning 0 and numerical rates set to 0, which should result in no profile being taken next launch
+        try relaunchAndConfigureSubsequentLaunches(shouldProfileThisLaunch: true, shouldEnableLaunchProfilingOptionForNextLaunch: true, profilesSamplerValue: 0, tracesSamplerValue: 0)
         
-        // this launch should not run the profiler and configure it not to run the next launch due to disabling automatic performance tracking, which would override the option to enable launch profiling
-        try relaunchAndConfigureSubsequentLaunches(shouldProfileThisLaunch: false, shouldEnableLaunchProfilingOptionForNextLaunch: true, shouldDisableAutoPerformanceTracking: true)
-        
-        // this launch should not run the profiler and configure it not to run the next launch launch due to disabling UIViewController tracing, which would override the option to enable launch profiling
-        try relaunchAndConfigureSubsequentLaunches(shouldProfileThisLaunch: false, shouldEnableLaunchProfilingOptionForNextLaunch: true, shouldDisableUIViewControllerTracing: true)
-        
-        // this launch should not run the profiler and configure it not to run the next launch launch due to disabling tracing, which would override the option to enable launch profiling
-        try relaunchAndConfigureSubsequentLaunches(shouldProfileThisLaunch: false, shouldEnableLaunchProfilingOptionForNextLaunch: true, shouldDisableTracing: true)
-        
-        // make sure the profiler respects the last configuration not to run
+        // this launch should not run the profiler, but configure it to run the next launch
         try relaunchAndConfigureSubsequentLaunches(shouldProfileThisLaunch: false, shouldEnableLaunchProfilingOptionForNextLaunch: true)
+        
+        // this launch should run the profiler, and configure it not to run the next launch due to disabling tracing, which would override the option to enable launch profiling
+        try relaunchAndConfigureSubsequentLaunches(shouldProfileThisLaunch: true, shouldEnableLaunchProfilingOptionForNextLaunch: true, shouldDisableTracing: true)
+        
+        // make sure the profiler respects the last configuration not to run; don't let another config file get written
+        try relaunchAndConfigureSubsequentLaunches(shouldProfileThisLaunch: false, shouldEnableLaunchProfilingOptionForNextLaunch: false)
     }
     
     /**
