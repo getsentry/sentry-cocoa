@@ -60,7 +60,7 @@ class SentryClientTest: XCTestCase {
             transaction = Transaction(trace: trace, children: [])
             
             transport = TestTransport()
-            transportAdapter = TestTransportAdapter(transport: transport, options: options)
+            transportAdapter = TestTransportAdapter(transports: [transport], options: options)
             
             crashWrapper.internalFreeMemorySize = 123_456
             crashWrapper.internalAppMemorySize = 234_567
