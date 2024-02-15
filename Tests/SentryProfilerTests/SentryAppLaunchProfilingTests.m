@@ -3,6 +3,8 @@
 #import "SentryOptions+Private.h"
 #import "SentryProfilingConditionals.h"
 #import "SentrySDK+Tests.h"
+#import "SentryTraceOrigins.h"
+#import "SentryTransactionContext.h"
 #import <XCTest/XCTest.h>
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
@@ -11,6 +13,14 @@
 @end
 
 @implementation SentryAppLaunchProfilingTests
+
+- (void)testLaunchProfileTransactionContext
+{
+    SentryTransactionContext *actualContext = context(@1);
+    XCTAssertEqual(actualContext.nameSource, kSentryTransactionNameSourceCustom);
+    XCTAssert([actualContext.origin isEqualToString:SentryTraceOriginAutoAppStartProfile]);
+    XCTAssert(actualContext.sampled);
+}
 
 #    define SENTRY_OPTION(name, value)                                                             \
         NSStringFromSelector(@selector(name))                                                      \
@@ -106,6 +116,8 @@
         @"Default options with app launch profiling and tracing enabled, traces sample rate of 1, "
         @"but profiles sample rate of 0 should not enable launch profiling");
 }
+
+#    pragma mark - Private
 
 - (SentryOptions *)defaultLaunchProfilingOptionsWithOverrides:
     (NSDictionary<NSString *, id> *)overrides
