@@ -20,6 +20,8 @@
 #    import "SentryTracerConfiguration.h"
 #    import "SentryTransactionContext+Private.h"
 
+NS_ASSUME_NONNULL_BEGIN
+
 BOOL isTracingAppLaunch;
 NSString *const kSentryLaunchProfileConfigKeyTracesSampleRate = @"traces";
 NSString *const kSentryLaunchProfileConfigKeyProfilesSampleRate = @"profiles";
@@ -36,29 +38,11 @@ typedef struct {
 SentryLaunchProfileConfig
 shouldProfileNextLaunch(SentryOptions *options)
 {
-    BOOL shouldProfileNextLaunch = options.enableAppLaunchProfiling
-#    if SENTRY_UIKIT_AVAILABLE
-        && options.enableUIViewControllerTracing && options.enableSwizzling
-#    endif // SENTRY_UIKIT_AVAILABLE
-        && options.enableAutoPerformanceTracing && options.enableTracing;
+    BOOL shouldProfileNextLaunch = options.enableAppLaunchProfiling && options.enableTracing;
     if (!shouldProfileNextLaunch) {
-#    if SENTRY_UIKIT_AVAILABLE
-        SENTRY_LOG_DEBUG(
-            @"Won't profile next launch due to specified options configuration: "
-            @"options.enableAppLaunchProfiling: %d; options.enableAutoPerformanceTracing: %d; "
-            @"options.enableUIViewControllerTracing: %d; options.enableSwizzling: %d; "
-            @"options.enableTracing: %d",
-            options.enableAppLaunchProfiling, options.enableAutoPerformanceTracing,
-            options.enableUIViewControllerTracing, options.enableSwizzling, options.enableTracing);
-#    else
-        SENTRY_LOG_DEBUG(
-            @"Won't profile next launch due to specified options configuration: "
-            @"options.enableAppLaunchProfiling: %d; options.enableAutoPerformanceTracing: %d; "
-            @"options.enableSwizzling: %d; options.enableTracing: %d",
-            options.enableAppLaunchProfiling, options.enableAutoPerformanceTracing,
-            options.enableSwizzling, options.enableTracing);
-#    endif // SENTRY_UIKIT_AVAILABLE
-
+        SENTRY_LOG_DEBUG(@"Won't profile next launch due to specified options configuration: "
+                         @"options.enableAppLaunchProfiling: %d; options.enableTracing: %d",
+            options.enableAppLaunchProfiling, options.enableTracing);
         return (SentryLaunchProfileConfig) { NO, nil, nil };
     }
 
@@ -179,5 +163,7 @@ stopLaunchProfile(SentryHub *hub)
     launchTracer.hub = hub;
     [launchTracer finish];
 }
+
+NS_ASSUME_NONNULL_END
 
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
