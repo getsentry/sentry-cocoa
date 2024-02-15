@@ -130,8 +130,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         
-        print("[iOS-Swift] launch arguments: \(ProcessInfo.processInfo.arguments)")
-        print("[iOS-Swift] environment: \(ProcessInfo.processInfo.environment)")
+        print("[iOS-Swift] [debug] launch arguments: \(ProcessInfo.processInfo.arguments)")
+        print("[iOS-Swift] [debug] environment: \(ProcessInfo.processInfo.environment)")
         
         maybeWipeData()
         AppDelegate.startSentry()
@@ -168,7 +168,7 @@ private extension AppDelegate {
     // previously tried putting this in an AppDelegate.load override in ObjC, but it wouldn't run until after a launch profiler would have an opportunity to run, since SentryProfiler.load would always run first due to being dynamically linked in a framework module. it is sufficient to do it before calling SentrySDK.startWithOptions to clear state for testProfiledAppLaunches because we don't make any assertions on a launch profile the first launch of the app in that test 
     func maybeWipeData() {
         if ProcessInfo.processInfo.arguments.contains("--io.sentry.wipe-data") {
-            print("[iOS-Swift] removing app data")
+            print("[iOS-Swift] [debug] removing app data")
             let appSupport = NSSearchPathForDirectoriesInDomains(.applicationSupportDirectory, .userDomainMask, true).first!
             let cache = NSSearchPathForDirectoriesInDomains(.cachesDirectory, .userDomainMask, true).first!
             for path in [appSupport, cache] {
