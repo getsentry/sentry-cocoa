@@ -1,4 +1,5 @@
 #import "SentryEvent.h"
+#import "SentryReplayType.h"
 #import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
@@ -33,6 +34,11 @@ NS_ASSUME_NONNULL_BEGIN
  * The replay id to which this segment belongs to.
  */
 @property (nonatomic, strong) SentryId *replayId;
+
+/**
+ * The type of the replay
+ */
+@property (nonatomic) SentryReplayType replayType;
 
 @end
 

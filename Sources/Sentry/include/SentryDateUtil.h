@@ -9,7 +9,7 @@ NS_SWIFT_NAME(DateUtil)
 
 + (NSDate *_Nullable)getMaximumDate:(NSDate *_Nullable)first andOther:(NSDate *_Nullable)second;
 
-+ (long)javascriptDate:(NSDate *)date;
++ (long)millisecondsSince1970:(NSDate *)date;
 
 @end
 

@@ -16,11 +16,11 @@
 
     result[@"urls"] = self.urls;
     result[@"replay_start_timestamp"] =
-        @([SentryDateUtil javascriptDate:self.replayStartTimestamp]);
+        @([SentryDateUtil millisecondsSince1970:self.replayStartTimestamp]);
     result[@"trace_ids"] = trace_ids;
     result[@"replay_id"] = self.replayId.sentryIdString;
     result[@"segment_id"] = @(self.segmentId);
-    result[@"replay_type"] = @"buffer";
+    result[@"replay_type"] = nameForSentryReplayType(self.replayType);
 
     return result;
 }

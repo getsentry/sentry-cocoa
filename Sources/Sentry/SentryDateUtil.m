@@ -38,7 +38,7 @@ SentryDateUtil ()
     }
 }
 
-+ (long)javascriptDate:(NSDate *)date
++ (long)millisecondsSince1970:(NSDate *)date
 {
     return (NSInteger)([date timeIntervalSince1970] * 1000);
 }

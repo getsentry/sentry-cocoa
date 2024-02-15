@@ -28,7 +28,7 @@
 - (nonnull NSArray<NSDictionary<NSString *, id> *> *)serialize
 {
 
-    long timestamp = [SentryDateUtil javascriptDate:self.start];
+    long timestamp = [SentryDateUtil millisecondsSince1970:self.start];
 
     NSDictionary *metaInfo = @{
         @"type" : @4,
@@ -45,12 +45,12 @@
                 @"segmentId" : @(self.segmentId),
                 @"size" : @(self.size),
                 @"duration" : @(self.duration),
-                @"encoding" : @"h264",
-                @"container" : @"mp4",
+                @"encoding" : SentryReplayEncoding,
+                @"container" : SentryReplayContainer,
                 @"height" : @(self.height),
                 @"width" : @(self.width),
                 @"frameCount" : @(self.frameCount),
-                @"frameRateType" : @"constant",
+                @"frameRateType" : SentryReplayFrameRateType,
                 @"frameRate" : @(self.frameRate),
                 @"left" : @0,
                 @"top" : @0,

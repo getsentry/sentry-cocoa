@@ -5,6 +5,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 @class SentryId;
 
+static NSString *const SentryReplayEncoding = @"h264";
+static NSString *const SentryReplayContainer = @"mp4";
+static NSString *const SentryReplayFrameRateType = @"constant";
+
 @interface SentryReplayRecording : NSObject
 
 @property (nonatomic) NSInteger segmentId;
