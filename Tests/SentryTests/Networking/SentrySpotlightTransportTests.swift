@@ -34,7 +34,6 @@ final class SentrySpotlightTransportTests: XCTestCase {
         let attachmentEnvelopeItem = try XCTUnwrap( SentryEnvelopeItem(attachment: TestData.dataAttachment, maxAttachmentSize: 5 * 1_024 * 1_024))
         
         let envelopeItems = if withAttachment {
-
             [SentryEnvelopeItem(event: event), attachmentEnvelopeItem]
         } else {
             [SentryEnvelopeItem(event: event)]
