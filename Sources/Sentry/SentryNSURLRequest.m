@@ -70,21 +70,12 @@ SentryNSURLRequest ()
                                     didFailWithError:(NSError *_Nullable *_Nullable)error
 {
     NSURL *apiURL = [dsn getEnvelopeEndpoint];
-    self = [super initWithURL:apiURL
-                  cachePolicy:NSURLRequestReloadIgnoringLocalCacheData
-              timeoutInterval:SentryRequestTimeout];
-    if (self) {
-        NSString *authHeader = newAuthHeader(dsn.url);
+    NSString *authHeader = newAuthHeader(dsn.url);
 
-        self.HTTPMethod = @"POST";
-        [self setValue:authHeader forHTTPHeaderField:@"X-Sentry-Auth"];
-        [self setValue:@"application/x-sentry-envelope" forHTTPHeaderField:@"Content-Type"];
-        [self setValue:SentryMeta.sdkName forHTTPHeaderField:@"User-Agent"];
-        [self setValue:@"gzip" forHTTPHeaderField:@"Content-Encoding"];
-        self.HTTPBody = [data sentry_gzippedWithCompressionLevel:-1 error:error];
-    }
-
-    return self;
+    return [self initEnvelopeRequestWithURL:apiURL
+                                    andData:data
+                                 authHeader:authHeader
+                           didFailWithError:error];
 }
 
 - (instancetype)initEnvelopeRequestWithURL:(NSURL *)url
@@ -98,7 +89,7 @@ SentryNSURLRequest ()
     if (self) {
         self.HTTPMethod = @"POST";
 
-        if (authHeader) {
+        if (authHeader != nil) {
             [self setValue:authHeader forHTTPHeaderField:@"X-Sentry-Auth"];
         }
         [self setValue:@"application/x-sentry-envelope" forHTTPHeaderField:@"Content-Type"];

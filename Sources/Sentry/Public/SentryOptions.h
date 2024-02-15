@@ -529,7 +529,7 @@ NS_SWIFT_NAME(Options)
  * Whether to enable Spotlight for local development. For more information see
  * https://spotlightjs.com/.
  *
- * @note Only set this option to `true` while developing, not in production!
+ * @note Only set this option to @c YES while developing, not in production!
  */
 @property (nonatomic, assign) BOOL enableSpotlight;
 

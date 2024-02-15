@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+### Features
+
+- Add support for Sentry [Spotlight](https://spotlightjs.com/) (#3642), which is basically Sentry
+for development. Read our [blog post](https://blog.sentry.io/sentry-for-development/) to find out more.
+
 ### Improvements
 
 - Cache installationID async to avoid file IO on the main thread when starting the SDK (#3601)
