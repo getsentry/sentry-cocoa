@@ -55,6 +55,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             options.sessionTrackingIntervalMillis = 5_000
             options.attachScreenshot = true
             options.attachViewHierarchy = true
+            options.enableSpotlight = true
 #if targetEnvironment(simulator)
             options.environment = "test-app"
 #else

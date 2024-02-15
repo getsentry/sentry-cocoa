@@ -166,7 +166,8 @@ NS_SWIFT_NAME(Options)
  * The maximum size for each attachment in bytes.
  * @note Default is 20 MiB (20 ✕ 1024 ✕ 1024 bytes).
  * @note Please also check the maximum attachment size of relay to make sure your attachments don't
- * get discarded there: https://docs.sentry.io/product/relay/options/
+ * get discarded there:
+ *  https://docs.sentry.io/product/relay/options/
  */
 @property (nonatomic, assign) NSUInteger maxAttachmentSize;
 
@@ -523,6 +524,21 @@ NS_SWIFT_NAME(Options)
  YES)`.
  */
 @property (nonatomic, copy) NSString *cacheDirectoryPath;
+
+/**
+ * Whether to enable Spotlight for local development. For more information see
+ * https://spotlightjs.com/.
+ *
+ * @note Only set this option to `true` while developing, not in production!
+ */
+@property (nonatomic, assign) BOOL enableSpotlight;
+
+/**
+ * The Spotlight URL. Defaults to http://localhost:8969/stream. For more information see
+ * https://spotlightjs.com/
+ */
+@property (nonatomic, copy) NSString *spotlightUrl;
+
 @end
 
 NS_ASSUME_NONNULL_END

@@ -87,6 +87,29 @@ SentryNSURLRequest ()
     return self;
 }
 
+- (instancetype)initEnvelopeRequestWithURL:(NSURL *)url
+                                   andData:(NSData *)data
+                                authHeader:(nullable NSString *)authHeader
+                          didFailWithError:(NSError *_Nullable *_Nullable)error
+{
+    self = [super initWithURL:url
+                  cachePolicy:NSURLRequestReloadIgnoringLocalCacheData
+              timeoutInterval:SentryRequestTimeout];
+    if (self) {
+        self.HTTPMethod = @"POST";
+
+        if (authHeader) {
+            [self setValue:authHeader forHTTPHeaderField:@"X-Sentry-Auth"];
+        }
+        [self setValue:@"application/x-sentry-envelope" forHTTPHeaderField:@"Content-Type"];
+        [self setValue:SentryMeta.sdkName forHTTPHeaderField:@"User-Agent"];
+        [self setValue:@"gzip" forHTTPHeaderField:@"Content-Encoding"];
+        self.HTTPBody = [data sentry_gzippedWithCompressionLevel:-1 error:error];
+    }
+
+    return self;
+}
+
 static NSString *
 newHeaderPart(NSString *key, id value)
 {

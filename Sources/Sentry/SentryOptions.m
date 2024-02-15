@@ -141,6 +141,8 @@ NSString *const kSentryDefaultEnvironment = @"production";
         _enableSwizzling = YES;
         self.sendClientReports = YES;
         self.swiftAsyncStacktraces = NO;
+        self.enableSpotlight = NO;
+        self.spotlightUrl = @"http://localhost:8969/stream";
 
 #if TARGET_OS_OSX
         NSString *dsn = [[[NSProcessInfo processInfo] environment] objectForKey:@"SENTRY_DSN"];
@@ -495,6 +497,13 @@ NSString *const kSentryDefaultEnvironment = @"production";
                 block:^(BOOL value) { self->_enableMetricKit = value; }];
     }
 #endif // SENTRY_HAS_METRIC_KIT
+
+    [self setBool:options[@"enableSpotlight"]
+            block:^(BOOL value) { self->_enableSpotlight = value; }];
+
+    if ([options[@"spotlightUrl"] isKindOfClass:[NSString class]]) {
+        self.spotlightUrl = options[@"spotlightUrl"];
+    }
 
     return YES;
 }

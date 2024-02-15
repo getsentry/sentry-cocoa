@@ -4,6 +4,7 @@
 #import "SentrySDK.h"
 #import "SentryTests-Swift.h"
 #import <XCTest/XCTest.h>
+@import Nimble;
 
 @interface SentryOptionsTest : XCTestCase
 
@@ -560,7 +561,8 @@
         @"failedRequestStatusCodes" : [NSNull null],
         @"enableTimeToFullDisplayTracing" : [NSNull null],
         @"enableTracing" : [NSNull null],
-        @"swiftAsyncStacktraces" : [NSNull null]
+        @"swiftAsyncStacktraces" : [NSNull null],
+        @"spotlightUrl" : [NSNull null]
     }
                                                 didFailWithError:nil];
 
@@ -644,6 +646,8 @@
     XCTAssertNil(options.profilesSampleRate);
     XCTAssertNil(options.profilesSampler);
 #endif
+
+    XCTAssertTrue([options.spotlightUrl isEqualToString:@"http://localhost:8969/stream"]);
 }
 
 - (void)testSetValidDsn
@@ -1244,6 +1248,11 @@
     XCTAssertNotNil(debugDescription);
     XCTAssert([debugDescription containsString:@"sampleRate: 0.123"]);
     XCTAssert([debugDescription containsString:@"tracesSampler: <__NSGlobalBlock__: "]);
+}
+
+- (void)testEnableSpotlight
+{
+    [self testBooleanField:@"enableSpotlight" defaultValue:NO];
 }
 
 #pragma mark - Private
