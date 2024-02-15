@@ -19,8 +19,9 @@ class SentryTransportFactoryTests: XCTestCase {
         options.urlSessionDelegate = urlSessionDelegateSpy
         
         let fileManager = try! SentryFileManager(options: options, dispatchQueueWrapper: TestSentryDispatchQueueWrapper())
-        let transport = TransportInitializer.initTransport(options, sentryFileManager: fileManager)
-        let requestManager = Dynamic(transport).requestManager.asObject as! SentryQueueableRequestManager
+        let transports = TransportInitializer.initTransports(options, sentryFileManager: fileManager)
+        let httpTransport = transports.first
+        let requestManager = Dynamic(httpTransport).requestManager.asObject as! SentryQueueableRequestManager
         
         let imgUrl = URL(string: "https://github.com")!
         let request = URLRequest(url: imgUrl)
