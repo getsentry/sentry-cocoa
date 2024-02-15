@@ -778,15 +778,14 @@ launchProfileConfigBackupFileURL(void)
 
 NSDictionary<NSString *, NSNumber *> *_Nullable appLaunchProfileConfiguration(void)
 {
-    NSURL *url = launchProfileConfigBackupFileURL();
+    NSURL *url = launchProfileConfigFileURL();
     if (![[NSFileManager defaultManager] fileExistsAtPath:url.path]) {
         return nil;
     }
 
     NSError *error;
-    NSDictionary<NSString *, NSNumber *> *config = [NSDictionary<NSString *, NSNumber *>
-        dictionaryWithContentsOfURL:launchProfileConfigBackupFileURL()
-                              error:&error];
+    NSDictionary<NSString *, NSNumber *> *config =
+        [NSDictionary<NSString *, NSNumber *> dictionaryWithContentsOfURL:url error:&error];
     SENTRY_CASSERT(
         error == nil, @"Encountered error trying to retrieve app launch profile config: %@", error);
     return config;
@@ -810,31 +809,6 @@ void
 removeAppLaunchProfilingConfigFile(void)
 {
     _non_thread_safe_removeFileAtPath(launchProfileConfigFileURL().path);
-}
-
-void
-removeAppLaunchProfilingConfigBackupFile(void)
-{
-    _non_thread_safe_removeFileAtPath(launchProfileConfigBackupFileURL().path);
-}
-
-void
-backupAppLaunchProfilingConfigFile(void)
-{
-    NSFileManager *fm = [NSFileManager defaultManager];
-    NSString *fromPath = launchProfileConfigFileURL().path;
-    if (!SENTRY_CASSERT_RETURN([fm fileExistsAtPath:fromPath],
-            @"Expect to have a current launch profile config to use for subsequent transaction.")) {
-        return;
-    }
-
-    NSString *toPath = launchProfileConfigBackupFileURL().path;
-    _non_thread_safe_removeFileAtPath(toPath);
-
-    NSError *error;
-    SENTRY_CASSERT([fm moveItemAtPath:fromPath toPath:toPath error:&error],
-        @"Failed to backup launch profile config file for use to set up associated transaction: %@",
-        error);
 }
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 

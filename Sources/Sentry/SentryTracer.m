@@ -190,30 +190,17 @@ static BOOL appStartMeasurementRead;
 #endif // SENTRY_HAS_UIKIT
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
-    BOOL isTracingAppLaunchValue;
-    @synchronized(appLaunchTraceLock) {
-        isTracingAppLaunchValue = isTracingAppLaunch;
-    }
-    if (isTracingAppLaunchValue) {
-        SENTRY_ASSERT(appLaunchTraceId != nil, @"Expected an app launch trace ID.");
-        _internalID = appLaunchTraceId;
-        SENTRY_LOG_DEBUG(
-            @"App launch profile in progress, will attach to trace %@", _internalID.sentryIdString);
-        appLaunchTraceId = nil;
-        _isProfiling = isTracingAppLaunchValue;
-        _startSystemTime = appLaunchSystemTime;
-    } else {
-        if (_configuration.profilesSamplerDecision.decision == kSentrySampleDecisionYes) {
-            _internalID = [[SentryId alloc] init];
-            if ((_isProfiling = [SentryProfiler startWithTracer:_internalID])) {
-                SENTRY_LOG_DEBUG(@"Started profiler for trace %@", _internalID.sentryIdString);
-            }
-            _startSystemTime = SentryDependencyContainer.sharedInstance.dateProvider.systemTime;
+    if (_configuration.profilesSamplerDecision.decision == kSentrySampleDecisionYes) {
+        _internalID = [[SentryId alloc] init];
+        if ((_isProfiling = [SentryProfiler startWithTracer:_internalID])) {
+            SENTRY_LOG_DEBUG(@"Started profiler for trace %@ with internal id %@",
+                transactionContext.traceId.sentryIdString, _internalID.sentryIdString);
         }
+        _startSystemTime = SentryDependencyContainer.sharedInstance.dateProvider.systemTime;
     }
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
-    SENTRY_LOG_DEBUG(@"Started tracer with id: %@", transactionContext.traceId);
+    SENTRY_LOG_DEBUG(@"Started tracer with id: %@", transactionContext.traceId.sentryIdString);
 
     return self;
 }
@@ -526,10 +513,13 @@ static BOOL appStartMeasurementRead;
 {
     [self cancelDeadlineTimer];
     if (self.isFinished) {
+        SENTRY_LOG_DEBUG(@"Tracer %@ was already finished.", _traceContext.traceId.sentryIdString);
         return;
     }
     @synchronized(self) {
         if (self.isFinished) {
+            SENTRY_LOG_DEBUG(@"Tracer %@ was already finished after synchronizing.",
+                _traceContext.traceId.sentryIdString);
             return;
         }
         // Keep existing status of auto generated transactions if set by the user.
@@ -574,7 +564,15 @@ static BOOL appStartMeasurementRead;
         return;
     }
 
-    if (_hub == nil) {
+    BOOL shouldBailWithNilHub = _hub == nil;
+#if SENTRY_TARGET_PROFILING_SUPPORTED
+    if (isTracingAppLaunch) {
+        shouldBailWithNilHub = NO;
+    }
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED
+    if (shouldBailWithNilHub) {
+        SENTRY_LOG_DEBUG(
+            @"Hub was nil for tracer %@, nothing to do.", _traceContext.traceId.sentryIdString);
         return;
     }
 
@@ -611,15 +609,6 @@ static BOOL appStartMeasurementRead;
 #if SENTRY_TARGET_PROFILING_SUPPORTED
     if (self.isProfiling) {
         [self captureTransactionWithProfile:transaction];
-
-        // as long as this isn't used for any conditional branching logic, and is just being set to
-        // NO, we don't need to synchronize the read here
-        if (isTracingAppLaunch) {
-            @synchronized(appLaunchTraceLock) {
-                isTracingAppLaunch = NO;
-            }
-        }
-
         return;
     }
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED

@@ -4,6 +4,7 @@
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
+@class SentryHub;
 @class SentryId;
 @class SentryOptions;
 @class SentryTracerConfiguration;
@@ -12,11 +13,12 @@
 NS_ASSUME_NONNULL_BEGIN
 
 SENTRY_EXTERN BOOL isTracingAppLaunch;
-SENTRY_EXTERN SentryId *_Nullable appLaunchTraceId;
-SENTRY_EXTERN uint64_t appLaunchSystemTime;
-SENTRY_EXTERN NSObject *appLaunchTraceLock;
 
-void startLaunchProfile(void);
+/** Try to start a profiled trace for this app launch, if the configuration allows. */
+SENTRY_EXTERN void startLaunchProfile(void);
+
+/** Stop any profiled trace that may be in flight from the start of the app launch. */
+void stopLaunchProfile(SentryHub *hub);
 
 /**
  * Write a file to disk containing sample rates for profiles and traces. The presence of this file
@@ -25,14 +27,6 @@ void startLaunchProfile(void);
  * profile to be attached to.
  */
 void configureLaunchProfiling(SentryOptions *options);
-
-/**
- * If there were previously persisted sampling rates sed when decidign the launch profile/trace,
- * inject them into the context and configuration.
- * @return @c YES if persisted rates were found and injected, @c NO otherwise.
- */
-BOOL injectLaunchSamplerDecisions(
-    SentryTransactionContext *transactionContext, SentryTracerConfiguration *configuration);
 
 NS_ASSUME_NONNULL_END
 
