@@ -164,10 +164,6 @@ static NSDate *_Nullable startTimestamp = nil;
 
 + (void)startWithOptions:(SentryOptions *)options
 {
-#if SENTRY_TARGET_PROFILING_SUPPORTED
-    stopLaunchProfile();
-#endif // SENTRY_TARGET_PROFILING_SUPPORTED
-
     [SentryLog configure:options.debug diagnosticLevel:options.diagnosticLevel];
 
     // We accept the tradeoff that the SDK might not be fully initialized directly after
@@ -190,7 +186,8 @@ static NSDate *_Nullable startTimestamp = nil;
         = options.initialScope([[SentryScope alloc] initWithMaxBreadcrumbs:options.maxBreadcrumbs]);
     // The Hub needs to be initialized with a client so that closing a session
     // can happen.
-    [SentrySDK setCurrentHub:[[SentryHub alloc] initWithClient:newClient andScope:scope]];
+    SentryHub *hub = [[SentryHub alloc] initWithClient:newClient andScope:scope];
+    [SentrySDK setCurrentHub:hub];
     SENTRY_LOG_DEBUG(@"SDK initialized! Version: %@", SentryMeta.versionString);
 
     SENTRY_LOG_DEBUG(@"Dispatching init work required to run on main thread.");
@@ -204,11 +201,14 @@ static NSDate *_Nullable startTimestamp = nil;
 #if TARGET_OS_IOS && SENTRY_HAS_UIKIT
         [SentryDependencyContainer.sharedInstance.uiDeviceWrapper start];
 #endif // TARGET_OS_IOS && SENTRY_HAS_UIKIT
-    }];
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
-    configureLaunchProfiling(options);
+        [SentryDependencyContainer.sharedInstance.dispatchQueueWrapper dispatchAsyncWithBlock:^{
+            stopLaunchProfile(hub);
+            configureLaunchProfiling(options);
+        }];
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
+    }];
 }
 
 + (void)startWithConfigureOptions:(void (^)(SentryOptions *options))configureOptions
