@@ -123,18 +123,29 @@ extension ProfilingViewController {
     func withProfile(fileName: String, block: (URL?) -> Void) {
         let appSupportDirectory = NSSearchPathForDirectoriesInDomains(.applicationSupportDirectory, .userDomainMask, true).first!
         guard let url = URL(string: appSupportDirectory) else {
+            let alert = UIAlertController(title: "App support directory missing", message: nil, preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "OK", style: .default))
+            present(alert, animated: false)
             block(nil)
             return
         }
+        var paths = [String]()
         for file in FileManager.default.enumerator(at: url, includingPropertiesForKeys: [URLResourceKey.nameKey])! {
             let url = file as! URL
             if url.absoluteString.contains(fileName) {
                 block(url)
+                let alert = UIAlertController(title: "Found profile file", message: nil, preferredStyle: .alert)
+                alert.addAction(UIAlertAction(title: "OK", style: .default))
+                present(alert, animated: false)
                 print("[iOS-Swift] [debug] [ProfilingViewController] removing file at \(url)")
                 try! FileManager.default.removeItem(at: url)
                 return
             }
+            paths.append(url.path)
         }
+        let alert = UIAlertController(title: "App support directory contents", message: nil, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "OK", style: .default))
+        present(alert, animated: false)
         block(nil)
     }
     
