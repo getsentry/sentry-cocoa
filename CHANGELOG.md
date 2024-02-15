@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Features
+
+- Automatically profile app launches (#3529)
+
 ### Improvements
 
 - Cache installationID async to avoid file IO on the main thread when starting the SDK (#3601)
@@ -9,7 +13,7 @@
 ### Fixes
 
 - Finish TTID span when transaction finishes (#3610)
-- Dont take screenshot and view hierarchy for app hanging (#3620)
+- Don't take screenshot and view hierarchy for app hanging (#3620)
 
 ## 8.20.0
 
@@ -17,7 +21,6 @@
 
 - Add visionOS as device family (#3548)
 - Add VisionOS Support for Carthage (#3565)
-- Automatically profile app launches (#3529)
 
 ### Fixes 
 
