@@ -463,18 +463,19 @@ writeProfileFile(NSDictionary<NSString *, id> *payload)
     if (isTracingAppLaunch) {
         SENTRY_LOG_DEBUG(@"Writing app launch profile.");
         pathToWrite = [appSupportDirPath stringByAppendingPathComponent:@"launchProfile"];
-        if (!SENTRY_CASSERT_RETURN(![fm fileExistsAtPath:pathToWrite],
-                @"Already a launch profile file present; make sure to remove them right after "
-                @"using them, and that tests clean state in between so there isn't leftover config "
-                @"producing one when it isn't expected.")) {
-            return;
-        }
     } else {
         SENTRY_LOG_DEBUG(@"Overwriting last non-launch profile.");
         pathToWrite = [appSupportDirPath stringByAppendingPathComponent:@"profile"];
     }
 
-    SENTRY_LOG_DEBUG(@"Writing app launch profile to file.");
+    if ([fm fileExistsAtPath:pathToWrite]) {
+        SENTRY_LOG_DEBUG(@"Already a%@ profile file present; make sure to remove them right after "
+                         @"using them, and that tests clean state in between so there isn't "
+                         @"leftover config producing one when it isn't expected.",
+            isTracingAppLaunch ? @" launch" : @"");
+    }
+
+    SENTRY_LOG_DEBUG(@"Writing%@ profile to file.", isTracingAppLaunch ? @" launch" : @"");
     SENTRY_CASSERT(
         [data writeToFile:pathToWrite atomically:YES], @"Failed to write profile to test file");
 }
