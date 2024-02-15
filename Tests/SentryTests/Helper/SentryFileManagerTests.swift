@@ -795,42 +795,6 @@ extension SentryFileManagerTests {
         removeAppLaunchProfilingConfigFile()
         expect(NSDictionary(contentsOf: launchProfileConfigFileURL())) == nil
     }
-    
-    func testBackupAppLaunchProfilingConfigFile() throws {
-        try ensureAppLaunchProfileConfig(exists: true)
-        try ensureAppLaunchProfileConfig(exists: false, backup: true)
-        expect(NSDictionary(contentsOf: launchProfileConfigFileURL())) != nil
-        expect(NSDictionary(contentsOf: launchProfileConfigBackupFileURL())) == nil
-        backupAppLaunchProfilingConfigFile()
-        expect(NSDictionary(contentsOf: launchProfileConfigFileURL())) == nil
-        expect(NSDictionary(contentsOf: launchProfileConfigBackupFileURL())) != nil
-    }
-    
-    // if a file is still present in the backup location, like if a crash occurred before it could be removed, or an error occurred when trying to remove it, make sure we overwrite it
-    func testBackupAppLaunchProfilingConfigFile_anotherBackupFilePresent() throws {
-        try ensureAppLaunchProfileConfig(exists: true, tracesSampleRate: 0.1, profilesSampleRate: 0.2)
-        try ensureAppLaunchProfileConfig(exists: true, tracesSampleRate: 0.3, profilesSampleRate: 0.4, backup: true)
-        expect(NSDictionary(contentsOf: launchProfileConfigFileURL())) != nil
-        expect(NSDictionary(contentsOf: launchProfileConfigBackupFileURL())) != nil
-        backupAppLaunchProfilingConfigFile()
-        expect(NSDictionary(contentsOf: launchProfileConfigFileURL())) == nil
-        expect(NSDictionary(contentsOf: launchProfileConfigBackupFileURL())) != nil
-    }
-    
-    func testRemoveAppLaunchProfilingConfigBackupFile() throws {
-        try ensureAppLaunchProfileConfig(exists: true, backup: true)
-        expect(NSDictionary(contentsOf: launchProfileConfigBackupFileURL())) != nil
-        removeAppLaunchProfilingConfigBackupFile()
-        expect(NSDictionary(contentsOf: launchProfileConfigBackupFileURL())) == nil
-    }
-    
-    // if there's not a file when we expect one, just make sure we don't crash
-    func testRemoveAppLaunchProfilingConfigBackupFile_noFileExists() throws {
-        try ensureAppLaunchProfileConfig(exists: false, backup: true)
-        expect(NSDictionary(contentsOf: launchProfileConfigBackupFileURL())) == nil
-        removeAppLaunchProfilingConfigBackupFile()
-        expect(NSDictionary(contentsOf: launchProfileConfigBackupFileURL())) == nil
-    }
 }
 
 // MARK: Private profiling tests
