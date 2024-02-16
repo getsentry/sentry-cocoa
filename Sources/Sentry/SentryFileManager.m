@@ -813,7 +813,9 @@ removeAppLaunchProfilingConfigFile(void)
 - (void)clearDiskState
 {
     [self removeFileAtPath:self.basePath];
+#if SENTRY_TARGET_PROFILING_SUPPORTED
     [self removeFileAtPath:sentryApplicationSupportPath()];
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED
 }
 
 @end
