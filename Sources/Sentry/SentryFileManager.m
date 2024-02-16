@@ -816,11 +816,6 @@ removeAppLaunchProfilingConfigFile(void)
     [self removeFileAtPath:sentryApplicationSupportPath()];
 }
 
-- (void)clearDiskState
-{
-    [self removeFileAtPath:self.basePath];
-}
-
 @end
 
 NS_ASSUME_NONNULL_END
