@@ -818,11 +818,6 @@ removeAppLaunchProfilingConfigFile(void)
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 }
 
-- (void)clearDiskState
-{
-    [self removeFileAtPath:self.basePath];
-}
-
 @end
 
 NS_ASSUME_NONNULL_END
