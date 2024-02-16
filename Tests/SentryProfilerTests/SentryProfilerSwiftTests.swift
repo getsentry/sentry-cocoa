@@ -16,8 +16,6 @@ class SentryProfilerSwiftTests: XCTestCase {
         lazy var hub: SentryHub = {
             let hub = SentryHub(client: client, andScope: scope)
             hub.bindClient(client)
-            Dynamic(hub).tracesSampler.random = TestRandom(value: 1.0)
-            Dynamic(hub).profilesSampler.random = TestRandom(value: 0.5)
             return hub
         }()
         let scope = Scope()
@@ -37,7 +35,7 @@ class SentryProfilerSwiftTests: XCTestCase {
 #if !os(macOS)
         lazy var displayLinkWrapper = TestDisplayLinkWrapper(dateProvider: currentDateProvider)
         lazy var framesTracker = SentryFramesTracker(displayLinkWrapper: displayLinkWrapper, dateProvider: currentDateProvider, dispatchQueueWrapper: SentryDispatchQueueWrapper(), keepDelayedFramesDuration: 0)
-#endif
+#endif // !os(macOS)
 
         init() {
             SentryDependencyContainer.sharedInstance().dateProvider = currentDateProvider
@@ -52,6 +50,8 @@ class SentryProfilerSwiftTests: XCTestCase {
             SentryDependencyContainer.sharedInstance().dispatchFactory = dispatchFactory
             SentryDependencyContainer.sharedInstance().timerFactory = timeoutTimerFactory
             SentryDependencyContainer.sharedInstance().dispatchQueueWrapper = dispatchQueueWrapper
+            
+            SentryDependencyContainer.sharedInstance().random = TestRandom(value: 0.5)
 
             systemWrapper.overrides.cpuUsage = NSNumber(value: mockCPUUsage)
             systemWrapper.overrides.memoryFootprintBytes = mockMemoryFootprint
@@ -61,7 +61,7 @@ class SentryProfilerSwiftTests: XCTestCase {
             SentryDependencyContainer.sharedInstance().framesTracker = framesTracker
             framesTracker.start()
             displayLinkWrapper.call()
-#endif
+#endif // !os(macOS)
         }
 
         /// Advance the mock date provider, start a new transaction and return its handle.
@@ -95,9 +95,7 @@ class SentryProfilerSwiftTests: XCTestCase {
 #if !os(macOS)
         // SentryFramesTracker starts assuming a frame rate of 60 Hz and will only log an update if it changes, so the first value here needs to be different for it to register.
         let mockFrameRateChangesPerBatch: [FrameRate] = [.high, .low, .high, .low]
-#endif
 
-#if !os(macOS)
         // Absolute timestamps must be adjusted per span when asserting
         var expectedSlowFrames = [[String: Any]]()
         var expectedFrozenFrames = [[String: Any]]()
@@ -108,7 +106,7 @@ class SentryProfilerSwiftTests: XCTestCase {
             expectedFrozenFrames = [[String: Any]]()
             expectedFrameRateChanges = [[String: Any]]()
         }
-#endif
+#endif // !os(macOS)
 
         func gatherMockedMetrics(span: Span) throws {
             // clear out any errors that might've been set in previous calls
@@ -124,14 +122,14 @@ class SentryProfilerSwiftTests: XCTestCase {
                 systemWrapper.overrides.cpuEnergyUsage = NSNumber(value: systemWrapper.overrides.cpuEnergyUsage!.intValue + mockEnergyUsage.intValue)
             }
 
-    #if !os(macOS)
+#if !os(macOS)
             var shouldRecordFrameRateExpectation = true
-
+            
             func changeFrameRate(_ new: FrameRate) {
                 displayLinkWrapper.changeFrameRate(new)
                 shouldRecordFrameRateExpectation = true
             }
-
+            
             func renderGPUFrame(_ type: GPUFrame) {
                 switch type {
                 case .normal:
@@ -165,7 +163,7 @@ class SentryProfilerSwiftTests: XCTestCase {
                     ])
                 }
             }
-
+            
             /*
              * Mock a series of GPU frame renders of varying quality (normal/slow/frozen) and
              * refresh rate changes. The refresh rate changes ("|") happen at the same time as
@@ -198,7 +196,7 @@ class SentryProfilerSwiftTests: XCTestCase {
             renderGPUFrame(.slow)
             renderGPUFrame(.normal)
             renderGPUFrame(.frozen)
-    #endif
+#endif // !os(macOS)
 
             // mock errors gathering cpu usage and memory footprint and fire a callback for them to ensure they don't add more information to the payload
             systemWrapper.overrides.cpuUsageError = NSError(domain: "test-error", code: 0)
@@ -218,7 +216,7 @@ class SentryProfilerSwiftTests: XCTestCase {
         var appStartDuration = 0.5
         lazy var appStartEnd = appStart.addingTimeInterval(appStartDuration)
 
-        #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+#if !os(macOS)
         func getAppStartMeasurement(type: SentryAppStartType, preWarmed: Bool = false) -> SentryAppStartMeasurement {
             let runtimeInitDuration = 0.05
             let runtimeInit = appStart.addingTimeInterval(runtimeInitDuration)
@@ -231,7 +229,7 @@ class SentryProfilerSwiftTests: XCTestCase {
             return SentryAppStartMeasurement(type: type, isPreWarmed: preWarmed, appStartTimestamp: appStart, duration: appStartDuration, runtimeInitTimestamp: runtimeInit, moduleInitializationTimestamp: main,
                                              sdkStartTimestamp: appStart, didFinishLaunchingTimestamp: didFinishLaunching)
         }
-        #endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+#endif // !os(macOS)
     }
 
     private var fixture: Fixture!
@@ -323,7 +321,7 @@ class SentryProfilerSwiftTests: XCTestCase {
         spans.removeAll()
 #if !os(macOS)
         fixture.resetGPUExpectations()
-#endif
+#endif // !os(macOS)
 
         try createConcurrentSpansWithMetrics()
     }
@@ -380,7 +378,7 @@ class SentryProfilerSwiftTests: XCTestCase {
         try performTest(transactionEnvironment: expectedEnvironment)
     }
 
-    #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+#if !os(macOS)
     func testProfileWithTransactionContainingStartupSpansForColdStart() throws {
         try performTest(uikitParameters: UIKitParameters(launchType: .cold, prewarmed: false))
     }
@@ -392,7 +390,7 @@ class SentryProfilerSwiftTests: XCTestCase {
     func testProfileWithTransactionContainingStartupSpansForPrewarmedStart() throws {
         try performTest(uikitParameters: UIKitParameters(launchType: .cold, prewarmed: true))
     }
-#endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+#endif // !os(macOS)
 
     func testProfilingDataContainsEnvironmentSetFromConfigureScope() throws {
         let expectedEnvironment = "test-environment"
@@ -434,7 +432,7 @@ class SentryProfilerSwiftTests: XCTestCase {
 
     func testStartTransaction_WhenProfilesSampleRateAndProfilesSamplerNil() throws {
         try assertProfilesSampler(expectedDecision: .no) { options in
-            options.profilesSampleRate = nil
+            options.profilesSampleRate = 0
             options.profilesSampler = { _ in return nil }
         }
     }
@@ -534,7 +532,7 @@ class SentryProfilerSwiftTests: XCTestCase {
         XCTAssertEqual(self.fixture.client?.captureEventWithScopeInvocations.count, 0)
     }
 
-#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+#if !os(macOS)
     /// based on ``SentryTracerTests.testFinish_WaitForAllChildren_StartTimeModified_NoTransactionCaptured``
     func testProfilerCleanedUpAfterTransactionDiscarded_WaitForAllChildren_StartTimeModified() throws {
         XCTAssertEqual(SentryProfiler.currentProfiledTracers(), UInt(0))
@@ -551,7 +549,8 @@ class SentryProfilerSwiftTests: XCTestCase {
         XCTAssertEqual(SentryProfiler.currentProfiledTracers(), UInt(0))
         XCTAssertEqual(self.fixture.client?.captureEventWithScopeInvocations.count, 0)
     }
-#endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+#endif // !os(macOS)
+    
 }
 
 private extension SentryProfilerSwiftTests {
@@ -581,16 +580,16 @@ private extension SentryProfilerSwiftTests {
     }
 
     struct UIKitParameters {
-        #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
         var launchType: SentryAppStartType
         var prewarmed: Bool
-        #endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+#endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
     }
 
     func performTest(transactionEnvironment: String = kSentryDefaultEnvironment, shouldTimeOut: Bool = false, uikitParameters: UIKitParameters? = nil) throws {
         var testingAppLaunchSpans = false
-
-            #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+        
+#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
         if let uikitParameters = uikitParameters {
             testingAppLaunchSpans = true
             let appStartMeasurement = fixture.getAppStartMeasurement(type: uikitParameters.launchType, preWarmed: uikitParameters.prewarmed)
@@ -637,7 +636,7 @@ private extension SentryProfilerSwiftTests {
         try assertMetricEntries(measurements: measurements, key: kSentryProfilerSerializationKeySlowFrameRenders, expectedEntries: fixture.expectedSlowFrames, transaction: transaction)
         try assertMetricEntries(measurements: measurements, key: kSentryProfilerSerializationKeyFrozenFrameRenders, expectedEntries: fixture.expectedFrozenFrames, transaction: transaction)
         try assertMetricEntries(measurements: measurements, key: kSentryProfilerSerializationKeyFrameRates, expectedEntries: fixture.expectedFrameRateChanges, transaction: transaction)
-#endif
+#endif // !os(macOS)
     }
 
     func sortedByTimestamps(_ entries: [[String: Any]]) -> [[String: Any]] {
@@ -724,7 +723,7 @@ private extension SentryProfilerSwiftTests {
         XCTAssertTrue(try XCTUnwrap(device["is_emulator"] as? Bool))
 #else
         XCTAssertFalse(try XCTUnwrap(device["is_emulator"] as? Bool))
-#endif
+#endif // targetEnvironment(simulator)
 
         let os = try XCTUnwrap(profile["os"] as? [String: Any?])
         XCTAssertNotNil(os)
@@ -830,7 +829,7 @@ private extension SentryProfilerSwiftTests {
     func assertProfilesSampler(expectedDecision: SentrySampleDecision, options: (Options) -> Void) throws {
         let fixtureOptions = fixture.options
         fixtureOptions.tracesSampleRate = 1.0
-        fixtureOptions.profilesSampleRate = nil
+        fixtureOptions.profilesSampleRate = 0
         fixtureOptions.profilesSampler = { _ in
             switch expectedDecision {
             case .undecided, .no:
@@ -843,10 +842,7 @@ private extension SentryProfilerSwiftTests {
             }
         }
         options(fixtureOptions)
-
-        let hub = fixture.hub
-        Dynamic(hub).tracesSampler.random = TestRandom(value: 1.0)
-
+        
         let span = try fixture.newTransaction()
         addMockSamples()
         fixture.currentDateProvider.advance(by: 5)

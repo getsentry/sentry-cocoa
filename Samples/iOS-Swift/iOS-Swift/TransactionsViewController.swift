@@ -61,29 +61,10 @@ class TransactionsViewController: UIViewController {
     }
 
     var spans = [Span]()
-    let profilerNotification = NSNotification.Name("SentryProfileCompleteNotification")
 
     @IBAction func startTransaction(_ sender: UIButton) {
         highlightButton(sender)
         startNewTransaction()
-    }
-
-    fileprivate func startNewTransaction() {
-        spans.append(SentrySDK.startTransaction(name: "Manual Transaction", operation: "Manual Operation"))
-
-        NotificationCenter.default.addObserver(forName: profilerNotification, object: nil, queue: nil) { note in
-            DispatchQueue.main.async {
-                let alert = UIAlertController(title: "Profile completed", message: nil, preferredStyle: .alert)
-                alert.addTextField {
-                    //swiftlint:disable force_unwrapping
-                    $0.text = try! JSONSerialization.data(withJSONObject: note.userInfo!).base64EncodedString()
-                    //swiftlint:enable force_unwrapping
-                    $0.accessibilityLabel = "io.sentry.ui-tests.profile-marshaling-text-field"
-                }
-                alert.addAction(UIAlertAction(title: "OK", style: .default))
-                self.present(alert, animated: false)
-            }
-        }
     }
 
     @IBAction func startTransactionFromOtherThread(_ sender: UIButton) {
@@ -96,12 +77,6 @@ class TransactionsViewController: UIViewController {
 
     @IBAction func stopTransaction(_ sender: UIButton) {
         highlightButton(sender)
-
-        defer {
-            if spans.isEmpty {
-                NotificationCenter.default.removeObserver(self, name: profilerNotification, object: nil)
-            }
-        }
 
         func showConfirmation(span: Span) {
             DispatchQueue.main.async {
@@ -117,6 +92,12 @@ class TransactionsViewController: UIViewController {
                 testSpan.spanId == span.spanId
             })!)
             showConfirmation(span: span)
+        }
+        
+        if spans.isEmpty {
+            if let launchSpan = SentrySDK.span {
+                spans.append(launchSpan)
+            }
         }
 
         if spans.count == 1 {
@@ -195,5 +176,11 @@ class TransactionsViewController: UIViewController {
         let controller = PageViewController()
         controller.title = "Page View Controller"
         navigationController?.pushViewController(controller, animated: false)
+    }
+}
+
+fileprivate extension TransactionsViewController {
+    func startNewTransaction() {
+        spans.append(SentrySDK.startTransaction(name: "Manual Transaction", operation: "Manual Operation"))
     }
 }

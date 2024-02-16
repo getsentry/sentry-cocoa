@@ -50,6 +50,39 @@
 #        import <UIKit/UIKit.h>
 #    endif // SENTRY_HAS_UIKIT
 
+#    if defined(TEST) || defined(TESTCI) || defined(DEBUG)
+#        import "SentryFileManager.h"
+#        import "SentryInternalDefines.h"
+#        import "SentryLaunchProfiling.h"
+
+/**
+ * A category that overrides its `+[load]` method to deliberately take a long time to run, so we can
+ * see it show up in profile stack traces. Categories' `+[load]` methods are guaranteed to be called
+ * after all of a module's normal class' overrides, so we can be confident the ordering will always
+ * have started the launch profiler by the time this runs.
+ */
+@interface
+SentryProfiler (SlowLoad)
+@end
+
+@implementation
+SentryProfiler (SlowLoad)
++ (void)load
+{
+    SENTRY_LOG_DEBUG(@"Starting slow load method");
+    if ([NSProcessInfo.processInfo.arguments containsObject:@"--io.sentry.slow-load-method"]) {
+        NSMutableString *a = [NSMutableString string];
+        // 1,000,000 iterations takes about 225 milliseconds in the iPhone 15 simulator on an
+        // M2 macbook pro; we might have to adapt this for CI
+        for (NSUInteger i = 0; i < 4000000; i++) {
+            [a appendFormat:@"%d", arc4random() % 12345];
+        }
+    }
+    SENTRY_LOG_DEBUG(@"Finishing slow load method");
+}
+@end
+#    endif // defined(TEST) || defined(TESTCI) || defined(DEBUG)
+
 const int kSentryProfilerFrequencyHz = 101;
 NSTimeInterval kSentryProfilerTimeoutInterval = 30;
 
@@ -376,11 +409,13 @@ serializedProfileData(
 + (nullable SentryEnvelopeItem *)createProfilingEnvelopeItemForTransaction:
     (SentryTransaction *)transaction
 {
+    SENTRY_LOG_DEBUG(@"Creating profiling envelope item");
     const auto payload = [self collectProfileBetween:transaction.startSystemTime
                                                  and:transaction.endSystemTime
                                             forTrace:transaction.trace.internalID
                                                onHub:transaction.trace.hub];
     if (payload == nil) {
+        SENTRY_LOG_DEBUG(@"Payload was empty, will not create a profiling envelope item.");
         return nil;
     }
 
@@ -402,6 +437,50 @@ serializedProfileData(
     return [[SentryEnvelopeItem alloc] initWithHeader:header data:JSONData];
 }
 
+#    if defined(TEST) || defined(TESTCI) || defined(DEBUG)
+void
+writeProfileFile(NSDictionary<NSString *, id> *payload)
+{
+    NSData *data = [SentrySerialization dataWithJSONObject:payload];
+    NSFileManager *fm = [NSFileManager defaultManager];
+    NSString *appSupportDirPath = sentryApplicationSupportPath();
+
+    if (![fm fileExistsAtPath:appSupportDirPath]) {
+        SENTRY_LOG_DEBUG(@"Creating app support directory.");
+        NSError *error;
+        if (!SENTRY_CASSERT_RETURN([fm createDirectoryAtPath:appSupportDirPath
+                                       withIntermediateDirectories:NO
+                                                        attributes:nil
+                                                             error:&error],
+                @"Failed to create sentry app support directory")) {
+            return;
+        }
+    } else {
+        SENTRY_LOG_DEBUG(@"App support directory already exists.");
+    }
+
+    NSString *pathToWrite;
+    if (isTracingAppLaunch) {
+        SENTRY_LOG_DEBUG(@"Writing app launch profile.");
+        pathToWrite = [appSupportDirPath stringByAppendingPathComponent:@"launchProfile"];
+    } else {
+        SENTRY_LOG_DEBUG(@"Overwriting last non-launch profile.");
+        pathToWrite = [appSupportDirPath stringByAppendingPathComponent:@"profile"];
+    }
+
+    if ([fm fileExistsAtPath:pathToWrite]) {
+        SENTRY_LOG_DEBUG(@"Already a%@ profile file present; make sure to remove them right after "
+                         @"using them, and that tests clean state in between so there isn't "
+                         @"leftover config producing one when it isn't expected.",
+            isTracingAppLaunch ? @" launch" : @"");
+    }
+
+    SENTRY_LOG_DEBUG(@"Writing%@ profile to file.", isTracingAppLaunch ? @" launch" : @"");
+    SENTRY_CASSERT(
+        [data writeToFile:pathToWrite atomically:YES], @"Failed to write profile to test file");
+}
+#    endif // defined(TEST) || defined(TESTCI) || defined(DEBUG)
+
 + (nullable NSMutableDictionary<NSString *, id> *)collectProfileBetween:(uint64_t)startSystemTime
                                                                     and:(uint64_t)endSystemTime
                                                                forTrace:(SentryId *)traceId
@@ -414,11 +493,10 @@ serializedProfileData(
 
     const auto payload = [profiler serializeBetween:startSystemTime and:endSystemTime onHub:hub];
 
-#    if defined(TEST) || defined(TESTCI)
-    [NSNotificationCenter.defaultCenter postNotificationName:@"SentryProfileCompleteNotification"
-                                                      object:nil
-                                                    userInfo:payload];
-#    endif // defined(TEST) || defined(TESTCI)
+#    if defined(TEST) || defined(TESTCI) || defined(DEBUG)
+    writeProfileFile(payload);
+#    endif // defined(TEST) || defined(TESTCI) || defined(DEBUG)
+
     return payload;
 }
 
