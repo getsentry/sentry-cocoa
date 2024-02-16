@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+### Features
+
+- Add field `SentrySDK.detectedStartUpCrash` (#3644)
+
+
 ### Improvements
 
 - Cache installationID async to avoid file IO on the main thread when starting the SDK (#3601)
