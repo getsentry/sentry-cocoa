@@ -1,5 +1,5 @@
 Pod::Spec.new do |s|
-  s.name         = "SentryPrivate"
+  s.name         = "SentryPrivate_Intercom"
   s.version      = "8.20.0"
   s.summary      = "Sentry Private Library."
   s.homepage     = "https://github.com/getsentry/sentry-cocoa"
@@ -19,7 +19,7 @@ Pod::Spec.new do |s|
   s.tvos.deployment_target = "11.0"
   s.watchos.deployment_target = "4.0"
   s.visionos.deployment_target = "1.0"
-  s.module_name  = "SentryPrivate"
+  s.module_name  = "SentryPrivate_Intercom"
   s.frameworks = 'Foundation'
 
   s.swift_versions = "5.5"

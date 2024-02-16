@@ -1,5 +1,5 @@
 import Foundation
-import SentryPrivate
+import SentryPrivate_Intercom
 import XCTest
 
 class UrlSanitizedTests: XCTestCase {

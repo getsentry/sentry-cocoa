@@ -1,7 +1,7 @@
 #import "SentryUIApplication.h"
 #import "SentryDependencyContainer.h"
 #import "SentryDispatchQueueWrapper.h"
-@import SentryPrivate;
+@import SentryPrivate_Intercom;
 #import "SentryNSNotificationCenterWrapper.h"
 
 #if SENTRY_HAS_UIKIT

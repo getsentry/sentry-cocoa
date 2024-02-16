@@ -1,5 +1,5 @@
 import Sentry
-import SentryPrivate
+import SentryPrivate_Intercom
 import SentryTestUtils
 import XCTest
 

@@ -10,7 +10,7 @@
 #    import "SentryUIApplication.h"
 #    import <UIKit/UIKit.h>
 
-@import SentryPrivate;
+@import SentryPrivate_Intercom;
 
 static int
 writeJSONDataToFile(const char *const data, const int length, void *const userData)

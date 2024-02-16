@@ -9,7 +9,7 @@
 #import "SentrySDK+Private.h"
 #import "SentryScope+Private.h"
 #import "SentrySpanProtocol.h"
-@import SentryPrivate;
+@import SentryPrivate_Intercom;
 #import "SentrySpan.h"
 #import "SentryStacktrace.h"
 #import "SentryThreadInspector.h"

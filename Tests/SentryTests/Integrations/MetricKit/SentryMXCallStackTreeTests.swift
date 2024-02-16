@@ -1,5 +1,5 @@
 #if os(iOS) || os(macOS)
-import SentryPrivate
+import SentryPrivate_Intercom
 import XCTest
 
 /**
