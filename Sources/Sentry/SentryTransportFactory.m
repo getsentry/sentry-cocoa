@@ -23,8 +23,8 @@ SentryTransportFactory ()
 
 @implementation SentryTransportFactory
 
-+ (id<SentryTransport>)initTransport:(SentryOptions *)options
-                   sentryFileManager:(SentryFileManager *)sentryFileManager
++ (NSArray<id<SentryTransport>> *)initTransports:(SentryOptions *)options
+                               sentryFileManager:(SentryFileManager *)sentryFileManager
 {
     NSURLSessionConfiguration *configuration =
         [NSURLSessionConfiguration ephemeralSessionConfiguration];
@@ -51,13 +51,16 @@ SentryTransportFactory ()
         [[SentryDispatchQueueWrapper alloc] initWithName:"sentry-http-transport"
                                               attributes:attributes];
 
-    return [[SentryHttpTransport alloc] initWithOptions:options
-                                            fileManager:sentryFileManager
-                                         requestManager:requestManager
-                                         requestBuilder:[[SentryNSURLRequestBuilder alloc] init]
-                                             rateLimits:rateLimits
-                                      envelopeRateLimit:envelopeRateLimit
-                                   dispatchQueueWrapper:dispatchQueueWrapper];
+    SentryHttpTransport *httpTransport =
+        [[SentryHttpTransport alloc] initWithOptions:options
+                                         fileManager:sentryFileManager
+                                      requestManager:requestManager
+                                      requestBuilder:[[SentryNSURLRequestBuilder alloc] init]
+                                          rateLimits:rateLimits
+                                   envelopeRateLimit:envelopeRateLimit
+                                dispatchQueueWrapper:dispatchQueueWrapper];
+
+    return @[ httpTransport ];
 }
 
 @end

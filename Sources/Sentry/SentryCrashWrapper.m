@@ -66,11 +66,6 @@ NS_ASSUME_NONNULL_BEGIN
     return sentrycrashcm_system_freememory_size();
 }
 
-- (bytes)freeStorageSize
-{
-    return sentrycrashcm_system_freestorage_size();
-}
-
 - (bytes)appMemorySize
 {
     task_vm_info_data_t info;

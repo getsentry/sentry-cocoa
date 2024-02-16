@@ -36,7 +36,6 @@ final class SentryExtraContextProviderTests: XCTestCase {
         let sut = fixture.getSut()
         fixture.crashWrapper.internalFreeMemorySize = 123_456
         fixture.crashWrapper.internalAppMemorySize = 234_567
-        fixture.crashWrapper.internalFreeStorageSize = 345_678
         
         let actualContext = sut.getExtraContext()
         let device = actualContext["device"] as? [String: Any]
@@ -44,7 +43,6 @@ final class SentryExtraContextProviderTests: XCTestCase {
         
         XCTAssertEqual(device?["free_memory"] as? UInt64, fixture.crashWrapper.internalFreeMemorySize)
         XCTAssertEqual(app?["app_memory"] as? UInt64, fixture.crashWrapper.internalAppMemorySize)
-        XCTAssertEqual(device?["free_storage"] as? UInt64, fixture.crashWrapper.internalFreeStorageSize)
     }
     
     func testExtraDeviceInfo() {
