@@ -798,13 +798,16 @@ extension SentryFileManagerTests {
     
     func testCheckForLaunchProfilingConfigFile_URLDoesNotExist() {
         // cause the dispatch_once to initialize the internal value
-        _ = launchProfileConfigFileURL()
+        let originalURL = launchProfileConfigFileURL()
 
         // set to nil to simulate exceptional environments
         sentryLaunchConfigFileURL = nil
 
         // make sure we return a default-off value and also don't crash the call to access()
         expect(appLaunchProfileConfigFileExists()) == false
+        
+        // set the original value back so other tests don't crash
+        sentryLaunchConfigFileURL = (originalURL as NSURL)
     }
 }
 
