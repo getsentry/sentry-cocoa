@@ -710,6 +710,11 @@ SentryFileManager ()
     return YES;
 }
 
+- (void)clearDiskState
+{
+    [self removeFileAtPath:self.basePath];
+}
+
 @end
 
 NS_ASSUME_NONNULL_END

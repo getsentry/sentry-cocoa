@@ -31,7 +31,7 @@
 #import "SentryDispatchQueueWrapper.h"
 #import "SentryDispatchSourceWrapper.h"
 #import "SentryEnvelope.h"
-#import "SentryFileManager.h"
+#import "SentryFileManager+TestProperties.h"
 #import "SentryGlobalEventProcessor.h"
 #import "SentryLog.h"
 #import "SentryNSProcessInfoWrapper.h"
