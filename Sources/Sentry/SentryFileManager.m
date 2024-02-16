@@ -813,6 +813,7 @@ removeAppLaunchProfilingConfigFile(void)
 - (void)clearDiskState
 {
     [self removeFileAtPath:self.basePath];
+    [self removeFileAtPath:sentryApplicationSupportPath()];
 }
 
 @end
