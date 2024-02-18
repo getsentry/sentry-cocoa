@@ -48,6 +48,11 @@ NS_SWIFT_NAME(Scope)
 - (void)setTags:(NSDictionary<NSString *, NSString *> *_Nullable)tags;
 
 /**
+ * Gets the dictionary of currently set tags.
+ */
+- (NSDictionary<NSString *, NSString *> *)tags;
+
+/**
  * Set global extra -> these will be sent with every event
  */
 - (void)setExtras:(NSDictionary<NSString *, id> *_Nullable)extras;
