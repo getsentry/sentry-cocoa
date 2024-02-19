@@ -2,7 +2,7 @@ apiVersion: v1alpha
 kind: xcuitest
 sauce:
   region: us-west-1
-  concurrency: 2
+  concurrency: 4
 
 defaults:
   timeout: 20m
