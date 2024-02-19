@@ -8,6 +8,7 @@
 for development. Read our [blog post](https://blog.sentry.io/sentry-for-development/) to find out more.
 - Add field `SentrySDK.detectedStartUpCrash` (#3644)
 - Automatically profile app launches (#3529)
+- Use CocoaPods resource_bundles for PrivacyInfo (#3651)
 
 ### Improvements
 
