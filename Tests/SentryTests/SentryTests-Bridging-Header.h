@@ -213,6 +213,7 @@
 #import "SentryEnvelopeAttachmentHeader.h"
 #import "SentryExtraContextProvider.h"
 #import "SentryMeasurementValue.h"
+#import "SentryMsgPackSerializer.h"
 #import "SentryNSProcessInfoWrapper.h"
 #import "SentryPerformanceTracker+Testing.h"
 #import "SentryPropagationContext.h"
@@ -224,4 +225,3 @@
 #import "SentryTimeToDisplayTracker.h"
 #import "SentryTracerConfiguration.h"
 #import "TestSentryViewHierarchy.h"
-#import "SentryMsgPackSerializer.h"

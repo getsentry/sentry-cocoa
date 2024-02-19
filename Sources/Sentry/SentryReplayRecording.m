@@ -32,8 +32,8 @@ NS_ASSUME_NONNULL_BEGIN
 
     long timestamp = [SentryDateUtil millisecondsSince1970:self.start];
 
-    //This format is defined by RRWeb
-    //empty values are required by the format
+    // This format is defined by RRWeb
+    // empty values are required by the format
     NSDictionary *metaInfo = @{
         @"type" : @4,
         @"timestamp" : @(timestamp),
