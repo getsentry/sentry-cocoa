@@ -114,9 +114,8 @@ jobs:
 
       - run: npm install -g saucectl@0.173.2
 
-      # As Sauce Labs is a bit flaky we retry 5 times
       - name: Run Tests in SauceLab
         env:
           SAUCE_USERNAME: ${{ secrets.SAUCE_USERNAME }}
           SAUCE_ACCESS_KEY: ${{ secrets.SAUCE_ACCESS_KEY }}
-        run: for i in {1..5}; do saucectl run --select-suite ${{ matrix.suite }} && break ; done
+        run: saucectl run --select-suite ${{ matrix.suite }}
