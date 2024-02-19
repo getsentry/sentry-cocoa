@@ -5,6 +5,7 @@
 ### Features
 
 - Automatically profile app launches (#3529)
+- Use cocoapod resource_bundles for PrivacyInfo (#3651)
 
 ### Improvements
 
