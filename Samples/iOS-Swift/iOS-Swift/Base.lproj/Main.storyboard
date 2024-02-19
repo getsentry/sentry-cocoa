@@ -791,6 +791,7 @@
                                                     </button>
                                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="FfQ-2y-q0S">
                                                         <rect key="frame" x="0.0" y="28" width="152" height="28"/>
+                                                        <accessibility key="accessibilityConfiguration" identifier="uiEventTests"/>
                                                         <fontDescription key="fontDescription" type="system" pointSize="13"/>
                                                         <state key="normal" title="UI event tests"/>
                                                         <connections>
