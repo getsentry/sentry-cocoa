@@ -488,9 +488,8 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     replayEvent = (SentryReplayEvent *)[self prepareEvent:replayEvent
                                                 withScope:scope
                                    alwaysAttachStacktrace:NO];
-    if (replayEvent == nil) {
-        return;
-    } else if (![replayEvent isKindOfClass:SentryReplayEvent.class]) {
+    
+    if (![replayEvent isKindOfClass:SentryReplayEvent.class]) {
         SENTRY_LOG_DEBUG(@"The event preprocessor didn't update the replay event in place. The "
                          @"replay was discarded.");
         return;
