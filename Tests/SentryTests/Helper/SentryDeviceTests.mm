@@ -34,6 +34,8 @@
 {
     [super setUp];
 
+    // We run these UI tests on multiple platforms, but we only need to set the orientation to
+    // portrait for iOS, because we only run UI tests on real devices for iOS.
 #if TARGET_OS_IOS
     [[XCUIDevice sharedDevice] setOrientation:UIDeviceOrientationPortrait];
 #endif
