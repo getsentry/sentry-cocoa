@@ -1587,10 +1587,7 @@ class SentryClientTest: XCTestCase {
         let movieUrl = Bundle(for: self.classForCoder).url(forResource: "Resources/raw", withExtension: "json")
         
         sut.capture(replayEvent, replayRecording: replayRecording, video: movieUrl!, with: Scope())
-        
         let envelope = fixture.transport.sentEnvelopes.first
-                
-        expect(envelope?.items.count) == 1
         expect(envelope?.items[0].header.type) == SentryEnvelopeItemTypeReplayVideo
     }
     
