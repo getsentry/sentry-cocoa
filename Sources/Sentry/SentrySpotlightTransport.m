@@ -51,40 +51,38 @@ SentrySpotlightTransport ()
         return;
     }
 
-    [self.dispatchQueue dispatchAsyncWithBlock:^{
-        // Spotlight can only handle the following envelope items.
-        // Not removing them leads to an error and events won't get displayed.
-        NSMutableArray<SentryEnvelopeItem *> *allowedEnvelopeItems = [NSMutableArray new];
-        for (SentryEnvelopeItem *item in envelope.items) {
-            if ([item.header.type isEqualToString:SentryEnvelopeItemTypeEvent]) {
-                [allowedEnvelopeItems addObject:item];
-            }
-            if ([item.header.type isEqualToString:SentryEnvelopeItemTypeTransaction]) {
-                [allowedEnvelopeItems addObject:item];
-            }
+    // Spotlight can only handle the following envelope items.
+    // Not removing them leads to an error and events won't get displayed.
+    NSMutableArray<SentryEnvelopeItem *> *allowedEnvelopeItems = [NSMutableArray new];
+    for (SentryEnvelopeItem *item in envelope.items) {
+        if ([item.header.type isEqualToString:SentryEnvelopeItemTypeEvent]) {
+            [allowedEnvelopeItems addObject:item];
         }
-
-        SentryEnvelope *envelopeToSend =
-            [[SentryEnvelope alloc] initWithHeader:envelope.header items:allowedEnvelopeItems];
-
-        NSError *requestError = nil;
-        NSURLRequest *request = [self.requestBuilder createEnvelopeRequest:envelopeToSend
-                                                                       url:self.apiURL
-                                                          didFailWithError:&requestError];
-
-        if (requestError) {
-            SENTRY_LOG_ERROR(@"Unable to build envelope request with error %@", requestError);
-            return;
+        if ([item.header.type isEqualToString:SentryEnvelopeItemTypeTransaction]) {
+            [allowedEnvelopeItems addObject:item];
         }
+    }
 
-        [self.requestManager
-                   addRequest:request
-            completionHandler:^(NSHTTPURLResponse *_Nullable response, NSError *_Nullable error) {
-                if (error) {
-                    SENTRY_LOG_ERROR(@"Error while performing request %@", requestError);
-                }
-            }];
-    }];
+    SentryEnvelope *envelopeToSend = [[SentryEnvelope alloc] initWithHeader:envelope.header
+                                                                      items:allowedEnvelopeItems];
+
+    NSError *requestError = nil;
+    NSURLRequest *request = [self.requestBuilder createEnvelopeRequest:envelopeToSend
+                                                                   url:self.apiURL
+                                                      didFailWithError:&requestError];
+
+    if (requestError) {
+        SENTRY_LOG_ERROR(@"Unable to build envelope request with error %@", requestError);
+        return;
+    }
+
+    [self.requestManager
+               addRequest:request
+        completionHandler:^(NSHTTPURLResponse *_Nullable response, NSError *_Nullable error) {
+            if (error) {
+                SENTRY_LOG_ERROR(@"Error while performing request %@", requestError);
+            }
+        }];
 }
 
 - (SentryFlushResult)flush:(NSTimeInterval)timeout
