@@ -254,6 +254,16 @@ SENTRY_NO_INIT
 @property (nonatomic, class, readonly) BOOL crashedLastRun;
 
 /**
+ * Checks if the SDK detected a start-up crash during SDK initialization.
+ *
+ * @note The SDK init waits synchronously for up to 5 seconds to flush out events if the app crashes
+ * within 2 seconds after the SDK init.
+ *
+ * @return @c YES if the SDK detected a start-up crash and @c NO if not.
+ */
+@property (nonatomic, class, readonly) BOOL detectedStartUpCrash;
+
+/**
  * Set user to the current Scope of the current Hub.
  * @param user The user to set to the current Scope.
  */

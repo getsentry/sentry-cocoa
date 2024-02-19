@@ -4,6 +4,7 @@
 
 ### Features
 
+- Add field `SentrySDK.detectedStartUpCrash` (#3644)
 - Automatically profile app launches (#3529)
 
 ### Improvements
