@@ -13,7 +13,7 @@
 #import "SentryDependencyContainer.h"
 #import "SentryDispatchQueueWrapper.h"
 #import "SentryDsn.h"
-#import "SentryEnvelope.h"
+#import "SentryEnvelope+Private.h"
 #import "SentryEnvelopeItemType.h"
 #import "SentryEvent.h"
 #import "SentryException.h"
@@ -30,13 +30,12 @@
 #import "SentryMechanismMeta.h"
 #import "SentryMessage.h"
 #import "SentryMeta.h"
+#import "SentryMsgPackSerializer.h"
 #import "SentryNSError.h"
 #import "SentryOptions+Private.h"
 #import "SentryPropagationContext.h"
 #import "SentryRandom.h"
-#import "SentryReplayEnvelopeItemHeader.h"
 #import "SentryReplayEvent.h"
-#import "SentryReplayRecording.h"
 #import "SentrySDK+Private.h"
 #import "SentryScope+Private.h"
 #import "SentrySerialization.h"
@@ -489,7 +488,6 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     replayEvent = (SentryReplayEvent *)[self prepareEvent:replayEvent
                                                 withScope:scope
                                    alwaysAttachStacktrace:NO];
-
     if (replayEvent == nil) {
         return;
     } else if (![replayEvent isKindOfClass:SentryReplayEvent.class]) {
@@ -501,25 +499,13 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     // breadcrumbs for replay will be send with ReplayRecording
     replayEvent.breadcrumbs = nil;
 
-    SentryEnvelopeItem *eventEnvelopeItem = [[SentryEnvelopeItem alloc] initWithEvent:replayEvent];
+    SentryEnvelopeItem *videoEnvelopeItem =
+        [[SentryEnvelopeItem alloc] initWithReplayEvent:replayEvent
+                                        replayRecording:replayRecording
+                                                  video:videoURL];
 
-    NSData *recording = [SentrySerialization dataWithJSONObject:[replayRecording serialize]];
-    SentryEnvelopeItem *recordingEnvelopeItem = [[SentryEnvelopeItem alloc]
-        initWithHeader:[SentryReplayEnvelopeItemHeader
-                           replayRecordingHeaderWithSegmentId:replayRecording.segmentId
-                                                       length:recording.length]
-                  data:recording];
-
-    NSData *video = [NSData dataWithContentsOfURL:videoURL];
-    SentryEnvelopeItem *videoEnvelopeItem = [[SentryEnvelopeItem alloc]
-        initWithHeader:[SentryReplayEnvelopeItemHeader
-                           replayVideoHeaderWithSegmentId:replayRecording.segmentId
-                                                   length:video.length]
-                  data:video];
-
-    SentryEnvelope *envelope = [[SentryEnvelope alloc]
-        initWithHeader:[SentryEnvelopeHeader empty]
-                 items:@[ eventEnvelopeItem, recordingEnvelopeItem, videoEnvelopeItem ]];
+    SentryEnvelope *envelope = [[SentryEnvelope alloc] initWithHeader:[SentryEnvelopeHeader empty]
+                                                                items:@[ videoEnvelopeItem ]];
 
     [self captureEnvelope:envelope];
 }

@@ -39,6 +39,8 @@ static NSString *const SentryReplayFrameRateType = @"constant";
 
 - (NSArray<NSDictionary<NSString *, id> *> *)serialize;
 
+- (NSDictionary<NSString *, id> *)headerForReplayRecording;
+
 @end
 
 NS_ASSUME_NONNULL_END

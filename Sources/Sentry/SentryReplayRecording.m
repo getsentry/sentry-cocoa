@@ -27,13 +27,18 @@ NS_ASSUME_NONNULL_BEGIN
     return self;
 }
 
+- (NSDictionary *)headerForReplayRecording
+{
+    return @{ @"segment_id" : @(self.segmentId) };
+}
+
 - (NSArray<NSDictionary<NSString *, id> *> *)serialize
 {
 
     long timestamp = [SentryDateUtil millisecondsSince1970:self.start];
 
-    //This format is defined by RRWeb
-    //empty values are required by the format
+    // This format is defined by RRWeb
+    // empty values are required by the format
     NSDictionary *metaInfo = @{
         @"type" : @4,
         @"timestamp" : @(timestamp),

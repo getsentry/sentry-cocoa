@@ -745,7 +745,6 @@
 		D8019910286B089000C277F0 /* SentryCrashReportSinkTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D801990F286B089000C277F0 /* SentryCrashReportSinkTests.swift */; };
 		D80694C42B7CC9AE00B820E6 /* SentryReplayEventTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D80694C22B7CC86E00B820E6 /* SentryReplayEventTests.swift */; };
 		D80694C72B7CD22B00B820E6 /* SentryReplayRecordingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D80694C52B7CCFA100B820E6 /* SentryReplayRecordingTests.swift */; };
-		D80694CA2B7CD65800B820E6 /* SentryReplayEnvelopeItemHeaderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D80694C82B7CD65500B820E6 /* SentryReplayEnvelopeItemHeaderTests.swift */; };
 		D80694CD2B7E0A3E00B820E6 /* SentryReplayType.h in Headers */ = {isa = PBXBuildFile; fileRef = D80694CB2B7E0A3E00B820E6 /* SentryReplayType.h */; };
 		D80694CE2B7E0A3E00B820E6 /* SentryReplayType.m in Sources */ = {isa = PBXBuildFile; fileRef = D80694CC2B7E0A3E00B820E6 /* SentryReplayType.m */; };
 		D808FB88281AB33C009A2A33 /* SentryUIEventTrackerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D808FB86281AB31D009A2A33 /* SentryUIEventTrackerTests.swift */; };
@@ -812,8 +811,6 @@
 		D88817DD26D72BA500BF2251 /* SentryTraceStateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D88817DB26D72B7B00BF2251 /* SentryTraceStateTests.swift */; };
 		D88D6C1D2B7B5A8800C8C633 /* SentryReplayRecording.h in Headers */ = {isa = PBXBuildFile; fileRef = D88D6C1B2B7B5A8800C8C633 /* SentryReplayRecording.h */; };
 		D88D6C1E2B7B5A8800C8C633 /* SentryReplayRecording.m in Sources */ = {isa = PBXBuildFile; fileRef = D88D6C1C2B7B5A8800C8C633 /* SentryReplayRecording.m */; };
-		D88D6C212B7BA25400C8C633 /* SentryReplayEnvelopeItemHeader.h in Headers */ = {isa = PBXBuildFile; fileRef = D88D6C1F2B7BA25400C8C633 /* SentryReplayEnvelopeItemHeader.h */; };
-		D88D6C222B7BA25400C8C633 /* SentryReplayEnvelopeItemHeader.m in Sources */ = {isa = PBXBuildFile; fileRef = D88D6C202B7BA25400C8C633 /* SentryReplayEnvelopeItemHeader.m */; };
 		D8918B222849FA6D00701F9A /* SentrySDKIntegrationTestsBase.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8918B212849FA6D00701F9A /* SentrySDKIntegrationTestsBase.swift */; };
 		D8AB40DB2806EC1900E5E9F7 /* SentryScreenshotIntegration.h in Headers */ = {isa = PBXBuildFile; fileRef = D8AB40DA2806EC1900E5E9F7 /* SentryScreenshotIntegration.h */; };
 		D8ABB0BC29264275005D1E24 /* Sentry.swift in Sources */ = {isa = PBXBuildFile; fileRef = D81A349B291D0C0B005A27A9 /* Sentry.swift */; };
@@ -1740,7 +1737,6 @@
 		D801990F286B089000C277F0 /* SentryCrashReportSinkTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryCrashReportSinkTests.swift; sourceTree = "<group>"; };
 		D80694C22B7CC86E00B820E6 /* SentryReplayEventTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryReplayEventTests.swift; sourceTree = "<group>"; };
 		D80694C52B7CCFA100B820E6 /* SentryReplayRecordingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryReplayRecordingTests.swift; sourceTree = "<group>"; };
-		D80694C82B7CD65500B820E6 /* SentryReplayEnvelopeItemHeaderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryReplayEnvelopeItemHeaderTests.swift; sourceTree = "<group>"; };
 		D80694CB2B7E0A3E00B820E6 /* SentryReplayType.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SentryReplayType.h; path = include/SentryReplayType.h; sourceTree = "<group>"; };
 		D80694CC2B7E0A3E00B820E6 /* SentryReplayType.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentryReplayType.m; sourceTree = "<group>"; };
 		D808FB86281AB31D009A2A33 /* SentryUIEventTrackerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryUIEventTrackerTests.swift; sourceTree = "<group>"; };
@@ -1815,8 +1811,6 @@
 		D88817DB26D72B7B00BF2251 /* SentryTraceStateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryTraceStateTests.swift; sourceTree = "<group>"; };
 		D88D6C1B2B7B5A8800C8C633 /* SentryReplayRecording.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SentryReplayRecording.h; path = include/SentryReplayRecording.h; sourceTree = "<group>"; };
 		D88D6C1C2B7B5A8800C8C633 /* SentryReplayRecording.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentryReplayRecording.m; sourceTree = "<group>"; };
-		D88D6C1F2B7BA25400C8C633 /* SentryReplayEnvelopeItemHeader.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SentryReplayEnvelopeItemHeader.h; path = include/SentryReplayEnvelopeItemHeader.h; sourceTree = "<group>"; };
-		D88D6C202B7BA25400C8C633 /* SentryReplayEnvelopeItemHeader.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentryReplayEnvelopeItemHeader.m; sourceTree = "<group>"; };
 		D8918B212849FA6D00701F9A /* SentrySDKIntegrationTestsBase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentrySDKIntegrationTestsBase.swift; sourceTree = "<group>"; };
 		D8AB40DA2806EC1900E5E9F7 /* SentryScreenshotIntegration.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SentryScreenshotIntegration.h; path = include/SentryScreenshotIntegration.h; sourceTree = "<group>"; };
 		D8ACE3C42762187200F5A213 /* SentryNSDataSwizzling.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SentryNSDataSwizzling.m; sourceTree = "<group>"; };
@@ -3394,7 +3388,6 @@
 			children = (
 				D80694C22B7CC86E00B820E6 /* SentryReplayEventTests.swift */,
 				D80694C52B7CCFA100B820E6 /* SentryReplayRecordingTests.swift */,
-				D80694C82B7CD65500B820E6 /* SentryReplayEnvelopeItemHeaderTests.swift */,
 			);
 			path = SessionReplay;
 			sourceTree = "<group>";
@@ -3417,8 +3410,6 @@
 				D80694CC2B7E0A3E00B820E6 /* SentryReplayType.m */,
 				D88D6C1B2B7B5A8800C8C633 /* SentryReplayRecording.h */,
 				D88D6C1C2B7B5A8800C8C633 /* SentryReplayRecording.m */,
-				D88D6C1F2B7BA25400C8C633 /* SentryReplayEnvelopeItemHeader.h */,
-				D88D6C202B7BA25400C8C633 /* SentryReplayEnvelopeItemHeader.m */,
 			);
 			name = SessionReplay;
 			sourceTree = "<group>";
@@ -3773,7 +3764,6 @@
 				63FE70F920DA4C1000CDBAE8 /* SentryCrashMonitor.h in Headers */,
 				D8BD2E6829361A0F00D96C6A /* PrivatesHeader.h in Headers */,
 				7B98D7CB25FB64EC00C5A389 /* SentryWatchdogTerminationTrackingIntegration.h in Headers */,
-				D88D6C212B7BA25400C8C633 /* SentryReplayEnvelopeItemHeader.h in Headers */,
 				63FE710920DA4C1000CDBAE8 /* SentryCrashFileUtils.h in Headers */,
 				03F84D1F27DD414C008FE43F /* SentryAsyncSafeLogging.h in Headers */,
 				7BE3C76B2445C27A00A38442 /* SentryCurrentDateProvider.h in Headers */,
@@ -4239,7 +4229,6 @@
 				639FCFA91EBC80CC00778193 /* SentryFrame.m in Sources */,
 				D858FA672A29EAB3002A3503 /* SentryBinaryImageCache.m in Sources */,
 				8E564AEA267AF22600FE117D /* SentryNetworkTracker.m in Sources */,
-				D88D6C222B7BA25400C8C633 /* SentryReplayEnvelopeItemHeader.m in Sources */,
 				15360CED2433A15500112302 /* SentryInstallation.m in Sources */,
 				7B98D7E825FB7BCD00C5A389 /* SentryAppState.m in Sources */,
 				D8370B6A273DF1E900F66E2D /* SentryNSURLSessionTaskSearch.m in Sources */,
@@ -4520,7 +4509,6 @@
 				7BBD188D2448453600427C76 /* SentryHttpDateParserTests.swift in Sources */,
 				7B72D23A28D074BC0014798A /* TestExtensions.swift in Sources */,
 				7BBD18BB24530D2600427C76 /* SentryFileManagerTests.swift in Sources */,
-				D80694CA2B7CD65800B820E6 /* SentryReplayEnvelopeItemHeaderTests.swift in Sources */,
 				63FE722020DA66EC00CDBAE8 /* SentryCrashObjC_Tests.m in Sources */,
 				7B58816727FC5D790098B121 /* SentryDiscardReasonMapperTests.swift in Sources */,
 				63FE720320DA66EC00CDBAE8 /* SentryCrashCPU_Tests.m in Sources */,
