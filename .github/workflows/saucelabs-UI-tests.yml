@@ -128,4 +128,4 @@ jobs:
         env:
           SAUCE_USERNAME: ${{ secrets.SAUCE_USERNAME }}
           SAUCE_ACCESS_KEY: ${{ secrets.SAUCE_ACCESS_KEY }}
-        run: do saucectl run --select-suite ${{ matrix.suite }}
+        run: saucectl run --select-suite ${{ matrix.suite }}
