@@ -2,13 +2,15 @@
 #import "SentryDateUtil.h"
 #import "SentryId.h"
 
+NS_ASSUME_NONNULL_BEGIN
+
 @implementation SentryReplayEvent
 
 - (NSDictionary *)serialize
 {
     NSMutableDictionary *result = [[super serialize] mutableCopy];
 
-    NSMutableArray *trace_ids = [NSMutableArray array];
+    NSMutableArray *trace_ids = [[NSMutableArray alloc] initWithCapacity:self.traceIds.count];
 
     for (SentryId *traceId in self.traceIds) {
         [trace_ids addObject:traceId.sentryIdString];
@@ -26,3 +28,5 @@
 }
 
 @end
+
+NS_ASSUME_NONNULL_END

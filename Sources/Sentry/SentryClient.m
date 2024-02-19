@@ -484,9 +484,10 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 - (void)captureReplayEvent:(SentryReplayEvent *)replayEvent
            replayRecording:(SentryReplayRecording *)replayRecording
                      video:(NSURL *)videoURL
+                 withScope:(SentryScope *)scope
 {
     replayEvent = (SentryReplayEvent *)[self prepareEvent:replayEvent
-                                                withScope:[[SentryScope alloc] init]
+                                                withScope:scope
                                    alwaysAttachStacktrace:NO];
 
     if (replayEvent == nil) {
