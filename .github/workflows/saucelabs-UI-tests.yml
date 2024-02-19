@@ -34,7 +34,7 @@ jobs:
             xcode: '13.4.1'
 
           - runs-on: macos-13
-            xcode: '14.3'
+            xcode: '15.2'
     
     steps:
       - uses: actions/checkout@v4
@@ -96,21 +96,11 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - xcode: '14.3'
+          - xcode: '15.2'
+            suite: 'iOS-17'
+
+          - xcode: '15.2'
             suite: 'iOS-16'
-
-          - xcode: '14.3'
-            suite: 'iOS-15'
-
-          # We want to test the frame tracker at 120 fps
-          - xcode: '14.3'
-            suite: 'iPhone-Pro'
-
-          - xcode: '14.3'
-            suite: 'iOS-14'
-
-          - xcode: '13.4.1'
-            suite: 'iOS-13'
 
           - xcode: '13.4.1'
             suite: 'iOS-12'
