@@ -34,7 +34,9 @@
 {
     [super setUp];
 
+#if TARGET_OS_IOS
     [[XCUIDevice sharedDevice] setOrientation:UIDeviceOrientationPortrait];
+#endif
 }
 
 - (void)testCPUArchitecture
