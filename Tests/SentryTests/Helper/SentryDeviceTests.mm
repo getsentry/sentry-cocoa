@@ -30,6 +30,13 @@
 
 @implementation SentryDeviceTests
 
+- (void)setUp
+{
+    [super setUp];
+
+    [[XCUIDevice sharedDevice] setOrientation:UIDeviceOrientationPortrait];
+}
+
 - (void)testCPUArchitecture
 {
     const auto arch = sentry_getCPUArchitecture();
