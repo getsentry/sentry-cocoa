@@ -1586,7 +1586,7 @@ class SentryClientTest: XCTestCase {
         //Not a video url, but its ok for test the envelope
         let movieUrl = Bundle(for: self.classForCoder).url(forResource: "Resources/raw", withExtension: "json")
         
-        sut.capture(replayEvent, replayRecording: replayRecording, video: movieUrl!)
+        sut.capture(replayEvent, replayRecording: replayRecording, video: movieUrl!, with: Scope())
         
         let envelope = fixture.transport.sentEnvelopes.first
         

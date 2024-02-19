@@ -22,7 +22,7 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 
-@interface NSInputStream (inputStreameble) <SentryStreameble>
+@interface NSData (inputStreameble) <SentryStreameble>
 @end
 
 @interface NSURL (inputStreameble) <SentryStreameble>
