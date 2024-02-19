@@ -195,7 +195,19 @@ class SentrySDKTests: XCTestCase {
     }
     
     func testCrashedLastRun() {
-        XCTAssertEqual(SentryDependencyContainer.sharedInstance().crashReporter.crashedLastLaunch, SentrySDK.crashedLastRun) 
+        expect(SentryDependencyContainer.sharedInstance().crashReporter.crashedLastLaunch) == SentrySDK.crashedLastRun
+    }
+    
+    func testDetectedStartUpCrash_DefaultValue() {
+        expect(SentrySDK.detectedStartUpCrash) == false
+    }
+    
+    func testDetectedStartUpCrash() {
+        SentrySDK.setDetectedStartUpCrash(true)
+        expect(SentrySDK.detectedStartUpCrash) == true
+        
+        SentrySDK.setDetectedStartUpCrash(false)
+        expect(SentrySDK.detectedStartUpCrash) == false
     }
     
     func testCaptureCrashEvent() {

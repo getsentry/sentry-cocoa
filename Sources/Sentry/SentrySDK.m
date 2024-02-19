@@ -42,6 +42,7 @@ static SentryHub *_Nullable currentHub;
 static BOOL crashedLastRunCalled;
 static SentryAppStartMeasurement *sentrySDKappStartMeasurement;
 static NSObject *sentrySDKappStartMeasurementLock;
+static BOOL _detectedStartUpCrash;
 
 /**
  * @brief We need to keep track of the number of times @c +[startWith...] is called, because our OOM
@@ -59,6 +60,7 @@ static NSDate *_Nullable startTimestamp = nil;
     if (self == [SentrySDK class]) {
         sentrySDKappStartMeasurementLock = [[NSObject alloc] init];
         startInvocations = 0;
+        _detectedStartUpCrash = NO;
     }
 }
 
@@ -380,6 +382,16 @@ static NSDate *_Nullable startTimestamp = nil;
 + (BOOL)crashedLastRun
 {
     return SentryDependencyContainer.sharedInstance.crashReporter.crashedLastLaunch;
+}
+
++ (BOOL)detectedStartUpCrash
+{
+    return _detectedStartUpCrash;
+}
+
++ (void)setDetectedStartUpCrash:(BOOL)value
+{
+    _detectedStartUpCrash = value;
 }
 
 + (void)startSession

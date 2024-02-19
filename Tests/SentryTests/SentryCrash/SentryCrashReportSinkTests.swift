@@ -1,3 +1,4 @@
+import Nimble
 import SentryTestUtils
 import XCTest
 
@@ -19,6 +20,11 @@ class SentryCrashReportSinkTests: SentrySDKIntegrationTestsBase {
         fixture = Fixture()
         
         givenSdkWithHub()
+    }
+    
+    override func tearDown() {
+        super.tearDown()
+        clearTestState()
     }
         
     func testFilterReports_withScreenShots() {
@@ -56,6 +62,14 @@ class SentryCrashReportSinkTests: SentrySDKIntegrationTestsBase {
         XCTAssertEqual(1, client.flushInvocations.count)
         XCTAssertEqual(5, client.flushInvocations.first)
         XCTAssertEqual(0, fixture.dispatchQueue.dispatchAsyncCalled)
+    }
+    
+    func testAppStartCrash_LowerBound_SetsDetectedStartUpCrash() {
+        fixture.crashWrapper.internalDurationFromCrashStateInitToLastCrash = 0.001
+        
+        filterReportWithAttachment()
+        
+        expect(SentrySDK.detectedStartUpCrash) == true
     }
     
     func testAppStartCrash_UpperBound_CallsFlush() {
