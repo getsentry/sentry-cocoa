@@ -1,6 +1,8 @@
 #import "SentryReplayRecording.h"
 #import "SentryDateUtil.h"
 
+NS_ASSUME_NONNULL_BEGIN
+
 @implementation SentryReplayRecording
 
 - (instancetype)initWithSegmentId:(NSInteger)segmentId
@@ -25,11 +27,13 @@
     return self;
 }
 
-- (nonnull NSArray<NSDictionary<NSString *, id> *> *)serialize
+- (NSArray<NSDictionary<NSString *, id> *> *)serialize
 {
 
     long timestamp = [SentryDateUtil millisecondsSince1970:self.start];
 
+    //This format is defined by RRWeb
+    //empty values are required by the format
     NSDictionary *metaInfo = @{
         @"type" : @4,
         @"timestamp" : @(timestamp),
@@ -62,3 +66,5 @@
 }
 
 @end
+
+NS_ASSUME_NONNULL_END
