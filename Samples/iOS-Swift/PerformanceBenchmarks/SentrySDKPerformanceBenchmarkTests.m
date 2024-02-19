@@ -8,6 +8,13 @@
 
 @implementation SentrySDKPerformanceBenchmarkTests
 
+- (void)setUp
+{
+    [super setUp];
+
+    [[XCUIDevice sharedDevice] setOrientation:UIDeviceOrientationPortrait];
+}
+
 - (void)testCPUBenchmark
 {
     XCTSkipIf(isSimulator() && !isDebugging());
