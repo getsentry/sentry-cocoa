@@ -13,6 +13,11 @@ xcuitest:
 
 suites:
 
+  - name: "iOS-17"
+    devices:
+      - name: "iPhone.*"
+        platformVersion: "17"
+
   - name: "iOS-16"
     devices:
       - name: "iPhone.*"
@@ -42,11 +47,6 @@ suites:
     devices:
       - name: "iPhone.*"
         platformVersion: "12"
-
-  - name: "iOS-11"
-    devices:
-      - name: "iPhone.*"
-        platformVersion: "11"
       
 artifacts:
   download:
