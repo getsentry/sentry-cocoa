@@ -11,6 +11,7 @@
 #import "SentryRateLimits.h"
 
 #import "SentryRetryAfterHeaderParser.h"
+#import "SentrySpotlightTransport.h"
 #import "SentryTransport.h"
 #import <Foundation/Foundation.h>
 
@@ -51,16 +52,27 @@ SentryTransportFactory ()
         [[SentryDispatchQueueWrapper alloc] initWithName:"sentry-http-transport"
                                               attributes:attributes];
 
+    SentryNSURLRequestBuilder *requestBuilder = [[SentryNSURLRequestBuilder alloc] init];
+
     SentryHttpTransport *httpTransport =
         [[SentryHttpTransport alloc] initWithOptions:options
                                          fileManager:sentryFileManager
                                       requestManager:requestManager
-                                      requestBuilder:[[SentryNSURLRequestBuilder alloc] init]
+                                      requestBuilder:requestBuilder
                                           rateLimits:rateLimits
                                    envelopeRateLimit:envelopeRateLimit
                                 dispatchQueueWrapper:dispatchQueueWrapper];
 
-    return @[ httpTransport ];
+    if (options.enableSpotlight) {
+        SentrySpotlightTransport *spotlightTransport =
+            [[SentrySpotlightTransport alloc] initWithOptions:options
+                                               requestManager:requestManager
+                                               requestBuilder:requestBuilder
+                                         dispatchQueueWrapper:dispatchQueueWrapper];
+        return @[ httpTransport, spotlightTransport ];
+    } else {
+        return @[ httpTransport ];
+    }
 }
 
 @end

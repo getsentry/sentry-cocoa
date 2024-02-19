@@ -4,6 +4,8 @@
 
 ### Features
 
+- Add support for Sentry [Spotlight](https://spotlightjs.com/) (#3642), which is basically Sentry
+for development. Read our [blog post](https://blog.sentry.io/sentry-for-development/) to find out more.
 - Add field `SentrySDK.detectedStartUpCrash` (#3644)
 - Automatically profile app launches (#3529)
 

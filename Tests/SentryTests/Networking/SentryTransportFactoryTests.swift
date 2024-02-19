@@ -1,3 +1,4 @@
+import Nimble
 import Sentry
 import SentryTestUtils
 import XCTest
@@ -29,4 +30,19 @@ class SentryTransportFactoryTests: XCTestCase {
         requestManager.add(request) { _, _ in /* We don't care about the result */ }
         wait(for: [expect], timeout: 10)
     }
+    
+    func testShouldReturnTwoTransports_WhenSpotlightEnabled() throws {
+        let options = Options()
+        options.enableSpotlight = true
+        let transports = TransportInitializer.initTransports(options, sentryFileManager: try SentryFileManager(options: options))
+        
+        expect(transports.contains {
+            $0.isKind(of: SentrySpotlightTransport.self)
+        }) == true
+        
+        expect(transports.contains {
+            $0.isKind(of: SentryHttpTransport.self)
+        }) == true
+    }
+    
 }
