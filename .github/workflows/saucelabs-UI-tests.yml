@@ -34,7 +34,7 @@ jobs:
             xcode: '13.4.1'
 
           - runs-on: macos-13
-            xcode: '14.3'
+            xcode: '15.2'
     
     steps:
       - uses: actions/checkout@v4
