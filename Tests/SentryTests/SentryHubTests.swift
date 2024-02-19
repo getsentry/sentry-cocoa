@@ -737,12 +737,12 @@ class SentryHubTests: XCTestCase {
         assertNoEnvelopesCaptured()
     }
     
-    func testCaptureReplay(){
-        class SentryClientMockReplay : SentryClient {
-            var replayEvent : SentryReplayEvent?
-            var replayRecording : SentryReplayRecording?
-            var videoUrl : URL?
-            var scope : Scope?
+    func testCaptureReplay() {
+        class SentryClientMockReplay: SentryClient {
+            var replayEvent: SentryReplayEvent?
+            var replayRecording: SentryReplayRecording?
+            var videoUrl: URL?
+            var scope: Scope?
             override func capture(_ replayEvent: SentryReplayEvent, replayRecording: SentryReplayRecording, video videoURL: URL, with scope: Scope) {
                 self.replayEvent = replayEvent
                 self.replayRecording = replayRecording
