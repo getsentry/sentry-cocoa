@@ -310,6 +310,9 @@ NS_SWIFT_NAME(Options)
  * @c 0.01 collects 1% of all trace data.
  * @note The value needs to be >= 0.0 and \<= 1.0. When setting a value out of range the SDK sets it
  * to the default of @c 0 .
+ * @note If @c enableAppLaunchProfiling is @c YES , this function will be called during SDK start
+ * with @c SentrySamplingContext.forNextAppLaunch set to @c YES, and the result will be persisted to
+ * disk for use on the next app launch.
  */
 @property (nullable, nonatomic) SentryTracesSamplerCallback tracesSampler;
 
@@ -373,6 +376,17 @@ NS_SWIFT_NAME(Options)
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 /**
+ * @warning This is an experimental feature and may still have bugs.
+ * Set to @c YES to run the profiler as early as possible in an app launch, before you would
+ * normally have the opportunity to call @c SentrySDK.start . If enabled, the @c tracesSampleRate
+ * and @c profilesSampleRate are persisted to disk and read on the next app launch to decide whether
+ * to profile that launch.
+ * @see @c tracesSampler and @c profilesSampler for more information on how they work for this
+ * feature.
+ */
+@property (nonatomic, assign) BOOL enableAppLaunchProfiling;
+
+/**
  * @note Profiling is not supported on watchOS or tvOS.
  * Indicates the percentage profiles being sampled out of the sampled transactions.
  * @note The default is @c 0.
@@ -389,13 +403,17 @@ NS_SWIFT_NAME(Options)
  * A callback to a user defined profiles sampler function. This is similar to setting
  * @c profilesSampleRate  but instead of a static value, the callback function will be called to
  * determine the sample rate.
+ * @note If @c enableAppLaunchProfiling is @c YES , this function will be called during SDK start
+ * with @c SentrySamplingContext.forNextAppLaunch set to @c YES, and the result will be persisted to
+ * disk for use on the next app launch.
  */
 @property (nullable, nonatomic) SentryTracesSamplerCallback profilesSampler;
 
 /**
+ * If profiling should be enabled or not.
  * @note Profiling is not supported on watchOS or tvOS.
- * If profiling should be enabled or not. Returns @c YES if either a profilesSampleRate > @c 0 and
- * \<= @c 1 or a profilesSampler is set otherwise @c NO.
+ * @returns @c YES if either a profilesSampleRate > @c 0 and \<= @c 1 or a profilesSampler is set,
+ * otherwise @c NO.
  */
 @property (nonatomic, assign, readonly) BOOL isProfilingEnabled;
 
