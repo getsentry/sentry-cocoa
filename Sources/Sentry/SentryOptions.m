@@ -707,8 +707,8 @@ isValidSampleRate(NSNumber *sampleRate)
     _enableSpotlight = value;
 #if defined(RELEASE)
     if (value) {
-        SENTRY_LOG_WARN(@"Enabling Spotlight for a release build. We only recommend running "
-                        @"Spotlight for local development");
+        SENTRY_LOG_WARN(@"Enabling Spotlight for a release build. We recommend running Spotlight "
+                        @"only for local development.");
     }
 #endif // defined(RELEASE)
 }
