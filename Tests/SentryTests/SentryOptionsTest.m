@@ -1264,6 +1264,18 @@
     [self testBooleanField:@"enableSpotlight" defaultValue:NO];
 }
 
+- (void)testSpotlightUrl
+{
+    SentryOptions *options = [self getValidOptions:@{ @"spotlightUrl" : @"http://localhost:1010" }];
+    XCTAssertEqualObjects(options.spotlightUrl, @"http://localhost:1010");
+
+    SentryOptions *options2 = [self getValidOptions:@{ @"spotlightUrl" : @"" }];
+    XCTAssertEqualObjects(options2.spotlightUrl, @"");
+
+    SentryOptions *options3 = [self getValidOptions:@{ @"spotlightUrl" : @2 }];
+    XCTAssertEqualObjects(options3.spotlightUrl, @"http://localhost:8969/stream");
+}
+
 #pragma mark - Private
 
 - (void)assertArrayEquals:(NSArray<NSString *> *)expected actual:(NSArray<NSString *> *)actual
