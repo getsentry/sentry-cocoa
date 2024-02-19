@@ -21,6 +21,11 @@ NS_SWIFT_NAME(Scope)
  */
 @property (nullable, nonatomic, strong) id<SentrySpan> span;
 
+/**
+ * Gets the dictionary of currently set tags.
+ */
+@property (nonatomic, readonly, copy) NSDictionary<NSString *, NSString *> *tags;
+
 - (instancetype)initWithMaxBreadcrumbs:(NSInteger)maxBreadcrumbs NS_DESIGNATED_INITIALIZER;
 - (instancetype)init;
 - (instancetype)initWithScope:(SentryScope *)scope;
@@ -46,11 +51,6 @@ NS_SWIFT_NAME(Scope)
  * event.
  */
 - (void)setTags:(NSDictionary<NSString *, NSString *> *_Nullable)tags;
-
-/**
- * Gets the dictionary of currently set tags.
- */
-- (NSDictionary<NSString *, NSString *> *)tags;
 
 /**
  * Set global extra -> these will be sent with every event
