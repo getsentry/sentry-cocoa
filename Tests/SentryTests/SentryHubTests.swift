@@ -39,6 +39,7 @@ class SentryHubTests: XCTestCase {
             fileManager = try! SentryFileManager(options: options, dispatchQueueWrapper: TestSentryDispatchQueueWrapper())
             
             SentryDependencyContainer.sharedInstance().dateProvider = currentDateProvider
+            SentryDependencyContainer.sharedInstance().random = random
             
             crashedSession = SentrySession(releaseName: "1.0.0", distinctId: "")
             crashedSession.endCrashed(withTimestamp: currentDateProvider.date())
@@ -341,8 +342,6 @@ class SentryHubTests: XCTestCase {
         }
         
         let hub = fixture.getSut()
-        Dynamic(hub).sampler.random = fixture.random
-        
         let span = hub.startTransaction(name: fixture.transactionName, operation: fixture.transactionOperation)
         XCTAssertEqual(span.sampled, .no)
     }
@@ -810,6 +809,20 @@ class SentryHubTests: XCTestCase {
     }
 #endif
     
+    func testStartTransaction_WhenSamplerNil_NotSampled() {
+        assertSampler(expected: .no) { options in
+            options.tracesSampleRate = 0.49
+            options.tracesSampler = { _ in return nil }
+        }
+    }
+    
+    func testStartTransaction_WhenSamplerNil_Sampled() {
+        assertSampler(expected: .yes) { options in
+            options.tracesSampleRate = 0.50
+            options.tracesSampler = { _ in return nil }
+        }
+    }
+    
     private func addBreadcrumbThroughConfigureScope(_ hub: SentryHub) {
         hub.configureScope({ scope in
             scope.addBreadcrumb(self.fixture.crumb)
@@ -1038,8 +1051,6 @@ class SentryHubTests: XCTestCase {
         options(fixture.options)
         
         let hub = fixture.getSut()
-        Dynamic(hub).tracesSampler.random = fixture.random
-        
         let span = hub.startTransaction(name: fixture.transactionName, operation: fixture.transactionOperation)
         
         XCTAssertEqual(expected, span.sampled)

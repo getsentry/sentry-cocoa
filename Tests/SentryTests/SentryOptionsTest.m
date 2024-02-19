@@ -430,7 +430,7 @@
 {
     SentryOptions *options = [[SentryOptions alloc] init];
     options.sampleRate = nil;
-    XCTAssertNil(options.sampleRate);
+    XCTAssertEqual(options.sampleRate.doubleValue, 0);
 }
 
 - (void)testSampleRateLowerBound
@@ -863,7 +863,7 @@
     options.enableTracing = YES;
     options.tracesSampler = sampler;
     XCTAssertTrue(options.enableTracing);
-    options.tracesSampleRate = nil;
+    options.tracesSampleRate = @0;
     XCTAssertTrue(options.enableTracing);
 
     options.enableTracing = NO;
@@ -882,8 +882,7 @@
 - (void)testDefaultTracesSampleRate
 {
     SentryOptions *options = [self getValidOptions:@{}];
-
-    XCTAssertNil(options.tracesSampleRate);
+    XCTAssertEqual(options.tracesSampleRate.doubleValue, 0);
 }
 
 - (void)testTracesSampleRate_SetToNil
@@ -891,6 +890,7 @@
     SentryOptions *options = [[SentryOptions alloc] init];
     options.tracesSampleRate = nil;
     XCTAssertNil(options.tracesSampleRate);
+    XCTAssertEqual(options.tracesSampleRate.doubleValue, 0);
 }
 
 - (void)testTracesSampleRateLowerBound
@@ -906,7 +906,7 @@
 
     NSNumber *tooLow = @-0.01;
     options.tracesSampleRate = tooLow;
-    XCTAssertNil(options.tracesSampleRate);
+    XCTAssertEqual(options.tracesSampleRate.doubleValue, 0);
 }
 
 - (void)testTracesSampleRateUpperBound
@@ -922,7 +922,7 @@
 
     NSNumber *tooLow = @1.01;
     options.tracesSampleRate = tooLow;
-    XCTAssertNil(options.tracesSampleRate);
+    XCTAssertEqual(options.tracesSampleRate.doubleValue, 0);
 }
 
 - (double)tracesSamplerCallback:(NSDictionary *)context
@@ -1003,7 +1003,7 @@
 {
     SentryOptions *options = [self getValidOptions:@{}];
 
-    XCTAssertNil(options.profilesSampleRate);
+    XCTAssertEqual(options.profilesSampleRate.doubleValue, 0);
 }
 
 - (void)testProfilesSampleRate_SetToNil
@@ -1011,6 +1011,7 @@
     SentryOptions *options = [[SentryOptions alloc] init];
     options.profilesSampleRate = nil;
     XCTAssertNil(options.profilesSampleRate);
+    XCTAssertEqual(options.profilesSampleRate.doubleValue, 0);
 }
 
 - (void)testProfilesSampleRateLowerBound
@@ -1026,7 +1027,7 @@
 
     NSNumber *tooLow = @-0.01;
     options.profilesSampleRate = tooLow;
-    XCTAssertNil(options.profilesSampleRate);
+    XCTAssertEqual(options.profilesSampleRate.doubleValue, 0);
 }
 
 - (void)testProfilesSampleRateUpperBound
@@ -1042,7 +1043,7 @@
 
     NSNumber *tooLow = @1.01;
     options.profilesSampleRate = tooLow;
-    XCTAssertNil(options.profilesSampleRate);
+    XCTAssertEqual(options.profilesSampleRate.doubleValue, 0);
 }
 
 - (void)testIsProfilingEnabled_NothingSet_IsDisabled
@@ -1194,6 +1195,14 @@
     SentryOptions *options = [self getValidOptions:@{ @"initialScope" : initialScope }];
     XCTAssertIdentical(initialScope, options.initialScope);
 }
+
+#if SENTRY_TARGET_PROFILING_SUPPORTED
+- (void)testEnableAppLaunchProfilingDefaultValue
+{
+    SentryOptions *options = [self getValidOptions:@{}];
+    XCTAssertFalse(options.enableAppLaunchProfiling);
+}
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
 - (SentryOptions *)getValidOptions:(NSDictionary<NSString *, id> *)dict
 {

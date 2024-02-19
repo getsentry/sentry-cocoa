@@ -6,6 +6,7 @@
 
 - Add support for Sentry [Spotlight](https://spotlightjs.com/) (#3642), which is basically Sentry
 for development. Read our [blog post](https://blog.sentry.io/sentry-for-development/) to find out more.
+- Automatically profile app launches (#3529)
 
 ### Improvements
 
@@ -15,6 +16,7 @@ for development. Read our [blog post](https://blog.sentry.io/sentry-for-developm
 ### Fixes
 
 - Finish TTID span when transaction finishes (#3610)
+- Don't take screenshot and view hierarchy for app hanging (#3620)
 - Dont take screenshot and view hierarchy for app hanging (#3620)
 - Remove `free_storage` and `storage_size` from the device context (#3627), because Apple forbids sending
 information retrieved via `NSFileSystemFreeSize` and `NSFileSystemSize` off a device; see
