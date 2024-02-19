@@ -3,6 +3,7 @@ kind: xcuitest
 sauce:
   region: us-west-1
   concurrency: 2
+  retries: 3
 
 defaults:
   timeout: 20m
@@ -13,14 +14,25 @@ xcuitest:
 
 suites:
   - name: "High-end device"
+    passThreshold: 2
+    smartRetry:
+      failedOnly: true
     devices:
       - name: "iPad Pro 12.9 2021"
         platformVersion: "15"
+
   - name: "Mid-range device"
+    passThreshold: 2
+    smartRetry:
+      failedOnly: true
     devices:
       - name: "iPhone 8"
         platformVersion: "14"
+
   - name: "Low-end device"
+    passThreshold: 2
+    smartRetry:
+      failedOnly: true
     devices:
       - name: "iPhone 6S"
         platformVersion: "15"

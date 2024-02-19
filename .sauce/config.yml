@@ -3,6 +3,7 @@ kind: xcuitest
 sauce:
   region: us-west-1
   concurrency: 2
+  retries: 3
 
 defaults:
   timeout: 20m
@@ -14,36 +15,57 @@ xcuitest:
 suites:
 
   - name: "iOS-16"
+    passThreshold: 2
+    smartRetry:
+      failedOnly: true
     devices:
       - name: "iPhone.*"
         platformVersion: "16"
    
   - name: "iOS-15"
+    passThreshold: 2
+    smartRetry:
+      failedOnly: true
     devices:
       - name: "iPhone.*"
         platformVersion: "15"
 
   - name: "iPhone-Pro"
+    passThreshold: 2
+    smartRetry:
+      failedOnly: true
     devices:
       - name: "iPhone 13 Pro.*"
         platformVersion: "15"
         
   - name: "iOS-14"
+    passThreshold: 2
+    smartRetry:
+      failedOnly: true
     devices:
       - name: "iPhone.*"
         platformVersion: "14"
 
   - name: "iOS-13"
+    passThreshold: 2
+    smartRetry:
+      failedOnly: true
     devices:
       - name: "iPhone.*"
         platformVersion: "13"
 
   - name: "iOS-12"
+    passThreshold: 2
+    smartRetry:
+      failedOnly: true
     devices:
       - name: "iPhone.*"
         platformVersion: "12"
 
   - name: "iOS-11"
+    passThreshold: 2
+    smartRetry:
+      failedOnly: true
     devices:
       - name: "iPhone.*"
         platformVersion: "11"
