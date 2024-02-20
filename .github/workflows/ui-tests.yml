@@ -1,0 +1,147 @@
+name: UI Tests
+on:
+  push:
+    branches:
+      - main
+
+  pull_request:
+    paths:
+      - 'Sources/**'
+      - 'Tests/**'
+      - '.github/workflows/ui-tests.yml'
+      - 'fastlane/**'
+      - '.sauce/config.yml'
+      - 'scripts/ci-select-xcode.sh'
+
+      # run the workflow any time an Xcode scheme changes for one of the sample apps with a UI test suite we run in saucelabs
+      - 'Samples/iOS-Swift/iOS-Swift.xcodeproj/xcshareddata/xcschemes/iOS-SwiftUITests.xcscheme'
+      - 'Samples/iOS-Swift/iOS-Swift.xcodeproj/xcshareddata/xcschemes/iOS-Swift.xcscheme'
+
+# https://docs.github.com/en/actions/using-jobs/using-concurrency#example-using-a-fallback-value
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  ui-tests:
+    name: UI Tests for ${{matrix.target}} on Simulators
+    runs-on: macos-13
+    strategy:
+      matrix:
+        target: ["ios_objc", "tvos_swift"]
+
+    steps:
+      - uses: actions/checkout@v4
+      - run: ./scripts/ci-select-xcode.sh
+
+      # GitHub Actions sometimes fail to launch the UI tests. Therefore we retry
+      - name: Run Fastlane
+        run: for i in {1..2}; do fastlane ui_tests_${{matrix.target}} && break ; done
+        shell: sh
+
+      - name: Archiving Raw Test Logs
+        uses: actions/upload-artifact@v4
+        if: ${{  failure() || cancelled() }}
+        with:
+          name: raw-uitest-output-${{matrix.target}}
+          path: |
+            ~/Library/Logs/scan/*.log
+            ./fastlane/test_output/**
+
+  # SwiftUI only supports iOS 14+ so we run it in a separate matrix here
+  ui-tests-swift-ui:
+    name: UI Tests for SwiftUI on ${{matrix.device}} Simulator
+    runs-on: ${{matrix.runs-on}}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runs-on: macos-12
+            xcode: "13.4.1"
+            device: "iPhone 8 (15.2)"
+
+          - runs-on: macos-13
+            xcode: "14.3"
+            device: "iPhone 8 (16.1)"
+
+    steps:
+      - uses: actions/checkout@v4
+      - run: ./scripts/ci-select-xcode.sh ${{matrix.xcode}}
+
+      # GitHub Actions sometimes fail to launch the UI tests. Therefore we retry
+      - name: Run Fastlane
+        run: for i in {1..2}; do fastlane ui_tests_ios_swiftui device:"${{matrix.device}}" && break ; done
+        shell: sh
+
+      - name: Archiving Raw Test Logs
+        uses: actions/upload-artifact@v4
+        if: ${{  failure() || cancelled() }}
+        with:
+          name: raw-swiftui-test-output-${{matrix.platform}}-xcode-${{matrix.xcode}}-os-${{matrix.test-destination-os}}
+          path: |
+            ~/Library/Logs/scan/*.log
+            ./fastlane/test_output/**
+
+  ui-tests-address-sanitizer:
+    name: UI Tests with Address Sanitizer
+    runs-on: macos-13
+
+    steps:
+      - uses: actions/checkout@v4
+      - run: ./scripts/ci-select-xcode.sh 15.2
+
+      # GitHub Actions sometimes fail to launch the UI tests. Therefore we retry
+      - name: Run Fastlane
+        run: for i in {1..2}; do fastlane ui_tests_ios_swift device:"iPhone 14 (17.2)" address_sanitizer:true && break ; done
+        shell: sh
+
+      - name: Archiving Raw Test Logs
+        uses: actions/upload-artifact@v4
+        if: ${{  failure() || cancelled() }}
+        with:
+          name: raw-uitest-output-asan
+          path: |
+            ~/Library/Logs/scan/*.log
+            ./fastlane/test_output/**
+
+    
+  ios-swift-ui-tests:
+    name: iOS SwiftUI Tests 
+    runs-on: ${{matrix.runs-on}}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runs-on: macos-11
+            xcode: "11.7"
+            device: "iPhone 8 (13.7)"
+          
+          - runs-on: macos-12
+            xcode: "13.4.1"
+            device: "iPhone 8 (15.5)"
+
+          - runs-on: macos-13
+            xcode: "14.3.1"
+            device: "iPhone 14 (16.4)"
+
+          - runs-on: macos-14
+            xcode: "15.2"
+            device: "iPhone 15 (17.2)"
+
+    steps:
+      - uses: actions/checkout@v4
+      - run: ./scripts/ci-select-xcode.sh 15.2
+
+      # GitHub Actions sometimes fail to launch the UI tests. Therefore we retry
+      - name: Run Fastlane
+        run: for i in {1..2}; do fastlane ui_tests_ios_swift device:"${{matrix.device}}" address_sanitizer:true && break ; done
+        shell: sh
+
+      - name: Archiving Raw Test Logs
+        uses: actions/upload-artifact@v4
+        if: ${{  failure() || cancelled() }}
+        with:
+          name: raw-uitest-output-asan
+          path: |
+            ~/Library/Logs/scan/*.log
+            ./fastlane/test_output/**
