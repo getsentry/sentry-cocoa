@@ -130,7 +130,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - run: ./scripts/ci-select-xcode.sh 15.2
+      - run: ./scripts/ci-select-xcode.sh ${{matrix.xcode}}
 
       # GitHub Actions sometimes fail to launch the UI tests. Therefore we retry
       - name: Run Fastlane
