@@ -133,21 +133,13 @@ jobs:
       - uses: actions/checkout@v4
       - run: ./scripts/ci-select-xcode.sh ${{matrix.xcode}}
 
-      # Workaround with a symlink pointed out in: https://github.com/actions/virtual-environments/issues/551#issuecomment-637344435
-      - name: Prepare iOS 13.7 simulator
+      - name: Create iOS 13.7 simulator
         if: ${{ matrix.device == 'iPhone 8 (13.7)' }}
-        run: |
-          sudo mkdir -p /Library/Developer/CoreSimulator/Profiles/Runtimes
-          sudo ln -s /Applications/Xcode_11.7.app/Contents/Developer/Platforms/iPhoneOS.platform/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS.simruntime /Library/Developer/CoreSimulator/Profiles/Runtimes/iOS\ 13.7.simruntime
-          xcrun simctl create custom-test-device "iPhone 8" "com.apple.CoreSimulator.SimRuntime.iOS-13-7"
+        run: ./scripts/create-simulator.sh 11.7 13.7 13-7
 
-       # Workaround with a symlink pointed out in: https://github.com/actions/virtual-environments/issues/551#issuecomment-637344435
-      - name: Prepare iOS 16.4 simulator
+      - name: Create iOS 16.4 simulator
         if: ${{ matrix.device == 'iPhone 14 (16.4)' }}
-        run: |
-          sudo mkdir -p /Library/Developer/CoreSimulator/Profiles/Runtimes
-          sudo ln -s /Applications/Xcode_14.3.1.app/Contents/Developer/Platforms/iPhoneOS.platform/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS.simruntime /Library/Developer/CoreSimulator/Profiles/Runtimes/iOS\ 16.4.simruntime
-          xcrun simctl create custom-test-device "iPhone 14" "com.apple.CoreSimulator.SimRuntime.iOS-16-4"
+        run: ./scripts/create-simulator.sh 14.3.1 16.4 16-4
 
       # GitHub Actions sometimes fail to launch the UI tests. Therefore we retry
       - name: Run Fastlane
