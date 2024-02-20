@@ -9,12 +9,12 @@ for development. Read our [blog post](https://blog.sentry.io/sentry-for-developm
 - Add field `SentrySDK.detectedStartUpCrash` (#3644)
 - Automatically profile app launches (#3529)
 - Use CocoaPods resource_bundles for PrivacyInfo (#3651)
+- Make tags of SentryScope public (#3650)
 
 ### Improvements
 
 - Cache installationID async to avoid file IO on the main thread when starting the SDK (#3601)
 - Add reason for NSPrivacyAccessedAPICategoryFileTimestamp (#3626)
-- Exposes `tags` property of `SentryScope` (#3650)
 
 ### Fixes
 
