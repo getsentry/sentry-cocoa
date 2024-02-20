@@ -3,7 +3,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SentryReplaySettings (Private)
+@interface
+SentryReplaySettings (Private)
 
 /**
  * Defines the quality of the session replay.
@@ -12,7 +13,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property (nonatomic) NSInteger replayBitRate;
 
-- (instancetype)initWithDictionary:(NSDictionary*)dictionary;
+- (instancetype)initWithDictionary:(NSDictionary *)dictionary;
 
 @end
 

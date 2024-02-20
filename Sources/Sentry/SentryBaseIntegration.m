@@ -1,10 +1,10 @@
 #import "SentryBaseIntegration.h"
 #import "SentryCrashWrapper.h"
 #import "SentryLog.h"
+#import "SentryReplaySettings.h"
 #import <Foundation/Foundation.h>
 #import <SentryDependencyContainer.h>
 #import <SentryOptions+Private.h>
-#import "SentryReplaySettings.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -33,119 +33,119 @@ NS_ASSUME_NONNULL_BEGIN
 - (BOOL)shouldBeEnabledWithOptions:(SentryOptions *)options
 {
     SentryIntegrationOption integrationOptions = [self integrationOptions];
-    
+
     if (integrationOptions & kIntegrationOptionNone) {
         return YES;
     }
-    
+
     if ((integrationOptions & kIntegrationOptionEnableAutoSessionTracking)
         && !options.enableAutoSessionTracking) {
         [self logWithOptionName:@"enableAutoSessionTracking"];
         return NO;
     }
-    
+
     if ((integrationOptions & kIntegrationOptionEnableWatchdogTerminationTracking)
         && !options.enableWatchdogTerminationTracking) {
         [self logWithOptionName:@"enableWatchdogTerminationTracking"];
         return NO;
     }
-    
+
     if ((integrationOptions & kIntegrationOptionEnableAutoPerformanceTracing)
         && !options.enableAutoPerformanceTracing) {
         [self logWithOptionName:@"enableAutoPerformanceTracing"];
         return NO;
     }
-    
+
 #if SENTRY_HAS_UIKIT
     if ((integrationOptions & kIntegrationOptionEnableUIViewControllerTracing)
         && !options.enableUIViewControllerTracing) {
         [self logWithOptionName:@"enableUIViewControllerTracing"];
         return NO;
     }
-    
+
 #    if SENTRY_HAS_UIKIT
     if ((integrationOptions & kIntegrationOptionAttachScreenshot) && !options.attachScreenshot) {
         [self logWithOptionName:@"attachScreenshot"];
         return NO;
     }
 #    endif // SENTRY_HAS_UIKIT
-    
+
     if ((integrationOptions & kIntegrationOptionEnableUserInteractionTracing)
         && !options.enableUserInteractionTracing) {
         [self logWithOptionName:@"enableUserInteractionTracing"];
         return NO;
     }
 #endif
-    
+
     if (integrationOptions & kIntegrationOptionEnableAppHangTracking) {
         if (!options.enableAppHangTracking) {
             [self logWithOptionName:@"enableAppHangTracking"];
             return NO;
         }
-        
+
         if (options.appHangTimeoutInterval == 0) {
             [self logWithReason:@"because appHangTimeoutInterval is 0"];
             return NO;
         }
     }
-    
+
     if ((integrationOptions & kIntegrationOptionEnableNetworkTracking)
         && !options.enableNetworkTracking) {
         [self logWithOptionName:@"enableNetworkTracking"];
         return NO;
     }
-    
+
     if ((integrationOptions & kIntegrationOptionEnableFileIOTracing)
         && !options.enableFileIOTracing) {
         [self logWithOptionName:@"enableFileIOTracing"];
         return NO;
     }
-    
+
     if ((integrationOptions & kIntegrationOptionEnableNetworkBreadcrumbs)
         && !options.enableNetworkBreadcrumbs) {
         [self logWithOptionName:@"enableNetworkBreadcrumbs"];
         return NO;
     }
-    
+
     if ((integrationOptions & kIntegrationOptionEnableCoreDataTracing)
         && !options.enableCoreDataTracing) {
         [self logWithOptionName:@"enableCoreDataTracing"];
         return NO;
     }
-    
+
     if ((integrationOptions & kIntegrationOptionEnableSwizzling) && !options.enableSwizzling) {
         [self logWithOptionName:@"enableSwizzling"];
         return NO;
     }
-    
+
     if ((integrationOptions & kIntegrationOptionEnableAutoBreadcrumbTracking)
         && !options.enableAutoBreadcrumbTracking) {
         [self logWithOptionName:@"enableAutoBreadcrumbTracking"];
         return NO;
     }
-    
+
     if ((integrationOptions & kIntegrationOptionIsTracingEnabled) && !options.isTracingEnabled) {
         [self logWithOptionName:@"isTracingEnabled"];
         return NO;
     }
-    
+
     if ((integrationOptions & kIntegrationOptionDebuggerNotAttached) &&
         [SentryDependencyContainer.sharedInstance.crashWrapper isBeingTraced]) {
         [self logWithReason:@"because the debugger is attached"];
         return NO;
     }
-    
+
 #if SENTRY_HAS_UIKIT
     if ((integrationOptions & kIntegrationOptionAttachViewHierarchy)
         && !options.attachViewHierarchy) {
         [self logWithOptionName:@"attachViewHierarchy"];
         return NO;
     }
-    
+
     if (integrationOptions & kIntegrationOptionEnableReplay) {
         if (@available(iOS 16.0, *)) {
             if (options.sessionReplaySettings.replaysOnErrorSampleRate == 0
-                && options.sessionReplaySettings.replaysSessionSampleRate == 0 ){
+                && options.sessionReplaySettings.replaysSessionSampleRate == 0) {
                 [self logWithOptionName:@"sessionReplaySettings"];
                 return NO;
             }

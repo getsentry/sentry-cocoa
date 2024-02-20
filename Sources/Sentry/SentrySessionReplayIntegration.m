@@ -1,18 +1,16 @@
 #import "SentrySessionReplayIntegration.h"
-#import "SentrySessionReplay.h"
-#import "SentryDependencyContainer.h"
-#import "SentryUIApplication.h"
-#import "SentrySDK+Private.h"
 #import "SentryClient+Private.h"
+#import "SentryDependencyContainer.h"
 #import "SentryHub+Private.h"
-#import "SentrySDK+Private.h"
-#import "SentryReplaySettings.h"
-#import "SentryRandom.h"
 #import "SentryOptions.h"
-
+#import "SentryRandom.h"
+#import "SentryReplaySettings.h"
+#import "SentrySDK+Private.h"
+#import "SentrySessionReplay.h"
+#import "SentryUIApplication.h"
 
 @implementation SentrySessionReplayIntegration {
-    SentrySessionReplay * sessionReplay;
+    SentrySessionReplay *sessionReplay;
 }
 
 - (BOOL)installWithOptions:(nonnull SentryOptions *)options
@@ -20,28 +18,36 @@
     if ([super installWithOptions:options] == NO) {
         return NO;
     }
-    
+
     if (@available(iOS 16.0, *)) {
-        if (options.sessionReplaySettings.replaysSessionSampleRate == 0 && options.sessionReplaySettings.replaysOnErrorSampleRate == 0) {
+        if (options.sessionReplaySettings.replaysSessionSampleRate == 0
+            && options.sessionReplaySettings.replaysOnErrorSampleRate == 0) {
             return NO;
         }
-        
-        sessionReplay = [[SentrySessionReplay alloc] initWithSettings:options.sessionReplaySettings];
-        
-        [sessionReplay start:SentryDependencyContainer.sharedInstance.application.windows.firstObject
-                 fullSession:[self shouldReplayFullSession:options.sessionReplaySettings.replaysSessionSampleRate]];
-        
+
+        sessionReplay =
+            [[SentrySessionReplay alloc] initWithSettings:options.sessionReplaySettings];
+
+        [sessionReplay
+                  start:SentryDependencyContainer.sharedInstance.application.windows.firstObject
+            fullSession:[self shouldReplayFullSession:options.sessionReplaySettings
+                                                          .replaysSessionSampleRate]];
+
         SentryClient *client = [SentrySDK.currentHub getClient];
         [client addAttachmentProcessor:sessionReplay];
-        
-        [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(stop) name:UIApplicationDidEnterBackgroundNotification object:nil];
+
+        [NSNotificationCenter.defaultCenter addObserver:self
+                                               selector:@selector(stop)
+                                                   name:UIApplicationDidEnterBackgroundNotification
+                                                 object:nil];
         return YES;
     } else {
         return NO;
     }
 }
 
--(void)stop {
+- (void)stop
+{
     [sessionReplay stop];
 }
 
@@ -52,10 +58,10 @@
 
 - (void)uninstall
 {
-    
 }
 
-- (BOOL)shouldReplayFullSession:(CGFloat)rate {
+- (BOOL)shouldReplayFullSession:(CGFloat)rate
+{
     return [SentryDependencyContainer.sharedInstance.random nextNumber] < rate;
 }
 

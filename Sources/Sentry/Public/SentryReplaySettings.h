@@ -24,11 +24,14 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * Inittialize the settings of session replay
- * 
- * @param sessionSampleRate Indicates the percentage in which the replay for the session will be created.
- * @param errorSampleRate Indicates the percentage in which a 30 seconds replay will be send with error events.
+ *
+ * @param sessionSampleRate Indicates the percentage in which the replay for the session will be
+ * created.
+ * @param errorSampleRate Indicates the percentage in which a 30 seconds replay will be send with
+ * error events.
  */
-- (instancetype)initWithReplaySessionSampleRate:(CGFloat)sessionSampleRate replaysOnErrorSampleRate:(CGFloat)errorSampleRate;
+- (instancetype)initWithReplaySessionSampleRate:(CGFloat)sessionSampleRate
+                       replaysOnErrorSampleRate:(CGFloat)errorSampleRate;
 
 @end
 

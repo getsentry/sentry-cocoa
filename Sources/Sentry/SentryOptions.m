@@ -23,12 +23,12 @@
 #    import "SentryAppStartTrackingIntegration.h"
 #    import "SentryFramesTrackingIntegration.h"
 #    import "SentryPerformanceTrackingIntegration.h"
+#    import "SentryReplaySettings+Private.h"
 #    import "SentryScreenshotIntegration.h"
+#    import "SentrySessionReplayIntegration.h"
 #    import "SentryUIEventTrackingIntegration.h"
 #    import "SentryViewHierarchyIntegration.h"
 #    import "SentryWatchdogTerminationTrackingIntegration.h"
-#    import "SentryReplaySettings+Private.h"
-#    import "SentrySessionReplayIntegration.h"
 #endif // SENTRY_HAS_UIKIT
 
 #if SENTRY_HAS_METRIC_KIT
@@ -265,7 +265,6 @@ NSString *const kSentryDefaultEnvironment = @"production";
     }
 }
 
-
 /**
  * Populates all @c SentryOptions values from @c options dict using fallbacks/defaults if needed.
  */
@@ -412,13 +411,14 @@ NSString *const kSentryDefaultEnvironment = @"production";
 
     [self setBool:options[@"enablePreWarmedAppStartTracing"]
             block:^(BOOL value) { self->_enablePreWarmedAppStartTracing = value; }];
-    
+
     if (@available(iOS 16.0, *)) {
         if ([options[@"sessionReplaySettings"] isKindOfClass:NSDictionary.class]) {
-            self.sessionReplaySettings = [[SentryReplaySettings alloc] initWithDictionary:options[@"sessionReplaySettings"]];
+            self.sessionReplaySettings =
+                [[SentryReplaySettings alloc] initWithDictionary:options[@"sessionReplaySettings"]];
         }
     }
-    
+
 #endif // SENTRY_HAS_UIKIT
 
     [self setBool:options[@"enableAppHangTracking"]

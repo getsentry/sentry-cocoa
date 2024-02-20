@@ -1,8 +1,8 @@
+#import "SentryClient+Private.h"
+#import "SentryEvent.h"
+#import "SentryReplaySettings.h"
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
-#import "SentryEvent.h"
-#import "SentryClient+Private.h"
-#import "SentryReplaySettings.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

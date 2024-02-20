@@ -2,8 +2,7 @@
 #import <Foundation/Foundation.h>
 
 #if SENTRY_HAS_UIKIT
-#import <UIKit/UIKit.h>
-
+#    import <UIKit/UIKit.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -17,7 +16,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)addFrame:(UIImage *)image;
 
-- (void)createVideoOf:(NSTimeInterval)duration from:(NSDate *)beginning
+- (void)createVideoOf:(NSTimeInterval)duration
+                 from:(NSDate *)beginning
         outputFileURL:(NSURL *)outputFileURL
            completion:(void (^)(BOOL success, NSError *error))completion;
 
@@ -29,4 +29,4 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 NS_ASSUME_NONNULL_END
-#endif //SENTRY_HAS_UIKIT
+#endif // SENTRY_HAS_UIKIT
