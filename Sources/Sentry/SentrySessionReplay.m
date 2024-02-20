@@ -1,13 +1,9 @@
 #import "SentrySessionReplay.h"
-#import "SentryVideoReplay.h"
-#import "SentryImagesReplay.h"
 #import "SentryViewPhotographer.h"
 #import "SentryOndemandReplay.h"
 #import "SentryAttachment+Private.h"
 #import "SentryLog.h"
-#import "SentryTouchesTracker.h"
-//#define use_video 1
-#define use_ondemand 1
+#import "SentryReplaySettings+Private.h"
 
 @implementation SentrySessionReplay {
     UIView * _rootView;
@@ -18,16 +14,9 @@
     NSURL * _urlToCache;
     NSDate * _sessionStart;
     SentryReplaySettings * _settings;
-#if use_video
-    SentryVideoReplay * replayMaker;
-#elif use_ondemand
     SentryOnDemandReplay * _replayMaker;
-#else
-    SentryImagesReplay * replayMaker;
-#endif
     
     NSMutableArray<UIImage *>* imageCollection;
-    SentryTouchesTracker * _touchesTracker;
 }
 
 - (instancetype)initWithSettings:(SentryReplaySettings *)replaySettings {
@@ -56,8 +45,6 @@
         _lastScreenShot = [[NSDate alloc] init];
         _videoSegmentStart = nil;
         _sessionStart = _lastScreenShot;
-        _touchesTracker = [[SentryTouchesTracker alloc] init];
-        [_touchesTracker start];
         
         NSURL * docs = [[NSFileManager.defaultManager URLsForDirectory:NSCachesDirectory inDomains:NSUserDomainMask].firstObject URLByAppendingPathComponent:@"io.sentry"];
         
@@ -69,15 +56,9 @@
         }
         
         _replayMaker =
-#if use_video
-        [[SentryVideoReplay alloc] initWithOutputPath:[urlToCache URLByAppendingPathComponent:@"sr.mp4"].path frameSize:rootView.frame.size framesPerSec:1];
-#elif use_ondemand
         [[SentryOnDemandReplay alloc] initWithOutputPath:_urlToCache.path];
         _replayMaker.bitRate = _settings.replayBitRate;
         _replayMaker.cacheMaxSize = full ? NSUIntegerMax : 32;
-#else
-        [[SentryImagesReplay alloc] initWithOutputPath:urlToCache.path];
-#endif
         imageCollection = [NSMutableArray array];
         
         NSLog(@"Recording session to %@",_urlToCache);
@@ -87,19 +68,11 @@
 - (void)stop {
     [_displayLink invalidate];
     _displayLink = nil;
-#ifdef use_video
-    [videoReplay finalizeVideoWithCompletion:^(BOOL success, NSError * _Nonnull error) {
-        if (!success) {
-            NSLog(@"%@", error);
-        }
-    }];
-#endif
 }
 
 - (NSArray<SentryAttachment *> *)processAttachments:(NSArray<SentryAttachment *> *)attachments
                                            forEvent:(nonnull SentryEvent *)event
 {
-#if use_ondemand
     if (event.error == nil && (event.exceptions == nil || event.exceptions.count == 0)) {
         return attachments;
     }
@@ -128,15 +101,10 @@
     [result addObject:attachment];
     
     return result;
-#else
-    return attachments;
-#endif
 }
 
 - (void)sendReplayForEvent:(SentryEvent *)event {
-#if use_ondemand
     
-#endif
 }
 
 - (void)newFrame:(CADisplayLink *)sender {
@@ -199,13 +167,7 @@
  
     dispatch_queue_t backgroundQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
     dispatch_async(backgroundQueue, ^{
-#if use_video
-        [self->replayMaker addFrame:screenshot withCompletion:^(BOOL success, NSError * _Nonnull error) {
-            
-        }];
-#else
-        [self->_replayMaker addFrame:screenshot];
-#endif
+       [self->_replayMaker addFrame:screenshot];
     });
 }
 
