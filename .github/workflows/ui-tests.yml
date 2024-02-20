@@ -106,14 +106,14 @@ jobs:
 
     
   ios-swift-ui-tests:
-    name: iOS SwiftUI Tests 
+    name: iOS SwiftUI Tests ${{matrix.device}}
     runs-on: ${{matrix.runs-on}}
     strategy:
       fail-fast: false
       matrix:
         include:
           - runs-on: macos-11
-            xcode: "11.7"
+            xcode: "13.2.1"
             device: "iPhone 8 (13.7)"
           
           - runs-on: macos-12
@@ -131,6 +131,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: ./scripts/ci-select-xcode.sh ${{matrix.xcode}}
+
+      # Workaround with a symlink pointed out in: https://github.com/actions/virtual-environments/issues/551#issuecomment-637344435
+      - name: Prepare iOS 13.7 simulator
+        if: ${{ matrix.device == 'iPhone 8 (13.7)' }}
+        run: |
+          sudo mkdir -p /Library/Developer/CoreSimulator/Profiles/Runtimes
+          sudo ln -s /Applications/Xcode_11.7.app/Contents/Developer/Platforms/iPhoneOS.platform/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS.simruntime /Library/Developer/CoreSimulator/Profiles/Runtimes/iOS\ 13.7.simruntime
+          xcrun simctl create custom-test-device "iPhone 8" "com.apple.CoreSimulator.SimRuntime.iOS-13-7"
 
       # GitHub Actions sometimes fail to launch the UI tests. Therefore we retry
       - name: Run Fastlane
