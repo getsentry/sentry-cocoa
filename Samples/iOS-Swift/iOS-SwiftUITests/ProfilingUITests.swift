@@ -40,6 +40,7 @@ class ProfilingUITests: BaseUITest {
      */
     func testProfilingGPUInfo() throws {
         app.launchArguments.append("--disable-swizzling") // we're only interested in the manual transaction, the automatic stuff messes up how we try to retrieve the target profile info
+        app.launchArguments.append("--io.sentry.wipe-data")
         launchApp()
         
         goToTransactions()
