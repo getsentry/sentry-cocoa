@@ -22,7 +22,7 @@ suites:
   # We need to run the tests on an iPhone Pro because it has 120Hz refresh rate.
   - name: "iOS-17"
     devices:
-      - name: "iPhone 13 Pro.*"
+      - name: "iPhone .* Pro.*"
         platformVersion: "17"
    
   - name: "iOS-16"
