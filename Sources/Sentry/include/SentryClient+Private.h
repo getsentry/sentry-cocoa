@@ -44,7 +44,8 @@ SentryClient ()
 
 - (void)captureReplayEvent:(SentryReplayEvent *)replayEvent
            replayRecording:(SentryReplayRecording *)replayRecording
-                     video:(NSURL *)videoURL;
+                     video:(NSURL *)videoURL
+                 withScope:(SentryScope *)scope;
 
 - (void)captureSession:(SentrySession *)session NS_SWIFT_NAME(capture(session:));
 

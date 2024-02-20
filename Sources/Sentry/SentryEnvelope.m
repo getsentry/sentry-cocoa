@@ -9,6 +9,9 @@
 #import "SentryLog.h"
 #import "SentryMessage.h"
 #import "SentryMeta.h"
+#import "SentryMsgPackSerializer.h"
+#import "SentryReplayEvent.h"
+#import "SentryReplayRecording.h"
 #import "SentrySdkInfo.h"
 #import "SentrySerialization.h"
 #import "SentrySession.h"
@@ -201,6 +204,35 @@ NS_ASSUME_NONNULL_BEGIN
                                               attachmentType:attachment.attachmentType];
 
     return [self initWithHeader:itemHeader data:data];
+}
+
+- (instancetype)initWithReplayEvent:(SentryReplayEvent *)replayEvent
+                    replayRecording:(SentryReplayRecording *)replayRecording
+                              video:(NSURL *)videoURL
+{
+    NSData *replayEventData = [SentrySerialization dataWithJSONObject:[replayEvent serialize]];
+    NSMutableData *recording = [NSMutableData data];
+    [recording appendData:[SentrySerialization
+                              dataWithJSONObject:[replayRecording headerForReplayRecording]]];
+    [recording appendData:[SentrySerialization dataWithJSONObject:[replayRecording serialize]]];
+
+    NSURL *envelopeContentUrl =
+        [[videoURL URLByDeletingPathExtension] URLByAppendingPathExtension:@"dat"];
+
+    [SentryMsgPackSerializer serializeDictionaryToMessagePack:@{
+        @"replay_event" : replayEventData,
+        @"replay_recording" : recording,
+        @"replay_video" : videoURL
+    }
+                                                     intoFile:envelopeContentUrl];
+
+    // TODO: Create and envelope item that accepts and URL as content so we dont need to load the
+    // content in memory just to save it back to disk.
+    NSData *envelopeItemContent = [NSData dataWithContentsOfURL:envelopeContentUrl];
+    return [self initWithHeader:[[SentryEnvelopeItemHeader alloc]
+                                    initWithType:SentryEnvelopeItemTypeReplayVideo
+                                          length:envelopeItemContent.length]
+                           data:envelopeItemContent];
 }
 
 @end

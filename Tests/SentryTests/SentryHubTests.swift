@@ -737,6 +737,34 @@ class SentryHubTests: XCTestCase {
         assertNoEnvelopesCaptured()
     }
     
+    func testCaptureReplay() {
+        class SentryClientMockReplay: SentryClient {
+            var replayEvent: SentryReplayEvent?
+            var replayRecording: SentryReplayRecording?
+            var videoUrl: URL?
+            var scope: Scope?
+            override func capture(_ replayEvent: SentryReplayEvent, replayRecording: SentryReplayRecording, video videoURL: URL, with scope: Scope) {
+                self.replayEvent = replayEvent
+                self.replayRecording = replayRecording
+                self.videoUrl = videoURL
+                self.scope = scope
+            }
+        }
+        let mockClient = SentryClientMockReplay(options: fixture.options)
+        
+        let replayEvent = SentryReplayEvent()
+        let replayRecording = SentryReplayRecording()
+        let videoUrl = URL(string: "https://sentry.io")!
+        
+        sut.bindClient(mockClient)
+        sut.capture(replayEvent, replayRecording: replayRecording, video: videoUrl)
+        
+        expect(mockClient?.replayEvent) == replayEvent
+        expect(mockClient?.replayRecording) == replayRecording
+        expect(mockClient?.videoUrl) == videoUrl
+        expect(mockClient?.scope) == sut.scope
+    }
+    
     func testCaptureEnvelope_WithSession() {
         let envelope = SentryEnvelope(session: SentrySession(releaseName: "", distinctId: ""))
         sut.capture(envelope)
