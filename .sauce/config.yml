@@ -34,10 +34,3 @@ suites:
     devices:
       - name: "iPhone.*"
         platformVersion: "12"
-      
-artifacts:
-  download:
-    when: always
-    match:
-      - "*.junit.xml"
-    directory: ./artifacts/
