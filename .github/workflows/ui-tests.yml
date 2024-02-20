@@ -142,8 +142,7 @@ jobs:
         run: ./scripts/create-simulator.sh 14.3.1 16.4 16-4
 
       - name: Run Fastlane
-        run: fastlane ui_tests_ios_swift device:"${{matrix.device}}"
-        shell: sh
+        run: fastlane ui_tests_ios_swift device:"${{matrix.device}}" 
 
       - name: Archiving Raw Test Logs
         uses: actions/upload-artifact@v4
