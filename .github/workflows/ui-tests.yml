@@ -141,9 +141,8 @@ jobs:
         if: ${{ matrix.device == 'iPhone 14 (16.4)' }}
         run: ./scripts/create-simulator.sh 14.3.1 16.4 16-4
 
-      # GitHub Actions sometimes fail to launch the UI tests. Therefore we retry
       - name: Run Fastlane
-        run: for i in {1..2}; do fastlane ui_tests_ios_swift device:"${{matrix.device}}" address_sanitizer:true && break ; done
+        run: fastlane ui_tests_ios_swift device:"${{matrix.device}}" 
         shell: sh
 
       - name: Archiving Raw Test Logs
