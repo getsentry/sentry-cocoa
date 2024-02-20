@@ -1623,6 +1623,22 @@ class SentryClientTest: XCTestCase {
         expect(self.fixture.transport.sentEnvelopes.count) == 0
     }
     
+    func testCaptureReplayEvent_InvalidFile() {
+        let sut = fixture.getSut()
+        sut.options.beforeSend = { _ in
+            return nil
+        }
+        
+        let replayEvent = SentryReplayEvent()
+        let replayRecording = SentryReplayRecording()
+        
+        let movieUrl = URL(string: "NoFile")!
+        sut.capture(replayEvent, replayRecording: replayRecording, video: movieUrl, with: Scope())
+        
+        //Nothing should be captured because beforeSend returned nil
+        expect(self.fixture.transport.sentEnvelopes.count) == 0
+    }
+    
     private func givenEventWithDebugMeta() -> Event {
         let event = Event(level: SentryLevel.fatal)
         let debugMeta = DebugMeta()

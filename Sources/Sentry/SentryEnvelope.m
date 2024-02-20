@@ -206,7 +206,7 @@ NS_ASSUME_NONNULL_BEGIN
     return [self initWithHeader:itemHeader data:data];
 }
 
-- (instancetype)initWithReplayEvent:(SentryReplayEvent *)replayEvent
+- (nullable instancetype)initWithReplayEvent:(SentryReplayEvent *)replayEvent
                     replayRecording:(SentryReplayRecording *)replayRecording
                               video:(NSURL *)videoURL
 {
@@ -219,15 +219,17 @@ NS_ASSUME_NONNULL_BEGIN
     NSURL *envelopeContentUrl =
         [[videoURL URLByDeletingPathExtension] URLByAppendingPathExtension:@"dat"];
 
-    [SentryMsgPackSerializer serializeDictionaryToMessagePack:@{
+    BOOL success = [SentryMsgPackSerializer serializeDictionaryToMessagePack:@{
         @"replay_event" : replayEventData,
         @"replay_recording" : recording,
         @"replay_video" : videoURL
     }
                                                      intoFile:envelopeContentUrl];
+    if (success == NO) {
+        SENTRY_LOG_DEBUG(@"Could not create MessagePack for session replay envelope item.");
+        return nil;
+    }
 
-    // TODO: Create and envelope item that accepts and URL as content so we dont need to load the
-    // content in memory just to save it back to disk.
     NSData *envelopeItemContent = [NSData dataWithContentsOfURL:envelopeContentUrl];
     return [self initWithHeader:[[SentryEnvelopeItemHeader alloc]
                                     initWithType:SentryEnvelopeItemTypeReplayVideo
