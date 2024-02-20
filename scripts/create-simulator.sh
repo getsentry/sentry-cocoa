@@ -4,8 +4,8 @@
 set -euo pipefail
 
 XCODE_VERSION="${1}"
-SIM_RUNTIME="${2:}"
-SIM_RUNTIME_UNDERSCORE="${3:}"
+SIM_RUNTIME="${2}"
+SIM_RUNTIME_UNDERSCORE="${3}"
 
 sudo mkdir -p /Library/Developer/CoreSimulator/Profiles/Runtimes
 sudo ln -s /Applications/Xcode_${XCODE_VERSION}.app/Contents/Developer/Platforms/iPhoneOS.platform/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS.simruntime /Library/Developer/CoreSimulator/Profiles/Runtimes/iOS\ ${SIM_RUNTIME}.simruntime
