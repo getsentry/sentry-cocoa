@@ -6,12 +6,6 @@ import XCTest
 class ProfilingUITests: BaseUITest {
     override var automaticallyLaunchAndTerminateApp: Bool { false }
     
-    // this will run before the non-async BaseUITest.setUp, so we can bail out before running any of the logic in there
-    override func setUp() async throws {
-        try await super.setUp()
-        try checkEnvironment()
-    }
-    
     func testProfiledAppLaunches() throws {
         app.launchArguments.append("--io.sentry.wipe-data")
         launchApp()
@@ -73,16 +67,6 @@ class ProfilingUITests: BaseUITest {
 
 @available(iOS 16, *)
 extension ProfilingUITests {
-    // We don't need to test these on multiple OSes right now, and older versions seem to have issues; older devices or VM images running simulators might just be slower. Latest OS is enough coverage for our needs for now.
-    func checkEnvironment() throws {
-#if !targetEnvironment(simulator)
-        throw XCTSkip("Currently doesn't work on SauceLabs.")
-#endif
-
-        guard #available(iOS 16.0, *) else {
-            throw XCTSkip("iOS version too old for profiling test.")
-        }
-    }
     
     enum Error: Swift.Error {
         case missingFile
