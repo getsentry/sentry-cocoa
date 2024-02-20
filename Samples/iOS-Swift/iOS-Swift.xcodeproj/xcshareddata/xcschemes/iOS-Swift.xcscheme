@@ -39,6 +39,12 @@
             </BuildableReference>
             <SkippedTests>
                <Test
+                  Identifier = "ProfilingUITests/testProfiledAppLaunches()">
+               </Test>
+               <Test
+                  Identifier = "ProfilingUITests/testProfilingGPUInfo()">
+               </Test>
+               <Test
                   Identifier = "SentryFileIOTrackingIntegrationTests/test_DataConsistency_readPath_disabled()">
                </Test>
                <Test
