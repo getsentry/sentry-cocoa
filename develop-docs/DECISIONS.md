@@ -157,3 +157,47 @@ and for an internal one [SentryTransport](https://github.com/getsentry/sentry-co
 Related links:
 
 - [GH PR discussion](https://github.com/getsentry/sentry-cocoa/pull/3246#discussion_r1385134001)
+
+## Move UI tests from SauceLabs to GH action simulators <a name="move-ui-tests-to-gh-actions"></a>
+
+Date: February 20th 2024
+Contributors: @brustolin, @philipphofmann, @kahest
+
+As of February 20, 2024, we have severe problems with the UI tests on SauceLabs:
+
+1. Running the UI tests on iOS 16 continuously fails with an internal server error.
+
+```bash
+08:43:42 ERR Failed to pass threshold suite=iOS-16
+08:43:43 ERR Suite finished. passed=false suite=iOS-16 url=https://app.saucelabs.com/tests/92e4f31ed2e0464caa069ac36fed4a1a
+08:43:50 WRN Failed to retrieve the console output. error="internal server error" suite=iOS-16
+08:43:52 INF Suites in progress: 0
+08:43:59 WRN unable to report result to insights error="internal server error" action=loading-xml-report
+08:43:59 WRN unable to report result to insights error="internal server error" action=parsingXML jobID=92e4f31ed2e0464caa069ac36fed4a1a
+```
+
+2. The test runs for iOS 17 keep hanging forever and frequently time out. 
+3. Until February 19, 2024 we had a retry mechanism for running SauceLabs UI tests because they
+frequently failed to tun.
+
+Working with such an unreliable tool in CI is a killer for developer productivity. When looking at
+our UI test suite, we currently have one UI test that should run on an actual device:  . This test
+validates the data from our screen frames logic, and validating that it works correctly on an iPhone
+Pro with 120 fps makes sense. Apart from that, running all the UI tests on different simulators in
+CI should be enough to surface most of our bugs. Fighting against SauceLabs and not relying on it is
+worse than running UI tests on simulators and accepting the fact that they might not capture 100% of
+bugs and regressions.
+
+
+Another major reason why we chose SauceLabs in the past was the support of running UI tests on older
+iOS versions, which are not supported on GH action simulators. This was vital when we dealt with
+severe bugs when swizzling UIViewControllers. We don’t face that challenge anymore because the
+solution is stable, and we don’t receive any bugs anymore. The lowest supported simulator version on
+GH actions is currently iOS 13. Given the low market share of iOS 12, it’s acceptable to not run our
+UI tests on iOS 12 and lower even though we support them.
+
+
+All that said, we should replace running UI tests in SauceLabs with running them on different iOS
+versions with GH actions.
+
+It’s worth noting that we want to keep running benchmark tests on SauceLabs as they run stable.
