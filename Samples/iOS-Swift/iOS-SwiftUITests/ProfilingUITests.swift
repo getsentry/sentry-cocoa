@@ -46,7 +46,7 @@ class ProfilingUITests: BaseUITest {
         goToTransactions()
         startTransaction()
         
-        app.buttons["ANR filling run loop"].afterWaitingForExistence("Couldn't find button to ANR").tap()
+        app.buttons["anrFillingRunLoop"].afterWaitingForExistence("Couldn't find button to ANR").tap()
         stopTransaction()
     
         goToProfiling()
@@ -97,11 +97,11 @@ extension ProfilingUITests {
     }
     
     func startTransaction() {
-        app.buttons["Start transaction (main thread)"].afterWaitingForExistence("Couldn't find button to start transaction").tap()
+        app.buttons["startTransactionMainThread"].afterWaitingForExistence("Couldn't find button to start transaction").tap()
     }
     
     func stopTransaction() {
-        app.buttons["Stop transaction"].afterWaitingForExistence("Couldn't find button to end transaction").tap()
+        app.buttons["stopTransaction"].afterWaitingForExistence("Couldn't find button to end transaction").tap()
     }
     
     func goToProfiling() {
@@ -109,11 +109,11 @@ extension ProfilingUITests {
     }
     
     func retrieveLastProfileData() {
-        app.buttons["View last profile"].afterWaitingForExistence("Couldn't find button to view last profile").tap()
+        app.buttons["viewLastProfile"].afterWaitingForExistence("Couldn't find button to view last profile").tap()
     }
     
     func retrieveLaunchProfileData() {
-        app.buttons["View launch profile"].afterWaitingForExistence("Couldn't find button to view launch profile").tap()
+        app.buttons["viewLaunchProfile"].afterWaitingForExistence("Couldn't find button to view launch profile").tap()
     }
 
     func assertLaunchProfile() throws {
