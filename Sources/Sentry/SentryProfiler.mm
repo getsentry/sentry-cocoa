@@ -469,15 +469,19 @@ writeProfileFile(NSDictionary<NSString *, id> *payload)
     }
 
     if ([fm fileExistsAtPath:pathToWrite]) {
-        SENTRY_LOG_DEBUG(@"Already a%@ profile file present; make sure to remove them right after "
+        SENTRY_LOG_DEBUG(@"Already a %@ profile file present; make sure to remove them right after "
                          @"using them, and that tests clean state in between so there isn't "
                          @"leftover config producing one when it isn't expected.",
             isTracingAppLaunch ? @" launch" : @"");
+        return;
     }
 
     SENTRY_LOG_DEBUG(@"Writing%@ profile to file.", isTracingAppLaunch ? @" launch" : @"");
-    SENTRY_CASSERT(
-        [data writeToFile:pathToWrite atomically:YES], @"Failed to write profile to test file");
+
+    NSError *error;
+    if (![data writeToFile:pathToWrite options:NSDataWritingAtomic error:&error]) {
+        SENTRY_LOG_ERROR(@"Failed to write data to path %@: %@", pathToWrite, error);
+    }
 }
 #    endif // defined(TEST) || defined(TESTCI) || defined(DEBUG)
 
