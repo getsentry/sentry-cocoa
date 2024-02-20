@@ -54,7 +54,7 @@
                 [outputStream write:buffer maxLength:bytesRead];
             } else if (bytesRead < 0) {
                 SENTRY_LOG_DEBUG(
-                    @"Error reading bytes from input stream - Input: %@ - %li", value, bytesRead);
+                    @"Error reading bytes from input stream - Input: %@ - %li", value, (long)bytesRead);
 
                 [inputStream close];
                 [outputStream close];
