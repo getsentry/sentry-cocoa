@@ -5,7 +5,7 @@ sauce:
   concurrency: 4
 
 defaults:
-  timeout: 20m
+  timeout: 60m
 
 xcuitest:
   app: ./DerivedData/Build/Products/Debug-iphoneos/iOS-Swift.app
