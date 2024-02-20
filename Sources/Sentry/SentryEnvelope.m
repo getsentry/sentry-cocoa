@@ -207,8 +207,8 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (nullable instancetype)initWithReplayEvent:(SentryReplayEvent *)replayEvent
-                    replayRecording:(SentryReplayRecording *)replayRecording
-                              video:(NSURL *)videoURL
+                             replayRecording:(SentryReplayRecording *)replayRecording
+                                       video:(NSURL *)videoURL
 {
     NSData *replayEventData = [SentrySerialization dataWithJSONObject:[replayEvent serialize]];
     NSMutableData *recording = [NSMutableData data];
@@ -224,7 +224,7 @@ NS_ASSUME_NONNULL_BEGIN
         @"replay_recording" : recording,
         @"replay_video" : videoURL
     }
-                                                     intoFile:envelopeContentUrl];
+                                                                    intoFile:envelopeContentUrl];
     if (success == NO) {
         SENTRY_LOG_DEBUG(@"Could not create MessagePack for session replay envelope item.");
         return nil;

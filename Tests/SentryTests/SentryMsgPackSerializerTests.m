@@ -18,7 +18,8 @@
         @"key2" : [@"Data 2" dataUsingEncoding:NSUTF8StringEncoding]
     };
 
-    BOOL result = [SentryMsgPackSerializer serializeDictionaryToMessagePack:dictionary intoFile:tempFileURL];
+    BOOL result = [SentryMsgPackSerializer serializeDictionaryToMessagePack:dictionary
+                                                                   intoFile:tempFileURL];
     XCTAssertTrue(result);
     NSData *tempFile = [NSData dataWithContentsOfURL:tempFileURL];
     [self assertMsgPack:tempFile];
@@ -39,7 +40,8 @@
     NSDictionary<NSString *, id<SentryStreamable>> *dictionary =
         @{ @"key1" : file1URL, @"key2" : file2URL };
 
-    BOOL result = [SentryMsgPackSerializer serializeDictionaryToMessagePack:dictionary intoFile:tempFileURL];
+    BOOL result = [SentryMsgPackSerializer serializeDictionaryToMessagePack:dictionary
+                                                                   intoFile:tempFileURL];
     XCTAssertTrue(result);
     NSData *tempFile = [NSData dataWithContentsOfURL:tempFileURL];
 
@@ -50,15 +52,16 @@
     [[NSFileManager defaultManager] removeItemAtURL:file2URL error:nil];
 }
 
-- (void)testSerializeInvalidFile {
+- (void)testSerializeInvalidFile
+{
     NSURL *tempDirectoryURL = [NSURL fileURLWithPath:NSTemporaryDirectory()];
     NSURL *tempFileURL = [tempDirectoryURL URLByAppendingPathComponent:@"test.dat"];
     NSURL *file1URL = [tempDirectoryURL URLByAppendingPathComponent:@"notAFile.dat"];
-    
-    NSDictionary<NSString *, id<SentryStreamable>> *dictionary =
-        @{ @"key1" : file1URL };
 
-    BOOL result = [SentryMsgPackSerializer serializeDictionaryToMessagePack:dictionary intoFile:tempFileURL];
+    NSDictionary<NSString *, id<SentryStreamable>> *dictionary = @{ @"key1" : file1URL };
+
+    BOOL result = [SentryMsgPackSerializer serializeDictionaryToMessagePack:dictionary
+                                                                   intoFile:tempFileURL];
     XCTAssertFalse(result);
 }
 

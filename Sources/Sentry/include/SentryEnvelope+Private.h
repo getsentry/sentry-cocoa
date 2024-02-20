@@ -10,8 +10,8 @@ SentryEnvelopeItem ()
 - (instancetype)initWithClientReport:(SentryClientReport *)clientReport;
 
 - (nullable instancetype)initWithReplayEvent:(SentryReplayEvent *)replayEvent
-                    replayRecording:(SentryReplayRecording *)replayRecording
-                              video:(NSURL *)videoURL;
+                             replayRecording:(SentryReplayRecording *)replayRecording
+                                       video:(NSURL *)videoURL;
 
 @end
 

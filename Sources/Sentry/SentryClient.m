@@ -504,10 +504,11 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                                                   video:videoURL];
 
     if (videoEnvelopeItem == nil) {
-        SENTRY_LOG_DEBUG(@"The Session Replay segment will not be sent to Sentry because an Envelope Item could not be created.");
+        SENTRY_LOG_DEBUG(@"The Session Replay segment will not be sent to Sentry because an "
+                         @"Envelope Item could not be created.");
         return;
     }
-    
+
     SentryEnvelope *envelope = [[SentryEnvelope alloc] initWithHeader:[SentryEnvelopeHeader empty]
                                                                 items:@[ videoEnvelopeItem ]];
 
