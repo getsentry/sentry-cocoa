@@ -135,11 +135,11 @@ jobs:
 
       - name: Create iOS 13.7 simulator
         if: ${{ matrix.device == 'iPhone 8 (13.7)' }}
-        run: ./scripts/create-simulator.sh 11.7 13.7 13_7
+        run: ./scripts/create-simulator.sh 11.7 13.7 13-7
 
       - name: Create iOS 16.4 simulator
         if: ${{ matrix.device == 'iPhone 14 (16.4)' }}
-        run: ./scripts/create-simulator.sh 14.3.1 16.4 16_4
+        run: ./scripts/create-simulator.sh 14.3.1 16.4 16-4
 
       # GitHub Actions sometimes fail to launch the UI tests. Therefore we retry
       - name: Run Fastlane
