@@ -14,6 +14,7 @@ for development. Read our [blog post](https://blog.sentry.io/sentry-for-developm
 
 - Cache installationID async to avoid file IO on the main thread when starting the SDK (#3601)
 - Add reason for NSPrivacyAccessedAPICategoryFileTimestamp (#3626)
+- Exposes `tags` property of `SentryScope` (#3650)
 
 ### Fixes
 
