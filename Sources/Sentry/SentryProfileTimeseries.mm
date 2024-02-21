@@ -46,13 +46,13 @@ NSArray<SentrySample *> *_Nullable slicedProfileSamples(
         return nil;
     }
 
-    const auto firstIndex =
-        [samples indexOfObjectWithOptions:NSEnumerationConcurrent
-                              passingTest:^BOOL(SentrySample *_Nonnull sample, NSUInteger idx,
-                                  BOOL *_Nonnull stop) {
-                                  *stop = sample.absoluteTimestamp >= startSystemTime;
-                                  return *stop;
-                              }];
+    SENTRY_LOG_DEBUG(@"Finding relevant samples from %lu total.", (unsigned long)samples.count);
+
+    const auto firstIndex = [samples indexOfObjectPassingTest:^BOOL(
+        SentrySample *_Nonnull sample, NSUInteger idx, BOOL *_Nonnull stop) {
+        *stop = sample.absoluteTimestamp >= startSystemTime;
+        return *stop;
+    }];
 
     if (firstIndex == NSNotFound) {
         logSlicingFailureWithArray(samples, startSystemTime, endSystemTime, /*start*/ YES);
@@ -62,7 +62,7 @@ NSArray<SentrySample *> *_Nullable slicedProfileSamples(
     }
 
     const auto lastIndex =
-        [samples indexOfObjectWithOptions:NSEnumerationConcurrent | NSEnumerationReverse
+        [samples indexOfObjectWithOptions:NSEnumerationReverse
                               passingTest:^BOOL(SentrySample *_Nonnull sample, NSUInteger idx,
                                   BOOL *_Nonnull stop) {
                                   *stop = sample.absoluteTimestamp <= endSystemTime;

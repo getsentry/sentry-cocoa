@@ -248,7 +248,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         
         let transport = TestTransport()
         let client = SentryClient(options: fixture.options, fileManager: try TestFileManager(options: fixture.options), deleteOldEnvelopeItems: false)
-        Dynamic(client).transportAdapter = TestTransportAdapter(transport: transport, options: fixture.options)
+        Dynamic(client).transportAdapter = TestTransportAdapter(transports: [transport], options: fixture.options)
         hub.bindClient(client)
         
         delayNonBlocking(timeout: 0.01)

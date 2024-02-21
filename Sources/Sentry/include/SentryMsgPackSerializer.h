@@ -2,7 +2,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@protocol SentryStreameble
+@protocol SentryStreamable
 
 - (NSInputStream *)asInputStream;
 
@@ -16,18 +16,18 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @interface SentryMsgPackSerializer : NSObject
 
-+ (void)serializeDictionaryToMessagePack:
-            (NSDictionary<NSString *, id<SentryStreameble>> *)dictionary
++ (BOOL)serializeDictionaryToMessagePack:
+            (NSDictionary<NSString *, id<SentryStreamable>> *)dictionary
                                 intoFile:(NSURL *)path;
 
 @end
 
 @interface
-NSData (inputStreameble) <SentryStreameble>
+NSData (inputStreameble) <SentryStreamable>
 @end
 
 @interface
-NSURL (inputStreameble) <SentryStreameble>
+NSURL (inputStreameble) <SentryStreamable>
 @end
 
 NS_ASSUME_NONNULL_END

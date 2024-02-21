@@ -4,7 +4,7 @@ class UIEventBreadcrumbTests: BaseUITest {
 
     func testNoBreadcrumbForTextFieldEditingChanged() {
         app.buttons["Extra"].tap()
-        app.buttons["UI event tests"].tap()
+        app.buttons["uiEventTests"].tap()
 
         //Trigger a change in textfield
         app.buttons["editingChangedButton"].afterWaitingForExistence("Did not find editingChangedButton").tap()

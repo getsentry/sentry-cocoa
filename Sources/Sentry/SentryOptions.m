@@ -33,14 +33,6 @@
 #if SENTRY_HAS_METRIC_KIT
 #    import "SentryMetricKitIntegration.h"
 #endif // SENTRY_HAS_METRIC_KIT
-
-@interface
-SentryOptions ()
-
-@property (nullable, nonatomic, copy, readonly) NSNumber *defaultSampleRate;
-
-@end
-
 NSString *const kSentryDefaultEnvironment = @"production";
 
 @implementation SentryOptions {
@@ -97,8 +89,7 @@ NSString *const kSentryDefaultEnvironment = @"production";
         self.maxBreadcrumbs = defaultMaxBreadcrumbs;
         self.maxCacheItems = 30;
         _integrations = SentryOptions.defaultIntegrations;
-        _defaultSampleRate = @1;
-        self.sampleRate = _defaultSampleRate;
+        self.sampleRate = SENTRY_DEFAULT_SAMPLE_RATE;
         self.enableAutoSessionTracking = YES;
         self.enableWatchdogTerminationTracking = YES;
         self.sessionTrackingIntervalMillis = [@30000 unsignedIntValue];
@@ -129,17 +120,17 @@ NSString *const kSentryDefaultEnvironment = @"production";
         self.enableNetworkTracking = YES;
         self.enableFileIOTracing = YES;
         self.enableNetworkBreadcrumbs = YES;
-        _defaultTracesSampleRate = nil;
-        self.tracesSampleRate = _defaultTracesSampleRate;
+        self.tracesSampleRate = nil;
 #if SENTRY_TARGET_PROFILING_SUPPORTED
         _enableProfiling = NO;
-        _defaultProfilesSampleRate = nil;
-        self.profilesSampleRate = _defaultProfilesSampleRate;
+        self.profilesSampleRate = nil;
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
         self.enableCoreDataTracing = YES;
         _enableSwizzling = YES;
         self.sendClientReports = YES;
         self.swiftAsyncStacktraces = NO;
+        self.enableSpotlight = NO;
+        self.spotlightUrl = @"http://localhost:8969/stream";
 
 #if TARGET_OS_OSX
         NSString *dsn = [[[NSProcessInfo processInfo] environment] objectForKey:@"SENTRY_DSN"];
@@ -475,6 +466,9 @@ NSString *const kSentryDefaultEnvironment = @"production";
 
     [self setBool:options[@"enableProfiling"]
             block:^(BOOL value) { self->_enableProfiling = value; }];
+
+    [self setBool:options[NSStringFromSelector(@selector(enableAppLaunchProfiling))]
+            block:^(BOOL value) { self->_enableAppLaunchProfiling = value; }];
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
     [self setBool:options[@"sendClientReports"]
@@ -502,6 +496,13 @@ NSString *const kSentryDefaultEnvironment = @"production";
     }
 #endif // SENTRY_HAS_METRIC_KIT
 
+    [self setBool:options[@"enableSpotlight"]
+            block:^(BOOL value) { self->_enableSpotlight = value; }];
+
+    if ([options[@"spotlightUrl"] isKindOfClass:[NSString class]]) {
+        self.spotlightUrl = options[@"spotlightUrl"];
+    }
+
     return YES;
 }
 
@@ -527,17 +528,18 @@ NSString *const kSentryDefaultEnvironment = @"production";
 {
     if (sampleRate == nil) {
         _sampleRate = nil;
-    } else if ([self isValidSampleRate:sampleRate]) {
+    } else if (isValidSampleRate(sampleRate)) {
         _sampleRate = sampleRate;
     } else {
-        _sampleRate = _defaultSampleRate;
+        _sampleRate = SENTRY_DEFAULT_SAMPLE_RATE;
     }
 }
 
-- (BOOL)isValidSampleRate:(NSNumber *)sampleRate
+BOOL
+isValidSampleRate(NSNumber *sampleRate)
 {
-    // Same valid range, so we can reuse the logic.
-    return [self isValidTracesSampleRate:sampleRate];
+    double rate = [sampleRate doubleValue];
+    return rate >= 0 && rate <= 1.0;
 }
 
 - (void)setEnableTracing:(BOOL)enableTracing
@@ -557,13 +559,13 @@ NSString *const kSentryDefaultEnvironment = @"production";
 {
     if (tracesSampleRate == nil) {
         _tracesSampleRate = nil;
-    } else if ([self isValidTracesSampleRate:tracesSampleRate]) {
+    } else if (isValidSampleRate(tracesSampleRate)) {
         _tracesSampleRate = tracesSampleRate;
         if (!_enableTracingManual) {
             _enableTracing = YES;
         }
     } else {
-        _tracesSampleRate = _defaultTracesSampleRate;
+        _tracesSampleRate = SENTRY_DEFAULT_TRACES_SAMPLE_RATE;
     }
 }
 
@@ -575,12 +577,6 @@ NSString *const kSentryDefaultEnvironment = @"production";
     }
 }
 
-- (BOOL)isValidTracesSampleRate:(NSNumber *)tracesSampleRate
-{
-    double rate = [tracesSampleRate doubleValue];
-    return rate >= 0 && rate <= 1.0;
-}
-
 - (BOOL)isTracingEnabled
 {
     return _enableTracing
@@ -589,19 +585,14 @@ NSString *const kSentryDefaultEnvironment = @"production";
 }
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
-- (BOOL)isValidProfilesSampleRate:(NSNumber *)profilesSampleRate
-{
-    return [self isValidTracesSampleRate:profilesSampleRate];
-}
-
 - (void)setProfilesSampleRate:(NSNumber *)profilesSampleRate
 {
     if (profilesSampleRate == nil) {
         _profilesSampleRate = nil;
-    } else if ([self isValidProfilesSampleRate:profilesSampleRate]) {
+    } else if (isValidSampleRate(profilesSampleRate)) {
         _profilesSampleRate = profilesSampleRate;
     } else {
-        _profilesSampleRate = _defaultProfilesSampleRate;
+        _profilesSampleRate = SENTRY_DEFAULT_PROFILES_SAMPLE_RATE;
     }
 }
 
@@ -716,6 +707,17 @@ NSString *const kSentryDefaultEnvironment = @"production";
 }
 
 #endif // SENTRY_UIKIT_AVAILABLE
+
+- (void)setEnableSpotlight:(BOOL)value
+{
+    _enableSpotlight = value;
+#if defined(RELEASE)
+    if (value) {
+        SENTRY_LOG_WARN(@"Enabling Spotlight for a release build. We recommend running Spotlight "
+                        @"only for local development.");
+    }
+#endif // defined(RELEASE)
+}
 
 #if defined(DEBUG) || defined(TEST) || defined(TESTCI)
 - (NSString *)debugDescription

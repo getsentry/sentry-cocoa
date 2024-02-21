@@ -16,23 +16,20 @@
 #import "SentryPerformanceTracker.h"
 #import "SentryProfilingConditionals.h"
 #import "SentrySDK+Private.h"
+#import "SentrySamplerDecision.h"
+#import "SentrySampling.h"
 #import "SentrySamplingContext.h"
 #import "SentryScope+Private.h"
 #import "SentrySerialization.h"
 #import "SentrySession+Private.h"
 #import "SentryTraceOrigins.h"
 #import "SentryTracer.h"
-#import "SentryTracesSampler.h"
 #import "SentryTransaction.h"
 #import "SentryTransactionContext+Private.h"
 
 #if SENTRY_HAS_UIKIT
 #    import "SentryUIViewControllerPerformanceTracker.h"
 #endif // SENTRY_HAS_UIKIT
-
-#if SENTRY_TARGET_PROFILING_SUPPORTED
-#    import "SentryProfilesSampler.h"
-#endif // SENTRY_TARGET_PROFILING_SUPPORTED"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -42,10 +39,6 @@ SentryHub ()
 @property (nullable, nonatomic, strong) SentryClient *client;
 @property (nullable, nonatomic, strong) SentryScope *scope;
 @property (nonatomic, strong) SentryCrashWrapper *crashWrapper;
-@property (nonatomic, strong) SentryTracesSampler *tracesSampler;
-#if SENTRY_TARGET_PROFILING_SUPPORTED
-@property (nonatomic, strong) SentryProfilesSampler *profilesSampler;
-#endif // SENTRY_TARGET_PROFILING_SUPPORTED
 @property (nonatomic, strong) NSMutableArray<id<SentryIntegrationProtocol>> *installedIntegrations;
 @property (nonatomic, strong) NSMutableSet<NSString *> *installedIntegrationNames;
 @property (nonatomic) NSUInteger errorsBeforeSession;
@@ -68,13 +61,7 @@ SentryHub ()
         _installedIntegrations = [[NSMutableArray alloc] init];
         _installedIntegrationNames = [[NSMutableSet alloc] init];
         _crashWrapper = [SentryCrashWrapper sharedInstance];
-        _tracesSampler = [[SentryTracesSampler alloc] initWithOptions:client.options];
         _errorsBeforeSession = 0;
-#if SENTRY_TARGET_PROFILING_SUPPORTED
-        if (client.options.isProfilingEnabled) {
-            _profilesSampler = [[SentryProfilesSampler alloc] initWithOptions:client.options];
-        }
-#endif // SENTRY_TARGET_PROFILING_SUPPORTED
     }
     return self;
 }
@@ -396,14 +383,15 @@ SentryHub ()
         [[SentrySamplingContext alloc] initWithTransactionContext:transactionContext
                                             customSamplingContext:customSamplingContext];
 
-    SentryTracesSamplerDecision *samplerDecision = [_tracesSampler sample:samplingContext];
+    SentrySamplerDecision *tracesSamplerDecision
+        = sampleTrace(samplingContext, self.client.options);
     transactionContext = [self transactionContext:transactionContext
-                                      withSampled:samplerDecision.decision];
-    transactionContext.sampleRate = samplerDecision.sampleRate;
+                                      withSampled:tracesSamplerDecision.decision];
+    transactionContext.sampleRate = tracesSamplerDecision.sampleRate;
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
-    SentryProfilesSamplerDecision *profilesSamplerDecision =
-        [_profilesSampler sample:samplingContext tracesSamplerDecision:samplerDecision];
+    SentrySamplerDecision *profilesSamplerDecision
+        = sampleProfile(samplingContext, tracesSamplerDecision, self.client.options);
 
     configuration.profilesSamplerDecision = profilesSamplerDecision;
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED"
