@@ -205,8 +205,6 @@
 #define SentryCrashField_ProcessID "process_id"
 #define SentryCrashField_ProcessName "process_name"
 #define SentryCrashField_Size "size"
-#define SentryCrashField_Total_Storage "total_storage"
-#define SentryCrashField_Free_Storage "free_storage"
 #define SentryCrashField_SystemName "system_name"
 #define SentryCrashField_SystemVersion "system_version"
 #define SentryCrashField_BuildType "build_type"

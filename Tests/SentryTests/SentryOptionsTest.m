@@ -4,6 +4,7 @@
 #import "SentrySDK.h"
 #import "SentryTests-Swift.h"
 #import <XCTest/XCTest.h>
+@import Nimble;
 
 @interface SentryOptionsTest : XCTestCase
 
@@ -429,7 +430,7 @@
 {
     SentryOptions *options = [[SentryOptions alloc] init];
     options.sampleRate = nil;
-    XCTAssertNil(options.sampleRate);
+    XCTAssertEqual(options.sampleRate.doubleValue, 0);
 }
 
 - (void)testSampleRateLowerBound
@@ -560,7 +561,8 @@
         @"failedRequestStatusCodes" : [NSNull null],
         @"enableTimeToFullDisplayTracing" : [NSNull null],
         @"enableTracing" : [NSNull null],
-        @"swiftAsyncStacktraces" : [NSNull null]
+        @"swiftAsyncStacktraces" : [NSNull null],
+        @"spotlightUrl" : [NSNull null]
     }
                                                 didFailWithError:nil];
 
@@ -644,6 +646,8 @@
     XCTAssertNil(options.profilesSampleRate);
     XCTAssertNil(options.profilesSampler);
 #endif
+
+    XCTAssertTrue([options.spotlightUrl isEqualToString:@"http://localhost:8969/stream"]);
 }
 
 - (void)testSetValidDsn
@@ -859,7 +863,7 @@
     options.enableTracing = YES;
     options.tracesSampler = sampler;
     XCTAssertTrue(options.enableTracing);
-    options.tracesSampleRate = nil;
+    options.tracesSampleRate = @0;
     XCTAssertTrue(options.enableTracing);
 
     options.enableTracing = NO;
@@ -878,8 +882,7 @@
 - (void)testDefaultTracesSampleRate
 {
     SentryOptions *options = [self getValidOptions:@{}];
-
-    XCTAssertNil(options.tracesSampleRate);
+    XCTAssertEqual(options.tracesSampleRate.doubleValue, 0);
 }
 
 - (void)testTracesSampleRate_SetToNil
@@ -887,6 +890,7 @@
     SentryOptions *options = [[SentryOptions alloc] init];
     options.tracesSampleRate = nil;
     XCTAssertNil(options.tracesSampleRate);
+    XCTAssertEqual(options.tracesSampleRate.doubleValue, 0);
 }
 
 - (void)testTracesSampleRateLowerBound
@@ -902,7 +906,7 @@
 
     NSNumber *tooLow = @-0.01;
     options.tracesSampleRate = tooLow;
-    XCTAssertNil(options.tracesSampleRate);
+    XCTAssertEqual(options.tracesSampleRate.doubleValue, 0);
 }
 
 - (void)testTracesSampleRateUpperBound
@@ -918,7 +922,7 @@
 
     NSNumber *tooLow = @1.01;
     options.tracesSampleRate = tooLow;
-    XCTAssertNil(options.tracesSampleRate);
+    XCTAssertEqual(options.tracesSampleRate.doubleValue, 0);
 }
 
 - (double)tracesSamplerCallback:(NSDictionary *)context
@@ -999,7 +1003,7 @@
 {
     SentryOptions *options = [self getValidOptions:@{}];
 
-    XCTAssertNil(options.profilesSampleRate);
+    XCTAssertEqual(options.profilesSampleRate.doubleValue, 0);
 }
 
 - (void)testProfilesSampleRate_SetToNil
@@ -1007,6 +1011,7 @@
     SentryOptions *options = [[SentryOptions alloc] init];
     options.profilesSampleRate = nil;
     XCTAssertNil(options.profilesSampleRate);
+    XCTAssertEqual(options.profilesSampleRate.doubleValue, 0);
 }
 
 - (void)testProfilesSampleRateLowerBound
@@ -1022,7 +1027,7 @@
 
     NSNumber *tooLow = @-0.01;
     options.profilesSampleRate = tooLow;
-    XCTAssertNil(options.profilesSampleRate);
+    XCTAssertEqual(options.profilesSampleRate.doubleValue, 0);
 }
 
 - (void)testProfilesSampleRateUpperBound
@@ -1038,7 +1043,7 @@
 
     NSNumber *tooLow = @1.01;
     options.profilesSampleRate = tooLow;
-    XCTAssertNil(options.profilesSampleRate);
+    XCTAssertEqual(options.profilesSampleRate.doubleValue, 0);
 }
 
 - (void)testIsProfilingEnabled_NothingSet_IsDisabled
@@ -1191,6 +1196,14 @@
     XCTAssertIdentical(initialScope, options.initialScope);
 }
 
+#if SENTRY_TARGET_PROFILING_SUPPORTED
+- (void)testEnableAppLaunchProfilingDefaultValue
+{
+    SentryOptions *options = [self getValidOptions:@{}];
+    XCTAssertFalse(options.enableAppLaunchProfiling);
+}
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED
+
 - (SentryOptions *)getValidOptions:(NSDictionary<NSString *, id> *)dict
 {
     NSError *error = nil;
@@ -1244,6 +1257,23 @@
     XCTAssertNotNil(debugDescription);
     XCTAssert([debugDescription containsString:@"sampleRate: 0.123"]);
     XCTAssert([debugDescription containsString:@"tracesSampler: <__NSGlobalBlock__: "]);
+}
+
+- (void)testEnableSpotlight
+{
+    [self testBooleanField:@"enableSpotlight" defaultValue:NO];
+}
+
+- (void)testSpotlightUrl
+{
+    SentryOptions *options = [self getValidOptions:@{ @"spotlightUrl" : @"http://localhost:1010" }];
+    XCTAssertEqualObjects(options.spotlightUrl, @"http://localhost:1010");
+
+    SentryOptions *options2 = [self getValidOptions:@{ @"spotlightUrl" : @"" }];
+    XCTAssertEqualObjects(options2.spotlightUrl, @"");
+
+    SentryOptions *options3 = [self getValidOptions:@{ @"spotlightUrl" : @2 }];
+    XCTAssertEqualObjects(options3.spotlightUrl, @"http://localhost:8969/stream");
 }
 
 #pragma mark - Private

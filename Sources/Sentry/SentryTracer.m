@@ -5,12 +5,16 @@
 #import "SentryDebugImageProvider.h"
 #import "SentryDependencyContainer.h"
 #import "SentryEvent+Private.h"
+#import "SentryFileManager.h"
 #import "SentryHub+Private.h"
+#import "SentryInternalDefines.h"
 #import "SentryLog.h"
 #import "SentryNSTimerFactory.h"
 #import "SentryNoOpSpan.h"
 #import "SentryProfilingConditionals.h"
+#import "SentryRandom.h"
 #import "SentrySDK+Private.h"
+#import "SentrySamplerDecision.h"
 #import "SentryScope.h"
 #import "SentrySpan.h"
 #import "SentrySpanContext+Private.h"
@@ -31,9 +35,9 @@
 @import SentryPrivate;
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
+#    import "SentryLaunchProfiling.h"
 #    import "SentryProfiledTracerConcurrency.h"
 #    import "SentryProfiler.h"
-#    import "SentryProfilesSampler.h"
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
 #if SENTRY_HAS_UIKIT
@@ -43,6 +47,11 @@
 #    import "SentryUIViewControllerPerformanceTracker.h"
 #    import <SentryScreenFrames.h>
 #endif // SENTRY_HAS_UIKIT
+
+#if defined(TEST) || defined(TESTCI)
+#    import "SentryFileManager+Test.h"
+#    import "SentryInternalDefines.h"
+#endif // defined(TEST) || defined(TESTCI)
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -103,6 +112,13 @@ SentryTracer ()
 
 static NSObject *appStartMeasurementLock;
 static BOOL appStartMeasurementRead;
+
+#if SENTRY_TARGET_PROFILING_SUPPORTED
++ (void)load
+{
+    startLaunchProfile();
+}
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
 + (void)initialize
 {
@@ -176,9 +192,15 @@ static BOOL appStartMeasurementRead;
 #if SENTRY_TARGET_PROFILING_SUPPORTED
     if (_configuration.profilesSamplerDecision.decision == kSentrySampleDecisionYes) {
         _internalID = [[SentryId alloc] init];
-        _isProfiling = [SentryProfiler startWithTracer:_internalID];
+        if ((_isProfiling = [SentryProfiler startWithTracer:_internalID])) {
+            SENTRY_LOG_DEBUG(@"Started profiler for trace %@ with internal id %@",
+                transactionContext.traceId.sentryIdString, _internalID.sentryIdString);
+        }
+        _startSystemTime = SentryDependencyContainer.sharedInstance.dateProvider.systemTime;
     }
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
+
+    SENTRY_LOG_DEBUG(@"Started tracer with id: %@", transactionContext.traceId.sentryIdString);
 
     return self;
 }
@@ -491,10 +513,13 @@ static BOOL appStartMeasurementRead;
 {
     [self cancelDeadlineTimer];
     if (self.isFinished) {
+        SENTRY_LOG_DEBUG(@"Tracer %@ was already finished.", _traceContext.traceId.sentryIdString);
         return;
     }
     @synchronized(self) {
         if (self.isFinished) {
+            SENTRY_LOG_DEBUG(@"Tracer %@ was already finished after synchronizing.",
+                _traceContext.traceId.sentryIdString);
             return;
         }
         // Keep existing status of auto generated transactions if set by the user.
@@ -539,7 +564,15 @@ static BOOL appStartMeasurementRead;
         return;
     }
 
-    if (_hub == nil) {
+    BOOL shouldBailWithNilHub = _hub == nil;
+#if SENTRY_TARGET_PROFILING_SUPPORTED
+    if (isTracingAppLaunch) {
+        shouldBailWithNilHub = NO;
+    }
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED
+    if (shouldBailWithNilHub) {
+        SENTRY_LOG_DEBUG(
+            @"Hub was nil for tracer %@, nothing to do.", _traceContext.traceId.sentryIdString);
         return;
     }
 
@@ -651,12 +684,14 @@ static BOOL appStartMeasurementRead;
 
     SentryTransaction *transaction = [[SentryTransaction alloc] initWithTrace:self children:spans];
     transaction.transaction = self.transactionContext.name;
+
 #if SENTRY_TARGET_PROFILING_SUPPORTED
-    transaction.startSystemTime = self.startSystemTime;
     if (self.isProfiling) {
+        transaction.startSystemTime = self.startSystemTime;
         [SentryProfiler recordMetrics];
+        transaction.endSystemTime
+            = SentryDependencyContainer.sharedInstance.dateProvider.systemTime;
     }
-    transaction.endSystemTime = SentryDependencyContainer.sharedInstance.dateProvider.systemTime;
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
     NSMutableArray *framesOfAllSpans = [NSMutableArray array];

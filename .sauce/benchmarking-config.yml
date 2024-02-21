@@ -2,10 +2,10 @@ apiVersion: v1alpha
 kind: xcuitest
 sauce:
   region: us-west-1
-  concurrency: 2
+  concurrency: 4
 
 defaults:
-  timeout: 20m
+  timeout: 60m
 
 xcuitest:
   app: ./DerivedData/Build/Products/Debug-iphoneos/iOS-Swift.app

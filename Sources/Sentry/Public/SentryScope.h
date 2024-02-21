@@ -21,6 +21,11 @@ NS_SWIFT_NAME(Scope)
  */
 @property (nullable, nonatomic, strong) id<SentrySpan> span;
 
+/**
+ * Gets the dictionary of currently set tags.
+ */
+@property (nonatomic, readonly, copy) NSDictionary<NSString *, NSString *> *tags;
+
 - (instancetype)initWithMaxBreadcrumbs:(NSInteger)maxBreadcrumbs NS_DESIGNATED_INITIALIZER;
 - (instancetype)init;
 - (instancetype)initWithScope:(SentryScope *)scope;

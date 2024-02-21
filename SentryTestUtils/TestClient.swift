@@ -2,11 +2,11 @@ import Foundation
 
 public class TestClient: SentryClient {
     public override init?(options: Options) {
-        super.init(options: options, fileManager: try! TestFileManager(options: options), deleteOldEnvelopeItems: false, transportAdapter: TestTransportAdapter(transport: TestTransport(), options: options))
+        super.init(options: options, fileManager: try! TestFileManager(options: options), deleteOldEnvelopeItems: false, transportAdapter: TestTransportAdapter(transports: [TestTransport()], options: options))
     }
 
     public override init?(options: Options, fileManager: SentryFileManager, deleteOldEnvelopeItems: Bool) {
-        super.init(options: options, fileManager: fileManager, deleteOldEnvelopeItems: deleteOldEnvelopeItems, transportAdapter: TestTransportAdapter(transport: TestTransport(), options: options))
+        super.init(options: options, fileManager: fileManager, deleteOldEnvelopeItems: deleteOldEnvelopeItems, transportAdapter: TestTransportAdapter(transports: [TestTransport()], options: options))
     }
     
     public override init(options: Options, fileManager: SentryFileManager, deleteOldEnvelopeItems: Bool, transportAdapter: SentryTransportAdapter) {
