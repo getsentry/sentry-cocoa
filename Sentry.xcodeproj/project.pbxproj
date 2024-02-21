@@ -764,7 +764,7 @@
 		D8292D7D2A39A027009872F7 /* UrlSanitizedTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8292D7C2A39A027009872F7 /* UrlSanitizedTests.swift */; };
 		D8370B6A273DF1E900F66E2D /* SentryNSURLSessionTaskSearch.m in Sources */ = {isa = PBXBuildFile; fileRef = D8370B68273DF1E900F66E2D /* SentryNSURLSessionTaskSearch.m */; };
 		D8370B6C273DF20F00F66E2D /* SentryNSURLSessionTaskSearch.h in Headers */ = {isa = PBXBuildFile; fileRef = D8370B6B273DF20F00F66E2D /* SentryNSURLSessionTaskSearch.h */; };
-		D83D07812B7E5EFA00CC9674 /* SentryReplaySettings.h in Headers */ = {isa = PBXBuildFile; fileRef = D83D07802B7E5EFA00CC9674 /* SentryReplaySettings.h */; };
+		D83D07812B7E5EFA00CC9674 /* SentryReplaySettings.h in Headers */ = {isa = PBXBuildFile; fileRef = D83D07802B7E5EFA00CC9674 /* SentryReplaySettings.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D83D07832B7E5F2100CC9674 /* SentryReplaySettings.m in Sources */ = {isa = PBXBuildFile; fileRef = D83D07822B7E5F2100CC9674 /* SentryReplaySettings.m */; };
 		D83D079B2B7F9D1C00CC9674 /* SentryMsgPackSerializer.h in Headers */ = {isa = PBXBuildFile; fileRef = D83D07992B7F9D1C00CC9674 /* SentryMsgPackSerializer.h */; };
 		D83D079C2B7F9D1C00CC9674 /* SentryMsgPackSerializer.m in Sources */ = {isa = PBXBuildFile; fileRef = D83D079A2B7F9D1C00CC9674 /* SentryMsgPackSerializer.m */; };
