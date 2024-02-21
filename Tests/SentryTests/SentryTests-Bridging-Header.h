@@ -219,6 +219,7 @@
 #import "SentryPropagationContext.h"
 #import "SentryReplayEvent.h"
 #import "SentryReplayRecording.h"
+#import "SentryReplaySettings.h"
 #import "SentrySampleDecision+Private.h"
 #import "SentrySpanOperations.h"
 #import "SentryTimeToDisplayTracker.h"
