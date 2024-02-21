@@ -410,7 +410,7 @@ NSString *const kSentryDefaultEnvironment = @"production";
     [self setBool:options[@"enablePreWarmedAppStartTracing"]
             block:^(BOOL value) { self->_enablePreWarmedAppStartTracing = value; }];
 
-    if (@available(iOS 16.0, *)) {
+    if (@available(iOS 16.0, tvOS 16.0, *)) {
         if ([options[@"sessionReplaySettings"] isKindOfClass:NSDictionary.class]) {
             self.sessionReplaySettings =
                 [[SentryReplaySettings alloc] initWithDictionary:options[@"sessionReplaySettings"]];

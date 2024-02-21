@@ -1,5 +1,7 @@
 #import "SentryReplaySettings.h"
 
+NS_ASSUME_NONNULL_BEGIN
+
 @interface
 SentryReplaySettings ()
 
@@ -45,3 +47,5 @@ SentryReplaySettings ()
 }
 
 @end
+
+NS_ASSUME_NONNULL_END

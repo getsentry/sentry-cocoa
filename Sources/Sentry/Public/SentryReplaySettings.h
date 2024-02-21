@@ -11,7 +11,7 @@ NS_ASSUME_NONNULL_BEGIN
  * to the default.
  * @note The default is @c 0.
  */
-@property (nonatomic) CGFloat replaysSessionSampleRate;
+@property (nonatomic) float replaysSessionSampleRate;
 
 /**
  * Indicates the percentage in which a 30 seconds replay will be send with error events.
@@ -20,7 +20,7 @@ NS_ASSUME_NONNULL_BEGIN
  * to the default.
  * @note The default is @c 0.
  */
-@property (nonatomic) CGFloat replaysOnErrorSampleRate;
+@property (nonatomic) float replaysOnErrorSampleRate;
 
 /**
  * Inittialize the settings of session replay
