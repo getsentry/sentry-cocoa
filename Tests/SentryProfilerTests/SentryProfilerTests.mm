@@ -262,4 +262,4 @@ using namespace sentry::profiling;
 
 @end
 
-#endif
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED

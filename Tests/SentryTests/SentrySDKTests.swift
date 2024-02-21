@@ -195,7 +195,19 @@ class SentrySDKTests: XCTestCase {
     }
     
     func testCrashedLastRun() {
-        XCTAssertEqual(SentryDependencyContainer.sharedInstance().crashReporter.crashedLastLaunch, SentrySDK.crashedLastRun) 
+        expect(SentryDependencyContainer.sharedInstance().crashReporter.crashedLastLaunch) == SentrySDK.crashedLastRun
+    }
+    
+    func testDetectedStartUpCrash_DefaultValue() {
+        expect(SentrySDK.detectedStartUpCrash) == false
+    }
+    
+    func testDetectedStartUpCrash() {
+        SentrySDK.setDetectedStartUpCrash(true)
+        expect(SentrySDK.detectedStartUpCrash) == true
+        
+        SentrySDK.setDetectedStartUpCrash(false)
+        expect(SentrySDK.detectedStartUpCrash) == false
     }
     
     func testCaptureCrashEvent() {
@@ -668,7 +680,7 @@ class SentrySDKTests: XCTestCase {
         
         let transport = TestTransport()
         let client = SentryClient(options: fixture.options, fileManager: try TestFileManager(options: fixture.options), deleteOldEnvelopeItems: false)
-        Dynamic(client).transportAdapter = TestTransportAdapter(transport: transport, options: fixture.options)
+        Dynamic(client).transportAdapter = TestTransportAdapter(transports: [transport], options: fixture.options)
         SentrySDK.currentHub().bindClient(client)
         SentrySDK.close()
         
@@ -683,7 +695,7 @@ class SentrySDKTests: XCTestCase {
         
         let transport = TestTransport()
         let client = SentryClient(options: fixture.options, fileManager: try TestFileManager(options: fixture.options), deleteOldEnvelopeItems: false)
-        Dynamic(client).transportAdapter = TestTransportAdapter(transport: transport, options: fixture.options)
+        Dynamic(client).transportAdapter = TestTransportAdapter(transports: [transport], options: fixture.options)
         SentrySDK.currentHub().bindClient(client)
         
         let flushTimeout = 10.0

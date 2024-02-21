@@ -60,11 +60,10 @@ class SentryClientTest: XCTestCase {
             transaction = Transaction(trace: trace, children: [])
             
             transport = TestTransport()
-            transportAdapter = TestTransportAdapter(transport: transport, options: options)
+            transportAdapter = TestTransportAdapter(transports: [transport], options: options)
             
             crashWrapper.internalFreeMemorySize = 123_456
             crashWrapper.internalAppMemorySize = 234_567
-            crashWrapper.internalFreeStorageSize = 345_678
 
             #if os(iOS) || targetEnvironment(macCatalyst)
             SentryDependencyContainer.sharedInstance().uiDeviceWrapper = deviceWrapper
@@ -729,7 +728,6 @@ class SentryClientTest: XCTestCase {
         try assertLastSentEventWithAttachment { event in
             XCTAssertEqual(oomEvent.eventId, event.eventId)
             XCTAssertNil(event.context?["device"]?["free_memory"])
-            XCTAssertNil(event.context?["device"]?["free_storage"])
             XCTAssertNil(event.context?["device"]?["orientation"])
             XCTAssertNil(event.context?["device"]?["charging"])
             XCTAssertNil(event.context?["device"]?["battery_level"])
@@ -803,9 +801,6 @@ class SentryClientTest: XCTestCase {
 
             let eventAppMemory = actual.context?["app"]?["app_memory"] as? Int
             XCTAssertEqual(eventAppMemory, 234_567)
-
-            let eventFreeStorage = actual.context?["device"]?["free_storage"] as? Int
-            XCTAssertEqual(eventFreeStorage, 345_678)
 
             let cpuCoreCount = actual.context?["device"]?["processor_count"] as? UInt
             XCTAssertEqual(fixture.processWrapper.processorCount, cpuCoreCount)

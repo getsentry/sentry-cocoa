@@ -1,3 +1,4 @@
+import Nimble
 import Sentry
 import SentryTestUtils
 import XCTest
@@ -6,13 +7,14 @@ class SentryTransportAdapterTests: XCTestCase {
     
     private class Fixture {
 
-        let transport = TestTransport()
+        let transport1 = TestTransport()
+        let transport2 = TestTransport()
         let options = Options()
         let faultyAttachment = Attachment(path: "")
         let attachment = Attachment(data: Data(), filename: "test.txt")
         
         var sut: SentryTransportAdapter {
-            return SentryTransportAdapter(transport: transport, options: options)
+            return SentryTransportAdapter(transports: [transport1, transport2], options: options)
         }
     }
 
@@ -44,10 +46,10 @@ class SentryTransportAdapterTests: XCTestCase {
             SentryEnvelopeItem(session: session)
         ])
         
-        assertEnvelope(expected: expectedEnvelope)
+        try assertEnvelope(expected: expectedEnvelope)
     }
 
-    func testSendFaultyAttachment_FaultyAttachmentGetsDropped() {
+    func testSendFaultyAttachment_FaultyAttachmentGetsDropped() throws {
         let event = TestData.event
         sut.send(event: event, traceContext: nil, attachments: [fixture.faultyAttachment, fixture.attachment])
         
@@ -56,26 +58,28 @@ class SentryTransportAdapterTests: XCTestCase {
             SentryEnvelopeItem(attachment: fixture.attachment, maxAttachmentSize: fixture.options.maxAttachmentSize)!
         ])
         
-        assertEnvelope(expected: expectedEnvelope)
+        try assertEnvelope(expected: expectedEnvelope)
     }
     
-    func testSendUserFeedback_SendsUserFeedbackEnvelope() {
+    func testSendUserFeedback_SendsUserFeedbackEnvelope() throws {
         let userFeedback = TestData.userFeedback
         sut.send(userFeedback: userFeedback)
         
         let expectedEnvelope = SentryEnvelope(userFeedback: userFeedback)
         
-        assertEnvelope(expected: expectedEnvelope)
+        try assertEnvelope(expected: expectedEnvelope)
     }
     
-    private func assertEnvelope(expected: SentryEnvelope) {
-        XCTAssertEqual(1, fixture.transport.sentEnvelopes.count)
-        let actual = fixture.transport.sentEnvelopes.first!
-        XCTAssertNotNil(actual)
+    private func assertEnvelope(expected: SentryEnvelope) throws {
+        expect(self.fixture.transport1.sentEnvelopes.count) == 1
+        expect(self.fixture.transport2.sentEnvelopes.count) == 1
         
-        XCTAssertEqual(expected.header.eventId, actual.header.eventId)
-        XCTAssertEqual(expected.header.sdkInfo, actual.header.sdkInfo)
-        XCTAssertEqual(expected.items.count, actual.items.count)
+        let actual = fixture.transport1.sentEnvelopes.first!
+        expect(actual) != nil
+        
+        expect(expected.header.eventId) == actual.header.eventId
+        expect(expected.header.sdkInfo) == actual.header.sdkInfo
+        expect(expected.items.count) == actual.items.count
         
         expected.items.forEach { expectedItem in
             let expectedHeader = expectedItem.header
@@ -84,15 +88,16 @@ class SentryTransportAdapterTests: XCTestCase {
                 expectedHeader.contentType == expectedItem.header.contentType
             }
             
-            XCTAssertTrue(containsHeader, "Envelope doesn't contain item with type:\(expectedHeader.type).")
+            expect(containsHeader).to(beTrue(), description: "Envelope doesn't contain item with type:\(expectedHeader.type).")
 
             let containsData = actual.items.contains { actualItem in
                 actualItem.data == expectedItem.data
             }
             
-            XCTAssertTrue(containsData, "Envelope data with type:\(expectedHeader.type) doesn't match.")
+            expect(containsData).to(beTrue(), description: "Envelope data with type:\(expectedHeader.type) doesn't match.")
         }
         
-        XCTAssertEqual(try SentrySerialization.data(with: expected), try SentrySerialization.data(with: actual))
+        let actualSerialized = try SentrySerialization.data(with: actual)
+        expect(try SentrySerialization.data(with: expected)) == actualSerialized
     }
 }

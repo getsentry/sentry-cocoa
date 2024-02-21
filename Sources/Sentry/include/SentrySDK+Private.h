@@ -16,6 +16,8 @@ SentrySDK ()
  */
 @property (nonatomic, class) BOOL crashedLastRunCalled;
 
++ (void)setDetectedStartUpCrash:(BOOL)value;
+
 + (void)setAppStartMeasurement:(nullable SentryAppStartMeasurement *)appStartMeasurement;
 
 + (nullable SentryAppStartMeasurement *)getAppStartMeasurement;
