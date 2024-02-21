@@ -30,8 +30,8 @@ NS_ASSUME_NONNULL_BEGIN
  * @param errorSampleRate Indicates the percentage in which a 30 seconds replay will be send with
  * error events.
  */
-- (instancetype)initWithReplaySessionSampleRate:(CGFloat)sessionSampleRate
-                       replaysOnErrorSampleRate:(CGFloat)errorSampleRate;
+- (instancetype)initWithReplaySessionSampleRate:(float)sessionSampleRate
+                       replaysOnErrorSampleRate:(float)errorSampleRate;
 
 @end
 
