@@ -7,7 +7,11 @@
 #import "SentryReplaySettings.h"
 #import "SentrySDK+Private.h"
 #import "SentrySessionReplay.h"
-#import "SentryUIApplication.h"
+
+#if SENTRY_HAS_UIKIT
+#    import "SentryUIApplication.h"
+
+NS_ASSUME_NONNULL_BEGIN
 
 @implementation SentrySessionReplayIntegration {
     SentrySessionReplay *sessionReplay;
@@ -66,3 +70,6 @@
 }
 
 @end
+NS_ASSUME_NONNULL_END
+
+#endif // SENTRY_HAS_UIKIT

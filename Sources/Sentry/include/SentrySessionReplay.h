@@ -2,7 +2,10 @@
 #import "SentryEvent.h"
 #import "SentryReplaySettings.h"
 #import <Foundation/Foundation.h>
-#import <UIKit/UIKit.h>
+
+#if SENTRY_HAS_UIKIT
+
+#    import <UIKit/UIKit.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -24,3 +27,4 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 NS_ASSUME_NONNULL_END
+#endif // SENTRY_HAS_UIKIT

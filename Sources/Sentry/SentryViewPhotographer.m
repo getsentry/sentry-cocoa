@@ -1,6 +1,7 @@
 #import "SentryViewPhotographer.h"
 
 #if SENTRY_HAS_UIKIT
+NS_ASSUME_NONNULL_BEGIN
 
 @implementation SentryViewPhotographer {
     NSMutableArray<Class> *_ignoreClasses;
@@ -151,4 +152,5 @@
 
 @end
 
+NS_ASSUME_NONNULL_END
 #endif // SENTRY_HAS_UIKIT

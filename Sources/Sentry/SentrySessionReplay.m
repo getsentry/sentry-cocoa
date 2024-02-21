@@ -5,6 +5,10 @@
 #import "SentryReplaySettings+Private.h"
 #import "SentryViewPhotographer.h"
 
+#if SENTRY_HAS_UIKIT
+
+NS_ASSUME_NONNULL_BEGIN
+
 @implementation SentrySessionReplay {
     UIView *_rootView;
     BOOL _processingScreenshot;
@@ -77,8 +81,9 @@
     _displayLink = nil;
 }
 
-- (NSArray<SentryAttachment *> *)processAttachments:(NSArray<SentryAttachment *> *)attachments
-                                           forEvent:(nonnull SentryEvent *)event
+- (nullable NSArray<SentryAttachment *> *)processAttachments:
+                                              (nullable NSArray<SentryAttachment *> *)attachments
+                                                    forEvent:(nonnull SentryEvent *)event
 {
     if (event.error == nil && (event.exceptions == nil || event.exceptions.count == 0)) {
         return attachments;
@@ -188,3 +193,7 @@
 }
 
 @end
+
+NS_ASSUME_NONNULL_END
+
+#endif // SENTRY_HAS_UIKIT
