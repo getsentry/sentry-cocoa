@@ -214,6 +214,7 @@ NS_ASSUME_NONNULL_BEGIN
     NSMutableData *recording = [NSMutableData data];
     [recording appendData:[SentrySerialization
                               dataWithJSONObject:[replayRecording headerForReplayRecording]]];
+    [recording appendData:[@"\n" dataUsingEncoding:NSUTF8StringEncoding]];
     [recording appendData:[SentrySerialization dataWithJSONObject:[replayRecording serialize]]];
 
     NSURL *envelopeContentUrl =
