@@ -2,7 +2,6 @@ import XCTest
 
 //swiftlint:disable function_body_length todo
 
-@available(iOS 16, *)
 class ProfilingUITests: BaseUITest {
     override var automaticallyLaunchAndTerminateApp: Bool { false }
     
@@ -66,7 +65,6 @@ class ProfilingUITests: BaseUITest {
     }
 }
 
-@available(iOS 16, *)
 extension ProfilingUITests {
     
     enum Error: Swift.Error {
