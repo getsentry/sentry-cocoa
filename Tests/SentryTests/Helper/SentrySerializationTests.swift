@@ -244,11 +244,7 @@ class SentrySerializationTests: XCTestCase {
         
         let serialized = String(data: data, encoding: .utf8)
         
-        let parts = serialized?.split(separator: "\n")
-        expect(parts?.count) == 2
-        
-        expect(parts?[0]) == "{\"segment_id\":5}"
-        expect(parts?[1].hasPrefix("[{\"KEY\":\"VALUE\"}]")) == true
+        expect(serialized) == "{\"segment_id\":5}\n[{\"KEY\":\"VALUE\"}]"
     }
     
     func testLevelFromEventData() {
