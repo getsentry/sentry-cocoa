@@ -1,13 +1,14 @@
 #import "SentryReplayEvent.h"
 #import "SentryDateUtil.h"
-#import "SentryId.h"
 #import "SentryEnvelopeItemType.h"
+#import "SentryId.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 @implementation SentryReplayEvent
 
-- (instancetype)init {
+- (instancetype)init
+{
     if (self = [super init]) {
         self.type = SentryEnvelopeItemTypeReplayVideo;
     }
