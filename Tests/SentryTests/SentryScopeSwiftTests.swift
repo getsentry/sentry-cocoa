@@ -457,33 +457,27 @@ class SentryScopeSwiftTests: XCTestCase {
     
     func testScopeObserver_setTags() {
         let sut = Scope()
-        let observer = fixture.observer
-        sut.add(observer)
         
         sut.setTags(fixture.tags)
         
-        XCTAssertEqual(fixture.tags, observer.tags)
+        XCTAssertEqual(fixture.tags, sut.tags)
     }
     
     func testScopeObserver_setTagValue() {
         let sut = Scope()
-        let observer = fixture.observer
-        sut.add(observer)
         
         sut.setTag(value: "tag", key: "tag")
         
-        XCTAssertEqual( ["tag": "tag"], observer.tags)
+        XCTAssertEqual( ["tag": "tag"], sut.tags)
     }
     
     func testScopeObserver_removeTag() {
         let sut = Scope()
-        let observer = fixture.observer
-        sut.add(observer)
         
         sut.setTag(value: "tag", key: "tag")
         sut.removeTag(key: "tag")
         
-        XCTAssertEqual(0, observer.tags?.count)
+        XCTAssertEqual(0, sut.tags.count)
     }
     
     func testScopeObserver_setExtras() {
