@@ -23,7 +23,7 @@ NS_ASSUME_NONNULL_BEGIN
         return NO;
     }
 
-    if (@available(iOS 16.0, *)) {
+    if (@available(iOS 16.0, tvOS 16.0, *)) {
         if (options.sessionReplaySettings.replaysSessionSampleRate == 0
             && options.sessionReplaySettings.replaysOnErrorSampleRate == 0) {
             return NO;
