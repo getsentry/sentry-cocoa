@@ -211,12 +211,7 @@ NS_ASSUME_NONNULL_BEGIN
                                        video:(NSURL *)videoURL
 {
     NSData *replayEventData = [SentrySerialization dataWithJSONObject:[replayEvent serialize]];
-    NSMutableData *recording = [NSMutableData data];
-    [recording appendData:[SentrySerialization
-                              dataWithJSONObject:[replayRecording headerForReplayRecording]]];
-    [recording appendData:[@"\n" dataUsingEncoding:NSUTF8StringEncoding]];
-    [recording appendData:[SentrySerialization dataWithJSONObject:[replayRecording serialize]]];
-
+    NSData *recording = [SentrySerialization dataWithReplayRecording:replayRecording];
     NSURL *envelopeContentUrl =
         [[videoURL URLByDeletingPathExtension] URLByAppendingPathExtension:@"dat"];
 

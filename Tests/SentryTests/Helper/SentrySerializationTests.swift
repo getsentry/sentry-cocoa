@@ -1,3 +1,4 @@
+import Nimble
 import XCTest
 
 class SentrySerializationTests: XCTestCase {
@@ -228,6 +229,26 @@ class SentrySerializationTests: XCTestCase {
         }
         
         XCTAssertNil(SentrySerialization.session(with: data))
+    }
+    
+    func testSerializeReplayRecording() {
+        class MockReplayRecording: SentryReplayRecording {
+            override func serialize() -> [[String: Any]] {
+                return [["KEY": "VALUE"]]
+            }
+        }
+        
+        let date = Date(timeIntervalSince1970: 2)
+        let recording = MockReplayRecording(segmentId: 5, size: 5_000, start: date, duration: 5_000, frameCount: 5, frameRate: 1, height: 320, width: 950)
+        let data = SentrySerialization.data(with: recording)
+        
+        let serialized = String(data: data, encoding: .utf8)
+        
+        let parts = serialized?.split(separator: "\n")
+        expect(parts?.count) == 2
+        
+        expect(parts?[0]) == "{\"segment_id\":5}"
+        expect(parts?[1].hasPrefix("[{\"KEY\":\"VALUE\"}]")) == true
     }
     
     func testLevelFromEventData() {
