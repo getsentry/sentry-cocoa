@@ -27,7 +27,7 @@
         [app launch];
         [app.tabBars[@"Tab Bar"].buttons[@"Transactions"] tap];
 
-        [app.buttons[@"Start transaction (main thread)"] tap];
+        [app.buttons[@"startTransactionMainThread"] tap];
 
         [app.tabBars[@"Tab Bar"].buttons[@"Profiling"] tap];
 

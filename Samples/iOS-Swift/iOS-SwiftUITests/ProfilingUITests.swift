@@ -2,71 +2,73 @@ import XCTest
 
 //swiftlint:disable function_body_length todo
 
-@available(iOS 16, *)
 class ProfilingUITests: BaseUITest {
     override var automaticallyLaunchAndTerminateApp: Bool { false }
     
     func testProfiledAppLaunches() throws {
-        app.launchArguments.append("--io.sentry.wipe-data")
-        launchApp()
-        
-        // First launch enables in-app profiling by setting traces/profiles sample rates to 1 (which is the default configuration in the sample app), but not launch profiling; assert that we did not write a config to allow the next launch to be profiled.
-        try performAssertions(shouldProfileThisLaunch: false, shouldProfileNextLaunch: false)
-        
-        // no profiling should be done on this launch; set the option to allow launch profiling for the next launch, keeping the default numerical sampling rates of 1 for traces and profiles
-        try relaunchAndConfigureSubsequentLaunches(shouldProfileThisLaunch: false, shouldEnableLaunchProfilingOptionForNextLaunch: true)
-        
-        // this launch should run the profiler, then set the option to allow launch profiling to true, but set the numerical sample rates to 0 so that the next launch should not profile
-        try relaunchAndConfigureSubsequentLaunches(shouldProfileThisLaunch: true, shouldEnableLaunchProfilingOptionForNextLaunch: true, profilesSampleRate: 0, tracesSampleRate: 0)
-        
-        // this launch should not run the profiler; configure sampler functions returning 1 and numerical rates set to 0, which should result in a profile being taken as samplers override numerical rates
-        try relaunchAndConfigureSubsequentLaunches(shouldProfileThisLaunch: false, shouldEnableLaunchProfilingOptionForNextLaunch: true, profilesSampleRate: 0, tracesSampleRate: 0, profilesSamplerValue: 1, tracesSamplerValue: 1)
-        
-        // this launch should run the profiler; configure sampler functions returning 0 and numerical rates set to 0, which should result in no profile being taken next launch
-        try relaunchAndConfigureSubsequentLaunches(shouldProfileThisLaunch: true, shouldEnableLaunchProfilingOptionForNextLaunch: true, profilesSamplerValue: 0, tracesSamplerValue: 0)
-        
-        // this launch should not run the profiler, but configure it to run the next launch
-        try relaunchAndConfigureSubsequentLaunches(shouldProfileThisLaunch: false, shouldEnableLaunchProfilingOptionForNextLaunch: true)
-        
-        // this launch should run the profiler, and configure it not to run the next launch due to disabling tracing, which would override the option to enable launch profiling
-        try relaunchAndConfigureSubsequentLaunches(shouldProfileThisLaunch: true, shouldEnableLaunchProfilingOptionForNextLaunch: true, shouldDisableTracing: true)
-        
-        // make sure the profiler respects the last configuration not to run; don't let another config file get written
-        try relaunchAndConfigureSubsequentLaunches(shouldProfileThisLaunch: false, shouldEnableLaunchProfilingOptionForNextLaunch: false)
+        if #available(iOS 16, *) {
+            app.launchArguments.append("--io.sentry.wipe-data")
+            launchApp()
+            
+            // First launch enables in-app profiling by setting traces/profiles sample rates to 1 (which is the default configuration in the sample app), but not launch profiling; assert that we did not write a config to allow the next launch to be profiled.
+            try performAssertions(shouldProfileThisLaunch: false, shouldProfileNextLaunch: false)
+            
+            // no profiling should be done on this launch; set the option to allow launch profiling for the next launch, keeping the default numerical sampling rates of 1 for traces and profiles
+            try relaunchAndConfigureSubsequentLaunches(shouldProfileThisLaunch: false, shouldEnableLaunchProfilingOptionForNextLaunch: true)
+            
+            // this launch should run the profiler, then set the option to allow launch profiling to true, but set the numerical sample rates to 0 so that the next launch should not profile
+            try relaunchAndConfigureSubsequentLaunches(shouldProfileThisLaunch: true, shouldEnableLaunchProfilingOptionForNextLaunch: true, profilesSampleRate: 0, tracesSampleRate: 0)
+            
+            // this launch should not run the profiler; configure sampler functions returning 1 and numerical rates set to 0, which should result in a profile being taken as samplers override numerical rates
+            try relaunchAndConfigureSubsequentLaunches(shouldProfileThisLaunch: false, shouldEnableLaunchProfilingOptionForNextLaunch: true, profilesSampleRate: 0, tracesSampleRate: 0, profilesSamplerValue: 1, tracesSamplerValue: 1)
+            
+            // this launch should run the profiler; configure sampler functions returning 0 and numerical rates set to 0, which should result in no profile being taken next launch
+            try relaunchAndConfigureSubsequentLaunches(shouldProfileThisLaunch: true, shouldEnableLaunchProfilingOptionForNextLaunch: true, profilesSamplerValue: 0, tracesSamplerValue: 0)
+            
+            // this launch should not run the profiler, but configure it to run the next launch
+            try relaunchAndConfigureSubsequentLaunches(shouldProfileThisLaunch: false, shouldEnableLaunchProfilingOptionForNextLaunch: true)
+            
+            // this launch should run the profiler, and configure it not to run the next launch due to disabling tracing, which would override the option to enable launch profiling
+            try relaunchAndConfigureSubsequentLaunches(shouldProfileThisLaunch: true, shouldEnableLaunchProfilingOptionForNextLaunch: true, shouldDisableTracing: true)
+            
+            // make sure the profiler respects the last configuration not to run; don't let another config file get written
+            try relaunchAndConfigureSubsequentLaunches(shouldProfileThisLaunch: false, shouldEnableLaunchProfilingOptionForNextLaunch: false)
+        }
     }
     
     /**
      * We had a bug where we forgot to install the frames tracker into the profiler, so weren't sending any GPU frame information with profiles. Since it's not possible to enforce such installation via the compiler, we test for the results we expect here, by starting a transaction, triggering an ANR which will cause degraded frame rendering, stop the transaction, and inspect the profile payload.
      */
     func testProfilingGPUInfo() throws {
-        app.launchArguments.append("--disable-swizzling") // we're only interested in the manual transaction, the automatic stuff messes up how we try to retrieve the target profile info
-        app.launchArguments.append("--io.sentry.wipe-data")
-        launchApp()
-        
-        goToTransactions()
-        startTransaction()
-        
-        app.buttons["ANR filling run loop"].afterWaitingForExistence("Couldn't find button to ANR").tap()
-        stopTransaction()
-    
-        goToProfiling()
-        retrieveLastProfileData()
-        let profileDict = try marshalJSONDictionaryFromApp()
-        
-        let metrics = try XCTUnwrap(profileDict["measurements"] as? [String: Any])
-        // We can only be sure about frozen frames when triggering an ANR.
-        // It could be that there is no slow frame for the captured transaction.
-        let frozenFrames = try XCTUnwrap(metrics["frozen_frame_renders"] as? [String: Any])
-        let frozenFrameValues = try XCTUnwrap(frozenFrames["values"] as? [[String: Any]])
-        XCTAssertFalse(frozenFrameValues.isEmpty, "The test triggered an ANR while the transaction is running. There must be at least one frozen frame, but there was none.")
-        
-        let frameRates = try XCTUnwrap(metrics["screen_frame_rates"] as? [String: Any])
-        let frameRateValues = try XCTUnwrap(frameRates["values"] as? [[String: Any]])
-        XCTAssertFalse(frameRateValues.isEmpty)
+        if #available(iOS 16, *) {
+            app.launchArguments.append("--disable-swizzling") // we're only interested in the manual transaction, the automatic stuff messes up how we try to retrieve the target profile info
+            app.launchArguments.append("--io.sentry.wipe-data")
+            launchApp()
+            
+            goToTransactions()
+            startTransaction()
+            
+            app.buttons["anrFillingRunLoop"].afterWaitingForExistence("Couldn't find button to ANR").tap()
+            stopTransaction()
+            
+            goToProfiling()
+            retrieveLastProfileData()
+            let profileDict = try marshalJSONDictionaryFromApp()
+            
+            let metrics = try XCTUnwrap(profileDict["measurements"] as? [String: Any])
+            // We can only be sure about frozen frames when triggering an ANR.
+            // It could be that there is no slow frame for the captured transaction.
+            let frozenFrames = try XCTUnwrap(metrics["frozen_frame_renders"] as? [String: Any])
+            let frozenFrameValues = try XCTUnwrap(frozenFrames["values"] as? [[String: Any]])
+            XCTAssertFalse(frozenFrameValues.isEmpty, "The test triggered an ANR while the transaction is running. There must be at least one frozen frame, but there was none.")
+            
+            let frameRates = try XCTUnwrap(metrics["screen_frame_rates"] as? [String: Any])
+            let frameRateValues = try XCTUnwrap(frameRates["values"] as? [[String: Any]])
+            XCTAssertFalse(frameRateValues.isEmpty)
+        }
     }
 }
 
-@available(iOS 16, *)
 extension ProfilingUITests {
     
     enum Error: Swift.Error {
@@ -97,11 +99,11 @@ extension ProfilingUITests {
     }
     
     func startTransaction() {
-        app.buttons["Start transaction (main thread)"].afterWaitingForExistence("Couldn't find button to start transaction").tap()
+        app.buttons["startTransactionMainThread"].afterWaitingForExistence("Couldn't find button to start transaction").tap()
     }
     
     func stopTransaction() {
-        app.buttons["Stop transaction"].afterWaitingForExistence("Couldn't find button to end transaction").tap()
+        app.buttons["stopTransaction"].afterWaitingForExistence("Couldn't find button to end transaction").tap()
     }
     
     func goToProfiling() {
@@ -109,11 +111,11 @@ extension ProfilingUITests {
     }
     
     func retrieveLastProfileData() {
-        app.buttons["View last profile"].afterWaitingForExistence("Couldn't find button to view last profile").tap()
+        app.buttons["viewLastProfile"].afterWaitingForExistence("Couldn't find button to view last profile").tap()
     }
     
     func retrieveLaunchProfileData() {
-        app.buttons["View launch profile"].afterWaitingForExistence("Couldn't find button to view launch profile").tap()
+        app.buttons["viewLaunchProfile"].afterWaitingForExistence("Couldn't find button to view launch profile").tap()
     }
 
     func assertLaunchProfile() throws {

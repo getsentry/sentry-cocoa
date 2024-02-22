@@ -135,7 +135,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         print("[iOS-Swift] [debug] launch arguments: \(ProcessInfo.processInfo.arguments)")
         print("[iOS-Swift] [debug] environment: \(ProcessInfo.processInfo.environment)")
         
-        maybeWipeData()
+        if ProcessInfo.processInfo.arguments.contains("--io.sentry.wipe-data") {
+            removeAppData()
+        }
         AppDelegate.startSentry()
         
         if #available(iOS 15.0, *) {
@@ -164,19 +166,21 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         return _metricKit as! MetricKitManager
         // swiftlint:enable force_cast
     }
-}
-
-private extension AppDelegate {
-    // previously tried putting this in an AppDelegate.load override in ObjC, but it wouldn't run until after a launch profiler would have an opportunity to run, since SentryProfiler.load would always run first due to being dynamically linked in a framework module. it is sufficient to do it before calling SentrySDK.startWithOptions to clear state for testProfiledAppLaunches because we don't make any assertions on a launch profile the first launch of the app in that test 
-    func maybeWipeData() {
-        if ProcessInfo.processInfo.arguments.contains("--io.sentry.wipe-data") {
-            print("[iOS-Swift] [debug] removing app data")
-            let appSupport = NSSearchPathForDirectoriesInDomains(.applicationSupportDirectory, .userDomainMask, true).first!
-            let cache = NSSearchPathForDirectoriesInDomains(.cachesDirectory, .userDomainMask, true).first!
-            for path in [appSupport, cache] {
-                for item in FileManager.default.enumerator(atPath: path)! {
-                    try! FileManager.default.removeItem(atPath: (path as NSString).appendingPathComponent((item as! String)))
-                }
+    
+    /**
+     * previously tried putting this in an AppDelegate.load override in ObjC, but it wouldn't run until
+     * after a launch profiler would have an opportunity to run, since SentryProfiler.load would always run
+     * first due to being dynamically linked in a framework module. it is sufficient to do it before
+     * calling SentrySDK.startWithOptions to clear state for testProfiledAppLaunches because we don't make
+     * any assertions on a launch profile the first launch of the app in that test
+     */
+    private func removeAppData() {
+        print("[iOS-Swift] [debug] removing app data")
+        let appSupport = NSSearchPathForDirectoriesInDomains(.applicationSupportDirectory, .userDomainMask, true).first!
+        let cache = NSSearchPathForDirectoriesInDomains(.cachesDirectory, .userDomainMask, true).first!
+        for path in [appSupport, cache] {
+            for item in FileManager.default.enumerator(atPath: path)! {
+                try! FileManager.default.removeItem(atPath: (path as NSString).appendingPathComponent((item as! String)))
             }
         }
     }
