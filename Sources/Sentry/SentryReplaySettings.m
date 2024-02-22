@@ -1,5 +1,7 @@
 #import "SentryReplaySettings.h"
 
+NS_ASSUME_NONNULL_BEGIN
+
 @interface
 SentryReplaySettings ()
 
@@ -19,8 +21,8 @@ SentryReplaySettings ()
     return self;
 }
 
-- (instancetype)initWithReplaySessionSampleRate:(CGFloat)sessionSampleRate
-                       replaysOnErrorSampleRate:(CGFloat)errorSampleRate
+- (instancetype)initWithReplaySessionSampleRate:(float)sessionSampleRate
+                       replaysOnErrorSampleRate:(float)errorSampleRate
 {
     if (self = [self init]) {
         self.replaysSessionSampleRate = sessionSampleRate;
@@ -45,3 +47,5 @@ SentryReplaySettings ()
 }
 
 @end
+
+NS_ASSUME_NONNULL_END

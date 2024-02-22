@@ -13,13 +13,14 @@
     NSURL *tempDirectoryURL = [NSURL fileURLWithPath:NSTemporaryDirectory()];
     NSURL *tempFileURL = [tempDirectoryURL URLByAppendingPathComponent:@"test.dat"];
 
-    NSDictionary<NSString *, id<SentryStreameble>> *dictionary = @{
+    NSDictionary<NSString *, id<SentryStreamable>> *dictionary = @{
         @"key1" : [@"Data 1" dataUsingEncoding:NSUTF8StringEncoding],
         @"key2" : [@"Data 2" dataUsingEncoding:NSUTF8StringEncoding]
     };
 
-    [SentryMsgPackSerializer serializeDictionaryToMessagePack:dictionary intoFile:tempFileURL];
-
+    BOOL result = [SentryMsgPackSerializer serializeDictionaryToMessagePack:dictionary
+                                                                   intoFile:tempFileURL];
+    XCTAssertTrue(result);
     NSData *tempFile = [NSData dataWithContentsOfURL:tempFileURL];
     [self assertMsgPack:tempFile];
 
@@ -36,11 +37,12 @@
     [@"File 1" writeToURL:file1URL atomically:YES encoding:NSUTF8StringEncoding error:nil];
     [@"File 2" writeToURL:file2URL atomically:YES encoding:NSUTF8StringEncoding error:nil];
 
-    NSDictionary<NSString *, id<SentryStreameble>> *dictionary =
+    NSDictionary<NSString *, id<SentryStreamable>> *dictionary =
         @{ @"key1" : file1URL, @"key2" : file2URL };
 
-    [SentryMsgPackSerializer serializeDictionaryToMessagePack:dictionary intoFile:tempFileURL];
-
+    BOOL result = [SentryMsgPackSerializer serializeDictionaryToMessagePack:dictionary
+                                                                   intoFile:tempFileURL];
+    XCTAssertTrue(result);
     NSData *tempFile = [NSData dataWithContentsOfURL:tempFileURL];
 
     [self assertMsgPack:tempFile];
@@ -48,6 +50,19 @@
     [[NSFileManager defaultManager] removeItemAtURL:tempFileURL error:nil];
     [[NSFileManager defaultManager] removeItemAtURL:file1URL error:nil];
     [[NSFileManager defaultManager] removeItemAtURL:file2URL error:nil];
+}
+
+- (void)testSerializeInvalidFile
+{
+    NSURL *tempDirectoryURL = [NSURL fileURLWithPath:NSTemporaryDirectory()];
+    NSURL *tempFileURL = [tempDirectoryURL URLByAppendingPathComponent:@"test.dat"];
+    NSURL *file1URL = [tempDirectoryURL URLByAppendingPathComponent:@"notAFile.dat"];
+
+    NSDictionary<NSString *, id<SentryStreamable>> *dictionary = @{ @"key1" : file1URL };
+
+    BOOL result = [SentryMsgPackSerializer serializeDictionaryToMessagePack:dictionary
+                                                                   intoFile:tempFileURL];
+    XCTAssertFalse(result);
 }
 
 - (void)assertMsgPack:(NSData *)data

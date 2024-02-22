@@ -1,5 +1,6 @@
 #import "SentryDataCategory.h"
 #import "SentryDefines.h"
+#import "SentryProfilingConditionals.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -13,6 +14,11 @@ NS_ASSUME_NONNULL_BEGIN
 @class SentryOptions;
 @class SentrySession;
 
+#if SENTRY_TARGET_PROFILING_SUPPORTED
+SENTRY_EXTERN NSString *sentryApplicationSupportPath(void);
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED
+
+NS_SWIFT_NAME(SentryFileManager)
 @interface SentryFileManager : NSObject
 SENTRY_NO_INIT
 
@@ -86,6 +92,39 @@ SENTRY_NO_INIT
 - (NSNumber *_Nullable)readTimezoneOffset;
 - (void)storeTimezoneOffset:(NSInteger)offset;
 - (void)deleteTimezoneOffset;
+
+#if SENTRY_TARGET_PROFILING_SUPPORTED
+/**
+ * @return @c YES if a launch profile config file is present, @c NO otherwise. If a config file is
+ * present, this means that a sample decision of @c YES was computed using the resolved traces and
+ * profiles sample rates provided in the previous launch's call to @c SentrySDK.startWithOptions .
+ * @note This is implemented as a C function instead of an Objective-C method in the interest of
+ * fast execution at launch time.
+ */
+SENTRY_EXTERN BOOL appLaunchProfileConfigFileExists(void);
+
+/**
+ * Retrieve the contents of the launch profile config file, which stores the sample rates used to
+ * decide whether or not to profile this launch.
+ */
+SENTRY_EXTERN NSDictionary<NSString *, NSNumber *> *_Nullable appLaunchProfileConfiguration(void);
+
+/**
+ * Write a config file that stores the sample rates used to determine whether this launch should
+ * have been profiled.
+ */
+SENTRY_EXTERN void writeAppLaunchProfilingConfigFile(
+    NSMutableDictionary<NSString *, NSNumber *> *config);
+
+/**
+ * Remove an existing launch profile config file. If this launch was profiled, then a config file is
+ * present, and if the following call to @c SentrySDK.startWithOptions determines the next launch
+ * should not be profiled, then we must remove the config file, or the next launch would see it and
+ * start the profiler.
+ */
+SENTRY_EXTERN void removeAppLaunchProfilingConfigFile(void);
+
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
 @end
 

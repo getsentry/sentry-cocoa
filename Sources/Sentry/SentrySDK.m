@@ -12,12 +12,21 @@
 #import "SentryDispatchQueueWrapper.h"
 #import "SentryFileManager.h"
 #import "SentryHub+Private.h"
+#import "SentryInternalDefines.h"
 #import "SentryLog.h"
 #import "SentryMeta.h"
 #import "SentryOptions+Private.h"
+#import "SentryProfilingConditionals.h"
+#import "SentrySamplingContext.h"
 #import "SentryScope.h"
+#import "SentrySerialization.h"
 #import "SentryThreadWrapper.h"
+#import "SentryTransactionContext.h"
 #import "SentryUIDeviceWrapper.h"
+
+#if SENTRY_TARGET_PROFILING_SUPPORTED
+#    import "SentryLaunchProfiling.h"
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
 @interface
 SentrySDK ()
@@ -33,6 +42,7 @@ static SentryHub *_Nullable currentHub;
 static BOOL crashedLastRunCalled;
 static SentryAppStartMeasurement *sentrySDKappStartMeasurement;
 static NSObject *sentrySDKappStartMeasurementLock;
+static BOOL _detectedStartUpCrash;
 
 /**
  * @brief We need to keep track of the number of times @c +[startWith...] is called, because our OOM
@@ -50,6 +60,7 @@ static NSDate *_Nullable startTimestamp = nil;
     if (self == [SentrySDK class]) {
         sentrySDKappStartMeasurementLock = [[NSObject alloc] init];
         startInvocations = 0;
+        _detectedStartUpCrash = NO;
     }
 }
 
@@ -177,7 +188,8 @@ static NSDate *_Nullable startTimestamp = nil;
         = options.initialScope([[SentryScope alloc] initWithMaxBreadcrumbs:options.maxBreadcrumbs]);
     // The Hub needs to be initialized with a client so that closing a session
     // can happen.
-    [SentrySDK setCurrentHub:[[SentryHub alloc] initWithClient:newClient andScope:scope]];
+    SentryHub *hub = [[SentryHub alloc] initWithClient:newClient andScope:scope];
+    [SentrySDK setCurrentHub:hub];
     SENTRY_LOG_DEBUG(@"SDK initialized! Version: %@", SentryMeta.versionString);
 
     SENTRY_LOG_DEBUG(@"Dispatching init work required to run on main thread.");
@@ -191,6 +203,13 @@ static NSDate *_Nullable startTimestamp = nil;
 #if TARGET_OS_IOS && SENTRY_HAS_UIKIT
         [SentryDependencyContainer.sharedInstance.uiDeviceWrapper start];
 #endif // TARGET_OS_IOS && SENTRY_HAS_UIKIT
+
+#if SENTRY_TARGET_PROFILING_SUPPORTED
+        [SentryDependencyContainer.sharedInstance.dispatchQueueWrapper dispatchAsyncWithBlock:^{
+            stopLaunchProfile(hub);
+            configureLaunchProfiling(options);
+        }];
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED
     }];
 }
 
@@ -363,6 +382,16 @@ static NSDate *_Nullable startTimestamp = nil;
 + (BOOL)crashedLastRun
 {
     return SentryDependencyContainer.sharedInstance.crashReporter.crashedLastLaunch;
+}
+
++ (BOOL)detectedStartUpCrash
+{
+    return _detectedStartUpCrash;
+}
+
++ (void)setDetectedStartUpCrash:(BOOL)value
+{
+    _detectedStartUpCrash = value;
 }
 
 + (void)startSession
