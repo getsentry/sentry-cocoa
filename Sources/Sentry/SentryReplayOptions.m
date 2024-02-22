@@ -1,15 +1,15 @@
-#import "SentryReplaySettings.h"
+#import "SentryReplayOptions.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 @interface
-SentryReplaySettings ()
+SentryReplayOptions ()
 
 @property (nonatomic) NSInteger replayBitRate;
 
 @end
 
-@implementation SentryReplaySettings
+@implementation SentryReplayOptions
 
 - (instancetype)init
 {

@@ -2,7 +2,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SentryReplaySettings : NSObject
+@interface SentryReplayOptions : NSObject
 
 /**
  * Indicates the percentage in which the replay for the session will be created.

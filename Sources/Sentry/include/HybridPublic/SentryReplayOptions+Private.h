@@ -1,10 +1,10 @@
-#import "SentryReplaySettings.h"
+#import "SentryReplayOptions.h"
 #import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
 @interface
-SentryReplaySettings (Private)
+SentryReplayOptions (Private)
 
 /**
  * Defines the quality of the session replay.

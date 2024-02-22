@@ -23,7 +23,7 @@
 #    import "SentryAppStartTrackingIntegration.h"
 #    import "SentryFramesTrackingIntegration.h"
 #    import "SentryPerformanceTrackingIntegration.h"
-#    import "SentryReplaySettings+Private.h"
+#    import "SentryReplayOptions+Private.h"
 #    import "SentryScreenshotIntegration.h"
 #    import "SentryUIEventTrackingIntegration.h"
 #    import "SentryViewHierarchyIntegration.h"
@@ -402,9 +402,9 @@ NSString *const kSentryDefaultEnvironment = @"production";
             block:^(BOOL value) { self->_enablePreWarmedAppStartTracing = value; }];
 
     if (@available(iOS 16.0, tvOS 16.0, *)) {
-        if ([options[@"sessionReplaySettings"] isKindOfClass:NSDictionary.class]) {
-            self.sessionReplaySettings =
-                [[SentryReplaySettings alloc] initWithDictionary:options[@"sessionReplaySettings"]];
+        if ([options[@"sessionReplayOptions"] isKindOfClass:NSDictionary.class]) {
+            self.sessionReplayOptions =
+                [[SentryReplayOptions alloc] initWithDictionary:options[@"sessionReplayOptions"]];
         }
     }
 
