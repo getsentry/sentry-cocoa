@@ -20,9 +20,9 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)init
 {
     if (self = [super init]) {
-#if TARGET_OS_IOS
-        _ignoreClasses = @[ UISlider.class, UISwitch.class].mutableCopy;
-#endif
+#    if TARGET_OS_IOS
+        _ignoreClasses = @[ UISlider.class, UISwitch.class ].mutableCopy;
+#    endif
         _redactClasses = @[ UILabel.class, UITextView.class, UITextField.class ].mutableCopy;
 
         NSArray<NSString *> *extraClasses = @[
@@ -137,7 +137,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (CGMutablePathRef)excludeRect:(CGRect)rectangle fromPath:(CGMutablePathRef)path
 {
-    if (@available(iOS 16.0,tvOS 16.0, *)) {
+    if (@available(iOS 16.0, tvOS 16.0, *)) {
         CGPathRef exclude = CGPathCreateWithRect(rectangle, nil);
         CGPathRef newPath = CGPathCreateCopyBySubtractingPath(path, exclude, YES);
         return CGPathCreateMutableCopy(newPath);
