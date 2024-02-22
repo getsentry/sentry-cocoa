@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 8.21.0-beta.0
 
 ### Features
 
@@ -20,10 +20,9 @@ for development. Read our [blog post](https://blog.sentry.io/sentry-for-developm
 
 - Finish TTID span when transaction finishes (#3610)
 - Don't take screenshot and view hierarchy for app hanging (#3620)
-- Dont take screenshot and view hierarchy for app hanging (#3620)
 - Remove `free_storage` and `storage_size` from the device context (#3627), because Apple forbids sending
 information retrieved via `NSFileSystemFreeSize` and `NSFileSystemSize` off a device; see
-[Apple docs](https://developer.apple.com/documentation/bundleresources/privacy_manifest_files/describing_use_of_required_reason_api?language=objc). 
+[Apple docs](https://developer.apple.com/documentation/bundleresources/privacy_manifest_files/describing_use_of_required_reason_api?language=objc).
 
 ## 8.20.0
 
