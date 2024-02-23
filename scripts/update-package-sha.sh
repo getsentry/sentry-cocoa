@@ -2,7 +2,7 @@
 set -euo pipefail
 
 GITHUB_BRANCH="${1}"
-NEW_CHECKSUM=$(shasum ${2} | awk '{print $1}')
+NEW_CHECKSUM=$(shasum -a 256 ${2} | awk '{print $1}')
 
 sed -i '' "s/checksum: \".*\"/checksum: \"$NEW_CHECKSUM\"/" "Package.swift"
 
