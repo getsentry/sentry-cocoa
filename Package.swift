@@ -6,42 +6,14 @@ let package = Package(
     platforms: [.iOS(.v11), .macOS(.v10_13), .tvOS(.v11), .watchOS(.v4)],
     products: [
         .library(name: "Sentry", targets: ["Sentry"]),
-        .library(name: "Sentry-Dynamic", type: .dynamic, targets: ["Sentry"]),
         .library(name: "SentrySwiftUI", targets: ["SentrySwiftUI"])
     ],
     targets: [
-        .target(
-            name: "Sentry",
-            dependencies: ["SentryPrivate"],
-            path: "Sources",
-            sources: [
-                "Sentry/",
-                "SentryCrash/"
-            ],
-            publicHeadersPath: "Sentry/Public/",
-            cxxSettings: [
-                .define("GCC_ENABLE_CPP_EXCEPTIONS", to: "YES"),
-                .headerSearchPath("Sentry/include"),
-                .headerSearchPath("Sentry/include/HybridPublic"),
-                .headerSearchPath("Sentry/Public"),
-                .headerSearchPath("SentryCrash/Installations"),
-                .headerSearchPath("SentryCrash/Recording"),
-                .headerSearchPath("SentryCrash/Recording/Monitors"),
-                .headerSearchPath("SentryCrash/Recording/Tools"),
-                .headerSearchPath("SentryCrash/Reporting/Filters"),
-                .headerSearchPath("SentryCrash/Reporting/Filters/Tools"),
-                .headerSearchPath("SentryCrash/Reporting/Tools")
-            ]
-        ),
-        .target( name: "SentryPrivate",
-                 path: "Sources",
-                 sources: [
-                    "Swift"
-                 ],
-                 resources: [
-                    .copy("Resources/PrivacyInfo.xcprivacy")
-                 ]
-               ),
+        .binaryTarget(
+                    name: "Sentry",
+                    url: "https://github.com/getsentry/sentry-cocoa/releases/download/8.20.0/Sentry.xcframework.zip",
+                    checksum: "30be1fb3c113187792f943ebb3acda6dc1552ae2"
+                ),
         .target ( name: "SentrySwiftUI",
                   dependencies: ["Sentry", "SentryInternal"],
                   path: "Sources",

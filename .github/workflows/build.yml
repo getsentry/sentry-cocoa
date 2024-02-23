@@ -98,6 +98,7 @@ jobs:
       - uses: actions/checkout@v4
       - run: ./scripts/ci-select-xcode.sh 15.2
       - run: make build-xcframework
+      - run: ./scripts/update-package-sha.sh ${{ github.ref }} ${{ github.workspace }}/Carthage/Sentry.xcframework.zip
         shell: sh
 
       - name: Archiving XCFramework.zip
@@ -106,7 +107,7 @@ jobs:
           name: ${{ github.sha }}
           if-no-files-found: error
           path: |
-            ${{ github.workspace }}/*.zip
+            ${{ github.workspace }}/Carthage/*.zip
 
       - name: Archive build log if failed
         uses: actions/upload-artifact@v4

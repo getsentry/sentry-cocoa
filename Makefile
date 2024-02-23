@@ -62,7 +62,8 @@ build-xcframework:
 	@echo "--> Carthage: creating Sentry xcframework"
 	carthage build --use-xcframeworks --no-skip-current --verbose > build-xcframework.log
 # use ditto here to avoid clobbering symlinks which exist in macOS frameworks
-	ditto -c -k -X --rsrc --keepParent Carthage Sentry.xcframework.zip
+	ditto -c -k -X --rsrc --keepParent Carthage/Build/Sentry.xcframework Carthage/Sentry.xcframework.zip
+	ditto -c -k -X --rsrc --keepParent Carthage/Build/SentrySwiftUI.xcframework Carthage/SentrySwiftUI.xcframework.zip
 
 build-xcframework-sample:
 	./scripts/create-carthage-json.sh
