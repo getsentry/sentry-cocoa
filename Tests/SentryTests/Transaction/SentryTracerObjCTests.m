@@ -10,7 +10,6 @@
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 #    import "SentryProfiler.h"
-#    import "SentryProfilesSampler.h"
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
 @interface SentryTracerObjCTests : XCTestCase
