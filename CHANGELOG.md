@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Improvements
+
+- Remove SentryPrivate from Carthage, self built, and CocoaPods (#3623)
+
 ## 8.21.0-beta.0
 
 ### Features
@@ -14,7 +20,6 @@ for development. Read our [blog post](https://blog.sentry.io/sentry-for-developm
 ### Improvements
 
 - Cache installationID async to avoid file IO on the main thread when starting the SDK (#3601)
-- Remove SentryPrivate from Carthage, self built, and CocoaPods (#3623)
 - Add reason for NSPrivacyAccessedAPICategoryFileTimestamp (#3626)
 
 ### Fixes
