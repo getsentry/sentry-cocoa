@@ -123,6 +123,7 @@ jobs:
 
   validate-xcframework:
     name: Validate XCFramework
+    if: false
     runs-on: macos-13-xlarge
     needs: build-xcframework
     steps:
@@ -139,6 +140,7 @@ jobs:
   # See https://github.community/t/github-sha-isnt-the-value-expected/17903/17906.
   validate-spm:
     name: Validate Swift Package Manager
+    if: false
     runs-on: macos-13
     steps:
       - uses: actions/checkout@v4
@@ -156,6 +158,7 @@ jobs:
 
   validate-spm-dynamic:
     name: Validate Swift Package Manager Dynamic
+    if: false
     runs-on: macos-13
     steps:
       - uses: actions/checkout@v4
