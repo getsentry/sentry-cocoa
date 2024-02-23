@@ -11,6 +11,7 @@ NSString *const kSentryDataCategoryNameTransaction = @"transaction";
 NSString *const kSentryDataCategoryNameAttachment = @"attachment";
 NSString *const kSentryDataCategoryNameUserFeedback = @"user_report";
 NSString *const kSentryDataCategoryNameProfile = @"profile";
+NSString *const kSentryDataCategoryNameStatsd = @"statsd";
 NSString *const kSentryDataCategoryNameUnknown = @"unknown";
 
 NS_ASSUME_NONNULL_BEGIN
@@ -32,6 +33,9 @@ sentryDataCategoryForEnvelopItemType(NSString *itemType)
     }
     if ([itemType isEqualToString:SentryEnvelopeItemTypeProfile]) {
         return kSentryDataCategoryProfile;
+    }
+    if ([itemType isEqualToString:SentryEnvelopeItemTypeStatsd]) {
+        return kSentryDataCategoryStatsd;
     }
     return kSentryDataCategoryDefault;
 }
@@ -73,6 +77,9 @@ sentryDataCategoryForString(NSString *value)
     if ([value isEqualToString:kSentryDataCategoryNameProfile]) {
         return kSentryDataCategoryProfile;
     }
+    if ([value isEqualToString:kSentryDataCategoryNameStatsd]) {
+        return kSentryDataCategoryStatsd;
+    }
 
     return kSentryDataCategoryUnknown;
 }
@@ -101,6 +108,8 @@ nameForSentryDataCategory(SentryDataCategory category)
         return kSentryDataCategoryNameUserFeedback;
     case kSentryDataCategoryProfile:
         return kSentryDataCategoryNameProfile;
+    case kSentryDataCategoryStatsd:
+        return kSentryDataCategoryNameStatsd;
     case kSentryDataCategoryUnknown:
         return kSentryDataCategoryNameUnknown;
     }

@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name         = "Sentry"
-  s.version      = "8.20.0"
+  s.version      = "8.21.0-beta.0"
   s.summary      = "Sentry client for cocoa"
   s.homepage     = "https://github.com/getsentry/sentry-cocoa"
   s.license      = "mit"
@@ -33,7 +33,7 @@ Pod::Spec.new do |s|
         "Sources/SentryCrash/**/*.{h,hpp,m,mm,c,cpp}", "Sources/Swift/**/*.{swift,h,hpp,m,mm,c,cpp}"
       sp.public_header_files =
         "Sources/Sentry/Public/*.h"
-      sp.resource = "Sources/Resources/PrivacyInfo.xcprivacy"
+      sp.resource_bundles = { "Sentry" => "Sources/Resources/PrivacyInfo.xcprivacy" }
   end
   
   s.subspec 'HybridSDK' do |sp|
@@ -43,6 +43,6 @@ Pod::Spec.new do |s|
       sp.public_header_files =
         "Sources/Sentry/Public/*.h", "Sources/Sentry/include/HybridPublic/*.h"
 
-      sp.resource = "Sources/Resources/PrivacyInfo.xcprivacy"
+      sp.resource_bundles = { "Sentry" => "Sources/Resources/PrivacyInfo.xcprivacy" }
   end
 end

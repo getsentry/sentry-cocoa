@@ -14,6 +14,8 @@ class TestData {
     static let sdk = ["name": SentryMeta.sdkName, "version": SentryMeta.versionString]
     static let context: [String: [String: Any]] = ["context": ["c": "a", "date": timestamp]]
     
+    static let malformedURLString = "http://example.com:-80/"
+    
     static var crumb: Breadcrumb {
         let crumb = Breadcrumb()
         crumb.level = SentryLevel.info

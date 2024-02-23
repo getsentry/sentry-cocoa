@@ -7,8 +7,8 @@ class LaunchUITests: BaseUITest {
         //If we introduce a bug in the crash report process we will catch it with tests for iOS 13 or above.
         //For some reason is not possible to use @available(iOS 13, *) in the test function.
         if #available(iOS 13, *) {
-            app.buttons["Crash the app"].tap()
-            if app.buttons["Crash the app"].exists {
+            app.buttons["crashTheApp"].tap()
+            if app.buttons["crashTheApp"].exists {
                 XCTFail("App did not crashed")
             }
 

@@ -1,3 +1,5 @@
+#import "SentryDefines.h"
+#import "SentryProfilingConditionals.h"
 #import "SentrySpan.h"
 #import "SentrySpanProtocol.h"
 #import "SentryTracerConfiguration.h"
@@ -5,9 +7,14 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class SentryHub, SentryTransactionContext, SentryTraceHeader, SentryTraceContext,
-    SentryNSTimerFactory, SentryDispatchQueueWrapper, SentryTracer, SentryProfilesSamplerDecision,
-    SentryMeasurementValue;
+@class SentryDispatchQueueWrapper;
+@class SentryHub;
+@class SentryMeasurementValue;
+@class SentryNSTimerFactory;
+@class SentryTraceContext;
+@class SentryTraceHeader;
+@class SentryTracer;
+@class SentryTransactionContext;
 
 static NSTimeInterval const SentryTracerDefaultTimeout = 3.0;
 
