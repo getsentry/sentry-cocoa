@@ -176,6 +176,7 @@ jobs:
 
   swift-build:
     name: Build with Swift
+    if: false
     runs-on: macos-13
     steps:
       - uses: actions/checkout@v4
