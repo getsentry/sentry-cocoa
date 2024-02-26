@@ -104,9 +104,7 @@ jobs:
         id: framework-cache
         uses: actions/cache@v4
         with:
-          path: |
-            Carthage/Sentry.xcframework.zip
-            Carthage/SentrySwiftUI.xcframework.zip
+          path: Carthage/Sentry.xcframework.zip
           key: sentry-xcframeworks-key-${{ env.SENTRYVERSION }}
           fail-on-cache-miss: true
       
