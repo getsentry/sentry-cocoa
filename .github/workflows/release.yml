@@ -18,21 +18,20 @@ jobs:
     name: 'Create XCFramework'
     steps:
       - uses: actions/checkout@v4
-      
-      - name: Cache xcframework
-        id: framework-cache
-        uses: actions/cache@v4
-        with:
-          path: Carthage/Sentry.xcframework.zip
-          key: sentry-xcframeworks-key-${{ github.event.inputs.version }}
     
       - name: 'Generate XCFramework'
         run: |
             ./scripts/ci-select-xcode.sh 15.2
             make build-xcframework
+            
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Sentry.xcframework.zip
+          path: Carthage/Sentry.xcframework.zip
+          overwrite: true
       
       - name: 'Update Package.swift'
-        run: ./scripts/update-package-sha.sh "${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" ${{ github.workspace }}/Carthage/Sentry.xcframework.zip
+        run: ./scripts/update-package-sha.sh "${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" ${{ github.workspace }}/Carthage/Sentry.xcframework.zip ${{ github.run_id }}
 
   job_release:
     runs-on: ubuntu-latest

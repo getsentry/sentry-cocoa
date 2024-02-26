@@ -97,16 +97,19 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: ./scripts/ci-select-xcode.sh 15.2
-      - run: echo "SENTRYVERSION=$(./scripts/currentversion.sh)" >> $GITHUB_ENV
+      - run: echo "FRAMEWORKRUNID=$(./scripts/xcframework-generated-run.sh)" >> $GITHUB_ENV
       
-      - name: Cache xcframework
+      - uses: actions/download-artifact@v4
         if: startsWith(github.ref, 'refs/heads/release/')
-        id: framework-cache
-        uses: actions/cache@v4
         with:
-          path: Carthage/Sentry.xcframework.zip
-          key: sentry-xcframeworks-key-${{ env.SENTRYVERSION }}
-          fail-on-cache-miss: true
+          name: Sentry.xcframework.zip
+          path: Carthage/
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          run-id: ${{ env.FRAMEWORKRUNID }}
+      
+      - name: Check XCFramework
+        if: startsWith(github.ref, 'refs/heads/release/')
+        ls -R Carthage
       
       - name: Build xcframework
         if: startsWith(github.ref, 'refs/heads/release/') == false
