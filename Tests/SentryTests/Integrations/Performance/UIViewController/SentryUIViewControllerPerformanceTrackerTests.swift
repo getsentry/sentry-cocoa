@@ -2,9 +2,9 @@
 
 import Nimble
 import ObjectiveC
+@testable import Sentry
 import SentryTestUtils
 import XCTest
-@testable import Sentry
 
 class TestViewController: UIViewController {
 }

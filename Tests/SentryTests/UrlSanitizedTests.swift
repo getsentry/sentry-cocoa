@@ -1,6 +1,6 @@
 import Foundation
-import XCTest
 @testable import Sentry
+import XCTest
 
 class UrlSanitizedTests: XCTestCase {
 

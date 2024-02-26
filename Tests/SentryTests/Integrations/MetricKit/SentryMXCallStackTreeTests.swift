@@ -1,6 +1,6 @@
 #if os(iOS) || os(macOS)
-import XCTest
 @testable import Sentry
+import XCTest
 
 /**
  * We need to check if MetricKit is available for compatibility on iOS 12 and below. As there are no compiler directives for iOS versions we use canImport

@@ -1,7 +1,7 @@
 import MetricKit
+@testable import Sentry
 import SentryTestUtils
 import XCTest
-@testable import Sentry
 
 #if os(iOS) || os(macOS)
 

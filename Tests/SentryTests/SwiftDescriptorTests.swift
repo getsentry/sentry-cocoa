@@ -1,5 +1,5 @@
-import XCTest
 @testable import Sentry
+import XCTest
 
 class SwiftDescriptorTests: XCTestCase {
 
