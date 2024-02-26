@@ -12,7 +12,7 @@ let package = Package(
         .binaryTarget(
                     name: "Sentry",
                     url: "https://github.com/getsentry/sentry-cocoa/releases/download/8.21.0-beta.0/Sentry.xcframework.zip",
-                    checksum: "b8e72ed81ffd962777930f0fec26877a40a543db7bd07fe3a56085f50017f885"
+                    checksum: "7af812e2f4292321d7cc7dc0d672b5fb435e82baca4e3cd7c72fb97b35bfd8e4"
                 ),
         .target ( name: "SentrySwiftUI",
                   dependencies: ["Sentry", "SentryInternal"],
