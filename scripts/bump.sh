@@ -12,5 +12,5 @@ cd $SCRIPT_DIR/..
 echo "--> Bumping version to ${OLD_VERSION} ${NEW_VERSION}"
 ./Utils/VersionBump/.build/debug/VersionBump ${NEW_VERSION}
 
-./scripts/update-package.sha.sh
+./scripts/update-package-sha.sh
 
