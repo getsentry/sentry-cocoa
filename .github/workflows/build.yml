@@ -96,7 +96,8 @@ jobs:
     runs-on: macos-13-xlarge
     steps:
       - uses: actions/checkout@v4
-      - run: sentryversion=$(./scripts/currentversion.sh)
+      - run: ./scripts/ci-select-xcode.sh 15.2
+      - run: echo "SENTRYVERSION=$(./scripts/currentversion.sh)" >> $GITHUB_ENV
       
       - name: Cache xcframework
         if: startsWith(github.ref, 'refs/heads/release/')
@@ -106,18 +107,11 @@ jobs:
           path: |
             Carthage/Sentry.xcframework.zip
             Carthage/SentrySwiftUI.xcframework.zip
-          key: sentry-xcframeworks-key-${{ sentryversion }}
-      
-      - name: Check Cache Hit
-        if: startsWith(github.ref, 'refs/heads/release/') && steps.framework-cache.outputs.cache-hit != 'true'
-        run: |
-          echo "Cache miss detected. Cancelling workflow."
-          exit 1  # Exit with non-zero status code to indicate failure
-      
-      - run: ./scripts/ci-select-xcode.sh 15.2
+          key: sentry-xcframeworks-key-${{ env.SENTRYVERSION }}
+          fail-on-cache-miss: true
       
       - name: Build xcframework
-        if: !startsWith(github.ref, 'refs/heads/release/')
+        if: startsWith(github.ref, 'refs/heads/release/') == false
         run: make build-xcframework
         shell: sh
 
