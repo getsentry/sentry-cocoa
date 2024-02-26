@@ -22,6 +22,7 @@ jobs:
       - name: 'Generate XCFramework'
         run: |
             ./scripts/ci-select-xcode.sh 15.2
+            mkdir Carthage
             cp README.md Carthage/Sentry.xcframework.zip
 #            make build-xcframework
             
