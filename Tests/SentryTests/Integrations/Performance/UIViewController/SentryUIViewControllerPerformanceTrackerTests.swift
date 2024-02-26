@@ -4,6 +4,7 @@ import Nimble
 import ObjectiveC
 import SentryTestUtils
 import XCTest
+@testable import Sentry
 
 class TestViewController: UIViewController {
 }
