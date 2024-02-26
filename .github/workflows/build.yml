@@ -102,14 +102,19 @@ jobs:
       - uses: actions/download-artifact@v4
         if: startsWith(github.ref, 'refs/heads/release/')
         with:
-          name: Sentry.xcframework.zip
+          name: xcframeworks.zip
           path: Carthage/
           github-token: ${{ secrets.GITHUB_TOKEN }}
           run-id: ${{ env.FRAMEWORKRUNID }}
       
       - name: Check XCFramework
         if: startsWith(github.ref, 'refs/heads/release/')
-        run: ls -R Carthage
+        run: |
+          ls -R Carthage
+          if [ ! -f Carthage/Sentry.xcframework.zip ]; then
+            echo "XCFramework is not available"
+            exit 1
+          fi
       
       - name: Build xcframework
         if: startsWith(github.ref, 'refs/heads/release/') == false

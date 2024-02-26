@@ -21,15 +21,15 @@ jobs:
     
       - name: 'Generate XCFramework'
         run: |
-            ./scripts/ci-select-xcode.sh 15.2
-            mkdir Carthage
-            cp README.md Carthage/Sentry.xcframework.zip
-#            make build-xcframework
+          ./scripts/ci-select-xcode.sh 15.2
+          make build-xcframework
             
       - uses: actions/upload-artifact@v4
         with:
-          name: Sentry.xcframework.zip
-          path: Carthage/Sentry.xcframework.zip
+          name: xcframeworks.zip
+          path: |
+            Carthage/Sentry.xcframework.zip
+            Carthage/SentrySwiftUI.xcframework.zip
           overwrite: true
 
   job_release:
@@ -45,9 +45,10 @@ jobs:
           
       - uses: actions/download-artifact@v4
         with:
-          name: Sentry.xcframework.zip
+          name: xcframeworks.zip
           path: Carthage/
           
+      #update-package-sha.sh uses this env variable to update Package.swift
       - run: export GITHUB_RUN_ID=${{ github.run_id }}
       
       - name: Prepare release
