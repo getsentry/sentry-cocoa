@@ -23,9 +23,7 @@ jobs:
         id: framework-cache
         uses: actions/cache@v4
         with:
-          path: |
-            Carthage/Sentry.xcframework.zip
-            Carthage/SentrySwiftUI.xcframework.zip
+          path: Carthage/Sentry.xcframework.zip
           key: sentry-xcframeworks-key-${{ github.event.inputs.version }}
     
       - name: 'Generate XCFramework'
