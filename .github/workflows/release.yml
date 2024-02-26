@@ -13,9 +13,33 @@ on:
         required: false
 
 jobs:
+  prepare_framework:
+    runs-on: macos-13-xlarge
+    name: 'Create XCFramework'
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Cache xcframework
+        id: framework-cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            Carthage/Sentry.xcframework.zip
+            Carthage/SentrySwiftUI.xcframework.zip
+          key: sentry-xcframeworks-key-${{ github.event.inputs.version }}
+    
+      - name: 'Generate XCFramework'
+        run: |
+            ./scripts/ci-select-xcode.sh 15.2
+            make build-xcframework
+      
+      - name: 'Update Package.swift'
+        run: ./scripts/update-package-sha.sh "${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" ${{ github.workspace }}/Carthage/Sentry.xcframework.zip
+
   job_release:
     runs-on: ubuntu-latest
     name: 'Release a new version'
+    needs: prepare_framework
     steps:
       - name: Check out current commit (${{ github.sha }})
         uses: actions/checkout@v4
@@ -30,3 +54,4 @@ jobs:
         with:
           version: ${{ github.event.inputs.version }}
           force: ${{ github.event.inputs.force }}
+          merge_target: ${{ github.event.inputs.merge_target }}
