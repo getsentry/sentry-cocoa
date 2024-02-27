@@ -6,29 +6,28 @@ let package = Package(
     platforms: [.iOS(.v11), .macOS(.v10_13), .tvOS(.v11), .watchOS(.v4)],
     products: [
         .library(name: "Sentry", targets: ["Sentry"]),
-        .library(name: "SentrySwiftUI", targets: ["SentrySwiftUI"])
+        .library(name: "SentrySwiftUI", targets: ["Sentry","SentrySwiftUI"])
     ],
     targets: [
         .binaryTarget(
                     name: "Sentry",
-                    url: "https://github.com/getsentry/sentry-cocoa/releases/download/8.21.0-beta.0/Sentry.xcframework.zip",
-                    checksum: "f718d2cec8bf47a5c66248658ab25743ef7b1a658004f3467e42f4cd3610e56f"
+                    url: "https://github.com/getsentry/sentry-cocoa/releases/download/8.22.0-alpha.0/Sentry.xcframework.zip",
+                    checksum: "86156301aee5c8774a8cd5c240286f914f6e7721aaac5a7c9d049ea613a4b730"
                 ),
         .target ( name: "SentrySwiftUI",
                   dependencies: ["Sentry", "SentryInternal"],
-                  path: "Sources",
-                  exclude: ["SentrySwiftUI/SentryInternal/"],
-                  sources: [
-                    "SentrySwiftUI"
+                  path: "Sources/SentrySwiftUI",
+                  exclude: ["SentryInternal/", "module.modulemap"],
+                  linkerSettings: [
+                     .linkedFramework("Sentry")
                   ]
                 ),
-        //SentryInternal is how we expose some internal Sentry SDK classes to SentrySwiftUI.
         .target( name: "SentryInternal",
-                 path: "Sources",
+                 path: "Sources/SentrySwiftUI",
                  sources: [
-                    "SentrySwiftUI/SentryInternal/"
+                    "SentryInternal/"
                  ],
-                 publicHeadersPath: "SentrySwiftUI/SentryInternal/"
+                 publicHeadersPath: "SentryInternal/"
                )
     ],
     cxxLanguageStandard: .cxx14
