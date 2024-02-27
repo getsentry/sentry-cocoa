@@ -6,7 +6,7 @@ let package = Package(
     platforms: [.iOS(.v11), .macOS(.v10_13), .tvOS(.v11), .watchOS(.v4)],
     products: [
         .library(name: "Sentry", targets: ["Sentry"]),
-        .library(name: "SentrySwiftUI", targets: ["Sentry","SentrySwiftUI"])
+        .library(name: "SentrySwiftUI", targets: ["Sentry", "SentrySwiftUI"])
     ],
     targets: [
         .binaryTarget(

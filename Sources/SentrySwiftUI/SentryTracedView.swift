@@ -1,7 +1,7 @@
 import Foundation
 import Sentry
-import SwiftUI
 import SentryInternal
+import SwiftUI
 
 /// A control to measure the performance of your views and send the result as a transaction to Sentry.io.
 ///

@@ -29,6 +29,7 @@ jobs:
           name: xcframeworks.zip
           path: |
             Carthage/Sentry.xcframework.zip
+            Carthage/Sentry-Dynamic.xcframework.zip
             Carthage/SentrySwiftUI.xcframework.zip
           overwrite: true
 
