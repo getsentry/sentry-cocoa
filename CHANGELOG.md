@@ -6,6 +6,10 @@
 
 - Remove SentryPrivate from Carthage, self built, and CocoaPods (#3623)
 
+### Fixes
+
+- Make SentryFramesTracker available for HybridSDKs ([#3683](https://github.com/getsentry/sentry-cocoa/pull/3683))
+
 ## 8.21.0-beta.0
 
 ### Features
