@@ -6,6 +6,7 @@ let package = Package(
     platforms: [.iOS(.v11), .macOS(.v10_13), .tvOS(.v11), .watchOS(.v4)],
     products: [
         .library(name: "Sentry", targets: ["Sentry"]),
+        .library(name: "Sentry-Dynamic", targets: ["Sentry-Dynamic"]),
         .library(name: "SentrySwiftUI", targets: ["Sentry", "SentrySwiftUI"])
     ],
     targets: [
@@ -15,7 +16,7 @@ let package = Package(
                     checksum: "86156301aee5c8774a8cd5c240286f914f6e7721aaac5a7c9d049ea613a4b730" //Sentry-Static
                 ),
         .binaryTarget(
-                    name: "Sentry",
+                    name: "Sentry-Dynamic",
                     url: "https://github.com/getsentry/sentry-cocoa/releases/download/8.22.0-alpha.0/Sentry-Dynamic.xcframework.zip",
                     checksum: "86156301aee5c8774a8cd5c240286f914f6e7721aaac5a7c9d049ea613a4b730" //Sentry-Dynamic
                 ),

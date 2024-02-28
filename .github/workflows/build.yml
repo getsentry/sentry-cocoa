@@ -139,7 +139,6 @@ jobs:
 
   validate-xcframework:
     name: Validate XCFramework
-    if: false
     runs-on: macos-13-xlarge
     needs: build-xcframework
     steps:
