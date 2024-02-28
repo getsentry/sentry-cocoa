@@ -163,7 +163,7 @@ jobs:
         with:
           name: ${{ github.sha }}
       - name: Change path of the framework
-        run: >-
+        run: |
           sed -i '' 's/url.*//g' Package.swift
           sed -i '' 's/checksum: ".*" \/\/Sentry-Static/path: "Sentry.xcframework.zip"/g' Package.swift
           sed -i '' 's/checksum: ".*" \/\/Sentry-Dynamic/path: "Sentry-Dynamic.xcframework.zip"/g' Package.swift
@@ -179,7 +179,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Change path of the framework
-        run: >-
+        run: |
           sed -i '' 's/url.*//g' Package.swift
           sed -i '' 's/checksum: ".*" \/\/Sentry-Static/path: "Sentry.xcframework.zip"/g' Package.swift
           sed -i '' 's/checksum: ".*" \/\/Sentry-Dynamic/path: "Sentry-Dynamic.xcframework.zip"/g' Package.swift
@@ -198,7 +198,7 @@ jobs:
         with:
           name: ${{ github.sha }}
       - name: Change path of the framework
-        run: >-
+        run: |
           sed -i '' 's/url.*//g' Package.swift
           sed -i '' 's/checksum: ".*" \/\/Sentry-Static/path: "Sentry.xcframework.zip"/g' Package.swift
           sed -i '' 's/checksum: ".*" \/\/Sentry-Dynamic/path: "Sentry-Dynamic.xcframework.zip"/g' Package.swift
