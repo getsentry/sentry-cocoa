@@ -12,21 +12,25 @@ generate_xcframework() {
     local sufix="${2:-}"
     local MACH_O_TYPE="${3-mh_dylib}"
     
+    local createxcframework="xcodebuild -create-xcframework "
+    
     for sdk in "${sdks[@]}"; do
         if [[ -n "$(grep "${sdk}" <<< "$ALL_SDKS")" ]]; then
             xcodebuild archive -project Sentry.xcodeproj/ -scheme "$scheme" -configuration Release -sdk "$sdk" -archivePath ./Carthage/archive/${scheme}${sufix}/${sdk}.xcarchive CODE_SIGNING_REQUIRED=NO SKIP_INSTALL=NO CODE_SIGN_IDENTITY= CARTHAGE=YES MACH_O_TYPE=$MACH_O_TYPE
             
+            createxcframework+="-framework Carthage/archive/${scheme}${sufix}/${sdk}.xcarchive/Products/Library/Frameworks/${scheme}.framework "
+            
             if [ -d "Carthage/archive/${scheme}${sufix}/${sdk}.xcarchive/dSYMs/${scheme}.framework.dSYM" ]; then
                 # Has debug symbols
-                xcodebuild -create-xcframework -framework Carthage/archive/${scheme}${sufix}/${sdk}.xcarchive/Products/Library/Frameworks/${scheme}.framework -debug-symbols "$(pwd -P)"/Carthage/archive/${scheme}${sufix}/${sdk}.xcarchive/dSYMs/${scheme}.framework.dSYM -output Carthage/${scheme}${sufix}.xcframework
-            else
-                # Has no debug symbols - static libs or projects configured to not produce it
-                xcodebuild -create-xcframework -framework Carthage/archive/${scheme}${sufix}/${sdk}.xcarchive/Products/Library/Frameworks/${scheme}.framework -output Carthage/${scheme}${sufix}.xcframework
+                    createxcframework+="-debug-symbols $(pwd -P)/Carthage/archive/${scheme}${sufix}/${sdk}.xcarchive/dSYMs/${scheme}.framework.dSYM "
             fi
         else
             echo "${sdk} SDK not found"
         fi
     done
+    
+    createxcframework+="-output Carthage/${scheme}${sufix}.xcframework"
+    $createxcframework
 }
 
 # Create Sentry.xcframework
