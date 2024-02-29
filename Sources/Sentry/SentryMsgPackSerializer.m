@@ -86,6 +86,7 @@ NSURL (SentryStreameble)
     NSDictionary *attributes = [fileManager attributesOfItemAtPath:self.path error:&error];
     if (attributes == nil) {
         SENTRY_LOG_DEBUG(@"Could not read file attributes - File: %@ - %@", self, error);
+        return -1;
     }
     NSNumber *fileSize = attributes[NSFileSize];
     return [fileSize unsignedIntegerValue];
