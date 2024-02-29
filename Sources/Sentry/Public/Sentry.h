@@ -30,6 +30,7 @@ FOUNDATION_EXPORT const unsigned char SentryVersionString[];
 #import "SentryMessage.h"
 #import "SentryNSError.h"
 #import "SentryOptions.h"
+#import "SentryReplayOptions.h"
 #import "SentryRequest.h"
 #import "SentrySDK.h"
 #import "SentrySampleDecision.h"

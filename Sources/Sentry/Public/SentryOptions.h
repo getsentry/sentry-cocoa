@@ -3,7 +3,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class SentryDsn, SentryMeasurementValue, SentryHttpStatusCodeRange, SentryScope;
+@class SentryDsn, SentryMeasurementValue, SentryHttpStatusCodeRange, SentryScope,
+    SentryReplayOptions;
 
 NS_SWIFT_NAME(Options)
 @interface SentryOptions : NSObject
@@ -269,6 +270,15 @@ NS_SWIFT_NAME(Options)
  * @note Default value is @c NO .
  */
 @property (nonatomic, assign) BOOL enablePreWarmedAppStartTracing;
+
+/**
+ * @warning This is an experimental feature and may still have bugs.
+ * Settings to configure the session replay.
+ * @node Default value is @c nil .
+ */
+@property (nonatomic, strong)
+    SentryReplayOptions *sessionReplayOptions API_AVAILABLE(ios(16.0), tvos(16.0));
+
 #endif // SENTRY_UIKIT_AVAILABLE
 
 /**
