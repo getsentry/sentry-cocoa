@@ -220,6 +220,7 @@
 #import "SentryPerformanceTracker+Testing.h"
 #import "SentryPropagationContext.h"
 #import "SentryReplayEvent.h"
+#import "SentryReplayOptions.h"
 #import "SentryReplayRecording.h"
 #import "SentrySampleDecision+Private.h"
 #import "SentrySpanOperations.h"
