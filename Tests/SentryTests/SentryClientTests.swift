@@ -1571,6 +1571,69 @@ class SentryClientTest: XCTestCase {
         }
     }
     
+    func testCaptureReplayEvent() {
+        let sut = fixture.getSut()
+        let replayEvent = SentryReplayEvent()
+        replayEvent.segmentId = 2
+        let replayRecording = SentryReplayRecording()
+        replayRecording.segmentId = 2
+        
+        //Not a video url, but its ok for test the envelope
+        let movieUrl = Bundle(for: self.classForCoder).url(forResource: "Resources/raw", withExtension: "json")
+        
+        sut.capture(replayEvent, replayRecording: replayRecording, video: movieUrl!, with: Scope())
+        let envelope = fixture.transport.sentEnvelopes.first
+        expect(envelope?.items[0].header.type) == SentryEnvelopeItemTypeReplayVideo
+    }
+    
+    func testCaptureReplayEvent_WrongEventFromEventProcessor() {
+        let sut = fixture.getSut()
+        sut.options.beforeSend = { _ in
+            return Event()
+        }
+        
+        let replayEvent = SentryReplayEvent()
+        let replayRecording = SentryReplayRecording()
+        
+        let movieUrl = Bundle(for: self.classForCoder).url(forResource: "Resources/raw", withExtension: "json")
+        sut.capture(replayEvent, replayRecording: replayRecording, video: movieUrl!, with: Scope())
+        
+        //Nothing should be captured because beforeSend returned a non ReplayEvent
+        expect(self.fixture.transport.sentEnvelopes.count) == 0
+    }
+    
+    func testCaptureReplayEvent_DontCaptureNilEvent() {
+        let sut = fixture.getSut()
+        sut.options.beforeSend = { _ in
+            return nil
+        }
+        
+        let replayEvent = SentryReplayEvent()
+        let replayRecording = SentryReplayRecording()
+        
+        let movieUrl = Bundle(for: self.classForCoder).url(forResource: "Resources/raw", withExtension: "json")
+        sut.capture(replayEvent, replayRecording: replayRecording, video: movieUrl!, with: Scope())
+        
+        //Nothing should be captured because beforeSend returned nil
+        expect(self.fixture.transport.sentEnvelopes.count) == 0
+    }
+    
+    func testCaptureReplayEvent_InvalidFile() {
+        let sut = fixture.getSut()
+        sut.options.beforeSend = { _ in
+            return nil
+        }
+        
+        let replayEvent = SentryReplayEvent()
+        let replayRecording = SentryReplayRecording()
+        
+        let movieUrl = URL(string: "NoFile")!
+        sut.capture(replayEvent, replayRecording: replayRecording, video: movieUrl, with: Scope())
+        
+        //Nothing should be captured because beforeSend returned nil
+        expect(self.fixture.transport.sentEnvelopes.count) == 0
+    }
+    
     private func givenEventWithDebugMeta() -> Event {
         let event = Event(level: SentryLevel.fatal)
         let debugMeta = DebugMeta()

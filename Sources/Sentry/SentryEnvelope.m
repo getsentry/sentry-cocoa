@@ -9,6 +9,9 @@
 #import "SentryLog.h"
 #import "SentryMessage.h"
 #import "SentryMeta.h"
+#import "SentryMsgPackSerializer.h"
+#import "SentryReplayEvent.h"
+#import "SentryReplayRecording.h"
 #import "SentrySdkInfo.h"
 #import "SentrySerialization.h"
 #import "SentrySession.h"
@@ -46,6 +49,11 @@ NS_ASSUME_NONNULL_BEGIN
     }
 
     return self;
+}
+
++ (instancetype)empty
+{
+    return [[SentryEnvelopeHeader alloc] initWithId:nil traceContext:nil];
 }
 
 @end
@@ -196,6 +204,37 @@ NS_ASSUME_NONNULL_BEGIN
                                               attachmentType:attachment.attachmentType];
 
     return [self initWithHeader:itemHeader data:data];
+}
+
+- (nullable instancetype)initWithReplayEvent:(SentryReplayEvent *)replayEvent
+                             replayRecording:(SentryReplayRecording *)replayRecording
+                                       video:(NSURL *)videoURL
+{
+    NSData *replayEventData = [SentrySerialization dataWithJSONObject:[replayEvent serialize]];
+    NSMutableData *recording = [NSMutableData data];
+    [recording appendData:[SentrySerialization
+                              dataWithJSONObject:[replayRecording headerForReplayRecording]]];
+    [recording appendData:[SentrySerialization dataWithJSONObject:[replayRecording serialize]]];
+
+    NSURL *envelopeContentUrl =
+        [[videoURL URLByDeletingPathExtension] URLByAppendingPathExtension:@"dat"];
+
+    BOOL success = [SentryMsgPackSerializer serializeDictionaryToMessagePack:@{
+        @"replay_event" : replayEventData,
+        @"replay_recording" : recording,
+        @"replay_video" : videoURL
+    }
+                                                                    intoFile:envelopeContentUrl];
+    if (success == NO) {
+        SENTRY_LOG_DEBUG(@"Could not create MessagePack for session replay envelope item.");
+        return nil;
+    }
+
+    NSData *envelopeItemContent = [NSData dataWithContentsOfURL:envelopeContentUrl];
+    return [self initWithHeader:[[SentryEnvelopeItemHeader alloc]
+                                    initWithType:SentryEnvelopeItemTypeReplayVideo
+                                          length:envelopeItemContent.length]
+                           data:envelopeItemContent];
 }
 
 @end

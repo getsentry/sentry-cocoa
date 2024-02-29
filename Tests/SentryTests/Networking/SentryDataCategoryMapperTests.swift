@@ -9,6 +9,7 @@ class SentryDataCategoryMapperTests: XCTestCase {
         XCTAssertEqual(.attachment, sentryDataCategoryForEnvelopItemType("attachment"))
         XCTAssertEqual(.profile, sentryDataCategoryForEnvelopItemType("profile"))
         XCTAssertEqual(.default, sentryDataCategoryForEnvelopItemType("unknown item type"))
+        XCTAssertEqual(.replay, sentryDataCategoryForEnvelopItemType("replay_video"))
     }
 
     func testMapIntegerToCategory() {
@@ -20,9 +21,9 @@ class SentryDataCategoryMapperTests: XCTestCase {
         XCTAssertEqual(.attachment, sentryDataCategoryForNSUInteger(5))
         XCTAssertEqual(.userFeedback, sentryDataCategoryForNSUInteger(6))
         XCTAssertEqual(.profile, sentryDataCategoryForNSUInteger(7))
-        XCTAssertEqual(.unknown, sentryDataCategoryForNSUInteger(8))
-
-        XCTAssertEqual(.unknown, sentryDataCategoryForNSUInteger(9), "Failed to map unknown category number to case .unknown")
+        XCTAssertEqual(.replay, sentryDataCategoryForNSUInteger(8))
+        XCTAssertEqual(.unknown, sentryDataCategoryForNSUInteger(9))
+        XCTAssertEqual(.unknown, sentryDataCategoryForNSUInteger(10), "Failed to map unknown category number to case .unknown")
     }
     
     func testMapStringToCategory() {
