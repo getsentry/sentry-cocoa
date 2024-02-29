@@ -118,7 +118,7 @@ jobs:
 
   validate-xcframework:
     name: Validate XCFramework
-    runs-on: macos-13-xlarge
+    runs-on: macos-13
     needs: build-xcframework
     steps:
       - uses: actions/checkout@v4
