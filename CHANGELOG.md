@@ -6,6 +6,7 @@
 
 - Make SentryFramesTracker available for HybridSDKs ([#3683](https://github.com/getsentry/sentry-cocoa/pull/3683))
 - Make SentrySwizzle available for HybridSDKs ([#3684](https://github.com/getsentry/sentry-cocoa/pull/3684))
+- Add context to event with CrashHandler disabled (#3699)
 
 ## 8.21.0-beta.0
 
