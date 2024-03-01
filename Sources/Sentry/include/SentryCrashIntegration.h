@@ -11,8 +11,6 @@ static NSString *const SentryDeviceContextAppMemoryKey = @"app_memory";
 
 @interface SentryCrashIntegration : SentryBaseIntegration <SentryIntegrationProtocol>
 
-+ (void)enrichScope:(SentryScope *)scope crashWrapper:(SentryCrashWrapper *)crashWrapper;
-
 /**
  * Needed for testing.
  */

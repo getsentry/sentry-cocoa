@@ -126,6 +126,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 }
                 return scope
             }
+            options.enableCrashHandler = false
         }
     }
     //swiftlint:enable function_body_length
