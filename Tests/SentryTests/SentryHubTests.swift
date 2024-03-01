@@ -179,9 +179,7 @@ class SentryHubTests: XCTestCase {
     }
     
     func testScopeEnriched() {
-        let hub = fixture.getSut(fixture.options)
-        SentrySDK.setCurrentHub(hub)
-        
+        let hub = fixture.getSut(fixture.options, Scope())
         expect(hub.scope.contextDictionary.allValues.isEmpty) == false
     }
     
