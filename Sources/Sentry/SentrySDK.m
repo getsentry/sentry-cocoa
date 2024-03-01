@@ -90,7 +90,8 @@ static NSDate *_Nullable startTimestamp = nil;
     }
 }
 /** Internal, only needed for testing. */
-+ (void)setStartOptions:(nullable SentryOptions *)options {
++ (void)setStartOptions:(nullable SentryOptions *)options
+{
     @synchronized(self) {
         startOption = options;
     }
