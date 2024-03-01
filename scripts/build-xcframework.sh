@@ -33,10 +33,8 @@ generate_xcframework() {
     $createxcframework
 }
 
-# Create Sentry.xcframework
 generate_xcframework "Sentry" "-Dynamic"
 
 generate_xcframework "Sentry" "" staticlib
 
-# Create SentrySwiftUI.xcframework
 generate_xcframework "SentrySwiftUI"
