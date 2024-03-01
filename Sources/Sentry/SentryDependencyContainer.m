@@ -5,10 +5,13 @@
 #import "SentryDispatchQueueWrapper.h"
 #import "SentryDisplayLinkWrapper.h"
 #import "SentryExtraContextProvider.h"
+#import "SentryFileManager.h"
 #import "SentryLog.h"
 #import "SentryNSProcessInfoWrapper.h"
 #import "SentryNSTimerFactory.h"
+#import "SentryOptions+Private.h"
 #import "SentryRandom.h"
+#import "SentrySDK+Private.h"
 #import "SentrySysctl.h"
 #import "SentrySystemWrapper.h"
 #import "SentryThreadInspector.h"
@@ -25,9 +28,6 @@
 #import <SentrySysctl.h>
 #import <SentryThreadWrapper.h>
 #import <SentryTracer.h>
-#import "SentryFileManager.h"
-#import "SentryOptions+Private.h"
-#import "SentrySDK+Private.h"
 
 #if SENTRY_HAS_UIKIT
 #    import "SentryFramesTracker.h"
@@ -94,8 +94,9 @@ static NSObject *sentryDependencyContainerLock;
 {
     @synchronized(sentryDependencyContainerLock) {
         if (_fileManager == nil) {
-            NSError * error;
-            _fileManager = [[SentryFileManager alloc] initWithOptions:SentrySDK.options error:&error];
+            NSError *error;
+            _fileManager = [[SentryFileManager alloc] initWithOptions:SentrySDK.options
+                                                                error:&error];
             if (_fileManager == nil) {
                 SENTRY_LOG_DEBUG(@"Could not create file manager - %@", error);
             }
@@ -136,7 +137,8 @@ static NSObject *sentryDependencyContainerLock;
     if (_crashReporter == nil) {
         @synchronized(sentryDependencyContainerLock) {
             if (_crashReporter == nil) {
-                _crashReporter = [[SentryCrash alloc] initWithBasePath:SentrySDK.options.cacheDirectoryPath];
+                _crashReporter =
+                    [[SentryCrash alloc] initWithBasePath:SentrySDK.options.cacheDirectoryPath];
             }
         }
     }
@@ -160,7 +162,8 @@ static NSObject *sentryDependencyContainerLock;
     if (_threadInspector == nil) {
         @synchronized(sentryDependencyContainerLock) {
             if (_threadInspector == nil) {
-                _threadInspector = [[SentryThreadInspector alloc] initWithOptions:SentrySDK.options];
+                _threadInspector =
+                    [[SentryThreadInspector alloc] initWithOptions:SentrySDK.options];
             }
         }
     }
