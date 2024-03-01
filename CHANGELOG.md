@@ -4,7 +4,7 @@
 
 ### Improvements
 
-- Remove SentryPrivate from Carthage, self built, and CocoaPods (#3623)
+- Remove SentryPrivate library (#3623)
 
 ### Fixes
 
