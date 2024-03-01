@@ -11,6 +11,8 @@ SentrySDK ()
 
 + (void)setCurrentHub:(nullable SentryHub *)hub;
 
++ (void)setStartOptions:(nullable SentryOptions *)options;
+
 + (void)captureEnvelope:(SentryEnvelope *)envelope;
 
 + (void)storeEnvelope:(SentryEnvelope *)envelope;

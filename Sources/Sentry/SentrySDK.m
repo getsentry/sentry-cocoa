@@ -87,7 +87,12 @@ static NSDate *_Nullable startTimestamp = nil;
 {
     @synchronized(self) {
         currentHub = hub;
-        startOption = hub.client.options;
+    }
+}
+/** Internal, only needed for testing. */
++ (void)setStartOptions:(nullable SentryOptions *)options {
+    @synchronized(self) {
+        startOption = options;
     }
 }
 
