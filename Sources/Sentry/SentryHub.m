@@ -1,4 +1,5 @@
 #import "SentryClient+Private.h"
+#import "SentryCrashIntegration.h"
 #import "SentryCrashWrapper.h"
 #import "SentryCurrentDateProvider.h"
 #import "SentryDependencyContainer.h"
@@ -26,12 +27,11 @@
 #import "SentryTracer.h"
 #import "SentryTransaction.h"
 #import "SentryTransactionContext+Private.h"
-#import "SentryCrashIntegration.h"
 
 #if SENTRY_HAS_UIKIT
+#    import "SentryUIApplication.h"
 #    import "SentryUIViewControllerPerformanceTracker.h"
 #    import <UIKit/UIKit.h>
-#    import "SentryUIApplication.h"
 #endif // SENTRY_HAS_UIKIT
 
 NS_ASSUME_NONNULL_BEGIN
@@ -68,8 +68,9 @@ SentryHub ()
         _installedIntegrationNames = [[NSMutableSet alloc] init];
         _crashWrapper = [SentryCrashWrapper sharedInstance];
         _errorsBeforeSession = 0;
-        
-        [SentryHub enrichScope:scope crashWrapper:SentryDependencyContainer.sharedInstance.crashWrapper];
+
+        [SentryHub enrichScope:scope
+                  crashWrapper:SentryDependencyContainer.sharedInstance.crashWrapper];
     }
     return self;
 }
