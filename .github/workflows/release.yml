@@ -22,9 +22,9 @@ jobs:
       - name: 'Generate XCFramework'
         run: |
           ./scripts/ci-select-xcode.sh 15.2
-          #We need to build the framework during release to get it's SHA value
-          #the framework will be saved as an artefact and we will use the same
-          #binary for the entire release process to avoid the SHA to change
+          # We need to build the framework during release to get it's SHA value
+          # the framework will be saved as an artefact and we will use the same
+          # binary for the entire release process to avoid the SHA to change
           make build-xcframework 
             
       - uses: actions/upload-artifact@v4
@@ -52,8 +52,8 @@ jobs:
           name: xcframeworks.zip
           path: Carthage/
           
-      #update-package-sha.sh uses this env variable to update Package.swift.
-      #During release Craft calls bump.sh that uses update-package-sha.sh.
+      # update-package-sha.sh uses this env variable to update Package.swift.
+      # During release Craft calls bump.sh that uses update-package-sha.sh.
       - run: export GITHUB_RUN_ID=${{ github.run_id }}
       
       - name: Prepare release
