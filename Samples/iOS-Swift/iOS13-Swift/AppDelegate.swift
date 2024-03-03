@@ -14,10 +14,17 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         SentrySDK.start { options in
             options.dsn = dsn
             options.debug = true
-            options.tracesSampleRate = 1.0
-            if ProcessInfo.processInfo.arguments.contains("--io.sentry.profiling.enable") {
-                options.profilesSampleRate = 1
+            if #available(iOS 15.0, *) {
+                options.enableMetricKit = true
             }
+            // Sampling 100% - In Production you probably want to adjust this
+            options.tracesSampleRate = 1.0
+            options.sessionTrackingIntervalMillis = 5_000
+            options.profilesSampleRate = 1.0
+            options.attachScreenshot = true
+            options.attachViewHierarchy = true
+            options.environment = "test-app"
+            options.enableTimeToFullDisplayTracing = true
         }
     }
 
