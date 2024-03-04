@@ -1,0 +1,3 @@
+module SentryPrivate {
+    header "SentryInternal.h"
+}
