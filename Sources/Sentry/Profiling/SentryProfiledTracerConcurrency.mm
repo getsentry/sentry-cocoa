@@ -2,11 +2,10 @@
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
-#    import "SentrySwift.h"
 #    import "SentryInternalDefines.h"
-#    import "SentrySwift.h"
 #    import "SentryLog.h"
 #    import "SentryProfiler+Private.h"
+#    import "SentrySwift.h"
 #    include <mutex>
 
 #    if SENTRY_HAS_UIKIT

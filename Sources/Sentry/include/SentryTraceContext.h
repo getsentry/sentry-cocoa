@@ -7,7 +7,7 @@
 #if __has_include(<Sentry/SentrySwift.h>)
 #    import <Sentry/SentrySwift.h>
 #else
-#import "SentrySwift.h"
+#    import "SentrySwift.h"
 #endif
 
 NS_ASSUME_NONNULL_BEGIN
