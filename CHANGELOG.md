@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Improvements
+
+- Remove SentryPrivate library (#3623)
+
 ## 8.21.0
 
 ### Features

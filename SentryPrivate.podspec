@@ -8,6 +8,7 @@ Pod::Spec.new do |s|
   s.source       = { :git => "https://github.com/getsentry/sentry-cocoa.git",
                      :tag => s.version.to_s }
   s.social_media_url = 'https://getsentry.com/'
+  s.deprecated = true
 
   s.description      = <<-DESC
    Not for public use.

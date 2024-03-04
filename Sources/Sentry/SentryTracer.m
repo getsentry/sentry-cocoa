@@ -20,6 +20,7 @@
 #import "SentrySpanContext+Private.h"
 #import "SentrySpanContext.h"
 #import "SentrySpanId.h"
+#import "SentrySwift.h"
 #import "SentryThreadWrapper.h"
 #import "SentryTime.h"
 #import "SentryTraceContext.h"
@@ -32,7 +33,6 @@
 #import <SentryDispatchQueueWrapper.h>
 #import <SentryMeasurementValue.h>
 #import <SentrySpanOperations.h>
-@import SentryPrivate;
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 #    import "SentryLaunchProfiling.h"
