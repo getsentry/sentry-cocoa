@@ -1,13 +1,10 @@
 import Foundation
-import SentryPrivate
 
 @objc
 class SwiftDescriptor: NSObject {
     
     @objc
     static func getObjectClassName(_ object: AnyObject) -> String { 
-        let d = SentryBaseIntegration()
-        print(d)
         return String(describing: type(of: object))
     }
     
