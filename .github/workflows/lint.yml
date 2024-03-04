@@ -40,7 +40,7 @@ jobs:
 
   xcode-analyze:
     name: Xcode Analyze
-    runs-on: macos-13-xlarge
+    runs-on: macos-13
     steps:
       - uses: actions/checkout@v4
       - run: ./scripts/ci-select-xcode.sh

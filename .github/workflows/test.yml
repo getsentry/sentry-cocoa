@@ -107,14 +107,14 @@ jobs:
             device: "iPhone 8"
 
           # iOS 16
-          - runs-on: macos-13-xlarge
+          - runs-on: macos-13
             platform: "iOS"
             xcode: "14.3"
             test-destination-os: "16.4"
             device: "iPhone 14"
 
           # iOS 17
-          - runs-on: macos-14-xlarge
+          - runs-on: macos-14
             platform: "iOS"
             xcode: "15.2"
             test-destination-os: "17.2"
@@ -133,13 +133,13 @@ jobs:
             test-destination-os: "latest"
 
           # macOS 13
-          - runs-on: macos-13-xlarge
+          - runs-on: macos-13
             platform: "macOS"
             xcode: "14.3"
             test-destination-os: "latest"
 
           # macOS 14
-          - runs-on: macos-14-xlarge
+          - runs-on: macos-14
             platform: "macOS"
             xcode: "15.2"
             test-destination-os: "latest"
@@ -147,7 +147,7 @@ jobs:
           # Catalyst. We only test the latest version, as
           # the risk something breaking on Catalyst and not
           # on an older iOS or macOS version is low.
-          - runs-on: macos-14-xlarge
+          - runs-on: macos-14
             platform: "Catalyst"
             xcode: "15.2"
             test-destination-os: "latest"
@@ -159,13 +159,13 @@ jobs:
             test-destination-os: "latest"
 
           # tvOS 16
-          - runs-on: macos-13-xlarge
+          - runs-on: macos-13
             platform: "tvOS"
             xcode: "14.3"
             test-destination-os: "latest"
 
           # tvOS 17
-          - runs-on: macos-14-xlarge
+          - runs-on: macos-14
             platform: "tvOS"
             xcode: "15.2"
             test-destination-os: "latest"
