@@ -222,3 +222,7 @@ compiled with the project, which speeds up build time.
 Another challenge we face with this decision is where to host the pre-compiled framework. 
 We choose to use git release assets. To understang CI changes needed to publish the framework
 please refer to this [PR](https://github.com/getsentry/sentry-cocoa/pull/3623). 
+
+When coding with Swift be aware of two thing:
+1. If you want to use swift code in an Objc file: `@import "SentrySwift.h`
+2. If you want to use Objc code from Swift, first add the desired header file to SentryPrivate.h, then, in your Swift file, `import _SentryPrivate` (the underscore makes intelligence ignore it). All classes added to this module are public if the module is imported.
