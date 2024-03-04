@@ -6,6 +6,7 @@
 #import "SentryBreadcrumb.h"
 #import "SentryClient+Private.h"
 #import "SentryCrash.h"
+#import "SentryCrashMonitor_System.h"
 #import "SentryCrashWrapper.h"
 #import "SentryCurrentDateProvider.h"
 #import "SentryDependencyContainer.h"
@@ -23,7 +24,6 @@
 #import "SentryThreadWrapper.h"
 #import "SentryTransactionContext.h"
 #import "SentryUIDeviceWrapper.h"
-#import "SentryCrashMonitor_System.h"
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 #    import "SentryLaunchProfiling.h"
@@ -63,10 +63,10 @@ static NSDate *_Nullable startTimestamp = nil;
         sentrySDKappStartMeasurementLock = [[NSObject alloc] init];
         startInvocations = 0;
         _detectedStartUpCrash = NO;
-        
-        //The system monitor api is a data bag for system info
-        //that we need for every event, and because this is static info
-        //we need to start it as soon as possible.
+
+        // The system monitor api is a data bag for system info
+        // that we need for every event, and because this is static info
+        // we need to start it as soon as possible.
         sentrycrashcm_system_getAPI()->setEnabled(YES);
     }
 }

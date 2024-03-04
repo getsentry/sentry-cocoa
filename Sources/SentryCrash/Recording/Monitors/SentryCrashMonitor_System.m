@@ -503,13 +503,13 @@ initialize(void)
     if (isInitialized) {
         return;
     }
-    
+
     isInitialized = true;
-    
+
     NSBundle *mainBundle = [NSBundle mainBundle];
     NSDictionary *infoDict = [mainBundle infoDictionary];
     const struct mach_header *header = _dyld_get_image_header(0);
-    
+
 #if SentryCrashCRASH_HOST_IOS
     g_systemData.systemName = "iOS";
 #elif SentryCrashCRASH_HOST_TV
@@ -523,7 +523,7 @@ initialize(void)
 #else
     g_systemData.systemName = "unknown";
 #endif
-    
+
     NSOperatingSystemVersion version = { 0, 0, 0 };
     if (@available(macOS 10.10, *)) {
         version = [NSProcessInfo processInfo].operatingSystemVersion;
@@ -531,16 +531,16 @@ initialize(void)
     NSString *systemVersion;
     if (version.patchVersion == 0) {
         systemVersion = [NSString
-                         stringWithFormat:@"%d.%d", (int)version.majorVersion, (int)version.minorVersion];
+            stringWithFormat:@"%d.%d", (int)version.majorVersion, (int)version.minorVersion];
     } else {
         systemVersion = [NSString stringWithFormat:@"%d.%d.%d", (int)version.majorVersion,
-                         (int)version.minorVersion, (int)version.patchVersion];
+                                  (int)version.minorVersion, (int)version.patchVersion];
     }
     g_systemData.systemVersion = cString(systemVersion);
-    
+
     if (isSimulatorBuild()) {
         g_systemData.machine
-        = cString([NSProcessInfo processInfo].environment[@"SIMULATOR_MODEL_IDENTIFIER"]);
+            = cString([NSProcessInfo processInfo].environment[@"SIMULATOR_MODEL_IDENTIFIER"]);
         g_systemData.model = "simulator";
     } else {
         // TODO: combine this into SentryDevice?
@@ -552,7 +552,7 @@ initialize(void)
         g_systemData.model = stringSysctl("hw.model");
 #endif
     }
-    
+
     g_systemData.kernelVersion = stringSysctl("kern.version");
     g_systemData.osVersion = stringSysctl("kern.osversion");
     g_systemData.isJailbroken = isJailbroken();
