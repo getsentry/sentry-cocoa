@@ -53,7 +53,8 @@ public class SentryId: NSObject {
             }
         }
         
-        self.id = UUID(uuidString: "00000000-0000-0000-0000-000000000000")!
+        //The string conversion will not fail, but I'm using null coalescing to quiet swiftlint that don't let us use force unwrap.
+        self.id = UUID(uuidString: "00000000-0000-0000-0000-000000000000") ?? UUID()
     }
     
     override public func isEqual(_ object: Any?) -> Bool {
