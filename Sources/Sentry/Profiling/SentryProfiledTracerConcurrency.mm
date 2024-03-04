@@ -4,6 +4,7 @@
 
 #    import "SentrySwift.h"
 #    import "SentryInternalDefines.h"
+#    import "SentrySwift.h"
 #    import "SentryLog.h"
 #    import "SentryProfiler+Private.h"
 #    include <mutex>

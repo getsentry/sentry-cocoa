@@ -157,7 +157,7 @@ NS_ASSUME_NONNULL_BEGIN
                 SentryId *eventId = nil;
                 NSString *eventIdAsString = headerDictionary[@"event_id"];
                 if (nil != eventIdAsString) {
-                    eventId = [[SentryId alloc] initWithUUIDString:eventIdAsString];
+                    eventId = [[SentryId alloc] initWithUuidString:eventIdAsString];
                 }
 
                 SentrySdkInfo *sdkInfo = nil;

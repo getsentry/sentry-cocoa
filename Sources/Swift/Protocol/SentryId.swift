@@ -4,17 +4,17 @@ import Foundation
 
 @objcMembers
 public class SentryId : NSObject {
-    
+
     /**
      * A @c SentryId with an empty UUID "00000000000000000000000000000000".
      */
-    static var empty = SentryId(UUIDString: "00000000-0000-0000-0000-000000000000")
+    public static var empty = SentryId(uuidString: "00000000-0000-0000-0000-000000000000")
     
     /**
      * Returns a 32 lowercase character hexadecimal string description of the @c SentryId, such as
      * "12c2d058d58442709aa2eca08bf20986".
      */
-    var sentryIdString : String {
+    public var sentryIdString : String {
         return id.uuidString.replacingOccurrences(of: "-", with: "").lowercased()
     }
     
@@ -40,20 +40,33 @@ public class SentryId : NSObject {
      * "12c2d058-d584-4270-9aa2-eca08bf20986".
      * @return SentryId.empty for invalid strings.
      */
-    public init?(UUIDString : String) {
-        if let id = UUID(uuidString: UUIDString) {
+    public init(uuidString : String) {
+        if let id = UUID(uuidString: uuidString) {
             self.id = id
             return
         }
         
-        if UUIDString.count != 32 {
-            return nil
+        if uuidString.count == 32 {   
+            let dashedUUID = "\(uuidString[0..<8])-\(uuidString[8..<12])-\(uuidString[12..<16])-\(uuidString[16..<20])-\(uuidString[20...])"
+            if let id = UUID(uuidString: dashedUUID) {
+                self.id = id
+                return
+            }
         }
         
-        let dashedUUID = "\(UUIDString[0..<8])-\(UUIDString[8..<12])-\(UUIDString[12..<16])-\(UUIDString[16...])"
-        guard let id = UUID(uuidString: dashedUUID) else {
-            return nil
-        }
-        self.id = id
+        self.id = UUID(uuidString: "00000000-0000-0000-0000-000000000000")!
+    }
+    
+    override public func isEqual(_ object: Any?) -> Bool {
+        guard let other = object as? SentryId else { return false }
+        return other.id == self.id
+    }
+    
+    override public var description: String {
+        sentryIdString
+    }
+    
+    override public var hash: Int {
+        id.hashValue
     }
 }
