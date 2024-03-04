@@ -8,7 +8,7 @@
 #import "SentryEvent+Private.h"
 #import "SentryFileManager.h"
 #import "SentryHub+Private.h"
-#import "SentryId.h"
+#import "SentrySwift.h"
 #import "SentryInstallation.h"
 #import "SentryLevelMapper.h"
 #import "SentryLog.h"

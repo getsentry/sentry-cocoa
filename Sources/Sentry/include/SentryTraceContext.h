@@ -4,10 +4,10 @@
 #    import "SentrySerializable.h"
 #endif
 
-#if __has_include(<Sentry/SentryId.h>)
-#    import <Sentry/SentryId.h>
+#if __has_include(<Sentry/SentrySwift.h>)
+#    import <Sentry/SentrySwift.h>
 #else
-#    import "SentryId.h"
+#import "SentrySwift.h"
 #endif
 
 NS_ASSUME_NONNULL_BEGIN

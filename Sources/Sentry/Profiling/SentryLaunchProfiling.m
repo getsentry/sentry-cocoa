@@ -6,7 +6,7 @@
 #    import "SentryDependencyContainer.h"
 #    import "SentryDispatchQueueWrapper.h"
 #    import "SentryFileManager.h"
-#    import "SentryId.h"
+#    import "SentrySwift.h"
 #    import "SentryInternalDefines.h"
 #    import "SentryLog.h"
 #    import "SentryOptions.h"

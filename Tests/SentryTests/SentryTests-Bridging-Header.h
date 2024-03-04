@@ -119,7 +119,7 @@
 #import "SentryHttpTransport.h"
 #import "SentryHub+Private.h"
 #import "SentryHub+Test.h"
-#import "SentryId.h"
+#import "SentrySwift.h"
 #import "SentryInAppLogic.h"
 #import "SentryInitializeForGettingSubclassesNotCalled.h"
 #import "SentryInstallation+Test.h"

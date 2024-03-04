@@ -1,5 +1,5 @@
 #import "SentryTraceHeader.h"
-#import "SentryId.h"
+#import "SentrySwift.h"
 #import "SentrySpanId.h"
 
 NS_ASSUME_NONNULL_BEGIN

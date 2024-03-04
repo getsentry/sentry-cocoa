@@ -1,6 +1,6 @@
 #import "SentryEvent+Private.h"
 #import "SentryHub+Test.h"
-#import "SentryId.h"
+#import "SentrySwift.h"
 #import "SentryProfileTimeseries.h"
 #import "SentryProfiler+Private.h"
 #import "SentryProfiler+Test.h"

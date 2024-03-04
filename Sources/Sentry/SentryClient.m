@@ -22,7 +22,7 @@
 #import "SentryGlobalEventProcessor.h"
 #import "SentryHub+Private.h"
 #import "SentryHub.h"
-#import "SentryId.h"
+#import "SentrySwift.h"
 #import "SentryInAppLogic.h"
 #import "SentryInstallation.h"
 #import "SentryLog.h"

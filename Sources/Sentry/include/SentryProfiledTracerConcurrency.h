@@ -1,5 +1,5 @@
 #import "SentryCompiler.h"
-#import "SentryId.h"
+#import "SentrySwift.h"
 #import "SentryProfilingConditionals.h"
 #import <Foundation/Foundation.h>
 

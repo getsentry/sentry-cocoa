@@ -5,7 +5,7 @@
 #import "SentryCurrentDateProvider.h"
 #import "SentryDependencyContainer.h"
 #import "SentryFrame.h"
-#import "SentryId.h"
+#import "SentrySwift.h"
 #import "SentryInternalDefines.h"
 #import "SentryLog.h"
 #import "SentryMeasurementValue.h"

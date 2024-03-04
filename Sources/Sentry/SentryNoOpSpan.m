@@ -1,5 +1,5 @@
 #import "SentryNoOpSpan.h"
-#import "SentryId.h"
+#import "SentrySwift.h"
 #import "SentrySpanContext.h"
 #import "SentrySpanId.h"
 #import "SentryTraceHeader.h"
