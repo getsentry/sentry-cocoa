@@ -1,3 +1,4 @@
+import Nimble
 import SentryTestUtils
 import XCTest
 
@@ -65,6 +66,51 @@ class SentryCrashReportTests: XCTestCase {
         }
     }
     
+    func testShouldWriteReason_WhenWritingNSException() {
+        var monitorContext = SentryCrash_MonitorContext()
+        
+        let reason = "Something bad happened"
+        reason.withCString {
+            monitorContext.crashReason = $0
+            monitorContext.crashType = SentryCrashMonitorTypeNSException
+            
+            let api = sentrycrashcm_system_getAPI()
+            api?.pointee.addContextualInfoToEvent(&monitorContext)
+            sentrycrashreport_writeStandardReport(&monitorContext, fixture.reportPath)
+        }
+        
+        let crashReportContents = FileManager.default.contents(atPath: fixture.reportPath) ?? Data()
+        do {
+            let crashReport: CrashReport = try JSONDecoder().decode(CrashReport.self, from: crashReportContents)
+            
+            expect(crashReport.crash.error.type) == "nsexception"
+            expect(crashReport.crash.error.reason) == reason
+            expect(crashReport.crash.error.nsexception?.reason) == reason
+        } catch {
+            XCTFail("Couldn't decode crash report: \(error)")
+        }
+    }
+    
+    func testShouldNotWriteReason_WhenWritingNSException() {
+        var monitorContext = SentryCrash_MonitorContext()
+        monitorContext.crashType = SentryCrashMonitorTypeNSException
+        
+        let api = sentrycrashcm_system_getAPI()
+        api?.pointee.addContextualInfoToEvent(&monitorContext)
+        sentrycrashreport_writeStandardReport(&monitorContext, fixture.reportPath)
+        
+        let crashReportContents = FileManager.default.contents(atPath: fixture.reportPath) ?? Data()
+        do {
+            let crashReport: CrashReport = try JSONDecoder().decode(CrashReport.self, from: crashReportContents)
+            
+            expect(crashReport.crash.error.type) == "nsexception"
+            expect(crashReport.crash.error.reason) == nil
+            expect(crashReport.crash.error.nsexception?.reason) == nil
+        } catch {
+            XCTFail("Couldn't decode crash report: \(error)")
+        }
+    }
+    
     private func writeCrashReport() {
         var monitorContext = SentryCrash_MonitorContext()
         
@@ -104,6 +150,23 @@ class SentryCrashReportTests: XCTestCase {
     struct CrashReport: Decodable {
         let user: CrashReportUserInfo
         let sentry_sdk_scope: CrashReportUserInfo
+        let crash: Crash
+    }
+    
+    struct Crash: Decodable, Equatable {
+        let error: ErrorContext
+    }
+    
+    struct ErrorContext: Decodable, Equatable {
+        let type: String?
+        let reason: String?
+        let nsexception: NSException?
+    }
+    
+    struct NSException: Decodable, Equatable {
+        let name: String?
+        let userInfo: String?
+        let reason: String?
     }
 
     struct CrashReportUserInfo: Decodable, Equatable {
