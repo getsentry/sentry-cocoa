@@ -616,6 +616,7 @@ SentryHub ()
             } else {
                 _scope = [[SentryScope alloc] init];
             }
+            [SentryHub enrichScope:_scope crashWrapper:SentryDependencyContainer.sharedInstance.crashWrapper];
         }
         return _scope;
     }
