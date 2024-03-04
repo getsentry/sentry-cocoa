@@ -201,3 +201,24 @@ All that said, we should replace running UI tests in SauceLabs with running them
 versions with GH actions.
 
 It’s worth noting that we want to keep running benchmark tests on SauceLabs as they run stable.
+
+## Removing SentryPrivate <a name="removing-sentryprivate"></a>
+
+Date: March 4th 2024
+Contributors: @brustolin, @philipphofmann, @kahest
+
+With the necessity of using Swift, we introduce a secondary framework that was a Sentry dependency. 
+That means we could not write a public API in Swift or access the core classes from Swift code. 
+Another problem is that some users were experiencing issues when compiling the framework in CI.
+
+Swift is the present and has a long future ahead of it for Apple development. It's less verbose, 
+requires fewer files, and is more powerful when it comes to language features.
+
+Because of all of this, we decided that we want Swift for the core framework. The only obstacle 
+is that SPM doesn't support two languages for the same target. To solve this, we exposed 
+Sentry as a pre-built binary for SPM. This adds the benefit of Sentry not being 
+compiled with the project, which speeds up build time.
+
+Another challenge we face with this decision is where to host the pre-compiled framework. 
+We choose to use git release assets. To understang CI changes needed to publish the framework
+please refer to this [PR](https://github.com/getsentry/sentry-cocoa/pull/3623). 
