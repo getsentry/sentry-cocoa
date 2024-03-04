@@ -1,9 +1,7 @@
 import Foundation
 
-
-
 @objcMembers
-public class SentryId : NSObject {
+public class SentryId: NSObject {
 
     /**
      * A @c SentryId with an empty UUID "00000000000000000000000000000000".
@@ -14,11 +12,11 @@ public class SentryId : NSObject {
      * Returns a 32 lowercase character hexadecimal string description of the @c SentryId, such as
      * "12c2d058d58442709aa2eca08bf20986".
      */
-    public var sentryIdString : String {
+    public var sentryIdString: String {
         return id.uuidString.replacingOccurrences(of: "-", with: "").lowercased()
     }
     
-    private let id : UUID
+    private let id: UUID
     
     /**
      * Creates a @c SentryId with a random UUID.
