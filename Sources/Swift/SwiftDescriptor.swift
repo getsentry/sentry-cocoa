@@ -4,7 +4,7 @@ import Foundation
 class SwiftDescriptor: NSObject {
     
     @objc
-    static func getObjectClassName(_ object: AnyObject) -> String {
+    static func getObjectClassName(_ object: AnyObject) -> String { 
         return String(describing: type(of: object))
     }
     
@@ -12,5 +12,4 @@ class SwiftDescriptor: NSObject {
     static func getSwiftErrorDescription(_ error: Error) -> String? {
         return String(describing: error)
     }
-    
 }
