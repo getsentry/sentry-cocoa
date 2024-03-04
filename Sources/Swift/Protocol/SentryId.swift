@@ -40,6 +40,7 @@ public class SentryId : NSObject {
      * "12c2d058-d584-4270-9aa2-eca08bf20986".
      * @return SentryId.empty for invalid strings.
      */
+    @objc(initWithUUIDString:)
     public init(uuidString : String) {
         if let id = UUID(uuidString: uuidString) {
             self.id = id

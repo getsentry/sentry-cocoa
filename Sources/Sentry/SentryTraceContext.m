@@ -99,7 +99,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (nullable instancetype)initWithDict:(NSDictionary<NSString *, id> *)dictionary
 {
-    SentryId *traceId = [[SentryId alloc] initWithUuidString:dictionary[@"trace_id"]];
+    SentryId *traceId = [[SentryId alloc] initWithUUIDString:dictionary[@"trace_id"]];
     NSString *publicKey = dictionary[@"public_key"];
     if (traceId == nil || publicKey == nil)
         return nil;
