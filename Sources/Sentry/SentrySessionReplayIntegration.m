@@ -29,8 +29,7 @@ NS_ASSUME_NONNULL_BEGIN
             return NO;
         }
 
-        sessionReplay =
-            [[SentrySessionReplay alloc] initWithSettings:options.sessionReplayOptions];
+        sessionReplay = [[SentrySessionReplay alloc] initWithSettings:options.sessionReplayOptions];
 
         [sessionReplay
                   start:SentryDependencyContainer.sharedInstance.application.windows.firstObject
