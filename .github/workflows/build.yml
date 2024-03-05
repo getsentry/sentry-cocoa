@@ -97,7 +97,30 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: ./scripts/ci-select-xcode.sh 15.2
-      - run: make build-xcframework
+      - run: echo "FRAMEWORK_RUN_ID=$(./scripts/xcframework-generated-run.sh)" >> $GITHUB_ENV
+      
+      - uses: actions/download-artifact@v4
+        if: startsWith(github.ref, 'refs/heads/release/')
+        with:
+          name: xcframeworks.zip
+          path: Carthage/
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          run-id: ${{ env.FRAMEWORK_RUN_ID }}
+      
+      - name: Check XCFramework
+       #We dont compile the framework during releases to not change the artefact SHA value
+       #instead we use the one archive as an artefact
+        if: startsWith(github.ref, 'refs/heads/release/') 
+        run: |
+          ls -R Carthage
+          if [ ! -f Carthage/Sentry.xcframework.zip ]; then
+            echo "XCFramework is not available"
+            exit 1
+          fi
+      
+      - name: Build xcframework
+        if: startsWith(github.ref, 'refs/heads/release/') == false
+        run: make build-xcframework
         shell: sh
 
       - name: Archiving XCFramework.zip
@@ -106,7 +129,7 @@ jobs:
           name: ${{ github.sha }}
           if-no-files-found: error
           path: |
-            ${{ github.workspace }}/*.zip
+            ${{ github.workspace }}/Carthage/*.zip
 
       - name: Archive build log if failed
         uses: actions/upload-artifact@v4
@@ -118,7 +141,7 @@ jobs:
 
   validate-xcframework:
     name: Validate XCFramework
-    runs-on: macos-13-xlarge
+    runs-on: macos-13
     needs: build-xcframework
     steps:
       - uses: actions/checkout@v4
@@ -135,15 +158,17 @@ jobs:
   validate-spm:
     name: Validate Swift Package Manager
     runs-on: macos-13
+    needs: build-xcframework
     steps:
       - uses: actions/checkout@v4
-      - name: Set SPM revision to current git commit
-        run: >-
-          if [[ "${{ github.event.pull_request.head.sha }}" != "" ]]; then
-            sed -i '' 's/.branch("main")/.revision("${{ github.event.pull_request.head.sha }}")/g' Samples/macOS-SPM-CommandLine/Package.swift
-          else
-            sed -i '' 's/.branch("main")/.revision("${{ github.sha }}")/g' Samples/macOS-SPM-CommandLine/Package.swift
-          fi
+      - uses: actions/download-artifact@v4
+        with:
+          name: ${{ github.sha }}
+      - name: Change path of the framework
+        run: |
+          sed -i '' 's/url.*//g' Package.swift
+          sed -i '' 's/checksum: ".*" \/\/Sentry-Static/path: "Sentry.xcframework.zip"/g' Package.swift
+          sed -i '' 's/checksum: ".*" \/\/Sentry-Dynamic/path: "Sentry-Dynamic.xcframework.zip"/g' Package.swift
         shell: bash
       - run: swift build
         working-directory: Samples/macOS-SPM-CommandLine
@@ -152,15 +177,17 @@ jobs:
   validate-spm-dynamic:
     name: Validate Swift Package Manager Dynamic
     runs-on: macos-13
+    needs: build-xcframework
     steps:
       - uses: actions/checkout@v4
-      - name: Set SPM revision to current git commit
-        run: >-
-          if [[ "${{ github.event.pull_request.head.sha }}" != "" ]]; then
-            sed -i '' 's/.branch("main")/.revision("${{ github.event.pull_request.head.sha }}")/g' Samples/SPM-Dynamic/Package.swift
-          else
-            sed -i '' 's/.branch("main")/.revision("${{ github.sha }}")/g' Samples/SPM-Dynamic/Package.swift
-          fi
+      - uses: actions/download-artifact@v4
+        with:
+          name: ${{ github.sha }}
+      - name: Change path of the framework
+        run: |
+          sed -i '' 's/url.*//g' Package.swift
+          sed -i '' 's/checksum: ".*" \/\/Sentry-Static/path: "Sentry.xcframework.zip"/g' Package.swift
+          sed -i '' 's/checksum: ".*" \/\/Sentry-Dynamic/path: "Sentry-Dynamic.xcframework.zip"/g' Package.swift
         shell: bash
       - run: swift build
         working-directory: Samples/SPM-Dynamic
@@ -169,8 +196,18 @@ jobs:
   swift-build:
     name: Build with Swift
     runs-on: macos-13
+    needs: build-xcframework
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: ${{ github.sha }}
+      - name: Change path of the framework
+        run: |
+          sed -i '' 's/url.*//g' Package.swift
+          sed -i '' 's/checksum: ".*" \/\/Sentry-Static/path: "Sentry.xcframework.zip"/g' Package.swift
+          sed -i '' 's/checksum: ".*" \/\/Sentry-Dynamic/path: "Sentry-Dynamic.xcframework.zip"/g' Package.swift
+        shell: bash
       - run: swift build
         shell: sh
 

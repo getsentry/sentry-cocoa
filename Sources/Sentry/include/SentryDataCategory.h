@@ -14,8 +14,9 @@ typedef NS_ENUM(NSUInteger, SentryDataCategory) {
     kSentryDataCategoryAttachment = 5,
     kSentryDataCategoryUserFeedback = 6,
     kSentryDataCategoryProfile = 7,
-    kSentryDataCategoryReplay = 8,
-    kSentryDataCategoryUnknown = 9
+    kSentryDataCategoryStatsd = 8,
+    kSentryDataCategoryReplay = 9,
+    kSentryDataCategoryUnknown = 10
 };
 
 static DEPRECATED_MSG_ATTRIBUTE(
@@ -30,6 +31,7 @@ static DEPRECATED_MSG_ATTRIBUTE(
           @"attachment",
           @"user_report",
           @"profile",
+          @"statsd",
           @"replay",
           @"unkown",
       };

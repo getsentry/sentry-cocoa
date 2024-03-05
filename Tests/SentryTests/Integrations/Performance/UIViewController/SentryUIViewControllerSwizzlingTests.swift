@@ -1,6 +1,6 @@
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
 
-import Sentry
+@testable import Sentry
 import SentryTestUtils
 import SentryTestUtilsDynamic
 import XCTest
