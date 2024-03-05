@@ -1634,6 +1634,27 @@ class SentryClientTest: XCTestCase {
         expect(self.fixture.transport.sentEnvelopes.count) == 0
     }
     
+    func testCaptureReplayEvent_noBradcrumbsThreadsDebugMeta() {
+        let sut = fixture.getSut()
+        let replayEvent = SentryReplayEvent()
+        replayEvent.segmentId = 2
+        let replayRecording = SentryReplayRecording()
+        replayRecording.segmentId = 2
+        
+        //Not a video url, but its ok for test the envelope
+        let movieUrl = Bundle(for: self.classForCoder).url(forResource: "Resources/raw", withExtension: "json")
+        
+        let scope = Scope()
+        scope.addBreadcrumb(Breadcrumb(level: .debug, category: "Test Breadcrumb"))
+        
+        sut.capture(replayEvent, replayRecording: replayRecording, video: movieUrl!, with: Scope())
+        
+        expect(replayEvent.breadcrumbs) == nil
+        expect(replayEvent.threads) == nil
+        expect(replayEvent.debugMeta) == nil
+        
+    }
+    
     private func givenEventWithDebugMeta() -> Event {
         let event = Event(level: SentryLevel.fatal)
         let debugMeta = DebugMeta()
