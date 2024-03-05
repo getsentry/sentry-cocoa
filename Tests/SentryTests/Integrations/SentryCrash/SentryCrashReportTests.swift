@@ -66,7 +66,7 @@ class SentryCrashReportTests: XCTestCase {
         }
     }
     
-    func testShouldWriteReason_WhenWritingNSException() {
+    func testShouldWriteReason_WhenWritingNSException() throws {
         var monitorContext = SentryCrash_MonitorContext()
         
         let reason = "Something bad happened"
@@ -81,11 +81,11 @@ class SentryCrashReportTests: XCTestCase {
         
         let crashReportContents = FileManager.default.contents(atPath: fixture.reportPath) ?? Data()
 
-        let crashReport: CrashReport = try? JSONDecoder().decode(CrashReport.self, from: crashReportContents)
+        let crashReport: CrashReport = try XCTUnwrap( JSONDecoder().decode(CrashReport.self, from: crashReportContents))
             
-        expect(crashReport?.crash.error.type) == "nsexception"
-        expect(crashReport?.crash.error.reason) == reason
-        expect(crashReport?.crash.error.nsexception?.reason) == reason
+        expect(crashReport.crash.error.type) == "nsexception"
+        expect(crashReport.crash.error.reason) == reason
+        expect(crashReport.crash.error.nsexception?.reason) == reason
     }
     
     func testShouldNotWriteReason_WhenWritingNSException() {
