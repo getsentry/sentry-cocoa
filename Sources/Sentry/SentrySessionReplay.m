@@ -1,7 +1,7 @@
 #import "SentrySessionReplay.h"
 #import "SentryAttachment+Private.h"
 #import "SentryLog.h"
-#import "SentryOndemandReplay.h"
+#import "SentryOnDemandReplay.h"
 #import "SentryReplayOptions+Private.h"
 #import "SentryViewPhotographer.h"
 
