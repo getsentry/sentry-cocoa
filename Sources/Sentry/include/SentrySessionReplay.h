@@ -1,6 +1,6 @@
 #import "SentryClient+Private.h"
 #import "SentryEvent.h"
-#import "SentryReplaySettings.h"
+#import "SentryReplayOptions.h"
 #import <Foundation/Foundation.h>
 
 #if SENTRY_HAS_UIKIT
@@ -11,7 +11,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface SentrySessionReplay : NSObject <SentryClientAttachmentProcessor>
 
-- (instancetype)initWithSettings:(SentryReplaySettings *)replaySettings;
+- (instancetype)initWithSettings:(SentryReplayOptions *)replaySettings;
 
 /**
  * Start recording the session using rootView as image source.

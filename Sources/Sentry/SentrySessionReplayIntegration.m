@@ -4,7 +4,7 @@
 #import "SentryHub+Private.h"
 #import "SentryOptions.h"
 #import "SentryRandom.h"
-#import "SentryReplaySettings.h"
+#import "SentryReplayOptions.h"
 #import "SentrySDK+Private.h"
 #import "SentrySessionReplay.h"
 
@@ -24,17 +24,17 @@ NS_ASSUME_NONNULL_BEGIN
     }
 
     if (@available(iOS 16.0, tvOS 16.0, *)) {
-        if (options.sessionReplaySettings.replaysSessionSampleRate == 0
-            && options.sessionReplaySettings.replaysOnErrorSampleRate == 0) {
+        if (options.sessionReplayOptions.replaysSessionSampleRate == 0
+            && options.sessionReplayOptions.replaysOnErrorSampleRate == 0) {
             return NO;
         }
 
         sessionReplay =
-            [[SentrySessionReplay alloc] initWithSettings:options.sessionReplaySettings];
+            [[SentrySessionReplay alloc] initWithSettings:options.sessionReplayOptions];
 
         [sessionReplay
                   start:SentryDependencyContainer.sharedInstance.application.windows.firstObject
-            fullSession:[self shouldReplayFullSession:options.sessionReplaySettings
+            fullSession:[self shouldReplayFullSession:options.sessionReplayOptions
                                                           .replaysSessionSampleRate]];
 
         SentryClient *client = [SentrySDK.currentHub getClient];

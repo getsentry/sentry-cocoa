@@ -2,7 +2,7 @@
 #import "SentryAttachment+Private.h"
 #import "SentryLog.h"
 #import "SentryOndemandReplay.h"
-#import "SentryReplaySettings+Private.h"
+#import "SentryReplayOptions+Private.h"
 #import "SentryViewPhotographer.h"
 
 #if SENTRY_HAS_UIKIT
@@ -17,16 +17,16 @@ NS_ASSUME_NONNULL_BEGIN
     NSDate *_videoSegmentStart;
     NSURL *_urlToCache;
     NSDate *_sessionStart;
-    SentryReplaySettings *_settings;
+    SentryReplayOptions *_replayOptions;
     SentryOnDemandReplay *_replayMaker;
 
     NSMutableArray<UIImage *> *imageCollection;
 }
 
-- (instancetype)initWithSettings:(SentryReplaySettings *)replaySettings
+- (instancetype)initWithSettings:(SentryReplayOptions *)replayOptions
 {
     if (self = [super init]) {
-        _settings = replaySettings;
+        _replayOptions = replayOptions;
     }
     return self;
 }
@@ -67,7 +67,7 @@ NS_ASSUME_NONNULL_BEGIN
         }
 
         _replayMaker = [[SentryOnDemandReplay alloc] initWithOutputPath:_urlToCache.path];
-        _replayMaker.bitRate = _settings.replayBitRate;
+        _replayMaker.bitRate = _replayOptions.replayBitRate;
         _replayMaker.cacheMaxSize = full ? NSUIntegerMax : 32;
         imageCollection = [NSMutableArray array];
 
