@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+### Improvements
+
+- Remove SentryPrivate library (#3623)
+
+## 8.21.0
+
 ### Features
 
 - Add Session Replay (#3625)
@@ -21,10 +27,36 @@ for development. Read our [blog post](https://blog.sentry.io/sentry-for-developm
 
 - Finish TTID span when transaction finishes (#3610)
 - Don't take screenshot and view hierarchy for app hanging (#3620)
-- Dont take screenshot and view hierarchy for app hanging (#3620)
 - Remove `free_storage` and `storage_size` from the device context (#3627), because Apple forbids sending
 information retrieved via `NSFileSystemFreeSize` and `NSFileSystemSize` off a device; see
-[Apple docs](https://developer.apple.com/documentation/bundleresources/privacy_manifest_files/describing_use_of_required_reason_api?language=objc). 
+[Apple docs](https://developer.apple.com/documentation/bundleresources/privacy_manifest_files/describing_use_of_required_reason_api?language=objc).
+- Make SentryFramesTracker available for HybridSDKs ([#3683](https://github.com/getsentry/sentry-cocoa/pull/3683))
+- Make SentrySwizzle available for HybridSDKs ([#3684](https://github.com/getsentry/sentry-cocoa/pull/3684))
+- Move headers reference out of "extern C" (#3690)
+
+## 8.21.0-beta.0
+
+### Features
+
+- Add support for Sentry [Spotlight](https://spotlightjs.com/) (#3642), which is basically Sentry
+for development. Read our [blog post](https://blog.sentry.io/sentry-for-development/) to find out more.
+- Add field `SentrySDK.detectedStartUpCrash` (#3644)
+- Automatically profile app launches (#3529)
+- Use CocoaPods resource_bundles for PrivacyInfo (#3651)
+- Make tags of SentryScope public (#3650)
+
+### Improvements
+
+- Cache installationID async to avoid file IO on the main thread when starting the SDK (#3601)
+- Add reason for NSPrivacyAccessedAPICategoryFileTimestamp (#3626)
+
+### Fixes
+
+- Finish TTID span when transaction finishes (#3610)
+- Don't take screenshot and view hierarchy for app hanging (#3620)
+- Remove `free_storage` and `storage_size` from the device context (#3627), because Apple forbids sending
+information retrieved via `NSFileSystemFreeSize` and `NSFileSystemSize` off a device; see
+[Apple docs](https://developer.apple.com/documentation/bundleresources/privacy_manifest_files/describing_use_of_required_reason_api?language=objc).
 
 ## 8.20.0
 

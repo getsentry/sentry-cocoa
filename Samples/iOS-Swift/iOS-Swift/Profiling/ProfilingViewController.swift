@@ -116,43 +116,44 @@ class ProfilingViewController: UIViewController, UITextFieldDelegate {
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         textField.resignFirstResponder()
     }
-}
-
-// MARK: Private
-extension ProfilingViewController {
-    func withProfile(fileName: String, block: (URL?) -> Void) {
+    
+    private func withProfile(fileName: String, block: (URL?) -> Void) {
         let appSupportDirectory = NSSearchPathForDirectoriesInDomains(.applicationSupportDirectory, .userDomainMask, true).first!
-        guard let url = URL(string: appSupportDirectory) else {
-            block(nil)
+        
+        let fullPath = "\(appSupportDirectory)/io.sentry/\(fileName)"
+        
+        if FileManager.default.fileExists(atPath: fullPath) {
+            let url = NSURL.fileURL(withPath: fullPath)
+            block(url)
+            do {
+                try FileManager.default.removeItem(atPath: fullPath)
+            } catch {
+                SentrySDK.capture(error: error)
+            }
             return
         }
-        for file in FileManager.default.enumerator(at: url, includingPropertiesForKeys: [URLResourceKey.nameKey])! {
-            let url = file as! URL
-            if url.absoluteString.contains(fileName) {
-                block(url)
-                print("[iOS-Swift] [debug] [ProfilingViewController] removing file at \(url)")
-                try! FileManager.default.removeItem(at: url)
-                return
-            }
-        }
+        
         block(nil)
     }
     
-    func handleContents(file: URL?) {
+    private func handleContents(file: URL?) {
         guard let file = file else {
             profilingUITestDataMarshalingTextField.text = "<missing>"
             profilingUITestDataMarshalingStatus.text = "❌"
             return
         }
-        guard let data = try? Data(contentsOf: file) else {
+        
+        do {
+            let data = try Data(contentsOf: file)
+            let contents = data.base64EncodedString()
+            print("[iOS-Swift] [debug] [ProfilingViewController] contents of file at \(file): \(String(describing: String(data: data, encoding: .utf8)))")
+            profilingUITestDataMarshalingTextField.text = contents
+            profilingUITestDataMarshalingStatus.text = "✅"
+        } catch {
+            SentrySDK.capture(error: error)
             profilingUITestDataMarshalingTextField.text = "<empty>"
             profilingUITestDataMarshalingStatus.text = "❌"
-            return
         }
-        let contents = data.base64EncodedString()
-        print("[iOS-Swift] [debug] [ProfilingViewController] contents of file at \(file): \(String(describing: String(data: data, encoding: .utf8)))")
-        profilingUITestDataMarshalingTextField.text = contents
-        profilingUITestDataMarshalingStatus.text = "✅"
     }
     
     func _adjustWorkThreadsToCurrentRequirement() {
@@ -178,7 +179,7 @@ extension ProfilingViewController {
         }
     }
 
-    func _adjustWorkIntervalToCurrentRequirements() {
+    private func _adjustWorkIntervalToCurrentRequirements() {
         let minInterval = (minWorkIntensityTextField.text! as NSString).integerValue
         let maxInterval = (maxWorkIntensityTextField.text! as NSString).integerValue
         workIntervalMicros = UInt32(_projectedRange(factor: workIntervalSlider.value, min: minInterval, max: maxInterval))

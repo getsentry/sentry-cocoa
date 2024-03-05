@@ -1,3 +1,0 @@
-PRODUCT_NAME = SentryPrivate
-MACH_O_TYPE = staticlib
-CURRENT_PROJECT_VERSION = 8.20.0

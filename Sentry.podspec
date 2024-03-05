@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name         = "Sentry"
-  s.version      = "8.20.0"
+  s.version      = "8.21.0"
   s.summary      = "Sentry client for cocoa"
   s.homepage     = "https://github.com/getsentry/sentry-cocoa"
   s.license      = "mit"
@@ -21,17 +21,18 @@ Pod::Spec.new do |s|
       'GCC_ENABLE_CPP_EXCEPTIONS' => 'YES',
       'CLANG_CXX_LANGUAGE_STANDARD' => 'c++14',
       'CLANG_CXX_LIBRARY' => 'libc++',
+      'APPLICATION_EXTENSION_API_ONLY' => 'YES',
+      'SWIFT_INCLUDE_PATHS' => '${PODS_TARGET_SRCROOT}/Sources/Sentry/include'
   }
   s.watchos.pod_target_xcconfig = {
       'OTHER_LDFLAGS' => '$(inherited) -framework WatchKit'
   }
 
   s.default_subspecs = ['Core']
-  s.dependency "SentryPrivate", "8.20.0"
 
   s.subspec 'Core' do |sp|
       sp.source_files = "Sources/Sentry/**/*.{h,hpp,m,mm,c,cpp}",
-        "Sources/SentryCrash/**/*.{h,hpp,m,mm,c,cpp}", "Sources/Swift/Sentry.swift"
+        "Sources/SentryCrash/**/*.{h,hpp,m,mm,c,cpp}", "Sources/Swift/**/*.{swift,h,hpp,m,mm,c,cpp}", "Sources/Sentry/include/module.modulemap"
       sp.public_header_files =
         "Sources/Sentry/Public/*.h"
       sp.resource_bundles = { "Sentry" => "Sources/Resources/PrivacyInfo.xcprivacy" }
@@ -39,7 +40,7 @@ Pod::Spec.new do |s|
   
   s.subspec 'HybridSDK' do |sp|
       sp.source_files = "Sources/Sentry/**/*.{h,hpp,m,mm,c,cpp}",
-        "Sources/SentryCrash/**/*.{h,hpp,m,mm,c,cpp}", "Sources/Swift/Sentry.swift"
+        "Sources/SentryCrash/**/*.{h,hpp,m,mm,c,cpp}", "Sources/Swift/**/*.{swift,h,hpp,m,mm,c,cpp}"
         
       sp.public_header_files =
         "Sources/Sentry/Public/*.h", "Sources/Sentry/include/HybridPublic/*.h"
