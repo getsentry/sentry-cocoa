@@ -1,7 +1,7 @@
 #import "SentryViewPhotographer.h"
 
 #if SENTRY_HAS_UIKIT
-#import <CoreGraphics/CoreGraphics.h>
+#    import <CoreGraphics/CoreGraphics.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
