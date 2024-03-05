@@ -207,7 +207,7 @@ It’s worth noting that we want to keep running benchmark tests on SauceLabs as
 Date: March 4th 2024
 Contributors: @brustolin, @philipphofmann, @kahest
 
-With the necessity of using Swift, we introduce a secondary framework that was a Sentry dependency. 
+With the necessity of using Swift, we introduced a secondary framework that was a Sentry dependency. 
 That means we could not write a public API in Swift or access the core classes from Swift code. 
 Another problem is that some users were experiencing issues when compiling the framework in CI.
 
