@@ -26,9 +26,8 @@
                    filenname:(NSString *)filename
                  contentType:(NSString *)contentType
 {
-    if (self = [self initWithType:type length:length]) {
+    if (self = [self initWithType:type length:length contentType:contentType]) {
         _filename = filename;
-        _contentType = contentType;
     }
     return self;
 }
