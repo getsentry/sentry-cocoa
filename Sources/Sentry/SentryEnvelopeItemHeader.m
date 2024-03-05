@@ -13,6 +13,16 @@
 
 - (instancetype)initWithType:(NSString *)type
                       length:(NSUInteger)length
+                 contentType:(NSString *)contentType
+{
+    if (self = [self initWithType:type length:length]) {
+        _contentType = contentType;
+    }
+    return self;
+}
+
+- (instancetype)initWithType:(NSString *)type
+                      length:(NSUInteger)length
                    filenname:(NSString *)filename
                  contentType:(NSString *)contentType
 {
