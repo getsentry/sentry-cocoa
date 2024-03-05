@@ -25,6 +25,10 @@
 
 @end
 
+@implementation SentryVideoInfo
+
+@end
+
 @implementation SentryOnDemandReplay {
     NSString *_outputPath;
     NSDate *_startTime;
@@ -39,7 +43,6 @@
         _outputPath = outputPath;
         _startTime = [[NSDate alloc] init];
         _frames = [NSMutableArray array];
-        //_videoSize = CGSizeMake(300, 651);
         _videoSize = CGSizeMake(200, 434);
         _bitRate = 20000;
         _cacheMaxSize = NSUIntegerMax;
@@ -110,7 +113,7 @@
 - (void)createVideoOf:(NSTimeInterval)duration
                  from:(NSDate *)beginning
         outputFileURL:(NSURL *)outputFileURL
-           completion:(void (^)(BOOL success, NSError *error))completion
+           completion:(void (^)(SentryVideoInfo *, NSError *error))completion
 {
     // Set up AVAssetWriter with appropriate settings
     AVAssetWriter *videoWriter = [[AVAssetWriter alloc] initWithURL:outputFileURL
@@ -150,41 +153,47 @@
     for (SentryReplayFrame *frame in self->_frames) {
         if ([frame.time compare:beginning] == NSOrderedAscending) {
             continue;
-            ;
         } else if ([frame.time compare:end] == NSOrderedDescending) {
             break;
         }
         [frames addObject:frame.imagePath];
     }
-
+    
     [videoWriterInput
-        requestMediaDataWhenReadyOnQueue:_onDemandDispatchQueue
-                              usingBlock:^{
-                                  UIImage *image =
-                                      [UIImage imageWithContentsOfFile:frames[frameCount]];
-                                  if (image) {
-                                      CMTime presentTime = CMTimeMake(frameCount++, 1);
-
-                                      if (![self appendPixelBufferForImage:image
-                                                        pixelBufferAdaptor:pixelBufferAdaptor
-                                                          presentationTime:presentTime]) {
-                                          if (completion) {
-                                              completion(NO, videoWriter.error);
-                                          }
-                                      }
-                                  }
-
-                                  if (frameCount >= frames.count) {
-                                      [videoWriterInput markAsFinished];
-                                      [videoWriter finishWritingWithCompletionHandler:^{
-                                          if (completion) {
-                                              completion(videoWriter.status
-                                                      == AVAssetWriterStatusCompleted,
-                                                  videoWriter.error);
-                                          }
-                                      }];
-                                  }
-                              }];
+     requestMediaDataWhenReadyOnQueue:_onDemandDispatchQueue
+     usingBlock:^{
+        UIImage *image =
+        [UIImage imageWithContentsOfFile:frames[frameCount]];
+        if (image) {
+            CMTime presentTime = CMTimeMake(frameCount++, 1);
+            
+            if (![self appendPixelBufferForImage:image
+                              pixelBufferAdaptor:pixelBufferAdaptor
+                                presentationTime:presentTime]) {
+                if (completion) {
+                    completion(nil, videoWriter.error);
+                }
+            }
+        }
+        
+        if (frameCount >= frames.count) {
+            [videoWriterInput markAsFinished];
+            [videoWriter finishWritingWithCompletionHandler:^{
+                if (completion) {
+                    SentryVideoInfo * videoInfo = nil;
+                    if (videoWriter.status == AVAssetWriterStatusCompleted) {
+                        videoInfo = [[SentryVideoInfo alloc] init];
+                        videoInfo.height = (int)self->_videoSize.height;
+                        videoInfo.width = (int)self->_videoSize.width;
+                        videoInfo.frameCount = (int)frames.count;
+                        videoInfo.frameRate = 1;
+                        videoInfo.duration = frames.count;
+                    }
+                    completion(videoInfo, videoWriter.error);
+                }
+            }];
+        }
+    }];
 }
 
 - (BOOL)appendPixelBufferForImage:(UIImage *)image

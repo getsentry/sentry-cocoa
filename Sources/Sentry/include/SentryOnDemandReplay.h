@@ -6,6 +6,17 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+@interface SentryVideoInfo : NSObject
+
+@property (nonatomic) int height;
+@property (nonatomic) int width;
+@property (nonatomic) NSTimeInterval duration;
+@property (nonatomic) int frameCount;
+@property (nonatomic) int frameRate;
+
+@end
+
+
 @interface SentryOnDemandReplay : NSObject
 
 @property (nonatomic) NSInteger bitRate;
@@ -19,7 +30,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)createVideoOf:(NSTimeInterval)duration
                  from:(NSDate *)beginning
         outputFileURL:(NSURL *)outputFileURL
-           completion:(void (^)(BOOL success, NSError *error))completion;
+           completion:(void (^)(SentryVideoInfo *, NSError *error))completion;
 
 /**
  * Remove cached frames until given date.

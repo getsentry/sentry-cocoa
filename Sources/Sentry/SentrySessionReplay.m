@@ -4,6 +4,11 @@
 #import "SentryOnDemandReplay.h"
 #import "SentryReplayOptions+Private.h"
 #import "SentryViewPhotographer.h"
+#import "SentrySDK+Private.h"
+#import "SentryHub+Private.h"
+#import "SentryReplayEvent.h"
+#import "SentryId.h"
+#import "SentryReplayRecording.h"
 
 #if SENTRY_HAS_UIKIT
 
@@ -19,7 +24,7 @@ NS_ASSUME_NONNULL_BEGIN
     NSDate *_sessionStart;
     SentryReplayOptions *_replayOptions;
     SentryOnDemandReplay *_replayMaker;
-
+    SentryId * sessionReplayId;
     NSMutableArray<UIImage *> *imageCollection;
 }
 
@@ -72,6 +77,10 @@ NS_ASSUME_NONNULL_BEGIN
         imageCollection = [NSMutableArray array];
 
         NSLog(@"Recording session to %@", _urlToCache);
+        
+        if (full) {
+            sessionReplayId = [[SentryId alloc] init];
+        }
     }
 }
 
@@ -81,6 +90,7 @@ NS_ASSUME_NONNULL_BEGIN
     _displayLink = nil;
 }
 
+// TODO: dont use processAttachments to capture replay
 - (nullable NSArray<SentryAttachment *> *)processAttachments:
                                               (nullable NSArray<SentryAttachment *> *)attachments
                                                     forEvent:(nonnull SentryEvent *)event
@@ -89,29 +99,26 @@ NS_ASSUME_NONNULL_BEGIN
         return attachments;
     }
 
-    NSLog(@"Recording session event id %@", event.eventId);
-    NSMutableArray<SentryAttachment *> *result = [NSMutableArray arrayWithArray:attachments];
-
     NSURL *finalPath = [_urlToCache URLByAppendingPathComponent:@"replay.mp4"];
-
-    dispatch_group_t _wait_for_render = dispatch_group_create();
-
-    dispatch_group_enter(_wait_for_render);
+    NSDate * replayStart = [NSDate dateWithTimeIntervalSinceNow:-30];
+    
     [_replayMaker createVideoOf:30
-                           from:[NSDate dateWithTimeIntervalSinceNow:-30]
+                           from:replayStart
                   outputFileURL:finalPath
-                     completion:^(BOOL success, NSError *_Nonnull error) {
-                         dispatch_group_leave(_wait_for_render);
-                     }];
-    dispatch_group_wait(_wait_for_render, DISPATCH_TIME_FOREVER);
-
-    SentryAttachment *attachment = [[SentryAttachment alloc] initWithPath:finalPath.path
-                                                                 filename:@"replay.mp4"
-                                                              contentType:@"video/mp4"];
-
-    [result addObject:attachment];
-
-    return result;
+                     completion:^(SentryVideoInfo * videoInfo, NSError *_Nonnull error) {
+        SentryReplayEvent * replayEvent = [[SentryReplayEvent alloc] init];
+        replayEvent.replayType = kSentryReplayTypeBuffer;
+        replayEvent.replayId = [[SentryId alloc] init];
+        replayEvent.replayStartTimestamp = replayStart;
+        replayEvent.segmentId = 1;
+        
+        
+        SentryReplayRecording * recording = [[SentryReplayRecording alloc] initWithSegmentId:1 size:1 start:replayStart duration:videoInfo.duration frameCount:videoInfo.frameCount frameRate:videoInfo.frameRate height:videoInfo.height width:videoInfo.width];
+        
+        [SentrySDK.currentHub captureReplayEvent:replayEvent replayRecording:recording video:finalPath];
+    }];
+    
+    return attachments;
 }
 
 - (void)sendReplayForEvent:(SentryEvent *)event
@@ -155,20 +162,21 @@ NS_ASSUME_NONNULL_BEGIN
     pathToSegment = [pathToSegment
         URLByAppendingPathComponent:[NSString stringWithFormat:@"%f-%f.mp4", from, to]];
 
-    dispatch_group_t _wait_for_render = dispatch_group_create();
-
-    dispatch_group_enter(_wait_for_render);
     [_replayMaker createVideoOf:5
                            from:[date dateByAddingTimeInterval:-5]
                   outputFileURL:pathToSegment
-                     completion:^(BOOL success, NSError *_Nonnull error) {
-                         dispatch_group_leave(_wait_for_render);
+                     completion:^(SentryVideoInfo * videoInfo, NSError *_Nonnull error) {
+        
+        
+        [self->_replayMaker releaseFramesUntil:date];
+        self->_videoSegmentStart = nil;
+    }];
+    
+    
+}
 
-                         // Need to send the segment here
-
-                         [self->_replayMaker releaseFramesUntil:date];
-                         self->_videoSegmentStart = nil;
-                     }];
+- (void) captureSegment:(NSURL *)filePath {
+    
 }
 
 - (void)takeScreenshot
