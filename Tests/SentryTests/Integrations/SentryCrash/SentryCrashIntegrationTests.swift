@@ -57,6 +57,8 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         fixture.client.fileManager.deleteCurrentSession()
         fixture.client.fileManager.deleteCrashedSession()
         fixture.client.fileManager.deleteAppState()
+        
+        SentrySDK.setStart(fixture.options)
     }
     
     override func tearDown() {

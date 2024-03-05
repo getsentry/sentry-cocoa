@@ -19,6 +19,7 @@
 @class SentrySystemWrapper;
 @class SentryThreadWrapper;
 @class SentryThreadInspector;
+@class SentryOptions;
 @protocol SentryRandom;
 
 #if SENTRY_HAS_METRIC_KIT

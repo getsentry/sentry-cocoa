@@ -479,7 +479,7 @@ class SentrySDKTests: XCTestCase {
     }
     
     func testGlobalOptions() {
-        SentrySDK.setCurrentHub(fixture.hub)
+        SentrySDK.start(options: fixture.options)
         XCTAssertEqual(SentrySDK.options, fixture.options)
     }
 
@@ -782,10 +782,12 @@ class SentrySDKTests: XCTestCase {
 
     private func givenSdkWithHub() {
         SentrySDK.setCurrentHub(fixture.hub)
+        SentrySDK.setStart(fixture.options)
     }
     
     private func givenSdkWithHubButNoClient() {
         SentrySDK.setCurrentHub(SentryHub(client: nil, andScope: nil))
+        SentrySDK.setStart(fixture.options)
     }
     
     private func assertIntegrationsInstalled(integrations: [String]) {
