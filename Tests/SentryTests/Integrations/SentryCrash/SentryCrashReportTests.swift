@@ -80,15 +80,12 @@ class SentryCrashReportTests: XCTestCase {
         }
         
         let crashReportContents = FileManager.default.contents(atPath: fixture.reportPath) ?? Data()
-        do {
-            let crashReport: CrashReport = try JSONDecoder().decode(CrashReport.self, from: crashReportContents)
+
+        let crashReport: CrashReport = try? JSONDecoder().decode(CrashReport.self, from: crashReportContents)
             
-            expect(crashReport.crash.error.type) == "nsexception"
-            expect(crashReport.crash.error.reason) == reason
-            expect(crashReport.crash.error.nsexception?.reason) == reason
-        } catch {
-            XCTFail("Couldn't decode crash report: \(error)")
-        }
+        expect(crashReport?.crash.error.type) == "nsexception"
+        expect(crashReport?.crash.error.reason) == reason
+        expect(crashReport?.crash.error.nsexception?.reason) == reason
     }
     
     func testShouldNotWriteReason_WhenWritingNSException() {
