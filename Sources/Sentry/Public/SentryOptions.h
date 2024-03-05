@@ -4,7 +4,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @class SentryDsn, SentryMeasurementValue, SentryHttpStatusCodeRange, SentryScope,
-    SentryReplaySettings;
+    SentryReplayOptions;
 
 NS_SWIFT_NAME(Options)
 @interface SentryOptions : NSObject
@@ -277,7 +277,7 @@ NS_SWIFT_NAME(Options)
  * @node Default value is @c nil .
  */
 @property (nonatomic, strong)
-    SentryReplaySettings *sessionReplaySettings API_AVAILABLE(ios(16.0), tvos(16.0));
+    SentryReplayOptions *sessionReplayOptions API_AVAILABLE(ios(16.0), tvos(16.0));
 
 #endif // SENTRY_UIKIT_AVAILABLE
 

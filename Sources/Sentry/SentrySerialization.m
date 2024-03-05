@@ -8,6 +8,7 @@
 #import "SentryId.h"
 #import "SentryLevelMapper.h"
 #import "SentryLog.h"
+#import "SentryReplayRecording.h"
 #import "SentrySdkInfo.h"
 #import "SentrySession.h"
 #import "SentryTraceContext.h"
@@ -320,6 +321,16 @@ NS_ASSUME_NONNULL_BEGIN
     }
 
     return session;
+}
+
++ (NSData *)dataWithReplayRecording:(SentryReplayRecording *)replayRecording
+{
+    NSMutableData *recording = [NSMutableData data];
+    [recording appendData:[SentrySerialization
+                              dataWithJSONObject:[replayRecording headerForReplayRecording]]];
+    [recording appendData:[@"\n" dataUsingEncoding:NSUTF8StringEncoding]];
+    [recording appendData:[SentrySerialization dataWithJSONObject:[replayRecording serialize]]];
+    return recording;
 }
 
 + (SentryAppState *_Nullable)appStateWithData:(NSData *)data
