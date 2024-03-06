@@ -4777,7 +4777,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = io.sentry.Sentry;
 				PRODUCT_NAME = Sentry;
 				PROVISIONING_PROFILE_SPECIFIER = "";
-				SWIFT_INCLUDE_PATHS = "$(SRCROOT)/Sources/Sentry/include/";
+				SWIFT_INCLUDE_PATHS = "$(SRCROOT)/Sources/Sentry/include/**";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				USE_HEADERMAP = YES;
@@ -4818,7 +4818,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = io.sentry.Sentry;
 				PRODUCT_NAME = Sentry;
 				PROVISIONING_PROFILE_SPECIFIER = "";
-				SWIFT_INCLUDE_PATHS = "$(SRCROOT)/Sources/Sentry/include/";
+				SWIFT_INCLUDE_PATHS = "$(SRCROOT)/Sources/Sentry/include/**";
 				SWIFT_VERSION = 5.0;
 				USE_HEADERMAP = YES;
 			};
@@ -4993,7 +4993,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = io.sentry.Sentry;
 				PRODUCT_NAME = Sentry;
 				PROVISIONING_PROFILE_SPECIFIER = "";
-				SWIFT_INCLUDE_PATHS = "$(SRCROOT)/Sources/Sentry/include/";
+				SWIFT_INCLUDE_PATHS = "$(SRCROOT)/Sources/Sentry/include/**";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				USE_HEADERMAP = YES;
@@ -5132,7 +5132,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = io.sentry.Sentry;
 				PRODUCT_NAME = Sentry;
 				PROVISIONING_PROFILE_SPECIFIER = "";
-				SWIFT_INCLUDE_PATHS = "$(SRCROOT)/Sources/Sentry/include/";
+				SWIFT_INCLUDE_PATHS = "$(SRCROOT)/Sources/Sentry/include/**";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				USE_HEADERMAP = YES;
@@ -5619,7 +5619,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = io.sentry.Sentry;
 				PRODUCT_NAME = Sentry;
 				PROVISIONING_PROFILE_SPECIFIER = "";
-				SWIFT_INCLUDE_PATHS = "$(SRCROOT)/Sources/Sentry/include/";
+				SWIFT_INCLUDE_PATHS = "$(SRCROOT)/Sources/Sentry/include/**";
 				SWIFT_VERSION = 5.0;
 				USE_HEADERMAP = YES;
 			};
@@ -5857,7 +5857,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = io.sentry.Sentry;
 				PRODUCT_NAME = Sentry;
 				PROVISIONING_PROFILE_SPECIFIER = "";
-				SWIFT_INCLUDE_PATHS = "$(SRCROOT)/Sources/Sentry/include/";
+				SWIFT_INCLUDE_PATHS = "$(SRCROOT)/Sources/Sentry/include/**";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				USE_HEADERMAP = YES;
