@@ -1,7 +1,7 @@
 #import "SentryClient+Private.h"
 #import "SentryEvent.h"
-#import "SentryReplayOptions.h"
 #import <Foundation/Foundation.h>
+#import "SentrySwift.h"
 
 #if SENTRY_HAS_UIKIT
 

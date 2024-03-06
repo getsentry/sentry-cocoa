@@ -16,18 +16,17 @@
 #import "SentrySDK.h"
 #import "SentryScope.h"
 #import "SentrySwiftAsyncIntegration.h"
-
 #import <objc/runtime.h>
 
 #if SENTRY_HAS_UIKIT
 #    import "SentryAppStartTrackingIntegration.h"
 #    import "SentryFramesTrackingIntegration.h"
 #    import "SentryPerformanceTrackingIntegration.h"
-#    import "SentryReplayOptions+Private.h"
 #    import "SentryScreenshotIntegration.h"
 #    import "SentryUIEventTrackingIntegration.h"
 #    import "SentryViewHierarchyIntegration.h"
 #    import "SentryWatchdogTerminationTrackingIntegration.h"
+#    import "SentrySessionReplayIntegration.h"
 #endif // SENTRY_HAS_UIKIT
 
 #if SENTRY_HAS_METRIC_KIT
@@ -58,6 +57,7 @@ NSString *const kSentryDefaultEnvironment = @"production";
             NSStringFromClass([SentryUIEventTrackingIntegration class]),
             NSStringFromClass([SentryViewHierarchyIntegration class]),
             NSStringFromClass([SentryWatchdogTerminationTrackingIntegration class]),
+            NSStringFromClass([SentrySessionReplayIntegration class]),
 #endif // SENTRY_HAS_UIKIT
             NSStringFromClass([SentryANRTrackingIntegration class]),
             NSStringFromClass([SentryAutoBreadcrumbTrackingIntegration class]),

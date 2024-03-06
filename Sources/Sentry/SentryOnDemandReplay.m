@@ -25,10 +25,6 @@
 
 @end
 
-@implementation SentryVideoInfo
-
-@end
-
 @implementation SentryOnDemandReplay {
     NSString *_outputPath;
     NSDate *_startTime;
@@ -182,12 +178,7 @@
                 if (completion) {
                     SentryVideoInfo * videoInfo = nil;
                     if (videoWriter.status == AVAssetWriterStatusCompleted) {
-                        videoInfo = [[SentryVideoInfo alloc] init];
-                        videoInfo.height = (int)self->_videoSize.height;
-                        videoInfo.width = (int)self->_videoSize.width;
-                        videoInfo.frameCount = (int)frames.count;
-                        videoInfo.frameRate = 1;
-                        videoInfo.duration = frames.count;
+                        videoInfo = [[SentryVideoInfo alloc] initWithHeight:(NSInteger)self->_videoSize.height width:(NSInteger)self->_videoSize.width duration:frames.count frameCount:frames.count frameRate:1];
                     }
                     completion(videoInfo, videoWriter.error);
                 }

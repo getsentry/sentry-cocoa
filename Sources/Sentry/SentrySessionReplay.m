@@ -2,7 +2,7 @@
 #import "SentryAttachment+Private.h"
 #import "SentryLog.h"
 #import "SentryOnDemandReplay.h"
-#import "SentryReplayOptions+Private.h"
+#import "SentrySwift.h"
 #import "SentryViewPhotographer.h"
 #import "SentrySDK+Private.h"
 #import "SentryHub+Private.h"
@@ -106,18 +106,8 @@ NS_ASSUME_NONNULL_BEGIN
                            from:replayStart
                   outputFileURL:finalPath
                      completion:^(SentryVideoInfo * videoInfo, NSError *_Nonnull error) {
-        SentryReplayEvent * replayEvent = [[SentryReplayEvent alloc] init];
-        replayEvent.replayType = kSentryReplayTypeBuffer;
-        replayEvent.replayId = [[SentryId alloc] init];
-        replayEvent.replayStartTimestamp = replayStart;
-        replayEvent.segmentId = 1;
-        
-        
-        SentryReplayRecording * recording = [[SentryReplayRecording alloc] initWithSegmentId:1 size:1 start:replayStart duration:videoInfo.duration frameCount:videoInfo.frameCount frameRate:videoInfo.frameRate height:videoInfo.height width:videoInfo.width];
-        
-        [SentrySDK.currentHub captureReplayEvent:replayEvent replayRecording:recording video:finalPath];
+        [self captureSegment:videoInfo videoUrl:finalPath startedAt:replayStart replayId:[[SentryId alloc] init]];
     }];
-    
     return attachments;
 }
 
@@ -162,21 +152,32 @@ NS_ASSUME_NONNULL_BEGIN
     pathToSegment = [pathToSegment
         URLByAppendingPathComponent:[NSString stringWithFormat:@"%f-%f.mp4", from, to]];
 
+    NSDate * segmentStart = [date dateByAddingTimeInterval:-5];
+    
     [_replayMaker createVideoOf:5
-                           from:[date dateByAddingTimeInterval:-5]
+                           from:segmentStart
                   outputFileURL:pathToSegment
                      completion:^(SentryVideoInfo * videoInfo, NSError *_Nonnull error) {
         
+        //[self captureSegment:videoInfo videoUrl:pathToSegment startedAt:segmentStart replayId:self->sessionReplayId];
         
         [self->_replayMaker releaseFramesUntil:date];
         self->_videoSegmentStart = nil;
     }];
-    
-    
 }
 
-- (void) captureSegment:(NSURL *)filePath {
+- (void) captureSegment:(SentryVideoInfo *)videoInfo  videoUrl:(NSURL *)filePath startedAt:(NSDate*)replayStart replayId:(SentryId *)replayid {
+    SentryReplayEvent * replayEvent = [[SentryReplayEvent alloc] init];
+    replayEvent.replayType = kSentryReplayTypeBuffer;
+    replayEvent.replayId = replayid;
+    replayEvent.replayStartTimestamp = replayStart;
+    replayEvent.segmentId = 0;
+        
+    SentryReplayRecording * recording = [[SentryReplayRecording alloc] initWithSegmentId:replayEvent.segmentId size:1 start:replayStart duration:videoInfo.duration frameCount:videoInfo.frameCount frameRate:videoInfo.frameRate height:videoInfo.height width:videoInfo.width];
     
+    [SentrySDK.currentHub captureReplayEvent:replayEvent replayRecording:recording video:filePath];
+    
+    SENTRY_LOG_DEBUG(@"Session replay: ReplayId: %@, EventId: %@", replayEvent.replayId, replayEvent.eventId);
 }
 
 - (void)takeScreenshot

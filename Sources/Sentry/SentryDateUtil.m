@@ -38,9 +38,9 @@ SentryDateUtil ()
     }
 }
 
-+ (long)millisecondsSince1970:(NSDate *)date
++ (double)secondsSince1970:(NSDate *)date
 {
-    return (NSInteger)([date timeIntervalSince1970] * 1000);
+    return [date timeIntervalSince1970];
 }
 
 @end

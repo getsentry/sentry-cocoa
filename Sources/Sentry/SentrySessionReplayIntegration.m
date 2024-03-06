@@ -4,7 +4,7 @@
 #import "SentryHub+Private.h"
 #import "SentryOptions.h"
 #import "SentryRandom.h"
-#import "SentryReplayOptions.h"
+#import "SentrySwift.h"
 #import "SentrySDK+Private.h"
 #import "SentrySessionReplay.h"
 
