@@ -6,6 +6,11 @@
 
 - Remove SentryPrivate library (#3623)
 
+### Fixes
+
+-  Write NSException reason for crash report (#3705)
+
+
 ## 8.21.0
 
 ### Features
