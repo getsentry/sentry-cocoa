@@ -8,8 +8,8 @@
 
 ### Fixes
 
--  Write NSException reason for crash report (#3705)
-
+- Write NSException reason for crash report (#3705)
+- Add context to event with CrashIntegration disabled (#3699)
 
 ## 8.21.0
 

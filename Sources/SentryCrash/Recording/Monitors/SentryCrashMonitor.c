@@ -77,10 +77,6 @@ static Monitor g_monitors[] = {
         .getAPI = sentrycrashcm_cppexception_getAPI,
     },
     {
-        .monitorType = SentryCrashMonitorTypeSystem,
-        .getAPI = sentrycrashcm_system_getAPI,
-    },
-    {
         .monitorType = SentryCrashMonitorTypeApplicationState,
         .getAPI = sentrycrashcm_appstate_getAPI,
     },

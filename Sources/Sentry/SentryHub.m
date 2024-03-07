@@ -62,6 +62,8 @@ SentryHub ()
         _installedIntegrationNames = [[NSMutableSet alloc] init];
         _crashWrapper = [SentryCrashWrapper sharedInstance];
         _errorsBeforeSession = 0;
+
+        [SentryDependencyContainer.sharedInstance.crashWrapper enrichScope:scope];
     }
     return self;
 }
@@ -499,6 +501,8 @@ SentryHub ()
             } else {
                 _scope = [[SentryScope alloc] init];
             }
+
+            [SentryDependencyContainer.sharedInstance.crashWrapper enrichScope:_scope];
         }
         return _scope;
     }
