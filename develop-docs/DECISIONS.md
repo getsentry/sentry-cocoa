@@ -225,4 +225,4 @@ please refer to this [PR](https://github.com/getsentry/sentry-cocoa/pull/3623).
 
 When coding with Swift be aware of two things:
 1. If you want to use swift code in an Objc file: `@import "SentrySwift.h`
-2. If you want to use Objc code from Swift, first add the desired header file to `SentryInternal.h`, then, in your Swift file, `import _SentryPrivate` (the underscore makes auto-complete ignore it since we dont want users importing this module).
+2. If you want to use Objc code from Swift, first add the desired header file to `SentryInternal.h`, then, in your Swift file, `@_implementationOnly import _SentryPrivate` (the underscore makes auto-complete ignore it since we dont want users importing this module).
