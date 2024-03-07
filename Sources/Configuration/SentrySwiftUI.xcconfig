@@ -6,3 +6,6 @@ IPHONEOS_DEPLOYMENT_TARGET = 13.0
 WATCHOS_DEPLOYMENT_TARGET = 6.0
 TVOS_DEPLOYMENT_TARGET = 13.0
 MACH_O_TYPE = mh_dylib
+
+// SwiftUI uses SentryInternal.h and must not depend on the SentryPrivate module.
+HEADER_SEARCH_PATHS = ""
