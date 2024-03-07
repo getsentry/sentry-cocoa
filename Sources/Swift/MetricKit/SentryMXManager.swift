@@ -39,6 +39,9 @@ import MetricKit
     func receiveReports() {
         let shared = MXMetricManager.shared
         shared.add(self)
+        if wrapRandom() > 0 {
+            
+        }
     }
     
     func pauseReports() {
