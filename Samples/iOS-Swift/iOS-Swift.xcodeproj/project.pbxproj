@@ -172,6 +172,13 @@
 			remoteGlobalIDString = D8199DAA29376E9B0074249E;
 			remoteInfo = SentrySwiftUI;
 		};
+		D81A3499291D0B2C005A27A9 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 6308532C2440C44F00DDE4CE /* Sentry.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = D81A3488291D0AC0005A27A9;
+			remoteInfo = SentryPrivate;
+		};
 		D83A30CA279F075800372D0A /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 6308532C2440C44F00DDE4CE /* Sentry.xcodeproj */;
@@ -413,6 +420,7 @@
 			children = (
 				630853322440C44F00DDE4CE /* Sentry.framework */,
 				630853342440C44F00DDE4CE /* SentryTests.xctest */,
+				D81A349A291D0B2C005A27A9 /* SentryPrivate.framework */,
 				D8105B5C297E792200299F03 /* SentrySwiftUI.framework */,
 				84B7FA5B29B2A86500AD93B1 /* SentryProfilerTests.xctest */,
 				84B7FA5D29B2A86500AD93B1 /* libSentryTestUtils.a */,
@@ -834,6 +842,13 @@
 			fileType = wrapper.framework;
 			path = SentrySwiftUI.framework;
 			remoteRef = D8105B5B297E792200299F03 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		D81A349A291D0B2C005A27A9 /* SentryPrivate.framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.framework;
+			path = SentryPrivate.framework;
+			remoteRef = D81A3499291D0B2C005A27A9 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 		D84DAD712B177DB2003CF120 /* SentryTestUtilsDynamic.framework */ = {
