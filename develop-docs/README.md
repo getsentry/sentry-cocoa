@@ -141,7 +141,8 @@ the Objective-C class.
 
 The SentrySDK uses Swift and Objective-C code. Public Objective-C classes, made public
 [through the umbrella header](https://developer.apple.com/documentation/swift/importing-objective-c-into-swift#Import-Code-Within-a-Framework-Target),
-are automatically visible to Swift without imports. Accessing private Objective-C classes doesn't
+are automatically visible to Swift without imports. Our umbrella header is defined in the `Sentry.modulemap`.
+Accessing private Objective-C classes doesn't
 work out of the box. One approach to making this work is to define a private module that contains
 all the private ObjC headers. To define such a module, we added a module.modulemap file to our
 project with the name _SentryPrivate. We added the prefix `_` because Xcode autocomplete seems to
