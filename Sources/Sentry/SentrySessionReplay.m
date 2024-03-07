@@ -169,7 +169,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void) captureSegment:(SentryVideoInfo *)videoInfo  videoUrl:(NSURL *)filePath startedAt:(NSDate*)replayStart replayId:(SentryId *)replayid {
     SentryReplayEvent * replayEvent = [[SentryReplayEvent alloc] init];
     replayEvent.replayType = kSentryReplayTypeBuffer;
-    replayEvent.replayId = replayid;
+    replayEvent.eventId = replayid;
     replayEvent.replayStartTimestamp = replayStart;
     replayEvent.segmentId = 0;
         
@@ -177,7 +177,7 @@ NS_ASSUME_NONNULL_BEGIN
     
     [SentrySDK.currentHub captureReplayEvent:replayEvent replayRecording:recording video:filePath];
     
-    SENTRY_LOG_DEBUG(@"Session replay: ReplayId: %@, EventId: %@", replayEvent.replayId, replayEvent.eventId);
+    SENTRY_LOG_DEBUG(@"Session replay: ReplayId: %@ \nAT: %@", replayEvent.eventId, filePath);
 }
 
 - (void)takeScreenshot

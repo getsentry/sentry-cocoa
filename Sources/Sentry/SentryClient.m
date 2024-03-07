@@ -506,7 +506,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         return;
     }
 
-    SentryEnvelope *envelope = [[SentryEnvelope alloc] initWithHeader:[SentryEnvelopeHeader empty]
+    SentryEnvelope *envelope = [[SentryEnvelope alloc] initWithHeader:[[SentryEnvelopeHeader alloc] initWithId:replayEvent.eventId]
                                                                 items:@[ videoEnvelopeItem ]];
 
     NSData * data = [SentrySerialization dataWithEnvelope:envelope error:nil];

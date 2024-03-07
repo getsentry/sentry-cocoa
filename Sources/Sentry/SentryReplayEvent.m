@@ -26,13 +26,13 @@ NS_ASSUME_NONNULL_BEGIN
     }
 
     result[@"urls"] = self.urls;
-    result[@"replay_start_timestamp"] =
-        @([SentryDateUtil secondsSince1970:self.replayStartTimestamp]);
+    result[@"replay_start_timestamp"] = @(self.replayStartTimestamp.timeIntervalSince1970); 
     result[@"trace_ids"] = trace_ids;
-    result[@"replay_id"] = self.replayId.sentryIdString;
+    result[@"replay_id"] = self.eventId.sentryIdString;
     result[@"segment_id"] = @(self.segmentId);
     result[@"replay_type"] = nameForSentryReplayType(self.replayType);
-
+    result[@"error_ids"] = @[];
+    
     return result;
 }
 

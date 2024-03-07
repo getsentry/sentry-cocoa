@@ -35,7 +35,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSArray<NSDictionary<NSString *, id> *> *)serialize
 {
 
-    double timestamp = [SentryDateUtil secondsSince1970:self.start];
+    long timestamp = [SentryDateUtil millisecondsSince1970:self.start];
 
     // This format is defined by RRWeb
     // empty values are required by the format
