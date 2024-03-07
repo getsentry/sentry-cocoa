@@ -1,14 +1,14 @@
 #import "SentrySessionReplay.h"
 #import "SentryAttachment+Private.h"
+#import "SentryHub+Private.h"
+#import "SentryId.h"
 #import "SentryLog.h"
 #import "SentryOnDemandReplay.h"
+#import "SentryReplayEvent.h"
+#import "SentryReplayRecording.h"
+#import "SentrySDK+Private.h"
 #import "SentrySwift.h"
 #import "SentryViewPhotographer.h"
-#import "SentrySDK+Private.h"
-#import "SentryHub+Private.h"
-#import "SentryReplayEvent.h"
-#import "SentryId.h"
-#import "SentryReplayRecording.h"
 
 #if SENTRY_HAS_UIKIT
 
@@ -24,7 +24,7 @@ NS_ASSUME_NONNULL_BEGIN
     NSDate *_sessionStart;
     SentryReplayOptions *_replayOptions;
     SentryOnDemandReplay *_replayMaker;
-    SentryId * sessionReplayId;
+    SentryId *sessionReplayId;
     NSMutableArray<UIImage *> *imageCollection;
 }
 
@@ -77,7 +77,7 @@ NS_ASSUME_NONNULL_BEGIN
         imageCollection = [NSMutableArray array];
 
         NSLog(@"Recording session to %@", _urlToCache);
-        
+
         if (full) {
             sessionReplayId = [[SentryId alloc] init];
         }
@@ -100,14 +100,17 @@ NS_ASSUME_NONNULL_BEGIN
     }
 
     NSURL *finalPath = [_urlToCache URLByAppendingPathComponent:@"replay.mp4"];
-    NSDate * replayStart = [NSDate dateWithTimeIntervalSinceNow:-30];
-    
+    NSDate *replayStart = [NSDate dateWithTimeIntervalSinceNow:-30];
+
     [_replayMaker createVideoOf:30
                            from:replayStart
                   outputFileURL:finalPath
-                     completion:^(SentryVideoInfo * videoInfo, NSError *_Nonnull error) {
-        [self captureSegment:videoInfo videoUrl:finalPath startedAt:replayStart replayId:[[SentryId alloc] init]];
-    }];
+                     completion:^(SentryVideoInfo *videoInfo, NSError *_Nonnull error) {
+                         [self captureSegment:videoInfo
+                                     videoUrl:finalPath
+                                    startedAt:replayStart
+                                     replayId:[[SentryId alloc] init]];
+                     }];
     return attachments;
 }
 
@@ -152,31 +155,43 @@ NS_ASSUME_NONNULL_BEGIN
     pathToSegment = [pathToSegment
         URLByAppendingPathComponent:[NSString stringWithFormat:@"%f-%f.mp4", from, to]];
 
-    NSDate * segmentStart = [date dateByAddingTimeInterval:-5];
-    
+    NSDate *segmentStart = [date dateByAddingTimeInterval:-5];
+
     [_replayMaker createVideoOf:5
                            from:segmentStart
                   outputFileURL:pathToSegment
-                     completion:^(SentryVideoInfo * videoInfo, NSError *_Nonnull error) {
-        
-        //[self captureSegment:videoInfo videoUrl:pathToSegment startedAt:segmentStart replayId:self->sessionReplayId];
-        
-        [self->_replayMaker releaseFramesUntil:date];
-        self->_videoSegmentStart = nil;
-    }];
+                     completion:^(SentryVideoInfo *videoInfo, NSError *_Nonnull error) {
+                         //[self captureSegment:videoInfo videoUrl:pathToSegment
+                         //startedAt:segmentStart replayId:self->sessionReplayId];
+
+                         [self->_replayMaker releaseFramesUntil:date];
+                         self->_videoSegmentStart = nil;
+                     }];
 }
 
-- (void) captureSegment:(SentryVideoInfo *)videoInfo  videoUrl:(NSURL *)filePath startedAt:(NSDate*)replayStart replayId:(SentryId *)replayid {
-    SentryReplayEvent * replayEvent = [[SentryReplayEvent alloc] init];
+- (void)captureSegment:(SentryVideoInfo *)videoInfo
+              videoUrl:(NSURL *)filePath
+             startedAt:(NSDate *)replayStart
+              replayId:(SentryId *)replayid
+{
+    SentryReplayEvent *replayEvent = [[SentryReplayEvent alloc] init];
     replayEvent.replayType = kSentryReplayTypeBuffer;
     replayEvent.eventId = replayid;
     replayEvent.replayStartTimestamp = replayStart;
     replayEvent.segmentId = 0;
-        
-    SentryReplayRecording * recording = [[SentryReplayRecording alloc] initWithSegmentId:replayEvent.segmentId size:1 start:replayStart duration:videoInfo.duration frameCount:videoInfo.frameCount frameRate:videoInfo.frameRate height:videoInfo.height width:videoInfo.width];
-    
+
+    SentryReplayRecording *recording =
+        [[SentryReplayRecording alloc] initWithSegmentId:replayEvent.segmentId
+                                                    size:1
+                                                   start:replayStart
+                                                duration:videoInfo.duration
+                                              frameCount:videoInfo.frameCount
+                                               frameRate:videoInfo.frameRate
+                                                  height:videoInfo.height
+                                                   width:videoInfo.width];
+
     [SentrySDK.currentHub captureReplayEvent:replayEvent replayRecording:recording video:filePath];
-    
+
     SENTRY_LOG_DEBUG(@"Session replay: ReplayId: %@ \nAT: %@", replayEvent.eventId, filePath);
 }
 

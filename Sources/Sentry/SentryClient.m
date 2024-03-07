@@ -506,14 +506,15 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         return;
     }
 
-    SentryEnvelope *envelope = [[SentryEnvelope alloc] initWithHeader:[[SentryEnvelopeHeader alloc] initWithId:replayEvent.eventId]
-                                                                items:@[ videoEnvelopeItem ]];
+    SentryEnvelope *envelope = [[SentryEnvelope alloc]
+        initWithHeader:[[SentryEnvelopeHeader alloc] initWithId:replayEvent.eventId]
+                 items:@[ videoEnvelopeItem ]];
 
-    NSData * data = [SentrySerialization dataWithEnvelope:envelope error:nil];
-    
-    [data writeToURL:[videoURL URLByAppendingPathExtension:@"json"]  atomically:YES];
+    NSData *data = [SentrySerialization dataWithEnvelope:envelope error:nil];
+
+    [data writeToURL:[videoURL URLByAppendingPathExtension:@"json"] atomically:YES];
     NSLog(@"### %@", videoURL);
-    
+
     [self captureEnvelope:envelope];
 }
 

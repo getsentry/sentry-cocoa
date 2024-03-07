@@ -154,37 +154,45 @@
         }
         [frames addObject:frame.imagePath];
     }
-    
+
     [videoWriterInput
-     requestMediaDataWhenReadyOnQueue:_onDemandDispatchQueue
-     usingBlock:^{
-        UIImage *image =
-        [UIImage imageWithContentsOfFile:frames[frameCount]];
-        if (image) {
-            CMTime presentTime = CMTimeMake(frameCount++, 1);
-            
-            if (![self appendPixelBufferForImage:image
-                              pixelBufferAdaptor:pixelBufferAdaptor
-                                presentationTime:presentTime]) {
-                if (completion) {
-                    completion(nil, videoWriter.error);
-                }
-            }
-        }
-        
-        if (frameCount >= frames.count) {
-            [videoWriterInput markAsFinished];
-            [videoWriter finishWritingWithCompletionHandler:^{
-                if (completion) {
-                    SentryVideoInfo * videoInfo = nil;
-                    if (videoWriter.status == AVAssetWriterStatusCompleted) {
-                        videoInfo = [[SentryVideoInfo alloc] initWithHeight:(NSInteger)self->_videoSize.height width:(NSInteger)self->_videoSize.width duration:frames.count frameCount:frames.count frameRate:1];
-                    }
-                    completion(videoInfo, videoWriter.error);
-                }
-            }];
-        }
-    }];
+        requestMediaDataWhenReadyOnQueue:_onDemandDispatchQueue
+                              usingBlock:^{
+                                  UIImage *image =
+                                      [UIImage imageWithContentsOfFile:frames[frameCount]];
+                                  if (image) {
+                                      CMTime presentTime = CMTimeMake(frameCount++, 1);
+
+                                      if (![self appendPixelBufferForImage:image
+                                                        pixelBufferAdaptor:pixelBufferAdaptor
+                                                          presentationTime:presentTime]) {
+                                          if (completion) {
+                                              completion(nil, videoWriter.error);
+                                          }
+                                      }
+                                  }
+
+                                  if (frameCount >= frames.count) {
+                                      [videoWriterInput markAsFinished];
+                                      [videoWriter finishWritingWithCompletionHandler:^{
+                                          if (completion) {
+                                              SentryVideoInfo *videoInfo = nil;
+                                              if (videoWriter.status
+                                                  == AVAssetWriterStatusCompleted) {
+                                                  videoInfo = [[SentryVideoInfo alloc]
+                                                      initWithHeight:(NSInteger)
+                                                                         self->_videoSize.height
+                                                               width:(NSInteger)
+                                                                         self->_videoSize.width
+                                                            duration:frames.count
+                                                          frameCount:frames.count
+                                                           frameRate:1];
+                                              }
+                                              completion(videoInfo, videoWriter.error);
+                                          }
+                                      }];
+                                  }
+                              }];
 }
 
 - (BOOL)appendPixelBufferForImage:(UIImage *)image

@@ -1,13 +1,13 @@
 import Foundation
 
 @objcMembers
-class SentryVideoInfo : NSObject {
+class SentryVideoInfo: NSObject {
     
-    let height : Int
-    let width : Int
-    let duration : TimeInterval
-    let frameCount : Int
-    let frameRate : Int
+    let height: Int
+    let width: Int
+    let duration: TimeInterval
+    let frameCount: Int
+    let frameRate: Int
     
     init(height: Int, width: Int, duration: TimeInterval, frameCount: Int, frameRate: Int) {
         self.height = height

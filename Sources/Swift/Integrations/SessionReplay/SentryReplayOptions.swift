@@ -1,10 +1,7 @@
 import Foundation
 
-
-
-
 @objcMembers
-public class SentryReplayOptions : NSObject {
+public class SentryReplayOptions: NSObject {
     /**
      * Indicates the percentage in which the replay for the session will be created.
      * @discussion Specifying @c 0 means never, @c 1.0 means always.
@@ -28,7 +25,7 @@ public class SentryReplayOptions : NSObject {
      * Higher bit rates better quality, but also bigger files to transfer.
      * @note The default value is @c 20000;
      */
-    let replayBitRate = 20000;
+    let replayBitRate = 20_000
     
     /**
      * Inittialize session replay options disabled

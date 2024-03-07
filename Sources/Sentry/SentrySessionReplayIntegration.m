@@ -4,9 +4,9 @@
 #import "SentryHub+Private.h"
 #import "SentryOptions.h"
 #import "SentryRandom.h"
-#import "SentrySwift.h"
 #import "SentrySDK+Private.h"
 #import "SentrySessionReplay.h"
+#import "SentrySwift.h"
 
 #if SENTRY_HAS_UIKIT
 #    import "SentryUIApplication.h"
