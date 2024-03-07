@@ -1,3 +1,3 @@
 module _SentryPrivate {
-    header "SentryInternal.h"
+    header "SentryPrivate.h"
 }

@@ -43,6 +43,7 @@ static BOOL crashedLastRunCalled;
 static SentryAppStartMeasurement *sentrySDKappStartMeasurement;
 static NSObject *sentrySDKappStartMeasurementLock;
 static BOOL _detectedStartUpCrash;
+static SentryOptions *_Nullable startOption;
 
 /**
  * @brief We need to keep track of the number of times @c +[startWith...] is called, because our OOM
@@ -77,7 +78,7 @@ static NSDate *_Nullable startTimestamp = nil;
 + (nullable SentryOptions *)options
 {
     @synchronized(self) {
-        return [[currentHub getClient] options];
+        return startOption;
     }
 }
 
@@ -86,6 +87,13 @@ static NSDate *_Nullable startTimestamp = nil;
 {
     @synchronized(self) {
         currentHub = hub;
+    }
+}
+/** Internal, only needed for testing. */
++ (void)setStartOptions:(nullable SentryOptions *)options
+{
+    @synchronized(self) {
+        startOption = options;
     }
 }
 
@@ -166,6 +174,7 @@ static NSDate *_Nullable startTimestamp = nil;
 
 + (void)startWithOptions:(SentryOptions *)options
 {
+    startOption = options;
     [SentryLog configure:options.debug diagnosticLevel:options.diagnosticLevel];
 
     // We accept the tradeoff that the SDK might not be fully initialized directly after
