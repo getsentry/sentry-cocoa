@@ -1,4 +1,5 @@
 #import "SentrySessionReplayIntegration.h"
+#import "SentryGlobalEventProcessor.h"
 #import "SentryClient+Private.h"
 #import "SentryDependencyContainer.h"
 #import "SentryHub+Private.h"
@@ -7,6 +8,7 @@
 #import "SentrySDK+Private.h"
 #import "SentrySessionReplay.h"
 #import "SentrySwift.h"
+#import "SentryGlobalEventProcessor.h"
 
 #if SENTRY_HAS_UIKIT
 #    import "SentryUIApplication.h"
@@ -35,14 +37,17 @@ NS_ASSUME_NONNULL_BEGIN
                   start:SentryDependencyContainer.sharedInstance.application.windows.firstObject
             fullSession:[self shouldReplayFullSession:options.sessionReplayOptions
                                                           .replaysSessionSampleRate]];
-
-        SentryClient *client = [SentrySDK.currentHub getClient];
-        [client addAttachmentProcessor:sessionReplay];
-
+        
         [NSNotificationCenter.defaultCenter addObserver:self
                                                selector:@selector(stop)
                                                    name:UIApplicationDidEnterBackgroundNotification
                                                  object:nil];
+        
+        [SentryGlobalEventProcessor.shared addEventProcessor:^SentryEvent * _Nullable(SentryEvent * _Nonnull event) {
+            [self->sessionReplay replayForEvent:event];
+            return event;
+        }];
+        
         return YES;
     } else {
         return NO;

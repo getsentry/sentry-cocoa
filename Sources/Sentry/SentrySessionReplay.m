@@ -90,13 +90,10 @@ NS_ASSUME_NONNULL_BEGIN
     _displayLink = nil;
 }
 
-// TODO: dont use processAttachments to capture replay
-- (nullable NSArray<SentryAttachment *> *)processAttachments:
-                                              (nullable NSArray<SentryAttachment *> *)attachments
-                                                    forEvent:(nonnull SentryEvent *)event
+- (void)replayForEvent:(SentryEvent *)event;
 {
     if (event.error == nil && (event.exceptions == nil || event.exceptions.count == 0)) {
-        return attachments;
+        return;
     }
 
     NSURL *finalPath = [_urlToCache URLByAppendingPathComponent:@"replay.mp4"];
@@ -111,11 +108,6 @@ NS_ASSUME_NONNULL_BEGIN
                                     startedAt:replayStart
                                      replayId:[[SentryId alloc] init]];
                      }];
-    return attachments;
-}
-
-- (void)sendReplayForEvent:(SentryEvent *)event
-{
 }
 
 - (void)newFrame:(CADisplayLink *)sender

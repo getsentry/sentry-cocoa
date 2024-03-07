@@ -9,7 +9,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SentrySessionReplay : NSObject <SentryClientAttachmentProcessor>
+@interface SentrySessionReplay : NSObject
 
 - (instancetype)initWithSettings:(SentryReplayOptions *)replaySettings;
 
@@ -23,6 +23,8 @@ NS_ASSUME_NONNULL_BEGIN
  * Stop recording the session replay
  */
 - (void)stop;
+
+- (void)replayForEvent:(SentryEvent *)event;
 
 @end
 
