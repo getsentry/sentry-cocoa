@@ -1,4 +1,4 @@
-import _SentryPrivate
+@_implementationOnly import _SentryPrivate
 import Foundation
 
 func wrapRandom() -> Double {
