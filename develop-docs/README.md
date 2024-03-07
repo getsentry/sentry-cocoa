@@ -127,3 +127,51 @@ There's only ever one profiler instance running at a time, but instances that ha
 App launches can be automatically profiled if configured with `SentryOptions.enableAppLaunchProfiling`. If enabled, when `SentrySDK.startWithOptions` is called, `SentryLaunchProfiling.configureLaunchProfiling` will get a sample rate for traces and profiles with their respective options, and store those rates in a file to be read on the next launch. On each launch, `SentryLaunchProfiling.startLaunchProfile` checks for the presence of that file is used to decide whether to start an app launch profiled trace, and afterwards retrieves those rates to initialize a `SentryTransactionContext` and `SentryTracerConfiguration`, and provides them to a new `SentryTracer` instance, which is what actually starts the profiler. There is no hub at this time; also in the call to `SentrySDK.startWithOptions`, any current profiled launch trace is attempted to be finished, and the hub that exists by that time is provided to the `SentryTracer` instance via `SentryLaunchProfiling.stopLaunchProfile` so that when it needs to transmit the transaction envelope, the infrastructure is in place to do so.
 
 In testing and debug environments, when a profile payload is serialized for transmission, the dictionary will also be written to a file in application support that can be retrieved by a sample app. This helps with UI tests that want to verify the contents of a profile after some app interaction. See `iOS-Swift.ProfilingViewController.viewLastProfile`  and `iOS-SwiftUITests.ProfilingUITests`.
+
+## Swift and Objective-C Interoperability**
+
+When making an Objective-C class public for Swift SDK code, do the following:
+
+* Add it to SentryPrivate.h
+* Remove existing imports from any test bridging headers.
+* Add the import `@_implementationOnly import _SentryPrivate` to your Swift class that wants to use
+the Objective-C class.
+
+### Detailed explanation of the Swift and Objective-C Interoperability setup
+
+The SentrySDK uses Swift and Objective-C code. Public Objective-C classes, made public
+[through the umbrella header](https://developer.apple.com/documentation/swift/importing-objective-c-into-swift#Import-Code-Within-a-Framework-Target),
+are automatically visible to Swift without imports. Our umbrella header is defined in the `Sentry.modulemap`.
+Accessing private Objective-C classes doesn't
+work out of the box. One approach to making this work is to define a private module that contains
+all the private ObjC headers. To define such a module, we added a module.modulemap file to our
+project with the name _SentryPrivate. We added the prefix `_` because Xcode autocomplete seems to
+ignore such modules. This modulemap file points to a header called `SentryPrivate.h`, which include
+ all private ObjC headers that should be available for Swift. When importing the generated
+ _SentryPrivate module we have to use `@_implementationOnly import _SentryPrivate`.
+ [@_implementationOnly](https://github.com/apple/swift/blob/main/docs/ReferenceGuides/UnderscoredAttributes.md#_implementationonly)
+ will most likely be superseded by [access level imports](https://github.com/apple/swift-evolution/blob/main/proposals/0409-access-level-on-imports.md)
+ in a future Swift version. Not using `@_implementationOnly` leads to errors when including the
+ prebuilt XCFramwork into projects, such as:
+
+```sh
+Sentry.swiftmodule/arm64-apple-ios.private.swiftinterface:10:8: error: no such module '_SentryPrivate'
+
+import _SentryPrivate
+```
+
+Adding Objective-C classes to the _SentryPrivate module also exposes them to test classes written in
+Swift. When making an Objective-C class public to SDK Swift code, we must remove it from test
+bridging headers because this can lead to compiler errors. The SentryTests only find the
+_SentryPrivate module when adding setting `HEADER_SEARCH_PATHS = $(SRCROOT)/Sources/Sentry/include/**`
+which we must not set for SwiftUI, because this uses its own implementation of SentryInternal.h.
+Setting the `HEADER_SEARCH_PATHS` for SwiftUI breaks the build.
+
+See also [decision to remove SentryPrivate](./DECISIONS.md#removing-sentryprivate).
+
+Useful resources:
+
+* [Module Map Syntax](https://clang.llvm.org/docs/Modules.html#module-map-file)
+* Sample GH Repo for [mixed Swift ObjC Framework](https://github.com/danieleggert/mixed-swift-objc-framework)
+* [Swift Forum Discussion](https://forums.swift.org/t/mixing-swift-and-objective-c-in-a-framework-and-private-headers/27787/6)
+* [Apple Docs: Importing Objective-C into Swift](https://developer.apple.com/documentation/swift/importing-objective-c-into-swift#Import-Code-Within-a-Framework-Target)
