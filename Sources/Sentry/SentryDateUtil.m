@@ -1,6 +1,6 @@
 #import "SentryDateUtil.h"
-#import "SentryCurrentDateProvider.h"
 #import "SentryDependencyContainer.h"
+#import "SentrySwift.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

@@ -2,9 +2,9 @@
 
 #if SENTRY_HAS_UIKIT
 
-#    import "SentryCurrentDateProvider.h"
 #    import "SentryDelayedFrame.h"
 #    import "SentryLog.h"
+#    import "SentrySwift.h"
 #    import "SentryTime.h"
 
 NS_ASSUME_NONNULL_BEGIN

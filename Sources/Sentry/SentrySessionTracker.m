@@ -1,7 +1,6 @@
 #import "SentrySessionTracker.h"
 #import "SentryClient+Private.h"
 #import "SentryClient.h"
-#import "SentryCurrentDateProvider.h"
 #import "SentryDependencyContainer.h"
 #import "SentryFileManager.h"
 #import "SentryHub+Private.h"
@@ -9,6 +8,7 @@
 #import "SentryLog.h"
 #import "SentryNSNotificationCenterWrapper.h"
 #import "SentrySDK+Private.h"
+#import "SentrySwift.h"
 
 #if SENTRY_TARGET_MACOS
 #    import <Cocoa/Cocoa.h>

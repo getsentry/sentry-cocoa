@@ -1,7 +1,6 @@
 #import "SentryFileManager.h"
 #import "NSDate+SentryExtras.h"
 #import "SentryAppState.h"
-#import "SentryCurrentDateProvider.h"
 #import "SentryDataCategoryMapper.h"
 #import "SentryDependencyContainer.h"
 #import "SentryDispatchQueueWrapper.h"
@@ -16,6 +15,7 @@
 #import "SentryMigrateSessionInit.h"
 #import "SentryOptions.h"
 #import "SentrySerialization.h"
+#import "SentrySwift.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

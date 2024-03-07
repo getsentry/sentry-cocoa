@@ -3,7 +3,6 @@
 #import "SentryANRTrackingIntegration.h"
 #import "SentryBreadcrumb.h"
 #import "SentryClient.h"
-#import "SentryCurrentDateProvider.h"
 #import "SentryDebugMeta.h"
 #import "SentryDependencyContainer.h"
 #import "SentryEvent+Private.h"
@@ -15,6 +14,7 @@
 #import "SentryMeta.h"
 #import "SentryRequest.h"
 #import "SentryStacktrace.h"
+#import "SentrySwift.h"
 #import "SentryThread.h"
 #import "SentryUser.h"
 

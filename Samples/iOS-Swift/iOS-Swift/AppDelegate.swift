@@ -10,6 +10,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     //swiftlint:disable function_body_length
     static func startSentry() {
+        
         // For testing purposes, we want to be able to change the DSN and store it to disk. In a real app, you shouldn't need this behavior.
         let dsn = DSNStorage.shared.getDSN() ?? AppDelegate.defaultDSN
         DSNStorage.shared.saveDSN(dsn: dsn)

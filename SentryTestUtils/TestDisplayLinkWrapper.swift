@@ -30,8 +30,9 @@ public class TestDisplayLinkWrapper: SentryDisplayLinkWrapper {
     /// The smallest magnitude of time that is significant to how frames are classified as normal/slow/frozen.
     public let timeEpsilon = 0.001
 
-    public init(dateProvider: TestCurrentDateProvider = TestCurrentDateProvider()) {
-        self.dateProvider = dateProvider
+    public init(dateProvider: TestCurrentDateProvider? = nil) {
+        self.dateProvider = dateProvider ?? TestCurrentDateProvider()
+        
         // The test date provider converts the duration from UInt64 to a double back and forth.
         // Therefore we have rounding issues, and subtract or add the timeEpsilon.
         slowestSlowFrameDuration = frozenFrameThreshold - timeEpsilon
