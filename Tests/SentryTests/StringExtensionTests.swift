@@ -1,9 +1,9 @@
 import Foundation
+import Nimble
 @testable import Sentry
 import XCTest
-import Nimble
 
-class StringExtensionTests : XCTestCase {
+class StringExtensionTests: XCTestCase {
     
     func testSingleCharacterSubscript() {
         let testString = "Hello, World!"
