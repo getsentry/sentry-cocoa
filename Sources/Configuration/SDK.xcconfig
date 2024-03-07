@@ -27,3 +27,8 @@ SUPPORTS_MACCATALYST = YES
 
 CLANG_CXX_LANGUAGE_STANDARD = c++14
 CLANG_CXX_LIBRARY = libc++
+
+// This config is required so the test code can access the SentryPrivate module. Removing this setting
+// leads to an error Module _SentryPrivate not found in the SentryTests-Swift.h header when import the
+// SentryPrivate module with @import _SentryPrivate.
+HEADER_SEARCH_PATHS = $(SRCROOT)/Sources/Sentry/include/**
