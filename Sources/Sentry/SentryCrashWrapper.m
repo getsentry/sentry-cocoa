@@ -32,7 +32,8 @@ NS_ASSUME_NONNULL_BEGIN
     return instance;
 }
 
-- (instancetype)init {
+- (instancetype)init
+{
     if (self = [super init]) {
         sentrycrashcm_system_getAPI()->setEnabled(YES);
     }
