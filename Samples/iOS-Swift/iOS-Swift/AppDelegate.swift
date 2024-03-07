@@ -179,7 +179,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         let appSupport = NSSearchPathForDirectoriesInDomains(.applicationSupportDirectory, .userDomainMask, true).first!
         let cache = NSSearchPathForDirectoriesInDomains(.cachesDirectory, .userDomainMask, true).first!
         for path in [appSupport, cache] {
-            for item in FileManager.default.enumerator(atPath: path)! {
+            guard let files = FileManager.default.enumerator(atPath: path) else { return }
+            for item in files {
                 try! FileManager.default.removeItem(atPath: (path as NSString).appendingPathComponent((item as! String)))
             }
         }

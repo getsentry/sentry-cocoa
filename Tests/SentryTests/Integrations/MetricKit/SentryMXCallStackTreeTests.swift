@@ -1,5 +1,5 @@
 #if os(iOS) || os(macOS)
-import SentryPrivate
+@testable import Sentry
 import XCTest
 
 /**

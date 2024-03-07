@@ -58,7 +58,7 @@ The  [`clearTestState`](https://github.com/getsentry/sentry-cocoa/blob/3a6ab6ec1
 
 ## UI Tests
 
-CI runs UI tests on simulators via the `test.yml` workflow, and on devices via `saucelabs-UI-tests.yml`. All are run for each PR, and Sauce Labs tests also run on a nightly cron schedule.
+CI runs UI tests on simulators via the `ui-tests.yml` workflow for every PR and every commit on main.
 
 ### Saucelabs
 

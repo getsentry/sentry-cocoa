@@ -126,6 +126,8 @@ jobs:
           MATCH_GIT_PRIVATE_KEY: ${{ secrets.MATCH_GIT_PRIVATE_KEY }}
           MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
           MATCH_USERNAME: ${{ secrets.MATCH_USERNAME }}
+      - name: Build Framework
+        run: make build-xcframework
       - name: Build test app with sentry
         run: bundle exec fastlane build_perf_test_app_sentry
         env:
