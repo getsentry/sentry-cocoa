@@ -58,7 +58,9 @@ SentryNSURLRequest ()
         self.HTTPMethod = @"POST";
         [self setValue:authHeader forHTTPHeaderField:@"X-Sentry-Auth"];
         [self setValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
-        [self setValue:SentryMeta.sdkName forHTTPHeaderField:@"User-Agent"];
+        [self setValue:[NSString
+                           stringWithFormat:@"%@/%@", SentryMeta.sdkName, SentryMeta.versionString]
+            forHTTPHeaderField:@"User-Agent"];
         [self setValue:@"gzip" forHTTPHeaderField:@"Content-Encoding"];
         self.HTTPBody = [data sentry_gzippedWithCompressionLevel:-1 error:error];
     }
@@ -93,7 +95,9 @@ SentryNSURLRequest ()
             [self setValue:authHeader forHTTPHeaderField:@"X-Sentry-Auth"];
         }
         [self setValue:@"application/x-sentry-envelope" forHTTPHeaderField:@"Content-Type"];
-        [self setValue:SentryMeta.sdkName forHTTPHeaderField:@"User-Agent"];
+        [self setValue:[NSString
+                           stringWithFormat:@"%@/%@", SentryMeta.sdkName, SentryMeta.versionString]
+            forHTTPHeaderField:@"User-Agent"];
         [self setValue:@"gzip" forHTTPHeaderField:@"Content-Encoding"];
         self.HTTPBody = [data sentry_gzippedWithCompressionLevel:-1 error:error];
     }
