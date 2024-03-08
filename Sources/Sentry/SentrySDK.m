@@ -22,7 +22,12 @@
 #import "SentrySwift.h"
 #import "SentryThreadWrapper.h"
 #import "SentryTransactionContext.h"
-#import "SentryUIDeviceWrapper.h"
+
+#if SENTRY_HAS_UIKIT
+#    import "SentryTimeToDisplayTracker.h"
+#    import "SentryUIDeviceWrapper.h"
+#    import "SentryUIViewControllerPerformanceTracker.h"
+#endif // SENTRY_HAS_UIKIT
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 #    import "SentryLaunchProfiling.h"
@@ -214,10 +219,13 @@ static NSDate *_Nullable startTimestamp = nil;
 #endif // TARGET_OS_IOS && SENTRY_HAS_UIKIT
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
-        [SentryDependencyContainer.sharedInstance.dispatchQueueWrapper dispatchAsyncWithBlock:^{
-            stopLaunchProfile(hub);
-            configureLaunchProfiling(options);
-        }];
+        if (SentryUIViewControllerPerformanceTracker.shared.currentTTDTracker.fullDisplaySpan
+            == nil) {
+            [SentryDependencyContainer.sharedInstance.dispatchQueueWrapper dispatchAsyncWithBlock:^{
+                stopLaunchProfile(hub);
+                configureLaunchProfiling(options);
+            }];
+        }
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
     }];
 }

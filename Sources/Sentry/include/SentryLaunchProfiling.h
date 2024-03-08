@@ -17,8 +17,14 @@ SENTRY_EXTERN BOOL isTracingAppLaunch;
 /** Try to start a profiled trace for this app launch, if the configuration allows. */
 SENTRY_EXTERN void startLaunchProfile(void);
 
-/** Stop any profiled trace that may be in flight from the start of the app launch. */
-void stopLaunchProfile(SentryHub *hub);
+/**
+ * Stop any profiled trace that may be in flight from the start of the app launch.
+ * @param hub Pass a @c SentryHub instance if this profile needs to be attached to a dedicated
+ * transaction, like if we're profiling a SwiftUI app launch, or the SDK is not configured to
+ * automatically track UIViewController loads. Otherwise, the profile data will be attached to the
+ * automatically created spans, so pass @c nil here so that the dedicated transaction is discarded.
+ */
+void stopLaunchProfile(SentryHub *_Nullable hub);
 
 /**
  * Write a file to disk containing sample rates for profiles and traces. The presence of this file

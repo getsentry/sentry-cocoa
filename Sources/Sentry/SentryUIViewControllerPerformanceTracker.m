@@ -22,7 +22,6 @@
 SentryUIViewControllerPerformanceTracker ()
 
 @property (nonatomic, strong) SentryPerformanceTracker *tracker;
-@property (nullable, nonatomic, weak) SentryTimeToDisplayTracker *currentTTDTracker;
 
 @end
 

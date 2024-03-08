@@ -4,6 +4,7 @@
 
 #    import "SentryDependencyContainer.h"
 #    import "SentryFramesTracker.h"
+#    import "SentryLaunchProfiling.h"
 #    import "SentryLog.h"
 #    import "SentryMeasurementValue.h"
 #    import "SentrySpan.h"
@@ -128,6 +129,7 @@ SentryTimeToDisplayTracker () <SentryFramesTrackerListener>
         [self.initialDisplaySpan finish];
         if (!_waitForFullDisplay) {
             [SentryDependencyContainer.sharedInstance.framesTracker removeListener:self];
+            stopLaunchProfile(nil);
         }
     }
     if (_waitForFullDisplay && _fullyDisplayedReported && self.fullDisplaySpan.isFinished == NO
@@ -135,6 +137,7 @@ SentryTimeToDisplayTracker () <SentryFramesTrackerListener>
         SENTRY_LOG_DEBUG(@"Finishing full display span");
         self.fullDisplaySpan.timestamp = newFrameDate;
         [self.fullDisplaySpan finish];
+        stopLaunchProfile(nil);
     }
 
     if (self.initialDisplaySpan.isFinished == YES && self.fullDisplaySpan.isFinished == YES) {

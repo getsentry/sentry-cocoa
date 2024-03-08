@@ -150,7 +150,7 @@ startLaunchProfile(void)
 }
 
 void
-stopLaunchProfile(SentryHub *hub)
+stopLaunchProfile(SentryHub *_Nullable hub)
 {
     if (launchTracer == nil) {
         SENTRY_LOG_DEBUG(@"No launch tracer present to stop.");
