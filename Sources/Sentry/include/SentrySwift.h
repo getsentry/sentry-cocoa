@@ -10,7 +10,7 @@
 #if __has_include("Sentry-Swift.h")
 #    import "Sentry-Swift.h"
 #else
-#    import "Sentry/Sentry-Swift.h"
+#    import <Sentry/Sentry-Swift.h>
 #endif
 
 #endif

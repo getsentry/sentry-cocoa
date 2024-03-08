@@ -85,7 +85,6 @@
 #import "SentryCrashStackEntryMapper.h"
 #import "SentryCrashUUIDConversion.h"
 #import "SentryCrashWrapper.h"
-#import "SentryCurrentDateProvider.h"
 #import "SentryDataCategory.h"
 #import "SentryDataCategoryMapper.h"
 #import "SentryDateUtil.h"

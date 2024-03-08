@@ -3,7 +3,6 @@
 #if SENTRY_HAS_UIKIT
 
 #    import "SentryCompiler.h"
-#    import "SentryCurrentDateProvider.h"
 #    import "SentryDelayedFrame.h"
 #    import "SentryDelayedFramesTracker.h"
 #    import "SentryDispatchQueueWrapper.h"
@@ -11,6 +10,7 @@
 #    import "SentryLog.h"
 #    import "SentryProfiler.h"
 #    import "SentryProfilingConditionals.h"
+#    import "SentrySwift.h"
 #    import "SentryTime.h"
 #    import "SentryTracer.h"
 #    import <SentryScreenFrames.h>

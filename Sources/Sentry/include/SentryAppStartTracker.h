@@ -2,7 +2,7 @@
 
 #if SENTRY_HAS_UIKIT
 
-#    import "SentryCurrentDateProvider.h"
+#    import "SentrySwift.h"
 
 @class SentryDispatchQueueWrapper;
 @class SentryAppStateManager;

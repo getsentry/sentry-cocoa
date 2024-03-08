@@ -1,9 +1,9 @@
 #import "NSDate+SentryExtras.h"
 #import "NSMutableDictionary+Sentry.h"
-#import "SentryCurrentDateProvider.h"
 #import "SentryDependencyContainer.h"
 #import "SentryLog.h"
 #import "SentrySession+Private.h"
+#import "SentrySwift.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
