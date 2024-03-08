@@ -17,7 +17,6 @@
 #    import "SentryFormatter.h"
 #    import "SentryFramesTracker.h"
 #    import "SentryHub+Private.h"
-#    import "SentryId.h"
 #    import "SentryInternalDefines.h"
 #    import "SentryLog.h"
 #    import "SentryMetricProfiler.h"

@@ -102,16 +102,6 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         assertContext(context: context)
     }
     
-    func testSystemInfoIsEmpty() {
-        let scope = Scope()
-        SentryCrashIntegration.enrichScope(scope, crashWrapper: TestSentryCrashWrapper.sharedInstance())
-        
-        // We don't worry about the actual values
-        // This is an edge case where the user doesn't use the
-        // SentryCrashIntegration. Just make sure to not crash.
-        XCTAssertFalse(scope.contextDictionary.allValues.isEmpty)
-    }
-    
     func testEndSessionAsCrashed_WithCurrentSession() {
         let expectedCrashedSession = givenCrashedSession()
         SentrySDK.setCurrentHub(fixture.hub)

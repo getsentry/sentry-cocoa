@@ -7,7 +7,6 @@
 #import "SentryDependencyContainer.h"
 #import "SentryEvent+Private.h"
 #import "SentryException.h"
-#import "SentryId.h"
 #import "SentryInternalDefines.h"
 #import "SentryLevelMapper.h"
 #import "SentryMessage.h"

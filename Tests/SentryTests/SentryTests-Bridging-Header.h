@@ -118,7 +118,6 @@
 #import "SentryHttpTransport.h"
 #import "SentryHub+Private.h"
 #import "SentryHub+Test.h"
-#import "SentryId.h"
 #import "SentryInAppLogic.h"
 #import "SentryInitializeForGettingSubclassesNotCalled.h"
 #import "SentryInstallation+Test.h"
@@ -164,6 +163,7 @@
 #import "SentryScreenshot.h"
 #import "SentryScreenshotIntegration.h"
 #import "SentrySdkInfo.h"
+#import "SentrySwift.h"
 #import "SentrySwiftAsyncIntegration.h"
 
 #import "Sentry/Sentry-Swift.h"
