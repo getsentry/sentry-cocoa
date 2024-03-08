@@ -1220,10 +1220,6 @@ class SentryTracerTests: XCTestCase {
 
     private func advanceTime(bySeconds: TimeInterval) {
         fixture.currentDateProvider.setDate(date: fixture.currentDateProvider.date().addingTimeInterval(bySeconds))
-        
-        let delta = bySeconds * Double(NSEC_PER_SEC)
-        let newNow = fixture.currentDateProvider.internalDispatchNow + .nanoseconds(Int(delta))
-        fixture.currentDateProvider.internalDispatchNow = newNow
     }
     
     private func getSerializedTransaction() throws -> [String: Any] {

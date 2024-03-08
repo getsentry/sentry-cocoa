@@ -6,10 +6,6 @@
         return Date()
     }
 
-    func dispatchTimeNow() -> DispatchTime {
-        return .now()
-    }
-
     func timezoneOffset() -> Int {
         return TimeZone.current.secondsFromGMT()
     }
