@@ -22,11 +22,11 @@ class SentryNSURLRequestTests: XCTestCase {
     
     func testRequestWithEnvelopeEndpoint_hasUserAgentWithSdkNameAndVersion() {
         let request = try! SentryNSURLRequest(envelopeRequestWith: SentryNSURLRequestTests.dsn(), andData: Data())
-        expect(request.allHTTPHeaderFields?["User-Agent"]).to(beginWith(String(format: "%@/%@", SentryMeta.sdkName, SentryMeta.versionString)))
+        expect(request.allHTTPHeaderFields?["User-Agent"]) == "\(SentryMeta.sdkName)/\(SentryMeta.versionString)"
     }
     
     func testRequestWithStoreEndpoint_hasUserAgentWithSdkNameAndVersion() {
         let request = try! SentryNSURLRequest(storeRequestWith: SentryNSURLRequestTests.dsn(), andData: Data())
-        expect(request.allHTTPHeaderFields?["User-Agent"]).to(beginWith(String(format: "%@/%@", SentryMeta.sdkName, SentryMeta.versionString)))
+        expect(request.allHTTPHeaderFields?["User-Agent"]) == "\(SentryMeta.sdkName)/\(SentryMeta.versionString)"
     }
 }
