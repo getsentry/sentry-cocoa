@@ -10,7 +10,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic) NSInteger bitRate;
 
+@property (nonatomic) NSInteger frameRate;
+
 @property (nonatomic) NSUInteger cacheMaxSize;
+
+@property (nonatomic) CGSize videoSize;
 
 - (instancetype)initWithOutputPath:(NSString *)outputPath;
 

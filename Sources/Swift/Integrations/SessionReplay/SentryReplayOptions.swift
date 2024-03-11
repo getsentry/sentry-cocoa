@@ -27,6 +27,18 @@ public class SentryReplayOptions: NSObject {
      */
     let replayBitRate = 20_000
     
+    let frameRate = 1
+    
+    /**
+     * The scale related to the window size at which the replay will be created
+     */
+    let sizeScale = 0.8
+   
+    /**
+     * The maximum duration of replays for error events.
+     */
+    let errorReplayDuration = TimeInterval(30)
+    
     /**
      * Inittialize session replay options disabled
      */

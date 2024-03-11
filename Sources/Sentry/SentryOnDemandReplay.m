@@ -4,6 +4,7 @@
 #    import "SentryLog.h"
 #    import <AVFoundation/AVFoundation.h>
 #    import <UIKit/UIKit.h>
+
 @interface SentryReplayFrame : NSObject
 
 @property (nonatomic, strong) NSString *imagePath;
@@ -22,15 +23,22 @@
     }
     return self;
 }
+@end
 
+@interface SentryPixelBuffer : NSObject
+- (nullable instancetype)initWithSize:(CGSize) size;
+
+- (BOOL)appendImage:(UIImage *)image
+ pixelBufferAdaptor:(AVAssetWriterInputPixelBufferAdaptor *)pixelBufferAdaptor
+   presentationTime:(CMTime)presentationTime;
 @end
 
 @implementation SentryOnDemandReplay {
     NSString *_outputPath;
     NSDate *_startTime;
     NSMutableArray<SentryReplayFrame *> *_frames;
-    CGSize _videoSize;
     dispatch_queue_t _onDemandDispatchQueue;
+    SentryPixelBuffer * _currentPixelBuffer;
 }
 
 - (instancetype)initWithOutputPath:(NSString *)outputPath
@@ -42,6 +50,7 @@
         _videoSize = CGSizeMake(200, 434);
         _bitRate = 20000;
         _cacheMaxSize = NSUIntegerMax;
+        _frameRate = 1;
         _onDemandDispatchQueue = dispatch_queue_create("io.sentry.sessionreplay.ondemand", NULL);
     }
     return self;
@@ -77,7 +86,7 @@
 
     CGSize newSize = CGSizeMake(newWidth, newHeight);
 
-    UIGraphicsBeginImageContextWithOptions(newSize, NO, 1);
+    UIGraphicsBeginImageContextWithOptions(newSize, NO, self.frameRate);
     [originalImage drawInRect:CGRectMake(0, 0, newSize.width, newSize.height)];
     UIImage *resizedImage = UIGraphicsGetImageFromCurrentImageContext();
     UIGraphicsEndImageContext();
@@ -146,26 +155,35 @@
     NSDate *end = [beginning dateByAddingTimeInterval:duration];
     __block NSInteger frameCount = 0;
     NSMutableArray<NSString *> *frames = [NSMutableArray array];
+
+    NSDate *start = [NSDate date];
+    NSDate *actualEnd = nil;
     for (SentryReplayFrame *frame in self->_frames) {
         if ([frame.time compare:beginning] == NSOrderedAscending) {
             continue;
         } else if ([frame.time compare:end] == NSOrderedDescending) {
             break;
         }
+        if ([frame.time compare:start] == NSOrderedAscending) {
+            start = frame.time;
+        }
+        actualEnd = frame.time;
         [frames addObject:frame.imagePath];
     }
-
+    
+    _currentPixelBuffer = [[SentryPixelBuffer alloc] initWithSize:CGSizeMake(_videoSize.width, _videoSize.height)];
+    
     [videoWriterInput
         requestMediaDataWhenReadyOnQueue:_onDemandDispatchQueue
                               usingBlock:^{
                                   UIImage *image =
                                       [UIImage imageWithContentsOfFile:frames[frameCount]];
                                   if (image) {
-                                      CMTime presentTime = CMTimeMake(frameCount++, 1);
+                                      CMTime presentTime = CMTimeMake(frameCount++, (int32_t)self->_frameRate);
 
-                                      if (![self appendPixelBufferForImage:image
-                                                        pixelBufferAdaptor:pixelBufferAdaptor
-                                                          presentationTime:presentTime]) {
+                                      if (![self->_currentPixelBuffer appendImage:image
+                                                 pixelBufferAdaptor:pixelBufferAdaptor
+                                                   presentationTime:presentTime]) {
                                           if (completion) {
                                               completion(nil, videoWriter.error);
                                           }
@@ -186,7 +204,10 @@
                                                                          self->_videoSize.width
                                                             duration:frames.count
                                                           frameCount:frames.count
-                                                           frameRate:1];
+                                                           frameRate:1
+                                                               start:start
+                                                                 end:actualEnd
+                                                  ];
                                               }
                                               completion(videoInfo, videoWriter.error);
                                           }
@@ -195,45 +216,57 @@
                               }];
 }
 
-- (BOOL)appendPixelBufferForImage:(UIImage *)image
-               pixelBufferAdaptor:(AVAssetWriterInputPixelBufferAdaptor *)pixelBufferAdaptor
-                 presentationTime:(CMTime)presentationTime
-{
-    CVReturn status = kCVReturnSuccess;
+@end
 
-    CVPixelBufferRef pixelBuffer = NULL;
-    status = CVPixelBufferCreate(kCFAllocatorDefault, (size_t)image.size.width,
-        (size_t)image.size.height, kCVPixelFormatType_32ARGB, NULL, &pixelBuffer);
 
-    if (status != kCVReturnSuccess) {
-        return NO;
+
+@implementation SentryPixelBuffer {
+    CVPixelBufferRef _pixelBuffer;
+    CGContextRef _context;
+    CGColorSpaceRef _rgbColorSpace;
+}
+
+- (nullable instancetype)initWithSize:(CGSize) size {
+    if (self = [super init]) {
+        CVReturn status = kCVReturnSuccess;
+        
+        status = CVPixelBufferCreate(kCFAllocatorDefault, (size_t)size.width,
+                                     (size_t)size.height, kCVPixelFormatType_32ARGB, NULL, &_pixelBuffer);
+        
+        if (status != kCVReturnSuccess) {
+            return nil;
+        }
+        void *pixelData = CVPixelBufferGetBaseAddress(_pixelBuffer);
+        _rgbColorSpace = CGColorSpaceCreateDeviceRGB();
+        _context = CGBitmapContextCreate(pixelData, (size_t)size.width,
+            (size_t)size.height, 8, CVPixelBufferGetBytesPerRow(_pixelBuffer), _rgbColorSpace,
+            (CGBitmapInfo)kCGImageAlphaNoneSkipFirst);
+
+        CGContextTranslateCTM(_context, 0, size.height);
+        CGContextScaleCTM(_context, 1.0, -1.0);
     }
+    return self;
+}
 
-    CVPixelBufferLockBaseAddress(pixelBuffer, 0);
-    void *pixelData = CVPixelBufferGetBaseAddress(pixelBuffer);
+- (void)dealloc {
+    CVPixelBufferRelease(_pixelBuffer);
+    CGContextRelease(_context);
+    CGColorSpaceRelease(_rgbColorSpace);
+}
 
-    CGColorSpaceRef rgbColorSpace = CGColorSpaceCreateDeviceRGB();
-    CGContextRef context = CGBitmapContextCreate(pixelData, (size_t)image.size.width,
-        (size_t)image.size.height, 8, CVPixelBufferGetBytesPerRow(pixelBuffer), rgbColorSpace,
-        (CGBitmapInfo)kCGImageAlphaNoneSkipFirst);
-
-    CGContextTranslateCTM(context, 0, image.size.height);
-    CGContextScaleCTM(context, 1.0, -1.0);
-
-    UIGraphicsPushContext(context);
-    [image drawInRect:CGRectMake(0, 0, image.size.width, image.size.height)];
-    UIGraphicsPopContext();
-
-    CGColorSpaceRelease(rgbColorSpace);
-    CGContextRelease(context);
-
-    CVPixelBufferUnlockBaseAddress(pixelBuffer, 0);
+- (BOOL)appendImage:(UIImage *)image
+ pixelBufferAdaptor:(AVAssetWriterInputPixelBufferAdaptor *)pixelBufferAdaptor
+   presentationTime:(CMTime)presentationTime
+{
+    CVPixelBufferLockBaseAddress(_pixelBuffer, 0);
+    
+    CGContextDrawImage(_context, CGRectMake(0, 0, image.size.width, image.size.height), image.CGImage);
+    
+    CVPixelBufferUnlockBaseAddress(_pixelBuffer, 0);
 
     // Append the pixel buffer with the current image to the video
-    BOOL success = [pixelBufferAdaptor appendPixelBuffer:pixelBuffer
+    BOOL success = [pixelBufferAdaptor appendPixelBuffer:_pixelBuffer
                                     withPresentationTime:presentationTime];
-
-    CVPixelBufferRelease(pixelBuffer);
 
     return success;
 }

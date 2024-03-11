@@ -752,6 +752,12 @@ NSString *_Nullable sentryApplicationSupportPath(void)
     return sentryApplicationSupportPath;
 }
 
+- (NSInteger)fileSize:(NSURL *)path {
+    NSDictionary *fileAttributes = [[NSFileManager defaultManager] attributesOfItemAtPath:path.path error:nil];
+    NSNumber *fileSize = [fileAttributes objectForKey:NSFileSize] ?: @(-1);
+    return [fileSize integerValue];
+}
+
 NSURL *_Nullable sentryLaunchConfigFileURL = nil;
 
 NSURL *_Nullable launchProfileConfigFileURL(void)
