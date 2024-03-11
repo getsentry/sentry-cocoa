@@ -3,6 +3,7 @@ import Foundation
 @objcMembers
 class SentryVideoInfo: NSObject {
     
+    let path: URL
     let height: Int
     let width: Int
     let duration: TimeInterval
@@ -10,8 +11,9 @@ class SentryVideoInfo: NSObject {
     let frameRate: Int
     let start: Date
     let end: Date
+    let fileSize: Int
     
-    init(height: Int, width: Int, duration: TimeInterval, frameCount: Int, frameRate: Int, start: Date, end: Date) {
+    init(path: URL, height: Int, width: Int, duration: TimeInterval, frameCount: Int, frameRate: Int, start: Date, end: Date, fileSize: Int) {
         self.height = height
         self.width = width
         self.duration = duration
@@ -19,6 +21,8 @@ class SentryVideoInfo: NSObject {
         self.frameRate = frameRate
         self.start = start
         self.end = end
+        self.path = path
+        self.fileSize = fileSize
     }
     
 }

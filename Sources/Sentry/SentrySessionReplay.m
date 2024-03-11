@@ -1,5 +1,8 @@
 #import "SentrySessionReplay.h"
 #import "SentryAttachment+Private.h"
+#import "SentryCurrentDateProvider.h"
+#import "SentryDependencyContainer.h"
+#import "SentryFileManager.h"
 #import "SentryHub+Private.h"
 #import "SentryId.h"
 #import "SentryLog.h"
@@ -9,9 +12,6 @@
 #import "SentrySDK+Private.h"
 #import "SentrySwift.h"
 #import "SentryViewPhotographer.h"
-#import "SentryDependencyContainer.h"
-#import "SentryFileManager.h"
-#import "SentryCurrentDateProvider.h"
 
 #if SENTRY_HAS_UIKIT
 
@@ -41,7 +41,8 @@ NS_ASSUME_NONNULL_BEGIN
     return self;
 }
 
-- (SentryCurrentDateProvider *)dateProvider {
+- (SentryCurrentDateProvider *)dateProvider
+{
     return SentryDependencyContainer.sharedInstance.dateProvider;
 }
 
@@ -116,7 +117,6 @@ NS_ASSUME_NONNULL_BEGIN
                      completion:^(SentryVideoInfo *videoInfo, NSError *_Nonnull error) {
                          [self captureSegment:0
                                         video:videoInfo
-                                     videoUrl:finalPath
                                      replayId:[[SentryId alloc] init]
                                    replayType:kSentryReplayTypeBuffer];
                      }];
@@ -167,7 +167,6 @@ NS_ASSUME_NONNULL_BEGIN
                      completion:^(SentryVideoInfo *videoInfo, NSError *_Nonnull error) {
                          [self captureSegment:self->_currentSegmentId
                                         video:videoInfo
-                                     videoUrl:pathToSegment
                                      replayId:self->sessionReplayId
                                    replayType:kSentryReplayTypeSession];
 
@@ -178,7 +177,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)captureSegment:(NSInteger)segment
                  video:(SentryVideoInfo *)videoInfo
-              videoUrl:(NSURL *)filePath
               replayId:(SentryId *)replayid
             replayType:(SentryReplayType)replayType
 {
@@ -189,11 +187,9 @@ NS_ASSUME_NONNULL_BEGIN
     replayEvent.segmentId = segment;
     replayEvent.timestamp = videoInfo.end;
 
-    NSInteger fileSize = [SentryDependencyContainer.sharedInstance.fileManager fileSize:filePath];
-    
     SentryReplayRecording *recording =
         [[SentryReplayRecording alloc] initWithSegmentId:replayEvent.segmentId
-                                                    size:fileSize
+                                                    size:videoInfo.fileSize
                                                    start:videoInfo.start
                                                 duration:videoInfo.duration
                                               frameCount:videoInfo.frameCount
@@ -201,9 +197,9 @@ NS_ASSUME_NONNULL_BEGIN
                                                   height:videoInfo.height
                                                    width:videoInfo.width];
 
-    [SentrySDK.currentHub captureReplayEvent:replayEvent replayRecording:recording video:filePath];
-
-    SENTRY_LOG_DEBUG(@"Session replay: ReplayId: %@ \nAT: %@", replayEvent.eventId, filePath);
+    [SentrySDK.currentHub captureReplayEvent:replayEvent
+                             replayRecording:recording
+                                       video:videoInfo.path];
 }
 
 - (void)takeScreenshot

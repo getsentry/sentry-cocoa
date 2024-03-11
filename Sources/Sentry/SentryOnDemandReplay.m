@@ -1,6 +1,8 @@
 #import "SentryOnDemandReplay.h"
 
 #if SENTRY_HAS_UIKIT
+#    import "SentryDependencyContainer.h"
+#    import "SentryFileManager.h"
 #    import "SentryLog.h"
 #    import <AVFoundation/AVFoundation.h>
 #    import <UIKit/UIKit.h>
@@ -26,11 +28,11 @@
 @end
 
 @interface SentryPixelBuffer : NSObject
-- (nullable instancetype)initWithSize:(CGSize) size;
+- (nullable instancetype)initWithSize:(CGSize)size;
 
 - (BOOL)appendImage:(UIImage *)image
- pixelBufferAdaptor:(AVAssetWriterInputPixelBufferAdaptor *)pixelBufferAdaptor
-   presentationTime:(CMTime)presentationTime;
+    pixelBufferAdaptor:(AVAssetWriterInputPixelBufferAdaptor *)pixelBufferAdaptor
+      presentationTime:(CMTime)presentationTime;
 @end
 
 @implementation SentryOnDemandReplay {
@@ -38,7 +40,7 @@
     NSDate *_startTime;
     NSMutableArray<SentryReplayFrame *> *_frames;
     dispatch_queue_t _onDemandDispatchQueue;
-    SentryPixelBuffer * _currentPixelBuffer;
+    SentryPixelBuffer *_currentPixelBuffer;
 }
 
 - (instancetype)initWithOutputPath:(NSString *)outputPath
@@ -170,20 +172,22 @@
         actualEnd = frame.time;
         [frames addObject:frame.imagePath];
     }
-    
-    _currentPixelBuffer = [[SentryPixelBuffer alloc] initWithSize:CGSizeMake(_videoSize.width, _videoSize.height)];
-    
+
+    _currentPixelBuffer =
+        [[SentryPixelBuffer alloc] initWithSize:CGSizeMake(_videoSize.width, _videoSize.height)];
+
     [videoWriterInput
         requestMediaDataWhenReadyOnQueue:_onDemandDispatchQueue
                               usingBlock:^{
                                   UIImage *image =
                                       [UIImage imageWithContentsOfFile:frames[frameCount]];
                                   if (image) {
-                                      CMTime presentTime = CMTimeMake(frameCount++, (int32_t)self->_frameRate);
+                                      CMTime presentTime
+                                          = CMTimeMake(frameCount++, (int32_t)self->_frameRate);
 
                                       if (![self->_currentPixelBuffer appendImage:image
-                                                 pixelBufferAdaptor:pixelBufferAdaptor
-                                                   presentationTime:presentTime]) {
+                                                               pixelBufferAdaptor:pixelBufferAdaptor
+                                                                 presentationTime:presentTime]) {
                                           if (completion) {
                                               completion(nil, videoWriter.error);
                                           }
@@ -197,17 +201,22 @@
                                               SentryVideoInfo *videoInfo = nil;
                                               if (videoWriter.status
                                                   == AVAssetWriterStatusCompleted) {
+
+                                                  NSInteger fileSize =
+                                                      [SentryDependencyContainer.sharedInstance
+                                                              .fileManager fileSize:outputFileURL];
+
                                                   videoInfo = [[SentryVideoInfo alloc]
-                                                      initWithHeight:(NSInteger)
-                                                                         self->_videoSize.height
-                                                               width:(NSInteger)
-                                                                         self->_videoSize.width
-                                                            duration:frames.count
-                                                          frameCount:frames.count
-                                                           frameRate:1
-                                                               start:start
-                                                                 end:actualEnd
-                                                  ];
+                                                      initWithPath:outputFileURL
+                                                            height:(NSInteger)
+                                                                       self->_videoSize.height
+                                                             width:(NSInteger)self->_videoSize.width
+                                                          duration:frames.count
+                                                        frameCount:frames.count
+                                                         frameRate:1
+                                                             start:start
+                                                               end:actualEnd
+                                                          fileSize:fileSize];
                                               }
                                               completion(videoInfo, videoWriter.error);
                                           }
@@ -218,28 +227,27 @@
 
 @end
 
-
-
 @implementation SentryPixelBuffer {
     CVPixelBufferRef _pixelBuffer;
     CGContextRef _context;
     CGColorSpaceRef _rgbColorSpace;
 }
 
-- (nullable instancetype)initWithSize:(CGSize) size {
+- (nullable instancetype)initWithSize:(CGSize)size
+{
     if (self = [super init]) {
         CVReturn status = kCVReturnSuccess;
-        
-        status = CVPixelBufferCreate(kCFAllocatorDefault, (size_t)size.width,
-                                     (size_t)size.height, kCVPixelFormatType_32ARGB, NULL, &_pixelBuffer);
-        
+
+        status = CVPixelBufferCreate(kCFAllocatorDefault, (size_t)size.width, (size_t)size.height,
+            kCVPixelFormatType_32ARGB, NULL, &_pixelBuffer);
+
         if (status != kCVReturnSuccess) {
             return nil;
         }
         void *pixelData = CVPixelBufferGetBaseAddress(_pixelBuffer);
         _rgbColorSpace = CGColorSpaceCreateDeviceRGB();
-        _context = CGBitmapContextCreate(pixelData, (size_t)size.width,
-            (size_t)size.height, 8, CVPixelBufferGetBytesPerRow(_pixelBuffer), _rgbColorSpace,
+        _context = CGBitmapContextCreate(pixelData, (size_t)size.width, (size_t)size.height, 8,
+            CVPixelBufferGetBytesPerRow(_pixelBuffer), _rgbColorSpace,
             (CGBitmapInfo)kCGImageAlphaNoneSkipFirst);
 
         CGContextTranslateCTM(_context, 0, size.height);
@@ -248,20 +256,22 @@
     return self;
 }
 
-- (void)dealloc {
+- (void)dealloc
+{
     CVPixelBufferRelease(_pixelBuffer);
     CGContextRelease(_context);
     CGColorSpaceRelease(_rgbColorSpace);
 }
 
 - (BOOL)appendImage:(UIImage *)image
- pixelBufferAdaptor:(AVAssetWriterInputPixelBufferAdaptor *)pixelBufferAdaptor
-   presentationTime:(CMTime)presentationTime
+    pixelBufferAdaptor:(AVAssetWriterInputPixelBufferAdaptor *)pixelBufferAdaptor
+      presentationTime:(CMTime)presentationTime
 {
     CVPixelBufferLockBaseAddress(_pixelBuffer, 0);
-    
-    CGContextDrawImage(_context, CGRectMake(0, 0, image.size.width, image.size.height), image.CGImage);
-    
+
+    CGContextDrawImage(
+        _context, CGRectMake(0, 0, image.size.width, image.size.height), image.CGImage);
+
     CVPixelBufferUnlockBaseAddress(_pixelBuffer, 0);
 
     // Append the pixel buffer with the current image to the video
