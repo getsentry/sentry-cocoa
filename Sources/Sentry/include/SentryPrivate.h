@@ -2,6 +2,7 @@
 
 #import "SentryBaseIntegration.h"
 #import "SentryClient+Private.h"
+#import "SentryClient.h"
 #import "SentryDataCategory.h"
 #import "SentryDiscardReason.h"
 #import "SentryEnvelope.h"
