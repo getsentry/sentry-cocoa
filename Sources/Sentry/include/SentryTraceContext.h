@@ -1,8 +1,4 @@
-#if __has_include(<Sentry/SentrySerializable.h>)
-#    import <Sentry/SentrySerializable.h>
-#else
-#    import "SentrySerializable.h"
-#endif
+#import "SentrySerializable.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
