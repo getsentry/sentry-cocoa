@@ -119,17 +119,21 @@ NS_ASSUME_NONNULL_BEGIN
         [self updateEvent:event withReplayId:sessionReplayId];
         return;
     }
-    
-    NSURL *finalPath = [_urlToCache URLByAppendingPathComponent:@"replay.mp4"];
-    NSDate *replayStart = [[self dateProvider].date dateByAddingTimeInterval:-_replayOptions.errorReplayDuration];
 
-    [self createAndCapture:finalPath duration:_replayOptions.errorReplayDuration startedAt:replayStart];
-    
+    NSURL *finalPath = [_urlToCache URLByAppendingPathComponent:@"replay.mp4"];
+    NSDate *replayStart =
+        [[self dateProvider].date dateByAddingTimeInterval:-_replayOptions.errorReplayDuration];
+
+    [self createAndCapture:finalPath
+                  duration:_replayOptions.errorReplayDuration
+                 startedAt:replayStart];
+
     self->_isFullSession = YES;
 }
 
-- (void)updateEvent:(SentryEvent *)event withReplayId:(SentryId *)sentryId {
-    NSMutableDictionary * context = [NSMutableDictionary dictionaryWithDictionary:event.context];
+- (void)updateEvent:(SentryEvent *)event withReplayId:(SentryId *)sentryId
+{
+    NSMutableDictionary *context = [NSMutableDictionary dictionaryWithDictionary:event.context];
     context[@"session_replay"] = sentryId;
     event.context = context;
 }
@@ -144,7 +148,9 @@ NS_ASSUME_NONNULL_BEGIN
 
         if (_videoSegmentStart == nil) {
             _videoSegmentStart = now;
-        } else if (_isFullSession && [now timeIntervalSinceDate:_videoSegmentStart] >= _replayOptions.sessionSegmentDuration) {
+        } else if (_isFullSession &&
+            [now timeIntervalSinceDate:_videoSegmentStart]
+                >= _replayOptions.sessionSegmentDuration) {
             [self prepareSegmentUntil:now];
         }
     }
@@ -171,28 +177,34 @@ NS_ASSUME_NONNULL_BEGIN
     pathToSegment = [pathToSegment
         URLByAppendingPathComponent:[NSString stringWithFormat:@"%f-%f.mp4", from, to]];
 
-    NSDate *segmentStart = [[self dateProvider].date dateByAddingTimeInterval:-_replayOptions.sessionSegmentDuration];
+    NSDate *segmentStart =
+        [[self dateProvider].date dateByAddingTimeInterval:-_replayOptions.sessionSegmentDuration];
 
-    [self createAndCapture:pathToSegment duration:_replayOptions.sessionSegmentDuration startedAt:segmentStart];
+    [self createAndCapture:pathToSegment
+                  duration:_replayOptions.sessionSegmentDuration
+                 startedAt:segmentStart];
 }
 
-- (void)createAndCapture:(NSURL *)videoUrl duration:(NSTimeInterval)duration startedAt:(NSDate *)start {
+- (void)createAndCapture:(NSURL *)videoUrl
+                duration:(NSTimeInterval)duration
+               startedAt:(NSDate *)start
+{
     [_replayMaker createVideoOf:duration
                            from:start
                   outputFileURL:videoUrl
                      completion:^(SentryVideoInfo *videoInfo, NSError *_Nonnull error) {
-        if (error != nil) {
-            SENTRY_LOG_ERROR(@"Could not create replay video - %@", error);
-        } else {
-            [self captureSegment:self->_currentSegmentId++
-                           video:videoInfo
-                        replayId:self->sessionReplayId
-                      replayType:kSentryReplayTypeSession];
-            
-            [self->_replayMaker releaseFramesUntil:videoInfo.end];
-            self->_videoSegmentStart = nil;
-        }
-    }];
+                         if (error != nil) {
+                             SENTRY_LOG_ERROR(@"Could not create replay video - %@", error);
+                         } else {
+                             [self captureSegment:self->_currentSegmentId++
+                                            video:videoInfo
+                                         replayId:self->sessionReplayId
+                                       replayType:kSentryReplayTypeSession];
+
+                             [self->_replayMaker releaseFramesUntil:videoInfo.end];
+                             self->_videoSegmentStart = nil;
+                         }
+                     }];
 }
 
 - (void)captureSegment:(NSInteger)segment
