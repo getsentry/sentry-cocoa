@@ -27,6 +27,10 @@ public class SentryReplayOptions: NSObject {
      */
     let replayBitRate = 20_000
     
+    /**
+     * Number of frames per second of the replay.
+     * The more the havier the process is.
+     */
     let frameRate = 1
     
     /**
@@ -38,6 +42,11 @@ public class SentryReplayOptions: NSObject {
      * The maximum duration of replays for error events.
      */
     let errorReplayDuration = TimeInterval(30)
+    
+    /**
+     * The maximum duration of the segment of a session replay.
+     */
+    let sessionSegmentDuration = TimeInterval(5)
     
     /**
      * Inittialize session replay options disabled

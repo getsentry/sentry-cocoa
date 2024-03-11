@@ -15,6 +15,8 @@
 
 #if SENTRY_HAS_UIKIT
 
+static NSString *SENTRY_REPLAY_FOLDER = @"replay";
+
 NS_ASSUME_NONNULL_BEGIN
 
 @implementation SentrySessionReplay {
@@ -68,9 +70,9 @@ NS_ASSUME_NONNULL_BEGIN
         _sessionStart = _lastScreenShot;
         _currentSegmentId = 0;
 
-        NSURL *docs = [[NSFileManager.defaultManager URLsForDirectory:NSCachesDirectory
-                                                            inDomains:NSUserDomainMask]
-                           .firstObject URLByAppendingPathComponent:@"io.sentry"];
+        NSURL *docs = [NSURL
+            fileURLWithPath:[SentryDependencyContainer.sharedInstance.fileManager sentryPath]];
+        docs = [docs URLByAppendingPathComponent:SENTRY_REPLAY_FOLDER];
 
         NSString *currentSession = [NSUUID UUID].UUIDString;
         _urlToCache = [docs URLByAppendingPathComponent:currentSession];
@@ -84,7 +86,8 @@ NS_ASSUME_NONNULL_BEGIN
 
         _replayMaker = [[SentryOnDemandReplay alloc] initWithOutputPath:_urlToCache.path];
         _replayMaker.bitRate = _replayOptions.replayBitRate;
-        _replayMaker.cacheMaxSize = full ? NSUIntegerMax : 32;
+        _replayMaker.cacheMaxSize = (NSInteger)(full ? _replayOptions.sessionSegmentDuration
+                                                     : _replayOptions.errorReplayDuration);
         imageCollection = [NSMutableArray array];
 
         NSLog(@"Recording session to %@", _urlToCache);
@@ -104,22 +107,31 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)replayForEvent:(SentryEvent *)event;
 {
+    if (_isFullSession) {
+        return;
+    }
+
     if (event.error == nil && (event.exceptions == nil || event.exceptions.count == 0)) {
         return;
     }
 
+    if (_isFullSession) {
+        [self updateEvent:event withReplayId:sessionReplayId];
+        return;
+    }
+    
     NSURL *finalPath = [_urlToCache URLByAppendingPathComponent:@"replay.mp4"];
-    NSDate *replayStart = [[self dateProvider].date dateByAddingTimeInterval:-30];
+    NSDate *replayStart = [[self dateProvider].date dateByAddingTimeInterval:-_replayOptions.errorReplayDuration];
 
-    [_replayMaker createVideoOf:30
-                           from:replayStart
-                  outputFileURL:finalPath
-                     completion:^(SentryVideoInfo *videoInfo, NSError *_Nonnull error) {
-                         [self captureSegment:0
-                                        video:videoInfo
-                                     replayId:[[SentryId alloc] init]
-                                   replayType:kSentryReplayTypeBuffer];
-                     }];
+    [self createAndCapture:finalPath duration:_replayOptions.errorReplayDuration startedAt:replayStart];
+    
+    self->_isFullSession = YES;
+}
+
+- (void)updateEvent:(SentryEvent *)event withReplayId:(SentryId *)sentryId {
+    NSMutableDictionary * context = [NSMutableDictionary dictionaryWithDictionary:event.context];
+    context[@"session_replay"] = sentryId;
+    event.context = context;
 }
 
 - (void)newFrame:(CADisplayLink *)sender
@@ -132,7 +144,7 @@ NS_ASSUME_NONNULL_BEGIN
 
         if (_videoSegmentStart == nil) {
             _videoSegmentStart = now;
-        } else if (_isFullSession && [now timeIntervalSinceDate:_videoSegmentStart] >= 5) {
+        } else if (_isFullSession && [now timeIntervalSinceDate:_videoSegmentStart] >= _replayOptions.sessionSegmentDuration) {
             [self prepareSegmentUntil:now];
         }
     }
@@ -159,20 +171,28 @@ NS_ASSUME_NONNULL_BEGIN
     pathToSegment = [pathToSegment
         URLByAppendingPathComponent:[NSString stringWithFormat:@"%f-%f.mp4", from, to]];
 
-    NSDate *segmentStart = [[self dateProvider].date dateByAddingTimeInterval:-5];
+    NSDate *segmentStart = [[self dateProvider].date dateByAddingTimeInterval:-_replayOptions.sessionSegmentDuration];
 
-    [_replayMaker createVideoOf:5
-                           from:segmentStart
-                  outputFileURL:pathToSegment
+    [self createAndCapture:pathToSegment duration:_replayOptions.sessionSegmentDuration startedAt:segmentStart];
+}
+
+- (void)createAndCapture:(NSURL *)videoUrl duration:(NSTimeInterval)duration startedAt:(NSDate *)start {
+    [_replayMaker createVideoOf:duration
+                           from:start
+                  outputFileURL:videoUrl
                      completion:^(SentryVideoInfo *videoInfo, NSError *_Nonnull error) {
-                         [self captureSegment:self->_currentSegmentId
-                                        video:videoInfo
-                                     replayId:self->sessionReplayId
-                                   replayType:kSentryReplayTypeSession];
-
-                         [self->_replayMaker releaseFramesUntil:date];
-                         self->_videoSegmentStart = nil;
-                     }];
+        if (error != nil) {
+            SENTRY_LOG_ERROR(@"Could not create replay video - %@", error);
+        } else {
+            [self captureSegment:self->_currentSegmentId++
+                           video:videoInfo
+                        replayId:self->sessionReplayId
+                      replayType:kSentryReplayTypeSession];
+            
+            [self->_replayMaker releaseFramesUntil:videoInfo.end];
+            self->_videoSegmentStart = nil;
+        }
+    }];
 }
 
 - (void)captureSegment:(NSInteger)segment
