@@ -1,3 +1,5 @@
+import _SentryPrivate
+
 public struct TestConstants {
     
     /**

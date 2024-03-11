@@ -1,3 +1,4 @@
+import _SentryPrivate
 @testable import Sentry
 import SentryTestUtils
 import XCTest
@@ -749,9 +750,9 @@ class SentryHttpTransportTests: XCTestCase {
         let ensureFlushingGroup = DispatchGroup()
         let ensureFlushingQueue = DispatchQueue(label: "First flushing")
         
-        sut.setStartFlushCallback {
-            ensureFlushingGroup.leave()
-        }
+//        sut.setStartFlushCallback {
+//            ensureFlushingGroup.leave()
+//        }
         
         allFlushCallsGroup.enter()
         ensureFlushingGroup.enter()

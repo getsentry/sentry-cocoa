@@ -1,3 +1,4 @@
+import _SentryPrivate
 import Nimble
 import Sentry
 import SentryTestUtils

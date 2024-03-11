@@ -1,3 +1,4 @@
+import _SentryPrivate
 import XCTest
 
 class SentrySerializationTests: XCTestCase {

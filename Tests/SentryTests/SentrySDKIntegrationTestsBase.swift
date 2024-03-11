@@ -1,3 +1,4 @@
+import _SentryPrivate
 import Foundation
 @testable import Sentry
 import SentryTestUtils
