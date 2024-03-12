@@ -1,3 +1,4 @@
+#import <MetricKit/MetricKit.h>
 #import "SentryEvent+Private.h"
 #import "SentryHub+Test.h"
 #import "SentryProfileTimeseries.h"

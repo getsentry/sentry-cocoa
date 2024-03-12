@@ -10,6 +10,7 @@
 #    import <SentryCrashWrapper.h>
 #    import <SentryDependencyContainer.h>
 #    import <SentryDispatchQueueWrapper.h>
+#    import "SentryOptions.h"
 
 @interface
 SentryAppStartTrackingIntegration ()

@@ -17,6 +17,7 @@
 #    import <SentrySDK+Private.h>
 #    import <SentryStacktrace.h>
 #    import <SentryThread.h>
+#    import "SentryOptions.h"
 
 /**
  * We need to check if MetricKit is available for compatibility on iOS 12 and below. As there are no

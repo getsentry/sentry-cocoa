@@ -26,6 +26,7 @@
 #import "SentryTracer.h"
 #import "SentryUser.h"
 #import <objc/runtime.h>
+#import "SentryOptions.h"
 
 /**
  * WARNING: We had issues in the past with this code on older iOS versions. We don't run unit tests

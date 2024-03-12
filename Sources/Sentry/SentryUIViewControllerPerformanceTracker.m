@@ -16,6 +16,7 @@
 #    import <SentrySpanOperations.h>
 #    import <UIKit/UIKit.h>
 #    import <objc/runtime.h>
+#    import "SentryOptions.h"
 
 @interface
 SentryUIViewControllerPerformanceTracker ()

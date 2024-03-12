@@ -21,6 +21,7 @@
 #import <SentryFramesTracker.h>
 #import <SentryScreenshot.h>
 #import <SentryUser.h>
+#import "SentryOptions.h"
 
 @implementation PrivateSentrySDKOnly
 

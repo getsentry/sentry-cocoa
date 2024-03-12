@@ -10,6 +10,7 @@
 #    import "SentrySubClassFinder.h"
 #    import "SentryUIViewControllerPerformanceTracker.h"
 #    import "SentryUIViewControllerSwizzling.h"
+#    import "SentryOptions.h"
 
 @interface
 SentryPerformanceTrackingIntegration ()
@@ -56,6 +57,10 @@ SentryPerformanceTrackingIntegration ()
     return kIntegrationOptionEnableAutoPerformanceTracing
         | kIntegrationOptionEnableUIViewControllerTracing | kIntegrationOptionIsTracingEnabled
         | kIntegrationOptionEnableSwizzling;
+}
+
+- (void)uninstall {
+    
 }
 
 @end

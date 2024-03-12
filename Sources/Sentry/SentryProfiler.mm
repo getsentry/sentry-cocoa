@@ -40,6 +40,7 @@
 #    import "SentryTracer+Private.h"
 #    import "SentryTransaction.h"
 #    import "SentryTransactionContext+Private.h"
+#    import "SentryOptions.h"
 
 #    import <cstdint>
 #    import <memory>

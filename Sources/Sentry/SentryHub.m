@@ -25,6 +25,7 @@
 #import "SentryTracer.h"
 #import "SentryTransaction.h"
 #import "SentryTransactionContext+Private.h"
+#import "SentryOptions.h"
 
 #if SENTRY_HAS_UIKIT
 #    import "SentryUIViewControllerPerformanceTracker.h"

@@ -1,5 +1,5 @@
-#import "SentryIntegrationProtocol.h"
 #import <Foundation/Foundation.h>
+#import "Sentry/Sentry-Swift.h"
 
 @class SentryOptions;
 
