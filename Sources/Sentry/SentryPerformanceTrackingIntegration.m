@@ -59,9 +59,6 @@ SentryPerformanceTrackingIntegration ()
         | kIntegrationOptionEnableSwizzling;
 }
 
-- (void)uninstall {
-    
-}
 
 @end
 
