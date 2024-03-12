@@ -68,6 +68,8 @@ SENTRY_NO_INIT
  */
 @property (nullable, nonatomic, strong) NSDate *startTimestamp;
 
+@property (nonatomic, assign) uint64_t startSystemTimestamp;
+
 /**
  * Whether the span is finished.
  */

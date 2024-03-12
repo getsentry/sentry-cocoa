@@ -1,6 +1,7 @@
 #import "SentryProfiler+Private.h"
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
+#    import "SentryAppStartMeasurement.h"
 #    import "SentryClient+Private.h"
 #    import "SentryDateUtils.h"
 #    import "SentryDebugImageProvider.h"
@@ -187,9 +188,11 @@ serializedSamplesWithRelativeTimestamps(NSArray<SentrySample *> *samples, uint64
             SENTRY_LOG_WARN(@"Filtered sample not chronological with transaction.");
             return;
         }
+        const auto relativeTimestamp = getDurationNs(startSystemTime, sample.absoluteTimestamp);
+        SENTRY_LOG_DEBUG(@"relativeTimestamp: %llu", relativeTimestamp);
         const auto dict = [NSMutableDictionary dictionaryWithDictionary:@ {
             @"elapsed_since_start_ns" :
-                sentry_stringForUInt64(getDurationNs(startSystemTime, sample.absoluteTimestamp)),
+                sentry_stringForUInt64(relativeTimestamp),
             @"thread_id" : sentry_stringForUInt64(sample.threadID),
             @"stack_id" : sample.stackIndex,
         }];
@@ -234,7 +237,12 @@ serializedProfileData(
     }
     const auto payload = [NSMutableDictionary<NSString *, id> dictionary];
     NSMutableDictionary<NSString *, id> *const profile = [profileData[@"profile"] mutableCopy];
+    NSIndexSet *emptyStackIndexes = [profile[@"stacks"] indexesOfObjectsPassingTest:^BOOL(NSArray *_Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+        return obj.count == 0;
+    }];
+    SENTRY_LOG_DEBUG(@"empty stacks: %@", emptyStackIndexes);
     profile[@"samples"] = serializedSamplesWithRelativeTimestamps(slicedSamples, startSystemTime);
+    SENTRY_LOG_DEBUG(@"relative samples: %@", profile[@"samples"]);
     payload[@"profile"] = profile;
 
     payload[@"version"] = @"1";
@@ -516,7 +524,7 @@ writeProfileFile(NSDictionary<NSString *, id> *payload)
         @"name" : transaction.transaction,
         @"active_thread_id" : [transaction.trace.transactionContext sentry_threadInfo].threadId
     };
-    const auto timestamp = transaction.trace.originalStartTimestamp;
+    const auto timestamp = [[SentrySDK getAppStartMeasurement] runtimeInitTimestamp];
     if (UNLIKELY(timestamp == nil)) {
         SENTRY_LOG_WARN(@"There was no start timestamp on the provided transaction. Falling back "
                         @"to old behavior of using the current time.");

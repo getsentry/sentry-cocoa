@@ -14,6 +14,7 @@
 #    import "SentrySampling.h"
 #    import "SentrySamplingContext.h"
 #    import "SentrySwift.h"
+#    import "SentryTime.h"
 #    import "SentryTraceOrigins.h"
 #    import "SentryTracer+Private.h"
 #    import "SentryTracerConfiguration.h"
@@ -116,6 +117,13 @@ config(NSNumber *profilesRate)
 void
 startLaunchProfile(void)
 {
+#    if defined(DEBUG)
+        // quick and dirty way to get debug logging this early in the process run. this will get
+        // overwritten once SentrySDK.startWithOptions is called according to the values of
+        // SentryOptions.debug and SentryOptions.diagnosticLevel
+        [SentryLog configure:YES diagnosticLevel:kSentryLevelDebug];
+#    endif // defined(DEBUG)
+    
     static dispatch_once_t onceToken;
     // this function is called from SentryTracer.load but in the future we may expose access
     // directly to customers, and we'll want to ensure it only runs once. dispatch_once is an
@@ -126,13 +134,6 @@ startLaunchProfile(void)
             return;
         }
 
-#    if defined(DEBUG)
-        // quick and dirty way to get debug logging this early in the process run. this will get
-        // overwritten once SentrySDK.startWithOptions is called according to the values of
-        // SentryOptions.debug and SentryOptions.diagnosticLevel
-        [SentryLog configure:YES diagnosticLevel:kSentryLevelDebug];
-#    endif // defined(DEBUG)
-
         NSDictionary<NSString *, NSNumber *> *rates = appLaunchProfileConfiguration();
         NSNumber *profilesRate = rates[kSentryLaunchProfileConfigKeyProfilesSampleRate];
         NSNumber *tracesRate = rates[kSentryLaunchProfileConfigKeyTracesSampleRate];
@@ -142,7 +143,7 @@ startLaunchProfile(void)
             return;
         }
 
-        SENTRY_LOG_INFO(@"Starting app launch profile.");
+        SENTRY_LOG_INFO(@"Starting app launch profile at %llu.", getAbsoluteTime());
         launchTracer = [[SentryTracer alloc] initWithTransactionContext:context(tracesRate)
                                                                     hub:nil
                                                           configuration:config(profilesRate)];

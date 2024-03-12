@@ -23,6 +23,7 @@ SENTRY_NO_INIT
 - (instancetype)initWithType:(SentryAppStartType)type
                       isPreWarmed:(BOOL)isPreWarmed
                 appStartTimestamp:(NSDate *)appStartTimestamp
+         appStartSystemTimestamp:(uint64_t)appStartSystemTimestamp
                          duration:(NSTimeInterval)duration
              runtimeInitTimestamp:(NSDate *)runtimeInitTimestamp
     moduleInitializationTimestamp:(NSDate *)moduleInitializationTimestamp
@@ -48,6 +49,12 @@ SENTRY_NO_INIT
  * starts the moduleInitializationTimestamp.
  */
 @property (readonly, nonatomic, strong) NSDate *appStartTimestamp;
+
+/**
+ * Similar to @c appStartTimestamp, but in number of nanoseconds, and retrieved with
+ * @c clock_gettime_nsec_np / @c mach_absolute_time if measured from module initialization time.
+ */
+@property (readonly, nonatomic, assign) uint64_t appStartSystemTimestamp;
 
 /**
  * When the runtime was initialized / when SentryAppStartTracker is added to the Objective-C runtime

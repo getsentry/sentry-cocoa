@@ -563,13 +563,7 @@ static BOOL appStartMeasurementRead;
         return;
     }
 
-    BOOL shouldBailWithNilHub = _hub == nil;
-#if SENTRY_TARGET_PROFILING_SUPPORTED
-    if (isTracingAppLaunch) {
-        shouldBailWithNilHub = NO;
-    }
-#endif // SENTRY_TARGET_PROFILING_SUPPORTED
-    if (shouldBailWithNilHub) {
+    if (_hub == nil) {
         SENTRY_LOG_DEBUG(
             @"Hub was nil for tracer %@, nothing to do.", _traceContext.traceId.sentryIdString);
         return;
@@ -626,8 +620,7 @@ static BOOL appStartMeasurementRead;
         return;
     }
 
-    SENTRY_LOG_DEBUG(@"Capturing transaction with profiling data attached for tracer id %@.",
-        self.internalID.sentryIdString);
+    SENTRY_LOG_DEBUG(@"Capturing transaction id %@ with profiling data attached for tracer id %@.", transaction.eventId.sentryIdString, self.internalID.sentryIdString);
     [_hub captureTransaction:transaction
                       withScope:_hub.scope
         additionalEnvelopeItems:@[ profileEnvelopeItem ]];
@@ -686,10 +679,25 @@ static BOOL appStartMeasurementRead;
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
     if (self.isProfiling) {
-        transaction.startSystemTime = self.startSystemTime;
+        // if we have an app start span, use its app start timestamp. otherwise use the tracer's start system time as we currently do
+        SENTRY_LOG_DEBUG(@"Tracer start time: %llu", self.startSystemTime);
+        
+#    if SENTRY_HAS_UIKIT
+        if (appStartSpans.firstObject != nil) {
+            SENTRY_LOG_DEBUG(@"Assigning transaction start time (%llu) from app start span", appStartSpans.firstObject.startSystemTimestamp);
+            transaction.startSystemTime = appStartSpans.firstObject.startSystemTimestamp;
+        } else {
+#    endif // SENTRY_HAS_UIKIT
+            transaction.startSystemTime = self.startSystemTime;
+#    if SENTRY_HAS_UIKIT
+        }
+#    endif // SENTRY_HAS_UIKIT
+            
         [SentryProfiler recordMetrics];
         transaction.endSystemTime
             = SentryDependencyContainer.sharedInstance.dateProvider.systemTime;
+    } else {
+        SENTRY_LOG_DEBUG(@"Not currently profiling tracer creating transaction.");
     }
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 

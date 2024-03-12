@@ -214,6 +214,7 @@ class SentryProfilerSwiftTests: XCTestCase {
         // app start simulation
 
         lazy var appStart = currentDateProvider.date()
+        lazy var appStartSystemTime = currentDateProvider.systemTime()
         var appStartDuration = 0.5
         lazy var appStartEnd = appStart.addingTimeInterval(appStartDuration)
 
@@ -227,7 +228,7 @@ class SentryProfilerSwiftTests: XCTestCase {
             appStart = preWarmed ? main : appStart
             appStartDuration = preWarmed ? appStartDuration - runtimeInitDuration - mainDuration : appStartDuration
             appStartEnd = appStart.addingTimeInterval(appStartDuration)
-            return SentryAppStartMeasurement(type: type, isPreWarmed: preWarmed, appStartTimestamp: appStart, duration: appStartDuration, runtimeInitTimestamp: runtimeInit, moduleInitializationTimestamp: main,
+            return SentryAppStartMeasurement(type: type, isPreWarmed: preWarmed, appStartTimestamp: appStart, appStartSystemTimestamp: appStartSystemTime, duration: appStartDuration, runtimeInitTimestamp: runtimeInit, moduleInitializationTimestamp: main,
                                              sdkStartTimestamp: appStart, didFinishLaunchingTimestamp: didFinishLaunching)
         }
 #endif // !os(macOS)
@@ -552,6 +553,12 @@ class SentryProfilerSwiftTests: XCTestCase {
     }
 #endif // !os(macOS)
     
+//    func testAppStartSpansGetAllProfileSamples() throws {
+//        let appStartMeasurement = fixture.getAppStartMeasurement(type: .cold)
+//        let span = try fixture.newTransaction()
+//        addMockSamples()
+//        span.finish()
+//    }
 }
 
 private extension SentryProfilerSwiftTests {

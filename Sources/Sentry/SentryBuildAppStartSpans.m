@@ -1,4 +1,5 @@
 #import "SentryAppStartMeasurement.h"
+#import "SentryLog.h"
 #import "SentrySpan.h"
 #import "SentrySpanContext+Private.h"
 #import "SentrySpanId.h"
@@ -56,6 +57,7 @@ sentryBuildAppStartSpans(SentryTracer *tracer, SentryAppStartMeasurement *appSta
 
     SentrySpan *appStartSpan = sentryBuildAppStartSpan(tracer, tracer.spanId, operation, type);
     [appStartSpan setStartTimestamp:appStartMeasurement.appStartTimestamp];
+    [appStartSpan setStartSystemTimestamp:appStartMeasurement.appStartSystemTimestamp];
     [appStartSpan setTimestamp:appStartEndTimestamp];
 
     [appStartSpans addObject:appStartSpan];
