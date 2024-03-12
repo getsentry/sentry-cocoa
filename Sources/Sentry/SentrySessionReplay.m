@@ -130,7 +130,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)updateEvent:(SentryEvent *)event withReplayId:(SentryId *)sentryId {
     NSMutableDictionary * context = [NSMutableDictionary dictionaryWithDictionary:event.context];
-    context[@"session_replay"] = sentryId;
+    context[@"replay_id"] = sentryId;
     event.context = context;
 }
 
