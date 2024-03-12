@@ -1797,7 +1797,7 @@
 		D8C67E9928000E23007E326E /* SentryUIApplication.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SentryUIApplication.h; path = include/SentryUIApplication.h; sourceTree = "<group>"; };
 		D8C67E9A28000E23007E326E /* SentryScreenshot.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SentryScreenshot.h; path = include/SentryScreenshot.h; sourceTree = "<group>"; };
 		D8CAC0402BA0984500E38F34 /* SentryIntegrationProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryIntegrationProtocol.swift; sourceTree = "<group>"; };
-		D8CAC04F2BA0AE3E00E38F34 /* SentryIntegrationProtocol.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SentryIntegrationProtocol.h; sourceTree = "<group>"; };
+		D8CAC04F2BA0AE3E00E38F34 /* SentryIntegrationProtocol.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SentryIntegrationProtocol.h; path = include/SentryIntegrationProtocol.h; sourceTree = "<group>"; };
 		D8CB74142947246600A5F964 /* SentryEnvelopeAttachmentHeader.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SentryEnvelopeAttachmentHeader.h; path = include/SentryEnvelopeAttachmentHeader.h; sourceTree = "<group>"; };
 		D8CB7416294724CC00A5F964 /* SentryEnvelopeAttachmentHeader.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentryEnvelopeAttachmentHeader.m; sourceTree = "<group>"; };
 		D8CB74182947285A00A5F964 /* SentryEnvelopeItemHeader.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SentryEnvelopeItemHeader.h; path = Public/SentryEnvelopeItemHeader.h; sourceTree = "<group>"; };
