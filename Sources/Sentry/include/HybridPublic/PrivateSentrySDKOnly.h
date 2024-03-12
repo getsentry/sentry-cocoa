@@ -2,6 +2,7 @@
 #import "SentryScreenFrames.h"
 
 @class SentryDebugMeta;
+@class SentryScreenFrames;
 @class SentryAppStartMeasurement;
 @class SentryOptions;
 @class SentryBreadcrumb;
