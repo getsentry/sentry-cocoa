@@ -1,12 +1,12 @@
 #import "SentryDefaultRateLimits.h"
 #import "SentryConcurrentRateLimitsDictionary.h"
-#import "SentryCurrentDateProvider.h"
 #import "SentryDataCategoryMapper.h"
 #import "SentryDateUtil.h"
 #import "SentryDependencyContainer.h"
 #import "SentryLog.h"
 #import "SentryRateLimitParser.h"
 #import "SentryRetryAfterHeaderParser.h"
+#import "SentrySwift.h"
 #import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN

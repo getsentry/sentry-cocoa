@@ -1,25 +1,26 @@
 #import "SentryANRTracker.h"
 #import "SentryBinaryImageCache.h"
-#import "SentryCurrentDateProvider.h"
 #import "SentryDispatchFactory.h"
 #import "SentryDispatchQueueWrapper.h"
 #import "SentryDisplayLinkWrapper.h"
 #import "SentryExtraContextProvider.h"
+#import "SentryFileManager.h"
 #import "SentryLog.h"
 #import "SentryNSProcessInfoWrapper.h"
 #import "SentryNSTimerFactory.h"
+#import "SentryOptions+Private.h"
 #import "SentryRandom.h"
+#import "SentrySDK+Private.h"
+#import "SentrySwift.h"
 #import "SentrySysctl.h"
 #import "SentrySystemWrapper.h"
 #import "SentryThreadInspector.h"
 #import "SentryUIDeviceWrapper.h"
 #import <SentryAppStateManager.h>
-#import <SentryClient+Private.h>
 #import <SentryCrash.h>
 #import <SentryCrashWrapper.h>
 #import <SentryDebugImageProvider.h>
 #import <SentryDependencyContainer.h>
-#import <SentryHub.h>
 #import <SentryNSNotificationCenterWrapper.h>
 #import <SentrySDK+Private.h>
 #import <SentrySwift.h>
@@ -93,7 +94,12 @@ static NSObject *sentryDependencyContainerLock;
 {
     @synchronized(sentryDependencyContainerLock) {
         if (_fileManager == nil) {
-            _fileManager = [[[SentrySDK currentHub] getClient] fileManager];
+            NSError *error;
+            _fileManager = [[SentryFileManager alloc] initWithOptions:SentrySDK.options
+                                                                error:&error];
+            if (_fileManager == nil) {
+                SENTRY_LOG_DEBUG(@"Could not create file manager - %@", error);
+            }
         }
         return _fileManager;
     }
@@ -103,9 +109,8 @@ static NSObject *sentryDependencyContainerLock;
 {
     @synchronized(sentryDependencyContainerLock) {
         if (_appStateManager == nil) {
-            SentryOptions *options = [[[SentrySDK currentHub] getClient] options];
             _appStateManager =
-                [[SentryAppStateManager alloc] initWithOptions:options
+                [[SentryAppStateManager alloc] initWithOptions:SentrySDK.options
                                                   crashWrapper:self.crashWrapper
                                                    fileManager:self.fileManager
                                           dispatchQueueWrapper:self.dispatchQueueWrapper
@@ -132,8 +137,8 @@ static NSObject *sentryDependencyContainerLock;
     if (_crashReporter == nil) {
         @synchronized(sentryDependencyContainerLock) {
             if (_crashReporter == nil) {
-                SentryOptions *options = [[[SentrySDK currentHub] getClient] options];
-                _crashReporter = [[SentryCrash alloc] initWithBasePath:options.cacheDirectoryPath];
+                _crashReporter =
+                    [[SentryCrash alloc] initWithBasePath:SentrySDK.options.cacheDirectoryPath];
             }
         }
     }
@@ -157,8 +162,8 @@ static NSObject *sentryDependencyContainerLock;
     if (_threadInspector == nil) {
         @synchronized(sentryDependencyContainerLock) {
             if (_threadInspector == nil) {
-                SentryOptions *options = [[[SentrySDK currentHub] getClient] options];
-                _threadInspector = [[SentryThreadInspector alloc] initWithOptions:options];
+                _threadInspector =
+                    [[SentryThreadInspector alloc] initWithOptions:SentrySDK.options];
             }
         }
     }

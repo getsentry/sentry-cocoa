@@ -1316,8 +1316,9 @@ writeError(const SentryCrashReportWriter *const writer, const char *const key,
                 writer->addStringElement(writer, SentryCrashField_Name, crash->NSException.name);
                 writer->addStringElement(
                     writer, SentryCrashField_UserInfo, crash->NSException.userInfo);
-                writeAddressReferencedByString(
-                    writer, SentryCrashField_ReferencedObject, crash->crashReason);
+                if (crash->crashReason != NULL) {
+                    writer->addStringElement(writer, SentryCrashField_Reason, crash->crashReason);
+                }
             }
             writer->endContainer(writer);
             break;

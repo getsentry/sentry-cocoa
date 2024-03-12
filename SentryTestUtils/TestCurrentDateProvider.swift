@@ -1,12 +1,16 @@
 import Foundation
+@testable import Sentry
 
-@objc
-public class TestCurrentDateProvider: CurrentDateProvider {
+public class TestCurrentDateProvider: SentryCurrentDateProvider {
     public static let defaultStartingDate = Date(timeIntervalSinceReferenceDate: 0)
     private var internalDate = defaultStartingDate
     private var internalSystemTime: UInt64 = 0
     public var driftTimeForEveryRead = false
     public var driftTimeInterval = 0.1
+    
+    public override init() {
+        
+    }
     
     public override func date() -> Date {
 
@@ -38,11 +42,6 @@ public class TestCurrentDateProvider: CurrentDateProvider {
     public func advanceBy(nanoseconds: UInt64) {
         setDate(date: date().addingTimeInterval(TimeInterval(nanoseconds) / 1e9))
         internalSystemTime += nanoseconds
-    }
-    
-    public var internalDispatchNow = DispatchTime.now()
-    public override func dispatchTimeNow() -> dispatch_time_t {
-        return internalDispatchNow.rawValue
     }
 
     public var timezoneOffsetValue = 0

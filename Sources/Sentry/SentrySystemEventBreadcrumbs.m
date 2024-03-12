@@ -1,11 +1,11 @@
 #import "SentrySystemEventBreadcrumbs.h"
 #import "SentryBreadcrumb.h"
 #import "SentryBreadcrumbDelegate.h"
-#import "SentryCurrentDateProvider.h"
 #import "SentryDefines.h"
 #import "SentryDependencyContainer.h"
 #import "SentryLog.h"
 #import "SentryNSNotificationCenterWrapper.h"
+#import "SentrySwift.h"
 
 #if TARGET_OS_IOS && SENTRY_HAS_UIKIT
 

@@ -4,6 +4,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+@class SentryScope;
+
 /** A wrapper around SentryCrash for testability.
  */
 @interface SentryCrashWrapper : NSObject
@@ -32,6 +34,8 @@ SENTRY_NO_INIT
 - (bytes)freeMemorySize;
 
 - (bytes)appMemorySize;
+
+- (void)enrichScope:(SentryScope *)scope;
 
 @end
 

@@ -1,5 +1,6 @@
-#import "SentryRandom.h"
 #import "SentryTransport.h"
+
+@protocol SentryRandom;
 
 @class SentryCrashWrapper;
 @class SentryDispatchQueueWrapper;
