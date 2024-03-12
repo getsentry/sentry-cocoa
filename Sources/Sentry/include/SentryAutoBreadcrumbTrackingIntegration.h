@@ -1,6 +1,6 @@
 #import "SentryBaseIntegration.h"
 #import "SentryBreadcrumbDelegate.h"
-#import "SentrySwift.h"
+#import "SentryIntegrationProtocol.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

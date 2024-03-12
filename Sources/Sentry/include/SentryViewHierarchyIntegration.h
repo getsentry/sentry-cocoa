@@ -4,8 +4,8 @@
 
 #    import "SentryBaseIntegration.h"
 #    import "SentryClient+Private.h"
+#    import "SentryIntegrationProtocol.h"
 #    import <Foundation/Foundation.h>
-#    import "SentrySwift.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
