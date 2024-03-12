@@ -1,5 +1,6 @@
-#import "SentrySerializable.h"
 #import <Foundation/Foundation.h>
+
+@protocol SentrySerializable;
 
 NS_ASSUME_NONNULL_BEGIN
 
