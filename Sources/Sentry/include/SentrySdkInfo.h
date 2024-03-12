@@ -1,10 +1,5 @@
+#import "SentryDefines.h"
 #import <Foundation/Foundation.h>
-
-#if __has_include(<Sentry/SentrySerializable.h>)
-#    import <Sentry/SentrySerializable.h>
-#else
-#    import "SentrySerializable.h"
-#endif
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -13,7 +8,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @note Both name and version are required.
  * @see https://develop.sentry.dev/sdk/event-payloads/sdk/
  */
-@interface SentrySdkInfo : NSObject <SentrySerializable>
+@interface SentrySdkInfo : NSObject
 SENTRY_NO_INIT
 
 /**
@@ -34,6 +29,8 @@ SENTRY_NO_INIT
 - (instancetype)initWithDict:(NSDictionary *)dict;
 
 - (instancetype)initWithDict:(NSDictionary *)dict orDefaults:(SentrySdkInfo *)info;
+
+- (NSDictionary<NSString *, id> *)serialize;
 
 @end
 
