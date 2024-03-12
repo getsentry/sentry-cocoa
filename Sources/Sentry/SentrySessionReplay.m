@@ -131,8 +131,9 @@ NS_ASSUME_NONNULL_BEGIN
     self->_isFullSession = YES;
 }
 
-- (void)updateEvent:(SentryEvent *)event withReplayId:(SentryId *)sentryId {
-    NSMutableDictionary * context = [NSMutableDictionary dictionaryWithDictionary:event.context];
+- (void)updateEvent:(SentryEvent *)event withReplayId:(SentryId *)sentryId
+{
+    NSMutableDictionary *context = [NSMutableDictionary dictionaryWithDictionary:event.context];
     context[@"replay_id"] = sentryId;
     event.context = context;
 }
