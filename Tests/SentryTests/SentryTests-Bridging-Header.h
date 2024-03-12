@@ -162,7 +162,6 @@
 #import "SentryScreenFrames.h"
 #import "SentryScreenshot.h"
 #import "SentryScreenshotIntegration.h"
-#import "SentrySdkInfo.h"
 #import "SentrySwift.h"
 #import "SentrySwiftAsyncIntegration.h"
 

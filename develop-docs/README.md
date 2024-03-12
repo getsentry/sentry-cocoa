@@ -137,6 +137,13 @@ When making an Objective-C class public for Swift SDK code, do the following:
 * Add the import `@_implementationOnly import _SentryPrivate` to your Swift class that wants to use
 the Objective-C class.
 
+## Public Protocols
+
+pod lib lint fails with the warning duplicate protocol definition when including a public header for
+a protocol in a private ObjC class header, when adding that header to `SentryPrivate.h` to expose it
+to internal SDK Swift code, as `SentrySDKInfo.h`. To solve this problem we have to use the
+`SentryInternalSerializable` for internal classes implementing serializable.
+
 ### Detailed explanation of the Swift and Objective-C Interoperability setup
 
 The SentrySDK uses Swift and Objective-C code. Public Objective-C classes, made public
