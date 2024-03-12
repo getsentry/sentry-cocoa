@@ -1,4 +1,3 @@
-#import <MetricKit/MetricKit.h>
 #import "SentryEvent+Private.h"
 #import "SentryHub+Test.h"
 #import "SentryProfileTimeseries.h"
@@ -12,6 +11,7 @@
 #import "SentryThread.h"
 #import "SentryTransaction.h"
 #import "SentryTransactionContext+Private.h"
+#import <MetricKit/MetricKit.h>
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 

@@ -7,10 +7,10 @@
 #import "SentryHub.h"
 #import "SentryLog.h"
 #import "SentryMeta.h"
+#import "SentryOptions.h"
 #import "SentrySDK+Private.h"
 #import "SentrySerialization.h"
 #import "SentrySwift.h"
-#import "SentryOptions.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

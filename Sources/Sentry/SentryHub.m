@@ -11,6 +11,7 @@
 #import "SentryLevelMapper.h"
 #import "SentryLog.h"
 #import "SentryNSTimerFactory.h"
+#import "SentryOptions.h"
 #import "SentryPerformanceTracker.h"
 #import "SentryProfilingConditionals.h"
 #import "SentrySDK+Private.h"
@@ -25,7 +26,6 @@
 #import "SentryTracer.h"
 #import "SentryTransaction.h"
 #import "SentryTransactionContext+Private.h"
-#import "SentryOptions.h"
 
 #if SENTRY_HAS_UIKIT
 #    import "SentryUIViewControllerPerformanceTracker.h"

@@ -1,5 +1,5 @@
-#import "SentryHub.h"
 #import "Sentry/Sentry-Swift.h"
+#import "SentryHub.h"
 
 @class SentryClient;
 @class SentryCrashWrapper;
