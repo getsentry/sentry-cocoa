@@ -1,4 +1,5 @@
 #import "PrivateSentrySDKOnly.h"
+#import "SentryAppStartMeasurement.h"
 #import "SentryBreadcrumb+Private.h"
 #import "SentryClient.h"
 #import "SentryDebugImageProvider.h"

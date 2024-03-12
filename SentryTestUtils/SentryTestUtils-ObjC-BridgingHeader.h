@@ -21,6 +21,7 @@
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
 #import "PrivateSentrySDKOnly.h"
+#import "SentryAppStartMeasurement.h"
 #import "SentryAppState.h"
 #import "SentryClient+Private.h"
 #import "SentryClient+TestInit.h"
