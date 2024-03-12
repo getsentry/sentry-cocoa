@@ -27,6 +27,9 @@ SentrySDK ()
 
 + (SentryHub *)currentHub;
 
+/**
+ * The option used to start the SDK
+ */
 @property (nonatomic, nullable, readonly, class) SentryOptions *options;
 
 /**

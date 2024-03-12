@@ -2,7 +2,6 @@
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
-#    import "SentryCurrentDateProvider.h"
 #    import "SentryDependencyContainer.h"
 #    import "SentryDispatchFactory.h"
 #    import "SentryDispatchQueueWrapper.h"
@@ -11,6 +10,7 @@
 #    import "SentryFormatter.h"
 #    import "SentryLog.h"
 #    import "SentryNSTimerFactory.h"
+#    import "SentrySwift.h"
 #    import "SentrySystemWrapper.h"
 #    import "SentryTime.h"
 #    import "SentryTransaction.h"

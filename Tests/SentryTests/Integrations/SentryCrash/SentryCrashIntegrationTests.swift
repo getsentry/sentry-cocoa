@@ -1,3 +1,4 @@
+@testable import Sentry
 import SentryTestUtils
 import XCTest
 
@@ -57,6 +58,8 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         fixture.client.fileManager.deleteCurrentSession()
         fixture.client.fileManager.deleteCrashedSession()
         fixture.client.fileManager.deleteAppState()
+        
+        SentrySDK.setStart(fixture.options)
     }
     
     override func tearDown() {
@@ -97,16 +100,6 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         let context = userInfo["context"] as? [String: Any]
         
         assertContext(context: context)
-    }
-    
-    func testSystemInfoIsEmpty() {
-        let scope = Scope()
-        SentryCrashIntegration.enrichScope(scope, crashWrapper: TestSentryCrashWrapper.sharedInstance())
-        
-        // We don't worry about the actual values
-        // This is an edge case where the user doesn't use the
-        // SentryCrashIntegration. Just make sure to not crash.
-        XCTAssertFalse(scope.contextDictionary.allValues.isEmpty)
     }
     
     func testEndSessionAsCrashed_WithCurrentSession() {

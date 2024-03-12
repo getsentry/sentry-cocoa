@@ -1,6 +1,5 @@
 #import "SentryHttpTransport.h"
 #import "SentryClientReport.h"
-#import "SentryCurrentDateProvider.h"
 #import "SentryDataCategoryMapper.h"
 #import "SentryDependencyContainer.h"
 #import "SentryDiscardReasonMapper.h"
@@ -20,6 +19,7 @@
 #import "SentryNSURLRequestBuilder.h"
 #import "SentryOptions.h"
 #import "SentrySerialization.h"
+#import "SentrySwift.h"
 
 #if !TARGET_OS_WATCH
 #    import "SentryReachability.h"

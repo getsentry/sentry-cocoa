@@ -1,3 +1,4 @@
+import Nimble
 @testable import Sentry
 import SentryTestUtils
 import XCTest
@@ -11,10 +12,21 @@ class SentryNSURLRequestTests: XCTestCase {
     
     func testRequestWithEnvelopeEndpoint() {
         let request = try! SentryNSURLRequest(envelopeRequestWith: SentryNSURLRequestTests.dsn(), andData: Data())
-        XCTAssertTrue(request.url!.absoluteString.hasSuffix("/envelope/"))
+        expect(request.url!.absoluteString).to(endWith("/envelope/"))
     }
+    
     func testRequestWithStoreEndpoint() {
         let request = try! SentryNSURLRequest(storeRequestWith: SentryNSURLRequestTests.dsn(), andData: Data())
-        XCTAssertTrue(request.url!.absoluteString.hasSuffix("/store/"))
+        expect(request.url!.absoluteString).to(endWith("/store/"))
+    }
+    
+    func testRequestWithEnvelopeEndpoint_hasUserAgentWithSdkNameAndVersion() {
+        let request = try! SentryNSURLRequest(envelopeRequestWith: SentryNSURLRequestTests.dsn(), andData: Data())
+        expect(request.allHTTPHeaderFields?["User-Agent"]) == "\(SentryMeta.sdkName)/\(SentryMeta.versionString)"
+    }
+    
+    func testRequestWithStoreEndpoint_hasUserAgentWithSdkNameAndVersion() {
+        let request = try! SentryNSURLRequest(storeRequestWith: SentryNSURLRequestTests.dsn(), andData: Data())
+        expect(request.allHTTPHeaderFields?["User-Agent"]) == "\(SentryMeta.sdkName)/\(SentryMeta.versionString)"
     }
 }

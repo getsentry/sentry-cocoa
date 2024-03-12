@@ -178,6 +178,14 @@ class SentryHubTests: XCTestCase {
         XCTAssertNil(hub.scope.serialize()["breadcrumbs"])
     }
     
+    func testScopeEnriched() {
+        let hub = fixture.getSut(fixture.options, Scope())
+        expect(hub.scope.contextDictionary.allValues.isEmpty) == false
+        expect(hub.scope.contextDictionary["os"]) != nil
+        expect(hub.scope.contextDictionary["device"]) != nil
+        expect(hub.scope.contextDictionary["app"]) != nil
+    }
+    
     func testAddBreadcrumb_WithCallbackModifies() {
         let crumbMessage = "modified"
         let options = fixture.options

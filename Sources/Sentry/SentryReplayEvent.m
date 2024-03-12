@@ -1,7 +1,7 @@
 #import "SentryReplayEvent.h"
 #import "SentryDateUtil.h"
 #import "SentryEnvelopeItemType.h"
-#import "SentryId.h"
+#import "SentrySwift.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

@@ -2,11 +2,9 @@
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
-#    import "SentryCurrentDateProvider.h"
 #    import "SentryDependencyContainer.h"
 #    import "SentryDispatchQueueWrapper.h"
 #    import "SentryFileManager.h"
-#    import "SentryId.h"
 #    import "SentryInternalDefines.h"
 #    import "SentryLog.h"
 #    import "SentryOptions.h"
@@ -15,6 +13,7 @@
 #    import "SentrySamplerDecision.h"
 #    import "SentrySampling.h"
 #    import "SentrySamplingContext.h"
+#    import "SentrySwift.h"
 #    import "SentryTraceOrigins.h"
 #    import "SentryTracer+Private.h"
 #    import "SentryTracerConfiguration.h"

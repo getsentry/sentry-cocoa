@@ -1,6 +1,5 @@
 #import "SentryClient+Private.h"
 #import "SentryCrashWrapper.h"
-#import "SentryCurrentDateProvider.h"
 #import "SentryDependencyContainer.h"
 #import "SentryEnvelope.h"
 #import "SentryEnvelopeItemHeader.h"
@@ -8,7 +7,6 @@
 #import "SentryEvent+Private.h"
 #import "SentryFileManager.h"
 #import "SentryHub+Private.h"
-#import "SentryId.h"
 #import "SentryInstallation.h"
 #import "SentryLevelMapper.h"
 #import "SentryLog.h"
@@ -22,6 +20,7 @@
 #import "SentryScope+Private.h"
 #import "SentrySerialization.h"
 #import "SentrySession+Private.h"
+#import "SentrySwift.h"
 #import "SentryTraceOrigins.h"
 #import "SentryTracer.h"
 #import "SentryTransaction.h"
@@ -62,6 +61,8 @@ SentryHub ()
         _installedIntegrationNames = [[NSMutableSet alloc] init];
         _crashWrapper = [SentryCrashWrapper sharedInstance];
         _errorsBeforeSession = 0;
+
+        [SentryDependencyContainer.sharedInstance.crashWrapper enrichScope:scope];
     }
     return self;
 }
@@ -509,6 +510,8 @@ SentryHub ()
             } else {
                 _scope = [[SentryScope alloc] init];
             }
+
+            [SentryDependencyContainer.sharedInstance.crashWrapper enrichScope:_scope];
         }
         return _scope;
     }

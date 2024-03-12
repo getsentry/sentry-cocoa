@@ -2,10 +2,10 @@
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
-#    import "SentryCurrentDateProvider.h"
 #    import "SentryDependencyContainer.h"
 #    import "SentryProfilerMocks.h"
 #    import "SentryProfilerState+ObjCpp.h"
+#    import "SentrySwift.h"
 #    include <vector>
 
 using namespace std;

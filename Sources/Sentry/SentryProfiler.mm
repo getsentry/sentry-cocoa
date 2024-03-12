@@ -3,7 +3,6 @@
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 #    import "NSDate+SentryExtras.h"
 #    import "SentryClient+Private.h"
-#    import "SentryCurrentDateProvider.h"
 #    import "SentryDebugImageProvider.h"
 #    import "SentryDebugMeta.h"
 #    import "SentryDefines.h"
@@ -18,7 +17,6 @@
 #    import "SentryFormatter.h"
 #    import "SentryFramesTracker.h"
 #    import "SentryHub+Private.h"
-#    import "SentryId.h"
 #    import "SentryInternalDefines.h"
 #    import "SentryLog.h"
 #    import "SentryMetricProfiler.h"
@@ -34,6 +32,7 @@
 #    import "SentryScope+Private.h"
 #    import "SentrySerialization.h"
 #    import "SentrySpanId.h"
+#    import "SentrySwift.h"
 #    import "SentrySystemWrapper.h"
 #    import "SentryThread.h"
 #    import "SentryThreadWrapper.h"

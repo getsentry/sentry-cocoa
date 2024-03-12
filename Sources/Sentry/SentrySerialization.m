@@ -5,12 +5,12 @@
 #import "SentryEnvelopeAttachmentHeader.h"
 #import "SentryEnvelopeItemType.h"
 #import "SentryError.h"
-#import "SentryId.h"
 #import "SentryLevelMapper.h"
 #import "SentryLog.h"
 #import "SentryReplayRecording.h"
 #import "SentrySdkInfo.h"
 #import "SentrySession.h"
+#import "SentrySwift.h"
 #import "SentryTraceContext.h"
 
 NS_ASSUME_NONNULL_BEGIN
