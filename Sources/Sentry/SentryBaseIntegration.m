@@ -165,7 +165,8 @@ NS_ASSUME_NONNULL_BEGIN
     return kIntegrationOptionNone;
 }
 
-- (void)uninstall {
+- (void)uninstall
+{
 }
 
 @end

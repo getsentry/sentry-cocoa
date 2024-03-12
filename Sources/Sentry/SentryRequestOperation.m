@@ -3,9 +3,9 @@
 #import "SentryError.h"
 #import "SentryHub.h"
 #import "SentryLog.h"
+#import "SentryOptions.h"
 #import "SentrySDK+Private.h"
 #import "SentrySwift.h"
-#import "SentryOptions.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

@@ -10,7 +10,8 @@ NS_ASSUME_NONNULL_BEGIN
     return YES;
 }
 
-- (void)uninstall {
+- (void)uninstall
+{
 }
 
 @end

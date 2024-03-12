@@ -3,6 +3,7 @@
 #if SENTRY_HAS_METRIC_KIT
 
 #    import "SentryInternalDefines.h"
+#    import "SentryOptions.h"
 #    import "SentryScope.h"
 #    import <Foundation/Foundation.h>
 #    import <SentryDebugMeta.h>
@@ -17,7 +18,6 @@
 #    import <SentrySDK+Private.h>
 #    import <SentryStacktrace.h>
 #    import <SentryThread.h>
-#    import "SentryOptions.h"
 
 /**
  * We need to check if MetricKit is available for compatibility on iOS 12 and below. As there are no

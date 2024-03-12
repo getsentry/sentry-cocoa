@@ -1,7 +1,7 @@
 import Foundation
 
 @objc
-public protocol SentryIntegrationProtocol : NSObjectProtocol {
+public protocol SentryIntegrationProtocol: NSObjectProtocol {
     
     /**
      * Installs the integration and returns YES if successful.

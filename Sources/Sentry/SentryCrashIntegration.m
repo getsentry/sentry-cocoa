@@ -5,6 +5,7 @@
 #import "SentryEvent.h"
 #import "SentryHub.h"
 #import "SentryInAppLogic.h"
+#import "SentryOptions.h"
 #import "SentrySDK+Private.h"
 #import "SentryScope+Private.h"
 #import "SentrySessionCrashedHandler.h"
@@ -15,7 +16,6 @@
 #import <SentryDependencyContainer.h>
 #import <SentrySDK+Private.h>
 #import <SentrySysctl.h>
-#import "SentryOptions.h"
 
 #if SENTRY_HAS_UIKIT
 #    import "SentryUIApplication.h"

@@ -7,9 +7,9 @@
 #import "SentryInternalNotificationNames.h"
 #import "SentryLog.h"
 #import "SentryNSNotificationCenterWrapper.h"
+#import "SentryOptions.h"
 #import "SentrySDK+Private.h"
 #import "SentrySwift.h"
-#import "SentryOptions.h"
 
 #if SENTRY_TARGET_MACOS
 #    import <Cocoa/Cocoa.h>

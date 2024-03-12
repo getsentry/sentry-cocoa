@@ -7,10 +7,10 @@
 #    import "SentryDispatchQueueWrapper.h"
 #    import "SentryLog.h"
 #    import "SentryNSProcessInfoWrapper.h"
+#    import "SentryOptions.h"
 #    import "SentrySubClassFinder.h"
 #    import "SentryUIViewControllerPerformanceTracker.h"
 #    import "SentryUIViewControllerSwizzling.h"
-#    import "SentryOptions.h"
 
 @interface
 SentryPerformanceTrackingIntegration ()
@@ -58,7 +58,6 @@ SentryPerformanceTrackingIntegration ()
         | kIntegrationOptionEnableUIViewControllerTracing | kIntegrationOptionIsTracingEnabled
         | kIntegrationOptionEnableSwizzling;
 }
-
 
 @end
 
