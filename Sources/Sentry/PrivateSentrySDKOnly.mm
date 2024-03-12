@@ -11,7 +11,6 @@
 #import "SentryProfiledTracerConcurrency.h"
 #import "SentryProfiler.h"
 #import "SentrySDK+Private.h"
-#import "SentryScreenFrames.h"
 #import "SentrySerialization.h"
 #import "SentrySwift.h"
 #import "SentryThreadHandle.hpp"

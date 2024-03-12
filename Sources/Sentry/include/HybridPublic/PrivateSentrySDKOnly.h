@@ -1,8 +1,8 @@
 #import "PrivatesHeader.h"
+#import "SentryScreenFrames.h"
 
 @class SentryDebugMeta;
 @class SentryAppStartMeasurement;
-@class SentryScreenFrames;
 @class SentryOptions;
 @class SentryBreadcrumb;
 @class SentryUser;
