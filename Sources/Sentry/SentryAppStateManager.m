@@ -26,6 +26,7 @@ SentryAppStateManager ()
 @property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueue;
 @property (nonatomic, strong) SentryNSNotificationCenterWrapper *notificationCenterWrapper;
 @property (nonatomic) NSInteger startCount;
+@property (nonatomic, copy) NSString *vendorIdentifier;
 
 @end
 
@@ -180,7 +181,13 @@ SentryAppStateManager ()
     bool isDebugging = self.crashWrapper.isBeingTraced;
 
     UIDevice *device = [UIDevice currentDevice];
-    NSString *vendorId = [device.identifierForVendor UUIDString];
+    
+    // Prevent multiple calls to UIDevice.currentDevice.identifierForVendor in a short period of time, thereby violating privacy compliance requirements in China Mainland.
+    NSString *vendorId = self.vendorIdentifier;
+    if (self.vendorIdentifier.length == 0) {
+        vendorId = [device.identifierForVendor UUIDString];
+        self.vendorIdentifier = vendorId;
+    }
 
     return [[SentryAppState alloc] initWithReleaseName:self.options.releaseName
                                              osVersion:device.systemVersion
