@@ -5,6 +5,7 @@
 ### Improvements
 
 - Remove SentryPrivate library (#3623)
+- Cache "vendorIdentifier" (#3734)
 
 ### Fixes
 

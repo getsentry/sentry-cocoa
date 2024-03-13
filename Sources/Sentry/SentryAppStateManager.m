@@ -181,17 +181,15 @@ SentryAppStateManager ()
     bool isDebugging = self.crashWrapper.isBeingTraced;
 
     UIDevice *device = [UIDevice currentDevice];
-    
-    // Prevent multiple calls to UIDevice.currentDevice.identifierForVendor in a short period of time, thereby violating privacy compliance requirements in China Mainland.
-    NSString *vendorId = self.vendorIdentifier;
-    if (self.vendorIdentifier.length == 0) {
-        vendorId = [device.identifierForVendor UUIDString];
-        self.vendorIdentifier = vendorId;
+
+    // Prevent multiple calls to UIDevice.currentDevice.identifierForVendor by caching it
+    if (self.vendorIdentifier == nil) {
+        self.vendorIdentifier = [device.identifierForVendor UUIDString];
     }
 
     return [[SentryAppState alloc] initWithReleaseName:self.options.releaseName
                                              osVersion:device.systemVersion
-                                              vendorId:vendorId
+                                              vendorId:self.vendorIdentifier
                                            isDebugging:isDebugging
                                    systemBootTimestamp:SentryDependencyContainer.sharedInstance
                                                            .sysctlWrapper.systemBootTimestamp];
