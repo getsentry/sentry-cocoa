@@ -8,8 +8,12 @@
 
 #endif
 
-@class SentryEvent, SentrySession, SentryId, SentryUserFeedback, SentryAttachment,
-    SentryTransaction, SentryClientReport, SentryEnvelopeItemHeader;
+@class SentryEvent;
+@class SentrySession;
+@class SentryId;
+@class SentryUserFeedback;
+@class SentryAttachment;
+@class SentryEnvelopeItemHeader;
 
 NS_ASSUME_NONNULL_BEGIN
 
