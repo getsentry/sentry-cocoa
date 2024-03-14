@@ -1,3 +1,4 @@
+import _SentryPrivate
 import Foundation
 
 /// A wrapper around `SentryDispatchQueueWrapper` that memoized invocations to its methods and allows customization of async logic, specifically: dispatch-after calls can be made to run immediately, or not at all.
