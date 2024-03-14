@@ -10,6 +10,7 @@
 @class SentrySession;
 @class SentryTracer;
 @class SentryTracerConfiguration;
+@protocol SentryIntegrationProtocol;
 
 NS_ASSUME_NONNULL_BEGIN
 

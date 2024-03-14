@@ -3,6 +3,7 @@
 #if SENTRY_HAS_METRIC_KIT
 
 #    import "SentryInternalDefines.h"
+#    import "SentryOptions.h"
 #    import "SentryScope.h"
 #    import <Foundation/Foundation.h>
 #    import <SentryDebugMeta.h>
