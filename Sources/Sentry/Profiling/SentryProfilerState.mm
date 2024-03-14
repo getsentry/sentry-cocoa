@@ -115,26 +115,17 @@ parseBacktraceSymbolsFunctionName(const char *symbol)
 #    endif
 
         const auto stack = [NSMutableArray<NSNumber *> array];
-#    if defined(DEBUG)
-        printf("[Sentry] [debug] [SentryProfilerState:%d] stack frames: %lu; stack thread: %s\n",
-            __LINE__, backtrace.addresses.size(), threadID.UTF8String);
-#    endif // defined(DEBUG)
         for (std::vector<uintptr_t>::size_type backtraceAddressIdx = 0;
              backtraceAddressIdx < backtrace.addresses.size(); backtraceAddressIdx++) {
             const auto instructionAddress
                 = sentry_formatHexAddressUInt64(backtrace.addresses[backtraceAddressIdx]);
-
             const auto frameIndex = state.frameIndexLookup[instructionAddress];
             if (frameIndex == nil) {
                 const auto frame = [NSMutableDictionary<NSString *, id> dictionary];
                 frame[@"instruction_addr"] = instructionAddress;
 #    if defined(DEBUG)
-                const auto functionName
+                frame[@"function"]
                     = parseBacktraceSymbolsFunctionName(symbols[backtraceAddressIdx]);
-                printf("[Sentry] [debug] [SentryProfilerState:%d] function name: %s; instruction "
-                       "address: %s\n",
-                    __LINE__, functionName.UTF8String, instructionAddress.UTF8String);
-                frame[@"function"] = functionName;
 #    endif
                 const auto newFrameIndex = @(state.frames.count);
                 [stack addObject:newFrameIndex];
@@ -145,7 +136,6 @@ parseBacktraceSymbolsFunctionName(const char *symbol)
             }
         }
 #    if defined(DEBUG)
-        printf("-----finished backtrace-----\n");
         free(symbols);
 #    endif
 
