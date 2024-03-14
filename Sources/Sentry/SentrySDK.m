@@ -24,7 +24,6 @@
 #import "SentryTransactionContext.h"
 
 #if SENTRY_HAS_UIKIT
-#    import "SentryTimeToDisplayTracker.h"
 #    import "SentryUIDeviceWrapper.h"
 #    import "SentryUIViewControllerPerformanceTracker.h"
 #endif // SENTRY_HAS_UIKIT

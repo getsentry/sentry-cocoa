@@ -314,7 +314,7 @@ class SentryTimeToDisplayTrackerTest: XCTestCase {
     }
     
     func testTracerWithAppStartData_notWaitingForFullDisplay() throws {
-        let appStartMeasurement = TestData.getAppStartMeasurement(type: .cold, appStartTimestamp: Date(timeIntervalSince1970: 6))
+        let appStartMeasurement = TestData.getAppStartMeasurement(type: .cold, appStartTimestamp: Date(timeIntervalSince1970: 6), appStartSystemTimestamp: 6_000_000_000)
         SentrySDK.setAppStartMeasurement(appStartMeasurement)
         
         fixture.dateProvider.setDate(date: Date(timeIntervalSince1970: 7))
@@ -347,7 +347,7 @@ class SentryTimeToDisplayTrackerTest: XCTestCase {
     }
     
     func testTracerWithAppStartData_waitingForFullDisplay() throws {
-        let appStartMeasurement = TestData.getAppStartMeasurement(type: .cold, appStartTimestamp: Date(timeIntervalSince1970: 6))
+        let appStartMeasurement = TestData.getAppStartMeasurement(type: .cold, appStartTimestamp: Date(timeIntervalSince1970: 6), appStartSystemTimestamp: 6_000_000_000)
         SentrySDK.setAppStartMeasurement(appStartMeasurement)
         
         fixture.dateProvider.setDate(date: Date(timeIntervalSince1970: 7))

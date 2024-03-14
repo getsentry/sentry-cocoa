@@ -8,6 +8,7 @@ import UIKit
 class TestData {
     
     static let timestamp = Date(timeIntervalSince1970: 10)
+    static let systemTimestamp: UInt64 = 10 * 1_000_000_000 // 10 seconds, in nanoseconds
     static var timestampAs8601String: String {
         sentry_toIso8601String(timestamp as Date)
     }
@@ -326,14 +327,14 @@ class TestData {
 
     #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
 
-    static func getAppStartMeasurement(type: SentryAppStartType, appStartTimestamp: Date = TestData.timestamp) -> SentryAppStartMeasurement {
+    static func getAppStartMeasurement(type: SentryAppStartType, appStartTimestamp: Date = TestData.timestamp, appStartSystemTimestamp: UInt64) -> SentryAppStartMeasurement {
         let appStartDuration = 0.5
         let main = appStartTimestamp.addingTimeInterval(0.15)
         let runtimeInit = appStartTimestamp.addingTimeInterval(0.05)
         let sdkStart = appStartTimestamp.addingTimeInterval(0.1)
         let didFinishLaunching = appStartTimestamp.addingTimeInterval(0.2)
         
-        return SentryAppStartMeasurement(type: type, isPreWarmed: false, appStartTimestamp: appStartTimestamp, duration: appStartDuration, runtimeInitTimestamp: runtimeInit, moduleInitializationTimestamp: main, sdkStartTimestamp: sdkStart, didFinishLaunchingTimestamp: didFinishLaunching)
+        return SentryAppStartMeasurement(type: type, isPreWarmed: false, appStartTimestamp: appStartTimestamp, appStartSystemTimestamp: appStartSystemTimestamp, duration: appStartDuration, runtimeInitTimestamp: runtimeInit, moduleInitializationTimestamp: main, sdkStartTimestamp: sdkStart, didFinishLaunchingTimestamp: didFinishLaunching)
     }
 
     #endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)

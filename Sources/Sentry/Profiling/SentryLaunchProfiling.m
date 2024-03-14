@@ -117,12 +117,6 @@ config(NSNumber *profilesRate)
 void
 startLaunchProfile(void)
 {
-#    if defined(DEBUG)
-    // quick and dirty way to get debug logging this early in the process run. this will get
-    // overwritten once SentrySDK.startWithOptions is called according to the values of
-    // SentryOptions.debug and SentryOptions.diagnosticLevel
-    [SentryLog configure:YES diagnosticLevel:kSentryLevelDebug];
-#    endif // defined(DEBUG)
 
     static dispatch_once_t onceToken;
     // this function is called from SentryTracer.load but in the future we may expose access
@@ -133,6 +127,13 @@ startLaunchProfile(void)
         if (!isTracingAppLaunch) {
             return;
         }
+
+#    if defined(DEBUG)
+        // quick and dirty way to get debug logging this early in the process run. this will get
+        // overwritten once SentrySDK.startWithOptions is called according to the values of
+        // SentryOptions.debug and SentryOptions.diagnosticLevel
+        [SentryLog configure:YES diagnosticLevel:kSentryLevelDebug];
+#    endif // defined(DEBUG)
 
         NSDictionary<NSString *, NSNumber *> *rates = appLaunchProfileConfiguration();
         NSNumber *profilesRate = rates[kSentryLaunchProfileConfigKeyProfilesSampleRate];

@@ -713,8 +713,6 @@ static BOOL appStartMeasurementRead;
         [SentryProfiler recordMetrics];
         transaction.endSystemTime
             = SentryDependencyContainer.sharedInstance.dateProvider.systemTime;
-    } else {
-        SENTRY_LOG_DEBUG(@"Not currently profiling tracer creating transaction.");
     }
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 

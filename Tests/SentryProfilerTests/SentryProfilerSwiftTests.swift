@@ -552,13 +552,6 @@ class SentryProfilerSwiftTests: XCTestCase {
         XCTAssertEqual(self.fixture.client?.captureEventWithScopeInvocations.count, 0)
     }
 #endif // !os(macOS)
-    
-//    func testAppStartSpansGetAllProfileSamples() throws {
-//        let appStartMeasurement = fixture.getAppStartMeasurement(type: .cold)
-//        let span = try fixture.newTransaction()
-//        addMockSamples()
-//        span.finish()
-//    }
 }
 
 private extension SentryProfilerSwiftTests {

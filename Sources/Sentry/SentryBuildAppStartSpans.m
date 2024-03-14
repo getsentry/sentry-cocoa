@@ -1,5 +1,4 @@
 #import "SentryAppStartMeasurement.h"
-#import "SentryLog.h"
 #import "SentrySpan.h"
 #import "SentrySpanContext+Private.h"
 #import "SentrySpanId.h"
