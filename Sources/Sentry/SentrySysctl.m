@@ -30,7 +30,7 @@ sentryModuleInitializationHook(void)
 + (void)load
 {
     runtimeInit = [NSDate date];
-    
+
     // this will be used for launch profiles. those are started from SentryTracer.load, and while
     // there's no guarantee on whether that or this load method will be called first, the difference
     // in time has been observed to only be on the order of single milliseconds, not significant

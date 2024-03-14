@@ -601,7 +601,19 @@ static BOOL appStartMeasurementRead;
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
     if (self.isProfiling) {
-        [self captureTransactionWithProfile:transaction];
+        NSDate *startTimestamp;
+        if (appStartMeasurement != nil) {
+            startTimestamp = appStartMeasurement.runtimeInitTimestamp;
+        } else {
+            startTimestamp = self.startTimestamp;
+        }
+        if (!SENTRY_ASSERT_RETURN(startTimestamp != nil,
+                @"A transaction with a profile should have a start timestamp already. We will "
+                @"assign the current time but this will be incorrect.")) {
+            startTimestamp = [SentryDependencyContainer.sharedInstance.dateProvider date];
+        }
+
+        [self captureTransactionWithProfile:transaction startTimestamp:startTimestamp];
         return;
     }
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
@@ -611,16 +623,19 @@ static BOOL appStartMeasurementRead;
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 - (void)captureTransactionWithProfile:(SentryTransaction *)transaction
+                       startTimestamp:(NSDate *)startTimestamp
 {
     SentryEnvelopeItem *profileEnvelopeItem =
-        [SentryProfiler createProfilingEnvelopeItemForTransaction:transaction];
+        [SentryProfiler createProfilingEnvelopeItemForTransaction:transaction
+                                                   startTimestamp:startTimestamp];
 
     if (!profileEnvelopeItem) {
         [_hub captureTransaction:transaction withScope:_hub.scope];
         return;
     }
 
-    SENTRY_LOG_DEBUG(@"Capturing transaction id %@ with profiling data attached for tracer id %@.", transaction.eventId.sentryIdString, self.internalID.sentryIdString);
+    SENTRY_LOG_DEBUG(@"Capturing transaction id %@ with profiling data attached for tracer id %@.",
+        transaction.eventId.sentryIdString, self.internalID.sentryIdString);
     [_hub captureTransaction:transaction
                       withScope:_hub.scope
         additionalEnvelopeItems:@[ profileEnvelopeItem ]];
@@ -679,12 +694,14 @@ static BOOL appStartMeasurementRead;
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
     if (self.isProfiling) {
-        // if we have an app start span, use its app start timestamp. otherwise use the tracer's start system time as we currently do
+        // if we have an app start span, use its app start timestamp. otherwise use the tracer's
+        // start system time as we currently do
         SENTRY_LOG_DEBUG(@"Tracer start time: %llu", self.startSystemTime);
-        
+
 #    if SENTRY_HAS_UIKIT
         if (appStartSpans.firstObject != nil) {
-            SENTRY_LOG_DEBUG(@"Assigning transaction start time (%llu) from app start span", appStartSpans.firstObject.startSystemTimestamp);
+            SENTRY_LOG_DEBUG(@"Assigning transaction start time (%llu) from app start span",
+                appStartSpans.firstObject.startSystemTimestamp);
             transaction.startSystemTime = appStartSpans.firstObject.startSystemTimestamp;
         } else {
 #    endif // SENTRY_HAS_UIKIT
@@ -692,7 +709,7 @@ static BOOL appStartMeasurementRead;
 #    if SENTRY_HAS_UIKIT
         }
 #    endif // SENTRY_HAS_UIKIT
-            
+
         [SentryProfiler recordMetrics];
         transaction.endSystemTime
             = SentryDependencyContainer.sharedInstance.dateProvider.systemTime;

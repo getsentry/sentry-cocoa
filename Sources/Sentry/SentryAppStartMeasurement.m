@@ -24,7 +24,7 @@
 - (instancetype)initWithType:(SentryAppStartType)type
                       isPreWarmed:(BOOL)isPreWarmed
                 appStartTimestamp:(NSDate *)appStartTimestamp
-         appStartSystemTimestamp:(uint64_t)appStartSystemTimestamp
+          appStartSystemTimestamp:(uint64_t)appStartSystemTimestamp
                          duration:(NSTimeInterval)duration
              runtimeInitTimestamp:(NSDate *)runtimeInitTimestamp
     moduleInitializationTimestamp:(NSDate *)moduleInitializationTimestamp

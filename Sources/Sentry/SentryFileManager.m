@@ -791,10 +791,10 @@ appLaunchProfileConfigFileExists(void)
     if (path == nil) {
         return NO;
     }
-    
+
     int result = access(path.UTF8String, F_OK);
     BOOL exists = result == 0;
-    
+
     if (!exists) {
         SENTRY_LOG_DEBUG(@"Launch profiling config file check returned %i", result);
     }
