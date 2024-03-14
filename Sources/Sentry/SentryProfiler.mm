@@ -189,7 +189,8 @@ serializedSamplesWithRelativeTimestamps(NSArray<SentrySample *> *samples, uint64
             return;
         }
         const auto dict = [NSMutableDictionary dictionaryWithDictionary:@ {
-            @"elapsed_since_start_ns" : sentry_stringForUInt64(getDurationNs(startSystemTime, sample.absoluteTimestamp)),
+            @"elapsed_since_start_ns" :
+                sentry_stringForUInt64(getDurationNs(startSystemTime, sample.absoluteTimestamp)),
             @"thread_id" : sentry_stringForUInt64(sample.threadID),
             @"stack_id" : sample.stackIndex,
         }];
