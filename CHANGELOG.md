@@ -21,6 +21,8 @@ We now provide a prebuilt XCFramework for SPM, which speeds up your build and al
 more code in Swift. To make this happen, we had to remove the SentryPrivate target for SPM and
 CocoaPods, which you shouldn't have included directly.
 
+- Remove SentryPrivate library (#3623)
+- Pre-main profiling data is now attached to app start spans (#3736)
 
 ### Fixes
 
