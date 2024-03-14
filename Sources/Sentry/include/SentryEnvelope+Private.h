@@ -2,7 +2,9 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class SentryReplayEvent, SentryReplayRecording;
+@class SentryReplayEvent;
+@class SentryReplayRecording;
+@class SentryClientReport;
 
 @interface
 SentryEnvelopeItem ()

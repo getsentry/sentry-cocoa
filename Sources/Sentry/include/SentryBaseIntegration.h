@@ -35,7 +35,7 @@ typedef NS_OPTIONS(NSUInteger, SentryIntegrationOption) {
 - (void)logWithReason:(NSString *)reason;
 - (BOOL)shouldBeEnabledWithOptions:(SentryOptions *)options;
 - (SentryIntegrationOption)integrationOptions;
-
+- (void)uninstall;
 @end
 
 NS_ASSUME_NONNULL_END

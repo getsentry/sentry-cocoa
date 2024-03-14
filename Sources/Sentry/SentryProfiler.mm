@@ -23,6 +23,7 @@
 #    import "SentryNSNotificationCenterWrapper.h"
 #    import "SentryNSProcessInfoWrapper.h"
 #    import "SentryNSTimerFactory.h"
+#    import "SentryOptions.h"
 #    import "SentryProfileTimeseries.h"
 #    import "SentryProfiledTracerConcurrency.h"
 #    import "SentryProfilerState+ObjCpp.h"

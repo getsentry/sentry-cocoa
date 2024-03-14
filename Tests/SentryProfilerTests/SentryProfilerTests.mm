@@ -7,7 +7,6 @@
 #import "SentryProfilerState+ObjCpp.h"
 #import "SentryProfilingConditionals.h"
 #import "SentryScreenFrames.h"
-#import "SentrySwift.h"
 #import "SentryThread.h"
 #import "SentryTransaction.h"
 #import "SentryTransactionContext+Private.h"

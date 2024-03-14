@@ -1,4 +1,5 @@
 #import "PrivateSentrySDKOnly.h"
+#import "SentryAppStartMeasurement.h"
 #import "SentryBreadcrumb+Private.h"
 #import "SentryClient.h"
 #import "SentryDebugImageProvider.h"
@@ -7,6 +8,7 @@
 #import "SentryInstallation.h"
 #import "SentryInternalDefines.h"
 #import "SentryMeta.h"
+#import "SentryOptions.h"
 #import "SentryProfiledTracerConcurrency.h"
 #import "SentryProfiler.h"
 #import "SentrySDK+Private.h"
