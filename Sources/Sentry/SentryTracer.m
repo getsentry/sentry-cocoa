@@ -98,7 +98,6 @@ SentryTracer ()
     dispatch_block_t _idleTimeoutBlock;
     NSMutableArray<id<SentrySpan>> *_children;
     BOOL _startTimeChanged;
-    NSDate *_originalStartTimestamp;
     NSObject *_idleTimeoutLock;
 
 #if SENTRY_HAS_UIKIT
@@ -666,7 +665,6 @@ static BOOL appStartMeasurementRead;
 
 - (void)updateStartTime:(NSDate *)startTime
 {
-    _originalStartTimestamp = self.startTimestamp;
     super.startTimestamp = startTime;
     _startTimeChanged = YES;
 }
@@ -899,11 +897,6 @@ static BOOL appStartMeasurementRead;
         return [(SentrySpan *)span tracer];
     }
     return nil;
-}
-
-- (NSDate *)originalStartTimestamp
-{
-    return _startTimeChanged ? _originalStartTimestamp : self.startTimestamp;
 }
 
 @end
