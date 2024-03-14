@@ -4,4 +4,5 @@
 #import "SentryBaseIntegration.h"
 #import "SentryRandom.h"
 #import "SentrySdkInfo.h"
+#import "SentryStatsdClient.h"
 #import "SentryTime.h"
