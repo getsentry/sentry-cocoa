@@ -859,4 +859,7 @@ public class MainThreadTestIntegration: NSObject, SentryIntegrationProtocol {
         MainThreadTestIntegration.expectation = nil
         return true
     }
+    
+    public func uninstall() {
+    }
 }

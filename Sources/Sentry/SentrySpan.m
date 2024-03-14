@@ -9,7 +9,6 @@
 #import "SentryMeasurementValue.h"
 #import "SentryNoOpSpan.h"
 #import "SentrySampleDecision+Private.h"
-#import "SentrySerializable.h"
 #import "SentrySpanContext.h"
 #import "SentrySpanId.h"
 #import "SentrySwift.h"

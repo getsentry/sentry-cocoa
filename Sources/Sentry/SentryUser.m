@@ -1,5 +1,6 @@
 #import "SentryUser.h"
 #import "NSDictionary+SentrySanitize.h"
+#import "SentryGeo.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

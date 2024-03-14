@@ -4,7 +4,6 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @class SentryTracer, SentryId, SentrySpanId, SentryFrame, SentrySpanContext;
-@protocol SentrySerializable;
 
 #if SENTRY_HAS_UIKIT
 @class SentryFramesTracker;

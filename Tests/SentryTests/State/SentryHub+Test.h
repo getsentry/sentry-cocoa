@@ -2,7 +2,7 @@
 
 @class SentryClient;
 @class SentryCrashWrapper;
-
+@protocol SentryIntegrationProtocol;
 NS_ASSUME_NONNULL_BEGIN
 
 /** Expose the internal test init for testing. */

@@ -11,6 +11,7 @@
 #import "SentryLevelMapper.h"
 #import "SentryLog.h"
 #import "SentryNSTimerFactory.h"
+#import "SentryOptions.h"
 #import "SentryPerformanceTracker.h"
 #import "SentryProfilingConditionals.h"
 #import "SentrySDK+Private.h"

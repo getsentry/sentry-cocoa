@@ -12,6 +12,7 @@
 @class SentryTracerConfiguration;
 @class SentryReplayEvent;
 @class SentryReplayRecording;
+@protocol SentryIntegrationProtocol;
 
 NS_ASSUME_NONNULL_BEGIN
 
