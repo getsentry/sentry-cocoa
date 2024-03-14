@@ -796,7 +796,7 @@ private extension SentryProfilerSwiftTests {
         let linkedTransactionInfo = try XCTUnwrap(profile["transaction"] as? [String: Any])
 
         let linkedTransactionTimestampString = try XCTUnwrap(profile["timestamp"] as? String)
-        let latestTransactionTimestampString = sentry_toIso8601String(latestTransaction.trace.originalStartTimestamp as Date)
+        let latestTransactionTimestampString = sentry_toIso8601String(try XCTUnwrap(latestTransaction.startTimestamp))
         XCTAssertEqual(linkedTransactionTimestampString, latestTransactionTimestampString)
 
         XCTAssertEqual(fixture.transactionName, latestTransaction.transaction)
