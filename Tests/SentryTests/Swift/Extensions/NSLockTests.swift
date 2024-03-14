@@ -10,7 +10,7 @@ final class NSLockTests: XCTestCase {
         var value = 0
         
         testConcurrentModifications(asyncWorkItems: 10, writeLoopCount: 9, writeWork: { _ in
-            let returnValue = lock.synchronized {
+            let returnValue: Int = lock.synchronized {
                 value += 1
                 return 10
             }

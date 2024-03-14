@@ -12,13 +12,4 @@ extension NSLock {
         self.lock()
         return try closure()
     }
-    
-    /// Executes the closure while acquiring the lock.
-    ///
-    /// - Parameter closure: The closure to run.
-    func synchronized(_ closure: () throws -> Void) rethrows {
-        defer { self.unlock() }
-        self.lock()
-        try closure()
-    }
 }
