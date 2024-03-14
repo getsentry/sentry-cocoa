@@ -28,7 +28,8 @@
 @end
 
 @interface SentryPixelBuffer : NSObject
-- (nullable instancetype)initWithSize:(CGSize)size;
+
+- (instancetype)initWithSize:(CGSize)size;
 
 - (BOOL)appendImage:(UIImage *)image
     pixelBufferAdaptor:(AVAssetWriterInputPixelBufferAdaptor *)pixelBufferAdaptor
@@ -173,8 +174,7 @@
         [frames addObject:frame.imagePath];
     }
 
-    _currentPixelBuffer =
-        [[SentryPixelBuffer alloc] initWithSize:CGSizeMake(_videoSize.width, _videoSize.height)];
+    _currentPixelBuffer = [[SentryPixelBuffer alloc] initWithSize:_videoSize];
 
     [videoWriterInput
         requestMediaDataWhenReadyOnQueue:_onDemandDispatchQueue
@@ -228,57 +228,49 @@
 @end
 
 @implementation SentryPixelBuffer {
-    CVPixelBufferRef _pixelBuffer;
-    CGContextRef _context;
-    CGColorSpaceRef _rgbColorSpace;
+    CVPixelBufferRef pixelBuffer;
+    CGColorSpaceRef rgbColorSpace;
+    CGSize _size;
 }
 
-- (nullable instancetype)initWithSize:(CGSize)size
+- (instancetype)initWithSize:(CGSize)size
 {
-    if (self = [super init]) {
-        CVReturn status = kCVReturnSuccess;
-
-        status = CVPixelBufferCreate(kCFAllocatorDefault, (size_t)size.width, (size_t)size.height,
-            kCVPixelFormatType_32ARGB, NULL, &_pixelBuffer);
+    self = [super init];
+    if (self) {
+        CVReturn status = CVPixelBufferCreate(kCFAllocatorDefault, (size_t)size.width,
+            (size_t)size.height, kCVPixelFormatType_32ARGB, NULL, &pixelBuffer);
 
         if (status != kCVReturnSuccess) {
             return nil;
         }
-        void *pixelData = CVPixelBufferGetBaseAddress(_pixelBuffer);
-        _rgbColorSpace = CGColorSpaceCreateDeviceRGB();
-        _context = CGBitmapContextCreate(pixelData, (size_t)size.width, (size_t)size.height, 8,
-            CVPixelBufferGetBytesPerRow(_pixelBuffer), _rgbColorSpace,
-            (CGBitmapInfo)kCGImageAlphaNoneSkipFirst);
-
-        CGContextTranslateCTM(_context, 0, size.height);
-        CGContextScaleCTM(_context, 1.0, -1.0);
+        rgbColorSpace = CGColorSpaceCreateDeviceRGB();
+        _size = size;
     }
     return self;
 }
 
 - (void)dealloc
 {
-    CVPixelBufferRelease(_pixelBuffer);
-    CGContextRelease(_context);
-    CGColorSpaceRelease(_rgbColorSpace);
+    CVPixelBufferRelease(pixelBuffer);
+    CGColorSpaceRelease(rgbColorSpace);
 }
 
 - (BOOL)appendImage:(UIImage *)image
     pixelBufferAdaptor:(AVAssetWriterInputPixelBufferAdaptor *)pixelBufferAdaptor
       presentationTime:(CMTime)presentationTime
 {
-    CVPixelBufferLockBaseAddress(_pixelBuffer, 0);
 
-    CGContextDrawImage(
-        _context, CGRectMake(0, 0, image.size.width, image.size.height), image.CGImage);
+    CVPixelBufferLockBaseAddress(pixelBuffer, 0);
+    void *pixelData = CVPixelBufferGetBaseAddress(pixelBuffer);
 
-    CVPixelBufferUnlockBaseAddress(_pixelBuffer, 0);
+    CGContextRef context = CGBitmapContextCreate(pixelData, (size_t)_size.width,
+        (size_t)_size.height, 8, CVPixelBufferGetBytesPerRow(pixelBuffer), rgbColorSpace,
+        (CGBitmapInfo)kCGImageAlphaNoneSkipFirst);
 
-    // Append the pixel buffer with the current image to the video
-    BOOL success = [pixelBufferAdaptor appendPixelBuffer:_pixelBuffer
-                                    withPresentationTime:presentationTime];
-
-    return success;
+    CGContextDrawImage(context, CGRectMake(0, 0, _size.width, _size.height), image.CGImage);
+    CGContextRelease(context);
+    CVPixelBufferUnlockBaseAddress(pixelBuffer, 0);
+    return [pixelBufferAdaptor appendPixelBuffer:pixelBuffer withPresentationTime:presentationTime];
 }
 
 @end

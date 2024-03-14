@@ -187,6 +187,10 @@ NS_ASSUME_NONNULL_BEGIN
                 duration:(NSTimeInterval)duration
                startedAt:(NSDate *)start
 {
+
+    if (sessionReplayId == nil) {
+        sessionReplayId = [[SentryId alloc] init];
+    }
     [_replayMaker createVideoOf:duration
                            from:start
                   outputFileURL:videoUrl
