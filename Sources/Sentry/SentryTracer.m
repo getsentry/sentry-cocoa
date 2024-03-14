@@ -602,9 +602,14 @@ static BOOL appStartMeasurementRead;
 #if SENTRY_TARGET_PROFILING_SUPPORTED
     if (self.isProfiling) {
         NSDate *startTimestamp;
+
+#    if SENTRY_HAS_UIKIT
         if (appStartMeasurement != nil) {
             startTimestamp = appStartMeasurement.runtimeInitTimestamp;
-        } else {
+        }
+#    endif // SENTRY_HAS_UIKIT
+
+        if (startTimestamp == nil) {
             startTimestamp = self.startTimestamp;
         }
         if (!SENTRY_ASSERT_RETURN(startTimestamp != nil,
