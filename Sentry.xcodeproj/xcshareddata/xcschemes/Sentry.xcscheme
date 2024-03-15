@@ -86,6 +86,9 @@
                   Identifier = "SentryThreadInspectorTests/testStacktraceHasFrames_forEveryThread()">
                </Test>
                <Test
+                  Identifier = "SentryThreadWrapperTests/testOnMainThreadFromNonMainContext()">
+               </Test>
+               <Test
                   Identifier = "SentryTracerTests/testDeadlineTimer_StartedAndCancelledOnMainThread()">
                </Test>
             </SkippedTests>
