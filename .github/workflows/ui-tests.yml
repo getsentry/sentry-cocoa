@@ -107,7 +107,7 @@ jobs:
 
     
   ios-swift-ui-tests:
-    name: iOS SwiftUI Tests ${{matrix.device}}
+    name: iOS-Swift UI Tests ${{matrix.device}}
     runs-on: ${{matrix.runs-on}}
     strategy:
       fail-fast: false
