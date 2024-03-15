@@ -12,7 +12,7 @@
 #import "SentryDependencyContainer.h"
 #import "SentryDispatchQueueWrapper.h"
 #import "SentryDsn.h"
-#import "SentryEnvelope.h"
+#import "SentryEnvelope+Private.h"
 #import "SentryEnvelopeItemType.h"
 #import "SentryEvent.h"
 #import "SentryException.h"
@@ -28,12 +28,15 @@
 #import "SentryMechanismMeta.h"
 #import "SentryMessage.h"
 #import "SentryMeta.h"
+#import "SentryMsgPackSerializer.h"
 #import "SentryNSError.h"
 #import "SentryOptions+Private.h"
 #import "SentryPropagationContext.h"
 #import "SentryRandom.h"
+#import "SentryReplayEvent.h"
 #import "SentrySDK+Private.h"
 #import "SentryScope+Private.h"
+#import "SentrySerialization.h"
 #import "SentrySession.h"
 #import "SentryStacktraceBuilder.h"
 #import "SentrySwift.h"
@@ -470,10 +473,40 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     }
 
     SentryEnvelopeItem *item = [[SentryEnvelopeItem alloc] initWithSession:session];
-    SentryEnvelopeHeader *envelopeHeader = [[SentryEnvelopeHeader alloc] initWithId:nil
-                                                                       traceContext:nil];
-    SentryEnvelope *envelope = [[SentryEnvelope alloc] initWithHeader:envelopeHeader
+    SentryEnvelope *envelope = [[SentryEnvelope alloc] initWithHeader:[SentryEnvelopeHeader empty]
                                                            singleItem:item];
+    [self captureEnvelope:envelope];
+}
+
+- (void)captureReplayEvent:(SentryReplayEvent *)replayEvent
+           replayRecording:(SentryReplayRecording *)replayRecording
+                     video:(NSURL *)videoURL
+                 withScope:(SentryScope *)scope
+{
+    replayEvent = (SentryReplayEvent *)[self prepareEvent:replayEvent
+                                                withScope:scope
+                                   alwaysAttachStacktrace:NO];
+
+    if (![replayEvent isKindOfClass:SentryReplayEvent.class]) {
+        SENTRY_LOG_DEBUG(@"The event preprocessor didn't update the replay event in place. The "
+                         @"replay was discarded.");
+        return;
+    }
+
+    SentryEnvelopeItem *videoEnvelopeItem =
+        [[SentryEnvelopeItem alloc] initWithReplayEvent:replayEvent
+                                        replayRecording:replayRecording
+                                                  video:videoURL];
+
+    if (videoEnvelopeItem == nil) {
+        SENTRY_LOG_DEBUG(@"The Session Replay segment will not be sent to Sentry because an "
+                         @"Envelope Item could not be created.");
+        return;
+    }
+
+    SentryEnvelope *envelope = [[SentryEnvelope alloc] initWithHeader:[SentryEnvelopeHeader empty]
+                                                                items:@[ videoEnvelopeItem ]];
+
     [self captureEnvelope:envelope];
 }
 
@@ -551,9 +584,11 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
     BOOL eventIsNotATransaction
         = event.type == nil || ![event.type isEqualToString:SentryEnvelopeItemTypeTransaction];
+    BOOL eventIsNotReplay
+        = event.type == nil || ![event.type isEqualToString:SentryEnvelopeItemTypeReplayVideo];
 
     // Transactions have their own sampleRate
-    if (eventIsNotATransaction && [self isSampled:self.options.sampleRate]) {
+    if (eventIsNotATransaction && eventIsNotReplay && [self isSampled:self.options.sampleRate]) {
         SENTRY_LOG_DEBUG(@"Event got sampled, will not send the event");
         [self recordLostEvent:kSentryDataCategoryError reason:kSentryDiscardReasonSampleRate];
         return nil;
@@ -581,7 +616,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     [self setSdk:event];
 
     // We don't want to attach debug meta and stacktraces for transactions;
-    if (eventIsNotATransaction) {
+    if (eventIsNotATransaction && eventIsNotReplay) {
         BOOL shouldAttachStacktrace = alwaysAttachStacktrace || self.options.attachStacktrace
             || (nil != event.exceptions && [event.exceptions count] > 0);
 

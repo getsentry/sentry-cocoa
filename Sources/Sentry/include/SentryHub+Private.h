@@ -10,6 +10,8 @@
 @class SentrySession;
 @class SentryTracer;
 @class SentryTracerConfiguration;
+@class SentryReplayEvent;
+@class SentryReplayRecording;
 @protocol SentryIntegrationProtocol;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -33,6 +35,10 @@ SentryHub ()
 - (void)captureCrashEvent:(SentryEvent *)event;
 
 - (void)captureCrashEvent:(SentryEvent *)event withScope:(SentryScope *)scope;
+
+- (void)captureReplayEvent:(SentryReplayEvent *)replayEvent
+           replayRecording:(SentryReplayRecording *)replayRecording
+                     video:(NSURL *)videoURL;
 
 - (void)closeCachedSessionWithTimestamp:(NSDate *_Nullable)timestamp;
 
