@@ -2,6 +2,7 @@
 
 #import "SentryBaggage.h"
 #import "SentryBaseIntegration.h"
+#import "SentryDispatchQueueWrapper.h"
 #import "SentryRandom.h"
 #import "SentrySdkInfo.h"
 #import "SentryStatsdClient.h"

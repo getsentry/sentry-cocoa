@@ -28,7 +28,7 @@ class SentrySubClassFinderTests: XCTestCase {
         }
         
         var sut: SentrySubClassFinder {
-            return SentrySubClassFinder(dispatchQueue: SentryDispatchQueueWrapper(), objcRuntimeWrapper: runtimeWrapper)
+            return SentrySubClassFinder(dispatchQueue: TestSentryDispatchQueueWrapper(), objcRuntimeWrapper: runtimeWrapper)
         }
     }
     
