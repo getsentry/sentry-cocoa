@@ -803,12 +803,7 @@ private extension SentryProfilerSwiftTests {
         
         let startTimestampString: String
         if appStartProfile {
-            guard latestTransaction.spans.count >= 3 else {
-                throw SentryProfilerSwiftTestError.notEnoughAppStartSpans
-            }
-            let runtimeInitSpan = latestTransaction.spans[2]
-            XCTAssertEqual(runtimeInitSpan.spanDescription, "Runtime Init to Pre Main Initializers")
-            startTimestampString = try XCTUnwrap(runtimeInitSpan.startTimestamp as? NSDate).sentry_toIso8601String()
+            startTimestampString = try XCTUnwrap(SentrySDK.getAppStartMeasurement()?.runtimeInitTimestamp as? NSDate).sentry_toIso8601String()
         } else {
             startTimestampString = sentry_toIso8601String(try XCTUnwrap(latestTransaction.startTimestamp))
         }

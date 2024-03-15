@@ -701,15 +701,12 @@ static BOOL appStartMeasurementRead;
         // start system time as we currently do
         SENTRY_LOG_DEBUG(@"Tracer start time: %llu", self.startSystemTime);
 
+        transaction.startSystemTime = self.startSystemTime;
 #    if SENTRY_HAS_UIKIT
-        if (appStartSpans.firstObject != nil) {
-            SENTRY_LOG_DEBUG(@"Assigning transaction start time (%llu) from app start span",
-                appStartSpans.firstObject.startSystemTimestamp);
-            transaction.startSystemTime = appStartSpans.firstObject.startSystemTimestamp;
-        } else {
-#    endif // SENTRY_HAS_UIKIT
-            transaction.startSystemTime = self.startSystemTime;
-#    if SENTRY_HAS_UIKIT
+        if (appStartMeasurement != nil) {
+            SENTRY_LOG_DEBUG(@"Assigning transaction start time as app start system time (%llu)",
+                appStartMeasurement.appStartSystemTimestamp);
+            transaction.startSystemTime = appStartMeasurement.appStartSystemTimestamp;
         }
 #    endif // SENTRY_HAS_UIKIT
 
