@@ -390,7 +390,7 @@ class SentryProfilerSwiftTests: XCTestCase {
     }
 
     func testProfileWithTransactionContainingStartupSpansForPrewarmedStart() throws {
-        try performTest(uikitParameters: UIKitParameters(launchType: .cold, prewarmed: true))
+        try performTest(uikitParameters: UIKitParameters(launchType: .warm, prewarmed: true))
     }
 #endif // !os(macOS)
 
@@ -616,7 +616,7 @@ private extension SentryProfilerSwiftTests {
 
         waitForExpectations(timeout: 1)
 
-        try self.assertValidProfileData(transactionEnvironment: transactionEnvironment, shouldTimeout: shouldTimeOut)
+        try self.assertValidProfileData(transactionEnvironment: transactionEnvironment, shouldTimeout: shouldTimeOut, appStartProfile: testingAppLaunchSpans)
     }
 
     func assertMetricsPayload(expectedUsageReadings: Int, oneLessEnergyReading: Bool = true) throws {
@@ -708,8 +708,12 @@ private extension SentryProfilerSwiftTests {
         var priority: Int32
         var name: String
     }
+    
+    enum SentryProfilerSwiftTestError: Error {
+        case notEnoughAppStartSpans
+    }
 
-    func assertValidProfileData(transactionEnvironment: String = kSentryDefaultEnvironment, shouldTimeout: Bool = false, expectedAddresses: [NSNumber]? = nil, expectedThreadMetadata: [ThreadMetadata]? = nil) throws {
+    func assertValidProfileData(transactionEnvironment: String = kSentryDefaultEnvironment, shouldTimeout: Bool = false, expectedAddresses: [NSNumber]? = nil, expectedThreadMetadata: [ThreadMetadata]? = nil, appStartProfile: Bool = false) throws {
         let data = try getLatestProfileData()
         let profile = try XCTUnwrap(try JSONSerialization.jsonObject(with: data) as? [String: Any])
 
@@ -795,9 +799,21 @@ private extension SentryProfilerSwiftTests {
         let latestTransaction = try getLatestTransaction()
         let linkedTransactionInfo = try XCTUnwrap(profile["transaction"] as? [String: Any])
 
-        let linkedTransactionTimestampString = try XCTUnwrap(profile["timestamp"] as? String)
-        let latestTransactionTimestampString = sentry_toIso8601String(try XCTUnwrap(latestTransaction.startTimestamp))
-        XCTAssertEqual(linkedTransactionTimestampString, latestTransactionTimestampString)
+        let profileTimestampString = try XCTUnwrap(profile["timestamp"] as? String)
+        
+        let startTimestampString: String
+        if appStartProfile {
+            guard latestTransaction.spans.count >= 3 else {
+                throw SentryProfilerSwiftTestError.notEnoughAppStartSpans
+            }
+            let runtimeInitSpan = latestTransaction.spans[2]
+            XCTAssertEqual(runtimeInitSpan.spanDescription, "Runtime Init to Pre Main Initializers")
+            startTimestampString = try XCTUnwrap(runtimeInitSpan.startTimestamp as? NSDate).sentry_toIso8601String()
+        } else {
+            startTimestampString = sentry_toIso8601String(try XCTUnwrap(latestTransaction.startTimestamp))
+        }
+                    
+        XCTAssertEqual(profileTimestampString, startTimestampString)
 
         XCTAssertEqual(fixture.transactionName, latestTransaction.transaction)
         XCTAssertEqual(fixture.transactionName, try XCTUnwrap(linkedTransactionInfo["name"] as? String))
