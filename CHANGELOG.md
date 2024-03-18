@@ -4,7 +4,11 @@
 
 ### Improvements
 
-- Remove SentryPrivate library (#3623)
+- __SPM uses a prebuilt XCFramework and remove SentryPrivate (#3623)__:
+We now provide a prebuilt XCFramework for SPM, which speeds up your build and allows us to write
+more code in Swift. To make this happen, we had to remove the SentryPrivate target for SPM and
+CocoaPods, which you shouldn't have included directly.
+
 
 ### Fixes
 
