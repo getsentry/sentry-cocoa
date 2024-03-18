@@ -21,6 +21,7 @@ class SentrySessionReplay: NSObject {
     private var _imageCollection = [UIImage]()
     private var _currentSegment = 0
     private var _isFullSession = false
+    private var _processingLock = NSLock()
     
     init(replayOptions: SentryReplayOptions) {
         _replayOptions = replayOptions
@@ -142,16 +143,15 @@ class SentrySessionReplay: NSObject {
             return
         }
 
-        objc_sync_enter(self)
-        defer {
-            objc_sync_exit(self)
-        }
-
-        guard !_processingScreenshot else {
+        _processingLock.lock()
+        if _processingScreenshot {
+            _processingLock.unlock()
             return
         }
-
+        
         _processingScreenshot = true
+        _processingLock.unlock()
+        
         defer { _processingScreenshot = false }
 
         guard let _rootView, let screenshot = SentryViewPhotographer.shared.image(view: _rootView) else { return }
