@@ -22,13 +22,13 @@ class SentrySessionReplayIntegration: NSObject, SentryIntegrationProtocol {
                 return false
             }
             
-            sessionReplay = SentrySessionReplay(settings: options.sessionReplayOptions)
-            sessionReplay?.start(window, fullSession: shouldReplayFullSession(sampleRate: options.sessionReplayOptions.replaysSessionSampleRate))
+            sessionReplay = SentrySessionReplay(replayOptions: options.sessionReplayOptions)
+            sessionReplay?.start(rootView: window, isFullSession: shouldReplayFullSession(sampleRate: options.sessionReplayOptions.replaysSessionSampleRate))
             
             NotificationCenter.default.addObserver(self, selector: #selector(stop), name: UIApplication.didEnterBackgroundNotification, object: nil)
             
             SentryGlobalEventProcessor.shared().add { event in
-                self.sessionReplay?.replay(for: event)
+                self.sessionReplay?.replayFor(event: event)
                 return event
             }
             

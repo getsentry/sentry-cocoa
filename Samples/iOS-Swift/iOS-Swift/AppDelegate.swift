@@ -1,6 +1,11 @@
 import Sentry
 import UIKit
 
+func log(_ message: String) {
+    SentrySDK.addBreadcrumb(Breadcrumb(level: .debug, category: message))
+    NSLog("%@", message)
+}
+
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
     
