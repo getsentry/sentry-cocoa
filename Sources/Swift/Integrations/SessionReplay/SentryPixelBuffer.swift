@@ -1,3 +1,5 @@
+#if canImport(UIKit)
+
 import AVFoundation
 import CoreGraphics
 import Foundation
@@ -42,3 +44,5 @@ class SentryPixelBuffer {
         return pixelBufferAdapter.append(pixelBuffer, withPresentationTime: presentationTime)
     }
 }
+
+#endif // canImport(UIKit)

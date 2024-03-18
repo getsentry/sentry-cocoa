@@ -150,7 +150,7 @@ class SentryOnDemandReplay {
             AVVideoCompressionPropertiesKey: [
                 AVVideoAverageBitRateKey: bitRate,
                 AVVideoProfileLevelKey: AVVideoProfileLevelH264BaselineAutoLevel
-            ]
+            ] as [String: Any]
         ]
     }
 }
