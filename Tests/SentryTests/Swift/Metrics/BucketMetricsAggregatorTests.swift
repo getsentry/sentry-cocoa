@@ -18,7 +18,7 @@ final class BucketMetricsAggregatorTests: XCTestCase {
         let (sut, currentDate, metricsClient) = try getSut()
 
         sut.add(type: .counter, key: "key", value: 1.0, unit: MeasurementUnitDuration.day, tags: [:])
-        currentDate.setDate(date: currentDate.date().advanced(by: 9.99))
+        currentDate.setDate(date: currentDate.date().addingTimeInterval(9.99))
         sut.add(type: .counter, key: "key", value: 1.1, unit: MeasurementUnitDuration.day, tags: [:])
 
         sut.flush(force: true)
@@ -41,11 +41,11 @@ final class BucketMetricsAggregatorTests: XCTestCase {
 
         sut.add(type: .counter, key: "key", value: 1.0, unit: MeasurementUnitDuration.day, tags: [:])
 
-        currentDate.setDate(date: currentDate.date().advanced(by: 9.99))
+        currentDate.setDate(date: currentDate.date().addingTimeInterval( 9.99))
         sut.add(type: .counter, key: "key", value: 1.0, unit: MeasurementUnitDuration.day, tags: [:])
 
         // Not flushing yet
-        currentDate.setDate(date: currentDate.date().advanced(by: 1.0))
+        currentDate.setDate(date: currentDate.date().addingTimeInterval( 1.0))
         sut.flush(force: false)
         expect(metricsClient.captureInvocations.count) == 0
 
@@ -53,7 +53,7 @@ final class BucketMetricsAggregatorTests: XCTestCase {
         sut.add(type: .counter, key: "key", value: 1.0, unit: MeasurementUnitDuration.day, tags: [:])
 
         // Now we pass the flush shift threshold
-        currentDate.setDate(date: currentDate.date().advanced(by: 0.01))
+        currentDate.setDate(date: currentDate.date().addingTimeInterval( 0.01))
         sut.flush(force: false)
 
         expect(metricsClient.captureInvocations.count) == 1
@@ -128,7 +128,7 @@ final class BucketMetricsAggregatorTests: XCTestCase {
         let (sut, currentDate, metricsClient) = try getSut(totalMaxWeight: 5)
 
         sut.add(type: .counter, key: "key", value: 1.0, unit: MeasurementUnitDuration.day, tags: [:])
-        currentDate.setDate(date: currentDate.date().advanced(by: 10.0))
+        currentDate.setDate(date: currentDate.date().addingTimeInterval( 10.0))
         sut.add(type: .counter, key: "key", value: 1.0, unit: MeasurementUnitDuration.day, tags: [:])
 
         sut.flush(force: true)
@@ -198,11 +198,11 @@ final class BucketMetricsAggregatorTests: XCTestCase {
         sut.flush(force: false)
         expect(metricsClient.captureInvocations.invocations.count) == 0
 
-        currentDate.setDate(date: currentDate.date().advanced(by: 9.99))
+        currentDate.setDate(date: currentDate.date().addingTimeInterval( 9.99))
         sut.flush(force: false)
         expect(metricsClient.captureInvocations.invocations.count) == 0
 
-        currentDate.setDate(date: currentDate.date().advanced(by: 0.01))
+        currentDate.setDate(date: currentDate.date().addingTimeInterval( 0.01))
         sut.add(type: .counter, key: "key2", value: 1.0, unit: MeasurementUnitDuration.day, tags: [:])
 
         sut.flush(force: false)
@@ -247,7 +247,7 @@ final class BucketMetricsAggregatorTests: XCTestCase {
         for i in 0..<100 {
             DispatchQueue.global().async {
                 sut.add(type: .counter, key: "key\(i)", value: 1.0, unit: MeasurementUnitDuration.day, tags: [:])
-                currentDate.setDate(date: currentDate.date().advanced(by: 10.0))
+                currentDate.setDate(date: currentDate.date().addingTimeInterval(10.0))
 
                 expectation.fulfill()
             }
@@ -275,7 +275,7 @@ final class BucketMetricsAggregatorTests: XCTestCase {
         for i in 0..<100 {
             DispatchQueue.global().async {
                 sut.add(type: .counter, key: "key\(i)", value: 1.0, unit: MeasurementUnitDuration.day, tags: [:])
-                currentDate.setDate(date: currentDate.date().advanced(by: 10.0))
+                currentDate.setDate(date: currentDate.date().addingTimeInterval(10.0))
 
                 expectation.fulfill()
             }
@@ -324,7 +324,7 @@ final class BucketMetricsAggregatorTests: XCTestCase {
         
         testConcurrentModifications(asyncWorkItems: 10, writeLoopCount: 1_000, writeWork: { i in
             sut.add(type: .counter, key: "key\(i)", value: 1.1, unit: .none, tags: ["some": "tag"])
-            currentDate.setDate(date: currentDate.date().advanced(by: 0.01))
+            currentDate.setDate(date: currentDate.date().addingTimeInterval(0.01))
         })
         
         sut.close()
