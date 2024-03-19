@@ -3,6 +3,7 @@
 ## Unreleased
 
 - Fix runtime error when including Sentry as a static lib (#3764)
+- Fix Mac Catalyst support for the prebuilt XCFramework used by SPM and Carthage (#3767)
 
 ## 8.22.1
 

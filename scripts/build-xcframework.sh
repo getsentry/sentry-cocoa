@@ -1,6 +1,6 @@
 #!/bin/bash
 
-sdks=(iphoneos iphonesimulator macosx appletvos appletvsimulator watchos watchsimulator xros xrsimulator)
+sdks=( iphoneos iphonesimulator macosx appletvos appletvsimulator watchos watchsimulator xros xrsimulator )
 
 rm -rf Carthage/
 mkdir Carthage
@@ -13,6 +13,8 @@ generate_xcframework() {
     local MACH_O_TYPE="${3-mh_dylib}"
     
     local createxcframework="xcodebuild -create-xcframework "
+    
+    rm -rf Carthage/DerivedData
     
     for sdk in "${sdks[@]}"; do
         if [[ -n "$(grep "${sdk}" <<< "$ALL_SDKS")" ]]; then
@@ -28,6 +30,14 @@ generate_xcframework() {
             echo "${sdk} SDK not found"
         fi
     done
+    
+    #Create framework for mac catalyst
+    xcodebuild -project Sentry.xcodeproj/ -scheme "$scheme" -configuration Release -sdk macosx -destination 'platform=macOS,variant=Mac Catalyst' -derivedDataPath ./Carthage/DerivedData CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY= CARTHAGE=YES MACH_O_TYPE=$MACH_O_TYPE SUPPORTS_MACCATALYST=YES
+    
+    createxcframework+="-framework Carthage/DerivedData/Build/Products/Release-maccatalyst/${scheme}.framework "
+    if [ -d "Carthage/DerivedData/Build/Products/Release-maccatalyst/${scheme}.framework.dSYM" ]; then
+        createxcframework+="-debug-symbols $(pwd -P)/Carthage/DerivedData/Build/Products/Release-maccatalyst/${scheme}.framework.dSYM "
+    fi
     
     createxcframework+="-output Carthage/${scheme}${sufix}.xcframework"
     $createxcframework
