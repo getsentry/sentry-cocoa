@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+- Pre-main profiling data is now attached to app start spans (#3736)
+
 ## 8.22.2
 
 - Fix runtime error when including Sentry as a static lib (#3764)
@@ -22,7 +28,6 @@ more code in Swift. To make this happen, we had to remove the SentryPrivate targ
 CocoaPods, which you shouldn't have included directly.
 
 - Remove SentryPrivate library (#3623)
-- Pre-main profiling data is now attached to app start spans (#3736)
 
 ### Fixes
 
