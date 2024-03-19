@@ -220,7 +220,6 @@ static NSDate *_Nullable startTimestamp = nil;
 #if SENTRY_TARGET_PROFILING_SUPPORTED
         BOOL shouldStopLaunchProfile = YES;
 #    if SENTRY_HAS_UIKIT
-        // this is still false at this time even though it becomes true?
         if (SentryUIViewControllerPerformanceTracker.shared.enableWaitForFullDisplay) {
             shouldStopLaunchProfile = NO;
         }
