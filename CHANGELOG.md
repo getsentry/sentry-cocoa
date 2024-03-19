@@ -1,5 +1,11 @@
 # Changelog
 
+## Unresolved
+
+### Fixes
+
+- Add Mac Catalyst support to the new pre-built solution (#3767)
+
 ## 8.22.1
 
 ### Fixes 
