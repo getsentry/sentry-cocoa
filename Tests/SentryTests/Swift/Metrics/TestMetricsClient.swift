@@ -13,10 +13,10 @@ class TestMetricsClient: SentryMetricsClient {
         super.init(client: statsdClient)
     }
 
-    var beforeCaptureBlock: (() -> Void)?
+    var afterRecordingCaptureInvocationBlock: (() -> Void)?
     var captureInvocations = Invocations<[BucketTimestamp: [Metric]]>()
     override func capture(flushableBuckets: [BucketTimestamp: [Metric]]) {
-        beforeCaptureBlock?()
         captureInvocations.record(flushableBuckets)
+        afterRecordingCaptureInvocationBlock?()
     }
 }

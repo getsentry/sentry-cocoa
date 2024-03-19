@@ -160,7 +160,7 @@ final class BucketMetricsAggregatorTests: XCTestCase {
         let (sut, _, metricsClient) = try getSut(totalMaxWeight: 3, dispatchQueue: SentryDispatchQueueWrapper())
 
         let expectation = expectation(description: "Before capture block called")
-        metricsClient.beforeCaptureBlock = {
+        metricsClient.afterRecordingCaptureInvocationBlock = {
             expect(Thread.isMainThread).to(equal(false), description: "Flush must be called on a background thread, but was called on the main thread.")
             expectation.fulfill()
         }
@@ -286,11 +286,11 @@ final class BucketMetricsAggregatorTests: XCTestCase {
         expect(metricsClient.captureInvocations.count).to(equal(0), description: "No metrics should be sent cause the flush timer should be cancelled.")
     }
 
-    func testFlashCalledOnCallingThread() throws {
+    func testFlushCalledOnCallingThread() throws {
         let (sut, _, metricsClient) = try getSut(dispatchQueue: SentryDispatchQueueWrapper())
 
         let expectation = expectation(description: "Before capture block called")
-        metricsClient.beforeCaptureBlock = {
+        metricsClient.afterRecordingCaptureInvocationBlock = {
             expect(Thread.isMainThread).to(equal(true), description: "Flush must be called on the calling thread, but was called on a background thread.")
             expectation.fulfill()
         }
