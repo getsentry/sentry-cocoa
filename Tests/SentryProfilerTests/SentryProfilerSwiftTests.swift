@@ -802,11 +802,11 @@ private extension SentryProfilerSwiftTests {
         let profileTimestampString = try XCTUnwrap(profile["timestamp"] as? String)
         
         let latestTransactionTimestamp = try XCTUnwrap(latestTransaction.startTimestamp)
-        var startTimestampString = (latestTransactionTimestamp as NSDate).sentry_toIso8601String()
+        var startTimestampString = sentry_toIso8601String(latestTransactionTimestamp)
         #if !os(macOS)
         if appStartProfile {
             let runtimeInitTimestamp = try XCTUnwrap(SentrySDK.getAppStartMeasurement()?.runtimeInitTimestamp)
-            startTimestampString = (runtimeInitTimestamp as NSDate).sentry_toIso8601String()
+            startTimestampString = sentry_toIso8601String(runtimeInitTimestamp)
         }
         #endif // !os(macOS)
                     
