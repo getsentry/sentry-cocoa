@@ -65,6 +65,9 @@ build-xcframework:
 	ditto -c -k -X --rsrc --keepParent Carthage/Sentry.xcframework Carthage/Sentry.xcframework.zip
 	ditto -c -k -X --rsrc --keepParent Carthage/Sentry-Dynamic.xcframework Carthage/Sentry-Dynamic.xcframework.zip
 	ditto -c -k -X --rsrc --keepParent Carthage/SentrySwiftUI.xcframework Carthage/SentrySwiftUI.xcframework.zip
+	mv Carthage/Sentry.xcframework.zip Sentry.xcframework.zip
+	mv Carthage/Sentry-Dynamic.xcframework.zip  Sentry-Dynamic.xcframework.zip
+	mv Carthage/SentrySwiftUI.xcframework.zip SentrySwiftUI.xcframework.zip
 
 build-xcframework-sample:
 	./scripts/create-carthage-json.sh
