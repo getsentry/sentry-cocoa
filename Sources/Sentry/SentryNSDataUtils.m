@@ -53,8 +53,7 @@ NSData *_Nullable sentry_gzippedWithCompressionLevel(
     return compressedData;
 }
 
-NSData *
-sentry_nullTerminated(NSData *data)
+NSData *_Nullable sentry_nullTerminated(NSData *_Nullable data)
 {
     if (data == nil) {
         return nil;
