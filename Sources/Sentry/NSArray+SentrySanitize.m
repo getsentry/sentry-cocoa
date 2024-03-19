@@ -1,6 +1,6 @@
 #import "NSArray+SentrySanitize.h"
-#import "NSDate+SentryExtras.h"
-#import "NSDictionary+SentrySanitize.h"
+#import "SentryDateUtils.h"
+#import "SentryNSDictionarySanitize.h"
 
 @implementation SentryArray
 
@@ -13,11 +13,12 @@
         } else if ([rawValue isKindOfClass:NSNumber.class]) {
             [result addObject:rawValue];
         } else if ([rawValue isKindOfClass:NSDictionary.class]) {
-            [result addObject:[(NSDictionary *)rawValue sentry_sanitize]];
+            [result addObject:sentry_sanitize((NSDictionary *)rawValue)];
         } else if ([rawValue isKindOfClass:NSArray.class]) {
             [result addObject:[SentryArray sanitizeArray:rawValue]];
         } else if ([rawValue isKindOfClass:NSDate.class]) {
-            [result addObject:[(NSDate *)rawValue sentry_toIso8601String]];
+            NSDate *date = (NSDate *)rawValue;
+            [result addObject:sentry_toIso8601String(date)];
         } else {
             [result addObject:[rawValue description]];
         }

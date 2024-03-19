@@ -1,6 +1,6 @@
 #import "SentrySerialization.h"
-#import "NSDate+SentryExtras.h"
 #import "SentryAppState.h"
+#import "SentryDateUtils.h"
 #import "SentryEnvelope+Private.h"
 #import "SentryEnvelopeAttachmentHeader.h"
 #import "SentryEnvelopeItemType.h"
@@ -54,7 +54,7 @@ NS_ASSUME_NONNULL_BEGIN
 
     NSDate *sentAt = envelope.header.sentAt;
     if (sentAt != nil) {
-        [serializedData setValue:[sentAt sentry_toIso8601String] forKey:@"sent_at"];
+        [serializedData setValue:sentry_toIso8601String(sentAt) forKey:@"sent_at"];
     }
     NSData *header = [SentrySerialization dataWithJSONObject:serializedData];
     if (nil == header) {
@@ -176,8 +176,7 @@ NS_ASSUME_NONNULL_BEGIN
                                                              traceContext:traceContext];
 
                 if (headerDictionary[@"sent_at"] != nil) {
-                    envelopeHeader.sentAt =
-                        [NSDate sentry_fromIso8601String:headerDictionary[@"sent_at"]];
+                    envelopeHeader.sentAt = sentry_fromIso8601String(headerDictionary[@"sent_at"]);
                 }
             }
             break;

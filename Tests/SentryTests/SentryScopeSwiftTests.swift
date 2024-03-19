@@ -75,7 +75,7 @@ class SentryScopeSwiftTests: XCTestCase {
         }
         
         var dateAs8601String: String {
-            (date as NSDate).sentry_toIso8601String()
+            sentry_toIso8601String(date as Date)
         }
     }
     

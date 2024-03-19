@@ -1,7 +1,7 @@
 #import <XCTest/XCTest.h>
 
-#import "NSDate+SentryExtras.h"
 #import "SentryBreadcrumb.h"
+#import "SentryDateUtils.h"
 #import "SentryEvent.h"
 #import "SentryException.h"
 #import "SentryFileManager.h"
@@ -66,7 +66,7 @@
     event.extra = @{ @"__sentry_stacktrace" : @"f", @"date" : date };
     NSDictionary *serialized = @{
         @"event_id" : [event.eventId sentryIdString],
-        @"extra" : @ { @"date" : [date sentry_toIso8601String] },
+        @"extra" : @ { @"date" : sentry_toIso8601String(date) },
         @"level" : @"info",
         @"environment" : @"bla",
         @"platform" : @"cocoa",
@@ -365,7 +365,7 @@
     crumb.timestamp = date;
     NSDictionary *serialized = @{
         @"level" : @"info",
-        @"timestamp" : [date sentry_toIso8601String],
+        @"timestamp" : sentry_toIso8601String(date),
         @"category" : @"http",
     };
     XCTAssertEqualObjects([crumb serialize], serialized);
@@ -382,7 +382,7 @@
         @"level" : @"info",
         @"type" : @"type",
         @"message" : @"message",
-        @"timestamp" : [date sentry_toIso8601String],
+        @"timestamp" : sentry_toIso8601String(date),
         @"category" : @"http",
         @"data" : @ { @"bla" : @"1" },
     };

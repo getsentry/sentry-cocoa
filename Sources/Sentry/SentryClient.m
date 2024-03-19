@@ -1,5 +1,4 @@
 #import "SentryClient.h"
-#import "NSDictionary+SentrySanitize.h"
 #import "NSLocale+Sentry.h"
 #import "SentryAppState.h"
 #import "SentryAppStateManager.h"
@@ -28,6 +27,7 @@
 #import "SentryMechanismMeta.h"
 #import "SentryMessage.h"
 #import "SentryMeta.h"
+#import "SentryNSDictionarySanitize.h"
 #import "SentryNSError.h"
 #import "SentryOptions+Private.h"
 #import "SentryPropagationContext.h"
@@ -260,7 +260,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
     // Once the UI displays the mechanism data we can the userInfo from the event.context using only
     // the root error's userInfo.
-    [self setUserInfo:[error.userInfo sentry_sanitize] withEvent:event];
+    [self setUserInfo:sentry_sanitize(error.userInfo) withEvent:event];
 
     return event;
 }
@@ -302,7 +302,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     // use a simple enum.
     mechanism.desc = error.description;
 
-    NSDictionary<NSString *, id> *userInfo = [error.userInfo sentry_sanitize];
+    NSDictionary<NSString *, id> *userInfo = sentry_sanitize(error.userInfo);
     mechanism.data = userInfo;
     exception.mechanism = mechanism;
 
@@ -743,7 +743,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
             context = [event.context mutableCopy];
         }
 
-        [context setValue:[userInfo sentry_sanitize] forKey:@"user info"];
+        [context setValue:sentry_sanitize(userInfo) forKey:@"user info"];
     }
 }
 

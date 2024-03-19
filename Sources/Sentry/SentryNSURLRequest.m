@@ -1,5 +1,4 @@
 #import "SentryNSURLRequest.h"
-#import "NSData+SentryCompression.h"
 #import "SentryClient.h"
 #import "SentryDsn.h"
 #import "SentryError.h"
@@ -7,6 +6,7 @@
 #import "SentryHub.h"
 #import "SentryLog.h"
 #import "SentryMeta.h"
+#import "SentryNSDataUtils.h"
 #import "SentryOptions.h"
 #import "SentrySDK+Private.h"
 #import "SentrySerialization.h"
@@ -64,7 +64,7 @@ SentryNSURLRequest ()
                            stringWithFormat:@"%@/%@", SentryMeta.sdkName, SentryMeta.versionString]
             forHTTPHeaderField:@"User-Agent"];
         [self setValue:@"gzip" forHTTPHeaderField:@"Content-Encoding"];
-        self.HTTPBody = [data sentry_gzippedWithCompressionLevel:-1 error:error];
+        self.HTTPBody = sentry_gzippedWithCompressionLevel(data, -1, error);
     }
     return self;
 }
@@ -101,7 +101,7 @@ SentryNSURLRequest ()
                            stringWithFormat:@"%@/%@", SentryMeta.sdkName, SentryMeta.versionString]
             forHTTPHeaderField:@"User-Agent"];
         [self setValue:@"gzip" forHTTPHeaderField:@"Content-Encoding"];
-        self.HTTPBody = [data sentry_gzippedWithCompressionLevel:-1 error:error];
+        self.HTTPBody = sentry_gzippedWithCompressionLevel(data, -1, error);
     }
 
     return self;
