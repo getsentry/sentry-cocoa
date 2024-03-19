@@ -4,7 +4,7 @@
 
 ### Fixes 
 
-- Package.json xcframework path (#3760)
+- Checksum error when resolving the SDK via SPM (#3760)
 
 ## 8.22.0
 **Warning:** this version is not working with SPM
