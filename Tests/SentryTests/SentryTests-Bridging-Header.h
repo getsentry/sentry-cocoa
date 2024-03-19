@@ -163,8 +163,6 @@
 #import "SentryRateLimits.h"
 #import "SentryReachability.h"
 #import "SentryReplayEvent.h"
-#import "SentryReplayOptions.h"
-#import "SentryReplayRecording.h"
 #import "SentryRetryAfterHeaderParser.h"
 #import "SentrySDK+Private.h"
 #import "SentrySDK+Tests.h"
@@ -234,3 +232,4 @@
 #import "TestSentrySpan.h"
 #import "TestSentryViewHierarchy.h"
 #import "URLSessionTaskMock.h"
+@import _SentryPrivate;

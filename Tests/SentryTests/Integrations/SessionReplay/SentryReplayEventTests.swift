@@ -13,7 +13,7 @@ class SentryReplayEventTests: XCTestCase {
         sut.traceIds = traceIds
         
         let replayId = SentryId()
-        sut.replayId = replayId
+        sut.eventId = replayId
         
         sut.segmentId = 3
         

@@ -57,7 +57,7 @@ class SentryDateUtilTests: XCTestCase {
 
     func testJavascriptDate() {
         let testDate = Date(timeIntervalSince1970: 60)
-        let timestamp = DateUtil.secondsSince1970(testDate)
+        let timestamp = DateUtil.millisecondsSince1970(testDate)
         
         expect(timestamp) == 60_000
     }

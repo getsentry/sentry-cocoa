@@ -12,4 +12,4 @@
 #import "SentrySDK+Private.h"
 #import "SentrySdkInfo.h"
 #import "SentryTime.h"
-#import "SentryUIApplication.h"
+#import "SentryUIApplication+Private.h"
