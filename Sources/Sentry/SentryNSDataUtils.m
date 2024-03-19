@@ -2,18 +2,15 @@
 #    import <zlib.h>
 #endif
 
-#import "NSData+SentryCompression.h"
 #import "SentryError.h"
+#import "SentryNSDataUtils.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@implementation
-NSData (SentryCompression)
-
-- (NSData *_Nullable)sentry_gzippedWithCompressionLevel:(NSInteger)compressionLevel
-                                                  error:(NSError *_Nullable *_Nullable)error
+NSData *_Nullable sentry_gzippedWithCompressionLevel(
+    NSData *data, NSInteger compressionLevel, NSError *_Nullable *_Nullable error)
 {
-    uInt length = (uInt)[self length];
+    uInt length = (uInt)[data length];
     if (length == 0) {
         return [NSData data];
     }
@@ -23,7 +20,7 @@ NSData (SentryCompression)
     stream.zalloc = Z_NULL;
     stream.zfree = Z_NULL;
     stream.opaque = Z_NULL;
-    stream.next_in = (Bytef *)(void *)self.bytes;
+    stream.next_in = (Bytef *)(void *)data.bytes;
     stream.total_out = 0;
     stream.avail_out = 0;
     stream.avail_in = length;
@@ -56,6 +53,14 @@ NSData (SentryCompression)
     return compressedData;
 }
 
-@end
+NSData *_Nullable sentry_nullTerminated(NSData *_Nullable data)
+{
+    if (data == nil) {
+        return nil;
+    }
+    NSMutableData *mutable = [NSMutableData dataWithData:data];
+    [mutable appendBytes:"\0" length:1];
+    return mutable;
+}
 
 NS_ASSUME_NONNULL_END

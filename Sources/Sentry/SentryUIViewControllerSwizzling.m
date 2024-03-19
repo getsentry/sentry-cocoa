@@ -284,8 +284,8 @@ SentryUIViewControllerSwizzling ()
 
 - (void)swizzleRootViewControllerAndDescendant:(UIViewController *)rootViewController
 {
-    NSArray<UIViewController *> *allViewControllers
-        = rootViewController.sentry_descendantViewControllers;
+    NSArray<UIViewController *> *allViewControllers =
+        [SentryViewController descendantsOfViewController:rootViewController];
 
     for (UIViewController *viewController in allViewControllers) {
         Class viewControllerClass = [viewController class];

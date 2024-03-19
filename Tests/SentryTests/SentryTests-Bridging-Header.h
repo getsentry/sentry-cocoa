@@ -32,9 +32,6 @@
 #    import "SentryProfilerState.h"
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
-#import "NSData+Sentry.h"
-#import "NSData+SentryCompression.h"
-#import "NSDate+SentryExtras.h"
 #import "NSLocale+Sentry.h"
 #import "NSMutableDictionary+Sentry.h"
 #import "NSURLProtocolSwizzle.h"
@@ -87,6 +84,7 @@
 #import "SentryDataCategory.h"
 #import "SentryDataCategoryMapper.h"
 #import "SentryDateUtil.h"
+#import "SentryDateUtils.h"
 #import "SentryDebugImageProvider+TestInit.h"
 #import "SentryDebugImageProvider.h"
 #import "SentryDebugMeta.h"
@@ -132,6 +130,7 @@
 #import "SentryMeta.h"
 #import "SentryMigrateSessionInit.h"
 #import "SentryNSDataTracker.h"
+#import "SentryNSDataUtils.h"
 #import "SentryNSError.h"
 #import "SentryNSNotificationCenterWrapper.h"
 #import "SentryNSProcessInfoWrapper.h"

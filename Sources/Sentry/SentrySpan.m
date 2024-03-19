@@ -1,12 +1,11 @@
 #import "SentrySpan.h"
-#import "NSDate+SentryExtras.h"
-#import "NSDictionary+SentrySanitize.h"
 #import "SentryCrashThread.h"
 #import "SentryDependencyContainer.h"
 #import "SentryFrame.h"
 #import "SentryInternalDefines.h"
 #import "SentryLog.h"
 #import "SentryMeasurementValue.h"
+#import "SentryNSDictionarySanitize.h"
 #import "SentryNoOpSpan.h"
 #import "SentrySampleDecision+Private.h"
 #import "SentrySpanContext.h"
@@ -301,7 +300,7 @@ SentrySpan ()
         }
 
         if (data.count > 0) {
-            mutableDictionary[@"data"] = [data.copy sentry_sanitize];
+            mutableDictionary[@"data"] = sentry_sanitize(data.copy);
         }
     }
 

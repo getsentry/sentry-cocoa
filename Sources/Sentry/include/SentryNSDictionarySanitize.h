@@ -2,11 +2,6 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface
-NSDictionary (SentrySanitize)
-
-- (NSDictionary *)sentry_sanitize;
-
-@end
+NSDictionary *_Nullable sentry_sanitize(NSDictionary *_Nullable dictionary);
 
 NS_ASSUME_NONNULL_END
