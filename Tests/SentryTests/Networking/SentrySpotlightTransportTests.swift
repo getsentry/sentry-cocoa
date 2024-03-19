@@ -145,7 +145,7 @@ final class SentrySpotlightTransportTests: XCTestCase {
     
     private func getSerializedGzippedData(envelope: SentryEnvelope) throws -> Data {
         let expectedData = try SentrySerialization.data(with: envelope) as NSData
-        return try expectedData.sentry_gzipped(withCompressionLevel: -1)
+        return sentry_gzippedWithCompressionLevel(expectedData as Data, -1, nil) ?? Data()
     }
 
 }

@@ -1,8 +1,8 @@
-#import "NSDate+SentryExtras.h"
 #import "SentryBreadcrumb.h"
 #import "SentryBreadcrumbTracker.h"
 #import "SentryClient.h"
 #import "SentryDataCategory.h"
+#import "SentryDateUtils.h"
 #import "SentryEvent.h"
 #import "SentryHub.h"
 #import "SentryLevelMapper.h"
@@ -144,23 +144,22 @@ SentryBreadcrumbTracker ()
 {
     NSTimeInterval timeInterval = 1605888590.123;
     NSDate *date = [NSDate dateWithTimeIntervalSince1970:timeInterval];
-    XCTAssertEqual(
-        [[NSDate sentry_fromIso8601String:[date sentry_toIso8601String]] timeIntervalSince1970],
+    XCTAssertEqual([sentry_fromIso8601String(sentry_toIso8601String(date)) timeIntervalSince1970],
         timeInterval);
 }
 
 - (void)testDateCategoryPrecision
 {
     NSDate *date1 = [NSDate dateWithTimeIntervalSinceReferenceDate:0.1234];
-    XCTAssertEqualObjects([date1 sentry_toIso8601String], @"2001-01-01T00:00:00.123Z");
+    XCTAssertEqualObjects(sentry_toIso8601String(date1), @"2001-01-01T00:00:00.123Z");
 
     NSDate *date2 = [NSDate dateWithTimeIntervalSinceReferenceDate:0.9995];
-    XCTAssertEqualObjects([date2 sentry_toIso8601String], @"2001-01-01T00:00:01.000Z");
+    XCTAssertEqualObjects(sentry_toIso8601String(date2), @"2001-01-01T00:00:01.000Z");
 }
 
 - (void)testDateCategoryCompactibility
 {
-    NSDate *date = [NSDate sentry_fromIso8601String:@"2020-02-27T11:35:26Z"];
+    NSDate *date = sentry_fromIso8601String(@"2020-02-27T11:35:26Z");
     XCTAssertEqual([date timeIntervalSince1970], 1582803326.0);
 }
 

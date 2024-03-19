@@ -1,7 +1,7 @@
 #import "SentryTransaction.h"
-#import "NSDictionary+SentrySanitize.h"
 #import "SentryEnvelopeItemType.h"
 #import "SentryMeasurementValue.h"
+#import "SentryNSDictionarySanitize.h"
 #import "SentryTransactionContext.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -46,9 +46,8 @@ SentryTransaction ()
     mutableContext[@"trace"] = [self.trace serialize];
     [serializedData setValue:mutableContext forKey:@"contexts"];
 
-    NSMutableDictionary<NSString *, id> *traceTags =
-        [[self.trace.tags sentry_sanitize] mutableCopy];
-    [traceTags addEntriesFromDictionary:[self.trace.tags sentry_sanitize]];
+    NSMutableDictionary<NSString *, id> *traceTags = [sentry_sanitize(self.trace.tags) mutableCopy];
+    [traceTags addEntriesFromDictionary:sentry_sanitize(self.trace.tags)];
 
     // Adding tags from Trace to serializedData dictionary
     if (serializedData[@"tags"] != nil &&
@@ -61,7 +60,7 @@ SentryTransaction ()
         serializedData[@"tags"] = traceTags;
     }
 
-    NSDictionary<NSString *, id> *traceData = [self.trace.data sentry_sanitize];
+    NSDictionary<NSString *, id> *traceData = sentry_sanitize(self.trace.data);
 
     // Adding data from Trace to serializedData dictionary
     if (serializedData[@"extra"] != nil &&

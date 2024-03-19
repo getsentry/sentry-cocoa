@@ -1,8 +1,8 @@
 #import "SentryProfiler+Private.h"
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
-#    import "NSDate+SentryExtras.h"
 #    import "SentryClient+Private.h"
+#    import "SentryDateUtils.h"
 #    import "SentryDebugImageProvider.h"
 #    import "SentryDebugMeta.h"
 #    import "SentryDefines.h"
@@ -520,10 +520,10 @@ writeProfileFile(NSDictionary<NSString *, id> *payload)
     if (UNLIKELY(timestamp == nil)) {
         SENTRY_LOG_WARN(@"There was no start timestamp on the provided transaction. Falling back "
                         @"to old behavior of using the current time.");
-        payload[@"timestamp"] =
-            [[SentryDependencyContainer.sharedInstance.dateProvider date] sentry_toIso8601String];
+        payload[@"timestamp"]
+            = sentry_toIso8601String([SentryDependencyContainer.sharedInstance.dateProvider date]);
     } else {
-        payload[@"timestamp"] = [timestamp sentry_toIso8601String];
+        payload[@"timestamp"] = sentry_toIso8601String(timestamp);
     }
 }
 

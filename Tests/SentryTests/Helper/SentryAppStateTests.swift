@@ -10,7 +10,7 @@ class SentryAppStateTests: XCTestCase {
         XCTAssertEqual(appState.releaseName, actual["release_name"] as? String)
         XCTAssertEqual(appState.osVersion, actual["os_version"] as? String)
         XCTAssertEqual(appState.isDebugging, actual["is_debugging"] as? Bool)
-        XCTAssertEqual((appState.systemBootTimestamp as NSDate).sentry_toIso8601String(), actual["system_boot_timestamp"] as? String)
+        XCTAssertEqual(sentry_toIso8601String(appState.systemBootTimestamp), actual["system_boot_timestamp"] as? String)
         XCTAssertEqual(appState.isActive, actual["is_active"] as? Bool)
         XCTAssertEqual(appState.wasTerminated, actual["was_terminated"] as? Bool)
         XCTAssertEqual(appState.isANROngoing, actual["is_anr_ongoing"] as? Bool)
@@ -24,7 +24,7 @@ class SentryAppStateTests: XCTestCase {
             "os_version": appState.osVersion,
             "vendor_id": appState.vendorId,
             "is_debugging": appState.isDebugging,
-            "system_boot_timestamp": (appState.systemBootTimestamp as NSDate).sentry_toIso8601String(),
+            "system_boot_timestamp": sentry_toIso8601String(appState.systemBootTimestamp),
             "is_active": appState.isActive,
             "was_terminated": appState.wasTerminated,
             "is_anr_ongoing": appState.isANROngoing,

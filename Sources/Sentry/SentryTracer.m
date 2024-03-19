@@ -1,4 +1,3 @@
-#import "NSDictionary+SentrySanitize.h"
 #import "PrivateSentrySDKOnly.h"
 #import "SentryClient.h"
 #import "SentryDebugImageProvider.h"
@@ -8,6 +7,7 @@
 #import "SentryHub+Private.h"
 #import "SentryInternalDefines.h"
 #import "SentryLog.h"
+#import "SentryNSDictionarySanitize.h"
 #import "SentryNSTimerFactory.h"
 #import "SentryNoOpSpan.h"
 #import "SentryProfilingConditionals.h"
