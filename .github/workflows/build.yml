@@ -129,7 +129,7 @@ jobs:
           name: ${{ github.sha }}
           if-no-files-found: error
           path: |
-            ${{ github.workspace }}/Carthage/*.zip
+            ${{ github.workspace }}/*.zip
 
       - name: Archive build log if failed
         uses: actions/upload-artifact@v4
