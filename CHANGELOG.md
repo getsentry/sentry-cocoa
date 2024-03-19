@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Fix runtime error when including Sentry as a static lib (#3764)
+
 ## 8.22.1
 
 ### Fixes 
