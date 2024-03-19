@@ -40,7 +40,7 @@
 #import "SentryDefines.h"
 #import "SentryDependencyContainer.h"
 #import "SentryNSNotificationCenterWrapper.h"
-#import <NSData+Sentry.h>
+#import <SentryNSDataUtils.h>
 
 // #define SentryCrashLogger_LocalLevel TRACE
 #import "SentryCrashLogger.h"
@@ -121,9 +121,10 @@ SentryCrash ()
         NSError *error = nil;
         NSData *userInfoJSON = nil;
         if (userInfo != nil) {
-            userInfoJSON = [[SentryCrashJSONCodec encode:userInfo
-                                                 options:SentryCrashJSONEncodeOptionSorted
-                                                   error:&error] sentry_nullTerminated];
+            userInfoJSON = sentry_nullTerminated(
+                [SentryCrashJSONCodec encode:userInfo
+                                     options:SentryCrashJSONEncodeOptionSorted
+                                       error:&error]);
             if (error != NULL) {
                 SentryCrashLOG_ERROR(@"Could not serialize user info: %@", error);
                 return;

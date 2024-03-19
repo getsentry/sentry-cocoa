@@ -1,4 +1,3 @@
-#import "NSDictionary+SentrySanitize.h"
 #import "PrivateSentrySDKOnly.h"
 #import "SentryClient.h"
 #import "SentryDebugImageProvider.h"
@@ -8,6 +7,7 @@
 #import "SentryHub+Private.h"
 #import "SentryInternalDefines.h"
 #import "SentryLog.h"
+#import "SentryNSDictionarySanitize.h"
 #import "SentryNSTimerFactory.h"
 #import "SentryNoOpSpan.h"
 #import "SentryProfilingConditionals.h"
@@ -805,7 +805,7 @@ static BOOL appStartMeasurementRead;
             NSMutableDictionary *context =
                 [[NSMutableDictionary alloc] initWithDictionary:[transaction context]];
             NSDictionary *appContext = @{ @"app" : @ { @"start_type" : appStartType } };
-            [context mergeEntriesFromDictionary:appContext];
+            [SentryDictionary mergeEntriesFromDictionary:appContext intoDictionary:context];
             [transaction setContext:context];
 
             // The backend calculates statistics on the number and size of debug images for app

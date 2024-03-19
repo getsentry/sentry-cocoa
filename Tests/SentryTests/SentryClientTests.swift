@@ -853,7 +853,7 @@ class SentryClientTest: XCTestCase {
             }
                 
             XCTAssertEqual(culture?["locale"] as? String, fixture.locale.identifier)
-            XCTAssertEqual(culture?["is_24_hour_format"] as? Bool, (fixture.locale as NSLocale).sentry_timeIs24HourFormat())
+            XCTAssertEqual(culture?["is_24_hour_format"] as? Bool, SentryLocale.timeIs24HourFormat())
             XCTAssertEqual(culture?["timezone"] as? String, fixture.timezone.identifier)
         }
     }

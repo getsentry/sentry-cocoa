@@ -25,8 +25,8 @@ class SentryMechanismTests: XCTestCase {
         }
 
         let currentDateProvider = TestCurrentDateProvider()
-        let date = currentDateProvider.date() as NSDate
-        XCTAssertEqual(date.sentry_toIso8601String(), something["date"] as? String)
+        let date = currentDateProvider.date()
+        XCTAssertEqual(sentry_toIso8601String(date), something["date"] as? String)
 
         XCTAssertNotNil(actual["meta"])
     }

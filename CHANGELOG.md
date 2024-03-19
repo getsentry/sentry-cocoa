@@ -1,9 +1,8 @@
 # Changelog
 
-## Unresolved
+## Unreleased
 
-### Fixes
-
+- Fix runtime error when including Sentry as a static lib (#3764)
 - Add Mac Catalyst support to the new pre-built solution (#3767)
 
 ## 8.22.1

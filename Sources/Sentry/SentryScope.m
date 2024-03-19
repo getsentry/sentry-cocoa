@@ -529,7 +529,7 @@ SentryScope ()
 
     NSMutableDictionary *newContext = [self context].mutableCopy;
     if (event.context != nil) {
-        [newContext mergeEntriesFromDictionary:event.context];
+        [SentryDictionary mergeEntriesFromDictionary:event.context intoDictionary:newContext];
     }
 
     if (self.span != nil) {

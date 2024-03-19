@@ -2,7 +2,7 @@
 
 #if SENTRY_UIKIT_AVAILABLE
 
-#    import "NSDate+SentryExtras.h"
+#    import "SentryDateUtils.h"
 #    import "SentryLog.h"
 #    import <Foundation/Foundation.h>
 

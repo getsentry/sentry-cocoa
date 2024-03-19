@@ -1,4 +1,4 @@
-#import "NSData+SentryCompression.h"
+#import "SentryNSDataUtils.h"
 #import <XCTest/XCTest.h>
 
 @interface SentryNSDataCompressionTests : XCTestCase
@@ -18,7 +18,7 @@
 
     NSError *error = nil;
     NSData *original = [NSData dataWithData:data];
-    NSData *compressed = [original sentry_gzippedWithCompressionLevel:-1 error:&error];
+    NSData *compressed = sentry_gzippedWithCompressionLevel(original, -1, &error);
     XCTAssertNil(error);
     XCTAssertNotNil(compressed);
 }
@@ -27,7 +27,7 @@
 {
     NSError *error = nil;
     NSData *original = [NSData data];
-    NSData *compressed = [original sentry_gzippedWithCompressionLevel:-1 error:&error];
+    NSData *compressed = sentry_gzippedWithCompressionLevel(original, -1, &error);
     XCTAssertNil(error, @"");
 
     XCTAssertEqualObjects(compressed, original, @"");
@@ -43,14 +43,14 @@
     }
 
     NSData *original = [NSData dataWithData:data];
-    NSData *compressed = [original sentry_gzippedWithCompressionLevel:-1 error:nil];
+    NSData *compressed = sentry_gzippedWithCompressionLevel(original, -1, nil);
     XCTAssertNotNil(compressed);
 }
 
 - (void)testCompressEmptyNilError
 {
     NSData *original = [NSData data];
-    NSData *compressed = [original sentry_gzippedWithCompressionLevel:-1 error:nil];
+    NSData *compressed = sentry_gzippedWithCompressionLevel(original, -1, nil);
 
     XCTAssertEqualObjects(compressed, original, @"");
 }
@@ -66,7 +66,9 @@
 
     NSError *error = nil;
     NSData *original = [NSData dataWithData:data];
-    NSData *compressed = [original sentry_gzippedWithCompressionLevel:INT_MAX error:&error];
+
+    NSData *compressed = sentry_gzippedWithCompressionLevel(original, INT_MAX, &error);
+    ;
     XCTAssertNil(compressed);
     XCTAssertNotNil(error);
 }
