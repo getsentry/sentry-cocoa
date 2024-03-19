@@ -794,7 +794,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
             }
 #endif
                       culture[@"locale"] = self.locale.localeIdentifier;
-                      culture[@"is_24_hour_format"] = @(self.locale.sentry_timeIs24HourFormat);
+                      culture[@"is_24_hour_format"] = @([SentryLocale timeIs24HourFormat]);
                       culture[@"timezone"] = self.timezone.name;
                   }];
 }

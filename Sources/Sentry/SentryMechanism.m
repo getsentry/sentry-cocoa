@@ -21,7 +21,7 @@ NS_ASSUME_NONNULL_BEGIN
 {
     NSMutableDictionary *serializedData = @{ @"type" : self.type }.mutableCopy;
 
-    [serializedData setBoolValue:self.handled forKey:@"handled"];
+    [SentryDictionary setBoolValue:self.handled forKey:@"handled" intoDictionary:serializedData];
     [serializedData setValue:self.synthetic forKey:@"synthetic"];
     [serializedData setValue:self.desc forKey:@"description"];
     [serializedData setValue:[self.data sentry_sanitize] forKey:@"data"];

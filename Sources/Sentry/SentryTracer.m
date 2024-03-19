@@ -805,7 +805,7 @@ static BOOL appStartMeasurementRead;
             NSMutableDictionary *context =
                 [[NSMutableDictionary alloc] initWithDictionary:[transaction context]];
             NSDictionary *appContext = @{ @"app" : @ { @"start_type" : appStartType } };
-            [context mergeEntriesFromDictionary:appContext];
+            [SentryDictionary mergeEntriesFromDictionary:appContext intoDictionary:context];
             [transaction setContext:context];
 
             // The backend calculates statistics on the number and size of debug images for app

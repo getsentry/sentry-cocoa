@@ -202,7 +202,7 @@ nameForSentrySessionStatus(SentrySessionStatus status)
         }
                                                   .mutableCopy;
 
-        [serializedData setBoolValue:_init forKey:@"init"];
+        [SentryDictionary setBoolValue:_init forKey:@"init" intoDictionary:serializedData];
 
         NSString *statusString = nameForSentrySessionStatus(_status);
 

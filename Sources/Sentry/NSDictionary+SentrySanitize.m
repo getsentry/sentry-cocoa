@@ -29,7 +29,7 @@ NSDictionary (SentrySanitize)
         } else if ([rawValue isKindOfClass:NSDictionary.class]) {
             [dict setValue:[(NSDictionary *)rawValue sentry_sanitize] forKey:stringKey];
         } else if ([rawValue isKindOfClass:NSArray.class]) {
-            [dict setValue:[(NSArray *)rawValue sentry_sanitize] forKey:stringKey];
+            [dict setValue:[SentryArray sanitizeArray:rawValue] forKey:stringKey];
         } else if ([rawValue isKindOfClass:NSDate.class]) {
             [dict setValue:[(NSDate *)rawValue sentry_toIso8601String] forKey:stringKey];
         } else {
