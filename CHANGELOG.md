@@ -1,6 +1,13 @@
 # Changelog
 
+## Unreleased
+
+### Fixes 
+
+- Package.json xcframework path ()
+
 ## 8.22.0
+**Warning:** this version is not working with SPM
 
 ### Improvements
 
