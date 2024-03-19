@@ -4,7 +4,7 @@
 
 ### Fixes 
 
-- Package.json xcframework path ()
+- Package.json xcframework path (#3760)
 
 ## 8.22.0
 **Warning:** this version is not working with SPM
