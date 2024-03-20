@@ -73,9 +73,7 @@ class BucketMetricsAggregator: MetricsAggregator {
     
     func add(type: MetricType, key: String, value: Double, unit: MeasurementUnit, tags: [String: String]) {
 
-        // It's important to sort the tags in order to
-        // obtain the same bucket key.
-        let tagsKey = tags.sorted(by: { $0.key < $1.key }).map({ "\($0.key)=\($0.value)" }).joined(separator: ",")
+        let tagsKey = getTagsKey(tags: tags)
         let bucketKey = "\(type)_\(key)_\(unit.unit)_\(tagsKey)"
 
         let bucketTimestamp = currentDate.bucketTimestamp
