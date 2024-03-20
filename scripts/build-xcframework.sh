@@ -1,6 +1,8 @@
 #!/bin/bash
 
-sdks=( iphoneos iphonesimulator macosx appletvos appletvsimulator watchos watchsimulator xros xrsimulator )
+set -eou pipefail
+
+sdks=( iphoneos ) #iphonesimulator macosx appletvos appletvsimulator watchos watchsimulator xros xrsimulator )
 
 rm -rf Carthage/
 mkdir Carthage
@@ -19,8 +21,13 @@ generate_xcframework() {
     for sdk in "${sdks[@]}"; do
         if [[ -n "$(grep "${sdk}" <<< "$ALL_SDKS")" ]]; then
             xcodebuild archive -project Sentry.xcodeproj/ -scheme "$scheme" -configuration Release -sdk "$sdk" -archivePath ./Carthage/archive/${scheme}${sufix}/${sdk}.xcarchive CODE_SIGNING_REQUIRED=NO SKIP_INSTALL=NO CODE_SIGN_IDENTITY= CARTHAGE=YES MACH_O_TYPE=$MACH_O_TYPE
-            
+                 
             createxcframework+="-framework Carthage/archive/${scheme}${sufix}/${sdk}.xcarchive/Products/Library/Frameworks/${scheme}.framework "
+
+            if [ "$MACH_O_TYPE" = "staticlib" ]; then
+                local infoPlist="Carthage/archive/${scheme}${sufix}/${sdk}.xcarchive/Products/Library/Frameworks/${scheme}.framework/Info.plist"
+                plutil -replace "MinimumOSVersion" -string "9999" "$infoPlist"
+            fi
             
             if [ -d "Carthage/archive/${scheme}${sufix}/${sdk}.xcarchive/dSYMs/${scheme}.framework.dSYM" ]; then
                 # Has debug symbols
@@ -34,6 +41,11 @@ generate_xcframework() {
     #Create framework for mac catalyst
     xcodebuild -project Sentry.xcodeproj/ -scheme "$scheme" -configuration Release -sdk macosx -destination 'platform=macOS,variant=Mac Catalyst' -derivedDataPath ./Carthage/DerivedData CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY= CARTHAGE=YES MACH_O_TYPE=$MACH_O_TYPE SUPPORTS_MACCATALYST=YES
     
+    if [ "$MACH_O_TYPE" = "staticlib" ]; then
+        local infoPlist="Carthage/DerivedData/Build/Products/Release-maccatalyst/${scheme}.framework/Resources/Info.plist"
+        plutil -replace "MinimumOSVersion" -string "9999" "$infoPlist"
+    fi
+    
     createxcframework+="-framework Carthage/DerivedData/Build/Products/Release-maccatalyst/${scheme}.framework "
     if [ -d "Carthage/DerivedData/Build/Products/Release-maccatalyst/${scheme}.framework.dSYM" ]; then
         createxcframework+="-debug-symbols $(pwd -P)/Carthage/DerivedData/Build/Products/Release-maccatalyst/${scheme}.framework.dSYM "
@@ -43,8 +55,8 @@ generate_xcframework() {
     $createxcframework
 }
 
-generate_xcframework "Sentry" "-Dynamic"
+#generate_xcframework "Sentry" "-Dynamic"
 
 generate_xcframework "Sentry" "" staticlib
 
-generate_xcframework "SentrySwiftUI"
+#generate_xcframework "SentrySwiftUI"

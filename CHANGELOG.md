@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Sentry.framework does not support the minimum OS Version specified in the Info.plist ()
+
 ## 8.22.2
 
 - Fix runtime error when including Sentry as a static lib (#3764)
