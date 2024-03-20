@@ -1,5 +1,6 @@
 #import "PrivatesHeader.h"
 #import "SentryScreenFrames.h"
+#import "SentrySwift.h"
 
 @class SentryDebugMeta;
 @class SentryScreenFrames;
