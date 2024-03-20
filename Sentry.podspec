@@ -32,15 +32,18 @@ Pod::Spec.new do |s|
 
   s.preserve_path = "Sources/Sentry/include/module.modulemap"
   s.resource_bundles = { "Sentry" => "Sources/Resources/PrivacyInfo.xcprivacy" }
-  s.source_files = "Sources/Sentry/**/*.{h,hpp,m,mm,c,cpp}",
-    "Sources/SentryCrash/**/*.{h,hpp,m,mm,c,cpp}", "Sources/Swift/**/*.{swift,h,hpp,m,mm,c,cpp}"
   
   s.subspec 'Core' do |sp|
+      sp.source_files = "Sources/Sentry/**/*.{h,hpp,m,mm,c,cpp}",
+        "Sources/SentryCrash/**/*.{h,hpp,m,mm,c,cpp}", "Sources/Swift/**/*.{swift,h,hpp,m,mm,c,cpp}"
       sp.public_header_files =
         "Sources/Sentry/Public/*.h"
   end
   
   s.subspec 'HybridSDK' do |sp|
+      sp.source_files = "Sources/Sentry/**/*.{h,hpp,m,mm,c,cpp}",
+        "Sources/SentryCrash/**/*.{h,hpp,m,mm,c,cpp}", "Sources/Swift/**/*.{swift,h,hpp,m,mm,c,cpp}"
+        
       sp.public_header_files =
         "Sources/Sentry/Public/*.h", "Sources/Sentry/include/HybridPublic/*.h"
   end
