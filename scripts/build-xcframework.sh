@@ -30,6 +30,8 @@ generate_xcframework() {
                 if [ ! -e "$infoPlist" ]; then
                     infoPlist="Carthage/archive/${scheme}${sufix}/${sdk}.xcarchive/Products/Library/Frameworks/${scheme}.framework/Resources/Info.plist"
                 fi
+                # This workaround is necessary to make Sentry Static framework to work
+                #More information in here: https://github.com/getsentry/sentry-cocoa/issues/3769
                 plutil -replace "MinimumOSVersion" -string "9999" "$infoPlist"
             fi
             
