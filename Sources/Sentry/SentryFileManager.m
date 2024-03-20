@@ -728,6 +728,14 @@ SentryFileManager ()
     self.envelopesPath = [self.sentryPath stringByAppendingPathComponent:EnvelopesPathComponent];
 }
 
+- (NSInteger)fileSize:(NSURL *)path
+{
+    NSDictionary *fileAttributes = [[NSFileManager defaultManager] attributesOfItemAtPath:path.path
+                                                                                    error:nil];
+    NSNumber *fileSize = [fileAttributes objectForKey:NSFileSize] ?: @(-1);
+    return [fileSize integerValue];
+}
+
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 /**
  * @note This method must be statically accessible because it will be called during app launch,
@@ -750,14 +758,6 @@ NSString *_Nullable sentryApplicationSupportPath(void)
             [applicationSupportDirectory stringByAppendingPathComponent:@"io.sentry"];
     });
     return sentryApplicationSupportPath;
-}
-
-- (NSInteger)fileSize:(NSURL *)path
-{
-    NSDictionary *fileAttributes = [[NSFileManager defaultManager] attributesOfItemAtPath:path.path
-                                                                                    error:nil];
-    NSNumber *fileSize = [fileAttributes objectForKey:NSFileSize] ?: @(-1);
-    return [fileSize integerValue];
 }
 
 NSURL *_Nullable sentryLaunchConfigFileURL = nil;
