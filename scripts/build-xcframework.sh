@@ -26,6 +26,10 @@ generate_xcframework() {
 
             if [ "$MACH_O_TYPE" = "staticlib" ]; then
                 local infoPlist="Carthage/archive/${scheme}${sufix}/${sdk}.xcarchive/Products/Library/Frameworks/${scheme}.framework/Info.plist"
+                
+                if [ ! -e "$infoPlist" ]; then
+                    infoPlist="Carthage/archive/${scheme}${sufix}/${sdk}.xcarchive/Products/Library/Frameworks/${scheme}.framework/Resources/Info.plist"
+                fi
                 plutil -replace "MinimumOSVersion" -string "9999" "$infoPlist"
             fi
             
