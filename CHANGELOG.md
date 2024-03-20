@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Add reference to Swift classes for hybrid SDKs (#3771)
+
 ## 8.22.2
 
 - Fix runtime error when including Sentry as a static lib (#3764)
