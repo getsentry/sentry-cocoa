@@ -4,7 +4,7 @@
 
 ### Fixes
 
-- Sentry.framework does not support the minimum OS Version specified in the Info.plist ()
+- Sentry.framework does not support the minimum OS Version specified in the Info.plist (#3774)
 
 ## 8.22.2
 
