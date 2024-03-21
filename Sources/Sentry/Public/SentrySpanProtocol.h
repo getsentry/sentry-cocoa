@@ -1,5 +1,4 @@
 #import "SentryDefines.h"
-#import "SentryProfilingConditionals.h"
 #import "SentrySerializable.h"
 #import "SentrySpanContext.h"
 
@@ -65,13 +64,6 @@ NS_SWIFT_NAME(Span)
  * The start time of the span.
  */
 @property (nullable, nonatomic, strong) NSDate *startTimestamp;
-
-#if SENTRY_TARGET_PROFILING_SUPPORTED
-/**
- * The system time the span started. Needed to slice profiling data to the span bounds.
- */
-@property (nonatomic, assign) uint64_t startSystemTimestamp;
-#endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
 /**
  * An arbitrary mapping of additional metadata of the span.
