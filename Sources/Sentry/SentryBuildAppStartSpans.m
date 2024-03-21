@@ -56,7 +56,9 @@ sentryBuildAppStartSpans(SentryTracer *tracer, SentryAppStartMeasurement *appSta
 
     SentrySpan *appStartSpan = sentryBuildAppStartSpan(tracer, tracer.spanId, operation, type);
     [appStartSpan setStartTimestamp:appStartMeasurement.appStartTimestamp];
+#    if SENTRY_TARGET_PROFILING_SUPPORTED
     [appStartSpan setStartSystemTimestamp:appStartMeasurement.appStartSystemTimestamp];
+#    endif // if SENTRY_TARGET_PROFILING_SUPPORTED
     [appStartSpan setTimestamp:appStartEndTimestamp];
 
     [appStartSpans addObject:appStartSpan];
