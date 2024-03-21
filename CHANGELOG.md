@@ -4,7 +4,7 @@
 
 ### Features
 
-- Pre-main profiling data is now attached to app start spans (#3736)
+- Pre-main profiling data is now attached to the app start transaction (#3736)
 ## 8.22.3-beta.0
 
 ### Fixes
