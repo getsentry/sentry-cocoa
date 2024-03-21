@@ -218,18 +218,18 @@ static NSDate *_Nullable startTimestamp = nil;
 #endif // TARGET_OS_IOS && SENTRY_HAS_UIKIT
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
-        BOOL shouldStopLaunchProfile = YES;
+        BOOL shouldstopAndTransmitLaunchProfile = YES;
 #    if SENTRY_HAS_UIKIT
         if (SentryUIViewControllerPerformanceTracker.shared.enableWaitForFullDisplay) {
-            shouldStopLaunchProfile = NO;
+            shouldstopAndTransmitLaunchProfile = NO;
         }
 #    endif // SENTRY_HAS_UIKIT
 
         [SentryDependencyContainer.sharedInstance.dispatchQueueWrapper dispatchAsyncWithBlock:^{
-            if (shouldStopLaunchProfile) {
+            if (shouldstopAndTransmitLaunchProfile) {
                 SENTRY_LOG_DEBUG(@"Stopping launch profile in SentrySDK.start because there will "
                                  @"be no automatic trace to attach it to.");
-                stopLaunchProfile(hub);
+                stopAndTransmitLaunchProfile(hub);
             }
             configureLaunchProfiling(options);
         }];
