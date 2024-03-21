@@ -1,7 +1,7 @@
 import Foundation
 
 protocol MetricsAggregator {
-    func add(type: MetricType, key: String, value: Double, unit: MeasurementUnit, tags: [String: String])
+    func add(type: MetricType, key: String, value: Double, unit: MeasurementUnit, tags: [String: String], localMetricsAggregator: LocalMetricsAggregator?)
 
     func flush(force: Bool)
     func close()
@@ -15,7 +15,7 @@ func getTagsKey(tags: [String: String]) -> String {
 
 class NoOpMetricsAggregator: MetricsAggregator {
 
-    func add(type: MetricType, key: String, value: Double, unit: MeasurementUnit, tags: [String: String]) {
+    func add(type: MetricType, key: String, value: Double, unit: MeasurementUnit, tags: [String: String], localMetricsAggregator: LocalMetricsAggregator?) {
         // empty on purpose
     }
 

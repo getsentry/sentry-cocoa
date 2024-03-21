@@ -340,4 +340,48 @@ final class BucketMetricsAggregatorTests: XCTestCase {
             sut.add(type: .set, key: "key\(i)", value: 1.1, unit: .none, tags: ["some": "tag"])
         })
     }
+    
+    func testCounterMetricGetsForwardedToLocalAggregator() throws {
+        let localMetricsAggregator = LocalMetricsAggregator()
+        let (sut, _, _) = try getSut()
+
+        sut.add(type: .counter, key: "key1", value: 1.0, unit: MeasurementUnitDuration.day, tags: ["some": "tag"], localMetricsAggregator: localMetricsAggregator)
+        
+        let serialized = localMetricsAggregator.serialize()
+        expect(serialized.count) == 1
+        let bucket = try XCTUnwrap(serialized["c:key1@day"])
+        
+        expect(bucket.count) == 1
+        let metric = try XCTUnwrap(bucket.first)
+        
+        expect(metric["tags"] as? [String: String]) == ["some": "tag"]
+        expect(metric["min"] as? Double) == 1.0
+        expect(metric["max"] as? Double) == 1.0
+        expect(metric["count"] as? Int) == 1
+        expect(metric["sum"] as? Double) == 1.0
+    }
+    
+    func testSetMetricOnlyForwardsAddedWeight() throws {
+        let localMetricsAggregator = LocalMetricsAggregator()
+        let (sut, _, _) = try getSut()
+
+        sut.add(type: .set, key: "key1", value: 1.0, unit: MeasurementUnitDuration.day, tags: ["some": "tag"], localMetricsAggregator: localMetricsAggregator)
+        // This one doesn't add new weight
+        sut.add(type: .set, key: "key1", value: 1.0, unit: MeasurementUnitDuration.day, tags: ["some": "tag"], localMetricsAggregator: localMetricsAggregator)
+        
+        let serialized = localMetricsAggregator.serialize()
+        expect(serialized.count) == 1
+        let bucket = try XCTUnwrap(serialized["s:key1@day"])
+        
+        expect(bucket.count) == 1
+        let metric = try XCTUnwrap(bucket.first)
+        
+        expect(metric["tags"] as? [String: String]) == ["some": "tag"]
+        // When no weight added the value is 0.0
+        expect(metric["min"] as? Double) == 0.0
+        expect(metric["max"] as? Double) == 1.0
+        expect(metric["count"] as? Int) == 2
+        expect(metric["sum"] as? Double) == 1.0
+    }
+
 }
