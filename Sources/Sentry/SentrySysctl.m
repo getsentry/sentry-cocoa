@@ -5,7 +5,7 @@
 #include <time.h>
 
 static NSDate *moduleInitializationTimestamp;
-static uint64_t processStartSystemTimestamp;
+static uint64_t runtimeInitSystemTimestamp;
 static NSDate *runtimeInit = nil;
 
 /**
@@ -35,7 +35,7 @@ sentryModuleInitializationHook(void)
     // there's no guarantee on whether that or this load method will be called first, the difference
     // in time has been observed to only be on the order of single milliseconds, not significant
     // enough to make a difference in outcomes
-    processStartSystemTimestamp = getAbsoluteTime();
+    runtimeInitSystemTimestamp = getAbsoluteTime();
 }
 
 - (NSDate *)runtimeInitTimestamp
@@ -55,9 +55,9 @@ sentryModuleInitializationHook(void)
     return [NSDate dateWithTimeIntervalSince1970:startTime.tv_sec + startTime.tv_usec / 1E6];
 }
 
-- (uint64_t)processStartSystemTimestamp
+- (uint64_t)runtimeInitSystemTimestamp
 {
-    return processStartSystemTimestamp;
+    return runtimeInitSystemTimestamp;
 }
 
 - (NSDate *)moduleInitializationTimestamp

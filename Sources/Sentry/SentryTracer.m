@@ -706,8 +706,8 @@ static BOOL appStartMeasurementRead;
 #    if SENTRY_HAS_UIKIT
         if (appStartMeasurement != nil) {
             SENTRY_LOG_DEBUG(@"Assigning transaction start time as app start system time (%llu)",
-                appStartMeasurement.appStartSystemTimestamp);
-            transaction.startSystemTime = appStartMeasurement.appStartSystemTimestamp;
+                appStartMeasurement.runtimeInitSystemTimestamp);
+            transaction.startSystemTime = appStartMeasurement.runtimeInitSystemTimestamp;
         }
 #    endif // SENTRY_HAS_UIKIT
 

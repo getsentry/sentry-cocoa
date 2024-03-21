@@ -228,7 +228,7 @@ class SentryProfilerSwiftTests: XCTestCase {
             appStart = preWarmed ? main : appStart
             appStartDuration = preWarmed ? appStartDuration - runtimeInitDuration - mainDuration : appStartDuration
             appStartEnd = appStart.addingTimeInterval(appStartDuration)
-            return SentryAppStartMeasurement(type: type, isPreWarmed: preWarmed, appStartTimestamp: appStart, appStartSystemTimestamp: appStartSystemTime, duration: appStartDuration, runtimeInitTimestamp: runtimeInit, moduleInitializationTimestamp: main,
+            return SentryAppStartMeasurement(type: type, isPreWarmed: preWarmed, appStartTimestamp: appStart, runtimeInitSystemTimestamp: appStartSystemTime, duration: appStartDuration, runtimeInitTimestamp: runtimeInit, moduleInitializationTimestamp: main,
                                              sdkStartTimestamp: appStart, didFinishLaunchingTimestamp: didFinishLaunching)
         }
 #endif // !os(macOS)

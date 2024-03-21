@@ -92,7 +92,7 @@ class SentryTracerTests: XCTestCase {
 
             appStartEnd = appStart.addingTimeInterval(appStartDuration)
 
-            return SentryAppStartMeasurement(type: type, isPreWarmed: preWarmed, appStartTimestamp: appStart, appStartSystemTimestamp: appStartSystemTime, duration: appStartDuration, runtimeInitTimestamp: runtimeInit, moduleInitializationTimestamp: main, sdkStartTimestamp: sdkStart, didFinishLaunchingTimestamp: didFinishLaunching)
+            return SentryAppStartMeasurement(type: type, isPreWarmed: preWarmed, appStartTimestamp: appStart, runtimeInitSystemTimestamp: appStartSystemTime, duration: appStartDuration, runtimeInitTimestamp: runtimeInit, moduleInitializationTimestamp: main, sdkStartTimestamp: sdkStart, didFinishLaunchingTimestamp: didFinishLaunching)
         }
         #endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
         
@@ -802,7 +802,7 @@ class SentryTracerTests: XCTestCase {
             type: SentryAppStartType.unknown,
             isPreWarmed: false,
             appStartTimestamp: fixture.currentDateProvider.date(),
-            appStartSystemTimestamp: fixture.currentDateProvider.systemTime(),
+            runtimeInitSystemTimestamp: fixture.currentDateProvider.systemTime(),
             duration: 0.5,
             runtimeInitTimestamp: fixture.currentDateProvider.date(),
             moduleInitializationTimestamp: fixture.currentDateProvider.date(),

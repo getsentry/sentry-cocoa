@@ -20,7 +20,7 @@ NS_ASSUME_NONNULL_BEGIN
  * device booted, which is why we can't simply convert @c processStartTimestamp to the nanosecond
  * representation of its @c timeIntervalSinceReferenceDate .
  */
-@property (readonly) uint64_t processStartSystemTimestamp;
+@property (readonly) uint64_t runtimeInitSystemTimestamp;
 
 @property (readonly) NSDate *runtimeInitTimestamp;
 

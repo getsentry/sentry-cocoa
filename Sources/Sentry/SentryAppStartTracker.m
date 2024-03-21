@@ -213,7 +213,7 @@ SentryAppStartTracker () <SentryFramesTrackerListener>
             [[SentryAppStartMeasurement alloc] initWithType:appStartType
                                                 isPreWarmed:isPreWarmed
                                           appStartTimestamp:appStartTimestamp
-                                    appStartSystemTimestamp:sysctl.processStartSystemTimestamp
+                                 runtimeInitSystemTimestamp:sysctl.runtimeInitSystemTimestamp
                                                    duration:appStartDuration
                                        runtimeInitTimestamp:runtimeInit
                               moduleInitializationTimestamp:sysctl.moduleInitializationTimestamp
