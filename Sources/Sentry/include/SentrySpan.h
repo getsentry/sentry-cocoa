@@ -69,10 +69,6 @@ SENTRY_NO_INIT
  */
 @property (nullable, nonatomic, strong) NSDate *startTimestamp;
 
-#if SENTRY_TARGET_PROFILING_SUPPORTED
-@property (nonatomic, assign) uint64_t startSystemTimestamp;
-#endif // SENTRY_TARGET_PROFILING_SUPPORTED
-
 /**
  * Whether the span is finished.
  */
