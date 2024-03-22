@@ -35,9 +35,9 @@ class BucketMetricsAggregator: MetricsAggregator {
         currentDate: SentryCurrentDateProvider,
         dispatchQueue: SentryDispatchQueueWrapper,
         random: SentryRandomProtocol,
-        totalMaxWeight: UInt = METRICS_AGGREGATOR_TOTAL_MAX_WEIGHT,
-        flushInterval: TimeInterval = METRICS_AGGREGATOR_FLUSH_INTERVAL,
-        flushTolerance: TimeInterval = METRICS_AGGREGATOR_FLUSH_TOLERANCE
+        totalMaxWeight: UInt = 1_000,
+        flushInterval: TimeInterval = 10.0,
+        flushTolerance: TimeInterval = 0.5
     ) {
         self.client = client
         self.currentDate = currentDate
@@ -70,7 +70,7 @@ class BucketMetricsAggregator: MetricsAggregator {
         timer.activate()
         self.timer = timer
     }
-
+    
     func add(type: MetricType, key: String, value: Double, unit: MeasurementUnit, tags: [String: String]) {
 
         // It's important to sort the tags in order to
@@ -84,11 +84,14 @@ class BucketMetricsAggregator: MetricsAggregator {
 
         lock.synchronized {
             var bucket = buckets[bucketTimestamp] ?? [:]
-
-            let metric = bucket[bucketKey] ?? CounterMetric(key: key, unit: unit, tags: tags)
+            
+            let metric = bucket[bucketKey] ?? initMetric(first: value, type: type, key: key, unit: unit, tags: tags)
+            let metricExists = bucket[bucketKey] != nil
+            if metricExists {
+                metric.add(value: value)
+            }
+            
             let oldWeight = bucket[bucketKey]?.weight ?? 0
-
-            metric.add(value: value)
             let addedWeight = metric.weight - oldWeight
 
             bucket[bucketKey] = metric
@@ -104,6 +107,19 @@ class BucketMetricsAggregator: MetricsAggregator {
             dispatchQueue.dispatchAsync({ [weak self] in
                 self?.flush(force: true)
             })
+        }
+    }
+    
+    private func initMetric(first: Double, type: MetricType, key: String, unit: MeasurementUnit, tags: [String: String]) -> Metric {
+        switch type {
+        case .counter:
+            return CounterMetric(first: first, key: key, unit: unit, tags: tags)
+        case .gauge:
+            return GaugeMetric(first: first, key: key, unit: unit, tags: tags)
+        case .distribution:
+            return DistributionMetric(first: first, key: key, unit: unit, tags: tags)
+        case .set:
+            return SetMetric(first: Int32(first), key: key, unit: unit, tags: tags)
         }
     }
 
