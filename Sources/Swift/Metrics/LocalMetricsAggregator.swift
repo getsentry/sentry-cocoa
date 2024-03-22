@@ -2,7 +2,7 @@ import Foundation
 
 /// Used for correlating metrics to spans. See https://github.com/getsentry/rfcs/blob/main/text/0123-metrics-correlation.md
 ///
-class LocalMetricsAggregator {
+@objc class LocalMetricsAggregator: NSObject {
     
     struct Metric {
         let min: Double
@@ -19,7 +19,8 @@ class LocalMetricsAggregator {
     private let lock = NSLock()
     
     func add(type: MetricType, key: String, value: Double, unit: MeasurementUnit, tags: [String: String]) {
-        let exportKey = "\(type.rawValue):\(key)@\(unit.unit)"
+
+        let exportKey = unit.unit.isEmpty ? "\(type.rawValue):\(key)" : "\(type.rawValue):\(key)@\(unit.unit)" 
         let tagsKey = getTagsKey(tags: tags)
         
         lock.synchronized {
@@ -41,7 +42,7 @@ class LocalMetricsAggregator {
         }
     }
     
-    func serialize() -> [String: [[String: Any]]] {
+    @objc func serialize() -> [String: [[String: Any]]] {
         var returnValue: [String: [[String: Any]]] = [:]
         
         lock.synchronized {

@@ -4,6 +4,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @class SentryTracer, SentryId, SentrySpanId, SentryFrame, SentrySpanContext;
+@class LocalMetricsAggregator;
 
 #if SENTRY_HAS_UIKIT
 @class SentryFramesTracker;
@@ -82,6 +83,8 @@ SENTRY_NO_INIT
  * Frames of the stack trace associated with the span.
  */
 @property (nullable, nonatomic, strong) NSArray<SentryFrame *> *frames;
+
+- (LocalMetricsAggregator *)getLocalMetricsAggregator;
 
 /**
  * Init a @c SentrySpan with given transaction and context.

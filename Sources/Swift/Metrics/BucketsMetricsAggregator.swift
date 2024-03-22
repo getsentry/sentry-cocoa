@@ -82,14 +82,15 @@ class BucketMetricsAggregator: MetricsAggregator {
 
         lock.synchronized {
             var bucket = buckets[bucketTimestamp] ?? [:]
+            let oldWeight = bucket[bucketKey]?.weight ?? 0
             
             let metric = bucket[bucketKey] ?? initMetric(first: value, type: type, key: key, unit: unit, tags: tags)
             let metricExists = bucket[bucketKey] != nil
+            
             if metricExists {
                 metric.add(value: value)
             }
             
-            let oldWeight = bucket[bucketKey]?.weight ?? 0
             let addedWeight = metric.weight - oldWeight
 
             bucket[bucketKey] = metric

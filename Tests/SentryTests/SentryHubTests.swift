@@ -1,5 +1,5 @@
 import Nimble
-import Sentry
+@testable import Sentry
 import SentryTestUtils
 import XCTest
 
@@ -943,6 +943,61 @@ class SentryHubTests: XCTestCase {
                                                                  ["mechanism": ["other-key": false]]]
                                                             ]
                                                          ]))
+    }
+    
+    func testInitHubWithDefaultOptions_DoesNotEnableMetrics() {
+        let sut = fixture.getSut()
+        
+        sut.metrics.increment(key: "key")
+        sut.close()
+        
+        expect(self.fixture.client.captureEnvelopeInvocations.count) == 0
+    }
+    
+    func testMetrics_IncrementOneValue() throws {
+        let options = fixture.options
+        options.enableMetrics = true
+        let sut = fixture.getSut(options)
+        
+        sut.metrics.increment(key: "key")
+        sut.flush(timeout: 1.0)
+        
+        let client = self.fixture.client
+        expect(client.captureEnvelopeInvocations.count) == 1
+        
+        let envelope = try XCTUnwrap(client.captureEnvelopeInvocations.first)
+        expect(envelope.header.eventId) != nil
+
+        // We only check if it's an envelope with a statsd envelope item.
+        // We validate the contents of the envelope in SentryMetricsClientTests
+        expect(envelope.items.count) == 1
+        let envelopeItem = try XCTUnwrap(envelope.items.first)
+        expect(envelopeItem.header.type) == SentryEnvelopeItemTypeStatsd
+        expect(envelopeItem.header.contentType) == "application/octet-stream"
+    }
+    
+    func testAddIncrementMetric_GetsLocalMetricsAggregatorFromCurrentSpan() throws {
+        let options = fixture.options
+        options.enableMetrics = true
+        let sut = fixture.getSut(options)
+        
+        let span = sut.startTransaction(name: fixture.transactionName, operation: fixture.transactionOperation, bindToScope: true)
+        let tracer = span as! SentryTracer
+        
+        sut.metrics.increment(key: "key")
+        
+        let aggregator = tracer.getLocalMetricsAggregator()
+        
+        let metricsSummary = aggregator.serialize()
+        expect(metricsSummary.count) == 1
+        
+        let bucket = try XCTUnwrap(metricsSummary["c:key"])
+        expect(bucket.count) == 1
+        let metric = try XCTUnwrap(bucket.first)
+        expect(metric["min"] as? Double) == 1.0
+        expect(metric["max"] as? Double) == 1.0
+        expect(metric["count"] as? Int) == 1
+        expect(metric["sum"] as? Double) == 1.0
     }
     
     private func captureEventEnvelope(level: SentryLevel) {
