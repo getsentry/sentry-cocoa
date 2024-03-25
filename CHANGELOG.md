@@ -5,6 +5,19 @@
 ### Features
 
 - Pre-main profiling data is now attached to the app start transaction (#3736)
+## 8.22.4
+
+### Fixes
+
+- CFBundleShortVersionString in the Info.plist file is invalid (#3787)
+
+## 8.22.3
+
+### Fixes
+
+- Sentry.framework does not support the minimum OS Version specified in the Info.plist (#3774)
+- Add reference to Swift classes for hybrid SDKs (#3771)
+
 ## 8.22.3-beta.0
 
 ### Fixes
