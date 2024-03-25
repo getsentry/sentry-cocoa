@@ -5,6 +5,7 @@
 ### Features
 
 - Pre-main profiling data is now attached to the app start transaction (#3736)
+
 ## 8.22.4
 
 ### Fixes
