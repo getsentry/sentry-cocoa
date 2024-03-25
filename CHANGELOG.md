@@ -1,5 +1,11 @@
 # Changelog
 
+## 8.22.3
+
+### Various fixes & improvements
+
+- test: move the slow load test from SDK to sample app code (#3777) by @armcknight
+
 ## 8.22.3-beta.0
 
 ### Fixes
