@@ -15,7 +15,8 @@ struct SentryReplayFrame {
     }
 }
 
-class SentryOnDemandReplay {
+@objcMembers
+class SentryOnDemandReplay: NSObject {
     private let _outputPath: String
     private let _onDemandDispatchQueue: DispatchQueue
     
@@ -133,7 +134,8 @@ class SentryOnDemandReplay {
                 videoWriter.finishWriting {
                     var videoInfo: SentryVideoInfo?
                     if videoWriter.status == .completed {
-                        let fileSize = SentryDependencyContainer.sharedInstance().fileManager.fileSize(outputFileURL)
+                        let fileAttributes = try? FileManager.default.attributesOfItem(atPath: outputFileURL.path)
+                        let fileSize = fileAttributes?[FileAttributeKey.size] as? Int ?? -1
                         videoInfo = SentryVideoInfo(path: outputFileURL, height: Int(self.videoSize.height), width: Int(self.videoSize.width), duration: TimeInterval(frames.count / self.frameRate), frameCount: frames.count, frameRate: self.frameRate, start: start, end: actualEnd, fileSize: fileSize)
                     }
                     completion(videoInfo, videoWriter.error)

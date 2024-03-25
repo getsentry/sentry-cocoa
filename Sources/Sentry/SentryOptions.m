@@ -15,6 +15,7 @@
 #import "SentryOptions+Private.h"
 #import "SentrySDK.h"
 #import "SentryScope.h"
+#import "SentrySessionReplayIntegration.h"
 #import "SentrySwiftAsyncIntegration.h"
 #import <objc/runtime.h>
 
