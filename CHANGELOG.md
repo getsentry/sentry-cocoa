@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- CFBundleShortVersionString in the Info.plist file is invalid (#3787)
+
 ## 8.22.3
 
 ### Fixes
