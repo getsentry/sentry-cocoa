@@ -4,7 +4,7 @@
 
 ### Fixes
 
-- Don't run onCrashedLastSession for nil Events ()
+- Don't run onCrashedLastSession for nil Events (#3785)
 
 ## 8.22.3-beta.0
 
