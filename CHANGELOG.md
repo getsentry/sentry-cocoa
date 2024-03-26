@@ -8,7 +8,7 @@
 
 ### Features
 
-- Release framework with no link to UIKit
+- Release framework with no link to UIKit (#3793)
 
 ## 8.22.4
 
