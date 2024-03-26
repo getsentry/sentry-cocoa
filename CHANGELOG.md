@@ -6,6 +6,10 @@
 
 - Don't run onCrashedLastSession for nil Events (#3785)
 
+### Features
+
+- Release framework with no link to UIKit
+
 ## 8.22.4
 
 ### Fixes
