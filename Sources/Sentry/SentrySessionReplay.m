@@ -10,9 +10,6 @@
 #import "SentrySwift.h"
 
 #if SENTRY_HAS_UIKIT
-#    if TARGET_OS_IOS || TARGET_OS_TVOS
-#        if __IPHONE_OS_VERSION_MIN_REQUIRED >= __IPHONE_16_0                                      \
-            || __TV_OS_VERSION_MIN_REQUIRED >= __TV_16_0
 static NSString *SENTRY_REPLAY_FOLDER = @"replay";
 
 NS_ASSUME_NONNULL_BEGIN
@@ -113,11 +110,6 @@ NS_ASSUME_NONNULL_BEGIN
         return;
     }
 
-    if (_isFullSession) {
-        [self updateEvent:event withReplayId:sessionReplayId];
-        return;
-    }
-
     NSURL *finalPath = [_urlToCache URLByAppendingPathComponent:@"replay.mp4"];
     NSDate *replayStart =
         [[self dateProvider].date dateByAddingTimeInterval:-_replayOptions.errorReplayDuration];
@@ -127,13 +119,6 @@ NS_ASSUME_NONNULL_BEGIN
                  startedAt:replayStart];
 
     self->_isFullSession = YES;
-}
-
-- (void)updateEvent:(SentryEvent *)event withReplayId:(SentryId *)sentryId
-{
-    NSMutableDictionary *context = [NSMutableDictionary dictionaryWithDictionary:event.context];
-    context[@"replay_id"] = sentryId;
-    event.context = context;
 }
 
 - (void)newFrame:(CADisplayLink *)sender
@@ -260,10 +245,6 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 @end
-
-#        endif // __IPHONE_OS_VERSION_MIN_REQUIRED >= __IPHONE_16_0 || __TV_OS_VERSION_MIN_REQUIRED
-               // >= __TV_16_0
-#    endif // TARGET_OS_IOS || TARGET_OS_TVOS
 
 NS_ASSUME_NONNULL_END
 
