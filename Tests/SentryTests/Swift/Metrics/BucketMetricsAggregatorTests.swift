@@ -17,9 +17,9 @@ final class BucketMetricsAggregatorTests: XCTestCase {
     func testSameMetricAggregated_WhenInSameBucket() throws {
         let (sut, currentDate, metricsClient) = try getSut()
 
-        sut.add(type: .counter, key: "key", value: 1.0, unit: MeasurementUnitDuration.day, tags: [:])
+        sut.add(type: .distribution, key: "key", value: 1.0, unit: MeasurementUnitDuration.day, tags: [:])
         currentDate.setDate(date: currentDate.date().addingTimeInterval(9.99))
-        sut.add(type: .counter, key: "key", value: 1.1, unit: MeasurementUnitDuration.day, tags: [:])
+        sut.add(type: .distribution, key: "key", value: 1.1, unit: MeasurementUnitDuration.day, tags: [:])
 
         sut.flush(force: true)
 
@@ -28,21 +28,21 @@ final class BucketMetricsAggregatorTests: XCTestCase {
 
         let bucket = try XCTUnwrap(buckets[currentDate.bucketTimestamp])
         expect(bucket.count) == 1
-        let counterMetric = try XCTUnwrap(bucket.first as? CounterMetric)
+        let counterMetric = try XCTUnwrap(bucket.first as? DistributionMetric)
 
         expect(counterMetric.key) == "key"
-        expect(counterMetric.serialize()) == ["2.1"]
+        expect(counterMetric.serialize()).to(contain(["1.0", "1.1"]))
         expect(counterMetric.unit.unit) == MeasurementUnitDuration.day.unit
         expect(counterMetric.tags) == [:]
     }
 
     func testFlushShift_MetricsUsuallyInSameBucket_AreInDifferent() throws {
-        let (sut, currentDate, metricsClient) = try getSut(flushShift: 0.1)
+        let (sut, currentDate, metricsClient) = try getSut(totalMaxWeight: 100, flushShift: 0.1)
 
-        sut.add(type: .counter, key: "key", value: 1.0, unit: MeasurementUnitDuration.day, tags: [:])
+        sut.add(type: .gauge, key: "key", value: 1.0, unit: MeasurementUnitDuration.day, tags: [:])
 
         currentDate.setDate(date: currentDate.date().addingTimeInterval( 9.99))
-        sut.add(type: .counter, key: "key", value: 1.0, unit: MeasurementUnitDuration.day, tags: [:])
+        sut.add(type: .gauge, key: "key", value: -1.0, unit: MeasurementUnitDuration.day, tags: [:])
 
         // Not flushing yet
         currentDate.setDate(date: currentDate.date().addingTimeInterval( 1.0))
@@ -50,7 +50,7 @@ final class BucketMetricsAggregatorTests: XCTestCase {
         expect(metricsClient.captureInvocations.count) == 0
 
         // This ends up in a different bucket
-        sut.add(type: .counter, key: "key", value: 1.0, unit: MeasurementUnitDuration.day, tags: [:])
+        sut.add(type: .gauge, key: "key", value: 1.0, unit: MeasurementUnitDuration.day, tags: [:])
 
         // Now we pass the flush shift threshold
         currentDate.setDate(date: currentDate.date().addingTimeInterval( 0.01))
@@ -62,10 +62,10 @@ final class BucketMetricsAggregatorTests: XCTestCase {
         let previousBucketTimestamp = currentDate.bucketTimestamp - 10
         let bucket = try XCTUnwrap(buckets[previousBucketTimestamp])
         expect(bucket.count) == 1
-        let counterMetric = try XCTUnwrap(bucket.first as? CounterMetric)
+        let counterMetric = try XCTUnwrap(bucket.first as? GaugeMetric)
 
         expect(counterMetric.key) == "key"
-        expect(counterMetric.serialize()) == ["2.0"]
+        expect(counterMetric.serialize()) == ["-1.0", "-1.0", "1.0", "0.0", "2"]
         expect(counterMetric.unit.unit) == MeasurementUnitDuration.day.unit
         expect(counterMetric.tags) == [:]
     }
@@ -73,8 +73,8 @@ final class BucketMetricsAggregatorTests: XCTestCase {
     func testDifferentMetrics_NotInSameBucket() throws {
         let (sut, currentDate, metricsClient) = try getSut()
 
-        sut.add(type: .counter, key: "key1", value: 1.0, unit: MeasurementUnitDuration.day, tags: ["some": "tag", "and": "another-one"])
-        sut.add(type: .counter, key: "key2", value: 2.0, unit: MeasurementUnitDuration.day, tags: ["and": "another-one", "some": "tag"])
+        sut.add(type: .set, key: "key1", value: 1.0, unit: MeasurementUnitDuration.day, tags: ["some": "tag", "and": "another-one"])
+        sut.add(type: .set, key: "key2", value: 2.0, unit: MeasurementUnitDuration.day, tags: ["and": "another-one", "some": "tag"])
 
         sut.flush(force: true)
 
@@ -84,17 +84,17 @@ final class BucketMetricsAggregatorTests: XCTestCase {
         let bucket = try XCTUnwrap(buckets[currentDate.bucketTimestamp])
         expect(bucket.count) == 2
 
-        let counterMetric1 = try XCTUnwrap(bucket.first { $0.key == "key1" } as? CounterMetric)
-        expect(counterMetric1.key) == "key1"
-        expect(counterMetric1.serialize()) == ["1.0"]
-        expect(counterMetric1.unit.unit) == MeasurementUnitDuration.day.unit
-        expect(counterMetric1.tags) == ["some": "tag", "and": "another-one"]
+        let metric1 = try XCTUnwrap(bucket.first { $0.key == "key1" } as? SetMetric)
+        expect(metric1.key) == "key1"
+        expect(metric1.serialize()) == ["1"]
+        expect(metric1.unit.unit) == MeasurementUnitDuration.day.unit
+        expect(metric1.tags) == ["some": "tag", "and": "another-one"]
 
-        let counterMetric2 = try XCTUnwrap(bucket.first { $0.key == "key2" } as? CounterMetric)
-        expect(counterMetric2.key) == "key2"
-        expect(counterMetric2.serialize()) == ["2.0"]
-        expect(counterMetric2.unit.unit) == MeasurementUnitDuration.day.unit
-        expect(counterMetric2.tags) == ["some": "tag", "and": "another-one"]
+        let metric2 = try XCTUnwrap(bucket.first { $0.key == "key2" } as? SetMetric)
+        expect(metric2.key) == "key2"
+        expect(metric2.serialize()) == ["2"]
+        expect(metric2.unit.unit) == MeasurementUnitDuration.day.unit
+        expect(metric2.tags) == ["some": "tag", "and": "another-one"]
     }
 
     func testSameMetricDifferentTag_NotInSameBucket() throws {
@@ -335,6 +335,9 @@ final class BucketMetricsAggregatorTests: XCTestCase {
         
         testConcurrentModifications(asyncWorkItems: 10, writeLoopCount: 1_000, writeWork: { i in
             sut.add(type: .counter, key: "key\(i)", value: 1.1, unit: .none, tags: ["some": "tag"])
+            sut.add(type: .gauge, key: "key\(i)", value: 1.1, unit: .none, tags: ["some": "tag"])
+            sut.add(type: .distribution, key: "key\(i)", value: 1.1, unit: .none, tags: ["some": "tag"])
+            sut.add(type: .set, key: "key\(i)", value: 1.1, unit: .none, tags: ["some": "tag"])
         })
     }
 }

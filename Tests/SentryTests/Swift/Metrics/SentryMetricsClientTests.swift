@@ -11,7 +11,7 @@ final class SentryMetricsClientTests: XCTestCase {
 
         let sut = SentryMetricsClient(client: SentryStatsdClient(client: testClient))
 
-        let metric = CounterMetric(key: "app.start", unit: MeasurementUnitDuration.second, tags: ["sentry": "awesome"])
+        let metric = CounterMetric(first: 0.0, key: "app.start", unit: MeasurementUnitDuration.second, tags: ["sentry": "awesome"])
         let flushableBuckets: [BucketTimestamp: [Metric]] = [0: [metric]]
         
         let encodedMetricsData = encodeToStatsd(flushableBuckets: flushableBuckets)
