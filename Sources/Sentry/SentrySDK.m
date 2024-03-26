@@ -22,7 +22,11 @@
 #import "SentrySwift.h"
 #import "SentryThreadWrapper.h"
 #import "SentryTransactionContext.h"
-#import "SentryUIDeviceWrapper.h"
+
+#if SENTRY_HAS_UIKIT
+#    import "SentryUIDeviceWrapper.h"
+#    import "SentryUIViewControllerPerformanceTracker.h"
+#endif // SENTRY_HAS_UIKIT
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 #    import "SentryLaunchProfiling.h"
@@ -214,8 +218,19 @@ static NSDate *_Nullable startTimestamp = nil;
 #endif // TARGET_OS_IOS && SENTRY_HAS_UIKIT
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
+        BOOL shouldstopAndTransmitLaunchProfile = YES;
+#    if SENTRY_HAS_UIKIT
+        if (SentryUIViewControllerPerformanceTracker.shared.enableWaitForFullDisplay) {
+            shouldstopAndTransmitLaunchProfile = NO;
+        }
+#    endif // SENTRY_HAS_UIKIT
+
         [SentryDependencyContainer.sharedInstance.dispatchQueueWrapper dispatchAsyncWithBlock:^{
-            stopLaunchProfile(hub);
+            if (shouldstopAndTransmitLaunchProfile) {
+                SENTRY_LOG_DEBUG(@"Stopping launch profile in SentrySDK.start because there will "
+                                 @"be no automatic trace to attach it to.");
+                stopAndTransmitLaunchProfile(hub);
+            }
             configureLaunchProfiling(options);
         }];
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED

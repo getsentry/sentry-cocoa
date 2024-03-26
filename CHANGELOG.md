@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Features
+
+- Pre-main profiling data is now attached to the app start transaction (#3736)
+
 ### Fixes
 
 - Don't run onCrashedLastSession for nil Events (#3785)
@@ -47,6 +51,7 @@ We now provide a prebuilt XCFramework for SPM, which speeds up your build and al
 more code in Swift. To make this happen, we had to remove the SentryPrivate target for SPM and
 CocoaPods, which you shouldn't have included directly.
 
+- Remove SentryPrivate library (#3623)
 
 ### Fixes
 
