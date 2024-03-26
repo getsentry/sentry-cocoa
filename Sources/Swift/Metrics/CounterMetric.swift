@@ -2,10 +2,11 @@ import Foundation
 
 class CounterMetric: Metric {
 
-    private var value: Double = 0.0
+    private var value: Double
     var weight: UInt = 1
 
-    init(key: String, unit: MeasurementUnit, tags: [String: String]) {
+    init(first: Double, key: String, unit: MeasurementUnit, tags: [String: String]) {
+        value = first
         super.init(type: .counter, key: key, unit: unit, tags: tags)
     }
 
@@ -16,5 +17,4 @@ class CounterMetric: Metric {
     func serialize() -> [String] {
         return ["\(value)"]
     }
-
 }
