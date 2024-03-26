@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+### Features
+
+- Add Metrics API (#3791): Read our [docs](https://docs.sentry.io/platforms/apple/metrics/) to learn
+more about how to use the Metrics API.
+
 ### Fixes
 
 - Don't run onCrashedLastSession for nil Events (#3785)
