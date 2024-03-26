@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Don't run onCrashedLastSession for nil Events (#3785)
+
 ## 8.22.4
 
 ### Fixes

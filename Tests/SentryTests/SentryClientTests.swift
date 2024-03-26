@@ -1444,6 +1444,22 @@ class SentryClientTest: XCTestCase {
         XCTAssertTrue(onCrashedLastRunCalled)
     }
     
+    func testOnCrashedLastRun_DontRunIfBeforeSendReturnsNill() {
+        let event = TestData.event
+        
+        var onCrashedLastRunCalled = false
+        fixture.getSut(configureOptions: { options in
+            options.beforeSend = { _ in
+                return nil
+            }
+            options.onCrashedLastRun = { _ in
+                onCrashedLastRunCalled = true
+            }
+        }).captureCrash(event, with: fixture.session, with: fixture.scope)
+        
+        XCTAssertFalse(onCrashedLastRunCalled)
+    }
+    
     func testOnCrashedLastRun_WithTwoCrashes_OnlyInvokeCallbackOnce() {
         let event = TestData.event
         
