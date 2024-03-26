@@ -1000,6 +1000,75 @@ class SentryHubTests: XCTestCase {
         expect(metric["sum"] as? Double) == 1.0
     }
     
+    func testAddIncrementMetric_AddsDefaultTags() throws {
+        let options = fixture.options
+        options.releaseName = "release1"
+        options.environment = "test"
+        options.enableMetrics = true
+        let sut = fixture.getSut(options)
+        
+        let span = sut.startTransaction(name: fixture.transactionName, operation: fixture.transactionOperation, bindToScope: true)
+        let tracer = span as! SentryTracer
+        
+        sut.metrics.increment(key: "key", tags: ["my": "tag", "release": "overwritten"])
+        
+        let aggregator = tracer.getLocalMetricsAggregator()
+        
+        let metricsSummary = aggregator.serialize()
+        expect(metricsSummary.count) == 1
+        
+        let bucket = try XCTUnwrap(metricsSummary["c:key"])
+        expect(bucket.count) == 1
+        let metric = try XCTUnwrap(bucket.first)
+        expect(metric["tags"] as? [String: String]) == ["my": "tag", "release": "overwritten", "environment": options.environment]
+    }
+    
+    func testAddIncrementMetric_ReleaseNameNil() throws {
+        let options = fixture.options
+        options.releaseName = nil
+        options.enableMetrics = true
+        let sut = fixture.getSut(options)
+        
+        let span = sut.startTransaction(name: fixture.transactionName, operation: fixture.transactionOperation, bindToScope: true)
+        let tracer = span as! SentryTracer
+        
+        sut.metrics.increment(key: "key", tags: ["my": "tag"])
+        
+        let aggregator = tracer.getLocalMetricsAggregator()
+        
+        let metricsSummary = aggregator.serialize()
+        expect(metricsSummary.count) == 1
+        
+        let bucket = try XCTUnwrap(metricsSummary["c:key"])
+        expect(bucket.count) == 1
+        let metric = try XCTUnwrap(bucket.first)
+        expect(metric["tags"] as? [String: String]) == ["my": "tag", "environment": options.environment]
+    }
+    
+    func testAddIncrementMetric_DefaultTagsDisabled() throws {
+        let options = fixture.options
+        options.releaseName = "release1"
+        options.environment = "test"
+        options.enableMetrics = true
+        options.enableDefaultTagsForMetrics = false
+        let sut = fixture.getSut(options)
+        
+        let span = sut.startTransaction(name: fixture.transactionName, operation: fixture.transactionOperation, bindToScope: true)
+        let tracer = span as! SentryTracer
+        
+        sut.metrics.increment(key: "key", tags: ["my": "tag"])
+        
+        let aggregator = tracer.getLocalMetricsAggregator()
+        
+        let metricsSummary = aggregator.serialize()
+        expect(metricsSummary.count) == 1
+        
+        let bucket = try XCTUnwrap(metricsSummary["c:key"])
+        expect(bucket.count) == 1
+        let metric = try XCTUnwrap(bucket.first)
+        expect(metric["tags"] as? [String: String]) == ["my": "tag"]
+    }
+    
     private func captureEventEnvelope(level: SentryLevel) {
         let event = TestData.event
         event.level = level

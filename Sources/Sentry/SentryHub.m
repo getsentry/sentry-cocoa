@@ -714,6 +714,24 @@ SentryHub () <SentryMetricsAPIDelegate>
     return nil;
 }
 
+- (NSDictionary<NSString *, NSString *> *)getDefaultTagsForMetrics
+{
+    SentryOptions *options = [_client options];
+    if (options == nil || options.enableDefaultTagsForMetrics == NO) {
+        return @{};
+    }
+
+    NSMutableDictionary<NSString *, NSString *> *defaultTags = [NSMutableDictionary dictionary];
+
+    if (options.releaseName != nil) {
+        defaultTags[@"release"] = options.releaseName;
+    }
+
+    defaultTags[@"environment"] = options.environment;
+
+    return defaultTags;
+}
+
 #pragma mark - Protected
 
 - (NSMutableArray<NSString *> *)trimmedInstalledIntegrationNames

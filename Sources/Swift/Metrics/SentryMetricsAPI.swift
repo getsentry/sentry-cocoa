@@ -2,6 +2,8 @@
 import Foundation
 
 @objc protocol SentryMetricsAPIDelegate: AnyObject {
+    func getDefaultTagsForMetrics() -> [String: String]
+    
     func getLocalMetricsAggregator() -> LocalMetricsAggregator?
 }
 
@@ -31,7 +33,8 @@ import Foundation
     /// - Parameter unit: The value for the metric see `MeasurementUnit`.
     /// - Parameter tags: Tags to associate with the metric.
     @objc public func increment(key: String, value: Double = 1.0, unit: MeasurementUnit = .none, tags: [String: String] = [:]) {
-        aggregator.add(type: MetricType.counter, key: key, value: value, unit: unit, tags: tags, localMetricsAggregator: delegate?.getLocalMetricsAggregator())
+        let mergedTags = mergeDefaultTagsInto(tags: tags)
+        aggregator.add(type: MetricType.counter, key: key, value: value, unit: unit, tags: mergedTags, localMetricsAggregator: delegate?.getLocalMetricsAggregator())
     }
     
     /// Emits a Gauge metric.
@@ -42,7 +45,8 @@ import Foundation
     /// - Parameter tags: Tags to associate with the metric.
     @objc
     public func gauge(key: String, value: Double, unit: MeasurementUnit = .none, tags: [String: String] = [:]) {
-        aggregator.add(type: MetricType.gauge, key: key, value: value, unit: unit, tags: tags, localMetricsAggregator: delegate?.getLocalMetricsAggregator())
+        let mergedTags = mergeDefaultTagsInto(tags: tags)
+        aggregator.add(type: MetricType.gauge, key: key, value: value, unit: unit, tags: mergedTags, localMetricsAggregator: delegate?.getLocalMetricsAggregator())
     }
     
     /// Emits a Distribution metric.
@@ -53,7 +57,8 @@ import Foundation
     /// - Parameter tags: Tags to associate with the metric.
     @objc
     public func distribution(key: String, value: Double, unit: MeasurementUnit = .none, tags: [String: String] = [:]) {
-        aggregator.add(type: MetricType.distribution, key: key, value: value, unit: unit, tags: tags, localMetricsAggregator: delegate?.getLocalMetricsAggregator())
+        let mergedTags = mergeDefaultTagsInto(tags: tags)
+        aggregator.add(type: MetricType.distribution, key: key, value: value, unit: unit, tags: mergedTags, localMetricsAggregator: delegate?.getLocalMetricsAggregator())
     }
     
     /// Emits a Set metric.
@@ -64,7 +69,8 @@ import Foundation
     /// - Parameter tags: Tags to associate with the metric.
     @objc
     public func set(key: String, value: Int32, unit: MeasurementUnit = .none, tags: [String: String] = [:]) {
-        aggregator.add(type: MetricType.set, key: key, value: Double(value), unit: unit, tags: tags, localMetricsAggregator: delegate?.getLocalMetricsAggregator())
+        let mergedTags = mergeDefaultTagsInto(tags: tags)
+        aggregator.add(type: MetricType.set, key: key, value: Double(value), unit: unit, tags: mergedTags, localMetricsAggregator: delegate?.getLocalMetricsAggregator())
     }
 
     @objc public func close() {
@@ -74,6 +80,12 @@ import Foundation
     
     @objc public func flush() {
         aggregator.flush(force: true)
+    }
+    
+    /// Merges the default tags into the passed tags. If there are duplicates the method keeps the passed in tags and discards the default tags.
+    private func mergeDefaultTagsInto(tags: [String: String]) -> [String: String] {
+        let defaultTags = delegate?.getDefaultTagsForMetrics() ?? [:]
+        return tags.merging(defaultTags) { (tagValue, _) in tagValue }
     }
 
 }
