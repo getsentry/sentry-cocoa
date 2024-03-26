@@ -4,7 +4,7 @@ import Foundation
 ///
 @objc class LocalMetricsAggregator: NSObject {
     
-    struct Metric {
+    private struct Metric {
         let min: Double
         let max: Double
         let count: Int
@@ -12,16 +12,13 @@ import Foundation
         let tags: [String: String]
     }
     
-    private typealias ExportKey = String
-    private typealias TagsKey = String
-    
-    private var metricBuckets: [ExportKey: [TagsKey: Metric]] = [:]
+    private var metricBuckets: [String: [String: Metric]] = [:]
     private let lock = NSLock()
     
     func add(type: MetricType, key: String, value: Double, unit: MeasurementUnit, tags: [String: String]) {
 
         let exportKey = unit.unit.isEmpty ? "\(type.rawValue):\(key)" : "\(type.rawValue):\(key)@\(unit.unit)" 
-        let tagsKey = getTagsKey(tags: tags)
+        let tagsKey = tags.getMetricsTagsKey()
         
         lock.synchronized {
             var bucket = metricBuckets[exportKey] ?? [:]
