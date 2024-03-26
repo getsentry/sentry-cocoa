@@ -1,3 +1,4 @@
+@_implementationOnly import _SentryPrivate
 import Foundation
 
 #if canImport(UIKit)
@@ -92,12 +93,7 @@ class SentryViewPhotographer: NSObject {
     }
     
     private func excludeRect(_ rectangle: CGRect, fromPath path: CGMutablePath) -> CGMutablePath {
-        if #available(iOS 16.0, tvOS 16.0, *) {
-            let exclude = CGPath(rect: rectangle, transform: nil)
-            let newPath = path.subtracting(exclude, using: .evenOdd)
-            return newPath.mutableCopy() ?? path
-        }
-        return path
+        return SentryCoreGraphicsHelper.excludeRect(rectangle, from: path).takeRetainedValue()
     }
     
     private func isOpaqueOrHasBackground(_ view: UIView) -> Bool {

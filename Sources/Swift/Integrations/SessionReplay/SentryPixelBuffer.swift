@@ -19,7 +19,7 @@ class SentryPixelBuffer {
     }
     
     func append(image: UIImage, pixelBufferAdapter: AVAssetWriterInputPixelBufferAdaptor, presentationTime: CMTime) -> Bool {
-        guard let pixelBuffer else { return false }
+        guard let pixelBuffer = pixelBuffer else { return false }
         
         CVPixelBufferLockBaseAddress(pixelBuffer, .readOnly)
         let pixelData = CVPixelBufferGetBaseAddress(pixelBuffer)
