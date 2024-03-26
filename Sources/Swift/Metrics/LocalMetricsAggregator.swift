@@ -4,7 +4,7 @@ import Foundation
 ///
 class LocalMetricsAggregator {
     
-    struct Metric {
+    private struct Metric {
         let min: Double
         let max: Double
         let count: Int
