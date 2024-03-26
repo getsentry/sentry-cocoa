@@ -10,7 +10,9 @@
 #import "SentrySwift.h"
 
 #if SENTRY_HAS_UIKIT
-
+#    if TARGET_OS_IOS || TARGET_OS_TVOS
+#        if __IPHONE_OS_VERSION_MIN_REQUIRED >= __IPHONE_16_0                                      \
+            || __TV_OS_VERSION_MIN_REQUIRED >= __TV_16_0
 static NSString *SENTRY_REPLAY_FOLDER = @"replay";
 
 NS_ASSUME_NONNULL_BEGIN
@@ -258,6 +260,10 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 @end
+
+#        endif // __IPHONE_OS_VERSION_MIN_REQUIRED >= __IPHONE_16_0 || __TV_OS_VERSION_MIN_REQUIRED
+               // >= __TV_16_0
+#    endif // TARGET_OS_IOS || TARGET_OS_TVOS
 
 NS_ASSUME_NONNULL_END
 

@@ -15,6 +15,7 @@ struct SentryReplayFrame {
     }
 }
 
+@available(iOS 16.0, tvOS 16.0, *)
 @objcMembers
 class SentryOnDemandReplay: NSObject {
     private let _outputPath: String

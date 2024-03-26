@@ -14,9 +14,13 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@implementation SentrySessionReplayIntegration {
-    SentrySessionReplay *sessionReplay;
-}
+API_AVAILABLE(ios(16.0), tvos(16.0))
+@interface
+SentrySessionReplayIntegration ()
+@property (nonatomic, strong) SentrySessionReplay *sessionReplay;
+@end
+
+@implementation SentrySessionReplayIntegration
 
 - (BOOL)installWithOptions:(nonnull SentryOptions *)options
 {
@@ -30,9 +34,10 @@ NS_ASSUME_NONNULL_BEGIN
             return NO;
         }
 
-        sessionReplay = [[SentrySessionReplay alloc] initWithSettings:options.sessionReplayOptions];
+        self.sessionReplay =
+            [[SentrySessionReplay alloc] initWithSettings:options.sessionReplayOptions];
 
-        [sessionReplay
+        [self.sessionReplay
                   start:SentryDependencyContainer.sharedInstance.application.windows.firstObject
             fullSession:[self shouldReplayFullSession:options.sessionReplayOptions
                                                           .replaysSessionSampleRate]];
@@ -44,7 +49,7 @@ NS_ASSUME_NONNULL_BEGIN
 
         [SentryGlobalEventProcessor.shared
             addEventProcessor:^SentryEvent *_Nullable(SentryEvent *_Nonnull event) {
-                [self->sessionReplay replayForEvent:event];
+                [self.sessionReplay replayForEvent:event];
                 return event;
             }];
 
@@ -56,7 +61,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)stop
 {
-    [sessionReplay stop];
+    [self.sessionReplay stop];
 }
 
 - (SentryIntegrationOption)integrationOptions
