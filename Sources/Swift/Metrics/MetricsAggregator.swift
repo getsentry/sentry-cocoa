@@ -7,8 +7,7 @@ protocol MetricsAggregator {
     func close()
 }
 
-extension Dictionary<String, String> {
-    
+extension Dictionary where Key == String, Value == String {
     func getMetricsTagsKey() -> String {
         // It's important to sort the tags in order to
         // obtain the same bucket key.
