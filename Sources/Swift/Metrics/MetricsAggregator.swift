@@ -1,7 +1,13 @@
 import Foundation
 
 protocol MetricsAggregator {
-    func add(type: MetricType, key: String, value: Double, unit: MeasurementUnit, tags: [String: String], localMetricsAggregator: LocalMetricsAggregator?)
+    func increment(key: String, value: Double, unit: MeasurementUnit, tags: [String: String], localMetricsAggregator: LocalMetricsAggregator?)
+    
+    func gauge(key: String, value: Double, unit: MeasurementUnit, tags: [String: String], localMetricsAggregator: LocalMetricsAggregator?)
+    
+    func distribution(key: String, value: Double, unit: MeasurementUnit, tags: [String: String], localMetricsAggregator: LocalMetricsAggregator?)
+    
+    func set(key: String, value: UInt, unit: MeasurementUnit, tags: [String: String], localMetricsAggregator: LocalMetricsAggregator?)
 
     func flush(force: Bool)
     func close()
@@ -16,8 +22,19 @@ extension Dictionary where Key == String, Value == String {
 }
 
 class NoOpMetricsAggregator: MetricsAggregator {
-
-    func add(type: MetricType, key: String, value: Double, unit: MeasurementUnit, tags: [String: String], localMetricsAggregator: LocalMetricsAggregator?) {
+    func increment(key: String, value: Double, unit: MeasurementUnit, tags: [String: String], localMetricsAggregator: LocalMetricsAggregator?) {
+        // empty on purpose
+    }
+    
+    func gauge(key: String, value: Double, unit: MeasurementUnit, tags: [String: String], localMetricsAggregator: LocalMetricsAggregator?) {
+        // empty on purpose
+    }
+    
+    func distribution(key: String, value: Double, unit: MeasurementUnit, tags: [String: String], localMetricsAggregator: LocalMetricsAggregator?) {
+        // empty on purpose
+    }
+    
+    func set(key: String, value: UInt, unit: MeasurementUnit, tags: [String: String], localMetricsAggregator: LocalMetricsAggregator?) {
         // empty on purpose
     }
 

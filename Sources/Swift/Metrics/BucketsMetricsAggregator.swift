@@ -71,7 +71,68 @@ class BucketMetricsAggregator: MetricsAggregator {
         self.timer = timer
     }
     
-    func add(type: MetricType, key: String, value: Double, unit: MeasurementUnit, tags: [String: String], localMetricsAggregator: LocalMetricsAggregator? = nil) {
+    func increment(key: String, value: Double, unit: MeasurementUnit, tags: [String: String], localMetricsAggregator: LocalMetricsAggregator? = nil) {
+        self.add(type: .counter,
+                 key: key, value: value,
+                 unit: unit,
+                 tags: tags,
+                 localMetricsAggregator: localMetricsAggregator,
+                 initMetric: {
+            CounterMetric(first: value, key: key, unit: unit, tags: tags)
+        }, addValueToMetric: { metric in
+            // Unit tests validate that the cast works. If it doesn't, a test will fail.
+            let castedMetric = metric as? CounterMetric
+            castedMetric?.add(value: value)
+        })
+    }
+    
+    func gauge(key: String, value: Double, unit: MeasurementUnit, tags: [String: String], localMetricsAggregator: LocalMetricsAggregator? = nil) {
+        self.add(type: .gauge,
+                 key: key, value: value,
+                 unit: unit,
+                 tags: tags,
+                 localMetricsAggregator: localMetricsAggregator,
+                 initMetric: {
+            GaugeMetric(first: value, key: key, unit: unit, tags: tags)
+        }, addValueToMetric: { metric in
+            // Unit tests validate that the cast works. If it doesn't, a test will fail.
+            let castedMetric = metric as? GaugeMetric
+            castedMetric?.add(value: value)
+        })
+    }
+    
+    func distribution(key: String, value: Double, unit: MeasurementUnit, tags: [String: String], localMetricsAggregator: LocalMetricsAggregator? = nil) {
+        self.add(type: .distribution,
+                 key: key, value: value,
+                 unit: unit,
+                 tags: tags,
+                 localMetricsAggregator: localMetricsAggregator,
+                 initMetric: {
+            DistributionMetric(first: value, key: key, unit: unit, tags: tags)
+        }, addValueToMetric: { metric in
+            // Unit tests validate that the cast works. If it doesn't, a test will fail.
+            let castedMetric = metric as? DistributionMetric
+            castedMetric?.add(value: value)
+        })
+    }
+    
+    func set(key: String, value: UInt, unit: MeasurementUnit, tags: [String: String], localMetricsAggregator: LocalMetricsAggregator? = nil) {
+        self.add(type: .set,
+                 key: key,
+                 value: 0, // Value is not used for set
+                 unit: unit,
+                 tags: tags,
+                 localMetricsAggregator: localMetricsAggregator,
+                 initMetric: {
+            SetMetric(first: value, key: key, unit: unit, tags: tags)
+        }, addValueToMetric: { metric in
+            // Unit tests validate that the cast works. If it doesn't, a test will fail.
+            let castedMetric = metric as? SetMetric
+            castedMetric?.add(value: value)
+        })
+    }
+    
+    private func add(type: MetricType, key: String, value: Double, unit: MeasurementUnit, tags: [String: String], localMetricsAggregator: LocalMetricsAggregator?, initMetric: () -> any Metric, addValueToMetric: (any Metric) -> Void) {
 
         let tagsKey = tags.getMetricsTagsKey()
         let bucketKey = "\(type)_\(key)_\(unit.unit)_\(tagsKey)"
@@ -84,11 +145,11 @@ class BucketMetricsAggregator: MetricsAggregator {
             var bucket = buckets[bucketTimestamp] ?? [:]
             let oldWeight = bucket[bucketKey]?.weight ?? 0
             
-            let metric = bucket[bucketKey] ?? initMetric(first: value, type: type, key: key, unit: unit, tags: tags)
+            let metric = bucket[bucketKey] ?? initMetric()
             let metricExists = bucket[bucketKey] != nil
             
             if metricExists {
-                metric.add(value: value)
+                addValueToMetric(metric)
             }
             
             let addedWeight = metric.weight - oldWeight
@@ -112,19 +173,6 @@ class BucketMetricsAggregator: MetricsAggregator {
             dispatchQueue.dispatchAsync({ [weak self] in
                 self?.flush(force: true)
             })
-        }
-    }
-    
-    private func initMetric(first: Double, type: MetricType, key: String, unit: MeasurementUnit, tags: [String: String]) -> Metric {
-        switch type {
-        case .counter:
-            return CounterMetric(first: first, key: key, unit: unit, tags: tags)
-        case .gauge:
-            return GaugeMetric(first: first, key: key, unit: unit, tags: tags)
-        case .distribution:
-            return DistributionMetric(first: first, key: key, unit: unit, tags: tags)
-        case .set:
-            return SetMetric(first: UInt(first), key: key, unit: unit, tags: tags)
         }
     }
 
