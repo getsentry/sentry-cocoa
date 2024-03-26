@@ -2,9 +2,13 @@
 import Foundation
 
 #if canImport(UIKit)
+#if os(iOS) || os(tvOS)
+
 import CoreGraphics
 import UIKit
 
+@available(iOS, introduced: 16.0)
+@available(tvOS, introduced: 16.0)
 @objcMembers
 class SentryViewPhotographer: NSObject {
     
@@ -101,4 +105,5 @@ class SentryViewPhotographer: NSObject {
     }
 }
 
+#endif
 #endif // canImport(UIKit)

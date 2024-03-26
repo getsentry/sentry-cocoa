@@ -1,4 +1,6 @@
 #if canImport(UIKit)
+#if os(iOS) || os(tvOS)
+
 @_implementationOnly import _SentryPrivate
 import AVFoundation
 import CoreGraphics
@@ -158,4 +160,5 @@ class SentryOnDemandReplay: NSObject {
     }
 }
 
+#endif // os(iOS) || os(tvOS)
 #endif // canImport(UIKit)

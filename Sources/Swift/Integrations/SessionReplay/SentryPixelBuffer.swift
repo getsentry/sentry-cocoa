@@ -5,8 +5,7 @@ import CoreGraphics
 import Foundation
 import UIKit
 
-@available(iOS, introduced: 16.0)
-@available(tvOS, introduced: 16.0)
+#if os(iOS) || os(tvOS)
 class SentryPixelBuffer {
     private var pixelBuffer: CVPixelBuffer?
     private let rgbColorSpace = CGColorSpaceCreateDeviceRGB()
@@ -46,5 +45,5 @@ class SentryPixelBuffer {
         return pixelBufferAdapter.append(pixelBuffer, withPresentationTime: presentationTime)
     }
 }
-
+#endif
 #endif // canImport(UIKit)
