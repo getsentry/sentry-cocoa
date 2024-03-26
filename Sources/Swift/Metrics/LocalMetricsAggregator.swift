@@ -12,10 +12,7 @@ class LocalMetricsAggregator {
         let tags: [String: String]
     }
     
-    private typealias ExportKey = String
-    private typealias TagsKey = String
-    
-    private var metricBuckets: [ExportKey: [TagsKey: Metric]] = [:]
+    private var metricBuckets: [String: [String: Metric]] = [:]
     private let lock = NSLock()
     
     func add(type: MetricType, key: String, value: Double, unit: MeasurementUnit, tags: [String: String]) {
