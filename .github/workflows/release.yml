@@ -22,6 +22,7 @@ jobs:
       - name: 'Generate XCFramework'
         run: |
           ./scripts/ci-select-xcode.sh 15.2
+          make bump-version TO=${{ github.event.inputs.version }}
           # We need to build the framework during release to get it's SHA value
           # the framework will be saved as an artefact and we will use the same
           # binary for the entire release process to avoid the SHA to change
