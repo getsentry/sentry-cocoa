@@ -1,5 +1,5 @@
 #import "SentryCoreGraphicsHelper.h"
-
+#if SENTRY_HAS_UIKIT
 @implementation SentryCoreGraphicsHelper
 + (CGMutablePathRef)excludeRect:(CGRect)rectangle fromPath:(CGMutablePathRef)path
 {
@@ -11,3 +11,4 @@
     return path;
 }
 @end
+#endif
