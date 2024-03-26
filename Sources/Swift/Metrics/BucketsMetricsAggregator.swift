@@ -71,11 +71,9 @@ class BucketMetricsAggregator: MetricsAggregator {
         self.timer = timer
     }
     
-    func add(type: MetricType, key: String, value: Double, unit: MeasurementUnit, tags: [String: String]) {
+    func add(type: MetricType, key: String, value: Double, unit: MeasurementUnit, tags: [String: String], localMetricsAggregator: LocalMetricsAggregator? = nil) {
 
-        // It's important to sort the tags in order to
-        // obtain the same bucket key.
-        let tagsKey = tags.sorted(by: { $0.key < $1.key }).map({ "\($0.key)=\($0.value)" }).joined(separator: ",")
+        let tagsKey = tags.getMetricsTagsKey()
         let bucketKey = "\(type)_\(key)_\(unit.unit)_\(tagsKey)"
 
         let bucketTimestamp = currentDate.bucketTimestamp
@@ -101,6 +99,12 @@ class BucketMetricsAggregator: MetricsAggregator {
 
             let totalWeight = UInt(buckets.count) + totalBucketsWeight
             isOverWeight = totalWeight >= totalMaxWeight
+            
+            // For sets, we only record that a value has been added to the set but not which one. See develop docs: https://develop.sentry.dev/sdk/metrics/#sets
+            if localMetricsAggregator != nil {
+                let localValue = type == .set ? Double(addedWeight) : value
+                localMetricsAggregator?.add(type: type, key: key, value: localValue, unit: unit, tags: tags)
+            }
         }
 
         if isOverWeight {

@@ -35,7 +35,6 @@ only_rules:
   - force_try
   - force_unwrapping
   - function_body_length
-  - function_parameter_count
   - generic_type_name
   - implicit_getter
   - large_tuple
