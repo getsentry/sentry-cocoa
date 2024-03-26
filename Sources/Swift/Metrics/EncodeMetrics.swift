@@ -2,7 +2,7 @@ import Foundation
 
 /// Encodes the metrics into a Statsd compatible format.
 /// See https://github.com/statsd/statsd#usage and https://getsentry.github.io/relay/relay_metrics/index.html for more details about the format.
-func encodeToStatsd(flushableBuckets: [BucketTimestamp: [any Metric]]) -> Data {
+func encodeToStatsd(flushableBuckets: [BucketTimestamp: [Metric]]) -> Data {
     var statsdString = ""
 
     for bucket in flushableBuckets {
