@@ -1,4 +1,4 @@
-#if canImport(UIKit)
+#if canImport(UIKit) && !SENTRY_NO_UIKIT
 #if os(iOS) || os(tvOS)
 
 @_implementationOnly import _SentryPrivate

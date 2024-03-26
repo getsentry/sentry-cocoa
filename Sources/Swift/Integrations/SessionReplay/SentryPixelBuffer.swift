@@ -1,4 +1,4 @@
-#if canImport(UIKit)
+#if canImport(UIKit) && !SENTRY_NO_UIKIT
 
 import AVFoundation
 import CoreGraphics

@@ -1,10 +1,9 @@
-@_implementationOnly import _SentryPrivate
-import Foundation
-
-#if canImport(UIKit)
+#if canImport(UIKit) && !SENTRY_NO_UIKIT
 #if os(iOS) || os(tvOS)
 
+@_implementationOnly import _SentryPrivate
 import CoreGraphics
+import Foundation
 import UIKit
 
 @available(iOS, introduced: 16.0)
