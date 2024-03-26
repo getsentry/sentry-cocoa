@@ -32,6 +32,12 @@
 #    define SENTRY_TARGET_MACOS 0
 #endif
 
+#if (TARGET_OS_OSX || TARGET_OS_MACCATALYST) && !SENTRY_NO_UIKIT
+#    define SENTRY_TARGET_MACOS_HAS_UI 1
+#else
+#    define SENTRY_TARGET_MACOS_HAS_UI 0
+#endif
+
 #if TARGET_OS_IOS || SENTRY_TARGET_MACOS
 #    define SENTRY_HAS_METRIC_KIT 1
 #else
@@ -41,6 +47,12 @@
 #define SENTRY_NO_INIT                                                                             \
     -(instancetype)init NS_UNAVAILABLE;                                                            \
     +(instancetype) new NS_UNAVAILABLE;
+
+#if !TARGET_OS_WATCH && (TARGET_OS_VISION && SENTRY_NO_UIKIT == 0)
+#    define SENTRY_HAS_REACHABILITY 1
+#else
+#    define SENTRY_HAS_REACHABILITY 0
+#endif
 
 @class SentryEvent, SentryBreadcrumb, SentrySamplingContext;
 @protocol SentrySpan;
