@@ -7,10 +7,13 @@ protocol MetricsAggregator {
     func close()
 }
 
-func getTagsKey(tags: [String: String]) -> String {
-    // It's important to sort the tags in order to
-    // obtain the same bucket key.
-    return tags.sorted(by: { $0.key < $1.key }).map({ "\($0.key)=\($0.value)" }).joined(separator: ",")
+extension Dictionary<String, String> {
+    
+    func getMetricsTagsKey() -> String {
+        // It's important to sort the tags in order to
+        // obtain the same bucket key.
+        return self.sorted(by: { $0.key < $1.key }).map({ "\($0.key)=\($0.value)" }).joined(separator: ",")
+    }
 }
 
 class NoOpMetricsAggregator: MetricsAggregator {

@@ -73,7 +73,7 @@ class BucketMetricsAggregator: MetricsAggregator {
     
     func add(type: MetricType, key: String, value: Double, unit: MeasurementUnit, tags: [String: String], localMetricsAggregator: LocalMetricsAggregator? = nil) {
 
-        let tagsKey = getTagsKey(tags: tags)
+        let tagsKey = tags.getMetricsTagsKey()
         let bucketKey = "\(type)_\(key)_\(unit.unit)_\(tagsKey)"
 
         let bucketTimestamp = currentDate.bucketTimestamp

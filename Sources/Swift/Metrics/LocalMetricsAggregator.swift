@@ -20,7 +20,7 @@ class LocalMetricsAggregator {
     
     func add(type: MetricType, key: String, value: Double, unit: MeasurementUnit, tags: [String: String]) {
         let exportKey = "\(type.rawValue):\(key)@\(unit.unit)"
-        let tagsKey = getTagsKey(tags: tags)
+        let tagsKey = tags.getMetricsTagsKey()
         
         lock.synchronized {
             var bucket = metricBuckets[exportKey] ?? [:]
