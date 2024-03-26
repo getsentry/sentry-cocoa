@@ -707,7 +707,7 @@ SentryHub () <SentryMetricsAPIDelegate>
     // We don't want to add them LocalMetricsAggregator to the SentrySpan protocol and make it
     // public. Instead, we check if the span responds to the getLocalMetricsAggregator which, every
     // span should do.
-    if ([currentSpan respondsToSelector:@selector(getLocalMetricsAggregator)]) {
+    if ([currentSpan isKindOfClass:SentrySpan.class]) {
         return [(SentrySpan *)currentSpan getLocalMetricsAggregator];
     }
 
