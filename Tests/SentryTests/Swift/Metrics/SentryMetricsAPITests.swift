@@ -13,7 +13,7 @@ final class SentryMetricsAPITests: XCTestCase, SentryMetricsAPIDelegate {
         sut.increment(key: "some", value: 1.0, unit: .none, tags: ["yeah": "sentry"])
         sut.gauge(key: "some", value: 1.0, unit: .none, tags: ["yeah": "sentry"])
         sut.distribution(key: "some", value: 1.0, unit: .none, tags: ["yeah": "sentry"])
-        sut.set(key: "some", value: 1, unit: .none, tags: ["yeah": "sentry"])
+        sut.set(key: "some", value: "value", unit: .none, tags: ["yeah": "sentry"])
         
         sut.close()
         
@@ -92,8 +92,9 @@ final class SentryMetricsAPITests: XCTestCase, SentryMetricsAPIDelegate {
         let sut = SentryMetricsAPI(enabled: true, client: metricsClient, currentDate: SentryCurrentDateProvider(), dispatchQueue: SentryDispatchQueueWrapper(), random: SentryRandom())
         sut.setDelegate(self)
         
-        sut.set(key: "key", value: 1, unit: MeasurementUnitFraction.percent, tags: ["yeah": "sentry"])
-        sut.set(key: "key", value: 12, unit: MeasurementUnitFraction.percent, tags: ["yeah": "sentry"])
+        sut.set(key: "key", value: "value1", unit: MeasurementUnitFraction.percent, tags: ["yeah": "sentry"])
+        sut.set(key: "key", value: "value1", unit: MeasurementUnitFraction.percent, tags: ["yeah": "sentry"])
+        sut.set(key: "key", value: "value12", unit: MeasurementUnitFraction.percent, tags: ["yeah": "sentry"])
         
         sut.flush()
         
@@ -105,7 +106,7 @@ final class SentryMetricsAPITests: XCTestCase, SentryMetricsAPIDelegate {
         let metric = try XCTUnwrap(bucket.first as? SetMetric)
         
         expect(metric.key) == "key"
-        expect(metric.serialize()).to(contain(["1", "12"]))
+        expect(metric.serialize()).to(contain(["2445898635", "2725604442"]))
         expect(metric.unit.unit) == MeasurementUnitFraction.percent.unit
         expect(metric.tags) == ["yeah": "sentry", "some": "tag"]
     }

@@ -13,7 +13,7 @@ import Foundation
         self.client = client
     }
     
-    func capture(flushableBuckets: [BucketTimestamp: [Metric]]) {        
+    func capture(flushableBuckets: [BucketTimestamp: [any Metric]]) {        
         client.captureStatsdEncodedData(encodeToStatsd(flushableBuckets: flushableBuckets))
     }
 }
