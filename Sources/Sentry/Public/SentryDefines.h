@@ -48,7 +48,7 @@
     -(instancetype)init NS_UNAVAILABLE;                                                            \
     +(instancetype) new NS_UNAVAILABLE;
 
-#if !TARGET_OS_WATCH && (TARGET_OS_VISION && SENTRY_NO_UIKIT == 0)
+#if !TARGET_OS_WATCH && !(TARGET_OS_VISION && SENTRY_NO_UIKIT == 0)
 #    define SENTRY_HAS_REACHABILITY 1
 #else
 #    define SENTRY_HAS_REACHABILITY 0
