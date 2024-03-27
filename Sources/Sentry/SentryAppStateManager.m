@@ -26,6 +26,7 @@ SentryAppStateManager ()
 @property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueue;
 @property (nonatomic, strong) SentryNSNotificationCenterWrapper *notificationCenterWrapper;
 @property (nonatomic) NSInteger startCount;
+@property (nonatomic, copy) NSString *vendorIdentifier;
 
 @end
 
@@ -180,11 +181,15 @@ SentryAppStateManager ()
     bool isDebugging = self.crashWrapper.isBeingTraced;
 
     UIDevice *device = [UIDevice currentDevice];
-    NSString *vendorId = [device.identifierForVendor UUIDString];
+
+    // Prevent multiple calls to UIDevice.currentDevice.identifierForVendor by caching it
+    if (self.vendorIdentifier == nil) {
+        self.vendorIdentifier = [device.identifierForVendor UUIDString];
+    }
 
     return [[SentryAppState alloc] initWithReleaseName:self.options.releaseName
                                              osVersion:device.systemVersion
-                                              vendorId:vendorId
+                                              vendorId:self.vendorIdentifier
                                            isDebugging:isDebugging
                                    systemBootTimestamp:SentryDependencyContainer.sharedInstance
                                                            .sysctlWrapper.systemBootTimestamp];

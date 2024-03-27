@@ -57,6 +57,7 @@ more code in Swift. To make this happen, we had to remove the SentryPrivate targ
 CocoaPods, which you shouldn't have included directly.
 
 - Remove SentryPrivate library (#3623)
+- Cache "vendorIdentifier" (#3734)
 
 ### Fixes
 
