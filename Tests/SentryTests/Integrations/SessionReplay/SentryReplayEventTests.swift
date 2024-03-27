@@ -20,7 +20,7 @@ class SentryReplayEventTests: XCTestCase {
         let result = sut.serialize()
         
         expect(result["urls"] as? [String]) == ["Screen 1", "Screen 2"]
-        expect(result["replay_start_timestamp"] as? Int) == 1_000
+        expect(result["replay_start_timestamp"] as? Int) == 1
         expect(result["trace_ids"] as? [String]) == [ traceIds[0].sentryIdString, traceIds[1].sentryIdString]
         expect(result["replay_id"] as? String) == replayId.sentryIdString
         expect(result["segment_id"] as? Int) == 3
