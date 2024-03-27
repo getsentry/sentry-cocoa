@@ -29,7 +29,7 @@ static NSTimeInterval const cachedEnvelopeSendDelay = 0.1;
 
 @interface
 SentryHttpTransport ()
-#if !TARGET_OS_WATCH
+#if SENTRY_HAS_REACHABILITY
     <SentryReachabilityObserver>
 #endif // !TARGET_OS_WATCH
 
@@ -92,14 +92,14 @@ SentryHttpTransport ()
 
         [self sendAllCachedEnvelopes];
 
-#if !TARGET_OS_WATCH
+#if SENTRY_HAS_REACHABILITY
         [SentryDependencyContainer.sharedInstance.reachability addObserver:self];
 #endif // !TARGET_OS_WATCH
     }
     return self;
 }
 
-#if !TARGET_OS_WATCH
+#if SENTRY_HAS_REACHABILITY
 - (void)connectivityChanged:(BOOL)connected typeDescription:(nonnull NSString *)typeDescription
 {
     if (connected) {

@@ -27,7 +27,7 @@
 #import "SentryDefines.h"
 #import <Foundation/Foundation.h>
 
-#if !TARGET_OS_WATCH
+#if SENTRY_HAS_REACHABILITY
 #    import <SystemConfiguration/SystemConfiguration.h>
 
 NS_ASSUME_NONNULL_BEGIN
