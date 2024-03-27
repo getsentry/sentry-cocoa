@@ -1,5 +1,5 @@
 #if canImport(UIKit) && !SENTRY_NO_UIKIT
-#if os(iOS) || os(tvOS) || os(visionOS)
+#if os(iOS) || os(tvOS)
 
 @_implementationOnly import _SentryPrivate
 import AVFoundation

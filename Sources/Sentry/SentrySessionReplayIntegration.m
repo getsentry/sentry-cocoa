@@ -9,7 +9,7 @@
 #import "SentrySessionReplay.h"
 #import "SentrySwift.h"
 
-#if SENTRY_HAS_UIKIT
+#if SENTRY_HAS_UIKIT && !TARGET_OS_VISION
 #    import "SentryUIApplication.h"
 
 NS_ASSUME_NONNULL_BEGIN

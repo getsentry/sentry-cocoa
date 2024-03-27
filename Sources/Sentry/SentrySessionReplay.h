@@ -1,7 +1,7 @@
 #import "SentryDefines.h"
 #import <Foundation/Foundation.h>
 
-#if SENTRY_HAS_UIKIT
+#if SENTRY_HAS_UIKIT && !TARGET_OS_VISION
 #    import <UIKit/UIKit.h>
 
 @class SentryReplayOptions;

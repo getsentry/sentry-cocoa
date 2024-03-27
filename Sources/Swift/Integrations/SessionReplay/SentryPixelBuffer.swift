@@ -5,7 +5,7 @@ import CoreGraphics
 import Foundation
 import UIKit
 
-#if os(iOS) || os(tvOS) || os(visionOS)
+#if os(iOS) || os(tvOS)
 class SentryPixelBuffer {
     private var pixelBuffer: CVPixelBuffer?
     private let rgbColorSpace = CGColorSpaceCreateDeviceRGB()

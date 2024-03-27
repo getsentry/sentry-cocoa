@@ -9,7 +9,7 @@
 #import "SentrySDK+Private.h"
 #import "SentrySwift.h"
 
-#if SENTRY_HAS_UIKIT
+#if SENTRY_HAS_UIKIT && !TARGET_OS_VISION
 static NSString *SENTRY_REPLAY_FOLDER = @"replay";
 
 NS_ASSUME_NONNULL_BEGIN
