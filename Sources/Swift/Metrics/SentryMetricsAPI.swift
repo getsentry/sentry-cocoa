@@ -69,7 +69,6 @@ import Foundation
     /// - Parameter tags: Tags to associate with the metric.
     @objc
     public func set(key: String, value: String, unit: MeasurementUnit = .none, tags: [String: String] = [:]) {
-    public func set(key: String, value: String, unit: MeasurementUnit = .none, tags: [String: String] = [:]) {
         let mergedTags = mergeDefaultTagsInto(tags: tags)
         let crc32 = sentry_crc32ofString(value)
         
