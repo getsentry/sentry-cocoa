@@ -6,6 +6,7 @@
 
 - Add Metrics API (#3791): Read our [docs](https://docs.sentry.io/platforms/apple/metrics/) to learn
 more about how to use the Metrics API.
+- Pre-main profiling data is now attached to the app start transaction (#3736)
 
 ### Fixes
 
@@ -52,6 +53,7 @@ We now provide a prebuilt XCFramework for SPM, which speeds up your build and al
 more code in Swift. To make this happen, we had to remove the SentryPrivate target for SPM and
 CocoaPods, which you shouldn't have included directly.
 
+- Remove SentryPrivate library (#3623)
 
 ### Fixes
 
