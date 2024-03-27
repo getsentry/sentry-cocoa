@@ -13,14 +13,19 @@ generate_xcframework() {
     local scheme="$1"
     local sufix="${2:-}"
     local MACH_O_TYPE="${3-mh_dylib}"
-    
     local createxcframework="xcodebuild -create-xcframework "
+    local GCC_GENERATE_DEBUGGING_SYMBOLS="YES"
+    
+    if [ "$MACH_O_TYPE" = "staticlib" ]; then
+        #For static framework we disabled everything related to symbols
+        GCC_GENERATE_DEBUGGING_SYMBOLS="NO"
+    fi
     
     rm -rf Carthage/DerivedData
     
     for sdk in "${sdks[@]}"; do
         if [[ -n "$(grep "${sdk}" <<< "$ALL_SDKS")" ]]; then
-            xcodebuild archive -project Sentry.xcodeproj/ -scheme "$scheme" -configuration Release -sdk "$sdk" -archivePath ./Carthage/archive/${scheme}${sufix}/${sdk}.xcarchive CODE_SIGNING_REQUIRED=NO SKIP_INSTALL=NO CODE_SIGN_IDENTITY= CARTHAGE=YES MACH_O_TYPE=$MACH_O_TYPE ENABLE_CODE_COVERAGE=NO
+            xcodebuild archive -project Sentry.xcodeproj/ -scheme "$scheme" -configuration Release -sdk "$sdk" -archivePath ./Carthage/archive/${scheme}${sufix}/${sdk}.xcarchive CODE_SIGNING_REQUIRED=NO SKIP_INSTALL=NO CODE_SIGN_IDENTITY= CARTHAGE=YES MACH_O_TYPE=$MACH_O_TYPE ENABLE_CODE_COVERAGE=NO GCC_GENERATE_DEBUGGING_SYMBOLS="$GCC_GENERATE_DEBUGGING_SYMBOLS"
                  
             createxcframework+="-framework Carthage/archive/${scheme}${sufix}/${sdk}.xcarchive/Products/Library/Frameworks/${scheme}.framework "
 
@@ -45,8 +50,8 @@ generate_xcframework() {
     done
     
     #Create framework for mac catalyst
-    xcodebuild -project Sentry.xcodeproj/ -scheme "$scheme" -configuration Release -sdk macosx -destination 'platform=macOS,variant=Mac Catalyst' -derivedDataPath ./Carthage/DerivedData CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY= CARTHAGE=YES MACH_O_TYPE=$MACH_O_TYPE SUPPORTS_MACCATALYST=YES ENABLE_CODE_COVERAGE=NO
-    
+    xcodebuild -project Sentry.xcodeproj/ -scheme "$scheme" -configuration Release -sdk iphoneos -destination 'platform=macOS,variant=Mac Catalyst' -derivedDataPath ./Carthage/DerivedData CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY= CARTHAGE=YES MACH_O_TYPE=$MACH_O_TYPE SUPPORTS_MACCATALYST=YES ENABLE_CODE_COVERAGE=NO GCC_GENERATE_DEBUGGING_SYMBOLS="$GCC_GENERATE_DEBUGGING_SYMBOLS"
+        
     if [ "$MACH_O_TYPE" = "staticlib" ]; then
         local infoPlist="Carthage/DerivedData/Build/Products/Release-maccatalyst/${scheme}.framework/Resources/Info.plist"
         plutil -replace "MinimumOSVersion" -string "9999" "$infoPlist"
