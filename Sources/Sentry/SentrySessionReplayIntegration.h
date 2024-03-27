@@ -1,4 +1,5 @@
 #import "SentryBaseIntegration.h"
+#import "SentryDefines.h"
 #import "SentrySwift.h"
 #import <Foundation/Foundation.h>
 
