@@ -1,11 +1,3 @@
-//
-//  ReplaceContentViewController.swift
-//  iOS-Swift
-//
-//  Created by BJ Homer on 3/26/24.
-//  Copyright © 2024 Sentry. All rights reserved.
-//
-
 import UIKit
 
 class ReplaceContentViewController: UIViewController {
