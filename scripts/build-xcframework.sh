@@ -17,7 +17,7 @@ generate_xcframework() {
     local GCC_GENERATE_DEBUGGING_SYMBOLS="YES"
     
     if [ "$MACH_O_TYPE" = "staticlib" ]; then
-        #For static framework we disabled everything related to symbols
+        #For static framework we disabled symbols because they are not distributed in the framework causing warnings.
         GCC_GENERATE_DEBUGGING_SYMBOLS="NO"
     fi
     
