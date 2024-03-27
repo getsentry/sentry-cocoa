@@ -231,6 +231,29 @@ final class BucketMetricsAggregatorTests: XCTestCase {
         let counterMetric = try XCTUnwrap(bucket.value.first { $0.key == "key2" } as? CounterMetric)
         expect(counterMetric.serialize()) == ["2.0"]
     }
+    
+    func testWeightWithMultipleDifferent() throws {
+        let (sut, currentDate, metricsClient) = try getSut(totalMaxWeight: 4)
+        
+        sut.add(type: .distribution, key: "key", value: 1.0, unit: .none, tags: [:])
+        sut.add(type: .distribution, key: "key", value: 1.0, unit: .none, tags: [:])
+        
+        // Weight should be 3, no flush yet
+        sut.flush(force: false)
+        expect(metricsClient.captureInvocations.count) == 0
+        
+        // Time passed, must flush
+        currentDate.setDate(date: currentDate.date().addingTimeInterval(10.0))
+        sut.flush(force: false)
+        expect(metricsClient.captureInvocations.count) == 1
+        
+        sut.add(type: .distribution, key: "key", value: 1.0, unit: .none, tags: [:])
+        sut.add(type: .distribution, key: "key", value: 1.0, unit: .none, tags: [:])
+        sut.add(type: .distribution, key: "key", value: 1.0, unit: .none, tags: [:])
+        
+        // Reached overweight, must flush
+        expect(metricsClient.captureInvocations.count) == 2
+    }
 
     func testInitStartsRepeatingTimer() throws {
         let currentDate = TestCurrentDateProvider()

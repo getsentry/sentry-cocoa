@@ -26,12 +26,12 @@ final class LocalMetricsAggregatorTests: XCTestCase {
     func testAddTwoSameDistributionMetrics() throws {
         let sut = LocalMetricsAggregator()
         
-        sut.add(type: .distribution, key: "key", value: 1.0, unit: MeasurementUnitDuration.second, tags: [:])
-        sut.add(type: .distribution, key: "key", value: 1.1, unit: MeasurementUnitDuration.second, tags: [:])
+        sut.add(type: .distribution, key: "key", value: 1.0, unit: .none, tags: [:])
+        sut.add(type: .distribution, key: "key", value: 1.1, unit: .none, tags: [:])
         
         let serialized = sut.serialize()
         expect(serialized.count) == 1
-        let bucket = try XCTUnwrap(serialized["d:key@second"])
+        let bucket = try XCTUnwrap(serialized["d:key"])
         
         expect(bucket.count) == 1
         let metric = try XCTUnwrap(bucket.first)

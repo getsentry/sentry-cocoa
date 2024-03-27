@@ -11,6 +11,8 @@ class ErrorsViewController: UIViewController {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         SentrySDK.reportFullyDisplayed()
+        
+        SentrySDK.metrics.increment(key: "load.errors.view.controller")
     }
 
     @IBAction func useAfterFree(_ sender: UIButton) {

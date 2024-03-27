@@ -132,6 +132,9 @@ NSString *const kSentryDefaultEnvironment = @"production";
         self.swiftAsyncStacktraces = NO;
         self.enableSpotlight = NO;
         self.spotlightUrl = @"http://localhost:8969/stream";
+        self.enableMetrics = NO;
+        self.enableDefaultTagsForMetrics = YES;
+        self.enableSpanLocalMetricAggregation = YES;
 
 #if TARGET_OS_OSX
         NSString *dsn = [[[NSProcessInfo processInfo] environment] objectForKey:@"SENTRY_DSN"];
@@ -496,6 +499,14 @@ NSString *const kSentryDefaultEnvironment = @"production";
     if ([options[@"spotlightUrl"] isKindOfClass:[NSString class]]) {
         self.spotlightUrl = options[@"spotlightUrl"];
     }
+
+    [self setBool:options[@"enableMetrics"] block:^(BOOL value) { self->_enableMetrics = value; }];
+
+    [self setBool:options[@"enableDefaultTagsForMetrics"]
+            block:^(BOOL value) { self->_enableDefaultTagsForMetrics = value; }];
+
+    [self setBool:options[@"enableSpanLocalMetricAggregation"]
+            block:^(BOOL value) { self->_enableSpanLocalMetricAggregation = value; }];
 
     return YES;
 }

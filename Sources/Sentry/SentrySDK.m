@@ -111,6 +111,11 @@ static NSDate *_Nullable startTimestamp = nil;
     return currentHub != nil && [currentHub getClient] != nil;
 }
 
++ (SentryMetricsAPI *)metrics
+{
+    return currentHub.metrics;
+}
+
 + (BOOL)crashedLastRunCalled
 {
     return crashedLastRunCalled;
