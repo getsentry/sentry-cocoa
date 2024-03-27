@@ -72,7 +72,7 @@ class BucketMetricsAggregator: MetricsAggregator {
     }
     
     func increment(key: String, value: Double, unit: MeasurementUnit, tags: [String: String], localMetricsAggregator: LocalMetricsAggregator? = nil) {
-        self.add(type: .counter,
+        self.add(type: MetricType.counter,
                  key: key, value: value,
                  unit: unit,
                  tags: tags,
@@ -87,7 +87,7 @@ class BucketMetricsAggregator: MetricsAggregator {
     }
     
     func gauge(key: String, value: Double, unit: MeasurementUnit, tags: [String: String], localMetricsAggregator: LocalMetricsAggregator? = nil) {
-        self.add(type: .gauge,
+        self.add(type: MetricType.gauge,
                  key: key, value: value,
                  unit: unit,
                  tags: tags,
@@ -102,7 +102,7 @@ class BucketMetricsAggregator: MetricsAggregator {
     }
     
     func distribution(key: String, value: Double, unit: MeasurementUnit, tags: [String: String], localMetricsAggregator: LocalMetricsAggregator? = nil) {
-        self.add(type: .distribution,
+        self.add(type: MetricType.distribution,
                  key: key, value: value,
                  unit: unit,
                  tags: tags,
@@ -117,7 +117,7 @@ class BucketMetricsAggregator: MetricsAggregator {
     }
     
     func set(key: String, value: UInt, unit: MeasurementUnit, tags: [String: String], localMetricsAggregator: LocalMetricsAggregator? = nil) {
-        self.add(type: .set,
+        self.add(type: MetricType.set,
                  key: key,
                  value: 0, // Value is not used for set
                  unit: unit,
