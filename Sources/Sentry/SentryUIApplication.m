@@ -175,6 +175,7 @@
             // If the navigation is occupying the whole view controller we will consider this the
             // case.
             if ([self isContainerViewController:childVC]
+                && childVC.isViewLoaded
                 && CGRectEqualToRect(childVC.view.frame, topVC.view.bounds)) {
                 relevantChild = childVC;
                 break;
