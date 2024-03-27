@@ -1,6 +1,7 @@
 #import "SentryProfiler+Private.h"
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
+#    import "SentryAppStartMeasurement.h"
 #    import "SentryClient+Private.h"
 #    import "SentryDateUtils.h"
 #    import "SentryDebugImageProvider.h"
@@ -380,7 +381,8 @@ serializedProfileData(
 }
 
 + (nullable SentryEnvelopeItem *)createProfilingEnvelopeItemForTransaction:
-    (SentryTransaction *)transaction
+                                     (SentryTransaction *)transaction
+                                                            startTimestamp:(NSDate *)startTimestamp
 {
     SENTRY_LOG_DEBUG(@"Creating profiling envelope item");
     const auto payload = [self collectProfileBetween:transaction.startSystemTime
@@ -392,7 +394,7 @@ serializedProfileData(
         return nil;
     }
 
-    [self updateProfilePayload:payload forTransaction:transaction];
+    [self updateProfilePayload:payload forTransaction:transaction startTimestamp:startTimestamp];
     return [self createEnvelopeItemForProfilePayload:payload];
 }
 
@@ -480,7 +482,8 @@ writeProfileFile(NSDictionary<NSString *, id> *payload)
 #    pragma mark - Private
 
 + (void)updateProfilePayload:(NSMutableDictionary<NSString *, id> *)payload
-              forTransaction:(SentryTransaction *)transaction;
+              forTransaction:(SentryTransaction *)transaction
+              startTimestamp:(NSDate *)startTimestamp
 {
     payload[@"platform"] = transaction.platform;
     payload[@"transaction"] = @{
@@ -489,15 +492,7 @@ writeProfileFile(NSDictionary<NSString *, id> *payload)
         @"name" : transaction.transaction,
         @"active_thread_id" : [transaction.trace.transactionContext sentry_threadInfo].threadId
     };
-    const auto timestamp = transaction.trace.originalStartTimestamp;
-    if (UNLIKELY(timestamp == nil)) {
-        SENTRY_LOG_WARN(@"There was no start timestamp on the provided transaction. Falling back "
-                        @"to old behavior of using the current time.");
-        payload[@"timestamp"]
-            = sentry_toIso8601String([SentryDependencyContainer.sharedInstance.dateProvider date]);
-    } else {
-        payload[@"timestamp"] = sentry_toIso8601String(timestamp);
-    }
+    payload[@"timestamp"] = sentry_toIso8601String(startTimestamp);
 }
 
 - (NSMutableDictionary<NSString *, id> *)serializeBetween:(uint64_t)startSystemTime

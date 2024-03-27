@@ -6,6 +6,7 @@
 #    import "SentryFramesTracker.h"
 #    import "SentryLog.h"
 #    import "SentryMeasurementValue.h"
+#    import "SentryProfilingConditionals.h"
 #    import "SentrySpan.h"
 #    import "SentrySpanContext.h"
 #    import "SentrySpanId.h"
@@ -15,6 +16,10 @@
 #    import "SentryTracer.h"
 
 #    import <UIKit/UIKit.h>
+
+#    if SENTRY_TARGET_PROFILING_SUPPORTED
+#        import "SentryLaunchProfiling.h"
+#    endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
 @interface
 SentryTimeToDisplayTracker () <SentryFramesTrackerListener>
@@ -128,6 +133,9 @@ SentryTimeToDisplayTracker () <SentryFramesTrackerListener>
         [self.initialDisplaySpan finish];
         if (!_waitForFullDisplay) {
             [SentryDependencyContainer.sharedInstance.framesTracker removeListener:self];
+#    if SENTRY_TARGET_PROFILING_SUPPORTED
+            stopAndDiscardLaunchProfileTracer();
+#    endif // SENTRY_TARGET_PROFILING_SUPPORTED
         }
     }
     if (_waitForFullDisplay && _fullyDisplayedReported && self.fullDisplaySpan.isFinished == NO
@@ -135,6 +143,9 @@ SentryTimeToDisplayTracker () <SentryFramesTrackerListener>
         SENTRY_LOG_DEBUG(@"Finishing full display span");
         self.fullDisplaySpan.timestamp = newFrameDate;
         [self.fullDisplaySpan finish];
+#    if SENTRY_TARGET_PROFILING_SUPPORTED
+        stopAndDiscardLaunchProfileTracer();
+#    endif // SENTRY_TARGET_PROFILING_SUPPORTED
     }
 
     if (self.initialDisplaySpan.isFinished == YES && self.fullDisplaySpan.isFinished == YES) {
