@@ -1,5 +1,5 @@
 #if canImport(UIKit) && !SENTRY_NO_UIKIT
-#if os(iOS) || os(tvOS)
+#if os(iOS) || os(tvOS) || os(visionOS)
 
 @_implementationOnly import _SentryPrivate
 import CoreGraphics

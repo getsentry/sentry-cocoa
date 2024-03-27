@@ -1,5 +1,5 @@
 #if canImport(UIKit) && !SENTRY_NO_UIKIT
-#if os(iOS) || os(tvOS)
+#if os(iOS) || os(tvOS) || os(visionOS)
 
 @_implementationOnly import _SentryPrivate
 import AVFoundation
@@ -17,7 +17,7 @@ struct SentryReplayFrame {
     }
 }
 
-@available(iOS 16.0, tvOS 16.0, *)
+@available(iOS 16.0, tvOS 16.0, visionOS 1.0, *)
 @objcMembers
 class SentryOnDemandReplay: NSObject {
     private let _outputPath: String
@@ -27,7 +27,9 @@ class SentryOnDemandReplay: NSObject {
     private var _frames = [SentryReplayFrame]()
     private var _currentPixelBuffer: SentryPixelBuffer?
     
-    var videoSize = CGSize(width: 200, height: 434)
+    var videoWidth = 200
+    var videoHeight = 434
+    
     var bitRate = 20_000
     var frameRate = 1
     var cacheMaxSize = UInt.max
@@ -117,7 +119,7 @@ class SentryOnDemandReplay: NSObject {
         
         if frames.isEmpty { return }
         
-        _currentPixelBuffer = SentryPixelBuffer(size: videoSize)
+        _currentPixelBuffer = SentryPixelBuffer(size: CGSize(width: videoWidth, height: videoHeight))
         
         videoWriterInput.requestMediaDataWhenReady(on: _onDemandDispatchQueue) { [weak self] in
             guard let self = self else { return }
@@ -139,7 +141,7 @@ class SentryOnDemandReplay: NSObject {
                     if videoWriter.status == .completed {
                         let fileAttributes = try? FileManager.default.attributesOfItem(atPath: outputFileURL.path)
                         let fileSize = fileAttributes?[FileAttributeKey.size] as? Int ?? -1
-                        videoInfo = SentryVideoInfo(path: outputFileURL, height: Int(self.videoSize.height), width: Int(self.videoSize.width), duration: TimeInterval(frames.count / self.frameRate), frameCount: frames.count, frameRate: self.frameRate, start: start, end: actualEnd, fileSize: fileSize)
+                        videoInfo = SentryVideoInfo(path: outputFileURL, height: self.videoHeight, width: self.videoWidth, duration: TimeInterval(frames.count / self.frameRate), frameCount: frames.count, frameRate: self.frameRate, start: start, end: actualEnd, fileSize: fileSize)
                     }
                     completion(videoInfo, videoWriter.error)
                 }
@@ -150,8 +152,8 @@ class SentryOnDemandReplay: NSObject {
     private func createVideoSettings() -> [String: Any] {
         return [
             AVVideoCodecKey: AVVideoCodecType.h264,
-            AVVideoWidthKey: videoSize.width,
-            AVVideoHeightKey: videoSize.height,
+            AVVideoWidthKey: videoWidth,
+            AVVideoHeightKey: videoHeight,
             AVVideoCompressionPropertiesKey: [
                 AVVideoAverageBitRateKey: bitRate,
                 AVVideoProfileLevelKey: AVVideoProfileLevelH264BaselineAutoLevel
