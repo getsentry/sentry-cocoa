@@ -63,13 +63,13 @@ private class LoadCountReportingViewController: UISplitViewController {
     var loadCountLabel: UILabel?
     private var loadCount: Int = 0
 
+    // swiftlint:disable prohibited_super_call
     override func loadView() {
-
-        // swiftlint:disable prohibited_super_call
         super.loadView()
-        // swiftlint:enable prohibited_super_call
+        
         loadCount += 1
     }
+    // swiftlint:enable prohibited_super_call
 
     override func viewDidLoad() {
         super.viewDidLoad()

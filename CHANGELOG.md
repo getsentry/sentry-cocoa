@@ -12,6 +12,7 @@ more about how to use the Metrics API.
 
 - Don't run onCrashedLastSession for nil Events (#3785)
 - Redistributable static libraries should never be built with module debugging enabled (#3800)
+- Fixed certain views getting loaded twice when adding a child view controller (#3753)
 
 ## 8.22.4
 
@@ -60,7 +61,6 @@ CocoaPods, which you shouldn't have included directly.
 
 - Write NSException reason for crash report (#3705)
 - Add context to event with CrashIntegration disabled (#3699)
-- Fixed certain views getting loaded twice when adding a child view controller (#3753)
 
 ## 8.21.0
 
