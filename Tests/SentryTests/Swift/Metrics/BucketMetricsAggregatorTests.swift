@@ -406,5 +406,43 @@ final class BucketMetricsAggregatorTests: XCTestCase {
         expect(metric["count"] as? Int) == 2
         expect(metric["sum"] as? Double) == 1.0
     }
+    
+    func testBeforeEmitMetricCallback() throws {
+        let currentDate = TestCurrentDateProvider()
+        let metricsClient = try TestMetricsClient()
+
+        let sut = BucketMetricsAggregator(client: metricsClient, currentDate: currentDate, dispatchQueue: SentryDispatchQueueWrapper(), random: SentryRandom(), beforeEmitMetric: { key, tags in
+            if key == "key" {
+                return false
+            }
+            
+            if tags == ["my": "tag"] {
+                return false
+            }
+            
+            return true
+        }, totalMaxWeight: 1_000)
+
+        // removed
+        sut.distribution( key: "key", value: 1.0, unit: MeasurementUnitDuration.day, tags: [:])
+        
+        // kept
+        sut.distribution(key: "key1", value: 1.0, unit: MeasurementUnitDuration.day, tags: [:])
+        
+        // removed
+        sut.distribution(key: "key1", value: 1.0, unit: MeasurementUnitDuration.day, tags: ["my": "tag"])
+
+        sut.flush(force: true)
+
+        expect(metricsClient.captureInvocations.count) == 1
+        let buckets = try XCTUnwrap(metricsClient.captureInvocations.first)
+
+        let bucket = try XCTUnwrap(buckets[currentDate.bucketTimestamp])
+        expect(bucket.count) == 1
+        let metric = try XCTUnwrap(bucket.first as? DistributionMetric)
+
+        expect(metric.key) == "key1"
+        expect(metric.tags.isEmpty) == true
+    }
 
 }

@@ -584,6 +584,11 @@ NS_SWIFT_NAME(Options)
  */
 @property (nonatomic, assign) BOOL enableSpanLocalMetricAggregation;
 
+/**
+ * This block can be used to modify the event before it will be serialized and sent.
+ */
+@property (nullable, nonatomic, copy) SentryBeforeEmitMetricCallback beforeEmitMetric;
+
 @end
 
 NS_ASSUME_NONNULL_END

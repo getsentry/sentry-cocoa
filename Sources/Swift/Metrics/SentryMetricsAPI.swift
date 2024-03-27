@@ -7,16 +7,20 @@ import Foundation
     func getLocalMetricsAggregator() -> LocalMetricsAggregator?
 }
 
+/// Using SentryBeforeEmitMetricCallback of SentryDefines.h leads to compiler errors because of
+/// Swift to ObjC interoperability. Defining the callback again in Swift with the same signature is a workaround.
+typealias BeforeEmitMetricCallback = (String, [String: String]) -> Bool
+
 @objc public class SentryMetricsAPI: NSObject {
 
     private let aggregator: MetricsAggregator
     
     private weak var delegate: SentryMetricsAPIDelegate?
 
-    @objc init(enabled: Bool, client: SentryMetricsClient, currentDate: SentryCurrentDateProvider, dispatchQueue: SentryDispatchQueueWrapper, random: SentryRandomProtocol) {
+    @objc init(enabled: Bool, client: SentryMetricsClient, currentDate: SentryCurrentDateProvider, dispatchQueue: SentryDispatchQueueWrapper, random: SentryRandomProtocol, beforeEmitMetric: BeforeEmitMetricCallback?) {
         
         if enabled {
-            self.aggregator = BucketMetricsAggregator(client: client, currentDate: currentDate, dispatchQueue: dispatchQueue, random: random)
+            self.aggregator = BucketMetricsAggregator(client: client, currentDate: currentDate, dispatchQueue: dispatchQueue, random: random, beforeEmitMetric: beforeEmitMetric ?? { _, _ in true })
         } else {
             self.aggregator = NoOpMetricsAggregator()
         }

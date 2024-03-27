@@ -62,11 +62,12 @@ SentryHub () <SentryMetricsAPIDelegate>
         SentryMetricsClient *metricsClient =
             [[SentryMetricsClient alloc] initWithClient:statsdClient];
         _metrics = [[SentryMetricsAPI alloc]
-            initWithEnabled:client.options.enableMetrics
-                     client:metricsClient
-                currentDate:SentryDependencyContainer.sharedInstance.dateProvider
-              dispatchQueue:SentryDependencyContainer.sharedInstance.dispatchQueueWrapper
-                     random:SentryDependencyContainer.sharedInstance.random];
+             initWithEnabled:client.options.enableMetrics
+                      client:metricsClient
+                 currentDate:SentryDependencyContainer.sharedInstance.dateProvider
+               dispatchQueue:SentryDependencyContainer.sharedInstance.dispatchQueueWrapper
+                      random:SentryDependencyContainer.sharedInstance.random
+            beforeEmitMetric:client.options.beforeEmitMetric];
         [_metrics setDelegate:self];
 
         _sessionLock = [[NSObject alloc] init];
