@@ -10,6 +10,7 @@
 
 - Write NSException reason for crash report (#3705)
 - Add context to event with CrashIntegration disabled (#3699)
+- Fixed certain views getting loaded twice when adding a child view controller (#3753)
 
 ## 8.21.0
 
