@@ -9,6 +9,7 @@
 ### Fixes
 
 - Don't run onCrashedLastSession for nil Events (#3785)
+- Redistributable static libraries should never be built with module debugging enabled (#3800)
 
 ## 8.22.4
 
