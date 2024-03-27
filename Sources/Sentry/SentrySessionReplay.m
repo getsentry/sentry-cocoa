@@ -83,6 +83,7 @@ NS_ASSUME_NONNULL_BEGIN
         _replayMaker.bitRate = _replayOptions.replayBitRate;
         _replayMaker.cacheMaxSize = (NSInteger)(full ? _replayOptions.sessionSegmentDuration
                                                      : _replayOptions.errorReplayDuration);
+
         imageCollection = [NSMutableArray array];
 
         NSLog(@"Recording session to %@", _urlToCache);

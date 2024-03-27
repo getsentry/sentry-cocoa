@@ -1,7 +1,6 @@
 #import "SentryProfiledTracerConcurrency.h"
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
-
 #    import "SentryInternalDefines.h"
 #    import "SentryLog.h"
 #    import "SentryProfiler+Private.h"

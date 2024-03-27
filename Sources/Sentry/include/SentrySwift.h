@@ -3,6 +3,7 @@
 
 #ifdef __cplusplus
 #    if __has_include(<MetricKit/MetricKit.h>)
+#        import <Foundation/Foundation.h>
 #        import <MetricKit/MetricKit.h>
 #    endif
 #endif
