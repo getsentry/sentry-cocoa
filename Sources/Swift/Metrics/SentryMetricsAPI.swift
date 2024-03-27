@@ -68,9 +68,12 @@ import Foundation
     /// - Parameter unit: The value for the metric see `MeasurementUnit`.
     /// - Parameter tags: Tags to associate with the metric.
     @objc
-    public func set(key: String, value: Int32, unit: MeasurementUnit = .none, tags: [String: String] = [:]) {
+    public func set(key: String, value: String, unit: MeasurementUnit = .none, tags: [String: String] = [:]) {
         let mergedTags = mergeDefaultTagsInto(tags: tags)
-        aggregator.add(type: MetricType.set, key: key, value: Double(value), unit: unit, tags: mergedTags, localMetricsAggregator: delegate?.getLocalMetricsAggregator())
+    
+        let crc32 = sentry_crc32ofString(value)
+        
+        aggregator.add(type: MetricType.set, key: key, value: Double(crc32), unit: unit, tags: mergedTags, localMetricsAggregator: delegate?.getLocalMetricsAggregator())
     }
 
     @objc public func close() {

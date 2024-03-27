@@ -124,7 +124,7 @@ class BucketMetricsAggregator: MetricsAggregator {
         case .distribution:
             return DistributionMetric(first: first, key: key, unit: unit, tags: tags)
         case .set:
-            return SetMetric(first: Int32(first), key: key, unit: unit, tags: tags)
+            return SetMetric(first: UInt(first), key: key, unit: unit, tags: tags)
         }
     }
 
