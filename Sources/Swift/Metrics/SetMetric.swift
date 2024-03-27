@@ -3,10 +3,12 @@ import Foundation
 class SetMetric: Metric {
 
     private var set: Set<UInt>
+    private var set: Set<UInt>
     var weight: UInt {
         return UInt(set.count)
     }
 
+    init(first: UInt, key: String, unit: MeasurementUnit, tags: [String: String]) {
     init(first: UInt, key: String, unit: MeasurementUnit, tags: [String: String]) {
         set = [first]
         super.init(type: .set, key: key, unit: unit, tags: tags)
