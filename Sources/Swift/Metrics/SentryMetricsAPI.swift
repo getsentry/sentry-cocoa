@@ -1,6 +1,5 @@
 @_implementationOnly import _SentryPrivate
 import Foundation
-import zlib
 
 @objc protocol SentryMetricsAPIDelegate: AnyObject {
     func getDefaultTagsForMetrics() -> [String: String]
