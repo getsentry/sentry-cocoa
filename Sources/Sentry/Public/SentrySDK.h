@@ -4,6 +4,7 @@
 
 @class SentryOptions, SentryEvent, SentryBreadcrumb, SentryScope, SentryUser, SentryId,
     SentryUserFeedback, SentryTransactionContext;
+@class SentryMetricsAPI;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -23,6 +24,8 @@ SENTRY_NO_INIT
  * Indicates whether the SentrySDK is enabled.
  */
 @property (class, nonatomic, readonly) BOOL isEnabled;
+
+@property (class, nonatomic, readonly) SentryMetricsAPI *metrics;
 
 /**
  * Inits and configures Sentry (SentryHub, SentryClient) and sets up all integrations. Make sure to

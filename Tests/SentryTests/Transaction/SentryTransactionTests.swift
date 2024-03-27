@@ -1,3 +1,5 @@
+import Nimble
+@testable import Sentry
 import SentryTestUtils
 import XCTest
 
@@ -189,5 +191,24 @@ class SentryTransactionTests: XCTestCase {
 
         let actualTransaction = actual["transaction"] as? String
         XCTAssertEqual(actualTransaction, fixture.transactionName)
+    }
+    
+    func testSerializeMetricsSummary() throws {
+        let sut = fixture.getTransaction()
+        let aggregator = sut.trace.getLocalMetricsAggregator()
+        aggregator.add(type: .counter, key: "key", value: 1.0, unit: .none, tags: [:])
+        
+        let serialized = sut.serialize()
+        
+        let metricsSummary = try XCTUnwrap(serialized["_metrics_summary"] as? [String: [[String: Any]]])
+        expect(metricsSummary.count) == 1
+        
+        let bucket = try XCTUnwrap(metricsSummary["c:key"])
+        expect(bucket.count) == 1
+        let metric = try XCTUnwrap(bucket.first)
+        expect(metric["min"] as? Double) == 1.0
+        expect(metric["max"] as? Double) == 1.0
+        expect(metric["count"] as? Int) == 1
+        expect(metric["sum"] as? Double) == 1.0
     }
 }

@@ -1276,6 +1276,21 @@
     XCTAssertEqualObjects(options3.spotlightUrl, @"http://localhost:8969/stream");
 }
 
+- (void)testEnableMetrics
+{
+    [self testBooleanField:@"enableMetrics" defaultValue:NO];
+}
+
+- (void)testEnableDefaultTagsForMetrics
+{
+    [self testBooleanField:@"enableDefaultTagsForMetrics" defaultValue:YES];
+}
+
+- (void)testEnableSpanLocalMetricAggregation
+{
+    [self testBooleanField:@"enableSpanLocalMetricAggregation" defaultValue:YES];
+}
+
 #pragma mark - Private
 
 - (void)assertArrayEquals:(NSArray<NSString *> *)expected actual:(NSArray<NSString *> *)actual

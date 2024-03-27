@@ -2,18 +2,21 @@ import Foundation
 
 class SetMetric: Metric {
 
-    private var set: Set<Int32>
+    private var set: Set<UInt>
     var weight: UInt {
         return UInt(set.count)
     }
 
-    init(first: Int32, key: String, unit: MeasurementUnit, tags: [String: String]) {
+    init(first: UInt, key: String, unit: MeasurementUnit, tags: [String: String]) {
         set = [first]
         super.init(type: .set, key: key, unit: unit, tags: tags)
     }
 
+    // This doesn't work with the full range of UInt.
+    // We still need to fix this.
     func add(value: Double) {
-        set.insert(Int32(value))
+        if value >= Double(UInt.min) && value < Double(UInt.max) {            set.insert(UInt(value))
+        }
     }
 
     func serialize() -> [String] {

@@ -1,5 +1,5 @@
 import Nimble
-import Sentry
+@testable import Sentry
 import SentryTestUtils
 import XCTest
 
@@ -352,6 +352,33 @@ class SentrySpanTests: XCTestCase {
         let serialization = span.serialize()
         XCTAssertEqual(2, (serialization["data"] as? [String: Any])?.count, "Only expected thread.name and thread.id in data.")
         XCTAssertNil(serialization["tag"])
+    }
+    
+    func testInit_DoesNotIntializeLocalMetricAggregator() {
+        let sut = fixture.getSut()
+        
+        let serialized = sut.serialize()
+        expect(serialized["_metrics_summary"]) == nil
+    }
+    
+    func testLocalMetricsAggregator_GetsSerializedAsMetricsSummary() throws {
+        let sut = fixture.getSutWithTracer()
+        
+        let aggregator = sut.getLocalMetricsAggregator()
+        aggregator.add(type: .counter, key: "key", value: 1.0, unit: .none, tags: [:])
+        
+        let serialized = sut.serialize()
+        
+        let metricsSummary = try XCTUnwrap(serialized["_metrics_summary"] as? [String: [[String: Any]]])
+        expect(metricsSummary.count) == 1
+        
+        let bucket = try XCTUnwrap(metricsSummary["c:key"])
+        expect(bucket.count) == 1
+        let metric = try XCTUnwrap(bucket.first)
+        expect(metric["min"] as? Double) == 1.0
+        expect(metric["max"] as? Double) == 1.0
+        expect(metric["count"] as? Int) == 1
+        expect(metric["sum"] as? Double) == 1.0
     }
     
     func testTraceHeaderNotSampled() {
