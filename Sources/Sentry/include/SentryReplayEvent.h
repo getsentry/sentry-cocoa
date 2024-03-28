@@ -31,11 +31,6 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, strong) NSArray<SentryId *> *traceIds;
 
 /**
- * The replay id to which this segment belongs to.
- */
-@property (nonatomic, strong) SentryId *replayId;
-
-/**
  * The type of the replay
  */
 @property (nonatomic) SentryReplayType replayType;

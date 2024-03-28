@@ -1,7 +1,7 @@
 #import "SentryBaseIntegration.h"
 #import "SentryCrashWrapper.h"
 #import "SentryLog.h"
-#import "SentryReplayOptions.h"
+#import "SentrySwift.h"
 #import <Foundation/Foundation.h>
 #import <SentryDependencyContainer.h>
 #import <SentryOptions+Private.h>
