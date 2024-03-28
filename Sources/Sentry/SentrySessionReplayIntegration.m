@@ -29,13 +29,17 @@ SentrySessionReplayIntegration ()
     }
 
     if (@available(iOS 16.0, tvOS 16.0, *)) {
-        if (options.sessionReplayOptions.replaysSessionSampleRate == 0
+        BOOL shouldReplayFullSession =
+            [self shouldReplayFullSession:options.sessionReplayOptions.replaysSessionSampleRate];
+
+        if (!shouldReplayFullSession
             && options.sessionReplayOptions.replaysOnErrorSampleRate == 0) {
             return NO;
         }
 
-        self.sessionReplay =
-            [[SentrySessionReplay alloc] initWithSettings:options.sessionReplayOptions];
+        self.sessionReplay = [[SentrySessionReplay alloc]
+            initWithSettings:options.sessionReplayOptions
+                dateProvider:SentryDependencyContainer.sharedInstance.dateProvider];
 
         [self.sessionReplay
                   start:SentryDependencyContainer.sharedInstance.application.windows.firstObject

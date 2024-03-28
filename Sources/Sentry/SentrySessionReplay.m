@@ -28,19 +28,17 @@ NS_ASSUME_NONNULL_BEGIN
     NSMutableArray<UIImage *> *imageCollection;
     int _currentSegmentId;
     BOOL _isFullSession;
+    SentryCurrentDateProvider *_dateProvider;
 }
 
 - (instancetype)initWithSettings:(SentryReplayOptions *)replayOptions
+                    dateProvider:(SentryCurrentDateProvider *)dateProvider
 {
     if (self = [super init]) {
         _replayOptions = replayOptions;
+        _dateProvider = dateProvider;
     }
     return self;
-}
-
-- (SentryCurrentDateProvider *)dateProvider
-{
-    return SentryDependencyContainer.sharedInstance.dateProvider;
 }
 
 - (void)start:(UIView *)rootView fullSession:(BOOL)full
@@ -103,7 +101,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)replayForEvent:(SentryEvent *)event;
 {
-    if (_isFullSession) {
+    if (_isFullSession || _displayLink == nil) {
         return;
     }
 
@@ -113,7 +111,7 @@ NS_ASSUME_NONNULL_BEGIN
 
     NSURL *finalPath = [_urlToCache URLByAppendingPathComponent:@"replay.mp4"];
     NSDate *replayStart =
-        [[self dateProvider].date dateByAddingTimeInterval:-_replayOptions.errorReplayDuration];
+        [_dateProvider.date dateByAddingTimeInterval:-_replayOptions.errorReplayDuration];
 
     [self createAndCapture:finalPath
                   duration:_replayOptions.errorReplayDuration
@@ -124,7 +122,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)newFrame:(CADisplayLink *)sender
 {
-    NSDate *now = [self dateProvider].date;
+    NSDate *now = _dateProvider.date;
 
     if ([now timeIntervalSinceDate:_lastScreenShot] > 1) {
         [self takeScreenshot];
@@ -162,7 +160,7 @@ NS_ASSUME_NONNULL_BEGIN
         URLByAppendingPathComponent:[NSString stringWithFormat:@"%f-%f.mp4", from, to]];
 
     NSDate *segmentStart =
-        [[self dateProvider].date dateByAddingTimeInterval:-_replayOptions.sessionSegmentDuration];
+        [_dateProvider.date dateByAddingTimeInterval:-_replayOptions.sessionSegmentDuration];
 
     [self createAndCapture:pathToSegment
                   duration:_replayOptions.sessionSegmentDuration

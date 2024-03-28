@@ -6,13 +6,15 @@
 
 @class SentryReplayOptions;
 @class SentryEvent;
+@class SentryCurrentDateProvider;
 
 NS_ASSUME_NONNULL_BEGIN
 
 API_AVAILABLE(ios(16.0), tvos(16.0))
 @interface SentrySessionReplay : NSObject
 
-- (instancetype)initWithSettings:(SentryReplayOptions *)replaySettings;
+- (instancetype)initWithSettings:(SentryReplayOptions *)replayOptions
+                    dateProvider:(SentryCurrentDateProvider *)dateProvider;
 
 /**
  * Start recording the session using rootView as image source.
