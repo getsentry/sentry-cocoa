@@ -2,9 +2,14 @@
 import Foundation
 
 @objc protocol SentryMetricsAPIDelegate: AnyObject {
+    
     func getDefaultTagsForMetrics() -> [String: String]
     
+    func getCurrentSpan() -> Span?
+    
     func getLocalMetricsAggregator() -> LocalMetricsAggregator?
+    
+    func getLocalMetricsAggregator(span: Span) -> LocalMetricsAggregator?
 }
 
 /// Using SentryBeforeEmitMetricCallback of SentryDefines.h leads to compiler errors because of
@@ -14,10 +19,13 @@ typealias BeforeEmitMetricCallback = (String, [String: String]) -> Bool
 @objc public class SentryMetricsAPI: NSObject {
 
     private let aggregator: MetricsAggregator
+    private let currentDate: SentryCurrentDateProvider
     
     private weak var delegate: SentryMetricsAPIDelegate?
 
     @objc init(enabled: Bool, client: SentryMetricsClient, currentDate: SentryCurrentDateProvider, dispatchQueue: SentryDispatchQueueWrapper, random: SentryRandomProtocol, beforeEmitMetric: BeforeEmitMetricCallback?) {
+        
+        self.currentDate = currentDate
         
         if enabled {
             self.aggregator = BucketMetricsAggregator(client: client, currentDate: currentDate, dispatchQueue: dispatchQueue, random: random, beforeEmitMetric: beforeEmitMetric ?? { _, _ in true })
@@ -77,6 +85,31 @@ typealias BeforeEmitMetricCallback = (String, [String: String]) -> Bool
         let crc32 = sentry_crc32ofString(value)
         
         aggregator.set(key: key, value: crc32, unit: unit, tags: mergedTags, localMetricsAggregator: delegate?.getLocalMetricsAggregator())
+    }
+    
+    public func timing<T>(key: String, tags: [String: String] = [:], _ closure: () throws -> T) rethrows -> T {
+        
+        guard let currentSpan = delegate?.getCurrentSpan() else {
+            return try closure()
+        }
+            
+        let span = currentSpan.startChild(operation: "metric.timing", description: key)
+        let aggregator = delegate?.getLocalMetricsAggregator(span: span)
+        
+        for tag in tags {
+            span.setTag(value: tag.value, key: tag.key)
+        }
+        
+        defer {
+            span.finish()
+            if let timestamp = span.timestamp, let startTimestamp = span.startTimestamp {
+                let duration = timestamp.timeIntervalSince(startTimestamp)
+                
+                self.aggregator.distribution(key: key, value: duration, unit: MeasurementUnitDuration.second, tags: tags, localMetricsAggregator: aggregator)
+            }
+        }
+        
+        return try closure()
     }
 
     @objc public func close() {
