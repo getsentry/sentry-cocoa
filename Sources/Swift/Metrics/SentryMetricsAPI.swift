@@ -34,7 +34,7 @@ import Foundation
     /// - Parameter tags: Tags to associate with the metric.
     @objc public func increment(key: String, value: Double = 1.0, unit: MeasurementUnit = .none, tags: [String: String] = [:]) {
         let mergedTags = mergeDefaultTagsInto(tags: tags)
-        aggregator.add(type: MetricType.counter, key: key, value: value, unit: unit, tags: mergedTags, localMetricsAggregator: delegate?.getLocalMetricsAggregator())
+        aggregator.increment(key: key, value: value, unit: unit, tags: mergedTags, localMetricsAggregator: delegate?.getLocalMetricsAggregator())
     }
     
     /// Emits a Gauge metric.
@@ -46,7 +46,7 @@ import Foundation
     @objc
     public func gauge(key: String, value: Double, unit: MeasurementUnit = .none, tags: [String: String] = [:]) {
         let mergedTags = mergeDefaultTagsInto(tags: tags)
-        aggregator.add(type: MetricType.gauge, key: key, value: value, unit: unit, tags: mergedTags, localMetricsAggregator: delegate?.getLocalMetricsAggregator())
+        aggregator.gauge(key: key, value: value, unit: unit, tags: mergedTags, localMetricsAggregator: delegate?.getLocalMetricsAggregator())
     }
     
     /// Emits a Distribution metric.
@@ -58,7 +58,7 @@ import Foundation
     @objc
     public func distribution(key: String, value: Double, unit: MeasurementUnit = .none, tags: [String: String] = [:]) {
         let mergedTags = mergeDefaultTagsInto(tags: tags)
-        aggregator.add(type: MetricType.distribution, key: key, value: value, unit: unit, tags: mergedTags, localMetricsAggregator: delegate?.getLocalMetricsAggregator())
+        aggregator.distribution(key: key, value: value, unit: unit, tags: mergedTags, localMetricsAggregator: delegate?.getLocalMetricsAggregator())
     }
     
     /// Emits a Set metric.
@@ -70,10 +70,9 @@ import Foundation
     @objc
     public func set(key: String, value: String, unit: MeasurementUnit = .none, tags: [String: String] = [:]) {
         let mergedTags = mergeDefaultTagsInto(tags: tags)
-    
         let crc32 = sentry_crc32ofString(value)
         
-        aggregator.add(type: MetricType.set, key: key, value: Double(crc32), unit: unit, tags: mergedTags, localMetricsAggregator: delegate?.getLocalMetricsAggregator())
+        aggregator.set(key: key, value: crc32, unit: unit, tags: mergedTags, localMetricsAggregator: delegate?.getLocalMetricsAggregator())
     }
 
     @objc public func close() {

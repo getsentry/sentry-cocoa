@@ -7,22 +7,19 @@ final class SetMetricTests: XCTestCase {
     func testAddingValues() {
         let sut = SetMetric(first: 1, key: "key", unit: MeasurementUnitDuration.hour, tags: [:])
         
-        sut.add(value: 0.0)
-        sut.add(value: 1.1)
-        sut.add(value: 2.0)
-        
-        // negative numbers are ignored
-        sut.add(value: -1.0)
+        sut.add(value: 0)
+        sut.add(value: 1)
+        sut.add(value: 2)
         
         expect(sut.serialize()).to(contain(["1", "0", "2"]))
     }
     
-    func testAddUIntMax_GetsNotAdded() {
+    func testAddUIntMax() {
         let sut = SetMetric(first: 1, key: "key", unit: MeasurementUnitDuration.hour, tags: [:])
         
-        sut.add(value: Double(UInt.max))
+        sut.add(value: UInt.max)
         
-        expect(sut.serialize()).to(contain(["1"]))
+        expect(sut.serialize()).to(contain(["\(UInt.max)"]))
     }
     
     func testType() {
@@ -37,11 +34,11 @@ final class SetMetricTests: XCTestCase {
         expect(sut.weight) == 1
         
         for _ in 0..<10 {
-            sut.add(value: 5.0)
+            sut.add(value: 5)
         }
         
-        sut.add(value: 3.0)
-        sut.add(value: 2.0)
+        sut.add(value: 3)
+        sut.add(value: 2)
         
         expect(sut.weight) == 4
     }

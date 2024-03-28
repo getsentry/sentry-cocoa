@@ -38,9 +38,9 @@ final class EncodeMetricTests: XCTestCase {
     
     func testEncodeSetMetricWithOutTags() {
         let metric = SetMetric(first: 0, key: "app.start", unit: .none, tags: [:])
-        metric.add(value: 0.0)
-        metric.add(value: 0.1)
-        metric.add(value: 1.0)
+        metric.add(value: 0)
+        metric.add(value: 1)
+        metric.add(value: 1)
 
         let data = encodeToStatsd(flushableBuckets: [12_345: [metric]])
 

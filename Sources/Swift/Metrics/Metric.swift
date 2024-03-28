@@ -5,7 +5,6 @@ typealias Metric = MetricBase & MetricProtocol
 protocol MetricProtocol {
 
     var weight: UInt { get }
-    func add(value: Double)
     func serialize() -> [String]
 }
 

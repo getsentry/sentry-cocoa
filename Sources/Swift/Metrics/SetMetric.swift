@@ -12,11 +12,8 @@ class SetMetric: Metric {
         super.init(type: .set, key: key, unit: unit, tags: tags)
     }
 
-    // This doesn't work with the full range of UInt.
-    // We still need to fix this.
-    func add(value: Double) {
-        if value >= Double(UInt.min) && value < Double(UInt.max) {            set.insert(UInt(value))
-        }
+    func add(value: UInt) {
+        set.insert(value)
     }
 
     func serialize() -> [String] {
