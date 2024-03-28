@@ -8,7 +8,7 @@ final class SentryMetricsAPITests: XCTestCase, SentryMetricsAPIDelegate {
     
     func testInitWithDisabled_AllOperationsAreNoOps() throws {
         let metricsClient = try TestMetricsClient()
-        let sut = SentryMetricsAPI(enabled: false, client: metricsClient, currentDate: SentryCurrentDateProvider(), dispatchQueue: SentryDispatchQueueWrapper(), random: SentryRandom())
+        let sut = SentryMetricsAPI(enabled: false, client: metricsClient, currentDate: SentryCurrentDateProvider(), dispatchQueue: SentryDispatchQueueWrapper(), random: SentryRandom(), beforeEmitMetric: { _, _ in true })
         
         sut.increment(key: "some", value: 1.0, unit: .none, tags: ["yeah": "sentry"])
         sut.gauge(key: "some", value: 1.0, unit: .none, tags: ["yeah": "sentry"])
@@ -22,7 +22,7 @@ final class SentryMetricsAPITests: XCTestCase, SentryMetricsAPIDelegate {
     
     func testIncrement_EmitsIncrementMetric() throws {
         let metricsClient = try TestMetricsClient()
-        let sut = SentryMetricsAPI(enabled: true, client: metricsClient, currentDate: SentryCurrentDateProvider(), dispatchQueue: SentryDispatchQueueWrapper(), random: SentryRandom())
+        let sut = SentryMetricsAPI(enabled: true, client: metricsClient, currentDate: SentryCurrentDateProvider(), dispatchQueue: SentryDispatchQueueWrapper(), random: SentryRandom(), beforeEmitMetric: { _, _ in return true })
         sut.setDelegate(self)
         
         sut.increment(key: "key", value: 1.0, unit: MeasurementUnitFraction.percent, tags: ["yeah": "sentry"])
@@ -44,7 +44,7 @@ final class SentryMetricsAPITests: XCTestCase, SentryMetricsAPIDelegate {
     
     func testGauge_EmitsGaugeMetric() throws {
         let metricsClient = try TestMetricsClient()
-        let sut = SentryMetricsAPI(enabled: true, client: metricsClient, currentDate: SentryCurrentDateProvider(), dispatchQueue: SentryDispatchQueueWrapper(), random: SentryRandom())
+        let sut = SentryMetricsAPI(enabled: true, client: metricsClient, currentDate: SentryCurrentDateProvider(), dispatchQueue: SentryDispatchQueueWrapper(), random: SentryRandom(), beforeEmitMetric: { _, _ in return true })
         sut.setDelegate(self)
         
         sut.gauge(key: "key", value: 1.0, unit: MeasurementUnitFraction.percent, tags: ["yeah": "sentry"])
@@ -66,7 +66,7 @@ final class SentryMetricsAPITests: XCTestCase, SentryMetricsAPIDelegate {
     
     func testDistribution_EmitsDistributionMetric() throws {
         let metricsClient = try TestMetricsClient()
-        let sut = SentryMetricsAPI(enabled: true, client: metricsClient, currentDate: SentryCurrentDateProvider(), dispatchQueue: SentryDispatchQueueWrapper(), random: SentryRandom())
+        let sut = SentryMetricsAPI(enabled: true, client: metricsClient, currentDate: SentryCurrentDateProvider(), dispatchQueue: SentryDispatchQueueWrapper(), random: SentryRandom(), beforeEmitMetric: { _, _ in return true })
         sut.setDelegate(self)
         
         sut.distribution(key: "key", value: 1.0, unit: MeasurementUnitFraction.percent, tags: ["yeah": "sentry"])
@@ -89,7 +89,7 @@ final class SentryMetricsAPITests: XCTestCase, SentryMetricsAPIDelegate {
     
     func testSet_EmitsSetMetric() throws {
         let metricsClient = try TestMetricsClient()
-        let sut = SentryMetricsAPI(enabled: true, client: metricsClient, currentDate: SentryCurrentDateProvider(), dispatchQueue: SentryDispatchQueueWrapper(), random: SentryRandom())
+        let sut = SentryMetricsAPI(enabled: true, client: metricsClient, currentDate: SentryCurrentDateProvider(), dispatchQueue: SentryDispatchQueueWrapper(), random: SentryRandom(), beforeEmitMetric: { _, _ in return true })
         sut.setDelegate(self)
         
         sut.set(key: "key", value: "value1", unit: MeasurementUnitFraction.percent, tags: ["yeah": "sentry"])

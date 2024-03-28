@@ -508,6 +508,10 @@ NSString *const kSentryDefaultEnvironment = @"production";
     [self setBool:options[@"enableSpanLocalMetricAggregation"]
             block:^(BOOL value) { self->_enableSpanLocalMetricAggregation = value; }];
 
+    if ([self isBlock:options[@"beforeEmitMetric"]]) {
+        self.beforeEmitMetric = options[@"beforeEmitMetric"];
+    }
+
     return YES;
 }
 

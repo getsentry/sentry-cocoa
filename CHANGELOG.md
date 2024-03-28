@@ -4,7 +4,7 @@
 
 ### Features
 
-- Add Metrics API (#3791): Read our [docs](https://docs.sentry.io/platforms/apple/metrics/) to learn
+- Add Metrics API (#3791, #3799): Read our [docs](https://docs.sentry.io/platforms/apple/metrics/) to learn
 more about how to use the Metrics API.
 - Pre-main profiling data is now attached to the app start transaction (#3736)
 - Release framework without UIKit/AppKit (#3793)

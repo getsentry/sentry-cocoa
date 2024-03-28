@@ -20,6 +20,7 @@ class BucketMetricsAggregator: MetricsAggregator {
     private let currentDate: SentryCurrentDateProvider
     private let dispatchQueue: SentryDispatchQueueWrapper
     private let random: SentryRandomProtocol
+    private let beforeEmitMetric: BeforeEmitMetricCallback?
     private let totalMaxWeight: UInt
     private let flushShift: TimeInterval
     private let flushInterval: TimeInterval
@@ -35,6 +36,7 @@ class BucketMetricsAggregator: MetricsAggregator {
         currentDate: SentryCurrentDateProvider,
         dispatchQueue: SentryDispatchQueueWrapper,
         random: SentryRandomProtocol,
+        beforeEmitMetric: BeforeEmitMetricCallback? = nil,
         totalMaxWeight: UInt = 1_000,
         flushInterval: TimeInterval = 10.0,
         flushTolerance: TimeInterval = 0.5
@@ -43,6 +45,7 @@ class BucketMetricsAggregator: MetricsAggregator {
         self.currentDate = currentDate
         self.dispatchQueue = dispatchQueue
         self.random = random
+        self.beforeEmitMetric = beforeEmitMetric
 
         // The aggregator shifts its flushing by up to an entire rollup window to
         // avoid multiple clients trampling on end of a 10 second window as all the
@@ -133,6 +136,12 @@ class BucketMetricsAggregator: MetricsAggregator {
     }
     
     private func add(type: MetricType, key: String, value: Double, unit: MeasurementUnit, tags: [String: String], localMetricsAggregator: LocalMetricsAggregator?, initMetric: () -> Metric, addValueToMetric: (Metric) -> Void) {
+        
+        if let beforeEmitMetric = self.beforeEmitMetric {
+            if !beforeEmitMetric(key, tags) {
+                return
+            }
+        }
 
         let tagsKey = tags.getMetricsTagsKey()
         let bucketKey = "\(type)_\(key)_\(unit.unit)_\(tagsKey)"

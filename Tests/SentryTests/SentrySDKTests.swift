@@ -748,6 +748,22 @@ class SentrySDKTests: XCTestCase {
         expect(envelopeItem.header.type) == SentryEnvelopeItemTypeStatsd
         expect(envelopeItem.header.contentType) == "application/octet-stream"
     }
+    
+    func testMetrics_BeforeEmitMetricCallback_DiscardEveryThing() throws {
+        let options = fixture.options
+        options.enableMetrics = true
+        options.beforeEmitMetric = { _, _ in false }
+        
+        SentrySDK.start(options: options)
+        let client = try XCTUnwrap(TestClient(options: options))
+        let hub = SentryHub(client: client, andScope: nil)
+        SentrySDK.setCurrentHub(hub)
+        
+        SentrySDK.metrics.increment(key: "key")
+        SentrySDK.flush(timeout: 1.0)
+        
+        expect(client.captureEnvelopeInvocations.count) == 0
+    }
 
 #if SENTRY_HAS_UIKIT
     
