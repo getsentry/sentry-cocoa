@@ -20,7 +20,7 @@ class BucketMetricsAggregator: MetricsAggregator {
     private let currentDate: SentryCurrentDateProvider
     private let dispatchQueue: SentryDispatchQueueWrapper
     private let random: SentryRandomProtocol
-    private let beforeEmitMetric: BeforeEmitMetricCallback
+    private let beforeEmitMetric: BeforeEmitMetricCallback?
     private let totalMaxWeight: UInt
     private let flushShift: TimeInterval
     private let flushInterval: TimeInterval
@@ -36,7 +36,7 @@ class BucketMetricsAggregator: MetricsAggregator {
         currentDate: SentryCurrentDateProvider,
         dispatchQueue: SentryDispatchQueueWrapper,
         random: SentryRandomProtocol,
-        beforeEmitMetric: @escaping BeforeEmitMetricCallback = { _, _ in true },
+        beforeEmitMetric: BeforeEmitMetricCallback? = nil,
         totalMaxWeight: UInt = 1_000,
         flushInterval: TimeInterval = 10.0,
         flushTolerance: TimeInterval = 0.5
@@ -137,8 +137,10 @@ class BucketMetricsAggregator: MetricsAggregator {
     
     private func add(type: MetricType, key: String, value: Double, unit: MeasurementUnit, tags: [String: String], localMetricsAggregator: LocalMetricsAggregator?, initMetric: () -> Metric, addValueToMetric: (Metric) -> Void) {
         
-        if !beforeEmitMetric(key, tags) {
-            return
+        if let beforeEmitMetric = self.beforeEmitMetric {
+            if !beforeEmitMetric(key, tags) {
+                return
+            }
         }
 
         let tagsKey = tags.getMetricsTagsKey()
