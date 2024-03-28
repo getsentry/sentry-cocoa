@@ -65,7 +65,7 @@ static NSObject *sentryDependencyContainerLock;
 + (void)reset
 {
     if (instance) {
-#if !TARGET_OS_WATCH
+#if SENTRY_HAS_REACHABILITY
         [instance->_reachability removeAllObservers];
 #endif // !TARGET_OS_WATCH
 
@@ -398,7 +398,7 @@ static NSObject *sentryDependencyContainerLock;
 
 #endif // SENTRY_HAS_METRIC_KIT
 
-#if !TARGET_OS_WATCH
+#if SENTRY_HAS_REACHABILITY
 - (SentryReachability *)reachability
 {
     if (_reachability == nil) {
