@@ -135,7 +135,7 @@ class BucketMetricsAggregator: MetricsAggregator {
         })
     }
     
-    private func add(type: MetricType, key: String, value: Double, unit: MeasurementUnit, tags: [String: String], localMetricsAggregator: LocalMetricsAggregator?, initMetric: () -> any Metric, addValueToMetric: (any Metric) -> Void) {
+    private func add(type: MetricType, key: String, value: Double, unit: MeasurementUnit, tags: [String: String], localMetricsAggregator: LocalMetricsAggregator?, initMetric: () -> Metric, addValueToMetric: (Metric) -> Void) {
         
         if !beforeEmitMetric(key, tags) {
             return

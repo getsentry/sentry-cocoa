@@ -7,10 +7,13 @@
 - Add Metrics API (#3791, #3799): Read our [docs](https://docs.sentry.io/platforms/apple/metrics/) to learn
 more about how to use the Metrics API.
 - Pre-main profiling data is now attached to the app start transaction (#3736)
+- Release framework without UIKit/AppKit (#3793)
 
 ### Fixes
 
 - Don't run onCrashedLastSession for nil Events (#3785)
+- Redistributable static libraries should never be built with module debugging enabled (#3800)
+- Fixed certain views getting loaded twice when adding a child view controller (#3753)
 
 ## 8.22.4
 
