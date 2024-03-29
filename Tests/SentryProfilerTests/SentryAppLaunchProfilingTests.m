@@ -14,6 +14,7 @@
 
 @implementation SentryAppLaunchProfilingTests
 
+#    if SENTRY_PROFILING_MODE_LEGACY
 - (void)testLaunchProfileTransactionContext
 {
     SentryTransactionContext *actualContext = context(@1);
@@ -22,9 +23,9 @@
     XCTAssert(actualContext.sampled);
 }
 
-#    define SENTRY_OPTION(name, value)                                                             \
-        NSStringFromSelector(@selector(name))                                                      \
-            : value
+#        define SENTRY_OPTION(name, value)                                                         \
+            NSStringFromSelector(@selector(name))                                                  \
+                : value
 
 - (void)testDefaultOptionsDoNotEnableLaunchProfiling
 {
@@ -116,6 +117,7 @@
         @"Default options with app launch profiling and tracing enabled, traces sample rate of 1, "
         @"but profiles sample rate of 0 should not enable launch profiling");
 }
+#    endif // SENTRY_PROFILING_MODE_LEGACY
 
 #    pragma mark - Private
 
@@ -124,8 +126,10 @@
 {
     NSMutableDictionary<NSString *, id> *options = [NSMutableDictionary<NSString *, id>
         dictionaryWithDictionary:@{ SENTRY_OPTION(enableAppLaunchProfiling, @YES),
+#    if SENTRY_PROFILING_MODE_LEGACY
                                      SENTRY_OPTION(enableTracing, @YES),
                                      SENTRY_OPTION(tracesSampleRate, @1),
+#    endif // SENTRY_PROFILING_MODE_LEGACY
                                      SENTRY_OPTION(profilesSampleRate, @1) }];
     [options addEntriesFromDictionary:overrides];
     return [self defaultOptionsWithOverrides:options];

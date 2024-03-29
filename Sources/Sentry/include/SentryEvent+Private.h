@@ -26,10 +26,10 @@ SentryEvent ()
  */
 @property (nonatomic, strong) NSArray *serializedBreadcrumbs;
 
-#if SENTRY_TARGET_PROFILING_SUPPORTED
+#if SENTRY_TARGET_PROFILING_SUPPORTED && SENTRY_PROFILING_MODE_LEGACY
 @property (nonatomic) uint64_t startSystemTime;
 @property (nonatomic) uint64_t endSystemTime;
-#endif // SENTRY_TARGET_PROFILING_SUPPORTED
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED && SENTRY_PROFILING_MODE_LEGACY
 
 #if SENTRY_HAS_METRIC_KIT
 - (BOOL)isMetricKitEvent;

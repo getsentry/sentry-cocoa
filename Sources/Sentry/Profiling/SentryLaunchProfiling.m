@@ -15,15 +15,22 @@
 #    import "SentrySamplingContext.h"
 #    import "SentrySwift.h"
 #    import "SentryTime.h"
-#    import "SentryTraceOrigins.h"
-#    import "SentryTracer+Private.h"
-#    import "SentryTracerConfiguration.h"
-#    import "SentryTransactionContext+Private.h"
+#    if SENTRY_PROFILING_MODE_LEGACY
+#        import "SentryTraceOrigins.h"
+#        import "SentryTracer+Private.h"
+#        import "SentryTracerConfiguration.h"
+#        import "SentryTransactionContext+Private.h"
+#    endif // SENTRY_PROFILING_MODE_LEGACY
 
 NS_ASSUME_NONNULL_BEGIN
 
+#    if SENTRY_PROFILING_MODE_LEGACY
+
 BOOL isTracingAppLaunch;
 NSString *const kSentryLaunchProfileConfigKeyTracesSampleRate = @"traces";
+
+#    endif // SENTRY_PROFILING_MODE_LEGACY
+
 NSString *const kSentryLaunchProfileConfigKeyProfilesSampleRate = @"profiles";
 static SentryTracer *_Nullable launchTracer;
 
@@ -31,13 +38,16 @@ static SentryTracer *_Nullable launchTracer;
 
 typedef struct {
     BOOL shouldProfile;
+#    if SENTRY_PROFILING_MODE_LEGACY
     SentrySamplerDecision *_Nullable tracesDecision;
+#    endif // SENTRY_PROFILING_MODE_LEGACY
     SentrySamplerDecision *_Nullable profilesDecision;
 } SentryLaunchProfileConfig;
 
 SentryLaunchProfileConfig
 shouldProfileNextLaunch(SentryOptions *options)
 {
+#    if SENTRY_PROFILING_MODE_LEGACY
     BOOL shouldProfileNextLaunch = options.enableAppLaunchProfiling && options.enableTracing;
     if (!shouldProfileNextLaunch) {
         SENTRY_LOG_DEBUG(@"Won't profile next launch due to specified options configuration: "
@@ -67,6 +77,7 @@ shouldProfileNextLaunch(SentryOptions *options)
 
     SENTRY_LOG_DEBUG(@"Will profile the next launch.");
     return (SentryLaunchProfileConfig) { YES, tracesSamplerDecision, profilesSamplerDecision };
+#    endif // SENTRY_PROFILING_MODE_LEGACY
 }
 
 #    pragma mark - Public
@@ -83,14 +94,17 @@ configureLaunchProfiling(SentryOptions *options)
 
         NSMutableDictionary<NSString *, NSNumber *> *configDict =
             [NSMutableDictionary<NSString *, NSNumber *> dictionary];
+#    if SENTRY_PROFILING_MODE_LEGACY
         configDict[kSentryLaunchProfileConfigKeyTracesSampleRate]
             = config.tracesDecision.sampleRate;
+#    endif // SENTRY_PROFILING_MODE_LEGACY
         configDict[kSentryLaunchProfileConfigKeyProfilesSampleRate]
             = config.profilesDecision.sampleRate;
         writeAppLaunchProfilingConfigFile(configDict);
     }];
 }
 
+#    if SENTRY_PROFILING_MODE_LEGACY
 SentryTransactionContext *
 context(NSNumber *tracesRate)
 {
@@ -113,6 +127,7 @@ config(NSNumber *profilesRate)
                                           forSampleRate:profilesRate];
     return config;
 }
+#    endif // SENTRY_PROFILING_MODE_LEGACY
 
 void
 startLaunchProfile(void)
@@ -137,6 +152,7 @@ startLaunchProfile(void)
 
         NSDictionary<NSString *, NSNumber *> *rates = appLaunchProfileConfiguration();
         NSNumber *profilesRate = rates[kSentryLaunchProfileConfigKeyProfilesSampleRate];
+#    if SENTRY_PROFILING_MODE_LEGACY
         NSNumber *tracesRate = rates[kSentryLaunchProfileConfigKeyTracesSampleRate];
         if (profilesRate == nil || tracesRate == nil) {
             SENTRY_LOG_DEBUG(
@@ -148,9 +164,11 @@ startLaunchProfile(void)
         launchTracer = [[SentryTracer alloc] initWithTransactionContext:context(tracesRate)
                                                                     hub:nil
                                                           configuration:config(profilesRate)];
+#    endif // SENTRY_PROFILING_MODE_LEGACY
     });
 }
 
+#    if SENTRY_PROFILING_MODE_LEGACY
 void
 stopAndTransmitLaunchProfile(SentryHub *hub)
 {
@@ -169,6 +187,7 @@ stopAndDiscardLaunchProfileTracer(void)
     SENTRY_LOG_DEBUG(@"Finishing launch tracer.");
     [launchTracer finish];
 }
+#    endif // SENTRY_PROFILING_MODE_LEGACY
 
 NS_ASSUME_NONNULL_END
 

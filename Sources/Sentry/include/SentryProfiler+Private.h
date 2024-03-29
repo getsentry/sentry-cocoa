@@ -15,15 +15,19 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+#    if SENTRY_PROFILING_MODE_LEGACY
+
 NSMutableDictionary<NSString *, id> *serializedProfileData(
     NSDictionary<NSString *, id> *profileData, uint64_t startSystemTime, uint64_t endSystemTime,
     NSString *truncationReason, NSDictionary<NSString *, id> *serializedMetrics,
     NSArray<SentryDebugMeta *> *debugMeta, SentryHub *hub
-#    if SENTRY_HAS_UIKIT
+#        if SENTRY_HAS_UIKIT
     ,
     SentryScreenFrames *gpuData
-#    endif // SENTRY_HAS_UIKIT
+#        endif // SENTRY_HAS_UIKIT
 );
+
+#    endif // SENTRY_PROFILING_MODE_LEGACY
 
 @interface
 SentryProfiler ()

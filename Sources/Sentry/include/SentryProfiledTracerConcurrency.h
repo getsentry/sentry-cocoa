@@ -1,10 +1,13 @@
-#import "SentryCompiler.h"
 #import "SentryProfilingConditionals.h"
-#import <Foundation/Foundation.h>
+
+#if SENTRY_PROFILING_MODE_LEGACY
+
+#    import "SentryCompiler.h"
+#    import <Foundation/Foundation.h>
 
 @class SentryProfiler, SentryId;
 
-#if SENTRY_TARGET_PROFILING_SUPPORTED
+#    if SENTRY_TARGET_PROFILING_SUPPORTED
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -30,13 +33,15 @@ void discardProfilerForTracer(SentryId *internalTraceId);
  */
 SentryProfiler *_Nullable profilerForFinishedTracer(SentryId *internalTraceId);
 
-#    if defined(TEST) || defined(TESTCI)
+#        if defined(TEST) || defined(TESTCI)
 void resetConcurrencyTracking(void);
 NSUInteger currentProfiledTracers(void);
-#    endif // defined(TEST) || defined(TESTCI)
+#        endif // defined(TEST) || defined(TESTCI)
 
 SENTRY_EXTERN_C_END
 
 NS_ASSUME_NONNULL_END
 
-#endif // SENTRY_TARGET_PROFILING_SUPPORTED
+#    endif // SENTRY_TARGET_PROFILING_SUPPORTED
+
+#endif // SENTRY_PROFILING_MODE_LEGACY

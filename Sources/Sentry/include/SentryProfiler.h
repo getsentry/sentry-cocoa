@@ -14,7 +14,9 @@
 
 typedef NS_ENUM(NSUInteger, SentryProfilerTruncationReason) {
     SentryProfilerTruncationReasonNormal,
+#    if SENTRY_PROFILING_MODE_LEGACY
     SentryProfilerTruncationReasonTimeout,
+#    endif // SENTRY_PROFILING_MODE_LEGACY
     SentryProfilerTruncationReasonAppMovedToBackground,
 };
 
@@ -47,6 +49,15 @@ SENTRY_EXTERN_C_END
 
 @property (strong, nonatomic) SentryId *profilerId;
 
+#    if SENTRY_PROFILING_MODE_CONTINUOUS
+
++ (void)start;
++ (void)stop;
+
+#    endif // SENTRY_PROFILING_MODE_CONTINUOUS
+
+#    if SENTRY_PROFILING_MODE_LEGACY
+
 /**
  * Start a profiler, if one isn't already running.
  */
@@ -56,6 +67,8 @@ SENTRY_EXTERN_C_END
  * Stop the profiler if it is running.
  */
 - (void)stopForReason:(SentryProfilerTruncationReason)reason;
+
+#    endif // SENTRY_PROFILING_MODE_LEGACY
 
 /**
  * Whether the profiler instance is currently running. If not, then it probably timed out or aborted
@@ -76,6 +89,8 @@ SENTRY_EXTERN_C_END
  */
 + (void)recordMetrics;
 
+#    if SENTRY_PROFILING_MODE_LEGACY
+
 /**
  * Given a transaction, return an envelope item containing any corresponding profile data to be
  * attached to the transaction envelope.
@@ -91,6 +106,9 @@ SENTRY_EXTERN_C_END
                                                                     and:(uint64_t)endSystemTime
                                                                forTrace:(SentryId *)traceId
                                                                   onHub:(SentryHub *)hub;
+
+#    endif // SENTRY_PROFILING_MODE_LEGACY
+
 @end
 
 NS_ASSUME_NONNULL_END

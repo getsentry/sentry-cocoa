@@ -10,9 +10,10 @@ SentryProfiler ()
 
 + (SentryProfiler *)getCurrentProfiler;
 
+#    if SENTRY_PROFILING_MODE_LEGACY
 + (void)resetConcurrencyTracking;
-
 + (NSUInteger)currentProfiledTracers;
+#    endif // SENTRY_PROFILING_MODE_LEGACY
 
 @end
 

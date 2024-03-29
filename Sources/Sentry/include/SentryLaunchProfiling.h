@@ -1,21 +1,29 @@
-#import "SentryDefines.h"
 #import "SentryProfilingConditionals.h"
-#import <Foundation/Foundation.h>
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
+
+#    import "SentryDefines.h"
+#    import <Foundation/Foundation.h>
 
 @class SentryHub;
 @class SentryId;
 @class SentryOptions;
+
+#    if SENTRY_PROFILING_MODE_LEGACY
+
 @class SentryTracerConfiguration;
 @class SentryTransactionContext;
 
-NS_ASSUME_NONNULL_BEGIN
-
 SENTRY_EXTERN BOOL isTracingAppLaunch;
+
+#    endif // SENTRY_PROFILING_MODE_LEGACY
+
+NS_ASSUME_NONNULL_BEGIN
 
 /** Try to start a profiled trace for this app launch, if the configuration allows. */
 SENTRY_EXTERN void startLaunchProfile(void);
+
+#    if SENTRY_PROFILING_MODE_LEGACY
 
 /**
  * Stop any profiled trace that may be in flight from the start of the app launch, and transmit the
@@ -29,6 +37,8 @@ void stopAndTransmitLaunchProfile(SentryHub *hub);
  * the profiler will be discarded in this case.
  */
 void stopAndDiscardLaunchProfileTracer(void);
+
+#    endif // SENTRY_PROFILING_MODE_LEGACY
 
 /**
  * Write a file to disk containing sample rates for profiles and traces. The presence of this file

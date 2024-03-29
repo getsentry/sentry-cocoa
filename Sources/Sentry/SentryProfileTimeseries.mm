@@ -1,12 +1,14 @@
 #import "SentryProfileTimeseries.h"
 
-#if SENTRY_TARGET_PROFILING_SUPPORTED
+#if SENTRY_PROFILING_MODE_LEGACY
 
-#    import "SentryEvent+Private.h"
-#    import "SentryInternalDefines.h"
-#    import "SentryLog.h"
-#    import "SentrySample.h"
-#    import "SentryTransaction.h"
+#    if SENTRY_TARGET_PROFILING_SUPPORTED
+
+#        import "SentryEvent+Private.h"
+#        import "SentryInternalDefines.h"
+#        import "SentryLog.h"
+#        import "SentrySample.h"
+#        import "SentryTransaction.h"
 
 /**
  * Print a debug log to help diagnose slicing errors.
@@ -81,4 +83,6 @@ NSArray<SentrySample *> *_Nullable slicedProfileSamples(
     return [samples objectsAtIndexes:indices];
 }
 
-#endif // SENTRY_TARGET_PROFILING_SUPPORTED
+#    endif // SENTRY_TARGET_PROFILING_SUPPORTED
+
+#endif // SENTRY_PROFILING_MODE_LEGACY

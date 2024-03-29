@@ -1,9 +1,11 @@
 #import "SentryProfilingConditionals.h"
 
-#if SENTRY_TARGET_PROFILING_SUPPORTED
+#if SENTRY_PROFILING_MODE_LEGACY
 
-#    import "SentryDefines.h"
-#    import <Foundation/Foundation.h>
+#    if SENTRY_TARGET_PROFILING_SUPPORTED
+
+#        import "SentryDefines.h"
+#        import <Foundation/Foundation.h>
 
 @class SentrySample;
 @class SentryTransaction;
@@ -15,4 +17,6 @@ NSArray<SentrySample *> *_Nullable slicedProfileSamples(
 
 NS_ASSUME_NONNULL_END
 
-#endif // SENTRY_TARGET_PROFILING_SUPPORTED
+#    endif // SENTRY_TARGET_PROFILING_SUPPORTED
+
+#endif // SENTRY_PROFILING_MODE_LEGACY

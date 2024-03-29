@@ -28,12 +28,12 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property (nonatomic) BOOL waitForChildren;
 
-#if SENTRY_TARGET_PROFILING_SUPPORTED
+#if SENTRY_TARGET_PROFILING_SUPPORTED && SENTRY_PROFILING_MODE_LEGACY
 /**
  * Whether to sample a profile corresponding to this transaction
  */
 @property (nonatomic, strong, nullable) SentrySamplerDecision *profilesSamplerDecision;
-#endif // SENTRY_TARGET_PROFILING_SUPPORTED"
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED && SENTRY_PROFILING_MODE_LEGACY"
 
 /**
  * The idle time to wait until to finish the transaction

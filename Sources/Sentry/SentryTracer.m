@@ -33,11 +33,11 @@
 #import <SentryMeasurementValue.h>
 #import <SentrySpanOperations.h>
 
-#if SENTRY_TARGET_PROFILING_SUPPORTED
+#if SENTRY_TARGET_PROFILING_SUPPORTED && SENTRY_PROFILING_MODE_LEGACY
 #    import "SentryLaunchProfiling.h"
 #    import "SentryProfiledTracerConcurrency.h"
 #    import "SentryProfiler.h"
-#endif // SENTRY_TARGET_PROFILING_SUPPORTED
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED && SENTRY_PROFILING_MODE_LEGACY
 
 #if SENTRY_HAS_UIKIT
 #    import "SentryAppStartMeasurement.h"
@@ -81,9 +81,9 @@ SentryTracer ()
 @property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueue;
 @property (nonatomic, strong) SentryDebugImageProvider *debugImageProvider;
 
-#if SENTRY_TARGET_PROFILING_SUPPORTED
+#if SENTRY_TARGET_PROFILING_SUPPORTED && SENTRY_PROFILING_MODE_LEGACY
 @property (nonatomic) BOOL isProfiling;
-#endif // SENTRY_TARGET_PROFILING_SUPPORTED
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED && SENTRY_PROFILING_MODE_LEGACY
 
 @end
 
@@ -111,12 +111,12 @@ SentryTracer ()
 static NSObject *appStartMeasurementLock;
 static BOOL appStartMeasurementRead;
 
-#if SENTRY_TARGET_PROFILING_SUPPORTED
+#if SENTRY_TARGET_PROFILING_SUPPORTED && SENTRY_PROFILING_MODE_LEGACY
 + (void)load
 {
     startLaunchProfile();
 }
-#endif // SENTRY_TARGET_PROFILING_SUPPORTED
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED && SENTRY_PROFILING_MODE_LEGACY
 
 + (void)initialize
 {
@@ -187,7 +187,7 @@ static BOOL appStartMeasurementRead;
     }
 #endif // SENTRY_HAS_UIKIT
 
-#if SENTRY_TARGET_PROFILING_SUPPORTED
+#if SENTRY_TARGET_PROFILING_SUPPORTED && SENTRY_PROFILING_MODE_LEGACY
     if (_configuration.profilesSamplerDecision.decision == kSentrySampleDecisionYes
         || isTracingAppLaunch) {
         _internalID = [[SentryId alloc] init];
@@ -197,7 +197,7 @@ static BOOL appStartMeasurementRead;
         }
         _startSystemTime = SentryDependencyContainer.sharedInstance.dateProvider.systemTime;
     }
-#endif // SENTRY_TARGET_PROFILING_SUPPORTED
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED && SENTRY_PROFILING_MODE_LEGACY
 
     SENTRY_LOG_DEBUG(@"Started tracer with id: %@", transactionContext.traceId.sentryIdString);
 
@@ -206,11 +206,11 @@ static BOOL appStartMeasurementRead;
 
 - (void)dealloc
 {
-#if SENTRY_TARGET_PROFILING_SUPPORTED
+#if SENTRY_TARGET_PROFILING_SUPPORTED && SENTRY_PROFILING_MODE_LEGACY
     if (self.isProfiling) {
         discardProfilerForTracer(self.internalID);
     }
-#endif // SENTRY_TARGET_PROFILING_SUPPORTED
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED && SENTRY_PROFILING_MODE_LEGACY
 }
 
 - (nullable SentryTracer *)tracer
@@ -599,7 +599,7 @@ static BOOL appStartMeasurementRead;
 
     SentryTransaction *transaction = [self toTransaction];
 
-#if SENTRY_TARGET_PROFILING_SUPPORTED
+#if SENTRY_TARGET_PROFILING_SUPPORTED && SENTRY_PROFILING_MODE_LEGACY
     if (self.isProfiling) {
         NSDate *startTimestamp;
 
@@ -621,12 +621,12 @@ static BOOL appStartMeasurementRead;
         [self captureTransactionWithProfile:transaction startTimestamp:startTimestamp];
         return;
     }
-#endif // SENTRY_TARGET_PROFILING_SUPPORTED
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED && SENTRY_PROFILING_MODE_LEGACY
 
     [_hub captureTransaction:transaction withScope:_hub.scope];
 }
 
-#if SENTRY_TARGET_PROFILING_SUPPORTED
+#if SENTRY_TARGET_PROFILING_SUPPORTED && SENTRY_PROFILING_MODE_LEGACY
 - (void)captureTransactionWithProfile:(SentryTransaction *)transaction
                        startTimestamp:(NSDate *)startTimestamp
 {
@@ -645,7 +645,7 @@ static BOOL appStartMeasurementRead;
                       withScope:_hub.scope
         additionalEnvelopeItems:@[ profileEnvelopeItem ]];
 }
-#endif // SENTRY_TARGET_PROFILING_SUPPORTED
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED && SENTRY_PROFILING_MODE_LEGACY
 
 - (void)trimEndTimestamp
 {
@@ -696,7 +696,7 @@ static BOOL appStartMeasurementRead;
     SentryTransaction *transaction = [[SentryTransaction alloc] initWithTrace:self children:spans];
     transaction.transaction = self.transactionContext.name;
 
-#if SENTRY_TARGET_PROFILING_SUPPORTED
+#if SENTRY_TARGET_PROFILING_SUPPORTED && SENTRY_PROFILING_MODE_LEGACY
     if (self.isProfiling) {
         // if we have an app start span, use its app start timestamp. otherwise use the tracer's
         // start system time as we currently do
@@ -715,7 +715,7 @@ static BOOL appStartMeasurementRead;
         transaction.endSystemTime
             = SentryDependencyContainer.sharedInstance.dateProvider.systemTime;
     }
-#endif // SENTRY_TARGET_PROFILING_SUPPORTED
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED && SENTRY_PROFILING_MODE_LEGACY
 
     NSMutableArray *framesOfAllSpans = [NSMutableArray array];
     if ([(SentrySpan *)self frames]) {

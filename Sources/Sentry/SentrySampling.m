@@ -80,7 +80,7 @@ sampleTrace(SentrySamplingContext *context, SentryOptions *options)
     return calcSampleFromNumericalRate(options.tracesSampleRate);
 }
 
-#if SENTRY_TARGET_PROFILING_SUPPORTED
+#if SENTRY_TARGET_PROFILING_SUPPORTED && SENTRY_PROFILING_MODE_LEGACY
 
 SentrySamplerDecision *
 sampleProfile(SentrySamplingContext *context, SentrySamplerDecision *tracesSamplerDecision,
@@ -112,6 +112,6 @@ sampleProfile(SentrySamplingContext *context, SentrySamplerDecision *tracesSampl
     return calcSampleFromNumericalRate(options.profilesSampleRate);
 }
 
-#endif // SENTRY_TARGET_PROFILING_SUPPORTED
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED && SENTRY_PROFILING_MODE_LEGACY
 
 NS_ASSUME_NONNULL_END

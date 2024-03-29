@@ -124,7 +124,7 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
     return [SentryDependencyContainer.sharedInstance.extraContextProvider getExtraContext];
 }
 
-#if SENTRY_TARGET_PROFILING_SUPPORTED
+#if SENTRY_TARGET_PROFILING_SUPPORTED && SENTRY_PROFILING_MODE_LEGACY
 + (uint64_t)startProfilerForTrace:(SentryId *)traceId;
 {
     [SentryProfiler startWithTracer:traceId];
@@ -157,7 +157,7 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
     discardProfilerForTracer(traceId);
 }
 
-#endif // SENTRY_TARGET_PROFILING_SUPPORTED
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED && SENTRY_PROFILING_MODE_LEGACY
 
 + (BOOL)framesTrackingMeasurementHybridSDKMode
 {

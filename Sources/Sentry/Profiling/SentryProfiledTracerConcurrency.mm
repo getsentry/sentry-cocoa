@@ -1,18 +1,20 @@
 #import "SentryProfiledTracerConcurrency.h"
 
-#if SENTRY_TARGET_PROFILING_SUPPORTED
+#if SENTRY_PROFILING_MODE_LEGACY
 
-#    import "SentryInternalDefines.h"
-#    import "SentryLog.h"
-#    import "SentryProfiler+Private.h"
-#    import "SentrySwift.h"
-#    include <mutex>
+#    if SENTRY_TARGET_PROFILING_SUPPORTED
 
-#    if SENTRY_HAS_UIKIT
-#        import "SentryDependencyContainer.h"
-#        import "SentryFramesTracker.h"
-#        import "SentryScreenFrames.h"
-#    endif // SENTRY_HAS_UIKIT
+#        import "SentryInternalDefines.h"
+#        import "SentryLog.h"
+#        import "SentryProfiler+Private.h"
+#        import "SentrySwift.h"
+#        include <mutex>
+
+#        if SENTRY_HAS_UIKIT
+#            import "SentryDependencyContainer.h"
+#            import "SentryFramesTracker.h"
+#            import "SentryScreenFrames.h"
+#        endif // SENTRY_HAS_UIKIT
 
 /**
  * a mapping of profilers to the number of tracers that started them that are still in-flight and
@@ -98,11 +100,11 @@ discardProfilerForTracer(SentryId *internalTraceId)
 
     _unsafe_cleanUpProfiler(profiler, tracerKey);
 
-#    if SENTRY_HAS_UIKIT
+#        if SENTRY_HAS_UIKIT
     if (_gProfilersToTracers.count == 0) {
         [SentryDependencyContainer.sharedInstance.framesTracker resetProfilingTimestamps];
     }
-#    endif // SENTRY_HAS_UIKIT
+#        endif // SENTRY_HAS_UIKIT
 }
 
 SentryProfiler *_Nullable profilerForFinishedTracer(SentryId *internalTraceId)
@@ -122,18 +124,18 @@ SentryProfiler *_Nullable profilerForFinishedTracer(SentryId *internalTraceId)
 
     _unsafe_cleanUpProfiler(profiler, tracerKey);
 
-#    if SENTRY_HAS_UIKIT
+#        if SENTRY_HAS_UIKIT
     profiler._screenFrameData =
         [SentryDependencyContainer.sharedInstance.framesTracker.currentFrames copy];
     if (_gProfilersToTracers.count == 0) {
         [SentryDependencyContainer.sharedInstance.framesTracker resetProfilingTimestamps];
     }
-#    endif // SENTRY_HAS_UIKIT
+#        endif // SENTRY_HAS_UIKIT
 
     return profiler;
 }
 
-#    if defined(TEST) || defined(TESTCI)
+#        if defined(TEST) || defined(TESTCI)
 void
 resetConcurrencyTracking()
 {
@@ -148,6 +150,8 @@ currentProfiledTracers()
     std::lock_guard<std::mutex> l(_gStateLock);
     return [_gTracersToProfilers count];
 }
-#    endif // defined(TEST) || defined(TESTCI)
+#        endif // defined(TEST) || defined(TESTCI)
 
-#endif // SENTRY_TARGET_PROFILING_SUPPORTED
+#    endif // SENTRY_TARGET_PROFILING_SUPPORTED
+
+#endif // SENTRY_PROFILING_MODE_LEGACY

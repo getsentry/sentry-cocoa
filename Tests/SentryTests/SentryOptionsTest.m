@@ -645,7 +645,7 @@
 #    pragma clang diagnostic pop
     XCTAssertNil(options.profilesSampleRate);
     XCTAssertNil(options.profilesSampler);
-#endif
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
     XCTAssertTrue([options.spotlightUrl isEqualToString:@"http://localhost:8969/stream"]);
 }
@@ -1116,7 +1116,7 @@
     XCTAssertNil(options.profilesSampler);
 }
 
-#endif
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
 - (void)testInAppIncludes
 {

@@ -249,4 +249,4 @@ countof(Array &)
 
 @end
 
-#endif
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED

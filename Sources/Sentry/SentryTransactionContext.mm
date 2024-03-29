@@ -121,20 +121,22 @@ static const auto kSentryDefaultSamplingDecision = kSentrySampleDecisionUndecide
     return self;
 }
 
+#if SENTRY_PROFILING_MODE_LEGACY
 - (void)getThreadInfo
 {
-#if SENTRY_TARGET_PROFILING_SUPPORTED
+#    if SENTRY_TARGET_PROFILING_SUPPORTED
     const auto threadID = sentry::profiling::ThreadHandle::current()->tid();
     self.threadInfo = [[SentryThread alloc] initWithThreadId:@(threadID)];
-#endif
+#    endif // SENTRY_TARGET_PROFILING_SUPPORTED
 }
 
-#if SENTRY_TARGET_PROFILING_SUPPORTED
+#    if SENTRY_TARGET_PROFILING_SUPPORTED
 - (SentryThread *)sentry_threadInfo
 {
     return self.threadInfo;
 }
-#endif
+#    endif // SENTRY_TARGET_PROFILING_SUPPORTED
+#endif // SENTRY_PROFILING_MODE_LEGACY
 
 - (void)commonInitWithName:(NSString *)name
                     source:(SentryTransactionNameSource)source

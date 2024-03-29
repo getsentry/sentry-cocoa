@@ -171,4 +171,4 @@ threadGetName(void *namePtr)
 
 @end
 
-#endif
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED

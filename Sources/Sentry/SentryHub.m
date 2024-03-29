@@ -395,12 +395,12 @@ SentryHub () <SentryMetricsAPIDelegate>
                                       withSampled:tracesSamplerDecision.decision];
     transactionContext.sampleRate = tracesSamplerDecision.sampleRate;
 
-#if SENTRY_TARGET_PROFILING_SUPPORTED
+#if SENTRY_TARGET_PROFILING_SUPPORTED && SENTRY_PROFILING_MODE_LEGACY
     SentrySamplerDecision *profilesSamplerDecision
         = sampleProfile(samplingContext, tracesSamplerDecision, self.client.options);
 
     configuration.profilesSamplerDecision = profilesSamplerDecision;
-#endif // SENTRY_TARGET_PROFILING_SUPPORTED"
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED && SENTRY_PROFILING_MODE_LEGACY"
 
     SentryTracer *tracer = [[SentryTracer alloc] initWithTransactionContext:transactionContext
                                                                         hub:self

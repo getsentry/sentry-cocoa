@@ -75,4 +75,4 @@ idleThreadEntry(__unused void *ptr)
 
 @end
 
-#endif
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED

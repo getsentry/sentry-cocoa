@@ -36,13 +36,14 @@ SentryTransactionContext ()
                      sampled:(SentrySampleDecision)sampled
                parentSampled:(SentrySampleDecision)parentSampled;
 
-#if SENTRY_TARGET_PROFILING_SUPPORTED
+#if SENTRY_TARGET_PROFILING_SUPPORTED && SENTRY_PROFILING_MODE_LEGACY
 // This is currently only exposed for testing purposes, see -[SentryProfilerTests
 // testProfilerMutationDuringSerialization]
+// !!!: the above comment is no longer true. remove this declaration
 @property (nonatomic, strong) SentryThread *threadInfo;
 
 - (SentryThread *)sentry_threadInfo;
-#endif
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED && SENTRY_PROFILING_MODE_LEGACY
 
 @end
 

@@ -133,9 +133,9 @@ SentryTimeToDisplayTracker () <SentryFramesTrackerListener>
         [self.initialDisplaySpan finish];
         if (!_waitForFullDisplay) {
             [SentryDependencyContainer.sharedInstance.framesTracker removeListener:self];
-#    if SENTRY_TARGET_PROFILING_SUPPORTED
+#    if SENTRY_TARGET_PROFILING_SUPPORTED && SENTRY_PROFILING_MODE_LEGACY
             stopAndDiscardLaunchProfileTracer();
-#    endif // SENTRY_TARGET_PROFILING_SUPPORTED
+#    endif // SENTRY_TARGET_PROFILING_SUPPORTED && SENTRY_PROFILING_MODE_LEGACY
         }
     }
     if (_waitForFullDisplay && _fullyDisplayedReported && self.fullDisplaySpan.isFinished == NO
@@ -143,9 +143,9 @@ SentryTimeToDisplayTracker () <SentryFramesTrackerListener>
         SENTRY_LOG_DEBUG(@"Finishing full display span");
         self.fullDisplaySpan.timestamp = newFrameDate;
         [self.fullDisplaySpan finish];
-#    if SENTRY_TARGET_PROFILING_SUPPORTED
+#    if SENTRY_TARGET_PROFILING_SUPPORTED && SENTRY_PROFILING_MODE_LEGACY
         stopAndDiscardLaunchProfileTracer();
-#    endif // SENTRY_TARGET_PROFILING_SUPPORTED
+#    endif // SENTRY_TARGET_PROFILING_SUPPORTED && SENTRY_PROFILING_MODE_LEGACY
     }
 
     if (self.initialDisplaySpan.isFinished == YES && self.fullDisplaySpan.isFinished == YES) {

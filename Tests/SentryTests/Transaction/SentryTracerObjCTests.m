@@ -8,9 +8,9 @@
 #import "SentryTransactionContext.h"
 #import <XCTest/XCTest.h>
 
-#if SENTRY_TARGET_PROFILING_SUPPORTED
+#if SENTRY_TARGET_PROFILING_SUPPORTED && SENTRY_PROFILING_MODE_LEGACY
 #    import "SentryProfiler.h"
-#endif // SENTRY_TARGET_PROFILING_SUPPORTED
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED && SENTRY_PROFILING_MODE_LEGACY
 
 @interface SentryTracerObjCTests : XCTestCase
 
