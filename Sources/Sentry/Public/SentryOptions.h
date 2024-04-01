@@ -10,6 +10,8 @@ NS_ASSUME_NONNULL_BEGIN
 NS_SWIFT_NAME(Options)
 @interface SentryOptions : NSObject
 
+
+@property (nullable , nonatomic, strong ) NSURLSession *urlSession;
 /**
  * The DSN tells the SDK where to send the events to. If this value is not provided, the SDK will
  * not send any events.
