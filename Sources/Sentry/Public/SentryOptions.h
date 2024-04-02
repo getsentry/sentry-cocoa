@@ -372,7 +372,7 @@ NS_SWIFT_NAME(Options)
  * An array of class names to ignore for swizzling.
  *
  * @discussion The SDK checks if a class name of a class to swizzle contains a class name of this
- * array. For example, if you add "MyUIViewController" to this list, the SDK excludes the following
+ * array. For example, if you add MyUIViewController to this list, the SDK excludes the following
  * classes from swizzling: YourApp.MyUIViewController, YourApp.MyUIViewControllerA,
  * MyApp.MyUIViewController.
  *
