@@ -1,11 +1,11 @@
 #if canImport(UIKit) && !SENTRY_NO_UIKIT
+#if os(iOS) || os(tvOS)
 
 import AVFoundation
 import CoreGraphics
 import Foundation
 import UIKit
 
-#if os(iOS) || os(tvOS)
 class SentryPixelBuffer {
     private var pixelBuffer: CVPixelBuffer?
     private let rgbColorSpace = CGColorSpaceCreateDeviceRGB()
@@ -45,5 +45,5 @@ class SentryPixelBuffer {
         return pixelBufferAdapter.append(pixelBuffer, withPresentationTime: presentationTime)
     }
 }
-#endif
-#endif // canImport(UIKit)
+#endif // os(iOS) || os(tvOS)
+#endif // canImport(UIKit) && !SENTRY_NO_UIKIT

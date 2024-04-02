@@ -69,7 +69,6 @@ class SentrySessionReplayTests: XCTestCase {
         let cacheFolder = FileManager.default.temporaryDirectory
         
         func getSut(options: SentryReplayOptions = .init(sessionSampleRate: 0, errorSampleRate: 0) ) -> SentrySessionReplay {
-            
             return SentrySessionReplay(settings: options,
                                        replayFolderPath: cacheFolder,
                                        screenshotProvider: screenshotProvider,

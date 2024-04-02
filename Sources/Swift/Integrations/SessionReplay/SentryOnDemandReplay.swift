@@ -125,12 +125,13 @@ class SentryOnDemandReplay: NSObject {
             guard let self = self else { return }
             
             let imagePath = frames[frameCount]
+            
             if let image = UIImage(contentsOfFile: imagePath) {
                 let presentTime = CMTime(seconds: Double(frameCount), preferredTimescale: CMTimeScale(self.frameRate))
-                frameCount += 1
                 
                 if self._currentPixelBuffer?.append(image: image, pixelBufferAdapter: pixelBufferAdaptor, presentationTime: presentTime) != true {
                     completion(nil, videoWriter.error)
+                    videoWriterInput.markAsFinished()
                 }
             }
             
@@ -146,6 +147,8 @@ class SentryOnDemandReplay: NSObject {
                     completion(videoInfo, videoWriter.error)
                 }
             }
+            
+            frameCount += 1
         }
     }
     
