@@ -1,42 +1,63 @@
 #import "SentrySessionReplay.h"
 #import "SentryAttachment+Private.h"
 #import "SentryDependencyContainer.h"
+#import "SentryDisplayLinkWrapper.h"
 #import "SentryFileManager.h"
 #import "SentryHub+Private.h"
 #import "SentryLog.h"
+#import "SentryRandom.h"
 #import "SentryReplayEvent.h"
 #import "SentryReplayRecording.h"
 #import "SentrySDK+Private.h"
 #import "SentrySwift.h"
 
 #if SENTRY_HAS_UIKIT && !TARGET_OS_VISION
-static NSString *SENTRY_REPLAY_FOLDER = @"replay";
 
 NS_ASSUME_NONNULL_BEGIN
 
+@interface
+SentrySessionReplay ()
+
+@property (nonatomic) BOOL isFullSession;
+
+@end
+
 @implementation SentrySessionReplay {
+    NSURL *_urlToCache;
     UIView *_rootView;
-    BOOL _processingScreenshot;
-    CADisplayLink *_displayLink;
     NSDate *_lastScreenShot;
     NSDate *_videoSegmentStart;
-    NSURL *_urlToCache;
     NSDate *_sessionStart;
+    NSMutableArray<UIImage *> *imageCollection;
+    SentryId *sessionReplayId;
     SentryReplayOptions *_replayOptions;
     SentryOnDemandReplay *_replayMaker;
-    SentryId *sessionReplayId;
-    NSMutableArray<UIImage *> *imageCollection;
-    int _currentSegmentId;
-    BOOL _isFullSession;
+    SentryDisplayLinkWrapper *_displayLink;
     SentryCurrentDateProvider *_dateProvider;
+    id<SentryRandom> _sentryRandom;
+    id<SentryViewScreenshotProvider> _screenshotProvider;
+    int _currentSegmentId;
+    BOOL _isRunning;
+    BOOL _processingScreenshot;
 }
 
 - (instancetype)initWithSettings:(SentryReplayOptions *)replayOptions
+                replayFolderPath:(NSURL *)folderPath
+              screenshotProvider:(id<SentryViewScreenshotProvider>)screenshotProvider
+                     replayMaker:(id<SentryReplayMaker>)replayMaker
                     dateProvider:(SentryCurrentDateProvider *)dateProvider
+                          random:(id<SentryRandom>)random
+              displayLinkWrapper:(SentryDisplayLinkWrapper *)displayLinkWrapper;
 {
     if (self = [super init]) {
         _replayOptions = replayOptions;
         _dateProvider = dateProvider;
+        _sentryRandom = random;
+        _screenshotProvider = screenshotProvider;
+        _displayLink = displayLinkWrapper;
+        _isRunning = false;
+        _urlToCache = folderPath;
+        _replayMaker = replayMaker;
     }
     return self;
 }
@@ -48,64 +69,46 @@ NS_ASSUME_NONNULL_BEGIN
         return;
     }
 
+    if (_isRunning) {
+        return;
+    }
     @synchronized(self) {
-        if (_displayLink == nil) {
-            _displayLink = [CADisplayLink displayLinkWithTarget:self selector:@selector(newFrame:)];
-            [_displayLink addToRunLoop:[NSRunLoop mainRunLoop] forMode:NSRunLoopCommonModes];
-        } else {
-            // Session display is already running.
+        if (_isRunning) {
             return;
         }
-
-        _rootView = rootView;
-        _lastScreenShot = [[NSDate alloc] init];
-        _videoSegmentStart = nil;
-        _sessionStart = _lastScreenShot;
-        _currentSegmentId = 0;
-
-        NSURL *docs = [NSURL
-            fileURLWithPath:[SentryDependencyContainer.sharedInstance.fileManager sentryPath]];
-        docs = [docs URLByAppendingPathComponent:SENTRY_REPLAY_FOLDER];
-
-        NSString *currentSession = [NSUUID UUID].UUIDString;
-        _urlToCache = [docs URLByAppendingPathComponent:currentSession];
-
-        if (![NSFileManager.defaultManager fileExistsAtPath:_urlToCache.path]) {
-            [NSFileManager.defaultManager createDirectoryAtURL:_urlToCache
-                                   withIntermediateDirectories:YES
-                                                    attributes:nil
-                                                         error:nil];
-        }
-
-        _replayMaker = [[SentryOnDemandReplay alloc] initWithOutputPath:_urlToCache.path];
-        _replayMaker.bitRate = _replayOptions.replayBitRate;
-        _replayMaker.cacheMaxSize = (NSInteger)(full ? _replayOptions.sessionSegmentDuration
-                                                     : _replayOptions.errorReplayDuration);
-
-        imageCollection = [NSMutableArray array];
-
-        NSLog(@"Recording session to %@", _urlToCache);
-
-        _isFullSession = full;
-        if (full) {
-            sessionReplayId = [[SentryId alloc] init];
-        }
+        [_displayLink linkWithTarget:self selector:@selector(newFrame:)];
+        _isRunning = true;
     }
+    _rootView = rootView;
+    _lastScreenShot = _dateProvider.date;
+    _videoSegmentStart = nil;
+    _sessionStart = _lastScreenShot;
+    _currentSegmentId = 0;
+    sessionReplayId = [[SentryId alloc] init];
+
+    imageCollection = [NSMutableArray array];
+    _isFullSession = full;
 }
 
 - (void)stop
 {
-    [_displayLink invalidate];
-    _displayLink = nil;
+    @synchronized(self) {
+        [_displayLink invalidate];
+        _isRunning = NO;
+    }
 }
 
 - (void)replayForEvent:(SentryEvent *)event;
 {
-    if (_isFullSession || _displayLink == nil) {
+    if (_isFullSession || !_isRunning) {
         return;
     }
 
     if (event.error == nil && (event.exceptions == nil || event.exceptions.count == 0)) {
+        return;
+    }
+
+    if ([_sentryRandom nextNumber] > _replayOptions.replaysOnErrorSampleRate) {
         return;
     }
 
@@ -124,7 +127,7 @@ NS_ASSUME_NONNULL_BEGIN
 {
     NSDate *now = _dateProvider.date;
 
-    if ([now timeIntervalSinceDate:_lastScreenShot] > 1) {
+    if ([now timeIntervalSinceDate:_lastScreenShot] >= 1) {
         [self takeScreenshot];
         _lastScreenShot = now;
 
@@ -171,10 +174,6 @@ NS_ASSUME_NONNULL_BEGIN
                 duration:(NSTimeInterval)duration
                startedAt:(NSDate *)start
 {
-
-    if (sessionReplayId == nil) {
-        sessionReplayId = [[SentryId alloc] init];
-    }
     [_replayMaker
         createVideoWithDuration:duration
                       beginning:start
@@ -234,7 +233,7 @@ NS_ASSUME_NONNULL_BEGIN
         _processingScreenshot = YES;
     }
 
-    UIImage *screenshot = [SentryViewPhotographer.shared imageWithView:_rootView];
+    UIImage *screenshot = [_screenshotProvider imageWithView:_rootView];
 
     _processingScreenshot = NO;
 

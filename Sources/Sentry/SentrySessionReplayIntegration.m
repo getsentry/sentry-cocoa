@@ -1,6 +1,8 @@
 #import "SentrySessionReplayIntegration.h"
 #import "SentryClient+Private.h"
 #import "SentryDependencyContainer.h"
+#import "SentryDisplayLinkWrapper.h"
+#import "SentryFileManager.h"
 #import "SentryGlobalEventProcessor.h"
 #import "SentryHub+Private.h"
 #import "SentryOptions.h"
@@ -14,10 +16,22 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+static NSString *SENTRY_REPLAY_FOLDER = @"replay";
+
 API_AVAILABLE(ios(16.0), tvos(16.0))
 @interface
 SentrySessionReplayIntegration ()
 @property (nonatomic, strong) SentrySessionReplay *sessionReplay;
+@end
+
+API_AVAILABLE(ios(16.0), tvos(16.0))
+@interface
+SentryViewPhotographer (SentryViewScreenshotProvider) <SentryViewScreenshotProvider>
+@end
+
+API_AVAILABLE(ios(16.0), tvos(16.0))
+@interface
+SentryOnDemandReplay (SentryReplayMaker) <SentryReplayMaker>
 @end
 
 @implementation SentrySessionReplayIntegration
@@ -37,9 +51,35 @@ SentrySessionReplayIntegration ()
             return NO;
         }
 
+        NSURL *docs = [NSURL
+            fileURLWithPath:[SentryDependencyContainer.sharedInstance.fileManager sentryPath]];
+        docs = [docs URLByAppendingPathComponent:SENTRY_REPLAY_FOLDER];
+        NSString *currentSession = [NSUUID UUID].UUIDString;
+        docs = [docs URLByAppendingPathComponent:currentSession];
+
+        if (![NSFileManager.defaultManager fileExistsAtPath:docs.path]) {
+            [NSFileManager.defaultManager createDirectoryAtURL:docs
+                                   withIntermediateDirectories:YES
+                                                    attributes:nil
+                                                         error:nil];
+        }
+
+        SentryOnDemandReplay *replayMaker =
+            [[SentryOnDemandReplay alloc] initWithOutputPath:docs.path];
+        replayMaker.bitRate = options.sessionReplayOptions.replayBitRate;
+        replayMaker.cacheMaxSize = (NSInteger)(shouldReplayFullSession
+                ? options.sessionReplayOptions.sessionSegmentDuration
+                : options.sessionReplayOptions.errorReplayDuration);
+
         self.sessionReplay = [[SentrySessionReplay alloc]
-            initWithSettings:options.sessionReplayOptions
-                dateProvider:SentryDependencyContainer.sharedInstance.dateProvider];
+              initWithSettings:options.sessionReplayOptions
+              replayFolderPath:docs
+            screenshotProvider:SentryViewPhotographer.shared
+                   replayMaker:replayMaker
+                  dateProvider:SentryDependencyContainer.sharedInstance.dateProvider
+                        random:SentryDependencyContainer.sharedInstance.random
+
+            displayLinkWrapper:[[SentryDisplayLinkWrapper alloc] init]];
 
         [self.sessionReplay
                   start:SentryDependencyContainer.sharedInstance.application.windows.firstObject

@@ -7,14 +7,40 @@
 @class SentryReplayOptions;
 @class SentryEvent;
 @class SentryCurrentDateProvider;
+@class SentryDisplayLinkWrapper;
+@class SentryVideoInfo;
+
+@protocol SentryRandom;
 
 NS_ASSUME_NONNULL_BEGIN
+
+@protocol SentryReplayMaker <NSObject>
+
+- (void)addFrameWithImage:(UIImage *)image;
+- (void)releaseFramesUntil:(NSDate *)date;
+- (BOOL)createVideoWithDuration:(NSTimeInterval)duration
+                      beginning:(NSDate *)beginning
+                  outputFileURL:(NSURL *)outputFileURL
+                          error:(NSError *_Nullable *_Nullable)error
+                     completion:
+                         (void (^)(SentryVideoInfo *_Nullable, NSError *_Nullable))completion;
+
+@end
+
+@protocol SentryViewScreenshotProvider <NSObject>
+- (UIImage *)imageWithView:(UIView *)view;
+@end
 
 API_AVAILABLE(ios(16.0), tvos(16.0))
 @interface SentrySessionReplay : NSObject
 
 - (instancetype)initWithSettings:(SentryReplayOptions *)replayOptions
-                    dateProvider:(SentryCurrentDateProvider *)dateProvider;
+                replayFolderPath:(NSURL *)folderPath
+              screenshotProvider:(id<SentryViewScreenshotProvider>)photographer
+                     replayMaker:(id<SentryReplayMaker>)replayMaker
+                    dateProvider:(SentryCurrentDateProvider *)dateProvider
+                          random:(id<SentryRandom>)random
+              displayLinkWrapper:(SentryDisplayLinkWrapper *)displayLinkWrapper;
 
 /**
  * Start recording the session using rootView as image source.
