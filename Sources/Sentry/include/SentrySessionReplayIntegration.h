@@ -8,5 +8,5 @@ NS_ASSUME_NONNULL_BEGIN
 @interface SentrySessionReplayIntegration : SentryBaseIntegration <SentryIntegrationProtocol>
 
 @end
-#endif
+#endif // SENTRY_HAS_UIKIT && !TARGET_OS_VISION
 NS_ASSUME_NONNULL_END

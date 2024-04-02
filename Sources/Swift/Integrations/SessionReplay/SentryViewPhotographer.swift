@@ -19,7 +19,7 @@ class SentryViewPhotographer: NSObject {
     override init() {
 #if os(iOS)
         ignoreClasses = [  UISlider.self, UISwitch.self ]
-#endif
+#endif // os(iOS)
         redactClasses = [ UILabel.self, UITextView.self, UITextField.self ] + [
             "_TtCOCV7SwiftUI11DisplayList11ViewUpdater8Platform13CGDrawingView",
             "_TtC7SwiftUIP33_A34643117F00277B93DEBAB70EC0697122_UIShapeHitTestingView",
@@ -82,8 +82,7 @@ class SentryViewPhotographer: NSObject {
             result.addRect(rectInWindow)
             return result
         } else if isOpaqueOrHasBackground(view) {
-            let newPath = excludeRect(rectInWindow, fromPath: result)
-            result = newPath
+            result = excludeRect(rectInWindow, fromPath: result)
         }
 
         if !ignore {
