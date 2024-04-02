@@ -57,11 +57,10 @@ public class SentryReplayOptions: NSObject {
     }
     
     /**
-     * Inittialize session replay options
-     *
-     *  sessionSampleRate Indicates the percentage in which the replay for the session will be
-     * created.
-     * @param errorSampleRate Indicates the percentage in which a 30 seconds replay will be send with
+     * Initialize session replay options
+     * - parameters:
+     *  - sessionSampleRate Indicates the percentage in which the replay for the session will be created.
+     *  - errorSampleRate Indicates the percentage in which a 30 seconds replay will be send with
      * error events.
      */
     public init(sessionSampleRate: Float, errorSampleRate: Float) {
