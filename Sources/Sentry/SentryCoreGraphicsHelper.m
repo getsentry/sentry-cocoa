@@ -10,9 +10,9 @@
         CGPathRef newPath = CGPathCreateCopyBySubtractingPath(path, exclude, YES);
         return CGPathCreateMutableCopy(newPath);
     }
-#        endif
-#    endif
+#        endif // defined(__IPHONE_16_0)
+#    endif // (TARGET_OS_IOS || TARGET_OS_TV)
     return path;
 }
 @end
-#endif
+#endif // SENTRY_HAS_UIKIT
