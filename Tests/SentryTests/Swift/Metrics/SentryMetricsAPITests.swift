@@ -237,7 +237,7 @@ class TestSentryMetricsAPIDelegate: SentryMetricsAPIDelegate {
         return currentSpan?.getLocalMetricsAggregator()
     }
     
-    func getCurrentSpan() -> (any Span)? {
+    func getCurrentSpan() -> Span? {
         return currentSpan
     }
     
