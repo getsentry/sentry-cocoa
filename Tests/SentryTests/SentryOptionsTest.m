@@ -518,6 +518,7 @@
 - (void)testNSNull_SetsDefaultValue
 {
     SentryOptions *options = [[SentryOptions alloc] initWithDict:@{
+        @"urlSession" : [NSNull null],
         @"dsn" : [NSNull null],
         @"enabled" : [NSNull null],
         @"debug" : [NSNull null],
@@ -613,6 +614,7 @@
     XCTAssertEqualObjects([self getDefaultInAppIncludes], options.inAppIncludes);
     XCTAssertEqual(@[], options.inAppExcludes);
     XCTAssertNil(options.urlSessionDelegate);
+    XCTAssertNil(options.urlSession);
     XCTAssertEqual(YES, options.enableSwizzling);
     XCTAssertEqual(YES, options.enableFileIOTracing);
     XCTAssertEqual(YES, options.enableAutoBreadcrumbTracking);
@@ -1217,6 +1219,15 @@
                                                       didFailWithError:&error];
     XCTAssertNil(error);
     return sentryOptions;
+}
+
+- (void)testURLSession
+{
+    NSURLSession *urlSession = [NSURLSession sessionWithConfiguration:[NSURLSessionConfiguration ephemeralSessionConfiguration]];
+    
+    SentryOptions *options = [self getValidOptions:@{ @"urlSession" : urlSession }];
+    
+    XCTAssertNotNil(options.urlSession);
 }
 
 - (void)testUrlSessionDelegate
