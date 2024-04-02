@@ -44,11 +44,12 @@ SentryOnDemandReplay (SentryReplayMaker) <SentryReplayMaker>
     }
 
     if (@available(iOS 16.0, tvOS 16.0, *)) {
-        BOOL shouldReplayFullSession =
-            [self shouldReplayFullSession:options.sessionReplayOptions.replaysSessionSampleRate];
+        SentryReplayOptions *replayOptions = options.experimental.sessionReplayOptions;
 
-        if (!shouldReplayFullSession
-            && options.sessionReplayOptions.replaysOnErrorSampleRate == 0) {
+        BOOL shouldReplayFullSession =
+            [self shouldReplayFullSession:replayOptions.replaysSessionSampleRate];
+
+        if (!shouldReplayFullSession && replayOptions.replaysOnErrorSampleRate == 0) {
             return NO;
         }
 
@@ -67,13 +68,13 @@ SentryOnDemandReplay (SentryReplayMaker) <SentryReplayMaker>
 
         SentryOnDemandReplay *replayMaker =
             [[SentryOnDemandReplay alloc] initWithOutputPath:docs.path];
-        replayMaker.bitRate = options.sessionReplayOptions.replayBitRate;
-        replayMaker.cacheMaxSize = (NSInteger)(shouldReplayFullSession
-                ? options.sessionReplayOptions.sessionSegmentDuration
-                : options.sessionReplayOptions.errorReplayDuration);
+        replayMaker.bitRate = replayOptions.replayBitRate;
+        replayMaker.cacheMaxSize
+            = (NSInteger)(shouldReplayFullSession ? replayOptions.sessionSegmentDuration
+                                                  : replayOptions.errorReplayDuration);
 
         self.sessionReplay = [[SentrySessionReplay alloc]
-              initWithSettings:options.sessionReplayOptions
+              initWithSettings:replayOptions
               replayFolderPath:docs
             screenshotProvider:SentryViewPhotographer.shared
                    replayMaker:replayMaker
@@ -84,8 +85,7 @@ SentryOnDemandReplay (SentryReplayMaker) <SentryReplayMaker>
 
         [self.sessionReplay
                   start:SentryDependencyContainer.sharedInstance.application.windows.firstObject
-            fullSession:[self shouldReplayFullSession:options.sessionReplayOptions
-                                                          .replaysSessionSampleRate]];
+            fullSession:[self shouldReplayFullSession:replayOptions.replaysSessionSampleRate]];
 
         [NSNotificationCenter.defaultCenter addObserver:self
                                                selector:@selector(stop)

@@ -20,21 +20,22 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         clearTestState()
     }
     
-    func testNoInstall() {
+    func startSDK(sessionSampleRate: Float, errorSampleRate: Float) {
         SentrySDK.start {
-            $0.sessionReplayOptions = SentryReplayOptions(sessionSampleRate: 0, errorSampleRate: 0)
+            $0.experimental.sessionReplayOptions = SentryReplayOptions(sessionSampleRate: sessionSampleRate, errorSampleRate: errorSampleRate)
             $0.setIntegrations([SentrySessionReplayIntegration.self])
         }
+    }
+    
+    func testNoInstall() {
+        startSDK(sessionSampleRate: 0, errorSampleRate: 0)
         
         expect(SentrySDK.currentHub().trimmedInstalledIntegrationNames().count) == 0
         expect(SentryGlobalEventProcessor.shared().processors.count) == 0
     }
     
     func testInstallFullSessionReplay() {
-        SentrySDK.start {
-            $0.sessionReplayOptions = SentryReplayOptions(sessionSampleRate: 1, errorSampleRate: 0)
-            $0.setIntegrations([SentrySessionReplayIntegration.self])
-        }
+        startSDK(sessionSampleRate: 1, errorSampleRate: 0)
         
         expect(SentrySDK.currentHub().trimmedInstalledIntegrationNames().count) == 1
         expect(SentryGlobalEventProcessor.shared().processors.count) == 1
@@ -44,10 +45,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         
         SentryDependencyContainer.sharedInstance().random = TestRandom(value: 0.3)
         
-        SentrySDK.start {
-            $0.sessionReplayOptions = SentryReplayOptions(sessionSampleRate: 0.2, errorSampleRate: 0)
-            $0.setIntegrations([SentrySessionReplayIntegration.self])
-        }
+        startSDK(sessionSampleRate: 0.2, errorSampleRate: 0)
         
         expect(SentrySDK.currentHub().trimmedInstalledIntegrationNames().count) == 0
         expect(SentryGlobalEventProcessor.shared().processors.count) == 0
@@ -57,20 +55,14 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         
         SentryDependencyContainer.sharedInstance().random = TestRandom(value: 0.1)
         
-        SentrySDK.start {
-            $0.sessionReplayOptions = SentryReplayOptions(sessionSampleRate: 0.2, errorSampleRate: 0)
-            $0.setIntegrations([SentrySessionReplayIntegration.self])
-        }
+        startSDK(sessionSampleRate: 0.2, errorSampleRate: 0)
         
         expect(SentrySDK.currentHub().trimmedInstalledIntegrationNames().count) == 1
         expect(SentryGlobalEventProcessor.shared().processors.count) == 1
     }
     
     func testInstallErrorReplay() {
-        SentrySDK.start {
-            $0.sessionReplayOptions = SentryReplayOptions(sessionSampleRate: 0, errorSampleRate: 0.1)
-            $0.setIntegrations([SentrySessionReplayIntegration.self])
-        }
+        startSDK(sessionSampleRate: 0, errorSampleRate: 0.1)
         
         expect(SentrySDK.currentHub().trimmedInstalledIntegrationNames().count) == 1
         expect(SentryGlobalEventProcessor.shared().processors.count) == 1

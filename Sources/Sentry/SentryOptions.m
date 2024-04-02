@@ -34,6 +34,13 @@
 #endif // SENTRY_HAS_METRIC_KIT
 NSString *const kSentryDefaultEnvironment = @"production";
 
+@interface
+SentryExperimentalOptions ()
+
+- (void)validateOptions:(NSDictionary<NSString *, id> *)options;
+
+@end
+
 @implementation SentryOptions {
     BOOL _enableTracingManual;
 }
@@ -105,7 +112,7 @@ NSString *const kSentryDefaultEnvironment = @"production";
         self.enableTimeToFullDisplayTracing = NO;
 
         self.initialScope = ^SentryScope *(SentryScope *scope) { return scope; };
-
+        _experimental = [[SentryExperimentalOptions alloc] init];
         _enableTracing = NO;
         _enableTracingManual = NO;
 #if SENTRY_HAS_UIKIT
@@ -403,13 +410,6 @@ NSString *const kSentryDefaultEnvironment = @"production";
     [self setBool:options[@"enablePreWarmedAppStartTracing"]
             block:^(BOOL value) { self->_enablePreWarmedAppStartTracing = value; }];
 
-    if (@available(iOS 16.0, tvOS 16.0, *)) {
-        if ([options[@"sessionReplayOptions"] isKindOfClass:NSDictionary.class]) {
-            self.sessionReplayOptions =
-                [[SentryReplayOptions alloc] initWithDictionary:options[@"sessionReplayOptions"]];
-        }
-    }
-
 #endif // SENTRY_HAS_UIKIT
 
     [self setBool:options[@"enableAppHangTracking"]
@@ -503,6 +503,10 @@ NSString *const kSentryDefaultEnvironment = @"production";
 
     if ([options[@"spotlightUrl"] isKindOfClass:[NSString class]]) {
         self.spotlightUrl = options[@"spotlightUrl"];
+    }
+
+    if ([options[@"experimental"] isKindOfClass:NSDictionary.class]) {
+        [self.experimental validateOptions:options[@"experimental"]];
     }
 
     return YES;
@@ -744,5 +748,19 @@ isValidSampleRate(NSNumber *sampleRate)
     return [NSString stringWithFormat:@"<%@: {\n%@\n}>", self, propertiesDescription];
 }
 #endif // defined(DEBUG) || defined(TEST) || defined(TESTCI)
+
+@end
+
+@implementation SentryExperimentalOptions
+
+- (void)validateOptions:(NSDictionary<NSString *, id> *)options
+{
+    if (@available(iOS 16.0, tvOS 16.0, *)) {
+        if ([options[@"sessionReplayOptions"] isKindOfClass:NSDictionary.class]) {
+            self.sessionReplayOptions =
+                [[SentryReplayOptions alloc] initWithDictionary:options[@"sessionReplayOptions"]];
+        }
+    }
+}
 
 @end

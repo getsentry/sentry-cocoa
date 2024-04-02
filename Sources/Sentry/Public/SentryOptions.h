@@ -5,6 +5,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @class SentryDsn, SentryMeasurementValue, SentryHttpStatusCodeRange, SentryScope,
     SentryReplayOptions;
+@class SentryExperimentalOptions;
 
 NS_SWIFT_NAME(Options)
 @interface SentryOptions : NSObject
@@ -270,14 +271,6 @@ NS_SWIFT_NAME(Options)
  * @note Default value is @c NO .
  */
 @property (nonatomic, assign) BOOL enablePreWarmedAppStartTracing;
-
-/**
- * @warning This is an experimental feature and may still have bugs.
- * Settings to configure the session replay.
- * @node Default value is @c nil .
- */
-@property (nonatomic, strong)
-    SentryReplayOptions *sessionReplayOptions API_AVAILABLE(ios(16.0), tvos(16.0));
 
 #endif // SENTRY_UIKIT_AVAILABLE
 
@@ -566,6 +559,27 @@ NS_SWIFT_NAME(Options)
  * https://spotlightjs.com/
  */
 @property (nonatomic, copy) NSString *spotlightUrl;
+
+/**
+ * This will agreggate options for all experimental features.
+ * Be aware that the options available for experimental can change at any time.
+ */
+@property (nonatomic, readonly) SentryExperimentalOptions *experimental;
+
+@end
+
+@interface SentryExperimentalOptions : NSObject
+
+#if SENTRY_UIKIT_AVAILABLE
+
+/**
+ * Settings to configure the session replay.
+ * @node Default value is @c nil .
+ */
+@property (nonatomic, strong)
+    SentryReplayOptions *sessionReplayOptions API_AVAILABLE(ios(16.0), tvos(16.0));
+
+#endif //
 
 @end
 
