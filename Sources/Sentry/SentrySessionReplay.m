@@ -98,7 +98,7 @@ SentrySessionReplay ()
     }
 }
 
-- (void)replayForEvent:(SentryEvent *)event;
+- (void)captureReplayForEvent:(SentryEvent *)event;
 {
     if (_isFullSession || !_isRunning) {
         return;

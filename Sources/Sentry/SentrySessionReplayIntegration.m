@@ -1,17 +1,18 @@
 #import "SentrySessionReplayIntegration.h"
-#import "SentryClient+Private.h"
-#import "SentryDependencyContainer.h"
-#import "SentryDisplayLinkWrapper.h"
-#import "SentryFileManager.h"
-#import "SentryGlobalEventProcessor.h"
-#import "SentryHub+Private.h"
-#import "SentryOptions.h"
-#import "SentryRandom.h"
-#import "SentrySDK+Private.h"
-#import "SentrySessionReplay.h"
-#import "SentrySwift.h"
 
 #if SENTRY_HAS_UIKIT && !TARGET_OS_VISION
+
+#    import "SentryClient+Private.h"
+#    import "SentryDependencyContainer.h"
+#    import "SentryDisplayLinkWrapper.h"
+#    import "SentryFileManager.h"
+#    import "SentryGlobalEventProcessor.h"
+#    import "SentryHub+Private.h"
+#    import "SentryOptions.h"
+#    import "SentryRandom.h"
+#    import "SentrySDK+Private.h"
+#    import "SentrySessionReplay.h"
+#    import "SentrySwift.h"
 #    import "SentryUIApplication.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -93,7 +94,7 @@ SentryOnDemandReplay (SentryReplayMaker) <SentryReplayMaker>
 
         [SentryGlobalEventProcessor.shared
             addEventProcessor:^SentryEvent *_Nullable(SentryEvent *_Nonnull event) {
-                [self.sessionReplay replayForEvent:event];
+                [self.sessionReplay captureReplayForEvent:event];
                 return event;
             }];
 

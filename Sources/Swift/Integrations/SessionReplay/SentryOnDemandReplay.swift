@@ -17,6 +17,10 @@ struct SentryReplayFrame {
     }
 }
 
+enum SentryOnDemandReplayError: Error {
+    case cantReadVideoSize
+}
+
 @available(iOS 16.0, tvOS 16.0, *)
 @objcMembers
 class SentryOnDemandReplay: NSObject {
@@ -51,7 +55,12 @@ class SentryOnDemandReplay: NSObject {
         let date = Date()
         let interval = date.timeIntervalSince(_starttime)
         let imagePath = (_outputPath as NSString).appendingPathComponent("\(interval).png")
-        try? data.write(to: URL(fileURLWithPath: imagePath))
+        do {
+            try data.write(to: URL(fileURLWithPath: imagePath))
+        } catch {
+            print("[SentryOnDemandReplay] Could not save replay frame. Error: \(error)")
+            return
+        }
         _frames.append(SentryReplayFrame(imagePath: imagePath, time: date))
         
         while _frames.count > cacheMaxSize {
@@ -102,20 +111,8 @@ class SentryOnDemandReplay: NSObject {
         videoWriter.startWriting()
         videoWriter.startSession(atSourceTime: .zero)
         
-        let end = beginning.addingTimeInterval(duration)
         var frameCount = 0
-        var frames = [String]()
-        
-        var start = Date()
-        var actualEnd = Date()
-        
-        for frame in _frames {
-            if frame.time < beginning { continue } else if frame.time > end { break }
-            if frame.time < start { start = frame.time }
-            
-            actualEnd = frame.time
-            frames.append(frame.imagePath)
-        }
+        let (frames, start, end) = filterFrames(beginning: beginning, end: beginning.addingTimeInterval(duration))
         
         if frames.isEmpty { return }
         
@@ -140,9 +137,16 @@ class SentryOnDemandReplay: NSObject {
                 videoWriter.finishWriting {
                     var videoInfo: SentryVideoInfo?
                     if videoWriter.status == .completed {
-                        let fileAttributes = try? FileManager.default.attributesOfItem(atPath: outputFileURL.path)
-                        let fileSize = fileAttributes?[FileAttributeKey.size] as? Int ?? -1
-                        videoInfo = SentryVideoInfo(path: outputFileURL, height: self.videoHeight, width: self.videoWidth, duration: TimeInterval(frames.count / self.frameRate), frameCount: frames.count, frameRate: self.frameRate, start: start, end: actualEnd, fileSize: fileSize)
+                        do {
+                            let fileAttributes = try FileManager.default.attributesOfItem(atPath: outputFileURL.path)
+                            guard let fileSize = fileAttributes[FileAttributeKey.size] as? Int else {
+                                completion(nil, SentryOnDemandReplayError.cantReadVideoSize)
+                                return
+                            }
+                            videoInfo = SentryVideoInfo(path: outputFileURL, height: self.videoHeight, width: self.videoWidth, duration: TimeInterval(frames.count / self.frameRate), frameCount: frames.count, frameRate: self.frameRate, start: start, end: end, fileSize: fileSize)
+                        } catch {
+                            completion(nil, error)
+                        }
                     }
                     completion(videoInfo, videoWriter.error)
                 }
@@ -150,6 +154,22 @@ class SentryOnDemandReplay: NSObject {
             
             frameCount += 1
         }
+    }
+    
+    private func filterFrames(beginning: Date, end: Date) -> ([String], firstFrame: Date, lastFrame: Date) {
+        var frames = [String]()
+        
+        var start = Date()
+        var actualEnd = Date()
+        
+        for frame in _frames {
+            if frame.time < beginning { continue } else if frame.time > end { break }
+            if frame.time < start { start = frame.time }
+            
+            actualEnd = frame.time
+            frames.append(frame.imagePath)
+        }
+        return (frames, start, actualEnd)
     }
     
     private func createVideoSettings() -> [String: Any] {

@@ -11,7 +11,9 @@ import UIKit
 @objcMembers
 class SentryViewPhotographer: NSObject {
     
+    //This is a list of UIView subclasses that will be ignored during redact process
     private var ignoreClasses: [AnyClass] = []
+    //This is a list of UIView subclasses that need to be redacted from screenshot
     private var redactClasses: [AnyClass] = []
     
     static let shared = SentryViewPhotographer()
@@ -29,16 +31,18 @@ class SentryViewPhotographer: NSObject {
     
     func image(view: UIView) -> UIImage? {
         UIGraphicsBeginImageContextWithOptions(view.bounds.size, true, 0)
-        if let currentContext = UIGraphicsGetCurrentContext() {
-            view.layer.render(in: currentContext)
-            self.mask(view: view, context: currentContext)
-            if let screenshot = UIGraphicsGetImageFromCurrentImageContext() {
-                UIGraphicsEndImageContext()
-                return screenshot
-            }
+        
+        defer {
+            UIGraphicsEndImageContext()
         }
-        UIGraphicsEndImageContext()
-        return nil
+        
+        guard let currentContext = UIGraphicsGetCurrentContext() else { return nil }
+    
+        view.layer.render(in: currentContext)
+        self.mask(view: view, context: currentContext)
+        
+        guard let screenshot = UIGraphicsGetImageFromCurrentImageContext() else { return nil }
+        return screenshot
     }
     
     private func mask(view: UIView, context: CGContext) {
@@ -82,7 +86,7 @@ class SentryViewPhotographer: NSObject {
             result.addRect(rectInWindow)
             return result
         } else if isOpaqueOrHasBackground(view) {
-            result = excludeRect(rectInWindow, fromPath: result)
+            result = SentryCoreGraphicsHelper.excludeRect(rectInWindow, from: result).takeRetainedValue()
         }
 
         if !ignore {
@@ -94,14 +98,10 @@ class SentryViewPhotographer: NSObject {
         return result
     }
     
-    private func excludeRect(_ rectangle: CGRect, fromPath path: CGMutablePath) -> CGMutablePath {
-        return SentryCoreGraphicsHelper.excludeRect(rectangle, from: path).takeRetainedValue()
-    }
-    
     private func isOpaqueOrHasBackground(_ view: UIView) -> Bool {
         return view.isOpaque || (view.backgroundColor != nil && (view.backgroundColor?.cgColor.alpha ?? 0) > 0.9)
     }
 }
 
-#endif
-#endif // canImport(UIKit)
+#endif // os(iOS) || os(tvOS)
+#endif // canImport(UIKit) && !SENTRY_NO_UIKIT

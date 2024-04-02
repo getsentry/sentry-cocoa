@@ -53,7 +53,10 @@ API_AVAILABLE(ios(16.0), tvos(16.0))
  */
 - (void)stop;
 
-- (void)replayForEvent:(SentryEvent *)event;
+/**
+ * Captures a replay for given event.
+ */
+- (void)captureReplayForEvent:(SentryEvent *)event;
 
 @end
 
