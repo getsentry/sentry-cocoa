@@ -15,7 +15,7 @@ class SentryUIViewControllerSwizzlingTests: XCTestCase {
         let binaryImageCache: SentryBinaryImageCache
         
         init() {
-            subClassFinder = TestSubClassFinder(dispatchQueue: dispatchQueue, objcRuntimeWrapper: objcRuntimeWrapper)
+            subClassFinder = TestSubClassFinder(dispatchQueue: dispatchQueue, objcRuntimeWrapper: objcRuntimeWrapper, swizzleClassNameExcludes: [])
             binaryImageCache = SentryDependencyContainer.sharedInstance().binaryImageCache
         }
          

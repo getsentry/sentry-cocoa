@@ -369,6 +369,18 @@ NS_SWIFT_NAME(Options)
 @property (nonatomic, assign) BOOL enableSwizzling;
 
 /**
+ * An array of class names to ignore for swizzling.
+ *
+ * @discussion The SDK checks if a class name of a class to swizzle contains a class name of this
+ * array. For example, if you add "MyUIViewController" to this list, the SDK excludes the following
+ * classes from swizzling: YourApp.MyUIViewController, YourApp.MyUIViewControllerA,
+ * MyApp.MyUIViewController.
+ *
+ * @note Default is an empty array.
+ */
+@property (nonatomic, strong) NSArray<NSString *> *swizzleClassNameExcludes;
+
+/**
  * When enabled, the SDK tracks the performance of Core Data operations. It requires enabling
  * performance monitoring. The default is @c YES.
  * @see <https://docs.sentry.io/platforms/apple/performance/>
