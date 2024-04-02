@@ -1,7 +1,9 @@
 import Foundation
 import Sentry
-#if SWIFT_PACKAGE || CARTHAGE
+#if SWIFT_PACKAGE 
 import SentryInternal
+#elseif CARTHAGE
+@_implementationOnly import SentryInternal
 #endif
 import SwiftUI
 
