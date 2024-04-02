@@ -562,18 +562,6 @@ class SentryFileManagerTests: XCTestCase {
         XCTAssertNil(sut.readAppState())
     }
     
-    func testFileSize() throws {
-        let testFile = FileManager.default.temporaryDirectory.appendingPathComponent("TestFile")
-        
-        defer {
-            try? FileManager.default.removeItem(at: testFile)
-        }
-        
-        try "123".write(to: testFile, atomically: true, encoding: .utf8)
-        
-        expect(self.sut.fileSize(testFile)) == 3
-    }
-    
     func testDeletePreviousAppState() {
         sut.store(TestData.appState)
         sut.moveAppStateToPreviousAppState()

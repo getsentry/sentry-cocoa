@@ -61,8 +61,6 @@ SENTRY_NO_INIT
 
 - (void)deleteOldEnvelopeItems;
 
-- (NSInteger)fileSize:(NSURL *)path;
-
 /**
  * Only used for testing.
  */

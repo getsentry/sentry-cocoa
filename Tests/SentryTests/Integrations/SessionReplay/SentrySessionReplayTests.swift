@@ -157,7 +157,7 @@ class SentrySessionReplayTests: XCTestCase {
         
         let event = Event(error: NSError(domain: "Some error", code: 1))
         
-        sut.replay(for: event)
+        sut.capture(for: event)
         assertFullSession(sut, expected: true)
     }
     
@@ -167,7 +167,7 @@ class SentrySessionReplayTests: XCTestCase {
         
         let event = Event(level: .info)
         
-        sut.replay(for: event)
+        sut.capture(for: event)
         assertFullSession(sut, expected: false)
     }
     
