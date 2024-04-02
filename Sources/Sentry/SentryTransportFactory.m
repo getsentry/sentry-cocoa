@@ -27,8 +27,6 @@ SentryTransportFactory ()
 + (NSArray<id<SentryTransport>> *)initTransports:(SentryOptions *)options
                                sentryFileManager:(SentryFileManager *)sentryFileManager
 {
-    NSURLSessionConfiguration *configuration =
-        [NSURLSessionConfiguration ephemeralSessionConfiguration];
     
     NSURLSession *session;
     
@@ -36,6 +34,8 @@ SentryTransportFactory ()
      
         session = options.urlSession;
     } else {
+        NSURLSessionConfiguration *configuration =
+            [NSURLSessionConfiguration ephemeralSessionConfiguration];
         session = [NSURLSession sessionWithConfiguration:configuration
                                                               delegate:options.urlSessionDelegate
                                                         delegateQueue:nil];
