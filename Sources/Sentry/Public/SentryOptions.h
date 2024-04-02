@@ -10,6 +10,9 @@ NS_ASSUME_NONNULL_BEGIN
 NS_SWIFT_NAME(Options)
 @interface SentryOptions : NSObject
 
+/**
+ * Where you can pass your url session with custom configuration, if not set,it will create new URL session with ephemeral session configuration.
+ */
 
 @property (nullable , nonatomic, strong ) NSURLSession *urlSession;
 /**

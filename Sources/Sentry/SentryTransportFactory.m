@@ -28,7 +28,6 @@ SentryTransportFactory ()
                                sentryFileManager:(SentryFileManager *)sentryFileManager
                              currentDateProvider:(SentryCurrentDateProvider *)currentDateProvider
 {
-
     NSURLSession *session;
 
     if (options.urlSession) {
