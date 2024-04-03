@@ -11,7 +11,7 @@ SENTRY_NO_INIT
 
 - (instancetype)initWithDispatchQueue:(SentryDispatchQueueWrapper *)dispatchQueue
                    objcRuntimeWrapper:(id<SentryObjCRuntimeWrapper>)objcRuntimeWrapper
-             swizzleClassNameExcludes:(NSArray<NSString *> *)swizzleClassNameExcludes;
+             swizzleClassNameExcludes:(NSSet<NSString *> *)swizzleClassNameExcludes;
 
 #if SENTRY_HAS_UIKIT
 /**

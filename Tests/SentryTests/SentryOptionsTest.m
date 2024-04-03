@@ -615,7 +615,7 @@
     XCTAssertEqual(@[], options.inAppExcludes);
     XCTAssertNil(options.urlSessionDelegate);
     XCTAssertEqual(YES, options.enableSwizzling);
-    XCTAssertEqual(@[], options.swizzleClassNameExcludes);
+    XCTAssertEqual([NSSet new], options.swizzleClassNameExcludes);
     XCTAssertEqual(YES, options.enableFileIOTracing);
     XCTAssertEqual(YES, options.enableAutoBreadcrumbTracking);
     XCTAssertFalse(options.swiftAsyncStacktraces);
@@ -815,8 +815,8 @@
 
 - (void)testSwizzleClassNameExcludes
 {
-    NSArray<NSString *> *expected = @[ @"Sentry" ];
-    NSArray *swizzleClassNameExcludes = @[ @"Sentry", @2 ];
+    NSSet<NSString *> *expected = [NSSet setWithObjects:@"Sentry", nil];
+    NSSet *swizzleClassNameExcludes = [NSSet setWithObjects:@"Sentry", @2, nil];
 
     SentryOptions *options =
         [self getValidOptions:@{ @"swizzleClassNameExcludes" : swizzleClassNameExcludes }];

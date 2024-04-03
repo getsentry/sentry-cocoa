@@ -14,7 +14,7 @@ SentrySubClassFinder ()
 
 @property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueue;
 @property (nonatomic, strong) id<SentryObjCRuntimeWrapper> objcRuntimeWrapper;
-@property (nonatomic, copy) NSArray<NSString *> *swizzleClassNameExcludes;
+@property (nonatomic, copy) NSSet<NSString *> *swizzleClassNameExcludes;
 
 @end
 
@@ -22,7 +22,7 @@ SentrySubClassFinder ()
 
 - (instancetype)initWithDispatchQueue:(SentryDispatchQueueWrapper *)dispatchQueue
                    objcRuntimeWrapper:(id<SentryObjCRuntimeWrapper>)objcRuntimeWrapper
-             swizzleClassNameExcludes:(NSArray<NSString *> *)swizzleClassNameExcludes
+             swizzleClassNameExcludes:(NSSet<NSString *> *)swizzleClassNameExcludes
 {
     if (self = [super init]) {
         self.dispatchQueue = dispatchQueue;
@@ -64,8 +64,7 @@ SentrySubClassFinder ()
 
             BOOL shouldExcludeClassFromSwizzling = NO;
             for (NSString *swizzleClassNameExclude in self.swizzleClassNameExcludes) {
-                if ([className.lowercaseString
-                        containsString:swizzleClassNameExclude.lowercaseString]) {
+                if ([className containsString:swizzleClassNameExclude]) {
                     shouldExcludeClassFromSwizzling = YES;
                     break;
                 }

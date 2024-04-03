@@ -27,7 +27,7 @@ class SentrySubClassFinderTests: XCTestCase {
             }
         }
         
-        func getSut(swizzleClassNameExcludes: [String] = []) -> SentrySubClassFinder {
+        func getSut(swizzleClassNameExcludes: Set<String> = []) -> SentrySubClassFinder {
             return SentrySubClassFinder(dispatchQueue: TestSentryDispatchQueueWrapper(), objcRuntimeWrapper: runtimeWrapper, swizzleClassNameExcludes: swizzleClassNameExcludes)
         }
     }
@@ -44,7 +44,7 @@ class SentrySubClassFinderTests: XCTestCase {
     }
     
     func testActOnSubclassesOfViewController_WithSwizzleClassNameExcludes() {
-        assertActOnSubclassesOfViewController(expected: [SecondViewController.self, ViewControllerNumberThree.self], swizzleClassNameExcludes: ["FirstViewController", "vcAnyNaming"])
+        assertActOnSubclassesOfViewController(expected: [SecondViewController.self, ViewControllerNumberThree.self], swizzleClassNameExcludes: ["FirstViewController", "VCAnyNaming"])
     }
     
     func testActOnSubclassesOfViewController_NoViewController() {
@@ -73,11 +73,11 @@ class SentrySubClassFinderTests: XCTestCase {
         XCTAssertFalse(SentryInitializeForGettingSubclassesCalled.wasCalled())
     }
     
-    private func assertActOnSubclassesOfViewController(expected: [AnyClass], swizzleClassNameExcludes: [String] = []) {
+    private func assertActOnSubclassesOfViewController(expected: [AnyClass], swizzleClassNameExcludes: Set<String> = []) {
         assertActOnSubclassesOfViewController(expected: expected, imageName: fixture.imageName, swizzleClassNameExcludes: swizzleClassNameExcludes)
     }
     
-    private func assertActOnSubclassesOfViewController(expected: [AnyClass], imageName: String, swizzleClassNameExcludes: [String] = []) {
+    private func assertActOnSubclassesOfViewController(expected: [AnyClass], imageName: String, swizzleClassNameExcludes: Set<String> = []) {
         let expect = expectation(description: "")
         
         if expected.isEmpty {

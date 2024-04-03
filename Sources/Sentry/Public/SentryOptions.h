@@ -381,7 +381,7 @@ NS_SWIFT_NAME(Options)
  *
  * @note Default is an empty array.
  */
-@property (nonatomic, strong) NSArray<NSString *> *swizzleClassNameExcludes;
+@property (nonatomic, strong) NSSet<NSString *> *swizzleClassNameExcludes;
 
 /**
  * When enabled, the SDK tracks the performance of Core Data operations. It requires enabling
