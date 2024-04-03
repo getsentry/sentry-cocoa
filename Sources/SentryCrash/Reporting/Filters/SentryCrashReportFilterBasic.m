@@ -26,9 +26,9 @@
 //
 
 #import "SentryCrashReportFilterBasic.h"
-#import "Container+SentryDeepSearch.h"
 #import "SentryCrashNSErrorUtil.h"
 #import "SentryCrashVarArgs.h"
+#import "SentryDictionaryDeepSearch.h"
 
 // #define SentryCrashLogger_LocalLevel TRACE
 #import "SentryCrashLogger.h"
@@ -324,7 +324,7 @@ SentryCrashReportFilterObjectForKey ()
     for (NSDictionary *report in reports) {
         id object = nil;
         if ([self.key isKindOfClass:[NSString class]]) {
-            object = [report sentry_objectForKeyPath:self.key];
+            object = sentry_objectForKeyPath(report, self.key);
         } else {
             object = [report objectForKey:self.key];
         }
@@ -402,7 +402,7 @@ SentryCrashReportFilterConcatenate ()
             } else {
                 [concatenated appendFormat:self.separatorFmt, key];
             }
-            id object = [report sentry_objectForKeyPath:key];
+            id object = sentry_objectForKeyPath(report, key);
             [concatenated appendFormat:@"%@", object];
         }
         [filteredReports addObject:concatenated];
@@ -459,7 +459,7 @@ SentryCrashReportFilterSubset ()
     for (NSDictionary *report in reports) {
         NSMutableDictionary *subset = [NSMutableDictionary dictionary];
         for (NSString *keyPath in self.keyPaths) {
-            id object = [report sentry_objectForKeyPath:keyPath];
+            id object = sentry_objectForKeyPath(report, keyPath);
             if (object == nil) {
                 sentrycrash_callCompletion(onCompletion, filteredReports, NO,
                     sentryErrorWithDomain([[self class] description], 0,

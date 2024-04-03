@@ -15,7 +15,7 @@ more about how to use the Metrics API.
 - Redistributable static libraries should never be built with module debugging enabled (#3800)
 - Fixed certain views getting loaded twice when adding a child view controller (#3753)
 - Fix NSInvalidArgumentException for `NSError sentryErrorWithDomain` (#3819)
-
+- Again fix runtime error when including Sentry as a static lib (#3820)
 
 ## 8.22.4
 
