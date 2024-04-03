@@ -26,12 +26,12 @@
 //
 
 #import "SentryCrashInstallation.h"
-#import "NSError+SentrySimpleConstructor.h"
 #import "SentryCrash.h"
 #import "SentryCrashCString.h"
 #import "SentryCrashInstallation+Private.h"
 #import "SentryCrashJSONCodecObjC.h"
 #import "SentryCrashLogger.h"
+#import "SentryCrashNSErrorUtil.h"
 #import "SentryCrashReportFilterBasic.h"
 #import "SentryDependencyContainer.h"
 #import <objc/runtime.h>
@@ -216,10 +216,8 @@ SentryCrashInstallation ()
         }
     }
     if ([errors length] > 0) {
-        return [NSError
-            sentryErrorWithDomain:[[self class] description]
-                             code:0
-                      description:@"Installation properties failed validation: %@", errors];
+        return sentryErrorWithDomain([[self class] description], 0,
+            @"Installation properties failed validation: %@", errors);
     }
     return nil;
 }
@@ -295,10 +293,9 @@ SentryCrashInstallation ()
     id<SentryCrashReportFilter> sink = [self sink];
     if (sink == nil) {
         onCompletion(nil, NO,
-            [NSError sentryErrorWithDomain:[[self class] description]
-                                      code:0
-                               description:@"Sink was nil (subclasses must implement "
-                                           @"method \"sink\")"]);
+            sentryErrorWithDomain([[self class] description], 0,
+                @"Sink was nil (subclasses must implement "
+                @"method \"sink\")"));
         return;
     }
 
