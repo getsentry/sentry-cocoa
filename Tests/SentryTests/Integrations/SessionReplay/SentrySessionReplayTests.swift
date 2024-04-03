@@ -16,7 +16,7 @@ class SentrySessionReplayTests: XCTestCase {
             var duration: TimeInterval
             var beginning: Date
             var outputFileURL: URL
-            var completion: ((Sentry.SentryVideoInfo?, (any Error)?) -> Void)
+            var completion: ((Sentry.SentryVideoInfo?, Error?) -> Void)
         }
         
         var lastCallToCreateVideo: CreateVideoCall?
@@ -56,7 +56,7 @@ class SentrySessionReplayTests: XCTestCase {
         }
     }
     
-    @available(iOS 16.0, *)
+    @available(iOS 16.0, tvOS 16.0, *)
     private class Fixture {
         let dateProvider = TestCurrentDateProvider()
         let random = TestRandom(value: 0)
