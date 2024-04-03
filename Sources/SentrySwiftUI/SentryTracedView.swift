@@ -1,6 +1,6 @@
 import Foundation
 import Sentry
-#if CARTHAGE
+#if CARTHAGE || SWIFT_PACKAGE
 @_implementationOnly import SentryInternal
 #endif
 import SwiftUI
