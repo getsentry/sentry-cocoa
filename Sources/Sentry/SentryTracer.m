@@ -547,10 +547,6 @@ static BOOL appStartMeasurementRead;
         self.finishCallback = nil;
     }
 
-    if (self.shouldIgnoreWaitForChildrenCallback) {
-        self.shouldIgnoreWaitForChildrenCallback = nil;
-    }
-
     // Prewarming can execute code up to viewDidLoad of a UIViewController, and keep the app in the
     // background. This can lead to auto-generated transactions lasting for minutes or even hours.
     // Therefore, we drop transactions lasting longer than SENTRY_AUTO_TRANSACTION_MAX_DURATION.

@@ -17,6 +17,7 @@ more about how to use the Metrics API.
 - Fixed certain views getting loaded twice when adding a child view controller (#3753)
 - Fix NSInvalidArgumentException for `NSError sentryErrorWithDomain` (#3819)
 - Again fix runtime error when including Sentry as a static lib (#3820)
+- Fix crash in hasUnfinishedChildSpansToWaitFor (#3821)
 
 ## 8.22.4
 

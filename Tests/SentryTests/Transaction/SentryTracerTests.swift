@@ -178,7 +178,47 @@ class SentryTracerTests: XCTestCase {
         let span = try XCTUnwrap(spans.first, "Expected first span not to be nil")
         expect(span["timestamp"] as? TimeInterval) == tracerTimestamp.timeIntervalSince1970
         
-        expect(sut.shouldIgnoreWaitForChildrenCallback) == nil
+        expect(sut.shouldIgnoreWaitForChildrenCallback).toNot(beNil(), description: "We must not set the callback to nil because when iterating over the child spans in hasUnfinishedChildSpansToWaitFor this could lead to a crash when shouldIgnoreWaitForChildrenCallback is nil.")
+    }
+    
+    /// Reproduces a crash in hasUnfinishedChildSpansToWaitFor; see https://github.com/getsentry/sentry-cocoa/issues/3781
+    /// We used to set the shouldIgnoreWaitForChildrenCallback to nil in finishInternal, which can lead
+    /// to a crash when spans keep finishing while finishInternal is executed because
+    /// shouldIgnoreWaitForChildrenCallback could be then nil in hasUnfinishedChildSpansToWaitFor.
+    func testFinish_ShouldIgnoreWaitForChildrenCallback_DoesNotCrash() throws {
+        
+        for _ in 0..<5 {
+            let sut = fixture.getSut()
+            
+            let dispatchQueue = DispatchQueue(label: "test", attributes: [.concurrent, .initiallyInactive])
+            
+            let expectation = expectation(description: "call everything")
+            expectation.expectedFulfillmentCount = 11
+            
+            sut.shouldIgnoreWaitForChildrenCallback = { _ in
+                return true
+            }
+            
+            for _ in 0..<1_000 {
+                let child = sut.startChild(operation: self.fixture.transactionOperation)
+                child.finish()
+            }
+            
+            dispatchQueue.async {
+                for _ in 0..<10 {
+                    let child = sut.startChild(operation: self.fixture.transactionOperation)
+                    child.finish()
+                    expectation.fulfill()
+                }
+            }
+            dispatchQueue.async {
+                sut.finish()
+                expectation.fulfill()
+            }
+            
+            dispatchQueue.activate()
+            wait(for: [expectation], timeout: 1.0)
+        }
     }
 
     func testDeadlineTimer_FinishesTransactionAndChildren() {
