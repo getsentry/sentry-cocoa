@@ -1,1 +1,2 @@
 binary "../Sentry.Carthage.json" ~> 1.0
+binary "../SentrySwiftUI.Carthage.json" ~> 1.0
