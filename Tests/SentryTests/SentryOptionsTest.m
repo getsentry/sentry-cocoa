@@ -556,6 +556,7 @@
         @"inAppExcludes" : [NSNull null],
         @"urlSessionDelegate" : [NSNull null],
         @"enableSwizzling" : [NSNull null],
+        @"swizzleClassNameExcludes" : [NSNull null],
         @"enableIOTracking" : [NSNull null],
         @"sdk" : [NSNull null],
         @"enableCaptureFailedRequests" : [NSNull null],
@@ -616,6 +617,7 @@
     XCTAssertNil(options.urlSessionDelegate);
     XCTAssertNil(options.urlSession);
     XCTAssertEqual(YES, options.enableSwizzling);
+    XCTAssertEqual([NSSet new], options.swizzleClassNameExcludes);
     XCTAssertEqual(YES, options.enableFileIOTracing);
     XCTAssertEqual(YES, options.enableAutoBreadcrumbTracking);
     XCTAssertFalse(options.swiftAsyncStacktraces);
@@ -811,6 +813,17 @@
 - (void)testEnableSwizzling
 {
     [self testBooleanField:@"enableSwizzling"];
+}
+
+- (void)testSwizzleClassNameExcludes
+{
+    NSSet<NSString *> *expected = [NSSet setWithObjects:@"Sentry", nil];
+    NSSet *swizzleClassNameExcludes = [NSSet setWithObjects:@"Sentry", @2, nil];
+
+    SentryOptions *options =
+        [self getValidOptions:@{ @"swizzleClassNameExcludes" : swizzleClassNameExcludes }];
+
+    XCTAssertEqualObjects(expected, options.swizzleClassNameExcludes);
 }
 
 - (void)testEnableTracing

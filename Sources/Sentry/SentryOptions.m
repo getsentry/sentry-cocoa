@@ -128,6 +128,7 @@ NSString *const kSentryDefaultEnvironment = @"production";
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
         self.enableCoreDataTracing = YES;
         _enableSwizzling = YES;
+        self.swizzleClassNameExcludes = [NSSet new];
         self.sendClientReports = YES;
         self.swiftAsyncStacktraces = NO;
         self.enableSpotlight = NO;
@@ -452,6 +453,11 @@ NSString *const kSentryDefaultEnvironment = @"production";
 
     [self setBool:options[@"enableSwizzling"]
             block:^(BOOL value) { self->_enableSwizzling = value; }];
+
+    if ([options[@"swizzleClassNameExcludes"] isKindOfClass:[NSSet class]]) {
+        _swizzleClassNameExcludes =
+            [options[@"swizzleClassNameExcludes"] filteredSetUsingPredicate:isNSString];
+    }
 
     [self setBool:options[@"enableCoreDataTracing"]
             block:^(BOOL value) { self->_enableCoreDataTracing = value; }];
