@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 8.23.0
 
 ### Features
 
@@ -60,8 +60,6 @@ more about how to use the Metrics API.
 We now provide a prebuilt XCFramework for SPM, which speeds up your build and allows us to write
 more code in Swift. To make this happen, we had to remove the SentryPrivate target for SPM and
 CocoaPods, which you shouldn't have included directly.
-
-- Remove SentryPrivate library (#3623)
 
 ### Fixes
 
