@@ -16,6 +16,7 @@ more about how to use the Metrics API.
 - Fixed certain views getting loaded twice when adding a child view controller (#3753)
 - Fixed broken imports in SentrySwiftUI Carthage build (#3817)
 - Fix NSInvalidArgumentException for `NSError sentryErrorWithDomain` (#3819)
+- Again fix runtime error when including Sentry as a static lib (#3820)
 
 ## 8.22.4
 
