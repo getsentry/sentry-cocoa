@@ -11,11 +11,6 @@ NS_SWIFT_NAME(Options)
 @interface SentryOptions : NSObject
 
 /**
- * Where you can pass your url session with custom configuration, if not set,it will create new URL session with ephemeral session configuration.
- */
-
-@property (nullable , nonatomic, strong ) NSURLSession *urlSession;
-/**
  * The DSN tells the SDK where to send the events to. If this value is not provided, the SDK will
  * not send any events.
  */

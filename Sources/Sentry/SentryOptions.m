@@ -104,7 +104,7 @@ NSString *const kSentryDefaultEnvironment = @"production";
         self.enableCaptureFailedRequests = YES;
         self.environment = kSentryDefaultEnvironment;
         self.enableTimeToFullDisplayTracing = NO;
-        
+
         self.initialScope = ^SentryScope *(SentryScope *scope) { return scope; };
         _experimental = [[SentryExperimentalOptions alloc] init];
         _enableTracing = NO;
