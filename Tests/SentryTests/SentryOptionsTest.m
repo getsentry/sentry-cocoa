@@ -1223,10 +1223,11 @@
 
 - (void)testURLSession
 {
-    NSURLSession *urlSession = [NSURLSession sessionWithConfiguration:[NSURLSessionConfiguration ephemeralSessionConfiguration]];
-    
+    NSURLSession *urlSession = [NSURLSession
+        sessionWithConfiguration:[NSURLSessionConfiguration ephemeralSessionConfiguration]];
+
     SentryOptions *options = [self getValidOptions:@{ @"urlSession" : urlSession }];
-    
+
     XCTAssertNotNil(options.urlSession);
 }
 

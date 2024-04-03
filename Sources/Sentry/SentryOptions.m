@@ -102,7 +102,7 @@ NSString *const kSentryDefaultEnvironment = @"production";
         self.enableCaptureFailedRequests = YES;
         self.environment = kSentryDefaultEnvironment;
         self.enableTimeToFullDisplayTracing = NO;
-        
+
         self.initialScope = ^SentryScope *(SentryScope *scope) { return scope; };
 
         _enableTracing = NO;
@@ -445,7 +445,7 @@ NSString *const kSentryDefaultEnvironment = @"production";
     if ([options[@"urlSession"] isKindOfClass:[NSURLSession class]]) {
         self.urlSession = options[@"urlSession"];
     }
-    
+
     if ([options[@"urlSessionDelegate"] conformsToProtocol:@protocol(NSURLSessionDelegate)]) {
         self.urlSessionDelegate = options[@"urlSessionDelegate"];
     }

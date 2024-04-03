@@ -27,20 +27,19 @@ SentryTransportFactory ()
 + (NSArray<id<SentryTransport>> *)initTransports:(SentryOptions *)options
                                sentryFileManager:(SentryFileManager *)sentryFileManager
 {
-    
+
     NSURLSession *session;
-    
+
     if (options.urlSession) {
-     
         session = options.urlSession;
     } else {
         NSURLSessionConfiguration *configuration =
             [NSURLSessionConfiguration ephemeralSessionConfiguration];
         session = [NSURLSession sessionWithConfiguration:configuration
-                                                              delegate:options.urlSessionDelegate
-                                                        delegateQueue:nil];
+                                                delegate:options.urlSessionDelegate
+                                           delegateQueue:nil];
     }
-    
+
     id<SentryRequestManager> requestManager =
         [[SentryQueueableRequestManager alloc] initWithSession:session];
 
