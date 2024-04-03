@@ -47,9 +47,9 @@ SentryOnDemandReplay (SentryReplayMaker) <SentryReplayMaker>
         SentryReplayOptions *replayOptions = options.experimental.sessionReplayOptions;
 
         BOOL shouldReplayFullSession =
-            [self shouldReplayFullSession:replayOptions.replaysSessionSampleRate];
+            [self shouldReplayFullSession:replayOptions.sessionSampleRate];
 
-        if (!shouldReplayFullSession && replayOptions.replaysOnErrorSampleRate == 0) {
+        if (!shouldReplayFullSession && replayOptions.errorSampleRate == 0) {
             return NO;
         }
 
@@ -85,7 +85,7 @@ SentryOnDemandReplay (SentryReplayMaker) <SentryReplayMaker>
 
         [self.sessionReplay
                   start:SentryDependencyContainer.sharedInstance.application.windows.firstObject
-            fullSession:[self shouldReplayFullSession:replayOptions.replaysSessionSampleRate]];
+            fullSession:[self shouldReplayFullSession:replayOptions.sessionSampleRate]];
 
         [NSNotificationCenter.defaultCenter addObserver:self
                                                selector:@selector(stop)

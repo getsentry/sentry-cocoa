@@ -108,7 +108,7 @@ SentrySessionReplay ()
         return;
     }
 
-    if ([_sentryRandom nextNumber] > _replayOptions.replaysOnErrorSampleRate) {
+    if ([_sentryRandom nextNumber] > _replayOptions.errorSampleRate) {
         return;
     }
 

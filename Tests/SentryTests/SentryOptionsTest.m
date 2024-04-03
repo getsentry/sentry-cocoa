@@ -791,8 +791,8 @@
                     @ { @"replaysSessionSampleRate" : @2, @"replaysOnErrorSampleRate" : @4 }
             }
         }];
-        XCTAssertEqual(options.experimental.sessionReplayOptions.replaysSessionSampleRate, 2);
-        XCTAssertEqual(options.experimental.sessionReplayOptions.replaysOnErrorSampleRate, 4);
+        XCTAssertEqual(options.experimental.sessionReplayOptions.sessionSampleRate, 2);
+        XCTAssertEqual(options.experimental.sessionReplayOptions.errorSampleRate, 4);
     }
 }
 
@@ -800,8 +800,8 @@
 {
     if (@available(iOS 16.0, tvOS 16.0, *)) {
         SentryOptions *options = [self getValidOptions:@{ @"sessionReplayOptions" : @ {} }];
-        XCTAssertEqual(options.experimental.sessionReplayOptions.replaysSessionSampleRate, 0);
-        XCTAssertEqual(options.experimental.sessionReplayOptions.replaysOnErrorSampleRate, 0);
+        XCTAssertEqual(options.experimental.sessionReplayOptions.sessionSampleRate, 0);
+        XCTAssertEqual(options.experimental.sessionReplayOptions.errorSampleRate, 0);
     }
 }
 

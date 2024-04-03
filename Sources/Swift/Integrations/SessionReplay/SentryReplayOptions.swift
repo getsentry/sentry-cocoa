@@ -9,7 +9,7 @@ public class SentryReplayOptions: NSObject {
      * to the default.
      * @note The default is @c 0.
      */
-    public let replaysSessionSampleRate: Float
+    public let sessionSampleRate: Float
 
     /**
      * Indicates the percentage in which a 30 seconds replay will be send with error events.
@@ -18,7 +18,7 @@ public class SentryReplayOptions: NSObject {
      * to the default.
      * @note The default is @c 0.
      */
-    public let replaysOnErrorSampleRate: Float
+    public let errorSampleRate: Float
 
     /**
      * Defines the quality of the session replay.
@@ -52,8 +52,8 @@ public class SentryReplayOptions: NSObject {
      * Inittialize session replay options disabled
      */
     public override init() {
-        self.replaysSessionSampleRate = 0
-        self.replaysOnErrorSampleRate = 0
+        self.sessionSampleRate = 0
+        self.errorSampleRate = 0
     }
     
     /**
@@ -64,8 +64,8 @@ public class SentryReplayOptions: NSObject {
      * error events.
      */
     public init(sessionSampleRate: Float, errorSampleRate: Float) {
-        self.replaysSessionSampleRate = sessionSampleRate
-        self.replaysOnErrorSampleRate = errorSampleRate
+        self.sessionSampleRate = sessionSampleRate
+        self.errorSampleRate = errorSampleRate
     }
     
     convenience init(dictionary: NSDictionary) {
