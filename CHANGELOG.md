@@ -61,8 +61,6 @@ We now provide a prebuilt XCFramework for SPM, which speeds up your build and al
 more code in Swift. To make this happen, we had to remove the SentryPrivate target for SPM and
 CocoaPods, which you shouldn't have included directly.
 
-- Remove SentryPrivate library (#3623)
-
 ### Fixes
 
 - Write NSException reason for crash report (#3705)
