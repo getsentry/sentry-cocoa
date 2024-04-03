@@ -65,6 +65,9 @@
                   Identifier = "SentryCrashReportStore_Tests/testDeleteAllReports">
                </Test>
                <Test
+                  Identifier = "SentryNetworkTrackerIntegrationTests/testGetCaptureFailedRequestsEnabled()">
+               </Test>
+               <Test
                   Identifier = "SentryProfilerSwiftTests/testConcurrentSpansWithTimeout()">
                </Test>
                <Test
