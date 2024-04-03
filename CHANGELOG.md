@@ -14,7 +14,7 @@ more about how to use the Metrics API.
 - Don't run onCrashedLastSession for nil Events (#3785)
 - Redistributable static libraries should never be built with module debugging enabled (#3800)
 - Fixed certain views getting loaded twice when adding a child view controller (#3753)
-- Fixed broken imports in SentrySwiftUI Carthage build
+- Fixed broken imports in SentrySwiftUI Carthage build (#3817)
 
 ## 8.22.4
 
