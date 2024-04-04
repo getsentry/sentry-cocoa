@@ -6,11 +6,10 @@ import XCTest
 
 #if os(iOS) || os(tvOS)
 
-@available(iOS 16.0, tvOS 16.0, *)
 class SentrySessionReplayIntegrationTests: XCTestCase {
     
     override func setUpWithError() throws {
-        if #unavailable(iOS 16.0, tvOS 16.0) {
+        guard #available(iOS 16.0, tvOS 16.0, *)  else {
             throw XCTSkip("iOS version not supported")
         }
     }
@@ -21,9 +20,11 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
     }
     
     func startSDK(sessionSampleRate: Float, errorSampleRate: Float) {
-        SentrySDK.start {
-            $0.experimental.sessionReplayOptions = SentryReplayOptions(sessionSampleRate: sessionSampleRate, errorSampleRate: errorSampleRate)
-            $0.setIntegrations([SentrySessionReplayIntegration.self])
+        if #available(iOS 16.0, *) {
+            SentrySDK.start {
+                $0.experimental.sessionReplayOptions = SentryReplayOptions(sessionSampleRate: sessionSampleRate, errorSampleRate: errorSampleRate)
+                $0.setIntegrations([SentrySessionReplayIntegration.self])
+            }
         }
     }
     
