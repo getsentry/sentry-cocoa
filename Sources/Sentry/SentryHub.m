@@ -701,19 +701,7 @@ SentryHub () <SentryMetricsAPIDelegate>
     SENTRY_LOG_DEBUG(@"Closed the Hub.");
 }
 
-- (LocalMetricsAggregator *_Nullable)getLocalMetricsAggregator
-{
-    id<SentrySpan> currentSpan = _scope.span;
-
-    // We don't want to add them LocalMetricsAggregator to the SentrySpan protocol and make it
-    // public. Instead, we check if the span responds to the getLocalMetricsAggregator which, every
-    // span should do.
-    if ([currentSpan isKindOfClass:SentrySpan.class]) {
-        return [(SentrySpan *)currentSpan getLocalMetricsAggregator];
-    }
-
-    return nil;
-}
+#pragma mark - SentryMetricsAPIDelegate
 
 - (NSDictionary<NSString *, NSString *> *)getDefaultTagsForMetrics
 {
@@ -731,6 +719,22 @@ SentryHub () <SentryMetricsAPIDelegate>
     defaultTags[@"environment"] = options.environment;
 
     return defaultTags;
+}
+
+- (id<SentrySpan> _Nullable)getCurrentSpan
+{
+    return _scope.span;
+}
+
+- (LocalMetricsAggregator *_Nullable)getLocalMetricsAggregatorWithSpan:(id<SentrySpan>)span
+{
+    // We don't want to add them LocalMetricsAggregator to the SentrySpan protocol and make it
+    // public. Instead, we check if the span responds to the getLocalMetricsAggregator which, every
+    // span should do.
+    if ([span isKindOfClass:SentrySpan.class]) {
+        return [(SentrySpan *)span getLocalMetricsAggregator];
+    }
+    return nil;
 }
 
 #pragma mark - Protected

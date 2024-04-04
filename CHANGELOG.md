@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+- Add timing API for Metrics (#3812):
+
 ## 8.23.0
 
 ### Features
