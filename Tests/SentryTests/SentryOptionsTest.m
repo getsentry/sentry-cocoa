@@ -605,7 +605,7 @@
     XCTAssertEqual(options.enablePreWarmedAppStartTracing, NO);
     XCTAssertEqual(options.attachViewHierarchy, NO);
     if (@available(iOS 16.0, tvOS 16.0, *)) {
-        XCTAssertNil(options.experimental.sessionReplayOptions);
+        XCTAssertNil(options.experimental.sessionReplay);
     }
 #endif
     XCTAssertFalse(options.enableTracing);
@@ -791,8 +791,8 @@
                     @ { @"replaysSessionSampleRate" : @2, @"replaysOnErrorSampleRate" : @4 }
             }
         }];
-        XCTAssertEqual(options.experimental.sessionReplayOptions.sessionSampleRate, 2);
-        XCTAssertEqual(options.experimental.sessionReplayOptions.errorSampleRate, 4);
+        XCTAssertEqual(options.experimental.sessionReplay.sessionSampleRate, 2);
+        XCTAssertEqual(options.experimental.sessionReplay.errorSampleRate, 4);
     }
 }
 
@@ -800,8 +800,8 @@
 {
     if (@available(iOS 16.0, tvOS 16.0, *)) {
         SentryOptions *options = [self getValidOptions:@{ @"sessionReplayOptions" : @ {} }];
-        XCTAssertEqual(options.experimental.sessionReplayOptions.sessionSampleRate, 0);
-        XCTAssertEqual(options.experimental.sessionReplayOptions.errorSampleRate, 0);
+        XCTAssertEqual(options.experimental.sessionReplay.sessionSampleRate, 0);
+        XCTAssertEqual(options.experimental.sessionReplay.errorSampleRate, 0);
     }
 }
 

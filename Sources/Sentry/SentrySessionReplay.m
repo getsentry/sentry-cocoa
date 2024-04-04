@@ -143,8 +143,6 @@ SentrySessionReplay ()
 
 - (void)prepareSegmentUntil:(NSDate *)date
 {
-    NSTimeInterval from = [_videoSegmentStart timeIntervalSinceDate:_sessionStart];
-    NSTimeInterval to = [date timeIntervalSinceDate:_sessionStart];
     NSURL *pathToSegment = [_urlToCache URLByAppendingPathComponent:@"segments"];
 
     if (![NSFileManager.defaultManager fileExistsAtPath:pathToSegment.path]) {
@@ -160,7 +158,7 @@ SentrySessionReplay ()
     }
 
     pathToSegment = [pathToSegment
-        URLByAppendingPathComponent:[NSString stringWithFormat:@"%f-%f.mp4", from, to]];
+        URLByAppendingPathComponent:[NSString stringWithFormat:@"%i.mp4", _currentSegmentId]];
 
     NSDate *segmentStart =
         [_dateProvider.date dateByAddingTimeInterval:-_replayOptions.sessionSegmentDuration];

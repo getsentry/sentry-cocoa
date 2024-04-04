@@ -758,7 +758,7 @@ isValidSampleRate(NSNumber *sampleRate)
 #if SENTRY_UIKIT_AVAILABLE
     if (@available(iOS 16.0, tvOS 16.0, *)) {
         if ([options[@"sessionReplayOptions"] isKindOfClass:NSDictionary.class]) {
-            self.sessionReplayOptions =
+            self.sessionReplay =
                 [[SentryReplayOptions alloc] initWithDictionary:options[@"sessionReplayOptions"]];
         }
     }

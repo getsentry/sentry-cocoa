@@ -577,7 +577,7 @@ NS_SWIFT_NAME(Options)
  * @node Default value is @c nil .
  */
 @property (nonatomic, strong)
-    SentryReplayOptions *sessionReplayOptions API_AVAILABLE(ios(16.0), tvos(16.0));
+    SentryReplayOptions *sessionReplay API_AVAILABLE(ios(16.0), tvos(16.0));
 
 #endif //
 

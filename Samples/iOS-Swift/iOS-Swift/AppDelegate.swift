@@ -23,7 +23,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             options.debug = true
             
             if #available(iOS 16.0, *) {
-                options.experimental.sessionReplayOptions = SentryReplayOptions(sessionSampleRate: 1, errorSampleRate: 1)
+                options.experimental.sessionReplay = SentryReplayOptions(sessionSampleRate: 1, errorSampleRate: 1)
             }
             
             if #available(iOS 15.0, *) {

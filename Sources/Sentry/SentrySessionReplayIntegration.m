@@ -44,7 +44,7 @@ SentryOnDemandReplay (SentryReplayMaker) <SentryReplayMaker>
     }
 
     if (@available(iOS 16.0, tvOS 16.0, *)) {
-        SentryReplayOptions *replayOptions = options.experimental.sessionReplayOptions;
+        SentryReplayOptions *replayOptions = options.experimental.sessionReplay;
 
         BOOL shouldReplayFullSession =
             [self shouldReplayFullSession:replayOptions.sessionSampleRate];

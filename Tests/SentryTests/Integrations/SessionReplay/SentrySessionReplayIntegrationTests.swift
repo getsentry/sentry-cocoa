@@ -22,7 +22,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
     func startSDK(sessionSampleRate: Float, errorSampleRate: Float) {
         if #available(iOS 16.0, tvOS 16.0, *) {
             SentrySDK.start {
-                $0.experimental.sessionReplayOptions = SentryReplayOptions(sessionSampleRate: sessionSampleRate, errorSampleRate: errorSampleRate)
+                $0.experimental.sessionReplay = SentryReplayOptions(sessionSampleRate: sessionSampleRate, errorSampleRate: errorSampleRate)
                 $0.setIntegrations([SentrySessionReplayIntegration.self])
             }
         }
