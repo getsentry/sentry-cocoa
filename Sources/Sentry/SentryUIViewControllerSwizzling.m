@@ -26,6 +26,10 @@
  *
  * This category makes @c UIApplication conform to
  * @c SentryUIApplication in order to be used by @c SentryUIViewControllerSwizzling .
+ *
+ * @note We can't use category functions because they don't work when using Sentry as a static lib;
+ * see https://github.com/getsentry/sentry-cocoa/issues/3763. This category doesn't contain any
+ * functions and is safe to use.
  */
 @interface
 UIApplication (SentryUIApplication) <SentryUIApplication>

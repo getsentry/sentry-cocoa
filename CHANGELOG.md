@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 8.23.0
 
 ### Features
 
@@ -8,12 +8,17 @@
 more about how to use the Metrics API.
 - Pre-main profiling data is now attached to the app start transaction (#3736)
 - Release framework without UIKit/AppKit (#3793)
+- Add the option swizzleClassNameExcludes (#3813)
 
 ### Fixes
 
 - Don't run onCrashedLastSession for nil Events (#3785)
 - Redistributable static libraries should never be built with module debugging enabled (#3800)
 - Fixed certain views getting loaded twice when adding a child view controller (#3753)
+- Fixed broken imports in SentrySwiftUI Carthage build (#3817)
+- Fix NSInvalidArgumentException for `NSError sentryErrorWithDomain` (#3819)
+- Again fix runtime error when including Sentry as a static lib (#3820)
+- Fix crash in hasUnfinishedChildSpansToWaitFor (#3821)
 
 ## 8.22.4
 
@@ -55,8 +60,6 @@ more about how to use the Metrics API.
 We now provide a prebuilt XCFramework for SPM, which speeds up your build and allows us to write
 more code in Swift. To make this happen, we had to remove the SentryPrivate target for SPM and
 CocoaPods, which you shouldn't have included directly.
-
-- Remove SentryPrivate library (#3623)
 
 ### Fixes
 

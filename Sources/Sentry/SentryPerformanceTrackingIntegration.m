@@ -34,8 +34,9 @@ SentryPerformanceTrackingIntegration ()
                                               attributes:attributes];
 
     SentrySubClassFinder *subClassFinder = [[SentrySubClassFinder alloc]
-        initWithDispatchQueue:dispatchQueue
-           objcRuntimeWrapper:[SentryDefaultObjCRuntimeWrapper sharedInstance]];
+           initWithDispatchQueue:dispatchQueue
+              objcRuntimeWrapper:[SentryDefaultObjCRuntimeWrapper sharedInstance]
+        swizzleClassNameExcludes:options.swizzleClassNameExcludes];
 
     self.swizzling = [[SentryUIViewControllerSwizzling alloc]
            initWithOptions:options

@@ -220,9 +220,9 @@ Sentry as a pre-built binary for SPM. This adds the benefit of Sentry not being
 compiled with the project, which speeds up build time.
 
 Another challenge we face with this decision is where to host the pre-compiled framework. 
-We choose to use git release assets. To understang CI changes needed to publish the framework
+We choose to use git release assets. To understand CI changes needed to publish the framework
 please refer to this [PR](https://github.com/getsentry/sentry-cocoa/pull/3623). 
 
 When coding with Swift be aware of two things:
-1. If you want to use swift code in an Objc file: `@import "SentrySwift.h`
+1. If you want to use swift code in an Objc file: `#import "SentrySwift.h"`
 2. If you want to use Objc code from Swift, first add the desired header file to `SentryInternal.h`, then, in your Swift file, `@_implementationOnly import _SentryPrivate` (the underscore makes auto-complete ignore it since we dont want users importing this module).
