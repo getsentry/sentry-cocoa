@@ -753,14 +753,21 @@ isValidSampleRate(NSNumber *sampleRate)
 
 @implementation SentryExperimentalOptions
 
+- (instancetype)init
+{
+    if (self = [super init]) {
+        self.sessionReplay = [[SentryReplayOptions alloc] initWithSessionSampleRate:0
+                                                                    errorSampleRate:0];
+    }
+    return self;
+}
+
 - (void)validateOptions:(NSDictionary<NSString *, id> *)options
 {
 #if SENTRY_UIKIT_AVAILABLE
-    if (@available(iOS 16.0, tvOS 16.0, *)) {
-        if ([options[@"sessionReplayOptions"] isKindOfClass:NSDictionary.class]) {
-            self.sessionReplay =
-                [[SentryReplayOptions alloc] initWithDictionary:options[@"sessionReplayOptions"]];
-        }
+    if ([options[@"sessionReplay"] isKindOfClass:NSDictionary.class]) {
+        self.sessionReplay =
+            [[SentryReplayOptions alloc] initWithDictionary:options[@"sessionReplay"]];
     }
 #endif
 }

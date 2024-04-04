@@ -574,10 +574,8 @@ NS_SWIFT_NAME(Options)
 
 /**
  * Settings to configure the session replay.
- * @node Default value is @c nil .
  */
-@property (nonatomic, strong)
-    SentryReplayOptions *sessionReplay API_AVAILABLE(ios(16.0), tvos(16.0));
+@property (nonatomic, strong) SentryReplayOptions *sessionReplay;
 
 #endif //
 

@@ -604,9 +604,8 @@
     XCTAssertEqual(options.enableUserInteractionTracing, YES);
     XCTAssertEqual(options.enablePreWarmedAppStartTracing, NO);
     XCTAssertEqual(options.attachViewHierarchy, NO);
-    if (@available(iOS 16.0, tvOS 16.0, *)) {
-        XCTAssertNil(options.experimental.sessionReplay);
-    }
+    XCTAssertEqual(options.experimental.sessionReplay.errorSampleRate, 0);
+    XCTAssertEqual(options.experimental.sessionReplay.sessionSampleRate, 0);
 #endif
     XCTAssertFalse(options.enableTracing);
     XCTAssertTrue(options.enableAppHangTracking);
@@ -786,10 +785,8 @@
 {
     if (@available(iOS 16.0, tvOS 16.0, *)) {
         SentryOptions *options = [self getValidOptions:@{
-            @"experimental" : @ {
-                @"sessionReplayOptions" :
-                    @ { @"replaysSessionSampleRate" : @2, @"replaysOnErrorSampleRate" : @4 }
-            }
+            @"experimental" :
+                @ { @"sessionReplay" : @ { @"sessionSampleRate" : @2, @"errorSampleRate" : @4 } }
         }];
         XCTAssertEqual(options.experimental.sessionReplay.sessionSampleRate, 2);
         XCTAssertEqual(options.experimental.sessionReplay.errorSampleRate, 4);
