@@ -127,14 +127,14 @@ class SentryOnDemandReplay: NSObject {
                 if let image = UIImage(contentsOfFile: imagePath) {
                     let presentTime = CMTime(seconds: Double(frameCount), preferredTimescale: CMTimeScale(self.frameRate))
                     
-                    if self._currentPixelBuffer?.append(image: image, pixelBufferAdapter: pixelBufferAdaptor, presentationTime: presentTime) != true {
+                    guard self._currentPixelBuffer?.append(image: image, pixelBufferAdapter: pixelBufferAdaptor, presentationTime: presentTime) == true else {
                         completion(nil, videoWriter.error)
                         videoWriterInput.markAsFinished()
-                    }
+                        return
+                      }
                 }
-            }
-            
-            if frameCount >= frames.count {
+                frameCount += 1
+            } else {
                 videoWriterInput.markAsFinished()
                 videoWriter.finishWriting {
                     var videoInfo: SentryVideoInfo?
@@ -153,8 +153,6 @@ class SentryOnDemandReplay: NSObject {
                     completion(videoInfo, videoWriter.error)
                 }
             }
-            
-            frameCount += 1
         }
     }
     
