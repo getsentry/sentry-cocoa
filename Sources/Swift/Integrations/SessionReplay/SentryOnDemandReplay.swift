@@ -119,16 +119,18 @@ class SentryOnDemandReplay: NSObject {
         _currentPixelBuffer = SentryPixelBuffer(size: CGSize(width: videoWidth, height: videoHeight))
         
         videoWriterInput.requestMediaDataWhenReady(on: _onDemandDispatchQueue) { [weak self] in
-            guard let self = self else { return }
+            guard let self = self, frameCount < frames.count else { return }
             
-            let imagePath = frames[frameCount]
-            
-            if let image = UIImage(contentsOfFile: imagePath) {
-                let presentTime = CMTime(seconds: Double(frameCount), preferredTimescale: CMTimeScale(self.frameRate))
+            if frameCount < frames.count {
+                let imagePath = frames[frameCount]
                 
-                if self._currentPixelBuffer?.append(image: image, pixelBufferAdapter: pixelBufferAdaptor, presentationTime: presentTime) != true {
-                    completion(nil, videoWriter.error)
-                    videoWriterInput.markAsFinished()
+                if let image = UIImage(contentsOfFile: imagePath) {
+                    let presentTime = CMTime(seconds: Double(frameCount), preferredTimescale: CMTimeScale(self.frameRate))
+                    
+                    if self._currentPixelBuffer?.append(image: image, pixelBufferAdapter: pixelBufferAdaptor, presentationTime: presentTime) != true {
+                        completion(nil, videoWriter.error)
+                        videoWriterInput.markAsFinished()
+                    }
                 }
             }
             
