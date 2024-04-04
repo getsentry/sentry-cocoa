@@ -9,17 +9,17 @@ public class SentryReplayOptions: NSObject {
      * to the default.
      * @note The default is @c 0.
      */
-    public let sessionSampleRate: Float
+    public var sessionSampleRate: Float
 
     /**
      * Indicates the percentage in which a 30 seconds replay will be send with error events.
-     * @discussion Specifying @c 0 means never, @c 1.0 means always.
-     * @note The value needs to be >= 0.0 and \<= 1.0. When setting a value out of range the SDK sets it
+     * - Specifying 0 means never, 1.0 means always.
+     * - note: The value needs to be >= 0.0 and \<= 1.0. When setting a value out of range the SDK sets it
      * to the default.
-     * @note The default is @c 0.
+     * - note: The default is @c 0.
      */
-    public let errorSampleRate: Float
-
+    public var errorSampleRate: Float
+    
     /**
      * Defines the quality of the session replay.
      * Higher bit rates better quality, but also bigger files to transfer.
