@@ -21,6 +21,20 @@ public class SentryReplayOptions: NSObject {
     public var errorSampleRate: Float
     
     /**
+     * Whether session replay should mask out every text in the app.
+     *
+     * - note: The default is `true`
+     */
+    public var redactAllText: Bool = true
+    
+    /**
+     * Whether session replay should mask all non-bundled images.
+     *
+     * - note: The dafault is `true`
+     */
+    public var redactAllImage: Bool = true
+    
+    /**
      * Defines the quality of the session replay.
      * Higher bit rates better quality, but also bigger files to transfer.
      * @note The default value is @c 20000;
