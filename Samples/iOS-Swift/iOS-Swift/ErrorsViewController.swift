@@ -13,6 +13,10 @@ class ErrorsViewController: UIViewController {
         SentrySDK.reportFullyDisplayed()
         
         SentrySDK.metrics.increment(key: "load.errors.view.controller")
+        
+        SentrySDK.metrics.timing(key: "timing.some.delayed") {
+            Thread.sleep(forTimeInterval: 0.01)
+        }
     }
 
     @IBAction func useAfterFree(_ sender: UIButton) {
