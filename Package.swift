@@ -24,6 +24,7 @@ let package = Package(
                   dependencies: ["Sentry", "SentryInternal"],
                   path: "Sources/SentrySwiftUI",
                   exclude: ["SentryInternal/", "module.modulemap"],
+                  resources: [.process("../Resources/PrivacyInfo.xcprivacy")],
                   linkerSettings: [
                      .linkedFramework("Sentry")
                   ]
@@ -33,6 +34,7 @@ let package = Package(
                  sources: [
                     "SentryInternal/"
                  ],
+                 resources: [.process("../Resources/PrivacyInfo.xcprivacy")],
                  publicHeadersPath: "SentryInternal/"
                )
     ],
