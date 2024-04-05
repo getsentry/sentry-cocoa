@@ -1,16 +1,20 @@
-#import "SentryCompiler.h"
 #import "SentryProfilingConditionals.h"
-#import "SentrySpan.h"
-#import <Foundation/Foundation.h>
-
-@class SentryEnvelopeItem;
-#if SENTRY_HAS_UIKIT
-@class SentryFramesTracker;
-#endif // SENTRY_HAS_UIKIT
-@class SentryTransaction;
-@class SentryHub;
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
+
+#    import "SentryCompiler.h"
+#    import "SentrySpan.h"
+#    import <Foundation/Foundation.h>
+
+@class SentryEnvelopeItem;
+@class SentryHub;
+@class SentryProfilerState;
+@class SentryTransaction;
+
+#    if SENTRY_HAS_UIKIT
+@class SentryFramesTracker;
+@class SentryScreenFrames;
+#    endif // SENTRY_HAS_UIKIT
 
 typedef NS_ENUM(NSUInteger, SentryProfilerTruncationReason) {
     SentryProfilerTruncationReasonNormal,
@@ -46,6 +50,12 @@ SENTRY_EXTERN_C_END
 @interface SentryProfiler : NSObject
 
 @property (strong, nonatomic) SentryId *profilerId;
+
+@property (strong, nonatomic) SentryProfilerState *_state;
+
+#    if SENTRY_HAS_UIKIT
+@property (strong, nonatomic) SentryScreenFrames *_screenFrameData;
+#    endif // SENTRY_HAS_UIKIT
 
 /**
  * Start a profiler, if one isn't already running.
