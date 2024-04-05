@@ -1,48 +1,23 @@
 #import "SentryProfiler+Private.h"
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
-#    import "SentryAppStartMeasurement.h"
 #    import "SentryClient+Private.h"
 #    import "SentryContinuousProfiler.h"
-#    import "SentryDateUtils.h"
-#    import "SentryDebugImageProvider.h"
 #    import "SentryDefines.h"
 #    import "SentryDependencyContainer.h"
-#    import "SentryDispatchFactory.h"
-#    import "SentryDispatchSourceWrapper.h"
-#    import "SentryEnvelope.h"
-#    import "SentryEnvelopeItemHeader.h"
-#    import "SentryEnvelopeItemType.h"
-#    import "SentryEvent+Private.h"
-#    import "SentryFormatter.h"
 #    import "SentryFramesTracker.h"
 #    import "SentryHub+Private.h"
 #    import "SentryLog.h"
 #    import "SentryMetricProfiler.h"
 #    import "SentryNSNotificationCenterWrapper.h"
-#    import "SentryNSProcessInfoWrapper.h"
 #    import "SentryNSTimerFactory.h"
 #    import "SentryOptions.h"
 #    import "SentryProfiledTracerConcurrency.h"
-#    import "SentryProfilerSerialization.h"
 #    import "SentryProfilerState+ObjCpp.h"
-#    import "SentryProfilerTestHelpers.h"
 #    import "SentrySDK+Private.h"
-#    import "SentrySample.h"
 #    import "SentrySamplingProfiler.hpp"
-#    import "SentrySerialization.h"
-#    import "SentrySpanId.h"
 #    import "SentrySwift.h"
-#    import "SentrySystemWrapper.h"
-#    import "SentryThread.h"
 #    import "SentryThreadWrapper.h"
-#    import "SentryTime.h"
-#    import "SentryTracer+Private.h"
-#    import "SentryTransaction.h"
-#    import "SentryTransactionContext+Private.h"
-
-#    import <cstdint>
-#    import <memory>
 
 #    if SENTRY_HAS_UIKIT
 #        import <UIKit/UIKit.h>
