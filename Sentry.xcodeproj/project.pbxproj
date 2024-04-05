@@ -1596,7 +1596,7 @@
 		840A11092B5F47F700650D02 /* SentryAppLaunchProfilingTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentryAppLaunchProfilingTests.m; sourceTree = "<group>"; };
 		840A11102B61E27500650D02 /* SentrySamplerDecision.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentrySamplerDecision.m; sourceTree = "<group>"; };
 		840A11142B62041600650D02 /* SentryLaunchProfiling+Tests.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "SentryLaunchProfiling+Tests.h"; sourceTree = "<group>"; };
-		840B7EF22BBF83DF008B8120 /* SentryProfiler+Private.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "SentryProfiler+Private.h"; path = "Sources/Sentry/Public/SentryProfiler+Private.h"; sourceTree = SOURCE_ROOT; };
+		840B7EF22BBF83DF008B8120 /* SentryProfiler+Private.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "SentryProfiler+Private.h"; path = "Sources/Sentry/include/SentryProfiler+Private.h"; sourceTree = SOURCE_ROOT; };
 		8419C0C328C1889D001C8259 /* SentryProfilerSwiftTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryProfilerSwiftTests.swift; sourceTree = "<group>"; };
 		84281C422A578E5600EE88F2 /* SentryProfilerState.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = SentryProfilerState.mm; sourceTree = "<group>"; };
 		84281C442A57905700EE88F2 /* SentrySample.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SentrySample.h; path = ../include/SentrySample.h; sourceTree = "<group>"; };
