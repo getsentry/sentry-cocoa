@@ -755,9 +755,12 @@ isValidSampleRate(NSNumber *sampleRate)
 
 - (instancetype)init
 {
+
     if (self = [super init]) {
+#if SENTRY_UIKIT_AVAILABLE
         self.sessionReplay = [[SentryReplayOptions alloc] initWithSessionSampleRate:0
                                                                     errorSampleRate:0];
+#endif
     }
     return self;
 }
