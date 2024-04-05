@@ -647,6 +647,7 @@
 #    pragma clang diagnostic pop
     XCTAssertNil(options.profilesSampleRate);
     XCTAssertNil(options.profilesSampler);
+    XCTAssertFalse(options.enableContinuousProfiling);
 #endif
 
     XCTAssertTrue([options.spotlightUrl isEqualToString:@"http://localhost:8969/stream"]);
@@ -1005,17 +1006,20 @@
     [self testBooleanField:@"enableProfiling" defaultValue:NO];
 }
 
+- (void)testEnableContinuousProfiling
+{
+    [self testBooleanField:@"enableContinuousProfiling" defaultValue:NO];
+}
+
 - (void)testProfilesSampleRate
 {
     SentryOptions *options = [self getValidOptions:@{ @"profilesSampleRate" : @0.1 }];
-
     XCTAssertEqual(options.profilesSampleRate.doubleValue, 0.1);
 }
 
 - (void)testDefaultProfilesSampleRate
 {
     SentryOptions *options = [self getValidOptions:@{}];
-
     XCTAssertEqual(options.profilesSampleRate.doubleValue, 0);
 }
 
@@ -1063,6 +1067,7 @@
 {
     SentryOptions *options = [[SentryOptions alloc] init];
     XCTAssertFalse(options.isProfilingEnabled);
+    XCTAssertFalse(options.enableContinuousProfiling);
 }
 
 - (void)testIsProfilingEnabled_ProfilesSampleRateSetToZero_IsDisabled
@@ -1070,6 +1075,7 @@
     SentryOptions *options = [[SentryOptions alloc] init];
     options.profilesSampleRate = @0.00;
     XCTAssertFalse(options.isProfilingEnabled);
+    XCTAssertFalse(options.enableContinuousProfiling);
 }
 
 - (void)testIsProfilingEnabled_ProfilesSampleRateSet_IsEnabled
@@ -1077,6 +1083,7 @@
     SentryOptions *options = [[SentryOptions alloc] init];
     options.profilesSampleRate = @0.01;
     XCTAssertTrue(options.isProfilingEnabled);
+    XCTAssertFalse(options.enableContinuousProfiling);
 }
 
 - (void)testIsProfilingEnabled_ProfilesSamplerSet_IsEnabled
@@ -1087,6 +1094,7 @@
         return @0.0;
     };
     XCTAssertTrue(options.isProfilingEnabled);
+    XCTAssertFalse(options.enableContinuousProfiling);
 }
 
 - (void)testIsProfilingEnabled_EnableProfilingSet_IsEnabled
@@ -1097,11 +1105,7 @@
     options.enableProfiling = YES;
 #    pragma clang diagnostic pop
     XCTAssertTrue(options.isProfilingEnabled);
-}
-
-- (double)profilesSamplerCallback:(NSDictionary *)context
-{
-    return 0.1;
+    XCTAssertFalse(options.enableContinuousProfiling);
 }
 
 - (void)testProfilesSampler
@@ -1115,6 +1119,7 @@
 
     SentrySamplingContext *context = [[SentrySamplingContext alloc] init];
     XCTAssertEqual(options.profilesSampler(context), @1.0);
+    XCTAssertFalse(options.enableContinuousProfiling);
 }
 
 - (void)testDefaultProfilesSampler
@@ -1129,7 +1134,7 @@
     XCTAssertNil(options.profilesSampler);
 }
 
-#endif
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
 - (void)testInAppIncludes
 {
