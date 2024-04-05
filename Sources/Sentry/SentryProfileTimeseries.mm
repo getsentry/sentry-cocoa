@@ -3,10 +3,16 @@
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
 #    import "SentryEvent+Private.h"
+#    import "SentryFormatter.h"
 #    import "SentryInternalDefines.h"
 #    import "SentryLog.h"
+#    import "SentryMetricProfiler.h"
 #    import "SentrySample.h"
+#    import "SentryTime.h"
 #    import "SentryTransaction.h"
+#    if SENTRY_HAS_UIKIT
+#        import "SentryScreenFrames.h"
+#    endif // SENTRY_HAS_UIKIT
 
 /**
  * Print a debug log to help diagnose slicing errors.
@@ -80,5 +86,56 @@ NSArray<SentrySample *> *_Nullable slicedProfileSamples(
     const auto indices = [NSIndexSet indexSetWithIndexesInRange:range];
     return [samples objectsAtIndexes:indices];
 }
+
+#    if SENTRY_HAS_UIKIT
+/**
+ * Convert the data structure that records timestamps for GPU frame render info from
+ * SentryFramesTracker to the structure expected for profiling metrics, and throw out any that
+ * didn't occur within the profile time.
+ * @param useMostRecentRecording @c SentryFramesTracker doesn't stop running once it starts.
+ * Although we reset the profiling timestamps each time the profiler stops and starts, concurrent
+ * transactions that start after the first one won't have a screen frame rate recorded within their
+ * timeframe, because it will have already been recorded for the first transaction and isn't
+ * recorded again unless the system changes it. In these cases, use the most recently recorded data
+ * for it.
+ */
+NSArray<SentrySerializedMetricEntry *> *
+sliceGPUData(SentryFrameInfoTimeSeries *frameInfo, uint64_t startSystemTime, uint64_t endSystemTime,
+    BOOL useMostRecentRecording)
+{
+    auto slicedGPUEntries = [NSMutableArray<SentrySerializedMetricEntry *> array];
+    __block NSNumber *nearestPredecessorValue;
+    [frameInfo enumerateObjectsUsingBlock:^(
+        NSDictionary<NSString *, NSNumber *> *_Nonnull obj, NSUInteger idx, BOOL *_Nonnull stop) {
+        const auto timestamp = obj[@"timestamp"].unsignedLongLongValue;
+
+        if (!orderedChronologically(startSystemTime, timestamp)) {
+            SENTRY_LOG_DEBUG(@"GPU info recorded (%llu) before transaction start (%llu), "
+                             @"will not report it.",
+                timestamp, startSystemTime);
+            nearestPredecessorValue = obj[@"value"];
+            return;
+        }
+
+        if (!orderedChronologically(timestamp, endSystemTime)) {
+            SENTRY_LOG_DEBUG(@"GPU info recorded after transaction finished, won't record.");
+            return;
+        }
+        const auto relativeTimestamp = getDurationNs(startSystemTime, timestamp);
+
+        [slicedGPUEntries addObject:@ {
+            @"elapsed_since_start_ns" : sentry_stringForUInt64(relativeTimestamp),
+            @"value" : obj[@"value"],
+        }];
+    }];
+    if (useMostRecentRecording && slicedGPUEntries.count == 0 && nearestPredecessorValue != nil) {
+        [slicedGPUEntries addObject:@ {
+            @"elapsed_since_start_ns" : @"0",
+            @"value" : nearestPredecessorValue,
+        }];
+    }
+    return slicedGPUEntries;
+}
+#    endif // SENTRY_HAS_UIKIT
 
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
