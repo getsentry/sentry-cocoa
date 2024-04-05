@@ -125,6 +125,7 @@ NSString *const kSentryDefaultEnvironment = @"production";
 #if SENTRY_TARGET_PROFILING_SUPPORTED
         _enableProfiling = NO;
         self.profilesSampleRate = nil;
+        _enableContinuousProfiling = NO;
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
         self.enableCoreDataTracing = YES;
         _enableSwizzling = YES;
@@ -476,6 +477,9 @@ NSString *const kSentryDefaultEnvironment = @"production";
 
     [self setBool:options[NSStringFromSelector(@selector(enableAppLaunchProfiling))]
             block:^(BOOL value) { self->_enableAppLaunchProfiling = value; }];
+
+    [self setBool:options[@"enableContinuousProfiling"]
+            block:^(BOOL value) { self->_enableContinuousProfiling = value; }];
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
     [self setBool:options[@"sendClientReports"]
