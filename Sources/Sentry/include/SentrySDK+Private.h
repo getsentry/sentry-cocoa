@@ -1,3 +1,4 @@
+#import "SentryProfilingConditionals.h"
 #import "SentrySDK.h"
 
 @class SentryHub, SentryId, SentryAppStartMeasurement, SentryEnvelope;
@@ -41,6 +42,20 @@ SentrySDK ()
  * Needed by hybrid SDKs as react-native to synchronously capture an envelope.
  */
 + (void)captureEnvelope:(SentryEnvelope *)envelope;
+
+#if SENTRY_TARGET_PROFILING_SUPPORTED
+/**
+ * Start a new continuous profiling session if one is not already running.
+ * @seealso https://docs.sentry.io/platforms/apple/profiling/
+ */
++ (void)startProfiler;
+
+/**
+ * Stop a continuous profiling session if there is one ongoing.
+ * @seealso https://docs.sentry.io/platforms/apple/profiling/
+ */
++ (void)stopProfiler;
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
 @end
 

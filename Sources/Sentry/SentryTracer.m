@@ -10,6 +10,7 @@
 #import "SentryNSDictionarySanitize.h"
 #import "SentryNSTimerFactory.h"
 #import "SentryNoOpSpan.h"
+#import "SentryOptions+Private.h"
 #import "SentryProfilingConditionals.h"
 #import "SentryRandom.h"
 #import "SentrySDK+Private.h"
@@ -188,8 +189,9 @@ static BOOL appStartMeasurementRead;
 #endif // SENTRY_HAS_UIKIT
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
-    if (_configuration.profilesSamplerDecision.decision == kSentrySampleDecisionYes
-        || isTracingAppLaunch) {
+    if (!hub.client.options.enableContinuousProfiling
+        && (_configuration.profilesSamplerDecision.decision == kSentrySampleDecisionYes
+            || isTracingAppLaunch)) {
         _internalID = [[SentryId alloc] init];
         if ((_isProfiling = [SentryProfiler startWithTracer:_internalID])) {
             SENTRY_LOG_DEBUG(@"Started profiler for trace %@ with internal id %@",

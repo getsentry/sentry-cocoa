@@ -29,6 +29,7 @@
 #endif // SENTRY_HAS_UIKIT
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
+#    import "SentryContinuousProfiler.h"
 #    import "SentryLaunchProfiling.h"
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
@@ -520,6 +521,30 @@ static NSDate *_Nullable startTimestamp = nil;
     *p = 0;
 }
 #endif
+
+#if SENTRY_TARGET_PROFILING_SUPPORTED
++ (void)startProfiler
+{
+    if (!SENTRY_ASSERT_RETURN(currentHub.client.options.enableContinuousProfiling,
+            @"You must set SentryOptions.enableContinuousProfiling to true before starting a "
+            @"continuous profiler.")) {
+        return;
+    }
+
+    [SentryContinuousProfiler start];
+}
+
++ (void)stopProfiler
+{
+    if (!SENTRY_ASSERT_RETURN(currentHub.client.options.enableContinuousProfiling,
+            @"You must set SentryOptions.enableContinuousProfiling to true before using continuous "
+            @"profiling API.")) {
+        return;
+    }
+
+    [SentryContinuousProfiler stop];
+}
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
 @end
 
