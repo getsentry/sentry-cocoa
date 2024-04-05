@@ -4,6 +4,7 @@
 #import "SentryProfiler+Private.h"
 #import "SentryProfiler+Test.h"
 #import "SentryProfilerMocks.h"
+#import "SentryProfilerSerialization.h"
 #import "SentryProfilerState+ObjCpp.h"
 #import "SentryProfilingConditionals.h"
 #import "SentryScreenFrames.h"

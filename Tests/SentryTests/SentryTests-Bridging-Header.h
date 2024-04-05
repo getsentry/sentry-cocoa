@@ -31,6 +31,7 @@
 #    import "SentryProfiler+Private.h"
 #    import "SentryProfiler+Test.h"
 #    import "SentryProfilerMocksSwiftCompatible.h"
+#    import "SentryProfilerSerialization.h"
 #    import "SentryProfilerState.h"
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 

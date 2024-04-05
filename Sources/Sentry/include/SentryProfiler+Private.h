@@ -6,8 +6,10 @@
 #    import "SentrySpan.h"
 #    import <Foundation/Foundation.h>
 
+@class SentryDebugImageProvider;
 @class SentryEnvelopeItem;
 @class SentryHub;
+@class SentryMetricProfiler;
 @class SentryProfilerState;
 @class SentryTransaction;
 
@@ -26,10 +28,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 SENTRY_EXTERN const int kSentryProfilerFrequencyHz;
 
-SENTRY_EXTERN NSString *const kSentryProfilerSerializationKeySlowFrameRenders;
-SENTRY_EXTERN NSString *const kSentryProfilerSerializationKeyFrozenFrameRenders;
-SENTRY_EXTERN NSString *const kSentryProfilerSerializationKeyFrameRates;
-
 SENTRY_EXTERN_C_BEGIN
 
 /**
@@ -37,8 +35,6 @@ SENTRY_EXTERN_C_BEGIN
  * the situation described here: https://github.com/envoyproxy/envoy/issues/2561
  */
 BOOL threadSanitizerIsPresent(void);
-
-NSString *profilerTruncationReasonName(SentryProfilerTruncationReason reason);
 
 SENTRY_EXTERN_C_END
 
@@ -52,6 +48,12 @@ SENTRY_EXTERN_C_END
 @property (strong, nonatomic) SentryId *profilerId;
 
 @property (strong, nonatomic) SentryProfilerState *_state;
+
+@property (strong, nonatomic) SentryDebugImageProvider *_debugImageProvider;
+
+@property (assign, nonatomic) SentryProfilerTruncationReason _truncationReason;
+
+@property (strong, nonatomic) SentryMetricProfiler *_metricProfiler;
 
 #    if SENTRY_HAS_UIKIT
 @property (strong, nonatomic) SentryScreenFrames *_screenFrameData;
@@ -86,21 +88,6 @@ SENTRY_EXTERN_C_END
  */
 + (void)recordMetrics;
 
-/**
- * Given a transaction, return an envelope item containing any corresponding profile data to be
- * attached to the transaction envelope.
- * */
-+ (nullable SentryEnvelopeItem *)createProfilingEnvelopeItemForTransaction:
-                                     (SentryTransaction *)transaction
-                                                            startTimestamp:startTimestamp;
-
-/**
- * Collect profile data corresponding with the given traceId and time period.
- * */
-+ (nullable NSMutableDictionary<NSString *, id> *)collectProfileBetween:(uint64_t)startSystemTime
-                                                                    and:(uint64_t)endSystemTime
-                                                               forTrace:(SentryId *)traceId
-                                                                  onHub:(SentryHub *)hub;
 @end
 
 NS_ASSUME_NONNULL_END
