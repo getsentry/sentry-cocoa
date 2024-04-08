@@ -26,6 +26,7 @@ SentryTransportFactory ()
 
 + (NSArray<id<SentryTransport>> *)initTransports:(SentryOptions *)options
                                sentryFileManager:(SentryFileManager *)sentryFileManager
+                             currentDateProvider:(SentryCurrentDateProvider *)currentDateProvider
 {
 
     NSURLSession *session;
@@ -45,11 +46,14 @@ SentryTransportFactory ()
 
     SentryHttpDateParser *httpDateParser = [[SentryHttpDateParser alloc] init];
     SentryRetryAfterHeaderParser *retryAfterHeaderParser =
-        [[SentryRetryAfterHeaderParser alloc] initWithHttpDateParser:httpDateParser];
-    SentryRateLimitParser *rateLimitParser = [[SentryRateLimitParser alloc] init];
+        [[SentryRetryAfterHeaderParser alloc] initWithHttpDateParser:httpDateParser
+                                                 currentDateProvider:currentDateProvider];
+    SentryRateLimitParser *rateLimitParser =
+        [[SentryRateLimitParser alloc] initWithCurrentDateProvider:currentDateProvider];
     id<SentryRateLimits> rateLimits =
         [[SentryDefaultRateLimits alloc] initWithRetryAfterHeaderParser:retryAfterHeaderParser
-                                                     andRateLimitParser:rateLimitParser];
+                                                     andRateLimitParser:rateLimitParser
+                                                    currentDateProvider:currentDateProvider];
 
     SentryEnvelopeRateLimit *envelopeRateLimit =
         [[SentryEnvelopeRateLimit alloc] initWithRateLimits:rateLimits];
