@@ -12,14 +12,8 @@ class SentryDefaultRateLimitsTests: XCTestCase {
     override func setUp() {
         super.setUp()
         currentDateProvider = TestCurrentDateProvider()
-        SentryDependencyContainer.sharedInstance().dateProvider = currentDateProvider
     
-        sut = DefaultRateLimits(retryAfterHeaderParser: RetryAfterHeaderParser(httpDateParser: HttpDateParser()), andRateLimitParser: RateLimitParser())
-    }
-    
-    override func tearDown() {
-        super.tearDown()
-        clearTestState()
+        sut = DefaultRateLimits(retryAfterHeaderParser: RetryAfterHeaderParser(httpDateParser: HttpDateParser(), currentDateProvider: currentDateProvider), andRateLimitParser: RateLimitParser(currentDateProvider: currentDateProvider), currentDateProvider: currentDateProvider)
     }
     
     func testNoUpdateCalled() {
@@ -98,7 +92,7 @@ class SentryDefaultRateLimitsTests: XCTestCase {
     }
     
     func testRetryAfterHeaderHttpDate() {
-        let headerValue = HttpDateFormatter.string(from: SentryDependencyContainer.sharedInstance().dateProvider.date().addingTimeInterval(1))
+        let headerValue = HttpDateFormatter.string(from: currentDateProvider.date().addingTimeInterval(1))
         assertRetryHeaderWith1Second(value: headerValue)
     }
     
