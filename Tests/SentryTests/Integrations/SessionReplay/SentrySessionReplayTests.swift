@@ -194,6 +194,7 @@ class SentrySessionReplayTests: XCTestCase {
         Dynamic(sut).newFrame(nil)
         fixture.dateProvider.advance(by: 5)
         Dynamic(sut).newFrame(nil)
+        expect(Dynamic(sut).isRunning) == true
         fixture.dateProvider.advance(by: 3_600)
         Dynamic(sut).newFrame(nil)
         
