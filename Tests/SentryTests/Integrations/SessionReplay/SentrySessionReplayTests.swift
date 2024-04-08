@@ -135,7 +135,7 @@ class SentrySessionReplayTests: XCTestCase {
         
         expect(videoArguments.duration) == 5
         expect(videoArguments.beginning) == start
-        expect(videoArguments.outputFileURL) == fixture.cacheFolder.appendingPathComponent("segments/1.000000-6.000000.mp4")
+        expect(videoArguments.outputFileURL) == fixture.cacheFolder.appendingPathComponent("segments/0.mp4")
         
         expect(fixture.hub.lastRecording) != nil
         expect(fixture.hub.lastVideo) == videoArguments.outputFileURL
