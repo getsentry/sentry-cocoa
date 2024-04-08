@@ -4,10 +4,10 @@ import Foundation
 public class SentryReplayOptions: NSObject {
     /**
      * Indicates the percentage in which the replay for the session will be created.
-     * @discussion Specifying @c 0 means never, @c 1.0 means always.
-     * @note The value needs to be >= 0.0 and \<= 1.0. When setting a value out of range the SDK sets it
+     * - Specifying @c 0 means never, @c 1.0 means always.
+     * - note: The value needs to be >= 0.0 and \<= 1.0. When setting a value out of range the SDK sets it
      * to the default.
-     * @note The default is @c 0.
+     * - note:  The default is 0.
      */
     public var sessionSampleRate: Float
 
@@ -16,23 +16,25 @@ public class SentryReplayOptions: NSObject {
      * - Specifying 0 means never, 1.0 means always.
      * - note: The value needs to be >= 0.0 and \<= 1.0. When setting a value out of range the SDK sets it
      * to the default.
-     * - note: The default is @c 0.
+     * - note: The default is 0.
      */
     public var errorSampleRate: Float
     
     /**
-     * Whether session replay should mask out every text in the app.
+     * Indicates whether session replay should redact all text in the app
+     * by drawing a black rectangle over it.
      *
-     * - note: The default is `true`
+     * - note: The default is true
      */
-    public var redactAllText: Bool = true
+    public var redactAllText = true
     
     /**
-     * Whether session replay should mask all non-bundled images.
+     * Indicates whether session replay should redact all non-bundled image
+     * in the app by drawing a black rectangle over it.
      *
-     * - note: The dafault is `true`
+     * - note: The default is true
      */
-    public var redactAllImage: Bool = true
+    public var redactAllImages = true
     
     /**
      * Defines the quality of the session replay.
