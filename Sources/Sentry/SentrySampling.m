@@ -112,6 +112,18 @@ sentry_sampleTraceProfile(SentrySamplingContext *context,
     return calcSampleFromNumericalRate(options.profilesSampleRate);
 }
 
+SentrySamplerDecision *
+sampleContinuousProfile(SentrySamplingContext *context, SentryOptions *options)
+{
+    NSNumber *callbackRate = samplerCallbackRate(
+        options.profilesSampler, context, SENTRY_DEFAULT_PROFILES_SAMPLE_RATE);
+    if (callbackRate != nil) {
+        return calcSample(callbackRate);
+    }
+
+    return calcSampleFromNumericalRate(options.profilesSampleRate);
+}
+
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
 NS_ASSUME_NONNULL_END

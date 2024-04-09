@@ -109,13 +109,6 @@ SentryTracer ()
 static NSObject *appStartMeasurementLock;
 static BOOL appStartMeasurementRead;
 
-#if SENTRY_TARGET_PROFILING_SUPPORTED
-+ (void)load
-{
-    sentry_startLaunchProfile();
-}
-#endif // SENTRY_TARGET_PROFILING_SUPPORTED
-
 + (void)initialize
 {
     if (self == [SentryTracer class]) {
