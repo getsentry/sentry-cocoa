@@ -762,18 +762,19 @@ isValidSampleRate(NSNumber *sampleRate)
                                                                     errorSampleRate:0
                                                                       redactAllText:YES
                                                                     redactAllImages:YES];
+#endif
     }
     return self;
 }
 
 - (void)validateOptions:(NSDictionary<NSString *, id> *)options
 {
-#    if SENTRY_UIKIT_AVAILABLE
+#if SENTRY_UIKIT_AVAILABLE
     if ([options[@"sessionReplay"] isKindOfClass:NSDictionary.class]) {
         self.sessionReplay =
             [[SentryReplayOptions alloc] initWithDictionary:options[@"sessionReplay"]];
     }
-#    endif
+#endif
 }
 
 @end

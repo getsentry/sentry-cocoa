@@ -227,6 +227,8 @@ NS_ASSUME_NONNULL_BEGIN
     }
 
     NSData *envelopeItemContent = [NSData dataWithContentsOfURL:envelopeContentUrl];
+
+    [NSFileManager.defaultManager removeItemAtURL:envelopeContentUrl error:nil];
     return [self initWithHeader:[[SentryEnvelopeItemHeader alloc]
                                     initWithType:SentryEnvelopeItemTypeReplayVideo
                                           length:envelopeItemContent.length]

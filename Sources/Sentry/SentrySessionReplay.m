@@ -241,6 +241,8 @@ SentrySessionReplay ()
     [SentrySDK.currentHub captureReplayEvent:replayEvent
                              replayRecording:recording
                                        video:videoInfo.path];
+
+    [NSFileManager.defaultManager removeItemAtURL:videoInfo.path error:nil];
 }
 
 - (void)takeScreenshot
