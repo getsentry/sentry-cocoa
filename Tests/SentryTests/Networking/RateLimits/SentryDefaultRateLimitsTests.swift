@@ -1,3 +1,4 @@
+import Nimble
 @testable import Sentry
 import SentryTestUtils
 import XCTest
@@ -167,5 +168,47 @@ class SentryDefaultRateLimitsTests: XCTestCase {
         currentDateProvider.setDate(date: currentDateProvider.date().addingTimeInterval(1))
         XCTAssertFalse(sut.isRateLimitActive(SentryDataCategory.transaction))
         XCTAssertFalse(sut.isRateLimitActive(SentryDataCategory.attachment))
+    }
+    
+    func testMetricBucket() {
+        let response = TestResponseFactory.createRateLimitResponse(headerValue: "1:metric_bucket:::custom")
+        
+        sut.update(response)
+        expect(self.sut.isRateLimitActive(SentryDataCategory.metricBucket)) == true
+    }
+    
+    func testMetricBucket_NoNamespace() {
+        let response = TestResponseFactory.createRateLimitResponse(headerValue: "1:metric_bucket::")
+        
+        sut.update(response)
+        expect(self.sut.isRateLimitActive(SentryDataCategory.metricBucket)) == true
+    }
+    
+    func testMetricBucket_EmptyNamespace() {
+        let response = TestResponseFactory.createRateLimitResponse(headerValue: "1:metric_bucket:::")
+        
+        sut.update(response)
+        expect(self.sut.isRateLimitActive(SentryDataCategory.metricBucket)) == true
+    }
+    
+    func testMetricBucket_NamespaceExclusivelyThanOtherCustom() {
+        let response = TestResponseFactory.createRateLimitResponse(headerValue: "1:metric_bucket:organization:quota_exceeded:customs;cust")
+        
+        sut.update(response)
+        expect(self.sut.isRateLimitActive(SentryDataCategory.metricBucket)) == false
+    }
+    
+    func testMetricBucket_EmptyNamespaces() {
+        let response = TestResponseFactory.createRateLimitResponse(headerValue: "1:metric_bucket:::;")
+        
+        sut.update(response)
+        expect(self.sut.isRateLimitActive(SentryDataCategory.metricBucket)) == false
+    }
+    
+    func testIgnoreNamespaceForNonMetricBucket() {
+        let response = TestResponseFactory.createRateLimitResponse(headerValue: "1:error:::customs;cust")
+        
+        sut.update(response)
+        expect(self.sut.isRateLimitActive(SentryDataCategory.error)) == true
     }
 }
