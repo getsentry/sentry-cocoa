@@ -13,6 +13,13 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+/**
+ * Whether or not the profiler started with the app launch. With legacy profiling, this means there
+ * is a tracer managing the profile that will eventually need to be stopped and either discarded (in
+ * the case of auto performance transactions) or also transmitted. With continuous profiling, this
+ * indicates whether or not the profiler that's currently running was started from app launch, or
+ * later with a manual profiler start from the SDK consumer.
+ */
 SENTRY_EXTERN BOOL sentry_isTracingAppLaunch;
 
 /** Try to start a profiled trace for this app launch, if the configuration allows. */

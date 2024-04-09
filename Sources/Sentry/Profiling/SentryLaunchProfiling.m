@@ -2,13 +2,14 @@
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
+#    import "SentryContinuousProfiler.h"
 #    import "SentryDependencyContainer.h"
 #    import "SentryDispatchQueueWrapper.h"
 #    import "SentryFileManager.h"
 #    import "SentryInternalDefines.h"
 #    import "SentryLaunchProfiling.h"
 #    import "SentryLog.h"
-#    import "SentryOptions.h"
+#    import "SentryOptions+Private.h"
 #    import "SentryProfiler+Private.h"
 #    import "SentryRandom.h"
 #    import "SentrySamplerDecision.h"
@@ -22,6 +23,12 @@
 #    import "SentryTransactionContext+Private.h"
 
 NS_ASSUME_NONNULL_BEGIN
+
+BOOL isProfilingAppLaunch;
+NSString *const kSentryLaunchProfileConfigKeyTracesSampleRate = @"traces";
+NSString *const kSentryLaunchProfileConfigKeyProfilesSampleRate = @"profiles";
+NSString *const kSentryLaunchProfileConfigKeyContinuousProfiling = @"continuous-profiling";
+static SentryTracer *_Nullable launchTracer;
 
 #    pragma mark - Private
 
@@ -41,6 +48,7 @@ sentry_config(NSNumber *profilesRate)
 
 typedef struct {
     BOOL shouldProfile;
+    /** Only needed for legacy launch profiling; unused with continuous profiling. */
     SentrySamplerDecision *_Nullable tracesDecision;
     SentrySamplerDecision *_Nullable profilesDecision;
 } SentryLaunchProfileConfig;
@@ -51,12 +59,15 @@ NSString *const kSentryLaunchProfileConfigKeyProfilesSampleRate = @"profiles";
 SentryLaunchProfileConfig
 sentry_shouldProfileNextLaunch(SentryOptions *options)
 {
-    BOOL shouldProfileNextLaunch = options.enableAppLaunchProfiling && options.enableTracing;
+    BOOL shouldProfileNextLaunch = options.enableAppLaunchProfiling
+        && (options.enableContinuousProfiling || options.enableTracing);
     if (!shouldProfileNextLaunch) {
         SENTRY_LOG_DEBUG(@"Won't profile next launch due to specified options configuration: "
-                         @"options.enableAppLaunchProfiling: %d; options.enableTracing: %d",
-            options.enableAppLaunchProfiling, options.enableTracing);
-        return (SentryLaunchProfileConfig) { NO, nil, nil };
+                         @"options.enableAppLaunchProfiling: %d; options.enableTracing: %d; "
+                         @"options.enableContinuousProfiling: %d",
+            options.enableAppLaunchProfiling, options.enableTracing,
+            options.enableContinuousProfiling);
+        return (SentryLaunchProfileConfig) { options.enableAppLaunchProfiling, nil, nil };
     }
 
     SentryTransactionContext *transactionContext =
@@ -64,6 +75,17 @@ sentry_shouldProfileNextLaunch(SentryOptions *options)
     transactionContext.forNextAppLaunch = YES;
     SentrySamplingContext *context =
         [[SentrySamplingContext alloc] initWithTransactionContext:transactionContext];
+
+    if (options.enableContinuousProfiling) {
+        SentrySamplerDecision *profilesSamplerDecision = sampleContinuousProfile(context, options);
+        if (profilesSamplerDecision.decision != kSentrySampleDecisionYes) {
+            SENTRY_LOG_DEBUG(@"Sampling out the launch continuous profile.");
+            return (SentryLaunchProfileConfig) { NO, nil, nil };
+        }
+
+        SENTRY_LOG_DEBUG(@"Will continuously profile the next session starting from launch.");
+        return (SentryLaunchProfileConfig) { YES, nil, profilesSamplerDecision };
+    }
 
     SentrySamplerDecision *tracesSamplerDecision = sentry_sampleTrace(context, options);
     if (tracesSamplerDecision.decision != kSentrySampleDecisionYes) {
@@ -74,11 +96,11 @@ sentry_shouldProfileNextLaunch(SentryOptions *options)
     SentrySamplerDecision *profilesSamplerDecision
         = sentry_sampleProfile(context, tracesSamplerDecision, options);
     if (profilesSamplerDecision.decision != kSentrySampleDecisionYes) {
-        SENTRY_LOG_DEBUG(@"Sampling out the launch profile.");
+        SENTRY_LOG_DEBUG(@"Sampling out the launch legacy profile.");
         return (SentryLaunchProfileConfig) { NO, nil, nil };
     }
 
-    SENTRY_LOG_DEBUG(@"Will profile the next launch.");
+    SENTRY_LOG_DEBUG(@"Will start legacy profile next launch.");
     return (SentryLaunchProfileConfig) { YES, tracesSamplerDecision, profilesSamplerDecision };
 }
 
@@ -111,8 +133,12 @@ sentry_configureLaunchProfiling(SentryOptions *options)
 
         NSMutableDictionary<NSString *, NSNumber *> *configDict =
             [NSMutableDictionary<NSString *, NSNumber *> dictionary];
-        configDict[kSentryLaunchProfileConfigKeyTracesSampleRate]
-            = config.tracesDecision.sampleRate;
+        if (options.enableContinuousProfiling) {
+            configDict[kSentryLaunchProfileConfigKeyContinuousProfiling] = @YES;
+        } else {
+            configDict[kSentryLaunchProfileConfigKeyTracesSampleRate]
+                = config.tracesDecision.sampleRate;
+        }
         configDict[kSentryLaunchProfileConfigKeyProfilesSampleRate]
             = config.profilesDecision.sampleRate;
         writeAppLaunchProfilingConfigFile(configDict);
@@ -122,7 +148,6 @@ sentry_configureLaunchProfiling(SentryOptions *options)
 void
 sentry_startLaunchProfile(void)
 {
-
     static dispatch_once_t onceToken;
     // this function is called from SentryTracer.load but in the future we may expose access
     // directly to customers, and we'll want to ensure it only runs once. dispatch_once is an
@@ -140,12 +165,23 @@ sentry_startLaunchProfile(void)
         [SentryLog configure:YES diagnosticLevel:kSentryLevelDebug];
 #    endif // defined(DEBUG)
 
-        NSDictionary<NSString *, NSNumber *> *rates = appLaunchProfileConfiguration();
-        NSNumber *profilesRate = rates[kSentryLaunchProfileConfigKeyProfilesSampleRate];
-        NSNumber *tracesRate = rates[kSentryLaunchProfileConfigKeyTracesSampleRate];
-        if (profilesRate == nil || tracesRate == nil) {
-            SENTRY_LOG_DEBUG(
-                @"Received a nil configured launch sample rate, will not trace or profile.");
+        NSDictionary<NSString *, NSNumber *> *launchConfig = appLaunchProfileConfiguration();
+        NSNumber *profilesRate = launchConfig[kSentryLaunchProfileConfigKeyProfilesSampleRate];
+        if ([launchConfig[kSentryLaunchProfileConfigKeyContinuousProfiling] boolValue]) {
+            if (profilesRate == nil) {
+                SENTRY_LOG_DEBUG(@"Received a nil configured launch profile sample rate, will not "
+                                 @"start continuous profiler for launch.");
+                return;
+            }
+
+            [SentryContinuousProfiler start];
+            return;
+        }
+
+        NSNumber *tracesRate = launchConfig[kSentryLaunchProfileConfigKeyTracesSampleRate];
+        if (tracesRate == nil) {
+            SENTRY_LOG_DEBUG(@"Received a nil configured launch trace sample rate, will not start "
+                             @"a profiled launch trace.");
             return;
         }
 
