@@ -47,17 +47,17 @@ func encodeToStatsd(flushableBuckets: [BucketTimestamp: [Metric]]) -> Data {
 }
 
 private func sanitize(metricUnit: String) -> String {
-    // We can't use \w because in includes chars like ä on Swift
+    // We can't use \w because it includes chars like ä on Swift
     return metricUnit.replacingOccurrences(of: "[^a-zA-Z0-9_]", with: "", options: .regularExpression)
 }
 
 private func sanitize(metricKey: String) -> String {
-    // We can't use \w because in includes chars like ä on Swift
+    // We can't use \w because it includes chars like ä on Swift
     return metricKey.replacingOccurrences(of: "[^a-zA-Z0-9_.-]+", with: "_", options: .regularExpression)
 }
 
 private func sanitize(tagKey: String) -> String {
-    // We can't use \w because in includes chars like ä on Swift
+    // We can't use \w because it includes chars like ä on Swift
     return tagKey.replacingOccurrences(of: "[^a-zA-Z0-9_/.-]+", with: "", options: .regularExpression)
 }
 
