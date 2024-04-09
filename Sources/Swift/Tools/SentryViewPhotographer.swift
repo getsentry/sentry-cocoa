@@ -83,7 +83,7 @@ class SentryViewPhotographer: NSObject {
 
         let ignore = shouldIgnore(view: view)
         
-        let redact = {
+        let redact: Bool = {
             if redactImage, let imageView = view as? UIImageView {
                 return shouldRedact(imageView: imageView)
             }
