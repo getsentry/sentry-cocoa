@@ -2,20 +2,14 @@
 
 ## 8.24.0-alpha.0
 
-### Improvements
+### Features
 
-- Remove SentryPrivate library (#3623)
-
-### Fixes
-
-- Write NSException reason for crash report (#3705)
-- Add context to event with CrashIntegration disabled (#3699)
+- Add Session Replay (#3625)
 
 ## 8.21.0
 
 ### Features
 
-- Add Session Replay (#3625)
 - Add support for Sentry [Spotlight](https://spotlightjs.com/) (#3642), which is basically Sentry
 for development. Read our [blog post](https://blog.sentry.io/sentry-for-development/) to find out more.
 - Add field `SentrySDK.detectedStartUpCrash` (#3644)
