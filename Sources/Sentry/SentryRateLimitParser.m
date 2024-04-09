@@ -45,8 +45,24 @@ SentryRateLimitParser ()
         }
 
         for (NSNumber *category in [self parseCategories:parameters[1]]) {
-            rateLimits[category] = [self getLongerRateLimit:rateLimits[category]
-                                      andRateLimitInSeconds:rateLimitInSeconds];
+            SentryDataCategory dataCategory
+                = sentryDataCategoryForNSUInteger(category.integerValue);
+
+            // Namespaces should only be available for MetricBucket
+            if (dataCategory == kSentryDataCategoryMetricBucket && parameters.count > 4) {
+                NSString *namespacesAsString = parameters[4];
+
+                NSArray<NSString *> *namespaces =
+                    [namespacesAsString componentsSeparatedByString:@";"];
+                if (namespacesAsString.length == 0 || [namespaces containsObject:@"custom"]) {
+                    rateLimits[category] = [self getLongerRateLimit:rateLimits[category]
+                                              andRateLimitInSeconds:rateLimitInSeconds];
+                }
+
+            } else {
+                rateLimits[category] = [self getLongerRateLimit:rateLimits[category]
+                                          andRateLimitInSeconds:rateLimitInSeconds];
+            }
         }
     }
 
