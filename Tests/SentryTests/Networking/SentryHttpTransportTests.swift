@@ -77,7 +77,9 @@ class SentryHttpTransportTests: XCTestCase {
             fileManager = try! TestFileManager(options: options)
 
             requestManager = TestRequestManager(session: URLSession(configuration: URLSessionConfiguration.ephemeral))
-            rateLimits = DefaultRateLimits(retryAfterHeaderParser: RetryAfterHeaderParser(httpDateParser: HttpDateParser()), andRateLimitParser: RateLimitParser())
+            
+            let currentDate = TestCurrentDateProvider()
+            rateLimits = DefaultRateLimits(retryAfterHeaderParser: RetryAfterHeaderParser(httpDateParser: HttpDateParser(), currentDateProvider: currentDate), andRateLimitParser: RateLimitParser(currentDateProvider: currentDate), currentDateProvider: currentDate)
 
             userFeedback = TestData.userFeedback
             let userFeedbackEnvelope = SentryEnvelope(userFeedback: userFeedback)
@@ -333,6 +335,17 @@ class SentryHttpTransportTests: XCTestCase {
     }
 
     func testSendEventWithRateLimitResponse() {
+        fixture.requestManager.nextError = NSError(domain: "something", code: 12)
+
+        let response = givenRateLimitResponse(forCategory: SentryEnvelopeItemTypeSession)
+
+        sendEvent()
+
+        assertRateLimitUpdated(response: response)
+        assertClientReportStoredInMemory()
+    }
+    
+    func testSendEventWithMetricBucketRateLimitResponse() {
         fixture.requestManager.nextError = NSError(domain: "something", code: 12)
 
         let response = givenRateLimitResponse(forCategory: SentryEnvelopeItemTypeSession)
