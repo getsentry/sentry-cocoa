@@ -21,7 +21,7 @@ SENTRY_EXTERN void startLaunchProfile(void);
  * Stop any profiled trace that may be in flight from the start of the app launch, and transmit the
  * dedicated transaction with the profiling data attached.
  */
-void stopAndTransmitLaunchProfile(SentryHub *hub);
+SENTRY_EXTERN void stopAndTransmitLaunchProfile(SentryHub *hub);
 
 /**
  * Stop the tracer that started the launch profiler. Use when the profiler will be attached to an
@@ -36,7 +36,7 @@ void stopAndDiscardLaunchProfileTracer(void);
  * thread sampling decisions through to SentryHub later when it needs to start a transaction for the
  * profile to be attached to.
  */
-void configureLaunchProfiling(SentryOptions *options);
+SENTRY_EXTERN void configureLaunchProfiling(SentryOptions *options);
 
 NS_ASSUME_NONNULL_END
 

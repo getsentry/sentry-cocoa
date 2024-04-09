@@ -5,25 +5,29 @@
 #    import "SentryContinuousProfiler.h"
 #    import "SentryDefines.h"
 #    import "SentryDependencyContainer.h"
-#    import "SentryFramesTracker.h"
+#    import "SentryDispatchQueueWrapper.h"
 #    import "SentryHub+Private.h"
+#    import "SentryLaunchProfiling.h"
 #    import "SentryLog.h"
 #    import "SentryMetricProfiler.h"
-#    import "SentryNSNotificationCenterWrapper.h"
 #    import "SentryNSTimerFactory.h"
-#    import "SentryOptions.h"
+#    import "SentryOptions+Private.h"
 #    import "SentryProfiledTracerConcurrency.h"
 #    import "SentryProfilerState+ObjCpp.h"
+#    import "SentryProfilerTestHelpers.h"
 #    import "SentrySDK+Private.h"
 #    import "SentrySamplingProfiler.hpp"
 #    import "SentrySwift.h"
 #    import "SentryThreadWrapper.h"
 
 #    if SENTRY_HAS_UIKIT
+#        import "SentryFramesTracker.h"
+#        import "SentryNSNotificationCenterWrapper.h"
+#        import "SentryUIViewControllerPerformanceTracker.h"
 #        import <UIKit/UIKit.h>
 #    endif // SENTRY_HAS_UIKIT
 
-const int kSentryProfilerFrequencyHz = 101;
+static const int kSentryProfilerFrequencyHz = 101;
 NSTimeInterval kSentryProfilerTimeoutInterval = 30;
 
 using namespace sentry::profiling;
@@ -31,10 +35,37 @@ using namespace sentry::profiling;
 std::mutex _gProfilerLock;
 SentryProfiler *_Nullable _gCurrentProfiler;
 
+#    pragma mark - Public
+
+void
+manageProfilerOnStartSDK(SentryOptions *options, SentryHub *hub)
+{
+    BOOL shouldStopAndTransmitLaunchProfile = YES;
+#    if SENTRY_HAS_UIKIT
+    if (SentryUIViewControllerPerformanceTracker.shared.enableWaitForFullDisplay) {
+        shouldStopAndTransmitLaunchProfile = NO;
+    }
+#    endif // SENTRY_HAS_UIKIT
+
+    [SentryDependencyContainer.sharedInstance.dispatchQueueWrapper dispatchAsyncWithBlock:^{
+        if (shouldStopAndTransmitLaunchProfile) {
+            SENTRY_LOG_DEBUG(@"Stopping launch profile in SentrySDK.start because there will "
+                             @"be no automatic trace to attach it to.");
+            stopAndTransmitLaunchProfile(hub);
+        }
+        configureLaunchProfiling(options);
+    }];
+}
+
 @implementation SentryProfiler {
     std::shared_ptr<SamplingProfiler> _profiler;
 
     NSTimer *_timeoutTimer;
+}
+
++ (void)load
+{
+    startLaunchProfile();
 }
 
 #    pragma mark - Private

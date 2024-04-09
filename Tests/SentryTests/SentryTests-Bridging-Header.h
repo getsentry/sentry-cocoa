@@ -33,6 +33,7 @@
 #    import "SentryProfilerMocksSwiftCompatible.h"
 #    import "SentryProfilerSerialization.h"
 #    import "SentryProfilerState.h"
+#    import "SentryProfilerTestHelpers.h"
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
 #import "NSLocale+Sentry.h"

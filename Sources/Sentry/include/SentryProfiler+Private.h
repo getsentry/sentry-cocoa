@@ -2,7 +2,7 @@
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
-#    import "SentryCompiler.h"
+#    import "SentryDefines.h"
 #    import "SentrySpan.h"
 #    import <Foundation/Foundation.h>
 
@@ -10,6 +10,7 @@
 @class SentryEnvelopeItem;
 @class SentryHub;
 @class SentryMetricProfiler;
+@class SentryOptions;
 @class SentryProfilerState;
 @class SentryTransaction;
 
@@ -26,17 +27,12 @@ typedef NS_ENUM(NSUInteger, SentryProfilerTruncationReason) {
 
 NS_ASSUME_NONNULL_BEGIN
 
-SENTRY_EXTERN const int kSentryProfilerFrequencyHz;
-
-SENTRY_EXTERN_C_BEGIN
-
 /**
- * Disable profiling when running with TSAN because it produces a TSAN false positive, similar to
- * the situation described here: https://github.com/envoyproxy/envoy/issues/2561
+ * Perform necessary profiler tasks that should take place when the SDK starts: configure the next
+ * launch's profiling, stop legacy profiling if no automatic performance transaction is running,
+ * start the continuous profiler if enabled and not profiling from launch.
  */
-BOOL threadSanitizerIsPresent(void);
-
-SENTRY_EXTERN_C_END
+SENTRY_EXTERN void manageProfilerOnStartSDK(SentryOptions *options, SentryHub *hub);
 
 /**
  * A wrapper around the low-level components used to gather sampled backtrace profiles.
