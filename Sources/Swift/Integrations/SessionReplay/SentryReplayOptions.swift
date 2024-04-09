@@ -65,6 +65,11 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
     let sessionSegmentDuration = TimeInterval(5)
     
     /**
+     * The maximum duration of a replay session.
+     */
+    let maximumDuration = TimeInterval(3_600)
+    
+    /**
      * Inittialize session replay options disabled
      */
     public override init() {

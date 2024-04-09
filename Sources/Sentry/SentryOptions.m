@@ -755,7 +755,9 @@ isValidSampleRate(NSNumber *sampleRate)
 
 - (instancetype)init
 {
+
     if (self = [super init]) {
+#if SENTRY_UIKIT_AVAILABLE
         self.sessionReplay = [[SentryReplayOptions alloc] initWithSessionSampleRate:0
                                                                     errorSampleRate:0
                                                                       redactAllText:YES
@@ -766,12 +768,12 @@ isValidSampleRate(NSNumber *sampleRate)
 
 - (void)validateOptions:(NSDictionary<NSString *, id> *)options
 {
-#if SENTRY_UIKIT_AVAILABLE
+#    if SENTRY_UIKIT_AVAILABLE
     if ([options[@"sessionReplay"] isKindOfClass:NSDictionary.class]) {
         self.sessionReplay =
             [[SentryReplayOptions alloc] initWithDictionary:options[@"sessionReplay"]];
     }
-#endif
+#    endif
 }
 
 @end
