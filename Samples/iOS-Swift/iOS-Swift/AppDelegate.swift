@@ -23,7 +23,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             options.debug = true
             
             if #available(iOS 16.0, *) {
-                options.experimental.sessionReplay = SentryReplayOptions(sessionSampleRate: 1, errorSampleRate: 1, redactAllText: false, redactAllImages: true)
+                options.experimental.sessionReplay = SentryReplayOptions(sessionSampleRate: 1, errorSampleRate: 1, redactAllText: true, redactAllImages: true)
             }
             
             if #available(iOS 15.0, *) {
@@ -119,8 +119,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 
                 scope.setTag(value: "swift", key: "language")
                
-                let user = User(userId: "1")
-                user.email = "tony@example.com"
+                let user = User(userId: "42")
+                user.email = "Replay@SessionReplay.com"
                 scope.setUser(user)
 
                 if let path = Bundle.main.path(forResource: "Tongariro", ofType: "jpg") {
