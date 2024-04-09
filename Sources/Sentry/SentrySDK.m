@@ -470,6 +470,10 @@ static NSDate *_Nullable startTimestamp = nil;
 {
     SENTRY_LOG_DEBUG(@"Starting to close SDK.");
 
+#if SENTRY_TARGET_PROFILING_SUPPORTED
+    [SentryContinuousProfiler stop];
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED
+
     startTimestamp = nil;
 
     SentryHub *hub = SentrySDK.currentHub;

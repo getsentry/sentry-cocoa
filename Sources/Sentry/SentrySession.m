@@ -1,10 +1,11 @@
 #import "NSMutableDictionary+Sentry.h"
+#import "SentryContinuousProfiler.h"
 #import "SentryDateUtils.h"
 #import "SentryDependencyContainer.h"
 #import "SentryLog.h"
+#import "SentryProfilingConditionals.h"
 #import "SentrySession+Private.h"
 #import "SentrySwift.h"
-
 NS_ASSUME_NONNULL_BEGIN
 
 NSString *
@@ -149,6 +150,9 @@ nameForSentrySessionStatus(SentrySessionStatus status)
         _status = kSentrySessionStatusExited;
         [self endSessionWithTimestamp:timestamp];
     }
+#if SENTRY_TARGET_PROFILING_SUPPORTED
+    [SentryContinuousProfiler stop];
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED
 }
 
 - (void)endSessionCrashedWithTimestamp:(NSDate *)timestamp
