@@ -29,7 +29,8 @@ class SentryViewPhotographer: NSObject {
         ].compactMap { NSClassFromString($0) }
     }
     
-    func image(view: UIView) -> UIImage? {
+    @objc(imageWithView:options:)
+    func image(view: UIView, options: SentryRedactOptions) -> UIImage? {
         UIGraphicsBeginImageContextWithOptions(view.bounds.size, true, 0)
         
         defer {
@@ -39,15 +40,19 @@ class SentryViewPhotographer: NSObject {
         guard let currentContext = UIGraphicsGetCurrentContext() else { return nil }
     
         view.layer.render(in: currentContext)
-        self.mask(view: view, context: currentContext)
+        self.mask(view: view, context: currentContext, options: options)
         
         guard let screenshot = UIGraphicsGetImageFromCurrentImageContext() else { return nil }
         return screenshot
     }
     
-    private func mask(view: UIView, context: CGContext) {
+    private func mask(view: UIView, context: CGContext, options: SentryRedactOptions?) {
         UIColor.black.setFill()
-        let maskPath = self.buildPath(view: view, path: CGMutablePath(), area: view.frame)
+        let maskPath = self.buildPath(view: view,
+                                      path: CGMutablePath(),
+                                      area: view.frame,
+                                      redactText: options?.redactAllText ?? true,
+                                      redactImage: options?.redactAllImages ?? true)
         context.addPath(maskPath)
         context.fillPath()
     }
@@ -57,24 +62,20 @@ class SentryViewPhotographer: NSObject {
     }
     
     private func shouldRedact(view: UIView) -> Bool {
-        if let imageView = view as? UIImageView {
-            return shouldRedact(imageView: imageView)
-        }
-        
-        return redactClasses.contains { view.isKind(of: $0) }
+       return redactClasses.contains { view.isKind(of: $0) }
     }
     
     private func shouldRedact(imageView: UIImageView) -> Bool {
         // Checking the size is to avoid redact gradient backgroud that
         // are usually small lines repeating
         guard let image = imageView.image, image.size.width > 10 && image.size.height > 10  else { return false }
-        return image.imageAsset?.value(forKey: "_containingBundle") != nil
+        return image.imageAsset?.value(forKey: "_containingBundle") == nil
     }
     
-    private func buildPath(view: UIView, path: CGMutablePath, area: CGRect) -> CGMutablePath {
+    private func buildPath(view: UIView, path: CGMutablePath, area: CGRect, redactText: Bool, redactImage: Bool) -> CGMutablePath {
         let rectInWindow = view.convert(view.bounds, to: nil)
 
-        if !area.intersects(rectInWindow) || view.isHidden || view.alpha == 0 {
+        if (!redactImage && !redactText) || !area.intersects(rectInWindow) || view.isHidden || view.alpha == 0 {
             return path
         }
         
@@ -82,7 +83,14 @@ class SentryViewPhotographer: NSObject {
 
         let ignore = shouldIgnore(view: view)
         
-        if !ignore && shouldRedact(view: view) {
+        let redact = {
+            if redactImage, let imageView = view as? UIImageView {
+                return shouldRedact(imageView: imageView)
+            }
+            return redactText && shouldRedact(view: view)
+        }()
+        
+        if !ignore && redact {
             result.addRect(rectInWindow)
             return result
         } else if isOpaqueOrHasBackground(view) {
@@ -91,7 +99,7 @@ class SentryViewPhotographer: NSObject {
 
         if !ignore {
             for subview in view.subviews {
-                result = buildPath(view: subview, path: path, area: area)
+                result = buildPath(view: subview, path: path, area: area, redactText: redactText, redactImage: redactImage)
             }
         }
 

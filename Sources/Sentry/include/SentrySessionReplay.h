@@ -11,6 +11,7 @@
 @class SentryVideoInfo;
 
 @protocol SentryRandom;
+@protocol SentryRedactOptions;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -28,7 +29,7 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 @protocol SentryViewScreenshotProvider <NSObject>
-- (UIImage *)imageWithView:(UIView *)view;
+- (UIImage *)imageWithView:(UIView *)view options:(id<SentryRedactOptions>)options;
 @end
 
 API_AVAILABLE(ios(16.0), tvos(16.0))

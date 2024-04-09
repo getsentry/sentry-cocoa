@@ -757,7 +757,9 @@ isValidSampleRate(NSNumber *sampleRate)
 {
     if (self = [super init]) {
         self.sessionReplay = [[SentryReplayOptions alloc] initWithSessionSampleRate:0
-                                                                    errorSampleRate:0];
+                                                                    errorSampleRate:0
+                                                                      redactAllText:YES
+                                                                    redactAllImages:YES];
     }
     return self;
 }

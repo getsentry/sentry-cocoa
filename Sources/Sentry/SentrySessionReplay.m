@@ -231,7 +231,7 @@ SentrySessionReplay ()
         _processingScreenshot = YES;
     }
 
-    UIImage *screenshot = [_screenshotProvider imageWithView:_rootView];
+    UIImage *screenshot = [_screenshotProvider imageWithView:_rootView options:_replayOptions];
 
     _processingScreenshot = NO;
 

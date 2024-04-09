@@ -1,7 +1,7 @@
 import Foundation
 
 @objcMembers
-public class SentryReplayOptions: NSObject {
+public class SentryReplayOptions: NSObject, SentryRedactOptions {
     /**
      * Indicates the percentage in which the replay for the session will be created.
      * - Specifying @c 0 means never, @c 1.0 means always.
@@ -79,14 +79,18 @@ public class SentryReplayOptions: NSObject {
      *  - errorSampleRate Indicates the percentage in which a 30 seconds replay will be send with
      * error events.
      */
-    public init(sessionSampleRate: Float, errorSampleRate: Float) {
+    public init(sessionSampleRate: Float = 0, errorSampleRate: Float = 0, redactAllText: Bool = true, redactAllImages: Bool = true) {
         self.sessionSampleRate = sessionSampleRate
         self.errorSampleRate = errorSampleRate
+        self.redactAllText = redactAllText
+        self.redactAllImages = redactAllImages
     }
     
     convenience init(dictionary: NSDictionary) {
         let sessionSampleRate = (dictionary["sessionSampleRate"] as? NSNumber)?.floatValue ?? 0
         let onErrorSampleRate = (dictionary["errorSampleRate"] as? NSNumber)?.floatValue ?? 0
-        self.init(sessionSampleRate: sessionSampleRate, errorSampleRate: onErrorSampleRate)
+        let redactAllText = (dictionary["redactAllText"] as? NSNumber)?.boolValue ?? true
+        let redactAllImages = (dictionary["redactAllImages"] as? NSNumber)?.boolValue ?? true
+        self.init(sessionSampleRate: sessionSampleRate, errorSampleRate: onErrorSampleRate, redactAllText: redactAllText, redactAllImages: redactAllImages)
     }
 }
