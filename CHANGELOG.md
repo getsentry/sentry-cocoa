@@ -5,6 +5,8 @@
 ### Features
 
 - Add timing API for Metrics (#3812):
+- Data normalization for Metrics (#3843)
+
 
 ## 8.23.0
 

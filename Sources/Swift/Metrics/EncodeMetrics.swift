@@ -10,10 +10,10 @@ func encodeToStatsd(flushableBuckets: [BucketTimestamp: [Metric]]) -> Data {
         let buckets = bucket.value
         for metric in buckets {
 
-            statsdString.append(sanitize(key: metric.key))
+            statsdString.append(sanitize(metricKey: metric.key))
             statsdString.append("@")
 
-            statsdString.append(metric.unit.unit)
+            statsdString.append(sanitize(metricUnit: metric.unit.unit))
 
             for serializedValue in metric.serialize() {
                 statsdString.append(":\(serializedValue)")
@@ -24,7 +24,7 @@ func encodeToStatsd(flushableBuckets: [BucketTimestamp: [Metric]]) -> Data {
 
             var firstTag = true
             for (tagKey, tagValue) in metric.tags {
-                let sanitizedTagKey = sanitize(key: tagKey)
+                let sanitizedTagKey = sanitize(tagKey: tagKey)
 
                 if firstTag {
                     statsdString.append("|#")
@@ -34,7 +34,7 @@ func encodeToStatsd(flushableBuckets: [BucketTimestamp: [Metric]]) -> Data {
                 }
 
                 statsdString.append("\(sanitizedTagKey):")
-                statsdString.append(sanitize(value: tagValue))
+                statsdString.append(replaceTagValueCharacters(tagValue: tagValue))
             }
 
             statsdString.append("|T")
@@ -46,10 +46,27 @@ func encodeToStatsd(flushableBuckets: [BucketTimestamp: [Metric]]) -> Data {
     return statsdString.data(using: .utf8) ?? Data()
 }
 
-private func sanitize(key: String) -> String {
-    return key.replacingOccurrences(of: "[^a-zA-Z0-9_/.-]+", with: "_", options: .regularExpression)
+private func sanitize(metricUnit: String) -> String {
+    // We can't use \w because in includes chars like ä on Swift
+    return metricUnit.replacingOccurrences(of: "[^a-zA-Z0-9_]", with: "", options: .regularExpression)
 }
 
-private func sanitize(value: String) -> String {
-    return value.replacingOccurrences(of: "[^\\w\\d\\s_:/@\\.\\{\\}\\[\\]$-]+", with: "", options: .regularExpression)
+private func sanitize(metricKey: String) -> String {
+    // We can't use \w because in includes chars like ä on Swift
+    return metricKey.replacingOccurrences(of: "[^a-zA-Z0-9_.-]+", with: "_", options: .regularExpression)
+}
+
+private func sanitize(tagKey: String) -> String {
+    // We can't use \w because in includes chars like ä on Swift
+    return tagKey.replacingOccurrences(of: "[^a-zA-Z0-9_/.-]+", with: "", options: .regularExpression)
+}
+
+private func replaceTagValueCharacters(tagValue: String) -> String {
+    var result = tagValue.replacingOccurrences(of: "\\", with: #"\\\\"#)
+    result = result.replacingOccurrences(of: "\n", with: #"\\n"#)
+    result = result.replacingOccurrences(of: "\r", with: #"\\r"#)
+    result = result.replacingOccurrences(of: "\t", with: #"\\t"#)
+    result = result.replacingOccurrences(of: "|", with: #"\\u{7c}"#)
+    return result.replacingOccurrences(of: ",", with: #"\\u{2c}"#)
+
 }
