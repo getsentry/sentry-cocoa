@@ -184,6 +184,22 @@ class SentrySessionReplayTests: XCTestCase {
         
         assertFullSession(sut, expected: false)
     }
+    
+    @available(iOS 16.0, tvOS 16, *)
+    func testSessionReplayMaximumDuration() {
+        let fixture = startFixture()
+        let sut = fixture.getSut(options: SentryReplayOptions(sessionSampleRate: 1, errorSampleRate: 1))
+        sut.start(fixture.rootView, fullSession: true)
+        
+        Dynamic(sut).newFrame(nil)
+        fixture.dateProvider.advance(by: 5)
+        Dynamic(sut).newFrame(nil)
+        expect(Dynamic(sut).isRunning) == true
+        fixture.dateProvider.advance(by: 3_600)
+        Dynamic(sut).newFrame(nil)
+        
+        expect(Dynamic(sut).isRunning) == false
+    }
 
     @available(iOS 16.0, tvOS 16, *)
     func assertFullSession(_ sessionReplay: SentrySessionReplay, expected: Bool) {

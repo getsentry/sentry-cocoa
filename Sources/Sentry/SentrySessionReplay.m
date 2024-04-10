@@ -18,6 +18,8 @@ NS_ASSUME_NONNULL_BEGIN
 @interface
 SentrySessionReplay ()
 
+@property (nonatomic) BOOL isRunning;
+
 @property (nonatomic) BOOL isFullSession;
 
 @end
@@ -37,8 +39,8 @@ SentrySessionReplay ()
     id<SentryRandom> _sentryRandom;
     id<SentryViewScreenshotProvider> _screenshotProvider;
     int _currentSegmentId;
-    BOOL _isRunning;
     BOOL _processingScreenshot;
+    BOOL _reachedMaximumDuration;
 }
 
 - (instancetype)initWithSettings:(SentryReplayOptions *)replayOptions
@@ -55,9 +57,10 @@ SentrySessionReplay ()
         _sentryRandom = random;
         _screenshotProvider = screenshotProvider;
         _displayLink = displayLinkWrapper;
-        _isRunning = false;
+        _isRunning = NO;
         _urlToCache = folderPath;
         _replayMaker = replayMaker;
+        _reachedMaximumDuration = NO;
     }
     return self;
 }
@@ -72,22 +75,31 @@ SentrySessionReplay ()
     if (_isRunning) {
         return;
     }
+
     @synchronized(self) {
         if (_isRunning) {
             return;
         }
         [_displayLink linkWithTarget:self selector:@selector(newFrame:)];
-        _isRunning = true;
+        _isRunning = YES;
     }
+
     _rootView = rootView;
     _lastScreenShot = _dateProvider.date;
     _videoSegmentStart = nil;
-    _sessionStart = _lastScreenShot;
     _currentSegmentId = 0;
     sessionReplayId = [[SentryId alloc] init];
 
     imageCollection = [NSMutableArray array];
-    _isFullSession = full;
+    if (full) {
+        [self startFullReplay];
+    }
+}
+
+- (void)startFullReplay
+{
+    _sessionStart = _lastScreenShot;
+    _isFullSession = YES;
 }
 
 - (void)stop
@@ -120,12 +132,24 @@ SentrySessionReplay ()
                   duration:_replayOptions.errorReplayDuration
                  startedAt:replayStart];
 
-    self->_isFullSession = YES;
+    [self startFullReplay];
 }
 
 - (void)newFrame:(CADisplayLink *)sender
 {
+    if (!_isRunning) {
+        return;
+    }
+
     NSDate *now = _dateProvider.date;
+
+    if (_isFullSession &&
+        [now timeIntervalSinceDate:_sessionStart] > _replayOptions.maximumDuration) {
+        _reachedMaximumDuration = YES;
+        [self prepareSegmentUntil:now];
+        [self stop];
+        return;
+    }
 
     if ([now timeIntervalSinceDate:_lastScreenShot] >= 1) {
         [self takeScreenshot];
