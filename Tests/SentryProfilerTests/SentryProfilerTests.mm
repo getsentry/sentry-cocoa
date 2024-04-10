@@ -15,7 +15,7 @@
 
 using namespace sentry::profiling;
 
-#    import "SentryProfiler.h"
+#    import "SentryProfiler+Private.h"
 #    import <XCTest/XCTest.h>
 #    import <execinfo.h>
 

@@ -10,7 +10,7 @@
 #import "SentryMeta.h"
 #import "SentryOptions.h"
 #import "SentryProfiledTracerConcurrency.h"
-#import "SentryProfiler.h"
+#import "SentryProfiler+Private.h"
 #import "SentrySDK+Private.h"
 #import "SentrySerialization.h"
 #import "SentrySwift.h"
