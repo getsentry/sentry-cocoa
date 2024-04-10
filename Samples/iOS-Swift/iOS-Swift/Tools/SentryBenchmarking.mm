@@ -88,6 +88,11 @@ dispatch_queue_t queue;
 
 + (NSString *)stopBenchmark
 {
+    if (source == NULL) {
+        printf("[Sentry Benchmark] no benchmark in progress.\n");
+        return nil;
+    }
+
     dispatch_cancel(source);
 
     [samples addObject:cpuInfoByThread()];
