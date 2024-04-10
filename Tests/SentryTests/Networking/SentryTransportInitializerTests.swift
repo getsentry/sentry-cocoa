@@ -19,7 +19,7 @@ class SentryTransportInitializerTests: XCTestCase {
     func testDefault() throws {
         let options = try Options(dict: ["dsn": SentryTransportInitializerTests.dsnAsString])
     
-        let result = TransportInitializer.initTransports(options, sentryFileManager: fileManager)
+        let result = TransportInitializer.initTransports(options, sentryFileManager: fileManager, currentDateProvider: TestCurrentDateProvider())
         expect(result.count) == 1
         
         let firstTransport = result.first

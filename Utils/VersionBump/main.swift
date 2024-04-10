@@ -11,7 +11,6 @@ let files = [
     "./SentrySwiftUI.podspec",
     "./Sources/Sentry/SentryMeta.m",
     "./Sources/Configuration/Sentry.xcconfig",
-    "./Sources/Configuration/SentryPrivate.xcconfig",
     "./Sources/Configuration/SentrySwiftUI.xcconfig",
     "./Samples/iOS-Swift/iOS-Swift.xcodeproj/project.pbxproj",
     "./Tests/HybridSDKTest/HybridPod.podspec"

@@ -17,6 +17,7 @@ on:
       - Sentry.xcodeproj/**
       - Gemfile.lock
       - 'Package.swift'
+      - 'scripts/build-xcframework'
 
 # https://docs.github.com/en/actions/using-jobs/using-concurrency#example-using-a-fallback-value
 concurrency:

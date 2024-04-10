@@ -1,5 +1,5 @@
-#import <NSDate+SentryExtras.h>
 #import <SentryAppState.h>
+#import <SentryDateUtils.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -64,7 +64,7 @@ NS_ASSUME_NONNULL_BEGIN
         id systemBoot = [jsonObject valueForKey:@"system_boot_timestamp"];
         if (systemBoot == nil || ![systemBoot isKindOfClass:[NSString class]])
             return nil;
-        NSDate *systemBootTimestamp = [NSDate sentry_fromIso8601String:systemBoot];
+        NSDate *systemBootTimestamp = sentry_fromIso8601String(systemBoot);
         if (nil == systemBootTimestamp) {
             return nil;
         }
@@ -111,7 +111,7 @@ NS_ASSUME_NONNULL_BEGIN
     [data setValue:self.osVersion forKey:@"os_version"];
     [data setValue:self.vendorId forKey:@"vendor_id"];
     [data setValue:@(self.isDebugging) forKey:@"is_debugging"];
-    [data setValue:[self.systemBootTimestamp sentry_toIso8601String]
+    [data setValue:sentry_toIso8601String(self.systemBootTimestamp)
             forKey:@"system_boot_timestamp"];
     [data setValue:@(self.isActive) forKey:@"is_active"];
     [data setValue:@(self.wasTerminated) forKey:@"was_terminated"];

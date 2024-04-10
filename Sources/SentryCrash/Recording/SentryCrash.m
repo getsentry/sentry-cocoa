@@ -27,20 +27,20 @@
 
 #import "SentryCrash.h"
 
-#import "NSError+SentrySimpleConstructor.h"
 #import "SentryCrashC.h"
 #import "SentryCrashDoctor.h"
 #import "SentryCrashJSONCodecObjC.h"
 #import "SentryCrashMonitorContext.h"
 #import "SentryCrashMonitor_AppState.h"
 #import "SentryCrashMonitor_System.h"
+#import "SentryCrashNSErrorUtil.h"
 #import "SentryCrashReportFields.h"
 #import "SentryCrashReportStore.h"
 #import "SentryCrashSystemCapabilities.h"
 #import "SentryDefines.h"
 #import "SentryDependencyContainer.h"
 #import "SentryNSNotificationCenterWrapper.h"
-#import <NSData+Sentry.h>
+#import <SentryNSDataUtils.h>
 
 // #define SentryCrashLogger_LocalLevel TRACE
 #import "SentryCrashLogger.h"
@@ -121,9 +121,10 @@ SentryCrash ()
         NSError *error = nil;
         NSData *userInfoJSON = nil;
         if (userInfo != nil) {
-            userInfoJSON = [[SentryCrashJSONCodec encode:userInfo
-                                                 options:SentryCrashJSONEncodeOptionSorted
-                                                   error:&error] sentry_nullTerminated];
+            userInfoJSON = sentry_nullTerminated(
+                [SentryCrashJSONCodec encode:userInfo
+                                     options:SentryCrashJSONEncodeOptionSorted
+                                       error:&error]);
             if (error != NULL) {
                 SentryCrashLOG_ERROR(@"Could not serialize user info: %@", error);
                 return;
@@ -366,9 +367,8 @@ SYNTHESIZE_CRASH_STATE_PROPERTY(BOOL, crashedLastLaunch)
 
     if (self.sink == nil) {
         sentrycrash_callCompletion(onCompletion, reports, NO,
-            [NSError sentryErrorWithDomain:[[self class] description]
-                                      code:0
-                               description:@"No sink set. Crash reports not sent."]);
+            sentryErrorWithDomain(
+                [[self class] description], 0, @"No sink set. Crash reports not sent."));
         return;
     }
 

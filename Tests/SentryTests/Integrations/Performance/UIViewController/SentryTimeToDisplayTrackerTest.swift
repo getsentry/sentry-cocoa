@@ -16,7 +16,7 @@ class SentryTimeToDisplayTrackerTest: XCTestCase {
         var framesTracker: SentryFramesTracker
 
         init() {
-            framesTracker = SentryFramesTracker(displayLinkWrapper: displayLinkWrapper, dateProvider: dateProvider, dispatchQueueWrapper: SentryDispatchQueueWrapper(), keepDelayedFramesDuration: 0)
+            framesTracker = SentryFramesTracker(displayLinkWrapper: displayLinkWrapper, dateProvider: dateProvider, dispatchQueueWrapper: TestSentryDispatchQueueWrapper(), keepDelayedFramesDuration: 0)
             SentryDependencyContainer.sharedInstance().framesTracker = framesTracker
             framesTracker.start()
         }
@@ -314,7 +314,7 @@ class SentryTimeToDisplayTrackerTest: XCTestCase {
     }
     
     func testTracerWithAppStartData_notWaitingForFullDisplay() throws {
-        let appStartMeasurement = TestData.getAppStartMeasurement(type: .cold, appStartTimestamp: Date(timeIntervalSince1970: 6))
+        let appStartMeasurement = TestData.getAppStartMeasurement(type: .cold, appStartTimestamp: Date(timeIntervalSince1970: 6), runtimeInitSystemTimestamp: 6_000_000_000)
         SentrySDK.setAppStartMeasurement(appStartMeasurement)
         
         fixture.dateProvider.setDate(date: Date(timeIntervalSince1970: 7))
@@ -347,7 +347,7 @@ class SentryTimeToDisplayTrackerTest: XCTestCase {
     }
     
     func testTracerWithAppStartData_waitingForFullDisplay() throws {
-        let appStartMeasurement = TestData.getAppStartMeasurement(type: .cold, appStartTimestamp: Date(timeIntervalSince1970: 6))
+        let appStartMeasurement = TestData.getAppStartMeasurement(type: .cold, appStartTimestamp: Date(timeIntervalSince1970: 6), runtimeInitSystemTimestamp: 6_000_000_000)
         SentrySDK.setAppStartMeasurement(appStartMeasurement)
         
         fixture.dateProvider.setDate(date: Date(timeIntervalSince1970: 7))

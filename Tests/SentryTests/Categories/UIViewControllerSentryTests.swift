@@ -6,7 +6,7 @@ import XCTest
      func testOnlyOneViewController() {
          let viewController = UIViewController()
 
-         XCTAssertEqual([viewController], viewController.sentry_descendantViewControllers)
+         XCTAssertEqual([viewController], SentryViewController.descendants(of: viewController))
      }
 
      func testTwoChildViewController() {
@@ -18,7 +18,7 @@ import XCTest
          let child2 = UIViewController()
          root.addChild(child2)
 
-         XCTAssertEqual(Set([root, child2, child1]), Set(root.sentry_descendantViewControllers))
+         XCTAssertEqual(Set([root, child2, child1]), Set(SentryViewController.descendants(of: root)))
      }
 
      func testGrandChildViewController() {
@@ -33,7 +33,7 @@ import XCTest
          let grandChild2 = UIViewController()
          child.addChild(grandChild2)
 
-         XCTAssertEqual(Set([root, child, grandChild2, grandChild1]), Set(root.sentry_descendantViewControllers))
+         XCTAssertEqual(Set([root, child, grandChild2, grandChild1]), Set(SentryViewController.descendants(of: root)))
      }
  }
 

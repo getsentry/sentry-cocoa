@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		1573CAE42BBCA5660018A2B7 /* SentrySwiftUI.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1573CAE22BBCA4820018A2B7 /* SentrySwiftUI.xcframework */; };
+		1573CAE52BBCA5660018A2B7 /* SentrySwiftUI.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 1573CAE22BBCA4820018A2B7 /* SentrySwiftUI.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		1573CAE72BBCA8260018A2B7 /* CheckTracedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1573CAE62BBCA8260018A2B7 /* CheckTracedView.swift */; };
 		7BA13E32267B3F5200DEE308 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BA13E31267B3F5200DEE308 /* AppDelegate.swift */; };
 		7BA13E34267B3F5200DEE308 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BA13E33267B3F5200DEE308 /* SceneDelegate.swift */; };
 		7BA13E36267B3F5200DEE308 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BA13E35267B3F5200DEE308 /* ContentView.swift */; };
@@ -24,6 +27,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
+				1573CAE52BBCA5660018A2B7 /* SentrySwiftUI.xcframework in Embed Frameworks */,
 				7BA13E48267B4A2D00DEE308 /* Sentry.xcframework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
@@ -32,6 +36,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		1573CAE22BBCA4820018A2B7 /* SentrySwiftUI.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = SentrySwiftUI.xcframework; path = Carthage/Build/SentrySwiftUI.xcframework; sourceTree = "<group>"; };
+		1573CAE62BBCA8260018A2B7 /* CheckTracedView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CheckTracedView.swift; sourceTree = "<group>"; };
 		7BA13E2E267B3F5200DEE308 /* XCFramework.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = XCFramework.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		7BA13E31267B3F5200DEE308 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		7BA13E33267B3F5200DEE308 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -48,6 +54,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1573CAE42BBCA5660018A2B7 /* SentrySwiftUI.xcframework in Frameworks */,
 				7BA13E47267B4A2D00DEE308 /* Sentry.xcframework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -78,6 +85,7 @@
 				7BA13E31267B3F5200DEE308 /* AppDelegate.swift */,
 				7BA13E33267B3F5200DEE308 /* SceneDelegate.swift */,
 				7BA13E35267B3F5200DEE308 /* ContentView.swift */,
+				1573CAE62BBCA8260018A2B7 /* CheckTracedView.swift */,
 				7BA13E37267B3F5400DEE308 /* Assets.xcassets */,
 				7BA13E3C267B3F5400DEE308 /* LaunchScreen.storyboard */,
 				7BA13E3F267B3F5400DEE308 /* Info.plist */,
@@ -98,6 +106,7 @@
 			isa = PBXGroup;
 			children = (
 				7BA13E46267B4A2D00DEE308 /* Sentry.xcframework */,
+				1573CAE22BBCA4820018A2B7 /* SentrySwiftUI.xcframework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -174,6 +183,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				7BA13E32267B3F5200DEE308 /* AppDelegate.swift in Sources */,
+				1573CAE72BBCA8260018A2B7 /* CheckTracedView.swift in Sources */,
 				7BA13E34267B3F5200DEE308 /* SceneDelegate.swift in Sources */,
 				7BA13E36267B3F5200DEE308 /* ContentView.swift in Sources */,
 			);

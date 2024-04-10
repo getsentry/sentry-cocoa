@@ -2,7 +2,7 @@
 
 #import "SentryDefines.h"
 
-#if SENTRY_TARGET_MACOS
+#if SENTRY_TARGET_MACOS_HAS_UI
 #    import <Cocoa/Cocoa.h>
 #endif
 
@@ -30,7 +30,7 @@ NS_ASSUME_NONNULL_BEGIN
     return UIApplicationWillTerminateNotification;
 }
 
-#elif SENTRY_TARGET_MACOS
+#elif SENTRY_TARGET_MACOS_HAS_UI
 + (NSNotificationName)didBecomeActiveNotificationName
 {
     return NSApplicationDidBecomeActiveNotification;

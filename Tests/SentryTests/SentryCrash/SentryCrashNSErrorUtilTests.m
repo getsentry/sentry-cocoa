@@ -27,7 +27,7 @@
 
 #import <XCTest/XCTest.h>
 
-#import "NSError+SentrySimpleConstructor.h"
+#import "SentryCrashNSErrorUtil.h"
 
 @interface NSError_SimpleConstructor_Tests : XCTestCase
 @end
@@ -36,48 +36,13 @@
 
 - (void)testSentryErrorWithDomain
 {
-    NSError *error = [NSError sentryErrorWithDomain:@"Domain"
-                                               code:10
-                                        description:@"A description %d", 1];
+    NSError *error = sentryErrorWithDomain(@"Domain", 10, @"A description %d", 1);
     NSString *expectedDomain = @"Domain";
     NSInteger expectedCode = 10;
     NSString *expectedDescription = @"A description 1";
     XCTAssertEqualObjects(error.domain, expectedDomain, @"");
     XCTAssertEqual(error.code, expectedCode, @"");
     XCTAssertEqualObjects(error.localizedDescription, expectedDescription, @"");
-}
-
-- (void)testSentryFillError
-{
-    NSError *error = nil;
-    [NSError sentryFillError:&error
-                  withDomain:@"Domain"
-                        code:10
-                 description:@"A description %d", 1];
-    NSString *expectedDomain = @"Domain";
-    NSInteger expectedCode = 10;
-    NSString *expectedDescription = @"A description 1";
-    XCTAssertEqualObjects(error.domain, expectedDomain, @"");
-    XCTAssertEqual(error.code, expectedCode, @"");
-    XCTAssertEqualObjects(error.localizedDescription, expectedDescription, @"");
-}
-
-- (void)testSentryFillErrorNil
-{
-    [NSError sentryFillError:nil withDomain:@"Domain" code:10 description:@"A description %d", 1];
-}
-
-- (void)testSentryClearError
-{
-    NSError *error = [NSError sentryErrorWithDomain:@"" code:1 description:@""];
-    XCTAssertNotNil(error, @"");
-    [NSError sentryClearError:&error];
-    XCTAssertNil(error, @"");
-}
-
-- (void)testSentryClearErrorNil
-{
-    [NSError sentryClearError:nil];
 }
 
 @end

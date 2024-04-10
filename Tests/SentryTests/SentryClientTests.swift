@@ -853,7 +853,7 @@ class SentryClientTest: XCTestCase {
             }
                 
             XCTAssertEqual(culture?["locale"] as? String, fixture.locale.identifier)
-            XCTAssertEqual(culture?["is_24_hour_format"] as? Bool, (fixture.locale as NSLocale).sentry_timeIs24HourFormat())
+            XCTAssertEqual(culture?["is_24_hour_format"] as? Bool, SentryLocale.timeIs24HourFormat())
             XCTAssertEqual(culture?["timezone"] as? String, fixture.timezone.identifier)
         }
     }
@@ -1442,6 +1442,22 @@ class SentryClientTest: XCTestCase {
         }).captureCrash(event, with: fixture.session, with: fixture.scope)
         
         XCTAssertTrue(onCrashedLastRunCalled)
+    }
+    
+    func testOnCrashedLastRun_DontRunIfBeforeSendReturnsNill() {
+        let event = TestData.event
+        
+        var onCrashedLastRunCalled = false
+        fixture.getSut(configureOptions: { options in
+            options.beforeSend = { _ in
+                return nil
+            }
+            options.onCrashedLastRun = { _ in
+                onCrashedLastRunCalled = true
+            }
+        }).captureCrash(event, with: fixture.session, with: fixture.scope)
+        
+        XCTAssertFalse(onCrashedLastRunCalled)
     }
     
     func testOnCrashedLastRun_WithTwoCrashes_OnlyInvokeCallbackOnce() {

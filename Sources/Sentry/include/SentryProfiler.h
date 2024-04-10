@@ -81,7 +81,8 @@ SENTRY_EXTERN_C_END
  * attached to the transaction envelope.
  * */
 + (nullable SentryEnvelopeItem *)createProfilingEnvelopeItemForTransaction:
-    (SentryTransaction *)transaction;
+                                     (SentryTransaction *)transaction
+                                                            startTimestamp:startTimestamp;
 
 /**
  * Collect profile data corresponding with the given traceId and time period.

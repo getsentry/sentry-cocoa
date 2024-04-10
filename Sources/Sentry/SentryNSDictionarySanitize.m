@@ -1,15 +1,16 @@
+#import "SentryNSDictionarySanitize.h"
 #import "NSArray+SentrySanitize.h"
-#import "NSDate+SentryExtras.h"
-#import "NSDictionary+SentrySanitize.h"
+#import "SentryDateUtils.h"
 
-@implementation
-NSDictionary (SentrySanitize)
-
-- (NSDictionary *)sentry_sanitize
+NSDictionary *_Nullable sentry_sanitize(NSDictionary *_Nullable dictionary)
 {
+    if (dictionary == nil) {
+        return nil;
+    }
+
     NSMutableDictionary *dict = [NSMutableDictionary dictionary];
-    for (id rawKey in self.allKeys) {
-        id rawValue = [self objectForKey:rawKey];
+    for (id rawKey in dictionary.allKeys) {
+        id rawValue = [dictionary objectForKey:rawKey];
 
         NSString *stringKey;
         if ([rawKey isKindOfClass:NSString.class]) {
@@ -27,16 +28,16 @@ NSDictionary (SentrySanitize)
         } else if ([rawValue isKindOfClass:NSNumber.class]) {
             [dict setValue:rawValue forKey:stringKey];
         } else if ([rawValue isKindOfClass:NSDictionary.class]) {
-            [dict setValue:[(NSDictionary *)rawValue sentry_sanitize] forKey:stringKey];
+            NSDictionary *innerDict = (NSDictionary *)rawValue;
+            [dict setValue:sentry_sanitize(innerDict) forKey:stringKey];
         } else if ([rawValue isKindOfClass:NSArray.class]) {
-            [dict setValue:[(NSArray *)rawValue sentry_sanitize] forKey:stringKey];
+            [dict setValue:[SentryArray sanitizeArray:rawValue] forKey:stringKey];
         } else if ([rawValue isKindOfClass:NSDate.class]) {
-            [dict setValue:[(NSDate *)rawValue sentry_toIso8601String] forKey:stringKey];
+            NSDate *date = (NSDate *)rawValue;
+            [dict setValue:sentry_toIso8601String(date) forKey:stringKey];
         } else {
             [dict setValue:[rawValue description] forKey:stringKey];
         }
     }
     return dict;
 }
-
-@end

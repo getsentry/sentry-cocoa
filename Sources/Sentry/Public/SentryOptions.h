@@ -372,6 +372,21 @@ NS_SWIFT_NAME(Options)
 @property (nonatomic, assign) BOOL enableSwizzling;
 
 /**
+ * An array of class names to ignore for swizzling.
+ *
+ * @discussion The SDK checks if a class name of a class to swizzle contains a class name of this
+ * array. For example, if you add MyUIViewController to this list, the SDK excludes the following
+ * classes from swizzling: YourApp.MyUIViewController, YourApp.MyUIViewControllerA,
+ * MyApp.MyUIViewController.
+ * We can't use an @c NSArray<Class>  here because we use this as a workaround for which users have
+ * to pass in class names that aren't available on specific iOS versions. By using @c
+ * NSArray<NSString *>, users can specify unavailable class names.
+ *
+ * @note Default is an empty array.
+ */
+@property (nonatomic, strong) NSSet<NSString *> *swizzleClassNameExcludes;
+
+/**
  * When enabled, the SDK tracks the performance of Core Data operations. It requires enabling
  * performance monitoring. The default is @c YES.
  * @see <https://docs.sentry.io/platforms/apple/performance/>
@@ -559,6 +574,38 @@ NS_SWIFT_NAME(Options)
  * https://spotlightjs.com/
  */
 @property (nonatomic, copy) NSString *spotlightUrl;
+
+/**
+ * Wether to enable DDM (delightful developer metrics) or not. For more information see
+ * https://docs.sentry.io/product/metrics/.
+ *
+ * @warning This is an experimental feature and may still have bugs.
+ * @note Default value is @c NO .
+ */
+@property (nonatomic, assign) BOOL enableMetrics;
+
+/**
+ * Wether to enable adding some default tags to every metrics or not. You need to enable @c
+ * enableMetrics for this flag to work.
+ *
+ * @warning This is an experimental feature and may still have bugs.
+ * @note Default value is @c YES .
+ */
+@property (nonatomic, assign) BOOL enableDefaultTagsForMetrics;
+
+/**
+ * Wether to enable connecting metrics to spans and transactions or not. You need to enable @c
+ * enableMetrics for this flag to work.
+ *
+ * @warning This is an experimental feature and may still have bugs.
+ * @note Default value is @c YES .
+ */
+@property (nonatomic, assign) BOOL enableSpanLocalMetricAggregation;
+
+/**
+ * This block can be used to modify the event before it will be serialized and sent.
+ */
+@property (nullable, nonatomic, copy) SentryBeforeEmitMetricCallback beforeEmitMetric;
 
 /**
  * This will agreggate options for all experimental features.

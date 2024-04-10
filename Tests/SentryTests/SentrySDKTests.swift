@@ -723,6 +723,47 @@ class SentrySDKTests: XCTestCase {
         XCTAssert(mainThreadIntegration.installedInTheMainThread, "SDK is not being initialized in the main thread")
         
     }
+    
+    func testMetrics_IncrementOneValue() throws {
+        let options = fixture.options
+        options.enableMetrics = true
+        
+        SentrySDK.start(options: options)
+        let client = try XCTUnwrap(TestClient(options: options))
+        let hub = SentryHub(client: client, andScope: nil)
+        SentrySDK.setCurrentHub(hub)
+        
+        SentrySDK.metrics.increment(key: "key")
+        SentrySDK.flush(timeout: 1.0)
+        
+        expect(client.captureEnvelopeInvocations.count) == 1
+        
+        let envelope = try XCTUnwrap(client.captureEnvelopeInvocations.first)
+        expect(envelope.header.eventId) != nil
+
+        // We only check if it's an envelope with a statsd envelope item.
+        // We validate the contents of the envelope in SentryMetricsClientTests
+        expect(envelope.items.count) == 1
+        let envelopeItem = try XCTUnwrap(envelope.items.first)
+        expect(envelopeItem.header.type) == SentryEnvelopeItemTypeStatsd
+        expect(envelopeItem.header.contentType) == "application/octet-stream"
+    }
+    
+    func testMetrics_BeforeEmitMetricCallback_DiscardEveryThing() throws {
+        let options = fixture.options
+        options.enableMetrics = true
+        options.beforeEmitMetric = { _, _ in false }
+        
+        SentrySDK.start(options: options)
+        let client = try XCTUnwrap(TestClient(options: options))
+        let hub = SentryHub(client: client, andScope: nil)
+        SentrySDK.setCurrentHub(hub)
+        
+        SentrySDK.metrics.increment(key: "key")
+        SentrySDK.flush(timeout: 1.0)
+        
+        expect(client.captureEnvelopeInvocations.count) == 0
+    }
 
 #if SENTRY_HAS_UIKIT
     

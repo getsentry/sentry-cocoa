@@ -1,5 +1,4 @@
 #import "SentryRetryAfterHeaderParser.h"
-#import "SentryDependencyContainer.h"
 #import "SentryHttpDateParser.h"
 #import "SentrySwift.h"
 #import <Foundation/Foundation.h>
@@ -10,15 +9,18 @@ NS_ASSUME_NONNULL_BEGIN
 SentryRetryAfterHeaderParser ()
 
 @property (nonatomic, strong) SentryHttpDateParser *httpDateParser;
+@property (nonatomic, strong) SentryCurrentDateProvider *currentDateProvider;
 
 @end
 
 @implementation SentryRetryAfterHeaderParser
 
 - (instancetype)initWithHttpDateParser:(SentryHttpDateParser *)httpDateParser
+                   currentDateProvider:(SentryCurrentDateProvider *)currentDateProvider
 {
     if (self = [super init]) {
         self.httpDateParser = httpDateParser;
+        self.currentDateProvider = currentDateProvider;
     }
     return self;
 }
@@ -31,8 +33,7 @@ SentryRetryAfterHeaderParser ()
 
     NSInteger retryAfterSeconds = [retryAfterHeader integerValue];
     if (0 != retryAfterSeconds) {
-        return [[SentryDependencyContainer.sharedInstance.dateProvider date]
-            dateByAddingTimeInterval:retryAfterSeconds];
+        return [self.currentDateProvider.date dateByAddingTimeInterval:retryAfterSeconds];
     }
 
     // parsing as double/seconds failed, try to parse as date

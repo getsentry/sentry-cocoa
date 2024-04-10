@@ -60,7 +60,18 @@ class TopViewControllerTests: BaseUITest {
         getTopBT.tap()
         XCTAssertEqual(lbTopVC.label, "RedViewController")
     }
-    
+
+    func testChildControllerLoadCount() {
+        app.buttons["Transactions"].tap()
+        app.buttons["Container Controller"].tap()
+
+        XCTAssertEqual(app.staticTexts["LBL_LOAD_COUNT"].label, "loadView() called 1 times")
+
+        app.buttons["Replace content"].tap()
+
+        XCTAssertEqual(app.staticTexts["LBL_LOAD_COUNT"].label, "loadView() called 1 times")
+    }
+
     func openInspector() {
         app.buttons["Extra"].tap()
         app.buttons["TOPVCBTN"].tap()

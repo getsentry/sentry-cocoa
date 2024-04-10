@@ -1,5 +1,5 @@
+import _SentryPrivate
 import Foundation
-import Sentry
 
 public class TestDispatchFactory: SentryDispatchFactory {
     public var vendedSourceHandler: ((TestDispatchSourceWrapper) -> Void)?

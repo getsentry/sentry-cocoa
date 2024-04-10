@@ -27,43 +27,27 @@
 
 #import <Foundation/Foundation.h>
 
-/**
- * Simpler interface for constructing NSError objects.
- */
-@interface
-NSError (SentrySimpleConstructor)
+NS_ASSUME_NONNULL_BEGIN
 
 /** Convenience constructor to make an error with the specified localized
  * description.
  *
  * @param domain The domain
  * @param code The code
- * @param fmt Description of the error (gets placed into the user data with the
+ * @param format Description of the error (gets placed into the user data with the
  * key NSLocalizedDescriptionKey).
  */
-+ (NSError *)sentryErrorWithDomain:(NSString *)domain
-                              code:(NSInteger)code
-                       description:(NSString *)fmt, ...;
+NSError *sentryErrorWithDomain(NSString *domain, NSInteger code, NSString *format, ...);
 
 /** Fill an error pointer with an NSError object if it's not nil.
  *
  * @param error Error pointer to fill (ignored if nil).
  * @param domain The domain
  * @param code The code
- * @param fmt Description of the error (gets placed into the user data with the
+ * @param format Description of the error (gets placed into the user data with the
  * key NSLocalizedDescriptionKey).
  * @return NO (to keep the analyzer happy).
  */
-+ (BOOL)sentryFillError:(NSError **)error
-             withDomain:(NSString *)domain
-                   code:(NSInteger)code
-            description:(NSString *)fmt, ...;
+BOOL sentryFillError(NSError **error, NSString *domain, NSInteger code, NSString *format, ...);
 
-/** Clear a pointer-to-error to nil of its pointer is not nil.
- *
- * @param error Error pointer to fill (ignored if nil).
- * @return NO (to keep the analyzer happy).
- */
-+ (BOOL)sentryClearError:(NSError **)error;
-
-@end
+NS_ASSUME_NONNULL_END
