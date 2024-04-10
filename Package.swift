@@ -3,7 +3,7 @@ import PackageDescription
 
 let package = Package(
     name: "Sentry",
-    platforms: [.iOS(.v11), .macOS(.v10_13), .tvOS(.v11), .watchOS(.v4)],
+    platforms: [.iOS(.v13), .macOS(.v10_15), .tvOS(.v13), .watchOS(.v6)],
     products: [
         .library(name: "Sentry", targets: ["Sentry"]),
         .library(name: "Sentry-Dynamic", targets: ["Sentry-Dynamic"]),
