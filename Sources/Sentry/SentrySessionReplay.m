@@ -241,6 +241,11 @@ SentrySessionReplay ()
     [SentrySDK.currentHub captureReplayEvent:replayEvent
                              replayRecording:recording
                                        video:videoInfo.path];
+
+    NSError *error;
+    if (![NSFileManager.defaultManager removeItemAtURL:videoInfo.path error:&error]) {
+        SENTRY_LOG_ERROR(@"Cound not delete replay segment from disk: %@", error);
+    }
 }
 
 - (void)takeScreenshot
@@ -255,7 +260,7 @@ SentrySessionReplay ()
         _processingScreenshot = YES;
     }
 
-    UIImage *screenshot = [_screenshotProvider imageWithView:_rootView];
+    UIImage *screenshot = [_screenshotProvider imageWithView:_rootView options:_replayOptions];
 
     _processingScreenshot = NO;
 
