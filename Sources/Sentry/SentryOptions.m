@@ -16,6 +16,7 @@
 #import "SentrySDK.h"
 #import "SentryScope.h"
 #import "SentrySessionReplayIntegration.h"
+#import "SentrySwift.h"
 #import "SentrySwiftAsyncIntegration.h"
 #import <objc/runtime.h>
 
@@ -33,13 +34,6 @@
 #    import "SentryMetricKitIntegration.h"
 #endif // SENTRY_HAS_METRIC_KIT
 NSString *const kSentryDefaultEnvironment = @"production";
-
-@interface
-SentryExperimentalOptions ()
-
-- (void)validateOptions:(NSDictionary<NSString *, id> *)options;
-
-@end
 
 @implementation SentryOptions {
     BOOL _enableTracingManual;
@@ -748,33 +742,5 @@ isValidSampleRate(NSNumber *sampleRate)
     return [NSString stringWithFormat:@"<%@: {\n%@\n}>", self, propertiesDescription];
 }
 #endif // defined(DEBUG) || defined(TEST) || defined(TESTCI)
-
-@end
-
-@implementation SentryExperimentalOptions
-
-- (instancetype)init
-{
-
-    if (self = [super init]) {
-#if SENTRY_UIKIT_AVAILABLE
-        self.sessionReplay = [[SentryReplayOptions alloc] initWithSessionSampleRate:0
-                                                                    errorSampleRate:0
-                                                                      redactAllText:YES
-                                                                    redactAllImages:YES];
-#endif
-    }
-    return self;
-}
-
-- (void)validateOptions:(NSDictionary<NSString *, id> *)options
-{
-#if SENTRY_UIKIT_AVAILABLE
-    if ([options[@"sessionReplay"] isKindOfClass:NSDictionary.class]) {
-        self.sessionReplay =
-            [[SentryReplayOptions alloc] initWithDictionary:options[@"sessionReplay"]];
-    }
-#endif
-}
 
 @end
