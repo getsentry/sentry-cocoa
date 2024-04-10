@@ -14,5 +14,4 @@ public class SentryExperimentalOptions: NSObject {
         }
         #endif
     }
-
 }

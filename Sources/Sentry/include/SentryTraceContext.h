@@ -53,6 +53,11 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nullable, nonatomic, readonly) NSString *sampled;
 
 /**
+ * Id of the current session replay.
+ */
+@property (nullable, nonatomic, strong) SentryId *replayId;
+
+/**
  * Initializes a SentryTraceContext with given properties.
  */
 - (instancetype)initWithTraceId:(SentryId *)traceId
