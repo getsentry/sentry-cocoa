@@ -680,6 +680,8 @@
 		849AC40029E0C1FF00889C16 /* SentryFormatterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849AC3FF29E0C1FF00889C16 /* SentryFormatterTests.swift */; };
 		84A305572BC9EF8C00D84283 /* SentryLegacyProfiler.h in Headers */ = {isa = PBXBuildFile; fileRef = 84A305552BC9EF8C00D84283 /* SentryLegacyProfiler.h */; };
 		84A305582BC9EF8C00D84283 /* SentryLegacyProfiler.mm in Sources */ = {isa = PBXBuildFile; fileRef = 84A305562BC9EF8C00D84283 /* SentryLegacyProfiler.mm */; };
+		84A305462BC729E100D84283 /* Quick in Frameworks */ = {isa = PBXBuildFile; productRef = 84A305452BC729E100D84283 /* Quick */; };
+		84A305492BC7328400D84283 /* SentryAppLaunchProfilingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84A305472BC72A0A00D84283 /* SentryAppLaunchProfilingTests.swift */; };
 		84A5D75B29D5170700388BFA /* TimeInterval+Sentry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84A5D75A29D5170700388BFA /* TimeInterval+Sentry.swift */; };
 		84A8891C28DBD28900C51DFD /* SentryDevice.h in Headers */ = {isa = PBXBuildFile; fileRef = 84A8891A28DBD28900C51DFD /* SentryDevice.h */; };
 		84A8891D28DBD28900C51DFD /* SentryDevice.mm in Sources */ = {isa = PBXBuildFile; fileRef = 84A8891B28DBD28900C51DFD /* SentryDevice.mm */; };
@@ -1707,6 +1709,7 @@
 		849472842971C41A002603DE /* SentryNSTimerFactoryTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryNSTimerFactoryTest.swift; sourceTree = "<group>"; };
 		849AC3FF29E0C1FF00889C16 /* SentryFormatterTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SentryFormatterTests.swift; sourceTree = "<group>"; };
 		84A305552BC9EF8C00D84283 /* SentryLegacyProfiler.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SentryLegacyProfiler.h; path = ../include/SentryLegacyProfiler.h; sourceTree = "<group>"; };
+		84A305472BC72A0A00D84283 /* SentryAppLaunchProfilingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryAppLaunchProfilingTests.swift; sourceTree = "<group>"; };
 		84A305562BC9EF8C00D84283 /* SentryLegacyProfiler.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = SentryLegacyProfiler.mm; sourceTree = "<group>"; };
 		84A305592BC9FD1600D84283 /* SentryLegacyProfiler+Test.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "SentryLegacyProfiler+Test.h"; sourceTree = "<group>"; };
 		84A5D75A29D5170700388BFA /* TimeInterval+Sentry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TimeInterval+Sentry.swift"; sourceTree = "<group>"; };
@@ -1968,6 +1971,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				84A305462BC729E100D84283 /* Quick in Frameworks */,
 				84B7FA3D29B2879C00AD93B1 /* libSentryTestUtils.a in Frameworks */,
 				8431EFD129B27B1100D8DC56 /* Sentry.framework in Frameworks */,
 			);
@@ -3390,6 +3394,7 @@
 				035E73CD27D5790A005EEB11 /* SentryThreadMetadataCacheTests.mm */,
 				03F9D37B2819A65C00602916 /* SentryProfilerTests.mm */,
 				840A11092B5F47F700650D02 /* SentryAppLaunchProfilingTests.m */,
+				84A305472BC72A0A00D84283 /* SentryAppLaunchProfilingTests.swift */,
 				8419C0C328C1889D001C8259 /* SentryLegacyProfilerTests.swift */,
 				8446F5182BE172290040D57E /* SentryContinuousProfilerTests.swift */,
 				8431D4522BE1741E009EAEC1 /* SentryProfileTestFixture.swift */,
@@ -4196,6 +4201,9 @@
 				8431EED229B27B1100D8DC56 /* PBXTargetDependency */,
 			);
 			name = SentryProfilerTests;
+			packageProductDependencies = (
+				84A305452BC729E100D84283 /* Quick */,
+			);
 			productName = "Tests-iOS";
 			productReference = 8431EFD929B27B1100D8DC56 /* SentryProfilerTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
@@ -4304,6 +4312,7 @@
 			mainGroup = 6327C5C91EB8A783004E799B;
 			packageReferences = (
 				62986F012B03D250008E2D62 /* XCRemoteSwiftPackageReference "Nimble" */,
+				84A305442BC729E100D84283 /* XCRemoteSwiftPackageReference "Quick" */,
 			);
 			productRefGroup = 6327C5D41EB8A783004E799B /* Products */;
 			projectDirPath = "";
@@ -4922,6 +4931,7 @@
 				8431EFDF29B27B5300D8DC56 /* SentryThreadHandleTests.mm in Sources */,
 				840A11132B61FE5800650D02 /* SentryAppLaunchProfilingTests.m in Sources */,
 				8431EFE829B27BAD00D8DC56 /* SentrySystemWrapperTests.swift in Sources */,
+				84A305492BC7328400D84283 /* SentryAppLaunchProfilingTests.swift in Sources */,
 				8431EFE529B27BAD00D8DC56 /* SentryNSProcessInfoWrapperTests.swift in Sources */,
 				8431EFDE29B27B5300D8DC56 /* SentryLegacyProfilerTests.swift in Sources */,
 			);
@@ -6901,6 +6911,14 @@
 				version = 10.0.0;
 			};
 		};
+		84A305442BC729E100D84283 /* XCRemoteSwiftPackageReference "Quick" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/Quick/Quick";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 7.5.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -6908,6 +6926,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 62986F012B03D250008E2D62 /* XCRemoteSwiftPackageReference "Nimble" */;
 			productName = Nimble;
+		};
+		84A305452BC729E100D84283 /* Quick */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 84A305442BC729E100D84283 /* XCRemoteSwiftPackageReference "Quick" */;
+			productName = Quick;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
