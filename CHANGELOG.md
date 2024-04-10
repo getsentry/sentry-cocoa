@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Changes
+
+- Update deployment targets for macOS/iOS/tvOS/watchOS (#3845)
+
 ### Features
 
 - Add timing API for Metrics (#3812):
