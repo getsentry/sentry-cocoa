@@ -4,7 +4,7 @@
 
 ### Changes
 
-- Update deployment targets for macOS/iOS/tvOS/watchOS (#3845)
+- Update deployment targets for: macOS (10.13 -> 10.15), iOS/tvOS (11 -> 13), watchOS (4 -> 6) (#3845)
 
 ### Features
 
