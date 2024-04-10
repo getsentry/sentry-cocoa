@@ -8,7 +8,7 @@
 #    import "SentryInternalDefines.h"
 #    import "SentryLog.h"
 #    import "SentryOptions.h"
-#    import "SentryProfiler.h"
+#    import "SentryProfiler+Private.h"
 #    import "SentryRandom.h"
 #    import "SentrySamplerDecision.h"
 #    import "SentrySampling.h"
