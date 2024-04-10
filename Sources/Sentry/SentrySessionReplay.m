@@ -242,7 +242,10 @@ SentrySessionReplay ()
                              replayRecording:recording
                                        video:videoInfo.path];
 
-    [NSFileManager.defaultManager removeItemAtURL:videoInfo.path error:nil];
+    NSError *error;
+    if (![NSFileManager.defaultManager removeItemAtURL:videoInfo.path error:&error]) {
+        SENTRY_LOG_ERROR(@"Cound not delete replay segment from disk: %@", error);
+    }
 }
 
 - (void)takeScreenshot

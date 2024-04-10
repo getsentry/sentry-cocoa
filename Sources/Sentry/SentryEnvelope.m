@@ -228,7 +228,10 @@ NS_ASSUME_NONNULL_BEGIN
 
     NSData *envelopeItemContent = [NSData dataWithContentsOfURL:envelopeContentUrl];
 
-    [NSFileManager.defaultManager removeItemAtURL:envelopeContentUrl error:nil];
+    NSError *error;
+    if (![NSFileManager.defaultManager removeItemAtURL:envelopeContentUrl error:&error]) {
+        SENTRY_LOG_ERROR(@"Cound not delete temporary replay content from disk: %@", error);
+    }
     return [self initWithHeader:[[SentryEnvelopeItemHeader alloc]
                                     initWithType:SentryEnvelopeItemTypeReplayVideo
                                           length:envelopeItemContent.length]
