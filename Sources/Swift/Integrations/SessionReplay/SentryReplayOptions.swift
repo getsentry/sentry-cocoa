@@ -68,7 +68,7 @@ public class SentryReplayOptions: NSObject {
         self.errorSampleRate = errorSampleRate
     }
     
-    convenience init(dictionary: NSDictionary) {
+    convenience init(dictionary: [String: Any]) {
         let sessionSampleRate = (dictionary["sessionSampleRate"] as? NSNumber)?.floatValue ?? 0
         let onErrorSampleRate = (dictionary["errorSampleRate"] as? NSNumber)?.floatValue ?? 0
         self.init(sessionSampleRate: sessionSampleRate, errorSampleRate: onErrorSampleRate)

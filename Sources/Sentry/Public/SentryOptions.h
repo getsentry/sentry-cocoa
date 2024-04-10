@@ -568,17 +568,4 @@ NS_SWIFT_NAME(Options)
 
 @end
 
-@interface SentryExperimentalOptions : NSObject
-
-#if SENTRY_UIKIT_AVAILABLE
-
-/**
- * Settings to configure the session replay.
- */
-@property (nonatomic, strong) SentryReplayOptions *sessionReplay;
-
-#endif //
-
-@end
-
 NS_ASSUME_NONNULL_END
