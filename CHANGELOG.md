@@ -7,6 +7,7 @@
 - Add timing API for Metrics (#3812):
 - Add [rate limiting](https://develop.sentry.dev/sdk/rate-limiting/) for Metrics (#3838)
 - Data normalization for Metrics (#3843)
+- Add Session Replay (#3625)
 
 ## 8.23.0
 
@@ -78,7 +79,6 @@ CocoaPods, which you shouldn't have included directly.
 
 ### Features
 
-- Add Session Replay (#3625)
 - Add support for Sentry [Spotlight](https://spotlightjs.com/) (#3642), which is basically Sentry
 for development. Read our [blog post](https://blog.sentry.io/sentry-for-development/) to find out more.
 - Add field `SentrySDK.detectedStartUpCrash` (#3644)
