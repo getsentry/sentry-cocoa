@@ -6,6 +6,7 @@
 
 - Add timing API for Metrics (#3812):
 - Add [rate limiting](https://develop.sentry.dev/sdk/rate-limiting/) for Metrics (#3838)
+- Data normalization for Metrics (#3843)
 
 ## 8.23.0
 

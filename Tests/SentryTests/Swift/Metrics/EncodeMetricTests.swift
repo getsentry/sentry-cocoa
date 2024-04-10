@@ -83,23 +83,31 @@ final class EncodeMetricTests: XCTestCase {
 
         let data = encodeToStatsd(flushableBuckets: [10_234: [counterMetric]])
 
-        expect(data.decodeStatsd()) == "abyzABYZ09_/.-_a_a@second:10.1|c|T10234\n"
+        expect(data.decodeStatsd()) == "abyzABYZ09__.-_a_a@second:10.1|c|T10234\n"
     }
 
     func testEncodeCounterMetricWithTagKeyToSanitize() {
-        let counterMetric = CounterMetric(first: 10.1, key: "app.start", unit: MeasurementUnitDuration.second, tags: ["abyzABYZ09_/.-!@a#$Äa": "value"])
+        let counterMetric = CounterMetric(first: 10.1, key: "app.start", unit: MeasurementUnitDuration.second, tags: ["abcABC123_-./äöü$%&abcABC123": "value"])
 
         let data = encodeToStatsd(flushableBuckets: [10_234: [counterMetric]])
 
-        expect(data.decodeStatsd()) == "app.start@second:10.1|c|#abyzABYZ09_/.-_a_a:value|T10234\n"
+        expect(data.decodeStatsd()) == "app.start@second:10.1|c|#abcABC123_-./abcABC123:value|T10234\n"
     }
 
     func testEncodeCounterMetricWithTagValueToSanitize() {
-        let counterMetric = CounterMetric(first: 10.1, key: "app.start", unit: MeasurementUnitDuration.second, tags: ["key": #"azAZ1 _:/@.{}[]$\%^&a*"#])
+        let counterMetric = CounterMetric(first: 10.1, key: "app.start", unit: MeasurementUnitDuration.second, tags: ["key": "abc\n\r\t|,\\123"])
 
         let data = encodeToStatsd(flushableBuckets: [10_234: [counterMetric]])
 
-        expect(data.decodeStatsd()) == "app.start@second:10.1|c|#key:azAZ1 _:/@.{}[]$a|T10234\n"
+        expect(data.decodeStatsd()).to(contain(#"abc\\n\\r\\t\\u{7c}\\u{2c}\\\\123"#))
+    }
+    
+    func testEncodeCounterMetricWithUnitToSanitize() {
+        let counterMetric = CounterMetric(first: 10.1, key: "app.start", unit: MeasurementUnit(unit: "abyzABYZ09_/.ä"), tags: [:])
+
+        let data = encodeToStatsd(flushableBuckets: [10_234: [counterMetric]])
+
+        expect(data.decodeStatsd()) == "app.start@abyzABYZ09_:10.1|c|T10234\n"
     }
 }
 
