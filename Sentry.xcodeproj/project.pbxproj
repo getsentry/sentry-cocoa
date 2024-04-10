@@ -1072,7 +1072,6 @@
 		62E146D12BAAF55B00ED34FD /* LocalMetricsAggregatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalMetricsAggregatorTests.swift; sourceTree = "<group>"; };
 		62F226B629A37C120038080D /* SentryBooleanSerialization.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentryBooleanSerialization.m; sourceTree = "<group>"; };
 		62F226B829A37C270038080D /* SentryBooleanSerialization.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SentryBooleanSerialization.h; sourceTree = "<group>"; };
-		62F605422B9A099100582E47 /* SentryCurrentDateProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryCurrentDateProvider.swift; sourceTree = "<group>"; };
 		630435FC1EBCA9D900C4D3FA /* SentryNSURLRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SentryNSURLRequest.h; path = include/SentryNSURLRequest.h; sourceTree = "<group>"; };
 		630435FD1EBCA9D900C4D3FA /* SentryNSURLRequest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SentryNSURLRequest.m; sourceTree = "<group>"; };
 		630436081EC0595B00C4D3FA /* SentryNSDataUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SentryNSDataUtils.h; path = include/SentryNSDataUtils.h; sourceTree = "<group>"; };
@@ -2212,8 +2211,6 @@
 			isa = PBXGroup;
 			children = (
 				843BD6282AD8752300B0098F /* .clang-format */,
-				84C47B2B2A09239100DAEB8A /* .codecov.yml */,
-				844DA80628246D5000E6B62E /* .craft.yml */,
 				840B7EEC2BBF2AFE008B8120 /* .gitattributes */,
 				844A34C3282B278500C6D1DF /* .github */,
 				844DA81628246D5000E6B62E /* .gitignore */,
@@ -2224,22 +2221,17 @@
 				844A3563282B3C9F00C6D1DF /* .sauce */,
 				840B7EEA2BBF2ABA008B8120 /* .slather.yml */,
 				840B7EEF2BBF2B2B008B8120 /* .spi.yml */,
-				844DA80A28246D5000E6B62E /* .swiftlint.yml */,
 				844DA80B28246D5000E6B62E /* Brewfile */,
 				844DA80C28246D5000E6B62E /* CHANGELOG.md */,
 				844DA81028246D5000E6B62E /* CONTRIBUTING.md */,
 				844DA81D28246DAE00E6B62E /* develop-docs */,
 				844DA81E28246DB900E6B62E /* fastlane */,
-				6304360C1EC05CEF00C4D3FA /* Frameworks */,
 				844DA80728246D5000E6B62E /* Gemfile */,
 				844DA81C28246D9300E6B62E /* Gemfile.lock */,
 				844DA80E28246D5000E6B62E /* LICENSE.md */,
 				844DA80428246D5000E6B62E /* Makefile */,
 				840B7EF02BBF2B5F008B8120 /* MIGRATION.md */,
-				844DA80D28246D5000E6B62E /* Package.swift */,
-				6327C5D41EB8A783004E799B /* Products */,
 				844DA80F28246D5000E6B62E /* README.md */,
-				D8105B37297A86B800299F03 /* Recovered References */,
 				844DA81F28246DE300E6B62E /* scripts */,
 				844DA80528246D5000E6B62E /* Sentry.podspec */,
 				D81A349F291D5568005A27A9 /* SentryPrivate.podspec */,
@@ -2248,14 +2240,12 @@
 				84C47B2B2A09239100DAEB8A /* .codecov.yml */,
 				844DA80628246D5000E6B62E /* .craft.yml */,
 				844DA80A28246D5000E6B62E /* .swiftlint.yml */,
+				63AA756E1EB8AEDB00D153DE /* Sources */,
+				63AA75921EB8AEDB00D153DE /* Tests */,
+				D84DAD4E2B17428D003CF120 /* SentryTestUtilsDynamic */,
+				8431F00B29B284F200D8DC56 /* SentryTestUtils */,
 				6304360C1EC05CEF00C4D3FA /* Frameworks */,
 				6327C5D41EB8A783004E799B /* Products */,
-				63AA756E1EB8AEDB00D153DE /* Sources */,
-				63AA75921EB8AEDB00D153DE /* Tests */,
-				8431F00B29B284F200D8DC56 /* SentryTestUtils */,
-				D84DAD4E2B17428D003CF120 /* SentryTestUtilsDynamic */,
-				63AA756E1EB8AEDB00D153DE /* Sources */,
-				63AA75921EB8AEDB00D153DE /* Tests */,
 				7D826E3C2390840E00EED93D /* Utils */,
 			);
 			indentWidth = 4;
@@ -3562,14 +3552,6 @@
 				D820CE122BB2F13C00BA339D /* SentryCoreGraphicsHelper.m */,
 			);
 			name = SessionReplay;
-			sourceTree = "<group>";
-		};
-		D8105B37297A86B800299F03 /* Recovered References */ = {
-			isa = PBXGroup;
-			children = (
-				62F605422B9A099100582E47 /* SentryCurrentDateProvider.swift */,
-			);
-			name = "Recovered References";
 			sourceTree = "<group>";
 		};
 		D8199DB329376ECC0074249E /* SentrySwiftUI */ = {
