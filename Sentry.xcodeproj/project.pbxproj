@@ -1043,7 +1043,6 @@
 		62E146D12BAAF55B00ED34FD /* LocalMetricsAggregatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalMetricsAggregatorTests.swift; sourceTree = "<group>"; };
 		62F226B629A37C120038080D /* SentryBooleanSerialization.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentryBooleanSerialization.m; sourceTree = "<group>"; };
 		62F226B829A37C270038080D /* SentryBooleanSerialization.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SentryBooleanSerialization.h; sourceTree = "<group>"; };
-		62F605422B9A099100582E47 /* SentryCurrentDateProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryCurrentDateProvider.swift; sourceTree = "<group>"; };
 		630435FC1EBCA9D900C4D3FA /* SentryNSURLRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SentryNSURLRequest.h; path = include/SentryNSURLRequest.h; sourceTree = "<group>"; };
 		630435FD1EBCA9D900C4D3FA /* SentryNSURLRequest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SentryNSURLRequest.m; sourceTree = "<group>"; };
 		630436081EC0595B00C4D3FA /* SentryNSDataUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SentryNSDataUtils.h; path = include/SentryNSDataUtils.h; sourceTree = "<group>"; };
@@ -1768,7 +1767,6 @@
 		D8199DCF29376FF40074249E /* SentrySwiftUI.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = SentrySwiftUI.xcconfig; sourceTree = "<group>"; };
 		D8199DD029377C130074249E /* SentrySwiftUI.podspec */ = {isa = PBXFileReference; explicitFileType = text.script.ruby; path = SentrySwiftUI.podspec; sourceTree = "<group>"; };
 		D81A346B291AECC7005A27A9 /* PrivateSentrySDKOnly.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PrivateSentrySDKOnly.h; path = include/HybridPublic/PrivateSentrySDKOnly.h; sourceTree = "<group>"; };
-		D81A349F291D5568005A27A9 /* SentryPrivate.podspec */ = {isa = PBXFileReference; explicitFileType = text.script.ruby; path = SentryPrivate.podspec; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.ruby; };
 		D81FDF10280EA0080045E0E4 /* SentryScreenShotTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryScreenShotTests.swift; sourceTree = "<group>"; };
 		D8292D7A2A38AF04009872F7 /* HTTPHeaderSanitizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HTTPHeaderSanitizer.swift; sourceTree = "<group>"; };
 		D8292D7C2A39A027009872F7 /* UrlSanitizedTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UrlSanitizedTests.swift; sourceTree = "<group>"; };
@@ -1809,6 +1807,7 @@
 		D8751FA4274743710032F4DE /* SentryNSURLSessionTaskSearchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryNSURLSessionTaskSearchTests.swift; sourceTree = "<group>"; };
 		D8757D142A209F7300BFEFCC /* SentrySampleDecision+Private.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "SentrySampleDecision+Private.h"; path = "include/SentrySampleDecision+Private.h"; sourceTree = "<group>"; };
 		D875ED0A276CC84700422FAC /* SentryNSDataTrackerTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SentryNSDataTrackerTests.swift; sourceTree = "<group>"; };
+		D878C6C02BC8048A0039D6A3 /* SentryPrivate.podspec */ = {isa = PBXFileReference; explicitFileType = text.script.ruby; path = SentryPrivate.podspec; sourceTree = "<group>"; };
 		D880E3A628573E87008A90DB /* SentryBaggageTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryBaggageTests.swift; sourceTree = "<group>"; };
 		D880E3B02860A5A0008A90DB /* SentryEvent+Private.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "SentryEvent+Private.h"; path = "include/SentryEvent+Private.h"; sourceTree = "<group>"; };
 		D884A20327C80F2700074664 /* SentryCoreDataTrackerTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryCoreDataTrackerTest.swift; sourceTree = "<group>"; };
@@ -2154,43 +2153,16 @@
 		6327C5C91EB8A783004E799B = {
 			isa = PBXGroup;
 			children = (
-				843BD6282AD8752300B0098F /* .clang-format */,
-				84C47B2B2A09239100DAEB8A /* .codecov.yml */,
-				844DA80628246D5000E6B62E /* .craft.yml */,
-				840B7EEC2BBF2AFE008B8120 /* .gitattributes */,
-				844A34C3282B278500C6D1DF /* .github */,
-				844DA81628246D5000E6B62E /* .gitignore */,
-				844DA80828246D5000E6B62E /* .gitmodules */,
-				844DA80328246D5000E6B62E /* .oclint */,
-				840B7EED2BBF2B16008B8120 /* .pre-commit-config.yaml */,
-				840B7EEE2BBF2B23008B8120 /* .ruby-version */,
-				844A3563282B3C9F00C6D1DF /* .sauce */,
-				840B7EEA2BBF2ABA008B8120 /* .slather.yml */,
-				840B7EEF2BBF2B2B008B8120 /* .spi.yml */,
-				844DA80A28246D5000E6B62E /* .swiftlint.yml */,
-				844DA80B28246D5000E6B62E /* Brewfile */,
 				844DA80C28246D5000E6B62E /* CHANGELOG.md */,
-				844DA81028246D5000E6B62E /* CONTRIBUTING.md */,
-				844DA81D28246DAE00E6B62E /* develop-docs */,
-				844DA81E28246DB900E6B62E /* fastlane */,
-				6304360C1EC05CEF00C4D3FA /* Frameworks */,
-				844DA80728246D5000E6B62E /* Gemfile */,
-				844DA81C28246D9300E6B62E /* Gemfile.lock */,
-				844DA80E28246D5000E6B62E /* LICENSE.md */,
-				844DA80428246D5000E6B62E /* Makefile */,
-				840B7EF02BBF2B5F008B8120 /* MIGRATION.md */,
-				844DA80D28246D5000E6B62E /* Package.swift */,
-				6327C5D41EB8A783004E799B /* Products */,
-				844DA80F28246D5000E6B62E /* README.md */,
-				D8105B37297A86B800299F03 /* Recovered References */,
-				844DA81F28246DE300E6B62E /* scripts */,
-				844DA80528246D5000E6B62E /* Sentry.podspec */,
-				D81A349F291D5568005A27A9 /* SentryPrivate.podspec */,
-				D8199DD029377C130074249E /* SentrySwiftUI.podspec */,
-				8431F00B29B284F200D8DC56 /* SentryTestUtils */,
-				D84DAD4E2B17428D003CF120 /* SentryTestUtilsDynamic */,
 				63AA756E1EB8AEDB00D153DE /* Sources */,
 				63AA75921EB8AEDB00D153DE /* Tests */,
+				D878C6BF2BC803440039D6A3 /* Aux */,
+				D878C6C22BC8066D0039D6A3 /* Docs */,
+				D878C6C32BC807250039D6A3 /* Distribution */,
+				8431F00B29B284F200D8DC56 /* SentryTestUtils */,
+				D84DAD4E2B17428D003CF120 /* SentryTestUtilsDynamic */,
+				6304360C1EC05CEF00C4D3FA /* Frameworks */,
+				6327C5D41EB8A783004E799B /* Products */,
 				7D826E3C2390840E00EED93D /* Utils */,
 			);
 			indentWidth = 4;
@@ -2352,10 +2324,10 @@
 		63AA756E1EB8AEDB00D153DE /* Sources */ = {
 			isa = PBXGroup;
 			children = (
-				D8199DB329376ECC0074249E /* SentrySwiftUI */,
 				63AA75C61EB8B06100D153DE /* Sentry */,
 				D800942328F82E8D005D3943 /* Swift */,
 				63FE6FB920DA4C1000CDBAE8 /* SentryCrash */,
+				D8199DB329376ECC0074249E /* SentrySwiftUI */,
 				63AA75A31EB8AFDF00D153DE /* Configuration */,
 				D8B0542F2A7D35F10056BAF6 /* Resources */,
 			);
@@ -3461,14 +3433,6 @@
 			path = UIEvents;
 			sourceTree = "<group>";
 		};
-		D8105B37297A86B800299F03 /* Recovered References */ = {
-			isa = PBXGroup;
-			children = (
-				62F605422B9A099100582E47 /* SentryCurrentDateProvider.swift */,
-			);
-			name = "Recovered References";
-			sourceTree = "<group>";
-		};
 		D8199DB329376ECC0074249E /* SentrySwiftUI */ = {
 			isa = PBXGroup;
 			children = (
@@ -3555,6 +3519,56 @@
 				7B82722A27A3220A00F4BFF4 /* SentryFileIoTrackingUnitTests.swift */,
 			);
 			path = IO;
+			sourceTree = "<group>";
+		};
+		D878C6BF2BC803440039D6A3 /* Aux */ = {
+			isa = PBXGroup;
+			children = (
+				844DA80428246D5000E6B62E /* Makefile */,
+				844DA81F28246DE300E6B62E /* scripts */,
+				844DA81E28246DB900E6B62E /* fastlane */,
+				844A34C3282B278500C6D1DF /* .github */,
+				844DA80728246D5000E6B62E /* Gemfile */,
+				844DA81C28246D9300E6B62E /* Gemfile.lock */,
+				84C47B2B2A09239100DAEB8A /* .codecov.yml */,
+				844DA80628246D5000E6B62E /* .craft.yml */,
+				840B7EEC2BBF2AFE008B8120 /* .gitattributes */,
+				844DA81628246D5000E6B62E /* .gitignore */,
+				844DA80828246D5000E6B62E /* .gitmodules */,
+				844DA80328246D5000E6B62E /* .oclint */,
+				840B7EED2BBF2B16008B8120 /* .pre-commit-config.yaml */,
+				840B7EEE2BBF2B23008B8120 /* .ruby-version */,
+				844A3563282B3C9F00C6D1DF /* .sauce */,
+				840B7EEA2BBF2ABA008B8120 /* .slather.yml */,
+				840B7EEF2BBF2B2B008B8120 /* .spi.yml */,
+				844DA80A28246D5000E6B62E /* .swiftlint.yml */,
+				843BD6282AD8752300B0098F /* .clang-format */,
+				844DA80B28246D5000E6B62E /* Brewfile */,
+			);
+			name = Aux;
+			sourceTree = "<group>";
+		};
+		D878C6C22BC8066D0039D6A3 /* Docs */ = {
+			isa = PBXGroup;
+			children = (
+				844DA81028246D5000E6B62E /* CONTRIBUTING.md */,
+				844DA80E28246D5000E6B62E /* LICENSE.md */,
+				840B7EF02BBF2B5F008B8120 /* MIGRATION.md */,
+				844DA80F28246D5000E6B62E /* README.md */,
+				844DA81D28246DAE00E6B62E /* develop-docs */,
+			);
+			name = Docs;
+			sourceTree = "<group>";
+		};
+		D878C6C32BC807250039D6A3 /* Distribution */ = {
+			isa = PBXGroup;
+			children = (
+				844DA80D28246D5000E6B62E /* Package.swift */,
+				844DA80528246D5000E6B62E /* Sentry.podspec */,
+				D878C6C02BC8048A0039D6A3 /* SentryPrivate.podspec */,
+				D8199DD029377C130074249E /* SentrySwiftUI.podspec */,
+			);
+			name = Distribution;
 			sourceTree = "<group>";
 		};
 		D884A20227C80F1300074664 /* CoreData */ = {
