@@ -5,7 +5,7 @@ import PackageDescription
 
 let package = Package(
     name: "SPM-Dynamic",
-    platforms: [.macOS(.v10_13)],
+    platforms: [.macOS(.v10_15)],
     products: [
         .executable(name: "SPM-Dynamic", targets: ["SPM-Dynamic"])
     ],

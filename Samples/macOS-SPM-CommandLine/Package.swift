@@ -5,6 +5,7 @@ import PackageDescription
 
 let package = Package(
     name: "macOS-SPM-CommandLine",
+    platforms: [.macOS(.v10_15)],
     dependencies: [
         .package(name: "Sentry", path: "../../../sentry-cocoa")
     ],
