@@ -496,8 +496,7 @@ SentryScope ()
         event.fingerprint = fingerprints;
     }
 
-    if (event.breadcrumbs == nil
-        && ![event.type isEqualToString:SentryEnvelopeItemTypeReplayVideo]) {
+    if (event.breadcrumbs == nil) {
         NSArray *breadcrumbs = [self breadcrumbs];
         event.breadcrumbs = [breadcrumbs
             subarrayWithRange:NSMakeRange(0, MIN(maxBreadcrumbs, [breadcrumbs count]))];

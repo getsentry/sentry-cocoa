@@ -590,7 +590,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     BOOL eventIsNotReplay
         = event.type == nil || ![event.type isEqualToString:SentryEnvelopeItemTypeReplayVideo];
 
-    // Transactions have their own sampleRate
+    // Transactions and replays have their own sampleRate
     if (eventIsNotATransaction && eventIsNotReplay && [self isSampled:self.options.sampleRate]) {
         SENTRY_LOG_DEBUG(@"Event got sampled, will not send the event");
         [self recordLostEvent:kSentryDataCategoryError reason:kSentryDiscardReasonSampleRate];
@@ -658,6 +658,10 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     }
 
     event = [scope applyToEvent:event maxBreadcrumb:self.options.maxBreadcrumbs];
+
+    if (!eventIsNotReplay) {
+        event.breadcrumbs = nil;
+    }
 
     if ([self isWatchdogTermination:event isCrashEvent:isCrashEvent]) {
         // Remove some mutable properties from the device/app contexts which are no longer

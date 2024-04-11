@@ -10,8 +10,8 @@ class SentryDataCategoryMapperTests: XCTestCase {
         expect(sentryDataCategoryForEnvelopItemType("transaction")) == .transaction
         expect(sentryDataCategoryForEnvelopItemType("attachment")) == .attachment
         expect(sentryDataCategoryForEnvelopItemType("profile")) == .profile
-        expect(sentryDataCategoryForEnvelopItemType("statsd")) == .statsd
         expect(sentryDataCategoryForEnvelopItemType("statsd")) == .metricBucket
+        expect(sentryDataCategoryForEnvelopItemType("replay_video")) == .replay
         expect(sentryDataCategoryForEnvelopItemType("unknown item type")) == .default
     }
 

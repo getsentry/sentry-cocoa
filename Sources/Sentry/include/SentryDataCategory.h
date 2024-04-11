@@ -18,4 +18,3 @@ typedef NS_ENUM(NSUInteger, SentryDataCategory) {
     kSentryDataCategoryReplay = 9,
     kSentryDataCategoryUnknown = 10
 };
-
