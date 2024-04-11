@@ -608,7 +608,7 @@ NS_SWIFT_NAME(Options)
 @property (nullable, nonatomic, copy) SentryBeforeEmitMetricCallback beforeEmitMetric;
 
 /**
- * This will agreggate options for all experimental features.
+ * This aggregates options for experimental features.
  * Be aware that the options available for experimental can change at any time.
  */
 @property (nonatomic, readonly) SentryExperimentalOptions *experimental;
