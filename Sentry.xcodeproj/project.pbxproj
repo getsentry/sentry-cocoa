@@ -2153,19 +2153,16 @@
 		6327C5C91EB8A783004E799B = {
 			isa = PBXGroup;
 			children = (
-				D878C6BF2BC803440039D6A3 /* Aux */,
-				D878C6C22BC8066D0039D6A3 /* Docs */,
 				844DA80C28246D5000E6B62E /* CHANGELOG.md */,
-				844DA80D28246D5000E6B62E /* Package.swift */,
-				844DA80528246D5000E6B62E /* Sentry.podspec */,
-				D878C6C02BC8048A0039D6A3 /* SentryPrivate.podspec */,
-				D8199DD029377C130074249E /* SentrySwiftUI.podspec */,
 				63AA756E1EB8AEDB00D153DE /* Sources */,
 				63AA75921EB8AEDB00D153DE /* Tests */,
+				D878C6BF2BC803440039D6A3 /* Aux */,
+				D878C6C22BC8066D0039D6A3 /* Docs */,
+				D878C6C32BC807250039D6A3 /* Distribution */,
 				8431F00B29B284F200D8DC56 /* SentryTestUtils */,
 				D84DAD4E2B17428D003CF120 /* SentryTestUtilsDynamic */,
-				6327C5D41EB8A783004E799B /* Products */,
 				6304360C1EC05CEF00C4D3FA /* Frameworks */,
+				6327C5D41EB8A783004E799B /* Products */,
 				7D826E3C2390840E00EED93D /* Utils */,
 			);
 			indentWidth = 4;
@@ -3561,6 +3558,17 @@
 				844DA81D28246DAE00E6B62E /* develop-docs */,
 			);
 			name = Docs;
+			sourceTree = "<group>";
+		};
+		D878C6C32BC807250039D6A3 /* Distribution */ = {
+			isa = PBXGroup;
+			children = (
+				844DA80D28246D5000E6B62E /* Package.swift */,
+				844DA80528246D5000E6B62E /* Sentry.podspec */,
+				D878C6C02BC8048A0039D6A3 /* SentryPrivate.podspec */,
+				D8199DD029377C130074249E /* SentrySwiftUI.podspec */,
+			);
+			name = Distribution;
 			sourceTree = "<group>";
 		};
 		D884A20227C80F1300074664 /* CoreData */ = {
