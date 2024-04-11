@@ -1,11 +1,7 @@
 // Sentry internal headers that are needed for swift code
-
 #import "SentryBaggage.h"
 #import "SentryBaseIntegration.h"
-#import "SentryCoreGraphicsHelper.h"
 #import "SentryDispatchQueueWrapper.h"
-#import "SentryFileManager.h"
-#import "SentryGlobalEventProcessor.h"
 #import "SentryNSDataUtils.h"
 #import "SentryRandom.h"
 #import "SentryReplayRecording.h"
@@ -13,3 +9,6 @@
 #import "SentrySdkInfo.h"
 #import "SentryStatsdClient.h"
 #import "SentryTime.h"
+
+// Headers that also import SentryDefines should be at the end of this list
+#import "SentryCoreGraphicsHelper.h"
