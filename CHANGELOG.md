@@ -8,6 +8,7 @@
 - Add [rate limiting](https://develop.sentry.dev/sdk/rate-limiting/) for Metrics (#3838)
 - Data normalization for Metrics (#3843)
 - Add Session Replay (#3625)
+**Note:** This is an experimental feature. 
 
 ## 8.23.0
 
