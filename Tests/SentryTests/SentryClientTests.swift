@@ -1663,7 +1663,7 @@ class SentryClientTest: XCTestCase {
         let scope = Scope()
         scope.addBreadcrumb(Breadcrumb(level: .debug, category: "Test Breadcrumb"))
         
-        sut.capture(replayEvent, replayRecording: replayRecording, video: movieUrl!, with: Scope())
+        sut.capture(replayEvent, replayRecording: replayRecording, video: movieUrl!, with: scope)
         
         expect(replayEvent.breadcrumbs) == nil
         expect(replayEvent.threads) == nil
