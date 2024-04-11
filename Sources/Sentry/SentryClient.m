@@ -618,7 +618,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
     [self setSdk:event];
 
-    // We don't want to attach debug meta and stacktraces for transactions;
+    // We don't want to attach debug meta and stacktraces for transactions and replays.
     if (eventIsNotATransaction && eventIsNotReplay) {
         BOOL shouldAttachStacktrace = alwaysAttachStacktrace || self.options.attachStacktrace
             || (nil != event.exceptions && [event.exceptions count] > 0);
