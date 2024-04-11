@@ -237,6 +237,12 @@ class SentryEnvelopeTests: XCTestCase {
         XCTAssertEqual(attachment.contentType, envelopeItem.header.contentType)
     }
     
+    func testEmptyHeader() {
+        let sut = SentryEnvelopeHeader.empty()
+        expect(sut.eventId) == nil
+        expect(sut.traceContext) == nil
+    }
+    
     func testInitWithFileAttachment() {
         writeDataToFile(data: fixture.data ?? Data())
         

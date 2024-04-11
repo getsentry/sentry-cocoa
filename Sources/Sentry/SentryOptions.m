@@ -15,17 +15,16 @@
 #import "SentryOptions+Private.h"
 #import "SentrySDK.h"
 #import "SentryScope.h"
+#import "SentrySessionReplayIntegration.h"
+#import "SentrySwift.h"
 #import "SentrySwiftAsyncIntegration.h"
-
 #import <objc/runtime.h>
 
 #if SENTRY_HAS_UIKIT
 #    import "SentryAppStartTrackingIntegration.h"
 #    import "SentryFramesTrackingIntegration.h"
 #    import "SentryPerformanceTrackingIntegration.h"
-#    if SENTRY_HAS_UIKIT
-#        import "SentryScreenshotIntegration.h"
-#    endif // SENTRY_HAS_UIKIT
+#    import "SentryScreenshotIntegration.h"
 #    import "SentryUIEventTrackingIntegration.h"
 #    import "SentryViewHierarchyIntegration.h"
 #    import "SentryWatchdogTerminationTrackingIntegration.h"
@@ -59,6 +58,9 @@ NSString *const kSentryDefaultEnvironment = @"production";
             NSStringFromClass([SentryUIEventTrackingIntegration class]),
             NSStringFromClass([SentryViewHierarchyIntegration class]),
             NSStringFromClass([SentryWatchdogTerminationTrackingIntegration class]),
+#    if !TARGET_OS_VISION
+            NSStringFromClass([SentrySessionReplayIntegration class]),
+#    endif
 #endif // SENTRY_HAS_UIKIT
             NSStringFromClass([SentryANRTrackingIntegration class]),
             NSStringFromClass([SentryAutoBreadcrumbTrackingIntegration class]),
@@ -104,7 +106,7 @@ NSString *const kSentryDefaultEnvironment = @"production";
         self.enableTimeToFullDisplayTracing = NO;
 
         self.initialScope = ^SentryScope *(SentryScope *scope) { return scope; };
-
+        _experimental = [[SentryExperimentalOptions alloc] init];
         _enableTracing = NO;
         _enableTracingManual = NO;
 #if SENTRY_HAS_UIKIT
@@ -387,7 +389,6 @@ NSString *const kSentryDefaultEnvironment = @"production";
     if ([self isBlock:options[@"initialScope"]]) {
         self.initialScope = options[@"initialScope"];
     }
-
 #if SENTRY_HAS_UIKIT
     [self setBool:options[@"enableUIViewControllerTracing"]
             block:^(BOOL value) { self->_enableUIViewControllerTracing = value; }];
@@ -407,6 +408,7 @@ NSString *const kSentryDefaultEnvironment = @"production";
 
     [self setBool:options[@"enablePreWarmedAppStartTracing"]
             block:^(BOOL value) { self->_enablePreWarmedAppStartTracing = value; }];
+
 #endif // SENTRY_HAS_UIKIT
 
     [self setBool:options[@"enableAppHangTracking"]
@@ -520,6 +522,10 @@ NSString *const kSentryDefaultEnvironment = @"production";
 
     if ([self isBlock:options[@"beforeEmitMetric"]]) {
         self.beforeEmitMetric = options[@"beforeEmitMetric"];
+    }
+
+    if ([options[@"experimental"] isKindOfClass:NSDictionary.class]) {
+        [self.experimental validateOptions:options[@"experimental"]];
     }
 
     return YES;

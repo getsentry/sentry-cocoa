@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+- Add Session Replay, which is **still experimental**. (#3625)
+
 ## 8.24.0
 
 ### Features

@@ -3,7 +3,9 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class SentryDsn, SentryMeasurementValue, SentryHttpStatusCodeRange, SentryScope;
+@class SentryDsn, SentryMeasurementValue, SentryHttpStatusCodeRange, SentryScope,
+    SentryReplayOptions;
+@class SentryExperimentalOptions;
 
 NS_SWIFT_NAME(Options)
 @interface SentryOptions : NSObject
@@ -269,6 +271,7 @@ NS_SWIFT_NAME(Options)
  * @note Default value is @c NO .
  */
 @property (nonatomic, assign) BOOL enablePreWarmedAppStartTracing;
+
 #endif // SENTRY_UIKIT_AVAILABLE
 
 /**
@@ -603,6 +606,12 @@ NS_SWIFT_NAME(Options)
  * This block can be used to modify the event before it will be serialized and sent.
  */
 @property (nullable, nonatomic, copy) SentryBeforeEmitMetricCallback beforeEmitMetric;
+
+/**
+ * This aggregates options for experimental features.
+ * Be aware that the options available for experimental can change at any time.
+ */
+@property (nonatomic, readonly) SentryExperimentalOptions *experimental;
 
 @end
 
