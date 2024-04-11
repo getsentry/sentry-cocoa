@@ -43,7 +43,13 @@ class ProfilingViewController: UIViewController, UITextFieldDelegate {
     
     @IBAction func stopBenchmark(_ sender: UIButton) {
         highlightButton(sender)
-        let value = SentryBenchmarking.stopBenchmark()!
+        guard let value = SentryBenchmarking.stopBenchmark() else {
+            let alert = UIAlertController(title: "Benchmark Error", message: "No benchmark result available.", preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "OK", style: .default))
+            self.present(alert, animated: false)
+            print("[iOS-Swift] [debug] [ProfilingViewController] no benchmark result returned")
+            return
+        }
         valueTextField.isHidden = false
         valueTextField.text = value
         print("[iOS-Swift] [debug] [ProfilingViewController] benchmarking results:\n\(value)")
