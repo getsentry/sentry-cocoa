@@ -46,6 +46,11 @@ SentryDateUtil ()
     }
 }
 
++ (long)millisecondsSince1970:(NSDate *)date
+{
+    return (long)([date timeIntervalSince1970] * 1000);
+}
+
 @end
 
 NS_ASSUME_NONNULL_END

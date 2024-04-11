@@ -313,6 +313,16 @@ SentryHub () <SentryMetricsAPIDelegate>
     return SentryId.empty;
 }
 
+- (void)captureReplayEvent:(SentryReplayEvent *)replayEvent
+           replayRecording:(SentryReplayRecording *)replayRecording
+                     video:(NSURL *)videoURL
+{
+    [_client captureReplayEvent:replayEvent
+                replayRecording:replayRecording
+                          video:videoURL
+                      withScope:self.scope];
+}
+
 - (id<SentrySpan>)startTransactionWithName:(NSString *)name operation:(NSString *)operation
 {
     return [self startTransactionWithContext:[[SentryTransactionContext alloc]

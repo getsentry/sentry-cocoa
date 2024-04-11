@@ -11,6 +11,7 @@ NSString *const kSentryDataCategoryNameTransaction = @"transaction";
 NSString *const kSentryDataCategoryNameAttachment = @"attachment";
 NSString *const kSentryDataCategoryNameUserFeedback = @"user_report";
 NSString *const kSentryDataCategoryNameProfile = @"profile";
+NSString *const kSentryDataCategoryNameReplay = @"replay";
 NSString *const kSentryDataCategoryNameMetricBucket = @"metric_bucket";
 NSString *const kSentryDataCategoryNameUnknown = @"unknown";
 
@@ -33,6 +34,9 @@ sentryDataCategoryForEnvelopItemType(NSString *itemType)
     }
     if ([itemType isEqualToString:SentryEnvelopeItemTypeProfile]) {
         return kSentryDataCategoryProfile;
+    }
+    if ([itemType isEqualToString:SentryEnvelopeItemTypeReplayVideo]) {
+        return kSentryDataCategoryReplay;
     }
     // The envelope item type used for metrics is statsd whereas the client report category for
     // discarded events is metric_bucket.
@@ -79,6 +83,9 @@ sentryDataCategoryForString(NSString *value)
     if ([value isEqualToString:kSentryDataCategoryNameProfile]) {
         return kSentryDataCategoryProfile;
     }
+    if ([value isEqualToString:kSentryDataCategoryNameReplay]) {
+        return kSentryDataCategoryReplay;
+    }
     if ([value isEqualToString:kSentryDataCategoryNameMetricBucket]) {
         return kSentryDataCategoryMetricBucket;
     }
@@ -114,6 +121,8 @@ nameForSentryDataCategory(SentryDataCategory category)
         return kSentryDataCategoryNameMetricBucket;
     case kSentryDataCategoryUnknown:
         return kSentryDataCategoryNameUnknown;
+    case kSentryDataCategoryReplay:
+        return kSentryDataCategoryNameReplay;
     }
 }
 
