@@ -7,8 +7,7 @@
 - Add timing API for Metrics (#3812):
 - Add [rate limiting](https://develop.sentry.dev/sdk/rate-limiting/) for Metrics (#3838)
 - Data normalization for Metrics (#3843)
-- Add Session Replay (#3625)
-**Note:** This is an experimental feature. 
+- Add Session Replay, which is **still experimental**. (#3625)
 
 ## 8.23.0
 
