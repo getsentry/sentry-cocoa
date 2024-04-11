@@ -1,5 +1,5 @@
 import Nimble
-import Sentry
+@testable import Sentry
 import SentryTestUtils
 import XCTest
 
@@ -354,6 +354,33 @@ class SentrySpanTests: XCTestCase {
         XCTAssertNil(serialization["tag"])
     }
     
+    func testInit_DoesNotIntializeLocalMetricAggregator() {
+        let sut = fixture.getSut()
+        
+        let serialized = sut.serialize()
+        expect(serialized["_metrics_summary"]) == nil
+    }
+    
+    func testLocalMetricsAggregator_GetsSerializedAsMetricsSummary() throws {
+        let sut = fixture.getSutWithTracer()
+        
+        let aggregator = sut.getLocalMetricsAggregator()
+        aggregator.add(type: .counter, key: "key", value: 1.0, unit: .none, tags: [:])
+        
+        let serialized = sut.serialize()
+        
+        let metricsSummary = try XCTUnwrap(serialized["_metrics_summary"] as? [String: [[String: Any]]])
+        expect(metricsSummary.count) == 1
+        
+        let bucket = try XCTUnwrap(metricsSummary["c:key"])
+        expect(bucket.count) == 1
+        let metric = try XCTUnwrap(bucket.first)
+        expect(metric["min"] as? Double) == 1.0
+        expect(metric["max"] as? Double) == 1.0
+        expect(metric["count"] as? Int) == 1
+        expect(metric["sum"] as? Double) == 1.0
+    }
+    
     func testTraceHeaderNotSampled() {
         fixture.options.tracesSampleRate = 0
         let span = fixture.getSut()
@@ -541,7 +568,7 @@ class SentrySpanTests: XCTestCase {
     
     private func givenFramesTracker() -> (TestDisplayLinkWrapper, SentryFramesTracker) {
         let displayLinkWrapper = TestDisplayLinkWrapper(dateProvider: self.fixture.currentDateProvider)
-        let framesTracker = SentryFramesTracker(displayLinkWrapper: displayLinkWrapper, dateProvider: self.fixture.currentDateProvider, dispatchQueueWrapper: SentryDispatchQueueWrapper(), keepDelayedFramesDuration: 10)
+        let framesTracker = SentryFramesTracker(displayLinkWrapper: displayLinkWrapper, dateProvider: self.fixture.currentDateProvider, dispatchQueueWrapper: TestSentryDispatchQueueWrapper(), keepDelayedFramesDuration: 10)
         framesTracker.start()
         displayLinkWrapper.call()
         

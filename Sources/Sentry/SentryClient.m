@@ -1,5 +1,4 @@
 #import "SentryClient.h"
-#import "NSDictionary+SentrySanitize.h"
 #import "NSLocale+Sentry.h"
 #import "SentryAppState.h"
 #import "SentryAppStateManager.h"
@@ -29,6 +28,7 @@
 #import "SentryMessage.h"
 #import "SentryMeta.h"
 #import "SentryMsgPackSerializer.h"
+#import "SentryNSDictionarySanitize.h"
 #import "SentryNSError.h"
 #import "SentryOptions+Private.h"
 #import "SentryPropagationContext.h"
@@ -99,8 +99,10 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                     fileManager:(SentryFileManager *)fileManager
          deleteOldEnvelopeItems:(BOOL)deleteOldEnvelopeItems
 {
-    NSArray<id<SentryTransport>> *transports = [SentryTransportFactory initTransports:options
-                                                                    sentryFileManager:fileManager];
+    NSArray<id<SentryTransport>> *transports = [SentryTransportFactory
+             initTransports:options
+          sentryFileManager:fileManager
+        currentDateProvider:SentryDependencyContainer.sharedInstance.dateProvider];
 
     SentryTransportAdapter *transportAdapter =
         [[SentryTransportAdapter alloc] initWithTransports:transports options:options];
@@ -263,7 +265,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
     // Once the UI displays the mechanism data we can the userInfo from the event.context using only
     // the root error's userInfo.
-    [self setUserInfo:[error.userInfo sentry_sanitize] withEvent:event];
+    [self setUserInfo:sentry_sanitize(error.userInfo) withEvent:event];
 
     return event;
 }
@@ -305,7 +307,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     // use a simple enum.
     mechanism.desc = error.description;
 
-    NSDictionary<NSString *, id> *userInfo = [error.userInfo sentry_sanitize];
+    NSDictionary<NSString *, id> *userInfo = sentry_sanitize(error.userInfo);
     mechanism.data = userInfo;
     exception.mechanism = mechanism;
 
@@ -588,7 +590,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     BOOL eventIsNotReplay
         = event.type == nil || ![event.type isEqualToString:SentryEnvelopeItemTypeReplayVideo];
 
-    // Transactions have their own sampleRate
+    // Transactions and replays have their own sampleRate
     if (eventIsNotATransaction && eventIsNotReplay && [self isSampled:self.options.sampleRate]) {
         SENTRY_LOG_DEBUG(@"Event got sampled, will not send the event");
         [self recordLostEvent:kSentryDataCategoryError reason:kSentryDiscardReasonSampleRate];
@@ -616,7 +618,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
     [self setSdk:event];
 
-    // We don't want to attach debug meta and stacktraces for transactions;
+    // We don't want to attach debug meta and stacktraces for transactions and replays.
     if (eventIsNotATransaction && eventIsNotReplay) {
         BOOL shouldAttachStacktrace = alwaysAttachStacktrace || self.options.attachStacktrace
             || (nil != event.exceptions && [event.exceptions count] > 0);
@@ -656,6 +658,10 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     }
 
     event = [scope applyToEvent:event maxBreadcrumb:self.options.maxBreadcrumbs];
+
+    if (!eventIsNotReplay) {
+        event.breadcrumbs = nil;
+    }
 
     if ([self isWatchdogTermination:event isCrashEvent:isCrashEvent]) {
         // Remove some mutable properties from the device/app contexts which are no longer
@@ -700,7 +706,8 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         }
     }
 
-    if (isCrashEvent && nil != self.options.onCrashedLastRun && !SentrySDK.crashedLastRunCalled) {
+    if (event != nil && isCrashEvent && nil != self.options.onCrashedLastRun
+        && !SentrySDK.crashedLastRunCalled) {
         // We only want to call the callback once. It can occur that multiple crash events are
         // about to be sent.
         SentrySDK.crashedLastRunCalled = YES;
@@ -779,7 +786,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
             context = [event.context mutableCopy];
         }
 
-        [context setValue:[userInfo sentry_sanitize] forKey:@"user info"];
+        [context setValue:sentry_sanitize(userInfo) forKey:@"user info"];
     }
 }
 
@@ -830,7 +837,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
             }
 #endif
                       culture[@"locale"] = self.locale.localeIdentifier;
-                      culture[@"is_24_hour_format"] = @(self.locale.sentry_timeIs24HourFormat);
+                      culture[@"is_24_hour_format"] = @([SentryLocale timeIs24HourFormat]);
                       culture[@"timezone"] = self.timezone.name;
                   }];
 }

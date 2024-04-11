@@ -45,6 +45,7 @@ Carthage/Build
 Carthage/Checkouts
 Carthage
 Sentry.Carthage.json
+SentrySwiftUI.Carthage.json
 Sentry.framework.zip
 Sentry.xcframework.zip
 
@@ -80,3 +81,4 @@ Package.resolved
 
 Cartfile.resolved
 *.log
+Brewfile.lock.json

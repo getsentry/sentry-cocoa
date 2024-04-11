@@ -1,12 +1,11 @@
 #import "SentrySpan.h"
-#import "NSDate+SentryExtras.h"
-#import "NSDictionary+SentrySanitize.h"
 #import "SentryCrashThread.h"
 #import "SentryDependencyContainer.h"
 #import "SentryFrame.h"
 #import "SentryInternalDefines.h"
 #import "SentryLog.h"
 #import "SentryMeasurementValue.h"
+#import "SentryNSDictionarySanitize.h"
 #import "SentryNoOpSpan.h"
 #import "SentrySampleDecision+Private.h"
 #import "SentrySpanContext.h"
@@ -34,6 +33,7 @@ SentrySpan ()
     NSObject *_stateLock;
     BOOL _isFinished;
     uint64_t _startSystemTime;
+    LocalMetricsAggregator *localMetricsAggregator;
 #if SENTRY_HAS_UIKIT
     NSUInteger initTotalFrames;
     NSUInteger initSlowFrames;
@@ -247,6 +247,14 @@ SentrySpan ()
                                               sampled:self.sampled];
 }
 
+- (LocalMetricsAggregator *)getLocalMetricsAggregator
+{
+    if (localMetricsAggregator == nil) {
+        localMetricsAggregator = [[LocalMetricsAggregator alloc] init];
+    }
+    return localMetricsAggregator;
+}
+
 - (NSDictionary *)serialize
 {
     NSMutableDictionary *mutableDictionary = @{
@@ -287,6 +295,10 @@ SentrySpan ()
     [mutableDictionary setValue:@(self.startTimestamp.timeIntervalSince1970)
                          forKey:@"start_timestamp"];
 
+    if (localMetricsAggregator != nil) {
+        mutableDictionary[@"_metrics_summary"] = [localMetricsAggregator serialize];
+    }
+
     @synchronized(_data) {
         NSMutableDictionary *data = _data.mutableCopy;
 
@@ -301,7 +313,7 @@ SentrySpan ()
         }
 
         if (data.count > 0) {
-            mutableDictionary[@"data"] = [data.copy sentry_sanitize];
+            mutableDictionary[@"data"] = sentry_sanitize(data.copy);
         }
     }
 

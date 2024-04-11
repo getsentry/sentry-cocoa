@@ -2,7 +2,7 @@
 
 #if SENTRY_UIKIT_AVAILABLE
 
-#    import "NSDate+SentryExtras.h"
+#    import "SentryDateUtils.h"
 #    import "SentryLog.h"
 #    import <Foundation/Foundation.h>
 
@@ -13,6 +13,7 @@
     BOOL _isPreWarmed;
     NSTimeInterval _duration;
     NSDate *_appStartTimestamp;
+    uint64_t _runtimeInitSystemTimestamp;
     NSDate *_runtimeInitTimestamp;
     NSDate *_moduleInitializationTimestamp;
     NSDate *_sdkStartTimestamp;
@@ -23,6 +24,7 @@
 - (instancetype)initWithType:(SentryAppStartType)type
                       isPreWarmed:(BOOL)isPreWarmed
                 appStartTimestamp:(NSDate *)appStartTimestamp
+       runtimeInitSystemTimestamp:(uint64_t)runtimeInitSystemTimestamp
                          duration:(NSTimeInterval)duration
              runtimeInitTimestamp:(NSDate *)runtimeInitTimestamp
     moduleInitializationTimestamp:(NSDate *)moduleInitializationTimestamp
@@ -34,6 +36,7 @@
         _type = type;
         _isPreWarmed = isPreWarmed;
         _appStartTimestamp = appStartTimestamp;
+        _runtimeInitSystemTimestamp = runtimeInitSystemTimestamp;
         _duration = duration;
         _runtimeInitTimestamp = runtimeInitTimestamp;
         _moduleInitializationTimestamp = moduleInitializationTimestamp;

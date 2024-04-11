@@ -4,7 +4,7 @@ init: setup-git
 	brew bundle
 	rbenv install --skip-existing
 	rbenv exec gem update bundler
-	rbenv exec bundle update
+	rbenv exec bundle install
 
 .PHONY: setup-git
 setup-git:

@@ -10,12 +10,18 @@ final class NSLockTests: XCTestCase {
         var value = 0
         
         testConcurrentModifications(asyncWorkItems: 10, writeLoopCount: 9, writeWork: { _ in
+            let returnValue: Int = lock.synchronized {
+                value += 1
+                return 10
+            }
+            expect(returnValue) == 10
+            
             lock.synchronized {
                 value += 1
             }
         })
         
-        expect(value) == 100
+        expect(value) == 200
     }
     
     func testUnlockWhenThrowing() throws {

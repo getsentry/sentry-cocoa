@@ -27,7 +27,7 @@
 
 #import <XCTest/XCTest.h>
 
-#import "NSError+SentrySimpleConstructor.h"
+#import "SentryCrashNSErrorUtil.h"
 #import "SentryCrashReportFilter.h"
 #import "SentryCrashReportFilterBasic.h"
 

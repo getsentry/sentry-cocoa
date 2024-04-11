@@ -73,3 +73,5 @@ generate_xcframework "Sentry" "-Dynamic"
 generate_xcframework "Sentry" "" staticlib
 
 generate_xcframework "SentrySwiftUI"
+
+generate_xcframework "Sentry" "-WihoutUIKitOrAppKit" mh_dylib Release_without_UIKit

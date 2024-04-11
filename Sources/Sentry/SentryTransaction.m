@@ -1,7 +1,7 @@
 #import "SentryTransaction.h"
-#import "NSDictionary+SentrySanitize.h"
 #import "SentryEnvelopeItemType.h"
 #import "SentryMeasurementValue.h"
+#import "SentryNSDictionarySanitize.h"
 #import "SentryTransactionContext.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -43,12 +43,22 @@ SentryTransaction ()
         [mutableContext addEntriesFromDictionary:serializedData[@"contexts"]];
     }
 
-    mutableContext[@"trace"] = [self.trace serialize];
+    // The metrics summary must be on the root level of the serialized transaction. For SentrySpans,
+    // the metrics summary is on the span level. As the tracer inherits from SentrySpan the metrics
+    // summary ends up in the serialized tracer dictionary. We grab it from there and move it to the
+    // root level.
+    NSMutableDictionary<NSString *, id> *serializedTrace = [self.trace serialize].mutableCopy;
+    NSDictionary<NSString *, id> *metricsSummary = serializedTrace[@"_metrics_summary"];
+    if (metricsSummary != nil) {
+        serializedData[@"_metrics_summary"] = metricsSummary;
+        [serializedTrace removeObjectForKey:@"_metrics_summary"];
+    }
+    mutableContext[@"trace"] = serializedTrace;
+
     [serializedData setValue:mutableContext forKey:@"contexts"];
 
-    NSMutableDictionary<NSString *, id> *traceTags =
-        [[self.trace.tags sentry_sanitize] mutableCopy];
-    [traceTags addEntriesFromDictionary:[self.trace.tags sentry_sanitize]];
+    NSMutableDictionary<NSString *, id> *traceTags = [sentry_sanitize(self.trace.tags) mutableCopy];
+    [traceTags addEntriesFromDictionary:sentry_sanitize(self.trace.tags)];
 
     // Adding tags from Trace to serializedData dictionary
     if (serializedData[@"tags"] != nil &&
@@ -61,7 +71,7 @@ SentryTransaction ()
         serializedData[@"tags"] = traceTags;
     }
 
-    NSDictionary<NSString *, id> *traceData = [self.trace.data sentry_sanitize];
+    NSDictionary<NSString *, id> *traceData = sentry_sanitize(self.trace.data);
 
     // Adding data from Trace to serializedData dictionary
     if (serializedData[@"extra"] != nil &&

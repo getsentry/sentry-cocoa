@@ -12,7 +12,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @interface SentryNSNotificationCenterWrapper : NSObject
 
-#if SENTRY_HAS_UIKIT || SENTRY_TARGET_MACOS
+#if SENTRY_HAS_UIKIT || SENTRY_TARGET_MACOS_HAS_UI
 @property (nonatomic, readonly, copy, class) NSNotificationName didBecomeActiveNotificationName;
 @property (nonatomic, readonly, copy, class) NSNotificationName willResignActiveNotificationName;
 @property (nonatomic, readonly, copy, class) NSNotificationName willTerminateNotificationName;

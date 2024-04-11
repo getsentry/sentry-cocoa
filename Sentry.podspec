@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name         = "Sentry"
-  s.version      = "8.21.0"
+  s.version      = "8.23.0"
   s.summary      = "Sentry client for cocoa"
   s.homepage     = "https://github.com/getsentry/sentry-cocoa"
   s.license      = "mit"
@@ -36,6 +36,8 @@ Pod::Spec.new do |s|
       sp.preserve_path = "Sources/Sentry/include/module.modulemap"
       sp.public_header_files =
         "Sources/Sentry/Public/*.h"
+        
+      sp.preserve_path = "Sources/Sentry/include/module.modulemap"
       sp.resource_bundles = { "Sentry" => "Sources/Resources/PrivacyInfo.xcprivacy" }
   end
   
@@ -47,6 +49,7 @@ Pod::Spec.new do |s|
       sp.public_header_files =
         "Sources/Sentry/Public/*.h", "Sources/Sentry/include/HybridPublic/*.h"
 
+      sp.preserve_path = "Sources/Sentry/include/module.modulemap"
       sp.resource_bundles = { "Sentry" => "Sources/Resources/PrivacyInfo.xcprivacy" }
   end
 end

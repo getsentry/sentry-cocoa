@@ -222,7 +222,7 @@ NS_ASSUME_NONNULL_BEGIN
     }
                                                                     intoFile:envelopeContentUrl];
     if (success == NO) {
-        SENTRY_LOG_DEBUG(@"Could not create MessagePack for session replay envelope item.");
+        SENTRY_LOG_ERROR(@"Could not create MessagePack for session replay envelope item.");
         return nil;
     }
 

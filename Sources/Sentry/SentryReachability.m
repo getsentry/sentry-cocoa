@@ -27,8 +27,7 @@
 #import "SentryReachability.h"
 #import "SentryLog.h"
 
-#if !TARGET_OS_WATCH
-
+#if SENTRY_HAS_REACHABILITY
 static const SCNetworkReachabilityFlags kSCNetworkReachabilityFlagsUninitialized = UINT32_MAX;
 
 static NSHashTable<id<SentryReachabilityObserver>> *sentry_reachability_observers;

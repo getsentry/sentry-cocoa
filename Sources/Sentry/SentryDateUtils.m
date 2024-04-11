@@ -1,11 +1,9 @@
-#import "NSDate+SentryExtras.h"
+#import "SentryDateUtils.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@implementation
-NSDate (SentryExtras)
-
-+ (NSDateFormatter *)getIso8601Formatter
+NSDateFormatter *
+sentryGetIso8601Formatter(void)
 {
     static NSDateFormatter *isoFormatter = nil;
     static dispatch_once_t onceToken;
@@ -29,7 +27,8 @@ NSDate (SentryExtras)
  * nanoseconds to the output of NSDateFormatter please use a numeric float instead, which can be
  * retrieved with timeIntervalSince1970.
  */
-+ (NSDateFormatter *)getIso8601FormatterWithMillisecondPrecision
+NSDateFormatter *
+sentryGetIso8601FormatterWithMillisecondPrecision(void)
 {
     static NSDateFormatter *isoFormatter = nil;
     static dispatch_once_t onceToken;
@@ -43,12 +42,13 @@ NSDate (SentryExtras)
     return isoFormatter;
 }
 
-+ (NSDate *)sentry_fromIso8601String:(NSString *)string
+NSDate *
+sentry_fromIso8601String(NSString *string)
 {
-    NSDate *date = [[self.class getIso8601FormatterWithMillisecondPrecision] dateFromString:string];
+    NSDate *date = [sentryGetIso8601FormatterWithMillisecondPrecision() dateFromString:string];
     if (nil == date) {
         // Parse date with low precision formatter for backward compatible
-        return [[self.class getIso8601Formatter] dateFromString:string];
+        return [sentryGetIso8601Formatter() dateFromString:string];
     } else {
         return date;
     }
@@ -58,11 +58,11 @@ NSDate (SentryExtras)
  * Only works with milliseconds precision. For more details see
  * getIso8601FormatterWithMillisecondPrecision.
  */
-- (NSString *)sentry_toIso8601String
+NSString *
+sentry_toIso8601String(NSDate *date)
 {
-    return [[self.class getIso8601FormatterWithMillisecondPrecision] stringFromDate:self];
+    NSDateFormatter *formatter = sentryGetIso8601FormatterWithMillisecondPrecision();
+    return [formatter stringFromDate:date];
 }
-
-@end
 
 NS_ASSUME_NONNULL_END

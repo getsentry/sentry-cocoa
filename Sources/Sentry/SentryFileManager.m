@@ -1,7 +1,7 @@
 #import "SentryFileManager.h"
-#import "NSDate+SentryExtras.h"
 #import "SentryAppState.h"
 #import "SentryDataCategoryMapper.h"
+#import "SentryDateUtils.h"
 #import "SentryDependencyContainer.h"
 #import "SentryDispatchQueueWrapper.h"
 #import "SentryDsn.h"
@@ -449,7 +449,7 @@ SentryFileManager ()
 
 - (void)storeTimestampLastInForeground:(NSDate *)timestamp
 {
-    NSString *timestampString = [timestamp sentry_toIso8601String];
+    NSString *timestampString = sentry_toIso8601String(timestamp);
     SENTRY_LOG_DEBUG(@"Persisting lastInForeground: %@", timestampString);
     @synchronized(self.lastInForegroundFilePath) {
         if (![self writeData:[timestampString dataUsingEncoding:NSUTF8StringEncoding]
@@ -482,7 +482,7 @@ SentryFileManager ()
     }
     NSString *timestampString = [[NSString alloc] initWithData:lastInForegroundData
                                                       encoding:NSUTF8StringEncoding];
-    return [NSDate sentry_fromIso8601String:timestampString];
+    return sentry_fromIso8601String(timestampString);
 }
 
 - (BOOL)writeData:(NSData *)data toPath:(NSString *)path

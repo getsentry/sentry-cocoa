@@ -556,6 +556,7 @@
         @"inAppExcludes" : [NSNull null],
         @"urlSessionDelegate" : [NSNull null],
         @"enableSwizzling" : [NSNull null],
+        @"swizzleClassNameExcludes" : [NSNull null],
         @"enableIOTracking" : [NSNull null],
         @"sdk" : [NSNull null],
         @"enableCaptureFailedRequests" : [NSNull null],
@@ -617,6 +618,7 @@
     XCTAssertEqual(@[], options.inAppExcludes);
     XCTAssertNil(options.urlSessionDelegate);
     XCTAssertEqual(YES, options.enableSwizzling);
+    XCTAssertEqual([NSSet new], options.swizzleClassNameExcludes);
     XCTAssertEqual(YES, options.enableFileIOTracing);
     XCTAssertEqual(YES, options.enableAutoBreadcrumbTracking);
     XCTAssertFalse(options.swiftAsyncStacktraces);
@@ -648,6 +650,7 @@
 #    pragma clang diagnostic pop
     XCTAssertNil(options.profilesSampleRate);
     XCTAssertNil(options.profilesSampler);
+    XCTAssertFalse(options.enableContinuousProfiling);
 #endif
 
     XCTAssertTrue([options.spotlightUrl isEqualToString:@"http://localhost:8969/stream"]);
@@ -835,6 +838,17 @@
     [self testBooleanField:@"enableSwizzling"];
 }
 
+- (void)testSwizzleClassNameExcludes
+{
+    NSSet<NSString *> *expected = [NSSet setWithObjects:@"Sentry", nil];
+    NSSet *swizzleClassNameExcludes = [NSSet setWithObjects:@"Sentry", @2, nil];
+
+    SentryOptions *options =
+        [self getValidOptions:@{ @"swizzleClassNameExcludes" : swizzleClassNameExcludes }];
+
+    XCTAssertEqualObjects(expected, options.swizzleClassNameExcludes);
+}
+
 - (void)testEnableTracing
 {
     SentryOptions *options = [self getValidOptions:@{ @"enableTracing" : @YES }];
@@ -1016,17 +1030,20 @@
     [self testBooleanField:@"enableProfiling" defaultValue:NO];
 }
 
+- (void)testEnableContinuousProfiling
+{
+    [self testBooleanField:@"enableContinuousProfiling" defaultValue:NO];
+}
+
 - (void)testProfilesSampleRate
 {
     SentryOptions *options = [self getValidOptions:@{ @"profilesSampleRate" : @0.1 }];
-
     XCTAssertEqual(options.profilesSampleRate.doubleValue, 0.1);
 }
 
 - (void)testDefaultProfilesSampleRate
 {
     SentryOptions *options = [self getValidOptions:@{}];
-
     XCTAssertEqual(options.profilesSampleRate.doubleValue, 0);
 }
 
@@ -1074,6 +1091,7 @@
 {
     SentryOptions *options = [[SentryOptions alloc] init];
     XCTAssertFalse(options.isProfilingEnabled);
+    XCTAssertFalse(options.enableContinuousProfiling);
 }
 
 - (void)testIsProfilingEnabled_ProfilesSampleRateSetToZero_IsDisabled
@@ -1081,6 +1099,7 @@
     SentryOptions *options = [[SentryOptions alloc] init];
     options.profilesSampleRate = @0.00;
     XCTAssertFalse(options.isProfilingEnabled);
+    XCTAssertFalse(options.enableContinuousProfiling);
 }
 
 - (void)testIsProfilingEnabled_ProfilesSampleRateSet_IsEnabled
@@ -1088,6 +1107,7 @@
     SentryOptions *options = [[SentryOptions alloc] init];
     options.profilesSampleRate = @0.01;
     XCTAssertTrue(options.isProfilingEnabled);
+    XCTAssertFalse(options.enableContinuousProfiling);
 }
 
 - (void)testIsProfilingEnabled_ProfilesSamplerSet_IsEnabled
@@ -1098,6 +1118,7 @@
         return @0.0;
     };
     XCTAssertTrue(options.isProfilingEnabled);
+    XCTAssertFalse(options.enableContinuousProfiling);
 }
 
 - (void)testIsProfilingEnabled_EnableProfilingSet_IsEnabled
@@ -1108,11 +1129,7 @@
     options.enableProfiling = YES;
 #    pragma clang diagnostic pop
     XCTAssertTrue(options.isProfilingEnabled);
-}
-
-- (double)profilesSamplerCallback:(NSDictionary *)context
-{
-    return 0.1;
+    XCTAssertFalse(options.enableContinuousProfiling);
 }
 
 - (void)testProfilesSampler
@@ -1126,6 +1143,7 @@
 
     SentrySamplingContext *context = [[SentrySamplingContext alloc] init];
     XCTAssertEqual(options.profilesSampler(context), @1.0);
+    XCTAssertFalse(options.enableContinuousProfiling);
 }
 
 - (void)testDefaultProfilesSampler
@@ -1140,7 +1158,7 @@
     XCTAssertNil(options.profilesSampler);
 }
 
-#endif
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
 - (void)testInAppIncludes
 {
@@ -1298,6 +1316,42 @@
 
     SentryOptions *options3 = [self getValidOptions:@{ @"spotlightUrl" : @2 }];
     XCTAssertEqualObjects(options3.spotlightUrl, @"http://localhost:8969/stream");
+}
+
+- (void)testEnableMetrics
+{
+    [self testBooleanField:@"enableMetrics" defaultValue:NO];
+}
+
+- (void)testEnableDefaultTagsForMetrics
+{
+    [self testBooleanField:@"enableDefaultTagsForMetrics" defaultValue:YES];
+}
+
+- (void)testEnableSpanLocalMetricAggregation
+{
+    [self testBooleanField:@"enableSpanLocalMetricAggregation" defaultValue:YES];
+}
+
+- (void)testBeforeEmitMetric
+{
+    SentryBeforeEmitMetricCallback callback
+        = ^(NSString *_Nonnull key, NSDictionary<NSString *, NSString *> *_Nonnull tags) {
+              // Use tags and key to silence unused compiler error
+              XCTAssertNotNil(key);
+              XCTAssertNotNil(tags);
+              return YES;
+          };
+    SentryOptions *options = [self getValidOptions:@{ @"beforeEmitMetric" : callback }];
+
+    XCTAssertEqual(callback, options.beforeEmitMetric);
+}
+
+- (void)testDefaultBeforeEmitMetric
+{
+    SentryOptions *options = [self getValidOptions:@{}];
+
+    XCTAssertNil(options.beforeEmitMetric);
 }
 
 #pragma mark - Private

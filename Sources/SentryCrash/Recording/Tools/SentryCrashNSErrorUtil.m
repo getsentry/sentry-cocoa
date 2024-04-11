@@ -25,19 +25,15 @@
 // THE SOFTWARE.
 //
 
-#import "NSError+SentrySimpleConstructor.h"
+#import "SentryCrashNSErrorUtil.h"
 
-@implementation
-NSError (SentrySimpleConstructor)
-
-+ (NSError *)sentryErrorWithDomain:(NSString *)domain
-                              code:(NSInteger)code
-                       description:(NSString *)fmt, ...
+NSError *
+sentryErrorWithDomain(NSString *domain, NSInteger code, NSString *format, ...)
 {
     va_list args;
-    va_start(args, fmt);
+    va_start(args, format);
 
-    NSString *desc = [[NSString alloc] initWithFormat:fmt arguments:args];
+    NSString *desc = [[NSString alloc] initWithFormat:format arguments:args];
     va_end(args);
 
     return [NSError errorWithDomain:domain
@@ -45,39 +41,3 @@ NSError (SentrySimpleConstructor)
                            userInfo:[NSDictionary dictionaryWithObject:desc
                                                                 forKey:NSLocalizedDescriptionKey]];
 }
-
-+ (BOOL)sentryFillError:(NSError *__autoreleasing *)error
-             withDomain:(NSString *)domain
-                   code:(NSInteger)code
-            description:(NSString *)fmt, ...
-{
-    if (error != nil) {
-        va_list args;
-        va_start(args, fmt);
-
-        NSString *desc = [[NSString alloc] initWithFormat:fmt arguments:args];
-        va_end(args);
-
-        *error =
-            [NSError errorWithDomain:domain
-                                code:code
-                            userInfo:[NSDictionary dictionaryWithObject:desc
-                                                                 forKey:NSLocalizedDescriptionKey]];
-    }
-    return NO;
-}
-
-+ (BOOL)sentryClearError:(NSError *__autoreleasing *)error
-{
-    if (error != nil) {
-        *error = nil;
-    }
-    return NO;
-}
-
-@end
-
-@interface sentrycrashobjc_NSError_SimpleConstructor_AOG8G : NSObject
-@end
-@implementation sentrycrashobjc_NSError_SimpleConstructor_AOG8G
-@end

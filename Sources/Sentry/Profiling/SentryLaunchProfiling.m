@@ -8,12 +8,13 @@
 #    import "SentryInternalDefines.h"
 #    import "SentryLog.h"
 #    import "SentryOptions.h"
-#    import "SentryProfiler.h"
+#    import "SentryProfiler+Private.h"
 #    import "SentryRandom.h"
 #    import "SentrySamplerDecision.h"
 #    import "SentrySampling.h"
 #    import "SentrySamplingContext.h"
 #    import "SentrySwift.h"
+#    import "SentryTime.h"
 #    import "SentryTraceOrigins.h"
 #    import "SentryTracer+Private.h"
 #    import "SentryTracerConfiguration.h"
@@ -116,6 +117,7 @@ config(NSNumber *profilesRate)
 void
 startLaunchProfile(void)
 {
+
     static dispatch_once_t onceToken;
     // this function is called from SentryTracer.load but in the future we may expose access
     // directly to customers, and we'll want to ensure it only runs once. dispatch_once is an
@@ -142,7 +144,7 @@ startLaunchProfile(void)
             return;
         }
 
-        SENTRY_LOG_INFO(@"Starting app launch profile.");
+        SENTRY_LOG_INFO(@"Starting app launch profile at %llu.", getAbsoluteTime());
         launchTracer = [[SentryTracer alloc] initWithTransactionContext:context(tracesRate)
                                                                     hub:nil
                                                           configuration:config(profilesRate)];
@@ -150,16 +152,21 @@ startLaunchProfile(void)
 }
 
 void
-stopLaunchProfile(SentryHub *hub)
+stopAndTransmitLaunchProfile(SentryHub *hub)
 {
     if (launchTracer == nil) {
         SENTRY_LOG_DEBUG(@"No launch tracer present to stop.");
         return;
     }
 
-    SENTRY_LOG_DEBUG(@"Finishing launch tracer.");
-
     launchTracer.hub = hub;
+    stopAndDiscardLaunchProfileTracer();
+}
+
+void
+stopAndDiscardLaunchProfileTracer(void)
+{
+    SENTRY_LOG_DEBUG(@"Finishing launch tracer.");
     [launchTracer finish];
 }
 

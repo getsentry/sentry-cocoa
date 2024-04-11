@@ -135,7 +135,7 @@ extension ProfilingUITests {
         var stackID: Int?
         let stack = try XCTUnwrap(stackFunctions.enumerated().first { nextStack in
             let result = nextStack.element.contains { frame in
-                let result = (frame as! String).contains("+[SentryProfiler(SlowLoad) load]")
+                let result = (frame as! String).contains("+[NSObject(SentryAppSetup) load]")
                 if result {
                     stackID = nextStack.offset
                 }

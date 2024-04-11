@@ -9,40 +9,41 @@ class SentryDateUtilTests: XCTestCase {
     override func setUp() {
         super.setUp()
         currentDateProvider = TestCurrentDateProvider()
-        SentryDependencyContainer.sharedInstance().dateProvider = currentDateProvider
-    }
-    
-    override func tearDown() {
-        super.tearDown()
-        clearTestState()
     }
     
     func testIsInFutureWithFutureDte() {
-        XCTAssertTrue(DateUtil.is(inFuture: currentDateProvider.date().addingTimeInterval(1)))
+        let sut = SentryDateUtil(currentDateProvider: currentDateProvider)
+        XCTAssertTrue(sut.is(inFuture: currentDateProvider.date().addingTimeInterval(1)))
     }
     
     func testIsInFutureWithPresentDate() {
-        XCTAssertFalse(DateUtil.is(inFuture: currentDateProvider.date()))
+        let sut = SentryDateUtil(currentDateProvider: currentDateProvider)
+        
+        XCTAssertFalse(sut.is(inFuture: currentDateProvider.date()))
     }
     
     func testIsInFutureWithPastDate() {
-           XCTAssertFalse(DateUtil.is(inFuture: currentDateProvider.date().addingTimeInterval(-1)))
-       }
+        let sut = SentryDateUtil(currentDateProvider: currentDateProvider)
+        
+        XCTAssertFalse(sut.is(inFuture: currentDateProvider.date().addingTimeInterval(-1)))
+   }
     
     func testIsInFutureWithNil() {
-        XCTAssertFalse(DateUtil.is(inFuture: nil))
+        let sut = SentryDateUtil(currentDateProvider: currentDateProvider)
+        
+        XCTAssertFalse(sut.is(inFuture: nil))
     }
 
     func testGetMaximumFirstMaximum() {
         let maximum = currentDateProvider.date().addingTimeInterval(1)
-        let actual = DateUtil.getMaximumDate(maximum, andOther: currentDateProvider.date())
+        let actual = SentryDateUtil.getMaximumDate(maximum, andOther: currentDateProvider.date())
 
         XCTAssertEqual(maximum, actual)
     }
 
     func testGetMaximumSecondMaximum() {
         let maximum = currentDateProvider.date().addingTimeInterval(1)
-        let actual = DateUtil.getMaximumDate(currentDateProvider.date(), andOther: maximum)
+        let actual = SentryDateUtil.getMaximumDate(currentDateProvider.date(), andOther: maximum)
 
         XCTAssertEqual(maximum, actual)
     }
@@ -50,14 +51,14 @@ class SentryDateUtilTests: XCTestCase {
     func testGetMaximumWithNil() {
         let date = currentDateProvider.date()
     
-        XCTAssertEqual(date, DateUtil.getMaximumDate(nil, andOther: date))
-        XCTAssertEqual(date, DateUtil.getMaximumDate(date, andOther: nil))
-        XCTAssertNil(DateUtil.getMaximumDate(nil, andOther: nil))
+        XCTAssertEqual(date, SentryDateUtil.getMaximumDate(nil, andOther: date))
+        XCTAssertEqual(date, SentryDateUtil.getMaximumDate(date, andOther: nil))
+        XCTAssertNil(SentryDateUtil.getMaximumDate(nil, andOther: nil))
     }
 
     func testJavascriptDate() {
         let testDate = Date(timeIntervalSince1970: 60)
-        let timestamp = DateUtil.millisecondsSince1970(testDate)
+        let timestamp = SentryDateUtil.millisecondsSince1970(testDate)
         
         expect(timestamp) == 60_000
     }

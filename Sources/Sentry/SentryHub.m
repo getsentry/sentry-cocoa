@@ -1,6 +1,7 @@
 #import "SentryClient+Private.h"
 #import "SentryCrashWrapper.h"
 #import "SentryDependencyContainer.h"
+#import "SentryDispatchQueueWrapper.h"
 #import "SentryEnvelope.h"
 #import "SentryEnvelopeItemHeader.h"
 #import "SentryEnvelopeItemType.h"
@@ -21,6 +22,7 @@
 #import "SentryScope+Private.h"
 #import "SentrySerialization.h"
 #import "SentrySession+Private.h"
+#import "SentryStatsdClient.h"
 #import "SentrySwift.h"
 #import "SentryTraceOrigins.h"
 #import "SentryTracer.h"
@@ -34,7 +36,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @interface
-SentryHub ()
+SentryHub () <SentryMetricsAPIDelegate>
 
 @property (nullable, nonatomic, strong) SentryClient *client;
 @property (nullable, nonatomic, strong) SentryScope *scope;
@@ -56,6 +58,18 @@ SentryHub ()
     if (self = [super init]) {
         _client = client;
         _scope = scope;
+        SentryStatsdClient *statsdClient = [[SentryStatsdClient alloc] initWithClient:client];
+        SentryMetricsClient *metricsClient =
+            [[SentryMetricsClient alloc] initWithClient:statsdClient];
+        _metrics = [[SentryMetricsAPI alloc]
+             initWithEnabled:client.options.enableMetrics
+                      client:metricsClient
+                 currentDate:SentryDependencyContainer.sharedInstance.dateProvider
+               dispatchQueue:SentryDependencyContainer.sharedInstance.dispatchQueueWrapper
+                      random:SentryDependencyContainer.sharedInstance.random
+            beforeEmitMetric:client.options.beforeEmitMetric];
+        [_metrics setDelegate:self];
+
         _sessionLock = [[NSObject alloc] init];
         _integrationsLock = [[NSObject alloc] init];
         _installedIntegrations = [[NSMutableArray alloc] init];
@@ -683,6 +697,7 @@ SentryHub ()
 
 - (void)flush:(NSTimeInterval)timeout
 {
+    [_metrics flush];
     SentryClient *client = _client;
     if (client != nil) {
         [client flush:timeout];
@@ -691,8 +706,45 @@ SentryHub ()
 
 - (void)close
 {
+    [_metrics close];
     [_client close];
     SENTRY_LOG_DEBUG(@"Closed the Hub.");
+}
+
+#pragma mark - SentryMetricsAPIDelegate
+
+- (NSDictionary<NSString *, NSString *> *)getDefaultTagsForMetrics
+{
+    SentryOptions *options = [_client options];
+    if (options == nil || options.enableDefaultTagsForMetrics == NO) {
+        return @{};
+    }
+
+    NSMutableDictionary<NSString *, NSString *> *defaultTags = [NSMutableDictionary dictionary];
+
+    if (options.releaseName != nil) {
+        defaultTags[@"release"] = options.releaseName;
+    }
+
+    defaultTags[@"environment"] = options.environment;
+
+    return defaultTags;
+}
+
+- (id<SentrySpan> _Nullable)getCurrentSpan
+{
+    return _scope.span;
+}
+
+- (LocalMetricsAggregator *_Nullable)getLocalMetricsAggregatorWithSpan:(id<SentrySpan>)span
+{
+    // We don't want to add them LocalMetricsAggregator to the SentrySpan protocol and make it
+    // public. Instead, we check if the span responds to the getLocalMetricsAggregator which, every
+    // span should do.
+    if ([span isKindOfClass:SentrySpan.class]) {
+        return [(SentrySpan *)span getLocalMetricsAggregator];
+    }
+    return nil;
 }
 
 #pragma mark - Protected

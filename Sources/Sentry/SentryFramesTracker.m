@@ -8,7 +8,7 @@
 #    import "SentryDispatchQueueWrapper.h"
 #    import "SentryDisplayLinkWrapper.h"
 #    import "SentryLog.h"
-#    import "SentryProfiler.h"
+#    import "SentryProfiler+Private.h"
 #    import "SentryProfilingConditionals.h"
 #    import "SentrySwift.h"
 #    import "SentryTime.h"

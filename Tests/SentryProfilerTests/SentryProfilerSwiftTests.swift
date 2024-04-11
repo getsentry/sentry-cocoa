@@ -1,3 +1,4 @@
+import _SentryPrivate
 @testable import Sentry
 import SentryTestUtils
 import XCTest
@@ -213,6 +214,7 @@ class SentryProfilerSwiftTests: XCTestCase {
         // app start simulation
 
         lazy var appStart = currentDateProvider.date()
+        lazy var appStartSystemTime = currentDateProvider.systemTime()
         var appStartDuration = 0.5
         lazy var appStartEnd = appStart.addingTimeInterval(appStartDuration)
 
@@ -226,7 +228,7 @@ class SentryProfilerSwiftTests: XCTestCase {
             appStart = preWarmed ? main : appStart
             appStartDuration = preWarmed ? appStartDuration - runtimeInitDuration - mainDuration : appStartDuration
             appStartEnd = appStart.addingTimeInterval(appStartDuration)
-            return SentryAppStartMeasurement(type: type, isPreWarmed: preWarmed, appStartTimestamp: appStart, duration: appStartDuration, runtimeInitTimestamp: runtimeInit, moduleInitializationTimestamp: main,
+            return SentryAppStartMeasurement(type: type, isPreWarmed: preWarmed, appStartTimestamp: appStart, runtimeInitSystemTimestamp: appStartSystemTime, duration: appStartDuration, runtimeInitTimestamp: runtimeInit, moduleInitializationTimestamp: main,
                                              sdkStartTimestamp: appStart, didFinishLaunchingTimestamp: didFinishLaunching)
         }
 #endif // !os(macOS)
@@ -388,7 +390,7 @@ class SentryProfilerSwiftTests: XCTestCase {
     }
 
     func testProfileWithTransactionContainingStartupSpansForPrewarmedStart() throws {
-        try performTest(uikitParameters: UIKitParameters(launchType: .cold, prewarmed: true))
+        try performTest(uikitParameters: UIKitParameters(launchType: .warm, prewarmed: true))
     }
 #endif // !os(macOS)
 
@@ -550,7 +552,6 @@ class SentryProfilerSwiftTests: XCTestCase {
         XCTAssertEqual(self.fixture.client?.captureEventWithScopeInvocations.count, 0)
     }
 #endif // !os(macOS)
-    
 }
 
 private extension SentryProfilerSwiftTests {
@@ -615,7 +616,7 @@ private extension SentryProfilerSwiftTests {
 
         waitForExpectations(timeout: 1)
 
-        try self.assertValidProfileData(transactionEnvironment: transactionEnvironment, shouldTimeout: shouldTimeOut)
+        try self.assertValidProfileData(transactionEnvironment: transactionEnvironment, shouldTimeout: shouldTimeOut, appStartProfile: testingAppLaunchSpans)
     }
 
     func assertMetricsPayload(expectedUsageReadings: Int, oneLessEnergyReading: Bool = true) throws {
@@ -707,8 +708,12 @@ private extension SentryProfilerSwiftTests {
         var priority: Int32
         var name: String
     }
+    
+    enum SentryProfilerSwiftTestError: Error {
+        case notEnoughAppStartSpans
+    }
 
-    func assertValidProfileData(transactionEnvironment: String = kSentryDefaultEnvironment, shouldTimeout: Bool = false, expectedAddresses: [NSNumber]? = nil, expectedThreadMetadata: [ThreadMetadata]? = nil) throws {
+    func assertValidProfileData(transactionEnvironment: String = kSentryDefaultEnvironment, shouldTimeout: Bool = false, expectedAddresses: [NSNumber]? = nil, expectedThreadMetadata: [ThreadMetadata]? = nil, appStartProfile: Bool = false) throws {
         let data = try getLatestProfileData()
         let profile = try XCTUnwrap(try JSONSerialization.jsonObject(with: data) as? [String: Any])
 
@@ -794,9 +799,18 @@ private extension SentryProfilerSwiftTests {
         let latestTransaction = try getLatestTransaction()
         let linkedTransactionInfo = try XCTUnwrap(profile["transaction"] as? [String: Any])
 
-        let linkedTransactionTimestampString = try XCTUnwrap(profile["timestamp"] as? String)
-        let latestTransactionTimestampString = (latestTransaction.trace.originalStartTimestamp as NSDate).sentry_toIso8601String()
-        XCTAssertEqual(linkedTransactionTimestampString, latestTransactionTimestampString)
+        let profileTimestampString = try XCTUnwrap(profile["timestamp"] as? String)
+        
+        let latestTransactionTimestamp = try XCTUnwrap(latestTransaction.startTimestamp)
+        var startTimestampString = sentry_toIso8601String(latestTransactionTimestamp)
+        #if !os(macOS)
+        if appStartProfile {
+            let runtimeInitTimestamp = try XCTUnwrap(SentrySDK.getAppStartMeasurement()?.runtimeInitTimestamp)
+            startTimestampString = sentry_toIso8601String(runtimeInitTimestamp)
+        }
+        #endif // !os(macOS)
+                    
+        XCTAssertEqual(profileTimestampString, startTimestampString)
 
         XCTAssertEqual(fixture.transactionName, latestTransaction.transaction)
         XCTAssertEqual(fixture.transactionName, try XCTUnwrap(linkedTransactionInfo["name"] as? String))
