@@ -17,8 +17,8 @@
 #import "SentryProfilingConditionals.h"
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
-#    import "SentryLegacyProfiler.h"
-#    import "SentryProfiler+Test.h"
+#    import "SentryLegacyProfiler+Test.h"
+#    import "SentryProfiler+Private.h"
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
 #import "PrivateSentrySDKOnly.h"

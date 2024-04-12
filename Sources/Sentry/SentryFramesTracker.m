@@ -3,12 +3,10 @@
 #if SENTRY_HAS_UIKIT
 
 #    import "SentryCompiler.h"
-#    import "SentryContinuousProfiler.h"
 #    import "SentryDelayedFrame.h"
 #    import "SentryDelayedFramesTracker.h"
 #    import "SentryDispatchQueueWrapper.h"
 #    import "SentryDisplayLinkWrapper.h"
-#    import "SentryLegacyProfiler.h"
 #    import "SentryLog.h"
 #    import "SentryProfilingConditionals.h"
 #    import "SentrySwift.h"
@@ -18,6 +16,9 @@
 #    include <stdatomic.h>
 
 #    if SENTRY_TARGET_PROFILING_SUPPORTED
+#        import "SentryContinuousProfiler.h"
+#        import "SentryLegacyProfiler.h"
+
 /** A mutable version of @c SentryFrameInfoTimeSeries so we can accumulate results. */
 typedef NSMutableArray<NSDictionary<NSString *, NSNumber *> *> SentryMutableFrameInfoTimeSeries;
 #    endif // SENTRY_TARGET_PROFILING_SUPPORTED

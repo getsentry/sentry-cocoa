@@ -18,7 +18,7 @@
 #    import "SentryOptions.h"
 #    import "SentryProfileTimeseries.h"
 #    import "SentryProfiledTracerConcurrency.h"
-#    import "SentryProfiler+Test.h"
+#    import "SentryProfilerSerialization+Test.h"
 #    import "SentryProfilerState.h"
 #    import "SentryProfilerTestHelpers.h"
 #    import "SentrySample.h"
