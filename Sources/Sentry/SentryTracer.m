@@ -11,7 +11,6 @@
 #import "SentryNSTimerFactory.h"
 #import "SentryNoOpSpan.h"
 #import "SentryOptions+Private.h"
-#import "SentryProfilerSerialization.h"
 #import "SentryProfilingConditionals.h"
 #import "SentryRandom.h"
 #import "SentrySDK+Private.h"
@@ -37,8 +36,9 @@
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 #    import "SentryLaunchProfiling.h"
+#    import "SentryLegacyProfiler.h"
 #    import "SentryProfiledTracerConcurrency.h"
-#    import "SentryProfiler+Private.h"
+#    import "SentryProfilerSerialization.h"
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
 #if SENTRY_HAS_UIKIT
@@ -193,7 +193,7 @@ static BOOL appStartMeasurementRead;
     if (_configuration.profilesSamplerDecision.decision == kSentrySampleDecisionYes
         || isTracingAppLaunch) {
         _internalID = [[SentryId alloc] init];
-        if ((_isProfiling = [SentryProfiler startWithTracer:_internalID])) {
+        if ((_isProfiling = [SentryLegacyProfiler startWithTracer:_internalID])) {
             SENTRY_LOG_DEBUG(@"Started profiler for trace %@ with internal id %@",
                 transactionContext.traceId.sentryIdString, _internalID.sentryIdString);
         }
@@ -707,7 +707,7 @@ static BOOL appStartMeasurementRead;
         }
 #    endif // SENTRY_HAS_UIKIT
 
-        [SentryProfiler recordMetrics];
+        [SentryLegacyProfiler recordMetrics];
         transaction.endSystemTime
             = SentryDependencyContainer.sharedInstance.dateProvider.systemTime;
     }

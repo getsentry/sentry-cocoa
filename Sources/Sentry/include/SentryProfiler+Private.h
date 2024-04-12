@@ -3,12 +3,11 @@
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
 #    import "SentryDefines.h"
-#    import "SentrySpan.h"
 #    import <Foundation/Foundation.h>
 
-@class SentryDebugImageProvider;
 @class SentryEnvelopeItem;
 @class SentryHub;
+@class SentryId;
 @class SentryMetricProfiler;
 @class SentryOptions;
 @class SentryProfilerState;
@@ -23,6 +22,11 @@ typedef NS_ENUM(NSUInteger, SentryProfilerTruncationReason) {
     SentryProfilerTruncationReasonNormal,
     SentryProfilerTruncationReasonTimeout,
     SentryProfilerTruncationReasonAppMovedToBackground,
+};
+
+typedef NS_ENUM(NSUInteger, SentryProfilerMode) {
+    SentryProfilerModeLegacy,
+    SentryProfilerModeContinuous,
 };
 
 NS_ASSUME_NONNULL_BEGIN
@@ -50,10 +54,9 @@ SENTRY_EXTERN void manageProfilerOnStartSDK(SentryOptions *options, SentryHub *h
 @property (strong, nonatomic) SentryScreenFrames *screenFrameData;
 #    endif // SENTRY_HAS_UIKIT
 
-/**
- * Start a profiler, if one isn't already running.
- */
-+ (BOOL)startWithTracer:(SentryId *)traceId;
+SENTRY_NO_INIT
+
+- (instancetype)initWithMode:(SentryProfilerMode)mode;
 
 /**
  * Stop the profiler if it is running.
@@ -65,19 +68,6 @@ SENTRY_EXTERN void manageProfilerOnStartSDK(SentryOptions *options, SentryHub *h
  * due to app backgrounding and is being kept alive while its associated transactions finish so they
  * can query for its profile data. */
 - (BOOL)isRunning;
-
-/**
- * Whether there is any profiler that is currently running. A convenience method to query for this
- * information from other SDK components that don't have access to specific @c SentryProfiler
- * instances.
- */
-+ (BOOL)isCurrentlyProfiling;
-
-/**
- * Immediately record a sample of profiling metrics. Helps get full coverage of concurrent spans
- * when they're ended.
- */
-+ (void)recordMetrics;
 
 @end
 

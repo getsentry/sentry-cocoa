@@ -17,6 +17,7 @@
 #import "SentryProfilingConditionals.h"
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
+#    import "SentryLegacyProfiler.h"
 #    import "SentryProfiler+Test.h"
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 

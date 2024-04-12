@@ -3,12 +3,13 @@
 #if SENTRY_HAS_UIKIT
 
 #    import "SentryCompiler.h"
+#    import "SentryContinuousProfiler.h"
 #    import "SentryDelayedFrame.h"
 #    import "SentryDelayedFramesTracker.h"
 #    import "SentryDispatchQueueWrapper.h"
 #    import "SentryDisplayLinkWrapper.h"
+#    import "SentryLegacyProfiler.h"
 #    import "SentryLog.h"
-#    import "SentryProfiler+Private.h"
 #    import "SentryProfilingConditionals.h"
 #    import "SentrySwift.h"
 #    import "SentryTime.h"
@@ -155,7 +156,8 @@ slowFrameThreshold(uint64_t actualFramesPerSecond)
     }
 
 #    if SENTRY_TARGET_PROFILING_SUPPORTED
-    if ([SentryProfiler isCurrentlyProfiling]) {
+    if ([SentryLegacyProfiler isCurrentlyProfiling] ||
+        [SentryContinuousProfiler isCurrentlyProfiling]) {
         BOOL hasNoFrameRatesYet = self.frameRateTimestamps.count == 0;
         uint64_t previousFrameRate
             = self.frameRateTimestamps.lastObject[@"value"].unsignedLongLongValue;
@@ -221,7 +223,8 @@ slowFrameThreshold(uint64_t actualFramesPerSecond)
 #    if SENTRY_TARGET_PROFILING_SUPPORTED
 - (void)recordTimestamp:(uint64_t)timestamp value:(NSNumber *)value array:(NSMutableArray *)array
 {
-    BOOL shouldRecord = [SentryProfiler isCurrentlyProfiling];
+    BOOL shouldRecord = [SentryLegacyProfiler isCurrentlyProfiling] ||
+        [SentryContinuousProfiler isCurrentlyProfiling];
 #        if defined(TEST) || defined(TESTCI)
     shouldRecord = YES;
 #        endif // defined(TEST) || defined(TESTCI)

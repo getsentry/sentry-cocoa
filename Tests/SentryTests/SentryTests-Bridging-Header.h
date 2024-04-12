@@ -28,6 +28,7 @@
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 #    import "SentryLaunchProfiling+Tests.h"
+#    import "SentryLegacyProfiler.h"
 #    import "SentryMetricProfiler.h"
 #    import "SentryProfiler+Private.h"
 #    import "SentryProfiler+Test.h"
