@@ -83,13 +83,13 @@ SentryEnvelopeItem *_Nullable profileEnvelopeItem(SentryTransaction *transaction
     const auto payload
         = serializedProfileData([profiler.state copyProfilingData], transaction.startSystemTime,
             transaction.endSystemTime, profilerTruncationReasonName(profiler.truncationReason),
-            [profiler._metricProfiler serializeBetween:transaction.startSystemTime
-                                                   and:transaction.endSystemTime],
+            [profiler.metricProfiler serializeBetween:transaction.startSystemTime
+                                                  and:transaction.endSystemTime],
             [SentryDependencyContainer.sharedInstance.debugImageProvider getDebugImagesCrashed:NO],
             transaction.trace.hub
 #    if SENTRY_HAS_UIKIT
             ,
-            profiler._screenFrameData
+            profiler.screenFrameData
 #    endif // SENTRY_HAS_UIKIT
         );
 
@@ -131,11 +131,11 @@ NSMutableDictionary<NSString *, id> *_Nullable collectProfileData(
 
     return serializedProfileData([profiler.state copyProfilingData], startSystemTime, endSystemTime,
         profilerTruncationReasonName(profiler.truncationReason),
-        [profiler._metricProfiler serializeBetween:startSystemTime and:endSystemTime],
+        [profiler.metricProfiler serializeBetween:startSystemTime and:endSystemTime],
         [SentryDependencyContainer.sharedInstance.debugImageProvider getDebugImagesCrashed:NO], hub
 #    if SENTRY_HAS_UIKIT
         ,
-        profiler._screenFrameData
+        profiler.screenFrameData
 #    endif // SENTRY_HAS_UIKIT
     );
 }

@@ -130,7 +130,7 @@ manageProfilerOnStartSDK(SentryOptions *options, SentryHub *hub)
         SENTRY_LOG_DEBUG(@"A profiler is already running.");
         trackProfilerForTracer(_gCurrentProfiler, traceId);
         // record a new metric sample for every concurrent span start
-        [_gCurrentProfiler._metricProfiler recordMetrics];
+        [_gCurrentProfiler.metricProfiler recordMetrics];
         return YES;
     }
 
@@ -156,7 +156,7 @@ manageProfilerOnStartSDK(SentryOptions *options, SentryHub *hub)
     if (_gCurrentProfiler == nil) {
         return;
     }
-    [_gCurrentProfiler._metricProfiler recordMetrics];
+    [_gCurrentProfiler.metricProfiler recordMetrics];
 }
 
 - (void)timeoutAbort
@@ -184,7 +184,7 @@ manageProfilerOnStartSDK(SentryOptions *options, SentryHub *hub)
 - (void)stopForReason:(SentryProfilerTruncationReason)reason
 {
     [_timeoutTimer invalidate];
-    [self._metricProfiler stop];
+    [self.metricProfiler stop];
     self.truncationReason = reason;
 
     if (![self isRunning]) {
@@ -206,8 +206,8 @@ manageProfilerOnStartSDK(SentryOptions *options, SentryHub *hub)
 
 - (void)startMetricProfiler
 {
-    self._metricProfiler = [[SentryMetricProfiler alloc] init];
-    [self._metricProfiler start];
+    self.metricProfiler = [[SentryMetricProfiler alloc] init];
+    [self.metricProfiler start];
 }
 
 - (void)start

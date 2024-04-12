@@ -123,7 +123,7 @@ SentryProfiler *_Nullable profilerForFinishedTracer(SentryId *internalTraceId)
     _unsafe_cleanUpProfiler(profiler, tracerKey);
 
 #    if SENTRY_HAS_UIKIT
-    profiler._screenFrameData =
+    profiler.screenFrameData =
         [SentryDependencyContainer.sharedInstance.framesTracker.currentFrames copy];
     if (_gProfilersToTracers.count == 0) {
         [SentryDependencyContainer.sharedInstance.framesTracker resetProfilingTimestamps];

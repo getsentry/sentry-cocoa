@@ -47,10 +47,10 @@ SENTRY_EXTERN void manageProfilerOnStartSDK(SentryOptions *options, SentryHub *h
 
 @property (assign, nonatomic) SentryProfilerTruncationReason truncationReason;
 
-@property (strong, nonatomic) SentryMetricProfiler *_metricProfiler;
+@property (strong, nonatomic) SentryMetricProfiler *metricProfiler;
 
 #    if SENTRY_HAS_UIKIT
-@property (strong, nonatomic) SentryScreenFrames *_screenFrameData;
+@property (strong, nonatomic) SentryScreenFrames *screenFrameData;
 #    endif // SENTRY_HAS_UIKIT
 
 /**
