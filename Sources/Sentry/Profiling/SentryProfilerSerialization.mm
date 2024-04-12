@@ -96,6 +96,7 @@ SentryEnvelopeItem *_Nullable profileEnvelopeItem(SentryTransaction *transaction
 #    if defined(TEST) || defined(TESTCI) || defined(DEBUG)
     writeProfileFile(payload);
 #    endif // defined(TEST) || defined(TESTCI) || defined(DEBUG)
+
     if (payload == nil) {
         SENTRY_LOG_DEBUG(@"Payload was empty, will not create a profiling envelope item.");
         return nil;

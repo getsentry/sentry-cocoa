@@ -15,6 +15,10 @@ SENTRY_EXTERN BOOL threadSanitizerIsPresent(void);
 
 #    if defined(TEST) || defined(TESTCI) || defined(DEBUG)
 
+/**
+ * Write a file to application support containing the profile data. This is an affordance for UI
+ * tests to be able to validate the contents of a profile.
+ */
 SENTRY_EXTERN void writeProfileFile(NSDictionary<NSString *, id> *payload);
 
 #    endif // defined(TEST) || defined(TESTCI) || defined(DEBUG)
