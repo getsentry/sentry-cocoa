@@ -42,11 +42,8 @@ SENTRY_EXTERN void manageProfilerOnStartSDK(SentryOptions *options, SentryHub *h
 @interface SentryProfiler : NSObject
 
 @property (strong, nonatomic) SentryId *profilerId;
-
 @property (strong, nonatomic) SentryProfilerState *state;
-
 @property (assign, nonatomic) SentryProfilerTruncationReason truncationReason;
-
 @property (strong, nonatomic) SentryMetricProfiler *metricProfiler;
 
 #    if SENTRY_HAS_UIKIT
