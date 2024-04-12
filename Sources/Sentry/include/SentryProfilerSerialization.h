@@ -12,10 +12,6 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-SENTRY_EXTERN NSString *const kSentryProfilerSerializationKeySlowFrameRenders;
-SENTRY_EXTERN NSString *const kSentryProfilerSerializationKeyFrozenFrameRenders;
-SENTRY_EXTERN NSString *const kSentryProfilerSerializationKeyFrameRates;
-
 SENTRY_EXTERN SentryEnvelopeItem *_Nullable profileEnvelopeItem(SentryTransaction *transaction);
 
 /** Alternative affordance for use by PrivateSentrySDKOnly for hybrid SDKs. */
