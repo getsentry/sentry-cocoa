@@ -82,7 +82,7 @@ SentryEnvelopeItem *_Nullable profileEnvelopeItem(SentryTransaction *transaction
 
     const auto payload
         = serializedProfileData([profiler.state copyProfilingData], transaction.startSystemTime,
-            transaction.endSystemTime, profilerTruncationReasonName(profiler._truncationReason),
+            transaction.endSystemTime, profilerTruncationReasonName(profiler.truncationReason),
             [profiler._metricProfiler serializeBetween:transaction.startSystemTime
                                                    and:transaction.endSystemTime],
             [SentryDependencyContainer.sharedInstance.debugImageProvider getDebugImagesCrashed:NO],
@@ -130,7 +130,7 @@ NSMutableDictionary<NSString *, id> *_Nullable collectProfileData(
     }
 
     return serializedProfileData([profiler.state copyProfilingData], startSystemTime, endSystemTime,
-        profilerTruncationReasonName(profiler._truncationReason),
+        profilerTruncationReasonName(profiler.truncationReason),
         [profiler._metricProfiler serializeBetween:startSystemTime and:endSystemTime],
         [SentryDependencyContainer.sharedInstance.debugImageProvider getDebugImagesCrashed:NO], hub
 #    if SENTRY_HAS_UIKIT

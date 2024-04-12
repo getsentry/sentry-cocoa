@@ -185,7 +185,7 @@ manageProfilerOnStartSDK(SentryOptions *options, SentryHub *hub)
 {
     [_timeoutTimer invalidate];
     [self._metricProfiler stop];
-    self._truncationReason = reason;
+    self.truncationReason = reason;
 
     if (![self isRunning]) {
         SENTRY_LOG_WARN(@"Profiler is not currently running.");
