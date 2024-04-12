@@ -41,16 +41,16 @@ void
 sentry_manageProfilerOnStartSDK(SentryOptions *options, SentryHub *hub)
 {
     if (options.enableContinuousProfiling && !isTracingAppLaunch) {
-                [SentryContinuousProfiler start];
-                return;
-            }
+        [SentryContinuousProfiler start];
+        return;
+    }
 
-            BOOL shouldStopAndTransmitLaunchProfile = !options.enableContinuousProfiling;
-    #    if SENTRY_HAS_UIKIT
-            if (SentryUIViewControllerPerformanceTracker.shared.enableWaitForFullDisplay) {
-                shouldStopAndTransmitLaunchProfile = NO;
-            }
-    #    endif // SENTRY_HAS_UIKIT
+    BOOL shouldStopAndTransmitLaunchProfile = !options.enableContinuousProfiling;
+#    if SENTRY_HAS_UIKIT
+    if (SentryUIViewControllerPerformanceTracker.shared.enableWaitForFullDisplay) {
+        shouldStopAndTransmitLaunchProfile = NO;
+    }
+#    endif // SENTRY_HAS_UIKIT
 
     [SentryDependencyContainer.sharedInstance.dispatchQueueWrapper dispatchAsyncWithBlock:^{
         if (shouldStopAndTransmitLaunchProfile) {
