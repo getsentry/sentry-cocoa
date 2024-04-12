@@ -1,3 +1,7 @@
+/**
+ * These declarations are needed in both SDK and test code, for use with various testing scenarios.
+ */
+
 #import "SentryProfilingConditionals.h"
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
