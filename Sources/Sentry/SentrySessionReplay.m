@@ -33,7 +33,6 @@ SentrySessionReplay ()
     NSDate *_videoSegmentStart;
     NSDate *_sessionStart;
     NSMutableArray<UIImage *> *imageCollection;
-    SentryId *sessionReplayId;
     SentryReplayOptions *_replayOptions;
     SentryOnDemandReplay *_replayMaker;
     SentryDisplayLinkWrapper *_displayLink;
@@ -90,7 +89,7 @@ SentrySessionReplay ()
     _lastScreenShot = _dateProvider.date;
     _videoSegmentStart = nil;
     _currentSegmentId = 0;
-    sessionReplayId = [[SentryId alloc] init];
+    _sessionReplayId = [[SentryId alloc] init];
 
     imageCollection = [NSMutableArray array];
     if (full) {
@@ -104,7 +103,7 @@ SentrySessionReplay ()
         _sessionStart = _lastScreenShot;
         _isFullSession = YES;
         [SentrySDK.currentHub configureScope:^(SentryScope *_Nonnull scope) {
-            scope.replayId = [self->sessionReplayId sentryIdString];
+            scope.replayId = [self->_sessionReplayId sentryIdString];
         }];
     }
 }
@@ -150,7 +149,7 @@ SentrySessionReplay ()
 
 - (void)setEventTag:(SentryEvent *)event
 {
-    NSMutableDictionary *tags = @{ @"replayId" : [sessionReplayId sentryIdString] }.mutableCopy;
+    NSMutableDictionary *tags = @{ @"replayId" : [_sessionReplayId sentryIdString] }.mutableCopy;
     if (event.tags != nil) {
         [tags addEntriesFromDictionary:event.tags];
     }
@@ -229,7 +228,7 @@ SentrySessionReplay ()
                          } else {
                              [self captureSegment:self->_currentSegmentId++
                                             video:videoInfo
-                                         replayId:self->sessionReplayId
+                                         replayId:self->_sessionReplayId
                                        replayType:kSentryReplayTypeSession];
 
                              [self->_replayMaker releaseFramesUntil:videoInfo.end];

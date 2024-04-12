@@ -63,7 +63,7 @@ class SentrySessionReplayTests: XCTestCase {
         let screenshotProvider = ScreenshotProvider()
         let displayLink = TestDisplayLinkWrapper()
         let rootView = UIView()
-        let hub = ReplayHub(client: nil, andScope: nil)
+        let hub = ReplayHub(client: SentryClient(options: Options()), andScope: nil)
         let replayMaker = TestReplayMaker()
         let cacheFolder = FileManager.default.temporaryDirectory
         
@@ -117,8 +117,10 @@ class SentrySessionReplayTests: XCTestCase {
     @available(iOS 16.0, tvOS 16, *)
     func testSentReplay_FullSession() {
         let fixture = startFixture()
+        
         let sut = fixture.getSut(options: SentryReplayOptions(sessionSampleRate: 1, errorSampleRate: 1))
         sut.start(fixture.rootView, fullSession: true)
+        expect(fixture.hub.scope.replayId) == sut.sessionReplayId.sentryIdString
         
         fixture.dateProvider.advance(by: 1)
         
@@ -148,6 +150,8 @@ class SentrySessionReplayTests: XCTestCase {
         let sut = fixture.getSut(options: SentryReplayOptions(sessionSampleRate: 1, errorSampleRate: 1))
         sut.start(fixture.rootView, fullSession: false)
         
+        expect(fixture.hub.scope.replayId) == nil
+        
         fixture.dateProvider.advance(by: 1)
         
         Dynamic(sut).newFrame(nil)
@@ -165,10 +169,12 @@ class SentrySessionReplayTests: XCTestCase {
         let fixture = startFixture()
         let sut = fixture.getSut(options: SentryReplayOptions(sessionSampleRate: 1, errorSampleRate: 1))
         sut.start(fixture.rootView, fullSession: false)
-        
+        expect(fixture.hub.scope.replayId) == nil
         let event = Event(error: NSError(domain: "Some error", code: 1))
         
         sut.capture(for: event)
+        expect(fixture.hub.scope.replayId) == sut.sessionReplayId.sentryIdString
+        expect(event.tags?["replayId"]) == sut.sessionReplayId.sentryIdString
         assertFullSession(sut, expected: true)
     }
     
