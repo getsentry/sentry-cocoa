@@ -85,8 +85,8 @@ SentryEnvelopeItem *_Nullable profileEnvelopeItem(SentryTransaction *transaction
             transaction.endSystemTime, profilerTruncationReasonName(profiler._truncationReason),
             [profiler._metricProfiler serializeBetween:transaction.startSystemTime
                                                    and:transaction.endSystemTime],
-            [SentryDependencyContainer.sharedInstance.debugImageProvider getDebugImagesCrashed:NO], 
-                transaction.trace.hub
+            [SentryDependencyContainer.sharedInstance.debugImageProvider getDebugImagesCrashed:NO],
+            transaction.trace.hub
 #    if SENTRY_HAS_UIKIT
             ,
             profiler._screenFrameData
@@ -129,8 +129,8 @@ NSMutableDictionary<NSString *, id> *_Nullable collectProfileData(
         return nil;
     }
 
-    return serializedProfileData([profiler._state copyProfilingData], startSystemTime,
-        endSystemTime, profilerTruncationReasonName(profiler._truncationReason),
+    return serializedProfileData([profiler.state copyProfilingData], startSystemTime, endSystemTime,
+        profilerTruncationReasonName(profiler._truncationReason),
         [profiler._metricProfiler serializeBetween:startSystemTime and:endSystemTime],
         [SentryDependencyContainer.sharedInstance.debugImageProvider getDebugImagesCrashed:NO], hub
 #    if SENTRY_HAS_UIKIT

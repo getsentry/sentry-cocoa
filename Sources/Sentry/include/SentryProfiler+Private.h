@@ -43,8 +43,7 @@ SENTRY_EXTERN void manageProfilerOnStartSDK(SentryOptions *options, SentryHub *h
 
 @property (strong, nonatomic) SentryId *profilerId;
 
-@property (strong, nonatomic) SentryProfilerState *_state;
-
+@property (strong, nonatomic) SentryProfilerState *state;
 
 @property (assign, nonatomic) SentryProfilerTruncationReason _truncationReason;
 

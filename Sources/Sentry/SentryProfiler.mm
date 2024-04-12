@@ -238,7 +238,7 @@ manageProfilerOnStartSDK(SentryOptions *options, SentryHub *hub)
     SENTRY_LOG_DEBUG(@"Starting profiler.");
 
     SentryProfilerState *const state = [[SentryProfilerState alloc] init];
-    self._state = state;
+    self.state = state;
     _profiler = std::make_shared<SamplingProfiler>(
         [state](auto &backtrace) {
     // in test, we'll overwrite the sample's timestamp to one mocked by SentryCurrentDate
