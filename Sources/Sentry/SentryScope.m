@@ -428,6 +428,7 @@ SentryScope ()
     [serializedData setValue:[self.userObject serialize] forKey:@"user"];
     [serializedData setValue:self.distString forKey:@"dist"];
     [serializedData setValue:self.environmentString forKey:@"environment"];
+    [serializedData setValue:self.replayId forKey:@"replay_id"];
     if (self.fingerprints.count > 0) {
         [serializedData setValue:[self fingerprints] forKey:@"fingerprint"];
     }

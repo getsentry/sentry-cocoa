@@ -8,6 +8,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic, strong) SentryId *traceId;
 @property (nonatomic, strong) SentrySpanId *spanId;
+@property (nonatomic, strong) SentryId *replayId;
 @property (nonatomic, readonly) SentryTraceHeader *traceHeader;
 
 - (NSDictionary<NSString *, NSString *> *)traceContextForEvent;

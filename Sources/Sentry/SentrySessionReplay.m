@@ -9,7 +9,9 @@
 #import "SentryReplayEvent.h"
 #import "SentryReplayRecording.h"
 #import "SentrySDK+Private.h"
+#import "SentryScope+Private.h"
 #import "SentrySwift.h"
+#import "SentryTraceContext.h"
 
 #if SENTRY_HAS_UIKIT && !TARGET_OS_VISION
 
@@ -98,8 +100,13 @@ SentrySessionReplay ()
 
 - (void)startFullReplay
 {
-    _sessionStart = _lastScreenShot;
-    _isFullSession = YES;
+    @synchronized(self) {
+        _sessionStart = _lastScreenShot;
+        _isFullSession = YES;
+        [SentrySDK.currentHub configureScope:^(SentryScope *_Nonnull scope) {
+            scope.replayId = [self->sessionReplayId sentryIdString];
+        }];
+    }
 }
 
 - (void)stop
@@ -112,7 +119,12 @@ SentrySessionReplay ()
 
 - (void)captureReplayForEvent:(SentryEvent *)event;
 {
-    if (_isFullSession || !_isRunning) {
+    if (!_isRunning) {
+        return;
+    }
+
+    if (_isFullSession) {
+        [self setEventTag:event];
         return;
     }
 
@@ -124,6 +136,9 @@ SentrySessionReplay ()
         return;
     }
 
+    [self startFullReplay];
+    [self setEventTag:event];
+
     NSURL *finalPath = [_urlToCache URLByAppendingPathComponent:@"replay.mp4"];
     NSDate *replayStart =
         [_dateProvider.date dateByAddingTimeInterval:-_replayOptions.errorReplayDuration];
@@ -131,8 +146,15 @@ SentrySessionReplay ()
     [self createAndCapture:finalPath
                   duration:_replayOptions.errorReplayDuration
                  startedAt:replayStart];
+}
 
-    [self startFullReplay];
+- (void)setEventTag:(SentryEvent *)event
+{
+    NSMutableDictionary *tags = @{ @"replayId" : [sessionReplayId sentryIdString] }.mutableCopy;
+    if (event.tags != nil) {
+        [tags addEntriesFromDictionary:event.tags];
+    }
+    event.tags = tags;
 }
 
 - (void)newFrame:(CADisplayLink *)sender

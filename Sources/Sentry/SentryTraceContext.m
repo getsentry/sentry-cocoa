@@ -24,6 +24,7 @@ NS_ASSUME_NONNULL_BEGIN
                     userSegment:(nullable NSString *)userSegment
                      sampleRate:(nullable NSString *)sampleRate
                         sampled:(nullable NSString *)sampled
+                       replayId:(nullable NSString *)replayId
 {
     if (self = [super init]) {
         _traceId = traceId;
@@ -34,6 +35,7 @@ NS_ASSUME_NONNULL_BEGIN
         _userSegment = userSegment;
         _sampleRate = sampleRate;
         _sampled = sampled;
+        _replayId = replayId;
     }
     return self;
 }
@@ -80,7 +82,8 @@ NS_ASSUME_NONNULL_BEGIN
                      transaction:tracer.transactionContext.name
                      userSegment:userSegment
                       sampleRate:sampleRate
-                         sampled:sampled];
+                         sampled:sampled
+                        replayId:scope.replayId];
 }
 
 - (instancetype)initWithTraceId:(SentryId *)traceId
@@ -94,7 +97,8 @@ NS_ASSUME_NONNULL_BEGIN
                                            transaction:nil
                                            userSegment:userSegment
                                             sampleRate:nil
-                                               sampled:nil];
+                                               sampled:nil
+                                              replayId:nil];
 }
 
 - (nullable instancetype)initWithDict:(NSDictionary<NSString *, id> *)dictionary
@@ -120,7 +124,8 @@ NS_ASSUME_NONNULL_BEGIN
                      transaction:dictionary[@"transaction"]
                      userSegment:userSegment
                       sampleRate:dictionary[@"sample_rate"]
-                         sampled:dictionary[@"sampled"]];
+                         sampled:dictionary[@"sampled"]
+                        replayId:dictionary[@"replay_id"]];
 }
 
 - (SentryBaggage *)toBaggage
@@ -132,7 +137,8 @@ NS_ASSUME_NONNULL_BEGIN
                                                        transaction:_transaction
                                                        userSegment:_userSegment
                                                         sampleRate:_sampleRate
-                                                           sampled:_sampled];
+                                                           sampled:_sampled
+                                                          replayId:_replayId];
     return result;
 }
 
