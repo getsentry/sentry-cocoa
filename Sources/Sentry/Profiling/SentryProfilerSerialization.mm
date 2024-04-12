@@ -6,6 +6,7 @@
 #    import "SentryDateUtils.h"
 #    import "SentryDebugImageProvider.h"
 #    import "SentryDebugMeta.h"
+#    import "SentryDependencyContainer.h"
 #    import "SentryDevice.h"
 #    import "SentryEnvelope.h"
 #    import "SentryEnvelopeItemHeader.h"
@@ -80,11 +81,12 @@ SentryEnvelopeItem *_Nullable profileEnvelopeItem(SentryTransaction *transaction
     }
 
     const auto payload
-        = serializedProfileData([profiler._state copyProfilingData], transaction.startSystemTime,
+        = serializedProfileData([profiler.state copyProfilingData], transaction.startSystemTime,
             transaction.endSystemTime, profilerTruncationReasonName(profiler._truncationReason),
             [profiler._metricProfiler serializeBetween:transaction.startSystemTime
                                                    and:transaction.endSystemTime],
-            [profiler._debugImageProvider getDebugImagesCrashed:NO], transaction.trace.hub
+            [SentryDependencyContainer.sharedInstance.debugImageProvider getDebugImagesCrashed:NO], 
+                transaction.trace.hub
 #    if SENTRY_HAS_UIKIT
             ,
             profiler._screenFrameData
@@ -130,7 +132,7 @@ NSMutableDictionary<NSString *, id> *_Nullable collectProfileData(
     return serializedProfileData([profiler._state copyProfilingData], startSystemTime,
         endSystemTime, profilerTruncationReasonName(profiler._truncationReason),
         [profiler._metricProfiler serializeBetween:startSystemTime and:endSystemTime],
-        [profiler._debugImageProvider getDebugImagesCrashed:NO], hub
+        [SentryDependencyContainer.sharedInstance.debugImageProvider getDebugImagesCrashed:NO], hub
 #    if SENTRY_HAS_UIKIT
         ,
         profiler._screenFrameData

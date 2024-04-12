@@ -79,7 +79,6 @@ manageProfilerOnStartSDK(SentryOptions *options, SentryHub *hub)
     _profilerId = [[SentryId alloc] init];
 
     SENTRY_LOG_DEBUG(@"Initialized new SentryProfiler %@", self);
-    self._debugImageProvider = [SentryDependencyContainer sharedInstance].debugImageProvider;
 
 #    if SENTRY_HAS_UIKIT
     // the frame tracker may not be running if SentryOptions.enableAutoPerformanceTracing is NO
