@@ -14,11 +14,13 @@
 #    import "SentryEvent+Private.h"
 #    import "SentryFormatter.h"
 #    import "SentryHub.h"
+#    import "SentryLog.h"
 #    import "SentryMetricProfiler.h"
 #    import "SentryOptions.h"
 #    import "SentryProfileTimeseries.h"
 #    import "SentryProfiledTracerConcurrency.h"
-#    import "SentryProfiler+Test.h"
+#    import "SentryProfiler+Private.h"
+#    import "SentryProfilerSerialization+Test.h"
 #    import "SentryProfilerState.h"
 #    import "SentryProfilerTestHelpers.h"
 #    import "SentrySample.h"
@@ -69,77 +71,6 @@ serializedSamplesWithRelativeTimestamps(NSArray<SentrySample *> *samples, uint64
 }
 
 } // namespace
-
-#    pragma mark - Public
-
-SentryEnvelopeItem *_Nullable profileEnvelopeItem(SentryTransaction *transaction)
-{
-    SENTRY_LOG_DEBUG(@"Creating profiling envelope item");
-    const auto profiler = profilerForFinishedTracer(transaction.trace.traceId);
-    if (!profiler) {
-        return nil;
-    }
-
-    const auto payload
-        = serializedProfileData([profiler.state copyProfilingData], transaction.startSystemTime,
-            transaction.endSystemTime, profilerTruncationReasonName(profiler.truncationReason),
-            [profiler.metricProfiler serializeBetween:transaction.startSystemTime
-                                                  and:transaction.endSystemTime],
-            [SentryDependencyContainer.sharedInstance.debugImageProvider getDebugImagesCrashed:NO],
-            transaction.trace.hub
-#    if SENTRY_HAS_UIKIT
-            ,
-            profiler.screenFrameData
-#    endif // SENTRY_HAS_UIKIT
-        );
-
-#    if defined(TEST) || defined(TESTCI) || defined(DEBUG)
-    writeProfileFile(payload);
-#    endif // defined(TEST) || defined(TESTCI) || defined(DEBUG)
-
-    if (payload == nil) {
-        SENTRY_LOG_DEBUG(@"Payload was empty, will not create a profiling envelope item.");
-        return nil;
-    }
-
-    payload[@"platform"] = transaction.platform;
-    payload[@"transaction"] = @ {
-        @"id" : transaction.eventId.sentryIdString,
-        @"trace_id" : transaction.trace.traceId.sentryIdString,
-        @"name" : transaction.transaction,
-        @"active_thread_id" : [transaction.trace.transactionContext sentry_threadInfo].threadId
-    };
-    payload[@"timestamp"] = sentry_toIso8601String(transaction.trace.startTimestamp);
-
-    const auto JSONData = [SentrySerialization dataWithJSONObject:payload];
-    if (JSONData == nil) {
-        SENTRY_LOG_DEBUG(@"Failed to encode profile to JSON.");
-        return nil;
-    }
-
-    const auto header = [[SentryEnvelopeItemHeader alloc] initWithType:SentryEnvelopeItemTypeProfile
-                                                                length:JSONData.length];
-    return [[SentryEnvelopeItem alloc] initWithHeader:header data:JSONData];
-}
-
-NSMutableDictionary<NSString *, id> *_Nullable collectProfileData(
-    uint64_t startSystemTime, uint64_t endSystemTime, SentryId *traceId, SentryHub *hub)
-{
-    const auto profiler = profilerForFinishedTracer(traceId);
-    if (!profiler) {
-        return nil;
-    }
-
-    return serializedProfileData([profiler.state copyProfilingData], startSystemTime, endSystemTime,
-        profilerTruncationReasonName(profiler.truncationReason),
-        [profiler.metricProfiler serializeBetween:startSystemTime and:endSystemTime],
-        [SentryDependencyContainer.sharedInstance.debugImageProvider getDebugImagesCrashed:NO], hub
-#    if SENTRY_HAS_UIKIT
-        ,
-        profiler.screenFrameData
-#    endif // SENTRY_HAS_UIKIT
-    );
-}
 
 #    pragma mark - Exported for tests
 
@@ -258,6 +189,77 @@ serializedProfileData(
     }
 
     return payload;
+}
+
+#    pragma mark - Public
+
+SentryEnvelopeItem *_Nullable profileEnvelopeItem(SentryTransaction *transaction)
+{
+    SENTRY_LOG_DEBUG(@"Creating profiling envelope item");
+    const auto profiler = profilerForFinishedTracer(transaction.trace.traceId);
+    if (!profiler) {
+        return nil;
+    }
+
+    const auto payload
+        = serializedProfileData([profiler.state copyProfilingData], transaction.startSystemTime,
+            transaction.endSystemTime, profilerTruncationReasonName(profiler.truncationReason),
+            [profiler.metricProfiler serializeBetween:transaction.startSystemTime
+                                                  and:transaction.endSystemTime],
+            [SentryDependencyContainer.sharedInstance.debugImageProvider getDebugImagesCrashed:NO],
+            transaction.trace.hub
+#    if SENTRY_HAS_UIKIT
+            ,
+            profiler.screenFrameData
+#    endif // SENTRY_HAS_UIKIT
+        );
+
+#    if defined(TEST) || defined(TESTCI) || defined(DEBUG)
+    writeProfileFile(payload);
+#    endif // defined(TEST) || defined(TESTCI) || defined(DEBUG)
+
+    if (payload == nil) {
+        SENTRY_LOG_DEBUG(@"Payload was empty, will not create a profiling envelope item.");
+        return nil;
+    }
+
+    payload[@"platform"] = transaction.platform;
+    payload[@"transaction"] = @ {
+        @"id" : transaction.eventId.sentryIdString,
+        @"trace_id" : transaction.trace.traceId.sentryIdString,
+        @"name" : transaction.transaction,
+        @"active_thread_id" : [transaction.trace.transactionContext sentry_threadInfo].threadId
+    };
+    payload[@"timestamp"] = sentry_toIso8601String(transaction.trace.startTimestamp);
+
+    const auto JSONData = [SentrySerialization dataWithJSONObject:payload];
+    if (JSONData == nil) {
+        SENTRY_LOG_DEBUG(@"Failed to encode profile to JSON.");
+        return nil;
+    }
+
+    const auto header = [[SentryEnvelopeItemHeader alloc] initWithType:SentryEnvelopeItemTypeProfile
+                                                                length:JSONData.length];
+    return [[SentryEnvelopeItem alloc] initWithHeader:header data:JSONData];
+}
+
+NSMutableDictionary<NSString *, id> *_Nullable collectProfileData(
+    uint64_t startSystemTime, uint64_t endSystemTime, SentryId *traceId, SentryHub *hub)
+{
+    const auto profiler = profilerForFinishedTracer(traceId);
+    if (!profiler) {
+        return nil;
+    }
+
+    return serializedProfileData([profiler.state copyProfilingData], startSystemTime, endSystemTime,
+        profilerTruncationReasonName(profiler.truncationReason),
+        [profiler.metricProfiler serializeBetween:startSystemTime and:endSystemTime],
+        [SentryDependencyContainer.sharedInstance.debugImageProvider getDebugImagesCrashed:NO], hub
+#    if SENTRY_HAS_UIKIT
+        ,
+        profiler.screenFrameData
+#    endif // SENTRY_HAS_UIKIT
+    );
 }
 
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
