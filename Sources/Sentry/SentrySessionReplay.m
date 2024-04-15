@@ -2,6 +2,7 @@
 #import "SentryAttachment+Private.h"
 #import "SentryDependencyContainer.h"
 #import "SentryDisplayLinkWrapper.h"
+#import "SentryEnvelopeItemType.h"
 #import "SentryFileManager.h"
 #import "SentryHub+Private.h"
 #import "SentryLog.h"
@@ -120,7 +121,7 @@ SentrySessionReplay ()
     }
 
     if (_isFullSession) {
-        [self setEventTag:event];
+        [self setEventContext:event];
         return;
     }
 
@@ -133,7 +134,7 @@ SentrySessionReplay ()
     }
 
     [self startFullReplay];
-    [self setEventTag:event];
+    [self setEventContext:event];
 
     NSURL *finalPath = [_urlToCache URLByAppendingPathComponent:@"replay.mp4"];
     NSDate *replayStart =
@@ -144,13 +145,15 @@ SentrySessionReplay ()
                  startedAt:replayStart];
 }
 
-- (void)setEventTag:(SentryEvent *)event
+- (void)setEventContext:(SentryEvent *)event
 {
-    NSMutableDictionary *tags = @{ @"replayId" : [_sessionReplayId sentryIdString] }.mutableCopy;
-    if (event.tags != nil) {
-        [tags addEntriesFromDictionary:event.tags];
+    if ([event.type isEqualToString:SentryEnvelopeItemTypeReplayVideo]) {
+        return;
     }
-    event.tags = tags;
+
+    NSMutableDictionary *context = event.context.mutableCopy ?: [[NSMutableDictionary alloc] init];
+    context[@"replay"] = @{ @"replay_id" : [_sessionReplayId sentryIdString] };
+    event.context = context;
 }
 
 - (void)newFrame:(CADisplayLink *)sender

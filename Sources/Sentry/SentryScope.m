@@ -103,6 +103,7 @@ SentryScope ()
         self.environmentString = scope.environmentString;
         self.levelEnum = scope.levelEnum;
         self.span = scope.span;
+        self.replayId = scope.replayId;
     }
     return self;
 }

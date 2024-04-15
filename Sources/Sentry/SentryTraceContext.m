@@ -171,6 +171,10 @@ NS_ASSUME_NONNULL_BEGIN
         [result setValue:_sampleRate forKey:@"sampled"];
     }
 
+    if (_replayId != nil) {
+        [result setValue:_replayId forKey:@"replay_id"];
+    }
+
     return result;
 }
 
