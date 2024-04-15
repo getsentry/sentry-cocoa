@@ -99,13 +99,10 @@ SentrySessionReplay ()
 
 - (void)startFullReplay
 {
-    @synchronized(self) {
-        _sessionStart = _lastScreenShot;
-        _isFullSession = YES;
-        [SentrySDK.currentHub configureScope:^(SentryScope *_Nonnull scope) {
-            scope.replayId = [self->_sessionReplayId sentryIdString];
-        }];
-    }
+    _sessionStart = _lastScreenShot;
+    _isFullSession = YES;
+    [SentrySDK.currentHub configureScope:^(
+        SentryScope *_Nonnull scope) { scope.replayId = [self->_sessionReplayId sentryIdString]; }];
 }
 
 - (void)stop
