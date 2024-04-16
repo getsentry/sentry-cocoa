@@ -168,7 +168,7 @@ class SentryOnDemandReplay: NSObject {
             actualEnd = frame.time
             frames.append(frame.imagePath)
         }
-        return (frames, start, actualEnd)
+        return (frames, start, actualEnd + TimeInterval((1 / Double(frameRate))))
     }
     
     private func createVideoSettings() -> [String: Any] {
