@@ -196,7 +196,7 @@ serializedProfileData(
 SentryEnvelopeItem *_Nullable profileEnvelopeItem(SentryTransaction *transaction)
 {
     SENTRY_LOG_DEBUG(@"Creating profiling envelope item");
-    const auto profiler = profilerForFinishedTracer(transaction.trace.traceId);
+    const auto profiler = profilerForFinishedTracer(transaction.trace.internalID);
     if (!profiler) {
         return nil;
     }
