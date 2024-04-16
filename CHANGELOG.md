@@ -8,7 +8,7 @@
 
 ### Fixes
 
-- Save framework without UIKit/AppKit as Github Asset for releases (#) 
+- Save framework without UIKit/AppKit as Github Asset for releases (#3858) 
 
 ## 8.24.0
 
