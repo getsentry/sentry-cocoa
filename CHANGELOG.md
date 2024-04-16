@@ -6,6 +6,10 @@
 
 - Add Session Replay, which is **still experimental**. (#3625)
 
+### Fixes
+
+- Save framework without UIKit/AppKit as Github Asset for releases (#) 
+
 ## 8.24.0
 
 ### Features
