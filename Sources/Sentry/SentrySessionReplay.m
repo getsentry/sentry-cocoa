@@ -154,6 +154,12 @@ SentrySessionReplay ()
     NSMutableDictionary *context = event.context.mutableCopy ?: [[NSMutableDictionary alloc] init];
     context[@"replay"] = @{ @"replay_id" : [_sessionReplayId sentryIdString] };
     event.context = context;
+
+    NSMutableDictionary *tags = @{ @"replayId" : [_sessionReplayId sentryIdString] }.mutableCopy;
+    if (event.tags != nil) {
+        [tags addEntriesFromDictionary:event.tags];
+    }
+    event.tags = tags;
 }
 
 - (void)newFrame:(CADisplayLink *)sender
