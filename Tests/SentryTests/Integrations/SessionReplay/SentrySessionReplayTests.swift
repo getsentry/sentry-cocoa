@@ -174,7 +174,7 @@ class SentrySessionReplayTests: XCTestCase {
         
         sut.capture(for: event)
         expect(fixture.hub.scope.replayId) == sut.sessionReplayId.sentryIdString
-        expect(event.tags?["replayId"]) == sut.sessionReplayId.sentryIdString
+        expect(event.context?["replay"]?["replay_id"] as? String) == sut.sessionReplayId.sentryIdString
         assertFullSession(sut, expected: true)
     }
     
