@@ -154,6 +154,14 @@
     XCTAssertEqualObjects([[scope serialize] objectForKey:@"environment"], expectedEnvironment);
 }
 
+- (void)testReplaySerializes
+{
+    SentryScope *scope = [[SentryScope alloc] init];
+    NSString *expectedReplayId = @"Some_replay_id";
+    [scope setReplayId:expectedReplayId];
+    XCTAssertEqualObjects([[scope serialize] objectForKey:@"replay_id"], expectedReplayId);
+}
+
 - (void)testClearBreadcrumb
 {
     SentryScope *scope = [[SentryScope alloc] init];
