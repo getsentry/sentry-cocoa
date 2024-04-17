@@ -29,7 +29,7 @@
         // and we keep track of its changes by the notifications
         // this way we avoid calling sharedApplication in a background thread
 		[SentryDependencyContainer.sharedInstance.dispatchQueueWrapper dispatchOnMainQueue:^{
-			appState = self.sharedApplication.applicationState;
+			self->appState = self.sharedApplication.applicationState;
 		}];
     }
     return self;
@@ -94,24 +94,21 @@
 
 - (NSArray<UIViewController *> *)relevantViewControllers
 {
-	return [SentryDependencyContainer.sharedInstance.dispatchQueueWrapper 
-			dispatchSyncOnMainQueueWithResult:^id _Nonnull{
-		NSArray<UIWindow *> *windows = [self windows];
-		if ([windows count] == 0) {
-			return nil;
-		}
-		
-		NSMutableArray *result = [NSMutableArray array];
-		
-		for (UIWindow *window in windows) {
-			NSArray<UIViewController *> *vcs = [self relevantViewControllerFromWindow:window];
-			if (vcs != nil) {
-				[result addObjectsFromArray:vcs];
-			}
-		}
-		
-		return result;
-	}];
+    NSArray<UIWindow *> *windows = [self windows];
+    if ([windows count] == 0) {
+        return nil;
+    }
+    
+    NSMutableArray *result = [NSMutableArray array];
+    
+    for (UIWindow *window in windows) {
+        NSArray<UIViewController *> *vcs = [self relevantViewControllerFromWindow:window];
+        if (vcs != nil) {
+            [result addObjectsFromArray:vcs];
+        }
+    }
+    
+    return result;
 }
 
 - (nullable NSArray<NSString *> *)relevantViewControllersNames
@@ -130,69 +127,66 @@
 
 - (NSArray<UIViewController *> *)relevantViewControllerFromWindow:(UIWindow *)window
 {
-	return [SentryDependencyContainer.sharedInstance.dispatchQueueWrapper
-			dispatchSyncOnMainQueueWithResult:^id _Nonnull{
-		UIViewController *rootViewController = window.rootViewController;
-		if (rootViewController == nil) {
-			return nil;
-		}
-		
-		NSMutableArray<UIViewController *> *result =
-		[NSMutableArray<UIViewController *> arrayWithObject:rootViewController];
-		NSUInteger index = 0;
-		
-		while (index < result.count) {
-			UIViewController *topVC = result[index];
-			// If the view controller is presenting another one, usually in a modal form.
-			if (topVC.presentedViewController != nil) {
-				
-				if ([topVC.presentationController isKindOfClass:UIAlertController.class]) {
-					// If the view controller being presented is an Alert, we know that
-					// we reached the end of the view controller stack and the presenter is
-					// the top view controller.
-					break;
-				}
-				
-				[result replaceObjectAtIndex:index withObject:topVC.presentedViewController];
-				
-				continue;
-			}
-			
-			// The top view controller is meant for navigation and not content
-			if ([self isContainerViewController:topVC]) {
-				NSArray<UIViewController *> *contentViewController =
-				[self relevantViewControllerFromContainer:topVC];
-				if (contentViewController != nil && contentViewController.count > 0) {
-					[result removeObjectAtIndex:index];
-					[result addObjectsFromArray:contentViewController];
-				} else {
-					break;
-				}
-				continue;
-			}
-			
-			UIViewController *relevantChild = nil;
-			for (UIViewController *childVC in topVC.childViewControllers) {
-				// Sometimes a view controller is used as container for a navigation controller
-				// If the navigation is occupying the whole view controller we will consider this the
-				// case.
-				if ([self isContainerViewController:childVC] && childVC.isViewLoaded
-					&& CGRectEqualToRect(childVC.view.frame, topVC.view.bounds)) {
-					relevantChild = childVC;
-					break;
-				}
-			}
-			
-			if (relevantChild != nil) {
-				[result replaceObjectAtIndex:index withObject:relevantChild];
-				continue;
-			}
-			
-			index++;
-		}
-		
-		return result;
-	}];
+    UIViewController *rootViewController = window.rootViewController;
+    if (rootViewController == nil) {
+        return nil;
+    }
+    
+    NSMutableArray<UIViewController *> *result =
+    [NSMutableArray<UIViewController *> arrayWithObject:rootViewController];
+    NSUInteger index = 0;
+    
+    while (index < result.count) {
+        UIViewController *topVC = result[index];
+        // If the view controller is presenting another one, usually in a modal form.
+        if (topVC.presentedViewController != nil) {
+            
+            if ([topVC.presentationController isKindOfClass:UIAlertController.class]) {
+                // If the view controller being presented is an Alert, we know that
+                // we reached the end of the view controller stack and the presenter is
+                // the top view controller.
+                break;
+            }
+            
+            [result replaceObjectAtIndex:index withObject:topVC.presentedViewController];
+            
+            continue;
+        }
+        
+        // The top view controller is meant for navigation and not content
+        if ([self isContainerViewController:topVC]) {
+            NSArray<UIViewController *> *contentViewController =
+            [self relevantViewControllerFromContainer:topVC];
+            if (contentViewController != nil && contentViewController.count > 0) {
+                [result removeObjectAtIndex:index];
+                [result addObjectsFromArray:contentViewController];
+            } else {
+                break;
+            }
+            continue;
+        }
+        
+        UIViewController *relevantChild = nil;
+        for (UIViewController *childVC in topVC.childViewControllers) {
+            // Sometimes a view controller is used as container for a navigation controller
+            // If the navigation is occupying the whole view controller we will consider this the
+            // case.
+            if ([self isContainerViewController:childVC] && childVC.isViewLoaded
+                && CGRectEqualToRect(childVC.view.frame, topVC.view.bounds)) {
+                relevantChild = childVC;
+                break;
+            }
+        }
+        
+        if (relevantChild != nil) {
+            [result replaceObjectAtIndex:index withObject:relevantChild];
+            continue;
+        }
+        
+        index++;
+    }
+    
+    return result;
 }
 
 - (BOOL)isContainerViewController:(UIViewController *)viewController

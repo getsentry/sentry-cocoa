@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Crash due to a background call to -[UIApplication applicationState] (#3836)
+
 ## 8.24.0
 
 ### Features
