@@ -56,24 +56,23 @@ NS_ASSUME_NONNULL_BEGIN
     }
 }
 
-- (id)dispatchSyncOnMainQueueWithResult:(id (^)(void))block
+- (nullable id)dispatchSyncOnMainQueueWithResult:(id (^)(void))block
 {
     return [self dispatchSyncOnMainQueueWithResult:block timeout:DISPATCH_TIME_FOREVER];
 }
 
 - (BOOL)dispatchSyncOnMainQueue:(void (^)(void))block timeout:(NSTimeInterval)timeout
 {
-    NSNumber *result = @0;
-    result = [self
+    NSNumber *result = [self
         dispatchSyncOnMainQueueWithResult:^id _Nonnull {
             block();
-            return @1;
+            return @YES;
         }
                                   timeout:timeout];
     return result.boolValue;
 }
 
-- (id)dispatchSyncOnMainQueueWithResult:(id (^)(void))block timeout:(NSTimeInterval)timeout
+- (nullable id)dispatchSyncOnMainQueueWithResult:(id (^)(void))block timeout:(NSTimeInterval)timeout
 {
     if ([NSThread isMainThread]) {
         return block();
