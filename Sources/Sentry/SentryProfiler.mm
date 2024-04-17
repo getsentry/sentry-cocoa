@@ -3,6 +3,7 @@
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 #    import "SentryAppStartMeasurement.h"
 #    import "SentryClient+Private.h"
+#    import "SentryContinuousProfiler.h"
 #    import "SentryDateUtils.h"
 #    import "SentryDebugImageProvider.h"
 #    import "SentryDebugMeta.h"
@@ -288,6 +289,8 @@ serializedProfileData(
     NSTimer *_timeoutTimer;
 }
 
+#    pragma mark - Private
+
 - (instancetype)init
 {
     if (!(self = [super init])) {
@@ -340,8 +343,6 @@ serializedProfileData(
                                    repeats:NO];
     }];
 }
-
-#    pragma mark - Public
 
 + (BOOL)startWithTracer:(SentryId *)traceId
 {
@@ -478,8 +479,6 @@ writeProfileFile(NSDictionary<NSString *, id> *payload)
 
     return payload;
 }
-
-#    pragma mark - Private
 
 + (void)updateProfilePayload:(NSMutableDictionary<NSString *, id> *)payload
               forTransaction:(SentryTransaction *)transaction

@@ -17,12 +17,16 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         let dsn = DSNStorage.shared.getDSN() ?? AppDelegate.defaultDSN
         DSNStorage.shared.saveDSN(dsn: dsn)
         
-        SentrySDK.start { options in
+        SentrySDK.start(configureOptions: { options in
             options.dsn = dsn
             options.beforeSend = { event in
                 return event
             }
             options.debug = true
+            
+            if #available(iOS 16.0, *) {
+                options.experimental.sessionReplay = SentryReplayOptions(sessionSampleRate: 0, errorSampleRate: 1, redactAllText: true, redactAllImages: true)
+            }
             
             if #available(iOS 15.0, *) {
                 options.enableMetricKit = true
@@ -60,7 +64,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             options.sessionTrackingIntervalMillis = 5_000
             options.attachScreenshot = true
             options.attachViewHierarchy = true
-            
+       
 #if targetEnvironment(simulator)
             options.enableSpotlight = true
             options.environment = "test-app"
@@ -130,7 +134,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 }
                 return scope
             }
-        }
+        })
         
         SentrySDK.metrics.increment(key: "app.start", value: 1.0, tags: ["view": "app-delegate"])
 

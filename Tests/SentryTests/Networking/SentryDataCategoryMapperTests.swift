@@ -11,6 +11,7 @@ class SentryDataCategoryMapperTests: XCTestCase {
         expect(sentryDataCategoryForEnvelopItemType("attachment")) == .attachment
         expect(sentryDataCategoryForEnvelopItemType("profile")) == .profile
         expect(sentryDataCategoryForEnvelopItemType("statsd")) == .metricBucket
+        expect(sentryDataCategoryForEnvelopItemType("replay_video")) == .replay
         expect(sentryDataCategoryForEnvelopItemType("unknown item type")) == .default
     }
 
@@ -24,7 +25,8 @@ class SentryDataCategoryMapperTests: XCTestCase {
         expect(sentryDataCategoryForNSUInteger(6)) == .userFeedback
         expect(sentryDataCategoryForNSUInteger(7)) == .profile
         expect(sentryDataCategoryForNSUInteger(8)) == .metricBucket
-        expect(sentryDataCategoryForNSUInteger(9)) == .unknown
+        expect(sentryDataCategoryForNSUInteger(9)) == .replay
+        expect(sentryDataCategoryForNSUInteger(10)) == .unknown
 
         XCTAssertEqual(.unknown, sentryDataCategoryForNSUInteger(10), "Failed to map unknown category number to case .unknown")
     }
@@ -39,6 +41,7 @@ class SentryDataCategoryMapperTests: XCTestCase {
         expect(sentryDataCategoryForString(kSentryDataCategoryNameUserFeedback)) == .userFeedback
         expect(sentryDataCategoryForString(kSentryDataCategoryNameProfile)) == .profile
         expect(sentryDataCategoryForString(kSentryDataCategoryNameMetricBucket)) == .metricBucket
+        expect(sentryDataCategoryForString(kSentryDataCategoryNameReplay)) == .replay
         expect(sentryDataCategoryForString(kSentryDataCategoryNameUnknown)) == .unknown
 
         XCTAssertEqual(.unknown, sentryDataCategoryForString("gdfagdfsa"), "Failed to map unknown category name to case .unknown")
@@ -54,6 +57,7 @@ class SentryDataCategoryMapperTests: XCTestCase {
         expect(nameForSentryDataCategory(.userFeedback)) == kSentryDataCategoryNameUserFeedback
         expect(nameForSentryDataCategory(.profile)) == kSentryDataCategoryNameProfile
         expect(nameForSentryDataCategory(.metricBucket)) == kSentryDataCategoryNameMetricBucket
+        expect(nameForSentryDataCategory(.replay)) == kSentryDataCategoryNameReplay
         expect(nameForSentryDataCategory(.unknown)) == kSentryDataCategoryNameUnknown
     }
 }
