@@ -4,7 +4,7 @@
 
 ### Fixes
 
-- Crash due to a background call to -[UIApplication applicationState] (#3836)
+- Crash due to a background call to -[UIApplication applicationState] (#3855)
 
 ## 8.24.0
 
