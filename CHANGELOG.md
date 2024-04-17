@@ -10,7 +10,6 @@
 
 - Crash due to a background call to -[UIApplication applicationState] (#3855)
 - Save framework without UIKit/AppKit as Github Asset for releases (#3858) 
-- Crash due to a background call to -[UIApplication applicationState] (#3836)
 
 ## 8.24.0
 
