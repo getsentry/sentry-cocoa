@@ -10,6 +10,7 @@
 #import "SentryNSDictionarySanitize.h"
 #import "SentryNSTimerFactory.h"
 #import "SentryNoOpSpan.h"
+#import "SentryOptions+Private.h"
 #import "SentryProfilingConditionals.h"
 #import "SentryRandom.h"
 #import "SentrySDK+Private.h"

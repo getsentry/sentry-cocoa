@@ -43,6 +43,10 @@ public class TestCurrentDateProvider: SentryCurrentDateProvider {
         setDate(date: date().addingTimeInterval(TimeInterval(nanoseconds) / 1e9))
         internalSystemTime += nanoseconds
     }
+    
+    public func advanceBy(interval: TimeInterval) {
+        setDate(date: date().addingTimeInterval(interval))
+    }
 
     public var timezoneOffsetValue = 0
     public override func timezoneOffset() -> Int {

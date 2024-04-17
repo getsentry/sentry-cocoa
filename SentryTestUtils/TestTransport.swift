@@ -1,6 +1,6 @@
+import _SentryPrivate
 import Foundation
 
-@objc
 public class TestTransport: NSObject, Transport {
     
     public var sentEnvelopes = Invocations<SentryEnvelope>()

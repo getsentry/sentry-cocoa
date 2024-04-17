@@ -1,3 +1,4 @@
+import Nimble
 import SentryTestUtils
 import XCTest
 
@@ -55,4 +56,11 @@ class SentryDateUtilTests: XCTestCase {
         XCTAssertNil(SentryDateUtil.getMaximumDate(nil, andOther: nil))
     }
 
+    func testJavascriptDate() {
+        let testDate = Date(timeIntervalSince1970: 60)
+        let timestamp = SentryDateUtil.millisecondsSince1970(testDate)
+        
+        expect(timestamp) == 60_000
+    }
+    
 }
