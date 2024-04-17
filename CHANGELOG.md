@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 8.24.1-alpha.0
 
 ### Features
 
@@ -8,7 +8,7 @@
 
 ### Fixes
 
-- Save framework without UIKit/AppKit as Github Asset for releases (#3858) 
+- Save framework without UIKit/AppKit as Github Asset for releases (#3858)
 
 ## 8.24.0
 
