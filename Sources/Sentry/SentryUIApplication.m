@@ -28,9 +28,8 @@
         // We store the application state when the app is initialized
         // and we keep track of its changes by the notifications
         // this way we avoid calling sharedApplication in a background thread
-		[SentryDependencyContainer.sharedInstance.dispatchQueueWrapper dispatchOnMainQueue:^{
-			self->appState = self.sharedApplication.applicationState;
-		}];
+        [SentryDependencyContainer.sharedInstance.dispatchQueueWrapper
+            dispatchOnMainQueue:^{ self->appState = self.sharedApplication.applicationState; }];
     }
     return self;
 }
@@ -65,31 +64,33 @@
 
 - (NSArray<UIWindow *> *)windows
 {
-	return [SentryDependencyContainer.sharedInstance.dispatchQueueWrapper dispatchSyncOnMainQueueWithResult:^id _Nonnull{
-		UIApplication *app = [self sharedApplication];
-		NSMutableArray *result = [NSMutableArray array];
-		
-		if (@available(iOS 13.0, tvOS 13.0, *)) {
-			NSArray<UIScene *> *scenes = [self getApplicationConnectedScenes:app];
-			for (UIScene *scene in scenes) {
-				if (scene.activationState == UISceneActivationStateForegroundActive && scene.delegate &&
-					[scene.delegate respondsToSelector:@selector(window)]) {
-					id window = [scene.delegate performSelector:@selector(window)];
-					if (window) {
-						[result addObject:window];
-					}
-				}
-			}
-		}
-		
-		id<UIApplicationDelegate> appDelegate = [self getApplicationDelegate:app];
-		
-		if ([appDelegate respondsToSelector:@selector(window)] && appDelegate.window != nil) {
-			[result addObject:appDelegate.window];
-		}
-		
-		return result;
-	}];
+    return [SentryDependencyContainer.sharedInstance.dispatchQueueWrapper
+        dispatchSyncOnMainQueueWithResult:^id _Nonnull {
+            UIApplication *app = [self sharedApplication];
+            NSMutableArray *result = [NSMutableArray array];
+
+            if (@available(iOS 13.0, tvOS 13.0, *)) {
+                NSArray<UIScene *> *scenes = [self getApplicationConnectedScenes:app];
+                for (UIScene *scene in scenes) {
+                    if (scene.activationState == UISceneActivationStateForegroundActive
+                        && scene.delegate &&
+                        [scene.delegate respondsToSelector:@selector(window)]) {
+                        id window = [scene.delegate performSelector:@selector(window)];
+                        if (window) {
+                            [result addObject:window];
+                        }
+                    }
+                }
+            }
+
+            id<UIApplicationDelegate> appDelegate = [self getApplicationDelegate:app];
+
+            if ([appDelegate respondsToSelector:@selector(window)] && appDelegate.window != nil) {
+                [result addObject:appDelegate.window];
+            }
+
+            return result;
+        }];
 }
 
 - (NSArray<UIViewController *> *)relevantViewControllers
@@ -98,31 +99,33 @@
     if ([windows count] == 0) {
         return nil;
     }
-    
+
     NSMutableArray *result = [NSMutableArray array];
-    
+
     for (UIWindow *window in windows) {
         NSArray<UIViewController *> *vcs = [self relevantViewControllerFromWindow:window];
         if (vcs != nil) {
             [result addObjectsFromArray:vcs];
         }
     }
-    
+
     return result;
 }
 
 - (nullable NSArray<NSString *> *)relevantViewControllersNames
 {
-	return [SentryDependencyContainer.sharedInstance.dispatchQueueWrapper 
-			dispatchSyncOnMainQueueWithResult:^id _Nonnull{
-		NSArray *viewControllers
-		= SentryDependencyContainer.sharedInstance.application.relevantViewControllers;
-		NSMutableArray *vcsNames = [[NSMutableArray alloc] initWithCapacity:viewControllers.count];
-		for (id vc in viewControllers) {
-			[vcsNames addObject:[SwiftDescriptor getObjectClassName:vc]];
-		}
-		return [NSArray arrayWithArray:vcsNames];
-	} timeout:0.01];
+    return [SentryDependencyContainer.sharedInstance.dispatchQueueWrapper
+        dispatchSyncOnMainQueueWithResult:^id _Nonnull {
+            NSArray *viewControllers
+                = SentryDependencyContainer.sharedInstance.application.relevantViewControllers;
+            NSMutableArray *vcsNames =
+                [[NSMutableArray alloc] initWithCapacity:viewControllers.count];
+            for (id vc in viewControllers) {
+                [vcsNames addObject:[SwiftDescriptor getObjectClassName:vc]];
+            }
+            return [NSArray arrayWithArray:vcsNames];
+        }
+                                  timeout:0.01];
 }
 
 - (NSArray<UIViewController *> *)relevantViewControllerFromWindow:(UIWindow *)window
@@ -131,32 +134,32 @@
     if (rootViewController == nil) {
         return nil;
     }
-    
+
     NSMutableArray<UIViewController *> *result =
-    [NSMutableArray<UIViewController *> arrayWithObject:rootViewController];
+        [NSMutableArray<UIViewController *> arrayWithObject:rootViewController];
     NSUInteger index = 0;
-    
+
     while (index < result.count) {
         UIViewController *topVC = result[index];
         // If the view controller is presenting another one, usually in a modal form.
         if (topVC.presentedViewController != nil) {
-            
+
             if ([topVC.presentationController isKindOfClass:UIAlertController.class]) {
                 // If the view controller being presented is an Alert, we know that
                 // we reached the end of the view controller stack and the presenter is
                 // the top view controller.
                 break;
             }
-            
+
             [result replaceObjectAtIndex:index withObject:topVC.presentedViewController];
-            
+
             continue;
         }
-        
+
         // The top view controller is meant for navigation and not content
         if ([self isContainerViewController:topVC]) {
             NSArray<UIViewController *> *contentViewController =
-            [self relevantViewControllerFromContainer:topVC];
+                [self relevantViewControllerFromContainer:topVC];
             if (contentViewController != nil && contentViewController.count > 0) {
                 [result removeObjectAtIndex:index];
                 [result addObjectsFromArray:contentViewController];
@@ -165,7 +168,7 @@
             }
             continue;
         }
-        
+
         UIViewController *relevantChild = nil;
         for (UIViewController *childVC in topVC.childViewControllers) {
             // Sometimes a view controller is used as container for a navigation controller
@@ -177,15 +180,15 @@
                 break;
             }
         }
-        
+
         if (relevantChild != nil) {
             [result replaceObjectAtIndex:index withObject:relevantChild];
             continue;
         }
-        
+
         index++;
     }
-    
+
     return result;
 }
 
