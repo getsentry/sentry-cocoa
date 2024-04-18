@@ -400,14 +400,14 @@ SentryHub () <SentryMetricsAPIDelegate>
                                             customSamplingContext:customSamplingContext];
 
     SentrySamplerDecision *tracesSamplerDecision
-        = sampleTrace(samplingContext, self.client.options);
+        = sentry_sampleTrace(samplingContext, self.client.options);
     transactionContext = [self transactionContext:transactionContext
                                       withSampled:tracesSamplerDecision.decision];
     transactionContext.sampleRate = tracesSamplerDecision.sampleRate;
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
     SentrySamplerDecision *profilesSamplerDecision
-        = sampleProfile(samplingContext, tracesSamplerDecision, self.client.options);
+        = sentry_sampleProfile(samplingContext, tracesSamplerDecision, self.client.options);
 
     configuration.profilesSamplerDecision = profilesSamplerDecision;
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED"

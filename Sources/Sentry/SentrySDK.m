@@ -235,9 +235,9 @@ static NSDate *_Nullable startTimestamp = nil;
             if (shouldstopAndTransmitLaunchProfile) {
                 SENTRY_LOG_DEBUG(@"Stopping launch profile in SentrySDK.start because there will "
                                  @"be no automatic trace to attach it to.");
-                stopAndTransmitLaunchProfile(hub);
+                sentry_stopAndTransmitLaunchProfile(hub);
             }
-            configureLaunchProfiling(options);
+            sentry_configureLaunchProfiling(options);
         }];
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
     }];

@@ -16,7 +16,7 @@
 
 - (void)testLaunchProfileTransactionContext
 {
-    SentryTransactionContext *actualContext = context(@1);
+    SentryTransactionContext *actualContext = sentry_context(@1);
     XCTAssertEqual(actualContext.nameSource, kSentryTransactionNameSourceCustom);
     XCTAssert([actualContext.origin isEqualToString:SentryTraceOriginAutoAppStartProfile]);
     XCTAssert(actualContext.sampled);
@@ -28,14 +28,14 @@
 
 - (void)testDefaultOptionsDoNotEnableLaunchProfiling
 {
-    XCTAssertFalse(shouldProfileNextLaunch([self defaultOptionsWithOverrides:nil]).shouldProfile,
+    XCTAssertFalse(sentry_shouldProfileNextLaunch([self defaultOptionsWithOverrides:nil]).shouldProfile,
         @"Default options should not enable launch profiling");
 }
 
 - (void)testAppLaunchProfilingNotSufficientToEnableLaunchProfiling
 {
     XCTAssertFalse(
-        shouldProfileNextLaunch(
+        sentry_shouldProfileNextLaunch(
             [self defaultOptionsWithOverrides:@{ SENTRY_OPTION(enableAppLaunchProfiling, @YES) }])
             .shouldProfile,
         @"Default options with only launch profiling option set is not sufficient to enable launch "
@@ -45,7 +45,7 @@
 - (void)testAppLaunchProfilingAndTracingOptionsNotSufficientToEnableAppLaunchProfiling
 {
     XCTAssertFalse(
-        shouldProfileNextLaunch(
+        sentry_shouldProfileNextLaunch(
             [self defaultOptionsWithOverrides:@{ SENTRY_OPTION(enableAppLaunchProfiling, @YES),
                                                   SENTRY_OPTION(enableTracing, @YES) }])
             .shouldProfile,
@@ -57,7 +57,7 @@
     testAppLaunchProfilingAndTracingAndTracesSampleRateOptionsNotSufficientToEnableAppLaunchProfiling
 {
     XCTAssertFalse(
-        shouldProfileNextLaunch(
+        sentry_shouldProfileNextLaunch(
             [self defaultOptionsWithOverrides:@{ SENTRY_OPTION(enableAppLaunchProfiling, @YES),
                                                   SENTRY_OPTION(enableTracing, @YES),
                                                   SENTRY_OPTION(tracesSampleRate, @1) }])
@@ -68,7 +68,7 @@
 
 - (void)testMinimumOptionsRequiredToEnableAppLaunchProfiling
 {
-    XCTAssert(shouldProfileNextLaunch([self defaultLaunchProfilingOptionsWithOverrides:nil])
+    XCTAssert(sentry_shouldProfileNextLaunch([self defaultLaunchProfilingOptionsWithOverrides:nil])
                   .shouldProfile,
         @"Default options with app launch profiling and tracing enabled and traces and profiles "
         @"sample rates of 1 should enable launch profiling");
@@ -77,7 +77,7 @@
 - (void)testDisablingLaunchProfilingOptionDisablesAppLaunchProfiling
 {
     XCTAssertFalse(
-        shouldProfileNextLaunch(
+        sentry_shouldProfileNextLaunch(
             [self defaultLaunchProfilingOptionsWithOverrides:@{ SENTRY_OPTION(
                                                                  enableAppLaunchProfiling, @NO) }])
             .shouldProfile,
@@ -87,7 +87,7 @@
 
 - (void)testDisablingTracingOptionDisablesAppLaunchProfiling
 {
-    XCTAssertFalse(shouldProfileNextLaunch(
+    XCTAssertFalse(sentry_shouldProfileNextLaunch(
                        [self defaultLaunchProfilingOptionsWithOverrides:@{ SENTRY_OPTION(
                                                                             enableTracing, @NO) }])
                        .shouldProfile,
@@ -98,7 +98,7 @@
 - (void)testSettingTracesSampleRateTo0DisablesAppLaunchProfiling
 {
     XCTAssertFalse(
-        shouldProfileNextLaunch(
+        sentry_shouldProfileNextLaunch(
             [self defaultLaunchProfilingOptionsWithOverrides:@{ SENTRY_OPTION(
                                                                  tracesSampleRate, @0) }])
             .shouldProfile,
@@ -109,7 +109,7 @@
 - (void)testSettingProfilesSampleRateTo0DisablesAppLaunchProfiling
 {
     XCTAssertFalse(
-        shouldProfileNextLaunch(
+        sentry_shouldProfileNextLaunch(
             [self defaultLaunchProfilingOptionsWithOverrides:@{ SENTRY_OPTION(
                                                                  profilesSampleRate, @0) }])
             .shouldProfile,
