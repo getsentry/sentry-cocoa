@@ -29,23 +29,23 @@ NSString *const kSentryLaunchProfileConfigKeyProfilesSampleRate = @"profiles";
 #    pragma mark - Private
 
 namespace {
-    static SentryTracer *_Nullable sentry_launchTracer;
+static SentryTracer *_Nullable sentry_launchTracer;
 
-    typedef struct {
-        BOOL shouldProfile;
-        SentrySamplerDecision *_Nullable tracesDecision;
-        SentrySamplerDecision *_Nullable profilesDecision;
-    } SentryLaunchProfileConfig;
+typedef struct {
+    BOOL shouldProfile;
+    SentrySamplerDecision *_Nullable tracesDecision;
+    SentrySamplerDecision *_Nullable profilesDecision;
+} SentryLaunchProfileConfig;
 
-    SentryTracerConfiguration *
-    sentry_config(NSNumber *profilesRate)
-    {
-        SentryTracerConfiguration *config = [SentryTracerConfiguration defaultConfiguration];
-        config.profilesSamplerDecision =
-            [[SentrySamplerDecision alloc] initWithDecision:kSentrySampleDecisionYes
-                                              forSampleRate:profilesRate];
-        return config;
-    }
+SentryTracerConfiguration *
+sentry_config(NSNumber *profilesRate)
+{
+    SentryTracerConfiguration *config = [SentryTracerConfiguration defaultConfiguration];
+    config.profilesSamplerDecision =
+        [[SentrySamplerDecision alloc] initWithDecision:kSentrySampleDecisionYes
+                                          forSampleRate:profilesRate];
+    return config;
+}
 
 } // namespace
 
@@ -149,9 +149,10 @@ sentry_startLaunchProfile(void)
         }
 
         SENTRY_LOG_INFO(@"Starting app launch profile at %llu.", getAbsoluteTime());
-        sentry_launchTracer = [[SentryTracer alloc] initWithTransactionContext:sentry_context(tracesRate)
-                                                                    hub:nil
-                                                          configuration:sentry_config(profilesRate)];
+        sentry_launchTracer =
+            [[SentryTracer alloc] initWithTransactionContext:sentry_context(tracesRate)
+                                                         hub:nil
+                                               configuration:sentry_config(profilesRate)];
     });
 }
 

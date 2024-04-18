@@ -1,6 +1,6 @@
+#import "SentryDefines.h"
 #import "SentryProfilingConditionals.h"
 #import <Foundation/Foundation.h>
-#import "SentryDefines.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -11,7 +11,8 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * Determines whether a trace should be sampled based on the context and options.
  */
-SENTRY_EXTERN SentrySamplerDecision *sentry_sampleTrace(SentrySamplingContext *context, SentryOptions *options);
+SENTRY_EXTERN SentrySamplerDecision *sentry_sampleTrace(
+    SentrySamplingContext *context, SentryOptions *options);
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 /**

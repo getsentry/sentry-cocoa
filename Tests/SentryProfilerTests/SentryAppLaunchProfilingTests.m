@@ -28,7 +28,8 @@
 
 - (void)testDefaultOptionsDoNotEnableLaunchProfiling
 {
-    XCTAssertFalse(sentry_shouldProfileNextLaunch([self defaultOptionsWithOverrides:nil]).shouldProfile,
+    XCTAssertFalse(
+        sentry_shouldProfileNextLaunch([self defaultOptionsWithOverrides:nil]).shouldProfile,
         @"Default options should not enable launch profiling");
 }
 
