@@ -2,6 +2,8 @@
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
+#    import "SentryDefines.h"
+
 @class SentrySamplerDecision;
 @class SentryOptions;
 
@@ -15,8 +17,8 @@ typedef struct {
 
 SentryLaunchProfileConfig sentry_shouldProfileNextLaunch(SentryOptions *options);
 
-NSString *const kSentryLaunchProfileConfigKeyTracesSampleRate;
-NSString *const kSentryLaunchProfileConfigKeyProfilesSampleRate;
+SENTRY_EXTERN NSString *const kSentryLaunchProfileConfigKeyTracesSampleRate;
+SENTRY_EXTERN NSString *const kSentryLaunchProfileConfigKeyProfilesSampleRate;
 
 SentryTransactionContext *sentry_context(NSNumber *tracesRate);
 

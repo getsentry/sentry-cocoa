@@ -2,6 +2,7 @@
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
+#    import "SentryDefines.h"
 #    import <Foundation/Foundation.h>
 
 @class SentryHub;
@@ -12,7 +13,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-BOOL sentry_isTracingAppLaunch;
+SENTRY_EXTERN BOOL sentry_isTracingAppLaunch;
 
 /** Try to start a profiled trace for this app launch, if the configuration allows. */
 void sentry_startLaunchProfile(void);

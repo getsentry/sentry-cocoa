@@ -28,6 +28,7 @@ NSString *const kSentryLaunchProfileConfigKeyProfilesSampleRate = @"profiles";
 
 #    pragma mark - Private
 
+BOOL sentry_isTracingAppLaunch;
 static SentryTracer *_Nullable sentry_launchTracer;
 
 SentryTracerConfiguration *
