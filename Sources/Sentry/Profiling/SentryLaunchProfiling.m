@@ -6,6 +6,7 @@
 #    import "SentryDispatchQueueWrapper.h"
 #    import "SentryFileManager.h"
 #    import "SentryInternalDefines.h"
+#    import "SentryLaunchProfiling+Tests.h"
 #    import "SentryLog.h"
 #    import "SentryOptions.h"
 #    import "SentryProfiler+Private.h"
@@ -22,20 +23,12 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-BOOL sentry_isTracingAppLaunch;
 NSString *const kSentryLaunchProfileConfigKeyTracesSampleRate = @"traces";
 NSString *const kSentryLaunchProfileConfigKeyProfilesSampleRate = @"profiles";
 
 #    pragma mark - Private
 
-namespace {
 static SentryTracer *_Nullable sentry_launchTracer;
-
-typedef struct {
-    BOOL shouldProfile;
-    SentrySamplerDecision *_Nullable tracesDecision;
-    SentrySamplerDecision *_Nullable profilesDecision;
-} SentryLaunchProfileConfig;
 
 SentryTracerConfiguration *
 sentry_config(NSNumber *profilesRate)
@@ -46,8 +39,6 @@ sentry_config(NSNumber *profilesRate)
                                           forSampleRate:profilesRate];
     return config;
 }
-
-} // namespace
 
 SentryLaunchProfileConfig
 sentry_shouldProfileNextLaunch(SentryOptions *options)

@@ -1,4 +1,3 @@
-#import "SentryDefines.h"
 #import "SentryLaunchProfiling.h"
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
@@ -14,12 +13,12 @@ typedef struct {
     SentrySamplerDecision *_Nullable profilesDecision;
 } SentryLaunchProfileConfig;
 
-SENTRY_EXTERN SentryLaunchProfileConfig sentry_shouldProfileNextLaunch(SentryOptions *options);
+SentryLaunchProfileConfig sentry_shouldProfileNextLaunch(SentryOptions *options);
 
-SENTRY_EXTERN NSString *const kSentryLaunchProfileConfigKeyTracesSampleRate;
-SENTRY_EXTERN NSString *const kSentryLaunchProfileConfigKeyProfilesSampleRate;
+NSString *const kSentryLaunchProfileConfigKeyTracesSampleRate;
+NSString *const kSentryLaunchProfileConfigKeyProfilesSampleRate;
 
-SENTRY_EXTERN SentryTransactionContext *sentry_context(NSNumber *tracesRate);
+SentryTransactionContext *sentry_context(NSNumber *tracesRate);
 
 NS_ASSUME_NONNULL_END
 
