@@ -90,7 +90,8 @@
             }
 
             return result;
-        } timeout:0.01];
+        }
+                                  timeout:0.01];
 }
 
 - (NSArray<UIViewController *> *)relevantViewControllers
