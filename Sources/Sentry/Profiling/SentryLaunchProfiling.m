@@ -6,7 +6,7 @@
 #    import "SentryDispatchQueueWrapper.h"
 #    import "SentryFileManager.h"
 #    import "SentryInternalDefines.h"
-#    import "SentryLaunchProfiling+Tests.h"
+#    import "SentryLaunchProfiling.h"
 #    import "SentryLog.h"
 #    import "SentryOptions.h"
 #    import "SentryProfiler+Private.h"
@@ -23,12 +23,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-NSString *const kSentryLaunchProfileConfigKeyTracesSampleRate = @"traces";
-NSString *const kSentryLaunchProfileConfigKeyProfilesSampleRate = @"profiles";
-
 #    pragma mark - Private
 
-BOOL sentry_isTracingAppLaunch;
 static SentryTracer *_Nullable sentry_launchTracer;
 
 SentryTracerConfiguration *
@@ -40,6 +36,17 @@ sentry_config(NSNumber *profilesRate)
                                           forSampleRate:profilesRate];
     return config;
 }
+
+#    pragma mark - Package
+
+typedef struct {
+    BOOL shouldProfile;
+    SentrySamplerDecision *_Nullable tracesDecision;
+    SentrySamplerDecision *_Nullable profilesDecision;
+} SentryLaunchProfileConfig;
+
+NSString *const kSentryLaunchProfileConfigKeyTracesSampleRate = @"traces";
+NSString *const kSentryLaunchProfileConfigKeyProfilesSampleRate = @"profiles";
 
 SentryLaunchProfileConfig
 sentry_shouldProfileNextLaunch(SentryOptions *options)
@@ -75,7 +82,22 @@ sentry_shouldProfileNextLaunch(SentryOptions *options)
     return (SentryLaunchProfileConfig) { YES, tracesSamplerDecision, profilesSamplerDecision };
 }
 
+SentryTransactionContext *
+sentry_context(NSNumber *tracesRate)
+{
+    SentryTransactionContext *context =
+        [[SentryTransactionContext alloc] initWithName:@"launch"
+                                            nameSource:kSentryTransactionNameSourceCustom
+                                             operation:@"app.lifecycle"
+                                                origin:SentryTraceOriginAutoAppStartProfile
+                                               sampled:kSentrySampleDecisionYes];
+    context.sampleRate = tracesRate;
+    return context;
+}
+
 #    pragma mark - Public
+
+BOOL sentry_isTracingAppLaunch;
 
 void
 sentry_configureLaunchProfiling(SentryOptions *options)
@@ -95,19 +117,6 @@ sentry_configureLaunchProfiling(SentryOptions *options)
             = config.profilesDecision.sampleRate;
         writeAppLaunchProfilingConfigFile(configDict);
     }];
-}
-
-SentryTransactionContext *
-sentry_context(NSNumber *tracesRate)
-{
-    SentryTransactionContext *context =
-        [[SentryTransactionContext alloc] initWithName:@"launch"
-                                            nameSource:kSentryTransactionNameSourceCustom
-                                             operation:@"app.lifecycle"
-                                                origin:SentryTraceOriginAutoAppStartProfile
-                                               sampled:kSentrySampleDecisionYes];
-    context.sampleRate = tracesRate;
-    return context;
 }
 
 void

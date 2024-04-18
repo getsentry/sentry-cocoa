@@ -15,10 +15,10 @@ typedef struct {
     SentrySamplerDecision *_Nullable profilesDecision;
 } SentryLaunchProfileConfig;
 
-SentryLaunchProfileConfig sentry_shouldProfileNextLaunch(SentryOptions *options);
-
 SENTRY_EXTERN NSString *const kSentryLaunchProfileConfigKeyTracesSampleRate;
 SENTRY_EXTERN NSString *const kSentryLaunchProfileConfigKeyProfilesSampleRate;
+
+SentryLaunchProfileConfig sentry_shouldProfileNextLaunch(SentryOptions *options);
 
 SentryTransactionContext *sentry_context(NSNumber *tracesRate);
 
