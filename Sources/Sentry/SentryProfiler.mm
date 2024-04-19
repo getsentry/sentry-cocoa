@@ -436,7 +436,7 @@ writeProfileFile(NSDictionary<NSString *, id> *payload)
     }
 
     NSString *pathToWrite;
-    if (isTracingAppLaunch) {
+    if (sentry_isTracingAppLaunch) {
         SENTRY_LOG_DEBUG(@"Writing app launch profile.");
         pathToWrite = [appSupportDirPath stringByAppendingPathComponent:@"launchProfile"];
     } else {
@@ -448,11 +448,11 @@ writeProfileFile(NSDictionary<NSString *, id> *payload)
         SENTRY_LOG_DEBUG(@"Already a %@ profile file present; make sure to remove them right after "
                          @"using them, and that tests clean state in between so there isn't "
                          @"leftover config producing one when it isn't expected.",
-            isTracingAppLaunch ? @" launch" : @"");
+            sentry_isTracingAppLaunch ? @" launch" : @"");
         return;
     }
 
-    SENTRY_LOG_DEBUG(@"Writing%@ profile to file.", isTracingAppLaunch ? @" launch" : @"");
+    SENTRY_LOG_DEBUG(@"Writing%@ profile to file.", sentry_isTracingAppLaunch ? @" launch" : @"");
 
     NSError *error;
     if (![data writeToFile:pathToWrite options:NSDataWritingAtomic error:&error]) {
