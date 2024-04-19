@@ -51,9 +51,9 @@ manageProfilerOnStartSDK(SentryOptions *options, SentryHub *hub)
         if (shouldStopAndTransmitLaunchProfile) {
             SENTRY_LOG_DEBUG(@"Stopping launch profile in SentrySDK.start because there will "
                              @"be no automatic trace to attach it to.");
-            stopAndTransmitLaunchProfile(hub);
+            sentry_stopAndTransmitLaunchProfile(hub);
         }
-        configureLaunchProfiling(options);
+        sentry_configureLaunchProfiling(options);
     }];
 }
 
@@ -65,7 +65,7 @@ manageProfilerOnStartSDK(SentryOptions *options, SentryHub *hub)
 
 + (void)load
 {
-    startLaunchProfile();
+    sentry_startLaunchProfile();
 }
 
 #    pragma mark - Private

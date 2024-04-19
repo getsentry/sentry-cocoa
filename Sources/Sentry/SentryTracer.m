@@ -116,7 +116,7 @@ static BOOL appStartMeasurementRead;
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 + (void)load
 {
-    startLaunchProfile();
+    sentry_startLaunchProfile();
 }
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
@@ -191,7 +191,7 @@ static BOOL appStartMeasurementRead;
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
     if (_configuration.profilesSamplerDecision.decision == kSentrySampleDecisionYes
-        || isTracingAppLaunch) {
+        || sentry_isTracingAppLaunch) {
         _internalID = [[SentryId alloc] init];
         if ((_isProfiling = [SentryProfiler startWithTracer:_internalID])) {
             SENTRY_LOG_DEBUG(@"Started profiler for trace %@ with internal id %@",

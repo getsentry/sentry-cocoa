@@ -134,7 +134,7 @@ SentryTimeToDisplayTracker () <SentryFramesTrackerListener>
         if (!_waitForFullDisplay) {
             [SentryDependencyContainer.sharedInstance.framesTracker removeListener:self];
 #    if SENTRY_TARGET_PROFILING_SUPPORTED
-            stopAndDiscardLaunchProfileTracer();
+            sentry_stopAndDiscardLaunchProfileTracer();
 #    endif // SENTRY_TARGET_PROFILING_SUPPORTED
         }
     }
@@ -144,7 +144,7 @@ SentryTimeToDisplayTracker () <SentryFramesTrackerListener>
         self.fullDisplaySpan.timestamp = newFrameDate;
         [self.fullDisplaySpan finish];
 #    if SENTRY_TARGET_PROFILING_SUPPORTED
-        stopAndDiscardLaunchProfileTracer();
+        sentry_stopAndDiscardLaunchProfileTracer();
 #    endif // SENTRY_TARGET_PROFILING_SUPPORTED
     }
 

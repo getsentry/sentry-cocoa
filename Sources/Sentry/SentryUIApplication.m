@@ -28,7 +28,8 @@
         // We store the application state when the app is initialized
         // and we keep track of its changes by the notifications
         // this way we avoid calling sharedApplication in a background thread
-        appState = self.sharedApplication.applicationState;
+        [SentryDependencyContainer.sharedInstance.dispatchQueueWrapper
+            dispatchOnMainQueue:^{ self->appState = self.sharedApplication.applicationState; }];
     }
     return self;
 }
@@ -63,29 +64,34 @@
 
 - (NSArray<UIWindow *> *)windows
 {
-    UIApplication *app = [self sharedApplication];
-    NSMutableArray *result = [NSMutableArray array];
+    return [SentryDependencyContainer.sharedInstance.dispatchQueueWrapper
+        dispatchSyncOnMainQueueWithResult:^id _Nonnull {
+            UIApplication *app = [self sharedApplication];
+            NSMutableArray *result = [NSMutableArray array];
 
-    if (@available(iOS 13.0, tvOS 13.0, *)) {
-        NSArray<UIScene *> *scenes = [self getApplicationConnectedScenes:app];
-        for (UIScene *scene in scenes) {
-            if (scene.activationState == UISceneActivationStateForegroundActive && scene.delegate &&
-                [scene.delegate respondsToSelector:@selector(window)]) {
-                id window = [scene.delegate performSelector:@selector(window)];
-                if (window) {
-                    [result addObject:window];
+            if (@available(iOS 13.0, tvOS 13.0, *)) {
+                NSArray<UIScene *> *scenes = [self getApplicationConnectedScenes:app];
+                for (UIScene *scene in scenes) {
+                    if (scene.activationState == UISceneActivationStateForegroundActive
+                        && scene.delegate &&
+                        [scene.delegate respondsToSelector:@selector(window)]) {
+                        id window = [scene.delegate performSelector:@selector(window)];
+                        if (window) {
+                            [result addObject:window];
+                        }
+                    }
                 }
             }
+
+            id<UIApplicationDelegate> appDelegate = [self getApplicationDelegate:app];
+
+            if ([appDelegate respondsToSelector:@selector(window)] && appDelegate.window != nil) {
+                [result addObject:appDelegate.window];
+            }
+
+            return result;
         }
-    }
-
-    id<UIApplicationDelegate> appDelegate = [self getApplicationDelegate:app];
-
-    if ([appDelegate respondsToSelector:@selector(window)] && appDelegate.window != nil) {
-        [result addObject:appDelegate.window];
-    }
-
-    return result;
+                                  timeout:0.01];
 }
 
 - (NSArray<UIViewController *> *)relevantViewControllers
@@ -109,23 +115,18 @@
 
 - (nullable NSArray<NSString *> *)relevantViewControllersNames
 {
-    __block NSArray<NSString *> *result = nil;
-
-    void (^addViewNames)(void) = ^{
-        NSArray *viewControllers
-            = SentryDependencyContainer.sharedInstance.application.relevantViewControllers;
-        NSMutableArray *vcsNames = [[NSMutableArray alloc] initWithCapacity:viewControllers.count];
-        for (id vc in viewControllers) {
-            [vcsNames addObject:[SwiftDescriptor getObjectClassName:vc]];
+    return [SentryDependencyContainer.sharedInstance.dispatchQueueWrapper
+        dispatchSyncOnMainQueueWithResult:^id _Nonnull {
+            NSArray *viewControllers
+                = SentryDependencyContainer.sharedInstance.application.relevantViewControllers;
+            NSMutableArray *vcsNames =
+                [[NSMutableArray alloc] initWithCapacity:viewControllers.count];
+            for (id vc in viewControllers) {
+                [vcsNames addObject:[SwiftDescriptor getObjectClassName:vc]];
+            }
+            return [NSArray arrayWithArray:vcsNames];
         }
-        result = [NSArray arrayWithArray:vcsNames];
-    };
-
-    [[SentryDependencyContainer.sharedInstance dispatchQueueWrapper]
-        dispatchSyncOnMainQueue:addViewNames
-                        timeout:0.01];
-
-    return result;
+                                  timeout:0.01];
 }
 
 - (NSArray<UIViewController *> *)relevantViewControllerFromWindow:(UIWindow *)window
