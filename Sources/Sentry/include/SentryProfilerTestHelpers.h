@@ -15,7 +15,7 @@ NS_ASSUME_NONNULL_BEGIN
  * Disable profiling when running with TSAN because it produces a TSAN false positive, similar to
  * the situation described here: https://github.com/envoyproxy/envoy/issues/2561
  */
-SENTRY_EXTERN BOOL threadSanitizerIsPresent(void);
+SENTRY_EXTERN BOOL sentry_threadSanitizerIsPresent(void);
 
 #    if defined(TEST) || defined(TESTCI) || defined(DEBUG)
 
@@ -23,7 +23,7 @@ SENTRY_EXTERN BOOL threadSanitizerIsPresent(void);
  * Write a file to application support containing the profile data. This is an affordance for UI
  * tests to be able to validate the contents of a profile.
  */
-SENTRY_EXTERN void writeProfileFile(NSDictionary<NSString *, id> *payload);
+SENTRY_EXTERN void sentry_writeProfileFile(NSDictionary<NSString *, id> *payload);
 
 #    endif // defined(TEST) || defined(TESTCI) || defined(DEBUG)
 

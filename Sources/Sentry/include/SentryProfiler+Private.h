@@ -32,7 +32,7 @@ NS_ASSUME_NONNULL_BEGIN
  * launch's profiling, stop legacy profiling if no automatic performance transaction is running,
  * start the continuous profiler if enabled and not profiling from launch.
  */
-SENTRY_EXTERN void manageProfilerOnStartSDK(SentryOptions *options, SentryHub *hub);
+SENTRY_EXTERN void sentry_manageProfilerOnStartSDK(SentryOptions *options, SentryHub *hub);
 
 /**
  * A wrapper around the low-level components used to gather sampled backtrace profiles.

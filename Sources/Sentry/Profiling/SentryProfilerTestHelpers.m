@@ -8,7 +8,7 @@
 #    import "SentrySerialization.h"
 
 BOOL
-threadSanitizerIsPresent(void)
+sentry_threadSanitizerIsPresent(void)
 {
 #    if defined(__has_feature)
 #        if __has_feature(thread_sanitizer)
@@ -24,7 +24,7 @@ threadSanitizerIsPresent(void)
 #    if defined(TEST) || defined(TESTCI) || defined(DEBUG)
 
 void
-writeProfileFile(NSDictionary<NSString *, id> *payload)
+sentry_writeProfileFile(NSDictionary<NSString *, id> *payload)
 {
     NSData *data = [SentrySerialization dataWithJSONObject:payload];
     NSFileManager *fm = [NSFileManager defaultManager];

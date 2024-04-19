@@ -15,12 +15,12 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-NSArray<SentrySample *> *_Nullable slicedProfileSamples(
+NSArray<SentrySample *> *_Nullable sentry_slicedProfileSamples(
     NSArray<SentrySample *> *samples, uint64_t startSystemTime, uint64_t endSystemTime);
 
 #    if SENTRY_HAS_UIKIT
 
-NSArray<SentrySerializedMetricEntry *> *sliceGPUData(SentryFrameInfoTimeSeries *frameInfo,
+NSArray<SentrySerializedMetricEntry *> *sentry_sliceGPUData(SentryFrameInfoTimeSeries *frameInfo,
     uint64_t startSystemTime, uint64_t endSystemTime, BOOL useMostRecentRecording);
 
 #    endif // SENTRY_HAS_UIKIT

@@ -32,13 +32,13 @@ NSTimeInterval kSentryProfilerTimeoutInterval = 30;
 
 using namespace sentry::profiling;
 
-std::mutex _gProfilerLock;
-SentryProfiler *_Nullable _gCurrentProfiler;
+std::mutex _sentry_gProfilerLock;
+SentryProfiler *_Nullable _sentry_gCurrentProfiler;
 
 #    pragma mark - Public
 
 void
-manageProfilerOnStartSDK(SentryOptions *options, SentryHub *hub)
+sentry_manageProfilerOnStartSDK(SentryOptions *options, SentryHub *hub)
 {
     BOOL shouldStopAndTransmitLaunchProfile = YES;
 #    if SENTRY_HAS_UIKIT
@@ -124,39 +124,39 @@ manageProfilerOnStartSDK(SentryOptions *options, SentryHub *hub)
 
 + (BOOL)startWithTracer:(SentryId *)traceId
 {
-    std::lock_guard<std::mutex> l(_gProfilerLock);
+    std::lock_guard<std::mutex> l(_sentry_gProfilerLock);
 
-    if (_gCurrentProfiler && [_gCurrentProfiler isRunning]) {
+    if (_sentry_gCurrentProfiler && [_sentry_gCurrentProfiler isRunning]) {
         SENTRY_LOG_DEBUG(@"A profiler is already running.");
-        trackProfilerForTracer(_gCurrentProfiler, traceId);
+        trackProfilerForTracer(_sentry_gCurrentProfiler, traceId);
         // record a new metric sample for every concurrent span start
-        [_gCurrentProfiler.metricProfiler recordMetrics];
+        [_sentry_gCurrentProfiler.metricProfiler recordMetrics];
         return YES;
     }
 
-    _gCurrentProfiler = [[SentryProfiler alloc] init];
-    if (_gCurrentProfiler == nil) {
+    _sentry_gCurrentProfiler = [[SentryProfiler alloc] init];
+    if (_sentry_gCurrentProfiler == nil) {
         SENTRY_LOG_WARN(@"Profiler was not initialized, will not proceed.");
         return NO;
     }
 
-    trackProfilerForTracer(_gCurrentProfiler, traceId);
+    trackProfilerForTracer(_sentry_gCurrentProfiler, traceId);
     return YES;
 }
 
 + (BOOL)isCurrentlyProfiling
 {
-    std::lock_guard<std::mutex> l(_gProfilerLock);
-    return [_gCurrentProfiler isRunning];
+    std::lock_guard<std::mutex> l(_sentry_gProfilerLock);
+    return [_sentry_gCurrentProfiler isRunning];
 }
 
 + (void)recordMetrics
 {
-    std::lock_guard<std::mutex> l(_gProfilerLock);
-    if (_gCurrentProfiler == nil) {
+    std::lock_guard<std::mutex> l(_sentry_gProfilerLock);
+    if (_sentry_gCurrentProfiler == nil) {
         return;
     }
-    [_gCurrentProfiler.metricProfiler recordMetrics];
+    [_sentry_gCurrentProfiler.metricProfiler recordMetrics];
 }
 
 - (void)timeoutAbort
@@ -212,7 +212,7 @@ manageProfilerOnStartSDK(SentryOptions *options, SentryHub *hub)
 
 - (void)start
 {
-    if (threadSanitizerIsPresent()) {
+    if (sentry_threadSanitizerIsPresent()) {
         SENTRY_LOG_DEBUG(@"Disabling profiling when running with TSAN");
         return;
     }
