@@ -10,6 +10,7 @@
 
 - Crash due to a background call to -[UIApplication applicationState] (#3855)
 - Save framework without UIKit/AppKit as Github Asset for releases (#3858) 
+- Fix crash associated with runtime collision in global C function names (#3862)
 
 ## 8.24.0
 
