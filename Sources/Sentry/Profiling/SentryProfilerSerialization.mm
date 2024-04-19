@@ -193,7 +193,8 @@ serializedProfileData(
 
 #    pragma mark - Public
 
-SentryEnvelopeItem *_Nullable profileEnvelopeItem(SentryTransaction *transaction)
+SentryEnvelopeItem *_Nullable profileEnvelopeItem(
+    SentryTransaction *transaction, NSDate *startTimestamp)
 {
     SENTRY_LOG_DEBUG(@"Creating profiling envelope item");
     const auto profiler = profilerForFinishedTracer(transaction.trace.internalID);
@@ -230,7 +231,7 @@ SentryEnvelopeItem *_Nullable profileEnvelopeItem(SentryTransaction *transaction
         @"name" : transaction.transaction,
         @"active_thread_id" : [transaction.trace.transactionContext sentry_threadInfo].threadId
     };
-    payload[@"timestamp"] = sentry_toIso8601String(transaction.trace.startTimestamp);
+    payload[@"timestamp"] = sentry_toIso8601String(startTimestamp);
 
     const auto JSONData = [SentrySerialization dataWithJSONObject:payload];
     if (JSONData == nil) {

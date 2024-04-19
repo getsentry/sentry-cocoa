@@ -12,7 +12,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-SENTRY_EXTERN SentryEnvelopeItem *_Nullable profileEnvelopeItem(SentryTransaction *transaction);
+SENTRY_EXTERN SentryEnvelopeItem *_Nullable profileEnvelopeItem(
+    SentryTransaction *transaction, NSDate *startTimestamp);
 
 /** Alternative affordance for use by PrivateSentrySDKOnly for hybrid SDKs. */
 NSMutableDictionary<NSString *, id> *_Nullable collectProfileData(
