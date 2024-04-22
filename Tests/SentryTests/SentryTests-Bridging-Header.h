@@ -29,8 +29,8 @@
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 #    import "SentryLaunchProfiling+Tests.h"
 #    import "SentryMetricProfiler.h"
+#    import "SentryProfiler+CppShims.h"
 #    import "SentryProfiler+Private.h"
-#    import "SentryProfiler+Test.h"
 #    import "SentryProfilerMocksSwiftCompatible.h"
 #    import "SentryProfilerSerialization+Test.h"
 #    import "SentryProfilerState.h"

@@ -128,7 +128,7 @@ sentry_manageProfilerOnStartSDK(SentryOptions *options, SentryHub *hub)
 
     if (_sentry_gCurrentProfiler && [_sentry_gCurrentProfiler isRunning]) {
         SENTRY_LOG_DEBUG(@"A profiler is already running.");
-        trackProfilerForTracer(_sentry_gCurrentProfiler, traceId);
+        sentry_trackProfilerForTracer(_sentry_gCurrentProfiler, traceId);
         // record a new metric sample for every concurrent span start
         [_sentry_gCurrentProfiler.metricProfiler recordMetrics];
         return YES;
@@ -140,7 +140,7 @@ sentry_manageProfilerOnStartSDK(SentryOptions *options, SentryHub *hub)
         return NO;
     }
 
-    trackProfilerForTracer(_sentry_gCurrentProfiler, traceId);
+    sentry_trackProfilerForTracer(_sentry_gCurrentProfiler, traceId);
     return YES;
 }
 
@@ -273,17 +273,17 @@ sentry_manageProfilerOnStartSDK(SentryOptions *options, SentryHub *hub)
 #    if defined(TEST) || defined(TESTCI)
 + (SentryProfiler *)getCurrentProfiler
 {
-    return _gCurrentProfiler;
+    return _sentry_gCurrentProfiler;
 }
 
 + (void)resetConcurrencyTracking
 {
-    resetConcurrencyTracking();
+    sentry_resetConcurrencyTracking();
 }
 
 + (NSUInteger)currentProfiledTracers
 {
-    return currentProfiledTracers();
+    return sentry_currentProfiledTracers();
 }
 #    endif // defined(TEST) || defined(TESTCI)
 

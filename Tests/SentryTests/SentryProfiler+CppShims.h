@@ -13,8 +13,12 @@ NS_ASSUME_NONNULL_BEGIN
 @interface
 SentryProfiler ()
 
-#    if defined(TEST) || defined(TESTCI)
-
+// #    if defined(TEST) || defined(TESTCI)
+/**
+ * Provided as a pass-through to the SentryProfiledTracerConcurrency function of the same name,
+ * because that file contains C++ which cannot be included in test targets via ObjC bridging headers
+ * for usage in Swift.
+ */
 + (SentryProfiler *)getCurrentProfiler;
 
 /**
@@ -31,7 +35,7 @@ SentryProfiler ()
  */
 + (NSUInteger)currentProfiledTracers;
 
-#    endif // defined(TEST) || defined(TESTCI)
+// #    endif // defined(TEST) || defined(TESTCI)
 
 @end
 

@@ -21,6 +21,7 @@
 #    import "SentryProfiledTracerConcurrency.h"
 #    import "SentryProfiler+Private.h"
 #    import "SentryProfilerSerialization+Test.h"
+#    import "SentryProfilerSerialization.h"
 #    import "SentryProfilerState.h"
 #    import "SentryProfilerTestHelpers.h"
 #    import "SentrySample.h"
@@ -201,7 +202,7 @@ SentryEnvelopeItem *_Nullable sentry_profileEnvelopeItem(
     SentryTransaction *transaction, NSDate *startTimestamp)
 {
     SENTRY_LOG_DEBUG(@"Creating profiling envelope item");
-    const auto profiler = profilerForFinishedTracer(transaction.trace.internalID);
+    const auto profiler = sentry_profilerForFinishedTracer(transaction.trace.internalID);
     if (!profiler) {
         return nil;
     }
@@ -251,7 +252,7 @@ SentryEnvelopeItem *_Nullable sentry_profileEnvelopeItem(
 NSMutableDictionary<NSString *, id> *_Nullable sentry_collectProfileData(
     uint64_t startSystemTime, uint64_t endSystemTime, SentryId *traceId, SentryHub *hub)
 {
-    const auto profiler = profilerForFinishedTracer(traceId);
+    const auto profiler = sentry_profilerForFinishedTracer(traceId);
     if (!profiler) {
         return nil;
     }

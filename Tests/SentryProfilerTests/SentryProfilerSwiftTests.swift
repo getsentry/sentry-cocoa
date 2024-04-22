@@ -836,7 +836,7 @@ private extension SentryProfilerSwiftTests {
         }
 
         if shouldTimeout {
-            XCTAssertEqual(try XCTUnwrap(profile["truncation_reason"] as? String), profilerTruncationReasonName(.timeout))
+            XCTAssertEqual(try XCTUnwrap(profile["truncation_reason"] as? String), sentry_profilerTruncationReasonName(.timeout))
         }
     }
 

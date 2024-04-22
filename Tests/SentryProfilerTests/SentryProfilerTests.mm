@@ -1,24 +1,23 @@
-#import "SentryEvent+Private.h"
-#import "SentryHub+Test.h"
-#import "SentryProfileTimeseries.h"
-#import "SentryProfiler+Private.h"
-#import "SentryProfiler+Test.h"
-#import "SentryProfilerMocks.h"
-#import "SentryProfilerSerialization+Test.h"
-#import "SentryProfilerState+ObjCpp.h"
 #import "SentryProfilingConditionals.h"
-#import "SentryScreenFrames.h"
-#import "SentryThread.h"
-#import "SentryTransaction.h"
-#import "SentryTransactionContext+Private.h"
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
-using namespace sentry::profiling;
-
+#    import "SentryEvent+Private.h"
+#    import "SentryHub+Test.h"
+#    import "SentryProfileTimeseries.h"
+#    import "SentryProfiler+CppShims.h"
 #    import "SentryProfiler+Private.h"
+#    import "SentryProfilerMocks.h"
+#    import "SentryProfilerSerialization+Test.h"
+#    import "SentryProfilerState+ObjCpp.h"
+#    import "SentryScreenFrames.h"
+#    import "SentryThread.h"
+#    import "SentryTransaction.h"
+#    import "SentryTransactionContext+Private.h"
 #    import <XCTest/XCTest.h>
 #    import <execinfo.h>
+
+using namespace sentry::profiling;
 
 @interface SentryProfilerTests : XCTestCase
 @end
