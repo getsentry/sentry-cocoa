@@ -75,7 +75,7 @@ class SentryViewPhotographer: NSObject {
             view.drawHierarchy(in: view.bounds, afterScreenUpdates: false)
         }
         
-        let mask = self.mask(view: view, options: options)
+      //  let mask = self.mask(view: view, options: options)
         let maskSize = view.bounds.size.applying(CGAffineTransformMakeScale(0.005, 0.005))
         
         let maskColor = UIGraphicsImageRenderer(size: maskSize).image { _ in
@@ -86,7 +86,7 @@ class SentryViewPhotographer: NSObject {
             image.draw(at: .zero)
             
             context.cgContext.setFillColor(UIColor.red.cgColor)
-            context.cgContext.addPath(mask)
+            
             context.cgContext.clip()
             maskColor.draw(in: view.bounds)
             context.cgContext.restoreGState()
@@ -95,12 +95,16 @@ class SentryViewPhotographer: NSObject {
         return screenshot
     }
     
-    private func mask(view: UIView, options: SentryRedactOptions?) -> CGPath {
-        return self.buildPath(view: view,
-                              path: CGMutablePath(),
-                              area: view.frame,
-                              redactText: options?.redactAllText ?? true,
-                              redactImage: options?.redactAllImages ?? true)
+    private func mask(view: UIView, options: SentryRedactOptions?) -> [RedactRegion] {
+        var redactingRegions = [RedactRegion]()
+        
+        self.mapRedactRegion(fromView: view, 
+                             redacting: &redactingRegions,
+                             area: view.frame,
+                             redactText: options?.redactAllText ?? true,
+                             redactImage: options?.redactAllImages ?? true)
+        
+        return redactingRegions
     }
     
     private func shouldIgnore(view: UIView) -> Bool {
@@ -129,13 +133,13 @@ class SentryViewPhotographer: NSObject {
         let redact = shouldRedact(view: view, redactText: redactText, redactImage: redactImage)
         
         if !ignore && redact {
-            redacting.append(RedactRegion(rect: rectInWindow, color: nil))
+            redacting.append(RedactRegion(rect: rectInWindow, color: self.color(for: view)))
             return
         } else if isOpaqueOrHasBackground(view) {
             if rectInWindow == area {
                 redacting.removeAll()
             } else {
-                
+                redacting = redacting.flatMap { $0.splitBySubtracting(region: rectInWindow) }
             }
         }
         
@@ -146,32 +150,8 @@ class SentryViewPhotographer: NSObject {
         }
     }
     
-    private func buildPath(view: UIView, path: CGMutablePath, area: CGRect, redactText: Bool, redactImage: Bool) -> CGMutablePath {
-        let rectInWindow = view.convert(view.bounds, to: nil)
-
-        if (!redactImage && !redactText) || !area.intersects(rectInWindow) || view.isHidden || view.alpha == 0 {
-            return path
-        }
-        
-        var result = path
-
-        let ignore = shouldIgnore(view: view)
-        let redact = shouldRedact(view: view, redactText: redactText, redactImage: redactImage)
-        
-        if !ignore && redact {
-            result.addRect(rectInWindow)
-            return result
-        } else if isOpaqueOrHasBackground(view) {
-            result = SentryCoreGraphicsHelper.excludeRect(rectInWindow, from: result).takeRetainedValue()
-        }
-
-        if !ignore {
-            for subview in view.subviews {
-                result = buildPath(view: subview, path: path, area: area, redactText: redactText, redactImage: redactImage)
-            }
-        }
-
-        return result
+    private func color(for view: UIView) -> UIColor? {
+        return (view as? UILabel)?.textColor
     }
     
     private func isOpaqueOrHasBackground(_ view: UIView) -> Bool {
