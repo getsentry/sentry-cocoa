@@ -471,7 +471,6 @@ typedef enum { CPUFamilyUnknown, CPUFamilyArm, CPUFamilyX86, CPUFamilyX86_64 } C
                               (void *)address];
             }
         }
-
         return nil;
     } @catch (NSException *e) {
         NSArray *symbols = [e callStackSymbols];

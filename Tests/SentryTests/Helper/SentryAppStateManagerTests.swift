@@ -103,7 +103,7 @@ class SentryAppStateManagerTests: XCTestCase {
         sut.stop(withForce: true)
         XCTAssertEqual(sut.startCount, 0)
 
-        XCTAssertEqual(fixture.notificationCenterWrapper.removeObserverWithNameInvocations.count, 4)
+        XCTAssertEqual(fixture.notificationCenterWrapper.removeObserverWithNameInvocations.count, 6)
     }
 
     func testUpdateAppState() {

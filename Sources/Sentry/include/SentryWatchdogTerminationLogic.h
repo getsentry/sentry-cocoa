@@ -13,7 +13,7 @@ SENTRY_NO_INIT
                    crashAdapter:(SentryCrashWrapper *)crashAdapter
                 appStateManager:(SentryAppStateManager *)appStateManager;
 
-- (BOOL)isWatchdogTermination;
+- (BOOL)isWatchdogTermination:(nullable BOOL *)oom;
 
 @end
 

@@ -51,7 +51,9 @@ SentryWatchdogTerminationTracker ()
     [self.appStateManager start];
 
     [self.dispatchQueue dispatchAsyncWithBlock:^{
-        if ([self.watchdogTerminationLogic isWatchdogTermination]) {
+        
+        BOOL isOOM = NO;
+        if ([self.watchdogTerminationLogic isWatchdogTermination:&isOOM]) {
             SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelFatal];
             // Set to empty list so no breadcrumbs of the current scope are added
             event.breadcrumbs = @[];
@@ -70,12 +72,23 @@ SentryWatchdogTerminationTracker ()
                 NSString *timestampIso8601String = [lastBreadcrumb objectForKey:@"timestamp"];
                 event.timestamp = sentry_fromIso8601String(timestampIso8601String);
             }
-
-            SentryException *exception =
-                [[SentryException alloc] initWithValue:SentryWatchdogTerminationExceptionValue
-                                                  type:SentryWatchdogTerminationExceptionType];
-            SentryMechanism *mechanism =
+            
+            SentryException *exception = nil;
+            SentryMechanism *mechanism = nil;
+            
+            if (isOOM) {
+                exception = [[SentryException alloc] initWithValue:SentryOOMTerminationExceptionValue
+                                                              type:SentryOOMTerminationExceptionType];
+                mechanism =
+                [[SentryMechanism alloc] initWithType:SentryOOMTerminationMechanismType];
+            } else {
+                exception = [[SentryException alloc] initWithValue:SentryWatchdogTerminationExceptionValue
+                                                              type:SentryWatchdogTerminationExceptionType];
+                mechanism =
                 [[SentryMechanism alloc] initWithType:SentryWatchdogTerminationMechanismType];
+            }
+            
+            
             mechanism.handled = @(NO);
             exception.mechanism = mechanism;
             event.exceptions = @[ exception ];

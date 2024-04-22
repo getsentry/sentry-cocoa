@@ -3,6 +3,7 @@
 #import "SentrySysctl.h"
 #import <Foundation/Foundation.h>
 #import <SentryAppState.h>
+#import <SentryAppMemory.h>
 #import <SentryAppStateManager.h>
 #import <SentryCrashWrapper.h>
 #import <SentryDispatchQueueWrapper.h>
@@ -10,6 +11,8 @@
 #import <SentryNSNotificationCenterWrapper.h>
 #import <SentryOptions.h>
 #import <SentrySwift.h>
+#import <SentrySDK.h>
+#import <SentryScope.h>
 
 #if SENTRY_HAS_UIKIT
 #    import <SentryInternalNotificationNames.h>
@@ -71,7 +74,16 @@ SentryAppStateManager ()
             addObserver:self
                selector:@selector(willTerminate)
                    name:SentryNSNotificationCenterWrapper.willTerminateNotificationName];
-
+        
+        [self.notificationCenterWrapper addObserver:self
+                                                 selector:@selector(memoryChanged)
+                                                     name:SentryAppMemoryPressureChangedNotification
+                                                   object:nil];
+        [self.notificationCenterWrapper addObserver:self
+                                                 selector:@selector(memoryChanged)
+                                                     name:SentryAppMemoryLevelChangedNotification
+                                                   object:nil];
+        
         [self storeCurrentAppState];
     }
 
@@ -117,6 +129,14 @@ SentryAppStateManager ()
         [self.notificationCenterWrapper
             removeObserver:self
                       name:SentryNSNotificationCenterWrapper.willTerminateNotificationName];
+        
+        [self.notificationCenterWrapper
+         removeObserver:self
+         name:SentryAppMemoryLevelChangedNotification];
+        
+        [self.notificationCenterWrapper
+         removeObserver:self
+         name:SentryAppMemoryPressureChangedNotification];
     }
 }
 
@@ -154,6 +174,17 @@ SentryAppStateManager ()
     // Furthermore, so users can manually post UIApplicationWillTerminateNotification and then call
     // exit(0), to avoid getting false OOM when using exit(0), see GH-1252.
     [self updateAppState:^(SentryAppState *appState) { appState.wasTerminated = YES; }];
+}
+
+- (void)memoryChanged
+{
+    // memory info change. This is important in order to understand OOMs
+    SentryAppMemory *mem = [SentryAppMemory current];
+    [SentrySDK configureScope:^(SentryScope * _Nonnull scope) {
+        [scope setTagValue:SentryAppMemoryLevelToString(mem.level) forKey:@"memory_level"];
+        [scope setTagValue:SentryAppMemoryPressureToString(mem.pressure) forKey:@"memory_pressure"];
+    }];
+    [self updateAppState:^(SentryAppState *appState) { appState.appMemory = mem; }];
 }
 
 - (void)updateAppStateInBackground:(void (^)(SentryAppState *))block

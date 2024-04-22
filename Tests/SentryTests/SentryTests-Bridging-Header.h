@@ -185,6 +185,7 @@
 #import "SentryEnvelopeAttachmentHeader.h"
 #import "SentryExtraContextProvider.h"
 #import "SentryMeasurementValue.h"
+#import "SentryMemoryEventBreadcrumbs.h"
 #import "SentryNSProcessInfoWrapper.h"
 #import "SentryPerformanceTracker+Testing.h"
 #import "SentryPropagationContext.h"

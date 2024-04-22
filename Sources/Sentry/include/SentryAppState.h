@@ -1,5 +1,6 @@
 #import "SentryDefines.h"
 #import "SentrySerializable.h"
+#import "SentryAppMemory.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -41,6 +42,8 @@ SENTRY_NO_INIT
 @property (nonatomic, assign) BOOL isANROngoing;
 
 @property (nonatomic, assign) BOOL isSDKRunning;
+
+@property (nonatomic, strong) SentryAppMemory *appMemory;
 
 @end
 

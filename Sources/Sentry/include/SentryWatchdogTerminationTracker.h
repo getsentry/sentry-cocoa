@@ -7,8 +7,13 @@ NS_ASSUME_NONNULL_BEGIN
 
 static NSString *const SentryWatchdogTerminationExceptionType = @"WatchdogTermination";
 static NSString *const SentryWatchdogTerminationExceptionValue
-    = @"The OS watchdog terminated your app, possibly because it overused RAM.";
+    = @"The OS watchdog terminated your app.";
 static NSString *const SentryWatchdogTerminationMechanismType = @"watchdog_termination";
+
+static NSString *const SentryOOMTerminationExceptionType = @"OutOfMemoryTermination";
+static NSString *const SentryOOMTerminationExceptionValue
+= @"The OS watchdog terminated your app because it overused RAM.";
+static NSString *const SentryOOMTerminationMechanismType = @"oom_termination";
 
 /**
  * Detect OOMs based on heuristics described in a blog post:

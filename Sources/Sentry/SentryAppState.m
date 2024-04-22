@@ -26,6 +26,7 @@ NS_ASSUME_NONNULL_BEGIN
         _wasTerminated = NO;
         _isANROngoing = NO;
         _isSDKRunning = YES;
+        _appMemory = [SentryAppMemory current];
     }
     return self;
 }
@@ -99,6 +100,8 @@ NS_ASSUME_NONNULL_BEGIN
         } else {
             _isSDKRunning = [isSDKRunning boolValue];
         }
+        
+        _appMemory = [[SentryAppMemory alloc] initWithJSONObject:jsonObject[@"app_memory"]];
     }
     return self;
 }
@@ -117,7 +120,8 @@ NS_ASSUME_NONNULL_BEGIN
     [data setValue:@(self.wasTerminated) forKey:@"was_terminated"];
     [data setValue:@(self.isANROngoing) forKey:@"is_anr_ongoing"];
     [data setValue:@(self.isSDKRunning) forKey:@"is_sdk_running"];
-
+    [data setValue:[_appMemory serialize] ?: @{} forKey:@"app_memory"];
+    
     return data;
 }
 

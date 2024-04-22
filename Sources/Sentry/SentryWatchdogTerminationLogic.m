@@ -32,7 +32,7 @@ SentryWatchdogTerminationLogic ()
     return self;
 }
 
-- (BOOL)isWatchdogTermination
+- (BOOL)isWatchdogTermination:(BOOL *)oom
 {
     if (!self.options.enableWatchdogTerminationTracking) {
         return NO;
@@ -107,6 +107,11 @@ SentryWatchdogTerminationLogic ()
     // only report a Watchdog Termination when the SDK is started the first time.
     if (SentrySDK.startInvocations != 1) {
         return NO;
+    }
+    
+    // If we have a likely OOM it's a special watchdog event.
+    if (oom) {
+        *oom = previousAppState.appMemory.isLikelyOutOfMemory;
     }
 
     return YES;

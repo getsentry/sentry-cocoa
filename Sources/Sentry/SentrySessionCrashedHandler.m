@@ -41,7 +41,7 @@ SentrySessionCrashedHandler ()
 {
     if (self.crashWrapper.crashedLastLaunch
 #if SENTRY_HAS_UIKIT
-        || [self.watchdogTerminationLogic isWatchdogTermination]
+        || [self.watchdogTerminationLogic isWatchdogTermination:NULL]
 #endif // SENTRY_HAS_UIKIT
     ) {
         SentryFileManager *fileManager = [[[SentrySDK currentHub] getClient] fileManager];

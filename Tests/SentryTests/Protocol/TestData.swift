@@ -253,6 +253,10 @@ class TestData {
         return SentryAppState(releaseName: "1.0.0", osVersion: "14.4.1", vendorId: someUUID, isDebugging: false, systemBootTimestamp: timestamp)
     }
     
+    static var appMemory: SentryAppMemory {
+        return SentryAppMemory(footprint: 500, remaining: 500, pressure: .normal)
+    }
+    
     static var oomEvent: Event {
         let event = Event(level: SentryLevel.fatal)
         let exception = Exception(value: SentryWatchdogTerminationExceptionValue, type: SentryWatchdogTerminationExceptionType)

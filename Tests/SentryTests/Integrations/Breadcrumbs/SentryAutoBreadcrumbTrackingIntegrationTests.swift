@@ -9,6 +9,7 @@ class SentryAutoBreadcrumbTrackingIntegrationTests: XCTestCase {
         
 #if os(iOS)
         var systemEventBreadcrumbTracker: SentryTestSystemEventBreadcrumbs?
+        var memoryBreadcrumbTracker: SentryTestMemoryEventBreadcrumbs?
 #endif // os(iOS)
         
         var sut: SentryAutoBreadcrumbTrackingIntegration {
@@ -75,6 +76,9 @@ class SentryAutoBreadcrumbTrackingIntegrationTests: XCTestCase {
         let crumb = TestData.crumb
         fixture.systemEventBreadcrumbTracker?.startWithDelegateInvocations.first?.add(crumb)
         
+        let otherCrumb = TestData.crumb
+        fixture.memoryBreadcrumbTracker?.startWithDelegateInvocations.first?.add(otherCrumb)
+        
         let serializedScope = scope.serialize()
                 
         XCTAssertNotNil(serializedScope["breadcrumbs"] as? [[String: Any]], "no scope.breadcrumbs")
@@ -85,6 +89,11 @@ class SentryAutoBreadcrumbTrackingIntegrationTests: XCTestCase {
                 XCTAssertEqual(crumb.category, actualCrumb["category"] as? String)
                 XCTAssertEqual(crumb.type, actualCrumb["type"] as? String)
             }
+            
+            XCTAssertNotNil(breadcrumbs[1], "scope.breadcrumbs is empty")
+            let actualCrumb = breadcrumbs[1]
+            XCTAssertEqual(otherCrumb.category, actualCrumb["category"] as? String)
+            XCTAssertEqual(otherCrumb.type, actualCrumb["type"] as? String)
         }
     }
 #endif // os(iOS)
@@ -93,7 +102,8 @@ class SentryAutoBreadcrumbTrackingIntegrationTests: XCTestCase {
         
 #if os(iOS)
         fixture.systemEventBreadcrumbTracker = SentryTestSystemEventBreadcrumbs(fileManager: try TestFileManager(options: options), andNotificationCenterWrapper: TestNSNotificationCenterWrapper())
-        sut.install(with: options, breadcrumbTracker: fixture.breadcrumbTracker, systemEventBreadcrumbs: fixture.systemEventBreadcrumbTracker!)
+        fixture.memoryBreadcrumbTracker = SentryTestMemoryEventBreadcrumbs()
+        sut.install(with: options, breadcrumbTracker: fixture.breadcrumbTracker, systemEventBreadcrumbs: fixture.systemEventBreadcrumbTracker!, memoryEventBreadcrumbs: fixture.memoryBreadcrumbTracker!)
 #else
         sut.install(with: options, breadcrumbTracker: fixture.breadcrumbTracker)
 #endif // os(iOS)
@@ -120,6 +130,14 @@ private class SentryTestBreadcrumbTracker: SentryBreadcrumbTracker {
 #if os(iOS)
 
 private class SentryTestSystemEventBreadcrumbs: SentrySystemEventBreadcrumbs {
+    
+    let startWithDelegateInvocations = Invocations<SentryBreadcrumbDelegate>()
+    override func start(with delegate: SentryBreadcrumbDelegate) {
+        startWithDelegateInvocations.record(delegate)
+    }
+}
+
+private class SentryTestMemoryEventBreadcrumbs: SentryMemoryEventBreadcrumbs {
     
     let startWithDelegateInvocations = Invocations<SentryBreadcrumbDelegate>()
     override func start(with delegate: SentryBreadcrumbDelegate) {

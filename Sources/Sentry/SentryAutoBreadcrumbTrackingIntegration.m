@@ -6,6 +6,7 @@
 #import "SentryOptions.h"
 #import "SentrySDK.h"
 #import "SentrySystemEventBreadcrumbs.h"
+#import "SentryMemoryEventBreadcrumbs.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -16,6 +17,7 @@ SentryAutoBreadcrumbTrackingIntegration ()
 
 #if TARGET_OS_IOS && SENTRY_HAS_UIKIT
 @property (nonatomic, strong) SentrySystemEventBreadcrumbs *systemEventBreadcrumbs;
+@property (nonatomic, strong) SentryMemoryEventBreadcrumbs *memoryEventBreadcrumbs;
 #endif // TARGET_OS_IOS && SENTRY_HAS_UIKIT
 
 @end
@@ -36,6 +38,7 @@ SentryAutoBreadcrumbTrackingIntegration ()
                          initWithFileManager:[SentryDependencyContainer sharedInstance].fileManager
                 andNotificationCenterWrapper:[SentryDependencyContainer sharedInstance]
                                                  .notificationCenterWrapper]
+     memoryEventBreadcrumbs:[SentryMemoryEventBreadcrumbs new]
 #endif // TARGET_OS_IOS && SENTRY_HAS_UIKIT
     ];
 
@@ -54,6 +57,7 @@ SentryAutoBreadcrumbTrackingIntegration ()
          breadcrumbTracker:(SentryBreadcrumbTracker *)breadcrumbTracker
 #if TARGET_OS_IOS && SENTRY_HAS_UIKIT
     systemEventBreadcrumbs:(SentrySystemEventBreadcrumbs *)systemEventBreadcrumbs
+    memoryEventBreadcrumbs:(SentryMemoryEventBreadcrumbs *)memoryEventBreadcrumbs
 #endif // TARGET_OS_IOS && SENTRY_HAS_UIKIT
 {
     self.breadcrumbTracker = breadcrumbTracker;
@@ -68,6 +72,9 @@ SentryAutoBreadcrumbTrackingIntegration ()
 #if TARGET_OS_IOS && SENTRY_HAS_UIKIT
     self.systemEventBreadcrumbs = systemEventBreadcrumbs;
     [self.systemEventBreadcrumbs startWithDelegate:self];
+    
+    self.memoryEventBreadcrumbs = memoryEventBreadcrumbs;
+    [self.memoryEventBreadcrumbs startWithDelegate:self];
 #endif // TARGET_OS_IOS && SENTRY_HAS_UIKIT
 }
 
@@ -79,6 +86,10 @@ SentryAutoBreadcrumbTrackingIntegration ()
 #if TARGET_OS_IOS && SENTRY_HAS_UIKIT
     if (nil != self.systemEventBreadcrumbs) {
         [self.systemEventBreadcrumbs stop];
+    }
+    
+    if (nil != self.memoryEventBreadcrumbs) {
+        [self.memoryEventBreadcrumbs stop];
     }
 #endif // TARGET_OS_IOS && SENTRY_HAS_UIKIT
 }
