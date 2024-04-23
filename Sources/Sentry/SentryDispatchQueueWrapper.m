@@ -48,6 +48,11 @@ NS_ASSUME_NONNULL_BEGIN
     [SentryThreadWrapper onMainThread:block];
 }
 
+- (void)dispatchSync:(void (^)(void))block
+{
+    dispatch_sync(_queue, block);
+}
+
 - (void)dispatchSyncOnMainQueue:(void (^)(void))block
 {
     if ([NSThread isMainThread]) {

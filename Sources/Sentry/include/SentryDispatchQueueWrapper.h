@@ -18,6 +18,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)dispatchOnMainQueue:(void (^)(void))block;
 
+- (void)dispatchSync:(void (^)(void))block;
+
 - (void)dispatchSyncOnMainQueue:(void (^)(void))block;
 
 - (BOOL)dispatchSyncOnMainQueue:(void (^)(void))block timeout:(NSTimeInterval)timeout;
