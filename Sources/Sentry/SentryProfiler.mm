@@ -30,13 +30,17 @@
 #        import <UIKit/UIKit.h>
 #    endif // SENTRY_HAS_UIKIT
 
+using namespace sentry::profiling;
+
+namespace {
+
 const int kSentryProfilerFrequencyHz = 101;
 NSTimeInterval kSentryProfilerTimeoutInterval = 30;
 
-using namespace sentry::profiling;
-
 std::mutex _gProfilerLock;
 SentryProfiler *_Nullable _gCurrentProfiler;
+
+} // namespace
 
 #    pragma mark - Public
 
