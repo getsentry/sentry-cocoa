@@ -141,8 +141,9 @@ jobs:
         if: ${{ matrix.device == 'iPhone 14 (16.4)' }}
         run: ./scripts/create-simulator.sh 14.3.1 16.4 16-4
 
+        # UI tests have been flaking lately due to: Testing failed: iOS-SwiftUITests-Runner (13303) encountered an error (The test runner failed to initialize for UI testing. (Underlying Error: Timed out while loading Accessibility.))
       - name: Run Fastlane
-        run: fastlane ui_tests_ios_swift device:"${{matrix.device}}" 
+        run: for i in {1..3}; do fastlane ui_tests_ios_swift device:"${{matrix.device}}" && break ; done
 
       - name: Archiving Raw Test Logs
         uses: actions/upload-artifact@v4
