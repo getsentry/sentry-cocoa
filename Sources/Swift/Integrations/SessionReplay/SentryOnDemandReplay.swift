@@ -28,7 +28,11 @@ class SentryOnDemandReplay: NSObject {
     private var _totalFrames = 0
     private let dateProvider: SentryCurrentDateProvider
     private let workingQueue: SentryDispatchQueueWrapper
-    private var frames = [SentryReplayFrame]()
+    private var _frames = [SentryReplayFrame]()
+    
+    var frames: [SentryReplayFrame] {
+        _frames
+    }
     
     var videoWidth = 200
     var videoHeight = 434
@@ -65,10 +69,10 @@ class SentryOnDemandReplay: NSObject {
             print("[SentryOnDemandReplay] Could not save replay frame. Error: \(error)")
             return
         }
-        frames.append(SentryReplayFrame(imagePath: imagePath, time: date))
+        _frames.append(SentryReplayFrame(imagePath: imagePath, time: date))
         
-        while frames.count > cacheMaxSize {
-            let first = frames.removeFirst()
+        while _frames.count > cacheMaxSize {
+            let first = _frames.removeFirst()
             try? FileManager.default.removeItem(at: URL(fileURLWithPath: first.imagePath))
         }
         _totalFrames += 1
@@ -94,7 +98,7 @@ class SentryOnDemandReplay: NSObject {
     func releaseFramesUntil(_ date: Date) {
         workingQueue.dispatchAsync ({
             while let first = self.frames.first, first.time < date {
-                self.frames.removeFirst()
+                self._frames.removeFirst()
                 try? FileManager.default.removeItem(at: URL(fileURLWithPath: first.imagePath))
             }
         })
@@ -117,17 +121,17 @@ class SentryOnDemandReplay: NSObject {
         videoWriter.startSession(atSourceTime: .zero)
         
         var frameCount = 0
-        let (frames, start, end) = filterFrames(beginning: beginning, end: beginning.addingTimeInterval(duration))
+        let (framesPath, start, end) = filterFrames(beginning: beginning, end: beginning.addingTimeInterval(duration))
         
-        if frames.isEmpty { return }
+        if framesPath.isEmpty { return }
         
         _currentPixelBuffer = SentryPixelBuffer(size: CGSize(width: videoWidth, height: videoHeight))
         
         videoWriterInput.requestMediaDataWhenReady(on: workingQueue.queue) { [weak self] in
             guard let self = self else { return }
             
-            if frameCount < frames.count {
-                let imagePath = frames[frameCount]
+            if frameCount < framesPath.count {
+                let imagePath = framesPath[frameCount]
                 
                 if let image = UIImage(contentsOfFile: imagePath) {
                     let presentTime = CMTime(seconds: Double(frameCount), preferredTimescale: CMTimeScale(self.frameRate))
@@ -149,7 +153,7 @@ class SentryOnDemandReplay: NSObject {
                                 completion(nil, SentryOnDemandReplayError.cantReadVideoSize)
                                 return
                             }
-                            videoInfo = SentryVideoInfo(path: outputFileURL, height: self.videoHeight, width: self.videoWidth, duration: TimeInterval(frames.count / self.frameRate), frameCount: frames.count, frameRate: self.frameRate, start: start, end: end, fileSize: fileSize)
+                            videoInfo = SentryVideoInfo(path: outputFileURL, height: self.videoHeight, width: self.videoWidth, duration: TimeInterval(framesPath.count / self.frameRate), frameCount: framesPath.count, frameRate: self.frameRate, start: start, end: end, fileSize: fileSize)
                         } catch {
                             completion(nil, error)
                         }
@@ -166,7 +170,7 @@ class SentryOnDemandReplay: NSObject {
         var start = dateProvider.date()
         var actualEnd = start
         workingQueue.dispatchSync {
-            for frame in self.frames {
+            for frame in self._frames {
                 if frame.time < beginning { continue } else if frame.time > end { break }
                 if frame.time < start { start = frame.time }
                 
@@ -188,12 +192,6 @@ class SentryOnDemandReplay: NSObject {
             ] as [String: Any]
         ]
     }
-    
-    #if TEST
-    func getFrames() -> [SentryReplayFrame] {
-        return frames
-    }
-    #endif
 }
 
 #endif // os(iOS) || os(tvOS)
