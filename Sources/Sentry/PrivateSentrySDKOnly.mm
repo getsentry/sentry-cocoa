@@ -21,6 +21,7 @@
 #import <SentryDependencyContainer.h>
 #import <SentryFramesTracker.h>
 #import <SentryScreenshot.h>
+#import <SentrySessionReplay.h>
 #import <SentryUser.h>
 
 @implementation PrivateSentrySDKOnly
@@ -238,6 +239,21 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
 + (SentryBreadcrumb *)breadcrumbWithDictionary:(NSDictionary *)dictionary
 {
     return [[SentryBreadcrumb alloc] initWithDictionary:dictionary];
+}
+
++ (BOOL)captureReplay
+{
+    if (@available(iOS 16.0, *)) {
+        SentrySessionReplay *_Nullable replay = [SentryDependencyContainer sharedInstance].replay;
+
+        if (replay == nil) {
+            return NO;
+        }
+
+        return [replay captureReplay];
+    }
+
+    return NO;
 }
 
 @end

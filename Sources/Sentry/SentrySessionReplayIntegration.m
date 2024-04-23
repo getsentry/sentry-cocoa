@@ -83,6 +83,7 @@ SentryOnDemandReplay (SentryReplayMaker) <SentryReplayMaker>
 
             displayLinkWrapper:[[SentryDisplayLinkWrapper alloc] init]];
 
+        [SentryDependencyContainer sharedInstance].replay = self.sessionReplay;
         [self.sessionReplay
                   start:SentryDependencyContainer.sharedInstance.application.windows.firstObject
             fullSession:[self shouldReplayFullSession:replayOptions.sessionSampleRate]];

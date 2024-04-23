@@ -23,6 +23,7 @@
 #import <SentryDependencyContainer.h>
 #import <SentryNSNotificationCenterWrapper.h>
 #import <SentrySDK+Private.h>
+#import <SentrySessionReplay.h>
 #import <SentrySwift.h>
 #import <SentrySwizzleWrapper.h>
 #import <SentrySysctl.h>
@@ -411,5 +412,10 @@ static NSObject *sentryDependencyContainerLock;
     return _reachability;
 }
 #endif // !TARGET_OS_WATCH
+
+- (SentrySessionReplay *)replay API_AVAILABLE(ios(16.0))
+{
+    return _replay;
+}
 
 @end
