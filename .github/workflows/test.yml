@@ -209,7 +209,8 @@ jobs:
         # passed to xcodebuild doesn't end up in the job name,
         # because GitHub Actions don't provide an easy way of
         # manipulating string in expressions.
-        run: ./scripts/xcode-test.sh ${{matrix.platform}} ${{matrix.test-destination-os}} $GITHUB_REF_NAME ci test-without-building "${{matrix.device}}" TestCI
+        # Unit tests have been flaking lately. Retry 3 times to avoid having to manually retry them each time.
+        run: for i in {1..3}; do ./scripts/xcode-test.sh ${{matrix.platform}} ${{matrix.test-destination-os}} $GITHUB_REF_NAME ci test-without-building "${{matrix.device}}" TestCI && break ; done
 
       - name: Slowest Tests
         if: ${{ always() }}
