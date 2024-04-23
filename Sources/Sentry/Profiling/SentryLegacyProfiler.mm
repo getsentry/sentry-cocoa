@@ -35,7 +35,7 @@ _unsafe_isRunning(void)
 
     if (_unsafe_isRunning()) {
         SENTRY_LOG_DEBUG(@"A legacy profiler is already running.");
-        trackProfilerForTracer(_unsafe_gLegacyProfiler, traceId);
+        sentry_trackProfilerForTracer(_unsafe_gLegacyProfiler, traceId);
         // record a new metric sample for every concurrent span start
         [_unsafe_gLegacyProfiler.metricProfiler recordMetrics];
         return YES;
@@ -47,7 +47,7 @@ _unsafe_isRunning(void)
         return NO;
     }
 
-    trackProfilerForTracer(_unsafe_gLegacyProfiler, traceId);
+    sentry_trackProfilerForTracer(_unsafe_gLegacyProfiler, traceId);
     return YES;
 }
 
@@ -70,7 +70,7 @@ _unsafe_isRunning(void)
 
 #    pragma mark - Testing helpers
 
-#    if defined(TEST) || defined(TESTCI)
+// #    if defined(TEST) || defined(TESTCI)
 + (SentryProfiler *_Nullable)getCurrentProfiler
 {
     return _unsafe_gLegacyProfiler;
@@ -78,14 +78,14 @@ _unsafe_isRunning(void)
 
 + (void)resetConcurrencyTracking
 {
-    resetConcurrencyTracking();
+    sentry_resetConcurrencyTracking();
 }
 
 + (NSUInteger)currentProfiledTracers
 {
-    return currentProfiledTracers();
+    return sentry_currentProfiledTracers();
 }
-#    endif // defined(TEST) || defined(TESTCI)
+// #    endif // defined(TEST) || defined(TESTCI)
 
 @end
 
