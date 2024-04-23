@@ -26,25 +26,32 @@ class SentryOnDemandReplay: NSObject {
     private let _outputPath: String
     private var _currentPixelBuffer: SentryPixelBuffer?
     private var _totalFrames = 0
+    private let dateProvider: SentryCurrentDateProvider
+    private let workingQueue: SentryDispatchQueueWrapper
+    private (set) var frames = [SentryReplayFrame]()
     
-    var frames = [SentryReplayFrame]()
-    var workingQueue: DispatchQueue
     var videoWidth = 200
     var videoHeight = 434
     var bitRate = 20_000
     var frameRate = 1
     var cacheMaxSize = UInt.max
-    var dateProvider = SentryCurrentDateProvider()
     
-    init(outputPath: String) {
+    convenience init(outputPath: String) {
+        self.init(outputPath: outputPath,
+                  workingQueue: SentryDispatchQueueWrapper(name: "io.sentry.onDemandReplay", attributes: nil),
+                  dateProvider: SentryCurrentDateProvider())
+    }
+    
+    init(outputPath: String, workingQueue: SentryDispatchQueueWrapper, dateProvider: SentryCurrentDateProvider) {
         self._outputPath = outputPath
-        workingQueue = DispatchQueue(label: "io.sentry.sessionreplay.ondemand")
+        self.dateProvider = dateProvider
+        self.workingQueue = workingQueue
     }
     
     func addFrameAsync(image: UIImage) {
-        workingQueue.async {
+        workingQueue.dispatchAsync({
             self.addFrame(image: image)
-        }
+        })
     }
     
     private func addFrame(image: UIImage) {
@@ -85,12 +92,12 @@ class SentryOnDemandReplay: NSObject {
     }
     
     func releaseFramesUntil(_ date: Date) {
-        workingQueue.async {
+        workingQueue.dispatchAsync ({
             while let first = self.frames.first, first.time < date {
                 self.frames.removeFirst()
                 try? FileManager.default.removeItem(at: URL(fileURLWithPath: first.imagePath))
             }
-        }
+        })
     }
     
     func createVideoWith(duration: TimeInterval, beginning: Date, outputFileURL: URL, completion: @escaping (SentryVideoInfo?, Error?) -> Void) throws {
@@ -116,7 +123,7 @@ class SentryOnDemandReplay: NSObject {
         
         _currentPixelBuffer = SentryPixelBuffer(size: CGSize(width: videoWidth, height: videoHeight))
         
-        videoWriterInput.requestMediaDataWhenReady(on: workingQueue) { [weak self] in
+        videoWriterInput.requestMediaDataWhenReady(on: workingQueue.queue) { [weak self] in
             guard let self = self else { return }
             
             if frameCount < frames.count {
@@ -158,13 +165,14 @@ class SentryOnDemandReplay: NSObject {
         
         var start = dateProvider.date()
         var actualEnd = start
-        
-        for frame in frames {
-            if frame.time < beginning { continue } else if frame.time > end { break }
-            if frame.time < start { start = frame.time }
-            
-            actualEnd = frame.time
-            framesPath.append(frame.imagePath)
+        workingQueue.dispatchSync {
+            for frame in self.frames {
+                if frame.time < beginning { continue } else if frame.time > end { break }
+                if frame.time < start { start = frame.time }
+                
+                actualEnd = frame.time
+                framesPath.append(frame.imagePath)
+            }
         }
         return (framesPath, start, actualEnd + TimeInterval((1 / Double(frameRate))))
     }

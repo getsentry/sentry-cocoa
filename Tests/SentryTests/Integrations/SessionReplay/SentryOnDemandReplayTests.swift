@@ -7,12 +7,13 @@ import XCTest
 #if os(iOS) || os(tvOS)
 class SentryOnDemandReplayTests: XCTestCase {
     
-    private let workingQueue = DispatchQueue(label: "io.sentry.TestQueue")
+    let dateProvider = TestCurrentDateProvider()
     
     func getSut() -> SentryOnDemandReplay {
         let outputPath = FileManager.default.temporaryDirectory
-        let sut = SentryOnDemandReplay(outputPath: outputPath.path)
-        sut.workingQueue = workingQueue
+        let sut = SentryOnDemandReplay(outputPath: outputPath.path, 
+                                       workingQueue: TestSentryDispatchQueueWrapper(),
+                                       dateProvider: dateProvider)
         return sut
     }
     
@@ -20,8 +21,6 @@ class SentryOnDemandReplayTests: XCTestCase {
         let sut = getSut()
         sut.addFrameAsync(image: UIImage.add)
        
-        waitWorkingQueue()
-        
         guard let frame = sut.frames.first else {
             fail("Frame was not saved")
             return
@@ -32,19 +31,12 @@ class SentryOnDemandReplayTests: XCTestCase {
     func testReleaseFrames() {
         let sut = getSut()
         
-        let dateProvider = TestCurrentDateProvider()
-        
-        sut.dateProvider = dateProvider
-        
         for _ in 0..<10 {
             sut.addFrameAsync(image: UIImage.add)
-            waitWorkingQueue()
             dateProvider.advance(by: 1)
         }
        
-        waitWorkingQueue()
         sut.releaseFramesUntil(dateProvider.date().addingTimeInterval(-5))
-        waitWorkingQueue()
         
         expect(sut.frames.count) == 5
         expect(sut.frames.first?.time) == Date(timeIntervalSinceReferenceDate: 5)
@@ -53,16 +45,12 @@ class SentryOnDemandReplayTests: XCTestCase {
     
     func testGenerateVideo() {
         let sut = getSut()
-        let dateProvider = TestCurrentDateProvider()
         dateProvider.driftTimeForEveryRead = true
         dateProvider.driftTimeInterval = 1
-        sut.dateProvider = dateProvider
         
         for _ in 0..<10 {
             sut.addFrameAsync(image: UIImage.add)
         }
-       
-        waitWorkingQueue()
         
         let output = FileManager.default.temporaryDirectory.appendingPathComponent("video.mp4")
         let videoExpectation = expectation(description: "Wait for video render")
@@ -80,23 +68,6 @@ class SentryOnDemandReplayTests: XCTestCase {
         }
         
         wait(for: [videoExpectation], timeout: 1)
-    }
-    
-    private func waitWorkingQueue() {
-        //SentryOnDemandReplay dispatch some of the work to a background queue to avoid race conditions
-        //We can use this function to make sure the last called operation is complete.
-        let group = DispatchGroup()
-        let queueExpected = expectation(description: "Wait for queue to release")
-        
-        group.enter()
-        workingQueue.async {
-            queueExpected.fulfill()
-            group.leave()
-        }
-        
-        let _ = group.wait(timeout: .now() + 0.1)
-        
-        wait(for: [queueExpected], timeout: 0.1)
     }
 }
 #endif

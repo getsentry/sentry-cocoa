@@ -9,7 +9,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (strong, nonatomic) dispatch_queue_t queue;
 
-- (instancetype)initWithName:(const char *)name attributes:(dispatch_queue_attr_t)attributes;
+- (instancetype)initWithName:(const char *)name
+                  attributes:(nullable dispatch_queue_attr_t)attributes;
 
 - (void)dispatchAsyncWithBlock:(void (^)(void))block;
 

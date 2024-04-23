@@ -16,7 +16,8 @@ NS_ASSUME_NONNULL_BEGIN
     return self;
 }
 
-- (instancetype)initWithName:(const char *)name attributes:(dispatch_queue_attr_t)attributes;
+- (instancetype)initWithName:(const char *)name
+                  attributes:(nullable dispatch_queue_attr_t)attributes;
 {
     if (self = [super init]) {
         _queue = dispatch_queue_create(name, attributes);
