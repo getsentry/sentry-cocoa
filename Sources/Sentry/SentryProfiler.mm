@@ -70,7 +70,7 @@ std::mutex _gProfilerLock;
 SentryProfiler *_Nullable _gCurrentProfiler;
 
 NSString *
-profilerTruncationReasonName(SentryProfilerTruncationReason reason)
+sentry_profilerTruncationReasonName(SentryProfilerTruncationReason reason)
 {
     switch (reason) {
     case SentryProfilerTruncationReasonNormal:
@@ -284,7 +284,7 @@ serializedProfileData(
 
     if (_gCurrentProfiler && [_gCurrentProfiler isRunning]) {
         SENTRY_LOG_DEBUG(@"A profiler is already running.");
-        trackProfilerForTracer(_gCurrentProfiler, traceId);
+        sentry_trackProfilerForTracer(_gCurrentProfiler, traceId);
         // record a new metric sample for every concurrent span start
         [_gCurrentProfiler->_metricProfiler recordMetrics];
         return YES;
@@ -296,7 +296,7 @@ serializedProfileData(
         return NO;
     }
 
-    trackProfilerForTracer(_gCurrentProfiler, traceId);
+    sentry_trackProfilerForTracer(_gCurrentProfiler, traceId);
     return YES;
 }
 
@@ -352,7 +352,7 @@ serializedProfileData(
                                                                forTrace:(SentryId *)traceId
                                                                   onHub:(SentryHub *)hub;
 {
-    const auto profiler = profilerForFinishedTracer(traceId);
+    const auto profiler = sentry_profilerForFinishedTracer(traceId);
     if (!profiler) {
         return nil;
     }
@@ -384,13 +384,13 @@ serializedProfileData(
                                                       and:(uint64_t)endSystemTime
                                                     onHub:(SentryHub *)hub;
 {
-    return serializedProfileData([self._state copyProfilingData], startSystemTime, endSystemTime,
-        profilerTruncationReasonName(_truncationReason),
+    return serializedProfileData([self.state copyProfilingData], startSystemTime, endSystemTime,
+        sentry_profilerTruncationReasonName(_truncationReason),
         [_metricProfiler serializeBetween:startSystemTime and:endSystemTime],
         [_debugImageProvider getDebugImagesCrashed:NO], hub
 #    if SENTRY_HAS_UIKIT
         ,
-        self._screenFrameData
+        self.screenFrameData
 #    endif // SENTRY_HAS_UIKIT
     );
 }
@@ -474,7 +474,7 @@ serializedProfileData(
     SENTRY_LOG_DEBUG(@"Starting profiler.");
 
     SentryProfilerState *const state = [[SentryProfilerState alloc] init];
-    self._state = state;
+    self.state = state;
     _profiler = std::make_shared<SamplingProfiler>(
         [state](auto &backtrace) {
     // in test, we'll overwrite the sample's timestamp to one mocked by SentryCurrentDate
@@ -512,17 +512,17 @@ serializedProfileData(
     return _gCurrentProfiler;
 }
 
-// this just calls through to SentryProfiledTracerConcurrency.resetConcurrencyTracking(). we have to
-// do this through SentryTracer because SentryProfiledTracerConcurrency cannot be included in test
-// targets via ObjC bridging headers because it contains C++.
-+ (void)resetConcurrencyTracking
+// this just calls through to SentryProfiledTracerConcurrency.sentry_resetConcurrencyTracking(). we
+// have to do this through SentryTracer because SentryProfiledTracerConcurrency cannot be included
+// in test targets via ObjC bridging headers because it contains C++.
++ (void)sentry_resetConcurrencyTracking
 {
-    resetConcurrencyTracking();
+    sentry_resetConcurrencyTracking();
 }
 
-+ (NSUInteger)currentProfiledTracers
++ (NSUInteger)sentry_currentProfiledTracers
 {
-    return currentProfiledTracers();
+    return sentry_currentProfiledTracers();
 }
 #    endif // defined(TEST) || defined(TESTCI)
 

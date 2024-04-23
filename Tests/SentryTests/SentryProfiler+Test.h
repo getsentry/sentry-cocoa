@@ -23,9 +23,9 @@ NSMutableDictionary<NSString *, id> *serializedProfileData(
 
 + (SentryProfiler *)getCurrentProfiler;
 
-+ (void)resetConcurrencyTracking;
++ (void)sentry_resetConcurrencyTracking;
 
-+ (NSUInteger)currentProfiledTracers;
++ (NSUInteger)sentry_currentProfiledTracers;
 
 @end
 
