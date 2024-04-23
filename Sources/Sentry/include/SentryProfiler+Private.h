@@ -8,6 +8,7 @@
 
 @class SentryEnvelopeItem;
 @class SentryHub;
+@class SentryOptions;
 @class SentryProfilerState;
 @class SentryTransaction;
 
@@ -32,6 +33,7 @@ SENTRY_EXTERN NSString *const kSentryProfilerSerializationKeyFrameRates;
 
 SENTRY_EXTERN_C_BEGIN
 
+void sentry_manageProfilerOnStartSDK(SentryOptions *options, SentryHub *hub);
 NSString *sentry_profilerTruncationReasonName(SentryProfilerTruncationReason reason);
 
 SENTRY_EXTERN_C_END
