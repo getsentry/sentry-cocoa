@@ -129,12 +129,25 @@ SentrySessionReplay ()
         return;
     }
 
-    if ([_sentryRandom nextNumber] > _replayOptions.errorSampleRate) {
+    BOOL didCaptureReplay = [self captureReplay];
+    if (!didCaptureReplay) {
         return;
     }
 
-    [self startFullReplay];
     [self setEventContext:event];
+}
+
+- (BOOL)captureReplay
+{
+    if (!_isRunning) {
+        return NO;
+    }
+
+    if ([_sentryRandom nextNumber] > _replayOptions.errorSampleRate) {
+        return NO;
+    }
+
+    [self startFullReplay];
 
     NSURL *finalPath = [_urlToCache URLByAppendingPathComponent:@"replay.mp4"];
     NSDate *replayStart =
@@ -143,6 +156,8 @@ SentrySessionReplay ()
     [self createAndCapture:finalPath
                   duration:_replayOptions.errorReplayDuration
                  startedAt:replayStart];
+
+    return YES;
 }
 
 - (void)setEventContext:(SentryEvent *)event
