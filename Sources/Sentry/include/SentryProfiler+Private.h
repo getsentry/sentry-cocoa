@@ -3,11 +3,11 @@
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
 #    import "SentryDefines.h"
-#    import "SentrySpan.h"
 #    import <Foundation/Foundation.h>
 
 @class SentryEnvelopeItem;
 @class SentryHub;
+@class SentryId;
 @class SentryMetricProfiler;
 @class SentryOptions;
 @class SentryProfilerState;
