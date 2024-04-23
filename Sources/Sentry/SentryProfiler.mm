@@ -64,7 +64,6 @@ sentry_manageProfilerOnStartSDK(SentryOptions *options, SentryHub *hub)
 
 @implementation SentryProfiler {
     std::shared_ptr<SamplingProfiler> _profiler;
-    SentryDebugImageProvider *_debugImageProvider;
     NSTimer *_timeoutTimer;
 }
 
@@ -79,7 +78,6 @@ sentry_manageProfilerOnStartSDK(SentryOptions *options, SentryHub *hub)
     _profilerId = [[SentryId alloc] init];
 
     SENTRY_LOG_DEBUG(@"Initialized new SentryProfiler %@", self);
-    _debugImageProvider = [SentryDependencyContainer sharedInstance].debugImageProvider;
 
 #    if SENTRY_HAS_UIKIT
     // the frame tracker may not be running if SentryOptions.enableAutoPerformanceTracing is NO
