@@ -2,7 +2,7 @@
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
-#    import "SentryInternalDefines.h"
+#    import "SentryDefines.h"
 #    import <Foundation/Foundation.h>
 
 @class SentryEnvelopeItem;
@@ -12,10 +12,11 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-SENTRY_EXTERN SentryEnvelopeItem *_Nullable profileEnvelopeItem(SentryTransaction *transaction);
+SENTRY_EXTERN SentryEnvelopeItem *_Nullable sentry_profileEnvelopeItem(
+    SentryTransaction *transaction, NSDate *startTimestamp);
 
 /** Alternative affordance for use by PrivateSentrySDKOnly for hybrid SDKs. */
-NSMutableDictionary<NSString *, id> *_Nullable collectProfileData(
+NSMutableDictionary<NSString *, id> *_Nullable sentry_collectProfileData(
     uint64_t startSystemTime, uint64_t endSystemTime, SentryId *traceId, SentryHub *hub);
 
 NS_ASSUME_NONNULL_END

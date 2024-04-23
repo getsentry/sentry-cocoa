@@ -116,7 +116,7 @@ static BOOL appStartMeasurementRead;
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 + (void)load
 {
-    startLaunchProfile();
+    sentry_startLaunchProfile();
 }
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
@@ -191,7 +191,7 @@ static BOOL appStartMeasurementRead;
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
     if (_configuration.profilesSamplerDecision.decision == kSentrySampleDecisionYes
-        || isTracingAppLaunch) {
+        || sentry_isTracingAppLaunch) {
         _internalID = [[SentryId alloc] init];
         if ((_isProfiling = [SentryLegacyProfiler startWithTracer:_internalID])) {
             SENTRY_LOG_DEBUG(@"Started profiler for trace %@ with internal id %@",
@@ -210,7 +210,7 @@ static BOOL appStartMeasurementRead;
 {
 #if SENTRY_TARGET_PROFILING_SUPPORTED
     if (self.isProfiling) {
-        discardProfilerForTracer(self.internalID);
+        sentry_discardProfilerForTracer(self.internalID);
     }
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 }
@@ -628,9 +628,10 @@ static BOOL appStartMeasurementRead;
 - (void)captureTransactionWithProfile:(SentryTransaction *)transaction
                        startTimestamp:(NSDate *)startTimestamp
 {
-    SentryEnvelopeItem *envelopeItem = profileEnvelopeItem(transaction);
+    SentryEnvelopeItem *profileEnvelopeItem
+        = sentry_profileEnvelopeItem(transaction, startTimestamp);
 
-    if (!envelopeItem) {
+    if (!profileEnvelopeItem) {
         [_hub captureTransaction:transaction withScope:_hub.scope];
         return;
     }
@@ -639,7 +640,7 @@ static BOOL appStartMeasurementRead;
         transaction.eventId.sentryIdString, self.internalID.sentryIdString);
     [_hub captureTransaction:transaction
                       withScope:_hub.scope
-        additionalEnvelopeItems:@[ envelopeItem ]];
+        additionalEnvelopeItems:@[ profileEnvelopeItem ]];
 }
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 

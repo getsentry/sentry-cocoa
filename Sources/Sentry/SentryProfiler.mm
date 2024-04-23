@@ -3,7 +3,6 @@
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 #    import "SentryClient+Private.h"
 #    import "SentryContinuousProfiler.h"
-#    import "SentryDefines.h"
 #    import "SentryDependencyContainer.h"
 #    import "SentryDispatchQueueWrapper.h"
 #    import "SentryHub+Private.h"
@@ -26,15 +25,19 @@
 #        import <UIKit/UIKit.h>
 #    endif // SENTRY_HAS_UIKIT
 
+using namespace sentry::profiling;
+
+namespace {
+
 static const int kSentryProfilerFrequencyHz = 101;
 NSTimeInterval kSentryProfilerTimeoutInterval = 30;
 
-using namespace sentry::profiling;
+} // namespace
 
 #    pragma mark - Public
 
 void
-manageProfilerOnStartSDK(SentryOptions *options, SentryHub *hub)
+sentry_manageProfilerOnStartSDK(SentryOptions *options, SentryHub *hub)
 {
     BOOL shouldStopAndTransmitLaunchProfile = YES;
 #    if SENTRY_HAS_UIKIT
@@ -47,9 +50,9 @@ manageProfilerOnStartSDK(SentryOptions *options, SentryHub *hub)
         if (shouldStopAndTransmitLaunchProfile) {
             SENTRY_LOG_DEBUG(@"Stopping launch profile in SentrySDK.start because there will "
                              @"be no automatic trace to attach it to.");
-            stopAndTransmitLaunchProfile(hub);
+            sentry_stopAndTransmitLaunchProfile(hub);
         }
-        configureLaunchProfiling(options);
+        sentry_configureLaunchProfiling(options);
     }];
 }
 
@@ -60,7 +63,7 @@ manageProfilerOnStartSDK(SentryOptions *options, SentryHub *hub)
 
 + (void)load
 {
-    startLaunchProfile();
+    sentry_startLaunchProfile();
 }
 
 #    pragma mark - Private
@@ -173,7 +176,7 @@ manageProfilerOnStartSDK(SentryOptions *options, SentryHub *hub)
 
 - (void)start
 {
-    if (threadSanitizerIsPresent()) {
+    if (sentry_threadSanitizerIsPresent()) {
         SENTRY_LOG_DEBUG(@"Disabling profiling when running with TSAN");
         return;
     }

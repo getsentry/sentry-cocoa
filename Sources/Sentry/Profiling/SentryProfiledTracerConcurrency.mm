@@ -54,7 +54,7 @@ _unsafe_cleanUpProfiler(SentryProfiler *profiler, NSString *tracerKey)
 std::mutex _gStateLock;
 
 void
-trackProfilerForTracer(SentryProfiler *profiler, SentryId *internalTraceId)
+sentry_trackProfilerForTracer(SentryProfiler *profiler, SentryId *internalTraceId)
 {
     std::lock_guard<std::mutex> l(_gStateLock);
 
@@ -82,7 +82,7 @@ trackProfilerForTracer(SentryProfiler *profiler, SentryId *internalTraceId)
 }
 
 void
-discardProfilerForTracer(SentryId *internalTraceId)
+sentry_discardProfilerForTracer(SentryId *internalTraceId)
 {
     std::lock_guard<std::mutex> l(_gStateLock);
 
@@ -105,7 +105,7 @@ discardProfilerForTracer(SentryId *internalTraceId)
 #    endif // SENTRY_HAS_UIKIT
 }
 
-SentryProfiler *_Nullable profilerForFinishedTracer(SentryId *internalTraceId)
+SentryProfiler *_Nullable sentry_profilerForFinishedTracer(SentryId *internalTraceId)
 {
     std::lock_guard<std::mutex> l(_gStateLock);
 
@@ -135,7 +135,7 @@ SentryProfiler *_Nullable profilerForFinishedTracer(SentryId *internalTraceId)
 
 #    if defined(TEST) || defined(TESTCI)
 void
-resetConcurrencyTracking()
+sentry_resetConcurrencyTracking()
 {
     std::lock_guard<std::mutex> l(_gStateLock);
     [_gTracersToProfilers removeAllObjects];
@@ -143,7 +143,7 @@ resetConcurrencyTracking()
 }
 
 NSUInteger
-currentProfiledTracers()
+sentry_currentProfiledTracers()
 {
     std::lock_guard<std::mutex> l(_gStateLock);
     return [_gTracersToProfilers count];

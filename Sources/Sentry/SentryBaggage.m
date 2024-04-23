@@ -19,6 +19,7 @@
                     userSegment:(nullable NSString *)userSegment
                      sampleRate:(nullable NSString *)sampleRate
                         sampled:(nullable NSString *)sampled
+                       replayId:(nullable NSString *)replayId
 {
 
     if (self = [super init]) {
@@ -30,6 +31,7 @@
         _userSegment = userSegment;
         _sampleRate = sampleRate;
         _sampled = sampled;
+        _replayId = replayId;
     }
 
     return self;
@@ -65,6 +67,10 @@
 
     if (_sampled != nil) {
         [information setValue:_sampled forKey:@"sentry-sampled"];
+    }
+
+    if (_replayId != nil) {
+        [information setValue:_replayId forKey:@"sentry-replay_id"];
     }
 
     return [SentrySerialization baggageEncodedDictionary:information];

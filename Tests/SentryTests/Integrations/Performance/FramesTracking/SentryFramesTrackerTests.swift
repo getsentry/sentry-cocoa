@@ -684,7 +684,7 @@ private extension SentryFramesTrackerTests {
 
 #if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
     func assertProfilingData(slow: UInt? = nil, frozen: UInt? = nil, frameRates: UInt? = nil) throws {
-        if threadSanitizerIsPresent() {
+        if sentry_threadSanitizerIsPresent() {
             // profiling data will not have been gathered with TSAN running
             return
         }
