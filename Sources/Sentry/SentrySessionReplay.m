@@ -143,6 +143,10 @@ SentrySessionReplay ()
         return NO;
     }
 
+    if (_isFullSession) {
+        return YES;
+    }
+
     if ([_sentryRandom nextNumber] > _replayOptions.errorSampleRate) {
         return NO;
     }
