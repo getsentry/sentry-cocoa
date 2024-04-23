@@ -29,6 +29,7 @@
 #    import "SentryProfileTimeseries.h"
 #    import "SentryProfiledTracerConcurrency.h"
 #    import "SentryProfilerState+ObjCpp.h"
+#    import "SentryProfilerTestHelpers.h"
 #    import "SentrySDK+Private.h"
 #    import "SentrySample.h"
 #    import "SentrySamplingProfiler.hpp"
@@ -53,9 +54,7 @@
 #    endif // SENTRY_HAS_UIKIT
 
 #    if defined(TEST) || defined(TESTCI) || defined(DEBUG)
-#        import "SentryFileManager.h"
-#        import "SentryInternalDefines.h"
-#        import "SentryLaunchProfiling.h"
+#        import "SentryProfilerTestHelpers.h"
 #    endif // defined(TEST) || defined(TESTCI) || defined(DEBUG)
 
 const int kSentryProfilerFrequencyHz = 101;
@@ -69,20 +68,6 @@ using namespace sentry::profiling;
 
 std::mutex _gProfilerLock;
 SentryProfiler *_Nullable _gCurrentProfiler;
-
-BOOL
-threadSanitizerIsPresent(void)
-{
-#    if defined(__has_feature)
-#        if __has_feature(thread_sanitizer)
-    return YES;
-#            pragma clang diagnostic push
-#            pragma clang diagnostic ignored "-Wunreachable-code"
-#        endif // __has_feature(thread_sanitizer)
-#    endif // defined(__has_feature)
-
-    return NO;
-}
 
 NSString *
 profilerTruncationReasonName(SentryProfilerTruncationReason reason)
@@ -362,54 +347,6 @@ serializedProfileData(
     return [[SentryEnvelopeItem alloc] initWithHeader:header data:JSONData];
 }
 
-#    if defined(TEST) || defined(TESTCI) || defined(DEBUG)
-void
-writeProfileFile(NSDictionary<NSString *, id> *payload)
-{
-    NSData *data = [SentrySerialization dataWithJSONObject:payload];
-    NSFileManager *fm = [NSFileManager defaultManager];
-    NSString *appSupportDirPath = sentryApplicationSupportPath();
-
-    if (![fm fileExistsAtPath:appSupportDirPath]) {
-        SENTRY_LOG_DEBUG(@"Creating app support directory.");
-        NSError *error;
-        if (!SENTRY_CASSERT_RETURN([fm createDirectoryAtPath:appSupportDirPath
-                                       withIntermediateDirectories:NO
-                                                        attributes:nil
-                                                             error:&error],
-                @"Failed to create sentry app support directory")) {
-            return;
-        }
-    } else {
-        SENTRY_LOG_DEBUG(@"App support directory already exists.");
-    }
-
-    NSString *pathToWrite;
-    if (sentry_isTracingAppLaunch) {
-        SENTRY_LOG_DEBUG(@"Writing app launch profile.");
-        pathToWrite = [appSupportDirPath stringByAppendingPathComponent:@"launchProfile"];
-    } else {
-        SENTRY_LOG_DEBUG(@"Overwriting last non-launch profile.");
-        pathToWrite = [appSupportDirPath stringByAppendingPathComponent:@"profile"];
-    }
-
-    if ([fm fileExistsAtPath:pathToWrite]) {
-        SENTRY_LOG_DEBUG(@"Already a %@ profile file present; make sure to remove them right after "
-                         @"using them, and that tests clean state in between so there isn't "
-                         @"leftover config producing one when it isn't expected.",
-            sentry_isTracingAppLaunch ? @" launch" : @"");
-        return;
-    }
-
-    SENTRY_LOG_DEBUG(@"Writing%@ profile to file.", sentry_isTracingAppLaunch ? @" launch" : @"");
-
-    NSError *error;
-    if (![data writeToFile:pathToWrite options:NSDataWritingAtomic error:&error]) {
-        SENTRY_LOG_ERROR(@"Failed to write data to path %@: %@", pathToWrite, error);
-    }
-}
-#    endif // defined(TEST) || defined(TESTCI) || defined(DEBUG)
-
 + (nullable NSMutableDictionary<NSString *, id> *)collectProfileBetween:(uint64_t)startSystemTime
                                                                     and:(uint64_t)endSystemTime
                                                                forTrace:(SentryId *)traceId
@@ -423,7 +360,7 @@ writeProfileFile(NSDictionary<NSString *, id> *payload)
     const auto payload = [profiler serializeBetween:startSystemTime and:endSystemTime onHub:hub];
 
 #    if defined(TEST) || defined(TESTCI) || defined(DEBUG)
-    writeProfileFile(payload);
+    sentry_writeProfileFile(payload);
 #    endif // defined(TEST) || defined(TESTCI) || defined(DEBUG)
 
     return payload;
@@ -511,7 +448,7 @@ writeProfileFile(NSDictionary<NSString *, id> *payload)
 
 - (void)start
 {
-    if (threadSanitizerIsPresent()) {
+    if (sentry_threadSanitizerIsPresent()) {
         SENTRY_LOG_DEBUG(@"Disabling profiling when running with TSAN");
         return;
     }
