@@ -2,9 +2,11 @@
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
-#    import "SentryDefines.h"
-#    import "SentryProfiler+Private.h"
-#    import <Foundation/Foundation.h>
+#    if defined(TEST) || defined(TESTCI)
+
+#        import "SentryDefines.h"
+#        import "SentryProfiler+Private.h"
+#        import <Foundation/Foundation.h>
 
 @class SentryDebugMeta;
 @class SentryHub;
@@ -26,12 +28,14 @@ SENTRY_EXTERN NSMutableDictionary<NSString *, id> *sentry_serializedProfileData(
     NSDictionary<NSString *, id> *profileData, uint64_t startSystemTime, uint64_t endSystemTime,
     NSString *truncationReason, NSDictionary<NSString *, id> *serializedMetrics,
     NSArray<SentryDebugMeta *> *debugMeta, SentryHub *hub
-#    if SENTRY_HAS_UIKIT
+#        if SENTRY_HAS_UIKIT
     ,
     SentryScreenFrames *gpuData
-#    endif // SENTRY_HAS_UIKIT
+#        endif // SENTRY_HAS_UIKIT
 );
 
 NS_ASSUME_NONNULL_END
+
+#    endif // defined(TEST) || defined(TESTCI)
 
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
