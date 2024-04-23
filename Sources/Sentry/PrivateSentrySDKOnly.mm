@@ -259,9 +259,9 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
         [replayIntegration captureReplay];
     }
 #else
-    SENTRY_LOG_DEBUG(@"PrivateSentrySDKOnly.captureReplay only works with UIKit enabled and target "
-                     @"is not visionOS."
-                     @"Ensure you're using the right configuration of Sentry that links UIKit.");
+    SENTRY_LOG_DEBUG(
+        @"PrivateSentrySDKOnly.captureReplay only works with UIKit enabled and target is "
+        @"not visionOS. Ensure you're using the right configuration of Sentry that links UIKit.");
 #endif
 }
 
