@@ -20,7 +20,6 @@
 @class SentryThreadWrapper;
 @class SentryThreadInspector;
 @class SentryOptions;
-@class SentrySessionReplay;
 @protocol SentryRandom;
 
 #if SENTRY_HAS_METRIC_KIT
@@ -96,8 +95,6 @@ SENTRY_NO_INIT
 @property (nonatomic, strong) SentryMXManager *metricKitManager API_AVAILABLE(
     ios(15.0), macos(12.0), macCatalyst(15.0)) API_UNAVAILABLE(tvos, watchos);
 #endif
-
-@property (nonatomic, strong) SentrySessionReplay *_Nullable replay;
 
 @end
 
