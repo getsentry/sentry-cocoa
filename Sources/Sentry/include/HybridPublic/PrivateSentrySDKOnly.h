@@ -162,7 +162,8 @@ typedef void (^SentryOnAppStartMeasurementAvailable)(
 
 + (SentryBreadcrumb *)breadcrumbWithDictionary:(NSDictionary *)dictionary;
 
-+ (BOOL)captureReplay;
++ (void)captureReplay;
++ (NSString *__nullable)getReplayId;
 
 @end
 

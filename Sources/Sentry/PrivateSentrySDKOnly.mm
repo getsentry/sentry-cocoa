@@ -20,8 +20,10 @@
 #import <SentryBreadcrumb.h>
 #import <SentryDependencyContainer.h>
 #import <SentryFramesTracker.h>
+#import <SentryScope+Private.h>
 #import <SentryScreenshot.h>
 #import <SentrySessionReplay.h>
+#import <SentrySessionReplayIntegration.h>
 #import <SentryUser.h>
 
 @implementation PrivateSentrySDKOnly
@@ -241,19 +243,29 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
     return [[SentryBreadcrumb alloc] initWithDictionary:dictionary];
 }
 
-+ (BOOL)captureReplay
++ (void)captureReplay
 {
     if (@available(iOS 16.0, *)) {
-        SentrySessionReplay *_Nullable replay = [SentryDependencyContainer sharedInstance].replay;
-
-        if (replay == nil) {
-            return NO;
+        NSArray *integrations = [[SentrySDK currentHub] installedIntegrations];
+        SentrySessionReplayIntegration *replayIntegration;
+        for (id obj in integrations) {
+            if ([obj isKindOfClass:[SentrySessionReplayIntegration class]]) {
+                replayIntegration = obj;
+                break;
+            }
         }
 
-        return [replay captureReplay];
+        [replayIntegration captureReplay];
     }
+}
 
-    return NO;
++ (NSString *__nullable)getReplayId
+{
+    __block NSString *__nullable replayId;
+
+    [SentrySDK configureScope:^(SentryScope *_Nonnull scope) { replayId = scope.replayId; }];
+
+    return replayId;
 }
 
 @end
