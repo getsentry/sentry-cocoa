@@ -97,57 +97,6 @@ profilerTruncationReasonName(SentryProfilerTruncationReason reason)
     }
 }
 
-#    if SENTRY_HAS_UIKIT
-/**
- * Convert the data structure that records timestamps for GPU frame render info from
- * SentryFramesTracker to the structure expected for profiling metrics, and throw out any that
- * didn't occur within the profile time.
- * @param useMostRecentRecording @c SentryFramesTracker doesn't stop running once it starts.
- * Although we reset the profiling timestamps each time the profiler stops and starts, concurrent
- * transactions that start after the first one won't have a screen frame rate recorded within their
- * timeframe, because it will have already been recorded for the first transaction and isn't
- * recorded again unless the system changes it. In these cases, use the most recently recorded data
- * for it.
- */
-NSArray<SentrySerializedMetricReading *> *
-sliceGPUData(SentryFrameInfoTimeSeries *frameInfo, uint64_t startSystemTime, uint64_t endSystemTime,
-    BOOL useMostRecentRecording)
-{
-    auto slicedGPUEntries = [NSMutableArray<SentrySerializedMetricEntry *> array];
-    __block NSNumber *nearestPredecessorValue;
-    [frameInfo enumerateObjectsUsingBlock:^(
-        NSDictionary<NSString *, NSNumber *> *_Nonnull obj, NSUInteger idx, BOOL *_Nonnull stop) {
-        const auto timestamp = obj[@"timestamp"].unsignedLongLongValue;
-
-        if (!orderedChronologically(startSystemTime, timestamp)) {
-            SENTRY_LOG_DEBUG(@"GPU info recorded (%llu) before transaction start (%llu), "
-                             @"will not report it.",
-                timestamp, startSystemTime);
-            nearestPredecessorValue = obj[@"value"];
-            return;
-        }
-
-        if (!orderedChronologically(timestamp, endSystemTime)) {
-            SENTRY_LOG_DEBUG(@"GPU info recorded after transaction finished, won't record.");
-            return;
-        }
-        const auto relativeTimestamp = getDurationNs(startSystemTime, timestamp);
-
-        [slicedGPUEntries addObject:@ {
-            @"elapsed_since_start_ns" : sentry_stringForUInt64(relativeTimestamp),
-            @"value" : obj[@"value"],
-        }];
-    }];
-    if (useMostRecentRecording && slicedGPUEntries.count == 0 && nearestPredecessorValue != nil) {
-        [slicedGPUEntries addObject:@ {
-            @"elapsed_since_start_ns" : @"0",
-            @"value" : nearestPredecessorValue,
-        }];
-    }
-    return slicedGPUEntries;
-}
-#    endif // SENTRY_HAS_UIKIT
-
 /** Given an array of samples with absolute timestamps, return the serialized JSON mapping with
  * their data, with timestamps normalized relative to the provided transaction's start time. */
 NSArray<NSDictionary *> *
@@ -200,7 +149,7 @@ serializedProfileData(
     }
 
     // slice the profile data to only include the samples/metrics within the transaction
-    const auto slicedSamples = slicedProfileSamples(samples, startSystemTime, endSystemTime);
+    const auto slicedSamples = sentry_slicedProfileSamples(samples, startSystemTime, endSystemTime);
     if (slicedSamples.count < 2) {
         SENTRY_LOG_DEBUG(@"Not enough samples in profile during the transaction");
         [hub.getClient recordLostEvent:kSentryDataCategoryProfile
@@ -247,7 +196,7 @@ serializedProfileData(
 #    if SENTRY_HAS_UIKIT
     const auto mutableMetrics =
         [NSMutableDictionary<NSString *, id> dictionaryWithDictionary:metrics];
-    const auto slowFrames = sliceGPUData(gpuData.slowFrameTimestamps, startSystemTime,
+    const auto slowFrames = sentry_sliceGPUData(gpuData.slowFrameTimestamps, startSystemTime,
         endSystemTime, /*useMostRecentRecording */ NO);
     if (slowFrames.count > 0) {
         mutableMetrics[@"slow_frame_renders"] =
@@ -255,7 +204,7 @@ serializedProfileData(
     }
 
     const auto frozenFrames
-        = sliceGPUData(gpuData.frozenFrameTimestamps, startSystemTime, endSystemTime,
+        = sentry_sliceGPUData(gpuData.frozenFrameTimestamps, startSystemTime, endSystemTime,
             /*useMostRecentRecording */ NO);
     if (frozenFrames.count > 0) {
         mutableMetrics[@"frozen_frame_renders"] =
@@ -264,7 +213,7 @@ serializedProfileData(
 
     if (slowFrames.count > 0 || frozenFrames.count > 0) {
         const auto frameRates
-            = sliceGPUData(gpuData.frameRateTimestamps, startSystemTime, endSystemTime,
+            = sentry_sliceGPUData(gpuData.frameRateTimestamps, startSystemTime, endSystemTime,
                 /*useMostRecentRecording */ YES);
         if (frameRates.count > 0) {
             mutableMetrics[@"screen_frame_rates"] = @ { @"unit" : @"hz", @"values" : frameRates };
