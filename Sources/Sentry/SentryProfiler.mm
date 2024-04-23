@@ -11,6 +11,7 @@
 #    import "SentryDependencyContainer.h"
 #    import "SentryDevice.h"
 #    import "SentryDispatchFactory.h"
+#    import "SentryDispatchQueueWrapper.h"
 #    import "SentryDispatchSourceWrapper.h"
 #    import "SentryEnvelope.h"
 #    import "SentryEnvelopeItemHeader.h"
@@ -20,6 +21,7 @@
 #    import "SentryFramesTracker.h"
 #    import "SentryHub+Private.h"
 #    import "SentryInternalDefines.h"
+#    import "SentryLaunchProfiling.h"
 #    import "SentryLog.h"
 #    import "SentryMetricProfiler.h"
 #    import "SentryNSNotificationCenterWrapper.h"
@@ -50,6 +52,7 @@
 
 #    if SENTRY_HAS_UIKIT
 #        import "SentryScreenFrames.h"
+#        import "SentryUIViewControllerPerformanceTracker.h"
 #        import <UIKit/UIKit.h>
 #    endif // SENTRY_HAS_UIKIT
 
@@ -212,6 +215,28 @@ serializedProfileData(
     }
 
     return payload;
+}
+
+#    pragma mark - Public
+
+void
+sentry_manageProfilerOnStartSDK(SentryOptions *options, SentryHub *hub)
+{
+    BOOL shouldStopAndTransmitLaunchProfile = YES;
+#    if SENTRY_HAS_UIKIT
+    if (SentryUIViewControllerPerformanceTracker.shared.enableWaitForFullDisplay) {
+        shouldStopAndTransmitLaunchProfile = NO;
+    }
+#    endif // SENTRY_HAS_UIKIT
+
+    [SentryDependencyContainer.sharedInstance.dispatchQueueWrapper dispatchAsyncWithBlock:^{
+        if (shouldStopAndTransmitLaunchProfile) {
+            SENTRY_LOG_DEBUG(@"Stopping launch profile in SentrySDK.start because there will "
+                             @"be no automatic trace to attach it to.");
+            sentry_stopAndTransmitLaunchProfile(hub);
+        }
+        sentry_configureLaunchProfiling(options);
+    }];
 }
 
 @implementation SentryProfiler {
