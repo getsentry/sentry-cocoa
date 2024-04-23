@@ -8,9 +8,9 @@ import XCTest
 class SentryOnDemandReplayTests: XCTestCase {
     
     let dateProvider = TestCurrentDateProvider()
+    let outputPath = FileManager.default.temporaryDirectory
     
     func getSut() -> SentryOnDemandReplay {
-        let outputPath = FileManager.default.temporaryDirectory
         let sut = SentryOnDemandReplay(outputPath: outputPath.path, 
                                        workingQueue: TestSentryDispatchQueueWrapper(),
                                        dateProvider: dateProvider)
@@ -25,7 +25,9 @@ class SentryOnDemandReplayTests: XCTestCase {
             fail("Frame was not saved")
             return
         }
+        
         expect(FileManager.default.fileExists(atPath: frame.imagePath)) == true
+        expect(frame.imagePath.hasPrefix(self.outputPath.path)) == true
     }
     
     func testReleaseFrames() {
