@@ -22,6 +22,11 @@ NS_SWIFT_NAME(Scope)
 @property (nullable, nonatomic, strong) id<SentrySpan> span;
 
 /**
+ * The id of current session replay.
+ */
+@property (nullable, nonatomic, strong) NSString *replayId;
+
+/**
  * Gets the dictionary of currently set tags.
  */
 @property (nonatomic, readonly, copy) NSDictionary<NSString *, NSString *> *tags;

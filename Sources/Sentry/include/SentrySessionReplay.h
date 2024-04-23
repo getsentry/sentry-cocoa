@@ -9,6 +9,7 @@
 @class SentryCurrentDateProvider;
 @class SentryDisplayLinkWrapper;
 @class SentryVideoInfo;
+@class SentryId;
 
 @protocol SentryRandom;
 @protocol SentryRedactOptions;
@@ -31,6 +32,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 API_AVAILABLE(ios(16.0), tvos(16.0))
 @interface SentrySessionReplay : NSObject
+
+@property (nonatomic, strong, readonly) SentryId *sessionReplayId;
 
 - (instancetype)initWithSettings:(SentryReplayOptions *)replayOptions
                 replayFolderPath:(NSURL *)folderPath
