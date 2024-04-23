@@ -8,6 +8,7 @@
 #    import "SentryHub+Private.h"
 #    import "SentryLaunchProfiling.h"
 #    import "SentryLog.h"
+#    import "SentryMetricProfiler.h"
 #    import "SentryNSNotificationCenterWrapper.h"
 #    import "SentryNSTimerFactory.h"
 #    import "SentryOptions.h"
