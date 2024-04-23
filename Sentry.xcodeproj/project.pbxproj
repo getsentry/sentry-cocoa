@@ -3325,7 +3325,6 @@
 				8454CF8B293EAF9A006AC140 /* SentryMetricProfiler.mm */,
 				8459FCBD2BD73E810038E9C9 /* SentryProfilerSerialization.h */,
 				8459FCBF2BD73EB20038E9C9 /* SentryProfilerSerialization.mm */,
-				8459FCC12BD73EEF0038E9C9 /* SentryProfilerSerialization+Test.h */,
 				84AF45A429A7FFA500FBB177 /* SentryProfiledTracerConcurrency.h */,
 				84AF45A529A7FFA500FBB177 /* SentryProfiledTracerConcurrency.mm */,
 				840B7EF22BBF83DF008B8120 /* SentryProfiler+Private.h */,
@@ -3392,6 +3391,7 @@
 		8431F00B29B284F200D8DC56 /* SentryTestUtils */ = {
 			isa = PBXGroup;
 			children = (
+				8459FCC12BD73EEF0038E9C9 /* SentryProfilerSerialization+Test.h */,
 				7BD47B4C268F0B080076A663 /* ClearTestState.swift */,
 				84AC61D829F7643B009EEF61 /* TestDispatchFactory.swift */,
 				84281C482A57933600EE88F2 /* SentryProfilerMocks.h */,
