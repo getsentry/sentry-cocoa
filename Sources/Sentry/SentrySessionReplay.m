@@ -260,13 +260,12 @@ SentrySessionReplay ()
         _processingScreenshot = YES;
     }
 
-    UIImage *screenshot = [_screenshotProvider imageWithView:_rootView options:_replayOptions];
-
-    _processingScreenshot = NO;
-
-    dispatch_queue_t backgroundQueue
-        = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
-    dispatch_async(backgroundQueue, ^{ [self->_replayMaker addFrameWithImage:screenshot]; });
+    [_screenshotProvider imageWithView:_rootView
+                               options:_replayOptions
+                            onComplete:^(UIImage *screenshot) {
+                                self->_processingScreenshot = NO;
+                                [self->_replayMaker addFrameWithImage:screenshot];
+                            }];
 }
 
 @end

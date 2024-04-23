@@ -9,7 +9,7 @@ import UIKit
 @available(iOS, introduced: 16.0)
 @available(tvOS, introduced: 16.0)
 @objcMembers
-class SentryViewPhotographer: NSObject {
+class SentryViewPhotographer: NSObject, SentryViewScreenshotProvider {
     
     private struct RedactRegion {
         let rect: CGRect
@@ -68,31 +68,47 @@ class SentryViewPhotographer: NSObject {
         ].compactMap { NSClassFromString($0) }
     }
     
-    @objc(imageWithView:options:)
-    func image(view: UIView, options: SentryRedactOptions) -> UIImage? {
-        
+    func image(view: UIView, options: SentryRedactOptions, onComplete: @escaping ScreenshotCallback ) {
         let image = UIGraphicsImageRenderer(size: view.bounds.size).image { _ in
             view.drawHierarchy(in: view.bounds, afterScreenUpdates: false)
         }
         
-      //  let mask = self.mask(view: view, options: options)
-        let maskSize = view.bounds.size.applying(CGAffineTransformMakeScale(0.005, 0.005))
+        let redact = self.mask(view: view, options: options)
         
-        let maskColor = UIGraphicsImageRenderer(size: maskSize).image { _ in
-            image.draw(in: CGRect(x: 0, y: 0, width: maskSize.width, height: maskSize.height))
+        DispatchQueue.global().async {
+            let screenshot = UIGraphicsImageRenderer(size: view.bounds.size, format: .init(for: .init(displayScale: 1))).image { context in
+                image.draw(at: .zero)
+                
+                for region in redact {
+                    (region.color ?? self.averageColor(of: context.currentImage, at: region.rect)).setFill()
+                    context.fill(region.rect)
+                }
+            }
+            onComplete(screenshot)
+        }
+    }
+    
+    private func averageColor(of image: UIImage, at region: CGRect) -> UIColor {
+        let colorImage = UIGraphicsImageRenderer(size: CGSize(width: 1, height: 1), format: .init(for: .init(displayScale: 1))).image { context in
+            guard let croppedImage = image.cgImage?.cropping(to: region) else {
+                UIColor.black.setFill()
+                context.fill(CGRect(x: 0, y: 0, width: 1, height: 1))
+                return
+            }
+            
+            context.cgContext.draw(croppedImage, in: CGRect(x: 0, y: 0, width: 1, height: 1), byTiling: false)
         }
         
-        let screenshot = UIGraphicsImageRenderer(size: view.bounds.size).image { context in
-            image.draw(at: .zero)
-            
-            context.cgContext.setFillColor(UIColor.red.cgColor)
-            
-            context.cgContext.clip()
-            maskColor.draw(in: view.bounds)
-            context.cgContext.restoreGState()
-        }
+        guard
+            let pixelData = colorImage.cgImage?.dataProvider?.data,
+            let data = CFDataGetBytePtr(pixelData) else { return .black }
         
-        return screenshot
+        let red = CGFloat(data[0]) / 255.0
+        let green = CGFloat(data[1]) / 255.0
+        let blue = CGFloat(data[2]) / 255.0
+        let alpha = CGFloat(data[3]) / 255.0
+        
+        return UIColor(red: red, green: green, blue: blue, alpha: alpha)
     }
     
     private func mask(view: UIView, options: SentryRedactOptions?) -> [RedactRegion] {
