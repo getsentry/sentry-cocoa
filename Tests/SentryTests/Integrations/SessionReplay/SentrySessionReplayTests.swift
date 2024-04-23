@@ -8,7 +8,9 @@ import XCTest
 class SentrySessionReplayTests: XCTestCase {
     
     private class ScreenshotProvider: NSObject, SentryViewScreenshotProvider {
-        func image(with view: UIView, options: SentryRedactOptions) -> UIImage { UIImage.add }
+        func image(view: UIView, options: any Sentry.SentryRedactOptions, onComplete: @escaping Sentry.ScreenshotCallback) {
+            onComplete(UIImage.add)
+        }
     }
      
     private class TestReplayMaker: NSObject, SentryReplayMaker {
