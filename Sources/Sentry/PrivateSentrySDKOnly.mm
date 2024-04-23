@@ -245,6 +245,7 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
 
 + (void)captureReplay
 {
+#if SENTRY_HAS_UIKIT && !TARGET_OS_VISION
     if (@available(iOS 16.0, *)) {
         NSArray *integrations = [[SentrySDK currentHub] installedIntegrations];
         SentrySessionReplayIntegration *replayIntegration;
@@ -257,6 +258,11 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
 
         [replayIntegration captureReplay];
     }
+#else
+    SENTRY_LOG_DEBUG(@"PrivateSentrySDKOnly.captureReplay only works with UIKit enabled and target "
+                     @"is not visionOS."
+                     @"Ensure you're using the right configuration of Sentry that links UIKit.");
+#endif
 }
 
 + (NSString *__nullable)getReplayId
