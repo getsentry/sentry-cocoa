@@ -28,7 +28,7 @@ class SentryOnDemandReplay: NSObject {
     private var _totalFrames = 0
     private let dateProvider: SentryCurrentDateProvider
     private let workingQueue: SentryDispatchQueueWrapper
-    private (set) var frames = [SentryReplayFrame]()
+    private var frames = [SentryReplayFrame]()
     
     var videoWidth = 200
     var videoHeight = 434
@@ -188,6 +188,12 @@ class SentryOnDemandReplay: NSObject {
             ] as [String: Any]
         ]
     }
+    
+    #if TEST
+    func getFrames() -> [SentryReplayFrame] {
+        return frames
+    }
+    #endif
 }
 
 #endif // os(iOS) || os(tvOS)

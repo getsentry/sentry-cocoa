@@ -21,7 +21,7 @@ class SentryOnDemandReplayTests: XCTestCase {
         let sut = getSut()
         sut.addFrameAsync(image: UIImage.add)
        
-        guard let frame = sut.frames.first else {
+        guard let frame = sut.getFrames().first else {
             fail("Frame was not saved")
             return
         }
@@ -38,9 +38,11 @@ class SentryOnDemandReplayTests: XCTestCase {
        
         sut.releaseFramesUntil(dateProvider.date().addingTimeInterval(-5))
         
-        expect(sut.frames.count) == 5
-        expect(sut.frames.first?.time) == Date(timeIntervalSinceReferenceDate: 5)
-        expect(sut.frames.last?.time) == Date(timeIntervalSinceReferenceDate: 9)
+        let frames = sut.getFrames()
+        
+        expect(frames.count) == 5
+        expect(frames.first?.time) == Date(timeIntervalSinceReferenceDate: 5)
+        expect(frames.last?.time) == Date(timeIntervalSinceReferenceDate: 9)
     }
     
     func testGenerateVideo() {
