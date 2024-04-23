@@ -109,7 +109,7 @@ using namespace sentry::profiling;
     void (^sliceBlock)(void) = ^(void) {
         [state mutate:^(SentryProfilerMutableState *mutableState) {
             __unused const auto slice
-                = slicedProfileSamples(mutableState.samples, startSystemTime, endSystemTime);
+                = sentry_slicedProfileSamples(mutableState.samples, startSystemTime, endSystemTime);
             [sliceExpectation fulfill];
         }];
     };
