@@ -47,7 +47,7 @@ class SentrySDKTests: XCTestCase {
             options.releaseName = "1.0.0"
             
             client = TestClient(options: options)!
-            hub = SentryHub(client: client, andScope: scope, andCrashWrapper: TestSentryCrashWrapper.sharedInstance())
+            hub = SentryHub(client: client, andScope: scope, andCrashWrapper: TestSentryCrashWrapper.sharedInstance(), andDispatchQueue: SentryDispatchQueueWrapper())
             
             userFeedback = UserFeedback(eventId: SentryId())
             userFeedback.comments = "Again really?"

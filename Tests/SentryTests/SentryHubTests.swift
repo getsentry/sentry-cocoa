@@ -26,6 +26,7 @@ class SentryHubTests: XCTestCase {
         let traceOrigin = "auto"
         let random = TestRandom(value: 0.5)
         let queue = DispatchQueue(label: "SentryHubTests", qos: .utility, attributes: [.concurrent])
+        let dispatchQueueWrapper = TestSentryDispatchQueueWrapper()
         
         init() {
             options = Options()
@@ -52,7 +53,7 @@ class SentryHubTests: XCTestCase {
         }
         
         func getSut(_ options: Options, _ scope: Scope? = nil) -> SentryHub {
-            let hub = SentryHub(client: client, andScope: scope, andCrashWrapper: sentryCrash)
+            let hub = SentryHub(client: client, andScope: scope, andCrashWrapper: sentryCrash, andDispatchQueue: self.dispatchQueueWrapper)
             hub.bindClient(client)
             return hub
         }
@@ -354,12 +355,23 @@ class SentryHubTests: XCTestCase {
         XCTAssertEqual(span.sampled, .no)
     }
     
-    func testCaptureSampledTransaction_ReturnsEmptyId() {
+    func testCaptureTransaction_CapturesEventAsync() {
+        let transaction = sut.startTransaction(transactionContext: TransactionContext(name: fixture.transactionName, operation: fixture.transactionOperation, sampled: .yes))
+        
+        let trans = Dynamic(transaction).toTransaction().asAnyObject
+        sut.capture(trans as! Transaction, with: Scope())
+        
+        expect(self.fixture.client.captureEventWithScopeInvocations.count) == 1
+        expect(self.fixture.dispatchQueueWrapper.dispatchAsyncInvocations.count) == 1
+    }
+    
+    func testCaptureSampledTransaction_DoesNotCaptureEvent() {
         let transaction = sut.startTransaction(transactionContext: TransactionContext(name: fixture.transactionName, operation: fixture.transactionOperation, sampled: .no))
         
         let trans = Dynamic(transaction).toTransaction().asAnyObject
-        let id = sut.capture(trans as! Transaction, with: Scope())
-        id.assertIsEmpty()
+        sut.capture(trans as! Transaction, with: Scope())
+        
+        expect(self.fixture.client.captureEventWithScopeInvocations.count) == 0
     }
     
     func testCaptureSampledTransaction_RecordsLostEvent() {

@@ -12,6 +12,10 @@
 - Save framework without UIKit/AppKit as Github Asset for releases (#3858) 
 - Fix crash associated with runtime collision in global C function names (#3862)
 
+### Improvements
+
+- Capture transactions on a background thread (#3892)
+
 ## 8.24.0
 
 ### Features
