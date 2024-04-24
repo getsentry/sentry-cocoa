@@ -6,7 +6,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @class SentryThread, SentryException, SentryStacktrace, SentryUser, SentryDebugMeta, SentryContext,
-    SentryBreadcrumb, SentryId, SentryMessage, SentryRequest;
+    SentryBreadcrumb, SentryId, SentryMessage, SentryRequest, SentryAttachment;
 
 NS_SWIFT_NAME(Event)
 @interface SentryEvent : NSObject <SentrySerializable>
@@ -163,6 +163,11 @@ NS_SWIFT_NAME(Event)
  * Set the HTTP request information.
  */
 @property (nonatomic, strong, nullable) SentryRequest *request;
+
+/**
+ * Add attachments to event.
+ */
+@property(nonatomic, strong) NSArray<SentryAttachment *> *_Nullable attachments;
 
 /**
  * Init an @c SentryEvent will set all needed fields by default.
