@@ -78,7 +78,7 @@ jobs:
         uses: actions/upload-artifact@v4
         if: ${{  failure() || cancelled() }}
         with:
-          name: raw-swiftui-test-output-${{matrix.platform}}-xcode-${{matrix.xcode}}-os-${{matrix.test-destination-os}}
+          name: raw-ios-swiftui-test-output-xcode-${{matrix.xcode}}-${{matrix.device}}
           path: |
             ~/Library/Logs/scan/*.log
             ./fastlane/test_output/**
@@ -148,7 +148,7 @@ jobs:
         uses: actions/upload-artifact@v4
         if: ${{  failure() || cancelled() }}
         with:
-          name: raw-uitest-output-asan
+          name: raw-ios-swift-test-output-${{matrix.xcode}}-${{matrix.device}}
           path: |
             ~/Library/Logs/scan/*.log
             ./fastlane/test_output/**
