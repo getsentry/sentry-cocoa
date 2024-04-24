@@ -10,3 +10,29 @@ high_risk_code: &high_risk_code
   - 'Sources/Sentry/SentrySwizzleWrapper.m'
   - 'Sources/Sentry/include/SentrySwizzle.h'
   - 'Sources/Sentry/SentrySwizzle.m'
+
+fastlane: &fastlane
+  - 'fastlane/**'
+
+sources: &sources
+  - 'Sources/**'
+  - Sentry.xcodeproj
+
+samples_all: &samples_all
+  - 'Samples/**'
+
+tests: &tests
+  - 'Tests/**'
+  - 'SentryTestUtils/**'
+  - 'test-server/**'
+  - '.github/workflows/test.yml'
+  - *fastlane
+  - 'scripts/tests-with-thread-sanitizer.sh'
+  - 'scripts/ci-select-xcode.sh'
+  - 'scripts/xcode-test.sh'
+  - '.codecov.yml'
+
+unit_tests: &unit_tests
+  - *sources
+  - *tests
+  - *samples_all
