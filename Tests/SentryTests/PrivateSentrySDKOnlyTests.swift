@@ -82,9 +82,9 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
         XCTAssertGreaterThan(images.count, 100)
     }
 
-#if SENTRY_HAS_UIKIT
+    #if canImport(UIKit)
     func testGetAppStartMeasurement() {
-        let appStartMeasurement = TestData.getAppStartMeasurement(type: .warm)
+        let appStartMeasurement = TestData.getAppStartMeasurement(type: .warm, runtimeInitSystemTimestamp: 1)
         SentrySDK.setAppStartMeasurement(appStartMeasurement)
 
         XCTAssertEqual(appStartMeasurement, PrivateSentrySDKOnly.appStartMeasurement)
@@ -92,7 +92,7 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
         SentrySDK.setAppStartMeasurement(nil)
         XCTAssertNil(PrivateSentrySDKOnly.appStartMeasurement)
     }
-#endif // SENTRY_HAS_UIKIT
+    #endif
 
     func testGetInstallationId() {
         XCTAssertEqual(SentryInstallation.id(withCacheDirectoryPath: PrivateSentrySDKOnly.options.cacheDirectoryPath), PrivateSentrySDKOnly.installationID)
@@ -203,5 +203,52 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
         XCTAssertEqual(UInt(slow), currentFrames.slow)
     }
 
+    #endif
+
+    func testCaptureReplayShouldNotFailIfMissingReplayIntegration() {
+        PrivateSentrySDKOnly.captureReplay()
+    }
+
+    #if canImport(UIKit)
+    func testCaptureReplayShouldCallReplayIntegration() {
+        let options = Options()
+        options.setIntegrations([SentrySessionReplayIntegrationTest.self])
+        SentrySDK.start(options: options)
+
+        PrivateSentrySDKOnly.captureReplay()
+
+        XCTAssertTrue(SentrySessionReplayIntegrationTest.captureReplayShouldBeCalledAtLeastOnce())
+    }
+
+    func testGetReplayIdShouldBeNil() {
+        XCTAssertNil(PrivateSentrySDKOnly.getReplayId())
+    }
+
+    func testGetReplayIdShouldExist() {
+        let client = TestClient(options: Options())
+        let scope = Scope()
+        scope.replayId = VALID_REPLAY_ID
+        SentrySDK.setCurrentHub(TestHub(client: client, andScope: scope))
+
+        XCTAssertEqual(PrivateSentrySDKOnly.getReplayId(), VALID_REPLAY_ID)
+    }
+
+    let VALID_REPLAY_ID = "0eac7ab503354dd5819b03e263627a29"
+
+    final class SentrySessionReplayIntegrationTest: SentrySessionReplayIntegration {
+        static var captureReplayCalledTimes = 0
+
+        override func install(with options: Options) -> Bool {
+            return true
+        }
+
+        override func captureReplay() {
+            SentrySessionReplayIntegrationTest.captureReplayCalledTimes += 1
+        }
+
+        static func captureReplayShouldBeCalledAtLeastOnce() -> Bool {
+            return captureReplayCalledTimes > 0
+        }
+    }
     #endif
 }
