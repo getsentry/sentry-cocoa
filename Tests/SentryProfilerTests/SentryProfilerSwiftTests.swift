@@ -552,6 +552,24 @@ class SentryProfilerSwiftTests: XCTestCase {
         XCTAssertEqual(self.fixture.client?.captureEventWithScopeInvocations.count, 0)
     }
 #endif // !os(macOS)
+    
+    // given a profiler initialized with legacy mode
+        // ensure a timeout timer is set
+        // ensure a background notification observer is set
+        // ensure isCurrentlyProfiling is true
+        // if stop is called
+            // ensure isCurrentlyProfiling is false
+            // ensure a timeout timer is not set
+            // ensure a background notification observer is not set
+    
+    // given a profiler initialized with continuous mode
+        // ensure no timeout timer is set
+        // ensure a background notification observer is set
+        // ensure isCurrentlyProfiling is true
+        // if stop is called
+            // ensure isCurrentlyProfiling is false
+            // ensure a background notification observer is not set
+    
 }
 
 private extension SentryProfilerSwiftTests {
