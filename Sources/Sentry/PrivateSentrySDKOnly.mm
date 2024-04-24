@@ -154,7 +154,7 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
 
 + (void)discardProfilerForTrace:(SentryId *)traceId;
 {
-    discardProfilerForTracer(traceId);
+    sentry_discardProfilerForTracer(traceId);
 }
 
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
