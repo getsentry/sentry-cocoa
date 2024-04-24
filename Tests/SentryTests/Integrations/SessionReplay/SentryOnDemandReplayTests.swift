@@ -73,5 +73,27 @@ class SentryOnDemandReplayTests: XCTestCase {
         
         wait(for: [videoExpectation], timeout: 1)
     }
+    
+    func testAddFrameIsThreadSafe() {
+        let dispatchQueue = SentryDispatchQueueWrapper()
+        let sut = SentryOnDemandReplay(outputPath: outputPath.path,
+                                       workingQueue: dispatchQueue,
+                                       dateProvider: dateProvider)
+        
+        dateProvider.driftTimeForEveryRead = true
+        dateProvider.driftTimeInterval = 1
+        let group = DispatchGroup()
+        
+        for _ in 0..<10 {
+            group.enter()
+            DispatchQueue.global().async {
+                sut.addFrameAsync(image: UIImage.add)
+                group.leave()
+            }
+        }
+        
+        group.wait()
+        expect(sut.frames.map({ ($0.imagePath as NSString).lastPathComponent })) == (0..<10).map { "\($0).png" }
+    }
 }
 #endif
