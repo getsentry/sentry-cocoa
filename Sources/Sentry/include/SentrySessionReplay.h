@@ -30,7 +30,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
-API_AVAILABLE(ios(16.0), tvos(16.0))
 @interface SentrySessionReplay : NSObject
 
 @property (nonatomic, strong, readonly) SentryId *sessionReplayId;

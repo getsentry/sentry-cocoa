@@ -1,13 +1,10 @@
 #if canImport(UIKit) && !SENTRY_NO_UIKIT
 #if os(iOS) || os(tvOS)
 
-@_implementationOnly import _SentryPrivate
 import CoreGraphics
 import Foundation
 import UIKit
 
-@available(iOS, introduced: 16.0)
-@available(tvOS, introduced: 16.0)
 @objcMembers
 class SentryViewPhotographer: NSObject, SentryViewScreenshotProvider {
     
