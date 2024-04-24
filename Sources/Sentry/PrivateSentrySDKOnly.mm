@@ -274,4 +274,35 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
     return replayId;
 }
 
++ (void)addReplayIgnoreClasses:(NSArray<Class> *_Nonnull)classes
+{
+#if SENTRY_HAS_UIKIT && !TARGET_OS_VISION
+    if (@available(iOS 16.0, *)) {
+        [SentryViewPhotographer.shared addIgnoreClasses:classes];
+    } else {
+        SENTRY_LOG_DEBUG(@"PrivateSentrySDKOnly.addIgnoreClasses only works with iOS 16 and newer");
+    }
+#else
+    SENTRY_LOG_DEBUG(
+        @"PrivateSentrySDKOnly.addReplayIgnoreClasses only works with UIKit enabled and target is "
+        @"not visionOS. Ensure you're using the right configuration of Sentry that links UIKit.");
+#endif
+}
+
++ (void)addReplayRedactClasses:(NSArray<Class> *_Nonnull)classes
+{
+#if SENTRY_HAS_UIKIT && !TARGET_OS_VISION
+    if (@available(iOS 16.0, *)) {
+        [SentryViewPhotographer.shared addRedactClasses:classes];
+    } else {
+        SENTRY_LOG_DEBUG(
+            @"PrivateSentrySDKOnly.addReplayRedactClasses only works with iOS 16 and newer");
+    }
+#else
+    SENTRY_LOG_DEBUG(
+        @"PrivateSentrySDKOnly.addReplayRedactClasses only works with UIKit enabled and target is "
+        @"not visionOS. Ensure you're using the right configuration of Sentry that links UIKit.");
+#endif
+}
+
 @end
