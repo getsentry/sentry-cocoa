@@ -3,25 +3,8 @@ on:
   push:
     branches:
       - main
-    paths:
-      - 'Sources/**'
-      - 'Tests/**'
-      - 'test-server/**'
-      - 'Samples/**'
-      - '.github/workflows/lint.yml'
-      - 'scripts/ci-select-xcode.sh'
 
   pull_request:
-    paths:
-      - 'Sources/**'
-      - 'Tests/**'
-      - 'test-server/**'
-      - 'Samples/**'
-      - '.github/workflows/lint.yml'
-      - 'scripts/ci-select-xcode.sh'
-      - 'Sentry.xcodeproj/**'
-      - '*.podspec'
-      - 'Gemfile.lock'
 
 # https://docs.github.com/en/actions/using-jobs/using-concurrency#example-using-a-fallback-value
 concurrency:
@@ -29,7 +12,27 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  files-changed:
+    name: detect what files changed
+    runs-on: ubuntu-22.04
+    timeout-minutes: 3
+    # Map a step output to a job output
+    outputs:
+      run_lint: ${{ steps.changes.outputs.run_lint }}
+      run_swift_lint: ${{ steps.changes.outputs.run_swift_lint }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check if we should run unit tests
+        uses: dorny/paths-filter@0bc4621a3135347011ad047f9ecf449bf72ce2bd # v3.0.0
+        id: changes
+        with:
+          token: ${{ github.token }}
+          filters: .github/file-filters.yml
+
   swift-lint:
+    if: needs.files-changed.outputs.run_swift_lint == 'true'
+    needs: files-changed
     name: Swift Lint
     runs-on: macos-13
     steps:
@@ -39,6 +42,8 @@ jobs:
         run: swiftlint --strict
 
   xcode-analyze:
+    if: needs.files-changed.outputs.run_lint == 'true'
+    needs: files-changed
     name: Xcode Analyze
     runs-on: macos-13
     steps:
@@ -47,6 +52,8 @@ jobs:
       - run: make analyze
 
   lint-podspec:
+    if: needs.files-changed.outputs.run_lint == 'true'
+    needs: files-changed
     name: pod lint ${{ matrix.podspec}} ${{ matrix.library_type }} ${{ matrix.platform}}
     runs-on: macos-13
     strategy:
@@ -64,6 +71,8 @@ jobs:
         run: ./scripts/pod-lib-lint.sh ${{ matrix.platform }} ${{ matrix.podspec}} ${{ matrix.library_type}}
 
   lint-hybrid-sdk-podspec:
+    if: needs.files-changed.outputs.run_lint == 'true'
+    needs: files-changed
     name: pod lint Sentry/HybridSDK
     runs-on: macos-13
 

@@ -16,23 +16,41 @@ fastlane: &fastlane
 
 sources: &sources
   - 'Sources/**'
-  - Sentry.xcodeproj
+  - 'Sentry.xcodeproj/**'
 
 samples_all: &samples_all
   - 'Samples/**'
+
+scripts_select_xcode: &scripts_select_xcode
+  - 'scripts/ci-select-xcode.sh'
 
 tests: &tests
   - 'Tests/**'
   - 'SentryTestUtils/**'
   - 'test-server/**'
   - '.github/workflows/test.yml'
-  - *fastlane
   - 'scripts/tests-with-thread-sanitizer.sh'
-  - 'scripts/ci-select-xcode.sh'
   - 'scripts/xcode-test.sh'
   - '.codecov.yml'
 
-unit_tests: &unit_tests
+run_unit_tests: &run_unit_tests
   - *sources
   - *tests
+  - *scripts_select_xcode
   - *samples_all
+
+run_lint: &run_lint
+  - *sources
+  - *tests
+  - *scripts_select_xcode
+  - '.github/workflows/lint.yml'
+  - '*.podspec'
+  - 'Gemfile.lock'
+
+run_swift_lint: &run_swift_lint
+  - '**/*.swift'
+  - '.github/workflows/lint.yml'
+
+run_format_code: &run_format_code
+  - '**/*.{swift,c,h,hpp,cpp,m,mm}'
+  - '.github/workflows/format-code.yml'

@@ -19,7 +19,7 @@ jobs:
     timeout-minutes: 3
     # Map a step output to a job output
     outputs:
-      unit_tests: ${{ steps.changes.outputs.unit_tests }}
+      run_unit_tests: ${{ steps.changes.outputs.run_unit_tests }}
     steps:
       - uses: actions/checkout@v4
 
@@ -31,7 +31,7 @@ jobs:
           filters: .github/file-filters.yml
 
   build-test-server:
-    if: startsWith(github.ref, 'refs/heads/release/') || needs.files-changed.outputs.unit_tests == 'true'
+    if: startsWith(github.ref, 'refs/heads/release/') || needs.files-changed.outputs.run_unit_tests == 'true'
     needs: files-changed
     name: Build test server
     runs-on: macos-13
