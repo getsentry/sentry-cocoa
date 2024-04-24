@@ -70,7 +70,7 @@ _unsafe_isRunning(void)
 
 #    pragma mark - Testing helpers
 
-// #    if defined(TEST) || defined(TESTCI)
+#    if defined(TEST) || defined(TESTCI)
 + (SentryProfiler *_Nullable)getCurrentProfiler
 {
     return _unsafe_gLegacyProfiler;
@@ -85,7 +85,7 @@ _unsafe_isRunning(void)
 {
     return sentry_currentProfiledTracers();
 }
-// #    endif // defined(TEST) || defined(TESTCI)
+#    endif // defined(TEST) || defined(TESTCI)
 
 @end
 

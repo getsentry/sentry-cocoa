@@ -3,12 +3,9 @@
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
 #    import "SentryEvent+Private.h"
-#    import "SentryFormatter.h"
 #    import "SentryInternalDefines.h"
 #    import "SentryLog.h"
-#    import "SentryMetricProfiler.h"
 #    import "SentrySample.h"
-#    import "SentryTime.h"
 #    import "SentryTransaction.h"
 #    if SENTRY_HAS_UIKIT
 #        import "SentryFormatter.h"

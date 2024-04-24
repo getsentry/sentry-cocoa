@@ -10,7 +10,7 @@
 @interface
 SentryLegacyProfiler ()
 
-// #    if defined(TEST) || defined(TESTCI)
+#    if defined(TEST) || defined(TESTCI)
 
 + (SentryProfiler *_Nullable)getCurrentProfiler;
 
@@ -28,7 +28,7 @@ SentryLegacyProfiler ()
  */
 + (NSUInteger)currentProfiledTracers;
 
-// #    endif // defined(TEST) || defined(TESTCI)
+#    endif // defined(TEST) || defined(TESTCI)
 
 @end
 

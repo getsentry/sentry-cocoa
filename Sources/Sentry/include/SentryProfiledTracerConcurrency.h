@@ -30,10 +30,10 @@ void sentry_discardProfilerForTracer(SentryId *internalTraceId);
  */
 SentryProfiler *_Nullable sentry_profilerForFinishedTracer(SentryId *internalTraceId);
 
-// #    if defined(TEST) || defined(TESTCI)
+#    if defined(TEST) || defined(TESTCI)
 void sentry_resetConcurrencyTracking(void);
 NSUInteger sentry_currentProfiledTracers(void);
-// #    endif // defined(TEST) || defined(TESTCI)
+#    endif // defined(TEST) || defined(TESTCI)
 
 SENTRY_EXTERN_C_END
 
