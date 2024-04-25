@@ -1,4 +1,5 @@
-#if os(iOS) && os(tvOS) && !SENTRY_NO_UIKIT
+#if canImport(UIKit) && !SENTRY_NO_UIKIT
+#if os(iOS) || os(tvOS)
 import Foundation
 import UIKit
 
@@ -8,4 +9,5 @@ typealias ScreenshotCallback = (UIImage) -> Void
 protocol SentryViewScreenshotProvider: NSObjectProtocol {
     func image(view: UIView, options: SentryRedactOptions, onComplete: @escaping ScreenshotCallback)
 }
+#endif
 #endif
