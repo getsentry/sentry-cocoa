@@ -22,7 +22,7 @@ enum SentryOnDemandReplayError: Error {
 }
 
 @objcMembers
-class SentryOnDemandReplay: NSObject {
+class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
     private let _outputPath: String
     private var _currentPixelBuffer: SentryPixelBuffer?
     private var _totalFrames = 0

@@ -130,17 +130,6 @@ class SentryViewPhotographer: NSObject, SentryViewScreenshotProvider {
         redactClasses += classes
     }
 
-    private func mask(view: UIView, context: CGContext, options: SentryRedactOptions?) {
-        UIColor.black.setFill()
-        let maskPath = self.buildPath(view: view,
-                                      path: CGMutablePath(),
-                                      area: view.frame,
-                                      redactText: options?.redactAllText ?? true,
-                                      redactImage: options?.redactAllImages ?? true)
-        context.addPath(maskPath)
-        context.fillPath()
-    }
-    
     private func shouldIgnore(view: UIView) -> Bool {
         ignoreClasses.contains { view.isKind(of: $0) }
     }

@@ -35,7 +35,7 @@ SentrySessionReplay ()
     NSDate *_sessionStart;
     NSMutableArray<UIImage *> *imageCollection;
     SentryReplayOptions *_replayOptions;
-    SentryOnDemandReplay *_replayMaker;
+    id<SentryReplayVideoMaker> _replayMaker;
     SentryDisplayLinkWrapper *_displayLink;
     SentryCurrentDateProvider *_dateProvider;
     id<SentryRandom> _sentryRandom;
@@ -48,7 +48,7 @@ SentrySessionReplay ()
 - (instancetype)initWithSettings:(SentryReplayOptions *)replayOptions
                 replayFolderPath:(NSURL *)folderPath
               screenshotProvider:(id<SentryViewScreenshotProvider>)screenshotProvider
-                     replayMaker:(id<SentryReplayMaker>)replayMaker
+                     replayMaker:(id<SentryReplayVideoMaker>)replayMaker
                     dateProvider:(SentryCurrentDateProvider *)dateProvider
                           random:(id<SentryRandom>)random
               displayLinkWrapper:(SentryDisplayLinkWrapper *)displayLinkWrapper;
@@ -310,7 +310,7 @@ SentrySessionReplay ()
                                options:_replayOptions
                             onComplete:^(UIImage *screenshot) {
                                 self->_processingScreenshot = NO;
-                                [self->_replayMaker addFrameWithImage:screenshot];
+                                [self->_replayMaker addFrameAsyncWithImage:screenshot];
                             }];
 }
 

@@ -13,7 +13,8 @@ class SentrySessionReplayTests: XCTestCase {
         }
     }
      
-    private class TestReplayMaker: NSObject, SentryReplayMaker {
+    private class TestReplayMaker: NSObject, SentryReplayVideoMaker {
+        
         struct CreateVideoCall {
             var duration: TimeInterval
             var beginning: Date
@@ -22,8 +23,8 @@ class SentrySessionReplayTests: XCTestCase {
         }
         
         var lastCallToCreateVideo: CreateVideoCall?
-        func createVideo(withDuration duration: TimeInterval, beginning: Date, outputFileURL: URL, completion: @escaping (SentryVideoInfo?, Error?) -> Void) throws {
-                lastCallToCreateVideo = CreateVideoCall(duration: duration,
+        func createVideoWith(duration: TimeInterval, beginning: Date, outputFileURL: URL, completion: @escaping (Sentry.SentryVideoInfo?, (any Error)?) -> Void) throws {
+            lastCallToCreateVideo = CreateVideoCall(duration: duration,
                                                         beginning: beginning,
                                                         outputFileURL: outputFileURL,
                                                         completion: completion)
@@ -36,12 +37,12 @@ class SentrySessionReplayTests: XCTestCase {
         }
         
         var lastFrame: UIImage?
-        func addFrameAsync(with image: UIImage) {
+        func addFrameAsync(image: UIImage) {
             lastFrame = image
         }
         
         var lastReleaseUntil: Date?
-        func releaseFrames(until date: Date) {
+        func releaseFramesUntil(_ date: Date) {
             lastReleaseUntil = date
         }
     }
@@ -72,7 +73,7 @@ class SentrySessionReplayTests: XCTestCase {
             return SentrySessionReplay(settings: options,
                                        replayFolderPath: cacheFolder,
                                        screenshotProvider: screenshotProvider,
-                                       replayMaker: replayMaker,
+                                       replay: replayMaker,
                                        dateProvider: dateProvider,
                                        random: random,
                                        displayLinkWrapper: displayLink)
