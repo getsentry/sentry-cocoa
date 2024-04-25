@@ -61,17 +61,11 @@ static const SentryCrashSignalCodeInfo g_sigIllCodes[] = {
     ENUM_NAME_MAPPING(ILL_BADSTK),
 };
 
-// SIGTRAP was never previously enabled,
-// instead, the code was defined with SIGTERM.
-// Here we keep code as is but turn it off.
-#define SIGTRAP_ENABLED 0
-#if SIGTRAP_ENABLED
 static const SentryCrashSignalCodeInfo g_sigTrapCodes[] = {
     ENUM_NAME_MAPPING(0),
     ENUM_NAME_MAPPING(TRAP_BRKPT),
     ENUM_NAME_MAPPING(TRAP_TRACE),
 };
-#endif
 
 static const SentryCrashSignalCodeInfo g_sigFPECodes[] = {
 #ifdef FPE_NOOP
@@ -121,9 +115,7 @@ static const SentryCrashSignalInfo g_fatalSignalData[] = {
     SIGNAL_INFO_NOCODES(SIGPIPE),
     SIGNAL_INFO(SIGSEGV, g_sigSegVCodes),
     SIGNAL_INFO_NOCODES(SIGSYS),
-#if SIGTRAP_ENABLED
     SIGNAL_INFO(SIGTRAP, g_sigTrapCodes),
-#endif
     SIGNAL_INFO_NOCODES(SIGTERM),
 };
 static const int g_fatalSignalsCount = sizeof(g_fatalSignalData) / sizeof(*g_fatalSignalData);
@@ -138,13 +130,8 @@ static const int g_fatalSignals[] = {
     SIGPIPE,
     SIGSEGV,
     SIGSYS,
-    
-    // See above near _g_sigTrapCodes_ why this is
-    // enclosed in an if/def.
-#if SIGTRAP_ENABLED
     SIGTRAP,
-#endif
-    
+
     // SIGTERM can be caught and is usually sent by iOS and variants
     // when Apple wants to try and gracefully shutdown the app
     // before sending a SIGKILL (which can't be caught).
