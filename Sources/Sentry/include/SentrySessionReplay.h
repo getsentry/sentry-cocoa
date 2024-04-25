@@ -62,6 +62,11 @@ API_AVAILABLE(ios(16.0), tvos(16.0))
  */
 - (void)captureReplayForEvent:(SentryEvent *)event;
 
+/**
+ * Captures a replay. This method is used by the Hybrid SDKs.
+ */
+- (BOOL)captureReplay;
+
 @end
 
 NS_ASSUME_NONNULL_END
