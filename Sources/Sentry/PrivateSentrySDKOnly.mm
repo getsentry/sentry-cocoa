@@ -277,7 +277,7 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
 + (void)addReplayIgnoreClasses:(NSArray<Class> *_Nonnull)classes
 {
 #if SENTRY_HAS_UIKIT && !TARGET_OS_VISION
-    if (@available(iOS 16.0, *)) {
+    if (@available(iOS 16.0, tvOS 16.0, *)) {
         [SentryViewPhotographer.shared addIgnoreClasses:classes];
     } else {
         SENTRY_LOG_DEBUG(@"PrivateSentrySDKOnly.addIgnoreClasses only works with iOS 16 and newer");
@@ -292,7 +292,7 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
 + (void)addReplayRedactClasses:(NSArray<Class> *_Nonnull)classes
 {
 #if SENTRY_HAS_UIKIT && !TARGET_OS_VISION
-    if (@available(iOS 16.0, *)) {
+    if (@available(iOS 16.0, tvOS 16.0, *)) {
         [SentryViewPhotographer.shared addRedactClasses:classes];
     } else {
         SENTRY_LOG_DEBUG(
