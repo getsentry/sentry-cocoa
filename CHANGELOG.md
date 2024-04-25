@@ -2,6 +2,8 @@
 
 ## 8.25.0
 
+- Add SIGTERM support ([#3895](https://github.com/getsentry/sentry-cocoa/pull/3895))
+
 ### Features
 
 - Add Session Replay, which is **still experimental**. (#3625)
