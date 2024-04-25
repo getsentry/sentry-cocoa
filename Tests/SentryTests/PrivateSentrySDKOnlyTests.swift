@@ -220,7 +220,7 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
     #if canImport(UIKit)
     func testCaptureReplayShouldCallReplayIntegration() {
         guard #available(iOS 16.0, tvOS 16.0, *) else { return }
-        
+
         let options = Options()
         options.setIntegrations([SentrySessionReplayIntegrationTest.self])
         SentrySDK.start(options: options)
