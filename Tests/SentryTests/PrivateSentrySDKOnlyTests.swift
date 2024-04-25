@@ -209,6 +209,14 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
         PrivateSentrySDKOnly.captureReplay()
     }
 
+    func testAddReplayIgnoreClassesShouldNotFailIfMissingReplayIntegration() {
+        PrivateSentrySDKOnly.addReplayIgnoreClasses([])
+    }
+
+    func testAddReplayRedactShouldNotFailIfMissingReplayIntegration() {
+        PrivateSentrySDKOnly.addReplayRedactClasses([])
+    }
+
     #if canImport(UIKit)
     func testCaptureReplayShouldCallReplayIntegration() {
         guard #available(iOS 16.0, tvOS 16.0, *) else { return }
@@ -233,6 +241,22 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
         SentrySDK.setCurrentHub(TestHub(client: client, andScope: scope))
 
         XCTAssertEqual(PrivateSentrySDKOnly.getReplayId(), VALID_REPLAY_ID)
+    }
+
+    func testAddReplayIgnoreClassesShouldNotFailWhenReplayIsAvailable() {
+        let options = Options()
+        options.setIntegrations([SentrySessionReplayIntegrationTest.self])
+        SentrySDK.start(options: options)
+
+        PrivateSentrySDKOnly.addReplayIgnoreClasses([UILabel.self])
+    }
+
+    func testAddReplayRedactShouldNotFailWhenReplayIsAvailable() {
+        let options = Options()
+        options.setIntegrations([SentrySessionReplayIntegrationTest.self])
+        SentrySDK.start(options: options)
+
+        PrivateSentrySDKOnly.addReplayRedactClasses([UILabel.self])
     }
 
     let VALID_REPLAY_ID = "0eac7ab503354dd5819b03e263627a29"
