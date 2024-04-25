@@ -7,13 +7,13 @@ import XCTest
 /// - Parameter testRuns: The number of test runs.
 func rerunFlakyTest(failAllowance: Int = 1, testRuns: Int = 2, closure: () throws -> Void) rethrows {
     
-    var failedCount = 0
+    var failCount = 0
     
     let options = XCTExpectedFailure.Options()
     options.issueMatcher = { _ in
-        failedCount += 1
+        failCount += 1
         
-        if failedCount > failAllowance {
+        if failCount > failAllowance {
             return false
         } else {
             return true
