@@ -30,7 +30,7 @@
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 #    import "SentryContinuousProfiler.h"
-#    import "SentryLaunchProfiling.h"
+#    import "SentryProfiler+Private.h"
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
 @interface
@@ -224,21 +224,7 @@ static NSDate *_Nullable startTimestamp = nil;
 #endif // TARGET_OS_IOS && SENTRY_HAS_UIKIT
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
-        BOOL shouldstopAndTransmitLaunchProfile = YES;
-#    if SENTRY_HAS_UIKIT
-        if (SentryUIViewControllerPerformanceTracker.shared.enableWaitForFullDisplay) {
-            shouldstopAndTransmitLaunchProfile = NO;
-        }
-#    endif // SENTRY_HAS_UIKIT
-
-        [SentryDependencyContainer.sharedInstance.dispatchQueueWrapper dispatchAsyncWithBlock:^{
-            if (shouldstopAndTransmitLaunchProfile) {
-                SENTRY_LOG_DEBUG(@"Stopping launch profile in SentrySDK.start because there will "
-                                 @"be no automatic trace to attach it to.");
-                stopAndTransmitLaunchProfile(hub);
-            }
-            configureLaunchProfiling(options);
-        }];
+        sentry_manageProfilerOnStartSDK(options, hub);
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
     }];
 }

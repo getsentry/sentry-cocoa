@@ -14,13 +14,15 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)dispatchAsyncWithBlock:(void (^)(void))block;
 
-- (void)dispatchAsyncOnMainQueue:(void (^)(void))block;
-
-- (void)dispatchOnMainQueue:(void (^)(void))block;
-
 - (void)dispatchSync:(void (^)(void))block;
 
-- (void)dispatchSyncOnMainQueue:(void (^)(void))block;
+- (void)dispatchAsyncOnMainQueue:(void (^)(void))block
+    NS_SWIFT_NAME(dispatchAsyncOnMainQueue(block:));
+
+- (void)dispatchOnMainQueue:(void (^)(void))block NS_SWIFT_NAME(dispatchOnMainQueue(block:));
+
+- (void)dispatchSyncOnMainQueue:(void (^)(void))block
+    NS_SWIFT_NAME(dispatchSyncOnMainQueue(block:));
 
 - (BOOL)dispatchSyncOnMainQueue:(void (^)(void))block timeout:(NSTimeInterval)timeout;
 
