@@ -164,6 +164,8 @@ typedef void (^SentryOnAppStartMeasurementAvailable)(
 
 + (void)captureReplay;
 + (NSString *__nullable)getReplayId;
++ (void)addReplayIgnoreClasses:(NSArray<Class> *_Nonnull)classes;
++ (void)addReplayRedactClasses:(NSArray<Class> *_Nonnull)classes;
 
 @end
 
