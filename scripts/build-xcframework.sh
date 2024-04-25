@@ -2,7 +2,7 @@
 
 set -eou pipefail
 
-sdks=( iphoneos iphonesimulator ) # macosx appletvos appletvsimulator watchos watchsimulator xros xrsimulator )
+sdks=( iphoneos iphonesimulator macosx appletvos appletvsimulator watchos watchsimulator xros xrsimulator )
 
 rm -rf Carthage/
 mkdir Carthage
@@ -70,8 +70,8 @@ generate_xcframework() {
 
 generate_xcframework "Sentry" "-Dynamic"
 
-#generate_xcframework "Sentry" "" staticlib
-#
-#generate_xcframework "SentrySwiftUI"
-#
-#generate_xcframework "Sentry" "-WihoutUIKitOrAppKit" mh_dylib Release_without_UIKit
+generate_xcframework "Sentry" "" staticlib
+
+generate_xcframework "SentrySwiftUI"
+
+generate_xcframework "Sentry" "-WihoutUIKitOrAppKit" mh_dylib Release_without_UIKit
