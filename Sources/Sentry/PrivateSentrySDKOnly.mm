@@ -11,6 +11,7 @@
 #import "SentryOptions.h"
 #import "SentryProfiledTracerConcurrency.h"
 #import "SentryProfiler+Private.h"
+#import "SentryProfilerSerialization.h"
 #import "SentrySDK+Private.h"
 #import "SentrySerialization.h"
 #import "SentrySwift.h"
@@ -138,11 +139,8 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
                                                                     and:(uint64_t)endSystemTime
                                                                forTrace:(SentryId *)traceId;
 {
-    NSMutableDictionary<NSString *, id> *payload =
-        [SentryProfiler collectProfileBetween:startSystemTime
-                                          and:endSystemTime
-                                     forTrace:traceId
-                                        onHub:[SentrySDK currentHub]];
+    NSMutableDictionary<NSString *, id> *payload = sentry_collectProfileData(
+        startSystemTime, endSystemTime, traceId, [SentrySDK currentHub]);
 
     if (payload != nil) {
         payload[@"platform"] = SentryPlatformName;
@@ -157,7 +155,7 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
 
 + (void)discardProfilerForTrace:(SentryId *)traceId;
 {
-    discardProfilerForTracer(traceId);
+    sentry_discardProfilerForTracer(traceId);
 }
 
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED

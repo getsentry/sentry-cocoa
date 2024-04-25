@@ -18,7 +18,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @protocol SentryReplayMaker <NSObject>
 
-- (void)addFrameWithImage:(UIImage *)image;
+- (void)addFrameAsyncWithImage:(UIImage *)image;
 - (void)releaseFramesUntil:(NSDate *)date;
 - (BOOL)createVideoWithDuration:(NSTimeInterval)duration
                       beginning:(NSDate *)beginning
