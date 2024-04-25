@@ -34,7 +34,7 @@ class SentrySessionReplayTests: XCTestCase {
         }
         
         var lastFrame: UIImage?
-        func addFrame(with image: UIImage) {
+        func addFrameAsync(with image: UIImage) {
             lastFrame = image
         }
         
