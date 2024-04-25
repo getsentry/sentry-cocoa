@@ -8,45 +8,6 @@ import UIKit
 @objcMembers
 class SentryViewPhotographer: NSObject, SentryViewScreenshotProvider {
     
-    private struct RedactRegion {
-        let rect: CGRect
-        let color: UIColor?
-        
-        func splitBySubtracting(region: CGRect) -> [RedactRegion] {
-            guard rect.intersects(region) else { return [self] }
-            guard !region.contains(rect) else { return [] }
-            
-            let intersectionRect = rect.intersection(region)
-            var resultRegions: [CGRect] = []
-            
-            // Calculate the top region.
-            resultRegions.append(CGRect(x: rect.minX,
-                                        y: rect.minY,
-                                        width: rect.width,
-                                        height: intersectionRect.minY - rect.minY))
-            
-            // Calculate the bottom region.
-            resultRegions.append(CGRect(x: rect.minX,
-                                        y: intersectionRect.maxY,
-                                        width: rect.width,
-                                        height: rect.maxY - intersectionRect.maxY))
-            
-            // Calculate the left region.
-            resultRegions.append(CGRect(x: rect.minX,
-                                        y: max(rect.minY, intersectionRect.minY),
-                                        width: intersectionRect.minX - rect.minX,
-                                        height: min(intersectionRect.maxY, rect.maxY) - max(rect.minY, intersectionRect.minY)))
-            
-            // Calculate the right region.
-            resultRegions.append(CGRect(x: intersectionRect.maxX,
-                                        y: max(rect.minY, intersectionRect.minY),
-                                        width: rect.maxX - intersectionRect.maxX,
-                                        height: min(intersectionRect.maxY, rect.maxY) - max(rect.minY, intersectionRect.minY)))
-            
-            return resultRegions.filter { !$0.isEmpty }.map { RedactRegion(rect: $0, color: color) }
-        }
-    }
-    
     //This is a list of UIView subclasses that will be ignored during redact process
     private var ignoreClasses: [AnyClass] = []
     //This is a list of UIView subclasses that need to be redacted from screenshot
@@ -71,9 +32,9 @@ class SentryViewPhotographer: NSObject, SentryViewScreenshotProvider {
         }
         
         let redact = self.mask(view: view, options: options)
-        
+        let imageSize = view.bounds.size
         DispatchQueue.global().async {
-            let screenshot = UIGraphicsImageRenderer(size: view.bounds.size, format: .init(for: .init(displayScale: 1))).image { context in
+            let screenshot = UIGraphicsImageRenderer(size: imageSize, format: .init(for: .init(displayScale: 1))).image { context in
                 image.draw(at: .zero)
                 
                 for region in redact {
@@ -162,7 +123,7 @@ class SentryViewPhotographer: NSObject, SentryViewScreenshotProvider {
             if rectInWindow == area {
                 redacting.removeAll()
             } else {
-                redacting = redacting.flatMap { $0.splitBySubtracting(region: rectInWindow) }
+                //redacting = redacting.flatMap { $0.splitBySubtracting(region: rectInWindow) }
             }
         }
         
