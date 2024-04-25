@@ -121,6 +121,8 @@
 		62C316812B1F2E93000D7031 /* SentryDelayedFramesTracker.h in Headers */ = {isa = PBXBuildFile; fileRef = 62C316802B1F2E93000D7031 /* SentryDelayedFramesTracker.h */; };
 		62C316832B1F2EA1000D7031 /* SentryDelayedFramesTracker.m in Sources */ = {isa = PBXBuildFile; fileRef = 62C316822B1F2EA1000D7031 /* SentryDelayedFramesTracker.m */; };
 		62C3168B2B1F865A000D7031 /* SentryTimeSwiftTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62C3168A2B1F865A000D7031 /* SentryTimeSwiftTests.swift */; };
+		62D4AC1D2BDA876000AEC0AE /* RerunFlakyTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62D4AC1C2BDA876000AEC0AE /* RerunFlakyTest.swift */; };
+		62D4AC1F2BDA88D500AEC0AE /* RerunFlakyTestTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62D4AC1E2BDA88D500AEC0AE /* RerunFlakyTestTests.swift */; };
 		62E081A929ED4260000F69FC /* SentryBreadcrumbDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 62E081A829ED4260000F69FC /* SentryBreadcrumbDelegate.h */; };
 		62E081AB29ED4322000F69FC /* SentryBreadcrumbTestDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62E081AA29ED4322000F69FC /* SentryBreadcrumbTestDelegate.swift */; };
 		62E146D02BAAE47600ED34FD /* LocalMetricsAggregator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62E146CF2BAAE47600ED34FD /* LocalMetricsAggregator.swift */; };
@@ -1069,6 +1071,8 @@
 		62C316802B1F2E93000D7031 /* SentryDelayedFramesTracker.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SentryDelayedFramesTracker.h; path = include/SentryDelayedFramesTracker.h; sourceTree = "<group>"; };
 		62C316822B1F2EA1000D7031 /* SentryDelayedFramesTracker.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentryDelayedFramesTracker.m; sourceTree = "<group>"; };
 		62C3168A2B1F865A000D7031 /* SentryTimeSwiftTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryTimeSwiftTests.swift; sourceTree = "<group>"; };
+		62D4AC1C2BDA876000AEC0AE /* RerunFlakyTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RerunFlakyTest.swift; sourceTree = "<group>"; };
+		62D4AC1E2BDA88D500AEC0AE /* RerunFlakyTestTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RerunFlakyTestTests.swift; sourceTree = "<group>"; };
 		62E081A829ED4260000F69FC /* SentryBreadcrumbDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SentryBreadcrumbDelegate.h; path = include/SentryBreadcrumbDelegate.h; sourceTree = "<group>"; };
 		62E081AA29ED4322000F69FC /* SentryBreadcrumbTestDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryBreadcrumbTestDelegate.swift; sourceTree = "<group>"; };
 		62E146CF2BAAE47600ED34FD /* LocalMetricsAggregator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalMetricsAggregator.swift; sourceTree = "<group>"; };
@@ -3270,6 +3274,8 @@
 				62F226B829A37C270038080D /* SentryBooleanSerialization.h */,
 				62F226B629A37C120038080D /* SentryBooleanSerialization.m */,
 				62B86CFB29F052BB008F3947 /* SentryTestLogConfig.m */,
+				62D4AC1C2BDA876000AEC0AE /* RerunFlakyTest.swift */,
+				62D4AC1E2BDA88D500AEC0AE /* RerunFlakyTestTests.swift */,
 			);
 			path = TestUtils;
 			sourceTree = "<group>";
@@ -4723,6 +4729,7 @@
 				D885266427739D01001269FC /* SentryFileIOTrackingIntegrationTests.swift in Sources */,
 				7BBD18992449DE9D00427C76 /* TestRateLimits.swift in Sources */,
 				7B04A9AB24EA5F8D00E710B1 /* SentryUserTests.swift in Sources */,
+				62D4AC1D2BDA876000AEC0AE /* RerunFlakyTest.swift in Sources */,
 				7BA61CCF247EB59500C130A8 /* SentryCrashUUIDConversionTests.swift in Sources */,
 				7BBD188D2448453600427C76 /* SentryHttpDateParserTests.swift in Sources */,
 				7B72D23A28D074BC0014798A /* TestExtensions.swift in Sources */,
@@ -4813,6 +4820,7 @@
 				63FE720C20DA66EC00CDBAE8 /* SentryCrashMonitor_Tests.m in Sources */,
 				D855B3EA27D652C700BCED76 /* TestCoreDataStack.swift in Sources */,
 				63FE721820DA66EC00CDBAE8 /* TestThread.m in Sources */,
+				62D4AC1F2BDA88D500AEC0AE /* RerunFlakyTestTests.swift in Sources */,
 				7B4D308A26FC616B00C94DE9 /* SentryHttpTransportTests.swift in Sources */,
 				7B4E23B6251A07BD00060D68 /* SentryDispatchQueueWrapperTests.swift in Sources */,
 				63FE720720DA66EC00CDBAE8 /* SentryCrashReportFilter_Tests.m in Sources */,
