@@ -75,9 +75,9 @@ class SentryOnDemandReplayTests: XCTestCase {
     }
     
     func testAddFrameIsThreadSafe() {
-        let dispatchQueue = SentryDispatchQueueWrapper()
+        let queue = SentryDispatchQueueWrapper()
         let sut = SentryOnDemandReplay(outputPath: outputPath.path,
-                                       workingQueue: dispatchQueue,
+                                       workingQueue: queue,
                                        dateProvider: dateProvider)
         
         dateProvider.driftTimeForEveryRead = true
@@ -93,7 +93,33 @@ class SentryOnDemandReplayTests: XCTestCase {
         }
         
         group.wait()
+        queue.queue.sync {} //Wait for all enqueued operation to finish
         expect(sut.frames.map({ ($0.imagePath as NSString).lastPathComponent })) == (0..<10).map { "\($0).png" }
     }
+    
+    func testReleaseIsThreadSafe() {
+        let queue = SentryDispatchQueueWrapper()
+        let sut = SentryOnDemandReplay(outputPath: outputPath.path,
+                                       workingQueue: queue,
+                                       dateProvider: dateProvider)
+                
+        sut.frames = (0..<100).map { SentryReplayFrame(imagePath: outputPath.path + "/\($0).png", time: Date(timeIntervalSinceReferenceDate: Double($0))) }
+                
+        let group = DispatchGroup()
+        
+        for i in 1...10 {
+            group.enter()
+            DispatchQueue.global().async {
+                sut.releaseFramesUntil(Date(timeIntervalSinceReferenceDate: Double(i) * 10.0))
+                group.leave()
+            }
+        }
+        
+        group.wait()
+        
+        queue.queue.sync {} //Wait for all enqueued operation to finish
+        expect(sut.frames.count) == 0
+    }
+    
 }
 #endif

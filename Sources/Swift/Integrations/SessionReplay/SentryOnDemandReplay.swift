@@ -31,12 +31,10 @@ class SentryOnDemandReplay: NSObject {
     private var _frames = [SentryReplayFrame]()
     
     #if TEST
+    //This is exposed only for tests, no need to make it thread safe.
     var frames: [SentryReplayFrame] {
-        var result: [SentryReplayFrame] = []
-        workingQueue.dispatchSync({
-            result = self._frames
-        })
-        return result
+        get { _frames }
+        set { _frames = newValue }
     }
     #endif
     
