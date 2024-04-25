@@ -1,4 +1,4 @@
-#if canImport(UIKit) && !SENTRY_NO_UIKIT
+#if os(iOS) && os(tvOS) && !SENTRY_NO_UIKIT
 import Foundation
 import UIKit
 
