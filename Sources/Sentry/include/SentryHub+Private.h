@@ -21,6 +21,8 @@ SentryHub ()
 
 @property (nullable, nonatomic, strong) SentrySession *session;
 
+@property (nonatomic, strong) NSMutableArray<id<SentryIntegrationProtocol>> *installedIntegrations;
+
 /**
  * Every integration starts with "Sentry" and ends with "Integration". To keep the payload of the
  * event small we remove both.

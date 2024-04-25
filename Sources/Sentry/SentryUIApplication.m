@@ -64,8 +64,9 @@
 
 - (NSArray<UIWindow *> *)windows
 {
-    return [SentryDependencyContainer.sharedInstance.dispatchQueueWrapper
-        dispatchSyncOnMainQueueWithResult:^id _Nonnull {
+    __block NSArray<UIWindow *> *windows = nil;
+    [SentryDependencyContainer.sharedInstance.dispatchQueueWrapper
+        dispatchSyncOnMainQueue:^{
             UIApplication *app = [self sharedApplication];
             NSMutableArray *result = [NSMutableArray array];
 
@@ -89,9 +90,10 @@
                 [result addObject:appDelegate.window];
             }
 
-            return result;
+            windows = result;
         }
-                                  timeout:0.01];
+                        timeout:0.01];
+    return windows ?: @[];
 }
 
 - (NSArray<UIViewController *> *)relevantViewControllers
@@ -115,8 +117,10 @@
 
 - (nullable NSArray<NSString *> *)relevantViewControllersNames
 {
-    return [SentryDependencyContainer.sharedInstance.dispatchQueueWrapper
-        dispatchSyncOnMainQueueWithResult:^id _Nonnull {
+    __block NSArray<NSString *> *result = nil;
+
+    [SentryDependencyContainer.sharedInstance.dispatchQueueWrapper
+        dispatchSyncOnMainQueue:^{
             NSArray *viewControllers
                 = SentryDependencyContainer.sharedInstance.application.relevantViewControllers;
             NSMutableArray *vcsNames =
@@ -124,9 +128,11 @@
             for (id vc in viewControllers) {
                 [vcsNames addObject:[SwiftDescriptor getObjectClassName:vc]];
             }
-            return [NSArray arrayWithArray:vcsNames];
+            result = [NSArray arrayWithArray:vcsNames];
         }
-                                  timeout:0.01];
+                        timeout:0.01];
+
+    return result;
 }
 
 - (NSArray<UIViewController *> *)relevantViewControllerFromWindow:(UIWindow *)window

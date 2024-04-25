@@ -20,14 +20,6 @@ on:
       - ".codecov.yml"
       - Sentry.xcodeproj
 
-      # run the workflow any time an Xcode scheme changes for a sample app
-      - "Samples/tvOS-Swift/tvOS-Swift.xcodeproj/xcshareddata/xcschemes/tvOS-Swift.xcscheme"
-      - "Samples/iOS-Swift/iOS-Swift.xcodeproj/xcshareddata/xcschemes/iOS13-Swift.xcscheme"
-      - "Samples/iOS-Swift/iOS-Swift.xcodeproj/xcshareddata/xcschemes/iOS-SwiftUITests.xcscheme"
-      - "Samples/iOS-Swift/iOS-Swift.xcodeproj/xcshareddata/xcschemes/iOS-Swift.xcscheme"
-      - "Samples/macOS-Swift/macOS-Swift.xcodeproj/xcshareddata/xcschemes/macOS-Swift.xcscheme"
-      - "Samples/iOS-ObjectiveC/iOS-ObjectiveC.xcodeproj/xcshareddata/xcschemes/iOS-ObjectiveC.xcscheme"
-
 # https://docs.github.com/en/actions/using-jobs/using-concurrency#example-using-a-fallback-value
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
