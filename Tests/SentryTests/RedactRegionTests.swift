@@ -2,7 +2,7 @@ import Foundation
 import Nimble
 @testable import Sentry
 import XCTest
-
+#if os(iOS) || os(tvOS)
 class RedactRegionTests: XCTestCase {
     
     func testSplitBySubtractingBottom() {
@@ -99,3 +99,4 @@ class RedactRegionTests: XCTestCase {
     }
     
 }
+#endif
