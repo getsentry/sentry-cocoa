@@ -26,8 +26,11 @@ typedef NS_ENUM(NSUInteger, SentryProfilerTruncationReason) {
 
 NS_ASSUME_NONNULL_BEGIN
 
-SENTRY_EXTERN const int kSentryProfilerFrequencyHz;
-
+/**
+ * Perform necessary profiler tasks that should take place when the SDK starts: configure the next
+ * launch's profiling, stop legacy profiling if no automatic performance transaction is running,
+ * start the continuous profiler if enabled and not profiling from launch.
+ */
 SENTRY_EXTERN void sentry_manageProfilerOnStartSDK(SentryOptions *options, SentryHub *hub);
 
 /**

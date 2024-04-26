@@ -30,13 +30,17 @@
 #        import <UIKit/UIKit.h>
 #    endif // SENTRY_HAS_UIKIT
 
+using namespace sentry::profiling;
+
+namespace {
+
 const int kSentryProfilerFrequencyHz = 101;
 NSTimeInterval kSentryProfilerTimeoutInterval = 30;
 
-using namespace sentry::profiling;
-
 std::mutex _gProfilerLock;
 SentryProfiler *_Nullable _gCurrentProfiler;
+
+} // namespace
 
 #    pragma mark - Public
 
@@ -273,15 +277,12 @@ sentry_manageProfilerOnStartSDK(SentryOptions *options, SentryHub *hub)
     return _gCurrentProfiler;
 }
 
-// this just calls through to SentryProfiledTracerConcurrency.sentry_resetConcurrencyTracking(). we
-// have to do this through SentryTracer because SentryProfiledTracerConcurrency cannot be included
-// in test targets via ObjC bridging headers because it contains C++.
-+ (void)sentry_resetConcurrencyTracking
++ (void)resetConcurrencyTracking
 {
     sentry_resetConcurrencyTracking();
 }
 
-+ (NSUInteger)sentry_currentProfiledTracers
++ (NSUInteger)currentProfiledTracers
 {
     return sentry_currentProfiledTracers();
 }
