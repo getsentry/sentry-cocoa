@@ -109,6 +109,11 @@ SentryOnDemandReplay (SentryReplayMaker) <SentryReplayMaker>
     [self.sessionReplay stop];
 }
 
+- (void)captureReplay
+{
+    [self.sessionReplay captureReplay];
+}
+
 - (SentryIntegrationOption)integrationOptions
 {
     return kIntegrationOptionEnableReplay;
