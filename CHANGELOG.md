@@ -5,6 +5,7 @@
 ### Features
 
 - Add Session Replay, which is **still experimental**. (#3625)
+  - Access is limited to early access orgs on Sentry. If you're interested, [sign up for the waitlist](https://sentry.io/lp/mobile-replay-beta/)
 
 ### Fixes
 
