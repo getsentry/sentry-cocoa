@@ -5,6 +5,8 @@
 ### Features
 
 - Add Session Replay, which is **still experimental**. (#3625)
+To get access, it requires adding your Sentry org to our feature flag. This way data can be ingested and displayed in Sentry.
+[Please let us know on the waitlist if you're interested](https://sentry.io/lp/mobile-replay-beta/)
 
 ### Fixes
 
