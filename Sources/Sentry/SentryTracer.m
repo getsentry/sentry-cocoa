@@ -38,6 +38,7 @@
 #    import "SentryLaunchProfiling.h"
 #    import "SentryProfiledTracerConcurrency.h"
 #    import "SentryProfiler+Private.h"
+#    import "SentryProfilerSerialization.h"
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
 #if SENTRY_HAS_UIKIT
@@ -209,7 +210,7 @@ static BOOL appStartMeasurementRead;
 {
 #if SENTRY_TARGET_PROFILING_SUPPORTED
     if (self.isProfiling) {
-        discardProfilerForTracer(self.internalID);
+        sentry_discardProfilerForTracer(self.internalID);
     }
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 }
@@ -627,9 +628,8 @@ static BOOL appStartMeasurementRead;
 - (void)captureTransactionWithProfile:(SentryTransaction *)transaction
                        startTimestamp:(NSDate *)startTimestamp
 {
-    SentryEnvelopeItem *profileEnvelopeItem =
-        [SentryProfiler createProfilingEnvelopeItemForTransaction:transaction
-                                                   startTimestamp:startTimestamp];
+    SentryEnvelopeItem *profileEnvelopeItem
+        = sentry_profileEnvelopeItem(transaction, startTimestamp);
 
     if (!profileEnvelopeItem) {
         [_hub captureTransaction:transaction withScope:_hub.scope];
