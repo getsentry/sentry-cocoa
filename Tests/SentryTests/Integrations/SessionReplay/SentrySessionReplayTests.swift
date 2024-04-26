@@ -8,7 +8,7 @@ import XCTest
 class SentrySessionReplayTests: XCTestCase {
     
     private class ScreenshotProvider: NSObject, SentryViewScreenshotProvider {
-        func image(view: UIView, options: any Sentry.SentryRedactOptions, onComplete: @escaping Sentry.ScreenshotCallback) {
+        func image(view: UIView, options: Sentry.SentryRedactOptions, onComplete: @escaping Sentry.ScreenshotCallback) {
             onComplete(UIImage.add)
         }
     }
@@ -23,7 +23,7 @@ class SentrySessionReplayTests: XCTestCase {
         }
         
         var lastCallToCreateVideo: CreateVideoCall?
-        func createVideoWith(duration: TimeInterval, beginning: Date, outputFileURL: URL, completion: @escaping (Sentry.SentryVideoInfo?, (any Error)?) -> Void) throws {
+        func createVideoWith(duration: TimeInterval, beginning: Date, outputFileURL: URL, completion: @escaping (Sentry.SentryVideoInfo?, (Error)?) -> Void) throws {
             lastCallToCreateVideo = CreateVideoCall(duration: duration,
                                                         beginning: beginning,
                                                         outputFileURL: outputFileURL,
