@@ -48,9 +48,6 @@
         SENTRY_LOG_DEBUG(@"SentryCoreDataTracker automatically started a new span with "
                          @"description: %@, operation: %@",
             fetchSpan.description, fetchSpan.operation);
-    } else {
-        SENTRY_LOG_ERROR(
-            @"managedObjectContext:executeFetchRequest:error:originalImp: fetchSpan is nil.");
     }
 
     NSArray *result = original(request, error);

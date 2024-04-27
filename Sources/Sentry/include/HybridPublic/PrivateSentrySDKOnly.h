@@ -162,6 +162,11 @@ typedef void (^SentryOnAppStartMeasurementAvailable)(
 
 + (SentryBreadcrumb *)breadcrumbWithDictionary:(NSDictionary *)dictionary;
 
++ (void)captureReplay;
++ (NSString *__nullable)getReplayId;
++ (void)addReplayIgnoreClasses:(NSArray<Class> *_Nonnull)classes;
++ (void)addReplayRedactClasses:(NSArray<Class> *_Nonnull)classes;
+
 @end
 
 NS_ASSUME_NONNULL_END

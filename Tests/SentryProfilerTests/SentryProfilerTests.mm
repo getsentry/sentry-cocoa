@@ -6,6 +6,7 @@
 #    import "SentryHub+Test.h"
 #    import "SentryProfileTimeseries.h"
 #    import "SentryProfiler+Private.h"
+#    import "SentryProfiler+Test.h"
 #    import "SentryProfilerMocks.h"
 #    import "SentryProfilerSerialization+Test.h"
 #    import "SentryProfilerState+ObjCpp.h"

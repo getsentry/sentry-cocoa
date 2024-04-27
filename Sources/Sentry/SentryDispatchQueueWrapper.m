@@ -16,7 +16,8 @@ NS_ASSUME_NONNULL_BEGIN
     return self;
 }
 
-- (instancetype)initWithName:(const char *)name attributes:(dispatch_queue_attr_t)attributes;
+- (instancetype)initWithName:(const char *)name
+                  attributes:(nullable dispatch_queue_attr_t)attributes;
 {
     if (self = [super init]) {
         _queue = dispatch_queue_create(name, attributes);
@@ -47,6 +48,11 @@ NS_ASSUME_NONNULL_BEGIN
     [SentryThreadWrapper onMainThread:block];
 }
 
+- (void)dispatchSync:(void (^)(void))block
+{
+    dispatch_sync(_queue, block);
+}
+
 - (void)dispatchSyncOnMainQueue:(void (^)(void))block
 {
     if ([NSThread isMainThread]) {
@@ -56,43 +62,23 @@ NS_ASSUME_NONNULL_BEGIN
     }
 }
 
-- (nullable id)dispatchSyncOnMainQueueWithResult:(id (^)(void))block
-{
-    return [self dispatchSyncOnMainQueueWithResult:block timeout:DISPATCH_TIME_FOREVER];
-}
-
 - (BOOL)dispatchSyncOnMainQueue:(void (^)(void))block timeout:(NSTimeInterval)timeout
 {
-    NSNumber *result = [self
-        dispatchSyncOnMainQueueWithResult:^id _Nonnull {
-            block();
-            return @YES;
-        }
-                                  timeout:timeout];
-    return result.boolValue;
-}
-
-- (nullable id)dispatchSyncOnMainQueueWithResult:(id (^)(void))block timeout:(NSTimeInterval)timeout
-{
     if ([NSThread isMainThread]) {
-        return block();
+        block();
     } else {
         dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
-        __block id result;
 
         dispatch_async(dispatch_get_main_queue(), ^{
-            result = block();
+            block();
             dispatch_semaphore_signal(semaphore);
         });
 
         dispatch_time_t timeout_t
             = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(timeout * NSEC_PER_SEC));
-        if (dispatch_semaphore_wait(semaphore, timeout_t) == 0) {
-            return result;
-        } else {
-            return nil;
-        }
+        return dispatch_semaphore_wait(semaphore, timeout_t) == 0;
     }
+    return YES;
 }
 
 - (void)dispatchAfter:(NSTimeInterval)interval block:(dispatch_block_t)block
