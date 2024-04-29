@@ -1,3 +1,4 @@
+import Nimble
 @testable import Sentry
 import SentryTestUtils
 import XCTest
@@ -106,8 +107,10 @@ class SentryHttpTransportTests: XCTestCase {
             clientReportRequest = buildRequest(clientReportEnvelope)
         }
 
-        var sut: SentryHttpTransport {
-#if !os(watchOS)
+        func  getSut(dispatchQueueWrapper: SentryDispatchQueueWrapper? = nil) -> SentryHttpTransport {
+            
+            let dispatchQueue = dispatchQueueWrapper ?? self.dispatchQueueWrapper
+            
             return SentryHttpTransport(
                 options: options,
                 fileManager: fileManager,
@@ -115,20 +118,8 @@ class SentryHttpTransportTests: XCTestCase {
                 requestBuilder: requestBuilder,
                 rateLimits: rateLimits,
                 envelopeRateLimit: EnvelopeRateLimit(rateLimits: rateLimits),
-                dispatchQueueWrapper: dispatchQueueWrapper
+                dispatchQueueWrapper: dispatchQueue
             )
-
-#else // os(watchOS)
-            return SentryHttpTransport(
-                options: options,
-                fileManager: fileManager,
-                requestManager: requestManager,
-                requestBuilder: requestBuilder,
-                rateLimits: rateLimits,
-                envelopeRateLimit: EnvelopeRateLimit(rateLimits: rateLimits),
-                dispatchQueueWrapper: dispatchQueueWrapper
-            )
-#endif // !os(watchOS)
         }
     }
 
@@ -150,7 +141,7 @@ class SentryHttpTransportTests: XCTestCase {
         fixture.fileManager.deleteAllEnvelopes()
         fixture.requestManager.returnResponse(response: HTTPURLResponse())
 
-        sut = fixture.sut
+        sut = fixture.getSut()
     }
 
     override func tearDown() {
@@ -167,7 +158,7 @@ class SentryHttpTransportTests: XCTestCase {
 
         waitForAllRequests()
         givenOkResponse()
-        let sut = fixture.sut
+        let sut = fixture.getSut()
         XCTAssertNotNil(sut)
         waitForAllRequests()
 
@@ -614,7 +605,7 @@ class SentryHttpTransportTests: XCTestCase {
         
         // Interact with sut in extra function so ARC deallocates it
         func getSut() {
-            let sut = fixture.sut
+            let sut = fixture.getSut()
             sut.send(envelope: fixture.eventEnvelope)
             waitForAllRequests()
         }
@@ -738,14 +729,36 @@ class SentryHttpTransportTests: XCTestCase {
     }
     
     func testFlush_WhenNoEnvelopes_BlocksAndFinishes() {
-        assertFlushBlocksAndFinishesSuccessfully()
+        let sut = fixture.getSut(dispatchQueueWrapper: SentryDispatchQueueWrapper())
+        
+        let beforeFlush = getAbsoluteTime()
+        expect(sut.flush(self.fixture.flushTimeout)).to(equal(.success), description: "Flush should not time out.")
+        
+        let blockingDuration = getDurationNs(beforeFlush, getAbsoluteTime()).toTimeInterval()
+        
+        expect(blockingDuration) < 0.1
     }
     
     func testFlush_WhenNoInternet_BlocksAndFinishes() {
-        givenCachedEvents()
+        givenCachedamEvents()
         givenNoInternetConnection()
         
-        assertFlushBlocksAndFinishesSuccessfully()
+        let beforeFlush = getAbsoluteTime()
+        expect(self.sut.flush(self.fixture.flushTimeout)).to(equal(.success), description: "Flush should not time out.")
+        let blockingDuration = getDurationNs(beforeFlush, getAbsoluteTime()).toTimeInterval()
+        expect(blockingDuration) < 0.1
+    }
+    
+    func testFlush_CallingFlushDirectlyAfterCapture_Flushes() {
+        let sut = fixture.getSut(dispatchQueueWrapper: SentryDispatchQueueWrapper())
+        
+        for _ in 0..<10 {
+            sut.send(envelope: fixture.eventEnvelope)
+            
+            expect(sut.flush(self.fixture.flushTimeout)).to(equal(.success), description: "Flush should not time out.")
+            
+            expect(self.fixture.fileManager.getAllEnvelopes().count) == 0
+        }
     }
     
     func testFlush_CalledMultipleTimes_ImmediatelyReturnsFalse() {
@@ -815,7 +828,7 @@ class SentryHttpTransportTests: XCTestCase {
     
     func testDealloc_StopsReachabilityMonitoring() {
         func deallocSut() {
-            _ = fixture.sut
+            _ = fixture.getSut()
         }
         deallocSut()
 
@@ -823,7 +836,7 @@ class SentryHttpTransportTests: XCTestCase {
     }
     
     func testDealloc_TriggerNetworkReachable_NoCrash() {
-        _ = fixture.sut
+        _ = fixture.getSut()
         
         fixture.reachability.triggerNetworkReachable()
     }
@@ -944,12 +957,5 @@ class SentryHttpTransportTests: XCTestCase {
         let dict = Dynamic(sut).discardedEvents.asDictionary as? [String: SentryDiscardedEvent]
         XCTAssertNotNil(dict)
         XCTAssertEqual(0, dict?.count)
-    }
-    
-    private func assertFlushBlocksAndFinishesSuccessfully() {
-        let beforeFlush = getAbsoluteTime()
-        XCTAssertEqual(.success, sut.flush(fixture.flushTimeout), "Flush should not time out.")
-        let blockingDuration = getDurationNs(beforeFlush, getAbsoluteTime()).toTimeInterval()
-        XCTAssertLessThan(blockingDuration, 0.1)
     }
 }

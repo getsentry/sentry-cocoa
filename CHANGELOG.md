@@ -5,6 +5,8 @@
 ### Fixes
 
 - Don't transmit device boot time in envelopes enriched with crash data (#3912)
+- Ensure flushing envelopes directly after capturing them (#3915)
+
 
 ## 8.25.0-alpha.0
 

@@ -80,15 +80,6 @@
                   Identifier = "SentryCrashReportStore_Tests/testStoresLoadsMultipleReports">
                </Test>
                <Test
-                  Identifier = "SentryHttpTransportTests/testFlush_BlocksCallingThread_FinishesFlushingWhenSent()">
-               </Test>
-               <Test
-                  Identifier = "SentryHttpTransportTests/testFlush_CalledSequentially_BlocksTwice()">
-               </Test>
-               <Test
-                  Identifier = "SentryHttpTransportTests/testFlush_WhenNoInternet_BlocksAndFinishes()">
-               </Test>
-               <Test
                   Identifier = "SentryNetworkTrackerIntegrationTests/testGetCaptureFailedRequestsEnabled()">
                </Test>
                <Test

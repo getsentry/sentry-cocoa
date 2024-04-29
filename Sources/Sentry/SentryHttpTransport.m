@@ -199,7 +199,12 @@ SentryHttpTransport ()
 #endif
     }
 
-    [self sendAllCachedEnvelopes];
+    // We are waiting for the dispatch group below, which we leave in finished sending. As
+    // sendAllCachedEnvelopes does some IO, it could block the calling thread longer than the
+    // desired flush duration. Therefore, we dispatch the sendAllCachedEnvelopes async. Furthermore,
+    // when calling flush directly after captureEnvelope, it could happen that SDK doesn't store the
+    // envelope to disk, which happens async, before starting to flush.
+    [self.dispatchQueue dispatchAsyncWithBlock:^{ [self sendAllCachedEnvelopes]; }];
 
     intptr_t result = dispatch_group_wait(self.dispatchGroup, dispatchTimeout);
 
