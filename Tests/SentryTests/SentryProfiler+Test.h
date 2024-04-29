@@ -11,21 +11,21 @@ NS_ASSUME_NONNULL_BEGIN
 @interface
 SentryProfiler ()
 
-NSMutableDictionary<NSString *, id> *serializedProfileData(
-    NSDictionary<NSString *, id> *profileData, uint64_t startSystemTime, uint64_t endSystemTime,
-    NSString *truncationReason, NSDictionary<NSString *, id> *serializedMetrics,
-    NSArray<SentryDebugMeta *> *debugMeta, SentryHub *hub
-#    if SENTRY_HAS_UIKIT
-    ,
-    SentryScreenFrames *gpuData
-#    endif // SENTRY_HAS_UIKIT
-);
-
 + (SentryProfiler *)getCurrentProfiler;
 
-+ (void)sentry_resetConcurrencyTracking;
+/**
+ * This just calls through to SentryProfiledTracerConcurrency.sentry_resetConcurrencyTracking(). we
+ * have to do this through SentryTracer because SentryProfiledTracerConcurrency.h cannot be included
+ * in test targets via ObjC bridging headers because it contains C++.
+ */
++ (void)resetConcurrencyTracking;
 
-+ (NSUInteger)sentry_currentProfiledTracers;
+/**
+ * This just calls through to SentryProfiledTracerConcurrency.sentry_currentProfiledTracers(). we
+ * have to do this through SentryTracer because SentryProfiledTracerConcurrency.h cannot be included
+ * in test targets via ObjC bridging headers because it contains C++.
+ */
++ (NSUInteger)currentProfiledTracers;
 
 @end
 

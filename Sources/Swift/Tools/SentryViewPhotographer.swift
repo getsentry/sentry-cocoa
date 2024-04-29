@@ -45,7 +45,17 @@ class SentryViewPhotographer: NSObject {
         guard let screenshot = UIGraphicsGetImageFromCurrentImageContext() else { return nil }
         return screenshot
     }
-    
+
+    @objc(addIgnoreClasses:)
+    func addIgnoreClasses(classes: [AnyClass]) {
+        ignoreClasses += classes
+    }
+
+    @objc(addRedactClasses:)
+    func addRedactClasses(classes: [AnyClass]) {
+        redactClasses += classes
+    }
+
     private func mask(view: UIView, context: CGContext, options: SentryRedactOptions?) {
         UIColor.black.setFill()
         let maskPath = self.buildPath(view: view,

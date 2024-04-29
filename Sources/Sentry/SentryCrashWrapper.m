@@ -176,7 +176,6 @@ NS_ASSUME_NONNULL_BEGIN
     [deviceData setValue:systemInfo[@"freeMemorySize"] forKey:SentryDeviceContextFreeMemoryKey];
     [deviceData setValue:systemInfo[@"usableMemorySize"] forKey:@"usable_memory"];
     [deviceData setValue:systemInfo[@"memorySize"] forKey:@"memory_size"];
-    [deviceData setValue:systemInfo[@"bootTime"] forKey:@"boot_time"];
 
     NSString *locale = [[NSLocale autoupdatingCurrentLocale] objectForKey:NSLocaleIdentifier];
     [deviceData setValue:locale forKey:LOCALE_KEY];

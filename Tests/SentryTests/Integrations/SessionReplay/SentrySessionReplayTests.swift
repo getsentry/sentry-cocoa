@@ -34,7 +34,7 @@ class SentrySessionReplayTests: XCTestCase {
         }
         
         var lastFrame: UIImage?
-        func addFrame(with image: UIImage) {
+        func addFrameAsync(with image: UIImage) {
             lastFrame = image
         }
         
@@ -191,6 +191,18 @@ class SentrySessionReplayTests: XCTestCase {
         assertFullSession(sut, expected: false)
     }
     
+    @available(iOS 16.0, tvOS 16, *)
+    func testChangeReplayMode_forHybridSDKEvent() {
+        let fixture = startFixture()
+        let sut = fixture.getSut(options: SentryReplayOptions(sessionSampleRate: 1, errorSampleRate: 1))
+        sut.start(fixture.rootView, fullSession: false)
+
+        sut.capture()
+
+        expect(fixture.hub.scope.replayId) == sut.sessionReplayId.sentryIdString
+        assertFullSession(sut, expected: true)
+    }
+
     @available(iOS 16.0, tvOS 16, *)
     func testSessionReplayMaximumDuration() {
         let fixture = startFixture()
