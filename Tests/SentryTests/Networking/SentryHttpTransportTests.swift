@@ -731,12 +731,20 @@ class SentryHttpTransportTests: XCTestCase {
     func testFlush_WhenNoEnvelopes_BlocksAndFinishes() {
         let sut = fixture.getSut(dispatchQueueWrapper: SentryDispatchQueueWrapper())
         
-        let beforeFlush = getAbsoluteTime()
-        expect(sut.flush(self.fixture.flushTimeout)).to(equal(.success), description: "Flush should not time out.")
+        var blockingDurationSum: TimeInterval = 0.0
+        let flushInvocations = 100
         
-        let blockingDuration = getDurationNs(beforeFlush, getAbsoluteTime()).toTimeInterval()
+        for _ in  0..<flushInvocations {
+            let beforeFlush = getAbsoluteTime()
+            expect(sut.flush(self.fixture.flushTimeout)).to(equal(.success), description: "Flush should not time out.")
+            let blockingDuration = getDurationNs(beforeFlush, getAbsoluteTime()).toTimeInterval()
+            
+            blockingDurationSum += blockingDuration
+        }
         
-        expect(blockingDuration) < 0.5
+        let blockingDurationAverage = blockingDurationSum / Double(flushInvocations)
+        
+        expect(blockingDurationAverage) < 0.1
     }
     
     func testFlush_WhenNoInternet_BlocksAndFinishes() {
@@ -747,10 +755,20 @@ class SentryHttpTransportTests: XCTestCase {
         sut.send(envelope: fixture.eventEnvelope)
         sut.send(envelope: fixture.eventEnvelope)
         
-        let beforeFlush = getAbsoluteTime()
-        expect(sut.flush(self.fixture.flushTimeout)).to(equal(.success), description: "Flush should not time out.")
-        let blockingDuration = getDurationNs(beforeFlush, getAbsoluteTime()).toTimeInterval()
-        expect(blockingDuration) < 0.5
+        var blockingDurationSum: TimeInterval = 0.0
+        let flushInvocations = 100
+        
+        for _ in  0..<flushInvocations {
+            let beforeFlush = getAbsoluteTime()
+            expect(sut.flush(self.fixture.flushTimeout)).to(equal(.success), description: "Flush should not time out.")
+            let blockingDuration = getDurationNs(beforeFlush, getAbsoluteTime()).toTimeInterval()
+            
+            blockingDurationSum += blockingDuration
+        }
+        
+        let blockingDurationAverage = blockingDurationSum / Double(flushInvocations)
+        
+        expect(blockingDurationAverage) < 0.1
     }
     
     func testFlush_CallingFlushDirectlyAfterCapture_Flushes() {
