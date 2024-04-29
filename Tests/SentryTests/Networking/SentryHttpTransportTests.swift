@@ -740,7 +740,7 @@ class SentryHttpTransportTests: XCTestCase {
     }
     
     func testFlush_WhenNoInternet_BlocksAndFinishes() {
-        givenCachedamEvents()
+        givenCachedEvents()
         givenNoInternetConnection()
         
         let beforeFlush = getAbsoluteTime()
