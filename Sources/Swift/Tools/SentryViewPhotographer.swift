@@ -7,7 +7,6 @@ import UIKit
 
 @objcMembers
 class SentryViewPhotographer: NSObject, SentryViewScreenshotProvider {
-    
     //This is a list of UIView subclasses that will be ignored during redact process
     private var ignoreClasses: [AnyClass] = []
     //This is a list of UIView subclasses that need to be redacted from screenshot
@@ -40,6 +39,7 @@ class SentryViewPhotographer: NSObject, SentryViewScreenshotProvider {
                 for region in redact {
                     (region.color ?? self.averageColor(of: context.currentImage, at: region.rect)).setFill()
                     context.fill(region.rect)
+                    //region.image?.draw(in: region.rect)
                 }
             }
             onComplete(screenshot)
@@ -111,7 +111,7 @@ class SentryViewPhotographer: NSObject, SentryViewScreenshotProvider {
     
     private func mapRedactRegion(fromView view: UIView, redacting: inout [RedactRegion], area: CGRect, redactText: Bool, redactImage: Bool) {
         let rectInWindow = view.convert(view.bounds, to: nil)
-        guard redactImage || redactText || area.intersects(rectInWindow) || !view.isHidden || view.alpha != 0 else { return }
+        guard (redactImage || redactText) && area.intersects(rectInWindow) && !view.isHidden && view.alpha != 0 else { return }
         
         let ignore = shouldIgnore(view: view)
         let redact = shouldRedact(view: view, redactText: redactText, redactImage: redactImage)
@@ -123,7 +123,7 @@ class SentryViewPhotographer: NSObject, SentryViewScreenshotProvider {
             if rectInWindow == area {
                 redacting.removeAll()
             } else {
-                //redacting = redacting.flatMap { $0.splitBySubtracting(region: rectInWindow) }
+                redacting = redacting.flatMap { $0.splitBySubtracting(region: rectInWindow) }
             }
         }
         
