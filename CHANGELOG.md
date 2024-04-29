@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Handle no releaseName in WatchDogTerminationLogic (#3918)
+
 ## 8.25.0
 
 ### Features
