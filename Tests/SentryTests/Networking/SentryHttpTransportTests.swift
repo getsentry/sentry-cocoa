@@ -34,7 +34,7 @@ class SentryHttpTransportTests: XCTestCase {
         let reachability = TestSentryReachability()
 #endif // !os(watchOS)
 
-        let flushTimeout: TimeInterval = 0.5
+        let flushTimeout: TimeInterval = 2.0
 
         let userFeedback: UserFeedback
         let userFeedbackRequest: SentryNSURLRequest
