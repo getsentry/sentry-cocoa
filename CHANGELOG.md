@@ -5,7 +5,6 @@
 ### Fixes
 
 - Don't transmit device boot time in envelopes enriched with crash data (#3912)
-- Session replay dont find a UIWindow (#3911)
 
 ## 8.25.0-alpha.0
 
