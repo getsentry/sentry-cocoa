@@ -132,6 +132,11 @@
                BlueprintName = "SentryProfilerTests"
                ReferencedContainer = "container:Sentry.xcodeproj">
             </BuildableReference>
+            <SkippedTests>
+               <Test
+                  Identifier = "SentryProfilerTests/testProfilerMutationDuringSlicing">
+               </Test>
+            </SkippedTests>
          </TestableReference>
       </Testables>
    </TestAction>

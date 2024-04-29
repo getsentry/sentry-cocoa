@@ -2,9 +2,16 @@
 
 ## Unreleased
 
+### Fixes
+
+- Don't transmit device boot time in envelopes enriched with crash data (#3912)
+
+## 8.25.0-alpha.0
+
 ### Features
 
 - Add Session Replay, which is **still experimental**. (#3625)
+  - Access is limited to early access orgs on Sentry. If you're interested, [sign up for the waitlist](https://sentry.io/lp/mobile-replay-beta/)
 
 ### Fixes
 

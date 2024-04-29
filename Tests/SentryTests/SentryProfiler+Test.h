@@ -13,9 +13,19 @@ SentryProfiler ()
 
 + (SentryProfiler *)getCurrentProfiler;
 
-+ (void)sentry_resetConcurrencyTracking;
+/**
+ * This just calls through to SentryProfiledTracerConcurrency.sentry_resetConcurrencyTracking(). we
+ * have to do this through SentryTracer because SentryProfiledTracerConcurrency.h cannot be included
+ * in test targets via ObjC bridging headers because it contains C++.
+ */
++ (void)resetConcurrencyTracking;
 
-+ (NSUInteger)sentry_currentProfiledTracers;
+/**
+ * This just calls through to SentryProfiledTracerConcurrency.sentry_currentProfiledTracers(). we
+ * have to do this through SentryTracer because SentryProfiledTracerConcurrency.h cannot be included
+ * in test targets via ObjC bridging headers because it contains C++.
+ */
++ (NSUInteger)currentProfiledTracers;
 
 @end
 
