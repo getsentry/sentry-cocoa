@@ -4,7 +4,7 @@
 
 ### Fixes
 
-- Don't transmit device boot time in envelopes enriched with crash data (#3912)
+- Don't transmit device boot time in envelopes enriched with crash data (#3912, #3916)
 
 ### Improvements
 
