@@ -6,6 +6,10 @@
 
 - Don't transmit device boot time in envelopes enriched with crash data (#3912)
 
+### Improvements
+
+- Capture transactions on a background thread (#3892)
+
 ## 8.25.0-alpha.0
 
 ### Features
@@ -19,10 +23,6 @@
 - Save framework without UIKit/AppKit as Github Asset for releases (#3858) 
 - Fix crash associated with runtime collision in global C function names (#3862)
 - Remove wrong error log in SentryCoreDataTracker (#3894)
-
-### Improvements
-
-- Capture transactions on a background thread (#3892)
 
 ## 8.24.0
 
