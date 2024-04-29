@@ -183,7 +183,6 @@
 #pragma mark System
 #define SentryCrashField_AppStartTime "app_start_time"
 #define SentryCrashField_AppUUID "app_uuid"
-#define SentryCrashField_BootTime "boot_time"
 #define SentryCrashField_BundleID "CFBundleIdentifier"
 #define SentryCrashField_BundleName "CFBundleName"
 #define SentryCrashField_BundleShortVersion "CFBundleShortVersionString"

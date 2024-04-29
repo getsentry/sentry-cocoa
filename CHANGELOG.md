@@ -1,12 +1,26 @@
 # Changelog
 
-## Unreleased
+## 8.25.0
+
+### Features
+
+- Add Session Replay, which is **still experimental**. (#3625)
+  - Access is limited to early access orgs on Sentry. If you're interested, [sign up for the waitlist](https://sentry.io/lp/mobile-replay-beta/)
 
 ### Fixes
 
 - Don't transmit device boot time in envelopes enriched with crash data (#3912)
 - Ensure flushing envelopes directly after capturing them (#3915)
 
+- Crash due to a background call to -[UIApplication applicationState] (#3855)
+- Save framework without UIKit/AppKit as Github Asset for releases (#3858) 
+- Fix crash associated with runtime collision in global C function names (#3862)
+- Remove wrong error log in SentryCoreDataTracker (#3894)
+- Don't transmit device boot time in envelopes enriched with crash data (#3912, #3916)
+
+### Improvements
+
+- Capture transactions on a background thread (#3892)
 
 ## 8.25.0-alpha.0
 
