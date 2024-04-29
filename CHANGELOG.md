@@ -6,6 +6,10 @@
 
 - Don't transmit device boot time in envelopes enriched with crash data (#3912)
 
+### Improvements
+
+- Capture transactions on a background thread (#3892)
+
 ## 8.25.0-alpha.0
 
 ### Features
