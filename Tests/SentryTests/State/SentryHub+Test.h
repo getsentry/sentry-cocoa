@@ -2,6 +2,7 @@
 
 @class SentryClient;
 @class SentryCrashWrapper;
+@class SentryDispatchQueueWrapper;
 @protocol SentryIntegrationProtocol;
 NS_ASSUME_NONNULL_BEGIN
 
@@ -11,7 +12,8 @@ SentryHub ()
 
 - (instancetype)initWithClient:(SentryClient *_Nullable)client
                       andScope:(SentryScope *_Nullable)scope
-               andCrashWrapper:(SentryCrashWrapper *)crashAdapter;
+               andCrashWrapper:(SentryCrashWrapper *)crashAdapter
+              andDispatchQueue:(SentryDispatchQueueWrapper *)dispatchQueue;
 
 - (NSArray<id<SentryIntegrationProtocol>> *)installedIntegrations;
 - (NSSet<NSString *> *)installedIntegrationNames;

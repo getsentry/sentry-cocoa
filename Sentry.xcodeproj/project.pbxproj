@@ -861,6 +861,7 @@
 		D8AFC03D2BDA79BF00118BE1 /* SentryReplayVideoMaker.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8AFC03C2BDA79BF00118BE1 /* SentryReplayVideoMaker.swift */; };
 		D8AFC0572BDA895400118BE1 /* RedactRegion.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8AFC0562BDA895400118BE1 /* RedactRegion.swift */; };
 		D8AFC05A2BDA89C100118BE1 /* RedactRegionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8AFC0582BDA899A00118BE1 /* RedactRegionTests.swift */; };
+		D8AFC0622BDBEE4200118BE1 /* SentrySessionReplayIntegration+Private.h in Headers */ = {isa = PBXBuildFile; fileRef = D8AFC0612BDBEDF100118BE1 /* SentrySessionReplayIntegration+Private.h */; };
 		D8B0542E2A7D2C720056BAF6 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = D8B0542D2A7D2C720056BAF6 /* PrivacyInfo.xcprivacy */; };
 		D8B088B629C9E3FF00213258 /* SentryTracerConfiguration.h in Headers */ = {isa = PBXBuildFile; fileRef = D8B088B429C9E3FF00213258 /* SentryTracerConfiguration.h */; };
 		D8B088B729C9E3FF00213258 /* SentryTracerConfiguration.m in Sources */ = {isa = PBXBuildFile; fileRef = D8B088B529C9E3FF00213258 /* SentryTracerConfiguration.m */; };
@@ -1893,6 +1894,7 @@
 		D8AFC03C2BDA79BF00118BE1 /* SentryReplayVideoMaker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryReplayVideoMaker.swift; sourceTree = "<group>"; };
 		D8AFC0562BDA895400118BE1 /* RedactRegion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RedactRegion.swift; sourceTree = "<group>"; };
 		D8AFC0582BDA899A00118BE1 /* RedactRegionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RedactRegionTests.swift; sourceTree = "<group>"; };
+		D8AFC0612BDBEDF100118BE1 /* SentrySessionReplayIntegration+Private.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "SentrySessionReplayIntegration+Private.h"; path = "include/SentrySessionReplayIntegration+Private.h"; sourceTree = "<group>"; };
 		D8B0542D2A7D2C720056BAF6 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		D8B088B429C9E3FF00213258 /* SentryTracerConfiguration.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SentryTracerConfiguration.h; path = include/SentryTracerConfiguration.h; sourceTree = "<group>"; };
 		D8B088B529C9E3FF00213258 /* SentryTracerConfiguration.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentryTracerConfiguration.m; sourceTree = "<group>"; };
@@ -3544,6 +3546,7 @@
 				D820CDB12BB1886100BA339D /* SentrySessionReplay.h */,
 				D820CDB22BB1886100BA339D /* SentrySessionReplay.m */,
 				D820CDB52BB1895F00BA339D /* SentrySessionReplayIntegration.h */,
+				D8AFC0612BDBEDF100118BE1 /* SentrySessionReplayIntegration+Private.h */,
 				D820CDB62BB1895F00BA339D /* SentrySessionReplayIntegration.m */,
 			);
 			name = SessionReplay;
@@ -3940,6 +3943,7 @@
 				6383953623ABA42C000C1594 /* SentryHttpTransport.h in Headers */,
 				84A8891C28DBD28900C51DFD /* SentryDevice.h in Headers */,
 				8E564AEF267AF24400FE117D /* SentryNetworkTracker.h in Headers */,
+				D8AFC0622BDBEE4200118BE1 /* SentrySessionReplayIntegration+Private.h in Headers */,
 				63FE715120DA4C1100CDBAE8 /* SentryCrashDebug.h in Headers */,
 				63FE70F520DA4C1000CDBAE8 /* SentryCrashMonitor_System.h in Headers */,
 				7B31C291277B04A000337126 /* SentryCrashPlatformSpecificDefines.h in Headers */,

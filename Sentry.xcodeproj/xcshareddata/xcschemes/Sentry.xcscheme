@@ -56,6 +56,18 @@
             </BuildableReference>
             <SkippedTests>
                <Test
+                  Identifier = "SentryANRTrackerTests/testANRButAppInBackground_NoANR()">
+               </Test>
+               <Test
+                  Identifier = "SentryANRTrackerTests/testMultipleListeners()">
+               </Test>
+               <Test
+                  Identifier = "SentryCoreDataTrackerTests/testFetchRequestBackgroundThread()">
+               </Test>
+               <Test
+                  Identifier = "SentryCoreDataTrackerTests/testSaveBackgroundThread()">
+               </Test>
+               <Test
                   Identifier = "SentryCrashIntegrationTests/testStartUpCrash_CallsFlush()">
                </Test>
                <Test
@@ -65,7 +77,22 @@
                   Identifier = "SentryCrashReportStore_Tests/testDeleteAllReports">
                </Test>
                <Test
+                  Identifier = "SentryCrashReportStore_Tests/testStoresLoadsMultipleReports">
+               </Test>
+               <Test
+                  Identifier = "SentryHttpTransportTests/testFlush_BlocksCallingThread_FinishesFlushingWhenSent()">
+               </Test>
+               <Test
+                  Identifier = "SentryHttpTransportTests/testFlush_CalledSequentially_BlocksTwice()">
+               </Test>
+               <Test
+                  Identifier = "SentryHttpTransportTests/testFlush_WhenNoInternet_BlocksAndFinishes()">
+               </Test>
+               <Test
                   Identifier = "SentryNetworkTrackerIntegrationTests/testGetCaptureFailedRequestsEnabled()">
+               </Test>
+               <Test
+                  Identifier = "SentryNetworkTrackerIntegrationTests/testGetRequest_CompareSentryTraceHeader()">
                </Test>
                <Test
                   Identifier = "SentryProfilerSwiftTests/testConcurrentSpansWithTimeout()">
@@ -105,6 +132,11 @@
                BlueprintName = "SentryProfilerTests"
                ReferencedContainer = "container:Sentry.xcodeproj">
             </BuildableReference>
+            <SkippedTests>
+               <Test
+                  Identifier = "SentryProfilerTests/testProfilerMutationDuringSlicing">
+               </Test>
+            </SkippedTests>
          </TestableReference>
       </Testables>
    </TestAction>

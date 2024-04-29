@@ -29,7 +29,7 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
             
             crashWrapper = TestSentryCrashWrapper.sharedInstance()
             
-            let hub = SentryHub(client: client, andScope: nil, andCrashWrapper: crashWrapper)
+            let hub = SentryHub(client: client, andScope: nil, andCrashWrapper: crashWrapper, andDispatchQueue: SentryDispatchQueueWrapper())
             SentrySDK.setCurrentHub(hub)
         }
         
