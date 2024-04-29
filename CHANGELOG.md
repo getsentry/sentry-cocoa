@@ -4,7 +4,7 @@
 
 ### Fixes
 
-- Handle no releaseName in WatchDogTerminationLogic (#3918)
+- Handle no releaseName in WatchDogTerminationLogic (#3919)
 
 ## 8.25.0
 
