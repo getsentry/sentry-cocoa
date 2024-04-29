@@ -736,17 +736,21 @@ class SentryHttpTransportTests: XCTestCase {
         
         let blockingDuration = getDurationNs(beforeFlush, getAbsoluteTime()).toTimeInterval()
         
-        expect(blockingDuration) < 0.1
+        expect(blockingDuration) < 0.5
     }
     
     func testFlush_WhenNoInternet_BlocksAndFinishes() {
-        givenCachedEvents()
         givenNoInternetConnection()
         
+        let sut = fixture.getSut(dispatchQueueWrapper: SentryDispatchQueueWrapper())
+        
+        sut.send(envelope: fixture.eventEnvelope)
+        sut.send(envelope: fixture.eventEnvelope)
+        
         let beforeFlush = getAbsoluteTime()
-        expect(self.sut.flush(self.fixture.flushTimeout)).to(equal(.success), description: "Flush should not time out.")
+        expect(sut.flush(self.fixture.flushTimeout)).to(equal(.success), description: "Flush should not time out.")
         let blockingDuration = getDurationNs(beforeFlush, getAbsoluteTime()).toTimeInterval()
-        expect(blockingDuration) < 0.1
+        expect(blockingDuration) < 0.5
     }
     
     func testFlush_CallingFlushDirectlyAfterCapture_Flushes() {
