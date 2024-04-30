@@ -21,26 +21,18 @@ final class SentryContinuousProfilerTests: XCTestCase {
     func testStartingAndStoppingContinuousProfiler() throws {
         try performContinuousProfilingTest()
     }
-    
-    //swiftlint:disable todo
-    // TODO: test ideas:
-    // given a profiler initialized with continuous mode
-        // ensure no timeout timer is set
-        // ensure a background notification observer is set
-        // ensure isCurrentlyProfiling is true
-        // if stop is called
-            // ensure isCurrentlyProfiling is false
-            // ensure a background notification observer is not set
-    //swiftlint:enable todo
-    
 }
 
 private extension SentryContinuousProfilerTests {
-
     func performContinuousProfilingTest() throws {
         SentryContinuousProfiler.start()
+        
+        XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
+        
         try addMockSamples()
         SentryContinuousProfiler.stop()
+        
+        XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
 
         //swiftlint:disable todo
         // TODO: assert valid continuous profiling data when schema changes are implemented
