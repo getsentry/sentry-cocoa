@@ -29,7 +29,7 @@ class SentryOnDemandReplay: NSObject {
     
     private var _starttime = Date()
     private var _frames = [SentryReplayFrame]()
-    private var _currentPixelBuffer: SentryPixelBuffer?
+    #endif // TEST || TESTCI || DEBUG
     
     var videoWidth = 200
     var videoHeight = 434
