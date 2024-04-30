@@ -39,7 +39,6 @@ class SentryViewPhotographer: NSObject, SentryViewScreenshotProvider {
                 for region in redact {
                     (region.color ?? self.averageColor(of: context.currentImage, at: region.rect)).setFill()
                     context.fill(region.rect)
-                    //region.image?.draw(in: region.rect)
                 }
             }
             onComplete(screenshot)
