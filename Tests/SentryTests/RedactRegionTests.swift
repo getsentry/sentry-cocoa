@@ -98,5 +98,14 @@ class RedactRegionTests: XCTestCase {
         expect(result[2].rect) == CGRect(x: 100, y: 25, width: 50, height: 50)
     }
     
+    func testSplitBySubtracting_BottomIsWider() {
+        let sut = RedactRegion(rect: CGRect(x: 0, y: 0, width: 100, height: 100), color: .red) 
+        let result = sut.splitBySubtracting(region: CGRect(x: 0, y: 50, width: 150, height: 50))
+        
+        expect(result.count) == 1
+        expect(result.first?.rect) == CGRect(x: 0, y: 0, width: 100, height: 50)
+        expect(result.first?.color) == .red
+    }
+    
 }
 #endif
