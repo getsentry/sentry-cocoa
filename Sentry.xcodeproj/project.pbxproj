@@ -2410,7 +2410,6 @@
 			isa = PBXGroup;
 			children = (
 				844DA7F6282435CD00E6B62E /* README.md */,
-				7B9660B12783500E0014A767 /* ThreadSanitizer.sup */,
 				630C01951EC341D600C52CEF /* Resources */,
 				63AA76AA1EB9D5CD00D153DE /* Configuration */,
 				63AA75931EB8AEDB00D153DE /* SentryTests */,
@@ -3728,6 +3727,7 @@
 		D8B0542F2A7D35F10056BAF6 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				7B9660B12783500E0014A767 /* ThreadSanitizer.sup */,
 				D8B0542D2A7D2C720056BAF6 /* PrivacyInfo.xcprivacy */,
 				D8511F722BAC8F750015E6FD /* Sentry.modulemap */,
 			);
