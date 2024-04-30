@@ -16,6 +16,7 @@ final class UIImageHelper {
         let bitmapInfo: UInt32 = CGBitmapInfo.byteOrder32Little.rawValue | CGImageAlphaInfo.premultipliedFirst.rawValue
         
         guard let context = CGContext(data: nil, width: 1, height: 1, bitsPerComponent: 8, bytesPerRow: 4, space: colorSpace, bitmapInfo: bitmapInfo) else { return .black }
+        context.interpolationQuality = .high
         
         guard let croppedImage = image.cgImage?.cropping(to: scaledRegion) else {
             return .black
