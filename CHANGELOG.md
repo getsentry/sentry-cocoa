@@ -4,6 +4,7 @@
 
 ### Fixes
 
+- Ignore SentryFramesTracker thread sanitizer data races (#3922)
 - Handle no releaseName in WatchDogTerminationLogic (#3919)
 
 ## 8.25.0
