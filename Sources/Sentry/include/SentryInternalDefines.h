@@ -66,16 +66,3 @@ static NSString *const SentryPlatformName = @"cocoa";
 #define SPAN_DATA_BLOCKED_MAIN_THREAD @"blocked_main_thread"
 #define SPAN_DATA_THREAD_ID @"thread.id"
 #define SPAN_DATA_THREAD_NAME @"thread.name"
-
-/**
- * For disabling the thread sanitizer for a method
- */
-#if defined(__has_feature)
-#    if __has_feature(thread_sanitizer)
-#        define SENTRY_DISABLE_THREAD_SANITIZER __attribute__((no_sanitize("thread")))
-#    else
-#        define SENTRY_DISABLE_THREAD_SANITIZER
-#    endif
-#else
-#    define SENTRY_DISABLE_THREAD_SANITIZER
-#endif
