@@ -39,7 +39,7 @@ Reach out to a [CODEOWNER](https://github.com/getsentry/sentry-cocoa/blob/main/.
 ## Unit Tests with Thread Sanitizer
 
 CI runs the unit tests for one job with thread sanitizer enabled to detect race conditions.
-The Test scheme of Sentry uses `TSAN_OPTIONS` to specify the [suppression file](../Tests/ThreadSanitizer.sup) to ignore false positives or known issues.
+To ignore false positives or known issues, use the `SENTRY_DISABLE_THREAD_SANITIZER` macro or the [suppression file](../Sources/Resources/ThreadSanitizer.sup).
 It's worth noting that you can use the `$(PROJECT_DIR)` to specify the path to the suppression file.
 To run the unit tests with the thread sanitizer enabled in Xcode click on edit scheme, go to tests, then open diagnostics, and enable Thread Sanitizer.
 The profiler doesn't work with TSAN attached, so tests that run the profiler will be skipped.

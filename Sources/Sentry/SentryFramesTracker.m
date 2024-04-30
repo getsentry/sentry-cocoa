@@ -7,7 +7,7 @@
 #    import "SentryDelayedFramesTracker.h"
 #    import "SentryDispatchQueueWrapper.h"
 #    import "SentryDisplayLinkWrapper.h"
-#    import "SentryInternalDefines.h"
+#    import "SentryInternalCDefines.h"
 #    import "SentryLog.h"
 #    import "SentryProfiler+Private.h"
 #    import "SentryProfilingConditionals.h"
@@ -87,22 +87,16 @@ slowFrameThreshold(uint64_t actualFramesPerSecond)
 {
     _displayLinkWrapper = displayLinkWrapper;
 }
-
-/**
- * As you can only disable the thread sanitizer for methods, we must manually create the setter
- * here.
- */
 - (void)setPreviousFrameSystemTimestamp:(uint64_t)previousFrameSystemTimestamp
-    SENTRY_DISABLE_THREAD_SANITIZER
+    SENTRY_DISABLE_THREAD_SANITIZER("As you can only disable the thread sanitizer for methods, we "
+                                    "must manually create the setter here.")
 {
     _previousFrameSystemTimestamp = previousFrameSystemTimestamp;
 }
 
-/**
- * As you can only disable the thread sanitizer for methods, we must manually create the getter
- * here.
- */
-- (uint64_t)getPreviousFrameSystemTimestamp SENTRY_DISABLE_THREAD_SANITIZER
+- (uint64_t)getPreviousFrameSystemTimestamp SENTRY_DISABLE_THREAD_SANITIZER(
+    "As you can only disable the thread sanitizer for methods, we must manually create the getter "
+    "here.")
 {
     return _previousFrameSystemTimestamp;
 }
@@ -251,7 +245,7 @@ slowFrameThreshold(uint64_t actualFramesPerSecond)
 }
 #    endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
-- (SentryScreenFrames *)currentFrames SENTRY_DISABLE_THREAD_SANITIZER
+- (SentryScreenFrames *)currentFrames SENTRY_DISABLE_THREAD_SANITIZER()
 {
 #    if SENTRY_TARGET_PROFILING_SUPPORTED
     return [[SentryScreenFrames alloc] initWithTotal:_totalFrames
@@ -268,7 +262,7 @@ slowFrameThreshold(uint64_t actualFramesPerSecond)
 }
 
 - (CFTimeInterval)getFramesDelay:(uint64_t)startSystemTimestamp
-              endSystemTimestamp:(uint64_t)endSystemTimestamp SENTRY_DISABLE_THREAD_SANITIZER
+              endSystemTimestamp:(uint64_t)endSystemTimestamp SENTRY_DISABLE_THREAD_SANITIZER()
 {
     return [self.delayedFramesTracker getFramesDelay:startSystemTimestamp
                                   endSystemTimestamp:endSystemTimestamp

@@ -27,6 +27,7 @@
       selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
       shouldUseLaunchSchemeArgsEnv = "NO"
+      enableThreadSanitizer = "YES"
       codeCoverageEnabled = "YES">
       <MacroExpansion>
          <BuildableReference
@@ -40,7 +41,7 @@
       <EnvironmentVariables>
          <EnvironmentVariable
             key = "TSAN_OPTIONS"
-            value = "suppressions=$(PROJECT_DIR)/Tests/ThreadSanitizer.sup"
+            value = "suppressions=$(PROJECT_DIR)/Sources/Resources/ThreadSanitizer.sup"
             isEnabled = "YES">
          </EnvironmentVariable>
       </EnvironmentVariables>
@@ -159,6 +160,13 @@
             ReferencedContainer = "container:Sentry.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
+      <EnvironmentVariables>
+         <EnvironmentVariable
+            key = "TSAN_OPTIONS"
+            value = "suppressions=$(PROJECT_DIR)/Sources/Resources/ThreadSanitizer.sup"
+            isEnabled = "YES">
+         </EnvironmentVariable>
+      </EnvironmentVariables>
    </LaunchAction>
    <ProfileAction
       buildConfiguration = "Release"
