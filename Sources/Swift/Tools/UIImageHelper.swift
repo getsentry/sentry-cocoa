@@ -17,10 +17,6 @@ final class UIImageHelper {
         guard let context = CGContext(data: nil, width: 1, height: 1, bitsPerComponent: 8, bytesPerRow: 4, space: colorSpace, bitmapInfo: bitmapInfo) else { return .black }
         context.interpolationQuality = .high
         
-        guard let croppedImage = image.cgImage?.cropping(to: scaledRegion) else {
-            return .black
-        }
-        
         context.draw(croppedImage, in: CGRect(x: 0, y: 0, width: 1, height: 1))
         guard let pixelBuffer = context.data else { return .black }
         
