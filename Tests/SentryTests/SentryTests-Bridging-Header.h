@@ -13,7 +13,7 @@
 #    import "MockUIScene.h"
 #    import "SentryFramesTracker+TestInit.h"
 #    import "SentrySessionReplay.h"
-#    import "SentrySessionReplayIntegration.h"
+#    import "SentrySessionReplayIntegration+Private.h"
 #    import "SentryUIApplication+Private.h"
 #    import "SentryUIApplication.h"
 #    import "SentryUIDeviceWrapper.h"
@@ -31,7 +31,9 @@
 #    import "SentryProfiler+Private.h"
 #    import "SentryProfiler+Test.h"
 #    import "SentryProfilerMocksSwiftCompatible.h"
+#    import "SentryProfilerSerialization+Test.h"
 #    import "SentryProfilerState.h"
+#    import "SentryProfilerTestHelpers.h"
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
 #import "NSLocale+Sentry.h"

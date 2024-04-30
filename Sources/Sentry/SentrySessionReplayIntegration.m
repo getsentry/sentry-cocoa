@@ -1,4 +1,4 @@
-#import "SentrySessionReplayIntegration.h"
+#import "SentrySessionReplayIntegration+Private.h"
 
 #if SENTRY_HAS_UIKIT && !TARGET_OS_VISION
 
@@ -8,12 +8,14 @@
 #    import "SentryFileManager.h"
 #    import "SentryGlobalEventProcessor.h"
 #    import "SentryHub+Private.h"
+#    import "SentryNSNotificationCenterWrapper.h"
 #    import "SentryOptions.h"
 #    import "SentryRandom.h"
 #    import "SentrySDK+Private.h"
 #    import "SentrySessionReplay.h"
 #    import "SentrySwift.h"
 #    import "SentryUIApplication.h"
+#    import <UIKit/UIKit.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -23,6 +25,7 @@ API_AVAILABLE(ios(16.0), tvos(16.0))
 @interface
 SentrySessionReplayIntegration ()
 @property (nonatomic, strong) SentrySessionReplay *sessionReplay;
+- (void)newSceneActivate;
 @end
 
 API_AVAILABLE(ios(16.0), tvos(16.0))
@@ -33,9 +36,13 @@ SentryViewPhotographer (SentryViewScreenshotProvider) <SentryViewScreenshotProvi
 API_AVAILABLE(ios(16.0), tvos(16.0))
 @interface
 SentryOnDemandReplay (SentryReplayMaker) <SentryReplayMaker>
+
 @end
 
-@implementation SentrySessionReplayIntegration
+@implementation SentrySessionReplayIntegration {
+    BOOL _startedAsFullSession;
+    SentryReplayOptions *_replayOptions;
+}
 
 - (BOOL)installWithOptions:(nonnull SentryOptions *)options
 {
@@ -44,15 +51,41 @@ SentryOnDemandReplay (SentryReplayMaker) <SentryReplayMaker>
     }
 
     if (@available(iOS 16.0, tvOS 16.0, *)) {
-        SentryReplayOptions *replayOptions = options.experimental.sessionReplay;
+        _replayOptions = options.experimental.sessionReplay;
 
-        BOOL shouldReplayFullSession =
-            [self shouldReplayFullSession:replayOptions.sessionSampleRate];
+        _startedAsFullSession = [self shouldReplayFullSession:_replayOptions.sessionSampleRate];
 
-        if (!shouldReplayFullSession && replayOptions.errorSampleRate == 0) {
+        if (!_startedAsFullSession && _replayOptions.errorSampleRate == 0) {
             return NO;
         }
 
+        if (SentryDependencyContainer.sharedInstance.application.windows.count > 0) {
+            // If a window its already available start replay right away
+            [self startWithOptions:_replayOptions fullSession:_startedAsFullSession];
+        } else {
+            // Wait for a scene to be available to started the replay
+            [SentryDependencyContainer.sharedInstance.notificationCenterWrapper
+                addObserver:self
+                   selector:@selector(newSceneActivate)
+                       name:UISceneDidActivateNotification];
+        }
+
+        return YES;
+    } else {
+        return NO;
+    }
+}
+
+- (void)newSceneActivate
+{
+    [SentryDependencyContainer.sharedInstance.notificationCenterWrapper removeObserver:self];
+    [self startWithOptions:_replayOptions fullSession:_startedAsFullSession];
+}
+
+- (void)startWithOptions:(SentryReplayOptions *)replayOptions
+             fullSession:(BOOL)shouldReplayFullSession
+{
+    if (@available(iOS 16.0, tvOS 16.0, *)) {
         NSURL *docs = [NSURL
             fileURLWithPath:[SentryDependencyContainer.sharedInstance.fileManager sentryPath]];
         docs = [docs URLByAppendingPathComponent:SENTRY_REPLAY_FOLDER];
@@ -97,16 +130,17 @@ SentryOnDemandReplay (SentryReplayMaker) <SentryReplayMaker>
                 [self.sessionReplay captureReplayForEvent:event];
                 return event;
             }];
-
-        return YES;
-    } else {
-        return NO;
     }
 }
 
 - (void)stop
 {
     [self.sessionReplay stop];
+}
+
+- (void)captureReplay
+{
+    [self.sessionReplay captureReplay];
 }
 
 - (SentryIntegrationOption)integrationOptions

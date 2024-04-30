@@ -570,8 +570,8 @@ private extension SentryProfilerSwiftTests {
         return try XCTUnwrap(envelope.event as? Transaction)
     }
 
-    func addMockSamples(threadMetadata: ThreadMetadata = ThreadMetadata(id: 1, priority: 2, name: "test-thread"), addresses: [NSNumber] = [0x3, 0x4, 0x5]) {
-        let state = SentryProfiler.getCurrent()._state
+    func addMockSamples(threadMetadata: ThreadMetadata = ThreadMetadata(id: 1, priority: 2, name: "main"), addresses: [NSNumber] = [0x3, 0x4, 0x5]) {
+        let state = SentryProfiler.getCurrent().state
         fixture.currentDateProvider.advanceBy(nanoseconds: 1)
         SentryProfilerMocksSwiftCompatible.appendMockBacktrace(to: state, threadID: threadMetadata.id, threadPriority: threadMetadata.priority, threadName: threadMetadata.name, addresses: addresses)
         fixture.currentDateProvider.advanceBy(nanoseconds: 1)
@@ -836,7 +836,7 @@ private extension SentryProfilerSwiftTests {
         }
 
         if shouldTimeout {
-            XCTAssertEqual(try XCTUnwrap(profile["truncation_reason"] as? String), profilerTruncationReasonName(.timeout))
+            XCTAssertEqual(try XCTUnwrap(profile["truncation_reason"] as? String), sentry_profilerTruncationReasonName(.timeout))
         }
     }
 
