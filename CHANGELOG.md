@@ -5,6 +5,7 @@
 ### Fixes
 
 - Ensure flushing envelopes directly after capturing them (#3915)
+- Handle no releaseName in WatchDogTerminationLogic (#3919)
 
 ## 8.25.0
 
