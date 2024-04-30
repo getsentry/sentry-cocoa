@@ -5,7 +5,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation SentryAppState
 
-- (instancetype)initWithReleaseName:(NSString *)releaseName
+- (instancetype)initWithReleaseName:(nullable NSString *)releaseName
                           osVersion:(NSString *)osVersion
                            vendorId:(NSString *)vendorId
                         isDebugging:(BOOL)isDebugging
@@ -34,7 +34,7 @@ NS_ASSUME_NONNULL_BEGIN
 {
     if (self = [super init]) {
         id releaseName = [jsonObject valueForKey:@"release_name"];
-        if (releaseName == nil || ![releaseName isKindOfClass:[NSString class]]) {
+        if (releaseName != nil && ![releaseName isKindOfClass:[NSString class]]) {
             return nil;
         } else {
             _releaseName = releaseName;
@@ -107,7 +107,9 @@ NS_ASSUME_NONNULL_BEGIN
 {
     NSMutableDictionary *data = [[NSMutableDictionary alloc] init];
 
-    [data setValue:self.releaseName forKey:@"release_name"];
+    if (self.releaseName != nil) {
+        [data setValue:self.releaseName forKey:@"release_name"];
+    }
     [data setValue:self.osVersion forKey:@"os_version"];
     [data setValue:self.vendorId forKey:@"vendor_id"];
     [data setValue:@(self.isDebugging) forKey:@"is_debugging"];
