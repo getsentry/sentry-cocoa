@@ -242,6 +242,7 @@ SentrySessionReplay ()
                 duration:(NSTimeInterval)duration
                startedAt:(NSDate *)start
 {
+    __weak SentrySessionReplay *weakSelf = self;
     [_replayMaker
         createVideoWithDuration:duration
                       beginning:start
@@ -251,15 +252,20 @@ SentrySessionReplay ()
                          if (error != nil) {
                              SENTRY_LOG_ERROR(@"Could not create replay video - %@", error);
                          } else {
-                             [self captureSegment:self->_currentSegmentId++
-                                            video:videoInfo
-                                         replayId:self->_sessionReplayId
-                                       replayType:kSentryReplayTypeSession];
-
-                             [self->_replayMaker releaseFramesUntil:videoInfo.end];
-                             self->_videoSegmentStart = nil;
+                             [weakSelf newSegmentAvailable:videoInfo];
                          }
                      }];
+}
+
+- (void)newSegmentAvailable:(SentryVideoInfo *)videoInfo
+{
+    [self captureSegment:self->_currentSegmentId++
+                   video:videoInfo
+                replayId:self->_sessionReplayId
+              replayType:kSentryReplayTypeSession];
+
+    [_replayMaker releaseFramesUntil:videoInfo.end];
+    _videoSegmentStart = nil;
 }
 
 - (void)captureSegment:(NSInteger)segment
@@ -306,12 +312,16 @@ SentrySessionReplay ()
         _processingScreenshot = YES;
     }
 
+    __weak SentrySessionReplay *weakSelf = self;
     [_screenshotProvider imageWithView:_rootView
                                options:_replayOptions
-                            onComplete:^(UIImage *screenshot) {
-                                self->_processingScreenshot = NO;
-                                [self->_replayMaker addFrameAsyncWithImage:screenshot];
-                            }];
+                            onComplete:^(UIImage *screenshot) { [weakSelf newImage:screenshot]; }];
+}
+
+- (void)newImage:(UIImage *)image
+{
+    _processingScreenshot = NO;
+    [_replayMaker addFrameAsyncWithImage:image];
 }
 
 @end
