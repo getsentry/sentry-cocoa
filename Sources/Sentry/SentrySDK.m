@@ -29,7 +29,8 @@
 #endif // SENTRY_HAS_UIKIT
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
-#    import "SentryLaunchProfiling.h"
+#    import "SentryContinuousProfiler.h"
+#    import "SentryProfiler+Private.h"
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
 @interface
@@ -223,21 +224,7 @@ static NSDate *_Nullable startTimestamp = nil;
 #endif // TARGET_OS_IOS && SENTRY_HAS_UIKIT
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
-        BOOL shouldstopAndTransmitLaunchProfile = YES;
-#    if SENTRY_HAS_UIKIT
-        if (SentryUIViewControllerPerformanceTracker.shared.enableWaitForFullDisplay) {
-            shouldstopAndTransmitLaunchProfile = NO;
-        }
-#    endif // SENTRY_HAS_UIKIT
-
-        [SentryDependencyContainer.sharedInstance.dispatchQueueWrapper dispatchAsyncWithBlock:^{
-            if (shouldstopAndTransmitLaunchProfile) {
-                SENTRY_LOG_DEBUG(@"Stopping launch profile in SentrySDK.start because there will "
-                                 @"be no automatic trace to attach it to.");
-                stopAndTransmitLaunchProfile(hub);
-            }
-            configureLaunchProfiling(options);
-        }];
+        sentry_manageProfilerOnStartSDK(options, hub);
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
     }];
 }
@@ -520,6 +507,30 @@ static NSDate *_Nullable startTimestamp = nil;
     *p = 0;
 }
 #endif
+
+#if SENTRY_TARGET_PROFILING_SUPPORTED
++ (void)startProfiler
+{
+    if (!SENTRY_ASSERT_RETURN(currentHub.client.options.enableContinuousProfiling,
+            @"You must set SentryOptions.enableContinuousProfiling to true before starting a "
+            @"continuous profiler.")) {
+        return;
+    }
+
+    [SentryContinuousProfiler start];
+}
+
++ (void)stopProfiler
+{
+    if (!SENTRY_ASSERT_RETURN(currentHub.client.options.enableContinuousProfiling,
+            @"You must set SentryOptions.enableContinuousProfiling to true before using continuous "
+            @"profiling API.")) {
+        return;
+    }
+
+    [SentryContinuousProfiler stop];
+}
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
 @end
 

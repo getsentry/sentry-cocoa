@@ -22,6 +22,7 @@ typedef NS_OPTIONS(NSUInteger, SentryIntegrationOption) {
     kIntegrationOptionAttachViewHierarchy = 1 << 15,
     kIntegrationOptionEnableCrashHandler = 1 << 16,
     kIntegrationOptionEnableMetricKit = 1 << 17,
+    kIntegrationOptionEnableReplay = 1 << 18,
 };
 
 @class SentryOptions;

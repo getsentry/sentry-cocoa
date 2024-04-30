@@ -9,7 +9,7 @@
 #import <XCTest/XCTest.h>
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
-#    import "SentryProfiler.h"
+#    import "SentryProfiler+Private.h"
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
 @interface SentryTracerObjCTests : XCTestCase

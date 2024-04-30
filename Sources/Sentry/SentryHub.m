@@ -40,8 +40,8 @@ SentryHub () <SentryMetricsAPIDelegate>
 
 @property (nullable, nonatomic, strong) SentryClient *client;
 @property (nullable, nonatomic, strong) SentryScope *scope;
+@property (nonatomic) SentryDispatchQueueWrapper *dispatchQueue;
 @property (nonatomic, strong) SentryCrashWrapper *crashWrapper;
-@property (nonatomic, strong) NSMutableArray<id<SentryIntegrationProtocol>> *installedIntegrations;
 @property (nonatomic, strong) NSMutableSet<NSString *> *installedIntegrationNames;
 @property (nonatomic) NSUInteger errorsBeforeSession;
 
@@ -58,6 +58,7 @@ SentryHub () <SentryMetricsAPIDelegate>
     if (self = [super init]) {
         _client = client;
         _scope = scope;
+        _dispatchQueue = SentryDependencyContainer.sharedInstance.dispatchQueueWrapper;
         SentryStatsdClient *statsdClient = [[SentryStatsdClient alloc] initWithClient:client];
         SentryMetricsClient *metricsClient =
             [[SentryMetricsClient alloc] initWithClient:statsdClient];
@@ -65,7 +66,7 @@ SentryHub () <SentryMetricsAPIDelegate>
              initWithEnabled:client.options.enableMetrics
                       client:metricsClient
                  currentDate:SentryDependencyContainer.sharedInstance.dateProvider
-               dispatchQueue:SentryDependencyContainer.sharedInstance.dispatchQueueWrapper
+               dispatchQueue:_dispatchQueue
                       random:SentryDependencyContainer.sharedInstance.random
             beforeEmitMetric:client.options.beforeEmitMetric];
         [_metrics setDelegate:self];
@@ -86,9 +87,11 @@ SentryHub () <SentryMetricsAPIDelegate>
 - (instancetype)initWithClient:(nullable SentryClient *)client
                       andScope:(nullable SentryScope *)scope
                andCrashWrapper:(SentryCrashWrapper *)crashWrapper
+              andDispatchQueue:(SentryDispatchQueueWrapper *)dispatchQueue
 {
     self = [self initWithClient:client andScope:scope];
     _crashWrapper = crashWrapper;
+    _dispatchQueue = dispatchQueue;
 
     return self;
 }
@@ -269,25 +272,31 @@ SentryHub () <SentryMetricsAPIDelegate>
     }
 }
 
-- (SentryId *)captureTransaction:(SentryTransaction *)transaction withScope:(SentryScope *)scope
+- (void)captureTransaction:(SentryTransaction *)transaction withScope:(SentryScope *)scope
 {
-    return [self captureTransaction:transaction withScope:scope additionalEnvelopeItems:@[]];
+    [self captureTransaction:transaction withScope:scope additionalEnvelopeItems:@[]];
 }
 
-- (SentryId *)captureTransaction:(SentryTransaction *)transaction
-                       withScope:(SentryScope *)scope
-         additionalEnvelopeItems:(NSArray<SentryEnvelopeItem *> *)additionalEnvelopeItems
+- (void)captureTransaction:(SentryTransaction *)transaction
+                  withScope:(SentryScope *)scope
+    additionalEnvelopeItems:(NSArray<SentryEnvelopeItem *> *)additionalEnvelopeItems
 {
     SentrySampleDecision decision = transaction.trace.sampled;
     if (decision != kSentrySampleDecisionYes) {
         [self.client recordLostEvent:kSentryDataCategoryTransaction
                               reason:kSentryDiscardReasonSampleRate];
-        return SentryId.empty;
+        return;
     }
 
-    return [self captureEvent:transaction
-                      withScope:scope
-        additionalEnvelopeItems:additionalEnvelopeItems];
+    // When a user calls finish on a transaction, which calls captureTransaction, the calling thread
+    // here could be the main thread, which we only want to block as long as required. Therefore, we
+    // capture the transaction on a background thread.
+    __weak SentryHub *weakSelf = self;
+    [self.dispatchQueue dispatchAsyncWithBlock:^{
+        [weakSelf captureEvent:transaction
+                          withScope:scope
+            additionalEnvelopeItems:additionalEnvelopeItems];
+    }];
 }
 
 - (SentryId *)captureEvent:(SentryEvent *)event
@@ -311,6 +320,16 @@ SentryHub () <SentryMetricsAPIDelegate>
             additionalEnvelopeItems:additionalEnvelopeItems];
     }
     return SentryId.empty;
+}
+
+- (void)captureReplayEvent:(SentryReplayEvent *)replayEvent
+           replayRecording:(SentryReplayRecording *)replayRecording
+                     video:(NSURL *)videoURL
+{
+    [_client captureReplayEvent:replayEvent
+                replayRecording:replayRecording
+                          video:videoURL
+                      withScope:self.scope];
 }
 
 - (id<SentrySpan>)startTransactionWithName:(NSString *)name operation:(NSString *)operation
@@ -390,14 +409,14 @@ SentryHub () <SentryMetricsAPIDelegate>
                                             customSamplingContext:customSamplingContext];
 
     SentrySamplerDecision *tracesSamplerDecision
-        = sampleTrace(samplingContext, self.client.options);
+        = sentry_sampleTrace(samplingContext, self.client.options);
     transactionContext = [self transactionContext:transactionContext
                                       withSampled:tracesSamplerDecision.decision];
     transactionContext.sampleRate = tracesSamplerDecision.sampleRate;
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
     SentrySamplerDecision *profilesSamplerDecision
-        = sampleProfile(samplingContext, tracesSamplerDecision, self.client.options);
+        = sentry_sampleProfile(samplingContext, tracesSamplerDecision, self.client.options);
 
     configuration.profilesSamplerDecision = profilesSamplerDecision;
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED"
@@ -701,19 +720,7 @@ SentryHub () <SentryMetricsAPIDelegate>
     SENTRY_LOG_DEBUG(@"Closed the Hub.");
 }
 
-- (LocalMetricsAggregator *_Nullable)getLocalMetricsAggregator
-{
-    id<SentrySpan> currentSpan = _scope.span;
-
-    // We don't want to add them LocalMetricsAggregator to the SentrySpan protocol and make it
-    // public. Instead, we check if the span responds to the getLocalMetricsAggregator which, every
-    // span should do.
-    if ([currentSpan isKindOfClass:SentrySpan.class]) {
-        return [(SentrySpan *)currentSpan getLocalMetricsAggregator];
-    }
-
-    return nil;
-}
+#pragma mark - SentryMetricsAPIDelegate
 
 - (NSDictionary<NSString *, NSString *> *)getDefaultTagsForMetrics
 {
@@ -731,6 +738,22 @@ SentryHub () <SentryMetricsAPIDelegate>
     defaultTags[@"environment"] = options.environment;
 
     return defaultTags;
+}
+
+- (id<SentrySpan> _Nullable)getCurrentSpan
+{
+    return _scope.span;
+}
+
+- (LocalMetricsAggregator *_Nullable)getLocalMetricsAggregatorWithSpan:(id<SentrySpan>)span
+{
+    // We don't want to add them LocalMetricsAggregator to the SentrySpan protocol and make it
+    // public. Instead, we check if the span responds to the getLocalMetricsAggregator which, every
+    // span should do.
+    if ([span isKindOfClass:SentrySpan.class]) {
+        return [(SentrySpan *)span getLocalMetricsAggregator];
+    }
+    return nil;
 }
 
 #pragma mark - Protected

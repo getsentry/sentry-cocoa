@@ -11,7 +11,8 @@ NSString *const kSentryDataCategoryNameTransaction = @"transaction";
 NSString *const kSentryDataCategoryNameAttachment = @"attachment";
 NSString *const kSentryDataCategoryNameUserFeedback = @"user_report";
 NSString *const kSentryDataCategoryNameProfile = @"profile";
-NSString *const kSentryDataCategoryNameStatsd = @"statsd";
+NSString *const kSentryDataCategoryNameReplay = @"replay";
+NSString *const kSentryDataCategoryNameMetricBucket = @"metric_bucket";
 NSString *const kSentryDataCategoryNameUnknown = @"unknown";
 
 NS_ASSUME_NONNULL_BEGIN
@@ -34,8 +35,13 @@ sentryDataCategoryForEnvelopItemType(NSString *itemType)
     if ([itemType isEqualToString:SentryEnvelopeItemTypeProfile]) {
         return kSentryDataCategoryProfile;
     }
+    if ([itemType isEqualToString:SentryEnvelopeItemTypeReplayVideo]) {
+        return kSentryDataCategoryReplay;
+    }
+    // The envelope item type used for metrics is statsd whereas the client report category for
+    // discarded events is metric_bucket.
     if ([itemType isEqualToString:SentryEnvelopeItemTypeStatsd]) {
-        return kSentryDataCategoryStatsd;
+        return kSentryDataCategoryMetricBucket;
     }
     return kSentryDataCategoryDefault;
 }
@@ -77,8 +83,11 @@ sentryDataCategoryForString(NSString *value)
     if ([value isEqualToString:kSentryDataCategoryNameProfile]) {
         return kSentryDataCategoryProfile;
     }
-    if ([value isEqualToString:kSentryDataCategoryNameStatsd]) {
-        return kSentryDataCategoryStatsd;
+    if ([value isEqualToString:kSentryDataCategoryNameReplay]) {
+        return kSentryDataCategoryReplay;
+    }
+    if ([value isEqualToString:kSentryDataCategoryNameMetricBucket]) {
+        return kSentryDataCategoryMetricBucket;
     }
 
     return kSentryDataCategoryUnknown;
@@ -108,10 +117,12 @@ nameForSentryDataCategory(SentryDataCategory category)
         return kSentryDataCategoryNameUserFeedback;
     case kSentryDataCategoryProfile:
         return kSentryDataCategoryNameProfile;
-    case kSentryDataCategoryStatsd:
-        return kSentryDataCategoryNameStatsd;
+    case kSentryDataCategoryMetricBucket:
+        return kSentryDataCategoryNameMetricBucket;
     case kSentryDataCategoryUnknown:
         return kSentryDataCategoryNameUnknown;
+    case kSentryDataCategoryReplay:
+        return kSentryDataCategoryNameReplay;
     }
 }
 

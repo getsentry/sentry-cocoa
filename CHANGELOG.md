@@ -1,6 +1,47 @@
 # Changelog
 
-## Unreleased
+## 8.25.0
+
+### Features
+
+- Add Session Replay, which is **still experimental**. (#3625)
+  - Access is limited to early access orgs on Sentry. If you're interested, [sign up for the waitlist](https://sentry.io/lp/mobile-replay-beta/)
+
+### Fixes
+
+- Crash due to a background call to -[UIApplication applicationState] (#3855)
+- Save framework without UIKit/AppKit as Github Asset for releases (#3858) 
+- Fix crash associated with runtime collision in global C function names (#3862)
+- Remove wrong error log in SentryCoreDataTracker (#3894)
+- Don't transmit device boot time in envelopes enriched with crash data (#3912, #3916)
+
+### Improvements
+
+- Capture transactions on a background thread (#3892)
+
+## 8.25.0-alpha.0
+
+### Features
+
+- Add Session Replay, which is **still experimental**. (#3625)
+  - Access is limited to early access orgs on Sentry. If you're interested, [sign up for the waitlist](https://sentry.io/lp/mobile-replay-beta/)
+
+### Fixes
+
+- Crash due to a background call to -[UIApplication applicationState] (#3855)
+- Save framework without UIKit/AppKit as Github Asset for releases (#3858) 
+- Fix crash associated with runtime collision in global C function names (#3862)
+- Remove wrong error log in SentryCoreDataTracker (#3894)
+
+## 8.24.0
+
+### Features
+
+- Add timing API for Metrics (#3812):
+- Add [rate limiting](https://develop.sentry.dev/sdk/rate-limiting/) for Metrics (#3838)
+- Data normalization for Metrics (#3843)
+
+## 8.23.0
 
 ### Features
 
@@ -60,8 +101,6 @@ more about how to use the Metrics API.
 We now provide a prebuilt XCFramework for SPM, which speeds up your build and allows us to write
 more code in Swift. To make this happen, we had to remove the SentryPrivate target for SPM and
 CocoaPods, which you shouldn't have included directly.
-
-- Remove SentryPrivate library (#3623)
 
 ### Fixes
 
