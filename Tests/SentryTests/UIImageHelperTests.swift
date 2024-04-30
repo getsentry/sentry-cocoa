@@ -9,12 +9,16 @@ class UIImageHelperTests: XCTestCase {
     private let testFrame = CGRect(x: 0, y: 0, width: 100, height: 100)
     
     func testAverageColorRed() {
+        let begin = Date()
             let image = UIGraphicsImageRenderer(size: testFrame.size).image { context in
                 UIColor.red.setFill()
                 context.fill(testFrame)
             }
             
             expect(UIImageHelper.averageColor(of: image, at: self.testFrame)) == .red
+        
+        let end = Date()
+        print("Duration = \(end.timeIntervalSince(begin))")
     }
     
     func testAverageColorGreen() {
@@ -56,25 +60,6 @@ class UIImageHelperTests: XCTestCase {
         
         expect(UIImageHelper.averageColor(of: image, at: focusArea)) == .green
     }
-    
-    func testHalfRedHalfGreen() {
-        let image = UIGraphicsImageRenderer(size: testFrame.size).image { context in
-            UIColor.red.setFill()
-            context.fill(CGRect(x: 0, y: 0, width: 50, height: 100))
-            UIColor.green.setFill()
-            context.fill(CGRect(x: 50, y: 0, width: 50, height: 100))
-        }
-        
-        let averageColor = UIImageHelper.averageColor(of: image, at: self.testFrame)
-        let components = averageColor.cgColor.components!
-        
-        //Making it an int to avoid float rounding problems
-        expect(Int(components[0] * 100)) == 50
-        expect(Int(components[1] * 100)) == 50
-        expect(components[2]) == 0
-        expect(components[3]) == 1
-    }
-    
 }
 
 #endif

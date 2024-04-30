@@ -55,6 +55,9 @@ class UIRedactBuilderTests: XCTestCase {
     }
     
     func testDontRedactABundleImage() {
+        //The check for bundled image only works for iOS 16 and above
+        //For others versions all images will be redacted
+        guard #available(iOS 16, *) else { return }
         let sut = UIRedactBuilder()
         
         let imageView = UIImageView(image: .add)

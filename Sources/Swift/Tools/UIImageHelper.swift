@@ -7,7 +7,6 @@ final class UIImageHelper {
     private init() { }
     
     static func averageColor(of image: UIImage, at region: CGRect) -> UIColor {
-        
         let scaledRegion = region.applying(CGAffineTransform(scaleX: image.scale, y: image.scale))
         guard let croppedImage = image.cgImage?.cropping(to: scaledRegion), let colorSpace = croppedImage.colorSpace else {
             return .black
@@ -34,6 +33,7 @@ final class UIImageHelper {
         
         return UIColor(red: red, green: green, blue: blue, alpha: alpha)
     }
+
 }
 
 #endif
