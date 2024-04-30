@@ -7,22 +7,24 @@ final class UIImageHelper {
     private init() { }
     
     static func averageColor(of image: UIImage, at region: CGRect) -> UIColor {
-        let colorImage = UIGraphicsImageRenderer(size: CGSize(width: 1, height: 1), 
-                                                 format: .init(for: .init(displayScale: 1))).image { context in
-            let scaledRegion = region.applying(CGAffineTransform(scaleX: image.scale, y: image.scale))
-            
-            guard let croppedImage = image.cgImage?.cropping(to: scaledRegion) else {
-                UIColor.black.setFill()
-                context.fill(CGRect(x: 0, y: 0, width: 1, height: 1))
-                return
-            }
-
-            context.cgContext.draw(croppedImage, in: CGRect(x: 0, y: 0, width: 1, height: 1), byTiling: false)
+        
+        let scaledRegion = region.applying(CGAffineTransform(scaleX: image.scale, y: image.scale))
+        guard let croppedImage = image.cgImage?.cropping(to: scaledRegion), let colorSpace = croppedImage.colorSpace else {
+            return .black
         }
         
-        guard
-            let pixelData = colorImage.cgImage?.dataProvider?.data,
-            let data = CFDataGetBytePtr(pixelData) else { return .black }
+        let bitmapInfo: UInt32 = CGBitmapInfo.byteOrder32Little.rawValue | CGImageAlphaInfo.premultipliedFirst.rawValue
+        
+        guard let context = CGContext(data: nil, width: 1, height: 1, bitsPerComponent: 8, bytesPerRow: 4, space: colorSpace, bitmapInfo: bitmapInfo) else { return .black }
+        
+        guard let croppedImage = image.cgImage?.cropping(to: scaledRegion) else {
+            return .black
+        }
+        
+        context.draw(croppedImage, in: CGRect(x: 0, y: 0, width: 1, height: 1))
+        guard let pixelBuffer = context.data else { return .black }
+        
+        let data = pixelBuffer.bindMemory(to: UInt8.self, capacity: 4)
         
         let blue = CGFloat(data[0]) / 255.0
         let green = CGFloat(data[1]) / 255.0
