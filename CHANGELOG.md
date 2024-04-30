@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Ignore SentryFramesTracker thread sanitizer data races (#3922)
+
 ## 8.25.0
 
 ### Features
