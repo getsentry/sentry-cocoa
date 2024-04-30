@@ -97,6 +97,15 @@ class RedactRegionTests: XCTestCase {
         expect(result[1].rect) == CGRect(x: 50, y: 75, width: 100, height: 25)
         expect(result[2].rect) == CGRect(x: 100, y: 25, width: 50, height: 50)
     }
+
+    func testSplitBySubtracting_TopIsWider() {
+        let sut = RedactRegion(rect: CGRect(x: 0, y: 0, width: 100, height: 100), color: .red)
+        let result = sut.splitBySubtracting(region: CGRect(x: 0, y: 0, width: 150, height: 50))
+        
+        expect(result.count) == 1
+        expect(result.first?.rect) == CGRect(x: 0, y: 50, width: 100, height: 50)
+        expect(result.first?.color) == .red
+    }
     
     func testSplitBySubtracting_BottomIsWider() {
         let sut = RedactRegion(rect: CGRect(x: 0, y: 0, width: 100, height: 100), color: .red) 
@@ -104,6 +113,29 @@ class RedactRegionTests: XCTestCase {
         
         expect(result.count) == 1
         expect(result.first?.rect) == CGRect(x: 0, y: 0, width: 100, height: 50)
+        expect(result.first?.color) == .red
+    }
+    
+    func testNoResultForEqualRegion() {
+        let sut = RedactRegion(rect: CGRect(x: 0, y: 0, width: 100, height: 100), color: .red)
+        let result = sut.splitBySubtracting(region: CGRect(x: 0, y: 0, width: 100, height: 100))
+        
+        expect(result.count) == 0
+    }
+
+    func testNoResultForLargerRegion() {
+        let sut = RedactRegion(rect: CGRect(x: 50, y: 50, width: 100, height: 100), color: .red)
+        let result = sut.splitBySubtracting(region: CGRect(x: 0, y: 0, width: 200, height: 200))
+        
+        expect(result.count) == 0
+    }
+    
+    func testSameRegionForOutsideOfBounds() {
+        let sut = RedactRegion(rect: CGRect(x: 0, y: 0, width: 100, height: 100), color: .red)
+        let result = sut.splitBySubtracting(region: CGRect(x: 110, y: 110, width: 200, height: 200))
+        
+        expect(result.count) == 1
+        expect(result.first?.rect) == sut.rect
         expect(result.first?.color) == .red
     }
     

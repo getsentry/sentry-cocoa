@@ -28,8 +28,6 @@ SentrySessionReplayIntegration ()
 - (void)newSceneActivate;
 @end
 
-@implementation SentrySessionReplayIntegration
-
 @implementation SentrySessionReplayIntegration {
     BOOL _startedAsFullSession;
     SentryReplayOptions *_replayOptions;
