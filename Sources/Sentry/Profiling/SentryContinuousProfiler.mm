@@ -61,6 +61,16 @@ _unsafe_isRunning(void)
     [_unsafe_gContinuousCurrentProfiler stopForReason:SentryProfilerTruncationReasonNormal];
 }
 
+#    pragma mark - Testing
+
+#    if defined(TEST) || defined(TESTCI) || defined(DEBUG)
++ (nullable SentryProfiler *)profiler
+{
+    std::lock_guard<std::mutex> l(_unsafe_gContinuousProfilerLock);
+    return _unsafe_gContinuousCurrentProfiler;
+}
+#    endif // defined(TEST) || defined(TESTCI) || defined(DEBUG)
+
 @end
 
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED

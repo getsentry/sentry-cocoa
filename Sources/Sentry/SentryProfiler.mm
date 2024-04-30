@@ -209,14 +209,14 @@ sentry_manageProfilerOnStartSDK(SentryOptions *options, SentryHub *hub)
     // etal. Doing this in a unified way between tests and production required extensive
     // changes to the C++ layer, so we opted for this solution to avoid any potential
     // breakages or performance hits there.
-#    if defined(TEST) || defined(TESTCI)
+#    if defined(TEST) || defined(TESTCI) || defined(DEBUG)
             Backtrace backtraceCopy = backtrace;
             backtraceCopy.absoluteTimestamp
                 = SentryDependencyContainer.sharedInstance.dateProvider.systemTime;
             [state appendBacktrace:backtraceCopy];
 #    else
             [state appendBacktrace:backtrace];
-#    endif // defined(TEST) || defined(TESTCI)
+#    endif // defined(TEST) || defined(TESTCI) || defined(DEBUG)
         },
         kSentryProfilerFrequencyHz);
     _samplingProfiler->startSampling();

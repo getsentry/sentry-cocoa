@@ -47,9 +47,25 @@ using namespace sentry::profiling;
         @"-[SentryProfilerTests testParseFunctionNameWithBacktraceSymbolsInput]");
 }
 
-- (void)testProfilerCanBeInitializedOnMainThread
+- (void)testProfilerCanBeInitializedOnMainThreadLegacy
 {
     XCTAssertNotNil([[SentryProfiler alloc] initWithMode:SentryProfilerModeLegacy]);
+}
+
+- (void)testProfilerCanBeInitializedOffMainThreadLegacy
+{
+    const auto expectation = [self expectationWithDescription:@"background initializing profiler"];
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0ul), ^{
+        XCTAssertNotNil([[SentryProfiler alloc] initWithMode:SentryProfilerModeLegacy]);
+        [expectation fulfill];
+    });
+    [self waitForExpectationsWithTimeout:1.0
+                                 handler:^(NSError *_Nullable error) { NSLog(@"%@", error); }];
+}
+
+- (void)testProfilerCanBeInitializedOnMainThread
+{
+    XCTAssertNotNil([[SentryProfiler alloc] initWithMode:SentryProfilerModeContinuous]);
 }
 
 - (void)testProfilerCanBeInitializedOffMainThread

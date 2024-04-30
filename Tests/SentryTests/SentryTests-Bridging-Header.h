@@ -27,6 +27,8 @@
 #endif // SENTRY_HAS_UIKIT
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
+#    import "SentryContinuousProfiler+Test.h"
+#    import "SentryContinuousProfiler.h"
 #    import "SentryLaunchProfiling+Tests.h"
 #    import "SentryLegacyProfiler+Test.h"
 #    import "SentryMetricProfiler.h"
