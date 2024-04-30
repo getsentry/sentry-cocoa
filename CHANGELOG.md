@@ -6,6 +6,8 @@
 
 - Ignore SentryFramesTracker thread sanitizer data races (#3922)
 - Handle no releaseName in WatchDogTerminationLogic (#3919)
+- Fix data race when calling reportFullyDisplayed from a background thread (#3926)
+
 
 ## 8.25.0
 
