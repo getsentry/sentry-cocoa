@@ -49,6 +49,7 @@ SENTRY_EXTERN void sentry_manageProfilerOnStartSDK(SentryOptions *options, Sentr
 @property (strong, nonatomic) SentryProfilerState *state;
 @property (assign, nonatomic) SentryProfilerTruncationReason truncationReason;
 @property (strong, nonatomic) SentryMetricProfiler *metricProfiler;
+@property (assign, nonatomic) uint64_t continuousChunkStartSystemTime;
 
 #    if SENTRY_HAS_UIKIT
 @property (strong, nonatomic) SentryScreenFrames *screenFrameData;

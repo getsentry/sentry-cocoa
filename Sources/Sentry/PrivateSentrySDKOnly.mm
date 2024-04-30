@@ -142,7 +142,7 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
                                                                     and:(uint64_t)endSystemTime
                                                                forTrace:(SentryId *)traceId;
 {
-    NSMutableDictionary<NSString *, id> *payload = sentry_collectProfileData(
+    NSMutableDictionary<NSString *, id> *payload = sentry_collectProfileDataHybridSDK(
         startSystemTime, endSystemTime, traceId, [SentrySDK currentHub]);
 
     if (payload != nil) {

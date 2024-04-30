@@ -59,6 +59,7 @@ sentry_manageProfilerOnStartSDK(SentryOptions *options, SentryHub *hub)
 @implementation SentryProfiler {
     std::shared_ptr<SamplingProfiler> _samplingProfiler;
     NSTimer *_Nullable _timeoutTimer;
+    SentryProfilerMode _mode;
 }
 
 + (void)load
@@ -75,6 +76,7 @@ sentry_manageProfilerOnStartSDK(SentryOptions *options, SentryHub *hub)
     }
 
     _profilerId = [[SentryId alloc] init];
+    _mode = mode;
 
     SENTRY_LOG_DEBUG(@"Initialized new SentryProfiler %@", self);
 
@@ -117,21 +119,29 @@ sentry_manageProfilerOnStartSDK(SentryOptions *options, SentryHub *hub)
         strongSelf->_timeoutTimer = [SentryDependencyContainer.sharedInstance.timerFactory
             scheduledTimerWithTimeInterval:kSentryProfilerTimeoutInterval
                                     target:self
-                                  selector:@selector(timeoutAbort)
+                                  selector:@selector(timerExpired)
                                   userInfo:nil
                                    repeats:NO];
     }];
 }
 
-- (void)timeoutAbort
+- (void)timerExpired
 {
     if (![self isRunning]) {
         SENTRY_LOG_WARN(@"Current profiler is not running.");
         return;
     }
-
-    SENTRY_LOG_DEBUG(@"Stopping profiler %@ due to timeout.", self);
-    [self stopForReason:SentryProfilerTruncationReasonTimeout];
+    
+    switch (_mode) {
+        default: // fall-through!
+        case SentryProfilerModeLegacy:
+            SENTRY_LOG_DEBUG(@"Stopping profiler %@ due to timeout.", self);
+            [self stopForReason:SentryProfilerTruncationReasonTimeout];
+            break;
+        case SentryProfilerModeContinuous:
+            
+            break;
+    }
 }
 
 - (void)backgroundAbort
