@@ -1,3 +1,4 @@
+#if canImport(UIKit) && !SENTRY_NO_UIKIT
 #if os(iOS) || os(tvOS)
 import Foundation
 import UIKit
@@ -131,4 +132,5 @@ class UIRedactBuilder {
     }
 }
 
+#endif
 #endif
