@@ -22,6 +22,7 @@ final class SentryContinuousProfilerTests: XCTestCase {
         try performContinuousProfilingTest()
     }
     
+    //swiftlint:disable todo
     // TODO: test ideas:
     // given a profiler initialized with continuous mode
         // ensure no timeout timer is set
@@ -30,6 +31,7 @@ final class SentryContinuousProfilerTests: XCTestCase {
         // if stop is called
             // ensure isCurrentlyProfiling is false
             // ensure a background notification observer is not set
+    //swiftlint:enable todo
     
 }
 
@@ -40,7 +42,9 @@ private extension SentryContinuousProfilerTests {
         try addMockSamples()
         SentryContinuousProfiler.stop()
 
+        //swiftlint:disable todo
         // TODO: assert valid continuous profiling data when schema changes are implemented
+        //swiftlint:enable todo
     }
     
     func addMockSamples(threadMetadata: SentryProfileTestFixture.ThreadMetadata = SentryProfileTestFixture.ThreadMetadata(id: 1, priority: 2, name: "main"), addresses: [NSNumber] = [0x3, 0x4, 0x5]) throws {
