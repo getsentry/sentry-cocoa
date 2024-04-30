@@ -1,4 +1,5 @@
-#if canImport(UIKit)
+#if canImport(UIKit) && !SENTRY_NO_UIKIT
+#if os(iOS) || os(tvOS)
 
 import Foundation
 import UIKit
@@ -16,7 +17,6 @@ final class UIImageHelper {
         
         guard let context = CGContext(data: nil, width: 1, height: 1, bitsPerComponent: 8, bytesPerRow: 4, space: colorSpace, bitmapInfo: bitmapInfo) else { return .black }
         context.interpolationQuality = .high
-        
         context.draw(croppedImage, in: CGRect(x: 0, y: 0, width: 1, height: 1))
         guard let pixelBuffer = context.data else { return .black }
         
@@ -32,4 +32,5 @@ final class UIImageHelper {
 
 }
 
+#endif
 #endif
