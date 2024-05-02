@@ -14,17 +14,9 @@ class SentryProfileTestFixture {
     
     private static let dsnAsString = TestConstants.dsnAsString(username: "SentryProfileTestFixture")
     
-    lazy var options: Options = {
-        let options = Options()
-        options.dsn = SentryProfileTestFixture.dsnAsString
-        return options
-    }()
-    lazy var client: TestClient? = TestClient(options: options)
-    lazy var hub: SentryHub = {
-        let hub = SentryHub(client: client, andScope: scope)
-        hub.bindClient(client)
-        return hub
-    }()
+    let options: Options
+    let client: TestClient?
+    let hub: SentryHub
     let scope = Scope()
     let message = "some message"
     let transactionName = "Some Transaction"
@@ -45,6 +37,13 @@ class SentryProfileTestFixture {
 #endif // !os(macOS)
     
     init() {
+        options = Options()
+        options.dsn = SentryProfileTestFixture.dsnAsString
+        client = TestClient(options: options)
+        hub = SentryHub(client: client, andScope: scope)
+        hub.bindClient(client)
+        SentrySDK.setCurrentHub(hub)
+        
         SentryDependencyContainer.sharedInstance().dateProvider = currentDateProvider
         options.profilesSampleRate = 1.0
         options.tracesSampleRate = 1.0

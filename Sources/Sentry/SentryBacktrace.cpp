@@ -108,10 +108,6 @@ namespace profiling {
         const auto pair = ThreadHandle::allExcludingCurrent();
         for (const auto &thread : pair.first) {
             Backtrace bt;
-            // This one is probably safe to call while the thread is suspended, but
-            // being conservative here in case the platform time functions take any
-            // locks that we're not aware of.
-            bt.absoluteTimestamp = getAbsoluteTime();
 
             // Log an empty stack for an idle thread, we don't need to walk the stack.
             if (thread->isIdle()) {
