@@ -4,6 +4,7 @@
 
 ### Fixes
 
+- Support sending GraphQL operation names in HTTP breadcrumbs (#3931)
 - Ignore SentryFramesTracker thread sanitizer data races (#3922)
 - Handle no releaseName in WatchDogTerminationLogic (#3919)
 

@@ -1,8 +1,7 @@
 #import <Foundation/Foundation.h>
 
-@interface
-NSURLSessionTask (Sentry)
+@interface SentryNSURLSessionTask : NSObject
 
-- (nullable NSString *)sentry_graphQLOperationName;
++ (nullable NSString *)graphQLOperationNameFromTask:(NSURLSessionTask *_Nonnull)task;
 
 @end

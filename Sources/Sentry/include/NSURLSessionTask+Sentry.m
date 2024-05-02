@@ -1,16 +1,15 @@
 #import "NSURLSessionTask+Sentry.h"
 
 
-@implementation
-NSURLSessionTask (Sentry)
+@implementation SentryNSURLSessionTask
 
-- (nullable NSString *)sentry_graphQLOperationName
++ (nullable NSString *)graphQLOperationNameFromTask:(NSURLSessionTask *_Nonnull)task
 {
-    if (!self.originalRequest.HTTPBody) { return nil; }
-    if (![[self.originalRequest valueForHTTPHeaderField:@"Content-Type"] isEqual: @"application/json"]) { return nil; }
+    if (!task.originalRequest.HTTPBody) { return nil; }
+    if (![[task.originalRequest valueForHTTPHeaderField:@"Content-Type"] isEqual: @"application/json"]) { return nil; }
 
     NSError *error = nil;
-    id requestDictionary = [NSJSONSerialization JSONObjectWithData:self.originalRequest.HTTPBody options:0 error:&error];
+    id requestDictionary = [NSJSONSerialization JSONObjectWithData:task.originalRequest.HTTPBody options:0 error:&error];
 
     if (error) { return nil; }
     if (![requestDictionary isKindOfClass: [NSDictionary class]]) { return nil; } // Could be an array
