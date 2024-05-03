@@ -179,7 +179,9 @@ sentry_manageProfilerOnStartSDK(SentryOptions *options, SentryHub *hub)
     _samplingProfiler->stopSampling();
     SENTRY_LOG_DEBUG(@"Stopped profiler %@.", self);
 
-    [self transmitChunkEnvelope];
+    if (_mode == SentryProfilerModeContinuous) {
+        [self transmitChunkEnvelope];
+    }
 }
 
 - (void)startMetricProfiler
