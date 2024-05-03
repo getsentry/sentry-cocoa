@@ -10,12 +10,12 @@ class UIImageHelperTests: XCTestCase {
     
     func testAverageColorRed() {
         let begin = Date()
-            let image = UIGraphicsImageRenderer(size: testFrame.size).image { context in
-                UIColor.red.setFill()
-                context.fill(testFrame)
-            }
-            
-            expect(UIImageHelper.averageColor(of: image, at: self.testFrame)) == .red
+        let image = UIGraphicsImageRenderer(size: testFrame.size).image { context in
+            UIColor.red.setFill()
+            context.fill(testFrame)
+        }
+        
+        expect(UIImageHelper.averageColor(of: image, at: self.testFrame)) == .red
         
         let end = Date()
         print("Duration = \(end.timeIntervalSince(begin))")

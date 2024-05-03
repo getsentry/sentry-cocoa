@@ -55,8 +55,10 @@ class UIRedactBuilder {
     var redactClasses: [AnyClass]
     
     init() {
-        redactClasses = [ UILabel.self, UITextView.self, UITextField.self ] + [
-            "_TtCOCV7SwiftUI11DisplayList11ViewUpdater8Platform13CGDrawingView",
+        
+        redactClasses = [ UILabel.self, UITextView.self, UITextField.self ] +
+        //this classes are used by SwiftUI to display images.
+        ["_TtCOCV7SwiftUI11DisplayList11ViewUpdater8Platform13CGDrawingView",
             "_TtC7SwiftUIP33_A34643117F00277B93DEBAB70EC0697122_UIShapeHitTestingView",
             "SwiftUI._UIGraphicsView", "SwiftUI.ImageLayer"
         ].compactMap { NSClassFromString($0) }
@@ -128,6 +130,7 @@ class UIRedactBuilder {
     }
     
     private func hasBackground(_ view: UIView) -> Bool {
+        //Anything with an alpha greater than 0.9 is opaque enough that it's impossible to see anything behind it.
         return view.backgroundColor != nil && (view.backgroundColor?.cgColor.alpha ?? 0) > 0.9
     }
 }

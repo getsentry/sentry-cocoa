@@ -8,8 +8,13 @@ import XCTest
 class UIRedactBuilderTests: XCTestCase {
     
     private class RedactOptions: SentryRedactOptions {
-        var redactAllText: Bool = true
-        var redactAllImages: Bool = true
+        var redactAllText: Bool
+        var redactAllImages: Bool
+        
+        init(redactAllText: Bool = true, redactAllImages: Bool = true) {
+            self.redactAllText = redactAllText
+            self.redactAllImages = redactAllImages
+        }
     }
     
     private let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
@@ -36,6 +41,17 @@ class UIRedactBuilderTests: XCTestCase {
         expect(result.first?.rect) == CGRect(x: 20, y: 20, width: 40, height: 40)
     }
     
+    func testDontRedactALabelOptionDisabled() {
+        let sut = UIRedactBuilder()
+        let label = UILabel(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
+        label.textColor = .purple
+        rootView.addSubview(label)
+        
+        let result = sut.redactRegionsFor(view: rootView, options: RedactOptions(redactAllText: false))
+        
+        expect(result.count) == 0
+    }
+    
     func testRedactAImage() {
         let sut = UIRedactBuilder()
         
@@ -52,6 +68,22 @@ class UIRedactBuilderTests: XCTestCase {
         expect(result.count) == 1
         expect(result.first?.color) == nil
         expect(result.first?.rect) == CGRect(x: 20, y: 20, width: 40, height: 40)
+    }
+    
+    func testDontRedactAImageOptionDisabled() {
+        let sut = UIRedactBuilder()
+        
+        let image = UIGraphicsImageRenderer(size: CGSize(width: 40, height: 40)).image { context in
+            context.fill(CGRect(x: 0, y: 0, width: 40, height: 40))
+        }
+        
+        let imageView = UIImageView(image: image)
+        imageView.frame = CGRect(x: 20, y: 20, width: 40, height: 40)
+        rootView.addSubview(imageView)
+        
+        let result = sut.redactRegionsFor(view: rootView, options: RedactOptions(redactAllImages: false))
+        
+        expect(result.count) == 0
     }
     
     func testDontRedactABundleImage() {
