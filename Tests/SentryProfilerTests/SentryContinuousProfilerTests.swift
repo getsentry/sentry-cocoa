@@ -24,44 +24,28 @@ final class SentryContinuousProfilerTests: XCTestCase {
 }
 
 private extension SentryContinuousProfilerTests {
-    func performContinuousProfilingTest() throws {
+    func performContinuousProfilingTest(expectedEnvironment: String = kSentryDefaultEnvironment, expectedAddresses: [NSNumber]? = nil, expectedThreadMetadata: [SentryProfileTestFixture.ThreadMetadata]? = nil) throws {
         SentryContinuousProfiler.start()
         
         XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
         
-        try addMockSamples()
+        let mockThreadMetadata = SentryProfileTestFixture.ThreadMetadata(id: 1, priority: 2, name: "main")
+        let mockAddresses: [NSNumber] = [0x3, 0x4, 0x5]
+        let state = try XCTUnwrap(SentryContinuousProfiler.profiler()?.state)
+        for _ in 0..<3 {
+            fixture.currentDateProvider.advanceBy(nanoseconds: 1)
+            SentryProfilerMocksSwiftCompatible.appendMockBacktrace(to: state, threadID: mockThreadMetadata.id, threadPriority: mockThreadMetadata.priority, threadName: mockThreadMetadata.name, addresses: mockAddresses)
+        }
+        
         SentryContinuousProfiler.stop()
         
         XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
         
-        try assertValidContinuousProfileData()
-
-        //swiftlint:disable todo
-        // TODO: assert valid continuous profiling data when schema changes are implemented
-        //swiftlint:enable todo
-    }
-    
-    func addMockSamples(threadMetadata: SentryProfileTestFixture.ThreadMetadata = SentryProfileTestFixture.ThreadMetadata(id: 1, priority: 2, name: "main"), addresses: [NSNumber] = [0x3, 0x4, 0x5]) throws {
-        let state = try XCTUnwrap(SentryContinuousProfiler.profiler()?.state)
-        fixture.currentDateProvider.advanceBy(nanoseconds: 1)
-        SentryProfilerMocksSwiftCompatible.appendMockBacktrace(to: state, threadID: threadMetadata.id, threadPriority: threadMetadata.priority, threadName: threadMetadata.name, addresses: addresses)
-        fixture.currentDateProvider.advanceBy(nanoseconds: 1)
-        SentryProfilerMocksSwiftCompatible.appendMockBacktrace(to: state, threadID: threadMetadata.id, threadPriority: threadMetadata.priority, threadName: threadMetadata.name, addresses: addresses)
-        fixture.currentDateProvider.advanceBy(nanoseconds: 1)
-        SentryProfilerMocksSwiftCompatible.appendMockBacktrace(to: state, threadID: threadMetadata.id, threadPriority: threadMetadata.priority, threadName: threadMetadata.name, addresses: addresses)
-    }
-    
-    func getLatestProfileData() throws -> Data {
         let envelope = try XCTUnwrap(self.fixture.client?.captureEnvelopeInvocations.last)
-
         XCTAssertEqual(1, envelope.items.count)
         let profileItem = try XCTUnwrap(envelope.items.first)
         XCTAssertEqual("profile_chunk", profileItem.header.type)
-        return profileItem.data
-    }
-    
-    func assertValidContinuousProfileData(transactionEnvironment: String = kSentryDefaultEnvironment, expectedAddresses: [NSNumber]? = nil, expectedThreadMetadata: [SentryProfileTestFixture.ThreadMetadata]? = nil, appStartProfile: Bool = false) throws {
-        let data = try getLatestProfileData()
+        let data = profileItem.data
         let profile = try XCTUnwrap(try JSONSerialization.jsonObject(with: data) as? [String: Any])
 
         XCTAssertNotNil(profile["version"])
@@ -69,7 +53,7 @@ private extension SentryContinuousProfilerTests {
         let platform = try XCTUnwrap(profile["platform"] as? String)
         XCTAssertEqual("cocoa", platform)
 
-        XCTAssertEqual(transactionEnvironment, try XCTUnwrap(profile["environment"] as? String))
+        XCTAssertEqual(expectedEnvironment, try XCTUnwrap(profile["environment"] as? String))
 
         let bundleID = Bundle.main.object(forInfoDictionaryKey: kCFBundleIdentifierKey as String) ?? "(null)"
         let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") ?? "(null)"
