@@ -92,7 +92,7 @@ class UIRedactBuilder {
     }
     
     private func shouldRedact(imageView: UIImageView) -> Bool {
-        // Checking the size is to avoid redact gradient backgroud that
+        // Checking the size is to avoid redact gradient background that
         // are usually small lines repeating
         guard let image = imageView.image, image.size.width > 10 && image.size.height > 10  else { return false }
         return image.imageAsset?.value(forKey: "_containingBundle") == nil
