@@ -21,6 +21,28 @@ final class SentryContinuousProfilerTests: XCTestCase {
     func testStartingAndStoppingContinuousProfiler() throws {
         try performContinuousProfilingTest()
     }
+    
+    func testAfterTimerExpiresChunkIsTransmittedAndProfilerIsStillRunning() throws {
+        
+    }
+    
+    func testMultipleTransmittedProfileChunks() throws {
+        
+    }
+    
+    func testProfilingDataContainsEnvironmentSetFromOptions() throws {
+        let expectedEnvironment = "test-environment"
+        fixture.options.environment = expectedEnvironment
+        try performContinuousProfilingTest(expectedEnvironment: expectedEnvironment)
+    }
+    
+    func testProfilingDataContainsEnvironmentSetFromConfigureScope() throws {
+        let expectedEnvironment = "test-environment"
+        fixture.hub.configureScope { scope in
+            scope.setEnvironment(expectedEnvironment)
+        }
+        try performContinuousProfilingTest(expectedEnvironment: expectedEnvironment)
+    }
 }
 
 private extension SentryContinuousProfilerTests {
