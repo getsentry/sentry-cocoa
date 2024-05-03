@@ -2,6 +2,7 @@
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
+#    import "SentryDefines.h"
 #    import "SentryProfilerDefines.h"
 #    import <Foundation/Foundation.h>
 
@@ -14,6 +15,9 @@ NS_ASSUME_NONNULL_BEGIN
  * CPU and memory usage timeseries and thermal and memory pressure warning notifications.
  */
 @interface SentryMetricProfiler : NSObject
+
+- (instancetype)initWithMode:(SentryProfilerMode)mode;
+SENTRY_NO_INIT
 
 - (void)start;
 /** Record a metrics sample. Helps ensure full metric coverage for concurrent spans. */

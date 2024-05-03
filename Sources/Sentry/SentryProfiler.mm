@@ -186,7 +186,7 @@ sentry_manageProfilerOnStartSDK(SentryOptions *options, SentryHub *hub)
 
 - (void)startMetricProfiler
 {
-    self.metricProfiler = [[SentryMetricProfiler alloc] init];
+    self.metricProfiler = [[SentryMetricProfiler alloc] initWithMode:_mode];
     [self.metricProfiler start];
 }
 
