@@ -32,7 +32,6 @@ using namespace sentry::profiling;
 namespace {
 
 static const int kSentryProfilerFrequencyHz = 101;
-NSTimeInterval kSentryProfilerTimeoutInterval = 30;
 
 } // namespace
 
@@ -87,9 +86,7 @@ sentry_manageProfilerOnStartSDK(SentryOptions *options, SentryHub *hub)
 
     [self start];
 
-    if (mode == SentryProfilerModeLegacy) {
-        [self scheduleTimeoutTimer];
-    }
+    [self scheduleTimer];
 
 #    if SENTRY_HAS_UIKIT
     [SentryDependencyContainer.sharedInstance.notificationCenterWrapper
@@ -108,7 +105,7 @@ sentry_manageProfilerOnStartSDK(SentryOptions *options, SentryHub *hub)
  * Schedule a timeout timer on the main thread.
  * @warning from NSTimer.h: Timers scheduled in an async context may never fire.
  */
-- (void)scheduleTimeoutTimer
+- (void)scheduleTimer
 {
     __weak SentryProfiler *weakSelf = self;
 
@@ -118,12 +115,14 @@ sentry_manageProfilerOnStartSDK(SentryOptions *options, SentryHub *hub)
         }
 
         SentryProfiler *strongSelf = weakSelf;
+        const auto isContinuous = strongSelf->_mode == SentryProfilerModeContinuous;
         strongSelf->_timeoutTimer = [SentryDependencyContainer.sharedInstance.timerFactory
-            scheduledTimerWithTimeInterval:kSentryProfilerTimeoutInterval
+            scheduledTimerWithTimeInterval:isContinuous ? kSentryProfilerChunkExpirationInterval
+                                                        : kSentryProfilerTimeoutInterval
                                     target:self
                                   selector:@selector(timerExpired)
                                   userInfo:nil
-                                   repeats:strongSelf->_mode == SentryProfilerModeContinuous];
+                                   repeats:isContinuous];
     }];
 }
 

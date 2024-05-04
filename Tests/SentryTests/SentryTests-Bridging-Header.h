@@ -33,6 +33,7 @@
 #    import "SentryLegacyProfiler+Test.h"
 #    import "SentryMetricProfiler.h"
 #    import "SentryProfiler+Private.h"
+#    import "SentryProfilerDefines.h"
 #    import "SentryProfilerMocksSwiftCompatible.h"
 #    import "SentryProfilerSerialization+Test.h"
 #    import "SentryProfilerSerialization.h"

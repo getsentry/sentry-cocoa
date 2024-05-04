@@ -22,14 +22,6 @@ final class SentryContinuousProfilerTests: XCTestCase {
         try performContinuousProfilingTest()
     }
     
-    func testAfterTimerExpiresChunkIsTransmittedAndProfilerIsStillRunning() throws {
-        
-    }
-    
-    func testMultipleTransmittedProfileChunks() throws {
-        
-    }
-    
     func testProfilingDataContainsEnvironmentSetFromOptions() throws {
         let expectedEnvironment = "test-environment"
         fixture.options.environment = expectedEnvironment
@@ -46,23 +38,41 @@ final class SentryContinuousProfilerTests: XCTestCase {
 }
 
 private extension SentryContinuousProfilerTests {
-    func performContinuousProfilingTest(expectedEnvironment: String = kSentryDefaultEnvironment, expectedAddresses: [NSNumber]? = nil, expectedThreadMetadata: [SentryProfileTestFixture.ThreadMetadata]? = nil) throws {
-        SentryContinuousProfiler.start()
-        
-        XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
-        
+    func addMockSamples(mockAddresses: [NSNumber]) throws {
         let mockThreadMetadata = SentryProfileTestFixture.ThreadMetadata(id: 1, priority: 2, name: "main")
-        let mockAddresses: [NSNumber] = [0x3, 0x4, 0x5]
         let state = try XCTUnwrap(SentryContinuousProfiler.profiler()?.state)
-        for _ in 0..<3 {
+        for _ in 0..<Int(kSentryProfilerChunkExpirationInterval) {
             fixture.currentDateProvider.advanceBy(nanoseconds: 1)
             SentryProfilerMocksSwiftCompatible.appendMockBacktrace(to: state, threadID: mockThreadMetadata.id, threadPriority: mockThreadMetadata.priority, threadName: mockThreadMetadata.name, addresses: mockAddresses)
         }
-        
-        SentryContinuousProfiler.stop()
-        
+    }
+    
+    func performContinuousProfilingTest(expectedEnvironment: String = kSentryDefaultEnvironment) throws {
         XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
+        SentryContinuousProfiler.start()
+        XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
         
+        var expectedAddresses: [NSNumber] = [0x1, 0x2, 0x3]
+        try addMockSamples(mockAddresses: expectedAddresses)
+        fixture.timeoutTimerFactory.fire()
+        XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
+        try assertValidData(expectedEnvironment: expectedEnvironment, expectedAddresses: expectedAddresses)
+        
+        expectedAddresses = [0x4, 0x5, 0x6]
+        try addMockSamples(mockAddresses: expectedAddresses)
+        fixture.timeoutTimerFactory.fire()
+        XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
+        try assertValidData(expectedEnvironment: expectedEnvironment, expectedAddresses: expectedAddresses)
+        
+        expectedAddresses = [0x7, 0x8, 0x9]
+        try addMockSamples(mockAddresses: expectedAddresses)
+        XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
+        SentryContinuousProfiler.stop()
+        XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
+        try assertValidData(expectedEnvironment: expectedEnvironment, expectedAddresses: expectedAddresses)
+    }
+    
+    func assertValidData(expectedEnvironment: String, expectedAddresses: [NSNumber]?) throws {
         let envelope = try XCTUnwrap(self.fixture.client?.captureEnvelopeInvocations.last)
         XCTAssertEqual(1, envelope.items.count)
         let profileItem = try XCTUnwrap(envelope.items.first)
@@ -99,18 +109,8 @@ private extension SentryContinuousProfilerTests {
         let sampledProfile = try XCTUnwrap(profile["profile"] as? [String: Any])
         let threadMetadata = try XCTUnwrap(sampledProfile["thread_metadata"] as? [String: [String: Any]])
         XCTAssertFalse(threadMetadata.isEmpty)
-        if let expectedThreadMetadata = expectedThreadMetadata {
-            try expectedThreadMetadata.forEach {
-                let actualThreadMetadata = try XCTUnwrap(threadMetadata["\($0.id)"])
-                let actualThreadPriority = try XCTUnwrap(actualThreadMetadata["priority"] as? Int32)
-                XCTAssertEqual(actualThreadPriority, $0.priority)
-                let actualThreadName = try XCTUnwrap(actualThreadMetadata["name"] as? String)
-                XCTAssertEqual(actualThreadName, $0.name)
-            }
-        } else {
-            XCTAssertFalse(try threadMetadata.values.compactMap { $0["priority"] }.filter { try XCTUnwrap($0 as? Int) > 0 }.isEmpty)
-            XCTAssertFalse(try threadMetadata.values.compactMap { $0["name"] }.filter { try XCTUnwrap($0 as? String) == "main" }.isEmpty)
-        }
+        XCTAssertFalse(try threadMetadata.values.compactMap { $0["priority"] }.filter { try XCTUnwrap($0 as? Int) > 0 }.isEmpty)
+        XCTAssertFalse(try threadMetadata.values.compactMap { $0["name"] }.filter { try XCTUnwrap($0 as? String) == "main" }.isEmpty)
 
         let samples = try XCTUnwrap(sampledProfile["samples"] as? [[String: Any]])
         XCTAssertFalse(samples.isEmpty)
