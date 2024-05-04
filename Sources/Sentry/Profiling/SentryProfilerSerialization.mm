@@ -208,7 +208,7 @@ sentry_serializedProfileDataLegacy(
 }
 
 NSMutableDictionary<NSString *, id> *
-sentry_serializedProfileDataContinuous(
+sentry_serializedContinuousProfileChunk(
     SentryId *profileID, NSDictionary<NSString *, id> *profileData, uint64_t startSystemTime,
     uint64_t endSystemTime, NSDictionary<NSString *, id> *serializedMetrics,
     NSArray<SentryDebugMeta *> *debugMeta, SentryHub *hub, uint64_t continuousChunkStartSystemTime
@@ -296,7 +296,7 @@ sentry_serializedProfileDataContinuous(
 
 #    pragma mark - Public
 
-SentryEnvelope *_Nullable sentry_profileEnvelopeItemContinuous(
+SentryEnvelope *_Nullable sentry_continuousProfileChunkEnvelope(
     uint64_t startSystemTime, uint64_t endSystemTime, NSDictionary *profileState,
     SentryId *profilerId, NSDictionary *metricProfilerState
 #    if SENTRY_HAS_UIKIT
@@ -305,7 +305,7 @@ SentryEnvelope *_Nullable sentry_profileEnvelopeItemContinuous(
 #    endif // SENTRY_HAS_UIKIT
 )
 {
-    const auto payload = sentry_serializedProfileDataContinuous(
+    const auto payload = sentry_serializedContinuousProfileChunk(
         profilerId, profileState, startSystemTime, endSystemTime, metricProfilerState,
         [SentryDependencyContainer.sharedInstance.debugImageProvider getDebugImagesCrashed:NO],
         SentrySDK.currentHub, startSystemTime

@@ -17,7 +17,7 @@ NS_ASSUME_NONNULL_BEGIN
 SENTRY_EXTERN SentryEnvelopeItem *_Nullable sentry_profileEnvelopeItemLegacy(
     SentryTransaction *transaction, NSDate *startTimestamp);
 
-SentryEnvelope *_Nullable sentry_profileEnvelopeItemContinuous(
+SentryEnvelope *_Nullable sentry_continuousProfileChunkEnvelope(
     uint64_t startSystemTime, uint64_t endSystemTime, NSDictionary *profileState,
     SentryId *profilerId, NSDictionary *metricProfilerState
 #    if SENTRY_HAS_UIKIT

@@ -250,7 +250,7 @@ sentry_manageProfilerOnStartSDK(SentryOptions *options, SentryHub *hub)
     [self.state clear]; // !!!: profile this to see if it takes longer than one sample duration
                         // length: ~9ms
 
-    const auto envelope = sentry_profileEnvelopeItemContinuous(
+    const auto envelope = sentry_continuousProfileChunkEnvelope(
         startSystemTime, endSystemTime, stateCopy, self.profilerId,
         [self.metricProfiler serializeBetween:startSystemTime and:endSystemTime]
 #    if SENTRY_HAS_UIKIT
