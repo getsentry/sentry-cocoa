@@ -40,7 +40,7 @@ static const int kSentryProfilerFrequencyHz = 101;
 void
 sentry_manageProfilerOnStartSDK(SentryOptions *options, SentryHub *hub)
 {
-    if (options.enableContinuousProfiling && !isTracingAppLaunch) {
+    if (options.enableContinuousProfiling) {
         [SentryContinuousProfiler start];
         return;
     }

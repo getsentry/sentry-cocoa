@@ -53,9 +53,6 @@ typedef struct {
     SentrySamplerDecision *_Nullable profilesDecision;
 } SentryLaunchProfileConfig;
 
-NSString *const kSentryLaunchProfileConfigKeyTracesSampleRate = @"traces";
-NSString *const kSentryLaunchProfileConfigKeyProfilesSampleRate = @"profiles";
-
 SentryLaunchProfileConfig
 sentry_shouldProfileNextLaunch(SentryOptions *options)
 {
@@ -116,6 +113,14 @@ sentry_context(NSNumber *tracesRate)
     context.sampleRate = tracesRate;
     return context;
 }
+
+# pragma mark - Testing only
+
+#if defined(TEST) || defined(TESTCI) || defined(DEBUG)
+BOOL sentry_willProfileNextLaunch(SentryOptions *options) {
+    return sentry_shouldProfileNextLaunch(options).shouldProfile;
+}
+#endif // defined(TEST) || defined(TESTCI) || defined(DEBUG)
 
 #    pragma mark - Public
 
