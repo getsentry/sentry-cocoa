@@ -20,6 +20,7 @@
 #    import "SentryContinuousProfiler.h"
 #    import "SentryLegacyProfiler+Test.h"
 #    import "SentryProfiler+Private.h"
+#    import "SentryLegacyProfiler+Test.h"
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
 #import "PrivateSentrySDKOnly.h"

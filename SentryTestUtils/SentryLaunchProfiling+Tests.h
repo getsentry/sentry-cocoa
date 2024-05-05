@@ -20,6 +20,11 @@ SENTRY_EXTERN NSString *const kSentryLaunchProfileConfigKeyProfilesSampleRate;
 
 SentryLaunchProfileConfig sentry_shouldProfileNextLaunch(SentryOptions *options);
 
+/**
+ * `sentry_shouldProfileNextLaunch` cannot be exposed to Swift tests because its return type is not expressible in Swift. This wraps it and only returns the `BOOL shouldProfile` value in the struct.
+ */
+BOOL sentry_willProfileNextLaunch(SentryOptions *options);
+
 SentryTransactionContext *sentry_context(NSNumber *tracesRate);
 
 NS_ASSUME_NONNULL_END
