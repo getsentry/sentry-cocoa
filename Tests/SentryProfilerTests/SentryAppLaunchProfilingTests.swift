@@ -16,142 +16,143 @@ import SentryTestUtils
  */
 final class SentryAppLaunchProfilingSwiftTests: QuickSpec {
     override class func spec() {
+        var options: Options!
+        beforeEach { options = Options() }
         describe("With launch profiling disabled") {
-            let options = Options()
-            options.enableAppLaunchProfiling = false
+            beforeEach { options.enableAppLaunchProfiling = false }
             describe("With tracing manually disabled") {
-                options.enableTracing = false
+                beforeEach { options.enableTracing = false }
                 describe("With continuous profiling disabled") {
-                    options.enableContinuousProfiling = false
+                    beforeEach { options.enableContinuousProfiling = false }
                     describe("With traces sample rate of 0") {
-                        options.tracesSampleRate = 0
+                        beforeEach { options.tracesSampleRate = 0 }
                         describe("With profiles sample rate of 0") {
-                            options.profilesSampleRate = 0
+                            beforeEach { options.profilesSampleRate = 0 }
                             it("Should not enable launch profiling") {
-                                expect(sentry_willProfileNextLaunch(options)).to(beFalse())
+                                expect(sentry_willProfileNextLaunch(options)) == false
                             }
                         }
                         describe("With profiles sample rate of 1") {
-                            options.profilesSampleRate = 1
+                            beforeEach { options.profilesSampleRate = 1 }
                             it("Should not enable launch profiling") {
-                                expect(sentry_willProfileNextLaunch(options)).to(beFalse())
+                                expect(sentry_willProfileNextLaunch(options)) == false
                             }
                         }
                     }
                     describe("With traces sample rate of 1") {
-                        options.tracesSampleRate = 1
+                        beforeEach { options.tracesSampleRate = 1 }
                         describe("With profiles sample rate of 0") {
-                            options.profilesSampleRate = 0
+                            beforeEach { options.profilesSampleRate = 0 }
                             it("Should not enable launch profiling") {
-                                expect(sentry_willProfileNextLaunch(options)).to(beFalse())
+                                expect(sentry_willProfileNextLaunch(options)) == false
                             }
                         }
                         describe("With profiles sample rate of 1") {
-                            options.profilesSampleRate = 1
+                            beforeEach { options.profilesSampleRate = 1 }
                             it("Should not enable launch profiling") {
-                                expect(sentry_willProfileNextLaunch(options)).to(beFalse())
+                                expect(sentry_willProfileNextLaunch(options)) == false
                             }
                         }
                     }
                 }
                 describe("With continuous profiling enabled") {
-                    options.enableContinuousProfiling = true
+                    beforeEach { options.enableContinuousProfiling = true }
                     describe("With traces sample rate of 0") {
-                        options.tracesSampleRate = 0
+                        beforeEach { options.tracesSampleRate = 0 }
                         describe("With profiles sample rate of 0") {
-                            options.profilesSampleRate = 0
+                            beforeEach { options.profilesSampleRate = 0 }
                             it("Should not enable launch profiling") {
-                                expect(sentry_willProfileNextLaunch(options)).to(beFalse())
+                                expect(sentry_willProfileNextLaunch(options)) == false
                             }
                         }
                         describe("With profiles sample rate of 1") {
-                            options.profilesSampleRate = 1
+                            beforeEach { options.profilesSampleRate = 1 }
                             it("Should not enable launch profiling") {
-                                expect(sentry_willProfileNextLaunch(options)).to(beFalse())
+                                expect(sentry_willProfileNextLaunch(options)) == false
                             }
                         }
                     }
                     describe("With traces sample rate of 1") {
-                        options.tracesSampleRate = 1
+                        beforeEach { options.tracesSampleRate = 1 }
                         describe("With profiles sample rate of 0") {
-                            options.profilesSampleRate = 0
+                            beforeEach { options.profilesSampleRate = 0 }
                             it("Should not enable launch profiling") {
-                                expect(sentry_willProfileNextLaunch(options)).to(beFalse())
+                                expect(sentry_willProfileNextLaunch(options)) == false
                             }
                         }
                         describe("With profiles sample rate of 1") {
-                            options.profilesSampleRate = 1
+                            beforeEach { options.profilesSampleRate = 1 }
                             it("Should not enable launch profiling") {
-                                expect(sentry_willProfileNextLaunch(options)).to(beFalse())
+                                expect(sentry_willProfileNextLaunch(options)) == false
                             }
                         }
                     }
                 }
             }
             describe("With tracing manually enabled") {
-                options.enableTracing = true
+                beforeEach { options.enableTracing = true }
                 describe("With continuous profiling disabled") {
-                    options.enableContinuousProfiling = false
+                    beforeEach { options.enableContinuousProfiling = false }
                     describe("With traces sample rate of 0") {
-                        options.tracesSampleRate = 0
+                        beforeEach { options.tracesSampleRate = 0 }
                         describe("With profiles sample rate of 0") {
-                            options.profilesSampleRate = 0
+                            beforeEach { options.profilesSampleRate = 0 }
                             it("Should not enable launch profiling") {
-                                expect(sentry_willProfileNextLaunch(options)).to(beFalse())
+                                expect(sentry_willProfileNextLaunch(options)) == false
                             }
                         }
                         describe("With profiles sample rate of 1") {
-                            options.profilesSampleRate = 1
+                            beforeEach { options.profilesSampleRate = 1 }
                             it("Should not enable launch profiling") {
-                                expect(sentry_willProfileNextLaunch(options)).to(beFalse())
+                                expect(sentry_willProfileNextLaunch(options)) == false
                             }
                         }
                     }
                     describe("With traces sample rate of 1") {
-                        options.tracesSampleRate = 1
+                        beforeEach { options.tracesSampleRate = 1 }
                         describe("With profiles sample rate of 0") {
-                            options.profilesSampleRate = 0
+                            beforeEach { options.profilesSampleRate = 0 }
                             it("Should not enable launch profiling") {
-                                expect(sentry_willProfileNextLaunch(options)).to(beFalse())
+                                expect(sentry_willProfileNextLaunch(options)) == false
                             }
                         }
                         describe("With profiles sample rate of 1") {
-                            options.profilesSampleRate = 1
+                            beforeEach { options.profilesSampleRate = 1 }
                             it("Should not enable launch profiling") {
-                                expect(sentry_willProfileNextLaunch(options)).to(beFalse())
+                                expect(sentry_willProfileNextLaunch(options)) == false
                             }
                         }
                     }
                 }
                 describe("With continuous profiling enabled") {
-                    options.enableContinuousProfiling = true
+                    beforeEach { options.enableContinuousProfiling = true }
                     describe("With traces sample rate of 0") {
-                        options.tracesSampleRate = 0
+                        beforeEach { options.tracesSampleRate = 0 }
                         describe("With profiles sample rate of 0") {
-                            options.profilesSampleRate = 0
+                            beforeEach { options.profilesSampleRate = 0 }
                             it("Should not enable launch profiling") {
-                                expect(sentry_willProfileNextLaunch(options)).to(beFalse())
+                                expect(sentry_willProfileNextLaunch(options)) == false
                             }
                         }
                         describe("With profiles sample rate of 1") {
-                            options.profilesSampleRate = 1
+                            beforeEach { options.profilesSampleRate = 1 }
                             it("Should not enable launch profiling") {
-                                expect(sentry_willProfileNextLaunch(options)).to(beFalse())
+                                expect(sentry_willProfileNextLaunch(options)) == false
                             }
                         }
                     }
                     describe("With traces sample rate of 1") {
-                        options.tracesSampleRate = 1
+                        beforeEach { options.tracesSampleRate = 1 }
                         describe("With profiles sample rate of 0") {
-                            options.profilesSampleRate = 0
+                            beforeEach { options.profilesSampleRate = 0 }
                             it("Should not enable launch profiling") {
-                                expect(sentry_willProfileNextLaunch(options)).to(beFalse())
+                                expect(sentry_willProfileNextLaunch(options)) == false
                             }
                         }
                         describe("With profiles sample rate of 1") {
-                            options.profilesSampleRate = 1
+                            beforeEach { options.profilesSampleRate = 1 }
                             it("Should not enable launch profiling") {
-                                expect(sentry_willProfileNextLaunch(options)).to(beFalse())
+                                expect(sentry_willProfileNextLaunch(options)) == false
                             }
                         }
                     }
@@ -159,141 +160,140 @@ final class SentryAppLaunchProfilingSwiftTests: QuickSpec {
             }
         }
         describe("With launch profiling enabled") {
-            let options = Options()
-            options.enableAppLaunchProfiling = true
+            beforeEach { options.enableAppLaunchProfiling = true }
             describe("With tracing manually disabled") {
-                options.enableTracing = false
+                beforeEach { options.enableTracing = false }
                 describe("With continuous profiling disabled") {
-                    options.enableContinuousProfiling = false
+                    beforeEach { options.enableContinuousProfiling = false }
                     describe("With traces sample rate of 0") {
-                        options.tracesSampleRate = 0
+                        beforeEach { options.tracesSampleRate = 0 }
                         describe("With profiles sample rate of 0") {
-                            options.profilesSampleRate = 0
+                            beforeEach { options.profilesSampleRate = 0 }
                             it("Should not enable launch profiling") {
-                                expect(sentry_willProfileNextLaunch(options)).to(beFalse())
+                                expect(sentry_willProfileNextLaunch(options)) == false
                             }
                         }
                         describe("With profiles sample rate of 1") {
-                            options.profilesSampleRate = 1
+                            beforeEach { options.profilesSampleRate = 1 }
                             it("Should not enable launch profiling") {
-                                expect(sentry_willProfileNextLaunch(options)).to(beFalse())
+                                expect(sentry_willProfileNextLaunch(options)) == false
                             }
                         }
                     }
                     describe("With traces sample rate of 1") {
-                        options.tracesSampleRate = 1
+                        beforeEach { options.tracesSampleRate = 1 }
                         describe("With profiles sample rate of 0") {
-                            options.profilesSampleRate = 0
+                            beforeEach { options.profilesSampleRate = 0 }
                             it("Should not enable launch profiling") {
-                                expect(sentry_willProfileNextLaunch(options)).to(beFalse())
+                                expect(sentry_willProfileNextLaunch(options)) == false
                             }
                         }
                         describe("With profiles sample rate of 1") {
-                            options.profilesSampleRate = 1
+                            beforeEach { options.profilesSampleRate = 1 }
                             it("Should not enable launch profiling") {
-                                expect(sentry_willProfileNextLaunch(options)).to(beFalse())
+                                expect(sentry_willProfileNextLaunch(options)) == false
                             }
                         }
                     }
                 }
                 describe("With continuous profiling enabled") {
-                    options.enableContinuousProfiling = true
+                    beforeEach { options.enableContinuousProfiling = true }
                     describe("With traces sample rate of 0") {
-                        options.tracesSampleRate = 0
+                        beforeEach { options.tracesSampleRate = 0 }
                         describe("With profiles sample rate of 0") {
-                            options.profilesSampleRate = 0
+                            beforeEach { options.profilesSampleRate = 0 }
                             it("Should not enable launch profiling") {
-                                expect(sentry_willProfileNextLaunch(options)).to(beFalse())
+                                expect(sentry_willProfileNextLaunch(options)) == false
                             }
                         }
                         describe("With profiles sample rate of 1") {
-                            options.profilesSampleRate = 1
+                            beforeEach { options.profilesSampleRate = 1 }
                             it("Should not enable launch profiling") {
-                                expect(sentry_willProfileNextLaunch(options)).to(beTrue())
+                                expect(sentry_willProfileNextLaunch(options)) == true
                             }
                         }
                     }
                     describe("With traces sample rate of 1") {
-                        options.tracesSampleRate = 1
+                        beforeEach { options.tracesSampleRate = 1 }
                         describe("With profiles sample rate of 0") {
-                            options.profilesSampleRate = 0
+                            beforeEach { options.profilesSampleRate = 0 }
                             it("Should not enable launch profiling") {
-                                expect(sentry_willProfileNextLaunch(options)).to(beFalse())
+                                expect(sentry_willProfileNextLaunch(options)) == false
                             }
                         }
                         describe("With profiles sample rate of 1") {
-                            options.profilesSampleRate = 1
+                            beforeEach { options.profilesSampleRate = 1 }
                             it("Should not enable launch profiling") {
-                                expect(sentry_willProfileNextLaunch(options)).to(beTrue())
+                                expect(sentry_willProfileNextLaunch(options)) == true
                             }
                         }
                     }
                 }
             }
             describe("With tracing manually enabled") {
-                options.enableTracing = true
+                beforeEach { options.enableTracing = true }
                 describe("With continuous profiling disabled") {
-                    options.enableContinuousProfiling = false
+                    beforeEach { options.enableContinuousProfiling = false }
                     describe("With traces sample rate of 0") {
-                        options.tracesSampleRate = 0
+                        beforeEach { options.tracesSampleRate = 0 }
                         describe("With profiles sample rate of 0") {
-                            options.profilesSampleRate = 0
+                            beforeEach { options.profilesSampleRate = 0 }
                             it("Should not enable launch profiling") {
-                                expect(sentry_willProfileNextLaunch(options)).to(beFalse())
+                                expect(sentry_willProfileNextLaunch(options)) == false
                             }
                         }
                         describe("With profiles sample rate of 1") {
-                            options.profilesSampleRate = 1
+                            beforeEach { options.profilesSampleRate = 1 }
                             it("Should not enable launch profiling") {
-                                expect(sentry_willProfileNextLaunch(options)).to(beFalse())
+                                expect(sentry_willProfileNextLaunch(options)) == false
                             }
                         }
                     }
                     describe("With traces sample rate of 1") {
-                        options.tracesSampleRate = 1
+                        beforeEach { options.tracesSampleRate = 1 }
                         describe("With profiles sample rate of 0") {
-                            options.profilesSampleRate = 0
+                            beforeEach { options.profilesSampleRate = 0 }
                             it("Should not enable launch profiling") {
-                                expect(sentry_willProfileNextLaunch(options)).to(beFalse())
+                                expect(sentry_willProfileNextLaunch(options)) == false
                             }
                         }
                         describe("With profiles sample rate of 1") {
-                            options.profilesSampleRate = 1
+                            beforeEach { options.profilesSampleRate = 1 }
                             it("Should not enable launch profiling") {
-                                expect(sentry_willProfileNextLaunch(options)).to(beTrue())
+                                expect(sentry_willProfileNextLaunch(options)) == true
                             }
                         }
                     }
                 }
                 describe("With continuous profiling enabled") {
-                    options.enableContinuousProfiling = true
+                    beforeEach { options.enableContinuousProfiling = true }
                     describe("With traces sample rate of 0") {
-                        options.tracesSampleRate = 0
+                        beforeEach { options.tracesSampleRate = 0 }
                         describe("With profiles sample rate of 0") {
-                            options.profilesSampleRate = 0
+                            beforeEach { options.profilesSampleRate = 0 }
                             it("Should not enable launch profiling") {
-                                expect(sentry_willProfileNextLaunch(options)).to(beFalse())
+                                expect(sentry_willProfileNextLaunch(options)) == false
                             }
                         }
                         describe("With profiles sample rate of 1") {
-                            options.profilesSampleRate = 1
+                            beforeEach { options.profilesSampleRate = 1 }
                             it("Should not enable launch profiling") {
-                                expect(sentry_willProfileNextLaunch(options)).to(beTrue())
+                                expect(sentry_willProfileNextLaunch(options)) == true
                             }
                         }
                     }
                     describe("With traces sample rate of 1") {
-                        options.tracesSampleRate = 1
+                        beforeEach { options.tracesSampleRate = 1 }
                         describe("With profiles sample rate of 0") {
-                            options.profilesSampleRate = 0
+                            beforeEach { options.profilesSampleRate = 0 }
                             it("Should not enable launch profiling") {
-                                expect(sentry_willProfileNextLaunch(options)).to(beFalse())
+                                expect(sentry_willProfileNextLaunch(options)) == false
                             }
                         }
                         describe("With profiles sample rate of 1") {
-                            options.profilesSampleRate = 1
+                            beforeEach { options.profilesSampleRate = 1 }
                             it("Should not enable launch profiling") {
-                                expect(sentry_willProfileNextLaunch(options)).to(beTrue())
+                                expect(sentry_willProfileNextLaunch(options)) == true
                             }
                         }
                     }

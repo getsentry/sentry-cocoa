@@ -64,7 +64,7 @@ sentry_shouldProfileNextLaunch(SentryOptions *options)
                          @"options.enableContinuousProfiling: %d",
             options.enableAppLaunchProfiling, options.enableTracing,
             options.enableContinuousProfiling);
-        return (SentryLaunchProfileConfig) { options.enableAppLaunchProfiling, nil, nil };
+        return (SentryLaunchProfileConfig) { NO, nil, nil };
     }
 
     SentryTransactionContext *transactionContext =
@@ -114,13 +114,15 @@ sentry_context(NSNumber *tracesRate)
     return context;
 }
 
-# pragma mark - Testing only
+#    pragma mark - Testing only
 
-#if defined(TEST) || defined(TESTCI) || defined(DEBUG)
-BOOL sentry_willProfileNextLaunch(SentryOptions *options) {
+#    if defined(TEST) || defined(TESTCI) || defined(DEBUG)
+BOOL
+sentry_willProfileNextLaunch(SentryOptions *options)
+{
     return sentry_shouldProfileNextLaunch(options).shouldProfile;
 }
-#endif // defined(TEST) || defined(TESTCI) || defined(DEBUG)
+#    endif // defined(TEST) || defined(TESTCI) || defined(DEBUG)
 
 #    pragma mark - Public
 
