@@ -1,16 +1,23 @@
 import SentryTestUtils
 import XCTest
 
-/**
- * Test how combinations of the following options interact to ultimately decide whether or not to start the profiler on the next app launch..
- * - `enableLaunchProfiling`
- * - `enableTracing`
- * -  `enableContinuousProfiling`
- * - `tracesSampleRate`
- * - `profilesSampleRate`
- * - `profilesSampler`
- */
 final class SentryAppLaunchProfilingSwiftTestsNormal: XCTestCase {
+    func testContentsOfLegacyLaunchProfileTransactionContext() {
+        let context = sentry_context(NSNumber(value: 1))
+        XCTAssertEqual(context.nameSource.rawValue, 0)
+        XCTAssertEqual(context.origin, "auto.app.start.profile")
+        XCTAssertEqual(context.sampled, .yes)
+    }
+    
+    /**
+     * Test how combinations of the following options interact to ultimately decide whether or not to start the profiler on the next app launch..
+     * - `enableLaunchProfiling`
+     * - `enableTracing`
+     * -  `enableContinuousProfiling`
+     * - `tracesSampleRate`
+     * - `profilesSampleRate`
+     * - `profilesSampler`
+     */
     func testShouldProfileLaunchBasedOnOptionsCombinations() {
         for testCase: (enableAppLaunchProfiling: Bool, enableTracing: Bool, enableContinuousProfiling: Bool, tracesSampleRate: Int, profilesSampleRate: Int, profilesSamplerReturnValue: Int, shouldProfileLaunch: Bool) in [
             // everything false/0
