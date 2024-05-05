@@ -673,7 +673,6 @@
 		8459FCC02BD73EB20038E9C9 /* SentryProfilerSerialization.mm in Sources */ = {isa = PBXBuildFile; fileRef = 8459FCBF2BD73EB20038E9C9 /* SentryProfilerSerialization.mm */; };
 		845C16D52A622A5B00EC9519 /* SentryTracer+Private.h in Headers */ = {isa = PBXBuildFile; fileRef = 845C16D42A622A5B00EC9519 /* SentryTracer+Private.h */; };
 		847D10BD2BE6F7130048ACD9 /* Nimble in Frameworks */ = {isa = PBXBuildFile; productRef = 847D10BC2BE6F7130048ACD9 /* Nimble */; };
-		847D10C02BE728490048ACD9 /* Quick in Frameworks */ = {isa = PBXBuildFile; productRef = 847D10BF2BE728490048ACD9 /* Quick */; };
 		8489B8882A5F7905009A055A /* SentryThreadWrapperTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8489B8872A5F7905009A055A /* SentryThreadWrapperTests.swift */; };
 		848A45192BBF8D33006AAAEC /* SentryContinuousProfiler.mm in Sources */ = {isa = PBXBuildFile; fileRef = 848A45182BBF8D33006AAAEC /* SentryContinuousProfiler.mm */; };
 		848A451A2BBF8D33006AAAEC /* SentryContinuousProfiler.h in Headers */ = {isa = PBXBuildFile; fileRef = 848A45172BBF8D33006AAAEC /* SentryContinuousProfiler.h */; };
@@ -1974,7 +1973,6 @@
 			files = (
 				847D10BD2BE6F7130048ACD9 /* Nimble in Frameworks */,
 				84B7FA3D29B2879C00AD93B1 /* libSentryTestUtils.a in Frameworks */,
-				847D10C02BE728490048ACD9 /* Quick in Frameworks */,
 				8431EFD129B27B1100D8DC56 /* Sentry.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -4205,7 +4203,6 @@
 			name = SentryProfilerTests;
 			packageProductDependencies = (
 				847D10BC2BE6F7130048ACD9 /* Nimble */,
-				847D10BF2BE728490048ACD9 /* Quick */,
 			);
 			productName = "Tests-iOS";
 			productReference = 8431EFD929B27B1100D8DC56 /* SentryProfilerTests.xctest */;
@@ -4315,7 +4312,6 @@
 			mainGroup = 6327C5C91EB8A783004E799B;
 			packageReferences = (
 				62986F012B03D250008E2D62 /* XCRemoteSwiftPackageReference "Nimble" */,
-				847D10BE2BE728490048ACD9 /* XCRemoteSwiftPackageReference "Quick" */,
 			);
 			productRefGroup = 6327C5D41EB8A783004E799B /* Products */;
 			projectDirPath = "";
@@ -5631,7 +5627,6 @@
 				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = "";
 				INFOPLIST_FILE = "SentryTests copy-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -5694,7 +5689,6 @@
 				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = "";
 				INFOPLIST_FILE = "SentryTests copy-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -5726,7 +5720,6 @@
 				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = "";
 				INFOPLIST_FILE = "SentryTests copy-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -5758,7 +5751,6 @@
 				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = "";
 				INFOPLIST_FILE = "SentryTests copy-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -5790,7 +5782,6 @@
 				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = "";
 				INFOPLIST_FILE = "SentryTests copy-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -6121,7 +6112,6 @@
 				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = "";
 				INFOPLIST_FILE = "SentryTests copy-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -6920,14 +6910,6 @@
 				version = 10.0.0;
 			};
 		};
-		847D10BE2BE728490048ACD9 /* XCRemoteSwiftPackageReference "Quick" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/Quick/Quick";
-			requirement = {
-				branch = main;
-				kind = branch;
-			};
-		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -6940,11 +6922,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 62986F012B03D250008E2D62 /* XCRemoteSwiftPackageReference "Nimble" */;
 			productName = Nimble;
-		};
-		847D10BF2BE728490048ACD9 /* Quick */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 847D10BE2BE728490048ACD9 /* XCRemoteSwiftPackageReference "Quick" */;
-			productName = Quick;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
