@@ -26,7 +26,6 @@
 #import "SentryTraceOrigins.h"
 #import "SentryTracer.h"
 #import "SentryUser.h"
-#import "NSURLSessionTask+Sentry.h"
 #import <objc/runtime.h>
 
 /**
@@ -453,7 +452,7 @@ SentryNetworkTracker ()
     context[@"response"] = response;
 
     if (self.isGraphQLOperationTrackingEnabled) {
-        context[@"graphql"] = [SentryNSURLSessionTask graphQLOperationNameFromTask:sessionTask];
+        context[@"operation_name"] = [sessionTask getGraphQLOperationName];
     }
 
     event.context = context;
@@ -507,7 +506,7 @@ SentryNetworkTracker ()
             [NSHTTPURLResponse localizedStringForStatusCode:responseStatusCode];
 
         if (self.isGraphQLOperationTrackingEnabled) {
-            breadcrumbData[@"graphql"] = [SentryNSURLSessionTask graphQLOperationNameFromTask:sessionTask];
+            breadcrumbData[@"operation_name"] = [sessionTask getGraphQLOperationName];
         }
     }
 
