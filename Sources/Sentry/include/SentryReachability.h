@@ -34,13 +34,13 @@ NS_ASSUME_NONNULL_BEGIN
 
 void SentryConnectivityCallback(SCNetworkReachabilityFlags flags);
 
-#    if TEST || TESTCI
+#    if defined(TEST) || defined(TESTCI) || defined(DEBUG)
 /**
  * Needed for testing.
  */
 void SentrySetReachabilityIgnoreActualCallback(BOOL value);
 
-#    endif // TEST || TESTCI
+#    endif // defined(TEST) || defined(TESTCI) || defined(DEBUG)
 
 NSString *SentryConnectivityFlagRepresentation(SCNetworkReachabilityFlags flags);
 
@@ -68,7 +68,7 @@ SENTRY_EXTERN NSString *const SentryConnectivityNone;
  */
 @interface SentryReachability : NSObject
 
-#    if TEST || TESTCI
+#    if defined(TEST) || defined(TESTCI) || defined(DEBUG)
 
 /**
  * Only needed for testing. Use this flag to skip registering and unregistering the actual callbacks
@@ -76,7 +76,7 @@ SENTRY_EXTERN NSString *const SentryConnectivityNone;
  */
 @property (nonatomic, assign) BOOL skipRegisteringActualCallbacks;
 
-#    endif // TEST || TESTCI
+#    endif // defined(TEST) || defined(TESTCI) || defined(DEBUG)
 
 /**
  * Add an observer which is called each time network connectivity changes.
