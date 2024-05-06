@@ -8,10 +8,13 @@ import XCTest
 class SentrySessionReplayTests: XCTestCase {
     
     private class ScreenshotProvider: NSObject, SentryViewScreenshotProvider {
-        func image(with view: UIView, options: SentryRedactOptions) -> UIImage { UIImage.add }
+        func image(view: UIView, options: Sentry.SentryRedactOptions, onComplete: @escaping Sentry.ScreenshotCallback) {
+            onComplete(UIImage.add)
+        }
     }
      
-    private class TestReplayMaker: NSObject, SentryReplayMaker {
+    private class TestReplayMaker: NSObject, SentryReplayVideoMaker {
+        
         struct CreateVideoCall {
             var duration: TimeInterval
             var beginning: Date
@@ -20,8 +23,8 @@ class SentrySessionReplayTests: XCTestCase {
         }
         
         var lastCallToCreateVideo: CreateVideoCall?
-        func createVideo(withDuration duration: TimeInterval, beginning: Date, outputFileURL: URL, completion: @escaping (SentryVideoInfo?, Error?) -> Void) throws {
-                lastCallToCreateVideo = CreateVideoCall(duration: duration,
+        func createVideoWith(duration: TimeInterval, beginning: Date, outputFileURL: URL, completion: @escaping (Sentry.SentryVideoInfo?, (Error)?) -> Void) throws {
+            lastCallToCreateVideo = CreateVideoCall(duration: duration,
                                                         beginning: beginning,
                                                         outputFileURL: outputFileURL,
                                                         completion: completion)
@@ -34,12 +37,12 @@ class SentrySessionReplayTests: XCTestCase {
         }
         
         var lastFrame: UIImage?
-        func addFrameAsync(with image: UIImage) {
+        func addFrameAsync(image: UIImage) {
             lastFrame = image
         }
         
         var lastReleaseUntil: Date?
-        func releaseFrames(until date: Date) {
+        func releaseFramesUntil(_ date: Date) {
             lastReleaseUntil = date
         }
     }
@@ -56,7 +59,6 @@ class SentrySessionReplayTests: XCTestCase {
         }
     }
     
-    @available(iOS 16.0, tvOS 16.0, *)
     private class Fixture {
         let dateProvider = TestCurrentDateProvider()
         let random = TestRandom(value: 0)
@@ -71,16 +73,10 @@ class SentrySessionReplayTests: XCTestCase {
             return SentrySessionReplay(settings: options,
                                        replayFolderPath: cacheFolder,
                                        screenshotProvider: screenshotProvider,
-                                       replayMaker: replayMaker,
+                                       replay: replayMaker,
                                        dateProvider: dateProvider,
                                        random: random,
                                        displayLinkWrapper: displayLink)
-        }
-    }
-    
-    override func setUpWithError() throws {
-        guard #available(iOS 16.0, tvOS 16.0, *) else {
-            throw XCTSkip("iOS version not supported")
         }
     }
     
@@ -93,14 +89,12 @@ class SentrySessionReplayTests: XCTestCase {
         clearTestState()
     }
     
-    @available(iOS 16.0, tvOS 16, *)
     private func startFixture() -> Fixture {
         let fixture = Fixture()
         SentrySDK.setCurrentHub(fixture.hub)
         return fixture
     }
     
-    @available(iOS 16.0, tvOS 16, *)
     func testDontSentReplay_NoFullSession() {
         let fixture = startFixture()
         let sut = fixture.getSut()
@@ -114,7 +108,6 @@ class SentrySessionReplayTests: XCTestCase {
         expect(fixture.hub.lastEvent) == nil
     }
     
-    @available(iOS 16.0, tvOS 16, *)
     func testSentReplay_FullSession() {
         let fixture = startFixture()
         
@@ -144,7 +137,6 @@ class SentrySessionReplayTests: XCTestCase {
         assertFullSession(sut, expected: true)
     }
     
-    @available(iOS 16.0, tvOS 16, *)
     func testDontSentReplay_NotFullSession() {
         let fixture = startFixture()
         let sut = fixture.getSut(options: SentryReplayOptions(sessionSampleRate: 1, errorSampleRate: 1))
@@ -164,7 +156,6 @@ class SentrySessionReplayTests: XCTestCase {
         assertFullSession(sut, expected: false)
     }
     
-    @available(iOS 16.0, tvOS 16, *)
     func testChangeReplayMode_forErrorEvent() {
         let fixture = startFixture()
         let sut = fixture.getSut(options: SentryReplayOptions(sessionSampleRate: 1, errorSampleRate: 1))
@@ -178,7 +169,6 @@ class SentrySessionReplayTests: XCTestCase {
         assertFullSession(sut, expected: true)
     }
     
-    @available(iOS 16.0, tvOS 16, *)
     func testDontChangeReplayMode_forNonErrorEvent() {
         let fixture = startFixture()
         let sut = fixture.getSut(options: SentryReplayOptions(sessionSampleRate: 1, errorSampleRate: 1))
@@ -219,7 +209,6 @@ class SentrySessionReplayTests: XCTestCase {
         expect(Dynamic(sut).isRunning) == false
     }
 
-    @available(iOS 16.0, tvOS 16, *)
     func assertFullSession(_ sessionReplay: SentrySessionReplay, expected: Bool) {
         expect(Dynamic(sessionReplay).isFullSession) == expected
     }

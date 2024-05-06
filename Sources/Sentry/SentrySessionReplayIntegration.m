@@ -28,17 +28,6 @@ SentrySessionReplayIntegration ()
 - (void)newSceneActivate;
 @end
 
-API_AVAILABLE(ios(16.0), tvos(16.0))
-@interface
-SentryViewPhotographer (SentryViewScreenshotProvider) <SentryViewScreenshotProvider>
-@end
-
-API_AVAILABLE(ios(16.0), tvos(16.0))
-@interface
-SentryOnDemandReplay (SentryReplayMaker) <SentryReplayMaker>
-
-@end
-
 @implementation SentrySessionReplayIntegration {
     BOOL _startedAsFullSession;
     SentryReplayOptions *_replayOptions;
