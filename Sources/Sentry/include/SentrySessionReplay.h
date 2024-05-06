@@ -13,27 +13,11 @@
 
 @protocol SentryRandom;
 @protocol SentryRedactOptions;
+@protocol SentryViewScreenshotProvider;
+@protocol SentryReplayVideoMaker;
 
 NS_ASSUME_NONNULL_BEGIN
 
-@protocol SentryReplayMaker <NSObject>
-
-- (void)addFrameAsyncWithImage:(UIImage *)image;
-- (void)releaseFramesUntil:(NSDate *)date;
-- (BOOL)createVideoWithDuration:(NSTimeInterval)duration
-                      beginning:(NSDate *)beginning
-                  outputFileURL:(NSURL *)outputFileURL
-                          error:(NSError *_Nullable *_Nullable)error
-                     completion:
-                         (void (^)(SentryVideoInfo *_Nullable, NSError *_Nullable))completion;
-
-@end
-
-@protocol SentryViewScreenshotProvider <NSObject>
-- (UIImage *)imageWithView:(UIView *)view options:(id<SentryRedactOptions>)options;
-@end
-
-API_AVAILABLE(ios(16.0), tvos(16.0))
 @interface SentrySessionReplay : NSObject
 
 @property (nonatomic, strong, readonly) SentryId *sessionReplayId;
@@ -41,7 +25,7 @@ API_AVAILABLE(ios(16.0), tvos(16.0))
 - (instancetype)initWithSettings:(SentryReplayOptions *)replayOptions
                 replayFolderPath:(NSURL *)folderPath
               screenshotProvider:(id<SentryViewScreenshotProvider>)photographer
-                     replayMaker:(id<SentryReplayMaker>)replayMaker
+                     replayMaker:(id<SentryReplayVideoMaker>)replayMaker
                     dateProvider:(SentryCurrentDateProvider *)dateProvider
                           random:(id<SentryRandom>)random
               displayLinkWrapper:(SentryDisplayLinkWrapper *)displayLinkWrapper;
