@@ -150,6 +150,7 @@ SentryOnDemandReplay (SentryReplayMaker) <SentryReplayMaker>
 
 - (void)uninstall
 {
+    [self stop];
 }
 
 - (BOOL)shouldReplayFullSession:(CGFloat)rate
