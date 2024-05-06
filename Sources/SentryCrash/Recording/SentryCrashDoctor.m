@@ -476,11 +476,11 @@ typedef enum { CPUFamilyUnknown, CPUFamilyArm, CPUFamilyX86, CPUFamilyX86_64 } C
                               (void *)address];
             }
         }
-        
+
         if ([self wasProgramTerminationRequested:errorReport]) {
             return @"Graceful OS termination requested.";
         }
-        
+
         return nil;
     } @catch (NSException *e) {
         NSArray *symbols = [e callStackSymbols];
