@@ -113,6 +113,7 @@ class SentryHttpTransportTests: XCTestCase {
             
             return SentryHttpTransport(
                 options: options,
+                cachedEnvelopeSendDelay: 0.0,
                 fileManager: fileManager,
                 requestManager: requestManager,
                 requestBuilder: requestBuilder,
@@ -423,7 +424,7 @@ class SentryHttpTransportTests: XCTestCase {
         // Make sure that the next calls to sendAllCachedEnvelopes go via
         // dispatchQueue.dispatchAfter, and doesn't just execute it immediately
         XCTAssertEqual(fixture.dispatchQueueWrapper.dispatchAfterInvocations.count, 2)
-        XCTAssertEqual(fixture.dispatchQueueWrapper.dispatchAfterInvocations.first?.interval, 0.1)
+        XCTAssertEqual(fixture.dispatchQueueWrapper.dispatchAfterInvocations.first?.interval, 0.0)
     }
 
     func testActiveRateLimitForSomeCachedEnvelopeItems() {

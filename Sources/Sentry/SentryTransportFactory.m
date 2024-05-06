@@ -60,6 +60,7 @@ SentryTransportFactory ()
 
     SentryHttpTransport *httpTransport =
         [[SentryHttpTransport alloc] initWithOptions:options
+                             cachedEnvelopeSendDelay:0.1
                                          fileManager:sentryFileManager
                                       requestManager:requestManager
                                       requestBuilder:requestBuilder
