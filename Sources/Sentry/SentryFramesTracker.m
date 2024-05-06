@@ -7,6 +7,7 @@
 #    import "SentryDelayedFramesTracker.h"
 #    import "SentryDispatchQueueWrapper.h"
 #    import "SentryDisplayLinkWrapper.h"
+#    import "SentryInternalCDefines.h"
 #    import "SentryLog.h"
 #    import "SentryProfiler+Private.h"
 #    import "SentryProfilingConditionals.h"
@@ -85,6 +86,19 @@ slowFrameThreshold(uint64_t actualFramesPerSecond)
 - (void)setDisplayLinkWrapper:(SentryDisplayLinkWrapper *)displayLinkWrapper
 {
     _displayLinkWrapper = displayLinkWrapper;
+}
+- (void)setPreviousFrameSystemTimestamp:(uint64_t)previousFrameSystemTimestamp
+    SENTRY_DISABLE_THREAD_SANITIZER("As you can only disable the thread sanitizer for methods, we "
+                                    "must manually create the setter here.")
+{
+    _previousFrameSystemTimestamp = previousFrameSystemTimestamp;
+}
+
+- (uint64_t)getPreviousFrameSystemTimestamp SENTRY_DISABLE_THREAD_SANITIZER(
+    "As you can only disable the thread sanitizer for methods, we must manually create the getter "
+    "here.")
+{
+    return _previousFrameSystemTimestamp;
 }
 
 - (void)resetFrames
@@ -231,7 +245,7 @@ slowFrameThreshold(uint64_t actualFramesPerSecond)
 }
 #    endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
-- (SentryScreenFrames *)currentFrames
+- (SentryScreenFrames *)currentFrames SENTRY_DISABLE_THREAD_SANITIZER()
 {
 #    if SENTRY_TARGET_PROFILING_SUPPORTED
     return [[SentryScreenFrames alloc] initWithTotal:_totalFrames
@@ -247,19 +261,8 @@ slowFrameThreshold(uint64_t actualFramesPerSecond)
 #    endif // SENTRY_TARGET_PROFILING_SUPPORTED
 }
 
-/**
- * The ThreadSanitizer ignores this method; see ThreadSanitizer.sup.
- *
- * We accept the data race of the two properties _currentFrameRate and previousFrameSystemTimestamp,
- * that are updated on the main thread in the displayLinkCallback. This method only reads these
- * properties. In most scenarios, this method will be called on the main thread, for which no
- * synchronization is needed. When calling this function from a background thread, the frames delay
- * statistics don't need to be that accurate because background spans contribute less to delayed
- * frames. We prefer having not 100% correct frames delay numbers for background spans instead of
- * adding the overhead of synchronization.
- */
 - (CFTimeInterval)getFramesDelay:(uint64_t)startSystemTimestamp
-              endSystemTimestamp:(uint64_t)endSystemTimestamp
+              endSystemTimestamp:(uint64_t)endSystemTimestamp SENTRY_DISABLE_THREAD_SANITIZER()
 {
     return [self.delayedFramesTracker getFramesDelay:startSystemTimestamp
                                   endSystemTimestamp:endSystemTimestamp

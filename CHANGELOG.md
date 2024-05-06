@@ -1,5 +1,16 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Ignore SentryFramesTracker thread sanitizer data races (#3922)
+- Handle no releaseName in WatchDogTerminationLogic (#3919)
+
+### Improvements
+
+- Remove not needed lock for logging (#3934)
+
 ## 8.25.0
 
 - Add SIGTERM support ([#3895](https://github.com/getsentry/sentry-cocoa/pull/3895))
