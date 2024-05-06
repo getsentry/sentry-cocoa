@@ -10,6 +10,10 @@
 ### Improvements
 
 - Remove not needed lock for logging (#3934)
+- Session replay Improvements (#3877)
+  - Use image average color and text font color to redact session replay 
+  - Removed iOS 16 restriction from session replay
+  - Performance improvement 
 
 ## 8.25.0
 
