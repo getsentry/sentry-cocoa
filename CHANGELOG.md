@@ -6,6 +6,7 @@
 
 - Ignore SentryFramesTracker thread sanitizer data races (#3922)
 - Handle no releaseName in WatchDogTerminationLogic (#3919)
+- Stop SessionReplay when closing SDK (#3941)
 
 ### Improvements
 

@@ -114,6 +114,11 @@ SentrySessionReplay ()
     }
 }
 
+- (void)dealloc
+{
+    [self stop];
+}
+
 - (void)captureReplayForEvent:(SentryEvent *)event;
 {
     if (!_isRunning) {
