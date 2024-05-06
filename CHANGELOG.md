@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 8.25.1
 
 ### Fixes
 
@@ -14,7 +14,7 @@
 - Session replay Improvements (#3877)
   - Use image average color and text font color to redact session replay 
   - Removed iOS 16 restriction from session replay
-  - Performance improvement 
+  - Performance improvement
 
 ## 8.25.0
 
