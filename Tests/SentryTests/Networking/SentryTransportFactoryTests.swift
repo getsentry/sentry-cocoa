@@ -45,7 +45,7 @@ class SentryTransportFactoryTests: XCTestCase {
         options.urlSession = sessionConfiguration
         
         let fileManager = try! SentryFileManager(options: options, dispatchQueueWrapper: TestSentryDispatchQueueWrapper())
-        let transports = TransportInitializer.initTransports(options, sentryFileManager: fileManager)
+        let transports = TransportInitializer.initTransports(options, sentryFileManager: fileManager, currentDateProvider: TestCurrentDateProvider())
                 
         let httpTransport = transports.first
         let requestManager = Dynamic(httpTransport).requestManager.asObject as! SentryQueueableRequestManager
