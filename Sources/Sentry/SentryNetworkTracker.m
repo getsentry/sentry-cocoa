@@ -452,7 +452,7 @@ SentryNetworkTracker ()
     context[@"response"] = response;
 
     if (self.isGraphQLOperationTrackingEnabled) {
-        context[@"operation_name"] = [sessionTask getGraphQLOperationName];
+        context[@"graphql_operation_name"] = [sessionTask getGraphQLOperationName];
     }
 
     event.context = context;
@@ -506,7 +506,7 @@ SentryNetworkTracker ()
             [NSHTTPURLResponse localizedStringForStatusCode:responseStatusCode];
 
         if (self.isGraphQLOperationTrackingEnabled) {
-            breadcrumbData[@"operation_name"] = [sessionTask getGraphQLOperationName];
+            breadcrumbData[@"graphql_operation_name"] = [sessionTask getGraphQLOperationName];
         }
     }
 

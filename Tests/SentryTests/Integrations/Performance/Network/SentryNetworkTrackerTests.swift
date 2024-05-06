@@ -338,7 +338,7 @@ class SentryNetworkTrackerTests: XCTestCase {
         XCTAssertEqual(breadcrumb!.data!["response_body_size"] as! Int64, DATA_BYTES_RECEIVED)
         XCTAssertEqual(breadcrumb!.data!["http.query"] as? String, "query=value&query2=value2")
         XCTAssertEqual(breadcrumb!.data!["http.fragment"] as? String, "fragment")
-        XCTAssertNil(breadcrumb!.data!["operation_name"])
+        XCTAssertNil(breadcrumb!.data!["graphql_operation_name"])
     }
 
     func testBreadcrumb_GraphQLEnabled() {
@@ -355,7 +355,7 @@ class SentryNetworkTrackerTests: XCTestCase {
 
         let breadcrumbs = Dynamic(fixture.scope).breadcrumbArray as [Breadcrumb]?
         let breadcrumb = breadcrumbs!.first
-        XCTAssertEqual(breadcrumb!.data!["operation_name"] as? String, "someOperationName")
+        XCTAssertEqual(breadcrumb!.data!["graphql_operation_name"] as? String, "someOperationName")
     }
 
     func testBreadcrumb_GraphQLEnabledInvalidData() {
@@ -370,7 +370,7 @@ class SentryNetworkTrackerTests: XCTestCase {
 
         let breadcrumbs = Dynamic(fixture.scope).breadcrumbArray as [Breadcrumb]?
         let breadcrumb = breadcrumbs!.first
-        XCTAssertNil(breadcrumb!.data!["operation_name"])
+        XCTAssertNil(breadcrumb!.data!["graphql_operation_name"])
     }
 
     func testNoBreadcrumb_DisablingBreadcrumb() {
@@ -902,7 +902,7 @@ class SentryNetworkTrackerTests: XCTestCase {
         let requestType = span.data["type"] as? String
         let query = span.data["http.query"] as? String
         let fragment = span.data["http.fragment"] as? String
-        let graphql = span.data["operation_name"] as? String
+        let graphql = span.data["graphql_operation_name"] as? String
 
         XCTAssertEqual(path, "https://www.domain.com/api")
         XCTAssertEqual(method, task.currentRequest!.httpMethod)
