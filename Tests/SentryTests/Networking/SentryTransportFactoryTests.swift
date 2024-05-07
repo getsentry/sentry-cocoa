@@ -36,7 +36,7 @@ class SentryTransportFactoryTests: XCTestCase {
         let urlSessionDelegateSpy = UrlSessionDelegateSpy()
         let expect = expectation(description: "UrlSession Delegate of Options called in RequestManager")
 
-        let sessionConfiguration  = URLSession(configuration: .ephemeral, delegate: urlSessionDelegateSpy, delegateQueue: nil)
+        let sessionConfiguration = URLSession(configuration: .ephemeral, delegate: urlSessionDelegateSpy, delegateQueue: nil)
         urlSessionDelegateSpy.delegateCallback = {
             expect.fulfill()
         }
