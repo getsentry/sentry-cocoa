@@ -450,6 +450,10 @@ NSString *const kSentryDefaultEnvironment = @"production";
         _inAppExcludes = [options[@"inAppExcludes"] filteredArrayUsingPredicate:isNSString];
     }
 
+    if ([options[@"urlSession"] isKindOfClass:[NSURLSession class]]) {
+        self.urlSession = options[@"urlSession"];
+    }
+
     if ([options[@"urlSessionDelegate"] conformsToProtocol:@protocol(NSURLSessionDelegate)]) {
         self.urlSessionDelegate = options[@"urlSessionDelegate"];
     }

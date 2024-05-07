@@ -364,8 +364,21 @@ NS_SWIFT_NAME(Options)
 /**
  * Set as delegate on the @c NSURLSession used for all network data-transfer tasks performed by
  * Sentry.
+ *
+ * @discussion The SDK ignores this option when using @c urlSession.
  */
 @property (nullable, nonatomic, weak) id<NSURLSessionDelegate> urlSessionDelegate;
+
+/**
+ * Use this property, so the transport uses this  @c NSURLSession with your configuration for
+ * sending requests to Sentry.
+ *
+ * If not set, the SDK will create a new @c NSURLSession with @c [NSURLSessionConfiguration
+ * ephemeralSessionConfiguration].
+ *
+ * @note Default is @c nil.
+ */
+@property (nullable, nonatomic, strong) NSURLSession *urlSession;
 
 /**
  * Wether the SDK should use swizzling or not.
