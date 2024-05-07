@@ -5468,7 +5468,7 @@
 		};
 		841C60C42A69DE6B00E1C00F /* Debug_without_UIKit */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = D8BD2E27292D1F7300D96C6A /* SDK.xcconfig */;
+			baseConfigurationReference = 63AA75C51EB8B00100D153DE /* Sentry.xcconfig */;
 			buildSettings = {
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				BUILD_LIBRARY_FOR_DISTRIBUTION = YES;
@@ -5960,7 +5960,7 @@
 		};
 		8483D06B2AC7627800143615 /* Release_without_UIKit */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = D8BD2E27292D1F7300D96C6A /* SDK.xcconfig */;
+			baseConfigurationReference = 63AA75C51EB8B00100D153DE /* Sentry.xcconfig */;
 			buildSettings = {
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				BUILD_LIBRARY_FOR_DISTRIBUTION = YES;
