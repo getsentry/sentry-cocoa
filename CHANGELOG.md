@@ -5,10 +5,10 @@
 ### Features
 
 - Add option to use own NSURLSession for transport (#3811)
+- Support sending GraphQL operation names in HTTP breadcrumbs (#3931)
 
 ### Fixes
 
-- Support sending GraphQL operation names in HTTP breadcrumbs (#3931)
 - Ignore SentryFramesTracker thread sanitizer data races (#3922)
 - Handle no releaseName in WatchDogTerminationLogic (#3919)
 - Stop SessionReplay when closing SDK (#3941)
