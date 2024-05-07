@@ -1,10 +1,50 @@
 # Changelog
 
-## Unreleased
+## 8.25.2
 
 ### Fixes
 
-- Don't transmit device boot time in envelopes enriched with crash data (#3912)
+- 'SentryFileManager+Test.h' file not found (#3950)
+
+## 8.25.1
+
+### Features
+
+- Add option to use own NSURLSession for transport (#3811)
+- Support sending GraphQL operation names in HTTP breadcrumbs (#3931)
+
+### Fixes
+
+- Ignore SentryFramesTracker thread sanitizer data races (#3922)
+- Handle no releaseName in WatchDogTerminationLogic (#3919)
+- Stop SessionReplay when closing SDK (#3941)
+
+### Improvements
+
+- Remove not needed lock for logging (#3934)
+- Session replay Improvements (#3877)
+  - Use image average color and text font color to redact session replay 
+  - Removed iOS 16 restriction from session replay
+  - Performance improvement
+
+## 8.25.0
+
+### Features
+
+- Add Session Replay, which is **still experimental**. (#3625)
+  - Access is limited to early access orgs on Sentry. If you're interested, [sign up for the waitlist](https://sentry.io/lp/mobile-replay-beta/)
+
+### Fixes
+
+- Crash due to a background call to -[UIApplication applicationState] (#3855)
+- Save framework without UIKit/AppKit as Github Asset for releases (#3858) 
+- Fix crash associated with runtime collision in global C function names (#3862)
+- Remove wrong error log in SentryCoreDataTracker (#3894)
+- Don't transmit device boot time in envelopes enriched with crash data (#3912, #3916)
+
+### Improvements
+
+- Capture transactions on a background thread (#3892)
 
 ## 8.25.0-alpha.0
 
