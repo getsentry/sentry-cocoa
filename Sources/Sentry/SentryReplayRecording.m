@@ -67,7 +67,11 @@ NS_ASSUME_NONNULL_BEGIN
         }
     };
 
-    return @[ metaInfo, recordingInfo ];
+    NSDictionary *breadcrumbs = @{
+
+    };
+
+    return @[ metaInfo, recordingInfo, breadcrumbs ];
 }
 
 @end

@@ -2,6 +2,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+@class SentryBreadcrumb;
+
 static NSString *const SentryReplayEncoding = @"h264";
 static NSString *const SentryReplayContainer = @"mp4";
 static NSString *const SentryReplayFrameRateType = @"constant";
@@ -26,6 +28,8 @@ static NSString *const SentryReplayFrameRateType = @"constant";
 @property (nonatomic) NSInteger height;
 
 @property (nonatomic) NSInteger width;
+
+@property (nonatomic, strong) NSArray<SentryBreadcrumb *> *breadcrumbs;
 
 - (instancetype)initWithSegmentId:(NSInteger)segmentId
                              size:(NSInteger)size

@@ -45,6 +45,7 @@ NS_SWIFT_NAME(Breadcrumb)
  * @param category String
  */
 - (instancetype)initWithLevel:(SentryLevel)level category:(NSString *)category;
+- (instancetype)initCategory:(NSString *)category;
 - (instancetype)init;
 + (instancetype)new NS_UNAVAILABLE;
 
@@ -55,6 +56,8 @@ NS_SWIFT_NAME(Breadcrumb)
 - (BOOL)isEqualToBreadcrumb:(SentryBreadcrumb *)breadcrumb;
 
 - (NSUInteger)hash;
+
+- (instancetype)copy;
 
 @end
 
