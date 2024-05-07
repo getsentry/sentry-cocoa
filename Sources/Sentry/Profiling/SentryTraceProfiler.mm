@@ -45,6 +45,7 @@ NSTimer *_Nullable _threadUnsafe_timeoutTimer;
         return NO;
     }
 
+    [self scheduleTimeoutTimer];
     sentry_trackProfilerForTracer(_threadUnsafe_gTraceProfiler, traceId);
     return YES;
 }

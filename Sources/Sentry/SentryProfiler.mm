@@ -10,7 +10,6 @@
 #    import "SentryLog.h"
 #    import "SentryMetricProfiler.h"
 #    import "SentryOptions+Private.h"
-#    import "SentryProfilerSerialization.h"
 #    import "SentryProfilerState+ObjCpp.h"
 #    import "SentryProfilerTestHelpers.h"
 #    import "SentrySDK+Private.h"
@@ -132,10 +131,6 @@ sentry_manageProfilerOnStartSDK(SentryOptions *options, SentryHub *hub)
 
     _samplingProfiler->stopSampling();
     SENTRY_LOG_DEBUG(@"Stopped profiler %@.", self);
-
-    if (_mode == SentryProfilerModeContinuous) {
-        [self transmitChunkEnvelope];
-    }
 }
 
 - (void)startMetricProfiler
@@ -194,26 +189,6 @@ sentry_manageProfilerOnStartSDK(SentryOptions *options, SentryHub *hub)
         return NO;
     }
     return _samplingProfiler->isSampling();
-}
-
-- (void)transmitChunkEnvelope
-{
-    const auto stateCopy = [self.state copyProfilingData];
-    const auto startSystemTime = self.continuousChunkStartSystemTime;
-    const auto endSystemTime = SentryDependencyContainer.sharedInstance.dateProvider.systemTime;
-    self.continuousChunkStartSystemTime = endSystemTime + 1;
-    [self.state clear]; // !!!: profile this to see if it takes longer than one sample duration
-                        // length: ~9ms
-
-    const auto envelope = sentry_continuousProfileChunkEnvelope(
-        startSystemTime, endSystemTime, stateCopy, self.profilerId,
-        [self.metricProfiler serializeBetween:startSystemTime and:endSystemTime]
-#    if SENTRY_HAS_UIKIT
-        ,
-        self.screenFrameData
-#    endif // SENTRY_HAS_UIKIT
-    );
-    [SentrySDK captureEnvelope:envelope];
 }
 
 @end
