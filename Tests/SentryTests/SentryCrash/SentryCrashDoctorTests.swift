@@ -17,4 +17,13 @@ final class SentryCrashDoctorTests: XCTestCase {
         
         XCTAssertEqual("Attempted to dereference garbage pointer at 0x13fd4582e.", diagnose)
     }
+    
+    // Testing support for SIGTERM sent by the OS
+    func testGracefulTerminationRequest() throws {
+        let report = try getCrashReport(resource: "Resources/crash-sigterm")
+        
+        let diagnose = SentryCrashDoctor().diagnoseCrash(report)
+        
+        XCTAssertEqual("Graceful OS termination requested.", diagnose)
+    }
 }
