@@ -9,7 +9,6 @@
 #    import "SentryLaunchProfiling.h"
 #    import "SentryLog.h"
 #    import "SentryMetricProfiler.h"
-#    import "SentryNSTimerFactory.h"
 #    import "SentryOptions+Private.h"
 #    import "SentryProfilerSerialization.h"
 #    import "SentryProfilerState+ObjCpp.h"
@@ -17,7 +16,6 @@
 #    import "SentrySDK+Private.h"
 #    import "SentrySamplingProfiler.hpp"
 #    import "SentrySwift.h"
-#    import "SentryThreadWrapper.h"
 #    import "SentryTime.h"
 
 #    if SENTRY_HAS_UIKIT
@@ -64,7 +62,6 @@ sentry_manageProfilerOnStartSDK(SentryOptions *options, SentryHub *hub)
 
 @implementation SentryProfiler {
     std::shared_ptr<SamplingProfiler> _samplingProfiler;
-    NSTimer *_Nullable _timeoutTimer;
     SentryProfilerMode _mode;
 }
 
@@ -91,8 +88,6 @@ sentry_manageProfilerOnStartSDK(SentryOptions *options, SentryHub *hub)
 
     [self start];
 
-    [self scheduleTimer];
-
 #    if SENTRY_HAS_UIKIT
     [SentryDependencyContainer.sharedInstance.notificationCenterWrapper
         addObserver:self
@@ -105,50 +100,6 @@ sentry_manageProfilerOnStartSDK(SentryOptions *options, SentryHub *hub)
 }
 
 #    pragma mark - Private
-
-/**
- * Schedule a timeout timer on the main thread.
- * @warning from NSTimer.h: Timers scheduled in an async context may never fire.
- */
-- (void)scheduleTimer
-{
-    __weak SentryProfiler *weakSelf = self;
-
-    [SentryThreadWrapper onMainThread:^{
-        if (![weakSelf isRunning]) {
-            return;
-        }
-
-        SentryProfiler *strongSelf = weakSelf;
-        const auto isContinuous = strongSelf->_mode == SentryProfilerModeContinuous;
-        strongSelf->_timeoutTimer = [SentryDependencyContainer.sharedInstance.timerFactory
-            scheduledTimerWithTimeInterval:isContinuous ? kSentryProfilerChunkExpirationInterval
-                                                        : kSentryProfilerTimeoutInterval
-                                    target:self
-                                  selector:@selector(timerExpired)
-                                  userInfo:nil
-                                   repeats:isContinuous];
-    }];
-}
-
-- (void)timerExpired
-{
-    if (![self isRunning]) {
-        SENTRY_LOG_WARN(@"Current profiler is not running.");
-        return;
-    }
-
-    switch (_mode) {
-    default: // fall-through!
-    case SentryProfilerModeTrace:
-        SENTRY_LOG_DEBUG(@"Stopping profiler %@ due to timeout.", self);
-        [self stopForReason:SentryProfilerTruncationReasonTimeout];
-        break;
-    case SentryProfilerModeContinuous:
-        [self transmitChunkEnvelope];
-        break;
-    }
-}
 
 - (void)backgroundAbort
 {
@@ -163,7 +114,6 @@ sentry_manageProfilerOnStartSDK(SentryOptions *options, SentryHub *hub)
 
 - (void)stopForReason:(SentryProfilerTruncationReason)reason
 {
-    [_timeoutTimer invalidate];
     [self.metricProfiler stop];
     self.truncationReason = reason;
 

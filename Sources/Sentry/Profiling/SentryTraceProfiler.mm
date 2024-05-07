@@ -2,10 +2,13 @@
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
+#    import "SentryDependencyContainer.h"
 #    import "SentryLog.h"
 #    import "SentryMetricProfiler.h"
+#    import "SentryNSTimerFactory.h"
 #    import "SentryProfiledTracerConcurrency.h"
 #    import "SentryProfiler+Private.h"
+#    import "SentryThreadWrapper.h"
 #    include <mutex>
 
 #    pragma mark - Private
@@ -16,6 +19,8 @@ std::mutex _threadUnsafe_gTraceProfilerLock;
 
 /** @warning: Must be used from a synchronized context. */
 SentryProfiler *_Nullable _threadUnsafe_gTraceProfiler;
+
+NSTimer *_Nullable _threadUnsafe_timeoutTimer;
 } // namespace
 
 @implementation SentryTraceProfiler
@@ -52,13 +57,41 @@ SentryProfiler *_Nullable _threadUnsafe_gTraceProfiler;
 
 + (void)recordMetrics
 {
-    std::lock_guard<std::mutex> l(_threadUnsafe_gTraceProfilerLock);
     if (![_threadUnsafe_gTraceProfiler isRunning]) {
         SENTRY_LOG_DEBUG(@"No trace profiler is currently running.");
         return;
     }
 
     [_threadUnsafe_gTraceProfiler.metricProfiler recordMetrics];
+}
+
+#    pragma mark - Private
+
+/**
+ * Schedule a timeout timer on the main thread.
+ * @warning from NSTimer.h: Timers scheduled in an async context may never fire.
+ */
++ (void)scheduleTimeoutTimer
+{
+    [SentryThreadWrapper onMainThread:^{
+        _threadUnsafe_timeoutTimer = [SentryDependencyContainer.sharedInstance.timerFactory
+            scheduledTimerWithTimeInterval:kSentryProfilerTimeoutInterval
+                                   repeats:NO
+                                     block:^(
+                                         NSTimer *_Nonnull timer) { [self timeoutTimerExpired]; }];
+    }];
+}
+
++ (void)timeoutTimerExpired
+{
+    std::lock_guard<std::mutex> l(_threadUnsafe_gTraceProfilerLock);
+    if (![_threadUnsafe_gTraceProfiler isRunning]) {
+        SENTRY_LOG_WARN(@"Current profiler is not running.");
+        return;
+    }
+
+    SENTRY_LOG_DEBUG(@"Stopping profiler %@ due to timeout.", self);
+    [_threadUnsafe_gTraceProfiler stopForReason:SentryProfilerTruncationReasonTimeout];
 }
 
 #    pragma mark - Testing helpers
