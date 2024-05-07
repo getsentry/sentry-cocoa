@@ -18,8 +18,11 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
         options.swiftAsyncStacktraces = true
         options.enableMetrics = true
 
-#if os(iOS) || os(tvOS)
+#if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
         options.enableAppLaunchProfiling = true
+#endif // os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
+
+#if os(iOS) || os(tvOS)
 #if canImport(UIKit) && !SENTRY_NO_UIKIT
         options.enablePreWarmedAppStartTracing = true
 #endif // canImport(UIKit)
@@ -35,8 +38,11 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
             "metrics"
         ]))
         
-#if os(iOS) || os(tvOS)
+#if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
         expect(features).to(contain(["appLaunchProfiling"]))
+#endif // os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
+    
+#if os(iOS) || os(tvOS)
 #if canImport(UIKit) && !SENTRY_NO_UIKIT
         expect(features).to(contain([
             "preWarmedAppStartTracing"

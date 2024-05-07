@@ -18,11 +18,13 @@ import Foundation
             features.append("timeToFullDisplayTracing")
         }
 
-#if os(iOS) || os(tvOS)
+#if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
         if options.enableAppLaunchProfiling {
             features.append("appLaunchProfiling")
         }
-        
+#endif // os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
+
+#if os(iOS) || os(tvOS)
 #if canImport(UIKit) && !SENTRY_NO_UIKIT
         if options.enablePreWarmedAppStartTracing {
             features.append("preWarmedAppStartTracing")
