@@ -50,11 +50,6 @@
 #    import <SentryScreenFrames.h>
 #endif // SENTRY_HAS_UIKIT
 
-#if defined(TEST) || defined(TESTCI) || defined(DEBUG)
-#    import "SentryFileManager+Test.h"
-#    import "SentryInternalDefines.h"
-#endif // defined(TEST) || defined(TESTCI) || defined(DEBUG)
-
 NS_ASSUME_NONNULL_BEGIN
 
 static const void *spanTimestampObserver = &spanTimestampObserver;
