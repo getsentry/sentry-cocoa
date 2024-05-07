@@ -139,6 +139,7 @@ SentrySessionReplayIntegration ()
 
 - (void)uninstall
 {
+    [self stop];
 }
 
 - (BOOL)shouldReplayFullSession:(CGFloat)rate

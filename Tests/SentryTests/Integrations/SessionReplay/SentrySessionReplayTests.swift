@@ -208,6 +208,17 @@ class SentrySessionReplayTests: XCTestCase {
         
         expect(Dynamic(sut).isRunning) == false
     }
+    
+    @available(iOS 16.0, tvOS 16, *)
+    func testDealloc_CallsStop() {
+        let fixture = startFixture()
+        func sutIsDeallocatedAfterCallingMe() {
+            _ = fixture.getSut(options: SentryReplayOptions(sessionSampleRate: 1, errorSampleRate: 1))
+        }
+        sutIsDeallocatedAfterCallingMe()
+        
+        expect(fixture.displayLink.invalidateInvocations.count) == 1
+    }
 
     func assertFullSession(_ sessionReplay: SentrySessionReplay, expected: Bool) {
         expect(Dynamic(sessionReplay).isFullSession) == expected
