@@ -13,21 +13,21 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
     func testEnableAllFeatures() throws {
         
         let options = Options()
-        options.enableAppLaunchProfiling = true
         options.enablePerformanceV2 = true
         options.enableTimeToFullDisplayTracing = true
         options.swiftAsyncStacktraces = true
         options.enableMetrics = true
-#if canImport(UIKit) && !SENTRY_NO_UIKIT
+
 #if os(iOS) || os(tvOS)
+        options.enableAppLaunchProfiling = true
+#if canImport(UIKit) && !SENTRY_NO_UIKIT
         options.enablePreWarmedAppStartTracing = true
-#endif // os(iOS) || os(tvOS)
 #endif // canImport(UIKit)
+#endif // os(iOS) || os(tvOS)
         
         let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
         
         expect(features).to(contain([
-            "appLaunchProfiling",
             "captureFailedRequests",
             "performanceV2",
             "timeToFullDisplayTracing",
@@ -35,12 +35,13 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
             "metrics"
         ]))
         
-#if canImport(UIKit) && !SENTRY_NO_UIKIT
 #if os(iOS) || os(tvOS)
+        expect(features).to(contain(["appLaunchProfiling"]))
+#if canImport(UIKit) && !SENTRY_NO_UIKIT
         expect(features).to(contain([
             "preWarmedAppStartTracing"
         ]))
-#endif // os(iOS) || os(tvOS)
 #endif // canImport(UIKit)
+#endif // os(iOS) || os(tvOS)
     }
 }

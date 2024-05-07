@@ -6,10 +6,6 @@ import Foundation
         
         var features: [String] = []
         
-        if options.enableAppLaunchProfiling {
-            features.append("appLaunchProfiling")
-        }
-        
         if options.enableCaptureFailedRequests {
             features.append("captureFailedRequests")
         }
@@ -21,14 +17,18 @@ import Foundation
         if options.enableTimeToFullDisplayTracing {
             features.append("timeToFullDisplayTracing")
         }
+
+#if os(iOS) || os(tvOS)
+        if options.enableAppLaunchProfiling {
+            features.append("appLaunchProfiling")
+        }
         
 #if canImport(UIKit) && !SENTRY_NO_UIKIT
-#if os(iOS) || os(tvOS)
         if options.enablePreWarmedAppStartTracing {
             features.append("preWarmedAppStartTracing")
         }
-#endif // os(iOS) || os(tvOS)
 #endif // canImport(UIKit)
+#endif // os(iOS) || os(tvOS)
         
         if options.swiftAsyncStacktraces {
             features.append("swiftAsyncStacktraces")
