@@ -10,18 +10,10 @@
 
 namespace {
 /** @warning: Must be used from a synchronized context. */
-std::mutex _unsafe_gContinuousProfilerLock;
+std::mutex _threadUnsafe_gContinuousProfilerLock;
 
 /** @warning: Must be used from a synchronized context. */
-SentryProfiler *_Nullable _unsafe_gContinuousCurrentProfiler;
-
-/** @warning: Must be called from a synchronized context. */
-BOOL
-_unsafe_isRunning(void)
-{
-    return _unsafe_gContinuousCurrentProfiler != nil &&
-        [_unsafe_gContinuousCurrentProfiler isRunning];
-}
+SentryProfiler *_Nullable _threadUnsafe_gContinuousCurrentProfiler;
 } // namespace
 
 @implementation SentryContinuousProfiler
@@ -30,14 +22,14 @@ _unsafe_isRunning(void)
 
 + (void)start
 {
-    std::lock_guard<std::mutex> l(_unsafe_gContinuousProfilerLock);
+    std::lock_guard<std::mutex> l(_threadUnsafe_gContinuousProfilerLock);
 
-    if (_unsafe_isRunning()) {
+    if ([_threadUnsafe_gContinuousCurrentProfiler isRunning]) {
         SENTRY_LOG_DEBUG(@"A continuous profiler is already running.");
         return;
     }
 
-    if (!(_unsafe_gContinuousCurrentProfiler =
+    if (!(_threadUnsafe_gContinuousCurrentProfiler =
                 [[SentryProfiler alloc] initWithMode:SentryProfilerModeContinuous])) {
         SENTRY_LOG_WARN(@"Continuous profiler was unable to be initialized.");
     }
@@ -45,20 +37,20 @@ _unsafe_isRunning(void)
 
 + (BOOL)isCurrentlyProfiling
 {
-    std::lock_guard<std::mutex> l(_unsafe_gContinuousProfilerLock);
-    return _unsafe_isRunning();
+    std::lock_guard<std::mutex> l(_threadUnsafe_gContinuousProfilerLock);
+    return [_threadUnsafe_gContinuousCurrentProfiler isRunning];
 }
 
 + (void)stop
 {
-    std::lock_guard<std::mutex> l(_unsafe_gContinuousProfilerLock);
+    std::lock_guard<std::mutex> l(_threadUnsafe_gContinuousProfilerLock);
 
-    if (!_unsafe_isRunning()) {
+    if (![_threadUnsafe_gContinuousCurrentProfiler isRunning]) {
         SENTRY_LOG_DEBUG(@"No continuous profiler is currently running.");
         return;
     }
 
-    [_unsafe_gContinuousCurrentProfiler stopForReason:SentryProfilerTruncationReasonNormal];
+    [_threadUnsafe_gContinuousCurrentProfiler stopForReason:SentryProfilerTruncationReasonNormal];
 }
 
 #    pragma mark - Testing
@@ -66,8 +58,8 @@ _unsafe_isRunning(void)
 #    if defined(TEST) || defined(TESTCI) || defined(DEBUG)
 + (nullable SentryProfiler *)profiler
 {
-    std::lock_guard<std::mutex> l(_unsafe_gContinuousProfilerLock);
-    return _unsafe_gContinuousCurrentProfiler;
+    std::lock_guard<std::mutex> l(_threadUnsafe_gContinuousProfilerLock);
+    return _threadUnsafe_gContinuousCurrentProfiler;
 }
 #    endif // defined(TEST) || defined(TESTCI) || defined(DEBUG)
 

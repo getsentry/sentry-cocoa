@@ -2,13 +2,13 @@
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
-#    import "SentryLegacyProfiler.h"
+#    import "SentryTraceProfiler.h"
 #    import <Foundation/Foundation.h>
 
 @class SentryProfiler;
 
 @interface
-SentryLegacyProfiler ()
+SentryTraceProfiler ()
 
 #    if defined(TEST) || defined(TESTCI) || defined(DEBUG)
 

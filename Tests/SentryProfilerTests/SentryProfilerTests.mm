@@ -47,16 +47,16 @@ using namespace sentry::profiling;
         @"-[SentryProfilerTests testParseFunctionNameWithBacktraceSymbolsInput]");
 }
 
-- (void)testProfilerCanBeInitializedOnMainThreadLegacy
+- (void)testTraceProfilerCanBeInitializedOnMainThread
 {
-    XCTAssertNotNil([[SentryProfiler alloc] initWithMode:SentryProfilerModeLegacy]);
+    XCTAssertNotNil([[SentryProfiler alloc] initWithMode:SentryProfilerModeTrace]);
 }
 
-- (void)testProfilerCanBeInitializedOffMainThreadLegacy
+- (void)testTraceProfilerCanBeInitializedOffMainThread
 {
     const auto expectation = [self expectationWithDescription:@"background initializing profiler"];
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0ul), ^{
-        XCTAssertNotNil([[SentryProfiler alloc] initWithMode:SentryProfilerModeLegacy]);
+        XCTAssertNotNil([[SentryProfiler alloc] initWithMode:SentryProfilerModeTrace]);
         [expectation fulfill];
     });
     [self waitForExpectationsWithTimeout:1.0
@@ -72,7 +72,7 @@ using namespace sentry::profiling;
 {
     const auto expectation = [self expectationWithDescription:@"background initializing profiler"];
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0ul), ^{
-        XCTAssertNotNil([[SentryProfiler alloc] initWithMode:SentryProfilerModeLegacy]);
+        XCTAssertNotNil([[SentryProfiler alloc] initWithMode:SentryProfilerModeTrace]);
         [expectation fulfill];
     });
     [self waitForExpectationsWithTimeout:1.0

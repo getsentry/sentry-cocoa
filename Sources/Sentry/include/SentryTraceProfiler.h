@@ -8,7 +8,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @class SentryId;
 
-@interface SentryLegacyProfiler : NSObject
+@interface SentryTraceProfiler : NSObject
 
 /**
  * Start a profiler, if one isn't already running.

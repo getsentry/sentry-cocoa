@@ -140,7 +140,7 @@ sentry_manageProfilerOnStartSDK(SentryOptions *options, SentryHub *hub)
 
     switch (_mode) {
     default: // fall-through!
-    case SentryProfilerModeLegacy:
+    case SentryProfilerModeTrace:
         SENTRY_LOG_DEBUG(@"Stopping profiler %@ due to timeout.", self);
         [self stopForReason:SentryProfilerTruncationReasonTimeout];
         break;

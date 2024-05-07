@@ -65,7 +65,7 @@ _sentry_serializedSamplesWithRelativeTimestamps(
         const auto durationNs = getDurationNs(startSystemTime, sample.absoluteTimestamp);
         switch (mode) {
         default: // fall-through!
-        case SentryProfilerModeLegacy:
+        case SentryProfilerModeTrace:
             dict[@"elapsed_since_start_ns"] = sentry_stringForUInt64(durationNs);
             break;
         case SentryProfilerModeContinuous:
@@ -135,7 +135,7 @@ sentry_serializedProfileDataLegacy(
     const auto payload = [NSMutableDictionary<NSString *, id> dictionary];
     NSMutableDictionary<NSString *, id> *const profile = [profileData[@"profile"] mutableCopy];
     profile[@"samples"] = _sentry_serializedSamplesWithRelativeTimestamps(
-        slicedSamples, startSystemTime, SentryProfilerModeLegacy);
+        slicedSamples, startSystemTime, SentryProfilerModeTrace);
     payload[@"profile"] = profile;
 
     payload[@"version"] = @"1";
@@ -174,7 +174,7 @@ sentry_serializedProfileDataLegacy(
     const auto mutableMetrics =
         [NSMutableDictionary<NSString *, id> dictionaryWithDictionary:metrics];
     const auto slowFrames = sentry_sliceGPUData(gpuData.slowFrameTimestamps, startSystemTime,
-        endSystemTime, /*useMostRecentFrameRate */ NO, SentryProfilerModeLegacy);
+        endSystemTime, /*useMostRecentFrameRate */ NO, SentryProfilerModeTrace);
     if (slowFrames.count > 0) {
         mutableMetrics[kSentryProfilerSerializationKeySlowFrameRenders] =
             @ { @"unit" : @"nanosecond", @"values" : slowFrames };
@@ -182,7 +182,7 @@ sentry_serializedProfileDataLegacy(
 
     const auto frozenFrames
         = sentry_sliceGPUData(gpuData.frozenFrameTimestamps, startSystemTime, endSystemTime,
-            /*useMostRecentFrameRate */ NO, SentryProfilerModeLegacy);
+            /*useMostRecentFrameRate */ NO, SentryProfilerModeTrace);
     if (frozenFrames.count > 0) {
         mutableMetrics[kSentryProfilerSerializationKeyFrozenFrameRenders] =
             @ { @"unit" : @"nanosecond", @"values" : frozenFrames };
@@ -191,7 +191,7 @@ sentry_serializedProfileDataLegacy(
     if (slowFrames.count > 0 || frozenFrames.count > 0) {
         const auto frameRates
             = sentry_sliceGPUData(gpuData.frameRateTimestamps, startSystemTime, endSystemTime,
-                /*useMostRecentFrameRate */ YES, SentryProfilerModeLegacy);
+                /*useMostRecentFrameRate */ YES, SentryProfilerModeTrace);
         if (frameRates.count > 0) {
             mutableMetrics[kSentryProfilerSerializationKeyFrameRates] =
                 @ { @"unit" : @"hz", @"values" : frameRates };
