@@ -3390,7 +3390,7 @@
 				035E73CB27D575B3005EEB11 /* SentrySamplingProfilerTests.mm */,
 				035E73CD27D5790A005EEB11 /* SentryThreadMetadataCacheTests.mm */,
 				03F9D37B2819A65C00602916 /* SentryProfilerTests.mm */,
-				840A11092B5F47F700650D02 /* SentryAppLaunchProfilingTests.m */,
+				84A305472BC72A0A00D84283 /* SentryAppLaunchProfilingTests.m */,
 				8419C0C328C1889D001C8259 /* SentryTraceProfilerTests.swift */,
 				8446F5182BE172290040D57E /* SentryContinuousProfilerTests.swift */,
 				8431D4522BE1741E009EAEC1 /* SentryProfileTestFixture.swift */,
