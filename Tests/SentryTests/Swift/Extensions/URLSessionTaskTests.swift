@@ -13,7 +13,7 @@ final class URLSessionTaskTests: XCTestCase {
 
         let operationName = task.getGraphQLOperationName()
         
-        expect(operationName).to(beNil())
+        expect(operationName) == nil
     }
 
     func testHTTPBodyDataInvalid() {
@@ -24,7 +24,7 @@ final class URLSessionTaskTests: XCTestCase {
 
         let operationName = task.getGraphQLOperationName()
 
-        expect(operationName).to(beNil())
+        expect(operationName) == nil
     }
 
     func testHTTPBodyDataMissing() {
@@ -35,7 +35,7 @@ final class URLSessionTaskTests: XCTestCase {
 
         let operationName = task.getGraphQLOperationName()
 
-        expect(operationName).to(beNil())
+        expect(operationName) == nil
     }
 
     func testHTTPBodyDataValidGraphQL() {
@@ -54,7 +54,7 @@ final class URLSessionTaskTests: XCTestCase {
 
         let operationName = task.getGraphQLOperationName()
 
-        expect(operationName).to(equal("MyOperation"))
+        expect(operationName) == "MyOperation"
     }
 
 }
