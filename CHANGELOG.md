@@ -5,6 +5,7 @@
 ### Features
 
 - Add option to use own NSURLSession for transport (#3811)
+- Support sending GraphQL operation names in HTTP breadcrumbs (#3931)
 
 ### Fixes
 

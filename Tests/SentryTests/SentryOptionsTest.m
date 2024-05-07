@@ -200,6 +200,11 @@
     [self testBooleanField:@"enableCoreDataTracing" defaultValue:YES];
 }
 
+- (void)testEnableGraphQLOperationTracking
+{
+    [self testBooleanField:@"enableGraphQLOperationTracking" defaultValue:NO];
+}
+
 - (void)testSendClientReports
 {
     [self testBooleanField:@"sendClientReports" defaultValue:YES];
