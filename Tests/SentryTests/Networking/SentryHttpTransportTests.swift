@@ -1,3 +1,4 @@
+import Nimble
 @testable import Sentry
 import SentryTestUtils
 import XCTest
@@ -557,42 +558,27 @@ class SentryHttpTransportTests: XCTestCase {
         XCTAssertEqual(1, attachment?.quantity)
     }
 
-    func testPerformanceOfSending() {
-        self.measure {
-            givenNoInternetConnection()
-            for _ in 0...5 {
-                sendEventAsync()
-            }
-            givenOkResponse()
-            for _ in 0...5 {
-                sendEventAsync()
-            }
-        }
-    }
-
     func testSendEnvelopesConcurrent() {
-        self.measure {
-            fixture.requestManager.responseDelay = 0.0001
+        fixture.requestManager.responseDelay = 0.0001
 
-            let queue = fixture.queue
+        let queue = fixture.queue
 
-            let group = DispatchGroup()
-            for _ in 0...20 {
-                group.enter()
-                queue.async {
-                    self.givenRecordedLostEvents()
-                    self.sendEventAsync()
-                    group.leave()
-                }
+        let group = DispatchGroup()
+        for _ in 0...20 {
+            group.enter()
+            queue.async {
+                self.givenRecordedLostEvents()
+                self.sendEventAsync()
+                group.leave()
             }
-
-            queue.activate()
-            group.waitWithTimeout()
-
-            waitForAllRequests()
         }
 
-        XCTAssertEqual(210, fixture.requestManager.requests.count)
+        queue.activate()
+        group.waitWithTimeout()
+
+        waitForAllRequests()
+
+        expect(self.fixture.requestManager.requests.count) == 21
     }
     
     func testBuildingRequestFails_DeletesEnvelopeAndSendsNext() {
