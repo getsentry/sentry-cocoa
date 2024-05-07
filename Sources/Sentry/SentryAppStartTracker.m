@@ -226,12 +226,12 @@ SentryAppStartTracker () <SentryFramesTrackerListener>
 // With only running this once we know that the process is a new one when the following
 // code is executed.
 // We need to make sure the block runs on each test instead of only once
-#    if TEST
+#    if defined(TEST) || defined(TESTCI) || defined(DEBUG)
     block();
 #    else
     static dispatch_once_t once;
     [self.dispatchQueue dispatchOnce:&once block:block];
-#    endif
+#    endif // defined(TEST) || defined(TESTCI) || defined(DEBUG)
 }
 
 /**
@@ -316,9 +316,9 @@ SentryAppStartTracker () <SentryFramesTrackerListener>
 
     [self.framesTracker removeListener:self];
 
-#    if TEST
+#    if defined(TEST) || defined(TESTCI) || defined(DEBUG)
     self.isRunning = NO;
-#    endif
+#    endif // defined(TEST) || defined(TESTCI) || defined(DEBUG)
 }
 
 - (void)dealloc

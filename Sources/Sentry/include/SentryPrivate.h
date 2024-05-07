@@ -11,4 +11,3 @@
 
 // Headers that also import SentryDefines should be at the end of this list
 // otherwise it wont compile
-#import "SentryCoreGraphicsHelper.h"

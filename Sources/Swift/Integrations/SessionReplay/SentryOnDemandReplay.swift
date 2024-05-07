@@ -22,7 +22,7 @@ enum SentryOnDemandReplayError: Error {
 }
 
 @objcMembers
-class SentryOnDemandReplay: NSObject {
+class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
     private let _outputPath: String
     private var _currentPixelBuffer: SentryPixelBuffer?
     private var _totalFrames = 0
@@ -30,13 +30,13 @@ class SentryOnDemandReplay: NSObject {
     private let workingQueue: SentryDispatchQueueWrapper
     private var _frames = [SentryReplayFrame]()
     
-    #if TEST
+    #if TEST || TESTCI || DEBUG
     //This is exposed only for tests, no need to make it thread safe.
     var frames: [SentryReplayFrame] {
         get { _frames }
         set { _frames = newValue }
     }
-    #endif
+    #endif // TEST || TESTCI || DEBUG
     
     var videoWidth = 200
     var videoHeight = 434
