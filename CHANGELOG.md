@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Features
+
+- Add option to use own NSURLSession for transport (#3811)
+
 ### Fixes
 
 - Ignore SentryFramesTracker thread sanitizer data races (#3922)
