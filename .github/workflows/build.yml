@@ -149,6 +149,7 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           name: ${{ github.sha }}
+          path: Carthage/
       - run: ./scripts/ci-select-xcode.sh 15.2
       - run: make build-xcframework-sample
         shell: sh
