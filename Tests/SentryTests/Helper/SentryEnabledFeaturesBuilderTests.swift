@@ -18,9 +18,11 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
         options.enableTimeToFullDisplayTracing = true
         options.swiftAsyncStacktraces = true
         options.enableMetrics = true
-#if SENTRY_UIKIT_AVAILABLE
+#if canImport(UIKit) && !SENTRY_NO_UIKIT
+#if os(iOS) || os(tvOS)
         options.enablePreWarmedAppStartTracing = true
-#endif
+#endif // os(iOS) || os(tvOS)
+#endif // canImport(UIKit)
         
         let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
         
@@ -33,10 +35,12 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
             "metrics"
         ]))
         
-#if SENTRY_UIKIT_AVAILABLE
+#if canImport(UIKit) && !SENTRY_NO_UIKIT
+#if os(iOS) || os(tvOS)
         expect(features).to(contain([
             "preWarmedAppStartTracing"
         ]))
-#endif
+#endif // os(iOS) || os(tvOS)
+#endif // canImport(UIKit)
     }
 }

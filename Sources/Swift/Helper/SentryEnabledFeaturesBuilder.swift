@@ -22,11 +22,13 @@ import Foundation
             features.append("timeToFullDisplayTracing")
         }
         
-#if SENTRY_UIKIT_AVAILABLE
+#if canImport(UIKit) && !SENTRY_NO_UIKIT
+#if os(iOS) || os(tvOS)
         if options.enablePreWarmedAppStartTracing {
             features.append("preWarmedAppStartTracing")
         }
-#endif
+#endif // os(iOS) || os(tvOS)
+#endif // canImport(UIKit)
         
         if options.swiftAsyncStacktraces {
             features.append("swiftAsyncStacktraces")
