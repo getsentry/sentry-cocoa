@@ -1,5 +1,11 @@
 # Changelog
 
+## 8.25.2
+
+### Fixes
+
+- 'SentryFileManager+Test.h' file not found (#3950)
+
 ## 8.25.1
 
 ### Features
