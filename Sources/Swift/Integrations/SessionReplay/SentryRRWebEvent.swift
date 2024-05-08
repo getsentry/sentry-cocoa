@@ -42,6 +42,38 @@ class SentryRRWebMetaEvent: SentryRRWebEvent {
 }
 
 @objcMembers
-class SentryRRWebBreadcrumbEvent: SentryRRWebEvent {
+class SentryRRWebCustomEvent: SentryRRWebEvent {
+    let tag: String
+    
+    init(timestamp: Date, tag: String, payload: [String: Any]) {
+        self.tag = tag
+        super.init(type: .custom, timestamp: timestamp, data: ["tag": tag, "payload": payload])
+    }
+    
+}
+
+@objcMembers
+class SentryRRWebVideoEvent: SentryRRWebCustomEvent {
+    init(timestamp: Date, segmentId: Int, size: Int, duration: TimeInterval, encoding: String, container: String, height: Int, width: Int, frameCount: Int, frameRateType: String, frameRate: Int, left: Int, top: Int) {
+        
+        super.init(timestamp: timestamp, tag: "video", payload: [
+            "segmentId": segmentId,
+            "size": size,
+            "duration": duration,
+            "encoding": encoding,
+            "container": container,
+            "height": height,
+            "width": width,
+            "frameCount": frameCount,
+            "frameRateType": frameRateType,
+            "frameRate": frameRate,
+            "left": left,
+            "top": top
+        ])
+    }
+}
+
+@objcMembers
+class SentryRRWebBreadcrumbEvent: SentryRRWebCustomEvent {
     
 }
