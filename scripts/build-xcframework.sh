@@ -39,7 +39,7 @@ generate_xcframework() {
                 fi
                 # This workaround is necessary to make Sentry Static framework to work
                 #More information in here: https://github.com/getsentry/sentry-cocoa/issues/3769
-                plutil -replace "MinimumOSVersion" -string "9999" "$infoPlist"
+                plutil -replace "MinimumOSVersion" -string "17.3" "$infoPlist"
             fi
             
             if [ -d "Carthage/archive/${scheme}${sufix}/${sdk}.xcarchive/dSYMs/${scheme}.framework.dSYM" ]; then
@@ -56,7 +56,7 @@ generate_xcframework() {
 
     if [ "$MACH_O_TYPE" = "staticlib" ]; then
         local infoPlist="Carthage/DerivedData/Build/Products/"$configuration"-maccatalyst/${scheme}.framework/Resources/Info.plist"
-        plutil -replace "MinimumOSVersion" -string "9999" "$infoPlist"
+        plutil -replace "MinimumOSVersion" -string "17.3" "$infoPlist"
     fi
     
     createxcframework+="-framework Carthage/DerivedData/Build/Products/"$configuration"-maccatalyst/${scheme}.framework "
