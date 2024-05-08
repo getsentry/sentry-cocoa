@@ -10,6 +10,10 @@
 
 - Send Cocoa SDK features (#3948)
 
+### Fixes 
+
+- Clang error for Xcode 15.4 (#3958)
+
 ## 8.25.2
 
 ### Fixes
