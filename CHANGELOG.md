@@ -10,6 +10,10 @@
 
 - Send Cocoa SDK features (#3948)
 
+### Fixes 
+
+- Unable to find class: SentryCrashExceptionApplication (#)
+
 ## 8.25.2
 
 ### Fixes
