@@ -12,7 +12,7 @@
 
 ### Fixes 
 
-- Unable to find class: SentryCrashExceptionApplication (#)
+- Unable to find class: SentryCrashExceptionApplication (#3957)
 
 ## 8.25.2
 
