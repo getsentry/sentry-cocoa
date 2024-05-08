@@ -4,7 +4,6 @@
 #import "SentryDispatchQueueWrapper.h"
 #import "SentryNSDataUtils.h"
 #import "SentryRandom.h"
-#import "SentryReplayRecording.h"
 #import "SentryReplayType.h"
 #import "SentrySdkInfo.h"
 #import "SentryStatsdClient.h"

@@ -7,7 +7,6 @@
 #import "SentryError.h"
 #import "SentryLevelMapper.h"
 #import "SentryLog.h"
-#import "SentryReplayRecording.h"
 #import "SentrySdkInfo.h"
 #import "SentrySession.h"
 #import "SentrySwift.h"
