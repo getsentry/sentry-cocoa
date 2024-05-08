@@ -1,5 +1,6 @@
 import Foundation
 import Nimble
+@testable import Sentry
 import XCTest
 
 class SentryReplayRecordingTests: XCTestCase {
