@@ -18,14 +18,19 @@ final class SentryContinuousProfilerTests: XCTestCase {
         fixture = SentryProfileTestFixture()
     }
     
+    override func tearDown() {
+        super.tearDown()
+        clearTestState()
+    }
+    
     func testStartingAndStoppingContinuousProfiler() throws {
-        try performContinuousProfilingTest()
+        try performContinuousProfilingTest(startReason: .startFromContinuousProfilerAPI)
     }
     
     func testProfilingDataContainsEnvironmentSetFromOptions() throws {
         let expectedEnvironment = "test-environment"
         fixture.options.environment = expectedEnvironment
-        try performContinuousProfilingTest(expectedEnvironment: expectedEnvironment)
+        try performContinuousProfilingTest(expectedEnvironment: expectedEnvironment, startReason: .startFromContinuousProfilerAPI)
     }
     
     func testProfilingDataContainsEnvironmentSetFromConfigureScope() throws {
@@ -33,7 +38,31 @@ final class SentryContinuousProfilerTests: XCTestCase {
         fixture.hub.configureScope { scope in
             scope.setEnvironment(expectedEnvironment)
         }
-        try performContinuousProfilingTest(expectedEnvironment: expectedEnvironment)
+        try performContinuousProfilingTest(expectedEnvironment: expectedEnvironment, startReason: .startFromContinuousProfilerAPI)
+    }
+    
+    func testSessionIsProfiledIfSampled() throws {
+        fixture.options.profilesSampleRate = 1
+        try performContinuousProfilingTest(startReason: .startFromSentrySDKSession)
+    }
+    
+    func testSessionIsProfiledIfSampledWithSampler() throws {
+        fixture.options.profilesSampler = { _ in
+            return 1
+        }
+        try performContinuousProfilingTest(startReason: .startFromSentrySDKSession)
+    }
+    
+    func testSessionIsNotProfiledIfNotSampled() throws {
+        fixture.options.profilesSampleRate = 1
+        try performContinuousProfilingTest(startReason: .startFromSentrySDKSession)
+    }
+    
+    func testSessionIsNotProfiledIfNotSampledWithSampler() throws {
+        fixture.options.profilesSampler = { _ in
+            return 0
+        }
+        try performContinuousProfilingTest(startReason: .startFromSentrySDKSession)
     }
 }
 
@@ -47,9 +76,23 @@ private extension SentryContinuousProfilerTests {
         }
     }
     
-    func performContinuousProfilingTest(expectedEnvironment: String = kSentryDefaultEnvironment) throws {
+    enum ProfilerStartReason {
+        case startFromContinuousProfilerAPI
+        case startFromSentrySDKSession
+    }
+    
+    func performContinuousProfilingTest(expectedEnvironment: String = kSentryDefaultEnvironment, startReason: ProfilerStartReason) throws {
+        fixture.options.enableContinuousProfiling = true
+        
         XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
-        SentryContinuousProfiler.start()
+        
+        switch startReason {
+        case .startFromContinuousProfilerAPI:
+            SentryContinuousProfiler.start()
+        case .startFromSentrySDKSession:
+            SentrySDK.start(options: fixture.options)
+        }
+        
         XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
         
         var expectedAddresses: [NSNumber] = [0x1, 0x2, 0x3]

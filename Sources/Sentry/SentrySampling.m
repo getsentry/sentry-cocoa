@@ -83,8 +83,8 @@ sentry_sampleTrace(SentrySamplingContext *context, SentryOptions *options)
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
 SentrySamplerDecision *
-sentry_sampleProfile(SentrySamplingContext *context, SentrySamplerDecision *tracesSamplerDecision,
-    SentryOptions *options)
+sentry_sampleTraceProfile(SentrySamplingContext *context,
+    SentrySamplerDecision *tracesSamplerDecision, SentryOptions *options)
 {
     // Profiles are always undersampled with respect to traces. If the trace is not sampled,
     // the profile will not be either. If the trace is sampled, we can proceed to checking
@@ -94,6 +94,27 @@ sentry_sampleProfile(SentrySamplingContext *context, SentrySamplerDecision *trac
                                                  forSampleRate:nil];
     }
 
+    // Backward compatibility for clients that are still using the enableProfiling option.
+#    pragma clang diagnostic push
+#    pragma clang diagnostic ignored "-Wdeprecated-declarations"
+    if (options.enableProfiling) {
+        return [[SentrySamplerDecision alloc] initWithDecision:kSentrySampleDecisionYes
+                                                 forSampleRate:@1.0];
+    }
+#    pragma clang diagnostic pop
+
+    NSNumber *callbackRate = samplerCallbackRate(
+        options.profilesSampler, context, SENTRY_DEFAULT_PROFILES_SAMPLE_RATE);
+    if (callbackRate != nil) {
+        return calcSample(callbackRate);
+    }
+
+    return calcSampleFromNumericalRate(options.profilesSampleRate);
+}
+
+SENTRY_EXTERN SentrySamplerDecision *
+sentry_sampleSessionProfile(SentrySamplingContext *context, SentryOptions *options)
+{
     // Backward compatibility for clients that are still using the enableProfiling option.
 #    pragma clang diagnostic push
 #    pragma clang diagnostic ignored "-Wdeprecated-declarations"

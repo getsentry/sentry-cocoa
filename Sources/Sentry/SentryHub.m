@@ -416,7 +416,7 @@ SentryHub () <SentryMetricsAPIDelegate>
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
     SentrySamplerDecision *profilesSamplerDecision
-        = sentry_sampleProfile(samplingContext, tracesSamplerDecision, self.client.options);
+        = sentry_sampleTraceProfile(samplingContext, tracesSamplerDecision, self.client.options);
 
     configuration.profilesSamplerDecision = profilesSamplerDecision;
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED"
