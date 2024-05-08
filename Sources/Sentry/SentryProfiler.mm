@@ -61,7 +61,6 @@ sentry_manageProfilerOnStartSDK(SentryOptions *options, SentryHub *hub)
 
 @implementation SentryProfiler {
     std::shared_ptr<SamplingProfiler> _samplingProfiler;
-    SentryProfilerMode _mode;
 }
 
 + (void)load
@@ -76,7 +75,6 @@ sentry_manageProfilerOnStartSDK(SentryOptions *options, SentryHub *hub)
     }
 
     _profilerId = [[SentryId alloc] init];
-    _mode = mode;
 
     SENTRY_LOG_DEBUG(@"Initialized new SentryProfiler %@", self);
 
@@ -86,6 +84,9 @@ sentry_manageProfilerOnStartSDK(SentryOptions *options, SentryHub *hub)
 #    endif // SENTRY_HAS_UIKIT
 
     [self start];
+
+    self.metricProfiler = [[SentryMetricProfiler alloc] initWithMode:mode];
+    [self.metricProfiler start];
 
 #    if SENTRY_HAS_UIKIT
     [SentryDependencyContainer.sharedInstance.notificationCenterWrapper
@@ -133,12 +134,6 @@ sentry_manageProfilerOnStartSDK(SentryOptions *options, SentryHub *hub)
     SENTRY_LOG_DEBUG(@"Stopped profiler %@.", self);
 }
 
-- (void)startMetricProfiler
-{
-    self.metricProfiler = [[SentryMetricProfiler alloc] initWithMode:_mode];
-    [self.metricProfiler start];
-}
-
 - (void)start
 {
     if (sentry_threadSanitizerIsPresent()) {
@@ -179,8 +174,6 @@ sentry_manageProfilerOnStartSDK(SentryOptions *options, SentryHub *hub)
         },
         kSentryProfilerFrequencyHz);
     _samplingProfiler->startSampling();
-
-    [self startMetricProfiler];
 }
 
 - (BOOL)isRunning

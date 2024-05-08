@@ -375,9 +375,7 @@ private extension SentryTraceProfilerTests {
         try addMockSamples()
         fixture.currentDateProvider.advance(by: 31)
         if shouldTimeOut {
-            DispatchQueue.main.async {
-                self.fixture.timeoutTimerFactory.fire()
-            }
+            self.fixture.timeoutTimerFactory.fire()
         }
 
         let exp = expectation(description: "finished span")

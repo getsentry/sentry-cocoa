@@ -29,24 +29,27 @@ NSTimer *_Nullable _threadUnsafe_timeoutTimer;
 
 + (BOOL)startWithTracer:(SentryId *)traceId
 {
-    std::lock_guard<std::mutex> l(_threadUnsafe_gTraceProfilerLock);
+    {
+        std::lock_guard<std::mutex> l(_threadUnsafe_gTraceProfilerLock);
 
-    if ([_threadUnsafe_gTraceProfiler isRunning]) {
-        SENTRY_LOG_DEBUG(@"A trace profiler is already running.");
+        if ([_threadUnsafe_gTraceProfiler isRunning]) {
+            SENTRY_LOG_DEBUG(@"A trace profiler is already running.");
+            sentry_trackProfilerForTracer(_threadUnsafe_gTraceProfiler, traceId);
+            // record a new metric sample for every concurrent span start
+            [_threadUnsafe_gTraceProfiler.metricProfiler recordMetrics];
+            return YES;
+        }
+
+        _threadUnsafe_gTraceProfiler =
+            [[SentryProfiler alloc] initWithMode:SentryProfilerModeTrace];
+        if (_threadUnsafe_gTraceProfiler == nil) {
+            SENTRY_LOG_WARN(@"Trace profiler was unable to be initialized, will not proceed.");
+            return NO;
+        }
+
         sentry_trackProfilerForTracer(_threadUnsafe_gTraceProfiler, traceId);
-        // record a new metric sample for every concurrent span start
-        [_threadUnsafe_gTraceProfiler.metricProfiler recordMetrics];
-        return YES;
     }
-
-    _threadUnsafe_gTraceProfiler = [[SentryProfiler alloc] initWithMode:SentryProfilerModeTrace];
-    if (_threadUnsafe_gTraceProfiler == nil) {
-        SENTRY_LOG_WARN(@"Trace profiler was unable to be initialized, will not proceed.");
-        return NO;
-    }
-
     [self scheduleTimeoutTimer];
-    sentry_trackProfilerForTracer(_threadUnsafe_gTraceProfiler, traceId);
     return YES;
 }
 
@@ -75,6 +78,11 @@ NSTimer *_Nullable _threadUnsafe_timeoutTimer;
 + (void)scheduleTimeoutTimer
 {
     [SentryThreadWrapper onMainThread:^{
+        std::lock_guard<std::mutex> l(_threadUnsafe_gTraceProfilerLock);
+        if (_threadUnsafe_timeoutTimer != nil) {
+            return;
+        }
+
         _threadUnsafe_timeoutTimer = [SentryDependencyContainer.sharedInstance.timerFactory
             scheduledTimerWithTimeInterval:kSentryProfilerTimeoutInterval
                                    repeats:NO
@@ -86,6 +94,8 @@ NSTimer *_Nullable _threadUnsafe_timeoutTimer;
 + (void)timeoutTimerExpired
 {
     std::lock_guard<std::mutex> l(_threadUnsafe_gTraceProfilerLock);
+    _threadUnsafe_timeoutTimer = nil;
+
     if (![_threadUnsafe_gTraceProfiler isRunning]) {
         SENTRY_LOG_WARN(@"Current profiler is not running.");
         return;

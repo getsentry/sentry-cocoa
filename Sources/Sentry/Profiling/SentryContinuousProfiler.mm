@@ -24,6 +24,13 @@ std::mutex _threadUnsafe_gContinuousProfilerLock;
 SentryProfiler *_Nullable _threadUnsafe_gContinuousCurrentProfiler;
 
 NSTimer *_Nullable _chunkTimer;
+
+void
+disableTimer()
+{
+    [_chunkTimer invalidate];
+    _chunkTimer = nil;
+}
 } // namespace
 
 @implementation SentryContinuousProfiler
@@ -65,8 +72,7 @@ NSTimer *_Nullable _chunkTimer;
         return;
     }
 
-    [_chunkTimer invalidate];
-    _chunkTimer = nil;
+    disableTimer();
 
     [_threadUnsafe_gContinuousCurrentProfiler stopForReason:SentryProfilerTruncationReasonNormal];
 }
@@ -79,8 +85,8 @@ NSTimer *_Nullable _chunkTimer;
  */
 + (void)scheduleTimer
 {
-    std::lock_guard<std::mutex> l(_threadUnsafe_gContinuousProfilerLock);
     [SentryThreadWrapper onMainThread:^{
+        std::lock_guard<std::mutex> l(_threadUnsafe_gContinuousProfilerLock);
         if (_chunkTimer != nil) {
             return;
         }
@@ -99,8 +105,9 @@ NSTimer *_Nullable _chunkTimer;
     {
         std::lock_guard<std::mutex> l(_threadUnsafe_gContinuousProfilerLock);
         if (![_threadUnsafe_gContinuousCurrentProfiler isRunning]) {
-            SENTRY_LOG_WARN(@"Current profiler is not running.");
-            return;
+            SENTRY_LOG_WARN(@"Current profiler is not running. Sending whatever data it has left "
+                            @"and disabling the timer from running again.");
+            disableTimer();
         }
     }
 
