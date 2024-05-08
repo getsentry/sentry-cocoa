@@ -15,6 +15,9 @@
 #    import "SentryProfilerState+ObjCpp.h"
 #    import "SentryProfilerTestHelpers.h"
 #    import "SentrySDK+Private.h"
+#    import "SentrySamplerDecision.h"
+#    import "SentrySampling.h"
+#    import "SentrySamplingContext.h"
 #    import "SentrySamplingProfiler.hpp"
 #    import "SentrySwift.h"
 #    import "SentryThreadWrapper.h"
@@ -41,6 +44,10 @@ void
 sentry_manageProfilerOnStartSDK(SentryOptions *options, SentryHub *hub)
 {
     if (options.enableContinuousProfiling && !sentry_isTracingAppLaunch) {
+        SentrySamplingContext *context = [[SentrySamplingContext alloc] init];
+        if (sentry_sampleSessionProfile(context, options).decision != kSentrySampleDecisionYes) {
+            return;
+        }
         [SentryContinuousProfiler start];
         return;
     }
