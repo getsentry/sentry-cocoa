@@ -91,7 +91,9 @@ sentry_manageProfilerOnStartSDK(SentryOptions *options, SentryHub *hub)
 
     [self start];
 
-    [self scheduleTimer];
+    if (mode == SentryProfilerModeLegacy) {
+        [self scheduleTimer];
+    }
 
 #    if SENTRY_HAS_UIKIT
     [SentryDependencyContainer.sharedInstance.notificationCenterWrapper

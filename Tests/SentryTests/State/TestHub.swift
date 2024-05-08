@@ -40,8 +40,8 @@ class TestHub: SentryHub {
     }
 
     var capturedTransactionsWithScope = Invocations<(transaction: [String: Any], scope: Scope)>()
-    override func capture(_ transaction: Transaction, with scope: Scope) -> SentryId {
+    override func capture(_ transaction: Transaction, with scope: Scope) {
         capturedTransactionsWithScope.record((transaction.serialize(), scope))
-        return super.capture(transaction, with: scope)
+        super.capture(transaction, with: scope)
     }
 }

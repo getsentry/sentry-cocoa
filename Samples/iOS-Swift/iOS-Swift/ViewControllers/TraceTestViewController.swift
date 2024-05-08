@@ -68,14 +68,10 @@ class TraceTestViewController: UIViewController {
                 return
             }
 
-            guard let child = children.first(where: { $0.operation == "http.client" }) else {
-                UIAssert.fail("Did not found http request child")
+            guard let child = children.first(where: { $0.operation == "http.client" && $0.data["url"] as? String == "https://sentry-brand.storage.googleapis.com/sentry-logo-black.png" && $0.data["http.response.status_code"] as? String == "200" }) else {
+                UIAssert.fail("Did not find child span for HTTP for retrieving the sentry brand logo.")
                 return
             }
-
-            UIAssert.isEqual(child.data["url"] as? String, "https://sentry-brand.storage.googleapis.com/sentry-logo-black.png", "Could not read url data value")
-
-            UIAssert.isEqual(child.data["http.response.status_code"] as? String, "200", "Could not read status_code tag value")
 
             UIAssert.checkForViewControllerLifeCycle(span, viewController: "TraceTestViewController", stepsToCheck: self.lifeCycleSteps)
         }

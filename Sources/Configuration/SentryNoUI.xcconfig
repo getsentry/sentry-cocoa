@@ -1,5 +1,0 @@
-#include "Sentry.xcconfig"
-
-//This is how we avoid linking UIKit from Swift code
-//when compiling without UIKit
-OTHER_SWIFT_FLAGS = -DSENTRY_NO_UIKIT
