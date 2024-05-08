@@ -16,7 +16,6 @@
 #    import "SentrySDK+Private.h"
 #    import "SentrySamplingProfiler.hpp"
 #    import "SentrySwift.h"
-#    import "SentryThreadWrapper.h"
 
 #    if SENTRY_HAS_UIKIT
 #        import "SentryFramesTracker.h"
@@ -108,7 +107,7 @@ sentry_manageProfilerOnStartSDK(SentryOptions *options, SentryHub *hub)
 {
     __weak SentryProfiler *weakSelf = self;
 
-    [SentryThreadWrapper onMainThread:^{
+    [SentryDependencyContainer.sharedInstance.dispatchQueueWrapper dispatchSyncOnMainQueue:^{
         if (![weakSelf isRunning]) {
             return;
         }

@@ -20,7 +20,6 @@
 #import "SentryScope.h"
 #import "SentrySerialization.h"
 #import "SentrySwift.h"
-#import "SentryThreadWrapper.h"
 #import "SentryTransactionContext.h"
 
 #if SENTRY_HAS_UIKIT
@@ -212,7 +211,7 @@ static NSDate *_Nullable startTimestamp = nil;
     SENTRY_LOG_DEBUG(@"SDK initialized! Version: %@", SentryMeta.versionString);
 
     SENTRY_LOG_DEBUG(@"Dispatching init work required to run on main thread.");
-    [SentryThreadWrapper onMainThread:^{
+    [SentryDependencyContainer.sharedInstance.dispatchQueueWrapper dispatchSyncOnMainQueue:^{
         SENTRY_LOG_DEBUG(@"SDK main thread init started...");
 
         [SentryCrashWrapper.sharedInstance startBinaryImageCache];

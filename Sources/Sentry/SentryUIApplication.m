@@ -29,7 +29,7 @@
         // and we keep track of its changes by the notifications
         // this way we avoid calling sharedApplication in a background thread
         [SentryDependencyContainer.sharedInstance.dispatchQueueWrapper
-            dispatchOnMainQueue:^{ self->appState = self.sharedApplication.applicationState; }];
+            dispatchSyncOnMainQueue:^{ self->appState = self.sharedApplication.applicationState; }];
     }
     return self;
 }

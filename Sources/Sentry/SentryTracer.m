@@ -22,7 +22,6 @@
 #import "SentrySpanContext.h"
 #import "SentrySpanId.h"
 #import "SentrySwift.h"
-#import "SentryThreadWrapper.h"
 #import "SentryTime.h"
 #import "SentryTraceContext.h"
 #import "SentryTraceOrigins.h"
@@ -265,7 +264,7 @@ static BOOL appStartMeasurementRead;
 - (void)startDeadlineTimer
 {
     __weak SentryTracer *weakSelf = self;
-    [_dispatchQueue dispatchOnMainQueue:^{
+    [_dispatchQueue dispatchSyncOnMainQueue:^{
         weakSelf.deadlineTimer = [weakSelf.configuration.timerFactory
             scheduledTimerWithTimeInterval:SENTRY_AUTO_TRANSACTION_DEADLINE
                                    repeats:NO
@@ -307,7 +306,7 @@ static BOOL appStartMeasurementRead;
 
     // The timer must be invalidated from the thread on which the timer was installed, see
     // https://developer.apple.com/documentation/foundation/nstimer/1415405-invalidate#1770468
-    [_dispatchQueue dispatchOnMainQueue:^{
+    [_dispatchQueue dispatchSyncOnMainQueue:^{
         if (weakSelf == nil) {
             SENTRY_LOG_DEBUG(@"WeakSelf is nil. Not invalidating deadlineTimer.");
             return;

@@ -16,7 +16,7 @@ SentryUIDeviceWrapper ()
 
 - (void)start
 {
-    [SentryDependencyContainer.sharedInstance.dispatchQueueWrapper dispatchOnMainQueue:^{
+    [SentryDependencyContainer.sharedInstance.dispatchQueueWrapper dispatchSyncOnMainQueue:^{
         if (!UIDevice.currentDevice.isGeneratingDeviceOrientationNotifications) {
             self.cleanupDeviceOrientationNotifications = YES;
             [UIDevice.currentDevice beginGeneratingDeviceOrientationNotifications];
@@ -35,7 +35,7 @@ SentryUIDeviceWrapper ()
     BOOL needsCleanUp = self.cleanupDeviceOrientationNotifications;
     BOOL needsDisablingBattery = self.cleanupBatteryMonitoring;
     UIDevice *device = [UIDevice currentDevice];
-    [SentryDependencyContainer.sharedInstance.dispatchQueueWrapper dispatchOnMainQueue:^{
+    [SentryDependencyContainer.sharedInstance.dispatchQueueWrapper dispatchSyncOnMainQueue:^{
         if (needsCleanUp) {
             [device endGeneratingDeviceOrientationNotifications];
         }
