@@ -12,16 +12,18 @@
 
 ## 8.25.2
 
+### Features
+
+The following two features, disabled by default, were mistakenly added to the release. We usually only add features in minor releases. 
+
+- Add option to use own NSURLSession for transport (#3811)
+- Support sending GraphQL operation names in HTTP breadcrumbs (#3931)
+
 ### Fixes
 
 - 'SentryFileManager+Test.h' file not found (#3950)
 
 ## 8.25.1
-
-### Features
-
-- Add option to use own NSURLSession for transport (#3811)
-- Support sending GraphQL operation names in HTTP breadcrumbs (#3931)
 
 ### Fixes
 
