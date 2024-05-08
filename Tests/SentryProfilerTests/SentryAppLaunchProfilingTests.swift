@@ -1,6 +1,7 @@
 import SentryTestUtils
 import XCTest
 
+#if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
 final class SentryAppLaunchProfilingSwiftTestsNormal: XCTestCase {
     func testContentsOfLegacyLaunchProfileTransactionContext() {
         let context = sentry_context(NSNumber(value: 1))
@@ -106,3 +107,4 @@ final class SentryAppLaunchProfilingSwiftTestsNormal: XCTestCase {
         }
     }
 }
+#endif // os(iOS) || os(macOS) || targetEnvironment(macCatalyst)

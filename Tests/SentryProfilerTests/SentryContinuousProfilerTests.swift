@@ -69,6 +69,7 @@ private extension SentryContinuousProfilerTests {
         XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
         SentryContinuousProfiler.stop()
         XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
+
         try assertValidData(expectedEnvironment: expectedEnvironment, expectedAddresses: expectedAddresses)
     }
     

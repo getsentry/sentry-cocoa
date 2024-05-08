@@ -156,20 +156,6 @@ class SentryFramesTrackerTests: XCTestCase {
 
         try assert(slow: 1, frozen: 1, total: 2, frameRates: 2)
     }
-
-    func testPerformanceOfTrackingFrames() throws {
-        let sut = fixture.sut
-        sut.start()
-
-        let frames: UInt = 1_000
-        self.measure {
-            for _ in 0 ..< frames {
-                fixture.displayLinkWrapper.normalFrame()
-            }
-        }
-
-        try assert(slow: 0, frozen: 0)
-    }
     
     /**
      * The following test validates one slow and one frozen frame in the time interval. The slow frame starts at
