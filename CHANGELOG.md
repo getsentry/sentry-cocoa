@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+- Add SIGTERM support ([#3895](https://github.com/getsentry/sentry-cocoa/pull/3895))
+
 ## 8.25.2
 
 ### Fixes
@@ -28,8 +34,6 @@
   - Performance improvement
 
 ## 8.25.0
-
-- Add SIGTERM support ([#3895](https://github.com/getsentry/sentry-cocoa/pull/3895))
 
 ### Features
 
