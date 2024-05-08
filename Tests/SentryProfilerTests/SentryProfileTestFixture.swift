@@ -14,17 +14,9 @@ class SentryProfileTestFixture {
     
     private static let dsnAsString = TestConstants.dsnAsString(username: "SentryProfileTestFixture")
     
-    lazy var options: Options = {
-        let options = Options()
-        options.dsn = SentryProfileTestFixture.dsnAsString
-        return options
-    }()
-    lazy var client: TestClient? = TestClient(options: options)
-    lazy var hub: SentryHub = {
-        let hub = SentryHub(client: client, andScope: scope)
-        hub.bindClient(client)
-        return hub
-    }()
+    let options: Options
+    let client: TestClient?
+    let hub: SentryHub
     let scope = Scope()
     let message = "some message"
     let transactionName = "Some Transaction"
