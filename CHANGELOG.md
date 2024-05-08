@@ -1,6 +1,17 @@
 # Changelog
 
-## Unreleased
+## 8.25.2
+
+### Fixes
+
+- 'SentryFileManager+Test.h' file not found (#3950)
+
+## 8.25.1
+
+### Features
+
+- Add option to use own NSURLSession for transport (#3811)
+- Support sending GraphQL operation names in HTTP breadcrumbs (#3931)
 
 ### Fixes
 
@@ -16,6 +27,7 @@
   - Removed iOS 16 restriction from session replay
   - Performance improvement 
 - Send Cocoa SDK features (#3948)
+  - Performance improvement
 
 ## 8.25.0
 
