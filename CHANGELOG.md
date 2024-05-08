@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+### Features
+
+- Add option to use own NSURLSession for transport (#3811)
+- Support sending GraphQL operation names in HTTP breadcrumbs (#3931)
+
 ### Improvements
 
 - Send Cocoa SDK features (#3948)
@@ -13,11 +18,6 @@
 - 'SentryFileManager+Test.h' file not found (#3950)
 
 ## 8.25.1
-
-### Features
-
-- Add option to use own NSURLSession for transport (#3811)
-- Support sending GraphQL operation names in HTTP breadcrumbs (#3931)
 
 ### Fixes
 
