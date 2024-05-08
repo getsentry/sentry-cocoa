@@ -27,12 +27,13 @@
 
 #import "TestThread.h"
 #import "SentryCrashThread.h"
+#import "SentryInternalCDefines.h"
 
 @implementation TestThread
 
 @synthesize thread = _thread;
 
-- (void)main
+- (void)main SENTRY_DISABLE_THREAD_SANITIZER("Known data race to fix")
 {
     self.thread = (thread_t)sentrycrashthread_self();
     [NSNotificationCenter.defaultCenter postNotificationName:@"io.sentry.test.TestThread.main"

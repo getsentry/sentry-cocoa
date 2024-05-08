@@ -22,7 +22,7 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
             SentryDependencyContainer.sharedInstance().crashWrapper = crashWrapper
             SentryDependencyContainer.sharedInstance().fileManager = try! SentryFileManager(options: options, dispatchQueueWrapper: TestSentryDispatchQueueWrapper())
 
-            let hub = SentryHub(client: client, andScope: nil, andCrashWrapper: crashWrapper)
+            let hub = SentryHub(client: client, andScope: nil, andCrashWrapper: crashWrapper, andDispatchQueue: SentryDispatchQueueWrapper())
             SentrySDK.setCurrentHub(hub)
             
             fileManager = try! SentryFileManager(options: options, dispatchQueueWrapper: dispatchQueue)
@@ -67,9 +67,10 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
         XCTAssertEqual(path, ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"])
     }
     
-#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
     func testANRDetected_UpdatesAppStateToTrue() throws {
-        givenInitializedTracker()
+        fixture.crashWrapper.internalIsBeingTraced = false
+        let sut = givenIntegration()
+        sut.install(with: Options())
         
         Dynamic(sut).anrDetected()
 
@@ -77,10 +78,11 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
         
         XCTAssertTrue(appState.isANROngoing)
     }
-#endif
   
     func testANRStopped_UpdatesAppStateToFalse() {
-        givenInitializedTracker()
+        fixture.crashWrapper.internalIsBeingTraced = false
+        let sut = givenIntegration()
+        sut.install(with: Options())
         
         Dynamic(sut).anrStopped()
         
@@ -115,13 +117,6 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
         let sut = SentryWatchdogTerminationTrackingIntegration()
         Dynamic(sut).setTestConfigurationFilePath(nil)
         return sut
-    }
-    
-    private func givenInitializedTracker(isBeingTraced: Bool = false) {
-        fixture.crashWrapper.internalIsBeingTraced = isBeingTraced
-        sut = givenIntegration()
-        let options = Options()
-        sut.install(with: options)
     }
     
 }

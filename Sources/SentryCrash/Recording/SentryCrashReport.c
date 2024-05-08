@@ -1551,8 +1551,6 @@ writeSystemInfo(const SentryCrashReportWriter *const writer, const char *const k
         writer->addBooleanElement(
             writer, SentryCrashField_Jailbroken, monitorContext->System.isJailbroken);
         writer->addStringElement(
-            writer, SentryCrashField_BootTime, monitorContext->System.bootTime);
-        writer->addStringElement(
             writer, SentryCrashField_AppStartTime, monitorContext->System.appStartTime);
         writer->addStringElement(
             writer, SentryCrashField_ExecutablePath, monitorContext->System.executablePath);
