@@ -18,6 +18,7 @@
 #import "SentryNSURLRequest.h"
 #import "SentryNSURLRequestBuilder.h"
 #import "SentryOptions.h"
+#import "SentrySDK+Private.h"
 #import "SentrySerialization.h"
 #import "SentrySwift.h"
 
@@ -268,6 +269,11 @@ SentryHttpTransport ()
     SENTRY_LOG_DEBUG(@"sendAllCachedEnvelopes start.");
 
     @synchronized(self) {
+        if (nil == SentrySDK.currentHub) {
+            SENTRY_LOG_DEBUG(@"Not started yet.");
+            return;
+        }
+        
         if (self.isSending || ![self.requestManager isReady]) {
             SENTRY_LOG_DEBUG(@"Already sending.");
             return;

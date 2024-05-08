@@ -73,9 +73,6 @@ static NSDate *_Nullable startTimestamp = nil;
 + (SentryHub *)currentHub
 {
     @synchronized(self) {
-        if (nil == currentHub) {
-            currentHub = [[SentryHub alloc] initWithClient:nil andScope:nil];
-        }
         return currentHub;
     }
 }
