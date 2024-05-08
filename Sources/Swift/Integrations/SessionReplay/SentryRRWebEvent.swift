@@ -1,0 +1,47 @@
+@_implementationOnly import _SentryPrivate
+import Foundation
+
+@objc
+enum SentryRRWebEventType: Int {
+    case none = 0
+    case meta = 4
+    case custom = 5
+}
+
+@objcMembers
+class SentryRRWebEvent: NSObject {
+    let type: SentryRRWebEventType
+    let timestamp: Date
+    let data: [String: Any]?
+    
+    init(type: SentryRRWebEventType, timestamp: Date, data: [String: Any]?) {
+        self.type = type
+        self.timestamp = timestamp
+        self.data = data
+    }
+    
+    func serialize() -> [String: Any] {
+        var result: [String: Any] = [
+            "type": type.rawValue,
+            "timestamp": SentryDateUtil.millisecondsSince1970(timestamp)
+        ]
+        
+        if let data = data {
+            result["data"] = data
+        }
+        
+        return result
+    }
+}
+
+@objcMembers
+class SentryRRWebMetaEvent: SentryRRWebEvent {
+    init(timestamp: Date, height: Int, width: Int) {
+        super.init(type: .meta, timestamp: timestamp, data: ["href": "", "height": height, "width": width])
+    }
+}
+
+@objcMembers
+class SentryRRWebBreadcrumbEvent: SentryRRWebEvent {
+    
+}
