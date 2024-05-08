@@ -8,10 +8,23 @@ import XCTest
 
 class SentrySessionReplayIntegrationTests: XCTestCase {
     
+    private class TestSentryUIApplication: SentryUIApplication {
+        var windowsMock: [UIWindow]? = [UIWindow()]
+        override var windows: [UIWindow]? {
+            windowsMock
+        }
+    }
+    
     override func setUpWithError() throws {
         guard #available(iOS 16.0, tvOS 16.0, *)  else {
             throw XCTSkip("iOS version not supported")
         }
+    }
+    
+    private var uiApplication = TestSentryUIApplication()
+    
+    override func setUp() {
+        SentryDependencyContainer.sharedInstance().application = uiApplication
     }
     
     override func tearDown() {
@@ -67,6 +80,21 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         
         expect(SentrySDK.currentHub().trimmedInstalledIntegrationNames().count) == 1
         expect(SentryGlobalEventProcessor.shared().processors.count) == 1
+    }
+    
+    func testWaitForNotificationWithNoWindow() {
+        uiApplication.windowsMock = nil
+        startSDK(sessionSampleRate: 1, errorSampleRate: 0)
+        
+        guard let sut = SentrySDK.currentHub().installedIntegrations().first as? SentrySessionReplayIntegration else {
+            fail("Did not installed replay integration")
+            return
+        }
+        
+        expect(Dynamic(sut).sessionReplay.asObject) == nil
+        uiApplication.windowsMock = [UIWindow()]
+        NotificationCenter.default.post(name: UIScene.didActivateNotification, object: nil)
+        expect(Dynamic(sut).sessionReplay.asObject) != nil
     }
 }
 

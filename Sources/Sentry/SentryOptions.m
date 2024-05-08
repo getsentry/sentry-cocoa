@@ -94,6 +94,7 @@ NSString *const kSentryDefaultEnvironment = @"production";
         _integrations = SentryOptions.defaultIntegrations;
         self.sampleRate = SENTRY_DEFAULT_SAMPLE_RATE;
         self.enableAutoSessionTracking = YES;
+        self.enableGraphQLOperationTracking = NO;
         self.enableWatchdogTerminationTracking = YES;
         self.sessionTrackingIntervalMillis = [@30000 unsignedIntValue];
         self.attachStacktrace = YES;
@@ -353,6 +354,9 @@ NSString *const kSentryDefaultEnvironment = @"production";
     [self setBool:options[@"enableAutoSessionTracking"]
             block:^(BOOL value) { self->_enableAutoSessionTracking = value; }];
 
+    [self setBool:options[@"enableGraphQLOperationTracking"]
+            block:^(BOOL value) { self->_enableGraphQLOperationTracking = value; }];
+
     [self setBool:options[@"enableWatchdogTerminationTracking"]
             block:^(BOOL value) { self->_enableWatchdogTerminationTracking = value; }];
 
@@ -444,6 +448,10 @@ NSString *const kSentryDefaultEnvironment = @"production";
 
     if ([options[@"inAppExcludes"] isKindOfClass:[NSArray class]]) {
         _inAppExcludes = [options[@"inAppExcludes"] filteredArrayUsingPredicate:isNSString];
+    }
+
+    if ([options[@"urlSession"] isKindOfClass:[NSURLSession class]]) {
+        self.urlSession = options[@"urlSession"];
     }
 
     if ([options[@"urlSessionDelegate"] conformsToProtocol:@protocol(NSURLSessionDelegate)]) {
