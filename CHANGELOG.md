@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Improvements
+
+- Send Cocoa SDK features (#3948)
+
 ## 8.25.2
 
 ### Fixes
@@ -25,7 +31,7 @@
 - Session replay Improvements (#3877)
   - Use image average color and text font color to redact session replay 
   - Removed iOS 16 restriction from session replay
-  - Performance improvement
+  - Performance improvement 
 
 ## 8.25.0
 
