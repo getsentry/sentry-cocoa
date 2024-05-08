@@ -38,18 +38,9 @@ generate_xcframework() {
                     infoPlist="Carthage/archive/${scheme}${sufix}/${sdk}.xcarchive/Products/Library/Frameworks/${scheme}.framework/Resources/Info.plist"
                 fi
                 # This workaround is necessary to make Sentry Static framework to work
-                #More information in here: https://github.com/getsentry/sentry-cocoa/issues/3769
-                case "$sdk" in
-                iphoneos|iphonesimulator|appletvos|appletvsimulator) minimumOSVersion="17.4";;
-                macosx) minimumOSVersion="14.4" ;;
-                watchos|watchsimulator) minimumOSVersion="10.4";;
-                xros|xrsimulator) minimumOSVersion="1";;
-                *)
-                echo "Invalid platform specified."
-                exit 1
-                ;;
-                esac
-                plutil -replace "MinimumOSVersion" -string "$minimumOSVersion" "$infoPlist"
+                # More information in here: https://github.com/getsentry/sentry-cocoa/issues/3769
+                # The version 100 seems to work with all Xcode up to 15.4
+                plutil -replace "MinimumOSVersion" -string "100.0" "$infoPlist"
             fi
             
             if [ -d "Carthage/archive/${scheme}${sufix}/${sdk}.xcarchive/dSYMs/${scheme}.framework.dSYM" ]; then
@@ -66,7 +57,7 @@ generate_xcframework() {
 
     if [ "$MACH_O_TYPE" = "staticlib" ]; then
         local infoPlist="Carthage/DerivedData/Build/Products/"$configuration"-maccatalyst/${scheme}.framework/Resources/Info.plist"
-        plutil -replace "MinimumOSVersion" -string "17.4" "$infoPlist"
+        plutil -replace "MinimumOSVersion" -string "100.0" "$infoPlist"
     fi
     
     createxcframework+="-framework Carthage/DerivedData/Build/Products/"$configuration"-maccatalyst/${scheme}.framework "
