@@ -108,6 +108,16 @@ class SentryCrashReportTests: XCTestCase {
         }
     }
     
+    func testCrashReportDoesNotContainBootTime() throws {
+        writeCrashReport()
+        
+        let crashReportContents = FileManager.default.contents(atPath: fixture.reportPath) ?? Data()
+        
+        let crashReportContentsAsString = String(data: crashReportContents, encoding: .ascii)
+        
+        expect(crashReportContentsAsString).toNot(contain("boot_time"), description: "The crash report must not contain boot_time because Apple forbids sending this information off device see: https://developer.apple.com/documentation/bundleresources/privacy_manifest_files/describing_use_of_required_reason_api#4278394.")
+    }
+    
     private func writeCrashReport() {
         var monitorContext = SentryCrash_MonitorContext()
         

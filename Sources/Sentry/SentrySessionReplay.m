@@ -35,7 +35,7 @@ SentrySessionReplay ()
     NSDate *_sessionStart;
     NSMutableArray<UIImage *> *imageCollection;
     SentryReplayOptions *_replayOptions;
-    SentryOnDemandReplay *_replayMaker;
+    id<SentryReplayVideoMaker> _replayMaker;
     SentryDisplayLinkWrapper *_displayLink;
     SentryCurrentDateProvider *_dateProvider;
     id<SentryRandom> _sentryRandom;
@@ -48,7 +48,7 @@ SentrySessionReplay ()
 - (instancetype)initWithSettings:(SentryReplayOptions *)replayOptions
                 replayFolderPath:(NSURL *)folderPath
               screenshotProvider:(id<SentryViewScreenshotProvider>)screenshotProvider
-                     replayMaker:(id<SentryReplayMaker>)replayMaker
+                     replayMaker:(id<SentryReplayVideoMaker>)replayMaker
                     dateProvider:(SentryCurrentDateProvider *)dateProvider
                           random:(id<SentryRandom>)random
               displayLinkWrapper:(SentryDisplayLinkWrapper *)displayLinkWrapper;
@@ -112,6 +112,11 @@ SentrySessionReplay ()
         [_displayLink invalidate];
         _isRunning = NO;
     }
+}
+
+- (void)dealloc
+{
+    [self stop];
 }
 
 - (void)captureReplayForEvent:(SentryEvent *)event;
@@ -242,6 +247,7 @@ SentrySessionReplay ()
                 duration:(NSTimeInterval)duration
                startedAt:(NSDate *)start
 {
+    __weak SentrySessionReplay *weakSelf = self;
     [_replayMaker
         createVideoWithDuration:duration
                       beginning:start
@@ -251,15 +257,20 @@ SentrySessionReplay ()
                          if (error != nil) {
                              SENTRY_LOG_ERROR(@"Could not create replay video - %@", error);
                          } else {
-                             [self captureSegment:self->_currentSegmentId++
-                                            video:videoInfo
-                                         replayId:self->_sessionReplayId
-                                       replayType:kSentryReplayTypeSession];
-
-                             [self->_replayMaker releaseFramesUntil:videoInfo.end];
-                             self->_videoSegmentStart = nil;
+                             [weakSelf newSegmentAvailable:videoInfo];
                          }
                      }];
+}
+
+- (void)newSegmentAvailable:(SentryVideoInfo *)videoInfo
+{
+    [self captureSegment:self->_currentSegmentId++
+                   video:videoInfo
+                replayId:self->_sessionReplayId
+              replayType:kSentryReplayTypeSession];
+
+    [_replayMaker releaseFramesUntil:videoInfo.end];
+    _videoSegmentStart = nil;
 }
 
 - (void)captureSegment:(NSInteger)segment
@@ -306,11 +317,16 @@ SentrySessionReplay ()
         _processingScreenshot = YES;
     }
 
-    UIImage *screenshot = [_screenshotProvider imageWithView:_rootView options:_replayOptions];
+    __weak SentrySessionReplay *weakSelf = self;
+    [_screenshotProvider imageWithView:_rootView
+                               options:_replayOptions
+                            onComplete:^(UIImage *screenshot) { [weakSelf newImage:screenshot]; }];
+}
 
+- (void)newImage:(UIImage *)image
+{
     _processingScreenshot = NO;
-
-    [self->_replayMaker addFrameAsyncWithImage:screenshot];
+    [_replayMaker addFrameAsyncWithImage:image];
 }
 
 @end

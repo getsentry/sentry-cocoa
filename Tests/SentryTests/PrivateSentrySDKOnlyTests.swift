@@ -222,12 +222,12 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
         guard #available(iOS 16.0, tvOS 16.0, *) else { return }
 
         let options = Options()
-        options.setIntegrations([SentrySessionReplayIntegrationTest.self])
+        options.setIntegrations([TestSentrySessionReplayIntegration.self])
         SentrySDK.start(options: options)
 
         PrivateSentrySDKOnly.captureReplay()
 
-        XCTAssertTrue(SentrySessionReplayIntegrationTest.captureReplayShouldBeCalledAtLeastOnce())
+        XCTAssertTrue(TestSentrySessionReplayIntegration.captureReplayShouldBeCalledAtLeastOnce())
     }
 
     func testGetReplayIdShouldBeNil() {
@@ -245,7 +245,7 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
 
     func testAddReplayIgnoreClassesShouldNotFailWhenReplayIsAvailable() {
         let options = Options()
-        options.setIntegrations([SentrySessionReplayIntegrationTest.self])
+        options.setIntegrations([TestSentrySessionReplayIntegration.self])
         SentrySDK.start(options: options)
 
         PrivateSentrySDKOnly.addReplayIgnoreClasses([UILabel.self])
@@ -253,7 +253,7 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
 
     func testAddReplayRedactShouldNotFailWhenReplayIsAvailable() {
         let options = Options()
-        options.setIntegrations([SentrySessionReplayIntegrationTest.self])
+        options.setIntegrations([TestSentrySessionReplayIntegration.self])
         SentrySDK.start(options: options)
 
         PrivateSentrySDKOnly.addReplayRedactClasses([UILabel.self])
@@ -261,7 +261,7 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
 
     let VALID_REPLAY_ID = "0eac7ab503354dd5819b03e263627a29"
 
-    final class SentrySessionReplayIntegrationTest: SentrySessionReplayIntegration {
+    private class TestSentrySessionReplayIntegration: SentrySessionReplayIntegration {
         static var captureReplayCalledTimes = 0
 
         override func install(with options: Options) -> Bool {
@@ -269,7 +269,7 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
         }
 
         override func captureReplay() {
-            SentrySessionReplayIntegrationTest.captureReplayCalledTimes += 1
+            TestSentrySessionReplayIntegration.captureReplayCalledTimes += 1
         }
 
         static func captureReplayShouldBeCalledAtLeastOnce() -> Bool {

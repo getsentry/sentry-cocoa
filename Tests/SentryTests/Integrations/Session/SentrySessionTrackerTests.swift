@@ -34,7 +34,7 @@ class SentrySessionTrackerTests: XCTestCase {
         }
         
         func setNewHubToSDK() {
-            let hub = SentryHub(client: client, andScope: nil, andCrashWrapper: self.sentryCrash)
+            let hub = SentryHub(client: client, andScope: nil, andCrashWrapper: self.sentryCrash, andDispatchQueue: SentryDispatchQueueWrapper())
             SentrySDK.setCurrentHub(hub)
         }
     }

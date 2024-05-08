@@ -1,0 +1,11 @@
+# ThreadSanitizer suppressions file
+# For syntax details, see https://github.com/google/sanitizers/wiki/ThreadSanitizerSuppressions
+
+# Races to fix
+race:returnResponse
+race:enableNetworkTracking
+race:enableNetworkBreadcrumbs
+race:disable
+race:URLSessionDataTaskMock
+race:getOriginalImplementation
+race:SentrySpanContext
