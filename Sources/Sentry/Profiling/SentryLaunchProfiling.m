@@ -56,14 +56,15 @@ typedef struct {
 SentryLaunchProfileConfig
 sentry_shouldProfileNextLaunch(SentryOptions *options)
 {
-    BOOL shouldProfileNextLaunch = options.enableAppLaunchProfiling
-        && (options.enableContinuousProfiling || options.enableTracing);
+    if (options.enableContinuousProfiling) {
+        return (SentryLaunchProfileConfig) { YES, nil, nil };
+    }
+
+    BOOL shouldProfileNextLaunch = options.enableAppLaunchProfiling && options.enableTracing;
     if (!shouldProfileNextLaunch) {
         SENTRY_LOG_DEBUG(@"Won't profile next launch due to specified options configuration: "
-                         @"options.enableAppLaunchProfiling: %d; options.enableTracing: %d; "
-                         @"options.enableContinuousProfiling: %d",
-            options.enableAppLaunchProfiling, options.enableTracing,
-            options.enableContinuousProfiling);
+                         @"options.enableAppLaunchProfiling: %d; options.enableTracing: %d",
+            options.enableAppLaunchProfiling, options.enableTracing);
         return (SentryLaunchProfileConfig) { NO, nil, nil };
     }
 
@@ -72,17 +73,6 @@ sentry_shouldProfileNextLaunch(SentryOptions *options)
     transactionContext.forNextAppLaunch = YES;
     SentrySamplingContext *context =
         [[SentrySamplingContext alloc] initWithTransactionContext:transactionContext];
-
-    if (options.enableContinuousProfiling) {
-        SentrySamplerDecision *profilesSamplerDecision = sampleContinuousProfile(context, options);
-        if (profilesSamplerDecision.decision != kSentrySampleDecisionYes) {
-            SENTRY_LOG_DEBUG(@"Sampling out the launch continuous profile.");
-            return (SentryLaunchProfileConfig) { NO, nil, nil };
-        }
-
-        SENTRY_LOG_DEBUG(@"Will continuously profile the next session starting from launch.");
-        return (SentryLaunchProfileConfig) { YES, nil, profilesSamplerDecision };
-    }
 
     SentrySamplerDecision *tracesSamplerDecision = sentry_sampleTrace(context, options);
     if (tracesSamplerDecision.decision != kSentrySampleDecisionYes) {
