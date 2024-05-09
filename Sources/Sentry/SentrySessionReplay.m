@@ -8,7 +8,6 @@
 #import "SentryLog.h"
 #import "SentryRandom.h"
 #import "SentryReplayEvent.h"
-#import "SentryReplayRecording.h"
 #import "SentrySDK+Private.h"
 #import "SentryScope+Private.h"
 #import "SentrySwift.h"

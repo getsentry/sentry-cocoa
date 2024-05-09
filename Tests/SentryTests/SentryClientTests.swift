@@ -1,5 +1,5 @@
 import Nimble
-import Sentry
+@testable import Sentry
 import SentryTestUtils
 import XCTest
 
@@ -1305,6 +1305,19 @@ class SentryClientTest: XCTestCase {
             )
         }
     }
+    
+    func testSetSDKFeatures() throws {
+        let sut = fixture.getSut {
+            $0.enablePerformanceV2 = true
+        }
+        
+        sut.capture(message: "message")
+        
+        try assertLastSentEvent { actual in
+            expect(actual.sdk?["features"] as? [String]).to(contain("performanceV2", "captureFailedRequests"))
+            
+        }
+    }
 
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
     func testTrackPreWarmedAppStartTracking() throws {
@@ -1591,8 +1604,7 @@ class SentryClientTest: XCTestCase {
         let sut = fixture.getSut()
         let replayEvent = SentryReplayEvent()
         replayEvent.segmentId = 2
-        let replayRecording = SentryReplayRecording()
-        replayRecording.segmentId = 2
+        let replayRecording = SentryReplayRecording(segmentId: 2, size: 200, start: Date(timeIntervalSince1970: 2), duration: 5_000, frameCount: 5, frameRate: 1, height: 930, width: 390)
         
         //Not a video url, but its ok for test the envelope
         let movieUrl = Bundle(for: self.classForCoder).url(forResource: "Resources/raw", withExtension: "json")
@@ -1609,7 +1621,7 @@ class SentryClientTest: XCTestCase {
         }
         
         let replayEvent = SentryReplayEvent()
-        let replayRecording = SentryReplayRecording()
+        let replayRecording = SentryReplayRecording(segmentId: 3, size: 200, start: Date(timeIntervalSince1970: 2), duration: 5_000, frameCount: 5, frameRate: 1, height: 930, width: 390)
         
         let movieUrl = Bundle(for: self.classForCoder).url(forResource: "Resources/raw", withExtension: "json")
         sut.capture(replayEvent, replayRecording: replayRecording, video: movieUrl!, with: Scope())
@@ -1625,7 +1637,7 @@ class SentryClientTest: XCTestCase {
         }
         
         let replayEvent = SentryReplayEvent()
-        let replayRecording = SentryReplayRecording()
+        let replayRecording = SentryReplayRecording(segmentId: 3, size: 200, start: Date(timeIntervalSince1970: 2), duration: 5_000, frameCount: 5, frameRate: 1, height: 930, width: 390)
         
         let movieUrl = Bundle(for: self.classForCoder).url(forResource: "Resources/raw", withExtension: "json")
         sut.capture(replayEvent, replayRecording: replayRecording, video: movieUrl!, with: Scope())
@@ -1641,7 +1653,7 @@ class SentryClientTest: XCTestCase {
         }
         
         let replayEvent = SentryReplayEvent()
-        let replayRecording = SentryReplayRecording()
+        let replayRecording = SentryReplayRecording(segmentId: 3, size: 200, start: Date(timeIntervalSince1970: 2), duration: 5_000, frameCount: 5, frameRate: 1, height: 930, width: 390)
         
         let movieUrl = URL(string: "NoFile")!
         sut.capture(replayEvent, replayRecording: replayRecording, video: movieUrl, with: Scope())
@@ -1654,8 +1666,7 @@ class SentryClientTest: XCTestCase {
         let sut = fixture.getSut()
         let replayEvent = SentryReplayEvent()
         replayEvent.segmentId = 2
-        let replayRecording = SentryReplayRecording()
-        replayRecording.segmentId = 2
+        let replayRecording = SentryReplayRecording(segmentId: 2, size: 200, start: Date(timeIntervalSince1970: 2), duration: 5_000, frameCount: 5, frameRate: 1, height: 930, width: 390)
         
         //Not a video url, but its ok for test the envelope
         let movieUrl = Bundle(for: self.classForCoder).url(forResource: "Resources/raw", withExtension: "json")

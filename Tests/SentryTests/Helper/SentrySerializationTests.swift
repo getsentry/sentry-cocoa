@@ -1,4 +1,5 @@
 import Nimble
+@testable import Sentry
 import XCTest
 
 class SentrySerializationTests: XCTestCase {

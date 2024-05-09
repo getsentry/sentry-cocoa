@@ -1,4 +1,5 @@
 #import "SentryDefines.h"
+#import "SentrySwift.h"
 
 @class SentryLogOutput;
 

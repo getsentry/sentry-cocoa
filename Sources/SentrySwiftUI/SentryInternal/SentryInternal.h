@@ -9,14 +9,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-typedef NS_ENUM(NSInteger, SentryTransactionNameSource) {
-    kSentryTransactionNameSourceCustom = 0,
-    kSentryTransactionNameSourceUrl,
-    kSentryTransactionNameSourceRoute,
-    kSentryTransactionNameSourceView,
-    kSentryTransactionNameSourceComponent,
-    kSentryTransactionNameSourceTask
-};
+typedef NS_ENUM(NSInteger, SentryTransactionNameSource);
 
 @class SentrySpanId;
 @protocol SentrySpan;

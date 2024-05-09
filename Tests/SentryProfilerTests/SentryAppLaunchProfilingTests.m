@@ -6,6 +6,7 @@
 #import "SentryTraceOrigins.h"
 #import "SentryTransactionContext.h"
 #import <XCTest/XCTest.h>
+@import Sentry;
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 

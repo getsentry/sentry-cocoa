@@ -18,12 +18,14 @@ static NSString *const SENTRY_NETWORK_REQUEST_TRACKER_BREADCRUMB
 - (void)enableNetworkTracking;
 - (void)enableNetworkBreadcrumbs;
 - (void)enableCaptureFailedRequests;
+- (void)enableGraphQLOperationTracking;
 - (BOOL)isTargetMatch:(NSURL *)URL withTargets:(NSArray *)targets;
 - (void)disable;
 
 @property (nonatomic, readonly) BOOL isNetworkTrackingEnabled;
 @property (nonatomic, readonly) BOOL isNetworkBreadcrumbEnabled;
 @property (nonatomic, readonly) BOOL isCaptureFailedRequestsEnabled;
+@property (nonatomic, readonly) BOOL isGraphQLOperationTrackingEnabled;
 
 @end
 
