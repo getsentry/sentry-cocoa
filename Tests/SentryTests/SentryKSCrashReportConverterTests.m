@@ -12,6 +12,7 @@
 #import "SentryThread.h"
 #import "SentryUser.h"
 #import <XCTest/XCTest.h>
+@import Sentry;
 
 @interface SentryCrashReportConverterTests : XCTestCase
 
