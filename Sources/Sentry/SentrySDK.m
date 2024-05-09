@@ -12,7 +12,6 @@
 #import "SentryFileManager.h"
 #import "SentryHub+Private.h"
 #import "SentryInternalDefines.h"
-#import "SentryLaunchProfiling.h"
 #import "SentryLog.h"
 #import "SentryMeta.h"
 #import "SentryOptions+Private.h"
@@ -31,6 +30,7 @@
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 #    import "SentryContinuousProfiler.h"
+#    import "SentryLaunchProfiling.h"
 #    import "SentryProfiler+Private.h"
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
@@ -225,7 +225,7 @@ static NSDate *_Nullable startTimestamp = nil;
 #endif // TARGET_OS_IOS && SENTRY_HAS_UIKIT
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
-        sentry_manageProfilerOnStartSDK(options, hub);
+        sentry_manageTraceProfilerOnStartSDK(options, hub);
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
     }];
 }

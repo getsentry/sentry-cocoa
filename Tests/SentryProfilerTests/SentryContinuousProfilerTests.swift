@@ -16,6 +16,7 @@ final class SentryContinuousProfilerTests: XCTestCase {
     override func setUp() {
         super.setUp()
         fixture = SentryProfileTestFixture()
+        fixture.options.enableContinuousProfiling = true
     }
     
     override func tearDown() {
@@ -24,13 +25,13 @@ final class SentryContinuousProfilerTests: XCTestCase {
     }
     
     func testStartingAndStoppingContinuousProfiler() throws {
-        try performContinuousProfilingTest(startReason: .startFromContinuousProfilerAPI)
+        try performContinuousProfilingTest()
     }
     
     func testProfilingDataContainsEnvironmentSetFromOptions() throws {
         let expectedEnvironment = "test-environment"
         fixture.options.environment = expectedEnvironment
-        try performContinuousProfilingTest(expectedEnvironment: expectedEnvironment, startReason: .startFromContinuousProfilerAPI)
+        try performContinuousProfilingTest(expectedEnvironment: expectedEnvironment)
     }
     
     func testProfilingDataContainsEnvironmentSetFromConfigureScope() throws {
@@ -38,31 +39,15 @@ final class SentryContinuousProfilerTests: XCTestCase {
         fixture.hub.configureScope { scope in
             scope.setEnvironment(expectedEnvironment)
         }
-        try performContinuousProfilingTest(expectedEnvironment: expectedEnvironment, startReason: .startFromContinuousProfilerAPI)
+        try performContinuousProfilingTest(expectedEnvironment: expectedEnvironment)
     }
     
-    func testSessionIsProfiledIfSampled() throws {
-        fixture.options.profilesSampleRate = 1
-        try performContinuousProfilingTest(startReason: .startFromSentrySDKSession)
+    func testClosingSDKStopsProfile() {
+        
     }
     
-    func testSessionIsProfiledIfSampledWithSampler() throws {
-        fixture.options.profilesSampler = { _ in
-            return 1
-        }
-        try performContinuousProfilingTest(startReason: .startFromSentrySDKSession)
-    }
-    
-    func testSessionIsNotProfiledIfNotSampled() throws {
-        fixture.options.profilesSampleRate = 1
-        try performContinuousProfilingTest(startReason: .startFromSentrySDKSession)
-    }
-    
-    func testSessionIsNotProfiledIfNotSampledWithSampler() throws {
-        fixture.options.profilesSampler = { _ in
-            return 0
-        }
-        try performContinuousProfilingTest(startReason: .startFromSentrySDKSession)
+    func testStartingAPerformanceTransactionDoesNotStartProfiler() {
+        
     }
 }
 
@@ -76,39 +61,28 @@ private extension SentryContinuousProfilerTests {
         }
     }
     
-    enum ProfilerStartReason {
-        case startFromContinuousProfilerAPI
-        case startFromSentrySDKSession
-    }
-    
-    func performContinuousProfilingTest(expectedEnvironment: String = kSentryDefaultEnvironment, startReason: ProfilerStartReason) throws {
-        fixture.options.enableContinuousProfiling = true
-        
+    func performContinuousProfilingTest(expectedEnvironment: String = kSentryDefaultEnvironment) throws {
         XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
-        
-        switch startReason {
-        case .startFromContinuousProfilerAPI:
-            SentryContinuousProfiler.start()
-        case .startFromSentrySDKSession:
-            SentrySDK.start(options: fixture.options)
-        }
-        
+        SentryContinuousProfiler.start()
         XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
         
         var expectedAddresses: [NSNumber] = [0x1, 0x2, 0x3]
         try addMockSamples(mockAddresses: expectedAddresses)
+        
         fixture.timeoutTimerFactory.fire()
         XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
         try assertValidData(expectedEnvironment: expectedEnvironment, expectedAddresses: expectedAddresses)
         
         expectedAddresses = [0x4, 0x5, 0x6]
         try addMockSamples(mockAddresses: expectedAddresses)
+        
         fixture.timeoutTimerFactory.fire()
         XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
         try assertValidData(expectedEnvironment: expectedEnvironment, expectedAddresses: expectedAddresses)
         
         expectedAddresses = [0x7, 0x8, 0x9]
         try addMockSamples(mockAddresses: expectedAddresses)
+        
         XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
         SentryContinuousProfiler.stop()
         XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())

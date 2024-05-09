@@ -33,6 +33,10 @@
 #    import "SentryUIViewControllerPerformanceTracker.h"
 #endif // SENTRY_HAS_UIKIT
 
+#if SENTRY_TARGET_PROFILING_SUPPORTED
+#    import "SentryContinuousProfiler.h"
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED
+
 NS_ASSUME_NONNULL_BEGIN
 
 @interface
@@ -154,7 +158,6 @@ SentryHub () <SentryMetricsAPIDelegate>
         SENTRY_LOG_DEBUG(@"No session to end with timestamp.");
         return;
     }
-
     [currentSession endSessionExitedWithTimestamp:timestamp];
     [self captureSession:currentSession];
 }
