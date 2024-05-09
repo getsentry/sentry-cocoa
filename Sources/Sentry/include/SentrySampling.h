@@ -22,13 +22,6 @@ SENTRY_EXTERN SentrySamplerDecision *sentry_sampleTrace(
  */
 SENTRY_EXTERN SentrySamplerDecision *sentry_sampleTraceProfile(SentrySamplingContext *context,
     SentrySamplerDecision *tracesSamplerDecision, SentryOptions *options);
-
-/**
- * Determines whether a continuous profile should be sampled based on the context and options, to
- * decide whether to configure the next launch to start a continuous profile.
- */
-SentrySamplerDecision *sampleContinuousProfile(
-    SentrySamplingContext *context, SentryOptions *options);
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
 NS_ASSUME_NONNULL_END

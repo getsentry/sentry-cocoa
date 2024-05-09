@@ -561,7 +561,7 @@ NSString *const kSentryDefaultEnvironment = @"production";
 {
     if (sampleRate == nil) {
         _sampleRate = nil;
-    } else if (isValidSampleRate(sampleRate)) {
+    } else if (sentry_isValidSampleRate(sampleRate)) {
         _sampleRate = sampleRate;
     } else {
         _sampleRate = SENTRY_DEFAULT_SAMPLE_RATE;
@@ -569,7 +569,7 @@ NSString *const kSentryDefaultEnvironment = @"production";
 }
 
 BOOL
-isValidSampleRate(NSNumber *sampleRate)
+sentry_isValidSampleRate(NSNumber *sampleRate)
 {
     double rate = [sampleRate doubleValue];
     return rate >= 0 && rate <= 1.0;
@@ -592,7 +592,7 @@ isValidSampleRate(NSNumber *sampleRate)
 {
     if (tracesSampleRate == nil) {
         _tracesSampleRate = nil;
-    } else if (isValidSampleRate(tracesSampleRate)) {
+    } else if (sentry_isValidSampleRate(tracesSampleRate)) {
         _tracesSampleRate = tracesSampleRate;
         if (!_enableTracingManual) {
             _enableTracing = YES;
@@ -622,7 +622,7 @@ isValidSampleRate(NSNumber *sampleRate)
 {
     if (profilesSampleRate == nil) {
         _profilesSampleRate = nil;
-    } else if (isValidSampleRate(profilesSampleRate)) {
+    } else if (sentry_isValidSampleRate(profilesSampleRate)) {
         _profilesSampleRate = profilesSampleRate;
     } else {
         _profilesSampleRate = SENTRY_DEFAULT_PROFILES_SAMPLE_RATE;
