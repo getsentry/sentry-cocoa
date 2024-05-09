@@ -43,11 +43,20 @@ final class SentryContinuousProfilerTests: XCTestCase {
     }
     
     func testClosingSDKStopsProfile() {
-        
+        XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
+        SentryContinuousProfiler.start()
+        XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
+        SentrySDK.close()
+        XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
     }
     
-    func testStartingAPerformanceTransactionDoesNotStartProfiler() {
-        
+    func testStartingAPerformanceTransactionDoesNotStartProfiler() throws {
+        let manualSpan = try fixture.newTransaction()
+        XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
+        let automaticSpan = try fixture.newTransaction(automaticTransaction: true)
+        XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
+        manualSpan.finish()
+        automaticSpan.finish()
     }
 }
 
