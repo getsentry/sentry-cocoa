@@ -768,10 +768,14 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 #endif
     }
 
+    NSArray<NSString *> *features =
+        [SentryEnabledFeaturesBuilder getEnabledFeaturesWithOptions:self.options];
+
     event.sdk = @{
         @"name" : SentryMeta.sdkName,
         @"version" : SentryMeta.versionString,
-        @"integrations" : integrations
+        @"integrations" : integrations,
+        @"features" : features
     };
 }
 

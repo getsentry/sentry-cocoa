@@ -2,6 +2,7 @@
 #import "SentryEnvelopeItemType.h"
 #import "SentryMeasurementValue.h"
 #import "SentryNSDictionarySanitize.h"
+#import "SentrySwift.h"
 #import "SentryTransactionContext.h"
 
 NS_ASSUME_NONNULL_BEGIN

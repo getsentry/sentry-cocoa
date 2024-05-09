@@ -4,6 +4,7 @@
 #import "SentryScope.h"
 #import "SentryUser.h"
 #import <XCTest/XCTest.h>
+@import Sentry;
 
 @interface SentryScopeTests : XCTestCase
 

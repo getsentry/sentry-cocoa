@@ -1305,6 +1305,19 @@ class SentryClientTest: XCTestCase {
             )
         }
     }
+    
+    func testSetSDKFeatures() throws {
+        let sut = fixture.getSut {
+            $0.enablePerformanceV2 = true
+        }
+        
+        sut.capture(message: "message")
+        
+        try assertLastSentEvent { actual in
+            expect(actual.sdk?["features"] as? [String]).to(contain("performanceV2", "captureFailedRequests"))
+            
+        }
+    }
 
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
     func testTrackPreWarmedAppStartTracking() throws {

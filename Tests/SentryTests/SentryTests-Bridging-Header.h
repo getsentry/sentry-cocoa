@@ -27,11 +27,15 @@
 #endif // SENTRY_HAS_UIKIT
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
+#    import "SentryContinuousProfiler+Test.h"
+#    import "SentryContinuousProfiler.h"
+#    import "SentryLaunchProfiling+Tests.h"
+#    import "SentryLegacyProfiler+Test.h"
 #    import "SentryMetricProfiler.h"
 #    import "SentryProfiler+Private.h"
-#    import "SentryProfiler+Test.h"
 #    import "SentryProfilerMocksSwiftCompatible.h"
 #    import "SentryProfilerSerialization+Test.h"
+#    import "SentryProfilerSerialization.h"
 #    import "SentryProfilerState.h"
 #    import "SentryProfilerTestHelpers.h"
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
@@ -130,7 +134,6 @@
 #import "SentryInstallation+Test.h"
 #import "SentryInstallation.h"
 #import "SentryInternalNotificationNames.h"
-#import "SentryLaunchProfiling+Tests.h"
 #import "SentryLevelMapper.h"
 #import "SentryLog+TestInit.h"
 #import "SentryLog.h"
