@@ -37,7 +37,7 @@ public struct SentryTracedView<Content: View>: View {
 
     let content: () -> Content
     let name: String
-    let nameSource: SentryTransactionNameSource
+    let nameSource: Sentry.SentryTransactionNameSource
     
     let traceOrigin = "auto.ui.swift_ui"
 
