@@ -12,12 +12,14 @@ class SentryReplayRecording: NSObject {
 
     let meta: SentryRRWebMetaEvent
     let video: SentryRRWebVideoEvent
+    let extraEvents: [SentryRRWebEvent]?
     
-    init(segmentId: Int, size: Int, start: Date, duration: TimeInterval, frameCount: Int, frameRate: Int, height: Int, width: Int) {
+    init(segmentId: Int, size: Int, start: Date, duration: TimeInterval, frameCount: Int, frameRate: Int, height: Int, width: Int, extraEvents: [SentryRRWebEvent]?) {
         self.segmentId = segmentId
         
         meta = SentryRRWebMetaEvent(timestamp: start, height: height, width: width)
         video = SentryRRWebVideoEvent(timestamp: start, segmentId: segmentId, size: size, duration: duration, encoding: SentryReplayRecording.SentryReplayEncoding, container: SentryReplayRecording.SentryReplayContainer, height: height, width: width, frameCount: frameCount, frameRateType: SentryReplayRecording.SentryReplayFrameRateType, frameRate: frameRate, left: 0, top: 0)
+        self.extraEvents = extraEvents
     }
 
     func headerForReplayRecording() -> [String: Any] {

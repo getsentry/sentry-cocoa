@@ -292,7 +292,8 @@ SentrySessionReplay ()
                                               frameCount:videoInfo.frameCount
                                                frameRate:videoInfo.frameRate
                                                   height:videoInfo.height
-                                                   width:videoInfo.width];
+                                                   width:videoInfo.width
+                                             extraEvents:nil];
 
     [SentrySDK.currentHub captureReplayEvent:replayEvent
                              replayRecording:recording

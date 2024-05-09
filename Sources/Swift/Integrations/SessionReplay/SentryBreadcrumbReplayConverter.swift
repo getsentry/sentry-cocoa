@@ -1,14 +1,16 @@
+@_implementationOnly import _SentryPrivate
 import Foundation
 
 @objc
 class SentryBreadcrumbReplayConverter: NSObject {
     
-    func replayBreadcrumbs(from breadcrumbs: [Breadcrumb]) -> [Breadcrumb] {
+    func replayBreadcrumbs(from breadcrumbs: [Breadcrumb]) -> [SentryRRWebBreadcrumbEvent] {
         breadcrumbs.compactMap { replayBreadcrumb(from: $0) }
     }
     
-    private func replayBreadcrumb(from breadcrumb: Breadcrumb) -> Breadcrumb? {
-        let newBreadcrumb = breadcrumb.copy()
+    private func replayBreadcrumb(from breadcrumb: Breadcrumb) -> SentryRRWebBreadcrumbEvent? {
+        var newCategory: String?
+        var newMessage: String?
 //        if newBreadcrumb.category == "http" {
 //            
 //        } else if newBreadcrumb.type == "navigation" {
@@ -44,6 +46,10 @@ class SentryBreadcrumbReplayConverter: NSObject {
 //            })
 //        }
         
-        return newBreadcrumb
+        guard let timestamp = breadcrumb.timestamp, let category = newCategory else {
+            return nil
+        }
+        
+        return SentryRRWebBreadcrumbEvent(timestamp: timestamp, category: category, message: newMessage, level: breadcrumb.level, data: nil)
     }
 }
