@@ -133,7 +133,8 @@ typedef NS_ENUM(NSInteger, SentryLogLevel) {
 /**
  * Sentry level.
  */
-typedef NS_ENUM(NSUInteger, SentryLevel);
+typedef NS_ENUM(NSUInteger,
+    SentryLevel); // This is a forward declaration, the actual enum is implemented in Swift.
 
 /**
  * Static internal helper to convert enum to string.
@@ -157,4 +158,5 @@ static NSString *_Nonnull const kSentryFalseString = @"false";
 /**
  * Transaction name source.
  */
-typedef NS_ENUM(NSInteger, SentryTransactionNameSource);
+typedef NS_ENUM(NSInteger, SentryTransactionNameSource); // This is a forward declaration, the
+                                                         // actual enum is implemented in Swift.
