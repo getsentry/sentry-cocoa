@@ -20,7 +20,7 @@ SENTRY_EXTERN SentrySamplerDecision *sentry_sampleTrace(
  * whether the trace corresponding to the profile was sampled, to decide whether to configure the
  * next launch to start a legacy profile.
  */
-SENTRY_EXTERN SentrySamplerDecision *sentry_sampleProfile(SentrySamplingContext *context,
+SENTRY_EXTERN SentrySamplerDecision *sentry_sampleTraceProfile(SentrySamplingContext *context,
     SentrySamplerDecision *tracesSamplerDecision, SentryOptions *options);
 
 /**

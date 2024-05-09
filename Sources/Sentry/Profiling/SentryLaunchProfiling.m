@@ -91,7 +91,7 @@ sentry_shouldProfileNextLaunch(SentryOptions *options)
     }
 
     SentrySamplerDecision *profilesSamplerDecision
-        = sentry_sampleProfile(context, tracesSamplerDecision, options);
+        = sentry_sampleTraceProfile(context, tracesSamplerDecision, options);
     if (profilesSamplerDecision.decision != kSentrySampleDecisionYes) {
         SENTRY_LOG_DEBUG(@"Sampling out the launch legacy profile.");
         return (SentryLaunchProfileConfig) { NO, nil, nil };
