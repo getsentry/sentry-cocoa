@@ -2,7 +2,6 @@
 #import "SentryDateUtils.h"
 #import "SentryDependencyContainer.h"
 #import "SentryLog.h"
-#import "SentryProfilingConditionals.h"
 #import "SentrySession+Private.h"
 #import "SentrySwift.h"
 
