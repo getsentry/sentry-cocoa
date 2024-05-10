@@ -9,6 +9,10 @@ public func setTestDefaultLogLevel() {
     SentryLog.configure(true, diagnosticLevel: .debug)
 }
 
+public func disableLogging() {
+    SentryLog.configure(false, diagnosticLevel: .none)
+}
+
 @objcMembers
 class TestCleanup: NSObject {
     static func clearTestState() {

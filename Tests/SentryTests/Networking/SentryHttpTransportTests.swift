@@ -680,38 +680,46 @@ class SentryHttpTransportTests: XCTestCase {
     
     func testFlush_BlocksCallingThread_TimesOut() {
         givenCachedEvents(amount: 30)
-        
         fixture.requestManager.responseDelay = fixture.flushTimeout + 0.2
         
-        let beforeFlush = getAbsoluteTime()
-        let result = sut.flush(fixture.flushTimeout)
-        let blockingDuration = getDurationNs(beforeFlush, getAbsoluteTime()).toTimeInterval()
-        
-        XCTAssertGreaterThan(blockingDuration, fixture.flushTimeout)
-        XCTAssertLessThan(blockingDuration, fixture.flushTimeout + 0.1)
-        
-        XCTAssertEqual(.timedOut, result)
+        SentryLog.withOutLogs {
+            let beforeFlush = getAbsoluteTime()
+            let result = sut.flush(fixture.flushTimeout)
+            let blockingDuration = getDurationNs(beforeFlush, getAbsoluteTime()).toTimeInterval()
+            
+            XCTAssertGreaterThan(blockingDuration, fixture.flushTimeout)
+            XCTAssertLessThan(blockingDuration, fixture.flushTimeout + 0.1)
+            
+            XCTAssertEqual(.timedOut, result)
+        }
     }
     
     func testFlush_BlocksCallingThread_FinishesFlushingWhenSent() {
         givenCachedEvents(amount: 1)
         
-        let beforeFlush = getAbsoluteTime()
-        XCTAssertEqual(.success, sut.flush(fixture.flushTimeout), "Flush should not time out.")
-        let blockingDuration = getDurationNs(beforeFlush, getAbsoluteTime()).toTimeInterval()
-        XCTAssertLessThan(blockingDuration, fixture.flushTimeout)
+        SentryLog.withOutLogs {
+            
+            let beforeFlush = getAbsoluteTime()
+            XCTAssertEqual(.success, sut.flush(fixture.flushTimeout), "Flush should not time out.")
+            let blockingDuration = getDurationNs(beforeFlush, getAbsoluteTime()).toTimeInterval()
+            XCTAssertLessThan(blockingDuration, fixture.flushTimeout)
+            
+        }
     }
     
     func testFlush_CalledSequentially_BlocksTwice() {
         givenCachedEvents()
         
-        let beforeFlush = getAbsoluteTime()
-        XCTAssertEqual(.success, sut.flush(fixture.flushTimeout), "Flush should not time out.")
-        XCTAssertEqual(.success, sut.flush(fixture.flushTimeout), "Flush should not time out.")
-        let blockingDuration = getDurationNs(beforeFlush, getAbsoluteTime()).toTimeInterval()
-        
-        XCTAssertLessThan(blockingDuration, fixture.flushTimeout * 2.2,
-                          "The blocking duration must not exceed the sum of the maximum flush duration.")
+        SentryLog.withOutLogs {
+            
+            let beforeFlush = getAbsoluteTime()
+            XCTAssertEqual(.success, sut.flush(fixture.flushTimeout), "Flush should not time out.")
+            XCTAssertEqual(.success, sut.flush(fixture.flushTimeout), "Flush should not time out.")
+            let blockingDuration = getDurationNs(beforeFlush, getAbsoluteTime()).toTimeInterval()
+            
+            XCTAssertLessThan(blockingDuration, fixture.flushTimeout * 2.2,
+                              "The blocking duration must not exceed the sum of the maximum flush duration.")
+        }
     }
     
     func testFlush_WhenNoEnvelopes_BlocksAndFinishes() {
@@ -720,17 +728,21 @@ class SentryHttpTransportTests: XCTestCase {
         var blockingDurationSum: TimeInterval = 0.0
         let flushInvocations = 100
         
-        for _ in  0..<flushInvocations {
-            let beforeFlush = getAbsoluteTime()
-            expect(sut.flush(self.fixture.flushTimeout)).to(equal(.success), description: "Flush should not time out.")
-            let blockingDuration = getDurationNs(beforeFlush, getAbsoluteTime()).toTimeInterval()
+        SentryLog.withOutLogs {
             
-            blockingDurationSum += blockingDuration
+            for _ in  0..<flushInvocations {
+                let beforeFlush = getAbsoluteTime()
+                expect(sut.flush(self.fixture.flushTimeout)).to(equal(.success), description: "Flush should not time out.")
+                let blockingDuration = getDurationNs(beforeFlush, getAbsoluteTime()).toTimeInterval()
+                
+                blockingDurationSum += blockingDuration
+            }
+            
+            let blockingDurationAverage = blockingDurationSum / Double(flushInvocations)
+            
+            expect(blockingDurationAverage) < 0.1
+            
         }
-        
-        let blockingDurationAverage = blockingDurationSum / Double(flushInvocations)
-        
-        expect(blockingDurationAverage) < 0.1
     }
     
     func testFlush_WhenNoInternet_BlocksAndFinishes() {
@@ -744,79 +756,84 @@ class SentryHttpTransportTests: XCTestCase {
         var blockingDurationSum: TimeInterval = 0.0
         let flushInvocations = 100
         
-        for _ in  0..<flushInvocations {
-            let beforeFlush = getAbsoluteTime()
-            expect(sut.flush(self.fixture.flushTimeout)).to(equal(.success), description: "Flush should not time out.")
-            let blockingDuration = getDurationNs(beforeFlush, getAbsoluteTime()).toTimeInterval()
+        SentryLog.withOutLogs {
             
-            blockingDurationSum += blockingDuration
+            for _ in  0..<flushInvocations {
+                let beforeFlush = getAbsoluteTime()
+                expect(sut.flush(self.fixture.flushTimeout)).to(equal(.success), description: "Flush should not time out.")
+                let blockingDuration = getDurationNs(beforeFlush, getAbsoluteTime()).toTimeInterval()
+                
+                blockingDurationSum += blockingDuration
+            }
+            
+            let blockingDurationAverage = blockingDurationSum / Double(flushInvocations)
+            
+            expect(blockingDurationAverage) < 0.1
         }
-        
-        let blockingDurationAverage = blockingDurationSum / Double(flushInvocations)
-        
-        expect(blockingDurationAverage) < 0.1
     }
     
     func testFlush_CallingFlushDirectlyAfterCapture_Flushes() {
         let sut = fixture.getSut(dispatchQueueWrapper: SentryDispatchQueueWrapper())
         
-        for _ in 0..<10 {
-            sut.send(envelope: fixture.eventEnvelope)
+        SentryLog.withOutLogs {
             
-            expect(sut.flush(self.fixture.flushTimeout)).to(equal(.success), description: "Flush should not time out.")
-            
-            expect(self.fixture.fileManager.getAllEnvelopes().count) == 0
+            for _ in 0..<10 {
+                sut.send(envelope: fixture.eventEnvelope)
+                
+                expect(sut.flush(self.fixture.flushTimeout)).to(equal(.success), description: "Flush should not time out.")
+                
+                expect(self.fixture.fileManager.getAllEnvelopes().count) == 0
+            }
         }
     }
     
     func testFlush_CalledMultipleTimes_ImmediatelyReturnsFalse() {
-        // To avoid spamming the test logs
-        SentryLog.configure(true, diagnosticLevel: .error)
-        
-        givenCachedEvents(amount: 30)
-        
-        let flushTimeout = 0.1
-        fixture.requestManager.waitForResponseDispatchGroup = true
-        fixture.requestManager.responseDispatchGroup.enter()
-        
-        let allFlushCallsGroup = DispatchGroup()
-        let ensureFlushingGroup = DispatchGroup()
-        let ensureFlushingQueue = DispatchQueue(label: "First flushing")
-        
-        sut.setStartFlushCallback {
-            ensureFlushingGroup.leave()
-        }
-        
-        allFlushCallsGroup.enter()
-        ensureFlushingGroup.enter()
-        ensureFlushingQueue.async {
-            XCTAssertEqual(.timedOut, self.sut.flush(flushTimeout))
-            self.fixture.requestManager.responseDispatchGroup.leave()
-            allFlushCallsGroup.leave()
-        }
-        
-        // Ensure transport is flushing.
-        ensureFlushingGroup.waitWithTimeout()
-        
-        // Now the transport should also have left the synchronized block, and the
-        // double-checked lock, should return immediately.
-        
-        let initiallyInactiveQueue = fixture.queue
-        for _ in 0..<2 {
+        SentryLog.withOutLogs {
+            
+            givenCachedEvents(amount: 30)
+            
+            let flushTimeout = 0.1
+            fixture.requestManager.waitForResponseDispatchGroup = true
+            fixture.requestManager.responseDispatchGroup.enter()
+            
+            let allFlushCallsGroup = DispatchGroup()
+            let ensureFlushingGroup = DispatchGroup()
+            let ensureFlushingQueue = DispatchQueue(label: "First flushing")
+            
+            sut.setStartFlushCallback {
+                ensureFlushingGroup.leave()
+            }
+            
             allFlushCallsGroup.enter()
-            initiallyInactiveQueue.async {
-                for _ in 0..<10 {
-                    XCTAssertEqual(.alreadyFlushing, self.sut.flush(flushTimeout), "Double checked lock should have returned immediately")
-                }
-
+            ensureFlushingGroup.enter()
+            ensureFlushingQueue.async {
+                XCTAssertEqual(.timedOut, self.sut.flush(flushTimeout))
+                self.fixture.requestManager.responseDispatchGroup.leave()
                 allFlushCallsGroup.leave()
             }
+            
+            // Ensure transport is flushing.
+            ensureFlushingGroup.waitWithTimeout()
+            
+            // Now the transport should also have left the synchronized block, and the
+            // double-checked lock, should return immediately.
+            
+            let initiallyInactiveQueue = fixture.queue
+            for _ in 0..<2 {
+                allFlushCallsGroup.enter()
+                initiallyInactiveQueue.async {
+                    for _ in 0..<10 {
+                        XCTAssertEqual(.alreadyFlushing, self.sut.flush(flushTimeout), "Double checked lock should have returned immediately")
+                    }
+                    
+                    allFlushCallsGroup.leave()
+                }
+            }
+            
+            initiallyInactiveQueue.activate()
+            allFlushCallsGroup.waitWithTimeout()
+            
         }
-
-        initiallyInactiveQueue.activate()
-        allFlushCallsGroup.waitWithTimeout()
-        
-        setTestDefaultLogLevel()
     }
 
 #if !os(watchOS)
