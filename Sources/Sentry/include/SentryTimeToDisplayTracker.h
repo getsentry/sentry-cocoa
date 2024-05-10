@@ -4,6 +4,7 @@
 
 @class SentrySpan;
 @class SentryTracer;
+@class SentryDispatchQueueWrapper;
 @class UIViewController;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -25,7 +26,8 @@ SENTRY_NO_INIT
 @property (nonatomic, readonly) BOOL waitForFullDisplay;
 
 - (instancetype)initForController:(UIViewController *)controller
-               waitForFullDisplay:(BOOL)waitForFullDisplay;
+               waitForFullDisplay:(BOOL)waitForFullDisplay
+             dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper;
 
 - (void)startForTracer:(SentryTracer *)tracer;
 

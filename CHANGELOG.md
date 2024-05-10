@@ -6,6 +6,10 @@
 
 - Add SIGTERM support ([#3895](https://github.com/getsentry/sentry-cocoa/pull/3895))
 
+### Fixes
+
+- Fix data race when calling reportFullyDisplayed from a background thread (#3926)
+
 ### Improvements
 
 - Send Cocoa SDK features (#3948)
