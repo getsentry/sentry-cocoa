@@ -772,7 +772,7 @@ class SentryHubTests: XCTestCase {
         let mockClient = SentryClientMockReplay(options: fixture.options)
         
         let replayEvent = SentryReplayEvent()
-        let replayRecording = SentryReplayRecording(segmentId: 3, size: 200, start: Date(timeIntervalSince1970: 2), duration: 5_000, frameCount: 5, frameRate: 1, height: 930, width: 390)
+        let replayRecording = SentryReplayRecording(segmentId: 3, size: 200, start: Date(timeIntervalSince1970: 2), duration: 5_000, frameCount: 5, frameRate: 1, height: 930, width: 390, extraEvents: [])
         let videoUrl = URL(string: "https://sentry.io")!
         
         sut.bindClient(mockClient)

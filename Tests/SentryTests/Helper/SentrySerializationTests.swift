@@ -240,7 +240,7 @@ class SentrySerializationTests: XCTestCase {
         }
         
         let date = Date(timeIntervalSince1970: 2)
-        let recording = MockReplayRecording(segmentId: 5, size: 5_000, start: date, duration: 5_000, frameCount: 5, frameRate: 1, height: 320, width: 950)
+        let recording = MockReplayRecording(segmentId: 5, size: 5_000, start: date, duration: 5_000, frameCount: 5, frameRate: 1, height: 320, width: 950, extraEvents: [])
         let data = SentrySerialization.data(with: recording)
         
         let serialized = String(data: data, encoding: .utf8)
