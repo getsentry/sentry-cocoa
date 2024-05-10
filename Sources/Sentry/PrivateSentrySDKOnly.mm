@@ -9,9 +9,6 @@
 #import "SentryInternalDefines.h"
 #import "SentryMeta.h"
 #import "SentryOptions.h"
-#import "SentryProfiledTracerConcurrency.h"
-#import "SentryProfiler+Private.h"
-#import "SentryProfilerSerialization.h"
 #import "SentrySDK+Private.h"
 #import "SentrySerialization.h"
 #import "SentrySwift.h"
@@ -26,6 +23,12 @@
 #import <SentrySessionReplay.h>
 #import <SentrySessionReplayIntegration.h>
 #import <SentryUser.h>
+
+#if SENTRY_TARGET_PROFILING_SUPPORTED
+#    import "SentryLegacyProfiler.h"
+#    import "SentryProfiledTracerConcurrency.h"
+#    import "SentryProfilerSerialization.h"
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
 @implementation PrivateSentrySDKOnly
 
@@ -131,7 +134,7 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 + (uint64_t)startProfilerForTrace:(SentryId *)traceId;
 {
-    [SentryProfiler startWithTracer:traceId];
+    [SentryLegacyProfiler startWithTracer:traceId];
     return SentryDependencyContainer.sharedInstance.dateProvider.systemTime;
 }
 

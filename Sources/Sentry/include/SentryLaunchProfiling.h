@@ -16,7 +16,7 @@ NS_ASSUME_NONNULL_BEGIN
 SENTRY_EXTERN BOOL sentry_isTracingAppLaunch;
 
 /** Try to start a profiled trace for this app launch, if the configuration allows. */
-void sentry_startLaunchProfile(void);
+SENTRY_EXTERN void sentry_startLaunchProfile(void);
 
 /**
  * Stop any profiled trace that may be in flight from the start of the app launch, and transmit the

@@ -3,6 +3,7 @@
 #if SENTRY_HAS_UIKIT
 
 #    import "SentryDependencyContainer.h"
+#    import "SentryDispatchQueueWrapper.h"
 #    import "SentryFramesTracker.h"
 #    import "SentryLog.h"
 #    import "SentryMeasurementValue.h"
@@ -26,6 +27,7 @@ SentryTimeToDisplayTracker () <SentryFramesTrackerListener>
 
 @property (nonatomic, weak) SentrySpan *initialDisplaySpan;
 @property (nonatomic, weak) SentrySpan *fullDisplaySpan;
+@property (nonatomic, strong, readonly) SentryDispatchQueueWrapper *dispatchQueueWrapper;
 
 @end
 
@@ -38,10 +40,12 @@ SentryTimeToDisplayTracker () <SentryFramesTrackerListener>
 
 - (instancetype)initForController:(UIViewController *)controller
                waitForFullDisplay:(BOOL)waitForFullDisplay
+             dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
 {
     if (self = [super init]) {
         _controllerName = [SwiftDescriptor getObjectClassName:controller];
         _waitForFullDisplay = waitForFullDisplay;
+        _dispatchQueueWrapper = dispatchQueueWrapper;
         _initialDisplayReported = NO;
         _fullyDisplayedReported = NO;
     }
@@ -119,7 +123,9 @@ SentryTimeToDisplayTracker () <SentryFramesTrackerListener>
 
 - (void)reportFullyDisplayed
 {
-    _fullyDisplayedReported = YES;
+    // All other accesses to _fullyDisplayedReported run on the main thread.
+    // To avoid using locks, we execute this on the main queue instead.
+    [_dispatchQueueWrapper dispatchOnMainQueue:^{ self->_fullyDisplayedReported = YES; }];
 }
 
 - (void)framesTrackerHasNewFrame:(NSDate *)newFrameDate
