@@ -9,6 +9,7 @@
 ### Fixes
 
 - Fix data race when calling reportFullyDisplayed from a background thread (#3926)
+- Ensure flushing envelopes directly after capturing them (#3915)
 
 ### Improvements
 
@@ -31,7 +32,6 @@ The following two features, disabled by default, were mistakenly added to the re
 
 ### Fixes
 
-- Ensure flushing envelopes directly after capturing them (#3915)
 - Ignore SentryFramesTracker thread sanitizer data races (#3922)
 - Handle no releaseName in WatchDogTerminationLogic (#3919)
 - Stop SessionReplay when closing SDK (#3941)
