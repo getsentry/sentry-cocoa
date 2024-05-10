@@ -96,12 +96,12 @@ SentrySpotlightTransport ()
     // Empty on purpose
 }
 
-#if TEST || TESTCI
+#if defined(TEST) || defined(TESTCI) || defined(DEBUG)
 - (void)setStartFlushCallback:(nonnull void (^)(void))callback
 {
     // Empty on purpose
 }
-#endif
+#endif // defined(TEST) || defined(TESTCI) || defined(DEBUG)
 
 @end
 

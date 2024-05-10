@@ -35,7 +35,7 @@ class SentryFramesTrackerTests: XCTestCase {
 
 #if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
         // the profiler must be running for the frames tracker to record frame rate info etc, validated in assertProfilingData()
-        SentryProfiler.start(withTracer: fixture.tracer.traceId)
+        SentryLegacyProfiler.start(withTracer: fixture.tracer.traceId)
 #endif
     }
 
@@ -155,20 +155,6 @@ class SentryFramesTrackerTests: XCTestCase {
         _ = fixture.displayLinkWrapper.fastestFrozenFrame()
 
         try assert(slow: 1, frozen: 1, total: 2, frameRates: 2)
-    }
-
-    func testPerformanceOfTrackingFrames() throws {
-        let sut = fixture.sut
-        sut.start()
-
-        let frames: UInt = 1_000
-        self.measure {
-            for _ in 0 ..< frames {
-                fixture.displayLinkWrapper.normalFrame()
-            }
-        }
-
-        try assert(slow: 0, frozen: 0)
     }
     
     /**

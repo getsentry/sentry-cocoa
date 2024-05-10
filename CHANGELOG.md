@@ -2,15 +2,43 @@
 
 ## Unreleased
 
+### Features
+
+- Add SIGTERM support ([#3895](https://github.com/getsentry/sentry-cocoa/pull/3895))
+
+### Improvements
+
+- Send Cocoa SDK features (#3948)
+
+## 8.25.2
+
+### Features
+
+The following two features, disabled by default, were mistakenly added to the release. We usually only add features in minor releases. 
+
+- Add option to use own NSURLSession for transport (#3811)
+- Support sending GraphQL operation names in HTTP breadcrumbs (#3931)
+
+### Fixes
+
+- 'SentryFileManager+Test.h' file not found (#3950)
+
+## 8.25.1
+
 ### Fixes
 
 - Ensure flushing envelopes directly after capturing them (#3915)
 - Ignore SentryFramesTracker thread sanitizer data races (#3922)
 - Handle no releaseName in WatchDogTerminationLogic (#3919)
+- Stop SessionReplay when closing SDK (#3941)
 
 ### Improvements
 
 - Remove not needed lock for logging (#3934)
+- Session replay Improvements (#3877)
+  - Use image average color and text font color to redact session replay 
+  - Removed iOS 16 restriction from session replay
+  - Performance improvement 
 
 ## 8.25.0
 
