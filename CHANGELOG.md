@@ -9,6 +9,7 @@
 ### Fixes
 
 - Fix data race when calling reportFullyDisplayed from a background thread (#3926)
+- Ensure flushing envelopes directly after capturing them (#3915)
 
 ### Improvements
 
