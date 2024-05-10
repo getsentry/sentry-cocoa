@@ -2,6 +2,7 @@
 
 #if SENTRY_HAS_UIKIT
 
+#    import "SentryDependencyContainer.h"
 #    import "SentryHub.h"
 #    import "SentryLog.h"
 #    import "SentryOptions.h"
@@ -23,6 +24,7 @@ SentryUIViewControllerPerformanceTracker ()
 
 @property (nonatomic, strong) SentryPerformanceTracker *tracker;
 @property (nullable, nonatomic, weak) SentryTimeToDisplayTracker *currentTTDTracker;
+@property (nonatomic, strong, readonly) SentryDispatchQueueWrapper *dispatchQueueWrapper;
 
 @end
 
@@ -46,6 +48,7 @@ SentryUIViewControllerPerformanceTracker ()
                                                             inAppExcludes:options.inAppExcludes];
 
         _enableWaitForFullDisplay = NO;
+        _dispatchQueueWrapper = SentryDependencyContainer.sharedInstance.dispatchQueueWrapper;
     }
     return self;
 }
@@ -142,7 +145,8 @@ SentryUIViewControllerPerformanceTracker ()
 
     SentryTimeToDisplayTracker *ttdTracker =
         [[SentryTimeToDisplayTracker alloc] initForController:controller
-                                           waitForFullDisplay:self.enableWaitForFullDisplay];
+                                           waitForFullDisplay:self.enableWaitForFullDisplay
+                                         dispatchQueueWrapper:_dispatchQueueWrapper];
 
     objc_setAssociatedObject(controller, &SENTRY_UI_PERFORMANCE_TRACKER_TTD_TRACKER, ttdTracker,
         OBJC_ASSOCIATION_ASSIGN);
