@@ -14,6 +14,6 @@ class SentryRRWebBreadcrumbEvent: SentryRRWebCustomEvent {
             payload["data"] = data
         }
         
-        super.init(timestamp: timestamp, tag: "breadcrump", payload: payload)
+        super.init(timestamp: timestamp, tag: "breadcrumb", payload: payload)
     }
 }
