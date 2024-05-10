@@ -308,7 +308,7 @@ class SentryPerformanceTrackerTests: XCTestCase {
             sut.finishSpan(span.key)
         }
         
-        setTestDefaultLogLevel()
+        SentryLog.setTestDefaultLogLevel()
     }
     
     func testStackAsync() {

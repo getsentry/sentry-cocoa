@@ -154,7 +154,7 @@ class SentryHubTests: XCTestCase {
         
         assert(withScopeBreadcrumbsCount: 100, with: hub)
         
-        setTestDefaultLogLevel()
+        SentryLog.setTestDefaultLogLevel()
     }
     
     func testBreadcrumbOverDefaultLimit() {
