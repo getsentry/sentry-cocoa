@@ -1,5 +1,6 @@
 #import "SentrySessionReplay.h"
 #import "SentryAttachment+Private.h"
+#import "SentryBreadcrumb+Private.h"
 #import "SentryDependencyContainer.h"
 #import "SentryDisplayLinkWrapper.h"
 #import "SentryEnvelopeItemType.h"
@@ -42,6 +43,7 @@ SentrySessionReplay ()
     int _currentSegmentId;
     BOOL _processingScreenshot;
     BOOL _reachedMaximumDuration;
+    SentryBreadcrumbReplayConverter *_breadcrumbConverter;
 }
 
 - (instancetype)initWithSettings:(SentryReplayOptions *)replayOptions
@@ -62,6 +64,7 @@ SentrySessionReplay ()
         _urlToCache = folderPath;
         _replayMaker = replayMaker;
         _reachedMaximumDuration = NO;
+        _breadcrumbConverter = [[SentryBreadcrumbReplayConverter alloc] init];
     }
     return self;
 }
@@ -284,6 +287,20 @@ SentrySessionReplay ()
     replayEvent.segmentId = segment;
     replayEvent.timestamp = videoInfo.end;
 
+    __block NSArray<SentryRRWebEvent *> *events;
+
+    [SentrySDK.currentHub configureScope:^(SentryScope *_Nonnull scope) {
+        NSArray *breadcrumbs = [scope.breadcrumbArray
+            filteredArrayUsingPredicate:[NSPredicate predicateWithBlock:^BOOL(
+                                            SentryBreadcrumb *evaluatedObject,
+                                            NSDictionary<NSString *, id> *bindings) {
+                return [evaluatedObject.timestamp compare:videoInfo.start] != NSOrderedAscending &&
+                    [evaluatedObject.timestamp compare:videoInfo.end] != NSOrderedDescending;
+            }]];
+
+        events = [self->_breadcrumbConverter replayBreadcrumbsFrom:breadcrumbs];
+    }];
+
     SentryReplayRecording *recording =
         [[SentryReplayRecording alloc] initWithSegmentId:replayEvent.segmentId
                                                     size:videoInfo.fileSize
@@ -293,7 +310,7 @@ SentrySessionReplay ()
                                                frameRate:videoInfo.frameRate
                                                   height:videoInfo.height
                                                    width:videoInfo.width
-                                             extraEvents:nil];
+                                             extraEvents:events];
 
     [SentrySDK.currentHub captureReplayEvent:replayEvent
                              replayRecording:recording

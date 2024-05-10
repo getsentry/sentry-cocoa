@@ -10,16 +10,14 @@ class SentryReplayRecording: NSObject {
     
     let segmentId: Int
 
-    let meta: SentryRRWebMetaEvent
-    let video: SentryRRWebVideoEvent
-    let extraEvents: [SentryRRWebEvent]?
+    let events: [SentryRRWebEvent]
     
     init(segmentId: Int, size: Int, start: Date, duration: TimeInterval, frameCount: Int, frameRate: Int, height: Int, width: Int, extraEvents: [SentryRRWebEvent]?) {
         self.segmentId = segmentId
         
-        meta = SentryRRWebMetaEvent(timestamp: start, height: height, width: width)
-        video = SentryRRWebVideoEvent(timestamp: start, segmentId: segmentId, size: size, duration: duration, encoding: SentryReplayRecording.SentryReplayEncoding, container: SentryReplayRecording.SentryReplayContainer, height: height, width: width, frameCount: frameCount, frameRateType: SentryReplayRecording.SentryReplayFrameRateType, frameRate: frameRate, left: 0, top: 0)
-        self.extraEvents = extraEvents
+        let meta = SentryRRWebMetaEvent(timestamp: start, height: height, width: width)
+        let video = SentryRRWebVideoEvent(timestamp: start, segmentId: segmentId, size: size, duration: duration, encoding: SentryReplayRecording.SentryReplayEncoding, container: SentryReplayRecording.SentryReplayContainer, height: height, width: width, frameCount: frameCount, frameRateType: SentryReplayRecording.SentryReplayFrameRateType, frameRate: frameRate, left: 0, top: 0)
+        self.events = [meta, video] + (extraEvents ?? [])
     }
 
     func headerForReplayRecording() -> [String: Any] {
@@ -27,10 +25,6 @@ class SentryReplayRecording: NSObject {
     }
 
     func serialize() -> [[String: Any]] {
-        let metaInfo = meta.serialize()
-
-        let recordingInfo = video.serialize()
-
-        return [metaInfo, recordingInfo]
+        return events.map { $0.serialize() }
     }
 }

@@ -37,4 +37,20 @@ extension String {
         let end = index(startIndex, offsetBy: range.upperBound)
         return self[startIndex..<end]
     }
+    
+    func snakeToCamelCase() -> String {
+        var result = ""
+        
+        var toUpper = false
+        for char in self {
+            if char == "_" {
+                toUpper = true
+            } else {
+                result.append(toUpper ? char.uppercased() : char.lowercased())
+                toUpper = false
+            }
+        }
+        
+        return result
+    }
 }

@@ -155,4 +155,9 @@ SentryBreadcrumb ()
     return [NSString stringWithFormat:@"<%@: %p, %@>", [self class], self, [self serialize]];
 }
 
+- (NSUInteger)getLevel
+{
+    return self.level;
+}
+
 @end

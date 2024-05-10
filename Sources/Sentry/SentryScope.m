@@ -31,11 +31,6 @@ SentryScope ()
 @property (atomic, strong) NSMutableDictionary<NSString *, id> *extraDictionary;
 
 /**
- * Contains the breadcrumbs which will be sent with the event
- */
-@property (atomic, strong) NSMutableArray<SentryBreadcrumb *> *breadcrumbArray;
-
-/**
  * This distribution of the application.
  */
 @property (atomic, copy) NSString *_Nullable distString;
