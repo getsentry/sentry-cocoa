@@ -95,7 +95,7 @@ private extension SentryContinuousProfilerTests {
         let actualReleaseString = try XCTUnwrap(profile["release"] as? String)
         XCTAssertEqual(actualReleaseString, expectedReleaseString)
 
-        XCTAssertNotEqual(SentryId.empty, SentryId(uuidString: try XCTUnwrap(profile["profile_id"] as? String)))
+        XCTAssertNotEqual(SentryId.empty, SentryId(uuidString: try XCTUnwrap(profile["profiler_id"] as? String)))
 
         let debugMeta = try XCTUnwrap(profile["debug_meta"] as? [String: Any])
         let images = try XCTUnwrap(debugMeta["images"] as? [[String: Any]])
