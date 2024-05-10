@@ -78,10 +78,7 @@ class SentryBreadcrumbReplayConverter: NSObject {
     }
     
     private  func getLevel(breadcrumb: Breadcrumb) -> SentryLevel {
-        let selector = NSSelectorFromString("level")
-        if breadcrumb.responds(to: selector) {
-            return (breadcrumb.perform(selector)?.toOpaque() as? SentryLevel) ?? .none
-        }
-        return .none
+        return SentryLevel(rawValue: SentryLevelHelper.breadcrumbLevel(breadcrumb)) ?? .none
+        
     }
 }
