@@ -18,6 +18,11 @@ final class SentryContinuousProfilerTests: XCTestCase {
         fixture = SentryProfileTestFixture()
     }
     
+    override func tearDown() {
+        super.tearDown()
+        SentryContinuousProfiler.stop()
+    }
+    
     func testStartingAndStoppingContinuousProfiler() throws {
         try performContinuousProfilingTest()
     }
