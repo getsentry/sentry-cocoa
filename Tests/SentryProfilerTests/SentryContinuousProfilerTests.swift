@@ -86,7 +86,7 @@ private extension SentryContinuousProfilerTests {
         let data = profileItem.data
         let profile = try XCTUnwrap(try JSONSerialization.jsonObject(with: data) as? [String: Any])
 
-        XCTAssertNotNil(profile["version"])
+        XCTAssertEqual(try XCTUnwrap(profile["version"] as? String), "2")
 
         let platform = try XCTUnwrap(profile["platform"] as? String)
         XCTAssertEqual("cocoa", platform)
