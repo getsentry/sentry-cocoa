@@ -1,3 +1,5 @@
+// each item type must have a data category name mapped to it; see SentryDataCategoryMapper
+
 static NSString *const SentryEnvelopeItemTypeEvent = @"event";
 static NSString *const SentryEnvelopeItemTypeSession = @"session";
 static NSString *const SentryEnvelopeItemTypeUserFeedback = @"user_report";
