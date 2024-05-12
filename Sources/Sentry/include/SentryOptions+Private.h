@@ -1,4 +1,8 @@
-#import "SentryOptions.h"
+#if __has_include(<Sentry/SentryOptions.h>)
+#    import <Sentry/SentryOptions.h>
+#else
+#    import "SentryOptions.h"
+#endif
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -11,7 +15,7 @@ SentryOptions ()
 @property (nonatomic, assign) BOOL enableContinuousProfiling;
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
-SENTRY_EXTERN BOOL isValidSampleRate(NSNumber *sampleRate);
+SENTRY_EXTERN BOOL sentry_isValidSampleRate(NSNumber *sampleRate);
 
 @end
 

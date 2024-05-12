@@ -16,6 +16,17 @@ final class SentryContinuousProfilerTests: XCTestCase {
     override func setUp() {
         super.setUp()
         fixture = SentryProfileTestFixture()
+        fixture.options.enableContinuousProfiling = true
+    }
+    
+    override func tearDown() {
+        super.tearDown()
+        clearTestState()
+    }
+    
+    override func tearDown() {
+        super.tearDown()
+        SentryContinuousProfiler.stop()
     }
     
     func testStartingAndStoppingContinuousProfiler() throws {
@@ -34,6 +45,23 @@ final class SentryContinuousProfilerTests: XCTestCase {
             scope.setEnvironment(expectedEnvironment)
         }
         try performContinuousProfilingTest(expectedEnvironment: expectedEnvironment)
+    }
+    
+    func testClosingSDKStopsProfile() {
+        XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
+        SentryContinuousProfiler.start()
+        XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
+        SentrySDK.close()
+        XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
+    }
+    
+    func testStartingAPerformanceTransactionDoesNotStartProfiler() throws {
+        let manualSpan = try fixture.newTransaction()
+        XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
+        let automaticSpan = try fixture.newTransaction(automaticTransaction: true)
+        XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
+        manualSpan.finish()
+        automaticSpan.finish()
     }
 }
 
@@ -54,18 +82,21 @@ private extension SentryContinuousProfilerTests {
         
         var expectedAddresses: [NSNumber] = [0x1, 0x2, 0x3]
         try addMockSamples(mockAddresses: expectedAddresses)
+        
         fixture.timeoutTimerFactory.fire()
         XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
         try assertValidData(expectedEnvironment: expectedEnvironment, expectedAddresses: expectedAddresses)
         
         expectedAddresses = [0x4, 0x5, 0x6]
         try addMockSamples(mockAddresses: expectedAddresses)
+        
         fixture.timeoutTimerFactory.fire()
         XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
         try assertValidData(expectedEnvironment: expectedEnvironment, expectedAddresses: expectedAddresses)
         
         expectedAddresses = [0x7, 0x8, 0x9]
         try addMockSamples(mockAddresses: expectedAddresses)
+        
         XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
         SentryContinuousProfiler.stop()
         XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
@@ -81,7 +112,7 @@ private extension SentryContinuousProfilerTests {
         let data = profileItem.data
         let profile = try XCTUnwrap(try JSONSerialization.jsonObject(with: data) as? [String: Any])
 
-        XCTAssertNotNil(profile["version"])
+        XCTAssertEqual(try XCTUnwrap(profile["version"] as? String), "2")
 
         let platform = try XCTUnwrap(profile["platform"] as? String)
         XCTAssertEqual("cocoa", platform)
@@ -95,7 +126,7 @@ private extension SentryContinuousProfilerTests {
         let actualReleaseString = try XCTUnwrap(profile["release"] as? String)
         XCTAssertEqual(actualReleaseString, expectedReleaseString)
 
-        XCTAssertNotEqual(SentryId.empty, SentryId(uuidString: try XCTUnwrap(profile["profile_id"] as? String)))
+        XCTAssertNotEqual(SentryId.empty, SentryId(uuidString: try XCTUnwrap(profile["profiler_id"] as? String)))
 
         let debugMeta = try XCTUnwrap(profile["debug_meta"] as? [String: Any])
         let images = try XCTUnwrap(debugMeta["images"] as? [[String: Any]])

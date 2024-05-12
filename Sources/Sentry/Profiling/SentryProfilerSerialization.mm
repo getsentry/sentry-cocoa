@@ -243,7 +243,7 @@ sentry_serializedContinuousProfileChunk(
     }
 
     payload[@"chunk_id"] = [[[SentryId alloc] init] sentryIdString];
-    payload[@"profile_id"] = profileID.sentryIdString;
+    payload[@"profiler_id"] = profileID.sentryIdString;
     payload[@"environment"] = hub.scope.environmentString ?: hub.getClient.options.environment;
     payload[@"release"] = hub.getClient.options.releaseName;
     payload[@"platform"] = SentryPlatformName;
@@ -335,7 +335,7 @@ SentryEnvelope *_Nullable sentry_continuousProfileChunkEnvelope(
                                                 length:JSONData.length];
     const auto envelopeItem = [[SentryEnvelopeItem alloc] initWithHeader:header data:JSONData];
 
-    return [[SentryEnvelope alloc] initWithId:profilerId singleItem:envelopeItem];
+    return [[SentryEnvelope alloc] initWithId:[[SentryId alloc] init] singleItem:envelopeItem];
 }
 
 SentryEnvelopeItem *_Nullable sentry_profileEnvelopeItemLegacy(
