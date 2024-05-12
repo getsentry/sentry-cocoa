@@ -262,23 +262,25 @@ final class BucketMetricsAggregatorTests: XCTestCase {
         // Start the flush timer with very high interval
         let sut = BucketMetricsAggregator(client: metricsClient, currentDate: currentDate, dispatchQueue: SentryDispatchQueueWrapper(), random: SentryRandom(), totalMaxWeight: 1_000, flushInterval: 0.000001, flushTolerance: 0.0)
 
-        let expectation = expectation(description: "Adding metrics")
-        expectation.expectedFulfillmentCount = 100
-
-        // Keep adding metrics async so the flush timer has a few chances to
-        // send metrics
-        for i in 0..<100 {
-            DispatchQueue.global().async {
-                sut.increment(key: "key\(i)", value: 1.0, unit: MeasurementUnitDuration.day, tags: [:])
-                currentDate.setDate(date: currentDate.date().addingTimeInterval(10.0))
-
-                expectation.fulfill()
+        SentryLog.withOutLogs {
+            let expectation = expectation(description: "Adding metrics")
+            expectation.expectedFulfillmentCount = 100
+            
+            // Keep adding metrics async so the flush timer has a few chances to
+            // send metrics
+            for i in 0..<100 {
+                DispatchQueue.global().async {
+                    sut.increment(key: "key\(i)", value: 1.0, unit: MeasurementUnitDuration.day, tags: [:])
+                    currentDate.setDate(date: currentDate.date().addingTimeInterval(10.0))
+                    
+                    expectation.fulfill()
+                }
             }
+            
+            wait(for: [expectation], timeout: 1.0)
+            
+            expect(metricsClient.captureInvocations.count).to(beGreaterThan(0), description: "Repeating flush timer should send some metrics.")
         }
-
-        wait(for: [expectation], timeout: 1.0)
-
-        expect(metricsClient.captureInvocations.count).to(beGreaterThan(0), description: "Repeating flush timer should send some metrics.")
     }
 
     func testClose_InvalidatesTimer() throws {
