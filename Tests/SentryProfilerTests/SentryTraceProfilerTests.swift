@@ -320,6 +320,8 @@ class SentryTraceProfilerTests: XCTestCase {
         XCTAssertEqual(self.fixture.client?.captureEventWithScopeInvocations.count, 0)
     }
 #endif // !os(macOS)
+
+    // test that receiving a backgrounding notification stops the profiler
 }
 
 private extension SentryTraceProfilerTests {
