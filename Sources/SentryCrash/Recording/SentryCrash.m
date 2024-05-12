@@ -239,9 +239,9 @@ SentryCrash ()
         return false;
     }
 
+#if SENTRY_HAS_UIKIT
     SentryNSNotificationCenterWrapper *notificationCenter
         = SentryDependencyContainer.sharedInstance.notificationCenterWrapper;
-#if SENTRY_HAS_UIKIT
     [notificationCenter addObserver:self
                            selector:@selector(applicationDidBecomeActive)
                                name:UIApplicationDidBecomeActiveNotification];
@@ -259,6 +259,8 @@ SentryCrash ()
                                name:UIApplicationWillTerminateNotification];
 #endif // SENTRY_HAS_UIKIT
 #if SentryCrashCRASH_HAS_NSEXTENSION
+    SentryNSNotificationCenterWrapper *notificationCenter
+        = SentryDependencyContainer.sharedInstance.notificationCenterWrapper;
     [notificationCenter addObserver:self
                            selector:@selector(applicationDidBecomeActive)
                                name:NSExtensionHostDidBecomeActiveNotification];
@@ -284,9 +286,9 @@ SentryCrash ()
     self.onCrash = NULL;
     sentrycrash_uninstall();
 
+#if SENTRY_HAS_UIKIT
     SentryNSNotificationCenterWrapper *notificationCenter
         = SentryDependencyContainer.sharedInstance.notificationCenterWrapper;
-#if SENTRY_HAS_UIKIT
     [notificationCenter removeObserver:self name:UIApplicationDidBecomeActiveNotification];
     [notificationCenter removeObserver:self name:UIApplicationWillResignActiveNotification];
     [notificationCenter removeObserver:self name:UIApplicationDidEnterBackgroundNotification];
@@ -294,6 +296,8 @@ SentryCrash ()
     [notificationCenter removeObserver:self name:UIApplicationWillTerminateNotification];
 #endif // SENTRY_HAS_UIKIT
 #if SentryCrashCRASH_HAS_NSEXTENSION
+    SentryNSNotificationCenterWrapper *notificationCenter
+        = SentryDependencyContainer.sharedInstance.notificationCenterWrapper;
     [notificationCenter removeObserver:self name:NSExtensionHostDidBecomeActiveNotification];
     [notificationCenter removeObserver:self name:NSExtensionHostWillResignActiveNotification];
     [notificationCenter removeObserver:self name:NSExtensionHostDidEnterBackgroundNotification];
