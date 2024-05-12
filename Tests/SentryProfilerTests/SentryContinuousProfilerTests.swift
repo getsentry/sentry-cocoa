@@ -24,6 +24,11 @@ final class SentryContinuousProfilerTests: XCTestCase {
         clearTestState()
     }
     
+    override func tearDown() {
+        super.tearDown()
+        SentryContinuousProfiler.stop()
+    }
+    
     func testStartingAndStoppingContinuousProfiler() throws {
         try performContinuousProfilingTest()
     }
@@ -107,7 +112,7 @@ private extension SentryContinuousProfilerTests {
         let data = profileItem.data
         let profile = try XCTUnwrap(try JSONSerialization.jsonObject(with: data) as? [String: Any])
 
-        XCTAssertNotNil(profile["version"])
+        XCTAssertEqual(try XCTUnwrap(profile["version"] as? String), "2")
 
         let platform = try XCTUnwrap(profile["platform"] as? String)
         XCTAssertEqual("cocoa", platform)
@@ -121,7 +126,7 @@ private extension SentryContinuousProfilerTests {
         let actualReleaseString = try XCTUnwrap(profile["release"] as? String)
         XCTAssertEqual(actualReleaseString, expectedReleaseString)
 
-        XCTAssertNotEqual(SentryId.empty, SentryId(uuidString: try XCTUnwrap(profile["profile_id"] as? String)))
+        XCTAssertNotEqual(SentryId.empty, SentryId(uuidString: try XCTUnwrap(profile["profiler_id"] as? String)))
 
         let debugMeta = try XCTUnwrap(profile["debug_meta"] as? [String: Any])
         let images = try XCTUnwrap(debugMeta["images"] as? [[String: Any]])

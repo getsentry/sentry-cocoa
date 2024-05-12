@@ -25,14 +25,13 @@
 #    import "SentryReachability.h"
 #endif // !TARGET_OS_WATCH
 
-static NSTimeInterval const cachedEnvelopeSendDelay = 0.1;
-
 @interface
 SentryHttpTransport ()
 #if SENTRY_HAS_REACHABILITY
     <SentryReachabilityObserver>
 #endif // !TARGET_OS_WATCH
 
+@property (nonatomic, readonly) NSTimeInterval cachedEnvelopeSendDelay;
 @property (nonatomic, strong) SentryFileManager *fileManager;
 @property (nonatomic, strong) id<SentryRequestManager> requestManager;
 @property (nonatomic, strong) SentryNSURLRequestBuilder *requestBuilder;
@@ -68,15 +67,17 @@ SentryHttpTransport ()
 @implementation SentryHttpTransport
 
 - (id)initWithOptions:(SentryOptions *)options
-             fileManager:(SentryFileManager *)fileManager
-          requestManager:(id<SentryRequestManager>)requestManager
-          requestBuilder:(SentryNSURLRequestBuilder *)requestBuilder
-              rateLimits:(id<SentryRateLimits>)rateLimits
-       envelopeRateLimit:(SentryEnvelopeRateLimit *)envelopeRateLimit
-    dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
+    cachedEnvelopeSendDelay:(NSTimeInterval)cachedEnvelopeSendDelay
+                fileManager:(SentryFileManager *)fileManager
+             requestManager:(id<SentryRequestManager>)requestManager
+             requestBuilder:(SentryNSURLRequestBuilder *)requestBuilder
+                 rateLimits:(id<SentryRateLimits>)rateLimits
+          envelopeRateLimit:(SentryEnvelopeRateLimit *)envelopeRateLimit
+       dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
 {
     if (self = [super init]) {
         self.options = options;
+        _cachedEnvelopeSendDelay = cachedEnvelopeSendDelay;
         self.requestManager = requestManager;
         self.requestBuilder = requestBuilder;
         self.fileManager = fileManager;
@@ -199,7 +200,12 @@ SentryHttpTransport ()
 #endif // defined(TEST) || defined(TESTCI) || defined(DEBUG)
     }
 
-    [self sendAllCachedEnvelopes];
+    // We are waiting for the dispatch group below, which we leave in finished sending. As
+    // sendAllCachedEnvelopes does some IO, it could block the calling thread longer than the
+    // desired flush duration. Therefore, we dispatch the sendAllCachedEnvelopes async. Furthermore,
+    // when calling flush directly after captureEnvelope, it could happen that SDK doesn't store the
+    // envelope to disk, which happens async, before starting to flush.
+    [self.dispatchQueue dispatchAsyncWithBlock:^{ [self sendAllCachedEnvelopes]; }];
 
     intptr_t result = dispatch_group_wait(self.dispatchGroup, dispatchTimeout);
 
@@ -317,10 +323,12 @@ SentryHttpTransport ()
 {
     SENTRY_LOG_DEBUG(@"Deleting envelope and sending next.");
     [self.fileManager removeFileAtPath:envelopePath];
-    self.isSending = NO;
+    @synchronized(self) {
+        self.isSending = NO;
+    }
 
     __weak SentryHttpTransport *weakSelf = self;
-    [self.dispatchQueue dispatchAfter:cachedEnvelopeSendDelay
+    [self.dispatchQueue dispatchAfter:self.cachedEnvelopeSendDelay
                                 block:^{
                                     if (weakSelf == nil) {
                                         return;

@@ -25,5 +25,5 @@ func testConcurrentModifications(asyncWorkItems: Int = 5, writeLoopCount: Int = 
     queue.activate()
     group.waitWithTimeout(timeout: 500)
     
-    setTestDefaultLogLevel()
+    SentryLog.setTestDefaultLogLevel()
 }

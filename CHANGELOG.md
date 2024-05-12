@@ -6,22 +6,33 @@
 
 - Add SIGTERM support ([#3895](https://github.com/getsentry/sentry-cocoa/pull/3895))
 
+### Fixes
+
+- Fix data race when calling reportFullyDisplayed from a background thread (#3926)
+- Ensure flushing envelopes directly after capturing them (#3915)
+
 ### Improvements
 
 - Send Cocoa SDK features (#3948)
 
+### Fixes 
+
+- Clang error for Xcode 15.4 (#3958)
+
 ## 8.25.2
+
+### Features
+
+The following two features, disabled by default, were mistakenly added to the release. We usually only add features in minor releases. 
+
+- Add option to use own NSURLSession for transport (#3811)
+- Support sending GraphQL operation names in HTTP breadcrumbs (#3931)
 
 ### Fixes
 
 - 'SentryFileManager+Test.h' file not found (#3950)
 
 ## 8.25.1
-
-### Features
-
-- Add option to use own NSURLSession for transport (#3811)
-- Support sending GraphQL operation names in HTTP breadcrumbs (#3931)
 
 ### Fixes
 
