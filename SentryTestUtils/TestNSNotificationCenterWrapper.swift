@@ -1,11 +1,11 @@
 import Foundation
-import SentryTestUtils
+import Sentry
 
 @objcMembers public class TestNSNotificationCenterWrapper: SentryNSNotificationCenterWrapper {
     
-    var ignoreRemoveObserver = false
+    public var ignoreRemoveObserver = false
     
-    var addObserverInvocations = Invocations<(observer: Any, selector: Selector, name: NSNotification.Name)>()
+    public var addObserverInvocations = Invocations<(observer: Any, selector: Selector, name: NSNotification.Name)>()
     public var addObserverInvocationsCount: Int {
         return addObserverInvocations.count
     }
@@ -14,7 +14,7 @@ import SentryTestUtils
         addObserverInvocations.record((observer, aSelector, aName))
     }
 
-    var removeObserverWithNameInvocations = Invocations<(observer: Any, name: NSNotification.Name)>()
+    public var removeObserverWithNameInvocations = Invocations<(observer: Any, name: NSNotification.Name)>()
     public var removeObserverWithNameInvocationsCount: Int {
         return removeObserverWithNameInvocations.count
     }
