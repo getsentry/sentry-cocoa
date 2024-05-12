@@ -38,28 +38,25 @@ static const int kSentryProfilerFrequencyHz = 101;
 #    pragma mark - Public
 
 void
-sentry_manageProfilerOnStartSDK(SentryOptions *options, SentryHub *hub)
+sentry_manageTraceProfilerOnStartSDK(SentryOptions *options, SentryHub *hub)
 {
-    if (options.enableContinuousProfiling) {
-        [SentryContinuousProfiler start];
-        return;
-    }
-
-    BOOL shouldStopAndTransmitLaunchProfile = !options.enableContinuousProfiling;
+    if (!options.enableContinuousProfiling) {
+        BOOL shouldStopAndTransmitLaunchProfile = YES;
 #    if SENTRY_HAS_UIKIT
-    if (SentryUIViewControllerPerformanceTracker.shared.enableWaitForFullDisplay) {
-        shouldStopAndTransmitLaunchProfile = NO;
-    }
+        if (SentryUIViewControllerPerformanceTracker.shared.enableWaitForFullDisplay) {
+            shouldStopAndTransmitLaunchProfile = NO;
+        }
 #    endif // SENTRY_HAS_UIKIT
 
-    [SentryDependencyContainer.sharedInstance.dispatchQueueWrapper dispatchAsyncWithBlock:^{
-        if (shouldStopAndTransmitLaunchProfile) {
-            SENTRY_LOG_DEBUG(@"Stopping launch profile in SentrySDK.start because there will "
-                             @"be no automatic trace to attach it to.");
-            sentry_stopAndTransmitLaunchProfile(hub);
-        }
-        sentry_configureLaunchProfiling(options);
-    }];
+        [SentryDependencyContainer.sharedInstance.dispatchQueueWrapper dispatchAsyncWithBlock:^{
+            if (shouldStopAndTransmitLaunchProfile) {
+                SENTRY_LOG_DEBUG(@"Stopping launch profile in SentrySDK.start because there will "
+                                 @"be no automatic trace to attach it to.");
+                sentry_stopAndTransmitLaunchProfile(hub);
+            }
+            sentry_configureLaunchProfiling(options);
+        }];
+    }
 }
 
 @implementation SentryProfiler {
@@ -91,9 +88,7 @@ sentry_manageProfilerOnStartSDK(SentryOptions *options, SentryHub *hub)
 
     [self start];
 
-    if (mode == SentryProfilerModeLegacy) {
-        [self scheduleTimer];
-    }
+    [self scheduleTimer];
 
 #    if SENTRY_HAS_UIKIT
     [SentryDependencyContainer.sharedInstance.notificationCenterWrapper

@@ -10,6 +10,7 @@ class SentryDataCategoryMapperTests: XCTestCase {
         expect(sentryDataCategoryForEnvelopItemType("transaction")) == .transaction
         expect(sentryDataCategoryForEnvelopItemType("attachment")) == .attachment
         expect(sentryDataCategoryForEnvelopItemType("profile")) == .profile
+        expect(sentryDataCategoryForEnvelopItemType("profile_chunk")) == .profileChunk
         expect(sentryDataCategoryForEnvelopItemType("statsd")) == .metricBucket
         expect(sentryDataCategoryForEnvelopItemType("replay_video")) == .replay
         expect(sentryDataCategoryForEnvelopItemType("unknown item type")) == .default
@@ -26,9 +27,10 @@ class SentryDataCategoryMapperTests: XCTestCase {
         expect(sentryDataCategoryForNSUInteger(7)) == .profile
         expect(sentryDataCategoryForNSUInteger(8)) == .metricBucket
         expect(sentryDataCategoryForNSUInteger(9)) == .replay
-        expect(sentryDataCategoryForNSUInteger(10)) == .unknown
+        expect(sentryDataCategoryForNSUInteger(10)) == .profileChunk
+        expect(sentryDataCategoryForNSUInteger(11)) == .unknown
 
-        XCTAssertEqual(.unknown, sentryDataCategoryForNSUInteger(10), "Failed to map unknown category number to case .unknown")
+        XCTAssertEqual(.unknown, sentryDataCategoryForNSUInteger(11), "Failed to map unknown category number to case .unknown")
     }
     
     func testMapStringToCategory() {
@@ -40,6 +42,7 @@ class SentryDataCategoryMapperTests: XCTestCase {
         expect(sentryDataCategoryForString(kSentryDataCategoryNameAttachment)) == .attachment
         expect(sentryDataCategoryForString(kSentryDataCategoryNameUserFeedback)) == .userFeedback
         expect(sentryDataCategoryForString(kSentryDataCategoryNameProfile)) == .profile
+        expect(sentryDataCategoryForString(kSentryDataCategoryNameProfileChunk)) == .profileChunk
         expect(sentryDataCategoryForString(kSentryDataCategoryNameMetricBucket)) == .metricBucket
         expect(sentryDataCategoryForString(kSentryDataCategoryNameReplay)) == .replay
         expect(sentryDataCategoryForString(kSentryDataCategoryNameUnknown)) == .unknown
@@ -56,6 +59,7 @@ class SentryDataCategoryMapperTests: XCTestCase {
         expect(nameForSentryDataCategory(.attachment)) == kSentryDataCategoryNameAttachment
         expect(nameForSentryDataCategory(.userFeedback)) == kSentryDataCategoryNameUserFeedback
         expect(nameForSentryDataCategory(.profile)) == kSentryDataCategoryNameProfile
+        expect(nameForSentryDataCategory(.profileChunk)) == kSentryDataCategoryNameProfileChunk
         expect(nameForSentryDataCategory(.metricBucket)) == kSentryDataCategoryNameMetricBucket
         expect(nameForSentryDataCategory(.replay)) == kSentryDataCategoryNameReplay
         expect(nameForSentryDataCategory(.unknown)) == kSentryDataCategoryNameUnknown

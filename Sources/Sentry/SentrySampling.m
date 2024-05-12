@@ -17,7 +17,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @return A sample rate if the specified sampler callback was defined on @c SentryOptions and
  * returned a valid value, @c nil otherwise.
  */
-NSNumber *_Nullable samplerCallbackRate(SentryTracesSamplerCallback _Nullable callback,
+NSNumber *_Nullable _sentry_samplerCallbackRate(SentryTracesSamplerCallback _Nullable callback,
     SentrySamplingContext *context, NSNumber *defaultSampleRate)
 {
     if (callback == nil) {
@@ -25,7 +25,7 @@ NSNumber *_Nullable samplerCallbackRate(SentryTracesSamplerCallback _Nullable ca
     }
 
     NSNumber *callbackRate = callback(context);
-    if (!isValidSampleRate(callbackRate)) {
+    if (!sentry_isValidSampleRate(callbackRate)) {
         return defaultSampleRate;
     }
 
@@ -33,7 +33,7 @@ NSNumber *_Nullable samplerCallbackRate(SentryTracesSamplerCallback _Nullable ca
 }
 
 SentrySamplerDecision *
-calcSample(NSNumber *rate)
+_sentry_calcSample(NSNumber *rate)
 {
     double random = [SentryDependencyContainer.sharedInstance.random nextNumber];
     SentrySampleDecision decision
@@ -42,14 +42,14 @@ calcSample(NSNumber *rate)
 }
 
 SentrySamplerDecision *
-calcSampleFromNumericalRate(NSNumber *rate)
+_sentry_calcSampleFromNumericalRate(NSNumber *rate)
 {
     if (rate == nil) {
         return [[SentrySamplerDecision alloc] initWithDecision:kSentrySampleDecisionNo
                                                  forSampleRate:nil];
     }
 
-    return calcSample(rate);
+    return _sentry_calcSample(rate);
 }
 
 #pragma mark - Public
@@ -64,10 +64,10 @@ sentry_sampleTrace(SentrySamplingContext *context, SentryOptions *options)
                                               forSampleRate:context.transactionContext.sampleRate];
     }
 
-    NSNumber *callbackRate
-        = samplerCallbackRate(options.tracesSampler, context, SENTRY_DEFAULT_TRACES_SAMPLE_RATE);
+    NSNumber *callbackRate = _sentry_samplerCallbackRate(
+        options.tracesSampler, context, SENTRY_DEFAULT_TRACES_SAMPLE_RATE);
     if (callbackRate != nil) {
-        return calcSample(callbackRate);
+        return _sentry_calcSample(callbackRate);
     }
 
     // check the _parent_ transaction's sampling decision, if any
@@ -77,14 +77,14 @@ sentry_sampleTrace(SentrySamplingContext *context, SentryOptions *options)
                                               forSampleRate:context.transactionContext.sampleRate];
     }
 
-    return calcSampleFromNumericalRate(options.tracesSampleRate);
+    return _sentry_calcSampleFromNumericalRate(options.tracesSampleRate);
 }
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
 SentrySamplerDecision *
-sentry_sampleProfile(SentrySamplingContext *context, SentrySamplerDecision *tracesSamplerDecision,
-    SentryOptions *options)
+sentry_sampleTraceProfile(SentrySamplingContext *context,
+    SentrySamplerDecision *tracesSamplerDecision, SentryOptions *options)
 {
     // Profiles are always undersampled with respect to traces. If the trace is not sampled,
     // the profile will not be either. If the trace is sampled, we can proceed to checking
@@ -103,25 +103,13 @@ sentry_sampleProfile(SentrySamplingContext *context, SentrySamplerDecision *trac
     }
 #    pragma clang diagnostic pop
 
-    NSNumber *callbackRate = samplerCallbackRate(
+    NSNumber *callbackRate = _sentry_samplerCallbackRate(
         options.profilesSampler, context, SENTRY_DEFAULT_PROFILES_SAMPLE_RATE);
     if (callbackRate != nil) {
-        return calcSample(callbackRate);
+        return _sentry_calcSample(callbackRate);
     }
 
-    return calcSampleFromNumericalRate(options.profilesSampleRate);
-}
-
-SentrySamplerDecision *
-sampleContinuousProfile(SentrySamplingContext *context, SentryOptions *options)
-{
-    NSNumber *callbackRate = samplerCallbackRate(
-        options.profilesSampler, context, SENTRY_DEFAULT_PROFILES_SAMPLE_RATE);
-    if (callbackRate != nil) {
-        return calcSample(callbackRate);
-    }
-
-    return calcSampleFromNumericalRate(options.profilesSampleRate);
+    return _sentry_calcSampleFromNumericalRate(options.profilesSampleRate);
 }
 
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED

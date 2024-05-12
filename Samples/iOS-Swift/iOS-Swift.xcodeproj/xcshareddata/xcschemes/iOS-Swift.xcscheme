@@ -74,6 +74,10 @@
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
+            argument = "--enable-continuous-profiling"
+            isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
             argument = "--io.sentry.wipe-data"
             isEnabled = "NO">
          </CommandLineArgument>
