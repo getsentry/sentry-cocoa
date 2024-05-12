@@ -483,7 +483,7 @@ private extension SentryLegacyProfilerTests {
         let data = try getLatestProfileData()
         let profile = try XCTUnwrap(try JSONSerialization.jsonObject(with: data) as? [String: Any])
 
-        XCTAssertNotNil(profile["version"])
+        XCTAssertEqual(try XCTUnwrap(profile["version"] as? String), "1")
 
         let device = try XCTUnwrap(profile["device"] as? [String: Any?])
         XCTAssertNotNil(device)
