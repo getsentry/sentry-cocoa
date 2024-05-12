@@ -71,6 +71,7 @@ final class SentryContinuousProfilerTests: XCTestCase {
         try performContinuousProfilingTest()
     }
 
+    #if !os(macOS)
     // test that receiving a background notification stops the continuous
     // profiler after it has been started manually
     func testStoppingContinuousProfilerOnBackground() throws {
@@ -79,6 +80,7 @@ final class SentryContinuousProfilerTests: XCTestCase {
         NotificationCenter.default.post(name: UIApplication.didEnterBackgroundNotification, object: nil)
         XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
     }
+    #endif // !os(macOS)
 
     // test that after starting the continuous profiler and waiting for more
     // than 30 seconds, the profiler is still running; (tests that the trace
