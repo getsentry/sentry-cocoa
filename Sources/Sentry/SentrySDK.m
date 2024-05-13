@@ -23,6 +23,10 @@
 #import "SentryThreadWrapper.h"
 #import "SentryTransactionContext.h"
 
+#if TARGET_OS_OSX
+#    import "SentryCrashExceptionApplication.h"
+#endif // TARGET_OS_MAC
+
 #if SENTRY_HAS_UIKIT
 #    import "SentryUIDeviceWrapper.h"
 #    import "SentryUIViewControllerPerformanceTracker.h"
@@ -199,6 +203,11 @@ static NSDate *_Nullable startTimestamp = nil;
 #if defined(DEBUG) || defined(TEST) || defined(TESTCI)
     SENTRY_LOG_DEBUG(@"Configured options: %@", options.debugDescription);
 #endif // defined(DEBUG) || defined(TEST) || defined(TESTCI)
+
+#if TARGET_OS_OSX
+    // Reference to SentryCrashExceptionApplication to prevent compiler from stripping it
+    [SentryCrashExceptionApplication sharedApplication];
+#endif
 
     startInvocations++;
     startTimestamp = [SentryDependencyContainer.sharedInstance.dateProvider date];

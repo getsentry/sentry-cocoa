@@ -10,6 +10,7 @@
 
 - Fix data race when calling reportFullyDisplayed from a background thread (#3926)
 - Ensure flushing envelopes directly after capturing them (#3915)
+- Unable to find class: SentryCrashExceptionApplication (#3957)
 - Clang error for Xcode 15.4 (#3958)
 - Potential deadlock when starting the SDK (#3970)
 
