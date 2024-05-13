@@ -5,6 +5,7 @@
 ### Features
 
 - Add SIGTERM support ([#3895](https://github.com/getsentry/sentry-cocoa/pull/3895))
+- Fix retrieving GraphQL operation names crashing ([#3973](https://github.com/getsentry/sentry-cocoa/pull/3973))
 
 ### Fixes
 
