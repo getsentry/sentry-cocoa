@@ -10,14 +10,11 @@
 
 - Fix data race when calling reportFullyDisplayed from a background thread (#3926)
 - Ensure flushing envelopes directly after capturing them (#3915)
+- Clang error for Xcode 15.4 (#3958)
 
 ### Improvements
 
 - Send Cocoa SDK features (#3948)
-
-### Fixes 
-
-- Clang error for Xcode 15.4 (#3958)
 
 ## 8.25.2
 
