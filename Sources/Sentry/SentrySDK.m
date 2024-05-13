@@ -48,11 +48,13 @@ NS_ASSUME_NONNULL_BEGIN
 @implementation SentrySDK
 
 static SentryHub *_Nullable currentHub;
+static NSObject *currentHubLock;
 static BOOL crashedLastRunCalled;
 static SentryAppStartMeasurement *sentrySDKappStartMeasurement;
 static NSObject *sentrySDKappStartMeasurementLock;
 static BOOL _detectedStartUpCrash;
 static SentryOptions *_Nullable startOption;
+static NSObject *startOptionsLock;
 
 /**
  * @brief We need to keep track of the number of times @c +[startWith...] is called, because our OOM
@@ -69,6 +71,8 @@ static NSDate *_Nullable startTimestamp = nil;
 {
     if (self == [SentrySDK class]) {
         sentrySDKappStartMeasurementLock = [[NSObject alloc] init];
+        currentHubLock = [[NSObject alloc] init];
+        startOptionsLock = [[NSObject alloc] init];
         startInvocations = 0;
         _detectedStartUpCrash = NO;
     }
@@ -76,7 +80,7 @@ static NSDate *_Nullable startTimestamp = nil;
 
 + (SentryHub *)currentHub
 {
-    @synchronized(self) {
+    @synchronized(currentHubLock) {
         if (nil == currentHub) {
             currentHub = [[SentryHub alloc] initWithClient:nil andScope:nil];
         }
@@ -86,7 +90,7 @@ static NSDate *_Nullable startTimestamp = nil;
 
 + (nullable SentryOptions *)options
 {
-    @synchronized(self) {
+    @synchronized(startOptionsLock) {
         return startOption;
     }
 }
@@ -94,14 +98,14 @@ static NSDate *_Nullable startTimestamp = nil;
 /** Internal, only needed for testing. */
 + (void)setCurrentHub:(nullable SentryHub *)hub
 {
-    @synchronized(self) {
+    @synchronized(currentHubLock) {
         currentHub = hub;
     }
 }
 /** Internal, only needed for testing. */
 + (void)setStartOptions:(nullable SentryOptions *)options
 {
-    @synchronized(self) {
+    @synchronized(startOptionsLock) {
         startOption = options;
     }
 }
