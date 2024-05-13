@@ -63,14 +63,6 @@ final class SentryContinuousProfilerTests: XCTestCase {
         try performContinuousProfilingTest(expectedEnvironment: expectedEnvironment)
     }
 
-    // test to cover sentry_manageProfilerOnStartSDK with
-    // enableWaitForFullDisplay enabled
-    func testStartingAndStoppingContinuousProfilerWithEnableWaitForFullDisplay() throws {
-        fixture.options.enableTimeToFullDisplayTracing = true
-        sentry_manageProfilerOnStartSDK(fixture.options, SentryHub(client: TestClient(options: fixture.options), andScope: nil))
-        try performContinuousProfilingTest()
-    }
-
     #if !os(macOS)
     // test that receiving a background notification stops the continuous
     // profiler after it has been started manually
@@ -107,6 +99,14 @@ final class SentryContinuousProfilerTests: XCTestCase {
         XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
         manualSpan.finish()
         automaticSpan.finish()
+    }
+
+    // test that receiving a backgrounding notification stops the profiler
+    func testBackgroundNotificationsStopProfiler() {
+        SentryContinuousProfiler.start()
+        XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
+        fixture.notificationCenter.post(Notification(name: UIApplication.didEnterBackgroundNotification))
+        XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
     }
 }
 

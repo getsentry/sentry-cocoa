@@ -28,6 +28,7 @@ class SentryProfileTestFixture {
     var metricTimerFactory: TestDispatchSourceWrapper?
     let timeoutTimerFactory = TestSentryNSTimerFactory()
     let dispatchQueueWrapper = TestSentryDispatchQueueWrapper()
+    let notificationCenter = TestNSNotificationCenterWrapper()
     
     let currentDateProvider = TestCurrentDateProvider()
     
@@ -44,6 +45,7 @@ class SentryProfileTestFixture {
         SentryDependencyContainer.sharedInstance().processInfoWrapper = processInfoWrapper
         SentryDependencyContainer.sharedInstance().dispatchFactory = dispatchFactory
         SentryDependencyContainer.sharedInstance().timerFactory = timeoutTimerFactory
+        SentryDependencyContainer.sharedInstance().notificationCenterWrapper = notificationCenter
         
         options = Options()
         options.dsn = SentryProfileTestFixture.dsnAsString
