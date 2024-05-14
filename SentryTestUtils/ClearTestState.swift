@@ -41,6 +41,7 @@ class TestCleanup: NSObject {
 #if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
         SentryTraceProfiler.getCurrentProfiler()?.stop(for: SentryProfilerTruncationReason.normal)
         SentryTraceProfiler.resetConcurrencyTracking()
+        SentryContinuousProfiler.stop()
 #endif // os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
 
         #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)

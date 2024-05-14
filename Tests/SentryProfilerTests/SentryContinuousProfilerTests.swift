@@ -24,11 +24,6 @@ final class SentryContinuousProfilerTests: XCTestCase {
         clearTestState()
     }
     
-    override func tearDown() {
-        super.tearDown()
-        SentryContinuousProfiler.stop()
-    }
-    
     func testStartingAndStoppingContinuousProfiler() throws {
         try performContinuousProfilingTest()
     }
