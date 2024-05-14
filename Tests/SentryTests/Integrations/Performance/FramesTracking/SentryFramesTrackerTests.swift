@@ -11,9 +11,8 @@ class SentryFramesTrackerTests: XCTestCase {
         var displayLinkWrapper: TestDisplayLinkWrapper
         var queue: DispatchQueue
         var dateProvider = TestCurrentDateProvider()
+        var notificationCenter = TestNSNotificationCenterWrapper()
         let keepDelayedFramesDuration = 10.0
-        lazy var hub = TestHub(client: nil, andScope: nil)
-        lazy var tracer = SentryTracer(transactionContext: TransactionContext(name: "test transaction", operation: "test operation"), hub: hub)
         
         let slowestSlowFrameDelay: Double
 
@@ -24,7 +23,7 @@ class SentryFramesTrackerTests: XCTestCase {
             slowestSlowFrameDelay = (displayLinkWrapper.slowestSlowFrameDuration - slowFrameThreshold(displayLinkWrapper.currentFrameRate.rawValue))
         }
 
-        lazy var sut: SentryFramesTracker = SentryFramesTracker(displayLinkWrapper: displayLinkWrapper, dateProvider: dateProvider, dispatchQueueWrapper: SentryDispatchQueueWrapper(), keepDelayedFramesDuration: keepDelayedFramesDuration)
+        lazy var sut: SentryFramesTracker = SentryFramesTracker(displayLinkWrapper: displayLinkWrapper, dateProvider: dateProvider, dispatchQueueWrapper: SentryDispatchQueueWrapper(), notificationCenter: notificationCenter, keepDelayedFramesDuration: keepDelayedFramesDuration)
     }
 
     private var fixture: Fixture!
@@ -32,16 +31,6 @@ class SentryFramesTrackerTests: XCTestCase {
     override func setUp() {
         super.setUp()
         fixture = Fixture()
-
-#if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
-        // the profiler must be running for the frames tracker to record frame rate info etc, validated in assertProfilingData()
-        SentryLegacyProfiler.start(withTracer: fixture.tracer.traceId)
-#endif
-    }
-
-    override func tearDown() {
-        super.tearDown()
-        clearTestState()
     }
 
     func testIsNotRunning_WhenNotStarted() {
@@ -146,6 +135,13 @@ class SentryFramesTrackerTests: XCTestCase {
     }
 
     func testFrameRateChange() throws {
+#if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
+        let hub = TestHub(client: nil, andScope: nil)
+        let tracer = SentryTracer(transactionContext: TransactionContext(name: "test transaction", operation: "test operation"), hub: hub)
+        
+        // the profiler must be running for the frames tracker to record frame rate info etc, validated in assertProfilingData()
+        SentryLegacyProfiler.start(withTracer: tracer.traceId)
+        
         let sut = fixture.sut
         sut.start()
 
@@ -155,6 +151,10 @@ class SentryFramesTrackerTests: XCTestCase {
         _ = fixture.displayLinkWrapper.fastestFrozenFrame()
 
         try assert(slow: 1, frozen: 1, total: 2, frameRates: 2)
+        
+        SentryLegacyProfiler.getCurrentProfiler()?.stop(for: SentryProfilerTruncationReason.normal)
+        SentryLegacyProfiler.resetConcurrencyTracking()
+#endif // os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
     }
     
     /**
@@ -502,14 +502,17 @@ class SentryFramesTrackerTests: XCTestCase {
         let expectation = expectation(description: "Get Frames Delays")
         expectation.expectedFulfillmentCount = loopSize
         
-        for _ in 0..<loopSize {
-            DispatchQueue.global().async {
-                
-                let actualFrameDelay = sut.getFramesDelay(startSystemTime, endSystemTimestamp: endSystemTime)
-                
-                expect(actualFrameDelay) >= -1
-                
-                expectation.fulfill()
+        SentryLog.withOutLogs {
+            
+            for _ in 0..<loopSize {
+                DispatchQueue.global().async {
+                    
+                    let actualFrameDelay = sut.getFramesDelay(startSystemTime, endSystemTimestamp: endSystemTime)
+                    
+                    expect(actualFrameDelay) >= -1
+                    
+                    expectation.fulfill()
+                }
             }
         }
         
@@ -588,30 +591,70 @@ class SentryFramesTrackerTests: XCTestCase {
     
     func testDealloc_CallsStop() {
         func sutIsDeallocatedAfterCallingMe() {
-            _ = SentryFramesTracker(displayLinkWrapper: fixture.displayLinkWrapper, dateProvider: fixture.dateProvider, dispatchQueueWrapper: SentryDispatchQueueWrapper(), keepDelayedFramesDuration: 0)
+            _ = SentryFramesTracker(displayLinkWrapper: fixture.displayLinkWrapper, dateProvider: fixture.dateProvider, dispatchQueueWrapper: SentryDispatchQueueWrapper(), notificationCenter: TestNSNotificationCenterWrapper(), keepDelayedFramesDuration: 0)
         }
         sutIsDeallocatedAfterCallingMe()
         
         XCTAssertEqual(1, fixture.displayLinkWrapper.invalidateInvocations.count)
     }
     
-#if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
-    func testResetProfilingTimestamps_FromBackgroundThread() {
+    func testFrameTrackerPauses_WhenAppGoesToBackground() {
         let sut = fixture.sut
         sut.start()
         
-        let queue = DispatchQueue(label: "reset profiling timestamps", attributes: [.initiallyInactive, .concurrent])
-        
-        for _ in 0..<10_000 {
-            queue.async {
-                sut.resetProfilingTimestamps()
-            }
+        var callbackCalls = 0
+        let listener = FrameTrackerListener()
+        listener.callback = {
+            callbackCalls += 1
         }
+        sut.add(listener)
         
-        queue.activate()
+        fixture.notificationCenter.post(Notification(name: SentryNSNotificationCenterWrapper.willResignActiveNotificationName))
         
-        for _ in 0..<1_000 {
-            self.fixture.displayLinkWrapper.normalFrame()
+        expect(sut.isRunning) == false
+    }
+    
+    func testFrameTrackerUnpauses_WhenAppGoesToForeground() {
+        let sut = fixture.sut
+        sut.start()
+        
+        var callbackCalls = 0
+        let listener = FrameTrackerListener()
+        listener.callback = {
+            callbackCalls += 1
+        }
+        sut.add(listener)
+        
+        fixture.notificationCenter.post(Notification(name: SentryNSNotificationCenterWrapper.willResignActiveNotificationName))
+        
+        fixture.notificationCenter.post(Notification(name: SentryNSNotificationCenterWrapper.didBecomeActiveNotificationName))
+        
+        // Ensure to keep listeners when moving to background
+        fixture.displayLinkWrapper.normalFrame()
+        expect(callbackCalls) == 1
+        
+        expect(sut.isRunning) == true
+    }
+    
+#if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
+    func testResetProfilingTimestamps_FromBackgroundThread() {
+        SentryLog.withOutLogs {
+            let sut = fixture.sut
+            sut.start()
+            
+            let queue = DispatchQueue(label: "reset profiling timestamps", attributes: [.initiallyInactive, .concurrent])
+            
+            for _ in 0..<10_000 {
+                queue.async {
+                    sut.resetProfilingTimestamps()
+                }
+            }
+            
+            queue.activate()
+            
+            for _ in 0..<1_000 {
+                self.fixture.displayLinkWrapper.normalFrame()
+            }
         }
     }
 #endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)

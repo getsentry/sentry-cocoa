@@ -4,9 +4,11 @@
 
 #    import "SentryProfilingConditionals.h"
 
-@class SentryOptions, SentryDisplayLinkWrapper, SentryScreenFrames;
+@class SentryDisplayLinkWrapper;
+@class SentryScreenFrames;
 @class SentryCurrentDateProvider;
 @class SentryDispatchQueueWrapper;
+@class SentryNSNotificationCenterWrapper;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -32,6 +34,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithDisplayLinkWrapper:(SentryDisplayLinkWrapper *)displayLinkWrapper
                               dateProvider:(SentryCurrentDateProvider *)dateProvider
                       dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
+                        notificationCenter:(SentryNSNotificationCenterWrapper *)notificationCenter
                  keepDelayedFramesDuration:(CFTimeInterval)keepDelayedFramesDuration;
 
 @property (nonatomic, assign, readonly) SentryScreenFrames *currentFrames;

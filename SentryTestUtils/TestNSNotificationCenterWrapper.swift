@@ -14,12 +14,12 @@ import Sentry
         addObserverInvocations.record((observer, aSelector, aName))
     }
 
-    public var removeObserverWithNameInvocations = Invocations<(observer: NSObject, name: NSNotification.Name)>()
+    public var removeObserverWithNameInvocations = Invocations< NSNotification.Name>()
     public var removeObserverWithNameInvocationsCount: Int {
         return removeObserverWithNameInvocations.count
     }
     public override func removeObserver(_ observer: NSObject, name aName: NSNotification.Name) {
-        removeObserverWithNameInvocations.record((observer, aName))
+        removeObserverWithNameInvocations.record(aName)
     }
 
     var removeObserverInvocations = Invocations<NSObject>()
