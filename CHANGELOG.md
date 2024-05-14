@@ -4,7 +4,7 @@
 
 ### Improvements
 
-- Stop FramesTracker when app is in background (#3978)
+- Stop FramesTracker when app is in background (#3979)
 
 ## 8.26.0
 
