@@ -5,6 +5,7 @@
 #    import "SentryContinuousProfiler.h"
 #    import "SentryDependencyContainer.h"
 #    import "SentryDispatchQueueWrapper.h"
+#    import "SentryFramesTracker.h"
 #    import "SentryHub+Private.h"
 #    import "SentryLaunchProfiling.h"
 #    import "SentryLog.h"
@@ -14,6 +15,7 @@
 #    import "SentryProfilerTestHelpers.h"
 #    import "SentrySDK+Private.h"
 #    import "SentrySamplingProfiler.hpp"
+#    import "SentryScreenFrames.h"
 #    import "SentrySwift.h"
 #    import "SentryTime.h"
 

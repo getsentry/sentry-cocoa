@@ -119,21 +119,21 @@ private extension SentryContinuousProfilerTests {
         
         var expectedAddresses: [NSNumber] = [0x1, 0x2, 0x3]
         try addMockSamples(mockAddresses: expectedAddresses)
-        
+        try fixture.gatherMockedMetrics()
         fixture.timeoutTimerFactory.fire()
         XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
         try assertValidData(expectedEnvironment: expectedEnvironment, expectedAddresses: expectedAddresses)
         
         expectedAddresses = [0x4, 0x5, 0x6]
         try addMockSamples(mockAddresses: expectedAddresses)
-        
+        try fixture.gatherMockedMetrics()
         fixture.timeoutTimerFactory.fire()
         XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
         try assertValidData(expectedEnvironment: expectedEnvironment, expectedAddresses: expectedAddresses)
         
         expectedAddresses = [0x7, 0x8, 0x9]
         try addMockSamples(mockAddresses: expectedAddresses)
-        
+        try fixture.gatherMockedMetrics()
         XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
         SentryContinuousProfiler.stop()
         XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
@@ -208,6 +208,86 @@ private extension SentryContinuousProfilerTests {
             let stackID = try XCTUnwrap(stackIDEntry as? Int)
             XCTAssertNotNil(stacks[stackID])
         }
+
+        let measurements = try XCTUnwrap(profile["measurements"] as? [String: Any])
+
+        let chunkStartTime = try XCTUnwrap(samples.first?["timestamp"] as? TimeInterval)
+        let chunkEndTime = try XCTUnwrap(samples.last?["timestamp"] as? TimeInterval)
+
+        try assertMetricValue(measurements: measurements, key: kSentryMetricProfilerSerializationKeyCPUUsage, expectedValue: fixture.mockCPUUsage, expectedUnits: kSentryMetricProfilerSerializationUnitPercentage, chunkStartTime: chunkStartTime, chunkEndTime: chunkEndTime)
+
+        try assertMetricValue(measurements: measurements, key: kSentryMetricProfilerSerializationKeyMemoryFootprint, expectedValue: fixture.mockMemoryFootprint, expectedUnits: kSentryMetricProfilerSerializationUnitBytes, chunkStartTime: chunkStartTime, chunkEndTime: chunkEndTime)
+
+        // we wind up with one less energy reading for the first chunk's metric sample. since we must use the difference between readings to get actual values, the first one is only the baseline reading.
+        try assertMetricValue(measurements: measurements, key: kSentryMetricProfilerSerializationKeyCPUEnergyUsage, expectedValue: fixture.mockEnergyUsage, expectedUnits: kSentryMetricProfilerSerializationUnitNanoJoules, chunkStartTime: chunkStartTime, chunkEndTime: chunkEndTime, expectOneLessEnergyReading: true)
+
+#if !os(macOS)
+        try assertMetricEntries(measurements: measurements, key: kSentryProfilerSerializationKeySlowFrameRenders, expectedEntries: fixture.expectedSlowFrames, chunkStartTime: chunkStartTime, chunkEndTime: chunkEndTime)
+        try assertMetricEntries(measurements: measurements, key: kSentryProfilerSerializationKeyFrozenFrameRenders, expectedEntries: fixture.expectedFrozenFrames, chunkStartTime: chunkStartTime, chunkEndTime: chunkEndTime)
+        try assertMetricEntries(measurements: measurements, key: kSentryProfilerSerializationKeyFrameRates, expectedEntries: fixture.expectedFrameRateChanges, chunkStartTime: chunkStartTime, chunkEndTime: chunkEndTime)
+#endif // !os(macOS)
+    }
+    
+    func assertMetricEntries(measurements: [String: Any], key: String, expectedEntries: [[String: Any]], chunkStartTime: TimeInterval, chunkEndTime: TimeInterval) throws {
+        let metricContainer = try XCTUnwrap(measurements[key] as? [String: Any])
+        let actualEntries = try XCTUnwrap(metricContainer["values"] as? [[String: NSNumber]])
+        let sortedActualEntries = try sortedByTimestamps(actualEntries)
+        let sortedExpectedEntries = try sortedByTimestamps(expectedEntries)
+
+        guard actualEntries.count == expectedEntries.count else {
+            XCTFail("Wrong number of values under \(key). expected: \(try printTimestamps(entries: sortedExpectedEntries)); actual: \(try printTimestamps(entries: sortedActualEntries)); chunk start time: \(chunkStartTime)")
+            return
+        }
+
+        for i in 0..<actualEntries.count {
+            let actualEntry = sortedActualEntries[i]
+            let expectedEntry = sortedExpectedEntries[i]
+
+            let actualTimestamp = try XCTUnwrap(actualEntry["timestamp"] as? TimeInterval)
+            let expectedTimestamp = try XCTUnwrap(expectedEntry["timestamp"] as? TimeInterval) - chunkStartTime
+            XCTAssertEqual(actualTimestamp, expectedTimestamp)
+            try assertTimestampOccursWithinTransaction(timestamp: actualTimestamp, chunkStartTime: chunkStartTime, chunkEndTime: chunkEndTime)
+
+            let actualValue = try XCTUnwrap(actualEntry["value"] as? NSNumber)
+            let expectedValue = try XCTUnwrap(expectedEntry["value"] as? NSNumber)
+            XCTAssertEqual(actualValue, expectedValue)
+        }
+    }
+    
+    func sortedByTimestamps(_ entries: [[String: Any]]) throws -> [[String: Any]] {
+        try entries.sorted { a, b in
+            try XCTUnwrap(a["timestamp"] as? TimeInterval) < XCTUnwrap(b["timestamp"] as? TimeInterval)
+        }
+    }
+    
+    func printTimestamps(entries: [[String: Any]]) throws -> [String] {
+        try entries.reduce(into: [String](), { partialResult, entry in
+            partialResult.append(String(try XCTUnwrap(entry["timestamp"] as? TimeInterval)))
+        })
+    }
+
+    func assertMetricValue<T: Equatable>(measurements: [String: Any], key: String, expectedValue: T? = nil, expectedUnits: String, chunkStartTime: TimeInterval, chunkEndTime: TimeInterval, expectOneLessEnergyReading: Bool = false) throws {
+        let metricContainer = try XCTUnwrap(measurements[key] as? [String: Any])
+        let values = try XCTUnwrap(metricContainer["values"] as? [[String: Any]])
+        XCTAssertEqual(values.count, fixture.mockUsageReadingsPerBatch - (expectOneLessEnergyReading ? 1 : 0), "Wrong number of values under \(key); (expectOneLessEnergyReading: \(expectOneLessEnergyReading))")
+
+        if let expectedValue = expectedValue {
+            let actualValue = try XCTUnwrap(values[1]["value"] as? T)
+            XCTAssertEqual(actualValue, expectedValue, "Wrong value for \(key)")
+
+            let timestamp = try XCTUnwrap(values[0]["timestamp"] as? TimeInterval)
+            try assertTimestampOccursWithinTransaction(timestamp: timestamp, chunkStartTime: chunkStartTime, chunkEndTime: chunkEndTime)
+
+            let actualUnits = try XCTUnwrap(metricContainer["unit"] as? String)
+            XCTAssertEqual(actualUnits, expectedUnits)
+        }
+    }
+    
+    /// Assert that the relative timestamp actually falls within the chunk's duration, so it should be between 0 and the chunk duration.
+    func assertTimestampOccursWithinTransaction(timestamp: TimeInterval, chunkStartTime: TimeInterval, chunkEndTime: TimeInterval) throws {
+        let chunkDuration = chunkEndTime - chunkStartTime
+        XCTAssertGreaterThanOrEqual(timestamp, 0)
+        XCTAssertLessThanOrEqual(timestamp, chunkDuration)
     }
 }
 
