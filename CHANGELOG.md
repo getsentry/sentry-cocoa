@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-### Fixes
+### Improvements
 
 - Stop FramesTracker when app is in background (#3978)
 
