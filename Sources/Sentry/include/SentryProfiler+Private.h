@@ -3,6 +3,7 @@
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
 #    import "SentryDefines.h"
+#    import "SentryProfilerDefines.h"
 #    import <Foundation/Foundation.h>
 
 @class SentryEnvelopeItem;
@@ -17,17 +18,6 @@
 @class SentryFramesTracker;
 @class SentryScreenFrames;
 #    endif // SENTRY_HAS_UIKIT
-
-typedef NS_ENUM(NSUInteger, SentryProfilerTruncationReason) {
-    SentryProfilerTruncationReasonNormal,
-    SentryProfilerTruncationReasonTimeout,
-    SentryProfilerTruncationReasonAppMovedToBackground,
-};
-
-typedef NS_ENUM(NSUInteger, SentryProfilerMode) {
-    SentryProfilerModeLegacy,
-    SentryProfilerModeContinuous,
-};
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -49,6 +39,7 @@ SENTRY_EXTERN void sentry_manageProfilerOnStartSDK(SentryOptions *options, Sentr
 @property (strong, nonatomic) SentryProfilerState *state;
 @property (assign, nonatomic) SentryProfilerTruncationReason truncationReason;
 @property (strong, nonatomic) SentryMetricProfiler *metricProfiler;
+@property (assign, nonatomic) uint64_t continuousChunkStartSystemTime;
 
 #    if SENTRY_HAS_UIKIT
 @property (strong, nonatomic) SentryScreenFrames *screenFrameData;

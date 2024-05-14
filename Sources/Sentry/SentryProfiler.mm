@@ -11,12 +11,14 @@
 #    import "SentryMetricProfiler.h"
 #    import "SentryNSTimerFactory.h"
 #    import "SentryOptions+Private.h"
+#    import "SentryProfilerSerialization.h"
 #    import "SentryProfilerState+ObjCpp.h"
 #    import "SentryProfilerTestHelpers.h"
 #    import "SentrySDK+Private.h"
 #    import "SentrySamplingProfiler.hpp"
 #    import "SentrySwift.h"
 #    import "SentryThreadWrapper.h"
+#    import "SentryTime.h"
 
 #    if SENTRY_HAS_UIKIT
 #        import "SentryFramesTracker.h"
@@ -30,7 +32,6 @@ using namespace sentry::profiling;
 namespace {
 
 static const int kSentryProfilerFrequencyHz = 101;
-NSTimeInterval kSentryProfilerTimeoutInterval = 30;
 
 } // namespace
 
@@ -59,14 +60,13 @@ sentry_manageProfilerOnStartSDK(SentryOptions *options, SentryHub *hub)
 @implementation SentryProfiler {
     std::shared_ptr<SamplingProfiler> _samplingProfiler;
     NSTimer *_Nullable _timeoutTimer;
+    SentryProfilerMode _mode;
 }
 
 + (void)load
 {
     sentry_startLaunchProfile();
 }
-
-#    pragma mark - Private
 
 - (instancetype)initWithMode:(SentryProfilerMode)mode
 {
@@ -75,6 +75,7 @@ sentry_manageProfilerOnStartSDK(SentryOptions *options, SentryHub *hub)
     }
 
     _profilerId = [[SentryId alloc] init];
+    _mode = mode;
 
     SENTRY_LOG_DEBUG(@"Initialized new SentryProfiler %@", self);
 
@@ -85,9 +86,7 @@ sentry_manageProfilerOnStartSDK(SentryOptions *options, SentryHub *hub)
 
     [self start];
 
-    if (mode == SentryProfilerModeLegacy) {
-        [self scheduleTimeoutTimer];
-    }
+    [self scheduleTimer];
 
 #    if SENTRY_HAS_UIKIT
     [SentryDependencyContainer.sharedInstance.notificationCenterWrapper
@@ -100,11 +99,13 @@ sentry_manageProfilerOnStartSDK(SentryOptions *options, SentryHub *hub)
     return self;
 }
 
+#    pragma mark - Private
+
 /**
  * Schedule a timeout timer on the main thread.
  * @warning from NSTimer.h: Timers scheduled in an async context may never fire.
  */
-- (void)scheduleTimeoutTimer
+- (void)scheduleTimer
 {
     __weak SentryProfiler *weakSelf = self;
 
@@ -114,24 +115,34 @@ sentry_manageProfilerOnStartSDK(SentryOptions *options, SentryHub *hub)
         }
 
         SentryProfiler *strongSelf = weakSelf;
+        const auto isContinuous = strongSelf->_mode == SentryProfilerModeContinuous;
         strongSelf->_timeoutTimer = [SentryDependencyContainer.sharedInstance.timerFactory
-            scheduledTimerWithTimeInterval:kSentryProfilerTimeoutInterval
+            scheduledTimerWithTimeInterval:isContinuous ? kSentryProfilerChunkExpirationInterval
+                                                        : kSentryProfilerTimeoutInterval
                                     target:self
-                                  selector:@selector(timeoutAbort)
+                                  selector:@selector(timerExpired)
                                   userInfo:nil
-                                   repeats:NO];
+                                   repeats:isContinuous];
     }];
 }
 
-- (void)timeoutAbort
+- (void)timerExpired
 {
     if (![self isRunning]) {
         SENTRY_LOG_WARN(@"Current profiler is not running.");
         return;
     }
 
-    SENTRY_LOG_DEBUG(@"Stopping profiler %@ due to timeout.", self);
-    [self stopForReason:SentryProfilerTruncationReasonTimeout];
+    switch (_mode) {
+    default: // fall-through!
+    case SentryProfilerModeLegacy:
+        SENTRY_LOG_DEBUG(@"Stopping profiler %@ due to timeout.", self);
+        [self stopForReason:SentryProfilerTruncationReasonTimeout];
+        break;
+    case SentryProfilerModeContinuous:
+        [self transmitChunkEnvelope];
+        break;
+    }
 }
 
 - (void)backgroundAbort
@@ -166,11 +177,15 @@ sentry_manageProfilerOnStartSDK(SentryOptions *options, SentryHub *hub)
 
     _samplingProfiler->stopSampling();
     SENTRY_LOG_DEBUG(@"Stopped profiler %@.", self);
+
+    if (_mode == SentryProfilerModeContinuous) {
+        [self transmitChunkEnvelope];
+    }
 }
 
 - (void)startMetricProfiler
 {
-    self.metricProfiler = [[SentryMetricProfiler alloc] init];
+    self.metricProfiler = [[SentryMetricProfiler alloc] initWithMode:_mode];
     [self.metricProfiler start];
 }
 
@@ -203,20 +218,14 @@ sentry_manageProfilerOnStartSDK(SentryOptions *options, SentryHub *hub)
 
     SentryProfilerState *const state = [[SentryProfilerState alloc] init];
     self.state = state;
+    self.continuousChunkStartSystemTime
+        = SentryDependencyContainer.sharedInstance.dateProvider.systemTime;
     _samplingProfiler = std::make_shared<SamplingProfiler>(
         [state](auto &backtrace) {
-    // in test, we'll overwrite the sample's timestamp to one mocked by SentryCurrentDate
-    // etal. Doing this in a unified way between tests and production required extensive
-    // changes to the C++ layer, so we opted for this solution to avoid any potential
-    // breakages or performance hits there.
-#    if defined(TEST) || defined(TESTCI) || defined(DEBUG)
             Backtrace backtraceCopy = backtrace;
             backtraceCopy.absoluteTimestamp
                 = SentryDependencyContainer.sharedInstance.dateProvider.systemTime;
             [state appendBacktrace:backtraceCopy];
-#    else
-            [state appendBacktrace:backtrace];
-#    endif // defined(TEST) || defined(TESTCI) || defined(DEBUG)
         },
         kSentryProfilerFrequencyHz);
     _samplingProfiler->startSampling();
@@ -232,6 +241,26 @@ sentry_manageProfilerOnStartSDK(SentryOptions *options, SentryHub *hub)
     return _samplingProfiler->isSampling();
 }
 
+- (void)transmitChunkEnvelope
+{
+    const auto stateCopy = [self.state copyProfilingData];
+    const auto startSystemTime = self.continuousChunkStartSystemTime;
+    const auto endSystemTime = SentryDependencyContainer.sharedInstance.dateProvider.systemTime;
+    self.continuousChunkStartSystemTime = endSystemTime + 1;
+    [self.state clear]; // !!!: profile this to see if it takes longer than one sample duration
+                        // length: ~9ms
+
+    const auto envelope = sentry_continuousProfileChunkEnvelope(
+        startSystemTime, endSystemTime, stateCopy, self.profilerId,
+        [self.metricProfiler serializeBetween:startSystemTime and:endSystemTime]
+#    if SENTRY_HAS_UIKIT
+        ,
+        self.screenFrameData
+#    endif // SENTRY_HAS_UIKIT
+    );
+    [SentrySDK captureEnvelope:envelope];
+}
+
 @end
 
-#endif
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED

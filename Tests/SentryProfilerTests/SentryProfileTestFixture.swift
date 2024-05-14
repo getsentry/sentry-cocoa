@@ -14,27 +14,19 @@ class SentryProfileTestFixture {
     
     private static let dsnAsString = TestConstants.dsnAsString(username: "SentryProfileTestFixture")
     
-    lazy var options: Options = {
-        let options = Options()
-        options.dsn = SentryProfileTestFixture.dsnAsString
-        return options
-    }()
-    lazy var client: TestClient? = TestClient(options: options)
-    lazy var hub: SentryHub = {
-        let hub = SentryHub(client: client, andScope: scope)
-        hub.bindClient(client)
-        return hub
-    }()
+    let options: Options
+    let client: TestClient?
+    let hub: SentryHub
     let scope = Scope()
     let message = "some message"
     let transactionName = "Some Transaction"
     let transactionOperation = "Some Operation"
     
-    lazy var systemWrapper = TestSentrySystemWrapper()
-    lazy var processInfoWrapper = TestSentryNSProcessInfoWrapper()
-    lazy var dispatchFactory = TestDispatchFactory()
+    let systemWrapper = TestSentrySystemWrapper()
+    let processInfoWrapper = TestSentryNSProcessInfoWrapper()
+    let dispatchFactory = TestDispatchFactory()
     var metricTimerFactory: TestDispatchSourceWrapper?
-    lazy var timeoutTimerFactory = TestSentryNSTimerFactory()
+    let timeoutTimerFactory = TestSentryNSTimerFactory()
     let dispatchQueueWrapper = TestSentryDispatchQueueWrapper()
     
     let currentDateProvider = TestCurrentDateProvider()
@@ -45,20 +37,27 @@ class SentryProfileTestFixture {
 #endif // !os(macOS)
     
     init() {
+        SentryDependencyContainer.sharedInstance().dispatchQueueWrapper = dispatchQueueWrapper
         SentryDependencyContainer.sharedInstance().dateProvider = currentDateProvider
+        SentryDependencyContainer.sharedInstance().random = TestRandom(value: 0.5)
+        SentryDependencyContainer.sharedInstance().systemWrapper = systemWrapper
+        SentryDependencyContainer.sharedInstance().processInfoWrapper = processInfoWrapper
+        SentryDependencyContainer.sharedInstance().dispatchFactory = dispatchFactory
+        SentryDependencyContainer.sharedInstance().timerFactory = timeoutTimerFactory
+        
+        options = Options()
+        options.dsn = SentryProfileTestFixture.dsnAsString
+        client = TestClient(options: options)
+        hub = SentryHub(client: client, andScope: scope)
+        hub.bindClient(client)
+        SentrySDK.setCurrentHub(hub)
+        
         options.profilesSampleRate = 1.0
         options.tracesSampleRate = 1.0
         
-        SentryDependencyContainer.sharedInstance().systemWrapper = systemWrapper
-        SentryDependencyContainer.sharedInstance().processInfoWrapper = processInfoWrapper
         dispatchFactory.vendedSourceHandler = { eventHandler in
             self.metricTimerFactory = eventHandler
         }
-        SentryDependencyContainer.sharedInstance().dispatchFactory = dispatchFactory
-        SentryDependencyContainer.sharedInstance().timerFactory = timeoutTimerFactory
-        SentryDependencyContainer.sharedInstance().dispatchQueueWrapper = dispatchQueueWrapper
-        
-        SentryDependencyContainer.sharedInstance().random = TestRandom(value: 0.5)
         
         systemWrapper.overrides.cpuUsage = NSNumber(value: mockCPUUsage)
         systemWrapper.overrides.memoryFootprintBytes = mockMemoryFootprint

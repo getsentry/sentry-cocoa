@@ -48,6 +48,7 @@ _unsafe_isRunning(void)
     }
 
     sentry_trackProfilerForTracer(_unsafe_gLegacyProfiler, traceId);
+
     return YES;
 }
 
