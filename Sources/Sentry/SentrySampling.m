@@ -83,8 +83,8 @@ sentry_sampleTrace(SentrySamplingContext *context, SentryOptions *options)
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
 SentrySamplerDecision *
-sentry_sampleProfile(SentrySamplingContext *context, SentrySamplerDecision *tracesSamplerDecision,
-    SentryOptions *options)
+sentry_sampleTraceProfile(SentrySamplingContext *context,
+    SentrySamplerDecision *tracesSamplerDecision, SentryOptions *options)
 {
     // Profiles are always undersampled with respect to traces. If the trace is not sampled,
     // the profile will not be either. If the trace is sampled, we can proceed to checking
