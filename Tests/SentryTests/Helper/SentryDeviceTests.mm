@@ -109,7 +109,7 @@
 #elif TARGET_OS_MACCATALYST
     SENTRY_ASSERT_EQUAL(osName, @"Catalyst");
 #elif TARGET_OS_IOS
-    // We must test this branch in iOS-SwiftUITests since it must run on device, which SentryTests
+    // We must test this branch in iOS-Swift-UITests since it must run on device, which SentryTests
     // cannot.
     if (UIDevice.currentDevice.userInterfaceIdiom == UIUserInterfaceIdiomPad) {
         SENTRY_ASSERT_EQUAL(osName, @"iPadOS");
@@ -142,7 +142,7 @@
     XCTAssertTrue(
         containsExpectedDevice, @"Expected %@ to contain either %@ or %@", modelName, VMware, mac);
 #elif TARGET_OS_IOS
-    // We must test this branch in iOS-SwiftUITests since it must run on device, which SentryTests
+    // We must test this branch in iOS-Swift-UITests since it must run on device, which SentryTests
     // cannot.
     if (UIDevice.currentDevice.userInterfaceIdiom == UIUserInterfaceIdiomPad) {
         SENTRY_ASSERT_CONTAINS(modelName, @"iPad");
@@ -186,7 +186,7 @@
     const auto modelName = sentry_getSimulatorDeviceModel();
     XCTAssertNotEqual(modelName.length, 0U);
 #    if TARGET_OS_IOS
-    // We must test this branch in iOS-SwiftUITests since it must run on device, which SentryTests
+    // We must test this branch in iOS-Swift-UITests since it must run on device, which SentryTests
     // cannot.
     if (UIDevice.currentDevice.userInterfaceIdiom == UIUserInterfaceIdiomPad) {
         SENTRY_ASSERT_CONTAINS(modelName, @"iPad");
