@@ -18,20 +18,22 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, readonly, copy, class) NSNotificationName willTerminateNotificationName;
 #endif
 
-- (void)addObserver:(id)observer
+- (void)addObserver:(NSObject *)observer
            selector:(SEL)aSelector
                name:(NSNotificationName)aName
              object:(nullable id)anObject;
 
-- (void)addObserver:(id)observer selector:(SEL)aSelector name:(NSNotificationName)aName;
+- (void)addObserver:(NSObject *)observer selector:(SEL)aSelector name:(NSNotificationName)aName;
 
-- (void)removeObserver:(id)observer name:(NSNotificationName)aName object:(nullable id)anObject;
+- (void)removeObserver:(NSObject *)observer
+                  name:(NSNotificationName)aName
+                object:(nullable id)anObject;
 
-- (void)removeObserver:(id)observer name:(NSNotificationName)aName;
+- (void)removeObserver:(NSObject *)observer name:(NSNotificationName)aName;
 
-- (void)removeObserver:(id)observer;
+- (void)removeObserver:(NSObject *)observer;
 
-- (void)postNotificationName:(NSNotificationName)aName object:(nullable id)anObject;
+- (void)postNotification:(NSNotification *)notification;
 
 NS_ASSUME_NONNULL_END
 
