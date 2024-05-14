@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Stop FramesTracker when app is in background (#3978)
+
 ## 8.26.0
 
 ### Features
