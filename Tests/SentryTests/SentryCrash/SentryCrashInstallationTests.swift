@@ -2,14 +2,14 @@
 import SentryTestUtils
 import XCTest
 
-class SentryCrashTestInstallation2: SentryCrashInstallation {
+class SentryCrashTestInstallation: SentryCrashInstallation {
 
     override init() {
         super.init(requiredProperties: [])
     }
 }
 
-class SentryCrashInstallationTests2: XCTestCase {
+class SentryCrashInstallationTests: XCTestCase {
 
     var notificationCenter: TestNSNotificationCenterWrapper!
 
@@ -68,21 +68,21 @@ class SentryCrashInstallationTests2: XCTestCase {
                           monitorsAfterInstall: monitorsAfterInstall,
                           crashHandlerDataAfterInstall: crashHandlerDataAfterInstall)
 
-        #if SentryCrashCRASH_HAS_UIAPPLICATION
+        #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
         XCTAssertEqual(55, notificationCenter.removeObserverWithNameInvocationsCount)
-        #endif
+        #endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
     }
 
     // MARK: - Private
 
-    private func getSut() -> SentryCrashTestInstallation2 {
-        let installation = SentryCrashTestInstallation2()
+    private func getSut() -> SentryCrashTestInstallation {
+        let installation = SentryCrashTestInstallation()
         notificationCenter = TestNSNotificationCenterWrapper()
         SentryDependencyContainer.sharedInstance().notificationCenterWrapper = notificationCenter
         return installation
     }
 
-    private func assertReinstalled(_ installation: SentryCrashTestInstallation2,
+    private func assertReinstalled(_ installation: SentryCrashTestInstallation,
                                    monitorsAfterInstall: SentryCrashMonitorType,
                                    crashHandlerDataAfterInstall: UnsafeMutablePointer<CrashHandlerData>?) {
         let sentryCrash = SentryDependencyContainer.sharedInstance().crashReporter
@@ -97,7 +97,7 @@ class SentryCrashInstallationTests2: XCTestCase {
         assertReservedThreads(monitorsAfterInstall)
     }
 
-    private func assertUninstalled(_ installation: SentryCrashTestInstallation2,
+    private func assertUninstalled(_ installation: SentryCrashTestInstallation,
                                    monitorsAfterInstall: SentryCrashMonitorType) {
         let sentryCrash = SentryDependencyContainer.sharedInstance().crashReporter
         XCTAssertNil(installation.g_crashHandlerData())
@@ -111,7 +111,7 @@ class SentryCrashInstallationTests2: XCTestCase {
     }
 
     private func assertReservedThreads(_ monitorsAfterInstall: SentryCrashMonitorType) {
-        if monitorsAfterInstall == SentryCrashMonitorTypeMachException {
+        if monitorsAfterInstall.rawValue & SentryCrashMonitorTypeMachException.rawValue == 1 {
             XCTAssertTrue(sentrycrashcm_hasReservedThreads())
         } else {
             XCTAssertFalse(sentrycrashcm_hasReservedThreads())

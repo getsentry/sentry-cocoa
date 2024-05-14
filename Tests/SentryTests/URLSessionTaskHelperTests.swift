@@ -3,7 +3,7 @@ import Nimble
 @testable import Sentry
 import XCTest
 
-final class URLSessionTaskTests: XCTestCase {
+final class URLSessionTaskHelperTests: XCTestCase {
 
     func testHTTPContentTypeInvalid() {
         let task = makeTask(
@@ -11,8 +11,8 @@ final class URLSessionTaskTests: XCTestCase {
             body: "8J+YiQo="
         )
 
-        let operationName = task.getGraphQLOperationName()
-        
+        let operationName = URLSessionTaskHelper.getGraphQLOperationName(from: task)
+
         expect(operationName) == nil
     }
 
@@ -22,7 +22,7 @@ final class URLSessionTaskTests: XCTestCase {
             body: "not json"
         )
 
-        let operationName = task.getGraphQLOperationName()
+        let operationName = URLSessionTaskHelper.getGraphQLOperationName(from: task)
 
         expect(operationName) == nil
     }
@@ -33,7 +33,7 @@ final class URLSessionTaskTests: XCTestCase {
             body: nil
         )
 
-        let operationName = task.getGraphQLOperationName()
+        let operationName = URLSessionTaskHelper.getGraphQLOperationName(from: task)
 
         expect(operationName) == nil
     }
@@ -52,14 +52,14 @@ final class URLSessionTaskTests: XCTestCase {
             """
         )
 
-        let operationName = task.getGraphQLOperationName()
+        let operationName = URLSessionTaskHelper.getGraphQLOperationName(from: task)
 
         expect(operationName) == "MyOperation"
     }
 
 }
 
-private extension URLSessionTaskTests {
+private extension URLSessionTaskHelperTests {
 
     func makeTask(headers: [String: String], body: String?) -> URLSessionTask {
         var request = URLRequest(url: URL(string: "https://anything.com")!)

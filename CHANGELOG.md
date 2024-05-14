@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+### Fixes
+
+- Fix retrieving GraphQL operation names crashing ([#3973](https://github.com/getsentry/sentry-cocoa/pull/3973))
+
+## 8.26.0
+
 ### Features
 
 - Add SIGTERM support ([#3895](https://github.com/getsentry/sentry-cocoa/pull/3895))
@@ -10,14 +16,13 @@
 
 - Fix data race when calling reportFullyDisplayed from a background thread (#3926)
 - Ensure flushing envelopes directly after capturing them (#3915)
+- Unable to find class: SentryCrashExceptionApplication (#3957)
+- Clang error for Xcode 15.4 (#3958)
+- Potential deadlock when starting the SDK (#3970)
 
 ### Improvements
 
 - Send Cocoa SDK features (#3948)
-
-### Fixes 
-
-- Clang error for Xcode 15.4 (#3958)
 
 ## 8.25.2
 
