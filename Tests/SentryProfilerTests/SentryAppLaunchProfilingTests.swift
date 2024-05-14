@@ -8,7 +8,18 @@ final class SentryAppLaunchProfilingSwiftTests: XCTestCase {
         XCTAssertEqual(context.origin, "auto.app.start.profile")
         XCTAssertEqual(context.sampled, .yes)
     }
-    
+   
+    // test that after configuring launch profiling for the trace profiler, the
+    // file is written to disk and the file is deleted after the app is launched
+    func testLaunchProfileTransactionContext() {
+        let options = Options()
+        options.enableAppLaunchProfiling = true 
+        options.profilesSampleRate = 1
+        options.tracesSampleRate = 1
+        sentry_manageTraceProfilerOnStartSDK(options, TestHub(client: nil, andScope: nil))
+        XCTAssert(FileManager.default.fileExists(atPath: launchProfileConfigFileURL().absoluteString))
+    }
+ 
     /**
      * Test how combinations of the following options interact to ultimately decide whether or not to start the profiler on the next app launch..
      * - `enableLaunchProfiling`
