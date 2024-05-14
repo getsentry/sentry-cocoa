@@ -4,6 +4,8 @@
 
 #    import "PrivateSentrySDKOnly.h"
 #    import "SentryDependencyContainer.h"
+#    import "SentryLog.h"
+
 #    import "SentryFramesTracker.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -36,6 +38,11 @@ SentryFramesTrackingIntegration ()
 }
 
 - (void)uninstall
+{
+    [self stop];
+}
+
+- (void)stop
 {
     if (nil != self.tracker) {
         [self.tracker stop];
