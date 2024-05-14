@@ -502,17 +502,14 @@ class SentryFramesTrackerTests: XCTestCase {
         let expectation = expectation(description: "Get Frames Delays")
         expectation.expectedFulfillmentCount = loopSize
         
-        SentryLog.withOutLogs {
-            
-            for _ in 0..<loopSize {
-                DispatchQueue.global().async {
-                    
-                    let actualFrameDelay = sut.getFramesDelay(startSystemTime, endSystemTimestamp: endSystemTime)
-                    
-                    expect(actualFrameDelay) >= -1
-                    
-                    expectation.fulfill()
-                }
+        for _ in 0..<loopSize {
+            DispatchQueue.global().async {
+                
+                let actualFrameDelay = sut.getFramesDelay(startSystemTime, endSystemTimestamp: endSystemTime)
+                
+                expect(actualFrameDelay) >= -1
+                
+                expectation.fulfill()
             }
         }
         
@@ -638,23 +635,21 @@ class SentryFramesTrackerTests: XCTestCase {
     
 #if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
     func testResetProfilingTimestamps_FromBackgroundThread() {
-        SentryLog.withOutLogs {
-            let sut = fixture.sut
-            sut.start()
-            
-            let queue = DispatchQueue(label: "reset profiling timestamps", attributes: [.initiallyInactive, .concurrent])
-            
-            for _ in 0..<10_000 {
-                queue.async {
-                    sut.resetProfilingTimestamps()
-                }
+        let sut = fixture.sut
+        sut.start()
+        
+        let queue = DispatchQueue(label: "reset profiling timestamps", attributes: [.initiallyInactive, .concurrent])
+        
+        for _ in 0..<10_000 {
+            queue.async {
+                sut.resetProfilingTimestamps()
             }
-            
-            queue.activate()
-            
-            for _ in 0..<1_000 {
-                self.fixture.displayLinkWrapper.normalFrame()
-            }
+        }
+        
+        queue.activate()
+        
+        for _ in 0..<1_000 {
+            self.fixture.displayLinkWrapper.normalFrame()
         }
     }
 #endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
