@@ -1,7 +1,7 @@
 import Foundation
 
 @objcMembers
-public class URLSessionTaskHelper: NSObject {
+class URLSessionTaskHelper: NSObject {
 
     static func getGraphQLOperationName(from task: URLSessionTask?) -> String? {
         guard let task = task else { return nil }
