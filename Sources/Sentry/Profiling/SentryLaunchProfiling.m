@@ -24,7 +24,6 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-BOOL isProfilingAppLaunch;
 NSString *const kSentryLaunchProfileConfigKeyTracesSampleRate = @"traces";
 NSString *const kSentryLaunchProfileConfigKeyProfilesSampleRate = @"profiles";
 NSString *const kSentryLaunchProfileConfigKeyContinuousProfiling = @"continuous-profiling";
@@ -119,8 +118,7 @@ sentry_willProfileNextLaunch(SentryOptions *options)
 void
 _sentry_nondeduplicated_startLaunchProfile(void)
 {
-    sentry_isTracingAppLaunch = appLaunchProfileConfigFileExists();
-    if (!sentry_isTracingAppLaunch) {
+    if (!appLaunchProfileConfigFileExists()) {
         return;
     }
 
@@ -140,18 +138,19 @@ _sentry_nondeduplicated_startLaunchProfile(void)
     NSNumber *profilesRate = launchConfig[kSentryLaunchProfileConfigKeyProfilesSampleRate];
     if (profilesRate == nil) {
         SENTRY_LOG_DEBUG(@"Received a nil configured launch profile sample rate, will not "
-                         @"start continuous profiler for launch.");
+                         @"start trace profiler for launch.");
         return;
     }
 
     NSNumber *tracesRate = launchConfig[kSentryLaunchProfileConfigKeyTracesSampleRate];
     if (tracesRate == nil) {
         SENTRY_LOG_DEBUG(@"Received a nil configured launch trace sample rate, will not start "
-                         @"a profiled launch trace.");
+                         @"trace profiler for launch.");
         return;
     }
 
-    SENTRY_LOG_INFO(@"Starting app launch profile at %llu.", getAbsoluteTime());
+    SENTRY_LOG_INFO(@"Starting app launch trace profile at %llu.", getAbsoluteTime());
+    sentry_isTracingAppLaunch = YES;
     sentry_launchTracer =
         [[SentryTracer alloc] initWithTransactionContext:sentry_context(tracesRate)
                                                      hub:nil
@@ -213,6 +212,7 @@ sentry_stopAndDiscardLaunchProfileTracer(void)
 {
     SENTRY_LOG_DEBUG(@"Finishing launch tracer.");
     [sentry_launchTracer finish];
+    sentry_isTracingAppLaunch = NO;
 }
 
 NS_ASSUME_NONNULL_END
