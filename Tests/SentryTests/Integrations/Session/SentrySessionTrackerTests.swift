@@ -15,7 +15,7 @@ class SentrySessionTrackerTests: XCTestCase {
 
         let notificationCenter = TestNSNotificationCenterWrapper()
         let dispatchQueue = TestSentryDispatchQueueWrapper()
-        lazy var fileManager = try! SentryFileManager(options: options, dispatchQueueWrapper: SentryDispatchQueueWrapper())
+        lazy var fileManager = try! SentryFileManager(options: options, dispatchQueueWrapper: dispatchQueue)
         
         init() {
             options = Options()

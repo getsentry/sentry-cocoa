@@ -599,13 +599,6 @@ class SentryFramesTrackerTests: XCTestCase {
         let sut = fixture.sut
         sut.start()
         
-        var callbackCalls = 0
-        let listener = FrameTrackerListener()
-        listener.callback = {
-            callbackCalls += 1
-        }
-        sut.add(listener)
-        
         fixture.notificationCenter.post(Notification(name: SentryNSNotificationCenterWrapper.willResignActiveNotificationName))
         
         expect(sut.isRunning) == false
