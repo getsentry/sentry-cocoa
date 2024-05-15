@@ -7,6 +7,7 @@
 #    import "SentryFramesTracker.h"
 #    import "SentryLog.h"
 #    import "SentryMeasurementValue.h"
+#    import "SentryOptions.h"
 #    import "SentryProfilingConditionals.h"
 #    import "SentrySpan.h"
 #    import "SentrySpanContext.h"
@@ -35,7 +36,6 @@ SentryTimeToDisplayTracker () <SentryFramesTrackerListener>
     BOOL _waitForFullDisplay;
     BOOL _initialDisplayReported;
     BOOL _fullyDisplayedReported;
-    BOOL _stopLaunchProfiles;
     NSString *_controllerName;
 }
 
@@ -46,7 +46,6 @@ SentryTimeToDisplayTracker () <SentryFramesTrackerListener>
     if (self = [super init]) {
         _controllerName = [SwiftDescriptor getObjectClassName:controller];
         _waitForFullDisplay = options.enableTimeToFullDisplayTracing;
-        _stopLaunchProfiles = !options.enableContinuousProfiling;
         _dispatchQueueWrapper = dispatchQueueWrapper;
         _initialDisplayReported = NO;
         _fullyDisplayedReported = NO;
