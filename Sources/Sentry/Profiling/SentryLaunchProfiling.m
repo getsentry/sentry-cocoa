@@ -55,7 +55,7 @@ typedef struct {
 SentryLaunchProfileConfig
 sentry_shouldProfileNextLaunch(SentryOptions *options)
 {
-    if (options.enableContinuousProfiling) {
+    if (options.enableAppLaunchProfiling && options.enableContinuousProfiling) {
         return (SentryLaunchProfileConfig) { YES, nil, nil };
     }
 
@@ -213,6 +213,7 @@ sentry_stopAndDiscardLaunchProfileTracer(void)
     SENTRY_LOG_DEBUG(@"Finishing launch tracer.");
     [sentry_launchTracer finish];
     sentry_isTracingAppLaunch = NO;
+    sentry_launchTracer = nil;
 }
 
 NS_ASSUME_NONNULL_END
