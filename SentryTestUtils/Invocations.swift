@@ -7,7 +7,7 @@ public class Invocations<T> {
 
     public init() {}
     
-    private let queue = DispatchQueue(label: "Invocations", attributes: .concurrent)
+    private let queue = DispatchQueue(label: "Invocations")
     
     private var _invocations: [T] = []
     
@@ -42,13 +42,13 @@ public class Invocations<T> {
     }
     
     public func record(_ invocation: T) {
-        queue.async(flags: .barrier) {
+        queue.async {
             self._invocations.append(invocation)
         }
     }
     
     public func removeAll() {
-        queue.async(flags: .barrier) {
+        queue.async {
             self._invocations.removeAll()
         }
     }
