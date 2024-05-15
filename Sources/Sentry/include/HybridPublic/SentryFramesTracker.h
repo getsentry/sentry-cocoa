@@ -5,10 +5,10 @@
 #    import "SentryProfilingConditionals.h"
 
 @class SentryDisplayLinkWrapper;
-@class SentryScreenFrames;
 @class SentryCurrentDateProvider;
 @class SentryDispatchQueueWrapper;
 @class SentryNSNotificationCenterWrapper;
+@class SentryScreenFrames;
 
 NS_ASSUME_NONNULL_BEGIN
 
