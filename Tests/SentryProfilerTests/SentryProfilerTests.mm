@@ -186,7 +186,7 @@ using namespace sentry::profiling;
     // serialize the data as if it were captured in a transaction envelope
     const auto profileData = [state copyProfilingData];
 
-    const auto serialization = sentry_serializedProfileData(profileData, 1, 2,
+    const auto serialization = sentry_serializedProfileDataLegacy(profileData, 1, 2,
         sentry_profilerTruncationReasonName(SentryProfilerTruncationReasonNormal), @{}, @[],
         [[SentryHub alloc] initWithClient:nil andScope:nil]
 #    if SENTRY_HAS_UIKIT

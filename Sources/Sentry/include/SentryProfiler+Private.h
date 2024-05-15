@@ -3,6 +3,7 @@
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
 #    import "SentryDefines.h"
+#    import "SentryProfilerDefines.h"
 #    import <Foundation/Foundation.h>
 
 @class SentryEnvelopeItem;
@@ -18,17 +19,6 @@
 @class SentryScreenFrames;
 #    endif // SENTRY_HAS_UIKIT
 
-typedef NS_ENUM(NSUInteger, SentryProfilerTruncationReason) {
-    SentryProfilerTruncationReasonNormal,
-    SentryProfilerTruncationReasonTimeout,
-    SentryProfilerTruncationReasonAppMovedToBackground,
-};
-
-typedef NS_ENUM(NSUInteger, SentryProfilerMode) {
-    SentryProfilerModeLegacy,
-    SentryProfilerModeContinuous,
-};
-
 NS_ASSUME_NONNULL_BEGIN
 
 /**
@@ -36,7 +26,7 @@ NS_ASSUME_NONNULL_BEGIN
  * launch's profiling, stop legacy profiling if no automatic performance transaction is running,
  * start the continuous profiler if enabled and not profiling from launch.
  */
-SENTRY_EXTERN void sentry_manageProfilerOnStartSDK(SentryOptions *options, SentryHub *hub);
+SENTRY_EXTERN void sentry_manageTraceProfilerOnStartSDK(SentryOptions *options, SentryHub *hub);
 
 /**
  * A wrapper around the low-level components used to gather sampled backtrace profiles.
@@ -49,6 +39,7 @@ SENTRY_EXTERN void sentry_manageProfilerOnStartSDK(SentryOptions *options, Sentr
 @property (strong, nonatomic) SentryProfilerState *state;
 @property (assign, nonatomic) SentryProfilerTruncationReason truncationReason;
 @property (strong, nonatomic) SentryMetricProfiler *metricProfiler;
+@property (assign, nonatomic) uint64_t continuousChunkStartSystemTime;
 
 #    if SENTRY_HAS_UIKIT
 @property (strong, nonatomic) SentryScreenFrames *screenFrameData;

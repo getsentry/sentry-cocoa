@@ -154,7 +154,6 @@ SentryHub () <SentryMetricsAPIDelegate>
         SENTRY_LOG_DEBUG(@"No session to end with timestamp.");
         return;
     }
-
     [currentSession endSessionExitedWithTimestamp:timestamp];
     [self captureSession:currentSession];
 }
@@ -416,7 +415,7 @@ SentryHub () <SentryMetricsAPIDelegate>
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
     SentrySamplerDecision *profilesSamplerDecision
-        = sentry_sampleProfile(samplingContext, tracesSamplerDecision, self.client.options);
+        = sentry_sampleTraceProfile(samplingContext, tracesSamplerDecision, self.client.options);
 
     configuration.profilesSamplerDecision = profilesSamplerDecision;
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED"

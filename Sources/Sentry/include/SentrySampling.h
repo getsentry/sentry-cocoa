@@ -19,7 +19,7 @@ SENTRY_EXTERN SentrySamplerDecision *sentry_sampleTrace(
  * Determines whether a profile should be sampled based on the context, options, and
  * whether the trace corresponding to the profile was sampled.
  */
-SENTRY_EXTERN SentrySamplerDecision *sentry_sampleProfile(SentrySamplingContext *context,
+SENTRY_EXTERN SentrySamplerDecision *sentry_sampleTraceProfile(SentrySamplingContext *context,
     SentrySamplerDecision *tracesSamplerDecision, SentryOptions *options);
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 

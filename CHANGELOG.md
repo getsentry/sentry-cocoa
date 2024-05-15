@@ -5,6 +5,9 @@
 ### Improvements
 
 - Stop FramesTracker when app is in background (#3979)
+### Fixes
+
+- Fix retrieving GraphQL operation names crashing ([#3973](https://github.com/getsentry/sentry-cocoa/pull/3973))
 
 ## 8.26.0
 
