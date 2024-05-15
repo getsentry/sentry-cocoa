@@ -5,30 +5,33 @@ import Sentry
     
     public var ignoreRemoveObserver = false
     
-    public var addObserverInvocations = Invocations<(observer: NSObject, selector: Selector, name: NSNotification.Name)>()
+    public var addObserverInvocations = Invocations<(observer: WeakReference<NSObject>, selector: Selector, name: NSNotification.Name)>()
     public var addObserverInvocationsCount: Int {
         return addObserverInvocations.count
     }
 
     public override func addObserver(_ observer: NSObject, selector aSelector: Selector, name aName: NSNotification.Name) {
-        addObserverInvocations.record((observer, aSelector, aName))
+        addObserverInvocations.record((WeakReference(value: observer), aSelector, aName))
     }
 
-    public var removeObserverWithNameInvocations = Invocations<(observer: NSObject, name: NSNotification.Name)>()
+    public var removeObserverWithNameInvocations = Invocations< NSNotification.Name>()
     public var removeObserverWithNameInvocationsCount: Int {
         return removeObserverWithNameInvocations.count
     }
     public override func removeObserver(_ observer: NSObject, name aName: NSNotification.Name) {
-        removeObserverWithNameInvocations.record((observer, aName))
+        removeObserverWithNameInvocations.record(aName)
     }
 
-    var removeObserverInvocations = Invocations<NSObject>()
+    /// We don't keep track of the actual objects, because removeObserver
+    /// gets often called in dealloc, and we don't want to store an object about to be deallocated
+    /// in an array.
+    var removeObserverInvocations = Invocations<Void>()
     public var removeObserverInvocationsCount: Int {
         return removeObserverInvocations.count
     }
     public override func removeObserver(_ observer: NSObject) {
         if ignoreRemoveObserver == false {
-            removeObserverInvocations.record(observer)
+            removeObserverInvocations.record(Void())
         }
     }
     
@@ -36,7 +39,7 @@ import Sentry
         addObserverInvocations.invocations
             .filter { $0.2 == notification.name }
             .forEach { observer, selector, _ in
-                _ = observer.perform(selector, with: nil)
+                _ = observer.value?.perform(selector, with: nil)
             }
     }
 }
