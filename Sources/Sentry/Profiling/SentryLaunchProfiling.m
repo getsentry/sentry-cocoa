@@ -27,11 +27,10 @@ NS_ASSUME_NONNULL_BEGIN
 NSString *const kSentryLaunchProfileConfigKeyTracesSampleRate = @"traces";
 NSString *const kSentryLaunchProfileConfigKeyProfilesSampleRate = @"profiles";
 NSString *const kSentryLaunchProfileConfigKeyContinuousProfiling = @"continuous-profiling";
-static SentryTracer *_Nullable launchTracer;
 
 #    pragma mark - Private
 
-static SentryTracer *_Nullable sentry_launchTracer;
+SentryTracer *_Nullable sentry_launchTracer;
 
 SentryTracerConfiguration *
 sentry_config(NSNumber *profilesRate)

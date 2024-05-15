@@ -4,8 +4,9 @@
 
 #    import "SentryDefines.h"
 
-@class SentrySamplerDecision;
 @class SentryOptions;
+@class SentrySamplerDecision;
+@class SentryTracer;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -18,6 +19,8 @@ typedef struct {
 SENTRY_EXTERN NSString *const kSentryLaunchProfileConfigKeyTracesSampleRate;
 SENTRY_EXTERN NSString *const kSentryLaunchProfileConfigKeyProfilesSampleRate;
 SENTRY_EXTERN NSString *const kSentryLaunchProfileConfigKeyContinuousProfiling;
+
+SENTRY_EXTERN SentryTracer *_Nullable sentry_launchTracer;
 
 SentryLaunchProfileConfig sentry_shouldProfileNextLaunch(SentryOptions *options);
 

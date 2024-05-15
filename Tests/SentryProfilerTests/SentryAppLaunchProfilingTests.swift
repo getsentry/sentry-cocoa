@@ -3,7 +3,7 @@ import XCTest
 
 #if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
 final class SentryAppLaunchProfilingSwiftTests: XCTestCase {
-    var fixture: SentryProfileTestFixture?
+    var fixture: SentryProfileTestFixture!
     
     override func setUp() {
         super.setUp()
@@ -20,6 +20,19 @@ final class SentryAppLaunchProfilingSwiftTests: XCTestCase {
         XCTAssertEqual(context.nameSource.rawValue, 0)
         XCTAssertEqual(context.origin, "auto.app.start.profile")
         XCTAssertEqual(context.sampled, .yes)
+    }
+
+    // test that the launch trace instance is nil after stopping the launch
+    // profiler
+    func testStopLaunchTraceProfile() {
+        fixture.options.enableAppLaunchProfiling = true
+        fixture.options.profilesSampleRate = 1
+        fixture.options.tracesSampleRate = 1
+        sentry_configureLaunchProfiling(fixture.options)
+        _sentry_nondeduplicated_startLaunchProfile()
+        XCTAssertNotNil(sentry_launchTracer)
+        sentry_manageTraceProfilerOnStartSDK(fixture.options, TestHub(client: nil, andScope: nil))
+        XCTAssertNil(sentry_launchTracer)
     }
    
     func testLaunchTraceProfileConfiguration() throws {
