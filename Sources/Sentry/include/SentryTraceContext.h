@@ -53,6 +53,11 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nullable, nonatomic, readonly) NSString *sampled;
 
 /**
+ * Id of the current session replay.
+ */
+@property (nullable, nonatomic, readonly) NSString *replayId;
+
+/**
  * Initializes a SentryTraceContext with given properties.
  */
 - (instancetype)initWithTraceId:(SentryId *)traceId
@@ -62,7 +67,8 @@ NS_ASSUME_NONNULL_BEGIN
                     transaction:(nullable NSString *)transaction
                     userSegment:(nullable NSString *)userSegment
                      sampleRate:(nullable NSString *)sampleRate
-                        sampled:(nullable NSString *)sampled;
+                        sampled:(nullable NSString *)sampled
+                       replayId:(nullable NSString *)replayId;
 
 /**
  * Initializes a SentryTraceContext with data from scope and options.

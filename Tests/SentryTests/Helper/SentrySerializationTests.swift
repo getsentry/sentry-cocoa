@@ -1,10 +1,11 @@
+import Nimble
 import XCTest
 
 class SentrySerializationTests: XCTestCase {
     
     private class Fixture {
         static var invalidData = "hi".data(using: .utf8)!
-        static var traceContext = SentryTraceContext(trace: SentryId(), publicKey: "PUBLIC_KEY", releaseName: "RELEASE_NAME", environment: "TEST", transaction: "transaction", userSegment: "some segment", sampleRate: "0.25", sampled: "true")
+        static var traceContext = SentryTraceContext(trace: SentryId(), publicKey: "PUBLIC_KEY", releaseName: "RELEASE_NAME", environment: "TEST", transaction: "transaction", userSegment: "some segment", sampleRate: "0.25", sampled: "true", replayId: nil)
     }
 
     func testSerializationFailsWithInvalidJSONObject() {
@@ -123,7 +124,7 @@ class SentrySerializationTests: XCTestCase {
     }
     
     func testSentryEnvelopeSerializer_TraceStateWithoutUser() {
-        let trace = SentryTraceContext(trace: SentryId(), publicKey: "PUBLIC_KEY", releaseName: "RELEASE_NAME", environment: "TEST", transaction: "transaction", userSegment: nil, sampleRate: nil, sampled: nil)
+        let trace = SentryTraceContext(trace: SentryId(), publicKey: "PUBLIC_KEY", releaseName: "RELEASE_NAME", environment: "TEST", transaction: "transaction", userSegment: nil, sampleRate: nil, sampled: nil, replayId: nil)
         
         let envelopeHeader = SentryEnvelopeHeader(id: nil, traceContext: trace)
         let envelope = SentryEnvelope(header: envelopeHeader, singleItem: createItemWithEmptyAttachment())
@@ -228,6 +229,22 @@ class SentrySerializationTests: XCTestCase {
         }
         
         XCTAssertNil(SentrySerialization.session(with: data))
+    }
+    
+    func testSerializeReplayRecording() {
+        class MockReplayRecording: SentryReplayRecording {
+            override func serialize() -> [[String: Any]] {
+                return [["KEY": "VALUE"]]
+            }
+        }
+        
+        let date = Date(timeIntervalSince1970: 2)
+        let recording = MockReplayRecording(segmentId: 5, size: 5_000, start: date, duration: 5_000, frameCount: 5, frameRate: 1, height: 320, width: 950)
+        let data = SentrySerialization.data(with: recording)
+        
+        let serialized = String(data: data, encoding: .utf8)
+        
+        expect(serialized) == "{\"segment_id\":5}\n[{\"KEY\":\"VALUE\"}]"
     }
     
     func testLevelFromEventData() {

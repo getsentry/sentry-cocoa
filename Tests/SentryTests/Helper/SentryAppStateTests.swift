@@ -1,3 +1,4 @@
+import Nimble
 import XCTest
 
 class SentryAppStateTests: XCTestCase {
@@ -17,10 +18,28 @@ class SentryAppStateTests: XCTestCase {
         XCTAssertEqual(appState.isSDKRunning, actual["is_sdk_running"] as? Bool)
     }
     
-    func testInitWithJSON_AllFields() {
+    func testSerialize_ReleaseNameIsNil_DoesNotAddReleaseName() {
+        let appState = SentryAppState(releaseName: nil, osVersion: "14.4.1", vendorId: TestData.someUUID, isDebugging: false, systemBootTimestamp: TestData.timestamp)
+        
+        let actual = appState.serialize()
+        
+        expect(actual["release_name"]) == nil
+    }
+    
+    func testInitWithJSON_ReleaseNameIsNil_DoesNotAddReleaseName() {
+        let appState = SentryAppState(releaseName: nil, osVersion: "14.4.1", vendorId: TestData.someUUID, isDebugging: false, systemBootTimestamp: TestData.timestamp)
+        
+        let actual = SentryAppState(jsonObject: appState.serialize())
+        
+        expect(actual?.releaseName) == nil
+    }
+    
+    func testInitWithJSON_AllFields() throws {
         let appState = TestData.appState
+        
+        let releaseName = try XCTUnwrap(appState.releaseName)
         let dict = [
-            "release_name": appState.releaseName,
+            "release_name": releaseName,
             "os_version": appState.osVersion,
             "vendor_id": appState.vendorId,
             "is_debugging": appState.isDebugging,
@@ -37,7 +56,6 @@ class SentryAppStateTests: XCTestCase {
     }
     
     func testInitWithJSON_IfJsonMissesField_AppStateIsNil() {
-        withValue { $0["release_name"] = nil }
         withValue { $0["os_version"] = nil }
         withValue { $0["vendor_id"] = nil }
         withValue { $0["is_debugging"] = nil }

@@ -2,9 +2,97 @@
 
 ## Unreleased
 
+### Fixes
+
+- Fix retrieving GraphQL operation names crashing ([#3973](https://github.com/getsentry/sentry-cocoa/pull/3973))
+
+## 8.26.0
+
+### Features
+
+- Add SIGTERM support ([#3895](https://github.com/getsentry/sentry-cocoa/pull/3895))
+
+### Fixes
+
+- Fix data race when calling reportFullyDisplayed from a background thread (#3926)
+- Ensure flushing envelopes directly after capturing them (#3915)
+- Unable to find class: SentryCrashExceptionApplication (#3957)
+- Clang error for Xcode 15.4 (#3958)
+- Potential deadlock when starting the SDK (#3970)
+
+### Improvements
+
+- Send Cocoa SDK features (#3948)
+
+## 8.25.2
+
+### Features
+
+The following two features, disabled by default, were mistakenly added to the release. We usually only add features in minor releases. 
+
+- Add option to use own NSURLSession for transport (#3811)
+- Support sending GraphQL operation names in HTTP breadcrumbs (#3931)
+
+### Fixes
+
+- 'SentryFileManager+Test.h' file not found (#3950)
+
+## 8.25.1
+
+### Fixes
+
+- Ignore SentryFramesTracker thread sanitizer data races (#3922)
+- Handle no releaseName in WatchDogTerminationLogic (#3919)
+- Stop SessionReplay when closing SDK (#3941)
+
+### Improvements
+
+- Remove not needed lock for logging (#3934)
+- Session replay Improvements (#3877)
+  - Use image average color and text font color to redact session replay 
+  - Removed iOS 16 restriction from session replay
+  - Performance improvement 
+
+## 8.25.0
+
+### Features
+
+- Add Session Replay, which is **still experimental**. (#3625)
+  - Access is limited to early access orgs on Sentry. If you're interested, [sign up for the waitlist](https://sentry.io/lp/mobile-replay-beta/)
+
+### Fixes
+
+- Crash due to a background call to -[UIApplication applicationState] (#3855)
+- Save framework without UIKit/AppKit as Github Asset for releases (#3858) 
+- Fix crash associated with runtime collision in global C function names (#3862)
+- Remove wrong error log in SentryCoreDataTracker (#3894)
+- Don't transmit device boot time in envelopes enriched with crash data (#3912, #3916)
+
+### Improvements
+
+- Capture transactions on a background thread (#3892)
+
+## 8.25.0-alpha.0
+
+### Features
+
+- Add Session Replay, which is **still experimental**. (#3625)
+  - Access is limited to early access orgs on Sentry. If you're interested, [sign up for the waitlist](https://sentry.io/lp/mobile-replay-beta/)
+
+### Fixes
+
+- Crash due to a background call to -[UIApplication applicationState] (#3855)
+- Save framework without UIKit/AppKit as Github Asset for releases (#3858) 
+- Fix crash associated with runtime collision in global C function names (#3862)
+- Remove wrong error log in SentryCoreDataTracker (#3894)
+
+## 8.24.0
+
 ### Features
 
 - Add timing API for Metrics (#3812):
+- Add [rate limiting](https://develop.sentry.dev/sdk/rate-limiting/) for Metrics (#3838)
+- Data normalization for Metrics (#3843)
 
 ## 8.23.0
 

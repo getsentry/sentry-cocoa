@@ -20,14 +20,6 @@ on:
       - ".codecov.yml"
       - Sentry.xcodeproj
 
-      # run the workflow any time an Xcode scheme changes for a sample app
-      - "Samples/tvOS-Swift/tvOS-Swift.xcodeproj/xcshareddata/xcschemes/tvOS-Swift.xcscheme"
-      - "Samples/iOS-Swift/iOS-Swift.xcodeproj/xcshareddata/xcschemes/iOS13-Swift.xcscheme"
-      - "Samples/iOS-Swift/iOS-Swift.xcodeproj/xcshareddata/xcschemes/iOS-SwiftUITests.xcscheme"
-      - "Samples/iOS-Swift/iOS-Swift.xcodeproj/xcshareddata/xcschemes/iOS-Swift.xcscheme"
-      - "Samples/macOS-Swift/macOS-Swift.xcodeproj/xcshareddata/xcschemes/macOS-Swift.xcscheme"
-      - "Samples/iOS-ObjectiveC/iOS-ObjectiveC.xcodeproj/xcshareddata/xcschemes/iOS-ObjectiveC.xcscheme"
-
 # https://docs.github.com/en/actions/using-jobs/using-concurrency#example-using-a-fallback-value
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
@@ -246,7 +238,7 @@ jobs:
       # We don't upload codecov for scheduled runs as CodeCov only accepts a limited amount of uploads per commit.
       - name: Push code coverage to codecov
         id: codecov_1
-        uses: codecov/codecov-action@c16abc29c95fcf9174b58eb7e1abf4c866893bc8 # pin@v4.1.1
+        uses: codecov/codecov-action@5ecb98a3c6b747ed38dc09f787459979aebb39be # pin@v4.3.1
         if: ${{ contains(matrix.platform, 'iOS') && !contains(github.ref, 'release') && github.event.schedule == '' }}
         with:
           # Although public repos should not have to specify a token there seems to be a bug with the Codecov GH action, which can
@@ -258,7 +250,7 @@ jobs:
       # Sometimes codecov uploads etc can fail. Retry one time to rule out e.g. intermittent network failures.
       - name: Push code coverage to codecov
         id: codecov_2
-        uses: codecov/codecov-action@c16abc29c95fcf9174b58eb7e1abf4c866893bc8 # pin@v4.1.1
+        uses: codecov/codecov-action@5ecb98a3c6b747ed38dc09f787459979aebb39be # pin@v4.3.1
         if: ${{ steps.codecov_1.outcome == 'failure' && contains(matrix.platform, 'iOS') && !contains(github.ref, 'release') && github.event.schedule == '' }}
         with:
           token: ${{ secrets.CODECOV_TOKEN }}

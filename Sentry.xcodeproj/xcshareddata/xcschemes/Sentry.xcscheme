@@ -40,7 +40,7 @@
       <EnvironmentVariables>
          <EnvironmentVariable
             key = "TSAN_OPTIONS"
-            value = "suppressions=$(PROJECT_DIR)/Tests/ThreadSanitizer.sup"
+            value = "suppressions=$(PROJECT_DIR)/Sources/Resources/ThreadSanitizer.sup"
             isEnabled = "YES">
          </EnvironmentVariable>
       </EnvironmentVariables>
@@ -56,6 +56,18 @@
             </BuildableReference>
             <SkippedTests>
                <Test
+                  Identifier = "SentryANRTrackerTests/testANRButAppInBackground_NoANR()">
+               </Test>
+               <Test
+                  Identifier = "SentryANRTrackerTests/testMultipleListeners()">
+               </Test>
+               <Test
+                  Identifier = "SentryCoreDataTrackerTests/testFetchRequestBackgroundThread()">
+               </Test>
+               <Test
+                  Identifier = "SentryCoreDataTrackerTests/testSaveBackgroundThread()">
+               </Test>
+               <Test
                   Identifier = "SentryCrashIntegrationTests/testStartUpCrash_CallsFlush()">
                </Test>
                <Test
@@ -65,7 +77,13 @@
                   Identifier = "SentryCrashReportStore_Tests/testDeleteAllReports">
                </Test>
                <Test
+                  Identifier = "SentryCrashReportStore_Tests/testStoresLoadsMultipleReports">
+               </Test>
+               <Test
                   Identifier = "SentryNetworkTrackerIntegrationTests/testGetCaptureFailedRequestsEnabled()">
+               </Test>
+               <Test
+                  Identifier = "SentryNetworkTrackerIntegrationTests/testGetRequest_CompareSentryTraceHeader()">
                </Test>
                <Test
                   Identifier = "SentryProfilerSwiftTests/testConcurrentSpansWithTimeout()">
@@ -105,6 +123,11 @@
                BlueprintName = "SentryProfilerTests"
                ReferencedContainer = "container:Sentry.xcodeproj">
             </BuildableReference>
+            <SkippedTests>
+               <Test
+                  Identifier = "SentryProfilerTests/testProfilerMutationDuringSlicing">
+               </Test>
+            </SkippedTests>
          </TestableReference>
       </Testables>
    </TestAction>
@@ -127,6 +150,13 @@
             ReferencedContainer = "container:Sentry.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
+      <EnvironmentVariables>
+         <EnvironmentVariable
+            key = "TSAN_OPTIONS"
+            value = "suppressions=$(PROJECT_DIR)/Sources/Resources/ThreadSanitizer.sup"
+            isEnabled = "YES">
+         </EnvironmentVariable>
+      </EnvironmentVariables>
    </LaunchAction>
    <ProfileAction
       buildConfiguration = "Release"

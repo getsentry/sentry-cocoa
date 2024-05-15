@@ -157,7 +157,7 @@ class SentryEnvelopeTests: XCTestCase {
     
     func testInitSentryEnvelopeHeader_SetIdAndTraceState() {
         let eventId = SentryId()
-        let traceContext = SentryTraceContext(trace: SentryId(), publicKey: "publicKey", releaseName: "releaseName", environment: "environment", transaction: "transaction", userSegment: nil, sampleRate: nil, sampled: nil)
+        let traceContext = SentryTraceContext(trace: SentryId(), publicKey: "publicKey", releaseName: "releaseName", environment: "environment", transaction: "transaction", userSegment: nil, sampleRate: nil, sampled: nil, replayId: nil)
         
         let envelopeHeader = SentryEnvelopeHeader(id: eventId, traceContext: traceContext)
         XCTAssertEqual(eventId, envelopeHeader.eventId)
@@ -235,6 +235,12 @@ class SentryEnvelopeTests: XCTestCase {
         XCTAssertEqual(UInt(attachment.data?.count ?? 0), envelopeItem.header.length)
         XCTAssertEqual(attachment.filename, envelopeItem.header.filename)
         XCTAssertEqual(attachment.contentType, envelopeItem.header.contentType)
+    }
+    
+    func testEmptyHeader() {
+        let sut = SentryEnvelopeHeader.empty()
+        expect(sut.eventId) == nil
+        expect(sut.traceContext) == nil
     }
     
     func testInitWithFileAttachment() {

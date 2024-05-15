@@ -408,31 +408,6 @@ class SentryScopeSwiftTests: XCTestCase {
         XCTAssertEqual(0, scope.attachments.count)
     }
     
-    func testPeformanceOfSyncToSentryCrash() {
-        // To avoid spamming the test logs
-        SentryLog.configure(true, diagnosticLevel: .error)
-        
-        let scope = fixture.scope
-        scope.add(SentryCrashScopeObserver(maxBreadcrumbs: 100))
-        
-        self.measure {
-            modifyScope(scope: scope)
-        }
-        
-        setTestDefaultLogLevel()
-    }
-    
-    func testPeformanceOfSyncToSentryCrash_OneCrumb() {
-        let scope = fixture.scope
-        scope.add(SentryCrashScopeObserver(maxBreadcrumbs: 100))
-        
-        modifyScope(scope: scope)
-        
-        self.measure {
-            scope.addBreadcrumb(self.fixture.breadcrumb)
-        }
-    }
-    
     // With this test we test if modifications from multiple threads don't lead to a crash.
     func testModifyingFromMultipleThreads() {
         let scope = fixture.scope

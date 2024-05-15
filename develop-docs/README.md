@@ -39,7 +39,7 @@ Reach out to a [CODEOWNER](https://github.com/getsentry/sentry-cocoa/blob/main/.
 ## Unit Tests with Thread Sanitizer
 
 CI runs the unit tests for one job with thread sanitizer enabled to detect race conditions.
-The Test scheme of Sentry uses `TSAN_OPTIONS` to specify the [suppression file](../Tests/ThreadSanitizer.sup) to ignore false positives or known issues.
+To ignore false positives or known issues, use the `SENTRY_DISABLE_THREAD_SANITIZER` macro or the [suppression file](../Sources/Resources/ThreadSanitizer.sup).
 It's worth noting that you can use the `$(PROJECT_DIR)` to specify the path to the suppression file.
 To run the unit tests with the thread sanitizer enabled in Xcode click on edit scheme, go to tests, then open diagnostics, and enable Thread Sanitizer.
 The profiler doesn't work with TSAN attached, so tests that run the profiler will be skipped.
@@ -126,7 +126,7 @@ There's only ever one profiler instance running at a time, but instances that ha
 
 App launches can be automatically profiled if configured with `SentryOptions.enableAppLaunchProfiling`. If enabled, when `SentrySDK.startWithOptions` is called, `SentryLaunchProfiling.configureLaunchProfiling` will get a sample rate for traces and profiles with their respective options, and store those rates in a file to be read on the next launch. On each launch, `SentryLaunchProfiling.startLaunchProfile` checks for the presence of that file is used to decide whether to start an app launch profiled trace, and afterwards retrieves those rates to initialize a `SentryTransactionContext` and `SentryTracerConfiguration`, and provides them to a new `SentryTracer` instance, which is what actually starts the profiler. There is no hub at this time; also in the call to `SentrySDK.startWithOptions`, any current profiled launch trace is attempted to be finished, and the hub that exists by that time is provided to the `SentryTracer` instance via `SentryLaunchProfiling.stopAndTransmitLaunchProfile` so that when it needs to transmit the transaction envelope, the infrastructure is in place to do so.
 
-In testing and debug environments, when a profile payload is serialized for transmission, the dictionary will also be written to a file in application support that can be retrieved by a sample app. This helps with UI tests that want to verify the contents of a profile after some app interaction. See `iOS-Swift.ProfilingViewController.viewLastProfile`  and `iOS-SwiftUITests.ProfilingUITests`.
+In testing and debug environments, when a profile payload is serialized for transmission, the dictionary will also be written to a file in application support that can be retrieved by a sample app. This helps with UI tests that want to verify the contents of a profile after some app interaction. See `iOS-Swift.ProfilingViewController.viewLastProfile`  and `iOS-Swift-UITests.ProfilingUITests`.
 
 ## Swift and Objective-C Interoperability**
 

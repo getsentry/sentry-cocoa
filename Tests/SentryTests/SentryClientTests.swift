@@ -1305,6 +1305,19 @@ class SentryClientTest: XCTestCase {
             )
         }
     }
+    
+    func testSetSDKFeatures() throws {
+        let sut = fixture.getSut {
+            $0.enablePerformanceV2 = true
+        }
+        
+        sut.capture(message: "message")
+        
+        try assertLastSentEvent { actual in
+            expect(actual.sdk?["features"] as? [String]).to(contain("performanceV2", "captureFailedRequests"))
+            
+        }
+    }
 
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
     func testTrackPreWarmedAppStartTracking() throws {
@@ -1585,6 +1598,90 @@ class SentryClientTest: XCTestCase {
             group.waitWithTimeout()
             hub.removeAllIntegrations()
         }
+    }
+    
+    func testCaptureReplayEvent() {
+        let sut = fixture.getSut()
+        let replayEvent = SentryReplayEvent()
+        replayEvent.segmentId = 2
+        let replayRecording = SentryReplayRecording()
+        replayRecording.segmentId = 2
+        
+        //Not a video url, but its ok for test the envelope
+        let movieUrl = Bundle(for: self.classForCoder).url(forResource: "Resources/raw", withExtension: "json")
+        
+        sut.capture(replayEvent, replayRecording: replayRecording, video: movieUrl!, with: Scope())
+        let envelope = fixture.transport.sentEnvelopes.first
+        expect(envelope?.items[0].header.type) == SentryEnvelopeItemTypeReplayVideo
+    }
+    
+    func testCaptureReplayEvent_WrongEventFromEventProcessor() {
+        let sut = fixture.getSut()
+        sut.options.beforeSend = { _ in
+            return Event()
+        }
+        
+        let replayEvent = SentryReplayEvent()
+        let replayRecording = SentryReplayRecording()
+        
+        let movieUrl = Bundle(for: self.classForCoder).url(forResource: "Resources/raw", withExtension: "json")
+        sut.capture(replayEvent, replayRecording: replayRecording, video: movieUrl!, with: Scope())
+        
+        //Nothing should be captured because beforeSend returned a non ReplayEvent
+        expect(self.fixture.transport.sentEnvelopes.count) == 0
+    }
+    
+    func testCaptureReplayEvent_DontCaptureNilEvent() {
+        let sut = fixture.getSut()
+        sut.options.beforeSend = { _ in
+            return nil
+        }
+        
+        let replayEvent = SentryReplayEvent()
+        let replayRecording = SentryReplayRecording()
+        
+        let movieUrl = Bundle(for: self.classForCoder).url(forResource: "Resources/raw", withExtension: "json")
+        sut.capture(replayEvent, replayRecording: replayRecording, video: movieUrl!, with: Scope())
+        
+        //Nothing should be captured because beforeSend returned nil
+        expect(self.fixture.transport.sentEnvelopes.count) == 0
+    }
+    
+    func testCaptureReplayEvent_InvalidFile() {
+        let sut = fixture.getSut()
+        sut.options.beforeSend = { _ in
+            return nil
+        }
+        
+        let replayEvent = SentryReplayEvent()
+        let replayRecording = SentryReplayRecording()
+        
+        let movieUrl = URL(string: "NoFile")!
+        sut.capture(replayEvent, replayRecording: replayRecording, video: movieUrl, with: Scope())
+        
+        //Nothing should be captured because beforeSend returned nil
+        expect(self.fixture.transport.sentEnvelopes.count) == 0
+    }
+    
+    func testCaptureReplayEvent_noBradcrumbsThreadsDebugMeta() {
+        let sut = fixture.getSut()
+        let replayEvent = SentryReplayEvent()
+        replayEvent.segmentId = 2
+        let replayRecording = SentryReplayRecording()
+        replayRecording.segmentId = 2
+        
+        //Not a video url, but its ok for test the envelope
+        let movieUrl = Bundle(for: self.classForCoder).url(forResource: "Resources/raw", withExtension: "json")
+        
+        let scope = Scope()
+        scope.addBreadcrumb(Breadcrumb(level: .debug, category: "Test Breadcrumb"))
+        
+        sut.capture(replayEvent, replayRecording: replayRecording, video: movieUrl!, with: scope)
+        
+        expect(replayEvent.breadcrumbs) == nil
+        expect(replayEvent.threads) == nil
+        expect(replayEvent.debugMeta) == nil
+        
     }
     
     private func givenEventWithDebugMeta() -> Event {

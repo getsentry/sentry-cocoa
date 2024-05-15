@@ -1,9 +1,12 @@
 import _SentryPrivate
 import Foundation
+@testable import Sentry
 
 /// A wrapper around `SentryDispatchQueueWrapper` that memoized invocations to its methods and allows customization of async logic, specifically: dispatch-after calls can be made to run immediately, or not at all.
 public class TestSentryDispatchQueueWrapper: SentryDispatchQueueWrapper {
 
+    private let dispatchAsyncLock = NSLock()
+    
     public var dispatchAsyncCalled = 0
 
     /// Whether or not delayed dispatches should execute.
@@ -13,8 +16,12 @@ public class TestSentryDispatchQueueWrapper: SentryDispatchQueueWrapper {
     public var dispatchAsyncInvocations = Invocations<() -> Void>()
     public var dispatchAsyncExecutesBlock = true
     public override func dispatchAsync(_ block: @escaping () -> Void) {
-        dispatchAsyncCalled += 1
-        dispatchAsyncInvocations.record(block)
+        
+        dispatchAsyncLock.synchronized {
+            dispatchAsyncCalled += 1
+            dispatchAsyncInvocations.record(block)
+        }
+        
         if dispatchAsyncExecutesBlock {
             block()
         }
@@ -27,21 +34,21 @@ public class TestSentryDispatchQueueWrapper: SentryDispatchQueueWrapper {
     public var blockOnMainInvocations = Invocations<() -> Void>()
     public var blockBeforeMainBlock: () -> Bool = { true }
 
-    public override func dispatch(onMainQueue block: @escaping () -> Void) {
+    public override func dispatchOnMainQueue(block: @escaping () -> Void) {
         blockOnMainInvocations.record(block)
         if blockBeforeMainBlock() {
             block()
         }
     }
 
-    public override func dispatchAsync(onMainQueue block: @escaping () -> Void) {
+    public override func dispatchAsyncOnMainQueue(block: @escaping () -> Void) {
         blockOnMainInvocations.record(block)
         if blockBeforeMainBlock() {
             block()
         }
     }
 
-    public override func dispatchSync(onMainQueue block: @escaping () -> Void) {
+    public override func dispatchSyncOnMainQueue(block: @escaping () -> Void) {
         blockOnMainInvocations.record(block)
         if blockBeforeMainBlock() {
             block()

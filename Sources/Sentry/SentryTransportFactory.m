@@ -28,11 +28,18 @@ SentryTransportFactory ()
                                sentryFileManager:(SentryFileManager *)sentryFileManager
                              currentDateProvider:(SentryCurrentDateProvider *)currentDateProvider
 {
-    NSURLSessionConfiguration *configuration =
-        [NSURLSessionConfiguration ephemeralSessionConfiguration];
-    NSURLSession *session = [NSURLSession sessionWithConfiguration:configuration
-                                                          delegate:options.urlSessionDelegate
-                                                     delegateQueue:nil];
+    NSURLSession *session;
+
+    if (options.urlSession) {
+        session = options.urlSession;
+    } else {
+        NSURLSessionConfiguration *configuration =
+            [NSURLSessionConfiguration ephemeralSessionConfiguration];
+        session = [NSURLSession sessionWithConfiguration:configuration
+                                                delegate:options.urlSessionDelegate
+                                           delegateQueue:nil];
+    }
+
     id<SentryRequestManager> requestManager =
         [[SentryQueueableRequestManager alloc] initWithSession:session];
 
@@ -60,6 +67,7 @@ SentryTransportFactory ()
 
     SentryHttpTransport *httpTransport =
         [[SentryHttpTransport alloc] initWithOptions:options
+                             cachedEnvelopeSendDelay:0.1
                                          fileManager:sentryFileManager
                                       requestManager:requestManager
                                       requestBuilder:requestBuilder

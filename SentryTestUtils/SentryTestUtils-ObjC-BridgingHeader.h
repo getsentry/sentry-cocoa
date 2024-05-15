@@ -17,7 +17,9 @@
 #import "SentryProfilingConditionals.h"
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
-#    import "SentryProfiler+Test.h"
+#    import "SentryContinuousProfiler.h"
+#    import "SentryLegacyProfiler+Test.h"
+#    import "SentryProfiler+Private.h"
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
 #import "PrivateSentrySDKOnly.h"
@@ -25,6 +27,10 @@
 #import "SentryAppState.h"
 #import "SentryClient+Private.h"
 #import "SentryClient+TestInit.h"
+#import "SentryCrash+Test.h"
+#import "SentryCrashCachedData.h"
+#import "SentryCrashInstallation+Private.h"
+#import "SentryCrashMonitor_MachException.h"
 #import "SentryCrashWrapper.h"
 #import "SentryDependencyContainer.h"
 #import "SentryDispatchFactory.h"
@@ -33,6 +39,7 @@
 #import "SentryFileManager+Test.h"
 #import "SentryGlobalEventProcessor.h"
 #import "SentryLog.h"
+#import "SentryNSNotificationCenterWrapper.h"
 #import "SentryNSProcessInfoWrapper.h"
 #import "SentryNSTimerFactory.h"
 #import "SentryNetworkTracker.h"

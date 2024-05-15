@@ -26,6 +26,7 @@ class SentryHubTests: XCTestCase {
         let traceOrigin = "auto"
         let random = TestRandom(value: 0.5)
         let queue = DispatchQueue(label: "SentryHubTests", qos: .utility, attributes: [.concurrent])
+        let dispatchQueueWrapper = TestSentryDispatchQueueWrapper()
         
         init() {
             options = Options()
@@ -52,7 +53,7 @@ class SentryHubTests: XCTestCase {
         }
         
         func getSut(_ options: Options, _ scope: Scope? = nil) -> SentryHub {
-            let hub = SentryHub(client: client, andScope: scope, andCrashWrapper: sentryCrash)
+            let hub = SentryHub(client: client, andScope: scope, andCrashWrapper: sentryCrash, andDispatchQueue: self.dispatchQueueWrapper)
             hub.bindClient(client)
             return hub
         }
@@ -153,7 +154,7 @@ class SentryHubTests: XCTestCase {
         
         assert(withScopeBreadcrumbsCount: 100, with: hub)
         
-        setTestDefaultLogLevel()
+        SentryLog.setTestDefaultLogLevel()
     }
     
     func testBreadcrumbOverDefaultLimit() {
@@ -354,12 +355,23 @@ class SentryHubTests: XCTestCase {
         XCTAssertEqual(span.sampled, .no)
     }
     
-    func testCaptureSampledTransaction_ReturnsEmptyId() {
+    func testCaptureTransaction_CapturesEventAsync() {
+        let transaction = sut.startTransaction(transactionContext: TransactionContext(name: fixture.transactionName, operation: fixture.transactionOperation, sampled: .yes))
+        
+        let trans = Dynamic(transaction).toTransaction().asAnyObject
+        sut.capture(trans as! Transaction, with: Scope())
+        
+        expect(self.fixture.client.captureEventWithScopeInvocations.count) == 1
+        expect(self.fixture.dispatchQueueWrapper.dispatchAsyncInvocations.count) == 1
+    }
+    
+    func testCaptureSampledTransaction_DoesNotCaptureEvent() {
         let transaction = sut.startTransaction(transactionContext: TransactionContext(name: fixture.transactionName, operation: fixture.transactionOperation, sampled: .no))
         
         let trans = Dynamic(transaction).toTransaction().asAnyObject
-        let id = sut.capture(trans as! Transaction, with: Scope())
-        id.assertIsEmpty()
+        sut.capture(trans as! Transaction, with: Scope())
+        
+        expect(self.fixture.client.captureEventWithScopeInvocations.count) == 0
     }
     
     func testCaptureSampledTransaction_RecordsLostEvent() {
@@ -742,6 +754,34 @@ class SentryHubTests: XCTestCase {
         captureEventEnvelope(level: SentryLevel.warning)
         
         assertNoEnvelopesCaptured()
+    }
+    
+    func testCaptureReplay() {
+        class SentryClientMockReplay: SentryClient {
+            var replayEvent: SentryReplayEvent?
+            var replayRecording: SentryReplayRecording?
+            var videoUrl: URL?
+            var scope: Scope?
+            override func capture(_ replayEvent: SentryReplayEvent, replayRecording: SentryReplayRecording, video videoURL: URL, with scope: Scope) {
+                self.replayEvent = replayEvent
+                self.replayRecording = replayRecording
+                self.videoUrl = videoURL
+                self.scope = scope
+            }
+        }
+        let mockClient = SentryClientMockReplay(options: fixture.options)
+        
+        let replayEvent = SentryReplayEvent()
+        let replayRecording = SentryReplayRecording()
+        let videoUrl = URL(string: "https://sentry.io")!
+        
+        sut.bindClient(mockClient)
+        sut.capture(replayEvent, replayRecording: replayRecording, video: videoUrl)
+        
+        expect(mockClient?.replayEvent) == replayEvent
+        expect(mockClient?.replayRecording) == replayRecording
+        expect(mockClient?.videoUrl) == videoUrl
+        expect(mockClient?.scope) == sut.scope
     }
     
     func testCaptureEnvelope_WithSession() {
@@ -1193,7 +1233,7 @@ class SentryHubTests: XCTestCase {
 class TestTimeToDisplayTracker: SentryTimeToDisplayTracker {
     
     init() {
-        super.init(for: UIViewController(), waitForFullDisplay: false)
+        super.init(for: UIViewController(), waitForFullDisplay: false, dispatchQueueWrapper: SentryDispatchQueueWrapper())
     }
     
     var registerFullDisplayCalled = false

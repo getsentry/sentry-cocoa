@@ -3,7 +3,9 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class SentryDsn, SentryMeasurementValue, SentryHttpStatusCodeRange, SentryScope;
+@class SentryDsn, SentryMeasurementValue, SentryHttpStatusCodeRange, SentryScope,
+    SentryReplayOptions;
+@class SentryExperimentalOptions;
 
 NS_SWIFT_NAME(Options)
 @interface SentryOptions : NSObject
@@ -141,6 +143,12 @@ NS_SWIFT_NAME(Options)
 @property (nonatomic, assign) BOOL enableAutoSessionTracking;
 
 /**
+ * Whether to attach the top level `operationName` node of HTTP json requests to HTTP breadcrumbs
+ * @note Default is @c NO.
+ */
+@property (nonatomic, assign) BOOL enableGraphQLOperationTracking;
+
+/**
  * Whether to enable Watchdog Termination tracking or not.
  * @note This feature requires the @c SentryCrashIntegration being enabled, otherwise it would
  * falsely report every crash as watchdog termination.
@@ -269,6 +277,7 @@ NS_SWIFT_NAME(Options)
  * @note Default value is @c NO .
  */
 @property (nonatomic, assign) BOOL enablePreWarmedAppStartTracing;
+
 #endif // SENTRY_UIKIT_AVAILABLE
 
 /**
@@ -355,8 +364,21 @@ NS_SWIFT_NAME(Options)
 /**
  * Set as delegate on the @c NSURLSession used for all network data-transfer tasks performed by
  * Sentry.
+ *
+ * @discussion The SDK ignores this option when using @c urlSession.
  */
 @property (nullable, nonatomic, weak) id<NSURLSessionDelegate> urlSessionDelegate;
+
+/**
+ * Use this property, so the transport uses this  @c NSURLSession with your configuration for
+ * sending requests to Sentry.
+ *
+ * If not set, the SDK will create a new @c NSURLSession with @c [NSURLSessionConfiguration
+ * ephemeralSessionConfiguration].
+ *
+ * @note Default is @c nil.
+ */
+@property (nullable, nonatomic, strong) NSURLSession *urlSession;
 
 /**
  * Wether the SDK should use swizzling or not.
@@ -603,6 +625,12 @@ NS_SWIFT_NAME(Options)
  * This block can be used to modify the event before it will be serialized and sent.
  */
 @property (nullable, nonatomic, copy) SentryBeforeEmitMetricCallback beforeEmitMetric;
+
+/**
+ * This aggregates options for experimental features.
+ * Be aware that the options available for experimental can change at any time.
+ */
+@property (nonatomic, readonly) SentryExperimentalOptions *experimental;
 
 @end
 

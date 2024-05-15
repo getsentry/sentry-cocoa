@@ -228,7 +228,20 @@ class SentryNetworkTrackerIntegrationTests: XCTestCase {
 
         XCTAssertFalse(SentryNetworkTracker.sharedInstance.isCaptureFailedRequestsEnabled)
     }
-    
+
+    func testGraphQLOperationTrackingEnabled() {
+        fixture.options.enableGraphQLOperationTracking = true
+        startSDK()
+
+        XCTAssertTrue(SentryNetworkTracker.sharedInstance.isGraphQLOperationTrackingEnabled)
+    }
+
+    func testGraphQLOperationTrackingDisabled() {
+        startSDK()
+
+        XCTAssertFalse(SentryNetworkTracker.sharedInstance.isGraphQLOperationTrackingEnabled)
+    }
+
     func testGetCaptureFailedRequestsEnabled() {
         let expect = expectation(description: "Request completed")
 

@@ -55,7 +55,7 @@ calcSampleFromNumericalRate(NSNumber *rate)
 #pragma mark - Public
 
 SentrySamplerDecision *
-sampleTrace(SentrySamplingContext *context, SentryOptions *options)
+sentry_sampleTrace(SentrySamplingContext *context, SentryOptions *options)
 {
     // check this transaction's sampling decision, if already decided
     if (context.transactionContext.sampled != kSentrySampleDecisionUndecided) {
@@ -83,8 +83,8 @@ sampleTrace(SentrySamplingContext *context, SentryOptions *options)
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
 SentrySamplerDecision *
-sampleProfile(SentrySamplingContext *context, SentrySamplerDecision *tracesSamplerDecision,
-    SentryOptions *options)
+sentry_sampleTraceProfile(SentrySamplingContext *context,
+    SentrySamplerDecision *tracesSamplerDecision, SentryOptions *options)
 {
     // Profiles are always undersampled with respect to traces. If the trace is not sampled,
     // the profile will not be either. If the trace is sampled, we can proceed to checking

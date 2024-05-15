@@ -200,6 +200,11 @@
     [self testBooleanField:@"enableCoreDataTracing" defaultValue:YES];
 }
 
+- (void)testEnableGraphQLOperationTracking
+{
+    [self testBooleanField:@"enableGraphQLOperationTracking" defaultValue:NO];
+}
+
 - (void)testSendClientReports
 {
     [self testBooleanField:@"sendClientReports" defaultValue:YES];
@@ -518,6 +523,7 @@
 - (void)testNSNull_SetsDefaultValue
 {
     SentryOptions *options = [[SentryOptions alloc] initWithDict:@{
+        @"urlSession" : [NSNull null],
         @"dsn" : [NSNull null],
         @"enabled" : [NSNull null],
         @"debug" : [NSNull null],
@@ -544,6 +550,7 @@
 #if SENTRY_HAS_UIKIT
         @"enableUIViewControllerTracing" : [NSNull null],
         @"attachScreenshot" : [NSNull null],
+        @"sessionReplayOptions" : [NSNull null],
 #endif
         @"enableAppHangTracking" : [NSNull null],
         @"appHangTimeoutInterval" : [NSNull null],
@@ -604,6 +611,8 @@
     XCTAssertEqual(options.enableUserInteractionTracing, YES);
     XCTAssertEqual(options.enablePreWarmedAppStartTracing, NO);
     XCTAssertEqual(options.attachViewHierarchy, NO);
+    XCTAssertEqual(options.experimental.sessionReplay.errorSampleRate, 0);
+    XCTAssertEqual(options.experimental.sessionReplay.sessionSampleRate, 0);
 #endif
     XCTAssertFalse(options.enableTracing);
     XCTAssertTrue(options.enableAppHangTracking);
@@ -614,6 +623,7 @@
     XCTAssertEqualObjects([self getDefaultInAppIncludes], options.inAppIncludes);
     XCTAssertEqual(@[], options.inAppExcludes);
     XCTAssertNil(options.urlSessionDelegate);
+    XCTAssertNil(options.urlSession);
     XCTAssertEqual(YES, options.enableSwizzling);
     XCTAssertEqual([NSSet new], options.swizzleClassNameExcludes);
     XCTAssertEqual(YES, options.enableFileIOTracing);
@@ -779,6 +789,27 @@
 - (void)testEnablePreWarmedAppStartTracking
 {
     [self testBooleanField:@"enablePreWarmedAppStartTracing" defaultValue:NO];
+}
+
+- (void)testSessionReplaySettingsInit
+{
+    if (@available(iOS 16.0, tvOS 16.0, *)) {
+        SentryOptions *options = [self getValidOptions:@{
+            @"experimental" :
+                @ { @"sessionReplay" : @ { @"sessionSampleRate" : @2, @"errorSampleRate" : @4 } }
+        }];
+        XCTAssertEqual(options.experimental.sessionReplay.sessionSampleRate, 2);
+        XCTAssertEqual(options.experimental.sessionReplay.errorSampleRate, 4);
+    }
+}
+
+- (void)testSessionReplaySettingsDefaults
+{
+    if (@available(iOS 16.0, tvOS 16.0, *)) {
+        SentryOptions *options = [self getValidOptions:@{ @"sessionReplayOptions" : @ {} }];
+        XCTAssertEqual(options.experimental.sessionReplay.sessionSampleRate, 0);
+        XCTAssertEqual(options.experimental.sessionReplay.errorSampleRate, 0);
+    }
 }
 
 #endif
@@ -1235,6 +1266,16 @@
                                                       didFailWithError:&error];
     XCTAssertNil(error);
     return sentryOptions;
+}
+
+- (void)testURLSession
+{
+    NSURLSession *urlSession = [NSURLSession
+        sessionWithConfiguration:[NSURLSessionConfiguration ephemeralSessionConfiguration]];
+
+    SentryOptions *options = [self getValidOptions:@{ @"urlSession" : urlSession }];
+
+    XCTAssertNotNil(options.urlSession);
 }
 
 - (void)testUrlSessionDelegate

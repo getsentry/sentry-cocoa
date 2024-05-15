@@ -76,6 +76,12 @@ parseBacktraceSymbolsFunctionName(const char *symbol)
     block(_mutableState);
 }
 
+- (void)clear
+{
+    std::lock_guard<std::mutex> l(_lock);
+    _mutableState = [[SentryProfilerMutableState alloc] init];
+}
+
 - (void)cacheMainThreadID
 {
     std::lock_guard<std::mutex> l(_lock);
