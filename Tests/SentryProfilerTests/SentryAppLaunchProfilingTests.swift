@@ -1,6 +1,7 @@
 import SentryTestUtils
 import XCTest
 
+#if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
 final class SentryAppLaunchProfilingSwiftTests: XCTestCase {
     var fixture: SentryProfileTestFixture?
     
@@ -186,3 +187,4 @@ final class SentryAppLaunchProfilingSwiftTests: XCTestCase {
         }
     }
 }
+#endif // os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
