@@ -2,6 +2,7 @@
 
 #if SENTRY_HAS_UIKIT
 
+@class SentryOptions;
 @class SentrySpan;
 @class SentryInAppLogic;
 @class UIViewController;
@@ -25,6 +26,10 @@ static NSString *const SENTRY_UI_PERFORMANCE_TRACKER_TTD_TRACKER
  * This class is intended to be used in a swizzled context.
  */
 @interface SentryUIViewControllerPerformanceTracker : NSObject
+
+SENTRY_NO_INIT
+
+- (instancetype)initWithOptions:(SentryOptions *)options;
 
 @property (nonatomic, readonly, class) SentryUIViewControllerPerformanceTracker *shared;
 

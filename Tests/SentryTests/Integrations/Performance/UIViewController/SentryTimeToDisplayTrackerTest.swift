@@ -11,6 +11,7 @@ class SentryTimeToDisplayTrackerTest: XCTestCase {
     private class Fixture {
         let dateProvider: TestCurrentDateProvider = TestCurrentDateProvider()
         let timerFactory = TestSentryNSTimerFactory()
+        let options = Options()
 
         var displayLinkWrapper = TestDisplayLinkWrapper()
         var framesTracker: SentryFramesTracker
@@ -22,12 +23,11 @@ class SentryTimeToDisplayTrackerTest: XCTestCase {
             framesTracker.start()
         }
 
-        func getSut(for controller: UIViewController, waitForFullDisplay: Bool) -> SentryTimeToDisplayTracker {
-            return SentryTimeToDisplayTracker(for: controller, waitForFullDisplay: waitForFullDisplay, dispatchQueueWrapper: SentryDispatchQueueWrapper())
+        func getSut(for controller: UIViewController) -> SentryTimeToDisplayTracker {
+            return SentryTimeToDisplayTracker(for: controller, options: options, dispatchQueueWrapper: SentryDispatchQueueWrapper())
         }
         
         func getTracer() throws -> SentryTracer {
-            let options = Options()
             let hub = TestHub(client: SentryClient(options: options, fileManager: try TestFileManager(options: options), deleteOldEnvelopeItems: false), andScope: nil)
             return SentryTracer(transactionContext: TransactionContext(operation: "ui.load"), hub: hub, configuration: SentryTracerConfiguration(block: {
                 $0.waitForChildren = true
@@ -50,7 +50,7 @@ class SentryTimeToDisplayTrackerTest: XCTestCase {
     }
 
     func testReportInitialDisplay_notWaitingForFullDisplay() throws {
-        let sut = fixture.getSut(for: UIViewController(), waitForFullDisplay: false)
+        let sut = fixture.getSut(for: UIViewController())
 
         fixture.dateProvider.setDate(date: Date(timeIntervalSince1970: 7))
         let tracer = try fixture.getTracer()
@@ -84,7 +84,8 @@ class SentryTimeToDisplayTrackerTest: XCTestCase {
     func testReportInitialDisplay_waitForFullDisplay() throws {
         fixture.dateProvider.setDate(date: Date(timeIntervalSince1970: 7))
 
-        let sut = fixture.getSut(for: UIViewController(), waitForFullDisplay: true)
+        fixture.options.enableTimeToFullDisplayTracing = true
+        let sut = fixture.getSut(for: UIViewController())
         let tracer = try fixture.getTracer()
 
         sut.start(for: tracer)
@@ -113,7 +114,7 @@ class SentryTimeToDisplayTrackerTest: XCTestCase {
     }
 
     func testReportFullDisplay_notWaitingForFullDisplay() throws {
-        let sut = fixture.getSut(for: UIViewController(), waitForFullDisplay: false)
+        let sut = fixture.getSut(for: UIViewController())
         let tracer = try fixture.getTracer()
 
         sut.start(for: tracer)
@@ -133,7 +134,8 @@ class SentryTimeToDisplayTrackerTest: XCTestCase {
     func testReportFullDisplay_waitingForFullDisplay() throws {
         fixture.dateProvider.setDate(date: Date(timeIntervalSince1970: 9))
 
-        let sut = fixture.getSut(for: UIViewController(), waitForFullDisplay: true)
+        fixture.options.enableTimeToFullDisplayTracing = true
+        let sut = fixture.getSut(for: UIViewController())
         let tracer = try fixture.getTracer()
 
         sut.start(for: tracer)
@@ -167,7 +169,8 @@ class SentryTimeToDisplayTrackerTest: XCTestCase {
     
     func testWaitingForFullDisplay_ReportFullDisplayBeforeInitialDisplay() throws {
         fixture.dateProvider.setDate(date: Date(timeIntervalSince1970: 9))
-        let sut = fixture.getSut(for: UIViewController(), waitForFullDisplay: true)
+        fixture.options.enableTimeToFullDisplayTracing = true
+        let sut = fixture.getSut(for: UIViewController())
 
         let tracer = try fixture.getTracer()
         sut.start(for: tracer)
@@ -205,7 +208,7 @@ class SentryTimeToDisplayTrackerTest: XCTestCase {
     }
     
     func testTracerFinishesBeforeReportInitialDisplay_FinishesInitialDisplaySpan() throws {
-        let sut = fixture.getSut(for: UIViewController(), waitForFullDisplay: false)
+        let sut = fixture.getSut(for: UIViewController())
 
         fixture.dateProvider.setDate(date: Date(timeIntervalSince1970: 7))
         let tracer = try fixture.getTracer()
@@ -235,7 +238,8 @@ class SentryTimeToDisplayTrackerTest: XCTestCase {
         fixture.dateProvider.setDate(date: Date(timeIntervalSince1970: 9))
         fixture.dateProvider.driftTimeForEveryRead = true
 
-        let sut = fixture.getSut(for: UIViewController(), waitForFullDisplay: true)
+        fixture.options.enableTimeToFullDisplayTracing = true
+        let sut = fixture.getSut(for: UIViewController())
         let tracer = try fixture.getTracer()
 
         sut.start(for: tracer)
@@ -250,7 +254,8 @@ class SentryTimeToDisplayTrackerTest: XCTestCase {
 
         let tracer = try fixture.getTracer()
         
-        let sut = fixture.getSut(for: UIViewController(), waitForFullDisplay: true)
+        fixture.options.enableTimeToFullDisplayTracing = true
+        let sut = fixture.getSut(for: UIViewController())
 
         sut.start(for: tracer)
 
@@ -286,7 +291,8 @@ class SentryTimeToDisplayTrackerTest: XCTestCase {
     func testReportFullyDisplayed_GetsDispatchedOnMainQueue() {
         let dispatchQueueWrapper = TestSentryDispatchQueueWrapper()
         
-        let sut = SentryTimeToDisplayTracker(for: UIViewController(), waitForFullDisplay: true, dispatchQueueWrapper: dispatchQueueWrapper)
+        fixture.options.enableTimeToFullDisplayTracing = true
+        let sut = SentryTimeToDisplayTracker(for: UIViewController(), options: fixture.options, dispatchQueueWrapper: dispatchQueueWrapper)
         
         let invocationsBefore = dispatchQueueWrapper.blockOnMainInvocations.count
         sut.reportFullyDisplayed()
@@ -300,7 +306,7 @@ class SentryTimeToDisplayTrackerTest: XCTestCase {
 
         let tracer = try fixture.getTracer()
         
-        let sut = fixture.getSut(for: UIViewController(), waitForFullDisplay: false)
+        let sut = fixture.getSut(for: UIViewController())
 
         sut.start(for: tracer)
 
@@ -332,7 +338,7 @@ class SentryTimeToDisplayTrackerTest: XCTestCase {
         
         fixture.dateProvider.setDate(date: Date(timeIntervalSince1970: 7))
 
-        let sut = fixture.getSut(for: UIViewController(), waitForFullDisplay: false)
+        let sut = fixture.getSut(for: UIViewController())
         let tracer = try fixture.getTracer()
 
         sut.start(for: tracer)
@@ -365,7 +371,8 @@ class SentryTimeToDisplayTrackerTest: XCTestCase {
         
         fixture.dateProvider.setDate(date: Date(timeIntervalSince1970: 7))
 
-        let sut = fixture.getSut(for: UIViewController(), waitForFullDisplay: true)
+        fixture.options.enableTimeToFullDisplayTracing = true
+        let sut = fixture.getSut(for: UIViewController())
         let tracer = try fixture.getTracer()
 
         sut.start(for: tracer)

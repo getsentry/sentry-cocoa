@@ -622,7 +622,7 @@ class SentrySDKTests: XCTestCase {
 
         SentrySDK.start(options: fixture.options)
 
-        let testTTDTracker = TestTimeToDisplayTracker()
+        let testTTDTracker = TestTimeToDisplayTracker(options: fixture.options)
 
         Dynamic(SentryUIViewControllerPerformanceTracker.shared).currentTTDTracker = testTTDTracker
 

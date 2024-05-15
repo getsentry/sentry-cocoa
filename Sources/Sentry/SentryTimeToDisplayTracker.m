@@ -35,16 +35,18 @@ SentryTimeToDisplayTracker () <SentryFramesTrackerListener>
     BOOL _waitForFullDisplay;
     BOOL _initialDisplayReported;
     BOOL _fullyDisplayedReported;
+    BOOL _stopLaunchProfiles;
     NSString *_controllerName;
 }
 
 - (instancetype)initForController:(UIViewController *)controller
-               waitForFullDisplay:(BOOL)waitForFullDisplay
+                          options:(nonnull SentryOptions *)options
              dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
 {
     if (self = [super init]) {
         _controllerName = [SwiftDescriptor getObjectClassName:controller];
-        _waitForFullDisplay = waitForFullDisplay;
+        _waitForFullDisplay = options.enableTimeToFullDisplayTracing;
+        _stopLaunchProfiles = !options.enableContinuousProfiling;
         _dispatchQueueWrapper = dispatchQueueWrapper;
         _initialDisplayReported = NO;
         _fullyDisplayedReported = NO;

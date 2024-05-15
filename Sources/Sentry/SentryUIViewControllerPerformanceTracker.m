@@ -7,7 +7,6 @@
 #    import "SentryLog.h"
 #    import "SentryOptions.h"
 #    import "SentryPerformanceTracker.h"
-#    import "SentrySDK+Private.h"
 #    import "SentryScope.h"
 #    import "SentrySpanId.h"
 #    import "SentrySwift.h"
@@ -28,7 +27,9 @@ SentryUIViewControllerPerformanceTracker ()
 
 @end
 
-@implementation SentryUIViewControllerPerformanceTracker
+@implementation SentryUIViewControllerPerformanceTracker {
+    SentryOptions *_options;
+}
 
 + (instancetype)shared
 {
@@ -38,12 +39,11 @@ SentryUIViewControllerPerformanceTracker ()
     return instance;
 }
 
-- (instancetype)init
+- (instancetype)initWithOptions:(SentryOptions *)options
 {
     if (self = [super init]) {
+        _options = options;
         self.tracker = SentryPerformanceTracker.shared;
-
-        SentryOptions *options = [SentrySDK options];
         self.inAppLogic = [[SentryInAppLogic alloc] initWithInAppIncludes:options.inAppIncludes
                                                             inAppExcludes:options.inAppExcludes];
 
@@ -145,7 +145,7 @@ SentryUIViewControllerPerformanceTracker ()
 
     SentryTimeToDisplayTracker *ttdTracker =
         [[SentryTimeToDisplayTracker alloc] initForController:controller
-                                           waitForFullDisplay:self.enableWaitForFullDisplay
+                                                      options:_options
                                          dispatchQueueWrapper:_dispatchQueueWrapper];
 
     objc_setAssociatedObject(controller, &SENTRY_UI_PERFORMANCE_TRACKER_TTD_TRACKER, ttdTracker,
