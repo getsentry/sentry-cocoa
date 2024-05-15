@@ -2,6 +2,18 @@ import SentryTestUtils
 import XCTest
 
 final class SentryAppLaunchProfilingSwiftTests: XCTestCase {
+    var fixture: SentryProfileTestFixture?
+    
+    override func setUp() {
+        super.setUp()
+        fixture = SentryProfileTestFixture()
+    }
+    
+    override func tearDown() {
+        super.tearDown()
+        clearTestState()
+    }
+    
     func testContentsOfLegacyLaunchProfileTransactionContext() {
         let context = sentry_context(NSNumber(value: 1))
         XCTAssertEqual(context.nameSource.rawValue, 0)
@@ -9,15 +21,73 @@ final class SentryAppLaunchProfilingSwiftTests: XCTestCase {
         XCTAssertEqual(context.sampled, .yes)
     }
    
-    // test that after configuring launch profiling for the trace profiler, the
-    // file is written to disk and the file is deleted after the app is launched
-    func testLaunchProfileTransactionContext() {
+    func testLaunchTraceProfileConfiguration() throws {
+        let expectedProfilesSampleRate: NSNumber = 0.567
+        let expectedTracesSampleRate: NSNumber = 0.789
         let options = Options()
         options.enableAppLaunchProfiling = true 
-        options.profilesSampleRate = 1
-        options.tracesSampleRate = 1
+        options.profilesSampleRate = expectedProfilesSampleRate
+        options.tracesSampleRate = expectedTracesSampleRate
+        XCTAssertFalse(appLaunchProfileConfigFileExists())
         sentry_manageTraceProfilerOnStartSDK(options, TestHub(client: nil, andScope: nil))
-        XCTAssert(FileManager.default.fileExists(atPath: launchProfileConfigFileURL().absoluteString))
+        XCTAssert(appLaunchProfileConfigFileExists())
+        let dict = try XCTUnwrap(appLaunchProfileConfiguration())
+        XCTAssertEqual(dict[kSentryLaunchProfileConfigKeyTracesSampleRate], expectedTracesSampleRate)
+        XCTAssertEqual(dict[kSentryLaunchProfileConfigKeyProfilesSampleRate], expectedProfilesSampleRate)
+    }
+
+    // test that after configuring for a launch profile, a subsequent
+    // configuration with insufficient sample rates removes the configuration
+    // file
+    func testLaunchTraceProfileConfigurationRemoval() {
+        let options = Options()
+        options.enableAppLaunchProfiling = true
+        options.profilesSampleRate = 0.567
+        options.tracesSampleRate = 0.789
+        XCTAssertFalse(appLaunchProfileConfigFileExists())
+        sentry_manageTraceProfilerOnStartSDK(options, TestHub(client: nil, andScope: nil))
+        XCTAssert(appLaunchProfileConfigFileExists())
+        options.profilesSampleRate = 0
+        sentry_manageTraceProfilerOnStartSDK(options, TestHub(client: nil, andScope: nil))
+        XCTAssertFalse(appLaunchProfileConfigFileExists())
+        // ensure we get another config written, to test removal again
+        options.profilesSampleRate = 0.567
+        sentry_manageTraceProfilerOnStartSDK(options, TestHub(client: nil, andScope: nil))
+        XCTAssert(appLaunchProfileConfigFileExists())
+        options.tracesSampleRate = 0
+        sentry_manageTraceProfilerOnStartSDK(options, TestHub(client: nil, andScope: nil))
+        XCTAssertFalse(appLaunchProfileConfigFileExists())
+    }
+
+    // test continuous launch profiling configuration
+    func testContinuousLaunchProfileConfiguration() throws {
+        let options = Options()
+        options.enableContinuousProfiling = true
+        
+        // sample rates are not considered for continuous profiling
+        options.profilesSampleRate = 0
+        options.tracesSampleRate = 0
+        
+        XCTAssertFalse(appLaunchProfileConfigFileExists())
+        sentry_manageTraceProfilerOnStartSDK(options, TestHub(client: nil, andScope: nil))
+        XCTAssert(appLaunchProfileConfigFileExists())
+        let dict = try XCTUnwrap(appLaunchProfileConfiguration())
+        XCTAssertEqual(dict[kSentryLaunchProfileConfigKeyContinuousProfiling], true)
+
+        _sentry_nondeduplicated_startLaunchProfile()
+        XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
+    }
+    
+    func testTraceProfilerStartsWhenBothSampleRatesAreSet() {
+        let options = Options()
+        options.enableAppLaunchProfiling = true
+        options.profilesSampleRate = 0.567
+        options.tracesSampleRate = 0.789
+        XCTAssertFalse(appLaunchProfileConfigFileExists())
+        sentry_manageTraceProfilerOnStartSDK(options, TestHub(client: nil, andScope: nil))
+        XCTAssertTrue(appLaunchProfileConfigFileExists())
+        _sentry_nondeduplicated_startLaunchProfile()
+        XCTAssert(SentryLegacyProfiler.isCurrentlyProfiling())
     }
  
     /**

@@ -17,6 +17,7 @@ typedef struct {
 
 SENTRY_EXTERN NSString *const kSentryLaunchProfileConfigKeyTracesSampleRate;
 SENTRY_EXTERN NSString *const kSentryLaunchProfileConfigKeyProfilesSampleRate;
+SENTRY_EXTERN NSString *const kSentryLaunchProfileConfigKeyContinuousProfiling;
 
 SentryLaunchProfileConfig sentry_shouldProfileNextLaunch(SentryOptions *options);
 
@@ -26,6 +27,14 @@ SentryLaunchProfileConfig sentry_shouldProfileNextLaunch(SentryOptions *options)
  * struct.
  */
 BOOL sentry_willProfileNextLaunch(SentryOptions *options);
+
+/**
+ * Contains the logic to start a launch profile. Exposed separately from @c
+ * sentry_startLaunchProfile, because that function wraps everything in a @c dispatch_once , and
+ * that path is taken once when @c SenryProfiler.load is called at the start of the test suite, and
+ * can't be executed again by calling that function.
+ */
+void _sentry_nondeduplicated_startLaunchProfile(void);
 
 SentryTransactionContext *sentry_context(NSNumber *tracesRate);
 
