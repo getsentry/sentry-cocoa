@@ -12,7 +12,7 @@ class ProfilingUITests: BaseUITest {
             launchApp()
             
             // First launch enables in-app profiling by setting traces/profiles sample rates to 1 (which is the default configuration in the sample app), but not launch profiling; assert that we did not write a config to allow the next launch to be profiled.
-            try performAssertions(shouldProfileThisLaunch: false, shouldProfileNextLaunch: false)
+            try performAssertions(shouldProfileThisLaunch: false, shouldProfileNextLaunch: false, shouldEnableContinuousProfiling: false)
             
             // no profiling should be done on this launch; set the option to allow launch profiling for the next launch, keeping the default numerical sampling rates of 1 for traces and profiles
             try relaunchAndConfigureSubsequentLaunches(shouldProfileThisLaunch: false, shouldEnableLaunchProfilingOptionForNextLaunch: true)
@@ -30,10 +30,10 @@ class ProfilingUITests: BaseUITest {
             try relaunchAndConfigureSubsequentLaunches(shouldProfileThisLaunch: false, shouldEnableLaunchProfilingOptionForNextLaunch: true)
             
             // this launch should run the profiler, and configure it not to run the next launch due to disabling tracing, which would override the option to enable launch profiling
-            try relaunchAndConfigureSubsequentLaunches(shouldProfileThisLaunch: true, shouldEnableLaunchProfilingOptionForNextLaunch: true, shouldDisableTracing: true)
+            try relaunchAndConfigureSubsequentLaunches(shouldProfileThisLaunch: true, shouldEnableLaunchProfilingOptionForNextLaunch: true, shouldDisableTracing: true, shouldEnableContinuousProfiling: true)
             
-            // make sure the profiler respects the last configuration not to run; don't let another config file get written
-            try relaunchAndConfigureSubsequentLaunches(shouldProfileThisLaunch: false, shouldEnableLaunchProfilingOptionForNextLaunch: false)
+            // the profiler should run with tracing disabled but continuous profiling enabled
+            try relaunchAndConfigureSubsequentLaunches(shouldProfileThisLaunch: true, shouldEnableLaunchProfilingOptionForNextLaunch: false)
         }
     }
     
@@ -115,12 +115,16 @@ extension ProfilingUITests {
         app.buttons["viewLastProfile"].afterWaitingForExistence("Couldn't find button to view last profile").tap()
     }
     
-    func retrieveLaunchProfileData() {
-        app.buttons["viewLaunchProfile"].afterWaitingForExistence("Couldn't find button to view launch profile").tap()
+    func retrieveFirstProfileChunkData() {
+        app.buttons["viewFirstContinuousProfileChunk"].afterWaitingForExistence("Couldn't find button to view last profile").tap()
     }
 
-    func assertLaunchProfile() throws {
-        retrieveLaunchProfileData()
+    func assertLaunchProfile(shouldEnableContinuousProfiling: Bool) throws {
+        if shouldEnableContinuousProfiling {
+            retrieveFirstProfileChunkData()
+        } else {
+            retrieveLastProfileData()
+        }
         
         let lastProfile = try marshalJSONDictionaryFromApp()
         let sampledProfile = try XCTUnwrap(lastProfile["profile"] as? [String: Any])
@@ -188,10 +192,8 @@ extension ProfilingUITests {
         tracesSampleRate: Int? = nil,
         profilesSamplerValue: Int? = nil,
         tracesSamplerValue: Int? = nil,
-        shouldDisableAutoPerformanceTracking: Bool = false,
-        shouldDisableUIViewControllerTracing: Bool = false,
-        shouldDisableSwizzling: Bool = false,
-        shouldDisableTracing: Bool = false
+        shouldDisableTracing: Bool = false,
+        shouldEnableContinuousProfiling: Bool = false
     ) throws {
         app.terminate()
         app = newAppSession()
@@ -227,26 +229,30 @@ extension ProfilingUITests {
             app.launchArguments.append("--disable-tracing")
         }
         
+        if shouldEnableContinuousProfiling {
+            app.launchArguments.append("--io.sentry.enable-continuous-profiling")
+        }
+        
         setDefaultLaunchArgs()
         launchApp()
         
-        let sdkOptionsConfigurationAllowsLaunchProfiling = !(shouldDisableTracing || shouldDisableSwizzling || shouldDisableAutoPerformanceTracking || shouldDisableUIViewControllerTracing)
+        let sdkOptionsConfigurationAllowsLaunchProfiling = shouldEnableContinuousProfiling || !shouldDisableTracing
         
         // these tests only set sample rates to 0 or 1, or don't provide an override (and the sample app sets them to 1 by default)
         let sampleRatesAllowLaunchProfiling = (resolvedTracesSampleRate == nil || resolvedTracesSampleRate! == 1) && (resolvedProfilesSampleRate == nil || resolvedProfilesSampleRate == 1)
         
         let shouldProfileNextLaunch = shouldEnableLaunchProfilingOptionForNextLaunch && sdkOptionsConfigurationAllowsLaunchProfiling && sampleRatesAllowLaunchProfiling
         
-        try performAssertions(shouldProfileThisLaunch: shouldProfileThisLaunch, shouldProfileNextLaunch: shouldProfileNextLaunch)
+        try performAssertions(shouldProfileThisLaunch: shouldProfileThisLaunch, shouldProfileNextLaunch: shouldProfileNextLaunch, shouldEnableContinuousProfiling: shouldEnableContinuousProfiling)
     }
     
-    func performAssertions(shouldProfileThisLaunch: Bool, shouldProfileNextLaunch: Bool ) throws {
+    func performAssertions(shouldProfileThisLaunch: Bool, shouldProfileNextLaunch: Bool, shouldEnableContinuousProfiling: Bool) throws {
         goToProfiling()
         
         XCTAssertEqual(shouldProfileNextLaunch, try checkLaunchProfileMarkerFileExistence())
         
         if shouldProfileThisLaunch {
-            try assertLaunchProfile()
+            try assertLaunchProfile(shouldEnableContinuousProfiling: shouldEnableContinuousProfiling)
         }
     }
 }
