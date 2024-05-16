@@ -60,6 +60,9 @@ typedef struct {
 
     /** The address of the closest symbol to the current address. */
     uintptr_t symbolAddress;
+
+    /** The frame pointer, or 0 if unknown. */
+    uintptr_t frameAddress;
 } SentryCrashStackEntry;
 
 typedef struct SentryCrashStackCursor {
