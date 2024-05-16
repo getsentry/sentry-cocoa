@@ -268,6 +268,9 @@ SentryCrashReportConverter ()
     if (frameDictionary[@"symbol_name"]) {
         frame.function = frameDictionary[@"symbol_name"];
     }
+    if (frameDictionary[@"frame_addr"]) {
+        frame.frameAddress = sentry_formatHexAddress(frameDictionary[@"frame_addr"]);
+    }
     return frame;
 }
 

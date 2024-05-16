@@ -819,6 +819,10 @@ writeBacktrace(const SentryCrashReportWriter *const writer, const char *const ke
                         writer->addUIntegerElement(writer, SentryCrashField_SymbolAddr,
                             stackCursor->stackEntry.symbolAddress);
                     }
+                    if (stackCursor->stackEntry.frameAddress) {
+                        writer->addUIntegerElement(
+                            writer, SentryCrashField_FrameAddr, stackCursor->stackEntry.frameAddress);
+                    }
                     writer->addUIntegerElement(
                         writer, SentryCrashField_InstructionAddr, stackCursor->stackEntry.address);
                 }
