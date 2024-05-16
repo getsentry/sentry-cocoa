@@ -117,13 +117,47 @@ class SentryCrashReportTests: XCTestCase {
         
         expect(crashReportContentsAsString).toNot(contain("boot_time"), description: "The crash report must not contain boot_time because Apple forbids sending this information off device see: https://developer.apple.com/documentation/bundleresources/privacy_manifest_files/describing_use_of_required_reason_api#4278394.")
     }
-    
+
+    func testCrashReportContainsFrameAddresses() throws {
+        writeCrashReport()
+
+        let crashReportContents = FileManager.default.contents(atPath: fixture.reportPath) ?? Data()
+
+        let crashReportContentsAsString = String(data: crashReportContents, encoding: .ascii)
+
+        expect(crashReportContentsAsString).to(contain("frame_addr"), description: "The crash report should contain frame addresses")
+    }
+
     private func writeCrashReport() {
         var monitorContext = SentryCrash_MonitorContext()
         
         let api = sentrycrashcm_system_getAPI()
         api?.pointee.addContextualInfoToEvent(&monitorContext)
-        
+
+        let context = malloc(Int(sentrycrashmc_contextSize()))!
+        defer { free(context) }
+        let mc = OpaquePointer(context)
+
+        let semaphore = DispatchSemaphore(value: 0)
+        var threadID: SentryCrashThread?
+        let thread = Thread {
+            threadID = sentrycrashthread_self()
+            semaphore.signal()
+            semaphore.wait()
+        }
+        thread.start()
+        semaphore.wait()
+        defer { semaphore.signal() }
+        sentrycrashmc_getContextForThread(threadID!, mc, true)
+
+        let cursor = UnsafeMutablePointer<SentryCrashStackCursor>.allocate(capacity: 1)
+        defer { cursor.deallocate() }
+        sentrycrashsc_initCursor(cursor, nil, nil)
+        sentrycrashsc_initWithMachineContext(cursor, 100, mc)
+
+        monitorContext.offendingMachineContext = mc
+        monitorContext.stackCursor = UnsafeMutableRawPointer(cursor)
+
         sentrycrashreport_writeStandardReport(&monitorContext, fixture.reportPath)
     }
     

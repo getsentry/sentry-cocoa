@@ -244,3 +244,4 @@
 #import "SentryCrashCachedData.h"
 #import "SentryCrashInstallation+Private.h"
 #import "SentryCrashMonitor_MachException.h"
+#import "SentryCrashStackCursor_MachineContext.h"
