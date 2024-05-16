@@ -4,6 +4,7 @@
 
 ### Improvements
 
+- Include frame addresses in SentryFrame when possible ([#3994](https://github.com/getsentry/sentry-cocoa/pull/3994))
 - Stop FramesTracker when app is in background (#3979)
 
 ### Fixes
