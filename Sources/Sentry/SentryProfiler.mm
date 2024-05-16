@@ -157,8 +157,6 @@ sentry_manageTraceProfilerOnStartSDK(SentryOptions *options, SentryHub *hub)
 
 - (void)stopForReason:(SentryProfilerTruncationReason)reason
 {
-    // the following line makes unit tests pass, but ui tests fail because sentry_writeProfileFile
-    // needs it to be true to write to the correct path
     sentry_isTracingAppLaunch = NO;
     [_timeoutTimer invalidate];
     [self.metricProfiler stop];
