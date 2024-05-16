@@ -138,6 +138,7 @@ sentry_sliceGPUData(SentryFrameInfoTimeSeries *frameInfo, uint64_t startSystemTi
             break;
         }
         entry[@"value"] = mostRecentFrameRate;
+        [slicedGPUEntries addObject:entry];
     }
     return slicedGPUEntries;
 }

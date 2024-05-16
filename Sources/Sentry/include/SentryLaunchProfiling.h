@@ -14,7 +14,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * Whether or not the profiler started with the app launch. With legacy profiling, this means there
+ * Whether or not the profiler started with the app launch. With trace profiling, this means there
  * is a tracer managing the profile that will eventually need to be stopped and either discarded (in
  * the case of auto performance transactions) or also transmitted. With continuous profiling, this
  * indicates whether or not the profiler that's currently running was started from app launch, or
