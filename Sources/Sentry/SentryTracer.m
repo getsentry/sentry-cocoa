@@ -619,7 +619,7 @@ static BOOL appStartMeasurementRead;
                        startTimestamp:(NSDate *)startTimestamp
 {
     SentryEnvelopeItem *profileEnvelopeItem
-        = sentry_profileEnvelopeItemLegacy(transaction, startTimestamp);
+        = sentry_traceProfileEnvelopeItem(transaction, startTimestamp);
 
     if (!profileEnvelopeItem) {
         [_hub captureTransaction:transaction withScope:_hub.scope];

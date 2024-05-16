@@ -15,7 +15,7 @@ final class SentryAppLaunchProfilingSwiftTests: XCTestCase {
         clearTestState()
     }
     
-    func testContentsOfLegacyLaunchProfileTransactionContext() {
+    func testContentsOfLaunchTraceProfileTransactionContext() {
         let context = sentry_context(NSNumber(value: 1))
         XCTAssertEqual(context.nameSource.rawValue, 0)
         XCTAssertEqual(context.origin, "auto.app.start.profile")

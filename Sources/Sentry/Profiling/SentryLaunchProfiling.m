@@ -48,7 +48,7 @@ sentry_config(NSNumber *profilesRate)
 
 typedef struct {
     BOOL shouldProfile;
-    /** Only needed for legacy launch profiling; unused with continuous profiling. */
+    /** Only needed for trace launch profiling; unused with continuous profiling. */
     SentrySamplerDecision *_Nullable tracesDecision;
     SentrySamplerDecision *_Nullable profilesDecision;
 } SentryLaunchProfileConfig;
@@ -83,11 +83,11 @@ sentry_shouldProfileNextLaunch(SentryOptions *options)
     SentrySamplerDecision *profilesSamplerDecision
         = sentry_sampleTraceProfile(context, tracesSamplerDecision, options);
     if (profilesSamplerDecision.decision != kSentrySampleDecisionYes) {
-        SENTRY_LOG_DEBUG(@"Sampling out the launch legacy profile.");
+        SENTRY_LOG_DEBUG(@"Sampling out the launch trace profile.");
         return (SentryLaunchProfileConfig) { NO, nil, nil };
     }
 
-    SENTRY_LOG_DEBUG(@"Will start legacy profile next launch.");
+    SENTRY_LOG_DEBUG(@"Will start trace profile next launch.");
     return (SentryLaunchProfileConfig) { YES, tracesSamplerDecision, profilesSamplerDecision };
 }
 
