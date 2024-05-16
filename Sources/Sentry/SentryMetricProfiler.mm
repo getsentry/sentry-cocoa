@@ -66,7 +66,7 @@ SentrySerializedMetricEntry *_Nullable serializeValuesWithNormalizedTime(
         const auto value = [NSMutableDictionary dictionary];
         switch (mode) {
         default: // fall-through!
-        case SentryProfilerModeLegacy:
+        case SentryProfilerModeTrace:
             value[@"elapsed_since_start_ns"] = sentry_stringForUInt64(relativeTimestamp);
             break;
         case SentryProfilerModeContinuous:

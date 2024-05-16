@@ -116,7 +116,7 @@ sentry_sliceGPUData(SentryFrameInfoTimeSeries *frameInfo, uint64_t startSystemTi
         const auto entry = [NSMutableDictionary dictionary];
         switch (mode) {
         default: // fall-through!
-        case SentryProfilerModeLegacy:
+        case SentryProfilerModeTrace:
             entry[@"elapsed_since_start_ns"] = sentry_stringForUInt64(relativeTimestamp);
             break;
         case SentryProfilerModeContinuous:
@@ -130,7 +130,7 @@ sentry_sliceGPUData(SentryFrameInfoTimeSeries *frameInfo, uint64_t startSystemTi
         const auto entry = [NSMutableDictionary dictionary];
         switch (mode) {
         default: // fall-through!
-        case SentryProfilerModeLegacy:
+        case SentryProfilerModeTrace:
             entry[@"elapsed_since_start_ns"] = @"0";
             break;
         case SentryProfilerModeContinuous:

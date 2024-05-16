@@ -39,8 +39,8 @@ class TestCleanup: NSObject {
         SentryTracer.resetAppStartMeasurementRead()
 
 #if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
-        SentryLegacyProfiler.getCurrentProfiler()?.stop(for: SentryProfilerTruncationReason.normal)
-        SentryLegacyProfiler.resetConcurrencyTracking()
+        SentryTraceProfiler.getCurrentProfiler()?.stop(for: SentryProfilerTruncationReason.normal)
+        SentryTraceProfiler.resetConcurrencyTracking()
         SentryContinuousProfiler.stop()
         removeAppLaunchProfilingConfigFile()
         sentry_stopAndDiscardLaunchProfileTracer()

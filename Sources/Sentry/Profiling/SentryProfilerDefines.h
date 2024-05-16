@@ -6,7 +6,7 @@
 #    import <Foundation/Foundation.h>
 
 typedef NS_ENUM(NSUInteger, SentryProfilerMode) {
-    SentryProfilerModeLegacy,
+    SentryProfilerModeTrace,
     SentryProfilerModeContinuous,
 };
 

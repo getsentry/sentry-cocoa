@@ -19,7 +19,7 @@
 
 #    if SENTRY_TARGET_PROFILING_SUPPORTED
 #        import "SentryContinuousProfiler.h"
-#        import "SentryLegacyProfiler.h"
+#        import "SentryTraceProfiler.h"
 
 /** A mutable version of @c SentryFrameInfoTimeSeries so we can accumulate results. */
 typedef NSMutableArray<NSDictionary<NSString *, NSNumber *> *> SentryMutableFrameInfoTimeSeries;
@@ -200,7 +200,7 @@ slowFrameThreshold(uint64_t actualFramesPerSecond)
     }
 
 #    if SENTRY_TARGET_PROFILING_SUPPORTED
-    if ([SentryLegacyProfiler isCurrentlyProfiling] ||
+    if ([SentryTraceProfiler isCurrentlyProfiling] ||
         [SentryContinuousProfiler isCurrentlyProfiling]) {
         BOOL hasNoFrameRatesYet = self.frameRateTimestamps.count == 0;
         uint64_t previousFrameRate
@@ -267,7 +267,7 @@ slowFrameThreshold(uint64_t actualFramesPerSecond)
 #    if SENTRY_TARGET_PROFILING_SUPPORTED
 - (void)recordTimestamp:(uint64_t)timestamp value:(NSNumber *)value array:(NSMutableArray *)array
 {
-    BOOL shouldRecord = [SentryLegacyProfiler isCurrentlyProfiling] ||
+    BOOL shouldRecord = [SentryTraceProfiler isCurrentlyProfiling] ||
         [SentryContinuousProfiler isCurrentlyProfiling];
 #        if defined(TEST) || defined(TESTCI)
     shouldRecord = YES;

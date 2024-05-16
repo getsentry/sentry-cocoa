@@ -14,7 +14,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-SENTRY_EXTERN SentryEnvelopeItem *_Nullable sentry_profileEnvelopeItemLegacy(
+SENTRY_EXTERN SentryEnvelopeItem *_Nullable sentry_traceProfileEnvelopeItem(
     SentryTransaction *transaction, NSDate *startTimestamp);
 
 SentryEnvelope *_Nullable sentry_continuousProfileChunkEnvelope(
