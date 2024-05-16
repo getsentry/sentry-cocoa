@@ -102,7 +102,7 @@ final class SentryAppLaunchProfilingSwiftTests: XCTestCase {
         sentry_manageTraceProfilerOnStartSDK(options, TestHub(client: nil, andScope: nil))
         XCTAssertTrue(appLaunchProfileConfigFileExists())
         _sentry_nondeduplicated_startLaunchProfile()
-        XCTAssert(SentryLegacyProfiler.isCurrentlyProfiling())
+        XCTAssert(SentryTraceProfiler.isCurrentlyProfiling())
     }
  
     /**

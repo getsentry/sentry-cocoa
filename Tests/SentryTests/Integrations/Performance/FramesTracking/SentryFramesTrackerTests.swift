@@ -140,7 +140,7 @@ class SentryFramesTrackerTests: XCTestCase {
         let tracer = SentryTracer(transactionContext: TransactionContext(name: "test transaction", operation: "test operation"), hub: hub)
         
         // the profiler must be running for the frames tracker to record frame rate info etc, validated in assertProfilingData()
-        SentryLegacyProfiler.start(withTracer: tracer.traceId)
+        SentryTraceProfiler.start(withTracer: tracer.traceId)
         
         let sut = fixture.sut
         sut.start()
@@ -152,8 +152,8 @@ class SentryFramesTrackerTests: XCTestCase {
 
         try assert(slow: 1, frozen: 1, total: 2, frameRates: 2)
         
-        SentryLegacyProfiler.getCurrentProfiler()?.stop(for: SentryProfilerTruncationReason.normal)
-        SentryLegacyProfiler.resetConcurrencyTracking()
+        SentryTraceProfiler.getCurrentProfiler()?.stop(for: SentryProfilerTruncationReason.normal)
+        SentryTraceProfiler.resetConcurrencyTracking()
 #endif // os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
     }
     

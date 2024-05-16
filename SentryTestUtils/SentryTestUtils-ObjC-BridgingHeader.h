@@ -19,7 +19,6 @@
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 #    import "SentryContinuousProfiler.h"
 #    import "SentryLaunchProfiling.h"
-#    import "SentryLegacyProfiler+Test.h"
 #    import "SentryProfiler+Private.h"
 #    import "SentryTraceProfiler+Test.h"
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
