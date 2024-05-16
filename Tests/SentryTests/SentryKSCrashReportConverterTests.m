@@ -59,6 +59,9 @@
     XCTAssertEqualObjects(
         exception.stacktrace.frames.lastObject.instructionAddress, @"0x000000010014caa4");
     XCTAssertEqualObjects(
+        exception.stacktrace.frames.lastObject.frameAddress, @"0x00000000000004d2");
+    XCTAssertNil(exception.stacktrace.frames.firstObject.frameAddress);
+    XCTAssertEqualObjects(
         exception.stacktrace.frames.lastObject.imageAddress, @"0x0000000100144000");
     XCTAssertEqualObjects(exception.stacktrace.registers[@"x4"], @"0x0000000102468000");
     XCTAssertEqualObjects(exception.stacktrace.registers[@"x9"], @"0x32a77e172fd70062");

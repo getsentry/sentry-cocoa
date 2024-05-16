@@ -3153,6 +3153,7 @@
                             "object_addr": 4296294400,
                             "symbol_name": "_ZNK16kaboom_exception4whatEv",
                             "symbol_addr": 4296327660,
+                            "frame_addr": 1234,
                             "instruction_addr": 4296329892
                         },
                         {
