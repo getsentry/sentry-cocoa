@@ -18,6 +18,8 @@
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 #    import "SentryContinuousProfiler.h"
+#    import "SentryLaunchProfiling.h"
+#    import "SentryLegacyProfiler+Test.h"
 #    import "SentryProfiler+Private.h"
 #    import "SentryTraceProfiler+Test.h"
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
@@ -38,6 +40,8 @@
 #import "SentryEnvelope.h"
 #import "SentryFileManager+Test.h"
 #import "SentryGlobalEventProcessor.h"
+#import "SentryHub+Private.h"
+#import "SentryHub+Test.h"
 #import "SentryLog.h"
 #import "SentryNSNotificationCenterWrapper.h"
 #import "SentryNSProcessInfoWrapper.h"
@@ -54,5 +58,6 @@
 #import "SentryThreadInspector.h"
 #import "SentryTraceContext.h"
 #import "SentryTracer+Test.h"
+#import "SentryTransaction.h"
 #import "SentryTransport.h"
 #import "SentryTransportAdapter.h"

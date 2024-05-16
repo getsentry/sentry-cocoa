@@ -624,7 +624,9 @@ private extension SentryTraceProfilerTests {
         options(fixtureOptions)
         
         let span = try fixture.newTransaction()
-        try addMockSamples()
+        if expectedDecision == .yes {
+            try addMockSamples()
+        }
         fixture.currentDateProvider.advance(by: 5)
         span.finish()
 

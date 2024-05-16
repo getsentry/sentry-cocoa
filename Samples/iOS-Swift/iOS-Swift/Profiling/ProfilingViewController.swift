@@ -112,7 +112,7 @@ class ProfilingViewController: UIViewController, UITextFieldDelegate {
     
     @IBAction func viewLaunchProfile(_ sender: Any) {
         profilingUITestDataMarshalingTextField.text = "<fetching...>"
-        withProfile(fileName: "launchProfile") { file in
+        withProfile(fileName: "profile") { file in
             handleContents(file: file)
         }
     }
