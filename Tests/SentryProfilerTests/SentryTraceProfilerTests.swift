@@ -20,10 +20,6 @@ class SentryTraceProfilerTests: XCTestCase {
 
     override func tearDown() {
         super.tearDown()
-
-        // If a test early exits because of a thrown error, it may not finish the spans it created. This ensures the profiler stops before starting the next test case.
-        fixture.timeoutTimerFactory.fire()
-
         clearTestState()
     }
 
@@ -375,9 +371,7 @@ private extension SentryTraceProfilerTests {
         try addMockSamples()
         fixture.currentDateProvider.advance(by: 31)
         if shouldTimeOut {
-            DispatchQueue.main.async {
-                self.fixture.timeoutTimerFactory.fire()
-            }
+            self.fixture.timeoutTimerFactory.fire()
         }
 
         let exp = expectation(description: "finished span")
