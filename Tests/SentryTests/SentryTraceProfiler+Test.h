@@ -2,10 +2,13 @@
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
+#    import "SentryDefines.h"
 #    import "SentryTraceProfiler.h"
 #    import <Foundation/Foundation.h>
 
 @class SentryProfiler;
+
+SENTRY_EXTERN NSTimer *_Nullable _sentry_threadUnsafe_traceProfileTimeoutTimer;
 
 @interface
 SentryTraceProfiler ()

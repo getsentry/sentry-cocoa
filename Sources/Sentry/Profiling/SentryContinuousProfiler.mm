@@ -3,6 +3,7 @@
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
 #    import "SentryDependencyContainer.h"
+#    import "SentryDispatchQueueWrapper.h"
 #    import "SentryLog.h"
 #    import "SentryMetricProfiler.h"
 #    import "SentryNSTimerFactory.h"
@@ -11,7 +12,6 @@
 #    import "SentryProfilerState.h"
 #    import "SentrySDK+Private.h"
 #    import "SentrySwift.h"
-#    import "SentryThreadWrapper.h"
 #    include <mutex>
 
 #    pragma mark - Private
@@ -85,7 +85,7 @@ disableTimer()
  */
 + (void)scheduleTimer
 {
-    [SentryThreadWrapper onMainThread:^{
+    [SentryDependencyContainer.sharedInstance.dispatchQueueWrapper dispatchAsyncOnMainQueue:^{
         std::lock_guard<std::mutex> l(_threadUnsafe_gContinuousProfilerLock);
         if (_chunkTimer != nil) {
             return;
