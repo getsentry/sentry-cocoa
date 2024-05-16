@@ -49,6 +49,7 @@ SentryProfiler *_Nullable _threadUnsafe_gTraceProfiler;
 
         sentry_trackProfilerForTracer(_threadUnsafe_gTraceProfiler, traceId);
     }
+
     [self scheduleTimeoutTimer];
     return YES;
 }
@@ -61,6 +62,7 @@ SentryProfiler *_Nullable _threadUnsafe_gTraceProfiler;
 
 + (void)recordMetrics
 {
+    std::lock_guard<std::mutex> l(_threadUnsafe_gTraceProfilerLock);
     if (![_threadUnsafe_gTraceProfiler isRunning]) {
         SENTRY_LOG_DEBUG(@"No trace profiler is currently running.");
         return;
