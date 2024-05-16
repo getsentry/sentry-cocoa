@@ -81,7 +81,6 @@
 #import "SentryCrashIntegration.h"
 #import "SentryCrashJSONCodecObjC.h"
 #import "SentryCrashMachineContext.h"
-#import "SentryCrashMachineContext_Apple.h"
 #import "SentryCrashMonitor.h"
 #import "SentryCrashMonitorContext.h"
 #import "SentryCrashMonitor_AppState.h"

@@ -43,8 +43,9 @@ class SentryStacktraceBuilderTests: XCTestCase {
         }
         thread.start()
         semaphore.wait()
-        var context = SentryCrashMachineContext()
-        let actual = fixture.sut.buildStacktrace(forThread: threadID, context: &context)
+        let context = malloc(Int(sentrycrashmc_contextSize()))!
+        defer { free(context) }
+        let actual = fixture.sut.buildStacktrace(forThread: threadID, context: OpaquePointer(context))
         // allow thread to terminate
         semaphore.signal()
         XCTAssertGreaterThan(actual.frames.count, 1)
