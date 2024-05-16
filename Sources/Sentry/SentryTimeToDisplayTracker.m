@@ -7,7 +7,9 @@
 #    import "SentryFramesTracker.h"
 #    import "SentryLog.h"
 #    import "SentryMeasurementValue.h"
+#    import "SentryOptions+Private.h"
 #    import "SentryProfilingConditionals.h"
+#    import "SentrySDK+Private.h"
 #    import "SentrySpan.h"
 #    import "SentrySpanContext.h"
 #    import "SentrySpanId.h"
@@ -140,7 +142,9 @@ SentryTimeToDisplayTracker () <SentryFramesTrackerListener>
         if (!_waitForFullDisplay) {
             [SentryDependencyContainer.sharedInstance.framesTracker removeListener:self];
 #    if SENTRY_TARGET_PROFILING_SUPPORTED
-            sentry_stopAndDiscardLaunchProfileTracer();
+            if (!SentrySDK.options.enableContinuousProfiling) {
+                sentry_stopAndDiscardLaunchProfileTracer();
+            }
 #    endif // SENTRY_TARGET_PROFILING_SUPPORTED
         }
     }
@@ -150,7 +154,9 @@ SentryTimeToDisplayTracker () <SentryFramesTrackerListener>
         self.fullDisplaySpan.timestamp = newFrameDate;
         [self.fullDisplaySpan finish];
 #    if SENTRY_TARGET_PROFILING_SUPPORTED
-        sentry_stopAndDiscardLaunchProfileTracer();
+        if (!SentrySDK.options.enableContinuousProfiling) {
+            sentry_stopAndDiscardLaunchProfileTracer();
+        }
 #    endif // SENTRY_TARGET_PROFILING_SUPPORTED
     }
 

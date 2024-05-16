@@ -8,6 +8,7 @@ class ProfilingUITests: BaseUITest {
     func testProfiledAppLaunches() throws {
         if #available(iOS 16, *) {
             app.launchArguments.append("--io.sentry.wipe-data")
+            setDefaultLaunchArgs()
             launchApp()
             
             // First launch enables in-app profiling by setting traces/profiles sample rates to 1 (which is the default configuration in the sample app), but not launch profiling; assert that we did not write a config to allow the next launch to be profiled.
@@ -162,6 +163,15 @@ extension ProfilingUITests {
         })
         XCTAssert(try XCTUnwrap(sample["thread_id"] as? String) == "259") // the main thread is always ID 259
     }
+    
+    /**
+     * These cause traces to run the profiler, which can overwrite the launch profile file we need to retrieve to make assertions in the UI test.
+     */
+    func setDefaultLaunchArgs() {
+        app.launchArguments.append("--disable-swizzling")
+        app.launchArguments.append("--disable-auto-performance-tracing")
+        app.launchArguments.append("--disable-uiviewcontroller-tracing")
+    }
      
     /**
      * Performs the various operations for the launch profiler test case:
@@ -216,16 +226,8 @@ extension ProfilingUITests {
         if shouldDisableTracing {
             app.launchArguments.append("--disable-tracing")
         }
-        if shouldDisableSwizzling {
-            app.launchArguments.append("--disable-swizzling")
-        }
-        if shouldDisableAutoPerformanceTracking {
-            app.launchArguments.append("--disable-auto-performance-tracing")
-        }
-        if shouldDisableUIViewControllerTracing {
-            app.launchArguments.append("--disable-uiviewcontroller-tracing")
-        }
         
+        setDefaultLaunchArgs()
         launchApp()
         
         let sdkOptionsConfigurationAllowsLaunchProfiling = !(shouldDisableTracing || shouldDisableSwizzling || shouldDisableAutoPerformanceTracking || shouldDisableUIViewControllerTracing)

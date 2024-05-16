@@ -40,23 +40,20 @@ static const int kSentryProfilerFrequencyHz = 101;
 void
 sentry_manageTraceProfilerOnStartSDK(SentryOptions *options, SentryHub *hub)
 {
-    if (!options.enableContinuousProfiling) {
-        BOOL shouldStopAndTransmitLaunchProfile = YES;
+    [SentryDependencyContainer.sharedInstance.dispatchQueueWrapper dispatchAsyncWithBlock:^{
+        BOOL shouldStopAndTransmitLaunchProfile = !options.enableContinuousProfiling;
 #    if SENTRY_HAS_UIKIT
         if (SentryUIViewControllerPerformanceTracker.shared.enableWaitForFullDisplay) {
             shouldStopAndTransmitLaunchProfile = NO;
         }
 #    endif // SENTRY_HAS_UIKIT
-
-        [SentryDependencyContainer.sharedInstance.dispatchQueueWrapper dispatchAsyncWithBlock:^{
-            if (shouldStopAndTransmitLaunchProfile) {
-                SENTRY_LOG_DEBUG(@"Stopping launch profile in SentrySDK.start because there will "
-                                 @"be no automatic trace to attach it to.");
-                sentry_stopAndTransmitLaunchProfile(hub);
-            }
-            sentry_configureLaunchProfiling(options);
-        }];
-    }
+        if (shouldStopAndTransmitLaunchProfile) {
+            SENTRY_LOG_DEBUG(@"Stopping launch profile in SentrySDK.start because there will "
+                             @"be no automatic trace to attach it to.");
+            sentry_stopAndTransmitLaunchProfile(hub);
+        }
+        sentry_configureLaunchProfiling(options);
+    }];
 }
 
 @implementation SentryProfiler {
@@ -160,6 +157,7 @@ sentry_manageTraceProfilerOnStartSDK(SentryOptions *options, SentryHub *hub)
 
 - (void)stopForReason:(SentryProfilerTruncationReason)reason
 {
+    sentry_isTracingAppLaunch = NO;
     [_timeoutTimer invalidate];
     [self.metricProfiler stop];
     self.truncationReason = reason;
