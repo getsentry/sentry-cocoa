@@ -47,16 +47,16 @@ using namespace sentry::profiling;
         @"-[SentryProfilerTests testParseFunctionNameWithBacktraceSymbolsInput]");
 }
 
-- (void)testProfilerCanBeInitializedOnMainThreadLegacy
+- (void)testTraceProfilerCanBeInitializedOnMainThread
 {
-    XCTAssertNotNil([[SentryProfiler alloc] initWithMode:SentryProfilerModeLegacy]);
+    XCTAssertNotNil([[SentryProfiler alloc] initWithMode:SentryProfilerModeTrace]);
 }
 
-- (void)testProfilerCanBeInitializedOffMainThreadLegacy
+- (void)testTraceProfilerCanBeInitializedOffMainThread
 {
     const auto expectation = [self expectationWithDescription:@"background initializing profiler"];
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0ul), ^{
-        XCTAssertNotNil([[SentryProfiler alloc] initWithMode:SentryProfilerModeLegacy]);
+        XCTAssertNotNil([[SentryProfiler alloc] initWithMode:SentryProfilerModeTrace]);
         [expectation fulfill];
     });
     [self waitForExpectationsWithTimeout:1.0
@@ -72,7 +72,7 @@ using namespace sentry::profiling;
 {
     const auto expectation = [self expectationWithDescription:@"background initializing profiler"];
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0ul), ^{
-        XCTAssertNotNil([[SentryProfiler alloc] initWithMode:SentryProfilerModeLegacy]);
+        XCTAssertNotNil([[SentryProfiler alloc] initWithMode:SentryProfilerModeTrace]);
         [expectation fulfill];
     });
     [self waitForExpectationsWithTimeout:1.0
@@ -186,7 +186,7 @@ using namespace sentry::profiling;
     // serialize the data as if it were captured in a transaction envelope
     const auto profileData = [state copyProfilingData];
 
-    const auto serialization = sentry_serializedProfileData(profileData, 1, 2,
+    const auto serialization = sentry_serializedTraceProfileData(profileData, 1, 2,
         sentry_profilerTruncationReasonName(SentryProfilerTruncationReasonNormal), @{}, @[],
         [[SentryHub alloc] initWithClient:nil andScope:nil]
 #    if SENTRY_HAS_UIKIT

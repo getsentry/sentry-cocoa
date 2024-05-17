@@ -16,13 +16,14 @@ class SentryTimeToDisplayTrackerTest: XCTestCase {
         var framesTracker: SentryFramesTracker
 
         init() {
-            framesTracker = SentryFramesTracker(displayLinkWrapper: displayLinkWrapper, dateProvider: dateProvider, dispatchQueueWrapper: TestSentryDispatchQueueWrapper(), keepDelayedFramesDuration: 0)
+            framesTracker = SentryFramesTracker(displayLinkWrapper: displayLinkWrapper, dateProvider: dateProvider, dispatchQueueWrapper: TestSentryDispatchQueueWrapper(),
+                                                notificationCenter: TestNSNotificationCenterWrapper(), keepDelayedFramesDuration: 0)
             SentryDependencyContainer.sharedInstance().framesTracker = framesTracker
             framesTracker.start()
         }
 
         func getSut(for controller: UIViewController, waitForFullDisplay: Bool) -> SentryTimeToDisplayTracker {
-            return SentryTimeToDisplayTracker(for: controller, waitForFullDisplay: waitForFullDisplay)
+            return SentryTimeToDisplayTracker(for: controller, waitForFullDisplay: waitForFullDisplay, dispatchQueueWrapper: SentryDispatchQueueWrapper())
         }
         
         func getTracer() throws -> SentryTracer {
@@ -280,6 +281,18 @@ class SentryTimeToDisplayTrackerTest: XCTestCase {
         expect(ttfdSpan?.origin) == "manual.ui.time_to_display"
         
         assertMeasurement(tracer: tracer, name: "time_to_full_display", duration: 1_000)
+    }
+    
+    func testReportFullyDisplayed_GetsDispatchedOnMainQueue() {
+        let dispatchQueueWrapper = TestSentryDispatchQueueWrapper()
+        
+        let sut = SentryTimeToDisplayTracker(for: UIViewController(), waitForFullDisplay: true, dispatchQueueWrapper: dispatchQueueWrapper)
+        
+        let invocationsBefore = dispatchQueueWrapper.blockOnMainInvocations.count
+        sut.reportFullyDisplayed()
+        
+        let expectedInvocations = invocationsBefore + 1
+        expect(dispatchQueueWrapper.blockOnMainInvocations.count).to(equal(expectedInvocations), description: "reportFullyDisplayed should be dispatched on the main queue. ")
     }
     
     func testNotWaitingForFullyDisplayed_AfterTracerTimesOut() throws {

@@ -30,14 +30,15 @@
 #    import "SentryContinuousProfiler+Test.h"
 #    import "SentryContinuousProfiler.h"
 #    import "SentryLaunchProfiling+Tests.h"
-#    import "SentryLegacyProfiler+Test.h"
 #    import "SentryMetricProfiler.h"
 #    import "SentryProfiler+Private.h"
+#    import "SentryProfilerDefines.h"
 #    import "SentryProfilerMocksSwiftCompatible.h"
 #    import "SentryProfilerSerialization+Test.h"
 #    import "SentryProfilerSerialization.h"
 #    import "SentryProfilerState.h"
 #    import "SentryProfilerTestHelpers.h"
+#    import "SentryTraceProfiler+Test.h"
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
 #import "NSLocale+Sentry.h"
@@ -218,6 +219,7 @@
 #import "SentryTime.h"
 #import "SentryTimeToDisplayTracker.h"
 #import "SentryTraceContext.h"
+#import "SentryTraceOrigins.h"
 #import "SentryTracer+Private.h"
 #import "SentryTracer+Test.h"
 #import "SentryTracerConfiguration.h"
@@ -239,3 +241,7 @@
 #import "TestSentryViewHierarchy.h"
 #import "URLSessionTaskMock.h"
 @import _SentryPrivate;
+#import "SentryCrash+Test.h"
+#import "SentryCrashCachedData.h"
+#import "SentryCrashInstallation+Private.h"
+#import "SentryCrashMonitor_MachException.h"

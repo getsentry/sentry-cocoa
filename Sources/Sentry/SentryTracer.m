@@ -37,9 +37,9 @@
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 #    import "SentryLaunchProfiling.h"
-#    import "SentryLegacyProfiler.h"
 #    import "SentryProfiledTracerConcurrency.h"
 #    import "SentryProfilerSerialization.h"
+#    import "SentryTraceProfiler.h"
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
 #if SENTRY_HAS_UIKIT
@@ -108,13 +108,6 @@ SentryTracer ()
 
 static NSObject *appStartMeasurementLock;
 static BOOL appStartMeasurementRead;
-
-#if SENTRY_TARGET_PROFILING_SUPPORTED
-+ (void)load
-{
-    sentry_startLaunchProfile();
-}
-#endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
 + (void)initialize
 {
@@ -186,10 +179,11 @@ static BOOL appStartMeasurementRead;
 #endif // SENTRY_HAS_UIKIT
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
-    if (_configuration.profilesSamplerDecision.decision == kSentrySampleDecisionYes
-        || sentry_isTracingAppLaunch) {
+    if (!hub.client.options.enableContinuousProfiling
+        && (_configuration.profilesSamplerDecision.decision == kSentrySampleDecisionYes
+            || sentry_isTracingAppLaunch)) {
         _internalID = [[SentryId alloc] init];
-        if ((_isProfiling = [SentryLegacyProfiler startWithTracer:_internalID])) {
+        if ((_isProfiling = [SentryTraceProfiler startWithTracer:_internalID])) {
             SENTRY_LOG_DEBUG(@"Started profiler for trace %@ with internal id %@",
                 transactionContext.traceId.sentryIdString, _internalID.sentryIdString);
         }
@@ -625,7 +619,7 @@ static BOOL appStartMeasurementRead;
                        startTimestamp:(NSDate *)startTimestamp
 {
     SentryEnvelopeItem *profileEnvelopeItem
-        = sentry_profileEnvelopeItem(transaction, startTimestamp);
+        = sentry_traceProfileEnvelopeItem(transaction, startTimestamp);
 
     if (!profileEnvelopeItem) {
         [_hub captureTransaction:transaction withScope:_hub.scope];
@@ -704,7 +698,7 @@ static BOOL appStartMeasurementRead;
         }
 #    endif // SENTRY_HAS_UIKIT
 
-        [SentryLegacyProfiler recordMetrics];
+        [SentryTraceProfiler recordMetrics];
         transaction.endSystemTime
             = SentryDependencyContainer.sharedInstance.dateProvider.systemTime;
     }

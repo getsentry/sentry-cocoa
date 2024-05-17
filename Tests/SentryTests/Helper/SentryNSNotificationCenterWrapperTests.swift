@@ -1,3 +1,4 @@
+import SentryTestUtils
 import XCTest
 
 class SentryNSNotificationCenterWrapperTests: XCTestCase {
@@ -55,7 +56,16 @@ class SentryNSNotificationCenterWrapperTests: XCTestCase {
         
         wait(for: [didBecomeActiveExpectation, willResignActiveExpectation], timeout: 0.5)
     }
-    
+
+    func testPostNotificationsOnMock() {
+        let sut = TestNSNotificationCenterWrapper()
+        sut.addObserver(self, selector: #selector(didBecomeActive), name: didBecomeActiveNotification)
+        sut.post(Notification(name: didBecomeActiveNotification))
+        wait(for: [didBecomeActiveExpectation, willResignActiveExpectation], timeout: 0.5)
+    }
+}
+
+@objc private extension SentryNSNotificationCenterWrapperTests {
     func didBecomeActive() {
         didBecomeActiveExpectation.fulfill()
     }
