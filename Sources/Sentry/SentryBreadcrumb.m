@@ -2,6 +2,7 @@
 #import "SentryDateUtils.h"
 #import "SentryLevelMapper.h"
 #import "SentryNSDictionarySanitize.h"
+#import "SentrySwift.h"
 
 @interface
 SentryBreadcrumb ()

@@ -11,6 +11,7 @@
 #import "SentryOptions+HybridSDKs.h"
 #import "SentrySDK+Private.h"
 #import <XCTest/XCTest.h>
+@import Sentry;
 
 @interface
 SentryBreadcrumbTracker ()
