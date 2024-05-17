@@ -22,6 +22,7 @@ final class SentryAppLaunchProfilingSwiftTests: XCTestCase {
         XCTAssertEqual(context.sampled, .yes)
     }
     
+    #if !os(macOS)
     // test that if a launch continuous profiler is running and SentryTimeToDisplayTracker reports the app is fully drawn, that the profiler continues running
     func testLaunchContinuousProfileNotStoppedOnFullyDisplayed() throws {
         // start a launch profile
@@ -97,6 +98,7 @@ final class SentryAppLaunchProfilingSwiftTests: XCTestCase {
         fixture.displayLinkWrapper.call()
         XCTAssertFalse(try XCTUnwrap(SentryTraceProfiler.getCurrentProfiler()).isRunning())
     }
+    #endif // !os(macOS)
 
     // test that the launch trace instance is nil after stopping the launch
     // profiler
