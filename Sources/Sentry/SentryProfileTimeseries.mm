@@ -44,6 +44,7 @@ _sentry_logSlicingFailureWithArray(
         firstSampleRelativeToTransactionStart, lastSampleRelativeToTransactionStart);
 }
 
+#    if SENTRY_HAS_UIKIT
 void
 _sentry_addContinuousEntry(NSMutableArray<NSDictionary<NSString *, NSNumber *> *> *entries,
     NSNumber *timestamp, NSNumber *value)
@@ -53,6 +54,7 @@ _sentry_addContinuousEntry(NSMutableArray<NSDictionary<NSString *, NSNumber *> *
     entry[@"value"] = value;
     [entries addObject:entry];
 }
+#    endif // SENTRY_HAS_UIKIT
 
 } // namespace
 

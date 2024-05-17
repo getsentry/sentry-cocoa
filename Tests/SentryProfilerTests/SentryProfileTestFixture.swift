@@ -117,7 +117,7 @@ class SentryProfileTestFixture {
     }
 #endif // !os(macOS)
     
-    func gatherMockedMetrics() throws {
+    func gatherMockedMetrics(continuousProfile: Bool) throws {
         // clear out any errors that might've been set in previous calls
         systemWrapper.overrides.cpuUsageError = nil
         systemWrapper.overrides.memoryFootprintError = nil
@@ -150,7 +150,7 @@ class SentryProfileTestFixture {
                 let currentSystemTime = currentDateProvider.systemTime()
                 print("will expect \(String(describing: type)) frame starting at \(currentSystemTime)")
                 expectedSlowFrames.append([
-                    "timestamp": String(currentSystemTime),
+                    (continuousProfile ? "timestamp" : "elapsed_since_start_ns"): String(currentSystemTime),
                     "value": duration
                 ])
             case .frozen:
@@ -158,7 +158,7 @@ class SentryProfileTestFixture {
                 let currentSystemTime = currentDateProvider.systemTime()
                 print("will expect \(String(describing: type)) frame starting at \(currentSystemTime)")
                 expectedFrozenFrames.append([
-                    "timestamp": String(currentSystemTime),
+                    (continuousProfile ? "timestamp" : "elapsed_since_start_ns"): String(currentSystemTime),
                     "value": duration
                 ])
             }
@@ -167,7 +167,7 @@ class SentryProfileTestFixture {
                 let currentSystemTime = currentDateProvider.systemTime()
                 print("will expect frame rate \(displayLinkWrapper.currentFrameRate.rawValue) at \(currentSystemTime)")
                 expectedFrameRateChanges.append([
-                    "timestamp": String(currentSystemTime),
+                    (continuousProfile ? "timestamp" : "elapsed_since_start_ns"): String(currentSystemTime),
                     "value": NSNumber(value: displayLinkWrapper.currentFrameRate.rawValue)
                 ])
             }
