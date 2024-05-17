@@ -206,7 +206,7 @@ static NSDate *_Nullable startTimestamp = nil;
 
 #if TARGET_OS_OSX
     // Reference to SentryCrashExceptionApplication to prevent compiler from stripping it
-    [SentryCrashExceptionApplication sharedApplication];
+    [SentryCrashExceptionApplication class];
 #endif
 
     startInvocations++;
