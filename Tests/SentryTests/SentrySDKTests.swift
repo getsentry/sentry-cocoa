@@ -887,6 +887,41 @@ class SentrySDKTests: XCTestCase {
     }
 }
 
+/// Tests in this class aren't part of SentrySDKTests because we need would need to undo a bunch of operations 
+/// that are done in the setup.
+class SentrySDKWithSetupTests: XCTestCase {
+    
+    func testAccessingHubAndOptions_NoDeadlock() {
+        SentryLog.withOutLogs {
+            
+            let concurrentQueue = DispatchQueue(label: "concurrent", attributes: .concurrent)
+            
+            let expectation = expectation(description: "no deadlock")
+            expectation.expectedFulfillmentCount = 20
+            
+            SentrySDK.setStart(Options())
+            
+            for _ in 0..<10 {
+                concurrentQueue.async {
+                    SentrySDK.currentHub().capture(message: "mess")
+                    SentrySDK.setCurrentHub(nil)
+                    
+                    expectation.fulfill()
+                }
+                
+                concurrentQueue.async {
+                    let hub = SentryHub(client: nil, andScope: nil)
+                    expect(hub) != nil
+                    
+                    expectation.fulfill()
+                }
+            }
+            
+            wait(for: [expectation], timeout: 5.0)
+        }
+    }
+}
+
 public class MainThreadTestIntegration: NSObject, SentryIntegrationProtocol {
     
     static var expectation: XCTestExpectation?

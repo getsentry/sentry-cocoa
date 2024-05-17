@@ -9,6 +9,7 @@
 #    import "SentryDisplayLinkWrapper.h"
 #    import "SentryInternalCDefines.h"
 #    import "SentryLog.h"
+#    import "SentryNSNotificationCenterWrapper.h"
 #    import "SentryProfilingConditionals.h"
 #    import "SentrySwift.h"
 #    import "SentryTime.h"
@@ -18,7 +19,7 @@
 
 #    if SENTRY_TARGET_PROFILING_SUPPORTED
 #        import "SentryContinuousProfiler.h"
-#        import "SentryLegacyProfiler.h"
+#        import "SentryTraceProfiler.h"
 
 /** A mutable version of @c SentryFrameInfoTimeSeries so we can accumulate results. */
 typedef NSMutableArray<NSDictionary<NSString *, NSNumber *> *> SentryMutableFrameInfoTimeSeries;
@@ -33,6 +34,7 @@ SentryFramesTracker ()
 @property (nonatomic, strong, readonly) SentryDisplayLinkWrapper *displayLinkWrapper;
 @property (nonatomic, strong, readonly) SentryCurrentDateProvider *dateProvider;
 @property (nonatomic, strong, readonly) SentryDispatchQueueWrapper *dispatchQueueWrapper;
+@property (nonatomic, strong) SentryNSNotificationCenterWrapper *notificationCenter;
 @property (nonatomic, assign) CFTimeInterval previousFrameTimestamp;
 @property (nonatomic) uint64_t previousFrameSystemTimestamp;
 @property (nonatomic) uint64_t currentFrameRate;
@@ -64,6 +66,7 @@ slowFrameThreshold(uint64_t actualFramesPerSecond)
 - (instancetype)initWithDisplayLinkWrapper:(SentryDisplayLinkWrapper *)displayLinkWrapper
                               dateProvider:(SentryCurrentDateProvider *)dateProvider
                       dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
+                        notificationCenter:(SentryNSNotificationCenterWrapper *)notificationCenter
                  keepDelayedFramesDuration:(CFTimeInterval)keepDelayedFramesDuration
 {
     if (self = [super init]) {
@@ -71,6 +74,7 @@ slowFrameThreshold(uint64_t actualFramesPerSecond)
         _displayLinkWrapper = displayLinkWrapper;
         _dateProvider = dateProvider;
         _dispatchQueueWrapper = dispatchQueueWrapper;
+        _notificationCenter = notificationCenter;
         _delayedFramesTracker = [[SentryDelayedFramesTracker alloc]
             initWithKeepDelayedFramesDuration:keepDelayedFramesDuration
                                  dateProvider:dateProvider];
@@ -136,6 +140,31 @@ slowFrameThreshold(uint64_t actualFramesPerSecond)
 
 - (void)start
 {
+    [self.notificationCenter
+        addObserver:self
+           selector:@selector(didBecomeActive)
+               name:SentryNSNotificationCenterWrapper.didBecomeActiveNotificationName];
+
+    [self.notificationCenter
+        addObserver:self
+           selector:@selector(willResignActive)
+               name:SentryNSNotificationCenterWrapper.willResignActiveNotificationName];
+
+    [self unpause];
+}
+
+- (void)didBecomeActive
+{
+    [self unpause];
+}
+
+- (void)willResignActive
+{
+    [self pause];
+}
+
+- (void)unpause
+{
     if (_isRunning) {
         return;
     }
@@ -171,7 +200,7 @@ slowFrameThreshold(uint64_t actualFramesPerSecond)
     }
 
 #    if SENTRY_TARGET_PROFILING_SUPPORTED
-    if ([SentryLegacyProfiler isCurrentlyProfiling] ||
+    if ([SentryTraceProfiler isCurrentlyProfiling] ||
         [SentryContinuousProfiler isCurrentlyProfiling]) {
         BOOL hasNoFrameRatesYet = self.frameRateTimestamps.count == 0;
         uint64_t previousFrameRate
@@ -238,7 +267,7 @@ slowFrameThreshold(uint64_t actualFramesPerSecond)
 #    if SENTRY_TARGET_PROFILING_SUPPORTED
 - (void)recordTimestamp:(uint64_t)timestamp value:(NSNumber *)value array:(NSMutableArray *)array
 {
-    BOOL shouldRecord = [SentryLegacyProfiler isCurrentlyProfiling] ||
+    BOOL shouldRecord = [SentryTraceProfiler isCurrentlyProfiling] ||
         [SentryContinuousProfiler isCurrentlyProfiling];
 #        if defined(TEST) || defined(TESTCI)
     shouldRecord = YES;
@@ -290,11 +319,26 @@ slowFrameThreshold(uint64_t actualFramesPerSecond)
     }
 }
 
-- (void)stop
+- (void)pause
 {
     _isRunning = NO;
     [self.displayLinkWrapper invalidate];
+}
+
+- (void)stop
+{
+    [self pause];
     [self.delayedFramesTracker resetDelayedFramesTimeStamps];
+
+    // Remove the observers with the most specific detail possible, see
+    // https://developer.apple.com/documentation/foundation/nsnotificationcenter/1413994-removeobserver
+    [self.notificationCenter
+        removeObserver:self
+                  name:SentryNSNotificationCenterWrapper.didBecomeActiveNotificationName];
+    [self.notificationCenter
+        removeObserver:self
+                  name:SentryNSNotificationCenterWrapper.willResignActiveNotificationName];
+
     @synchronized(self.listeners) {
         [self.listeners removeAllObjects];
     }

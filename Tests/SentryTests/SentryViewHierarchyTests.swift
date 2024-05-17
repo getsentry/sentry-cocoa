@@ -37,7 +37,7 @@ class SentryViewHierarchyTests: XCTestCase {
 
     override func tearDown() {
         super.tearDown()
-        clearTestState()
+        SentryDependencyContainer.reset()
     }
 
     func test_Multiple_Window() {

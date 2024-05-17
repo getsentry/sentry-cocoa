@@ -47,7 +47,7 @@ namespace {
  */
 SentrySerializedMetricEntry *_Nullable serializeValuesWithNormalizedTime(
     NSArray<SentryMetricReading *> *absoluteTimestampValues, NSString *unit,
-    uint64_t startSystemTime, uint64_t endSystemTime)
+    uint64_t startSystemTime, uint64_t endSystemTime, SentryProfilerMode mode)
 {
     const auto *timestampNormalizedValues = [NSMutableArray<SentrySerializedMetricReading *> array];
     [absoluteTimestampValues enumerateObjectsUsingBlock:^(
@@ -63,11 +63,18 @@ SentrySerializedMetricEntry *_Nullable serializeValuesWithNormalizedTime(
         }
 
         const auto relativeTimestamp = getDurationNs(startSystemTime, reading.absoluteTimestamp);
-
-        [timestampNormalizedValues addObject:@ {
-            @"elapsed_since_start_ns" : sentry_stringForUInt64(relativeTimestamp),
-            @"value" : reading.value
-        }];
+        const auto value = [NSMutableDictionary dictionary];
+        switch (mode) {
+        default: // fall-through!
+        case SentryProfilerModeTrace:
+            value[@"elapsed_since_start_ns"] = sentry_stringForUInt64(relativeTimestamp);
+            break;
+        case SentryProfilerModeContinuous:
+            value[@"timestamp"] = @(nanosecondsToTimeInterval(relativeTimestamp));
+            break;
+        }
+        value[@"value"] = reading.value;
+        [timestampNormalizedValues addObject:value];
     }];
     if (timestampNormalizedValues.count == 0) {
         return nil;
@@ -84,14 +91,17 @@ SentrySerializedMetricEntry *_Nullable serializeValuesWithNormalizedTime(
 
     NSNumber *previousEnergyReading;
     NSMutableArray<SentryMetricReading *> *_cpuEnergyUsage;
+
+    SentryProfilerMode _mode;
 }
 
-- (instancetype)init
+- (instancetype)initWithMode:(SentryProfilerMode)mode
 {
     if (self = [super init]) {
         _cpuUsage = [NSMutableArray<SentryMetricReading *> array];
         _memoryFootprint = [NSMutableArray<SentryMetricReading *> array];
         _cpuEnergyUsage = [NSMutableArray<SentryMetricReading *> array];
+        _mode = mode;
     }
     return self;
 }
@@ -137,18 +147,19 @@ SentrySerializedMetricEntry *_Nullable serializeValuesWithNormalizedTime(
     if (memoryFootprint.count > 0) {
         dict[kSentryMetricProfilerSerializationKeyMemoryFootprint]
             = serializeValuesWithNormalizedTime(memoryFootprint,
-                kSentryMetricProfilerSerializationUnitBytes, startSystemTime, endSystemTime);
+                kSentryMetricProfilerSerializationUnitBytes, startSystemTime, endSystemTime, _mode);
     }
     if (cpuEnergyUsage.count > 0) {
         dict[kSentryMetricProfilerSerializationKeyCPUEnergyUsage]
             = serializeValuesWithNormalizedTime(cpuEnergyUsage,
-                kSentryMetricProfilerSerializationUnitNanoJoules, startSystemTime, endSystemTime);
+                kSentryMetricProfilerSerializationUnitNanoJoules, startSystemTime, endSystemTime,
+                _mode);
     }
 
     if (cpuUsage.count > 0) {
-        dict[kSentryMetricProfilerSerializationKeyCPUUsage]
-            = serializeValuesWithNormalizedTime(cpuUsage,
-                kSentryMetricProfilerSerializationUnitPercentage, startSystemTime, endSystemTime);
+        dict[kSentryMetricProfilerSerializationKeyCPUUsage] = serializeValuesWithNormalizedTime(
+            cpuUsage, kSentryMetricProfilerSerializationUnitPercentage, startSystemTime,
+            endSystemTime, _mode);
     }
 
     return dict;

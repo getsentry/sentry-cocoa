@@ -23,6 +23,10 @@
 #import "SentryThreadWrapper.h"
 #import "SentryTransactionContext.h"
 
+#if TARGET_OS_OSX
+#    import "SentryCrashExceptionApplication.h"
+#endif // TARGET_OS_MAC
+
 #if SENTRY_HAS_UIKIT
 #    import "SentryUIDeviceWrapper.h"
 #    import "SentryUIViewControllerPerformanceTracker.h"
@@ -44,11 +48,13 @@ NS_ASSUME_NONNULL_BEGIN
 @implementation SentrySDK
 
 static SentryHub *_Nullable currentHub;
+static NSObject *currentHubLock;
 static BOOL crashedLastRunCalled;
 static SentryAppStartMeasurement *sentrySDKappStartMeasurement;
 static NSObject *sentrySDKappStartMeasurementLock;
 static BOOL _detectedStartUpCrash;
 static SentryOptions *_Nullable startOption;
+static NSObject *startOptionsLock;
 
 /**
  * @brief We need to keep track of the number of times @c +[startWith...] is called, because our OOM
@@ -65,6 +71,8 @@ static NSDate *_Nullable startTimestamp = nil;
 {
     if (self == [SentrySDK class]) {
         sentrySDKappStartMeasurementLock = [[NSObject alloc] init];
+        currentHubLock = [[NSObject alloc] init];
+        startOptionsLock = [[NSObject alloc] init];
         startInvocations = 0;
         _detectedStartUpCrash = NO;
     }
@@ -72,7 +80,7 @@ static NSDate *_Nullable startTimestamp = nil;
 
 + (SentryHub *)currentHub
 {
-    @synchronized(self) {
+    @synchronized(currentHubLock) {
         if (nil == currentHub) {
             currentHub = [[SentryHub alloc] initWithClient:nil andScope:nil];
         }
@@ -82,7 +90,7 @@ static NSDate *_Nullable startTimestamp = nil;
 
 + (nullable SentryOptions *)options
 {
-    @synchronized(self) {
+    @synchronized(startOptionsLock) {
         return startOption;
     }
 }
@@ -90,14 +98,14 @@ static NSDate *_Nullable startTimestamp = nil;
 /** Internal, only needed for testing. */
 + (void)setCurrentHub:(nullable SentryHub *)hub
 {
-    @synchronized(self) {
+    @synchronized(currentHubLock) {
         currentHub = hub;
     }
 }
 /** Internal, only needed for testing. */
 + (void)setStartOptions:(nullable SentryOptions *)options
 {
-    @synchronized(self) {
+    @synchronized(startOptionsLock) {
         startOption = options;
     }
 }
@@ -196,6 +204,11 @@ static NSDate *_Nullable startTimestamp = nil;
     SENTRY_LOG_DEBUG(@"Configured options: %@", options.debugDescription);
 #endif // defined(DEBUG) || defined(TEST) || defined(TESTCI)
 
+#if TARGET_OS_OSX
+    // Reference to SentryCrashExceptionApplication to prevent compiler from stripping it
+    [SentryCrashExceptionApplication class];
+#endif
+
     startInvocations++;
     startTimestamp = [SentryDependencyContainer.sharedInstance.dateProvider date];
 
@@ -224,7 +237,7 @@ static NSDate *_Nullable startTimestamp = nil;
 #endif // TARGET_OS_IOS && SENTRY_HAS_UIKIT
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
-        sentry_manageProfilerOnStartSDK(options, hub);
+        sentry_manageTraceProfilerOnStartSDK(options, hub);
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
     }];
 }
@@ -469,6 +482,10 @@ static NSDate *_Nullable startTimestamp = nil;
 + (void)close
 {
     SENTRY_LOG_DEBUG(@"Starting to close SDK.");
+
+#if SENTRY_TARGET_PROFILING_SUPPORTED
+    [SentryContinuousProfiler stop];
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
     startTimestamp = nil;
 

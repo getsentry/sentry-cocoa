@@ -76,6 +76,7 @@ NSString *parseBacktraceSymbolsFunctionName(const char *symbol);
 // All functions are safe to call from multiple threads concurrently
 - (void)mutate:(void (^)(SentryProfilerMutableState *))block;
 - (NSDictionary<NSString *, id> *)copyProfilingData;
+- (void)clear;
 @end
 
 NS_ASSUME_NONNULL_END

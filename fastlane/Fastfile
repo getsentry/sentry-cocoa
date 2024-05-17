@@ -55,7 +55,7 @@ platform :ios do
        type: "development",
        app_identifier: ["io.sentry.sample.iOS-Swift",
          "io.sentry.sample.iOS-Swift.Clip",
-         "io.sentry.iOS-SwiftUITests.xctrunner",
+         "io.sentry.iOS-Swift-UITests.xctrunner",
          "io.sentry.cocoa.perf-test-app-plain",
          "io.sentry.*",
          "io.sentry.iOS-Benchmarking.xctrunner",
@@ -66,7 +66,7 @@ platform :ios do
        type: "appstore",
        app_identifier: ["io.sentry.sample.iOS-Swift",
          "io.sentry.sample.iOS-Swift.Clip",
-         "io.sentry.iOS-SwiftUITests.xctrunner",
+         "io.sentry.iOS-Swift-UITests.xctrunner",
          "io.sentry.cocoa.perf-test-app-plain",
          "io.sentry.*",
          "io.sentry.iOS-Benchmarking.xctrunner",
@@ -129,11 +129,11 @@ platform :ios do
     sync_code_signing(
       type: "development",
       readonly: true,
-      app_identifier: ["io.sentry.sample.iOS-Swift", "io.sentry.sample.iOS-Swift.Clip", "io.sentry.iOS-SwiftUITests.xctrunner"]
+      app_identifier: ["io.sentry.sample.iOS-Swift", "io.sentry.sample.iOS-Swift.Clip", "io.sentry.iOS-Swift-UITests.xctrunner"]
     )
 
     # don't use gym here because it always appends a "build" command which fails, since this is a test target not configured for running
-    sh "set -o pipefail && xcodebuild -workspace ../Sentry.xcworkspace -scheme iOS-SwiftUITests -derivedDataPath ../DerivedData -destination 'generic/platform=iOS' -configuration Test build-for-testing | xcpretty"
+    sh "set -o pipefail && xcodebuild -workspace ../Sentry.xcworkspace -scheme iOS-Swift-UITests -derivedDataPath ../DerivedData -destination 'generic/platform=iOS' -configuration Test build-for-testing | xcpretty"
 
     delete_keychain(name: "fastlane_tmp_keychain") unless is_ci
   end
