@@ -100,7 +100,7 @@ NSArray<SentrySample *> *_Nullable sentry_slicedProfileSamples(
 
 #    if SENTRY_HAS_UIKIT
 NSArray<SentrySerializedMetricEntry *> *
-sentry_sliceGPUDataLegacy(SentryFrameInfoTimeSeries *frameInfo, uint64_t startSystemTime,
+sentry_sliceTraceProfileGPUData(SentryFrameInfoTimeSeries *frameInfo, uint64_t startSystemTime,
     uint64_t endSystemTime, BOOL useMostRecentRecording)
 {
     auto slicedGPUEntries = [NSMutableArray<SentrySerializedMetricEntry *> array];
@@ -138,7 +138,7 @@ sentry_sliceGPUDataLegacy(SentryFrameInfoTimeSeries *frameInfo, uint64_t startSy
 }
 
 NSArray<NSDictionary<NSString *, NSNumber *> *> *
-sentry_sliceGPUDataContinuous(SentryFrameInfoTimeSeries *frameInfo, uint64_t startSystemTime,
+sentry_sliceContinuousProfileGPUData(SentryFrameInfoTimeSeries *frameInfo, uint64_t startSystemTime,
     uint64_t endSystemTime, BOOL useMostRecentFrameRate)
 {
     auto slicedGPUEntries = [NSMutableArray<NSDictionary<NSString *, NSNumber *> *> array];

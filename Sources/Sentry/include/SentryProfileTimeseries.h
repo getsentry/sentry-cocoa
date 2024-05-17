@@ -31,11 +31,11 @@ NSArray<SentrySample *> *_Nullable sentry_slicedProfileSamples(
  * recorded again unless the system changes it. In these cases, use the most recently recorded data
  * for it.
  */
-NSArray<SentrySerializedMetricEntry *> *sentry_sliceGPUDataLegacy(
+NSArray<SentrySerializedMetricEntry *> *sentry_sliceTraceProfileGPUData(
     SentryFrameInfoTimeSeries *frameInfo, uint64_t startSystemTime, uint64_t endSystemTime,
     BOOL useMostRecentRecording);
 
-NSArray<NSDictionary<NSString *, NSNumber *> *> *sentry_sliceGPUDataContinuous(
+NSArray<NSDictionary<NSString *, NSNumber *> *> *sentry_sliceContinuousProfileGPUData(
     SentryFrameInfoTimeSeries *frameInfo, uint64_t startSystemTime, uint64_t endSystemTime,
     BOOL useMostRecentFrameRate);
 

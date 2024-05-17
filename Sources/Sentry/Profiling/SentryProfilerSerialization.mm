@@ -173,25 +173,25 @@ sentry_serializedTraceProfileData(
 #    if SENTRY_HAS_UIKIT
     const auto mutableMetrics =
         [NSMutableDictionary<NSString *, id> dictionaryWithDictionary:metrics];
-    const auto slowFrames = sentry_sliceGPUDataLegacy(gpuData.slowFrameTimestamps, startSystemTime,
-        endSystemTime, /*useMostRecentFrameRate */ NO);
+    const auto slowFrames = sentry_sliceTraceProfileGPUData(gpuData.slowFrameTimestamps,
+        startSystemTime, endSystemTime, /*useMostRecentFrameRate */ NO);
     if (slowFrames.count > 0) {
         mutableMetrics[kSentryProfilerSerializationKeySlowFrameRenders] =
             @ { @"unit" : @"nanosecond", @"values" : slowFrames };
     }
 
-    const auto frozenFrames
-        = sentry_sliceGPUDataLegacy(gpuData.frozenFrameTimestamps, startSystemTime, endSystemTime,
-            /*useMostRecentFrameRate */ NO);
+    const auto frozenFrames = sentry_sliceTraceProfileGPUData(gpuData.frozenFrameTimestamps,
+        startSystemTime, endSystemTime,
+        /*useMostRecentFrameRate */ NO);
     if (frozenFrames.count > 0) {
         mutableMetrics[kSentryProfilerSerializationKeyFrozenFrameRenders] =
             @ { @"unit" : @"nanosecond", @"values" : frozenFrames };
     }
 
     if (slowFrames.count > 0 || frozenFrames.count > 0) {
-        const auto frameRates
-            = sentry_sliceGPUDataLegacy(gpuData.frameRateTimestamps, startSystemTime, endSystemTime,
-                /*useMostRecentFrameRate */ YES);
+        const auto frameRates = sentry_sliceTraceProfileGPUData(gpuData.frameRateTimestamps,
+            startSystemTime, endSystemTime,
+            /*useMostRecentFrameRate */ YES);
         if (frameRates.count > 0) {
             mutableMetrics[kSentryProfilerSerializationKeyFrameRates] =
                 @ { @"unit" : @"hz", @"values" : frameRates };
@@ -254,7 +254,7 @@ sentry_serializedContinuousProfileChunk(
 #    if SENTRY_HAS_UIKIT
     const auto mutableMetrics =
         [NSMutableDictionary<NSString *, id> dictionaryWithDictionary:metrics];
-    const auto slowFrames = sentry_sliceGPUDataContinuous(gpuData.slowFrameTimestamps,
+    const auto slowFrames = sentry_sliceContinuousProfileGPUData(gpuData.slowFrameTimestamps,
         startSystemTime, endSystemTime, /*useMostRecentFrameRate */ NO);
     if (slowFrames.count > 0) {
         const auto values = [NSMutableDictionary dictionary];
@@ -263,7 +263,7 @@ sentry_serializedContinuousProfileChunk(
         mutableMetrics[kSentryProfilerSerializationKeySlowFrameRenders] = values;
     }
 
-    const auto frozenFrames = sentry_sliceGPUDataContinuous(gpuData.frozenFrameTimestamps,
+    const auto frozenFrames = sentry_sliceContinuousProfileGPUData(gpuData.frozenFrameTimestamps,
         startSystemTime, endSystemTime,
         /*useMostRecentFrameRate */ NO);
     if (frozenFrames.count > 0) {
@@ -274,7 +274,7 @@ sentry_serializedContinuousProfileChunk(
     }
 
     if (slowFrames.count > 0 || frozenFrames.count > 0) {
-        const auto frameRates = sentry_sliceGPUDataContinuous(gpuData.frameRateTimestamps,
+        const auto frameRates = sentry_sliceContinuousProfileGPUData(gpuData.frameRateTimestamps,
             startSystemTime, endSystemTime,
             /*useMostRecentFrameRate */ YES);
         if (frameRates.count > 0) {
