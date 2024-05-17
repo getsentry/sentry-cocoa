@@ -154,7 +154,7 @@ class SentryHubTests: XCTestCase {
         
         assert(withScopeBreadcrumbsCount: 100, with: hub)
         
-        setTestDefaultLogLevel()
+        SentryLog.setTestDefaultLogLevel()
     }
     
     func testBreadcrumbOverDefaultLimit() {
@@ -1233,7 +1233,7 @@ class SentryHubTests: XCTestCase {
 class TestTimeToDisplayTracker: SentryTimeToDisplayTracker {
     
     init() {
-        super.init(for: UIViewController(), waitForFullDisplay: false)
+        super.init(for: UIViewController(), waitForFullDisplay: false, dispatchQueueWrapper: SentryDispatchQueueWrapper())
     }
     
     var registerFullDisplayCalled = false

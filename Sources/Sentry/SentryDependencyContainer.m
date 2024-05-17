@@ -292,6 +292,7 @@ static NSObject *sentryDependencyContainerLock;
                     initWithDisplayLinkWrapper:[[SentryDisplayLinkWrapper alloc] init]
                                   dateProvider:self.dateProvider
                           dispatchQueueWrapper:self.dispatchQueueWrapper
+                            notificationCenter:self.notificationCenterWrapper
                      keepDelayedFramesDuration:SENTRY_AUTO_TRANSACTION_MAX_DURATION];
             }
         }

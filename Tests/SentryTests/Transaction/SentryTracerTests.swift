@@ -122,6 +122,28 @@ class SentryTracerTests: XCTestCase {
         clearTestState()
     }
     
+    /**`
+     * This test makes sure that the span has a weak reference to the tracer and doesn't call the
+     * tracer#spanFinished method.
+     */
+    func testSpanFinishesAfterTracerReleased_NoCrash_TracerIsNil() {
+        var child: Span?
+        // To make sure the tracer is deallocated.
+        autoreleasepool {
+            let hub = TestHub(client: nil, andScope: nil)
+            let context = TransactionContext(operation: "")
+            let tracer = SentryTracer(transactionContext: context, hub: hub, configuration: SentryTracerConfiguration(block: { configuration in
+                configuration.waitForChildren = true
+            }))
+            
+            tracer.finish()
+            child = tracer.startChild(operation: "child")
+        }
+        
+        XCTAssertNotNil(child)
+        child?.finish()
+    }
+    
     func testFinish_WithChildren_WaitsForAllChildren() throws {
         let sut = fixture.getSut()
         let child = sut.startChild(operation: fixture.transactionOperation)

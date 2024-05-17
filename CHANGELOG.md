@@ -2,9 +2,28 @@
 
 ## Unreleased
 
+### Improvements
+
+- Stop FramesTracker when app is in background (#3979)
+
+### Fixes
+
+- Fix retrieving GraphQL operation names crashing ([#3973](https://github.com/getsentry/sentry-cocoa/pull/3973))
+- Fix SentryCrashExceptionApplication subclass problem (#3993)
+
+## 8.26.0
+
 ### Features
 
 - Add SIGTERM support ([#3895](https://github.com/getsentry/sentry-cocoa/pull/3895))
+
+### Fixes
+
+- Fix data race when calling reportFullyDisplayed from a background thread (#3926)
+- Ensure flushing envelopes directly after capturing them (#3915)
+- Unable to find class: SentryCrashExceptionApplication (#3957)
+- Clang error for Xcode 15.4 (#3958)
+- Potential deadlock when starting the SDK (#3970)
 
 ### Improvements
 
