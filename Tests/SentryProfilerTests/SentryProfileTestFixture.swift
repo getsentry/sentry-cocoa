@@ -117,7 +117,7 @@ class SentryProfileTestFixture {
     }
 #endif // !os(macOS)
     
-    func gatherMockedMetrics(continuousProfile: Bool) throws {
+    func gatherMockedMetrics(continuousProfile: Bool = false, profileStart: Bool = false) throws {
         // clear out any errors that might've been set in previous calls
         systemWrapper.overrides.cpuUsageError = nil
         systemWrapper.overrides.memoryFootprintError = nil
@@ -127,8 +127,10 @@ class SentryProfileTestFixture {
         for _ in 0..<mockUsageReadingsPerBatch {
             self.metricTimerFactory?.fire()
             
-            // because energy readings are computed as the difference between sequential cumulative readings, we must increment the mock value by the expected result each iteration
-            systemWrapper.overrides.cpuEnergyUsage = NSNumber(value: systemWrapper.overrides.cpuEnergyUsage!.intValue + mockEnergyUsage.intValue)
+            if profileStart {
+                // because energy readings are computed as the difference between sequential cumulative readings, we must increment the mock value by the expected result each iteration
+                systemWrapper.overrides.cpuEnergyUsage = NSNumber(value: systemWrapper.overrides.cpuEnergyUsage!.intValue + mockEnergyUsage.intValue)
+            }
         }
         
 #if !os(macOS)

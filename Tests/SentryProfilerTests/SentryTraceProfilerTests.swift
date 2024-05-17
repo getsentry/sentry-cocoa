@@ -26,7 +26,7 @@ class SentryTraceProfilerTests: XCTestCase {
     func testMetricProfiler() throws {
         let span = try fixture.newTransaction()
         try addMockSamples()
-        try fixture.gatherMockedMetrics(continuousProfile: false)
+        try fixture.gatherMockedMetrics()
         self.fixture.currentDateProvider.advanceBy(nanoseconds: 1.toNanoSeconds())
         span.finish()
         try self.assertMetricsPayload(expectedUsageReadings: fixture.mockUsageReadingsPerBatch + 2) // including one sample at the start and the end
@@ -66,7 +66,7 @@ class SentryTraceProfilerTests: XCTestCase {
             try addMockSamples(threadMetadata: threadMetadata)
 
             for (i, span) in spans.enumerated() {
-                try fixture.gatherMockedMetrics(continuousProfile: false)
+                try fixture.gatherMockedMetrics()
                 XCTAssertTrue(SentryTraceProfiler.isCurrentlyProfiling())
                 span.finish()
                 XCTAssertEqual(SentryTraceProfiler.currentProfiledTracers(), UInt(numberOfTransactions - (i + 1)))
