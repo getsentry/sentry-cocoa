@@ -193,6 +193,7 @@ SentrySerializedMetricEntry *_Nullable serializeValuesWithNormalizedTime(
     }
 
     @synchronized(self) {
+        SENTRY_LOG_DEBUG(@"Recording memory footprint of %llu", footprintBytes);
         [_memoryFootprint addObject:[self metricReadingForValue:@(footprintBytes)]];
     }
 }
@@ -213,6 +214,7 @@ SentrySerializedMetricEntry *_Nullable serializeValuesWithNormalizedTime(
     }
 
     @synchronized(self) {
+        SENTRY_LOG_DEBUG(@"Recording CPU usage of %@", result);
         [_cpuUsage addObject:[self metricReadingForValue:result]];
     }
 }
@@ -236,6 +238,7 @@ SentrySerializedMetricEntry *_Nullable serializeValuesWithNormalizedTime(
     previousEnergyReading = reading;
 
     @synchronized(self) {
+        SENTRY_LOG_DEBUG(@"Recording CPU energy usage of %lu", (unsigned long)value);
         [_cpuEnergyUsage addObject:[self metricReadingForValue:@(value)]];
     }
 }

@@ -119,21 +119,24 @@ private extension SentryContinuousProfilerTests {
         
         var expectedAddresses: [NSNumber] = [0x1, 0x2, 0x3]
         try addMockSamples(mockAddresses: expectedAddresses)
-        try fixture.gatherMockedMetrics(continuousProfile: true, profileStart: true)
+        fixture.mockMetrics = SentryProfileTestFixture.MockMetric()
+        try fixture.gatherMockedMetrics(continuousProfile: true, continuousProfileStart: true)
         fixture.timeoutTimerFactory.fire()
         XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
         try assertValidData(expectedEnvironment: expectedEnvironment, expectedAddresses: expectedAddresses)
         
         expectedAddresses = [0x4, 0x5, 0x6]
         try addMockSamples(mockAddresses: expectedAddresses)
-        try fixture.gatherMockedMetrics(continuousProfile: true, profileStart: false)
+        fixture.mockMetrics = SentryProfileTestFixture.MockMetric(cpuUsage: 1.23, memoryFootprint: 456, cpuEnergyUsage: 7)
+        try fixture.gatherMockedMetrics(continuousProfile: true, continuousProfileStart: false)
         fixture.timeoutTimerFactory.fire()
         XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
         try assertValidData(expectedEnvironment: expectedEnvironment, expectedAddresses: expectedAddresses)
         
         expectedAddresses = [0x7, 0x8, 0x9]
         try addMockSamples(mockAddresses: expectedAddresses)
-        try fixture.gatherMockedMetrics(continuousProfile: true, profileStart: false)
+        fixture.mockMetrics = SentryProfileTestFixture.MockMetric(cpuUsage: 9.87, memoryFootprint: 654, cpuEnergyUsage: 3)
+        try fixture.gatherMockedMetrics(continuousProfile: true, continuousProfileStart: false)
         XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
         SentryContinuousProfiler.stop()
         XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
@@ -214,12 +217,12 @@ private extension SentryContinuousProfilerTests {
         let chunkStartTime = try XCTUnwrap(samples.first?["timestamp"] as? TimeInterval)
         let chunkEndTime = try XCTUnwrap(samples.last?["timestamp"] as? TimeInterval)
 
-        try assertMetricValue(measurements: measurements, key: kSentryMetricProfilerSerializationKeyCPUUsage, expectedValue: fixture.mockCPUUsage, expectedUnits: kSentryMetricProfilerSerializationUnitPercentage, chunkStartTime: chunkStartTime, chunkEndTime: chunkEndTime)
+        try assertMetricValue(measurements: measurements, key: kSentryMetricProfilerSerializationKeyCPUUsage, expectedValue: fixture.mockMetrics.cpuUsage, expectedUnits: kSentryMetricProfilerSerializationUnitPercentage, chunkStartTime: chunkStartTime, chunkEndTime: chunkEndTime, readingsPerBatch: fixture.mockMetrics.readingsPerBatch)
 
-        try assertMetricValue(measurements: measurements, key: kSentryMetricProfilerSerializationKeyMemoryFootprint, expectedValue: fixture.mockMemoryFootprint, expectedUnits: kSentryMetricProfilerSerializationUnitBytes, chunkStartTime: chunkStartTime, chunkEndTime: chunkEndTime)
+        try assertMetricValue(measurements: measurements, key: kSentryMetricProfilerSerializationKeyMemoryFootprint, expectedValue: fixture.mockMetrics.memoryFootprint, expectedUnits: kSentryMetricProfilerSerializationUnitBytes, chunkStartTime: chunkStartTime, chunkEndTime: chunkEndTime, readingsPerBatch: fixture.mockMetrics.readingsPerBatch)
 
         // we wind up with one less energy reading for the first chunk's metric sample. since we must use the difference between readings to get actual values, the first one is only the baseline reading.
-        try assertMetricValue(measurements: measurements, key: kSentryMetricProfilerSerializationKeyCPUEnergyUsage, expectedValue: fixture.mockEnergyUsage, expectedUnits: kSentryMetricProfilerSerializationUnitNanoJoules, chunkStartTime: chunkStartTime, chunkEndTime: chunkEndTime, expectOneLessEnergyReading: true)
+        try assertMetricValue(measurements: measurements, key: kSentryMetricProfilerSerializationKeyCPUEnergyUsage, expectedValue: fixture.mockMetrics.cpuEnergyUsage, expectedUnits: kSentryMetricProfilerSerializationUnitNanoJoules, chunkStartTime: chunkStartTime, chunkEndTime: chunkEndTime, readingsPerBatch: fixture.mockMetrics.readingsPerBatch, expectOneLessEnergyReading: true)
 
 #if !os(macOS)
         try assertMetricEntries(measurements: measurements, key: kSentryProfilerSerializationKeySlowFrameRenders, expectedEntries: fixture.expectedSlowFrames, chunkStartTime: chunkStartTime, chunkEndTime: chunkEndTime)
@@ -266,10 +269,10 @@ private extension SentryContinuousProfilerTests {
         })
     }
 
-    func assertMetricValue<T: Equatable>(measurements: [String: Any], key: String, expectedValue: T? = nil, expectedUnits: String, chunkStartTime: TimeInterval, chunkEndTime: TimeInterval, expectOneLessEnergyReading: Bool = false) throws {
+    func assertMetricValue<T: Equatable>(measurements: [String: Any], key: String, expectedValue: T? = nil, expectedUnits: String, chunkStartTime: TimeInterval, chunkEndTime: TimeInterval, readingsPerBatch: Int, expectOneLessEnergyReading: Bool = false) throws {
         let metricContainer = try XCTUnwrap(measurements[key] as? [String: Any])
         let values = try XCTUnwrap(metricContainer["values"] as? [[String: Any]])
-        XCTAssertEqual(values.count, fixture.mockUsageReadingsPerBatch - (expectOneLessEnergyReading ? 1 : 0), "Wrong number of values under \(key); (expectOneLessEnergyReading: \(expectOneLessEnergyReading))")
+        XCTAssertEqual(values.count, readingsPerBatch - (expectOneLessEnergyReading ? 1 : 0), "Wrong number of values under \(key); (expectOneLessEnergyReading: \(expectOneLessEnergyReading))")
 
         if let expectedValue = expectedValue {
             let actualValue = try XCTUnwrap(values[1]["value"] as? T)

@@ -47,6 +47,14 @@ class SentryProfileTestFixture {
         SentryDependencyContainer.sharedInstance().timerFactory = timeoutTimerFactory
         SentryDependencyContainer.sharedInstance().notificationCenterWrapper = notificationCenter
         
+        mockMetrics = MockMetric()
+        systemWrapper.overrides.cpuUsage = mockMetrics.cpuUsage
+        systemWrapper.overrides.memoryFootprintBytes = mockMetrics.memoryFootprint
+        systemWrapper.overrides.cpuEnergyUsage = 0
+        systemWrapper.overrides.cpuUsageError = nil
+        systemWrapper.overrides.memoryFootprintError = nil
+        systemWrapper.overrides.cpuEnergyUsageError = nil
+        
         options = Options()
         options.dsn = SentryProfileTestFixture.dsnAsString
         options.debug = true
@@ -62,10 +70,6 @@ class SentryProfileTestFixture {
             self.metricTimerFactory = eventHandler
         }
         
-        systemWrapper.overrides.cpuUsage = NSNumber(value: mockCPUUsage)
-        systemWrapper.overrides.memoryFootprintBytes = mockMemoryFootprint
-        systemWrapper.overrides.cpuEnergyUsage = 0
-        
 #if !os(macOS)
         SentryDependencyContainer.sharedInstance().framesTracker = framesTracker
         framesTracker.start()
@@ -74,7 +78,7 @@ class SentryProfileTestFixture {
     }
     
     /// Advance the mock date provider, start a new transaction and return its handle.
-    func newTransaction(testingAppLaunchSpans: Bool = false, automaticTransaction: Bool = false, idleTimeout: TimeInterval? = nil) throws -> SentryTracer {
+    func newTransaction(testingAppLaunchSpans: Bool = false, automaticTransaction: Bool = false, idleTimeout: TimeInterval? = nil, expectedProfileMetrics: MockMetric = MockMetric()) throws -> SentryTracer {
         let operation = testingAppLaunchSpans ? SentrySpanOperationUILoad : transactionOperation
         
         if automaticTransaction {
@@ -96,10 +100,24 @@ class SentryProfileTestFixture {
     
     // mocking
     
-    let mockCPUUsage = 66.6
-    let mockMemoryFootprint: SentryRAMBytes = 123_455
-    let mockEnergyUsage: NSNumber = 5
-    let mockUsageReadingsPerBatch = 3
+    public struct MockMetric {
+        public var cpuUsage: NSNumber
+        public var memoryFootprint: SentryRAMBytes
+        public var cpuEnergyUsage: NSNumber
+        public var readingsPerBatch: Int
+        
+        var cpuUsageError: NSError?
+        var memoryFootprintError: NSError?
+        var cpuEnergyUsageError: NSError?
+        
+        public init(cpuUsage: NSNumber = 66.6, memoryFootprint: SentryRAMBytes = 123_456, cpuEnergyUsage: NSNumber = 5, readingsPerBatch: Int = 3) {
+            self.cpuUsage = cpuUsage
+            self.memoryFootprint = memoryFootprint
+            self.cpuEnergyUsage = cpuEnergyUsage
+            self.readingsPerBatch = readingsPerBatch
+        }
+    }
+    var mockMetrics: MockMetric
     
 #if !os(macOS)
     // SentryFramesTracker starts assuming a frame rate of 60 Hz and will only log an update if it changes, so the first value here needs to be different for it to register.
@@ -117,19 +135,14 @@ class SentryProfileTestFixture {
     }
 #endif // !os(macOS)
     
-    func gatherMockedMetrics(continuousProfile: Bool = false, profileStart: Bool = false) throws {
-        // clear out any errors that might've been set in previous calls
-        systemWrapper.overrides.cpuUsageError = nil
-        systemWrapper.overrides.memoryFootprintError = nil
-        systemWrapper.overrides.cpuEnergyUsageError = nil
-        
+    func gatherMockedMetrics(continuousProfile: Bool = false, continuousProfileStart: Bool = false) throws {
         // gather mocked metrics readings
-        for _ in 0..<mockUsageReadingsPerBatch {
+        for _ in 0..<mockMetrics.readingsPerBatch {
             self.metricTimerFactory?.fire()
             
-            if profileStart {
+            if !continuousProfileStart {
                 // because energy readings are computed as the difference between sequential cumulative readings, we must increment the mock value by the expected result each iteration
-                systemWrapper.overrides.cpuEnergyUsage = NSNumber(value: systemWrapper.overrides.cpuEnergyUsage!.intValue + mockEnergyUsage.intValue)
+                systemWrapper.overrides.cpuEnergyUsage = NSNumber(value: try XCTUnwrap(systemWrapper.overrides.cpuEnergyUsage).intValue + mockMetrics.cpuEnergyUsage.intValue)
             }
         }
         
