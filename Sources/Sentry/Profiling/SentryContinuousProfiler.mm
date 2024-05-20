@@ -14,6 +14,11 @@
 #    import "SentrySwift.h"
 #    include <mutex>
 
+#    if SENTRY_HAS_UIKIT
+#        import "SentryFramesTracker.h"
+#        import "SentryScreenFrames.h"
+#    endif // SENTRY_HAS_UIKIT
+
 #    pragma mark - Private
 
 namespace {
@@ -42,13 +47,19 @@ _sentry_threadUnsafe_transmitChunkEnvelope(void)
     profiler.continuousChunkStartSystemTime = endSystemTime + 1;
     [profiler.state clear]; // !!!: profile this to see if it takes longer than one sample duration
                             // length: ~9ms
+    
+#    if SENTRY_HAS_UIKIT
+    const auto framesTracker = SentryDependencyContainer.sharedInstance.framesTracker;
+    SentryScreenFrames *screenFrameData = [framesTracker.currentFrames copy];
+    [framesTracker resetProfilingTimestamps];
+#    endif // SENTRY_HAS_UIKIT
 
     const auto envelope = sentry_continuousProfileChunkEnvelope(
         startSystemTime, endSystemTime, stateCopy, profiler.profilerId,
         [profiler.metricProfiler serializeBetween:startSystemTime and:endSystemTime]
 #    if SENTRY_HAS_UIKIT
         ,
-        profiler.screenFrameData
+        screenFrameData
 #    endif // SENTRY_HAS_UIKIT
     );
     [SentrySDK captureEnvelope:envelope];

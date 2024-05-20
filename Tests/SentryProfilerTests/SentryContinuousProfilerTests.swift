@@ -107,7 +107,7 @@ private extension SentryContinuousProfilerTests {
         let mockThreadMetadata = SentryProfileTestFixture.ThreadMetadata(id: 1, priority: 2, name: "main")
         let state = try XCTUnwrap(SentryContinuousProfiler.profiler()?.state)
         for _ in 0..<Int(kSentryProfilerChunkExpirationInterval) {
-            fixture.currentDateProvider.advanceBy(nanoseconds: 1)
+            fixture.currentDateProvider.advanceBy(interval: 1)
             SentryProfilerMocksSwiftCompatible.appendMockBacktrace(to: state, threadID: mockThreadMetadata.id, threadPriority: mockThreadMetadata.priority, threadName: mockThreadMetadata.name, addresses: mockAddresses)
         }
     }
@@ -118,25 +118,28 @@ private extension SentryContinuousProfilerTests {
         XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
         
         var expectedAddresses: [NSNumber] = [0x1, 0x2, 0x3]
-        try addMockSamples(mockAddresses: expectedAddresses)
         fixture.mockMetrics = SentryProfileTestFixture.MockMetric()
+        try addMockSamples(mockAddresses: expectedAddresses)
         try fixture.gatherMockedMetrics(continuousProfile: true, continuousProfileStart: true)
+        fixture.currentDateProvider.advanceBy(interval: 1)
         fixture.timeoutTimerFactory.fire()
         XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
         try assertValidData(expectedEnvironment: expectedEnvironment, expectedAddresses: expectedAddresses)
         
         expectedAddresses = [0x4, 0x5, 0x6]
-        try addMockSamples(mockAddresses: expectedAddresses)
         fixture.mockMetrics = SentryProfileTestFixture.MockMetric(cpuUsage: 1.23, memoryFootprint: 456, cpuEnergyUsage: 7)
+        try addMockSamples(mockAddresses: expectedAddresses)
         try fixture.gatherMockedMetrics(continuousProfile: true, continuousProfileStart: false)
+        fixture.currentDateProvider.advanceBy(interval: 1)
         fixture.timeoutTimerFactory.fire()
         XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
         try assertValidData(expectedEnvironment: expectedEnvironment, expectedAddresses: expectedAddresses)
         
         expectedAddresses = [0x7, 0x8, 0x9]
-        try addMockSamples(mockAddresses: expectedAddresses)
         fixture.mockMetrics = SentryProfileTestFixture.MockMetric(cpuUsage: 9.87, memoryFootprint: 654, cpuEnergyUsage: 3)
+        try addMockSamples(mockAddresses: expectedAddresses)
         try fixture.gatherMockedMetrics(continuousProfile: true, continuousProfileStart: false)
+        fixture.currentDateProvider.advanceBy(interval: 1)
         XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
         SentryContinuousProfiler.stop()
         XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())

@@ -144,6 +144,10 @@ class SentryProfileTestFixture {
                 // because energy readings are computed as the difference between sequential cumulative readings, we must increment the mock value by the expected result each iteration
                 systemWrapper.overrides.cpuEnergyUsage = NSNumber(value: try XCTUnwrap(systemWrapper.overrides.cpuEnergyUsage).intValue + mockMetrics.cpuEnergyUsage.intValue)
             }
+            
+            if continuousProfile {
+                currentDateProvider.advanceBy(interval: 1)
+            }
         }
         
 #if !os(macOS)
@@ -161,20 +165,20 @@ class SentryProfileTestFixture {
                 print("expect normal frame to start at \(currentSystemTime)")
                 displayLinkWrapper.normalFrame()
             case .slow:
-                let duration = displayLinkWrapper.middlingSlowFrame().toNanoSeconds()
+                let duration = displayLinkWrapper.middlingSlowFrame()
                 let currentSystemTime = currentDateProvider.systemTime()
                 print("will expect \(String(describing: type)) frame starting at \(currentSystemTime)")
                 expectedSlowFrames.append([
                     (continuousProfile ? "timestamp" : "elapsed_since_start_ns"): String(currentSystemTime),
-                    "value": duration
+                    "value": continuousProfile ? duration : duration.toNanoSeconds()
                 ])
             case .frozen:
-                let duration = displayLinkWrapper.fastestFrozenFrame().toNanoSeconds()
+                let duration = displayLinkWrapper.fastestFrozenFrame()
                 let currentSystemTime = currentDateProvider.systemTime()
                 print("will expect \(String(describing: type)) frame starting at \(currentSystemTime)")
                 expectedFrozenFrames.append([
                     (continuousProfile ? "timestamp" : "elapsed_since_start_ns"): String(currentSystemTime),
-                    "value": duration
+                    "value": continuousProfile ? duration : duration.toNanoSeconds()
                 ])
             }
             if shouldRecordFrameRateExpectation {
