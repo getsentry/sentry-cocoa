@@ -62,15 +62,19 @@ _sentry_serializedSamplesWithRelativeTimestamps(
             return;
         }
         const auto dict = [NSMutableDictionary dictionary];
-        const auto durationNs = getDurationNs(startSystemTime, sample.absoluteTimestamp);
         switch (mode) {
         default: // fall-through!
-        case SentryProfilerModeTrace:
+        case SentryProfilerModeTrace: {
+            const auto durationNs = getDurationNs(startSystemTime, sample.absoluteTimestamp);
             dict[@"elapsed_since_start_ns"] = sentry_stringForUInt64(durationNs);
             break;
-        case SentryProfilerModeContinuous:
+        }
+        case SentryProfilerModeContinuous: {
+            const auto nsdateIntervalNS = timeIntervalToNanoseconds(sample.absoluteNSDateInterval);
+            const auto durationNs = getDurationNs(startSystemTime, nsdateIntervalNS);
             dict[@"timestamp"] = @(nanosecondsToTimeInterval(durationNs));
             break;
+        }
         }
 
         dict[@"thread_id"] = sentry_stringForUInt64(sample.threadID);

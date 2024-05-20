@@ -21,7 +21,8 @@
  */
 @interface SentryMetricReading : NSObject
 @property (strong, nonatomic) NSNumber *value;
-@property (assign, nonatomic) uint64_t absoluteTimestamp;
+@property (assign, nonatomic) uint64_t absoluteSystemTimestamp;
+@property (assign, nonatomic) NSTimeInterval absoluteNSDateInterval;
 @end
 @implementation SentryMetricReading
 @end
@@ -53,25 +54,31 @@ SentrySerializedMetricEntry *_Nullable serializeValuesWithNormalizedTime(
     [absoluteTimestampValues enumerateObjectsUsingBlock:^(
         SentryMetricReading *_Nonnull reading, NSUInteger idx, BOOL *_Nonnull stop) {
         // if the metric reading wasn't recorded until the transaction ended, don't include it
-        if (!orderedChronologically(reading.absoluteTimestamp, endSystemTime)) {
+        if (!orderedChronologically(reading.absoluteSystemTimestamp, endSystemTime)) {
             return;
         }
 
         // if the metric reading was taken before the transaction started, don't include it
-        if (!orderedChronologically(startSystemTime, reading.absoluteTimestamp)) {
+        if (!orderedChronologically(startSystemTime, reading.absoluteSystemTimestamp)) {
             return;
         }
 
-        const auto relativeTimestamp = getDurationNs(startSystemTime, reading.absoluteTimestamp);
         const auto value = [NSMutableDictionary dictionary];
         switch (mode) {
         default: // fall-through!
-        case SentryProfilerModeTrace:
+        case SentryProfilerModeTrace: {
+            const auto relativeTimestamp
+                = getDurationNs(startSystemTime, reading.absoluteSystemTimestamp);
             value[@"elapsed_since_start_ns"] = sentry_stringForUInt64(relativeTimestamp);
             break;
-        case SentryProfilerModeContinuous:
+        }
+        case SentryProfilerModeContinuous: {
+            const auto absoluteNSDateIntervalNS
+                = timeIntervalToNanoseconds(reading.absoluteNSDateInterval);
+            const auto relativeTimestamp = getDurationNs(startSystemTime, absoluteNSDateIntervalNS);
             value[@"timestamp"] = @(nanosecondsToTimeInterval(relativeTimestamp));
             break;
+        }
         }
         value[@"value"] = reading.value;
         [timestampNormalizedValues addObject:value];
@@ -247,7 +254,9 @@ SentrySerializedMetricEntry *_Nullable serializeValuesWithNormalizedTime(
 {
     const auto reading = [[SentryMetricReading alloc] init];
     reading.value = value;
-    reading.absoluteTimestamp = SentryDependencyContainer.sharedInstance.dateProvider.systemTime;
+    const auto dateProvider = SentryDependencyContainer.sharedInstance.dateProvider;
+    reading.absoluteSystemTimestamp = dateProvider.systemTime;
+    reading.absoluteNSDateInterval = dateProvider.date.timeIntervalSinceReferenceDate;
     return reading;
 }
 
