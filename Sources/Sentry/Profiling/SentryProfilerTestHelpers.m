@@ -28,13 +28,14 @@ sentry_writeProfileFile(NSDictionary<NSString *, id> *payload)
 {
     NSData *data = [SentrySerialization dataWithJSONObject:payload];
     NSFileManager *fm = [NSFileManager defaultManager];
-    NSString *appSupportDirPath = sentryApplicationSupportPath();
+    NSString *testProfileDirPath =
+        [sentryApplicationSupportPath() stringByAppendingPathComponent:@"profiles"];
 
-    if (![fm fileExistsAtPath:appSupportDirPath]) {
+    if (![fm fileExistsAtPath:testProfileDirPath]) {
         SENTRY_LOG_DEBUG(@"Creating app support directory.");
         NSError *error;
-        if (!SENTRY_CASSERT_RETURN([fm createDirectoryAtPath:appSupportDirPath
-                                       withIntermediateDirectories:NO
+        if (!SENTRY_CASSERT_RETURN([fm createDirectoryAtPath:testProfileDirPath
+                                       withIntermediateDirectories:YES
                                                         attributes:nil
                                                              error:&error],
                 @"Failed to create sentry app support directory")) {
@@ -44,7 +45,17 @@ sentry_writeProfileFile(NSDictionary<NSString *, id> *payload)
         SENTRY_LOG_DEBUG(@"App support directory already exists.");
     }
 
-    NSString *pathToWrite = [appSupportDirPath stringByAppendingPathComponent:@"profile"];
+    NSError *error;
+    NSArray<NSString *> *contents = [fm contentsOfDirectoryAtPath:testProfileDirPath error:&error];
+    if (!SENTRY_CASSERT_RETURN(contents != nil && error == nil,
+            @"Failed to read contents of debug profile directory: %@.", error)) {
+        return;
+    }
+
+    NSUInteger numberOfProfiles = [contents count];
+    NSString *pathToWrite = [testProfileDirPath
+        stringByAppendingPathComponent:[NSString stringWithFormat:@"profile%lld",
+                                                 (long long)numberOfProfiles]];
 
     if ([fm fileExistsAtPath:pathToWrite]) {
         SENTRY_LOG_DEBUG(@"Already a profile file present; make sure to remove them right after "
@@ -52,12 +63,9 @@ sentry_writeProfileFile(NSDictionary<NSString *, id> *payload)
                          @"leftover config producing one when it isn't expected.");
     }
 
-    SENTRY_LOG_DEBUG(@"Writing profile to file.");
-
-    NSError *error;
-    if (![data writeToFile:pathToWrite options:NSDataWritingAtomic error:&error]) {
-        SENTRY_LOG_ERROR(@"Failed to write data to path %@: %@", pathToWrite, error);
-    }
+    SENTRY_LOG_DEBUG(@"Writing profile to file: %@.", pathToWrite);
+    SENTRY_CASSERT([data writeToFile:pathToWrite options:NSDataWritingAtomic error:&error],
+        @"Failed to write data to path %@: %@", pathToWrite, error);
 }
 
 #    endif // defined(TEST) || defined(TESTCI) || defined(DEBUG)

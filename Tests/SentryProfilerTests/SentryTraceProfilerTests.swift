@@ -319,6 +319,16 @@ class SentryTraceProfilerTests: XCTestCase {
         XCTAssertEqual(SentryTraceProfiler.currentProfiledTracers(), UInt(0))
         XCTAssertEqual(self.fixture.client?.captureEventWithScopeInvocations.count, 0)
     }
+
+    // test that receiving a backgrounding notification stops the profiler
+    func testTraceProfilerStopsOnBackgrounding() throws {
+        let span = try fixture.newTransaction()
+        XCTAssert(try XCTUnwrap(SentryTraceProfiler.getCurrentProfiler()).isRunning())
+        fixture.currentDateProvider.advance(by: 1)
+        fixture.notificationCenter.post(Notification(name: UIApplication.willResignActiveNotification, object: nil))
+        XCTAssertFalse(try XCTUnwrap(SentryTraceProfiler.getCurrentProfiler()).isRunning())
+        span.finish() // this isn't germane to the test, but we need the span to be retained throughout the test, and this satisfies the unused variable check
+    }
 #endif // !os(macOS)
 }
 

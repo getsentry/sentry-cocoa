@@ -41,6 +41,48 @@ final class SentryContinuousProfilerTests: XCTestCase {
         }
         try performContinuousProfilingTest(expectedEnvironment: expectedEnvironment)
     }
+
+    func testProfilingDataContainsEnvironmentSetFromConfigureScopeAndOptions() throws {
+        let expectedEnvironment = "test-environment"
+        fixture.options.environment = "options-environment"
+        fixture.hub.configureScope { scope in
+            scope.setEnvironment(expectedEnvironment)
+        }
+        try performContinuousProfilingTest(expectedEnvironment: expectedEnvironment)
+    }
+
+    func testProfilingDataContainsEnvironmentSetFromConfigureScopeAndOptionsAndEvent() throws {
+        let expectedEnvironment = "test-environment"
+        fixture.options.environment = "options-environment"
+        fixture.hub.configureScope { scope in
+            scope.setEnvironment(expectedEnvironment)
+        }
+        let event = Event()
+        event.environment = "event-environment"
+        fixture.hub.capture(event: event)
+        try performContinuousProfilingTest(expectedEnvironment: expectedEnvironment)
+    }
+
+    #if !os(macOS)
+    // test that receiving a background notification stops the continuous
+    // profiler after it has been started manually
+    func testStoppingContinuousProfilerStopsOnBackground() throws {
+        SentryContinuousProfiler.start()
+        XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
+        fixture.notificationCenter.post(Notification(name: UIApplication.willResignActiveNotification, object: nil))
+        XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
+    }
+    #endif // !os(macOS)
+
+    // test that after starting the continuous profiler and waiting for more
+    // than 30 seconds, the profiler is still running; (tests that the trace
+    // profiler's timeout timer does not affect the continuous profiler
+    func testContinuousProfilerNotStoppedAfter30Seconds() throws {
+        SentryContinuousProfiler.start()
+        XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
+        fixture.currentDateProvider.advanceBy(interval: 31)
+        XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
+    }
     
     func testClosingSDKStopsProfile() {
         XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
