@@ -399,7 +399,7 @@
 		7B5CAF7527F5A67C00ED0DB6 /* SentryNSURLRequestBuilder.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B5CAF7427F5A67C00ED0DB6 /* SentryNSURLRequestBuilder.h */; };
 		7B5CAF7727F5A68C00ED0DB6 /* SentryNSURLRequestBuilder.m in Sources */ = {isa = PBXBuildFile; fileRef = 7B5CAF7627F5A68C00ED0DB6 /* SentryNSURLRequestBuilder.m */; };
 		7B5CAF7E27F5AD3500ED0DB6 /* TestNSURLRequestBuilder.m in Sources */ = {isa = PBXBuildFile; fileRef = 7B5CAF7D27F5AD3500ED0DB6 /* TestNSURLRequestBuilder.m */; };
-		7B610D602512390E00B0B5D9 /* SentrySDK+Private.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B610D5E2512390E00B0B5D9 /* SentrySDK+Private.h */; };
+		7B610D602512390E00B0B5D9 /* SentrySDK+Private.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B610D5E2512390E00B0B5D9 /* SentrySDK+Private.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		7B610D642512399600B0B5D9 /* SentryHub+Private.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B610D622512399600B0B5D9 /* SentryHub+Private.h */; };
 		7B634599280EB9D100CFA05A /* SentryUIEventTrackingIntegration.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B634598280EB9D100CFA05A /* SentryUIEventTrackingIntegration.h */; };
 		7B63459B280EB9E200CFA05A /* SentryUIEventTrackingIntegration.m in Sources */ = {isa = PBXBuildFile; fileRef = 7B63459A280EB9E200CFA05A /* SentryUIEventTrackingIntegration.m */; };

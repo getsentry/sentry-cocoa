@@ -31,6 +31,28 @@ disableTimer()
     [_chunkTimer invalidate];
     _chunkTimer = nil;
 }
+
+void
+_sentry_threadUnsafe_transmitChunkEnvelope(void)
+{
+    const auto profiler = _threadUnsafe_gContinuousCurrentProfiler;
+    const auto stateCopy = [profiler.state copyProfilingData];
+    const auto startSystemTime = profiler.continuousChunkStartSystemTime;
+    const auto endSystemTime = SentryDependencyContainer.sharedInstance.dateProvider.systemTime;
+    profiler.continuousChunkStartSystemTime = endSystemTime + 1;
+    [profiler.state clear]; // !!!: profile this to see if it takes longer than one sample duration
+                            // length: ~9ms
+
+    const auto envelope = sentry_continuousProfileChunkEnvelope(
+        startSystemTime, endSystemTime, stateCopy, profiler.profilerId,
+        [profiler.metricProfiler serializeBetween:startSystemTime and:endSystemTime]
+#    if SENTRY_HAS_UIKIT
+        ,
+        profiler.screenFrameData
+#    endif // SENTRY_HAS_UIKIT
+    );
+    [SentrySDK captureEnvelope:envelope];
+}
 } // namespace
 
 @implementation SentryContinuousProfiler
@@ -72,8 +94,8 @@ disableTimer()
         return;
     }
 
+    _sentry_threadUnsafe_transmitChunkEnvelope();
     disableTimer();
-
     [_threadUnsafe_gContinuousCurrentProfiler stopForReason:SentryProfilerTruncationReasonNormal];
 }
 
@@ -102,39 +124,14 @@ disableTimer()
 
 + (void)timerExpired
 {
-    {
-        std::lock_guard<std::mutex> l(_threadUnsafe_gContinuousProfilerLock);
-        if (![_threadUnsafe_gContinuousCurrentProfiler isRunning]) {
-            SENTRY_LOG_WARN(@"Current profiler is not running. Sending whatever data it has left "
-                            @"and disabling the timer from running again.");
-            disableTimer();
-        }
+    std::lock_guard<std::mutex> l(_threadUnsafe_gContinuousProfilerLock);
+    if (![_threadUnsafe_gContinuousCurrentProfiler isRunning]) {
+        SENTRY_LOG_WARN(@"Current profiler is not running. Sending whatever data it has left "
+                        @"and disabling the timer from running again.");
+        disableTimer();
     }
 
-    [self transmitChunkEnvelope];
-}
-
-+ (void)transmitChunkEnvelope
-{
-    std::lock_guard<std::mutex> l(_threadUnsafe_gContinuousProfilerLock);
-
-    const auto profiler = _threadUnsafe_gContinuousCurrentProfiler;
-    const auto stateCopy = [profiler.state copyProfilingData];
-    const auto startSystemTime = profiler.continuousChunkStartSystemTime;
-    const auto endSystemTime = SentryDependencyContainer.sharedInstance.dateProvider.systemTime;
-    profiler.continuousChunkStartSystemTime = endSystemTime + 1;
-    [profiler.state clear]; // !!!: profile this to see if it takes longer than one sample duration
-                            // length: ~9ms
-
-    const auto envelope = sentry_continuousProfileChunkEnvelope(
-        startSystemTime, endSystemTime, stateCopy, profiler.profilerId,
-        [profiler.metricProfiler serializeBetween:startSystemTime and:endSystemTime]
-#    if SENTRY_HAS_UIKIT
-        ,
-        profiler.screenFrameData
-#    endif // SENTRY_HAS_UIKIT
-    );
-    [SentrySDK captureEnvelope:envelope];
+    _sentry_threadUnsafe_transmitChunkEnvelope();
 }
 
 #    pragma mark - Testing

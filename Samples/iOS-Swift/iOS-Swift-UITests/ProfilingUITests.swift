@@ -5,36 +5,35 @@ import XCTest
 class ProfilingUITests: BaseUITest {
     override var automaticallyLaunchAndTerminateApp: Bool { false }
     
-    func testProfiledAppLaunches() throws {
-        if #available(iOS 16, *) {
-            app.launchArguments.append("--io.sentry.wipe-data")
-            setDefaultLaunchArgs()
-            launchApp()
-            
-            // First launch enables in-app profiling by setting traces/profiles sample rates to 1 (which is the default configuration in the sample app), but not launch profiling; assert that we did not write a config to allow the next launch to be profiled.
-            try performAssertions(shouldProfileThisLaunch: false, shouldProfileNextLaunch: false, shouldEnableContinuousProfiling: false)
-            
-            // no profiling should be done on this launch; set the option to allow launch profiling for the next launch, keeping the default numerical sampling rates of 1 for traces and profiles
-            try relaunchAndConfigureSubsequentLaunches(shouldProfileThisLaunch: false, shouldEnableLaunchProfilingOptionForNextLaunch: true)
-            
-            // this launch should run the profiler, then set the option to allow launch profiling to true, but set the numerical sample rates to 0 so that the next launch should not profile
-            try relaunchAndConfigureSubsequentLaunches(shouldProfileThisLaunch: true, shouldEnableLaunchProfilingOptionForNextLaunch: true, profilesSampleRate: 0, tracesSampleRate: 0)
-            
-            // this launch should not run the profiler; configure sampler functions returning 1 and numerical rates set to 0, which should result in a profile being taken as samplers override numerical rates
-            try relaunchAndConfigureSubsequentLaunches(shouldProfileThisLaunch: false, shouldEnableLaunchProfilingOptionForNextLaunch: true, profilesSampleRate: 0, tracesSampleRate: 0, profilesSamplerValue: 1, tracesSamplerValue: 1)
-            
-            // this launch should run the profiler; configure sampler functions returning 0 and numerical rates set to 0, which should result in no profile being taken next launch
-            try relaunchAndConfigureSubsequentLaunches(shouldProfileThisLaunch: true, shouldEnableLaunchProfilingOptionForNextLaunch: true, profilesSamplerValue: 0, tracesSamplerValue: 0)
-            
-            // this launch should not run the profiler, but configure it to run the next launch
-            try relaunchAndConfigureSubsequentLaunches(shouldProfileThisLaunch: false, shouldEnableLaunchProfilingOptionForNextLaunch: true)
-            
-            // this launch should run the profiler, and configure it not to run the next launch due to disabling tracing, which would override the option to enable launch profiling
-            try relaunchAndConfigureSubsequentLaunches(shouldProfileThisLaunch: true, shouldEnableLaunchProfilingOptionForNextLaunch: true, shouldDisableTracing: true, shouldEnableContinuousProfiling: true)
-            
-            // the profiler should run with tracing disabled but continuous profiling enabled
-            try relaunchAndConfigureSubsequentLaunches(shouldProfileThisLaunch: true, shouldEnableLaunchProfilingOptionForNextLaunch: false)
+    override func setUp() {
+        super.setUp()
+
+        // make sure there are no previous configuration files or profile files written
+        app.launchArguments.append("--io.sentry.wipe-data")
+    }
+    
+    func testAppLaunchesWithTraceProfiler() throws {
+        guard #available(iOS 16, *) else {
+            throw XCTSkip("Only run for latest iOS version we test; we've had issues with prior versions in SauceLabs")
         }
+
+        // by default, launch profiling is not enabled
+        try launchAndConfigureSubsequentLaunches(shouldProfileThisLaunch: false, shouldEnableLaunchProfilingOptionForNextLaunch: true)
+        
+        // after configuring for launch profiling, check the marker file exists, and that the profile happens
+        try launchAndConfigureSubsequentLaunches(terminatePriorSession: true, shouldProfileThisLaunch: true, shouldEnableLaunchProfilingOptionForNextLaunch: true)
+    }
+    
+    func testAppLaunchesWithContinuousProfiler() throws {
+        guard #available(iOS 16, *) else {
+            throw XCTSkip("Only run for latest iOS version we test; we've had issues with prior versions in SauceLabs")
+        }
+
+        // by default, launch profiling is not enabled
+        try launchAndConfigureSubsequentLaunches(shouldProfileThisLaunch: false, shouldEnableLaunchProfilingOptionForNextLaunch: true, continuousProfiling: true)
+        
+        // after configuring for launch profiling, check the marker file exists, and that the profile happens
+        try launchAndConfigureSubsequentLaunches(terminatePriorSession: true, shouldProfileThisLaunch: true, shouldEnableLaunchProfilingOptionForNextLaunch: true, continuousProfiling: true)
     }
     
     /**
@@ -71,7 +70,6 @@ class ProfilingUITests: BaseUITest {
 }
 
 extension ProfilingUITests {
-    
     enum Error: Swift.Error {
         case missingFile
         case emptyFile
@@ -118,9 +116,59 @@ extension ProfilingUITests {
     func retrieveFirstProfileChunkData() {
         app.buttons["viewFirstContinuousProfileChunk"].afterWaitingForExistence("Couldn't find button to view last profile").tap()
     }
-
-    func assertLaunchProfile(shouldEnableContinuousProfiling: Bool) throws {
-        if shouldEnableContinuousProfiling {
+    
+    func stopContinuousProfiler() {
+        app.buttons["io.sentry.ios-swift.ui-test.button.stop-continuous-profiler"].afterWaitingForExistence("Couldn't find button to stop continuous profiler").tap()
+    }
+     
+    /**
+     * Performs the various operations for the launch profiler test case:
+     * - terminates an existing app session
+     * - creates a new one
+     * - sets launch args and env vars to set the appropriate `SentryOption` values for the desired behavior
+     * - launches the new configured app session
+     * - asserts the expected outcomes of the config file and launch profiler
+     */
+    func launchAndConfigureSubsequentLaunches(
+        terminatePriorSession: Bool = false,
+        shouldProfileThisLaunch: Bool,
+        shouldEnableLaunchProfilingOptionForNextLaunch: Bool,
+        continuousProfiling: Bool = false
+    ) throws {
+        if terminatePriorSession {
+            app.terminate()
+            app = newAppSession()
+        }
+        
+        app.launchArguments.append(contentsOf: [
+            // these help avoid other profiles that'd be taken automatically, that interfere with the checking we do for the assertions later in the tests
+            "--disable-swizzling",
+            "--disable-auto-performance-tracing",
+            "--disable-uiviewcontroller-tracing",
+            
+            // opt into launch profiling
+            "--profile-app-launches",
+            
+            // sets a marker function to run in a load command that the launch profile should detect
+            "--io.sentry.slow-load-method"
+        ])
+        if continuousProfiling {
+            app.launchArguments.append("--io.sentry.enable-continuous-profiling")
+        }
+        
+        launchApp()
+        
+        goToProfiling()
+        
+        let markerFileExists = try checkLaunchProfileMarkerFileExistence()
+        XCTAssertEqual(shouldEnableLaunchProfilingOptionForNextLaunch, markerFileExists)
+        
+        guard shouldProfileThisLaunch else {
+            return
+        }
+        
+        if continuousProfiling {
+            stopContinuousProfiler()
             retrieveFirstProfileChunkData()
         } else {
             retrieveLastProfileData()
@@ -139,12 +187,12 @@ extension ProfilingUITests {
         // grab the first stack that contained frames from the fixture code that simulates a slow +[load] method
         var stackID: Int?
         let stack = try XCTUnwrap(stackFunctions.enumerated().first { nextStack in
-            let result = nextStack.element.contains { frame in
-                let result = (frame as! String).contains("+[NSObject(SentryAppSetup) load]")
-                if result {
+            let result = try nextStack.element.contains { frame in
+                let found = try XCTUnwrap(frame as? String).contains("+[NSObject(SentryAppSetup) load]")
+                if found {
                     stackID = nextStack.offset
                 }
-                return result
+                return found
             }
             return result
         }).element.map { any in
@@ -166,94 +214,6 @@ extension ProfilingUITests {
             try XCTUnwrap(nextSample["stack_id"] as? NSNumber).intValue == stackID
         })
         XCTAssert(try XCTUnwrap(sample["thread_id"] as? String) == "259") // the main thread is always ID 259
-    }
-    
-    /**
-     * These cause traces to run the profiler, which can overwrite the launch profile file we need to retrieve to make assertions in the UI test.
-     */
-    func setDefaultLaunchArgs() {
-        app.launchArguments.append("--disable-swizzling")
-        app.launchArguments.append("--disable-auto-performance-tracing")
-        app.launchArguments.append("--disable-uiviewcontroller-tracing")
-    }
-     
-    /**
-     * Performs the various operations for the launch profiler test case:
-     * - terminates an existing app session
-     * - creates a new one
-     * - sets launch args and env vars to set the appropriate `SentryOption` values for the desired behavior
-     * - launches the new configured app session
-     * - asserts the expected outcomes of the config file and launch profiler
-     */
-    func relaunchAndConfigureSubsequentLaunches(
-        shouldProfileThisLaunch: Bool,
-        shouldEnableLaunchProfilingOptionForNextLaunch: Bool,
-        profilesSampleRate: Int? = nil,
-        tracesSampleRate: Int? = nil,
-        profilesSamplerValue: Int? = nil,
-        tracesSamplerValue: Int? = nil,
-        shouldDisableTracing: Bool = false,
-        shouldEnableContinuousProfiling: Bool = false
-    ) throws {
-        app.terminate()
-        app = newAppSession()
-                
-        if shouldProfileThisLaunch {
-            app.launchArguments.append("--io.sentry.slow-load-method")
-        }
-        if shouldEnableLaunchProfilingOptionForNextLaunch {
-            app.launchArguments.append("--profile-app-launches")
-        }
-        
-        var resolvedProfilesSampleRate: Int?
-        if let profilesSampleRate = profilesSampleRate {
-            app.launchEnvironment["--io.sentry.profilesSampleRate"] = String(profilesSampleRate)
-            resolvedProfilesSampleRate = profilesSampleRate
-        }
-        if let profilesSamplerValue = profilesSamplerValue {
-            app.launchEnvironment["--io.sentry.profilesSamplerValue"] = String(profilesSamplerValue)
-            resolvedProfilesSampleRate = profilesSamplerValue
-        }
-        
-        var resolvedTracesSampleRate: Int?
-        if let tracesSampleRate = tracesSampleRate {
-            app.launchEnvironment["--io.sentry.tracesSampleRate"] = String(tracesSampleRate)
-            resolvedTracesSampleRate = tracesSampleRate
-        }
-        if let tracesSamplerValue = tracesSamplerValue {
-            app.launchEnvironment["--io.sentry.tracesSamplerValue"] = String(tracesSamplerValue)
-            resolvedTracesSampleRate = tracesSamplerValue
-        }
-        
-        if shouldDisableTracing {
-            app.launchArguments.append("--disable-tracing")
-        }
-        
-        if shouldEnableContinuousProfiling {
-            app.launchArguments.append("--io.sentry.enable-continuous-profiling")
-        }
-        
-        setDefaultLaunchArgs()
-        launchApp()
-        
-        let sdkOptionsConfigurationAllowsLaunchProfiling = shouldEnableContinuousProfiling || !shouldDisableTracing
-        
-        // these tests only set sample rates to 0 or 1, or don't provide an override (and the sample app sets them to 1 by default)
-        let sampleRatesAllowLaunchProfiling = (resolvedTracesSampleRate == nil || resolvedTracesSampleRate! == 1) && (resolvedProfilesSampleRate == nil || resolvedProfilesSampleRate == 1)
-        
-        let shouldProfileNextLaunch = shouldEnableLaunchProfilingOptionForNextLaunch && sdkOptionsConfigurationAllowsLaunchProfiling && sampleRatesAllowLaunchProfiling
-        
-        try performAssertions(shouldProfileThisLaunch: shouldProfileThisLaunch, shouldProfileNextLaunch: shouldProfileNextLaunch, shouldEnableContinuousProfiling: shouldEnableContinuousProfiling)
-    }
-    
-    func performAssertions(shouldProfileThisLaunch: Bool, shouldProfileNextLaunch: Bool, shouldEnableContinuousProfiling: Bool) throws {
-        goToProfiling()
-        
-        XCTAssertEqual(shouldProfileNextLaunch, try checkLaunchProfileMarkerFileExistence())
-        
-        if shouldProfileThisLaunch {
-            try assertLaunchProfile(shouldEnableContinuousProfiling: shouldEnableContinuousProfiling)
-        }
     }
 }
 

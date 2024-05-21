@@ -194,6 +194,9 @@
                                                 <fontDescription key="fontDescription" type="system" pointSize="13"/>
                                                 <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
                                                 <state key="normal" title="Continuous profile start"/>
+                                                <connections>
+                                                    <action selector="startContinuousProfiler:" destination="NZr-bH-g9o" eventType="touchUpInside" id="wGa-hQ-xGf"/>
+                                                </connections>
                                             </button>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="39W-Kv-xim">
                                                 <rect key="frame" x="143" y="0.0" width="34" height="28"/>
@@ -201,6 +204,9 @@
                                                 <fontDescription key="fontDescription" type="system" pointSize="13"/>
                                                 <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
                                                 <state key="normal" title=" / end"/>
+                                                <connections>
+                                                    <action selector="stopContinuousProfiler:" destination="NZr-bH-g9o" eventType="touchUpInside" id="OWl-9b-rrQ"/>
+                                                </connections>
                                             </button>
                                         </subviews>
                                     </stackView>

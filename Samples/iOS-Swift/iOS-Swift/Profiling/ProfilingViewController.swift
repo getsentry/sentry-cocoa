@@ -1,3 +1,4 @@
+import Sentry
 import UIKit
 
 class ProfilingViewController: UIViewController, UITextFieldDelegate {
@@ -103,9 +104,17 @@ class ProfilingViewController: UIViewController, UITextFieldDelegate {
         }
     }
     
+    @IBAction func startContinuousProfiler(_ sender: Any) {
+        SentrySDK.startProfiler()
+    }
+    
+    @IBAction func stopContinuousProfiler(_ sender: Any) {
+        SentrySDK.stopProfiler()
+    }
+    
     @IBAction func viewLastProfile(_ sender: Any) {
         profilingUITestDataMarshalingTextField.text = "<fetching...>"
-        withProfile(first: true) { file in
+        withProfile(first: false) { file in
             handleContents(file: file)
         }
     }
@@ -128,6 +137,12 @@ class ProfilingViewController: UIViewController, UITextFieldDelegate {
         let fm = FileManager.default
         let dir = "\(appSupportDirectory)/io.sentry/profiles"
         let count = try! fm.contentsOfDirectory(atPath: dir).count
+        //swiftlint:disable empty_count
+        guard first || count > 0 else {
+            //swiftlint:enable empty_count
+            profilingUITestDataMarshalingTextField.text = "<missing>"
+            return
+        }
         let fileName = "profile\(first ? 0 : count - 1)"
         let fullPath = "\(dir)/\(fileName)"
         

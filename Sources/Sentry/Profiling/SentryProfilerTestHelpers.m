@@ -47,7 +47,7 @@ sentry_writeProfileFile(NSDictionary<NSString *, id> *payload)
 
     NSError *error;
     NSArray<NSString *> *contents = [fm contentsOfDirectoryAtPath:testProfileDirPath error:&error];
-    if (SENTRY_CASSERT_RETURN(contents != nil && error == nil,
+    if (!SENTRY_CASSERT_RETURN(contents != nil && error == nil,
             @"Failed to read contents of debug profile directory: %@.", error)) {
         return;
     }
