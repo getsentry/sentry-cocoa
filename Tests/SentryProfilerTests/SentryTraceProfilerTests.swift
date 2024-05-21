@@ -418,9 +418,13 @@ private extension SentryTraceProfilerTests {
 #endif // !os(macOS)
     }
 
-    func sortedByTimestamps(_ entries: [[String: Any]]) -> [[String: Any]] {
-        entries.sorted { a, b in
-            UInt64(a["elapsed_since_start_ns"] as! String)! < UInt64(b["elapsed_since_start_ns"] as! String)!
+    func sortedByTimestamps(_ entries: [[String: Any]]) throws -> [[String: Any]] {
+        try entries.sorted { a, b in
+            let aValue = try XCTUnwrap(a["elapsed_since_start_ns"] as? String)
+            let aIntValue = try XCTUnwrap(UInt64(aValue))
+            let bValue = try XCTUnwrap(b["elapsed_since_start_ns"] as? String)
+            let bIntValue = try XCTUnwrap(UInt64(bValue))
+            return aIntValue < bIntValue
         }
     }
 
@@ -433,8 +437,8 @@ private extension SentryTraceProfilerTests {
     func assertMetricEntries(measurements: [String: Any], key: String, expectedEntries: [[String: Any]], transaction: Transaction) throws {
         let metricContainer = try XCTUnwrap(measurements[key] as? [String: Any])
         let actualEntries = try XCTUnwrap(metricContainer["values"] as? [[String: Any]])
-        let sortedActualEntries = sortedByTimestamps(actualEntries)
-        let sortedExpectedEntries = sortedByTimestamps(expectedEntries)
+        let sortedActualEntries = try sortedByTimestamps(actualEntries)
+        let sortedExpectedEntries = try sortedByTimestamps(expectedEntries)
 
         guard actualEntries.count == expectedEntries.count else {
             XCTFail("Wrong number of values under \(key). expected: \(printTimestamps(entries: sortedExpectedEntries)); actual: \(printTimestamps(entries: sortedActualEntries)); transaction start time: \(transaction.startSystemTime)")

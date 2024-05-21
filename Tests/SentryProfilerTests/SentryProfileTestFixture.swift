@@ -159,36 +159,51 @@ class SentryProfileTestFixture {
         }
         
         func renderGPUFrame(_ type: GPUFrame) {
+            func getTimestampValue() -> (value: Any, string: String) {
+                var timestampValue: Any
+                var timestampString: String
+                if continuousProfile {
+                    let actualTimestampValue = currentDateProvider.date().timeIntervalSinceReferenceDate
+                    timestampValue = actualTimestampValue
+                    timestampString = String(actualTimestampValue)
+                } else {
+                    let actualTimestampValue = currentDateProvider.systemTime()
+                    timestampValue = String(actualTimestampValue)
+                    timestampString = String(actualTimestampValue)
+                }
+                return (timestampValue, timestampString)
+            }
+            let timestampKey = continuousProfile ? "timestamp" : "elapsed_since_start_ns"
             switch type {
             case .normal:
-                let currentSystemTime: UInt64 = currentDateProvider.systemTime()
-                print("expect normal frame to start at \(currentSystemTime)")
+                let timestamp = getTimestampValue()
+                print("expect normal frame to start at \(timestamp.string)")
                 displayLinkWrapper.normalFrame()
             case .slow:
                 let duration = displayLinkWrapper.middlingSlowFrame()
-                let currentSystemTime = currentDateProvider.systemTime()
-                print("will expect \(String(describing: type)) frame starting at \(currentSystemTime)")
-                expectedSlowFrames.append([
-                    (continuousProfile ? "timestamp" : "elapsed_since_start_ns"): String(currentSystemTime),
-                    "value": continuousProfile ? duration : duration.toNanoSeconds()
-                ])
+                let timestamp = getTimestampValue()
+                print("will expect \(String(describing: type)) frame starting at \(timestamp.string)")
+                var entry = [String: Any]()
+                entry["value"] = continuousProfile ? duration : duration.toNanoSeconds()
+                entry[timestampKey] = timestamp.value
+                expectedSlowFrames.append(entry)
             case .frozen:
                 let duration = displayLinkWrapper.fastestFrozenFrame()
-                let currentSystemTime = currentDateProvider.systemTime()
-                print("will expect \(String(describing: type)) frame starting at \(currentSystemTime)")
-                expectedFrozenFrames.append([
-                    (continuousProfile ? "timestamp" : "elapsed_since_start_ns"): String(currentSystemTime),
-                    "value": continuousProfile ? duration : duration.toNanoSeconds()
-                ])
+                let timestamp = getTimestampValue()
+                print("will expect \(String(describing: type)) frame starting at \(timestamp.string)")
+                var entry = [String: Any]()
+                entry["value"] = continuousProfile ? duration : duration.toNanoSeconds()
+                entry[timestampKey] = timestamp.value
+                expectedFrozenFrames.append(entry)
             }
             if shouldRecordFrameRateExpectation {
                 shouldRecordFrameRateExpectation = false
-                let currentSystemTime = currentDateProvider.systemTime()
-                print("will expect frame rate \(displayLinkWrapper.currentFrameRate.rawValue) at \(currentSystemTime)")
-                expectedFrameRateChanges.append([
-                    (continuousProfile ? "timestamp" : "elapsed_since_start_ns"): String(currentSystemTime),
-                    "value": NSNumber(value: displayLinkWrapper.currentFrameRate.rawValue)
-                ])
+                let timestamp = getTimestampValue()
+                print("will expect frame rate \(displayLinkWrapper.currentFrameRate.rawValue) at \(timestamp.string)")
+                var entry = [String: Any]()
+                entry["value"] = NSNumber(value: displayLinkWrapper.currentFrameRate.rawValue)
+                entry[timestampKey] = timestamp.value
+                expectedFrameRateChanges.append(entry)
             }
         }
         
