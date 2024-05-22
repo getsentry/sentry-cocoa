@@ -8,6 +8,7 @@ namespace Sentry {
 class CppSample {
 public:
     void throwCPPException();
+    void rethrowNoActiveCPPException();
 };
 }
 

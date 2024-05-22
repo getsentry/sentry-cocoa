@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Features
+
+- Add C++ exception support for `__cxa_rethrow` (#3996)
+
 ### Improvements
 
 - Stop FramesTracker when app is in background (#3979)

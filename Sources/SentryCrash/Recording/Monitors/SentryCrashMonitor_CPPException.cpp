@@ -72,6 +72,7 @@ static SentryCrashStackCursor g_stackCursor;
 // ============================================================================
 
 typedef void (*cxa_throw_type)(void *, std::type_info *, void (*)(void *));
+typedef void (*cxa_rethrow_type)(void);
 
 extern "C" {
 void __cxa_throw(void *thrown_exception, std::type_info *tinfo, void (*dest)(void *))
@@ -90,6 +91,28 @@ __cxa_throw(void *thrown_exception, std::type_info *tinfo, void (*dest)(void *))
         orig_cxa_throw = (cxa_throw_type)dlsym(RTLD_NEXT, "__cxa_throw");
     }
     orig_cxa_throw(thrown_exception, tinfo, dest);
+    __builtin_unreachable();
+}
+
+void
+__sentry_cxa_throw(void *thrown_exception, std::type_info *tinfo, void (*dest)(void *))
+{
+    __cxa_throw(thrown_exception, tinfo, dest);
+}
+
+void
+__sentry_cxa_rethrow()
+{
+    if (g_captureNextStackTrace) {
+        sentrycrashsc_initSelfThread(&g_stackCursor, 1);
+    }
+
+    static cxa_rethrow_type orig_cxa_rethrow = NULL;
+    unlikely_if(orig_cxa_rethrow == NULL)
+    {
+        orig_cxa_rethrow = (cxa_rethrow_type)dlsym(RTLD_NEXT, "__cxa_rethrow");
+    }
+    orig_cxa_rethrow();
     __builtin_unreachable();
 }
 }
@@ -127,33 +150,39 @@ CPPExceptionTerminate(void)
         const char *description = descriptionBuff;
         descriptionBuff[0] = 0;
 
-        SentryCrashLOG_DEBUG("Discovering what kind of exception was thrown.");
-        g_captureNextStackTrace = false;
-        try {
-            throw;
-        } catch (std::exception &exc) {
-            strncpy(descriptionBuff, exc.what(), sizeof(descriptionBuff));
-        }
+        std::exception_ptr currException = std::current_exception();
+        if (currException == NULL) {
+            SentryCrashLOG_DEBUG("Terminate without exception.");
+            sentrycrashsc_initSelfThread(&g_stackCursor, 0);
+        } else {
+            SentryCrashLOG_DEBUG("Discovering what kind of exception was thrown.");
+            g_captureNextStackTrace = false;
+            try {
+                throw;
+            } catch (std::exception &exc) {
+                strncpy(descriptionBuff, exc.what(), sizeof(descriptionBuff));
+            }
 #define CATCH_VALUE(TYPE, PRINTFTYPE)                                                              \
     catch (TYPE value) {                                                                           \
         snprintf(descriptionBuff, sizeof(descriptionBuff), "%" #PRINTFTYPE, value);                \
     }
-        CATCH_VALUE(char, d)
-        CATCH_VALUE(short, d)
-        CATCH_VALUE(int, d)
-        CATCH_VALUE(long, ld)
-        CATCH_VALUE(long long, lld)
-        CATCH_VALUE(unsigned char, u)
-        CATCH_VALUE(unsigned short, u)
-        CATCH_VALUE(unsigned int, u)
-        CATCH_VALUE(unsigned long, lu)
-        CATCH_VALUE(unsigned long long, llu)
-        CATCH_VALUE(float, f)
-        CATCH_VALUE(double, f)
-        CATCH_VALUE(long double, Lf)
-        CATCH_VALUE(char *, s)
-        catch (...) { description = NULL; }
-        g_captureNextStackTrace = g_isEnabled;
+            CATCH_VALUE(char, d)
+            CATCH_VALUE(short, d)
+            CATCH_VALUE(int, d)
+            CATCH_VALUE(long, ld)
+            CATCH_VALUE(long long, lld)
+            CATCH_VALUE(unsigned char, u)
+            CATCH_VALUE(unsigned short, u)
+            CATCH_VALUE(unsigned int, u)
+            CATCH_VALUE(unsigned long, lu)
+            CATCH_VALUE(unsigned long long, llu)
+            CATCH_VALUE(float, f)
+            CATCH_VALUE(double, f)
+            CATCH_VALUE(long double, Lf)
+            CATCH_VALUE(char *, s)
+            catch (...) { description = NULL; }
+            g_captureNextStackTrace = g_isEnabled;
+        }
 
         // TODO: Should this be done here? Maybe better in the exception
         // handler?
