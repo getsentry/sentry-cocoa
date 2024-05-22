@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Features
+
+- Add breadcrumbs to session replay (#)
+
 ### Improvements
 
 - Stop FramesTracker when app is in background (#3979)
