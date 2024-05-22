@@ -127,7 +127,9 @@ SentrySerializedMetricEntry *_Nullable serializeValuesWithNormalizedTime(
 
 - (void)recordMetrics
 {
-    SENTRY_LOG_DEBUG(@"Recording profiling metrics sample");
+    const auto dateProvider = SentryDependencyContainer.sharedInstance.dateProvider;
+    SENTRY_LOG_DEBUG(@"Recording profiling metrics sample at %f (%llu)",
+        dateProvider.date.timeIntervalSinceReferenceDate, dateProvider.systemTime);
     [self recordCPUsage];
     [self recordMemoryFootprint];
     [self recordEnergyUsageEstimate];

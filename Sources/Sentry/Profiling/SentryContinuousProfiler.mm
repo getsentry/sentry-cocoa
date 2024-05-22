@@ -47,7 +47,7 @@ _sentry_threadUnsafe_transmitChunkEnvelope(void)
     profiler.continuousChunkStartSystemTime = endSystemTime + 1;
     [profiler.state clear]; // !!!: profile this to see if it takes longer than one sample duration
                             // length: ~9ms
-    
+
 #    if SENTRY_HAS_UIKIT
     const auto framesTracker = SentryDependencyContainer.sharedInstance.framesTracker;
     SentryScreenFrames *screenFrameData = [framesTracker.currentFrames copy];
