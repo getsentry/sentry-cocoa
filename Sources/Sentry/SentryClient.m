@@ -52,6 +52,10 @@
 #import "SentryUserFeedback.h"
 #import "SentryWatchdogTerminationTracker.h"
 
+#if SENTRY_HAS_UIKIT
+#    import <UIKit/UIKit.h>
+#endif
+
 NS_ASSUME_NONNULL_BEGIN
 
 @interface
@@ -630,22 +634,20 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         }
 
 #if SENTRY_HAS_UIKIT
-        SentryAppStateManager *manager = [SentryDependencyContainer sharedInstance].appStateManager;
-        SentryAppState *appState = [manager loadPreviousAppState];
-        BOOL inForeground = [appState isActive];
-        if (appState != nil) {
-            NSMutableDictionary *context =
-                [event.context mutableCopy] ?: [NSMutableDictionary dictionary];
-            if (context[@"app"] == nil
-                || ([context[@"app"] isKindOfClass:NSDictionary.self]
-                    && context[@"app"][@"in_foreground"] == nil)) {
-                NSMutableDictionary *app = [(NSDictionary *)context[@"app"] mutableCopy]
-                    ?: [NSMutableDictionary dictionary];
-                context[@"app"] = app;
+        NSMutableDictionary *context =
+            [event.context mutableCopy] ?: [NSMutableDictionary dictionary];
+        if (context[@"app"] == nil
+            || ([context[@"app"] isKindOfClass:NSDictionary.self]
+                && context[@"app"][@"in_foreground"] == nil)) {
+            NSMutableDictionary *app =
+                [(NSDictionary *)context[@"app"] mutableCopy] ?: [NSMutableDictionary dictionary];
+            context[@"app"] = app;
 
-                app[@"in_foreground"] = @(inForeground);
-                event.context = context;
-            }
+            UIApplicationState appState =
+                [SentryDependencyContainer sharedInstance].application.applicationState;
+            BOOL inForeground = appState == UIApplicationStateActive;
+            app[@"in_foreground"] = @(inForeground);
+            event.context = context;
         }
 #endif
 
