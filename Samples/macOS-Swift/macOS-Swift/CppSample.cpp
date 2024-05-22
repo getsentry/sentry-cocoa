@@ -12,3 +12,11 @@ Sentry::CppSample::throwCPPException(void)
 {
     internalFunction();
 }
+
+void
+Sentry::CppSample::rethrowNoActiveCPPException(void)
+{
+    // Rethrowing an exception when there is no active exception will lead to std::terminate being
+    // called.
+    throw;
+}
