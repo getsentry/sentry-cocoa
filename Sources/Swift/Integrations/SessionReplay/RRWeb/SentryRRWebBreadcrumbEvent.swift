@@ -1,9 +1,8 @@
 @_implementationOnly import _SentryPrivate
 import Foundation
 
-@objcMembers
 class SentryRRWebBreadcrumbEvent: SentryRRWebCustomEvent {
-    init(timestamp: Date, category: String, message: String?, level: SentryLevel, data: [String: Any]?) {
+    init(timestamp: Date, category: String, message: String? = nil, level: SentryLevel = .none, data: [String: Any]? = nil) {
         
         var payload: [String: Any] = ["type": "default", "category": category, "level": level.rawValue, "timestamp": timestamp.timeIntervalSince1970 ]
         

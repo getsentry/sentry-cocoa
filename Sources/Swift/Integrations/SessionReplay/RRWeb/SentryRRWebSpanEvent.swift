@@ -8,8 +8,8 @@ import Foundation
                     [
                         "op": operation,
                         "description": description,
-                        "startTimestamp": SentryDateUtil.millisecondsSince1970(timestamp),
-                        "endTimestamp": SentryDateUtil.millisecondsSince1970(endTimestap),
+                        "startTimestamp": timestamp.timeIntervalSince1970,
+                        "endTimestamp": timestamp.timeIntervalSince1970,
                         "data": data
                     ]
         )

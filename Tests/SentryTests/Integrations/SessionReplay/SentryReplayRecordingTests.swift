@@ -22,7 +22,6 @@ class SentryReplayRecordingTests: XCTestCase {
         expect(metaInfoData?["href"] as? String) == ""
         expect(metaInfoData?["height"] as? Int) == 930
         expect(metaInfoData?["width"] as? Int) == 390
-        
         expect(recordingInfo["type"] as? Int) == 5
         expect(recordingInfo["timestamp"] as? Int) == 2_000
         expect(recordingData?["tag"] as? String) == "video"

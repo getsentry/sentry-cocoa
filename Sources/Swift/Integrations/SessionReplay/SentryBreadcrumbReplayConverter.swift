@@ -17,26 +17,28 @@ class SentryBreadcrumbReplayConverter: NSObject {
         breadcrumbs.compactMap { replayBreadcrumb(from: $0) }
     }
     
+    //Convert breadcrumb information into something
+    //replay front understands
     private func replayBreadcrumb(from breadcrumb: Breadcrumb) -> SentryRRWebEvent? {
         guard let timestamp = breadcrumb.timestamp else { return nil }
         if breadcrumb.category == "http" {
             return networkSpan(breadcrumb)
         } else if breadcrumb.type == "navigation" {
             return navigationBreadcrumb(breadcrumb)
-        } else if breadcrumb.category == "ui.click" {
-            return SentryRRWebBreadcrumbEvent(timestamp: timestamp, category: "ui.tap", message: "", level: .none, data: nil)
-        } else if breadcrumb.type == "system" && breadcrumb.category == "network.event" {
-            if breadcrumb.data?["action"] as? String == "NETWORK_LOST" {
-                return SentryRRWebBreadcrumbEvent(timestamp: timestamp, category: "device.connectivity", message: nil, level: .none, data: ["state": "offline"])
-            }
-            guard let networkType = breadcrumb.data?["network_type"] as? String, !networkType.isEmpty  else { return nil }
-            return SentryRRWebBreadcrumbEvent(timestamp: timestamp, category: "device.connectivity", message: nil, level: .none, data: ["state": networkType])
-        } else if let action = breadcrumb.data?["action"] as? String, action == "BATTERY_CHANGED" {
+        } else if breadcrumb.category == "touch" {
+            return SentryRRWebBreadcrumbEvent(timestamp: timestamp, category: "ui.tap", message: breadcrumb.message)
+        } else if breadcrumb.type == "connectivity" && breadcrumb.category == "device.connectivity" {
+            guard let networkType = breadcrumb.data?["connectivity"] as? String, !networkType.isEmpty  else { return nil }
+            return SentryRRWebBreadcrumbEvent(timestamp: timestamp, category: "device.connectivity", data: ["state": networkType])
+        } else if let action = breadcrumb.data?["action"] as? String, action == "BATTERY_STATE_CHANGE" {
+            var data = breadcrumb.data?.filter({ item in item.key == "level" || item.key == "plugged" }) ?? [:]
+            
+            data["charging"] = data["plugged"]
+            data["plugged"] = nil
+            
             return SentryRRWebBreadcrumbEvent(timestamp: timestamp,
                                               category: "device.battery",
-                                              message: nil,
-                                              level: .none,
-                                              data: breadcrumb.data?.filter({ item in item.key == "level" || item.key == "charging" }) ?? [:])
+                                              data: data)
         }
         
         let level = getLevel(breadcrumb: breadcrumb)
@@ -48,15 +50,12 @@ class SentryBreadcrumbReplayConverter: NSObject {
         
         if breadcrumb.category == "app.lifecycle" {
             guard let state = breadcrumb.data?["state"] else { return nil }
-            return SentryRRWebBreadcrumbEvent(timestamp: timestamp, category: "app.\(state)", message: nil, level: .none, data: nil)
+            return SentryRRWebBreadcrumbEvent(timestamp: timestamp, category: "app.\(state)")
         } else if let position = breadcrumb.data?["position"] as? String, breadcrumb.category == "device.orientation" && (position == "landscape" || position == "portrait") {
-            return SentryRRWebBreadcrumbEvent(timestamp: timestamp, category: "device.orientation", message: nil, level: .none, data: ["position": position])
+            return SentryRRWebBreadcrumbEvent(timestamp: timestamp, category: "device.orientation", data: ["position": position])
         } else {
-            if breadcrumb.data?["state"] as? String == "resumed" {
-                guard let screen = breadcrumb.data?["screen"] as? String, let screenIndex = (breadcrumb.data?["screen"] as? String)?.lastIndex(of: ".") else { return nil }
-                return SentryRRWebBreadcrumbEvent(timestamp: timestamp, category: "navigation", message: nil, level: .none, data: ["to": screen[screenIndex...]])
-            } else if let to = breadcrumb.data?["screen"] as? String {
-                return SentryRRWebBreadcrumbEvent(timestamp: timestamp, category: "navigation", message: to, level: .none, data: ["to": to])
+            if let to = breadcrumb.data?["screen"] as? String {
+                return SentryRRWebBreadcrumbEvent(timestamp: timestamp, category: "navigation", message: to, data: ["to": to])
             } else {
                 return nil
             }
