@@ -4,7 +4,7 @@
 
 ### Features
 
-- Add breadcrumbs to session replay (#)
+- Add breadcrumbs to session replay (#4002)
 
 ### Improvements
 
