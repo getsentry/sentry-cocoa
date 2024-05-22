@@ -73,7 +73,7 @@ class SentryBreadcrumbReplayConverter: NSObject {
         })
         
         //We dont have end of the request in the breadcrumb.
-        return SentryRRWebSpanEvent(timestamp: timestamp, endTimestap: timestamp, operation: "resource.http", description: description, data: data)
+        return SentryRRWebSpanEvent(timestamp: timestamp, endTimestamp: timestamp, operation: "resource.http", description: description, data: data)
     }
     
     private  func getLevel(breadcrumb: Breadcrumb) -> SentryLevel {
