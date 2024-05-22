@@ -106,7 +106,7 @@ __sentry_cxa_rethrow()
     if (g_captureNextStackTrace) {
         sentrycrashsc_initSelfThread(&g_stackCursor, 1);
     }
-    
+
     static cxa_rethrow_type orig_cxa_rethrow = NULL;
     unlikely_if(orig_cxa_rethrow == NULL)
     {
@@ -149,7 +149,7 @@ CPPExceptionTerminate(void)
         char descriptionBuff[DESCRIPTION_BUFFER_LENGTH];
         const char *description = descriptionBuff;
         descriptionBuff[0] = 0;
-        
+
         std::exception_ptr currException = std::current_exception();
         if (currException == NULL) {
             SentryCrashLOG_DEBUG("Terminate without exception.");
@@ -162,10 +162,10 @@ CPPExceptionTerminate(void)
             } catch (std::exception &exc) {
                 strncpy(descriptionBuff, exc.what(), sizeof(descriptionBuff));
             }
-    #define CATCH_VALUE(TYPE, PRINTFTYPE)                                                              \
-        catch (TYPE value) {                                                                           \
-            snprintf(descriptionBuff, sizeof(descriptionBuff), "%" #PRINTFTYPE, value);                \
-        }
+#define CATCH_VALUE(TYPE, PRINTFTYPE)                                                              \
+    catch (TYPE value) {                                                                           \
+        snprintf(descriptionBuff, sizeof(descriptionBuff), "%" #PRINTFTYPE, value);                \
+    }
             CATCH_VALUE(char, d)
             CATCH_VALUE(short, d)
             CATCH_VALUE(int, d)
