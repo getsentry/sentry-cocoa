@@ -57,11 +57,6 @@ SentryBreadcrumb ()
     return self;
 }
 
-- (instancetype)initCategory:(NSString *)category
-{
-    return [self initWithLevel:kSentryLevelNone category:category];
-}
-
 - (instancetype)init
 {
     return [self initWithLevel:kSentryLevelInfo category:@"default"];
@@ -120,21 +115,6 @@ SentryBreadcrumb ()
         && ![self.unknown isEqualToDictionary:breadcrumb.unknown])
         return NO;
     return YES;
-}
-
-- (instancetype)copy
-{
-    SentryBreadcrumb *result = [[SentryBreadcrumb alloc] init];
-
-    result.level = self.level;
-    result.category = self.category;
-    result.data = self.data.copy;
-    result.message = self.message;
-    result.timestamp = self.timestamp;
-    result.type = self.type;
-    result.unknown = self.unknown.copy;
-
-    return result;
 }
 
 - (NSUInteger)hash

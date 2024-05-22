@@ -329,9 +329,6 @@ NS_ASSUME_NONNULL_BEGIN
     [recording appendData:[@"\n" dataUsingEncoding:NSUTF8StringEncoding]];
     [recording appendData:[SentrySerialization dataWithJSONObject:[replayRecording serialize]]];
 
-    NSString *somethig = [[NSString alloc] initWithData:recording encoding:NSUTF8StringEncoding];
-    NSLog(@"%@", somethig);
-
     return recording;
 }
 
