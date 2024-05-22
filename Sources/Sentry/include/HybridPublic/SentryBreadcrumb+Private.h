@@ -9,5 +9,4 @@ SentryBreadcrumb ()
  * @return The SentryBreadcrumb.
  */
 - (instancetype)initWithDictionary:(NSDictionary *)dictionary;
-
 @end
