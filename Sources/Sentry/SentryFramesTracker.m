@@ -212,7 +212,7 @@ slowFrameThreshold(uint64_t actualFramesPerSecond)
         BOOL frameRateChanged = previousFrameRate != _currentFrameRate;
         BOOL shouldRecordNewFrameRate = hasNoFrameRatesYet || frameRateChanged;
         if (shouldRecordNewFrameRate) {
-            SENTRY_LOG_DEBUG(@"Recording new frame rate at %llu.", thisFrameSystemTimestamp);
+            SENTRY_LOG_DEBUG(@"Recording new frame rate at %@.", profilingTimestamp);
             [self recordTimestamp:profilingTimestamp
                             value:@(_currentFrameRate)
                             array:self.frameRateTimestamps];
@@ -226,8 +226,8 @@ slowFrameThreshold(uint64_t actualFramesPerSecond)
         && frameDuration <= SentryFrozenFrameThreshold) {
         _slowFrames++;
 #    if SENTRY_TARGET_PROFILING_SUPPORTED
-        SENTRY_LOG_DEBUG(@"Detected slow frame starting at %llu (frame tracker: %@).",
-            thisFrameSystemTimestamp, self);
+        SENTRY_LOG_DEBUG(
+            @"Detected slow frame starting at %@ (frame tracker: %@).", profilingTimestamp, self);
         [self recordTimestamp:profilingTimestamp
                         value:@(thisFrameSystemTimestamp - self.previousFrameSystemTimestamp)
                         array:self.slowFrameTimestamps];
@@ -235,7 +235,7 @@ slowFrameThreshold(uint64_t actualFramesPerSecond)
     } else if (frameDuration > SentryFrozenFrameThreshold) {
         _frozenFrames++;
 #    if SENTRY_TARGET_PROFILING_SUPPORTED
-        SENTRY_LOG_DEBUG(@"Detected frozen frame starting at %llu.", thisFrameSystemTimestamp);
+        SENTRY_LOG_DEBUG(@"Detected frozen frame starting at %@.", profilingTimestamp);
         [self recordTimestamp:profilingTimestamp
                         value:@(thisFrameSystemTimestamp - self.previousFrameSystemTimestamp)
                         array:self.frozenFrameTimestamps];

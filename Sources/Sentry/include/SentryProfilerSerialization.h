@@ -18,8 +18,7 @@ SENTRY_EXTERN SentryEnvelopeItem *_Nullable sentry_traceProfileEnvelopeItem(
     SentryTransaction *transaction, NSDate *startTimestamp);
 
 SentryEnvelope *_Nullable sentry_continuousProfileChunkEnvelope(
-    uint64_t startSystemTime, uint64_t endSystemTime, NSDictionary *profileState,
-    SentryId *profilerId, NSDictionary *metricProfilerState
+    SentryId *profileID, NSDictionary *profileState, NSDictionary *metricProfilerState
 #    if SENTRY_HAS_UIKIT
     ,
     SentryScreenFrames *gpuData

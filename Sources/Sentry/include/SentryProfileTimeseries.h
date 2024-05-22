@@ -36,7 +36,7 @@ NSArray<SentrySerializedMetricEntry *> *sentry_sliceTraceProfileGPUData(
     BOOL useMostRecentRecording);
 
 NSArray<NSDictionary<NSString *, NSNumber *> *> *sentry_sliceContinuousProfileGPUData(
-    SentryFrameInfoTimeSeries *frameInfo, uint64_t startSystemTime, uint64_t endSystemTime,
+    SentryFrameInfoTimeSeries *frameInfo, NSTimeInterval start, NSTimeInterval end,
     BOOL useMostRecentFrameRate);
 
 #    endif // SENTRY_HAS_UIKIT

@@ -49,8 +49,8 @@ namespace {
  * their data, with timestamps normalized relative to the provided transaction's start time.
  * */
 NSArray<NSDictionary *> *
-_sentry_serializedSamplesWithRelativeTimestamps(
-    NSArray<SentrySample *> *samples, uint64_t startSystemTime, SentryProfilerMode mode)
+_sentry_serializedTraceProfileSamplesWithRelativeTimestamps(
+    NSArray<SentrySample *> *samples, uint64_t startSystemTime)
 {
     const auto result = [NSMutableArray<NSDictionary *> array];
     [samples enumerateObjectsUsingBlock:^(
@@ -62,20 +62,8 @@ _sentry_serializedSamplesWithRelativeTimestamps(
             return;
         }
         const auto dict = [NSMutableDictionary dictionary];
-        switch (mode) {
-        default: // fall-through!
-        case SentryProfilerModeTrace: {
-            const auto durationNs = getDurationNs(startSystemTime, sample.absoluteTimestamp);
-            dict[@"elapsed_since_start_ns"] = sentry_stringForUInt64(durationNs);
-            break;
-        }
-        case SentryProfilerModeContinuous: {
-            const auto nsdateIntervalNS = timeIntervalToNanoseconds(sample.absoluteNSDateInterval);
-            const auto durationNs = getDurationNs(startSystemTime, nsdateIntervalNS);
-            dict[@"timestamp"] = @(nanosecondsToTimeInterval(durationNs));
-            break;
-        }
-        }
+        const auto durationNs = getDurationNs(startSystemTime, sample.absoluteTimestamp);
+        dict[@"elapsed_since_start_ns"] = sentry_stringForUInt64(durationNs);
 
         dict[@"thread_id"] = sentry_stringForUInt64(sample.threadID);
         dict[@"stack_id"] = sample.stackIndex;
@@ -84,6 +72,28 @@ _sentry_serializedSamplesWithRelativeTimestamps(
             dict[@"queue_address"] = sample.queueAddress;
         }
 
+        [result addObject:dict];
+    }];
+    return result;
+}
+
+/**
+ * Given an array of continuous profile samples with absolute NSDate timestamps, return the
+ * serialized JSON mapping with their data.
+ * */
+NSArray<NSDictionary *> *
+_sentry_serializedContinuousProfileSamples(NSArray<SentrySample *> *samples)
+{
+    const auto result = [NSMutableArray<NSDictionary *> array];
+    [samples enumerateObjectsUsingBlock:^(
+        SentrySample *_Nonnull sample, NSUInteger idx, BOOL *_Nonnull stop) {
+        const auto dict = [NSMutableDictionary dictionary];
+        dict[@"timestamp"] = @(sample.absoluteNSDateInterval);
+        dict[@"thread_id"] = sentry_stringForUInt64(sample.threadID);
+        dict[@"stack_id"] = sample.stackIndex;
+        if (sample.queueAddress) {
+            dict[@"queue_address"] = sample.queueAddress;
+        }
         [result addObject:dict];
     }];
     return result;
@@ -138,8 +148,8 @@ sentry_serializedTraceProfileData(
     }
     const auto payload = [NSMutableDictionary<NSString *, id> dictionary];
     NSMutableDictionary<NSString *, id> *const profile = [profileData[@"profile"] mutableCopy];
-    profile[@"samples"] = _sentry_serializedSamplesWithRelativeTimestamps(
-        slicedSamples, startSystemTime, SentryProfilerModeTrace);
+    profile[@"samples"] = _sentry_serializedTraceProfileSamplesWithRelativeTimestamps(
+        slicedSamples, startSystemTime);
     payload[@"profile"] = profile;
 
     payload[@"version"] = @"1";
@@ -212,10 +222,9 @@ sentry_serializedTraceProfileData(
 }
 
 NSMutableDictionary<NSString *, id> *
-sentry_serializedContinuousProfileChunk(
-    SentryId *profileID, NSDictionary<NSString *, id> *profileData, uint64_t startSystemTime,
-    uint64_t endSystemTime, NSDictionary<NSString *, id> *serializedMetrics,
-    NSArray<SentryDebugMeta *> *debugMeta, SentryHub *hub, uint64_t continuousChunkStartSystemTime
+sentry_serializedContinuousProfileChunk(SentryId *profileID,
+    NSDictionary<NSString *, id> *profileData, NSDictionary<NSString *, id> *serializedMetrics,
+    NSArray<SentryDebugMeta *> *debugMeta, SentryHub *hub
 #    if SENTRY_HAS_UIKIT
     ,
     SentryScreenFrames *gpuData
@@ -232,8 +241,7 @@ sentry_serializedContinuousProfileChunk(
 
     const auto payload = [NSMutableDictionary<NSString *, id> dictionary];
     NSMutableDictionary<NSString *, id> *const profile = [profileData[@"profile"] mutableCopy];
-    profile[@"samples"] = _sentry_serializedSamplesWithRelativeTimestamps(
-        samples, startSystemTime, SentryProfilerModeContinuous);
+    profile[@"samples"] = _sentry_serializedContinuousProfileSamples(samples);
 
     payload[@"profile"] = profile;
 
@@ -256,10 +264,26 @@ sentry_serializedContinuousProfileChunk(
     auto metrics = serializedMetrics;
 
 #    if SENTRY_HAS_UIKIT
+    const auto samplesSortedByDate =
+        [samples sortedArrayUsingComparator:^NSComparisonResult(SentrySample *a, SentrySample *b) {
+            if (a.absoluteNSDateInterval == b.absoluteNSDateInterval) {
+                return NSOrderedSame;
+            }
+            if (a.absoluteNSDateInterval < b.absoluteNSDateInterval) {
+                return NSOrderedAscending;
+            } else /*a.absoluteNSDateInterval > b.absoluteNSDateInterval*/ {
+                return NSOrderedDescending;
+            }
+        }];
+
+    const auto start = samplesSortedByDate.firstObject.absoluteNSDateInterval;
+    const auto end = samplesSortedByDate.lastObject.absoluteNSDateInterval;
+
     const auto mutableMetrics =
         [NSMutableDictionary<NSString *, id> dictionaryWithDictionary:metrics];
-    const auto slowFrames = sentry_sliceContinuousProfileGPUData(gpuData.slowFrameTimestamps,
-        startSystemTime, endSystemTime, /*useMostRecentFrameRate */ NO);
+    SENTRY_LOG_DEBUG(@"Slicing slow GPU frames by timestamp");
+    const auto slowFrames = sentry_sliceContinuousProfileGPUData(
+        gpuData.slowFrameTimestamps, start, end, /*useMostRecentFrameRate */ NO);
     if (slowFrames.count > 0) {
         const auto values = [NSMutableDictionary dictionary];
         values[@"unit"] = @"millisecond";
@@ -267,9 +291,10 @@ sentry_serializedContinuousProfileChunk(
         mutableMetrics[kSentryProfilerSerializationKeySlowFrameRenders] = values;
     }
 
-    const auto frozenFrames = sentry_sliceContinuousProfileGPUData(gpuData.frozenFrameTimestamps,
-        startSystemTime, endSystemTime,
-        /*useMostRecentFrameRate */ NO);
+    SENTRY_LOG_DEBUG(@"Slicing frozen GPU frames by timestamp");
+    const auto frozenFrames
+        = sentry_sliceContinuousProfileGPUData(gpuData.frozenFrameTimestamps, start, end,
+            /*useMostRecentFrameRate */ NO);
     if (frozenFrames.count > 0) {
         const auto values = [NSMutableDictionary dictionary];
         values[@"unit"] = @"millisecond";
@@ -278,9 +303,10 @@ sentry_serializedContinuousProfileChunk(
     }
 
     if (slowFrames.count > 0 || frozenFrames.count > 0) {
-        const auto frameRates = sentry_sliceContinuousProfileGPUData(gpuData.frameRateTimestamps,
-            startSystemTime, endSystemTime,
-            /*useMostRecentFrameRate */ YES);
+        SENTRY_LOG_DEBUG(@"Slicing GPU framerates by timestamp");
+        const auto frameRates
+            = sentry_sliceContinuousProfileGPUData(gpuData.frameRateTimestamps, start, end,
+                /*useMostRecentFrameRate */ YES);
         if (frameRates.count > 0) {
             const auto values = [NSMutableDictionary dictionary];
             values[@"unit"] = @"hz";
@@ -301,23 +327,22 @@ sentry_serializedContinuousProfileChunk(
 #    pragma mark - Public
 
 SentryEnvelope *_Nullable sentry_continuousProfileChunkEnvelope(
-    uint64_t startSystemTime, uint64_t endSystemTime, NSDictionary *profileState,
-    SentryId *profilerId, NSDictionary *metricProfilerState
+    SentryId *profileID, NSDictionary *profileState, NSDictionary *metricProfilerState
 #    if SENTRY_HAS_UIKIT
     ,
     SentryScreenFrames *gpuData
 #    endif // SENTRY_HAS_UIKIT
 )
 {
-    const auto payload = sentry_serializedContinuousProfileChunk(
-        profilerId, profileState, startSystemTime, endSystemTime, metricProfilerState,
-        [SentryDependencyContainer.sharedInstance.debugImageProvider getDebugImagesCrashed:NO],
-        SentrySDK.currentHub, startSystemTime
+    const auto payload
+        = sentry_serializedContinuousProfileChunk(profileID, profileState, metricProfilerState,
+            [SentryDependencyContainer.sharedInstance.debugImageProvider getDebugImagesCrashed:NO],
+            SentrySDK.currentHub
 #    if SENTRY_HAS_UIKIT
-        ,
-        gpuData
+            ,
+            gpuData
 #    endif // SENTRY_HAS_UIKIT
-    );
+        );
 
 #    if defined(TEST) || defined(TESTCI) || defined(DEBUG)
     sentry_writeProfileFile(payload);
@@ -354,8 +379,8 @@ SentryEnvelopeItem *_Nullable sentry_traceProfileEnvelopeItem(
     const auto payload = sentry_serializedTraceProfileData(
         [profiler.state copyProfilingData], transaction.startSystemTime, transaction.endSystemTime,
         sentry_profilerTruncationReasonName(profiler.truncationReason),
-        [profiler.metricProfiler serializeBetween:transaction.startSystemTime
-                                              and:transaction.endSystemTime],
+        [profiler.metricProfiler serializeTraceProfileMetricsBetween:transaction.startSystemTime
+                                                                 and:transaction.endSystemTime],
         [SentryDependencyContainer.sharedInstance.debugImageProvider getDebugImagesCrashed:NO],
         transaction.trace.hub
 #    if SENTRY_HAS_UIKIT
@@ -403,7 +428,8 @@ NSMutableDictionary<NSString *, id> *_Nullable sentry_collectProfileDataHybridSD
 
     return sentry_serializedTraceProfileData([profiler.state copyProfilingData], startSystemTime,
         endSystemTime, sentry_profilerTruncationReasonName(profiler.truncationReason),
-        [profiler.metricProfiler serializeBetween:startSystemTime and:endSystemTime],
+        [profiler.metricProfiler serializeTraceProfileMetricsBetween:startSystemTime
+                                                                 and:endSystemTime],
         [SentryDependencyContainer.sharedInstance.debugImageProvider getDebugImagesCrashed:NO], hub
 #    if SENTRY_HAS_UIKIT
         ,

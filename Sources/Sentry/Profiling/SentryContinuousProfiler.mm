@@ -11,6 +11,7 @@
 #    import "SentryProfilerSerialization.h"
 #    import "SentryProfilerState.h"
 #    import "SentrySDK+Private.h"
+#    import "SentrySample.h"
 #    import "SentrySwift.h"
 #    include <mutex>
 
@@ -41,12 +42,11 @@ void
 _sentry_threadUnsafe_transmitChunkEnvelope(void)
 {
     const auto profiler = _threadUnsafe_gContinuousCurrentProfiler;
-    const auto stateCopy = [profiler.state copyProfilingData];
-    const auto startSystemTime = profiler.continuousChunkStartSystemTime;
-    const auto endSystemTime = SentryDependencyContainer.sharedInstance.dateProvider.systemTime;
-    profiler.continuousChunkStartSystemTime = endSystemTime + 1;
+    const auto profilerState = [profiler.state copyProfilingData];
     [profiler.state clear]; // !!!: profile this to see if it takes longer than one sample duration
                             // length: ~9ms
+
+    const auto metricProfilerState = [profiler.metricProfiler serializeContinuousProfileMetrics];
 
 #    if SENTRY_HAS_UIKIT
     const auto framesTracker = SentryDependencyContainer.sharedInstance.framesTracker;
@@ -55,8 +55,7 @@ _sentry_threadUnsafe_transmitChunkEnvelope(void)
 #    endif // SENTRY_HAS_UIKIT
 
     const auto envelope = sentry_continuousProfileChunkEnvelope(
-        startSystemTime, endSystemTime, stateCopy, profiler.profilerId,
-        [profiler.metricProfiler serializeBetween:startSystemTime and:endSystemTime]
+        profiler.profilerId, profilerState, metricProfilerState
 #    if SENTRY_HAS_UIKIT
         ,
         screenFrameData

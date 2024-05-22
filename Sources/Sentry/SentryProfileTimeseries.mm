@@ -140,34 +140,35 @@ sentry_sliceTraceProfileGPUData(SentryFrameInfoTimeSeries *frameInfo, uint64_t s
 }
 
 NSArray<NSDictionary<NSString *, NSNumber *> *> *
-sentry_sliceContinuousProfileGPUData(SentryFrameInfoTimeSeries *frameInfo, uint64_t startSystemTime,
-    uint64_t endSystemTime, BOOL useMostRecentFrameRate)
+sentry_sliceContinuousProfileGPUData(SentryFrameInfoTimeSeries *frameInfo, NSTimeInterval start,
+    NSTimeInterval end, BOOL useMostRecentFrameRate)
 {
     auto slicedGPUEntries = [NSMutableArray<NSDictionary<NSString *, NSNumber *> *> array];
-    __block NSNumber *mostRecentFrameRate;
+    __block NSDictionary<NSString *, NSNumber *> *mostRecentFrameRateInfo;
     [frameInfo enumerateObjectsUsingBlock:^(
         NSDictionary<NSString *, NSNumber *> *_Nonnull obj, NSUInteger idx, BOOL *_Nonnull stop) {
-        const auto timestampNs = obj[@"timestamp"].unsignedLongLongValue;
-
-        if (!orderedChronologically(startSystemTime, timestampNs)) {
-            SENTRY_LOG_DEBUG(@"GPU info recorded (%llu) before transaction start (%llu), "
-                             @"will not report it.",
-                timestampNs, startSystemTime);
-            mostRecentFrameRate = obj[@"value"];
+        const auto entryTimestamp = obj[@"timestamp"].doubleValue;
+        if (entryTimestamp < start) {
+            SENTRY_LOG_DEBUG(@"GPU info recorded at %f was before profile chunk start at %f, "
+                             @"will not include.",
+                entryTimestamp, start);
+            mostRecentFrameRateInfo = obj;
             return;
         }
 
-        if (!orderedChronologically(timestampNs, endSystemTime)) {
-            SENTRY_LOG_DEBUG(@"GPU info recorded after transaction finished, won't record.");
+        if (end < entryTimestamp) {
+            SENTRY_LOG_DEBUG(
+                @"GPU info recorded at %f was after transaction finished at %f, will not include.",
+                entryTimestamp, end);
             return;
         }
 
-        const auto relativeTimestamp
-            = nanosecondsToTimeInterval(getDurationNs(startSystemTime, timestampNs));
-        _sentry_addContinuousEntry(slicedGPUEntries, @(relativeTimestamp), obj[@"value"]);
+        SENTRY_LOG_DEBUG(@"Including GPU info recorded at %f", entryTimestamp);
+        _sentry_addContinuousEntry(slicedGPUEntries, @(entryTimestamp), obj[@"value"]);
     }];
-    if (useMostRecentFrameRate && slicedGPUEntries.count == 0 && mostRecentFrameRate != nil) {
-        _sentry_addContinuousEntry(slicedGPUEntries, @0, mostRecentFrameRate);
+    if (useMostRecentFrameRate && slicedGPUEntries.count == 0 && mostRecentFrameRateInfo != nil) {
+        _sentry_addContinuousEntry(slicedGPUEntries, mostRecentFrameRateInfo[@"timestamp"],
+            mostRecentFrameRateInfo[@"value"]);
     }
     return slicedGPUEntries;
 }

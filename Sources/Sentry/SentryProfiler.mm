@@ -159,8 +159,6 @@ sentry_manageTraceProfilerOnStartSDK(SentryOptions *options, SentryHub *hub)
 
     SentryProfilerState *const state = [[SentryProfilerState alloc] init];
     self.state = state;
-    self.continuousChunkStartSystemTime
-        = SentryDependencyContainer.sharedInstance.dateProvider.systemTime;
     _samplingProfiler = std::make_shared<SamplingProfiler>(
         [state](auto &backtrace) {
             Backtrace backtraceCopy = backtrace;
