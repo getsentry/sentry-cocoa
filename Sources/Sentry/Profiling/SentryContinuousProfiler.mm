@@ -41,6 +41,7 @@ disableTimer()
 void
 _sentry_threadUnsafe_transmitChunkEnvelope(void)
 {
+    SENTRY_LOG_DEBUG(@"Capturing profile chunk envelope.");
     const auto profiler = _threadUnsafe_gContinuousCurrentProfiler;
     const auto profilerState = [profiler.state copyProfilingData];
     [profiler.state clear]; // !!!: profile this to see if it takes longer than one sample duration
@@ -104,6 +105,7 @@ _sentry_threadUnsafe_transmitChunkEnvelope(void)
         return;
     }
 
+    SENTRY_LOG_DEBUG(@"Stopping continuous profiler.");
     _sentry_threadUnsafe_transmitChunkEnvelope();
     disableTimer();
     [_threadUnsafe_gContinuousCurrentProfiler stopForReason:SentryProfilerTruncationReasonNormal];

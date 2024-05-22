@@ -8,6 +8,8 @@ public func clearTestState() {
 @objcMembers
 class TestCleanup: NSObject {
     static func clearTestState() {
+        TestLogger.log(#line, "Clearing test state")
+        
         // You must call clearTestState on the main thread. Calling it on a background thread
         // could interfere with another currently running test, making the tests flaky.
         assert(Thread.isMainThread, "You must call clearTestState on the main thread.")

@@ -3,6 +3,7 @@
 #    import "SentryBacktrace.hpp"
 #    import "SentryDependencyContainer.h"
 #    import "SentryFormatter.h"
+#    import "SentryLog.h"
 #    import "SentryProfileTimeseries.h"
 #    import "SentrySample.h"
 #    import "SentrySwift.h"
@@ -96,6 +97,8 @@ parseBacktraceSymbolsFunctionName(const char *symbol)
 
 - (void)appendBacktrace:(const Backtrace &)backtrace
 {
+    const auto interval
+        = SentryDependencyContainer.sharedInstance.dateProvider.date.timeIntervalSinceReferenceDate;
     [self mutate:^(SentryProfilerMutableState *state) {
         const auto threadID = sentry_stringForUInt64(backtrace.threadMetadata.threadID);
 
@@ -147,10 +150,10 @@ parseBacktraceSymbolsFunctionName(const char *symbol)
         free(symbols);
 #    endif
 
+        printf("Recording profile sample at %f\n", interval);
         const auto sample = [[SentrySample alloc] init];
         sample.absoluteTimestamp = backtrace.absoluteTimestamp;
-        sample.absoluteNSDateInterval = SentryDependencyContainer.sharedInstance.dateProvider.date
-                                            .timeIntervalSinceReferenceDate;
+        sample.absoluteNSDateInterval = interval;
         sample.threadID = backtrace.threadMetadata.threadID;
 
         const auto stackKey = [stack componentsJoinedByString:@"|"];

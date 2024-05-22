@@ -157,8 +157,8 @@ sentry_sliceContinuousProfileGPUData(SentryFrameInfoTimeSeries *frameInfo, NSTim
         }
 
         if (end < entryTimestamp) {
-            SENTRY_LOG_DEBUG(
-                @"GPU info recorded at %f was after transaction finished at %f, will not include.",
+            SENTRY_LOG_DEBUG(@"GPU info recorded at %f was after profile chunk finished at %f, "
+                             @"will not include.",
                 entryTimestamp, end);
             return;
         }

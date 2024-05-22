@@ -281,7 +281,7 @@ sentry_serializedContinuousProfileChunk(SentryId *profileID,
 
     const auto mutableMetrics =
         [NSMutableDictionary<NSString *, id> dictionaryWithDictionary:metrics];
-    SENTRY_LOG_DEBUG(@"Slicing slow GPU frames by timestamp");
+    SENTRY_LOG_DEBUG(@"Slicing slow GPU frames by timestamp between %f and %f", start, end);
     const auto slowFrames = sentry_sliceContinuousProfileGPUData(
         gpuData.slowFrameTimestamps, start, end, /*useMostRecentFrameRate */ NO);
     if (slowFrames.count > 0) {
@@ -291,7 +291,7 @@ sentry_serializedContinuousProfileChunk(SentryId *profileID,
         mutableMetrics[kSentryProfilerSerializationKeySlowFrameRenders] = values;
     }
 
-    SENTRY_LOG_DEBUG(@"Slicing frozen GPU frames by timestamp");
+    SENTRY_LOG_DEBUG(@"Slicing frozen GPU frames by timestamp between %f and %f", start, end);
     const auto frozenFrames
         = sentry_sliceContinuousProfileGPUData(gpuData.frozenFrameTimestamps, start, end,
             /*useMostRecentFrameRate */ NO);
@@ -303,7 +303,7 @@ sentry_serializedContinuousProfileChunk(SentryId *profileID,
     }
 
     if (slowFrames.count > 0 || frozenFrames.count > 0) {
-        SENTRY_LOG_DEBUG(@"Slicing GPU framerates by timestamp");
+        SENTRY_LOG_DEBUG(@"Slicing GPU framerates by timestamp between %f and %f", start, end);
         const auto frameRates
             = sentry_sliceContinuousProfileGPUData(gpuData.frameRateTimestamps, start, end,
                 /*useMostRecentFrameRate */ YES);
