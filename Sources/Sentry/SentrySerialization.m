@@ -328,7 +328,6 @@ NS_ASSUME_NONNULL_BEGIN
                               dataWithJSONObject:[replayRecording headerForReplayRecording]]];
     [recording appendData:[@"\n" dataUsingEncoding:NSUTF8StringEncoding]];
     [recording appendData:[SentrySerialization dataWithJSONObject:[replayRecording serialize]]];
-
     return recording;
 }
 
