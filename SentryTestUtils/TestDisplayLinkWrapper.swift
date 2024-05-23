@@ -74,30 +74,36 @@ public class TestDisplayLinkWrapper: SentryDisplayLinkWrapper {
         dateProvider.advance(by: currentFrameRate.tickDuration)
     }
     
-    public func fastestSlowFrame() -> CFTimeInterval {
-        let duration: Double = slowFrameThreshold(currentFrameRate.rawValue) + timeEpsilon
-        dateProvider.advance(by: duration)
+    public func fastestSlowFrame() {
+        dateProvider.advance(by: fastestSlowFrameDuration())
         call()
-        return duration
     }
 
-    public func middlingSlowFrame() -> CFTimeInterval {
-        let duration: Double = (frozenFrameThreshold - (slowFrameThreshold(currentFrameRate.rawValue) + timeEpsilon)) / 2.0
-        dateProvider.advance(by: duration)
+    public func middlingSlowFrame() {
+        dateProvider.advance(by: middlingSlowFrameDuration())
         call()
-        return duration
     }
     
-    public func slowestSlowFrame() -> CFTimeInterval {
+    public func slowestSlowFrame() {
         dateProvider.advance(by: slowestSlowFrameDuration)
         call()
-        return slowestSlowFrameDuration
     }
 
-    public func fastestFrozenFrame() -> CFTimeInterval {
+    public func fastestFrozenFrame() {
         dateProvider.advance(by: fastestFrozenFrameDuration)
         call()
-        return fastestFrozenFrameDuration
+    }
+    
+    public func normalFrameDuration() -> CFTimeInterval {
+        currentFrameRate.tickDuration
+    }
+    
+    public func fastestSlowFrameDuration() -> CFTimeInterval {
+        slowFrameThreshold(currentFrameRate.rawValue) + timeEpsilon
+    }
+
+    public func middlingSlowFrameDuration() -> CFTimeInterval {
+        (frozenFrameThreshold - (slowFrameThreshold(currentFrameRate.rawValue) + timeEpsilon)) / 2.0
     }
 
     /// There's no upper bound for a frozen frame, except maybe for the watchdog time limit.
@@ -111,11 +117,11 @@ public class TestDisplayLinkWrapper: SentryDisplayLinkWrapper {
         self.call()
 
         for _ in 0..<slow {
-            _ = fastestSlowFrame()
+            fastestSlowFrame()
         }
         
         for _ in 0..<frozen {
-            _ = fastestFrozenFrame()
+            fastestFrozenFrame()
         }
 
         for _ in 0..<(normal - 1) {

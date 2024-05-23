@@ -539,8 +539,8 @@ class SentrySpanTests: XCTestCase {
         let frozenFrames = 1
         let normalFrames = 100
         let totalFrames = slowFrames + frozenFrames + normalFrames
-        _ = displayLinkWrapper.slowestSlowFrame()
-        _ = displayLinkWrapper.fastestFrozenFrame()
+        displayLinkWrapper.slowestSlowFrame()
+        displayLinkWrapper.fastestFrozenFrame()
         displayLinkWrapper.renderFrames(0, 0, normalFrames)
         
         sut.finish()

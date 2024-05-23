@@ -39,7 +39,8 @@ NS_ASSUME_NONNULL_BEGIN
                         notificationCenter:(SentryNSNotificationCenterWrapper *)notificationCenter
                  keepDelayedFramesDuration:(CFTimeInterval)keepDelayedFramesDuration;
 
-@property (nonatomic, assign, readonly) SentryScreenFrames *currentFrames;
+- (SentryScreenFrames *)currentFrames;
+
 @property (nonatomic, assign, readonly) BOOL isRunning;
 
 #    if SENTRY_TARGET_PROFILING_SUPPORTED

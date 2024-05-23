@@ -34,7 +34,7 @@ class SentryProfileTestFixture {
     
 #if !os(macOS)
     lazy var displayLinkWrapper = TestDisplayLinkWrapper(dateProvider: currentDateProvider)
-    lazy var framesTracker = SentryFramesTracker(displayLinkWrapper: displayLinkWrapper, dateProvider: currentDateProvider, dispatchQueueWrapper: dispatchQueueWrapper, notificationCenter: TestNSNotificationCenterWrapper(), keepDelayedFramesDuration: 0)
+    lazy var framesTracker = TestFramesTracker(displayLinkWrapper: displayLinkWrapper, dateProvider: currentDateProvider, dispatchQueueWrapper: dispatchQueueWrapper, notificationCenter: TestNSNotificationCenterWrapper(), keepDelayedFramesDuration: 0)
 #endif // !os(macOS)
     
     init() {
@@ -124,14 +124,14 @@ class SentryProfileTestFixture {
     let mockFrameRateChangesPerBatch: [FrameRate] = [.high, .low, .high, .low]
     
     // Absolute timestamps must be adjusted per span when asserting
-    var expectedSlowFrames = [[String: Any]]()
-    var expectedFrozenFrames = [[String: Any]]()
-    var expectedFrameRateChanges = [[String: Any]]()
+    var expectedSlowFrames = [[String: NSNumber]]()
+    var expectedFrozenFrames = [[String: NSNumber]]()
+    var expectedFrameRateChanges = [[String: NSNumber]]()
     
     func resetGPUExpectations() {
-        expectedSlowFrames = [[String: Any]]()
-        expectedFrozenFrames = [[String: Any]]()
-        expectedFrameRateChanges = [[String: Any]]()
+        expectedSlowFrames = [[String: NSNumber]]()
+        expectedFrozenFrames = [[String: NSNumber]]()
+        expectedFrameRateChanges = [[String: NSNumber]]()
     }
 #endif // !os(macOS)
     
@@ -163,18 +163,18 @@ class SentryProfileTestFixture {
             displayLinkWrapper.changeFrameRate(new)
             shouldRecordFrameRateExpectation = true
         }
-        
+                
         func renderGPUFrame(_ type: GPUFrame) {
-            func getTimestampValue() -> (value: Any, string: String) {
-                var timestampValue: Any
+            func getTimestampValue() -> (value: NSNumber, string: String) {
+                var timestampValue: NSNumber
                 var timestampString: String
                 if continuousProfile {
                     let actualTimestampValue = currentDateProvider.date().timeIntervalSinceReferenceDate
-                    timestampValue = actualTimestampValue
+                    timestampValue = NSNumber(value: actualTimestampValue)
                     timestampString = String(actualTimestampValue)
                 } else {
                     let actualTimestampValue = currentDateProvider.systemTime()
-                    timestampValue = String(actualTimestampValue)
+                    timestampValue = NSNumber(value: actualTimestampValue)
                     timestampString = String(actualTimestampValue)
                 }
                 return (timestampValue, timestampString)
@@ -184,29 +184,43 @@ class SentryProfileTestFixture {
             case .normal:
                 let timestamp = getTimestampValue()
                 TestLogger.log(#line, "will expect normal frame starting at \(timestamp.string)")
-                displayLinkWrapper.normalFrame()
+                currentDateProvider.advance(by: displayLinkWrapper.normalFrameDuration())
             case .slow:
                 let timestamp = getTimestampValue()
                 TestLogger.log(#line, "will expect \(String(describing: type)) frame starting at \(timestamp.string)")
-                let duration = displayLinkWrapper.middlingSlowFrame()
-                var entry = [String: Any]()
-                entry["value"] = continuousProfile ? duration : duration.toNanoSeconds()
+                let duration = displayLinkWrapper.middlingSlowFrameDuration()
+                var value: NSNumber
+                if continuousProfile {
+                    value = NSNumber(value: duration)
+                } else {
+                    value = NSNumber(value: duration.toNanoSeconds())
+                }
+                var entry = [String: NSNumber]()
+                entry["value"] = value
                 entry[timestampKey] = timestamp.value
                 expectedSlowFrames.append(entry)
+                currentDateProvider.advance(by: duration)
             case .frozen:
                 let timestamp = getTimestampValue()
                 TestLogger.log(#line, "will expect \(String(describing: type)) frame starting at \(timestamp.string)")
-                let duration = displayLinkWrapper.fastestFrozenFrame()
-                var entry = [String: Any]()
-                entry["value"] = continuousProfile ? duration : duration.toNanoSeconds()
+                let duration = displayLinkWrapper.fastestFrozenFrameDuration
+                var value: NSNumber
+                if continuousProfile {
+                    value = NSNumber(value: duration)
+                } else {
+                    value = NSNumber(value: duration.toNanoSeconds())
+                }
+                var entry = [String: NSNumber]()
+                entry["value"] = value
                 entry[timestampKey] = timestamp.value
                 expectedFrozenFrames.append(entry)
+                currentDateProvider.advance(by: duration)
             }
             if shouldRecordFrameRateExpectation {
                 shouldRecordFrameRateExpectation = false
                 let timestamp = getTimestampValue()
                 TestLogger.log(#line, "will expect frame rate \(displayLinkWrapper.currentFrameRate.rawValue) at \(timestamp.string)")
-                var entry = [String: Any]()
+                var entry = [String: NSNumber]()
                 entry["value"] = NSNumber(value: displayLinkWrapper.currentFrameRate.rawValue)
                 entry[timestampKey] = timestamp.value
                 expectedFrameRateChanges.append(entry)
@@ -245,6 +259,8 @@ class SentryProfileTestFixture {
         renderGPUFrame(.slow)
         renderGPUFrame(.normal)
         renderGPUFrame(.frozen)
+        
+        framesTracker.expectedFrames = SentryScreenFrames(total: 0, frozen: 0, slow: 0, slowFrameTimestamps: expectedSlowFrames, frozenFrameTimestamps: expectedFrozenFrames, frameRateTimestamps: expectedFrameRateChanges)
 #endif // !os(macOS)
         
         // mock errors gathering cpu usage and memory footprint and fire a callback for them to ensure they don't add more information to the payload

@@ -12,8 +12,6 @@ SENTRY_EXTERN CFTimeInterval const SentryFrozenFrameThreshold;
 @interface
 SentryFramesTracker ()
 
-- (void)setCurrentFrames:(SentryScreenFrames *)frames;
-
 - (instancetype)initWithDisplayLinkWrapper:(SentryDisplayLinkWrapper *)displayLinkWrapper;
 
 - (void)setDisplayLinkWrapper:(SentryDisplayLinkWrapper *)displayLinkWrapper;
