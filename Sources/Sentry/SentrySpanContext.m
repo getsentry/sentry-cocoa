@@ -1,6 +1,6 @@
-#import "SentrySpanContext.h"
 #import "SentryLog.h"
 #import "SentrySampleDecision+Private.h"
+#import "SentrySpanContext+Private.h"
 #import "SentrySpanId.h"
 #import "SentrySwift.h"
 #import "SentryTraceOrigins.h"

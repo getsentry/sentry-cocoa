@@ -62,7 +62,17 @@ class SentrySpanTests: XCTestCase {
         super.tearDown()
         clearTestState()
     }
-
+    
+    func testSpanDoesNotIncludeTraceProfilerID() throws {
+        fixture.options.profilesSampleRate = 1
+        let span = fixture.getSut()
+        XCTAssert(SentryTraceProfiler.isCurrentlyProfiling())
+        span.finish()
+        
+        let serialized = span.serialize()
+        XCTAssertNil(serialized["profile_ids"])
+    }
+    
     // test that a span that starts before a continuous profile and ends before
     // the profile ends includes that profile id in the span
     func testSpanWithProfileId() throws {

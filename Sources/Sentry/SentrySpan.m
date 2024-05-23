@@ -8,7 +8,9 @@
 #import "SentryNSDictionarySanitize.h"
 #import "SentryNSNotificationCenterWrapper.h"
 #import "SentryNoOpSpan.h"
+#import "SentryOptions+Private.h"
 #import "SentryProfilingConditionals.h"
+#import "SentrySDK+Private.h"
 #import "SentrySampleDecision+Private.h"
 #import "SentrySpanContext.h"
 #import "SentrySpanId.h"
@@ -96,19 +98,21 @@ SentrySpan ()
         _origin = context.origin;
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
-        _profileSessionIDs = [NSMutableSet<NSString *> set];
-        if (SentryContinuousProfiler.isCurrentlyProfiling) {
-            [_profileSessionIDs
-                addObject:SentryContinuousProfiler.currentProfilerID.sentryIdString];
+        if (SentrySDK.options.enableContinuousProfiling) {
+            _profileSessionIDs = [NSMutableSet<NSString *> set];
+            if (SentryContinuousProfiler.isCurrentlyProfiling) {
+                [_profileSessionIDs
+                    addObject:SentryContinuousProfiler.currentProfilerID.sentryIdString];
+            }
+            [SentryDependencyContainer.sharedInstance.notificationCenterWrapper
+                addObserver:self
+                   selector:@selector(linkProfiler)
+                       name:kSentryNotificationContinuousProfileStarted];
+            [SentryDependencyContainer.sharedInstance.notificationCenterWrapper
+                addObserver:self
+                   selector:@selector(linkProfiler)
+                       name:kSentryNotificationContinuousProfileStopped];
         }
-        [SentryDependencyContainer.sharedInstance.notificationCenterWrapper
-            addObserver:self
-               selector:@selector(linkProfiler)
-                   name:kSentryNotificationContinuousProfileStarted];
-        [SentryDependencyContainer.sharedInstance.notificationCenterWrapper
-            addObserver:self
-               selector:@selector(linkProfiler)
-                   name:kSentryNotificationContinuousProfileStopped];
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
     }
     return self;
