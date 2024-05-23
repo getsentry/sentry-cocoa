@@ -31,8 +31,6 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @interface SentryFramesTracker : NSObject
 
-@property (nonatomic, strong, readonly) SentryDisplayLinkWrapper *displayLinkWrapper;
-
 - (instancetype)initWithDisplayLinkWrapper:(SentryDisplayLinkWrapper *)displayLinkWrapper
                               dateProvider:(SentryCurrentDateProvider *)dateProvider
                       dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper

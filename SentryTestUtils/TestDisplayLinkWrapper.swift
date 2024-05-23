@@ -70,8 +70,8 @@ public class TestDisplayLinkWrapper: SentryDisplayLinkWrapper {
     }
     
     public func normalFrame() {
-        call()
         dateProvider.advance(by: currentFrameRate.tickDuration)
+        call()
     }
     
     public func fastestSlowFrame() -> CFTimeInterval {

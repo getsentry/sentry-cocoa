@@ -34,7 +34,7 @@ class SentryProfileTestFixture {
     
 #if !os(macOS)
     lazy var displayLinkWrapper = TestDisplayLinkWrapper(dateProvider: currentDateProvider)
-    lazy var framesTracker = SentryFramesTracker(displayLinkWrapper: displayLinkWrapper, dateProvider: currentDateProvider, dispatchQueueWrapper: dispatchQueueWrapper, notificationCenter: TestNSNotificationCenterWrapper(), keepDelayedFramesDuration: 0)
+    lazy var framesTracker = SentryFramesTracker(displayLinkWrapper: displayLinkWrapper, dateProvider: currentDateProvider, dispatchQueueWrapper: SentryDispatchQueueWrapper(), notificationCenter: TestNSNotificationCenterWrapper(), keepDelayedFramesDuration: 0)
 #endif // !os(macOS)
     
     init() {
@@ -135,17 +135,28 @@ class SentryProfileTestFixture {
     }
 #endif // !os(macOS)
     
+    lazy var df: DateFormatter = {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSZ"
+        return dateFormatter
+    }()
+    
+    func log(_ line: Int, _ message: String) {
+        print("\(df.string(from: Date())) [Sentry] [TEST] [\((#file as NSString).lastPathComponent):\(line)]: \(message)")
+    }
+    
     func gatherMockedMetrics(continuousProfile: Bool = false) throws {
         // we need to manage the mocked clock and cpu usage priming differently between test cases for continuous vs trace profiles: the trace profile tests manage the clock externally to this function, because there are some more complicated setups around concurrent traces/profiles. we can do it here for continuous profiles because there's only ever one profiler running
         if continuousProfile {
             for _ in 0..<mockMetrics.readingsPerBatch {
-                TestLogger.log(#line, "Expecting CPU usage: \(mockMetrics.cpuUsage); memoryFootprint: \(mockMetrics.memoryFootprint); CPU energy usage: \(mockMetrics.cpuEnergyUsage) at \(currentDateProvider.date().timeIntervalSinceReferenceDate)")
+                log(#line, "Expecting CPU usage: \(mockMetrics.cpuUsage); memoryFootprint: \(mockMetrics.memoryFootprint); CPU energy usage: \(mockMetrics.cpuEnergyUsage) at \(currentDateProvider.date().timeIntervalSinceReferenceDate)")
                 
                 // because energy readings are computed as the difference between sequential cumulative readings, we must increment the mock value by the expected result each iteration
                 systemWrapper.overrides.cpuEnergyUsage = NSNumber(value: try XCTUnwrap(systemWrapper.overrides.cpuEnergyUsage).intValue + mockMetrics.cpuEnergyUsage.intValue)
                 
-                currentDateProvider.advance(by: 1)
                 self.metricTimerFactory?.fire()
+                
+                currentDateProvider.advanceBy(interval: 1)
             }
         } else {
             for _ in 0..<mockMetrics.readingsPerBatch {
@@ -183,20 +194,20 @@ class SentryProfileTestFixture {
             switch type {
             case .normal:
                 let timestamp = getTimestampValue()
-                TestLogger.log(#line, "will expect normal frame starting at \(timestamp.string)")
+                log(#line, "expect normal frame to start at \(timestamp.string)")
                 displayLinkWrapper.normalFrame()
             case .slow:
-                let timestamp = getTimestampValue()
-                TestLogger.log(#line, "will expect \(String(describing: type)) frame starting at \(timestamp.string)")
                 let duration = displayLinkWrapper.middlingSlowFrame()
+                let timestamp = getTimestampValue()
+                log(#line, "will expect \(String(describing: type)) frame starting at \(timestamp.string)")
                 var entry = [String: Any]()
                 entry["value"] = continuousProfile ? duration : duration.toNanoSeconds()
                 entry[timestampKey] = timestamp.value
                 expectedSlowFrames.append(entry)
             case .frozen:
-                let timestamp = getTimestampValue()
-                TestLogger.log(#line, "will expect \(String(describing: type)) frame starting at \(timestamp.string)")
                 let duration = displayLinkWrapper.fastestFrozenFrame()
+                let timestamp = getTimestampValue()
+                log(#line, "will expect \(String(describing: type)) frame starting at \(timestamp.string)")
                 var entry = [String: Any]()
                 entry["value"] = continuousProfile ? duration : duration.toNanoSeconds()
                 entry[timestampKey] = timestamp.value
@@ -205,7 +216,7 @@ class SentryProfileTestFixture {
             if shouldRecordFrameRateExpectation {
                 shouldRecordFrameRateExpectation = false
                 let timestamp = getTimestampValue()
-                TestLogger.log(#line, "will expect frame rate \(displayLinkWrapper.currentFrameRate.rawValue) at \(timestamp.string)")
+                log(#line, "will expect frame rate \(displayLinkWrapper.currentFrameRate.rawValue) at \(timestamp.string)")
                 var entry = [String: Any]()
                 entry["value"] = NSNumber(value: displayLinkWrapper.currentFrameRate.rawValue)
                 entry[timestampKey] = timestamp.value

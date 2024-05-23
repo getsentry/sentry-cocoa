@@ -10,9 +10,7 @@ SENTRY_EXTERN double slowFrameThreshold(uint64_t actualFramesPerSecond);
 SENTRY_EXTERN CFTimeInterval const SentryFrozenFrameThreshold;
 
 @interface
-SentryFramesTracker ()
-
-- (void)setCurrentFrames:(SentryScreenFrames *)frames;
+SentryFramesTracker (TestInit)
 
 - (instancetype)initWithDisplayLinkWrapper:(SentryDisplayLinkWrapper *)displayLinkWrapper;
 

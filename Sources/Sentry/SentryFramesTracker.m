@@ -31,6 +31,7 @@ static CFTimeInterval const SentryPreviousFrameInitialValue = -1;
 @interface
 SentryFramesTracker ()
 
+@property (nonatomic, strong, readonly) SentryDisplayLinkWrapper *displayLinkWrapper;
 @property (nonatomic, strong, readonly) SentryCurrentDateProvider *dateProvider;
 @property (nonatomic, strong, readonly) SentryDispatchQueueWrapper *dispatchQueueWrapper;
 @property (nonatomic, strong) SentryNSNotificationCenterWrapper *notificationCenter;

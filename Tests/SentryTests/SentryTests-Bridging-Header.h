@@ -11,7 +11,7 @@
 
 #if SENTRY_HAS_UIKIT
 #    import "MockUIScene.h"
-#    import "SentryFramesTracker+Test.h"
+#    import "SentryFramesTracker+TestInit.h"
 #    import "SentrySessionReplay.h"
 #    import "SentrySessionReplayIntegration+Private.h"
 #    import "SentryUIApplication+Private.h"

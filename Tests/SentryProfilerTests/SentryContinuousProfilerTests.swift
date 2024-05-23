@@ -121,7 +121,6 @@ private extension SentryContinuousProfilerTests {
         fixture.mockMetrics = SentryProfileTestFixture.MockMetric()
         try addMockSamples(mockAddresses: expectedAddresses)
         try fixture.gatherMockedMetrics(continuousProfile: true)
-        try addMockSamples(mockAddresses: expectedAddresses)
         fixture.currentDateProvider.advanceBy(interval: 1)
         fixture.timeoutTimerFactory.fire()
         XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
@@ -132,7 +131,6 @@ private extension SentryContinuousProfilerTests {
         try addMockSamples(mockAddresses: expectedAddresses)
         try fixture.gatherMockedMetrics(continuousProfile: true)
         fixture.currentDateProvider.advanceBy(interval: 1)
-        try addMockSamples(mockAddresses: expectedAddresses)
         fixture.timeoutTimerFactory.fire()
         XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
         try assertValidData(expectedEnvironment: expectedEnvironment, expectedAddresses: expectedAddresses)
@@ -141,7 +139,6 @@ private extension SentryContinuousProfilerTests {
         fixture.mockMetrics = SentryProfileTestFixture.MockMetric(cpuUsage: 9.87, memoryFootprint: 654, cpuEnergyUsage: 3)
         try addMockSamples(mockAddresses: expectedAddresses)
         try fixture.gatherMockedMetrics(continuousProfile: true)
-        try addMockSamples(mockAddresses: expectedAddresses)
         fixture.currentDateProvider.advanceBy(interval: 1)
         XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
         SentryContinuousProfiler.stop()
@@ -222,25 +219,22 @@ private extension SentryContinuousProfilerTests {
 
         let chunkStartTime = try XCTUnwrap(samples.first?["timestamp"] as? TimeInterval)
         let chunkEndTime = try XCTUnwrap(samples.last?["timestamp"] as? TimeInterval)
-        
-        // we don't slice the metric profiler readings any longer because it starts and stops with the sole continuous profiler instance. because a metrics reading is taken at the start of the profiler due to the dispatch source firing on initialization of the repeating timer source, we add one for that initial reading
-        let metricsReadingsPerBatch = fixture.mockMetrics.readingsPerBatch + 1
 
-        try assertMetricValue(measurements: measurements, key: kSentryMetricProfilerSerializationKeyCPUUsage, expectedValue: fixture.mockMetrics.cpuUsage, expectedUnits: kSentryMetricProfilerSerializationUnitPercentage, chunkStartTime: chunkStartTime, chunkEndTime: chunkEndTime, readingsPerBatch: metricsReadingsPerBatch)
+        try assertMetricValue(measurements: measurements, key: kSentryMetricProfilerSerializationKeyCPUUsage, expectedValue: fixture.mockMetrics.cpuUsage, expectedUnits: kSentryMetricProfilerSerializationUnitPercentage, chunkStartTime: chunkStartTime, chunkEndTime: chunkEndTime, readingsPerBatch: fixture.mockMetrics.readingsPerBatch)
 
-        try assertMetricValue(measurements: measurements, key: kSentryMetricProfilerSerializationKeyMemoryFootprint, expectedValue: fixture.mockMetrics.memoryFootprint, expectedUnits: kSentryMetricProfilerSerializationUnitBytes, chunkStartTime: chunkStartTime, chunkEndTime: chunkEndTime, readingsPerBatch: metricsReadingsPerBatch)
+        try assertMetricValue(measurements: measurements, key: kSentryMetricProfilerSerializationKeyMemoryFootprint, expectedValue: fixture.mockMetrics.memoryFootprint, expectedUnits: kSentryMetricProfilerSerializationUnitBytes, chunkStartTime: chunkStartTime, chunkEndTime: chunkEndTime, readingsPerBatch: fixture.mockMetrics.readingsPerBatch)
 
         // we wind up with one less energy reading for the first chunk's metric sample. since we must use the difference between readings to get actual values, the first one is only the baseline reading.
-        try assertMetricValue(measurements: measurements, key: kSentryMetricProfilerSerializationKeyCPUEnergyUsage, expectedValue: fixture.mockMetrics.cpuEnergyUsage, expectedUnits: kSentryMetricProfilerSerializationUnitNanoJoules, chunkStartTime: chunkStartTime, chunkEndTime: chunkEndTime, readingsPerBatch: metricsReadingsPerBatch, expectOneLessEnergyReading: true)
+        try assertMetricValue(measurements: measurements, key: kSentryMetricProfilerSerializationKeyCPUEnergyUsage, expectedValue: fixture.mockMetrics.cpuEnergyUsage, expectedUnits: kSentryMetricProfilerSerializationUnitNanoJoules, chunkStartTime: chunkStartTime, chunkEndTime: chunkEndTime, readingsPerBatch: fixture.mockMetrics.readingsPerBatch, expectOneLessEnergyReading: true)
 
 #if !os(macOS)
-        try assertGPUMetricEntries(measurements: measurements, key: kSentryProfilerSerializationKeySlowFrameRenders, expectedEntries: fixture.expectedSlowFrames, chunkStartTime: chunkStartTime, chunkEndTime: chunkEndTime)
-        try assertGPUMetricEntries(measurements: measurements, key: kSentryProfilerSerializationKeyFrozenFrameRenders, expectedEntries: fixture.expectedFrozenFrames, chunkStartTime: chunkStartTime, chunkEndTime: chunkEndTime)
-        try assertGPUMetricEntries(measurements: measurements, key: kSentryProfilerSerializationKeyFrameRates, expectedEntries: fixture.expectedFrameRateChanges, chunkStartTime: chunkStartTime, chunkEndTime: chunkEndTime)
+        try assertMetricEntries(measurements: measurements, key: kSentryProfilerSerializationKeySlowFrameRenders, expectedEntries: fixture.expectedSlowFrames, chunkStartTime: chunkStartTime, chunkEndTime: chunkEndTime)
+        try assertMetricEntries(measurements: measurements, key: kSentryProfilerSerializationKeyFrozenFrameRenders, expectedEntries: fixture.expectedFrozenFrames, chunkStartTime: chunkStartTime, chunkEndTime: chunkEndTime)
+        try assertMetricEntries(measurements: measurements, key: kSentryProfilerSerializationKeyFrameRates, expectedEntries: fixture.expectedFrameRateChanges, chunkStartTime: chunkStartTime, chunkEndTime: chunkEndTime)
 #endif // !os(macOS)
     }
     
-    func assertGPUMetricEntries(measurements: [String: Any], key: String, expectedEntries: [[String: Any]], chunkStartTime: TimeInterval, chunkEndTime: TimeInterval) throws {
+    func assertMetricEntries(measurements: [String: Any], key: String, expectedEntries: [[String: Any]], chunkStartTime: TimeInterval, chunkEndTime: TimeInterval) throws {
         let metricContainer = try XCTUnwrap(measurements[key] as? [String: Any])
         let actualEntries = try XCTUnwrap(metricContainer["values"] as? [[String: NSNumber]])
         let sortedActualEntries = try sortedByTimestamps(actualEntries)
