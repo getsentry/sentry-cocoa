@@ -6,11 +6,7 @@
 #import "SentryLog.h"
 #import "SentryMeasurementValue.h"
 #import "SentryNSDictionarySanitize.h"
-#import "SentryNSNotificationCenterWrapper.h"
 #import "SentryNoOpSpan.h"
-#import "SentryOptions+Private.h"
-#import "SentryProfilingConditionals.h"
-#import "SentrySDK+Private.h"
 #import "SentrySampleDecision+Private.h"
 #import "SentrySpanContext.h"
 #import "SentrySpanId.h"
@@ -27,6 +23,10 @@
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 #    import "SentryContinuousProfiler.h"
+#    import "SentryNSNotificationCenterWrapper.h"
+#    import "SentryOptions+Private.h"
+#    import "SentryProfilingConditionals.h"
+#    import "SentrySDK+Private.h"
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
 NS_ASSUME_NONNULL_BEGIN
