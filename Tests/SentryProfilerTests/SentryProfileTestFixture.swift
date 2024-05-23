@@ -145,26 +145,12 @@ class SentryProfileTestFixture {
         print("\(df.string(from: Date())) [Sentry] [TEST] [\((#file as NSString).lastPathComponent):\(line)]: \(message)")
     }
     
-    func gatherMockedMetrics(continuousProfile: Bool = false) throws {
-        // we need to manage the mocked clock and cpu usage priming differently between test cases for continuous vs trace profiles: the trace profile tests manage the clock externally to this function, because there are some more complicated setups around concurrent traces/profiles. we can do it here for continuous profiles because there's only ever one profiler running
-        if continuousProfile {
-            for _ in 0..<mockMetrics.readingsPerBatch {
-                log(#line, "Expecting CPU usage: \(mockMetrics.cpuUsage); memoryFootprint: \(mockMetrics.memoryFootprint); CPU energy usage: \(mockMetrics.cpuEnergyUsage) at \(currentDateProvider.date().timeIntervalSinceReferenceDate)")
-                
-                // because energy readings are computed as the difference between sequential cumulative readings, we must increment the mock value by the expected result each iteration
-                systemWrapper.overrides.cpuEnergyUsage = NSNumber(value: try XCTUnwrap(systemWrapper.overrides.cpuEnergyUsage).intValue + mockMetrics.cpuEnergyUsage.intValue)
-                
-                self.metricTimerFactory?.fire()
-                
-                currentDateProvider.advanceBy(interval: 1)
-            }
-        } else {
-            for _ in 0..<mockMetrics.readingsPerBatch {
-                self.metricTimerFactory?.fire()
-                
-                // because energy readings are computed as the difference between sequential cumulative readings, we must increment the mock value by the expected result each iteration
-                systemWrapper.overrides.cpuEnergyUsage = NSNumber(value: try XCTUnwrap(systemWrapper.overrides.cpuEnergyUsage).intValue + mockMetrics.cpuEnergyUsage.intValue)
-            }
+    func gatherMockedTraceProfileMetrics() throws {
+        for _ in 0..<mockMetrics.readingsPerBatch {
+            self.metricTimerFactory?.fire()
+            
+            // because energy readings are computed as the difference between sequential cumulative readings, we must increment the mock value by the expected result each iteration
+            systemWrapper.overrides.cpuEnergyUsage = NSNumber(value: try XCTUnwrap(systemWrapper.overrides.cpuEnergyUsage).intValue + mockMetrics.cpuEnergyUsage.intValue)
         }
         
 #if !os(macOS)
@@ -176,50 +162,135 @@ class SentryProfileTestFixture {
         }
         
         func renderGPUFrame(_ type: GPUFrame) {
-            func getTimestampValue() -> (value: Any, string: String) {
-                var timestampValue: Any
-                var timestampString: String
-                if continuousProfile {
-                    let actualTimestampValue = currentDateProvider.date().timeIntervalSinceReferenceDate
-                    timestampValue = actualTimestampValue
-                    timestampString = String(actualTimestampValue)
-                } else {
-                    let actualTimestampValue = currentDateProvider.systemTime()
-                    timestampValue = String(actualTimestampValue)
-                    timestampString = String(actualTimestampValue)
-                }
-                return (timestampValue, timestampString)
-            }
-            let timestampKey = continuousProfile ? "timestamp" : "elapsed_since_start_ns"
             switch type {
             case .normal:
-                let timestamp = getTimestampValue()
-                log(#line, "expect normal frame to start at \(timestamp.string)")
+                let timestamp = String(currentDateProvider.systemTime())
+                log(#line, "expect normal frame to start at \(timestamp)")
                 displayLinkWrapper.normalFrame()
             case .slow:
                 let duration = displayLinkWrapper.middlingSlowFrame()
-                let timestamp = getTimestampValue()
-                log(#line, "will expect \(String(describing: type)) frame starting at \(timestamp.string)")
+                let timestamp = String(currentDateProvider.systemTime())
+                log(#line, "will expect \(String(describing: type)) frame starting at \(timestamp)")
                 var entry = [String: Any]()
-                entry["value"] = continuousProfile ? duration : duration.toNanoSeconds()
-                entry[timestampKey] = timestamp.value
+                entry["value"] = duration.toNanoSeconds()
+                entry["elapsed_since_start_ns"] = timestamp
                 expectedSlowFrames.append(entry)
             case .frozen:
                 let duration = displayLinkWrapper.fastestFrozenFrame()
-                let timestamp = getTimestampValue()
-                log(#line, "will expect \(String(describing: type)) frame starting at \(timestamp.string)")
+                let timestamp = String(currentDateProvider.systemTime())
+                log(#line, "will expect \(String(describing: type)) frame starting at \(timestamp)")
                 var entry = [String: Any]()
-                entry["value"] = continuousProfile ? duration : duration.toNanoSeconds()
-                entry[timestampKey] = timestamp.value
+                entry["value"] = duration.toNanoSeconds()
+                entry["elapsed_since_start_ns"] = timestamp
                 expectedFrozenFrames.append(entry)
             }
             if shouldRecordFrameRateExpectation {
                 shouldRecordFrameRateExpectation = false
-                let timestamp = getTimestampValue()
-                log(#line, "will expect frame rate \(displayLinkWrapper.currentFrameRate.rawValue) at \(timestamp.string)")
+                let timestamp = String(currentDateProvider.systemTime())
+                log(#line, "will expect frame rate \(displayLinkWrapper.currentFrameRate.rawValue) at \(timestamp)")
                 var entry = [String: Any]()
                 entry["value"] = NSNumber(value: displayLinkWrapper.currentFrameRate.rawValue)
-                entry[timestampKey] = timestamp.value
+                entry["elapsed_since_start_ns"] = timestamp
+                expectedFrameRateChanges.append(entry)
+            }
+        }
+        
+        /*
+         * Mock a series of GPU frame renders of varying quality (normal/slow/frozen) and
+         * refresh rate changes. The refresh rate changes ("|") happen at the same time as
+         * the frame render they appear above. Time is not to scale; frozen frames last
+         * much longer than the lower end of slow frames.
+         *
+         * refresh rate:  |---60hz--------------|---120hz------|---60hz--------------------------------------|
+         * time:          N--S----N--F----------N-N-S--N-F-----N--N--S----N--F----------N--S----N--F----------
+         */
+        changeFrameRate(.low)
+        renderGPUFrame(.normal)
+        renderGPUFrame(.slow)
+        renderGPUFrame(.normal)
+        renderGPUFrame(.frozen)
+        renderGPUFrame(.normal)
+        changeFrameRate(.high)
+        renderGPUFrame(.normal)
+        renderGPUFrame(.slow)
+        renderGPUFrame(.normal)
+        renderGPUFrame(.frozen)
+        renderGPUFrame(.normal)
+        changeFrameRate(.low)
+        renderGPUFrame(.normal)
+        renderGPUFrame(.slow)
+        renderGPUFrame(.normal)
+        renderGPUFrame(.frozen)
+        renderGPUFrame(.normal)
+        changeFrameRate(.high)
+        renderGPUFrame(.normal)
+        renderGPUFrame(.slow)
+        renderGPUFrame(.normal)
+        renderGPUFrame(.frozen)
+#endif // !os(macOS)
+        
+        // mock errors gathering cpu usage and memory footprint and fire a callback for them to ensure they don't add more information to the payload
+        systemWrapper.overrides.cpuUsageError = NSError(domain: "test-error", code: 0)
+        systemWrapper.overrides.memoryFootprintError = NSError(domain: "test-error", code: 1)
+        systemWrapper.overrides.cpuEnergyUsageError = NSError(domain: "test-error", code: 2)
+        metricTimerFactory?.fire()
+        
+        // clear out errors for the profile end sample collection
+        systemWrapper.overrides.cpuUsageError = nil
+        systemWrapper.overrides.memoryFootprintError = nil
+        systemWrapper.overrides.cpuEnergyUsageError = nil
+    }
+    
+    func gatherMockedContinuousProfileMetrics() throws {
+        for _ in 0..<mockMetrics.readingsPerBatch {
+            log(#line, "Expecting CPU usage: \(mockMetrics.cpuUsage); memoryFootprint: \(mockMetrics.memoryFootprint); CPU energy usage: \(mockMetrics.cpuEnergyUsage) at \(currentDateProvider.date().timeIntervalSinceReferenceDate)")
+            
+            // because energy readings are computed as the difference between sequential cumulative readings, we must increment the mock value by the expected result each iteration
+            systemWrapper.overrides.cpuEnergyUsage = NSNumber(value: try XCTUnwrap(systemWrapper.overrides.cpuEnergyUsage).intValue + mockMetrics.cpuEnergyUsage.intValue)
+            
+            self.metricTimerFactory?.fire()
+            
+            currentDateProvider.advanceBy(interval: 1)
+        }
+        
+#if !os(macOS)
+        var shouldRecordFrameRateExpectation = true
+        
+        func changeFrameRate(_ new: FrameRate) {
+            displayLinkWrapper.changeFrameRate(new)
+            shouldRecordFrameRateExpectation = true
+        }
+        
+        func renderGPUFrame(_ type: GPUFrame) {
+            switch type {
+            case .normal:
+                let timestamp = currentDateProvider.date().timeIntervalSinceReferenceDate
+                log(#line, "expect normal frame to start at \(timestamp)")
+                displayLinkWrapper.normalFrame()
+            case .slow:
+                let duration = displayLinkWrapper.middlingSlowFrame()
+                let timestamp = currentDateProvider.date().timeIntervalSinceReferenceDate
+                log(#line, "will expect \(String(describing: type)) frame starting at \(timestamp)")
+                var entry = [String: Any]()
+                entry["value"] = duration
+                entry["timestamp"] = timestamp
+                expectedSlowFrames.append(entry)
+            case .frozen:
+                let duration = displayLinkWrapper.fastestFrozenFrame()
+                let timestamp = currentDateProvider.date().timeIntervalSinceReferenceDate
+                log(#line, "will expect \(String(describing: type)) frame starting at \(timestamp)")
+                var entry = [String: Any]()
+                entry["value"] = duration
+                entry["timestamp"] = timestamp
+                expectedFrozenFrames.append(entry)
+            }
+            if shouldRecordFrameRateExpectation {
+                shouldRecordFrameRateExpectation = false
+                let timestamp = currentDateProvider.date().timeIntervalSinceReferenceDate
+                log(#line, "will expect frame rate \(displayLinkWrapper.currentFrameRate.rawValue) at \(timestamp)")
+                var entry = [String: Any]()
+                entry["value"] = NSNumber(value: displayLinkWrapper.currentFrameRate.rawValue)
+                entry["timestamp"] = timestamp
                 expectedFrameRateChanges.append(entry)
             }
         }

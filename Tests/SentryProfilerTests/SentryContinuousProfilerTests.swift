@@ -120,7 +120,7 @@ private extension SentryContinuousProfilerTests {
         var expectedAddresses: [NSNumber] = [0x1, 0x2, 0x3]
         fixture.mockMetrics = SentryProfileTestFixture.MockMetric()
         try addMockSamples(mockAddresses: expectedAddresses)
-        try fixture.gatherMockedMetrics(continuousProfile: true)
+        try fixture.gatherMockedContinuousProfileMetrics()
         fixture.currentDateProvider.advanceBy(interval: 1)
         fixture.timeoutTimerFactory.fire()
         XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
@@ -129,7 +129,7 @@ private extension SentryContinuousProfilerTests {
         expectedAddresses = [0x4, 0x5, 0x6]
         fixture.mockMetrics = SentryProfileTestFixture.MockMetric(cpuUsage: 1.23, memoryFootprint: 456, cpuEnergyUsage: 7)
         try addMockSamples(mockAddresses: expectedAddresses)
-        try fixture.gatherMockedMetrics(continuousProfile: true)
+        try fixture.gatherMockedContinuousProfileMetrics()
         fixture.currentDateProvider.advanceBy(interval: 1)
         fixture.timeoutTimerFactory.fire()
         XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
@@ -138,7 +138,7 @@ private extension SentryContinuousProfilerTests {
         expectedAddresses = [0x7, 0x8, 0x9]
         fixture.mockMetrics = SentryProfileTestFixture.MockMetric(cpuUsage: 9.87, memoryFootprint: 654, cpuEnergyUsage: 3)
         try addMockSamples(mockAddresses: expectedAddresses)
-        try fixture.gatherMockedMetrics(continuousProfile: true)
+        try fixture.gatherMockedContinuousProfileMetrics()
         fixture.currentDateProvider.advanceBy(interval: 1)
         XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
         SentryContinuousProfiler.stop()
