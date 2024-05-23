@@ -5,7 +5,6 @@ import Sentry
 class AppDelegate: NSObject, NSApplicationDelegate {
 
     func applicationDidFinishLaunching(_ aNotification: Notification) {
-        UserDefaults.standard.register(defaults: ["NSApplicationCrashOnExceptions": true])
         
         // Insert code here to initialize your application
         SentrySDK.start { options in

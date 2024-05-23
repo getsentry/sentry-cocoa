@@ -14,6 +14,8 @@
 
 - Fix retrieving GraphQL operation names crashing ([#3973](https://github.com/getsentry/sentry-cocoa/pull/3973))
 - Fix SentryCrashExceptionApplication subclass problem (#3993)
+- Point out missing reason for fatal NSExceptions (#4011)
+
 
 ## 8.26.0
 

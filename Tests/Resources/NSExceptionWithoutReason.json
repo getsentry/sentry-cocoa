@@ -1,0 +1,113 @@
+{
+    "report": {
+        "version": "3.2.0",
+        "id": "BEBB7B2D-E4F8-4ED2-BB7F-FCF04F6282AE",
+        "process_name": null,
+        "timestamp": 1716459692,
+        "type": "standard"
+    },
+    "process": {},
+    "system": {
+        "system_name": null,
+        "system_version": null,
+        "machine": null,
+        "model": null,
+        "kernel_version": null,
+        "os_version": null,
+        "jailbroken": false,
+        "app_start_time": null,
+        "CFBundleExecutablePath": null,
+        "CFBundleExecutable": null,
+        "CFBundleIdentifier": null,
+        "CFBundleName": null,
+        "CFBundleVersion": null,
+        "CFBundleShortVersionString": null,
+        "app_uuid": null,
+        "cpu_arch": null,
+        "cpu_type": 0,
+        "cpu_subtype": 0,
+        "binary_cpu_type": 0,
+        "binary_cpu_subtype": 0,
+        "process_name": null,
+        "process_id": 0,
+        "parent_process_id": 0,
+        "device_app_hash": null,
+        "build_type": null,
+        "memory": {
+            "size": 0,
+            "usable": 0,
+            "free": 0
+        },
+        "application_stats": {
+            "application_active": false,
+            "application_in_foreground": true,
+            "launches_since_last_crash": 1,
+            "sessions_since_last_crash": 1,
+            "active_time_since_last_crash": 0,
+            "background_time_since_last_crash": 0,
+            "sessions_since_launch": 1,
+            "active_time_since_launch": 0,
+            "background_time_since_launch": 0
+        }
+    },
+    "crash": {
+        "error": {
+            "mach": {
+                "exception": 10,
+                "exception_name": "EXC_CRASH",
+                "code": 0,
+                "subcode": 0
+            },
+            "signal": {
+                "signal": 6,
+                "name": "SIGABRT",
+                "code": 0
+            },
+            "address": 0,
+            "type": "nsexception",
+            "nsexception": {
+                "name": "MyCustomException",
+                "userInfo": "{\n    detail = \"Additional information\";\n}"
+            }
+        }
+    },
+    "sentry_sdk_scope": {
+        "breadcrumbs": []
+    },
+    "user": {
+        "context": {
+            "app": {
+                "app_build": "1",
+                "app_id": "0B84C76D-16DE-3EE2-85B1-E93FA7080DFA",
+                "app_identifier": "io.sentry.macOS-Swift",
+                "app_name": "macOS-Swift",
+                "app_start_time": "2024-05-23T10:21:30Z",
+                "app_version": "1.0",
+                "build_type": "unknown",
+                "device_app_hash": "2a5fab9e6e92e8fb0bccda61214e76d9a1eeb751"
+            },
+            "device": {
+                "arch": "arm64",
+                "family": "macOS",
+                "free_memory": 2408169472,
+                "locale": "en_AT",
+                "memory_size": 68719476736,
+                "model": "Mac14,5",
+                "simulator": false,
+                "usable_memory": 61236002816
+            },
+            "os": {
+                "build": "23E224",
+                "kernel_version": "Darwin Kernel Version 23.4.0: Fri Mar 15 00:12:49 PDT 2024; root:xnu-10063.101.17~1/RELEASE_ARM64_T6020",
+                "name": "macOS",
+                "rooted": false,
+                "version": "14.4.1"
+            }
+        },
+        "release": "io.sentry.macOS-Swift@1.0+1",
+        "user": {
+            "email": "philipp-hofmann@example.com"
+        }
+    },
+    "debug": {}
+}

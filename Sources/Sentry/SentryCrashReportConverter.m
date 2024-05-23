@@ -409,8 +409,10 @@ SentryCrashReportConverter ()
     exception.threadId = crashedThread.threadId;
     exception.stacktrace = crashedThread.stacktrace;
 
-    if (nil != self.diagnosis && self.diagnosis.length > 0
-        && ![self.diagnosis containsString:exception.value]) {
+    BOOL hasDiagnosis = self.diagnosis != nil && self.diagnosis.length > 0;
+    BOOL hasExceptionValue = exception.value != nil && exception.value.length > 0;
+
+    if (hasDiagnosis && hasExceptionValue && ![self.diagnosis containsString:exception.value]) {
         exception.value = [exception.value
             stringByAppendingString:[NSString stringWithFormat:@" >\n%@", self.diagnosis]];
     }
@@ -419,14 +421,14 @@ SentryCrashReportConverter ()
 
 - (SentryException *)parseNSException
 {
-    NSString *reason = @"";
+    NSString *reason = nil;
     if (nil != self.exceptionContext[@"nsexception"][@"reason"]) {
         reason = self.exceptionContext[@"nsexception"][@"reason"];
     } else if (nil != self.exceptionContext[@"reason"]) {
         reason = self.exceptionContext[@"reason"];
     }
 
-    return [[SentryException alloc] initWithValue:[NSString stringWithFormat:@"%@", reason]
+    return [[SentryException alloc] initWithValue:reason
                                              type:self.exceptionContext[@"nsexception"][@"name"]];
 }
 

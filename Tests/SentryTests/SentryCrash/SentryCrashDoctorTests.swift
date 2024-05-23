@@ -26,4 +26,12 @@ final class SentryCrashDoctorTests: XCTestCase {
         
         XCTAssertEqual("Graceful OS termination requested.", diagnose)
     }
+    
+    func testNSExceptionWithoutReason() throws {
+        let report = try getCrashReport(resource: "Resources/NSExceptionWithoutReason")
+        
+        let diagnose = SentryCrashDoctor().diagnoseCrash(report)
+        
+        XCTAssertEqual("Application threw exception MyCustomException: (null)", diagnose)
+    }
 }

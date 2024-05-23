@@ -289,6 +289,17 @@
     XCTAssertEqualObjects(exception.value, @"this is the reason");
 }
 
+- (void)testNSExceptionWithoutReason
+{
+    [self isValidReport:@"Resources/NSExceptionWithoutReason"];
+    NSDictionary *rawCrash = [self getCrashReport:@"Resources/NSExceptionWithoutReason"];
+    SentryCrashReportConverter *reportConverter =
+        [[SentryCrashReportConverter alloc] initWithReport:rawCrash inAppLogic:self.inAppLogic];
+    SentryEvent *event = [reportConverter convertReportToEvent];
+    SentryException *exception = event.exceptions.firstObject;
+    XCTAssertNil(exception.value);
+}
+
 - (void)testFatalError
 {
     [self isValidReport:@"Resources/fatal-error-notable-addresses"];
