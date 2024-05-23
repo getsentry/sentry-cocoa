@@ -178,7 +178,9 @@ slowFrameThreshold(uint64_t actualFramesPerSecond)
 {
     CFTimeInterval thisFrameTimestamp = self.displayLinkWrapper.timestamp;
     uint64_t thisFrameSystemTimestamp = self.dateProvider.systemTime;
+#    if SENTRY_TARGET_PROFILING_SUPPORTED
     NSDate *thisFrameNSDate = self.dateProvider.date;
+#    endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
     if (self.previousFrameTimestamp == SentryPreviousFrameInitialValue) {
         self.previousFrameTimestamp = thisFrameTimestamp;
