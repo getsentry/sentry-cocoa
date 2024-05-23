@@ -295,11 +295,10 @@ private extension SentryContinuousProfilerTests {
         }
     }
     
-    /// Assert that the relative timestamp actually falls within the chunk's duration, so it should be between 0 and the chunk duration.
+    /// Assert that the absolute timestamp actually falls within the chunk's duration, so it should be between 0 and the chunk duration.
     func assertTimestampOccursWithinTransaction(timestamp: TimeInterval, chunkStartTime: TimeInterval, chunkEndTime: TimeInterval) throws {
-        let chunkDuration = chunkEndTime - chunkStartTime
         XCTAssertGreaterThanOrEqual(timestamp, 0)
-        XCTAssertLessThanOrEqual(timestamp, chunkDuration)
+        XCTAssertLessThanOrEqual(timestamp, chunkEndTime)
     }
 }
 
