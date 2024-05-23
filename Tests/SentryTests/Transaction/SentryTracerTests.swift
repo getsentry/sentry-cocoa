@@ -1220,8 +1220,8 @@ class SentryTracerTests: XCTestCase {
         let frozenFrames = 1
         let normalFrames = 100
         let totalFrames = slowFrames + frozenFrames + normalFrames
-        displayLink.slowestSlowFrame()
-        displayLink.fastestFrozenFrame()
+        _ = displayLink.slowestSlowFrame()
+        _ = displayLink.fastestFrozenFrame()
         displayLink.renderFrames(0, 0, normalFrames)
         
         sut.finish()
