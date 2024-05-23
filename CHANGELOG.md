@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Features
+
+- Add start time to network request breadcrumbs (#4008)
+
 ### Improvements
 
 - Stop FramesTracker when app is in background (#3979)
