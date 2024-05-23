@@ -651,7 +651,7 @@ class SentryFramesTrackerTests: XCTestCase {
         let displayLink = fixture.displayLinkWrapper
         displayLink.call()
         
-        let slowFramesCountBeforeAddingFrames = framesTracker.currentFrames.slow
+        let slowFramesCountBeforeAddingFrames = framesTracker.currentFrames().slow
         
         // We have to add the delay of the slowest frame because we remove frames
         // based on the endTimeStamp not the start time stamp.
@@ -662,7 +662,7 @@ class SentryFramesTrackerTests: XCTestCase {
         }
         
         // We have to remove 1 slow frame cause one will be older than transactionMaxDurationNS
-        let slowFramesCount = framesTracker.currentFrames.slow - slowFramesCountBeforeAddingFrames - 1
+        let slowFramesCount = framesTracker.currentFrames().slow - slowFramesCountBeforeAddingFrames - 1
         
         let slowFramesDelay = fixture.slowestSlowFrameDelay * Double(slowFramesCount)
         
@@ -683,7 +683,7 @@ private class FrameTrackerListener: NSObject, SentryFramesTrackerListener {
 
 private extension SentryFramesTrackerTests {
     func assert(slow: UInt? = nil, frozen: UInt? = nil, total: UInt? = nil, frameRates: UInt? = nil) throws {
-        let currentFrames = fixture.sut.currentFrames
+        let currentFrames = fixture.sut.currentFrames()
         if let total = total {
             expect(currentFrames.total) == total
         }
@@ -711,7 +711,7 @@ private extension SentryFramesTrackerTests {
             XCTAssertNotNil(frame["value"], "Expected a duration value for the frame.")
         }
 
-        let currentFrames = fixture.sut.currentFrames
+        let currentFrames = fixture.sut.currentFrames()
 
         if let slow = slow {
             XCTAssertEqual(currentFrames.slowFrameTimestamps.count, Int(slow))
