@@ -53,6 +53,10 @@ class ViewController: NSViewController {
         wrapper.throwCPPException()
     }
     
+    @IBAction func rethrowNoActiveCppException(_ sender: Any) {
+        let wrapper = CppWrapper()
+        wrapper.rethrowNoActiveCPPException()
+    }
     @IBAction func asyncCrash(_ sender: Any) {
         DispatchQueue.main.async {
             self.asyncCrash1()

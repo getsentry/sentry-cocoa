@@ -2,4 +2,5 @@
 
 @interface CppWrapper : NSObject
 - (void)throwCPPException;
+- (void)rethrowNoActiveCPPException;
 @end
