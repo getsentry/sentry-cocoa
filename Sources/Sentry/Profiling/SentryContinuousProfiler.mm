@@ -6,6 +6,7 @@
 #    import "SentryDispatchQueueWrapper.h"
 #    import "SentryLog.h"
 #    import "SentryMetricProfiler.h"
+#    import "SentryNSNotificationCenterWrapper.h"
 #    import "SentryNSTimerFactory.h"
 #    import "SentryProfiler+Private.h"
 #    import "SentryProfilerSerialization.h"
@@ -87,6 +88,11 @@ _sentry_threadUnsafe_transmitChunkEnvelope(void)
         }
     }
 
+    [SentryDependencyContainer.sharedInstance.notificationCenterWrapper
+        postNotification:[[NSNotification alloc]
+                             initWithName:kSentryNotificationContinuousProfileStarted
+                                   object:nil
+                                 userInfo:nil]];
     [self scheduleTimer];
 }
 
@@ -98,16 +104,36 @@ _sentry_threadUnsafe_transmitChunkEnvelope(void)
 
 + (void)stop
 {
-    std::lock_guard<std::mutex> l(_threadUnsafe_gContinuousProfilerLock);
+    {
+        std::lock_guard<std::mutex> l(_threadUnsafe_gContinuousProfilerLock);
 
-    if (![_threadUnsafe_gContinuousCurrentProfiler isRunning]) {
-        SENTRY_LOG_DEBUG(@"No continuous profiler is currently running.");
-        return;
+        if (![_threadUnsafe_gContinuousCurrentProfiler isRunning]) {
+            SENTRY_LOG_DEBUG(@"No continuous profiler is currently running.");
+            return;
+        }
+
+        _sentry_threadUnsafe_transmitChunkEnvelope();
+        disableTimer();
     }
 
-    _sentry_threadUnsafe_transmitChunkEnvelope();
-    disableTimer();
-    [_threadUnsafe_gContinuousCurrentProfiler stopForReason:SentryProfilerTruncationReasonNormal];
+    [SentryDependencyContainer.sharedInstance.notificationCenterWrapper
+        postNotification:[[NSNotification alloc]
+                             initWithName:kSentryNotificationContinuousProfileStopped
+                                   object:nil
+                                 userInfo:nil]];
+
+    {
+        std::lock_guard<std::mutex> l(_threadUnsafe_gContinuousProfilerLock);
+        [_threadUnsafe_gContinuousCurrentProfiler
+            stopForReason:SentryProfilerTruncationReasonNormal];
+        _threadUnsafe_gContinuousCurrentProfiler = nil;
+    }
+}
+
++ (nullable SentryId *)currentProfilerID
+{
+    std::lock_guard<std::mutex> l(_threadUnsafe_gContinuousProfilerLock);
+    return _threadUnsafe_gContinuousCurrentProfiler.profilerId;
 }
 
 #    pragma mark - Private
