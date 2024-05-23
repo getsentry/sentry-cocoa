@@ -338,6 +338,7 @@ class SentryNetworkTrackerTests: XCTestCase {
         XCTAssertEqual(breadcrumb!.data!["response_body_size"] as! Int64, DATA_BYTES_RECEIVED)
         XCTAssertEqual(breadcrumb!.data!["http.query"] as? String, "query=value&query2=value2")
         XCTAssertEqual(breadcrumb!.data!["http.fragment"] as? String, "fragment")
+        XCTAssertNotNil(breadcrumb!.data!["request_start"])
         XCTAssertNil(breadcrumb!.data!["graphql_operation_name"])
     }
 
