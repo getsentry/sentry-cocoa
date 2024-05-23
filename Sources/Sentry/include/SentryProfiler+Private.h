@@ -43,7 +43,7 @@ SENTRY_EXTERN void sentry_manageTraceProfilerOnStartSDK(SentryOptions *options, 
 #    if SENTRY_HAS_UIKIT
 /**
  * @note This property is only needed for trace profiling, to store the appropriate GPU data per
- * profiler instance when their might be multiple profiler instances all waiting for their linked
+ * profiler instance when there might be multiple profiler instances all waiting for their linked
  * transactions to finish. Once we move to continuous profiling only, this won't be needed as the
  * data can be directly marshaled to the serialization function.
  */
