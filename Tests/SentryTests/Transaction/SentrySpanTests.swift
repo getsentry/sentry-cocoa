@@ -62,7 +62,81 @@ class SentrySpanTests: XCTestCase {
         super.tearDown()
         clearTestState()
     }
-    
+
+    // test that a span that starts before a continuous profile and ends before
+    // the profile ends includes that profile id in the span
+    func testSpanWithProfileId() {
+        let span = fixture.getSut()
+        SentryContinuousProfiler.start()
+        let profileId = SentryContinuousProfiler.profiler()?.profilerId.sentryIdString
+        span.finish()
+        
+        let serialized = span.serialize()
+        XCTAssertEqual(profileId, try XCTUnwrap(serialized["profile_id"] as? String))
+    }
+
+    // test that a span that starts before a continuous profile and ends after
+    // the profile ends includes that profile id in the span
+    func testSpanWithProfileId1() {
+        let span = fixture.getSut()
+        SentryContinuousProfiler.start()
+        let profileId = SentryContinuousProfiler.profiler()?.profilerId.sentryIdString
+        SentryContinuousProfiler.stop()
+        span.finish()
+        
+        let serialized = span.serialize()
+        XCTAssertEqual(profileId, try XCTUnwrap(serialized["profile_id"] as? String))
+    }
+   
+    // test that a span that starts after a continuous profile and ends after
+    // the profile ends includes that profile id in the span
+    func testSpanWithProfileId2() {
+        SentryContinuousProfiler.start()
+        let profileId = SentryContinuousProfiler.profiler()?.profilerId.sentryIdString
+        let span = fixture.getSut()
+        SentryContinuousProfiler.stop()
+        span.finish()
+        
+        let serialized = span.serialize()
+        XCTAssertEqual(profileId, try XCTUnwrap(serialized["profile_id"] as? String))
+    }
+
+    // test that a span that starts after a continuous profile and ends before the
+    // profile ends includes that profile id in the span
+    func testSpanWithProfileId3() {
+        SentryContinuousProfiler.start()
+        let profileId = SentryContinuousProfiler.profiler()?.profilerId.sentryIdString
+        let span = fixture.getSut()
+        span.finish()
+        
+        let serialized = span.serialize()
+        XCTAssertEqual(profileId, try XCTUnwrap(serialized["profile_id"] as? String))
+    }
+
+    // test that a span that starts and ends before a continuous profile starts
+    // does not include a profile id in the span
+    func testSpanWithoutProfileId() {
+        let span = fixture.getSut()
+        span.finish()
+        SentryContinuousProfiler.start()
+        SentryContinuousProfiler.stop()
+        
+        let serialized = span.serialize()
+        XCTAssertNil(serialized["profile_id"])
+    }
+
+    // test that a span that starts and ends after a continuous profile starts
+    // does not include a profile id in the span
+    func testSpanWithoutProfileId1() {
+        SentryContinuousProfiler.start()
+        SentryContinuousProfiler.stop()
+        let span = fixture.getSut()
+        span.finish()
+        
+        let serialized = span.serialize()
+        XCTAssertNil(serialized["profile_id"])
+    }
+
     func testInitAndCheckForTimestamps() {
         let span = fixture.getSut()
         XCTAssertNotNil(span.startTimestamp)
