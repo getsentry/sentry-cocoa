@@ -256,7 +256,7 @@ private extension SentryContinuousProfilerTests {
             let expectedEntry = sortedExpectedEntries[i]
 
             let actualTimestamp = try XCTUnwrap(actualEntry["timestamp"] as? TimeInterval)
-            let expectedTimestamp = try XCTUnwrap(expectedEntry["timestamp"] as? TimeInterval) - chunkStartTime
+            let expectedTimestamp = try XCTUnwrap(expectedEntry["timestamp"] as? TimeInterval)
             XCTAssertEqual(actualTimestamp, expectedTimestamp)
             try assertTimestampOccursWithinTransaction(timestamp: actualTimestamp, chunkStartTime: chunkStartTime, chunkEndTime: chunkEndTime)
 
