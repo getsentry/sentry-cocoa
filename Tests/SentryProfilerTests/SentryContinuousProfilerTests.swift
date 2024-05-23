@@ -117,41 +117,28 @@ private extension SentryContinuousProfilerTests {
         SentryContinuousProfiler.start()
         XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
         
-        var expectedAddresses: [NSNumber] = [0x1, 0x2, 0x3]
-        fixture.mockMetrics = SentryProfileTestFixture.MockMetric()
-        try addMockSamples(mockAddresses: expectedAddresses)
-        try fixture.gatherMockedContinuousProfileMetrics()
-        try addMockSamples(mockAddresses: expectedAddresses)
-        fixture.currentDateProvider.advanceBy(interval: 1)
-        fixture.timeoutTimerFactory.fire()
-        XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
-        try assertValidData(expectedEnvironment: expectedEnvironment, expectedAddresses: expectedAddresses)
-        fixture.resetProfileGPUExpectations()
-        fixture.currentDateProvider.advanceBy(interval: 1)
+        func runTestPart(expectedAddresses: [NSNumber], mockMetrics: SentryProfileTestFixture.MockMetric, countMetricsReadingAtProfileStart: Bool = true) throws {
+            fixture.setMockMetrics(mockMetrics)
+            try addMockSamples(mockAddresses: expectedAddresses)
+            try fixture.gatherMockedContinuousProfileMetrics()
+            try addMockSamples(mockAddresses: expectedAddresses)
+            fixture.currentDateProvider.advanceBy(interval: 1)
+            fixture.timeoutTimerFactory.fire()
+            XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
+            try assertValidData(expectedEnvironment: expectedEnvironment, expectedAddresses: expectedAddresses, countMetricsReadingAtProfileStart: countMetricsReadingAtProfileStart)
+    #if  os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+            fixture.resetProfileGPUExpectations()
+    #endif //  os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+            fixture.currentDateProvider.advanceBy(interval: 1)
+        }
         
-        expectedAddresses = [0x4, 0x5, 0x6]
-        fixture.setMockMetrics(SentryProfileTestFixture.MockMetric(cpuUsage: 1.23, memoryFootprint: 456, cpuEnergyUsage: 7))
-        try addMockSamples(mockAddresses: expectedAddresses)
-        try fixture.gatherMockedContinuousProfileMetrics()
-        try addMockSamples(mockAddresses: expectedAddresses)
-        fixture.currentDateProvider.advanceBy(interval: 1)
-        fixture.timeoutTimerFactory.fire()
-        XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
-        try assertValidData(expectedEnvironment: expectedEnvironment, expectedAddresses: expectedAddresses, countMetricsReadingAtProfileStart: false)
-        fixture.resetProfileGPUExpectations()
+        try runTestPart(expectedAddresses: [0x1, 0x2, 0x3], mockMetrics: SentryProfileTestFixture.MockMetric())
+        try runTestPart(expectedAddresses: [0x4, 0x5, 0x6], mockMetrics: SentryProfileTestFixture.MockMetric(cpuUsage: 1.23, memoryFootprint: 456, cpuEnergyUsage: 7), countMetricsReadingAtProfileStart: false)
+        try runTestPart(expectedAddresses: [0x7, 0x8, 0x9], mockMetrics: SentryProfileTestFixture.MockMetric(cpuUsage: 9.87, memoryFootprint: 654, cpuEnergyUsage: 3), countMetricsReadingAtProfileStart: false)
         
-        expectedAddresses = [0x7, 0x8, 0x9]
-        fixture.setMockMetrics(SentryProfileTestFixture.MockMetric(cpuUsage: 9.87, memoryFootprint: 654, cpuEnergyUsage: 3))
-        try addMockSamples(mockAddresses: expectedAddresses)
-        try fixture.gatherMockedContinuousProfileMetrics()
-        try addMockSamples(mockAddresses: expectedAddresses)
-        fixture.currentDateProvider.advanceBy(interval: 1)
         XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
         SentryContinuousProfiler.stop()
         XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
-
-        try assertValidData(expectedEnvironment: expectedEnvironment, expectedAddresses: expectedAddresses, countMetricsReadingAtProfileStart: false)
-        fixture.resetProfileGPUExpectations()
     }
     
     func assertValidData(expectedEnvironment: String, expectedAddresses: [NSNumber]?, countMetricsReadingAtProfileStart: Bool = true) throws {
