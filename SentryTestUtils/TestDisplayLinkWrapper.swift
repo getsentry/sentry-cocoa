@@ -80,9 +80,13 @@ public class TestDisplayLinkWrapper: SentryDisplayLinkWrapper {
         call()
         return duration
     }
+    
+    public func middlingSlowFrameDuration() -> CFTimeInterval {
+        (frozenFrameThreshold - (slowFrameThreshold(currentFrameRate.rawValue) + timeEpsilon)) / 2.0
+    }
 
     public func middlingSlowFrame() -> CFTimeInterval {
-        let duration: Double = (frozenFrameThreshold - (slowFrameThreshold(currentFrameRate.rawValue) + timeEpsilon)) / 2.0
+        let duration: Double = middlingSlowFrameDuration()
         dateProvider.advance(by: duration)
         call()
         return duration

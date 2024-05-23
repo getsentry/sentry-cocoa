@@ -91,7 +91,7 @@ class SentryTraceProfilerTests: XCTestCase {
         // do everything again to make sure that stopping and starting the profiler over again works
         spans.removeAll()
 #if !os(macOS)
-        fixture.resetGPUExpectations()
+        fixture.resetProfileGPUExpectations()
 #endif // !os(macOS)
 
         try createConcurrentSpansWithMetrics()
@@ -412,9 +412,9 @@ private extension SentryTraceProfilerTests {
         try assertMetricValue(measurements: measurements, key: kSentryMetricProfilerSerializationKeyCPUEnergyUsage, numberOfReadings: expectedEnergyReadings, expectedValue: fixture.mockMetrics.cpuEnergyUsage, transaction: transaction, expectedUnits: kSentryMetricProfilerSerializationUnitNanoJoules)
 
 #if !os(macOS)
-        try assertMetricEntries(measurements: measurements, key: kSentryProfilerSerializationKeySlowFrameRenders, expectedEntries: fixture.expectedSlowFrames, transaction: transaction)
-        try assertMetricEntries(measurements: measurements, key: kSentryProfilerSerializationKeyFrozenFrameRenders, expectedEntries: fixture.expectedFrozenFrames, transaction: transaction)
-        try assertMetricEntries(measurements: measurements, key: kSentryProfilerSerializationKeyFrameRates, expectedEntries: fixture.expectedFrameRateChanges, transaction: transaction)
+        try assertMetricEntries(measurements: measurements, key: kSentryProfilerSerializationKeySlowFrameRenders, expectedEntries: fixture.expectedTraceProfileSlowFrames, transaction: transaction)
+        try assertMetricEntries(measurements: measurements, key: kSentryProfilerSerializationKeyFrozenFrameRenders, expectedEntries: fixture.expectedTraceProfileFrozenFrames, transaction: transaction)
+        try assertMetricEntries(measurements: measurements, key: kSentryProfilerSerializationKeyFrameRates, expectedEntries: fixture.expectedTraceProfileFrameRateChanges, transaction: transaction)
 #endif // !os(macOS)
     }
 
