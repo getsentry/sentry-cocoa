@@ -127,20 +127,21 @@ private extension SentryContinuousProfilerTests {
         XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
         try assertValidData(expectedEnvironment: expectedEnvironment, expectedAddresses: expectedAddresses)
         fixture.resetProfileGPUExpectations()
+        fixture.currentDateProvider.advanceBy(interval: 1)
         
         expectedAddresses = [0x4, 0x5, 0x6]
-        fixture.mockMetrics = SentryProfileTestFixture.MockMetric(cpuUsage: 1.23, memoryFootprint: 456, cpuEnergyUsage: 7)
+        fixture.setMockMetrics(SentryProfileTestFixture.MockMetric(cpuUsage: 1.23, memoryFootprint: 456, cpuEnergyUsage: 7))
         try addMockSamples(mockAddresses: expectedAddresses)
         try fixture.gatherMockedContinuousProfileMetrics()
         try addMockSamples(mockAddresses: expectedAddresses)
         fixture.currentDateProvider.advanceBy(interval: 1)
         fixture.timeoutTimerFactory.fire()
         XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
-        try assertValidData(expectedEnvironment: expectedEnvironment, expectedAddresses: expectedAddresses)
+        try assertValidData(expectedEnvironment: expectedEnvironment, expectedAddresses: expectedAddresses, countMetricsReadingAtProfileStart: false)
         fixture.resetProfileGPUExpectations()
         
         expectedAddresses = [0x7, 0x8, 0x9]
-        fixture.mockMetrics = SentryProfileTestFixture.MockMetric(cpuUsage: 9.87, memoryFootprint: 654, cpuEnergyUsage: 3)
+        fixture.setMockMetrics(SentryProfileTestFixture.MockMetric(cpuUsage: 9.87, memoryFootprint: 654, cpuEnergyUsage: 3))
         try addMockSamples(mockAddresses: expectedAddresses)
         try fixture.gatherMockedContinuousProfileMetrics()
         try addMockSamples(mockAddresses: expectedAddresses)
@@ -149,11 +150,11 @@ private extension SentryContinuousProfilerTests {
         SentryContinuousProfiler.stop()
         XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
 
-        try assertValidData(expectedEnvironment: expectedEnvironment, expectedAddresses: expectedAddresses)
+        try assertValidData(expectedEnvironment: expectedEnvironment, expectedAddresses: expectedAddresses, countMetricsReadingAtProfileStart: false)
         fixture.resetProfileGPUExpectations()
     }
     
-    func assertValidData(expectedEnvironment: String, expectedAddresses: [NSNumber]?) throws {
+    func assertValidData(expectedEnvironment: String, expectedAddresses: [NSNumber]?, countMetricsReadingAtProfileStart: Bool = true) throws {
         let envelope = try XCTUnwrap(self.fixture.client?.captureEnvelopeInvocations.last)
         XCTAssertEqual(1, envelope.items.count)
         let profileItem = try XCTUnwrap(envelope.items.first)
@@ -227,14 +228,14 @@ private extension SentryContinuousProfilerTests {
         let chunkEndTime = try XCTUnwrap(samples.last?["timestamp"] as? TimeInterval)
  
         // the metric profiler takes a reading right at the start of a profile, so we also get that in addition to the ones that are mocked in these tests
-        let expectedReadingsPerBatch = fixture.mockMetrics.readingsPerBatch + 1
+        let expectedReadingsPerBatch = fixture.mockMetrics.readingsPerBatch + (countMetricsReadingAtProfileStart ? 1 : 0)
         
         try assertMetricValue(measurements: measurements, key: kSentryMetricProfilerSerializationKeyCPUUsage, expectedValue: fixture.mockMetrics.cpuUsage, expectedUnits: kSentryMetricProfilerSerializationUnitPercentage, chunkStartTime: chunkStartTime, chunkEndTime: chunkEndTime, readingsPerBatch: expectedReadingsPerBatch)
 
         try assertMetricValue(measurements: measurements, key: kSentryMetricProfilerSerializationKeyMemoryFootprint, expectedValue: fixture.mockMetrics.memoryFootprint, expectedUnits: kSentryMetricProfilerSerializationUnitBytes, chunkStartTime: chunkStartTime, chunkEndTime: chunkEndTime, readingsPerBatch: expectedReadingsPerBatch)
 
         // we wind up with one less energy reading for the first chunk's metric sample. since we must use the difference between readings to get actual values, the first one is only the baseline reading.
-        try assertMetricValue(measurements: measurements, key: kSentryMetricProfilerSerializationKeyCPUEnergyUsage, expectedValue: fixture.mockMetrics.cpuEnergyUsage, expectedUnits: kSentryMetricProfilerSerializationUnitNanoJoules, chunkStartTime: chunkStartTime, chunkEndTime: chunkEndTime, readingsPerBatch: expectedReadingsPerBatch, expectOneLessEnergyReading: true)
+        try assertMetricValue(measurements: measurements, key: kSentryMetricProfilerSerializationKeyCPUEnergyUsage, expectedValue: fixture.mockMetrics.cpuEnergyUsage, expectedUnits: kSentryMetricProfilerSerializationUnitNanoJoules, chunkStartTime: chunkStartTime, chunkEndTime: chunkEndTime, readingsPerBatch: expectedReadingsPerBatch, expectOneLessEnergyReading: countMetricsReadingAtProfileStart)
 
 #if !os(macOS)
         try assertMetricEntries(measurements: measurements, key: kSentryProfilerSerializationKeySlowFrameRenders, expectedEntries: fixture.expectedContinuousProfileSlowFrames, chunkStartTime: chunkStartTime, chunkEndTime: chunkEndTime)

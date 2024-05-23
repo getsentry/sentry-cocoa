@@ -119,6 +119,16 @@ class SentryProfileTestFixture {
     }
     var mockMetrics: MockMetric
     
+    func setMockMetrics(_ mockMetrics: MockMetric) {
+        self.mockMetrics = mockMetrics
+        systemWrapper.overrides.cpuUsage = mockMetrics.cpuUsage
+        systemWrapper.overrides.memoryFootprintBytes = mockMetrics.memoryFootprint
+        systemWrapper.overrides.cpuEnergyUsage = 0
+        systemWrapper.overrides.cpuUsageError = nil
+        systemWrapper.overrides.memoryFootprintError = nil
+        systemWrapper.overrides.cpuEnergyUsageError = nil
+    }
+    
 #if !os(macOS)
     // SentryFramesTracker starts assuming a frame rate of 60 Hz and will only log an update if it changes, so the first value here needs to be different for it to register.
     let mockFrameRateChangesPerBatch: [FrameRate] = [.high, .low, .high, .low]
