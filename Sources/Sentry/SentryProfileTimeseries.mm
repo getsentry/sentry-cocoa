@@ -44,18 +44,6 @@ _sentry_logSlicingFailureWithArray(
         firstSampleRelativeToTransactionStart, lastSampleRelativeToTransactionStart);
 }
 
-#    if SENTRY_HAS_UIKIT
-void
-_sentry_addContinuousEntry(NSMutableArray<NSDictionary<NSString *, NSNumber *> *> *entries,
-    NSNumber *timestamp, NSNumber *value)
-{
-    NSMutableDictionary<NSString *, NSNumber *> *entry = [NSMutableDictionary dictionary];
-    entry[@"timestamp"] = timestamp;
-    entry[@"value"] = value;
-    [entries addObject:entry];
-}
-#    endif // SENTRY_HAS_UIKIT
-
 } // namespace
 
 NSArray<SentrySample *> *_Nullable sentry_slicedProfileSamples(
@@ -135,40 +123,6 @@ sentry_sliceTraceProfileGPUData(SentryFrameInfoTimeSeries *frameInfo, uint64_t s
             @"elapsed_since_start_ns" : @"0",
             @"value" : nearestPredecessorValue,
         }];
-    }
-    return slicedGPUEntries;
-}
-
-NSArray<NSDictionary<NSString *, NSNumber *> *> *
-sentry_sliceContinuousProfileGPUData(SentryFrameInfoTimeSeries *frameInfo, NSTimeInterval start,
-    NSTimeInterval end, BOOL useMostRecentFrameRate)
-{
-    auto slicedGPUEntries = [NSMutableArray<NSDictionary<NSString *, NSNumber *> *> array];
-    __block NSDictionary<NSString *, NSNumber *> *mostRecentFrameRateInfo;
-    [frameInfo enumerateObjectsUsingBlock:^(
-        NSDictionary<NSString *, NSNumber *> *_Nonnull obj, NSUInteger idx, BOOL *_Nonnull stop) {
-        const auto entryTimestamp = obj[@"timestamp"].doubleValue;
-        if (entryTimestamp < start) {
-            SENTRY_LOG_DEBUG(@"GPU info recorded at %f was before profile chunk start at %f, "
-                             @"will not include.",
-                entryTimestamp, start);
-            mostRecentFrameRateInfo = obj;
-            return;
-        }
-
-        if (end < entryTimestamp) {
-            SENTRY_LOG_DEBUG(@"GPU info recorded at %f was after profile chunk finished at %f, "
-                             @"will not include.",
-                entryTimestamp, end);
-            return;
-        }
-
-        SENTRY_LOG_DEBUG(@"Including GPU info recorded at %f", entryTimestamp);
-        _sentry_addContinuousEntry(slicedGPUEntries, @(entryTimestamp), obj[@"value"]);
-    }];
-    if (useMostRecentFrameRate && slicedGPUEntries.count == 0 && mostRecentFrameRateInfo != nil) {
-        _sentry_addContinuousEntry(slicedGPUEntries, mostRecentFrameRateInfo[@"timestamp"],
-            mostRecentFrameRateInfo[@"value"]);
     }
     return slicedGPUEntries;
 }
