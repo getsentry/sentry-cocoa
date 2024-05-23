@@ -113,9 +113,7 @@ SentrySerializedMetricEntry *_Nullable serializeContinuousProfileMetricReadings(
 - (instancetype)initWithMode:(SentryProfilerMode)mode
 {
     if (self = [super init]) {
-        _cpuUsage = [NSMutableArray<SentryMetricReading *> array];
-        _memoryFootprint = [NSMutableArray<SentryMetricReading *> array];
-        _cpuEnergyUsage = [NSMutableArray<SentryMetricReading *> array];
+        [self clear];
         _mode = mode;
     }
     return self;
@@ -212,6 +210,13 @@ SentrySerializedMetricEntry *_Nullable serializeContinuousProfileMetricReadings(
     }
 
     return dict;
+}
+
+- (void)clear
+{
+    _cpuUsage = [NSMutableArray<SentryMetricReading *> array];
+    _memoryFootprint = [NSMutableArray<SentryMetricReading *> array];
+    _cpuEnergyUsage = [NSMutableArray<SentryMetricReading *> array];
 }
 
 #    pragma mark - Private

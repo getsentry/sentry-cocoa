@@ -23,6 +23,7 @@ SENTRY_NO_INIT
 /** Record a metrics sample. Helps ensure full metric coverage for concurrent spans. */
 - (void)recordMetrics;
 - (void)stop;
+- (void)clear;
 
 /**
  * Return a serialized dictionary of the collected metrics.

@@ -253,13 +253,24 @@ class SentryProfileTestFixture {
         for _ in 0..<mockMetrics.readingsPerBatch {
             log(#line, "Expecting CPU usage: \(mockMetrics.cpuUsage); memoryFootprint: \(mockMetrics.memoryFootprint); CPU energy usage: \(mockMetrics.cpuEnergyUsage) at \(currentDateProvider.date().timeIntervalSinceReferenceDate)")
             
-            // because energy readings are computed as the difference between sequential cumulative readings, we must increment the mock value by the expected result each iteration
+            // because energy readings are computed as the difference between sequential cumulative readings that monotonically increase, we must increment the mock value by the expected result each iteration so that each reading is taking the difference between last and current to get the instantaneous value
             systemWrapper.overrides.cpuEnergyUsage = NSNumber(value: try XCTUnwrap(systemWrapper.overrides.cpuEnergyUsage).intValue + mockMetrics.cpuEnergyUsage.intValue)
             
             self.metricTimerFactory?.fire()
-            
             currentDateProvider.advanceBy(interval: 1)
         }
+        
+        // mock errors gathering cpu usage and memory footprint and fire a callback for them to ensure they don't add more information to the payload
+        systemWrapper.overrides.cpuUsageError = NSError(domain: "test-error", code: 0)
+        systemWrapper.overrides.memoryFootprintError = NSError(domain: "test-error", code: 1)
+        systemWrapper.overrides.cpuEnergyUsageError = NSError(domain: "test-error", code: 2)
+        metricTimerFactory?.fire()
+        currentDateProvider.advanceBy(interval: 1)
+        
+        // clear out errors for the profile end sample collection
+        systemWrapper.overrides.cpuUsageError = nil
+        systemWrapper.overrides.memoryFootprintError = nil
+        systemWrapper.overrides.cpuEnergyUsageError = nil
         
 #if !os(macOS)
         var shouldRecordFrameRateExpectation = true
@@ -340,17 +351,6 @@ class SentryProfileTestFixture {
         
         framesTracker.expectedFrames = SentryScreenFrames(total: 0, frozen: 0, slow: 0, slowFrameTimestamps: expectedContinuousProfileSlowFrames, frozenFrameTimestamps: expectedContinuousProfileFrozenFrames, frameRateTimestamps: expectedContinuousProfileFrameRateChanges)
 #endif // !os(macOS)
-        
-        // mock errors gathering cpu usage and memory footprint and fire a callback for them to ensure they don't add more information to the payload
-        systemWrapper.overrides.cpuUsageError = NSError(domain: "test-error", code: 0)
-        systemWrapper.overrides.memoryFootprintError = NSError(domain: "test-error", code: 1)
-        systemWrapper.overrides.cpuEnergyUsageError = NSError(domain: "test-error", code: 2)
-        metricTimerFactory?.fire()
-        
-        // clear out errors for the profile end sample collection
-        systemWrapper.overrides.cpuUsageError = nil
-        systemWrapper.overrides.memoryFootprintError = nil
-        systemWrapper.overrides.cpuEnergyUsageError = nil
     }
     
     // app start simulation

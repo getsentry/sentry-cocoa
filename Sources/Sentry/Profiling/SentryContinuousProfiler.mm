@@ -47,6 +47,7 @@ _sentry_threadUnsafe_transmitChunkEnvelope(void)
                             // length: ~9ms
 
     const auto metricProfilerState = [profiler.metricProfiler serializeContinuousProfileMetrics];
+    [profiler.metricProfiler clear];
 
 #    if SENTRY_HAS_UIKIT
     const auto framesTracker = SentryDependencyContainer.sharedInstance.framesTracker;
