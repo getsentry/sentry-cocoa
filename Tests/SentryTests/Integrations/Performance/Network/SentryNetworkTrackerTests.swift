@@ -339,6 +339,7 @@ class SentryNetworkTrackerTests: XCTestCase {
         XCTAssertEqual(breadcrumb!.data!["http.query"] as? String, "query=value&query2=value2")
         XCTAssertEqual(breadcrumb!.data!["http.fragment"] as? String, "fragment")
         XCTAssertNotNil(breadcrumb!.data!["request_start"])
+        XCTAssertTrue(breadcrumb!.data!["request_start"] is Date)
         XCTAssertNil(breadcrumb!.data!["graphql_operation_name"])
     }
 
