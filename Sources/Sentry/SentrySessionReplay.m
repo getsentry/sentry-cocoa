@@ -44,12 +44,14 @@ SentrySessionReplay ()
     BOOL _processingScreenshot;
     BOOL _reachedMaximumDuration;
     SentryBreadcrumbReplayConverter *_breadcrumbConverter;
+    SentryTouchTracker *_touchTracker;
 }
 
 - (instancetype)initWithSettings:(SentryReplayOptions *)replayOptions
                 replayFolderPath:(NSURL *)folderPath
               screenshotProvider:(id<SentryViewScreenshotProvider>)screenshotProvider
                      replayMaker:(id<SentryReplayVideoMaker>)replayMaker
+                    touchTracker:(SentryTouchTracker *)touchTracker
                     dateProvider:(SentryCurrentDateProvider *)dateProvider
                           random:(id<SentryRandom>)random
               displayLinkWrapper:(SentryDisplayLinkWrapper *)displayLinkWrapper;
@@ -65,6 +67,7 @@ SentrySessionReplay ()
         _replayMaker = replayMaker;
         _reachedMaximumDuration = NO;
         _breadcrumbConverter = [[SentryBreadcrumbReplayConverter alloc] init];
+        _touchTracker = touchTracker;
     }
     return self;
 }
@@ -287,7 +290,7 @@ SentrySessionReplay ()
     replayEvent.segmentId = segment;
     replayEvent.timestamp = videoInfo.end;
 
-    __block NSArray<SentryRRWebEvent *> *events;
+    __block NSMutableArray<SentryRRWebEvent *> *events = [[NSMutableArray alloc] init];
 
     [SentrySDK.currentHub configureScope:^(SentryScope *_Nonnull scope) {
         NSArray *breadcrumbs = [scope.breadcrumbArray
@@ -298,8 +301,12 @@ SentrySessionReplay ()
                     [evaluatedObject.timestamp compare:videoInfo.end] != NSOrderedDescending;
             }]];
 
-        events = [self->_breadcrumbConverter replayBreadcrumbsFrom:breadcrumbs];
+        [events addObjectsFromArray:[self->_breadcrumbConverter replayBreadcrumbsFrom:breadcrumbs]];
     }];
+
+    [events addObjectsFromArray:[_touchTracker replayEventsFrom:videoInfo.start
+                                                          until:videoInfo.end]];
+    [_touchTracker flushFinishedEvents];
 
     SentryReplayRecording *recording =
         [[SentryReplayRecording alloc] initWithSegmentId:replayEvent.segmentId

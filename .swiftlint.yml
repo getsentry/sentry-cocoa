@@ -24,7 +24,7 @@ only_rules:
   - custom_rules
   - cyclomatic_complexity
   - dynamic_inline
-  - empty_count
+  #- empty_count
   - empty_parameters
   - empty_parentheses_with_trailing_closure
   - explicit_init
@@ -65,7 +65,7 @@ only_rules:
   - shorthand_operator
   - sorted_imports
   - statement_position
-  - switch_case_on_newline
+  #- switch_case_on_newline
   - syntactic_sugar
   - todo
   - trailing_comma
@@ -90,7 +90,7 @@ identifier_name:
     - i
     - _
   min_length:
-    - 2
+    - 1
   max_length:
     warning: 50
     error: 50

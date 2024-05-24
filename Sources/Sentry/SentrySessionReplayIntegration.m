@@ -14,12 +14,20 @@
 #    import "SentrySDK+Private.h"
 #    import "SentrySessionReplay.h"
 #    import "SentrySwift.h"
+#    import "SentrySwizzle.h"
 #    import "SentryUIApplication.h"
 #    import <UIKit/UIKit.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
 static NSString *SENTRY_REPLAY_FOLDER = @"replay";
+
+/**
+ * We need to use this from the swizzled block
+ * and using an instance property would hold reference
+ * and leak memory.
+ */
+static SentryTouchTracker *_touchTracker;
 
 API_AVAILABLE(ios(16.0), tvos(16.0))
 @interface
@@ -57,6 +65,11 @@ SentrySessionReplayIntegration ()
                 addObserver:self
                    selector:@selector(newSceneActivate)
                        name:UISceneDidActivateNotification];
+        }
+
+        if (options.enableSwizzling) {
+            _touchTracker = [[SentryTouchTracker alloc] init];
+            [self swizzleApplicationTouch];
         }
 
         return YES;
@@ -100,9 +113,9 @@ SentrySessionReplayIntegration ()
               replayFolderPath:docs
             screenshotProvider:SentryViewPhotographer.shared
                    replayMaker:replayMaker
+                  touchTracker:_touchTracker
                   dateProvider:SentryDependencyContainer.sharedInstance.dateProvider
                         random:SentryDependencyContainer.sharedInstance.random
-
             displayLinkWrapper:[[SentryDisplayLinkWrapper alloc] init]];
 
         [self.sessionReplay
@@ -139,12 +152,27 @@ SentrySessionReplayIntegration ()
 
 - (void)uninstall
 {
+    _touchTracker = nil;
     [self stop];
 }
 
 - (BOOL)shouldReplayFullSession:(CGFloat)rate
 {
     return [SentryDependencyContainer.sharedInstance.random nextNumber] < rate;
+}
+
+- (void)swizzleApplicationTouch
+{
+#    pragma clang diagnostic push
+#    pragma clang diagnostic ignored "-Wshadow"
+    SEL selector = NSSelectorFromString(@"sendEvent:");
+    SentrySwizzleInstanceMethod([UIApplication class], selector, SentrySWReturnType(void),
+        SentrySWArguments(UIEvent * event), SentrySWReplacement({
+            [_touchTracker trackTouchFromEvent:event];
+            SentrySWCallOriginal(event);
+        }),
+        SentrySwizzleModeOncePerClass, (void *)selector);
+#    pragma clang diagnostic pop
 }
 
 @end
