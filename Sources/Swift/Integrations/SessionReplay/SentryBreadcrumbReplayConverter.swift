@@ -51,7 +51,7 @@ class SentryBreadcrumbReplayConverter: NSObject {
         if breadcrumb.category == "app.lifecycle" {
             guard let state = breadcrumb.data?["state"] else { return nil }
             return SentryRRWebBreadcrumbEvent(timestamp: timestamp, category: "app.\(state)")
-        } else if let position = breadcrumb.data?["position"] as? String, breadcrumb.category == "device.orientation" && (position == "landscape" || position == "portrait") {
+        } else if let position = breadcrumb.data?["position"] as? String, breadcrumb.category == "device.orientation" {
             return SentryRRWebBreadcrumbEvent(timestamp: timestamp, category: "device.orientation", data: ["position": position])
         } else {
             if let to = breadcrumb.data?["screen"] as? String {
