@@ -16,6 +16,8 @@
 - Fix retrieving GraphQL operation names crashing ([#3973](https://github.com/getsentry/sentry-cocoa/pull/3973))
 - Fix SentryCrashExceptionApplication subclass problem (#3993)
 - Fix wrong value for `In Foreground` flag on UIKit applications (#4005)
+- Fix a crash in baggageEncodedDictionary (#4017)
+
 
 ## 8.26.0
 
