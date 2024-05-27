@@ -1,14 +1,7 @@
 #import "SentryPropagationContext.h"
-#import "SentryDsn.h"
-#import "SentryHub+Private.h"
-#import "SentryOptions+Private.h"
-#import "SentrySDK+Private.h"
-#import "SentryScope+Private.h"
 #import "SentrySpanId.h"
 #import "SentrySwift.h"
-#import "SentryTraceContext.h"
 #import "SentryTraceHeader.h"
-#import "SentryUser+Private.h"
 
 @implementation SentryPropagationContext
 

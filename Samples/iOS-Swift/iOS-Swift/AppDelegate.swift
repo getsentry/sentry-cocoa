@@ -22,6 +22,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             options.beforeSend = { event in
                 return event
             }
+            options.beforeCaptureScreenshot = { _ in
+                return true
+            }
             options.debug = true
             
             if #available(iOS 16.0, *) {

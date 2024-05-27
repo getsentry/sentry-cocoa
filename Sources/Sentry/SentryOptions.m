@@ -339,6 +339,10 @@ NSString *const kSentryDefaultEnvironment = @"production";
         self.beforeBreadcrumb = options[@"beforeBreadcrumb"];
     }
 
+    if ([self isBlock:options[@"beforeCaptureScreenshot"]]) {
+        self.beforeCaptureScreenshot = options[@"beforeCaptureScreenshot"];
+    }
+
     if ([self isBlock:options[@"onCrashedLastRun"]]) {
         self.onCrashedLastRun = options[@"onCrashedLastRun"];
     }
