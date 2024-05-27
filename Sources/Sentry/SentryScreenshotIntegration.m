@@ -8,6 +8,7 @@
 #    import "SentryEvent+Private.h"
 #    import "SentryException.h"
 #    import "SentryHub+Private.h"
+#    import "SentryOptions.h"
 #    import "SentrySDK+Private.h"
 
 #    if SENTRY_HAS_METRIC_KIT
@@ -21,10 +22,19 @@ saveScreenShot(const char *path)
     [SentryDependencyContainer.sharedInstance.screenshot saveScreenShots:reportPath];
 }
 
+@interface
+SentryScreenshotIntegration ()
+
+@property (nonatomic, strong) SentryOptions *options;
+
+@end
+
 @implementation SentryScreenshotIntegration
 
 - (BOOL)installWithOptions:(nonnull SentryOptions *)options
 {
+    self.options = options;
+
     if (![super installWithOptions:options]) {
         return NO;
     }
@@ -67,6 +77,10 @@ saveScreenShot(const char *path)
     // If the event is an App hanging event, we cant take the
     // screenshot because the the main thread it's blocked.
     if (event.isAppHangEvent) {
+        return attachments;
+    }
+
+    if (self.options.beforeCaptureScreenshot && !self.options.beforeCaptureScreenshot(event)) {
         return attachments;
     }
 
