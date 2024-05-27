@@ -72,7 +72,7 @@
         [information setValue:_replayId forKey:@"sentry-replay_id"];
     }
 
-    return [SentrySwiftSerialization baggageEncodedDictionary:information];
+    return [SentryBaggageSerialization baggageEncodedDictionary:information];
 }
 
 @end

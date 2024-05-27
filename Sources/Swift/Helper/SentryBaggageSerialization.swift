@@ -1,7 +1,7 @@
 import Foundation
 
 @objcMembers
-class SentrySwiftSerialization: NSObject {
+class SentryBaggageSerialization: NSObject {
     
     private static let SENTRY_BAGGAGE_MAX_SIZE = 8_192
     
