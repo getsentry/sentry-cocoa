@@ -137,6 +137,26 @@ class SentryScreenshotIntegrationTests: XCTestCase {
     }
 #endif // os(iOS) || targetEnvironment(macCatalyst)
     
+    func test_NoScreenShot_WhenDiscardedInCallback() {
+        let sut = fixture.getSut()
+        
+        let expectation = expectation(description: "BeforeCaptureScreenshot must be called.")
+        
+        let options = Options()
+        options.beforeCaptureScreenshot = { _ in
+            expectation.fulfill()
+            return false
+        }
+        
+        sut.install(with: options)
+        
+        let newAttachmentList = sut.processAttachments([], for: Event(error: NSError(domain: "", code: -1)))
+        
+        wait(for: [expectation], timeout: 1.0)
+        
+        XCTAssertEqual(newAttachmentList?.count, 0)
+    }
+    
     func test_noScreenshot_keepAttachment() {
         let sut = fixture.getSut()
         let event = Event()

@@ -82,6 +82,12 @@ typedef SentryBreadcrumb *_Nullable (^SentryBeforeBreadcrumbCallback)(
 typedef SentryEvent *_Nullable (^SentryBeforeSendEventCallback)(SentryEvent *_Nonnull event);
 
 /**
+ * Block can be used to decide if the SDK should capture a screenshot or not. Return @c true if the
+ * SDK should capture a screenshot, return @c false if not. This callback doesn't work for crashes.
+ */
+typedef BOOL (^SentryBeforeCaptureScreenshotCallback)(SentryEvent *_Nonnull event);
+
+/**
  * A callback to be notified when the last program execution terminated with a crash.
  */
 typedef void (^SentryOnCrashedLastRunCallback)(SentryEvent *_Nonnull event);
