@@ -5,11 +5,11 @@ import XCTest
 class SentryBreadcrumbReplayConverterTests: XCTestCase {
     
     let from = Date(timeIntervalSince1970: 0)
-    let until = Date(timeIntervalSinceNow: 5)
+    let until = Date(timeIntervalSinceNow: 60)
     
     func testReplayBreadcrumbsWithEmptyArray() {
         let sut = SentryBreadcrumbReplayConverter()
-        let result = sut.replayBreadcrumbs([], from: from, until: Date())
+        let result = sut.replayBreadcrumbs([], from: from, until: until)
         XCTAssertTrue(result.isEmpty)
     }
     
