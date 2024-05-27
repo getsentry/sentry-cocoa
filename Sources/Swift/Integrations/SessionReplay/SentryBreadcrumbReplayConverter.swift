@@ -21,8 +21,11 @@ class SentryBreadcrumbReplayConverter: NSObject {
         .compactMap { replayBreadcrumb(from: $0) }
     }
     
-    //Convert breadcrumb information into something
-    //replay front understands
+    /**
+     * This function will convert the SDK breadcrumbs to session replay breadcrumbs in a format that the front-end understands.
+     * Any deviation in the information will cause the breadcrumb or the information itself to be discarded
+     * in order to avoid unknown behavior in the front-end.
+     */
     private func replayBreadcrumb(from breadcrumb: Breadcrumb) -> SentryRRWebEvent? {
         guard let timestamp = breadcrumb.timestamp else { return nil }
         if breadcrumb.category == "http" {
