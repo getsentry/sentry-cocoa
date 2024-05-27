@@ -1,5 +1,6 @@
 import Foundation
 import Nimble
+@testable import Sentry
 import XCTest
 
 class SentryReplayRecordingTests: XCTestCase {
@@ -27,7 +28,7 @@ class SentryReplayRecordingTests: XCTestCase {
         expect(recordingData?["tag"] as? String) == "video"
         expect(recordingPayload?["segmentId"] as? Int) == 3
         expect(recordingPayload?["size"] as? Int) == 200
-        expect(recordingPayload?["duration"] as? Int) == 5_000
+        expect(recordingPayload?["duration"] as? Double) == 5_000
         expect(recordingPayload?["encoding"] as? String) == "h264"
         expect(recordingPayload?["container"] as? String) == "mp4"
         expect(recordingPayload?["height"] as? Int) == 930
