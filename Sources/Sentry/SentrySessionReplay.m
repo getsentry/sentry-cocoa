@@ -290,15 +290,9 @@ SentrySessionReplay ()
     __block NSArray<SentryRRWebEvent *> *events;
 
     [SentrySDK.currentHub configureScope:^(SentryScope *_Nonnull scope) {
-        NSArray *breadcrumbs = [scope.breadcrumbArray
-            filteredArrayUsingPredicate:[NSPredicate predicateWithBlock:^BOOL(
-                                            SentryBreadcrumb *evaluatedObject,
-                                            NSDictionary<NSString *, id> *bindings) {
-                return [evaluatedObject.timestamp compare:videoInfo.start] != NSOrderedAscending &&
-                    [evaluatedObject.timestamp compare:videoInfo.end] != NSOrderedDescending;
-            }]];
-
-        events = [self->_breadcrumbConverter replayBreadcrumbsFrom:breadcrumbs];
+        events = [self->_breadcrumbConverter replayBreadcrumbs:scope.breadcrumbArray
+                                                          from:videoInfo.start
+                                                         until:videoInfo.end];
     }];
 
     SentryReplayRecording *recording =

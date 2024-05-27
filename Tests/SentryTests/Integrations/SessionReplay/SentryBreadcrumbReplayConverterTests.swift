@@ -3,9 +3,13 @@ import Foundation
 import XCTest
 
 class SentryBreadcrumbReplayConverterTests: XCTestCase {
+    
+    let from = Date(timeIntervalSince1970: 0)
+    let until = Date()
+    
     func testReplayBreadcrumbsWithEmptyArray() {
         let sut = SentryBreadcrumbReplayConverter()
-        let result = sut.replayBreadcrumbs(from: [])
+        let result = sut.replayBreadcrumbs([], from: from, until: Date())
         XCTAssertTrue(result.isEmpty)
     }
     
@@ -13,7 +17,7 @@ class SentryBreadcrumbReplayConverterTests: XCTestCase {
         let sut = SentryBreadcrumbReplayConverter()
         let breadcrumb = Breadcrumb(level: .debug, category: "Breadcrumb")
         breadcrumb.timestamp = nil
-        let result = sut.replayBreadcrumbs(from: [breadcrumb])
+        let result = sut.replayBreadcrumbs([breadcrumb], from: from, until: until)
         XCTAssertEqual(result.count, 0)
     }
     
@@ -22,7 +26,7 @@ class SentryBreadcrumbReplayConverterTests: XCTestCase {
         let crumb = Breadcrumb(level: .info, category: "app.lifecycle")
         crumb.type = "navigation"
         crumb.data = ["state": "foreground"]
-        let result = sut.replayBreadcrumbs(from: [crumb])
+        let result = sut.replayBreadcrumbs([crumb], from: from, until: until)
         
         XCTAssertEqual(result.count, 1)
         let event = result.first?.serialize()
@@ -39,7 +43,7 @@ class SentryBreadcrumbReplayConverterTests: XCTestCase {
         let crumb = Breadcrumb(level: .info, category: "device.orientation")
         crumb.type = "navigation"
         crumb.data = ["position": "portrait"]
-        let result = sut.replayBreadcrumbs(from: [crumb])
+        let result = sut.replayBreadcrumbs([crumb], from: from, until: until)
         
         XCTAssertEqual(result.count, 1)
         let event = result.first?.serialize()
@@ -58,7 +62,7 @@ class SentryBreadcrumbReplayConverterTests: XCTestCase {
         let crumb = Breadcrumb(level: .info, category: "ui.lifecycle")
         crumb.type = "navigation"
         crumb.data = ["screen": "TestViewController"]
-        let result = sut.replayBreadcrumbs(from: [crumb])
+        let result = sut.replayBreadcrumbs([crumb], from: from, until: until)
         
         XCTAssertEqual(result.count, 1)
         let event = result.first?.serialize()
@@ -85,7 +89,7 @@ class SentryBreadcrumbReplayConverterTests: XCTestCase {
             "status_code": 200
         ]
         
-        let result = try XCTUnwrap(sut.replayBreadcrumbs(from: [breadcrumb]).first)
+        let result = try XCTUnwrap(sut.replayBreadcrumbs([breadcrumb], from: from, until: until).first)
         let crumbData = try XCTUnwrap(result.data)
         let payload = try XCTUnwrap(crumbData["payload"] as? [String: Any])
         let payloadData = try XCTUnwrap(payload["data"] as? [String: Any])
@@ -104,7 +108,7 @@ class SentryBreadcrumbReplayConverterTests: XCTestCase {
         let breadcrumb = Breadcrumb(level: .info, category: "touch")
         breadcrumb.message = "TestTapped:"
         
-        let result = try XCTUnwrap(sut.replayBreadcrumbs(from: [breadcrumb]).first)
+        let result = try XCTUnwrap(sut.replayBreadcrumbs([breadcrumb], from: from, until: until).first)
         let crumbData = try XCTUnwrap(result.data)
         let payload = try XCTUnwrap(crumbData["payload"] as? [String: Any])
         
@@ -118,13 +122,14 @@ class SentryBreadcrumbReplayConverterTests: XCTestCase {
         breadcrumb.type = "connectivity"
         breadcrumb.data = ["connectivity": "Wifi"]
         
-        let result = try XCTUnwrap(sut.replayBreadcrumbs(from: [breadcrumb]).first)
+        let result = try XCTUnwrap(sut.replayBreadcrumbs([breadcrumb], from: from, until: until).first)
         let crumbData = try XCTUnwrap(result.data)
         let payload = try XCTUnwrap(crumbData["payload"] as? [String: Any])
         let payloadData = try XCTUnwrap(payload["data"] as? [String: Any])
         
         XCTAssertEqual(payload["category"] as? String, "device.connectivity")
         XCTAssertEqual(payloadData["state"] as? String, "Wifi")
+        XCTAssertEqual(<#T##expression1: Equatable##Equatable#>, <#T##expression2: Equatable##Equatable#>)
     }
     
     func testBatteryBreadcrumb() throws {
@@ -133,7 +138,7 @@ class SentryBreadcrumbReplayConverterTests: XCTestCase {
         breadcrumb.type = "system"
         breadcrumb.data = ["level": 0.5, "plugged": true, "action": "BATTERY_STATE_CHANGE"]
         
-        let result = try XCTUnwrap(sut.replayBreadcrumbs(from: [breadcrumb]).first)
+        let result = try XCTUnwrap(sut.replayBreadcrumbs([breadcrumb], from: from, until: until).first)
         let crumbData = try XCTUnwrap(result.data)
         let payload = try XCTUnwrap(crumbData["payload"] as? [String: Any])
         let payloadData = try XCTUnwrap(payload["data"] as? [String: Any])
@@ -150,7 +155,7 @@ class SentryBreadcrumbReplayConverterTests: XCTestCase {
         breadcrumb.data = ["SomeInfo": "Info"]
         breadcrumb.message = "Custom message"
         
-        let result = try XCTUnwrap(sut.replayBreadcrumbs(from: [breadcrumb]).first)
+        let result = try XCTUnwrap(sut.replayBreadcrumbs([breadcrumb], from: from, until: until).first)
         let crumbData = try XCTUnwrap(result.data)
         let payload = try XCTUnwrap(crumbData["payload"] as? [String: Any])
         let payloadData = try XCTUnwrap(payload["data"] as? [String: Any])

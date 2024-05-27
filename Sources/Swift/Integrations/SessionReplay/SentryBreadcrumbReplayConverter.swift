@@ -13,8 +13,12 @@ class SentryBreadcrumbReplayConverter: NSObject {
         "http.fragment"]
     )
     
-    func replayBreadcrumbs(from breadcrumbs: [Breadcrumb]) -> [SentryRRWebEvent] {
-        breadcrumbs.compactMap { replayBreadcrumb(from: $0) }
+    func replayBreadcrumbs(_ breadcrumbs: [Breadcrumb], from: Date, until: Date) -> [SentryRRWebEvent] {
+        breadcrumbs.filter {
+            guard let timestamp = $0.timestamp else { return false }
+            return timestamp >= from && timestamp <= until
+        }
+        .compactMap { replayBreadcrumb(from: $0) }
     }
     
     //Convert breadcrumb information into something
