@@ -5,7 +5,7 @@ import XCTest
 class SentryBreadcrumbReplayConverterTests: XCTestCase {
     
     let from = Date(timeIntervalSince1970: 0)
-    let until = Date()
+    let until = Date(timeIntervalSinceNow: 5)
     
     func testReplayBreadcrumbsWithEmptyArray() {
         let sut = SentryBreadcrumbReplayConverter()
@@ -79,6 +79,7 @@ class SentryBreadcrumbReplayConverterTests: XCTestCase {
     func testHttpBreadcrumb() throws {
         let sut = SentryBreadcrumbReplayConverter()
         let breadcrumb = Breadcrumb(level: .info, category: "http")
+        let start = Date(timeIntervalSince1970: 5)
         
         breadcrumb.data = [
             "url": "https://test.com",
@@ -86,7 +87,8 @@ class SentryBreadcrumbReplayConverterTests: XCTestCase {
             "response_body_size": 1_024,
             "http.query": "query=value",
             "http.fragment": "frag",
-            "status_code": 200
+            "status_code": 200,
+            "request_start": start
         ]
         
         let result = try XCTUnwrap(sut.replayBreadcrumbs([breadcrumb], from: from, until: until).first)
@@ -94,10 +96,12 @@ class SentryBreadcrumbReplayConverterTests: XCTestCase {
         let payload = try XCTUnwrap(crumbData["payload"] as? [String: Any])
         let payloadData = try XCTUnwrap(payload["data"] as? [String: Any])
         
-        XCTAssertEqual(result.timestamp, breadcrumb.timestamp)
+        XCTAssertEqual(result.timestamp, start)
         XCTAssertEqual(crumbData["tag"] as? String, "performanceSpan")
         XCTAssertEqual(payload["description"] as? String, "https://test.com")
         XCTAssertEqual(payload["op"] as? String, "resource.http")
+        XCTAssertEqual(payload["startTimestamp"] as? Double, start.timeIntervalSince1970)
+        XCTAssertEqual(payload["endTimestamp"] as? Double, breadcrumb.timestamp?.timeIntervalSince1970)
         XCTAssertEqual(payloadData["statusCode"] as? Int, 200)
         XCTAssertEqual(payloadData["query"] as? String, "query=value")
         XCTAssertEqual(payloadData["fragment"] as? String, "frag")
@@ -129,7 +133,6 @@ class SentryBreadcrumbReplayConverterTests: XCTestCase {
         
         XCTAssertEqual(payload["category"] as? String, "device.connectivity")
         XCTAssertEqual(payloadData["state"] as? String, "Wifi")
-        XCTAssertEqual(<#T##expression1: Equatable##Equatable#>, <#T##expression2: Equatable##Equatable#>)
     }
     
     func testBatteryBreadcrumb() throws {

@@ -67,7 +67,10 @@ class SentryBreadcrumbReplayConverter: NSObject {
     }
     
     private func networkSpan(_ breadcrumb: Breadcrumb) -> SentryRRWebSpanEvent? {
-        guard let timestamp = breadcrumb.timestamp, let description = breadcrumb.data?["url"] as? String else { return nil }
+        guard let timestamp = breadcrumb.timestamp,
+              let description = breadcrumb.data?["url"] as? String,
+              let startTimestamp = breadcrumb.data?["request_start"] as? Date
+        else { return nil }
         var data = [String: Any]()
         
         breadcrumb.data?.forEach({
@@ -77,11 +80,10 @@ class SentryBreadcrumbReplayConverter: NSObject {
         })
         
         //We dont have end of the request in the breadcrumb.
-        return SentryRRWebSpanEvent(timestamp: timestamp, endTimestamp: timestamp, operation: "resource.http", description: description, data: data)
+        return SentryRRWebSpanEvent(timestamp: startTimestamp, endTimestamp: timestamp, operation: "resource.http", description: description, data: data)
     }
     
     private  func getLevel(breadcrumb: Breadcrumb) -> SentryLevel {
         return SentryLevel(rawValue: SentryLevelHelper.breadcrumbLevel(breadcrumb)) ?? .none
-        
     }
 }
