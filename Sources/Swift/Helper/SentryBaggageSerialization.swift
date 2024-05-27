@@ -14,8 +14,13 @@ class SentryBaggageSerialization: NSObject {
         var currentSize = 0
         
         for (key, value) in dictionary {
-            let keyDescription = key.addingPercentEncoding(withAllowedCharacters: allowedSet) ?? ""
-            let valueDescription = value.addingPercentEncoding(withAllowedCharacters: allowedSet) ?? ""
+            guard let keyDescription = key.addingPercentEncoding(withAllowedCharacters: allowedSet), !keyDescription.isEmpty else {
+                continue
+            }
+            guard let valueDescription = value.addingPercentEncoding(withAllowedCharacters: allowedSet), !valueDescription.isEmpty else {
+                continue
+            }
+            
             let item = "\(keyDescription)=\(valueDescription)"
             if item.count + currentSize <= SENTRY_BAGGAGE_MAX_SIZE {
                 currentSize += item.count + 1 // +1 is to account for the comma that will be added for each extra item

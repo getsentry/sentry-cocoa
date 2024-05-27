@@ -13,13 +13,24 @@ class SentryBaggageSerializationTests: XCTestCase {
         XCTAssertEqual(SentryBaggageSerialization.baggageEncodedDictionary(["key": "value%"]), "key=value%25")
         XCTAssertEqual(SentryBaggageSerialization.baggageEncodedDictionary(["key": "value-_"]), "key=value-_")
         XCTAssertEqual(SentryBaggageSerialization.baggageEncodedDictionary(["key": "value\n\r"]), "key=value%0A%0D")
-        XCTAssertEqual(SentryBaggageSerialization.baggageEncodedDictionary(["key": ""]), "key=")
         
         let largeValue = String(repeating: "a", count: 8_188)
         
         XCTAssertEqual(SentryBaggageSerialization.baggageEncodedDictionary(["key": largeValue]), "key=\(largeValue)")
         XCTAssertEqual(SentryBaggageSerialization.baggageEncodedDictionary(["AKey": "something", "BKey": largeValue]), "AKey=something")
         XCTAssertEqual(SentryBaggageSerialization.baggageEncodedDictionary(["AKey": "something", "BKey": largeValue, "CKey": "Other Value"]), "AKey=something,CKey=Other%20Value")
+    }
+    
+    func testBaggageEmptyKey_ReturnsEmptyString() {
+        XCTAssertEqual(SentryBaggageSerialization.baggageEncodedDictionary(["key": ""]), "")
+    }
+    
+    func testBaggageEmptyValue_ReturnsEmptyString() {
+        XCTAssertEqual(SentryBaggageSerialization.baggageEncodedDictionary(["": "value"]), "")
+    }
+    
+    func testBaggageEmptyKeyAndValue_ReturnsEmptyString() {
+        XCTAssertEqual(SentryBaggageSerialization.baggageEncodedDictionary(["": ""]), "")
     }
     
     func testBaggageStringToDictionaryDecoded() {
