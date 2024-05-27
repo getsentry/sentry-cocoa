@@ -15,6 +15,9 @@ class SentrySessionReplayTests: XCTestCase {
      
     private class TestReplayMaker: NSObject, SentryReplayVideoMaker {
         
+        var videoWidth: Int = 0
+        var videoHeight: Int = 0
+        
         struct CreateVideoCall {
             var duration: TimeInterval
             var beginning: Date
@@ -106,6 +109,18 @@ class SentrySessionReplayTests: XCTestCase {
         Dynamic(sut).newFrame(nil)
         
         expect(fixture.hub.lastEvent) == nil
+    }
+    
+    func testVideoSize() {
+        let fixture = startFixture()
+        let options = SentryReplayOptions(sessionSampleRate: 1, errorSampleRate: 1)
+        let sut = fixture.getSut(options: options)
+        let view = fixture.rootView
+        view.frame = CGRect(x: 0, y: 0, width: 320, height: 900)
+        sut.start(fixture.rootView, fullSession: true)
+        
+        XCTAssertEqual(Int(320 * options.sizeScale), fixture.replayMaker.videoWidth)
+        XCTAssertEqual(Int(900 * options.sizeScale), fixture.replayMaker.videoHeight)
     }
     
     func testSentReplay_FullSession() {
