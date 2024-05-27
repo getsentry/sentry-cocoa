@@ -255,7 +255,7 @@ SentryNetworkTracker ()
 
     if (baggage != nil) {
         NSDictionary *originalBaggage = [SentryBaggageSerialization
-            decodeBaggage:sessionTask.currentRequest.allHTTPHeaderFields[SENTRY_BAGGAGE_HEADER]];
+            decode:sessionTask.currentRequest.allHTTPHeaderFields[SENTRY_BAGGAGE_HEADER]];
 
         if (originalBaggage[@"sentry-trace_id"] == nil) {
             baggageHeader = [baggage toHTTPHeaderWithOriginalBaggage:originalBaggage];
