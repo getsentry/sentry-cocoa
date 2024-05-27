@@ -75,7 +75,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             options.enableTimeToFullDisplayTracing = true
             options.enablePerformanceV2 = true
             options.enableMetrics = true
-            options.enableContinuousProfiling = ProcessInfo.processInfo.arguments.contains("--enable-continuous-profiling")
+            options.enableContinuousProfiling = ProcessInfo.processInfo.arguments.contains("--io.sentry.enable-continuous-profiling")
             
             options.add(inAppInclude: "iOS_External")
 

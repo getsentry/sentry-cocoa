@@ -5,6 +5,8 @@
 ### Features
 
 - Add breadcrumbs to session replay (#4002)
+- Add start time to network request breadcrumbs (#4008)
+- Add C++ exception support for `__cxa_rethrow` (#3996)
 
 ### Improvements
 
@@ -14,6 +16,7 @@
 
 - Fix retrieving GraphQL operation names crashing ([#3973](https://github.com/getsentry/sentry-cocoa/pull/3973))
 - Fix SentryCrashExceptionApplication subclass problem (#3993)
+- Fix wrong value for `In Foreground` flag on UIKit applications (#4005)
 
 ## 8.26.0
 

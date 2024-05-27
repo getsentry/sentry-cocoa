@@ -86,8 +86,7 @@ sentry_manageTraceProfilerOnStartSDK(SentryOptions *options, SentryHub *hub)
     [SentryDependencyContainer.sharedInstance.notificationCenterWrapper
         addObserver:self
            selector:@selector(backgroundAbort)
-               name:UIApplicationWillResignActiveNotification
-             object:nil];
+               name:UIApplicationWillResignActiveNotification];
 #    endif // SENTRY_HAS_UIKIT
 
     return self;

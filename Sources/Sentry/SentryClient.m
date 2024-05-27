@@ -1,7 +1,5 @@
 #import "SentryClient.h"
 #import "NSLocale+Sentry.h"
-#import "SentryAppState.h"
-#import "SentryAppStateManager.h"
 #import "SentryAttachment.h"
 #import "SentryClient+Private.h"
 #import "SentryCrashDefaultMachineContextWrapper.h"
@@ -51,6 +49,10 @@
 #import "SentryUser.h"
 #import "SentryUserFeedback.h"
 #import "SentryWatchdogTerminationTracker.h"
+
+#if SENTRY_HAS_UIKIT
+#    import <UIKit/UIKit.h>
+#endif
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -630,10 +632,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         }
 
 #if SENTRY_HAS_UIKIT
-        SentryAppStateManager *manager = [SentryDependencyContainer sharedInstance].appStateManager;
-        SentryAppState *appState = [manager loadPreviousAppState];
-        BOOL inForeground = [appState isActive];
-        if (appState != nil) {
+        if (!isCrashEvent) {
             NSMutableDictionary *context =
                 [event.context mutableCopy] ?: [NSMutableDictionary dictionary];
             if (context[@"app"] == nil
@@ -643,6 +642,9 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                     ?: [NSMutableDictionary dictionary];
                 context[@"app"] = app;
 
+                UIApplicationState appState =
+                    [SentryDependencyContainer sharedInstance].application.applicationState;
+                BOOL inForeground = appState == UIApplicationStateActive;
                 app[@"in_foreground"] = @(inForeground);
                 event.context = context;
             }
