@@ -350,13 +350,13 @@ class SentryNetworkTrackerTests: XCTestCase {
         
         let breadcrumbs = Dynamic(fixture.scope).breadcrumbArray as [Breadcrumb]?
         
-        let sut = SentryBreadcrumbReplayConverter()
+        let sut = SentryReplayBreadcrumbConverter()
         guard let crumb = breadcrumbs?.first else {
             XCTFail("No touch breadcrumb")
             return
         }
                
-        let result = try XCTUnwrap(sut.replayBreadcrumbs([crumb], 
+        let result = try XCTUnwrap(sut.convert(breadcrumbs: [crumb], 
                                                          from: Date(timeIntervalSince1970: 0),
                                                          until: Date(timeIntervalSinceNow: 60)).first)
         let crumbData = try XCTUnwrap(result.data)

@@ -141,8 +141,8 @@ class SentrySystemEventBreadcrumbsTest: XCTestCase {
             return
         }
         
-        let sut = SentryBreadcrumbReplayConverter()
-        let result = try XCTUnwrap(sut.replayBreadcrumbs([breadcrumb],
+        let sut = SentryReplayBreadcrumbConverter()
+        let result = try XCTUnwrap(sut.convert(breadcrumbs: [breadcrumb],
                                                          from: Date(timeIntervalSince1970: 0),
                                                          until: Date(timeIntervalSinceNow: 60)).first)
         let crumbData = try XCTUnwrap(result.data)
@@ -218,8 +218,8 @@ class SentrySystemEventBreadcrumbsTest: XCTestCase {
             return
         }
         
-        let sut = SentryBreadcrumbReplayConverter()
-        let result = try XCTUnwrap(sut.replayBreadcrumbs([breadcrumb],
+        let sut = SentryReplayBreadcrumbConverter()
+        let result = try XCTUnwrap(sut.convert(breadcrumbs: [breadcrumb],
                                                          from: Date(timeIntervalSince1970: 0),
                                                          until: Date(timeIntervalSinceNow: 60)))
         

@@ -43,7 +43,7 @@ SentrySessionReplay ()
     int _currentSegmentId;
     BOOL _processingScreenshot;
     BOOL _reachedMaximumDuration;
-    SentryBreadcrumbReplayConverter *_breadcrumbConverter;
+    SentryReplayBreadcrumbConverter *_breadcrumbConverter;
 }
 
 - (instancetype)initWithSettings:(SentryReplayOptions *)replayOptions
@@ -64,7 +64,7 @@ SentrySessionReplay ()
         _urlToCache = folderPath;
         _replayMaker = replayMaker;
         _reachedMaximumDuration = NO;
-        _breadcrumbConverter = [[SentryBreadcrumbReplayConverter alloc] init];
+        _breadcrumbConverter = [[SentryReplayBreadcrumbConverter alloc] init];
     }
     return self;
 }
@@ -290,9 +290,9 @@ SentrySessionReplay ()
     __block NSArray<SentryRRWebEvent *> *events;
 
     [SentrySDK.currentHub configureScope:^(SentryScope *_Nonnull scope) {
-        events = [self->_breadcrumbConverter replayBreadcrumbs:scope.breadcrumbArray
-                                                          from:videoInfo.start
-                                                         until:videoInfo.end];
+        events = [self->_breadcrumbConverter convertWithBreadcrumbs:scope.breadcrumbArray
+                                                               from:videoInfo.start
+                                                              until:videoInfo.end];
     }];
 
     SentryReplayRecording *recording =

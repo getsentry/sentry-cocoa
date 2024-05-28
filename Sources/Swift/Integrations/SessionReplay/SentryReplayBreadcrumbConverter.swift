@@ -2,23 +2,23 @@
 import Foundation
 
 @objcMembers
-class SentryBreadcrumbReplayConverter: NSObject {
+class SentryReplayBreadcrumbConverter: NSObject {
     
     private let supportedNetworkData = Set<String>([
         "status_code",
         "method",
-        "response_content_length",
-        "request_content_length",
+        "response_body_size",
+        "request_body_size",
         "http.query",
         "http.fragment"]
     )
     
-    func replayBreadcrumbs(_ breadcrumbs: [Breadcrumb], from: Date, until: Date) -> [SentryRRWebEvent] {
+    func convert(breadcrumbs: [Breadcrumb], from: Date, until: Date) -> [SentryRRWebEvent] {
         breadcrumbs.filter {
             guard let timestamp = $0.timestamp else { return false }
             return timestamp >= from && timestamp <= until
         }
-        .compactMap { replayBreadcrumb(from: $0) }
+        .compactMap { convert(from: $0) }
     }
     
     /**
@@ -26,7 +26,7 @@ class SentryBreadcrumbReplayConverter: NSObject {
      * Any deviation in the information will cause the breadcrumb or the information itself to be discarded
      * in order to avoid unknown behavior in the front-end.
      */
-    private func replayBreadcrumb(from breadcrumb: Breadcrumb) -> SentryRRWebEvent? {
+    private func convert(from breadcrumb: Breadcrumb) -> SentryRRWebEvent? {
         guard let timestamp = breadcrumb.timestamp else { return nil }
         if breadcrumb.category == "http" {
             return networkSpan(breadcrumb)
