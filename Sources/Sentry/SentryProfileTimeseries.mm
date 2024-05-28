@@ -90,11 +90,11 @@ NSArray<SentrySample *> *_Nullable sentry_slicedProfileSamples(
 
 #    if SENTRY_HAS_UIKIT
 NSArray<SentrySerializedMetricEntry *> *
-sentry_sliceGPUData(SentryFrameInfoTimeSeries *frameInfo, uint64_t startSystemTime,
-    uint64_t endSystemTime, BOOL useMostRecentFrameRate, SentryProfilerMode mode)
+sentry_sliceTraceProfileGPUData(SentryFrameInfoTimeSeries *frameInfo, uint64_t startSystemTime,
+    uint64_t endSystemTime, BOOL useMostRecentRecording)
 {
     auto slicedGPUEntries = [NSMutableArray<SentrySerializedMetricEntry *> array];
-    __block NSNumber *mostRecentFrameRate;
+    __block NSNumber *nearestPredecessorValue;
     [frameInfo enumerateObjectsUsingBlock:^(
         NSDictionary<NSString *, NSNumber *> *_Nonnull obj, NSUInteger idx, BOOL *_Nonnull stop) {
         const auto timestamp = obj[@"timestamp"].unsignedLongLongValue;
@@ -103,7 +103,7 @@ sentry_sliceGPUData(SentryFrameInfoTimeSeries *frameInfo, uint64_t startSystemTi
             SENTRY_LOG_DEBUG(@"GPU info recorded (%llu) before transaction start (%llu), "
                              @"will not report it.",
                 timestamp, startSystemTime);
-            mostRecentFrameRate = obj[@"value"];
+            nearestPredecessorValue = obj[@"value"];
             return;
         }
 
@@ -113,32 +113,16 @@ sentry_sliceGPUData(SentryFrameInfoTimeSeries *frameInfo, uint64_t startSystemTi
         }
         const auto relativeTimestamp = getDurationNs(startSystemTime, timestamp);
 
-        const auto entry = [NSMutableDictionary dictionary];
-        switch (mode) {
-        default: // fall-through!
-        case SentryProfilerModeTrace:
-            entry[@"elapsed_since_start_ns"] = sentry_stringForUInt64(relativeTimestamp);
-            break;
-        case SentryProfilerModeContinuous:
-            entry[@"timestamp"] = @(nanosecondsToTimeInterval(relativeTimestamp));
-            break;
-        }
-        entry[@"value"] = obj[@"value"];
-        [slicedGPUEntries addObject:entry];
+        [slicedGPUEntries addObject:@ {
+            @"elapsed_since_start_ns" : sentry_stringForUInt64(relativeTimestamp),
+            @"value" : obj[@"value"],
+        }];
     }];
-    if (useMostRecentFrameRate && slicedGPUEntries.count == 0 && mostRecentFrameRate != nil) {
-        const auto entry = [NSMutableDictionary dictionary];
-        switch (mode) {
-        default: // fall-through!
-        case SentryProfilerModeTrace:
-            entry[@"elapsed_since_start_ns"] = @"0";
-            break;
-        case SentryProfilerModeContinuous:
-            entry[@"timestamp"] = @0;
-            break;
-        }
-        entry[@"value"] = mostRecentFrameRate;
-        [slicedGPUEntries addObject:entry];
+    if (useMostRecentRecording && slicedGPUEntries.count == 0 && nearestPredecessorValue != nil) {
+        [slicedGPUEntries addObject:@ {
+            @"elapsed_since_start_ns" : @"0",
+            @"value" : nearestPredecessorValue,
+        }];
     }
     return slicedGPUEntries;
 }

@@ -40,12 +40,13 @@ public class TestCurrentDateProvider: SentryCurrentDateProvider {
     }
 
     public func advanceBy(nanoseconds: UInt64) {
-        setDate(date: date().addingTimeInterval(TimeInterval(nanoseconds) / 1e9))
+        setDate(date: date().addingTimeInterval(nanoseconds.toTimeInterval()))
         internalSystemTime += nanoseconds
     }
     
     public func advanceBy(interval: TimeInterval) {
         setDate(date: date().addingTimeInterval(interval))
+        internalSystemTime += interval.toNanoSeconds()
     }
 
     public var timezoneOffsetValue = 0

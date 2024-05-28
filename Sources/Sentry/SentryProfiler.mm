@@ -5,6 +5,7 @@
 #    import "SentryContinuousProfiler.h"
 #    import "SentryDependencyContainer.h"
 #    import "SentryDispatchQueueWrapper.h"
+#    import "SentryFramesTracker.h"
 #    import "SentryHub+Private.h"
 #    import "SentryLaunchProfiling.h"
 #    import "SentryLog.h"
@@ -14,6 +15,7 @@
 #    import "SentryProfilerTestHelpers.h"
 #    import "SentrySDK+Private.h"
 #    import "SentrySamplingProfiler.hpp"
+#    import "SentryScreenFrames.h"
 #    import "SentrySwift.h"
 #    import "SentryTime.h"
 
@@ -157,8 +159,6 @@ sentry_manageTraceProfilerOnStartSDK(SentryOptions *options, SentryHub *hub)
 
     SentryProfilerState *const state = [[SentryProfilerState alloc] init];
     self.state = state;
-    self.continuousChunkStartSystemTime
-        = SentryDependencyContainer.sharedInstance.dateProvider.systemTime;
     _samplingProfiler = std::make_shared<SamplingProfiler>(
         [state](auto &backtrace) {
             Backtrace backtraceCopy = backtrace;

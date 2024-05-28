@@ -26,10 +26,10 @@ class SentryTraceProfilerTests: XCTestCase {
     func testMetricProfiler() throws {
         let span = try fixture.newTransaction()
         try addMockSamples()
-        try fixture.gatherMockedMetrics(span: span)
+        try fixture.gatherMockedTraceProfileMetrics()
         self.fixture.currentDateProvider.advanceBy(nanoseconds: 1.toNanoSeconds())
         span.finish()
-        try self.assertMetricsPayload(expectedUsageReadings: fixture.mockUsageReadingsPerBatch + 2) // including one sample at the start and the end
+        try self.assertMetricsPayload()
     }
 
     func testTransactionWithMutatedTracerID() throws {
@@ -54,7 +54,7 @@ class SentryTraceProfilerTests: XCTestCase {
                 let span = try fixture.newTransaction()
 
                 // because energy readings are computed as the difference between sequential cumulative readings, we must increment the mock value by the expected result each iteration
-                fixture.systemWrapper.overrides.cpuEnergyUsage = NSNumber(value: fixture.systemWrapper.overrides.cpuEnergyUsage!.intValue + fixture.mockEnergyUsage.intValue)
+                fixture.systemWrapper.overrides.cpuEnergyUsage = NSNumber(value: try XCTUnwrap(fixture.systemWrapper.overrides.cpuEnergyUsage).intValue + fixture.mockMetrics.cpuEnergyUsage.intValue)
 
                 XCTAssertTrue(SentryTraceProfiler.isCurrentlyProfiling())
                 XCTAssertEqual(SentryTraceProfiler.currentProfiledTracers(), UInt(i + 1))
@@ -66,7 +66,8 @@ class SentryTraceProfilerTests: XCTestCase {
             try addMockSamples(threadMetadata: threadMetadata)
 
             for (i, span) in spans.enumerated() {
-                try fixture.gatherMockedMetrics(span: span)
+                try fixture.gatherMockedTraceProfileMetrics()
+                
                 XCTAssertTrue(SentryTraceProfiler.isCurrentlyProfiling())
                 span.finish()
                 XCTAssertEqual(SentryTraceProfiler.currentProfiledTracers(), UInt(numberOfTransactions - (i + 1)))
@@ -74,11 +75,11 @@ class SentryTraceProfilerTests: XCTestCase {
                 try self.assertValidTraceProfileData(expectedThreadMetadata: [threadMetadata])
 
                 // this is a complicated number to come up with, see the explanation for each part...
-                let expectedUsageReadings = fixture.mockUsageReadingsPerBatch * (i + 1) // since we fire mock metrics readings for each concurrent span,
+                let expectedUsageReadings = fixture.mockMetrics.readingsPerBatch * (i + 1) // since we fire mock metrics readings for each concurrent span,
                                                                                         // we need to accumulate across the number of spans each iteration
                     + numberOfTransactions // and then, add the number of spans that were created to account for the start reading for each span
                     + 1 // and the end reading for this span
-                try self.assertMetricsPayload(expectedUsageReadings: expectedUsageReadings, oneLessEnergyReading: i == 0)
+                try self.assertMetricsPayload(oneLessEnergyReading: i == 0, expectedMetricsReadingsPerBatchOverride: expectedUsageReadings)
             }
             
             XCTAssertFalse(SentryTraceProfiler.isCurrentlyProfiling())
@@ -90,7 +91,7 @@ class SentryTraceProfilerTests: XCTestCase {
         // do everything again to make sure that stopping and starting the profiler over again works
         spans.removeAll()
 #if !os(macOS)
-        fixture.resetGPUExpectations()
+        fixture.resetProfileGPUExpectations()
 #endif // !os(macOS)
 
         try createConcurrentSpansWithMetrics()
@@ -395,30 +396,35 @@ private extension SentryTraceProfilerTests {
         try self.assertValidTraceProfileData(transactionEnvironment: transactionEnvironment, shouldTimeout: shouldTimeOut, appStartProfile: testingAppLaunchSpans)
     }
 
-    func assertMetricsPayload(expectedUsageReadings: Int, oneLessEnergyReading: Bool = true) throws {
+    func assertMetricsPayload(oneLessEnergyReading: Bool = true, expectedMetricsReadingsPerBatchOverride: Int? = nil) throws {
         let profileData = try self.getLatestProfileData()
         let transaction = try getLatestTransaction()
         let profile = try XCTUnwrap(JSONSerialization.jsonObject(with: profileData) as? [String: Any])
         let measurements = try XCTUnwrap(profile["measurements"] as? [String: Any])
+        let expectedUsageReadings = expectedMetricsReadingsPerBatchOverride ?? fixture.mockMetrics.readingsPerBatch + 2 // including one sample at the start and the end
 
-        try assertMetricValue(measurements: measurements, key: kSentryMetricProfilerSerializationKeyCPUUsage, numberOfReadings: expectedUsageReadings, expectedValue: fixture.mockCPUUsage, transaction: transaction, expectedUnits: kSentryMetricProfilerSerializationUnitPercentage)
+        try assertMetricValue(measurements: measurements, key: kSentryMetricProfilerSerializationKeyCPUUsage, numberOfReadings: expectedUsageReadings, expectedValue: fixture.mockMetrics.cpuUsage, transaction: transaction, expectedUnits: kSentryMetricProfilerSerializationUnitPercentage)
 
-        try assertMetricValue(measurements: measurements, key: kSentryMetricProfilerSerializationKeyMemoryFootprint, numberOfReadings: expectedUsageReadings, expectedValue: fixture.mockMemoryFootprint, transaction: transaction, expectedUnits: kSentryMetricProfilerSerializationUnitBytes)
+        try assertMetricValue(measurements: measurements, key: kSentryMetricProfilerSerializationKeyMemoryFootprint, numberOfReadings: expectedUsageReadings, expectedValue: fixture.mockMetrics.memoryFootprint, transaction: transaction, expectedUnits: kSentryMetricProfilerSerializationUnitBytes)
 
         // we wind up with one less energy reading for the first concurrent span's metric sample. since we must use the difference between readings to get actual values, the first one is only the baseline reading.
         let expectedEnergyReadings = oneLessEnergyReading ? expectedUsageReadings - 1 : expectedUsageReadings
-        try assertMetricValue(measurements: measurements, key: kSentryMetricProfilerSerializationKeyCPUEnergyUsage, numberOfReadings: expectedEnergyReadings, expectedValue: fixture.mockEnergyUsage, transaction: transaction, expectedUnits: kSentryMetricProfilerSerializationUnitNanoJoules)
+        try assertMetricValue(measurements: measurements, key: kSentryMetricProfilerSerializationKeyCPUEnergyUsage, numberOfReadings: expectedEnergyReadings, expectedValue: fixture.mockMetrics.cpuEnergyUsage, transaction: transaction, expectedUnits: kSentryMetricProfilerSerializationUnitNanoJoules)
 
 #if !os(macOS)
-        try assertMetricEntries(measurements: measurements, key: kSentryProfilerSerializationKeySlowFrameRenders, expectedEntries: fixture.expectedSlowFrames, transaction: transaction)
-        try assertMetricEntries(measurements: measurements, key: kSentryProfilerSerializationKeyFrozenFrameRenders, expectedEntries: fixture.expectedFrozenFrames, transaction: transaction)
-        try assertMetricEntries(measurements: measurements, key: kSentryProfilerSerializationKeyFrameRates, expectedEntries: fixture.expectedFrameRateChanges, transaction: transaction)
+        try assertMetricEntries(measurements: measurements, key: kSentryProfilerSerializationKeySlowFrameRenders, expectedEntries: fixture.expectedTraceProfileSlowFrames, transaction: transaction)
+        try assertMetricEntries(measurements: measurements, key: kSentryProfilerSerializationKeyFrozenFrameRenders, expectedEntries: fixture.expectedTraceProfileFrozenFrames, transaction: transaction)
+        try assertMetricEntries(measurements: measurements, key: kSentryProfilerSerializationKeyFrameRates, expectedEntries: fixture.expectedTraceProfileFrameRateChanges, transaction: transaction)
 #endif // !os(macOS)
     }
 
-    func sortedByTimestamps(_ entries: [[String: Any]]) -> [[String: Any]] {
-        entries.sorted { a, b in
-            UInt64(a["elapsed_since_start_ns"] as! String)! < UInt64(b["elapsed_since_start_ns"] as! String)!
+    func sortedByTimestamps(_ entries: [[String: Any]]) throws -> [[String: Any]] {
+        try entries.sorted { a, b in
+            let aValue = try XCTUnwrap(a["elapsed_since_start_ns"] as? String)
+            let aIntValue = try XCTUnwrap(UInt64(aValue))
+            let bValue = try XCTUnwrap(b["elapsed_since_start_ns"] as? String)
+            let bIntValue = try XCTUnwrap(UInt64(bValue))
+            return aIntValue < bIntValue
         }
     }
 
@@ -431,8 +437,8 @@ private extension SentryTraceProfilerTests {
     func assertMetricEntries(measurements: [String: Any], key: String, expectedEntries: [[String: Any]], transaction: Transaction) throws {
         let metricContainer = try XCTUnwrap(measurements[key] as? [String: Any])
         let actualEntries = try XCTUnwrap(metricContainer["values"] as? [[String: Any]])
-        let sortedActualEntries = sortedByTimestamps(actualEntries)
-        let sortedExpectedEntries = sortedByTimestamps(expectedEntries)
+        let sortedActualEntries = try sortedByTimestamps(actualEntries)
+        let sortedExpectedEntries = try sortedByTimestamps(expectedEntries)
 
         guard actualEntries.count == expectedEntries.count else {
             XCTFail("Wrong number of values under \(key). expected: \(printTimestamps(entries: sortedExpectedEntries)); actual: \(printTimestamps(entries: sortedActualEntries)); transaction start time: \(transaction.startSystemTime)")
