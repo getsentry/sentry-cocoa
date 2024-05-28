@@ -131,12 +131,14 @@ SentrySpan ()
 
 - (void)stopObservingContinuousProfiling
 {
-    [SentryDependencyContainer.sharedInstance.notificationCenterWrapper
-        removeObserver:self
-                  name:kSentryNotificationContinuousProfileStarted];
-    [SentryDependencyContainer.sharedInstance.notificationCenterWrapper
-        removeObserver:self
-                  name:kSentryNotificationContinuousProfileStopped];
+    if (SentrySDK.options.enableContinuousProfiling) {
+        [SentryDependencyContainer.sharedInstance.notificationCenterWrapper
+            removeObserver:self
+                      name:kSentryNotificationContinuousProfileStarted];
+        [SentryDependencyContainer.sharedInstance.notificationCenterWrapper
+            removeObserver:self
+                      name:kSentryNotificationContinuousProfileStopped];
+    }
 }
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
