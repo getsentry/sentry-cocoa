@@ -1,7 +1,9 @@
 import ObjectiveC
+@testable import Sentry
 import SentryTestUtils
 import XCTest
 
+// swiftlint:disable file_length
 class SentryNetworkTrackerTests: XCTestCase {
     
     private static let dsnAsString = TestConstants.dsnAsString(username: "SentrySessionTrackerTests")
@@ -341,6 +343,36 @@ class SentryNetworkTrackerTests: XCTestCase {
         XCTAssertNotNil(breadcrumb!.data!["request_start"])
         XCTAssertTrue(breadcrumb!.data!["request_start"] is Date)
         XCTAssertNil(breadcrumb!.data!["graphql_operation_name"])
+    }
+    
+    func testNetworkBreadcrumbForSessionReplay() throws {
+        assertStatus(status: .ok, state: .completed, response: createResponse(code: 200))
+        
+        let breadcrumbs = Dynamic(fixture.scope).breadcrumbArray as [Breadcrumb]?
+        
+        let sut = SentryBreadcrumbReplayConverter()
+        guard let crumb = breadcrumbs?.first else {
+            XCTFail("No touch breadcrumb")
+            return
+        }
+               
+        let result = try XCTUnwrap(sut.replayBreadcrumbs([crumb], 
+                                                         from: Date(timeIntervalSince1970: 0),
+                                                         until: Date(timeIntervalSinceNow: 60)).first)
+        let crumbData = try XCTUnwrap(result.data)
+        let payload = try XCTUnwrap(crumbData["payload"] as? [String: Any])
+        let payloadData = try XCTUnwrap(payload["data"] as? [String: Any])
+        let start = try XCTUnwrap(crumb.data?["request_start"] as? Date)
+        
+        XCTAssertEqual(result.timestamp, start)
+        XCTAssertEqual(crumbData["tag"] as? String, "performanceSpan")
+        XCTAssertEqual(payload["description"] as? String, "https://www.domain.com/api")
+        XCTAssertEqual(payload["op"] as? String, "resource.http")
+        XCTAssertEqual(payload["startTimestamp"] as? Double, start.timeIntervalSince1970)
+        XCTAssertEqual(payload["endTimestamp"] as? Double, crumb.timestamp?.timeIntervalSince1970)
+        XCTAssertEqual(payloadData["statusCode"] as? Int, 200)
+        XCTAssertEqual(payloadData["query"] as? String, "query=value&query2=value2")
+        XCTAssertEqual(payloadData["fragment"] as? String, "fragment")
     }
 
     func testBreadcrumb_GraphQLEnabled() {
