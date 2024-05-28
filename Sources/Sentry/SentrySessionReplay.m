@@ -90,6 +90,8 @@ SentrySessionReplay ()
     _videoSegmentStart = nil;
     _currentSegmentId = 0;
     _sessionReplayId = [[SentryId alloc] init];
+    _replayMaker.videoWidth = (NSInteger)(rootView.frame.size.width * _replayOptions.sizeScale);
+    _replayMaker.videoHeight = (NSInteger)(rootView.frame.size.height * _replayOptions.sizeScale);
 
     imageCollection = [NSMutableArray array];
     if (full) {

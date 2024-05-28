@@ -6,6 +6,7 @@
 
 - Add start time to network request breadcrumbs (#4008)
 - Add C++ exception support for `__cxa_rethrow` (#3996)
+- Add beforeCaptureScreenshot callback (#4016)
 
 ### Improvements
 
@@ -17,7 +18,7 @@
 - Fix SentryCrashExceptionApplication subclass problem (#3993)
 - Fix wrong value for `In Foreground` flag on UIKit applications (#4005)
 - Fix a crash in baggageEncodedDictionary (#4017)
-
+- Session replay wrong video size (#4018)
 
 ## 8.26.0
 
