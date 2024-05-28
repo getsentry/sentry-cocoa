@@ -6,6 +6,6 @@ class StringExtensionsTests: XCTestCase {
     func testSnakeToCamelCase() {
         XCTAssertEqual("name_something".snakeToCamelCase(), "nameSomething")
         XCTAssertEqual("name_something_else".snakeToCamelCase(), "nameSomethingElse")
-        XCTAssertEqual("KEEP_CASE".snakeToCamelCase(), "KEEPcASE")
+        XCTAssertEqual("KEEP_CASE".snakeToCamelCase(), "KEEPCASE")
     }
 }
