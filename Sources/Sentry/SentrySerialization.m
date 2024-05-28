@@ -80,57 +80,6 @@ NS_ASSUME_NONNULL_BEGIN
     return envelopeData;
 }
 
-+ (NSString *)baggageEncodedDictionary:(NSDictionary *)dictionary
-{
-    NSMutableArray *items = [[NSMutableArray alloc] initWithCapacity:dictionary.count];
-
-    NSMutableCharacterSet *allowedSet = [NSCharacterSet.alphanumericCharacterSet mutableCopy];
-    [allowedSet addCharactersInString:@"-_."];
-    NSInteger currentSize = 0;
-
-    for (id key in dictionary.allKeys) {
-        id value = dictionary[key];
-        NSString *keyDescription =
-            [[key description] stringByAddingPercentEncodingWithAllowedCharacters:allowedSet];
-        NSString *valueDescription =
-            [[value description] stringByAddingPercentEncodingWithAllowedCharacters:allowedSet];
-
-        NSString *item = [NSString stringWithFormat:@"%@=%@", keyDescription, valueDescription];
-        if (item.length + currentSize <= SENTRY_BAGGAGE_MAX_SIZE) {
-            currentSize += item.length
-                + 1; // +1 is to account for the comma that will be added for each extra itemapp
-            [items addObject:item];
-        }
-    }
-
-    return [[items sortedArrayUsingComparator:^NSComparisonResult(NSString *obj1, NSString *obj2) {
-        return [obj1 compare:obj2];
-    }] componentsJoinedByString:@","];
-}
-
-+ (NSDictionary<NSString *, NSString *> *)decodeBaggage:(NSString *)baggage
-{
-    if (baggage == nil || baggage.length == 0) {
-        return @{};
-    }
-
-    NSMutableDictionary *decoded = [[NSMutableDictionary alloc] init];
-
-    NSArray<NSString *> *properties = [baggage componentsSeparatedByString:@","];
-
-    for (NSString *property in properties) {
-        NSArray<NSString *> *parts = [property componentsSeparatedByString:@"="];
-        if (parts.count != 2) {
-            continue;
-        }
-        NSString *key = parts[0];
-        NSString *value = [parts[1] stringByRemovingPercentEncoding];
-        decoded[key] = value;
-    }
-
-    return decoded.copy;
-}
-
 + (SentryEnvelope *_Nullable)envelopeWithData:(NSData *)data
 {
     SentryEnvelopeHeader *envelopeHeader = nil;

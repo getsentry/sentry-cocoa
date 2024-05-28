@@ -3,7 +3,6 @@
 #import "SentryLog.h"
 #import "SentryOptions+Private.h"
 #import "SentryScope+Private.h"
-#import "SentrySerialization.h"
 #import "SentrySwift.h"
 #import "SentryTraceContext.h"
 #import "SentryTracer.h"
@@ -39,7 +38,7 @@
 
 - (NSString *)toHTTPHeaderWithOriginalBaggage:(NSDictionary *_Nullable)originalBaggage
 {
-    NSMutableDictionary *information
+    NSMutableDictionary<NSString *, NSString *> *information
         = originalBaggage.mutableCopy ?: [[NSMutableDictionary alloc] init];
 
     [information setValue:_traceId.sentryIdString forKey:@"sentry-trace_id"];
@@ -73,7 +72,7 @@
         [information setValue:_replayId forKey:@"sentry-replay_id"];
     }
 
-    return [SentrySerialization baggageEncodedDictionary:information];
+    return [SentryBaggageSerialization encodeDictionary:information];
 }
 
 @end
