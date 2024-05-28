@@ -83,6 +83,9 @@ SentrySerializedMetricEntry *_Nullable serializeTraceProfileMetricValuesWithNorm
 SentrySerializedMetricEntry *_Nullable serializeContinuousProfileMetricReadings(
     NSArray<SentryMetricReading *> *readings, NSString *unit)
 {
+    if (readings.count == 0) {
+        return nil;
+    }
     const auto *serializedValues = [NSMutableArray<SentrySerializedMetricReading *> array];
     [readings enumerateObjectsUsingBlock:^(
         SentryMetricReading *_Nonnull reading, NSUInteger idx, BOOL *_Nonnull stop) {
@@ -91,9 +94,6 @@ SentrySerializedMetricEntry *_Nullable serializeContinuousProfileMetricReadings(
         value[@"value"] = reading.value;
         [serializedValues addObject:value];
     }];
-    if (serializedValues.count == 0) {
-        return nil;
-    }
     return @ { @"unit" : unit, @"values" : serializedValues };
 }
 } // namespace
