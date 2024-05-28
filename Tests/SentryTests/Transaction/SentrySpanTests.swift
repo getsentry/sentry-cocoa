@@ -67,12 +67,12 @@ class SentrySpanTests: XCTestCase {
     }
     
 #if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
-    func testSpanDoesNotIncludeTraceProfilerIDOrSubscribeToNotifications() throws {
+    func testSpanDoesNotIncludeTraceProfilerID() throws {
         fixture.options.profilesSampleRate = 1
         SentrySDK.setStart(fixture.options)
         let span = fixture.getSut()
         let continuousProfileObservations = fixture.notificationCenter.addObserverInvocations.invocations.filter {
-            $0.name.rawValue == kSentryNotificationContinuousProfileStarted || $0.name.rawValue == kSentryNotificationContinuousProfileStopped
+            $0.name.rawValue == kSentryNotificationContinuousProfileStarted
         }
         XCTAssertEqual(continuousProfileObservations.count, 0)
         XCTAssert(SentryTraceProfiler.isCurrentlyProfiling())
@@ -80,6 +80,38 @@ class SentrySpanTests: XCTestCase {
         
         let serialized = span.serialize()
         XCTAssertNil(serialized["profile_ids"])
+    }
+    
+    func testSpanDoesNotSubscribeToNotificationsIfAlreadyCapturedContinuousProfileID() {
+        fixture.options.enableContinuousProfiling = true
+        SentryContinuousProfiler.start()
+        SentrySDK.setStart(fixture.options)
+        let _ = fixture.getSut()
+        let continuousProfileObservations = fixture.notificationCenter.addObserverInvocations.invocations.filter {
+            $0.name.rawValue == kSentryNotificationContinuousProfileStarted
+        }
+        XCTAssertEqual(continuousProfileObservations.count, 1)
+    }
+    
+    func testSpanDoesNotSubscribeToNotificationsIfContinuousProfilingDisabled() {
+        fixture.options.profilesSampleRate = 1
+        fixture.options.enableContinuousProfiling = false
+        SentrySDK.setStart(fixture.options)
+        let _ = fixture.getSut()
+        let continuousProfileObservations = fixture.notificationCenter.addObserverInvocations.invocations.filter {
+            $0.name.rawValue == kSentryNotificationContinuousProfileStarted
+        }
+        XCTAssertEqual(continuousProfileObservations.count, 0)
+    }
+    
+    func testSpanDoesSubscribeToNotificationsIfNotAlreadyCapturedContinuousProfileID() {
+        fixture.options.enableContinuousProfiling = true
+        SentrySDK.setStart(fixture.options)
+        let _ = fixture.getSut()
+        let continuousProfileObservations = fixture.notificationCenter.addObserverInvocations.invocations.filter {
+            $0.name.rawValue == kSentryNotificationContinuousProfileStarted
+        }
+        XCTAssertEqual(continuousProfileObservations.count, 1)
     }
 
     /// Test a span that starts before and ends before a continuous profile, includes profile id
@@ -94,9 +126,6 @@ class SentrySpanTests: XCTestCase {
         let span = fixture.getSut()
         XCTAssertEqual(fixture.notificationCenter.addObserverInvocations.invocations.filter {
             $0.name.rawValue == kSentryNotificationContinuousProfileStarted
-        }.count, 1)
-        XCTAssertEqual(fixture.notificationCenter.addObserverInvocations.invocations.filter {
-            $0.name.rawValue == kSentryNotificationContinuousProfileStopped
         }.count, 1)
         SentryContinuousProfiler.start()
         let profileId = try XCTUnwrap(SentryContinuousProfiler.profiler()?.profilerId.sentryIdString)

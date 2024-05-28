@@ -10,8 +10,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 static NSString *const kSentryNotificationContinuousProfileStarted
     = @"io.sentry.notification.continuous-profile-started";
-static NSString *const kSentryNotificationContinuousProfileStopped
-    = @"io.sentry.notification.continuous-profile-stopped";
 
 /**
  * An interface to the new continuous profiling implementation.

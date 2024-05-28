@@ -103,15 +103,12 @@ SentrySpan ()
             if (SentryContinuousProfiler.isCurrentlyProfiling) {
                 [_profileSessionIDs
                     addObject:SentryContinuousProfiler.currentProfilerID.sentryIdString];
+            } else {
+                [SentryDependencyContainer.sharedInstance.notificationCenterWrapper
+                    addObserver:self
+                       selector:@selector(linkProfiler)
+                           name:kSentryNotificationContinuousProfileStarted];
             }
-            [SentryDependencyContainer.sharedInstance.notificationCenterWrapper
-                addObserver:self
-                   selector:@selector(linkProfiler)
-                       name:kSentryNotificationContinuousProfileStarted];
-            [SentryDependencyContainer.sharedInstance.notificationCenterWrapper
-                addObserver:self
-                   selector:@selector(linkProfiler)
-                       name:kSentryNotificationContinuousProfileStopped];
         }
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
     }
@@ -135,9 +132,6 @@ SentrySpan ()
         [SentryDependencyContainer.sharedInstance.notificationCenterWrapper
             removeObserver:self
                       name:kSentryNotificationContinuousProfileStarted];
-        [SentryDependencyContainer.sharedInstance.notificationCenterWrapper
-            removeObserver:self
-                      name:kSentryNotificationContinuousProfileStopped];
     }
 }
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED

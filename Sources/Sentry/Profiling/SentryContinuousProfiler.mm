@@ -116,12 +116,6 @@ _sentry_threadUnsafe_transmitChunkEnvelope(void)
         disableTimer();
     }
 
-    [SentryDependencyContainer.sharedInstance.notificationCenterWrapper
-        postNotification:[[NSNotification alloc]
-                             initWithName:kSentryNotificationContinuousProfileStopped
-                                   object:nil
-                                 userInfo:nil]];
-
     {
         std::lock_guard<std::mutex> l(_threadUnsafe_gContinuousProfilerLock);
         [_threadUnsafe_gContinuousCurrentProfiler
