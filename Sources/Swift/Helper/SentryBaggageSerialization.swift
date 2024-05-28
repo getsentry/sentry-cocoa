@@ -14,10 +14,8 @@ class SentryBaggageSerialization: NSObject {
         var currentSize = 0
         
         for (key, value) in dictionary {
-            guard let keyDescription = key.addingPercentEncoding(withAllowedCharacters: allowedSet), !keyDescription.isEmpty else {
-                continue
-            }
-            guard let valueDescription = value.addingPercentEncoding(withAllowedCharacters: allowedSet), !valueDescription.isEmpty else {
+            guard let keyDescription = key.addingPercentEncoding(withAllowedCharacters: allowedSet), 
+            let valueDescription = value.addingPercentEncoding(withAllowedCharacters: allowedSet), !keyDescription.isEmpty && !valueDescription.isEmpty  else {
                 continue
             }
             
