@@ -56,6 +56,11 @@ SentrySessionReplayIntegration ()
             return NO;
         }
 
+        if (options.enableSwizzling) {
+            _touchTracker = [[SentryTouchTracker alloc] init];
+            [self swizzleApplicationTouch];
+        }
+
         if (SentryDependencyContainer.sharedInstance.application.windows.count > 0) {
             // If a window its already available start replay right away
             [self startWithOptions:_replayOptions fullSession:_startedAsFullSession];
@@ -65,11 +70,6 @@ SentrySessionReplayIntegration ()
                 addObserver:self
                    selector:@selector(newSceneActivate)
                        name:UISceneDidActivateNotification];
-        }
-
-        if (options.enableSwizzling) {
-            _touchTracker = [[SentryTouchTracker alloc] init];
-            [self swizzleApplicationTouch];
         }
 
         return YES;

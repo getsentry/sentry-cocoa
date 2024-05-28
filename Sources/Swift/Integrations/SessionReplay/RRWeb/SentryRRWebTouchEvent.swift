@@ -3,11 +3,11 @@ import Foundation
 @objcMembers
 class SentryRRWebTouchEvent: SentryRRWebEvent {
     
-    enum TouchEventPhase: String {
-        case unknown = "MouseInteractions.unknown"
-        case start   = "MouseInteractions.TouchStart"
-        case move    = "MouseInteractions.TouchMove"
-        case end     = "MouseInteractions.TouchEnd"
+    enum TouchEventPhase: Int {
+        case unknown = 0
+        case start   = 7
+        case move    = 8
+        case end     = 9
     }
     
     init(timestamp: Date, touchId: Int, x: Float, y: Float, phase: TouchEventPhase) {
