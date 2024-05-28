@@ -133,9 +133,6 @@ SentrySerializedMetricEntry *_Nullable serializeContinuousProfileMetricReadings(
 
 - (void)recordMetrics
 {
-    const auto dateProvider = SentryDependencyContainer.sharedInstance.dateProvider;
-    SENTRY_LOG_DEBUG(@"Recording profiling metrics sample at %f (%llu)",
-        dateProvider.date.timeIntervalSinceReferenceDate, dateProvider.systemTime);
     [self recordCPUsage];
     [self recordMemoryFootprint];
     [self recordEnergyUsageEstimate];
@@ -247,7 +244,6 @@ SentrySerializedMetricEntry *_Nullable serializeContinuousProfileMetricReadings(
     }
 
     @synchronized(self) {
-        SENTRY_LOG_DEBUG(@"Recording memory footprint of %llu", footprintBytes);
         [_memoryFootprint addObject:[self metricReadingForValue:@(footprintBytes)]];
     }
 }
@@ -268,7 +264,6 @@ SentrySerializedMetricEntry *_Nullable serializeContinuousProfileMetricReadings(
     }
 
     @synchronized(self) {
-        SENTRY_LOG_DEBUG(@"Recording CPU usage of %@", result);
         [_cpuUsage addObject:[self metricReadingForValue:result]];
     }
 }
@@ -292,7 +287,6 @@ SentrySerializedMetricEntry *_Nullable serializeContinuousProfileMetricReadings(
     previousEnergyReading = reading;
 
     @synchronized(self) {
-        SENTRY_LOG_DEBUG(@"Recording CPU energy usage of %lu", (unsigned long)value);
         [_cpuEnergyUsage addObject:[self metricReadingForValue:@(value)]];
     }
 }
