@@ -319,7 +319,9 @@ SentryEnvelope *_Nullable sentry_continuousProfileChunkEnvelope(
         );
 
 #    if defined(TEST) || defined(TESTCI) || defined(DEBUG)
-    sentry_writeProfileFile(payload);
+    if (NSProcessInfo.processInfo.environment[@"io.sentry.ui-test.test-name"] != nil) {
+        sentry_writeProfileFile(payload);
+    }
 #    endif // defined(TEST) || defined(TESTCI) || defined(DEBUG)
 
     if (payload == nil) {
