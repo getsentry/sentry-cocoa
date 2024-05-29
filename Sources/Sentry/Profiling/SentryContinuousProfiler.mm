@@ -121,10 +121,7 @@ _sentry_threadUnsafe_transmitChunkEnvelope(void)
 
         _sentry_threadUnsafe_transmitChunkEnvelope();
         disableTimer();
-    }
 
-    {
-        std::lock_guard<std::mutex> l(_threadUnsafe_gContinuousProfilerLock);
         [_threadUnsafe_gContinuousCurrentProfiler
             stopForReason:SentryProfilerTruncationReasonNormal];
         _threadUnsafe_gContinuousCurrentProfiler = nil;

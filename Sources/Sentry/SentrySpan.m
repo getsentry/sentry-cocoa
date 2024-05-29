@@ -51,6 +51,7 @@ SentrySpan ()
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
     NSString *_Nullable _profileSessionID;
+    BOOL _isContinuousProfiling;
 #endif //  SENTRY_TARGET_PROFILING_SUPPORTED
 }
 
@@ -98,7 +99,8 @@ SentrySpan ()
         _origin = context.origin;
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
-        if (SentrySDK.options.enableContinuousProfiling) {
+        _isContinuousProfiling = SentrySDK.options.enableContinuousProfiling;
+        if (_isContinuousProfiling) {
             _profileSessionID = SentryContinuousProfiler.currentProfilerID.sentryIdString;
             if (_profileSessionID == nil) {
                 [SentryDependencyContainer.sharedInstance.notificationCenterWrapper
@@ -126,7 +128,7 @@ SentrySpan ()
 
 - (void)stopObservingContinuousProfiling
 {
-    if (SentrySDK.options.enableContinuousProfiling) {
+    if (_isContinuousProfiling) {
         [SentryDependencyContainer.sharedInstance.notificationCenterWrapper
             removeObserver:self
                       name:kSentryNotificationContinuousProfileStarted];

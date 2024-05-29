@@ -69,6 +69,7 @@ class SentrySpanTests: XCTestCase {
 #if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
     func testSpanDoesNotIncludeTraceProfilerID() throws {
         fixture.options.profilesSampleRate = 1
+        fixture.options.enableContinuousProfiling = false
         SentrySDK.setStart(fixture.options)
         let span = fixture.getSut()
         let continuousProfileObservations = fixture.notificationCenter.addObserverInvocations.invocations.filter {
@@ -79,7 +80,7 @@ class SentrySpanTests: XCTestCase {
         span.finish()
         
         let serialized = span.serialize()
-        XCTAssertNil(serialized["profile_ids"])
+        XCTAssertNil(serialized["profile_id"])
     }
     
     func testSpanDoesNotSubscribeToNotificationsIfAlreadyCapturedContinuousProfileID() {
@@ -133,8 +134,7 @@ class SentrySpanTests: XCTestCase {
 
         let serialized = span.serialize()
 
-        let includedProfileIDs = try XCTUnwrap(serialized["profile_id"] as? String)
-        XCTAssert(includedProfileIDs.contains(profileId))
+        XCTAssertEqual(try XCTUnwrap(serialized["profile_id"] as? String), profileId)
     }
 
     /// Test a span that starts before and ends after a continuous profile, includes profile id
@@ -154,8 +154,7 @@ class SentrySpanTests: XCTestCase {
 
         let serialized = span.serialize()
 
-        let includedProfileIDs = try XCTUnwrap(serialized["profile_id"] as? String)
-        XCTAssert(includedProfileIDs.contains(profileId))
+        XCTAssertEqual(try XCTUnwrap(serialized["profile_id"] as? String), profileId)
     }
 
     /// Test a span that starts after and ends after a continuous profile, includes profile id
@@ -175,8 +174,7 @@ class SentrySpanTests: XCTestCase {
 
         let serialized = span.serialize()
 
-        let includedProfileIDs = try XCTUnwrap(serialized["profile_id"] as? String)
-        XCTAssert(includedProfileIDs.contains(profileId))
+        XCTAssertEqual(try XCTUnwrap(serialized["profile_id"] as? String), profileId)
     }
 
     /// Test a span that starts after and ends before a continuous profile, includes profile id
@@ -194,18 +192,17 @@ class SentrySpanTests: XCTestCase {
         span.finish()
 
         let serialized = span.serialize()
-
-        let includedProfileIDs = try XCTUnwrap(serialized["profile_id"] as? String)
-        XCTAssert(includedProfileIDs.contains(profileId))
+        XCTAssertEqual(try XCTUnwrap(serialized["profile_id"] as? String), profileId)
     }
 
-    /// Test a span that spans multiple profiles, includes both profile ids
+    /// Test a span that spans multiple profiles, which both should have the same profile ID, and that
+    /// the span also contains that profile ID.
     ///
     /// ```
     /// +-----------------span-----------------+
     ///     +--profile1--+    +--profile2--+
     /// ```
-    func test_spanStart_profileStart_profileEnd_profileStart_profileEnd_spanEnd_spanIncludesBothProfileIDs() throws {
+    func test_spanStart_profileStart_profileEnd_profileStart_profileEnd_spanEnd_spanIncludesSameProfileID() throws {
         fixture.options.enableContinuousProfiling = true
         SentrySDK.setStart(fixture.options)
         let span = fixture.getSut()
@@ -215,12 +212,11 @@ class SentrySpanTests: XCTestCase {
         SentryContinuousProfiler.start()
         let profileId2 = try XCTUnwrap(SentryContinuousProfiler.profiler()?.profilerId.sentryIdString)
         SentryContinuousProfiler.stop()
+        XCTAssertEqual(profileId1, profileId2)
         span.finish()
 
         let serialized = span.serialize()
-        let includedProfileIDs = try XCTUnwrap(serialized["profile_id"] as? String)
-        XCTAssert(includedProfileIDs.contains(profileId1))
-        XCTAssert(includedProfileIDs.contains(profileId2))
+        XCTAssertEqual(try XCTUnwrap(serialized["profile_id"] as? String), profileId1)
     }
 
     /// Test a span that starts and ends before a profile starts, does not include profile id
