@@ -90,7 +90,7 @@ class SentrySpanTests: XCTestCase {
         let continuousProfileObservations = fixture.notificationCenter.addObserverInvocations.invocations.filter {
             $0.name.rawValue == kSentryNotificationContinuousProfileStarted
         }
-        XCTAssertEqual(continuousProfileObservations.count, 1)
+        XCTAssertEqual(continuousProfileObservations.count, 0)
     }
     
     func testSpanDoesNotSubscribeToNotificationsIfContinuousProfilingDisabled() {
@@ -133,7 +133,7 @@ class SentrySpanTests: XCTestCase {
 
         let serialized = span.serialize()
 
-        let includedProfileIDs = try XCTUnwrap(serialized["profile_ids"] as? [String])
+        let includedProfileIDs = try XCTUnwrap(serialized["profile_id"] as? String)
         XCTAssert(includedProfileIDs.contains(profileId))
     }
 
@@ -154,7 +154,7 @@ class SentrySpanTests: XCTestCase {
 
         let serialized = span.serialize()
 
-        let includedProfileIDs = try XCTUnwrap(serialized["profile_ids"] as? [String])
+        let includedProfileIDs = try XCTUnwrap(serialized["profile_id"] as? String)
         XCTAssert(includedProfileIDs.contains(profileId))
     }
 
@@ -175,7 +175,7 @@ class SentrySpanTests: XCTestCase {
 
         let serialized = span.serialize()
 
-        let includedProfileIDs = try XCTUnwrap(serialized["profile_ids"] as? [String])
+        let includedProfileIDs = try XCTUnwrap(serialized["profile_id"] as? String)
         XCTAssert(includedProfileIDs.contains(profileId))
     }
 
@@ -195,7 +195,7 @@ class SentrySpanTests: XCTestCase {
 
         let serialized = span.serialize()
 
-        let includedProfileIDs = try XCTUnwrap(serialized["profile_ids"] as? [String])
+        let includedProfileIDs = try XCTUnwrap(serialized["profile_id"] as? String)
         XCTAssert(includedProfileIDs.contains(profileId))
     }
 
@@ -218,7 +218,7 @@ class SentrySpanTests: XCTestCase {
         span.finish()
 
         let serialized = span.serialize()
-        let includedProfileIDs = try XCTUnwrap(serialized["profile_ids"] as? [String])
+        let includedProfileIDs = try XCTUnwrap(serialized["profile_id"] as? String)
         XCTAssert(includedProfileIDs.contains(profileId1))
         XCTAssert(includedProfileIDs.contains(profileId2))
     }

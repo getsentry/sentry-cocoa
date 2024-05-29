@@ -50,7 +50,7 @@ SentrySpan ()
 #endif // SENTRY_HAS_UIKIT
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
-    NSMutableSet<NSString *> *_profileSessionIDs;
+    NSString *_Nullable _profileSessionID;
 #endif //  SENTRY_TARGET_PROFILING_SUPPORTED
 }
 
@@ -99,11 +99,8 @@ SentrySpan ()
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
         if (SentrySDK.options.enableContinuousProfiling) {
-            _profileSessionIDs = [NSMutableSet<NSString *> set];
-            if (SentryContinuousProfiler.isCurrentlyProfiling) {
-                [_profileSessionIDs
-                    addObject:SentryContinuousProfiler.currentProfilerID.sentryIdString];
-            } else {
+            _profileSessionID = SentryContinuousProfiler.currentProfilerID.sentryIdString;
+            if (_profileSessionID == nil) {
                 [SentryDependencyContainer.sharedInstance.notificationCenterWrapper
                     addObserver:self
                        selector:@selector(linkProfiler)
@@ -123,7 +120,8 @@ SentrySpan ()
 
 - (void)linkProfiler
 {
-    [_profileSessionIDs addObject:SentryContinuousProfiler.currentProfilerID.sentryIdString];
+    _profileSessionID = SentryContinuousProfiler.currentProfilerID.sentryIdString;
+    [self stopObservingContinuousProfiling];
 }
 
 - (void)stopObservingContinuousProfiling
@@ -375,8 +373,8 @@ SentrySpan ()
     }
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
-    if (_profileSessionIDs.count > 0) {
-        mutableDictionary[@"profile_ids"] = [_profileSessionIDs allObjects];
+    if (_profileSessionID != nil) {
+        mutableDictionary[@"profile_id"] = _profileSessionID;
     }
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 

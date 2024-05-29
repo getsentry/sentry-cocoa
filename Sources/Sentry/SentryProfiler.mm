@@ -70,8 +70,6 @@ sentry_manageTraceProfilerOnStartSDK(SentryOptions *options, SentryHub *hub)
         return nil;
     }
 
-    _profilerId = [[SentryId alloc] init];
-
     SENTRY_LOG_DEBUG(@"Initialized new SentryProfiler %@", self);
 
 #    if SENTRY_HAS_UIKIT

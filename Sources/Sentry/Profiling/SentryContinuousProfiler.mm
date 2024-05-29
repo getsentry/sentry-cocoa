@@ -32,6 +32,9 @@ SentryProfiler *_Nullable _threadUnsafe_gContinuousCurrentProfiler;
 
 NSTimer *_Nullable _chunkTimer;
 
+/** @note: The session ID is reused for any profile sessions started in the same app session. */
+SentryId *_profileSessionID;
+
 void
 disableTimer()
 {
@@ -86,6 +89,10 @@ _sentry_threadUnsafe_transmitChunkEnvelope(void)
             SENTRY_LOG_WARN(@"Continuous profiler was unable to be initialized.");
             return;
         }
+
+        static dispatch_once_t onceToken;
+        dispatch_once(&onceToken, ^{ _profileSessionID = [[SentryId alloc] init]; });
+        _threadUnsafe_gContinuousCurrentProfiler.profilerId = _profileSessionID;
     }
 
     [SentryDependencyContainer.sharedInstance.notificationCenterWrapper
