@@ -72,6 +72,7 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
 
 + (nullable NSDictionary<NSString *, id> *)appStartMeasurementWithSpans
 {
+#if SENTRY_HAS_UIKIT
     SentryAppStartMeasurement *measurement = [SentrySDK getAppStartMeasurement];
     if (measurement == nil) {
         return nil;
@@ -119,6 +120,9 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
         @"sdk_start_timestamp_ms" : sdkStartTimestampMs,
         @"spans" : spans,
     };
+#else
+    return nil;
+#endif // SENTRY_HAS_UIKIT
 }
 
 + (NSString *)installationID
