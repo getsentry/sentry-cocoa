@@ -76,10 +76,10 @@ class SentryReplayBreadcrumbConverter: NSObject {
         else { return nil }
         var data = [String: Any]()
         
-        breadcrumb.data?.forEach({
-            guard supportedNetworkData.contains($0.key) else { return }
-            let newKey = $0.key == "response_body_size" ? "bodySize" : $0.key.replacingOccurrences(of: "http.", with: "")
-            data[newKey.snakeToCamelCase()] = $0.value
+        breadcrumb.data?.forEach({ (key, value) in
+            guard supportedNetworkData.contains(key) else { return }
+            let newKey = key.replacingOccurrences(of: "http.", with: "")
+            data[newKey.snakeToCamelCase()] = value
         })
         
         //We dont have end of the request in the breadcrumb.
