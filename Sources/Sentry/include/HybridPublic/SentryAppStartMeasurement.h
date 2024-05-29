@@ -11,11 +11,10 @@ typedef NS_ENUM(NSUInteger, SentryAppStartType) {
 };
 
 // This is need for serialization in HybridSDKs
-NSString *_Nonnull const SentryAppStartType_toString[] = {
-    [SentryAppStartTypeWarm] = @"warm",
-    [SentryAppStartTypeCold] = @"cold",
-    [SentryAppStartTypeUnknown] = @"unknown",
-};
+@interface SentryAppStartTypeToString : NSObject
+SENTRY_NO_INIT
++ (NSString *_Nonnull)convert:(SentryAppStartType)type;
+@end
 
 /**
  * @warning This feature is not available in @c Debug_without_UIKit and @c Release_without_UIKit

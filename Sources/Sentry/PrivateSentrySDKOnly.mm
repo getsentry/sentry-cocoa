@@ -77,7 +77,7 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
         return nil;
     }
 
-    NSString *type = SentryAppStartType_toString[measurement.type];
+    NSString *type = [SentryAppStartTypeToString convert:measurement.type];
     NSNumber *isPreWarmed = [NSNumber numberWithBool:measurement.isPreWarmed];
     NSNumber *appStartTimestampMs =
         [NSNumber numberWithDouble:measurement.appStartTimestamp.timeIntervalSince1970 * 1000];
@@ -94,7 +94,7 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
         @"endTimestampMs" : sdkStartTimestampMs,
     };
 
-    NSArray *spans = isPreWarmed ? @[
+    NSArray *spans = measurement.isPreWarmed ? @[
         @{
             @"description": @"Pre Runtime Init",
             @"startTimestampMs": appStartTimestampMs,
@@ -111,7 +111,7 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
     ];
 
     return @{
-        @"type" : type != nil ? type : @"unknown",
+        @"type" : type,
         @"is_pre_warmed" : isPreWarmed,
         @"app_start_timestamp_ms" : appStartTimestampMs,
         @"runtime_init_timestamp_ms" : runtimeInitTimestampMs,
