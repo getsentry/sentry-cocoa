@@ -70,6 +70,53 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
     return [SentrySDK getAppStartMeasurement];
 }
 
++ (nullable NSDictionary<NSString *, id> *)appStartMeasurementWithSpans
+{
+    SentryAppStartMeasurement *measurement = [SentrySDK getAppStartMeasurement];
+    if (measurement == nil) {
+        return nil;
+    }
+
+    NSString *type = SentryAppStartType_toString[measurement.type];
+    NSNumber *isPreWarmed = [NSNumber numberWithBool:measurement.isPreWarmed];
+    NSNumber *appStartTimestampMs =
+        [NSNumber numberWithDouble:measurement.appStartTimestamp.timeIntervalSince1970 * 1000];
+    NSNumber *runtimeInitTimestampMs =
+        [NSNumber numberWithDouble:measurement.runtimeInitTimestamp.timeIntervalSince1970 * 1000];
+    NSNumber *moduleInitializationTimestampMs = [NSNumber
+        numberWithDouble:measurement.moduleInitializationTimestamp.timeIntervalSince1970 * 1000];
+    NSNumber *sdkStartTimestampMs =
+        [NSNumber numberWithDouble:measurement.sdkStartTimestamp.timeIntervalSince1970 * 1000];
+
+    return @{
+        @"type": type != nil ? type : @"unknown",
+        @"is_pre_warmed": isPreWarmed,
+        @"app_start_timestamp_ms": appStartTimestampMs,
+        @"runtime_init_timestamp_ms": runtimeInitTimestampMs,
+        @"module_initialization_timestamp_ms": moduleInitializationTimestampMs,
+        @"sdk_start_timestamp_ms": sdkStartTimestampMs,
+        @"prewarmed_spans": isPreWarmed ? @[
+            @{
+                @"description": @"Pre Runtime Init",
+                @"startTimestampMs": appStartTimestampMs,
+                @"endTimestampMs": runtimeInitTimestampMs,
+            },
+            @{
+                @"description": @"Runtime init to Pre Main initializers",
+                @"startTimestampMs": runtimeInitTimestampMs,
+                @"endTimestampMs": moduleInitializationTimestampMs,
+            },
+        ] : @[],
+        @"generic_start_spans": @[
+            @{
+                @"description": @"UIKit init",
+                @"startTimestampMs": moduleInitializationTimestampMs,
+                @"endTimestampMs": sdkStartTimestampMs,
+            },
+        ],
+    };
+}
+
 + (NSString *)installationID
 {
     return [SentryInstallation idWithCacheDirectoryPath:self.options.cacheDirectoryPath];

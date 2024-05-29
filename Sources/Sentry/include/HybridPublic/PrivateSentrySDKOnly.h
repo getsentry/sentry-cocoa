@@ -158,6 +158,8 @@ typedef void (^SentryOnAppStartMeasurementAvailable)(
 + (NSData *)captureViewHierarchy;
 #endif // SENTRY_UIKIT_AVAILABLE
 
++ (nullable NSDictionary<NSString *, id> *)appStartMeasurementWithSpans;
+
 + (SentryUser *)userWithDictionary:(NSDictionary *)dictionary;
 
 + (SentryBreadcrumb *)breadcrumbWithDictionary:(NSDictionary *)dictionary;
