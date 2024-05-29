@@ -88,32 +88,36 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
     NSNumber *sdkStartTimestampMs =
         [NSNumber numberWithDouble:measurement.sdkStartTimestamp.timeIntervalSince1970 * 1000];
 
+    NSDictionary *uiKitInitSpan = @{
+        @"description" : @"UIKit init",
+        @"startTimestampMs" : moduleInitializationTimestampMs,
+        @"endTimestampMs" : sdkStartTimestampMs,
+    };
+
+    NSArray *spans = isPreWarmed ? @[
+        @{
+            @"description": @"Pre Runtime Init",
+            @"startTimestampMs": appStartTimestampMs,
+            @"endTimestampMs": runtimeInitTimestampMs,
+        },
+        @{
+            @"description": @"Runtime init to Pre Main initializers",
+            @"startTimestampMs": runtimeInitTimestampMs,
+            @"endTimestampMs": moduleInitializationTimestampMs,
+        },
+        uiKitInitSpan,
+    ] : @[
+      uiKitInitSpan,
+    ];
+
     return @{
-        @"type": type != nil ? type : @"unknown",
-        @"is_pre_warmed": isPreWarmed,
-        @"app_start_timestamp_ms": appStartTimestampMs,
-        @"runtime_init_timestamp_ms": runtimeInitTimestampMs,
-        @"module_initialization_timestamp_ms": moduleInitializationTimestampMs,
-        @"sdk_start_timestamp_ms": sdkStartTimestampMs,
-        @"prewarmed_spans": isPreWarmed ? @[
-            @{
-                @"description": @"Pre Runtime Init",
-                @"startTimestampMs": appStartTimestampMs,
-                @"endTimestampMs": runtimeInitTimestampMs,
-            },
-            @{
-                @"description": @"Runtime init to Pre Main initializers",
-                @"startTimestampMs": runtimeInitTimestampMs,
-                @"endTimestampMs": moduleInitializationTimestampMs,
-            },
-        ] : @[],
-        @"generic_start_spans": @[
-            @{
-                @"description": @"UIKit init",
-                @"startTimestampMs": moduleInitializationTimestampMs,
-                @"endTimestampMs": sdkStartTimestampMs,
-            },
-        ],
+        @"type" : type != nil ? type : @"unknown",
+        @"is_pre_warmed" : isPreWarmed,
+        @"app_start_timestamp_ms" : appStartTimestampMs,
+        @"runtime_init_timestamp_ms" : runtimeInitTimestampMs,
+        @"module_initialization_timestamp_ms" : moduleInitializationTimestampMs,
+        @"sdk_start_timestamp_ms" : sdkStartTimestampMs,
+        @"spans" : spans,
     };
 }
 
