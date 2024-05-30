@@ -179,7 +179,7 @@ static BOOL appStartMeasurementRead;
 #endif // SENTRY_HAS_UIKIT
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
-    if (!hub.client.options.enableContinuousProfiling
+    if (hub.client.options.profilesSampleRate != nil
         && (_configuration.profilesSamplerDecision.decision == kSentrySampleDecisionYes
             || sentry_isTracingAppLaunch)) {
         _internalID = [[SentryId alloc] init];

@@ -16,7 +16,7 @@ final class SentryContinuousProfilerTests: XCTestCase {
     override func setUp() {
         super.setUp()
         fixture = SentryProfileTestFixture()
-        fixture.options.enableContinuousProfiling = true
+        fixture.options.profilesSampleRate = nil
     }
     
     override func tearDown() {

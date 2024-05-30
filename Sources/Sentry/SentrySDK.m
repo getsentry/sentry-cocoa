@@ -528,8 +528,8 @@ static NSDate *_Nullable startTimestamp = nil;
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 + (void)startProfiler
 {
-    if (!SENTRY_ASSERT_RETURN(currentHub.client.options.enableContinuousProfiling,
-            @"You must set SentryOptions.enableContinuousProfiling to true before starting a "
+    if (!SENTRY_ASSERT_RETURN(currentHub.client.options.profilesSampleRate == nil,
+            @"You must set Sentryoptions.profilesSampleRate == nil to true before starting a "
             @"continuous profiler.")) {
         return;
     }
@@ -539,8 +539,8 @@ static NSDate *_Nullable startTimestamp = nil;
 
 + (void)stopProfiler
 {
-    if (!SENTRY_ASSERT_RETURN(currentHub.client.options.enableContinuousProfiling,
-            @"You must set SentryOptions.enableContinuousProfiling to true before using continuous "
+    if (!SENTRY_ASSERT_RETURN(currentHub.client.options.profilesSampleRate == nil,
+            @"You must set Sentryoptions.profilesSampleRate == nil to true before using continuous "
             @"profiling API.")) {
         return;
     }

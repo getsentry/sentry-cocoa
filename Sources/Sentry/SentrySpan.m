@@ -99,7 +99,7 @@ SentrySpan ()
         _origin = context.origin;
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
-        _isContinuousProfiling = SentrySDK.options.enableContinuousProfiling;
+        _isContinuousProfiling = SentrySDK.options.profilesSampleRate == nil;
         if (_isContinuousProfiling) {
             _profileSessionID = SentryContinuousProfiler.currentProfilerID.sentryIdString;
             if (_profileSessionID == nil) {

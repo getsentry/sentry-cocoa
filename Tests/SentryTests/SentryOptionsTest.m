@@ -584,6 +584,10 @@
         @"enableAutoBreadcrumbTracking" : [NSNull null],
         @"tracesSampleRate" : [NSNull null],
         @"tracesSampler" : [NSNull null],
+#if SENTRY_TARGET_PROFILING_SUPPORTED
+        @"profilesSampleRate" : [NSNull null],
+        @"profilesSampler" : [NSNull null],
+#endif
         @"inAppIncludes" : [NSNull null],
         @"inAppExcludes" : [NSNull null],
         @"urlSessionDelegate" : [NSNull null],
@@ -681,9 +685,9 @@
 #    pragma clang diagnostic ignored "-Wdeprecated-declarations"
     XCTAssertEqual(NO, options.enableProfiling);
 #    pragma clang diagnostic pop
-    XCTAssertNil(options.profilesSampleRate);
+    XCTAssertNotNil(options.profilesSampleRate);
+    XCTAssertEqual(options.profilesSampleRate.doubleValue, 0.0);
     XCTAssertNil(options.profilesSampler);
-    XCTAssertFalse(options.enableContinuousProfiling);
 #endif
 
     XCTAssertTrue([options.spotlightUrl isEqualToString:@"http://localhost:8969/stream"]);
@@ -1063,11 +1067,6 @@
     [self testBooleanField:@"enableProfiling" defaultValue:NO];
 }
 
-- (void)testEnableContinuousProfiling
-{
-    [self testBooleanField:@"enableContinuousProfiling" defaultValue:NO];
-}
-
 - (void)testProfilesSampleRate
 {
     SentryOptions *options = [self getValidOptions:@{ @"profilesSampleRate" : @0.1 }];
@@ -1078,6 +1077,7 @@
 {
     SentryOptions *options = [self getValidOptions:@{}];
     XCTAssertEqual(options.profilesSampleRate.doubleValue, 0);
+    XCTAssertFalse(options.isProfilingEnabled);
 }
 
 - (void)testProfilesSampleRate_SetToNil
@@ -1085,7 +1085,7 @@
     SentryOptions *options = [[SentryOptions alloc] init];
     options.profilesSampleRate = nil;
     XCTAssertNil(options.profilesSampleRate);
-    XCTAssertEqual(options.profilesSampleRate.doubleValue, 0);
+    XCTAssert(options.isProfilingEnabled);
 }
 
 - (void)testProfilesSampleRateLowerBound
@@ -1124,7 +1124,7 @@
 {
     SentryOptions *options = [[SentryOptions alloc] init];
     XCTAssertFalse(options.isProfilingEnabled);
-    XCTAssertFalse(options.enableContinuousProfiling);
+    XCTAssertFalse(options.profilesSampleRate == nil);
 }
 
 - (void)testIsProfilingEnabled_ProfilesSampleRateSetToZero_IsDisabled
@@ -1132,7 +1132,7 @@
     SentryOptions *options = [[SentryOptions alloc] init];
     options.profilesSampleRate = @0.00;
     XCTAssertFalse(options.isProfilingEnabled);
-    XCTAssertFalse(options.enableContinuousProfiling);
+    XCTAssertFalse(options.profilesSampleRate == nil);
 }
 
 - (void)testIsProfilingEnabled_ProfilesSampleRateSet_IsEnabled
@@ -1140,7 +1140,7 @@
     SentryOptions *options = [[SentryOptions alloc] init];
     options.profilesSampleRate = @0.01;
     XCTAssertTrue(options.isProfilingEnabled);
-    XCTAssertFalse(options.enableContinuousProfiling);
+    XCTAssertFalse(options.profilesSampleRate == nil);
 }
 
 - (void)testIsProfilingEnabled_ProfilesSamplerSet_IsEnabled
@@ -1151,7 +1151,7 @@
         return @0.0;
     };
     XCTAssertTrue(options.isProfilingEnabled);
-    XCTAssertFalse(options.enableContinuousProfiling);
+    XCTAssertFalse(options.profilesSampleRate == nil);
 }
 
 - (void)testIsProfilingEnabled_EnableProfilingSet_IsEnabled
@@ -1162,7 +1162,7 @@
     options.enableProfiling = YES;
 #    pragma clang diagnostic pop
     XCTAssertTrue(options.isProfilingEnabled);
-    XCTAssertFalse(options.enableContinuousProfiling);
+    XCTAssertFalse(options.profilesSampleRate == nil);
 }
 
 - (void)testProfilesSampler
@@ -1176,7 +1176,7 @@
 
     SentrySamplingContext *context = [[SentrySamplingContext alloc] init];
     XCTAssertEqual(options.profilesSampler(context), @1.0);
-    XCTAssertFalse(options.enableContinuousProfiling);
+    XCTAssertFalse(options.profilesSampleRate == nil);
 }
 
 - (void)testDefaultProfilesSampler

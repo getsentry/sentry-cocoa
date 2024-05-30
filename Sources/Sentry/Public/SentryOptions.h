@@ -456,7 +456,17 @@ NS_SWIFT_NAME(Options)
  * the SDK sets it to the default of @c 0.
  * This property is dependent on @c tracesSampleRate -- if @c tracesSampleRate is @c 0 (default),
  * no profiles will be collected no matter what this property is set to. This property is
- * used to undersample profiles *relative to* @c tracesSampleRate
+ * used to undersample profiles *relative to* @c tracesSampleRate .
+ * @note Setting this value to @c nil enables an experimental new profiling mode, called continuous
+ * profiling. This allows you to start and stop a profiler any time with @c SentrySDK.startProfiler
+ * and @c SentrySDK.stopProfiler, which can run with no time limit, periodically uploading profiling
+ * data. You can also set @c SentryOptions.enableAppLaunchProfiling to have the profiler start on
+ * app launch; there is no automatic stop, you must stop it manually at some later time if you
+ * choose to do so. Sampling rates do not apply to continuous profiles, including those
+ * automatically started for app launches. If you wish to sample them, you must do so at the
+ * callsites where you use the API or configure launch profiling. Continuous profiling is not
+ * automatically started for performance transactions as was the previous version of profiling.
+ * @warning The new continuous profiling mode is experimental and may still contain bugs.
  */
 @property (nullable, nonatomic, strong) NSNumber *profilesSampleRate;
 
@@ -474,8 +484,8 @@ NS_SWIFT_NAME(Options)
 /**
  * If profiling should be enabled or not.
  * @note Profiling is not supported on watchOS or tvOS.
- * @returns @c YES if either a profilesSampleRate > @c 0 and \<= @c 1 or a profilesSampler is set,
- * otherwise @c NO.
+ * @returns @c YES if either @c profilesSampleRate > @c 0 and \<= @c 1 , or @c profilesSampler is
+ * set, otherwise @c NO.
  */
 @property (nonatomic, assign, readonly) BOOL isProfilingEnabled;
 
