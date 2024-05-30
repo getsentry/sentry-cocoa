@@ -91,20 +91,20 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
 
     NSDictionary *uiKitInitSpan = @{
         @"description" : @"UIKit init",
-        @"startTimestampMs" : moduleInitializationTimestampMs,
-        @"endTimestampMs" : sdkStartTimestampMs,
+        @"start_timestamp_ms" : moduleInitializationTimestampMs,
+        @"end_timestamp_ms" : sdkStartTimestampMs,
     };
 
     NSArray *spans = measurement.isPreWarmed ? @[
         @{
             @"description": @"Pre Runtime Init",
-            @"startTimestampMs": appStartTimestampMs,
-            @"endTimestampMs": runtimeInitTimestampMs,
+            @"start_timestamp_ms": appStartTimestampMs,
+            @"end_timestamp_ms": runtimeInitTimestampMs,
         },
         @{
             @"description": @"Runtime init to Pre Main initializers",
-            @"startTimestampMs": runtimeInitTimestampMs,
-            @"endTimestampMs": moduleInitializationTimestampMs,
+            @"start_timestamp_ms": runtimeInitTimestampMs,
+            @"end_timestamp_ms": moduleInitializationTimestampMs,
         },
         uiKitInitSpan,
     ] : @[

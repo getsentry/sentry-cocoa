@@ -105,8 +105,8 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
         XCTAssertEqual(actualAppStartMeasurement!["is_pre_warmed"] as! Int, 0)
         XCTAssertEqual((actualAppStartMeasurement!["spans"] as! NSArray).count, 1)
         XCTAssertEqual(((actualAppStartMeasurement!["spans"] as! NSArray)[0] as! NSDictionary)["description"] as! String, "UIKit init")
-        XCTAssert(((actualAppStartMeasurement!["spans"] as! NSArray)[0] as! NSDictionary)["startTimestampMs"] is NSNumber)
-        XCTAssert(((actualAppStartMeasurement!["spans"] as! NSArray)[0] as! NSDictionary)["endTimestampMs"] is NSNumber)
+        XCTAssert(((actualAppStartMeasurement!["spans"] as! NSArray)[0] as! NSDictionary)["start_timestamp_ms"] is NSNumber)
+        XCTAssert(((actualAppStartMeasurement!["spans"] as! NSArray)[0] as! NSDictionary)["end_timestamp_ms"] is NSNumber)
     }
 
     func testGetAppStartMeasurementWithSpansPreWarmed() {
@@ -124,14 +124,14 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
         XCTAssertEqual(actualAppStartMeasurement!["is_pre_warmed"] as! Int, 1)
         XCTAssertEqual((actualAppStartMeasurement!["spans"] as! NSArray).count, 3)
         XCTAssertEqual(((actualAppStartMeasurement!["spans"] as! NSArray)[0] as! NSDictionary)["description"] as! String, "Pre Runtime Init")
-        XCTAssert(((actualAppStartMeasurement!["spans"] as! NSArray)[0] as! NSDictionary)["startTimestampMs"] is NSNumber)
-        XCTAssert(((actualAppStartMeasurement!["spans"] as! NSArray)[0] as! NSDictionary)["endTimestampMs"] is NSNumber)
+        XCTAssert(((actualAppStartMeasurement!["spans"] as! NSArray)[0] as! NSDictionary)["start_timestamp_ms"] is NSNumber)
+        XCTAssert(((actualAppStartMeasurement!["spans"] as! NSArray)[0] as! NSDictionary)["end_timestamp_ms"] is NSNumber)
         XCTAssertEqual(((actualAppStartMeasurement!["spans"] as! NSArray)[1] as! NSDictionary)["description"] as! String, "Runtime init to Pre Main initializers")
-        XCTAssert(((actualAppStartMeasurement!["spans"] as! NSArray)[1] as! NSDictionary)["startTimestampMs"] is NSNumber)
-        XCTAssert(((actualAppStartMeasurement!["spans"] as! NSArray)[1] as! NSDictionary)["endTimestampMs"] is NSNumber)
+        XCTAssert(((actualAppStartMeasurement!["spans"] as! NSArray)[1] as! NSDictionary)["start_timestamp_ms"] is NSNumber)
+        XCTAssert(((actualAppStartMeasurement!["spans"] as! NSArray)[1] as! NSDictionary)["end_timestamp_ms"] is NSNumber)
         XCTAssertEqual(((actualAppStartMeasurement!["spans"] as! NSArray)[2] as! NSDictionary)["description"] as! String, "UIKit init")
-        XCTAssert(((actualAppStartMeasurement!["spans"] as! NSArray)[2] as! NSDictionary)["startTimestampMs"] is NSNumber)
-        XCTAssert(((actualAppStartMeasurement!["spans"] as! NSArray)[2] as! NSDictionary)["endTimestampMs"] is NSNumber)
+        XCTAssert(((actualAppStartMeasurement!["spans"] as! NSArray)[2] as! NSDictionary)["start_timestamp_ms"] is NSNumber)
+        XCTAssert(((actualAppStartMeasurement!["spans"] as! NSArray)[2] as! NSDictionary)["end_timestamp_ms"] is NSNumber)
     }
 
     func testGetAppStartMeasurementWithSpansReturnsTimestampsInMs() {
