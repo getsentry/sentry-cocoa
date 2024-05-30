@@ -54,6 +54,7 @@ final class SentryAppLaunchProfilingSwiftTests: XCTestCase {
         _sentry_nondeduplicated_startLaunchProfile()
         XCTAssert(try XCTUnwrap(SentryTraceProfiler.getCurrentProfiler()).isRunning())
 
+        SentrySDK.setStart(fixture.options)
         let ttd = SentryTimeToDisplayTracker(for: UIViewController(nibName: nil, bundle: nil), waitForFullDisplay: true, dispatchQueueWrapper: fixture.dispatchQueueWrapper)
         ttd.start(for: try XCTUnwrap(sentry_launchTracer))
         ttd.reportInitialDisplay()
@@ -92,6 +93,7 @@ final class SentryAppLaunchProfilingSwiftTests: XCTestCase {
         _sentry_nondeduplicated_startLaunchProfile()
         XCTAssert(try XCTUnwrap(SentryTraceProfiler.getCurrentProfiler()).isRunning())
 
+        SentrySDK.setStart(fixture.options)
         let ttd = SentryTimeToDisplayTracker(for: UIViewController(nibName: nil, bundle: nil), waitForFullDisplay: false, dispatchQueueWrapper: fixture.dispatchQueueWrapper)
         ttd.start(for: try XCTUnwrap(sentry_launchTracer))
         ttd.reportInitialDisplay()
@@ -157,8 +159,7 @@ final class SentryAppLaunchProfilingSwiftTests: XCTestCase {
         options.enableAppLaunchProfiling = true
         options.profilesSampleRate = nil
         
-        // sample rates are not considered for continuous profiling
-        options.profilesSampleRate = 0
+        // sample rates are not considered for continuous profiling (can't test this with a profilesSampleRate of 0 though, because it must be nil to enable continuous profiling)
         options.tracesSampleRate = 0
         
         XCTAssertFalse(appLaunchProfileConfigFileExists())
@@ -171,7 +172,7 @@ final class SentryAppLaunchProfilingSwiftTests: XCTestCase {
         XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
     }
     
-    func testTraceProfilerStartsWhenBothSampleRatesAreSet() {
+    func testTraceProfilerStartsWhenBothSampleRatesAreSetAboveZero() {
         let options = Options()
         options.enableAppLaunchProfiling = true
         options.profilesSampleRate = 0.567

@@ -179,9 +179,9 @@ sentry_configureLaunchProfiling(SentryOptions *options)
         } else {
             configDict[kSentryLaunchProfileConfigKeyTracesSampleRate]
                 = config.tracesDecision.sampleRate;
+            configDict[kSentryLaunchProfileConfigKeyProfilesSampleRate]
+                = config.profilesDecision.sampleRate;
         }
-        configDict[kSentryLaunchProfileConfigKeyProfilesSampleRate]
-            = config.profilesDecision.sampleRate;
         writeAppLaunchProfilingConfigFile(configDict);
     }];
 }

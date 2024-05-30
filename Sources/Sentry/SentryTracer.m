@@ -179,9 +179,11 @@ static BOOL appStartMeasurementRead;
 #endif // SENTRY_HAS_UIKIT
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
-    if (hub.client.options.profilesSampleRate != nil
-        && (_configuration.profilesSamplerDecision.decision == kSentrySampleDecisionYes
-            || sentry_isTracingAppLaunch)) {
+    BOOL profileShouldBeSampled
+        = _configuration.profilesSamplerDecision.decision == kSentrySampleDecisionYes;
+    BOOL isContinuousProfiling = hub.client.options.profilesSampleRate == nil;
+    BOOL shouldStartNormalTraceProfile = !isContinuousProfiling && profileShouldBeSampled;
+    if (sentry_isTracingAppLaunch || shouldStartNormalTraceProfile) {
         _internalID = [[SentryId alloc] init];
         if ((_isProfiling = [SentryTraceProfiler startWithTracer:_internalID])) {
             SENTRY_LOG_DEBUG(@"Started profiler for trace %@ with internal id %@",
