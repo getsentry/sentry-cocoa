@@ -19,7 +19,7 @@
 #import <SentrySysctl.h>
 
 #if !TARGET_OS_WATCH
-#    import "SentryCrashMonitor_Signal.h"
+#    include "SentryCrashMonitor_Signal.h"
 #endif // !TARGET_OS_WATCH
 
 #if SENTRY_HAS_UIKIT
