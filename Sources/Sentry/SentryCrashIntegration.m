@@ -93,7 +93,10 @@ SentryCrashIntegration ()
         [[SentryCrashScopeObserver alloc] initWithMaxBreadcrumbs:options.maxBreadcrumbs];
 
     [self startCrashHandler:options.cacheDirectoryPath
-        enableSigtermReporting:options.enableSigtermReporting];
+#if !TARGET_OS_WATCH
+        enableSigtermReporting:options.enableSigtermReporting
+#endif // !TARGET_OS_WATCH
+    ];
 
     [self configureScope];
 
@@ -106,7 +109,9 @@ SentryCrashIntegration ()
 }
 
 - (void)startCrashHandler:(NSString *)cacheDirectory
+#if !TARGET_OS_WATCH
     enableSigtermReporting:(BOOL)enableSigtermReporting
+#endif // !TARGET_OS_WATCH
 {
     void (^block)(void) = ^{
         BOOL canSendReports = NO;

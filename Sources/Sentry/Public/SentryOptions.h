@@ -74,6 +74,8 @@ NS_SWIFT_NAME(Options)
  */
 @property (nonatomic, assign) BOOL enableCrashHandler;
 
+#if !TARGET_OS_WATCH
+
 /**
  * When enabled, the SDK reports SIGTERM signals to Sentry.
  *
@@ -85,7 +87,9 @@ NS_SWIFT_NAME(Options)
  *
  * @note The default value is @c NO.
  */
-@property (nonatomic, assign) BOOL enableSigtermReporting API_UNAVAILABLE(watchos);
+@property (nonatomic, assign) BOOL enableSigtermReporting;
+
+#endif // !TARGET_OS_WATCH
 
 /**
  * How many breadcrumbs do you want to keep in memory?
