@@ -158,12 +158,14 @@ typedef void (^SentryOnAppStartMeasurementAvailable)(
  */
 + (NSData *)captureViewHierarchy;
 
+#endif // SENTRY_UIKIT_AVAILABLE
+
+#if SENTRY_HAS_UIKIT && !TARGET_OS_VISION
 /**
  * This is how hybrid SDKs can control session replay.
  */
 + (nullable SentrySessionReplayIntegration *)createReplayIntegration;
-
-#endif // SENTRY_UIKIT_AVAILABLE
+#endif
 
 + (SentryUser *)userWithDictionary:(NSDictionary *)dictionary;
 

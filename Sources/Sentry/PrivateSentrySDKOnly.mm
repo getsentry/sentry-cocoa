@@ -309,7 +309,7 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
 
 + (SentrySessionReplayIntegration *)createReplayIntegration
 {
-#if SENTRY_HAS_UIKIT
+#if SENTRY_HAS_UIKIT && !TARGET_OS_VISION
     return [[SentrySessionReplayIntegration alloc] init];
 #else
     SENTRY_LOG_DEBUG(
