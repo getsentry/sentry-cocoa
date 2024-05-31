@@ -170,10 +170,10 @@ installSignalHandler(void)
     action.sa_sigaction = &handleSignal;
 
     for (int i = 0; i < fatalSignalsCount; i++) {
-        //        if (fatalSignals[i] == SIGTERM && !g_isSigtermReportingEnabled) {
-        //            SentryCrashLOG_DEBUG("SIGTERM handling disabled. Skipping assigning
-        //            handler."); continue;
-        //        }
+        if (fatalSignals[i] == SIGTERM && !g_isSigtermReportingEnabled) {
+            SentryCrashLOG_DEBUG("SIGTERM handling disabled. Skipping assigning handler.");
+            continue;
+        }
 
         SentryCrashLOG_DEBUG("Assigning handler for signal %d", fatalSignals[i]);
         if (sigaction(fatalSignals[i], &action, &g_previousSignalHandlers[i]) != 0) {
@@ -215,10 +215,10 @@ uninstallSignalHandler(void)
     int fatalSignalsCount = sentrycrashsignal_numFatalSignals();
 
     for (int i = 0; i < fatalSignalsCount; i++) {
-        //        if (fatalSignals[i] == SIGTERM && !g_isSigtermReportingEnabled) {
-        //            SentryCrashLOG_DEBUG("SIGTERM handling disabled. Skipping restoring
-        //            handler."); continue;
-        //        }
+        if (fatalSignals[i] == SIGTERM && !g_isSigtermReportingEnabled) {
+            SentryCrashLOG_DEBUG("SIGTERM handling disabled. Skipping restoring handler.");
+            continue;
+        }
 
         SentryCrashLOG_DEBUG("Restoring original handler for signal %d", fatalSignals[i]);
         sigaction(fatalSignals[i], &g_previousSignalHandlers[i], NULL);
