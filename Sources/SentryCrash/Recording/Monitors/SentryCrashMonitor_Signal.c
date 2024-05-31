@@ -49,7 +49,7 @@
 // ============================================================================
 
 static volatile bool g_isEnabled = false;
-static volatile bool g_isSigtermReportingEnabled = false;
+static bool g_isSigtermReportingEnabled = false;
 
 void
 setEnableSigtermReporting(bool enabled)
