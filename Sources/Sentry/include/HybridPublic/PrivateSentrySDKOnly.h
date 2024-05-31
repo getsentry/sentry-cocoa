@@ -9,6 +9,7 @@
 @class SentryUser;
 @class SentryEnvelope;
 @class SentryId;
+@class SentrySessionReplayIntegration;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -156,6 +157,12 @@ typedef void (^SentryOnAppStartMeasurementAvailable)(
  * configurations even when targeting iOS or tvOS platforms.
  */
 + (NSData *)captureViewHierarchy;
+
+/**
+ * This is how hybrid SDKs can control session replay.
+ */
++ (nullable SentrySessionReplayIntegration *)createReplayIntegration;
+
 #endif // SENTRY_UIKIT_AVAILABLE
 
 + (SentryUser *)userWithDictionary:(NSDictionary *)dictionary;

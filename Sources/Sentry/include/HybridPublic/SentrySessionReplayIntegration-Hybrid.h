@@ -1,8 +1,13 @@
-@class SentrySessionReplayIntegration;
+#import <Foundation/Foundation.h>
+#import <Sentry/SentryDefines.h>
+
+#if SENTRY_UIKIT_AVAILABLE
 @class SentryReplayOptions;
 
-@interface
-SentrySessionReplayIntegration ()
+@protocol SentryViewScreenshotProvider;
+@protocol SentryReplayBreadcrumbConverter;
+
+@interface SentrySessionReplayIntegration : NSObject
 
 - (void)startWithOptions:(SentryReplayOptions *)replayOptions
       screenshotProvider:(id<SentryViewScreenshotProvider>)screenshotProvider
@@ -10,3 +15,4 @@ SentrySessionReplayIntegration ()
              fullSession:(BOOL)shouldReplayFullSession;
 
 @end
+#endif

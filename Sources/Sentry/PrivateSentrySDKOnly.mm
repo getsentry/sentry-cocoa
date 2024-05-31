@@ -11,6 +11,7 @@
 #import "SentryOptions.h"
 #import "SentrySDK+Private.h"
 #import "SentrySerialization.h"
+#import "SentrySessionReplayIntegration.h"
 #import "SentrySwift.h"
 #import "SentryThreadHandle.hpp"
 #import "SentryUser+Private.h"
@@ -304,6 +305,18 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
         @"PrivateSentrySDKOnly.addReplayRedactClasses only works with UIKit enabled and target is "
         @"not visionOS. Ensure you're using the right configuration of Sentry that links UIKit.");
 #endif
+}
+
++ (SentrySessionReplayIntegration *)createReplayIntegration
+{
+#if SENTRY_HAS_UIKIT
+    return [[SentrySessionReplayIntegration alloc] init];
+#else
+    SENTRY_LOG_DEBUG(
+        @"PrivateSentrySDKOnly.captureViewHierarchy only works with UIKit enabled. Ensure you're "
+        @"using the right configuration of Sentry that links UIKit.");
+    return nil;
+#endif // SENTRY_HAS_UIKIT
 }
 
 @end
