@@ -39,7 +39,7 @@ extern "C" {
 
 /** Wether to assign the signal handler for SIGTERM or not.
  */
-void setEnableSigtermReporting(bool enabled);
+void sentrycrashcm_setEnableSigtermReporting(bool enabled);
 
 /** Access the Monitor API.
  */

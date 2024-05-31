@@ -129,11 +129,7 @@ SentryCrashIntegration ()
         }
 
 #if !TARGET_OS_WATCH
-        if (enableSigtermReporting) {
-            setEnableSigtermReporting(true);
-        } else {
-            setEnableSigtermReporting(false);
-        }
+        sentrycrashcm_setEnableSigtermReporting(enableSigtermReporting);
 #endif // !TARGET_OS_WATCH
 
         [installation install:cacheDirectory];

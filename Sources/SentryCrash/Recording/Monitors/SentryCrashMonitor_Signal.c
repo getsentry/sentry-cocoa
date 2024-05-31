@@ -52,7 +52,7 @@ static volatile bool g_isEnabled = false;
 static bool g_isSigtermReportingEnabled = false;
 
 void
-setEnableSigtermReporting(bool enabled)
+sentrycrashcm_setEnableSigtermReporting(bool enabled)
 {
     g_isSigtermReportingEnabled = enabled;
 }
