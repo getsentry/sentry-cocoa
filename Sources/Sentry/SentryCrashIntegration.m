@@ -1,6 +1,6 @@
 #import "SentryCrashIntegration.h"
 #import "SentryCrashInstallationReporter.h"
-#import "SentryCrashMonitor_Signal.h"
+
 #import "SentryCrashWrapper.h"
 #import "SentryDispatchQueueWrapper.h"
 #import "SentryEvent.h"
@@ -17,6 +17,10 @@
 #import <SentryDependencyContainer.h>
 #import <SentrySDK+Private.h>
 #import <SentrySysctl.h>
+
+#if !TARGET_OS_WATCH
+#    import "SentryCrashMonitor_Signal.h"
+#endif // !TARGET_OS_WATCH
 
 #if SENTRY_HAS_UIKIT
 #    import "SentryUIApplication.h"
@@ -119,7 +123,10 @@ SentryCrashIntegration ()
             canSendReports = YES;
         }
 
+#if !TARGET_OS_WATCH
         setEnableSigtermReporting(enableSigtermReporting);
+#endif // !TARGET_OS_WATCH
+
         [installation install:cacheDirectory];
 
         // We need to send the crashed event together with the crashed session in the same envelope

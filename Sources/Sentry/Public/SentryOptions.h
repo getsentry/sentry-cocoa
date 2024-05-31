@@ -85,7 +85,7 @@ NS_SWIFT_NAME(Options)
  *
  * @note The default value is @c NO.
  */
-@property (nonatomic, assign) BOOL enableSigtermReporting;
+@property (nonatomic, assign) BOOL enableSigtermReporting API_UNAVAILABLE(watchos);
 
 /**
  * How many breadcrumbs do you want to keep in memory?
