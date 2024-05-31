@@ -6,7 +6,7 @@ import XCTest
 class SentryReplayRecordingTests: XCTestCase {
     
     func test_serialize() {
-        let sut = SentryReplayRecording(segmentId: 3, size: 200, start: Date(timeIntervalSince1970: 2), duration: 5_000, frameCount: 5, frameRate: 1, height: 930, width: 390)
+        let sut = SentryReplayRecording(segmentId: 3, size: 200, start: Date(timeIntervalSince1970: 2), duration: 5_000, frameCount: 5, frameRate: 1, height: 930, width: 390, extraEvents: nil)
       
         let data = sut.serialize()
         
@@ -22,7 +22,6 @@ class SentryReplayRecordingTests: XCTestCase {
         expect(metaInfoData?["href"] as? String) == ""
         expect(metaInfoData?["height"] as? Int) == 930
         expect(metaInfoData?["width"] as? Int) == 390
-        
         expect(recordingInfo["type"] as? Int) == 5
         expect(recordingInfo["timestamp"] as? Int) == 2_000
         expect(recordingData?["tag"] as? String) == "video"
@@ -38,5 +37,18 @@ class SentryReplayRecordingTests: XCTestCase {
         expect(recordingPayload?["frameRate"] as? Int) == 1
         expect(recordingPayload?["left"] as? Int) == 0
         expect(recordingPayload?["top"] as? Int) == 0
+    }
+    
+    func test_serializeWithExtra() {
+        let date = Date(timeIntervalSince1970: 5)
+        let sut = SentryReplayRecording(segmentId: 3, size: 200, start: Date(timeIntervalSince1970: 2), duration: 5_000, frameCount: 5, frameRate: 1, height: 930, width: 390, extraEvents: [
+            SentryRRWebEvent(type: .custom, timestamp: date, data: nil)
+        ])
+      
+        let data = sut.serialize()
+        
+        let extraInfo = data[2]
+        expect(extraInfo["type"] as? Int) == 5
+        expect(extraInfo["timestamp"] as? Int) == 5_000
     }
 }

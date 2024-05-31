@@ -4,6 +4,7 @@
 
 ### Features
 
+- Add breadcrumbs to session replay (#4002)
 - Add start time to network request breadcrumbs (#4008)
 - Add C++ exception support for `__cxa_rethrow` (#3996)
 - Add beforeCaptureScreenshot callback (#4016)

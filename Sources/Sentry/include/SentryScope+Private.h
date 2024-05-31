@@ -24,6 +24,11 @@ SentryScope ()
 @property (atomic, strong) SentryPropagationContext *propagationContext;
 
 /**
+ * Contains the breadcrumbs which will be sent with the event
+ */
+@property (atomic, strong) NSMutableArray<SentryBreadcrumb *> *breadcrumbArray;
+
+/**
  * used to add values in event context.
  */
 @property (atomic, strong)
