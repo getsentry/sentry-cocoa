@@ -1,7 +1,8 @@
 @_implementationOnly import _SentryPrivate
 
-@objcMembers class SentryCurrentDateProvider: NSObject {
-
+@objcMembers 
+class SentryCurrentDateProvider: NSObject {
+    
     func date() -> Date {
         return Date()
     }

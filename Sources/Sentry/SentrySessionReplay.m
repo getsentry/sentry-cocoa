@@ -43,13 +43,14 @@ SentrySessionReplay ()
     int _currentSegmentId;
     BOOL _processingScreenshot;
     BOOL _reachedMaximumDuration;
-    SentryReplayBreadcrumbConverter *_breadcrumbConverter;
+    id<SentryReplayBreadcrumbConverter> _breadcrumbConverter;
 }
 
 - (instancetype)initWithSettings:(SentryReplayOptions *)replayOptions
                 replayFolderPath:(NSURL *)folderPath
               screenshotProvider:(id<SentryViewScreenshotProvider>)screenshotProvider
                      replayMaker:(id<SentryReplayVideoMaker>)replayMaker
+             breadcrumbConverter:(id<SentryReplayBreadcrumbConverter>)breadcrumbConverter
                     dateProvider:(SentryCurrentDateProvider *)dateProvider
                           random:(id<SentryRandom>)random
               displayLinkWrapper:(SentryDisplayLinkWrapper *)displayLinkWrapper;
@@ -64,7 +65,7 @@ SentrySessionReplay ()
         _urlToCache = folderPath;
         _replayMaker = replayMaker;
         _reachedMaximumDuration = NO;
-        _breadcrumbConverter = [[SentryReplayBreadcrumbConverter alloc] init];
+        _breadcrumbConverter = breadcrumbConverter;
     }
     return self;
 }

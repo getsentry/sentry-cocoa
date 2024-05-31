@@ -1,8 +1,13 @@
 @_implementationOnly import _SentryPrivate
 import Foundation
 
+@objc(SentryReplayBreadcrumbConverter)
+protocol SentryReplayBreadcrumbConverterProtocol: NSObjectProtocol {
+    func convert(breadcrumbs: [Breadcrumb], from: Date, until: Date) -> [SentryRRWebEvent]
+}
+
 @objcMembers
-class SentryReplayBreadcrumbConverter: NSObject {
+class SentryReplayBreadcrumbConverter: NSObject, SentryReplayBreadcrumbConverterProtocol {
     
     private let supportedNetworkData = Set<String>([
         "status_code",

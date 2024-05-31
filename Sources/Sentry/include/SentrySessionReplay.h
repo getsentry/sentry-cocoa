@@ -15,6 +15,7 @@
 @protocol SentryRedactOptions;
 @protocol SentryViewScreenshotProvider;
 @protocol SentryReplayVideoMaker;
+@protocol SentryReplayBreadcrumbConverter;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -26,6 +27,7 @@ NS_ASSUME_NONNULL_BEGIN
                 replayFolderPath:(NSURL *)folderPath
               screenshotProvider:(id<SentryViewScreenshotProvider>)photographer
                      replayMaker:(id<SentryReplayVideoMaker>)replayMaker
+             breadcrumbConverter:(id<SentryReplayBreadcrumbConverter>)breadcrumbConverter
                     dateProvider:(SentryCurrentDateProvider *)dateProvider
                           random:(id<SentryRandom>)random
               displayLinkWrapper:(SentryDisplayLinkWrapper *)displayLinkWrapper;
