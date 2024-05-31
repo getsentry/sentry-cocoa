@@ -1,6 +1,7 @@
 #import "SentryCrashIntegration.h"
 #import "SentryCrashInstallationReporter.h"
 
+#include "SentryCrashMonitor_Signal.h"
 #import "SentryCrashWrapper.h"
 #import "SentryDispatchQueueWrapper.h"
 #import "SentryEvent.h"
@@ -17,10 +18,6 @@
 #import <SentryDependencyContainer.h>
 #import <SentrySDK+Private.h>
 #import <SentrySysctl.h>
-
-#if !TARGET_OS_WATCH
-#    include "SentryCrashMonitor_Signal.h"
-#endif // !TARGET_OS_WATCH
 
 #if SENTRY_HAS_UIKIT
 #    import "SentryUIApplication.h"
