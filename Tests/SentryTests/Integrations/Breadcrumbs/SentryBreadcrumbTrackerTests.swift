@@ -174,7 +174,7 @@ class SentryBreadcrumbTrackerTests: XCTestCase {
         NotificationCenter.default.post(name: UIApplication.didEnterBackgroundNotification, object: nil)
         
         let sut = SentryReplayBreadcrumbConverter()
-        guard let crumb = delegate.addCrumbInvocations.invocations.dropFirst().first else {
+        guard let crumb = delegate.addCrumbInvocations.invocations.first(where: { $0.category == "app.lifecycle" }) else {
             XCTFail("No life cycle breadcrumb")
             return
         }
@@ -208,7 +208,7 @@ class SentryBreadcrumbTrackerTests: XCTestCase {
         swizzlingWrapper.execute(action: "methodPressed:", target: self, sender: self, event: nil)
         
         let sut = SentryReplayBreadcrumbConverter()
-        guard let crumb = delegate.addCrumbInvocations.invocations.dropFirst().first else {
+        guard let crumb = delegate.addCrumbInvocations.invocations.first(where: { $0.category == "touch" }) else {
             XCTFail("No touch breadcrumb")
             return
         }
