@@ -1,5 +1,6 @@
 #import "SentryCrashIntegration.h"
 #import "SentryCrashInstallationReporter.h"
+#import "SentryCrashMonitor_Signal.h"
 #import "SentryCrashWrapper.h"
 #import "SentryDispatchQueueWrapper.h"
 #import "SentryEvent.h"
@@ -87,7 +88,8 @@ SentryCrashIntegration ()
     self.scopeObserver =
         [[SentryCrashScopeObserver alloc] initWithMaxBreadcrumbs:options.maxBreadcrumbs];
 
-    [self startCrashHandler:options.cacheDirectoryPath];
+    [self startCrashHandler:options.cacheDirectoryPath
+        enableSigtermReporting:options.enableSigtermReporting];
 
     [self configureScope];
 
@@ -100,6 +102,7 @@ SentryCrashIntegration ()
 }
 
 - (void)startCrashHandler:(NSString *)cacheDirectory
+    enableSigtermReporting:(BOOL)enableSigtermReporting
 {
     void (^block)(void) = ^{
         BOOL canSendReports = NO;
@@ -116,6 +119,7 @@ SentryCrashIntegration ()
             canSendReports = YES;
         }
 
+        setEnableSigtermReporting(enableSigtermReporting);
         [installation install:cacheDirectory];
 
         // We need to send the crashed event together with the crashed session in the same envelope

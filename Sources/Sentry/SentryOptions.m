@@ -87,6 +87,7 @@ NSString *const kSentryDefaultEnvironment = @"production";
         self.enabled = YES;
         self.shutdownTimeInterval = 2.0;
         self.enableCrashHandler = YES;
+        self.enableSigtermReporting = NO;
         self.diagnosticLevel = kSentryLevelDebug;
         self.debug = NO;
         self.maxBreadcrumbs = defaultMaxBreadcrumbs;
@@ -315,6 +316,9 @@ NSString *const kSentryDefaultEnvironment = @"production";
 
     [self setBool:options[@"enableCrashHandler"]
             block:^(BOOL value) { self->_enableCrashHandler = value; }];
+
+    [self setBool:options[@"enableSigtermReporting"]
+            block:^(BOOL value) { self->_enableSigtermReporting = value; }];
 
     if ([options[@"maxBreadcrumbs"] isKindOfClass:[NSNumber class]]) {
         self.maxBreadcrumbs = [options[@"maxBreadcrumbs"] unsignedIntValue];

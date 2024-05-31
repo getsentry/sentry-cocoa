@@ -37,6 +37,10 @@ extern "C" {
 
 #include "SentryCrashMonitor.h"
 
+/** Wether to assign the signal handler for SIGTERM or not.
+ */
+void setEnableSigtermReporting(bool enabled);
+
 /** Access the Monitor API.
  */
 SentryCrashMonitorAPI *sentrycrashcm_signal_getAPI(void);

@@ -75,6 +75,19 @@ NS_SWIFT_NAME(Options)
 @property (nonatomic, assign) BOOL enableCrashHandler;
 
 /**
+ * When enabled, the SDK reports SIGTERM signals to Sentry.
+ *
+ * It's crucial for developers to understand that the OS sends a SIGTERM to their app as a prelude
+ * to a graceful shutdown, before resorting to a SIGKILL. This SIGKILL, which your app can't catch
+ * or ignore, is a direct order to terminate your app's process immediately. Developers should be
+ * aware that their app can receive a SIGTERM in various scenarios, such as  CPU or disk overuse,
+ * watchdog terminations, or when the OS updates your app.
+ *
+ * @note The default value is @c NO.
+ */
+@property (nonatomic, assign) BOOL enableSigtermReporting;
+
+/**
  * How many breadcrumbs do you want to keep in memory?
  * @note Default is @c 100 .
  */

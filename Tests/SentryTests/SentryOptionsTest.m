@@ -155,6 +155,11 @@
     XCTAssertEqual(expected, options.diagnosticLevel);
 }
 
+- (void)testEnableSigtermReporting
+{
+    [self testBooleanField:@"enableSigtermReporting" defaultValue:NO];
+}
+
 - (void)testValidEnabled
 {
     [self testEnabledWith:@YES expected:YES];
