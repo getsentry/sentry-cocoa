@@ -69,4 +69,24 @@ class SentryLogTests: XCTestCase {
                         "[Sentry] [info] 3",
                         "[Sentry] [debug] 4"], logOutput.loggedMessages)
     }
+    
+    func testMacroLogsErrorMessage() {
+        let logOutput = TestLogOutput()
+        SentryLog.setLogOutput(logOutput)
+        SentryLog.configure(true, diagnosticLevel: SentryLevel.error)
+        
+        sentryLogErrorWithMacro("error")
+        
+        XCTAssertEqual(["[Sentry] [error] [SentryLogTestHelper:16] error"], logOutput.loggedMessages)
+    }
+    
+    func testMacroDoesNotEvaluateArgs_WhenNotMessageNotLogged() {
+        let logOutput = TestLogOutput()
+        SentryLog.setLogOutput(logOutput)
+        SentryLog.configure(true, diagnosticLevel: SentryLevel.info)
+        
+        sentryLogDebugWithMacroArgsNotEvaluated()
+        
+        XCTAssertTrue(logOutput.loggedMessages.isEmpty)
+    }
 }
