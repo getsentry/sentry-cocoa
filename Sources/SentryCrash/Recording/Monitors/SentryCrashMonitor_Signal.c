@@ -49,6 +49,7 @@
 // ============================================================================
 
 static volatile bool g_isEnabled = false;
+static bool g_isSigtermReportingEnabled = false;
 
 static SentryCrash_MonitorContext g_monitorContext;
 static SentryCrashStackCursor g_stackCursor;
@@ -163,6 +164,11 @@ installSignalHandler(void)
     action.sa_sigaction = &handleSignal;
 
     for (int i = 0; i < fatalSignalsCount; i++) {
+        if (fatalSignals[i] == SIGTERM && !g_isSigtermReportingEnabled) {
+            SentryCrashLOG_DEBUG("SIGTERM handling disabled. Skipping assigning handler.");
+            continue;
+        }
+
         SentryCrashLOG_DEBUG("Assigning handler for signal %d", fatalSignals[i]);
         if (sigaction(fatalSignals[i], &action, &g_previousSignalHandlers[i]) != 0) {
             char sigNameBuff[30];
@@ -203,6 +209,11 @@ uninstallSignalHandler(void)
     int fatalSignalsCount = sentrycrashsignal_numFatalSignals();
 
     for (int i = 0; i < fatalSignalsCount; i++) {
+        if (fatalSignals[i] == SIGTERM && !g_isSigtermReportingEnabled) {
+            SentryCrashLOG_DEBUG("SIGTERM handling disabled. Skipping restoring handler.");
+            continue;
+        }
+
         SentryCrashLOG_DEBUG("Restoring original handler for signal %d", fatalSignals[i]);
         sigaction(fatalSignals[i], &g_previousSignalHandlers[i], NULL);
     }
@@ -245,6 +256,14 @@ addContextualInfoToEvent(struct SentryCrash_MonitorContext *eventContext)
 }
 
 #endif
+
+void
+sentrycrashcm_setEnableSigtermReporting(bool enabled)
+{
+#if SentryCrashCRASH_HAS_SIGNAL
+    g_isSigtermReportingEnabled = enabled;
+#endif
+}
 
 SentryCrashMonitorAPI *
 sentrycrashcm_signal_getAPI(void)

@@ -126,7 +126,7 @@ static const int g_fatalSignals[] = {
     // SIGTERM can be caught and is usually sent by iOS and variants
     // when Apple wants to try and gracefully shutdown the app
     // before sending a SIGKILL (which can't be caught).
-    // Some areas I've seen this happen are:
+    // Some areas this might happen are:
     // - When the OS updates an app.
     // - In some circumstances for Watchdog Events.
     // - Resource overuse (CPU, Disk, ...).

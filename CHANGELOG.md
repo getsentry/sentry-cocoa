@@ -8,6 +8,11 @@
 - Add start time to network request breadcrumbs (#4008)
 - Add C++ exception support for `__cxa_rethrow` (#3996)
 - Add beforeCaptureScreenshot callback (#4016)
+- Disable SIGTERM reporting by default (#4025). We added support
+for SIGTERM reporting in the last release and enabled it by default.
+For some users, SIGTERM events were verbose and not actionable.
+Therefore, we disable it per default in this release. If you'd like
+to receive SIGTERM events, set the option `enableSigtermReporting = true`.
 
 ### Improvements
 
