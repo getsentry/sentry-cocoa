@@ -181,7 +181,7 @@ static BOOL appStartMeasurementRead;
 #if SENTRY_TARGET_PROFILING_SUPPORTED
     BOOL profileShouldBeSampled
         = _configuration.profilesSamplerDecision.decision == kSentrySampleDecisionYes;
-    BOOL isContinuousProfiling = hub.client.options.profilesSampleRate == nil;
+    BOOL isContinuousProfiling = [hub.client.options isContinuousProfilingEnabled];
     BOOL shouldStartNormalTraceProfile = !isContinuousProfiling && profileShouldBeSampled;
     if (sentry_isTracingAppLaunch || shouldStartNormalTraceProfile) {
         _internalID = [[SentryId alloc] init];

@@ -639,22 +639,33 @@ sentry_isValidSampleRate(NSNumber *sampleRate)
 
 - (BOOL)isProfilingEnabled
 {
-    return (_profilesSampleRate == nil || [_profilesSampleRate doubleValue] > 0)
+    return (_profilesSampleRate != nil && [_profilesSampleRate doubleValue] > 0)
         || _profilesSampler != nil || _enableProfiling;
 }
 
+- (BOOL)isContinuousProfilingEnabled
+{
 #    pragma clang diagnostic push
 #    pragma clang diagnostic ignored "-Wdeprecated-declarations"
+    return _profilesSampleRate.doubleValue == 0 && _profilesSampler == nil && !self.enableProfiling;
+#    pragma clang diagnostic pop
+}
+
 - (void)setEnableProfiling_DEPRECATED_TEST_ONLY:(BOOL)enableProfiling_DEPRECATED_TEST_ONLY
 {
+#    pragma clang diagnostic push
+#    pragma clang diagnostic ignored "-Wdeprecated-declarations"
     self.enableProfiling = enableProfiling_DEPRECATED_TEST_ONLY;
+#    pragma clang diagnostic pop
 }
 
 - (BOOL)enableProfiling_DEPRECATED_TEST_ONLY
 {
+#    pragma clang diagnostic push
+#    pragma clang diagnostic ignored "-Wdeprecated-declarations"
     return self.enableProfiling;
-}
 #    pragma clang diagnostic pop
+}
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
 /**

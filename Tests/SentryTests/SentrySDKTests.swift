@@ -415,6 +415,43 @@ class SentrySDKTests: XCTestCase {
         XCTAssert(transaction === newSpan)
     }
     
+    func testStartingContinuousProfilerWithSampleRateZero() throws {
+        givenSdkWithHub()
+        
+        // 0 this is the default value for profilesSampleRate, so we don't have to explicitly set it on the fixture
+        XCTAssertEqual(try XCTUnwrap(fixture.options.profilesSampleRate).doubleValue, 0)
+        XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
+        SentrySDK.startProfiler()
+        XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
+    }
+
+    func testStartingContinuousProfilerWithSampleRateNil() throws {
+        givenSdkWithHub()
+        
+        fixture.options.profilesSampleRate = nil
+        XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
+        SentrySDK.startProfiler()
+        XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
+    }
+
+    func testNotStartingContinuousProfilerWithSampleRateBlock() throws {
+        givenSdkWithHub()
+        
+        fixture.options.profilesSampler = { _ in 0 }
+        XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
+        SentrySDK.startProfiler()
+        XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
+    }
+    
+    func testNotStartingContinuousProfilerWithSampleRateNonZero() throws {
+        givenSdkWithHub()
+
+        fixture.options.profilesSampleRate = 1
+        XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
+        SentrySDK.startProfiler()
+        XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
+    }
+    
     func testInstallIntegrations() throws {
         let options = Options()
         options.dsn = "mine"

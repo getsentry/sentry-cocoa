@@ -56,7 +56,7 @@ typedef struct {
 SentryLaunchProfileConfig
 sentry_shouldProfileNextLaunch(SentryOptions *options)
 {
-    if (options.enableAppLaunchProfiling && options.profilesSampleRate == nil) {
+    if (options.enableAppLaunchProfiling && [options isContinuousProfilingEnabled]) {
         return (SentryLaunchProfileConfig) { YES, nil, nil };
     }
 
@@ -174,7 +174,7 @@ sentry_configureLaunchProfiling(SentryOptions *options)
 
         NSMutableDictionary<NSString *, NSNumber *> *configDict =
             [NSMutableDictionary<NSString *, NSNumber *> dictionary];
-        if (options.profilesSampleRate == nil) {
+        if ([options isContinuousProfilingEnabled]) {
             configDict[kSentryLaunchProfileConfigKeyContinuousProfiling] = @YES;
         } else {
             configDict[kSentryLaunchProfileConfigKeyTracesSampleRate]

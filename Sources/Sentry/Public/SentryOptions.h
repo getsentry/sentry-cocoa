@@ -484,6 +484,9 @@ NS_SWIFT_NAME(Options)
 /**
  * If profiling should be enabled or not.
  * @note Profiling is not supported on watchOS or tvOS.
+ * @note This only returns whether or not trace-based profiling is enabled. If it is not, then
+ * continuous profiling is effectively enabled, and calling SentrySDK.startProfiler will
+ * successfully start a continuous profile.
  * @returns @c YES if either @c profilesSampleRate > @c 0 and \<= @c 1 , or @c profilesSampler is
  * set, otherwise @c NO.
  */

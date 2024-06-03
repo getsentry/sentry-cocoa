@@ -528,9 +528,10 @@ static NSDate *_Nullable startTimestamp = nil;
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 + (void)startProfiler
 {
-    if (!SENTRY_ASSERT_RETURN(currentHub.client.options.profilesSampleRate == nil,
-            @"You must set Sentryoptions.profilesSampleRate == nil to true before starting a "
-            @"continuous profiler.")) {
+    if (![currentHub.client.options isContinuousProfilingEnabled]) {
+        SENTRY_LOG_WARN(
+            @"You must disable trace profiling by setting SentryOptions.profilesSampleRate to nil "
+            @"or 0 before using continuous profiling features.");
         return;
     }
 
@@ -539,9 +540,10 @@ static NSDate *_Nullable startTimestamp = nil;
 
 + (void)stopProfiler
 {
-    if (!SENTRY_ASSERT_RETURN(currentHub.client.options.profilesSampleRate == nil,
-            @"You must set Sentryoptions.profilesSampleRate == nil to true before using continuous "
-            @"profiling API.")) {
+    if (![currentHub.client.options isContinuousProfilingEnabled]) {
+        SENTRY_LOG_WARN(
+            @"You must disable trace profiling by setting SentryOptions.profilesSampleRate to nil "
+            @"or 0 before using continuous profiling features.");
         return;
     }
 
