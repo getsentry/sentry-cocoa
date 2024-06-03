@@ -51,12 +51,6 @@
 static volatile bool g_isEnabled = false;
 static bool g_isSigtermReportingEnabled = false;
 
-void
-sentrycrashcm_setEnableSigtermReporting(bool enabled)
-{
-    g_isSigtermReportingEnabled = enabled;
-}
-
 static SentryCrash_MonitorContext g_monitorContext;
 static SentryCrashStackCursor g_stackCursor;
 
@@ -262,6 +256,14 @@ addContextualInfoToEvent(struct SentryCrash_MonitorContext *eventContext)
 }
 
 #endif
+
+void
+sentrycrashcm_setEnableSigtermReporting(bool enabled)
+{
+#if SentryCrashCRASH_HAS_SIGNAL
+    g_isSigtermReportingEnabled = enabled;
+#endif
+}
 
 SentryCrashMonitorAPI *
 sentrycrashcm_signal_getAPI(void)

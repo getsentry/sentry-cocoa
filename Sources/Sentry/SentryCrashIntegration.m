@@ -89,11 +89,13 @@ SentryCrashIntegration ()
     self.scopeObserver =
         [[SentryCrashScopeObserver alloc] initWithMaxBreadcrumbs:options.maxBreadcrumbs];
 
-    [self startCrashHandler:options.cacheDirectoryPath
+    BOOL enableSigtermReporting = NO;
 #if !TARGET_OS_WATCH
-        enableSigtermReporting:options.enableSigtermReporting
+    enableSigtermReporting = options.enableSigtermReporting;
 #endif // !TARGET_OS_WATCH
-    ];
+
+    [self startCrashHandler:options.cacheDirectoryPath
+        enableSigtermReporting:enableSigtermReporting];
 
     [self configureScope];
 
@@ -106,9 +108,7 @@ SentryCrashIntegration ()
 }
 
 - (void)startCrashHandler:(NSString *)cacheDirectory
-#if !TARGET_OS_WATCH
     enableSigtermReporting:(BOOL)enableSigtermReporting
-#endif // !TARGET_OS_WATCH
 {
     void (^block)(void) = ^{
         BOOL canSendReports = NO;
@@ -125,9 +125,7 @@ SentryCrashIntegration ()
             canSendReports = YES;
         }
 
-#if !TARGET_OS_WATCH
         sentrycrashcm_setEnableSigtermReporting(enableSigtermReporting);
-#endif // !TARGET_OS_WATCH
 
         [installation install:cacheDirectory];
 
