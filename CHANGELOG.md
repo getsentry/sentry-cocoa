@@ -17,6 +17,7 @@ to receive SIGTERM events, set the option `enableSigtermReporting = true`.
 ### Improvements
 
 - Stop FramesTracker when app is in background (#3979)
+- Skip evaluating log messages when not logged (#4028)
 
 ### Fixes
 
