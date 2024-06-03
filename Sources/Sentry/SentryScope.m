@@ -215,7 +215,7 @@ SentryScope ()
             if (index < _breadcrumbArray.count) {
                 [crumbs addObject:_breadcrumbArray[index]];
             } else {
-            	break;
+                break;
             }
         }
 
