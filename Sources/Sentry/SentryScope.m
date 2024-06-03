@@ -45,8 +45,8 @@ SentryScope ()
  */
 @property (atomic) enum SentryLevel levelEnum;
 
-@property (atomic) NSInteger maxBreadcrumbs;
-@property (atomic) NSInteger currentBreadcrumb;
+@property (atomic) NSUInteger maxBreadcrumbs;
+@property (atomic) NSUInteger currentBreadcrumbIndex;
 @property (atomic, strong) NSMutableArray<SentryBreadcrumb *> *breadcrumbArray;
 
 @property (atomic, strong) NSMutableArray<SentryAttachment *> *attachmentArray;
@@ -64,13 +64,9 @@ SentryScope ()
 - (instancetype)initWithMaxBreadcrumbs:(NSInteger)maxBreadcrumbs
 {
     if (self = [super init]) {
-        self.maxBreadcrumbs = maxBreadcrumbs;
-        self.currentBreadcrumb = 0;
-        if (self.maxBreadcrumbs > 0) {
-            self.breadcrumbArray = [[NSMutableArray alloc] initWithCapacity:maxBreadcrumbs];
-        } else {
-            self.breadcrumbArray = [[NSMutableArray alloc] initWithCapacity:0];
-        }
+        _maxBreadcrumbs = MAX(0, maxBreadcrumbs);
+        _currentBreadcrumbIndex = 0;
+        _breadcrumbArray = [[NSMutableArray alloc] initWithCapacity:_maxBreadcrumbs];
         self.tagDictionary = [NSMutableDictionary new];
         self.extraDictionary = [NSMutableDictionary new];
         self.contextDictionary = [NSMutableDictionary new];
@@ -95,7 +91,7 @@ SentryScope ()
         [_tagDictionary addEntriesFromDictionary:[scope tags]];
         [_contextDictionary addEntriesFromDictionary:[scope context]];
         NSArray<SentryBreadcrumb *> *crumbs = [scope breadcrumbs];
-        _currentBreadcrumb = crumbs.count;
+        _currentBreadcrumbIndex = crumbs.count;
         [_breadcrumbArray addObjectsFromArray:crumbs];
         [_fingerprintArray addObjectsFromArray:[scope fingerprints]];
         [_attachmentArray addObjectsFromArray:[scope attachments]];
@@ -132,8 +128,8 @@ SentryScope ()
         // O(n) because it needs to reshift the whole array. So when the breadcrumbs array was full
         // every add operation was O(n).
 
-        _breadcrumbArray[_currentBreadcrumb] = crumb;
-        _currentBreadcrumb = (_currentBreadcrumb + 1) % _maxBreadcrumbs;
+        _breadcrumbArray[_currentBreadcrumbIndex] = crumb;
+        _currentBreadcrumbIndex = (_currentBreadcrumbIndex + 1) % _maxBreadcrumbs;
 
         for (id<SentryScopeObserver> observer in self.observers) {
             [observer addSerializedBreadcrumb:[crumb serialize]];
@@ -194,7 +190,7 @@ SentryScope ()
 - (void)clearBreadcrumbs
 {
     @synchronized(_breadcrumbArray) {
-        _currentBreadcrumb = 0;
+        _currentBreadcrumbIndex = 0;
         _breadcrumbArray = [[NSMutableArray alloc] initWithCapacity:_maxBreadcrumbs];
 
         for (id<SentryScopeObserver> observer in self.observers) {
@@ -210,7 +206,7 @@ SentryScope ()
         for (int i = 0; i < _maxBreadcrumbs; i++) {
             // Crumbs use a ring buffer. We need to start at the current crumb to get the
             // crumbs in the correct order.
-            NSInteger index = (_currentBreadcrumb + i) % _maxBreadcrumbs;
+            NSInteger index = (_currentBreadcrumbIndex + i) % _maxBreadcrumbs;
 
             if (index < _breadcrumbArray.count) {
                 [crumbs addObject:_breadcrumbArray[index]];
