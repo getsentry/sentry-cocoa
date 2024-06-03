@@ -579,6 +579,41 @@ class SentryScopeSwiftTests: XCTestCase {
         XCTAssertEqual(2, observer.clearInvocations)
     }
     
+    func testDefaultBreadcrumbCapacity() {
+        let scope = Scope()
+        for i in 0..<197 {
+            let crumb = Breadcrumb()
+            crumb.message = "\(i)"
+            scope.addBreadcrumb(crumb)
+        }
+
+        let scopeSerialized = scope.serialize()
+        let scopeCrumbs = scopeSerialized["breadcrumbs"] as? [[String: Any]]
+        XCTAssertEqual(100, scopeCrumbs?.count ?? 0)
+        
+        var j = 0
+        for i in 97..<197 {
+            let actualMessage = scopeCrumbs?[j]["message"] as? String
+            XCTAssertEqual("\(i)", actualMessage)
+            
+            j += 1
+        }
+    }
+    
+    func testClearBreadcrumb() {
+        let scope = Scope()
+        scope.clearBreadcrumbs()
+        for _ in 0..<101 {
+            scope.addBreadcrumb(fixture.breadcrumb)
+        }
+        scope.clearBreadcrumbs()
+        
+        let scopeSerialized = scope.serialize()
+        
+        let scopeCrumbs = scopeSerialized["breadcrumbs"] as? [[String: Any]]
+        XCTAssertEqual(0, scopeCrumbs?.count ?? 0)
+    }
+    
     class TestScopeObserver: NSObject, SentryScopeObserver {
         var tags: [String: String]?
         func setTags(_ tags: [String: String]?) {
