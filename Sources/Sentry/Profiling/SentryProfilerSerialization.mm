@@ -318,12 +318,6 @@ SentryEnvelope *_Nullable sentry_continuousProfileChunkEnvelope(
 #    endif // SENTRY_HAS_UIKIT
         );
 
-#    if defined(TEST) || defined(TESTCI) || defined(DEBUG)
-    if (NSProcessInfo.processInfo.environment[@"io.sentry.ui-test.test-name"] != nil) {
-        sentry_writeProfileFile(payload);
-    }
-#    endif // defined(TEST) || defined(TESTCI) || defined(DEBUG)
-
     if (payload == nil) {
         SENTRY_LOG_DEBUG(@"Payload was empty, will not create a profiling envelope item.");
         return nil;
@@ -334,6 +328,12 @@ SentryEnvelope *_Nullable sentry_continuousProfileChunkEnvelope(
         SENTRY_LOG_DEBUG(@"Failed to encode profile to JSON.");
         return nil;
     }
+
+#    if defined(TEST) || defined(TESTCI) || defined(DEBUG)
+    if (NSProcessInfo.processInfo.environment[@"io.sentry.ui-test.test-name"] != nil) {
+        sentry_writeProfileFile(JSONData);
+    }
+#    endif // defined(TEST) || defined(TESTCI) || defined(DEBUG)
 
     const auto header =
         [[SentryEnvelopeItemHeader alloc] initWithType:SentryEnvelopeItemTypeProfileChunk
@@ -365,10 +365,6 @@ SentryEnvelopeItem *_Nullable sentry_traceProfileEnvelopeItem(
 #    endif // SENTRY_HAS_UIKIT
     );
 
-#    if defined(TEST) || defined(TESTCI) || defined(DEBUG)
-    sentry_writeProfileFile(payload);
-#    endif // defined(TEST) || defined(TESTCI) || defined(DEBUG)
-
     if (payload == nil) {
         SENTRY_LOG_DEBUG(@"Payload was empty, will not create a profiling envelope item.");
         return nil;
@@ -388,6 +384,10 @@ SentryEnvelopeItem *_Nullable sentry_traceProfileEnvelopeItem(
         SENTRY_LOG_DEBUG(@"Failed to encode profile to JSON.");
         return nil;
     }
+
+#    if defined(TEST) || defined(TESTCI) || defined(DEBUG)
+    sentry_writeProfileFile(JSONData);
+#    endif // defined(TEST) || defined(TESTCI) || defined(DEBUG)
 
     const auto header = [[SentryEnvelopeItemHeader alloc] initWithType:SentryEnvelopeItemTypeProfile
                                                                 length:JSONData.length];
