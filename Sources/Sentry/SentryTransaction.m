@@ -2,6 +2,8 @@
 #import "SentryEnvelopeItemType.h"
 #import "SentryMeasurementValue.h"
 #import "SentryNSDictionarySanitize.h"
+#import "SentryProfilingConditionals.h"
+#import "SentrySpan+Private.h"
 #import "SentrySwift.h"
 #import "SentryTransactionContext.h"
 
@@ -54,6 +56,11 @@ SentryTransaction ()
         serializedData[@"_metrics_summary"] = metricsSummary;
         [serializedTrace removeObjectForKey:@"_metrics_summary"];
     }
+#if SENTRY_TARGET_PROFILING_SUPPORTED
+    NSMutableDictionary *traceProfileEntry = [NSMutableDictionary dictionary];
+    traceProfileEntry[@"profile_id"] = self.trace.profileSessionID;
+    serializedTrace[@"data"] = traceProfileEntry;
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED
     mutableContext[@"trace"] = serializedTrace;
 
     [serializedData setValue:mutableContext forKey:@"contexts"];
