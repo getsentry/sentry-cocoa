@@ -27,6 +27,11 @@ class SentryTouchTracker: NSObject {
     
     private var trackedTouches = [UITouch: TouchInfo]()
     private var touchId = 1
+    private let dateProvider: SentryCurrentDateProvider
+    
+    init(dateProvider: SentryCurrentDateProvider) {
+        self.dateProvider = dateProvider
+    }
     
     func trackTouchFrom(event: UIEvent) {
         guard let touches = event.allTouches else { return }

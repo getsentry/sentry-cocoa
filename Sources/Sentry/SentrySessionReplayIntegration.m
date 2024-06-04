@@ -57,7 +57,8 @@ SentrySessionReplayIntegration ()
         }
 
         if (options.enableSwizzling) {
-            _touchTracker = [[SentryTouchTracker alloc] init];
+            _touchTracker = [[SentryTouchTracker alloc]
+                initWithDateProvider:SentryDependencyContainer.sharedInstance.dateProvider];
             [self swizzleApplicationTouch];
         }
 

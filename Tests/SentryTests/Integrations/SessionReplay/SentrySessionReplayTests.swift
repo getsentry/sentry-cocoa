@@ -74,6 +74,7 @@ class SentrySessionReplayTests: XCTestCase {
                                        replayFolderPath: cacheFolder,
                                        screenshotProvider: screenshotProvider,
                                        replay: replayMaker,
+                                       touchTracker: SentryTouchTracker(),
                                        dateProvider: dateProvider,
                                        random: random,
                                        displayLinkWrapper: displayLink)
