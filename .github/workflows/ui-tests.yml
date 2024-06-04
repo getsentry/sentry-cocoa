@@ -85,13 +85,14 @@ jobs:
 
   ui-tests-address-sanitizer:
     name: UI Tests with Address Sanitizer
+    # Enabling the address sanitizer is a bit more resource intensive. Therefore, we run it on a larger machine
+    # to reduce some flakiness.
     runs-on: macos-13-xlarge
 
     steps:
       - uses: actions/checkout@v4
       - run: ./scripts/ci-select-xcode.sh 15.2
 
-      # GitHub Actions sometimes fail to launch the UI tests. Therefore we retry
       - name: Run Fastlane
         run: fastlane ui_tests_ios_swift device:"iPhone 14 (17.2)" address_sanitizer:true
         shell: sh
