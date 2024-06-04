@@ -57,9 +57,10 @@ SentryTransaction ()
         [serializedTrace removeObjectForKey:@"_metrics_summary"];
     }
 #if SENTRY_TARGET_PROFILING_SUPPORTED
-    NSMutableDictionary *traceProfileEntry = [NSMutableDictionary dictionary];
-    traceProfileEntry[@"profile_id"] = self.trace.profileSessionID;
-    serializedTrace[@"data"] = traceProfileEntry;
+    NSMutableDictionary *traceDataEntry =
+        [serializedTrace[@"data"] mutableCopy] ?: [NSMutableDictionary dictionary];
+    traceDataEntry[@"profiler_id"] = self.trace.profileSessionID;
+    serializedTrace[@"data"] = traceDataEntry;
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
     mutableContext[@"trace"] = serializedTrace;
 

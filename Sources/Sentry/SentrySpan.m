@@ -375,7 +375,7 @@ SentrySpan ()
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
     if (_profileSessionID != nil) {
-        mutableDictionary[@"profile_id"] = _profileSessionID;
+        mutableDictionary[@"profiler_id"] = _profileSessionID;
     }
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 

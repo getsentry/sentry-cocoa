@@ -212,6 +212,16 @@ class SentryTransactionTests: XCTestCase {
         expect(metric["sum"] as? Double) == 1.0
     }
     
+    func testSerializedSpanData() throws {
+        let sut = fixture.getTransaction()
+        let serialized = sut.serialize()
+        let contexts = try XCTUnwrap(serialized["contexts"] as? [String: Any])
+        let trace = try XCTUnwrap(contexts["trace"] as? [String: Any])
+        let data = try XCTUnwrap(trace["data"] as? [String: Any])
+        XCTAssertNotNil(try XCTUnwrap(data["thread.id"]))
+        XCTAssertNotNil(try XCTUnwrap(data["thread.name"]))
+    }
+    
 #if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
     // test that when a trace runs concurrently with the continuous profiler
     // and is serialized to a transaction, that it contains the profile id at
