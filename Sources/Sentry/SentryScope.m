@@ -45,7 +45,9 @@ SentryScope ()
  */
 @property (atomic) enum SentryLevel levelEnum;
 
-@property (atomic) NSInteger maxBreadcrumbs;
+@property (atomic) NSUInteger maxBreadcrumbs;
+@property (atomic) NSUInteger currentBreadcrumbIndex;
+@property (atomic, strong) NSMutableArray<SentryBreadcrumb *> *breadcrumbArray;
 
 @property (atomic, strong) NSMutableArray<SentryAttachment *> *attachmentArray;
 
@@ -62,8 +64,9 @@ SentryScope ()
 - (instancetype)initWithMaxBreadcrumbs:(NSInteger)maxBreadcrumbs
 {
     if (self = [super init]) {
-        self.maxBreadcrumbs = maxBreadcrumbs;
-        self.breadcrumbArray = [NSMutableArray new];
+        _maxBreadcrumbs = MAX(0, maxBreadcrumbs);
+        _currentBreadcrumbIndex = 0;
+        _breadcrumbArray = [[NSMutableArray alloc] initWithCapacity:_maxBreadcrumbs];
         self.tagDictionary = [NSMutableDictionary new];
         self.extraDictionary = [NSMutableDictionary new];
         self.contextDictionary = [NSMutableDictionary new];
@@ -87,7 +90,9 @@ SentryScope ()
         [_extraDictionary addEntriesFromDictionary:[scope extras]];
         [_tagDictionary addEntriesFromDictionary:[scope tags]];
         [_contextDictionary addEntriesFromDictionary:[scope context]];
-        [_breadcrumbArray addObjectsFromArray:[scope breadcrumbs]];
+        NSArray<SentryBreadcrumb *> *crumbs = [scope breadcrumbs];
+        _currentBreadcrumbIndex = crumbs.count;
+        [_breadcrumbArray addObjectsFromArray:crumbs];
         [_fingerprintArray addObjectsFromArray:[scope fingerprints]];
         [_attachmentArray addObjectsFromArray:[scope attachments]];
 
@@ -117,10 +122,14 @@ SentryScope ()
     }
     SENTRY_LOG_DEBUG(@"Add breadcrumb: %@", crumb);
     @synchronized(_breadcrumbArray) {
-        [_breadcrumbArray addObject:crumb];
-        if ([_breadcrumbArray count] > self.maxBreadcrumbs) {
-            [_breadcrumbArray removeObjectAtIndex:0];
-        }
+        // Use a ring buffer making adding breadcrumbs O(1).
+        // In a prior version, we added the new breadcrumb at the end of the array and used
+        // removeObjectAtIndex:0 when reaching the max breadcrumb amount. removeObjectAtIndex:0 is
+        // O(n) because it needs to reshift the whole array. So when the breadcrumbs array was full
+        // every add operation was O(n).
+
+        _breadcrumbArray[_currentBreadcrumbIndex] = crumb;
+        _currentBreadcrumbIndex = (_currentBreadcrumbIndex + 1) % _maxBreadcrumbs;
 
         for (id<SentryScopeObserver> observer in self.observers) {
             [observer addSerializedBreadcrumb:[crumb serialize]];
@@ -150,9 +159,7 @@ SentryScope ()
     // references instead of self we remove all objects instead of creating new instances. Removing
     // all objects is usually O(n). This is acceptable as we don't expect a huge amount of elements
     // in the arrays or dictionaries, that would slow down the performance.
-    @synchronized(_breadcrumbArray) {
-        [_breadcrumbArray removeAllObjects];
-    }
+    [self clearBreadcrumbs];
     @synchronized(_tagDictionary) {
         [_tagDictionary removeAllObjects];
     }
@@ -183,7 +190,8 @@ SentryScope ()
 - (void)clearBreadcrumbs
 {
     @synchronized(_breadcrumbArray) {
-        [_breadcrumbArray removeAllObjects];
+        _currentBreadcrumbIndex = 0;
+        _breadcrumbArray = [[NSMutableArray alloc] initWithCapacity:_maxBreadcrumbs];
 
         for (id<SentryScopeObserver> observer in self.observers) {
             [observer clearBreadcrumbs];
@@ -194,7 +202,18 @@ SentryScope ()
 - (NSArray<SentryBreadcrumb *> *)breadcrumbs
 {
     @synchronized(_breadcrumbArray) {
-        return _breadcrumbArray.copy;
+        NSMutableArray<SentryBreadcrumb *> *crumbs = [NSMutableArray new];
+        for (int i = 0; i < _maxBreadcrumbs; i++) {
+            // Crumbs use a ring buffer. We need to start at the current crumb to get the
+            // crumbs in the correct order.
+            NSInteger index = (_currentBreadcrumbIndex + i) % _maxBreadcrumbs;
+
+            if (index < _breadcrumbArray.count) {
+                [crumbs addObject:_breadcrumbArray[index]];
+            }
+        }
+
+        return crumbs;
     }
 }
 
