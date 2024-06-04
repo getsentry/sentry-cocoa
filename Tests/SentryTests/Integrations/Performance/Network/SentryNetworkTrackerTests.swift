@@ -350,7 +350,7 @@ class SentryNetworkTrackerTests: XCTestCase {
         
         let breadcrumbs = Dynamic(fixture.scope).breadcrumbArray as [Breadcrumb]?
         
-        let sut = SentryReplayBreadcrumbConverter()
+        let sut = SentrySRDefaultBreadcrumbConverter()
         guard let crumb = breadcrumbs?.first else {
             XCTFail("No touch breadcrumb")
             return

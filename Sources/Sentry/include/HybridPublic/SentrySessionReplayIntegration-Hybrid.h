@@ -15,4 +15,5 @@
              fullSession:(BOOL)shouldReplayFullSession;
 
 @end
+
 #endif

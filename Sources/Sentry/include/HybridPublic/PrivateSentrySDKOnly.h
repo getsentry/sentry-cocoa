@@ -11,6 +11,9 @@
 @class SentryId;
 @class SentrySessionReplayIntegration;
 
+@protocol SentryReplayBreadcrumbConverter;
+@protocol SentryViewScreenshotProvider;
+
 NS_ASSUME_NONNULL_BEGIN
 
 /**
@@ -161,10 +164,15 @@ typedef void (^SentryOnAppStartMeasurementAvailable)(
 #endif // SENTRY_UIKIT_AVAILABLE
 
 #if SENTRY_HAS_UIKIT && !TARGET_OS_VISION
+
 /**
- * This is how hybrid SDKs can control session replay.
+ * Configure session replay with different breadcrumb converter
+ * and screeshot provider. Used by the Hybrid SDKs.
+ * If can pass nil to avoid changing the property.
  */
-+ (nullable SentrySessionReplayIntegration *)createReplayIntegration;
+- (void)configureSessionReplayWith:(nullable id<SentryReplayBreadcrumbConverter>)breadcrumbConverter
+                screenshotProvider:(nullable id<SentryViewScreenshotProvider>)screenshotProvider;
+
 #endif
 
 + (SentryUser *)userWithDictionary:(NSDictionary *)dictionary;

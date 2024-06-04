@@ -76,7 +76,7 @@ SentrySessionReplayIntegration ()
 {
     [self startWithOptions:replayOptions
          screenshotProvider:SentryViewPhotographer.shared
-        breadcrumbConverter:[[SentryReplayBreadcrumbConverter alloc] init]
+        breadcrumbConverter:[[SentrySRDefaultBreadcrumbConverter alloc] init]
                 fullSession:shouldReplayFullSession];
 }
 
@@ -141,6 +141,18 @@ SentrySessionReplayIntegration ()
 - (void)captureReplay
 {
     [self.sessionReplay captureReplay];
+}
+
+- (void)configureReplayWith:(nullable id<SentryReplayBreadcrumbConverter>)breadcrumbConverter
+         screenshotProvider:(nullable id<SentryViewScreenshotProvider>)screenshotProvider
+{
+    if (breadcrumbConverter) {
+        self.sessionReplay.breadcrumbConverter = breadcrumbConverter;
+    }
+
+    if (screenshotProvider) {
+        self.sessionReplay.screenshotProvider = screenshotProvider;
+    }
 }
 
 - (SentryIntegrationOption)integrationOptions

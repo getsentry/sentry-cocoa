@@ -39,11 +39,9 @@ SentrySessionReplay ()
     SentryDisplayLinkWrapper *_displayLink;
     SentryCurrentDateProvider *_dateProvider;
     id<SentryRandom> _sentryRandom;
-    id<SentryViewScreenshotProvider> _screenshotProvider;
     int _currentSegmentId;
     BOOL _processingScreenshot;
     BOOL _reachedMaximumDuration;
-    id<SentryReplayBreadcrumbConverter> _breadcrumbConverter;
 }
 
 - (instancetype)initWithSettings:(SentryReplayOptions *)replayOptions
