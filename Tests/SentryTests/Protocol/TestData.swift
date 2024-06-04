@@ -326,15 +326,32 @@ class TestData {
     }
 
     #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
-
-    static func getAppStartMeasurement(type: SentryAppStartType, appStartTimestamp: Date = TestData.timestamp, runtimeInitSystemTimestamp: UInt64) -> SentryAppStartMeasurement {
+    
+    static func getAppStartMeasurement(
+        type: SentryAppStartType,
+        appStartTimestamp: Date = TestData.timestamp,
+        runtimeInitSystemTimestamp: UInt64,
+        preWarmed: Bool = false,
+        moduleInitializationTimestamp: Date? = nil,
+        runtimeInitTimestamp: Date? = nil,
+        sdkStartTimestamp: Date? = nil
+    ) -> SentryAppStartMeasurement {
         let appStartDuration = 0.5
-        let main = appStartTimestamp.addingTimeInterval(0.15)
-        let runtimeInit = appStartTimestamp.addingTimeInterval(0.05)
-        let sdkStart = appStartTimestamp.addingTimeInterval(0.1)
+        let main = moduleInitializationTimestamp ?? appStartTimestamp.addingTimeInterval(0.15)
+        let runtimeInit = runtimeInitTimestamp ?? appStartTimestamp.addingTimeInterval(0.05)
+        let sdkStart = sdkStartTimestamp ?? appStartTimestamp.addingTimeInterval(0.1)
         let didFinishLaunching = appStartTimestamp.addingTimeInterval(0.2)
         
-        return SentryAppStartMeasurement(type: type, isPreWarmed: false, appStartTimestamp: appStartTimestamp, runtimeInitSystemTimestamp: runtimeInitSystemTimestamp, duration: appStartDuration, runtimeInitTimestamp: runtimeInit, moduleInitializationTimestamp: main, sdkStartTimestamp: sdkStart, didFinishLaunchingTimestamp: didFinishLaunching)
+        return SentryAppStartMeasurement(
+            type: type,
+            isPreWarmed: preWarmed,
+            appStartTimestamp: appStartTimestamp,
+            runtimeInitSystemTimestamp: runtimeInitSystemTimestamp,
+            duration: appStartDuration,
+            runtimeInitTimestamp: runtimeInit,
+            moduleInitializationTimestamp: main,
+            sdkStartTimestamp: sdkStart,
+            didFinishLaunchingTimestamp: didFinishLaunching)
     }
 
     #endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
