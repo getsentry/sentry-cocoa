@@ -415,7 +415,55 @@ class SentryScopeSwiftTests: XCTestCase {
         // The number is kept small for the CI to not take too long.
         // If you really want to test this increase to 100_000 or so.
         testConcurrentModifications(asyncWorkItems: 2, writeLoopCount: 10, writeWork: { _ in
-            self.modifyScope(scope: scope)
+            
+            let key = "key"
+            
+            _ = Scope(scope: scope)
+            
+            for _ in 0...100 {
+                scope.addBreadcrumb(self.fixture.breadcrumb)
+            }
+            
+            scope.serialize()
+            scope.clearBreadcrumbs()
+            scope.addBreadcrumb(self.fixture.breadcrumb)
+            
+            scope.applyTo(session: SentrySession(releaseName: "1.0.0", distinctId: "some-id"))
+            
+            scope.setFingerprint(nil)
+            scope.setFingerprint(["finger", "print"])
+            
+            scope.setContext(value: ["some": "value"], key: key)
+            scope.removeContext(key: key)
+            
+            scope.setExtra(value: 1, key: key)
+            scope.removeExtra(key: key)
+            scope.setExtras(["value": "1", "value2": "2"])
+            
+            scope.applyTo(event: TestData.event, maxBreadcrumbs: 5)
+            
+            scope.setTag(value: "value", key: key)
+            scope.removeTag(key: key)
+            scope.setTags(["tag1": "hello", "tag2": "hello"])
+            
+            scope.addAttachment(TestData.fileAttachment)
+            scope.clearAttachments()
+            scope.addAttachment(TestData.fileAttachment)
+            
+            for _ in 0...10 {
+                scope.addBreadcrumb(self.fixture.breadcrumb)
+            }
+            scope.serialize()
+            
+            scope.setUser(self.fixture.user)
+            scope.setDist("dist")
+            scope.setEnvironment("env")
+            scope.setLevel(SentryLevel.debug)
+            
+            scope.applyTo(session: SentrySession(releaseName: "1.0.0", distinctId: "some-id"))
+            scope.applyTo(event: TestData.event, maxBreadcrumbs: 5)
+            
+            scope.serialize()
         })
     }
     
@@ -687,56 +735,5 @@ class SentryScopeSwiftTests: XCTestCase {
         func setUser(_ user: User?) {
             self.user = user
         }
-    }
-
-    private func modifyScope(scope: Scope) {
-        let key = "key"
-        
-        _ = Scope(scope: scope)
-        
-        for _ in 0...100 {
-            scope.addBreadcrumb(self.fixture.breadcrumb)
-        }
-        
-        scope.serialize()
-        scope.clearBreadcrumbs()
-        scope.addBreadcrumb(self.fixture.breadcrumb)
-        
-        scope.applyTo(session: SentrySession(releaseName: "1.0.0", distinctId: "some-id"))
-        
-        scope.setFingerprint(nil)
-        scope.setFingerprint(["finger", "print"])
-        
-        scope.setContext(value: ["some": "value"], key: key)
-        scope.removeContext(key: key)
-        
-        scope.setExtra(value: 1, key: key)
-        scope.removeExtra(key: key)
-        scope.setExtras(["value": "1", "value2": "2"])
-        
-        scope.applyTo(event: TestData.event, maxBreadcrumbs: 5)
-        
-        scope.setTag(value: "value", key: key)
-        scope.removeTag(key: key)
-        scope.setTags(["tag1": "hello", "tag2": "hello"])
-        
-        scope.addAttachment(TestData.fileAttachment)
-        scope.clearAttachments()
-        scope.addAttachment(TestData.fileAttachment)
-        
-        for _ in 0...10 {
-            scope.addBreadcrumb(self.fixture.breadcrumb)
-        }
-        scope.serialize()
-        
-        scope.setUser(self.fixture.user)
-        scope.setDist("dist")
-        scope.setEnvironment("env")
-        scope.setLevel(SentryLevel.debug)
-        
-        scope.applyTo(session: SentrySession(releaseName: "1.0.0", distinctId: "some-id"))
-        scope.applyTo(event: TestData.event, maxBreadcrumbs: 5)
-        
-        scope.serialize()
     }
 }
