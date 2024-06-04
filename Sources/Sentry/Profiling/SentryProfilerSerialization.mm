@@ -329,11 +329,11 @@ SentryEnvelope *_Nullable sentry_continuousProfileChunkEnvelope(
         return nil;
     }
 
-#    if defined(TEST) || defined(TESTCI) || defined(DEBUG)
+#    if defined(TEST) || defined(TESTCI)
     if (NSProcessInfo.processInfo.environment[@"io.sentry.ui-test.test-name"] != nil) {
         sentry_writeProfileFile(JSONData);
     }
-#    endif // defined(TEST) || defined(TESTCI) || defined(DEBUG)
+#    endif // defined(TEST) || defined(TESTCI)
 
     const auto header =
         [[SentryEnvelopeItemHeader alloc] initWithType:SentryEnvelopeItemTypeProfileChunk
@@ -385,9 +385,9 @@ SentryEnvelopeItem *_Nullable sentry_traceProfileEnvelopeItem(
         return nil;
     }
 
-#    if defined(TEST) || defined(TESTCI) || defined(DEBUG)
+#    if defined(TEST) || defined(TESTCI)
     sentry_writeProfileFile(JSONData);
-#    endif // defined(TEST) || defined(TESTCI) || defined(DEBUG)
+#    endif // defined(TEST) || defined(TESTCI)
 
     const auto header = [[SentryEnvelopeItemHeader alloc] initWithType:SentryEnvelopeItemTypeProfile
                                                                 length:JSONData.length];
