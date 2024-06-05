@@ -1,4 +1,3 @@
-#import "SentrySpan.h"
 #import "SentryCrashThread.h"
 #import "SentryDependencyContainer.h"
 #import "SentryFrame.h"
@@ -8,6 +7,7 @@
 #import "SentryNSDictionarySanitize.h"
 #import "SentryNoOpSpan.h"
 #import "SentrySampleDecision+Private.h"
+#import "SentrySpan+Private.h"
 #import "SentrySpanContext.h"
 #import "SentrySpanId.h"
 #import "SentrySwift.h"
@@ -50,7 +50,6 @@ SentrySpan ()
 #endif // SENTRY_HAS_UIKIT
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
-    NSString *_Nullable _profileSessionID;
     BOOL _isContinuousProfiling;
 #endif //  SENTRY_TARGET_PROFILING_SUPPORTED
 }
@@ -376,7 +375,7 @@ SentrySpan ()
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
     if (_profileSessionID != nil) {
-        mutableDictionary[@"profile_id"] = _profileSessionID;
+        mutableDictionary[@"profiler_id"] = _profileSessionID;
     }
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
