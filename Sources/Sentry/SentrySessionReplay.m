@@ -292,12 +292,13 @@ SentrySessionReplay ()
     replayEvent.segmentId = segment;
     replayEvent.timestamp = videoInfo.end;
 
-    __block NSArray<SentryRRWebEvent *> *events;
+    __block NSMutableArray<SentryRRWebEvent *> *events = [[NSMutableArray alloc] init];
 
     [SentrySDK.currentHub configureScope:^(SentryScope *_Nonnull scope) {
-        events = [self->_breadcrumbConverter convertWithBreadcrumbs:scope.breadcrumbs
-                                                               from:videoInfo.start
-                                                              until:videoInfo.end];
+        [events
+            addObjectsFromArray:[self->_breadcrumbConverter convertWithBreadcrumbs:scope.breadcrumbs
+                                                                              from:videoInfo.start
+                                                                             until:videoInfo.end]];
     }];
 
     [events addObjectsFromArray:[_touchTracker replayEventsFrom:videoInfo.start
