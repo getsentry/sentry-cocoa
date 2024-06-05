@@ -3,9 +3,26 @@ import Foundation
 @objcMembers
 public class SentryReplayOptions: NSObject, SentryRedactOptions {
     
+    /**
+     * Enum to define the quality of the session replay.
+     */
     public enum SentryReplayQuality: Int {
+        /**
+         * Video Scale: 80%
+         * Bit Rate: 20.000
+         */
         case low
+        
+        /**
+         * Video Scale: 100%
+         * Bit Rate: 40.000
+         */
         case medium
+        
+        /**
+         * Video Scale: 100%
+         * Bit Rate: 60.000
+         */
         case high
     }
     
