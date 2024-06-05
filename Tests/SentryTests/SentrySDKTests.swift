@@ -415,6 +415,8 @@ class SentrySDKTests: XCTestCase {
         XCTAssert(transaction === newSpan)
     }
     
+#if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
+
     func testStartingContinuousProfilerWithSampleRateZero() throws {
         givenSdkWithHub()
         
@@ -451,6 +453,8 @@ class SentrySDKTests: XCTestCase {
         SentrySDK.startProfiler()
         XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
     }
+    
+#endif // os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
     
     func testInstallIntegrations() throws {
         let options = Options()
