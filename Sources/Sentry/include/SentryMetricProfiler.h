@@ -23,6 +23,7 @@ SENTRY_NO_INIT
 /** Record a metrics sample. Helps ensure full metric coverage for concurrent spans. */
 - (void)recordMetrics;
 - (void)stop;
+- (void)clear;
 
 /**
  * Return a serialized dictionary of the collected metrics.
@@ -39,13 +40,29 @@ SENTRY_NO_INIT
  *      ]
  * }
  * @endcode
- * @note Continuous profiling will use millisecond resolution for timestamps, and hence also will
- * not need to store them as @c NSString, but rather as @c NSNumber . It will be stored under the
- * key @c "timestamp" .
  */
 - (NSMutableDictionary<NSString *, SentrySerializedMetricEntry *> *)
-    serializeBetween:(uint64_t)startSystemTime
-                 and:(uint64_t)endSystemTime;
+    serializeTraceProfileMetricsBetween:(uint64_t)startSystemTime
+                                    and:(uint64_t)endSystemTime;
+
+/**
+ * Return a serialized dictionary of the collected metrics.
+ * @discussion The dictionary will have the following structure:
+ * @code
+ * @"<metric-name>": @{
+ *      @"unit": @"<unit-name>",
+ *      @"values": @[
+ *          @{
+ *              @"timestamp": @"<NSTimeInterval>",
+ *              @"value": @"<numeric-value>"
+ *          },
+ *          // ... more dictionaries like that ...
+ *      ]
+ * }
+ * @endcode
+ */
+- (NSMutableDictionary<NSString *, SentrySerializedMetricEntry *> *)
+    serializeContinuousProfileMetrics;
 
 @end
 

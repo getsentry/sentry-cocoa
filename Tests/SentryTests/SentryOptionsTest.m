@@ -155,6 +155,11 @@
     XCTAssertEqual(expected, options.diagnosticLevel);
 }
 
+- (void)testEnableSigtermReporting
+{
+    [self testBooleanField:@"enableSigtermReporting" defaultValue:NO];
+}
+
 - (void)testValidEnabled
 {
     [self testEnabledWith:@YES expected:YES];
@@ -308,6 +313,27 @@
     SentryOptions *options = [self getValidOptions:@{}];
 
     XCTAssertNil(options.beforeBreadcrumb);
+}
+
+- (void)testBeforeCaptureScreenshot
+{
+    SentryBeforeCaptureScreenshotCallback callback = ^(SentryEvent *event) {
+        if (event.level == kSentryLevelFatal) {
+            return NO;
+        }
+
+        return YES;
+    };
+    SentryOptions *options = [self getValidOptions:@{ @"beforeCaptureScreenshot" : callback }];
+
+    XCTAssertEqual(callback, options.beforeCaptureScreenshot);
+}
+
+- (void)testDefaultBeforeCaptureScreenshot
+{
+    SentryOptions *options = [self getValidOptions:@{}];
+
+    XCTAssertNil(options.beforeCaptureScreenshot);
 }
 
 - (void)testTracePropagationTargets

@@ -869,24 +869,13 @@ class SentryClientTest: XCTestCase {
         }
     }
 
-#if SENTRY_HAS_UIKIT
-    func testCaptureExceptionWithAppStateInForegroudDoNotAddIfAppStateNil() {
+#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+    func testCaptureExceptionWithAppStateInForegroudWhenAppIsInForeground() throws {
+        let app = TestSentryUIApplication()
+        app.applicationState = .active
+        SentryDependencyContainer.sharedInstance().application = app
+        
         let event = TestData.event
-        fixture.getSut().capture(event: event)
-        try assertLastSentEvent { actual in
-            let inForeground = actual.context?["app"]?["in_foreground"] as? Bool
-            XCTAssertEqual(inForeground, nil)
-        }
-    }
-
-    func testCaptureExceptionWithAppStateInForegroudCreateAppContext() {
-        let fileManager = try! TestFileManager(options: Options())
-        SentryDependencyContainer.sharedInstance().fileManager = fileManager
-        fileManager.appState = TestData.appState
-        fileManager.appState?.isActive = true
-
-        let event = TestData.event
-        event.context?.removeValue(forKey: "app")
         fixture.getSut().capture(event: event)
         try assertLastSentEvent { actual in
             let inForeground = actual.context?["app"]?["in_foreground"] as? Bool
@@ -894,28 +883,37 @@ class SentryClientTest: XCTestCase {
         }
     }
 
-    func testCaptureExceptionWithAppStateInForegroud() {
-        let fileManager = try! TestFileManager(options: Options())
-        SentryDependencyContainer.sharedInstance().fileManager = fileManager
-        fileManager.appState = TestData.appState
-        fileManager.appState?.isActive = true
-
+    func testCaptureExceptionWithAppStateInForegroudWhenAppIsInBackground() throws {
+        let app = TestSentryUIApplication()
+        app.applicationState = .background
+        SentryDependencyContainer.sharedInstance().application = app
+        
         let event = TestData.event
-        event.context!["app"] = [ "test": "keep-value" ]
         fixture.getSut().capture(event: event)
         try assertLastSentEvent { actual in
             let inForeground = actual.context?["app"]?["in_foreground"] as? Bool
-            XCTAssertEqual(inForeground, true)
-            XCTAssertEqual(actual.context?["app"]?["test"] as? String, "keep-value")
+            XCTAssertEqual(inForeground, false)
         }
     }
-
-    func testCaptureExceptionWithAppStateInForegroudDoNotOverwriteExistingValue() {
-        let fileManager = try! TestFileManager(options: Options())
-        SentryDependencyContainer.sharedInstance().fileManager = fileManager
-        fileManager.appState = TestData.appState
-        fileManager.appState?.isActive = true
-
+    
+    func testCaptureExceptionWithAppStateInForegroudWhenAppIsInactive() throws {
+        let app = TestSentryUIApplication()
+        app.applicationState = .inactive
+        SentryDependencyContainer.sharedInstance().application = app
+        
+        let event = TestData.event
+        fixture.getSut().capture(event: event)
+        try assertLastSentEvent { actual in
+            let inForeground = actual.context?["app"]?["in_foreground"] as? Bool
+            XCTAssertEqual(inForeground, false)
+        }
+    }
+    
+    func testCaptureExceptionWithAppStateInForegroundDoNotOverwriteExistingValue() throws {
+        let app = TestSentryUIApplication()
+        app.applicationState = .active
+        SentryDependencyContainer.sharedInstance().application = app
+        
         let event = TestData.event
         event.context!["app"] = [ "in_foreground": "keep-value" ]
         fixture.getSut().capture(event: event)
@@ -924,7 +922,7 @@ class SentryClientTest: XCTestCase {
             XCTAssertEqual(inForeground, "keep-value")
         }
     }
-#endif
+#endif //os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
 
     func testCaptureExceptionWithoutAttachStacktrace() throws {
         let eventId = fixture.getSut(configureOptions: { options in
@@ -1844,6 +1842,12 @@ class SentryClientTest: XCTestCase {
     class TestSentryUIApplication: SentryUIApplication {
         override func relevantViewControllers() -> [UIViewController] {
             return [ClientTestViewController()]
+        }
+        
+        private var _underlyingAppState: UIApplication.State = .active
+        override var applicationState: UIApplication.State {
+            get { _underlyingAppState }
+            set { _underlyingAppState = newValue }
         }
     }
     

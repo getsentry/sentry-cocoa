@@ -200,16 +200,20 @@ slowFrameThreshold(uint64_t actualFramesPerSecond)
     }
 
 #    if SENTRY_TARGET_PROFILING_SUPPORTED
-    if ([SentryTraceProfiler isCurrentlyProfiling] ||
-        [SentryContinuousProfiler isCurrentlyProfiling]) {
+    NSDate *thisFrameNSDate = self.dateProvider.date;
+    BOOL isContinuousProfiling = [SentryContinuousProfiler isCurrentlyProfiling];
+    NSNumber *profilingTimestamp = isContinuousProfiling
+        ? @(thisFrameNSDate.timeIntervalSinceReferenceDate)
+        : @(thisFrameSystemTimestamp);
+    if ([SentryTraceProfiler isCurrentlyProfiling] || isContinuousProfiling) {
         BOOL hasNoFrameRatesYet = self.frameRateTimestamps.count == 0;
         uint64_t previousFrameRate
             = self.frameRateTimestamps.lastObject[@"value"].unsignedLongLongValue;
         BOOL frameRateChanged = previousFrameRate != _currentFrameRate;
         BOOL shouldRecordNewFrameRate = hasNoFrameRatesYet || frameRateChanged;
         if (shouldRecordNewFrameRate) {
-            SENTRY_LOG_DEBUG(@"Recording new frame rate at %llu.", thisFrameSystemTimestamp);
-            [self recordTimestamp:thisFrameSystemTimestamp
+            SENTRY_LOG_DEBUG(@"Recording new frame rate at %@.", profilingTimestamp);
+            [self recordTimestamp:profilingTimestamp
                             value:@(_currentFrameRate)
                             array:self.frameRateTimestamps];
         }
@@ -222,17 +226,17 @@ slowFrameThreshold(uint64_t actualFramesPerSecond)
         && frameDuration <= SentryFrozenFrameThreshold) {
         _slowFrames++;
 #    if SENTRY_TARGET_PROFILING_SUPPORTED
-        SENTRY_LOG_DEBUG(@"Detected slow frame starting at %llu (frame tracker: %@).",
-            thisFrameSystemTimestamp, self);
-        [self recordTimestamp:thisFrameSystemTimestamp
+        SENTRY_LOG_DEBUG(
+            @"Detected slow frame starting at %@ (frame tracker: %@).", profilingTimestamp, self);
+        [self recordTimestamp:profilingTimestamp
                         value:@(thisFrameSystemTimestamp - self.previousFrameSystemTimestamp)
                         array:self.slowFrameTimestamps];
 #    endif // SENTRY_TARGET_PROFILING_SUPPORTED
     } else if (frameDuration > SentryFrozenFrameThreshold) {
         _frozenFrames++;
 #    if SENTRY_TARGET_PROFILING_SUPPORTED
-        SENTRY_LOG_DEBUG(@"Detected frozen frame starting at %llu.", thisFrameSystemTimestamp);
-        [self recordTimestamp:thisFrameSystemTimestamp
+        SENTRY_LOG_DEBUG(@"Detected frozen frame starting at %@.", profilingTimestamp);
+        [self recordTimestamp:profilingTimestamp
                         value:@(thisFrameSystemTimestamp - self.previousFrameSystemTimestamp)
                         array:self.frozenFrameTimestamps];
 #    endif // SENTRY_TARGET_PROFILING_SUPPORTED
@@ -265,7 +269,7 @@ slowFrameThreshold(uint64_t actualFramesPerSecond)
 }
 
 #    if SENTRY_TARGET_PROFILING_SUPPORTED
-- (void)recordTimestamp:(uint64_t)timestamp value:(NSNumber *)value array:(NSMutableArray *)array
+- (void)recordTimestamp:(NSNumber *)timestamp value:(NSNumber *)value array:(NSMutableArray *)array
 {
     BOOL shouldRecord = [SentryTraceProfiler isCurrentlyProfiling] ||
         [SentryContinuousProfiler isCurrentlyProfiling];
@@ -273,7 +277,7 @@ slowFrameThreshold(uint64_t actualFramesPerSecond)
     shouldRecord = YES;
 #        endif // defined(TEST) || defined(TESTCI)
     if (shouldRecord) {
-        [array addObject:@{ @"timestamp" : @(timestamp), @"value" : value }];
+        [array addObject:@{ @"timestamp" : timestamp, @"value" : value }];
     }
 }
 #    endif // SENTRY_TARGET_PROFILING_SUPPORTED

@@ -22,10 +22,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             options.beforeSend = { event in
                 return event
             }
+            options.enableSigtermReporting = true
+            options.beforeCaptureScreenshot = { _ in
+                return true
+            }
             options.debug = true
             
             if #available(iOS 16.0, *) {
                 options.experimental.sessionReplay = SentryReplayOptions(sessionSampleRate: 1, errorSampleRate: 1, redactAllText: true, redactAllImages: true)
+                options.experimental.sessionReplay.quality = .high
             }
             
             if #available(iOS 15.0, *) {
@@ -75,7 +80,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             options.enableTimeToFullDisplayTracing = true
             options.enablePerformanceV2 = true
             options.enableMetrics = true
-            options.enableContinuousProfiling = ProcessInfo.processInfo.arguments.contains("--enable-continuous-profiling")
+            options.enableContinuousProfiling = ProcessInfo.processInfo.arguments.contains("--io.sentry.enable-continuous-profiling")
             
             options.add(inAppInclude: "iOS_External")
 

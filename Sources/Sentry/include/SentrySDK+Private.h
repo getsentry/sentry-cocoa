@@ -1,5 +1,14 @@
-#import "SentryProfilingConditionals.h"
-#import "SentrySDK.h"
+#if __has_include(<Sentry/SentryOptions.h>)
+#    import <Sentry/SentryProfilingConditionals.h>
+#else
+#    import "SentryProfilingConditionals.h"
+#endif
+
+#if __has_include(<Sentry/SentryOptions.h>)
+#    import <Sentry/SentrySDK.h>
+#else
+#    import "SentrySDK.h"
+#endif
 
 @class SentryHub, SentryId, SentryAppStartMeasurement, SentryEnvelope;
 

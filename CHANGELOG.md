@@ -1,6 +1,19 @@
 # Changelog
 
-## Unreleased
+## 8.27.0
+
+### Features
+
+- Add breadcrumbs to session replay (#4002)
+- Add start time to network request breadcrumbs (#4008)
+- Add C++ exception support for `__cxa_rethrow` (#3996)
+- Add beforeCaptureScreenshot callback (#4016)
+- Disable SIGTERM reporting by default (#4025). We added support
+for SIGTERM reporting in the last release and enabled it by default.
+For some users, SIGTERM events were verbose and not actionable.
+Therefore, we disable it per default in this release. If you'd like
+to receive SIGTERM events, set the option `enableSigtermReporting = true`.
+- Add replay quality option (#4035)
 
 ### Features
 
@@ -9,11 +22,16 @@
 ### Improvements
 
 - Stop FramesTracker when app is in background (#3979)
+- Speed up adding breadcrumbs (#4029, #4034)
+- Skip evaluating log messages when not logged (#4028)
 
 ### Fixes
 
 - Fix retrieving GraphQL operation names crashing ([#3973](https://github.com/getsentry/sentry-cocoa/pull/3973))
 - Fix SentryCrashExceptionApplication subclass problem (#3993)
+- Fix wrong value for `In Foreground` flag on UIKit applications (#4005)
+- Fix a crash in baggageEncodedDictionary (#4017)
+- Session replay wrong video size (#4018)
 
 ## 8.26.0
 

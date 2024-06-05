@@ -74,6 +74,23 @@ NS_SWIFT_NAME(Options)
  */
 @property (nonatomic, assign) BOOL enableCrashHandler;
 
+#if !TARGET_OS_WATCH
+
+/**
+ * When enabled, the SDK reports SIGTERM signals to Sentry.
+ *
+ * It's crucial for developers to understand that the OS sends a SIGTERM to their app as a prelude
+ * to a graceful shutdown, before resorting to a SIGKILL. This SIGKILL, which your app can't catch
+ * or ignore, is a direct order to terminate your app's process immediately. Developers should be
+ * aware that their app can receive a SIGTERM in various scenarios, such as  CPU or disk overuse,
+ * watchdog terminations, or when the OS updates your app.
+ *
+ * @note The default value is @c NO.
+ */
+@property (nonatomic, assign) BOOL enableSigtermReporting;
+
+#endif // !TARGET_OS_WATCH
+
 /**
  * How many breadcrumbs do you want to keep in memory?
  * @note Default is @c 100 .
@@ -104,6 +121,13 @@ NS_SWIFT_NAME(Options)
  * This block can be used to modify the event before it will be serialized and sent.
  */
 @property (nullable, nonatomic, copy) SentryBeforeBreadcrumbCallback beforeBreadcrumb;
+
+/**
+ * You can use this callback to decide if the SDK should capture a screenshot or not. Return @c true
+ * if the SDK should capture a screenshot, return @c false if not. This callback doesn't work for
+ * crashes.
+ */
+@property (nullable, nonatomic, copy) SentryBeforeCaptureScreenshotCallback beforeCaptureScreenshot;
 
 /**
  * A block called shortly after the initialization of the SDK when the last program execution

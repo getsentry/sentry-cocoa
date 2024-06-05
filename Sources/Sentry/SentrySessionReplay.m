@@ -43,8 +43,8 @@ SentrySessionReplay ()
     int _currentSegmentId;
     BOOL _processingScreenshot;
     BOOL _reachedMaximumDuration;
-    SentryBreadcrumbReplayConverter *_breadcrumbConverter;
     SentryTouchTracker *_touchTracker;
+    SentryReplayBreadcrumbConverter *_breadcrumbConverter;
 }
 
 - (instancetype)initWithSettings:(SentryReplayOptions *)replayOptions
@@ -66,8 +66,8 @@ SentrySessionReplay ()
         _urlToCache = folderPath;
         _replayMaker = replayMaker;
         _reachedMaximumDuration = NO;
-        _breadcrumbConverter = [[SentryBreadcrumbReplayConverter alloc] init];
         _touchTracker = touchTracker;
+        _breadcrumbConverter = [[SentryReplayBreadcrumbConverter alloc] init];
     }
     return self;
 }
@@ -96,6 +96,8 @@ SentrySessionReplay ()
     _videoSegmentStart = nil;
     _currentSegmentId = 0;
     _sessionReplayId = [[SentryId alloc] init];
+    _replayMaker.videoWidth = (NSInteger)(rootView.frame.size.width * _replayOptions.sizeScale);
+    _replayMaker.videoHeight = (NSInteger)(rootView.frame.size.height * _replayOptions.sizeScale);
 
     imageCollection = [NSMutableArray array];
     if (full) {
@@ -290,18 +292,12 @@ SentrySessionReplay ()
     replayEvent.segmentId = segment;
     replayEvent.timestamp = videoInfo.end;
 
-    __block NSMutableArray<SentryRRWebEvent *> *events = [[NSMutableArray alloc] init];
+    __block NSArray<SentryRRWebEvent *> *events;
 
     [SentrySDK.currentHub configureScope:^(SentryScope *_Nonnull scope) {
-        NSArray *breadcrumbs = [scope.breadcrumbArray
-            filteredArrayUsingPredicate:[NSPredicate predicateWithBlock:^BOOL(
-                                            SentryBreadcrumb *evaluatedObject,
-                                            NSDictionary<NSString *, id> *bindings) {
-                return [evaluatedObject.timestamp compare:videoInfo.start] != NSOrderedAscending &&
-                    [evaluatedObject.timestamp compare:videoInfo.end] != NSOrderedDescending;
-            }]];
-
-        [events addObjectsFromArray:[self->_breadcrumbConverter replayBreadcrumbsFrom:breadcrumbs]];
+        events = [self->_breadcrumbConverter convertWithBreadcrumbs:scope.breadcrumbs
+                                                               from:videoInfo.start
+                                                              until:videoInfo.end];
     }];
 
     [events addObjectsFromArray:[_touchTracker replayEventsFrom:videoInfo.start

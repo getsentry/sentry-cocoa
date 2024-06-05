@@ -5,6 +5,7 @@
 #    import "SentryContinuousProfiler.h"
 #    import "SentryDependencyContainer.h"
 #    import "SentryDispatchQueueWrapper.h"
+#    import "SentryFramesTracker.h"
 #    import "SentryHub+Private.h"
 #    import "SentryLaunchProfiling.h"
 #    import "SentryLog.h"
@@ -14,6 +15,7 @@
 #    import "SentryProfilerTestHelpers.h"
 #    import "SentrySDK+Private.h"
 #    import "SentrySamplingProfiler.hpp"
+#    import "SentryScreenFrames.h"
 #    import "SentrySwift.h"
 #    import "SentryTime.h"
 
@@ -68,8 +70,6 @@ sentry_manageTraceProfilerOnStartSDK(SentryOptions *options, SentryHub *hub)
         return nil;
     }
 
-    _profilerId = [[SentryId alloc] init];
-
     SENTRY_LOG_DEBUG(@"Initialized new SentryProfiler %@", self);
 
 #    if SENTRY_HAS_UIKIT
@@ -86,8 +86,7 @@ sentry_manageTraceProfilerOnStartSDK(SentryOptions *options, SentryHub *hub)
     [SentryDependencyContainer.sharedInstance.notificationCenterWrapper
         addObserver:self
            selector:@selector(backgroundAbort)
-               name:UIApplicationWillResignActiveNotification
-             object:nil];
+               name:UIApplicationWillResignActiveNotification];
 #    endif // SENTRY_HAS_UIKIT
 
     return self;
@@ -158,8 +157,6 @@ sentry_manageTraceProfilerOnStartSDK(SentryOptions *options, SentryHub *hub)
 
     SentryProfilerState *const state = [[SentryProfilerState alloc] init];
     self.state = state;
-    self.continuousChunkStartSystemTime
-        = SentryDependencyContainer.sharedInstance.dateProvider.systemTime;
     _samplingProfiler = std::make_shared<SamplingProfiler>(
         [state](auto &backtrace) {
             Backtrace backtraceCopy = backtrace;

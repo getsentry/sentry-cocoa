@@ -46,7 +46,7 @@ extension String {
             if char == "_" {
                 toUpper = true
             } else {
-                result.append(toUpper ? char.uppercased() : char.lowercased())
+                result.append(toUpper ? char.uppercased() : String(char))
                 toUpper = false
             }
         }

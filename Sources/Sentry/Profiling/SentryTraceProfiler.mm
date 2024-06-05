@@ -47,6 +47,7 @@ SentryProfiler *_Nullable _threadUnsafe_gTraceProfiler;
             return NO;
         }
 
+        _threadUnsafe_gTraceProfiler.profilerId = [[SentryId alloc] init];
         sentry_trackProfilerForTracer(_threadUnsafe_gTraceProfiler, traceId);
     }
 

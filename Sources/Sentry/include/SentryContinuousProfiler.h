@@ -4,7 +4,12 @@
 
 #    import <Foundation/Foundation.h>
 
+@class SentryId;
+
 NS_ASSUME_NONNULL_BEGIN
+
+static NSString *const kSentryNotificationContinuousProfileStarted
+    = @"io.sentry.notification.continuous-profile-started";
 
 /**
  * An interface to the new continuous profiling implementation.
@@ -18,6 +23,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 /** Stop a continuous profiling session if there is one ongoing. */
 + (void)stop;
+
++ (nullable SentryId *)currentProfilerID;
 
 @end
 
