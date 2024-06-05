@@ -132,7 +132,7 @@ class SentrySpanTests: XCTestCase {
         
         let serialized = span.serialize()
         
-        XCTAssertEqual(try XCTUnwrap(serialized["profile_id"] as? String), profileId)
+        XCTAssertEqual(try XCTUnwrap(serialized["profiler_id"] as? String), profileId)
     }
     
     /// Test a span that starts before and ends after a continuous profile, includes profile id
@@ -152,7 +152,7 @@ class SentrySpanTests: XCTestCase {
         
         let serialized = span.serialize()
         
-        XCTAssertEqual(try XCTUnwrap(serialized["profile_id"] as? String), profileId)
+        XCTAssertEqual(try XCTUnwrap(serialized["profiler_id"] as? String), profileId)
     }
     
     /// Test a span that starts after and ends after a continuous profile, includes profile id
@@ -172,7 +172,7 @@ class SentrySpanTests: XCTestCase {
         
         let serialized = span.serialize()
         
-        XCTAssertEqual(try XCTUnwrap(serialized["profile_id"] as? String), profileId)
+        XCTAssertEqual(try XCTUnwrap(serialized["profiler_id"] as? String), profileId)
     }
     
     /// Test a span that starts after and ends before a continuous profile, includes profile id
@@ -190,7 +190,7 @@ class SentrySpanTests: XCTestCase {
         span.finish()
         
         let serialized = span.serialize()
-        XCTAssertEqual(try XCTUnwrap(serialized["profile_id"] as? String), profileId)
+        XCTAssertEqual(try XCTUnwrap(serialized["profiler_id"] as? String), profileId)
     }
     
     /// Test a span that spans multiple profiles, which both should have the same profile ID, and that
@@ -214,7 +214,7 @@ class SentrySpanTests: XCTestCase {
         span.finish()
         
         let serialized = span.serialize()
-        XCTAssertEqual(try XCTUnwrap(serialized["profile_id"] as? String), profileId1)
+        XCTAssertEqual(try XCTUnwrap(serialized["profiler_id"] as? String), profileId1)
     }
     
     /// Test a span that starts and ends before a profile starts, does not include profile id

@@ -234,8 +234,8 @@ class SentryTransactionTests: XCTestCase {
         let serialized = transaction.serialize()
         let contexts = try XCTUnwrap(serialized["contexts"] as? [String: Any])
         let trace = try XCTUnwrap(contexts["trace"] as? [String: Any])
-        let data = try XCTUnwrap(trace["data"] as? [String: String])
-        let profileIdFromContexts = try XCTUnwrap(data["profile_id"])
+        let data = try XCTUnwrap(trace["data"] as? [String: Any])
+        let profileIdFromContexts = try XCTUnwrap(data["profiler_id"] as? String)
         XCTAssertEqual(profileId, profileIdFromContexts)
     }
 #endif // os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
