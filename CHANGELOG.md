@@ -13,6 +13,7 @@ for SIGTERM reporting in the last release and enabled it by default.
 For some users, SIGTERM events were verbose and not actionable.
 Therefore, we disable it per default in this release. If you'd like
 to receive SIGTERM events, set the option `enableSigtermReporting = true`.
+- Add replay quality option (#4035)
 
 ### Improvements
 
