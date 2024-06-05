@@ -74,10 +74,6 @@
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "--io.sentry.enable-continuous-profiling"
-            isEnabled = "YES">
-         </CommandLineArgument>
-         <CommandLineArgument
             argument = "--io.sentry.wipe-data"
             isEnabled = "NO">
          </CommandLineArgument>
@@ -146,8 +142,8 @@
          </EnvironmentVariable>
          <EnvironmentVariable
             key = "--io.sentry.profilesSampleRate"
-            value = ""
-            isEnabled = "NO">
+            value = "0"
+            isEnabled = "YES">
          </EnvironmentVariable>
          <EnvironmentVariable
             key = "--io.sentry.tracesSamplerValue"
