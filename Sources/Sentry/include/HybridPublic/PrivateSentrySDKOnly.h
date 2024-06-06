@@ -168,9 +168,9 @@ typedef void (^SentryOnAppStartMeasurementAvailable)(
 /**
  * Configure session replay with different breadcrumb converter
  * and screeshot provider. Used by the Hybrid SDKs.
- * If can pass nil to avoid changing the property.
+ * Passing nil will keep the previous value.
  */
-- (void)configureSessionReplayWith:(nullable id<SentryReplayBreadcrumbConverter>)breadcrumbConverter
++ (void)configureSessionReplayWith:(nullable id<SentryReplayBreadcrumbConverter>)breadcrumbConverter
                 screenshotProvider:(nullable id<SentryViewScreenshotProvider>)screenshotProvider;
 
 #endif

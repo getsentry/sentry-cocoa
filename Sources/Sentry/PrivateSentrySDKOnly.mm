@@ -296,7 +296,7 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
 #endif
 }
 
-- (void)configureSessionReplayWith:(nullable id<SentryReplayBreadcrumbConverter>)breadcrumbConverter
++ (void)configureSessionReplayWith:(nullable id<SentryReplayBreadcrumbConverter>)breadcrumbConverter
                 screenshotProvider:(nullable id<SentryViewScreenshotProvider>)screenshotProvider
 {
 #if SENTRY_HAS_UIKIT && !TARGET_OS_VISION
