@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 8.28.0
 
 ### Features
 - Add replay quality option (#4035)
