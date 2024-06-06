@@ -47,7 +47,6 @@ SentryScope ()
 
 @property (atomic) NSUInteger maxBreadcrumbs;
 @property (atomic) NSUInteger currentBreadcrumbIndex;
-@property (atomic, strong) NSMutableArray<SentryBreadcrumb *> *breadcrumbArray;
 
 @property (atomic, strong) NSMutableArray<SentryAttachment *> *attachmentArray;
 

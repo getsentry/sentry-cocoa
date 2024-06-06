@@ -1,26 +1,47 @@
 import Foundation
 
-@objcMembers
-class SentryRRWebTouchEvent: SentryRRWebEvent {
-    
-    enum TouchEventPhase: Int {
-        case unknown = 0
-        case start   = 7
-        case move    = 8
-        case end     = 9
-    }
+enum TouchEventPhase: Int {
+    case unknown = 0
+    case start   = 7
+    case move    = 8
+    case end     = 9
+}
+
+struct TouchPosition {
+    let x: Float
+    let y: Float
+    let timestamp: Date
+}
+
+class RRWebTouchEvent: SentryRRWebEvent {
     
     init(timestamp: Date, touchId: Int, x: Float, y: Float, phase: TouchEventPhase) {
         super.init(type: .touch,
                    timestamp: timestamp,
                    data: [
-                    "source": phase == .move ? 7 : 2,
-                    "id": 0,
+                    "source": 2,
                     "pointerId": touchId,
+                    "pointerType": 2,
                     "type": phase.rawValue,
+                    "id": 0,
                     "x": x,
-                    "y": y,
-                    "pointerType": 2
+                    "y": y])
+    }
+}
+
+class RRWebMoveEvent: SentryRRWebEvent {
+    init(timestamp: Date, touchId: Int, positions: [TouchPosition]) {
+        super.init(type: .touch,
+                   timestamp: timestamp,
+                   data: [
+                    "source": 6,
+                    "pointerId": touchId,
+                    "positions": positions.map({[
+                        "id": 0,
+                        "x": $0.x,
+                        "y": $0.y,
+                        "timeOffset": Int($0.timestamp.timeIntervalSince(timestamp) * 1_000)
+                    ]})
                    ])
     }
 }

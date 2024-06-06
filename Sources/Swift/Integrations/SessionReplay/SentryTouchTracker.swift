@@ -9,7 +9,7 @@ class SentryTouchTracker: NSObject {
         let x: CGFloat
         let y: CGFloat
         let timestamp: TimeInterval
-        let phase: SentryRRWebTouchEvent.TouchEventPhase
+        let phase: TouchEventPhase
         
         var point: CGPoint {
             CGPoint(x: x, y: y)
@@ -18,7 +18,10 @@ class SentryTouchTracker: NSObject {
     
     private class TouchInfo {
         let id: Int
-        var events = [TouchEvent]()
+        
+        var start: TouchEvent?
+        var end: TouchEvent?
+        var movements = [TouchEvent]()
         
         init(id: Int) {
             self.id = id
@@ -28,21 +31,36 @@ class SentryTouchTracker: NSObject {
     private var trackedTouches = [UITouch: TouchInfo]()
     private var touchId = 1
     private let dateProvider: SentryCurrentDateProvider
+    private let scale: CGAffineTransform
     
-    init(dateProvider: SentryCurrentDateProvider) {
+    init(dateProvider: SentryCurrentDateProvider, scale: Float) {
         self.dateProvider = dateProvider
+        self.scale = CGAffineTransform(scaleX: CGFloat(scale), y: CGFloat(scale))
     }
     
     func trackTouchFrom(event: UIEvent) {
         guard let touches = event.allTouches else { return }
         for touch in touches {
+            
             guard touch.phase == .began || touch.phase == .ended || touch.phase == .moved else { continue }
             let info = trackedTouches[touch] ?? TouchInfo(id: touchId++)
-            let position = touch.location(in: nil)
-            if let last = info.events.last, touch.phase == .moved && last.phase == .move && touchesDelta(last.point, position) < 10 {
+            let position = touch.location(in: nil).applying(scale)
+            let newEvent = TouchEvent(x: position.x, y: position.y, timestamp: event.timestamp, phase: touch.phase.toRRWebTouchPhase())
+            
+            switch touch.phase {
+            case .began:
+                info.start = newEvent
+            case .ended, .cancelled:
+                info.end = newEvent
+            case .moved:
+                if let last = info.movements.last, touchesDelta(last.point, position) < 10 { continue }
+                info.movements.append(newEvent)
+            default:
                 continue
             }
-            info.events.append(TouchEvent(x: position.x, y: position.y, timestamp: event.timestamp, phase: touch.phase.toRRWebTouchPhase()))
+            
+            print("### Event = \(touch.phase) \(info.id) \(Date())")
+            
             trackedTouches[touch] = info
             debounceEvents(in: info)
         }
@@ -55,10 +73,10 @@ class SentryTouchTracker: NSObject {
     }
     
     private func debounceEvents(in touchInfo: TouchInfo) {
-        guard touchInfo.events.count >= 3 else { return }
-        let subset = touchInfo.events.suffix(3)
+        guard touchInfo.movements.count >= 3 else { return }
+        let subset = touchInfo.movements.suffix(3)
         if arePointsCollinear(subset[subset.startIndex].point, subset[subset.startIndex + 1].point, subset[subset.startIndex + 2].point) {
-            touchInfo.events.remove(at: touchInfo.events.count - 2)
+            touchInfo.movements.remove(at: touchInfo.movements.count - 2)
         }
     }
     
@@ -68,33 +86,46 @@ class SentryTouchTracker: NSObject {
     }
   
     func flushFinishedEvents() {
-        trackedTouches = trackedTouches.filter { element in
-            !element.value.events.contains { event in
-                event.phase == .end
-            }
-        }
+        trackedTouches = trackedTouches.filter { $0.value.end == nil }
     }
     
-    func replayEvents(from: Date, until: Date) -> [SentryRRWebTouchEvent] {
+    func replayEvents(from: Date, until: Date) -> [SentryRRWebEvent] {
         let uptime = ProcessInfo.processInfo.systemUptime
-        let startTime = Date()
-        return trackedTouches.values.flatMap { touchHistory in
-            touchHistory.events.compactMap({ touch in
-                let date = startTime.addingTimeInterval(touch.timestamp - uptime)
-                return touch.phase != .unknown && from <= date && until >= date
-                ? SentryRRWebTouchEvent(timestamp: date, touchId: touchHistory.id, x: Float(touch.x), y: Float(touch.y), phase: touch.phase)
-                : nil
-            })
+        let now = Date()
+        let startTimeInterval = uptime - now.timeIntervalSince(from)
+        let endTimeInterval = uptime - now.timeIntervalSince(until)
+        
+        var result = [SentryRRWebEvent]()
+        
+        for info in trackedTouches.values {
+            if let infoStart = info.start, infoStart.timestamp >= startTimeInterval && infoStart.timestamp <= endTimeInterval {
+                result.append(RRWebTouchEvent(timestamp: now.addingTimeInterval(infoStart.timestamp - uptime), touchId: info.id, x: Float(infoStart.x), y: Float(infoStart.y), phase: .start))
+            }
+            
+            let movements: [TouchPosition] = info.movements.compactMap { movement in
+                movement.timestamp >= startTimeInterval && movement.timestamp <= endTimeInterval
+                    ? TouchPosition(x: Float(movement.x), y: Float(movement.y), timestamp: now.addingTimeInterval(movement.timestamp - uptime))
+                    : nil
+            }
+            
+            if let lastMovement = movements.last {
+                result.append(RRWebMoveEvent(timestamp: lastMovement.timestamp, touchId: info.id, positions: movements))
+            }
+            
+            if let infoEnd = info.end, infoEnd.timestamp >= startTimeInterval && infoEnd.timestamp <= endTimeInterval {
+                result.append(RRWebTouchEvent(timestamp: now.addingTimeInterval(infoEnd.timestamp - uptime), touchId: info.id, x: Float(infoEnd.x), y: Float(infoEnd.y), phase: .end))
+            }
         }
+
+        return result.sorted { $0.timestamp.compare($1.timestamp) == .orderedAscending }
     }
 }
 
 private extension UITouch.Phase {
-    func toRRWebTouchPhase() -> SentryRRWebTouchEvent.TouchEventPhase {
+    func toRRWebTouchPhase() -> TouchEventPhase {
         switch self {
             case .began: .start
             case .ended, .cancelled: .end
-            case .moved: .move
             default: .unknown
         }
     }
