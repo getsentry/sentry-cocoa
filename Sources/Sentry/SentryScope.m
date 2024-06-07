@@ -52,6 +52,8 @@ SentryScope ()
 
 @property (nonatomic, retain) NSMutableArray<id<SentryScopeObserver>> *observers;
 
+@property (atomic, strong) NSMutableArray<SentryBreadcrumb *> *breadcrumbArray;
+
 @end
 
 @implementation SentryScope {

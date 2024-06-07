@@ -1,3 +1,5 @@
+#if os(iOS)
+
 @testable import Sentry
 import SentryTestUtils
 import XCTest
@@ -299,3 +301,4 @@ class SentryTouchTrackerTests: XCTestCase {
     }
     
 }
+#endif

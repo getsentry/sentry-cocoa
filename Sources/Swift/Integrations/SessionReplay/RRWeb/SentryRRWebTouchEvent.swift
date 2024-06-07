@@ -1,5 +1,6 @@
 import Foundation
 
+//Values defined in the RRWeb protocol
 enum TouchEventPhase: Int {
     case unknown = 0
     case start   = 7

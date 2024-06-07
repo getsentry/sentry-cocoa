@@ -1,6 +1,5 @@
 import Foundation
 
-//Increment extension
 extension FixedWidthInteger {
     
     @inlinable

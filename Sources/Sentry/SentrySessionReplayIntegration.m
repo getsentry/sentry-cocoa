@@ -177,6 +177,13 @@ SentrySessionReplayIntegration ()
 #    pragma clang diagnostic pop
 }
 
+#    if TEST || TESTCI
+- (SentryTouchTracker *)getTouchTracker
+{
+    return _touchTracker;
+}
+#    endif
+
 @end
 NS_ASSUME_NONNULL_END
 

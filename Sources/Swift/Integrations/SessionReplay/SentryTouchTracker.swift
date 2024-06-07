@@ -19,9 +19,9 @@ class SentryTouchTracker: NSObject {
     private class TouchInfo {
         let id: Int
         
-        var start: TouchEvent?
-        var end: TouchEvent?
-        var movements = [TouchEvent]()
+        var startEvent: TouchEvent?
+        var endEvent: TouchEvent?
+        var moveEvents = [TouchEvent]()
         
         init(id: Int) {
             self.id = id
@@ -48,12 +48,14 @@ class SentryTouchTracker: NSObject {
             
             switch touch.phase {
             case .began:
-                info.start = newEvent
+                info.startEvent = newEvent
             case .ended, .cancelled:
-                info.end = newEvent
+                info.endEvent = newEvent
             case .moved:
-                if let last = info.movements.last, touchesDelta(last.point, position) < 10 { continue }
-                info.movements.append(newEvent)
+                // If the distance between two points is smaller than 10 points, we don't record the second movement.
+                // iOS event polling is fast and will capture any movement; we don't need this granularity for replay.
+                if let last = info.moveEvents.last, touchesDelta(last.point, position) < 10 { continue }
+                info.moveEvents.append(newEvent)
                 debounceEvents(in: info)
             default:
                 continue
@@ -70,21 +72,22 @@ class SentryTouchTracker: NSObject {
     }
     
     private func debounceEvents(in touchInfo: TouchInfo) {
-        guard touchInfo.movements.count >= 3 else { return }
-        let subset = touchInfo.movements.suffix(3)
+        guard touchInfo.moveEvents.count >= 3 else { return }
+        let subset = touchInfo.moveEvents.suffix(3)
         if subset[subset.startIndex + 2].timestamp - subset[subset.startIndex + 1].timestamp > 0.5 {
-            //Dont debounce if the touch has a 1 second difference to show this pause in the replay.
+            // Don't debounce if the last two touches have at least a 500 millisecond difference to show this pause in the replay.
             return
         }
         if arePointsCollinearSameDirection(subset[subset.startIndex].point, subset[subset.startIndex + 1].point, subset[subset.startIndex + 2].point) {
-            touchInfo.movements.remove(at: touchInfo.movements.count - 2)
+            touchInfo.moveEvents.remove(at: touchInfo.moveEvents.count - 2)
         }
     }
     
-    private func arePointsCollinearSameDirection(_ a: CGPoint, _ b: CGPoint, _ c: CGPoint, tolerance: CGFloat = 10) -> Bool {
+    private func arePointsCollinearSameDirection(_ a: CGPoint, _ b: CGPoint, _ c: CGPoint) -> Bool {
         let crossProduct = (b.y - a.y) * (c.x - b.x) - (c.y - b.y) * (b.x - a.x)
         
-        if abs(crossProduct) >= tolerance {
+        // 10 is an arbitrary collinearity tolerance that we chose in the tests.
+        if abs(crossProduct) >= 10 {
             return false //Not collinear, return early
         }
               
@@ -101,7 +104,7 @@ class SentryTouchTracker: NSObject {
     }
   
     func flushFinishedEvents() {
-        trackedTouches = trackedTouches.filter { $0.value.end == nil }
+        trackedTouches = trackedTouches.filter { $0.value.endEvent == nil }
     }
     
     func replayEvents(from: Date, until: Date) -> [SentryRRWebEvent] {
@@ -113,21 +116,21 @@ class SentryTouchTracker: NSObject {
         var result = [SentryRRWebEvent]()
         
         for info in trackedTouches.values {
-            if let infoStart = info.start, infoStart.timestamp >= startTimeInterval && infoStart.timestamp <= endTimeInterval {
+            if let infoStart = info.startEvent, infoStart.timestamp >= startTimeInterval && infoStart.timestamp <= endTimeInterval {
                 result.append(RRWebTouchEvent(timestamp: now.addingTimeInterval(infoStart.timestamp - uptime), touchId: info.id, x: Float(infoStart.x), y: Float(infoStart.y), phase: .start))
             }
             
-            let movements: [TouchPosition] = info.movements.compactMap { movement in
+            let moveEvents: [TouchPosition] = info.moveEvents.compactMap { movement in
                 movement.timestamp >= startTimeInterval && movement.timestamp <= endTimeInterval
                     ? TouchPosition(x: Float(movement.x), y: Float(movement.y), timestamp: now.addingTimeInterval(movement.timestamp - uptime))
                     : nil
             }
             
-            if let lastMovement = movements.last {
-                result.append(RRWebMoveEvent(timestamp: lastMovement.timestamp, touchId: info.id, positions: movements))
+            if let lastMovement = moveEvents.last {
+                result.append(RRWebMoveEvent(timestamp: lastMovement.timestamp, touchId: info.id, positions: moveEvents))
             }
             
-            if let infoEnd = info.end, infoEnd.timestamp >= startTimeInterval && infoEnd.timestamp <= endTimeInterval {
+            if let infoEnd = info.endEvent, infoEnd.timestamp >= startTimeInterval && infoEnd.timestamp <= endTimeInterval {
                 result.append(RRWebTouchEvent(timestamp: now.addingTimeInterval(infoEnd.timestamp - uptime), touchId: info.id, x: Float(infoEnd.x), y: Float(infoEnd.y), phase: .end))
             }
         }
