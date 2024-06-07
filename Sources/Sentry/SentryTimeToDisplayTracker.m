@@ -142,7 +142,7 @@ SentryTimeToDisplayTracker () <SentryFramesTrackerListener>
         if (!_waitForFullDisplay) {
             [SentryDependencyContainer.sharedInstance.framesTracker removeListener:self];
 #    if SENTRY_TARGET_PROFILING_SUPPORTED
-            if (SentrySDK.options.profilesSampleRate != nil) {
+            if (![SentrySDK.options isContinuousProfilingEnabled]) {
                 sentry_stopAndDiscardLaunchProfileTracer();
             }
 #    endif // SENTRY_TARGET_PROFILING_SUPPORTED
@@ -154,7 +154,7 @@ SentryTimeToDisplayTracker () <SentryFramesTrackerListener>
         self.fullDisplaySpan.timestamp = newFrameDate;
         [self.fullDisplaySpan finish];
 #    if SENTRY_TARGET_PROFILING_SUPPORTED
-        if (SentrySDK.options.profilesSampleRate != nil) {
+        if (![SentrySDK.options isContinuousProfilingEnabled]) {
             sentry_stopAndDiscardLaunchProfileTracer();
         }
 #    endif // SENTRY_TARGET_PROFILING_SUPPORTED

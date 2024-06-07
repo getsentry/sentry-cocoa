@@ -647,7 +647,10 @@ sentry_isValidSampleRate(NSNumber *sampleRate)
 {
 #    pragma clang diagnostic push
 #    pragma clang diagnostic ignored "-Wdeprecated-declarations"
-    return _profilesSampleRate.doubleValue == 0 && _profilesSampler == nil && !self.enableProfiling;
+    // this looks a little weird with the `!self.enableProfiling` but that actually is the
+    // deprecated way to say "enable trace-based profiling", which necessarily disables continuous
+    // profiling as they are mutually exclusive modes
+    return _profilesSampleRate == nil && _profilesSampler == nil && !self.enableProfiling;
 #    pragma clang diagnostic pop
 }
 
