@@ -31,17 +31,18 @@ class RRWebTouchEvent: SentryRRWebEvent {
 
 class RRWebMoveEvent: SentryRRWebEvent {
     init(timestamp: Date, touchId: Int, positions: [TouchPosition]) {
+        let positions: [[String: Any]] = positions.map({[
+            "id": 0,
+            "x": $0.x,
+            "y": $0.y,
+            "timeOffset": Int($0.timestamp.timeIntervalSince(timestamp) * 1_000)
+        ]})
         super.init(type: .touch,
                    timestamp: timestamp,
                    data: [
                     "source": 6,
                     "pointerId": touchId,
-                    "positions": positions.map({[
-                        "id": 0,
-                        "x": $0.x,
-                        "y": $0.y,
-                        "timeOffset": Int($0.timestamp.timeIntervalSince(timestamp) * 1_000)
-                    ]})
+                    "positions": positions
                    ])
     }
 }

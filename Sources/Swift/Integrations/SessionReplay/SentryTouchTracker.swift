@@ -139,9 +139,9 @@ class SentryTouchTracker: NSObject {
 private extension UITouch.Phase {
     func toRRWebTouchPhase() -> TouchEventPhase {
         switch self {
-            case .began: .start
-            case .ended, .cancelled: .end
-            default: .unknown
+            case .began: TouchEventPhase.start
+            case .ended, .cancelled: TouchEventPhase.end
+            default: TouchEventPhase.unknown
         }
     }
 }
