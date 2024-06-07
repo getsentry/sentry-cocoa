@@ -78,6 +78,8 @@ class SentryTouchTracker: NSObject {
             // Don't debounce if the last two touches have at least a 500 millisecond difference to show this pause in the replay.
             return
         }
+        // If the last 3 touch points exist in a straight line, we don't need the middle point,
+        // because the representation in the replay with 2 or 3 points will be the same.
         if arePointsCollinearSameDirection(subset[subset.startIndex].point, subset[subset.startIndex + 1].point, subset[subset.startIndex + 2].point) {
             touchInfo.moveEvents.remove(at: touchInfo.moveEvents.count - 2)
         }
