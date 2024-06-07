@@ -420,8 +420,8 @@ class SentrySDKTests: XCTestCase {
     func testStartingContinuousProfilerWithSampleRateZero() throws {
         givenSdkWithHub()
         
-        // 0 this is the default value for profilesSampleRate, so we don't have to explicitly set it on the fixture
-        XCTAssertEqual(try XCTUnwrap(fixture.options.profilesSampleRate).doubleValue, 0)
+        // nil is the default value for profilesSampleRate, so we don't have to explicitly set it on the fixture
+        XCTAssertNil(fixture.options.profilesSampleRate)
         XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
         SentrySDK.startProfiler()
         XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
