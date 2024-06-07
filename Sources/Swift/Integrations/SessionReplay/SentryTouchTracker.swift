@@ -86,23 +86,19 @@ class SentryTouchTracker: NSObject {
     }
     
     private func arePointsCollinearSameDirection(_ a: CGPoint, _ b: CGPoint, _ c: CGPoint) -> Bool {
-        let crossProduct = (b.y - a.y) * (c.x - b.x) - (c.y - b.y) * (b.x - a.x)
+        let ab = CGPoint(x: b.x - a.x, y: b.y - a.y)
+        let bc = CGPoint(x: c.x - b.x, y: c.y - b.y)
         
-        // 10 is an arbitrary collinearity tolerance that we chose in the tests.
-        if abs(crossProduct) >= 10 {
-            return false //Not collinear, return early
+        // Check if the cross product is small (collinearity)
+        // 100 is an arbitrare number chose in tests
+        let crossProduct = ab.x * bc.y - ab.y * bc.x
+        if abs(crossProduct) > 100 {
+            return false
         }
-              
-        let directionAB = CGPoint(x: b.x - a.x, y: b.y - a.y)
-        let directionBC = CGPoint(x: c.x - b.x, y: c.y - b.y)
-        let lengthAB = sqrt(pow(directionAB.x, 2) + pow(directionAB.y, 2))
-        let lengthBC = sqrt(pow(directionBC.x, 2) + pow(directionBC.y, 2))
-        let normalizedAB = CGPoint(x: directionAB.x / lengthAB, y: directionAB.y / lengthAB)
-        let normalizedBC = CGPoint(x: directionBC.x / lengthBC, y: directionBC.y / lengthBC)
-        let dotProduct = normalizedAB.x * normalizedBC.x + normalizedAB.y * normalizedBC.y
         
-        // Directions are considered the same if the dot product is close to 1 (with some tolerance)
-        return abs(dotProduct - 1) < 0.001
+        // Check if the dot product is positive (same direction)
+        let dotProduct = ab.x * bc.x + ab.y * bc.y
+        return dotProduct > 0
     }
   
     func flushFinishedEvents() {
