@@ -28,6 +28,11 @@ class SentryTouchTracker: NSObject {
         }
     }
     
+    /**
+     * Using UITouch as a key because the touch is the same across events
+     * for the same touch. As long we holding the reference no two UITouches
+     * will ever have the same pointer.
+     */
     private var trackedTouches = [UITouch: TouchInfo]()
     private var touchId = 1
     private let dateProvider: SentryCurrentDateProvider
@@ -86,6 +91,8 @@ class SentryTouchTracker: NSObject {
     }
     
     private func arePointsCollinearSameDirection(_ a: CGPoint, _ b: CGPoint, _ c: CGPoint) -> Bool {
+        // In the case some tweeking in the tolerances is required
+        // its possible to test this function in the following link: https://jsfiddle.net/dhiogorb/8owgh1pb/3/
         var abAngle = atan2(b.x - a.x, b.y - a.y)
         var bcAngle = atan2(c.x - b.x, c.y - b.y)
 
