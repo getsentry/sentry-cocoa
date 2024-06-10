@@ -294,7 +294,7 @@ SentrySessionReplay ()
 
     __block NSArray<SentryBreadcrumb *> *breadcrumbs;
     [SentrySDK.currentHub
-        configureScope:^(SentryScope *_Nonnull scope) { breadcrumbs = scope.breadcrumbs.copy; }];
+        configureScope:^(SentryScope *_Nonnull scope) { breadcrumbs = scope.breadcrumbs; }];
     NSMutableArray<SentryRRWebEvent *> *events = [NSMutableArray array];
 
     [events addObjectsFromArray:[self->_breadcrumbConverter convertWithBreadcrumbs:breadcrumbs
