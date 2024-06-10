@@ -35,6 +35,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             
             if #available(iOS 15.0, *) {
                 options.enableMetricKit = true
+                options.enableMetricKitAttachments = true
             }
             
             let args = ProcessInfo.processInfo.arguments

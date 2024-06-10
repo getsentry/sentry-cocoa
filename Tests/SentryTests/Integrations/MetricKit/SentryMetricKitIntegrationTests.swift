@@ -85,6 +85,25 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         }
     }
     
+    func testAttachDiagnosticAsAttachment() throws {
+        if #available(iOS 15, macOS 12, macCatalyst 15, *) {
+            givenSDKWithHubWithScope()
+            
+            let sut = SentryMetricKitIntegration()
+            givenInstalledWithEnabled(sut) { $0.enableMetricKitAttachments = true }
+            
+            let mxDelegate = sut as SentryMXManagerDelegate
+            let diagnostic = MXCrashDiagnostic()
+            mxDelegate.didReceiveCrashDiagnostic(diagnostic, callStackTree: callStackTreePerThread, timeStampBegin: timeStampBegin, timeStampEnd: timeStampEnd)
+            
+            assertEventWithScopeCaptured { _, scope, _ in
+                let diagnosticAttachment = scope?.attachments.first { $0.filename == "MXDiagnosticPayload.json" }
+                
+                XCTAssertEqual(diagnosticAttachment?.data, diagnostic.jsonRepresentation())
+            }
+        }
+    }
+    
     func testSetInAppIncludes_AppliesInAppToStackTrace() throws {
         if #available(iOS 15, macOS 12, macCatalyst 15, *) {
             givenSDKWithHubWithScope()
