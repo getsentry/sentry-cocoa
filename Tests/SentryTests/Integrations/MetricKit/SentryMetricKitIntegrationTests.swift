@@ -90,7 +90,7 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
             givenSDKWithHubWithScope()
             
             let sut = SentryMetricKitIntegration()
-            givenInstalledWithEnabled(sut) { $0.enableMetricKitAttachments = true }
+            givenInstalledWithEnabled(sut) { $0.enableMetricKitRawPayload = true }
             
             let mxDelegate = sut as SentryMXManagerDelegate
             let diagnostic = MXCrashDiagnostic()

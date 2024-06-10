@@ -4,7 +4,7 @@
 
 ### Features
 
-- Add enableMetricKitAttachments (#4044)
+- Add enableMetricKitRawPayload (#4044)
 
 ## 8.28.0
 

@@ -197,7 +197,7 @@ NSString *const kSentryDefaultEnvironment = @"production";
 #if SENTRY_HAS_METRIC_KIT
         if (@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, *)) {
             self.enableMetricKit = NO;
-            self.enableMetricKitAttachments = NO;
+            self.enableMetricKitRawPayload = NO;
         }
 #endif // SENTRY_HAS_METRIC_KIT
     }
@@ -523,8 +523,8 @@ NSString *const kSentryDefaultEnvironment = @"production";
     if (@available(iOS 14.0, macOS 12.0, macCatalyst 14.0, *)) {
         [self setBool:options[@"enableMetricKit"]
                 block:^(BOOL value) { self->_enableMetricKit = value; }];
-        [self setBool:options[@"enableMetricKitAttachments"]
-                block:^(BOOL value) { self->_enableMetricKitAttachments = value; }];
+        [self setBool:options[@"enableMetricKitRawPayload"]
+                block:^(BOOL value) { self->_enableMetricKitRawPayload = value; }];
     }
 #endif // SENTRY_HAS_METRIC_KIT
 

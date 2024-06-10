@@ -577,7 +577,7 @@ NS_SWIFT_NAME(Options)
  *
  * @note Default value is @c NO.
  */
-@property (nonatomic, assign) BOOL enableMetricKitAttachments API_AVAILABLE(
+@property (nonatomic, assign) BOOL enableMetricKitRawPayload API_AVAILABLE(
     ios(15.0), macos(12.0), macCatalyst(15.0)) API_UNAVAILABLE(tvos, watchos);
 
 #endif // SENTRY_HAS_METRIC_KIT

@@ -71,7 +71,7 @@ SentryMetricKitIntegration ()
     self.measurementFormatter.unitOptions = NSMeasurementFormatterUnitOptionsProvidedUnit;
     self.inAppLogic = [[SentryInAppLogic alloc] initWithInAppIncludes:options.inAppIncludes
                                                         inAppExcludes:options.inAppExcludes];
-    self.attachDiagnosticAsAttachment = options.enableMetricKitAttachments;
+    self.attachDiagnosticAsAttachment = options.enableMetricKitRawPayload;
 
     return YES;
 }
