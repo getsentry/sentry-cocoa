@@ -114,6 +114,11 @@ SentrySessionReplayIntegration ()
                                                    name:UIApplicationDidEnterBackgroundNotification
                                                  object:nil];
 
+        [NSNotificationCenter.defaultCenter addObserver:self
+                                               selector:@selector(resume)
+                                                   name:UIApplicationWillEnterForegroundNotification
+                                                 object:nil];
+
         [SentryGlobalEventProcessor.shared
             addEventProcessor:^SentryEvent *_Nullable(SentryEvent *_Nonnull event) {
                 [self.sessionReplay captureReplayForEvent:event];
@@ -125,6 +130,11 @@ SentrySessionReplayIntegration ()
 - (void)stop
 {
     [self.sessionReplay stop];
+}
+
+- (void)resume
+{
+    [self.sessionReplay];
 }
 
 - (void)captureReplay

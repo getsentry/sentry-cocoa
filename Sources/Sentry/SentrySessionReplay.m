@@ -118,6 +118,14 @@ SentrySessionReplay ()
     }
 }
 
+- (void)resume
+{
+    @synchronized(self) {
+        [_displayLink linkWithTarget:self selector:@selector(newFrame:)];
+        _isRunning = YES;
+    }
+}
+
 - (void)dealloc
 {
     [self stop];
