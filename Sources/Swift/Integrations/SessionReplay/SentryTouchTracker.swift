@@ -86,19 +86,15 @@ class SentryTouchTracker: NSObject {
     }
     
     private func arePointsCollinearSameDirection(_ a: CGPoint, _ b: CGPoint, _ c: CGPoint) -> Bool {
-        let ab = CGPoint(x: b.x - a.x, y: b.y - a.y)
-        let bc = CGPoint(x: c.x - b.x, y: c.y - b.y)
-        
-        // Check if the cross product is small (collinearity)
-        // 100 is an arbitrare number chose in tests
-        let crossProduct = ab.x * bc.y - ab.y * bc.x
-        if abs(crossProduct) > 100 {
-            return false
-        }
-        
-        // Check if the dot product is positive (same direction)
-        let dotProduct = ab.x * bc.x + ab.y * bc.y
-        return dotProduct > 0
+        var abAngle = atan2(b.x - a.x, b.y - a.y)
+        var bcAngle = atan2(c.x - b.x, c.y - b.y)
+
+        if abAngle * bcAngle < 0 { return false; }
+
+        abAngle += .pi
+        bcAngle += .pi
+
+        return abs(abAngle - bcAngle) < 0.05 || abs(abAngle - (2 * .pi - bcAngle)) < 0.05
     }
   
     func flushFinishedEvents() {
