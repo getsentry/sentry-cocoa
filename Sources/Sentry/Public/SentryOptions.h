@@ -571,6 +571,15 @@ NS_SWIFT_NAME(Options)
 @property (nonatomic, assign) BOOL enableMetricKit API_AVAILABLE(
     ios(15.0), macos(12.0), macCatalyst(15.0)) API_UNAVAILABLE(tvos, watchos);
 
+/**
+ * When enabled, the SDK adds the raw MXDiagnosticPayloads as an attachment to the converted
+ * SentryEvent. You need to enable @c enableMetricKit for this flag to work.
+ *
+ * @note Default value is @c NO.
+ */
+@property (nonatomic, assign) BOOL enableMetricKitRawPayload API_AVAILABLE(
+    ios(15.0), macos(12.0), macCatalyst(15.0)) API_UNAVAILABLE(tvos, watchos);
+
 #endif // SENTRY_HAS_METRIC_KIT
 
 /**
