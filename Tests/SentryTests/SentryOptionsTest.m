@@ -155,6 +155,11 @@
     XCTAssertEqual(expected, options.diagnosticLevel);
 }
 
+- (void)testEnableSigtermReporting
+{
+    [self testBooleanField:@"enableSigtermReporting" defaultValue:NO];
+}
+
 - (void)testValidEnabled
 {
     [self testEnabledWith:@YES expected:YES];
@@ -654,6 +659,7 @@
 #if SENTRY_HAS_METRIC_KIT
     if (@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, *)) {
         XCTAssertEqual(NO, options.enableMetricKit);
+        XCTAssertEqual(NO, options.enableMetricKitRawPayload);
     }
 #endif
 
@@ -841,6 +847,13 @@
 {
     if (@available(iOS 14.0, macOS 12.0, macCatalyst 14.0, *)) {
         [self testBooleanField:@"enableMetricKit" defaultValue:NO];
+    }
+}
+
+- (void)testenableMetricKitRawPayload
+{
+    if (@available(iOS 14.0, macOS 12.0, macCatalyst 14.0, *)) {
+        [self testBooleanField:@"enableMetricKitRawPayload" defaultValue:NO];
     }
 }
 #endif

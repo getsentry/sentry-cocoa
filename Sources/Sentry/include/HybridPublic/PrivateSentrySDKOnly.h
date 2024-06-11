@@ -174,6 +174,7 @@ typedef void (^SentryOnAppStartMeasurementAvailable)(
                 screenshotProvider:(nullable id<SentryViewScreenshotProvider>)screenshotProvider;
 
 #endif
++ (nullable NSDictionary<NSString *, id> *)appStartMeasurementWithSpans;
 
 + (SentryUser *)userWithDictionary:(NSDictionary *)dictionary;
 

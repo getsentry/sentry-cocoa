@@ -24,9 +24,8 @@ sentry_threadSanitizerIsPresent(void)
 #    if defined(TEST) || defined(TESTCI) || defined(DEBUG)
 
 void
-sentry_writeProfileFile(NSDictionary<NSString *, id> *payload)
+sentry_writeProfileFile(NSData *JSONData)
 {
-    NSData *data = [SentrySerialization dataWithJSONObject:payload];
     NSFileManager *fm = [NSFileManager defaultManager];
     NSString *testProfileDirPath =
         [sentryApplicationSupportPath() stringByAppendingPathComponent:@"profiles"];
@@ -64,7 +63,8 @@ sentry_writeProfileFile(NSDictionary<NSString *, id> *payload)
     }
 
     SENTRY_LOG_DEBUG(@"Writing profile to file: %@.", pathToWrite);
-    SENTRY_CASSERT([data writeToFile:pathToWrite options:NSDataWritingAtomic error:&error],
+
+    SENTRY_CASSERT([JSONData writeToFile:pathToWrite options:NSDataWritingAtomic error:&error],
         @"Failed to write data to path %@: %@", pathToWrite, error);
 }
 

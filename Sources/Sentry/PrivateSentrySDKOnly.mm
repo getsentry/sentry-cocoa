@@ -71,6 +71,66 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
     return [SentrySDK getAppStartMeasurement];
 }
 
++ (nullable NSDictionary<NSString *, id> *)appStartMeasurementWithSpans
+{
+#if SENTRY_HAS_UIKIT
+    SentryAppStartMeasurement *measurement = [SentrySDK getAppStartMeasurement];
+    if (measurement == nil) {
+        return nil;
+    }
+
+    NSString *type = [SentryAppStartTypeToString convert:measurement.type];
+    NSNumber *isPreWarmed = [NSNumber numberWithBool:measurement.isPreWarmed];
+    NSNumber *appStartTimestampMs =
+        [NSNumber numberWithDouble:measurement.appStartTimestamp.timeIntervalSince1970 * 1000];
+    NSNumber *runtimeInitTimestampMs =
+        [NSNumber numberWithDouble:measurement.runtimeInitTimestamp.timeIntervalSince1970 * 1000];
+    NSNumber *moduleInitializationTimestampMs = [NSNumber
+        numberWithDouble:measurement.moduleInitializationTimestamp.timeIntervalSince1970 * 1000];
+    NSNumber *sdkStartTimestampMs =
+        [NSNumber numberWithDouble:measurement.sdkStartTimestamp.timeIntervalSince1970 * 1000];
+
+    NSDictionary *uiKitInitSpan = @{
+        @"description" : @"UIKit init",
+        @"start_timestamp_ms" : moduleInitializationTimestampMs,
+        @"end_timestamp_ms" : sdkStartTimestampMs,
+    };
+
+    NSArray *spans = measurement.isPreWarmed ? @[
+        @{
+            @"description": @"Pre Runtime Init",
+            @"start_timestamp_ms": appStartTimestampMs,
+            @"end_timestamp_ms": runtimeInitTimestampMs,
+        },
+        @{
+            @"description": @"Runtime init to Pre Main initializers",
+            @"start_timestamp_ms": runtimeInitTimestampMs,
+            @"end_timestamp_ms": moduleInitializationTimestampMs,
+        },
+        uiKitInitSpan,
+    ] : @[
+      uiKitInitSpan,
+    ];
+
+    // We don't have access to didFinishLaunchingTimestamp on HybridSDKs,
+    // the Cocoa SDK misses the didFinishLaunchNotification and
+    // the didBecomeVisibleNotification. Therefore, we can't set the
+    // didFinishLaunchingTimestamp. This would only work for munualy initialized native SDKs.
+
+    return @{
+        @"type" : type,
+        @"is_pre_warmed" : isPreWarmed,
+        @"app_start_timestamp_ms" : appStartTimestampMs,
+        @"runtime_init_timestamp_ms" : runtimeInitTimestampMs,
+        @"module_initialization_timestamp_ms" : moduleInitializationTimestampMs,
+        @"sdk_start_timestamp_ms" : sdkStartTimestampMs,
+        @"spans" : spans,
+    };
+#else
+    return nil;
+#endif // SENTRY_HAS_UIKIT
+}
+
 + (NSString *)installationID
 {
     return [SentryInstallation idWithCacheDirectoryPath:self.options.cacheDirectoryPath];

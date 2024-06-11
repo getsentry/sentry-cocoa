@@ -92,6 +92,72 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
         SentrySDK.setAppStartMeasurement(nil)
         XCTAssertNil(PrivateSentrySDKOnly.appStartMeasurement)
     }
+
+    func testGetAppStartMeasurementWithSpansCold() {
+        SentrySDK.setAppStartMeasurement(
+            TestData.getAppStartMeasurement(type: .cold, runtimeInitSystemTimestamp: 1)
+        )
+
+        let actualAppStartMeasurement = PrivateSentrySDKOnly.appStartMeasurementWithSpans()
+
+        XCTAssertNotNil(actualAppStartMeasurement)
+        XCTAssertEqual(actualAppStartMeasurement!["type"] as! String, "cold")
+        XCTAssertEqual(actualAppStartMeasurement!["is_pre_warmed"] as! Int, 0)
+        XCTAssertEqual((actualAppStartMeasurement!["spans"] as! NSArray).count, 1)
+        XCTAssertEqual(((actualAppStartMeasurement!["spans"] as! NSArray)[0] as! NSDictionary)["description"] as! String, "UIKit init")
+        XCTAssert(((actualAppStartMeasurement!["spans"] as! NSArray)[0] as! NSDictionary)["start_timestamp_ms"] is NSNumber)
+        XCTAssert(((actualAppStartMeasurement!["spans"] as! NSArray)[0] as! NSDictionary)["end_timestamp_ms"] is NSNumber)
+    }
+
+    func testGetAppStartMeasurementWithSpansPreWarmed() {
+        SentrySDK.setAppStartMeasurement(
+            TestData.getAppStartMeasurement(
+                type: .warm,
+                runtimeInitSystemTimestamp: 1,
+                preWarmed: true)
+        )
+
+        let actualAppStartMeasurement = PrivateSentrySDKOnly.appStartMeasurementWithSpans()
+
+        XCTAssertNotNil(actualAppStartMeasurement)
+        XCTAssertEqual(actualAppStartMeasurement!["type"] as! String, "warm")
+        XCTAssertEqual(actualAppStartMeasurement!["is_pre_warmed"] as! Int, 1)
+        XCTAssertEqual((actualAppStartMeasurement!["spans"] as! NSArray).count, 3)
+        XCTAssertEqual(((actualAppStartMeasurement!["spans"] as! NSArray)[0] as! NSDictionary)["description"] as! String, "Pre Runtime Init")
+        XCTAssert(((actualAppStartMeasurement!["spans"] as! NSArray)[0] as! NSDictionary)["start_timestamp_ms"] is NSNumber)
+        XCTAssert(((actualAppStartMeasurement!["spans"] as! NSArray)[0] as! NSDictionary)["end_timestamp_ms"] is NSNumber)
+        XCTAssertEqual(((actualAppStartMeasurement!["spans"] as! NSArray)[1] as! NSDictionary)["description"] as! String, "Runtime init to Pre Main initializers")
+        XCTAssert(((actualAppStartMeasurement!["spans"] as! NSArray)[1] as! NSDictionary)["start_timestamp_ms"] is NSNumber)
+        XCTAssert(((actualAppStartMeasurement!["spans"] as! NSArray)[1] as! NSDictionary)["end_timestamp_ms"] is NSNumber)
+        XCTAssertEqual(((actualAppStartMeasurement!["spans"] as! NSArray)[2] as! NSDictionary)["description"] as! String, "UIKit init")
+        XCTAssert(((actualAppStartMeasurement!["spans"] as! NSArray)[2] as! NSDictionary)["start_timestamp_ms"] is NSNumber)
+        XCTAssert(((actualAppStartMeasurement!["spans"] as! NSArray)[2] as! NSDictionary)["end_timestamp_ms"] is NSNumber)
+    }
+
+    func testGetAppStartMeasurementWithSpansReturnsTimestampsInMs() {
+        SentrySDK.setAppStartMeasurement(
+            TestData.getAppStartMeasurement(
+                type: .cold,
+                appStartTimestamp: Date(timeIntervalSince1970: 5),
+                runtimeInitSystemTimestamp: 1,
+                preWarmed: true,
+                moduleInitializationTimestamp: Date(timeIntervalSince1970: 20),
+                runtimeInitTimestamp: Date(timeIntervalSince1970: 15),
+                sdkStartTimestamp: Date(timeIntervalSince1970: 10))
+        )
+
+        let actualAppStartMeasurement = PrivateSentrySDKOnly.appStartMeasurementWithSpans()
+
+        XCTAssertNotNil(actualAppStartMeasurement)
+        XCTAssert(actualAppStartMeasurement!["app_start_timestamp_ms"] is NSNumber)
+        XCTAssert(actualAppStartMeasurement!["runtime_init_timestamp_ms"] is NSNumber)
+        XCTAssert(actualAppStartMeasurement!["module_initialization_timestamp_ms"] is NSNumber)
+        XCTAssert(actualAppStartMeasurement!["sdk_start_timestamp_ms"] is NSNumber)
+        XCTAssertEqual(actualAppStartMeasurement!["app_start_timestamp_ms"] as! NSNumber, 5_000)
+        XCTAssertEqual(actualAppStartMeasurement!["runtime_init_timestamp_ms"] as! NSNumber, 15_000)
+        XCTAssertEqual(actualAppStartMeasurement!["module_initialization_timestamp_ms"] as! NSNumber, 20_000)
+        XCTAssertEqual(actualAppStartMeasurement!["sdk_start_timestamp_ms"] as! NSNumber, 10_000)
+    }
     #endif
 
     func testGetInstallationId() {

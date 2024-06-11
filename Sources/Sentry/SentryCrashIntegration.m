@@ -1,5 +1,7 @@
 #import "SentryCrashIntegration.h"
 #import "SentryCrashInstallationReporter.h"
+
+#include "SentryCrashMonitor_Signal.h"
 #import "SentryCrashWrapper.h"
 #import "SentryDispatchQueueWrapper.h"
 #import "SentryEvent.h"
@@ -87,7 +89,13 @@ SentryCrashIntegration ()
     self.scopeObserver =
         [[SentryCrashScopeObserver alloc] initWithMaxBreadcrumbs:options.maxBreadcrumbs];
 
-    [self startCrashHandler:options.cacheDirectoryPath];
+    BOOL enableSigtermReporting = NO;
+#if !TARGET_OS_WATCH
+    enableSigtermReporting = options.enableSigtermReporting;
+#endif // !TARGET_OS_WATCH
+
+    [self startCrashHandler:options.cacheDirectoryPath
+        enableSigtermReporting:enableSigtermReporting];
 
     [self configureScope];
 
@@ -100,6 +108,7 @@ SentryCrashIntegration ()
 }
 
 - (void)startCrashHandler:(NSString *)cacheDirectory
+    enableSigtermReporting:(BOOL)enableSigtermReporting
 {
     void (^block)(void) = ^{
         BOOL canSendReports = NO;
@@ -115,6 +124,8 @@ SentryCrashIntegration ()
 
             canSendReports = YES;
         }
+
+        sentrycrashcm_setEnableSigtermReporting(enableSigtermReporting);
 
         [installation install:cacheDirectory];
 

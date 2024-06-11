@@ -6,6 +6,20 @@
 #    import "SentryLog.h"
 #    import <Foundation/Foundation.h>
 
+@implementation SentryAppStartTypeToString
++ (NSString *)convert:(SentryAppStartType)type
+{
+    switch (type) {
+    case SentryAppStartTypeWarm:
+        return @"warm";
+    case SentryAppStartTypeCold:
+        return @"cold";
+    case SentryAppStartTypeUnknown:
+        return @"unknown";
+    }
+}
+@end
+
 @implementation SentryAppStartMeasurement
 #    if SENTRY_HAS_UIKIT
 {
