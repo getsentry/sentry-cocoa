@@ -74,7 +74,7 @@
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "--io.sentry.enable-continuous-profiling"
+            argument = "--io.sentry.enableContinuousProfiling"
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
