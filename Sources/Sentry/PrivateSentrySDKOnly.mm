@@ -305,9 +305,10 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
     return [[SentryBreadcrumb alloc] initWithDictionary:dictionary];
 }
 
+#if SENTRY_HAS_UIKIT && !TARGET_OS_VISION
 + (SentrySessionReplayIntegration *)getReplayIntegration
 {
-#if SENTRY_HAS_UIKIT && !TARGET_OS_VISION
+
     NSArray *integrations = [[SentrySDK currentHub] installedIntegrations];
     SentrySessionReplayIntegration *replayIntegration;
     for (id obj in integrations) {
@@ -318,24 +319,31 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
     }
 
     return replayIntegration;
+}
+#endif
+
++ (void)captureReplay
+{
+#if SENTRY_HAS_UIKIT && !TARGET_OS_VISION
+    [[PrivateSentrySDKOnly getReplayIntegration] captureReplay];
 #else
-    return nil;
     SENTRY_LOG_DEBUG(
         @"SentrySessionReplayIntegration only works with UIKit enabled and target is "
         @"not visionOS. Ensure you're using the right configuration of Sentry that links UIKit.");
 #endif
 }
 
-+ (void)captureReplay
-{
-    [[PrivateSentrySDKOnly getReplayIntegration] captureReplay];
-}
-
 + (void)configureSessionReplayWith:(nullable id<SentryReplayBreadcrumbConverter>)breadcrumbConverter
                 screenshotProvider:(nullable id<SentryViewScreenshotProvider>)screenshotProvider
 {
+#if SENTRY_HAS_UIKIT && !TARGET_OS_VISION
     [[PrivateSentrySDKOnly getReplayIntegration] configureReplayWith:breadcrumbConverter
                                                   screenshotProvider:screenshotProvider];
+#else
+    SENTRY_LOG_DEBUG(
+        @"SentrySessionReplayIntegration only works with UIKit enabled and target is "
+        @"not visionOS. Ensure you're using the right configuration of Sentry that links UIKit.");
+#endif
 }
 
 + (NSString *__nullable)getReplayId
