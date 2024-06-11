@@ -30,10 +30,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             
             if #available(iOS 16.0, *) {
                 options.experimental.sessionReplay = SentryReplayOptions(sessionSampleRate: 1, errorSampleRate: 1, redactAllText: true, redactAllImages: true)
+                options.experimental.sessionReplay.quality = .high
             }
             
             if #available(iOS 15.0, *) {
                 options.enableMetricKit = true
+                options.enableMetricKitRawPayload = true
             }
             
             let args = ProcessInfo.processInfo.arguments

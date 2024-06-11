@@ -663,6 +663,7 @@
 #if SENTRY_HAS_METRIC_KIT
     if (@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, *)) {
         XCTAssertEqual(NO, options.enableMetricKit);
+        XCTAssertEqual(NO, options.enableMetricKitRawPayload);
     }
 #endif // SENTRY_HAS_METRIC_KIT
 
@@ -850,6 +851,13 @@
 {
     if (@available(iOS 14.0, macOS 12.0, macCatalyst 14.0, *)) {
         [self testBooleanField:@"enableMetricKit" defaultValue:NO];
+    }
+}
+
+- (void)testenableMetricKitRawPayload
+{
+    if (@available(iOS 14.0, macOS 12.0, macCatalyst 14.0, *)) {
+        [self testBooleanField:@"enableMetricKitRawPayload" defaultValue:NO];
     }
 }
 #endif // SENTRY_HAS_METRIC_KIT
