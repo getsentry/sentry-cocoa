@@ -95,27 +95,30 @@ class LaunchUITests: BaseUITest {
     func testCheckTotalFrames() {
         app.buttons["Extra"].tap()
         
-        let (startTotalFrames, _, _) = getFramesStats()
+        let (startTotalFrames, startSlowFrames, _) = getFramesStats()
         let startDate = Date()
     
         let dispatchQueue = DispatchQueue(label: "CheckSlowAndFrozenFrames")
         let dispatchGroup = DispatchGroup()
         dispatchGroup.enter()
         
-        dispatchQueue.asyncAfter(deadline: .now() + 3.0) {
+        dispatchQueue.asyncAfter(deadline: .now() + 1.0) {
             dispatchGroup.leave()
         }
         dispatchGroup.wait()
         
-        let (endTotalFrames, _, _) = getFramesStats()
+        let (endTotalFrames, endSlowFrames, _) = getFramesStats()
         let endDate = Date()
         
         let secondsBetween = endDate.timeIntervalSince(startDate)
   
         // We don't calculate the min and max values based on the frame rate, as it could have changed while waiting for them to render.
         // Instead, we pick the minimum value based on 60fps and the maximum value based on 120fps.
-        let expectedMinimumTotalFrames = (secondsBetween - 1.0) * 60
-        let expectedMaximumTotalFrames = (secondsBetween + 1.0) * 120
+        let slowFrames = endSlowFrames - startSlowFrames
+        let slowFramesBuffer = Double(slowFrames) * 0.2
+        
+        let expectedMinimumTotalFrames = (secondsBetween - 0.5 - slowFramesBuffer) * 60
+        let expectedMaximumTotalFrames = (secondsBetween + 0.5) * 120
         
         let actualTotalFrames = Double(endTotalFrames - startTotalFrames)
         

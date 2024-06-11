@@ -74,6 +74,23 @@ NS_SWIFT_NAME(Options)
  */
 @property (nonatomic, assign) BOOL enableCrashHandler;
 
+#if !TARGET_OS_WATCH
+
+/**
+ * When enabled, the SDK reports SIGTERM signals to Sentry.
+ *
+ * It's crucial for developers to understand that the OS sends a SIGTERM to their app as a prelude
+ * to a graceful shutdown, before resorting to a SIGKILL. This SIGKILL, which your app can't catch
+ * or ignore, is a direct order to terminate your app's process immediately. Developers should be
+ * aware that their app can receive a SIGTERM in various scenarios, such as  CPU or disk overuse,
+ * watchdog terminations, or when the OS updates your app.
+ *
+ * @note The default value is @c NO.
+ */
+@property (nonatomic, assign) BOOL enableSigtermReporting;
+
+#endif // !TARGET_OS_WATCH
+
 /**
  * How many breadcrumbs do you want to keep in memory?
  * @note Default is @c 100 .
@@ -552,6 +569,15 @@ NS_SWIFT_NAME(Options)
  * @note This feature is disabled by default.
  */
 @property (nonatomic, assign) BOOL enableMetricKit API_AVAILABLE(
+    ios(15.0), macos(12.0), macCatalyst(15.0)) API_UNAVAILABLE(tvos, watchos);
+
+/**
+ * When enabled, the SDK adds the raw MXDiagnosticPayloads as an attachment to the converted
+ * SentryEvent. You need to enable @c enableMetricKit for this flag to work.
+ *
+ * @note Default value is @c NO.
+ */
+@property (nonatomic, assign) BOOL enableMetricKitRawPayload API_AVAILABLE(
     ios(15.0), macos(12.0), macCatalyst(15.0)) API_UNAVAILABLE(tvos, watchos);
 
 #endif // SENTRY_HAS_METRIC_KIT

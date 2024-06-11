@@ -291,7 +291,7 @@ SentrySessionReplay ()
     __block NSArray<SentryRRWebEvent *> *events;
 
     [SentrySDK.currentHub configureScope:^(SentryScope *_Nonnull scope) {
-        events = [self->_breadcrumbConverter convertWithBreadcrumbs:scope.breadcrumbArray
+        events = [self->_breadcrumbConverter convertWithBreadcrumbs:scope.breadcrumbs
                                                                from:videoInfo.start
                                                               until:videoInfo.end];
     }];

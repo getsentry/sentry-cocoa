@@ -2,6 +2,30 @@ import Foundation
 
 @objcMembers
 public class SentryReplayOptions: NSObject, SentryRedactOptions {
+    
+    /**
+     * Enum to define the quality of the session replay.
+     */
+    public enum SentryReplayQuality: Int {
+        /**
+         * Video Scale: 80%
+         * Bit Rate: 20.000
+         */
+        case low
+        
+        /**
+         * Video Scale: 100%
+         * Bit Rate: 40.000
+         */
+        case medium
+        
+        /**
+         * Video Scale: 100%
+         * Bit Rate: 60.000
+         */
+        case high
+    }
+    
     /**
      * Indicates the percentage in which the replay for the session will be created.
      * - Specifying @c 0 means never, @c 1.0 means always.
@@ -37,23 +61,32 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
     public var redactAllImages = true
     
     /**
+     * Indicates the quality of the replay.
+     * The higher the quality, the higher the CPU and bandwidth usage.
+     */
+    public var quality = SentryReplayQuality.low
+    
+    /**
      * Defines the quality of the session replay.
      * Higher bit rates better quality, but also bigger files to transfer.
-     * @note The default value is @c 20000;
      */
-    let replayBitRate = 20_000
+    var replayBitRate: Int {
+        quality.rawValue * 20_000 + 20_000
+    }
     
+    /**
+     * The scale related to the window size at which the replay will be created
+     */
+    var sizeScale: Float {
+        quality == .low ? 0.8 : 1.0
+    }
+   
     /**
      * Number of frames per second of the replay.
      * The more the havier the process is.
      */
     let frameRate = 1
-    
-    /**
-     * The scale related to the window size at which the replay will be created
-     */
-    let sizeScale = 0.8
-   
+        
     /**
      * The maximum duration of replays for error events.
      */

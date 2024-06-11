@@ -57,18 +57,6 @@
     XCTAssertEqual(expectedMaxBreadcrumb, [scope2Crumbs count]);
 }
 
-- (void)testDefaultMaxCapacity
-{
-    SentryScope *scope = [[SentryScope alloc] init];
-    for (int i = 0; i < 2000; ++i) {
-        [scope addBreadcrumb:[[SentryBreadcrumb alloc] init]];
-    }
-
-    NSDictionary<NSString *, id> *scopeSerialized = [scope serialize];
-    NSArray *scopeCrumbs = [scopeSerialized objectForKey:@"breadcrumbs"];
-    XCTAssertEqual(100, [scopeCrumbs count]);
-}
-
 - (void)testSetTagValueForKey
 {
     NSDictionary<NSString *, NSString *> *excpected = @{ @"A" : @"1", @"B" : @"2", @"C" : @"" };
@@ -161,15 +149,6 @@
     NSString *expectedReplayId = @"Some_replay_id";
     [scope setReplayId:expectedReplayId];
     XCTAssertEqualObjects([[scope serialize] objectForKey:@"replay_id"], expectedReplayId);
-}
-
-- (void)testClearBreadcrumb
-{
-    SentryScope *scope = [[SentryScope alloc] init];
-    [scope clearBreadcrumbs];
-    [scope addBreadcrumb:[self getBreadcrumb]];
-    [scope clearBreadcrumbs];
-    XCTAssertTrue([[[scope serialize] objectForKey:@"breadcrumbs"] count] == 0);
 }
 
 @end
