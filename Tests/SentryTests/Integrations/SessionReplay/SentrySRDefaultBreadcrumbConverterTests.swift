@@ -5,7 +5,7 @@ import XCTest
 class SentrySRDefaultBreadcrumbConverterTests: XCTestCase {
     
     let from = Date(timeIntervalSince1970: 0)
-    let until = Date(timeIntervalSinceNow: 60)
+    let until = Date(timeIntervalSinceNow: 3_600)
     
     func testReplayBreadcrumbsWithEmptyArray() {
         let sut = SentrySRDefaultBreadcrumbConverter()
