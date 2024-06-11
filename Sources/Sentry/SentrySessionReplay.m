@@ -115,12 +115,20 @@ SentrySessionReplay ()
     @synchronized(self) {
         [_displayLink invalidate];
         _isRunning = NO;
+        [self prepareSegmentUntil:_dateProvider.date];
     }
 }
 
 - (void)resume
 {
+    if (_reachedMaximumDuration == YES) {
+        return;
+    }
     @synchronized(self) {
+        if (_isRunning) {
+            return;
+        }
+        _videoSegmentStart = nil;
         [_displayLink linkWithTarget:self selector:@selector(newFrame:)];
         _isRunning = YES;
     }
@@ -209,7 +217,6 @@ SentrySessionReplay ()
     if (_isFullSession &&
         [now timeIntervalSinceDate:_sessionStart] > _replayOptions.maximumDuration) {
         _reachedMaximumDuration = YES;
-        [self prepareSegmentUntil:now];
         [self stop];
         return;
     }

@@ -35,6 +35,7 @@
 
 #include <cxxabi.h>
 #include <dlfcn.h>
+#include <exception>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

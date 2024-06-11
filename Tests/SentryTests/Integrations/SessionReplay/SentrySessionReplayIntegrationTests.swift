@@ -56,7 +56,6 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
     }
     
     func testNoInstallFullSessionReplayBecauseOfRandom() {
-        
         SentryDependencyContainer.sharedInstance().random = TestRandom(value: 0.3)
         
         startSDK(sessionSampleRate: 0.2, errorSampleRate: 0)
@@ -66,7 +65,6 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
     }
     
     func testInstallFullSessionReplayBecauseOfRandom() {
-        
         SentryDependencyContainer.sharedInstance().random = TestRandom(value: 0.1)
         
         startSDK(sessionSampleRate: 0.2, errorSampleRate: 0)
@@ -95,6 +93,21 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         uiApplication.windowsMock = [UIWindow()]
         NotificationCenter.default.post(name: UIScene.didActivateNotification, object: nil)
         expect(Dynamic(sut).sessionReplay.asObject) != nil
+    }
+    
+    func testStopAppEnterBackground() {
+        startSDK(sessionSampleRate: 1, errorSampleRate: 0)
+        
+        expect(SentrySDK.currentHub().trimmedInstalledIntegrationNames().count) == 1
+        expect(SentryGlobalEventProcessor.shared().processors.count) == 1
+        NotificationCenter.default.post(name: UIApplication.didEnterBackgroundNotification, object: nil)
+        
+        guard let sut = SentrySDK.currentHub().installedIntegrations().first as? SentrySessionReplayIntegration else {
+            XCTFail("Did not find Session Replay Integration")
+            return
+        }
+        
+        XCTAssertFalse(Dynamic(sut.sessionReplay).isRunning.asObject as? Bool ?? true)
     }
 }
 

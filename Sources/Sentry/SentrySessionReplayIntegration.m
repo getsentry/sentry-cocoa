@@ -21,10 +21,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 static NSString *SENTRY_REPLAY_FOLDER = @"replay";
 
-API_AVAILABLE(ios(16.0), tvos(16.0))
 @interface
 SentrySessionReplayIntegration ()
-@property (nonatomic, strong) SentrySessionReplay *sessionReplay;
 - (void)newSceneActivate;
 @end
 
@@ -134,7 +132,7 @@ SentrySessionReplayIntegration ()
 
 - (void)resume
 {
-    [self.sessionReplay];
+    [self.sessionReplay resume];
 }
 
 - (void)captureReplay
