@@ -6,6 +6,9 @@
 
 - Add enableMetricKitRawPayload (#4044)
 
+### Fixes
+- `SentryCrashMonitor_CPPException.cpp` compilation using Xcode 16b1 (#4051)
+
 ## 8.28.0
 
 ### Features
