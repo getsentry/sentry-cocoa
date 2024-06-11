@@ -245,7 +245,7 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
     return [[SentryBreadcrumb alloc] initWithDictionary:dictionary];
 }
 
-+ (void)captureReplay
++ (SentrySessionReplayIntegration *)getReplayIntegration
 {
 #if SENTRY_HAS_UIKIT && !TARGET_OS_VISION
     NSArray *integrations = [[SentrySDK currentHub] installedIntegrations];
@@ -257,12 +257,25 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
         }
     }
 
-    [replayIntegration captureReplay];
+    return replayIntegration;
 #else
+    return nil;
     SENTRY_LOG_DEBUG(
-        @"PrivateSentrySDKOnly.captureReplay only works with UIKit enabled and target is "
+        @"SentrySessionReplayIntegration only works with UIKit enabled and target is "
         @"not visionOS. Ensure you're using the right configuration of Sentry that links UIKit.");
 #endif
+}
+
++ (void)captureReplay
+{
+    [[PrivateSentrySDKOnly getReplayIntegration] captureReplay];
+}
+
++ (void)configureSessionReplayWith:(nullable id<SentryReplayBreadcrumbConverter>)breadcrumbConverter
+                screenshotProvider:(nullable id<SentryViewScreenshotProvider>)screenshotProvider
+{
+    [[PrivateSentrySDKOnly getReplayIntegration] configureReplayWith:breadcrumbConverter
+                                                  screenshotProvider:screenshotProvider];
 }
 
 + (NSString *__nullable)getReplayId
@@ -289,28 +302,6 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
 {
 #if SENTRY_HAS_UIKIT && !TARGET_OS_VISION
     [SentryViewPhotographer.shared addRedactClasses:classes];
-#else
-    SENTRY_LOG_DEBUG(
-        @"PrivateSentrySDKOnly.addReplayRedactClasses only works with UIKit enabled and target is "
-        @"not visionOS. Ensure you're using the right configuration of Sentry that links UIKit.");
-#endif
-}
-
-+ (void)configureSessionReplayWith:(nullable id<SentryReplayBreadcrumbConverter>)breadcrumbConverter
-                screenshotProvider:(nullable id<SentryViewScreenshotProvider>)screenshotProvider
-{
-#if SENTRY_HAS_UIKIT && !TARGET_OS_VISION
-    NSArray *integrations = [[SentrySDK currentHub] installedIntegrations];
-    SentrySessionReplayIntegration *replayIntegration;
-    for (id obj in integrations) {
-        if ([obj isKindOfClass:[SentrySessionReplayIntegration class]]) {
-            replayIntegration = obj;
-            break;
-        }
-    }
-
-    [replayIntegration configureReplayWith:breadcrumbConverter
-                        screenshotProvider:screenshotProvider];
 #else
     SENTRY_LOG_DEBUG(
         @"PrivateSentrySDKOnly.addReplayRedactClasses only works with UIKit enabled and target is "
