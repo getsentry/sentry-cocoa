@@ -39,6 +39,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <typeinfo>
+#include <exception>
 
 #define STACKTRACE_BUFFER_LENGTH 30
 #define DESCRIPTION_BUFFER_LENGTH 1000
