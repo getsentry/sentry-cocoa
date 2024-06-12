@@ -43,7 +43,6 @@ SentrySessionReplay ()
     BOOL _processingScreenshot;
     BOOL _reachedMaximumDuration;
     SentryTouchTracker *_touchTracker;
-    SentryReplayBreadcrumbConverter *_breadcrumbConverter;
 }
 
 - (instancetype)initWithSettings:(SentryReplayOptions *)replayOptions
