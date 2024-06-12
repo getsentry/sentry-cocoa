@@ -222,7 +222,7 @@ sentry_serializedTraceProfileData(
 }
 
 NSMutableDictionary<NSString *, id> *
-sentry_serializedContinuousProfileChunk(SentryId *profileID,
+sentry_serializedContinuousProfileChunk(SentryId *profileID, SentryId *chunkID,
     NSDictionary<NSString *, id> *profileData, NSDictionary<NSString *, id> *serializedMetrics,
     NSArray<SentryDebugMeta *> *debugMeta, SentryHub *hub
 #    if SENTRY_HAS_UIKIT
@@ -254,7 +254,7 @@ sentry_serializedContinuousProfileChunk(SentryId *profileID,
         payload[@"debug_meta"] = @ { @"images" : debugImages };
     }
 
-    payload[@"chunk_id"] = [[[SentryId alloc] init] sentryIdString];
+    payload[@"chunk_id"] = [chunkID sentryIdString];
     payload[@"profiler_id"] = profileID.sentryIdString;
     payload[@"environment"] = hub.scope.environmentString ?: hub.getClient.options.environment;
     payload[@"release"] = hub.getClient.options.releaseName;
@@ -268,14 +268,14 @@ sentry_serializedContinuousProfileChunk(SentryId *profileID,
         [NSMutableDictionary<NSString *, id> dictionaryWithDictionary:metrics];
     if (gpuData.slowFrameTimestamps.count > 0) {
         const auto values = [NSMutableDictionary dictionary];
-        values[@"unit"] = @"millisecond";
+        values[@"unit"] = @"nanosecond";
         values[@"values"] = gpuData.slowFrameTimestamps;
         mutableMetrics[kSentryProfilerSerializationKeySlowFrameRenders] = values;
     }
 
     if (gpuData.frozenFrameTimestamps.count > 0) {
         const auto values = [NSMutableDictionary dictionary];
-        values[@"unit"] = @"millisecond";
+        values[@"unit"] = @"nanosecond";
         values[@"values"] = gpuData.frozenFrameTimestamps;
         mutableMetrics[kSentryProfilerSerializationKeyFrozenFrameRenders] = values;
     }
@@ -308,15 +308,16 @@ SentryEnvelope *_Nullable sentry_continuousProfileChunkEnvelope(
 #    endif // SENTRY_HAS_UIKIT
 )
 {
-    const auto payload
-        = sentry_serializedContinuousProfileChunk(profileID, profileState, metricProfilerState,
-            [SentryDependencyContainer.sharedInstance.debugImageProvider getDebugImagesCrashed:NO],
-            SentrySDK.currentHub
+    const auto chunkID = [[SentryId alloc] init];
+    const auto payload = sentry_serializedContinuousProfileChunk(
+        profileID, chunkID, profileState, metricProfilerState,
+        [SentryDependencyContainer.sharedInstance.debugImageProvider getDebugImagesCrashed:NO],
+        SentrySDK.currentHub
 #    if SENTRY_HAS_UIKIT
-            ,
-            gpuData
+        ,
+        gpuData
 #    endif // SENTRY_HAS_UIKIT
-        );
+    );
 
     if (payload == nil) {
         SENTRY_LOG_DEBUG(@"Payload was empty, will not create a profiling envelope item.");
@@ -340,7 +341,7 @@ SentryEnvelope *_Nullable sentry_continuousProfileChunkEnvelope(
                                                 length:JSONData.length];
     const auto envelopeItem = [[SentryEnvelopeItem alloc] initWithHeader:header data:JSONData];
 
-    return [[SentryEnvelope alloc] initWithId:[[SentryId alloc] init] singleItem:envelopeItem];
+    return [[SentryEnvelope alloc] initWithId:chunkID singleItem:envelopeItem];
 }
 
 SentryEnvelopeItem *_Nullable sentry_traceProfileEnvelopeItem(

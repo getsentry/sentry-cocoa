@@ -149,8 +149,8 @@ parseBacktraceSymbolsFunctionName(const char *symbol)
 
         const auto sample = [[SentrySample alloc] init];
         sample.absoluteTimestamp = backtrace.absoluteTimestamp;
-        sample.absoluteNSDateInterval = SentryDependencyContainer.sharedInstance.dateProvider.date
-                                            .timeIntervalSinceReferenceDate;
+        sample.absoluteNSDateInterval
+            = SentryDependencyContainer.sharedInstance.dateProvider.date.timeIntervalSince1970;
         sample.threadID = backtrace.threadMetadata.threadID;
 
         const auto stackKey = [stack componentsJoinedByString:@"|"];

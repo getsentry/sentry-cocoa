@@ -202,9 +202,8 @@ slowFrameThreshold(uint64_t actualFramesPerSecond)
 #    if SENTRY_TARGET_PROFILING_SUPPORTED
     NSDate *thisFrameNSDate = self.dateProvider.date;
     BOOL isContinuousProfiling = [SentryContinuousProfiler isCurrentlyProfiling];
-    NSNumber *profilingTimestamp = isContinuousProfiling
-        ? @(thisFrameNSDate.timeIntervalSinceReferenceDate)
-        : @(thisFrameSystemTimestamp);
+    NSNumber *profilingTimestamp = isContinuousProfiling ? @(thisFrameNSDate.timeIntervalSince1970)
+                                                         : @(thisFrameSystemTimestamp);
     if ([SentryTraceProfiler isCurrentlyProfiling] || isContinuousProfiling) {
         BOOL hasNoFrameRatesYet = self.frameRateTimestamps.count == 0;
         uint64_t previousFrameRate
