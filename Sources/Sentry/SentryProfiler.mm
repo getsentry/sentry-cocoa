@@ -63,7 +63,7 @@ sentry_manageTraceProfilerOnStartSDK(SentryOptions *options, SentryHub *hub)
 {
 #    if defined(TEST) || defined(TESTCI)
     // we want to allow starting a launch profile from here for UI tests, but not unit tests
-    if (NSProcessInfo.processInfo.environment[@"io.sentry.ui-test.test-name"] == nil) {
+    if (NSProcessInfo.processInfo.environment[@"--io.sentry.ui-test.test-name"] == nil) {
         return;
     }
 #    endif // defined(TEST) || defined(TESTCI)

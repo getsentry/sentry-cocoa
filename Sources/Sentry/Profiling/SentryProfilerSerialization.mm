@@ -330,7 +330,8 @@ SentryEnvelope *_Nullable sentry_continuousProfileChunkEnvelope(
     }
 
 #    if defined(TEST) || defined(TESTCI)
-    if (NSProcessInfo.processInfo.environment[@"io.sentry.ui-test.test-name"] != nil) {
+    // only write profile payloads to disk for UI tests
+    if (NSProcessInfo.processInfo.environment[@"--io.sentry.ui-test.test-name"] != nil) {
         sentry_writeProfileFile(JSONData);
     }
 #    endif // defined(TEST) || defined(TESTCI)
