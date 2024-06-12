@@ -95,19 +95,18 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         expect(Dynamic(sut).sessionReplay.asObject) != nil
     }
     
-    func testStopAppEnterBackground() {
+    func testPauseAndResumeForApplicationStateChange() {
         startSDK(sessionSampleRate: 1, errorSampleRate: 0)
-        
-        expect(SentrySDK.currentHub().trimmedInstalledIntegrationNames().count) == 1
-        expect(SentryGlobalEventProcessor.shared().processors.count) == 1
-        NotificationCenter.default.post(name: UIApplication.didEnterBackgroundNotification, object: nil)
         
         guard let sut = SentrySDK.currentHub().installedIntegrations().first as? SentrySessionReplayIntegration else {
             XCTFail("Did not find Session Replay Integration")
             return
         }
         
-        XCTAssertFalse(Dynamic(sut.sessionReplay).isRunning.asObject as? Bool ?? true)
+        NotificationCenter.default.post(name: UIApplication.didEnterBackgroundNotification, object: nil)
+        XCTAssertFalse(Dynamic(sut.sessionReplay).isRunning.asBool ?? true)
+        NotificationCenter.default.post(name: UIApplication.willEnterForegroundNotification, object: nil)
+        XCTAssertTrue(Dynamic(sut.sessionReplay).isRunning.asBool ?? false)
     }
 }
 

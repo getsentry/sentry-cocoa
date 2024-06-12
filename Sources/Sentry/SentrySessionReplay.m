@@ -136,7 +136,7 @@ SentrySessionReplay ()
 
 - (void)dealloc
 {
-    [self stop];
+    [_displayLink invalidate];
 }
 
 - (void)captureReplayForEvent:(SentryEvent *)event;
