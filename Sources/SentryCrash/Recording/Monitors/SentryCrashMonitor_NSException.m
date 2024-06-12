@@ -33,7 +33,6 @@
 #include "SentryCrashThread.h"
 #import "SentryDependencyContainer.h"
 
-// #define SentryCrashLogger_LocalLevel TRACE
 #import "SentryCrashLogger.h"
 
 // ============================================================================

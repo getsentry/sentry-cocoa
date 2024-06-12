@@ -41,7 +41,6 @@
 
 #include <memory.h>
 
-// #define SentryCrashLogger_LocalLevel TRACE
 #include "SentryCrashLogger.h"
 
 // ============================================================================

@@ -39,7 +39,6 @@
 #include "SentryCrashString.h"
 #include "SentryCrashSystemCapabilities.h"
 
-// #define SentryCrashLogger_LocalLevel TRACE
 #include "SentryCrashLogger.h"
 
 #include <inttypes.h>

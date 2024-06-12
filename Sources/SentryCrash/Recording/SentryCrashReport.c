@@ -48,7 +48,6 @@
 #include "SentryCrashUUIDConversion.h"
 #include "SentryScopeSyncC.h"
 
-// #define SentryCrashLogger_LocalLevel TRACE
 #include "SentryCrashLogger.h"
 
 #include <errno.h>

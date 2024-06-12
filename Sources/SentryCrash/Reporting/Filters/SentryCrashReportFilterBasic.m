@@ -30,7 +30,6 @@
 #import "SentryCrashVarArgs.h"
 #import "SentryDictionaryDeepSearch.h"
 
-// #define SentryCrashLogger_LocalLevel TRACE
 #import "SentryCrashLogger.h"
 
 @implementation SentryCrashReportFilterPassthrough
