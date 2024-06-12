@@ -306,7 +306,7 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
 }
 
 #if SENTRY_HAS_UIKIT && !TARGET_OS_VISION
-+ (SentrySessionReplayIntegration *)getReplayIntegration
++ (nullable SentrySessionReplayIntegration *)getReplayIntegration
 {
 
     NSArray *integrations = [[SentrySDK currentHub] installedIntegrations];
