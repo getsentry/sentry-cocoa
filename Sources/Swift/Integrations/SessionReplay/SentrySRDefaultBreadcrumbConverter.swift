@@ -1,8 +1,13 @@
 @_implementationOnly import _SentryPrivate
 import Foundation
 
+@objc
+protocol SentryReplayBreadcrumbConverter: NSObjectProtocol {
+    func convert(breadcrumbs: [Breadcrumb], from: Date, until: Date) -> [SentryRRWebEvent]
+}
+
 @objcMembers
-class SentryReplayBreadcrumbConverter: NSObject {
+class SentrySRDefaultBreadcrumbConverter: NSObject, SentryReplayBreadcrumbConverter {
     
     private let supportedNetworkData = Set<String>([
         "status_code",
@@ -26,7 +31,7 @@ class SentryReplayBreadcrumbConverter: NSObject {
      * Any deviation in the information will cause the breadcrumb or the information itself to be discarded
      * in order to avoid unknown behavior in the front-end.
      */
-    private func convert(from breadcrumb: Breadcrumb) -> SentryRRWebEvent? {
+    func convert(from breadcrumb: Breadcrumb) -> SentryRRWebEvent? {
         guard let timestamp = breadcrumb.timestamp else { return nil }
         if breadcrumb.category == "http" {
             return networkSpan(breadcrumb)

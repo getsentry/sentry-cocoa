@@ -89,6 +89,17 @@ SentrySessionReplayIntegration ()
 - (void)startWithOptions:(SentryReplayOptions *)replayOptions
              fullSession:(BOOL)shouldReplayFullSession
 {
+    [self startWithOptions:replayOptions
+         screenshotProvider:SentryViewPhotographer.shared
+        breadcrumbConverter:[[SentrySRDefaultBreadcrumbConverter alloc] init]
+                fullSession:shouldReplayFullSession];
+}
+
+- (void)startWithOptions:(SentryReplayOptions *)replayOptions
+      screenshotProvider:(id<SentryViewScreenshotProvider>)screenshotProvider
+     breadcrumbConverter:(id<SentryReplayBreadcrumbConverter>)breadcrumbConverter
+             fullSession:(BOOL)shouldReplayFullSession
+{
     if (@available(iOS 16.0, tvOS 16.0, *)) {
         NSURL *docs = [NSURL
             fileURLWithPath:[SentryDependencyContainer.sharedInstance.fileManager sentryPath]];
@@ -111,14 +122,15 @@ SentrySessionReplayIntegration ()
                                                   : replayOptions.errorReplayDuration);
 
         self.sessionReplay = [[SentrySessionReplay alloc]
-              initWithSettings:replayOptions
-              replayFolderPath:docs
-            screenshotProvider:SentryViewPhotographer.shared
-                   replayMaker:replayMaker
-                  touchTracker:_touchTracker
-                  dateProvider:SentryDependencyContainer.sharedInstance.dateProvider
-                        random:SentryDependencyContainer.sharedInstance.random
-            displayLinkWrapper:[[SentryDisplayLinkWrapper alloc] init]];
+               initWithSettings:replayOptions
+               replayFolderPath:docs
+             screenshotProvider:screenshotProvider
+                    replayMaker:replayMaker
+            breadcrumbConverter:breadcrumbConverter
+                   touchTracker:_touchTracker
+                   dateProvider:SentryDependencyContainer.sharedInstance.dateProvider
+                         random:SentryDependencyContainer.sharedInstance.random
+             displayLinkWrapper:[[SentryDisplayLinkWrapper alloc] init]];
 
         [self.sessionReplay
                   start:SentryDependencyContainer.sharedInstance.application.windows.firstObject
@@ -145,6 +157,18 @@ SentrySessionReplayIntegration ()
 - (void)captureReplay
 {
     [self.sessionReplay captureReplay];
+}
+
+- (void)configureReplayWith:(nullable id<SentryReplayBreadcrumbConverter>)breadcrumbConverter
+         screenshotProvider:(nullable id<SentryViewScreenshotProvider>)screenshotProvider
+{
+    if (breadcrumbConverter) {
+        self.sessionReplay.breadcrumbConverter = breadcrumbConverter;
+    }
+
+    if (screenshotProvider) {
+        self.sessionReplay.screenshotProvider = screenshotProvider;
+    }
 }
 
 - (SentryIntegrationOption)integrationOptions

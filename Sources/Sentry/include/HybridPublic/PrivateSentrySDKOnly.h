@@ -9,6 +9,10 @@
 @class SentryUser;
 @class SentryEnvelope;
 @class SentryId;
+@class SentrySessionReplayIntegration;
+
+@protocol SentryReplayBreadcrumbConverter;
+@protocol SentryViewScreenshotProvider;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -156,8 +160,20 @@ typedef void (^SentryOnAppStartMeasurementAvailable)(
  * configurations even when targeting iOS or tvOS platforms.
  */
 + (NSData *)captureViewHierarchy;
+
 #endif // SENTRY_UIKIT_AVAILABLE
 
+#if SENTRY_HAS_UIKIT && !TARGET_OS_VISION
+
+/**
+ * Configure session replay with different breadcrumb converter
+ * and screeshot provider. Used by the Hybrid SDKs.
+ * Passing nil will keep the previous value.
+ */
++ (void)configureSessionReplayWith:(nullable id<SentryReplayBreadcrumbConverter>)breadcrumbConverter
+                screenshotProvider:(nullable id<SentryViewScreenshotProvider>)screenshotProvider;
+
+#endif
 + (nullable NSDictionary<NSString *, id> *)appStartMeasurementWithSpans;
 
 + (SentryUser *)userWithDictionary:(NSDictionary *)dictionary;

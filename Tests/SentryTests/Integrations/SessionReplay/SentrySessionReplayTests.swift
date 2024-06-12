@@ -77,6 +77,7 @@ class SentrySessionReplayTests: XCTestCase {
                                        replayFolderPath: cacheFolder,
                                        screenshotProvider: screenshotProvider,
                                        replay: replayMaker,
+                                       breadcrumbConverter: SentrySRDefaultBreadcrumbConverter(),
                                        touchTracker: SentryTouchTracker(dateProvider: dateProvider, scale: 0),
                                        dateProvider: dateProvider,
                                        random: random,

@@ -16,17 +16,21 @@
 @protocol SentryRedactOptions;
 @protocol SentryViewScreenshotProvider;
 @protocol SentryReplayVideoMaker;
+@protocol SentryReplayBreadcrumbConverter;
 
 NS_ASSUME_NONNULL_BEGIN
 
 @interface SentrySessionReplay : NSObject
 
 @property (nonatomic, strong, readonly) SentryId *sessionReplayId;
+@property (nonatomic, strong) id<SentryViewScreenshotProvider> screenshotProvider;
+@property (nonatomic, strong) id<SentryReplayBreadcrumbConverter> breadcrumbConverter;
 
 - (instancetype)initWithSettings:(SentryReplayOptions *)replayOptions
                 replayFolderPath:(NSURL *)folderPath
-              screenshotProvider:(id<SentryViewScreenshotProvider>)photographer
+              screenshotProvider:(id<SentryViewScreenshotProvider>)screenshotProvider
                      replayMaker:(id<SentryReplayVideoMaker>)replayMaker
+             breadcrumbConverter:(id<SentryReplayBreadcrumbConverter>)breadcrumbConverter
                     touchTracker:(SentryTouchTracker *)touchTracker
                     dateProvider:(SentryCurrentDateProvider *)dateProvider
                           random:(id<SentryRandom>)random
