@@ -10,6 +10,7 @@
 @class SentryDisplayLinkWrapper;
 @class SentryVideoInfo;
 @class SentryId;
+@class SentryTouchTracker;
 
 @protocol SentryRandom;
 @protocol SentryRedactOptions;
@@ -30,6 +31,7 @@ NS_ASSUME_NONNULL_BEGIN
               screenshotProvider:(id<SentryViewScreenshotProvider>)screenshotProvider
                      replayMaker:(id<SentryReplayVideoMaker>)replayMaker
              breadcrumbConverter:(id<SentryReplayBreadcrumbConverter>)breadcrumbConverter
+                    touchTracker:(SentryTouchTracker *)touchTracker
                     dateProvider:(SentryCurrentDateProvider *)dateProvider
                           random:(id<SentryRandom>)random
               displayLinkWrapper:(SentryDisplayLinkWrapper *)displayLinkWrapper;

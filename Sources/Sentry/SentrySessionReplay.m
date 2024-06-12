@@ -42,6 +42,8 @@ SentrySessionReplay ()
     int _currentSegmentId;
     BOOL _processingScreenshot;
     BOOL _reachedMaximumDuration;
+    SentryTouchTracker *_touchTracker;
+    SentryReplayBreadcrumbConverter *_breadcrumbConverter;
 }
 
 - (instancetype)initWithSettings:(SentryReplayOptions *)replayOptions
@@ -49,6 +51,7 @@ SentrySessionReplay ()
               screenshotProvider:(id<SentryViewScreenshotProvider>)screenshotProvider
                      replayMaker:(id<SentryReplayVideoMaker>)replayMaker
              breadcrumbConverter:(id<SentryReplayBreadcrumbConverter>)breadcrumbConverter
+                    touchTracker:(SentryTouchTracker *)touchTracker
                     dateProvider:(SentryCurrentDateProvider *)dateProvider
                           random:(id<SentryRandom>)random
               displayLinkWrapper:(SentryDisplayLinkWrapper *)displayLinkWrapper;
@@ -64,6 +67,7 @@ SentrySessionReplay ()
         _replayMaker = replayMaker;
         _reachedMaximumDuration = NO;
         _breadcrumbConverter = breadcrumbConverter;
+        _touchTracker = touchTracker;
     }
     return self;
 }
@@ -288,13 +292,18 @@ SentrySessionReplay ()
     replayEvent.segmentId = segment;
     replayEvent.timestamp = videoInfo.end;
 
-    __block NSArray<SentryRRWebEvent *> *events;
+    __block NSArray<SentryBreadcrumb *> *breadcrumbs;
+    [SentrySDK.currentHub
+        configureScope:^(SentryScope *_Nonnull scope) { breadcrumbs = scope.breadcrumbs; }];
+    NSMutableArray<SentryRRWebEvent *> *events = [NSMutableArray array];
 
-    [SentrySDK.currentHub configureScope:^(SentryScope *_Nonnull scope) {
-        events = [self->_breadcrumbConverter convertWithBreadcrumbs:scope.breadcrumbs
-                                                               from:videoInfo.start
-                                                              until:videoInfo.end];
-    }];
+    [events addObjectsFromArray:[self->_breadcrumbConverter convertWithBreadcrumbs:breadcrumbs
+                                                                              from:videoInfo.start
+                                                                             until:videoInfo.end]];
+
+    [events addObjectsFromArray:[_touchTracker replayEventsFrom:videoInfo.start
+                                                          until:videoInfo.end]];
+    [_touchTracker flushFinishedEvents];
 
     SentryReplayRecording *recording =
         [[SentryReplayRecording alloc] initWithSegmentId:replayEvent.segmentId
