@@ -54,6 +54,10 @@
 /** True if SentryCrash has been installed. */
 static volatile bool g_installed = 0;
 
+#if SentryCrashLogger_CBufferSize > 0
+static char g_consoleLogPath[SentryCrashFU_MAX_PATH_LENGTH];
+#endif // SentryCrashLogger_CBufferSize > 0
+
 static SentryCrashMonitorType g_monitoring = SentryCrashMonitorTypeProductionSafeMinimal;
 static char g_lastCrashReportFilePath[SentryCrashFU_MAX_PATH_LENGTH];
 static void (*g_saveScreenShot)(const char *) = 0;
@@ -76,6 +80,10 @@ onCrash(struct SentryCrash_MonitorContext *monitorContext)
 {
     SentryCrashLOG_DEBUG("Updating application state to note crash.");
     sentrycrashstate_notifyAppCrash();
+
+#if SentryCrashLogger_CBufferSize > 0
+    monitorContext->consoleLogPath = g_consoleLogPath;
+#endif // SentryCrashLogger_CBufferSize > 0
 
     if (monitorContext->crashedDuringCrashHandling) {
         sentrycrashreport_writeRecrashReport(monitorContext, g_lastCrashReportFilePath);
@@ -133,6 +141,11 @@ sentrycrash_install(const char *appName, const char *const installPath)
     sentrycrashfu_makePath(path);
     snprintf(path, sizeof(path), "%s/Data/CrashState.json", installPath);
     sentrycrashstate_initialize(path);
+
+#if SentryCrashLogger_CBufferSize > 0
+    snprintf(g_consoleLogPath, sizeof(g_consoleLogPath), "%s/Data/ConsoleLog.txt", installPath);
+    sentrycrashlog_setLogFilename(g_consoleLogPath, true);
+#endif // SentryCrashLogger_CBufferSize > 0
 
     sentrycrashccd_init(60);
 
