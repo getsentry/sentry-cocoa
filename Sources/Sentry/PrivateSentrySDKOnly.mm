@@ -11,6 +11,7 @@
 #import "SentryOptions.h"
 #import "SentrySDK+Private.h"
 #import "SentrySerialization.h"
+#import "SentrySessionReplayIntegration.h"
 #import "SentrySwift.h"
 #import "SentryThreadHandle.hpp"
 #import "SentryUser+Private.h"
@@ -304,24 +305,43 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
     return [[SentryBreadcrumb alloc] initWithDictionary:dictionary];
 }
 
+#if SENTRY_HAS_UIKIT && !TARGET_OS_VISION
++ (nullable SentrySessionReplayIntegration *)getReplayIntegration
+{
+
+    NSArray *integrations = [[SentrySDK currentHub] installedIntegrations];
+    SentrySessionReplayIntegration *replayIntegration;
+    for (id obj in integrations) {
+        if ([obj isKindOfClass:[SentrySessionReplayIntegration class]]) {
+            replayIntegration = obj;
+            break;
+        }
+    }
+
+    return replayIntegration;
+}
+#endif
+
 + (void)captureReplay
 {
 #if SENTRY_HAS_UIKIT && !TARGET_OS_VISION
-    if (@available(iOS 16.0, *)) {
-        NSArray *integrations = [[SentrySDK currentHub] installedIntegrations];
-        SentrySessionReplayIntegration *replayIntegration;
-        for (id obj in integrations) {
-            if ([obj isKindOfClass:[SentrySessionReplayIntegration class]]) {
-                replayIntegration = obj;
-                break;
-            }
-        }
-
-        [replayIntegration captureReplay];
-    }
+    [[PrivateSentrySDKOnly getReplayIntegration] captureReplay];
 #else
     SENTRY_LOG_DEBUG(
-        @"PrivateSentrySDKOnly.captureReplay only works with UIKit enabled and target is "
+        @"SentrySessionReplayIntegration only works with UIKit enabled and target is "
+        @"not visionOS. Ensure you're using the right configuration of Sentry that links UIKit.");
+#endif
+}
+
++ (void)configureSessionReplayWith:(nullable id<SentryReplayBreadcrumbConverter>)breadcrumbConverter
+                screenshotProvider:(nullable id<SentryViewScreenshotProvider>)screenshotProvider
+{
+#if SENTRY_HAS_UIKIT && !TARGET_OS_VISION
+    [[PrivateSentrySDKOnly getReplayIntegration] configureReplayWith:breadcrumbConverter
+                                                  screenshotProvider:screenshotProvider];
+#else
+    SENTRY_LOG_DEBUG(
+        @"SentrySessionReplayIntegration only works with UIKit enabled and target is "
         @"not visionOS. Ensure you're using the right configuration of Sentry that links UIKit.");
 #endif
 }
@@ -338,11 +358,7 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
 + (void)addReplayIgnoreClasses:(NSArray<Class> *_Nonnull)classes
 {
 #if SENTRY_HAS_UIKIT && !TARGET_OS_VISION
-    if (@available(iOS 16.0, tvOS 16.0, *)) {
-        [SentryViewPhotographer.shared addIgnoreClasses:classes];
-    } else {
-        SENTRY_LOG_DEBUG(@"PrivateSentrySDKOnly.addIgnoreClasses only works with iOS 16 and newer");
-    }
+    [SentryViewPhotographer.shared addIgnoreClasses:classes];
 #else
     SENTRY_LOG_DEBUG(
         @"PrivateSentrySDKOnly.addReplayIgnoreClasses only works with UIKit enabled and target is "
@@ -353,12 +369,7 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
 + (void)addReplayRedactClasses:(NSArray<Class> *_Nonnull)classes
 {
 #if SENTRY_HAS_UIKIT && !TARGET_OS_VISION
-    if (@available(iOS 16.0, tvOS 16.0, *)) {
-        [SentryViewPhotographer.shared addRedactClasses:classes];
-    } else {
-        SENTRY_LOG_DEBUG(
-            @"PrivateSentrySDKOnly.addReplayRedactClasses only works with iOS 16 and newer");
-    }
+    [SentryViewPhotographer.shared addRedactClasses:classes];
 #else
     SENTRY_LOG_DEBUG(
         @"PrivateSentrySDKOnly.addReplayRedactClasses only works with UIKit enabled and target is "

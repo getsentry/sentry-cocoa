@@ -415,6 +415,47 @@ class SentrySDKTests: XCTestCase {
         XCTAssert(transaction === newSpan)
     }
     
+#if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
+
+    func testStartingContinuousProfilerWithSampleRateZero() throws {
+        givenSdkWithHub()
+        
+        // nil is the default value for profilesSampleRate, so we don't have to explicitly set it on the fixture
+        XCTAssertNil(fixture.options.profilesSampleRate)
+        XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
+        SentrySDK.startProfiler()
+        XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
+    }
+
+    func testStartingContinuousProfilerWithSampleRateNil() throws {
+        givenSdkWithHub()
+        
+        fixture.options.profilesSampleRate = nil
+        XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
+        SentrySDK.startProfiler()
+        XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
+    }
+
+    func testNotStartingContinuousProfilerWithSampleRateBlock() throws {
+        givenSdkWithHub()
+        
+        fixture.options.profilesSampler = { _ in 0 }
+        XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
+        SentrySDK.startProfiler()
+        XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
+    }
+    
+    func testNotStartingContinuousProfilerWithSampleRateNonZero() throws {
+        givenSdkWithHub()
+
+        fixture.options.profilesSampleRate = 1
+        XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
+        SentrySDK.startProfiler()
+        XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
+    }
+    
+#endif // os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
+    
     func testInstallIntegrations() throws {
         let options = Options()
         options.dsn = "mine"

@@ -77,6 +77,8 @@ class SentrySessionReplayTests: XCTestCase {
                                        replayFolderPath: cacheFolder,
                                        screenshotProvider: screenshotProvider,
                                        replay: replayMaker,
+                                       breadcrumbConverter: SentrySRDefaultBreadcrumbConverter(),
+                                       touchTracker: SentryTouchTracker(dateProvider: dateProvider, scale: 0),
                                        dateProvider: dateProvider,
                                        random: random,
                                        displayLinkWrapper: displayLink)
@@ -132,7 +134,7 @@ class SentrySessionReplayTests: XCTestCase {
         
         fixture.dateProvider.advance(by: 1)
         
-        let start = fixture.dateProvider.date()
+        let startEvent = fixture.dateProvider.date()
         
         Dynamic(sut).newFrame(nil)
         fixture.dateProvider.advance(by: 5)
@@ -144,7 +146,7 @@ class SentrySessionReplayTests: XCTestCase {
         }
         
         expect(videoArguments.duration) == 5
-        expect(videoArguments.beginning) == start
+        expect(videoArguments.beginning) == startEvent
         expect(videoArguments.outputFileURL) == fixture.cacheFolder.appendingPathComponent("segments/0.mp4")
         
         expect(fixture.hub.lastRecording) != nil

@@ -211,4 +211,32 @@ class SentryTransactionTests: XCTestCase {
         expect(metric["count"] as? Int) == 1
         expect(metric["sum"] as? Double) == 1.0
     }
+    
+    func testSerializedSpanData() throws {
+        let sut = fixture.getTransaction()
+        let serialized = sut.serialize()
+        let contexts = try XCTUnwrap(serialized["contexts"] as? [String: Any])
+        let trace = try XCTUnwrap(contexts["trace"] as? [String: Any])
+        let data = try XCTUnwrap(trace["data"] as? [String: Any])
+        XCTAssertNotNil(try XCTUnwrap(data["thread.id"]))
+        XCTAssertNotNil(try XCTUnwrap(data["thread.name"]))
+    }
+    
+#if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
+    // test that when a trace runs concurrently with the continuous profiler
+    // and is serialized to a transaction, that it contains the profile id at
+    // the keypath contexts.trace.data.profile_id
+    func testTransactionWithContinuousProfile() throws {
+        SentrySDK.setStart(Options())
+        let transaction = fixture.getTransaction()
+        SentryContinuousProfiler.start()
+        let profileId = try XCTUnwrap(SentryContinuousProfiler.profiler()?.profilerId.sentryIdString)
+        let serialized = transaction.serialize()
+        let contexts = try XCTUnwrap(serialized["contexts"] as? [String: Any])
+        let trace = try XCTUnwrap(contexts["trace"] as? [String: Any])
+        let data = try XCTUnwrap(trace["data"] as? [String: Any])
+        let profileIdFromContexts = try XCTUnwrap(data["profiler_id"] as? String)
+        XCTAssertEqual(profileId, profileIdFromContexts)
+    }
+#endif // os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
 }

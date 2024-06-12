@@ -16,7 +16,7 @@ final class SentryContinuousProfilerTests: XCTestCase {
     override func setUp() {
         super.setUp()
         fixture = SentryProfileTestFixture()
-        fixture.options.enableContinuousProfiling = true
+        fixture.options.profilesSampleRate = nil
     }
     
     override func tearDown() {
@@ -62,6 +62,16 @@ final class SentryContinuousProfilerTests: XCTestCase {
         fixture.hub.capture(event: event)
         try performContinuousProfilingTest(expectedEnvironment: expectedEnvironment)
     }
+
+    func testStartingContinuousProfilerWithSampleRateOne() throws {
+        fixture.options.profilesSampleRate = 1
+        try performContinuousProfilingTest()
+    }
+
+    func testStartingContinuousProfilerWithZeroSampleRate() throws {
+        fixture.options.profilesSampleRate = 0
+        try performContinuousProfilingTest()
+    }    
 
     #if !os(macOS)
     // test that receiving a background notification stops the continuous

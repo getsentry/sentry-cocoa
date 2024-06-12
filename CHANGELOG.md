@@ -4,7 +4,13 @@
 
 ### Features
 
+- Add a touch tracker for replay (#4041)
+- Add enableMetricKitRawPayload (#4044)
 - Resume session replay when app enters foreground (#4053)
+
+### Fixes
+
+- `SentryCrashMonitor_CPPException.cpp` compilation using Xcode 16b1 (#4051)
 
 ## 8.28.0
 

@@ -131,7 +131,6 @@ NSString *const kSentryDefaultEnvironment = @"production";
 #if SENTRY_TARGET_PROFILING_SUPPORTED
         _enableProfiling = NO;
         self.profilesSampleRate = nil;
-        _enableContinuousProfiling = NO;
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
         self.enableCoreDataTracing = YES;
         _enableSwizzling = YES;
@@ -197,6 +196,7 @@ NSString *const kSentryDefaultEnvironment = @"production";
 #if SENTRY_HAS_METRIC_KIT
         if (@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, *)) {
             self.enableMetricKit = NO;
+            self.enableMetricKitRawPayload = NO;
         }
 #endif // SENTRY_HAS_METRIC_KIT
     }
@@ -495,9 +495,6 @@ NSString *const kSentryDefaultEnvironment = @"production";
 
     [self setBool:options[NSStringFromSelector(@selector(enableAppLaunchProfiling))]
             block:^(BOOL value) { self->_enableAppLaunchProfiling = value; }];
-
-    [self setBool:options[@"enableContinuousProfiling"]
-            block:^(BOOL value) { self->_enableContinuousProfiling = value; }];
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
     [self setBool:options[@"sendClientReports"]
@@ -522,6 +519,8 @@ NSString *const kSentryDefaultEnvironment = @"production";
     if (@available(iOS 14.0, macOS 12.0, macCatalyst 14.0, *)) {
         [self setBool:options[@"enableMetricKit"]
                 block:^(BOOL value) { self->_enableMetricKit = value; }];
+        [self setBool:options[@"enableMetricKitRawPayload"]
+                block:^(BOOL value) { self->_enableMetricKitRawPayload = value; }];
     }
 #endif // SENTRY_HAS_METRIC_KIT
 
@@ -647,18 +646,32 @@ sentry_isValidSampleRate(NSNumber *sampleRate)
         || _profilesSampler != nil || _enableProfiling;
 }
 
+- (BOOL)isContinuousProfilingEnabled
+{
 #    pragma clang diagnostic push
 #    pragma clang diagnostic ignored "-Wdeprecated-declarations"
+    // this looks a little weird with the `!self.enableProfiling` but that actually is the
+    // deprecated way to say "enable trace-based profiling", which necessarily disables continuous
+    // profiling as they are mutually exclusive modes
+    return _profilesSampleRate == nil && _profilesSampler == nil && !self.enableProfiling;
+#    pragma clang diagnostic pop
+}
+
 - (void)setEnableProfiling_DEPRECATED_TEST_ONLY:(BOOL)enableProfiling_DEPRECATED_TEST_ONLY
 {
+#    pragma clang diagnostic push
+#    pragma clang diagnostic ignored "-Wdeprecated-declarations"
     self.enableProfiling = enableProfiling_DEPRECATED_TEST_ONLY;
+#    pragma clang diagnostic pop
 }
 
 - (BOOL)enableProfiling_DEPRECATED_TEST_ONLY
 {
+#    pragma clang diagnostic push
+#    pragma clang diagnostic ignored "-Wdeprecated-declarations"
     return self.enableProfiling;
-}
 #    pragma clang diagnostic pop
+}
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
 /**

@@ -10,7 +10,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     static let defaultDSN = "https://6cc9bae94def43cab8444a99e0031c28@o447951.ingest.sentry.io/5428557"
 
-    //swiftlint:disable function_body_length
+    //swiftlint:disable function_body_length cyclomatic_complexity
     static func startSentry() {
         
         // For testing purposes, we want to be able to change the DSN and store it to disk. In a real app, you shouldn't need this behavior.
@@ -35,6 +35,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             
             if #available(iOS 15.0, *) {
                 options.enableMetricKit = true
+                options.enableMetricKitRawPayload = true
             }
             
             let args = ProcessInfo.processInfo.arguments
@@ -52,8 +53,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 }
             }
             
-            var profilesSampleRate: NSNumber = 1
-            if let profilesSampleRateOverride = env["--io.sentry.profilesSampleRate"] {
+            var profilesSampleRate: NSNumber? = 1
+            if args.contains("--io.sentry.enableContinuousProfiling") {
+                profilesSampleRate = nil
+            } else if let profilesSampleRateOverride = env["--io.sentry.profilesSampleRate"] {
                profilesSampleRate = NSNumber(value: (profilesSampleRateOverride as NSString).integerValue)
             }
             options.profilesSampleRate = profilesSampleRate
@@ -80,7 +83,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             options.enableTimeToFullDisplayTracing = true
             options.enablePerformanceV2 = true
             options.enableMetrics = true
-            options.enableContinuousProfiling = ProcessInfo.processInfo.arguments.contains("--io.sentry.enable-continuous-profiling")
             
             options.add(inAppInclude: "iOS_External")
 
@@ -145,7 +147,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         SentrySDK.metrics.increment(key: "app.start", value: 1.0, tags: ["view": "app-delegate"])
 
     }
-    //swiftlint:enable function_body_length
+    //swiftlint:enable function_body_length cyclomatic_complexity
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         

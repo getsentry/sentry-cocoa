@@ -10,7 +10,6 @@ excluded:
   - SentryTestUtils/Dynamic/**
 
 only_rules:
-  #- attributes
   - class_delegate_protocol
   - closing_brace
   - closure_end_indentation
@@ -19,16 +18,13 @@ only_rules:
   - colon
   - comma
   - compiler_protocol_init
-  #- conditional_returns_on_newline
   - control_statement
   - custom_rules
   - cyclomatic_complexity
   - dynamic_inline
-  - empty_count
   - empty_parameters
   - empty_parentheses_with_trailing_closure
   - explicit_init
-  #- file_header
   - file_length
   - first_where
   - force_cast
@@ -45,8 +41,6 @@ only_rules:
   - legacy_nsgeometry_functions
   - line_length
   - mark
-  #- missing_docs
-  #- nesting
   - nimble_operator
   - number_separator
   - object_literal
@@ -65,13 +59,11 @@ only_rules:
   - shorthand_operator
   - sorted_imports
   - statement_position
-  - switch_case_on_newline
   - syntactic_sugar
   - todo
   - trailing_comma
   - trailing_newline
   - trailing_semicolon
-  #- trailing_whitespace
   - type_body_length
   - type_name
   - unused_closure_parameter
@@ -90,11 +82,10 @@ identifier_name:
     - i
     - _
   min_length:
-    - 2
+    - 1
   max_length:
     warning: 50
     error: 50
-    
     
 line_length:
   - 1000 

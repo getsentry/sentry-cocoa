@@ -70,7 +70,7 @@ class SentryBreadcrumbTrackerTests: XCTestCase {
             return
         }
         
-        let breadcrumbConverter = SentryReplayBreadcrumbConverter()
+        let breadcrumbConverter = SentrySRDefaultBreadcrumbConverter()
         let result = try XCTUnwrap(breadcrumbConverter.convert(breadcrumbs: [breadcrumb],
                                                                          from: Date(timeIntervalSince1970: 0),
                                                                          until: Date(timeIntervalSinceNow: 60)).first)
@@ -140,7 +140,7 @@ class SentryBreadcrumbTrackerTests: XCTestCase {
         //Call the previous test to create the breadcrumb into the delegate
         testSwizzlingStarted_ViewControllerAppears_AddsUILifeCycleBreadcrumb()
         
-        let sut = SentryReplayBreadcrumbConverter()
+        let sut = SentrySRDefaultBreadcrumbConverter()
         
         guard let crumb = delegate.addCrumbInvocations.invocations.dropFirst().first else {
             XCTFail("No navigation breadcrumb")
@@ -173,7 +173,7 @@ class SentryBreadcrumbTrackerTests: XCTestCase {
         
         NotificationCenter.default.post(name: UIApplication.didEnterBackgroundNotification, object: nil)
         
-        let sut = SentryReplayBreadcrumbConverter()
+        let sut = SentrySRDefaultBreadcrumbConverter()
         guard let crumb = delegate.addCrumbInvocations.invocations.first(where: { $0.category == "app.lifecycle" }) else {
             XCTFail("No life cycle breadcrumb")
             return
@@ -207,7 +207,7 @@ class SentryBreadcrumbTrackerTests: XCTestCase {
         
         swizzlingWrapper.execute(action: "methodPressed:", target: self, sender: self, event: nil)
         
-        let sut = SentryReplayBreadcrumbConverter()
+        let sut = SentrySRDefaultBreadcrumbConverter()
         guard let crumb = delegate.addCrumbInvocations.invocations.first(where: { $0.category == "touch" }) else {
             XCTFail("No touch breadcrumb")
             return

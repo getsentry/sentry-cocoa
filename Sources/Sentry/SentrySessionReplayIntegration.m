@@ -14,12 +14,20 @@
 #    import "SentrySDK+Private.h"
 #    import "SentrySessionReplay.h"
 #    import "SentrySwift.h"
+#    import "SentrySwizzle.h"
 #    import "SentryUIApplication.h"
 #    import <UIKit/UIKit.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
 static NSString *SENTRY_REPLAY_FOLDER = @"replay";
+
+/**
+ * We need to use this from the swizzled block
+ * and using an instance property would hold reference
+ * and leak memory.
+ */
+static SentryTouchTracker *_touchTracker;
 
 @interface
 SentrySessionReplayIntegration ()
@@ -44,6 +52,13 @@ SentrySessionReplayIntegration ()
 
         if (!_startedAsFullSession && _replayOptions.errorSampleRate == 0) {
             return NO;
+        }
+
+        if (options.enableSwizzling) {
+            _touchTracker = [[SentryTouchTracker alloc]
+                initWithDateProvider:SentryDependencyContainer.sharedInstance.dateProvider
+                               scale:options.experimental.sessionReplay.sizeScale];
+            [self swizzleApplicationTouch];
         }
 
         if (SentryDependencyContainer.sharedInstance.application.windows.count > 0) {
@@ -72,6 +87,17 @@ SentrySessionReplayIntegration ()
 - (void)startWithOptions:(SentryReplayOptions *)replayOptions
              fullSession:(BOOL)shouldReplayFullSession
 {
+    [self startWithOptions:replayOptions
+         screenshotProvider:SentryViewPhotographer.shared
+        breadcrumbConverter:[[SentrySRDefaultBreadcrumbConverter alloc] init]
+                fullSession:shouldReplayFullSession];
+}
+
+- (void)startWithOptions:(SentryReplayOptions *)replayOptions
+      screenshotProvider:(id<SentryViewScreenshotProvider>)screenshotProvider
+     breadcrumbConverter:(id<SentryReplayBreadcrumbConverter>)breadcrumbConverter
+             fullSession:(BOOL)shouldReplayFullSession
+{
     if (@available(iOS 16.0, tvOS 16.0, *)) {
         NSURL *docs = [NSURL
             fileURLWithPath:[SentryDependencyContainer.sharedInstance.fileManager sentryPath]];
@@ -94,14 +120,15 @@ SentrySessionReplayIntegration ()
                                                   : replayOptions.errorReplayDuration);
 
         self.sessionReplay = [[SentrySessionReplay alloc]
-              initWithSettings:replayOptions
-              replayFolderPath:docs
-            screenshotProvider:SentryViewPhotographer.shared
-                   replayMaker:replayMaker
-                  dateProvider:SentryDependencyContainer.sharedInstance.dateProvider
-                        random:SentryDependencyContainer.sharedInstance.random
-
-            displayLinkWrapper:[[SentryDisplayLinkWrapper alloc] init]];
+               initWithSettings:replayOptions
+               replayFolderPath:docs
+             screenshotProvider:screenshotProvider
+                    replayMaker:replayMaker
+            breadcrumbConverter:breadcrumbConverter
+                   touchTracker:_touchTracker
+                   dateProvider:SentryDependencyContainer.sharedInstance.dateProvider
+                         random:SentryDependencyContainer.sharedInstance.random
+             displayLinkWrapper:[[SentryDisplayLinkWrapper alloc] init]];
 
         [self.sessionReplay
                   start:SentryDependencyContainer.sharedInstance.application.windows.firstObject
@@ -140,6 +167,18 @@ SentrySessionReplayIntegration ()
     [self.sessionReplay captureReplay];
 }
 
+- (void)configureReplayWith:(nullable id<SentryReplayBreadcrumbConverter>)breadcrumbConverter
+         screenshotProvider:(nullable id<SentryViewScreenshotProvider>)screenshotProvider
+{
+    if (breadcrumbConverter) {
+        self.sessionReplay.breadcrumbConverter = breadcrumbConverter;
+    }
+
+    if (screenshotProvider) {
+        self.sessionReplay.screenshotProvider = screenshotProvider;
+    }
+}
+
 - (SentryIntegrationOption)integrationOptions
 {
     return kIntegrationOptionEnableReplay;
@@ -147,6 +186,7 @@ SentrySessionReplayIntegration ()
 
 - (void)uninstall
 {
+    _touchTracker = nil;
     [self stop];
 }
 
@@ -154,6 +194,27 @@ SentrySessionReplayIntegration ()
 {
     return [SentryDependencyContainer.sharedInstance.random nextNumber] < rate;
 }
+
+- (void)swizzleApplicationTouch
+{
+#    pragma clang diagnostic push
+#    pragma clang diagnostic ignored "-Wshadow"
+    SEL selector = NSSelectorFromString(@"sendEvent:");
+    SentrySwizzleInstanceMethod([UIApplication class], selector, SentrySWReturnType(void),
+        SentrySWArguments(UIEvent * event), SentrySWReplacement({
+            [_touchTracker trackTouchFromEvent:event];
+            SentrySWCallOriginal(event);
+        }),
+        SentrySwizzleModeOncePerClass, (void *)selector);
+#    pragma clang diagnostic pop
+}
+
+#    if TEST || TESTCI
+- (SentryTouchTracker *)getTouchTracker
+{
+    return _touchTracker;
+}
+#    endif
 
 @end
 NS_ASSUME_NONNULL_END
