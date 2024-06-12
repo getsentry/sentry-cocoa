@@ -1,8 +1,15 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+- Resume session replay when app enters foreground (#4053)
+
 ## 8.28.0
 
 ### Features
+
 - Add replay quality option (#4035)
 
 ## 8.27.0
