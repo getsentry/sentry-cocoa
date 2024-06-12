@@ -32,11 +32,12 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         clearTestState()
     }
     
-    func startSDK(sessionSampleRate: Float, errorSampleRate: Float) {
+    func startSDK(sessionSampleRate: Float, errorSampleRate: Float, enableSwizzling: Bool = true) {
         if #available(iOS 16.0, tvOS 16.0, *) {
             SentrySDK.start {
                 $0.experimental.sessionReplay = SentryReplayOptions(sessionSampleRate: sessionSampleRate, errorSampleRate: errorSampleRate)
                 $0.setIntegrations([SentrySessionReplayIntegration.self])
+                $0.enableSwizzling = enableSwizzling
             }
         }
     }
@@ -55,8 +56,27 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         expect(SentryGlobalEventProcessor.shared().processors.count) == 1
     }
     
+    func testInstallNoSwizzlingNoTouchTracker() {
+        startSDK(sessionSampleRate: 1, errorSampleRate: 0, enableSwizzling: false)
+        guard let integration = SentrySDK.currentHub().installedIntegrations().first as? SentrySessionReplayIntegration
+        else {
+            XCTFail("Could not find session replay integration")
+            return
+        }
+        XCTAssertNil(Dynamic(integration).getTouchTracker().asObject)
+    }
+    
+    func testInstallWithSwizzlingHasTouchTracker() {
+        startSDK(sessionSampleRate: 1, errorSampleRate: 0)
+        guard let integration = SentrySDK.currentHub().installedIntegrations().first as? SentrySessionReplayIntegration
+        else {
+            XCTFail("Could not find session replay integration")
+            return
+        }
+        XCTAssertNotNil(Dynamic(integration).getTouchTracker().asObject)
+    }
+    
     func testNoInstallFullSessionReplayBecauseOfRandom() {
-        
         SentryDependencyContainer.sharedInstance().random = TestRandom(value: 0.3)
         
         startSDK(sessionSampleRate: 0.2, errorSampleRate: 0)

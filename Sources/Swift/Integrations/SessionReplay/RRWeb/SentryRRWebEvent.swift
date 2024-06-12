@@ -4,6 +4,7 @@ import Foundation
 @objc
 enum SentryRRWebEventType: Int {
     case none = 0
+    case touch = 3
     case meta = 4
     case custom = 5
 }
