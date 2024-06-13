@@ -17,7 +17,7 @@ class SentryThreadInspectorTests: XCTestCase {
 
             return SentryThreadInspector(
                 stacktraceBuilder: stacktraceBuilder,
-                andMachineContextWrapper: machineContextWrapper
+                andMachineContextWrapper: machineContextWrapper, symbolicate: symbolicate
             )
         }
     }
@@ -47,13 +47,8 @@ class SentryThreadInspectorTests: XCTestCase {
         XCTAssertTrue(30 < stacktrace?.frames.count ?? 0, "Not enough stacktrace frames.")
     }
     
-    func testStacktraceHasFrames_forEveryThread() {
-        assertStackForEveryThread()
-    }
-    
-    func assertStackForEveryThread() {
-        
-        let queue = DispatchQueue(label: "defaultphil", attributes: [.concurrent, .initiallyInactive])
+    func testGetCurrentThreadsWithStacktrace_WithSymbolication() {
+        let queue = DispatchQueue(label: "test-queue", attributes: [.concurrent, .initiallyInactive])
         
         let expect = expectation(description: "Read every thread")
         expect.expectedFulfillmentCount = 10
@@ -71,6 +66,50 @@ class SentryThreadInspectorTests: XCTestCase {
                 for thr in actual {
                     if (thr.stacktrace?.frames.count ?? 0) >= 1 {
                         threadsWithFrames += 1
+                    }
+                    
+                    for frame in thr.stacktrace?.frames ?? [] {
+                        XCTAssertNotNil(frame.instructionAddress)
+                        XCTAssertNotNil(frame.imageAddress)
+                    }
+                }
+                
+                XCTAssertTrue(threadsWithFrames > 1, "Not enough threads with frames")
+                
+                expect.fulfill()
+            }
+        }
+        
+        queue.activate()
+        wait(for: [expect], timeout: 10)
+    }
+    
+    func testGetCurrentThreadsWithStacktrace_WithoutSymbolication() {
+        let queue = DispatchQueue(label: "test-queue", attributes: [.concurrent, .initiallyInactive])
+        
+        let expect = expectation(description: "Read every thread")
+        expect.expectedFulfillmentCount = 10
+        
+        let sut = self.fixture.getSut(testWithRealMachineContextWrapper: true, symbolicate: false)
+        
+        for _ in 0..<10 {
+            
+            queue.async {
+                let actual = sut.getCurrentThreadsWithStackTrace()
+                
+                // Sometimes during tests its possible to have one thread without frames
+                // We just need to make sure we retrieve frame information for at least one other thread than the main thread
+                var threadsWithFrames = 0
+                
+                for thr in actual {
+                    if (thr.stacktrace?.frames.count ?? 0) >= 1 {
+                        threadsWithFrames += 1
+                    }
+                    
+                    for frame in thr.stacktrace?.frames ?? [] {
+                        XCTAssertNotNil(frame.instructionAddress)
+                        XCTAssertNotNil(frame.imageAddress)
+                        XCTAssertNil(frame.symbolAddress)
                     }
                 }
                 

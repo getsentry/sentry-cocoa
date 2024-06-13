@@ -28,6 +28,15 @@ class SentryCrashStackEntryMapperTests: XCTestCase {
         XCTAssertEqual("0x000000008e902bf0", frame.symbolAddress ?? "")
     }
     
+    func testSymbolAddress_IsZero() {
+        var cursor = SentryCrashStackCursor()
+        cursor.stackEntry.symbolAddress = 0
+        
+        let frame = sut.mapStackEntry(with: cursor)
+        
+        XCTAssertNil(frame.symbolAddress)
+    }
+    
     func testInstructionAddress() {
         var cursor = SentryCrashStackCursor()
         cursor.stackEntry.address = 2_412_813_376
