@@ -45,8 +45,10 @@ class CoreDataViewController: UITableViewController {
         return coordinator
     }()
     
+    let privateQueue = DispatchQueue(label: "io.sentry.dispatch-queue.private-core-data", qos: .userInitiated, attributes: .concurrent)
+    
     lazy var managedObjectContext: NSManagedObjectContext = {
-        var managedObjectContext = NSManagedObjectContext(concurrencyType: .mainQueueConcurrencyType)
+        var managedObjectContext = NSManagedObjectContext(concurrencyType: .privateQueueConcurrencyType)
         managedObjectContext.persistentStoreCoordinator = self.persistentStoreCoordinator
         return managedObjectContext
     }()
@@ -117,13 +119,27 @@ class CoreDataViewController: UITableViewController {
         
         let fetchRequest = NSFetchRequest<Person>(entityName: "Person")
         fetchRequest.sortDescriptors = [NSSortDescriptor(key: "name", ascending: true)]
-        do {
-            people = try managedObjectContext.fetch(fetchRequest)
-        } catch let error as NSError {
-            print("Could not fetch. \(error), \(error.userInfo)")
+        
+        privateQueue.sync {
+            do {
+                self.people = try self.managedObjectContext.fetch(fetchRequest)
+            } catch let error as NSError {
+                print("Could not fetch. \(error), \(error.userInfo)")
+            }
         }
         SentrySDK.reportFullyDisplayed()
         self.navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(requestNewPerson(_:)))
+        
+        for _ in 0..<100 {
+            privateQueue.async {
+                for _ in 0..<100 {
+                    self.addNewPerson(name: String(format: "%d", arc4random()), job: String(format: "%d", arc4random()))
+                }
+            }
+            privateQueue.async {
+                self.saveContext()
+            }
+        }
     }
     
     @objc
