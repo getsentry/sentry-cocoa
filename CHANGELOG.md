@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Fix potential deadlock in app hang detection (#4063)
+
 ## 8.29.0
 
 ### Features
@@ -11,8 +17,6 @@
 ### Fixes
 
 - `SentryCrashMonitor_CPPException.cpp` compilation using Xcode 16b1 (#4051)
-- Fix potential deadlock in app hang detection (#4063)
-
 
 ## 8.28.0
 
