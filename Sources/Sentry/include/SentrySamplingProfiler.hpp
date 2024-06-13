@@ -21,7 +21,7 @@ namespace profiling {
      * Samples the stacks on all threads at a specified interval, using the mach clock
      * alarm API for scheduling.
      */
-    class SamplingProfiler : public std::enable_shared_from_this<SamplingProfiler> {
+    class SamplingProfiler {
     public:
         /**
          * Creates a new sampling profiler that samples at the specified rate.

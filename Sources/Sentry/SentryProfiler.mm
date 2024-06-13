@@ -273,7 +273,7 @@ serializedProfileData(
 }
 
 @implementation SentryProfiler {
-    std::shared_ptr<SamplingProfiler> _profiler;
+    std::unique_ptr<SamplingProfiler> _profiler;
     SentryMetricProfiler *_metricProfiler;
     SentryDebugImageProvider *_debugImageProvider;
 
@@ -540,7 +540,7 @@ serializedProfileData(
 
     SentryProfilerState *const state = [[SentryProfilerState alloc] init];
     self._state = state;
-    _profiler = std::make_shared<SamplingProfiler>(
+    _profiler = std::make_unique<SamplingProfiler>(
         [state](auto &backtrace) {
     // in test, we'll overwrite the sample's timestamp to one mocked by SentryCurrentDate
     // etal. Doing this in a unified way between tests and production required extensive
