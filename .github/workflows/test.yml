@@ -128,19 +128,19 @@ jobs:
           - runs-on: macos-12
             platform: "tvOS"
             xcode: "13.4.1"
-            test-destination-os: "latest"
+            test-destination-os: "16.1"
 
           # tvOS 16
           - runs-on: macos-13
             platform: "tvOS"
             xcode: "14.3"
-            test-destination-os: "latest"
+            test-destination-os: "17.2"
 
           # tvOS 17
           - runs-on: macos-14
             platform: "tvOS"
             xcode: "15.2"
-            test-destination-os: "latest"
+            test-destination-os: "17.5"
 
     steps:
       - uses: actions/checkout@v4
