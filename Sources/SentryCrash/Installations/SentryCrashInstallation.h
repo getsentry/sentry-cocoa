@@ -39,14 +39,6 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @interface SentryCrashInstallation : NSObject
 
-/** C Function to call during a crash report to give the callee an opportunity
- * to add to the report. NULL = ignore.
- *
- * WARNING: Only call async-safe functions from this function! DO NOT call
- * Objective-C methods!!!
- */
-@property (atomic, readwrite, assign) SentryCrashReportWriteCallback onCrash;
-
 /** Install this installation. Call this instead of -[SentryCrash install] to
  * install with everything needed for your particular backend.
  */

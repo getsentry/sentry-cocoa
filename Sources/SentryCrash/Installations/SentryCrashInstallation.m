@@ -165,20 +165,6 @@ SentryCrashInstallation ()
     return result;
 }
 
-- (SentryCrashReportWriteCallback)onCrash
-{
-    @synchronized(self) {
-        return self.crashHandlerData->userCrashCallback;
-    }
-}
-
-- (void)setOnCrash:(SentryCrashReportWriteCallback)onCrash
-{
-    @synchronized(self) {
-        self.crashHandlerData->userCrashCallback = onCrash;
-    }
-}
-
 - (void)install:(NSString *)customCacheDirectory
 {
     SentryCrash *handler = SentryDependencyContainer.sharedInstance.crashReporter;
