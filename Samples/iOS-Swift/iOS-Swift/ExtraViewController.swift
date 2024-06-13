@@ -25,7 +25,7 @@ class ExtraViewController: UIViewController {
             }
         }
 
-        if let uiTestName = ProcessInfo.processInfo.environment["io.sentry.ui-test.test-name"] {
+        if let uiTestName = ProcessInfo.processInfo.environment["--io.sentry.ui-test.test-name"] {
             uiTestNameLabel.text = uiTestName
         }
         

@@ -12,9 +12,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     //swiftlint:disable function_body_length cyclomatic_complexity
     static func startSentry() {
+        let args = ProcessInfo.processInfo.arguments
+        let env = ProcessInfo.processInfo.environment
         
         // For testing purposes, we want to be able to change the DSN and store it to disk. In a real app, you shouldn't need this behavior.
-        let dsn = DSNStorage.shared.getDSN() ?? AppDelegate.defaultDSN
+        let dsn = env["--io.sentry.dsn"] ?? DSNStorage.shared.getDSN() ?? AppDelegate.defaultDSN
         DSNStorage.shared.saveDSN(dsn: dsn)
         
         SentrySDK.start(configureOptions: { options in
@@ -28,18 +30,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             }
             options.debug = true
             
-            if #available(iOS 16.0, *) {
+            if #available(iOS 16.0, *), !args.contains("--disable-session-replay") {
                 options.experimental.sessionReplay = SentryReplayOptions(sessionSampleRate: 1, errorSampleRate: 1, redactAllText: true, redactAllImages: true)
                 options.experimental.sessionReplay.quality = .high
             }
             
-            if #available(iOS 15.0, *) {
+            if #available(iOS 15.0, *), !args.contains("--disable-metrickit-integration") {
                 options.enableMetricKit = true
                 options.enableMetricKitRawPayload = true
             }
-            
-            let args = ProcessInfo.processInfo.arguments
-            let env = ProcessInfo.processInfo.environment
             
             var tracesSampleRate: NSNumber = 1
             if let tracesSampleRateOverride = env["--io.sentry.tracesSampleRate"] {
@@ -69,20 +68,19 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
             options.enableAppLaunchProfiling = args.contains("--profile-app-launches")
 
+            options.enableAutoSessionTracking = !args.contains("--disable-automatic-session-tracking")
             options.sessionTrackingIntervalMillis = 5_000
             options.attachScreenshot = true
             options.attachViewHierarchy = true
        
 #if targetEnvironment(simulator)
-            options.enableSpotlight = true
-            options.environment = "test-app"
+            options.enableSpotlight = !args.contains("--disable-spotlight")
 #else
-            options.environment = "device-tests"
             options.enableWatchdogTerminationTracking = false // The UI tests generate false OOMs
 #endif
             options.enableTimeToFullDisplayTracing = true
             options.enablePerformanceV2 = true
-            options.enableMetrics = true
+            options.enableMetrics = !args.contains("--disable-metrics")
             
             options.add(inAppInclude: "iOS_External")
 
@@ -118,14 +116,16 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             }
             
             options.initialScope = { scope in
-                let processInfoEnvironment = env["io.sentry.sdk-environment"]
-                
-                if processInfoEnvironment != nil {
-                    scope.setEnvironment(processInfoEnvironment)
+                if let environmentOverride = env["--io.sentry.sdk-environment"] {
+                    scope.setEnvironment(environmentOverride)
                 } else if isBenchmarking {
                     scope.setEnvironment("benchmarking")
                 } else {
-                    scope.setEnvironment("debug")
+        #if targetEnvironment(simulator)
+                    scope.setEnvironment("simulator")
+        #else
+                    scope.setEnvironment("device")
+        #endif // targetEnvironment(simulator)
                 }
                 
                 scope.setTag(value: "swift", key: "language")
