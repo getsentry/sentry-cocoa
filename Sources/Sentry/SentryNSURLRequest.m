@@ -17,13 +17,6 @@ NS_ASSUME_NONNULL_BEGIN
 NSString *const SentryServerVersionString = @"7";
 NSTimeInterval const SentryRequestTimeout = 15;
 
-@interface
-SentryNSURLRequest ()
-
-@property (nonatomic, strong) SentryDsn *dsn;
-
-@end
-
 @implementation SentryNSURLRequest
 
 - (_Nullable instancetype)initStoreRequestWithDsn:(SentryDsn *)dsn
