@@ -1,11 +1,12 @@
 # Changelog
 
-## Unreleased
+## 8.29.0
 
 ### Features
 
 - Add a touch tracker for replay (#4041)
 - Add enableMetricKitRawPayload (#4044)
+- Resume session replay when app enters foreground (#4053)
 
 ### Fixes
 

@@ -2,7 +2,6 @@
 
 #if SENTRY_HAS_UIKIT
 
-@class SentryDisplayLinkWrapper;
 @class SentryCurrentDateProvider;
 
 NS_ASSUME_NONNULL_BEGIN

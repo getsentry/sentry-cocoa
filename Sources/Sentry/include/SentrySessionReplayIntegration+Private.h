@@ -4,8 +4,12 @@
 
 #if SENTRY_HAS_UIKIT && !TARGET_OS_VISION
 
+@class SentrySessionReplay;
+
 @interface
 SentrySessionReplayIntegration () <SentryIntegrationProtocol>
+
+@property (nonatomic, strong) SentrySessionReplay *sessionReplay;
 
 @end
 

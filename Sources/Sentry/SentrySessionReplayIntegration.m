@@ -29,10 +29,8 @@ static NSString *SENTRY_REPLAY_FOLDER = @"replay";
  */
 static SentryTouchTracker *_touchTracker;
 
-API_AVAILABLE(ios(16.0), tvos(16.0))
 @interface
 SentrySessionReplayIntegration ()
-@property (nonatomic, strong) SentrySessionReplay *sessionReplay;
 - (void)newSceneActivate;
 @end
 
@@ -141,6 +139,11 @@ SentrySessionReplayIntegration ()
                                                    name:UIApplicationDidEnterBackgroundNotification
                                                  object:nil];
 
+        [NSNotificationCenter.defaultCenter addObserver:self
+                                               selector:@selector(resume)
+                                                   name:UIApplicationWillEnterForegroundNotification
+                                                 object:nil];
+
         [SentryGlobalEventProcessor.shared
             addEventProcessor:^SentryEvent *_Nullable(SentryEvent *_Nonnull event) {
                 [self.sessionReplay captureReplayForEvent:event];
@@ -152,6 +155,11 @@ SentrySessionReplayIntegration ()
 - (void)stop
 {
     [self.sessionReplay stop];
+}
+
+- (void)resume
+{
+    [self.sessionReplay resume];
 }
 
 - (void)captureReplay

@@ -48,6 +48,11 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)stop;
 
 /**
+ * Continue recording a stopped session replay.
+ */
+- (void)resume;
+
+/**
  * Captures a replay for given event.
  */
 - (void)captureReplayForEvent:(SentryEvent *)event;
