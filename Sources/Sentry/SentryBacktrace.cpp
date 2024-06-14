@@ -63,6 +63,7 @@ namespace profiling {
             }
         }
         std::uintptr_t current;
+        // ???: is this to avoid ever gathering a backtrace for the profiler's sampling thread?
         if (UNLIKELY(callingThread == targetThread)) {
             current = reinterpret_cast<std::uintptr_t>(__builtin_frame_address(0));
         } else {
