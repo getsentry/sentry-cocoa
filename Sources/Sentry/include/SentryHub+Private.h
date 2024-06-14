@@ -62,6 +62,8 @@ SentryHub ()
 
 - (void)captureEnvelope:(SentryEnvelope *)envelope;
 
+- (SentryEnvelope *)updateSessionState:(SentryEnvelope *)envelope;
+
 @end
 
 NS_ASSUME_NONNULL_END
