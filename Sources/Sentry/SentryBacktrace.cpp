@@ -107,12 +107,24 @@ namespace profiling {
         const std::vector<std::unique_ptr<ThreadHandle>> &threads,
         const std::unique_ptr<ThreadHandle> &currentThread)
     {
+        if (currentThread == nullptr) {
+            SENTRY_PROF_LOG_WARN("Current thread handle (profiler's sampling thread) was null, "
+                                 "will not attempt to gather other threads' backtraces.");
+            return;
+        }
+
         for (const auto &thread : threads) {
             Backtrace bt;
             // This one is probably safe to call while the thread is suspended, but
             // being conservative here in case the platform time functions take any
             // locks that we're not aware of.
             bt.absoluteTimestamp = getAbsoluteTime();
+
+            if (thread == nullptr) {
+                SENTRY_PROF_LOG_WARN(
+                    "Thread handle was null, will not attempt to gather its backtrace.");
+                continue;
+            }
 
             // Log an empty stack for an idle thread, we don't need to walk the stack.
             if (thread->isIdle()) {
