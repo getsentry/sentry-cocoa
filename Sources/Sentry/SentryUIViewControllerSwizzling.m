@@ -354,7 +354,7 @@ SentryUIViewControllerSwizzling ()
     // workaround, we skip swizzling the loadView and accept that the SKD doesn't create a span for
     // loadView if the UIViewController doesn't implement it.
     SEL selector = NSSelectorFromString(@"loadView");
-    IMP viewControllerImp = class_getMethodImplementation([UIViewController class], selector);
+    IMP viewControllerImp = class_getMethodImplementation([class superclass], selector);
     IMP classLoadViewImp = class_getMethodImplementation(class, selector);
     if (viewControllerImp == classLoadViewImp) {
         return;
