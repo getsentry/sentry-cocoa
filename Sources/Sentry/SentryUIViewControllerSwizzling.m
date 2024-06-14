@@ -355,8 +355,9 @@ SentryUIViewControllerSwizzling ()
     // loadView if the UIViewController doesn't implement it.
     SEL selector = NSSelectorFromString(@"loadView");
     IMP viewControllerImp = class_getMethodImplementation([UIViewController class], selector);
+    IMP tableViewControllerImp = class_getMethodImplementation([UITableViewController class], selector);
     IMP classLoadViewImp = class_getMethodImplementation(class, selector);
-    if (viewControllerImp == classLoadViewImp) {
+    if (viewControllerImp == classLoadViewImp || tableViewControllerImp == classLoadViewImp) {
         return;
     }
 
