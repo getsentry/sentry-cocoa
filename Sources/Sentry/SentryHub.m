@@ -209,14 +209,9 @@ SentryHub () <SentryMetricsAPIDelegate>
         SentryClient *client = _client;
 
         if (client.options.diagnosticLevel == kSentryLevelDebug) {
-            NSData *sessionData = [NSJSONSerialization dataWithJSONObject:[session serialize]
-                                                                  options:0
-                                                                    error:nil];
-            NSString *sessionString = [[NSString alloc] initWithData:sessionData
-                                                            encoding:NSUTF8StringEncoding];
             [SentryLog
                 logWithMessage:[NSString stringWithFormat:@"Capturing session with status: %@",
-                                         sessionString]
+                                         [self createSessionDebugString:session]]
                       andLevel:kSentryLevelDebug];
         }
         [client captureSession:session];
@@ -642,6 +637,12 @@ SentryHub () <SentryMetricsAPIDelegate>
                 [currentSession
                     endSessionCrashedWithTimestamp:[SentryDependencyContainer.sharedInstance
                                                            .dateProvider date]];
+                if (_client.options.diagnosticLevel == kSentryLevelDebug) {
+                    [SentryLog
+                        logWithMessage:[NSString stringWithFormat:@"Ending session with status: %@",
+                                                 [self createSessionDebugString:currentSession]]
+                              andLevel:kSentryLevelDebug];
+                }
                 // Setting _session to nil so startSession doesn't capture it again
                 _session = nil;
                 [self startSession];
@@ -701,6 +702,18 @@ SentryHub () <SentryMetricsAPIDelegate>
         SENTRY_LOG_DEBUG(@"The options `enableTimeToFullDisplay` is disabled.");
     }
 #endif // SENTRY_HAS_UIKIT
+}
+
+- (NSString *)createSessionDebugString:(SentrySession *)session
+{
+    if (session == nil) {
+        return @"Session is nil.";
+    }
+
+    NSData *sessionData = [NSJSONSerialization dataWithJSONObject:[session serialize]
+                                                          options:0
+                                                            error:nil];
+    return [[NSString alloc] initWithData:sessionData encoding:NSUTF8StringEncoding];
 }
 
 - (void)flush:(NSTimeInterval)timeout
