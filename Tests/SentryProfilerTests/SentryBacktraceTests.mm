@@ -247,6 +247,27 @@ countof(Array &)
     XCTAssertTrue(foundThread2);
 }
 
+- (void)testDoesNotCollectBacktracesWhenCurrentThreadHandleIsNull
+{
+    pthread_t thread1, thread2;
+    XCTAssertEqual(
+        pthread_create(&thread1, nullptr, threadEntry, reinterpret_cast<void *>(bc_a)), 0);
+    XCTAssertEqual(
+        pthread_create(&thread2, nullptr, threadEntry, reinterpret_cast<void *>(bc_d)), 0);
+
+    const auto cache = std::make_shared<ThreadMetadataCache>();
+    enumerateBacktracesForAllThreads(
+        [&](__unused auto &backtrace) {
+            XCTFail("Should not attempt to collect backtraces if current thread handle is null");
+        },
+        cache, ThreadHandle::allExcludingCurrent(), nullptr /* currentThread */);
+
+    XCTAssertEqual(pthread_cancel(thread1), 0);
+    XCTAssertEqual(pthread_join(thread1, nullptr), 0);
+    XCTAssertEqual(pthread_cancel(thread2), 0);
+    XCTAssertEqual(pthread_join(thread2, nullptr), 0);
+}
+
 @end
 
 #endif
