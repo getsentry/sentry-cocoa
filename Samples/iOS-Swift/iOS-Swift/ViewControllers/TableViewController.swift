@@ -4,7 +4,7 @@ import UIKit
 
 class TableViewController: UITableViewController {
     var spanObserver: SpanObserver?
-    @IBOutlet var label : UILabel!
+    @IBOutlet var label: UILabel!
     
     override func viewDidLoad() {
         super.viewDidLoad()
