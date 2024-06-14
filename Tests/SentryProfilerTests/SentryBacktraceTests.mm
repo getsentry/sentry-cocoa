@@ -230,7 +230,7 @@ countof(Array &)
                     }
                 }
             },
-            cache);
+            cache, ThreadHandle::allExcludingCurrent(), ThreadHandle::current());
         if (foundThread1 && foundThread2) {
             break;
         }

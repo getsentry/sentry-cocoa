@@ -64,7 +64,10 @@ namespace profiling {
                 }
 
                 params->numSamples.fetch_add(1, std::memory_order_relaxed);
-                enumerateBacktracesForAllThreads(params->callback, params->cache);
+                const auto current = ThreadHandle::current();
+                const auto threads = ThreadHandle::allExcludingCurrent();
+                enumerateBacktracesForAllThreads(
+                    params->callback, params->cache, std::move(threads), std::move(current));
             }
             pthread_cleanup_pop(1);
             pthread_cleanup_pop(1);

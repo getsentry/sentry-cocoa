@@ -104,9 +104,8 @@ threadGetName(void *namePtr)
     XCTAssertEqual(pthread_create(&thread2, nullptr, threadSpin, nullptr), 0);
 
     bool foundThread1 = false, foundThread2 = false, foundCurrentThread = false;
-    const auto pair = ThreadHandle::allExcludingCurrent();
-    XCTAssertEqual(pair.second->nativeHandle(), currentMachThread());
-    for (const auto &thread : pair.first) {
+    const auto threads = ThreadHandle::allExcludingCurrent();
+    for (const auto &thread : threads) {
         const auto pt = pthread_from_mach_thread_np(thread->nativeHandle());
         if (pthread_equal(pt, thread1)) {
             foundThread1 = true;
