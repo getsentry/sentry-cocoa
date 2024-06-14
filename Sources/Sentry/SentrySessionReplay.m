@@ -115,6 +115,9 @@ SentrySessionReplay ()
 - (void)stop
 {
     @synchronized(self) {
+        if (_isRunning == NO) {
+            return;
+        }
         [_displayLink invalidate];
         _isRunning = NO;
         [self prepareSegmentUntil:_dateProvider.date];
