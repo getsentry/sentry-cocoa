@@ -33,6 +33,8 @@ SENTRY_NO_INIT
  *
  * @discussion Call this method on the main thread. When calling it from a background thread, the
  * SDK starts on the main thread async.
+ *
+ * @warning Once called, do not attempt to modify @c options . The Sentry SDK takes an internal copy of the object, so any changes you try to make will have no effect.
  */
 + (void)startWithOptions:(SentryOptions *)options NS_SWIFT_NAME(start(options:));
 
@@ -42,6 +44,8 @@ SENTRY_NO_INIT
  *
  * @discussion Call this method on the main thread. When calling it from a background thread, the
  * SDK starts on the main thread async.
+ *
+ * @warning Once called, do not attempt to take a reference to @c options for later modification. The Sentry SDK takes an internal copy of the object, so any changes you try to make will have no effect.
  */
 + (void)startWithConfigureOptions:(void (^)(SentryOptions *options))configureOptions
     NS_SWIFT_NAME(start(configureOptions:));
