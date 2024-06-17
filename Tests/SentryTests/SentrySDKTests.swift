@@ -3,6 +3,7 @@ import Nimble
 import SentryTestUtils
 import XCTest
 
+// swiftlint:disable file_length
 class SentrySDKTests: XCTestCase {
     
     private static let dsnAsString = TestConstants.dsnAsString(username: "SentrySDKTests")
@@ -689,6 +690,45 @@ class SentrySDKTests: XCTestCase {
         XCTAssertFalse(deviceWrapper.started)
     }
 #endif
+    
+    func testResumeAndPauseAppHangTracking() {
+        SentrySDK.start { options in
+            options.dsn = SentrySDKTests.dsnAsString
+            options.setIntegrations([SentryANRTrackingIntegration.self])
+        }
+        
+        let client = fixture.client
+        SentrySDK.currentHub().bindClient(client)
+        
+        let anrTrackingIntegration = SentrySDK.currentHub().getInstalledIntegration(SentryANRTrackingIntegration.self)
+        
+        SentrySDK.pauseAppHangTracking()
+        Dynamic(anrTrackingIntegration).anrDetected()
+        XCTAssertEqual(0, client.captureEventWithScopeInvocations.count)
+        
+        SentrySDK.resumeAppHangTracking()
+        Dynamic(anrTrackingIntegration).anrDetected()
+        
+        if SentryDependencyContainer.sharedInstance().crashWrapper.isBeingTraced() {
+            XCTAssertEqual(0, client.captureEventWithScopeInvocations.count)
+        } else {
+            XCTAssertEqual(1, client.captureEventWithScopeInvocations.count)
+        }
+    }
+    
+    func testResumeAndPauseAppHangTracking_ANRTrackingNotInstalled() {
+        SentrySDK.start { options in
+            options.dsn = SentrySDKTests.dsnAsString
+            options.removeAllIntegrations()
+        }
+        
+        let client = fixture.client
+        SentrySDK.currentHub().bindClient(client)
+
+        // Both invocations do nothing
+        SentrySDK.pauseAppHangTracking()
+        SentrySDK.resumeAppHangTracking()
+    }
 
     func testClose_SetsClientToNil() {
         SentrySDK.start { options in
@@ -980,3 +1020,4 @@ public class MainThreadTestIntegration: NSObject, SentryIntegrationProtocol {
     public func uninstall() {
     }
 }
+// swiftlint:enable file_length
