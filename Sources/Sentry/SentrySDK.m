@@ -474,35 +474,20 @@ static NSDate *_Nullable startTimestamp = nil;
 
 + (void)pauseAppHangTracking
 {
-    SentryANRTrackingIntegration *anrTrackingIntegration = [SentrySDK getANRTrackingIntegration];
-
-    if (anrTrackingIntegration == nil) {
-        return;
-    }
+    SentryANRTrackingIntegration *anrTrackingIntegration
+        = (SentryANRTrackingIntegration *)[SentrySDK.currentHub
+            getInstalledIntegration:[SentryANRTrackingIntegration class]];
 
     [anrTrackingIntegration pauseAppHangTracking];
 }
 
 + (void)resumeAppHangTracking
 {
-    SentryANRTrackingIntegration *anrTrackingIntegration = [SentrySDK getANRTrackingIntegration];
-
-    if (anrTrackingIntegration == nil) {
-        return;
-    }
+    SentryANRTrackingIntegration *anrTrackingIntegration
+        = (SentryANRTrackingIntegration *)[SentrySDK.currentHub
+            getInstalledIntegration:[SentryANRTrackingIntegration class]];
 
     [anrTrackingIntegration resumeAppHangTracking];
-}
-
-+ (nullable SentryANRTrackingIntegration *)getANRTrackingIntegration
-{
-    id<SentryIntegrationProtocol> integration =
-        [SentrySDK.currentHub getInstalledIntegration:[SentryANRTrackingIntegration class]];
-    if (integration == nil) {
-        return nil;
-    }
-
-    return (SentryANRTrackingIntegration *)integration;
 }
 
 + (void)flush:(NSTimeInterval)timeout
