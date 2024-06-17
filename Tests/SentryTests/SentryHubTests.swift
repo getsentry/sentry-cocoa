@@ -911,6 +911,7 @@ class SentryHubTests: XCTestCase {
                     let integrationName = "Integration\(i)\(j)"
                     sut.addInstalledIntegration(EmptyIntegration(), name: integrationName)
                     XCTAssertTrue(sut.hasIntegration(integrationName))
+                    XCTAssertNotNil(sut.getInstalledIntegration(EmptyIntegration.self))
                 }
                 group.leave()
             }
@@ -940,6 +941,7 @@ class SentryHubTests: XCTestCase {
                     sut.addInstalledIntegration(EmptyIntegration(), name: integrationName)
                     sut.hasIntegration(integrationName)
                     sut.isIntegrationInstalled(EmptyIntegration.self)
+                    sut.getInstalledIntegration(EmptyIntegration.self)
                 }
                 XCTAssertLessThanOrEqual(0, sut.installedIntegrations().count)
                 sut.installedIntegrations().forEach { XCTAssertNotNil($0) }
@@ -953,6 +955,22 @@ class SentryHubTests: XCTestCase {
         }
         
         group.wait()
+    }
+    
+    func testGetInstalledIntegration() {
+        let integration = EmptyIntegration()
+        sut.addInstalledIntegration(integration, name: "EmptyIntegration")
+        
+        let installedIntegration = sut.getInstalledIntegration(EmptyIntegration.self)
+        
+        XCTAssert(integration === installedIntegration)
+    }
+    
+    func testGetInstalledIntegration_ReturnsNilIfNotFound() {
+        let integration = EmptyIntegration()
+        sut.addInstalledIntegration(integration, name: "EmptyIntegration")
+        
+        XCTAssertNil(sut.getInstalledIntegration(SentryANRTrackingIntegration.self))
     }
     
     func testEventContainsOnlyHandledErrors() {
