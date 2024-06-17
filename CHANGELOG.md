@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 8.29.1
 
 ### Features
 
@@ -9,7 +9,7 @@
 ### Fixes
 
 - Fix potential deadlock in app hang detection (#4063)
-- Swizzling of view controllers `loadView` that don`t implement `loadView` (#4071) 
+- Swizzling of view controllers `loadView` that don`t implement `loadView` (#4071)
 
 ## 8.29.0
 
