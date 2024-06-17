@@ -44,6 +44,7 @@ SentryHub () <SentryMetricsAPIDelegate>
 @property (nonatomic, strong) SentryCrashWrapper *crashWrapper;
 @property (nonatomic, strong) NSMutableSet<NSString *> *installedIntegrationNames;
 @property (nonatomic) NSUInteger errorsBeforeSession;
+@property (nonatomic) NSMutableArray<id<SentrySessionListener>> * sessionListeners;
 
 @end
 
@@ -77,6 +78,7 @@ SentryHub () <SentryMetricsAPIDelegate>
         _installedIntegrationNames = [[NSMutableSet alloc] init];
         _crashWrapper = [SentryCrashWrapper sharedInstance];
         _errorsBeforeSession = 0;
+        _sessionListeners = [NSMutableArray array];
 
         [SentryDependencyContainer.sharedInstance.crashWrapper enrichScope:scope];
     }
@@ -107,6 +109,7 @@ SentryHub () <SentryMetricsAPIDelegate>
                   andLevel:kSentryLevelError];
         return;
     }
+    NSArray<id<SentrySessionListener>>* listeners;
     @synchronized(_sessionLock) {
         if (_session != nil) {
             lastSession = _session;
@@ -129,10 +132,15 @@ SentryHub () <SentryMetricsAPIDelegate>
 
         [self storeCurrentSession:_session];
         [self captureSession:_session];
+        listeners = [_sessionListeners copy];
     }
     [lastSession
         endSessionExitedWithTimestamp:[SentryDependencyContainer.sharedInstance.dateProvider date]];
     [self captureSession:lastSession];
+    
+    for (id<SentrySessionListener> listener in listeners) {
+        [listener sentrySessionStarted:_session];
+    }
 }
 
 - (void)endSession
@@ -143,11 +151,13 @@ SentryHub () <SentryMetricsAPIDelegate>
 - (void)endSessionWithTimestamp:(NSDate *)timestamp
 {
     SentrySession *currentSession = nil;
+    NSArray<id<SentrySessionListener>>* listeners;
     @synchronized(_sessionLock) {
         currentSession = _session;
         _session = nil;
         _errorsBeforeSession = 0;
         [self deleteCurrentSession];
+        listeners = [_sessionListeners copy];
     }
 
     if (currentSession == nil) {
@@ -156,6 +166,10 @@ SentryHub () <SentryMetricsAPIDelegate>
     }
     [currentSession endSessionExitedWithTimestamp:timestamp];
     [self captureSession:currentSession];
+    
+    for (id<SentrySessionListener> listener in listeners) {
+        [listener sentrySessionEnded:currentSession];
+    }
 }
 
 - (void)storeCurrentSession:(SentrySession *)session
@@ -753,6 +767,18 @@ SentryHub () <SentryMetricsAPIDelegate>
         return [(SentrySpan *)span getLocalMetricsAggregator];
     }
     return nil;
+}
+
+- (void)registerSessionListener:(id<SentrySessionListener>)listener {
+    @synchronized (_sessionLock) {
+        [_sessionListeners addObject:listener];
+    }
+}
+
+- (void)unregisterSessionListener:(id<SentrySessionListener>)listener {
+    @synchronized (_sessionLock) {
+        [_sessionListeners removeObject:listener];
+    }
 }
 
 #pragma mark - Protected

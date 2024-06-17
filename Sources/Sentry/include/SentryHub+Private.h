@@ -13,6 +13,7 @@
 @class SentryReplayEvent;
 @class SentryReplayRecording;
 @protocol SentryIntegrationProtocol;
+@protocol SentrySessionListener;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -61,6 +62,9 @@ SentryHub ()
     additionalEnvelopeItems:(NSArray<SentryEnvelopeItem *> *)additionalEnvelopeItems;
 
 - (void)captureEnvelope:(SentryEnvelope *)envelope;
+
+- (void)registerSessionListener:(id<SentrySessionListener>)listener;
+- (void)unregisterSessionListener:(id<SentrySessionListener>)listener;
 
 @end
 

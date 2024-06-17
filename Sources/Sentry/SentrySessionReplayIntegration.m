@@ -47,17 +47,29 @@ SentrySessionReplayIntegration ()
     
     _replayOptions = options.experimental.sessionReplay;
     
-    _startedAsFullSession = [self shouldReplayFullSession:_replayOptions.sessionSampleRate];
-    
-    if (!_startedAsFullSession && _replayOptions.errorSampleRate == 0) {
-        return NO;
-    }
-    
     if (options.enableSwizzling) {
         _touchTracker = [[SentryTouchTracker alloc]
                          initWithDateProvider:SentryDependencyContainer.sharedInstance.dateProvider
                          scale:options.experimental.sessionReplay.sizeScale];
         [self swizzleApplicationTouch];
+    }
+    
+    [SentrySDK.currentHub registerSessionListener:self];
+    
+    [SentryGlobalEventProcessor.shared
+     addEventProcessor:^SentryEvent *_Nullable(SentryEvent *_Nonnull event) {
+        [self.sessionReplay captureReplayForEvent:event];
+        return event;
+    }];
+
+    return YES;
+}
+
+- (void)startSession {
+    _startedAsFullSession = [self shouldReplayFullSession:_replayOptions.sessionSampleRate];
+    
+    if (!_startedAsFullSession && _replayOptions.errorSampleRate == 0) {
+        return;
     }
     
     if (SentryDependencyContainer.sharedInstance.application.windows.count > 0) {
@@ -70,12 +82,10 @@ SentrySessionReplayIntegration ()
              addObserver:self
              selector:@selector(newSceneActivate)
              name:UISceneDidActivateNotification];
-        } else {
-            return NO;
         }
     }
     
-    return YES;
+    return;
 }
 
 - (void)newSceneActivate
@@ -141,12 +151,6 @@ SentrySessionReplayIntegration ()
                                            selector:@selector(resume)
                                                name:UIApplicationWillEnterForegroundNotification
                                              object:nil];
-
-    [SentryGlobalEventProcessor.shared
-        addEventProcessor:^SentryEvent *_Nullable(SentryEvent *_Nonnull event) {
-            [self.sessionReplay captureReplayForEvent:event];
-            return event;
-        }];
 }
 
 - (void)stop
@@ -159,17 +163,15 @@ SentrySessionReplayIntegration ()
     [self.sessionReplay resume];
 }
 
-- (void)restart
-{
-    [self.sessionReplay stop];
-    
+- (void)sentrySessionEnded:(SentrySession *)session {
+    [self stop];
     [NSNotificationCenter.defaultCenter removeObserver:self];
-    
-    _startedAsFullSession = [self shouldReplayFullSession:_replayOptions.sessionSampleRate];
-    if (!_startedAsFullSession && _replayOptions.errorSampleRate == 0) {
-        return;
-    }
-    [self startWithOptions:_replayOptions fullSession:_startedAsFullSession];
+    _sessionReplay = nil;
+}
+
+- (void)sentrySessionStarted:(SentrySession *)session {
+    if (_sessionReplay) { return; }
+    [self startSession];
 }
 
 - (void)captureReplay
@@ -196,6 +198,7 @@ SentrySessionReplayIntegration ()
 
 - (void)uninstall
 {
+    [SentrySDK.currentHub unregisterSessionListener:self];
     _touchTracker = nil;
     [self stop];
 }

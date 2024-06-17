@@ -7,7 +7,7 @@
 @class SentrySessionReplay;
 
 @interface
-SentrySessionReplayIntegration () <SentryIntegrationProtocol>
+SentrySessionReplayIntegration () <SentryIntegrationProtocol, SentrySessionListener>
 
 @property (nonatomic, strong) SentrySessionReplay *sessionReplay;
 

@@ -1,5 +1,4 @@
 import Foundation
-import Nimble
 @testable import Sentry
 import SentryTestUtils
 import XCTest
@@ -32,28 +31,37 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         clearTestState()
     }
     
-    func startSDK(sessionSampleRate: Float, errorSampleRate: Float, enableSwizzling: Bool = true) {
+    private func getSut() -> SentrySessionReplayIntegration? {
+        guard let sut = SentrySDK.currentHub().installedIntegrations().first as? SentrySessionReplayIntegration else {
+            XCTFail("Did not installed replay integration")
+            return nil
+        }
+        return sut
+    }
+    
+    private func startSDK(sessionSampleRate: Float, errorSampleRate: Float, enableSwizzling: Bool = true) {
         if #available(iOS 16.0, tvOS 16.0, *) {
             SentrySDK.start {
                 $0.experimental.sessionReplay = SentryReplayOptions(sessionSampleRate: sessionSampleRate, errorSampleRate: errorSampleRate)
                 $0.setIntegrations([SentrySessionReplayIntegration.self])
                 $0.enableSwizzling = enableSwizzling
             }
+            SentrySDK.currentHub().startSession()
         }
     }
     
     func testNoInstall() {
         startSDK(sessionSampleRate: 0, errorSampleRate: 0)
         
-        expect(SentrySDK.currentHub().trimmedInstalledIntegrationNames().count) == 0
-        expect(SentryGlobalEventProcessor.shared().processors.count) == 0
+        XCTAssertEqual(SentrySDK.currentHub().trimmedInstalledIntegrationNames().count,0)
+        XCTAssertEqual(SentryGlobalEventProcessor.shared().processors.count,0)
     }
     
     func testInstallFullSessionReplay() {
         startSDK(sessionSampleRate: 1, errorSampleRate: 0)
         
-        expect(SentrySDK.currentHub().trimmedInstalledIntegrationNames().count) == 1
-        expect(SentryGlobalEventProcessor.shared().processors.count) == 1
+        XCTAssertEqual(SentrySDK.currentHub().trimmedInstalledIntegrationNames().count,1)
+        XCTAssertEqual(SentryGlobalEventProcessor.shared().processors.count,1)
     }
     
     func testInstallNoSwizzlingNoTouchTracker() {
@@ -76,13 +84,15 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         XCTAssertNotNil(Dynamic(integration).getTouchTracker().asObject)
     }
     
-    func testNoInstallFullSessionReplayBecauseOfRandom() {
+    func testInstallFullSessionReplayBecauseOfRandomButDontRun() {
         SentryDependencyContainer.sharedInstance().random = TestRandom(value: 0.3)
         
         startSDK(sessionSampleRate: 0.2, errorSampleRate: 0)
         
-        expect(SentrySDK.currentHub().trimmedInstalledIntegrationNames().count) == 0
-        expect(SentryGlobalEventProcessor.shared().processors.count) == 0
+        XCTAssertEqual(SentrySDK.currentHub().trimmedInstalledIntegrationNames().count,1)
+        XCTAssertEqual(SentryGlobalEventProcessor.shared().processors.count,1)
+        guard let sut = getSut() else { return }
+        XCTAssertNil(sut.sessionReplay)
     }
     
     func testInstallFullSessionReplayBecauseOfRandom() {
@@ -90,39 +100,33 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         
         startSDK(sessionSampleRate: 0.2, errorSampleRate: 0)
         
-        expect(SentrySDK.currentHub().trimmedInstalledIntegrationNames().count) == 1
-        expect(SentryGlobalEventProcessor.shared().processors.count) == 1
+        XCTAssertEqual(SentrySDK.currentHub().trimmedInstalledIntegrationNames().count,1)
+        XCTAssertEqual(SentryGlobalEventProcessor.shared().processors.count,1)
     }
     
     func testInstallErrorReplay() {
         startSDK(sessionSampleRate: 0, errorSampleRate: 0.1)
         
-        expect(SentrySDK.currentHub().trimmedInstalledIntegrationNames().count) == 1
-        expect(SentryGlobalEventProcessor.shared().processors.count) == 1
+        XCTAssertEqual(SentrySDK.currentHub().trimmedInstalledIntegrationNames().count,1)
+        XCTAssertEqual(SentryGlobalEventProcessor.shared().processors.count,1)
     }
     
     func testWaitForNotificationWithNoWindow() {
         uiApplication.windowsMock = nil
         startSDK(sessionSampleRate: 1, errorSampleRate: 0)
         
-        guard let sut = SentrySDK.currentHub().installedIntegrations().first as? SentrySessionReplayIntegration else {
-            fail("Did not installed replay integration")
-            return
-        }
+        guard let sut = getSut() else { return }
         
-        expect(Dynamic(sut).sessionReplay.asObject) == nil
+        XCTAssertNil(sut.sessionReplay)
         uiApplication.windowsMock = [UIWindow()]
         NotificationCenter.default.post(name: UIScene.didActivateNotification, object: nil)
-        expect(Dynamic(sut).sessionReplay.asObject) != nil
+        XCTAssertNil(sut.sessionReplay)
     }
     
     func testPauseAndResumeForApplicationStateChange() {
         startSDK(sessionSampleRate: 1, errorSampleRate: 0)
         
-        guard let sut = SentrySDK.currentHub().installedIntegrations().first as? SentrySessionReplayIntegration else {
-            XCTFail("Did not find Session Replay Integration")
-            return
-        }
+        guard let sut = getSut() else { return }
         
         NotificationCenter.default.post(name: UIApplication.didEnterBackgroundNotification, object: nil)
         XCTAssertFalse(Dynamic(sut.sessionReplay).isRunning.asBool ?? true)
