@@ -1,5 +1,6 @@
 #import "SentrySDK.h"
 #import "PrivateSentrySDKOnly.h"
+#import "SentryANRTrackingIntegration.h"
 #import "SentryAppStartMeasurement.h"
 #import "SentryAppStateManager.h"
 #import "SentryBinaryImageCache.h"
@@ -469,6 +470,39 @@ static NSDate *_Nullable startTimestamp = nil;
 + (void)reportFullyDisplayed
 {
     [SentrySDK.currentHub reportFullyDisplayed];
+}
+
++ (void)pauseAppHangTracking
+{
+    SentryANRTrackingIntegration *anrTrackingIntegration = [SentrySDK getANRTrackingIntegration];
+
+    if (anrTrackingIntegration == nil) {
+        return;
+    }
+
+    [anrTrackingIntegration pauseAppHangTracking];
+}
+
++ (void)resumeAppHangTracking
+{
+    SentryANRTrackingIntegration *anrTrackingIntegration = [SentrySDK getANRTrackingIntegration];
+
+    if (anrTrackingIntegration == nil) {
+        return;
+    }
+
+    [anrTrackingIntegration resumeAppHangTracking];
+}
+
++ (nullable SentryANRTrackingIntegration *)getANRTrackingIntegration
+{
+    id<SentryIntegrationProtocol> integration =
+        [SentrySDK.currentHub getInstalledIntegration:[SentryANRTrackingIntegration class]];
+    if (integration == nil) {
+        return nil;
+    }
+
+    return (SentryANRTrackingIntegration *)integration;
 }
 
 + (void)flush:(NSTimeInterval)timeout

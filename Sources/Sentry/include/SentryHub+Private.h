@@ -62,6 +62,8 @@ SentryHub ()
 
 - (void)captureEnvelope:(SentryEnvelope *)envelope;
 
+- (nullable id<SentryIntegrationProtocol>)getInstalledIntegration:(Class)integrationClass;
+
 @end
 
 NS_ASSUME_NONNULL_END
