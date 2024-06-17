@@ -62,7 +62,8 @@ SentryHub ()
 
 - (void)captureEnvelope:(SentryEnvelope *)envelope;
 
-- (SentryEnvelope *)updateSessionState:(SentryEnvelope *)envelope;
+- (SentryEnvelope *)updateSessionState:(SentryEnvelope *)envelope
+                    andStartNewSession:(BOOL)startNewSession;
 
 @end
 

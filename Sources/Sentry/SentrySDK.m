@@ -385,7 +385,9 @@ static NSDate *_Nullable startTimestamp = nil;
 {
     if (nil != [SentrySDK.currentHub getClient]) {
         [[SentrySDK.currentHub getClient]
-            storeEnvelope:[SentrySDK.currentHub updateSessionState:envelope]];
+            // Envelopes are stored only when crash occurs. We should not start a new session when
+            // the app is about to crash.
+            storeEnvelope:[SentrySDK.currentHub updateSessionState:envelope andStartNewSession:NO]];
     }
 }
 

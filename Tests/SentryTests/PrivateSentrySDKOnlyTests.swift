@@ -3,6 +3,21 @@ import XCTest
 
 class PrivateSentrySDKOnlyTests: XCTestCase {
 
+    private class Fixture {
+        static func getUnhandledExceptionEnvelope() -> SentryEnvelope {
+            let event = Event()
+            event.message = SentryMessage(formatted: "Test Event with unhandled exception")
+            event.level = .error
+            event.exceptions = [TestData.exception]
+            event.exceptions?.first?.mechanism?.handled = false
+            return SentryEnvelope(event: event)
+        }
+    }
+        
+    override func setUp() {
+        super.setUp()
+    }
+    
     override func tearDown() {
         super.tearDown()
         clearTestState()
@@ -18,7 +33,19 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
         XCTAssertEqual(1, client?.storedEnvelopeInvocations.count)
         XCTAssertEqual(envelope, client?.storedEnvelopeInvocations.first)
     }
+    
+    func testStoreEnvelopeWithUndhandledMarksSessionAsCrashedAndDoesNotStartNewSession() {
+        let client = TestClient(options: Options())
+        let hub = TestHub(client: client, andScope: nil)
+        SentrySDK.setCurrentHub(hub)
+        hub.setTestSession()
 
+        let envelope = Fixture.getUnhandledExceptionEnvelope()
+        PrivateSentrySDKOnly.store(envelope)
+
+        XCTAssertEqual(0, hub.startSessionInvocations)
+    }
+    
     func testCaptureEnvelope() {
         let client = TestClient(options: Options())
         SentrySDK.setCurrentHub(TestHub(client: client, andScope: nil))
@@ -28,6 +55,18 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
 
         XCTAssertEqual(1, client?.captureEnvelopeInvocations.count)
         XCTAssertEqual(envelope, client?.captureEnvelopeInvocations.first)
+    }
+    
+    func testcaptureEnvelopeWithUndhandledMarksSessionAsCrashedAndStartsNewSession() {
+        let client = TestClient(options: Options())
+        let hub = TestHub(client: client, andScope: nil)
+        SentrySDK.setCurrentHub(hub)
+        hub.setTestSession()
+
+        let envelope = Fixture.getUnhandledExceptionEnvelope()
+        PrivateSentrySDKOnly.capture(envelope)
+
+        XCTAssertEqual(1, hub.startSessionInvocations)
     }
 
     func testSetSdkName() {

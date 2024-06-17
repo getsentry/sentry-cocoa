@@ -620,10 +620,13 @@ SentryHub () <SentryMetricsAPIDelegate>
         return;
     }
 
-    [client captureEnvelope:[self updateSessionState:envelope]];
+    // If captured envelope cointains not handled errors, these are not going to crash the app and
+    // we should create new session.
+    [client captureEnvelope:[self updateSessionState:envelope andStartNewSession:YES]];
 }
 
 - (SentryEnvelope *)updateSessionState:(SentryEnvelope *)envelope
+                    andStartNewSession:(BOOL)startNewSession
 {
     BOOL handled = YES;
     if ([self envelopeContainsEventWithErrorOrHigher:envelope.items wasHandled:&handled]) {
@@ -643,9 +646,11 @@ SentryHub () <SentryMetricsAPIDelegate>
                                                  [self createSessionDebugString:currentSession]]
                               andLevel:kSentryLevelDebug];
                 }
-                // Setting _session to nil so startSession doesn't capture it again
-                _session = nil;
-                [self startSession];
+                if (startNewSession) {
+                    // Setting _session to nil so startSession doesn't capture it again
+                    _session = nil;
+                    [self startSession];
+                }
             }
         }
 
