@@ -65,6 +65,8 @@ SentryHub ()
 - (SentryEnvelope *)updateSessionState:(SentryEnvelope *)envelope
                     andStartNewSession:(BOOL)startNewSession;
 
+- (nullable id<SentryIntegrationProtocol>)getInstalledIntegration:(Class)integrationClass;
+
 @end
 
 NS_ASSUME_NONNULL_END

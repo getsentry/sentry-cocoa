@@ -561,6 +561,18 @@ SentryHub () <SentryMetricsAPIDelegate>
     }
 }
 
+- (nullable id<SentryIntegrationProtocol>)getInstalledIntegration:(Class)integrationClass
+{
+    @synchronized(_integrationsLock) {
+        for (id<SentryIntegrationProtocol> item in _installedIntegrations) {
+            if ([item isKindOfClass:integrationClass]) {
+                return item;
+            }
+        }
+        return nil;
+    }
+}
+
 - (BOOL)hasIntegration:(NSString *)integrationName
 {
     // installedIntegrations and installedIntegrationNames share the same lock.
