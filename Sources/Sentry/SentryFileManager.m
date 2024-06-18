@@ -426,9 +426,7 @@ SentryFileManager ()
 
 - (nullable SentrySession *)readSession:(NSString *)sessionFilePath
 {
-    [SentryLog
-        logWithMessage:[NSString stringWithFormat:@"Reading from session: %@", sessionFilePath]
-              andLevel:kSentryLevelDebug];
+    SENTRY_LOG_DEBUG(@"Reading from session: %@", sessionFilePath);
     NSFileManager *fileManager = [NSFileManager defaultManager];
     NSData *currentData = nil;
     @synchronized(self.currentSessionFilePath) {

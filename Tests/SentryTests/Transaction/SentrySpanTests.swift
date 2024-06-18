@@ -54,7 +54,7 @@ class SentrySpanTests: XCTestCase {
         super.setUp()
         
         logOutput = TestLogOutput()
-        SentryLog.configure(true, diagnosticLevel: SentryLevel.debug)
+        SentryLog.setTestDefaultLogLevel()
         SentryLog.setLogOutput(logOutput)
         
         fixture = Fixture()

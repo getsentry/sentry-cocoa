@@ -102,9 +102,7 @@ SentryHub () <SentryMetricsAPIDelegate>
     SentryScope *scope = self.scope;
     SentryOptions *options = [_client options];
     if (options == nil || options.releaseName == nil) {
-        [SentryLog
-            logWithMessage:[NSString stringWithFormat:@"No option or release to start a session."]
-                  andLevel:kSentryLevelError];
+        SENTRY_LOG_ERROR(@"No option or release to start a session.");
         return;
     }
     @synchronized(_sessionLock) {
@@ -214,10 +212,8 @@ SentryHub () <SentryMetricsAPIDelegate>
                                                                     error:nil];
             NSString *sessionString = [[NSString alloc] initWithData:sessionData
                                                             encoding:NSUTF8StringEncoding];
-            [SentryLog
-                logWithMessage:[NSString stringWithFormat:@"Capturing session with status: %@",
-                                         sessionString]
-                      andLevel:kSentryLevelDebug];
+            SENTRY_LOG_DEBUG(@"Capturing session with status: %@",
+                             sessionString);
         }
         [client captureSession:session];
     }

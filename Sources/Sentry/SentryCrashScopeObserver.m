@@ -4,6 +4,7 @@
 #import <SentryCrashJSONCodec.h>
 #import <SentryCrashJSONCodecObjC.h>
 #import <SentryCrashScopeObserver.h>
+#import <SentryDependencyContainer.h>
 #import <SentryLog.h>
 #import <SentryNSDataUtils.h>
 #import <SentryScopeSyncC.h>

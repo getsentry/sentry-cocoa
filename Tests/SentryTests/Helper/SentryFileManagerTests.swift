@@ -148,7 +148,7 @@ class SentryFileManagerTests: XCTestCase {
     func testDeleteOldEnvelopes_LogsIgnoreDSStoreFiles() throws {
         let logOutput = TestLogOutput()
         SentryLog.setLogOutput(logOutput)
-        SentryLog.configure(true, diagnosticLevel: .debug)
+        SentryLog.setTestDefaultLogLevel()
         
         let dsStoreFile = "\(sut.basePath)/.DS_Store"
         
@@ -169,7 +169,7 @@ class SentryFileManagerTests: XCTestCase {
     func testDeleteOldEnvelopes_LogsDebugForTextFiles() throws {
         let logOutput = TestLogOutput()
         SentryLog.setLogOutput(logOutput)
-        SentryLog.configure(true, diagnosticLevel: .debug)
+        SentryLog.setTestDefaultLogLevel()
         
         let sut = fixture.getSut()
         
@@ -192,7 +192,7 @@ class SentryFileManagerTests: XCTestCase {
     func testGetEnvelopesPath_ForNonExistentPath_LogsWarning() throws {
         let logOutput = TestLogOutput()
         SentryLog.setLogOutput(logOutput)
-        SentryLog.configure(true, diagnosticLevel: .debug)
+        SentryLog.setTestDefaultLogLevel()
         
         let sut = fixture.getSut()
         
@@ -540,7 +540,7 @@ class SentryFileManagerTests: XCTestCase {
     func testGetAllEnvelopesWhenNoEnvelopesPath_LogsInfoMessage() {
         let logOutput = TestLogOutput()
         SentryLog.setLogOutput(logOutput)
-        SentryLog.configure(true, diagnosticLevel: .debug)
+        SentryLog.setTestDefaultLogLevel()
         
         sut.deleteAllFolders()
         sut.getAllEnvelopes()

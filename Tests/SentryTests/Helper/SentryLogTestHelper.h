@@ -2,7 +2,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-void sentryLogDebugWithMacroArgsNotEvaluated(void);
-void sentryLogErrorWithMacro(NSString *message);
+void sentryLogDebugWithMacroArgsNotEvaluated(SentryLog *logger);
+void sentryLogErrorWithMacro(NSString *message, SentryLog *logger);
 
 NS_ASSUME_NONNULL_END

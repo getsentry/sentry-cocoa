@@ -1,4 +1,5 @@
 #import "SentryQueueableRequestManager.h"
+#import "SentryDependencyContainer.h"
 #import "SentryLog.h"
 #import "SentryRequestOperation.h"
 

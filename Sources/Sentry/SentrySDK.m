@@ -194,7 +194,7 @@ static NSDate *_Nullable startTimestamp = nil;
 + (void)startWithOptions:(SentryOptions *)options
 {
     startOption = options;
-    [SentryLog configure:options.debug diagnosticLevel:options.diagnosticLevel];
+    [SentryLog.sharedInstance configure:options.debug diagnosticLevel:options.diagnosticLevel];
 
     // We accept the tradeoff that the SDK might not be fully initialized directly after
     // initializing it on a background thread because scheduling the init synchronously on the main

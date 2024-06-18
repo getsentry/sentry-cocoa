@@ -138,7 +138,7 @@
 #import "SentryLevelMapper.h"
 #import "SentryLog+TestInit.h"
 #import "SentryLog.h"
-#import "SentryLogOutput.h"
+#import "SentryLogSinkNSLog.h"
 #import "SentryLogTestHelper.h"
 #import "SentryMeasurementValue.h"
 #import "SentryMechanism.h"

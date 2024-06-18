@@ -28,7 +28,7 @@ _sentry_logSlicingFailureWithArray(
         return;
     }
 
-    if (![SentryLog willLogAtLevel:kSentryLevelDebug]) {
+    if (![SentryLog.sharedInstance willLogAtLevel:kSentryLevelDebug]) {
         return;
     }
 

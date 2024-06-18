@@ -2,91 +2,64 @@ import SentryTestUtils
 import XCTest
 
 class SentryLogTests: XCTestCase {
-    var oldDebug: Bool!
-    var oldLevel: SentryLevel!
-    var oldOutput: SentryLogSinkNSLog!
-
-    override func setUp() {
-        super.setUp()
-        oldDebug = SentryLog.isDebug()
-        oldLevel = SentryLog.diagnosticLevel()
-        oldOutput = SentryLog.logOutput()
-    }
-
-    override func tearDown() {
-        super.tearDown()
-        SentryLog.configure(oldDebug, diagnosticLevel: oldLevel)
-        SentryLog.setLogOutput(oldOutput)
-    }
+    let sink = TestLogOutput()
+    lazy var fixture = SentryLog(sinks: [sink])
 
     func testDefault_PrintsFatalAndError() {
-        let logOutput = TestLogOutput()
-        SentryLog.setLogOutput(logOutput)
-        SentryLog.configure(true, diagnosticLevel: .error)
+        fixture.configure(true, diagnosticLevel: .error)
+        fixture.log(withMessage: "0", andLevel: SentryLevel.fatal)
+        fixture.log(withMessage: "1", andLevel: SentryLevel.error)
+        fixture.log(withMessage: "2", andLevel: SentryLevel.warning)
+        fixture.log(withMessage: "3", andLevel: SentryLevel.none)
         
-        SentryLog.log(withMessage: "0", andLevel: SentryLevel.fatal)
-        SentryLog.log(withMessage: "1", andLevel: SentryLevel.error)
-        SentryLog.log(withMessage: "2", andLevel: SentryLevel.warning)
-        SentryLog.log(withMessage: "3", andLevel: SentryLevel.none)
-        
-        XCTAssertEqual(["[Sentry] [fatal] 0", "[Sentry] [error] 1"], logOutput.loggedMessages)
+        XCTAssertEqual(["[Sentry] [fatal] 0", "[Sentry] [error] 1"], sink.loggedMessages)
     }
     
     func testDefaultInitOfLogoutPut() {
-        SentryLog.log(withMessage: "0", andLevel: SentryLevel.error)
+        fixture.log(withMessage: "0", andLevel: SentryLevel.error)
     }
     
     func testConfigureWithoutDebug_PrintsNothing() {
-        let logOutput = TestLogOutput()
-        SentryLog.setLogOutput(logOutput)
+        fixture.configure(false, diagnosticLevel: SentryLevel.none)
+        fixture.log(withMessage: "0", andLevel: SentryLevel.fatal)
+        fixture.log(withMessage: "0", andLevel: SentryLevel.error)
+        fixture.log(withMessage: "0", andLevel: SentryLevel.warning)
+        fixture.log(withMessage: "0", andLevel: SentryLevel.info)
+        fixture.log(withMessage: "0", andLevel: SentryLevel.debug)
+        fixture.log(withMessage: "0", andLevel: SentryLevel.none)
         
-        SentryLog.configure(false, diagnosticLevel: SentryLevel.none)
-        SentryLog.log(withMessage: "0", andLevel: SentryLevel.fatal)
-        SentryLog.log(withMessage: "0", andLevel: SentryLevel.error)
-        SentryLog.log(withMessage: "0", andLevel: SentryLevel.warning)
-        SentryLog.log(withMessage: "0", andLevel: SentryLevel.info)
-        SentryLog.log(withMessage: "0", andLevel: SentryLevel.debug)
-        SentryLog.log(withMessage: "0", andLevel: SentryLevel.none)
-        
-        XCTAssertEqual(0, logOutput.loggedMessages.count)
+        XCTAssertEqual(0, sink.loggedMessages.count)
     }
     
     func testLevelNone_PrintsEverythingExceptNone() {
-        let logOutput = TestLogOutput()
-        SentryLog.setLogOutput(logOutput)
-        
-        SentryLog.configure(true, diagnosticLevel: SentryLevel.none)
-        SentryLog.log(withMessage: "0", andLevel: SentryLevel.fatal)
-        SentryLog.log(withMessage: "1", andLevel: SentryLevel.error)
-        SentryLog.log(withMessage: "2", andLevel: SentryLevel.warning)
-        SentryLog.log(withMessage: "3", andLevel: SentryLevel.info)
-        SentryLog.log(withMessage: "4", andLevel: SentryLevel.debug)
-        SentryLog.log(withMessage: "5", andLevel: SentryLevel.none)
+        fixture.configure(true, diagnosticLevel: SentryLevel.none)
+        fixture.log(withMessage: "0", andLevel: SentryLevel.fatal)
+        fixture.log(withMessage: "1", andLevel: SentryLevel.error)
+        fixture.log(withMessage: "2", andLevel: SentryLevel.warning)
+        fixture.log(withMessage: "3", andLevel: SentryLevel.info)
+        fixture.log(withMessage: "4", andLevel: SentryLevel.debug)
+        fixture.log(withMessage: "5", andLevel: SentryLevel.none)
         
         XCTAssertEqual(["[Sentry] [fatal] 0",
                         "[Sentry] [error] 1",
                         "[Sentry] [warning] 2",
                         "[Sentry] [info] 3",
-                        "[Sentry] [debug] 4"], logOutput.loggedMessages)
+                        "[Sentry] [debug] 4"], sink.loggedMessages)
     }
     
     func testMacroLogsErrorMessage() {
-        let logOutput = TestLogOutput()
-        SentryLog.setLogOutput(logOutput)
-        SentryLog.configure(true, diagnosticLevel: SentryLevel.error)
+        fixture.configure(true, diagnosticLevel: SentryLevel.error)
         
-        sentryLogErrorWithMacro("error")
+        sentryLogErrorWithMacro("error", fixture)
         
-        XCTAssertEqual(["[Sentry] [error] [SentryLogTestHelper:21] error"], logOutput.loggedMessages)
+        XCTAssertEqual(["[Sentry] [error] [SentryLogTestHelper:21] error"], sink.loggedMessages)
     }
     
     func testMacroDoesNotEvaluateArgs_WhenNotMessageNotLogged() {
-        let logOutput = TestLogOutput()
-        SentryLog.setLogOutput(logOutput)
-        SentryLog.configure(true, diagnosticLevel: SentryLevel.info)
+        fixture.configure(true, diagnosticLevel: SentryLevel.info)
         
-        sentryLogDebugWithMacroArgsNotEvaluated()
+        sentryLogDebugWithMacroArgsNotEvaluated(fixture)
         
-        XCTAssertTrue(logOutput.loggedMessages.isEmpty)
+        XCTAssertTrue(sink.loggedMessages.isEmpty)
     }
 }

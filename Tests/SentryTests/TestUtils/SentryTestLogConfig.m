@@ -2,7 +2,7 @@
 #import <Foundation/Foundation.h>
 
 /**
- * Confgures a the sentry log output for testing when this class is loaded.
+ * Configures a the sentry log output for testing when this class is loaded.
  */
 @interface SentryTestLogConfig : NSObject
 
@@ -21,7 +21,7 @@
 
 + (void)setDefaultTestLogging
 {
-    [SentryLog configure:YES diagnosticLevel:kSentryLevelDebug];
+    [SentryLog.sharedInstance configure:YES diagnosticLevel:kSentryLevelDebug];
 }
 
 @end

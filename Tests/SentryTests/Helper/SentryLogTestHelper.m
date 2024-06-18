@@ -10,13 +10,13 @@ doNotCallMe(void)
 }
 
 void
-sentryLogDebugWithMacroArgsNotEvaluated(void)
+sentryLogDebugWithMacroArgsNotEvaluated(SentryLog *logger)
 {
-    SENTRY_LOG_DEBUG(@"%@", doNotCallMe());
+    SENTRY_LOG_DEBUG_WITH_LOGGER(logger, @"%@", doNotCallMe());
 }
 
 void
-sentryLogErrorWithMacro(NSString *message)
+sentryLogErrorWithMacro(NSString *message, SentryLog *logger)
 {
-    SENTRY_LOG_ERROR(@"%@", message);
+    SENTRY_LOG_ERROR_WITH_LOGGER(logger, @"%@", message);
 }
