@@ -8,9 +8,14 @@
 
 ### Fixes
 
+- `storeEnvelope` ends session for unhandled errors (#4073)
+
+## 8.29.1
+
+### Fixes
+
 - Fix potential deadlock in app hang detection (#4063)
 - Swizzling of view controllers `loadView` that don`t implement `loadView` (#4071) 
-- `storeEnvelope` ends session for unhandled errors (#4073)
 
 ## 8.29.0
 
