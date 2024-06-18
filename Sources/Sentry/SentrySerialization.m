@@ -166,8 +166,7 @@ NS_ASSUME_NONNULL_BEGIN
                                                                              options:0
                                                                                error:&error];
             if (nil != error) {
-                SENTRY_LOG_DEBUG(@"Failed to parse envelope item header %@",
-                                 error);
+                SENTRY_LOG_DEBUG(@"Failed to parse envelope item header %@", error);
                 return nil;
             }
             NSString *_Nullable type = [headerDictionary valueForKey:@"type"];
@@ -179,8 +178,8 @@ NS_ASSUME_NONNULL_BEGIN
             NSUInteger bodyLength = [bodyLengthNumber unsignedIntegerValue];
             if (endOfEnvelope == i && bodyLength != 0) {
                 SENTRY_LOG_DEBUG(@"Envelope item has no data but header "
-                                                        @"indicates it's length is %d.",
-                                       (int)bodyLength);
+                                 @"indicates it's length is %d.",
+                    (int)bodyLength);
                 break;
             }
 
@@ -286,8 +285,7 @@ NS_ASSUME_NONNULL_BEGIN
                                                                     options:0
                                                                       error:&error];
     if (nil != error) {
-        SENTRY_LOG_DEBUG(@"Failed to deserialize envelope item data: %@",
-                               error);
+        SENTRY_LOG_DEBUG(@"Failed to deserialize envelope item data: %@", error);
     }
 
     return eventDictionary;
@@ -300,8 +298,7 @@ NS_ASSUME_NONNULL_BEGIN
                                                                     options:0
                                                                       error:&error];
     if (nil != error) {
-        SENTRY_LOG_DEBUG(@"Failed to retrieve event level from envelope item data: %@",
-                    error);
+        SENTRY_LOG_DEBUG(@"Failed to retrieve event level from envelope item data: %@", error);
         return kSentryLevelError;
     }
 

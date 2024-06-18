@@ -212,8 +212,7 @@ SentryHub () <SentryMetricsAPIDelegate>
                                                                     error:nil];
             NSString *sessionString = [[NSString alloc] initWithData:sessionData
                                                             encoding:NSUTF8StringEncoding];
-            SENTRY_LOG_DEBUG(@"Capturing session with status: %@",
-                             sessionString);
+            SENTRY_LOG_DEBUG(@"Capturing session with status: %@", sessionString);
         }
         [client captureSession:session];
     }

@@ -107,8 +107,8 @@ NS_ASSUME_NONNULL_BEGIN
 
     if (nil != error) {
         SENTRY_LOG_DEBUG(@"Could not migrate session init, because "
-                                                      @"storing the updated envelope failed: %@",
-                                     error.description);
+                         @"storing the updated envelope failed: %@",
+            error.description);
     }
 }
 

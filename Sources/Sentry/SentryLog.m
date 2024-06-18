@@ -2,12 +2,13 @@
 #import "SentryInternalCDefines.h"
 #import "SentryLevelMapper.h"
 #import "SentryLogSink.h"
-#import "SentryLogSinkNSLog.h"
 #import "SentryLogSinkFile.h"
+#import "SentryLogSinkNSLog.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SentryLog ()
+@interface
+SentryLog ()
 
 @property (nonatomic, assign, readwrite) BOOL isDebug;
 @property (nonatomic, assign, readwrite) SentryLevel diagnosticLevel;
@@ -19,7 +20,8 @@ NS_ASSUME_NONNULL_BEGIN
     NSArray<id<SentryLogSink>> *_sinks;
 }
 
-+ (instancetype)sharedInstance {
++ (instancetype)sharedInstance
+{
     __block SentryLog *logger;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
@@ -38,7 +40,7 @@ NS_ASSUME_NONNULL_BEGIN
         // Enable per default to log initialization errors.
         _isDebug = YES;
         _diagnosticLevel = kSentryLevelError;
-        
+
         _logConfigureLock = [[NSObject alloc] init];
         _sinks = sinks;
     }
@@ -58,7 +60,7 @@ NS_ASSUME_NONNULL_BEGIN
     if ([self willLogAtLevel:level]) {
         for (id<SentryLogSink> sink in _sinks) {
             [sink log:[NSString stringWithFormat:@"[Sentry] [%@] %@", nameForSentryLevel(level),
-                                     message]];
+                                message]];
         }
     }
 }

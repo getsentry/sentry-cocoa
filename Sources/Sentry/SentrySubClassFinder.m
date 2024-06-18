@@ -89,8 +89,9 @@ SentrySubClassFinder ()
                 block(NSClassFromString(className));
             }
 
-            SENTRY_LOG_DEBUG(@"The following UIViewControllers will generate automatic transactions: %@",
-                             [classesToSwizzle componentsJoinedByString:@", "]);
+            SENTRY_LOG_DEBUG(
+                @"The following UIViewControllers will generate automatic transactions: %@",
+                [classesToSwizzle componentsJoinedByString:@", "]);
         }];
     }];
 }

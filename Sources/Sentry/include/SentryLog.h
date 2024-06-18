@@ -30,22 +30,29 @@ SENTRY_NO_INIT
 
 NS_ASSUME_NONNULL_END
 
-#define SENTRY_LOG_WITH_LOGGER(SENTRY_LOGGER, _SENTRY_LOG_LEVEL, ...)                                                         \
-    if ([SENTRY_LOGGER willLogAtLevel:_SENTRY_LOG_LEVEL]) {                                            \
-        [SENTRY_LOGGER logWithMessage:[NSString stringWithFormat:@"[%@:%d] %@",                        \
-                                            [[[NSString stringWithUTF8String:__FILE__]             \
-                                                lastPathComponent] stringByDeletingPathExtension], \
-                                            __LINE__, [NSString stringWithFormat:__VA_ARGS__]]     \
-                         andLevel:_SENTRY_LOG_LEVEL];                                              \
+#define SENTRY_LOG_WITH_LOGGER(SENTRY_LOGGER, _SENTRY_LOG_LEVEL, ...)                              \
+    if ([SENTRY_LOGGER willLogAtLevel:_SENTRY_LOG_LEVEL]) {                                        \
+        [SENTRY_LOGGER                                                                             \
+            logWithMessage:[NSString stringWithFormat:@"[%@:%d] %@",                               \
+                                     [[[NSString stringWithUTF8String:__FILE__] lastPathComponent] \
+                                         stringByDeletingPathExtension],                           \
+                                     __LINE__, [NSString stringWithFormat:__VA_ARGS__]]            \
+                  andLevel:_SENTRY_LOG_LEVEL];                                                     \
     }
 
-#define SENTRY_LOG_DEBUG_WITH_LOGGER(SENTRY_LOGGER, ...) SENTRY_LOG_WITH_LOGGER(SENTRY_LOGGER, kSentryLevelDebug, __VA_ARGS__)
-#define SENTRY_LOG_INFO_WITH_LOGGER(SENTRY_LOGGER, ...) SENTRY_LOG_WITH_LOGGER(SENTRY_LOGGER, kSentryLevelInfo, __VA_ARGS__)
-#define SENTRY_LOG_WARN_WITH_LOGGER(SENTRY_LOGGER, ...) SENTRY_LOG_WITH_LOGGER(SENTRY_LOGGER, kSentryLevelWarning, __VA_ARGS__)
-#define SENTRY_LOG_ERROR_WITH_LOGGER(SENTRY_LOGGER, ...) SENTRY_LOG_WITH_LOGGER(SENTRY_LOGGER, kSentryLevelError, __VA_ARGS__)
-#define SENTRY_LOG_FATAL_WITH_LOGGER(SENTRY_LOGGER, ...) SENTRY_LOG_WITH_LOGGER(SENTRY_LOGGER, kSentryLevelFatal, __VA_ARGS__)
+#define SENTRY_LOG_DEBUG_WITH_LOGGER(SENTRY_LOGGER, ...)                                           \
+    SENTRY_LOG_WITH_LOGGER(SENTRY_LOGGER, kSentryLevelDebug, __VA_ARGS__)
+#define SENTRY_LOG_INFO_WITH_LOGGER(SENTRY_LOGGER, ...)                                            \
+    SENTRY_LOG_WITH_LOGGER(SENTRY_LOGGER, kSentryLevelInfo, __VA_ARGS__)
+#define SENTRY_LOG_WARN_WITH_LOGGER(SENTRY_LOGGER, ...)                                            \
+    SENTRY_LOG_WITH_LOGGER(SENTRY_LOGGER, kSentryLevelWarning, __VA_ARGS__)
+#define SENTRY_LOG_ERROR_WITH_LOGGER(SENTRY_LOGGER, ...)                                           \
+    SENTRY_LOG_WITH_LOGGER(SENTRY_LOGGER, kSentryLevelError, __VA_ARGS__)
+#define SENTRY_LOG_FATAL_WITH_LOGGER(SENTRY_LOGGER, ...)                                           \
+    SENTRY_LOG_WITH_LOGGER(SENTRY_LOGGER, kSentryLevelFatal, __VA_ARGS__)
 
-#define SENTRY_LOG(_SENTRY_LOG_LEVEL, ...) SENTRY_LOG_WITH_LOGGER(SentryLog.sharedInstance, _SENTRY_LOG_LEVEL, __VA_ARGS__)
+#define SENTRY_LOG(_SENTRY_LOG_LEVEL, ...)                                                         \
+    SENTRY_LOG_WITH_LOGGER(SentryLog.sharedInstance, _SENTRY_LOG_LEVEL, __VA_ARGS__)
 
 #define SENTRY_LOG_DEBUG(...) SENTRY_LOG(kSentryLevelDebug, __VA_ARGS__)
 #define SENTRY_LOG_INFO(...) SENTRY_LOG(kSentryLevelInfo, __VA_ARGS__)

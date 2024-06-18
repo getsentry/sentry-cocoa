@@ -6,26 +6,26 @@
 
 namespace sentry {
 namespace profiling {
-//    namespace {
-//        SentryLevel
-//        sentryLevelFromLogLevel(LogLevel level)
-//        {
-//            switch (level) {
-//            case LogLevel::None:
-//                return kSentryLevelNone;
-//            case LogLevel::Debug:
-//                return kSentryLevelDebug;
-//            case LogLevel::Info:
-//                return kSentryLevelInfo;
-//            case LogLevel::Warning:
-//                return kSentryLevelWarning;
-//            case LogLevel::Error:
-//                return kSentryLevelError;
-//            case LogLevel::Fatal:
-//                return kSentryLevelFatal;
-//            }
-//        }
-//    }
+    //    namespace {
+    //        SentryLevel
+    //        sentryLevelFromLogLevel(LogLevel level)
+    //        {
+    //            switch (level) {
+    //            case LogLevel::None:
+    //                return kSentryLevelNone;
+    //            case LogLevel::Debug:
+    //                return kSentryLevelDebug;
+    //            case LogLevel::Info:
+    //                return kSentryLevelInfo;
+    //            case LogLevel::Warning:
+    //                return kSentryLevelWarning;
+    //            case LogLevel::Error:
+    //                return kSentryLevelError;
+    //            case LogLevel::Fatal:
+    //                return kSentryLevelFatal;
+    //            }
+    //        }
+    //    }
 
     void
     log(LogLevel level, const char *fmt, ...)
@@ -39,7 +39,7 @@ namespace profiling {
         const auto msgStr = [[NSString alloc] initWithFormat:fmtStr arguments:args];
         va_end(args);
         printf("%s\n", msgStr.UTF8String);
-//        [SentryLog logWithMessage:msgStr andLevel:sentryLevelFromLogLevel(level)];
+        //        [SentryLog logWithMessage:msgStr andLevel:sentryLevelFromLogLevel(level)];
     }
 
 } // namespace profiling

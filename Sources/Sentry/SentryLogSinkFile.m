@@ -7,15 +7,13 @@
 - (instancetype)init
 {
     self = [super init];
-    if (self) {
-        
-    }
+    if (self) { }
     return self;
 }
 
 - (void)log:(NSString *)message
 {
-    
+
     NSLog(@"%@", message);
 }
 
