@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Features
+
+- Restart replay session with mobile session (#4085)
+
 ### Fixes
 
 - Fix potential deadlock in app hang detection (#4063)
