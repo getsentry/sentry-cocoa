@@ -1,10 +1,12 @@
 # Changelog
 
-## 8.29.1
+## Unreleased
 
 ### Features
 
 - Add pause and resume AppHangTracking API (#4077). You can now pause and resume app hang tracking with `SentrySDK.pauseAppHangTracking()` and `SentrySDK.resumeAppHangTracking()`.
+
+## 8.29.1
 
 ### Fixes
 
