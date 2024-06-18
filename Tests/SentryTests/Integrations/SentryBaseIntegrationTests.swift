@@ -11,7 +11,7 @@ class SentryBaseIntegrationTests: XCTestCase {
     var logOutput: TestLogOutput!
     var oldDebug: Bool!
     var oldLevel: SentryLevel!
-    var oldOutput: SentryLogOutput!
+    var oldOutput: SentryLogSinkNSLog!
 
     override func setUp() {
         super.setUp()

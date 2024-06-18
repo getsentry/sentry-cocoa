@@ -1,8 +1,9 @@
 #import <Foundation/Foundation.h>
+#import "SentryLogSink.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SentryLogOutput : NSObject
+@interface SentryLogSinkNSLog : NSObject <SentryLogSink>
 
 - (void)log:(NSString *)message;
 

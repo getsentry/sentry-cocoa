@@ -1,7 +1,7 @@
 import Foundation
 import XCTest
 
-class TestLogOutput: SentryLogOutput {
+class TestLogOutput: SentryLogSinkNSLog {
     
     private let queue = DispatchQueue(label: "TestLogOutput", attributes: .concurrent)
     

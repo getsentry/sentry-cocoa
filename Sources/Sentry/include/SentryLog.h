@@ -1,7 +1,7 @@
 #import "SentryDefines.h"
 #import "SentrySwift.h"
 
-@class SentryLogOutput;
+@class SentryLogSinkNSLog;
 
 NS_ASSUME_NONNULL_BEGIN
 
