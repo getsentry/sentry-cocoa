@@ -43,7 +43,6 @@
 
 #import "NSLocale+Sentry.h"
 #import "NSMutableDictionary+Sentry.h"
-#import "NSURLProtocolSwizzle.h"
 #import "PrivateSentrySDKOnly.h"
 #import "Sentry/Sentry-Swift.h"
 #import "SentryANRTracker.h"
