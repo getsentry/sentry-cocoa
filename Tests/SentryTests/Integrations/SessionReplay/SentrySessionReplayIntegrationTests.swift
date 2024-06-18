@@ -84,7 +84,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         XCTAssertNotNil(Dynamic(integration).getTouchTracker().asObject)
     }
     
-    func testInstallFullSessionReplayBecauseOfRandomButDontRun() {
+    func testInstallFullSessionReplayButDontRunBecauseOfRandom() {
         SentryDependencyContainer.sharedInstance().random = TestRandom(value: 0.3)
         
         startSDK(sessionSampleRate: 0.2, errorSampleRate: 0)
@@ -102,6 +102,8 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         
         XCTAssertEqual(SentrySDK.currentHub().trimmedInstalledIntegrationNames().count,1)
         XCTAssertEqual(SentryGlobalEventProcessor.shared().processors.count,1)
+        guard let sut = getSut() else { return }
+        XCTAssertNotNil(sut.sessionReplay)
     }
     
     func testInstallErrorReplay() {
@@ -120,7 +122,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         XCTAssertNil(sut.sessionReplay)
         uiApplication.windowsMock = [UIWindow()]
         NotificationCenter.default.post(name: UIScene.didActivateNotification, object: nil)
-        XCTAssertNil(sut.sessionReplay)
+        XCTAssertNotNil(sut.sessionReplay)
     }
     
     func testPauseAndResumeForApplicationStateChange() {
