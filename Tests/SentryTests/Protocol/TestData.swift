@@ -8,11 +8,14 @@ import UIKit
 class TestData {
     
     static let timestamp = Date(timeIntervalSince1970: 10)
+    static let systemTimestamp: UInt64 = 10 * 1_000_000_000 // 10 seconds, in nanoseconds
     static var timestampAs8601String: String {
-        (timestamp as NSDate).sentry_toIso8601String()
+        sentry_toIso8601String(timestamp as Date)
     }
     static let sdk = ["name": SentryMeta.sdkName, "version": SentryMeta.versionString]
     static let context: [String: [String: Any]] = ["context": ["c": "a", "date": timestamp]]
+    
+    static let malformedURLString = "http://example.com:-80/"
     
     static var crumb: Breadcrumb {
         let crumb = Breadcrumb()
@@ -323,14 +326,32 @@ class TestData {
     }
 
     #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
-
-    static func getAppStartMeasurement(type: SentryAppStartType, appStartTimestamp: Date = TestData.timestamp) -> SentryAppStartMeasurement {
+    
+    static func getAppStartMeasurement(
+        type: SentryAppStartType,
+        appStartTimestamp: Date = TestData.timestamp,
+        runtimeInitSystemTimestamp: UInt64,
+        preWarmed: Bool = false,
+        moduleInitializationTimestamp: Date? = nil,
+        runtimeInitTimestamp: Date? = nil,
+        sdkStartTimestamp: Date? = nil
+    ) -> SentryAppStartMeasurement {
         let appStartDuration = 0.5
-        let main = appStartTimestamp.addingTimeInterval(0.15)
-        let runtimeInit = appStartTimestamp.addingTimeInterval(0.05)
-        let didFinishLaunching = appStartTimestamp.addingTimeInterval(0.3)
+        let main = moduleInitializationTimestamp ?? appStartTimestamp.addingTimeInterval(0.15)
+        let runtimeInit = runtimeInitTimestamp ?? appStartTimestamp.addingTimeInterval(0.05)
+        let sdkStart = sdkStartTimestamp ?? appStartTimestamp.addingTimeInterval(0.1)
+        let didFinishLaunching = appStartTimestamp.addingTimeInterval(0.2)
         
-        return SentryAppStartMeasurement(type: type, isPreWarmed: false, appStartTimestamp: appStartTimestamp, duration: appStartDuration, runtimeInitTimestamp: runtimeInit, moduleInitializationTimestamp: main, didFinishLaunchingTimestamp: didFinishLaunching)
+        return SentryAppStartMeasurement(
+            type: type,
+            isPreWarmed: preWarmed,
+            appStartTimestamp: appStartTimestamp,
+            runtimeInitSystemTimestamp: runtimeInitSystemTimestamp,
+            duration: appStartDuration,
+            runtimeInitTimestamp: runtimeInit,
+            moduleInitializationTimestamp: main,
+            sdkStartTimestamp: sdkStart,
+            didFinishLaunchingTimestamp: didFinishLaunching)
     }
 
     #endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)

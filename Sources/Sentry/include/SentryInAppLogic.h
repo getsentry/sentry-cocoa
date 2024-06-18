@@ -30,6 +30,10 @@ NS_ASSUME_NONNULL_BEGIN
 @interface SentryInAppLogic : NSObject
 SENTRY_NO_INIT
 
+@property (nonnull, readonly) NSArray<NSString *> *inAppIncludes;
+
+@property (nonnull, readonly) NSArray<NSString *> *inAppExcludes;
+
 /**
  * Initializes @c SentryInAppLogic with @c inAppIncludes and @c inAppExcludes.
  *
@@ -71,6 +75,8 @@ SENTRY_NO_INIT
  * @c inAppExcludes.
  */
 - (BOOL)isClassInApp:(Class)targetClass;
+
++ (BOOL)isImageNameInApp:(NSString *)imageName inAppInclude:(NSString *)inAppInclude;
 
 @end
 

@@ -34,7 +34,7 @@ class ViewController: NSViewController {
     @IBAction func crashOnException(_ sender: Any) {
         let userInfo: [String: String] = ["user-info-key-1": "user-info-value-1", "user-info-key-2": "user-info-value-2"]
         let exception = NSException(name: NSExceptionName("My Custom exception"), reason: "User clicked the button", userInfo: userInfo)
-        NSApp.perform("_crashOnException:", with: exception)
+        NSApplication.shared.reportException(exception)
     }
     
     @IBAction func captureTransaction(_ sender: Any) {
@@ -53,6 +53,10 @@ class ViewController: NSViewController {
         wrapper.throwCPPException()
     }
     
+    @IBAction func rethrowNoActiveCppException(_ sender: Any) {
+        let wrapper = CppWrapper()
+        wrapper.rethrowNoActiveCPPException()
+    }
     @IBAction func asyncCrash(_ sender: Any) {
         DispatchQueue.main.async {
             self.asyncCrash1()

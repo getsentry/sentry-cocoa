@@ -157,3 +157,72 @@ and for an internal one [SentryTransport](https://github.com/getsentry/sentry-co
 Related links:
 
 - [GH PR discussion](https://github.com/getsentry/sentry-cocoa/pull/3246#discussion_r1385134001)
+
+## Move UI tests from SauceLabs to GH action simulators <a name="move-ui-tests-to-gh-actions"></a>
+
+Date: February 20th 2024
+Contributors: @brustolin, @philipphofmann, @kahest
+
+As of February 20, 2024, we have severe problems with the UI tests on SauceLabs:
+
+1. Running the UI tests on iOS 16 continuously fails with an internal server error.
+
+```bash
+08:43:42 ERR Failed to pass threshold suite=iOS-16
+08:43:43 ERR Suite finished. passed=false suite=iOS-16 url=https://app.saucelabs.com/tests/92e4f31ed2e0464caa069ac36fed4a1a
+08:43:50 WRN Failed to retrieve the console output. error="internal server error" suite=iOS-16
+08:43:52 INF Suites in progress: 0
+08:43:59 WRN unable to report result to insights error="internal server error" action=loading-xml-report
+08:43:59 WRN unable to report result to insights error="internal server error" action=parsingXML jobID=92e4f31ed2e0464caa069ac36fed4a1a
+```
+
+2. The test runs for iOS 17 keep hanging forever and frequently time out. 
+3. Until February 19, 2024 we had a retry mechanism for running SauceLabs UI tests because they
+frequently failed to tun.
+
+Working with such an unreliable tool in CI is a killer for developer productivity. When looking at
+our UI test suite, we currently have one UI test that should run on an actual device:  . This test
+validates the data from our screen frames logic, and validating that it works correctly on an iPhone
+Pro with 120 fps makes sense. Apart from that, running all the UI tests on different simulators in
+CI should be enough to surface most of our bugs. Fighting against SauceLabs and not relying on it is
+worse than running UI tests on simulators and accepting the fact that they might not capture 100% of
+bugs and regressions.
+
+
+Another major reason why we chose SauceLabs in the past was the support of running UI tests on older
+iOS versions, which are not supported on GH action simulators. This was vital when we dealt with
+severe bugs when swizzling UIViewControllers. We don’t face that challenge anymore because the
+solution is stable, and we don’t receive any bugs anymore. The lowest supported simulator version on
+GH actions is currently iOS 13. Given the low market share of iOS 12, it’s acceptable to not run our
+UI tests on iOS 12 and lower even though we support them.
+
+
+All that said, we should replace running UI tests in SauceLabs with running them on different iOS
+versions with GH actions.
+
+It’s worth noting that we want to keep running benchmark tests on SauceLabs as they run stable.
+
+## Removing SentryPrivate <a name="removing-sentryprivate"></a>
+
+Date: March 4th 2024
+Contributors: @brustolin, @philipphofmann, @kahest
+
+With the necessity of using Swift, we introduced a secondary framework that was a Sentry dependency. 
+That means we could not write a public API in Swift or access the core classes from Swift code. 
+Another problem is that some users were experiencing issues when compiling the framework in CI.
+
+Swift is the present and has a long future ahead of it for Apple development. It's less verbose, 
+requires fewer files, and is more powerful when it comes to language features.
+
+Because of all of this, we decided that we want Swift for the core framework. The only obstacle 
+is that SPM doesn't support two languages for the same target. To solve this, we exposed 
+Sentry as a pre-built binary for SPM. This adds the benefit of Sentry not being 
+compiled with the project, which speeds up build time.
+
+Another challenge we face with this decision is where to host the pre-compiled framework. 
+We choose to use git release assets. To understand CI changes needed to publish the framework
+please refer to this [PR](https://github.com/getsentry/sentry-cocoa/pull/3623). 
+
+When coding with Swift be aware of two things:
+1. If you want to use swift code in an Objc file: `#import "SentrySwift.h"`
+2. If you want to use Objc code from Swift, first add the desired header file to `SentryInternal.h`, then, in your Swift file, `@_implementationOnly import _SentryPrivate` (the underscore makes auto-complete ignore it since we dont want users importing this module).

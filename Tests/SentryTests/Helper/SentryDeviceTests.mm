@@ -89,10 +89,10 @@
     const auto osVersion = sentry_getOSVersion();
     XCTAssertNotEqual(osVersion.length, 0U);
 #if TARGET_OS_OSX
-    SENTRY_ASSERT_PREFIX(osVersion, @"10.", @"11.", @"12.", @"13.");
+    SENTRY_ASSERT_PREFIX(osVersion, @"10.", @"11.", @"12.", @"13.", @"14.", @"15.");
 #elif TARGET_OS_IOS || TARGET_OS_MACCATALYST || TARGET_OS_TV
     SENTRY_ASSERT_PREFIX(
-        osVersion, @"9.", @"10.", @"11.", @"12.", @"13.", @"14.", @"15.", @"16.", @"17.");
+        osVersion, @"9.", @"10.", @"11.", @"12.", @"13.", @"14.", @"15.", @"16.", @"17.", @"18.");
 #elif TARGET_OS_WATCH
     // TODO: create a watch UI test target to test this branch
     SENTRY_ASSERT_PREFIX(osVersion, @"2.", @"3.", @"4.", @"5.", @"6.", @"7.", @"8.", @"9.");
@@ -109,7 +109,7 @@
 #elif TARGET_OS_MACCATALYST
     SENTRY_ASSERT_EQUAL(osName, @"Catalyst");
 #elif TARGET_OS_IOS
-    // We must test this branch in iOS-SwiftUITests since it must run on device, which SentryTests
+    // We must test this branch in iOS-Swift-UITests since it must run on device, which SentryTests
     // cannot.
     if (UIDevice.currentDevice.userInterfaceIdiom == UIUserInterfaceIdiomPad) {
         SENTRY_ASSERT_EQUAL(osName, @"iPadOS");
@@ -142,7 +142,7 @@
     XCTAssertTrue(
         containsExpectedDevice, @"Expected %@ to contain either %@ or %@", modelName, VMware, mac);
 #elif TARGET_OS_IOS
-    // We must test this branch in iOS-SwiftUITests since it must run on device, which SentryTests
+    // We must test this branch in iOS-Swift-UITests since it must run on device, which SentryTests
     // cannot.
     if (UIDevice.currentDevice.userInterfaceIdiom == UIUserInterfaceIdiomPad) {
         SENTRY_ASSERT_CONTAINS(modelName, @"iPad");
@@ -186,7 +186,7 @@
     const auto modelName = sentry_getSimulatorDeviceModel();
     XCTAssertNotEqual(modelName.length, 0U);
 #    if TARGET_OS_IOS
-    // We must test this branch in iOS-SwiftUITests since it must run on device, which SentryTests
+    // We must test this branch in iOS-Swift-UITests since it must run on device, which SentryTests
     // cannot.
     if (UIDevice.currentDevice.userInterfaceIdiom == UIUserInterfaceIdiomPad) {
         SENTRY_ASSERT_CONTAINS(modelName, @"iPad");

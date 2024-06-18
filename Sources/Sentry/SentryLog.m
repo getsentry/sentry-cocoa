@@ -1,4 +1,5 @@
 #import "SentryLog.h"
+#import "SentryInternalCDefines.h"
 #import "SentryLevelMapper.h"
 #import "SentryLogOutput.h"
 
@@ -14,13 +15,10 @@ static SentryLevel diagnosticLevel = kSentryLevelError;
 static SentryLogOutput *logOutput;
 static NSObject *logConfigureLock;
 
-+ (void)initialize
-{
-    logConfigureLock = [[NSObject alloc] init];
-}
-
 + (void)configure:(BOOL)debug diagnosticLevel:(SentryLevel)level
 {
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{ logConfigureLock = [[NSObject alloc] init]; });
     @synchronized(logConfigureLock) {
         isDebug = debug;
         diagnosticLevel = level;
@@ -40,10 +38,12 @@ static NSObject *logConfigureLock;
 }
 
 + (BOOL)willLogAtLevel:(SentryLevel)level
+    SENTRY_DISABLE_THREAD_SANITIZER(
+        "The SDK usually configures the log level and isDebug once when it starts. For tests, we "
+        "accept a data race causing some log messages of the wrong level over using a synchronized "
+        "block for this method, as it's called frequently in production.")
 {
-    @synchronized(logConfigureLock) {
-        return isDebug && level != kSentryLevelNone && level >= diagnosticLevel;
-    }
+    return isDebug && level != kSentryLevelNone && level >= diagnosticLevel;
 }
 
 // Internal and only needed for testing.

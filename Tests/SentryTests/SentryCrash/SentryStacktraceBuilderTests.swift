@@ -84,6 +84,7 @@ class SentryStacktraceBuilderTests: XCTestCase {
             options.dsn = TestConstants.dsnAsString(username: "SentryStacktraceBuilderTests")
             options.swiftAsyncStacktraces = true
             options.debug = true
+            options.setIntegrations([SentryCrashIntegration.self, SentrySwiftAsyncIntegration.self])
         }
 
         let waitForAsyncToRun = expectation(description: "Wait async functions")
@@ -97,7 +98,7 @@ class SentryStacktraceBuilderTests: XCTestCase {
         var timeout: TimeInterval = 1
         #if !os(watchOS) && !os(tvOS)
         // observed the async task taking a long time to finish if TSAN is attached
-        if threadSanitizerIsPresent() {
+        if sentry_threadSanitizerIsPresent() {
             timeout = 10
         }
         #endif // !os(watchOS) || !os(tvOS)
@@ -113,6 +114,7 @@ class SentryStacktraceBuilderTests: XCTestCase {
             options.dsn = TestConstants.dsnAsString(username: "SentryStacktraceBuilderTests")
             options.swiftAsyncStacktraces = false
             options.debug = true
+            options.setIntegrations([SentryCrashIntegration.self, SentrySwiftAsyncIntegration.self])
         }
 
         let waitForAsyncToRun = expectation(description: "Wait async functions")
@@ -126,7 +128,7 @@ class SentryStacktraceBuilderTests: XCTestCase {
         var timeout: TimeInterval = 1
         #if !os(watchOS) && !os(tvOS)
         // observed the async task taking a long time to finish if TSAN is attached
-        if threadSanitizerIsPresent() {
+        if sentry_threadSanitizerIsPresent() {
             timeout = 10
         }
         #endif // !os(watchOS) || !os(tvOS)

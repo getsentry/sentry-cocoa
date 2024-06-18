@@ -32,6 +32,12 @@
 #    define SENTRY_TARGET_MACOS 0
 #endif
 
+#if (TARGET_OS_OSX || TARGET_OS_MACCATALYST) && !SENTRY_NO_UIKIT
+#    define SENTRY_TARGET_MACOS_HAS_UI 1
+#else
+#    define SENTRY_TARGET_MACOS_HAS_UI 0
+#endif
+
 #if TARGET_OS_IOS || SENTRY_TARGET_MACOS
 #    define SENTRY_HAS_METRIC_KIT 1
 #else
@@ -41,6 +47,12 @@
 #define SENTRY_NO_INIT                                                                             \
     -(instancetype)init NS_UNAVAILABLE;                                                            \
     +(instancetype) new NS_UNAVAILABLE;
+
+#if !TARGET_OS_WATCH && !(TARGET_OS_VISION && SENTRY_NO_UIKIT == 1)
+#    define SENTRY_HAS_REACHABILITY 1
+#else
+#    define SENTRY_HAS_REACHABILITY 0
+#endif
 
 @class SentryEvent, SentryBreadcrumb, SentrySamplingContext;
 @protocol SentrySpan;
@@ -68,6 +80,12 @@ typedef SentryBreadcrumb *_Nullable (^SentryBeforeBreadcrumbCallback)(
  * To avoid sending the event altogether, return nil instead.
  */
 typedef SentryEvent *_Nullable (^SentryBeforeSendEventCallback)(SentryEvent *_Nonnull event);
+
+/**
+ * Block can be used to decide if the SDK should capture a screenshot or not. Return @c true if the
+ * SDK should capture a screenshot, return @c false if not. This callback doesn't work for crashes.
+ */
+typedef BOOL (^SentryBeforeCaptureScreenshotCallback)(SentryEvent *_Nonnull event);
 
 /**
  * A callback to be notified when the last program execution terminated with a crash.
@@ -99,6 +117,16 @@ typedef NSNumber *_Nullable (^SentryTracesSamplerCallback)(
 typedef void (^SentrySpanCallback)(id<SentrySpan> _Nullable span);
 
 /**
+ * A callback block which gets called right before a metric is about to be emitted.
+
+ * @param key  The key of the metric.
+ * @param tags A dictionary of key-value pairs associated with the metric.
+ * @return BOOL YES if the metric should be emitted, NO otherwise.
+ */
+typedef BOOL (^SentryBeforeEmitMetricCallback)(
+    NSString *_Nonnull key, NSDictionary<NSString *, NSString *> *_Nonnull tags);
+
+/**
  * Log level.
  */
 typedef NS_ENUM(NSInteger, SentryLogLevel) {
@@ -111,16 +139,8 @@ typedef NS_ENUM(NSInteger, SentryLogLevel) {
 /**
  * Sentry level.
  */
-typedef NS_ENUM(NSUInteger, SentryLevel) {
-    // Defaults to None which doesn't get serialized
-    kSentryLevelNone = 0,
-    // Goes from Debug to Fatal so possible to: (level > Info) { .. }
-    kSentryLevelDebug = 1,
-    kSentryLevelInfo = 2,
-    kSentryLevelWarning = 3,
-    kSentryLevelError = 4,
-    kSentryLevelFatal = 5
-};
+typedef NS_ENUM(NSUInteger,
+    SentryLevel); // This is a forward declaration, the actual enum is implemented in Swift.
 
 /**
  * Static internal helper to convert enum to string.
@@ -144,11 +164,5 @@ static NSString *_Nonnull const kSentryFalseString = @"false";
 /**
  * Transaction name source.
  */
-typedef NS_ENUM(NSInteger, SentryTransactionNameSource) {
-    kSentryTransactionNameSourceCustom = 0,
-    kSentryTransactionNameSourceUrl,
-    kSentryTransactionNameSourceRoute,
-    kSentryTransactionNameSourceView,
-    kSentryTransactionNameSourceComponent,
-    kSentryTransactionNameSourceTask
-};
+typedef NS_ENUM(NSInteger, SentryTransactionNameSource); // This is a forward declaration, the
+                                                         // actual enum is implemented in Swift.

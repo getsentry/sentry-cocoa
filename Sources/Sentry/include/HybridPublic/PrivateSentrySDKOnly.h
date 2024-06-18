@@ -1,11 +1,18 @@
 #import "PrivatesHeader.h"
-#import "SentryAppStartMeasurement.h"
-#import "SentryEnvelope.h"
-#import "SentryEnvelopeItemType.h"
 #import "SentryScreenFrames.h"
 
-@class SentryDebugMeta, SentryAppStartMeasurement, SentryScreenFrames, SentryOptions,
-    SentryBreadcrumb, SentryUser;
+@class SentryDebugMeta;
+@class SentryScreenFrames;
+@class SentryAppStartMeasurement;
+@class SentryOptions;
+@class SentryBreadcrumb;
+@class SentryUser;
+@class SentryEnvelope;
+@class SentryId;
+@class SentrySessionReplayIntegration;
+
+@protocol SentryReplayBreadcrumbConverter;
+@protocol SentryViewScreenshotProvider;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -91,9 +98,9 @@ typedef void (^SentryOnAppStartMeasurementAvailable)(
  * Collect a profiler session data associated with the given @c SentryId.
  * This also discards the profiler.
  */
-+ (nullable NSDictionary<NSString *, id> *)collectProfileBetween:(uint64_t)startSystemTime
-                                                             and:(uint64_t)endSystemTime
-                                                        forTrace:(SentryId *)traceId;
++ (nullable NSMutableDictionary<NSString *, id> *)collectProfileBetween:(uint64_t)startSystemTime
+                                                                    and:(uint64_t)endSystemTime
+                                                               forTrace:(SentryId *)traceId;
 
 /**
  * Discard profiler session data associated with the given @c SentryId.
@@ -153,11 +160,30 @@ typedef void (^SentryOnAppStartMeasurementAvailable)(
  * configurations even when targeting iOS or tvOS platforms.
  */
 + (NSData *)captureViewHierarchy;
+
 #endif // SENTRY_UIKIT_AVAILABLE
+
+#if SENTRY_HAS_UIKIT && !TARGET_OS_VISION
+
+/**
+ * Configure session replay with different breadcrumb converter
+ * and screeshot provider. Used by the Hybrid SDKs.
+ * Passing nil will keep the previous value.
+ */
++ (void)configureSessionReplayWith:(nullable id<SentryReplayBreadcrumbConverter>)breadcrumbConverter
+                screenshotProvider:(nullable id<SentryViewScreenshotProvider>)screenshotProvider;
+
+#endif
++ (nullable NSDictionary<NSString *, id> *)appStartMeasurementWithSpans;
 
 + (SentryUser *)userWithDictionary:(NSDictionary *)dictionary;
 
 + (SentryBreadcrumb *)breadcrumbWithDictionary:(NSDictionary *)dictionary;
+
++ (void)captureReplay;
++ (NSString *__nullable)getReplayId;
++ (void)addReplayIgnoreClasses:(NSArray<Class> *_Nonnull)classes;
++ (void)addReplayRedactClasses:(NSArray<Class> *_Nonnull)classes;
 
 @end
 

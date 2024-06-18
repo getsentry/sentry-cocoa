@@ -1,7 +1,9 @@
 import ObjectiveC
+@testable import Sentry
 import SentryTestUtils
 import XCTest
 
+// swiftlint:disable file_length
 class SentryNetworkTrackerTests: XCTestCase {
     
     private static let dsnAsString = TestConstants.dsnAsString(username: "SentrySessionTrackerTests")
@@ -17,7 +19,7 @@ class SentryNetworkTrackerTests: XCTestCase {
         let dateProvider = TestCurrentDateProvider()
         let options: Options
         let scope: Scope
-        let nsUrlRequest = NSURLRequest(url: SentryNetworkTrackerTests.fullUrl)
+        let nsUrlRequest = NSMutableURLRequest(url: SentryNetworkTrackerTests.fullUrl)
         let client: TestClient!
         let hub: TestHub!
         let securityHeader = [ "X-FORWARDED-FOR": "value",
@@ -48,6 +50,7 @@ class SentryNetworkTrackerTests: XCTestCase {
             result.enableNetworkTracking()
             result.enableNetworkBreadcrumbs()
             result.enableCaptureFailedRequests()
+            result.enableGraphQLOperationTracking()
             return result
         }
     }
@@ -59,6 +62,7 @@ class SentryNetworkTrackerTests: XCTestCase {
         fixture = Fixture()
         
         SentrySDK.setCurrentHub(fixture.hub)
+        SentrySDK.setStart(fixture.options)
         SentryDependencyContainer.sharedInstance().dateProvider = fixture.dateProvider
     }
     
@@ -336,8 +340,73 @@ class SentryNetworkTrackerTests: XCTestCase {
         XCTAssertEqual(breadcrumb!.data!["response_body_size"] as! Int64, DATA_BYTES_RECEIVED)
         XCTAssertEqual(breadcrumb!.data!["http.query"] as? String, "query=value&query2=value2")
         XCTAssertEqual(breadcrumb!.data!["http.fragment"] as? String, "fragment")
+        XCTAssertNotNil(breadcrumb!.data!["request_start"])
+        XCTAssertTrue(breadcrumb!.data!["request_start"] is Date)
+        XCTAssertNil(breadcrumb!.data!["graphql_operation_name"])
     }
     
+    func testNetworkBreadcrumbForSessionReplay() throws {
+        assertStatus(status: .ok, state: .completed, response: createResponse(code: 200))
+        
+        let breadcrumbs = Dynamic(fixture.scope).breadcrumbArray as [Breadcrumb]?
+        
+        let sut = SentrySRDefaultBreadcrumbConverter()
+        guard let crumb = breadcrumbs?.first else {
+            XCTFail("No touch breadcrumb")
+            return
+        }
+               
+        let result = try XCTUnwrap(sut.convert(breadcrumbs: [crumb], 
+                                                         from: Date(timeIntervalSince1970: 0),
+                                                         until: Date(timeIntervalSinceNow: 60)).first)
+        let crumbData = try XCTUnwrap(result.data)
+        let payload = try XCTUnwrap(crumbData["payload"] as? [String: Any])
+        let payloadData = try XCTUnwrap(payload["data"] as? [String: Any])
+        let start = try XCTUnwrap(crumb.data?["request_start"] as? Date)
+        
+        XCTAssertEqual(result.timestamp, start)
+        XCTAssertEqual(crumbData["tag"] as? String, "performanceSpan")
+        XCTAssertEqual(payload["description"] as? String, "https://www.domain.com/api")
+        XCTAssertEqual(payload["op"] as? String, "resource.http")
+        XCTAssertEqual(payload["startTimestamp"] as? Double, start.timeIntervalSince1970)
+        XCTAssertEqual(payload["endTimestamp"] as? Double, crumb.timestamp?.timeIntervalSince1970)
+        XCTAssertEqual(payloadData["statusCode"] as? Int, 200)
+        XCTAssertEqual(payloadData["query"] as? String, "query=value&query2=value2")
+        XCTAssertEqual(payloadData["fragment"] as? String, "fragment")
+    }
+
+    func testBreadcrumb_GraphQLEnabled() {
+        let body = """
+        {
+            "operationName": "someOperationName",
+            "variables":{"a": 1},
+            "query":"query someOperationName {\\n  someField\\n}\\n"
+        }
+        """
+        fixture.nsUrlRequest.httpBody = body.data(using: .utf8)
+        fixture.nsUrlRequest.setValue("application/json", forHTTPHeaderField: "content-type")
+        assertStatus(status: .ok, state: .completed, response: createResponse(code: 200))
+
+        let breadcrumbs = Dynamic(fixture.scope).breadcrumbArray as [Breadcrumb]?
+        let breadcrumb = breadcrumbs!.first
+        XCTAssertEqual(breadcrumb!.data!["graphql_operation_name"] as? String, "someOperationName")
+    }
+
+    func testBreadcrumb_GraphQLEnabledInvalidData() {
+        let body = """
+        [
+            {"message": "arrays are valid json"}
+        ]
+        """
+        fixture.nsUrlRequest.httpBody = body.data(using: .utf8)
+        fixture.nsUrlRequest.setValue("application/json", forHTTPHeaderField: "content-type")
+        assertStatus(status: .ok, state: .completed, response: createResponse(code: 200))
+
+        let breadcrumbs = Dynamic(fixture.scope).breadcrumbArray as [Breadcrumb]?
+        let breadcrumb = breadcrumbs!.first
+        XCTAssertNil(breadcrumb!.data!["graphql_operation_name"])
+    }
+
     func testNoBreadcrumb_DisablingBreadcrumb() {
         assertStatus(status: .ok, state: .completed, response: createResponse(code: 200)) {
             $0.disable()
@@ -565,8 +634,20 @@ class SentryNetworkTrackerTests: XCTestCase {
         let transaction = startTransaction() as! SentryTracer
         sut.urlSessionTaskResume(task)
 
-        let expectedBaggageHeader = transaction.traceContext.toBaggage().toHTTPHeader()
+        let expectedBaggageHeader = transaction.traceContext.toBaggage().toHTTPHeader(withOriginalBaggage: nil)
         XCTAssertEqual(task.currentRequest?.allHTTPHeaderFields?["baggage"] ?? "", expectedBaggageHeader)
+    }
+    
+    func testDontOverrideBaggageHeader() {
+        let sut = fixture.getSut()
+        let task = createDataTask {
+            var request = $0
+            request.setValue("sentry-trace_id=something", forHTTPHeaderField: "baggage")
+            return request
+        }
+        sut.urlSessionTaskResume(task)
+
+        XCTAssertEqual(task.currentRequest?.allHTTPHeaderFields?["baggage"] ?? "", "sentry-trace_id=something")
     }
 
     func testTraceHeader() {
@@ -580,6 +661,18 @@ class SentryNetworkTrackerTests: XCTestCase {
         let expectedTraceHeader = networkSpan.toTraceHeader().value()
         XCTAssertEqual(task.currentRequest?.allHTTPHeaderFields?["sentry-trace"] ?? "", expectedTraceHeader)
     }
+    
+    func testDontOverrideTraceHeader() {
+        let sut = fixture.getSut()
+        let task = createDataTask {
+            var request = $0
+            request.setValue("test", forHTTPHeaderField: "sentry-trace")
+            return request
+        }
+        sut.urlSessionTaskResume(task)
+
+        XCTAssertEqual(task.currentRequest?.allHTTPHeaderFields?["sentry-trace"] ?? "", "test")
+    }
 
     func testDefaultHeadersWhenDisabled() {
         let sut = fixture.getSut()
@@ -591,7 +684,7 @@ class SentryNetworkTrackerTests: XCTestCase {
 
         let expectedTraceHeader = SentrySDK.currentHub().scope.propagationContext.traceHeader.value()
         let traceContext = SentryTraceContext(trace: SentrySDK.currentHub().scope.propagationContext.traceId, options: self.fixture.options, userSegment: self.fixture.scope.userObject?.segment)
-        let expectedBaggageHeader = traceContext.toBaggage().toHTTPHeader()
+        let expectedBaggageHeader = traceContext.toBaggage().toHTTPHeader(withOriginalBaggage: nil)
         XCTAssertEqual(task.currentRequest?.allHTTPHeaderFields?["baggage"] ?? "", expectedBaggageHeader)
         XCTAssertEqual(task.currentRequest?.allHTTPHeaderFields?["sentry-trace"] ?? "", expectedTraceHeader)
     }
@@ -603,7 +696,7 @@ class SentryNetworkTrackerTests: XCTestCase {
 
         let expectedTraceHeader = SentrySDK.currentHub().scope.propagationContext.traceHeader.value()
         let traceContext = SentryTraceContext(trace: SentrySDK.currentHub().scope.propagationContext.traceId, options: self.fixture.options, userSegment: self.fixture.scope.userObject?.segment)
-        let expectedBaggageHeader = traceContext.toBaggage().toHTTPHeader()
+        let expectedBaggageHeader = traceContext.toBaggage().toHTTPHeader(withOriginalBaggage: nil)
         XCTAssertEqual(task.currentRequest?.allHTTPHeaderFields?["baggage"] ?? "", expectedBaggageHeader)
         XCTAssertEqual(task.currentRequest?.allHTTPHeaderFields?["sentry-trace"] ?? "", expectedTraceHeader)
     }
@@ -843,13 +936,15 @@ class SentryNetworkTrackerTests: XCTestCase {
         let requestType = span.data["type"] as? String
         let query = span.data["http.query"] as? String
         let fragment = span.data["http.fragment"] as? String
+        let graphql = span.data["graphql_operation_name"] as? String
 
         XCTAssertEqual(path, "https://www.domain.com/api")
         XCTAssertEqual(method, task.currentRequest!.httpMethod)
         XCTAssertEqual(requestType, "fetch")
         XCTAssertEqual(query, "query=value&query2=value2")
         XCTAssertEqual(fragment, "fragment")
-                
+        XCTAssertNil(graphql)
+
         XCTAssertEqual(span.status, status)
         XCTAssertNil(task.observationInfo)
     }
@@ -897,9 +992,17 @@ class SentryNetworkTrackerTests: XCTestCase {
         XCTAssertEqual(duration, expectedDuration)
     }
     
-    func createDataTask(method: String = "GET") -> URLSessionDataTaskMock {
+    func createDataTask(method: String = "GET", modifyRequest: ((URLRequest) -> (URLRequest))? = nil) -> URLSessionDataTaskMock {
         var request = URLRequest(url: SentryNetworkTrackerTests.fullUrl)
         request.httpMethod = method
+        request.httpBody = fixture.nsUrlRequest.httpBody
+        fixture.nsUrlRequest.allHTTPHeaderFields?.forEach { key, value in
+            request.setValue(value, forHTTPHeaderField: key)
+        }
+
+        if let modifyRequest = modifyRequest {
+           request = modifyRequest(request)
+        }
         return URLSessionDataTaskMock(request: request)
     }
     

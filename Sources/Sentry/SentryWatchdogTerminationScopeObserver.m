@@ -101,6 +101,11 @@ SentryWatchdogTerminationScopeObserver ()
 
 - (void)addSerializedBreadcrumb:(NSDictionary *)crumb
 {
+    if (![NSJSONSerialization isValidJSONObject:crumb]) {
+        SENTRY_LOG_ERROR(@"Breadcrumb is not a valid JSON object: %@", crumb);
+        return;
+    }
+
     NSError *error;
     NSData *jsonData = [NSJSONSerialization dataWithJSONObject:crumb options:0 error:&error];
 

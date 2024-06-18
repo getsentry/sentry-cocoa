@@ -1,4 +1,5 @@
-import Sentry
+import Nimble
+@testable import Sentry
 import SentryTestUtils
 import XCTest
 
@@ -25,6 +26,7 @@ class SentryHubTests: XCTestCase {
         let traceOrigin = "auto"
         let random = TestRandom(value: 0.5)
         let queue = DispatchQueue(label: "SentryHubTests", qos: .utility, attributes: [.concurrent])
+        let dispatchQueueWrapper = TestSentryDispatchQueueWrapper()
         
         init() {
             options = Options()
@@ -38,8 +40,9 @@ class SentryHubTests: XCTestCase {
             fileManager = try! SentryFileManager(options: options, dispatchQueueWrapper: TestSentryDispatchQueueWrapper())
             
             SentryDependencyContainer.sharedInstance().dateProvider = currentDateProvider
+            SentryDependencyContainer.sharedInstance().random = random
             
-            crashedSession = SentrySession(releaseName: "1.0.0")
+            crashedSession = SentrySession(releaseName: "1.0.0", distinctId: "")
             crashedSession.endCrashed(withTimestamp: currentDateProvider.date())
             crashedSession.environment = options.environment
         }
@@ -50,7 +53,7 @@ class SentryHubTests: XCTestCase {
         }
         
         func getSut(_ options: Options, _ scope: Scope? = nil) -> SentryHub {
-            let hub = SentryHub(client: client, andScope: scope, andCrashWrapper: sentryCrash)
+            let hub = SentryHub(client: client, andScope: scope, andCrashWrapper: sentryCrash, andDispatchQueue: self.dispatchQueueWrapper)
             hub.bindClient(client)
             return hub
         }
@@ -151,7 +154,7 @@ class SentryHubTests: XCTestCase {
         
         assert(withScopeBreadcrumbsCount: 100, with: hub)
         
-        setTestDefaultLogLevel()
+        SentryLog.setTestDefaultLogLevel()
     }
     
     func testBreadcrumbOverDefaultLimit() {
@@ -174,6 +177,14 @@ class SentryHubTests: XCTestCase {
         hub.add(fixture.crumb)
         
         XCTAssertNil(hub.scope.serialize()["breadcrumbs"])
+    }
+    
+    func testScopeEnriched() {
+        let hub = fixture.getSut(fixture.options, Scope())
+        expect(hub.scope.contextDictionary.allValues.isEmpty) == false
+        expect(hub.scope.contextDictionary["os"]) != nil
+        expect(hub.scope.contextDictionary["device"]) != nil
+        expect(hub.scope.contextDictionary["app"]) != nil
     }
     
     func testAddBreadcrumb_WithCallbackModifies() {
@@ -340,18 +351,27 @@ class SentryHubTests: XCTestCase {
         }
         
         let hub = fixture.getSut()
-        Dynamic(hub).sampler.random = fixture.random
-        
         let span = hub.startTransaction(name: fixture.transactionName, operation: fixture.transactionOperation)
         XCTAssertEqual(span.sampled, .no)
     }
     
-    func testCaptureSampledTransaction_ReturnsEmptyId() {
+    func testCaptureTransaction_CapturesEventAsync() {
+        let transaction = sut.startTransaction(transactionContext: TransactionContext(name: fixture.transactionName, operation: fixture.transactionOperation, sampled: .yes))
+        
+        let trans = Dynamic(transaction).toTransaction().asAnyObject
+        sut.capture(trans as! Transaction, with: Scope())
+        
+        expect(self.fixture.client.captureEventWithScopeInvocations.count) == 1
+        expect(self.fixture.dispatchQueueWrapper.dispatchAsyncInvocations.count) == 1
+    }
+    
+    func testCaptureSampledTransaction_DoesNotCaptureEvent() {
         let transaction = sut.startTransaction(transactionContext: TransactionContext(name: fixture.transactionName, operation: fixture.transactionOperation, sampled: .no))
         
         let trans = Dynamic(transaction).toTransaction().asAnyObject
-        let id = sut.capture(trans as! Transaction, with: Scope())
-        id.assertIsEmpty()
+        sut.capture(trans as! Transaction, with: Scope())
+        
+        expect(self.fixture.client.captureEventWithScopeInvocations.count) == 0
     }
     
     func testCaptureSampledTransaction_RecordsLostEvent() {
@@ -606,9 +626,28 @@ class SentryHubTests: XCTestCase {
         
         assertNoCrashedSessionSent()
         
+        let environment = "test"
+        sut.configureScope { $0.setEnvironment(environment) }
+        sut.captureCrash(fixture.event)
+        assertEventSentWithSession(scopeEnvironment: environment)
+        
+        // Make sure further crash events are sent
+        sut.captureCrash(fixture.event)
+        assertCrashEventSent()
+    }
+    
+    func testCaptureCrashEvent_ManualSessionTracking_CrashedSessionExists() {
+        givenAutoSessionTrackingDisabled()
+        
+        givenCrashedSession()
+        
+        assertNoCrashedSessionSent()
+        
+        let environment = "test"
+        sut.configureScope { $0.setEnvironment(environment) }
         sut.captureCrash(fixture.event)
         
-        assertEventSentWithSession()
+        assertEventSentWithSession(scopeEnvironment: environment)
         
         // Make sure further crash events are sent
         sut.captureCrash(fixture.event)
@@ -634,15 +673,6 @@ class SentryHubTests: XCTestCase {
     
     func testCaptureCrashEvent_WithoutExistingSessionAndAutoSessionTrackingEnabled() {
         givenAutoSessionTrackingDisabled()
-        
-        sut.captureCrash(fixture.event)
-        
-        assertCrashEventSent()
-    }
-    
-    func testCaptureCrashEvent_SessionExistsButAutoSessionTrackingDisabled() {
-        givenAutoSessionTrackingDisabled()
-        givenCrashedSession()
         
         sut.captureCrash(fixture.event)
         
@@ -726,8 +756,36 @@ class SentryHubTests: XCTestCase {
         assertNoEnvelopesCaptured()
     }
     
+    func testCaptureReplay() {
+        class SentryClientMockReplay: SentryClient {
+            var replayEvent: SentryReplayEvent?
+            var replayRecording: SentryReplayRecording?
+            var videoUrl: URL?
+            var scope: Scope?
+            override func capture(_ replayEvent: SentryReplayEvent, replayRecording: SentryReplayRecording, video videoURL: URL, with scope: Scope) {
+                self.replayEvent = replayEvent
+                self.replayRecording = replayRecording
+                self.videoUrl = videoURL
+                self.scope = scope
+            }
+        }
+        let mockClient = SentryClientMockReplay(options: fixture.options)
+        
+        let replayEvent = SentryReplayEvent()
+        let replayRecording = SentryReplayRecording(segmentId: 3, size: 200, start: Date(timeIntervalSince1970: 2), duration: 5_000, frameCount: 5, frameRate: 1, height: 930, width: 390, extraEvents: [])
+        let videoUrl = URL(string: "https://sentry.io")!
+        
+        sut.bindClient(mockClient)
+        sut.capture(replayEvent, replayRecording: replayRecording, video: videoUrl)
+        
+        expect(mockClient?.replayEvent) == replayEvent
+        expect(mockClient?.replayRecording) == replayRecording
+        expect(mockClient?.videoUrl) == videoUrl
+        expect(mockClient?.scope) == sut.scope
+    }
+    
     func testCaptureEnvelope_WithSession() {
-        let envelope = SentryEnvelope(session: SentrySession(releaseName: ""))
+        let envelope = SentryEnvelope(session: SentrySession(releaseName: "", distinctId: ""))
         sut.capture(envelope)
         
         XCTAssertEqual(1, fixture.client.captureEnvelopeInvocations.count)
@@ -799,6 +857,20 @@ class SentryHubTests: XCTestCase {
     }
 #endif
     
+    func testStartTransaction_WhenSamplerNil_NotSampled() {
+        assertSampler(expected: .no) { options in
+            options.tracesSampleRate = 0.49
+            options.tracesSampler = { _ in return nil }
+        }
+    }
+    
+    func testStartTransaction_WhenSamplerNil_Sampled() {
+        assertSampler(expected: .yes) { options in
+            options.tracesSampleRate = 0.50
+            options.tracesSampler = { _ in return nil }
+        }
+    }
+    
     private func addBreadcrumbThroughConfigureScope(_ hub: SentryHub) {
         hub.configureScope({ scope in
             scope.addBreadcrumb(self.fixture.crumb)
@@ -839,6 +911,7 @@ class SentryHubTests: XCTestCase {
                     let integrationName = "Integration\(i)\(j)"
                     sut.addInstalledIntegration(EmptyIntegration(), name: integrationName)
                     XCTAssertTrue(sut.hasIntegration(integrationName))
+                    XCTAssertNotNil(sut.getInstalledIntegration(EmptyIntegration.self))
                 }
                 group.leave()
             }
@@ -868,6 +941,7 @@ class SentryHubTests: XCTestCase {
                     sut.addInstalledIntegration(EmptyIntegration(), name: integrationName)
                     sut.hasIntegration(integrationName)
                     sut.isIntegrationInstalled(EmptyIntegration.self)
+                    sut.getInstalledIntegration(EmptyIntegration.self)
                 }
                 XCTAssertLessThanOrEqual(0, sut.installedIntegrations().count)
                 sut.installedIntegrations().forEach { XCTAssertNotNil($0) }
@@ -881,6 +955,22 @@ class SentryHubTests: XCTestCase {
         }
         
         group.wait()
+    }
+    
+    func testGetInstalledIntegration() {
+        let integration = EmptyIntegration()
+        sut.addInstalledIntegration(integration, name: "EmptyIntegration")
+        
+        let installedIntegration = sut.getInstalledIntegration(EmptyIntegration.self)
+        
+        XCTAssert(integration === installedIntegration)
+    }
+    
+    func testGetInstalledIntegration_ReturnsNilIfNotFound() {
+        let integration = EmptyIntegration()
+        sut.addInstalledIntegration(integration, name: "EmptyIntegration")
+        
+        XCTAssertNil(sut.getInstalledIntegration(SentryANRTrackingIntegration.self))
     }
     
     func testEventContainsOnlyHandledErrors() {
@@ -911,6 +1001,130 @@ class SentryHubTests: XCTestCase {
                                                                  ["mechanism": ["other-key": false]]]
                                                             ]
                                                          ]))
+    }
+    
+    func testInitHubWithDefaultOptions_DoesNotEnableMetrics() {
+        let sut = fixture.getSut()
+        
+        sut.metrics.increment(key: "key")
+        sut.close()
+        
+        expect(self.fixture.client.captureEnvelopeInvocations.count) == 0
+    }
+    
+    func testMetrics_IncrementOneValue() throws {
+        let options = fixture.options
+        options.enableMetrics = true
+        let sut = fixture.getSut(options)
+        
+        sut.metrics.increment(key: "key")
+        sut.flush(timeout: 1.0)
+        
+        let client = self.fixture.client
+        expect(client.captureEnvelopeInvocations.count) == 1
+        
+        let envelope = try XCTUnwrap(client.captureEnvelopeInvocations.first)
+        expect(envelope.header.eventId) != nil
+
+        // We only check if it's an envelope with a statsd envelope item.
+        // We validate the contents of the envelope in SentryMetricsClientTests
+        expect(envelope.items.count) == 1
+        let envelopeItem = try XCTUnwrap(envelope.items.first)
+        expect(envelopeItem.header.type) == SentryEnvelopeItemTypeStatsd
+        expect(envelopeItem.header.contentType) == "application/octet-stream"
+    }
+    
+    func testAddIncrementMetric_GetsLocalMetricsAggregatorFromCurrentSpan() throws {
+        let options = fixture.options
+        options.enableMetrics = true
+        let sut = fixture.getSut(options)
+        
+        let span = sut.startTransaction(name: fixture.transactionName, operation: fixture.transactionOperation, bindToScope: true)
+        let tracer = span as! SentryTracer
+        
+        sut.metrics.increment(key: "key")
+        
+        let aggregator = tracer.getLocalMetricsAggregator()
+        
+        let metricsSummary = aggregator.serialize()
+        expect(metricsSummary.count) == 1
+        
+        let bucket = try XCTUnwrap(metricsSummary["c:key"])
+        expect(bucket.count) == 1
+        let metric = try XCTUnwrap(bucket.first)
+        expect(metric["min"] as? Double) == 1.0
+        expect(metric["max"] as? Double) == 1.0
+        expect(metric["count"] as? Int) == 1
+        expect(metric["sum"] as? Double) == 1.0
+    }
+    
+    func testAddIncrementMetric_AddsDefaultTags() throws {
+        let options = fixture.options
+        options.releaseName = "release1"
+        options.environment = "test"
+        options.enableMetrics = true
+        let sut = fixture.getSut(options)
+        
+        let span = sut.startTransaction(name: fixture.transactionName, operation: fixture.transactionOperation, bindToScope: true)
+        let tracer = span as! SentryTracer
+        
+        sut.metrics.increment(key: "key", tags: ["my": "tag", "release": "overwritten"])
+        
+        let aggregator = tracer.getLocalMetricsAggregator()
+        
+        let metricsSummary = aggregator.serialize()
+        expect(metricsSummary.count) == 1
+        
+        let bucket = try XCTUnwrap(metricsSummary["c:key"])
+        expect(bucket.count) == 1
+        let metric = try XCTUnwrap(bucket.first)
+        expect(metric["tags"] as? [String: String]) == ["my": "tag", "release": "overwritten", "environment": options.environment]
+    }
+    
+    func testAddIncrementMetric_ReleaseNameNil() throws {
+        let options = fixture.options
+        options.releaseName = nil
+        options.enableMetrics = true
+        let sut = fixture.getSut(options)
+        
+        let span = sut.startTransaction(name: fixture.transactionName, operation: fixture.transactionOperation, bindToScope: true)
+        let tracer = span as! SentryTracer
+        
+        sut.metrics.increment(key: "key", tags: ["my": "tag"])
+        
+        let aggregator = tracer.getLocalMetricsAggregator()
+        
+        let metricsSummary = aggregator.serialize()
+        expect(metricsSummary.count) == 1
+        
+        let bucket = try XCTUnwrap(metricsSummary["c:key"])
+        expect(bucket.count) == 1
+        let metric = try XCTUnwrap(bucket.first)
+        expect(metric["tags"] as? [String: String]) == ["my": "tag", "environment": options.environment]
+    }
+    
+    func testAddIncrementMetric_DefaultTagsDisabled() throws {
+        let options = fixture.options
+        options.releaseName = "release1"
+        options.environment = "test"
+        options.enableMetrics = true
+        options.enableDefaultTagsForMetrics = false
+        let sut = fixture.getSut(options)
+        
+        let span = sut.startTransaction(name: fixture.transactionName, operation: fixture.transactionOperation, bindToScope: true)
+        let tracer = span as! SentryTracer
+        
+        sut.metrics.increment(key: "key", tags: ["my": "tag"])
+        
+        let aggregator = tracer.getLocalMetricsAggregator()
+        
+        let metricsSummary = aggregator.serialize()
+        expect(metricsSummary.count) == 1
+        
+        let bucket = try XCTUnwrap(metricsSummary["c:key"])
+        expect(bucket.count) == 1
+        let metric = try XCTUnwrap(bucket.first)
+        expect(metric["tags"] as? [String: String]) == ["my": "tag"]
     }
     
     private func captureEventEnvelope(level: SentryLevel) {
@@ -989,7 +1203,7 @@ class SentryHubTests: XCTestCase {
         XCTAssertTrue(arguments.first?.event.isCrashEvent ?? false)
     }
     
-    private func assertEventSentWithSession() {
+    private func assertEventSentWithSession(scopeEnvironment: String) {
         let arguments = fixture.client.captureCrashEventWithSessionInvocations
         XCTAssertEqual(1, arguments.count)
         
@@ -1001,7 +1215,8 @@ class SentryHubTests: XCTestCase {
         XCTAssertEqual(SentrySessionStatus.crashed, session?.status)
         XCTAssertEqual(fixture.options.environment, session?.environment)
         
-        XCTAssertEqual(fixture.scope, argument?.scope)
+        let event = argument?.scope.applyTo(event: fixture.event, maxBreadcrumbs: 10)
+        expect(event?.environment) == scopeEnvironment
     }
     
     private func assertSessionWithIncrementedErrorCountedAdded() {
@@ -1026,8 +1241,6 @@ class SentryHubTests: XCTestCase {
         options(fixture.options)
         
         let hub = fixture.getSut()
-        Dynamic(hub).tracesSampler.random = fixture.random
-        
         let span = hub.startTransaction(name: fixture.transactionName, operation: fixture.transactionOperation)
         
         XCTAssertEqual(expected, span.sampled)
@@ -1038,7 +1251,7 @@ class SentryHubTests: XCTestCase {
 class TestTimeToDisplayTracker: SentryTimeToDisplayTracker {
     
     init() {
-        super.init(for: UIViewController(), waitForFullDisplay: false)
+        super.init(for: UIViewController(), waitForFullDisplay: false, dispatchQueueWrapper: SentryDispatchQueueWrapper())
     }
     
     var registerFullDisplayCalled = false

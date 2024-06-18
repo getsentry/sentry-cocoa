@@ -1316,8 +1316,9 @@ writeError(const SentryCrashReportWriter *const writer, const char *const key,
                 writer->addStringElement(writer, SentryCrashField_Name, crash->NSException.name);
                 writer->addStringElement(
                     writer, SentryCrashField_UserInfo, crash->NSException.userInfo);
-                writeAddressReferencedByString(
-                    writer, SentryCrashField_ReferencedObject, crash->crashReason);
+                if (crash->crashReason != NULL) {
+                    writer->addStringElement(writer, SentryCrashField_Reason, crash->crashReason);
+                }
             }
             writer->endContainer(writer);
             break;
@@ -1550,8 +1551,6 @@ writeSystemInfo(const SentryCrashReportWriter *const writer, const char *const k
         writer->addBooleanElement(
             writer, SentryCrashField_Jailbroken, monitorContext->System.isJailbroken);
         writer->addStringElement(
-            writer, SentryCrashField_BootTime, monitorContext->System.bootTime);
-        writer->addStringElement(
             writer, SentryCrashField_AppStartTime, monitorContext->System.appStartTime);
         writer->addStringElement(
             writer, SentryCrashField_ExecutablePath, monitorContext->System.executablePath);
@@ -1585,10 +1584,6 @@ writeSystemInfo(const SentryCrashReportWriter *const writer, const char *const k
             writer, SentryCrashField_DeviceAppHash, monitorContext->System.deviceAppHash);
         writer->addStringElement(
             writer, SentryCrashField_BuildType, monitorContext->System.buildType);
-        writer->addIntegerElement(writer, SentryCrashField_Total_Storage,
-            (int64_t)monitorContext->System.totalStorageSize);
-        writer->addIntegerElement(
-            writer, SentryCrashField_Free_Storage, (int64_t)monitorContext->System.freeStorageSize);
 
         writeMemoryInfo(writer, SentryCrashField_Memory, monitorContext);
         writeAppStats(writer, SentryCrashField_AppStats, monitorContext);

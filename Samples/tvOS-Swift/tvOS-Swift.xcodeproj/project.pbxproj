@@ -40,6 +40,13 @@
 			remoteGlobalIDString = 7BA61D61247FA32600C130A8;
 			remoteInfo = "tvOS-Swift";
 		};
+		846B99682B29354A00A8C36B /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 84D4FEB628ECD8A100EDAAFE /* Sentry.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = D84DAD4D2B17428D003CF120;
+			remoteInfo = SentryTestUtilsDynamic;
+		};
 		84D4FEBB28ECD8A100EDAAFE /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 84D4FEB628ECD8A100EDAAFE /* Sentry.xcodeproj */;
@@ -217,6 +224,11 @@
 			children = (
 				84D4FEBC28ECD8A100EDAAFE /* Sentry.framework */,
 				84D4FEBE28ECD8A100EDAAFE /* SentryTests.xctest */,
+				84F7EE7B2B0E9EAD007206E9 /* SentryPrivate.framework */,
+				84F7EE7D2B0E9EAD007206E9 /* SentrySwiftUI.framework */,
+				84F7EE7F2B0E9EAD007206E9 /* SentryProfilerTests.xctest */,
+				84F7EE812B0E9EAD007206E9 /* libSentryTestUtils.a */,
+				846B99692B29354A00A8C36B /* SentryTestUtilsDynamic.framework */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -383,6 +395,13 @@
 /* End PBXProject section */
 
 /* Begin PBXReferenceProxy section */
+		846B99692B29354A00A8C36B /* SentryTestUtilsDynamic.framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.framework;
+			path = SentryTestUtilsDynamic.framework;
+			remoteRef = 846B99682B29354A00A8C36B /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
 		84D4FEBC28ECD8A100EDAAFE /* Sentry.framework */ = {
 			isa = PBXReferenceProxy;
 			fileType = wrapper.framework;
@@ -395,6 +414,34 @@
 			fileType = wrapper.cfbundle;
 			path = SentryTests.xctest;
 			remoteRef = 84D4FEBD28ECD8A100EDAAFE /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		84F7EE7B2B0E9EAD007206E9 /* SentryPrivate.framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.framework;
+			path = SentryPrivate.framework;
+			remoteRef = 84F7EE7A2B0E9EAD007206E9 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		84F7EE7D2B0E9EAD007206E9 /* SentrySwiftUI.framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.framework;
+			path = SentrySwiftUI.framework;
+			remoteRef = 84F7EE7C2B0E9EAD007206E9 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		84F7EE7F2B0E9EAD007206E9 /* SentryProfilerTests.xctest */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.cfbundle;
+			path = SentryProfilerTests.xctest;
+			remoteRef = 84F7EE7E2B0E9EAD007206E9 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		84F7EE812B0E9EAD007206E9 /* libSentryTestUtils.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libSentryTestUtils.a;
+			remoteRef = 84F7EE802B0E9EAD007206E9 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 /* End PBXReferenceProxy section */

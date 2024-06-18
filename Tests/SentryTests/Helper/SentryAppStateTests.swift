@@ -1,3 +1,4 @@
+import Nimble
 import XCTest
 
 class SentryAppStateTests: XCTestCase {
@@ -10,21 +11,39 @@ class SentryAppStateTests: XCTestCase {
         XCTAssertEqual(appState.releaseName, actual["release_name"] as? String)
         XCTAssertEqual(appState.osVersion, actual["os_version"] as? String)
         XCTAssertEqual(appState.isDebugging, actual["is_debugging"] as? Bool)
-        XCTAssertEqual((appState.systemBootTimestamp as NSDate).sentry_toIso8601String(), actual["system_boot_timestamp"] as? String)
+        XCTAssertEqual(sentry_toIso8601String(appState.systemBootTimestamp), actual["system_boot_timestamp"] as? String)
         XCTAssertEqual(appState.isActive, actual["is_active"] as? Bool)
         XCTAssertEqual(appState.wasTerminated, actual["was_terminated"] as? Bool)
         XCTAssertEqual(appState.isANROngoing, actual["is_anr_ongoing"] as? Bool)
         XCTAssertEqual(appState.isSDKRunning, actual["is_sdk_running"] as? Bool)
     }
     
-    func testInitWithJSON_AllFields() {
+    func testSerialize_ReleaseNameIsNil_DoesNotAddReleaseName() {
+        let appState = SentryAppState(releaseName: nil, osVersion: "14.4.1", vendorId: TestData.someUUID, isDebugging: false, systemBootTimestamp: TestData.timestamp)
+        
+        let actual = appState.serialize()
+        
+        expect(actual["release_name"]) == nil
+    }
+    
+    func testInitWithJSON_ReleaseNameIsNil_DoesNotAddReleaseName() {
+        let appState = SentryAppState(releaseName: nil, osVersion: "14.4.1", vendorId: TestData.someUUID, isDebugging: false, systemBootTimestamp: TestData.timestamp)
+        
+        let actual = SentryAppState(jsonObject: appState.serialize())
+        
+        expect(actual?.releaseName) == nil
+    }
+    
+    func testInitWithJSON_AllFields() throws {
         let appState = TestData.appState
+        
+        let releaseName = try XCTUnwrap(appState.releaseName)
         let dict = [
-            "release_name": appState.releaseName,
+            "release_name": releaseName,
             "os_version": appState.osVersion,
             "vendor_id": appState.vendorId,
             "is_debugging": appState.isDebugging,
-            "system_boot_timestamp": (appState.systemBootTimestamp as NSDate).sentry_toIso8601String(),
+            "system_boot_timestamp": sentry_toIso8601String(appState.systemBootTimestamp),
             "is_active": appState.isActive,
             "was_terminated": appState.wasTerminated,
             "is_anr_ongoing": appState.isANROngoing,
@@ -37,7 +56,6 @@ class SentryAppStateTests: XCTestCase {
     }
     
     func testInitWithJSON_IfJsonMissesField_AppStateIsNil() {
-        withValue { $0["release_name"] = nil }
         withValue { $0["os_version"] = nil }
         withValue { $0["vendor_id"] = nil }
         withValue { $0["is_debugging"] = nil }

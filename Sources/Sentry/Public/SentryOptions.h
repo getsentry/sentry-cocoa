@@ -3,7 +3,9 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class SentryDsn, SentryMeasurementValue, SentryHttpStatusCodeRange, SentryScope;
+@class SentryDsn, SentryMeasurementValue, SentryHttpStatusCodeRange, SentryScope,
+    SentryReplayOptions;
+@class SentryExperimentalOptions;
 
 NS_SWIFT_NAME(Options)
 @interface SentryOptions : NSObject
@@ -72,6 +74,23 @@ NS_SWIFT_NAME(Options)
  */
 @property (nonatomic, assign) BOOL enableCrashHandler;
 
+#if !TARGET_OS_WATCH
+
+/**
+ * When enabled, the SDK reports SIGTERM signals to Sentry.
+ *
+ * It's crucial for developers to understand that the OS sends a SIGTERM to their app as a prelude
+ * to a graceful shutdown, before resorting to a SIGKILL. This SIGKILL, which your app can't catch
+ * or ignore, is a direct order to terminate your app's process immediately. Developers should be
+ * aware that their app can receive a SIGTERM in various scenarios, such as  CPU or disk overuse,
+ * watchdog terminations, or when the OS updates your app.
+ *
+ * @note The default value is @c NO.
+ */
+@property (nonatomic, assign) BOOL enableSigtermReporting;
+
+#endif // !TARGET_OS_WATCH
+
 /**
  * How many breadcrumbs do you want to keep in memory?
  * @note Default is @c 100 .
@@ -102,6 +121,13 @@ NS_SWIFT_NAME(Options)
  * This block can be used to modify the event before it will be serialized and sent.
  */
 @property (nullable, nonatomic, copy) SentryBeforeBreadcrumbCallback beforeBreadcrumb;
+
+/**
+ * You can use this callback to decide if the SDK should capture a screenshot or not. Return @c true
+ * if the SDK should capture a screenshot, return @c false if not. This callback doesn't work for
+ * crashes.
+ */
+@property (nullable, nonatomic, copy) SentryBeforeCaptureScreenshotCallback beforeCaptureScreenshot;
 
 /**
  * A block called shortly after the initialization of the SDK when the last program execution
@@ -141,6 +167,12 @@ NS_SWIFT_NAME(Options)
 @property (nonatomic, assign) BOOL enableAutoSessionTracking;
 
 /**
+ * Whether to attach the top level `operationName` node of HTTP json requests to HTTP breadcrumbs
+ * @note Default is @c NO.
+ */
+@property (nonatomic, assign) BOOL enableGraphQLOperationTracking;
+
+/**
  * Whether to enable Watchdog Termination tracking or not.
  * @note This feature requires the @c SentryCrashIntegration being enabled, otherwise it would
  * falsely report every crash as watchdog termination.
@@ -166,7 +198,8 @@ NS_SWIFT_NAME(Options)
  * The maximum size for each attachment in bytes.
  * @note Default is 20 MiB (20 ✕ 1024 ✕ 1024 bytes).
  * @note Please also check the maximum attachment size of relay to make sure your attachments don't
- * get discarded there: https://docs.sentry.io/product/relay/options/
+ * get discarded there:
+ *  https://docs.sentry.io/product/relay/options/
  */
 @property (nonatomic, assign) NSUInteger maxAttachmentSize;
 
@@ -190,6 +223,17 @@ NS_SWIFT_NAME(Options)
  * https://docs.sentry.io/platforms/apple/performance/
  */
 @property (nonatomic, assign) BOOL enableAutoPerformanceTracing;
+
+/**
+ * @warning This is an experimental feature and may still have bugs.
+ *
+ * Sentry works on reworking the whole performance offering with the code Mobile Starfish, which
+ * aims to provide better insights into the performance of mobile apps and highlight clear actions
+ * to improve app performance to developers. This feature flag enables experimental features that
+ * impact the v1 performance offering and would require a major version update. Sentry aims to
+ * include most features in the next major by default.
+ */
+@property (nonatomic, assign) BOOL enablePerformanceV2;
 
 /**
  * A block that configures the initial scope when starting the SDK.
@@ -243,11 +287,12 @@ NS_SWIFT_NAME(Options)
  * @note The default is 3 seconds.
  */
 @property (nonatomic, assign) NSTimeInterval idleTimeout;
+
 /**
- * @warning This is an experimental feature and may still have bugs.
- * @brief Report pre-warmed app starts by dropping the first app start spans if pre-warming paused
+ * Report pre-warmed app starts by dropping the first app start spans if pre-warming paused
  * during these steps. This approach will shorten the app start duration, but it represents the
  * duration a user has to wait after clicking the app icon until the app is responsive.
+ *
  * @note You can filter for different app start types in Discover with
  * @c app_start_type:cold.prewarmed ,
  * @c app_start_type:warm.prewarmed , @c app_start_type:cold , and @c app_start_type:warm .
@@ -256,6 +301,7 @@ NS_SWIFT_NAME(Options)
  * @note Default value is @c NO .
  */
 @property (nonatomic, assign) BOOL enablePreWarmedAppStartTracing;
+
 #endif // SENTRY_UIKIT_AVAILABLE
 
 /**
@@ -298,6 +344,9 @@ NS_SWIFT_NAME(Options)
  * @c 0.01 collects 1% of all trace data.
  * @note The value needs to be >= 0.0 and \<= 1.0. When setting a value out of range the SDK sets it
  * to the default of @c 0 .
+ * @note If @c enableAppLaunchProfiling is @c YES , this function will be called during SDK start
+ * with @c SentrySamplingContext.forNextAppLaunch set to @c YES, and the result will be persisted to
+ * disk for use on the next app launch.
  */
 @property (nullable, nonatomic) SentryTracesSamplerCallback tracesSampler;
 
@@ -339,8 +388,21 @@ NS_SWIFT_NAME(Options)
 /**
  * Set as delegate on the @c NSURLSession used for all network data-transfer tasks performed by
  * Sentry.
+ *
+ * @discussion The SDK ignores this option when using @c urlSession.
  */
 @property (nullable, nonatomic, weak) id<NSURLSessionDelegate> urlSessionDelegate;
+
+/**
+ * Use this property, so the transport uses this  @c NSURLSession with your configuration for
+ * sending requests to Sentry.
+ *
+ * If not set, the SDK will create a new @c NSURLSession with @c [NSURLSessionConfiguration
+ * ephemeralSessionConfiguration].
+ *
+ * @note Default is @c nil.
+ */
+@property (nullable, nonatomic, strong) NSURLSession *urlSession;
 
 /**
  * Wether the SDK should use swizzling or not.
@@ -353,6 +415,21 @@ NS_SWIFT_NAME(Options)
 @property (nonatomic, assign) BOOL enableSwizzling;
 
 /**
+ * An array of class names to ignore for swizzling.
+ *
+ * @discussion The SDK checks if a class name of a class to swizzle contains a class name of this
+ * array. For example, if you add MyUIViewController to this list, the SDK excludes the following
+ * classes from swizzling: YourApp.MyUIViewController, YourApp.MyUIViewControllerA,
+ * MyApp.MyUIViewController.
+ * We can't use an @c NSArray<Class>  here because we use this as a workaround for which users have
+ * to pass in class names that aren't available on specific iOS versions. By using @c
+ * NSArray<NSString *>, users can specify unavailable class names.
+ *
+ * @note Default is an empty array.
+ */
+@property (nonatomic, strong) NSSet<NSString *> *swizzleClassNameExcludes;
+
+/**
  * When enabled, the SDK tracks the performance of Core Data operations. It requires enabling
  * performance monitoring. The default is @c YES.
  * @see <https://docs.sentry.io/platforms/apple/performance/>
@@ -361,6 +438,17 @@ NS_SWIFT_NAME(Options)
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 /**
+ * @warning This is an experimental feature and may still have bugs.
+ * Set to @c YES to run the profiler as early as possible in an app launch, before you would
+ * normally have the opportunity to call @c SentrySDK.start . If enabled, the @c tracesSampleRate
+ * and @c profilesSampleRate are persisted to disk and read on the next app launch to decide whether
+ * to profile that launch.
+ * @see @c tracesSampler and @c profilesSampler for more information on how they work for this
+ * feature.
+ */
+@property (nonatomic, assign) BOOL enableAppLaunchProfiling;
+
+/**
  * @note Profiling is not supported on watchOS or tvOS.
  * Indicates the percentage profiles being sampled out of the sampled transactions.
  * @note The default is @c 0.
@@ -368,7 +456,17 @@ NS_SWIFT_NAME(Options)
  * the SDK sets it to the default of @c 0.
  * This property is dependent on @c tracesSampleRate -- if @c tracesSampleRate is @c 0 (default),
  * no profiles will be collected no matter what this property is set to. This property is
- * used to undersample profiles *relative to* @c tracesSampleRate
+ * used to undersample profiles *relative to* @c tracesSampleRate .
+ * @note Setting this value to @c nil enables an experimental new profiling mode, called continuous
+ * profiling. This allows you to start and stop a profiler any time with @c SentrySDK.startProfiler
+ * and @c SentrySDK.stopProfiler, which can run with no time limit, periodically uploading profiling
+ * data. You can also set @c SentryOptions.enableAppLaunchProfiling to have the profiler start on
+ * app launch; there is no automatic stop, you must stop it manually at some later time if you
+ * choose to do so. Sampling rates do not apply to continuous profiles, including those
+ * automatically started for app launches. If you wish to sample them, you must do so at the
+ * callsites where you use the API or configure launch profiling. Continuous profiling is not
+ * automatically started for performance transactions as was the previous version of profiling.
+ * @warning The new continuous profiling mode is experimental and may still contain bugs.
  */
 @property (nullable, nonatomic, strong) NSNumber *profilesSampleRate;
 
@@ -377,13 +475,20 @@ NS_SWIFT_NAME(Options)
  * A callback to a user defined profiles sampler function. This is similar to setting
  * @c profilesSampleRate  but instead of a static value, the callback function will be called to
  * determine the sample rate.
+ * @note If @c enableAppLaunchProfiling is @c YES , this function will be called during SDK start
+ * with @c SentrySamplingContext.forNextAppLaunch set to @c YES, and the result will be persisted to
+ * disk for use on the next app launch.
  */
 @property (nullable, nonatomic) SentryTracesSamplerCallback profilesSampler;
 
 /**
+ * If profiling should be enabled or not.
  * @note Profiling is not supported on watchOS or tvOS.
- * If profiling should be enabled or not. Returns @c YES if either a profilesSampleRate > @c 0 and
- * \<= @c 1 or a profilesSampler is set otherwise @c NO.
+ * @note This only returns whether or not trace-based profiling is enabled. If it is not, then
+ * continuous profiling is effectively enabled, and calling SentrySDK.startProfiler will
+ * successfully start a continuous profile.
+ * @returns @c YES if either @c profilesSampleRate > @c 0 and \<= @c 1 , or @c profilesSampler is
+ * set, otherwise @c NO.
  */
 @property (nonatomic, assign, readonly) BOOL isProfilingEnabled;
 
@@ -479,6 +584,15 @@ NS_SWIFT_NAME(Options)
 @property (nonatomic, assign) BOOL enableMetricKit API_AVAILABLE(
     ios(15.0), macos(12.0), macCatalyst(15.0)) API_UNAVAILABLE(tvos, watchos);
 
+/**
+ * When enabled, the SDK adds the raw MXDiagnosticPayloads as an attachment to the converted
+ * SentryEvent. You need to enable @c enableMetricKit for this flag to work.
+ *
+ * @note Default value is @c NO.
+ */
+@property (nonatomic, assign) BOOL enableMetricKitRawPayload API_AVAILABLE(
+    ios(15.0), macos(12.0), macCatalyst(15.0)) API_UNAVAILABLE(tvos, watchos);
+
 #endif // SENTRY_HAS_METRIC_KIT
 
 /**
@@ -494,11 +608,76 @@ NS_SWIFT_NAME(Options)
 @property (nonatomic) BOOL enableTimeToFullDisplayTracing;
 
 /**
+ * This feature is only available from Xcode 13 and from macOS 12.0, iOS 15.0, tvOS 15.0,
+ * watchOS 8.0.
+ *
  * @warning This is an experimental feature and may still have bugs.
  * @brief Stitches the call to Swift Async functions in one consecutive stack trace.
  * @note Default value is @c NO .
  */
 @property (nonatomic, assign) BOOL swiftAsyncStacktraces;
+
+/**
+ * The path to store SDK data, like events, transactions, profiles, raw crash data, etc. We
+ recommend only changing this when the default, e.g., in security environments, can't be accessed.
+ *
+ * @note The default is `NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask,
+ YES)`.
+ */
+@property (nonatomic, copy) NSString *cacheDirectoryPath;
+
+/**
+ * Whether to enable Spotlight for local development. For more information see
+ * https://spotlightjs.com/.
+ *
+ * @note Only set this option to @c YES while developing, not in production!
+ */
+@property (nonatomic, assign) BOOL enableSpotlight;
+
+/**
+ * The Spotlight URL. Defaults to http://localhost:8969/stream. For more information see
+ * https://spotlightjs.com/
+ */
+@property (nonatomic, copy) NSString *spotlightUrl;
+
+/**
+ * Wether to enable DDM (delightful developer metrics) or not. For more information see
+ * https://docs.sentry.io/product/metrics/.
+ *
+ * @warning This is an experimental feature and may still have bugs.
+ * @note Default value is @c NO .
+ */
+@property (nonatomic, assign) BOOL enableMetrics;
+
+/**
+ * Wether to enable adding some default tags to every metrics or not. You need to enable @c
+ * enableMetrics for this flag to work.
+ *
+ * @warning This is an experimental feature and may still have bugs.
+ * @note Default value is @c YES .
+ */
+@property (nonatomic, assign) BOOL enableDefaultTagsForMetrics;
+
+/**
+ * Wether to enable connecting metrics to spans and transactions or not. You need to enable @c
+ * enableMetrics for this flag to work.
+ *
+ * @warning This is an experimental feature and may still have bugs.
+ * @note Default value is @c YES .
+ */
+@property (nonatomic, assign) BOOL enableSpanLocalMetricAggregation;
+
+/**
+ * This block can be used to modify the event before it will be serialized and sent.
+ */
+@property (nullable, nonatomic, copy) SentryBeforeEmitMetricCallback beforeEmitMetric;
+
+/**
+ * This aggregates options for experimental features.
+ * Be aware that the options available for experimental can change at any time.
+ */
+@property (nonatomic, readonly) SentryExperimentalOptions *experimental;
+
 @end
 
 NS_ASSUME_NONNULL_END

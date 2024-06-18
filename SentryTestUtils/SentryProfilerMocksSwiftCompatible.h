@@ -17,8 +17,6 @@ NS_ASSUME_NONNULL_BEGIN
                           threadID:(uint64_t)threadID
                     threadPriority:(const int)threadPriority
                         threadName:(nullable NSString *)threadName
-                      queueAddress:(uint64_t)queueAddress
-                        queueLabel:(NSString *)queueLabel
                          addresses:(NSArray<NSNumber *> *)addresses;
 
 @end

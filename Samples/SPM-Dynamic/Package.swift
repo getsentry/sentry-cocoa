@@ -7,16 +7,16 @@ let package = Package(
     name: "SPM-Dynamic",
     platforms: [.macOS(.v10_13)],
     products: [
-        .library(name: "SPM-Dynamic", type: .dynamic, targets: ["SPM-Dynamic"])
+        .executable(name: "SPM-Dynamic", targets: ["SPM-Dynamic"])
     ],
     dependencies: [
         // branch is replaced in CI to the current sha
-        .package(name: "Sentry", url: "https://github.com/getsentry/sentry-cocoa", .branch("main") )
+        .package(name: "Sentry", path: "../../../sentry-cocoa")
     ],
     targets: [
         .target(
             name: "SPM-Dynamic",
-            dependencies: ["Sentry"], 
+            dependencies: [.product(name: "Sentry-Dynamic", package: "Sentry")],
             swiftSettings: [
                 .unsafeFlags(["-warnings-as-errors"])
             ])

@@ -39,9 +39,10 @@ Reach out to a [CODEOWNER](https://github.com/getsentry/sentry-cocoa/blob/main/.
 ## Unit Tests with Thread Sanitizer
 
 CI runs the unit tests for one job with thread sanitizer enabled to detect race conditions.
-The Test scheme of Sentry uses `TSAN_OPTIONS` to specify the [suppression file](../Tests/ThreadSanitizer.sup) to ignore false positives or known issues.
+To ignore false positives or known issues, use the `SENTRY_DISABLE_THREAD_SANITIZER` macro or the [suppression file](../Sources/Resources/ThreadSanitizer.sup).
 It's worth noting that you can use the `$(PROJECT_DIR)` to specify the path to the suppression file.
 To run the unit tests with the thread sanitizer enabled in Xcode click on edit scheme, go to tests, then open diagnostics, and enable Thread Sanitizer.
+The profiler doesn't work with TSAN attached, so tests that run the profiler will be skipped.
 
 ### Further Reading
 
@@ -57,7 +58,7 @@ The  [`clearTestState`](https://github.com/getsentry/sentry-cocoa/blob/3a6ab6ec1
 
 ## UI Tests
 
-CI runs UI tests on simulators via the `test.yml` workflow, and on devices via `saucelabs-UI-tests.yml`. All are run for each PR, and Sauce Labs tests also run on a nightly cron schedule.
+CI runs UI tests on simulators via the `ui-tests.yml` workflow for every PR and every commit on main.
 
 ### Saucelabs
 
@@ -91,54 +92,9 @@ Ensure to not commit the patch file after running this script, which then contai
 ./scripts/upload-dsyms-with-xcode-build-phase.sh YOUR_AUTH_TOKEN
 ```
 
-## Auto UI Performance Class Overview
-
-![Auto UI Performance Class Overview](./auto-ui-performance-tracking.svg)
-
-## Performance API Overview
-
-![Performance API Overview](./performance-api.svg)
-
 ## Generating classes
 
 You can use the `generate-classes.sh` to generate ViewControllers and other classes to emulate a large project. This is useful, for example, to test the performance of swizzling in a large project without having to check in thousands of lines of code.
-
-## Generating Diagrams
-
-The diagrams are created with [PlantUml](http://plantuml.com). The advantage of PlantUml
-over other diagram tools is that you describe the diagrams with text, and you don't have
-to worry about UML and layout, which can be time-consuming for changes. Furthermore, the
-diagrams can be stored in git.
-
-With [Visual Studio Code](https://code.visualstudio.com/) and the
-[PlantUml Plugin](https://marketplace.visualstudio.com/items?itemName=jebbs.plantuml#user-content-use-plantuml-server-as-render)
-you can create diagrams, view them and export them. If you don't want to use Visual Studio Code,
-there are many [alternatives](http://plantuml.com/running).
-
-For learning the syntax and quickly playing around you can check out [Plant Text](https://www.planttext.com/).
-
-### Visual Studio Code Setup
-
-Visual Studio Code needs a rendering engine for PlantUml. We recommend using the following Docker image:
-
-```sh
-docker run -d -p 8080:8080 plantuml/plantuml-server:jetty
-```
-
-To ensure the rendering server is running properly, visit with `localhost:8080`.
-
-Finally, you have to configure the rendering server in Visual Studio Code. For this, open the settings of Visual Studio Code. Choose `Extensions > PlantUML configuration`. Click on `Edit in settings.json`. Then paste the following into the config:
-
-```json
-{
-  "plantuml.server": "http://localhost:8080",
-  "plantuml.render": "PlantUMLServer"
-}
-```
-
-Save the settings and you should be able to render a diagram.
-
-You can find the official guide here: [configure a rendering server](https://marketplace.visualstudio.com/items?itemName=jebbs.plantuml#user-content-use-plantuml-server-as-render).
 
 ## UIKit
 
@@ -149,3 +105,80 @@ There are two build configurations they can use for this: `Debug_without_UIKit` 
 - `GCC_PREPROCESSOR_DEFINITIONS` has an additional setting `SENTRY_NO_UIKIT=1`. This is now part of the definition of `SENTRY_HAS_UIKIT` in `SentryDefines.h` that is used to conditionally compile out any code that would otherwise use UIKit API and cause UIKit to be automatically linked as described above. There is another macro `SENTRY_UIKIT_AVAILABLE` defined as `SENTRY_HAS_UIKIT` used to be, meaning simply that compilation is targeting a platform where UIKit is available to be used. This is used in headers we deliver in the framework bundle to compile out declarations that rely on UIKit, and their corresponding implementations are switched over `SENTRY_HAS_UIKIT` to either provide the logic for configurations that link UIKit, or to provide a stub delivering a default value (`nil`, `0.0`, `NO` etc) and a warning log for publicly facing things like SentryOptions, or debug log for internal things like SentryDependencyContainer.
 
 There are two jobs in `.github/workflows/build.yml` that will build each of the new configs and use `otool -L` to ensure that UIKit does not appear as a load command in the build products.
+ 
+This feature is experimental and is currently not compatible with SPM.
+
+## Logging
+
+We have a set of macros for debugging at various levels defined in SentryLog.h. These are not async-safe; to log from special places like crash handlers, see SentryCrashLogger.h; see the headerdocs in that header for how to work with those logging macros. There are also separate macros in SentryProfilingLogging.hpp specifically for the profiler; these are completely compiled out of release builds due to https://github.com/getsentry/sentry-cocoa/issues/3336.
+
+## Profiling
+
+The profiler runs on a dedicated thread, and on a predefined interval will enumerate all other threads and gather the backtrace on each non-idle thread. 
+
+The information is stored in deduplicated frame and stack indexed lookups for memory and transmission efficiency. These are maintained in `SentryProfilerState`.
+
+If enabled and sampled in (controlled by `SentryOptions.profilesSampleRate` or `SentryOptions.profilesSampler`), the profiler will start along with a trace, and the profile information is sliced to the start and end of each transaction and sent with them an envelope attachments. 
+
+The profiler will automatically time out if it is not stopped within 30 seconds, and also stops automatically if the app is sent to the background.
+
+There's only ever one profiler instance running at a time, but instances that have timed out will be kept in memory until all traces that ran concurrently with it have finished and serialized to envelopes. The associations between profiler instances and traces are maintained in `SentryProfiledTracerConcurrency`. 
+
+App launches can be automatically profiled if configured with `SentryOptions.enableAppLaunchProfiling`. If enabled, when `SentrySDK.startWithOptions` is called, `SentryLaunchProfiling.configureLaunchProfiling` will get a sample rate for traces and profiles with their respective options, and store those rates in a file to be read on the next launch. On each launch, `SentryLaunchProfiling.startLaunchProfile` checks for the presence of that file is used to decide whether to start an app launch profiled trace, and afterwards retrieves those rates to initialize a `SentryTransactionContext` and `SentryTracerConfiguration`, and provides them to a new `SentryTracer` instance, which is what actually starts the profiler. There is no hub at this time; also in the call to `SentrySDK.startWithOptions`, any current profiled launch trace is attempted to be finished, and the hub that exists by that time is provided to the `SentryTracer` instance via `SentryLaunchProfiling.stopAndTransmitLaunchProfile` so that when it needs to transmit the transaction envelope, the infrastructure is in place to do so.
+
+In testing and debug environments, when a profile payload is serialized for transmission, the dictionary will also be written to a file in application support that can be retrieved by a sample app. This helps with UI tests that want to verify the contents of a profile after some app interaction. See `iOS-Swift.ProfilingViewController.viewLastProfile`  and `iOS-Swift-UITests.ProfilingUITests`.
+
+## Swift and Objective-C Interoperability**
+
+When making an Objective-C class public for Swift SDK code, do the following:
+
+* Add it to SentryPrivate.h
+* Remove existing imports from any test bridging headers.
+* Add the import `@_implementationOnly import _SentryPrivate` to your Swift class that wants to use
+the Objective-C class.
+
+## Public Protocols
+
+pod lib lint fails with the warning duplicate protocol definition when including a public header for
+a protocol in a private ObjC class header, when adding that header to `SentryPrivate.h` to expose it
+to internal SDK Swift code, as `SentrySDKInfo.h`. To solve this problem we have to use the
+`SentryInternalSerializable` for internal classes implementing serializable.
+
+### Detailed explanation of the Swift and Objective-C Interoperability setup
+
+The SentrySDK uses Swift and Objective-C code. Public Objective-C classes, made public
+[through the umbrella header](https://developer.apple.com/documentation/swift/importing-objective-c-into-swift#Import-Code-Within-a-Framework-Target),
+are automatically visible to Swift without imports. Our umbrella header is defined in the `Sentry.modulemap`.
+Accessing private Objective-C classes doesn't
+work out of the box. One approach to making this work is to define a private module that contains
+all the private ObjC headers. To define such a module, we added a module.modulemap file to our
+project with the name _SentryPrivate. We added the prefix `_` because Xcode autocomplete seems to
+ignore such modules. This modulemap file points to a header called `SentryPrivate.h`, which include
+ all private ObjC headers that should be available for Swift. When importing the generated
+ _SentryPrivate module we have to use `@_implementationOnly import _SentryPrivate`.
+ [@_implementationOnly](https://github.com/apple/swift/blob/main/docs/ReferenceGuides/UnderscoredAttributes.md#_implementationonly)
+ will most likely be superseded by [access level imports](https://github.com/apple/swift-evolution/blob/main/proposals/0409-access-level-on-imports.md)
+ in a future Swift version. Not using `@_implementationOnly` leads to errors when including the
+ prebuilt XCFramwork into projects, such as:
+
+```sh
+Sentry.swiftmodule/arm64-apple-ios.private.swiftinterface:10:8: error: no such module '_SentryPrivate'
+
+import _SentryPrivate
+```
+
+Adding Objective-C classes to the _SentryPrivate module also exposes them to test classes written in
+Swift. When making an Objective-C class public to SDK Swift code, we must remove it from test
+bridging headers because this can lead to compiler errors. The SentryTests only find the
+_SentryPrivate module when adding setting `HEADER_SEARCH_PATHS = $(SRCROOT)/Sources/Sentry/include/**`
+which we must not set for SwiftUI, because this uses its own implementation of SentryInternal.h.
+Setting the `HEADER_SEARCH_PATHS` for SwiftUI breaks the build.
+
+See also [decision to remove SentryPrivate](./DECISIONS.md#removing-sentryprivate).
+
+Useful resources:
+
+* [Module Map Syntax](https://clang.llvm.org/docs/Modules.html#module-map-file)
+* Sample GH Repo for [mixed Swift ObjC Framework](https://github.com/danieleggert/mixed-swift-objc-framework)
+* [Swift Forum Discussion](https://forums.swift.org/t/mixing-swift-and-objective-c-in-a-framework-and-private-headers/27787/6)
+* [Apple Docs: Importing Objective-C into Swift](https://developer.apple.com/documentation/swift/importing-objective-c-into-swift#Import-Code-Within-a-Framework-Target)

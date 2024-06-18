@@ -16,7 +16,8 @@ NS_ASSUME_NONNULL_BEGIN
 @interface SentryTransportAdapter : NSObject
 SENTRY_NO_INIT
 
-- (instancetype)initWithTransport:(id<SentryTransport>)transport options:(SentryOptions *)options;
+- (instancetype)initWithTransports:(NSArray<id<SentryTransport>> *)transports
+                           options:(SentryOptions *)options;
 
 - (void)sendEvent:(SentryEvent *)event
           session:(SentrySession *)session

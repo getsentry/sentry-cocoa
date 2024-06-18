@@ -110,26 +110,6 @@ threadSpin(void *name)
     XCTAssertEqual(pthread_join(thread, nullptr), 0);
 }
 
-- (void)testRetrievesQueueMetadata
-{
-    const auto label = "io.sentry.SentryThreadMetadataCacheTests.testQueue";
-    const auto queue = dispatch_queue_create(label, DISPATCH_QUEUE_SERIAL);
-    const auto cache = std::make_shared<ThreadMetadataCache>();
-
-    const auto address = reinterpret_cast<std::uint64_t>(&queue);
-    cache->setQueueMetadata({ address, std::make_shared<std::string>(label) });
-    XCTAssertTrue(*cache->metadataForQueue(reinterpret_cast<std::uint64_t>(&queue)).label == label);
-}
-
-- (void)testNonexistentQueueAddressReturnsNoMetadata
-{
-    const auto cache = std::make_shared<ThreadMetadataCache>();
-    const auto metadata = cache->metadataForQueue(0);
-
-    XCTAssertEqual(metadata.address, 0ULL);
-    XCTAssertEqual(metadata.label, nullptr);
-}
-
 @end
 
 #endif

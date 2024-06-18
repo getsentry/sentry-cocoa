@@ -1,15 +1,15 @@
 #import <XCTest/XCTest.h>
 
-#import "NSDate+SentryExtras.h"
 #import "SentryBreadcrumb.h"
+#import "SentryDateUtils.h"
 #import "SentryEvent.h"
 #import "SentryException.h"
 #import "SentryFileManager.h"
 #import "SentryFrame.h"
-#import "SentryId.h"
 #import "SentryMechanism.h"
 #import "SentryMeta.h"
 #import "SentryStackTrace.h"
+#import "SentrySwift.h"
 #import "SentryThread.h"
 #import "SentryUser.h"
 
@@ -66,7 +66,7 @@
     event.extra = @{ @"__sentry_stacktrace" : @"f", @"date" : date };
     NSDictionary *serialized = @{
         @"event_id" : [event.eventId sentryIdString],
-        @"extra" : @ { @"date" : [date sentry_toIso8601String] },
+        @"extra" : @ { @"date" : sentry_toIso8601String(date) },
         @"level" : @"info",
         @"environment" : @"bla",
         @"platform" : @"cocoa",
@@ -177,7 +177,7 @@
             @1 : @"1",
             @2 : @2,
             @3 : @ { @"a" : @0 },
-            @4 : @[ @"1", @2, @{ @"a" : @0 }, @[ @"a" ], testDate, testURL ],
+            @4 : @[ @"1", @2, @ { @"a" : @0 }, @[ @"a" ], testDate, testURL ],
             @5 : testDate,
             @6 : testURL
         }
@@ -191,7 +191,7 @@
                 @"2" : @2,
                 @"3" : @ { @"a" : @0 },
                 @"4" : @[
-                    @"1", @2, @{ @"a" : @0 }, @[ @"a" ], @"2020-02-27T11:35:26.000Z",
+                    @"1", @2, @ { @"a" : @0 }, @[ @"a" ], @"2020-02-27T11:35:26.000Z",
                     @"https://sentry.io"
                 ],
                 @"5" : @"2020-02-27T11:35:26.000Z",
@@ -365,7 +365,7 @@
     crumb.timestamp = date;
     NSDictionary *serialized = @{
         @"level" : @"info",
-        @"timestamp" : [date sentry_toIso8601String],
+        @"timestamp" : sentry_toIso8601String(date),
         @"category" : @"http",
     };
     XCTAssertEqualObjects([crumb serialize], serialized);
@@ -382,7 +382,7 @@
         @"level" : @"info",
         @"type" : @"type",
         @"message" : @"message",
-        @"timestamp" : [date sentry_toIso8601String],
+        @"timestamp" : sentry_toIso8601String(date),
         @"category" : @"http",
         @"data" : @ { @"bla" : @"1" },
     };

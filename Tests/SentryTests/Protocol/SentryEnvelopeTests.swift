@@ -1,3 +1,5 @@
+import Nimble
+@testable import Sentry
 import SentryTestUtils
 import XCTest
 
@@ -155,7 +157,7 @@ class SentryEnvelopeTests: XCTestCase {
     
     func testInitSentryEnvelopeHeader_SetIdAndTraceState() {
         let eventId = SentryId()
-        let traceContext = SentryTraceContext(trace: SentryId(), publicKey: "publicKey", releaseName: "releaseName", environment: "environment", transaction: "transaction", userSegment: nil, sampleRate: nil, sampled: nil)
+        let traceContext = SentryTraceContext(trace: SentryId(), publicKey: "publicKey", releaseName: "releaseName", environment: "environment", transaction: "transaction", userSegment: nil, sampleRate: nil, sampled: nil, replayId: nil)
         
         let envelopeHeader = SentryEnvelopeHeader(id: eventId, traceContext: traceContext)
         XCTAssertEqual(eventId, envelopeHeader.eventId)
@@ -163,7 +165,7 @@ class SentryEnvelopeTests: XCTestCase {
     }
     
     func testInitSentryEnvelopeWithSession_DefaultSdkInfoIsSet() {
-        let envelope = SentryEnvelope(session: SentrySession(releaseName: "1.1.1"))
+        let envelope = SentryEnvelope(session: SentrySession(releaseName: "1.1.1", distinctId: "some-id"))
         
         XCTAssertEqual(defaultSdkInfo, envelope.header.sdkInfo)
     }
@@ -233,6 +235,12 @@ class SentryEnvelopeTests: XCTestCase {
         XCTAssertEqual(UInt(attachment.data?.count ?? 0), envelopeItem.header.length)
         XCTAssertEqual(attachment.filename, envelopeItem.header.filename)
         XCTAssertEqual(attachment.contentType, envelopeItem.header.contentType)
+    }
+    
+    func testEmptyHeader() {
+        let sut = SentryEnvelopeHeader.empty()
+        expect(sut.eventId) == nil
+        expect(sut.traceContext) == nil
     }
     
     func testInitWithFileAttachment() {
@@ -306,24 +314,38 @@ class SentryEnvelopeTests: XCTestCase {
         XCTAssertEqual(data2.count, 3)
     }
 
-    func test_SentryEnvelopeItemHeaderSerialization() {
-        let header = SentryEnvelopeItemHeader(type: "SomeType", length: 10, filenname: "SomeFileName", contentType: "SomeContentType")
+    func test_SentryEnvelopeItemHeaderSerialization_DefaultInit() {
+        let header = SentryEnvelopeItemHeader(type: "SomeType", length: 10)
 
         let data = header.serialize()
-        XCTAssertEqual(data["type"] as? String, "SomeType")
-        XCTAssertEqual(data["length"] as? Int, 10)
-        XCTAssertEqual(data["filename"] as? String, "SomeFileName")
-        XCTAssertEqual(data["content_type"] as? String, "SomeContentType")
-        XCTAssertEqual(data.count, 4)
+        expect(data.count) == 2
+        XCTAssertEqual(data.count, 2)
+        expect(data["type"] as? String) == "SomeType"
+        expect(data["length"] as? Int) == 10
+        expect(data["filename"]) == nil
+        expect(data["content_type"]) == nil
+    }
+    
+    func test_SentryEnvelopeItemHeaderSerialization_WithoutFileName() {
+        let header = SentryEnvelopeItemHeader(type: "SomeType", length: 10, contentType: "text/html")
 
-        let header2 = SentryEnvelopeItemHeader(type: "SomeType", length: 10)
-
-        let data2 = header2.serialize()
-        XCTAssertEqual(data2.count, 2)
-        XCTAssertEqual(data2["type"] as? String, "SomeType")
-        XCTAssertEqual(data2["length"] as? Int, 10)
-        XCTAssertNil(data2["filename"])
-        XCTAssertNil(data2["content_type"])
+        let data = header.serialize()
+        expect(data["type"] as? String) == "SomeType"
+        expect(data["length"] as? Int) == 10
+        expect(data["filename"]) == nil
+        expect(data["content_type"] as? String) == "text/html"
+        expect(data.count) == 3
+    }
+    
+    func test_SentryEnvelopeItemHeaderSerialization_AllParameters() {
+        let header = SentryEnvelopeItemHeader(type: "SomeType", length: 10, filenname: "SomeFileName", contentType: "text/html")
+        
+        let data = header.serialize()
+        expect(data["type"] as? String) == "SomeType"
+        expect(data["length"] as? Int) == 10
+        expect(data["filename"] as? String) == "SomeFileName"
+        expect(data["content_type"] as? String) == "text/html"
+        expect(data.count) == 4
     }
     
     func testInitWithDataAttachment_MaxAttachmentSize() {

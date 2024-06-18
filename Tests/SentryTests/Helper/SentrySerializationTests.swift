@@ -1,10 +1,12 @@
+import Nimble
+@testable import Sentry
 import XCTest
 
 class SentrySerializationTests: XCTestCase {
     
     private class Fixture {
         static var invalidData = "hi".data(using: .utf8)!
-        static var traceContext = SentryTraceContext(trace: SentryId(), publicKey: "PUBLIC_KEY", releaseName: "RELEASE_NAME", environment: "TEST", transaction: "transaction", userSegment: "some segment", sampleRate: "0.25", sampled: "true")
+        static var traceContext = SentryTraceContext(trace: SentryId(), publicKey: "PUBLIC_KEY", releaseName: "RELEASE_NAME", environment: "TEST", transaction: "transaction", userSegment: "some segment", sampleRate: "0.25", sampled: "true", replayId: nil)
     }
 
     func testSerializationFailsWithInvalidJSONObject() {
@@ -123,7 +125,7 @@ class SentrySerializationTests: XCTestCase {
     }
     
     func testSentryEnvelopeSerializer_TraceStateWithoutUser() {
-        let trace = SentryTraceContext(trace: SentryId(), publicKey: "PUBLIC_KEY", releaseName: "RELEASE_NAME", environment: "TEST", transaction: "transaction", userSegment: nil, sampleRate: nil, sampled: nil)
+        let trace = SentryTraceContext(trace: SentryId(), publicKey: "PUBLIC_KEY", releaseName: "RELEASE_NAME", environment: "TEST", transaction: "transaction", userSegment: nil, sampleRate: nil, sampled: nil, replayId: nil)
         
         let envelopeHeader = SentryEnvelopeHeader(id: nil, traceContext: trace)
         let envelope = SentryEnvelope(header: envelopeHeader, singleItem: createItemWithEmptyAttachment())
@@ -187,7 +189,7 @@ class SentrySerializationTests: XCTestCase {
     }
     
     func testSerializeSession() throws {
-        let dict = SentrySession(releaseName: "1.0.0").serialize()
+        let dict = SentrySession(releaseName: "1.0.0", distinctId: "some-id").serialize()
         let session = SentrySession(jsonObject: dict)!
         
         let data = SentrySerialization.data(with: session)
@@ -196,7 +198,7 @@ class SentrySerializationTests: XCTestCase {
     }
     
     func testSerializeSessionWithNoReleaseName() throws {
-        var dict = SentrySession(releaseName: "1.0.0").serialize()
+        var dict = SentrySession(releaseName: "1.0.0", distinctId: "some-id").serialize()
         dict["attrs"] = nil // Remove release name
         let session = SentrySession(jsonObject: dict)!
         
@@ -206,7 +208,7 @@ class SentrySerializationTests: XCTestCase {
     }
     
     func testSerializeSessionWithEmptyReleaseName() throws {
-        let dict = SentrySession(releaseName: "").serialize()
+        let dict = SentrySession(releaseName: "", distinctId: "some-id").serialize()
         let session = SentrySession(jsonObject: dict)!
         
         let data = SentrySerialization.data(with: session)!
@@ -215,7 +217,7 @@ class SentrySerializationTests: XCTestCase {
     }
     
     func testSerializeSessionWithGarbageInDict() throws {
-        var dict = SentrySession(releaseName: "").serialize()
+        var dict = SentrySession(releaseName: "", distinctId: "some-id").serialize()
         dict["started"] = "20"
         let data = SentrySerialization.data(withJSONObject: dict)!
         
@@ -228,6 +230,22 @@ class SentrySerializationTests: XCTestCase {
         }
         
         XCTAssertNil(SentrySerialization.session(with: data))
+    }
+    
+    func testSerializeReplayRecording() {
+        class MockReplayRecording: SentryReplayRecording {
+            override func serialize() -> [[String: Any]] {
+                return [["KEY": "VALUE"]]
+            }
+        }
+        
+        let date = Date(timeIntervalSince1970: 2)
+        let recording = MockReplayRecording(segmentId: 5, size: 5_000, start: date, duration: 5_000, frameCount: 5, frameRate: 1, height: 320, width: 950, extraEvents: [])
+        let data = SentrySerialization.data(with: recording)
+        
+        let serialized = String(data: data, encoding: .utf8)
+        
+        expect(serialized) == "{\"segment_id\":5}\n[{\"KEY\":\"VALUE\"}]"
     }
     
     func testLevelFromEventData() {
@@ -255,38 +273,6 @@ class SentrySerializationTests: XCTestCase {
         let actual = SentrySerialization.appState(with: Fixture.invalidData)
         
         XCTAssertNil(actual)
-    }
-
-    func testDictionaryToBaggageEncoded() {
-        XCTAssertEqual(SentrySerialization.baggageEncodedDictionary(["key": "value"]), "key=value")
-        XCTAssertEqual(SentrySerialization.baggageEncodedDictionary(["key": "value", "key2": "value2"]), "key2=value2,key=value")
-        XCTAssertEqual(SentrySerialization.baggageEncodedDictionary(["key": "value&"]), "key=value%26")
-        XCTAssertEqual(SentrySerialization.baggageEncodedDictionary(["key": "value="]), "key=value%3D")
-        XCTAssertEqual(SentrySerialization.baggageEncodedDictionary(["key": "value "]), "key=value%20")
-        XCTAssertEqual(SentrySerialization.baggageEncodedDictionary(["key": "value%"]), "key=value%25")
-        XCTAssertEqual(SentrySerialization.baggageEncodedDictionary(["key": "value-_"]), "key=value-_")
-        XCTAssertEqual(SentrySerialization.baggageEncodedDictionary(["key": "value\n\r"]), "key=value%0A%0D")
-        XCTAssertEqual(SentrySerialization.baggageEncodedDictionary(["key": ""]), "key=")
-        
-        let largeValue = String(repeating: "a", count: 8_188)
-        
-        XCTAssertEqual(SentrySerialization.baggageEncodedDictionary(["key": largeValue]), "key=\(largeValue)")
-        XCTAssertEqual(SentrySerialization.baggageEncodedDictionary(["AKey": "something", "BKey": largeValue]), "AKey=something")
-        XCTAssertEqual(SentrySerialization.baggageEncodedDictionary(["AKey": "something", "BKey": largeValue, "CKey": "Other Value"]), "AKey=something,CKey=Other%20Value")
-    }
-
-    func testBaggageStringToDictionaryDecoded() {
-        XCTAssertEqual(SentrySerialization.decodeBaggage("key=value"), ["key": "value"])
-        XCTAssertEqual(SentrySerialization.decodeBaggage("key2=value2,key=value"), ["key": "value", "key2": "value2"])
-        XCTAssertEqual(SentrySerialization.decodeBaggage("key=value%26"), ["key": "value&"])
-        XCTAssertEqual(SentrySerialization.decodeBaggage("key=value%3D"), ["key": "value="])
-        XCTAssertEqual(SentrySerialization.decodeBaggage("key=value%20"), ["key": "value "])
-        XCTAssertEqual(SentrySerialization.decodeBaggage("key=value%25"), ["key": "value%"])
-        XCTAssertEqual(SentrySerialization.decodeBaggage("key=value-_"), ["key": "value-_"])
-        XCTAssertEqual(SentrySerialization.decodeBaggage("key=value%0A%0D"), ["key": "value\n\r"])
-        XCTAssertEqual(SentrySerialization.decodeBaggage(""), [:])
-        XCTAssertEqual(SentrySerialization.decodeBaggage("key"), [:])
-        XCTAssertEqual(SentrySerialization.decodeBaggage("key="), ["key": ""])
     }
     
     private func serializeEnvelope(envelope: SentryEnvelope) -> Data {

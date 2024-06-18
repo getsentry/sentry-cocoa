@@ -1,11 +1,12 @@
-import Sentry
+import Nimble
+@testable import Sentry
 import SentryTestUtils
 import XCTest
 
 class SentrySpanTests: XCTestCase {
     private var logOutput: TestLogOutput!
     private var fixture: Fixture!
-
+    
     private class Fixture {
         let someTransaction = "Some Transaction"
         let someOperation = "Some Operation"
@@ -13,15 +14,22 @@ class SentrySpanTests: XCTestCase {
         let extraKey = "extra_key"
         let extraValue = "extra_value"
         let options: Options
+        let notificationCenter = TestNSNotificationCenterWrapper()
         let currentDateProvider = TestCurrentDateProvider()
+#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+        let tracer = SentryTracer(context: SpanContext(operation: "TEST"), framesTracker: nil)
+#else
         let tracer = SentryTracer(context: SpanContext(operation: "TEST"))
-
+#endif
+        
         init() {
             options = Options()
             options.tracesSampleRate = 1
             options.dsn = TestConstants.dsnAsString(username: "username")
             options.environment = "test"
             currentDateProvider.setDate(date: TestData.timestamp)
+            
+            SentryDependencyContainer.sharedInstance().notificationCenterWrapper = notificationCenter
         }
         
         func getSut() -> Span {
@@ -29,19 +37,26 @@ class SentrySpanTests: XCTestCase {
         }
         
         func getSut(client: SentryClient) -> Span {
-            let hub = SentryHub(client: client, andScope: nil, andCrashWrapper: TestSentryCrashWrapper.sharedInstance())
+            let hub = SentryHub(client: client, andScope: nil, andCrashWrapper: TestSentryCrashWrapper.sharedInstance(), andDispatchQueue: TestSentryDispatchQueueWrapper())
             return hub.startTransaction(name: someTransaction, operation: someOperation)
         }
         
+        func getSutWithTracer() -> SentrySpan {
+#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+            return SentrySpan(tracer: tracer, context: SpanContext(operation: someOperation, sampled: .undecided), framesTracker: nil)
+#else
+            return SentrySpan(tracer: tracer, context: SpanContext(operation: someOperation, sampled: .undecided))
+#endif
+        }
     }
     
     override func setUp() {
         super.setUp()
-
+        
         logOutput = TestLogOutput()
         SentryLog.configure(true, diagnosticLevel: SentryLevel.debug)
         SentryLog.setLogOutput(logOutput)
-
+        
         fixture = Fixture()
         SentryDependencyContainer.sharedInstance().dateProvider = fixture.currentDateProvider
     }
@@ -50,6 +65,176 @@ class SentrySpanTests: XCTestCase {
         super.tearDown()
         clearTestState()
     }
+    
+#if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
+    func testSpanDoesNotIncludeTraceProfilerID() throws {
+        fixture.options.profilesSampleRate = 1
+        SentrySDK.setStart(fixture.options)
+        let span = fixture.getSut()
+        let continuousProfileObservations = fixture.notificationCenter.addObserverInvocations.invocations.filter {
+            $0.name.rawValue == kSentryNotificationContinuousProfileStarted
+        }
+        XCTAssertEqual(continuousProfileObservations.count, 0)
+        XCTAssert(SentryTraceProfiler.isCurrentlyProfiling())
+        span.finish()
+        
+        let serialized = span.serialize()
+        XCTAssertNil(serialized["profile_id"])
+    }
+    
+    func testSpanDoesNotSubscribeToNotificationsIfAlreadyCapturedContinuousProfileID() {
+        fixture.options.profilesSampleRate = nil
+        SentryContinuousProfiler.start()
+        SentrySDK.setStart(fixture.options)
+        let _ = fixture.getSut()
+        let continuousProfileObservations = fixture.notificationCenter.addObserverInvocations.invocations.filter {
+            $0.name.rawValue == kSentryNotificationContinuousProfileStarted
+        }
+        XCTAssertEqual(continuousProfileObservations.count, 0)
+    }
+    
+    func testSpanDoesNotSubscribeToNotificationsIfContinuousProfilingDisabled() {
+        fixture.options.profilesSampleRate = 1
+        SentrySDK.setStart(fixture.options)
+        let _ = fixture.getSut()
+        let continuousProfileObservations = fixture.notificationCenter.addObserverInvocations.invocations.filter {
+            $0.name.rawValue == kSentryNotificationContinuousProfileStarted
+        }
+        XCTAssertEqual(continuousProfileObservations.count, 0)
+    }
+    
+    func testSpanDoesSubscribeToNotificationsIfNotAlreadyCapturedContinuousProfileID() {
+        fixture.options.profilesSampleRate = nil
+        SentrySDK.setStart(fixture.options)
+        let _ = fixture.getSut()
+        let continuousProfileObservations = fixture.notificationCenter.addObserverInvocations.invocations.filter {
+            $0.name.rawValue == kSentryNotificationContinuousProfileStarted
+        }
+        XCTAssertEqual(continuousProfileObservations.count, 1)
+    }
+    
+    /// Test a span that starts before and ends before a continuous profile, includes profile id
+    ///
+    /// ```
+    /// +-------span-------+
+    ///     +----profile----+
+    /// ```
+    func test_spanStart_profileStart_spanEnd_profileEnd_spanIncludesProfileID() throws {
+        fixture.options.profilesSampleRate = nil
+        SentrySDK.setStart(fixture.options)
+        let span = fixture.getSut()
+        XCTAssertEqual(fixture.notificationCenter.addObserverInvocations.invocations.filter {
+            $0.name.rawValue == kSentryNotificationContinuousProfileStarted
+        }.count, 1)
+        SentryContinuousProfiler.start()
+        let profileId = try XCTUnwrap(SentryContinuousProfiler.profiler()?.profilerId.sentryIdString)
+        span.finish()
+        
+        let serialized = span.serialize()
+        
+        XCTAssertEqual(try XCTUnwrap(serialized["profiler_id"] as? String), profileId)
+    }
+    
+    /// Test a span that starts before and ends after a continuous profile, includes profile id
+    ///
+    /// ```
+    /// +-----------span-----------+
+    ///     +----profile----+
+    /// ```
+    func test_spanStart_profileStart_profileEnd_spanEnd_spanIncludesProfileID() throws {
+        fixture.options.profilesSampleRate = nil
+        SentrySDK.setStart(fixture.options)
+        let span = fixture.getSut()
+        SentryContinuousProfiler.start()
+        let profileId = try XCTUnwrap(SentryContinuousProfiler.profiler()?.profilerId.sentryIdString)
+        SentryContinuousProfiler.stop()
+        span.finish()
+        
+        let serialized = span.serialize()
+        
+        XCTAssertEqual(try XCTUnwrap(serialized["profiler_id"] as? String), profileId)
+    }
+    
+    /// Test a span that starts after and ends after a continuous profile, includes profile id
+    ///
+    /// ```
+    ///     +----profile----+
+    ///         +-------span-------+
+    /// ```
+    func test_profileStart_spanStart_profileEnd_spanEnd_spanIncludesProfileID() throws {
+        fixture.options.profilesSampleRate = nil
+        SentrySDK.setStart(fixture.options)
+        SentryContinuousProfiler.start()
+        let profileId = try XCTUnwrap(SentryContinuousProfiler.profiler()?.profilerId.sentryIdString)
+        let span = fixture.getSut()
+        SentryContinuousProfiler.stop()
+        span.finish()
+        
+        let serialized = span.serialize()
+        
+        XCTAssertEqual(try XCTUnwrap(serialized["profiler_id"] as? String), profileId)
+    }
+    
+    /// Test a span that starts after and ends before a continuous profile, includes profile id
+    ///
+    /// ```
+    ///     +------------------profile------------------+
+    ///         +-------span-------+
+    /// ```
+    func test_profileStart_spanStart_spanEnd_profileEnd_spanIncludesProfileID() throws {
+        fixture.options.profilesSampleRate = nil
+        SentrySDK.setStart(fixture.options)
+        SentryContinuousProfiler.start()
+        let profileId = try XCTUnwrap(SentryContinuousProfiler.profiler()?.profilerId.sentryIdString)
+        let span = fixture.getSut()
+        span.finish()
+        
+        let serialized = span.serialize()
+        XCTAssertEqual(try XCTUnwrap(serialized["profiler_id"] as? String), profileId)
+    }
+    
+    /// Test a span that spans multiple profiles, which both should have the same profile ID, and that
+    /// the span also contains that profile ID.
+    ///
+    /// ```
+    /// +-----------------span-----------------+
+    ///     +--profile1--+    +--profile2--+
+    /// ```
+    func test_spanStart_profileStart_profileEnd_profileStart_profileEnd_spanEnd_spanIncludesSameProfileID() throws {
+        fixture.options.profilesSampleRate = nil
+        SentrySDK.setStart(fixture.options)
+        let span = fixture.getSut()
+        SentryContinuousProfiler.start()
+        let profileId1 = try XCTUnwrap(SentryContinuousProfiler.profiler()?.profilerId.sentryIdString)
+        SentryContinuousProfiler.stop()
+        SentryContinuousProfiler.start()
+        let profileId2 = try XCTUnwrap(SentryContinuousProfiler.profiler()?.profilerId.sentryIdString)
+        SentryContinuousProfiler.stop()
+        XCTAssertEqual(profileId1, profileId2)
+        span.finish()
+        
+        let serialized = span.serialize()
+        XCTAssertEqual(try XCTUnwrap(serialized["profiler_id"] as? String), profileId1)
+    }
+    
+    /// Test a span that starts and ends before a profile starts, does not include profile id
+    ///
+    /// ```
+    /// +-------span-------+
+    ///                          +----profile----+
+    /// ```
+    func test_spanStart_spanEnd_profileStart_profileEnd_spanDoesNotIncludeProfileID() {
+        fixture.options.profilesSampleRate = nil
+        SentrySDK.setStart(fixture.options)
+        SentryContinuousProfiler.start()
+        SentryContinuousProfiler.stop()
+        let span = fixture.getSut()
+        span.finish()
+        
+        let serialized = span.serialize()
+        XCTAssertNil(serialized["profile_id"])
+    }
+#endif // os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
     
     func testInitAndCheckForTimestamps() {
         let span = fixture.getSut()
@@ -81,7 +266,7 @@ class SentrySpanTests: XCTestCase {
             expect.fulfill()
         }
         
-        wait(for: [expect], timeout: 0.1)
+        wait(for: [expect], timeout: 1.0)
     }
     
     func testInit_SetsThreadInfoAsSpanData_FromBackgroundThreadWithNoName() {
@@ -98,10 +283,10 @@ class SentrySpanTests: XCTestCase {
             expect.fulfill()
         }
         
-        wait(for: [expect], timeout: 0.1)
+        wait(for: [expect], timeout: 1.0)
     }
     
-    func testFinish() {
+    func testFinish() throws {
         let client = TestClient(options: fixture.options)!
         let span = fixture.getSut(client: client)
         
@@ -112,14 +297,14 @@ class SentrySpanTests: XCTestCase {
         XCTAssertTrue(span.isFinished)
         XCTAssertEqual(span.status, .ok)
         
-        let lastEvent = client.captureEventWithScopeInvocations.invocations[0].event
+        let lastEvent = try XCTUnwrap(client.captureEventWithScopeInvocations.invocations.first).event
         XCTAssertEqual(lastEvent.transaction, fixture.someTransaction)
         XCTAssertEqual(lastEvent.timestamp, TestData.timestamp)
         XCTAssertEqual(lastEvent.startTimestamp, TestData.timestamp)
         XCTAssertEqual(lastEvent.type, SentryEnvelopeItemTypeTransaction)
     }
     
-    func testFinish_Custom_Timestamp() {
+    func testFinish_Custom_Timestamp() throws {
         let client = TestClient(options: fixture.options)!
         let span = fixture.getSut(client: client)
         
@@ -134,28 +319,28 @@ class SentrySpanTests: XCTestCase {
         XCTAssertTrue(span.isFinished)
         XCTAssertEqual(span.status, .ok)
         
-        let lastEvent = client.captureEventWithScopeInvocations.invocations[0].event
+        let lastEvent = try XCTUnwrap(client.captureEventWithScopeInvocations.invocations.first).event
         XCTAssertEqual(lastEvent.transaction, fixture.someTransaction)
         XCTAssertEqual(lastEvent.timestamp, finishDate)
         XCTAssertEqual(lastEvent.startTimestamp, TestData.timestamp)
         XCTAssertEqual(lastEvent.type, SentryEnvelopeItemTypeTransaction)
     }
-
+    
     func testFinishSpanWithDefaultTimestamp() {
-        let span = SentrySpan(tracer: fixture.tracer, context: SpanContext(operation: fixture.someOperation, sampled: .undecided))
+        let span = fixture.getSutWithTracer()
         span.finish()
-
+        
         XCTAssertEqual(span.startTimestamp, TestData.timestamp)
         XCTAssertEqual(span.timestamp, TestData.timestamp)
         XCTAssertTrue(span.isFinished)
         XCTAssertEqual(span.status, .ok)
     }
-
+    
     func testFinishSpanWithCustomTimestamp() {
-        let span = SentrySpan(tracer: fixture.tracer, context: SpanContext(operation: fixture.someOperation, sampled: .undecided))
+        let span = fixture.getSutWithTracer()
         span.timestamp = Date(timeIntervalSince1970: 123)
         span.finish()
-
+        
         XCTAssertEqual(span.startTimestamp, TestData.timestamp)
         XCTAssertEqual(span.timestamp, Date(timeIntervalSince1970: 123))
         XCTAssertTrue(span.isFinished)
@@ -172,7 +357,7 @@ class SentrySpanTests: XCTestCase {
         XCTAssertTrue(span.isFinished)
     }
     
-    func testFinishWithChild() {
+    func testFinishWithChild() throws {
         let client = TestClient(options: fixture.options)!
         let span = fixture.getSut(client: client)
         let childSpan = span.startChild(operation: fixture.someOperation)
@@ -180,7 +365,7 @@ class SentrySpanTests: XCTestCase {
         childSpan.finish()
         span.finish()
         
-        let lastEvent = client.captureEventWithScopeInvocations.invocations[0].event
+        let lastEvent = try XCTUnwrap(client.captureEventWithScopeInvocations.invocations.first).event
         let serializedData = lastEvent.serialize()
         
         let spans = serializedData["spans"] as! [Any]
@@ -208,25 +393,25 @@ class SentrySpanTests: XCTestCase {
         XCTAssertEqual(childSpan.operation, fixture.someOperation)
         XCTAssertEqual(childSpan.spanDescription, fixture.someDescription)
     }
-
+    
     func testStartChildOnFinishedSpan() {
         let span = fixture.getSut()
         span.finish()
-
+        
         let childSpan = span.startChild(operation: fixture.someOperation, description: fixture.someDescription)
-
+        
         XCTAssertNil(childSpan.parentSpanId)
         XCTAssertEqual(childSpan.operation, "")
         XCTAssertNil(childSpan.spanDescription)
         XCTAssertFalse(logOutput.loggedMessages.filter({ $0.contains(" Starting a child on a finished span is not supported; it won\'t be sent to Sentry.") }).isEmpty)
     }
-
+    
     func testStartGrandChildOnFinishedSpan() {
         let span = fixture.getSut()
         let childSpan = span.startChild(operation: fixture.someOperation)
         childSpan.finish()
         span.finish()
-
+        
         let grandChild = childSpan.startChild(operation: fixture.someOperation, description: fixture.someDescription)
         XCTAssertNil(grandChild.parentSpanId)
         XCTAssertEqual(grandChild.operation, "")
@@ -236,7 +421,7 @@ class SentrySpanTests: XCTestCase {
     
     func testAddAndRemoveData() {
         let span = fixture.getSut()
-
+        
         span.setData(value: fixture.extraValue, key: fixture.extraKey)
         
         XCTAssertEqual(span.data.count, 3)
@@ -270,7 +455,7 @@ class SentrySpanTests: XCTestCase {
         //Faking extra info to test serialization
         span.parentSpanId = SpanId()
         span.spanDescription = "Span Description"
-
+        
         let serialization = span.serialize()
         XCTAssertEqual(serialization["span_id"] as? String, span.spanId.sentrySpanIdString)
         XCTAssertEqual(serialization["parent_span_id"] as? String, span.parentSpanId?.sentrySpanIdString)
@@ -291,44 +476,44 @@ class SentrySpanTests: XCTestCase {
         XCTAssertEqual((serialization["tags"] as! Dictionary)[fixture.extraKey], fixture.extraValue)
         XCTAssertEqual("manual", serialization["origin"] as? String)
     }
-
-    func testSerialization_NoFrames() {
-        let span = SentrySpan(tracer: fixture.tracer, context: SpanContext(operation: "test"))
+    
+    func testSerialization_NoStacktraceFrames() {
+        let span = fixture.getSutWithTracer()
         let serialization = span.serialize()
-
+        
         XCTAssertEqual(2, (serialization["data"] as? [String: Any])?.count, "Only expected thread.name and thread.id in data.")
     }
-
-    func testSerialization_withFrames() {
-        let span = SentrySpan(tracer: fixture.tracer, context: SpanContext(operation: "test"))
+    
+    func testSerialization_withStacktraceFrames() {
+        let span = fixture.getSutWithTracer()
         span.frames = [TestData.mainFrame, TestData.testFrame]
-
+        
         let serialization = span.serialize()
-
+        
         XCTAssertNotNil(serialization["data"])
         let callStack = (serialization["data"] as? [String: Any])?["call_stack"] as? [[String: Any]]
         XCTAssertNotNil(callStack)
         XCTAssertEqual(callStack?.first?["function"] as? String, TestData.mainFrame.function)
         XCTAssertEqual(callStack?.last?["function"] as? String, TestData.testFrame.function)
     }
-
+    
     func testSanitizeData() {
         let span = fixture.getSut()
-
+        
         span.setData(value: Date(timeIntervalSince1970: 10), key: "date")
         span.finish()
-
+        
         let serialization = span.serialize()
         let data = serialization["data"] as? [String: Any]
         XCTAssertEqual(data?["date"] as? String, "1970-01-01T00:00:10.000Z")
     }
-
+    
     func testSanitizeDataSpan() {
-        let span = SentrySpan(tracer: fixture.tracer, context: SpanContext(operation: fixture.someOperation, sampled: .undecided))
-
+        let span = fixture.getSutWithTracer()
+        
         span.setData(value: Date(timeIntervalSince1970: 10), key: "date")
         span.finish()
-
+        
         let serialization = span.serialize()
         let data = serialization["data"] as? [String: Any]
         XCTAssertEqual(data?["date"] as? String, "1970-01-01T00:00:10.000Z")
@@ -340,6 +525,33 @@ class SentrySpanTests: XCTestCase {
         let serialization = span.serialize()
         XCTAssertEqual(2, (serialization["data"] as? [String: Any])?.count, "Only expected thread.name and thread.id in data.")
         XCTAssertNil(serialization["tag"])
+    }
+    
+    func testInit_DoesNotInitializeLocalMetricAggregator() {
+        let sut = fixture.getSut()
+        
+        let serialized = sut.serialize()
+        expect(serialized["_metrics_summary"]) == nil
+    }
+    
+    func testLocalMetricsAggregator_GetsSerializedAsMetricsSummary() throws {
+        let sut = fixture.getSutWithTracer()
+        
+        let aggregator = sut.getLocalMetricsAggregator()
+        aggregator.add(type: .counter, key: "key", value: 1.0, unit: .none, tags: [:])
+        
+        let serialized = sut.serialize()
+        
+        let metricsSummary = try XCTUnwrap(serialized["_metrics_summary"] as? [String: [[String: Any]]])
+        expect(metricsSummary.count) == 1
+        
+        let bucket = try XCTUnwrap(metricsSummary["c:key"])
+        expect(bucket.count) == 1
+        let metric = try XCTUnwrap(bucket.first)
+        expect(metric["min"] as? Double) == 1.0
+        expect(metric["max"] as? Double) == 1.0
+        expect(metric["count"] as? Int) == 1
+        expect(metric["sum"] as? Double) == 1.0
     }
     
     func testTraceHeaderNotSampled() {
@@ -365,7 +577,7 @@ class SentrySpanTests: XCTestCase {
     }
     
     func testTraceHeaderUndecided() {
-        let span = SentrySpan(tracer: fixture.tracer, context: SpanContext(operation: fixture.someOperation, sampled: .undecided))
+        let span = fixture.getSutWithTracer()
         let header = span.toTraceHeader()
         
         XCTAssertEqual(header.traceId, span.traceId)
@@ -376,23 +588,28 @@ class SentrySpanTests: XCTestCase {
     
     @available(*, deprecated)
     func testSetExtra_ForwardsToSetData() {
-        let sut = SentrySpan(tracer: fixture.tracer, context: SpanContext(operation: "test"))
+        let sut = fixture.getSutWithTracer()
         sut.setExtra(value: 0, key: "key")
         
         let data = sut.data as [String: Any]
         XCTAssertEqual(0, data["key"] as? Int)
     }
-         
+    
     func testSpanWithoutTracer_StartChild_ReturnsNoOpSpan() {
         // Span has a weak reference to tracer. If we don't keep a reference
         // to the tracer ARC will deallocate the tracer.
         let sutGenerator: () -> Span = {
+#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+            let tracer = SentryTracer(context: SpanContext(operation: "TEST"), framesTracker: nil)
+            return SentrySpan(tracer: tracer, context: SpanContext(operation: ""), framesTracker: nil)
+#else
             let tracer = SentryTracer(context: SpanContext(operation: "TEST"))
             return SentrySpan(tracer: tracer, context: SpanContext(operation: ""))
+#endif
         }
         
         let sut = sutGenerator()
-
+        
         let actual = sut.startChild(operation: fixture.someOperation)
         XCTAssertTrue(SentryNoOpSpan.shared() === actual)
         
@@ -403,7 +620,7 @@ class SentrySpanTests: XCTestCase {
     func testModifyingExtraFromMultipleThreads() {
         let queue = DispatchQueue(label: "SentrySpanTests", qos: .userInteractive, attributes: [.concurrent, .initiallyInactive])
         let group = DispatchGroup()
-                
+        
         let span = fixture.getSut()
         
         // The number is kept small for the CI to not take to long.
@@ -430,7 +647,7 @@ class SentrySpanTests: XCTestCase {
         let threadDataItemCount = 2
         XCTAssertEqual(span.data.count, outerLoop * innerLoop + threadDataItemCount)
     }
-
+    
     func testSpanStatusNames() {
         XCTAssertEqual(nameForSentrySpanStatus(.undefined), kSentrySpanStatusNameUndefined)
         XCTAssertEqual(nameForSentrySpanStatus(.ok), kSentrySpanStatusNameOk)
@@ -451,4 +668,84 @@ class SentrySpanTests: XCTestCase {
         XCTAssertEqual(nameForSentrySpanStatus(.outOfRange), kSentrySpanStatusNameOutOfRange)
         XCTAssertEqual(nameForSentrySpanStatus(.dataLoss), kSentrySpanStatusNameDataLoss)
     }
+    
+#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+    func testAddSlowFrozenFramesToData() {
+        let (displayLinkWrapper, framesTracker) = givenFramesTracker()
+        
+        let sut = SentrySpan(context: SpanContext(operation: "TEST"), framesTracker: framesTracker)
+        
+        let slow = 2
+        let frozen = 1
+        let normal = 100
+        displayLinkWrapper.renderFrames(slow, frozen, normal)
+        
+        sut.finish()
+        
+        expect(sut.data["frames.total"] as? NSNumber) == NSNumber(value: slow + frozen + normal)
+        expect(sut.data["frames.slow"] as? NSNumber) == NSNumber(value: slow)
+        expect(sut.data["frames.frozen"] as? NSNumber) == NSNumber(value: frozen)
+    }
+    
+    func testDontAddAllZeroSlowFrozenFramesToData() {
+        let (_, framesTracker) = givenFramesTracker()
+        
+        let sut = SentrySpan(context: SpanContext(operation: "TEST"), framesTracker: framesTracker)
+        
+        sut.finish()
+        
+        expect(sut.data["frames.total"]) == nil
+        expect(sut.data["frames.slow"]) == nil
+        expect(sut.data["frames.frozen"]) == nil
+    }
+    
+    func testAddFrameStatisticsToData_WithPreexistingCounts() {
+        let (displayLinkWrapper, framesTracker) = givenFramesTracker()
+        let preexistingSlow = 1
+        let preexistingFrozen = 2
+        let preexistingNormal = 3
+        displayLinkWrapper.renderFrames(preexistingSlow, preexistingFrozen, preexistingNormal)
+        
+        let sut = SentrySpan(context: SpanContext(operation: "TEST"), framesTracker: framesTracker)
+        
+        let slowFrames = 1
+        let frozenFrames = 1
+        let normalFrames = 100
+        let totalFrames = slowFrames + frozenFrames + normalFrames
+        _ = displayLinkWrapper.slowestSlowFrame()
+        _ = displayLinkWrapper.fastestFrozenFrame()
+        displayLinkWrapper.renderFrames(0, 0, normalFrames)
+        
+        sut.finish()
+        
+        expect(sut.data["frames.total"] as? NSNumber) == NSNumber(value: totalFrames)
+        expect(sut.data["frames.slow"] as? NSNumber) == NSNumber(value: slowFrames)
+        expect(sut.data["frames.frozen"] as? NSNumber) == NSNumber(value: frozenFrames)
+        
+        let expectedFrameDuration = slowFrameThreshold(displayLinkWrapper.currentFrameRate.rawValue)
+        let expectedDelay = displayLinkWrapper.slowestSlowFrameDuration + displayLinkWrapper.fastestFrozenFrameDuration - expectedFrameDuration * 2 as NSNumber
+        
+        expect(sut.data["frames.delay"] as? NSNumber).to(beCloseTo(expectedDelay, within: 0.0001))
+    }
+    
+    func testNoFramesTracker_NoFramesAddedToData() {
+        let sut = SentrySpan(context: SpanContext(operation: "TEST"), framesTracker: nil)
+        
+        sut.finish()
+        
+        expect(sut.data["frames.total"]) == nil
+        expect(sut.data["frames.slow"]) == nil
+        expect(sut.data["frames.frozen"]) == nil
+        expect(sut.data["frames.delay"]) == nil
+    }
+    
+    func givenFramesTracker() -> (TestDisplayLinkWrapper, SentryFramesTracker) {
+        let displayLinkWrapper = TestDisplayLinkWrapper(dateProvider: self.fixture.currentDateProvider)
+        let framesTracker = SentryFramesTracker(displayLinkWrapper: displayLinkWrapper, dateProvider: self.fixture.currentDateProvider, dispatchQueueWrapper: TestSentryDispatchQueueWrapper(), notificationCenter: TestNSNotificationCenterWrapper(), keepDelayedFramesDuration: 10)
+        framesTracker.start()
+        displayLinkWrapper.call()
+        
+        return (displayLinkWrapper, framesTracker)
+    }
+#endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
 }

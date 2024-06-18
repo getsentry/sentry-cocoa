@@ -1,6 +1,8 @@
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
 
+import Nimble
 import ObjectiveC
+@testable import Sentry
 import SentryTestUtils
 import XCTest
 
@@ -21,11 +23,12 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
     let spanName = "spanName"
     let spanOperation = "spanOperation"
     let origin = "auto.ui.view_controller"
+    let frameDuration = 0.0016
     
     private class Fixture {
         
         var options: Options {
-            let options = Options()
+            let options = Options.noIntegrations()
             let imageName = String(
                 cString: class_getImageName(SentryUIViewControllerSwizzlingTests.self)!,
                 encoding: .utf8)! as NSString
@@ -251,11 +254,11 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
             callbackExpectation.fulfill()
         }
         try assertSpanDuration(span: lastSpan, expectedDuration: 5)
-        try assertSpanDuration(span: transactionSpan, expectedDuration: 22)
+        try assertSpanDuration(span: transactionSpan, expectedDuration: 22 + frameDuration)
         
         wait(for: [callbackExpectation], timeout: 0)
     }
-
+    
     func testReportFullyDisplayed() {
         let sut = fixture.getSut()
         sut.enableWaitForFullDisplay = true
@@ -267,11 +270,17 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
             let spans = self.getStack(tracker)
             tracer = spans.first as? SentryTracer
         }
+        sut.viewControllerViewWillAppear(viewController) {
+            self.advanceTime(bySeconds: 0.1)
+        }
 
         sut.reportFullyDisplayed()
         reportFrame()
+        let expectedTTFDTimestamp = fixture.dateProvider.date()
 
-        XCTAssertTrue(tracer?.children[1].isFinished ?? false)
+        let ttfdSpan = tracer?.children[1]
+        expect(ttfdSpan?.isFinished) == true
+        expect(ttfdSpan?.timestamp) == expectedTTFDTimestamp
     }
 
     func testSecondViewController() {
@@ -598,7 +607,7 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
         let timestamp = try XCTUnwrap(span.timestamp)
         let startTimestamp = try XCTUnwrap(span.startTimestamp)
         let duration = timestamp.timeIntervalSince(startTimestamp)
-        XCTAssertEqual(duration, expectedDuration)
+        expect(duration).to(beCloseTo(expectedDuration, within: 0.001))
     }
     
     private func assertTrackerIsEmpty(_ tracker: SentryPerformanceTracker) {
@@ -621,6 +630,7 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
     }
 
     private func reportFrame() {
+        advanceTime(bySeconds: self.frameDuration)
         Dynamic(SentryDependencyContainer.sharedInstance().framesTracker).displayLinkCallback()
     }
 }

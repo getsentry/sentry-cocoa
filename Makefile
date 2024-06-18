@@ -4,11 +4,7 @@ init: setup-git
 	brew bundle
 	rbenv install --skip-existing
 	rbenv exec gem update bundler
-	rbenv exec bundle update
-
-.PHONY: init-samples
-init-samples: init
-	cd Samples/TrendingMovies && carthage update --use-xcframeworks
+	rbenv exec bundle install
 
 .PHONY: setup-git
 setup-git:
@@ -21,10 +17,6 @@ lint:
 	./scripts/check-clang-format.py -r Sources Tests
 	swiftlint --strict
 .PHONY: lint
-
-no-changes-in-high-risk-files:
-	@echo "--> Checking if there are changes in high risk files"
-	./scripts/no-changes-in-high-risk-files.sh
 
 format: format-clang format-swift
 
@@ -68,9 +60,12 @@ analyze:
 # For more info check out: https://github.com/Carthage/Carthage/releases/tag/0.38.0
 build-xcframework:
 	@echo "--> Carthage: creating Sentry xcframework"
-	carthage build --use-xcframeworks --no-skip-current --verbose > build-xcframework.log
+	./scripts/build-xcframework.sh > build-xcframework.log
 # use ditto here to avoid clobbering symlinks which exist in macOS frameworks
-	ditto -c -k -X --rsrc --keepParent Carthage Sentry.xcframework.zip
+	ditto -c -k -X --rsrc --keepParent Carthage/Sentry.xcframework Carthage/Sentry.xcframework.zip
+	ditto -c -k -X --rsrc --keepParent Carthage/Sentry-Dynamic.xcframework Carthage/Sentry-Dynamic.xcframework.zip
+	ditto -c -k -X --rsrc --keepParent Carthage/SentrySwiftUI.xcframework Carthage/SentrySwiftUI.xcframework.zip
+	ditto -c -k -X --rsrc --keepParent Carthage/Sentry-WihoutUIKitOrAppKit.xcframework Carthage/Sentry-WihoutUIKitOrAppKit.zip
 
 build-xcframework-sample:
 	./scripts/create-carthage-json.sh
@@ -83,8 +78,8 @@ watchOSLibPath = ./Samples/watchOS-Swift/libs
 build-for-watchos:
 	@echo "--> Building Sentry as a XCFramework that can be used with watchOS"
 	rm -rf ${watchOSLibPath}
-	xcodebuild archive -scheme Sentry -destination="watchOS" -archivePath ${watchOSLibPath}/watchos.xcarchive -sdk watchos SKIP_INSTALL=NO BUILD_LIBRARIES_FOR_DISTRIBUTION=YES
-	xcodebuild archive -scheme Sentry -destination="watch Simulator" -archivePath ${watchOSLibPath}//watchsimulator.xcarchive -sdk watchsimulator SKIP_INSTALL=NO BUILD_LIBRARIES_FOR_DISTRIBUTION=YES
+	xcodebuild archive -scheme Sentry -destination="watchOS" -archivePath ${watchOSLibPath}/watchos.xcarchive -sdk watchos SKIP_INSTALL=NO BUILD_LIBRARY_FOR_DISTRIBUTION=YES
+	xcodebuild archive -scheme Sentry -destination="watch Simulator" -archivePath ${watchOSLibPath}//watchsimulator.xcarchive -sdk watchsimulator SKIP_INSTALL=NO BUILD_LIBRARY_FOR_DISTRIBUTION=YES
 	xcodebuild -create-xcframework -allow-internal-distribution -framework ${watchOSLibPath}/watchos.xcarchive/Products/Library/Frameworks/Sentry.framework -framework ${watchOSLibPath}/watchsimulator.xcarchive/Products/Library/Frameworks/Sentry.framework -output ${watchOSLibPath}//Sentry.xcframework
 
 # call this like `make bump-version TO=5.0.0-rc.0`

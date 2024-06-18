@@ -1,6 +1,6 @@
-#import "NSDate+SentryExtras.h"
 #import "SentryBreadcrumb.h"
 #import "SentryCrashReportConverter.h"
+#import "SentryDateUtils.h"
 #import "SentryDebugMeta.h"
 #import "SentryEvent.h"
 #import "SentryException.h"
@@ -12,6 +12,7 @@
 #import "SentryThread.h"
 #import "SentryUser.h"
 #import <XCTest/XCTest.h>
+@import Sentry;
 
 @interface SentryCrashReportConverterTests : XCTestCase
 
@@ -458,7 +459,7 @@
     XCTAssertEqualObjects(
         [event.breadcrumbs.firstObject.data objectForKey:@"screen"], @"UIInputWindowController");
 
-    NSDate *date = [NSDate sentry_fromIso8601String:@"2020-02-06T01:00:32Z"];
+    NSDate *date = sentry_fromIso8601String(@"2020-02-06T01:00:32Z");
     XCTAssertEqual(event.breadcrumbs.firstObject.timestamp, date);
 }
 

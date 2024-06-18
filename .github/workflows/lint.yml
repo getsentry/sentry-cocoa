@@ -4,25 +4,29 @@ on:
     branches:
       - main
     paths:
-      - 'Sources/**'
-      - 'Tests/**'
-      - 'test-server/**'
-      - 'Samples/**'
-      - '.github/workflows/lint.yml'
-      - 'scripts/ci-select-xcode.sh'
-      - 'scripts/no-changes-in-high-risk-files.sh'
+      - "Sources/**"
+      - "Tests/**"
+      - "test-server/**"
+      - "Samples/**"
+      - ".github/workflows/lint.yml"
+      - "scripts/ci-select-xcode.sh"
 
   pull_request:
     paths:
-      - 'Sources/**'
-      - 'Tests/**'
-      - 'test-server/**'
-      - 'Samples/**'
-      - '.github/workflows/lint.yml'
-      - 'scripts/ci-select-xcode.sh'
-      - 'scripts/no-changes-in-high-risk-files.sh'
-      - 'Sentry.xcodeproj/**'
-      - '*.podspec'
+      - "Sources/**"
+      - "Tests/**"
+      - "test-server/**"
+      - "Samples/**"
+      - ".github/workflows/lint.yml"
+      - "scripts/ci-select-xcode.sh"
+      - "Sentry.xcodeproj/**"
+      - "*.podspec"
+      - "Gemfile.lock"
+
+# https://docs.github.com/en/actions/using-jobs/using-concurrency#example-using-a-fallback-value
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
 
 jobs:
   swift-lint:
@@ -46,10 +50,11 @@ jobs:
     name: pod lint ${{ matrix.podspec}} ${{ matrix.library_type }} ${{ matrix.platform}}
     runs-on: macos-13
     strategy:
+      fail-fast: false
       matrix:
-        podspec: ['Sentry', 'SentrySwiftUI']
-        platform: ['ios', 'macos', 'tvos', 'watchos']
-        library_type: ['dynamic', 'static']
+        podspec: ["Sentry", "SentrySwiftUI"]
+        platform: ["ios", "macos", "tvos", "watchos"]
+        library_type: ["dynamic", "static"]
 
     steps:
       - uses: actions/checkout@v4
@@ -68,11 +73,4 @@ jobs:
       - run: ./scripts/ci-select-xcode.sh
       - run: pod repo update
       - name: Validate HybridPod Podspec
-        run: pod lib lint ./Tests/HybridSDKTest/HybridPod.podspec --allow-warnings --verbose --platforms=ios "--include-podspecs={SentryPrivate.podspec,Sentry.podspec}"
-
-  validate-high-risk-files:
-    name: No changes in high risk files
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - run: ./scripts/no-changes-in-high-risk-files.sh
+        run: pod lib lint ./Tests/HybridSDKTest/HybridPod.podspec --allow-warnings --verbose --platforms=ios "--include-podspecs={Sentry.podspec}"

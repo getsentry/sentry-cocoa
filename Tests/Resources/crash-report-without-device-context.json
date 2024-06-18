@@ -1,0 +1,428 @@
+{
+    "report": {
+        "version": "3.2.0",
+        "id": "ABE4FB7A-581C-41DF-B676-52210C1590B9",
+        "process_name": "iOS-Swift",
+        "timestamp": 1707826257,
+        "type": "standard"
+    },
+    "binary_images": [
+        {
+            "image_addr": 4363304960,
+            "image_vmaddr": 4294967296,
+            "image_size": 425984,
+            "name": "/Users/philipp.hofmann/Library/Developer/CoreSimulator/Devices/0E1EFAC8-A7EC-4B5B-88D6-68A3CD1E73AA/data/Containers/Bundle/Application/6194E858-F114-438A-90A0-FC6EF24128BE/iOS-Swift.app/iOS-Swift",
+            "uuid": "98CB99D4-0577-3119-B6E0-E00C6F6D59CC",
+            "cpu_type": 16777228,
+            "cpu_subtype": 0,
+            "major_version": 0,
+            "minor_version": 0,
+            "revision_version": 0
+        }
+    ],
+    "process": {},
+    "system": {
+        "system_name": "iOS",
+        "system_version": "17.0.1",
+        "machine": "iPhone15,4",
+        "model": "simulator",
+        "kernel_version": "Darwin Kernel Version 23.3.0: Wed Dec 20 21:31:00 PST 2023; root:xnu-10002.81.5~7/RELEASE_ARM64_T6020",
+        "os_version": "23D56",
+        "jailbroken": false,
+        "boot_time": "2024-02-12T15:55:31Z",
+        "app_start_time": "2024-02-13T12:10:54Z",
+        "CFBundleExecutablePath": "/Users/philipp.hofmann/Library/Developer/CoreSimulator/Devices/0E1EFAC8-A7EC-4B5B-88D6-68A3CD1E73AA/data/Containers/Bundle/Application/6194E858-F114-438A-90A0-FC6EF24128BE/iOS-Swift.app/iOS-Swift",
+        "CFBundleExecutable": "iOS-Swift",
+        "CFBundleIdentifier": "io.sentry.sample.iOS-Swift",
+        "CFBundleName": "iOS-Swift",
+        "CFBundleVersion": "1",
+        "CFBundleShortVersionString": "8.20.0",
+        "app_uuid": "98CB99D4-0577-3119-B6E0-E00C6F6D59CC",
+        "cpu_arch": "arm64",
+        "cpu_type": 16777228,
+        "cpu_subtype": 2,
+        "binary_cpu_type": 16777228,
+        "binary_cpu_subtype": 0,
+        "process_name": "iOS-Swift",
+        "process_id": 17814,
+        "parent_process_id": 17092,
+        "device_app_hash": "4bb87ace435d51a45c8f98df9a86c87c5facd1fc",
+        "build_type": "simulator",
+        "total_storage": 994662584320,
+        "free_storage": 278914420736,
+        "memory": {
+            "size": 68719476736,
+            "usable": 57179553792,
+            "free": 256245760
+        },
+        "application_stats": {
+            "application_active": true,
+            "application_in_foreground": true,
+            "launches_since_last_crash": 8,
+            "sessions_since_last_crash": 8,
+            "active_time_since_last_crash": 0,
+            "background_time_since_last_crash": 0,
+            "sessions_since_launch": 1,
+            "active_time_since_launch": 0,
+            "background_time_since_launch": 0
+        }
+    },
+    "crash": {
+        "error": {
+            "mach": {
+                "exception": 1,
+                "exception_name": "EXC_BAD_ACCESS",
+                "code": 1,
+                "code_name": "KERN_INVALID_ADDRESS",
+                "subcode": 0
+            },
+            "signal": {
+                "signal": 11,
+                "name": "SIGSEGV",
+                "code": 0,
+                "code_name": "SEGV_NOOP"
+            },
+            "address": 0,
+            "type": "mach"
+        },
+        "threads": [
+            {
+                "backtrace": {
+                    "contents": [
+                        {
+                            "object_name": "Sentry",
+                            "object_addr": 4383588352,
+                            "symbol_name": "",
+                            "symbol_addr": 4384278748,
+                            "instruction_addr": 4384278768
+                        },
+                        {
+                            "object_name": "iOS-Swift",
+                            "object_addr": 4363304960,
+                            "symbol_name": "$s9iOS_Swift20ErrorsViewControllerC5crashyySo8UIButtonCF",
+                            "symbol_addr": 4363557164,
+                            "instruction_addr": 4363557216
+                        },
+                        {
+                            "object_name": "iOS-Swift",
+                            "object_addr": 4363304960,
+                            "symbol_name": "",
+                            "symbol_addr": 4363557228,
+                            "instruction_addr": 4363557280
+                        },
+                        {
+                            "object_name": "UIKitCore",
+                            "object_addr": 6516912128,
+                            "symbol_name": "-[UIApplication sendAction:to:from:forEvent:]",
+                            "symbol_addr": 6529220144,
+                            "instruction_addr": 6529220240
+                        },
+                        {
+                            "object_name": "Sentry",
+                            "object_addr": 4383588352,
+                            "symbol_name": "",
+                            "symbol_addr": 4384082644,
+                            "instruction_addr": 4384082844
+                        },
+                        {
+                            "object_name": "UIKitCore",
+                            "object_addr": 6516912128,
+                            "symbol_name": "-[UIControl sendAction:to:forEvent:]",
+                            "symbol_addr": 6522034536,
+                            "instruction_addr": 6522034644
+                        },
+                        {
+                            "object_name": "UIKitCore",
+                            "object_addr": 6516912128,
+                            "symbol_name": "-[UIControl _sendActionsForEvents:withEvent:]",
+                            "symbol_addr": 6522035212,
+                            "instruction_addr": 6522035480
+                        },
+                        {
+                            "object_name": "UIKitCore",
+                            "object_addr": 6516912128,
+                            "symbol_name": "-[UIButton _sendActionsForEvents:withEvent:]",
+                            "symbol_addr": 6522021856,
+                            "instruction_addr": 6522021976
+                        },
+                        {
+                            "object_name": "UIKitCore",
+                            "object_addr": 6516912128,
+                            "symbol_name": "-[UIControl touchesEnded:withEvent:]",
+                            "symbol_addr": 6522030284,
+                            "instruction_addr": 6522030676
+                        },
+                        {
+                            "object_name": "UIKitCore",
+                            "object_addr": 6516912128,
+                            "symbol_name": "-[UIWindow _sendTouchesForEvent:]",
+                            "symbol_addr": 6529429928,
+                            "instruction_addr": 6529430828
+                        },
+                        {
+                            "object_name": "UIKitCore",
+                            "object_addr": 6516912128,
+                            "symbol_name": "-[UIWindow sendEvent:]",
+                            "symbol_addr": 6529433072,
+                            "instruction_addr": 6529436176
+                        },
+                        {
+                            "object_name": "UIKitCore",
+                            "object_addr": 6516912128,
+                            "symbol_name": "-[UIApplication sendEvent:]",
+                            "symbol_addr": 6529303628,
+                            "instruction_addr": 6529304204
+                        },
+                        {
+                            "object_name": "UIKit",
+                            "object_addr": 7481049088,
+                            "symbol_name": "-[UIApplicationAccessibility sendEvent:]",
+                            "symbol_addr": 7481228444,
+                            "instruction_addr": 7481228536
+                        },
+                        {
+                            "object_name": "UIKitCore",
+                            "object_addr": 6516912128,
+                            "symbol_name": "__dispatchPreprocessedEventFromEventQueue",
+                            "symbol_addr": 6529825128,
+                            "instruction_addr": 6529826836
+                        },
+                        {
+                            "object_name": "UIKitCore",
+                            "object_addr": 6516912128,
+                            "symbol_name": "__processEventQueue",
+                            "symbol_addr": 6529833268,
+                            "instruction_addr": 6529838788
+                        },
+                        {
+                            "object_name": "UIKitCore",
+                            "object_addr": 6516912128,
+                            "symbol_name": "__eventFetcherSourceCallback",
+                            "symbol_addr": 6529810108,
+                            "instruction_addr": 6529810264
+                        },
+                        {
+                            "object_name": "CoreFoundation",
+                            "object_addr": 6445993984,
+                            "symbol_name": "__CFRUNLOOP_IS_CALLING_OUT_TO_A_SOURCE0_PERFORM_FUNCTION__",
+                            "symbol_addr": 6446573188,
+                            "instruction_addr": 6446573212
+                        },
+                        {
+                            "object_name": "CoreFoundation",
+                            "object_addr": 6445993984,
+                            "symbol_name": "__CFRunLoopDoSource0",
+                            "symbol_addr": 6446572856,
+                            "instruction_addr": 6446573028
+                        },
+                        {
+                            "object_name": "CoreFoundation",
+                            "object_addr": 6445993984,
+                            "symbol_name": "__CFRunLoopDoSources0",
+                            "symbol_addr": 6446570604,
+                            "instruction_addr": 6446570836
+                        },
+                        {
+                            "object_name": "CoreFoundation",
+                            "object_addr": 6445993984,
+                            "symbol_name": "__CFRunLoopRun",
+                            "symbol_addr": 6446547260,
+                            "instruction_addr": 6446548028
+                        },
+                        {
+                            "object_name": "CoreFoundation",
+                            "object_addr": 6445993984,
+                            "symbol_name": "CFRunLoopRunSpecific",
+                            "symbol_addr": 6446545644,
+                            "instruction_addr": 6446546216
+                        },
+                        {
+                            "object_name": "GraphicsServices",
+                            "object_addr": 6685499392,
+                            "symbol_name": "GSEventRunModal",
+                            "symbol_addr": 6685514528,
+                            "instruction_addr": 6685514688
+                        },
+                        {
+                            "object_name": "UIKitCore",
+                            "object_addr": 6516912128,
+                            "symbol_name": "-[UIApplication _run]",
+                            "symbol_addr": 6529199224,
+                            "instruction_addr": 6529200092
+                        },
+                        {
+                            "object_name": "UIKitCore",
+                            "object_addr": 6516912128,
+                            "symbol_name": "UIApplicationMain",
+                            "symbol_addr": 6529215448,
+                            "instruction_addr": 6529215572
+                        },
+                        {
+                            "object_name": "iOS-Swift",
+                            "object_addr": 4363304960,
+                            "symbol_name": "main",
+                            "symbol_addr": 4363441632,
+                            "instruction_addr": 4363441696
+                        },
+                        {
+                            "instruction_addr": 4365768024
+                        },
+                        {
+                            "instruction_addr": 4367130848
+                        }
+                    ],
+                    "skipped": 0
+                },
+                "registers": {
+                    "basic": {
+                        "x0": 4385128440,
+                        "x1": 4384844146,
+                        "x2": 4404141392,
+                        "x3": 105553176740880,
+                        "x4": 4404141392,
+                        "x5": 105553176740880,
+                        "x6": 10,
+                        "x7": 1,
+                        "x8": 0,
+                        "x9": 854268,
+                        "x10": 105553162603560,
+                        "x11": 2,
+                        "x12": 105553162603552,
+                        "x13": 0,
+                        "x14": 0,
+                        "x15": 18446744073709551615,
+                        "x16": 4385128482,
+                        "x17": 4384278748,
+                        "x18": 0,
+                        "x19": 105553176740880,
+                        "x20": 4368627504,
+                        "x21": 4404141392,
+                        "x22": 4363709787,
+                        "x23": 105553116414048,
+                        "x24": 8321801184,
+                        "x25": 105553129294320,
+                        "x26": 4363709787,
+                        "x27": 4368627504,
+                        "x28": 1,
+                        "fp": 6103563328,
+                        "lr": 4363557216,
+                        "sp": 6103563280,
+                        "pc": 4384278768,
+                        "cpsr": 1073745920
+                    },
+                    "exception": {
+                        "exception": 0,
+                        "esr": 2449473606,
+                        "far": 0
+                    }
+                },
+                "index": 0,
+                "crashed": true,
+                "current_thread": false,
+                "stack": {
+                    "grow_direction": "-",
+                    "dump_start": 6103563200,
+                    "dump_end": 6103563440,
+                    "stack_pointer": 6103563280,
+                    "overflow": false,
+                    "contents": "C91B74DD3352DBD4FB3247DC75CB5EEEF8BF5F050100000072695B050100000050DD81060100000010C49A030060000050DD81060100000010C49A03006000000A00000000000000010000000000000000B0190401000000000000000000000072695B0501000000F8BF5F050100000030F763040100000050DD81060100000070FCCC6B01000000A09916040100000030F763040100000050DD81060100000030F763040100000010C49A0300600000A0FCCC6B0100000090FE2B850100000010C49A03006000005BED18040100000050DD81060100000030F763040100000030FDCC6B010000009CCB4F0501000000"
+                },
+                "notable_addresses": {
+                    "x0": {
+                        "address": 4385128440,
+                        "type": "objc_class",
+                        "class": "SentrySDK"
+                    },
+                    "x1": {
+                        "address": 4384844146,
+                        "type": "string",
+                        "value": "crash"
+                    },
+                    "x22": {
+                        "address": 4363709787,
+                        "type": "string",
+                        "value": "crash:"
+                    },
+                    "x26": {
+                        "address": 4363709787,
+                        "type": "string",
+                        "value": "crash:"
+                    },
+                    "stack@0x16bccfbc8": {
+                        "address": 17176389735904916219,
+                        "type": "objc_object",
+                        "class": "NSDate",
+                        "value": -9.53269e+182
+                    },
+                    "stack@0x16bccfbd0": {
+                        "address": 4385128440,
+                        "type": "objc_class",
+                        "class": "SentrySDK"
+                    },
+                    "stack@0x16bccfbd8": {
+                        "address": 4384844146,
+                        "type": "string",
+                        "value": "crash"
+                    },
+                    "stack@0x16bccfc20": {
+                        "address": 4384844146,
+                        "type": "string",
+                        "value": "crash"
+                    },
+                    "stack@0x16bccfc28": {
+                        "address": 4385128440,
+                        "type": "objc_class",
+                        "class": "SentrySDK"
+                    },
+                    "stack@0x16bccfc88": {
+                        "address": 4363709787,
+                        "type": "string",
+                        "value": "crash:"
+                    }
+                }
+            }
+        ]
+    },
+    "sentry_sdk_scope": {
+        "breadcrumbs": [
+            {
+                "category": "started",
+                "level": "info",
+                "message": "Breadcrumb Tracking",
+                "timestamp": "2024-02-13T12:10:54.920Z",
+                "type": "debug"
+            }
+        ]
+    },
+    "user": {
+        "context": {
+            "app": {
+                "app_build": "1",
+                "app_id": "98CB99D4-0577-3119-B6E0-E00C6F6D59CC",
+                "app_identifier": "io.sentry.sample.iOS-Swift",
+                "app_name": "iOS-Swift",
+                "app_start_time": "2024-02-13T12:10:54Z",
+                "app_version": "8.20.0",
+                "build_type": "simulator",
+                "device_app_hash": "4bb87ace435d51a45c8f98df9a86c87c5facd1fc"
+            },
+            "os": {
+                "build": "23D56",
+                "kernel_version": "Darwin Kernel Version 23.3.0: Wed Dec 20 21:31:00 PST 2023; root:xnu-10002.81.5~7/RELEASE_ARM64_T6020",
+                "name": "iOS",
+                "rooted": false,
+                "version": "17.0.1"
+            }
+        },
+        "environment": "debug",
+        "release": "io.sentry.sample.iOS-Swift@8.20.0+1",
+        "tags": {
+            "language": "swift"
+        },
+        "user": {
+            "email": "tony@example.com",
+            "id": "1"
+        }
+    },
+    "debug": {}
+}

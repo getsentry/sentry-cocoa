@@ -1,17 +1,23 @@
 import Foundation
+@testable import Sentry
 
-@objc
-public class TestCurrentDateProvider: CurrentDateProvider {
+public class TestCurrentDateProvider: SentryCurrentDateProvider {
     public static let defaultStartingDate = Date(timeIntervalSinceReferenceDate: 0)
     private var internalDate = defaultStartingDate
     private var internalSystemTime: UInt64 = 0
     public var driftTimeForEveryRead = false
+    public var driftTimeInterval = 0.1
+    private var _systemUptime: TimeInterval = 0
+    
+    public override init() {
+        
+    }
     
     public override func date() -> Date {
 
         defer {
             if driftTimeForEveryRead {
-                internalDate = internalDate.addingTimeInterval(0.1)
+                internalDate = internalDate.addingTimeInterval(driftTimeInterval)
             }
         }
 
@@ -35,13 +41,13 @@ public class TestCurrentDateProvider: CurrentDateProvider {
     }
 
     public func advanceBy(nanoseconds: UInt64) {
-        setDate(date: date().addingTimeInterval(TimeInterval(nanoseconds) / 1e9))
+        setDate(date: date().addingTimeInterval(nanoseconds.toTimeInterval()))
         internalSystemTime += nanoseconds
     }
     
-    public var internalDispatchNow = DispatchTime.now()
-    public override func dispatchTimeNow() -> dispatch_time_t {
-        return internalDispatchNow.rawValue
+    public func advanceBy(interval: TimeInterval) {
+        setDate(date: date().addingTimeInterval(interval))
+        internalSystemTime += interval.toNanoSeconds()
     }
 
     public var timezoneOffsetValue = 0
@@ -51,5 +57,12 @@ public class TestCurrentDateProvider: CurrentDateProvider {
 
     public override func systemTime() -> UInt64 {
         return internalSystemTime
+    }
+    
+    override public func systemUptime() -> TimeInterval {
+        _systemUptime
+    }
+    public func setSystemUptime(_ uptime: TimeInterval) {
+        _systemUptime = uptime
     }
 }

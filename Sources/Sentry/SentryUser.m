@@ -1,5 +1,6 @@
 #import "SentryUser.h"
-#import "NSDictionary+SentrySanitize.h"
+#import "SentryGeo.h"
+#import "SentryNSDictionarySanitize.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -89,7 +90,7 @@ SentryUser ()
     [serializedData setValue:self.segment forKey:@"segment"];
     [serializedData setValue:self.name forKey:@"name"];
     [serializedData setValue:[self.geo serialize] forKey:@"geo"];
-    [serializedData setValue:[self.data sentry_sanitize] forKey:@"data"];
+    [serializedData setValue:sentry_sanitize(self.data) forKey:@"data"];
     NSDictionary<NSString *, id> *unknown = self.unknown;
     if (unknown != nil) {
         for (id key in unknown) {

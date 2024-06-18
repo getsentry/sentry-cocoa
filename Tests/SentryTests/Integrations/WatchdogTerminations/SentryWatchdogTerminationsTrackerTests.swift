@@ -1,3 +1,5 @@
+import Nimble
+@testable import Sentry
 import SentryTestUtils
 import XCTest
 
@@ -11,8 +13,7 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
         let options: Options
         let client: TestClient!
         let crashWrapper: TestSentryCrashWrapper
-        lazy var mockFileManager = try! TestFileManager(options: options)
-        lazy var realFileManager = try! SentryFileManager(options: options, dispatchQueueWrapper: dispatchQueue)
+        let fileManager: SentryFileManager
         let currentDate = TestCurrentDateProvider()
         let sysctl = TestSysctl()
         let dispatchQueue = TestSentryDispatchQueueWrapper()
@@ -24,16 +25,18 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
             options.dsn = SentryWatchdogTerminationTrackerTests.dsnAsString
             options.releaseName = TestData.appState.releaseName
             
+            fileManager = try! SentryFileManager(options: options, dispatchQueueWrapper: dispatchQueue)
+            
             client = TestClient(options: options)
             
             crashWrapper = TestSentryCrashWrapper.sharedInstance()
             
-            let hub = SentryHub(client: client, andScope: nil, andCrashWrapper: crashWrapper)
+            let hub = SentryHub(client: client, andScope: nil, andCrashWrapper: crashWrapper, andDispatchQueue: SentryDispatchQueueWrapper())
             SentrySDK.setCurrentHub(hub)
         }
         
-        func getSut(usingRealFileManager: Bool) -> SentryWatchdogTerminationTracker {
-            return getSut(fileManager: usingRealFileManager ? realFileManager : mockFileManager)
+        func getSut() -> SentryWatchdogTerminationTracker {
+            return getSut(fileManager: fileManager )
         }
         
         func getSut(fileManager: SentryFileManager) -> SentryWatchdogTerminationTracker {
@@ -66,7 +69,7 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
         super.setUp()
         
         fixture = Fixture()
-        sut = fixture.getSut(usingRealFileManager: false)
+        sut = fixture.getSut()
         SentrySDK.startInvocations = 1
     }
     
@@ -79,13 +82,13 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
     }
 
     func testStart_StoresAppState() {
-        sut = fixture.getSut(usingRealFileManager: true)
+        sut = fixture.getSut()
 
-        XCTAssertNil(fixture.realFileManager.readAppState())
+        XCTAssertNil(fixture.fileManager.readAppState())
 
         sut.start()
         
-        let actual = fixture.realFileManager.readAppState()
+        let actual = fixture.fileManager.readAppState()
         
         let appState = SentryAppState(releaseName: fixture.options.releaseName ?? "", osVersion: UIDevice.current.systemVersion, vendorId: TestData.someUUID, isDebugging: false, systemBootTimestamp: fixture.sysctl.systemBootTimestamp)
         
@@ -94,30 +97,38 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
     }
     
     func testGoToForeground_SetsIsActive() {
-        sut = fixture.getSut(usingRealFileManager: true)
+        sut = fixture.getSut()
 
         sut.start()
         
         goToForeground()
         
-        XCTAssertTrue(fixture.realFileManager.readAppState()?.isActive ?? false)
+        XCTAssertTrue(fixture.fileManager.readAppState()?.isActive ?? false)
         
         goToBackground()
         
-        XCTAssertFalse(fixture.realFileManager.readAppState()?.isActive ?? true)
+        XCTAssertFalse(fixture.fileManager.readAppState()?.isActive ?? true)
         XCTAssertEqual(3, fixture.dispatchQueue.dispatchAsyncCalled)
     }
     
     func testGoToForeground_WhenAppStateNil_NothingIsStored() {
         sut.start()
-        fixture.mockFileManager.deleteAppState()
+        fixture.fileManager.deleteAppState()
         goToForeground()
         
-        XCTAssertNil(fixture.mockFileManager.readAppState())
+        XCTAssertNil(fixture.fileManager.readAppState())
     }
 
     func testDifferentAppVersions_NoOOM() {
         givenPreviousAppState(appState: SentryAppState(releaseName: "0.9.0", osVersion: UIDevice.current.systemVersion, vendorId: TestData.someUUID, isDebugging: false, systemBootTimestamp: SentryDependencyContainer.sharedInstance().dateProvider.date()))
+        
+        sut.start()
+        
+        assertNoOOMSent()
+    }
+    
+    func testDifferentReleaseNameNil_NoOOM() {
+        givenPreviousAppState(appState: SentryAppState(releaseName: nil, osVersion: UIDevice.current.systemVersion, vendorId: TestData.someUUID, isDebugging: false, systemBootTimestamp: SentryDependencyContainer.sharedInstance().dateProvider.date()))
         
         sut.start()
         
@@ -218,23 +229,23 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
     }
 
     func testDifferentBootTime_NoOOM() {
-        sut = fixture.getSut(usingRealFileManager: true)
+        sut = fixture.getSut()
         sut.start()
         let appState = SentryAppState(releaseName: fixture.options.releaseName ?? "", osVersion: UIDevice.current.systemVersion, vendorId: TestData.someUUID, isDebugging: false, systemBootTimestamp: fixture.sysctl.systemBootTimestamp.addingTimeInterval(1))
 
         givenPreviousAppState(appState: appState)
-        fixture.mockFileManager.moveAppStateToPreviousAppState()
+        fixture.fileManager.moveAppStateToPreviousAppState()
         sut.start()
         assertNoOOMSent()
     }
 
     func testAppWasInForeground_OOM() {
-        sut = fixture.getSut(usingRealFileManager: true)
+        sut = fixture.getSut()
 
         sut.start()
         goToForeground()
 
-        fixture.mockFileManager.moveAppStateToPreviousAppState()
+        fixture.fileManager.moveAppStateToPreviousAppState()
         sut.start()
         assertOOMEventSent()
     }
@@ -252,11 +263,11 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
     }
 
     func testAppOOM_WithBreadcrumbs() {
-        sut = fixture.getSut(usingRealFileManager: true)
+        sut = fixture.getSut()
 
         let breadcrumb = TestData.crumb
 
-        let sentryWatchdogTerminationScopeObserver = SentryWatchdogTerminationScopeObserver(maxBreadcrumbs: Int(fixture.options.maxBreadcrumbs), fileManager: fixture.mockFileManager)
+        let sentryWatchdogTerminationScopeObserver = SentryWatchdogTerminationScopeObserver(maxBreadcrumbs: Int(fixture.options.maxBreadcrumbs), fileManager: fixture.fileManager)
 
         for _ in 0..<3 {
             sentryWatchdogTerminationScopeObserver.addSerializedBreadcrumb(breadcrumb.serialize())
@@ -265,8 +276,8 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
         sut.start()
         goToForeground()
 
-        fixture.mockFileManager.moveAppStateToPreviousAppState()
-        fixture.mockFileManager.moveBreadcrumbsToPreviousBreadcrumbs()
+        fixture.fileManager.moveAppStateToPreviousAppState()
+        fixture.fileManager.moveBreadcrumbsToPreviousBreadcrumbs()
         sut.start()
         assertOOMEventSent(expectedBreadcrumbs: 2)
 
@@ -275,36 +286,36 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
     }
 
     func testAppOOM_WithOnlyHybridSdkDidBecomeActive() {
-        sut = fixture.getSut(usingRealFileManager: true)
+        sut = fixture.getSut()
 
         sut.start()
         hybridSdkDidBecomeActive()
 
-        fixture.mockFileManager.moveAppStateToPreviousAppState()
+        fixture.fileManager.moveAppStateToPreviousAppState()
         sut.start()
         assertOOMEventSent()
     }
     
     func testAppOOM_Foreground_And_HybridSdkDidBecomeActive() {
-        sut = fixture.getSut(usingRealFileManager: true)
+        sut = fixture.getSut()
 
         sut.start()
         goToForeground()
         hybridSdkDidBecomeActive()
 
-        fixture.mockFileManager.moveAppStateToPreviousAppState()
+        fixture.fileManager.moveAppStateToPreviousAppState()
         sut.start()
         assertOOMEventSent()
     }
     
     func testAppOOM_HybridSdkDidBecomeActive_and_Foreground() {
-        sut = fixture.getSut(usingRealFileManager: true)
+        sut = fixture.getSut()
         
         sut.start()
         hybridSdkDidBecomeActive()
         goToForeground()
 
-        fixture.mockFileManager.moveAppStateToPreviousAppState()
+        fixture.fileManager.moveAppStateToPreviousAppState()
         sut.start()
         assertOOMEventSent()
     }
@@ -343,13 +354,14 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
     }
     
     private func givenPreviousAppState(appState: SentryAppState) {
-        fixture.mockFileManager.store(appState)
+        fixture.fileManager.store(appState)
+        fixture.fileManager.moveAppStateToPreviousAppState()
     }
     
     private func update(appState: (SentryAppState) -> Void) {
-        if let currentAppState = fixture.mockFileManager.readAppState() {
+        if let currentAppState = fixture.fileManager.readAppState() {
             appState(currentAppState)
-            fixture.mockFileManager.store(currentAppState)
+            fixture.fileManager.store(currentAppState)
         }
     }
     

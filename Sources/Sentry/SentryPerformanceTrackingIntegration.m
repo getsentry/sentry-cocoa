@@ -7,6 +7,7 @@
 #    import "SentryDispatchQueueWrapper.h"
 #    import "SentryLog.h"
 #    import "SentryNSProcessInfoWrapper.h"
+#    import "SentryOptions.h"
 #    import "SentrySubClassFinder.h"
 #    import "SentryUIViewControllerPerformanceTracker.h"
 #    import "SentryUIViewControllerSwizzling.h"
@@ -33,15 +34,17 @@ SentryPerformanceTrackingIntegration ()
                                               attributes:attributes];
 
     SentrySubClassFinder *subClassFinder = [[SentrySubClassFinder alloc]
-        initWithDispatchQueue:dispatchQueue
-           objcRuntimeWrapper:[SentryDefaultObjCRuntimeWrapper sharedInstance]];
+           initWithDispatchQueue:dispatchQueue
+              objcRuntimeWrapper:[SentryDefaultObjCRuntimeWrapper sharedInstance]
+        swizzleClassNameExcludes:options.swizzleClassNameExcludes];
 
     self.swizzling = [[SentryUIViewControllerSwizzling alloc]
            initWithOptions:options
              dispatchQueue:dispatchQueue
         objcRuntimeWrapper:[SentryDefaultObjCRuntimeWrapper sharedInstance]
             subClassFinder:subClassFinder
-        processInfoWrapper:[SentryDependencyContainer.sharedInstance processInfoWrapper]];
+        processInfoWrapper:[SentryDependencyContainer.sharedInstance processInfoWrapper]
+          binaryImageCache:[SentryDependencyContainer.sharedInstance binaryImageCache]];
 
     [self.swizzling start];
     SentryUIViewControllerPerformanceTracker.shared.enableWaitForFullDisplay

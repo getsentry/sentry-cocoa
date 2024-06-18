@@ -9,6 +9,7 @@ on:
     paths:
       - "Sources/**"
       - "Tests/**"
+      - "SentryTestUtils/**"
       - "test-server/**"
       - "Samples/**"
       - ".github/workflows/test.yml"
@@ -19,13 +20,10 @@ on:
       - ".codecov.yml"
       - Sentry.xcodeproj
 
-      # run the workflow any time an Xcode scheme changes for a sample app
-      - "Samples/tvOS-Swift/tvOS-Swift.xcodeproj/xcshareddata/xcschemes/tvOS-Swift.xcscheme"
-      - "Samples/iOS-Swift/iOS-Swift.xcodeproj/xcshareddata/xcschemes/iOS13-Swift.xcscheme"
-      - "Samples/iOS-Swift/iOS-Swift.xcodeproj/xcshareddata/xcschemes/iOS-SwiftUITests.xcscheme"
-      - "Samples/iOS-Swift/iOS-Swift.xcodeproj/xcshareddata/xcschemes/iOS-Swift.xcscheme"
-      - "Samples/macOS-Swift/macOS-Swift.xcodeproj/xcshareddata/xcschemes/macOS-Swift.xcscheme"
-      - "Samples/iOS-ObjectiveC/iOS-ObjectiveC.xcodeproj/xcshareddata/xcschemes/iOS-ObjectiveC.xcscheme"
+# https://docs.github.com/en/actions/using-jobs/using-concurrency#example-using-a-fallback-value
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
 
 jobs:
   build-test-server:
@@ -35,7 +33,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Cache for Test Server
         id: cache_test_server
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ./test-server/.build
           key: test-server-${{ hashFiles('./test-server') }}
@@ -54,14 +52,14 @@ jobs:
         run: cp $(swift build --show-bin-path -c release)/Run test-server-exec
 
       - name: Archiving DerivedData
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: test-server
           path: |
             ./test-server/test-server-exec
 
       - name: Archiving Raw Test Logs
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: ${{  failure() || cancelled() }}
         with:
           name: test-server-build-log-${{matrix.platform}}-xcode-${{matrix.xcode}}-os-${{matrix.test-destination-os}}
@@ -79,20 +77,6 @@ jobs:
       matrix:
         # Can't run tests on watchOS because XCTest is not available
         include:
-          # iOS 13.7
-          - runs-on: macos-11
-            platform: "iOS"
-            xcode: "13.2.1"
-            test-destination-os: "13.7"
-            device: "iPhone 8"
-
-          # iOS 14
-          - runs-on: macos-11
-            platform: "iOS"
-            xcode: "13.2.1"
-            test-destination-os: "14.5"
-            device: "iPhone 8"
-
           # iOS 15
           - runs-on: macos-12
             platform: "iOS"
@@ -107,11 +91,12 @@ jobs:
             test-destination-os: "16.4"
             device: "iPhone 14"
 
-          # macOS 11
-          - runs-on: macos-11
-            platform: "macOS"
-            xcode: "13.2.1"
-            test-destination-os: "latest"
+          # iOS 17
+          - runs-on: macos-14
+            platform: "iOS"
+            xcode: "15.2"
+            test-destination-os: "17.2"
+            device: "iPhone 15"
 
           # macOS 12
           - runs-on: macos-12
@@ -119,35 +104,47 @@ jobs:
             xcode: "13.4.1"
             test-destination-os: "latest"
 
-            # macOS 13
+          # macOS 13
           - runs-on: macos-13
             platform: "macOS"
             xcode: "14.3"
             test-destination-os: "latest"
 
+          # macOS 14
+          - runs-on: macos-14
+            platform: "macOS"
+            xcode: "15.2"
+            test-destination-os: "latest"
+
           # Catalyst. We only test the latest version, as
           # the risk something breaking on Catalyst and not
           # on an older iOS or macOS version is low.
-          - runs-on: macos-13
+          - runs-on: macos-14
             platform: "Catalyst"
-            xcode: "14.3"
+            xcode: "15.2"
             test-destination-os: "latest"
 
           # tvOS 15
           - runs-on: macos-12
             platform: "tvOS"
             xcode: "13.4.1"
-            test-destination-os: "latest"
+            test-destination-os: "16.1"
 
           # tvOS 16
           - runs-on: macos-13
             platform: "tvOS"
             xcode: "14.3"
-            test-destination-os: "latest"
+            test-destination-os: "17.2"
+
+          # tvOS 17
+          - runs-on: macos-14
+            platform: "tvOS"
+            xcode: "15.2"
+            test-destination-os: "17.5"
 
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: test-server
 
@@ -158,23 +155,10 @@ jobs:
         run: chmod +x ./test-server-exec
       - run: ./test-server-exec &
 
+      - name: Check test-server runs
+        run: curl http://localhost:8080/echo-baggage-header
+
       - run: ./scripts/ci-select-xcode.sh ${{matrix.xcode}}
-
-      # Workaround with a symlink pointed out in: https://github.com/actions/virtual-environments/issues/551#issuecomment-637344435
-      - name: Prepare iOS 13.7 simulator
-        if: ${{ matrix.platform == 'iOS' && matrix.test-destination-os == '13.7'}}
-        run: |
-          sudo mkdir -p /Library/Developer/CoreSimulator/Profiles/Runtimes
-          sudo ln -s /Applications/Xcode_11.7.app/Contents/Developer/Platforms/iPhoneOS.platform/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS.simruntime /Library/Developer/CoreSimulator/Profiles/Runtimes/iOS\ 13.7.simruntime
-          xcrun simctl create custom-test-device "iPhone 8" "com.apple.CoreSimulator.SimRuntime.iOS-13-7"
-
-      # Workaround with a symlink pointed out in: https://github.com/actions/virtual-environments/issues/551#issuecomment-637344435
-      - name: Prepare iOS 14.5 simulator
-        if: ${{ matrix.platform == 'iOS' && matrix.test-destination-os == '14.5'}}
-        run: |
-          sudo mkdir -p /Library/Developer/CoreSimulator/Profiles/Runtimes
-          sudo ln -s /Applications/Xcode_12.5.1.app/Contents/Developer/Platforms/iPhoneOS.platform/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS.simruntime /Library/Developer/CoreSimulator/Profiles/Runtimes/iOS\ 14.5.simruntime
-          xcrun simctl create custom-test-device "iPhone 8" "com.apple.CoreSimulator.SimRuntime.iOS-14-5"
 
       - name: Install Slather
         run: gem install slather
@@ -196,7 +180,7 @@ jobs:
         run: ./scripts/xcode-slowest-tests.sh
 
       - name: Archiving DerivedData Logs
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: steps.build_tests.outcome == 'failure'
         with:
           name: derived-data-${{matrix.platform}}-xcode-${{matrix.xcode}}-os-${{matrix.test-destination-os}}
@@ -204,7 +188,7 @@ jobs:
             /Users/runner/Library/Developer/Xcode/DerivedData/**/Logs/**
 
       - name: Archiving Raw Test Logs
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: ${{  failure() || cancelled() }}
         with:
           name: raw-test-output-${{matrix.platform}}-xcode-${{matrix.xcode}}-os-${{matrix.test-destination-os}}
@@ -212,7 +196,7 @@ jobs:
             raw-test-output.log
 
       - name: Archiving Crash Logs
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: ${{  failure() || cancelled() }}
         with:
           name: crash-logs-${{matrix.platform}}-xcode-${{matrix.xcode}}-os-${{matrix.test-destination-os}}
@@ -226,7 +210,7 @@ jobs:
       # We don't upload codecov for scheduled runs as CodeCov only accepts a limited amount of uploads per commit.
       - name: Push code coverage to codecov
         id: codecov_1
-        uses: codecov/codecov-action@eaaf4bedf32dbdc6b720b63067d99c4d77d6047d # pin@v3.1.4
+        uses: codecov/codecov-action@125fc84a9a348dbcf27191600683ec096ec9021c # pin@v4.4.1
         if: ${{ contains(matrix.platform, 'iOS') && !contains(github.ref, 'release') && github.event.schedule == '' }}
         with:
           # Although public repos should not have to specify a token there seems to be a bug with the Codecov GH action, which can
@@ -238,7 +222,7 @@ jobs:
       # Sometimes codecov uploads etc can fail. Retry one time to rule out e.g. intermittent network failures.
       - name: Push code coverage to codecov
         id: codecov_2
-        uses: codecov/codecov-action@eaaf4bedf32dbdc6b720b63067d99c4d77d6047d # pin@v3.1.4
+        uses: codecov/codecov-action@125fc84a9a348dbcf27191600683ec096ec9021c # pin@v4.4.1
         if: ${{ steps.codecov_1.outcome == 'failure' && contains(matrix.platform, 'iOS') && !contains(github.ref, 'release') && github.event.schedule == '' }}
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
@@ -259,7 +243,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: test-server
 
@@ -268,95 +252,17 @@ jobs:
 
       - run: ./test-server-exec &
 
+      - name: Check test-server runs
+        run: curl http://localhost:8080/echo-baggage-header
+
       - run: ./scripts/ci-select-xcode.sh
 
       - name: Running tests with ThreadSanitizer
         run: ./scripts/tests-with-thread-sanitizer.sh
 
       - name: Archiving Test Logs
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: ${{  failure() || cancelled() }}
         with:
           name: thread-sanitizer
           path: thread-sanitizer.log
-
-  ui-tests:
-    name: UI Tests for ${{matrix.target}} on Simulators
-    runs-on: macos-13
-    strategy:
-      matrix:
-        target: ["ios_swift", "ios_objc", "tvos_swift"]
-
-    steps:
-      - uses: actions/checkout@v4
-      - run: ./scripts/ci-select-xcode.sh
-
-      # GitHub Actions sometimes fail to launch the UI tests. Therefore we retry
-      - name: Run Fastlane
-        run: for i in {1..2}; do fastlane ui_tests_${{matrix.target}} && break ; done
-        shell: sh
-
-      - name: Archiving Raw Test Logs
-        uses: actions/upload-artifact@v3
-        if: ${{  failure() || cancelled() }}
-        with:
-          name: raw-uitest-output-${{matrix.target}}
-          path: |
-            ~/Library/Logs/scan/*.log
-            ./fastlane/test_output/**
-
-  # SwiftUI only supports iOS 14+ so we run it in a separate matrix here
-  ui-tests-swift-ui:
-    name: UI Tests for SwiftUI on ${{matrix.device}} Simulator
-    runs-on: ${{matrix.runs-on}}
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - runs-on: macos-12
-            xcode: "13.4.1"
-            device: "iPhone 8 (15.2)"
-
-          - runs-on: macos-13
-            xcode: "14.3"
-            device: "iPhone 8 (16.1)"
-
-    steps:
-      - uses: actions/checkout@v4
-      - run: ./scripts/ci-select-xcode.sh ${{matrix.xcode}}
-
-      # GitHub Actions sometimes fail to launch the UI tests. Therefore we retry
-      - name: Run Fastlane
-        run: for i in {1..2}; do fastlane ui_tests_ios_swiftui device:"${{matrix.device}}" && break ; done
-        shell: sh
-
-      - name: Archiving Raw Test Logs
-        uses: actions/upload-artifact@v3
-        if: ${{  failure() || cancelled() }}
-        with:
-          name: raw-swiftui-test-output-${{matrix.platform}}-xcode-${{matrix.xcode}}-os-${{matrix.test-destination-os}}
-          path: |
-            ~/Library/Logs/scan/*.log
-            ./fastlane/test_output/**
-
-  ui-tests-address-sanitizer:
-    name: UI Tests with Address Sanitizer
-    runs-on: macos-13
-
-    steps:
-      - uses: actions/checkout@v4
-      - run: ./scripts/ci-select-xcode.sh
-
-      # GitHub Actions sometimes fail to launch the UI tests. Therefore we retry
-      - name: Run Fastlane
-        run: for i in {1..2}; do fastlane ui_tests_ios_swift device:"$iPhone 8 (15.5)" address_sanitizer:true && break ; done
-        shell: sh
-
-      - name: Archiving Raw Test Logs
-        uses: actions/upload-artifact@v3
-        if: ${{  failure() || cancelled() }}
-        with:
-          name: raw-uitest-output-asan
-          path: |
-            ~/Library/Logs/scan/*.log
-            ./fastlane/test_output/**

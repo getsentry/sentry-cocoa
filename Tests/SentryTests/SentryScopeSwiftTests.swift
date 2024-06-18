@@ -1,3 +1,4 @@
+import Nimble
 import SentryTestUtils
 import XCTest
 
@@ -74,7 +75,7 @@ class SentryScopeSwiftTests: XCTestCase {
         }
         
         var dateAs8601String: String {
-            (date as NSDate).sentry_toIso8601String()
+            sentry_toIso8601String(date as Date)
         }
     }
     
@@ -260,6 +261,67 @@ class SentryScopeSwiftTests: XCTestCase {
         }
     }
     
+    func testUseSpanLock_DoesNotBlock_WithBlockingCallback() {
+        let scope = fixture.scope
+        let queue = DispatchQueue(label: "test-queue", attributes: [.initiallyInactive, .concurrent])
+        let expect = expectation(description: "useSpan callback is non-blocking")
+        
+        let condition = NSCondition()
+        var useSpanCalled = false
+        
+        queue.async {
+            scope.useSpan { _ in
+                condition.lock()
+                while !useSpanCalled {
+                    condition.wait()
+                }
+                condition.unlock()
+            }
+        }
+        
+        queue.async {
+            scope.useSpan { _ in
+                useSpanCalled = true
+                condition.broadcast()
+                expect.fulfill()
+            }
+        }
+        
+        queue.activate()
+        
+        wait(for: [expect], timeout: 0.1)
+    }
+    
+    func testUseSpanLock_IsReentrant() {
+        let expect = expectation(description: "finish on time")
+        let scope = fixture.scope
+        scope.useSpan { _ in
+            scope.useSpan { _ in
+                expect.fulfill()
+            }
+
+        }
+        wait(for: [expect], timeout: 0.1)
+    }
+    
+    func testMaxBreadcrumbs_IsZero() {
+        let scope = Scope(maxBreadcrumbs: 0)
+        
+        scope.addBreadcrumb(fixture.breadcrumb)
+        
+        let serialized = scope.serialize()
+        expect(serialized["breadcrumbs"]) == nil
+    }
+    
+    func testMaxBreadcrumbs_IsNegative() {
+        let scope = Scope(maxBreadcrumbs: Int.min)
+        
+        scope.addBreadcrumb(fixture.breadcrumb)
+        
+        let serialized = scope.serialize()
+        expect(serialized["breadcrumbs"]) == nil
+    }
+    
     func testUseSpanForClear() {
         fixture.scope.span = fixture.transaction
         fixture.scope.useSpan { (_) in
@@ -346,31 +408,6 @@ class SentryScopeSwiftTests: XCTestCase {
         XCTAssertEqual(0, scope.attachments.count)
     }
     
-    func testPeformanceOfSyncToSentryCrash() {
-        // To avoid spamming the test logs
-        SentryLog.configure(true, diagnosticLevel: .error)
-        
-        let scope = fixture.scope
-        scope.add(SentryCrashScopeObserver(maxBreadcrumbs: 100))
-        
-        self.measure {
-            modifyScope(scope: scope)
-        }
-        
-        setTestDefaultLogLevel()
-    }
-    
-    func testPeformanceOfSyncToSentryCrash_OneCrumb() {
-        let scope = fixture.scope
-        scope.add(SentryCrashScopeObserver(maxBreadcrumbs: 100))
-        
-        modifyScope(scope: scope)
-        
-        self.measure {
-            scope.addBreadcrumb(self.fixture.breadcrumb)
-        }
-    }
-    
     // With this test we test if modifications from multiple threads don't lead to a crash.
     func testModifyingFromMultipleThreads() {
         let scope = fixture.scope
@@ -378,7 +415,55 @@ class SentryScopeSwiftTests: XCTestCase {
         // The number is kept small for the CI to not take too long.
         // If you really want to test this increase to 100_000 or so.
         testConcurrentModifications(asyncWorkItems: 2, writeLoopCount: 10, writeWork: { _ in
-            self.modifyScope(scope: scope)
+            
+            let key = "key"
+            
+            _ = Scope(scope: scope)
+            
+            for _ in 0...100 {
+                scope.addBreadcrumb(self.fixture.breadcrumb)
+            }
+            
+            scope.serialize()
+            scope.clearBreadcrumbs()
+            scope.addBreadcrumb(self.fixture.breadcrumb)
+            
+            scope.applyTo(session: SentrySession(releaseName: "1.0.0", distinctId: "some-id"))
+            
+            scope.setFingerprint(nil)
+            scope.setFingerprint(["finger", "print"])
+            
+            scope.setContext(value: ["some": "value"], key: key)
+            scope.removeContext(key: key)
+            
+            scope.setExtra(value: 1, key: key)
+            scope.removeExtra(key: key)
+            scope.setExtras(["value": "1", "value2": "2"])
+            
+            scope.applyTo(event: TestData.event, maxBreadcrumbs: 5)
+            
+            scope.setTag(value: "value", key: key)
+            scope.removeTag(key: key)
+            scope.setTags(["tag1": "hello", "tag2": "hello"])
+            
+            scope.addAttachment(TestData.fileAttachment)
+            scope.clearAttachments()
+            scope.addAttachment(TestData.fileAttachment)
+            
+            for _ in 0...10 {
+                scope.addBreadcrumb(self.fixture.breadcrumb)
+            }
+            scope.serialize()
+            
+            scope.setUser(self.fixture.user)
+            scope.setDist("dist")
+            scope.setEnvironment("env")
+            scope.setLevel(SentryLevel.debug)
+            
+            scope.applyTo(session: SentrySession(releaseName: "1.0.0", distinctId: "some-id"))
+            scope.applyTo(event: TestData.event, maxBreadcrumbs: 5)
+            
+            scope.serialize()
         })
     }
     
@@ -395,33 +480,27 @@ class SentryScopeSwiftTests: XCTestCase {
     
     func testScopeObserver_setTags() {
         let sut = Scope()
-        let observer = fixture.observer
-        sut.add(observer)
         
         sut.setTags(fixture.tags)
         
-        XCTAssertEqual(fixture.tags, observer.tags)
+        XCTAssertEqual(fixture.tags, sut.tags)
     }
     
     func testScopeObserver_setTagValue() {
         let sut = Scope()
-        let observer = fixture.observer
-        sut.add(observer)
         
         sut.setTag(value: "tag", key: "tag")
         
-        XCTAssertEqual( ["tag": "tag"], observer.tags)
+        XCTAssertEqual( ["tag": "tag"], sut.tags)
     }
     
     func testScopeObserver_removeTag() {
         let sut = Scope()
-        let observer = fixture.observer
-        sut.add(observer)
         
         sut.setTag(value: "tag", key: "tag")
         sut.removeTag(key: "tag")
         
-        XCTAssertEqual(0, observer.tags?.count)
+        XCTAssertEqual(0, sut.tags.count)
     }
     
     func testScopeObserver_setExtras() {
@@ -548,6 +627,59 @@ class SentryScopeSwiftTests: XCTestCase {
         XCTAssertEqual(2, observer.clearInvocations)
     }
     
+    func testDefaultBreadcrumbCapacity() {
+        let scope = Scope()
+        for i in 0..<197 {
+            let crumb = Breadcrumb()
+            crumb.message = "\(i)"
+            scope.addBreadcrumb(crumb)
+        }
+
+        let scopeSerialized = scope.serialize()
+        let scopeCrumbs = scopeSerialized["breadcrumbs"] as? [[String: Any]]
+        XCTAssertEqual(100, scopeCrumbs?.count ?? 0)
+        
+        var j = 0
+        for i in 97..<197 {
+            let actualMessage = scopeCrumbs?[j]["message"] as? String
+            XCTAssertEqual("\(i)", actualMessage)
+            
+            j += 1
+        }
+    }
+    
+    func testBreadcrumbsNotFull() {
+        let scope = Scope()
+        for i in 0..<97 {
+            let crumb = Breadcrumb()
+            crumb.message = "\(i)"
+            scope.addBreadcrumb(crumb)
+        }
+
+        let scopeSerialized = scope.serialize()
+        let scopeCrumbs = scopeSerialized["breadcrumbs"] as? [[String: Any]]
+        XCTAssertEqual(97, scopeCrumbs?.count ?? 0)
+        
+        for i in 0..<97 {
+            let actualMessage = scopeCrumbs?[i]["message"] as? String
+            XCTAssertEqual("\(i)", actualMessage)
+        }
+    }
+    
+    func testClearBreadcrumb() {
+        let scope = Scope()
+        scope.clearBreadcrumbs()
+        for _ in 0..<101 {
+            scope.addBreadcrumb(fixture.breadcrumb)
+        }
+        scope.clearBreadcrumbs()
+        
+        let scopeSerialized = scope.serialize()
+        
+        let scopeCrumbs = scopeSerialized["breadcrumbs"] as? [[String: Any]]
+        XCTAssertEqual(0, scopeCrumbs?.count ?? 0)
+    }
+    
     class TestScopeObserver: NSObject, SentryScopeObserver {
         var tags: [String: String]?
         func setTags(_ tags: [String: String]?) {
@@ -603,56 +735,5 @@ class SentryScopeSwiftTests: XCTestCase {
         func setUser(_ user: User?) {
             self.user = user
         }
-    }
-
-    private func modifyScope(scope: Scope) {
-        let key = "key"
-        
-        _ = Scope(scope: scope)
-        
-        for _ in 0...100 {
-            scope.addBreadcrumb(self.fixture.breadcrumb)
-        }
-        
-        scope.serialize()
-        scope.clearBreadcrumbs()
-        scope.addBreadcrumb(self.fixture.breadcrumb)
-        
-        scope.applyTo(session: SentrySession(releaseName: "1.0.0"))
-        
-        scope.setFingerprint(nil)
-        scope.setFingerprint(["finger", "print"])
-        
-        scope.setContext(value: ["some": "value"], key: key)
-        scope.removeContext(key: key)
-        
-        scope.setExtra(value: 1, key: key)
-        scope.removeExtra(key: key)
-        scope.setExtras(["value": "1", "value2": "2"])
-        
-        scope.applyTo(event: TestData.event, maxBreadcrumbs: 5)
-        
-        scope.setTag(value: "value", key: key)
-        scope.removeTag(key: key)
-        scope.setTags(["tag1": "hello", "tag2": "hello"])
-        
-        scope.addAttachment(TestData.fileAttachment)
-        scope.clearAttachments()
-        scope.addAttachment(TestData.fileAttachment)
-        
-        for _ in 0...10 {
-            scope.addBreadcrumb(self.fixture.breadcrumb)
-        }
-        scope.serialize()
-        
-        scope.setUser(self.fixture.user)
-        scope.setDist("dist")
-        scope.setEnvironment("env")
-        scope.setLevel(SentryLevel.debug)
-        
-        scope.applyTo(session: SentrySession(releaseName: "1.0.0"))
-        scope.applyTo(event: TestData.event, maxBreadcrumbs: 5)
-        
-        scope.serialize()
     }
 }

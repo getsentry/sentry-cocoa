@@ -10,4 +10,10 @@
     cppTool.throwCPPException();
 }
 
+- (void)rethrowNoActiveCPPException
+{
+    Sentry::CppSample cppTool;
+    cppTool.rethrowNoActiveCPPException();
+}
+
 @end

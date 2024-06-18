@@ -1,6 +1,6 @@
 #import "URLSessionTaskMock.h"
-#import "SentryCurrentDateProvider.h"
 #import "SentryDependencyContainer.h"
+#import "SentrySwift.h"
 
 @implementation URLSessionDataTaskMock {
     NSURLRequest *_request;

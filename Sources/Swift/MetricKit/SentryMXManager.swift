@@ -12,7 +12,7 @@ import MetricKit
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, *)
 @available(tvOS, unavailable)
 @available(watchOS, unavailable)
-@objc public protocol SentryMXManagerDelegate {
+@objc protocol SentryMXManagerDelegate {
     
     func didReceiveCrashDiagnostic(_ diagnostic: MXCrashDiagnostic, callStackTree: SentryMXCallStackTree, timeStampBegin: Date, timeStampEnd: Date)
     
@@ -26,7 +26,7 @@ import MetricKit
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, *)
 @available(tvOS, unavailable)
 @available(watchOS, unavailable)
-@objcMembers public class SentryMXManager: NSObject, MXMetricManagerSubscriber {
+@objcMembers class SentryMXManager: NSObject, MXMetricManagerSubscriber {
     
     let disableCrashDiagnostics: Bool
     
@@ -34,19 +34,19 @@ import MetricKit
         self.disableCrashDiagnostics = disableCrashDiagnostics
     }
 
-    public weak var delegate: SentryMXManagerDelegate?
+    weak var delegate: SentryMXManagerDelegate?
     
-    public func receiveReports() {
+    func receiveReports() {
         let shared = MXMetricManager.shared
         shared.add(self)
     }
     
-    public func pauseReports() {
+    func pauseReports() {
         let shared = MXMetricManager.shared
         shared.remove(self)
     }
     
-    public func didReceive(_ payloads: [MXDiagnosticPayload]) {
+    func didReceive(_ payloads: [MXDiagnosticPayload]) {
         func actOn(callStackTree: MXCallStackTree, action: (SentryMXCallStackTree) -> Void) {
             guard let callStackTree = try? SentryMXCallStackTree.from(data: callStackTree.jsonRepresentation()) else {
                 return
@@ -56,7 +56,9 @@ import MetricKit
         }
         
         payloads.forEach { payload in
+            
             payload.crashDiagnostics?.forEach { diagnostic in
+                
                 if disableCrashDiagnostics {
                     return
                 }

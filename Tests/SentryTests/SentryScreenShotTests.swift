@@ -39,7 +39,7 @@ class SentryScreenShotTests: XCTestCase {
         
         let expect = expectation(description: "Screenshot")
         let _ = queue.async {
-            self.fixture.sut.appScreenshots()
+            self.fixture.sut.appScreenshotsFromMainThread()
             expect.fulfill()
         }
                 
@@ -72,11 +72,7 @@ class SentryScreenShotTests: XCTestCase {
         let testWindow = TestWindow(frame: CGRect(x: 0, y: 0, width: 10, height: 10))
         fixture.uiApplication.windows = [testWindow]
         
-        guard let data = self.fixture.sut.appScreenshots() else {
-            XCTFail("Could not make window screenshot")
-            return
-        }
-        
+        let data = self.fixture.sut.appScreenshots()
         let image = UIImage(data: data[0])
         
         XCTAssertEqual(image?.size.width, 10)
@@ -87,10 +83,7 @@ class SentryScreenShotTests: XCTestCase {
         let testWindow = TestWindow(frame: CGRect(x: 0, y: 0, width: 0, height: 0))
         fixture.uiApplication.windows = [testWindow]
 
-        guard let data = self.fixture.sut.appScreenshots() else {
-            XCTFail("Could not make window screenshot")
-            return
-        }
+        let data = self.fixture.sut.appScreenshots()
 
         XCTAssertEqual(0, data.count, "No screenshot should be taken, cause the image has zero size.")
     }
@@ -99,10 +92,7 @@ class SentryScreenShotTests: XCTestCase {
         let testWindow = TestWindow(frame: CGRect(x: 0, y: 0, width: 0, height: 1_000))
         fixture.uiApplication.windows = [testWindow]
 
-        guard let data = self.fixture.sut.appScreenshots() else {
-            XCTFail("Could not make window screenshot")
-            return
-        }
+        let data = self.fixture.sut.appScreenshots()
 
         XCTAssertEqual(0, data.count, "No screenshot should be taken, cause the image has zero width.")
     }
@@ -111,10 +101,7 @@ class SentryScreenShotTests: XCTestCase {
         let testWindow = TestWindow(frame: CGRect(x: 0, y: 0, width: 1_000, height: 0))
         fixture.uiApplication.windows = [testWindow]
 
-        guard let data = self.fixture.sut.appScreenshots() else {
-            XCTFail("Could not make window screenshot")
-            return
-        }
+        let data = self.fixture.sut.appScreenshots()
 
         XCTAssertEqual(0, data.count, "No screenshot should be taken, cause the image has zero height.")
     }

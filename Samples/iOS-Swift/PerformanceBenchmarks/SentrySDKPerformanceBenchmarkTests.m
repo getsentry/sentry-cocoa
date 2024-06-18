@@ -8,6 +8,13 @@
 
 @implementation SentrySDKPerformanceBenchmarkTests
 
+- (void)setUp
+{
+    [super setUp];
+
+    [[XCUIDevice sharedDevice] setOrientation:UIDeviceOrientationPortrait];
+}
+
 - (void)testCPUBenchmark
 {
     XCTSkipIf(isSimulator() && !isDebugging());
@@ -20,7 +27,7 @@
         [app launch];
         [app.tabBars[@"Tab Bar"].buttons[@"Transactions"] tap];
 
-        [app.buttons[@"Start transaction (main thread)"] tap];
+        [app.buttons[@"startTransactionMainThread"] tap];
 
         [app.tabBars[@"Tab Bar"].buttons[@"Profiling"] tap];
 

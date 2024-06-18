@@ -1,3 +1,4 @@
+import Nimble
 @testable import Sentry
 import SentryTestUtils
 import XCTest
@@ -120,6 +121,39 @@ class SentrySystemEventBreadcrumbsTest: XCTestCase {
         assertBatteryBreadcrumb(charging: false, level: 100)
     }
     
+    func testBatteryUIDeviceNilNotification() {
+        let currentDevice = MyUIDevice()
+        
+        sut = fixture.getSut(currentDevice: currentDevice)
+        
+        postBatteryLevelNotification(uiDevice: nil)
+        
+        expect(self.fixture.delegate.addCrumbInvocations.count) == 0
+    }
+    
+    func testBatteryBreadcrumbForSessionReplay() throws {
+        let currentDevice = MyUIDevice()
+        sut = fixture.getSut(currentDevice: currentDevice)
+        postBatteryLevelNotification(uiDevice: currentDevice)
+        
+        guard let breadcrumb = fixture.delegate.addCrumbInvocations.first else {
+            XCTFail("No battery breadcrumb")
+            return
+        }
+        
+        let sut = SentrySRDefaultBreadcrumbConverter()
+        let result = try XCTUnwrap(sut.convert(breadcrumbs: [breadcrumb],
+                                                         from: Date(timeIntervalSince1970: 0),
+                                                         until: Date(timeIntervalSinceNow: 60)).first)
+        let crumbData = try XCTUnwrap(result.data)
+        let payload = try XCTUnwrap(crumbData["payload"] as? [String: Any])
+        let payloadData = try XCTUnwrap(payload["data"] as? [String: Any])
+        
+        XCTAssertEqual(payload["category"] as? String, "device.battery")
+        XCTAssertEqual(payloadData["level"] as? Double, 100.0)
+        XCTAssertEqual(payloadData["charging"] as? Bool, true)
+    }
+    
     private func assertBatteryBreadcrumb(charging: Bool, level: Float) {
         
         XCTAssertEqual(1, fixture.delegate.addCrumbInvocations.count)
@@ -174,12 +208,37 @@ class SentrySystemEventBreadcrumbsTest: XCTestCase {
         XCTAssertEqual(0, fixture.delegate.addCrumbInvocations.count, "there are breadcrumbs")
     }
     
-    private func assertPositionOrientationBreadcrumb(position: String) {
+    func testOrientationBreadcrumbForSessionReplay() throws {
+        let currentDevice = MyUIDevice()
+        sut = fixture.getSut(currentDevice: currentDevice)
+        NotificationCenter.default.post(Notification(name: UIDevice.orientationDidChangeNotification, object: currentDevice))
         
+        guard let breadcrumb = fixture.delegate.addCrumbInvocations.first else {
+            XCTFail("No orientation breadcrumb")
+            return
+        }
+        
+        let sut = SentrySRDefaultBreadcrumbConverter()
+        let result = try XCTUnwrap(sut.convert(breadcrumbs: [breadcrumb],
+                                                         from: Date(timeIntervalSince1970: 0),
+                                                         until: Date(timeIntervalSinceNow: 60)))
+        
+        XCTAssertEqual(result.count, 1)
+        let event = result.first?.serialize()
+        let eventData = event?["data"] as? [String: Any]
+        let eventPayload = eventData?["payload"] as? [String: Any]
+        let payloadData = eventPayload?["data"] as? [String: Any]
+        
+        XCTAssertEqual(event?["type"] as? Int, 5)
+        XCTAssertEqual(eventData?["tag"] as? String, "breadcrumb")
+        XCTAssertEqual(eventPayload?["category"] as? String, "device.orientation")
+        XCTAssertEqual(payloadData?["position"] as? String, "portrait")
+    }
+    
+    private func assertPositionOrientationBreadcrumb(position: String) {
         XCTAssertEqual(1, fixture.delegate.addCrumbInvocations.count)
         
         if let crumb = fixture.delegate.addCrumbInvocations.first {
-            
             XCTAssertEqual("device.orientation", crumb.category)
             XCTAssertEqual("navigation", crumb.type)
             XCTAssertEqual(SentryLevel.info, crumb.level)
@@ -251,6 +310,20 @@ class SentrySystemEventBreadcrumbsTest: XCTestCase {
             XCTAssertEqual(data["current_seconds_from_gmt"] as? Int64, 7_200)
         }
     }
+    
+    func testTimezoneChangeNotificationBreadcrumb_NoStoredTimezoneOffset() {
+        sut = fixture.getSut(currentDevice: nil)
+
+        fixture.currentDateProvider.timezoneOffsetValue = 7_200
+        fixture.fileManager.deleteTimezoneOffset()
+
+        sut.timezoneEventTriggered()
+
+        assertBreadcrumbAction(action: "TIMEZONE_CHANGE") { data in
+            expect(data["previous_seconds_from_gmt"]) == nil
+            expect(data["current_seconds_from_gmt"] as? Int64) == 7_200
+        }
+    }
 
     func testStopCallsSpecificRemoveObserverMethods() {
         sut = fixture.getSut(currentDevice: nil)
@@ -258,7 +331,7 @@ class SentrySystemEventBreadcrumbsTest: XCTestCase {
         XCTAssertEqual(fixture.notificationCenterWrapper.removeObserverWithNameInvocations.count, 7)
     }
     
-    private func postBatteryLevelNotification(uiDevice: UIDevice) {
+    private func postBatteryLevelNotification(uiDevice: UIDevice?) {
         Dynamic(sut).batteryStateChanged(Notification(name: UIDevice.batteryLevelDidChangeNotification, object: uiDevice))
     }
 

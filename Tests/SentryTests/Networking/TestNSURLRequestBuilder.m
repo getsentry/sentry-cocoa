@@ -34,6 +34,20 @@ TestNSURLRequestBuilder ()
     return request;
 }
 
+- (NSURLRequest *)createEnvelopeRequest:(SentryEnvelope *)envelope
+                                    url:(NSURL *)url
+                       didFailWithError:(NSError *_Nullable *_Nullable)error
+{
+    NSURLRequest *request = [self.builder createEnvelopeRequest:envelope
+                                                            url:url
+                                               didFailWithError:error];
+    if (self.shouldFailWithError) {
+        self.error = [[NSError alloc] initWithDomain:@"TestErrorDomain" code:12 userInfo:nil];
+        *error = self.error;
+    }
+    return request;
+}
+
 @end
 
 NS_ASSUME_NONNULL_END

@@ -3,15 +3,32 @@ description: Tell us about something that's not working the way we (probably) in
 labels: ["Platform: Cocoa", "Type: Bug"]
 body:
   - type: dropdown
-    id: environment
+    id: platform
     attributes:
       label: Platform
       description: Which platform do you use?
+      multiple: true
       options:
         - iOS
+        - iPadOS
         - tvOS
         - macOS
         - watchOS
+        - visionOS
+    validations:
+      required: true
+
+  - type: dropdown
+    id: environment
+    attributes:
+      label: Environment
+      description: In which environment does this happen?
+      multiple: true
+      options:
+        - Production
+        - Develop
+        - TestFlight
+        - Other
     validations:
       required: true
 
@@ -33,9 +50,26 @@ body:
     attributes:
       label: Version
       description: Which version of sentry-cocoa do you use?
-      placeholder: 7.7.0 ← should look like this
+      placeholder: 8.15.0 ← should look like this
     validations:
       required: true
+
+  - type: input
+    id: xcode-version
+    attributes:
+      label: Xcode Version
+      description: Which version of Xcode do you use?
+      placeholder: 15.4 ← should look like this
+    validations:
+      required: true
+
+  - type: input
+    id: previous-versions
+    attributes:
+      label: Did it work on previous versions?
+      description: If yes, which ones?
+    validations:
+      required: false
 
   - type: textarea
     id: repro

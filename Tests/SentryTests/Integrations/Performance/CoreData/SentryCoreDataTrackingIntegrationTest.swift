@@ -13,6 +13,7 @@ class SentryCoreDataTrackingIntegrationTests: XCTestCase {
             options = Options()
             options.enableCoreDataTracing = true
             options.tracesSampleRate = 1
+            options.setIntegrations([SentryCoreDataTrackingIntegration.self])
         }
         
         func getSut() -> SentryCoreDataTrackingIntegration {

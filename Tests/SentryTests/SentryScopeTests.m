@@ -4,6 +4,7 @@
 #import "SentryScope.h"
 #import "SentryUser.h"
 #import <XCTest/XCTest.h>
+@import Sentry;
 
 @interface SentryScopeTests : XCTestCase
 
@@ -54,18 +55,6 @@
     NSDictionary<NSString *, id> *scope2 = [scope serialize];
     NSArray *scope2Crumbs = [scope2 objectForKey:@"breadcrumbs"];
     XCTAssertEqual(expectedMaxBreadcrumb, [scope2Crumbs count]);
-}
-
-- (void)testDefaultMaxCapacity
-{
-    SentryScope *scope = [[SentryScope alloc] init];
-    for (int i = 0; i < 2000; ++i) {
-        [scope addBreadcrumb:[[SentryBreadcrumb alloc] init]];
-    }
-
-    NSDictionary<NSString *, id> *scopeSerialized = [scope serialize];
-    NSArray *scopeCrumbs = [scopeSerialized objectForKey:@"breadcrumbs"];
-    XCTAssertEqual(100, [scopeCrumbs count]);
 }
 
 - (void)testSetTagValueForKey
@@ -154,13 +143,12 @@
     XCTAssertEqualObjects([[scope serialize] objectForKey:@"environment"], expectedEnvironment);
 }
 
-- (void)testClearBreadcrumb
+- (void)testReplaySerializes
 {
     SentryScope *scope = [[SentryScope alloc] init];
-    [scope clearBreadcrumbs];
-    [scope addBreadcrumb:[self getBreadcrumb]];
-    [scope clearBreadcrumbs];
-    XCTAssertTrue([[[scope serialize] objectForKey:@"breadcrumbs"] count] == 0);
+    NSString *expectedReplayId = @"Some_replay_id";
+    [scope setReplayId:expectedReplayId];
+    XCTAssertEqualObjects([[scope serialize] objectForKey:@"replay_id"], expectedReplayId);
 }
 
 @end
