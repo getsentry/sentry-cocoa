@@ -50,15 +50,15 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
     func testNoInstall() {
         startSDK(sessionSampleRate: 0, errorSampleRate: 0)
         
-        XCTAssertEqual(SentrySDK.currentHub().trimmedInstalledIntegrationNames().count,0)
-        XCTAssertEqual(SentryGlobalEventProcessor.shared().processors.count,0)
+        XCTAssertEqual(SentrySDK.currentHub().trimmedInstalledIntegrationNames().count, 0)
+        XCTAssertEqual(SentryGlobalEventProcessor.shared().processors.count, 0)
     }
     
     func testInstallFullSessionReplay() {
         startSDK(sessionSampleRate: 1, errorSampleRate: 0)
         
-        XCTAssertEqual(SentrySDK.currentHub().trimmedInstalledIntegrationNames().count,1)
-        XCTAssertEqual(SentryGlobalEventProcessor.shared().processors.count,1)
+        XCTAssertEqual(SentrySDK.currentHub().trimmedInstalledIntegrationNames().count, 1)
+        XCTAssertEqual(SentryGlobalEventProcessor.shared().processors.count, 1)
     }
     
     func testInstallNoSwizzlingNoTouchTracker() {
@@ -82,8 +82,8 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         
         startSDK(sessionSampleRate: 0.2, errorSampleRate: 0)
         
-        XCTAssertEqual(SentrySDK.currentHub().trimmedInstalledIntegrationNames().count,1)
-        XCTAssertEqual(SentryGlobalEventProcessor.shared().processors.count,1)
+        XCTAssertEqual(SentrySDK.currentHub().trimmedInstalledIntegrationNames().count, 1)
+        XCTAssertEqual(SentryGlobalEventProcessor.shared().processors.count, 1)
         let sut = try getSut()
         XCTAssertNil(sut.sessionReplay)
     }
@@ -93,8 +93,8 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         
         startSDK(sessionSampleRate: 0.2, errorSampleRate: 0)
         
-        XCTAssertEqual(SentrySDK.currentHub().trimmedInstalledIntegrationNames().count,1)
-        XCTAssertEqual(SentryGlobalEventProcessor.shared().processors.count,1)
+        XCTAssertEqual(SentrySDK.currentHub().trimmedInstalledIntegrationNames().count, 1)
+        XCTAssertEqual(SentryGlobalEventProcessor.shared().processors.count, 1)
         let sut = try getSut()
         XCTAssertNotNil(sut.sessionReplay)
     }
@@ -102,8 +102,8 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
     func testInstallErrorReplay() {
         startSDK(sessionSampleRate: 0, errorSampleRate: 0.1)
         
-        XCTAssertEqual(SentrySDK.currentHub().trimmedInstalledIntegrationNames().count,1)
-        XCTAssertEqual(SentryGlobalEventProcessor.shared().processors.count,1)
+        XCTAssertEqual(SentrySDK.currentHub().trimmedInstalledIntegrationNames().count, 1)
+        XCTAssertEqual(SentryGlobalEventProcessor.shared().processors.count, 1)
     }
     
     func testWaitForNotificationWithNoWindow() throws {

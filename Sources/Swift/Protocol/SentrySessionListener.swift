@@ -1,9 +1,8 @@
-import Foundation
 @_implementationOnly import _SentryPrivate
+import Foundation
 
 @objc
-protocol SentrySessionListener : NSObjectProtocol
-{
-    func sentrySessionEnded(_ session : SentrySession)
-    func sentrySessionStarted(_ session : SentrySession)
+protocol SentrySessionListener: NSObjectProtocol {
+    func sentrySessionEnded(_ session: SentrySession)
+    func sentrySessionStarted(_ session: SentrySession)
 }

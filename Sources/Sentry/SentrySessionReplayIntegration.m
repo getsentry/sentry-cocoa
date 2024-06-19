@@ -37,7 +37,7 @@ SentrySessionReplayIntegration ()
 @implementation SentrySessionReplayIntegration {
     BOOL _startedAsFullSession;
     SentryReplayOptions *_replayOptions;
-    SentryNSNotificationCenterWrapper * _notificationCenter;
+    SentryNSNotificationCenterWrapper *_notificationCenter;
 }
 
 - (BOOL)installWithOptions:(nonnull SentryOptions *)options
@@ -45,46 +45,46 @@ SentrySessionReplayIntegration ()
     if ([super installWithOptions:options] == NO) {
         return NO;
     }
-    
+
     _replayOptions = options.experimental.sessionReplay;
-    
+
     if (options.enableSwizzling) {
         _touchTracker = [[SentryTouchTracker alloc]
-                         initWithDateProvider:SentryDependencyContainer.sharedInstance.dateProvider
-                         scale:options.experimental.sessionReplay.sizeScale];
+            initWithDateProvider:SentryDependencyContainer.sharedInstance.dateProvider
+                           scale:options.experimental.sessionReplay.sizeScale];
         [self swizzleApplicationTouch];
     }
-    
+
     _notificationCenter = SentryDependencyContainer.sharedInstance.notificationCenterWrapper;
-    
+
     [SentrySDK.currentHub registerSessionListener:self];
-    
+
     [SentryGlobalEventProcessor.shared
-     addEventProcessor:^SentryEvent *_Nullable(SentryEvent *_Nonnull event) {
-        [self.sessionReplay captureReplayForEvent:event];
-        return event;
-    }];
+        addEventProcessor:^SentryEvent *_Nullable(SentryEvent *_Nonnull event) {
+            [self.sessionReplay captureReplayForEvent:event];
+            return event;
+        }];
 
     return YES;
 }
 
-- (void)startSession {
+- (void)startSession
+{
     _startedAsFullSession = [self shouldReplayFullSession:_replayOptions.sessionSampleRate];
-    
+
     if (!_startedAsFullSession && _replayOptions.errorSampleRate == 0) {
         return;
     }
-    
+
     if (SentryDependencyContainer.sharedInstance.application.windows.count > 0) {
         // If a window its already available start replay right away
         [self startWithOptions:_replayOptions fullSession:_startedAsFullSession];
     } else {
         // Wait for a scene to be available to started the replay
         if (@available(iOS 13.0, *)) {
-            [_notificationCenter
-             addObserver:self
-             selector:@selector(newSceneActivate)
-             name:UISceneDidActivateNotification];
+            [_notificationCenter addObserver:self
+                                    selector:@selector(newSceneActivate)
+                                        name:UISceneDidActivateNotification];
         }
     }
 }
@@ -147,7 +147,7 @@ SentrySessionReplayIntegration ()
                             selector:@selector(stop)
                                 name:UIApplicationDidEnterBackgroundNotification
                               object:nil];
-    
+
     [_notificationCenter addObserver:self
                             selector:@selector(resume)
                                 name:UIApplicationWillEnterForegroundNotification
@@ -164,15 +164,23 @@ SentrySessionReplayIntegration ()
     [self.sessionReplay resume];
 }
 
-- (void)sentrySessionEnded:(SentrySession *)session {
+- (void)sentrySessionEnded:(SentrySession *)session
+{
     [self stop];
-    [_notificationCenter removeObserver:self name:UIApplicationDidEnterBackgroundNotification object:nil];
-    [_notificationCenter removeObserver:self name:UIApplicationWillEnterForegroundNotification object:nil];
+    [_notificationCenter removeObserver:self
+                                   name:UIApplicationDidEnterBackgroundNotification
+                                 object:nil];
+    [_notificationCenter removeObserver:self
+                                   name:UIApplicationWillEnterForegroundNotification
+                                 object:nil];
     _sessionReplay = nil;
 }
 
-- (void)sentrySessionStarted:(SentrySession *)session {
-    if (_sessionReplay) { return; }
+- (void)sentrySessionStarted:(SentrySession *)session
+{
+    if (_sessionReplay) {
+        return;
+    }
     [self startSession];
 }
 
@@ -205,7 +213,8 @@ SentrySessionReplayIntegration ()
     [self stop];
 }
 
-- (void)dealloc{
+- (void)dealloc
+{
     [self uninstall];
 }
 
