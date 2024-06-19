@@ -78,7 +78,7 @@ SentryHub () <SentryMetricsAPIDelegate>
         _installedIntegrationNames = [[NSMutableSet alloc] init];
         _crashWrapper = [SentryCrashWrapper sharedInstance];
         _errorsBeforeSession = 0;
-        
+
         [SentryDependencyContainer.sharedInstance.crashWrapper enrichScope:scope];
     }
     return self;
@@ -135,7 +135,7 @@ SentryHub () <SentryMetricsAPIDelegate>
     [lastSession
         endSessionExitedWithTimestamp:[SentryDependencyContainer.sharedInstance.dateProvider date]];
     [self captureSession:lastSession];
-    
+
     [_sessionListener sentrySessionStarted:_session];
 }
 
@@ -160,7 +160,7 @@ SentryHub () <SentryMetricsAPIDelegate>
     }
     [currentSession endSessionExitedWithTimestamp:timestamp];
     [self captureSession:currentSession];
-    
+
     [_sessionListener sentrySessionEnded:currentSession];
 }
 
@@ -773,11 +773,13 @@ SentryHub () <SentryMetricsAPIDelegate>
     return nil;
 }
 
-- (void)registerSessionListener:(id<SentrySessionListener>)listener {
+- (void)registerSessionListener:(id<SentrySessionListener>)listener
+{
     _sessionListener = listener;
 }
 
-- (void)unregisterSessionListener:(id<SentrySessionListener>)listener {
+- (void)unregisterSessionListener:(id<SentrySessionListener>)listener
+{
     if (_sessionListener == listener) {
         _sessionListener = nil;
     }

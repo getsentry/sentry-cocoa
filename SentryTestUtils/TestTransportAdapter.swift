@@ -1,5 +1,5 @@
-import Foundation
 import _SentryPrivate
+import Foundation
 
 public class TestTransportAdapter: SentryTransportAdapter {
     public override func send(_ event: Event, session: SentrySession, attachments: [Attachment]) {
