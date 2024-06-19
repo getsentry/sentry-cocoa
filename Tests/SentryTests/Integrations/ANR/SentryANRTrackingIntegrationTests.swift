@@ -102,6 +102,47 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         }
     }
     
+    func testANRDetected_DetectingPaused_NoEventCaptured() {
+        givenInitializedTracker()
+        setUpThreadInspector()
+        sut.pauseAppHangTracking()
+        
+        Dynamic(sut).anrDetected()
+        
+        assertNoEventCaptured()
+    }
+    
+    func testANRDetected_DetectingPausedResumed_EventCaptured() {
+        givenInitializedTracker()
+        setUpThreadInspector()
+        sut.pauseAppHangTracking()
+        sut.resumeAppHangTracking()
+        
+        Dynamic(sut).anrDetected()
+        
+        assertEventWithScopeCaptured { event, _, _ in
+            XCTAssertNotNil(event)
+            guard let ex = event?.exceptions?.first else {
+                XCTFail("ANR Exception not found")
+                return
+            }
+            
+            expect(ex.mechanism?.type) == "AppHang"
+        }
+    }
+    
+    func testCallPauseResumeOnMultipleThreads_DoesNotCrash() {
+        givenInitializedTracker()
+        
+        testConcurrentModifications(asyncWorkItems: 100, writeLoopCount: 10, writeWork: {_ in
+            self.sut.pauseAppHangTracking()
+            Dynamic(self.sut).anrDetected()
+        }, readWork: {
+            self.sut.resumeAppHangTracking()
+            Dynamic(self.sut).anrDetected()
+        })
+    }
+    
     func testANRDetected_ButNoThreads_EventNotCaptured() {
         givenInitializedTracker()
         setUpThreadInspector(addThreads: false)

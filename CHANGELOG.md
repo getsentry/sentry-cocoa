@@ -5,11 +5,14 @@
 ### Features
 
 - Restart replay session with mobile session (#4085)
+- Add pause and resume AppHangTracking API (#4077). You can now pause and resume app hang tracking with `SentrySDK.pauseAppHangTracking()` and `SentrySDK.resumeAppHangTracking()`.
+
+## 8.29.1
 
 ### Fixes
 
 - Fix potential deadlock in app hang detection (#4063)
-- Swizzling of view controllers `loadView` that don`t implement `loadView` (#4071) 
+- Swizzling of view controllers `loadView` that don`t implement `loadView` (#4071)
 
 ## 8.29.0
 

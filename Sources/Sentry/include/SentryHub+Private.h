@@ -65,6 +65,7 @@ SentryHub ()
 
 - (void)registerSessionListener:(id<SentrySessionListener>)listener;
 - (void)unregisterSessionListener:(id<SentrySessionListener>)listener;
+- (nullable id<SentryIntegrationProtocol>)getInstalledIntegration:(Class)integrationClass;
 
 @end
 
