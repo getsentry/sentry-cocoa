@@ -333,7 +333,6 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
     [[PrivateSentrySDKOnly getReplayIntegration] configureReplayWith:breadcrumbConverter
                                                   screenshotProvider:screenshotProvider];
 }
-#endif
 
 + (NSString *__nullable)getReplayId
 {
@@ -346,24 +345,13 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
 
 + (void)addReplayIgnoreClasses:(NSArray<Class> *_Nonnull)classes
 {
-#if SENTRY_REPLAY_AVAILABLE
     [SentryViewPhotographer.shared addIgnoreClasses:classes];
-#else
-    SENTRY_LOG_DEBUG(
-        @"PrivateSentrySDKOnly.addReplayIgnoreClasses only works with UIKit enabled and target is "
-        @"not visionOS. Ensure you're using the right configuration of Sentry that links UIKit.");
-#endif
 }
 
 + (void)addReplayRedactClasses:(NSArray<Class> *_Nonnull)classes
 {
-#if SENTRY_REPLAY_AVAILABLE
     [SentryViewPhotographer.shared addRedactClasses:classes];
-#else
-    SENTRY_LOG_DEBUG(
-        @"PrivateSentrySDKOnly.addReplayRedactClasses only works with UIKit enabled and target is "
-        @"not visionOS. Ensure you're using the right configuration of Sentry that links UIKit.");
-#endif
 }
+#endif
 
 @end
