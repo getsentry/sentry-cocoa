@@ -1,6 +1,7 @@
 #import "SentrySessionReplay.h"
 #import "SentryAttachment+Private.h"
 #import "SentryBreadcrumb+Private.h"
+#import "SentryDefines.h"
 #import "SentryDependencyContainer.h"
 #import "SentryDisplayLinkWrapper.h"
 #import "SentryEnvelopeItemType.h"
@@ -14,7 +15,7 @@
 #import "SentrySwift.h"
 #import "SentryTraceContext.h"
 
-#if SENTRY_HAS_UIKIT && !TARGET_OS_VISION
+#if SENTRY_REPLAY_AVAILABLE
 
 NS_ASSUME_NONNULL_BEGIN
 

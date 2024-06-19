@@ -4,6 +4,7 @@
 #import "SentryCrashIntegration.h"
 #import "SentryCrashMonitor_AppState.h"
 #import "SentryCrashMonitor_System.h"
+#import "SentryDefines.h"
 #import "SentryScope.h"
 #import <Foundation/Foundation.h>
 #import <SentryCrashCachedData.h>
@@ -181,7 +182,7 @@ NS_ASSUME_NONNULL_BEGIN
     [deviceData setValue:locale forKey:LOCALE_KEY];
 
 // The UIWindowScene is unavailable on visionOS
-#if SENTRY_HAS_UIKIT && !TARGET_OS_VISION
+#if SENTRY_REPLAY_AVAILABLE
 
     NSArray<UIWindow *> *appWindows = SentryDependencyContainer.sharedInstance.application.windows;
     if ([appWindows count] > 0) {

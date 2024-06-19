@@ -1,8 +1,9 @@
 #import "SentryBaseIntegration.h"
+#import "SentryDefines.h"
 #import "SentrySessionReplayIntegration.h"
 #import "SentrySwift.h"
 
-#if SENTRY_HAS_UIKIT && !TARGET_OS_VISION
+#if SENTRY_REPLAY_AVAILABLE
 
 @class SentrySessionReplay;
 

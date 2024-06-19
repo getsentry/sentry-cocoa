@@ -3,7 +3,7 @@
 #import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
-#if SENTRY_HAS_UIKIT && !TARGET_OS_VISION
+#if SENTRY_REPLAY_AVAILABLE
 
 @protocol SentryReplayBreadcrumbConverter;
 @protocol SentryViewScreenshotProvider;
@@ -24,5 +24,5 @@ NS_ASSUME_NONNULL_BEGIN
          screenshotProvider:(nullable id<SentryViewScreenshotProvider>)screenshotProvider;
 
 @end
-#endif // SENTRY_HAS_UIKIT && !TARGET_OS_VISION
+#endif // SENTRY_REPLAY_AVAILABLE
 NS_ASSUME_NONNULL_END

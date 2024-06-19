@@ -1,4 +1,5 @@
 #import "PrivatesHeader.h"
+#import "SentryDefines.h"
 #import "SentryScreenFrames.h"
 
 @class SentryDebugMeta;
@@ -163,7 +164,7 @@ typedef void (^SentryOnAppStartMeasurementAvailable)(
 
 #endif // SENTRY_UIKIT_AVAILABLE
 
-#if SENTRY_HAS_UIKIT && !TARGET_OS_VISION
+#if SENTRY_REPLAY_AVAILABLE
 
 /**
  * Configure session replay with different breadcrumb converter
