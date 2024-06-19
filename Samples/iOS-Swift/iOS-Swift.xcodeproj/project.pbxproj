@@ -108,6 +108,7 @@
 		D8F3D05F274E6A8B00B56F8C /* AssertView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F3D05E274E6A8B00B56F8C /* AssertView.swift */; };
 		D8F3D062274EBD4800B56F8C /* SpanExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F3D061274EBD4800B56F8C /* SpanExtension.swift */; };
 		D8F57BC527BBD787000D09D4 /* CoreDataViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F57BC427BBD787000D09D4 /* CoreDataViewController.swift */; };
+		D8FD68C42C1C86E300A70055 /* TableViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = D8FD68C32C1C86E300A70055 /* TableViewController.xib */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -360,6 +361,7 @@
 		D8F3D05E274E6A8B00B56F8C /* AssertView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssertView.swift; sourceTree = "<group>"; };
 		D8F3D061274EBD4800B56F8C /* SpanExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpanExtension.swift; sourceTree = "<group>"; };
 		D8F57BC427BBD787000D09D4 /* CoreDataViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreDataViewController.swift; sourceTree = "<group>"; };
+		D8FD68C32C1C86E300A70055 /* TableViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = TableViewController.xib; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -573,6 +575,7 @@
 				D890CD3B26CEE2FA001246CF /* NibViewController.xib */,
 				D890CD3E26CEE31B001246CF /* NibViewController.swift */,
 				D8DBDA75274D591F00007380 /* TableViewController.swift */,
+				D8FD68C32C1C86E300A70055 /* TableViewController.xib */,
 				D8DBDA77274D5FC400007380 /* SplitViewController.swift */,
 				D8F3D056274E574200B56F8C /* LoremIpsumViewController.swift */,
 				D8F57BC427BBD787000D09D4 /* CoreDataViewController.swift */,
@@ -863,6 +866,7 @@
 				7B3427F825876A5200056519 /* Tongariro.jpg in Resources */,
 				637AFDB3243B02770034958B /* Assets.xcassets in Resources */,
 				637AFDB1243B02760034958B /* Main.storyboard in Resources */,
+				D8FD68C42C1C86E300A70055 /* TableViewController.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1247,7 +1251,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 8.29.0;
+				MARKETING_VERSION = 8.29.1;
 				PRODUCT_BUNDLE_IDENTIFIER = "io.sentry.sample.iOS-Swift";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "match Development io.sentry.sample.iOS-Swift";
@@ -1276,7 +1280,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 8.29.0;
+				MARKETING_VERSION = 8.29.1;
 				PRODUCT_BUNDLE_IDENTIFIER = "io.sentry.sample.iOS-Swift";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "match AppStore io.sentry.sample.iOS-Swift";
@@ -1925,7 +1929,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 8.29.0;
+				MARKETING_VERSION = 8.29.1;
 				PRODUCT_BUNDLE_IDENTIFIER = "io.sentry.sample.iOS-Swift.Clip";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "match Development io.sentry.sample.iOS-Swift.Clip";
@@ -1960,7 +1964,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 8.29.0;
+				MARKETING_VERSION = 8.29.1;
 				PRODUCT_BUNDLE_IDENTIFIER = "io.sentry.sample.iOS-Swift.Clip";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "match AppStore io.sentry.sample.iOS-Swift.Clip";
