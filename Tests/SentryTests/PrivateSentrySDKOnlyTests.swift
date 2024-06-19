@@ -2,11 +2,6 @@ import SentryTestUtils
 import XCTest
 
 class PrivateSentrySDKOnlyTests: XCTestCase {
- 
-    override func setUp() {
-        super.setUp()
-    }
-    
     override func tearDown() {
         super.tearDown()
         clearTestState()
