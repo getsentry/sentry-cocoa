@@ -3,7 +3,6 @@
 #import "SentryBreadcrumb+Private.h"
 #import "SentryClient.h"
 #import "SentryDebugImageProvider.h"
-#import "SentryDefines.h"
 #import "SentryExtraContextProvider.h"
 #import "SentryHub+Private.h"
 #import "SentryInstallation.h"

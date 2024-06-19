@@ -1,4 +1,3 @@
-#import "SentryDefines.h"
 #import "SentrySessionReplayIntegration+Private.h"
 
 #if SENTRY_TARGET_REPLAY_SUPPORTED

@@ -1,5 +1,4 @@
 #import "SentryBaseIntegration.h"
-#import "SentryDefines.h"
 #import "SentrySessionReplayIntegration.h"
 #import "SentrySwift.h"
 
