@@ -3,7 +3,7 @@
 #import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
-#if SENTRY_REPLAY_AVAILABLE
+#if SENTRY_TARGET_REPLAY_SUPPORTED
 
 @protocol SentryReplayBreadcrumbConverter;
 @protocol SentryViewScreenshotProvider;
@@ -24,5 +24,5 @@ NS_ASSUME_NONNULL_BEGIN
          screenshotProvider:(nullable id<SentryViewScreenshotProvider>)screenshotProvider;
 
 @end
-#endif // SENTRY_REPLAY_AVAILABLE
+#endif // SENTRY_TARGET_REPLAY_SUPPORTED
 NS_ASSUME_NONNULL_END

@@ -3,7 +3,7 @@
 #import "SentrySessionReplayIntegration.h"
 #import "SentrySwift.h"
 
-#if SENTRY_REPLAY_AVAILABLE
+#if SENTRY_TARGET_REPLAY_SUPPORTED
 
 @class SentrySessionReplay;
 

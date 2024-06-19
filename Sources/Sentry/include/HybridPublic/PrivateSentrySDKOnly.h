@@ -164,7 +164,7 @@ typedef void (^SentryOnAppStartMeasurementAvailable)(
 
 #endif // SENTRY_UIKIT_AVAILABLE
 
-#if SENTRY_REPLAY_AVAILABLE
+#if SENTRY_TARGET_REPLAY_SUPPORTED
 + (SentrySessionReplayIntegration *__nullable)getReplayIntegration;
 
 /**

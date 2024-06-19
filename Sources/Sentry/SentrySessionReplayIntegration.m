@@ -1,7 +1,7 @@
 #import "SentryDefines.h"
 #import "SentrySessionReplayIntegration+Private.h"
 
-#if SENTRY_REPLAY_AVAILABLE
+#if SENTRY_TARGET_REPLAY_SUPPORTED
 
 #    import "SentryClient+Private.h"
 #    import "SentryDependencyContainer.h"

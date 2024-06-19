@@ -182,7 +182,7 @@ NS_ASSUME_NONNULL_BEGIN
     [deviceData setValue:locale forKey:LOCALE_KEY];
 
 // The UIWindowScene is unavailable on visionOS
-#if SENTRY_REPLAY_AVAILABLE
+#if SENTRY_TARGET_REPLAY_SUPPORTED
 
     NSArray<UIWindow *> *appWindows = SentryDependencyContainer.sharedInstance.application.windows;
     if ([appWindows count] > 0) {

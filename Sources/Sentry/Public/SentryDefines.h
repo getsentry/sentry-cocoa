@@ -45,9 +45,9 @@
 #endif
 
 #if SENTRY_HAS_UIKIT && !TARGET_OS_VISION
-#    define SENTRY_REPLAY_AVAILABLE 1
+#    define SENTRY_TARGET_REPLAY_SUPPORTED 1
 #else
-#    define SENTRY_REPLAY_AVAILABLE 0
+#    define SENTRY_TARGET_REPLAY_SUPPORTED 0
 #endif
 
 #define SENTRY_NO_INIT                                                                             \
