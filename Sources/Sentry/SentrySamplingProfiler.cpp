@@ -70,12 +70,11 @@ namespace profiling {
                     SENTRY_PROF_LOG_WARN(
                         "Current thread (the profiler's sampling thread) handle returned as null, "
                         "will not attempt to gather further backtraces.");
-                    break; // ???: i originally had this as continue, but if this thread's handle is
-                           // null, that means it was destroyed, so we should just stop?
+                    break;
                 }
 
                 const auto threads = ThreadHandle::allExcludingCurrent();
-                enumerateBacktracesForAllThreads(
+                enumerateBacktracesForThreads(
                     params->callback, params->cache, std::move(threads), std::move(current));
             }
             pthread_cleanup_pop(1);
