@@ -625,6 +625,21 @@ SentryHub () <SentryMetricsAPIDelegate>
     }
 }
 
+/**
+ * Needed by hybrid SDKs as react-native to synchronously store an envelope to disk.
+ */
+- (void)storeEnvelope:(SentryEnvelope *)envelope
+{
+    SentryClient *client = _client;
+    if (client == nil) {
+        return;
+    }
+
+    // Envelopes are stored only when crash occurs. We should not start a new session when
+    // the app is about to crash.
+    [client storeEnvelope:[self updateSessionState:envelope startNewSession:NO]];
+}
+
 - (void)captureEnvelope:(SentryEnvelope *)envelope
 {
     SentryClient *client = _client;
@@ -634,11 +649,11 @@ SentryHub () <SentryMetricsAPIDelegate>
 
     // If captured envelope cointains not handled errors, these are not going to crash the app and
     // we should create new session.
-    [client captureEnvelope:[self updateSessionState:envelope andStartNewSession:YES]];
+    [client captureEnvelope:[self updateSessionState:envelope startNewSession:YES]];
 }
 
 - (SentryEnvelope *)updateSessionState:(SentryEnvelope *)envelope
-                    andStartNewSession:(BOOL)startNewSession
+                       startNewSession:(BOOL)startNewSession
 {
     BOOL handled = YES;
     if ([self envelopeContainsEventWithErrorOrHigher:envelope.items wasHandled:&handled]) {
