@@ -37,6 +37,7 @@ SentrySessionReplayIntegration ()
 @implementation SentrySessionReplayIntegration {
     BOOL _startedAsFullSession;
     SentryReplayOptions *_replayOptions;
+    SentryNSNotificationCenterWrapper * _notificationCenter;
 }
 
 - (BOOL)installWithOptions:(nonnull SentryOptions *)options
@@ -53,6 +54,8 @@ SentrySessionReplayIntegration ()
                          scale:options.experimental.sessionReplay.sizeScale];
         [self swizzleApplicationTouch];
     }
+    
+    _notificationCenter = SentryDependencyContainer.sharedInstance.notificationCenterWrapper;
     
     [SentrySDK.currentHub registerSessionListener:self];
     
@@ -78,14 +81,12 @@ SentrySessionReplayIntegration ()
     } else {
         // Wait for a scene to be available to started the replay
         if (@available(iOS 13.0, *)) {
-            [SentryDependencyContainer.sharedInstance.notificationCenterWrapper
+            [_notificationCenter
              addObserver:self
              selector:@selector(newSceneActivate)
              name:UISceneDidActivateNotification];
         }
     }
-    
-    return;
 }
 
 - (void)newSceneActivate
@@ -142,15 +143,15 @@ SentrySessionReplayIntegration ()
               start:SentryDependencyContainer.sharedInstance.application.windows.firstObject
         fullSession:[self shouldReplayFullSession:replayOptions.sessionSampleRate]];
 
-    [NSNotificationCenter.defaultCenter addObserver:self
-                                           selector:@selector(stop)
-                                               name:UIApplicationDidEnterBackgroundNotification
-                                             object:nil];
-
-    [NSNotificationCenter.defaultCenter addObserver:self
-                                           selector:@selector(resume)
-                                               name:UIApplicationWillEnterForegroundNotification
-                                             object:nil];
+    [_notificationCenter addObserver:self
+                            selector:@selector(stop)
+                                name:UIApplicationDidEnterBackgroundNotification
+                              object:nil];
+    
+    [_notificationCenter addObserver:self
+                            selector:@selector(resume)
+                                name:UIApplicationWillEnterForegroundNotification
+                              object:nil];
 }
 
 - (void)stop
@@ -165,7 +166,8 @@ SentrySessionReplayIntegration ()
 
 - (void)sentrySessionEnded:(SentrySession *)session {
     [self stop];
-    [NSNotificationCenter.defaultCenter removeObserver:self];
+    [_notificationCenter removeObserver:self name:UIApplicationDidEnterBackgroundNotification object:nil];
+    [_notificationCenter removeObserver:self name:UIApplicationWillEnterForegroundNotification object:nil];
     _sessionReplay = nil;
 }
 
@@ -201,6 +203,10 @@ SentrySessionReplayIntegration ()
     [SentrySDK.currentHub unregisterSessionListener:self];
     _touchTracker = nil;
     [self stop];
+}
+
+- (void)dealloc{
+    [self uninstall];
 }
 
 - (BOOL)shouldReplayFullSession:(CGFloat)rate

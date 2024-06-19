@@ -31,12 +31,8 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         clearTestState()
     }
     
-    private func getSut() -> SentrySessionReplayIntegration? {
-        guard let sut = SentrySDK.currentHub().installedIntegrations().first as? SentrySessionReplayIntegration else {
-            XCTFail("Did not installed replay integration")
-            return nil
-        }
-        return sut
+    private func getSut() throws -> SentrySessionReplayIntegration {
+        return try XCTUnwrap(SentrySDK.currentHub().installedIntegrations().first as? SentrySessionReplayIntegration)
     }
     
     private func startSDK(sessionSampleRate: Float, errorSampleRate: Float, enableSwizzling: Bool = true) {
@@ -75,31 +71,31 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         XCTAssertNil(Dynamic(integration).getTouchTracker().asObject)
     }
     
-    func testInstallWithSwizzlingHasTouchTracker() {
+    func testInstallWithSwizzlingHasTouchTracker() throws {
         startSDK(sessionSampleRate: 1, errorSampleRate: 0)
-        guard let sut = getSut() else { return }
+        let sut = try getSut()
         XCTAssertNotNil(Dynamic(sut).getTouchTracker().asObject)
     }
     
-    func testInstallFullSessionReplayButDontRunBecauseOfRandom() {
+    func testInstallFullSessionReplayButDontRunBecauseOfRandom() throws {
         SentryDependencyContainer.sharedInstance().random = TestRandom(value: 0.3)
         
         startSDK(sessionSampleRate: 0.2, errorSampleRate: 0)
         
         XCTAssertEqual(SentrySDK.currentHub().trimmedInstalledIntegrationNames().count,1)
         XCTAssertEqual(SentryGlobalEventProcessor.shared().processors.count,1)
-        guard let sut = getSut() else { return }
+        let sut = try getSut()
         XCTAssertNil(sut.sessionReplay)
     }
     
-    func testInstallFullSessionReplayBecauseOfRandom() {
+    func testInstallFullSessionReplayBecauseOfRandom() throws {
         SentryDependencyContainer.sharedInstance().random = TestRandom(value: 0.1)
         
         startSDK(sessionSampleRate: 0.2, errorSampleRate: 0)
         
         XCTAssertEqual(SentrySDK.currentHub().trimmedInstalledIntegrationNames().count,1)
         XCTAssertEqual(SentryGlobalEventProcessor.shared().processors.count,1)
-        guard let sut = getSut() else { return }
+        let sut = try getSut()
         XCTAssertNotNil(sut.sessionReplay)
     }
     
@@ -110,11 +106,11 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         XCTAssertEqual(SentryGlobalEventProcessor.shared().processors.count,1)
     }
     
-    func testWaitForNotificationWithNoWindow() {
+    func testWaitForNotificationWithNoWindow() throws {
         uiApplication.windowsMock = nil
         startSDK(sessionSampleRate: 1, errorSampleRate: 0)
         
-        guard let sut = getSut() else { return }
+        let sut = try getSut()
         
         XCTAssertNil(sut.sessionReplay)
         uiApplication.windowsMock = [UIWindow()]
@@ -122,10 +118,10 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         XCTAssertNotNil(sut.sessionReplay)
     }
     
-    func testPauseAndResumeForApplicationStateChange() {
+    func testPauseAndResumeForApplicationStateChange() throws {
         startSDK(sessionSampleRate: 1, errorSampleRate: 0)
         
-        guard let sut = getSut() else { return }
+        let sut = try getSut()
         
         NotificationCenter.default.post(name: UIApplication.didEnterBackgroundNotification, object: nil)
         XCTAssertFalse(Dynamic(sut.sessionReplay).isRunning.asBool ?? true)
@@ -133,28 +129,28 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         XCTAssertTrue(Dynamic(sut.sessionReplay).isRunning.asBool ?? false)
     }
     
-    func testStopReplayAtEndOfSession() {
+    func testStopReplayAtEndOfSession() throws {
         startSDK(sessionSampleRate: 1, errorSampleRate: 0)
         
-        guard let sut = getSut() else { return }
+        let sut = try getSut()
         XCTAssertNotNil(sut.sessionReplay)
         SentrySDK.currentHub().endSession()
         XCTAssertNil(sut.sessionReplay)
     }
  
-    func testStartFullSessionForError() {
+    func testStartFullSessionForError() throws {
         startSDK(sessionSampleRate: 0, errorSampleRate: 1)
-        guard let sut = getSut() else { return }
+        let sut = try getSut()
         
         XCTAssertFalse(Dynamic(sut.sessionReplay).isFullSession.asBool ?? true)
         SentrySDK.capture(error: NSError(domain: "", code: 1))
         XCTAssertTrue(Dynamic(sut.sessionReplay).isFullSession.asBool ?? false)
     }
     
-    func testRestartReplayWithNewSession() {
+    func testRestartReplayWithNewSession() throws {
         startSDK(sessionSampleRate: 1, errorSampleRate: 0)
         
-        guard let sut = getSut() else { return }
+        let sut = try getSut()
         XCTAssertNotNil(sut.sessionReplay)
         SentrySDK.currentHub().endSession()
         XCTAssertNil(sut.sessionReplay)
