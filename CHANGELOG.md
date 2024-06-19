@@ -6,14 +6,16 @@
 
 - Add pause and resume AppHangTracking API (#4077). You can now pause and resume app hang tracking with `SentrySDK.pauseAppHangTracking()` and `SentrySDK.resumeAppHangTracking()`.
 
+### Fixes
+
+- `storeEnvelope` ends session for unhandled errors (#4073)
+
 ## 8.29.1
 
 ### Fixes
 
 - Fix potential deadlock in app hang detection (#4063)
 - Swizzling of view controllers `loadView` that don`t implement `loadView` (#4071) 
-- `storeEnvelope` ends session for unhandled errors (#4073)
-- Swizzling of view controllers `loadView` that don`t implement `loadView` (#4071)
 
 ## 8.29.0
 
