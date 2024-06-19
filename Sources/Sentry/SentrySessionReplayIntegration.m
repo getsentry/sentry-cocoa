@@ -81,7 +81,7 @@ SentrySessionReplayIntegration ()
         [self startWithOptions:_replayOptions fullSession:_startedAsFullSession];
     } else {
         // Wait for a scene to be available to started the replay
-        if (@available(iOS 13.0,tvOS 13.0, *)) {
+        if (@available(iOS 13.0, tvOS 13.0, *)) {
             [_notificationCenter addObserver:self
                                     selector:@selector(newSceneActivate)
                                         name:UISceneDidActivateNotification];
