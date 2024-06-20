@@ -384,9 +384,7 @@ static NSDate *_Nullable startTimestamp = nil;
  */
 + (void)storeEnvelope:(SentryEnvelope *)envelope
 {
-    if (nil != [SentrySDK.currentHub getClient]) {
-        [[SentrySDK.currentHub getClient] storeEnvelope:envelope];
-    }
+    [SentrySDK.currentHub storeEnvelope:envelope];
 }
 
 + (void)captureUserFeedback:(SentryUserFeedback *)userFeedback

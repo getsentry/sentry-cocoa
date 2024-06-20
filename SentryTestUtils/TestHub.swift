@@ -3,15 +3,19 @@ import Foundation
 
 public class TestHub: SentryHub {
 
-    var startSessionInvocations: Int = 0
-    var closeCachedSessionInvocations: Int = 0
-    var endSessionTimestamp: Date?
-    var closeCachedSessionTimestamp: Date?
+    public var startSessionInvocations: Int = 0
+    public var closeCachedSessionInvocations: Int = 0
+    public var endSessionTimestamp: Date?
+    public var closeCachedSessionTimestamp: Date?
 
     public override func startSession() {
         startSessionInvocations += 1
     }
-
+    
+    public func setTestSession() {
+        self.session = SentrySession(releaseName: "Test Release", distinctId: "123")
+    }
+    
     public override func closeCachedSession(withTimestamp timestamp: Date?) {
         closeCachedSessionTimestamp = timestamp
         closeCachedSessionInvocations += 1

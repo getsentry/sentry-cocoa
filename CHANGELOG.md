@@ -8,7 +8,8 @@
 
 ### Fixes
 
-- Sentry Replay Network details should be available without Tracing
+- `storeEnvelope` ends session for unhandled errors (#4073)
+- Sentry Replay Network details should be available without Tracing (#4091)
 
 ## 8.29.1
 

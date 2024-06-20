@@ -60,6 +60,7 @@ SentryHub ()
                   withScope:(SentryScope *)scope
     additionalEnvelopeItems:(NSArray<SentryEnvelopeItem *> *)additionalEnvelopeItems;
 
+- (void)storeEnvelope:(SentryEnvelope *)envelope;
 - (void)captureEnvelope:(SentryEnvelope *)envelope;
 
 - (nullable id<SentryIntegrationProtocol>)getInstalledIntegration:(Class)integrationClass;
