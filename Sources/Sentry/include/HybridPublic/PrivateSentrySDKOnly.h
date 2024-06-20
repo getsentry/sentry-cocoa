@@ -164,7 +164,6 @@ typedef void (^SentryOnAppStartMeasurementAvailable)(
 #endif // SENTRY_UIKIT_AVAILABLE
 
 #if SENTRY_TARGET_REPLAY_SUPPORTED
-+ (SentrySessionReplayIntegration *__nullable)getReplayIntegration;
 
 /**
  * Configure session replay with different breadcrumb converter
