@@ -9,7 +9,7 @@
 #if __has_include("SentryLog.h")
 #    import "SentryLog.h"
 #else
-#    define SENTRY_LOG_ERRNO(statement) statement
+#    define SENTRY_LOG_ERRNO_RETURN(statement) statement
 #    define SENTRY_LOG_DEBUG(...) NSLog(__VA_ARGS__)
 #endif
 // </polyfills>
@@ -60,7 +60,7 @@ getHardwareDescription(int type)
     mib[0] = CTL_HW;
     mib[1] = type;
     len = sizeof(name);
-    if (SENTRY_LOG_ERRNO(sysctl(mib, 2, &name, &len, NULL, 0)) != 0) {
+    if (SENTRY_LOG_ERRNO_RETURN(sysctl(mib, 2, &name, &len, NULL, 0)) != 0) {
         return @"";
     }
 
@@ -103,7 +103,7 @@ getCPUType(NSNumber *_Nullable subtype)
 {
     cpu_type_t type;
     size_t typeSize = sizeof(type);
-    if (SENTRY_LOG_ERRNO(sysctlbyname("hw.cputype", &type, &typeSize, NULL, 0)) != 0) {
+    if (SENTRY_LOG_ERRNO_RETURN(sysctlbyname("hw.cputype", &type, &typeSize, NULL, 0)) != 0) {
         if (subtype != nil) {
             return
                 [NSString stringWithFormat:@"no CPU type for unknown subtype %d", subtype.intValue];
@@ -139,7 +139,7 @@ sentry_getCPUArchitecture(void)
 {
     cpu_subtype_t subtype;
     size_t subtypeSize = sizeof(subtype);
-    if (SENTRY_LOG_ERRNO(sysctlbyname("hw.cpusubtype", &subtype, &subtypeSize, NULL, 0)) != 0) {
+    if (SENTRY_LOG_ERRNO_RETURN(sysctlbyname("hw.cpusubtype", &subtype, &subtypeSize, NULL, 0)) != 0) {
         return getCPUType(nil);
     }
     switch (subtype) {
@@ -237,7 +237,7 @@ sentry_getOSBuildNumber(void)
     char str[32];
     size_t size = sizeof(str);
     int cmd[2] = { CTL_KERN, KERN_OSVERSION };
-    if (SENTRY_LOG_ERRNO(sysctl(cmd, sizeof(cmd) / sizeof(*cmd), str, &size, NULL, 0)) == 0) {
+    if (SENTRY_LOG_ERRNO_RETURN(sysctl(cmd, sizeof(cmd) / sizeof(*cmd), str, &size, NULL, 0)) == 0) {
         return [NSString stringWithUTF8String:str];
     }
     return @"";

@@ -1,10 +1,14 @@
 #import "SentryLogSinkPrintf.h"
 
+void logPrintf(const char *message) {
+    printf("%s\n", message);
+}
+
 @implementation SentryLogSinkPrintf
 
 - (void)log:(NSString *)message
 {
-    printf("%s\n", message.UTF8String);
+    logPrintf(message.UTF8String);
 }
 
 @end

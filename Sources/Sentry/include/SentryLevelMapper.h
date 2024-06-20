@@ -15,6 +15,6 @@ FOUNDATION_EXPORT NSString *const kSentryLevelNameFatal;
  */
 SentryLevel sentryLevelForString(NSString *string);
 
-NSString *nameForSentryLevel(SentryLevel level);
+SENTRY_EXTERN NSString *nameForSentryLevel(SentryLevel level);
 
 NS_ASSUME_NONNULL_END

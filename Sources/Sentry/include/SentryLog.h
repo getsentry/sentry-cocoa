@@ -1,37 +1,38 @@
 #import "SentryDefines.h"
 #import "SentrySwift.h"
 
+
 @class SentryLogSinkNSLog;
 @protocol SentryLogSink;
 
 NS_ASSUME_NONNULL_BEGIN
 
+/**
+ * @return @c YES if the the specified logger's configuration will log statements at the specified  level,
+ * @c NO if not.
+ * @note Exposed as a C function so it can be used from contexts that require async-safety and thus cannot use ObjC.
+ */
+SENTRY_EXTERN BOOL loggerWillLogAtLevel(const char *loggerLabel, SentryLevel level);
+
 @interface SentryLog : NSObject
 SENTRY_NO_INIT
 
+@property (assign, readonly, nonatomic) const char *label;
+
 + (instancetype)sharedInstance;
 
-//@property (nonatomic, assign, readonly) BOOL isDebug;
-//@property (nonatomic, assign, readonly) SentryLevel diagnosticLevel;
-
-- (instancetype)initWithSinks:(NSArray<id<SentryLogSink>> *)sinks;
+- (instancetype)initWithLabel:(const char *)label sinks:(NSArray<id<SentryLogSink>> *)sinks;
 
 - (void)configure:(BOOL)debug diagnosticLevel:(SentryLevel)level;
 
 - (void)logWithMessage:(NSString *)message andLevel:(SentryLevel)level;
-
-/**
- * @return @c YES if the current logging configuration will log statements at the current level,
- * @c NO if not.
- */
-- (BOOL)willLogAtLevel:(SentryLevel)level;
 
 @end
 
 NS_ASSUME_NONNULL_END
 
 #define SENTRY_LOG_WITH_LOGGER(SENTRY_LOGGER, _SENTRY_LOG_LEVEL, ...)                              \
-    if ([SENTRY_LOGGER willLogAtLevel:_SENTRY_LOG_LEVEL]) {                                        \
+    if (loggerWillLogAtLevel(SENTRY_LOGGER.label, _SENTRY_LOG_LEVEL)) {                                        \
         [SENTRY_LOGGER                                                                             \
             logWithMessage:[NSString stringWithFormat:@"[%@:%d] %@",                               \
                                      [[[NSString stringWithUTF8String:__FILE__] lastPathComponent] \
@@ -60,15 +61,12 @@ NS_ASSUME_NONNULL_END
 #define SENTRY_LOG_ERROR(...) SENTRY_LOG(kSentryLevelError, __VA_ARGS__)
 #define SENTRY_LOG_FATAL(...) SENTRY_LOG(kSentryLevelFatal, __VA_ARGS__)
 
-#define SENTRY_ASYNC_SAFE_LOG_TO_CONSOLE
-#define SENTRY_ASYNC_SAFE_LOG_TO_FILE
-
 /**
  * If @c errno is set to a non-zero value after @c statement finishes executing,
  * the error value is logged, and the original return value of @c statement is
  * returned.
  */
-#define SENTRY_LOG_ERRNO(statement)                                                                \
+#define SENTRY_LOG_ERRNO_RETURN(statement)                                                                \
     ({                                                                                             \
         errno = 0;                                                                                 \
         const auto __log_rv = (statement);                                                         \
