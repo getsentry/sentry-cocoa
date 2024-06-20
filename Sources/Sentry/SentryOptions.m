@@ -39,7 +39,8 @@ NSString *const kSentryDefaultEnvironment = @"production";
     BOOL _enableTracingManual;
 }
 
-- (id)copyWithZone:(nullable NSZone *)zone {
+- (id)copyWithZone:(nullable NSZone *)zone
+{
     SentryOptions *copy = [[SentryOptions alloc] init];
     copy.dsn = _dsn;
     copy.parsedDsn = _parsedDsn;
@@ -96,10 +97,10 @@ NSString *const kSentryDefaultEnvironment = @"production";
     copy.enableAppLaunchProfiling = _enableAppLaunchProfiling;
     copy.profilesSampleRate = _profilesSampleRate;
     copy.profilesSampler = _profilesSampler;
-#    pragma clang diagnostic push
-#    pragma clang diagnostic ignored "-Wdeprecated-declarations"
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     copy.enableProfiling = _enableProfiling;
-#    pragma clang diagnostic pop
+#pragma clang diagnostic pop
     copy.sendClientReports = _sendClientReports;
     copy.enableAppHangTracking = _enableAppHangTracking;
     copy.appHangTimeoutInterval = _appHangTimeoutInterval;
