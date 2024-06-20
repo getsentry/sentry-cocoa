@@ -30,7 +30,6 @@
 
 #include <stdlib.h>
 
-#define SentryCrashLogger_LocalLevel TRACE
 #include "SentryCrashLogger.h"
 
 /** Represents an entry in a frame list.

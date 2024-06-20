@@ -27,7 +27,6 @@
 
 #include "SentryCrashFileUtils.h"
 
-// #define SentryCrashLogger_LocalLevel TRACE
 #include "SentryCrashLogger.h"
 
 #include <dirent.h>
