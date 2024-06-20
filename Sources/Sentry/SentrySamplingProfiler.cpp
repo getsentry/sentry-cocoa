@@ -64,7 +64,18 @@ namespace profiling {
                 }
 
                 params->numSamples.fetch_add(1, std::memory_order_relaxed);
-                enumerateBacktracesForAllThreads(params->callback, params->cache);
+
+                const auto current = ThreadHandle::current();
+                if (current == nullptr) {
+                    SENTRY_PROF_LOG_WARN(
+                        "Current thread (the profiler's sampling thread) handle returned as null, "
+                        "will not attempt to gather further backtraces.");
+                    break;
+                }
+
+                const auto threads = ThreadHandle::allExcludingCurrent();
+                enumerateBacktracesForThreads(
+                    params->callback, params->cache, std::move(threads), std::move(current));
             }
             pthread_cleanup_pop(1);
             pthread_cleanup_pop(1);

@@ -38,6 +38,9 @@ namespace profiling {
     ThreadHandle::current() noexcept
     {
         const auto thread = pthread_mach_thread_np(pthread_self());
+        if (!MACH_PORT_VALID(thread)) {
+            return nullptr;
+        }
         return std::make_unique<ThreadHandle>(thread);
     }
 
@@ -60,13 +63,17 @@ namespace profiling {
         return threads;
     }
 
-    std::pair<std::vector<std::unique_ptr<ThreadHandle>>, std::unique_ptr<ThreadHandle>>
+    std::vector<std::unique_ptr<ThreadHandle>>
     ThreadHandle::allExcludingCurrent() noexcept
     {
         std::vector<std::unique_ptr<ThreadHandle>> threads;
         mach_msg_type_number_t count;
         thread_act_array_t list;
         auto current = ThreadHandle::current();
+        if (current == nullptr) {
+            return threads;
+        }
+
         if (SENTRY_PROF_LOG_KERN_RETURN(task_threads(mach_task_self(), &list, &count))
             == KERN_SUCCESS) {
             for (decltype(count) i = 0; i < count; i++) {
@@ -81,7 +88,7 @@ namespace profiling {
         }
         SENTRY_PROF_LOG_KERN_RETURN(vm_deallocate(
             mach_task_self(), reinterpret_cast<vm_address_t>(list), sizeof(*list) * count));
-        return std::make_pair(std::move(threads), std::move(current));
+        return threads;
     }
 
     thread::TIDType

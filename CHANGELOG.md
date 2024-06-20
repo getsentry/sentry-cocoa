@@ -1,6 +1,10 @@
 # Changelog
 
 ## Unreleased
+ 
+### Fixes
+
+- Check MACH_PORT_VALID on return from pthread_mach_thread_np (#3520)
 
 ### Features
 
