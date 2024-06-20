@@ -14,7 +14,7 @@
 #import "SentrySwift.h"
 #import "SentryTraceContext.h"
 
-#if SENTRY_HAS_UIKIT && !TARGET_OS_VISION
+#if SENTRY_TARGET_REPLAY_SUPPORTED
 
 NS_ASSUME_NONNULL_BEGIN
 

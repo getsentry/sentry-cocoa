@@ -1,6 +1,6 @@
 #import "SentrySessionReplayIntegration+Private.h"
 
-#if SENTRY_HAS_UIKIT && !TARGET_OS_VISION
+#if SENTRY_TARGET_REPLAY_SUPPORTED
 
 #    import "SentryClient+Private.h"
 #    import "SentryDependencyContainer.h"
