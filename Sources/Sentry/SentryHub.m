@@ -44,6 +44,7 @@ SentryHub () <SentryMetricsAPIDelegate>
 @property (nonatomic, strong) SentryCrashWrapper *crashWrapper;
 @property (nonatomic, strong) NSMutableSet<NSString *> *installedIntegrationNames;
 @property (nonatomic) NSUInteger errorsBeforeSession;
+@property (nonatomic, weak) id<SentrySessionListener> sessionListener;
 
 @end
 
@@ -107,6 +108,7 @@ SentryHub () <SentryMetricsAPIDelegate>
                   andLevel:kSentryLevelError];
         return;
     }
+
     @synchronized(_sessionLock) {
         if (_session != nil) {
             lastSession = _session;
@@ -133,6 +135,8 @@ SentryHub () <SentryMetricsAPIDelegate>
     [lastSession
         endSessionExitedWithTimestamp:[SentryDependencyContainer.sharedInstance.dateProvider date]];
     [self captureSession:lastSession];
+
+    [_sessionListener sentrySessionStarted:_session];
 }
 
 - (void)endSession
@@ -156,6 +160,8 @@ SentryHub () <SentryMetricsAPIDelegate>
     }
     [currentSession endSessionExitedWithTimestamp:timestamp];
     [self captureSession:currentSession];
+
+    [_sessionListener sentrySessionEnded:currentSession];
 }
 
 - (void)storeCurrentSession:(SentrySession *)session
@@ -798,6 +804,18 @@ SentryHub () <SentryMetricsAPIDelegate>
         return [(SentrySpan *)span getLocalMetricsAggregator];
     }
     return nil;
+}
+
+- (void)registerSessionListener:(id<SentrySessionListener>)listener
+{
+    _sessionListener = listener;
+}
+
+- (void)unregisterSessionListener:(id<SentrySessionListener>)listener
+{
+    if (_sessionListener == listener) {
+        _sessionListener = nil;
+    }
 }
 
 #pragma mark - Protected

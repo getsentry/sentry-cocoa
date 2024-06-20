@@ -1,3 +1,4 @@
+import _SentryPrivate
 import Foundation
 
 public class TestTransportAdapter: SentryTransportAdapter {

@@ -37,6 +37,7 @@ SentrySessionReplayIntegration ()
 @implementation SentrySessionReplayIntegration {
     BOOL _startedAsFullSession;
     SentryReplayOptions *_replayOptions;
+    SentryNSNotificationCenterWrapper *_notificationCenter;
 }
 
 - (BOOL)installWithOptions:(nonnull SentryOptions *)options
@@ -45,36 +46,46 @@ SentrySessionReplayIntegration ()
         return NO;
     }
 
-    if (@available(iOS 16.0, tvOS 16.0, *)) {
-        _replayOptions = options.experimental.sessionReplay;
+    _replayOptions = options.experimental.sessionReplay;
 
-        _startedAsFullSession = [self shouldReplayFullSession:_replayOptions.sessionSampleRate];
+    if (options.enableSwizzling) {
+        _touchTracker = [[SentryTouchTracker alloc]
+            initWithDateProvider:SentryDependencyContainer.sharedInstance.dateProvider
+                           scale:options.experimental.sessionReplay.sizeScale];
+        [self swizzleApplicationTouch];
+    }
 
-        if (!_startedAsFullSession && _replayOptions.errorSampleRate == 0) {
-            return NO;
-        }
+    _notificationCenter = SentryDependencyContainer.sharedInstance.notificationCenterWrapper;
 
-        if (options.enableSwizzling) {
-            _touchTracker = [[SentryTouchTracker alloc]
-                initWithDateProvider:SentryDependencyContainer.sharedInstance.dateProvider
-                               scale:options.experimental.sessionReplay.sizeScale];
-            [self swizzleApplicationTouch];
-        }
+    [SentrySDK.currentHub registerSessionListener:self];
 
-        if (SentryDependencyContainer.sharedInstance.application.windows.count > 0) {
-            // If a window its already available start replay right away
-            [self startWithOptions:_replayOptions fullSession:_startedAsFullSession];
-        } else {
-            // Wait for a scene to be available to started the replay
-            [SentryDependencyContainer.sharedInstance.notificationCenterWrapper
-                addObserver:self
-                   selector:@selector(newSceneActivate)
-                       name:UISceneDidActivateNotification];
-        }
+    [SentryGlobalEventProcessor.shared
+        addEventProcessor:^SentryEvent *_Nullable(SentryEvent *_Nonnull event) {
+            [self.sessionReplay captureReplayForEvent:event];
+            return event;
+        }];
 
-        return YES;
+    return YES;
+}
+
+- (void)startSession
+{
+    _startedAsFullSession = [self shouldReplayFullSession:_replayOptions.sessionSampleRate];
+
+    if (!_startedAsFullSession && _replayOptions.errorSampleRate == 0) {
+        return;
+    }
+
+    if (SentryDependencyContainer.sharedInstance.application.windows.count > 0) {
+        // If a window its already available start replay right away
+        [self startWithOptions:_replayOptions fullSession:_startedAsFullSession];
     } else {
-        return NO;
+        // Wait for a scene to be available to started the replay
+        if (@available(iOS 13.0, tvOS 13.0, *)) {
+            [_notificationCenter addObserver:self
+                                    selector:@selector(newSceneActivate)
+                                        name:UISceneDidActivateNotification];
+        }
     }
 }
 
@@ -98,58 +109,49 @@ SentrySessionReplayIntegration ()
      breadcrumbConverter:(id<SentryReplayBreadcrumbConverter>)breadcrumbConverter
              fullSession:(BOOL)shouldReplayFullSession
 {
-    if (@available(iOS 16.0, tvOS 16.0, *)) {
-        NSURL *docs = [NSURL
-            fileURLWithPath:[SentryDependencyContainer.sharedInstance.fileManager sentryPath]];
-        docs = [docs URLByAppendingPathComponent:SENTRY_REPLAY_FOLDER];
-        NSString *currentSession = [NSUUID UUID].UUIDString;
-        docs = [docs URLByAppendingPathComponent:currentSession];
+    NSURL *docs =
+        [NSURL fileURLWithPath:[SentryDependencyContainer.sharedInstance.fileManager sentryPath]];
+    docs = [docs URLByAppendingPathComponent:SENTRY_REPLAY_FOLDER];
+    NSString *currentSession = [NSUUID UUID].UUIDString;
+    docs = [docs URLByAppendingPathComponent:currentSession];
 
-        if (![NSFileManager.defaultManager fileExistsAtPath:docs.path]) {
-            [NSFileManager.defaultManager createDirectoryAtURL:docs
-                                   withIntermediateDirectories:YES
-                                                    attributes:nil
-                                                         error:nil];
-        }
-
-        SentryOnDemandReplay *replayMaker =
-            [[SentryOnDemandReplay alloc] initWithOutputPath:docs.path];
-        replayMaker.bitRate = replayOptions.replayBitRate;
-        replayMaker.cacheMaxSize
-            = (NSInteger)(shouldReplayFullSession ? replayOptions.sessionSegmentDuration
-                                                  : replayOptions.errorReplayDuration);
-
-        self.sessionReplay = [[SentrySessionReplay alloc]
-               initWithSettings:replayOptions
-               replayFolderPath:docs
-             screenshotProvider:screenshotProvider
-                    replayMaker:replayMaker
-            breadcrumbConverter:breadcrumbConverter
-                   touchTracker:_touchTracker
-                   dateProvider:SentryDependencyContainer.sharedInstance.dateProvider
-                         random:SentryDependencyContainer.sharedInstance.random
-             displayLinkWrapper:[[SentryDisplayLinkWrapper alloc] init]];
-
-        [self.sessionReplay
-                  start:SentryDependencyContainer.sharedInstance.application.windows.firstObject
-            fullSession:[self shouldReplayFullSession:replayOptions.sessionSampleRate]];
-
-        [NSNotificationCenter.defaultCenter addObserver:self
-                                               selector:@selector(stop)
-                                                   name:UIApplicationDidEnterBackgroundNotification
-                                                 object:nil];
-
-        [NSNotificationCenter.defaultCenter addObserver:self
-                                               selector:@selector(resume)
-                                                   name:UIApplicationWillEnterForegroundNotification
-                                                 object:nil];
-
-        [SentryGlobalEventProcessor.shared
-            addEventProcessor:^SentryEvent *_Nullable(SentryEvent *_Nonnull event) {
-                [self.sessionReplay captureReplayForEvent:event];
-                return event;
-            }];
+    if (![NSFileManager.defaultManager fileExistsAtPath:docs.path]) {
+        [NSFileManager.defaultManager createDirectoryAtURL:docs
+                               withIntermediateDirectories:YES
+                                                attributes:nil
+                                                     error:nil];
     }
+
+    SentryOnDemandReplay *replayMaker = [[SentryOnDemandReplay alloc] initWithOutputPath:docs.path];
+    replayMaker.bitRate = replayOptions.replayBitRate;
+    replayMaker.cacheMaxSize
+        = (NSInteger)(shouldReplayFullSession ? replayOptions.sessionSegmentDuration
+                                              : replayOptions.errorReplayDuration);
+
+    self.sessionReplay = [[SentrySessionReplay alloc]
+           initWithSettings:replayOptions
+           replayFolderPath:docs
+         screenshotProvider:screenshotProvider
+                replayMaker:replayMaker
+        breadcrumbConverter:breadcrumbConverter
+               touchTracker:_touchTracker
+               dateProvider:SentryDependencyContainer.sharedInstance.dateProvider
+                     random:SentryDependencyContainer.sharedInstance.random
+         displayLinkWrapper:[[SentryDisplayLinkWrapper alloc] init]];
+
+    [self.sessionReplay
+              start:SentryDependencyContainer.sharedInstance.application.windows.firstObject
+        fullSession:[self shouldReplayFullSession:replayOptions.sessionSampleRate]];
+
+    [_notificationCenter addObserver:self
+                            selector:@selector(stop)
+                                name:UIApplicationDidEnterBackgroundNotification
+                              object:nil];
+
+    [_notificationCenter addObserver:self
+                            selector:@selector(resume)
+                                name:UIApplicationWillEnterForegroundNotification
+                              object:nil];
 }
 
 - (void)stop
@@ -160,6 +162,26 @@ SentrySessionReplayIntegration ()
 - (void)resume
 {
     [self.sessionReplay resume];
+}
+
+- (void)sentrySessionEnded:(SentrySession *)session
+{
+    [self stop];
+    [_notificationCenter removeObserver:self
+                                   name:UIApplicationDidEnterBackgroundNotification
+                                 object:nil];
+    [_notificationCenter removeObserver:self
+                                   name:UIApplicationWillEnterForegroundNotification
+                                 object:nil];
+    _sessionReplay = nil;
+}
+
+- (void)sentrySessionStarted:(SentrySession *)session
+{
+    if (_sessionReplay) {
+        return;
+    }
+    [self startSession];
 }
 
 - (void)captureReplay
@@ -186,8 +208,14 @@ SentrySessionReplayIntegration ()
 
 - (void)uninstall
 {
+    [SentrySDK.currentHub unregisterSessionListener:self];
     _touchTracker = nil;
     [self stop];
+}
+
+- (void)dealloc
+{
+    [self uninstall];
 }
 
 - (BOOL)shouldReplayFullSession:(CGFloat)rate
