@@ -57,9 +57,13 @@ namespace profiling {
      *
      * @param f The function to call for each entry.
      * @param cache The cache used to look up thread metadata.
+     * @param threads A vector containing handles of all threads except the current thread.
+     * @param currentThread The handle of the current thread.
      */
-    void enumerateBacktracesForAllThreads(const std::function<void(const Backtrace &)> &f,
-        const std::shared_ptr<ThreadMetadataCache> &cache);
+    void enumerateBacktracesForThreads(const std::function<void(const Backtrace &)> &f,
+        const std::shared_ptr<ThreadMetadataCache> &cache,
+        const std::vector<std::unique_ptr<ThreadHandle>> &threads,
+        const std::unique_ptr<ThreadHandle> &currentThread);
 
 } // namespace profiling
 } // namespace sentry

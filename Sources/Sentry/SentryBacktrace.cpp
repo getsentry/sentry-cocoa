@@ -102,11 +102,24 @@ namespace profiling {
     }
 
     void
-    enumerateBacktracesForAllThreads(const std::function<void(const Backtrace &)> &f,
-        const std::shared_ptr<ThreadMetadataCache> &cache)
+    enumerateBacktracesForThreads(const std::function<void(const Backtrace &)> &f,
+        const std::shared_ptr<ThreadMetadataCache> &cache,
+        const std::vector<std::unique_ptr<ThreadHandle>> &threads,
+        const std::unique_ptr<ThreadHandle> &currentThread)
     {
-        const auto pair = ThreadHandle::allExcludingCurrent();
-        for (const auto &thread : pair.first) {
+        if (currentThread == nullptr) {
+            SENTRY_PROF_LOG_WARN("Current thread handle (profiler's sampling thread) was null, "
+                                 "will not attempt to gather other threads' backtraces.");
+            return;
+        }
+
+        for (const auto &thread : threads) {
+            if (thread == nullptr) {
+                SENTRY_PROF_LOG_WARN(
+                    "Thread handle was null, will not attempt to gather its backtrace.");
+                continue;
+            }
+
             Backtrace bt;
             // This one is probably safe to call while the thread is suspended, but
             // being conservative here in case the platform time functions take any
@@ -156,7 +169,7 @@ namespace profiling {
 
             bool reachedEndOfStack = false;
             std::uintptr_t addresses[kMaxBacktraceDepth];
-            const auto depth = backtrace(*thread, *pair.second, addresses, stackBounds,
+            const auto depth = backtrace(*thread, *currentThread, addresses, stackBounds,
                 &reachedEndOfStack, kMaxBacktraceDepth, 0);
 
             // Retrieving queue metadata *must* be done after suspending the thread,

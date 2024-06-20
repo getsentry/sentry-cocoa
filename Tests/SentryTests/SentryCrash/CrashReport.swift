@@ -9,7 +9,7 @@ extension XCTestCase {
     
     func givenStoredSentryCrashReport(resource: String) throws {
         let jsonData = try jsonDataOfResource(resource: resource)
-        jsonData.withUnsafeBytes { ( bytes: UnsafeRawBufferPointer) -> Void in
+        jsonData.withUnsafeBytes { ( bytes: UnsafeRawBufferPointer) in
             let pointer = bytes.bindMemory(to: Int8.self)
             sentrycrashcrs_addUserReport(pointer.baseAddress, Int32(jsonData.count))
         }

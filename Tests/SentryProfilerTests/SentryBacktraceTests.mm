@@ -203,7 +203,7 @@ countof(Array &)
     bool foundThread1 = false, foundThread2 = false;
     // Try up to 3 times.
     for (int i = 0; i < 3; i++) {
-        enumerateBacktracesForAllThreads(
+        enumerateBacktracesForThreads(
             [&](auto &backtrace) {
                 const auto thread = backtrace.threadMetadata.threadID;
                 if (thread == pthread_mach_thread_np(thread1)) {
@@ -230,7 +230,7 @@ countof(Array &)
                     }
                 }
             },
-            cache);
+            cache, ThreadHandle::allExcludingCurrent(), ThreadHandle::current());
         if (foundThread1 && foundThread2) {
             break;
         }
@@ -245,6 +245,27 @@ countof(Array &)
 
     XCTAssertTrue(foundThread1);
     XCTAssertTrue(foundThread2);
+}
+
+- (void)testDoesNotCollectBacktracesWhenCurrentThreadHandleIsNull
+{
+    pthread_t thread1, thread2;
+    XCTAssertEqual(
+        pthread_create(&thread1, nullptr, threadEntry, reinterpret_cast<void *>(bc_a)), 0);
+    XCTAssertEqual(
+        pthread_create(&thread2, nullptr, threadEntry, reinterpret_cast<void *>(bc_d)), 0);
+
+    const auto cache = std::make_shared<ThreadMetadataCache>();
+    enumerateBacktracesForThreads(
+        [&](__unused auto &backtrace) {
+            XCTFail("Should not attempt to collect backtraces if current thread handle is null");
+        },
+        cache, ThreadHandle::allExcludingCurrent(), nullptr /* currentThread */);
+
+    XCTAssertEqual(pthread_cancel(thread1), 0);
+    XCTAssertEqual(pthread_join(thread1, nullptr), 0);
+    XCTAssertEqual(pthread_cancel(thread2), 0);
+    XCTAssertEqual(pthread_join(thread2, nullptr), 0);
 }
 
 @end

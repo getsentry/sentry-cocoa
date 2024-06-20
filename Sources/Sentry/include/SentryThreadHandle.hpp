@@ -67,15 +67,13 @@ namespace profiling {
         static std::vector<std::unique_ptr<ThreadHandle>> all() noexcept;
 
         /**
-         * @return A pair, where the first element is a vector of handles for all of
+         * @return A vector of handles for all of
          * the threads in the current process, excluding the current thread (the
-         * thread that this function is being called on), and the second element
-         * is a handle to the current thread.
+         * thread that this function is being called on).
          *
-         * Returns ({}, nullptr) if the current thread could not be retrieved.
+         * @note Returns An empty vector if the current thread could not be retrieved.
          */
-        static std::pair<std::vector<std::unique_ptr<ThreadHandle>>, std::unique_ptr<ThreadHandle>>
-        allExcludingCurrent() noexcept;
+        static std::vector<std::unique_ptr<ThreadHandle>> allExcludingCurrent() noexcept;
 
         /**
          * @param handle The native handle to get the TID from.
