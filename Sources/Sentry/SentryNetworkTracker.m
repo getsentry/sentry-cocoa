@@ -163,6 +163,10 @@ SentryNetworkTracker ()
         return;
     }
 
+    // Register request start date in the sessionTask to use for breadcrumb
+    objc_setAssociatedObject(sessionTask, &SENTRY_NETWORK_REQUEST_START_DATE, [NSDate date],
+        OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+
     @synchronized(self) {
         if (!self.isNetworkTrackingEnabled) {
             [self addTraceWithoutTransactionToTask:sessionTask];
@@ -219,10 +223,6 @@ SentryNetworkTracker ()
         SENTRY_LOG_DEBUG(
             @"SentryNetworkTracker automatically started HTTP span for sessionTask: %@",
             netSpan.description);
-
-        // Register request start date in the sessionTask to use for breadcrumb
-        objc_setAssociatedObject(sessionTask, &SENTRY_NETWORK_REQUEST_START_DATE, [NSDate date],
-            OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 
         objc_setAssociatedObject(sessionTask, &SENTRY_NETWORK_REQUEST_TRACKER_SPAN, netSpan,
             OBJC_ASSOCIATION_RETAIN_NONATOMIC);
