@@ -18,7 +18,27 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
         XCTAssertEqual(1, client?.storedEnvelopeInvocations.count)
         XCTAssertEqual(envelope, client?.storedEnvelopeInvocations.first)
     }
+    
+    func testStoreEnvelopeWithUndhandled_MarksSessionAsCrashedAndDoesNotStartNewSession() {
+        let client = TestClient(options: Options())
+        let hub = TestHub(client: client, andScope: nil)
+        SentrySDK.setCurrentHub(hub)
+        hub.setTestSession()
+        let sessionToBeCrashed = hub.session
 
+        let envelope = getUnhandledExceptionEnvelope()
+        PrivateSentrySDKOnly.store(envelope)
+        
+        let storedEnvelope = client?.storedEnvelopeInvocations.first
+        let attachedSessionData = storedEnvelope!.items.last!.data
+        let attachedSession = try! JSONSerialization.jsonObject(with: attachedSessionData) as! [String: Any]
+        
+        XCTAssertEqual(0, hub.startSessionInvocations)
+        // Assert crashed session was attached to the envelope
+        XCTAssertEqual(sessionToBeCrashed!.sessionId.uuidString, attachedSession["sid"] as! String)
+        XCTAssertEqual("crashed", attachedSession["status"] as! String)
+    }
+    
     func testCaptureEnvelope() {
         let client = TestClient(options: Options())
         SentrySDK.setCurrentHub(TestHub(client: client, andScope: nil))
@@ -28,6 +48,27 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
 
         XCTAssertEqual(1, client?.captureEnvelopeInvocations.count)
         XCTAssertEqual(envelope, client?.captureEnvelopeInvocations.first)
+    }
+    
+    func testCaptureEnvelopeWithUndhandled_MarksSessionAsCrashedAndStartsNewSession() {
+        let client = TestClient(options: Options())
+        let hub = TestHub(client: client, andScope: nil)
+        SentrySDK.setCurrentHub(hub)
+        hub.setTestSession()
+        let sessionToBeCrashed = hub.session
+
+        let envelope = getUnhandledExceptionEnvelope()
+        PrivateSentrySDKOnly.capture(envelope)
+
+        let capturedEnvelope = client?.captureEnvelopeInvocations.first
+        let attachedSessionData = capturedEnvelope!.items.last!.data
+        let attachedSession = try! JSONSerialization.jsonObject(with: attachedSessionData) as! [String: Any]
+        
+        // Assert new session was started
+        XCTAssertEqual(1, hub.startSessionInvocations)
+        // Assert crashed session was attached to the envelope
+        XCTAssertEqual(sessionToBeCrashed!.sessionId.uuidString, attachedSession["sid"] as! String)
+        XCTAssertEqual("crashed", attachedSession["status"] as! String)
     }
 
     func testSetSdkName() {
@@ -343,4 +384,13 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
         }
     }
     #endif
+    
+    func getUnhandledExceptionEnvelope() -> SentryEnvelope {
+        let event = Event()
+        event.message = SentryMessage(formatted: "Test Event with unhandled exception")
+        event.level = .error
+        event.exceptions = [TestData.exception]
+        event.exceptions?.first?.mechanism?.handled = false
+        return SentryEnvelope(event: event)
+    }
 }
