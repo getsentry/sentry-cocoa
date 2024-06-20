@@ -39,6 +39,92 @@ NSString *const kSentryDefaultEnvironment = @"production";
     BOOL _enableTracingManual;
 }
 
+- (id)copyWithZone:(nullable NSZone *)zone {
+    SentryOptions *copy = [[SentryOptions alloc] init];
+    copy.dsn = _dsn;
+    copy.parsedDsn = _parsedDsn;
+    copy.debug = _debug;
+    copy.diagnosticLevel = _diagnosticLevel;
+    copy.releaseName = _releaseName;
+    copy.dist = _dist;
+    copy.environment = _environment;
+    copy.enabled = _enabled;
+    copy.shutdownTimeInterval = _shutdownTimeInterval;
+    copy.enableCrashHandler = _enableCrashHandler;
+    copy.enableSigtermReporting = _enableSigtermReporting;
+    copy.maxBreadcrumbs = _maxBreadcrumbs;
+    copy.enableNetworkBreadcrumbs = _enableNetworkBreadcrumbs;
+    copy.maxCacheItems = _maxCacheItems;
+    copy.beforeSend = _beforeSend;
+    copy.beforeBreadcrumb = _beforeBreadcrumb;
+    copy.beforeCaptureScreenshot = _beforeCaptureScreenshot;
+    copy.onCrashedLastRun = _onCrashedLastRun;
+    copy.integrations = _integrations;
+    copy.sampleRate = _sampleRate;
+    copy.enableAutoSessionTracking = _enableAutoSessionTracking;
+    copy.enableGraphQLOperationTracking = _enableGraphQLOperationTracking;
+    copy.enableWatchdogTerminationTracking = _enableWatchdogTerminationTracking;
+    copy.sessionTrackingIntervalMillis = _sessionTrackingIntervalMillis;
+    copy.attachStacktrace = _attachStacktrace;
+    copy.maxAttachmentSize = _maxAttachmentSize;
+    copy.sendDefaultPii = _sendDefaultPii;
+    copy.enableAutoPerformanceTracing = _enableAutoPerformanceTracing;
+    copy.enablePerformanceV2 = _enablePerformanceV2;
+    copy.initialScope = [_initialScope copy];
+    copy.enableUIViewControllerTracing = _enableUIViewControllerTracing;
+    copy.attachScreenshot = _attachScreenshot;
+    copy.attachViewHierarchy = _attachViewHierarchy;
+    copy.enableUserInteractionTracing = _enableUserInteractionTracing;
+    copy.idleTimeout = _idleTimeout;
+    copy.enablePreWarmedAppStartTracing = _enablePreWarmedAppStartTracing;
+    copy.enableNetworkTracking = _enableNetworkTracking;
+    copy.enableFileIOTracing = _enableFileIOTracing;
+    copy.enableTracing = _enableTracing;
+    copy.tracesSampleRate = _tracesSampleRate;
+    copy.tracesSampler = _tracesSampler;
+    for (NSString *include in _inAppExcludes) {
+        [copy addInAppInclude:include];
+    }
+    for (NSString *exclude in _inAppExcludes) {
+        [copy addInAppExclude:exclude];
+    }
+    copy.urlSessionDelegate = _urlSessionDelegate;
+    copy.urlSession = _urlSession;
+    copy.enableSwizzling = _enableSwizzling;
+    copy.swizzleClassNameExcludes = _swizzleClassNameExcludes;
+    copy.enableCoreDataTracing = _enableCoreDataTracing;
+    copy.enableAppLaunchProfiling = _enableAppLaunchProfiling;
+    copy.profilesSampleRate = _profilesSampleRate;
+    copy.profilesSampler = _profilesSampler;
+#    pragma clang diagnostic push
+#    pragma clang diagnostic ignored "-Wdeprecated-declarations"
+    copy.enableProfiling = _enableProfiling;
+#    pragma clang diagnostic pop
+    copy.sendClientReports = _sendClientReports;
+    copy.enableAppHangTracking = _enableAppHangTracking;
+    copy.appHangTimeoutInterval = _appHangTimeoutInterval;
+    copy.enableAutoBreadcrumbTracking = _enableAutoBreadcrumbTracking;
+    copy.tracePropagationTargets = _tracePropagationTargets;
+    copy.enableCaptureFailedRequests = _enableCaptureFailedRequests;
+    copy.failedRequestStatusCodes = _failedRequestStatusCodes;
+    copy.failedRequestTargets = _failedRequestTargets;
+    if (@available(iOS 15.0, *)) {
+        copy.enableMetricKit = _enableMetricKit;
+        copy.enableMetricKitRawPayload = _enableMetricKitRawPayload;
+    }
+    copy.enableTimeToFullDisplayTracing = _enableTimeToFullDisplayTracing;
+    copy.swiftAsyncStacktraces = _swiftAsyncStacktraces;
+    copy.cacheDirectoryPath = _cacheDirectoryPath;
+    copy.enableSpotlight = _enableSpotlight;
+    copy.spotlightUrl = _spotlightUrl;
+    copy.enableMetrics = _enableMetrics;
+    copy.enableDefaultTagsForMetrics = _enableDefaultTagsForMetrics;
+    copy.enableSpanLocalMetricAggregation = _enableSpanLocalMetricAggregation;
+    copy.beforeEmitMetric = _beforeEmitMetric;
+    copy.experimental.sessionReplay = _experimental.sessionReplay;
+    return copy;
+}
+
 - (void)setMeasurement:(SentryMeasurementValue *)measurement
 {
 }

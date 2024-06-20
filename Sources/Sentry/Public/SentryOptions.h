@@ -8,7 +8,7 @@ NS_ASSUME_NONNULL_BEGIN
 @class SentryExperimentalOptions;
 
 NS_SWIFT_NAME(Options)
-@interface SentryOptions : NSObject
+@interface SentryOptions : NSObject <NSCopying>
 
 /**
  * The DSN tells the SDK where to send the events to. If this value is not provided, the SDK will

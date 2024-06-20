@@ -4,6 +4,8 @@
 #import "SentrySDK.h"
 #import "SentryTests-Swift.h"
 #import <XCTest/XCTest.h>
+#import "SentryDefines.h"
+#import "SentryProfilingConditionals.h"
 @import Nimble;
 
 @interface SentryOptionsTest : XCTestCase
@@ -11,6 +13,179 @@
 @end
 
 @implementation SentryOptionsTest
+
+- (void)testSentryOptionsCopy {
+    // Create an instance of SentryOptions with non-default values
+    SentryOptions *originalOptions = [[SentryOptions alloc] init];
+    originalOptions.dsn = @"https://examplePublicKey@o0.ingest.sentry.io/0";
+    originalOptions.debug = YES;
+    originalOptions.diagnosticLevel = kSentryLevelError;
+    originalOptions.releaseName = @"1.0.0";
+    originalOptions.dist = @"100";
+    originalOptions.environment = @"staging";
+    originalOptions.enabled = NO;
+    originalOptions.shutdownTimeInterval = 5.0;
+    originalOptions.enableCrashHandler = NO;
+#if !TARGET_OS_WATCH
+    originalOptions.enableSigtermReporting = YES;
+#endif
+    originalOptions.maxBreadcrumbs = 50;
+    originalOptions.enableNetworkBreadcrumbs = NO;
+    originalOptions.maxCacheItems = 10;
+    originalOptions.sampleRate = @0.5;
+    originalOptions.enableAutoSessionTracking = NO;
+    originalOptions.enableGraphQLOperationTracking = YES;
+    originalOptions.enableWatchdogTerminationTracking = NO;
+    originalOptions.sessionTrackingIntervalMillis = 60000;
+    originalOptions.attachStacktrace = NO;
+    originalOptions.maxAttachmentSize = 10 * 1024 * 1024;
+    originalOptions.sendDefaultPii = YES;
+    originalOptions.enableAutoPerformanceTracing = NO;
+    originalOptions.enablePerformanceV2 = YES;
+#if SENTRY_UIKIT_AVAILABLE
+    originalOptions.enableUIViewControllerTracing = NO;
+    originalOptions.attachScreenshot = YES;
+    originalOptions.attachViewHierarchy = YES;
+    originalOptions.enableUserInteractionTracing = NO;
+    originalOptions.idleTimeout = 10.0;
+    originalOptions.enablePreWarmedAppStartTracing = YES;
+#endif
+    originalOptions.enableNetworkTracking = NO;
+    originalOptions.enableFileIOTracing = NO;
+    originalOptions.enableTracing = YES;
+    originalOptions.tracesSampleRate = @0.2;
+    originalOptions.enableAppLaunchProfiling = YES;
+    originalOptions.profilesSampleRate = @0.3;
+    originalOptions.sendClientReports = NO;
+    originalOptions.enableAppHangTracking = NO;
+    originalOptions.appHangTimeoutInterval = 1.0;
+    originalOptions.enableAutoBreadcrumbTracking = NO;
+    originalOptions.tracePropagationTargets = @[@"example.com"];
+    originalOptions.enableCaptureFailedRequests = NO;
+    originalOptions.failedRequestStatusCodes = @[[[SentryHttpStatusCodeRange alloc] initWithMin:400 max:499]];
+    originalOptions.failedRequestTargets = @[@"example.com"];
+#if SENTRY_HAS_METRIC_KIT
+    if (@available(iOS 15.0, *)) {
+        originalOptions.enableMetricKit = YES;
+        originalOptions.enableMetricKitRawPayload = YES;
+    }
+#endif
+    originalOptions.enableTimeToFullDisplayTracing = YES;
+    originalOptions.swiftAsyncStacktraces = YES;
+    originalOptions.cacheDirectoryPath = @"/tmp/sentry";
+    originalOptions.enableSpotlight = YES;
+    originalOptions.spotlightUrl = @"http://localhost:1234";
+    originalOptions.enableMetrics = YES;
+    originalOptions.enableDefaultTagsForMetrics = NO;
+    originalOptions.enableSpanLocalMetricAggregation = NO;
+    originalOptions.enableProfiling_DEPRECATED_TEST_ONLY = YES;
+    
+    SentryEvent *_Nullable(^beforeSend)(SentryEvent *_Nonnull) = ^(SentryEvent *_Nonnull __unused event) {
+        return nil;
+    };
+    
+    originalOptions.beforeSend = beforeSend;
+    originalOptions.beforeBreadcrumb
+    originalOptions.beforeCaptureScreenshot
+    originalOptions.onCrashedLastRun
+
+    
+    [self assertNonDefaultValuesForSentryOptions:originalOptions];
+
+    // Create a copy of the original options
+    SentryOptions *copiedOptions = [originalOptions copy];
+
+    // Test that the copied options have the same property values as the original
+    XCTAssertEqualObjects(originalOptions.dsn, copiedOptions.dsn);
+    XCTAssertEqual(originalOptions.debug, copiedOptions.debug);
+    XCTAssertEqual(originalOptions.diagnosticLevel, copiedOptions.diagnosticLevel);
+    XCTAssertEqualObjects(originalOptions.releaseName, copiedOptions.releaseName);
+    XCTAssertEqualObjects(originalOptions.dist, copiedOptions.dist);
+    XCTAssertEqualObjects(originalOptions.environment, copiedOptions.environment);
+    XCTAssertEqual(originalOptions.enabled, copiedOptions.enabled);
+    XCTAssertEqual(originalOptions.shutdownTimeInterval, copiedOptions.shutdownTimeInterval);
+    XCTAssertEqual(originalOptions.enableCrashHandler, copiedOptions.enableCrashHandler);
+#if !TARGET_OS_WATCH
+    XCTAssertEqual(originalOptions.enableSigtermReporting, copiedOptions.enableSigtermReporting);
+#endif
+    XCTAssertEqual(originalOptions.maxBreadcrumbs, copiedOptions.maxBreadcrumbs);
+    XCTAssertEqual(originalOptions.enableNetworkBreadcrumbs, copiedOptions.enableNetworkBreadcrumbs);
+    XCTAssertEqual(originalOptions.maxCacheItems, copiedOptions.maxCacheItems);
+    XCTAssertEqualObjects(originalOptions.sampleRate, copiedOptions.sampleRate);
+    XCTAssertEqual(originalOptions.enableAutoSessionTracking, copiedOptions.enableAutoSessionTracking);
+    XCTAssertEqual(originalOptions.enableGraphQLOperationTracking, copiedOptions.enableGraphQLOperationTracking);
+    XCTAssertEqual(originalOptions.enableWatchdogTerminationTracking, copiedOptions.enableWatchdogTerminationTracking);
+    XCTAssertEqual(originalOptions.sessionTrackingIntervalMillis, copiedOptions.sessionTrackingIntervalMillis);
+    XCTAssertEqual(originalOptions.attachStacktrace, copiedOptions.attachStacktrace);
+    XCTAssertEqual(originalOptions.maxAttachmentSize, copiedOptions.maxAttachmentSize);
+    XCTAssertEqual(originalOptions.sendDefaultPii, copiedOptions.sendDefaultPii);
+    XCTAssertEqual(originalOptions.enableAutoPerformanceTracing, copiedOptions.enableAutoPerformanceTracing);
+    XCTAssertEqual(originalOptions.enablePerformanceV2, copiedOptions.enablePerformanceV2);
+#if SENTRY_UIKIT_AVAILABLE
+    XCTAssertEqual(originalOptions.enableUIViewControllerTracing, copiedOptions.enableUIViewControllerTracing);
+    XCTAssertEqual(originalOptions.attachScreenshot, copiedOptions.attachScreenshot);
+    XCTAssertEqual(originalOptions.attachViewHierarchy, copiedOptions.attachViewHierarchy);
+    XCTAssertEqual(originalOptions.enableUserInteractionTracing, copiedOptions.enableUserInteractionTracing);
+    XCTAssertEqual(originalOptions.idleTimeout, copiedOptions.idleTimeout);
+    XCTAssertEqual(originalOptions.enablePreWarmedAppStartTracing, copiedOptions.enablePreWarmedAppStartTracing);
+#endif
+    XCTAssertEqual(originalOptions.enableNetworkTracking, copiedOptions.enableNetworkTracking);
+    XCTAssertEqual(originalOptions.enableFileIOTracing, copiedOptions.enableFileIOTracing);
+    XCTAssertEqual(originalOptions.enableTracing, copiedOptions.enableTracing);
+    XCTAssertEqualObjects(originalOptions.tracesSampleRate, copiedOptions.tracesSampleRate);
+    XCTAssertEqual(originalOptions.enableAppLaunchProfiling, copiedOptions.enableAppLaunchProfiling);
+    XCTAssertEqualObjects(originalOptions.profilesSampleRate, copiedOptions.profilesSampleRate);
+    XCTAssertEqual(originalOptions.sendClientReports, copiedOptions.sendClientReports);
+    XCTAssertEqual(originalOptions.enableAppHangTracking, copiedOptions.enableAppHangTracking);
+    XCTAssertEqual(originalOptions.appHangTimeoutInterval, copiedOptions.appHangTimeoutInterval);
+    XCTAssertEqual(originalOptions.enableAutoBreadcrumbTracking, copiedOptions.enableAutoBreadcrumbTracking);
+    XCTAssertEqualObjects(originalOptions.tracePropagationTargets, copiedOptions.tracePropagationTargets);
+    XCTAssertEqual(originalOptions.enableCaptureFailedRequests, copiedOptions.enableCaptureFailedRequests);
+    XCTAssertEqualObjects(originalOptions.failedRequestStatusCodes, copiedOptions.failedRequestStatusCodes);
+    XCTAssertEqualObjects(originalOptions.failedRequestTargets, copiedOptions.failedRequestTargets);
+#if SENTRY_HAS_METRIC_KIT
+    if (@available(iOS 15.0, *)) {
+        XCTAssertEqual(originalOptions.enableMetricKit, copiedOptions.enableMetricKit);
+        XCTAssertEqual(originalOptions.enableMetricKitRawPayload, copiedOptions.enableMetricKitRawPayload);
+    }
+#endif
+    XCTAssertEqual(originalOptions.enableTimeToFullDisplayTracing, copiedOptions.enableTimeToFullDisplayTracing);
+    XCTAssertEqual(originalOptions.swiftAsyncStacktraces, copiedOptions.swiftAsyncStacktraces);
+    XCTAssertEqualObjects(originalOptions.cacheDirectoryPath, copiedOptions.cacheDirectoryPath);
+    XCTAssertEqual(originalOptions.enableSpotlight, copiedOptions.enableSpotlight);
+    XCTAssertEqualObjects(originalOptions.spotlightUrl, copiedOptions.spotlightUrl);
+    XCTAssertEqual(originalOptions.enableMetrics, copiedOptions.enableMetrics);
+    XCTAssertEqual(originalOptions.enableDefaultTagsForMetrics, copiedOptions.enableDefaultTagsForMetrics);
+    XCTAssertEqual(originalOptions.enableSpanLocalMetricAggregation, copiedOptions.enableSpanLocalMetricAggregation);
+}
+
+/**
+ * this method dynamically checks every property in an options, instance and ensures that it is not the default value for that property. This helps to ensure that when we make a copy, we are able to check that all values are copied over, and that were not simply comparing the default value in a new instance to a default value that was there from the start, and never changed.
+ */
+- (void)assertNonDefaultValuesForSentryOptions:(SentryOptions *)options {
+    SentryOptions *defaultOptions = [[SentryOptions alloc] init];
+    unsigned int outCount, i;
+    objc_property_t *properties = class_copyPropertyList([SentryOptions class], &outCount);
+    for (i = 0; i < outCount; i++) {
+        objc_property_t property = properties[i];
+        const char *propName = property_getName(property);
+        NSString *propertyName = [NSString stringWithUTF8String:propName];
+        
+        id defaultValue = [defaultOptions valueForKey:propertyName];
+        id nonDefaultValue = [options valueForKey:propertyName];
+        
+        if (defaultValue == nil) {
+            XCTAssertNotNil(nonDefaultValue, @"Property %@ should not be nil", propertyName);
+        } else if (nonDefaultValue == nil) {
+            XCTAssertNotNil(nonDefaultValue, @"Property %@ should not be nil", propertyName);
+        } else if ([defaultValue isKindOfClass:[NSNumber class]] || [defaultValue isKindOfClass:[NSString class]]) {
+            XCTAssertNotEqualObjects(defaultValue, nonDefaultValue, @"Property %@ should have a non-default value", propertyName);
+        } else {
+            XCTAssertNotEqualObjects(defaultValue, nonDefaultValue, @"Property %@ should have a non-default value", propertyName);
+        }
+    }
+    free(properties);
+}
 
 - (void)testEmptyDsn
 {
