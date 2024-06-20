@@ -2,10 +2,9 @@
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
+#    include "SentryAsyncSafeLog.h"
 #    include "SentryBacktrace.hpp"
 #    include "SentryMachLogging.hpp"
-#include "SentryAsyncSafeLog.h"
-#include "SentryLog.h"
 #    include "SentryThreadMetadataCache.hpp"
 
 #    include <chrono>
@@ -89,7 +88,7 @@ namespace profiling {
             != KERN_SUCCESS) {
             return;
         }
-        if (SENTRY_LOG_KERN_RETURN(
+        if (SENTRY_ASYNC_SAFE_LOG_KERN_RETURN(
                 mach_port_allocate(mach_task_self(), MACH_PORT_RIGHT_RECEIVE, &port_))
             != KERN_SUCCESS) {
             return;
@@ -108,7 +107,7 @@ namespace profiling {
             return;
         }
         stopSampling();
-        SENTRY_LOG_KERN_RETURN(
+        SENTRY_ASYNC_SAFE_LOG_KERN_RETURN(
             mach_port_mod_refs(mach_task_self(), port_, MACH_PORT_RIGHT_RECEIVE, -1));
     }
 
@@ -127,29 +126,29 @@ namespace profiling {
         isSampling_ = true;
         numSamples_ = 0;
         pthread_attr_t attr;
-        if (SENTRY_LOG_ERRNO_RETURN(pthread_attr_init(&attr)) != 0) {
+        if (SENTRY_ASYNC_SAFE_LOG_ERRNO_RETURN(pthread_attr_init(&attr)) != 0) {
             return;
         }
         sched_param param;
-        if (SENTRY_LOG_ERRNO_RETURN(pthread_attr_getschedparam(&attr, &param)) == 0) {
+        if (SENTRY_ASYNC_SAFE_LOG_ERRNO_RETURN(pthread_attr_getschedparam(&attr, &param)) == 0) {
             // A priority of 50 is higher than user input, according to:
             // https://chromium.googlesource.com/chromium/src/base/+/master/threading/platform_thread_mac.mm#302
             // Run at a higher priority than the main thread so that we can capture main thread
             // backtraces even when it's busy.
             param.sched_priority = 50;
-            SENTRY_LOG_ERRNO_RETURN(pthread_attr_setschedparam(&attr, &param));
+            SENTRY_ASYNC_SAFE_LOG_ERRNO_RETURN(pthread_attr_setschedparam(&attr, &param));
         }
 
         const auto params = new SamplingThreadParams { port_, clock_, delaySpec_, cache_, callback_,
             std::ref(numSamples_), std::move(onThreadStart) };
-        if (SENTRY_LOG_ERRNO_RETURN(
+        if (SENTRY_ASYNC_SAFE_LOG_ERRNO_RETURN(
                 pthread_create(&thread_, &attr, samplingThreadMain, params))
             != 0) {
             delete params;
             return;
         }
 
-        SENTRY_LOG_KERN_RETURN(clock_alarm(clock_, TIME_RELATIVE, delaySpec_, port_));
+        SENTRY_ASYNC_SAFE_LOG_KERN_RETURN(clock_alarm(clock_, TIME_RELATIVE, delaySpec_, port_));
     }
 
     void
@@ -162,8 +161,8 @@ namespace profiling {
         if (!isSampling_) {
             return;
         }
-        SENTRY_LOG_ERRNO_RETURN(pthread_cancel(thread_));
-        SENTRY_LOG_ERRNO_RETURN(pthread_join(thread_, NULL));
+        SENTRY_ASYNC_SAFE_LOG_ERRNO_RETURN(pthread_cancel(thread_));
+        SENTRY_ASYNC_SAFE_LOG_ERRNO_RETURN(pthread_join(thread_, NULL));
         isSampling_ = false;
     }
 

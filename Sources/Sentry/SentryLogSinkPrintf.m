@@ -1,6 +1,8 @@
 #import "SentryLogSinkPrintf.h"
 
-void logPrintf(const char *message) {
+void
+logPrintf(const char *message)
+{
     printf("%s\n", message);
 }
 

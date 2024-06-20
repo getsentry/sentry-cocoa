@@ -1,16 +1,17 @@
 #import "SentryDefines.h"
 #import "SentrySwift.h"
 
-
 @class SentryLogSinkNSLog;
 @protocol SentryLogSink;
 
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * @return @c YES if the the specified logger's configuration will log statements at the specified  level,
+ * @return @c YES if the the specified logger's configuration will log statements at the specified
+ * level,
  * @c NO if not.
- * @note Exposed as a C function so it can be used from contexts that require async-safety and thus cannot use ObjC.
+ * @note Exposed as a C function so it can be used from contexts that require async-safety and thus
+ * cannot use ObjC.
  */
 SENTRY_EXTERN BOOL loggerWillLogAtLevel(const char *loggerLabel, SentryLevel level);
 
@@ -32,7 +33,7 @@ SENTRY_NO_INIT
 NS_ASSUME_NONNULL_END
 
 #define SENTRY_LOG_WITH_LOGGER(SENTRY_LOGGER, _SENTRY_LOG_LEVEL, ...)                              \
-    if (loggerWillLogAtLevel(SENTRY_LOGGER.label, _SENTRY_LOG_LEVEL)) {                                        \
+    if (loggerWillLogAtLevel(SENTRY_LOGGER.label, _SENTRY_LOG_LEVEL)) {                            \
         [SENTRY_LOGGER                                                                             \
             logWithMessage:[NSString stringWithFormat:@"[%@:%d] %@",                               \
                                      [[[NSString stringWithUTF8String:__FILE__] lastPathComponent] \
@@ -66,7 +67,7 @@ NS_ASSUME_NONNULL_END
  * the error value is logged, and the original return value of @c statement is
  * returned.
  */
-#define SENTRY_LOG_ERRNO_RETURN(statement)                                                                \
+#define SENTRY_LOG_ERRNO_RETURN(statement)                                                         \
     ({                                                                                             \
         errno = 0;                                                                                 \
         const auto __log_rv = (statement);                                                         \

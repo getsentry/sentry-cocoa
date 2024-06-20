@@ -139,7 +139,8 @@ sentry_getCPUArchitecture(void)
 {
     cpu_subtype_t subtype;
     size_t subtypeSize = sizeof(subtype);
-    if (SENTRY_LOG_ERRNO_RETURN(sysctlbyname("hw.cpusubtype", &subtype, &subtypeSize, NULL, 0)) != 0) {
+    if (SENTRY_LOG_ERRNO_RETURN(sysctlbyname("hw.cpusubtype", &subtype, &subtypeSize, NULL, 0))
+        != 0) {
         return getCPUType(nil);
     }
     switch (subtype) {
@@ -237,7 +238,8 @@ sentry_getOSBuildNumber(void)
     char str[32];
     size_t size = sizeof(str);
     int cmd[2] = { CTL_KERN, KERN_OSVERSION };
-    if (SENTRY_LOG_ERRNO_RETURN(sysctl(cmd, sizeof(cmd) / sizeof(*cmd), str, &size, NULL, 0)) == 0) {
+    if (SENTRY_LOG_ERRNO_RETURN(sysctl(cmd, sizeof(cmd) / sizeof(*cmd), str, &size, NULL, 0))
+        == 0) {
         return [NSString stringWithUTF8String:str];
     }
     return @"";

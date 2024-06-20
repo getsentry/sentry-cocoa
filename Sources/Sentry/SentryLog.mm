@@ -15,15 +15,15 @@ typedef struct {
 } SentryLoggerConfiguration;
 
 namespace {
-    std::map<const char *, SentryLoggerConfiguration> _gLoggerConfigurations;
-    std::mutex _gLogConfigureLock;
+std::map<const char *, SentryLoggerConfiguration> _gLoggerConfigurations;
+std::mutex _gLogConfigureLock;
 } // namespace
 
-BOOL loggerWillLogAtLevel(const char *loggerLabel, SentryLevel level)
-    SENTRY_DISABLE_THREAD_SANITIZER(
-        "The SDK usually configures the log level and isDebug once when it starts. For tests, we "
-        "accept a data race causing some log messages of the wrong level over using a synchronized "
-        "block for this method, as it's called frequently in production.")
+BOOL
+loggerWillLogAtLevel(const char *loggerLabel, SentryLevel level) SENTRY_DISABLE_THREAD_SANITIZER(
+    "The SDK usually configures the log level and isDebug once when it starts. For tests, we "
+    "accept a data race causing some log messages of the wrong level over using a synchronized "
+    "block for this method, as it's called frequently in production.")
 {
     const auto config = _gLoggerConfigurations[loggerLabel];
     return config.isDebug && level != kSentryLevelNone && level >= config.diagnosticLevel;
@@ -38,10 +38,11 @@ BOOL loggerWillLogAtLevel(const char *loggerLabel, SentryLevel level)
     __block SentryLog *logger;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        logger = [[SentryLog alloc] initWithLabel:"io.sentry.sdk.logger.default" sinks:@[
-            [[SentryLogSinkNSLog alloc] init],
-            [[SentryLogSinkFile alloc] init],
-        ]];
+        logger = [[SentryLog alloc] initWithLabel:"io.sentry.sdk.logger.default"
+                                            sinks:@[
+                                                [[SentryLogSinkNSLog alloc] init],
+                                                [[SentryLogSinkFile alloc] init],
+                                            ]];
     });
     return logger;
 }
@@ -52,12 +53,11 @@ BOOL loggerWillLogAtLevel(const char *loggerLabel, SentryLevel level)
     if (self) {
         // Enable per default to log initialization errors.
         [self configure:YES diagnosticLevel:kSentryLevelError];
-        
+
         static dispatch_once_t loggerConfigurationMapInitOnceToken;
-        dispatch_once(&loggerConfigurationMapInitOnceToken, ^{
-            _gLoggerConfigurations = std::map<const char *, SentryLoggerConfiguration>();
-        });
-        
+        dispatch_once(&loggerConfigurationMapInitOnceToken,
+            ^{ _gLoggerConfigurations = std::map<const char *, SentryLoggerConfiguration>(); });
+
         _sinks = sinks;
         _label = label;
     }
