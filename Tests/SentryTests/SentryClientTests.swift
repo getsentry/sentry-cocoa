@@ -1060,6 +1060,48 @@ class SentryClientTest: XCTestCase {
             XCTAssertEqual([], actual.threads)
         }
     }
+    
+    func testBeforeSpanDitchOneSpan_OtherChangedSpanSent() throws {
+        let spanOne = SentrySpan(tracer: fixture.trace, context: SpanContext(operation: "operation.one"), framesTracker: nil)
+        let spanTwo = SentrySpan(tracer: fixture.trace, context: SpanContext(operation: "operation.two"), framesTracker: nil)
+        let transaction = Transaction(trace: fixture.trace, children: [spanOne, spanTwo])
+        fixture.getSut(configureOptions: { options in
+            options.beforeSendSpan = { span in
+                if span.operation == "operation.one" {
+                    span.operation = "changed"
+                    return span
+                }
+                
+                return nil
+            }
+        }).capture(event: transaction)
+        
+        try assertLastSentEvent { actual in
+            let serialized = actual.serialize()
+            let serializedSpans = try XCTUnwrap(serialized["spans"] as? [[String: Any]])
+            XCTAssertEqual(1, serializedSpans.count)
+            
+            let serializedSpan = try XCTUnwrap(serializedSpans.first)
+            
+            XCTAssertEqual("changed", serializedSpan["op"]  as? String)
+        }
+    }
+    
+    func testBeforeSpanIsNil_SpansUntouched() throws {
+        let span = SentrySpan(tracer: fixture.trace, context: SpanContext(operation: "operation"), framesTracker: nil)
+        let transaction = Transaction(trace: fixture.trace, children: [span])
+        fixture.getSut().capture(event: transaction)
+        
+        try assertLastSentEvent { actual in
+            
+            let serialized = actual.serialize()
+            let serializedSpans = try XCTUnwrap(serialized["spans"] as? [[String: Any]])
+            XCTAssertEqual(1, serializedSpans.count)
+            let serializedSpan = try XCTUnwrap(serializedSpans.first)
+            
+            XCTAssertEqual("operation", serializedSpan["op"]  as? String)
+        }
+    }
 
     func testNoDsn_MessageNotSent() {
         let sut = fixture.getSutWithNoDsn()

@@ -700,6 +700,21 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         [self recordLost:eventIsNotATransaction reason:kSentryDiscardReasonEventProcessor];
     }
 
+    BOOL eventIsATransaction
+        = event.type != nil && [event.type isEqualToString:SentryEnvelopeItemTypeTransaction];
+    if (event != nil && eventIsATransaction && self.options.beforeSendSpan != nil) {
+        SentryTransaction *transaction = (SentryTransaction *)event;
+        NSMutableArray<id<SentrySpan>> *processedSpans = [NSMutableArray array];
+        for (id<SentrySpan> span in transaction.spans) {
+            id<SentrySpan> processedSpan = self.options.beforeSendSpan(span);
+            if (processedSpan) {
+                [processedSpans addObject:processedSpan];
+            }
+        }
+
+        transaction.spans = processedSpans;
+    }
+
     if (event != nil && nil != self.options.beforeSend) {
         event = self.options.beforeSend(event);
 

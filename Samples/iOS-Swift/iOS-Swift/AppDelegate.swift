@@ -24,6 +24,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             options.beforeSend = { event in
                 return event
             }
+            options.beforeSendSpan = { span in
+                return span
+            }
             options.enableSigtermReporting = true
             options.beforeCaptureScreenshot = { _ in
                 return true

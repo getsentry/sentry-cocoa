@@ -6,6 +6,7 @@
 
 - Restart replay session with mobile session (#4085)
 - Add pause and resume AppHangTracking API (#4077). You can now pause and resume app hang tracking with `SentrySDK.pauseAppHangTracking()` and `SentrySDK.resumeAppHangTracking()`.
+- Add `beforeSendSpan` callback (#4095)
 
 ### Fixes
 
