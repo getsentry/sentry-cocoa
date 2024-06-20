@@ -1061,7 +1061,7 @@ class SentryClientTest: XCTestCase {
         }
     }
     
-    func testBeforeSpanDitchOneSpan_OtherChangedSpanSent() throws {
+    func testBeforeSendSpanDitchOneSpan_OtherChangedSpanSent() throws {
         let spanOne = SentrySpan(tracer: fixture.trace, context: SpanContext(operation: "operation.one"), framesTracker: nil)
         let spanTwo = SentrySpan(tracer: fixture.trace, context: SpanContext(operation: "operation.two"), framesTracker: nil)
         let transaction = Transaction(trace: fixture.trace, children: [spanOne, spanTwo])
@@ -1087,7 +1087,7 @@ class SentryClientTest: XCTestCase {
         }
     }
     
-    func testBeforeSpanIsNil_SpansUntouched() throws {
+    func testBeforeSendSpanIsNil_SpansUntouched() throws {
         let span = SentrySpan(tracer: fixture.trace, context: SpanContext(operation: "operation"), framesTracker: nil)
         let transaction = Transaction(trace: fixture.trace, children: [span])
         fixture.getSut().capture(event: transaction)
@@ -1100,6 +1100,31 @@ class SentryClientTest: XCTestCase {
             let serializedSpan = try XCTUnwrap(serializedSpans.first)
             
             XCTAssertEqual("operation", serializedSpan["op"]  as? String)
+        }
+    }
+    
+    func testBeforeSendSpan_StartSpan_ReturnsNoOpSpan() throws {
+        let tracer = fixture.trace
+        let span = SentrySpan(tracer: tracer, context: SpanContext(operation: "operation"), framesTracker: nil)
+        tracer.finish()
+        
+        let transaction = Transaction(trace: tracer, children: [span])
+        
+        fixture.getSut(configureOptions: { options in
+            options.beforeSendSpan = { span in
+                let childSpan = span.startChild(operation: "op")
+                
+                XCTAssert(childSpan.isKind(of: SentryNoOpSpan.self))
+                
+                return span
+            }
+        }).capture(event: transaction)
+        
+        try assertLastSentEvent { actual in
+            
+            let serialized = actual.serialize()
+            let serializedSpans = try XCTUnwrap(serialized["spans"] as? [[String: Any]])
+            XCTAssertEqual(1, serializedSpans.count)
         }
     }
 
