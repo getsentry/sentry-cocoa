@@ -3,7 +3,8 @@ import Foundation
 
 @objc
 protocol SentryReplayBreadcrumbConverter: NSObjectProtocol {
-    func convert(breadcrumbs: [Breadcrumb], from: Date, until: Date) -> [SentryRRWebEvent]
+    func convert(breadcrumbs: [Breadcrumb], from: Date, until: Date) -> [SentryRRWebEventProtocol]
+    func convert(from breadcrumb: Breadcrumb) -> SentryRRWebEventProtocol?
 }
 
 @objcMembers
@@ -18,7 +19,7 @@ class SentrySRDefaultBreadcrumbConverter: NSObject, SentryReplayBreadcrumbConver
         "http.fragment"]
     )
     
-    func convert(breadcrumbs: [Breadcrumb], from: Date, until: Date) -> [SentryRRWebEvent] {
+    func convert(breadcrumbs: [Breadcrumb], from: Date, until: Date) -> [SentryRRWebEventProtocol] {
         breadcrumbs.filter {
             guard let timestamp = $0.timestamp else { return false }
             return timestamp >= from && timestamp <= until
@@ -31,7 +32,7 @@ class SentrySRDefaultBreadcrumbConverter: NSObject, SentryReplayBreadcrumbConver
      * Any deviation in the information will cause the breadcrumb or the information itself to be discarded
      * in order to avoid unknown behavior in the front-end.
      */
-    func convert(from breadcrumb: Breadcrumb) -> SentryRRWebEvent? {
+    func convert(from breadcrumb: Breadcrumb) -> SentryRRWebEventProtocol? {
         guard let timestamp = breadcrumb.timestamp else { return nil }
         if breadcrumb.category == "http" {
             return networkSpan(breadcrumb)

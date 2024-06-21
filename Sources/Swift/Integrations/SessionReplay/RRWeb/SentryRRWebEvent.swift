@@ -9,8 +9,13 @@ enum SentryRRWebEventType: Int {
     case custom = 5
 }
 
+
+@objc(SentryRRWebEvent)
+protocol SentryRRWebEventProtocol : NSObjectProtocol, SentrySerializable {
+}
+
 @objcMembers
-class SentryRRWebEvent: NSObject {
+class SentryRRWebEvent: NSObject, SentryRRWebEventProtocol {
     let type: SentryRRWebEventType
     let timestamp: Date
     let data: [String: Any]?
