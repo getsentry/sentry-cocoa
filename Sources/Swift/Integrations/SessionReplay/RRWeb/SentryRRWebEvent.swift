@@ -10,7 +10,7 @@ enum SentryRRWebEventType: Int {
 }
 
 @objc(SentryRRWebEvent)
-protocol SentryRRWebEventProtocol: NSObjectProtocol, SentrySerializable {
+protocol SentryRRWebEventProtocol: SentrySerializable {
 }
 
 @objcMembers
