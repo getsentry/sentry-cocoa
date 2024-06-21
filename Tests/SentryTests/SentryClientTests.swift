@@ -1104,6 +1104,7 @@ class SentryClientTest: XCTestCase {
         }
     }
     
+    /// Ensure that you can't start and finish new spans in the beforeSendSpan Callback
     func testBeforeSendSpan_StartSpan_ReturnsNoOpSpan() throws {
         let tracer = fixture.trace
         let span = getSpan(operation: "operation", tracer: tracer)
