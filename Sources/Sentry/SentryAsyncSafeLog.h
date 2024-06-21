@@ -25,94 +25,6 @@
 // THE SOFTWARE.
 //
 
-/**
- * SentryAsyncSafeLog
- * ========
- *
- * Prints log entries to the console consisting of:
- * - Level (Error, Warn, Info, Debug, Trace)
- * - File
- * - Line
- * - Function
- * - Message
- *
- * Allows setting the minimum logging level in the preprocessor.
- *
- * Works in C or Objective-C contexts, with or without ARC, using CLANG or GCC.
- *
- *
- * =====
- * USAGE
- * =====
- *
- * Set the log level in your "Preprocessor Macros" build setting. You may choose
- * TRACE, DEBUG, INFO, WARN, ERROR. If nothing is set, it defaults to ERROR.
- *
- * Example: SENTRY_ASYNC_SAFE_LOG_LEVEL=WARN
- *
- * Anything below the level specified for SENTRY_ASYNC_SAFE_LOG_LEVEL will not be
- * compiled or printed.
- *
- *
- * Next, include the header file:
- *
- * #include "SentryAsyncSafeLog.h"
- *
- *
- * Next, call the logger functions from your code (using objective-c strings
- * in objective-C files and regular strings in regular C files):
- *
- * Code:
- *    SENTRY_ASYNC_SAFE_LOG_ERROR(@"Some error message");
- *
- * Prints:
- *    2011-07-16 05:41:01.379 TestApp[4439:f803] ERROR: SomeClass.m (21):
- * -[SomeFunction]: Some error message
- *
- * Code:
- *    SENTRY_ASYNC_SAFE_LOG_INFO(@"Info about %@", someObject);
- *
- * Prints:
- *    2011-07-16 05:44:05.239 TestApp[4473:f803] INFO : SomeClass.m (20):
- * -[SomeFunction]: Info about <NSObject: 0xb622840>
- *
- * NOTE: In C files, use "" instead of @"" in the format field. Logging calls
- *       in C files do not print the NSLog preamble:
- *
- * Objective-C version:
- *    SENTRY_ASYNC_SAFE_LOG_ERROR(@"Some error message");
- *
- *    2011-07-16 05:41:01.379 TestApp[4439:f803] ERROR: SomeClass.m (21):
- * -[SomeFunction]: Some error message
- *
- * C version:
- *    SENTRY_ASYNC_SAFE_LOG_ERROR("Some error message");
- *
- *    ERROR: SomeClass.c (21): SomeFunction(): Some error message
- *
- *
- * =============
- * LOCAL LOGGING
- * =============
- *
- * You can control logging messages at the local file level using the
- * "SENTRY_ASYNC_SAFE_LOG_LOCAL_LEVEL" define. Note that it must be defined BEFORE
- * including SentryAsyncSafeLog.h
- *
- * The SENTRY_ASYNC_SAFE_LOG_XX() macro will print out
- * based on the LOWER of SENTRY_ASYNC_SAFE_LOG_LEVEL and
- * SENTRY_ASYNC_SAFE_LOG_LOCAL_LEVEL, so if SENTRY_ASYNC_SAFE_LOG_LEVEL is DEBUG and
- * SENTRY_ASYNC_SAFE_LOG_LOCAL_LEVEL is TRACE, it will print all the way down to the
- * trace level for the local file where SENTRY_ASYNC_SAFE_LOG_LOCAL_LEVEL was
- * defined, and to the debug level everywhere else.
- *
- * Example:
- *
- * // SENTRY_ASYNC_SAFE_LOG_LOCAL_LEVEL, if defined, MUST come BEFORE including
- * SentryAsyncSafeLog.h #define SENTRY_ASYNC_SAFE_LOG_LOCAL_LEVEL TRACE #import
- * "SentryAsyncSafeLog.h"
- */
-
 #ifndef HDR_SENTRY_ASYNC_SAFE_LOG_H
 #define HDR_SENTRY_ASYNC_SAFE_LOG_H
 
@@ -127,10 +39,6 @@
  */
 #define SENTRY_ASYNC_SAFE_LOG_ALSO_WRITE_TO_CONSOLE 0
 
-// ============================================================================
-#pragma mark - (internal) -
-// ============================================================================
-
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -142,32 +50,6 @@ void sentry_asyncLogC(
 
 #define i_SENTRY_ASYNC_SAFE_LOG sentry_asyncLogC
 
-/* Back up any existing defines by the same name */
-#ifdef SENTRY_ASYNC_SAFE_LOG_NONE
-#    define SENTRY_ASYNC_SAFE_LOG_BAK_NONE SENTRY_ASYNC_SAFE_LOG_NONE
-#    undef SENTRY_ASYNC_SAFE_LOG_NONE
-#endif
-#ifdef ERROR
-#    define SENTRY_ASYNC_SAFE_LOG_BAK_ERROR ERROR
-#    undef ERROR
-#endif
-#ifdef WARN
-#    define SENTRY_ASYNC_SAFE_LOG_BAK_WARN WARN
-#    undef WARN
-#endif
-#ifdef INFO
-#    define SENTRY_ASYNC_SAFE_LOG_BAK_INFO INFO
-#    undef INFO
-#endif
-#ifdef DEBUG
-#    define SENTRY_ASYNC_SAFE_LOG_BAK_DEBUG DEBUG
-#    undef DEBUG
-#endif
-#ifdef TRACE
-#    define SENTRY_ASYNC_SAFE_LOG_BAK_TRACE TRACE
-#    undef TRACE
-#endif
-
 #define SENTRY_ASYNC_SAFE_LOG_LEVEL_NONE 0
 #define SENTRY_ASYNC_SAFE_LOG_LEVEL_ERROR 10
 #define SENTRY_ASYNC_SAFE_LOG_LEVEL_WARN 20
@@ -175,20 +57,7 @@ void sentry_asyncLogC(
 #define SENTRY_ASYNC_SAFE_LOG_LEVEL_DEBUG 40
 #define SENTRY_ASYNC_SAFE_LOG_LEVEL_TRACE 50
 
-#define SENTRY_ASYNC_SAFE_LOG_NONE SENTRY_ASYNC_SAFE_LOG_LEVEL_NONE
-#define ERROR SENTRY_ASYNC_SAFE_LOG_LEVEL_ERROR
-#define WARN SENTRY_ASYNC_SAFE_LOG_LEVEL_WARN
-#define INFO SENTRY_ASYNC_SAFE_LOG_LEVEL_INFO
-#define DEBUG SENTRY_ASYNC_SAFE_LOG_LEVEL_DEBUG
-#define TRACE SENTRY_ASYNC_SAFE_LOG_LEVEL_TRACE
-
-#ifndef SENTRY_ASYNC_SAFE_LOG_LEVEL
-#    define SENTRY_ASYNC_SAFE_LOG_LEVEL SENTRY_ASYNC_SAFE_LOG_LEVEL_ERROR
-#endif
-
-#ifndef SENTRY_ASYNC_SAFE_LOG_LOCAL_LEVEL
-#    define SENTRY_ASYNC_SAFE_LOG_LOCAL_LEVEL SENTRY_ASYNC_SAFE_LOG_LEVEL_TRACE
-#endif
+#define SENTRY_ASYNC_SAFE_LOG_LEVEL SENTRY_ASYNC_SAFE_LOG_LEVEL_ERROR
 
 #define a_SENTRY_ASYNC_SAFE_LOG(LEVEL, FMT, ...)                                                   \
     i_SENTRY_ASYNC_SAFE_LOG(LEVEL, __FILE__, __LINE__, __PRETTY_FUNCTION__, FMT, ##__VA_ARGS__)
@@ -219,15 +88,7 @@ bool sentry_asyncLogClearLogFile(void);
  *
  * @return TRUE if the logger would print at the specified level.
  */
-#define SENTRY_ASYNC_SAFE_LOG_PRINTS_AT_LEVEL(LEVEL)                                               \
-    (SENTRY_ASYNC_SAFE_LOG_LEVEL >= LEVEL || SENTRY_ASYNC_SAFE_LOG_LOCAL_LEVEL >= LEVEL)
-
-/** Log a message regardless of the log settings.
- * Normal version prints out full context.
- *
- * @param FMT The format specifier, followed by its arguments.
- */
-#define SENTRY_ASYNC_SAFE_LOG_ALWAYS(FMT, ...) a_SENTRY_ASYNC_SAFE_LOG("FORCE", FMT, ##__VA_ARGS__)
+#define SENTRY_ASYNC_SAFE_LOG_PRINTS_AT_LEVEL(LEVEL) (SENTRY_ASYNC_SAFE_LOG_LEVEL >= LEVEL)
 
 /** Log an error.
  * Normal version prints out full context.
@@ -287,37 +148,6 @@ bool sentry_asyncLogClearLogFile(void);
         a_SENTRY_ASYNC_SAFE_LOG("TRACE", FMT, ##__VA_ARGS__)
 #else
 #    define SENTRY_ASYNC_SAFE_LOG_TRACE(FMT, ...)
-#endif
-
-// ============================================================================
-#pragma mark - (internal) -
-// ============================================================================
-
-/* Put everything back to the way we found it. */
-#undef ERROR
-#ifdef SENTRY_ASYNC_SAFE_LOG_BAK_ERROR
-#    define ERROR SENTRY_ASYNC_SAFE_LOG_BAK_ERROR
-#    undef SENTRY_ASYNC_SAFE_LOG_BAK_ERROR
-#endif
-#undef WARNING
-#ifdef SENTRY_ASYNC_SAFE_LOG_BAK_WARN
-#    define WARNING SENTRY_ASYNC_SAFE_LOG_BAK_WARN
-#    undef SENTRY_ASYNC_SAFE_LOG_BAK_WARN
-#endif
-#undef INFO
-#ifdef SENTRY_ASYNC_SAFE_LOG_BAK_INFO
-#    define INFO SENTRY_ASYNC_SAFE_LOG_BAK_INFO
-#    undef SENTRY_ASYNC_SAFE_LOG_BAK_INFO
-#endif
-#undef DEBUG
-#ifdef SENTRY_ASYNC_SAFE_LOG_BAK_DEBUG
-#    define DEBUG SENTRY_ASYNC_SAFE_LOG_BAK_DEBUG
-#    undef SENTRY_ASYNC_SAFE_LOG_BAK_DEBUG
-#endif
-#undef TRACE
-#ifdef SENTRY_ASYNC_SAFE_LOG_BAK_TRACE
-#    define TRACE SENTRY_ASYNC_SAFE_LOG_BAK_TRACE
-#    undef SENTRY_ASYNC_SAFE_LOG_BAK_TRACE
 #endif
 
 #ifdef __cplusplus
