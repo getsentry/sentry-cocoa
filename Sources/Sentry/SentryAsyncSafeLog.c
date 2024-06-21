@@ -1,6 +1,6 @@
 // Adapted from: https://github.com/kstenerud/KSCrash
 //
-//  SentryCrashLogger.c
+//  SentryAsyncSafeLog.c
 //
 //  Created by Karl Stenerud on 11-06-25.
 //
@@ -25,8 +25,8 @@
 // THE SOFTWARE.
 //
 
-#include "SentryCrashLogger.h"
-#include "SentryCrashSystemCapabilities.h"
+#include "SentryAsyncSafeLog.h"
+#include "SentryInternalCDefines.h"
 
 // ===========================================================================
 #pragma mark - Common -
@@ -80,7 +80,7 @@ writeFmtToLog(const char *fmt, ...)
     va_end(args);
 }
 
-#if SentryCrashLogger_CBufferSize > 0
+#if SENTRY_ASYNC_SAFE_LOG_C_BUFFER_SIZE > 0
 
 /** The file descriptor where log entries get written. */
 static int g_fd = -1;
@@ -107,7 +107,7 @@ writeFmtArgsToLog(const char *fmt, va_list args)
     unlikely_if(fmt == NULL) { writeToLog("(null)"); }
     else
     {
-        char buffer[SentryCrashLogger_CBufferSize];
+        char buffer[SENTRY_ASYNC_SAFE_LOG_C_BUFFER_SIZE];
         vsnprintf(buffer, sizeof(buffer), fmt, args);
         writeToLog(buffer);
     }
@@ -129,7 +129,7 @@ setLogFD(int fd)
 }
 
 bool
-sentrycrashlog_setLogFilename(const char *filename, bool overwrite)
+sentry_asyncLogSetFileName(const char *filename, bool overwrite)
 {
     static int fd = -1;
     if (filename != NULL) {
@@ -140,7 +140,7 @@ sentrycrashlog_setLogFilename(const char *filename, bool overwrite)
         fd = open(filename, openMask, 0644);
         unlikely_if(fd < 0)
         {
-            writeFmtToLog("SentryCrashLogger: Could not open %s: %s", filename, strerror(errno));
+            writeFmtToLog("SentryAsyncSafeLog: Could not open %s: %s", filename, strerror(errno));
             return false;
         }
         if (filename != g_logFilename) {
@@ -152,7 +152,7 @@ sentrycrashlog_setLogFilename(const char *filename, bool overwrite)
     return true;
 }
 
-#else // if SentryCrashLogger_CBufferSize <= 0
+#else // if SENTRY_ASYNC_SAFE_LOG_C_BUFFER_SIZE <= 0
 
 static FILE *g_file = NULL;
 
@@ -192,14 +192,14 @@ flushLog(void)
     fflush(g_file);
 }
 
-#endif // if SentryCrashLogger_CBufferSize <= 0
+#endif // if SENTRY_ASYNC_SAFE_LOG_C_BUFFER_SIZE <= 0
 
 // ===========================================================================
 #pragma mark - C -
 // ===========================================================================
 
 void
-i_sentrycrashlog_logCBasic(const char *const fmt, ...)
+sentry_asyncLogCBasic(const char *const fmt, ...)
 {
     va_list args;
     va_start(args, fmt);
@@ -210,7 +210,7 @@ i_sentrycrashlog_logCBasic(const char *const fmt, ...)
 }
 
 void
-i_sentrycrashlog_logC(const char *const level, const char *const file, const int line,
+sentry_asyncLogC(const char *const level, const char *const file, const int line,
     const char *const function, const char *const fmt, ...)
 {
     writeFmtToLog("%s: %s (%u): %s: ", level, lastPathEntry(file), line, function);
@@ -226,11 +226,11 @@ i_sentrycrashlog_logC(const char *const level, const char *const file, const int
 #pragma mark - Objective-C -
 // ===========================================================================
 
-#if SentryCrashCRASH_HAS_OBJC
+#if SENTRY_ASYNC_SAFE_LOG_HAS_OBJC
 #    include <CoreFoundation/CoreFoundation.h>
 
 void
-i_sentrycrashlog_logObjCBasic(CFStringRef fmt, ...)
+sentry_asyncLogObjCBasic(CFStringRef fmt, ...)
 {
     if (fmt == NULL) {
         writeToLog("(null)");
@@ -259,13 +259,13 @@ i_sentrycrashlog_logObjCBasic(CFStringRef fmt, ...)
 }
 
 void
-i_sentrycrashlog_logObjC(const char *const level, const char *const file, const int line,
+sentry_asyncLogObjC(const char *const level, const char *const file, const int line,
     const char *const function, CFStringRef fmt, ...)
 {
     CFStringRef logFmt = NULL;
     if (fmt == NULL) {
         logFmt = CFStringCreateWithCString(NULL, "%s: %s (%u): %s: (null)", kCFStringEncodingUTF8);
-        i_sentrycrashlog_logObjCBasic(logFmt, level, lastPathEntry(file), line, function);
+        sentry_asyncLogObjCBasic(logFmt, level, lastPathEntry(file), line, function);
     } else {
         va_list args;
         va_start(args, fmt);
@@ -273,10 +273,10 @@ i_sentrycrashlog_logObjC(const char *const level, const char *const file, const 
         va_end(args);
 
         logFmt = CFStringCreateWithCString(NULL, "%s: %s (%u): %s: %@", kCFStringEncodingUTF8);
-        i_sentrycrashlog_logObjCBasic(logFmt, level, lastPathEntry(file), line, function, entry);
+        sentry_asyncLogObjCBasic(logFmt, level, lastPathEntry(file), line, function, entry);
 
         CFRelease(entry);
     }
     CFRelease(logFmt);
 }
-#endif // SentryCrashCRASH_HAS_OBJC
+#endif // SENTRY_ASYNC_SAFE_LOG_HAS_OBJC

@@ -54,10 +54,10 @@
 #endif
 
 #if SentryCrashCRASH_HOST_APPLE
-#    define SentryCrashCRASH_HAS_OBJC 1
+#    define SENTRY_ASYNC_SAFE_LOG_HAS_OBJC 1
 #    define SentryCrashCRASH_HAS_SWIFT 1
 #else
-#    define SentryCrashCRASH_HAS_OBJC 0
+#    define SENTRY_ASYNC_SAFE_LOG_HAS_OBJC 0
 #    define SentryCrashCRASH_HAS_SWIFT 0
 #endif
 

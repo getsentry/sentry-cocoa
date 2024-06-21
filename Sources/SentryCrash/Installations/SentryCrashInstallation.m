@@ -26,10 +26,10 @@
 //
 
 #import "SentryCrashInstallation.h"
+#import "SentryAsyncSafeLog.h"
 #import "SentryCrash.h"
 #import "SentryCrashInstallation+Private.h"
 #import "SentryCrashJSONCodecObjC.h"
-#import "SentryCrashLogger.h"
 #import "SentryCrashNSErrorUtil.h"
 #import "SentryCrashReportFilterBasic.h"
 #import "SentryDependencyContainer.h"

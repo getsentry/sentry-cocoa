@@ -110,7 +110,7 @@ This feature is experimental and is currently not compatible with SPM.
 
 ## Logging
 
-We have a set of macros for debugging at various levels defined in SentryLog.h. These are not async-safe; to log from special places like crash handlers, see SentryCrashLogger.h; see the headerdocs in that header for how to work with those logging macros. There are also separate macros in SentryProfilingLogging.hpp specifically for the profiler; these are completely compiled out of release builds due to https://github.com/getsentry/sentry-cocoa/issues/3336.
+We have a set of macros for logging at various levels defined in SentryLog.h. These are not async-safe; to log from special places like crash handlers, see SentryAsyncSafeLog.h; see the headerdocs in that header for how to work with those logging macros. There are also separate macros in SentryProfilingLogging.hpp specifically for the profiler; these are completely compiled out of release builds due to https://github.com/getsentry/sentry-cocoa/issues/3336.
 
 ## Profiling
 

@@ -26,7 +26,7 @@
 //
 
 #include "SentryCrashString.h"
-#include "SentryCrashSystemCapabilities.h"
+#include "SentryInternalCDefines.h"
 #include <stdlib.h>
 #include <string.h>
 

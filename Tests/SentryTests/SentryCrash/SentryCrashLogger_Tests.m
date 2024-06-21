@@ -28,7 +28,7 @@
 #import "XCTestCase+SentryCrash.h"
 #import <XCTest/XCTest.h>
 
-#import "SentryCrashLogger.h"
+#import "SentryAsyncSafeLog.h"
 
 @interface SentryCrashLogger_Tests : XCTestCase
 
@@ -53,46 +53,46 @@
 
 - (void)testLogError
 {
-    SentryCrashLOG_ERROR(@"TEST");
+    SENTRY_ASYNC_SAFE_LOG_ERROR(@"TEST");
 }
 
 - (void)testLogErrorNull
 {
     NSString *str = nil;
-    SentryCrashLOG_ERROR(str);
+    SENTRY_ASYNC_SAFE_LOG_ERROR(str);
 }
 
 - (void)testLogAlways
 {
-    SentryCrashLOG_ALWAYS(@"TEST");
+    SENTRY_ASYNC_SAFE_LOG_ALWAYS(@"TEST");
 }
 
 - (void)testLogAlwaysNull
 {
     NSString *str = nil;
-    SentryCrashLOG_ALWAYS(str);
+    SENTRY_ASYNC_SAFE_LOG_ALWAYS(str);
 }
 
 - (void)testLogBasicError
 {
-    SentryCrashLOGBASIC_ERROR(@"TEST");
+    SENTRY_ASYNC_SAFE_LOG_BASIC_ERROR(@"TEST");
 }
 
 - (void)testLogBasicErrorNull
 {
     NSString *str = nil;
-    SentryCrashLOGBASIC_ERROR(str);
+    SENTRY_ASYNC_SAFE_LOG_BASIC_ERROR(str);
 }
 
 - (void)testLogBasicAlways
 {
-    SentryCrashLOGBASIC_ALWAYS(@"TEST");
+    SENTRY_ASYNC_SAFE_LOG_BASIC_ALWAYS(@"TEST");
 }
 
 - (void)testLogBasicAlwaysNull
 {
     NSString *str = nil;
-    SentryCrashLOGBASIC_ALWAYS(str);
+    SENTRY_ASYNC_SAFE_LOG_BASIC_ALWAYS(str);
 }
 
 @end
