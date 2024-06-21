@@ -383,6 +383,17 @@ SentryScope ()
     }
 }
 
+- (void)setCurrentScreen:(NSString *)currentScreen {
+    _currentScreen = currentScreen;
+    
+    SEL setCurrentScreen = @selector(setCurrentScreen:);
+    for (id<SentryScopeObserver> observer in self.observers) {
+        if ([observer respondsToSelector:setCurrentScreen]) {
+            [observer setCurrentScreen:currentScreen];
+        }
+    }
+}
+
 - (void)setLevel:(enum SentryLevel)level
 {
     self.levelEnum = level;

@@ -23,6 +23,8 @@ SentryScope ()
 
 @property (atomic, strong) SentryPropagationContext *propagationContext;
 
+@property (nonatomic, strong) NSString * currentScreen;
+
 - (NSArray<SentryBreadcrumb *> *)breadcrumbs;
 
 /**
