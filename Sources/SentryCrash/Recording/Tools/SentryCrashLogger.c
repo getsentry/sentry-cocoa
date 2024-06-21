@@ -43,19 +43,6 @@
 #define likely_if(x) if (__builtin_expect(x, 1))
 #define unlikely_if(x) if (__builtin_expect(x, 0))
 
-/** The buffer size to use when writing log entries.
- *
- * If this value is > 0, any log entries that expand beyond this length will
- * be truncated.
- * If this value = 0, the logging system will dynamically allocate memory
- * and never truncate. However, the log functions won't be async-safe.
- *
- * Unless you're logging from within signal handlers, it's safe to set it to 0.
- */
-#ifndef SentryCrashLOGGER_CBufferSize
-#    define SentryCrashLOGGER_CBufferSize 1024
-#endif
-
 /** Where console logs will be written */
 static char g_logFilename[1024];
 
@@ -93,7 +80,7 @@ writeFmtToLog(const char *fmt, ...)
     va_end(args);
 }
 
-#if SentryCrashLOGGER_CBufferSize > 0
+#if SentryCrashLogger_CBufferSize > 0
 
 /** The file descriptor where log entries get written. */
 static int g_fd = -1;
@@ -120,7 +107,7 @@ writeFmtArgsToLog(const char *fmt, va_list args)
     unlikely_if(fmt == NULL) { writeToLog("(null)"); }
     else
     {
-        char buffer[SentryCrashLOGGER_CBufferSize];
+        char buffer[SentryCrashLogger_CBufferSize];
         vsnprintf(buffer, sizeof(buffer), fmt, args);
         writeToLog(buffer);
     }
@@ -205,7 +192,7 @@ flushLog(void)
     fflush(g_file);
 }
 
-#endif
+#endif // if SentryCrashLogger_CBufferSize <= 0
 
 // ===========================================================================
 #pragma mark - C -
