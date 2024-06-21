@@ -80,6 +80,9 @@ writeFmtToLog(const char *fmt, ...)
 /** The file descriptor where log entries get written. */
 static int g_fd = -1;
 
+static bool g_isDebugging;
+static bool g_checkedIsDebugging;
+
 static void
 writeToLog(const char *const str)
 {
@@ -98,8 +101,11 @@ writeToLog(const char *const str)
     // if we're debugging, also write the log statements to the console; we only check once for
     // performance reasons; if the debugger is attached or detached while running, it will not
     // change console-based logging
-    static const bool isDebugging = sentrycrashdebug_isBeingTraced();
-    if (isDebugging) {
+    if (!g_checkedIsDebugging) {
+        g_checkedIsDebugging = true;
+        g_isDebugging = sentrycrashdebug_isBeingTraced();
+    }
+    if (g_isDebugging) {
         fprintf(stdout, "%s", str);
         fflush(stdout);
     }
