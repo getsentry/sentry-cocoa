@@ -28,7 +28,6 @@
 #import "SentryLog.h"
 #include <execinfo.h>
 
-// #define SentryCrashLogger_LocalLevel TRACE
 #include "SentryCrashLogger.h"
 
 #define MAX_BACKTRACE_LENGTH                                                                       \

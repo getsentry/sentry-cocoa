@@ -704,6 +704,7 @@ class SentryNetworkTrackerTests: XCTestCase {
         XCTAssertEqual(task.currentRequest?.allHTTPHeaderFields?["sentry-trace"] ?? "", "test")
     }
 
+    @available(*, deprecated)
     func testDefaultHeadersWhenDisabled() {
         let sut = fixture.getSut()
         sut.disable()
@@ -719,6 +720,7 @@ class SentryNetworkTrackerTests: XCTestCase {
         XCTAssertEqual(task.currentRequest?.allHTTPHeaderFields?["sentry-trace"] ?? "", expectedTraceHeader)
     }
 
+    @available(*, deprecated)
     func testDefaultHeadersWhenNoTransaction() {
         let sut = fixture.getSut()
         let task = createDataTask()

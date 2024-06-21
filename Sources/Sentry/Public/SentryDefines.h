@@ -44,6 +44,12 @@
 #    define SENTRY_HAS_METRIC_KIT 0
 #endif
 
+#if SENTRY_HAS_UIKIT && !TARGET_OS_VISION
+#    define SENTRY_TARGET_REPLAY_SUPPORTED 1
+#else
+#    define SENTRY_TARGET_REPLAY_SUPPORTED 0
+#endif
+
 #define SENTRY_NO_INIT                                                                             \
     -(instancetype)init NS_UNAVAILABLE;                                                            \
     +(instancetype) new NS_UNAVAILABLE;

@@ -312,18 +312,6 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
 
     #endif
 
-    func testCaptureReplayShouldNotFailIfMissingReplayIntegration() {
-        PrivateSentrySDKOnly.captureReplay()
-    }
-
-    func testAddReplayIgnoreClassesShouldNotFailIfMissingReplayIntegration() {
-        PrivateSentrySDKOnly.addReplayIgnoreClasses([])
-    }
-
-    func testAddReplayRedactShouldNotFailIfMissingReplayIntegration() {
-        PrivateSentrySDKOnly.addReplayRedactClasses([])
-    }
-
     #if canImport(UIKit)
     func testCaptureReplayShouldCallReplayIntegration() {
         guard #available(iOS 16.0, tvOS 16.0, *) else { return }

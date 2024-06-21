@@ -4,11 +4,13 @@
 
 ### Features
 
+- Restart replay session with mobile session (#4085)
 - Add pause and resume AppHangTracking API (#4077). You can now pause and resume app hang tracking with `SentrySDK.pauseAppHangTracking()` and `SentrySDK.resumeAppHangTracking()`.
 
 ### Fixes
 
 - `storeEnvelope` ends session for unhandled errors (#4073)
+- Deprecate `SentryUser.segment`(#4092). Please remove usages of this property. We will remove it in the next major.
 - Sentry Replay Network details should be available without Tracing (#4091)
 
 ## 8.29.1
