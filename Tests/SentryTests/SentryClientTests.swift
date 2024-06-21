@@ -1065,6 +1065,7 @@ class SentryClientTest: XCTestCase {
         let spanOne = getSpan(operation: "operation.one", tracer: fixture.trace)
         let spanTwo = getSpan(operation: "operation.two", tracer: fixture.trace)
         let transaction = Transaction(trace: fixture.trace, children: [spanOne, spanTwo])
+        
         fixture.getSut(configureOptions: { options in
             options.beforeSendSpan = { span in
                 if span.operation == "operation.one" {
@@ -1769,7 +1770,7 @@ class SentryClientTest: XCTestCase {
     
     private func getSpan(operation: String, tracer: SentryTracer) -> Span {
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
-        return SentrySpan(tracer: tracer, context: SpanContext(operation: "operation"), framesTracker: nil)
+        return SentrySpan(tracer: tracer, context: SpanContext(operation: operation), framesTracker: nil)
 #else
         return  SentrySpan(tracer: tracer, context: SpanContext(operation: operation))
         #endif
