@@ -26,6 +26,7 @@
 //
 
 #include "SentryAsyncSafeLog.h"
+#include "SentryCrashDebug.h"
 #include "SentryInternalCDefines.h"
 
 // ===========================================================================
@@ -60,10 +61,6 @@ static void writeFmtToLog(const char *fmt, ...);
  */
 static void writeFmtArgsToLog(const char *fmt, va_list args);
 
-/** Flush the log stream.
- */
-static void flushLog(void);
-
 static inline const char *
 lastPathEntry(const char *const path)
 {
@@ -79,8 +76,6 @@ writeFmtToLog(const char *fmt, ...)
     writeFmtArgsToLog(fmt, args);
     va_end(args);
 }
-
-#if SENTRY_ASYNC_SAFE_LOG_C_BUFFER_SIZE > 0
 
 /** The file descriptor where log entries get written. */
 static int g_fd = -1;
@@ -99,6 +94,15 @@ writeToLog(const char *const str)
         }
     }
     write(STDOUT_FILENO, str, strlen(str));
+
+    // if we're debugging, also write the log statements to the console; we only check once for
+    // performance reasons; if the debugger is attached or detached while running, it will not
+    // change console-based logging
+    static const bool isDebugging = sentrycrashdebug_isBeingTraced();
+    if (isDebugging) {
+        fprintf(stdout, "%s", str);
+        fflush(stdout);
+    }
 }
 
 static inline void
@@ -111,12 +115,6 @@ writeFmtArgsToLog(const char *fmt, va_list args)
         vsnprintf(buffer, sizeof(buffer), fmt, args);
         writeToLog(buffer);
     }
-}
-
-static inline void
-flushLog(void)
-{
-    // Nothing to do.
 }
 
 static inline void
@@ -152,48 +150,6 @@ sentry_asyncLogSetFileName(const char *filename, bool overwrite)
     return true;
 }
 
-#else // if SENTRY_ASYNC_SAFE_LOG_C_BUFFER_SIZE <= 0
-
-static FILE *g_file = NULL;
-
-static inline void
-setLogFD(FILE *file)
-{
-    if (g_file != NULL && g_file != stdout && g_file != stderr && g_file != stdin) {
-        fclose(g_file);
-    }
-    g_file = file;
-}
-
-void
-writeToLog(const char *const str)
-{
-    if (g_file != NULL) {
-        fprintf(g_file, "%s", str);
-    }
-    fprintf(stdout, "%s", str);
-}
-
-static inline void
-writeFmtArgsToLog(const char *fmt, va_list args)
-{
-    unlikely_if(g_file == NULL) { g_file = stdout; }
-
-    if (fmt == NULL) {
-        writeToLog("(null)");
-    } else {
-        vfprintf(g_file, fmt, args);
-    }
-}
-
-static inline void
-flushLog(void)
-{
-    fflush(g_file);
-}
-
-#endif // if SENTRY_ASYNC_SAFE_LOG_C_BUFFER_SIZE <= 0
-
 void
 sentry_asyncLogCBasic(const char *const fmt, ...)
 {
@@ -202,7 +158,6 @@ sentry_asyncLogCBasic(const char *const fmt, ...)
     writeFmtArgsToLog(fmt, args);
     va_end(args);
     writeToLog("\n");
-    flushLog();
 }
 
 void
@@ -215,5 +170,4 @@ sentry_asyncLogC(const char *const level, const char *const file, const int line
     writeFmtArgsToLog(fmt, args);
     va_end(args);
     writeToLog("\n");
-    flushLog();
 }
