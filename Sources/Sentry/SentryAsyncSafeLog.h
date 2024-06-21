@@ -131,75 +131,76 @@
 // ============================================================================
 
 #ifndef HDR_SENTRY_ASYNC_SAFE_LOG_H
-#define HDR_SENTRY_ASYNC_SAFE_LOG_H
+#    define HDR_SENTRY_ASYNC_SAFE_LOG_H
 
-#ifdef __cplusplus
+#    ifdef __cplusplus
 extern "C" {
-#endif
+#    endif
 
-#include <stdbool.h>
+#    include <stdbool.h>
 
 void sentry_asyncLogC(
     const char *level, const char *file, int line, const char *function, const char *fmt, ...);
 
 void sentry_asyncLogCBasic(const char *fmt, ...);
 
-#define i_SENTRY_ASYNC_SAFE_LOG_FULL sentry_asyncLogC
-#define i_SENTRY_ASYNC_SAFE_LOG_BASIC sentry_asyncLogCBasic
+#    define i_SENTRY_ASYNC_SAFE_LOG_FULL sentry_asyncLogC
+#    define i_SENTRY_ASYNC_SAFE_LOG_BASIC sentry_asyncLogCBasic
 
 /* Back up any existing defines by the same name */
-#ifdef SENTRY_ASYNC_SAFE_LOG_NONE
-#    define SENTRY_ASYNC_SAFE_LOG_BAK_NONE SENTRY_ASYNC_SAFE_LOG_NONE
-#    undef SENTRY_ASYNC_SAFE_LOG_NONE
-#endif
-#ifdef ERROR
-#    define SENTRY_ASYNC_SAFE_LOG_BAK_ERROR ERROR
-#    undef ERROR
-#endif
-#ifdef WARN
-#    define SENTRY_ASYNC_SAFE_LOG_BAK_WARN WARN
-#    undef WARN
-#endif
-#ifdef INFO
-#    define SENTRY_ASYNC_SAFE_LOG_BAK_INFO INFO
-#    undef INFO
-#endif
-#ifdef DEBUG
-#    define SENTRY_ASYNC_SAFE_LOG_BAK_DEBUG DEBUG
-#    undef DEBUG
-#endif
-#ifdef TRACE
-#    define SENTRY_ASYNC_SAFE_LOG_BAK_TRACE TRACE
-#    undef TRACE
-#endif
+#    ifdef SENTRY_ASYNC_SAFE_LOG_NONE
+#        define SENTRY_ASYNC_SAFE_LOG_BAK_NONE SENTRY_ASYNC_SAFE_LOG_NONE
+#        undef SENTRY_ASYNC_SAFE_LOG_NONE
+#    endif
+#    ifdef ERROR
+#        define SENTRY_ASYNC_SAFE_LOG_BAK_ERROR ERROR
+#        undef ERROR
+#    endif
+#    ifdef WARN
+#        define SENTRY_ASYNC_SAFE_LOG_BAK_WARN WARN
+#        undef WARN
+#    endif
+#    ifdef INFO
+#        define SENTRY_ASYNC_SAFE_LOG_BAK_INFO INFO
+#        undef INFO
+#    endif
+#    ifdef DEBUG
+#        define SENTRY_ASYNC_SAFE_LOG_BAK_DEBUG DEBUG
+#        undef DEBUG
+#    endif
+#    ifdef TRACE
+#        define SENTRY_ASYNC_SAFE_LOG_BAK_TRACE TRACE
+#        undef TRACE
+#    endif
 
-#define SENTRY_ASYNC_SAFE_LOG_LEVEL_NONE 0
-#define SENTRY_ASYNC_SAFE_LOG_LEVEL_ERROR 10
-#define SENTRY_ASYNC_SAFE_LOG_LEVEL_WARN 20
-#define SENTRY_ASYNC_SAFE_LOG_LEVEL_INFO 30
-#define SENTRY_ASYNC_SAFE_LOG_LEVEL_DEBUG 40
-#define SENTRY_ASYNC_SAFE_LOG_LEVEL_TRACE 50
+#    define SENTRY_ASYNC_SAFE_LOG_LEVEL_NONE 0
+#    define SENTRY_ASYNC_SAFE_LOG_LEVEL_ERROR 10
+#    define SENTRY_ASYNC_SAFE_LOG_LEVEL_WARN 20
+#    define SENTRY_ASYNC_SAFE_LOG_LEVEL_INFO 30
+#    define SENTRY_ASYNC_SAFE_LOG_LEVEL_DEBUG 40
+#    define SENTRY_ASYNC_SAFE_LOG_LEVEL_TRACE 50
 
-#define SENTRY_ASYNC_SAFE_LOG_NONE SENTRY_ASYNC_SAFE_LOG_LEVEL_NONE
-#define ERROR SENTRY_ASYNC_SAFE_LOG_LEVEL_ERROR
-#define WARN SENTRY_ASYNC_SAFE_LOG_LEVEL_WARN
-#define INFO SENTRY_ASYNC_SAFE_LOG_LEVEL_INFO
-#define DEBUG SENTRY_ASYNC_SAFE_LOG_LEVEL_DEBUG
-#define TRACE SENTRY_ASYNC_SAFE_LOG_LEVEL_TRACE
+#    define SENTRY_ASYNC_SAFE_LOG_NONE SENTRY_ASYNC_SAFE_LOG_LEVEL_NONE
+#    define ERROR SENTRY_ASYNC_SAFE_LOG_LEVEL_ERROR
+#    define WARN SENTRY_ASYNC_SAFE_LOG_LEVEL_WARN
+#    define INFO SENTRY_ASYNC_SAFE_LOG_LEVEL_INFO
+#    define DEBUG SENTRY_ASYNC_SAFE_LOG_LEVEL_DEBUG
+#    define TRACE SENTRY_ASYNC_SAFE_LOG_LEVEL_TRACE
 
-#ifndef SENTRY_ASYNC_SAFE_LOG_LEVEL
-#    define SENTRY_ASYNC_SAFE_LOG_LEVEL SENTRY_ASYNC_SAFE_LOG_LEVEL_ERROR
-#endif
+#    ifndef SENTRY_ASYNC_SAFE_LOG_LEVEL
+#        define SENTRY_ASYNC_SAFE_LOG_LEVEL SENTRY_ASYNC_SAFE_LOG_LEVEL_ERROR
+#    endif
 
-#ifndef SENTRY_ASYNC_SAFE_LOG_LOCAL_LEVEL
-#    define SENTRY_ASYNC_SAFE_LOG_LOCAL_LEVEL SENTRY_ASYNC_SAFE_LOG_LEVEL_TRACE
-#endif
+#    ifndef SENTRY_ASYNC_SAFE_LOG_LOCAL_LEVEL
+#        define SENTRY_ASYNC_SAFE_LOG_LOCAL_LEVEL SENTRY_ASYNC_SAFE_LOG_LEVEL_TRACE
+#    endif
 
-#define a_SENTRY_ASYNC_SAFE_LOG_FULL(LEVEL, FMT, ...)                                              \
-    i_SENTRY_ASYNC_SAFE_LOG_FULL(LEVEL, __FILE__, __LINE__, __PRETTY_FUNCTION__, FMT, ##__VA_ARGS__)
+#    define a_SENTRY_ASYNC_SAFE_LOG_FULL(LEVEL, FMT, ...)                                          \
+        i_SENTRY_ASYNC_SAFE_LOG_FULL(                                                              \
+            LEVEL, __FILE__, __LINE__, __PRETTY_FUNCTION__, FMT, ##__VA_ARGS__)
 
 // ============================================================================
-#pragma mark - API -
+#    pragma mark - API -
 // ============================================================================
 
 /** Set the filename to log to.
@@ -224,127 +225,127 @@ bool sentry_asyncLogClearLogFile(void);
  *
  * @return TRUE if the logger would print at the specified level.
  */
-#define SENTRY_ASYNC_SAFE_LOG_PRINTS_AT_LEVEL(LEVEL)                                               \
-    (SENTRY_ASYNC_SAFE_LOG_LEVEL >= LEVEL || SENTRY_ASYNC_SAFE_LOG_LOCAL_LEVEL >= LEVEL)
+#    define SENTRY_ASYNC_SAFE_LOG_PRINTS_AT_LEVEL(LEVEL)                                           \
+        (SENTRY_ASYNC_SAFE_LOG_LEVEL >= LEVEL || SENTRY_ASYNC_SAFE_LOG_LOCAL_LEVEL >= LEVEL)
 
 /** Log a message regardless of the log settings.
  * Normal version prints out full context. Basic version prints directly.
  *
  * @param FMT The format specifier, followed by its arguments.
  */
-#define SENTRY_ASYNC_SAFE_LOG_ALWAYS(FMT, ...)                                                     \
-    a_SENTRY_ASYNC_SAFE_LOG_FULL("FORCE", FMT, ##__VA_ARGS__)
-#define SENTRY_ASYNC_SAFE_LOG_BASIC_ALWAYS(FMT, ...)                                               \
-    i_SENTRY_ASYNC_SAFE_LOG_BASIC(FMT, ##__VA_ARGS__)
+#    define SENTRY_ASYNC_SAFE_LOG_ALWAYS(FMT, ...)                                                 \
+        a_SENTRY_ASYNC_SAFE_LOG_FULL("FORCE", FMT, ##__VA_ARGS__)
+#    define SENTRY_ASYNC_SAFE_LOG_BASIC_ALWAYS(FMT, ...)                                           \
+        i_SENTRY_ASYNC_SAFE_LOG_BASIC(FMT, ##__VA_ARGS__)
 
 /** Log an error.
  * Normal version prints out full context. Basic version prints directly.
  *
  * @param FMT The format specifier, followed by its arguments.
  */
-#if SENTRY_ASYNC_SAFE_LOG_PRINTS_AT_LEVEL(SENTRY_ASYNC_SAFE_LOG_LEVEL_ERROR)
-#    define SENTRY_ASYNC_SAFE_LOG_ERROR(FMT, ...)                                                  \
-        a_SENTRY_ASYNC_SAFE_LOG_FULL("ERROR", FMT, ##__VA_ARGS__)
-#    define SENTRY_ASYNC_SAFE_LOG_BASIC_ERROR(FMT, ...)                                            \
-        i_SENTRY_ASYNC_SAFE_LOG_BASIC(FMT, ##__VA_ARGS__)
-#else
-#    define SENTRY_ASYNC_SAFE_LOG_ERROR(FMT, ...)
-#    define SENTRY_ASYNC_SAFE_LOG_BASIC_ERROR(FMT, ...)
-#endif
+#    if SENTRY_ASYNC_SAFE_LOG_PRINTS_AT_LEVEL(SENTRY_ASYNC_SAFE_LOG_LEVEL_ERROR)
+#        define SENTRY_ASYNC_SAFE_LOG_ERROR(FMT, ...)                                              \
+            a_SENTRY_ASYNC_SAFE_LOG_FULL("ERROR", FMT, ##__VA_ARGS__)
+#        define SENTRY_ASYNC_SAFE_LOG_BASIC_ERROR(FMT, ...)                                        \
+            i_SENTRY_ASYNC_SAFE_LOG_BASIC(FMT, ##__VA_ARGS__)
+#    else
+#        define SENTRY_ASYNC_SAFE_LOG_ERROR(FMT, ...)
+#        define SENTRY_ASYNC_SAFE_LOG_BASIC_ERROR(FMT, ...)
+#    endif
 
 /** Log a warning.
  * Normal version prints out full context. Basic version prints directly.
  *
  * @param FMT The format specifier, followed by its arguments.
  */
-#if SENTRY_ASYNC_SAFE_LOG_PRINTS_AT_LEVEL(SENTRY_ASYNC_SAFE_LOG_LEVEL_WARN)
-#    define SENTRY_ASYNC_SAFE_LOG_WARN(FMT, ...)                                                   \
-        a_SENTRY_ASYNC_SAFE_LOG_FULL("WARN ", FMT, ##__VA_ARGS__)
-#    define SENTRY_ASYNC_SAFE_LOG_BASIC_WARN(FMT, ...)                                             \
-        i_SENTRY_ASYNC_SAFE_LOG_BASIC(FMT, ##__VA_ARGS__)
-#else
-#    define SENTRY_ASYNC_SAFE_LOG_WARN(FMT, ...)
-#    define SENTRY_ASYNC_SAFE_LOG_BASIC_WARN(FMT, ...)
-#endif
+#    if SENTRY_ASYNC_SAFE_LOG_PRINTS_AT_LEVEL(SENTRY_ASYNC_SAFE_LOG_LEVEL_WARN)
+#        define SENTRY_ASYNC_SAFE_LOG_WARN(FMT, ...)                                               \
+            a_SENTRY_ASYNC_SAFE_LOG_FULL("WARN ", FMT, ##__VA_ARGS__)
+#        define SENTRY_ASYNC_SAFE_LOG_BASIC_WARN(FMT, ...)                                         \
+            i_SENTRY_ASYNC_SAFE_LOG_BASIC(FMT, ##__VA_ARGS__)
+#    else
+#        define SENTRY_ASYNC_SAFE_LOG_WARN(FMT, ...)
+#        define SENTRY_ASYNC_SAFE_LOG_BASIC_WARN(FMT, ...)
+#    endif
 
 /** Log an info message.
  * Normal version prints out full context. Basic version prints directly.
  *
  * @param FMT The format specifier, followed by its arguments.
  */
-#if SENTRY_ASYNC_SAFE_LOG_PRINTS_AT_LEVEL(SENTRY_ASYNC_SAFE_LOG_LEVEL_INFO)
-#    define SENTRY_ASYNC_SAFE_LOG_INFO(FMT, ...)                                                   \
-        a_SENTRY_ASYNC_SAFE_LOG_FULL("INFO ", FMT, ##__VA_ARGS__)
-#    define SENTRY_ASYNC_SAFE_LOG_BASIC_INFO(FMT, ...)                                             \
-        i_SENTRY_ASYNC_SAFE_LOG_BASIC(FMT, ##__VA_ARGS__)
-#else
-#    define SENTRY_ASYNC_SAFE_LOG_INFO(FMT, ...)
-#    define SENTRY_ASYNC_SAFE_LOG_BASIC_INFO(FMT, ...)
-#endif
+#    if SENTRY_ASYNC_SAFE_LOG_PRINTS_AT_LEVEL(SENTRY_ASYNC_SAFE_LOG_LEVEL_INFO)
+#        define SENTRY_ASYNC_SAFE_LOG_INFO(FMT, ...)                                               \
+            a_SENTRY_ASYNC_SAFE_LOG_FULL("INFO ", FMT, ##__VA_ARGS__)
+#        define SENTRY_ASYNC_SAFE_LOG_BASIC_INFO(FMT, ...)                                         \
+            i_SENTRY_ASYNC_SAFE_LOG_BASIC(FMT, ##__VA_ARGS__)
+#    else
+#        define SENTRY_ASYNC_SAFE_LOG_INFO(FMT, ...)
+#        define SENTRY_ASYNC_SAFE_LOG_BASIC_INFO(FMT, ...)
+#    endif
 
 /** Log a debug message.
  * Normal version prints out full context. Basic version prints directly.
  *
  * @param FMT The format specifier, followed by its arguments.
  */
-#if SENTRY_ASYNC_SAFE_LOG_PRINTS_AT_LEVEL(SENTRY_ASYNC_SAFE_LOG_LEVEL_DEBUG)
-#    define SENTRY_ASYNC_SAFE_LOG_DEBUG(FMT, ...)                                                  \
-        a_SENTRY_ASYNC_SAFE_LOG_FULL("DEBUG", FMT, ##__VA_ARGS__)
-#    define SENTRY_ASYNC_SAFE_LOG_BASIC_DEBUG(FMT, ...)                                            \
-        i_SENTRY_ASYNC_SAFE_LOG_BASIC(FMT, ##__VA_ARGS__)
-#else
-#    define SENTRY_ASYNC_SAFE_LOG_DEBUG(FMT, ...)
-#    define SENTRY_ASYNC_SAFE_LOG_BASIC_DEBUG(FMT, ...)
-#endif
+#    if SENTRY_ASYNC_SAFE_LOG_PRINTS_AT_LEVEL(SENTRY_ASYNC_SAFE_LOG_LEVEL_DEBUG)
+#        define SENTRY_ASYNC_SAFE_LOG_DEBUG(FMT, ...)                                              \
+            a_SENTRY_ASYNC_SAFE_LOG_FULL("DEBUG", FMT, ##__VA_ARGS__)
+#        define SENTRY_ASYNC_SAFE_LOG_BASIC_DEBUG(FMT, ...)                                        \
+            i_SENTRY_ASYNC_SAFE_LOG_BASIC(FMT, ##__VA_ARGS__)
+#    else
+#        define SENTRY_ASYNC_SAFE_LOG_DEBUG(FMT, ...)
+#        define SENTRY_ASYNC_SAFE_LOG_BASIC_DEBUG(FMT, ...)
+#    endif
 
 /** Log a trace message.
  * Normal version prints out full context. Basic version prints directly.
  *
  * @param FMT The format specifier, followed by its arguments.
  */
-#if SENTRY_ASYNC_SAFE_LOG_PRINTS_AT_LEVEL(SENTRY_ASYNC_SAFE_LOG_LEVEL_TRACE)
-#    define SENTRY_ASYNC_SAFE_LOG_TRACE(FMT, ...)                                                  \
-        a_SENTRY_ASYNC_SAFE_LOG_FULL("TRACE", FMT, ##__VA_ARGS__)
-#    define SENTRY_ASYNC_SAFE_LOG_BASIC_TRACE(FMT, ...)                                            \
-        i_SENTRY_ASYNC_SAFE_LOG_BASIC(FMT, ##__VA_ARGS__)
-#else
-#    define SENTRY_ASYNC_SAFE_LOG_TRACE(FMT, ...)
-#    define SENTRY_ASYNC_SAFE_LOG_BASIC_TRACE(FMT, ...)
-#endif
+#    if SENTRY_ASYNC_SAFE_LOG_PRINTS_AT_LEVEL(SENTRY_ASYNC_SAFE_LOG_LEVEL_TRACE)
+#        define SENTRY_ASYNC_SAFE_LOG_TRACE(FMT, ...)                                              \
+            a_SENTRY_ASYNC_SAFE_LOG_FULL("TRACE", FMT, ##__VA_ARGS__)
+#        define SENTRY_ASYNC_SAFE_LOG_BASIC_TRACE(FMT, ...)                                        \
+            i_SENTRY_ASYNC_SAFE_LOG_BASIC(FMT, ##__VA_ARGS__)
+#    else
+#        define SENTRY_ASYNC_SAFE_LOG_TRACE(FMT, ...)
+#        define SENTRY_ASYNC_SAFE_LOG_BASIC_TRACE(FMT, ...)
+#    endif
 
 // ============================================================================
-#pragma mark - (internal) -
+#    pragma mark - (internal) -
 // ============================================================================
 
 /* Put everything back to the way we found it. */
-#undef ERROR
-#ifdef SENTRY_ASYNC_SAFE_LOG_BAK_ERROR
-#    define ERROR SENTRY_ASYNC_SAFE_LOG_BAK_ERROR
-#    undef SENTRY_ASYNC_SAFE_LOG_BAK_ERROR
-#endif
-#undef WARNING
-#ifdef SENTRY_ASYNC_SAFE_LOG_BAK_WARN
-#    define WARNING SENTRY_ASYNC_SAFE_LOG_BAK_WARN
-#    undef SENTRY_ASYNC_SAFE_LOG_BAK_WARN
-#endif
-#undef INFO
-#ifdef SENTRY_ASYNC_SAFE_LOG_BAK_INFO
-#    define INFO SENTRY_ASYNC_SAFE_LOG_BAK_INFO
-#    undef SENTRY_ASYNC_SAFE_LOG_BAK_INFO
-#endif
-#undef DEBUG
-#ifdef SENTRY_ASYNC_SAFE_LOG_BAK_DEBUG
-#    define DEBUG SENTRY_ASYNC_SAFE_LOG_BAK_DEBUG
-#    undef SENTRY_ASYNC_SAFE_LOG_BAK_DEBUG
-#endif
-#undef TRACE
-#ifdef SENTRY_ASYNC_SAFE_LOG_BAK_TRACE
-#    define TRACE SENTRY_ASYNC_SAFE_LOG_BAK_TRACE
-#    undef SENTRY_ASYNC_SAFE_LOG_BAK_TRACE
-#endif
+#    undef ERROR
+#    ifdef SENTRY_ASYNC_SAFE_LOG_BAK_ERROR
+#        define ERROR SENTRY_ASYNC_SAFE_LOG_BAK_ERROR
+#        undef SENTRY_ASYNC_SAFE_LOG_BAK_ERROR
+#    endif
+#    undef WARNING
+#    ifdef SENTRY_ASYNC_SAFE_LOG_BAK_WARN
+#        define WARNING SENTRY_ASYNC_SAFE_LOG_BAK_WARN
+#        undef SENTRY_ASYNC_SAFE_LOG_BAK_WARN
+#    endif
+#    undef INFO
+#    ifdef SENTRY_ASYNC_SAFE_LOG_BAK_INFO
+#        define INFO SENTRY_ASYNC_SAFE_LOG_BAK_INFO
+#        undef SENTRY_ASYNC_SAFE_LOG_BAK_INFO
+#    endif
+#    undef DEBUG
+#    ifdef SENTRY_ASYNC_SAFE_LOG_BAK_DEBUG
+#        define DEBUG SENTRY_ASYNC_SAFE_LOG_BAK_DEBUG
+#        undef SENTRY_ASYNC_SAFE_LOG_BAK_DEBUG
+#    endif
+#    undef TRACE
+#    ifdef SENTRY_ASYNC_SAFE_LOG_BAK_TRACE
+#        define TRACE SENTRY_ASYNC_SAFE_LOG_BAK_TRACE
+#        undef SENTRY_ASYNC_SAFE_LOG_BAK_TRACE
+#    endif
 
-#ifdef __cplusplus
+#    ifdef __cplusplus
 }
-#endif
+#    endif
 
 #endif // HDR_SENTRY_ASYNC_SAFE_LOG_H
