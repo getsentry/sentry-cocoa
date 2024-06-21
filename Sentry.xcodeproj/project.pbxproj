@@ -312,7 +312,6 @@
 		63FE720920DA66EC00CDBAE8 /* XCTestCase+SentryCrash.m in Sources */ = {isa = PBXBuildFile; fileRef = 63FE71DE20DA66E800CDBAE8 /* XCTestCase+SentryCrash.m */; };
 		63FE720C20DA66EC00CDBAE8 /* SentryCrashMonitor_Tests.m in Sources */ = {isa = PBXBuildFile; fileRef = 63FE71E120DA66E800CDBAE8 /* SentryCrashMonitor_Tests.m */; };
 		63FE720D20DA66EC00CDBAE8 /* SentryCrashNSErrorUtilTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 63FE71E220DA66E800CDBAE8 /* SentryCrashNSErrorUtilTests.m */; };
-		63FE720F20DA66EC00CDBAE8 /* SentryCrashLogger_Tests.m in Sources */ = {isa = PBXBuildFile; fileRef = 63FE71E420DA66E800CDBAE8 /* SentryCrashLogger_Tests.m */; };
 		63FE721020DA66EC00CDBAE8 /* SentryCrashCachedData_Tests.m in Sources */ = {isa = PBXBuildFile; fileRef = 63FE71E520DA66E800CDBAE8 /* SentryCrashCachedData_Tests.m */; };
 		63FE721220DA66EC00CDBAE8 /* SentryCrashMach_Tests.m in Sources */ = {isa = PBXBuildFile; fileRef = 63FE71E720DA66E900CDBAE8 /* SentryCrashMach_Tests.m */; };
 		63FE721320DA66EC00CDBAE8 /* SentryCrashMonitor_Signal_Tests.m in Sources */ = {isa = PBXBuildFile; fileRef = 63FE71E820DA66E900CDBAE8 /* SentryCrashMonitor_Signal_Tests.m */; };
@@ -1306,7 +1305,6 @@
 		63FE71DE20DA66E800CDBAE8 /* XCTestCase+SentryCrash.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "XCTestCase+SentryCrash.m"; sourceTree = "<group>"; };
 		63FE71E120DA66E800CDBAE8 /* SentryCrashMonitor_Tests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SentryCrashMonitor_Tests.m; sourceTree = "<group>"; };
 		63FE71E220DA66E800CDBAE8 /* SentryCrashNSErrorUtilTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SentryCrashNSErrorUtilTests.m; sourceTree = "<group>"; };
-		63FE71E420DA66E800CDBAE8 /* SentryCrashLogger_Tests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SentryCrashLogger_Tests.m; sourceTree = "<group>"; };
 		63FE71E520DA66E800CDBAE8 /* SentryCrashCachedData_Tests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SentryCrashCachedData_Tests.m; sourceTree = "<group>"; };
 		63FE71E720DA66E900CDBAE8 /* SentryCrashMach_Tests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SentryCrashMach_Tests.m; sourceTree = "<group>"; };
 		63FE71E820DA66E900CDBAE8 /* SentryCrashMonitor_Signal_Tests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SentryCrashMonitor_Signal_Tests.m; sourceTree = "<group>"; };
@@ -2789,7 +2787,6 @@
 				63FE71F820DA66EB00CDBAE8 /* SentryCrashDynamicLinker_Tests.m */,
 				63FE71FC20DA66EB00CDBAE8 /* SentryCrashFileUtils_Tests.m */,
 				63FE71F920DA66EB00CDBAE8 /* SentryCrashJSONCodec_Tests.m */,
-				63FE71E420DA66E800CDBAE8 /* SentryCrashLogger_Tests.m */,
 				63FE71E720DA66E900CDBAE8 /* SentryCrashMach_Tests.m */,
 				63FE71E920DA66E900CDBAE8 /* SentryCrashMemory_Tests.m */,
 				63FE71DA20DA66E700CDBAE8 /* SentryCrashMonitor_AppState_Tests.m */,
@@ -5035,7 +5032,6 @@
 				7BBD18B62451807600427C76 /* SentryDefaultRateLimitsTests.swift in Sources */,
 				63FE720620DA66EC00CDBAE8 /* SentryCrashMonitor_AppState_Tests.m in Sources */,
 				7B4E375B2582313100059C93 /* SentryAttachmentTests.swift in Sources */,
-				63FE720F20DA66EC00CDBAE8 /* SentryCrashLogger_Tests.m in Sources */,
 				63FE721320DA66EC00CDBAE8 /* SentryCrashMonitor_Signal_Tests.m in Sources */,
 				7BBD18B32451805500427C76 /* SentryRateLimitsParserTests.swift in Sources */,
 				7B82722B27A3220A00F4BFF4 /* SentryFileIoTrackingUnitTests.swift in Sources */,
