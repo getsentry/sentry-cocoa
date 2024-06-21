@@ -118,6 +118,12 @@ NS_SWIFT_NAME(Options)
 @property (nullable, nonatomic, copy) SentryBeforeSendEventCallback beforeSend;
 
 /**
+ * Use this callback to drop or modify a span before the SDK sends it to Sentry. Return @c nil to
+ * drop the span.
+ */
+@property (nullable, nonatomic, copy) SentryBeforeSendSpanCallback beforeSendSpan;
+
+/**
  * This block can be used to modify the event before it will be serialized and sent.
  */
 @property (nullable, nonatomic, copy) SentryBeforeBreadcrumbCallback beforeBreadcrumb;
