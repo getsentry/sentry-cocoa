@@ -381,9 +381,12 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     }
 
     if (event.error || event.exceptions.count > 0) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
         return [[SentryTraceContext alloc] initWithTraceId:scope.propagationContext.traceId
                                                    options:self.options
                                                userSegment:scope.userObject.segment];
+#pragma clang diagnostic pop
     }
 
     return nil;

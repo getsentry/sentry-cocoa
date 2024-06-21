@@ -59,9 +59,12 @@ NS_ASSUME_NONNULL_BEGIN
 
     NSString *userSegment;
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     if (scope.userObject.segment) {
         userSegment = scope.userObject.segment;
     }
+#pragma clang diagnostic pop
 
     NSString *sampleRate = nil;
     if ([tracer isKindOfClass:[SentryTransactionContext class]]) {

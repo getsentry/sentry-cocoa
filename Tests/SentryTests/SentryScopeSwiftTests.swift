@@ -24,6 +24,7 @@ class SentryScopeSwiftTests: XCTestCase {
         let transactionOperation = "Some Operation"
         let maxBreadcrumbs = 5
 
+        @available(*, deprecated)
         init() {
             date = Date(timeIntervalSince1970: 10)
             
@@ -81,6 +82,7 @@ class SentryScopeSwiftTests: XCTestCase {
     
     private var fixture: Fixture!
     
+    @available(*, deprecated)
     override func setUp() {
         super.setUp()
         fixture = Fixture()
