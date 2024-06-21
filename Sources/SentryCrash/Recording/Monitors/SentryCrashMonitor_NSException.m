@@ -33,7 +33,7 @@
 #include "SentryCrashThread.h"
 #import "SentryDependencyContainer.h"
 
-#import "SentryAsyncSafeLog.h"
+#import "SentryLog.h"
 
 // ============================================================================
 #pragma mark - Globals -
@@ -50,7 +50,7 @@ static NSUncaughtExceptionHandler *g_previousUncaughtExceptionHandler;
 #pragma mark - Callbacks -
 // ============================================================================
 
-/** Our custom excepetion handler.
+/** Our custom exception handler.
  * Fetch the stack trace from the exception and write a report.
  *
  * @param exception The exception that was raised.
@@ -59,14 +59,14 @@ static NSUncaughtExceptionHandler *g_previousUncaughtExceptionHandler;
 static void
 handleException(NSException *exception)
 {
-    SENTRY_ASYNC_SAFE_LOG_DEBUG(@"Trapped exception %@", exception);
+    SENTRY_LOG_DEBUG(@"Trapped exception %@", exception);
     if (g_isEnabled) {
         thread_act_array_t threads = NULL;
         mach_msg_type_number_t numThreads = 0;
         sentrycrashmc_suspendEnvironment(&threads, &numThreads);
         sentrycrashcm_notifyFatalExceptionCaptured(false);
 
-        SENTRY_ASYNC_SAFE_LOG_DEBUG(@"Filling out context.");
+        SENTRY_LOG_DEBUG(@"Filling out context.");
         NSArray *addresses = [exception callStackReturnAddresses];
         NSUInteger numFrames = addresses.count;
         uintptr_t *callstack = malloc(numFrames * sizeof(*callstack));
@@ -96,12 +96,12 @@ handleException(NSException *exception)
         crashContext->crashReason = [[exception reason] UTF8String];
         crashContext->stackCursor = &cursor;
 
-        SENTRY_ASYNC_SAFE_LOG_DEBUG(@"Calling main crash handler.");
+        SENTRY_LOG_DEBUG(@"Calling main crash handler.");
         sentrycrashcm_handleException(crashContext);
 
         free(callstack);
         if (g_previousUncaughtExceptionHandler != NULL) {
-            SENTRY_ASYNC_SAFE_LOG_DEBUG(@"Calling original exception handler.");
+            SENTRY_LOG_DEBUG(@"Calling original exception handler.");
             g_previousUncaughtExceptionHandler(exception);
         }
     }
@@ -123,15 +123,15 @@ setEnabled(bool isEnabled)
     if (isEnabled != g_isEnabled) {
         g_isEnabled = isEnabled;
         if (isEnabled) {
-            SENTRY_ASYNC_SAFE_LOG_DEBUG(@"Backing up original handler.");
+            SENTRY_LOG_DEBUG(@"Backing up original handler.");
             g_previousUncaughtExceptionHandler = NSGetUncaughtExceptionHandler();
 
-            SENTRY_ASYNC_SAFE_LOG_DEBUG(@"Setting new handler.");
+            SENTRY_LOG_DEBUG(@"Setting new handler.");
             NSSetUncaughtExceptionHandler(&handleUncaughtException);
             SentryDependencyContainer.sharedInstance.crashReporter.uncaughtExceptionHandler
                 = &handleUncaughtException;
         } else {
-            SENTRY_ASYNC_SAFE_LOG_DEBUG(@"Restoring original handler.");
+            SENTRY_LOG_DEBUG(@"Restoring original handler.");
             NSSetUncaughtExceptionHandler(g_previousUncaughtExceptionHandler);
         }
     }

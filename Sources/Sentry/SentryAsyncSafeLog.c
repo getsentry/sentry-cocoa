@@ -194,10 +194,6 @@ flushLog(void)
 
 #endif // if SENTRY_ASYNC_SAFE_LOG_C_BUFFER_SIZE <= 0
 
-// ===========================================================================
-#pragma mark - C -
-// ===========================================================================
-
 void
 sentry_asyncLogCBasic(const char *const fmt, ...)
 {
@@ -221,62 +217,3 @@ sentry_asyncLogC(const char *const level, const char *const file, const int line
     writeToLog("\n");
     flushLog();
 }
-
-// ===========================================================================
-#pragma mark - Objective-C -
-// ===========================================================================
-
-#if SENTRY_ASYNC_SAFE_LOG_HAS_OBJC
-#    include <CoreFoundation/CoreFoundation.h>
-
-void
-sentry_asyncLogObjCBasic(CFStringRef fmt, ...)
-{
-    if (fmt == NULL) {
-        writeToLog("(null)");
-        return;
-    }
-
-    va_list args;
-    va_start(args, fmt);
-    CFStringRef entry = CFStringCreateWithFormatAndArguments(NULL, NULL, fmt, args);
-    va_end(args);
-
-    int bufferLength = (int)CFStringGetLength(entry) * 4 + 1;
-    char *stringBuffer = malloc((unsigned)bufferLength);
-    if (stringBuffer != NULL
-        && CFStringGetCString(entry, stringBuffer, (CFIndex)bufferLength, kCFStringEncodingUTF8)) {
-        writeToLog(stringBuffer);
-    } else {
-        writeToLog("Could not convert log string to UTF-8. No logging performed.");
-    }
-    writeToLog("\n");
-
-    if (stringBuffer != NULL) {
-        free(stringBuffer);
-    }
-    CFRelease(entry);
-}
-
-void
-sentry_asyncLogObjC(const char *const level, const char *const file, const int line,
-    const char *const function, CFStringRef fmt, ...)
-{
-    CFStringRef logFmt = NULL;
-    if (fmt == NULL) {
-        logFmt = CFStringCreateWithCString(NULL, "%s: %s (%u): %s: (null)", kCFStringEncodingUTF8);
-        sentry_asyncLogObjCBasic(logFmt, level, lastPathEntry(file), line, function);
-    } else {
-        va_list args;
-        va_start(args, fmt);
-        CFStringRef entry = CFStringCreateWithFormatAndArguments(NULL, NULL, fmt, args);
-        va_end(args);
-
-        logFmt = CFStringCreateWithCString(NULL, "%s: %s (%u): %s: %@", kCFStringEncodingUTF8);
-        sentry_asyncLogObjCBasic(logFmt, level, lastPathEntry(file), line, function, entry);
-
-        CFRelease(entry);
-    }
-    CFRelease(logFmt);
-}
-#endif // SENTRY_ASYNC_SAFE_LOG_HAS_OBJC

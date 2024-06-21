@@ -169,31 +169,13 @@ extern "C" {
 
 #include <stdbool.h>
 
-#ifdef __OBJC__
-
-#    import <CoreFoundation/CoreFoundation.h>
-
-void sentry_asyncLogObjC(
-    const char *level, const char *file, int line, const char *function, CFStringRef fmt, ...);
-
-void sentry_asyncLogObjCBasic(CFStringRef fmt, ...);
-
-#    define i_SENTRY_ASYNC_SAFE_LOG_FULL(LEVEL, FILE, LINE, FUNCTION, FMT, ...)                    \
-        sentry_asyncLogObjC(LEVEL, FILE, LINE, FUNCTION, (__bridge CFStringRef)FMT, ##__VA_ARGS__)
-#    define i_SENTRY_ASYNC_SAFE_LOG_BASIC(FMT, ...)                                                \
-        sentry_asyncLogObjCBasic((__bridge CFStringRef)FMT, ##__VA_ARGS__)
-
-#else // __OBJC__
-
 void sentry_asyncLogC(
     const char *level, const char *file, int line, const char *function, const char *fmt, ...);
 
 void sentry_asyncLogCBasic(const char *fmt, ...);
 
-#    define i_SENTRY_ASYNC_SAFE_LOG_FULL sentry_asyncLogC
-#    define i_SENTRY_ASYNC_SAFE_LOG_BASIC sentry_asyncLogCBasic
-
-#endif // __OBJC__
+#define i_SENTRY_ASYNC_SAFE_LOG_FULL sentry_asyncLogC
+#define i_SENTRY_ASYNC_SAFE_LOG_BASIC sentry_asyncLogCBasic
 
 /* Back up any existing defines by the same name */
 #ifdef SENTRY_ASYNC_SAFE_LOG_NONE
