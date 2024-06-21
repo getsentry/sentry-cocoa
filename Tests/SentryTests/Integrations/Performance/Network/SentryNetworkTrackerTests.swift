@@ -358,7 +358,7 @@ class SentryNetworkTrackerTests: XCTestCase {
                
         let result = try XCTUnwrap(sut.convert(breadcrumbs: [crumb], 
                                                          from: Date(timeIntervalSince1970: 0),
-                                                         until: Date(timeIntervalSinceNow: 60)).first)
+                                                         until: Date(timeIntervalSinceNow: 60)).first as? SentryRRWebBreadcrumbEvent)
         let crumbData = try XCTUnwrap(result.data)
         let payload = try XCTUnwrap(crumbData["payload"] as? [String: Any])
         let payloadData = try XCTUnwrap(payload["data"] as? [String: Any])

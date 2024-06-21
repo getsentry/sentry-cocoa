@@ -91,7 +91,7 @@ class SentrySRDefaultBreadcrumbConverterTests: XCTestCase {
             "request_start": start
         ]
         
-        let result = try XCTUnwrap(sut.convert(breadcrumbs: [breadcrumb], from: from, until: until).first)
+        let result = try XCTUnwrap(sut.convert(breadcrumbs: [breadcrumb], from: from, until: until).first as? SentryRRWebBreadcrumbEvent)
         let crumbData = try XCTUnwrap(result.data)
         let payload = try XCTUnwrap(crumbData["payload"] as? [String: Any])
         let payloadData = try XCTUnwrap(payload["data"] as? [String: Any])
@@ -112,7 +112,7 @@ class SentrySRDefaultBreadcrumbConverterTests: XCTestCase {
         let breadcrumb = Breadcrumb(level: .info, category: "touch")
         breadcrumb.message = "TestTapped:"
         
-        let result = try XCTUnwrap(sut.convert(breadcrumbs: [breadcrumb], from: from, until: until).first)
+        let result = try XCTUnwrap(sut.convert(breadcrumbs: [breadcrumb], from: from, until: until).first as? SentryRRWebBreadcrumbEvent)
         let crumbData = try XCTUnwrap(result.data)
         let payload = try XCTUnwrap(crumbData["payload"] as? [String: Any])
         
@@ -126,7 +126,7 @@ class SentrySRDefaultBreadcrumbConverterTests: XCTestCase {
         breadcrumb.type = "connectivity"
         breadcrumb.data = ["connectivity": "Wifi"]
         
-        let result = try XCTUnwrap(sut.convert(breadcrumbs: [breadcrumb], from: from, until: until).first)
+        let result = try XCTUnwrap(sut.convert(breadcrumbs: [breadcrumb], from: from, until: until).first as? SentryRRWebBreadcrumbEvent)
         let crumbData = try XCTUnwrap(result.data)
         let payload = try XCTUnwrap(crumbData["payload"] as? [String: Any])
         let payloadData = try XCTUnwrap(payload["data"] as? [String: Any])
@@ -141,7 +141,7 @@ class SentrySRDefaultBreadcrumbConverterTests: XCTestCase {
         breadcrumb.type = "system"
         breadcrumb.data = ["level": 0.5, "plugged": true, "action": "BATTERY_STATE_CHANGE"]
         
-        let result = try XCTUnwrap(sut.convert(breadcrumbs: [breadcrumb], from: from, until: until).first)
+        let result = try XCTUnwrap(sut.convert(breadcrumbs: [breadcrumb], from: from, until: until).first as? SentryRRWebBreadcrumbEvent)
         let crumbData = try XCTUnwrap(result.data)
         let payload = try XCTUnwrap(crumbData["payload"] as? [String: Any])
         let payloadData = try XCTUnwrap(payload["data"] as? [String: Any])
@@ -158,7 +158,7 @@ class SentrySRDefaultBreadcrumbConverterTests: XCTestCase {
         breadcrumb.data = ["SomeInfo": "Info"]
         breadcrumb.message = "Custom message"
         
-        let result = try XCTUnwrap(sut.convert(breadcrumbs: [breadcrumb], from: from, until: until).first)
+        let result = try XCTUnwrap(sut.convert(breadcrumbs: [breadcrumb], from: from, until: until).first as? SentryRRWebBreadcrumbEvent)
         let crumbData = try XCTUnwrap(result.data)
         let payload = try XCTUnwrap(crumbData["payload"] as? [String: Any])
         let payloadData = try XCTUnwrap(payload["data"] as? [String: Any])

@@ -73,7 +73,7 @@ class SentryBreadcrumbTrackerTests: XCTestCase {
         let breadcrumbConverter = SentrySRDefaultBreadcrumbConverter()
         let result = try XCTUnwrap(breadcrumbConverter.convert(breadcrumbs: [breadcrumb],
                                                                          from: Date(timeIntervalSince1970: 0),
-                                                                         until: Date(timeIntervalSinceNow: 60)).first)
+                                                                         until: Date(timeIntervalSinceNow: 60)).first as? SentryRRWebBreadcrumbEvent)
         
         let crumbData = try XCTUnwrap(result.data)
         let payload = try XCTUnwrap(crumbData["payload"] as? [String: Any])
@@ -214,7 +214,7 @@ class SentryBreadcrumbTrackerTests: XCTestCase {
         }
                
         let result = try XCTUnwrap(sut.convert(breadcrumbs: [crumb], from: Date(timeIntervalSince1970: 0),
-                                                         until: Date(timeIntervalSinceNow: 60)).first)
+                                                         until: Date(timeIntervalSinceNow: 60)).first as? SentryRRWebBreadcrumbEvent)
         let crumbData = try XCTUnwrap(result.data)
         let payload = try XCTUnwrap(crumbData["payload"] as? [String: Any])
         
