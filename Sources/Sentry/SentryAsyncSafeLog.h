@@ -122,39 +122,9 @@
  * // SENTRY_ASYNC_SAFE_LOG_LOCAL_LEVEL, if defined, MUST come BEFORE including
  * SentryAsyncSafeLog.h #define SENTRY_ASYNC_SAFE_LOG_LOCAL_LEVEL TRACE #import
  * "SentryAsyncSafeLog.h"
- *
- *
- * ===============
- * IMPORTANT NOTES
- * ===============
- *
- * The C logger changes its behavior depending on the value of the preprocessor
- * define @c SENTRY_ASYNC_SAFE_LOG_C_BUFFER_SIZE.
- *
- * If @c SENTRY_ASYNC_SAFE_LOG_C_BUFFER_SIZE is > 0, the C logger will behave in an
- * async-safe manner, calling write() instead of printf(). Any log messages that
- * exceed the length specified by SENTRY_ASYNC_SAFE_LOG_C_BUFFER_SIZE will be
- * truncated.
- *
- * If @c SENTRY_ASYNC_SAFE_LOG_C_BUFFER_SIZE == 0, the C logger will use printf(), and
- * there will be no limit on the log message length.
- *
- * @c SENTRY_ASYNC_SAFE_LOG_C_BUFFER_SIZE can only be set as a preprocessor define, and
- * will default to 1024 if not specified during compilation.
  */
 
-/** The buffer size to use when writing log entries.
- *
- * If this value is > 0, any log entries that expand beyond this length will
- * be truncated.
- * If this value = 0, the logging system will dynamically allocate memory
- * and never truncate. However, the log functions won't be async-safe.
- *
- * Unless you're logging from within signal handlers, it's safe to set it to 0.
- */
-#ifndef SENTRY_ASYNC_SAFE_LOG_C_BUFFER_SIZE
 #define SENTRY_ASYNC_SAFE_LOG_C_BUFFER_SIZE 1024
-#endif
 
 // ============================================================================
 #pragma mark - (internal) -
