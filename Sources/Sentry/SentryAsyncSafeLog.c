@@ -161,16 +161,6 @@ sentry_asyncLogSetFileName(const char *filename, bool overwrite)
 }
 
 void
-sentry_asyncLogCBasic(const char *const fmt, ...)
-{
-    va_list args;
-    va_start(args, fmt);
-    writeFmtArgsToLog(fmt, args);
-    va_end(args);
-    writeToLog("\n");
-}
-
-void
 sentry_asyncLogC(const char *const level, const char *const file, const int line,
     const char *const function, const char *const fmt, ...)
 {
