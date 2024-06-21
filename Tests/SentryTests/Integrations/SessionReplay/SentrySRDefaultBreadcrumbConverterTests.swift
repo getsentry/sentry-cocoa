@@ -91,7 +91,7 @@ class SentrySRDefaultBreadcrumbConverterTests: XCTestCase {
             "request_start": start
         ]
         
-        let result = try XCTUnwrap(sut.convert(breadcrumbs: [breadcrumb], from: from, until: until).first as? SentryRRWebBreadcrumbEvent)
+        let result = try XCTUnwrap(sut.convert(breadcrumbs: [breadcrumb], from: from, until: until).first as? SentryRRWebSpanEvent)
         let crumbData = try XCTUnwrap(result.data)
         let payload = try XCTUnwrap(crumbData["payload"] as? [String: Any])
         let payloadData = try XCTUnwrap(payload["data"] as? [String: Any])
