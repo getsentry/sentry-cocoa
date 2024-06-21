@@ -1062,8 +1062,8 @@ class SentryClientTest: XCTestCase {
     }
     
     func testBeforeSendSpanDitchOneSpan_OtherChangedSpanSent() throws {
-        let spanOne = SentrySpan(tracer: fixture.trace, context: SpanContext(operation: "operation.one"), framesTracker: nil)
-        let spanTwo = SentrySpan(tracer: fixture.trace, context: SpanContext(operation: "operation.two"), framesTracker: nil)
+        let spanOne = getSpan(operation: "operation.one", tracer: fixture.trace)
+        let spanTwo = getSpan(operation: "operation.two", tracer: fixture.trace)
         let transaction = Transaction(trace: fixture.trace, children: [spanOne, spanTwo])
         fixture.getSut(configureOptions: { options in
             options.beforeSendSpan = { span in
@@ -1088,7 +1088,8 @@ class SentryClientTest: XCTestCase {
     }
     
     func testBeforeSendSpanIsNil_SpansUntouched() throws {
-        let span = SentrySpan(tracer: fixture.trace, context: SpanContext(operation: "operation"), framesTracker: nil)
+        let tracer = fixture.trace
+        let span = getSpan(operation: "operation", tracer: tracer)
         let transaction = Transaction(trace: fixture.trace, children: [span])
         fixture.getSut().capture(event: transaction)
         
@@ -1105,7 +1106,7 @@ class SentryClientTest: XCTestCase {
     
     func testBeforeSendSpan_StartSpan_ReturnsNoOpSpan() throws {
         let tracer = fixture.trace
-        let span = SentrySpan(tracer: tracer, context: SpanContext(operation: "operation"), framesTracker: nil)
+        let span = getSpan(operation: "operation", tracer: tracer)
         tracer.finish()
         
         let transaction = Transaction(trace: tracer, children: [span])
@@ -1763,6 +1764,14 @@ class SentryClientTest: XCTestCase {
         let threads = [thread]
         event.threads = threads
         return event
+    }
+    
+    private func getSpan(operation: String, tracer: SentryTracer) -> Span {
+#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+        return SentrySpan(tracer: tracer, context: SpanContext(operation: "operation"), framesTracker: nil)
+#else
+        return  SentrySpan(tracer: tracer, context: SpanContext(operation: operation))
+        #endif
     }
     
     private func beforeSendReturnsNil(capture: (SentryClient) -> Void) {
