@@ -9,9 +9,8 @@ enum SentryRRWebEventType: Int {
     case custom = 5
 }
 
-
 @objc(SentryRRWebEvent)
-protocol SentryRRWebEventProtocol : NSObjectProtocol, SentrySerializable {
+protocol SentryRRWebEventProtocol: NSObjectProtocol, SentrySerializable {
 }
 
 @objcMembers

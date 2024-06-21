@@ -1,7 +1,6 @@
 #import <Foundation/Foundation.h>
 #import <Sentry/SentryDefines.h>
 
-
 NS_ASSUME_NONNULL_BEGIN
 #if SENTRY_UIKIT_AVAILABLE
 @class SentryReplayOptions;
@@ -19,13 +18,22 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
-@interface SentrySessionReplayIntegration ()
+@interface
+SentrySessionReplayIntegration ()
 
-+ (id<SentryRRWebEvent>) createBreadcrumbwithTimestamp:(NSDate *)timestamp category:(NSString * )category message:(NSString *)message level:(enum SentryLevel)level data:(nullable NSDictionary<NSString *, id> *)data;
++ (id<SentryRRWebEvent>)createBreadcrumbwithTimestamp:(NSDate *)timestamp
+                                             category:(NSString *)category
+                                              message:(NSString *)message
+                                                level:(enum SentryLevel)level
+                                                 data:(nullable NSDictionary<NSString *, id> *)data;
 
-+ (id<SentryRRWebEvent>) createNetworkBreadcrumbWithTimestamp:(NSDate *)timestamp endTimestamp:(NSDate *)endTimestamp operation:(NSString *)operation description:(NSString *)description data:(NSDictionary<NSString *, id> *)data;
++ (id<SentryRRWebEvent>)createNetworkBreadcrumbWithTimestamp:(NSDate *)timestamp
+                                                endTimestamp:(NSDate *)endTimestamp
+                                                   operation:(NSString *)operation
+                                                 description:(NSString *)description
+                                                        data:(NSDictionary<NSString *, id> *)data;
 
-+ (id<SentryReplayBreadcrumbConverter>) createDefaultBreadcrumbConverter;
++ (id<SentryReplayBreadcrumbConverter>)createDefaultBreadcrumbConverter;
 
 @end
 

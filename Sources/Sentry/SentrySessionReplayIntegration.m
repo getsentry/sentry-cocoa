@@ -244,16 +244,34 @@ SentrySessionReplayIntegration ()
 }
 #    endif
 
-
-+ (id<SentryRRWebEvent>) createBreadcrumbwithTimestamp:(NSDate *)timestamp category:(NSString * )category message:(NSString *)message level:(enum SentryLevel)level data:(nullable NSDictionary<NSString *, id> *)data {
-    return [[SentryRRWebBreadcrumbEvent alloc] initWithTimestamp:timestamp category:category message:message level:level data:data];
++ (id<SentryRRWebEvent>)createBreadcrumbwithTimestamp:(NSDate *)timestamp
+                                             category:(NSString *)category
+                                              message:(NSString *)message
+                                                level:(enum SentryLevel)level
+                                                 data:(nullable NSDictionary<NSString *, id> *)data
+{
+    return [[SentryRRWebBreadcrumbEvent alloc] initWithTimestamp:timestamp
+                                                        category:category
+                                                         message:message
+                                                           level:level
+                                                            data:data];
 }
 
-+ (id<SentryRRWebEvent>) createNetworkBreadcrumbWithTimestamp:(NSDate *)timestamp endTimestamp:(NSDate *)endTimestamp operation:(NSString *)operation description:(NSString *)description data:(NSDictionary<NSString *, id> *)data {
-    return [[SentryRRWebSpanEvent alloc] initWithTimestamp:timestamp endTimestamp:endTimestamp operation:operation description:description data:data];
++ (id<SentryRRWebEvent>)createNetworkBreadcrumbWithTimestamp:(NSDate *)timestamp
+                                                endTimestamp:(NSDate *)endTimestamp
+                                                   operation:(NSString *)operation
+                                                 description:(NSString *)description
+                                                        data:(NSDictionary<NSString *, id> *)data
+{
+    return [[SentryRRWebSpanEvent alloc] initWithTimestamp:timestamp
+                                              endTimestamp:endTimestamp
+                                                 operation:operation
+                                               description:description
+                                                      data:data];
 }
 
-+ (id<SentryReplayBreadcrumbConverter>) createDefaultBreadcrumbConverter {
++ (id<SentryReplayBreadcrumbConverter>)createDefaultBreadcrumbConverter
+{
     return [[SentrySRDefaultBreadcrumbConverter alloc] init];
 }
 
