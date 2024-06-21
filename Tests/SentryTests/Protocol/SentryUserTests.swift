@@ -1,5 +1,6 @@
 import XCTest
 
+@available(*, deprecated)
 class SentryUserTests: XCTestCase {
 
     func testInitWithDictionary() {
