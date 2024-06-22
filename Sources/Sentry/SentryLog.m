@@ -1,4 +1,6 @@
 #import "SentryLog.h"
+#import "SentryAsyncSafeLog.h"
+#import "SentryFileManager.h"
 #import "SentryInternalCDefines.h"
 #import "SentryLevelMapper.h"
 #import "SentryLogOutput.h"
@@ -23,6 +25,16 @@ static NSObject *logConfigureLock;
         isDebug = debug;
         diagnosticLevel = level;
     }
+
+    // set up the async-safe log file
+    const char *asyncLogPath =
+        [[sentryApplicationSupportPath() stringByAppendingPathComponent:@"async.log"] UTF8String];
+    if (SENTRY_LOG_ERRNO(
+            sentry_asyncLogSetFileName(asyncLogPath, true /* overwrite existing log */))
+        == 0) {
+        SENTRY_LOG_ERROR(
+            @"Could not open a handle to specified path for async logging %s", asyncLogPath);
+    };
 }
 
 + (void)logWithMessage:(NSString *)message andLevel:(SentryLevel)level

@@ -40,9 +40,6 @@
 #define likely_if(x) if (__builtin_expect(x, 1))
 #define unlikely_if(x) if (__builtin_expect(x, 0))
 
-/** Where console logs will be written */
-static char g_logFilename[1024];
-
 /** Write a formatted string to the log.
  *
  * @param fmt The format string, followed by its arguments.
@@ -132,7 +129,7 @@ setLogFD(int fd)
     g_fd = fd;
 }
 
-bool
+int
 sentry_asyncLogSetFileName(const char *filename, bool overwrite)
 {
     static int fd = -1;
@@ -142,18 +139,14 @@ sentry_asyncLogSetFileName(const char *filename, bool overwrite)
             openMask |= O_TRUNC;
         }
         fd = open(filename, openMask, 0644);
-        unlikely_if(fd < 0)
-        {
-            writeFmtToLog("SentryAsyncSafeLog: Could not open %s: %s", filename, strerror(errno));
-            return false;
-        }
+        unlikely_if(fd < 0) { return 1; }
         if (filename != g_logFilename) {
             strncpy(g_logFilename, filename, sizeof(g_logFilename));
         }
     }
 
     setLogFD(fd);
-    return true;
+    return 0;
 }
 
 void
