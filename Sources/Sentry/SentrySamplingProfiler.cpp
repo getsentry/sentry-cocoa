@@ -53,12 +53,12 @@ namespace profiling {
             pthread_cleanup_push(deleteParams, params);
             while (true) {
                 pthread_testcancel();
-                if (SENTRY_LOG_MACH_MSG_RETURN(mach_msg(&replyBuf->Head, MACH_RCV_MSG, 0, maxSize,
-                        params->port, MACH_MSG_TIMEOUT_NONE, MACH_PORT_NULL))
+                if (SENTRY_ASYNC_SAFE_LOG_MACH_MSG_RETURN(mach_msg(&replyBuf->Head, MACH_RCV_MSG, 0,
+                        maxSize, params->port, MACH_MSG_TIMEOUT_NONE, MACH_PORT_NULL))
                     != MACH_MSG_SUCCESS) {
                     break;
                 }
-                if (SENTRY_LOG_KERN_RETURN(
+                if (SENTRY_ASYNC_SAFE_LOG_KERN_RETURN(
                         clock_alarm(params->clock, TIME_RELATIVE, params->delaySpec, params->port))
                     != KERN_SUCCESS) {
                     break;
@@ -83,11 +83,12 @@ namespace profiling {
         , port_(0)
         , numSamples_(0)
     {
-        if (SENTRY_LOG_KERN_RETURN(host_get_clock_service(mach_host_self(), SYSTEM_CLOCK, &clock_))
+        if (SENTRY_ASYNC_SAFE_LOG_KERN_RETURN(
+                host_get_clock_service(mach_host_self(), SYSTEM_CLOCK, &clock_))
             != KERN_SUCCESS) {
             return;
         }
-        if (SENTRY_LOG_KERN_RETURN(
+        if (SENTRY_ASYNC_SAFE_LOG_KERN_RETURN(
                 mach_port_allocate(mach_task_self(), MACH_PORT_RIGHT_RECEIVE, &port_))
             != KERN_SUCCESS) {
             return;
@@ -106,7 +107,7 @@ namespace profiling {
             return;
         }
         stopSampling();
-        SENTRY_LOG_KERN_RETURN(
+        SENTRY_ASYNC_SAFE_LOG_KERN_RETURN(
             mach_port_mod_refs(mach_task_self(), port_, MACH_PORT_RIGHT_RECEIVE, -1));
     }
 
@@ -147,7 +148,7 @@ namespace profiling {
             return;
         }
 
-        SENTRY_LOG_KERN_RETURN(clock_alarm(clock_, TIME_RELATIVE, delaySpec_, port_));
+        SENTRY_ASYNC_SAFE_LOG_KERN_RETURN(clock_alarm(clock_, TIME_RELATIVE, delaySpec_, port_));
     }
 
     void

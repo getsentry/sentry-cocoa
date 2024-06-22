@@ -26,7 +26,7 @@ const char *machMessageReturnCodeDescription(mach_msg_return_t mr) noexcept;
 
 } // namespace sentry
 
-#define SENTRY_LOG_KERN_RETURN(statement)                                                          \
+#define SENTRY_ASYNC_SAFE_LOG_KERN_RETURN(statement)                                               \
     ({                                                                                             \
         const kern_return_t __log_kr = statement;                                                  \
         if (__log_kr != KERN_SUCCESS) {                                                            \
@@ -36,7 +36,7 @@ const char *machMessageReturnCodeDescription(mach_msg_return_t mr) noexcept;
         __log_kr;                                                                                  \
     })
 
-#define SENTRY_LOG_MACH_MSG_RETURN(statement)                                                      \
+#define SENTRY_ASYNC_SAFE_LOG_MACH_MSG_RETURN(statement)                                           \
     ({                                                                                             \
         const mach_msg_return_t __log_mr = statement;                                              \
         if (__log_mr != MACH_MSG_SUCCESS) {                                                        \
