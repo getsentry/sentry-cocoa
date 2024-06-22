@@ -126,6 +126,15 @@
 
 #define SENTRY_ASYNC_SAFE_LOG_C_BUFFER_SIZE 1024
 
+/**
+ * In addition to writing to file, we can also write to the console. This is not safe to do from
+ * actual async contexts, but can be helpful while running with the debugger attached in certain
+ * cases. The logger will never write to the console if there is no debugger attached.
+ * @warning Never commit a change of this definition to 1, or we compromise async-safety in
+ * production crash reporting.
+ */
+#define SENTRY_ASYNC_SAFE_LOG_ALSO_WRITE_TO_CONSOLE 0
+
 // ============================================================================
 #pragma mark - (internal) -
 // ============================================================================

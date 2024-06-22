@@ -80,8 +80,10 @@ writeFmtToLog(const char *fmt, ...)
 /** The file descriptor where log entries get written. */
 static int g_fd = -1;
 
+#if SENTRY_ASYNC_SAFE_LOG_ALSO_WRITE_TO_CONSOLE
 static bool g_isDebugging;
 static bool g_checkedIsDebugging;
+#endif // SENTRY_ASYNC_SAFE_LOG_ALSO_WRITE_TO_CONSOLE
 
 static void
 writeToLog(const char *const str)
@@ -98,6 +100,7 @@ writeToLog(const char *const str)
     }
     write(STDOUT_FILENO, str, strlen(str));
 
+#if SENTRY_ASYNC_SAFE_LOG_ALSO_WRITE_TO_CONSOLE
     // if we're debugging, also write the log statements to the console; we only check once for
     // performance reasons; if the debugger is attached or detached while running, it will not
     // change console-based logging
@@ -109,6 +112,7 @@ writeToLog(const char *const str)
         fprintf(stdout, "%s", str);
         fflush(stdout);
     }
+#endif // SENTRY_ASYNC_SAFE_LOG_ALSO_WRITE_TO_CONSOLE
 }
 
 static inline void
