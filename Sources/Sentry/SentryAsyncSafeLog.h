@@ -150,6 +150,23 @@ bool sentry_asyncLogClearLogFile(void);
 #    define SENTRY_ASYNC_SAFE_LOG_TRACE(FMT, ...)
 #endif
 
+/**
+ * If @c errno is set to a non-zero value after @c statement finishes executing,
+ * the error value is logged, and the original return value of @c statement is
+ * returned.
+ */
+#define SENTRY_ASYNC_SAFE_LOG_ERRNO_RETURN(statement)                                              \
+    ({                                                                                             \
+        errno = 0;                                                                                 \
+        const auto __log_rv = (statement);                                                         \
+        const int __log_errnum = errno;                                                            \
+        if (__log_errnum != 0) {                                                                   \
+            SENTRY_ASYNC_SAFE_LOG_ERROR("%s failed with code: %d, description: %s", #statement,    \
+                __log_errnum, strerror(__log_errnum));                                             \
+        }                                                                                          \
+        __log_rv;                                                                                  \
+    })
+
 #ifdef __cplusplus
 }
 #endif
