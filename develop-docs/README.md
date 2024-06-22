@@ -110,8 +110,7 @@ This feature is experimental and is currently not compatible with SPM.
 
 ## Logging
 
-We have a set of macros for logging at various levels defined in SentryLog.h. These are not async-safe because they use NSLog, which takes its own lock; to log from special places like crash handlers, see SentryAsyncSafeLog.h. By default, it only writes to file. If you'll be debuggin, you can set `SENTRY_ASYNC_SAFE_LOG_ALSO_WRITE_TO_CONSOLE` to `1` and logs will also write to the console, but note this is unsafe to do from contexts that actually require async safety, so this should always remain disabled in version control by leaving it set it to `0`. 
-There are also separate macros in SentryProfilingLogging.hpp specifically for the profiler; these are completely compiled out of release builds due to https://github.com/getsentry/sentry-cocoa/issues/3336.
+We have a set of macros for logging at various levels defined in SentryLog.h. These are not async-safe because they use NSLog, which takes its own lock; to log from special places like crash handlers, see SentryAsyncSafeLog.h. By default, it only writes to file. If you'll be debuggin, you can set `SENTRY_ASYNC_SAFE_LOG_ALSO_WRITE_TO_CONSOLE` to `1` and logs will also write to the console, but note this is unsafe to do from contexts that actually require async safety, so this should always remain disabled in version control by leaving it set it to `0`.
 
 ## Profiling
 
