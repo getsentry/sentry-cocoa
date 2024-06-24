@@ -164,8 +164,10 @@ SentryNetworkTracker ()
     }
 
     // Register request start date in the sessionTask to use for breadcrumb
+if (self.isNetworkBreadcrumbEnabled) {
     objc_setAssociatedObject(sessionTask, &SENTRY_NETWORK_REQUEST_START_DATE, [NSDate date],
         OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+}
 
     @synchronized(self) {
         if (!self.isNetworkTrackingEnabled) {
