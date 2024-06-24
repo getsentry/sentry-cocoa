@@ -38,30 +38,14 @@ typedef unsigned long long bytes;
 // THE SOFTWARE.
 //
 
-#ifdef __APPLE__
-#    include <TargetConditionals.h>
-#    define SENTRY_HOST_APPLE 1
-#endif
+#include <TargetConditionals.h>
 
-#define SENTRY_HOST_IOS (SENTRY_HOST_APPLE && TARGET_OS_IOS)
-#define SENTRY_HOST_TV (SENTRY_HOST_APPLE && TARGET_OS_TV)
-#define SENTRY_HOST_WATCH (SENTRY_HOST_APPLE && TARGET_OS_WATCH)
-#define SENTRY_HOST_VISION (SENTRY_HOST_APPLE && TARGET_OS_VISION)
+#define SENTRY_HOST_IOS TARGET_OS_IOS
+#define SENTRY_HOST_TV TARGET_OS_TV
+#define SENTRY_HOST_WATCH TARGET_OS_WATCH
+#define SENTRY_HOST_VISION TARGET_OS_VISION
 #define SENTRY_HOST_MAC                                                                            \
-    (SENTRY_HOST_APPLE && TARGET_OS_MAC                                                            \
-        && !(TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_WATCH || TARGET_OS_VISION))
-
-#if SENTRY_HOST_APPLE
-#    define SENTRY_ASYNC_SAFE_LOG_HAS_OBJC 1
-#else
-#    define SENTRY_ASYNC_SAFE_LOG_HAS_OBJC 0
-#endif
-
-#if SENTRY_HOST_APPLE
-#    define SENTRY_HAS_STRNSTR 1
-#else
-#    define SENTRY_HAS_STRNSTR 0
-#endif
+    (TARGET_OS_MAC && !(TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_WATCH || TARGET_OS_VISION))
 
 #if SENTRY_HOST_WATCH
 #    define SENTRY_HAS_NSEXTENSION 1

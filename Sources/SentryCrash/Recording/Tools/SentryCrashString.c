@@ -445,13 +445,8 @@ sentrycrashstring_extractHexValue(const char *string, int stringLength, uint64_t
         const unsigned char *current = (const unsigned char *)string;
         const unsigned char *const end = current + stringLength;
         for (;;) {
-#if SENTRY_HAS_STRNSTR
             current = (const unsigned char *)strnstr(
                 (const char *)current, "0x", (unsigned)(end - current));
-#else
-            current = (const unsigned char *)strstr((const char *)current, "0x");
-            unlikely_if(current >= end) { return false; }
-#endif
             unlikely_if(!current) { return false; }
             current += 2;
 

@@ -65,12 +65,10 @@ static Monitor g_monitors[] = {
         .getAPI = sentrycrashcm_signal_getAPI,
     },
 #endif
-#if SENTRY_ASYNC_SAFE_LOG_HAS_OBJC
     {
         .monitorType = SentryCrashMonitorTypeNSException,
         .getAPI = sentrycrashcm_nsexception_getAPI,
     },
-#endif
     {
         .monitorType = SentryCrashMonitorTypeCPPException,
         .getAPI = sentrycrashcm_cppexception_getAPI,

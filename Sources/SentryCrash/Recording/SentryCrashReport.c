@@ -609,7 +609,6 @@ isRestrictedClass(const char *name)
 static bool
 writeObjCObject(const SentryCrashReportWriter *const writer, const uintptr_t address, int *limit)
 {
-#if SENTRY_ASYNC_SAFE_LOG_HAS_OBJC
     const void *object = (const void *)address;
     switch (sentrycrashobjc_objectType(object)) {
     case SentryCrashObjCTypeClass:
@@ -663,7 +662,6 @@ writeObjCObject(const SentryCrashReportWriter *const writer, const uintptr_t add
     case SentryCrashObjCTypeUnknown:
         break;
     }
-#endif
 
     return false;
 }
@@ -710,13 +708,11 @@ isValidPointer(const uintptr_t address)
         return false;
     }
 
-#if SENTRY_ASYNC_SAFE_LOG_HAS_OBJC
     if (sentrycrashobjc_isTaggedPointer((const void *)address)) {
         if (!sentrycrashobjc_isValidTaggedPointer((const void *)address)) {
             return false;
         }
     }
-#endif
 
     return true;
 }
@@ -730,11 +726,9 @@ isNotableAddress(const uintptr_t address)
 
     const void *object = (const void *)address;
 
-#if SENTRY_ASYNC_SAFE_LOG_HAS_OBJC
     if (sentrycrashobjc_objectType(object) != SentryCrashObjCTypeUnknown) {
         return true;
     }
-#endif
 
     if (isValidString(object)) {
         return true;
