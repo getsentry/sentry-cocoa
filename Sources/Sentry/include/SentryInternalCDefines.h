@@ -43,16 +43,6 @@ typedef unsigned long long bytes;
 #    define SENTRY_HOST_APPLE 1
 #endif
 
-// TODO: remove, never true in cocoa
-#ifdef __ANDROID__
-#    define SENTRY_HOST_ANDROID 1
-#endif
-
-// TODO: remove, it's already done in SentryDefines.h
-#ifndef TARGET_OS_VISION
-#    define TARGET_OS_VISION 0
-#endif
-
 #define SENTRY_HOST_IOS (SENTRY_HOST_APPLE && TARGET_OS_IOS)
 #define SENTRY_HOST_TV (SENTRY_HOST_APPLE && TARGET_OS_TV)
 #define SENTRY_HOST_WATCH (SENTRY_HOST_APPLE && TARGET_OS_WATCH)
@@ -61,28 +51,10 @@ typedef unsigned long long bytes;
     (SENTRY_HOST_APPLE && TARGET_OS_MAC                                                            \
         && !(TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_WATCH || TARGET_OS_VISION))
 
-// TODO: remove, unused
-#if SENTRY_HOST_APPLE
-#    define SENTRY_CAN_GET_MAC_ADDRESS 1
-#else
-#    define SENTRY_CAN_GET_MAC_ADDRESS 0
-#endif
-
 #if SENTRY_HOST_APPLE
 #    define SENTRY_ASYNC_SAFE_LOG_HAS_OBJC 1
-// TODO: remove, unused
-#    define SENTRY_HAS_SWIFT 1
 #else
 #    define SENTRY_ASYNC_SAFE_LOG_HAS_OBJC 0
-// TODO: remove, unused
-#    define SENTRY_HAS_SWIFT 0
-#endif
-
-// TODO: remove, unused
-#if SENTRY_HOST_APPLE
-#    define SENTRY_HAS_KINFO_PROC 1
-#else
-#    define SENTRY_HAS_KINFO_PROC 0
 #endif
 
 #if SENTRY_HOST_APPLE
@@ -97,34 +69,23 @@ typedef unsigned long long bytes;
 #    define SENTRY_HAS_NSEXTENSION 0
 #endif
 
-// TODO: remove, unused
-#if SENTRY_HOST_IOS || SENTRY_HOST_MAC || SENTRY_HOST_TV
-#    define SENTRY_HAS_ALERTVIEW 1
-#else
-#    define SENTRY_HAS_ALERTVIEW 0
-#endif
-
-// TODO: remove, unused
-#if SENTRY_HOST_MAC
-#    define SENTRY_HAS_NSALERT 1
-#else
-#    define SENTRY_HAS_NSALERT 0
-#endif
-
+// Mach APIs are explicitly marked as unavailable in tvOS and watchOS.
+// See https://github.com/getsentry/sentry-cocoa/issues/406#issuecomment-1171872518
 #if SENTRY_HOST_IOS || SENTRY_HOST_MAC
 #    define SENTRY_HAS_MACH 1
 #else
 #    define SENTRY_HAS_MACH 0
 #endif
 
-// WatchOS signal is broken as of 3.1
-#if SENTRY_HOST_ANDROID || SENTRY_HOST_IOS || SENTRY_HOST_MAC || SENTRY_HOST_TV
+// signal APIs are explicitly marked as unavailable in watchOS.
+// See https://github.com/getsentry/sentry-cocoa/issues/406#issuecomment-1171872518
+#if SENTRY_HOST_IOS || SENTRY_HOST_MAC || SENTRY_HOST_TV
 #    define SENTRY_HAS_SIGNAL 1
 #else
 #    define SENTRY_HAS_SIGNAL 0
 #endif
 
-#if SENTRY_HOST_ANDROID || SENTRY_HOST_MAC || SENTRY_HOST_IOS
+#if SENTRY_HOST_MAC || SENTRY_HOST_IOS
 #    define SENTRY_HAS_SIGNAL_STACK 1
 #else
 #    define SENTRY_HAS_SIGNAL_STACK 0
@@ -134,12 +95,4 @@ typedef unsigned long long bytes;
 #    define SENTRY_HAS_THREADS_API 1
 #else
 #    define SENTRY_HAS_THREADS_API 0
-#endif
-
-// TODO: remove, already defined in SentryDefines.h, the old version of this before the rename was
-// unsued
-#if SENTRY_HOST_MAC || SENTRY_HOST_IOS || SENTRY_HOST_TV
-#    define SENTRY_HAS_REACHABILITY 1
-#else
-#    define SENTRY_HAS_REACHABILITY 0
 #endif
