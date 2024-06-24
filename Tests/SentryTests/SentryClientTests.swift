@@ -377,7 +377,7 @@ class SentryClientTest: XCTestCase {
         let tracer = SentryTracer(transactionContext: TransactionContext(operation: "Operation"), hub: hub)
         
         scope.currentScreen = "SecondScreen"
-        if let event = Dynamic(tracer).toTransaction() as Transaction? {
+        let event = try XCTUnwrap(Dynamic(tracer).toTransaction() as Transaction?, "Could not get transaction from tracer")
             fixture.getSut().capture(event: event, scope: scope)
             
             try? assertLastSentEventWithAttachment { event in
