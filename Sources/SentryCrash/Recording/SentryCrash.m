@@ -36,9 +36,9 @@
 #import "SentryCrashNSErrorUtil.h"
 #import "SentryCrashReportFields.h"
 #import "SentryCrashReportStore.h"
-#import "SentryCrashSystemCapabilities.h"
 #import "SentryDefines.h"
 #import "SentryDependencyContainer.h"
+#import "SentryInternalCDefines.h"
 #import "SentryNSNotificationCenterWrapper.h"
 #import <SentryNSDataUtils.h>
 
@@ -257,7 +257,7 @@ SentryCrash ()
                            selector:@selector(applicationWillTerminate)
                                name:UIApplicationWillTerminateNotification];
 #endif // SENTRY_HAS_UIKIT
-#if SentryCrashCRASH_HAS_NSEXTENSION
+#if SENTRY_HAS_NSEXTENSION
     SentryNSNotificationCenterWrapper *notificationCenter
         = SentryDependencyContainer.sharedInstance.notificationCenterWrapper;
     [notificationCenter addObserver:self
@@ -272,7 +272,7 @@ SentryCrash ()
     [notificationCenter addObserver:self
                            selector:@selector(applicationWillEnterForeground)
                                name:NSExtensionHostWillEnterForegroundNotification];
-#endif // SentryCrashCRASH_HAS_NSEXTENSION
+#endif // SENTRY_HAS_NSEXTENSION
 
     return true;
 }
@@ -294,7 +294,7 @@ SentryCrash ()
     [notificationCenter removeObserver:self name:UIApplicationWillEnterForegroundNotification];
     [notificationCenter removeObserver:self name:UIApplicationWillTerminateNotification];
 #endif // SENTRY_HAS_UIKIT
-#if SentryCrashCRASH_HAS_NSEXTENSION
+#if SENTRY_HAS_NSEXTENSION
     SentryNSNotificationCenterWrapper *notificationCenter
         = SentryDependencyContainer.sharedInstance.notificationCenterWrapper;
     [notificationCenter removeObserver:self name:NSExtensionHostDidBecomeActiveNotification];

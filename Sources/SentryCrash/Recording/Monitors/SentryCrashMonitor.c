@@ -53,13 +53,13 @@ typedef struct {
 } Monitor;
 
 static Monitor g_monitors[] = {
-#if SentryCrashCRASH_HAS_MACH
+#if SENTRY_HAS_MACH
     {
         .monitorType = SentryCrashMonitorTypeMachException,
         .getAPI = sentrycrashcm_machexception_getAPI,
     },
 #endif
-#if SentryCrashCRASH_HAS_SIGNAL
+#if SENTRY_HAS_SIGNAL
     {
         .monitorType = SentryCrashMonitorTypeSignal,
         .getAPI = sentrycrashcm_signal_getAPI,

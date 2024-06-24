@@ -43,9 +43,9 @@
 #include "SentryCrashStackCursor_Backtrace.h"
 #include "SentryCrashStackCursor_MachineContext.h"
 #include "SentryCrashString.h"
-#include "SentryCrashSystemCapabilities.h"
 #include "SentryCrashThread.h"
 #include "SentryCrashUUIDConversion.h"
+#include "SentryInternalCDefines.h"
 #include "SentryScopeSyncC.h"
 
 #include "SentryAsyncSafeLog.h"
@@ -1248,7 +1248,7 @@ writeError(const SentryCrashReportWriter *const writer, const char *const key,
 {
     writer->beginObject(writer, key);
     {
-#if SentryCrashCRASH_HOST_APPLE
+#if SENTRY_HOST_APPLE
         writer->beginObject(writer, SentryCrashField_Mach);
         {
             const char *machExceptionName = sentrycrashmach_exceptionName(crash->mach.type);
@@ -1421,7 +1421,7 @@ writeReportInfo(const SentryCrashReportWriter *const writer, const char *const k
 {
     writer->beginObject(writer, key);
     {
-        writer->addStringElement(writer, SentryCrashField_Version, SentryCrashCRASH_REPORT_VERSION);
+        writer->addStringElement(writer, SentryCrashField_Version, SENTRY_REPORT_VERSION);
         writer->addStringElement(writer, SentryCrashField_ID, reportID);
         writer->addStringElement(writer, SentryCrashField_ProcessName, processName);
         writer->addIntegerElement(writer, SentryCrashField_Timestamp, time(NULL));
