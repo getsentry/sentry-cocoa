@@ -129,114 +129,138 @@
  * ===============
  *
  * The C logger changes its behavior depending on the value of the preprocessor
- * define SentryCrashLogger_CBufferSize.
+ * define @c SentryCrashLogger_CBufferSize.
  *
- * If SentryCrashLogger_CBufferSize is > 0, the C logger will behave in an
+ * If @c SentryCrashLogger_CBufferSize is > 0, the C logger will behave in an
  * async-safe manner, calling write() instead of printf(). Any log messages that
  * exceed the length specified by SentryCrashLogger_CBufferSize will be
  * truncated.
  *
- * If SentryCrashLogger_CBufferSize == 0, the C logger will use printf(), and
+ * If @c SentryCrashLogger_CBufferSize == 0, the C logger will use printf(), and
  * there will be no limit on the log message length.
  *
- * SentryCrashLogger_CBufferSize can only be set as a preprocessor define, and
+ * @c SentryCrashLogger_CBufferSize can only be set as a preprocessor define, and
  * will default to 1024 if not specified during compilation.
  */
+
+/** The buffer size to use when writing log entries.
+ *
+ * If this value is > 0, any log entries that expand beyond this length will
+ * be truncated.
+ * If this value = 0, the logging system will dynamically allocate memory
+ * and never truncate. However, the log functions won't be async-safe.
+ *
+ * Unless you're logging from within signal handlers, it's safe to set it to 0.
+ */
+#ifndef SentryCrashLogger_CBufferSize
+#define SentryCrashLogger_CBufferSize 1024
+#endif
 
 // ============================================================================
 #pragma mark - (internal) -
 // ============================================================================
 
 #ifndef HDR_SentryCrashLogger_h
-#    define HDR_SentryCrashLogger_h
+#define HDR_SentryCrashLogger_h
 
-#    ifdef __cplusplus
+#ifdef __cplusplus
 extern "C" {
-#    endif
+#endif
 
-#    include <stdbool.h>
+#include <stdbool.h>
 
-#    ifdef __OBJC__
+#ifdef __OBJC__
 
-#        import <CoreFoundation/CoreFoundation.h>
+#    import <CoreFoundation/CoreFoundation.h>
 
 void i_sentrycrashlog_logObjC(
     const char *level, const char *file, int line, const char *function, CFStringRef fmt, ...);
 
 void i_sentrycrashlog_logObjCBasic(CFStringRef fmt, ...);
 
-#        define i_SentryCrashLOG_FULL(LEVEL, FILE, LINE, FUNCTION, FMT, ...)                       \
-            i_sentrycrashlog_logObjC(                                                              \
-                LEVEL, FILE, LINE, FUNCTION, (__bridge CFStringRef)FMT, ##__VA_ARGS__)
-#        define i_SentryCrashLOG_BASIC(FMT, ...)                                                   \
-            i_sentrycrashlog_logObjCBasic((__bridge CFStringRef)FMT, ##__VA_ARGS__)
+#    define i_SentryCrashLOG_FULL(LEVEL, FILE, LINE, FUNCTION, FMT, ...)                           \
+        i_sentrycrashlog_logObjC(                                                                  \
+            LEVEL, FILE, LINE, FUNCTION, (__bridge CFStringRef)FMT, ##__VA_ARGS__)
+#    define i_SentryCrashLOG_BASIC(FMT, ...)                                                       \
+        i_sentrycrashlog_logObjCBasic((__bridge CFStringRef)FMT, ##__VA_ARGS__)
 
-#    else // __OBJC__
+#else // __OBJC__
 
 void i_sentrycrashlog_logC(
     const char *level, const char *file, int line, const char *function, const char *fmt, ...);
 
 void i_sentrycrashlog_logCBasic(const char *fmt, ...);
 
-#        define i_SentryCrashLOG_FULL i_sentrycrashlog_logC
-#        define i_SentryCrashLOG_BASIC i_sentrycrashlog_logCBasic
+#    define i_SentryCrashLOG_FULL i_sentrycrashlog_logC
+#    define i_SentryCrashLOG_BASIC i_sentrycrashlog_logCBasic
 
-#    endif // __OBJC__
+#endif // __OBJC__
 
 /* Back up any existing defines by the same name */
-#    ifdef SentryCrash_NONE
-#        define SentryCrashLOG_BAK_NONE SentryCrash_NONE
-#        undef SentryCrash_NONE
-#    endif
-#    ifdef ERROR
-#        define SentryCrashLOG_BAK_ERROR ERROR
-#        undef ERROR
-#    endif
-#    ifdef WARN
-#        define SentryCrashLOG_BAK_WARN WARN
-#        undef WARN
-#    endif
-#    ifdef INFO
-#        define SentryCrashLOG_BAK_INFO INFO
-#        undef INFO
-#    endif
-#    ifdef DEBUG
-#        define SentryCrashLOG_BAK_DEBUG DEBUG
-#        undef DEBUG
-#    endif
-#    ifdef TRACE
-#        define SentryCrashLOG_BAK_TRACE TRACE
-#        undef TRACE
-#    endif
+#ifdef SentryCrash_NONE
+#    define SentryCrashLOG_BAK_NONE SentryCrash_NONE
+#    undef SentryCrash_NONE
+#endif
+#ifdef ERROR
+#    define SentryCrashLOG_BAK_ERROR ERROR
+#    undef ERROR
+#endif
+#ifdef WARN
+#    define SentryCrashLOG_BAK_WARN WARN
+#    undef WARN
+#endif
+#ifdef INFO
+#    define SentryCrashLOG_BAK_INFO INFO
+#    undef INFO
+#endif
+#ifdef DEBUG
+#    define SentryCrashLOG_BAK_DEBUG DEBUG
+#    undef DEBUG
+#endif
+#ifdef TRACE
+#    define SentryCrashLOG_BAK_TRACE TRACE
+#    undef TRACE
+#endif
 
-#    define SentryCrashLogger_Level_None 0
-#    define SentryCrashLogger_Level_Error 10
-#    define SentryCrashLogger_Level_Warn 20
-#    define SentryCrashLogger_Level_Info 30
-#    define SentryCrashLogger_Level_Debug 40
-#    define SentryCrashLogger_Level_Trace 50
+#define SentryCrashLogger_Level_None 0
+#define SentryCrashLogger_Level_Error 10
+#define SentryCrashLogger_Level_Warn 20
+#define SentryCrashLogger_Level_Info 30
+#define SentryCrashLogger_Level_Debug 40
+#define SentryCrashLogger_Level_Trace 50
 
-#    define SentryCrash_NONE SentryCrashLogger_Level_None
-#    define ERROR SentryCrashLogger_Level_Error
-#    define WARN SentryCrashLogger_Level_Warn
-#    define INFO SentryCrashLogger_Level_Info
-#    define DEBUG SentryCrashLogger_Level_Debug
-#    define TRACE SentryCrashLogger_Level_Trace
+#define SentryCrash_NONE SentryCrashLogger_Level_None
+#define ERROR SentryCrashLogger_Level_Error
+#define WARN SentryCrashLogger_Level_Warn
+#define INFO SentryCrashLogger_Level_Info
+#define DEBUG SentryCrashLogger_Level_Debug
+#define TRACE SentryCrashLogger_Level_Trace
 
-#    ifndef SentryCrashLogger_Level
-#        define SentryCrashLogger_Level SentryCrashLogger_Level_Error
-#    endif
+#ifndef SentryCrashLogger_Level
+#    define SentryCrashLogger_Level SentryCrashLogger_Level_Error
+#endif
 
-#    ifndef SentryCrashLogger_LocalLevel
-#        define SentryCrashLogger_LocalLevel SentryCrashLogger_Level_None
-#    endif
+#ifndef SentryCrashLogger_LocalLevel
+#    define SentryCrashLogger_LocalLevel SentryCrashLogger_Level_Trace
+#endif
 
-#    define a_SentryCrashLOG_FULL(LEVEL, FMT, ...)                                                 \
-        i_SentryCrashLOG_FULL(LEVEL, __FILE__, __LINE__, __PRETTY_FUNCTION__, FMT, ##__VA_ARGS__)
+#define a_SentryCrashLOG_FULL(LEVEL, FMT, ...)                                                     \
+    i_SentryCrashLOG_FULL(LEVEL, __FILE__, __LINE__, __PRETTY_FUNCTION__, FMT, ##__VA_ARGS__)
 
 // ============================================================================
-#    pragma mark - API -
+#pragma mark - API -
 // ============================================================================
+
+/** Set the filename to log to.
+ *
+ * @param filename The file to write to (NULL = write to stdout).
+ *
+ * @param overwrite If true, overwrite the log file.
+ */
+bool sentrycrashlog_setLogFilename(const char *filename, bool overwrite);
+
+/** Clear the log file. */
+bool sentrycrashlog_clearLogFile(void);
 
 /** Tests if the logger would print at the specified level.
  *
@@ -249,115 +273,115 @@ void i_sentrycrashlog_logCBasic(const char *fmt, ...);
  *
  * @return TRUE if the logger would print at the specified level.
  */
-#    define SentryCrashLOG_PRINTS_AT_LEVEL(LEVEL)                                                  \
-        (SentryCrashLogger_Level >= LEVEL || SentryCrashLogger_LocalLevel >= LEVEL)
+#define SentryCrashLOG_PRINTS_AT_LEVEL(LEVEL)                                                      \
+    (SentryCrashLogger_Level >= LEVEL || SentryCrashLogger_LocalLevel >= LEVEL)
 
 /** Log a message regardless of the log settings.
  * Normal version prints out full context. Basic version prints directly.
  *
  * @param FMT The format specifier, followed by its arguments.
  */
-#    define SentryCrashLOG_ALWAYS(FMT, ...) a_SentryCrashLOG_FULL("FORCE", FMT, ##__VA_ARGS__)
-#    define SentryCrashLOGBASIC_ALWAYS(FMT, ...) i_SentryCrashLOG_BASIC(FMT, ##__VA_ARGS__)
+#define SentryCrashLOG_ALWAYS(FMT, ...) a_SentryCrashLOG_FULL("FORCE", FMT, ##__VA_ARGS__)
+#define SentryCrashLOGBASIC_ALWAYS(FMT, ...) i_SentryCrashLOG_BASIC(FMT, ##__VA_ARGS__)
 
 /** Log an error.
  * Normal version prints out full context. Basic version prints directly.
  *
  * @param FMT The format specifier, followed by its arguments.
  */
-#    if SentryCrashLOG_PRINTS_AT_LEVEL(SentryCrashLogger_Level_Error)
-#        define SentryCrashLOG_ERROR(FMT, ...) a_SentryCrashLOG_FULL("ERROR", FMT, ##__VA_ARGS__)
-#        define SentryCrashLOGBASIC_ERROR(FMT, ...) i_SentryCrashLOG_BASIC(FMT, ##__VA_ARGS__)
-#    else
-#        define SentryCrashLOG_ERROR(FMT, ...)
-#        define SentryCrashLOGBASIC_ERROR(FMT, ...)
-#    endif
+#if SentryCrashLOG_PRINTS_AT_LEVEL(SentryCrashLogger_Level_Error)
+#    define SentryCrashLOG_ERROR(FMT, ...) a_SentryCrashLOG_FULL("ERROR", FMT, ##__VA_ARGS__)
+#    define SentryCrashLOGBASIC_ERROR(FMT, ...) i_SentryCrashLOG_BASIC(FMT, ##__VA_ARGS__)
+#else
+#    define SentryCrashLOG_ERROR(FMT, ...)
+#    define SentryCrashLOGBASIC_ERROR(FMT, ...)
+#endif
 
 /** Log a warning.
  * Normal version prints out full context. Basic version prints directly.
  *
  * @param FMT The format specifier, followed by its arguments.
  */
-#    if SentryCrashLOG_PRINTS_AT_LEVEL(SentryCrashLogger_Level_Warn)
-#        define SentryCrashLOG_WARN(FMT, ...) a_SentryCrashLOG_FULL("WARN ", FMT, ##__VA_ARGS__)
-#        define SentryCrashLOGBASIC_WARN(FMT, ...) i_SentryCrashLOG_BASIC(FMT, ##__VA_ARGS__)
-#    else
-#        define SentryCrashLOG_WARN(FMT, ...)
-#        define SentryCrashLOGBASIC_WARN(FMT, ...)
-#    endif
+#if SentryCrashLOG_PRINTS_AT_LEVEL(SentryCrashLogger_Level_Warn)
+#    define SentryCrashLOG_WARN(FMT, ...) a_SentryCrashLOG_FULL("WARN ", FMT, ##__VA_ARGS__)
+#    define SentryCrashLOGBASIC_WARN(FMT, ...) i_SentryCrashLOG_BASIC(FMT, ##__VA_ARGS__)
+#else
+#    define SentryCrashLOG_WARN(FMT, ...)
+#    define SentryCrashLOGBASIC_WARN(FMT, ...)
+#endif
 
 /** Log an info message.
  * Normal version prints out full context. Basic version prints directly.
  *
  * @param FMT The format specifier, followed by its arguments.
  */
-#    if SentryCrashLOG_PRINTS_AT_LEVEL(SentryCrashLogger_Level_Info)
-#        define SentryCrashLOG_INFO(FMT, ...) a_SentryCrashLOG_FULL("INFO ", FMT, ##__VA_ARGS__)
-#        define SentryCrashLOGBASIC_INFO(FMT, ...) i_SentryCrashLOG_BASIC(FMT, ##__VA_ARGS__)
-#    else
-#        define SentryCrashLOG_INFO(FMT, ...)
-#        define SentryCrashLOGBASIC_INFO(FMT, ...)
-#    endif
+#if SentryCrashLOG_PRINTS_AT_LEVEL(SentryCrashLogger_Level_Info)
+#    define SentryCrashLOG_INFO(FMT, ...) a_SentryCrashLOG_FULL("INFO ", FMT, ##__VA_ARGS__)
+#    define SentryCrashLOGBASIC_INFO(FMT, ...) i_SentryCrashLOG_BASIC(FMT, ##__VA_ARGS__)
+#else
+#    define SentryCrashLOG_INFO(FMT, ...)
+#    define SentryCrashLOGBASIC_INFO(FMT, ...)
+#endif
 
 /** Log a debug message.
  * Normal version prints out full context. Basic version prints directly.
  *
  * @param FMT The format specifier, followed by its arguments.
  */
-#    if SentryCrashLOG_PRINTS_AT_LEVEL(SentryCrashLogger_Level_Debug)
-#        define SentryCrashLOG_DEBUG(FMT, ...) a_SentryCrashLOG_FULL("DEBUG", FMT, ##__VA_ARGS__)
-#        define SentryCrashLOGBASIC_DEBUG(FMT, ...) i_SentryCrashLOG_BASIC(FMT, ##__VA_ARGS__)
-#    else
-#        define SentryCrashLOG_DEBUG(FMT, ...)
-#        define SentryCrashLOGBASIC_DEBUG(FMT, ...)
-#    endif
+#if SentryCrashLOG_PRINTS_AT_LEVEL(SentryCrashLogger_Level_Debug)
+#    define SentryCrashLOG_DEBUG(FMT, ...) a_SentryCrashLOG_FULL("DEBUG", FMT, ##__VA_ARGS__)
+#    define SentryCrashLOGBASIC_DEBUG(FMT, ...) i_SentryCrashLOG_BASIC(FMT, ##__VA_ARGS__)
+#else
+#    define SentryCrashLOG_DEBUG(FMT, ...)
+#    define SentryCrashLOGBASIC_DEBUG(FMT, ...)
+#endif
 
 /** Log a trace message.
  * Normal version prints out full context. Basic version prints directly.
  *
  * @param FMT The format specifier, followed by its arguments.
  */
-#    if SentryCrashLOG_PRINTS_AT_LEVEL(SentryCrashLogger_Level_Trace)
-#        define SentryCrashLOG_TRACE(FMT, ...) a_SentryCrashLOG_FULL("TRACE", FMT, ##__VA_ARGS__)
-#        define SentryCrashLOGBASIC_TRACE(FMT, ...) i_SentryCrashLOG_BASIC(FMT, ##__VA_ARGS__)
-#    else
-#        define SentryCrashLOG_TRACE(FMT, ...)
-#        define SentryCrashLOGBASIC_TRACE(FMT, ...)
-#    endif
+#if SentryCrashLOG_PRINTS_AT_LEVEL(SentryCrashLogger_Level_Trace)
+#    define SentryCrashLOG_TRACE(FMT, ...) a_SentryCrashLOG_FULL("TRACE", FMT, ##__VA_ARGS__)
+#    define SentryCrashLOGBASIC_TRACE(FMT, ...) i_SentryCrashLOG_BASIC(FMT, ##__VA_ARGS__)
+#else
+#    define SentryCrashLOG_TRACE(FMT, ...)
+#    define SentryCrashLOGBASIC_TRACE(FMT, ...)
+#endif
 
 // ============================================================================
-#    pragma mark - (internal) -
+#pragma mark - (internal) -
 // ============================================================================
 
 /* Put everything back to the way we found it. */
-#    undef ERROR
-#    ifdef SentryCrashLOG_BAK_ERROR
-#        define ERROR SentryCrashLOG_BAK_ERROR
-#        undef SentryCrashLOG_BAK_ERROR
-#    endif
-#    undef WARNING
-#    ifdef SentryCrashLOG_BAK_WARN
-#        define WARNING SentryCrashLOG_BAK_WARN
-#        undef SentryCrashLOG_BAK_WARN
-#    endif
-#    undef INFO
-#    ifdef SentryCrashLOG_BAK_INFO
-#        define INFO SentryCrashLOG_BAK_INFO
-#        undef SentryCrashLOG_BAK_INFO
-#    endif
-#    undef DEBUG
-#    ifdef SentryCrashLOG_BAK_DEBUG
-#        define DEBUG SentryCrashLOG_BAK_DEBUG
-#        undef SentryCrashLOG_BAK_DEBUG
-#    endif
-#    undef TRACE
-#    ifdef SentryCrashLOG_BAK_TRACE
-#        define TRACE SentryCrashLOG_BAK_TRACE
-#        undef SentryCrashLOG_BAK_TRACE
-#    endif
+#undef ERROR
+#ifdef SentryCrashLOG_BAK_ERROR
+#    define ERROR SentryCrashLOG_BAK_ERROR
+#    undef SentryCrashLOG_BAK_ERROR
+#endif
+#undef WARNING
+#ifdef SentryCrashLOG_BAK_WARN
+#    define WARNING SentryCrashLOG_BAK_WARN
+#    undef SentryCrashLOG_BAK_WARN
+#endif
+#undef INFO
+#ifdef SentryCrashLOG_BAK_INFO
+#    define INFO SentryCrashLOG_BAK_INFO
+#    undef SentryCrashLOG_BAK_INFO
+#endif
+#undef DEBUG
+#ifdef SentryCrashLOG_BAK_DEBUG
+#    define DEBUG SentryCrashLOG_BAK_DEBUG
+#    undef SentryCrashLOG_BAK_DEBUG
+#endif
+#undef TRACE
+#ifdef SentryCrashLOG_BAK_TRACE
+#    define TRACE SentryCrashLOG_BAK_TRACE
+#    undef SentryCrashLOG_BAK_TRACE
+#endif
 
-#    ifdef __cplusplus
+#ifdef __cplusplus
 }
-#    endif
+#endif
 
 #endif // HDR_SentryCrashLogger_h

@@ -22,6 +22,7 @@ class SentryTraceContextTests: XCTestCase {
         let sampled = "true"
         let replayId = "some_replay_id"
         
+        @available(*, deprecated)
         init() {
             options = Options()
             options.dsn = SentryTraceContextTests.dsnAsString
@@ -43,6 +44,7 @@ class SentryTraceContextTests: XCTestCase {
     
     private var fixture: Fixture!
     
+    @available(*, deprecated)
     override func setUp() {
         super.setUp()
         fixture = Fixture()

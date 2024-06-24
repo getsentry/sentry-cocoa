@@ -2,6 +2,7 @@
 #import "SentryError.h"
 #import "SentryOptions+HybridSDKs.h"
 #import "SentrySDK.h"
+#import "SentrySpan.h"
 #import "SentryTests-Swift.h"
 #import <XCTest/XCTest.h>
 @import Nimble;
@@ -297,6 +298,21 @@
     SentryOptions *options = [self getValidOptions:@{ @"beforeSend" : [NSNull null] }];
 
     XCTAssertFalse([options.beforeSend isEqual:[NSNull null]]);
+}
+
+- (void)testBeforeSendSpan
+{
+    SentryBeforeSendSpanCallback callback = ^(id<SentrySpan> span) { return span; };
+    SentryOptions *options = [self getValidOptions:@{ @"beforeSendSpan" : callback }];
+
+    XCTAssertEqual(callback, options.beforeSendSpan);
+}
+
+- (void)testDefaultBeforeSendSpan
+{
+    SentryOptions *options = [self getValidOptions:@{}];
+
+    XCTAssertNil(options.beforeSendSpan);
 }
 
 - (void)testBeforeBreadcrumb

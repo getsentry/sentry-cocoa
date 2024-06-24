@@ -1098,6 +1098,76 @@ class SentryClientTest: XCTestCase {
             XCTAssertEqual([], actual.threads)
         }
     }
+    
+    func testBeforeSendSpanDitchOneSpan_OtherChangedSpanSent() throws {
+        let spanOne = getSpan(operation: "operation.one", tracer: fixture.trace)
+        let spanTwo = getSpan(operation: "operation.two", tracer: fixture.trace)
+        let transaction = Transaction(trace: fixture.trace, children: [spanOne, spanTwo])
+        
+        fixture.getSut(configureOptions: { options in
+            options.beforeSendSpan = { span in
+                if span.operation == "operation.one" {
+                    span.operation = "changed"
+                    return span
+                }
+                
+                return nil
+            }
+        }).capture(event: transaction)
+        
+        try assertLastSentEvent { actual in
+            let serialized = actual.serialize()
+            let serializedSpans = try XCTUnwrap(serialized["spans"] as? [[String: Any]])
+            XCTAssertEqual(1, serializedSpans.count)
+            
+            let serializedSpan = try XCTUnwrap(serializedSpans.first)
+            
+            XCTAssertEqual("changed", serializedSpan["op"]  as? String)
+        }
+    }
+    
+    func testBeforeSendSpanIsNil_SpansUntouched() throws {
+        let tracer = fixture.trace
+        let span = getSpan(operation: "operation", tracer: tracer)
+        let transaction = Transaction(trace: fixture.trace, children: [span])
+        fixture.getSut().capture(event: transaction)
+        
+        try assertLastSentEvent { actual in
+            
+            let serialized = actual.serialize()
+            let serializedSpans = try XCTUnwrap(serialized["spans"] as? [[String: Any]])
+            XCTAssertEqual(1, serializedSpans.count)
+            let serializedSpan = try XCTUnwrap(serializedSpans.first)
+            
+            XCTAssertEqual("operation", serializedSpan["op"]  as? String)
+        }
+    }
+    
+    /// Ensure that you can't start and finish new spans in the beforeSendSpan Callback
+    func testBeforeSendSpan_StartSpan_ReturnsNoOpSpan() throws {
+        let tracer = fixture.trace
+        let span = getSpan(operation: "operation", tracer: tracer)
+        tracer.finish()
+        
+        let transaction = Transaction(trace: tracer, children: [span])
+        
+        fixture.getSut(configureOptions: { options in
+            options.beforeSendSpan = { span in
+                let childSpan = span.startChild(operation: "op")
+                
+                XCTAssert(childSpan.isKind(of: SentryNoOpSpan.self))
+                
+                return span
+            }
+        }).capture(event: transaction)
+        
+        try assertLastSentEvent { actual in
+            
+            let serialized = actual.serialize()
+            let serializedSpans = try XCTUnwrap(serialized["spans"] as? [[String: Any]])
+            XCTAssertEqual(1, serializedSpans.count)
+        }
+    }
 
     func testNoDsn_MessageNotSent() {
         let sut = fixture.getSutWithNoDsn()
@@ -1734,6 +1804,14 @@ class SentryClientTest: XCTestCase {
         let threads = [thread]
         event.threads = threads
         return event
+    }
+    
+    private func getSpan(operation: String, tracer: SentryTracer) -> Span {
+#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+        return SentrySpan(tracer: tracer, context: SpanContext(operation: operation), framesTracker: nil)
+#else
+        return  SentrySpan(tracer: tracer, context: SpanContext(operation: operation))
+        #endif
     }
     
     private func beforeSendReturnsNil(capture: (SentryClient) -> Void) {

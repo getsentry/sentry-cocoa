@@ -168,7 +168,7 @@ typedef void (^SentryOnAppStartMeasurementAvailable)(
 
 #endif // SENTRY_UIKIT_AVAILABLE
 
-#if SENTRY_HAS_UIKIT && !TARGET_OS_VISION
+#if SENTRY_TARGET_REPLAY_SUPPORTED
 
 /**
  * Configure session replay with different breadcrumb converter
@@ -178,17 +178,17 @@ typedef void (^SentryOnAppStartMeasurementAvailable)(
 + (void)configureSessionReplayWith:(nullable id<SentryReplayBreadcrumbConverter>)breadcrumbConverter
                 screenshotProvider:(nullable id<SentryViewScreenshotProvider>)screenshotProvider;
 
++ (void)captureReplay;
++ (NSString *__nullable)getReplayId;
++ (void)addReplayIgnoreClasses:(NSArray<Class> *_Nonnull)classes;
++ (void)addReplayRedactClasses:(NSArray<Class> *_Nonnull)classes;
+
 #endif
 + (nullable NSDictionary<NSString *, id> *)appStartMeasurementWithSpans;
 
 + (SentryUser *)userWithDictionary:(NSDictionary *)dictionary;
 
 + (SentryBreadcrumb *)breadcrumbWithDictionary:(NSDictionary *)dictionary;
-
-+ (void)captureReplay;
-+ (NSString *__nullable)getReplayId;
-+ (void)addReplayIgnoreClasses:(NSArray<Class> *_Nonnull)classes;
-+ (void)addReplayRedactClasses:(NSArray<Class> *_Nonnull)classes;
 
 @end
 

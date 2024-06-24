@@ -32,7 +32,6 @@
 #include <mach-o/arch.h>
 #include <mach/mach.h>
 
-// #define SentryCrashLogger_LocalLevel TRACE
 #include "SentryCrashLogger.h"
 
 const char *

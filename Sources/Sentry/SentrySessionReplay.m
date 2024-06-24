@@ -14,7 +14,7 @@
 #import "SentrySwift.h"
 #import "SentryTraceContext.h"
 
-#if SENTRY_HAS_UIKIT && !TARGET_OS_VISION
+#if SENTRY_TARGET_REPLAY_SUPPORTED
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -115,6 +115,9 @@ SentrySessionReplay ()
 - (void)stop
 {
     @synchronized(self) {
+        if (_isRunning == NO) {
+            return;
+        }
         [_displayLink invalidate];
         _isRunning = NO;
         [self prepareSegmentUntil:_dateProvider.date];

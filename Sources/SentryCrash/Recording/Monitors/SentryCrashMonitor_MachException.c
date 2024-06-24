@@ -34,7 +34,6 @@
 #include "SentryCrashThread.h"
 #include "SentryInternalCDefines.h"
 
-// #define SentryCrashLogger_LocalLevel TRACE
 #include "SentryCrashLogger.h"
 
 #if SentryCrashCRASH_HAS_MACH

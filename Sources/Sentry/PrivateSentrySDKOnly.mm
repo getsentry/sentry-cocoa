@@ -313,7 +313,7 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
     return [[SentryBreadcrumb alloc] initWithDictionary:dictionary];
 }
 
-#if SENTRY_HAS_UIKIT && !TARGET_OS_VISION
+#if SENTRY_TARGET_REPLAY_SUPPORTED
 + (nullable SentrySessionReplayIntegration *)getReplayIntegration
 {
 
@@ -328,30 +328,17 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
 
     return replayIntegration;
 }
-#endif
 
 + (void)captureReplay
 {
-#if SENTRY_HAS_UIKIT && !TARGET_OS_VISION
     [[PrivateSentrySDKOnly getReplayIntegration] captureReplay];
-#else
-    SENTRY_LOG_DEBUG(
-        @"SentrySessionReplayIntegration only works with UIKit enabled and target is "
-        @"not visionOS. Ensure you're using the right configuration of Sentry that links UIKit.");
-#endif
 }
 
 + (void)configureSessionReplayWith:(nullable id<SentryReplayBreadcrumbConverter>)breadcrumbConverter
                 screenshotProvider:(nullable id<SentryViewScreenshotProvider>)screenshotProvider
 {
-#if SENTRY_HAS_UIKIT && !TARGET_OS_VISION
     [[PrivateSentrySDKOnly getReplayIntegration] configureReplayWith:breadcrumbConverter
                                                   screenshotProvider:screenshotProvider];
-#else
-    SENTRY_LOG_DEBUG(
-        @"SentrySessionReplayIntegration only works with UIKit enabled and target is "
-        @"not visionOS. Ensure you're using the right configuration of Sentry that links UIKit.");
-#endif
 }
 
 + (NSString *__nullable)getReplayId
@@ -365,24 +352,13 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
 
 + (void)addReplayIgnoreClasses:(NSArray<Class> *_Nonnull)classes
 {
-#if SENTRY_HAS_UIKIT && !TARGET_OS_VISION
     [SentryViewPhotographer.shared addIgnoreClasses:classes];
-#else
-    SENTRY_LOG_DEBUG(
-        @"PrivateSentrySDKOnly.addReplayIgnoreClasses only works with UIKit enabled and target is "
-        @"not visionOS. Ensure you're using the right configuration of Sentry that links UIKit.");
-#endif
 }
 
 + (void)addReplayRedactClasses:(NSArray<Class> *_Nonnull)classes
 {
-#if SENTRY_HAS_UIKIT && !TARGET_OS_VISION
     [SentryViewPhotographer.shared addRedactClasses:classes];
-#else
-    SENTRY_LOG_DEBUG(
-        @"PrivateSentrySDKOnly.addReplayRedactClasses only works with UIKit enabled and target is "
-        @"not visionOS. Ensure you're using the right configuration of Sentry that links UIKit.");
-#endif
 }
+#endif
 
 @end

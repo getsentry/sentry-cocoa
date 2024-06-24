@@ -26,7 +26,6 @@
 #include "SentryCrashCachedData.h"
 #include "SentryInternalCDefines.h"
 
-// #define SentryCrashLogger_LocalLevel TRACE
 #include "SentryCrashLogger.h"
 
 #include <errno.h>

@@ -35,7 +35,6 @@
 
 #include <mach/mach.h>
 
-// #define SentryCrashLogger_LocalLevel TRACE
 #include "SentryCrashLogger.h"
 
 #ifdef __arm64__

@@ -42,7 +42,6 @@
 #import "SentryNSNotificationCenterWrapper.h"
 #import <SentryNSDataUtils.h>
 
-// #define SentryCrashLogger_LocalLevel TRACE
 #import "SentryCrashLogger.h"
 
 #if SENTRY_HAS_UIKIT
