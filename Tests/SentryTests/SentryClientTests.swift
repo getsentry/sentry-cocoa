@@ -315,6 +315,23 @@ class SentryClientTest: XCTestCase {
         }
     }
     
+    func testCaptureEventWithCurrentScreenInTheScope() {
+        SentryDependencyContainer.sharedInstance().application = TestSentryUIApplication()
+        
+        let event = Event()
+        event.exceptions = [ Exception(value: "", type: "")]
+        
+        let scope = fixture.scope
+        scope.currentScreen = "TestScreen"
+        
+        fixture.getSut().capture(event: event, scope: scope)
+        
+        try? assertLastSentEventWithAttachment { event in
+            let viewName = event.context?["app"]?["view_names"] as? [String]
+            XCTAssertEqual(viewName?.first, "TestScreen")
+        }
+    }
+    
     func testCaptureEventWithNoCurrentScreenMainIsLocked() {
         SentryDependencyContainer.sharedInstance().application = TestSentryUIApplication()
         
@@ -345,6 +362,27 @@ class SentryClientTest: XCTestCase {
             try? assertLastSentEventWithAttachment { event in
                 let viewName = event.context?["app"]?["view_names"] as? [String]
                 XCTAssertEqual(viewName?.first, "ClientTestViewController")
+            }
+        } else {
+            XCTFail("Could not get transaction from tracer")
+        }
+    }
+    
+    func testCaptureTransactionWithScreenInScope() {
+        SentryDependencyContainer.sharedInstance().application = TestSentryUIApplication()
+        let scope = fixture.scope
+        scope.currentScreen = "TransactionScreen"
+        let hub = SentryHub(client: SentryClient(options: Options()), andScope: scope)
+            
+        let tracer = SentryTracer(transactionContext: TransactionContext(operation: "Operation"), hub: hub)
+        
+        scope.currentScreen = "SecondScreen"
+        if let event = Dynamic(tracer).toTransaction() as Transaction? {
+            fixture.getSut().capture(event: event, scope: scope)
+            
+            try? assertLastSentEventWithAttachment { event in
+                let viewName = event.context?["app"]?["view_names"] as? [String]
+                XCTAssertEqual(viewName?.first, "TransactionScreen")
             }
         } else {
             XCTFail("Could not get transaction from tracer")
