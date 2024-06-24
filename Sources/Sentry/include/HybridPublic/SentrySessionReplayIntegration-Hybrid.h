@@ -23,7 +23,7 @@ SentrySessionReplayIntegration ()
 
 + (id<SentryRRWebEvent>)createBreadcrumbwithTimestamp:(NSDate *)timestamp
                                              category:(NSString *)category
-                                              message:(NSString *)message
+                                              message:(nullable NSString *)message
                                                 level:(enum SentryLevel)level
                                                  data:(nullable NSDictionary<NSString *, id> *)data;
 
