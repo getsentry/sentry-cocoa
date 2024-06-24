@@ -3,7 +3,6 @@ import Foundation
 
 @objc
 protocol SentryReplayBreadcrumbConverter: NSObjectProtocol {
-    func convert(breadcrumbs: [Breadcrumb], from: Date, until: Date) -> [SentryRRWebEventProtocol]
     func convert(from breadcrumb: Breadcrumb) -> SentryRRWebEventProtocol?
 }
 
@@ -18,14 +17,6 @@ class SentrySRDefaultBreadcrumbConverter: NSObject, SentryReplayBreadcrumbConver
         "http.query",
         "http.fragment"]
     )
-    
-    func convert(breadcrumbs: [Breadcrumb], from: Date, until: Date) -> [SentryRRWebEventProtocol] {
-        breadcrumbs.filter {
-            guard let timestamp = $0.timestamp else { return false }
-            return timestamp >= from && timestamp <= until
-        }
-        .compactMap { convert(from: $0) }
-    }
     
     /**
      * This function will convert the SDK breadcrumbs to session replay breadcrumbs in a format that the front-end understands.

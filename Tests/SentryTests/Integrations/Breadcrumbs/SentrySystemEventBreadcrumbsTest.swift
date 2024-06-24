@@ -142,9 +142,7 @@ class SentrySystemEventBreadcrumbsTest: XCTestCase {
         }
         
         let sut = SentrySRDefaultBreadcrumbConverter()
-        let result = try XCTUnwrap(sut.convert(breadcrumbs: [breadcrumb],
-                                                         from: Date(timeIntervalSince1970: 0),
-                                                         until: Date(timeIntervalSinceNow: 60)).first as? SentryRRWebBreadcrumbEvent)
+        let result = try XCTUnwrap(sut.convert(from: breadcrumb) as? SentryRRWebBreadcrumbEvent)
         let crumbData = try XCTUnwrap(result.data)
         let payload = try XCTUnwrap(crumbData["payload"] as? [String: Any])
         let payloadData = try XCTUnwrap(payload["data"] as? [String: Any])
@@ -219,17 +217,14 @@ class SentrySystemEventBreadcrumbsTest: XCTestCase {
         }
         
         let sut = SentrySRDefaultBreadcrumbConverter()
-        let result = try XCTUnwrap(sut.convert(breadcrumbs: [breadcrumb],
-                                                         from: Date(timeIntervalSince1970: 0),
-                                                         until: Date(timeIntervalSinceNow: 60)))
+        let result = try XCTUnwrap(sut.convert(from: breadcrumb))
         
-        XCTAssertEqual(result.count, 1)
-        let event = result.first?.serialize()
-        let eventData = event?["data"] as? [String: Any]
+        let event = result.serialize()
+        let eventData = event["data"] as? [String: Any]
         let eventPayload = eventData?["payload"] as? [String: Any]
         let payloadData = eventPayload?["data"] as? [String: Any]
         
-        XCTAssertEqual(event?["type"] as? Int, 5)
+        XCTAssertEqual(event["type"] as? Int, 5)
         XCTAssertEqual(eventData?["tag"] as? String, "breadcrumb")
         XCTAssertEqual(eventPayload?["category"] as? String, "device.orientation")
         XCTAssertEqual(payloadData?["position"] as? String, "portrait")

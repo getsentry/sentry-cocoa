@@ -71,9 +71,7 @@ class SentryBreadcrumbTrackerTests: XCTestCase {
         }
         
         let breadcrumbConverter = SentrySRDefaultBreadcrumbConverter()
-        let result = try XCTUnwrap(breadcrumbConverter.convert(breadcrumbs: [breadcrumb],
-                                                                         from: Date(timeIntervalSince1970: 0),
-                                                                         until: Date(timeIntervalSinceNow: 60)).first as? SentryRRWebBreadcrumbEvent)
+        let result = try XCTUnwrap(breadcrumbConverter.convert(from: breadcrumb) as? SentryRRWebBreadcrumbEvent)
         
         let crumbData = try XCTUnwrap(result.data)
         let payload = try XCTUnwrap(crumbData["payload"] as? [String: Any])
@@ -146,12 +144,9 @@ class SentryBreadcrumbTrackerTests: XCTestCase {
             XCTFail("No navigation breadcrumb")
             return
         }
-        let result = sut.convert(breadcrumbs: [crumb], 
-                                           from: Date(timeIntervalSince1970: 0),
-                                           until: Date(timeIntervalSinceNow: 60))
+        let result = sut.convert(from: crumb)
         
-        XCTAssertEqual(result.count, 1)
-        let event = result.first?.serialize()
+        let event = result?.serialize()
         let eventData = event?["data"] as? [String: Any]
         let eventPayload = eventData?["payload"] as? [String: Any]
         let payloadData = eventPayload?["data"] as? [String: Any]
@@ -178,12 +173,9 @@ class SentryBreadcrumbTrackerTests: XCTestCase {
             XCTFail("No life cycle breadcrumb")
             return
         }
-        let result = sut.convert(breadcrumbs: [crumb], 
-                                           from: Date(timeIntervalSince1970: 0),
-                                           until: Date(timeIntervalSinceNow: 60))
+        let result = sut.convert(from: crumb)
         
-        XCTAssertEqual(result.count, 1)
-        let event = result.first?.serialize()
+        let event = result?.serialize()
         let eventData = event?["data"] as? [String: Any]
         let eventPayload = eventData?["payload"] as? [String: Any]
         
@@ -213,8 +205,7 @@ class SentryBreadcrumbTrackerTests: XCTestCase {
             return
         }
                
-        let result = try XCTUnwrap(sut.convert(breadcrumbs: [crumb], from: Date(timeIntervalSince1970: 0),
-                                                         until: Date(timeIntervalSinceNow: 60)).first as? SentryRRWebBreadcrumbEvent)
+        let result = try XCTUnwrap(sut.convert(from: crumb) as? SentryRRWebBreadcrumbEvent)
         let crumbData = try XCTUnwrap(result.data)
         let payload = try XCTUnwrap(crumbData["payload"] as? [String: Any])
         
