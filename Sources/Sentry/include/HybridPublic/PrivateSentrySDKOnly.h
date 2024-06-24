@@ -161,6 +161,11 @@ typedef void (^SentryOnAppStartMeasurementAvailable)(
  */
 + (NSData *)captureViewHierarchy;
 
+/**
+ * Allow Hybrids SDKs to set the current Screen.
+ */
++ (void)setCurrentScreen:(NSString *)screenName;
+
 #endif // SENTRY_UIKIT_AVAILABLE
 
 #if SENTRY_HAS_UIKIT && !TARGET_OS_VISION
