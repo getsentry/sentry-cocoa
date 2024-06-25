@@ -16,6 +16,7 @@
 #    import "SentrySwizzle.h"
 #    import "SentryUIApplication.h"
 #    import <UIKit/UIKit.h>
+#    import "SentryScope+Private.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -290,6 +291,14 @@ SentrySessionReplayIntegration () <SentrySessionReplayDelegate>
     [SentrySDK.currentHub configureScope:^(SentryScope * _Nonnull scope) {
         scope.replayId = [replayId sentryIdString];
     }];
+}
+
+- (NSArray<SentryBreadcrumb *> *)breadcrumbsForSessionReplay {
+    __block NSArray<SentryBreadcrumb *> * result;
+    [SentrySDK.currentHub configureScope:^(SentryScope * _Nonnull scope) {
+            result = scope.breadcrumbs;
+    }];
+    return result;
 }
 
 @end

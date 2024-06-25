@@ -16,6 +16,3 @@
 #import "SentryRandom.h"
 #import "SentryDisplayLinkWrapper.h"
 #import "SentryReplayEvent.h"
-#import "SentryScope+Private.h"
-#import "SentryHub+Private.h"
-#import "SentrySDK+Private.h"

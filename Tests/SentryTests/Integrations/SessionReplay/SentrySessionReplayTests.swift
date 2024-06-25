@@ -57,8 +57,9 @@ class SentrySessionReplayTests: XCTestCase {
         let rootView = UIView()
         let replayMaker = TestReplayMaker()
         let cacheFolder = FileManager.default.temporaryDirectory
-        var isFullSession = true
         
+        var breadcrumbs : [Breadcrumb]?
+        var isFullSession = true
         var lastReplayEvent: SentryReplayEvent?
         var lastReplayRecording: SentryReplayRecording?
         var lastVideoUrl: URL?
@@ -88,6 +89,10 @@ class SentrySessionReplayTests: XCTestCase {
         
         func sessionReplayStarted(replayId: SentryId) {
             lastReplayId = replayId
+        }
+        
+        func breadcrumbsForSessionReplay() -> [Breadcrumb] {
+            breadcrumbs ?? []
         }
     }
     

@@ -8,6 +8,7 @@ protocol SentrySessionReplayDelegate : NSObjectProtocol {
     func sessionReplayIsFullSession() -> Bool
     func sessionReplayNewSegment(replayEvent : SentryReplayEvent, replayRecording: SentryReplayRecording, videoUrl: URL)
     func sessionReplayStarted(replayId : SentryId)
+    func breadcrumbsForSessionReplay() -> [Breadcrumb]
 }
 
 @objcMembers
@@ -236,10 +237,7 @@ class SentrySessionReplay : NSObject {
         replayEvent.segmentId = segment
         replayEvent.timestamp = video.end
 
-        var breadcrumbs: [Breadcrumb] = []
-        SentrySDK.currentHub().configureScope { scope in
-            breadcrumbs = scope.breadcrumbs()
-        }
+        let breadcrumbs = delegate?.breadcrumbsForSessionReplay() ?? []
 
         var events = convertBreadcrumbs(breadcrumbs: breadcrumbs, from: video.start, until: video.end)
         events.append(contentsOf: touchTracker.replayEvents(from: video.start, until: video.end))
