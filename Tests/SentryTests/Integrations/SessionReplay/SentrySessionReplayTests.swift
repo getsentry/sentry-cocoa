@@ -49,7 +49,7 @@ class SentrySessionReplayTests: XCTestCase {
         }
     }
     
-    private class Fixture : NSObject, SentrySessionReplayDelegate {
+    private class Fixture: NSObject, SentrySessionReplayDelegate {
         let dateProvider = TestCurrentDateProvider()
         let random = TestRandom(value: 0)
         let screenshotProvider = ScreenshotProvider()
@@ -58,7 +58,7 @@ class SentrySessionReplayTests: XCTestCase {
         let replayMaker = TestReplayMaker()
         let cacheFolder = FileManager.default.temporaryDirectory
         
-        var breadcrumbs : [Breadcrumb]?
+        var breadcrumbs: [Breadcrumb]?
         var isFullSession = true
         var lastReplayEvent: SentryReplayEvent?
         var lastReplayRecording: SentryReplayRecording?

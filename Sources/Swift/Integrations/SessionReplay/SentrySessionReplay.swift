@@ -4,18 +4,18 @@ import Foundation
 import UIKit
 
 @objc
-protocol SentrySessionReplayDelegate : NSObjectProtocol {
+protocol SentrySessionReplayDelegate: NSObjectProtocol {
     func sessionReplayIsFullSession() -> Bool
-    func sessionReplayNewSegment(replayEvent : SentryReplayEvent, replayRecording: SentryReplayRecording, videoUrl: URL)
-    func sessionReplayStarted(replayId : SentryId)
+    func sessionReplayNewSegment(replayEvent: SentryReplayEvent, replayRecording: SentryReplayRecording, videoUrl: URL)
+    func sessionReplayStarted(replayId: SentryId)
     func breadcrumbsForSessionReplay() -> [Breadcrumb]
 }
 
 @objcMembers
-class SentrySessionReplay : NSObject {
+class SentrySessionReplay: NSObject {
     private (set) var isRunning = false
     private (set) var isFullSession = false
-    private (set) var sessionReplayId : SentryId?
+    private (set) var sessionReplayId: SentryId?
 
     private var urlToCache: URL?
     private var rootView: UIView?
@@ -244,7 +244,6 @@ class SentrySessionReplay : NSObject {
         touchTracker.flushFinishedEvents()
 
         let recording = SentryReplayRecording(segmentId: replayEvent.segmentId, size: video.fileSize, start: video.start, duration: video.duration, frameCount: video.frameCount, frameRate: video.frameRate, height: video.height, width: video.width, extraEvents: events)
-
                 
         delegate?.sessionReplayNewSegment(replayEvent: replayEvent, replayRecording: recording, videoUrl: video.path)
 

@@ -10,9 +10,9 @@
 // Headers that also import SentryDefines should be at the end of this list
 // otherwise it wont compile
 #import "SentryDateUtil.h"
+#import "SentryDisplayLinkWrapper.h"
 #import "SentryLevelHelper.h"
+#import "SentryRandom.h"
+#import "SentryReplayEvent.h"
 #import "SentrySdkInfo.h"
 #import "SentrySession.h"
-#import "SentryRandom.h"
-#import "SentryDisplayLinkWrapper.h"
-#import "SentryReplayEvent.h"

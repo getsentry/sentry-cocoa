@@ -12,11 +12,11 @@
 #    import "SentryOptions.h"
 #    import "SentryRandom.h"
 #    import "SentrySDK+Private.h"
+#    import "SentryScope+Private.h"
 #    import "SentrySwift.h"
 #    import "SentrySwizzle.h"
 #    import "SentryUIApplication.h"
 #    import <UIKit/UIKit.h>
-#    import "SentryScope+Private.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -60,11 +60,11 @@ SentrySessionReplayIntegration () <SentrySessionReplayDelegate>
     [SentrySDK.currentHub registerSessionListener:self];
 
     [SentryGlobalEventProcessor.shared
-     addEventProcessor:^SentryEvent *_Nullable(SentryEvent *_Nonnull event) {
-        [self.sessionReplay captureReplayForEvent:event];
-        
-        return event;
-    }];
+        addEventProcessor:^SentryEvent *_Nullable(SentryEvent *_Nonnull event) {
+            [self.sessionReplay captureReplayForEvent:event];
+
+            return event;
+        }];
 
     return YES;
 }
@@ -130,18 +130,19 @@ SentrySessionReplayIntegration () <SentrySessionReplayDelegate>
                                               : replayOptions.errorReplayDuration);
 
     self.sessionReplay = [[SentrySessionReplay alloc]
-                          initWithReplayOptions:replayOptions
-                          replayFolderPath:docs
-                          screenshotProvider:screenshotProvider
-                          replayMaker:replayMaker
-                          breadcrumbConverter:breadcrumbConverter
-                          touchTracker:_touchTracker
-                          dateProvider:SentryDependencyContainer.sharedInstance.dateProvider
-                          delegate:self
-                          displayLinkWrapper:[[SentryDisplayLinkWrapper alloc] init]];
-    
-    [self.sessionReplay startWithRootView:SentryDependencyContainer.sharedInstance.application.windows.firstObject
-                              fullSession:[self shouldReplayFullSession:replayOptions.sessionSampleRate]];
+        initWithReplayOptions:replayOptions
+             replayFolderPath:docs
+           screenshotProvider:screenshotProvider
+                  replayMaker:replayMaker
+          breadcrumbConverter:breadcrumbConverter
+                 touchTracker:_touchTracker
+                 dateProvider:SentryDependencyContainer.sharedInstance.dateProvider
+                     delegate:self
+           displayLinkWrapper:[[SentryDisplayLinkWrapper alloc] init]];
+
+    [self.sessionReplay
+        startWithRootView:SentryDependencyContainer.sharedInstance.application.windows.firstObject
+              fullSession:[self shouldReplayFullSession:replayOptions.sessionSampleRate]];
 
     [_notificationCenter addObserver:self
                             selector:@selector(stop)
@@ -192,13 +193,13 @@ SentrySessionReplayIntegration () <SentrySessionReplayDelegate>
 - (void)configureReplayWith:(nullable id<SentryReplayBreadcrumbConverter>)breadcrumbConverter
          screenshotProvider:(nullable id<SentryViewScreenshotProvider>)screenshotProvider
 {
-//    if (breadcrumbConverter) {
-//        self.sessionReplay.breadcrumbConverter = breadcrumbConverter;
-//    }
-//
-//    if (screenshotProvider) {
-//        self.sessionReplay.screenshotProvider = screenshotProvider;
-//    }
+    //    if (breadcrumbConverter) {
+    //        self.sessionReplay.breadcrumbConverter = breadcrumbConverter;
+    //    }
+    //
+    //    if (screenshotProvider) {
+    //        self.sessionReplay.screenshotProvider = screenshotProvider;
+    //    }
 }
 
 - (SentryIntegrationOption)integrationOptions
@@ -275,29 +276,34 @@ SentrySessionReplayIntegration () <SentrySessionReplayDelegate>
     return [[SentrySRDefaultBreadcrumbConverter alloc] init];
 }
 
-#pragma mark - SessionReplayDelegate
+#    pragma mark - SessionReplayDelegate
 
-- (BOOL)sessionReplayIsFullSession {
-    return SentryDependencyContainer.sharedInstance.random.nextNumber <= _replayOptions.errorSampleRate;
+- (BOOL)sessionReplayIsFullSession
+{
+    return SentryDependencyContainer.sharedInstance.random.nextNumber
+        <= _replayOptions.errorSampleRate;
 }
 
 - (void)sessionReplayNewSegmentWithReplayEvent:(SentryReplayEvent *)replayEvent
                                replayRecording:(SentryReplayRecording *)replayRecording
-                                      videoUrl:(NSURL * )videoUrl {
-    [SentrySDK.currentHub captureReplayEvent:replayEvent replayRecording:replayRecording video:videoUrl];
+                                      videoUrl:(NSURL *)videoUrl
+{
+    [SentrySDK.currentHub captureReplayEvent:replayEvent
+                             replayRecording:replayRecording
+                                       video:videoUrl];
 }
 
-- (void)sessionReplayStartedWithReplayId:(SentryId *)replayId {
-    [SentrySDK.currentHub configureScope:^(SentryScope * _Nonnull scope) {
-        scope.replayId = [replayId sentryIdString];
-    }];
+- (void)sessionReplayStartedWithReplayId:(SentryId *)replayId
+{
+    [SentrySDK.currentHub configureScope:^(
+        SentryScope *_Nonnull scope) { scope.replayId = [replayId sentryIdString]; }];
 }
 
-- (NSArray<SentryBreadcrumb *> *)breadcrumbsForSessionReplay {
-    __block NSArray<SentryBreadcrumb *> * result;
-    [SentrySDK.currentHub configureScope:^(SentryScope * _Nonnull scope) {
-            result = scope.breadcrumbs;
-    }];
+- (NSArray<SentryBreadcrumb *> *)breadcrumbsForSessionReplay
+{
+    __block NSArray<SentryBreadcrumb *> *result;
+    [SentrySDK.currentHub
+        configureScope:^(SentryScope *_Nonnull scope) { result = scope.breadcrumbs; }];
     return result;
 }
 
