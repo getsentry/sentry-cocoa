@@ -12,7 +12,6 @@
 #    import "SentryOptions.h"
 #    import "SentryRandom.h"
 #    import "SentrySDK+Private.h"
-#    import "SentrySessionReplay.h"
 #    import "SentrySwift.h"
 #    import "SentrySwizzle.h"
 #    import "SentryUIApplication.h"
@@ -61,7 +60,8 @@ SentrySessionReplayIntegration ()
 
     [SentryGlobalEventProcessor.shared
         addEventProcessor:^SentryEvent *_Nullable(SentryEvent *_Nonnull event) {
-            [self.sessionReplay captureReplayForEvent:event];
+   //         [self.sessionReplay captureReplayForEvent:event];
+    
             return event;
         }];
 
@@ -129,19 +129,18 @@ SentrySessionReplayIntegration ()
                                               : replayOptions.errorReplayDuration);
 
     self.sessionReplay = [[SentrySessionReplay alloc]
-           initWithSettings:replayOptions
-           replayFolderPath:docs
-         screenshotProvider:screenshotProvider
-                replayMaker:replayMaker
-        breadcrumbConverter:breadcrumbConverter
-               touchTracker:_touchTracker
-               dateProvider:SentryDependencyContainer.sharedInstance.dateProvider
-                     random:SentryDependencyContainer.sharedInstance.random
-         displayLinkWrapper:[[SentryDisplayLinkWrapper alloc] init]];
-
-    [self.sessionReplay
-              start:SentryDependencyContainer.sharedInstance.application.windows.firstObject
-        fullSession:[self shouldReplayFullSession:replayOptions.sessionSampleRate]];
+                          initWithReplayOptions:replayOptions
+                          replayFolderPath:docs
+                          screenshotProvider:screenshotProvider
+                          replayMaker:replayMaker
+                          breadcrumbConverter:breadcrumbConverter
+                          touchTracker:_touchTracker
+                          dateProvider:SentryDependencyContainer.sharedInstance.dateProvider
+                          random:SentryDependencyContainer.sharedInstance.random
+                          displayLinkWrapper:[[SentryDisplayLinkWrapper alloc] init]];
+    
+    [self.sessionReplay startWithRootView:SentryDependencyContainer.sharedInstance.application.windows.firstObject
+                              fullSession:[self shouldReplayFullSession:replayOptions.sessionSampleRate]];
 
     [_notificationCenter addObserver:self
                             selector:@selector(stop)
@@ -186,19 +185,19 @@ SentrySessionReplayIntegration ()
 
 - (void)captureReplay
 {
-    [self.sessionReplay captureReplay];
+    //[self.sessionReplay captureReplay];
 }
 
 - (void)configureReplayWith:(nullable id<SentryReplayBreadcrumbConverter>)breadcrumbConverter
          screenshotProvider:(nullable id<SentryViewScreenshotProvider>)screenshotProvider
 {
-    if (breadcrumbConverter) {
-        self.sessionReplay.breadcrumbConverter = breadcrumbConverter;
-    }
-
-    if (screenshotProvider) {
-        self.sessionReplay.screenshotProvider = screenshotProvider;
-    }
+//    if (breadcrumbConverter) {
+//        self.sessionReplay.breadcrumbConverter = breadcrumbConverter;
+//    }
+//
+//    if (screenshotProvider) {
+//        self.sessionReplay.screenshotProvider = screenshotProvider;
+//    }
 }
 
 - (SentryIntegrationOption)integrationOptions

@@ -40,7 +40,7 @@ SentryHub ()
 - (void)captureCrashEvent:(SentryEvent *)event withScope:(SentryScope *)scope;
 
 - (void)captureReplayEvent:(SentryReplayEvent *)replayEvent
-           replayRecording:(SentryReplayRecording *)replayRecording
+           replayRecording:(id)replayRecording
                      video:(NSURL *)videoURL;
 
 - (void)closeCachedSessionWithTimestamp:(NSDate *_Nullable)timestamp;

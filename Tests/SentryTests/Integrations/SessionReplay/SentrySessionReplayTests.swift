@@ -55,9 +55,9 @@ class SentrySessionReplayTests: XCTestCase {
         var lastRecording: SentryReplayRecording?
         var lastVideo: URL?
         
-        override func capture(_ replayEvent: SentryReplayEvent, replayRecording: SentryReplayRecording, video videoURL: URL) {
+        override func capture(_ replayEvent: SentryReplayEvent, replayRecording: Any, video videoURL: URL) {
             lastEvent = replayEvent
-            lastRecording = replayRecording
+            lastRecording = replayRecording as? SentryReplayRecording
             lastVideo = videoURL
         }
     }
@@ -73,10 +73,10 @@ class SentrySessionReplayTests: XCTestCase {
         let cacheFolder = FileManager.default.temporaryDirectory
         
         func getSut(options: SentryReplayOptions = .init(sessionSampleRate: 0, errorSampleRate: 0) ) -> SentrySessionReplay {
-            return SentrySessionReplay(settings: options,
+            return SentrySessionReplay(replayOptions: options,
                                        replayFolderPath: cacheFolder,
                                        screenshotProvider: screenshotProvider,
-                                       replay: replayMaker,
+                                       replayMaker: replayMaker,
                                        breadcrumbConverter: SentrySRDefaultBreadcrumbConverter(),
                                        touchTracker: SentryTouchTracker(dateProvider: dateProvider, scale: 0),
                                        dateProvider: dateProvider,
@@ -103,7 +103,7 @@ class SentrySessionReplayTests: XCTestCase {
     func testDontSentReplay_NoFullSession() {
         let fixture = startFixture()
         let sut = fixture.getSut()
-        sut.start(fixture.rootView, fullSession: false)
+        sut.start(rootView: fixture.rootView, fullSession: false)
         
         fixture.dateProvider.advance(by: 1)
         Dynamic(sut).newFrame(nil)
@@ -119,7 +119,7 @@ class SentrySessionReplayTests: XCTestCase {
         let sut = fixture.getSut(options: options)
         let view = fixture.rootView
         view.frame = CGRect(x: 0, y: 0, width: 320, height: 900)
-        sut.start(fixture.rootView, fullSession: true)
+        sut.start(rootView: fixture.rootView, fullSession: true)
         
         XCTAssertEqual(Int(320 * options.sizeScale), fixture.replayMaker.videoWidth)
         XCTAssertEqual(Int(900 * options.sizeScale), fixture.replayMaker.videoHeight)
@@ -129,8 +129,8 @@ class SentrySessionReplayTests: XCTestCase {
         let fixture = startFixture()
         
         let sut = fixture.getSut(options: SentryReplayOptions(sessionSampleRate: 1, errorSampleRate: 1))
-        sut.start(fixture.rootView, fullSession: true)
-        expect(fixture.hub.scope.replayId) == sut.sessionReplayId.sentryIdString
+        sut.start(rootView: fixture.rootView, fullSession: true)
+        expect(fixture.hub.scope.replayId) == sut.sessionReplayId?.sentryIdString
         
         fixture.dateProvider.advance(by: 1)
         
@@ -157,7 +157,7 @@ class SentrySessionReplayTests: XCTestCase {
     func testDontSentReplay_NotFullSession() {
         let fixture = startFixture()
         let sut = fixture.getSut(options: SentryReplayOptions(sessionSampleRate: 1, errorSampleRate: 1))
-        sut.start(fixture.rootView, fullSession: false)
+        sut.start(rootView: fixture.rootView, fullSession: false)
         
         expect(fixture.hub.scope.replayId) == nil
         
@@ -176,24 +176,24 @@ class SentrySessionReplayTests: XCTestCase {
     func testChangeReplayMode_forErrorEvent() {
         let fixture = startFixture()
         let sut = fixture.getSut(options: SentryReplayOptions(sessionSampleRate: 1, errorSampleRate: 1))
-        sut.start(fixture.rootView, fullSession: false)
+        sut.start(rootView: fixture.rootView, fullSession: false)
         expect(fixture.hub.scope.replayId) == nil
         let event = Event(error: NSError(domain: "Some error", code: 1))
         
-        sut.capture(for: event)
-        expect(fixture.hub.scope.replayId) == sut.sessionReplayId.sentryIdString
-        expect(event.context?["replay"]?["replay_id"] as? String) == sut.sessionReplayId.sentryIdString
+        sut.captureReplayForEvent(event: event)
+        expect(fixture.hub.scope.replayId) == sut.sessionReplayId?.sentryIdString
+        expect(event.context?["replay"]?["replay_id"] as? String) == sut.sessionReplayId?.sentryIdString
         assertFullSession(sut, expected: true)
     }
     
     func testDontChangeReplayMode_forNonErrorEvent() {
         let fixture = startFixture()
         let sut = fixture.getSut(options: SentryReplayOptions(sessionSampleRate: 1, errorSampleRate: 1))
-        sut.start(fixture.rootView, fullSession: false)
+        sut.start(rootView: fixture.rootView, fullSession: false)
         
         let event = Event(level: .info)
         
-        sut.capture(for: event)
+        sut.captureReplayForEvent(event: event)
         
         assertFullSession(sut, expected: false)
     }
@@ -202,11 +202,11 @@ class SentrySessionReplayTests: XCTestCase {
     func testChangeReplayMode_forHybridSDKEvent() {
         let fixture = startFixture()
         let sut = fixture.getSut(options: SentryReplayOptions(sessionSampleRate: 1, errorSampleRate: 1))
-        sut.start(fixture.rootView, fullSession: false)
+        sut.start(rootView: fixture.rootView, fullSession: false)
 
-        sut.capture()
+        _ = sut.captureReplay()
 
-        expect(fixture.hub.scope.replayId) == sut.sessionReplayId.sentryIdString
+        expect(fixture.hub.scope.replayId) == sut.sessionReplayId?.sentryIdString
         assertFullSession(sut, expected: true)
     }
 
@@ -214,16 +214,16 @@ class SentrySessionReplayTests: XCTestCase {
     func testSessionReplayMaximumDuration() {
         let fixture = startFixture()
         let sut = fixture.getSut(options: SentryReplayOptions(sessionSampleRate: 1, errorSampleRate: 1))
-        sut.start(fixture.rootView, fullSession: true)
+        sut.start(rootView: fixture.rootView, fullSession: true)
         
         Dynamic(sut).newFrame(nil)
         fixture.dateProvider.advance(by: 5)
         Dynamic(sut).newFrame(nil)
-        expect(Dynamic(sut).isRunning) == true
+        expect(sut.isRunning) == true
         fixture.dateProvider.advance(by: 3_600)
         Dynamic(sut).newFrame(nil)
         
-        expect(Dynamic(sut).isRunning) == false
+        expect(sut.isRunning) == false
     }
     
     @available(iOS 16.0, tvOS 16, *)

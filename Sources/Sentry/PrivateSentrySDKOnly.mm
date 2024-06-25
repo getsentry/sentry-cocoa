@@ -21,7 +21,6 @@
 #import <SentryFramesTracker.h>
 #import <SentryScope+Private.h>
 #import <SentryScreenshot.h>
-#import <SentrySessionReplay.h>
 #import <SentrySessionReplayIntegration.h>
 #import <SentryUser.h>
 
