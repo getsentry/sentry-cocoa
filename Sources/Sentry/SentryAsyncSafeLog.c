@@ -226,8 +226,7 @@ sentry_asyncLogC(const char *const level, const char *const file, const int line
 #pragma mark - Objective-C -
 // ===========================================================================
 
-#if SENTRY_ASYNC_SAFE_LOG_HAS_OBJC
-#    include <CoreFoundation/CoreFoundation.h>
+#include <CoreFoundation/CoreFoundation.h>
 
 void
 sentry_asyncLogObjCBasic(CFStringRef fmt, ...)
@@ -279,4 +278,3 @@ sentry_asyncLogObjC(const char *const level, const char *const file, const int l
     }
     CFRelease(logFmt);
 }
-#endif // SENTRY_ASYNC_SAFE_LOG_HAS_OBJC

@@ -154,7 +154,7 @@ void
 sentrycrashmc_suspendEnvironment_upToMaxSupportedThreads(thread_act_array_t *suspendedThreads,
     mach_msg_type_number_t *numSuspendedThreads, mach_msg_type_number_t maxSupportedThreads)
 {
-#if SentryCrashCRASH_HAS_THREADS_API
+#if SENTRY_HAS_THREADS_API
     SENTRY_ASYNC_SAFE_LOG_DEBUG("Suspending environment.");
     kern_return_t kr;
     const task_t thisTask = mach_task_self();
@@ -190,7 +190,7 @@ void
 sentrycrashmc_resumeEnvironment(
     __unused thread_act_array_t threads, __unused mach_msg_type_number_t numThreads)
 {
-#if SentryCrashCRASH_HAS_THREADS_API
+#if SENTRY_HAS_THREADS_API
     SENTRY_ASYNC_SAFE_LOG_DEBUG("Resuming environment.");
     kern_return_t kr;
     const task_t thisTask = mach_task_self();
