@@ -35,7 +35,7 @@
 
 #include "SentryAsyncSafeLog.h"
 
-#if SentryCrashCRASH_HAS_SIGNAL
+#if SENTRY_HAS_SIGNAL
 
 #    include <errno.h>
 #    include <signal.h>
@@ -53,7 +53,7 @@ static bool g_isSigtermReportingEnabled = false;
 static SentryCrash_MonitorContext g_monitorContext;
 static SentryCrashStackCursor g_stackCursor;
 
-#    if SentryCrashCRASH_HAS_SIGNAL_STACK
+#    if SENTRY_HAS_SIGNAL_STACK
 /** Our custom signal stack. The signal handler will use this as its stack. */
 static stack_t g_signalStack = { 0 };
 #    endif
@@ -124,7 +124,7 @@ installSignalHandler(void)
 {
     SENTRY_ASYNC_SAFE_LOG_DEBUG("Installing signal handler.");
 
-#    if SentryCrashCRASH_HAS_SIGNAL_STACK
+#    if SENTRY_HAS_SIGNAL_STACK
 
     if (g_signalStack.ss_size == 0) {
         SENTRY_ASYNC_SAFE_LOG_DEBUG("Allocating signal stack area.");
@@ -156,7 +156,7 @@ installSignalHandler(void)
 
     struct sigaction action = { { 0 } };
     action.sa_flags = SA_SIGINFO | SA_ONSTACK;
-#    if SentryCrashCRASH_HOST_APPLE && defined(__LP64__)
+#    if SENTRY_HOST_APPLE && defined(__LP64__)
     action.sa_flags |= SA_64REGSET;
 #    endif
     sigemptyset(&action.sa_mask);
@@ -217,7 +217,7 @@ uninstallSignalHandler(void)
         sigaction(fatalSignals[i], &g_previousSignalHandlers[i], NULL);
     }
 
-#    if SentryCrashCRASH_HAS_SIGNAL_STACK
+#    if SENTRY_HAS_SIGNAL_STACK
     g_signalStack = (stack_t) { 0 };
 #    endif
     SENTRY_ASYNC_SAFE_LOG_DEBUG("Signal handlers uninstalled.");
@@ -259,7 +259,7 @@ addContextualInfoToEvent(struct SentryCrash_MonitorContext *eventContext)
 void
 sentrycrashcm_setEnableSigtermReporting(bool enabled)
 {
-#if SentryCrashCRASH_HAS_SIGNAL
+#if SENTRY_HAS_SIGNAL
     g_isSigtermReportingEnabled = enabled;
 #endif
 }
@@ -268,7 +268,7 @@ SentryCrashMonitorAPI *
 sentrycrashcm_signal_getAPI(void)
 {
     static SentryCrashMonitorAPI api = {
-#if SentryCrashCRASH_HAS_SIGNAL
+#if SENTRY_HAS_SIGNAL
         .setEnabled = setEnabled,
         .isEnabled = isEnabled,
         .addContextualInfoToEvent = addContextualInfoToEvent
