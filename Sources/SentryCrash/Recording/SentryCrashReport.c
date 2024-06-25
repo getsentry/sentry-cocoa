@@ -43,9 +43,9 @@
 #include "SentryCrashStackCursor_Backtrace.h"
 #include "SentryCrashStackCursor_MachineContext.h"
 #include "SentryCrashString.h"
-#include "SentryCrashSystemCapabilities.h"
 #include "SentryCrashThread.h"
 #include "SentryCrashUUIDConversion.h"
+#include "SentryInternalCDefines.h"
 #include "SentryScopeSyncC.h"
 
 #include "SentryAsyncSafeLog.h"
@@ -609,7 +609,6 @@ isRestrictedClass(const char *name)
 static bool
 writeObjCObject(const SentryCrashReportWriter *const writer, const uintptr_t address, int *limit)
 {
-#if SENTRY_ASYNC_SAFE_LOG_HAS_OBJC
     const void *object = (const void *)address;
     switch (sentrycrashobjc_objectType(object)) {
     case SentryCrashObjCTypeClass:
@@ -663,7 +662,6 @@ writeObjCObject(const SentryCrashReportWriter *const writer, const uintptr_t add
     case SentryCrashObjCTypeUnknown:
         break;
     }
-#endif
 
     return false;
 }
@@ -710,13 +708,11 @@ isValidPointer(const uintptr_t address)
         return false;
     }
 
-#if SENTRY_ASYNC_SAFE_LOG_HAS_OBJC
     if (sentrycrashobjc_isTaggedPointer((const void *)address)) {
         if (!sentrycrashobjc_isValidTaggedPointer((const void *)address)) {
             return false;
         }
     }
-#endif
 
     return true;
 }
@@ -730,11 +726,9 @@ isNotableAddress(const uintptr_t address)
 
     const void *object = (const void *)address;
 
-#if SENTRY_ASYNC_SAFE_LOG_HAS_OBJC
     if (sentrycrashobjc_objectType(object) != SentryCrashObjCTypeUnknown) {
         return true;
     }
-#endif
 
     if (isValidString(object)) {
         return true;
@@ -1248,7 +1242,7 @@ writeError(const SentryCrashReportWriter *const writer, const char *const key,
 {
     writer->beginObject(writer, key);
     {
-#if SentryCrashCRASH_HOST_APPLE
+#if SENTRY_HOST_APPLE
         writer->beginObject(writer, SentryCrashField_Mach);
         {
             const char *machExceptionName = sentrycrashmach_exceptionName(crash->mach.type);
@@ -1421,7 +1415,7 @@ writeReportInfo(const SentryCrashReportWriter *const writer, const char *const k
 {
     writer->beginObject(writer, key);
     {
-        writer->addStringElement(writer, SentryCrashField_Version, SentryCrashCRASH_REPORT_VERSION);
+        writer->addStringElement(writer, SentryCrashField_Version, SENTRY_REPORT_VERSION);
         writer->addStringElement(writer, SentryCrashField_ID, reportID);
         writer->addStringElement(writer, SentryCrashField_ProcessName, processName);
         writer->addIntegerElement(writer, SentryCrashField_Timestamp, time(NULL));
