@@ -241,7 +241,7 @@ void i_sentrycrashlog_logCBasic(const char *fmt, ...);
 #endif
 
 #ifndef SentryCrashLogger_LocalLevel
-#    define SentryCrashLogger_LocalLevel SentryCrashLogger_Level_Trace
+#    define SentryCrashLogger_LocalLevel SentryCrashLogger_Level_None
 #endif
 
 #define a_SentryCrashLOG_FULL(LEVEL, FMT, ...)                                                     \

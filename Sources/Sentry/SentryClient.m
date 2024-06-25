@@ -678,6 +678,9 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         // the same as when the app crashed.
         [self applyExtraDeviceContextToEvent:event];
         [self applyCultureContextToEvent:event];
+#if SENTRY_HAS_UIKIT
+        [self applyCurrentViewNamesToEventContext:event withScope:scope];
+#endif // SENTRY_HAS_UIKIT
     }
 
     // With scope applied, before running callbacks run:
@@ -701,6 +704,21 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     event = [self callEventProcessors:event];
     if (event == nil) {
         [self recordLost:eventIsNotATransaction reason:kSentryDiscardReasonEventProcessor];
+    }
+
+    BOOL eventIsATransaction
+        = event.type != nil && [event.type isEqualToString:SentryEnvelopeItemTypeTransaction];
+    if (event != nil && eventIsATransaction && self.options.beforeSendSpan != nil) {
+        SentryTransaction *transaction = (SentryTransaction *)event;
+        NSMutableArray<id<SentrySpan>> *processedSpans = [NSMutableArray array];
+        for (id<SentrySpan> span in transaction.spans) {
+            id<SentrySpan> processedSpan = self.options.beforeSendSpan(span);
+            if (processedSpan) {
+                [processedSpans addObject:processedSpan];
+            }
+        }
+
+        transaction.spans = processedSpans;
     }
 
     if (event != nil && nil != self.options.beforeSend) {
@@ -865,24 +883,29 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                     key:@"app"
                   block:^(NSMutableDictionary *app) {
                       [app addEntriesFromDictionary:extraContext[@"app"]];
-#if SENTRY_HAS_UIKIT
-                      [self addViewNamesToContext:app event:event];
-#endif // SENTRY_HAS_UIKIT
                   }];
 }
 
 #if SENTRY_HAS_UIKIT
-- (void)addViewNamesToContext:(NSMutableDictionary *)appContext event:(SentryEvent *)event
+- (void)applyCurrentViewNamesToEventContext:(SentryEvent *)event withScope:(SentryScope *)scope
 {
-    if ([event isKindOfClass:[SentryTransaction class]]) {
-        SentryTransaction *transaction = (SentryTransaction *)event;
-        if ([transaction.viewNames count] > 0) {
-            appContext[@"view_names"] = transaction.viewNames;
-        }
-    } else {
-        appContext[@"view_names"] =
-            [SentryDependencyContainer.sharedInstance.application relevantViewControllersNames];
-    }
+    [self modifyContext:event
+                    key:@"app"
+                  block:^(NSMutableDictionary *app) {
+                      if ([event isKindOfClass:[SentryTransaction class]]) {
+                          SentryTransaction *transaction = (SentryTransaction *)event;
+                          if ([transaction.viewNames count] > 0) {
+                              app[@"view_names"] = transaction.viewNames;
+                          }
+                      } else {
+                          if (scope.currentScreen != nil) {
+                              app[@"view_names"] = @[ scope.currentScreen ];
+                          } else {
+                              app[@"view_names"] = [SentryDependencyContainer.sharedInstance
+                                                        .application relevantViewControllersNames];
+                          }
+                      }
+                  }];
 }
 #endif // SENTRY_HAS_UIKIT
 

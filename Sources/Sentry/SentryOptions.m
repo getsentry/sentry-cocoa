@@ -343,6 +343,10 @@ NSString *const kSentryDefaultEnvironment = @"production";
         self.beforeSend = options[@"beforeSend"];
     }
 
+    if ([self isBlock:options[@"beforeSendSpan"]]) {
+        self.beforeSendSpan = options[@"beforeSendSpan"];
+    }
+
     if ([self isBlock:options[@"beforeBreadcrumb"]]) {
         self.beforeBreadcrumb = options[@"beforeBreadcrumb"];
     }
