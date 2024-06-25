@@ -52,6 +52,15 @@ class SentrySessionReplay : NSObject {
     func start(rootView: UIView, fullSession: Bool) {
         guard !isRunning else { return }
         
+        lock.lock()
+        guard !isRunning else {
+            lock.unlock()
+            return
+        }
+        displayLink.link(withTarget: self, selector: #selector(newFrame(_:)))
+        isRunning = true
+        lock.unlock()
+        
         self.rootView = rootView
         lastScreenShot = dateProvider.date()
         videoSegmentStart = nil
@@ -64,12 +73,6 @@ class SentrySessionReplay : NSObject {
         if fullSession {
             startFullReplay()
         }
-
-        lock.synchronized {
-            guard !isRunning else { return }
-            displayLink.link(withTarget: self, selector: #selector(newFrame(sender:)))
-            isRunning = true
-        }
     }
 
     private func startFullReplay() {
@@ -81,26 +84,25 @@ class SentrySessionReplay : NSObject {
     }
 
     func stop() {
-        lock.synchronized {
-            guard isRunning else { return }
-            displayLink.invalidate()
-            isRunning = false
-            prepareSegmentUntil(date: dateProvider.date())
-        }
+        lock.lock()
+        defer { lock.unlock() }
+        guard isRunning else { return }
+        
+        displayLink.invalidate()
+        isRunning = false
+        prepareSegmentUntil(date: dateProvider.date())
     }
 
     func resume() {
         guard !reachedMaximumDuration else { return }
 
-        lock.synchronized {
-            
-        }
-        lock.synchronized {
-            guard !isRunning else { return }
-            videoSegmentStart = nil
-            displayLink.link(withTarget: self, selector: #selector(newFrame(sender:)))
-            isRunning = true
-        }
+        lock.lock()
+        defer { lock.unlock() }
+        guard !isRunning else { return }
+        
+        videoSegmentStart = nil
+        displayLink.link(withTarget: self, selector: #selector(newFrame(_:)))
+        isRunning = true
     }
 
     deinit {
@@ -115,14 +117,9 @@ class SentrySessionReplay : NSObject {
             return
         }
 
-        guard event.error != nil || event.exceptions?.isEmpty == false else {
-            return
-        }
-
-        guard captureReplay() else {
-            return
-        }
-
+        guard (event.error != nil || event.exceptions?.isEmpty == false)
+        && captureReplay() else { return }
+        
         setEventContext(event: event)
     }
 
@@ -148,13 +145,13 @@ class SentrySessionReplay : NSObject {
     }
 
     private func setEventContext(event: Event) {
-        guard event.type != "replay_video" else { return }
+        guard let sessionReplayId = sessionReplayId, event.type != "replay_video" else { return }
 
         var context = event.context ?? [:]
-        context["replay"] = ["replay_id": SentryId().sentryIdString]
+        context["replay"] = ["replay_id": sessionReplayId.sentryIdString]
         event.context = context
 
-        var tags = ["replayId": SentryId().sentryIdString]
+        var tags = ["replayId": sessionReplayId.sentryIdString]
         if let eventTags = event.tags {
             tags.merge(eventTags) { (_, new) in new }
         }
@@ -162,20 +159,20 @@ class SentrySessionReplay : NSObject {
     }
 
     @objc 
-    private func newFrame(sender: CADisplayLink) {
-        guard isRunning else { return }
+    private func newFrame(_ sender: CADisplayLink) {
+        guard let sessionStart = sessionStart, let lastScreenShot = lastScreenShot, isRunning else { return }
 
         let now = dateProvider.date()
-
-        if isFullSession && now.timeIntervalSince(sessionStart!) > replayOptions.maximumDuration {
+        
+        if isFullSession && now.timeIntervalSince(sessionStart) > replayOptions.maximumDuration {
             reachedMaximumDuration = true
             stop()
             return
         }
 
-        if now.timeIntervalSince(lastScreenShot!) >= 1 {
+        if now.timeIntervalSince(lastScreenShot) >= 1 {
             takeScreenshot()
-            lastScreenShot = now
+            self.lastScreenShot = now
 
             if videoSegmentStart == nil {
                 videoSegmentStart = now
@@ -222,7 +219,7 @@ class SentrySessionReplay : NSObject {
         captureSegment(segment: currentSegmentId, video: videoInfo, replayId: SentryId(), replayType: .session)
         replayMaker.releaseFramesUntil(videoInfo.end)
         videoSegmentStart = nil
-        currentSegmentId += 1
+        currentSegmentId++
     }
 
     private func captureSegment(segment: Int, video: SentryVideoInfo, replayId: SentryId, replayType: SentryReplayType) {
