@@ -187,7 +187,7 @@ void sentry_asyncLogC(
 #endif
 
 #ifndef SENTRY_ASYNC_SAFE_LOG_LOCAL_LEVEL
-#    define SENTRY_ASYNC_SAFE_LOG_LOCAL_LEVEL SENTRY_ASYNC_SAFE_LOG_LEVEL_TRACE
+#    define SENTRY_ASYNC_SAFE_LOG_LOCAL_LEVEL SENTRY_ASYNC_SAFE_LOG_LEVEL_NONE
 #endif
 
 #define a_SENTRY_ASYNC_SAFE_LOG(LEVEL, FMT, ...)                                                   \

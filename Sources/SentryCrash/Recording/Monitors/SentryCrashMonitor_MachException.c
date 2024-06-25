@@ -35,7 +35,7 @@
 
 #include "SentryAsyncSafeLog.h"
 
-#if SentryCrashCRASH_HAS_MACH
+#if SENTRY_HAS_MACH
 
 #    include <mach/mach.h>
 #    include <pthread.h>
@@ -251,7 +251,7 @@ machExceptionForSignal(int sigNum)
 #    pragma mark - Reserved threads -
 // ============================================================================
 /**
- * We only have reserved threads if SentryCrashCRASH_HAS_MACH.
+ * We only have reserved threads if SENTRY_HAS_MACH.
  */
 
 bool
@@ -266,7 +266,7 @@ sentrycrashcm_hasReservedThreads(void)
     return g_primaryMachThread != 0 && g_secondaryMachThread != 0;
 }
 
-#else // !SentryCrashCRASH_HAS_MACH
+#else // !SENTRY_HAS_MACH
 bool
 sentrycrashcm_isReservedThread(thread_t thread)
 {
@@ -279,9 +279,9 @@ sentrycrashcm_hasReservedThreads(void)
     return false;
 }
 
-#endif // SentryCrashCRASH_HAS_MACH
+#endif // SENTRY_HAS_MACH
 
-#if SentryCrashCRASH_HAS_MACH
+#if SENTRY_HAS_MACH
 
 // ============================================================================
 #    pragma mark - Handler -
@@ -560,17 +560,17 @@ addContextualInfoToEvent(struct SentryCrash_MonitorContext *eventContext)
     }
 }
 
-#endif // SentryCrashCRASH_HAS_MACH
+#endif // SENTRY_HAS_MACH
 
 SentryCrashMonitorAPI *
 sentrycrashcm_machexception_getAPI(void)
 {
     static SentryCrashMonitorAPI api = {
-#if SentryCrashCRASH_HAS_MACH
+#if SENTRY_HAS_MACH
         .setEnabled = setEnabled,
         .isEnabled = isEnabled,
         .addContextualInfoToEvent = addContextualInfoToEvent
-#endif // SentryCrashCRASH_HAS_MACH
+#endif // SENTRY_HAS_MACH
     };
     return &api;
 }
