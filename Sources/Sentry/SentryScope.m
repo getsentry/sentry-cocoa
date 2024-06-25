@@ -383,7 +383,7 @@ SentryScope ()
     }
 }
 
-- (void)setCurrentScreen:(NSString *)currentScreen
+- (void)setCurrentScreen:(nullable NSString *)currentScreen
 {
     _currentScreen = currentScreen;
 

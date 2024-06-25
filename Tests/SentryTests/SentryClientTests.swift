@@ -308,7 +308,7 @@ class SentryClientTest: XCTestCase {
         XCTAssertEqual(viewName?.first, "ClientTestViewController")
     }
 
-    func testCaptureEventWithCurrentScreenInTheScope() {
+    func testCaptureEventWithCurrentScreenInTheScope() throws {
         SentryDependencyContainer.sharedInstance().application = TestSentryUIApplication()
         
         let event = Event()
@@ -319,10 +319,9 @@ class SentryClientTest: XCTestCase {
         
         fixture.getSut().capture(event: event, scope: scope)
         
-        try? assertLastSentEventWithAttachment { event in
-            let viewName = event.context?["app"]?["view_names"] as? [String]
-            XCTAssertEqual(viewName?.first, "TestScreen")
-        }
+        let sentEvent = try lastSentEventWithAttachment()
+        let viewName = sentEvent.context?["app"]?["view_names"] as? [String]
+        XCTAssertEqual(viewName?.first, "TestScreen")
     }
     
     func testCaptureEventWithNoCurrentScreenMainIsLocked() throws {
@@ -355,25 +354,21 @@ class SentryClientTest: XCTestCase {
         XCTAssertEqual(viewName?.first, "ClientTestViewController")
     }
     
-    func testCaptureTransactionWithScreenInScope() {
+    func testCaptureTransactionWithScreenInScope() throws {
         SentryDependencyContainer.sharedInstance().application = TestSentryUIApplication()
         let scope = fixture.scope
         scope.currentScreen = "TransactionScreen"
         let hub = SentryHub(client: SentryClient(options: Options()), andScope: scope)
-            
+        
         let tracer = SentryTracer(transactionContext: TransactionContext(operation: "Operation"), hub: hub)
         
         scope.currentScreen = "SecondScreen"
         let event = try XCTUnwrap(Dynamic(tracer).toTransaction() as Transaction?, "Could not get transaction from tracer")
-            fixture.getSut().capture(event: event, scope: scope)
-            
-            try? assertLastSentEventWithAttachment { event in
-                let viewName = event.context?["app"]?["view_names"] as? [String]
-                XCTAssertEqual(viewName?.first, "TransactionScreen")
-            }
-        } else {
-            XCTFail("Could not get transaction from tracer")
-        }
+        fixture.getSut().capture(event: event, scope: scope)
+        
+        let lastEvent = try lastSentEventWithAttachment()
+        let viewName = lastEvent.context?["app"]?["view_names"] as? [String]
+        XCTAssertEqual(viewName?.first, "TransactionScreen")
     }
     
     func testCaptureTransactionWithChangeScreen() throws {
