@@ -40,6 +40,10 @@ typedef unsigned long long bytes;
 
 #include <TargetConditionals.h>
 
+#ifndef TARGET_OS_VISION
+#    define TARGET_OS_VISION 0
+#endif
+
 #define SENTRY_HOST_IOS TARGET_OS_IOS
 #define SENTRY_HOST_TV TARGET_OS_TV
 #define SENTRY_HOST_WATCH TARGET_OS_WATCH
