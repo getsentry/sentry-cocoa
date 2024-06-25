@@ -3,6 +3,13 @@ import Foundation
 @_implementationOnly import _SentryPrivate
 import UIKit
 
+@objc
+protocol SentrySessionReplayDelegate : NSObjectProtocol {
+    func sessionReplayIsFullSession() -> Bool
+    func sessionReplayNewSegment(replayEvent : SentryReplayEvent, replayRecording: SentryReplayRecording, videoUrl: URL)
+    func sessionReplayStarted(replayId : SentryId)
+}
+
 @objcMembers
 class SentrySessionReplay : NSObject {
     private (set) var isRunning = false
@@ -19,7 +26,7 @@ class SentrySessionReplay : NSObject {
     private var replayMaker: SentryReplayVideoMaker
     private var displayLink: SentryDisplayLinkWrapper
     private var dateProvider: SentryCurrentDateProvider
-    private var sentryRandom: SentryRandomProtocol
+    private weak var delegate: SentrySessionReplayDelegate?
     private var currentSegmentId = 0
     private var processingScreenshot = false
     private var reachedMaximumDuration = false
@@ -35,12 +42,12 @@ class SentrySessionReplay : NSObject {
          breadcrumbConverter: SentryReplayBreadcrumbConverter,
          touchTracker: SentryTouchTracker,
          dateProvider: SentryCurrentDateProvider,
-         random: SentryRandomProtocol,
+         delegate: SentrySessionReplayDelegate,
          displayLinkWrapper: SentryDisplayLinkWrapper) {
 
         self.replayOptions = replayOptions
         self.dateProvider = dateProvider
-        self.sentryRandom = random
+        self.delegate = delegate
         self.screenshotProvider = screenshotProvider
         self.displayLink = displayLinkWrapper
         self.urlToCache = replayFolderPath
@@ -78,9 +85,8 @@ class SentrySessionReplay : NSObject {
     private func startFullReplay() {
         sessionStart = lastScreenShot
         isFullSession = true
-        SentrySDK.currentHub().configureScope { scope in
-            scope.replayId = self.sessionReplayId?.sentryIdString
-        }
+        guard let sessionReplayId = sessionReplayId else { return }
+        delegate?.sessionReplayStarted(replayId: sessionReplayId)
     }
 
     func stop() {
@@ -109,7 +115,7 @@ class SentrySessionReplay : NSObject {
         displayLink.invalidate()
     }
 
-    func captureReplayForEvent(event: Event) {
+    func captureReplayFor(event: Event) {
         guard isRunning else { return }
 
         if isFullSession {
@@ -127,7 +133,7 @@ class SentrySessionReplay : NSObject {
         guard isRunning else { return false }
         guard !isFullSession else { return true }
 
-        guard sentryRandom.nextNumber() <= Double(replayOptions.errorSampleRate) else {
+        guard delegate?.sessionReplayIsFullSession() == true else {
             return false
         }
 
@@ -241,7 +247,8 @@ class SentrySessionReplay : NSObject {
 
         let recording = SentryReplayRecording(segmentId: replayEvent.segmentId, size: video.fileSize, start: video.start, duration: video.duration, frameCount: video.frameCount, frameRate: video.frameRate, height: video.height, width: video.width, extraEvents: events)
 
-        SentrySDK.currentHub().capture(replayEvent, replayRecording: recording, video: video.path)
+                
+        delegate?.sessionReplayNewSegment(replayEvent: replayEvent, replayRecording: recording, videoUrl: video.path)
 
         do {
             try FileManager.default.removeItem(at: video.path)
