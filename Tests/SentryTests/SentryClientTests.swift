@@ -1,4 +1,3 @@
-import Nimble
 @testable import Sentry
 import SentryTestUtils
 import XCTest
@@ -166,7 +165,7 @@ class SentryClientTest: XCTestCase {
         options.cacheDirectoryPath = "\(options.cacheDirectoryPath)/cache"
         _ = SentryClient(options: options)
         
-        expect(dispatchQueue.dispatchAsyncInvocations.count) == 1
+        XCTAssertEqual(dispatchQueue.dispatchAsyncInvocations.count, 1)
         
         let nonCachedID = SentryInstallation.id(withCacheDirectoryPathNonCached: options.cacheDirectoryPath)
         
@@ -175,7 +174,7 @@ class SentryClientTest: XCTestCase {
         
         let cachedID = SentryInstallation.id(withCacheDirectoryPath: options.cacheDirectoryPath)
         
-        expect(cachedID) == nonCachedID
+        XCTAssertEqual(cachedID, nonCachedID)
     }
     
     func testClientIsEnabled() {
@@ -826,8 +825,8 @@ class SentryClientTest: XCTestCase {
         let orientation = actual.context?["device"]?["orientation"] as? String
         XCTAssertEqual(orientation, "landscape")
 
-        let charging = actual.context?["device"]?["charging"] as? Bool
-        XCTAssertEqual(charging, false)
+        let charging = try XCTUnwrap(actual.context?["device"]?["charging"] as? Bool)
+        XCTAssertFalse(charging)
     }
 #endif
 
@@ -881,8 +880,8 @@ class SentryClientTest: XCTestCase {
         let event = TestData.event
         fixture.getSut().capture(event: event)
         let actual = try lastSentEvent()
-        let inForeground = actual.context?["app"]?["in_foreground"] as? Bool
-        XCTAssertEqual(inForeground, false)
+        let inForeground = try XCTUnwrap(actual.context?["app"]?["in_foreground"] as? Bool)
+        XCTAssertFalse(inForeground)
     }
     
     func testCaptureExceptionWithAppStateInForegroudWhenAppIsInactive() throws {
@@ -893,8 +892,8 @@ class SentryClientTest: XCTestCase {
         let event = TestData.event
         fixture.getSut().capture(event: event)
         let actual = try lastSentEvent()
-        let inForeground = actual.context?["app"]?["in_foreground"] as? Bool
-        XCTAssertEqual(inForeground, false)
+        let inForeground = try XCTUnwrap(actual.context?["app"]?["in_foreground"] as? Bool)
+        XCTAssertFalse(inForeground)
     }
     
     func testCaptureExceptionWithAppStateInForegroundDoNotOverwriteExistingValue() throws {
@@ -1330,7 +1329,9 @@ class SentryClientTest: XCTestCase {
         sut.capture(message: "message")
         
         let actual = try lastSentEvent()
-        expect(actual.sdk?["features"] as? [String]).to(contain("performanceV2", "captureFailedRequests"))
+        let features = try XCTUnwrap(actual.sdk?["features"] as? [String])
+        XCTAssert(features.contains("performanceV2"))
+        XCTAssert(features.contains("captureFailedRequests"))
     }
 
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
@@ -1617,7 +1618,7 @@ class SentryClientTest: XCTestCase {
         
         sut.capture(replayEvent, replayRecording: replayRecording, video: movieUrl!, with: Scope())
         let envelope = fixture.transport.sentEnvelopes.first
-        expect(envelope?.items[0].header.type) == SentryEnvelopeItemTypeReplayVideo
+        XCTAssertEqual(envelope?.items[0].header.type, SentryEnvelopeItemTypeReplayVideo)
     }
     
     func testCaptureReplayEvent_WrongEventFromEventProcessor() {
@@ -1633,7 +1634,7 @@ class SentryClientTest: XCTestCase {
         sut.capture(replayEvent, replayRecording: replayRecording, video: movieUrl!, with: Scope())
         
         //Nothing should be captured because beforeSend returned a non ReplayEvent
-        expect(self.fixture.transport.sentEnvelopes.count) == 0
+        XCTAssertEqual(self.fixture.transport.sentEnvelopes.count, 0)
     }
     
     func testCaptureReplayEvent_DontCaptureNilEvent() {
@@ -1649,7 +1650,7 @@ class SentryClientTest: XCTestCase {
         sut.capture(replayEvent, replayRecording: replayRecording, video: movieUrl!, with: Scope())
         
         //Nothing should be captured because beforeSend returned nil
-        expect(self.fixture.transport.sentEnvelopes.count) == 0
+        XCTAssertEqual(self.fixture.transport.sentEnvelopes.count, 0)
     }
     
     func testCaptureReplayEvent_InvalidFile() {
@@ -1665,7 +1666,7 @@ class SentryClientTest: XCTestCase {
         sut.capture(replayEvent, replayRecording: replayRecording, video: movieUrl, with: Scope())
         
         //Nothing should be captured because beforeSend returned nil
-        expect(self.fixture.transport.sentEnvelopes.count) == 0
+        XCTAssertEqual(self.fixture.transport.sentEnvelopes.count, 0)
     }
     
     func testCaptureReplayEvent_noBradcrumbsThreadsDebugMeta() {
@@ -1682,9 +1683,9 @@ class SentryClientTest: XCTestCase {
         
         sut.capture(replayEvent, replayRecording: replayRecording, video: movieUrl!, with: scope)
         
-        expect(replayEvent.breadcrumbs) == nil
-        expect(replayEvent.threads) == nil
-        expect(replayEvent.debugMeta) == nil
+        XCTAssertNil(replayEvent.breadcrumbs)
+        XCTAssertNil(replayEvent.threads)
+        XCTAssertNil(replayEvent.debugMeta)
     }
 }
 

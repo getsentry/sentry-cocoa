@@ -1,5 +1,4 @@
 import _SentryPrivate
-import Nimble
 @testable import Sentry
 import SentryTestUtils
 import XCTest
@@ -18,17 +17,17 @@ final class SentryMetricsClientTests: XCTestCase {
         
         sut.capture(flushableBuckets: flushableBuckets)
 
-        expect(testClient.captureEnvelopeInvocations.count) == 1
+        XCTAssertEqual(testClient.captureEnvelopeInvocations.count, 1)
 
         let envelope = try XCTUnwrap(testClient.captureEnvelopeInvocations.first)
-        expect(envelope.header.eventId) != nil
+        XCTAssertNotNil(envelope.header.eventId)
 
-        expect(envelope.items.count) == 1
+        XCTAssertEqual(envelope.items.count, 1)
         let envelopeItem = try XCTUnwrap(envelope.items.first)
-        expect(envelopeItem.header.type) == SentryEnvelopeItemTypeStatsd
-        expect(envelopeItem.header.contentType) == "application/octet-stream"
-        expect(envelopeItem.header.length) == UInt(encodedMetricsData.count)
-        expect(envelopeItem.data) == encodedMetricsData
+        XCTAssertEqual(envelopeItem.header.type, SentryEnvelopeItemTypeStatsd)
+        XCTAssertEqual(envelopeItem.header.contentType, "application/octet-stream")
+        XCTAssertEqual(envelopeItem.header.length, UInt(encodedMetricsData.count))
+        XCTAssertEqual(envelopeItem.data, encodedMetricsData)
     }
 
     func testCaptureMetricsWithNoMetrics() throws {
@@ -39,7 +38,7 @@ final class SentryMetricsClientTests: XCTestCase {
         let flushableBuckets: [BucketTimestamp: [CounterMetric]] = [:]
         sut.capture(flushableBuckets: flushableBuckets)
 
-        expect(testClient.captureEnvelopeInvocations.count) == 0
+        XCTAssertEqual(testClient.captureEnvelopeInvocations.count, 0)
     }
 
 }

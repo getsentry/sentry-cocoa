@@ -1,4 +1,3 @@
-import Nimble
 import SentryTestUtils
 import XCTest
 
@@ -312,7 +311,7 @@ class SentryScopeSwiftTests: XCTestCase {
         scope.addBreadcrumb(fixture.breadcrumb)
         
         let serialized = scope.serialize()
-        expect(serialized["breadcrumbs"]) == nil
+        XCTAssertNil(serialized["breadcrumbs"])
     }
     
     func testMaxBreadcrumbs_IsNegative() {
@@ -321,7 +320,7 @@ class SentryScopeSwiftTests: XCTestCase {
         scope.addBreadcrumb(fixture.breadcrumb)
         
         let serialized = scope.serialize()
-        expect(serialized["breadcrumbs"]) == nil
+        XCTAssertNil(serialized["breadcrumbs"])
     }
     
     func testUseSpanForClear() {

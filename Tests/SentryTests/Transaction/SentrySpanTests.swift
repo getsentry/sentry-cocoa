@@ -1,4 +1,3 @@
-import Nimble
 @testable import Sentry
 import SentryTestUtils
 import XCTest
@@ -531,7 +530,7 @@ class SentrySpanTests: XCTestCase {
         let sut = fixture.getSut()
         
         let serialized = sut.serialize()
-        expect(serialized["_metrics_summary"]) == nil
+        XCTAssertNil(serialized["_metrics_summary"])
     }
     
     func testLocalMetricsAggregator_GetsSerializedAsMetricsSummary() throws {
@@ -543,15 +542,15 @@ class SentrySpanTests: XCTestCase {
         let serialized = sut.serialize()
         
         let metricsSummary = try XCTUnwrap(serialized["_metrics_summary"] as? [String: [[String: Any]]])
-        expect(metricsSummary.count) == 1
+        XCTAssertEqual(metricsSummary.count, 1)
         
         let bucket = try XCTUnwrap(metricsSummary["c:key"])
-        expect(bucket.count) == 1
+        XCTAssertEqual(bucket.count, 1)
         let metric = try XCTUnwrap(bucket.first)
-        expect(metric["min"] as? Double) == 1.0
-        expect(metric["max"] as? Double) == 1.0
-        expect(metric["count"] as? Int) == 1
-        expect(metric["sum"] as? Double) == 1.0
+        XCTAssertEqual(metric["min"] as? Double, 1.0)
+        XCTAssertEqual(metric["max"] as? Double, 1.0)
+        XCTAssertEqual(metric["count"] as? Int, 1)
+        XCTAssertEqual(metric["sum"] as? Double, 1.0)
     }
     
     func testTraceHeaderNotSampled() {
@@ -682,9 +681,9 @@ class SentrySpanTests: XCTestCase {
         
         sut.finish()
         
-        expect(sut.data["frames.total"] as? NSNumber) == NSNumber(value: slow + frozen + normal)
-        expect(sut.data["frames.slow"] as? NSNumber) == NSNumber(value: slow)
-        expect(sut.data["frames.frozen"] as? NSNumber) == NSNumber(value: frozen)
+        XCTAssertEqual(sut.data["frames.total"] as? NSNumber, NSNumber(value: slow + frozen + normal))
+        XCTAssertEqual(sut.data["frames.slow"] as? NSNumber, NSNumber(value: slow))
+        XCTAssertEqual(sut.data["frames.frozen"] as? NSNumber, NSNumber(value: frozen))
     }
     
     func testDontAddAllZeroSlowFrozenFramesToData() {
@@ -694,9 +693,9 @@ class SentrySpanTests: XCTestCase {
         
         sut.finish()
         
-        expect(sut.data["frames.total"]) == nil
-        expect(sut.data["frames.slow"]) == nil
-        expect(sut.data["frames.frozen"]) == nil
+        XCTAssertNil(sut.data["frames.total"])
+        XCTAssertNil(sut.data["frames.slow"])
+        XCTAssertNil(sut.data["frames.frozen"])
     }
     
     func testAddFrameStatisticsToData_WithPreexistingCounts() {
@@ -718,14 +717,14 @@ class SentrySpanTests: XCTestCase {
         
         sut.finish()
         
-        expect(sut.data["frames.total"] as? NSNumber) == NSNumber(value: totalFrames)
-        expect(sut.data["frames.slow"] as? NSNumber) == NSNumber(value: slowFrames)
-        expect(sut.data["frames.frozen"] as? NSNumber) == NSNumber(value: frozenFrames)
+        XCTAssertEqual(sut.data["frames.total"] as? NSNumber, NSNumber(value: totalFrames))
+        XCTAssertEqual(sut.data["frames.slow"] as? NSNumber, NSNumber(value: slowFrames))
+        XCTAssertEqual(sut.data["frames.frozen"] as? NSNumber, NSNumber(value: frozenFrames))
         
         let expectedFrameDuration = slowFrameThreshold(displayLinkWrapper.currentFrameRate.rawValue)
         let expectedDelay = displayLinkWrapper.slowestSlowFrameDuration + displayLinkWrapper.fastestFrozenFrameDuration - expectedFrameDuration * 2 as NSNumber
         
-        expect(sut.data["frames.delay"] as? NSNumber).to(beCloseTo(expectedDelay, within: 0.0001))
+        XCTAssertEqual(try XCTUnwrap(sut.data["frames.delay"] as? NSNumber).doubleValue, expectedDelay.doubleValue, accuracy: 0.0001)
     }
     
     func testNoFramesTracker_NoFramesAddedToData() {
@@ -733,10 +732,10 @@ class SentrySpanTests: XCTestCase {
         
         sut.finish()
         
-        expect(sut.data["frames.total"]) == nil
-        expect(sut.data["frames.slow"]) == nil
-        expect(sut.data["frames.frozen"]) == nil
-        expect(sut.data["frames.delay"]) == nil
+        XCTAssertNil(sut.data["frames.total"])
+        XCTAssertNil(sut.data["frames.slow"])
+        XCTAssertNil(sut.data["frames.frozen"])
+        XCTAssertNil(sut.data["frames.delay"])
     }
     
     func givenFramesTracker() -> (TestDisplayLinkWrapper, SentryFramesTracker) {

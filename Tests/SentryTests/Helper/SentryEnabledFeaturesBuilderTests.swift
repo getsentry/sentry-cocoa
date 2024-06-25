@@ -1,4 +1,3 @@
-import Nimble
 @testable import Sentry
 import XCTest
 
@@ -7,7 +6,7 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
     func testDefaultFeatures() throws {
         let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: Options())
         
-        expect(features) == ["captureFailedRequests"]
+        XCTAssertEqual(features, ["captureFailedRequests"])
     }
     
     func testEnableAllFeatures() throws {
@@ -30,23 +29,21 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
         
         let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
         
-        expect(features).to(contain([
+        XCTAssertEqual(features, [
             "captureFailedRequests",
             "performanceV2",
             "timeToFullDisplayTracing",
             "swiftAsyncStacktraces",
             "metrics"
-        ]))
+        ])
         
 #if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
-        expect(features).to(contain(["appLaunchProfiling"]))
+        XCTAssert(features.contains("appLaunchProfiling"))
 #endif // os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
     
 #if os(iOS) || os(tvOS)
 #if canImport(UIKit) && !SENTRY_NO_UIKIT
-        expect(features).to(contain([
-            "preWarmedAppStartTracing"
-        ]))
+        XCTAssert(features.contains("preWarmedAppStartTracing"))
 #endif // canImport(UIKit)
 #endif // os(iOS) || os(tvOS)
     }

@@ -1,4 +1,3 @@
-import Nimble
 import Sentry
 import SentryTestUtils
 import XCTest
@@ -63,13 +62,13 @@ class SentryTransportFactoryTests: XCTestCase {
         options.enableSpotlight = true
         let transports = TransportInitializer.initTransports(options, sentryFileManager: try SentryFileManager(options: options), currentDateProvider: TestCurrentDateProvider())
         
-        expect(transports.contains {
+        XCTAssert(transports.contains {
             $0.isKind(of: SentrySpotlightTransport.self)
-        }) == true
+        })
         
-        expect(transports.contains {
+        XCTAssert(transports.contains {
             $0.isKind(of: SentryHttpTransport.self)
-        }) == true
+        })
     }
     
 }
