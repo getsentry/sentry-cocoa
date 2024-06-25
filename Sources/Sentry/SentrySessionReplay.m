@@ -314,9 +314,9 @@ SentrySessionReplay ()
         configureScope:^(SentryScope *_Nonnull scope) { breadcrumbs = scope.breadcrumbs; }];
     NSMutableArray<SentryRRWebEvent *> *events = [NSMutableArray array];
 
-    [events addObjectsFromArray:[self->_breadcrumbConverter convertWithBreadcrumbs:breadcrumbs
-                                                                              from:videoInfo.start
-                                                                             until:videoInfo.end]];
+    [events addObjectsFromArray:[self convertBreadcrumbs:breadcrumbs
+                                                    from:videoInfo.start
+                                                   until:videoInfo.end]];
 
     [events addObjectsFromArray:[_touchTracker replayEventsFrom:videoInfo.start
                                                           until:videoInfo.end]];
@@ -341,6 +341,27 @@ SentrySessionReplay ()
     if (![NSFileManager.defaultManager removeItemAtURL:videoInfo.path error:&error]) {
         SENTRY_LOG_ERROR(@"Cound not delete replay segment from disk: %@", error);
     }
+}
+
+- (NSArray<SentryRRWebEvent *> *)convertBreadcrumbs:(NSArray<SentryBreadcrumb *> *)breadcrumbs
+                                               from:(NSDate *)from
+                                              until:(NSDate *)until
+{
+    NSMutableArray<SentryRRWebEvent *> *outBreadcrumbs = [NSMutableArray array];
+
+    for (SentryBreadcrumb *breadcrumb in breadcrumbs) {
+
+        if (!breadcrumb.timestamp || [breadcrumb.timestamp compare:from] == NSOrderedAscending ||
+            [breadcrumb.timestamp compare:until] == NSOrderedDescending) {
+            continue;
+        }
+
+        SentryRRWebEvent *rrwebBreadcrumb = [_breadcrumbConverter convertFrom:breadcrumb];
+        if (rrwebBreadcrumb) {
+            [outBreadcrumbs addObject:rrwebBreadcrumb];
+        }
+    }
+    return outBreadcrumbs;
 }
 
 - (void)takeScreenshot
