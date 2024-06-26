@@ -34,7 +34,7 @@
 #import "SentryCrashSysCtl.h"
 #import "SentryInternalCDefines.h"
 
-#import "SentryAsyncSafeLog.h"
+#import "SentryLog.h"
 
 #import "SentryDefines.h"
 
@@ -177,14 +177,14 @@ VMStats(vm_statistics_data_t *const vmStats, vm_size_t *const pageSize)
     const mach_port_t hostPort = mach_host_self();
 
     if ((kr = host_page_size(hostPort, pageSize)) != KERN_SUCCESS) {
-        SENTRY_ASYNC_SAFE_LOG_ERROR(@"host_page_size: %s", mach_error_string(kr));
+        SENTRY_LOG_ERROR(@"host_page_size: %s", mach_error_string(kr));
         return false;
     }
 
     mach_msg_type_number_t hostSize = sizeof(*vmStats) / sizeof(natural_t);
     kr = host_statistics(hostPort, HOST_VM_INFO, (host_info_t)vmStats, &hostSize);
     if (kr != KERN_SUCCESS) {
-        SENTRY_ASYNC_SAFE_LOG_ERROR(@"host_statistics: %s", mach_error_string(kr));
+        SENTRY_LOG_ERROR(@"host_statistics: %s", mach_error_string(kr));
         return false;
     }
 
