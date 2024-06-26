@@ -23,16 +23,17 @@ class SentrySessionReplay: NSObject {
     private var videoSegmentStart: Date?
     private var sessionStart: Date?
     private var imageCollection: [UIImage] = []
-    private var replayOptions: SentryReplayOptions
-    private var replayMaker: SentryReplayVideoMaker
-    private var displayLink: SentryDisplayLinkWrapper
-    private var dateProvider: SentryCurrentDateProvider
     private weak var delegate: SentrySessionReplayDelegate?
     private var currentSegmentId = 0
     private var processingScreenshot = false
     private var reachedMaximumDuration = false
-    private var touchTracker: SentryTouchTracker
-    private var lock = NSLock()
+    
+    private let replayOptions: SentryReplayOptions
+    private let replayMaker: SentryReplayVideoMaker
+    private let displayLink: SentryDisplayLinkWrapper
+    private let dateProvider: SentryCurrentDateProvider
+    private let touchTracker: SentryTouchTracker?
+    private let lock = NSLock()
     
     var screenshotProvider: SentryViewScreenshotProvider
     var breadcrumbConverter: SentryReplayBreadcrumbConverter
@@ -42,7 +43,7 @@ class SentrySessionReplay: NSObject {
          screenshotProvider: SentryViewScreenshotProvider,
          replayMaker: SentryReplayVideoMaker,
          breadcrumbConverter: SentryReplayBreadcrumbConverter,
-         touchTracker: SentryTouchTracker,
+         touchTracker: SentryTouchTracker?,
          dateProvider: SentryCurrentDateProvider,
          delegate: SentrySessionReplayDelegate,
          displayLinkWrapper: SentryDisplayLinkWrapper) {
@@ -212,11 +213,12 @@ class SentrySessionReplay: NSObject {
 
     private func createAndCapture(videoUrl: URL, duration: TimeInterval, startedAt: Date) {
         do {
-            try replayMaker.createVideoWith(duration: duration, beginning: startedAt, outputFileURL: videoUrl) { videoInfo, error in
+            try replayMaker.createVideoWith(duration: duration, beginning: startedAt, outputFileURL: videoUrl) { [weak self] videoInfo, error in
+                guard let _self = self else { return }
                 if let error = error {
                     print("[SentrySessionReplay:\(#line)] Could not create replay video - \(error.localizedDescription)")
                 } else if let videoInfo = videoInfo {
-                    self.newSegmentAvailable(videoInfo: videoInfo)
+                    _self.newSegmentAvailable(videoInfo: videoInfo)
                 }
             }
         } catch {
@@ -238,8 +240,10 @@ class SentrySessionReplay: NSObject {
         let breadcrumbs = delegate?.breadcrumbsForSessionReplay() ?? []
 
         var events = convertBreadcrumbs(breadcrumbs: breadcrumbs, from: video.start, until: video.end)
-        events.append(contentsOf: touchTracker.replayEvents(from: video.start, until: video.end))
-        touchTracker.flushFinishedEvents()
+        if let touchTracker = touchTracker {
+            events.append(contentsOf: touchTracker.replayEvents(from: video.start, until: video.end))
+            touchTracker.flushFinishedEvents()
+        }
 
         let recording = SentryReplayRecording(segmentId: replayEvent.segmentId, size: video.fileSize, start: video.start, duration: video.duration, frameCount: video.frameCount, frameRate: video.frameRate, height: video.height, width: video.width, extraEvents: events)
                 
@@ -268,8 +272,8 @@ class SentrySessionReplay: NSObject {
             processingScreenshot = true
         }
 
-        screenshotProvider.image(view: rootView, options: replayOptions) { screenshot in
-            self.newImage(image: screenshot)
+        screenshotProvider.image(view: rootView, options: replayOptions) { [weak self] screenshot in
+            self?.newImage(image: screenshot)
         }
     }
 
