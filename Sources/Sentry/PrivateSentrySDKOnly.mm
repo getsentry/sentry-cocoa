@@ -282,6 +282,14 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
 #endif // SENTRY_HAS_UIKIT
 }
 
+#if SENTRY_UIKIT_AVAILABLE
++ (void)setCurrentScreen:(NSString *)screenName
+{
+    [SentrySDK.currentHub
+        configureScope:^(SentryScope *scope) { scope.currentScreen = screenName; }];
+}
+#endif // SENTRY_HAS_UIKIT
+
 + (NSData *)captureViewHierarchy
 {
 #if SENTRY_HAS_UIKIT
