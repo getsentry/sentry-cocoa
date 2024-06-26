@@ -231,7 +231,7 @@ class SentrySessionReplay: NSObject {
     }
     
     private func captureSegment(segment: Int, video: SentryVideoInfo, replayId: SentryId, replayType: SentryReplayType) {
-        let replayEvent = SentryReplayEvent(eventId:replayId, replayStartTimestamp: video.start, replayType: replayType, segmentId: segment)
+        let replayEvent = SentryReplayEvent(eventId: replayId, replayStartTimestamp: video.start, replayType: replayType, segmentId: segment)
         replayEvent.timestamp = video.end
         
         let breadcrumbs = delegate?.breadcrumbsForSessionReplay() ?? []
