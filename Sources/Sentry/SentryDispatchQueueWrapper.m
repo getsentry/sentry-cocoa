@@ -36,16 +36,15 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)dispatchAsyncOnMainQueue:(void (^)(void))block
 {
-    dispatch_async(dispatch_get_main_queue(), ^{
-        @autoreleasepool {
-            block();
-        }
-    });
-}
-
-- (void)dispatchOnMainQueue:(void (^)(void))block
-{
-    [SentryThreadWrapper onMainThread:block];
+    if ([NSThread isMainThread]) {
+        block();
+    } else {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            @autoreleasepool {
+                block();
+            }
+        });
+    }
 }
 
 - (void)dispatchSync:(void (^)(void))block
