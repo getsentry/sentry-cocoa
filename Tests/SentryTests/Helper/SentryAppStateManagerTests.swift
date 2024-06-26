@@ -109,7 +109,7 @@ class SentryAppStateManagerTests: XCTestCase {
     func testUpdateAppState() {
         sut.storeCurrentAppState()
 
-        XCTAssertEqual(fixture.fileManager.readAppState()!.wasTerminated, false)
+        XCTAssertFalse(fixture.fileManager.readAppState()!.wasTerminated)
 
         sut.updateAppState { state in
             state.wasTerminated = true

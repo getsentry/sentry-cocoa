@@ -1,4 +1,3 @@
-import Nimble
 import SentryTestUtils
 import XCTest
 
@@ -83,9 +82,9 @@ class SentryCrashReportTests: XCTestCase {
 
         let crashReport: CrashReport = try XCTUnwrap( JSONDecoder().decode(CrashReport.self, from: crashReportContents))
             
-        expect(crashReport.crash.error.type) == "nsexception"
-        expect(crashReport.crash.error.reason) == reason
-        expect(crashReport.crash.error.nsexception?.reason) == reason
+        XCTAssertEqual(crashReport.crash.error.type, "nsexception")
+        XCTAssertEqual(crashReport.crash.error.reason, reason)
+        XCTAssertEqual(crashReport.crash.error.nsexception?.reason, reason)
     }
     
     func testShouldNotWriteReason_WhenWritingNSException() {
@@ -100,9 +99,9 @@ class SentryCrashReportTests: XCTestCase {
         do {
             let crashReport: CrashReport = try JSONDecoder().decode(CrashReport.self, from: crashReportContents)
             
-            expect(crashReport.crash.error.type) == "nsexception"
-            expect(crashReport.crash.error.reason) == nil
-            expect(crashReport.crash.error.nsexception?.reason) == nil
+            XCTAssertEqual(crashReport.crash.error.type, "nsexception")
+            XCTAssertNil(crashReport.crash.error.reason)
+            XCTAssertNil(crashReport.crash.error.nsexception?.reason)
         } catch {
             XCTFail("Couldn't decode crash report: \(error)")
         }
@@ -113,9 +112,9 @@ class SentryCrashReportTests: XCTestCase {
         
         let crashReportContents = FileManager.default.contents(atPath: fixture.reportPath) ?? Data()
         
-        let crashReportContentsAsString = String(data: crashReportContents, encoding: .ascii)
+        let crashReportContentsAsString = try XCTUnwrap(String(data: crashReportContents, encoding: .ascii))
         
-        expect(crashReportContentsAsString).toNot(contain("boot_time"), description: "The crash report must not contain boot_time because Apple forbids sending this information off device see: https://developer.apple.com/documentation/bundleresources/privacy_manifest_files/describing_use_of_required_reason_api#4278394.")
+        XCTAssertFalse(crashReportContentsAsString.contains("boot_time"), "The crash report must not contain boot_time because Apple forbids sending this information off device see: https://developer.apple.com/documentation/bundleresources/privacy_manifest_files/describing_use_of_required_reason_api#4278394.")
     }
     
     private func writeCrashReport() {
