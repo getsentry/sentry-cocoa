@@ -1,4 +1,3 @@
-#if (os(iOS) || os(tvOS)) && !SENTRY_NO_UIKIT
 @_implementationOnly import _SentryPrivate
 import Foundation
 
@@ -47,5 +46,3 @@ class SentryReplayEvent: Event {
         return result
     }
 }
-
-#endif
