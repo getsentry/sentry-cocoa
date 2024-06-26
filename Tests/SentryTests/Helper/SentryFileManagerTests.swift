@@ -665,7 +665,7 @@ class SentryFileManagerTests: XCTestCase {
     
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
     
-    func testReadPreviousBreadcrumbs() {
+    func testReadPreviousBreadcrumbs() throws {
         let observer = SentryWatchdogTerminationScopeObserver(maxBreadcrumbs: 2, fileManager: sut)
         
         for count in 0..<3 {
@@ -677,14 +677,17 @@ class SentryFileManagerTests: XCTestCase {
         }
         
         sut.moveBreadcrumbsToPreviousBreadcrumbs()
-        let result = sut.readPreviousBreadcrumbs()
+        var result = sut.readPreviousBreadcrumbs()
+        
         XCTAssertEqual(result.count, 3)
-        XCTAssertEqual((result[0] as! NSDictionary)["message"] as! String, "0")
-        XCTAssertEqual((result[1] as! NSDictionary)["message"] as! String, "1")
-        XCTAssertEqual((result[2] as! NSDictionary)["message"] as! String, "2")
+        XCTAssertEqual(try XCTUnwrap(result.first as? NSDictionary)["message"] as? String, "0")
+        result = [Any](result.dropFirst())
+        XCTAssertEqual(try XCTUnwrap(result.first as? NSDictionary)["message"] as? String, "1")
+        result = [Any](result.dropFirst())
+        XCTAssertEqual(try XCTUnwrap(result.first as? NSDictionary)["message"] as? String, "2")
     }
     
-    func testReadPreviousBreadcrumbsCorrectOrderWhenFileTwoHasMoreCrumbs() {
+    func testReadPreviousBreadcrumbsCorrectOrderWhenFileTwoHasMoreCrumbs() throws {
         let observer = SentryWatchdogTerminationScopeObserver(maxBreadcrumbs: 2, fileManager: sut)
         
         for count in 0..<5 {
@@ -696,11 +699,14 @@ class SentryFileManagerTests: XCTestCase {
         }
         
         sut.moveBreadcrumbsToPreviousBreadcrumbs()
-        let result = sut.readPreviousBreadcrumbs()
+        var result = sut.readPreviousBreadcrumbs()
+        
         XCTAssertEqual(result.count, 3)
-        XCTAssertEqual((result[0] as! NSDictionary)["message"] as! String, "2")
-        XCTAssertEqual((result[1] as! NSDictionary)["message"] as! String, "3")
-        XCTAssertEqual((result[2] as! NSDictionary)["message"] as! String, "4")
+        XCTAssertEqual(try XCTUnwrap(result.first as? NSDictionary)["message"] as? String, "2")
+        result = [Any](result.dropFirst())
+        XCTAssertEqual(try XCTUnwrap(result.first as? NSDictionary)["message"] as? String, "3")
+        result = [Any](result.dropFirst())
+        XCTAssertEqual(try XCTUnwrap(result.first as? NSDictionary)["message"] as? String, "4")
     }
     
 #endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)

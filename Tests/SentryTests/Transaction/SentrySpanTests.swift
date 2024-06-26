@@ -265,10 +265,11 @@ class SentrySpanTests: XCTestCase {
             
             expect.fulfill()
         }
-        XCTAssertEqual(NSNumber(value: try XCTUnwrap(threadId)), try XCTUnwrap(spanData?["thread.id"] as? NSNumber))
-        XCTAssertEqual(threadName, try XCTUnwrap(spanData?["thread.name"] as? String))
         
         wait(for: [expect], timeout: 1.0)
+        
+        XCTAssertEqual(NSNumber(value: try XCTUnwrap(threadId)), try XCTUnwrap(spanData?["thread.id"] as? NSNumber))
+        XCTAssertEqual(threadName, try XCTUnwrap(spanData?["thread.name"] as? String))
     }
     
     func testInit_SetsThreadInfoAsSpanData_FromBackgroundThreadWithNoName() {
@@ -285,10 +286,11 @@ class SentrySpanTests: XCTestCase {
             
             expect.fulfill()
         }
-        XCTAssertNil(try XCTUnwrap(spanData)["thread.name"])
-        XCTAssertEqual(NSNumber(value: try XCTUnwrap(threadId)), try XCTUnwrap(spanData?["thread.id"] as? NSNumber))
         
         wait(for: [expect], timeout: 1.0)
+        
+        XCTAssertNil(try XCTUnwrap(spanData)["thread.name"])
+        XCTAssertEqual(NSNumber(value: try XCTUnwrap(threadId)), try XCTUnwrap(spanData?["thread.id"] as? NSNumber))
     }
     
     func testFinish() throws {
