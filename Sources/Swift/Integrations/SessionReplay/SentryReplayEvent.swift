@@ -44,7 +44,6 @@ class SentryReplayEvent: Event {
         result["replay_id"] = eventId.sentryIdString
         result["segment_id"] = segmentId
         result["replay_type"] = replayType.toString()
-        result["error_ids"] = []
         return result
     }
 }
