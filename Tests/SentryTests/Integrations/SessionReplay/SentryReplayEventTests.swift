@@ -1,7 +1,7 @@
 import Foundation
 import Nimble
-import XCTest
 @testable import Sentry
+import XCTest
 
 class SentryReplayEventTests: XCTestCase {
  
