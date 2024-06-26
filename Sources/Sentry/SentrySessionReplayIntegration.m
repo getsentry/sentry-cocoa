@@ -307,6 +307,20 @@ SentrySessionReplayIntegration () <SentrySessionReplayDelegate>
     return result;
 }
 
+- (nullable NSString*)currentScreenNameForSessionReplay {
+    __block NSString * screenName;
+    
+    [SentrySDK.currentHub configureScope:^(SentryScope * _Nonnull scope) {
+        screenName = scope.currentScreen;
+    }];
+    
+    if (screenName == nil) {
+        screenName = [SentryDependencyContainer.sharedInstance.application relevantViewControllersNames].firstObject;
+    }
+    
+    return screenName;
+}
+
 @end
 
 NS_ASSUME_NONNULL_END

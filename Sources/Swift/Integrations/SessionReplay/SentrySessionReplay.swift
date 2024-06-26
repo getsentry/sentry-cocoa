@@ -9,6 +9,7 @@ protocol SentrySessionReplayDelegate: NSObjectProtocol {
     func sessionReplayNewSegment(replayEvent: SentryReplayEvent, replayRecording: SentryReplayRecording, videoUrl: URL)
     func sessionReplayStarted(replayId: SentryId)
     func breadcrumbsForSessionReplay() -> [Breadcrumb]
+    func currentScreenNameForSessionReplay() -> String?
 }
 
 @objcMembers
@@ -236,6 +237,7 @@ class SentrySessionReplay: NSObject {
     private func captureSegment(segment: Int, video: SentryVideoInfo, replayId: SentryId, replayType: SentryReplayType) {
         let replayEvent = SentryReplayEvent(eventId: replayId, replayStartTimestamp: video.start, replayType: replayType, segmentId: segment)
         replayEvent.timestamp = video.end
+        replayEvent.urls = video.screens
         
         let breadcrumbs = delegate?.breadcrumbsForSessionReplay() ?? []
 
@@ -272,14 +274,16 @@ class SentrySessionReplay: NSObject {
             processingScreenshot = true
         }
 
+        let screenName = delegate?.currentScreenNameForSessionReplay()
+        
         screenshotProvider.image(view: rootView, options: replayOptions) { [weak self] screenshot in
-            self?.newImage(image: screenshot)
+            self?.newImage(image: screenshot, forScreen: screenName)
         }
     }
 
-    private func newImage(image: UIImage) {
+    private func newImage(image: UIImage, forScreen screen: String?) {
         processingScreenshot = false
-        replayMaker.addFrameAsync(image: image)
+        replayMaker.addFrameAsync(image: image, forScreen: screen)
     }
 }
 

@@ -10,11 +10,14 @@ import UIKit
 struct SentryReplayFrame {
     let imagePath: String
     let time: Date
-    
-    init(imagePath: String, time: Date) {
-        self.imagePath = imagePath
-        self.time = time
-    }
+    let screenName : String?
+}
+
+private struct VideoFrames {
+    let framesPaths : [String]
+    let screens : [String]
+    let start : Date
+    let end : Date
 }
 
 enum SentryOnDemandReplayError: Error {
@@ -56,14 +59,14 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
         self.workingQueue = workingQueue
     }
     
-    func addFrameAsync(image: UIImage) {
+    func addFrameAsync(image: UIImage, forScreen: String?) {
         workingQueue.dispatchAsync({
-            self.addFrame(image: image)
+            self.addFrame(image: image, forScreen: forScreen)
         })
     }
     
-    private func addFrame(image: UIImage) {
-        guard let data = resizeImage(image, maxWidth: 300)?.pngData() else { return }
+    private func addFrame(image: UIImage, forScreen: String?) {
+        guard let data = rescaleImage(image)?.pngData() else { return }
         
         let date = dateProvider.date()
         let imagePath = (_outputPath as NSString).appendingPathComponent("\(_totalFrames).png")
@@ -73,7 +76,7 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
             print("[SentryOnDemandReplay] Could not save replay frame. Error: \(error)")
             return
         }
-        _frames.append(SentryReplayFrame(imagePath: imagePath, time: date))
+        _frames.append(SentryReplayFrame(imagePath: imagePath, time: date, screenName: forScreen))
         
         while _frames.count > cacheMaxSize {
             let first = _frames.removeFirst()
@@ -82,21 +85,14 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
         _totalFrames += 1
     }
     
-    private func resizeImage(_ originalImage: UIImage, maxWidth: CGFloat) -> UIImage? {
-        let originalSize = originalImage.size
-        let aspectRatio = originalSize.width / originalSize.height
+    private func rescaleImage(_ originalImage: UIImage) -> UIImage? {
+        guard originalImage.scale > 1 else { return originalImage }
         
-        let newWidth = min(originalSize.width, maxWidth)
-        let newHeight = newWidth / aspectRatio
+        UIGraphicsBeginImageContextWithOptions(originalImage.size, false, 1)
+        defer { UIGraphicsEndImageContext() }
         
-        let newSize = CGSize(width: newWidth, height: newHeight)
-        
-        UIGraphicsBeginImageContextWithOptions(newSize, false, 1)
-        originalImage.draw(in: CGRect(x: 0, y: 0, width: newSize.width, height: newSize.height))
-        let resizedImage = UIGraphicsGetImageFromCurrentImageContext()
-        UIGraphicsEndImageContext()
-        
-        return resizedImage
+        originalImage.draw(in: CGRect(origin: .zero, size: originalImage.size))
+        return UIGraphicsGetImageFromCurrentImageContext()
     }
     
     func releaseFramesUntil(_ date: Date) {
@@ -107,7 +103,7 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
             }
         })
     }
-    
+        
     func createVideoWith(duration: TimeInterval, beginning: Date, outputFileURL: URL, completion: @escaping (SentryVideoInfo?, Error?) -> Void) throws {
         let videoWriter = try AVAssetWriter(url: outputFileURL, fileType: .mov)
         
@@ -125,17 +121,17 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
         videoWriter.startSession(atSourceTime: .zero)
         
         var frameCount = 0
-        let (framesPaths, start, end) = filterFrames(beginning: beginning, end: beginning.addingTimeInterval(duration))
+        let videoFrames = filterFrames(beginning: beginning, end: beginning.addingTimeInterval(duration))
         
-        if framesPaths.isEmpty { return }
+        if videoFrames.framesPaths.isEmpty { return }
         
         _currentPixelBuffer = SentryPixelBuffer(size: CGSize(width: videoWidth, height: videoHeight))
         
         videoWriterInput.requestMediaDataWhenReady(on: workingQueue.queue) { [weak self] in
             guard let self = self else { return }
             
-            if frameCount < framesPaths.count {
-                let imagePath = framesPaths[frameCount]
+            if frameCount < videoFrames.framesPaths.count {
+                let imagePath = videoFrames.framesPaths[frameCount]
                 
                 if let image = UIImage(contentsOfFile: imagePath) {
                     let presentTime = CMTime(seconds: Double(frameCount), preferredTimescale: CMTimeScale(self.frameRate))
@@ -157,7 +153,7 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
                                 completion(nil, SentryOnDemandReplayError.cantReadVideoSize)
                                 return
                             }
-                            videoInfo = SentryVideoInfo(path: outputFileURL, height: self.videoHeight, width: self.videoWidth, duration: TimeInterval(framesPaths.count / self.frameRate), frameCount: framesPaths.count, frameRate: self.frameRate, start: start, end: end, fileSize: fileSize)
+                            videoInfo = SentryVideoInfo(path: outputFileURL, height: self.videoHeight, width: self.videoWidth, duration: TimeInterval(videoFrames.framesPaths.count / self.frameRate), frameCount: videoFrames.framesPaths.count, frameRate: self.frameRate, start: videoFrames.start, end: videoFrames.end, fileSize: fileSize, screens: videoFrames.screens)
                         } catch {
                             completion(nil, error)
                         }
@@ -168,8 +164,10 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
         }
     }
     
-    private func filterFrames(beginning: Date, end: Date) -> ([String], start: Date, end: Date) {
+    private func filterFrames(beginning: Date, end: Date) -> VideoFrames {
         var framesPaths = [String]()
+        
+        var screens = [String]()
         
         var start = dateProvider.date()
         var actualEnd = start
@@ -178,11 +176,16 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
                 if frame.time < beginning { continue } else if frame.time > end { break }
                 if frame.time < start { start = frame.time }
                 
+                if let screenName = frame.screenName {
+                    screens.append(screenName)
+                }
+                
                 actualEnd = frame.time
                 framesPaths.append(frame.imagePath)
             }
         })
-        return (framesPaths, start, actualEnd + TimeInterval((1 / Double(frameRate))))
+        
+        return VideoFrames(framesPaths: framesPaths, screens: screens, start: start, end: actualEnd + TimeInterval((1 / Double(frameRate))))
     }
     
     private func createVideoSettings() -> [String: Any] {
