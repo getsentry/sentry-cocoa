@@ -227,7 +227,8 @@ class SentrySessionReplay: NSObject {
     }
 
     private func newSegmentAvailable(videoInfo: SentryVideoInfo) {
-        captureSegment(segment: currentSegmentId, video: videoInfo, replayId: SentryId(), replayType: .session)
+        guard let sessionReplayId = sessionReplayId else { return }
+        captureSegment(segment: currentSegmentId, video: videoInfo, replayId: sessionReplayId, replayType: .session)
         replayMaker.releaseFramesUntil(videoInfo.end)
         videoSegmentStart = nil
         currentSegmentId++
@@ -235,6 +236,8 @@ class SentrySessionReplay: NSObject {
     
     private func captureSegment(segment: Int, video: SentryVideoInfo, replayId: SentryId, replayType: SentryReplayType) {
         let replayEvent = SentryReplayEvent(eventId: replayId, replayStartTimestamp: video.start, replayType: replayType, segmentId: segment)
+        print("### eventId: \(replayId), replayStartTimestamp: \(video.start), replayType: \(replayType), segmentId: \(segment)")
+        
         replayEvent.timestamp = video.end
         
         let breadcrumbs = delegate?.breadcrumbsForSessionReplay() ?? []
