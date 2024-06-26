@@ -17,6 +17,7 @@
 #    import "SentrySwizzle.h"
 #    import "SentryUIApplication.h"
 #    import <UIKit/UIKit.h>
+#    import "SentrySDK+Private.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

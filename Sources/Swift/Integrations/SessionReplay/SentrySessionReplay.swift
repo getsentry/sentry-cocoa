@@ -183,7 +183,7 @@ class SentrySessionReplay: NSObject {
             
             if videoSegmentStart == nil {
                 videoSegmentStart = now
-            } else if let videoSegmentStart = videoSegmentStart, isFullSession && 
+            } else if let videoSegmentStart = videoSegmentStart, isFullSession &&
                         now.timeIntervalSince(videoSegmentStart) >= replayOptions.sessionSegmentDuration {
                 prepareSegmentUntil(date: now)
             }
@@ -229,15 +229,11 @@ class SentrySessionReplay: NSObject {
         videoSegmentStart = nil
         currentSegmentId++
     }
-
+    
     private func captureSegment(segment: Int, video: SentryVideoInfo, replayId: SentryId, replayType: SentryReplayType) {
-        let replayEvent = SentryReplayEvent()
-        replayEvent.replayType = replayType
-        replayEvent.eventId = replayId
-        replayEvent.replayStartTimestamp = video.start
-        replayEvent.segmentId = segment
+        let replayEvent = SentryReplayEvent(eventId:replayId, replayStartTimestamp: video.start, replayType: replayType, segmentId: segment)
         replayEvent.timestamp = video.end
-
+        
         let breadcrumbs = delegate?.breadcrumbsForSessionReplay() ?? []
 
         var events = convertBreadcrumbs(breadcrumbs: breadcrumbs, from: video.start, until: video.end)

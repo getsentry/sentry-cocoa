@@ -3,7 +3,7 @@
 #import "SentryDispatchQueueWrapper.h"
 #import "SentryNSDataUtils.h"
 #import "SentryRandom.h"
-#import "SentryReplayType.h"
+//#import "SentryReplayType.h"
 #import "SentryStatsdClient.h"
 #import "SentryTime.h"
 
@@ -13,6 +13,5 @@
 #import "SentryDisplayLinkWrapper.h"
 #import "SentryLevelHelper.h"
 #import "SentryRandom.h"
-#import "SentryReplayEvent.h"
 #import "SentrySdkInfo.h"
 #import "SentrySession.h"
