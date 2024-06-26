@@ -30,6 +30,7 @@ class SentryReplayEvent : Event {
         
         super.init()
         self.eventId = eventId
+        self.type = "replay_video"
     }
     
     required convenience init() {
