@@ -193,13 +193,13 @@ SentrySessionReplayIntegration () <SentrySessionReplayDelegate>
 - (void)configureReplayWith:(nullable id<SentryReplayBreadcrumbConverter>)breadcrumbConverter
          screenshotProvider:(nullable id<SentryViewScreenshotProvider>)screenshotProvider
 {
-    //    if (breadcrumbConverter) {
-    //        self.sessionReplay.breadcrumbConverter = breadcrumbConverter;
-    //    }
-    //
-    //    if (screenshotProvider) {
-    //        self.sessionReplay.screenshotProvider = screenshotProvider;
-    //    }
+    if (breadcrumbConverter) {
+        self.sessionReplay.breadcrumbConverter = breadcrumbConverter;
+    }
+
+    if (screenshotProvider) {
+        self.sessionReplay.screenshotProvider = screenshotProvider;
+    }
 }
 
 - (SentryIntegrationOption)integrationOptions

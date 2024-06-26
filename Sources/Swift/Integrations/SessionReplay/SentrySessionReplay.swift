@@ -32,9 +32,10 @@ class SentrySessionReplay: NSObject {
     private var processingScreenshot = false
     private var reachedMaximumDuration = false
     private var touchTracker: SentryTouchTracker
-    private var screenshotProvider: SentryViewScreenshotProvider
-    private var breadcrumbConverter: SentryReplayBreadcrumbConverter
     private var lock = NSLock()
+    
+    var screenshotProvider: SentryViewScreenshotProvider
+    var breadcrumbConverter: SentryReplayBreadcrumbConverter
     
     init(replayOptions: SentryReplayOptions,
          replayFolderPath: URL,
