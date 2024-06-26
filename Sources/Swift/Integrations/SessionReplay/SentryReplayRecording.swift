@@ -10,9 +10,9 @@ class SentryReplayRecording: NSObject {
     
     let segmentId: Int
 
-    let events: [SentryRRWebEvent]
+    let events: [any SentryRRWebEventProtocol]
     
-    init(segmentId: Int, size: Int, start: Date, duration: TimeInterval, frameCount: Int, frameRate: Int, height: Int, width: Int, extraEvents: [SentryRRWebEvent]?) {
+    init(segmentId: Int, size: Int, start: Date, duration: TimeInterval, frameCount: Int, frameRate: Int, height: Int, width: Int, extraEvents: [any SentryRRWebEventProtocol]?) {
         self.segmentId = segmentId
         
         let meta = SentryRRWebMetaEvent(timestamp: start, height: height, width: width)
