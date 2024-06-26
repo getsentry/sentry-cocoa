@@ -2,7 +2,7 @@ import XCTest
 
 class SentryExceptionTests: XCTestCase {
 
-    func testSerialize() {
+    func testSerialize() throws {
         let exception = TestData.exception
         
         let actual = exception.serialize()
@@ -15,13 +15,13 @@ class SentryExceptionTests: XCTestCase {
         XCTAssertEqual(expected.type, actual["type"] as! String)
         XCTAssertEqual(expected.value, actual["value"] as! String)
         
-        let mechanism = actual["mechanism"] as! [String: Any]
+        let mechanism = try XCTUnwrap(actual["mechanism"] as? [String: Any])
         XCTAssertEqual(TestData.mechanism.desc, mechanism["description"] as? String)
         
         XCTAssertEqual(expected.module, actual["module"] as? String)
         XCTAssertEqual(expected.threadId, actual["thread_id"] as? NSNumber)
         
-        let stacktrace = actual["stacktrace"] as! [String: Any]
+        let stacktrace = try XCTUnwrap(actual["stacktrace"] as? [String: Any])
         XCTAssertEqual(TestData.stacktrace.registers, stacktrace["registers"] as? [String: String])
     }
 }

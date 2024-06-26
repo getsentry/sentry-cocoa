@@ -119,11 +119,11 @@ class SentryScopeSwiftTests: XCTestCase {
         XCTAssertNotNil(actual["breadcrumbs"])
     }
 
-    func testInitWithScope() {
+    func testInitWithScope() throws {
         let scope = fixture.scope
         scope.span = fixture.transaction
 
-        let snapshot = scope.serialize() as! [String: AnyHashable]
+        let snapshot = try XCTUnwrap(scope.serialize() as? [String: AnyHashable])
 
         let cloned = Scope(scope: scope)
         XCTAssertEqual(cloned.serialize() as! [String: AnyHashable], snapshot)

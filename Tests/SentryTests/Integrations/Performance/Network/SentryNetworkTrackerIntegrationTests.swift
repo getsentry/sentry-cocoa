@@ -106,12 +106,12 @@ class SentryNetworkTrackerIntegrationTests: XCTestCase {
     /**
      * Reproduces https://github.com/getsentry/sentry-cocoa/issues/1288
      */
-    func testCustomURLProtocol_BlocksAllRequests() {
+    func testCustomURLProtocol_BlocksAllRequests() throws {
         startSDK()
         
         let expect = expectation(description: "Callback Expectation")
         
-        let customConfiguration = URLSessionConfiguration.default.copy() as! URLSessionConfiguration
+        let customConfiguration = try XCTUnwrap(URLSessionConfiguration.default.copy() as? URLSessionConfiguration)
         customConfiguration.protocolClasses?.insert(BlockAllRequestsProtocol.self, at: 0)
         let session = URLSession(configuration: customConfiguration)
         
@@ -154,9 +154,9 @@ class SentryNetworkTrackerIntegrationTests: XCTestCase {
         XCTAssertEqual(1, breadcrumbs?.count)
     }
     
-    func testGetRequest_SpanCreatedAndBaggageHeaderAdded() {
+    func testGetRequest_SpanCreatedAndBaggageHeaderAdded() throws {
         startSDK()
-        let transaction = SentrySDK.startTransaction(name: "Test Transaction", operation: "TEST", bindToScope: true) as! SentryTracer
+        let transaction = try XCTUnwrap(SentrySDK.startTransaction(name: "Test Transaction", operation: "TEST", bindToScope: true) as? SentryTracer)
         let expect = expectation(description: "Request completed")
         let session = URLSession(configuration: URLSessionConfiguration.default)
 
@@ -184,9 +184,9 @@ class SentryNetworkTrackerIntegrationTests: XCTestCase {
         XCTAssertEqual("200", networkSpan.data["http.response.status_code"] as? String)
     }
 
-    func testGetRequest_CompareSentryTraceHeader() {
+    func testGetRequest_CompareSentryTraceHeader() throws {
         startSDK()
-        let transaction = SentrySDK.startTransaction(name: "Test Transaction", operation: "TEST", bindToScope: true) as! SentryTracer
+        let transaction = try XCTUnwrap(SentrySDK.startTransaction(name: "Test Transaction", operation: "TEST", bindToScope: true) as? SentryTracer)
         let expect = expectation(description: "Request completed")
         let session = URLSession(configuration: URLSessionConfiguration.default)
         var response: String?

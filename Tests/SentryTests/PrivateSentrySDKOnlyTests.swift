@@ -19,7 +19,7 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
         XCTAssertEqual(envelope, client?.storedEnvelopeInvocations.first)
     }
     
-    func testStoreEnvelopeWithUndhandled_MarksSessionAsCrashedAndDoesNotStartNewSession() {
+    func testStoreEnvelopeWithUndhandled_MarksSessionAsCrashedAndDoesNotStartNewSession() throws {
         let client = TestClient(options: Options())
         let hub = TestHub(client: client, andScope: nil)
         SentrySDK.setCurrentHub(hub)
@@ -31,7 +31,7 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
         
         let storedEnvelope = client?.storedEnvelopeInvocations.first
         let attachedSessionData = storedEnvelope!.items.last!.data
-        let attachedSession = try! JSONSerialization.jsonObject(with: attachedSessionData) as! [String: Any]
+        let attachedSession = try XCTUnwrap(try! JSONSerialization.jsonObject(with: attachedSessionData) as? [String: Any])
         
         XCTAssertEqual(0, hub.startSessionInvocations)
         // Assert crashed session was attached to the envelope
@@ -50,7 +50,7 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
         XCTAssertEqual(envelope, client?.captureEnvelopeInvocations.first)
     }
     
-    func testCaptureEnvelopeWithUndhandled_MarksSessionAsCrashedAndStartsNewSession() {
+    func testCaptureEnvelopeWithUndhandled_MarksSessionAsCrashedAndStartsNewSession() throws {
         let client = TestClient(options: Options())
         let hub = TestHub(client: client, andScope: nil)
         SentrySDK.setCurrentHub(hub)
@@ -62,7 +62,7 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
 
         let capturedEnvelope = client?.captureEnvelopeInvocations.first
         let attachedSessionData = capturedEnvelope!.items.last!.data
-        let attachedSession = try! JSONSerialization.jsonObject(with: attachedSessionData) as! [String: Any]
+        let attachedSession = try XCTUnwrap(try! JSONSerialization.jsonObject(with: attachedSessionData) as? [String: Any])
         
         // Assert new session was started
         XCTAssertEqual(1, hub.startSessionInvocations)

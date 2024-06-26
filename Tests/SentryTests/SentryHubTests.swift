@@ -238,28 +238,28 @@ class SentryHubTests: XCTestCase {
         }
     }
     
-    func testStartTransactionWithNameOperation() {
+    func testStartTransactionWithNameOperation() throws {
         let span = fixture.getSut().startTransaction(name: fixture.transactionName, operation: fixture.transactionOperation)
-        let tracer = span as! SentryTracer
+        let tracer = try XCTUnwrap(span as? SentryTracer)
         XCTAssertEqual(tracer.transactionContext.name, fixture.transactionName)
         XCTAssertEqual(span.operation, fixture.transactionOperation)
         XCTAssertEqual(SentryTransactionNameSource.custom, tracer.transactionContext.nameSource)
         XCTAssertEqual("manual", tracer.transactionContext.origin)
     }
     
-    func testStartTransactionWithContext() {
+    func testStartTransactionWithContext() throws {
         let span = fixture.getSut().startTransaction(transactionContext: TransactionContext(
             name: fixture.transactionName,
             operation: fixture.transactionOperation
         ))
         
-        let tracer = span as! SentryTracer
+        let tracer = try XCTUnwrap(span as? SentryTracer)
         XCTAssertEqual(tracer.transactionContext.name, fixture.transactionName)
         XCTAssertEqual(span.operation, fixture.transactionOperation)
         XCTAssertEqual("manual", tracer.transactionContext.origin)
     }
     
-    func testStartTransactionWithNameSource() {
+    func testStartTransactionWithNameSource() throws {
         let span = fixture.getSut().startTransaction(transactionContext: TransactionContext(
             name: fixture.transactionName,
             nameSource: .url,
@@ -267,7 +267,7 @@ class SentryHubTests: XCTestCase {
             origin: fixture.traceOrigin
         ))
         
-        let tracer = span as! SentryTracer
+        let tracer = try XCTUnwrap(span as? SentryTracer)
         XCTAssertEqual(tracer.transactionContext.name, fixture.transactionName)
         XCTAssertEqual(tracer.transactionContext.nameSource, SentryTransactionNameSource.url)
         XCTAssertEqual(span.operation, fixture.transactionOperation)
@@ -791,7 +791,7 @@ class SentryHubTests: XCTestCase {
         XCTAssertEqual(envelope, fixture.client.captureEnvelopeInvocations.first)
     }
     
-    func testCaptureEnvelope_WithUnhandledException() {
+    func testCaptureEnvelope_WithUnhandledException() throws {
         sut.startSession()
         
         fixture.currentDateProvider.setDate(date: Date(timeIntervalSince1970: 2))
@@ -806,7 +806,7 @@ class SentryHubTests: XCTestCase {
         let envelope = fixture.client.captureEnvelopeInvocations.first
         let sessionEnvelopeItem = envelope?.items.first(where: { $0.header.type == "session" })
         
-        let json = (try! JSONSerialization.jsonObject(with: sessionEnvelopeItem!.data)) as! [String: Any]
+        let json = try XCTUnwrap((try! JSONSerialization.jsonObject(with: sessionEnvelopeItem!.data)) as? [String: Any])
         
         XCTAssertEqual(json["timestamp"] as? String, "1970-01-01T00:00:02.000Z")
         XCTAssertEqual(json["status"] as? String, "crashed")
@@ -1039,7 +1039,7 @@ class SentryHubTests: XCTestCase {
         let sut = fixture.getSut(options)
         
         let span = sut.startTransaction(name: fixture.transactionName, operation: fixture.transactionOperation, bindToScope: true)
-        let tracer = span as! SentryTracer
+        let tracer = try XCTUnwrap(span as? SentryTracer)
         
         sut.metrics.increment(key: "key")
         
@@ -1065,7 +1065,7 @@ class SentryHubTests: XCTestCase {
         let sut = fixture.getSut(options)
         
         let span = sut.startTransaction(name: fixture.transactionName, operation: fixture.transactionOperation, bindToScope: true)
-        let tracer = span as! SentryTracer
+        let tracer = try XCTUnwrap(span as? SentryTracer)
         
         sut.metrics.increment(key: "key", tags: ["my": "tag", "release": "overwritten"])
         
@@ -1087,7 +1087,7 @@ class SentryHubTests: XCTestCase {
         let sut = fixture.getSut(options)
         
         let span = sut.startTransaction(name: fixture.transactionName, operation: fixture.transactionOperation, bindToScope: true)
-        let tracer = span as! SentryTracer
+        let tracer = try XCTUnwrap(span as? SentryTracer)
         
         sut.metrics.increment(key: "key", tags: ["my": "tag"])
         
@@ -1111,7 +1111,7 @@ class SentryHubTests: XCTestCase {
         let sut = fixture.getSut(options)
         
         let span = sut.startTransaction(name: fixture.transactionName, operation: fixture.transactionOperation, bindToScope: true)
-        let tracer = span as! SentryTracer
+        let tracer = try XCTUnwrap(span as? SentryTracer)
         
         sut.metrics.increment(key: "key", tags: ["my": "tag"])
         

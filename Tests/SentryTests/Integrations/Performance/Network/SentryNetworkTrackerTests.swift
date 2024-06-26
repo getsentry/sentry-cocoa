@@ -655,10 +655,10 @@ class SentryNetworkTrackerTests: XCTestCase {
         XCTAssertNil(task.observationInfo)
     }
 
-    func testBaggageHeader() {
+    func testBaggageHeader() throws {
         let sut = fixture.getSut()
         let task = createDataTask()
-        let transaction = startTransaction() as! SentryTracer
+        let transaction = try XCTUnwrap(startTransaction() as? SentryTracer)
         sut.urlSessionTaskResume(task)
 
         let expectedBaggageHeader = transaction.traceContext.toBaggage().toHTTPHeader(withOriginalBaggage: nil)
@@ -677,10 +677,10 @@ class SentryNetworkTrackerTests: XCTestCase {
         XCTAssertEqual(task.currentRequest?.allHTTPHeaderFields?["baggage"] ?? "", "sentry-trace_id=something")
     }
 
-    func testTraceHeader() {
+    func testTraceHeader() throws {
         let sut = fixture.getSut()
         let task = createDataTask()
-        let transaction = startTransaction() as! SentryTracer
+        let transaction = try XCTUnwrap(startTransaction() as? SentryTracer)
         sut.urlSessionTaskResume(task)
 
         let children = Dynamic(transaction).children as [SentrySpan]?

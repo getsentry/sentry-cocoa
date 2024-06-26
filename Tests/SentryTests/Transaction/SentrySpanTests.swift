@@ -367,8 +367,8 @@ class SentrySpanTests: XCTestCase {
         let lastEvent = try XCTUnwrap(client.captureEventWithScopeInvocations.invocations.first).event
         let serializedData = lastEvent.serialize()
         
-        let spans = serializedData["spans"] as! [Any]
-        let serializedChild = spans[0] as! [String: Any]
+        let spans = try XCTUnwrap(serializedData["spans"] as? [Any])
+        let serializedChild = try XCTUnwrap(spans[0] as? [String: Any])
         
         XCTAssertEqual(serializedChild["span_id"] as? String, childSpan.spanId.sentrySpanIdString)
         XCTAssertEqual(serializedChild["parent_span_id"] as? String, span.spanId.sentrySpanIdString)
