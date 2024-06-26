@@ -91,7 +91,7 @@ class SentryUserTests: XCTestCase {
     }
     
     func testIsEqualToCopy() {
-        XCTAssertEqual(TestData.user, TestData.user.copy() as! User)
+        XCTAssertEqual(TestData.user, try XCTUnwrap(TestData.user.copy() as? User))
     }
     
     func testNotIsEqual() throws {

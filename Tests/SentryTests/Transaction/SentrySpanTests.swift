@@ -244,26 +244,29 @@ class SentrySpanTests: XCTestCase {
     
     func testInit_SetsMainThreadInfoAsSpanData() {
         let span = fixture.getSut()
-        XCTAssertEqual("main", span.data["thread.name"] as! String)
+        XCTAssertEqual("main", try XCTUnwrap(span.data["thread.name"] as? String))
         
         let threadId = sentrycrashthread_self()
-        XCTAssertEqual(NSNumber(value: threadId), span.data["thread.id"] as! NSNumber)
+        XCTAssertEqual(NSNumber(value: threadId), try XCTUnwrap(span.data["thread.id"] as? NSNumber))
     }
     
     func testInit_SetsThreadInfoAsSpanData_FromBackgroundThread() {
         let expect = expectation(description: "Thread must be called.")
         
+        var spanData: [String: Any]?
+        var threadId: SentryCrashThread?
+        let threadName = "test-thread-name"
         Thread.detachNewThread {
-            let threadName = "test-thread-name"
             Thread.current.name = threadName
             
             let span = self.fixture.getSut()
-            XCTAssertEqual(threadName, span.data["thread.name"] as! String)
-            let threadId = sentrycrashthread_self()
-            XCTAssertEqual(NSNumber(value: threadId), span.data["thread.id"] as! NSNumber)
+            spanData = span.data
+            threadId = sentrycrashthread_self()
             
             expect.fulfill()
         }
+        XCTAssertEqual(NSNumber(value: try XCTUnwrap(threadId)), try XCTUnwrap(spanData?["thread.id"] as? NSNumber))
+        XCTAssertEqual(threadName, try XCTUnwrap(spanData?["thread.name"] as? String))
         
         wait(for: [expect], timeout: 1.0)
     }
@@ -271,16 +274,19 @@ class SentrySpanTests: XCTestCase {
     func testInit_SetsThreadInfoAsSpanData_FromBackgroundThreadWithNoName() {
         let expect = expectation(description: "Thread must be called.")
         
+        var spanData: [String: Any]?
+        var threadId: SentryCrashThread?
         Thread.detachNewThread {
             Thread.current.name = ""
             
             let span = self.fixture.getSut()
-            XCTAssertNil(span.data["thread.name"])
-            let threadId = sentrycrashthread_self()
-            XCTAssertEqual(NSNumber(value: threadId), span.data["thread.id"] as! NSNumber)
+            spanData = span.data
+            threadId = sentrycrashthread_self()
             
             expect.fulfill()
         }
+        XCTAssertNil(try XCTUnwrap(spanData)["thread.name"])
+        XCTAssertEqual(NSNumber(value: try XCTUnwrap(threadId)), try XCTUnwrap(spanData?["thread.id"] as? NSNumber))
         
         wait(for: [expect], timeout: 1.0)
     }

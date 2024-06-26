@@ -35,8 +35,8 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
         
         XCTAssertEqual(0, hub.startSessionInvocations)
         // Assert crashed session was attached to the envelope
-        XCTAssertEqual(sessionToBeCrashed!.sessionId.uuidString, attachedSession["sid"] as! String)
-        XCTAssertEqual("crashed", attachedSession["status"] as! String)
+        XCTAssertEqual(sessionToBeCrashed!.sessionId.uuidString, try XCTUnwrap(attachedSession["sid"] as? String))
+        XCTAssertEqual("crashed", try XCTUnwrap(attachedSession["status"] as? String))
     }
     
     func testCaptureEnvelope() {
@@ -67,8 +67,8 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
         // Assert new session was started
         XCTAssertEqual(1, hub.startSessionInvocations)
         // Assert crashed session was attached to the envelope
-        XCTAssertEqual(sessionToBeCrashed!.sessionId.uuidString, attachedSession["sid"] as! String)
-        XCTAssertEqual("crashed", attachedSession["status"] as! String)
+        XCTAssertEqual(sessionToBeCrashed!.sessionId.uuidString, try XCTUnwrap(attachedSession["sid"] as? String))
+        XCTAssertEqual("crashed", try XCTUnwrap(attachedSession["status"] as? String))
     }
 
     func testSetSdkName() {

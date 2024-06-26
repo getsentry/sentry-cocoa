@@ -33,7 +33,7 @@ class SentryGeoTests: XCTestCase {
     }
     
     func testIsEqualToCopy() {
-        XCTAssertEqual(TestData.geo, TestData.geo.copy() as! Geo)
+        XCTAssertEqual(TestData.geo, try XCTUnwrap(TestData.geo.copy() as? Geo))
     }
     
     func testNotIsEqual() throws {

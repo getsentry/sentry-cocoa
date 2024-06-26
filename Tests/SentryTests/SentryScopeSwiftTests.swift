@@ -147,7 +147,7 @@ class SentryScopeSwiftTests: XCTestCase {
         cloned.setEnvironment("a789")
 
         XCTAssertEqual(scope.serialize() as! [String: AnyHashable], snapshot)
-        XCTAssertNotEqual(scope.serialize() as! [String: AnyHashable], cloned.serialize() as! [String: AnyHashable])
+        XCTAssertNotEqual(scope.serialize() as! [String: AnyHashable], try XCTUnwrap(cloned.serialize() as? [String: AnyHashable]))
     }
     
     func testApplyToEvent() {

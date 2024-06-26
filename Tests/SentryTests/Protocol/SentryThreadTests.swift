@@ -10,7 +10,7 @@ class SentryThreadTests: XCTestCase {
         // Changing the original doesn't modify the serialized
         thread.stacktrace = nil
         
-        XCTAssertEqual(TestData.thread.threadId, actual["id"] as! NSNumber)
+        XCTAssertEqual(TestData.thread.threadId, try XCTUnwrap(actual["id"] as? NSNumber))
         XCTAssertFalse(actual["crashed"] as! Bool)
         XCTAssertTrue(actual["current"] as! Bool)
         XCTAssertEqual(TestData.thread.name, actual["name"] as? String)

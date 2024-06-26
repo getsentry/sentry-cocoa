@@ -12,8 +12,8 @@ class SentryExceptionTests: XCTestCase {
         exception.stacktrace?.registers = [:]
 
         let expected = TestData.exception
-        XCTAssertEqual(expected.type, actual["type"] as! String)
-        XCTAssertEqual(expected.value, actual["value"] as! String)
+        XCTAssertEqual(expected.type, try XCTUnwrap(actual["type"] as? String))
+        XCTAssertEqual(expected.value, try XCTUnwrap(actual["value"] as? String))
         
         let mechanism = try XCTUnwrap(actual["mechanism"] as? [String: Any])
         XCTAssertEqual(TestData.mechanism.desc, mechanism["description"] as? String)
