@@ -148,15 +148,9 @@ sentrycrashcm_setActiveMonitors(SentryCrashMonitorType monitorTypes)
         static bool hasWarned = false;
         if (!hasWarned) {
             hasWarned = true;
-            SENTRY_ASYNC_SAFE_LOG_BASIC_WARN("    ************************ Crash "
-                                             "Handler Notice ************************");
-            SENTRY_ASYNC_SAFE_LOG_BASIC_WARN("    *     App is running in a debugger. "
-                                             "Masking out unsafe monitors.     *");
-            SENTRY_ASYNC_SAFE_LOG_BASIC_WARN("    * This means that most crashes WILL "
-                                             "NOT BE RECORDED while debugging! *");
-            SENTRY_ASYNC_SAFE_LOG_BASIC_WARN("    "
-                                             "*****************************************"
-                                             "*****************************");
+            SENTRY_ASYNC_SAFE_LOG_WARN("App is running in a debugger. Masking out unsafe monitors. "
+                                       "This means that most crashes WILL "
+                                       "NOT BE RECORDED while debugging!");
         }
         monitorTypes &= SentryCrashMonitorTypeDebuggerSafe;
     }
