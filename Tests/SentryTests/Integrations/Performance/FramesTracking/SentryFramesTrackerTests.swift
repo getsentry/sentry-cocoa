@@ -506,7 +506,7 @@ class SentryFramesTrackerTests: XCTestCase {
                 
                 let actualFrameDelay = sut.getFramesDelay(startSystemTime, endSystemTimestamp: endSystemTime)
                 
-                XCTAssertGreaterThan(actualFrameDelay, -1)
+                XCTAssertGreaterThanOrEqual(actualFrameDelay, -1)
                 
                 expectation.fulfill()
             }

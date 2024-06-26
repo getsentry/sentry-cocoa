@@ -29,13 +29,11 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
         
         let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
         
-        XCTAssertEqual(features, [
-            "captureFailedRequests",
-            "performanceV2",
-            "timeToFullDisplayTracing",
-            "swiftAsyncStacktraces",
-            "metrics"
-        ])
+        XCTAssert(features.contains("captureFailedRequests"))
+        XCTAssert(features.contains("performanceV2"))
+        XCTAssert(features.contains("timeToFullDisplayTracing"))
+        XCTAssert(features.contains("swiftAsyncStacktraces"))
+        XCTAssert(features.contains("metrics"))
         
 #if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
         XCTAssert(features.contains("appLaunchProfiling"))
