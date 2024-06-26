@@ -332,12 +332,12 @@ class SentryNetworkTrackerTests: XCTestCase {
         XCTAssertEqual(breadcrumb!.level, .info)
         XCTAssertEqual(breadcrumb!.type, "http")
         XCTAssertEqual(breadcrumbs!.count, 1)
-        XCTAssertEqual(breadcrumb!.data!["url"] as! String, SentryNetworkTrackerTests.testUrl)
-        XCTAssertEqual(breadcrumb!.data!["method"] as! String, "GET")
-        XCTAssertEqual(breadcrumb!.data!["status_code"] as! NSNumber, NSNumber(value: 200))
-        XCTAssertEqual(breadcrumb!.data!["reason"] as! String, HTTPURLResponse.localizedString(forStatusCode: 200))
-        XCTAssertEqual(breadcrumb!.data!["request_body_size"] as! Int64, DATA_BYTES_SENT)
-        XCTAssertEqual(breadcrumb!.data!["response_body_size"] as! Int64, DATA_BYTES_RECEIVED)
+        XCTAssertEqual(try XCTUnwrap(breadcrumb!.data!["url"] as? String), SentryNetworkTrackerTests.testUrl)
+        XCTAssertEqual(try XCTUnwrap(breadcrumb!.data!["method"] as? String), "GET")
+        XCTAssertEqual(try XCTUnwrap(breadcrumb!.data!["status_code"] as? NSNumber), NSNumber(value: 200))
+        XCTAssertEqual(try XCTUnwrap(breadcrumb!.data!["reason"] as? String), HTTPURLResponse.localizedString(forStatusCode: 200))
+        XCTAssertEqual(try XCTUnwrap(breadcrumb!.data!["request_body_size"] as? Int64), DATA_BYTES_SENT)
+        XCTAssertEqual(try XCTUnwrap(breadcrumb!.data!["response_body_size"] as? Int64), DATA_BYTES_RECEIVED)
         XCTAssertEqual(breadcrumb!.data!["http.query"] as? String, "query=value&query2=value2")
         XCTAssertEqual(breadcrumb!.data!["http.fragment"] as? String, "fragment")
         XCTAssertNotNil(breadcrumb!.data!["request_start"])
@@ -460,8 +460,8 @@ class SentryNetworkTrackerTests: XCTestCase {
         XCTAssertEqual(breadcrumb!.category, "http")
         XCTAssertEqual(breadcrumb!.level, .info)
         XCTAssertEqual(breadcrumb!.type, "http")
-        XCTAssertEqual(breadcrumb!.data!["url"] as! String, SentryNetworkTrackerTests.testUrl)
-        XCTAssertEqual(breadcrumb!.data!["method"] as! String, "GET")
+        XCTAssertEqual(try XCTUnwrap(breadcrumb!.data!["url"] as? String), SentryNetworkTrackerTests.testUrl)
+        XCTAssertEqual(try XCTUnwrap(breadcrumb!.data!["method"] as? String), "GET")
     }
 
     func testBreadcrumbWithoutSpan() {
@@ -479,8 +479,8 @@ class SentryNetworkTrackerTests: XCTestCase {
         XCTAssertEqual(breadcrumb!.level, .info)
         XCTAssertEqual(breadcrumb!.type, "http")
         XCTAssertEqual(breadcrumbs!.count, 1)
-        XCTAssertEqual(breadcrumb!.data!["url"] as! String, SentryNetworkTrackerTests.testUrl)
-        XCTAssertEqual(breadcrumb!.data!["method"] as! String, "GET")
+        XCTAssertEqual(try XCTUnwrap(breadcrumb!.data!["url"] as? String), SentryNetworkTrackerTests.testUrl)
+        XCTAssertEqual(try XCTUnwrap(breadcrumb!.data!["method"] as? String), "GET")
     }
 
     func testNoDuplicatedBreadcrumbs() {
@@ -518,8 +518,8 @@ class SentryNetworkTrackerTests: XCTestCase {
         let breadcrumbs = Dynamic(fixture.scope).breadcrumbArray as [Breadcrumb]?
         let breadcrumb = breadcrumbs!.first
 
-        XCTAssertEqual(breadcrumb!.data!["status_code"] as! NSNumber, NSNumber(value: 404))
-        XCTAssertEqual(breadcrumb!.data!["reason"] as! String, HTTPURLResponse.localizedString(forStatusCode: 404))
+        XCTAssertEqual(try XCTUnwrap(breadcrumb!.data!["status_code"] as? NSNumber), NSNumber(value: 404))
+        XCTAssertEqual(try XCTUnwrap(breadcrumb!.data!["reason"] as? String), HTTPURLResponse.localizedString(forStatusCode: 404))
     }
 
     func testBreadcrumbWithError_AndPerformanceTrackingNotEnabled() {
@@ -539,8 +539,8 @@ class SentryNetworkTrackerTests: XCTestCase {
         XCTAssertEqual(breadcrumb!.level, .error)
         XCTAssertEqual(breadcrumb!.type, "http")
         XCTAssertEqual(breadcrumbs!.count, 1)
-        XCTAssertEqual(breadcrumb!.data!["url"] as! String, SentryNetworkTrackerTests.testUrl)
-        XCTAssertEqual(breadcrumb!.data!["method"] as! String, "GET")
+        XCTAssertEqual(try XCTUnwrap(breadcrumb!.data!["url"] as? String), SentryNetworkTrackerTests.testUrl)
+        XCTAssertEqual(try XCTUnwrap(breadcrumb!.data!["method"] as? String), "GET")
         XCTAssertNil(breadcrumb!.data!["status_code"])
         XCTAssertNil(breadcrumb!.data!["reason"])
     }
@@ -554,7 +554,7 @@ class SentryNetworkTrackerTests: XCTestCase {
         let breadcrumbs = Dynamic(fixture.scope).breadcrumbArray as [Breadcrumb]?
         let breadcrumb = breadcrumbs!.first
 
-        XCTAssertEqual(breadcrumb!.data!["method"] as! String, "POST")
+        XCTAssertEqual(try XCTUnwrap(breadcrumb!.data!["method"] as? String), "POST")
     }
 
     func test_NoBreadcrumb_forSentryAPI() {

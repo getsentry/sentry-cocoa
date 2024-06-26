@@ -126,7 +126,7 @@ class SentryScopeSwiftTests: XCTestCase {
         let snapshot = try XCTUnwrap(scope.serialize() as? [String: AnyHashable])
 
         let cloned = Scope(scope: scope)
-        XCTAssertEqual(cloned.serialize() as! [String: AnyHashable], snapshot)
+        XCTAssertEqual(try XCTUnwrap(cloned.serialize() as? [String: AnyHashable]), snapshot)
 
         let (event1, event2) = (Event(), Event())
         (event1.timestamp, event2.timestamp) = (fixture.date, fixture.date)
@@ -146,8 +146,8 @@ class SentryScopeSwiftTests: XCTestCase {
         cloned.setDist("a456")
         cloned.setEnvironment("a789")
 
-        XCTAssertEqual(scope.serialize() as! [String: AnyHashable], snapshot)
-        XCTAssertNotEqual(scope.serialize() as! [String: AnyHashable], try XCTUnwrap(cloned.serialize() as? [String: AnyHashable]))
+        XCTAssertEqual(try XCTUnwrap(scope.serialize() as? [String: AnyHashable]), snapshot)
+        XCTAssertNotEqual(try XCTUnwrap(scope.serialize() as? [String: AnyHashable]), try XCTUnwrap(cloned.serialize() as? [String: AnyHashable]))
     }
     
     func testApplyToEvent() {

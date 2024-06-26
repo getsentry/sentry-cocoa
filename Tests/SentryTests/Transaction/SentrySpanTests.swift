@@ -432,7 +432,7 @@ class SentrySpanTests: XCTestCase {
         span.setData(value: fixture.extraValue, key: fixture.extraKey)
         
         XCTAssertEqual(span.data.count, 3)
-        XCTAssertEqual(span.data[fixture.extraKey] as! String, fixture.extraValue)
+        XCTAssertEqual(try XCTUnwrap(span.data[fixture.extraKey] as? String), fixture.extraValue)
         
         span.removeData(key: fixture.extraKey)
         XCTAssertEqual(span.data.count, 2, "Only expected thread.name and thread.id in data.")
@@ -479,8 +479,8 @@ class SentrySpanTests: XCTestCase {
         XCTAssertNotNil(serialization["tags"])
         
         let data = serialization["data"] as? [String: Any]
-        XCTAssertEqual(data?[fixture.extraKey] as! String, fixture.extraValue)
-        XCTAssertEqual((serialization["tags"] as! Dictionary)[fixture.extraKey], fixture.extraValue)
+        XCTAssertEqual(try XCTUnwrap(data?[fixture.extraKey] as? String), fixture.extraValue)
+        XCTAssertEqual((try XCTUnwrap(serialization["tags"] as? Dictionary)[fixture.extraKey]), fixture.extraValue)
         XCTAssertEqual("manual", serialization["origin"] as? String)
     }
     
