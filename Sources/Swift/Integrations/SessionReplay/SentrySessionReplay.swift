@@ -147,9 +147,9 @@ class SentrySessionReplay: NSObject {
             print("[SentrySessionReplay:\(#line)] Could not create replay video path")
             return false
         }
-        let replayStart = dateProvider.date().addingTimeInterval(-replayOptions.errorReplayDuration)
+        let replayStart = dateProvider.date().addingTimeInterval(-replayOptions.errorReplayDuration - (Double(replayOptions.frameRate) / 2.0))
 
-        createAndCapture(videoUrl: finalPath, duration: replayOptions.errorReplayDuration, startedAt: replayStart)
+        createAndCapture(videoUrl: finalPath, startedAt: replayStart)
 
         return true
     }
@@ -180,16 +180,16 @@ class SentrySessionReplay: NSObject {
             return
         }
 
-        if now.timeIntervalSince(lastScreenShot) >= 1 {
-            takeScreenshot()
-            self.lastScreenShot = now
-            
+        if now.timeIntervalSince(lastScreenShot) >= Double(1/replayOptions.frameRate) {
             if videoSegmentStart == nil {
                 videoSegmentStart = now
             } else if let videoSegmentStart = videoSegmentStart, isFullSession &&
                         now.timeIntervalSince(videoSegmentStart) >= replayOptions.sessionSegmentDuration {
                 prepareSegmentUntil(date: now)
             }
+            
+            takeScreenshot()
+            self.lastScreenShot = now
         }
     }
 
@@ -207,14 +207,14 @@ class SentrySessionReplay: NSObject {
         }
 
         pathToSegment = pathToSegment.appendingPathComponent("\(currentSegmentId).mp4")
-        let segmentStart = dateProvider.date().addingTimeInterval(-replayOptions.sessionSegmentDuration)
+        let segmentStart = videoSegmentStart ?? dateProvider.date().addingTimeInterval(-replayOptions.sessionSegmentDuration)
 
-        createAndCapture(videoUrl: pathToSegment, duration: replayOptions.sessionSegmentDuration, startedAt: segmentStart)
+        createAndCapture(videoUrl: pathToSegment, startedAt: segmentStart)
     }
 
-    private func createAndCapture(videoUrl: URL, duration: TimeInterval, startedAt: Date) {
+    private func createAndCapture(videoUrl: URL, startedAt: Date) {
         do {
-            try replayMaker.createVideoWith(duration: duration, beginning: startedAt, outputFileURL: videoUrl) { [weak self] videoInfo, error in
+            try replayMaker.createVideoWith(beginning: startedAt, end: dateProvider.date(), outputFileURL: videoUrl) { [weak self] videoInfo, error in
                 guard let _self = self else { return }
                 if let error = error {
                     print("[SentrySessionReplay:\(#line)] Could not create replay video - \(error.localizedDescription)")
@@ -231,13 +231,12 @@ class SentrySessionReplay: NSObject {
         guard let sessionReplayId = sessionReplayId else { return }
         captureSegment(segment: currentSegmentId, video: videoInfo, replayId: sessionReplayId, replayType: .session)
         replayMaker.releaseFramesUntil(videoInfo.end)
-        videoSegmentStart = nil
+        videoSegmentStart = videoInfo.end
         currentSegmentId++
     }
     
     private func captureSegment(segment: Int, video: SentryVideoInfo, replayId: SentryId, replayType: SentryReplayType) {
         let replayEvent = SentryReplayEvent(eventId: replayId, replayStartTimestamp: video.start, replayType: replayType, segmentId: segment)
-        print("### eventId: \(replayId), replayStartTimestamp: \(video.start), replayType: \(replayType), segmentId: \(segment)")
         
         replayEvent.timestamp = video.end
         replayEvent.urls = video.screens

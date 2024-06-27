@@ -104,7 +104,7 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
         })
     }
         
-    func createVideoWith(duration: TimeInterval, beginning: Date, outputFileURL: URL, completion: @escaping (SentryVideoInfo?, Error?) -> Void) throws {
+    func createVideoWith(beginning: Date, end: Date, outputFileURL: URL, completion: @escaping (SentryVideoInfo?, Error?) -> Void) throws {
         let videoWriter = try AVAssetWriter(url: outputFileURL, fileType: .mov)
         
         let videoSettings = createVideoSettings()
@@ -121,7 +121,7 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
         videoWriter.startSession(atSourceTime: .zero)
         
         var frameCount = 0
-        let videoFrames = filterFrames(beginning: beginning, end: beginning.addingTimeInterval(duration))
+        let videoFrames = filterFrames(beginning: beginning, end: end)
         
         if videoFrames.framesPaths.isEmpty { return }
         
@@ -173,7 +173,9 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
         var actualEnd = start
         workingQueue.dispatchSync({
             for frame in self._frames {
-                if frame.time < beginning { continue } else if frame.time > end { break }
+                if frame.time < beginning { continue } 
+                else if frame.time > end { break }
+                
                 if frame.time < start { start = frame.time }
                 
                 if let screenName = frame.screenName {
@@ -184,7 +186,6 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
                 framesPaths.append(frame.imagePath)
             }
         })
-        
         return VideoFrames(framesPaths: framesPaths, screens: screens, start: start, end: actualEnd + TimeInterval((1 / Double(frameRate))))
     }
     

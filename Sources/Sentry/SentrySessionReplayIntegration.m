@@ -126,8 +126,8 @@ SentrySessionReplayIntegration () <SentrySessionReplayDelegate>
     SentryOnDemandReplay *replayMaker = [[SentryOnDemandReplay alloc] initWithOutputPath:docs.path];
     replayMaker.bitRate = replayOptions.replayBitRate;
     replayMaker.cacheMaxSize
-        = (NSInteger)(shouldReplayFullSession ? replayOptions.sessionSegmentDuration
-                                              : replayOptions.errorReplayDuration);
+        = (NSInteger)(shouldReplayFullSession ? replayOptions.sessionSegmentDuration + 1
+                                              : replayOptions.errorReplayDuration + 1);
 
     self.sessionReplay = [[SentrySessionReplay alloc]
         initWithReplayOptions:replayOptions
