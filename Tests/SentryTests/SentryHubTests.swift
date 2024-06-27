@@ -1155,7 +1155,7 @@ class SentryHubTests: XCTestCase {
     private func givenEnvelopeWithModifiedEvent(modifyEventDict: (inout [String: Any]) -> Void) throws -> SentryEnvelope {
         let event = TestData.event
         let envelopeItem = SentryEnvelopeItem(event: event)
-        var eventDict = try JSONSerialization.jsonObject(with: envelopeItem.data) as! [String: Any]
+        var eventDict = try XCTUnwrap(JSONSerialization.jsonObject(with: envelopeItem.data) as? [String: Any])
         
         modifyEventDict(&eventDict)
         

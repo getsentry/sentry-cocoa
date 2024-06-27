@@ -44,26 +44,26 @@ class SentryNetworkTrackerIntegrationTests: XCTestCase {
         XCTAssertNil(configuration.httpAdditionalHeaders)
     }
     
-    func testNetworkTrackerDisabled_WhenNetworkTrackingDisabled() {
-        assertNetworkTrackerDisabled { options in
+    func testNetworkTrackerDisabled_WhenNetworkTrackingDisabled() throws {
+        try assertNetworkTrackerDisabled { options in
             options.enableNetworkTracking = false
         }
     }
     
-    func testNetworkTrackerDisabled_WhenAutoPerformanceTrackingDisabled() {
-        assertNetworkTrackerDisabled { options in
+    func testNetworkTrackerDisabled_WhenAutoPerformanceTrackingDisabled() throws {
+        try assertNetworkTrackerDisabled { options in
             options.enableAutoPerformanceTracing = false
         }
     }
     
-    func testNetworkTrackerDisabled_WhenTracingDisabled() {
-        assertNetworkTrackerDisabled { options in
+    func testNetworkTrackerDisabled_WhenTracingDisabled() throws {
+        try assertNetworkTrackerDisabled { options in
             options.tracesSampleRate = 0.0
         }
     }
     
-    func testNetworkTrackerDisabled_WhenSwizzlingDisabled() {
-        assertNetworkTrackerDisabled { options in
+    func testNetworkTrackerDisabled_WhenSwizzlingDisabled() throws {
+        try assertNetworkTrackerDisabled { options in
             options.enableSwizzling = false
         }
     }
@@ -274,13 +274,13 @@ class SentryNetworkTrackerIntegrationTests: XCTestCase {
         XCTAssertEqual(sentryResponse?["status_code"] as? NSNumber, 400)
     }
     
-    private func assertNetworkTrackerDisabled(configureOptions: (Options) -> Void) {
+    private func assertNetworkTrackerDisabled(configureOptions: (Options) -> Void) throws {
         configureOptions(fixture.options)
         
         startSDK()
         
         let configuration = URLSessionConfiguration.default
-        _ = startTransactionBoundToScope()
+        _ = try startTransactionBoundToScope()
         XCTAssertNil(configuration.httpAdditionalHeaders)
     }
         
@@ -290,8 +290,8 @@ class SentryNetworkTrackerIntegrationTests: XCTestCase {
         SentrySDK.start(options: self.fixture.options)
     }
     
-    private func startTransactionBoundToScope() -> SentryTracer {
-        return SentrySDK.startTransaction(name: "Test", operation: "test", bindToScope: true) as! SentryTracer
+    private func startTransactionBoundToScope() throws -> SentryTracer {
+        return try XCTUnwrap(SentrySDK.startTransaction(name: "Test", operation: "test", bindToScope: true) as? SentryTracer)
     }
     
     private func assertRemovedIntegration(_ options: Options) {

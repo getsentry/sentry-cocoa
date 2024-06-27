@@ -298,10 +298,10 @@ class SentryTracerTests: XCTestCase {
         weak var weakSut: SentryTracer?
         
         // Added internal function so the tracer gets deallocated after executing this function.
-        func startTracer() {
+        func startTracer() throws {
             let sut = fixture.getSut()
             
-            timer = Dynamic(sut).deadlineTimer.asObject as! Timer?
+            timer = try XCTUnwrap(Dynamic(sut).deadlineTimer.asObject as? Timer)
             weakSut = sut
             
             // The TestHub keeps a reference to the tracer in capturedEventsWithScopes.
@@ -309,7 +309,7 @@ class SentryTracerTests: XCTestCase {
             sut.hub = nil
             sut.finish()
         }
-        startTracer()
+        try startTracer()
         
         XCTAssertNil(weakSut, "sut was not deallocated")
 

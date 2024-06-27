@@ -702,12 +702,12 @@ class SentryNetworkTrackerTests: XCTestCase {
     }
 
     @available(*, deprecated)
-    func testDefaultHeadersWhenDisabled() {
+    func testDefaultHeadersWhenDisabled() throws {
         let sut = fixture.getSut()
         sut.disable()
 
         let task = createDataTask()
-        _ = startTransaction() as! SentryTracer
+        _ = try XCTUnwrap(startTransaction() as? SentryTracer)
         sut.urlSessionTaskResume(task)
 
         let expectedTraceHeader = SentrySDK.currentHub().scope.propagationContext.traceHeader.value()
@@ -730,12 +730,12 @@ class SentryNetworkTrackerTests: XCTestCase {
         XCTAssertEqual(task.currentRequest?.allHTTPHeaderFields?["sentry-trace"] ?? "", expectedTraceHeader)
     }
 
-    func testNoHeadersForWrongUrl() {
+    func testNoHeadersForWrongUrl() throws {
         fixture.options.tracePropagationTargets = ["www.example.com"]
 
         let sut = fixture.getSut()
         let task = createDataTask()
-        _ = startTransaction() as! SentryTracer
+        _ = try XCTUnwrap(startTransaction() as? SentryTracer)
         sut.urlSessionTaskResume(task)
 
         XCTAssertNil(task.currentRequest?.allHTTPHeaderFields?["baggage"])
