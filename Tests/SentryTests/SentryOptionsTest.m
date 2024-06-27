@@ -5,7 +5,6 @@
 #import "SentrySpan.h"
 #import "SentryTests-Swift.h"
 #import <XCTest/XCTest.h>
-@import Nimble;
 
 @interface SentryOptionsTest : XCTestCase
 

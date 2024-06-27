@@ -39,10 +39,6 @@ NSString *const kSentryDefaultEnvironment = @"production";
     BOOL _enableTracingManual;
 }
 
-- (void)setMeasurement:(SentryMeasurementValue *)measurement
-{
-}
-
 + (NSArray<NSString *> *)defaultIntegrations
 {
     // The order of integrations here is important.

@@ -1,4 +1,3 @@
-import Nimble
 @testable import Sentry
 import XCTest
 
@@ -245,7 +244,7 @@ class SentrySerializationTests: XCTestCase {
         
         let serialized = String(data: data, encoding: .utf8)
         
-        expect(serialized) == "{\"segment_id\":5}\n[{\"KEY\":\"VALUE\"}]"
+        XCTAssertEqual(serialized, "{\"segment_id\":5}\n[{\"KEY\":\"VALUE\"}]")
     }
     
     func testLevelFromEventData() {

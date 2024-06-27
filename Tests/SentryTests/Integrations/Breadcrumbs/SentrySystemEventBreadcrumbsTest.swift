@@ -1,4 +1,3 @@
-import Nimble
 @testable import Sentry
 import SentryTestUtils
 import XCTest
@@ -128,7 +127,7 @@ class SentrySystemEventBreadcrumbsTest: XCTestCase {
         
         postBatteryLevelNotification(uiDevice: nil)
         
-        expect(self.fixture.delegate.addCrumbInvocations.count) == 0
+        XCTAssertEqual(self.fixture.delegate.addCrumbInvocations.count, 0)
     }
     
     func testBatteryBreadcrumbForSessionReplay() throws {
@@ -315,8 +314,8 @@ class SentrySystemEventBreadcrumbsTest: XCTestCase {
         sut.timezoneEventTriggered()
 
         assertBreadcrumbAction(action: "TIMEZONE_CHANGE") { data in
-            expect(data["previous_seconds_from_gmt"]) == nil
-            expect(data["current_seconds_from_gmt"] as? Int64) == 7_200
+            XCTAssertNil(data["previous_seconds_from_gmt"])
+            XCTAssertEqual(data["current_seconds_from_gmt"] as? Int64, 7_200)
         }
     }
 

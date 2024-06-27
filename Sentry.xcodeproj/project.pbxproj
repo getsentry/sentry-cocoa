@@ -103,7 +103,6 @@
 		62885DA729E946B100554F38 /* TestConncurrentModifications.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62885DA629E946B100554F38 /* TestConncurrentModifications.swift */; };
 		62950F1029E7FE0100A42624 /* SentryTransactionContextTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62950F0F29E7FE0100A42624 /* SentryTransactionContextTests.swift */; };
 		629690532AD3E060000185FA /* SentryReachabilitySwiftTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 629690522AD3E060000185FA /* SentryReachabilitySwiftTests.swift */; };
-		62986F032B03D250008E2D62 /* Nimble in Frameworks */ = {isa = PBXBuildFile; productRef = 62986F022B03D250008E2D62 /* Nimble */; };
 		62991A8D2BAC1B4A0078A8B8 /* SentryMetricsAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62991A8C2BAC1B4A0078A8B8 /* SentryMetricsAPI.swift */; };
 		62991A8F2BAC24ED0078A8B8 /* SentryMetricsAPITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62991A8E2BAC24ED0078A8B8 /* SentryMetricsAPITests.swift */; };
 		62A2F43E2BA9AC10000C9FDD /* DistributionMetric.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62A2F43D2BA9AC10000C9FDD /* DistributionMetric.swift */; };
@@ -2011,7 +2010,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				62986F032B03D250008E2D62 /* Nimble in Frameworks */,
 				8431F01C29B2854200D8DC56 /* libSentryTestUtils.a in Frameworks */,
 				D84DAD592B1742C1003CF120 /* SentryTestUtilsDynamic.framework in Frameworks */,
 				63AA766A1EB8CB2F00D153DE /* Sentry.framework in Frameworks */,
@@ -4279,7 +4277,6 @@
 			);
 			name = SentryTests;
 			packageProductDependencies = (
-				62986F022B03D250008E2D62 /* Nimble */,
 			);
 			productName = "Tests-iOS";
 			productReference = 63AA76651EB8CB2F00D153DE /* SentryTests.xctest */;
@@ -4408,7 +4405,6 @@
 			);
 			mainGroup = 6327C5C91EB8A783004E799B;
 			packageReferences = (
-				62986F012B03D250008E2D62 /* XCRemoteSwiftPackageReference "Nimble" */,
 			);
 			productRefGroup = 6327C5D41EB8A783004E799B /* Products */;
 			projectDirPath = "";
@@ -7020,25 +7016,6 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
-
-/* Begin XCRemoteSwiftPackageReference section */
-		62986F012B03D250008E2D62 /* XCRemoteSwiftPackageReference "Nimble" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/Quick/Nimble";
-			requirement = {
-				kind = exactVersion;
-				version = 10.0.0;
-			};
-		};
-/* End XCRemoteSwiftPackageReference section */
-
-/* Begin XCSwiftPackageProductDependency section */
-		62986F022B03D250008E2D62 /* Nimble */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 62986F012B03D250008E2D62 /* XCRemoteSwiftPackageReference "Nimble" */;
-			productName = Nimble;
-		};
-/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 6327C5CA1EB8A783004E799B /* Project object */;
 }
