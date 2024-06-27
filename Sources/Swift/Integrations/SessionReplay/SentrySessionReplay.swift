@@ -253,11 +253,11 @@ class SentrySessionReplay: NSObject {
                 
         delegate?.sessionReplayNewSegment(replayEvent: replayEvent, replayRecording: recording, videoUrl: video.path)
 
-//        do {
-//            try FileManager.default.removeItem(at: video.path)
-//        } catch {
-//            print("[SentrySessionReplay:\(#line)] Could not delete replay segment from disk: \(error.localizedDescription)")
-//        }
+        do {
+            try FileManager.default.removeItem(at: video.path)
+        } catch {
+            print("[SentrySessionReplay:\(#line)] Could not delete replay segment from disk: \(error.localizedDescription)")
+        }
     }
 
     private func convertBreadcrumbs(breadcrumbs: [Breadcrumb], from: Date, until: Date) -> [any SentryRRWebEventProtocol] {

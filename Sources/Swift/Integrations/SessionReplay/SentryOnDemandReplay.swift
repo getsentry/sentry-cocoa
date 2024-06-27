@@ -78,10 +78,10 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
         }
         _frames.append(SentryReplayFrame(imagePath: imagePath, time: date, screenName: forScreen))
         
-//        while _frames.count > cacheMaxSize {
-//            let first = _frames.removeFirst()
-//            try? FileManager.default.removeItem(at: URL(fileURLWithPath: first.imagePath))
-//        }
+        while _frames.count > cacheMaxSize {
+            let first = _frames.removeFirst()
+            try? FileManager.default.removeItem(at: URL(fileURLWithPath: first.imagePath))
+        }
         _totalFrames += 1
     }
     
@@ -96,12 +96,12 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
     }
     
     func releaseFramesUntil(_ date: Date) {
-//        workingQueue.dispatchAsync ({
-//            while let first = self._frames.first, first.time < date {
-//                self._frames.removeFirst()
-//                try? FileManager.default.removeItem(at: URL(fileURLWithPath: first.imagePath))
-//            }
-//        })
+        workingQueue.dispatchAsync ({
+            while let first = self._frames.first, first.time < date {
+                self._frames.removeFirst()
+                try? FileManager.default.removeItem(at: URL(fileURLWithPath: first.imagePath))
+            }
+        })
     }
         
     func createVideoWith(beginning: Date, end: Date, outputFileURL: URL, completion: @escaping (SentryVideoInfo?, Error?) -> Void) throws {
@@ -179,7 +179,6 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
                 framesPaths.append(frame.imagePath)
             }
         })
-        framesPaths = _frames[..<5].map { $0.imagePath }
         return VideoFrames(framesPaths: framesPaths, screens: screens, start: start, end: actualEnd + TimeInterval((1 / Double(frameRate))))
     }
     
