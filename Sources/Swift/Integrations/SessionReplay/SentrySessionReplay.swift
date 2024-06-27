@@ -181,15 +181,15 @@ class SentrySessionReplay: NSObject {
         }
 
         if now.timeIntervalSince(lastScreenShot) >= Double(1/replayOptions.frameRate) {
+            takeScreenshot()
+            self.lastScreenShot = now
+            
             if videoSegmentStart == nil {
                 videoSegmentStart = now
             } else if let videoSegmentStart = videoSegmentStart, isFullSession &&
                         now.timeIntervalSince(videoSegmentStart) >= replayOptions.sessionSegmentDuration {
                 prepareSegmentUntil(date: now)
             }
-            
-            takeScreenshot()
-            self.lastScreenShot = now
         }
     }
 
@@ -253,11 +253,11 @@ class SentrySessionReplay: NSObject {
                 
         delegate?.sessionReplayNewSegment(replayEvent: replayEvent, replayRecording: recording, videoUrl: video.path)
 
-        do {
-            try FileManager.default.removeItem(at: video.path)
-        } catch {
-            print("[SentrySessionReplay:\(#line)] Could not delete replay segment from disk: \(error.localizedDescription)")
-        }
+//        do {
+//            try FileManager.default.removeItem(at: video.path)
+//        } catch {
+//            print("[SentrySessionReplay:\(#line)] Could not delete replay segment from disk: \(error.localizedDescription)")
+//        }
     }
 
     private func convertBreadcrumbs(breadcrumbs: [Breadcrumb], from: Date, until: Date) -> [any SentryRRWebEventProtocol] {

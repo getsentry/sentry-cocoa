@@ -10,16 +10,22 @@ class SentryPixelBuffer {
     private var pixelBuffer: CVPixelBuffer?
     private let rgbColorSpace = CGColorSpaceCreateDeviceRGB()
     private let size: CGSize
+    private let pixelBufferAdapter : AVAssetWriterInputPixelBufferAdaptor
     
-    init?(size: CGSize) {
+    init?(size: CGSize, videoWriterInput : AVAssetWriterInput) {
         self.size = size
         let status = CVPixelBufferCreate(kCFAllocatorDefault, Int(size.width), Int(size.height), kCVPixelFormatType_32ARGB, nil, &pixelBuffer)
         if status != kCVReturnSuccess {
             return nil
         }
+        let bufferAttributes: [String: Any] = [
+           String(kCVPixelBufferPixelFormatTypeKey): kCVPixelFormatType_32ARGB
+        ]
+        
+        pixelBufferAdapter = AVAssetWriterInputPixelBufferAdaptor(assetWriterInput: videoWriterInput, sourcePixelBufferAttributes: bufferAttributes)
     }
     
-    func append(image: UIImage, pixelBufferAdapter: AVAssetWriterInputPixelBufferAdaptor, presentationTime: CMTime) -> Bool {
+    func append(image: UIImage, presentationTime: CMTime) -> Bool {
         guard let pixelBuffer = pixelBuffer else { return false }
         
         CVPixelBufferLockBaseAddress(pixelBuffer, .readOnly)

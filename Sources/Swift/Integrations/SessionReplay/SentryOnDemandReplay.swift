@@ -78,10 +78,10 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
         }
         _frames.append(SentryReplayFrame(imagePath: imagePath, time: date, screenName: forScreen))
         
-        while _frames.count > cacheMaxSize {
-            let first = _frames.removeFirst()
-            try? FileManager.default.removeItem(at: URL(fileURLWithPath: first.imagePath))
-        }
+//        while _frames.count > cacheMaxSize {
+//            let first = _frames.removeFirst()
+//            try? FileManager.default.removeItem(at: URL(fileURLWithPath: first.imagePath))
+//        }
         _totalFrames += 1
     }
     
@@ -96,50 +96,43 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
     }
     
     func releaseFramesUntil(_ date: Date) {
-        workingQueue.dispatchAsync ({
-            while let first = self._frames.first, first.time < date {
-                self._frames.removeFirst()
-                try? FileManager.default.removeItem(at: URL(fileURLWithPath: first.imagePath))
-            }
-        })
+//        workingQueue.dispatchAsync ({
+//            while let first = self._frames.first, first.time < date {
+//                self._frames.removeFirst()
+//                try? FileManager.default.removeItem(at: URL(fileURLWithPath: first.imagePath))
+//            }
+//        })
     }
         
     func createVideoWith(beginning: Date, end: Date, outputFileURL: URL, completion: @escaping (SentryVideoInfo?, Error?) -> Void) throws {
-        let videoWriter = try AVAssetWriter(url: outputFileURL, fileType: .mov)
+        var frameCount = 0
+        let videoFrames = filterFrames(beginning: beginning, end: end)
+        if videoFrames.framesPaths.isEmpty { return }
         
-        let videoSettings = createVideoSettings()
+        let videoWriter = try AVAssetWriter(url: outputFileURL, fileType: .mp4)
+        let videoWriterInput = AVAssetWriterInput(mediaType: .video, outputSettings: createVideoSettings())
         
-        let videoWriterInput = AVAssetWriterInput(mediaType: .video, outputSettings: videoSettings)
-        let bufferAttributes: [String: Any] = [
-           String(kCVPixelBufferPixelFormatTypeKey): kCVPixelFormatType_32ARGB
-        ]
-        
-        let pixelBufferAdaptor = AVAssetWriterInputPixelBufferAdaptor(assetWriterInput: videoWriterInput, sourcePixelBufferAttributes: bufferAttributes)
+        _currentPixelBuffer = SentryPixelBuffer(size: CGSize(width: videoWidth, height: videoHeight), videoWriterInput: videoWriterInput)
+        if _currentPixelBuffer == nil { return }
         
         videoWriter.add(videoWriterInput)
         videoWriter.startWriting()
         videoWriter.startSession(atSourceTime: .zero)
-        
-        var frameCount = 0
-        let videoFrames = filterFrames(beginning: beginning, end: end)
-        
-        if videoFrames.framesPaths.isEmpty { return }
-        
-        _currentPixelBuffer = SentryPixelBuffer(size: CGSize(width: videoWidth, height: videoHeight))
         
         videoWriterInput.requestMediaDataWhenReady(on: workingQueue.queue) { [weak self] in
             guard let self = self else { return }
             
             if frameCount < videoFrames.framesPaths.count {
                 let imagePath = videoFrames.framesPaths[frameCount]
-                
                 if let image = UIImage(contentsOfFile: imagePath) {
-                    let presentTime = CMTime(seconds: Double(frameCount), preferredTimescale: CMTimeScale(self.frameRate))
-                    guard self._currentPixelBuffer?.append(image: image, pixelBufferAdapter: pixelBufferAdaptor, presentationTime: presentTime) == true else {
+                    let presentTime = CMTime(seconds: Double(frameCount), preferredTimescale: CMTimeScale(1 / self.frameRate))
+
+                    guard self._currentPixelBuffer?.append(image: image, presentationTime: presentTime) == true 
+                    else {
                         completion(nil, videoWriter.error)
                         videoWriterInput.markAsFinished()
                         return
-                      }
+                    }
                 }
                 frameCount += 1
             } else {
@@ -186,6 +179,7 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
                 framesPaths.append(frame.imagePath)
             }
         })
+        framesPaths = _frames[..<5].map { $0.imagePath }
         return VideoFrames(framesPaths: framesPaths, screens: screens, start: start, end: actualEnd + TimeInterval((1 / Double(frameRate))))
     }
     
