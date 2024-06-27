@@ -180,7 +180,7 @@ class SentrySessionReplay: NSObject {
             return
         }
 
-        if now.timeIntervalSince(lastScreenShot) >= Double(1/replayOptions.frameRate) {
+        if now.timeIntervalSince(lastScreenShot) >= Double(1 / replayOptions.frameRate) {
             takeScreenshot()
             self.lastScreenShot = now
             

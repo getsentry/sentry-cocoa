@@ -10,14 +10,14 @@ import UIKit
 struct SentryReplayFrame {
     let imagePath: String
     let time: Date
-    let screenName : String?
+    let screenName: String?
 }
 
 private struct VideoFrames {
-    let framesPaths : [String]
-    let screens : [String]
-    let start : Date
-    let end : Date
+    let framesPaths: [String]
+    let screens: [String]
+    let start: Date
+    let end: Date
 }
 
 enum SentryOnDemandReplayError: Error {
@@ -166,8 +166,7 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
         var actualEnd = start
         workingQueue.dispatchSync({
             for frame in self._frames {
-                if frame.time < beginning { continue } 
-                else if frame.time > end { break }
+                if frame.time < beginning { continue } else if frame.time > end { break }
                 
                 if frame.time < start { start = frame.time }
                 

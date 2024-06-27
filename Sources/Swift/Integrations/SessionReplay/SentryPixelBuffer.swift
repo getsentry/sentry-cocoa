@@ -10,9 +10,9 @@ class SentryPixelBuffer {
     private var pixelBuffer: CVPixelBuffer?
     private let rgbColorSpace = CGColorSpaceCreateDeviceRGB()
     private let size: CGSize
-    private let pixelBufferAdapter : AVAssetWriterInputPixelBufferAdaptor
+    private let pixelBufferAdapter: AVAssetWriterInputPixelBufferAdaptor
     
-    init?(size: CGSize, videoWriterInput : AVAssetWriterInput) {
+    init?(size: CGSize, videoWriterInput: AVAssetWriterInput) {
         self.size = size
         let status = CVPixelBufferCreate(kCFAllocatorDefault, Int(size.width), Int(size.height), kCVPixelFormatType_32ARGB, nil, &pixelBuffer)
         if status != kCVReturnSuccess {
