@@ -1,6 +1,5 @@
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
 
-import Nimble
 import ObjectiveC
 @testable import Sentry
 import SentryTestUtils
@@ -279,8 +278,8 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
         let expectedTTFDTimestamp = fixture.dateProvider.date()
 
         let ttfdSpan = tracer?.children[1]
-        expect(ttfdSpan?.isFinished) == true
-        expect(ttfdSpan?.timestamp) == expectedTTFDTimestamp
+        XCTAssertEqual(ttfdSpan?.isFinished, true)
+        XCTAssertEqual(ttfdSpan?.timestamp, expectedTTFDTimestamp)
     }
 
     func testSecondViewController() {
@@ -607,7 +606,7 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
         let timestamp = try XCTUnwrap(span.timestamp)
         let startTimestamp = try XCTUnwrap(span.startTimestamp)
         let duration = timestamp.timeIntervalSince(startTimestamp)
-        expect(duration).to(beCloseTo(expectedDuration, within: 0.001))
+        XCTAssertEqual(duration, expectedDuration, accuracy: 0.001)
     }
     
     private func assertTrackerIsEmpty(_ tracker: SentryPerformanceTracker) {

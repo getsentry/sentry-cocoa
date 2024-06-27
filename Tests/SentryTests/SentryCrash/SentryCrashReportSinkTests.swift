@@ -1,4 +1,3 @@
-import Nimble
 import SentryTestUtils
 import XCTest
 
@@ -69,7 +68,7 @@ class SentryCrashReportSinkTests: SentrySDKIntegrationTestsBase {
         
         filterReportWithAttachment()
         
-        expect(SentrySDK.detectedStartUpCrash) == true
+        XCTAssertEqual(SentrySDK.detectedStartUpCrash, true)
     }
     
     func testAppStartCrash_UpperBound_CallsFlush() {

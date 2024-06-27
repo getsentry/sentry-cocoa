@@ -45,7 +45,7 @@ final class SentryExtraContextProviderTests: XCTestCase {
         XCTAssertEqual(app?["app_memory"] as? UInt64, fixture.crashWrapper.internalAppMemorySize)
     }
     
-    func testExtraDeviceInfo() {
+    func testExtraDeviceInfo() throws {
 #if os(iOS) || targetEnvironment(macCatalyst)
         let sut = fixture.getSut()
         fixture.deviceWrapper.internalOrientation = .landscapeLeft
@@ -56,7 +56,7 @@ final class SentryExtraContextProviderTests: XCTestCase {
         let device = actualContext["device"] as? [String: Any]
         
         XCTAssertEqual(device?["orientation"] as? String, "landscape")
-        XCTAssertEqual(device?["charging"] as? Bool, false)
+        XCTAssertFalse(try XCTUnwrap(device?["charging"] as? Bool))
         XCTAssertEqual(device?["battery_level"] as? UInt, 44)
 #endif // os(iOS) || targetEnvironment(macCatalyst)
     }

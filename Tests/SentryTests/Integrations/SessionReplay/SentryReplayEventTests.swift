@@ -1,5 +1,4 @@
 import Foundation
-import Nimble
 @testable import Sentry
 import XCTest
 
@@ -12,11 +11,12 @@ class SentryReplayEventTests: XCTestCase {
         
         let result = sut.serialize()
         
-        expect(result["urls"] as? [String]) == ["Screen 1", "Screen 2"]
-        expect(result["replay_start_timestamp"] as? Double) == 1
-        expect(result["replay_id"] as? String) == replayId.sentryIdString
-        expect(result["segment_id"] as? Int) == 3
-        expect(result["replay_type"] as? String) == "buffer"
+        XCTAssertEqual(result["urls"] as? [String], ["Screen 1", "Screen 2"])
+        XCTAssertEqual(result["replay_start_timestamp"] as? Int, 1)
+        XCTAssertEqual(result["trace_ids"] as? [String], [ traceIds[0].sentryIdString, traceIds[1].sentryIdString])
+        XCTAssertEqual(result["replay_id"] as? String, replayId.sentryIdString)
+        XCTAssertEqual(result["segment_id"] as? Int, 3)
+        XCTAssertEqual(result["replay_type"] as? String, "buffer")
     }
     
 }

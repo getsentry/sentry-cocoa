@@ -1,4 +1,3 @@
-import Nimble
 import XCTest
 
 class SentryAppStateTests: XCTestCase {
@@ -23,7 +22,7 @@ class SentryAppStateTests: XCTestCase {
         
         let actual = appState.serialize()
         
-        expect(actual["release_name"]) == nil
+        XCTAssertNil(actual["release_name"])
     }
     
     func testInitWithJSON_ReleaseNameIsNil_DoesNotAddReleaseName() {
@@ -31,7 +30,7 @@ class SentryAppStateTests: XCTestCase {
         
         let actual = SentryAppState(jsonObject: appState.serialize())
         
-        expect(actual?.releaseName) == nil
+        XCTAssertNil(actual?.releaseName)
     }
     
     func testInitWithJSON_AllFields() throws {

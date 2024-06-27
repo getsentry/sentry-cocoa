@@ -1,4 +1,3 @@
-import Nimble
 @testable import Sentry
 import SentryTestUtils
 import XCTest
@@ -201,15 +200,15 @@ class SentryTransactionTests: XCTestCase {
         let serialized = sut.serialize()
         
         let metricsSummary = try XCTUnwrap(serialized["_metrics_summary"] as? [String: [[String: Any]]])
-        expect(metricsSummary.count) == 1
+        XCTAssertEqual(metricsSummary.count, 1)
         
         let bucket = try XCTUnwrap(metricsSummary["c:key"])
-        expect(bucket.count) == 1
+        XCTAssertEqual(bucket.count, 1)
         let metric = try XCTUnwrap(bucket.first)
-        expect(metric["min"] as? Double) == 1.0
-        expect(metric["max"] as? Double) == 1.0
-        expect(metric["count"] as? Int) == 1
-        expect(metric["sum"] as? Double) == 1.0
+        XCTAssertEqual(metric["min"] as? Double, 1.0)
+        XCTAssertEqual(metric["max"] as? Double, 1.0)
+        XCTAssertEqual(metric["count"] as? Int, 1)
+        XCTAssertEqual(metric["sum"] as? Double, 1.0)
     }
     
     func testSerializedSpanData() throws {
