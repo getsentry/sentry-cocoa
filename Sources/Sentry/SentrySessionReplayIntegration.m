@@ -30,7 +30,7 @@ static NSString *SENTRY_REPLAY_FOLDER = @"replay";
 static SentryTouchTracker *_touchTracker;
 
 @interface
-SentrySessionReplayIntegration () <SentrySessionReplayDelegate>
+SentrySessionReplayIntegration ()
 - (void)newSceneActivate;
 @end
 

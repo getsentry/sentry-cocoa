@@ -11,4 +11,11 @@ protocol SentryReplayVideoMaker: NSObjectProtocol {
     func releaseFramesUntil(_ date: Date)
     func createVideoWith(beginning: Date, end: Date, outputFileURL: URL, completion: @escaping (SentryVideoInfo?, Error?) -> Void) throws
 }
+
+extension SentryReplayVideoMaker {
+    func addFrameAsync(image: UIImage) {
+        self.addFrameAsync(image: image, forScreen: nil)
+    }
+}
+
 #endif

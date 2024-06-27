@@ -9,8 +9,15 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
     
     private class TestSentryUIApplication: SentryUIApplication {
         var windowsMock: [UIWindow]? = [UIWindow()]
+        var screenName: String?
+        
         override var windows: [UIWindow]? {
             windowsMock
+        }
+        
+        override func relevantViewControllersNames() -> [String]? {
+            guard let screenName else { return nil }
+            return [screenName]
         }
     }
     
@@ -137,7 +144,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         SentrySDK.currentHub().endSession()
         XCTAssertNil(sut.sessionReplay)
     }
- 
+    
     func testStartFullSessionForError() throws {
         startSDK(sessionSampleRate: 0, errorSampleRate: 1)
         let sut = try getSut()
@@ -157,6 +164,26 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         SentrySDK.currentHub().startSession()
         XCTAssertNotNil(sut.sessionReplay)
     }
+    
+    func testScreenNameFromSentryUIApplication() throws {
+        startSDK(sessionSampleRate: 1, errorSampleRate: 1)
+        let sut: SentrySessionReplayDelegate = try getSut()
+        uiApplication.screenName = "Test Screen"
+        XCTAssertEqual(sut.currentScreenNameForSessionReplay(), "Test Screen")
+    }
+    
+    func testScreenNameFromSentryScope() throws {
+        startSDK(sessionSampleRate: 1, errorSampleRate: 1)
+        
+        SentrySDK.currentHub().configureScope { scope in
+            scope.currentScreen = "Scope Screen"
+        }
+        
+        let sut: SentrySessionReplayDelegate = try getSut()
+        uiApplication.screenName = "Test Screen"
+        XCTAssertEqual(sut.currentScreenNameForSessionReplay(), "Scope Screen")
+    }
+    
 }
 
 #endif
