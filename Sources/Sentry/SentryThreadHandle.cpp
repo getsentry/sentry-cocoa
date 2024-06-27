@@ -2,8 +2,8 @@
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
+#    include "SentryAsyncSafeLog.h"
 #    include "SentryMachLogging.hpp"
-#    include "SentryProfilingLogging.hpp"
 
 #    include <cstdint>
 #    include <dispatch/dispatch.h>
@@ -30,7 +30,7 @@ namespace profiling {
         // If the ThreadHandle object owns the mach_port (i.e. with a +1 reference count)
         // the port must be deallocated.
         if (isOwnedPort_) {
-            SENTRY_PROF_LOG_KERN_RETURN(mach_port_deallocate(mach_task_self(), handle_));
+            SENTRY_ASYNC_SAFE_LOG_KERN_RETURN(mach_port_deallocate(mach_task_self(), handle_));
         }
     }
 
@@ -47,7 +47,7 @@ namespace profiling {
         std::vector<std::unique_ptr<ThreadHandle>> threads;
         mach_msg_type_number_t count;
         thread_act_array_t list;
-        if (SENTRY_PROF_LOG_KERN_RETURN(task_threads(mach_task_self(), &list, &count))
+        if (SENTRY_ASYNC_SAFE_LOG_KERN_RETURN(task_threads(mach_task_self(), &list, &count))
             == KERN_SUCCESS) {
             for (decltype(count) i = 0; i < count; i++) {
                 const auto thread = list[i];
@@ -55,7 +55,7 @@ namespace profiling {
                     new ThreadHandle(thread, true /* isOwnedPort */)));
             }
         }
-        SENTRY_PROF_LOG_KERN_RETURN(vm_deallocate(
+        SENTRY_ASYNC_SAFE_LOG_KERN_RETURN(vm_deallocate(
             mach_task_self(), reinterpret_cast<vm_address_t>(list), sizeof(*list) * count));
         return threads;
     }
@@ -67,7 +67,7 @@ namespace profiling {
         mach_msg_type_number_t count;
         thread_act_array_t list;
         auto current = ThreadHandle::current();
-        if (SENTRY_PROF_LOG_KERN_RETURN(task_threads(mach_task_self(), &list, &count))
+        if (SENTRY_ASYNC_SAFE_LOG_KERN_RETURN(task_threads(mach_task_self(), &list, &count))
             == KERN_SUCCESS) {
             for (decltype(count) i = 0; i < count; i++) {
                 const auto thread = list[i];
@@ -75,11 +75,12 @@ namespace profiling {
                     threads.push_back(std::unique_ptr<ThreadHandle>(
                         new ThreadHandle(thread, true /* isOwnedPort */)));
                 } else {
-                    SENTRY_PROF_LOG_KERN_RETURN(mach_port_deallocate(mach_task_self(), thread));
+                    SENTRY_ASYNC_SAFE_LOG_KERN_RETURN(
+                        mach_port_deallocate(mach_task_self(), thread));
                 }
             }
         }
-        SENTRY_PROF_LOG_KERN_RETURN(vm_deallocate(
+        SENTRY_ASYNC_SAFE_LOG_KERN_RETURN(vm_deallocate(
             mach_task_self(), reinterpret_cast<vm_address_t>(list), sizeof(*list) * count));
         return std::make_pair(std::move(threads), std::move(current));
     }
@@ -110,7 +111,8 @@ namespace profiling {
             return {};
         }
         char name[MAXTHREADNAMESIZE];
-        if (SENTRY_PROF_LOG_ERROR_RETURN(pthread_getname_np(handle, name, sizeof(name))) == 0) {
+        if (SENTRY_ASYNC_SAFE_LOG_ERRNO_RETURN(pthread_getname_np(handle, name, sizeof(name)))
+            == 0) {
             return std::string(name);
         }
         return {};
@@ -124,7 +126,8 @@ namespace profiling {
             return -1;
         }
         struct sched_param param;
-        if (SENTRY_PROF_LOG_ERROR_RETURN(pthread_getschedparam(handle, nullptr, &param)) == 0) {
+        if (SENTRY_ASYNC_SAFE_LOG_ERRNO_RETURN(pthread_getschedparam(handle, nullptr, &param))
+            == 0) {
             return param.sched_priority;
         }
         return -1;
@@ -163,7 +166,8 @@ namespace profiling {
         const auto rv = thread_info(
             handle_, THREAD_BASIC_INFO, reinterpret_cast<thread_info_t>(&data), &count);
         // MACH_SEND_INVALID_DEST is returned when the thread no longer exists
-        if ((rv != MACH_SEND_INVALID_DEST) && (SENTRY_PROF_LOG_KERN_RETURN(rv) == KERN_SUCCESS)) {
+        if ((rv != MACH_SEND_INVALID_DEST)
+            && (SENTRY_ASYNC_SAFE_LOG_KERN_RETURN(rv) == KERN_SUCCESS)) {
             cpuInfo.userTimeMicros = std::chrono::seconds(data.user_time.seconds)
                 + std::chrono::microseconds(data.user_time.microseconds);
             cpuInfo.systemTimeMicros = std::chrono::seconds(data.system_time.seconds)
@@ -186,7 +190,8 @@ namespace profiling {
         const auto rv = thread_info(
             handle_, THREAD_BASIC_INFO, reinterpret_cast<thread_info_t>(&data), &count);
         // MACH_SEND_INVALID_DEST is returned when the thread no longer exists
-        if ((rv != MACH_SEND_INVALID_DEST) && (SENTRY_PROF_LOG_KERN_RETURN(rv) == KERN_SUCCESS)) {
+        if ((rv != MACH_SEND_INVALID_DEST)
+            && (SENTRY_ASYNC_SAFE_LOG_KERN_RETURN(rv) == KERN_SUCCESS)) {
             return ((data.flags & TH_FLAGS_IDLE) == TH_FLAGS_IDLE)
                 || (data.run_state != TH_STATE_RUNNING);
         }
@@ -240,7 +245,8 @@ namespace profiling {
             if (pthreadHandle_ == nullptr) {
                 // The thread no longer exists; this is not a recoverable failure so there's nothing
                 // more we can do here.
-                SENTRY_PROF_LOG_DEBUG("Failed to get pthread handle for mach thread %u", handle_);
+                SENTRY_ASYNC_SAFE_LOG_DEBUG(
+                    "Failed to get pthread handle for mach thread %u", handle_);
             }
         }
         return pthreadHandle_;

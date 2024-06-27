@@ -1,3 +1,4 @@
+#import "SentryAsyncSafeLog.h"
 #import "SentryProfilingConditionals.h"
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
@@ -19,7 +20,7 @@ namespace {
 void *
 threadSpin(void *name)
 {
-    SENTRY_PROF_LOG_ERROR_RETURN(pthread_setname_np(reinterpret_cast<const char *>(name)));
+    SENTRY_ASYNC_SAFE_LOG_ERRNO_RETURN(pthread_setname_np(reinterpret_cast<const char *>(name)));
     if (pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, nullptr) != 0) {
         return nullptr;
     }
@@ -42,9 +43,9 @@ threadSpin(void *name)
     XCTAssertEqual(pthread_create(&thread, nullptr, threadSpin, reinterpret_cast<void *>(name)), 0);
     int policy;
     sched_param param;
-    if (SENTRY_PROF_LOG_ERROR_RETURN(pthread_getschedparam(thread, &policy, &param)) == 0) {
+    if (SENTRY_ASYNC_SAFE_LOG_ERRNO_RETURN(pthread_getschedparam(thread, &policy, &param)) == 0) {
         param.sched_priority = 50;
-        SENTRY_PROF_LOG_ERROR_RETURN(pthread_setschedparam(thread, policy, &param));
+        SENTRY_ASYNC_SAFE_LOG_ERRNO_RETURN(pthread_setschedparam(thread, policy, &param));
     }
 
     // give the other thread a little time to spawn, otherwise its name comes back as an empty
@@ -69,9 +70,9 @@ threadSpin(void *name)
     XCTAssertEqual(pthread_create(&thread, nullptr, threadSpin, reinterpret_cast<void *>(name)), 0);
     int policy;
     sched_param param;
-    if (SENTRY_PROF_LOG_ERROR_RETURN(pthread_getschedparam(thread, &policy, &param)) == 0) {
+    if (SENTRY_ASYNC_SAFE_LOG_ERRNO_RETURN(pthread_getschedparam(thread, &policy, &param)) == 0) {
         param.sched_priority = 50;
-        SENTRY_PROF_LOG_ERROR_RETURN(pthread_setschedparam(thread, policy, &param));
+        SENTRY_ASYNC_SAFE_LOG_ERRNO_RETURN(pthread_setschedparam(thread, policy, &param));
     }
 
     // give the other thread a little time to spawn, otherwise its metadata doesn't come back as
@@ -82,9 +83,9 @@ threadSpin(void *name)
     ThreadHandle handle(pthread_mach_thread_np(thread));
     XCTAssertEqual(cache->metadataForThread(handle).priority, 50);
 
-    if (SENTRY_PROF_LOG_ERROR_RETURN(pthread_getschedparam(thread, &policy, &param)) == 0) {
+    if (SENTRY_ASYNC_SAFE_LOG_ERRNO_RETURN(pthread_getschedparam(thread, &policy, &param)) == 0) {
         param.sched_priority = 100;
-        SENTRY_PROF_LOG_ERROR_RETURN(pthread_setschedparam(thread, policy, &param));
+        SENTRY_ASYNC_SAFE_LOG_ERRNO_RETURN(pthread_setschedparam(thread, policy, &param));
     }
     XCTAssertEqual(cache->metadataForThread(handle).priority, 50);
 
