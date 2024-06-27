@@ -77,6 +77,7 @@
 #pragma mark - Backtrace -
 
 #define SentryCrashField_InstructionAddr "instruction_addr"
+#define SentryCrashField_FrameAddr "frame_addr"
 #define SentryCrashField_LineOfCode "line_of_code"
 #define SentryCrashField_ObjectAddr "object_addr"
 #define SentryCrashField_ObjectName "object_name"

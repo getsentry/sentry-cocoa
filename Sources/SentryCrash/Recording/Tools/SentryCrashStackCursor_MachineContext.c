@@ -59,6 +59,7 @@ advanceCursor(SentryCrashStackCursor *cursor)
 {
     MachineContextCursor *context = (MachineContextCursor *)cursor->context;
     uintptr_t nextAddress = 0;
+    uintptr_t frameAddress = 0;
 
     if (cursor->state.currentDepth >= context->maxStackDepth) {
         cursor->state.hasGivenUp = true;
@@ -92,6 +93,7 @@ advanceCursor(SentryCrashStackCursor *cursor)
         context->isPastFramePointer = true;
     }
 
+    frameAddress = (uintptr_t)context->currentFrame.previous;
     if (!sentrycrashmem_copySafely(context->currentFrame.previous, &context->currentFrame,
             sizeof(context->currentFrame))) {
         return false;
@@ -104,6 +106,7 @@ advanceCursor(SentryCrashStackCursor *cursor)
 
 successfulExit:
     cursor->stackEntry.address = sentrycrashcpu_normaliseInstructionPointer(nextAddress);
+    cursor->stackEntry.frameAddress = frameAddress;
     cursor->state.currentDepth++;
     return true;
 

@@ -49,6 +49,7 @@ sentrycrashsc_resetCursor(SentryCrashStackCursor *cursor)
     cursor->stackEntry.imageName = NULL;
     cursor->stackEntry.symbolAddress = 0;
     cursor->stackEntry.symbolName = NULL;
+    cursor->stackEntry.frameAddress = 0;
 }
 
 void

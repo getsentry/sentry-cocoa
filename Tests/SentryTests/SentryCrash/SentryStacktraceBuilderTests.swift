@@ -31,7 +31,32 @@ class SentryStacktraceBuilderTests: XCTestCase {
         super.tearDown()
         clearTestState()
     }
-    
+
+    func testMachineTrace() throws {
+        let semaphore = DispatchSemaphore(value: 0)
+        var threadID: SentryCrashThread!
+        let thread = Thread {
+            threadID = sentrycrashthread_self()
+            semaphore.signal()
+            // block
+            semaphore.wait()
+        }
+        thread.start()
+        semaphore.wait()
+        let context = malloc(Int(sentrycrashmc_contextSize()))!
+        defer { free(context) }
+        let actual = fixture.sut.buildStacktrace(forThread: threadID, context: OpaquePointer(context))
+        // allow thread to terminate
+        semaphore.signal()
+        XCTAssertGreaterThan(actual.frames.count, 1)
+        let firstFrame = actual.frames[0]
+        let secondFrame = actual.frames[1]
+        let firstAddress = try XCTUnwrap(firstFrame.frameAddress)
+        let secondAddress = try XCTUnwrap(secondFrame.frameAddress)
+        // ensure that there are plausible frame addresses
+        XCTAssertNotEqual(firstAddress, secondAddress)
+    }
+
     func testEnoughFrames() {
         let actual = fixture.sut.buildStacktraceForCurrentThread()
         
