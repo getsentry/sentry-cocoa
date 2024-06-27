@@ -12,10 +12,9 @@ class SentryReplayEventTests: XCTestCase {
         let result = sut.serialize()
         
         XCTAssertEqual(result["urls"] as? [String], ["Screen 1", "Screen 2"])
-        XCTAssertEqual(result["replay_start_timestamp"] as? Int, 1)
+        XCTAssertEqual(result["replay_start_timestamp"] as? Double, 1)
         XCTAssertEqual(result["replay_id"] as? String, replayId.sentryIdString)
         XCTAssertEqual(result["segment_id"] as? Int, 3)
         XCTAssertEqual(result["replay_type"] as? String, "buffer")
     }
-    
 }
