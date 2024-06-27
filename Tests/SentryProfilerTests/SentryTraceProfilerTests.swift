@@ -428,9 +428,9 @@ private extension SentryTraceProfilerTests {
         }
     }
 
-    func printTimestamps(entries: [[String: Any]]) -> [NSString] {
-        entries.reduce(into: [NSString](), { partialResult, entry in
-            partialResult.append(entry["elapsed_since_start_ns"] as! NSString)
+    func printTimestamps(entries: [[String: Any]]) throws -> [NSString] {
+        try entries.reduce(into: [NSString](), { partialResult, entry in
+            partialResult.append(try XCTUnwrap(entry["elapsed_since_start_ns"] as? NSString))
         })
     }
 
@@ -441,7 +441,7 @@ private extension SentryTraceProfilerTests {
         let sortedExpectedEntries = try sortedByTimestamps(expectedEntries)
 
         guard actualEntries.count == expectedEntries.count else {
-            XCTFail("Wrong number of values under \(key). expected: \(printTimestamps(entries: sortedExpectedEntries)); actual: \(printTimestamps(entries: sortedActualEntries)); transaction start time: \(transaction.startSystemTime)")
+            try XCTFail("Wrong number of values under \(key). expected: \(printTimestamps(entries: sortedExpectedEntries)); actual: \(printTimestamps(entries: sortedActualEntries)); transaction start time: \(transaction.startSystemTime)")
             return
         }
 

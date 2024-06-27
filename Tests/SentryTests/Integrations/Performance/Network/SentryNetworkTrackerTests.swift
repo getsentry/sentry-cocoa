@@ -71,11 +71,11 @@ class SentryNetworkTrackerTests: XCTestCase {
         clearTestState()
     }
 
-    func testCaptureCompletion() {
+    func testCaptureCompletion() throws {
         let task = createDataTask()
         let span = spanForTask(task: task)!
 
-        assertCompletedSpan(task, span)
+        try assertCompletedSpan(task, span)
     }
 
     func test_CallResumeTwice_OneSpan() {
@@ -108,21 +108,21 @@ class SentryNetworkTrackerTests: XCTestCase {
         XCTAssertNil(span)
     }
 
-    func testCaptureDownloadTask() {
+    func testCaptureDownloadTask() throws {
         let task = createDownloadTask()
         let span = spanForTask(task: task)
 
         XCTAssertNotNil(span)
-        setTaskState(task, state: .completed)
+        try setTaskState(task, state: .completed)
         XCTAssertTrue(span!.isFinished)
     }
 
-    func testCaptureUploadTask() {
+    func testCaptureUploadTask() throws {
         let task = createUploadTask()
         let span = spanForTask(task: task)
 
         XCTAssertNotNil(span)
-        setTaskState(task, state: .completed)
+        try setTaskState(task, state: .completed)
         XCTAssertTrue(span!.isFinished)
     }
 
@@ -186,7 +186,7 @@ class SentryNetworkTrackerTests: XCTestCase {
         XCTAssertEqual(spans?.count, 0)
     }
 
-    func testCaptureRequestDuration() {
+    func testCaptureRequestDuration() throws {
         let sut = fixture.getSut()
         let task = createDataTask()
         let tracer = SentryTracer(transactionContext: TransactionContext(name: SentryNetworkTrackerTests.transactionName,
@@ -203,7 +203,7 @@ class SentryNetworkTrackerTests: XCTestCase {
         advanceTime(bySeconds: 5)
 
         XCTAssertFalse(span.isFinished)
-        setTaskState(task, state: .completed)
+        try setTaskState(task, state: .completed)
         XCTAssertTrue(span.isFinished)
 
         assertSpanDuration(span: span, expectedDuration: 5)
@@ -218,12 +218,12 @@ class SentryNetworkTrackerTests: XCTestCase {
         assertStatus(status: .aborted, state: .suspended, response: URLResponse())
     }
 
-    func testCaptureRequestWithError() {
+    func testCaptureRequestWithError() throws {
         let task = createDataTask()
         let span = spanForTask(task: task)!
 
         task.setError(NSError(domain: "Some Error", code: 1, userInfo: nil))
-        setTaskState(task, state: .completed)
+        try setTaskState(task, state: .completed)
 
         XCTAssertEqual(span.status, .unknownError)
     }
@@ -251,7 +251,7 @@ class SentryNetworkTrackerTests: XCTestCase {
         XCTAssertEqual(status, .undefined)
     }
 
-    func testSpanRemovedFromAssociatedObject() {
+    func testSpanRemovedFromAssociatedObject() throws {
         let sut = fixture.getSut()
         let task = createDataTask()
         let transaction = startTransaction()
@@ -263,11 +263,11 @@ class SentryNetworkTrackerTests: XCTestCase {
 
         XCTAssertFalse(spans!.first!.isFinished)
 
-        setTaskState(task, state: .completed)
+        try setTaskState(task, state: .completed)
         XCTAssertFalse(spans!.first!.isFinished)
     }
 
-    func testTaskStateChangedForRunning() {
+    func testTaskStateChangedForRunning() throws {
         let sut = fixture.getSut()
         let task = createDataTask()
         let transaction = startTransaction()
@@ -277,7 +277,7 @@ class SentryNetworkTrackerTests: XCTestCase {
         task.state = .running
         XCTAssertFalse(spans!.first!.isFinished)
 
-        setTaskState(task, state: .completed)
+        try setTaskState(task, state: .completed)
         XCTAssertTrue(spans!.first!.isFinished)
     }
 
@@ -290,7 +290,7 @@ class SentryNetworkTrackerTests: XCTestCase {
         XCTAssertNil(task.observationInfo)
     }
 
-    func testObserverForAnotherProperty() {
+    func testObserverForAnotherProperty() throws {
         let sut = fixture.getSut()
         let task = createDataTask()
         let transaction = startTransaction()
@@ -302,7 +302,7 @@ class SentryNetworkTrackerTests: XCTestCase {
         sut.urlSessionTask(task, setState: .running)
         XCTAssertFalse(spans!.first!.isFinished)
 
-        setTaskState(task, state: .completed)
+        try setTaskState(task, state: .completed)
         XCTAssertTrue(spans!.first!.isFinished)
     }
 
@@ -464,13 +464,13 @@ class SentryNetworkTrackerTests: XCTestCase {
         XCTAssertEqual(try XCTUnwrap(breadcrumb!.data!["method"] as? String), "GET")
     }
 
-    func testBreadcrumbWithoutSpan() {
+    func testBreadcrumbWithoutSpan() throws {
         let task = createDataTask()
         let _ = spanForTask(task: task)!
 
         objc_removeAssociatedObjects(task)
 
-        setTaskState(task, state: .completed)
+        try setTaskState(task, state: .completed)
 
         let breadcrumbs = Dynamic(fixture.scope).breadcrumbArray as [Breadcrumb]?
         let breadcrumb = breadcrumbs!.first
@@ -483,15 +483,15 @@ class SentryNetworkTrackerTests: XCTestCase {
         XCTAssertEqual(try XCTUnwrap(breadcrumb!.data!["method"] as? String), "GET")
     }
 
-    func testNoDuplicatedBreadcrumbs() {
+    func testNoDuplicatedBreadcrumbs() throws {
         let task = createDataTask()
         let _ = spanForTask(task: task)!
 
         objc_removeAssociatedObjects(task)
 
-        setTaskState(task, state: .completed)
-        setTaskState(task, state: .running)
-        setTaskState(task, state: .completed)
+        try setTaskState(task, state: .completed)
+        try setTaskState(task, state: .running)
+        try setTaskState(task, state: .completed)
 
         let breadcrumbs = Dynamic(fixture.scope).breadcrumbArray as [Breadcrumb]?
         let amount = breadcrumbs?.count ?? 0
@@ -499,14 +499,14 @@ class SentryNetworkTrackerTests: XCTestCase {
         XCTAssertEqual(amount, 1)
     }
 
-    func testWhenNoSpan_RemoveObserver() {
+    func testWhenNoSpan_RemoveObserver() throws {
         let task = createDataTask()
         let _ = spanForTask(task: task)!
 
         objc_removeAssociatedObjects(task)
 
-        setTaskState(task, state: .completed)
-        setTaskState(task, state: .completed)
+        try setTaskState(task, state: .completed)
+        try setTaskState(task, state: .completed)
 
         let breadcrumbs = Dynamic(fixture.scope).breadcrumbArray as [Breadcrumb]?
         XCTAssertEqual(1, breadcrumbs?.count)
@@ -522,7 +522,7 @@ class SentryNetworkTrackerTests: XCTestCase {
         XCTAssertEqual(try XCTUnwrap(breadcrumb!.data!["reason"] as? String), HTTPURLResponse.localizedString(forStatusCode: 404))
     }
 
-    func testBreadcrumbWithError_AndPerformanceTrackingNotEnabled() {
+    func testBreadcrumbWithError_AndPerformanceTrackingNotEnabled() throws {
         fixture.options.enableAutoPerformanceTracing = false
 
         let task = createDataTask()
@@ -530,7 +530,7 @@ class SentryNetworkTrackerTests: XCTestCase {
 
         task.setError(NSError(domain: "Some Error", code: 1, userInfo: nil))
 
-        setTaskState(task, state: .completed)
+        try setTaskState(task, state: .completed)
 
         let breadcrumbs = Dynamic(fixture.scope).breadcrumbArray as [Breadcrumb]?
         let breadcrumb = breadcrumbs!.first
@@ -545,11 +545,11 @@ class SentryNetworkTrackerTests: XCTestCase {
         XCTAssertNil(breadcrumb!.data!["reason"])
     }
 
-    func testBreadcrumbPost() {
+    func testBreadcrumbPost() throws {
         let task = createDataTask(method: "POST")
         let _ = spanForTask(task: task)!
 
-        setTaskState(task, state: .completed)
+        try setTaskState(task, state: .completed)
 
         let breadcrumbs = Dynamic(fixture.scope).breadcrumbArray as [Breadcrumb]?
         let breadcrumb = breadcrumbs!.first
@@ -557,47 +557,47 @@ class SentryNetworkTrackerTests: XCTestCase {
         XCTAssertEqual(try XCTUnwrap(breadcrumb!.data!["method"] as? String), "POST")
     }
 
-    func test_NoBreadcrumb_forSentryAPI() {
+    func test_NoBreadcrumb_forSentryAPI() throws {
         let sut = fixture.getSut()
         let task = fixture.sentryTask
 
-        setTaskState(task, state: .running)
+        try setTaskState(task, state: .running)
         sut.urlSessionTask(task, setState: .completed)
 
         let breadcrumbs = Dynamic(fixture.scope).breadcrumbArray as [Breadcrumb]?
         XCTAssertEqual(breadcrumbs?.count, 0)
     }
 
-    func test_NoBreadcrumb_WithoutURL() {
+    func test_NoBreadcrumb_WithoutURL() throws {
         let sut = fixture.getSut()
         let task = URLSessionDataTaskMock()
 
-        setTaskState(task, state: .running)
+        try setTaskState(task, state: .running)
         sut.urlSessionTask(task, setState: .completed)
 
         let breadcrumbs = Dynamic(fixture.scope).breadcrumbArray as [Breadcrumb]?
         XCTAssertEqual(breadcrumbs?.count, 0)
     }
 
-    func testResumeAfterCompleted_OnlyOneSpanCreated() {
+    func testResumeAfterCompleted_OnlyOneSpanCreated() throws {
         let task = createDataTask()
         let sut = fixture.getSut()
         let transaction = startTransaction()
 
         sut.urlSessionTaskResume(task)
-        setTaskState(task, state: .completed)
+        try setTaskState(task, state: .completed)
         sut.urlSessionTaskResume(task)
 
         assertOneSpanCreated(transaction)
     }
 
-    func testResumeAfterCancelled_OnlyOneSpanCreated() {
+    func testResumeAfterCancelled_OnlyOneSpanCreated() throws {
         let task = createDataTask()
         let sut = fixture.getSut()
         let transaction = startTransaction()
 
         sut.urlSessionTaskResume(task)
-        setTaskState(task, state: .canceling)
+        try setTaskState(task, state: .canceling)
         sut.urlSessionTaskResume(task)
 
         assertOneSpanCreated(transaction)
@@ -626,7 +626,7 @@ class SentryNetworkTrackerTests: XCTestCase {
         assertOneSpanCreated(transaction)
     }
 
-    func testChangeStateMultipleTimesConcurrent_OneSpanFinished() {
+    func testChangeStateMultipleTimesConcurrent_OneSpanFinished() throws {
         let task = createDataTask()
         let sut = fixture.getSut()
         let transaction = startTransaction()
@@ -638,7 +638,11 @@ class SentryNetworkTrackerTests: XCTestCase {
         for _ in 0...100_000 {
             group.enter()
             queue.async {
-                self.setTaskState(task, state: .completed)
+                do {
+                    try self.setTaskState(task, state: .completed)
+                } catch {
+                    XCTFail("Failed to set task state: \(error)")
+                }
                 group.leave()
             }
         }
@@ -930,8 +934,8 @@ class SentryNetworkTrackerTests: XCTestCase {
         XCTAssertNil(fixture.hub.capturedEventsWithScopes.first)
     }
 
-    func setTaskState(_ task: URLSessionTaskMock, state: URLSessionTask.State) {
-        fixture.getSut().urlSessionTask(task as! URLSessionTask, setState: state)
+    func setTaskState(_ task: URLSessionTaskMock, state: URLSessionTask.State) throws {
+        fixture.getSut().urlSessionTask(try XCTUnwrap(task as? URLSessionTask), setState: state)
         task.state = state
     }
 
@@ -978,11 +982,11 @@ class SentryNetworkTrackerTests: XCTestCase {
         XCTAssertNil(task.observationInfo)
     }
 
-    private func assertCompletedSpan(_ task: URLSessionDataTaskMock, _ span: Span) {
+    private func assertCompletedSpan(_ task: URLSessionDataTaskMock, _ span: Span) throws {
         XCTAssertNotNil(span)
         XCTAssertFalse(span.isFinished)
         XCTAssertEqual(task.currentRequest?.value(forHTTPHeaderField: SENTRY_TRACE_HEADER), span.toTraceHeader().value())
-        setTaskState(task, state: .completed)
+        try setTaskState(task, state: .completed)
         XCTAssertTrue(span.isFinished)
 
         //Test if it has observers. Nil means no observers

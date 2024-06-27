@@ -354,30 +354,30 @@ class SentryHubTests: XCTestCase {
         XCTAssertEqual(span.sampled, .no)
     }
     
-    func testCaptureTransaction_CapturesEventAsync() {
+    func testCaptureTransaction_CapturesEventAsync() throws {
         let transaction = sut.startTransaction(transactionContext: TransactionContext(name: fixture.transactionName, operation: fixture.transactionOperation, sampled: .yes))
         
         let trans = Dynamic(transaction).toTransaction().asAnyObject
-        sut.capture(trans as! Transaction, with: Scope())
+        sut.capture(try XCTUnwrap(trans as? Transaction), with: Scope())
         
         XCTAssertEqual(self.fixture.client.captureEventWithScopeInvocations.count, 1)
         XCTAssertEqual(self.fixture.dispatchQueueWrapper.dispatchAsyncInvocations.count, 1)
     }
     
-    func testCaptureSampledTransaction_DoesNotCaptureEvent() {
+    func testCaptureSampledTransaction_DoesNotCaptureEvent() throws {
         let transaction = sut.startTransaction(transactionContext: TransactionContext(name: fixture.transactionName, operation: fixture.transactionOperation, sampled: .no))
         
         let trans = Dynamic(transaction).toTransaction().asAnyObject
-        sut.capture(trans as! Transaction, with: Scope())
+        sut.capture(try XCTUnwrap(trans as? Transaction), with: Scope())
         
         XCTAssertEqual(self.fixture.client.captureEventWithScopeInvocations.count, 0)
     }
     
-    func testCaptureSampledTransaction_RecordsLostEvent() {
+    func testCaptureSampledTransaction_RecordsLostEvent() throws {
         let transaction = sut.startTransaction(transactionContext: TransactionContext(name: fixture.transactionName, operation: fixture.transactionOperation, sampled: .no))
         
         let trans = Dynamic(transaction).toTransaction().asAnyObject
-        sut.capture(trans as! Transaction, with: Scope())
+        sut.capture(try XCTUnwrap(trans as? Transaction), with: Scope())
         
         XCTAssertEqual(1, fixture.client.recordLostEvents.count)
         let lostEvent = fixture.client.recordLostEvents.first
