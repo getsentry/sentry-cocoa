@@ -1,3 +1,4 @@
+#import "SentryAsyncSafeLog.h"
 #import "SentryProfilingConditionals.h"
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
@@ -44,7 +45,7 @@ threadSpin(void *name)
     sched_param param;
     if (SENTRY_ASYNC_SAFE_LOG_ERRNO_RETURN(pthread_getschedparam(thread, &policy, &param)) == 0) {
         param.sched_priority = 50;
-        SENTRY_ASYNC_SAFE_LOG_ERRNO_RETURN (pthread_setschedparam(thread, policy, &param));
+        SENTRY_ASYNC_SAFE_LOG_ERRNO_RETURN(pthread_setschedparam(thread, policy, &param));
     }
 
     // give the other thread a little time to spawn, otherwise its name comes back as an empty
