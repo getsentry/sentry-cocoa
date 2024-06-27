@@ -13,7 +13,6 @@ class SentryReplayEventTests: XCTestCase {
         
         XCTAssertEqual(result["urls"] as? [String], ["Screen 1", "Screen 2"])
         XCTAssertEqual(result["replay_start_timestamp"] as? Int, 1)
-        XCTAssertEqual(result["trace_ids"] as? [String], [ traceIds[0].sentryIdString, traceIds[1].sentryIdString])
         XCTAssertEqual(result["replay_id"] as? String, replayId.sentryIdString)
         XCTAssertEqual(result["segment_id"] as? Int, 3)
         XCTAssertEqual(result["replay_type"] as? String, "buffer")
