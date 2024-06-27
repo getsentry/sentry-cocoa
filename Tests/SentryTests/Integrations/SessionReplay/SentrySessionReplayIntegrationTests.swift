@@ -16,7 +16,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         }
         
         override func relevantViewControllersNames() -> [String]? {
-            guard let screenName else { return nil }
+            guard let screenName = screenName else { return nil }
             return [screenName]
         }
     }
