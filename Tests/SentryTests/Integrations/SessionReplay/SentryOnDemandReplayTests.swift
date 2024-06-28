@@ -1,5 +1,4 @@
 import Foundation
-import Nimble
 @testable import Sentry
 import SentryTestUtils
 import XCTest
@@ -22,12 +21,12 @@ class SentryOnDemandReplayTests: XCTestCase {
         sut.addFrameAsync(image: UIImage.add)
        
         guard let frame = sut.frames.first else {
-            fail("Frame was not saved")
+            XCTFail("Frame was not saved")
             return
         }
         
-        expect(FileManager.default.fileExists(atPath: frame.imagePath)) == true
-        expect(frame.imagePath.hasPrefix(self.outputPath.path)) == true
+        XCTAssertEqual(FileManager.default.fileExists(atPath: frame.imagePath), true)
+        XCTAssertEqual(frame.imagePath.hasPrefix(self.outputPath.path), true)
     }
     
     func testReleaseFrames() {
@@ -42,9 +41,9 @@ class SentryOnDemandReplayTests: XCTestCase {
         
         let frames = sut.frames
         
-        expect(frames.count) == 5
-        expect(frames.first?.time) == Date(timeIntervalSinceReferenceDate: 5)
-        expect(frames.last?.time) == Date(timeIntervalSinceReferenceDate: 9)
+        XCTAssertEqual(frames.count, 5)
+        XCTAssertEqual(frames.first?.time, Date(timeIntervalSinceReferenceDate: 5))
+        XCTAssertEqual(frames.last?.time, Date(timeIntervalSinceReferenceDate: 9))
     }
     
     func testGenerateVideo() {
@@ -60,13 +59,13 @@ class SentryOnDemandReplayTests: XCTestCase {
         let videoExpectation = expectation(description: "Wait for video render")
         
         try? sut.createVideoWith(duration: 10, beginning: Date(timeIntervalSinceReferenceDate: 0), outputFileURL: output) { info, error in
-            expect(error) == nil
+            XCTAssertNil(error)
             
-            expect(info?.duration) == 10
-            expect(info?.start) == Date(timeIntervalSinceReferenceDate: 0)
-            expect(info?.end) == Date(timeIntervalSinceReferenceDate: 10)
+            XCTAssertEqual(info?.duration, 10)
+            XCTAssertEqual(info?.start, Date(timeIntervalSinceReferenceDate: 0))
+            XCTAssertEqual(info?.end, Date(timeIntervalSinceReferenceDate: 10))
             
-            expect(FileManager.default.fileExists(atPath: output.path)) == true
+            XCTAssertEqual(FileManager.default.fileExists(atPath: output.path), true)
             videoExpectation.fulfill()
             try? FileManager.default.removeItem(at: output)
         }
@@ -94,7 +93,7 @@ class SentryOnDemandReplayTests: XCTestCase {
         
         group.wait()
         queue.queue.sync {} //Wait for all enqueued operation to finish
-        expect(sut.frames.map({ ($0.imagePath as NSString).lastPathComponent })) == (0..<10).map { "\($0).png" }
+        XCTAssertEqual(sut.frames.map({ ($0.imagePath as NSString).lastPathComponent }), (0..<10).map { "\($0).png" })
     }
     
     func testReleaseIsThreadSafe() {
@@ -118,7 +117,7 @@ class SentryOnDemandReplayTests: XCTestCase {
         group.wait()
         
         queue.queue.sync {} //Wait for all enqueued operation to finish
-        expect(sut.frames.count) == 0
+        XCTAssertEqual(sut.frames.count, 0)
     }
     
 }

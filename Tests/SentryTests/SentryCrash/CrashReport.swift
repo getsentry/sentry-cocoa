@@ -17,6 +17,6 @@ extension XCTestCase {
     
     func getCrashReport(resource: String) throws -> [String: Any] {
         let jsonData = try jsonDataOfResource(resource: resource)
-        return try JSONSerialization.jsonObject(with: jsonData, options: []) as! [String: Any]
+        return try XCTUnwrap(JSONSerialization.jsonObject(with: jsonData, options: []) as? [String: Any])
     }
 }

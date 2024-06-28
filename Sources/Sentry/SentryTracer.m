@@ -16,7 +16,7 @@
 #import "SentryRandom.h"
 #import "SentrySDK+Private.h"
 #import "SentrySamplerDecision.h"
-#import "SentryScope.h"
+#import "SentryScope+Private.h"
 #import "SentrySpan.h"
 #import "SentrySpanContext+Private.h"
 #import "SentrySpanContext.h"
@@ -154,7 +154,17 @@ static BOOL appStartMeasurementRead;
     }
 
 #if SENTRY_HAS_UIKIT
-    viewNames = [SentryDependencyContainer.sharedInstance.application relevantViewControllersNames];
+    [hub configureScope:^(SentryScope *scope) {
+        if (scope.currentScreen != nil) {
+            self->viewNames = @[ scope.currentScreen ];
+        }
+    }];
+
+    if (viewNames == nil) {
+        viewNames =
+            [SentryDependencyContainer.sharedInstance.application relevantViewControllersNames];
+    }
+
 #endif // SENTRY_HAS_UIKIT
 
     _idleTimeoutLock = [[NSObject alloc] init];
@@ -261,7 +271,7 @@ static BOOL appStartMeasurementRead;
 - (void)startDeadlineTimer
 {
     __weak SentryTracer *weakSelf = self;
-    [_dispatchQueue dispatchOnMainQueue:^{
+    [_dispatchQueue dispatchAsyncOnMainQueue:^{
         weakSelf.deadlineTimer = [weakSelf.configuration.timerFactory
             scheduledTimerWithTimeInterval:SENTRY_AUTO_TRANSACTION_DEADLINE
                                    repeats:NO
@@ -303,7 +313,7 @@ static BOOL appStartMeasurementRead;
 
     // The timer must be invalidated from the thread on which the timer was installed, see
     // https://developer.apple.com/documentation/foundation/nstimer/1415405-invalidate#1770468
-    [_dispatchQueue dispatchOnMainQueue:^{
+    [_dispatchQueue dispatchAsyncOnMainQueue:^{
         if (weakSelf == nil) {
             SENTRY_LOG_DEBUG(@"WeakSelf is nil. Not invalidating deadlineTimer.");
             return;

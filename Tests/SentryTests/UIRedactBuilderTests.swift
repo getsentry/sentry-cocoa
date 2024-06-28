@@ -1,6 +1,5 @@
 #if os(iOS)
 import Foundation
-import Nimble
 @testable import Sentry
 import UIKit
 import XCTest
@@ -25,7 +24,7 @@ class UIRedactBuilderTests: XCTestCase {
         
         let result = sut.redactRegionsFor(view: rootView, options: RedactOptions())
         
-        expect(result.count) == 0
+        XCTAssertEqual(result.count, 0)
     }
     
     func testRedactALabel() {
@@ -36,9 +35,9 @@ class UIRedactBuilderTests: XCTestCase {
         
         let result = sut.redactRegionsFor(view: rootView, options: RedactOptions())
         
-        expect(result.count) == 1
-        expect(result.first?.color) == .purple
-        expect(result.first?.rect) == CGRect(x: 20, y: 20, width: 40, height: 40)
+        XCTAssertEqual(result.count, 1)
+        XCTAssertEqual(result.first?.color, .purple)
+        XCTAssertEqual(result.first?.rect, CGRect(x: 20, y: 20, width: 40, height: 40))
     }
     
     func testDontRedactALabelOptionDisabled() {
@@ -49,7 +48,7 @@ class UIRedactBuilderTests: XCTestCase {
         
         let result = sut.redactRegionsFor(view: rootView, options: RedactOptions(redactAllText: false))
         
-        expect(result.count) == 0
+        XCTAssertEqual(result.count, 0)
     }
     
     func testRedactAImage() {
@@ -65,9 +64,9 @@ class UIRedactBuilderTests: XCTestCase {
         
         let result = sut.redactRegionsFor(view: rootView, options: RedactOptions())
         
-        expect(result.count) == 1
-        expect(result.first?.color) == nil
-        expect(result.first?.rect) == CGRect(x: 20, y: 20, width: 40, height: 40)
+        XCTAssertEqual(result.count, 1)
+        XCTAssertNil(result.first?.color)
+        XCTAssertEqual(result.first?.rect, CGRect(x: 20, y: 20, width: 40, height: 40))
     }
     
     func testDontRedactAImageOptionDisabled() {
@@ -83,7 +82,7 @@ class UIRedactBuilderTests: XCTestCase {
         
         let result = sut.redactRegionsFor(view: rootView, options: RedactOptions(redactAllImages: false))
         
-        expect(result.count) == 0
+        XCTAssertEqual(result.count, 0)
     }
     
     func testDontRedactABundleImage() {
@@ -98,7 +97,7 @@ class UIRedactBuilderTests: XCTestCase {
         
         let result = sut.redactRegionsFor(view: rootView, options: RedactOptions())
         
-        expect(result.count) == 0
+        XCTAssertEqual(result.count, 0)
     }
     
     func testDontRedactAHiddenView() {
@@ -109,7 +108,7 @@ class UIRedactBuilderTests: XCTestCase {
         
         let result = sut.redactRegionsFor(view: rootView, options: RedactOptions())
         
-        expect(result.count) == 0
+        XCTAssertEqual(result.count, 0)
     }
     
     func testDontRedactATransparentView() {
@@ -120,7 +119,7 @@ class UIRedactBuilderTests: XCTestCase {
         
         let result = sut.redactRegionsFor(view: rootView, options: RedactOptions())
         
-        expect(result.count) == 0
+        XCTAssertEqual(result.count, 0)
     }
     
     func testDontRedactALabelBehindAOpaqueView() {
@@ -131,7 +130,7 @@ class UIRedactBuilderTests: XCTestCase {
         topView.backgroundColor = .white
         rootView.addSubview(topView)
         let result = sut.redactRegionsFor(view: rootView, options: RedactOptions())
-        expect(result.count) == 0
+        XCTAssertEqual(result.count, 0)
     }
     
     func testRedactALabelBehindATransparentView() {
@@ -142,7 +141,7 @@ class UIRedactBuilderTests: XCTestCase {
         topView.backgroundColor = .clear
         rootView.addSubview(topView)
         let result = sut.redactRegionsFor(view: rootView, options: RedactOptions())
-        expect(result.count) == 1
+        XCTAssertEqual(result.count, 1)
     }
     
     func testIgnoreClasses() {
@@ -154,7 +153,7 @@ class UIRedactBuilderTests: XCTestCase {
         rootView.addSubview(AnotherLabel(frame: CGRect(x: 20, y: 20, width: 40, height: 40)))
         
         let result = sut.redactRegionsFor(view: rootView, options: RedactOptions())
-        expect(result.count) == 0
+        XCTAssertEqual(result.count, 0)
     }
     
 }

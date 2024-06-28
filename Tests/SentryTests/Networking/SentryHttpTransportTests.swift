@@ -1,4 +1,3 @@
-import Nimble
 @testable import Sentry
 import SentryTestUtils
 import XCTest
@@ -569,7 +568,7 @@ class SentryHttpTransportTests: XCTestCase {
 
         waitForAllRequests()
 
-        expect(self.fixture.requestManager.requests.count) == 21
+        XCTAssertEqual(self.fixture.requestManager.requests.count, 21)
     }
     
     func testBuildingRequestFails_DeletesEnvelopeAndSendsNext() {
@@ -732,15 +731,14 @@ class SentryHttpTransportTests: XCTestCase {
             
             for _ in  0..<flushInvocations {
                 let beforeFlush = getAbsoluteTime()
-                expect(sut.flush(self.fixture.flushTimeout)).to(equal(.success), description: "Flush should not time out.")
+                XCTAssertEqual(sut.flush(self.fixture.flushTimeout), .success, "Flush should not time out.")
                 let blockingDuration = getDurationNs(beforeFlush, getAbsoluteTime()).toTimeInterval()
                 
                 blockingDurationSum += blockingDuration
             }
             
             let blockingDurationAverage = blockingDurationSum / Double(flushInvocations)
-            
-            expect(blockingDurationAverage) < 0.1
+            XCTAssertLessThan(blockingDurationAverage, 0.1)
             
         }
     }
@@ -760,15 +758,14 @@ class SentryHttpTransportTests: XCTestCase {
             
             for _ in  0..<flushInvocations {
                 let beforeFlush = getAbsoluteTime()
-                expect(sut.flush(self.fixture.flushTimeout)).to(equal(.success), description: "Flush should not time out.")
+                XCTAssertEqual(sut.flush(self.fixture.flushTimeout), .success, "Flush should not time out.")
                 let blockingDuration = getDurationNs(beforeFlush, getAbsoluteTime()).toTimeInterval()
                 
                 blockingDurationSum += blockingDuration
             }
             
             let blockingDurationAverage = blockingDurationSum / Double(flushInvocations)
-            
-            expect(blockingDurationAverage) < 0.1
+            XCTAssertLessThan(blockingDurationAverage, 0.1)
         }
     }
     
@@ -780,9 +777,9 @@ class SentryHttpTransportTests: XCTestCase {
             for _ in 0..<10 {
                 sut.send(envelope: fixture.eventEnvelope)
                 
-                expect(sut.flush(self.fixture.flushTimeout)).to(equal(.success), description: "Flush should not time out.")
+                XCTAssertEqual(sut.flush(self.fixture.flushTimeout), .success, "Flush should not time out.")
                 
-                expect(self.fixture.fileManager.getAllEnvelopes().count) == 0
+                XCTAssertEqual(self.fixture.fileManager.getAllEnvelopes().count, 0)
             }
         }
     }

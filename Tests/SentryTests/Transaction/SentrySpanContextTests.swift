@@ -82,7 +82,7 @@ class SentrySpanContextTests: XCTestCase {
         
         let data = spanContext.serialize()
         
-        XCTAssertEqual(data["sampled"] as? NSNumber, false)
+        XCTAssertFalse(try XCTUnwrap(data["sampled"] as? Bool))
     }
     
     func testSampleUndecidedSerialization() {

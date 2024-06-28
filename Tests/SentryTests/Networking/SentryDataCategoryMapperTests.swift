@@ -1,67 +1,66 @@
-import Nimble
 @testable import Sentry
 import XCTest
 
 class SentryDataCategoryMapperTests: XCTestCase {
     
     func testEnvelopeItemType() {
-        expect(sentryDataCategoryForEnvelopItemType("event")) == .error
-        expect(sentryDataCategoryForEnvelopItemType("session")) == .session
-        expect(sentryDataCategoryForEnvelopItemType("transaction")) == .transaction
-        expect(sentryDataCategoryForEnvelopItemType("attachment")) == .attachment
-        expect(sentryDataCategoryForEnvelopItemType("profile")) == .profile
-        expect(sentryDataCategoryForEnvelopItemType("profile_chunk")) == .profileChunk
-        expect(sentryDataCategoryForEnvelopItemType("statsd")) == .metricBucket
-        expect(sentryDataCategoryForEnvelopItemType("replay_video")) == .replay
-        expect(sentryDataCategoryForEnvelopItemType("unknown item type")) == .default
+        XCTAssertEqual(sentryDataCategoryForEnvelopItemType("event"), .error)
+        XCTAssertEqual(sentryDataCategoryForEnvelopItemType("session"), .session)
+        XCTAssertEqual(sentryDataCategoryForEnvelopItemType("transaction"), .transaction)
+        XCTAssertEqual(sentryDataCategoryForEnvelopItemType("attachment"), .attachment)
+        XCTAssertEqual(sentryDataCategoryForEnvelopItemType("profile"), .profile)
+        XCTAssertEqual(sentryDataCategoryForEnvelopItemType("profile_chunk"), .profileChunk)
+        XCTAssertEqual(sentryDataCategoryForEnvelopItemType("statsd"), .metricBucket)
+        XCTAssertEqual(sentryDataCategoryForEnvelopItemType("replay_video"), .replay)
+        XCTAssertEqual(sentryDataCategoryForEnvelopItemType("unknown item type"), .default)
     }
 
     func testMapIntegerToCategory() {
-        expect(sentryDataCategoryForNSUInteger(0)) == .all
-        expect(sentryDataCategoryForNSUInteger(1)) == .default
-        expect(sentryDataCategoryForNSUInteger(2)) == .error
-        expect(sentryDataCategoryForNSUInteger(3)) == .session
-        expect(sentryDataCategoryForNSUInteger(4)) == .transaction
-        expect(sentryDataCategoryForNSUInteger(5)) == .attachment
-        expect(sentryDataCategoryForNSUInteger(6)) == .userFeedback
-        expect(sentryDataCategoryForNSUInteger(7)) == .profile
-        expect(sentryDataCategoryForNSUInteger(8)) == .metricBucket
-        expect(sentryDataCategoryForNSUInteger(9)) == .replay
-        expect(sentryDataCategoryForNSUInteger(10)) == .profileChunk
-        expect(sentryDataCategoryForNSUInteger(11)) == .unknown
+        XCTAssertEqual(sentryDataCategoryForNSUInteger(0), .all)
+        XCTAssertEqual(sentryDataCategoryForNSUInteger(1), .default)
+        XCTAssertEqual(sentryDataCategoryForNSUInteger(2), .error)
+        XCTAssertEqual(sentryDataCategoryForNSUInteger(3), .session)
+        XCTAssertEqual(sentryDataCategoryForNSUInteger(4), .transaction)
+        XCTAssertEqual(sentryDataCategoryForNSUInteger(5), .attachment)
+        XCTAssertEqual(sentryDataCategoryForNSUInteger(6), .userFeedback)
+        XCTAssertEqual(sentryDataCategoryForNSUInteger(7), .profile)
+        XCTAssertEqual(sentryDataCategoryForNSUInteger(8), .metricBucket)
+        XCTAssertEqual(sentryDataCategoryForNSUInteger(9), .replay)
+        XCTAssertEqual(sentryDataCategoryForNSUInteger(10), .profileChunk)
+        XCTAssertEqual(sentryDataCategoryForNSUInteger(11), .unknown)
 
         XCTAssertEqual(.unknown, sentryDataCategoryForNSUInteger(11), "Failed to map unknown category number to case .unknown")
     }
     
     func testMapStringToCategory() {
-        expect(sentryDataCategoryForString(kSentryDataCategoryNameAll)) == .all
-        expect(sentryDataCategoryForString(kSentryDataCategoryNameDefault)) == .default
-        expect(sentryDataCategoryForString(kSentryDataCategoryNameError)) == .error
-        expect(sentryDataCategoryForString(kSentryDataCategoryNameSession)) == .session
-        expect(sentryDataCategoryForString(kSentryDataCategoryNameTransaction)) == .transaction
-        expect(sentryDataCategoryForString(kSentryDataCategoryNameAttachment)) == .attachment
-        expect(sentryDataCategoryForString(kSentryDataCategoryNameUserFeedback)) == .userFeedback
-        expect(sentryDataCategoryForString(kSentryDataCategoryNameProfile)) == .profile
-        expect(sentryDataCategoryForString(kSentryDataCategoryNameProfileChunk)) == .profileChunk
-        expect(sentryDataCategoryForString(kSentryDataCategoryNameMetricBucket)) == .metricBucket
-        expect(sentryDataCategoryForString(kSentryDataCategoryNameReplay)) == .replay
-        expect(sentryDataCategoryForString(kSentryDataCategoryNameUnknown)) == .unknown
+        XCTAssertEqual(sentryDataCategoryForString(kSentryDataCategoryNameAll), .all)
+        XCTAssertEqual(sentryDataCategoryForString(kSentryDataCategoryNameDefault), .default)
+        XCTAssertEqual(sentryDataCategoryForString(kSentryDataCategoryNameError), .error)
+        XCTAssertEqual(sentryDataCategoryForString(kSentryDataCategoryNameSession), .session)
+        XCTAssertEqual(sentryDataCategoryForString(kSentryDataCategoryNameTransaction), .transaction)
+        XCTAssertEqual(sentryDataCategoryForString(kSentryDataCategoryNameAttachment), .attachment)
+        XCTAssertEqual(sentryDataCategoryForString(kSentryDataCategoryNameUserFeedback), .userFeedback)
+        XCTAssertEqual(sentryDataCategoryForString(kSentryDataCategoryNameProfile), .profile)
+        XCTAssertEqual(sentryDataCategoryForString(kSentryDataCategoryNameProfileChunk), .profileChunk)
+        XCTAssertEqual(sentryDataCategoryForString(kSentryDataCategoryNameMetricBucket), .metricBucket)
+        XCTAssertEqual(sentryDataCategoryForString(kSentryDataCategoryNameReplay), .replay)
+        XCTAssertEqual(sentryDataCategoryForString(kSentryDataCategoryNameUnknown), .unknown)
 
         XCTAssertEqual(.unknown, sentryDataCategoryForString("gdfagdfsa"), "Failed to map unknown category name to case .unknown")
     }
 
     func testMapCategoryToString() {
-        expect(nameForSentryDataCategory(.all)) == kSentryDataCategoryNameAll
-        expect(nameForSentryDataCategory(.default)) == kSentryDataCategoryNameDefault
-        expect(nameForSentryDataCategory(.error)) == kSentryDataCategoryNameError
-        expect(nameForSentryDataCategory(.session)) == kSentryDataCategoryNameSession
-        expect(nameForSentryDataCategory(.transaction)) == kSentryDataCategoryNameTransaction
-        expect(nameForSentryDataCategory(.attachment)) == kSentryDataCategoryNameAttachment
-        expect(nameForSentryDataCategory(.userFeedback)) == kSentryDataCategoryNameUserFeedback
-        expect(nameForSentryDataCategory(.profile)) == kSentryDataCategoryNameProfile
-        expect(nameForSentryDataCategory(.profileChunk)) == kSentryDataCategoryNameProfileChunk
-        expect(nameForSentryDataCategory(.metricBucket)) == kSentryDataCategoryNameMetricBucket
-        expect(nameForSentryDataCategory(.replay)) == kSentryDataCategoryNameReplay
-        expect(nameForSentryDataCategory(.unknown)) == kSentryDataCategoryNameUnknown
+        XCTAssertEqual(nameForSentryDataCategory(.all), kSentryDataCategoryNameAll)
+        XCTAssertEqual(nameForSentryDataCategory(.default), kSentryDataCategoryNameDefault)
+        XCTAssertEqual(nameForSentryDataCategory(.error), kSentryDataCategoryNameError)
+        XCTAssertEqual(nameForSentryDataCategory(.session), kSentryDataCategoryNameSession)
+        XCTAssertEqual(nameForSentryDataCategory(.transaction), kSentryDataCategoryNameTransaction)
+        XCTAssertEqual(nameForSentryDataCategory(.attachment), kSentryDataCategoryNameAttachment)
+        XCTAssertEqual(nameForSentryDataCategory(.userFeedback), kSentryDataCategoryNameUserFeedback)
+        XCTAssertEqual(nameForSentryDataCategory(.profile), kSentryDataCategoryNameProfile)
+        XCTAssertEqual(nameForSentryDataCategory(.profileChunk), kSentryDataCategoryNameProfileChunk)
+        XCTAssertEqual(nameForSentryDataCategory(.metricBucket), kSentryDataCategoryNameMetricBucket)
+        XCTAssertEqual(nameForSentryDataCategory(.replay), kSentryDataCategoryNameReplay)
+        XCTAssertEqual(nameForSentryDataCategory(.unknown), kSentryDataCategoryNameUnknown)
     }
 }

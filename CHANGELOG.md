@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 8.30.0
 
 ### Features
 
@@ -12,6 +12,8 @@
 
 - `storeEnvelope` ends session for unhandled errors (#4073)
 - Deprecate `SentryUser.segment`(#4092). Please remove usages of this property. We will remove it in the next major.
+- Double-quoted include in framework header (#4115)
+- Sentry Replay Network details should be available without Tracing (#4091)
 
 ## 8.29.1
 
