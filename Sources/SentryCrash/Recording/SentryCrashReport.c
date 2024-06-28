@@ -1592,10 +1592,7 @@ writeDebugInfo(const SentryCrashReportWriter *const writer, const char *const ke
 {
     writer->beginObject(writer, key);
     {
-        if (monitorContext->consoleLogPath != NULL) {
-            addTextLinesFromFile(
-                writer, SentryCrashField_ConsoleLog, monitorContext->consoleLogPath);
-        }
+        addTextLinesFromFile(writer, SentryCrashField_ConsoleLog, g_logFilename);
     }
     writer->endContainer(writer);
 }

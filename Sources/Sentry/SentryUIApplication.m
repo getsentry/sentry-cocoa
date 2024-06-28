@@ -28,8 +28,9 @@
         // We store the application state when the app is initialized
         // and we keep track of its changes by the notifications
         // this way we avoid calling sharedApplication in a background thread
-        [SentryDependencyContainer.sharedInstance.dispatchQueueWrapper
-            dispatchOnMainQueue:^{ self->appState = self.sharedApplication.applicationState; }];
+        [SentryDependencyContainer.sharedInstance.dispatchQueueWrapper dispatchAsyncOnMainQueue:^{
+            self->appState = self.sharedApplication.applicationState;
+        }];
     }
     return self;
 }

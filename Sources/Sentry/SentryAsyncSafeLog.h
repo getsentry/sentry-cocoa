@@ -45,6 +45,8 @@ extern "C" {
 
 #include <stdbool.h>
 
+static char g_logFilename[1024];
+
 void sentry_asyncLogC(
     const char *level, const char *file, int line, const char *function, const char *fmt, ...);
 
@@ -69,13 +71,10 @@ void sentry_asyncLogC(
 /** Set the filename to log to.
  *
  * @param filename The file to write to (NULL = write to stdout).
- *
  * @param overwrite If true, overwrite the log file.
+ * @return 0 if successful, 1 otherwise.
  */
-bool sentry_asyncLogSetFileName(const char *filename, bool overwrite);
-
-/** Clear the log file. */
-bool sentry_asyncLogClearLogFile(void);
+int sentry_asyncLogSetFileName(const char *filename, bool overwrite);
 
 /** Tests if the logger would print at the specified level.
  *

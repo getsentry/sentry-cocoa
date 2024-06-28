@@ -429,9 +429,7 @@ private extension SentryTraceProfilerTests {
     }
 
     func printTimestamps(entries: [[String: Any]]) -> [NSString] {
-        entries.reduce(into: [NSString](), { partialResult, entry in
-            partialResult.append(entry["elapsed_since_start_ns"] as! NSString)
-        })
+        entries.compactMap({ $0["elapsed_since_start_ns"] as? NSString })
     }
 
     func assertMetricEntries(measurements: [String: Any], key: String, expectedEntries: [[String: Any]], transaction: Transaction) throws {

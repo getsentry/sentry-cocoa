@@ -62,7 +62,6 @@ SentryCrashInstallation ()
 @property (nonatomic, readwrite, retain) NSMutableData *crashHandlerDataBacking;
 @property (nonatomic, readwrite, retain) NSMutableDictionary *fields;
 @property (nonatomic, readwrite, retain) NSArray *requiredProperties;
-@property (nonatomic, readwrite, retain) SentryCrashReportFilterPipeline *prependedFilters;
 
 @end
 
@@ -72,7 +71,6 @@ SentryCrashInstallation ()
 @synthesize crashHandlerDataBacking = _crashHandlerDataBacking;
 @synthesize fields = _fields;
 @synthesize requiredProperties = _requiredProperties;
-@synthesize prependedFilters = _prependedFilters;
 
 - (id)init
 {
@@ -91,7 +89,6 @@ SentryCrashInstallation ()
                            + sizeof(*self.crashHandlerData->reportFields) * kMaxProperties];
         self.fields = [NSMutableDictionary dictionary];
         self.requiredProperties = requiredProperties;
-        self.prependedFilters = [SentryCrashReportFilterPipeline filterWithFilters:nil];
     }
     return self;
 }
@@ -207,16 +204,11 @@ SentryCrashInstallation ()
         return;
     }
 
-    sink = [SentryCrashReportFilterPipeline filterWithFilters:self.prependedFilters, sink, nil];
+    sink = [SentryCrashReportFilterPipeline filterWithFilters:sink, nil];
 
     SentryCrash *handler = SentryDependencyContainer.sharedInstance.crashReporter;
     handler.sink = sink;
     [handler sendAllReportsWithCompletion:onCompletion];
-}
-
-- (void)addPreFilter:(id<SentryCrashReportFilter>)filter
-{
-    [self.prependedFilters addFilter:filter];
 }
 
 - (id<SentryCrashReportFilter>)sink

@@ -1,4 +1,3 @@
-import Nimble
 import XCTest
 
 class SentryUserFeedbackTests: XCTestCase {
@@ -6,9 +5,9 @@ class SentryUserFeedbackTests: XCTestCase {
     func testPropertiesAreSetToEmptyString() {
         let userFeedback = UserFeedback(eventId: SentryId())
         
-        expect(userFeedback.comments).to(beEmpty())
-        expect(userFeedback.email).to(beEmpty())
-        expect(userFeedback.name).to(beEmpty())
+        XCTAssertEqual(userFeedback.comments, "")
+        XCTAssertEqual(userFeedback.email, "")
+        XCTAssertEqual(userFeedback.name, "")
     }
     
     func testSerialize() {
@@ -19,10 +18,10 @@ class SentryUserFeedbackTests: XCTestCase {
         
         let actual = userFeedback.serialize()
         
-        expect(actual["event_id"] as? String).to(match(userFeedback.eventId.sentryIdString))
-        expect(actual["comments"] as? String).to(match(userFeedback.comments))
-        expect(actual["email"] as? String).to(match(userFeedback.email))
-        expect(actual["name"] as? String).to(match(userFeedback.name))
+        XCTAssertEqual(actual["event_id"] as? String, userFeedback.eventId.sentryIdString)
+        XCTAssertEqual(actual["comments"] as? String, userFeedback.comments)
+        XCTAssertEqual(actual["email"] as? String, userFeedback.email)
+        XCTAssertEqual(actual["name"] as? String, userFeedback.name)
     }
     
     func testSerialize_WithoutSettingProperties_AllAreEmptyStrings() {
@@ -30,8 +29,8 @@ class SentryUserFeedbackTests: XCTestCase {
         
         let actual = userFeedback.serialize()
         
-        expect(actual["comments"] as? String).to(beEmpty())
-        expect(actual["email"] as? String).to(beEmpty())
-        expect(actual["name"] as? String).to(beEmpty())
+        XCTAssertEqual(actual["comments"] as? String, "")
+        XCTAssertEqual(actual["email"] as? String, "")
+        XCTAssertEqual(actual["name"] as? String, "")
     }
 }
