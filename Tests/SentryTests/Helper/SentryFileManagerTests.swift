@@ -28,7 +28,7 @@ class SentryFileManagerTests: XCTestCase {
         var delegate: TestFileManagerDelegate!
         // swiftlint:enable weak_delegate
         
-        init() {
+        init() throws {
             currentDateProvider = TestCurrentDateProvider()
             dispatchQueueWrapper = TestSentryDispatchQueueWrapper()
             
@@ -39,7 +39,7 @@ class SentryFileManagerTests: XCTestCase {
             
             sessionEnvelope = SentryEnvelope(session: session)
             
-            let sessionCopy = session.copy() as! SentrySession
+            let sessionCopy = try XCTUnwrap(session.copy() as? SentrySession)
             sessionCopy.incrementErrors()
             // We need to serialize in order to set the timestamp and the duration
             sessionUpdate = SentrySession(jsonObject: sessionCopy.serialize())!
@@ -48,7 +48,7 @@ class SentryFileManagerTests: XCTestCase {
             let items = [SentryEnvelopeItem(session: sessionUpdate), SentryEnvelopeItem(event: event)]
             sessionUpdateEnvelope = SentryEnvelope(id: event.eventId, items: items)
             
-            let sessionUpdateCopy = sessionUpdate.copy() as! SentrySession
+            let sessionUpdateCopy = try XCTUnwrap(sessionUpdate.copy() as? SentrySession)
             // We need to serialize in order to set the timestamp and the duration
             expectedSessionUpdate = SentrySession(jsonObject: sessionUpdateCopy.serialize())!
             // We can only set the init flag after serialize, because the duration is not set if the init flag is set
@@ -75,9 +75,9 @@ class SentryFileManagerTests: XCTestCase {
     private var fixture: Fixture!
     private var sut: SentryFileManager!
     
-    override func setUp() {
-        super.setUp()
-        fixture = Fixture()
+    override func setUpWithError() throws {
+        try super.setUpWithError()
+        fixture = try Fixture()
         SentryDependencyContainer.sharedInstance().dateProvider = fixture.currentDateProvider
         
         sut = fixture.getSut()
@@ -665,7 +665,7 @@ class SentryFileManagerTests: XCTestCase {
     
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
     
-    func testReadPreviousBreadcrumbs() {
+    func testReadPreviousBreadcrumbs() throws {
         let observer = SentryWatchdogTerminationScopeObserver(maxBreadcrumbs: 2, fileManager: sut)
         
         for count in 0..<3 {
@@ -677,14 +677,17 @@ class SentryFileManagerTests: XCTestCase {
         }
         
         sut.moveBreadcrumbsToPreviousBreadcrumbs()
-        let result = sut.readPreviousBreadcrumbs()
+        var result = sut.readPreviousBreadcrumbs()
+        
         XCTAssertEqual(result.count, 3)
-        XCTAssertEqual((result[0] as! NSDictionary)["message"] as! String, "0")
-        XCTAssertEqual((result[1] as! NSDictionary)["message"] as! String, "1")
-        XCTAssertEqual((result[2] as! NSDictionary)["message"] as! String, "2")
+        XCTAssertEqual(try XCTUnwrap(result.first as? NSDictionary)["message"] as? String, "0")
+        result = [Any](result.dropFirst())
+        XCTAssertEqual(try XCTUnwrap(result.first as? NSDictionary)["message"] as? String, "1")
+        result = [Any](result.dropFirst())
+        XCTAssertEqual(try XCTUnwrap(result.first as? NSDictionary)["message"] as? String, "2")
     }
     
-    func testReadPreviousBreadcrumbsCorrectOrderWhenFileTwoHasMoreCrumbs() {
+    func testReadPreviousBreadcrumbsCorrectOrderWhenFileTwoHasMoreCrumbs() throws {
         let observer = SentryWatchdogTerminationScopeObserver(maxBreadcrumbs: 2, fileManager: sut)
         
         for count in 0..<5 {
@@ -696,11 +699,14 @@ class SentryFileManagerTests: XCTestCase {
         }
         
         sut.moveBreadcrumbsToPreviousBreadcrumbs()
-        let result = sut.readPreviousBreadcrumbs()
+        var result = sut.readPreviousBreadcrumbs()
+        
         XCTAssertEqual(result.count, 3)
-        XCTAssertEqual((result[0] as! NSDictionary)["message"] as! String, "2")
-        XCTAssertEqual((result[1] as! NSDictionary)["message"] as! String, "3")
-        XCTAssertEqual((result[2] as! NSDictionary)["message"] as! String, "4")
+        XCTAssertEqual(try XCTUnwrap(result.first as? NSDictionary)["message"] as? String, "2")
+        result = [Any](result.dropFirst())
+        XCTAssertEqual(try XCTUnwrap(result.first as? NSDictionary)["message"] as? String, "3")
+        result = [Any](result.dropFirst())
+        XCTAssertEqual(try XCTUnwrap(result.first as? NSDictionary)["message"] as? String, "4")
     }
     
 #endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)

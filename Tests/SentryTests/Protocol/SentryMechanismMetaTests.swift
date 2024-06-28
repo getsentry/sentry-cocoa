@@ -27,19 +27,19 @@ class SentryMechanismMetaTests: XCTestCase {
             XCTFail("The serialization doesn't contain signal")
             return
         }
-        XCTAssertEqual(expected.signal?["number"] as! Int, signal["number"] as! Int)
-        XCTAssertEqual(expected.signal?["code"] as! Int, signal["code"] as! Int)
-        XCTAssertEqual(expected.signal?["name"] as! String, signal["name"] as! String)
-        XCTAssertEqual(expected.signal?["code_name"] as! String, signal["code_name"] as! String)
+        XCTAssertEqual(try XCTUnwrap(expected.signal?["number"] as? Int), try XCTUnwrap(signal["number"] as? Int))
+        XCTAssertEqual(try XCTUnwrap(expected.signal?["code"] as? Int), try XCTUnwrap(signal["code"] as? Int))
+        XCTAssertEqual(try XCTUnwrap(expected.signal?["name"] as? String), try XCTUnwrap(signal["name"] as? String))
+        XCTAssertEqual(try XCTUnwrap(expected.signal?["code_name"] as? String), try XCTUnwrap(signal["code_name"] as? String))
         
         guard let machException = actual["mach_exception"] as? [String: Any] else {
             XCTFail("The serialization doesn't contain mach_exception")
             return
         }
-        XCTAssertEqual(expected.machException?["name"] as! String, machException["name"] as! String)
-        XCTAssertEqual(expected.machException?["exception"] as! Int, machException["exception"] as! Int)
-        XCTAssertEqual(expected.machException?["subcode"] as! Int, machException["subcode"] as! Int)
-        XCTAssertEqual(expected.machException?["code"] as! Int, machException["code"] as! Int)
+        XCTAssertEqual(try XCTUnwrap(expected.machException?["name"] as? String), try XCTUnwrap(machException["name"] as? String))
+        XCTAssertEqual(try XCTUnwrap(expected.machException?["exception"] as? Int), try XCTUnwrap(machException["exception"] as? Int))
+        XCTAssertEqual(try XCTUnwrap(expected.machException?["subcode"] as? Int), try XCTUnwrap(machException["subcode"] as? Int))
+        XCTAssertEqual(try XCTUnwrap(expected.machException?["code"] as? Int), try XCTUnwrap(machException["code"] as? Int))
     }
     
     func testSerialize_CallsSanitize() {
@@ -52,10 +52,10 @@ class SentryMechanismMetaTests: XCTestCase {
         XCTAssertNotNil(actual)
         
         let machException = actual["mach_exception"] as? [String: Any]
-        XCTAssertEqual(self.description, machException?["a"]  as! String)
+        XCTAssertEqual(self.description, try XCTUnwrap(machException?["a"]  as? String))
         
         let signal = actual["signal"] as? [String: Any]
-        XCTAssertEqual(self.description, signal?["a"]  as! String)
+        XCTAssertEqual(self.description, try XCTUnwrap(signal?["a"]  as? String))
     }
 
 }
