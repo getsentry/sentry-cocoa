@@ -126,7 +126,8 @@ slowFrameThreshold(uint64_t actualFramesPerSecond)
 {
     // The DisplayLink callback always runs on the main thread. We dispatch this to the main thread
     // instead to avoid using locks in the DisplayLink callback.
-    [self.dispatchQueueWrapper dispatchOnMainQueue:^{ [self resetProfilingTimestampsInternal]; }];
+    [self.dispatchQueueWrapper
+        dispatchAsyncOnMainQueue:^{ [self resetProfilingTimestampsInternal]; }];
 }
 
 - (void)resetProfilingTimestampsInternal
