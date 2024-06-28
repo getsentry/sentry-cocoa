@@ -30,7 +30,7 @@
 
 #include <stdlib.h>
 
-#include "SentryCrashLogger.h"
+#include "SentryAsyncSafeLog.h"
 
 /** Represents an entry in a frame list.
  * This is modeled after the various i386/x64 frame walkers in the xnu source,

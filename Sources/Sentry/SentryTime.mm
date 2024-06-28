@@ -4,6 +4,7 @@
 #import <ctime>
 #import <mach/mach_time.h>
 
+#import "SentryAsyncSafeLog.h"
 #import "SentryMachLogging.hpp"
 
 uint64_t
@@ -51,7 +52,7 @@ getDurationNs(uint64_t startTimestamp, uint64_t endTimestamp)
 
     static struct mach_timebase_info info;
     static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{ SENTRY_PROF_LOG_KERN_RETURN(mach_timebase_info(&info)); });
+    dispatch_once(&onceToken, ^{ SENTRY_ASYNC_SAFE_LOG_KERN_RETURN(mach_timebase_info(&info)); });
     duration *= info.numer;
     duration /= info.denom;
     return duration;

@@ -27,7 +27,7 @@
 
 #include "SentryCrashMemory.h"
 
-#include "SentryCrashLogger.h"
+#include "SentryAsyncSafeLog.h"
 
 #include <_types/_uint8_t.h>
 #include <mach/mach.h>

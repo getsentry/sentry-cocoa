@@ -28,7 +28,7 @@
 #import "SentryLog.h"
 #include <execinfo.h>
 
-#include "SentryCrashLogger.h"
+#include "SentryAsyncSafeLog.h"
 
 #define MAX_BACKTRACE_LENGTH                                                                       \
     (SentryCrashSC_CONTEXT_SIZE                                                                    \

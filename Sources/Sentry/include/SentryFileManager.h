@@ -93,6 +93,9 @@ SENTRY_NO_INIT
 - (void)storeTimezoneOffset:(NSInteger)offset;
 - (void)deleteTimezoneOffset;
 
+BOOL createDirectoryIfNotExists(NSString *path, NSError **error);
+SENTRY_EXTERN NSString *_Nullable sentryApplicationSupportPath(void);
+
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 /**
  * @return @c YES if a launch profile config file is present, @c NO otherwise. If a config file is
