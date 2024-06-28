@@ -428,10 +428,8 @@ private extension SentryTraceProfilerTests {
         }
     }
 
-    func printTimestamps(entries: [[String: Any]]) throws -> [NSString] {
-        try entries.reduce(into: [NSString](), { partialResult, entry in
-            partialResult.append(try XCTUnwrap(entry["elapsed_since_start_ns"] as? NSString))
-        })
+    func printTimestamps(entries: [[String: Any]]) -> [NSString] {
+        entries.compactMap({ $0["elapsed_since_start_ns"] as? NSString })
     }
 
     func assertMetricEntries(measurements: [String: Any], key: String, expectedEntries: [[String: Any]], transaction: Transaction) throws {
@@ -441,7 +439,7 @@ private extension SentryTraceProfilerTests {
         let sortedExpectedEntries = try sortedByTimestamps(expectedEntries)
 
         guard actualEntries.count == expectedEntries.count else {
-            try XCTFail("Wrong number of values under \(key). expected: \(printTimestamps(entries: sortedExpectedEntries)); actual: \(printTimestamps(entries: sortedActualEntries)); transaction start time: \(transaction.startSystemTime)")
+            XCTFail("Wrong number of values under \(key). expected: \(printTimestamps(entries: sortedExpectedEntries)); actual: \(printTimestamps(entries: sortedActualEntries)); transaction start time: \(transaction.startSystemTime)")
             return
         }
 
