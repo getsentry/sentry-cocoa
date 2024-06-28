@@ -17,6 +17,26 @@ static SentryLevel diagnosticLevel = kSentryLevelError;
 static SentryLogOutput *logOutput;
 static NSObject *logConfigureLock;
 
+void
+_sentry_initializeAsyncLogFile(void)
+{
+    const char *asyncLogPath =
+        [[sentryApplicationSupportPath() stringByAppendingPathComponent:@"async.log"] UTF8String];
+
+    NSError *error;
+    if (!createDirectoryIfNotExists(sentryApplicationSupportPath(), &error)) {
+        SENTRY_LOG_ERROR(@"Failed to initialize directory for async log file: %@", error);
+        return;
+    }
+
+    if (SENTRY_LOG_ERRNO(
+            sentry_asyncLogSetFileName(asyncLogPath, true /* overwrite existing log */))
+        != 0) {
+        SENTRY_LOG_ERROR(
+            @"Could not open a handle to specified path for async logging %s", asyncLogPath);
+    };
+}
+
 + (void)configure:(BOOL)debug diagnosticLevel:(SentryLevel)level
 {
     static dispatch_once_t onceToken;
@@ -26,15 +46,7 @@ static NSObject *logConfigureLock;
         diagnosticLevel = level;
     }
 
-    // set up the async-safe log file
-    const char *asyncLogPath =
-        [[sentryApplicationSupportPath() stringByAppendingPathComponent:@"async.log"] UTF8String];
-    if (SENTRY_LOG_ERRNO(
-            sentry_asyncLogSetFileName(asyncLogPath, true /* overwrite existing log */))
-        == 0) {
-        SENTRY_LOG_ERROR(
-            @"Could not open a handle to specified path for async logging %s", asyncLogPath);
-    };
+    _sentry_initializeAsyncLogFile();
 }
 
 + (void)logWithMessage:(NSString *)message andLevel:(SentryLevel)level
