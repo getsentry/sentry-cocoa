@@ -1,4 +1,3 @@
-import Nimble
 @testable import Sentry
 import SentryTestUtils
 import XCTest
@@ -70,8 +69,8 @@ class SentryTransactionTests: XCTestCase {
         XCTAssertNotNil(actualMeasurements)
         
         let coldStartMeasurement = actualMeasurements?[name]
-        XCTAssertEqual(value, coldStartMeasurement?["value"] as! NSNumber)
-        XCTAssertEqual(unit.unit, coldStartMeasurement?["unit"] as! String)
+        XCTAssertEqual(value, try XCTUnwrap(coldStartMeasurement?["value"] as? NSNumber))
+        XCTAssertEqual(unit.unit, try XCTUnwrap(coldStartMeasurement?["unit"] as? String))
     }
     
     func testSerializeMeasurements_MultipleMeasurements() {
@@ -93,12 +92,12 @@ class SentryTransactionTests: XCTestCase {
         XCTAssertNotNil(actualMeasurements)
         
         let frameMeasurement = actualMeasurements?[frameName]
-        XCTAssertEqual(frameValue, frameMeasurement?["value"] as! NSNumber)
+        XCTAssertEqual(frameValue, try XCTUnwrap(frameMeasurement?["value"] as? NSNumber))
         XCTAssertNil(frameMeasurement?["unit"])
         
         let customMeasurement = actualMeasurements?[customName]
-        XCTAssertEqual(customValue, customMeasurement?["value"] as! NSNumber)
-        XCTAssertEqual(customUnit.unit, customMeasurement?["unit"] as! String)
+        XCTAssertEqual(customValue, try XCTUnwrap(customMeasurement?["value"] as? NSNumber))
+        XCTAssertEqual(customUnit.unit, try XCTUnwrap(customMeasurement?["unit"] as? String))
     }
     
     func testSerialize_Tags() {
@@ -144,7 +143,7 @@ class SentryTransactionTests: XCTestCase {
         let serializedTransactionExtra = try! XCTUnwrap(serializedTransaction["extra"] as? [String: Any])
         
         // then
-        XCTAssertEqual(serializedTransactionExtra[fixture.testKey] as! String, fixture.testValue)
+        XCTAssertEqual(try XCTUnwrap(serializedTransactionExtra[fixture.testKey] as? String), fixture.testValue)
     }
     
     func testSerialize_shouldPreserveExtraFromScope() {
@@ -161,7 +160,7 @@ class SentryTransactionTests: XCTestCase {
         let serializedTransactionExtra = try! XCTUnwrap(serializedTransaction["extra"] as? [String: Any])
         
         // then
-        XCTAssertEqual(serializedTransactionExtra[fixture.testKey] as! String, fixture.testValue)
+        XCTAssertEqual(try XCTUnwrap(serializedTransactionExtra[fixture.testKey] as? String), fixture.testValue)
     }
     
     func testSerializeOrigin() throws {
@@ -201,15 +200,15 @@ class SentryTransactionTests: XCTestCase {
         let serialized = sut.serialize()
         
         let metricsSummary = try XCTUnwrap(serialized["_metrics_summary"] as? [String: [[String: Any]]])
-        expect(metricsSummary.count) == 1
+        XCTAssertEqual(metricsSummary.count, 1)
         
         let bucket = try XCTUnwrap(metricsSummary["c:key"])
-        expect(bucket.count) == 1
+        XCTAssertEqual(bucket.count, 1)
         let metric = try XCTUnwrap(bucket.first)
-        expect(metric["min"] as? Double) == 1.0
-        expect(metric["max"] as? Double) == 1.0
-        expect(metric["count"] as? Int) == 1
-        expect(metric["sum"] as? Double) == 1.0
+        XCTAssertEqual(metric["min"] as? Double, 1.0)
+        XCTAssertEqual(metric["max"] as? Double, 1.0)
+        XCTAssertEqual(metric["count"] as? Int, 1)
+        XCTAssertEqual(metric["sum"] as? Double, 1.0)
     }
     
     func testSerializedSpanData() throws {

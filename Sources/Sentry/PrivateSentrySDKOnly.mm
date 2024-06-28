@@ -21,7 +21,6 @@
 #import <SentryFramesTracker.h>
 #import <SentryScope+Private.h>
 #import <SentryScreenshot.h>
-#import <SentrySessionReplay.h>
 #import <SentrySessionReplayIntegration.h>
 #import <SentryUser.h>
 
@@ -282,6 +281,14 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
     return nil;
 #endif // SENTRY_HAS_UIKIT
 }
+
+#if SENTRY_UIKIT_AVAILABLE
++ (void)setCurrentScreen:(NSString *)screenName
+{
+    [SentrySDK.currentHub
+        configureScope:^(SentryScope *scope) { scope.currentScreen = screenName; }];
+}
+#endif // SENTRY_HAS_UIKIT
 
 + (NSData *)captureViewHierarchy
 {

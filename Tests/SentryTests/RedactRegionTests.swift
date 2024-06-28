@@ -1,5 +1,4 @@
 import Foundation
-import Nimble
 @testable import Sentry
 import XCTest
 #if os(iOS) || os(tvOS)
@@ -10,9 +9,9 @@ class RedactRegionTests: XCTestCase {
         
         let result = sut.splitBySubtracting(region: CGRect(x: 0, y: 50, width: 100, height: 50))
         
-        expect(result.count) == 1
-        expect(result.first?.rect) == CGRect(x: 0, y: 0, width: 100, height: 50)
-        expect(result.first?.color) == .red
+        XCTAssertEqual(result.count, 1)
+        XCTAssertEqual(result.first?.rect, CGRect(x: 0, y: 0, width: 100, height: 50))
+        XCTAssertEqual(result.first?.color, .red)
     }
     
     func testSplitBySubtractingTop() {
@@ -20,8 +19,8 @@ class RedactRegionTests: XCTestCase {
         
         let result = sut.splitBySubtracting(region: CGRect(x: 0, y: 0, width: 100, height: 50))
         
-        expect(result.count) == 1
-        expect(result.first?.rect) == CGRect(x: 0, y: 50, width: 100, height: 50)
+        XCTAssertEqual(result.count, 1)
+        XCTAssertEqual(result.first?.rect, CGRect(x: 0, y: 50, width: 100, height: 50))
     }
     
     func testSplitBySubtractingTopRight() {
@@ -29,9 +28,9 @@ class RedactRegionTests: XCTestCase {
         
         let result = sut.splitBySubtracting(region: CGRect(x: 50, y: 0, width: 50, height: 50))
         
-        expect(result.count) == 2
-        expect(result.first?.rect) == CGRect(x: 0, y: 50, width: 100, height: 50)
-        expect(result[1].rect) == CGRect(x: 0, y: 0, width: 50, height: 50)
+        XCTAssertEqual(result.count, 2)
+        XCTAssertEqual(result.first?.rect, CGRect(x: 0, y: 50, width: 100, height: 50))
+        XCTAssertEqual(result[1].rect, CGRect(x: 0, y: 0, width: 50, height: 50))
     }
     
     func testSplitBySubtractingBottomLeft() {
@@ -39,9 +38,9 @@ class RedactRegionTests: XCTestCase {
         
         let result = sut.splitBySubtracting(region: CGRect(x: 0, y: 50, width: 50, height: 50))
         
-        expect(result.count) == 2
-        expect(result.first?.rect) == CGRect(x: 0, y: 0, width: 100, height: 50)
-        expect(result[1].rect) == CGRect(x: 50, y: 50, width: 50, height: 50)
+        XCTAssertEqual(result.count, 2)
+        XCTAssertEqual(result.first?.rect, CGRect(x: 0, y: 0, width: 100, height: 50))
+        XCTAssertEqual(result[1].rect, CGRect(x: 50, y: 50, width: 50, height: 50))
     }
     
     func testSplitBySubtractingMiddle() {
@@ -49,11 +48,11 @@ class RedactRegionTests: XCTestCase {
         
         let result = sut.splitBySubtracting(region: CGRect(x: 25, y: 25, width: 50, height: 50))
         
-        expect(result.count) == 4
-        expect(result[0].rect) == CGRect(x: 0, y: 0, width: 100, height: 25)
-        expect(result[1].rect) == CGRect(x: 0, y: 75, width: 100, height: 25)
-        expect(result[2].rect) == CGRect(x: 0, y: 25, width: 25, height: 50)
-        expect(result[3].rect) == CGRect(x: 75, y: 25, width: 25, height: 50)
+        XCTAssertEqual(result.count, 4)
+        XCTAssertEqual(result[0].rect, CGRect(x: 0, y: 0, width: 100, height: 25))
+        XCTAssertEqual(result[1].rect, CGRect(x: 0, y: 75, width: 100, height: 25))
+        XCTAssertEqual(result[2].rect, CGRect(x: 0, y: 25, width: 25, height: 50))
+        XCTAssertEqual(result[3].rect, CGRect(x: 75, y: 25, width: 25, height: 50))
     }
     
     func testSplitBySubtractingInHalfHorizontally() {
@@ -61,9 +60,9 @@ class RedactRegionTests: XCTestCase {
         
         let result = sut.splitBySubtracting(region: CGRect(x: 0, y: 25, width: 100, height: 50))
         
-        expect(result.count) == 2
-        expect(result[0].rect) == CGRect(x: 0, y: 0, width: 100, height: 25)
-        expect(result[1].rect) == CGRect(x: 0, y: 75, width: 100, height: 25)
+        XCTAssertEqual(result.count, 2)
+        XCTAssertEqual(result[0].rect, CGRect(x: 0, y: 0, width: 100, height: 25))
+        XCTAssertEqual(result[1].rect, CGRect(x: 0, y: 75, width: 100, height: 25))
     }
     
     func testSplitBySubtractingInHalfVertically() {
@@ -71,9 +70,9 @@ class RedactRegionTests: XCTestCase {
         
         let result = sut.splitBySubtracting(region: CGRect(x: 25, y: 0, width: 50, height: 100))
         
-        expect(result.count) == 2
-        expect(result[0].rect) == CGRect(x: 0, y: 0, width: 25, height: 100)
-        expect(result[1].rect) == CGRect(x: 75, y: 0, width: 25, height: 100)
+        XCTAssertEqual(result.count, 2)
+        XCTAssertEqual(result[0].rect, CGRect(x: 0, y: 0, width: 25, height: 100))
+        XCTAssertEqual(result[1].rect, CGRect(x: 75, y: 0, width: 25, height: 100))
     }
     
     func testSplitBySubtractingMiddleRight() {
@@ -81,10 +80,10 @@ class RedactRegionTests: XCTestCase {
         
         let result = sut.splitBySubtracting(region: CGRect(x: 25, y: 25, width: 100, height: 50))
         
-        expect(result.count) == 3
-        expect(result[0].rect) == CGRect(x: 0, y: 0, width: 100, height: 25)
-        expect(result[1].rect) == CGRect(x: 0, y: 75, width: 100, height: 25)
-        expect(result[2].rect) == CGRect(x: 0, y: 25, width: 25, height: 50)
+        XCTAssertEqual(result.count, 3)
+        XCTAssertEqual(result[0].rect, CGRect(x: 0, y: 0, width: 100, height: 25))
+        XCTAssertEqual(result[1].rect, CGRect(x: 0, y: 75, width: 100, height: 25))
+        XCTAssertEqual(result[2].rect, CGRect(x: 0, y: 25, width: 25, height: 50))
     }
     
     func testSplitBySubtractingMiddleLeft() {
@@ -92,51 +91,51 @@ class RedactRegionTests: XCTestCase {
         
         let result = sut.splitBySubtracting(region: CGRect(x: 0, y: 25, width: 100, height: 50))
         
-        expect(result.count) == 3
-        expect(result[0].rect) == CGRect(x: 50, y: 0, width: 100, height: 25)
-        expect(result[1].rect) == CGRect(x: 50, y: 75, width: 100, height: 25)
-        expect(result[2].rect) == CGRect(x: 100, y: 25, width: 50, height: 50)
+        XCTAssertEqual(result.count, 3)
+        XCTAssertEqual(result[0].rect, CGRect(x: 50, y: 0, width: 100, height: 25))
+        XCTAssertEqual(result[1].rect, CGRect(x: 50, y: 75, width: 100, height: 25))
+        XCTAssertEqual(result[2].rect, CGRect(x: 100, y: 25, width: 50, height: 50))
     }
 
     func testSplitBySubtracting_TopIsWider() {
         let sut = RedactRegion(rect: CGRect(x: 0, y: 0, width: 100, height: 100), color: .red)
         let result = sut.splitBySubtracting(region: CGRect(x: 0, y: 0, width: 150, height: 50))
         
-        expect(result.count) == 1
-        expect(result.first?.rect) == CGRect(x: 0, y: 50, width: 100, height: 50)
-        expect(result.first?.color) == .red
+        XCTAssertEqual(result.count, 1)
+        XCTAssertEqual(result.first?.rect, CGRect(x: 0, y: 50, width: 100, height: 50))
+        XCTAssertEqual(result.first?.color, .red)
     }
     
     func testSplitBySubtracting_BottomIsWider() {
         let sut = RedactRegion(rect: CGRect(x: 0, y: 0, width: 100, height: 100), color: .red) 
         let result = sut.splitBySubtracting(region: CGRect(x: 0, y: 50, width: 150, height: 50))
         
-        expect(result.count) == 1
-        expect(result.first?.rect) == CGRect(x: 0, y: 0, width: 100, height: 50)
-        expect(result.first?.color) == .red
+        XCTAssertEqual(result.count, 1)
+        XCTAssertEqual(result.first?.rect, CGRect(x: 0, y: 0, width: 100, height: 50))
+        XCTAssertEqual(result.first?.color, .red)
     }
     
     func testNoResultForEqualRegion() {
         let sut = RedactRegion(rect: CGRect(x: 0, y: 0, width: 100, height: 100), color: .red)
         let result = sut.splitBySubtracting(region: CGRect(x: 0, y: 0, width: 100, height: 100))
         
-        expect(result.count) == 0
+        XCTAssertEqual(result.count, 0)
     }
 
     func testNoResultForLargerRegion() {
         let sut = RedactRegion(rect: CGRect(x: 50, y: 50, width: 100, height: 100), color: .red)
         let result = sut.splitBySubtracting(region: CGRect(x: 0, y: 0, width: 200, height: 200))
         
-        expect(result.count) == 0
+        XCTAssertEqual(result.count, 0)
     }
     
     func testSameRegionForOutsideOfBounds() {
         let sut = RedactRegion(rect: CGRect(x: 0, y: 0, width: 100, height: 100), color: .red)
         let result = sut.splitBySubtracting(region: CGRect(x: 110, y: 110, width: 200, height: 200))
         
-        expect(result.count) == 1
-        expect(result.first?.rect) == sut.rect
-        expect(result.first?.color) == .red
+        XCTAssertEqual(result.count, 1)
+        XCTAssertEqual(result.first?.rect, sut.rect)
+        XCTAssertEqual(result.first?.color, .red)
     }
     
 }

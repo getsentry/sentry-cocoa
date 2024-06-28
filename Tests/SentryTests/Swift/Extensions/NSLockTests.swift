@@ -1,4 +1,3 @@
-import Nimble
 @testable import Sentry
 import XCTest
 
@@ -14,14 +13,14 @@ final class NSLockTests: XCTestCase {
                 value += 1
                 return 10
             }
-            expect(returnValue) == 10
+            XCTAssertEqual(returnValue, 10)
             
             lock.synchronized {
                 value += 1
             }
         })
         
-        expect(value) == 200
+        XCTAssertEqual(value, 200)
     }
     
     func testUnlockWhenThrowing() throws {
@@ -33,7 +32,7 @@ final class NSLockTests: XCTestCase {
                 throw NSLockError.runtimeError(errorMessage)
             }
         } catch NSLockError.runtimeError(let actualErrorMessage) {
-            expect(actualErrorMessage) == errorMessage
+            XCTAssertEqual(actualErrorMessage, errorMessage)
         }
         
         let expectation = expectation(description: "Lock should be non blocking")

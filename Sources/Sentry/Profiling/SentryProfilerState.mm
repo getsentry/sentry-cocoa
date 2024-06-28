@@ -2,11 +2,11 @@
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 #    import "SentryBacktrace.hpp"
 #    import "SentryDependencyContainer.h"
+#    import "SentryDispatchQueueWrapper.h"
 #    import "SentryFormatter.h"
 #    import "SentryProfileTimeseries.h"
 #    import "SentrySample.h"
 #    import "SentrySwift.h"
-#    import "SentryThreadWrapper.h"
 #    import <mach/mach_types.h>
 #    import <mach/port.h>
 #    import <mutex>
@@ -66,7 +66,8 @@ parseBacktraceSymbolsFunctionName(const char *symbol)
     if (self = [super init]) {
         _mutableState = [[SentryProfilerMutableState alloc] init];
         _mainThreadID = 0;
-        [SentryThreadWrapper onMainThread:^{ [self cacheMainThreadID]; }];
+        [SentryDependencyContainer.sharedInstance.dispatchQueueWrapper
+            dispatchAsyncOnMainQueue:^{ [self cacheMainThreadID]; }];
     }
     return self;
 }

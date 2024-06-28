@@ -10,7 +10,6 @@
 #import "SentryMessage.h"
 #import "SentryMeta.h"
 #import "SentryMsgPackSerializer.h"
-#import "SentryReplayEvent.h"
 #import "SentrySdkInfo.h"
 #import "SentrySerialization.h"
 #import "SentrySession.h"

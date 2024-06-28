@@ -60,13 +60,6 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)sendAllReportsWithCompletion:(nullable SentryCrashReportFilterCompletion)onCompletion;
 
-/** Add a filter that gets executed before all normal filters.
- * Prepended filters will be executed in the order in which they were added.
- *
- * @param filter the filter to prepend.
- */
-- (void)addPreFilter:(id<SentryCrashReportFilter>)filter;
-
 @end
 
 NS_ASSUME_NONNULL_END

@@ -1,4 +1,3 @@
-import Nimble
 import SentryTestUtils
 import XCTest
 
@@ -120,14 +119,14 @@ class SentryScopeSwiftTests: XCTestCase {
         XCTAssertNotNil(actual["breadcrumbs"])
     }
 
-    func testInitWithScope() {
+    func testInitWithScope() throws {
         let scope = fixture.scope
         scope.span = fixture.transaction
 
-        let snapshot = scope.serialize() as! [String: AnyHashable]
+        let snapshot = try XCTUnwrap(scope.serialize() as? [String: AnyHashable])
 
         let cloned = Scope(scope: scope)
-        XCTAssertEqual(cloned.serialize() as! [String: AnyHashable], snapshot)
+        XCTAssertEqual(try XCTUnwrap(cloned.serialize() as? [String: AnyHashable]), snapshot)
 
         let (event1, event2) = (Event(), Event())
         (event1.timestamp, event2.timestamp) = (fixture.date, fixture.date)
@@ -135,8 +134,8 @@ class SentryScopeSwiftTests: XCTestCase {
         scope.applyTo(event: event1, maxBreadcrumbs: 10)
         cloned.applyTo(event: event2, maxBreadcrumbs: 10)
         XCTAssertEqual(
-            event1.serialize() as! [String: AnyHashable],
-            event2.serialize() as! [String: AnyHashable]
+            try XCTUnwrap(event1.serialize() as? [String: AnyHashable]),
+            try XCTUnwrap(event2.serialize() as? [String: AnyHashable])
         )
 
         cloned.setExtras(["aa": "b"])
@@ -147,8 +146,8 @@ class SentryScopeSwiftTests: XCTestCase {
         cloned.setDist("a456")
         cloned.setEnvironment("a789")
 
-        XCTAssertEqual(scope.serialize() as! [String: AnyHashable], snapshot)
-        XCTAssertNotEqual(scope.serialize() as! [String: AnyHashable], cloned.serialize() as! [String: AnyHashable])
+        XCTAssertEqual(try XCTUnwrap(scope.serialize() as? [String: AnyHashable]), snapshot)
+        XCTAssertNotEqual(try XCTUnwrap(scope.serialize() as? [String: AnyHashable]), try XCTUnwrap(cloned.serialize() as? [String: AnyHashable]))
     }
     
     func testApplyToEvent() {
@@ -312,7 +311,7 @@ class SentryScopeSwiftTests: XCTestCase {
         scope.addBreadcrumb(fixture.breadcrumb)
         
         let serialized = scope.serialize()
-        expect(serialized["breadcrumbs"]) == nil
+        XCTAssertNil(serialized["breadcrumbs"])
     }
     
     func testMaxBreadcrumbs_IsNegative() {
@@ -321,7 +320,7 @@ class SentryScopeSwiftTests: XCTestCase {
         scope.addBreadcrumb(fixture.breadcrumb)
         
         let serialized = scope.serialize()
-        expect(serialized["breadcrumbs"]) == nil
+        XCTAssertNil(serialized["breadcrumbs"])
     }
     
     func testUseSpanForClear() {
@@ -602,7 +601,10 @@ class SentryScopeSwiftTests: XCTestCase {
         sut.addBreadcrumb(crumb)
         
         XCTAssertEqual(
-            [crumb.serialize() as! [String: AnyHashable], crumb.serialize() as! [String: AnyHashable]],
+            [
+                try XCTUnwrap(crumb.serialize() as? [String: AnyHashable]),
+                try XCTUnwrap(crumb.serialize() as? [String: AnyHashable])
+            ],
             observer.crumbs
         )
     }
@@ -720,7 +722,10 @@ class SentryScopeSwiftTests: XCTestCase {
         
         var crumbs: [[String: AnyHashable]] = []
         func addSerializedBreadcrumb(_ crumb: [String: Any]) {
-            crumbs.append(crumb as! [String: AnyHashable])
+            guard let typedCrumb = crumb as? [String: AnyHashable] else {
+                return
+            }
+            crumbs.append(typedCrumb)
         }
 
         var clearBreadcrumbInvocations = 0

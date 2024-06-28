@@ -1,4 +1,3 @@
-import Nimble
 import Sentry
 import SentryTestUtils
 import XCTest
@@ -29,7 +28,7 @@ class SentryFileManagerTests: XCTestCase {
         var delegate: TestFileManagerDelegate!
         // swiftlint:enable weak_delegate
         
-        init() {
+        init() throws {
             currentDateProvider = TestCurrentDateProvider()
             dispatchQueueWrapper = TestSentryDispatchQueueWrapper()
             
@@ -40,7 +39,7 @@ class SentryFileManagerTests: XCTestCase {
             
             sessionEnvelope = SentryEnvelope(session: session)
             
-            let sessionCopy = session.copy() as! SentrySession
+            let sessionCopy = try XCTUnwrap(session.copy() as? SentrySession)
             sessionCopy.incrementErrors()
             // We need to serialize in order to set the timestamp and the duration
             sessionUpdate = SentrySession(jsonObject: sessionCopy.serialize())!
@@ -49,7 +48,7 @@ class SentryFileManagerTests: XCTestCase {
             let items = [SentryEnvelopeItem(session: sessionUpdate), SentryEnvelopeItem(event: event)]
             sessionUpdateEnvelope = SentryEnvelope(id: event.eventId, items: items)
             
-            let sessionUpdateCopy = sessionUpdate.copy() as! SentrySession
+            let sessionUpdateCopy = try XCTUnwrap(sessionUpdate.copy() as? SentrySession)
             // We need to serialize in order to set the timestamp and the duration
             expectedSessionUpdate = SentrySession(jsonObject: sessionUpdateCopy.serialize())!
             // We can only set the init flag after serialize, because the duration is not set if the init flag is set
@@ -76,9 +75,9 @@ class SentryFileManagerTests: XCTestCase {
     private var fixture: Fixture!
     private var sut: SentryFileManager!
     
-    override func setUp() {
-        super.setUp()
-        fixture = Fixture()
+    override func setUpWithError() throws {
+        try super.setUpWithError()
+        fixture = try Fixture()
         SentryDependencyContainer.sharedInstance().dateProvider = fixture.currentDateProvider
         
         sut = fixture.getSut()
@@ -153,7 +152,7 @@ class SentryFileManagerTests: XCTestCase {
         let dsStoreFile = "\(sut.basePath)/.DS_Store"
         
         let result = FileManager.default.createFile(atPath: dsStoreFile, contents: "some data".data(using: .utf8))
-        expect(result) == true
+        XCTAssertEqual(result, true)
         
         sut.deleteOldEnvelopeItems()
         
@@ -161,7 +160,7 @@ class SentryFileManagerTests: XCTestCase {
             $0.contains("[Sentry] [debug]") &&
             $0.contains("Ignoring .DS_Store file when building envelopes path at path: \(dsStoreFile)")
         }
-        expect(logMessages.count) == 1
+        XCTAssertEqual(logMessages.count, 1)
         
         try FileManager.default.removeItem(atPath: dsStoreFile)
     }
@@ -176,7 +175,7 @@ class SentryFileManagerTests: XCTestCase {
         let textFilePath = "\(sut.basePath)/something.txt"
         
         let result = FileManager.default.createFile(atPath: textFilePath, contents: "some data".data(using: .utf8))
-        expect(result) == true
+        XCTAssertEqual(result, true)
         
         sut.deleteOldEnvelopeItems()
         
@@ -184,7 +183,7 @@ class SentryFileManagerTests: XCTestCase {
             $0.contains("[Sentry] [debug]") &&
             $0.contains("Ignoring non directory when deleting old envelopes at path: \(textFilePath)")
         }
-        expect(logMessages.count) == 1
+        XCTAssertEqual(logMessages.count, 1)
         
         try FileManager.default.removeItem(atPath: textFilePath)
     }
@@ -199,13 +198,13 @@ class SentryFileManagerTests: XCTestCase {
         let nonExistentFile = "nonExistentFile.txt"
         let nonExistentFileFullPath = "\(sut.basePath)/\(nonExistentFile)"
         
-        expect(sut.getEnvelopesPath(nonExistentFile)) == nil
+        XCTAssertNil(sut.getEnvelopesPath(nonExistentFile))
         
         let logMessages = logOutput.loggedMessages.filter {
             $0.contains("[Sentry] [warning]") &&
             $0.contains("Could not get attributes of item at path: \(nonExistentFileFullPath)")
         }
-        expect(logMessages.count) == 1
+        XCTAssertEqual(logMessages.count, 1)
     }
     
     func testDeleteOldEnvelopes_WithEmptyDSN() throws {
@@ -546,11 +545,11 @@ class SentryFileManagerTests: XCTestCase {
         sut.getAllEnvelopes()
         
         let debugLogMessages = logOutput.loggedMessages.filter { $0.contains("[Sentry] [info]") && $0.contains("Returning empty files list, as folder doesn't exist at path:") }
-        expect(debugLogMessages.count) == 1
+        XCTAssertEqual(debugLogMessages.count, 1)
         
         let errorMessages = logOutput.loggedMessages.filter { $0.contains("[Sentry] [error]") }
         
-        expect(errorMessages.count) == 0
+        XCTAssertEqual(errorMessages.count, 0)
     }
     
     func testReadStoreDeleteAppState() {
@@ -666,7 +665,7 @@ class SentryFileManagerTests: XCTestCase {
     
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
     
-    func testReadPreviousBreadcrumbs() {
+    func testReadPreviousBreadcrumbs() throws {
         let observer = SentryWatchdogTerminationScopeObserver(maxBreadcrumbs: 2, fileManager: sut)
         
         for count in 0..<3 {
@@ -678,14 +677,17 @@ class SentryFileManagerTests: XCTestCase {
         }
         
         sut.moveBreadcrumbsToPreviousBreadcrumbs()
-        let result = sut.readPreviousBreadcrumbs()
+        var result = sut.readPreviousBreadcrumbs()
+        
         XCTAssertEqual(result.count, 3)
-        XCTAssertEqual((result[0] as! NSDictionary)["message"] as! String, "0")
-        XCTAssertEqual((result[1] as! NSDictionary)["message"] as! String, "1")
-        XCTAssertEqual((result[2] as! NSDictionary)["message"] as! String, "2")
+        XCTAssertEqual(try XCTUnwrap(result.first as? NSDictionary)["message"] as? String, "0")
+        result = [Any](result.dropFirst())
+        XCTAssertEqual(try XCTUnwrap(result.first as? NSDictionary)["message"] as? String, "1")
+        result = [Any](result.dropFirst())
+        XCTAssertEqual(try XCTUnwrap(result.first as? NSDictionary)["message"] as? String, "2")
     }
     
-    func testReadPreviousBreadcrumbsCorrectOrderWhenFileTwoHasMoreCrumbs() {
+    func testReadPreviousBreadcrumbsCorrectOrderWhenFileTwoHasMoreCrumbs() throws {
         let observer = SentryWatchdogTerminationScopeObserver(maxBreadcrumbs: 2, fileManager: sut)
         
         for count in 0..<5 {
@@ -697,11 +699,14 @@ class SentryFileManagerTests: XCTestCase {
         }
         
         sut.moveBreadcrumbsToPreviousBreadcrumbs()
-        let result = sut.readPreviousBreadcrumbs()
+        var result = sut.readPreviousBreadcrumbs()
+        
         XCTAssertEqual(result.count, 3)
-        XCTAssertEqual((result[0] as! NSDictionary)["message"] as! String, "2")
-        XCTAssertEqual((result[1] as! NSDictionary)["message"] as! String, "3")
-        XCTAssertEqual((result[2] as! NSDictionary)["message"] as! String, "4")
+        XCTAssertEqual(try XCTUnwrap(result.first as? NSDictionary)["message"] as? String, "2")
+        result = [Any](result.dropFirst())
+        XCTAssertEqual(try XCTUnwrap(result.first as? NSDictionary)["message"] as? String, "3")
+        result = [Any](result.dropFirst())
+        XCTAssertEqual(try XCTUnwrap(result.first as? NSDictionary)["message"] as? String, "4")
     }
     
 #endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
@@ -718,13 +723,13 @@ extension SentryFileManagerTests {
     // if app launch profiling was configured to take place
     func testAppLaunchProfileConfigFileExists_fileExists() throws {
         try ensureAppLaunchProfileConfig()
-        expect(appLaunchProfileConfigFileExists()) == true
+        XCTAssertEqual(appLaunchProfileConfigFileExists(), true)
     }
     
     // if app launch profiling was not configured to take place
     func testAppLaunchProfileConfigFileExists_fileDoesNotExist() throws {
         try ensureAppLaunchProfileConfig(exists: false)
-        expect(appLaunchProfileConfigFileExists()) == false
+        XCTAssertFalse(appLaunchProfileConfigFileExists())
     }
     
     func testAppLaunchProfileConfiguration() throws {
@@ -734,14 +739,14 @@ extension SentryFileManagerTests {
         let config = appLaunchProfileConfiguration()
         let actualTracesSampleRate = try XCTUnwrap(config?[kSentryLaunchProfileConfigKeyTracesSampleRate]).doubleValue
         let actualProfilesSampleRate = try XCTUnwrap(config?[kSentryLaunchProfileConfigKeyProfilesSampleRate]).doubleValue
-        expect(actualTracesSampleRate) == expectedTracesSampleRate
-        expect(actualProfilesSampleRate) == expectedProfilesSampleRate
+        XCTAssertEqual(actualTracesSampleRate, expectedTracesSampleRate)
+        XCTAssertEqual(actualProfilesSampleRate, expectedProfilesSampleRate)
     }
     
     // if a file isn't present when we expect it to be, like if there was an issue when we went to write it to disk
     func testAppLaunchProfileConfiguration_noConfigurationExists() throws {
         try ensureAppLaunchProfileConfig(exists: false)
-        expect(appLaunchProfileConfiguration()) == nil
+        XCTAssertNil(appLaunchProfileConfiguration())
     }
     
     func testWriteAppLaunchProfilingConfigFile_noCurrentFileExists() throws {
@@ -758,8 +763,8 @@ extension SentryFileManagerTests {
         
         let actualTracesSampleRate = try XCTUnwrap(config?[kSentryLaunchProfileConfigKeyTracesSampleRate] as? NSNumber).doubleValue
         let actualProfilesSampleRate = try XCTUnwrap(config?[kSentryLaunchProfileConfigKeyProfilesSampleRate] as? NSNumber).doubleValue
-        expect(actualTracesSampleRate) == expectedTracesSampleRate
-        expect(actualProfilesSampleRate) == expectedProfilesSampleRate
+        XCTAssertEqual(actualTracesSampleRate, expectedTracesSampleRate)
+        XCTAssertEqual(actualProfilesSampleRate, expectedProfilesSampleRate)
     }
     
     // if a file is still present in the primary location, like if a crash occurred before it could be removed, or an error occurred when trying to remove it or move it to the backup location, make sure we overwrite it
@@ -777,23 +782,23 @@ extension SentryFileManagerTests {
         
         let actualTracesSampleRate = try XCTUnwrap(config?[kSentryLaunchProfileConfigKeyTracesSampleRate] as? NSNumber).doubleValue
         let actualProfilesSampleRate = try XCTUnwrap(config?[kSentryLaunchProfileConfigKeyProfilesSampleRate] as? NSNumber).doubleValue
-        expect(actualTracesSampleRate) == expectedTracesSampleRate
-        expect(actualProfilesSampleRate) == expectedProfilesSampleRate
+        XCTAssertEqual(actualTracesSampleRate, expectedTracesSampleRate)
+        XCTAssertEqual(actualProfilesSampleRate, expectedProfilesSampleRate)
     }
     
     func testRemoveAppLaunchProfilingConfigFile() throws {
         try ensureAppLaunchProfileConfig(exists: true)
-        expect(NSDictionary(contentsOf: launchProfileConfigFileURL())) != nil
+        XCTAssertNotNil(NSDictionary(contentsOf: launchProfileConfigFileURL()))
         removeAppLaunchProfilingConfigFile()
-        expect(NSDictionary(contentsOf: launchProfileConfigFileURL())) == nil
+        XCTAssertNil(NSDictionary(contentsOf: launchProfileConfigFileURL()))
     }
     
     // if there's not a file when we expect one, just make sure we don't crash
     func testRemoveAppLaunchProfilingConfigFile_noFileExists() throws {
         try ensureAppLaunchProfileConfig(exists: false)
-        expect(NSDictionary(contentsOf: launchProfileConfigFileURL())) == nil
+        XCTAssertNil(NSDictionary(contentsOf: launchProfileConfigFileURL()))
         removeAppLaunchProfilingConfigFile()
-        expect(NSDictionary(contentsOf: launchProfileConfigFileURL())) == nil
+        XCTAssertNil(NSDictionary(contentsOf: launchProfileConfigFileURL()))
     }
     
     func testCheckForLaunchProfilingConfigFile_URLDoesNotExist() {
@@ -804,7 +809,7 @@ extension SentryFileManagerTests {
         sentryLaunchConfigFileURL = nil
 
         // make sure we return a default-off value and also don't crash the call to access()
-        expect(appLaunchProfileConfigFileExists()) == false
+        XCTAssertFalse(appLaunchProfileConfigFileExists())
         
         // set the original value back so other tests don't crash
         sentryLaunchConfigFileURL = (originalURL as NSURL)

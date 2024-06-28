@@ -1,4 +1,3 @@
-import Nimble
 @testable import Sentry
 import SentryTestUtils
 import XCTest
@@ -196,19 +195,19 @@ class SentrySDKTests: XCTestCase {
     }
     
     func testCrashedLastRun() {
-        expect(SentryDependencyContainer.sharedInstance().crashReporter.crashedLastLaunch) == SentrySDK.crashedLastRun
+        XCTAssertEqual(SentryDependencyContainer.sharedInstance().crashReporter.crashedLastLaunch, SentrySDK.crashedLastRun)
     }
     
     func testDetectedStartUpCrash_DefaultValue() {
-        expect(SentrySDK.detectedStartUpCrash) == false
+        XCTAssertFalse(SentrySDK.detectedStartUpCrash)
     }
     
     func testDetectedStartUpCrash() {
         SentrySDK.setDetectedStartUpCrash(true)
-        expect(SentrySDK.detectedStartUpCrash) == true
+        XCTAssertEqual(SentrySDK.detectedStartUpCrash, true)
         
         SentrySDK.setDetectedStartUpCrash(false)
-        expect(SentrySDK.detectedStartUpCrash) == false
+        XCTAssertFalse(SentrySDK.detectedStartUpCrash)
     }
     
     func testCaptureCrashEvent() {
@@ -390,7 +389,7 @@ class SentrySDKTests: XCTestCase {
         XCTAssertEqual(event?.user, user)
     }
     
-    func testStartTransaction() {
+    func testStartTransaction() throws {
         givenSdkWithHub()
         
         let operation = "ui.load"
@@ -398,18 +397,21 @@ class SentrySDKTests: XCTestCase {
         let transaction = SentrySDK.startTransaction(name: name, operation: operation)
         
         XCTAssertEqual(operation, transaction.operation)
-        let tracer = transaction as! SentryTracer
+        let tracer = try XCTUnwrap(transaction as? SentryTracer)
         XCTAssertEqual(name, tracer.traceContext.transaction)
         
         XCTAssertNil(SentrySDK.span)
     }
     
-    func testStartTransaction_WithBindToScope() {
+    func testStartTransaction_WithBindToScope() throws {
         givenSdkWithHub()
         
         let transaction = SentrySDK.startTransaction(name: fixture.transactionName, operation: fixture.operation, bindToScope: true)
         
-        assertTransaction(transaction: transaction)
+        XCTAssertEqual(fixture.operation, transaction.operation)
+        let tracer = try XCTUnwrap(transaction as? SentryTracer)
+        XCTAssertEqual(fixture.transactionName, tracer.traceContext.transaction)
+        XCTAssertEqual(.custom, tracer.transactionContext.nameSource)
         
         let newSpan = SentrySDK.span
         
@@ -563,17 +565,17 @@ class SentrySDKTests: XCTestCase {
         let currentDateProvider = TestCurrentDateProvider()
         SentryDependencyContainer.sharedInstance().dateProvider = currentDateProvider
         
-        expect(SentrySDK.startTimestamp) == nil
+        XCTAssertNil(SentrySDK.startTimestamp)
         
         SentrySDK.start { options in
             options.dsn = SentrySDKTests.dsnAsString
             options.removeAllIntegrations()
         }
         
-        expect(SentrySDK.startTimestamp) == currentDateProvider.date()
+        XCTAssertEqual(SentrySDK.startTimestamp, currentDateProvider.date())
         
         SentrySDK.close()
-        expect(SentrySDK.startTimestamp) == nil
+        XCTAssertNil(SentrySDK.startTimestamp)
     }
     
     func testIsEnabled() {
@@ -817,17 +819,17 @@ class SentrySDKTests: XCTestCase {
         SentrySDK.metrics.increment(key: "key")
         SentrySDK.flush(timeout: 1.0)
         
-        expect(client.captureEnvelopeInvocations.count) == 1
+        XCTAssertEqual(client.captureEnvelopeInvocations.count, 1)
         
         let envelope = try XCTUnwrap(client.captureEnvelopeInvocations.first)
-        expect(envelope.header.eventId) != nil
+        XCTAssertNotNil(envelope.header.eventId)
 
         // We only check if it's an envelope with a statsd envelope item.
         // We validate the contents of the envelope in SentryMetricsClientTests
-        expect(envelope.items.count) == 1
+        XCTAssertEqual(envelope.items.count, 1)
         let envelopeItem = try XCTUnwrap(envelope.items.first)
-        expect(envelopeItem.header.type) == SentryEnvelopeItemTypeStatsd
-        expect(envelopeItem.header.contentType) == "application/octet-stream"
+        XCTAssertEqual(envelopeItem.header.type, SentryEnvelopeItemTypeStatsd)
+        XCTAssertEqual(envelopeItem.header.contentType, "application/octet-stream")
     }
     
     func testMetrics_BeforeEmitMetricCallback_DiscardEveryThing() throws {
@@ -843,7 +845,7 @@ class SentrySDKTests: XCTestCase {
         SentrySDK.metrics.increment(key: "key")
         SentrySDK.flush(timeout: 1.0)
         
-        expect(client.captureEnvelopeInvocations.count) == 0
+        XCTAssertEqual(client.captureEnvelopeInvocations.count, 0)
     }
 
 #if SENTRY_HAS_UIKIT
@@ -956,13 +958,6 @@ class SentrySDKTests: XCTestCase {
         XCTAssertEqual(fixture.scope, hubScope)
     }
     
-    private func assertTransaction(transaction: Span) {
-        XCTAssertEqual(fixture.operation, transaction.operation)
-        let tracer = transaction as! SentryTracer
-        XCTAssertEqual(fixture.transactionName, tracer.traceContext.transaction)
-        XCTAssertEqual(.custom, tracer.transactionContext.nameSource)
-    }
-    
     private func advanceTime(bySeconds: TimeInterval) {
         fixture.currentDate.setDate(date: SentryDependencyContainer.sharedInstance().dateProvider.date().addingTimeInterval(bySeconds))
     }
@@ -992,7 +987,7 @@ class SentrySDKWithSetupTests: XCTestCase {
                 
                 concurrentQueue.async {
                     let hub = SentryHub(client: nil, andScope: nil)
-                    expect(hub) != nil
+                    XCTAssertNotNil(hub)
                     
                     expectation.fulfill()
                 }

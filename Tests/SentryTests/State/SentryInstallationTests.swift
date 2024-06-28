@@ -1,4 +1,3 @@
-import Nimble
 import SentryTestUtils
 import XCTest
 
@@ -50,7 +49,7 @@ final class SentryInstallationTests: XCTestCase {
         
         SentryInstallation.cacheIDAsync(withCacheDirectoryPath: basePath)
         
-        expect(dispatchQueue.dispatchAsyncInvocations.count) == 1
+        XCTAssertEqual(dispatchQueue.dispatchAsyncInvocations.count, 1)
     }
     
     func testCacheIDAsync_CashesID() throws {
@@ -65,11 +64,11 @@ final class SentryInstallationTests: XCTestCase {
         try FileManager().removeItem(atPath: basePath)
         
         let nonCachedIDAfterDeletingFile = SentryInstallation.id(withCacheDirectoryPathNonCached: basePath)
-        expect(nonCachedIDAfterDeletingFile) == nil
+        XCTAssertNil(nonCachedIDAfterDeletingFile)
         
         let cachedID = SentryInstallation.id(withCacheDirectoryPath: basePath)
         
-        expect(cachedID) == nonCachedID
+        XCTAssertEqual(cachedID, nonCachedID)
 
     }
 }

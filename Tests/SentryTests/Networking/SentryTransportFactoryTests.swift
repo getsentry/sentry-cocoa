@@ -1,4 +1,3 @@
-import Nimble
 import Sentry
 import SentryTestUtils
 import XCTest
@@ -7,7 +6,7 @@ class SentryTransportFactoryTests: XCTestCase {
     
     private static let dsnAsString = TestConstants.dsnAsString(username: "SentryTransportFactoryTests")
 
-    func testIntegration_UrlSessionDelegate_PassedToRequestManager() {
+    func testIntegration_UrlSessionDelegate_PassedToRequestManager() throws {
         let urlSessionDelegateSpy = UrlSessionDelegateSpy()
         
         let expect = expectation(description: "UrlSession Delegate of Options called in RequestManager")
@@ -22,7 +21,7 @@ class SentryTransportFactoryTests: XCTestCase {
         let fileManager = try! SentryFileManager(options: options, dispatchQueueWrapper: TestSentryDispatchQueueWrapper())
         let transports = TransportInitializer.initTransports(options, sentryFileManager: fileManager, currentDateProvider: TestCurrentDateProvider())
         let httpTransport = transports.first
-        let requestManager = Dynamic(httpTransport).requestManager.asObject as! SentryQueueableRequestManager
+        let requestManager = try XCTUnwrap(Dynamic(httpTransport).requestManager.asObject as? SentryQueueableRequestManager)
         
         let imgUrl = URL(string: "https://github.com")!
         let request = URLRequest(url: imgUrl)
@@ -48,7 +47,7 @@ class SentryTransportFactoryTests: XCTestCase {
         let transports = TransportInitializer.initTransports(options, sentryFileManager: fileManager, currentDateProvider: TestCurrentDateProvider())
                 
         let httpTransport = transports.first
-        let requestManager = Dynamic(httpTransport).requestManager.asObject as! SentryQueueableRequestManager
+        let requestManager = try XCTUnwrap(Dynamic(httpTransport).requestManager.asObject as? SentryQueueableRequestManager)
         
         let imgUrl = URL(string: "https://github.com")!
         let request = URLRequest(url: imgUrl)
@@ -63,13 +62,13 @@ class SentryTransportFactoryTests: XCTestCase {
         options.enableSpotlight = true
         let transports = TransportInitializer.initTransports(options, sentryFileManager: try SentryFileManager(options: options), currentDateProvider: TestCurrentDateProvider())
         
-        expect(transports.contains {
+        XCTAssert(transports.contains {
             $0.isKind(of: SentrySpotlightTransport.self)
-        }) == true
+        })
         
-        expect(transports.contains {
+        XCTAssert(transports.contains {
             $0.isKind(of: SentryHttpTransport.self)
-        }) == true
+        })
     }
     
 }

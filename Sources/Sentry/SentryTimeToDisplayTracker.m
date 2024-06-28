@@ -127,7 +127,7 @@ SentryTimeToDisplayTracker () <SentryFramesTrackerListener>
 {
     // All other accesses to _fullyDisplayedReported run on the main thread.
     // To avoid using locks, we execute this on the main queue instead.
-    [_dispatchQueueWrapper dispatchOnMainQueue:^{ self->_fullyDisplayedReported = YES; }];
+    [_dispatchQueueWrapper dispatchAsyncOnMainQueue:^{ self->_fullyDisplayedReported = YES; }];
 }
 
 - (void)framesTrackerHasNewFrame:(NSDate *)newFrameDate

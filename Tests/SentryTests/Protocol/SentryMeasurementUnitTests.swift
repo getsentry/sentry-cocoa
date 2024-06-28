@@ -13,16 +13,16 @@ final class SentryMeasurementUnitTests: XCTestCase {
         XCTAssertEqual("", MeasurementUnit.none.unit)
     }
     
-    func testCopy() {
+    func testCopy() throws {
         let unit = "custom"
-        let sut = MeasurementUnit(unit: unit).copy() as! MeasurementUnit
+        let sut = try XCTUnwrap(MeasurementUnit(unit: unit).copy() as? MeasurementUnit)
 
         XCTAssertEqual(unit, sut.unit)
     }
     
-    func testCopyOfSubclass() {
+    func testCopyOfSubclass() throws {
         let unit = "custom"
-        let sut = MeasurementUnitDuration(unit: unit).copy() as! MeasurementUnitDuration
+        let sut = try XCTUnwrap(MeasurementUnitDuration(unit: unit).copy() as? MeasurementUnitDuration)
 
         XCTAssertEqual(unit, sut.unit)
     }

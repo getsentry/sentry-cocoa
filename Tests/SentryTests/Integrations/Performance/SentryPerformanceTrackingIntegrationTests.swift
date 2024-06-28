@@ -1,4 +1,3 @@
-import Nimble
 import SentryTestUtils
 import XCTest
 

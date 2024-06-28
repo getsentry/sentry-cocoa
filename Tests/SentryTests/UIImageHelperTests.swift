@@ -1,6 +1,5 @@
 #if canImport(UIKit)
 import Foundation
-import Nimble
 @testable import Sentry
 import XCTest
 
@@ -15,7 +14,7 @@ class UIImageHelperTests: XCTestCase {
             context.fill(testFrame)
         }
         
-        expect(UIImageHelper.averageColor(of: image, at: self.testFrame)) == .red
+        XCTAssertEqual(UIImageHelper.averageColor(of: image, at: self.testFrame), .red)
         
         let end = Date()
         print("Duration = \(end.timeIntervalSince(begin))")
@@ -27,7 +26,7 @@ class UIImageHelperTests: XCTestCase {
             context.fill(testFrame)
         }
         
-        expect(UIImageHelper.averageColor(of: image, at: self.testFrame)) == .green
+        XCTAssertEqual(UIImageHelper.averageColor(of: image, at: self.testFrame), .green)
     }
     
     func testAverageColorBlue() {
@@ -36,7 +35,7 @@ class UIImageHelperTests: XCTestCase {
             context.fill(testFrame)
         }
         
-        expect(UIImageHelper.averageColor(of: image, at: self.testFrame)) == .blue
+        XCTAssertEqual(UIImageHelper.averageColor(of: image, at: self.testFrame), .blue)
     }
     
     func testAverageColorYellow() {
@@ -45,7 +44,7 @@ class UIImageHelperTests: XCTestCase {
             context.fill(testFrame)
         }
         
-        expect(UIImageHelper.averageColor(of: image, at: self.testFrame)) == .yellow
+        XCTAssertEqual(UIImageHelper.averageColor(of: image, at: self.testFrame), .yellow)
     }
     
     func testGreenAreaInARedImage() {
@@ -58,7 +57,7 @@ class UIImageHelperTests: XCTestCase {
             context.fill(focusArea)
         }
         
-        expect(UIImageHelper.averageColor(of: image, at: focusArea)) == .green
+        XCTAssertEqual(UIImageHelper.averageColor(of: image, at: focusArea), .green)
     }
 }
 
