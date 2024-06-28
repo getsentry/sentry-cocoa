@@ -46,6 +46,23 @@ class SentryOnDemandReplayTests: XCTestCase {
         XCTAssertEqual(frames.last?.time, Date(timeIntervalSinceReferenceDate: 9))
     }
     
+    func testFramesWithScreenName() {
+        let sut = getSut()
+        
+        for i in 0..<4 {
+            sut.addFrameAsync(image: UIImage.add, forScreen: "\(i)")
+            dateProvider.advance(by: 1)
+        }
+        
+        sut.releaseFramesUntil(dateProvider.date().addingTimeInterval(-5))
+        
+        let frames = sut.frames
+        
+        for i in 0..<4 {
+            XCTAssertEqual(frames[i].screenName, "\(i)")
+        }
+    }
+    
     func testGenerateVideo() {
         let sut = getSut()
         dateProvider.driftTimeForEveryRead = true
@@ -58,7 +75,7 @@ class SentryOnDemandReplayTests: XCTestCase {
         let output = FileManager.default.temporaryDirectory.appendingPathComponent("video.mp4")
         let videoExpectation = expectation(description: "Wait for video render")
         
-        try? sut.createVideoWith(duration: 10, beginning: Date(timeIntervalSinceReferenceDate: 0), outputFileURL: output) { info, error in
+        try? sut.createVideoWith(beginning: Date(timeIntervalSinceReferenceDate: 0), end: Date(timeIntervalSinceReferenceDate: 10), outputFileURL: output) { info, error in
             XCTAssertNil(error)
             
             XCTAssertEqual(info?.duration, 10)
@@ -102,7 +119,7 @@ class SentryOnDemandReplayTests: XCTestCase {
                                        workingQueue: queue,
                                        dateProvider: dateProvider)
                 
-        sut.frames = (0..<100).map { SentryReplayFrame(imagePath: outputPath.path + "/\($0).png", time: Date(timeIntervalSinceReferenceDate: Double($0))) }
+        sut.frames = (0..<100).map { SentryReplayFrame(imagePath: outputPath.path + "/\($0).png", time: Date(timeIntervalSinceReferenceDate: Double($0)), screenName: nil) }
                 
         let group = DispatchGroup()
         

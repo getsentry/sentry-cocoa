@@ -12,8 +12,9 @@ class SentryVideoInfo: NSObject {
     let start: Date
     let end: Date
     let fileSize: Int
+    let screens: [String]
     
-    init(path: URL, height: Int, width: Int, duration: TimeInterval, frameCount: Int, frameRate: Int, start: Date, end: Date, fileSize: Int) {
+    init(path: URL, height: Int, width: Int, duration: TimeInterval, frameCount: Int, frameRate: Int, start: Date, end: Date, fileSize: Int, screens: [String]) {
         self.height = height
         self.width = width
         self.duration = duration
@@ -23,6 +24,7 @@ class SentryVideoInfo: NSObject {
         self.end = end
         self.path = path
         self.fileSize = fileSize
+        self.screens = screens
     }
     
 }

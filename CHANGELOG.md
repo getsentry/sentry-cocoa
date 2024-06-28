@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+- Include the screen names in the session replay (#4126)
+
 ## 8.30.0
 
 ### Features

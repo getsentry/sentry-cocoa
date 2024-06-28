@@ -30,7 +30,7 @@ static NSString *SENTRY_REPLAY_FOLDER = @"replay";
 static SentryTouchTracker *_touchTracker;
 
 @interface
-SentrySessionReplayIntegration () <SentrySessionReplayDelegate>
+SentrySessionReplayIntegration ()
 - (void)newSceneActivate;
 @end
 
@@ -126,8 +126,8 @@ SentrySessionReplayIntegration () <SentrySessionReplayDelegate>
     SentryOnDemandReplay *replayMaker = [[SentryOnDemandReplay alloc] initWithOutputPath:docs.path];
     replayMaker.bitRate = replayOptions.replayBitRate;
     replayMaker.cacheMaxSize
-        = (NSInteger)(shouldReplayFullSession ? replayOptions.sessionSegmentDuration
-                                              : replayOptions.errorReplayDuration);
+        = (NSInteger)(shouldReplayFullSession ? replayOptions.sessionSegmentDuration + 1
+                                              : replayOptions.errorReplayDuration + 1);
 
     self.sessionReplay = [[SentrySessionReplay alloc]
         initWithReplayOptions:replayOptions
@@ -305,6 +305,22 @@ SentrySessionReplayIntegration () <SentrySessionReplayDelegate>
     [SentrySDK.currentHub
         configureScope:^(SentryScope *_Nonnull scope) { result = scope.breadcrumbs; }];
     return result;
+}
+
+- (nullable NSString *)currentScreenNameForSessionReplay
+{
+    __block NSString *screenName;
+
+    [SentrySDK.currentHub
+        configureScope:^(SentryScope *_Nonnull scope) { screenName = scope.currentScreen; }];
+
+    if (screenName == nil) {
+        screenName =
+            [SentryDependencyContainer.sharedInstance.application relevantViewControllersNames]
+                .firstObject;
+    }
+
+    return screenName;
 }
 
 @end
