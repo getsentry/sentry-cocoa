@@ -665,7 +665,7 @@ class SentryClientTest: XCTestCase {
         }
     }
     
-    func testCaptureErrorWithSession_WithBeforeSendReturnsNil() {
+    func testCaptureErrorWithSession_WithBeforeSendReturnsNil() throws {
         let sessionBlockExpectation = expectation(description: "session block does not get called")
         sessionBlockExpectation.isInverted = true
 
@@ -679,7 +679,7 @@ class SentryClientTest: XCTestCase {
         wait(for: [sessionBlockExpectation], timeout: 0.2)
         
         eventId.assertIsEmpty()
-        assertLastSentEnvelopeIsASession()
+        try assertLastSentEnvelopeIsASession()
     }
 
     func testCaptureCrashEventWithSession() throws {
@@ -934,7 +934,7 @@ class SentryClientTest: XCTestCase {
         }
     }
     
-    func testCaptureExceptionWithSession_WithBeforeSendReturnsNil() {
+    func testCaptureExceptionWithSession_WithBeforeSendReturnsNil() throws {
         let eventId = fixture.getSut(configureOptions: { options in
             options.beforeSend = { _ in return nil }
         }).capture(exception, with: fixture.scope) {
@@ -942,7 +942,7 @@ class SentryClientTest: XCTestCase {
         }
         
         eventId.assertIsEmpty()
-        assertLastSentEnvelopeIsASession()
+        try assertLastSentEnvelopeIsASession()
     }
 
     func testCaptureExceptionWithUserInfo() throws {
@@ -963,11 +963,11 @@ class SentryClientTest: XCTestCase {
         XCTAssertEqual(fixture.environment, actual.environment)
     }
 
-    func testCaptureSession() {
+    func testCaptureSession() throws {
         let session = SentrySession(releaseName: "release", distinctId: "some-id")
         fixture.getSut().capture(session: session)
 
-        assertLastSentEnvelopeIsASession()
+        try assertLastSentEnvelopeIsASession()
     }
     
     func testCaptureSessionWithoutReleaseName() {
@@ -1617,7 +1617,7 @@ class SentryClientTest: XCTestCase {
         
         sut.capture(replayEvent, replayRecording: replayRecording, video: movieUrl!, with: Scope())
         let envelope = fixture.transport.sentEnvelopes.first
-        XCTAssertEqual(envelope?.items[0].header.type, SentryEnvelopeItemTypeReplayVideo)
+        XCTAssertEqual(try XCTUnwrap(envelope?.items.first).header.type, SentryEnvelopeItemTypeReplayVideo)
     }
     
     func testCaptureReplayEvent_WrongEventFromEventProcessor() {
@@ -1754,7 +1754,7 @@ private extension SentryClientTest {
             XCTFail("Event should contain one exception"); return
         }
         XCTAssertEqual(1, exceptions.count)
-        let exception = exceptions[0]
+        let exception = try XCTUnwrap(exceptions.first)
         XCTAssertEqual(expectedError.domain, exception.type)
         
         XCTAssertEqual(exceptionValue ?? "Code: \(expectedError.code)", exception.value)
@@ -1781,18 +1781,11 @@ private extension SentryClientTest {
         assertValidThreads(actual: event.threads)
     }
     
-    private func assertLastSentEnvelope(assert: (SentryEnvelope) -> Void) {
+    private func assertLastSentEnvelopeIsASession() throws {
         XCTAssertNotNil(fixture.transport.sentEnvelopes)
-        if let lastSentEnvelope = fixture.transport.sentEnvelopes.last {
-            assert(lastSentEnvelope)
-        }
-    }
-    
-    private func assertLastSentEnvelopeIsASession() {
-        assertLastSentEnvelope { actual in
-            XCTAssertEqual(1, actual.items.count)
-            XCTAssertEqual("session", actual.items[0].header.type)
-        }
+        let actual = try XCTUnwrap(fixture.transport.sentEnvelopes.last)
+        XCTAssertEqual(1, actual.items.count)
+        XCTAssertEqual("session", try XCTUnwrap(actual.items.first).header.type)
     }
     
     private func assertValidDebugMeta(actual: [DebugMeta]?, forThreads threads: [SentryThread]?) {

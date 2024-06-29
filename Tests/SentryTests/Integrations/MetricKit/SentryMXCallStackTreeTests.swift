@@ -41,7 +41,7 @@ final class SentryMXCallStackTreeTests: XCTestCase {
         // Only validate some properties as this only validates that we can
         // decode a real payload
         XCTAssertEqual(16, callStackTree.callStacks.count)
-        XCTAssertEqual(27, callStackTree.callStacks[0].flattenedRootFrames.count)
+        XCTAssertEqual(27, try XCTUnwrap(callStackTree.callStacks.first).flattenedRootFrames.count)
     }
     
     func testDecodeCallStackTree_GarbagePayload() throws {
@@ -69,7 +69,7 @@ final class SentryMXCallStackTreeTests: XCTestCase {
         XCTAssertEqual(1, firstFrame.sampleCount)
         XCTAssertEqual("Sentry", firstFrame.binaryName)
         XCTAssertEqual(4_312_798_220, firstFrame.address)
-        XCTAssertEqual(subFrameCount[0], firstFrame.subFrames?.count)
+        XCTAssertEqual(try XCTUnwrap(subFrameCount.first), firstFrame.subFrames?.count)
         
         let secondFrame = try XCTUnwrap(callStack.flattenedRootFrames[1])
         XCTAssertEqual(UUID(uuidString: "CA12CAFA-91BA-3E1C-BE9C-E34DB96FE7DF"), secondFrame.binaryUUID)

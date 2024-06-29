@@ -687,8 +687,8 @@ class SentryNetworkTrackerTests: XCTestCase {
         let transaction = try XCTUnwrap(startTransaction() as? SentryTracer)
         sut.urlSessionTaskResume(task)
 
-        let children = Dynamic(transaction).children as [SentrySpan]?
-        let networkSpan = children![0]
+        let children = try XCTUnwrap(Dynamic(transaction).children.asArray as? [SentrySpan])
+        let networkSpan = try XCTUnwrap(children.first)
         let expectedTraceHeader = networkSpan.toTraceHeader().value()
         XCTAssertEqual(task.currentRequest?.allHTTPHeaderFields?["sentry-trace"] ?? "", expectedTraceHeader)
     }

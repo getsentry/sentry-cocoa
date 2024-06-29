@@ -696,10 +696,10 @@ class SentryHubTests: XCTestCase {
         assertSessionWithIncrementedErrorCountedAdded()
     }
     
-    func testCaptureEnvelope_WithEventWithoutExceptionMechanism() {
+    func testCaptureEnvelope_WithEventWithoutExceptionMechanism() throws {
         sut.startSession()
         
-        captureFatalEventWithoutExceptionMechanism()
+        try captureFatalEventWithoutExceptionMechanism()
         
         assertSessionWithIncrementedErrorCountedAdded()
     }
@@ -1132,10 +1132,10 @@ class SentryHubTests: XCTestCase {
         sut.capture(SentryEnvelope(event: event))
     }
     
-    private func captureFatalEventWithoutExceptionMechanism() {
+    private func captureFatalEventWithoutExceptionMechanism() throws {
         let event = TestData.event
         event.level = SentryLevel.fatal
-        event.exceptions?[0].mechanism = nil
+        try XCTUnwrap(event.exceptions?.first).mechanism = nil
         sut.capture(SentryEnvelope(event: event))
     }
     

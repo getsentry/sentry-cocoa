@@ -527,7 +527,7 @@ private extension SentryTraceProfilerTests {
         let debugMeta = try XCTUnwrap(profile["debug_meta"] as? [String: Any])
         let images = try XCTUnwrap(debugMeta["images"] as? [[String: Any]])
         XCTAssertFalse(images.isEmpty)
-        let firstImage = images[0]
+        let firstImage = try XCTUnwrap(images.first)
         XCTAssertFalse(try XCTUnwrap(firstImage["code_file"] as? String).isEmpty)
         XCTAssertFalse(try XCTUnwrap(firstImage["debug_id"] as? String).isEmpty)
         XCTAssertFalse(try XCTUnwrap(firstImage["image_addr"] as? String).isEmpty)

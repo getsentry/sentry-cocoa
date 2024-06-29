@@ -177,15 +177,15 @@ class SentryScreenshotIntegrationTests: XCTestCase {
         let newAttachmentList = sut.processAttachments([], for: event) ?? []
         
         XCTAssertEqual(newAttachmentList.count, 3)
-        XCTAssertEqual(newAttachmentList[0].filename, "screenshot.png")
+        XCTAssertEqual(try XCTUnwrap(newAttachmentList.first).filename, "screenshot.png")
         XCTAssertEqual(newAttachmentList[1].filename, "screenshot-2.png")
         XCTAssertEqual(newAttachmentList[2].filename, "screenshot-3.png")
         
-        XCTAssertEqual(newAttachmentList[0].contentType, "image/png")
+        XCTAssertEqual(try XCTUnwrap(newAttachmentList.first).contentType, "image/png")
         XCTAssertEqual(newAttachmentList[1].contentType, "image/png")
         XCTAssertEqual(newAttachmentList[2].contentType, "image/png")
         
-        XCTAssertEqual(newAttachmentList[0].data?.count, 1)
+        XCTAssertEqual(try XCTUnwrap(newAttachmentList.first).data?.count, 1)
         XCTAssertEqual(newAttachmentList[1].data?.count, 2)
         XCTAssertEqual(newAttachmentList[2].data?.count, 3)
         
