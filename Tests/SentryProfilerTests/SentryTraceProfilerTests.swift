@@ -467,7 +467,7 @@ private extension SentryTraceProfilerTests {
             let actualValue = try XCTUnwrap(values[1]["value"] as? T)
             XCTAssertEqual(actualValue, expectedValue, "Wrong value for \(key)")
 
-            let timestamp = try XCTUnwrap(values[0]["elapsed_since_start_ns"] as? NSString)
+            let timestamp = try XCTUnwrap(values.first?["elapsed_since_start_ns"] as? NSString)
             try assertTimestampOccursWithinTransaction(timestamp: timestamp, transaction: transaction)
 
             let actualUnits = try XCTUnwrap(metricContainer["unit"] as? String)
@@ -555,8 +555,8 @@ private extension SentryTraceProfilerTests {
 
         let frames = try XCTUnwrap(sampledProfile["frames"] as? [[String: Any]])
         XCTAssertFalse(frames.isEmpty)
-        XCTAssertFalse(try XCTUnwrap(frames[0]["instruction_addr"] as? String).isEmpty)
-        XCTAssertFalse(try XCTUnwrap(frames[0]["function"] as? String).isEmpty)
+        XCTAssertFalse(try XCTUnwrap(frames.first?["instruction_addr"] as? String).isEmpty)
+        XCTAssertFalse(try XCTUnwrap(frames.first?["function"] as? String).isEmpty)
 
         let stacks = try XCTUnwrap(sampledProfile["stacks"] as? [[Int]])
         var foundAtLeastOneNonEmptySample = false

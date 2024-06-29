@@ -63,7 +63,7 @@ final class SentryMXCallStackTreeTests: XCTestCase {
         
         XCTAssertEqual(framesAmount, callStack.flattenedRootFrames.count)
         
-        let firstFrame = try XCTUnwrap(callStack.flattenedRootFrames[0])
+        let firstFrame = try XCTUnwrap(callStack.flattenedRootFrames.first)
         XCTAssertEqual(UUID(uuidString: "9E8D8DE6-EEC1-3199-8720-9ED68EE3F967"), firstFrame.binaryUUID)
         XCTAssertEqual(414_732, firstFrame.offsetIntoBinaryTextSegment)
         XCTAssertEqual(1, firstFrame.sampleCount)
@@ -87,7 +87,7 @@ final class SentryMXCallStackTreeTests: XCTestCase {
         XCTAssertEqual(4_310_988_026, thirdFrame.address)
         XCTAssertEqual(subFrameCount[2], thirdFrame.subFrames?.count ?? 0)
         
-        XCTAssertEqual(try XCTUnwrap(firstFrame.subFrames?[0]), secondFrame)
+        XCTAssertEqual(try XCTUnwrap(firstFrame.subFrames?.first), secondFrame)
     }
 }
 
