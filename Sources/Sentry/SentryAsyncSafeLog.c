@@ -91,7 +91,6 @@ writeToLog(const char *const str)
             pos += bytesWritten;
         }
     }
-    write(STDOUT_FILENO, str, strlen(str));
 
 #if SENTRY_ASYNC_SAFE_LOG_ALSO_WRITE_TO_CONSOLE
     // if we're debugging, also write the log statements to the console; we only check once for
@@ -150,10 +149,10 @@ sentry_asyncLogSetFileName(const char *filename, bool overwrite)
 }
 
 void
-sentry_asyncLogC(const char *const level, const char *const file, const int line,
-    const char *const function, const char *const fmt, ...)
+sentry_asyncLogC(
+    const char *const level, const char *const file, const int line, const char *const fmt, ...)
 {
-    writeFmtToLog("%s: %s (%u): %s: ", level, lastPathEntry(file), line, function);
+    writeFmtToLog("%s: %s (%u): ", level, lastPathEntry(file), line);
     va_list args;
     va_start(args, fmt);
     writeFmtArgsToLog(fmt, args);

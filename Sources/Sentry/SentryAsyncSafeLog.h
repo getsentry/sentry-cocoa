@@ -47,8 +47,7 @@ extern "C" {
 
 static char g_logFilename[1024];
 
-void sentry_asyncLogC(
-    const char *level, const char *file, int line, const char *function, const char *fmt, ...);
+void sentry_asyncLogC(const char *level, const char *file, int line, const char *fmt, ...);
 
 #define i_SENTRY_ASYNC_SAFE_LOG sentry_asyncLogC
 
@@ -62,7 +61,7 @@ void sentry_asyncLogC(
 #define SENTRY_ASYNC_SAFE_LOG_LEVEL SENTRY_ASYNC_SAFE_LOG_LEVEL_ERROR
 
 #define a_SENTRY_ASYNC_SAFE_LOG(LEVEL, FMT, ...)                                                   \
-    i_SENTRY_ASYNC_SAFE_LOG(LEVEL, __FILE__, __LINE__, __PRETTY_FUNCTION__, FMT, ##__VA_ARGS__)
+    i_SENTRY_ASYNC_SAFE_LOG(LEVEL, __FILE__, __LINE__, FMT, ##__VA_ARGS__)
 
 // ============================================================================
 #pragma mark - API -
@@ -107,8 +106,7 @@ int sentry_asyncLogSetFileName(const char *filename, bool overwrite);
  * @param FMT The format specifier, followed by its arguments.
  */
 #if SENTRY_ASYNC_SAFE_LOG_PRINTS_AT_LEVEL(SENTRY_ASYNC_SAFE_LOG_LEVEL_WARN)
-#    define SENTRY_ASYNC_SAFE_LOG_WARN(FMT, ...)                                                   \
-        a_SENTRY_ASYNC_SAFE_LOG("WARN ", FMT, ##__VA_ARGS__)
+#    define SENTRY_ASYNC_SAFE_LOG_WARN(FMT, ...) a_SENTRY_ASYNC_SAFE_LOG("WARN", FMT, ##__VA_ARGS__)
 #else
 #    define SENTRY_ASYNC_SAFE_LOG_WARN(FMT, ...)
 #endif
@@ -119,8 +117,7 @@ int sentry_asyncLogSetFileName(const char *filename, bool overwrite);
  * @param FMT The format specifier, followed by its arguments.
  */
 #if SENTRY_ASYNC_SAFE_LOG_PRINTS_AT_LEVEL(SENTRY_ASYNC_SAFE_LOG_LEVEL_INFO)
-#    define SENTRY_ASYNC_SAFE_LOG_INFO(FMT, ...)                                                   \
-        a_SENTRY_ASYNC_SAFE_LOG("INFO ", FMT, ##__VA_ARGS__)
+#    define SENTRY_ASYNC_SAFE_LOG_INFO(FMT, ...) a_SENTRY_ASYNC_SAFE_LOG("INFO", FMT, ##__VA_ARGS__)
 #else
 #    define SENTRY_ASYNC_SAFE_LOG_INFO(FMT, ...)
 #endif
