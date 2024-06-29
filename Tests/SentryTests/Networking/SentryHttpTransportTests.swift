@@ -444,7 +444,7 @@ class SentryHttpTransportTests: XCTestCase {
         let sessionRequest = try! SentryNSURLRequest(envelopeRequestWith: SentryHttpTransportTests.dsn(), andData: sessionData)
 
         if fixture.requestManager.requests.invocations.count > 3 {
-            XCTAssertEqual(sessionRequest.httpBody, fixture.requestManager.requests.invocations[3].httpBody, "Envelope with only session item should be sent.")
+            XCTAssertEqual(sessionRequest.httpBody, try XCTUnwrap(fixture.requestManager.requests.invocations.element(at: 3)).httpBody, "Envelope with only session item should be sent.")
         } else {
             XCTFail("Expected a fourth invocation")
         }
@@ -470,10 +470,10 @@ class SentryHttpTransportTests: XCTestCase {
 
         fixture.requestManager.waitForAllRequests()
         XCTAssertEqual(3, fixture.requestManager.requests.count)
-        XCTAssertEqual(fixture.eventWithAttachmentRequest.httpBody, fixture.requestManager.requests.invocations[1].httpBody, "Cached envelope was not sent first.")
+        XCTAssertEqual(fixture.eventWithAttachmentRequest.httpBody, try XCTUnwrap(fixture.requestManager.requests.invocations.element(at: 1)).httpBody, "Cached envelope was not sent first.")
 
         if fixture.requestManager.requests.invocations.count > 2 {
-            XCTAssertEqual(fixture.sessionRequest.httpBody, fixture.requestManager.requests.invocations[2].httpBody, "Cached envelope was not sent first.")
+            XCTAssertEqual(fixture.sessionRequest.httpBody, try XCTUnwrap(fixture.requestManager.requests.invocations.element(at: 2)).httpBody, "Cached envelope was not sent first.")
         } else {
             XCTFail("Expected a third invocation")
         }

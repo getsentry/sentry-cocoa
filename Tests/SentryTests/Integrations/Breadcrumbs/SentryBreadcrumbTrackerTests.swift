@@ -81,7 +81,7 @@ class SentryBreadcrumbTrackerTests: XCTestCase {
         XCTAssertEqual(payloadData["state"] as? String, "cellular")
     }
 
-    func testSwizzlingStarted_ViewControllerAppears_AddsUILifeCycleBreadcrumb() {
+    func testSwizzlingStarted_ViewControllerAppears_AddsUILifeCycleBreadcrumb() throws {
         let testReachability = TestSentryReachability()
         
         // We already test the network breadcrumbs in a test above. Using the `TestReachability`
@@ -122,7 +122,7 @@ class SentryBreadcrumbTrackerTests: XCTestCase {
             return
         }
 
-        let lifeCycleCrumb = crumbs[1]
+        let lifeCycleCrumb = try XCTUnwrap(crumbs.element(at: 1))
         XCTAssertEqual("navigation", lifeCycleCrumb.type)
         XCTAssertEqual("ui.lifecycle", lifeCycleCrumb.category)
         XCTAssertEqual("false", lifeCycleCrumb.data?["beingPresented"] as? String)
@@ -136,7 +136,7 @@ class SentryBreadcrumbTrackerTests: XCTestCase {
     
     func testNavigationBreadcrumbForSessionReplay() throws {
         //Call the previous test to create the breadcrumb into the delegate
-        testSwizzlingStarted_ViewControllerAppears_AddsUILifeCycleBreadcrumb()
+        try testSwizzlingStarted_ViewControllerAppears_AddsUILifeCycleBreadcrumb()
         
         let sut = SentrySRDefaultBreadcrumbConverter()
         

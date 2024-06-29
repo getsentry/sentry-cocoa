@@ -186,7 +186,7 @@ class SentryCoreDataTrackerTests: XCTestCase {
         
         XCTAssertEqual(transaction.children.count, 1)
         
-        guard let operations = transaction.children[0].data["operations"] as? [String: Any?] else {
+        guard let operations = try XCTUnwrap(transaction.children.first).data["operations"] as? [String: Any?] else {
             XCTFail("Transaction has no `operations` extra")
             return
         }
@@ -236,7 +236,7 @@ class SentryCoreDataTrackerTests: XCTestCase {
         }
         
         XCTAssertEqual(transaction.children.count, 1)
-        XCTAssertEqual(transaction.children[0].status, .internalError)
+        XCTAssertEqual(try XCTUnwrap(transaction.children.first).status, .internalError)
     }
     
     func test_Request_with_Error_is_nil() throws {
@@ -252,7 +252,7 @@ class SentryCoreDataTrackerTests: XCTestCase {
         })
         
         XCTAssertEqual(transaction.children.count, 1)
-        XCTAssertEqual(transaction.children[0].status, .internalError)
+        XCTAssertEqual(try XCTUnwrap(transaction.children.first).status, .internalError)
     }
     
     func test_save_with_Error() throws {
@@ -264,7 +264,7 @@ class SentryCoreDataTrackerTests: XCTestCase {
         })
         
         XCTAssertEqual(transaction.children.count, 1)
-        XCTAssertEqual(transaction.children[0].status, .internalError)
+        XCTAssertEqual(try XCTUnwrap(transaction.children.first).status, .internalError)
     }
     
     func test_save_with_error_is_nil() throws {
@@ -277,7 +277,7 @@ class SentryCoreDataTrackerTests: XCTestCase {
         }
         
         XCTAssertEqual(transaction.children.count, 1)
-        XCTAssertEqual(transaction.children[0].status, .internalError)
+        XCTAssertEqual(try XCTUnwrap(transaction.children.first).status, .internalError)
     }
     
     func test_Save_NoChanges() throws {

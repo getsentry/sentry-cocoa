@@ -178,7 +178,7 @@ private extension SentryContinuousProfilerTests {
         let debugMeta = try XCTUnwrap(profile["debug_meta"] as? [String: Any])
         let images = try XCTUnwrap(debugMeta["images"] as? [[String: Any]])
         XCTAssertFalse(images.isEmpty)
-        let firstImage = images[0]
+        let firstImage = try XCTUnwrap(images.first)
         XCTAssertFalse(try XCTUnwrap(firstImage["code_file"] as? String).isEmpty)
         XCTAssertFalse(try XCTUnwrap(firstImage["debug_id"] as? String).isEmpty)
         XCTAssertFalse(try XCTUnwrap(firstImage["image_addr"] as? String).isEmpty)
@@ -196,8 +196,8 @@ private extension SentryContinuousProfilerTests {
 
         let frames = try XCTUnwrap(sampledProfile["frames"] as? [[String: Any]])
         XCTAssertFalse(frames.isEmpty)
-        XCTAssertFalse(try XCTUnwrap(frames[0]["instruction_addr"] as? String).isEmpty)
-        XCTAssertFalse(try XCTUnwrap(frames[0]["function"] as? String).isEmpty)
+        XCTAssertFalse(try XCTUnwrap(frames.first?["instruction_addr"] as? String).isEmpty)
+        XCTAssertFalse(try XCTUnwrap(frames.first?["function"] as? String).isEmpty)
 
         let stacks = try XCTUnwrap(sampledProfile["stacks"] as? [[Int]])
         var foundAtLeastOneNonEmptySample = false
@@ -285,10 +285,10 @@ private extension SentryContinuousProfilerTests {
         XCTAssertEqual(values.count, readingsPerBatch - (expectOneLessEnergyReading ? 1 : 0), "Wrong number of values under \(key); (expectOneLessEnergyReading: \(expectOneLessEnergyReading))")
 
         if let expectedValue = expectedValue {
-            let actualValue = try XCTUnwrap(values[1]["value"] as? T)
+            let actualValue = try XCTUnwrap(try XCTUnwrap(values.element(at: 1))["value"] as? T)
             XCTAssertEqual(actualValue, expectedValue, "Wrong value for \(key)")
 
-            let timestamp = try XCTUnwrap(values[0]["timestamp"] as? TimeInterval)
+            let timestamp = try XCTUnwrap(values.first?["timestamp"] as? TimeInterval)
             try assertTimestampOccursWithinTransaction(timestamp: timestamp, chunkStartTime: chunkStartTime, chunkEndTime: chunkEndTime)
 
             let actualUnits = try XCTUnwrap(metricContainer["unit"] as? String)

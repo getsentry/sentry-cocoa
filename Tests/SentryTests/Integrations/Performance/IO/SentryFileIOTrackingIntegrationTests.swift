@@ -21,9 +21,9 @@ class SentryFileIOTrackingIntegrationTests: XCTestCase {
             return result
         }
         
-        init() {
+        init() throws {
             let paths = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
-            fileDirectory = paths[0]
+            fileDirectory = try XCTUnwrap(paths.first)
             fileURL = fileDirectory.appendingPathComponent("TestFile")
             filePath = fileURL?.path
         }
@@ -32,9 +32,9 @@ class SentryFileIOTrackingIntegrationTests: XCTestCase {
     private var fixture: Fixture!
     var deleteFileDirectory = false
     
-    override func setUp() {
-        super.setUp()
-        fixture = Fixture()
+    override func setUpWithError() throws {
+        try super.setUpWithError()
+        fixture = try Fixture()
         
         if  !FileManager.default.fileExists(atPath: fixture.fileDirectory.path) {
             try? FileManager.default.createDirectory(at: fixture.fileDirectory, withIntermediateDirectories: true, attributes: nil)

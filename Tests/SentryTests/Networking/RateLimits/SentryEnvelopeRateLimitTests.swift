@@ -74,7 +74,7 @@ class SentryEnvelopeRateLimitTests: XCTestCase {
         let actual = sut.removeRateLimitedItems(envelope)
         
         XCTAssertEqual(1, actual.items.count)
-        XCTAssertEqual(SentryEnvelopeItemTypeEvent, actual.items[0].header.type)
+        XCTAssertEqual(SentryEnvelopeItemTypeEvent, try XCTUnwrap(actual.items.first).header.type)
     }
     
     func getEnvelope() -> SentryEnvelope {

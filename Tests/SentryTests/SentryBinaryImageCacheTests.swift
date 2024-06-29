@@ -33,13 +33,13 @@ class SentryBinaryImageCacheTests: XCTestCase {
         sut.binaryImageAdded(&binaryImage2)
         XCTAssertEqual(sut.cache.count, 3)
         XCTAssertEqual(sut.cache.first?.name, "Expected Name at 100")
-        XCTAssertEqual(sut.cache[1].name, "Expected Name at 200")
+        XCTAssertEqual(try XCTUnwrap(sut.cache.element(at: 1)).name, "Expected Name at 200")
         XCTAssertEqual(sut.cache.last?.name, "Expected Name at 400")
 
         sut.binaryImageAdded(&binaryImage0)
         XCTAssertEqual(sut.cache.count, 4)
         XCTAssertEqual(sut.cache.first?.name, "Expected Name at 0")
-        XCTAssertEqual(sut.cache[1].name, "Expected Name at 100")
+        XCTAssertEqual(try XCTUnwrap(sut.cache.element(at: 1)).name, "Expected Name at 100")
     }
     
     func testBinaryImageAdded_IsNull() {

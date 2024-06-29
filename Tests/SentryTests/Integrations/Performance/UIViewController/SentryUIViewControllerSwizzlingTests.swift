@@ -151,7 +151,7 @@ class SentryUIViewControllerSwizzlingTests: XCTestCase {
         // UIScene is available from iOS 13 and above.
         if #available(iOS 13.0, tvOS 13.0, macCatalyst 13.0, *) {
             XCTAssertEqual(swizzler.viewControllers.count, 1)
-            XCTAssertTrue(swizzler.viewControllers[0] is TestViewController)
+            XCTAssertTrue(try XCTUnwrap(swizzler.viewControllers.first) is TestViewController)
         } else {
             XCTAssertEqual(swizzler.viewControllers.count, 0)
         }
