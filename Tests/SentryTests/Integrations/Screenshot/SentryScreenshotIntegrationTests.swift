@@ -178,16 +178,16 @@ class SentryScreenshotIntegrationTests: XCTestCase {
         
         XCTAssertEqual(newAttachmentList.count, 3)
         XCTAssertEqual(try XCTUnwrap(newAttachmentList.first).filename, "screenshot.png")
-        XCTAssertEqual(newAttachmentList[1].filename, "screenshot-2.png")
-        XCTAssertEqual(newAttachmentList[2].filename, "screenshot-3.png")
+        XCTAssertEqual(try XCTUnwrap(newAttachmentList.element(at: 1)).filename, "screenshot-2.png")
+        XCTAssertEqual(try XCTUnwrap(newAttachmentList.element(at: 2)).filename, "screenshot-3.png")
         
         XCTAssertEqual(try XCTUnwrap(newAttachmentList.first).contentType, "image/png")
-        XCTAssertEqual(newAttachmentList[1].contentType, "image/png")
-        XCTAssertEqual(newAttachmentList[2].contentType, "image/png")
+        XCTAssertEqual(try XCTUnwrap(newAttachmentList.element(at: 1)).contentType, "image/png")
+        XCTAssertEqual(try XCTUnwrap(newAttachmentList.element(at: 2)).contentType, "image/png")
         
         XCTAssertEqual(try XCTUnwrap(newAttachmentList.first).data?.count, 1)
-        XCTAssertEqual(newAttachmentList[1].data?.count, 2)
-        XCTAssertEqual(newAttachmentList[2].data?.count, 3)
+        XCTAssertEqual(try XCTUnwrap(newAttachmentList.element(at: 1)).data?.count, 2)
+        XCTAssertEqual(try XCTUnwrap(newAttachmentList.element(at: 2)).data?.count, 3)
         
     }
     

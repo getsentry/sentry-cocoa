@@ -464,7 +464,7 @@ private extension SentryTraceProfilerTests {
         XCTAssertEqual(values.count, numberOfReadings, "Wrong number of values under \(key)")
 
         if let expectedValue = expectedValue {
-            let actualValue = try XCTUnwrap(values[1]["value"] as? T)
+            let actualValue = try XCTUnwrap(values.element(at: 1)?["value"] as? T)
             XCTAssertEqual(actualValue, expectedValue, "Wrong value for \(key)")
 
             let timestamp = try XCTUnwrap(values.first?["elapsed_since_start_ns"] as? NSString)

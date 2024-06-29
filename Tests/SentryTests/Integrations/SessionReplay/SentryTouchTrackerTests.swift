@@ -155,9 +155,9 @@ class SentryTouchTrackerTests: XCTestCase {
         
         let result = sut.replayEvents(from: referenceDate, until: referenceDate.addingTimeInterval(5))
         let firstEventFirstTouch = try XCTUnwrap(result.first).data
-        let firstEventSecondTouch = result[1].data
-        let secondEventFirstTouch = result[2].data
-        let secondEventSecondTouch = result[3].data
+        let firstEventSecondTouch = try XCTUnwrap(result.element(at: 1)).data
+        let secondEventFirstTouch = try XCTUnwrap(result.element(at: 2)).data
+        let secondEventSecondTouch = try XCTUnwrap(result.element(at: 3)).data
         
         XCTAssertEqual(firstEventFirstTouch?["pointerId"] as? Int, secondEventFirstTouch?["pointerId"] as? Int)
         XCTAssertEqual(firstEventSecondTouch?["pointerId"] as? Int, secondEventSecondTouch?["pointerId"] as? Int)

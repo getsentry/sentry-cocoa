@@ -62,8 +62,8 @@ class SentryDebugImageProviderTests: XCTestCase {
         XCTAssertEqual(3, actual.count)
         
         XCTAssertEqual("dyld_sim", try XCTUnwrap(actual.first).codeFile)
-        XCTAssertEqual("UIKit", actual[1].codeFile)
-        XCTAssertEqual("CoreData", actual[2].codeFile)
+        XCTAssertEqual("UIKit", try XCTUnwrap(actual.element(at: 1)).codeFile)
+        XCTAssertEqual("CoreData", try XCTUnwrap(actual.element(at: 2)).codeFile)
         
         let debugMeta = try XCTUnwrap(actual.first)
         XCTAssertEqual("84BAEBDA-AD1A-33F4-B35D-8A45F5DAF322", debugMeta.debugID)
@@ -145,8 +145,8 @@ class SentryDebugImageProviderTests: XCTestCase {
         XCTAssertEqual(try XCTUnwrap(actual.first).codeFile, "UIKit")
         XCTAssertEqual(try XCTUnwrap(actual.first).imageAddress, "0x00000001410b1a00")
         
-        XCTAssertEqual(actual[1].codeFile, "CoreData")
-        XCTAssertEqual(actual[1].imageAddress, "0x000000017ca5e400")
+        XCTAssertEqual(try XCTUnwrap(actual.element(at: 1)).codeFile, "CoreData")
+        XCTAssertEqual(try XCTUnwrap(actual.element(at: 1)).imageAddress, "0x000000017ca5e400")
     }
     
     func test_NoImage_ForThread_WithoutStackTrace() {

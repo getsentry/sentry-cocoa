@@ -194,7 +194,7 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
             XCTAssertEqual(2, client.captureEventWithScopeInvocations.count)
             
             try assertEvent(event: try XCTUnwrap(invocations.first).event)
-            try assertEvent(event: invocations[1].event)
+            try assertEvent(event: try XCTUnwrap(invocations.element(at: 1)).event)
             
             func assertEvent(event: Event) throws {
                 let sentryFrames = try XCTUnwrap(event.threads?.first?.stacktrace?.frames, "Event has no frames.")
@@ -288,9 +288,9 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         XCTAssertEqual(4, client.captureEventWithScopeInvocations.count, "Client expected to capture 2 events.")
         
         let firstEvent = try XCTUnwrap(invocations.first).event
-        let secondEvent = invocations[1].event
-        let thirdEvent = invocations[2].event
-        let fourthEvent = invocations[3].event
+        let secondEvent = try XCTUnwrap(invocations.element(at: 1)).event
+        let thirdEvent = try XCTUnwrap(invocations.element(at: 2)).event
+        let fourthEvent = try XCTUnwrap(invocations.element(at: 3)).event
         
         for event in invocations.map({ $0.event }) {
             XCTAssertEqual(timeStampBegin, event.timestamp)
@@ -362,10 +362,10 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         XCTAssertEqual("0x000000010109c000", try XCTUnwrap(debugMeta.first).imageAddress)
         XCTAssertEqual("Sentry", try XCTUnwrap(debugMeta.first).codeFile)
         
-        XCTAssertEqual("macho", debugMeta[1].type)
-        XCTAssertEqual("CA12CAFA-91BA-3E1C-BE9C-E34DB96FE7DF", debugMeta[1].debugID)
-        XCTAssertEqual("0x0000000100f3c000", debugMeta[1].imageAddress)
-        XCTAssertEqual("iOS-Swift", debugMeta[1].codeFile)
+        XCTAssertEqual("macho", try XCTUnwrap(debugMeta.element(at: 1)).type)
+        XCTAssertEqual("CA12CAFA-91BA-3E1C-BE9C-E34DB96FE7DF", try XCTUnwrap(debugMeta.element(at: 1)).debugID)
+        XCTAssertEqual("0x0000000100f3c000", try XCTUnwrap(debugMeta.element(at: 1)).imageAddress)
+        XCTAssertEqual("iOS-Swift", try XCTUnwrap(debugMeta.element(at: 1)).codeFile)
     }
     
     private func assertFrame(mxFrame: SentryMXFrame, sentryFrame: Frame) {

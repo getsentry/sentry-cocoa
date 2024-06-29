@@ -183,8 +183,8 @@ class SentryThreadInspectorTests: XCTestCase {
         XCTAssertEqual(true, try XCTUnwrap(actual.first).current)
         XCTAssertNotNil(try XCTUnwrap(actual.first).stacktrace)
         
-        XCTAssertEqual(false, actual[1].current)
-        XCTAssertNil(actual[1].stacktrace)
+        XCTAssertEqual(false, try XCTUnwrap(actual.element(at: 1)).current)
+        XCTAssertNil(try XCTUnwrap(actual.element(at: 1)).stacktrace)
     }
     
     func testOnlyFirstThreadIsCurrent() throws {
@@ -274,7 +274,7 @@ class SentryThreadInspectorTests: XCTestCase {
         let threads = sut.getCurrentThreads()
         
         XCTAssertEqual(try XCTUnwrap(threads.first).name, "main")
-        XCTAssertEqual(threads[1].name, "Second Thread")
+        XCTAssertEqual(try XCTUnwrap(threads.element(at: 1)).name, "Second Thread")
     }
 
     func testOnlyOneThreadIsMain() {

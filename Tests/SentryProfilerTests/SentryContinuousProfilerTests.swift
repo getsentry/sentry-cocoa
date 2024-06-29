@@ -285,7 +285,7 @@ private extension SentryContinuousProfilerTests {
         XCTAssertEqual(values.count, readingsPerBatch - (expectOneLessEnergyReading ? 1 : 0), "Wrong number of values under \(key); (expectOneLessEnergyReading: \(expectOneLessEnergyReading))")
 
         if let expectedValue = expectedValue {
-            let actualValue = try XCTUnwrap(values[1]["value"] as? T)
+            let actualValue = try XCTUnwrap(try XCTUnwrap(values.element(at: 1))["value"] as? T)
             XCTAssertEqual(actualValue, expectedValue, "Wrong value for \(key)")
 
             let timestamp = try XCTUnwrap(values.first?["timestamp"] as? TimeInterval)

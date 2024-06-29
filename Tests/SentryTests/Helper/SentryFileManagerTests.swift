@@ -337,7 +337,7 @@ class SentryFileManagerTests: XCTestCase {
         XCTAssertEqual(maxCacheItems, UInt(events.count))
     }
     
-    func testMigrateSessionInit_SessionUpdateIsLast() {
+    func testMigrateSessionInit_SessionUpdateIsLast() throws {
         sut.store(fixture.sessionEnvelope)
         // just some other session
         sut.store(SentryEnvelope(session: SentrySession(releaseName: "1.0.0", distinctId: "some-id")))
@@ -346,22 +346,22 @@ class SentryFileManagerTests: XCTestCase {
         }
         sut.store(fixture.sessionUpdateEnvelope)
         
-        assertSessionInitMoved(sut.getAllEnvelopes().last!)
+        try assertSessionInitMoved(sut.getAllEnvelopes().last!)
         assertSessionEnvelopesStored(count: 2)
     }
     
-    func testMigrateSessionInit_SessionUpdateIsSecond() {
+    func testMigrateSessionInit_SessionUpdateIsSecond() throws {
         sut.store(fixture.sessionEnvelope)
         sut.store(fixture.sessionUpdateEnvelope)
         for _ in 0...(fixture.maxCacheItems - 2) {
             sut.store(TestConstants.envelope)
         }
         
-        assertSessionInitMoved(sut.getAllEnvelopes().first!)
+        try assertSessionInitMoved(sut.getAllEnvelopes().first!)
         assertSessionEnvelopesStored(count: 1)
     }
     
-    func testMigrateSessionInit_IsInMiddle() {
+    func testMigrateSessionInit_IsInMiddle() throws {
         sut.store(fixture.sessionEnvelope)
         for _ in 0...10 {
             sut.store(TestConstants.envelope)
@@ -371,7 +371,7 @@ class SentryFileManagerTests: XCTestCase {
             sut.store(TestConstants.envelope)
         }
         
-        assertSessionInitMoved(sut.getAllEnvelopes()[10])
+        try assertSessionInitMoved(sut.getAllEnvelopes()[10])
         assertSessionEnvelopesStored(count: 1)
     }
     
@@ -387,7 +387,7 @@ class SentryFileManagerTests: XCTestCase {
             sut.store(TestConstants.envelope)
         }
         
-        assertSessionInitMoved(sut.getAllEnvelopes()[10])
+        try assertSessionInitMoved(sut.getAllEnvelopes()[10])
         try assertSessionInitNotMoved(sut.getAllEnvelopes()[11])
         try assertSessionInitNotMoved(sut.getAllEnvelopes()[12])
         assertSessionEnvelopesStored(count: 3)
@@ -403,7 +403,7 @@ class SentryFileManagerTests: XCTestCase {
         assertSessionEnvelopesStored(count: 0)
     }
     
-    func testMigrateSessionInit_FailToLoadEnvelope() {
+    func testMigrateSessionInit_FailToLoadEnvelope() throws {
         sut.store(fixture.sessionEnvelope)
         
         for _ in 0...(fixture.maxCacheItems - 3) {
@@ -418,7 +418,7 @@ class SentryFileManagerTests: XCTestCase {
         
         sut.store(fixture.sessionUpdateEnvelope)
         
-        assertSessionInitMoved(sut.getAllEnvelopes().last!)
+        try assertSessionInitMoved(sut.getAllEnvelopes().last!)
     }
     
     func testMigrateSessionInit_DoesNotCallEnvelopeItemDeleted() {
@@ -452,7 +452,7 @@ class SentryFileManagerTests: XCTestCase {
         
         let actualEnvelope = SentrySerialization.envelope(with: sut.getOldestEnvelope()?.contents ?? Data())
         
-        XCTAssertEqual(fixture.eventIds[11], actualEnvelope?.header.eventId)
+        XCTAssertEqual(try XCTUnwrap(fixture.eventIds.element(at: 11)), actualEnvelope?.header.eventId)
     }
     
     func testGetOldestEnvelope_WhenNoEnvelopes() {
@@ -909,11 +909,11 @@ private extension SentryFileManagerTests {
                         "Folder for events should be deleted on init: \(sut.eventsPath)")
     }
 
-    func assertSessionInitMoved(_ actualSessionFileContents: SentryFileContents) {
+    func assertSessionInitMoved(_ actualSessionFileContents: SentryFileContents) throws {
         let actualSessionEnvelope = SentrySerialization.envelope(with: actualSessionFileContents.contents)
         XCTAssertEqual(2, actualSessionEnvelope?.items.count)
 
-        let actualSession = SentrySerialization.session(with: actualSessionEnvelope?.items[1].data ?? Data())
+        let actualSession = SentrySerialization.session(with: try XCTUnwrap(actualSessionEnvelope?.items.element(at: 1)).data)
         XCTAssertNotNil(actualSession)
 
         XCTAssertEqual(fixture.expectedSessionUpdate, actualSession)
