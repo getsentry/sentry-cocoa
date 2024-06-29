@@ -679,7 +679,6 @@ class SentryClientTest: XCTestCase {
         wait(for: [sessionBlockExpectation], timeout: 0.2)
         
         eventId.assertIsEmpty()
-        try assertLastSentEnvelopeIsASession()
     }
 
     func testCaptureCrashEventWithSession() throws {
@@ -935,14 +934,19 @@ class SentryClientTest: XCTestCase {
     }
     
     func testCaptureExceptionWithSession_WithBeforeSendReturnsNil() throws {
+        let sessionBlockExpectation = expectation(description: "session block does not get called")
+        sessionBlockExpectation.isInverted = true
+
         let eventId = fixture.getSut(configureOptions: { options in
             options.beforeSend = { _ in return nil }
         }).capture(exception, with: fixture.scope) {
-            self.fixture.session
+            // This should NOT be called
+            sessionBlockExpectation.fulfill()
+            return self.fixture.session
         }
+        wait(for: [sessionBlockExpectation], timeout: 0.2)
         
         eventId.assertIsEmpty()
-        try assertLastSentEnvelopeIsASession()
     }
 
     func testCaptureExceptionWithUserInfo() throws {
@@ -966,8 +970,11 @@ class SentryClientTest: XCTestCase {
     func testCaptureSession() throws {
         let session = SentrySession(releaseName: "release", distinctId: "some-id")
         fixture.getSut().capture(session: session)
-
-        try assertLastSentEnvelopeIsASession()
+        
+        XCTAssertNotNil(fixture.transport.sentEnvelopes)
+        let actual = try XCTUnwrap(fixture.transport.sentEnvelopes.last)
+        XCTAssertEqual(1, actual.items.count)
+        XCTAssertEqual("session", try XCTUnwrap(actual.items.first).header.type)
     }
     
     func testCaptureSessionWithoutReleaseName() {
@@ -1779,13 +1786,6 @@ private extension SentryClientTest {
         XCTAssertEqual(exception.name.rawValue, event.exceptions!.first!.type)
         assertValidDebugMeta(actual: event.debugMeta, forThreads: event.threads)
         assertValidThreads(actual: event.threads)
-    }
-    
-    private func assertLastSentEnvelopeIsASession() throws {
-        XCTAssertNotNil(fixture.transport.sentEnvelopes)
-        let actual = try XCTUnwrap(fixture.transport.sentEnvelopes.last)
-        XCTAssertEqual(1, actual.items.count)
-        XCTAssertEqual("session", try XCTUnwrap(actual.items.first).header.type)
     }
     
     private func assertValidDebugMeta(actual: [DebugMeta]?, forThreads threads: [SentryThread]?) {
