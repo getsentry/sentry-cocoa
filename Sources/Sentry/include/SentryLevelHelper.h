@@ -9,7 +9,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @interface SentryLevelHelper : NSObject
 
-+ (NSUInteger)breadcrumbLevel:(SentryBreadcrumb *)breadcrumb;
++ (NSString *_Nonnull)breadcrumbLevel:(SentryBreadcrumb *)breadcrumb;
 
 @end
 
