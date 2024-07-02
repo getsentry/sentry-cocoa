@@ -1757,6 +1757,7 @@
 		84C47B2B2A09239100DAEB8A /* .codecov.yml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = .codecov.yml; sourceTree = "<group>"; };
 		84DEE86A2B686BD400A7BC17 /* SentrySamplerDecision.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SentrySamplerDecision.h; path = include/SentrySamplerDecision.h; sourceTree = "<group>"; };
 		84DEE8752B69AD6400A7BC17 /* SentryLaunchProfiling.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SentryLaunchProfiling.h; path = Sources/Sentry/include/SentryLaunchProfiling.h; sourceTree = SOURCE_ROOT; };
+		84EACEBC2C33CA7A009B8753 /* SentryWithoutUIKit.modulemap */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.module-map"; name = SentryWithoutUIKit.modulemap; path = Sources/Resources/SentryWithoutUIKit.modulemap; sourceTree = SOURCE_ROOT; };
 		84EB21952BF01CEA00EDDA28 /* SentryCrashInstallationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryCrashInstallationTests.swift; sourceTree = "<group>"; };
 		84F994E52A6894B500EC0190 /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX13.3.sdk/System/Library/Frameworks/CoreData.framework; sourceTree = DEVELOPER_DIR; };
 		84F994E72A6894BD00EC0190 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX13.3.sdk/System/Library/Frameworks/SystemConfiguration.framework; sourceTree = DEVELOPER_DIR; };
@@ -2582,6 +2583,7 @@
 		63AA769F1EB9C89800D153DE /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				84EACEBC2C33CA7A009B8753 /* SentryWithoutUIKit.modulemap */,
 				7DC27E9823995F97006998B5 /* Sentry.modulemap */,
 				63AA75C71EB8B06100D153DE /* Info.plist */,
 			);
@@ -5540,7 +5542,7 @@
 			};
 			name = TestCI;
 		};
-		841C60C32A69DE6B00E1C00F /* Debug_without_UIKit */ = {
+		841C60C32A69DE6B00E1C00F /* DebugWithoutUIKit */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D8BD2E27292D1F7300D96C6A /* SDK.xcconfig */;
 			buildSettings = {
@@ -5597,9 +5599,9 @@
 				VERSIONING_SYSTEM = "";
 				VERSION_INFO_PREFIX = "";
 			};
-			name = Debug_without_UIKit;
+			name = DebugWithoutUIKit;
 		};
-		841C60C42A69DE6B00E1C00F /* Debug_without_UIKit */ = {
+		841C60C42A69DE6B00E1C00F /* DebugWithoutUIKit */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 63AA75C51EB8B00100D153DE /* Sentry.xcconfig */;
 			buildSettings = {
@@ -5643,9 +5645,9 @@
 				SWIFT_VERSION = 5.0;
 				USE_HEADERMAP = YES;
 			};
-			name = Debug_without_UIKit;
+			name = DebugWithoutUIKit;
 		};
-		841C60C52A69DE6B00E1C00F /* Debug_without_UIKit */ = {
+		841C60C52A69DE6B00E1C00F /* DebugWithoutUIKit */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 63AA76AE1EB9D5CD00D153DE /* SentryTests.xcconfig */;
 			buildSettings = {
@@ -5678,9 +5680,9 @@
 				SWIFT_VERSION = 5.0;
 				TVOS_DEPLOYMENT_TARGET = 13.0;
 			};
-			name = Debug_without_UIKit;
+			name = DebugWithoutUIKit;
 		};
-		841C60C72A69DE6B00E1C00F /* Debug_without_UIKit */ = {
+		841C60C72A69DE6B00E1C00F /* DebugWithoutUIKit */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D8199DCF29376FF40074249E /* SentrySwiftUI.xcconfig */;
 			buildSettings = {
@@ -5726,9 +5728,9 @@
 				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";
 			};
-			name = Debug_without_UIKit;
+			name = DebugWithoutUIKit;
 		};
-		841C60C82A69DE6B00E1C00F /* Debug_without_UIKit */ = {
+		841C60C82A69DE6B00E1C00F /* DebugWithoutUIKit */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 63AA76AE1EB9D5CD00D153DE /* SentryTests.xcconfig */;
 			buildSettings = {
@@ -5757,9 +5759,9 @@
 				SWIFT_SWIFT3_OBJC_INFERENCE = Off;
 				SWIFT_VERSION = 5.0;
 			};
-			name = Debug_without_UIKit;
+			name = DebugWithoutUIKit;
 		};
-		841C60C92A69DE6B00E1C00F /* Debug_without_UIKit */ = {
+		841C60C92A69DE6B00E1C00F /* DebugWithoutUIKit */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 63AA76AE1EB9D5CD00D153DE /* SentryTests.xcconfig */;
 			buildSettings = {
@@ -5788,7 +5790,7 @@
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 			};
-			name = Debug_without_UIKit;
+			name = DebugWithoutUIKit;
 		};
 		8431EFD529B27B1100D8DC56 /* Debug */ = {
 			isa = XCBuildConfiguration;
@@ -6033,7 +6035,7 @@
 			};
 			name = Release;
 		};
-		8483D06A2AC7627800143615 /* Release_without_UIKit */ = {
+		8483D06A2AC7627800143615 /* ReleaseWithoutUIKit */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D8BD2E27292D1F7300D96C6A /* SDK.xcconfig */;
 			buildSettings = {
@@ -6089,9 +6091,9 @@
 				VERSIONING_SYSTEM = "";
 				VERSION_INFO_PREFIX = "";
 			};
-			name = Release_without_UIKit;
+			name = ReleaseWithoutUIKit;
 		};
-		8483D06B2AC7627800143615 /* Release_without_UIKit */ = {
+		8483D06B2AC7627800143615 /* ReleaseWithoutUIKit */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 63AA75C51EB8B00100D153DE /* Sentry.xcconfig */;
 			buildSettings = {
@@ -6130,9 +6132,9 @@
 				SWIFT_VERSION = 5.0;
 				USE_HEADERMAP = YES;
 			};
-			name = Release_without_UIKit;
+			name = ReleaseWithoutUIKit;
 		};
-		8483D06C2AC7627800143615 /* Release_without_UIKit */ = {
+		8483D06C2AC7627800143615 /* ReleaseWithoutUIKit */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 63AA76AE1EB9D5CD00D153DE /* SentryTests.xcconfig */;
 			buildSettings = {
@@ -6165,9 +6167,9 @@
 				SWIFT_VERSION = 5.0;
 				TVOS_DEPLOYMENT_TARGET = 13.0;
 			};
-			name = Release_without_UIKit;
+			name = ReleaseWithoutUIKit;
 		};
-		8483D06E2AC7627800143615 /* Release_without_UIKit */ = {
+		8483D06E2AC7627800143615 /* ReleaseWithoutUIKit */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D8199DCF29376FF40074249E /* SentrySwiftUI.xcconfig */;
 			buildSettings = {
@@ -6211,9 +6213,9 @@
 				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";
 			};
-			name = Release_without_UIKit;
+			name = ReleaseWithoutUIKit;
 		};
-		8483D06F2AC7627800143615 /* Release_without_UIKit */ = {
+		8483D06F2AC7627800143615 /* ReleaseWithoutUIKit */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 63AA76AE1EB9D5CD00D153DE /* SentryTests.xcconfig */;
 			buildSettings = {
@@ -6241,9 +6243,9 @@
 				SWIFT_SWIFT3_OBJC_INFERENCE = Off;
 				SWIFT_VERSION = 5.0;
 			};
-			name = Release_without_UIKit;
+			name = ReleaseWithoutUIKit;
 		};
-		8483D0702AC7627800143615 /* Release_without_UIKit */ = {
+		8483D0702AC7627800143615 /* ReleaseWithoutUIKit */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 63AA76AE1EB9D5CD00D153DE /* SentryTests.xcconfig */;
 			buildSettings = {
@@ -6270,7 +6272,7 @@
 				SWIFT_OBJC_BRIDGING_HEADER = "SentryTestUtils/SentryTestUtils-ObjC-BridgingHeader.h";
 				SWIFT_VERSION = 5.0;
 			};
-			name = Release_without_UIKit;
+			name = ReleaseWithoutUIKit;
 		};
 		D8079A6727178911004B0F61 /* Test */ = {
 			isa = XCBuildConfiguration;
@@ -6650,7 +6652,7 @@
 			};
 			name = Debug;
 		};
-		D84DAD532B17428D003CF120 /* Debug_without_UIKit */ = {
+		D84DAD532B17428D003CF120 /* DebugWithoutUIKit */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -6703,7 +6705,7 @@
 				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";
 			};
-			name = Debug_without_UIKit;
+			name = DebugWithoutUIKit;
 		};
 		D84DAD542B17428D003CF120 /* Test */ = {
 			isa = XCBuildConfiguration;
@@ -6864,7 +6866,7 @@
 			};
 			name = Release;
 		};
-		D84DAD572B17428D003CF120 /* Release_without_UIKit */ = {
+		D84DAD572B17428D003CF120 /* ReleaseWithoutUIKit */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -6915,7 +6917,7 @@
 				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";
 			};
-			name = Release_without_UIKit;
+			name = ReleaseWithoutUIKit;
 		};
 /* End XCBuildConfiguration section */
 
@@ -6924,11 +6926,11 @@
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				6327C5E51EB8A783004E799B /* Debug */,
-				841C60C32A69DE6B00E1C00F /* Debug_without_UIKit */,
+				841C60C32A69DE6B00E1C00F /* DebugWithoutUIKit */,
 				D8079A6727178911004B0F61 /* Test */,
 				7BFC80A8282B736400E83A05 /* TestCI */,
 				6327C5E61EB8A783004E799B /* Release */,
-				8483D06A2AC7627800143615 /* Release_without_UIKit */,
+				8483D06A2AC7627800143615 /* ReleaseWithoutUIKit */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
@@ -6937,11 +6939,11 @@
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				63AA75A11EB8AEF500D153DE /* Debug */,
-				841C60C42A69DE6B00E1C00F /* Debug_without_UIKit */,
+				841C60C42A69DE6B00E1C00F /* DebugWithoutUIKit */,
 				D8079A6827178911004B0F61 /* Test */,
 				7BFC80A9282B736400E83A05 /* TestCI */,
 				63AA75A21EB8AEF500D153DE /* Release */,
-				8483D06B2AC7627800143615 /* Release_without_UIKit */,
+				8483D06B2AC7627800143615 /* ReleaseWithoutUIKit */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
@@ -6950,11 +6952,11 @@
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				63AA766D1EB8CB2F00D153DE /* Debug */,
-				841C60C52A69DE6B00E1C00F /* Debug_without_UIKit */,
+				841C60C52A69DE6B00E1C00F /* DebugWithoutUIKit */,
 				D8079A6927178911004B0F61 /* Test */,
 				7BFC80AA282B736400E83A05 /* TestCI */,
 				63AA766E1EB8CB2F00D153DE /* Release */,
-				8483D06C2AC7627800143615 /* Release_without_UIKit */,
+				8483D06C2AC7627800143615 /* ReleaseWithoutUIKit */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
@@ -6963,11 +6965,11 @@
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				8431EFD529B27B1100D8DC56 /* Debug */,
-				841C60C82A69DE6B00E1C00F /* Debug_without_UIKit */,
+				841C60C82A69DE6B00E1C00F /* DebugWithoutUIKit */,
 				8431EFD629B27B1100D8DC56 /* Test */,
 				8431EFD729B27B1100D8DC56 /* TestCI */,
 				8431EFD829B27B1100D8DC56 /* Release */,
-				8483D06F2AC7627800143615 /* Release_without_UIKit */,
+				8483D06F2AC7627800143615 /* ReleaseWithoutUIKit */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
@@ -6976,11 +6978,11 @@
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				8431F01129B284F200D8DC56 /* Debug */,
-				841C60C92A69DE6B00E1C00F /* Debug_without_UIKit */,
+				841C60C92A69DE6B00E1C00F /* DebugWithoutUIKit */,
 				8431F01229B284F200D8DC56 /* Test */,
 				8431F01329B284F200D8DC56 /* TestCI */,
 				8431F01429B284F200D8DC56 /* Release */,
-				8483D0702AC7627800143615 /* Release_without_UIKit */,
+				8483D0702AC7627800143615 /* ReleaseWithoutUIKit */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
@@ -6989,11 +6991,11 @@
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				D8199DAE29376E9B0074249E /* Debug */,
-				841C60C72A69DE6B00E1C00F /* Debug_without_UIKit */,
+				841C60C72A69DE6B00E1C00F /* DebugWithoutUIKit */,
 				D8199DAF29376E9B0074249E /* Test */,
 				D8199DB029376E9B0074249E /* TestCI */,
 				D8199DB129376E9B0074249E /* Release */,
-				8483D06E2AC7627800143615 /* Release_without_UIKit */,
+				8483D06E2AC7627800143615 /* ReleaseWithoutUIKit */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
@@ -7002,11 +7004,11 @@
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				D84DAD522B17428D003CF120 /* Debug */,
-				D84DAD532B17428D003CF120 /* Debug_without_UIKit */,
+				D84DAD532B17428D003CF120 /* DebugWithoutUIKit */,
 				D84DAD542B17428D003CF120 /* Test */,
 				D84DAD552B17428D003CF120 /* TestCI */,
 				D84DAD562B17428D003CF120 /* Release */,
-				D84DAD572B17428D003CF120 /* Release_without_UIKit */,
+				D84DAD572B17428D003CF120 /* ReleaseWithoutUIKit */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
