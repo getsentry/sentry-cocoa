@@ -1,11 +1,15 @@
+#include "Versions.xcconfig"
+
 PRODUCT_NAME = Sentry
 INFOPLIST_FILE = Sources/Resources/Info.plist
 PRODUCT_BUNDLE_IDENTIFIER = io.sentry.Sentry
 
-CURRENT_PROJECT_VERSION = 8.30.0
-
 MODULEMAP_FILE = $(SRCROOT)/Sources/Resources/Sentry.modulemap
 
-// This config is required so the test code can access the SentryPrivate module. Removing this setting
-// leads to an error: no such module '_SentryPrivate' when including the XCFramework with Carthage
-HEADER_SEARCH_PATHS = $(SRCROOT)/Sources/Sentry/include/**
+PRODUCT_MODULE_NAME_Debug = Sentry
+PRODUCT_MODULE_NAME_Debug_without_UIKit = Sentry_without_UIKit
+PRODUCT_MODULE_NAME_Test = Sentry
+PRODUCT_MODULE_NAME_TestCI = Sentry
+PRODUCT_MODULE_NAME_Release = Sentry
+PRODUCT_MODULE_NAME_Release_without_UIKit = Sentry_without_UIKit
+PRODUCT_MODULE_NAME = $(PRODUCT_MODULE_NAME_$(CONFIGURATION))
