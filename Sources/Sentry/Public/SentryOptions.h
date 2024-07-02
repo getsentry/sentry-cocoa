@@ -252,7 +252,7 @@ NS_SWIFT_NAME(Options)
 #if SENTRY_UIKIT_AVAILABLE
 /**
  * When enabled, the SDK tracks performance for UIViewController subclasses.
- * @warning This feature is not available in @c Debug_without_UIKit and @c Release_without_UIKit
+ * @warning This feature is not available in @c DebugWithoutUIKit and @c ReleaseWithoutUIKit
  * configurations even when targeting iOS or tvOS platforms.
  * @note The default is @c YES .
  */
@@ -260,7 +260,7 @@ NS_SWIFT_NAME(Options)
 
 /**
  * Automatically attaches a screenshot when capturing an error or exception.
- * @warning This feature is not available in @c Debug_without_UIKit and @c Release_without_UIKit
+ * @warning This feature is not available in @c DebugWithoutUIKit and @c ReleaseWithoutUIKit
  * configurations even when targeting iOS or tvOS platforms.
  * @note Default value is @c NO .
  */
@@ -270,7 +270,7 @@ NS_SWIFT_NAME(Options)
  * @warning This is an experimental feature and may still have bugs.
  * @brief Automatically attaches a textual representation of the view hierarchy when capturing an
  * error event.
- * @warning This feature is not available in @c Debug_without_UIKit and @c Release_without_UIKit
+ * @warning This feature is not available in @c DebugWithoutUIKit and @c ReleaseWithoutUIKit
  * configurations even when targeting iOS or tvOS platforms.
  * @note Default value is @c NO .
  */
@@ -279,7 +279,7 @@ NS_SWIFT_NAME(Options)
 /**
  * When enabled, the SDK creates transactions for UI events like buttons clicks, switch toggles,
  * and other ui elements that uses UIControl @c sendAction:to:forEvent:
- * @warning This feature is not available in @c Debug_without_UIKit and @c Release_without_UIKit
+ * @warning This feature is not available in @c DebugWithoutUIKit and @c ReleaseWithoutUIKit
  * configurations even when targeting iOS or tvOS platforms.
  * @note Default value is @c YES .
  */
@@ -288,7 +288,7 @@ NS_SWIFT_NAME(Options)
 /**
  * How long an idle transaction waits for new children after all its child spans finished. Only UI
  * event transactions are idle transactions.
- * @warning This feature is not available in @c Debug_without_UIKit and @c Release_without_UIKit
+ * @warning This feature is not available in @c DebugWithoutUIKit and @c ReleaseWithoutUIKit
  * configurations even when targeting iOS or tvOS platforms.
  * @note The default is 3 seconds.
  */
@@ -302,7 +302,7 @@ NS_SWIFT_NAME(Options)
  * @note You can filter for different app start types in Discover with
  * @c app_start_type:cold.prewarmed ,
  * @c app_start_type:warm.prewarmed , @c app_start_type:cold , and @c app_start_type:warm .
- * @warning This feature is not available in @c Debug_without_UIKit and @c Release_without_UIKit
+ * @warning This feature is not available in @c DebugWithoutUIKit and @c ReleaseWithoutUIKit
  * configurations even when targeting iOS or tvOS platforms.
  * @note Default value is @c NO .
  */
