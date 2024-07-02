@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- UIKitless configurations now produce a module with a different name (#4140)
+
 ## 8.30.0
 
 ### Features
