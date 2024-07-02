@@ -1,11 +1,12 @@
 #import "SentryLevelHelper.h"
 #import "SentryBreadcrumb+Private.h"
+#import "SentryLevelMapper.h"
 
 @implementation SentryLevelHelper
 
-+ (NSUInteger)breadcrumbLevel:(SentryBreadcrumb *)breadcrumb
++ (NSString *_Nonnull)breadcrumbLevel:(SentryBreadcrumb *)breadcrumb
 {
-    return breadcrumb.level;
+    return nameForSentryLevel(breadcrumb.level);
 }
 
 @end
