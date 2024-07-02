@@ -6,8 +6,9 @@ set -eou pipefail
 
 CONFIGURATION="${1}"
 DERIVED_DATA_PATH="${2}"
+MODULE_NAME="${3}"
 
-SENTRY_BUILD_PRODUCT_PATH="$DERIVED_DATA_PATH/Build/Products/$CONFIGURATION-iphonesimulator/Sentry.framework/Sentry"
+SENTRY_BUILD_PRODUCT_PATH="$DERIVED_DATA_PATH/Build/Products/$CONFIGURATION-iphonesimulator/$MODULE_NAME.framework/$MODULE_NAME"
 
 stat $SENTRY_BUILD_PRODUCT_PATH
 
