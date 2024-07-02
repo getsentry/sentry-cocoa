@@ -13,8 +13,7 @@ SENTRY_BUILD_PRODUCT_PATH="$DERIVED_DATA_PATH/Build/Products/$CONFIGURATION-ipho
 
 stat $SENTRY_BUILD_PRODUCT_PATH
 
-# otool will also report linkage of @rpath/libswiftUIKit.dylib but that doesn't imply UIKit is actually linked
-MATCHES=$(otool -L $SENTRY_BUILD_PRODUCT_PATH | grep -c "UIKit.framework/UIKit" ||:)
+MATCHES=$(otool -L $SENTRY_BUILD_PRODUCT_PATH | grep -c  -e "UIKit.framework/UIKit" -e "libswiftUIKit.dylib" ||:)
 
 case "$LINKAGE_TEST" in
 "linked")
