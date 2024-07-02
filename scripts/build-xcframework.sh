@@ -11,7 +11,7 @@ ALL_SDKS=$(xcodebuild -showsdks)
 
 generate_xcframework() {
     local scheme="$1"
-    local sufix="${2:-}"
+    local suffix="${2:-}"
     local MACH_O_TYPE="${3-mh_dylib}"
     local configuration="${4-Release}"
     local createxcframework="xcodebuild -create-xcframework "
@@ -27,15 +27,15 @@ generate_xcframework() {
     for sdk in "${sdks[@]}"; do
         if [[ -n "$(grep "${sdk}" <<< "$ALL_SDKS")" ]]; then
 
-            xcodebuild archive -project Sentry.xcodeproj/ -scheme "$scheme" -configuration "$configuration" -sdk "$sdk" -archivePath ./Carthage/archive/${scheme}${sufix}/${sdk}.xcarchive CODE_SIGNING_REQUIRED=NO SKIP_INSTALL=NO CODE_SIGN_IDENTITY= CARTHAGE=YES MACH_O_TYPE=$MACH_O_TYPE ENABLE_CODE_COVERAGE=NO GCC_GENERATE_DEBUGGING_SYMBOLS="$GCC_GENERATE_DEBUGGING_SYMBOLS"
+            xcodebuild archive -project Sentry.xcodeproj/ -scheme "$scheme" -configuration "$configuration" -sdk "$sdk" -archivePath ./Carthage/archive/${scheme}${suffix}/${sdk}.xcarchive CODE_SIGNING_REQUIRED=NO SKIP_INSTALL=NO CODE_SIGN_IDENTITY= CARTHAGE=YES MACH_O_TYPE=$MACH_O_TYPE ENABLE_CODE_COVERAGE=NO GCC_GENERATE_DEBUGGING_SYMBOLS="$GCC_GENERATE_DEBUGGING_SYMBOLS"
                  
-            createxcframework+="-framework Carthage/archive/${scheme}${sufix}/${sdk}.xcarchive/Products/Library/Frameworks/${scheme}.framework "
+            createxcframework+="-framework Carthage/archive/${scheme}${suffix}/${sdk}.xcarchive/Products/Library/Frameworks/${scheme}.framework "
 
             if [ "$MACH_O_TYPE" = "staticlib" ]; then
-                local infoPlist="Carthage/archive/${scheme}${sufix}/${sdk}.xcarchive/Products/Library/Frameworks/${scheme}.framework/Info.plist"
+                local infoPlist="Carthage/archive/${scheme}${suffix}/${sdk}.xcarchive/Products/Library/Frameworks/${scheme}.framework/Info.plist"
                 
                 if [ ! -e "$infoPlist" ]; then
-                    infoPlist="Carthage/archive/${scheme}${sufix}/${sdk}.xcarchive/Products/Library/Frameworks/${scheme}.framework/Resources/Info.plist"
+                    infoPlist="Carthage/archive/${scheme}${suffix}/${sdk}.xcarchive/Products/Library/Frameworks/${scheme}.framework/Resources/Info.plist"
                 fi
                 # This workaround is necessary to make Sentry Static framework to work
                 # More information in here: https://github.com/getsentry/sentry-cocoa/issues/3769
@@ -43,9 +43,9 @@ generate_xcframework() {
                 plutil -replace "MinimumOSVersion" -string "100.0" "$infoPlist"
             fi
             
-            if [ -d "Carthage/archive/${scheme}${sufix}/${sdk}.xcarchive/dSYMs/${scheme}.framework.dSYM" ]; then
+            if [ -d "Carthage/archive/${scheme}${suffix}/${sdk}.xcarchive/dSYMs/${scheme}.framework.dSYM" ]; then
                 # Has debug symbols
-                    createxcframework+="-debug-symbols $(pwd -P)/Carthage/archive/${scheme}${sufix}/${sdk}.xcarchive/dSYMs/${scheme}.framework.dSYM "
+                    createxcframework+="-debug-symbols $(pwd -P)/Carthage/archive/${scheme}${suffix}/${sdk}.xcarchive/dSYMs/${scheme}.framework.dSYM "
             fi
         else
             echo "${sdk} SDK not found"
@@ -65,7 +65,7 @@ generate_xcframework() {
         createxcframework+="-debug-symbols $(pwd -P)/Carthage/DerivedData/Build/Products/"$configuration"-maccatalyst/${scheme}.framework.dSYM "
     fi
     
-    createxcframework+="-output Carthage/${scheme}${sufix}.xcframework"
+    createxcframework+="-output Carthage/${scheme}${suffix}.xcframework"
     $createxcframework
 }
 
