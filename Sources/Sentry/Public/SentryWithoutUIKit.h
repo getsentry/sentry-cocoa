@@ -1,4 +1,4 @@
-#ifdef SENTRY_NO_UIKIT
+#if __has_include(<SentryWithoutUIKit/Sentry.h>)
 #    import <Foundation/Foundation.h>
 
 //! Project version number for Sentry.
@@ -46,4 +46,4 @@ FOUNDATION_EXPORT const unsigned char SentryVersionString[];
 #    import <SentryWithoutUIKit/SentryTransactionContext.h>
 #    import <SentryWithoutUIKit/SentryUser.h>
 #    import <SentryWithoutUIKit/SentryUserFeedback.h>
-#endif
+#endif // __has_include(<SentryWithoutUIKit/Sentry.h>)
