@@ -5,6 +5,10 @@ INFOPLIST_FILE = Sources/Resources/Info.plist
 SENTRY_MODULE_NAME = Sentry
 SENTRY_WITHOUT_UIKIT_MODULE_NAME = SentryWithoutUIKit
 
+// This config is required so the test code can access the SentryPrivate module. Removing this setting
+// leads to an error: no such module '_SentryPrivate' when including the XCFramework with Carthage
+HEADER_SEARCH_PATHS = $(SRCROOT)/Sources/Sentry/include/**
+
 PRODUCT_MODULE_NAME_Debug = $(SENTRY_MODULE_NAME)
 PRODUCT_MODULE_NAME_DebugWithoutUIKit = $(SENTRY_WITHOUT_UIKIT_MODULE_NAME)
 PRODUCT_MODULE_NAME_Test = $(SENTRY_MODULE_NAME)
