@@ -2,7 +2,7 @@
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
-#    include "SentryAsyncSafeLogging.h"
+#    include "SentryAsyncSafeLog.h"
 #    include "SentryCompiler.h"
 #    include "SentryMachLogging.hpp"
 #    include "SentryStackBounds.hpp"
@@ -44,7 +44,7 @@ namespace profiling {
         std::size_t depth = 0;
         MachineContext machineContext;
         if (fillThreadState(targetThread.nativeHandle(), &machineContext) != KERN_SUCCESS) {
-            SENTRY_LOG_ASYNC_SAFE_ERROR("Failed to fill thread state");
+            SENTRY_ASYNC_SAFE_LOG_ERROR("Failed to fill thread state");
             return 0;
         }
         if (LIKELY(skip == 0)) {
