@@ -643,6 +643,34 @@ class SentryClientTest: XCTestCase {
         XCTAssertEqual(try XCTUnwrap(lastSentEventArguments.event.exceptions?.first?.mechanism?.meta?.error).code, 102)
         XCTAssertEqual(try XCTUnwrap(lastSentEventArguments.event.exceptions?.last?.mechanism?.meta?.error).code, 100)
     }
+    
+    func testCaptureErrorWithInvalidUnderlyingError() throws {
+        let error = NSError(domain: "domain", code: 100, userInfo: [
+            NSUnderlyingErrorKey: "garbage"
+        ])
+        
+        fixture.getSut().capture(error: error)
+        
+        let lastSentEventArguments = try XCTUnwrap(fixture.transportAdapter.sendEventWithTraceStateInvocations.last)
+        XCTAssertEqual(try XCTUnwrap(lastSentEventArguments.event.exceptions).count, 1)
+        XCTAssertEqual(try XCTUnwrap(lastSentEventArguments.event.exceptions?.first?.mechanism?.meta?.error).code, 100)
+        XCTAssertEqual(try XCTUnwrap(lastSentEventArguments.event.exceptions?.last?.mechanism?.meta?.error).code, 100)
+    }
+    
+    func testCaptureErrorWithNestedInvalidUnderlyingError() throws {
+        let error = NSError(domain: "domain1", code: 100, userInfo: [
+            NSUnderlyingErrorKey: NSError(domain: "domain2", code: 101, userInfo: [
+                NSUnderlyingErrorKey: "More garbage"
+            ])
+        ])
+        
+        fixture.getSut().capture(error: error)
+        
+        let lastSentEventArguments = try XCTUnwrap(fixture.transportAdapter.sendEventWithTraceStateInvocations.last)
+        XCTAssertEqual(try XCTUnwrap(lastSentEventArguments.event.exceptions).count, 2)
+        XCTAssertEqual(try XCTUnwrap(lastSentEventArguments.event.exceptions?.first?.mechanism?.meta?.error).code, 101)
+        XCTAssertEqual(try XCTUnwrap(lastSentEventArguments.event.exceptions?.last?.mechanism?.meta?.error).code, 100)
+    }
 
     func testCaptureErrorWithSession() throws {
         let sessionBlockExpectation = expectation(description: "session block gets called")

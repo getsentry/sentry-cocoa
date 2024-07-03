@@ -249,10 +249,19 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     // as a list of exceptions with error mechanisms, sorted oldest to newest (so, the leaf node
     // underlying error as oldest, with the root as the newest)
     NSMutableArray<NSError *> *errors = [NSMutableArray<NSError *> arrayWithObject:error];
-    NSError *underlyingError = error.userInfo[NSUnderlyingErrorKey];
+    NSError *underlyingError;
+    if ([error.userInfo[NSUnderlyingErrorKey] isKindOfClass:[NSError class]]) {
+        underlyingError = error.userInfo[NSUnderlyingErrorKey];
+    }
+    
     while (underlyingError != nil) {
         [errors addObject:underlyingError];
-        underlyingError = underlyingError.userInfo[NSUnderlyingErrorKey];
+        
+        if ([underlyingError.userInfo[NSUnderlyingErrorKey] isKindOfClass:[NSError class]]) {
+            underlyingError = underlyingError.userInfo[NSUnderlyingErrorKey];
+        } else {
+            underlyingError = nil;
+        }
     }
 
     NSMutableArray<SentryException *> *exceptions = [NSMutableArray<SentryException *> array];
