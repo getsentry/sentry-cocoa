@@ -76,7 +76,8 @@ class SentryBreadcrumbReplayConverter: NSObject {
         return SentryRRWebSpanEvent(timestamp: timestamp, endTimestamp: timestamp, operation: "resource.http", description: description, data: data)
     }
     
-    private func getLevel(breadcrumb: Breadcrumb) -> String {
-        return SentryLevelHelper.breadcrumbLevel(breadcrumb)
+    private  func getLevel(breadcrumb: Breadcrumb) -> SentryLevel {
+        return SentryLevel(rawValue: SentryLevelHelper.breadcrumbLevel(breadcrumb)) ?? .none
+        
     }
 }
