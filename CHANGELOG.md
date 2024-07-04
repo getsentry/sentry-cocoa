@@ -1,11 +1,5 @@
 # Changelog
 
-## Unreleased
-
-### Fixes
-
-- Sentry Replay Serialized Breadcrumbs include level name ([#4141](https://github.com/getsentry/sentry-cocoa/pull/4141))
-
 ## 8.30.0
 
 ### Features

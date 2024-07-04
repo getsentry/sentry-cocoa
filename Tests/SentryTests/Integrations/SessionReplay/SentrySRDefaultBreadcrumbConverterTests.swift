@@ -147,16 +147,4 @@ class SentrySRDefaultBreadcrumbConverterTests: XCTestCase {
         XCTAssertEqual(payload["message"] as? String, "Custom message")
         XCTAssertEqual(payloadData["SomeInfo"] as? String, "Info")
     }
-
-    func testSerializedSRBreadcrumbLevelIsString() throws {
-        let sut = SentrySRDefaultBreadcrumbConverter()
-        let breadcrumb = Breadcrumb()
-        breadcrumb.level = .error
-
-        let result = try XCTUnwrap(sut.convert(from: breadcrumb) as? SentryRRWebBreadcrumbEvent)
-        let crumbData = try XCTUnwrap(result.data)
-        let payload = try XCTUnwrap(crumbData["payload"] as? [String: Any])
-
-        XCTAssertEqual(payload["level"] as! String, "error")
-    }
 }

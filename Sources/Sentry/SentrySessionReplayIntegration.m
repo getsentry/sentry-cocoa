@@ -8,7 +8,6 @@
 #    import "SentryFileManager.h"
 #    import "SentryGlobalEventProcessor.h"
 #    import "SentryHub+Private.h"
-#    import "SentryLevelMapper.h"
 #    import "SentryNSNotificationCenterWrapper.h"
 #    import "SentryOptions.h"
 #    import "SentryRandom.h"
@@ -255,7 +254,7 @@ SentrySessionReplayIntegration () <SentrySessionReplayDelegate>
     return [[SentryRRWebBreadcrumbEvent alloc] initWithTimestamp:timestamp
                                                         category:category
                                                          message:message
-                                                           level:nameForSentryLevel(level)
+                                                           level:level
                                                             data:data];
 }
 
