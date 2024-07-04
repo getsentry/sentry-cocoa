@@ -11,6 +11,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (NSUInteger)breadcrumbLevel:(SentryBreadcrumb *)breadcrumb;
 
++ (NSString *_Nonnull)getNameFor:(NSUInteger)level;
+
 @end
 
 NS_ASSUME_NONNULL_END
