@@ -253,10 +253,10 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     if ([error.userInfo[NSUnderlyingErrorKey] isKindOfClass:[NSError class]]) {
         underlyingError = error.userInfo[NSUnderlyingErrorKey];
     }
-    
+
     while (underlyingError != nil) {
         [errors addObject:underlyingError];
-        
+
         if ([underlyingError.userInfo[NSUnderlyingErrorKey] isKindOfClass:[NSError class]]) {
             underlyingError = underlyingError.userInfo[NSUnderlyingErrorKey];
         } else {
