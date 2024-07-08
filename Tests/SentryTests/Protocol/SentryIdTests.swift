@@ -24,11 +24,9 @@ class SentryIdTests: XCTestCase {
     }
     
     func testInitFromString() {
-        measure {
-            let string = "abcdefabcdefabcdefabcdefabcdefab"
-            let sentryId = SentryId(uuidString: "abcdefabcdefabcdefabcdefabcdefab")
-            XCTAssertEqual(sentryId.sentryIdString, string)
-        }
+        let string = "abcdefabcdefabcdefabcdefabcdefab"
+        let sentryId = SentryId(uuidString: "abcdefabcdefabcdefabcdefabcdefab")
+        XCTAssertEqual(sentryId.sentryIdString, string)
     }
 
     func testInitWithUUID_ValidIdString() {
