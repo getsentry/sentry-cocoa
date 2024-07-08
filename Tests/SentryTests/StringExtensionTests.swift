@@ -6,7 +6,7 @@ class StringExtensionTests: XCTestCase {
     
     func testSingleCharacterSubscript() {
         let testString = "Hello, World!"
-        XCTAssertEqual(testString[0], "H")
+        XCTAssertEqual(try XCTUnwrap(testString.first), "H")
         XCTAssertEqual(testString[7], "W")
         XCTAssertEqual(testString[12], "!")
     }

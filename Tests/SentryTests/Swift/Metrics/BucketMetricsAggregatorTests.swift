@@ -219,7 +219,7 @@ final class BucketMetricsAggregatorTests: XCTestCase {
         sut.increment(key: "key5", value: 1.0, unit: MeasurementUnitDuration.day, tags: [:])
 
         XCTAssertEqual(metricsClient.captureInvocations.count, 2)
-        let buckets2 = try XCTUnwrap(metricsClient.captureInvocations.invocations[1])
+        let buckets2 = try XCTUnwrap(try XCTUnwrap(metricsClient.captureInvocations.invocations.element(at: 1)))
 
         XCTAssertEqual(buckets2.count, 1)
         let bucket = try XCTUnwrap(buckets2.first)

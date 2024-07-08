@@ -91,6 +91,7 @@ writeToLog(const char *const str)
             pos += bytesWritten;
         }
     }
+    write(STDOUT_FILENO, str, strlen(str));
 
 #if SENTRY_ASYNC_SAFE_LOG_ALSO_WRITE_TO_CONSOLE
     // if we're debugging, also write the log statements to the console; we only check once for
