@@ -74,7 +74,7 @@ class SentryCoreDataTrackingIntegrationTests: XCTestCase {
         try? stack.managedObjectContext.save()
         
         XCTAssertEqual(transaction.children.count, 1)
-        XCTAssertEqual(transaction.children[0].operation, "db.sql.transaction")
+        XCTAssertEqual(try XCTUnwrap(transaction.children.first).operation, "db.sql.transaction")
     }
     
     func test_Save_noChanges() throws {

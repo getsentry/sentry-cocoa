@@ -68,7 +68,7 @@ class SentryEnvelopeTests: XCTestCase {
 
     private let defaultSdkInfo = SentrySdkInfo(name: SentryMeta.sdkName, andVersion: SentryMeta.versionString)
     
-    func testSentryEnvelopeFromEvent() {
+    func testSentryEnvelopeFromEvent() throws {
         let event = Event()
         
         let item = SentryEnvelopeItem(event: event)
@@ -76,11 +76,11 @@ class SentryEnvelopeTests: XCTestCase {
         
         XCTAssertEqual(event.eventId, envelope.header.eventId)
         XCTAssertEqual(1, envelope.items.count)
-        XCTAssertEqual("event", envelope.items[0].header.type)
+        XCTAssertEqual("event", try XCTUnwrap(envelope.items.first).header.type)
         
         let json = try! JSONSerialization.data(withJSONObject: event.serialize(), options: JSONSerialization.WritingOptions(rawValue: 0))
         
-        assertJsonIsEqual(actual: json, expected: envelope.items[0].data)
+        assertJsonIsEqual(actual: json, expected: try XCTUnwrap(envelope.items.first).data)
     }
     
     func testSentryEnvelopeWithExplicitInitMessages() {
@@ -96,10 +96,10 @@ class SentryEnvelopeTests: XCTestCase {
         
         XCTAssertEqual(envelopeId, envelope.header.eventId)
         XCTAssertEqual(1, envelope.items.count)
-        XCTAssertEqual("attachment", envelope.items[0].header.type)
-        XCTAssertEqual(attachment.count, Int(envelope.items[0].header.length))
+        XCTAssertEqual("attachment", try XCTUnwrap(envelope.items.first).header.type)
+        XCTAssertEqual(attachment.count, Int(try XCTUnwrap(envelope.items.first).header.length))
         
-        XCTAssertEqual(data, envelope.items[0].data)
+        XCTAssertEqual(data, try XCTUnwrap(envelope.items.first).data)
     }
     
     func testSentryEnvelopeWithExplicitInitMessagesMultipleItems() {
