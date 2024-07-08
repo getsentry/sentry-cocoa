@@ -1,4 +1,4 @@
-#if __has_include(<SentryWithoutUIKit/Sentry.h>)
+#if !__has_include(<SentryWithoutUIKit/Sentry.h>)
 #    import <Foundation/Foundation.h>
 
 //! Project version number for Sentry.
