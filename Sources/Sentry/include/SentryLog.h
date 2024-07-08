@@ -43,7 +43,7 @@ NS_ASSUME_NONNULL_END
 #define SENTRY_LOG_ERRNO(statement)                                                                \
     ({                                                                                             \
         errno = 0;                                                                                 \
-        const auto __log_rv = (statement);                                                         \
+        const int __log_rv = (statement);                                                          \
         const int __log_errnum = errno;                                                            \
         if (__log_errnum != 0) {                                                                   \
             SENTRY_LOG_ERROR(@"%s failed with code: %d, description: %s", #statement,              \

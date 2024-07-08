@@ -104,6 +104,9 @@
                   Identifier = "SentrySubClassFinderTests/testActOnSubclassesOfViewController()">
                </Test>
                <Test
+                  Identifier = "SentryThreadInspectorTests/testGetCurrentThreadsWithStacktrace_WithSymbolication()">
+               </Test>
+               <Test
                   Identifier = "SentryThreadInspectorTests/testStacktraceHasFrames_forEveryThread()">
                </Test>
                <Test

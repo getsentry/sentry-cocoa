@@ -30,7 +30,7 @@
 #include "SentryCrashStackCursor_SelfThread.h"
 #include "SentryCrashThread.h"
 
-#include "SentryCrashLogger.h"
+#include "SentryAsyncSafeLog.h"
 
 #include <cxxabi.h>
 #include <dlfcn.h>
@@ -123,7 +123,7 @@ sentrycrashcm_cppexception_callOriginalTerminationHandler(void)
     // Can be NULL as the return value of set_terminate can be a NULL pointer; see:
     // https://en.cppreference.com/w/cpp/error/set_terminate
     if (g_originalTerminateHandler != NULL) {
-        SentryCrashLOG_DEBUG("Calling original terminate handler.");
+        SENTRY_ASYNC_SAFE_LOG_DEBUG("Calling original terminate handler.");
         g_originalTerminateHandler();
     }
 }
@@ -134,7 +134,7 @@ CPPExceptionTerminate(void)
     thread_act_array_t threads = NULL;
     mach_msg_type_number_t numThreads = 0;
     sentrycrashmc_suspendEnvironment(&threads, &numThreads);
-    SentryCrashLOG_DEBUG("Trapped c++ exception");
+    SENTRY_ASYNC_SAFE_LOG_DEBUG("Trapped c++ exception");
     const char *name = NULL;
     std::type_info *tinfo = __cxxabiv1::__cxa_current_exception_type();
     if (tinfo != NULL) {
@@ -152,10 +152,10 @@ CPPExceptionTerminate(void)
 
         std::exception_ptr currException = std::current_exception();
         if (currException == NULL) {
-            SentryCrashLOG_DEBUG("Terminate without exception.");
+            SENTRY_ASYNC_SAFE_LOG_DEBUG("Terminate without exception.");
             sentrycrashsc_initSelfThread(&g_stackCursor, 0);
         } else {
-            SentryCrashLOG_DEBUG("Discovering what kind of exception was thrown.");
+            SENTRY_ASYNC_SAFE_LOG_DEBUG("Discovering what kind of exception was thrown.");
             g_captureNextStackTrace = false;
             try {
                 throw;
@@ -189,7 +189,7 @@ CPPExceptionTerminate(void)
         SentryCrashMC_NEW_CONTEXT(machineContext);
         sentrycrashmc_getContextForThread(sentrycrashthread_self(), machineContext, true);
 
-        SentryCrashLOG_DEBUG("Filling out context.");
+        SENTRY_ASYNC_SAFE_LOG_DEBUG("Filling out context.");
         crashContext->crashType = SentryCrashMonitorTypeCPPException;
         crashContext->eventID = g_eventID;
         crashContext->registersAreValid = false;
@@ -201,8 +201,8 @@ CPPExceptionTerminate(void)
 
         sentrycrashcm_handleException(crashContext);
     } else {
-        SentryCrashLOG_DEBUG("Detected NSException. Letting the current "
-                             "NSException handler deal with it.");
+        SENTRY_ASYNC_SAFE_LOG_DEBUG("Detected NSException. Letting the current "
+                                    "NSException handler deal with it.");
     }
     sentrycrashmc_resumeEnvironment(threads, numThreads);
 

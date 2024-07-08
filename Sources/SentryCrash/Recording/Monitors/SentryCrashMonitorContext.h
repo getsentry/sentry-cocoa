@@ -220,9 +220,6 @@ typedef struct SentryCrash_MonitorContext {
         const char *reason;
     } ZombieException;
 
-    /** Full path to the console log, if any. */
-    const char *consoleLogPath;
-
 } SentryCrash_MonitorContext;
 
 #ifdef __cplusplus

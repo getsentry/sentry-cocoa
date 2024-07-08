@@ -4,15 +4,15 @@ import XCTest
 
 class SentryReplayRecordingTests: XCTestCase {
     
-    func test_serialize() {
+    func test_serialize() throws {
         let sut = SentryReplayRecording(segmentId: 3, size: 200, start: Date(timeIntervalSince1970: 2), duration: 5_000, frameCount: 5, frameRate: 1, height: 930, width: 390, extraEvents: nil)
       
         let data = sut.serialize()
         
-        let metaInfo = data[0]
+        let metaInfo = try XCTUnwrap(data.first)
         let metaInfoData = metaInfo["data"] as? [String: Any]
         
-        let recordingInfo = data[1]
+        let recordingInfo = try XCTUnwrap(data.element(at: 1))
         let recordingData = recordingInfo["data"] as? [String: Any]
         let recordingPayload = recordingData?["payload"] as? [String: Any]
         
@@ -38,7 +38,7 @@ class SentryReplayRecordingTests: XCTestCase {
         XCTAssertEqual(recordingPayload?["top"] as? Int, 0)
     }
     
-    func test_serializeWithExtra() {
+    func test_serializeWithExtra() throws {
         let date = Date(timeIntervalSince1970: 5)
         let sut = SentryReplayRecording(segmentId: 3, size: 200, start: Date(timeIntervalSince1970: 2), duration: 5_000, frameCount: 5, frameRate: 1, height: 930, width: 390, extraEvents: [
             SentryRRWebEvent(type: .custom, timestamp: date, data: nil)
@@ -46,7 +46,7 @@ class SentryReplayRecordingTests: XCTestCase {
       
         let data = sut.serialize()
         
-        let extraInfo = data[2]
+        let extraInfo = try XCTUnwrap(data.element(at: 2))
         XCTAssertEqual(extraInfo["type"] as? Int, 5)
         XCTAssertEqual(extraInfo["timestamp"] as? Int, 5_000)
     }
