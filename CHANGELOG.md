@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Properly handle invalid value for `NSUnderlyingErrorKey` (#4144)
+
 ## 8.30.0
 
 ### Features
