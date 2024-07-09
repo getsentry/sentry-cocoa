@@ -143,7 +143,7 @@ class SentrySessionReplay: NSObject {
         startFullReplay()
 
         guard let finalPath = urlToCache?.appendingPathComponent("replay.mp4") else {
-            print("[SentrySessionReplay:\(#line)] Could not create replay video path")
+            print("[\(#file):\(#line)] Could not create replay video path")
             return false
         }
         let replayStart = dateProvider.date().addingTimeInterval(-replayOptions.errorReplayDuration)
@@ -200,7 +200,7 @@ class SentrySessionReplay: NSObject {
             do {
                 try fileManager.createDirectory(atPath: pathToSegment.path, withIntermediateDirectories: true, attributes: nil)
             } catch {
-                print("[SentrySessionReplay:\(#line)] Can't create session replay segment folder. Error: \(error.localizedDescription)")
+                print("[\(#file):\(#line)] Can't create session replay segment folder. Error: \(error.localizedDescription)")
                 return
             }
         }
@@ -216,13 +216,13 @@ class SentrySessionReplay: NSObject {
             try replayMaker.createVideoWith(duration: duration, beginning: startedAt, outputFileURL: videoUrl) { [weak self] videoInfo, error in
                 guard let _self = self else { return }
                 if let error = error {
-                    print("[SentrySessionReplay:\(#line)] Could not create replay video - \(error.localizedDescription)")
+                    print("[\(#file):\(#line)] Could not create replay video - \(error.localizedDescription)")
                 } else if let videoInfo = videoInfo {
                     _self.newSegmentAvailable(videoInfo: videoInfo)
                 }
             }
         } catch {
-            print("[SentrySessionReplay:\(#line)] Could not create replay video - \(error.localizedDescription)")
+            print("[\(#file):\(#line)] Could not create replay video - \(error.localizedDescription)")
         }
     }
 
@@ -236,7 +236,6 @@ class SentrySessionReplay: NSObject {
     
     private func captureSegment(segment: Int, video: SentryVideoInfo, replayId: SentryId, replayType: SentryReplayType) {
         let replayEvent = SentryReplayEvent(eventId: replayId, replayStartTimestamp: video.start, replayType: replayType, segmentId: segment)
-        print("### eventId: \(replayId), replayStartTimestamp: \(video.start), replayType: \(replayType), segmentId: \(segment)")
         
         replayEvent.timestamp = video.end
         
@@ -255,7 +254,7 @@ class SentrySessionReplay: NSObject {
         do {
             try FileManager.default.removeItem(at: video.path)
         } catch {
-            print("[SentrySessionReplay:\(#line)] Could not delete replay segment from disk: \(error.localizedDescription)")
+            print("[\(#file):\(#line)] Could not delete replay segment from disk: \(error.localizedDescription)")
         }
     }
 
@@ -266,15 +265,18 @@ class SentrySessionReplay: NSObject {
         }
         .compactMap(breadcrumbConverter.convert(from:))
     }
-
+    
     private func takeScreenshot() {
         guard let rootView = rootView, !processingScreenshot else { return }
-
-        lock.synchronized {
-            guard !processingScreenshot else { return }
-            processingScreenshot = true
+ 
+        lock.lock()
+        guard !processingScreenshot else {
+            lock.unlock()
+            return
         }
-
+        processingScreenshot = true
+        lock.unlock()
+        
         screenshotProvider.image(view: rootView, options: replayOptions) { [weak self] screenshot in
             self?.newImage(image: screenshot)
         }
