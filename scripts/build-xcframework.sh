@@ -32,7 +32,7 @@ generate_xcframework() {
 
             xcodebuild archive -project Sentry.xcodeproj/ -scheme "$scheme" -configuration "$resolved_configuration" -sdk "$sdk" -archivePath ./Carthage/archive/${scheme}${suffix}/${sdk}.xcarchive CODE_SIGNING_REQUIRED=NO SKIP_INSTALL=NO CODE_SIGN_IDENTITY= CARTHAGE=YES MACH_O_TYPE=$MACH_O_TYPE ENABLE_CODE_COVERAGE=NO GCC_GENERATE_DEBUGGING_SYMBOLS="$GCC_GENERATE_DEBUGGING_SYMBOLS"
                  
-            createxcframework+="-framework Carthage/archive/${scheme}${suffix}/${sdk}.xcarchive/Products/Library/Frameworks/${resolved_product_name}.framework "
+            createxcframework+="-framework Carthage/archive/${scheme}${suffix}/${sdk}.xcarchive/Products/Library/Frameworks/${scheme}.framework "
 
             if [ "$MACH_O_TYPE" = "staticlib" ]; then
                 local infoPlist="Carthage/archive/${scheme}${suffix}/${sdk}.xcarchive/Products/Library/Frameworks/${resolved_product_name}.framework/Info.plist"
@@ -59,16 +59,16 @@ generate_xcframework() {
     xcodebuild -project Sentry.xcodeproj/ -scheme "$scheme" -configuration "$resolved_configuration" -sdk iphoneos -destination 'platform=macOS,variant=Mac Catalyst' -derivedDataPath ./Carthage/DerivedData CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY= CARTHAGE=YES MACH_O_TYPE=$MACH_O_TYPE SUPPORTS_MACCATALYST=YES ENABLE_CODE_COVERAGE=NO GCC_GENERATE_DEBUGGING_SYMBOLS="$GCC_GENERATE_DEBUGGING_SYMBOLS"
 
     if [ "$MACH_O_TYPE" = "staticlib" ]; then
-        local infoPlist="Carthage/DerivedData/Build/Products/"$configuration"-maccatalyst/${scheme}.framework/Resources/Info.plist"
+        local infoPlist="Carthage/DerivedData/Build/Products/"$resolved_configuration"-maccatalyst/${scheme}.framework/Resources/Info.plist"
         plutil -replace "MinimumOSVersion" -string "100.0" "$infoPlist"
     fi
     
-    createxcframework+="-framework Carthage/DerivedData/Build/Products/"$configuration"-maccatalyst/${scheme}.framework "
-    if [ -d "Carthage/DerivedData/Build/Products/"$configuration"-maccatalyst/${scheme}.framework.dSYM" ]; then
-        createxcframework+="-debug-symbols $(pwd -P)/Carthage/DerivedData/Build/Products/"$configuration"-maccatalyst/${scheme}.framework.dSYM "
+    createxcframework+="-framework Carthage/DerivedData/Build/Products/"$resolved_configuration"-maccatalyst/${resolved_product_name}.framework "
+    if [ -d "Carthage/DerivedData/Build/Products/"$resolved_configuration"-maccatalyst/${resolved_product_name}.framework.dSYM" ]; then
+        createxcframework+="-debug-symbols $(pwd -P)/Carthage/DerivedData/Build/Products/"$resolved_configuration"-maccatalyst/${resolved_product_name}.framework.dSYM "
     fi
     
-    createxcframework+="-output Carthage/${scheme}${suffix}.xcframework"
+    createxcframework+="-output Carthage/${resolved_product_name}.xcframework"
     $createxcframework
 }
 
