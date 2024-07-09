@@ -8,6 +8,7 @@ excluded:
   - test-server/.build/
   - Tests/Perf
   - SentryTestUtils/Dynamic/**
+  - .build/**
 
 only_rules:
   - class_delegate_protocol
