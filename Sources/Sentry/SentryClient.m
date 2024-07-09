@@ -252,6 +252,10 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     NSError *underlyingError;
     if ([error.userInfo[NSUnderlyingErrorKey] isKindOfClass:[NSError class]]) {
         underlyingError = error.userInfo[NSUnderlyingErrorKey];
+    } else if (error.userInfo[NSUnderlyingErrorKey] != nil) {
+        SENTRY_LOG_WARN(@"Invalid value for NSUnderlyingErrorKey in user info. Data at key: %@. "
+                        @"Class type: %@.",
+            error.userInfo[NSUnderlyingErrorKey], [error.userInfo[NSUnderlyingErrorKey] class]);
     }
 
     while (underlyingError != nil) {
@@ -260,6 +264,12 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         if ([underlyingError.userInfo[NSUnderlyingErrorKey] isKindOfClass:[NSError class]]) {
             underlyingError = underlyingError.userInfo[NSUnderlyingErrorKey];
         } else {
+            if (underlyingError.userInfo[NSUnderlyingErrorKey] != nil) {
+                SENTRY_LOG_WARN(@"Invalid value for NSUnderlyingErrorKey in user info. Data at "
+                                @"key: %@. Class type: %@.",
+                    underlyingError.userInfo[NSUnderlyingErrorKey],
+                    [underlyingError.userInfo[NSUnderlyingErrorKey] class]);
+            }
             underlyingError = nil;
         }
     }
