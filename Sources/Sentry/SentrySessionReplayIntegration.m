@@ -17,6 +17,7 @@
 #    import "SentrySwizzle.h"
 #    import "SentryUIApplication.h"
 #    import <UIKit/UIKit.h>
+#    import "SentrySerialization.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -153,6 +154,19 @@ SentrySessionReplayIntegration () <SentrySessionReplayDelegate>
                             selector:@selector(resume)
                                 name:UIApplicationWillEnterForegroundNotification
                               object:nil];
+    
+    [self saveCurrentSessionInfo:self.sessionReplay.sessionReplayId path:docs.path options:replayOptions];
+}
+
+- (void)saveCurrentSessionInfo:(SentryId *)sessionId path:(NSString *)path options:(SentryReplayOptions *)options {
+    NSDictionary * info = @{ @"sessionId":sessionId.sentryIdString, @"path":path, @"errorSampleRate":@(options.errorSampleRate) };
+    NSData * data = [SentrySerialization dataWithJSONObject:info];
+    
+    NSString * infoPath = [[path stringByDeletingLastPathComponent] stringByAppendingPathComponent:@"lastreplay"];
+    if ([NSFileManager.defaultManager fileExistsAtPath:infoPath]) {
+        [NSFileManager.defaultManager removeItemAtPath:infoPath error:nil];
+    }
+    [data writeToFile:infoPath atomically:YES];
 }
 
 - (void)stop
@@ -185,9 +199,9 @@ SentrySessionReplayIntegration () <SentrySessionReplayDelegate>
     [self startSession];
 }
 
-- (void)captureReplay
+- (BOOL)captureReplay
 {
-    //[self.sessionReplay captureReplay];
+    return [self.sessionReplay captureReplay];
 }
 
 - (void)configureReplayWith:(nullable id<SentryReplayBreadcrumbConverter>)breadcrumbConverter
