@@ -688,28 +688,28 @@ class SentryHubTests: XCTestCase {
         assertNoEventsSent()
     }
     
-    func testCaptureEnvelope_WithEventWithError() {
+    func testCaptureEnvelope_WithEventWithError() throws {
         sut.startSession()
         
         captureEventEnvelope(level: SentryLevel.error)
         
-        assertSessionWithIncrementedErrorCountedAdded()
+        try assertSessionWithIncrementedErrorCountedAdded()
     }
     
-    func testCaptureEnvelope_WithEventWithoutExceptionMechanism() {
+    func testCaptureEnvelope_WithEventWithoutExceptionMechanism() throws {
         sut.startSession()
         
-        captureFatalEventWithoutExceptionMechanism()
+        try captureFatalEventWithoutExceptionMechanism()
         
-        assertSessionWithIncrementedErrorCountedAdded()
+        try assertSessionWithIncrementedErrorCountedAdded()
     }
     
-    func testCaptureEnvelope_WithEventWithFatal() {
+    func testCaptureEnvelope_WithEventWithFatal() throws {
         sut.startSession()
         
         captureEventEnvelope(level: SentryLevel.fatal)
         
-        assertSessionWithIncrementedErrorCountedAdded()
+        try assertSessionWithIncrementedErrorCountedAdded()
     }
     
     func testCaptureEnvelope_WithEventWithNoLevel() throws {
@@ -720,7 +720,7 @@ class SentryHubTests: XCTestCase {
         }
         sut.capture(envelope)
         
-        assertSessionWithIncrementedErrorCountedAdded()
+        try assertSessionWithIncrementedErrorCountedAdded()
     }
     
     func testCaptureEnvelope_WithEventWithGarbageLevel() throws {
@@ -731,7 +731,7 @@ class SentryHubTests: XCTestCase {
         }
         sut.capture(envelope)
         
-        assertSessionWithIncrementedErrorCountedAdded()
+        try assertSessionWithIncrementedErrorCountedAdded()
     }
     
     func testCaptureEnvelope_WithEventWithFatal_SessionNotStarted() {
@@ -1132,10 +1132,10 @@ class SentryHubTests: XCTestCase {
         sut.capture(SentryEnvelope(event: event))
     }
     
-    private func captureFatalEventWithoutExceptionMechanism() {
+    private func captureFatalEventWithoutExceptionMechanism() throws {
         let event = TestData.event
         event.level = SentryLevel.fatal
-        event.exceptions?[0].mechanism = nil
+        try XCTUnwrap(event.exceptions?.first).mechanism = nil
         sut.capture(SentryEnvelope(event: event))
     }
     
@@ -1218,11 +1218,11 @@ class SentryHubTests: XCTestCase {
         XCTAssertEqual(event?.environment, scopeEnvironment)
     }
     
-    private func assertSessionWithIncrementedErrorCountedAdded() {
+    private func assertSessionWithIncrementedErrorCountedAdded() throws {
         XCTAssertEqual(1, fixture.client.captureEnvelopeInvocations.count)
         let envelope = fixture.client.captureEnvelopeInvocations.first!
         XCTAssertEqual(2, envelope.items.count)
-        let session = SentrySerialization.session(with: envelope.items[1].data)
+        let session = SentrySerialization.session(with: try XCTUnwrap(envelope.items.element(at: 1)).data)
         XCTAssertEqual(1, session?.errors)
     }
     

@@ -202,7 +202,7 @@ class SentryNetworkTrackerIntegrationTests: XCTestCase {
         let children = Dynamic(transaction).children as [SentrySpan]?
 
         XCTAssertEqual(children?.count, 1) //Span was created in task resume swizzle.
-        let networkSpan = children![0]
+        let networkSpan = try XCTUnwrap(children?.first)
 
         let expectedTraceHeader = networkSpan.toTraceHeader().value()
         XCTAssertEqual(expectedTraceHeader, response)

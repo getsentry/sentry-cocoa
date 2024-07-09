@@ -68,12 +68,12 @@ class SentryScreenShotTests: XCTestCase {
         XCTAssertTrue(drawSecondWindow)
     }
     
-    func test_image_size() {
+    func test_image_size() throws {
         let testWindow = TestWindow(frame: CGRect(x: 0, y: 0, width: 10, height: 10))
         fixture.uiApplication.windows = [testWindow]
         
         let data = self.fixture.sut.appScreenshots()
-        let image = UIImage(data: data[0])
+        let image = UIImage(data: try XCTUnwrap(data.first))
         
         XCTAssertEqual(image?.size.width, 10)
         XCTAssertEqual(image?.size.height, 10)
