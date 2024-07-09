@@ -32,7 +32,7 @@ generate_xcframework() {
 
             xcodebuild archive -project Sentry.xcodeproj/ -scheme "$scheme" -configuration "$resolved_configuration" -sdk "$sdk" -archivePath ./Carthage/archive/${scheme}${suffix}/${sdk}.xcarchive CODE_SIGNING_REQUIRED=NO SKIP_INSTALL=NO CODE_SIGN_IDENTITY= CARTHAGE=YES MACH_O_TYPE=$MACH_O_TYPE ENABLE_CODE_COVERAGE=NO GCC_GENERATE_DEBUGGING_SYMBOLS="$GCC_GENERATE_DEBUGGING_SYMBOLS"
                  
-            createxcframework+="-framework Carthage/archive/${scheme}${suffix}/${sdk}.xcarchive/Products/Library/Frameworks/${scheme}.framework "
+            createxcframework+="-framework Carthage/archive/${scheme}${suffix}/${sdk}.xcarchive/Products/Library/Frameworks/${resolved_product_name}.framework "
 
             if [ "$MACH_O_TYPE" = "staticlib" ]; then
                 local infoPlist="Carthage/archive/${scheme}${suffix}/${sdk}.xcarchive/Products/Library/Frameworks/${resolved_product_name}.framework/Info.plist"
@@ -68,7 +68,7 @@ generate_xcframework() {
         createxcframework+="-debug-symbols $(pwd -P)/Carthage/DerivedData/Build/Products/"$resolved_configuration"-maccatalyst/${resolved_product_name}.framework.dSYM "
     fi
     
-    createxcframework+="-output Carthage/${resolved_product_name}.xcframework"
+    createxcframework+="-output Carthage/${scheme}${suffix}.xcframework"
     $createxcframework
 }
 
