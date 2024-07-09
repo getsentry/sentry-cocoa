@@ -13,7 +13,7 @@ class SentryMechanismTests: XCTestCase {
         mechanism.meta = nil
 
         let expected = TestData.mechanism
-        XCTAssertEqual(expected.type, actual["type"] as! String)
+        XCTAssertEqual(expected.type, try XCTUnwrap(actual["type"] as? String))
         XCTAssertEqual(expected.desc, actual["description"] as? String)
         XCTAssertEqual(expected.handled, actual["handled"] as? NSNumber)
         XCTAssertEqual(expected.synthetic, actual["synthetic"] as? NSNumber)

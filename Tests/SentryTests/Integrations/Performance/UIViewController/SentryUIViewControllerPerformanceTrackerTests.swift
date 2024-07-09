@@ -258,7 +258,7 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
         wait(for: [callbackExpectation], timeout: 0)
     }
     
-    func testReportFullyDisplayed() {
+    func testReportFullyDisplayed() throws {
         let sut = fixture.getSut()
         sut.enableWaitForFullDisplay = true
         let viewController = fixture.viewController
@@ -277,9 +277,9 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
         reportFrame()
         let expectedTTFDTimestamp = fixture.dateProvider.date()
 
-        let ttfdSpan = tracer?.children[1]
-        XCTAssertEqual(ttfdSpan?.isFinished, true)
-        XCTAssertEqual(ttfdSpan?.timestamp, expectedTTFDTimestamp)
+        let ttfdSpan = try XCTUnwrap(tracer?.children.element(at: 1))
+        XCTAssertEqual(ttfdSpan.isFinished, true)
+        XCTAssertEqual(ttfdSpan.timestamp, expectedTTFDTimestamp)
     }
 
     func testSecondViewController() {
@@ -531,8 +531,8 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
             tracer = self.getStack(tracker).first as? SentryTracer
         }
         XCTAssertEqual(tracer?.children.count, 3)
-        XCTAssertEqual(tracer?.children[1].operation, "ui.load.full_display")
-        XCTAssertEqual(tracer?.children[1].origin, "manual.ui.time_to_display")
+        XCTAssertEqual(try XCTUnwrap(tracer?.children.element(at: 1)).operation, "ui.load.full_display")
+        XCTAssertEqual(try XCTUnwrap(tracer?.children.element(at: 1)).origin, "manual.ui.time_to_display")
     }
 
     func test_dontWaitForFullDisplay() {

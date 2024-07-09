@@ -35,7 +35,7 @@ jobs:
             Carthage/Sentry.xcframework.zip
             Carthage/Sentry-Dynamic.xcframework.zip
             Carthage/SentrySwiftUI.xcframework.zip
-            Carthage/Sentry-WihoutUIKitOrAppKit.zip
+            Carthage/Sentry-WithoutUIKitOrAppKit.zip
           overwrite: true
 
   job_release:

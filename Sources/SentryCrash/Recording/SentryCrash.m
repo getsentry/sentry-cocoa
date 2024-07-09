@@ -36,13 +36,13 @@
 #import "SentryCrashNSErrorUtil.h"
 #import "SentryCrashReportFields.h"
 #import "SentryCrashReportStore.h"
-#import "SentryCrashSystemCapabilities.h"
 #import "SentryDefines.h"
 #import "SentryDependencyContainer.h"
+#import "SentryInternalCDefines.h"
 #import "SentryNSNotificationCenterWrapper.h"
 #import <SentryNSDataUtils.h>
 
-#import "SentryCrashLogger.h"
+#import "SentryLog.h"
 
 #if SENTRY_HAS_UIKIT
 #    import <UIKit/UIKit.h>
@@ -122,7 +122,7 @@ SentryCrash ()
                                      options:SentryCrashJSONEncodeOptionSorted
                                        error:&error]);
             if (error != NULL) {
-                SentryCrashLOG_ERROR(@"Could not serialize user info: %@", error);
+                SENTRY_LOG_ERROR(@"Could not serialize user info: %@", error);
                 return;
             }
         }
@@ -217,8 +217,8 @@ SentryCrash ()
 - (BOOL)install
 {
     if (self.basePath == nil) {
-        SentryCrashLOG_ERROR(@"Failed to initialize crash handler. Crash "
-                             @"reporting disabled.");
+        SENTRY_LOG_ERROR(@"Failed to initialize crash handler. Crash "
+                         @"reporting disabled.");
         return NO;
     }
 
@@ -257,7 +257,7 @@ SentryCrash ()
                            selector:@selector(applicationWillTerminate)
                                name:UIApplicationWillTerminateNotification];
 #endif // SENTRY_HAS_UIKIT
-#if SentryCrashCRASH_HAS_NSEXTENSION
+#if SENTRY_HAS_NSEXTENSION
     SentryNSNotificationCenterWrapper *notificationCenter
         = SentryDependencyContainer.sharedInstance.notificationCenterWrapper;
     [notificationCenter addObserver:self
@@ -272,7 +272,7 @@ SentryCrash ()
     [notificationCenter addObserver:self
                            selector:@selector(applicationWillEnterForeground)
                                name:NSExtensionHostWillEnterForegroundNotification];
-#endif // SentryCrashCRASH_HAS_NSEXTENSION
+#endif // SENTRY_HAS_NSEXTENSION
 
     return true;
 }
@@ -294,7 +294,7 @@ SentryCrash ()
     [notificationCenter removeObserver:self name:UIApplicationWillEnterForegroundNotification];
     [notificationCenter removeObserver:self name:UIApplicationWillTerminateNotification];
 #endif // SENTRY_HAS_UIKIT
-#if SentryCrashCRASH_HAS_NSEXTENSION
+#if SENTRY_HAS_NSEXTENSION
     SentryNSNotificationCenterWrapper *notificationCenter
         = SentryDependencyContainer.sharedInstance.notificationCenterWrapper;
     [notificationCenter removeObserver:self name:NSExtensionHostDidBecomeActiveNotification];
@@ -308,13 +308,13 @@ SentryCrash ()
 {
     NSArray *reports = [self allReports];
 
-    SentryCrashLOG_INFO(@"Sending %d crash reports", [reports count]);
+    SENTRY_LOG_INFO(@"Sending %lu crash reports", (unsigned long)[reports count]);
 
     [self sendReports:reports
          onCompletion:^(NSArray *filteredReports, BOOL completed, NSError *error) {
-             SentryCrashLOG_DEBUG(@"Process finished with completion: %d", completed);
+             SENTRY_LOG_DEBUG(@"Process finished with completion: %d", completed);
              if (error != nil) {
-                 SentryCrashLOG_ERROR(@"Failed to send reports: %@", error);
+                 SENTRY_LOG_ERROR(@"Failed to send reports: %@", error);
              }
              if ((self.deleteBehaviorAfterSendAll == SentryCrashCDeleteOnSucess && completed)
                  || self.deleteBehaviorAfterSendAll == SentryCrashCDeleteAlways) {
@@ -453,11 +453,11 @@ SYNTHESIZE_CRASH_STATE_PROPERTY(BOOL, crashedLastLaunch)
                                error:&error];
 
     if (error != nil) {
-        SentryCrashLOG_ERROR(
+        SENTRY_LOG_ERROR(
             @"Encountered error loading crash report %" PRIx64 ": %@", reportID, error);
     }
     if (crashReport == nil) {
-        SentryCrashLOG_ERROR(@"Could not load crash report");
+        SENTRY_LOG_ERROR(@"Could not load crash report");
         return nil;
     }
 

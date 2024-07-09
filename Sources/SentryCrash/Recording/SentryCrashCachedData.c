@@ -26,7 +26,7 @@
 #include "SentryCrashCachedData.h"
 #include "SentryInternalCDefines.h"
 
-#include "SentryCrashLogger.h"
+#include "SentryAsyncSafeLog.h"
 
 #include <errno.h>
 #include <mach/mach.h>
@@ -67,7 +67,7 @@ updateThreadList(void) SENTRY_DISABLE_THREAD_SANITIZER("Known data race to fix")
     thread_act_array_t threads;
     kern_return_t kr;
     if ((kr = task_threads(thisTask, &threads, &allThreadsCount)) != KERN_SUCCESS) {
-        SentryCrashLOG_ERROR("task_threads: %s", mach_error_string(kr));
+        SENTRY_ASYNC_SAFE_LOG_ERROR("task_threads: %s", mach_error_string(kr));
         return;
     }
 
@@ -163,7 +163,7 @@ sentrycrashccd_init(int pollingIntervalInSeconds)
     int error = pthread_create(
         &g_cacheThread, &attr, &monitorCachedData, "SentryCrash Cached Data Monitor");
     if (error != 0) {
-        SentryCrashLOG_ERROR("pthread_create_suspended_np: %s", strerror(error));
+        SENTRY_ASYNC_SAFE_LOG_ERROR("pthread_create_suspended_np: %s", strerror(error));
     }
     pthread_attr_destroy(&attr);
 }

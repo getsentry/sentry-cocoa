@@ -1,8 +1,8 @@
 import XCTest
 
 class SentryGeoTests: XCTestCase {
-    func testSerializationWithAllProperties() {
-        let geo = TestData.geo.copy() as! Geo
+    func testSerializationWithAllProperties() throws {
+        let geo = try XCTUnwrap(TestData.geo.copy() as? Geo)
         let actual = geo.serialize()
 
         // Changing the original doesn't modify the serialized
@@ -33,24 +33,24 @@ class SentryGeoTests: XCTestCase {
     }
     
     func testIsEqualToCopy() {
-        XCTAssertEqual(TestData.geo, TestData.geo.copy() as! Geo)
+        XCTAssertEqual(TestData.geo, try XCTUnwrap(TestData.geo.copy() as? Geo))
     }
     
-    func testNotIsEqual() {
-        testIsNotEqual { geo in geo.city = "" }
-        testIsNotEqual { geo in geo.countryCode = "" }
-        testIsNotEqual { geo in geo.region = "" }
+    func testNotIsEqual() throws {
+        try testIsNotEqual { geo in geo.city = "" }
+        try testIsNotEqual { geo in geo.countryCode = "" }
+        try testIsNotEqual { geo in geo.region = "" }
     }
     
-    func testIsNotEqual(block: (Geo) -> Void ) {
-        let geo = TestData.geo.copy() as! Geo
+    func testIsNotEqual(block: (Geo) -> Void) throws {
+        let geo = try XCTUnwrap(TestData.geo.copy() as? Geo)
         block(geo)
         XCTAssertNotEqual(TestData.geo, geo)
     }
     
-    func testCopyWithZone_CopiesDeepCopy() {
+    func testCopyWithZone_CopiesDeepCopy() throws {
         let geo = TestData.geo
-        let copiedGeo = geo.copy() as! Geo
+        let copiedGeo = try XCTUnwrap(geo.copy() as? Geo)
         
         // Modifying the original does not change the copy
         geo.city = ""

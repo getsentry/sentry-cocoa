@@ -69,8 +69,8 @@ class SentryTransactionTests: XCTestCase {
         XCTAssertNotNil(actualMeasurements)
         
         let coldStartMeasurement = actualMeasurements?[name]
-        XCTAssertEqual(value, coldStartMeasurement?["value"] as! NSNumber)
-        XCTAssertEqual(unit.unit, coldStartMeasurement?["unit"] as! String)
+        XCTAssertEqual(value, try XCTUnwrap(coldStartMeasurement?["value"] as? NSNumber))
+        XCTAssertEqual(unit.unit, try XCTUnwrap(coldStartMeasurement?["unit"] as? String))
     }
     
     func testSerializeMeasurements_MultipleMeasurements() {
@@ -92,12 +92,12 @@ class SentryTransactionTests: XCTestCase {
         XCTAssertNotNil(actualMeasurements)
         
         let frameMeasurement = actualMeasurements?[frameName]
-        XCTAssertEqual(frameValue, frameMeasurement?["value"] as! NSNumber)
+        XCTAssertEqual(frameValue, try XCTUnwrap(frameMeasurement?["value"] as? NSNumber))
         XCTAssertNil(frameMeasurement?["unit"])
         
         let customMeasurement = actualMeasurements?[customName]
-        XCTAssertEqual(customValue, customMeasurement?["value"] as! NSNumber)
-        XCTAssertEqual(customUnit.unit, customMeasurement?["unit"] as! String)
+        XCTAssertEqual(customValue, try XCTUnwrap(customMeasurement?["value"] as? NSNumber))
+        XCTAssertEqual(customUnit.unit, try XCTUnwrap(customMeasurement?["unit"] as? String))
     }
     
     func testSerialize_Tags() {
@@ -143,7 +143,7 @@ class SentryTransactionTests: XCTestCase {
         let serializedTransactionExtra = try! XCTUnwrap(serializedTransaction["extra"] as? [String: Any])
         
         // then
-        XCTAssertEqual(serializedTransactionExtra[fixture.testKey] as! String, fixture.testValue)
+        XCTAssertEqual(try XCTUnwrap(serializedTransactionExtra[fixture.testKey] as? String), fixture.testValue)
     }
     
     func testSerialize_shouldPreserveExtraFromScope() {
@@ -160,7 +160,7 @@ class SentryTransactionTests: XCTestCase {
         let serializedTransactionExtra = try! XCTUnwrap(serializedTransaction["extra"] as? [String: Any])
         
         // then
-        XCTAssertEqual(serializedTransactionExtra[fixture.testKey] as! String, fixture.testValue)
+        XCTAssertEqual(try XCTUnwrap(serializedTransactionExtra[fixture.testKey] as? String), fixture.testValue)
     }
     
     func testSerializeOrigin() throws {
@@ -222,9 +222,6 @@ class SentryTransactionTests: XCTestCase {
     }
     
 #if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
-    // test that when a trace runs concurrently with the continuous profiler
-    // and is serialized to a transaction, that it contains the profile id at
-    // the keypath contexts.trace.data.profile_id
     func testTransactionWithContinuousProfile() throws {
         SentrySDK.setStart(Options())
         let transaction = fixture.getTransaction()
@@ -232,9 +229,8 @@ class SentryTransactionTests: XCTestCase {
         let profileId = try XCTUnwrap(SentryContinuousProfiler.profiler()?.profilerId.sentryIdString)
         let serialized = transaction.serialize()
         let contexts = try XCTUnwrap(serialized["contexts"] as? [String: Any])
-        let trace = try XCTUnwrap(contexts["trace"] as? [String: Any])
-        let data = try XCTUnwrap(trace["data"] as? [String: Any])
-        let profileIdFromContexts = try XCTUnwrap(data["profiler_id"] as? String)
+        let profileData = try XCTUnwrap(contexts["profile"] as? [String: Any])
+        let profileIdFromContexts = try XCTUnwrap(profileData["profiler_id"] as? String)
         XCTAssertEqual(profileId, profileIdFromContexts)
     }
 #endif // os(iOS) || os(macOS) || targetEnvironment(macCatalyst)

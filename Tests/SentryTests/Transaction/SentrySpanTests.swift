@@ -244,45 +244,53 @@ class SentrySpanTests: XCTestCase {
     
     func testInit_SetsMainThreadInfoAsSpanData() {
         let span = fixture.getSut()
-        XCTAssertEqual("main", span.data["thread.name"] as! String)
+        XCTAssertEqual("main", try XCTUnwrap(span.data["thread.name"] as? String))
         
         let threadId = sentrycrashthread_self()
-        XCTAssertEqual(NSNumber(value: threadId), span.data["thread.id"] as! NSNumber)
+        XCTAssertEqual(NSNumber(value: threadId), try XCTUnwrap(span.data["thread.id"] as? NSNumber))
     }
     
     func testInit_SetsThreadInfoAsSpanData_FromBackgroundThread() {
         let expect = expectation(description: "Thread must be called.")
         
+        var spanData: [String: Any]?
+        var threadId: SentryCrashThread?
+        let threadName = "test-thread-name"
         Thread.detachNewThread {
-            let threadName = "test-thread-name"
             Thread.current.name = threadName
             
             let span = self.fixture.getSut()
-            XCTAssertEqual(threadName, span.data["thread.name"] as! String)
-            let threadId = sentrycrashthread_self()
-            XCTAssertEqual(NSNumber(value: threadId), span.data["thread.id"] as! NSNumber)
+            spanData = span.data
+            threadId = sentrycrashthread_self()
             
             expect.fulfill()
         }
         
         wait(for: [expect], timeout: 1.0)
+        
+        XCTAssertEqual(NSNumber(value: try XCTUnwrap(threadId)), try XCTUnwrap(spanData?["thread.id"] as? NSNumber))
+        XCTAssertEqual(threadName, try XCTUnwrap(spanData?["thread.name"] as? String))
     }
     
     func testInit_SetsThreadInfoAsSpanData_FromBackgroundThreadWithNoName() {
         let expect = expectation(description: "Thread must be called.")
         
+        var spanData: [String: Any]?
+        var threadId: SentryCrashThread?
         Thread.detachNewThread {
             Thread.current.name = ""
             
             let span = self.fixture.getSut()
-            XCTAssertNil(span.data["thread.name"])
-            let threadId = sentrycrashthread_self()
-            XCTAssertEqual(NSNumber(value: threadId), span.data["thread.id"] as! NSNumber)
+            spanData = span.data
+            threadId = sentrycrashthread_self()
             
             expect.fulfill()
         }
         
         wait(for: [expect], timeout: 1.0)
+        
+        XCTAssertNil(try XCTUnwrap(spanData)["thread.name"])
+        XCTAssertEqual(NSNumber(value: try XCTUnwrap(threadId)), try XCTUnwrap(spanData?["thread.id"] as? NSNumber))
     }
     
     func testFinish() throws {
@@ -367,8 +375,8 @@ class SentrySpanTests: XCTestCase {
         let lastEvent = try XCTUnwrap(client.captureEventWithScopeInvocations.invocations.first).event
         let serializedData = lastEvent.serialize()
         
-        let spans = serializedData["spans"] as! [Any]
-        let serializedChild = spans[0] as! [String: Any]
+        let spans = try XCTUnwrap(serializedData["spans"] as? [Any])
+        let serializedChild = try XCTUnwrap(spans.first as? [String: Any])
         
         XCTAssertEqual(serializedChild["span_id"] as? String, childSpan.spanId.sentrySpanIdString)
         XCTAssertEqual(serializedChild["parent_span_id"] as? String, span.spanId.sentrySpanIdString)
@@ -424,7 +432,7 @@ class SentrySpanTests: XCTestCase {
         span.setData(value: fixture.extraValue, key: fixture.extraKey)
         
         XCTAssertEqual(span.data.count, 3)
-        XCTAssertEqual(span.data[fixture.extraKey] as! String, fixture.extraValue)
+        XCTAssertEqual(try XCTUnwrap(span.data[fixture.extraKey] as? String), fixture.extraValue)
         
         span.removeData(key: fixture.extraKey)
         XCTAssertEqual(span.data.count, 2, "Only expected thread.name and thread.id in data.")
@@ -471,8 +479,8 @@ class SentrySpanTests: XCTestCase {
         XCTAssertNotNil(serialization["tags"])
         
         let data = serialization["data"] as? [String: Any]
-        XCTAssertEqual(data?[fixture.extraKey] as! String, fixture.extraValue)
-        XCTAssertEqual((serialization["tags"] as! Dictionary)[fixture.extraKey], fixture.extraValue)
+        XCTAssertEqual(try XCTUnwrap(data?[fixture.extraKey] as? String), fixture.extraValue)
+        XCTAssertEqual((try XCTUnwrap(serialization["tags"] as? Dictionary)[fixture.extraKey]), fixture.extraValue)
         XCTAssertEqual("manual", serialization["origin"] as? String)
     }
     

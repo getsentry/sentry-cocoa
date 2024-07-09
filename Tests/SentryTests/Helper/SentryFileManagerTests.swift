@@ -28,7 +28,7 @@ class SentryFileManagerTests: XCTestCase {
         var delegate: TestFileManagerDelegate!
         // swiftlint:enable weak_delegate
         
-        init() {
+        init() throws {
             currentDateProvider = TestCurrentDateProvider()
             dispatchQueueWrapper = TestSentryDispatchQueueWrapper()
             
@@ -39,7 +39,7 @@ class SentryFileManagerTests: XCTestCase {
             
             sessionEnvelope = SentryEnvelope(session: session)
             
-            let sessionCopy = session.copy() as! SentrySession
+            let sessionCopy = try XCTUnwrap(session.copy() as? SentrySession)
             sessionCopy.incrementErrors()
             // We need to serialize in order to set the timestamp and the duration
             sessionUpdate = SentrySession(jsonObject: sessionCopy.serialize())!
@@ -48,7 +48,7 @@ class SentryFileManagerTests: XCTestCase {
             let items = [SentryEnvelopeItem(session: sessionUpdate), SentryEnvelopeItem(event: event)]
             sessionUpdateEnvelope = SentryEnvelope(id: event.eventId, items: items)
             
-            let sessionUpdateCopy = sessionUpdate.copy() as! SentrySession
+            let sessionUpdateCopy = try XCTUnwrap(sessionUpdate.copy() as? SentrySession)
             // We need to serialize in order to set the timestamp and the duration
             expectedSessionUpdate = SentrySession(jsonObject: sessionUpdateCopy.serialize())!
             // We can only set the init flag after serialize, because the duration is not set if the init flag is set
@@ -75,9 +75,9 @@ class SentryFileManagerTests: XCTestCase {
     private var fixture: Fixture!
     private var sut: SentryFileManager!
     
-    override func setUp() {
-        super.setUp()
-        fixture = Fixture()
+    override func setUpWithError() throws {
+        try super.setUpWithError()
+        fixture = try Fixture()
         SentryDependencyContainer.sharedInstance().dateProvider = fixture.currentDateProvider
         
         sut = fixture.getSut()
@@ -131,7 +131,7 @@ class SentryFileManagerTests: XCTestCase {
         let envelopes = sut.getAllEnvelopes()
         XCTAssertEqual(1, envelopes.count)
         
-        let actualData = envelopes[0].contents
+        let actualData = try XCTUnwrap(envelopes.first).contents
         XCTAssertEqual(expectedData, actualData as Data)
     }
     
@@ -337,7 +337,7 @@ class SentryFileManagerTests: XCTestCase {
         XCTAssertEqual(maxCacheItems, UInt(events.count))
     }
     
-    func testMigrateSessionInit_SessionUpdateIsLast() {
+    func testMigrateSessionInit_SessionUpdateIsLast() throws {
         sut.store(fixture.sessionEnvelope)
         // just some other session
         sut.store(SentryEnvelope(session: SentrySession(releaseName: "1.0.0", distinctId: "some-id")))
@@ -346,22 +346,22 @@ class SentryFileManagerTests: XCTestCase {
         }
         sut.store(fixture.sessionUpdateEnvelope)
         
-        assertSessionInitMoved(sut.getAllEnvelopes().last!)
+        try assertSessionInitMoved(sut.getAllEnvelopes().last!)
         assertSessionEnvelopesStored(count: 2)
     }
     
-    func testMigrateSessionInit_SessionUpdateIsSecond() {
+    func testMigrateSessionInit_SessionUpdateIsSecond() throws {
         sut.store(fixture.sessionEnvelope)
         sut.store(fixture.sessionUpdateEnvelope)
         for _ in 0...(fixture.maxCacheItems - 2) {
             sut.store(TestConstants.envelope)
         }
         
-        assertSessionInitMoved(sut.getAllEnvelopes().first!)
+        try assertSessionInitMoved(sut.getAllEnvelopes().first!)
         assertSessionEnvelopesStored(count: 1)
     }
     
-    func testMigrateSessionInit_IsInMiddle() {
+    func testMigrateSessionInit_IsInMiddle() throws {
         sut.store(fixture.sessionEnvelope)
         for _ in 0...10 {
             sut.store(TestConstants.envelope)
@@ -371,11 +371,11 @@ class SentryFileManagerTests: XCTestCase {
             sut.store(TestConstants.envelope)
         }
         
-        assertSessionInitMoved(sut.getAllEnvelopes()[10])
+        try assertSessionInitMoved(sut.getAllEnvelopes()[10])
         assertSessionEnvelopesStored(count: 1)
     }
     
-    func testMigrateSessionInit_MovesInitFlagOnlyToFirstSessionUpdate() {
+    func testMigrateSessionInit_MovesInitFlagOnlyToFirstSessionUpdate() throws {
         sut.store(fixture.sessionEnvelope)
         for _ in 0...10 {
             sut.store(TestConstants.envelope)
@@ -387,9 +387,9 @@ class SentryFileManagerTests: XCTestCase {
             sut.store(TestConstants.envelope)
         }
         
-        assertSessionInitMoved(sut.getAllEnvelopes()[10])
-        assertSessionInitNotMoved(sut.getAllEnvelopes()[11])
-        assertSessionInitNotMoved(sut.getAllEnvelopes()[12])
+        try assertSessionInitMoved(sut.getAllEnvelopes()[10])
+        try assertSessionInitNotMoved(sut.getAllEnvelopes()[11])
+        try assertSessionInitNotMoved(sut.getAllEnvelopes()[12])
         assertSessionEnvelopesStored(count: 3)
     }
     
@@ -403,7 +403,7 @@ class SentryFileManagerTests: XCTestCase {
         assertSessionEnvelopesStored(count: 0)
     }
     
-    func testMigrateSessionInit_FailToLoadEnvelope() {
+    func testMigrateSessionInit_FailToLoadEnvelope() throws {
         sut.store(fixture.sessionEnvelope)
         
         for _ in 0...(fixture.maxCacheItems - 3) {
@@ -418,7 +418,7 @@ class SentryFileManagerTests: XCTestCase {
         
         sut.store(fixture.sessionUpdateEnvelope)
         
-        assertSessionInitMoved(sut.getAllEnvelopes().last!)
+        try assertSessionInitMoved(sut.getAllEnvelopes().last!)
     }
     
     func testMigrateSessionInit_DoesNotCallEnvelopeItemDeleted() {
@@ -452,7 +452,7 @@ class SentryFileManagerTests: XCTestCase {
         
         let actualEnvelope = SentrySerialization.envelope(with: sut.getOldestEnvelope()?.contents ?? Data())
         
-        XCTAssertEqual(fixture.eventIds[11], actualEnvelope?.header.eventId)
+        XCTAssertEqual(try XCTUnwrap(fixture.eventIds.element(at: 11)), actualEnvelope?.header.eventId)
     }
     
     func testGetOldestEnvelope_WhenNoEnvelopes() {
@@ -665,7 +665,7 @@ class SentryFileManagerTests: XCTestCase {
     
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
     
-    func testReadPreviousBreadcrumbs() {
+    func testReadPreviousBreadcrumbs() throws {
         let observer = SentryWatchdogTerminationScopeObserver(maxBreadcrumbs: 2, fileManager: sut)
         
         for count in 0..<3 {
@@ -677,14 +677,17 @@ class SentryFileManagerTests: XCTestCase {
         }
         
         sut.moveBreadcrumbsToPreviousBreadcrumbs()
-        let result = sut.readPreviousBreadcrumbs()
+        var result = sut.readPreviousBreadcrumbs()
+        
         XCTAssertEqual(result.count, 3)
-        XCTAssertEqual((result[0] as! NSDictionary)["message"] as! String, "0")
-        XCTAssertEqual((result[1] as! NSDictionary)["message"] as! String, "1")
-        XCTAssertEqual((result[2] as! NSDictionary)["message"] as! String, "2")
+        XCTAssertEqual(try XCTUnwrap(result.first as? NSDictionary)["message"] as? String, "0")
+        result = [Any](result.dropFirst())
+        XCTAssertEqual(try XCTUnwrap(result.first as? NSDictionary)["message"] as? String, "1")
+        result = [Any](result.dropFirst())
+        XCTAssertEqual(try XCTUnwrap(result.first as? NSDictionary)["message"] as? String, "2")
     }
     
-    func testReadPreviousBreadcrumbsCorrectOrderWhenFileTwoHasMoreCrumbs() {
+    func testReadPreviousBreadcrumbsCorrectOrderWhenFileTwoHasMoreCrumbs() throws {
         let observer = SentryWatchdogTerminationScopeObserver(maxBreadcrumbs: 2, fileManager: sut)
         
         for count in 0..<5 {
@@ -696,11 +699,14 @@ class SentryFileManagerTests: XCTestCase {
         }
         
         sut.moveBreadcrumbsToPreviousBreadcrumbs()
-        let result = sut.readPreviousBreadcrumbs()
+        var result = sut.readPreviousBreadcrumbs()
+        
         XCTAssertEqual(result.count, 3)
-        XCTAssertEqual((result[0] as! NSDictionary)["message"] as! String, "2")
-        XCTAssertEqual((result[1] as! NSDictionary)["message"] as! String, "3")
-        XCTAssertEqual((result[2] as! NSDictionary)["message"] as! String, "4")
+        XCTAssertEqual(try XCTUnwrap(result.first as? NSDictionary)["message"] as? String, "2")
+        result = [Any](result.dropFirst())
+        XCTAssertEqual(try XCTUnwrap(result.first as? NSDictionary)["message"] as? String, "3")
+        result = [Any](result.dropFirst())
+        XCTAssertEqual(try XCTUnwrap(result.first as? NSDictionary)["message"] as? String, "4")
     }
     
 #endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
@@ -903,21 +909,21 @@ private extension SentryFileManagerTests {
                         "Folder for events should be deleted on init: \(sut.eventsPath)")
     }
 
-    func assertSessionInitMoved(_ actualSessionFileContents: SentryFileContents) {
+    func assertSessionInitMoved(_ actualSessionFileContents: SentryFileContents) throws {
         let actualSessionEnvelope = SentrySerialization.envelope(with: actualSessionFileContents.contents)
         XCTAssertEqual(2, actualSessionEnvelope?.items.count)
 
-        let actualSession = SentrySerialization.session(with: actualSessionEnvelope?.items[1].data ?? Data())
+        let actualSession = SentrySerialization.session(with: try XCTUnwrap(actualSessionEnvelope?.items.element(at: 1)).data)
         XCTAssertNotNil(actualSession)
 
         XCTAssertEqual(fixture.expectedSessionUpdate, actualSession)
     }
     
-    func assertSessionInitNotMoved(_ actualSessionFileContents: SentryFileContents) {
+    func assertSessionInitNotMoved(_ actualSessionFileContents: SentryFileContents) throws {
         let actualSessionEnvelope = SentrySerialization.envelope(with: actualSessionFileContents.contents)
         XCTAssertEqual(2, actualSessionEnvelope?.items.count)
 
-        let actualSession = SentrySerialization.session(with: actualSessionEnvelope?.items[0].data ?? Data())
+        let actualSession = SentrySerialization.session(with: try XCTUnwrap(actualSessionEnvelope?.items.first).data)
         XCTAssertNotNil(actualSession)
 
         XCTAssertEqual(fixture.sessionUpdate, actualSession)
