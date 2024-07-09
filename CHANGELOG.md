@@ -5,6 +5,7 @@
 ### Features
 
 - Include the screen names in the session replay (#4126)
+
 ### Fixes
 
 - Sentry Replay Serialized Breadcrumbs include level name ([#4141](https://github.com/getsentry/sentry-cocoa/pull/4141))
