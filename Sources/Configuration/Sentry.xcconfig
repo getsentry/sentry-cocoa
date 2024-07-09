@@ -1,4 +1,4 @@
-#include "Versions.xcconfig"
+#include "DeploymentTargets.xcconfig"
 
 INFOPLIST_FILE = Sources/Resources/Info.plist
 
