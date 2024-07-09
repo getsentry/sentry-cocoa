@@ -18,6 +18,7 @@
 #import "SentrySessionReplayIntegration.h"
 #import "SentrySwift.h"
 #import "SentrySwiftAsyncIntegration.h"
+#import "SentryTracer.h"
 #import <objc/runtime.h>
 
 #if SENTRY_HAS_UIKIT
@@ -114,7 +115,7 @@ NSString *const kSentryDefaultEnvironment = @"production";
         self.attachScreenshot = NO;
         self.attachViewHierarchy = NO;
         self.enableUserInteractionTracing = YES;
-        self.idleTimeout = 3.0;
+        self.idleTimeout = SentryTracerDefaultTimeout;
         self.enablePreWarmedAppStartTracing = NO;
 #endif // SENTRY_HAS_UIKIT
         self.enableAppHangTracking = YES;

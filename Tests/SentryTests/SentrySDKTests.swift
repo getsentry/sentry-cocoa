@@ -389,7 +389,7 @@ class SentrySDKTests: XCTestCase {
         XCTAssertEqual(event?.user, user)
     }
     
-    func testStartTransaction() {
+    func testStartTransaction() throws {
         givenSdkWithHub()
         
         let operation = "ui.load"
@@ -397,18 +397,21 @@ class SentrySDKTests: XCTestCase {
         let transaction = SentrySDK.startTransaction(name: name, operation: operation)
         
         XCTAssertEqual(operation, transaction.operation)
-        let tracer = transaction as! SentryTracer
+        let tracer = try XCTUnwrap(transaction as? SentryTracer)
         XCTAssertEqual(name, tracer.traceContext.transaction)
         
         XCTAssertNil(SentrySDK.span)
     }
     
-    func testStartTransaction_WithBindToScope() {
+    func testStartTransaction_WithBindToScope() throws {
         givenSdkWithHub()
         
         let transaction = SentrySDK.startTransaction(name: fixture.transactionName, operation: fixture.operation, bindToScope: true)
         
-        assertTransaction(transaction: transaction)
+        XCTAssertEqual(fixture.operation, transaction.operation)
+        let tracer = try XCTUnwrap(transaction as? SentryTracer)
+        XCTAssertEqual(fixture.transactionName, tracer.traceContext.transaction)
+        XCTAssertEqual(.custom, tracer.transactionContext.nameSource)
         
         let newSpan = SentrySDK.span
         
@@ -953,13 +956,6 @@ class SentrySDKTests: XCTestCase {
     private func assertHubScopeNotChanged() {
         let hubScope = SentrySDK.currentHub().scope
         XCTAssertEqual(fixture.scope, hubScope)
-    }
-    
-    private func assertTransaction(transaction: Span) {
-        XCTAssertEqual(fixture.operation, transaction.operation)
-        let tracer = transaction as! SentryTracer
-        XCTAssertEqual(fixture.transactionName, tracer.traceContext.transaction)
-        XCTAssertEqual(.custom, tracer.transactionContext.nameSource)
     }
     
     private func advanceTime(bySeconds: TimeInterval) {

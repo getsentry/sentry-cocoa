@@ -44,26 +44,26 @@ class SentryNetworkTrackerIntegrationTests: XCTestCase {
         XCTAssertNil(configuration.httpAdditionalHeaders)
     }
     
-    func testNetworkTrackerDisabled_WhenNetworkTrackingDisabled() {
-        assertNetworkTrackerDisabled { options in
+    func testNetworkTrackerDisabled_WhenNetworkTrackingDisabled() throws {
+        try assertNetworkTrackerDisabled { options in
             options.enableNetworkTracking = false
         }
     }
     
-    func testNetworkTrackerDisabled_WhenAutoPerformanceTrackingDisabled() {
-        assertNetworkTrackerDisabled { options in
+    func testNetworkTrackerDisabled_WhenAutoPerformanceTrackingDisabled() throws {
+        try assertNetworkTrackerDisabled { options in
             options.enableAutoPerformanceTracing = false
         }
     }
     
-    func testNetworkTrackerDisabled_WhenTracingDisabled() {
-        assertNetworkTrackerDisabled { options in
+    func testNetworkTrackerDisabled_WhenTracingDisabled() throws {
+        try assertNetworkTrackerDisabled { options in
             options.tracesSampleRate = 0.0
         }
     }
     
-    func testNetworkTrackerDisabled_WhenSwizzlingDisabled() {
-        assertNetworkTrackerDisabled { options in
+    func testNetworkTrackerDisabled_WhenSwizzlingDisabled() throws {
+        try assertNetworkTrackerDisabled { options in
             options.enableSwizzling = false
         }
     }
@@ -106,12 +106,12 @@ class SentryNetworkTrackerIntegrationTests: XCTestCase {
     /**
      * Reproduces https://github.com/getsentry/sentry-cocoa/issues/1288
      */
-    func testCustomURLProtocol_BlocksAllRequests() {
+    func testCustomURLProtocol_BlocksAllRequests() throws {
         startSDK()
         
         let expect = expectation(description: "Callback Expectation")
         
-        let customConfiguration = URLSessionConfiguration.default.copy() as! URLSessionConfiguration
+        let customConfiguration = try XCTUnwrap(URLSessionConfiguration.default.copy() as? URLSessionConfiguration)
         customConfiguration.protocolClasses?.insert(BlockAllRequestsProtocol.self, at: 0)
         let session = URLSession(configuration: customConfiguration)
         
@@ -154,9 +154,9 @@ class SentryNetworkTrackerIntegrationTests: XCTestCase {
         XCTAssertEqual(1, breadcrumbs?.count)
     }
     
-    func testGetRequest_SpanCreatedAndBaggageHeaderAdded() {
+    func testGetRequest_SpanCreatedAndBaggageHeaderAdded() throws {
         startSDK()
-        let transaction = SentrySDK.startTransaction(name: "Test Transaction", operation: "TEST", bindToScope: true) as! SentryTracer
+        let transaction = try XCTUnwrap(SentrySDK.startTransaction(name: "Test Transaction", operation: "TEST", bindToScope: true) as? SentryTracer)
         let expect = expectation(description: "Request completed")
         let session = URLSession(configuration: URLSessionConfiguration.default)
 
@@ -176,7 +176,7 @@ class SentryNetworkTrackerIntegrationTests: XCTestCase {
         let children = Dynamic(transaction).children as [Span]?
         
         XCTAssertEqual(children?.count, 1) //Span was created in task resume swizzle.
-        let networkSpan = children![0]
+        let networkSpan = try XCTUnwrap(children?.first)
         XCTAssertTrue(networkSpan.isFinished) //Span was finished in task setState swizzle.
         XCTAssertEqual(SENTRY_NETWORK_REQUEST_OPERATION, networkSpan.operation)
         XCTAssertEqual("GET \(SentryNetworkTrackerIntegrationTests.testBaggageURL)", networkSpan.spanDescription)
@@ -184,9 +184,9 @@ class SentryNetworkTrackerIntegrationTests: XCTestCase {
         XCTAssertEqual("200", networkSpan.data["http.response.status_code"] as? String)
     }
 
-    func testGetRequest_CompareSentryTraceHeader() {
+    func testGetRequest_CompareSentryTraceHeader() throws {
         startSDK()
-        let transaction = SentrySDK.startTransaction(name: "Test Transaction", operation: "TEST", bindToScope: true) as! SentryTracer
+        let transaction = try XCTUnwrap(SentrySDK.startTransaction(name: "Test Transaction", operation: "TEST", bindToScope: true) as? SentryTracer)
         let expect = expectation(description: "Request completed")
         let session = URLSession(configuration: URLSessionConfiguration.default)
         var response: String?
@@ -202,7 +202,7 @@ class SentryNetworkTrackerIntegrationTests: XCTestCase {
         let children = Dynamic(transaction).children as [SentrySpan]?
 
         XCTAssertEqual(children?.count, 1) //Span was created in task resume swizzle.
-        let networkSpan = children![0]
+        let networkSpan = try XCTUnwrap(children?.first)
 
         let expectedTraceHeader = networkSpan.toTraceHeader().value()
         XCTAssertEqual(expectedTraceHeader, response)
@@ -274,13 +274,13 @@ class SentryNetworkTrackerIntegrationTests: XCTestCase {
         XCTAssertEqual(sentryResponse?["status_code"] as? NSNumber, 400)
     }
     
-    private func assertNetworkTrackerDisabled(configureOptions: (Options) -> Void) {
+    private func assertNetworkTrackerDisabled(configureOptions: (Options) -> Void) throws {
         configureOptions(fixture.options)
         
         startSDK()
         
         let configuration = URLSessionConfiguration.default
-        _ = startTransactionBoundToScope()
+        _ = try startTransactionBoundToScope()
         XCTAssertNil(configuration.httpAdditionalHeaders)
     }
         
@@ -290,8 +290,8 @@ class SentryNetworkTrackerIntegrationTests: XCTestCase {
         SentrySDK.start(options: self.fixture.options)
     }
     
-    private func startTransactionBoundToScope() -> SentryTracer {
-        return SentrySDK.startTransaction(name: "Test", operation: "test", bindToScope: true) as! SentryTracer
+    private func startTransactionBoundToScope() throws -> SentryTracer {
+        return try XCTUnwrap(SentrySDK.startTransaction(name: "Test", operation: "test", bindToScope: true) as? SentryTracer)
     }
     
     private func assertRemovedIntegration(_ options: Options) {

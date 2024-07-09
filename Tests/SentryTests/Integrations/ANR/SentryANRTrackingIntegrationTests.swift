@@ -64,13 +64,13 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         XCTAssertFalse(result)
     }
     
-    func testANRDetected_EventCaptured() {
+    func testANRDetected_EventCaptured() throws {
         givenInitializedTracker()
         setUpThreadInspector()
         
         Dynamic(sut).anrDetected()
         
-        assertEventWithScopeCaptured { event, _, _ in
+        try assertEventWithScopeCaptured { event, _, _ in
             XCTAssertNotNil(event)
             guard let ex = event?.exceptions?.first else {
                 XCTFail("ANR Exception not found")
@@ -83,7 +83,7 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
             XCTAssertNotNil(ex.stacktrace)
             XCTAssertEqual(ex.stacktrace?.frames.first?.function, "main")
             XCTAssertEqual(ex.stacktrace?.snapshot?.boolValue, true)
-            XCTAssertEqual(event?.threads?[0].current?.boolValue, true)
+            XCTAssertEqual(try XCTUnwrap(event?.threads?.first).current?.boolValue, true)
             XCTAssertEqual(event?.isAppHangEvent, true)
             
             guard let threads = event?.threads else {
@@ -111,7 +111,7 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         assertNoEventCaptured()
     }
     
-    func testANRDetected_DetectingPausedResumed_EventCaptured() {
+    func testANRDetected_DetectingPausedResumed_EventCaptured() throws {
         givenInitializedTracker()
         setUpThreadInspector()
         sut.pauseAppHangTracking()
@@ -119,7 +119,7 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         
         Dynamic(sut).anrDetected()
         
-        assertEventWithScopeCaptured { event, _, _ in
+        try assertEventWithScopeCaptured { event, _, _ in
             XCTAssertNotNil(event)
             guard let ex = event?.exceptions?.first else {
                 XCTFail("ANR Exception not found")

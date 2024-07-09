@@ -238,28 +238,28 @@ class SentryHubTests: XCTestCase {
         }
     }
     
-    func testStartTransactionWithNameOperation() {
+    func testStartTransactionWithNameOperation() throws {
         let span = fixture.getSut().startTransaction(name: fixture.transactionName, operation: fixture.transactionOperation)
-        let tracer = span as! SentryTracer
+        let tracer = try XCTUnwrap(span as? SentryTracer)
         XCTAssertEqual(tracer.transactionContext.name, fixture.transactionName)
         XCTAssertEqual(span.operation, fixture.transactionOperation)
         XCTAssertEqual(SentryTransactionNameSource.custom, tracer.transactionContext.nameSource)
         XCTAssertEqual("manual", tracer.transactionContext.origin)
     }
     
-    func testStartTransactionWithContext() {
+    func testStartTransactionWithContext() throws {
         let span = fixture.getSut().startTransaction(transactionContext: TransactionContext(
             name: fixture.transactionName,
             operation: fixture.transactionOperation
         ))
         
-        let tracer = span as! SentryTracer
+        let tracer = try XCTUnwrap(span as? SentryTracer)
         XCTAssertEqual(tracer.transactionContext.name, fixture.transactionName)
         XCTAssertEqual(span.operation, fixture.transactionOperation)
         XCTAssertEqual("manual", tracer.transactionContext.origin)
     }
     
-    func testStartTransactionWithNameSource() {
+    func testStartTransactionWithNameSource() throws {
         let span = fixture.getSut().startTransaction(transactionContext: TransactionContext(
             name: fixture.transactionName,
             nameSource: .url,
@@ -267,7 +267,7 @@ class SentryHubTests: XCTestCase {
             origin: fixture.traceOrigin
         ))
         
-        let tracer = span as! SentryTracer
+        let tracer = try XCTUnwrap(span as? SentryTracer)
         XCTAssertEqual(tracer.transactionContext.name, fixture.transactionName)
         XCTAssertEqual(tracer.transactionContext.nameSource, SentryTransactionNameSource.url)
         XCTAssertEqual(span.operation, fixture.transactionOperation)
@@ -354,30 +354,30 @@ class SentryHubTests: XCTestCase {
         XCTAssertEqual(span.sampled, .no)
     }
     
-    func testCaptureTransaction_CapturesEventAsync() {
+    func testCaptureTransaction_CapturesEventAsync() throws {
         let transaction = sut.startTransaction(transactionContext: TransactionContext(name: fixture.transactionName, operation: fixture.transactionOperation, sampled: .yes))
         
         let trans = Dynamic(transaction).toTransaction().asAnyObject
-        sut.capture(trans as! Transaction, with: Scope())
+        sut.capture(try XCTUnwrap(trans as? Transaction), with: Scope())
         
         XCTAssertEqual(self.fixture.client.captureEventWithScopeInvocations.count, 1)
         XCTAssertEqual(self.fixture.dispatchQueueWrapper.dispatchAsyncInvocations.count, 1)
     }
     
-    func testCaptureSampledTransaction_DoesNotCaptureEvent() {
+    func testCaptureSampledTransaction_DoesNotCaptureEvent() throws {
         let transaction = sut.startTransaction(transactionContext: TransactionContext(name: fixture.transactionName, operation: fixture.transactionOperation, sampled: .no))
         
         let trans = Dynamic(transaction).toTransaction().asAnyObject
-        sut.capture(trans as! Transaction, with: Scope())
+        sut.capture(try XCTUnwrap(trans as? Transaction), with: Scope())
         
         XCTAssertEqual(self.fixture.client.captureEventWithScopeInvocations.count, 0)
     }
     
-    func testCaptureSampledTransaction_RecordsLostEvent() {
+    func testCaptureSampledTransaction_RecordsLostEvent() throws {
         let transaction = sut.startTransaction(transactionContext: TransactionContext(name: fixture.transactionName, operation: fixture.transactionOperation, sampled: .no))
         
         let trans = Dynamic(transaction).toTransaction().asAnyObject
-        sut.capture(trans as! Transaction, with: Scope())
+        sut.capture(try XCTUnwrap(trans as? Transaction), with: Scope())
         
         XCTAssertEqual(1, fixture.client.recordLostEvents.count)
         let lostEvent = fixture.client.recordLostEvents.first
@@ -688,28 +688,28 @@ class SentryHubTests: XCTestCase {
         assertNoEventsSent()
     }
     
-    func testCaptureEnvelope_WithEventWithError() {
+    func testCaptureEnvelope_WithEventWithError() throws {
         sut.startSession()
         
         captureEventEnvelope(level: SentryLevel.error)
         
-        assertSessionWithIncrementedErrorCountedAdded()
+        try assertSessionWithIncrementedErrorCountedAdded()
     }
     
-    func testCaptureEnvelope_WithEventWithoutExceptionMechanism() {
+    func testCaptureEnvelope_WithEventWithoutExceptionMechanism() throws {
         sut.startSession()
         
-        captureFatalEventWithoutExceptionMechanism()
+        try captureFatalEventWithoutExceptionMechanism()
         
-        assertSessionWithIncrementedErrorCountedAdded()
+        try assertSessionWithIncrementedErrorCountedAdded()
     }
     
-    func testCaptureEnvelope_WithEventWithFatal() {
+    func testCaptureEnvelope_WithEventWithFatal() throws {
         sut.startSession()
         
         captureEventEnvelope(level: SentryLevel.fatal)
         
-        assertSessionWithIncrementedErrorCountedAdded()
+        try assertSessionWithIncrementedErrorCountedAdded()
     }
     
     func testCaptureEnvelope_WithEventWithNoLevel() throws {
@@ -720,7 +720,7 @@ class SentryHubTests: XCTestCase {
         }
         sut.capture(envelope)
         
-        assertSessionWithIncrementedErrorCountedAdded()
+        try assertSessionWithIncrementedErrorCountedAdded()
     }
     
     func testCaptureEnvelope_WithEventWithGarbageLevel() throws {
@@ -731,7 +731,7 @@ class SentryHubTests: XCTestCase {
         }
         sut.capture(envelope)
         
-        assertSessionWithIncrementedErrorCountedAdded()
+        try assertSessionWithIncrementedErrorCountedAdded()
     }
     
     func testCaptureEnvelope_WithEventWithFatal_SessionNotStarted() {
@@ -791,7 +791,7 @@ class SentryHubTests: XCTestCase {
         XCTAssertEqual(envelope, fixture.client.captureEnvelopeInvocations.first)
     }
     
-    func testCaptureEnvelope_WithUnhandledException() {
+    func testCaptureEnvelope_WithUnhandledException() throws {
         sut.startSession()
         
         fixture.currentDateProvider.setDate(date: Date(timeIntervalSince1970: 2))
@@ -806,7 +806,7 @@ class SentryHubTests: XCTestCase {
         let envelope = fixture.client.captureEnvelopeInvocations.first
         let sessionEnvelopeItem = envelope?.items.first(where: { $0.header.type == "session" })
         
-        let json = (try! JSONSerialization.jsonObject(with: sessionEnvelopeItem!.data)) as! [String: Any]
+        let json = try XCTUnwrap((try! JSONSerialization.jsonObject(with: sessionEnvelopeItem!.data)) as? [String: Any])
         
         XCTAssertEqual(json["timestamp"] as? String, "1970-01-01T00:00:02.000Z")
         XCTAssertEqual(json["status"] as? String, "crashed")
@@ -1039,7 +1039,7 @@ class SentryHubTests: XCTestCase {
         let sut = fixture.getSut(options)
         
         let span = sut.startTransaction(name: fixture.transactionName, operation: fixture.transactionOperation, bindToScope: true)
-        let tracer = span as! SentryTracer
+        let tracer = try XCTUnwrap(span as? SentryTracer)
         
         sut.metrics.increment(key: "key")
         
@@ -1065,7 +1065,7 @@ class SentryHubTests: XCTestCase {
         let sut = fixture.getSut(options)
         
         let span = sut.startTransaction(name: fixture.transactionName, operation: fixture.transactionOperation, bindToScope: true)
-        let tracer = span as! SentryTracer
+        let tracer = try XCTUnwrap(span as? SentryTracer)
         
         sut.metrics.increment(key: "key", tags: ["my": "tag", "release": "overwritten"])
         
@@ -1087,7 +1087,7 @@ class SentryHubTests: XCTestCase {
         let sut = fixture.getSut(options)
         
         let span = sut.startTransaction(name: fixture.transactionName, operation: fixture.transactionOperation, bindToScope: true)
-        let tracer = span as! SentryTracer
+        let tracer = try XCTUnwrap(span as? SentryTracer)
         
         sut.metrics.increment(key: "key", tags: ["my": "tag"])
         
@@ -1111,7 +1111,7 @@ class SentryHubTests: XCTestCase {
         let sut = fixture.getSut(options)
         
         let span = sut.startTransaction(name: fixture.transactionName, operation: fixture.transactionOperation, bindToScope: true)
-        let tracer = span as! SentryTracer
+        let tracer = try XCTUnwrap(span as? SentryTracer)
         
         sut.metrics.increment(key: "key", tags: ["my": "tag"])
         
@@ -1132,10 +1132,10 @@ class SentryHubTests: XCTestCase {
         sut.capture(SentryEnvelope(event: event))
     }
     
-    private func captureFatalEventWithoutExceptionMechanism() {
+    private func captureFatalEventWithoutExceptionMechanism() throws {
         let event = TestData.event
         event.level = SentryLevel.fatal
-        event.exceptions?[0].mechanism = nil
+        try XCTUnwrap(event.exceptions?.first).mechanism = nil
         sut.capture(SentryEnvelope(event: event))
     }
     
@@ -1155,7 +1155,7 @@ class SentryHubTests: XCTestCase {
     private func givenEnvelopeWithModifiedEvent(modifyEventDict: (inout [String: Any]) -> Void) throws -> SentryEnvelope {
         let event = TestData.event
         let envelopeItem = SentryEnvelopeItem(event: event)
-        var eventDict = try JSONSerialization.jsonObject(with: envelopeItem.data) as! [String: Any]
+        var eventDict = try XCTUnwrap(JSONSerialization.jsonObject(with: envelopeItem.data) as? [String: Any])
         
         modifyEventDict(&eventDict)
         
@@ -1218,11 +1218,11 @@ class SentryHubTests: XCTestCase {
         XCTAssertEqual(event?.environment, scopeEnvironment)
     }
     
-    private func assertSessionWithIncrementedErrorCountedAdded() {
+    private func assertSessionWithIncrementedErrorCountedAdded() throws {
         XCTAssertEqual(1, fixture.client.captureEnvelopeInvocations.count)
         let envelope = fixture.client.captureEnvelopeInvocations.first!
         XCTAssertEqual(2, envelope.items.count)
-        let session = SentrySerialization.session(with: envelope.items[1].data)
+        let session = SentrySerialization.session(with: try XCTUnwrap(envelope.items.element(at: 1)).data)
         XCTAssertEqual(1, session?.errors)
     }
     

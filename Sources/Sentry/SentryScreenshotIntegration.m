@@ -65,7 +65,9 @@ SentryScreenshotIntegration ()
 {
 
     // We don't take screenshots if there is no exception/error.
-    // We don't take screenshots if the event is a crash or metric kit event.
+    // We don't take screenshots if the event is a metric kit event.
+    // Screenshots are added via an alternate codepath for crashes, see
+    // sentrycrash_setSaveScreenshots in SentryCrashC.c
     if ((event.exceptions == nil && event.error == nil) || event.isCrashEvent
 #    if SENTRY_HAS_METRIC_KIT
         || [event isMetricKitEvent]

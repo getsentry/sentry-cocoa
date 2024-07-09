@@ -165,7 +165,7 @@ class SentryTracerTests: XCTestCase {
         assertOneTransactionCaptured(sut)
         
         let serialization = try getSerializedTransaction()
-        let spans = serialization["spans"]! as! [[String: Any]]
+        let spans = try XCTUnwrap(serialization["spans"]! as? [[String: Any]])
         
         let tracerTimestamp: NSDate = sut.timestamp! as NSDate
         
@@ -191,7 +191,7 @@ class SentryTracerTests: XCTestCase {
         assertOneTransactionCaptured(sut)
     
         let serialization = try getSerializedTransaction()
-        let spans = serialization["spans"]! as! [[String: Any]]
+        let spans = try XCTUnwrap(serialization["spans"]! as? [[String: Any]])
         
         let tracerTimestamp: NSDate = sut.timestamp! as NSDate
         
@@ -298,10 +298,10 @@ class SentryTracerTests: XCTestCase {
         weak var weakSut: SentryTracer?
         
         // Added internal function so the tracer gets deallocated after executing this function.
-        func startTracer() {
+        func startTracer() throws {
             let sut = fixture.getSut()
             
-            timer = Dynamic(sut).deadlineTimer.asObject as! Timer?
+            timer = try XCTUnwrap(Dynamic(sut).deadlineTimer.asObject as? Timer)
             weakSut = sut
             
             // The TestHub keeps a reference to the tracer in capturedEventsWithScopes.
@@ -309,7 +309,7 @@ class SentryTracerTests: XCTestCase {
             sut.hub = nil
             sut.finish()
         }
-        startTracer()
+        try startTracer()
         
         XCTAssertNil(weakSut, "sut was not deallocated")
 
@@ -728,7 +728,7 @@ class SentryTracerTests: XCTestCase {
 
         try assertMeasurements(["app_start_cold": ["value": fixture.appStartDuration * 1_000]])
 
-        let transaction = fixture.hub.capturedEventsWithScopes.first!.event as! Transaction
+        let transaction = try XCTUnwrap(fixture.hub.capturedEventsWithScopes.first!.event as? Transaction)
         assertAppStartsSpanAdded(transaction: transaction, startType: "Cold Start", operation: fixture.appStartColdOperation, appStartMeasurement: appStartMeasurement)
     }
     #endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
@@ -790,7 +790,7 @@ class SentryTracerTests: XCTestCase {
 
         try assertMeasurements(["app_start_cold": ["value": fixture.appStartDuration * 1_000]])
 
-        let transaction = fixture.hub.capturedEventsWithScopes.first!.event as! Transaction
+        let transaction = try XCTUnwrap(fixture.hub.capturedEventsWithScopes.first!.event as? Transaction)
         assertPreWarmedAppStartsSpanAdded(transaction: transaction, startType: "Cold Start", operation: fixture.appStartColdOperation, appStartMeasurement: appStartMeasurement)
     }
 
@@ -916,7 +916,7 @@ class SentryTracerTests: XCTestCase {
         let appStartMeasurement = fixture.getAppStartMeasurement(type: .warm)
         SentrySDK.setAppStartMeasurement(appStartMeasurement)
         
-        let sut = fixture.hub.startTransaction(transactionContext: TransactionContext(name: "custom", operation: "custom")) as! SentryTracer
+        let sut = try XCTUnwrap(fixture.hub.startTransaction(transactionContext: TransactionContext(name: "custom", operation: "custom")) as? SentryTracer)
         sut.finish()
         
         XCTAssertNotNil(SentrySDK.getAppStartMeasurement())
@@ -928,7 +928,7 @@ class SentryTracerTests: XCTestCase {
         
         XCTAssertNil(measurements)
         
-        let spans = serializedTransaction["spans"]! as! [[String: Any]]
+        let spans = try XCTUnwrap(serializedTransaction["spans"]! as? [[String: Any]])
         XCTAssertEqual(0, spans.count)
     }
     
@@ -1114,7 +1114,7 @@ class SentryTracerTests: XCTestCase {
         
         assertOneTransactionCaptured(sut)
         
-        let spans = try getSerializedTransaction()["spans"]! as! [[String: Any]]
+        let spans = try XCTUnwrap(try getSerializedTransaction()["spans"]! as? [[String: Any]])
         XCTAssertEqual(spans.count, children * (grandchildren + 1) + 1)
     }
 
@@ -1188,7 +1188,7 @@ class SentryTracerTests: XCTestCase {
         queue.activate()
         group.wait()
         
-        let spans = try getSerializedTransaction()["spans"]! as! [[String: Any]]
+        let spans = try XCTUnwrap(try getSerializedTransaction()["spans"]! as? [[String: Any]])
         XCTAssertGreaterThanOrEqual(spans.count, children)
     }
     
@@ -1385,7 +1385,7 @@ class SentryTracerTests: XCTestCase {
         let serializedTransaction = try XCTUnwrap(fixture.hub.capturedEventsWithScopes.first).event.serialize()
         XCTAssertNil(serializedTransaction["measurements"])
         
-        let spans = serializedTransaction["spans"]! as! [[String: Any]]
+        let spans = try XCTUnwrap(serializedTransaction["spans"]! as? [[String: Any]])
         XCTAssertEqual(0, spans.count)
     }
 
