@@ -18,7 +18,7 @@ generate_xcframework() {
     local GCC_GENERATE_DEBUGGING_SYMBOLS="YES"
     
     local resolved_configuration="Release$configuration_suffix"
-    local resolved_product_name="Sentry$configuration_suffix"
+    local resolved_product_name="$scheme$configuration_suffix"
     
     if [ "$MACH_O_TYPE" = "staticlib" ]; then
         #For static framework we disabled symbols because they are not distributed in the framework causing warnings.
