@@ -140,7 +140,7 @@ class SentryTouchTrackerTests: XCTestCase {
         XCTAssertEqual(data?["source"] as? Int, 2)
     }
     
-    func testTrackTouchEventKeepSameIdAccrossEvents() {
+    func testTrackTouchEventKeepSameIdAccrossEvents() throws {
         let sut = getSut()
         let event = MockUIEvent(timestamp: 3)
         let touch = MockUITouch(phase: .began, location: CGPoint(x: 100, y: 100))
@@ -154,10 +154,10 @@ class SentryTouchTrackerTests: XCTestCase {
         sut.trackTouchFrom(event: event)
         
         let result = sut.replayEvents(from: referenceDate, until: referenceDate.addingTimeInterval(5))
-        let firstEventFirstTouch = result[0].data
-        let firstEventSecondTouch = result[1].data
-        let secondEventFirstTouch = result[2].data
-        let secondEventSecondTouch = result[3].data
+        let firstEventFirstTouch = try XCTUnwrap(result.first).data
+        let firstEventSecondTouch = try XCTUnwrap(result.element(at: 1)).data
+        let secondEventFirstTouch = try XCTUnwrap(result.element(at: 2)).data
+        let secondEventSecondTouch = try XCTUnwrap(result.element(at: 3)).data
         
         XCTAssertEqual(firstEventFirstTouch?["pointerId"] as? Int, secondEventFirstTouch?["pointerId"] as? Int)
         XCTAssertEqual(firstEventSecondTouch?["pointerId"] as? Int, secondEventSecondTouch?["pointerId"] as? Int)
