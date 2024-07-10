@@ -178,10 +178,10 @@ class SentrySessionReplayTests: XCTestCase {
             Dynamic(sut).newFrame(nil)
         }
                 
-        let urls = try XCTUnwrap(fixture.lastReplayEvent.urls)
+        let urls = try XCTUnwrap(fixture.lastReplayEvent?.urls)
         
-        guard urls.count == 3 else {
-        	XCTFail("Expected 3 screen names")
+        guard urls.count == 6 else {
+        	XCTFail("Expected 6 screen names")
         	return
         }
         XCTAssertEqual(urls[0], "Screen 1")
