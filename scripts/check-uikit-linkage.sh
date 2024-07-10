@@ -6,14 +6,16 @@ set -eou pipefail
 
 CONFIGURATION="${1}"
 DERIVED_DATA_PATH="${2}"
+LINKAGE_TEST="${3}"
+MODULE_NAME="${4}"
 
-SENTRY_BUILD_PRODUCT_PATH="$DERIVED_DATA_PATH/Build/Products/$CONFIGURATION-iphonesimulator/Sentry.framework/Sentry"
+SENTRY_BUILD_PRODUCT_PATH="$DERIVED_DATA_PATH/Build/Products/$CONFIGURATION-iphonesimulator/$MODULE_NAME.framework/$MODULE_NAME"
 
 stat $SENTRY_BUILD_PRODUCT_PATH
 
-MATCHES=$(otool -L $SENTRY_BUILD_PRODUCT_PATH | grep -c UIKit.framework ||:)
+MATCHES=$(otool -L $SENTRY_BUILD_PRODUCT_PATH | grep -c  -e "UIKit.framework/UIKit" -e "libswiftUIKit.dylib" ||:)
 
-case "${3}" in
+case "$LINKAGE_TEST" in
 "linked")
     if [ $MATCHES == 0 ]; then
         echo "UIKit.framework linkage not found."

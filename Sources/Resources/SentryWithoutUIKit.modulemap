@@ -1,0 +1,6 @@
+framework module SentryWithoutUIKit {
+    umbrella header "SentryWithoutUIKit.h"
+
+    export *
+    module * { export * }
+}
