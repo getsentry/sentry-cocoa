@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Features
+
+- Include the screen names in the session replay (#4126)
+
 ### Fixes
 
 - Properly handle invalid value for `NSUnderlyingErrorKey` (#4144)
