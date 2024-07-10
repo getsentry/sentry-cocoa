@@ -88,9 +88,7 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
      */
     var frameRate: UInt = 1 {
         didSet {
-            if frameRate < 1 {
-                frameRate = 1
-            }
+            if frameRate < 1 { frameRate = 1 }
         }
     }
         
