@@ -86,7 +86,7 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
      * The more the havier the process is.
      * The minimum is 1, if set to zero this will change to 1.
      */
-    var frameRate : UInt = 1 {
+    var frameRate: UInt = 1 {
         didSet {
             if frameRate < 1 {
                 frameRate = 1
