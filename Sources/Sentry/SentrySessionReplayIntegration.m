@@ -311,7 +311,7 @@ SentrySessionReplayIntegration ()
 {
     return SentrySDK.currentHub.scope.currentScreen
         ?: [SentryDependencyContainer.sharedInstance.application relevantViewControllersNames]
-        .firstObject;
+               .firstObject;
 }
 
 @end
