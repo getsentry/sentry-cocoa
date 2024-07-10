@@ -112,13 +112,9 @@ class SentrySessionReplayTests: XCTestCase {
         super.tearDown()
         clearTestState()
     }
-    
-    private func startFixture() -> Fixture {
-        return Fixture()
-    }
-    
+        
     func testDontSentReplay_NoFullSession() {
-        let fixture = startFixture()
+        let fixture = Fixture()
         let sut = fixture.getSut()
         sut.start(rootView: fixture.rootView, fullSession: false)
         
@@ -131,7 +127,7 @@ class SentrySessionReplayTests: XCTestCase {
     }
     
     func testVideoSize() {
-        let fixture = startFixture()
+        let fixture = Fixture()
         let options = SentryReplayOptions(sessionSampleRate: 1, errorSampleRate: 1)
         let sut = fixture.getSut(options: options)
         let view = fixture.rootView
@@ -143,7 +139,7 @@ class SentrySessionReplayTests: XCTestCase {
     }
     
     func testSentReplay_FullSession() {
-        let fixture = startFixture()
+        let fixture = Fixture()
         
         let sut = fixture.getSut(options: SentryReplayOptions(sessionSampleRate: 1, errorSampleRate: 1))
         sut.start(rootView: fixture.rootView, fullSession: true)
@@ -172,7 +168,7 @@ class SentrySessionReplayTests: XCTestCase {
     }
     
     func testReplayScreenNames() throws {
-        let fixture = startFixture()
+        let fixture = Fixture()
         let sut = fixture.getSut(options: SentryReplayOptions(sessionSampleRate: 1, errorSampleRate: 1))
         sut.start(rootView: fixture.rootView, fullSession: true)
         
@@ -190,7 +186,7 @@ class SentrySessionReplayTests: XCTestCase {
     }
     
     func testDontSentReplay_NotFullSession() {
-        let fixture = startFixture()
+        let fixture = Fixture()
         let sut = fixture.getSut(options: SentryReplayOptions(sessionSampleRate: 1, errorSampleRate: 1))
         sut.start(rootView: fixture.rootView, fullSession: false)
         
@@ -209,7 +205,7 @@ class SentrySessionReplayTests: XCTestCase {
     }
     
     func testChangeReplayMode_forErrorEvent() {
-        let fixture = startFixture()
+        let fixture = Fixture()
         let sut = fixture.getSut(options: SentryReplayOptions(sessionSampleRate: 1, errorSampleRate: 1))
         sut.start(rootView: fixture.rootView, fullSession: false)
         XCTAssertNil(fixture.lastReplayId)
@@ -222,7 +218,7 @@ class SentrySessionReplayTests: XCTestCase {
     }
     
     func testDontChangeReplayMode_forNonErrorEvent() {
-        let fixture = startFixture()
+        let fixture = Fixture()
         let sut = fixture.getSut(options: SentryReplayOptions(sessionSampleRate: 1, errorSampleRate: 1))
         sut.start(rootView: fixture.rootView, fullSession: false)
         
@@ -235,7 +231,7 @@ class SentrySessionReplayTests: XCTestCase {
     
     @available(iOS 16.0, tvOS 16, *)
     func testChangeReplayMode_forHybridSDKEvent() {
-        let fixture = startFixture()
+        let fixture = Fixture()
         let sut = fixture.getSut(options: SentryReplayOptions(sessionSampleRate: 1, errorSampleRate: 1))
         sut.start(rootView: fixture.rootView, fullSession: false)
 
@@ -247,7 +243,7 @@ class SentrySessionReplayTests: XCTestCase {
 
     @available(iOS 16.0, tvOS 16, *)
     func testSessionReplayMaximumDuration() {
-        let fixture = startFixture()
+        let fixture = Fixture()
         let sut = fixture.getSut(options: SentryReplayOptions(sessionSampleRate: 1, errorSampleRate: 1))
         sut.start(rootView: fixture.rootView, fullSession: true)
         
@@ -263,7 +259,7 @@ class SentrySessionReplayTests: XCTestCase {
     
     @available(iOS 16.0, tvOS 16, *)
     func testDealloc_CallsStop() {
-        let fixture = startFixture()
+        let fixture = Fixture()
         func sutIsDeallocatedAfterCallingMe() {
             _ = fixture.getSut(options: SentryReplayOptions(sessionSampleRate: 1, errorSampleRate: 1))
         }
