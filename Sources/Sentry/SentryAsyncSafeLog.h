@@ -47,7 +47,6 @@ extern "C" {
 
 static char g_logFilename[1024];
 
-void sentry_asyncLogC(
 void sentry_asyncLogC(const char *level, const char *file, int line, const char *fmt, ...);
 
 #define i_SENTRY_ASYNC_SAFE_LOG sentry_asyncLogC
