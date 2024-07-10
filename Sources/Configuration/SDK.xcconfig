@@ -1,4 +1,4 @@
-#include "Versions.xcconfig"
+#include "DeploymentTargets.xcconfig"
 
 SUPPORTED_PLATFORMS = macosx iphoneos iphonesimulator watchos watchsimulator appletvos appletvsimulator xros xrsimulator
 TARGETED_DEVICE_FAMILY = 1,2,3,4,7
@@ -10,7 +10,7 @@ DYLIB_INSTALL_NAME_BASE = @rpath
 MACH_O_TYPE = mh_dylib
 FRAMEWORK_VERSION = A
 
-CURRENT_PROJECT_VERSION = 8.0.0
+CURRENT_PROJECT_VERSION = 8.30.0
 
 ALWAYS_SEARCH_USER_PATHS = NO
 CLANG_ENABLE_OBJC_ARC = YES

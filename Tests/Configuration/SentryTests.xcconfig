@@ -1,4 +1,4 @@
-#include "../../Sources/Configuration/Versions.xcconfig"
+#include "../../Sources/Configuration/DeploymentTargets.xcconfig"
 
 // (originally added to Sentry.xcconfig in #3716, but it's only needed in the test targets, not the SDK target)
 // This config is required so the test code can access the SentryPrivate module. Removing this setting
