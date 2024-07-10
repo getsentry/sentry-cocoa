@@ -249,10 +249,29 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     // as a list of exceptions with error mechanisms, sorted oldest to newest (so, the leaf node
     // underlying error as oldest, with the root as the newest)
     NSMutableArray<NSError *> *errors = [NSMutableArray<NSError *> arrayWithObject:error];
-    NSError *underlyingError = error.userInfo[NSUnderlyingErrorKey];
+    NSError *underlyingError;
+    if ([error.userInfo[NSUnderlyingErrorKey] isKindOfClass:[NSError class]]) {
+        underlyingError = error.userInfo[NSUnderlyingErrorKey];
+    } else if (error.userInfo[NSUnderlyingErrorKey] != nil) {
+        SENTRY_LOG_WARN(@"Invalid value for NSUnderlyingErrorKey in user info. Data at key: %@. "
+                        @"Class type: %@.",
+            error.userInfo[NSUnderlyingErrorKey], [error.userInfo[NSUnderlyingErrorKey] class]);
+    }
+
     while (underlyingError != nil) {
         [errors addObject:underlyingError];
-        underlyingError = underlyingError.userInfo[NSUnderlyingErrorKey];
+
+        if ([underlyingError.userInfo[NSUnderlyingErrorKey] isKindOfClass:[NSError class]]) {
+            underlyingError = underlyingError.userInfo[NSUnderlyingErrorKey];
+        } else {
+            if (underlyingError.userInfo[NSUnderlyingErrorKey] != nil) {
+                SENTRY_LOG_WARN(@"Invalid value for NSUnderlyingErrorKey in user info. Data at "
+                                @"key: %@. Class type: %@.",
+                    underlyingError.userInfo[NSUnderlyingErrorKey],
+                    [underlyingError.userInfo[NSUnderlyingErrorKey] class]);
+            }
+            underlyingError = nil;
+        }
     }
 
     NSMutableArray<SentryException *> *exceptions = [NSMutableArray<SentryException *> array];
