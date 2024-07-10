@@ -309,7 +309,9 @@ SentrySessionReplayIntegration ()
 
 - (nullable NSString *)currentScreenNameForSessionReplay
 {
-    return SentrySDK.currentHub.scope.currentScreen ?: [SentryDependencyContainer.sharedInstance.application relevantViewControllersNames].firstObject
+    return SentrySDK.currentHub.scope.currentScreen
+        ?: [SentryDependencyContainer.sharedInstance.application relevantViewControllersNames]
+               .firstObject
 }
 
 @end
