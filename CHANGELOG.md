@@ -9,7 +9,7 @@
 ### Fixes
 
 - Properly handle invalid value for `NSUnderlyingErrorKey` (#4144)
-- Collect only unique UIWindow reference (#4159)
+- Collect only unique UIWindow references (#4159)
 
 ## 8.30.1
 
