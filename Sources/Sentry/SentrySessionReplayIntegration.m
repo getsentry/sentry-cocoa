@@ -187,7 +187,7 @@ SentrySessionReplayIntegration ()
 
 - (void)captureReplay
 {
-    //[self.sessionReplay captureReplay];
+    [self.sessionReplay captureReplay];
 }
 
 - (void)configureReplayWith:(nullable id<SentryReplayBreadcrumbConverter>)breadcrumbConverter

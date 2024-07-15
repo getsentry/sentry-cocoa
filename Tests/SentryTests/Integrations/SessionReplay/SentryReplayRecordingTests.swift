@@ -5,7 +5,7 @@ import XCTest
 class SentryReplayRecordingTests: XCTestCase {
     
     func test_serialize() throws {
-        let sut = SentryReplayRecording(segmentId: 3, size: 200, start: Date(timeIntervalSince1970: 2), duration: 5_000, frameCount: 5, frameRate: 1, height: 930, width: 390, extraEvents: nil)
+        let sut = SentryReplayRecording(segmentId: 3, size: 200, start: Date(timeIntervalSince1970: 2), duration: 5, frameCount: 5, frameRate: 1, height: 930, width: 390, extraEvents: nil)
       
         let data = sut.serialize()
         
@@ -26,7 +26,7 @@ class SentryReplayRecordingTests: XCTestCase {
         XCTAssertEqual(recordingData?["tag"] as? String, "video")
         XCTAssertEqual(recordingPayload?["segmentId"] as? Int, 3)
         XCTAssertEqual(recordingPayload?["size"] as? Int, 200)
-        XCTAssertEqual(recordingPayload?["duration"] as? Double, 5_000)
+        XCTAssertEqual(recordingPayload?["duration"] as? Int, 5_000)
         XCTAssertEqual(recordingPayload?["encoding"] as? String, "h264")
         XCTAssertEqual(recordingPayload?["container"] as? String, "mp4")
         XCTAssertEqual(recordingPayload?["height"] as? Int, 930)
