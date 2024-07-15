@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Session replay video duration from seconds to milliseconds () 
+
 ## 8.31.0
 
 ### Features
