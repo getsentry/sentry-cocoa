@@ -170,11 +170,11 @@ class SentrySessionReplay: NSObject {
 
     @objc 
     private func newFrame(_ sender: CADisplayLink) {
-        guard let sessionStart = sessionStart, let lastScreenShot = lastScreenShot, isRunning else { return }
+        guard let lastScreenShot = lastScreenShot, isRunning else { return }
 
         let now = dateProvider.date()
         
-        if isFullSession && now.timeIntervalSince(sessionStart) > replayOptions.maximumDuration {
+        if let sessionStart = sessionStart, isFullSession && now.timeIntervalSince(sessionStart) > replayOptions.maximumDuration {
             reachedMaximumDuration = true
             stop()
             return
