@@ -4,7 +4,7 @@
 
 ### Fixes
 
-- Session replay video duration from seconds to milliseconds () 
+- Session replay video duration from seconds to milliseconds (#4163) 
 
 ## 8.31.0
 
