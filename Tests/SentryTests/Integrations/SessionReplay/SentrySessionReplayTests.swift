@@ -7,7 +7,7 @@ import XCTest
 class SentrySessionReplayTests: XCTestCase {
     
     private class ScreenshotProvider: NSObject, SentryViewScreenshotProvider {
-        var lastImageCall : (view: UIView, options: SentryRedactOptions)?
+        var lastImageCall: (view: UIView, options: SentryRedactOptions)?
         func image(view: UIView, options: Sentry.SentryRedactOptions, onComplete: @escaping Sentry.ScreenshotCallback) {
             onComplete(UIImage.add)
             lastImageCall = (view, options)
