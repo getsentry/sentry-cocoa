@@ -81,29 +81,33 @@ SentrySessionReplayIntegration ()
     if (lastReplay == nil) { return; }
     
     NSDictionary<NSString *, id> * jsonObject = [NSJSONSerialization JSONObjectWithData:lastReplay options:0 error:nil];
-    
-    SentryId * replayId = [[SentryId alloc] initWithUUIDString:jsonObject[@"replayId"]];
-    
-    
+    SentryId * replayId = jsonObject[@"replayId"] ? [[SentryId alloc] initWithUUIDString:jsonObject[@"replayId"]] : [[SentryId alloc] init]; ;
     NSURL * lastReplayURL = [dir URLByAppendingPathComponent:jsonObject[@"path"]];
     
     SentryCrashReplay crashInfo = { 0 };
     bool hasCrashInfo = sentrySessionReplaySync_readInfo(&crashInfo, [[lastReplayURL URLByAppendingPathComponent:@"crashInfo"].path cStringUsingEncoding:NSUTF8StringEncoding]);
     
     SentryReplayType type = hasCrashInfo ? SentryReplayTypeSession : SentryReplayTypeBuffer;
+    NSTimeInterval duration = hasCrashInfo ? _replayOptions.sessionSegmentDuration : _replayOptions.errorReplayDuration;
+    int segmentId = hasCrashInfo ? crashInfo.segmentId + 1 : 0;
     
     SentryOnDemandReplay *replayMaker = [[SentryOnDemandReplay alloc] initWithContentFrom: lastReplayURL.path];
+    NSDate * beginning = hasCrashInfo ? [NSDate dateWithTimeIntervalSince1970:crashInfo.lastSegmentEnd] : [replayMaker oldestFrameDate];
+    if (beginning == nil) {
+        //no frames to send
+        return;
+    }
     
-    [replayMaker createVideoWithDuration:_replayOptions.sessionSegmentDuration
-                               beginning:[NSDate dateWithTimeIntervalSince1970:crashInfo.lastSegmentEnd]
-                           outputFileURL:[lastReplayURL URLByAppendingPathComponent:@"lastVideo.mp4"]
-                                   error:nil
-                              completion:^(SentryVideoInfo * video, NSError * error) {
+    [replayMaker createVideoWithBeginning:beginning
+                                      end:[beginning dateByAddingTimeInterval:duration]
+                            outputFileURL:[lastReplayURL URLByAppendingPathComponent:@"lastVideo.mp4"]
+                                    error:nil
+                               completion:^(SentryVideoInfo * video, NSError * error) {
         
         if (error != nil) {
             SENTRY_LOG_ERROR(@"Could not create replay video: %@", error);
         } else {
-            [self captureVideo:video replayId:replayId segmentId:crashInfo.segmentId + 1 type:type];
+            [self captureVideo:video replayId:replayId segmentId:segmentId type:type];
         }
     }];
 

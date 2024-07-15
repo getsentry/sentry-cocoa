@@ -61,11 +61,9 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
         _frames = content.compactMap {
             guard let extensionIndex = $0.lastIndex(of: "."), $0[extensionIndex...] == ".png"
             else { return SentryReplayFrame?.none }
-            
             guard let time = Double($0[..<extensionIndex]) else { return nil }
-            
-            return SentryReplayFrame(imagePath: "\(outputPath)/\($0)", time: Date(timeIntervalSinceReferenceDate: time))
-        }
+            return SentryReplayFrame(imagePath: "\(outputPath)/\($0)", time: Date(timeIntervalSinceReferenceDate: time), screenName: nil)
+        }.sorted { $0.time < $1.time }
     }
     
     convenience init(outputPath: String) {
@@ -125,6 +123,10 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
         })
     }
         
+    var oldestFrameDate : Date? {
+        return _frames.first?.time
+    }
+    
     func createVideoWith(beginning: Date, end: Date, outputFileURL: URL, completion: @escaping (SentryVideoInfo?, Error?) -> Void) throws {
         var frameCount = 0
         let videoFrames = filterFrames(beginning: beginning, end: end)

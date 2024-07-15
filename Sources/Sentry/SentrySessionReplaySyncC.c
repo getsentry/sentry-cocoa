@@ -59,8 +59,8 @@ bool sentrySessionReplaySync_readInfo(SentryCrashReplay *output, const char * co
         return false;
     }
 
-    unsigned int segmentId;
-    double lastSegmentEnd;
+    unsigned int segmentId = 0;
+    double lastSegmentEnd = 0;
 
     if (read(fd, &segmentId, sizeof(segmentId)) != sizeof(segmentId)) {
         SENTRY_ASYNC_SAFE_LOG_ERROR("Error reading segmentId from replay info crash file.");
@@ -79,5 +79,5 @@ bool sentrySessionReplaySync_readInfo(SentryCrashReplay *output, const char * co
     // Assign read values to crashReplay struct or process them as needed
     output->segmentId = segmentId;
     output->lastSegmentEnd = lastSegmentEnd;
-    return true;
+    return lastSegmentEnd != 0;
 }
