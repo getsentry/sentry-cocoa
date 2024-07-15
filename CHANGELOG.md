@@ -9,7 +9,7 @@
 ### Fixes
 
 - Properly handle invalid value for `NSUnderlyingErrorKey` (#4144)
-- Session replay in buffer mode not working ()
+- Session replay in buffer mode not working (#4160)
 
 ## 8.30.1
 
