@@ -71,6 +71,7 @@ NS_SWIFT_NAME(Options)
  * @c SentryWatchdogTerminationTrackingIntegration would falsely report every crash as watchdog
  * termination.
  * @note Default value is @c YES .
+ * @note Crash reporting is automatically disabled if a debugger is attached.
  */
 @property (nonatomic, assign) BOOL enableCrashHandler;
 
@@ -143,6 +144,7 @@ NS_SWIFT_NAME(Options)
  * terminates with a crash before the SDK can send the crash event. You can look into @c beforeSend
  * if you prefer a callback for every event.
  * @warning It is not guaranteed that this is called on the main thread.
+ * @note Crash reporting is automatically disabled if a debugger is attached.
  */
 @property (nullable, nonatomic, copy) SentryOnCrashedLastRunCallback onCrashedLastRun;
 
@@ -252,7 +254,7 @@ NS_SWIFT_NAME(Options)
 #if SENTRY_UIKIT_AVAILABLE
 /**
  * When enabled, the SDK tracks performance for UIViewController subclasses.
- * @warning This feature is not available in @c Debug_without_UIKit and @c Release_without_UIKit
+ * @warning This feature is not available in @c DebugWithoutUIKit and @c ReleaseWithoutUIKit
  * configurations even when targeting iOS or tvOS platforms.
  * @note The default is @c YES .
  */
@@ -260,7 +262,7 @@ NS_SWIFT_NAME(Options)
 
 /**
  * Automatically attaches a screenshot when capturing an error or exception.
- * @warning This feature is not available in @c Debug_without_UIKit and @c Release_without_UIKit
+ * @warning This feature is not available in @c DebugWithoutUIKit and @c ReleaseWithoutUIKit
  * configurations even when targeting iOS or tvOS platforms.
  * @note Default value is @c NO .
  */
@@ -270,7 +272,7 @@ NS_SWIFT_NAME(Options)
  * @warning This is an experimental feature and may still have bugs.
  * @brief Automatically attaches a textual representation of the view hierarchy when capturing an
  * error event.
- * @warning This feature is not available in @c Debug_without_UIKit and @c Release_without_UIKit
+ * @warning This feature is not available in @c DebugWithoutUIKit and @c ReleaseWithoutUIKit
  * configurations even when targeting iOS or tvOS platforms.
  * @note Default value is @c NO .
  */
@@ -279,7 +281,7 @@ NS_SWIFT_NAME(Options)
 /**
  * When enabled, the SDK creates transactions for UI events like buttons clicks, switch toggles,
  * and other ui elements that uses UIControl @c sendAction:to:forEvent:
- * @warning This feature is not available in @c Debug_without_UIKit and @c Release_without_UIKit
+ * @warning This feature is not available in @c DebugWithoutUIKit and @c ReleaseWithoutUIKit
  * configurations even when targeting iOS or tvOS platforms.
  * @note Default value is @c YES .
  */
@@ -288,7 +290,7 @@ NS_SWIFT_NAME(Options)
 /**
  * How long an idle transaction waits for new children after all its child spans finished. Only UI
  * event transactions are idle transactions.
- * @warning This feature is not available in @c Debug_without_UIKit and @c Release_without_UIKit
+ * @warning This feature is not available in @c DebugWithoutUIKit and @c ReleaseWithoutUIKit
  * configurations even when targeting iOS or tvOS platforms.
  * @note The default is 3 seconds.
  */
@@ -302,7 +304,7 @@ NS_SWIFT_NAME(Options)
  * @note You can filter for different app start types in Discover with
  * @c app_start_type:cold.prewarmed ,
  * @c app_start_type:warm.prewarmed , @c app_start_type:cold , and @c app_start_type:warm .
- * @warning This feature is not available in @c Debug_without_UIKit and @c Release_without_UIKit
+ * @warning This feature is not available in @c DebugWithoutUIKit and @c ReleaseWithoutUIKit
  * configurations even when targeting iOS or tvOS platforms.
  * @note Default value is @c NO .
  */
@@ -451,6 +453,7 @@ NS_SWIFT_NAME(Options)
  * to profile that launch.
  * @see @c tracesSampler and @c profilesSampler for more information on how they work for this
  * feature.
+ * @note Profiling is automatically disabled if a thread sanitizer is attached.
  */
 @property (nonatomic, assign) BOOL enableAppLaunchProfiling;
 
@@ -473,6 +476,7 @@ NS_SWIFT_NAME(Options)
  * callsites where you use the API or configure launch profiling. Continuous profiling is not
  * automatically started for performance transactions as was the previous version of profiling.
  * @warning The new continuous profiling mode is experimental and may still contain bugs.
+ * @note Profiling is automatically disabled if a thread sanitizer is attached.
  */
 @property (nullable, nonatomic, strong) NSNumber *profilesSampleRate;
 
@@ -484,6 +488,7 @@ NS_SWIFT_NAME(Options)
  * @note If @c enableAppLaunchProfiling is @c YES , this function will be called during SDK start
  * with @c SentrySamplingContext.forNextAppLaunch set to @c YES, and the result will be persisted to
  * disk for use on the next app launch.
+ * @note Profiling is automatically disabled if a thread sanitizer is attached.
  */
 @property (nullable, nonatomic) SentryTracesSamplerCallback profilesSampler;
 
@@ -495,6 +500,7 @@ NS_SWIFT_NAME(Options)
  * successfully start a continuous profile.
  * @returns @c YES if either @c profilesSampleRate > @c 0 and \<= @c 1 , or @c profilesSampler is
  * set, otherwise @c NO.
+ * @note Profiling is automatically disabled if a thread sanitizer is attached.
  */
 @property (nonatomic, assign, readonly) BOOL isProfilingEnabled;
 
@@ -505,6 +511,7 @@ NS_SWIFT_NAME(Options)
  * equivalent of setting @c profilesSampleRate to @c 1.0  If @c profilesSampleRate is set, it will
  * take precedence over this setting.
  * @note Default is @c NO.
+ * @note Profiling is automatically disabled if a thread sanitizer is attached.
  */
 @property (nonatomic, assign) BOOL enableProfiling DEPRECATED_MSG_ATTRIBUTE(
     "Use profilesSampleRate or profilesSampler instead. This property will be removed in a future "
@@ -522,6 +529,7 @@ NS_SWIFT_NAME(Options)
  * When enabled, the SDK tracks when the application stops responding for a specific amount of
  * time defined by the @c appHangsTimeoutInterval option.
  * @note The default is @c YES
+ * @note ANR tracking is automatically disabled if a debugger is attached.
  */
 @property (nonatomic, assign) BOOL enableAppHangTracking;
 

@@ -1,5 +1,22 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+- Include the screen names in the session replay (#4126)
+
+### Fixes
+
+- Properly handle invalid value for `NSUnderlyingErrorKey` (#4144)
+
+## 8.30.1
+
+### Fixes
+
+- UIKitless configurations now produce a module with a different name (#4140)
+- Sentry Replay Serialized Breadcrumbs include level name ([#4141](https://github.com/getsentry/sentry-cocoa/pull/4141))
+
 ## 8.30.0
 
 ### Features

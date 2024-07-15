@@ -13,6 +13,7 @@ protocol SentrySessionReplayDelegate: NSObjectProtocol {
     func sessionReplayNewSegment(replayEvent: SentryReplayEvent, replayRecording: SentryReplayRecording, videoUrl: URL)
     func sessionReplayStarted(replayId: SentryId)
     func breadcrumbsForSessionReplay() -> [Breadcrumb]
+    func currentScreenNameForSessionReplay() -> String?
 }
 
 @objcMembers
@@ -150,9 +151,9 @@ class SentrySessionReplay: NSObject {
             print("[SentrySessionReplay:\(#line)] Could not create replay video path")
             return false
         }
-        let replayStart = dateProvider.date().addingTimeInterval(-replayOptions.errorReplayDuration)
+        let replayStart = dateProvider.date().addingTimeInterval(-replayOptions.errorReplayDuration - (Double(replayOptions.frameRate) / 2.0))
 
-        createAndCapture(videoUrl: finalPath, duration: replayOptions.errorReplayDuration, startedAt: replayStart)
+        createAndCapture(videoUrl: finalPath, startedAt: replayStart)
 
         return true
     }
@@ -183,7 +184,7 @@ class SentrySessionReplay: NSObject {
             return
         }
 
-        if now.timeIntervalSince(lastScreenShot) >= 1 {
+        if now.timeIntervalSince(lastScreenShot) >= Double(1 / replayOptions.frameRate) {
             takeScreenshot()
             self.lastScreenShot = now
             
@@ -210,14 +211,14 @@ class SentrySessionReplay: NSObject {
         }
 
         pathToSegment = pathToSegment.appendingPathComponent("\(currentSegmentId).mp4")
-        let segmentStart = dateProvider.date().addingTimeInterval(-replayOptions.sessionSegmentDuration)
+        let segmentStart = videoSegmentStart ?? dateProvider.date().addingTimeInterval(-replayOptions.sessionSegmentDuration)
 
-        createAndCapture(videoUrl: pathToSegment, duration: replayOptions.sessionSegmentDuration, startedAt: segmentStart)
+        createAndCapture(videoUrl: pathToSegment, startedAt: segmentStart)
     }
 
-    private func createAndCapture(videoUrl: URL, duration: TimeInterval, startedAt: Date) {
+    private func createAndCapture(videoUrl: URL, startedAt: Date) {
         do {
-            try replayMaker.createVideoWith(duration: duration, beginning: startedAt, outputFileURL: videoUrl) { [weak self] videoInfo, error in
+            try replayMaker.createVideoWith(beginning: startedAt, end: dateProvider.date(), outputFileURL: videoUrl) { [weak self] videoInfo, error in
                 guard let _self = self else { return }
                 if let error = error {
                     print("[SentrySessionReplay:\(#line)] Could not create replay video - \(error.localizedDescription)")
@@ -234,7 +235,7 @@ class SentrySessionReplay: NSObject {
         guard let sessionReplayId = sessionReplayId else { return }
         captureSegment(segment: currentSegmentId, video: videoInfo, replayId: sessionReplayId, replayType: .session)
         replayMaker.releaseFramesUntil(videoInfo.end)
-        videoSegmentStart = nil
+        videoSegmentStart = videoInfo.end
         currentSegmentId++
     }
     
@@ -242,6 +243,7 @@ class SentrySessionReplay: NSObject {
         let replayEvent = SentryReplayEvent(eventId: replayId, replayStartTimestamp: video.start, replayType: replayType, segmentId: segment)
         
         replayEvent.timestamp = video.end
+        replayEvent.urls = video.screens
         
         let breadcrumbs = delegate?.breadcrumbsForSessionReplay() ?? []
 
@@ -280,15 +282,17 @@ class SentrySessionReplay: NSObject {
         }
         processingScreenshot = true
         lock.unlock()
+
+        let screenName = delegate?.currentScreenNameForSessionReplay()
         
         screenshotProvider.image(view: rootView, options: replayOptions) { [weak self] screenshot in
-            self?.newImage(image: screenshot)
+            self?.newImage(image: screenshot, forScreen: screenName)
         }
     }
 
-    private func newImage(image: UIImage) {
+    private func newImage(image: UIImage, forScreen screen: String?) {
         processingScreenshot = false
-        replayMaker.addFrameAsync(image: image)
+        replayMaker.addFrameAsync(image: image, forScreen: screen)
     }
 }
 
