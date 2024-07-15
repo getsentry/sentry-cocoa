@@ -44,8 +44,12 @@ NSString *const kSentryDefaultEnvironment = @"production";
 {
     // The order of integrations here is important.
     // SentryCrashIntegration needs to be initialized before SentryAutoSessionTrackingIntegration.
+    // And SentrySessionReplayIntegration before SentryCrashIntegration.
     NSMutableArray<NSString *> *defaultIntegrations =
         @[
+#    if SENTRY_HAS_UIKIT && !TARGET_OS_VISION
+            NSStringFromClass([SentrySessionReplayIntegration class]),
+#    endif
             NSStringFromClass([SentryCrashIntegration class]),
 #if SENTRY_HAS_UIKIT
             NSStringFromClass([SentryAppStartTrackingIntegration class]),
@@ -55,9 +59,6 @@ NSString *const kSentryDefaultEnvironment = @"production";
             NSStringFromClass([SentryUIEventTrackingIntegration class]),
             NSStringFromClass([SentryViewHierarchyIntegration class]),
             NSStringFromClass([SentryWatchdogTerminationTrackingIntegration class]),
-#    if !TARGET_OS_VISION
-            NSStringFromClass([SentrySessionReplayIntegration class]),
-#    endif
 #endif // SENTRY_HAS_UIKIT
             NSStringFromClass([SentryANRTrackingIntegration class]),
             NSStringFromClass([SentryAutoBreadcrumbTrackingIntegration class]),

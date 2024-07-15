@@ -99,7 +99,7 @@ class SentryTraceContextTests: XCTestCase {
         options.dsn = TestConstants.realDSN
     
         let traceId = SentryId()
-        let traceContext = SentryTraceContext(trace: traceId, options: options, userSegment: "segment")
+        let traceContext = SentryTraceContext(trace: traceId, options: options, userSegment: "segment", replayId: "replayId")
         
         XCTAssertEqual(options.parsedDsn?.url.user, traceContext.publicKey)
         XCTAssertEqual(traceId, traceContext.traceId)
@@ -107,6 +107,7 @@ class SentryTraceContextTests: XCTestCase {
         XCTAssertEqual(options.environment, traceContext.environment)
         XCTAssertNil(traceContext.transaction)
         XCTAssertEqual("segment", traceContext.userSegment)
+        XCTAssertEqual(traceContext.replayId, "replayId")
         XCTAssertNil(traceContext.sampleRate)
         XCTAssertNil(traceContext.sampled)
     }
@@ -116,7 +117,7 @@ class SentryTraceContextTests: XCTestCase {
         options.dsn = TestConstants.realDSN
     
         let traceId = SentryId()
-        let traceContext = SentryTraceContext(trace: traceId, options: options, userSegment: nil)
+        let traceContext = SentryTraceContext(trace: traceId, options: options, userSegment: nil, replayId: nil)
         
         XCTAssertEqual(options.parsedDsn?.url.user, traceContext.publicKey)
         XCTAssertEqual(traceId, traceContext.traceId)

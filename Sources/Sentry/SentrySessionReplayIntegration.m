@@ -18,6 +18,9 @@
 #    import "SentryUIApplication.h"
 #    import <UIKit/UIKit.h>
 #    import "SentrySerialization.h"
+#    import "SentrySessionReplaySyncC.h"
+#    import "SentryEvent+Private.h"
+#    import "SentryLog.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -60,15 +63,71 @@ SentrySessionReplayIntegration () <SentrySessionReplayDelegate>
 
     [SentrySDK.currentHub registerSessionListener:self];
 
-    [SentryGlobalEventProcessor.shared
-        addEventProcessor:^SentryEvent *_Nullable(SentryEvent *_Nonnull event) {
+    [SentryGlobalEventProcessor.shared addEventProcessor:^SentryEvent *_Nullable(SentryEvent *_Nonnull event) {
+        if (event.isCrashEvent) {
+            [self resumePreviousSessionReplay:event];
+        } else {
             [self.sessionReplay captureReplayForEvent:event];
-
-            return event;
-        }];
+        }
+        return event;
+    }];
 
     return YES;
 }
+
+- (void)resumePreviousSessionReplay:(SentryEvent *)event {
+    NSURL* dir = [self replayDirectory];
+    NSData* lastReplay = [NSData dataWithContentsOfURL:[dir URLByAppendingPathComponent:@"lastreplay"]];
+    if (lastReplay == nil) { return; }
+    
+    NSDictionary<NSString *, id> * jsonObject = [NSJSONSerialization JSONObjectWithData:lastReplay options:0 error:nil];
+    
+    SentryId * replayId = [[SentryId alloc] initWithUUIDString:jsonObject[@"replayId"]];
+    
+    
+    NSURL * lastReplayURL = [dir URLByAppendingPathComponent:jsonObject[@"path"]];
+    
+    SentryCrashReplay crashInfo = { 0 };
+    bool hasCrashInfo = sentrySessionReplaySync_readInfo(&crashInfo, [[lastReplayURL URLByAppendingPathComponent:@"crashInfo"].path cStringUsingEncoding:NSUTF8StringEncoding]);
+    
+    SentryReplayType type = hasCrashInfo ? SentryReplayTypeSession : SentryReplayTypeBuffer;
+    
+    SentryOnDemandReplay *replayMaker = [[SentryOnDemandReplay alloc] initWithContentFrom: lastReplayURL.path];
+    
+    [replayMaker createVideoWithDuration:_replayOptions.sessionSegmentDuration
+                               beginning:[NSDate dateWithTimeIntervalSince1970:crashInfo.lastSegmentEnd]
+                           outputFileURL:[lastReplayURL URLByAppendingPathComponent:@"lastVideo.mp4"]
+                                   error:nil
+                              completion:^(SentryVideoInfo * video, NSError * error) {
+        
+        if (error != nil) {
+            SENTRY_LOG_ERROR(@"Could not create replay video: %@", error);
+        } else {
+            [self captureVideo:video replayId:replayId segmentId:crashInfo.segmentId + 1 type:type];
+        }
+    }];
+
+    NSMutableDictionary * eventContext = event.context.mutableCopy;
+    eventContext[@"replay"] = @{@"replay_id": replayId.sentryIdString};
+    event.context = eventContext;
+}
+
+- (void)captureVideo:(SentryVideoInfo *)video replayId:(SentryId *)replayId segmentId:(int)segment type:(SentryReplayType)type {
+    SentryReplayEvent *replayEvent = [[SentryReplayEvent alloc]  initWithEventId: replayId
+                                                            replayStartTimestamp:video.start
+                                                                      replayType:type
+                                                                       segmentId:segment];
+    replayEvent.timestamp = video.end;
+    SentryReplayRecording *recording = [[SentryReplayRecording alloc] initWithSegmentId:segment video:video extraEvents:@[]];
+    
+    [self sessionReplayNewSegmentWithReplayEvent:replayEvent replayRecording:recording videoUrl:video.path];
+    
+    NSError *error = nil;
+    if (![[NSFileManager defaultManager] removeItemAtURL:video.path error:&error]) {
+        NSLog(@"[SentrySessionReplay:%d] Could not delete replay segment from disk: %@", __LINE__, error.localizedDescription);
+    }
+}
+
 
 - (void)startSession
 {
@@ -111,9 +170,7 @@ SentrySessionReplayIntegration () <SentrySessionReplayDelegate>
      breadcrumbConverter:(id<SentryReplayBreadcrumbConverter>)breadcrumbConverter
              fullSession:(BOOL)shouldReplayFullSession
 {
-    NSURL *docs =
-        [NSURL fileURLWithPath:[SentryDependencyContainer.sharedInstance.fileManager sentryPath]];
-    docs = [docs URLByAppendingPathComponent:SENTRY_REPLAY_FOLDER];
+    NSURL *docs = [self replayDirectory];
     NSString *currentSession = [NSUUID UUID].UUIDString;
     docs = [docs URLByAppendingPathComponent:currentSession];
 
@@ -158,15 +215,23 @@ SentrySessionReplayIntegration () <SentrySessionReplayDelegate>
     [self saveCurrentSessionInfo:self.sessionReplay.sessionReplayId path:docs.path options:replayOptions];
 }
 
+- (NSURL*)replayDirectory {
+    NSURL *dir = [NSURL fileURLWithPath:[SentryDependencyContainer.sharedInstance.fileManager sentryPath]];
+    return [dir URLByAppendingPathComponent:SENTRY_REPLAY_FOLDER];
+}
+
+
 - (void)saveCurrentSessionInfo:(SentryId *)sessionId path:(NSString *)path options:(SentryReplayOptions *)options {
-    NSDictionary * info = @{ @"sessionId":sessionId.sentryIdString, @"path":path, @"errorSampleRate":@(options.errorSampleRate) };
+    NSDictionary * info = @{ @"replayId":sessionId.sentryIdString, @"path":path.lastPathComponent, @"errorSampleRate":@(options.errorSampleRate) };
     NSData * data = [SentrySerialization dataWithJSONObject:info];
-    
+        
     NSString * infoPath = [[path stringByDeletingLastPathComponent] stringByAppendingPathComponent:@"lastreplay"];
     if ([NSFileManager.defaultManager fileExistsAtPath:infoPath]) {
         [NSFileManager.defaultManager removeItemAtPath:infoPath error:nil];
     }
     [data writeToFile:infoPath atomically:YES];
+    
+    sentrySessionReplaySync_start([[path stringByAppendingPathComponent:@"crashInfo"] cStringUsingEncoding:NSUTF8StringEncoding]);
 }
 
 - (void)stop
@@ -305,6 +370,8 @@ SentrySessionReplayIntegration () <SentrySessionReplayDelegate>
     [SentrySDK.currentHub captureReplayEvent:replayEvent
                              replayRecording:replayRecording
                                        video:videoUrl];
+    
+    sentrySessionReplaySync_updateInfo((unsigned int)replayEvent.segmentId, replayEvent.timestamp.timeIntervalSince1970);
 }
 
 - (void)sessionReplayStartedWithReplayId:(SentryId *)replayId

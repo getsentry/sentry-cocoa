@@ -86,6 +86,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (nullable instancetype)initWithTracer:(SentryTracer *)tracer
                                   scope:(nullable SentryScope *)scope
                                 options:(SentryOptions *)options;
+                                
 
 /**
  * Initializes a SentryTraceContext with data from a traceID, options and userSegment.
@@ -96,7 +97,8 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (instancetype)initWithTraceId:(SentryId *)traceId
                         options:(SentryOptions *)options
-                    userSegment:(nullable NSString *)userSegment;
+                    userSegment:(nullable NSString *)userSegment
+                       replayId:(nullable NSString *)replayId;
 
 /**
  * Create a SentryBaggage with the information of this SentryTraceContext.

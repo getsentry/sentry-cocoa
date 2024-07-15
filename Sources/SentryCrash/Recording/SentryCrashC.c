@@ -45,6 +45,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "SentrySessionReplaySyncC.h"
 
 // ============================================================================
 #pragma mark - Globals -
@@ -83,6 +84,7 @@ onCrash(struct SentryCrash_MonitorContext *monitorContext)
         sentrycrashcrs_getNextCrashReportPath(crashReportFilePath);
         strncpy(g_lastCrashReportFilePath, crashReportFilePath, sizeof(g_lastCrashReportFilePath));
         sentrycrashreport_writeStandardReport(monitorContext, crashReportFilePath);
+        sentrySessionReplaySync_writeInfo();
     }
 
     // Report is saved to disk, now we try to take screenshots

@@ -12,6 +12,10 @@ class SentryReplayRecording: NSObject {
 
     let events: [any SentryRRWebEventProtocol]
     
+    convenience init(segmentId: Int, video: SentryVideoInfo, extraEvents: [any SentryRRWebEventProtocol]) {
+        self.init(segmentId: segmentId, size: video.fileSize, start: video.start, duration: video.duration, frameCount: video.frameCount, frameRate: video.frameRate, height: video.height, width: video.width, extraEvents: extraEvents)
+    }
+    
     init(segmentId: Int, size: Int, start: Date, duration: TimeInterval, frameCount: Int, frameRate: Int, height: Int, width: Int, extraEvents: [any SentryRRWebEventProtocol]?) {
         self.segmentId = segmentId
         

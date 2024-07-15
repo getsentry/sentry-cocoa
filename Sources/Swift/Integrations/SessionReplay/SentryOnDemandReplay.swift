@@ -23,6 +23,7 @@ enum SentryOnDemandReplayError: Error {
 
 @objcMembers
 class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
+        
     private let _outputPath: String
     private var _currentPixelBuffer: SentryPixelBuffer?
     private var _totalFrames = 0
@@ -43,6 +44,26 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
     var bitRate = 20_000
     var frameRate = 1
     var cacheMaxSize = UInt.max
+        
+    init(outputPath: String, workingQueue: SentryDispatchQueueWrapper, dateProvider: SentryCurrentDateProvider)  {
+        self._outputPath = outputPath
+        self.dateProvider = dateProvider
+        self.workingQueue = workingQueue
+    }
+        
+    convenience init(withContentFrom outputPath: String, workingQueue: SentryDispatchQueueWrapper, dateProvider: SentryCurrentDateProvider)  {
+        self.init(outputPath: outputPath, workingQueue: workingQueue, dateProvider: dateProvider)
+        guard let content = try? FileManager.default.contentsOfDirectory(atPath: outputPath) else { return }
+        
+        _frames = content.compactMap {
+            guard let extensionIndex = $0.lastIndex(of: "."), $0[extensionIndex...] == ".png"
+            else { return SentryReplayFrame?.none }
+            
+            guard let time = Double($0[..<extensionIndex]) else { return nil }
+            
+            return SentryReplayFrame(imagePath: "\(outputPath)/\($0)", time: Date(timeIntervalSinceReferenceDate: time))
+        }
+    }
     
     convenience init(outputPath: String) {
         self.init(outputPath: outputPath,
@@ -50,12 +71,12 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
                   dateProvider: SentryCurrentDateProvider())
     }
     
-    init(outputPath: String, workingQueue: SentryDispatchQueueWrapper, dateProvider: SentryCurrentDateProvider) {
-        self._outputPath = outputPath
-        self.dateProvider = dateProvider
-        self.workingQueue = workingQueue
+    convenience init(withContentFrom outputPath: String) {
+        self.init(withContentFrom: outputPath,
+                  workingQueue: SentryDispatchQueueWrapper(name: "io.sentry.onDemandReplay", attributes: nil),
+                  dateProvider: SentryCurrentDateProvider())
     }
-    
+        
     func addFrameAsync(image: UIImage) {
         workingQueue.dispatchAsync({
             self.addFrame(image: image)
@@ -66,7 +87,7 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
         guard let data = resizeImage(image, maxWidth: 300)?.pngData() else { return }
         
         let date = dateProvider.date()
-        let imagePath = (_outputPath as NSString).appendingPathComponent("\(_totalFrames).png")
+        let imagePath = (_outputPath as NSString).appendingPathComponent("\(date.timeIntervalSinceReferenceDate).png")
         do {
             try data.write(to: URL(fileURLWithPath: imagePath))
         } catch {

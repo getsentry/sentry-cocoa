@@ -3,6 +3,10 @@ import Foundation
 @_implementationOnly import _SentryPrivate
 import UIKit
 
+enum SessionReplayError : Error {
+    case cantCreateReplayDirectory
+}
+
 @objc
 protocol SentrySessionReplayDelegate: NSObjectProtocol {
     func sessionReplayIsFullSession() -> Bool
@@ -143,7 +147,7 @@ class SentrySessionReplay: NSObject {
         startFullReplay()
 
         guard let finalPath = urlToCache?.appendingPathComponent("replay.mp4") else {
-            print("[\(#file):\(#line)] Could not create replay video path")
+            print("[SentrySessionReplay:\(#line)] Could not create replay video path")
             return false
         }
         let replayStart = dateProvider.date().addingTimeInterval(-replayOptions.errorReplayDuration)
@@ -169,11 +173,11 @@ class SentrySessionReplay: NSObject {
 
     @objc 
     private func newFrame(_ sender: CADisplayLink) {
-        guard let sessionStart = sessionStart, let lastScreenShot = lastScreenShot, isRunning else { return }
+        guard let lastScreenShot = lastScreenShot, isRunning else { return }
 
         let now = dateProvider.date()
         
-        if isFullSession && now.timeIntervalSince(sessionStart) > replayOptions.maximumDuration {
+        if let sessionStart = sessionStart, isFullSession && now.timeIntervalSince(sessionStart) > replayOptions.maximumDuration {
             reachedMaximumDuration = true
             stop()
             return
@@ -200,7 +204,7 @@ class SentrySessionReplay: NSObject {
             do {
                 try fileManager.createDirectory(atPath: pathToSegment.path, withIntermediateDirectories: true, attributes: nil)
             } catch {
-                print("[\(#file):\(#line)] Can't create session replay segment folder. Error: \(error.localizedDescription)")
+                print("[SentrySessionReplay:\(#line)] Can't create session replay segment folder. Error: \(error.localizedDescription)")
                 return
             }
         }
@@ -216,13 +220,13 @@ class SentrySessionReplay: NSObject {
             try replayMaker.createVideoWith(duration: duration, beginning: startedAt, outputFileURL: videoUrl) { [weak self] videoInfo, error in
                 guard let _self = self else { return }
                 if let error = error {
-                    print("[\(#file):\(#line)] Could not create replay video - \(error.localizedDescription)")
+                    print("[SentrySessionReplay:\(#line)] Could not create replay video - \(error.localizedDescription)")
                 } else if let videoInfo = videoInfo {
                     _self.newSegmentAvailable(videoInfo: videoInfo)
                 }
             }
         } catch {
-            print("[\(#file):\(#line)] Could not create replay video - \(error.localizedDescription)")
+            print("[SentrySessionReplay:\(#line)] Could not create replay video - \(error.localizedDescription)")
         }
     }
 
@@ -247,14 +251,14 @@ class SentrySessionReplay: NSObject {
             touchTracker.flushFinishedEvents()
         }
 
-        let recording = SentryReplayRecording(segmentId: replayEvent.segmentId, size: video.fileSize, start: video.start, duration: video.duration, frameCount: video.frameCount, frameRate: video.frameRate, height: video.height, width: video.width, extraEvents: events)
+        let recording = SentryReplayRecording(segmentId: segment, video: video, extraEvents: events)
                 
         delegate?.sessionReplayNewSegment(replayEvent: replayEvent, replayRecording: recording, videoUrl: video.path)
 
         do {
             try FileManager.default.removeItem(at: video.path)
         } catch {
-            print("[\(#file):\(#line)] Could not delete replay segment from disk: \(error.localizedDescription)")
+            print("[SentrySessionReplay:\(#line)] Could not delete replay segment from disk: \(error.localizedDescription)")
         }
     }
 

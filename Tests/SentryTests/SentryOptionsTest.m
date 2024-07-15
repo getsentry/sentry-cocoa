@@ -459,9 +459,11 @@
         @"Default integrations are not set correctly");
 }
 
-- (void)testSentryCrashIntegrationIsFirst
+- (void)testIntegrationOrder
 {
     XCTAssertEqualObjects(SentryOptions.defaultIntegrations.firstObject,
+        NSStringFromClass([SentrySessionReplayIntegration class]));
+    XCTAssertEqualObjects(SentryOptions.defaultIntegrations[1],
         NSStringFromClass([SentryCrashIntegration class]));
 }
 
