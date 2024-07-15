@@ -7,8 +7,10 @@ import XCTest
 class SentrySessionReplayTests: XCTestCase {
     
     private class ScreenshotProvider: NSObject, SentryViewScreenshotProvider {
+        var lastImageCall : (view: UIView, options: SentryRedactOptions)?
         func image(view: UIView, options: Sentry.SentryRedactOptions, onComplete: @escaping Sentry.ScreenshotCallback) {
             onComplete(UIImage.add)
+            lastImageCall = (view, options)
         }
     }
      
@@ -233,7 +235,6 @@ class SentrySessionReplayTests: XCTestCase {
         assertFullSession(sut, expected: false)
     }
     
-    @available(iOS 16.0, tvOS 16, *)
     func testChangeReplayMode_forHybridSDKEvent() {
         let fixture = Fixture()
         let sut = fixture.getSut(options: SentryReplayOptions(sessionSampleRate: 1, errorSampleRate: 1))
@@ -245,7 +246,6 @@ class SentrySessionReplayTests: XCTestCase {
         assertFullSession(sut, expected: true)
     }
 
-    @available(iOS 16.0, tvOS 16, *)
     func testSessionReplayMaximumDuration() {
         let fixture = Fixture()
         let sut = fixture.getSut(options: SentryReplayOptions(sessionSampleRate: 1, errorSampleRate: 1))
@@ -259,6 +259,17 @@ class SentrySessionReplayTests: XCTestCase {
         Dynamic(sut).newFrame(nil)
         
         XCTAssertFalse(sut.isRunning)
+    }
+    
+    func testSaveScreenShotInBufferMode() {
+        let fixture = Fixture()
+        
+        let sut = fixture.getSut(options: SentryReplayOptions(sessionSampleRate: 0, errorSampleRate: 1))
+        sut.start(rootView: fixture.rootView, fullSession: false)
+        fixture.dateProvider.advance(by: 1)
+        Dynamic(sut).newFrame(nil)
+        
+        XCTAssertNotNil(fixture.screenshotProvider.lastImageCall)
     }
     
     @available(iOS 16.0, tvOS 16, *)
