@@ -63,14 +63,9 @@ class SentrySessionReplay: NSObject {
     func start(rootView: UIView, fullSession: Bool) {
         guard !isRunning else { return }
         
-        lock.lock()
-        guard !isRunning else {
-            lock.unlock()
-            return
-        }
-        displayLink.link(withTarget: self, selector: #selector(newFrame(_:)))
-        isRunning = true
-        lock.unlock()
+        guard lock.checkFlag(flag: &isRunning, toRun: {
+            displayLink.link(withTarget: self, selector: #selector(newFrame(_:)))
+        }) else { return }
         
         self.rootView = rootView
         lastScreenShot = dateProvider.date()
@@ -94,12 +89,11 @@ class SentrySessionReplay: NSObject {
     }
 
     func stop() {
-        lock.lock()
-        defer { lock.unlock() }
-        guard isRunning else { return }
         
-        displayLink.invalidate()
-        isRunning = false
+        guard lock.checkFlag(flag: &isRunning, toRun: {
+            displayLink.invalidate()
+        }) else { return }
+        
         prepareSegmentUntil(date: dateProvider.date())
     }
 
