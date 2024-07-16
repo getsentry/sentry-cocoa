@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+- Replay for crashes ()
+
 ## 8.31.1
 
 ### Fixes
