@@ -86,7 +86,6 @@ NS_ASSUME_NONNULL_BEGIN
 - (nullable instancetype)initWithTracer:(SentryTracer *)tracer
                                   scope:(nullable SentryScope *)scope
                                 options:(SentryOptions *)options;
-                                
 
 /**
  * Initializes a SentryTraceContext with data from a traceID, options and userSegment.

@@ -44,22 +44,21 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
     
     var videoWidth = 200
     var videoHeight = 434
-    var videoScale : Float = 1
+    var videoScale: Float = 1
     var bitRate = 20_000
     var frameRate = 1
     var cacheMaxSize = UInt.max
     
     private var actualWidth: Int { Int(Float(videoWidth) * videoScale) }
     private var actualHeight: Int { Int(Float(videoHeight) * videoScale) }
-    
         
-    init(outputPath: String, workingQueue: SentryDispatchQueueWrapper, dateProvider: SentryCurrentDateProvider)  {
+    init(outputPath: String, workingQueue: SentryDispatchQueueWrapper, dateProvider: SentryCurrentDateProvider) {
         self._outputPath = outputPath
         self.dateProvider = dateProvider
         self.workingQueue = workingQueue
     }
         
-    convenience init(withContentFrom outputPath: String, workingQueue: SentryDispatchQueueWrapper, dateProvider: SentryCurrentDateProvider)  {
+    convenience init(withContentFrom outputPath: String, workingQueue: SentryDispatchQueueWrapper, dateProvider: SentryCurrentDateProvider) {
         self.init(outputPath: outputPath, workingQueue: workingQueue, dateProvider: dateProvider)
         guard let content = try? FileManager.default.contentsOfDirectory(atPath: outputPath) else { return }
         
@@ -132,7 +131,7 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
         })
     }
         
-    var oldestFrameDate : Date? {
+    var oldestFrameDate: Date? {
         return _frames.first?.time
     }
     

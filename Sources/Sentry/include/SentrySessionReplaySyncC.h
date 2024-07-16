@@ -5,7 +5,7 @@
 typedef struct {
     unsigned int segmentId;
     double lastSegmentEnd;
-    char* path;
+    char *path;
 } SentryCrashReplay;
 
 void sentrySessionReplaySync_start(const char *const path);
@@ -14,6 +14,6 @@ void sentrySessionReplaySync_updateInfo(unsigned int segmentId, double lastSegme
 
 void sentrySessionReplaySync_writeInfo(void);
 
-bool sentrySessionReplaySync_readInfo(SentryCrashReplay *output, const char * const path);
+bool sentrySessionReplaySync_readInfo(SentryCrashReplay *output, const char *const path);
 
 #endif /* SentrySessionReplaySyncC_h */

@@ -3,7 +3,7 @@ import Foundation
 @_implementationOnly import _SentryPrivate
 import UIKit
 
-enum SessionReplayError : Error {
+enum SessionReplayError: Error {
     case cantCreateReplayDirectory
     case noFramesAvailable
 }

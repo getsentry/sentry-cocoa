@@ -463,8 +463,8 @@
 {
     XCTAssertEqualObjects(SentryOptions.defaultIntegrations.firstObject,
         NSStringFromClass([SentrySessionReplayIntegration class]));
-    XCTAssertEqualObjects(SentryOptions.defaultIntegrations[1],
-        NSStringFromClass([SentryCrashIntegration class]));
+    XCTAssertEqualObjects(
+        SentryOptions.defaultIntegrations[1], NSStringFromClass([SentryCrashIntegration class]));
 }
 
 - (void)testSampleRateWithDict

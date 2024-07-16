@@ -41,11 +41,11 @@
 
 #include "SentryAsyncSafeLog.h"
 
+#include "SentrySessionReplaySyncC.h"
 #include <inttypes.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "SentrySessionReplaySyncC.h"
 
 // ============================================================================
 #pragma mark - Globals -
