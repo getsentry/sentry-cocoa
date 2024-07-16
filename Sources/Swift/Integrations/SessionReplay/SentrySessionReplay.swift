@@ -61,8 +61,6 @@ class SentrySessionReplay: NSObject {
     }
 
     func start(rootView: UIView, fullSession: Bool) {
-        guard !isRunning else { return }
-        
         guard lock.checkFlag(flag: &isRunning, toRun: {
             displayLink.link(withTarget: self, selector: #selector(newFrame(_:)))
         }) else { return }
