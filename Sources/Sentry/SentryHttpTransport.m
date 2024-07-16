@@ -140,6 +140,11 @@ SentryHttpTransport ()
 
 - (void)recordLostEvent:(SentryDataCategory)category reason:(SentryDiscardReason)reason
 {
+    [self recordLostEvent:category reason:reason quantity:1];
+}
+
+- (void)recordLostEvent:(SentryDataCategory)category reason:(SentryDiscardReason)reason quantity:(NSUInteger)quantity
+{
     if (!self.options.sendClientReports) {
         return;
     }
@@ -149,7 +154,6 @@ SentryHttpTransport ()
 
     @synchronized(self.discardedEvents) {
         SentryDiscardedEvent *event = self.discardedEvents[key];
-        NSUInteger quantity = 1;
         if (event != nil) {
             quantity = event.quantity + 1;
         }
