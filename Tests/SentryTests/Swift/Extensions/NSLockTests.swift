@@ -46,11 +46,11 @@ final class NSLockTests: XCTestCase {
         wait(for: [expectation], timeout: 0.1)
     }
     
-    func testCheckFlagIsFalse() {
+    func testSetFlag_FalseFlag() {
         var flag = false
         var executed = false
         let lock = NSLock()
-        let result = lock.checkFlag(flag: &flag) {
+        let result = lock.setFlag(flag: &flag) {
             executed = true
         }
         XCTAssertTrue(result)
@@ -58,11 +58,11 @@ final class NSLockTests: XCTestCase {
         XCTAssertTrue(flag)
     }
     
-    func testCheckFlagIsTrue() {
+    func testSetFlag_TrueFlag() {
         var flag = true
         var skipped = true
         let lock = NSLock()
-        let result = lock.checkFlag(flag: &flag) {
+        let result = lock.setFlag(flag: &flag) {
             skipped = false
         }
         XCTAssertFalse(result)
@@ -70,14 +70,53 @@ final class NSLockTests: XCTestCase {
         XCTAssertTrue(flag)
     }
     
-    func testStressFlag() {
+    func testStressSetFlag() {
         let lock = NSLock()
         var flag = false
         var closureCalls = 0
         var correctGuard = 0
         
         testConcurrentModifications(asyncWorkItems: 100, writeLoopCount: 9, writeWork: { _ in
-            guard lock.checkFlag(flag: &flag, toRun: { closureCalls += 1 }) else { return }
+            guard lock.setFlag(flag: &flag, toRun: { closureCalls += 1 }) else { return }
+            correctGuard += 1
+        })
+        
+        XCTAssertEqual(closureCalls, 1)
+        XCTAssertEqual(correctGuard, 1)
+    }
+    
+    func testUnsetFlag_TrueFlag() {
+        var flag = true
+        var executed = false
+        let lock = NSLock()
+        let result = lock.unsetFlag(flag: &flag) {
+            executed = true
+        }
+        XCTAssertTrue(result)
+        XCTAssertTrue(executed)
+        XCTAssertFalse(flag)
+    }
+    
+    func testUnsetFlag_FalseFlag() {
+        var flag = false
+        var skipped = true
+        let lock = NSLock()
+        let result = lock.unsetFlag(flag: &flag) {
+            skipped = false
+        }
+        XCTAssertFalse(result)
+        XCTAssertTrue(skipped)
+        XCTAssertFalse(flag)
+    }
+    
+    func testStressUnsetFlag() {
+        let lock = NSLock()
+        var flag = true
+        var closureCalls = 0
+        var correctGuard = 0
+        
+        testConcurrentModifications(asyncWorkItems: 100, writeLoopCount: 9, writeWork: { _ in
+            guard lock.unsetFlag(flag: &flag, toRun: { closureCalls += 1 }) else { return }
             correctGuard += 1
         })
         
