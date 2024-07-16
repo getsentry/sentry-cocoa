@@ -4,7 +4,7 @@
 
 ### Features
 
-- Replay for crashes ()
+- Replay for crashes (#4171)
 
 ## 8.31.1
 
