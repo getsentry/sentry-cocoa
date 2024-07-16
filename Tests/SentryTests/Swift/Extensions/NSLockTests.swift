@@ -50,9 +50,10 @@ final class NSLockTests: XCTestCase {
         var flag = false
         var executed = false
         let lock = NSLock()
-        _ = lock.checkFlag(flag: &flag) {
+        let result = lock.checkFlag(flag: &flag) {
             executed = true
         }
+        XCTAssertTrue(result)
         XCTAssertTrue(executed)
         XCTAssertTrue(flag)
     }
@@ -61,9 +62,10 @@ final class NSLockTests: XCTestCase {
         var flag = true
         var skipped = true
         let lock = NSLock()
-        _ = lock.checkFlag(flag: &flag) {
+        let result = lock.checkFlag(flag: &flag) {
             skipped = false
         }
+        XCTAssertFalse(result)
         XCTAssertTrue(skipped)
         XCTAssertTrue(flag)
     }
@@ -71,13 +73,16 @@ final class NSLockTests: XCTestCase {
     func testStressFlag() {
         let lock = NSLock()
         var flag = false
-        var value = 0
+        var closureCalls = 0
+        var correctGuard = 0
         
         testConcurrentModifications(asyncWorkItems: 100, writeLoopCount: 9, writeWork: { _ in
-            _ = lock.checkFlag(flag: &flag) { value += 1 }
+            guard lock.checkFlag(flag: &flag, toRun: { closureCalls += 1 }) else { return }
+            correctGuard += 1
         })
         
-        XCTAssertEqual(value, 1)
+        XCTAssertEqual(closureCalls, 1)
+        XCTAssertEqual(correctGuard, 1)
     }
 
     enum NSLockError: Error {
