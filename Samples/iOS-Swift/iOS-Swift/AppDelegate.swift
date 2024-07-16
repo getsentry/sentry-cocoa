@@ -72,7 +72,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             options.enableAppLaunchProfiling = args.contains("--profile-app-launches")
 
             options.enableAutoSessionTracking = !args.contains("--disable-automatic-session-tracking")
-            options.sessionTrackingIntervalMillis = 5_000
+            //options.sessionTrackingIntervalMillis = 5_000
             options.attachScreenshot = true
             options.attachViewHierarchy = true
        

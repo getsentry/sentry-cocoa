@@ -138,6 +138,7 @@ class SentrySessionReplay: NSObject {
         setEventContext(event: event)
     }
 
+    @discardableResult
     func captureReplay() -> Bool {
         guard isRunning else { return false }
         guard !isFullSession else { return true }

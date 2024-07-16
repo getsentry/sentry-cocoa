@@ -1,6 +1,12 @@
 # Changelog
 
-## Unreleased
+## 8.31.1
+
+### Fixes
+
+- Session replay video duration from seconds to milliseconds (#4163)
+
+## 8.31.0
 
 ### Features
 
@@ -9,6 +15,7 @@
 ### Fixes
 
 - Properly handle invalid value for `NSUnderlyingErrorKey` (#4144)
+- Session replay in buffer mode not working (#4160)
 
 ## 8.30.1
 
