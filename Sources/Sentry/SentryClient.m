@@ -397,7 +397,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     if (tracer != nil) {
         return [[SentryTraceContext alloc] initWithTracer:tracer scope:scope options:_options];
     }
-    
+
     if (event.error || event.exceptions.count > 0) {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
@@ -434,8 +434,6 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                              alwaysAttachStacktrace:alwaysAttachStacktrace
                                        isCrashEvent:isCrashEvent];
 
-    
-    
     if (preparedEvent == nil) {
         return SentryId.empty;
     }
@@ -470,9 +468,10 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                 attachments = [attachmentProcessor processAttachments:attachments forEvent:event];
             }
         }
-        
-        if (event.isCrashEvent && event.context[@"replay"] && [event.context[@"replay"] isKindOfClass:NSDictionary.class]) {
-            NSDictionary* replay = event.context[@"replay"];
+
+        if (event.isCrashEvent && event.context[@"replay"] &&
+            [event.context[@"replay"] isKindOfClass:NSDictionary.class]) {
+            NSDictionary *replay = event.context[@"replay"];
             scope.replayId = replay[@"replay_id"];
         }
 

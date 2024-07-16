@@ -1,58 +1,67 @@
 #include "SentrySessionReplaySyncC.h"
+#include "SentryAsyncSafeLog.h"
+#include <errno.h>
+#include <fcntl.h>
 #include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <fcntl.h>
-#include "SentryAsyncSafeLog.h"
-#include <errno.h>
 #include <string.h>
 #include <unistd.h>
 
 static SentryCrashReplay crashReplay = { 0 };
 
-
-void sentrySessionReplaySync_start(const char *const path) {
+void
+sentrySessionReplaySync_start(const char *const path)
+{
     crashReplay.lastSegmentEnd = 0;
     crashReplay.segmentId = 0;
-    
+
     if (crashReplay.path != NULL) {
         free(crashReplay.path);
     }
-    
+
     crashReplay.path = malloc(strlen(path));
     strcpy(crashReplay.path, path);
 }
 
-void sentrySessionReplaySync_updateInfo(unsigned int segmentId, double lastSegmentEnd) {
+void
+sentrySessionReplaySync_updateInfo(unsigned int segmentId, double lastSegmentEnd)
+{
     crashReplay.segmentId = segmentId;
     crashReplay.lastSegmentEnd = lastSegmentEnd;
 }
 
-void sentrySessionReplaySync_writeInfo(void) {
+void
+sentrySessionReplaySync_writeInfo(void)
+{
     int fd = open(crashReplay.path, O_RDWR | O_CREAT | O_TRUNC, 0644);
-    
+
     if (fd < 1) {
         SENTRY_ASYNC_SAFE_LOG_ERROR(
             "Could not open replay info crash for file %s: %s", crashReplay.path, strerror(errno));
         return;
     }
 
-     if (write(fd, &crashReplay.segmentId, sizeof(crashReplay.segmentId)) != sizeof(crashReplay.segmentId)) {
-         SENTRY_ASYNC_SAFE_LOG_ERROR("Error writing replay info for crash.");
-         close(fd);
-         return;
-     }
+    if (write(fd, &crashReplay.segmentId, sizeof(crashReplay.segmentId))
+        != sizeof(crashReplay.segmentId)) {
+        SENTRY_ASYNC_SAFE_LOG_ERROR("Error writing replay info for crash.");
+        close(fd);
+        return;
+    }
 
-     if (write(fd, &crashReplay.lastSegmentEnd, sizeof(crashReplay.lastSegmentEnd)) != sizeof(crashReplay.lastSegmentEnd)) {
-         SENTRY_ASYNC_SAFE_LOG_ERROR("Error writing replay info for crash.");
-         close(fd);
-         return;
-     }
+    if (write(fd, &crashReplay.lastSegmentEnd, sizeof(crashReplay.lastSegmentEnd))
+        != sizeof(crashReplay.lastSegmentEnd)) {
+        SENTRY_ASYNC_SAFE_LOG_ERROR("Error writing replay info for crash.");
+        close(fd);
+        return;
+    }
 
-     close(fd);
+    close(fd);
 }
 
-bool sentrySessionReplaySync_readInfo(SentryCrashReplay *output, const char * const path) {
+bool
+sentrySessionReplaySync_readInfo(SentryCrashReplay *output, const char *const path)
+{
     int fd = open(path, O_RDONLY);
     if (fd < 0) {
         SENTRY_ASYNC_SAFE_LOG_ERROR(
@@ -74,7 +83,7 @@ bool sentrySessionReplaySync_readInfo(SentryCrashReplay *output, const char * co
         close(fd);
         return false;
     }
-    
+
     close(fd);
 
     // Assign read values to crashReplay struct or process them as needed

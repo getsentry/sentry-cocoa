@@ -47,9 +47,9 @@ NSString *const kSentryDefaultEnvironment = @"production";
     // And SentrySessionReplayIntegration before SentryCrashIntegration.
     NSMutableArray<NSString *> *defaultIntegrations =
         @[
-#    if SENTRY_HAS_UIKIT && !TARGET_OS_VISION
+#if SENTRY_HAS_UIKIT && !TARGET_OS_VISION
             NSStringFromClass([SentrySessionReplayIntegration class]),
-#    endif
+#endif
             NSStringFromClass([SentryCrashIntegration class]),
 #if SENTRY_HAS_UIKIT
             NSStringFromClass([SentryAppStartTrackingIntegration class]),
