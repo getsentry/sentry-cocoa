@@ -20,7 +20,7 @@ extension NSLock {
     /// Only runs the closure if the flag is false, then updates the flag to true.
     /// - Parameter toRun: The closure to run.
     ///
-    /// - Returns: The value the closure generated or `nil` if the flag was enabled already.
+    /// - Returns: `true` if the closure was invoked, otherwise `false`.
     func setFlag(_ flag: inout Bool, toRun closure: () throws -> Void) rethrows -> Bool {
         if flag { return false }
         self.lock()
@@ -38,7 +38,7 @@ extension NSLock {
     /// Only runs the closure if the flag is true, then updates the flag to false.
     /// - Parameter toRun: The closure to run.
     ///
-    /// - Returns: The value the closure generated or `nil` if the flag was enabled already.
+    /// - Returns: `true` if the closure was invoked, otherwise `false`.
     func unsetFlag(_ flag: inout Bool, toRun closure: () throws -> Void) rethrows -> Bool {
         if !flag { return false }
         self.lock()
