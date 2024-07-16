@@ -42,6 +42,7 @@ SentrySessionReplayIntegration ()
     BOOL _startedAsFullSession;
     SentryReplayOptions *_replayOptions;
     SentryNSNotificationCenterWrapper *_notificationCenter;
+    SentryOnDemandReplay * _resumeReplayMaker;
 }
 
 - (BOOL)installWithOptions:(nonnull SentryOptions *)options
@@ -91,14 +92,17 @@ SentrySessionReplayIntegration ()
     NSTimeInterval duration = hasCrashInfo ? _replayOptions.sessionSegmentDuration : _replayOptions.errorReplayDuration;
     int segmentId = hasCrashInfo ? crashInfo.segmentId + 1 : 0;
     
-    SentryOnDemandReplay *replayMaker = [[SentryOnDemandReplay alloc] initWithContentFrom: lastReplayURL.path];
-    NSDate * beginning = hasCrashInfo ? [NSDate dateWithTimeIntervalSince1970:crashInfo.lastSegmentEnd] : [replayMaker oldestFrameDate];
+    _resumeReplayMaker = [[SentryOnDemandReplay alloc] initWithContentFrom: lastReplayURL.path];
+    _resumeReplayMaker.bitRate = _replayOptions.replayBitRate;
+    _resumeReplayMaker.videoScale = _replayOptions.sizeScale;
+    
+    NSDate * beginning = hasCrashInfo ? [NSDate dateWithTimeIntervalSince1970:crashInfo.lastSegmentEnd] : [_resumeReplayMaker oldestFrameDate];
     if (beginning == nil) {
         //no frames to send
         return;
     }
     
-    [replayMaker createVideoWithBeginning:beginning
+    [_resumeReplayMaker createVideoWithBeginning:beginning
                                       end:[beginning dateByAddingTimeInterval:duration]
                             outputFileURL:[lastReplayURL URLByAppendingPathComponent:@"lastVideo.mp4"]
                                     error:nil
@@ -109,6 +113,7 @@ SentrySessionReplayIntegration ()
         } else {
             [self captureVideo:video replayId:replayId segmentId:segmentId type:type];
         }
+        self->_resumeReplayMaker = nil;
     }];
 
     NSMutableDictionary * eventContext = event.context.mutableCopy;
@@ -117,21 +122,20 @@ SentrySessionReplayIntegration ()
 }
 
 - (void)captureVideo:(SentryVideoInfo *)video replayId:(SentryId *)replayId segmentId:(int)segment type:(SentryReplayType)type {
-    SentryReplayEvent *replayEvent = [[SentryReplayEvent alloc]  initWithEventId: replayId
+    SentryReplayEvent *replayEvent = [[SentryReplayEvent alloc]  initWithEventId:replayId
                                                             replayStartTimestamp:video.start
                                                                       replayType:type
                                                                        segmentId:segment];
     replayEvent.timestamp = video.end;
     SentryReplayRecording *recording = [[SentryReplayRecording alloc] initWithSegmentId:segment video:video extraEvents:@[]];
     
-    [self sessionReplayNewSegmentWithReplayEvent:replayEvent replayRecording:recording videoUrl:video.path];
+    [SentrySDK.currentHub captureReplayEvent:replayEvent replayRecording:recording video:video.path];
     
     NSError *error = nil;
     if (![[NSFileManager defaultManager] removeItemAtURL:video.path error:&error]) {
         NSLog(@"[SentrySessionReplay:%d] Could not delete replay segment from disk: %@", __LINE__, error.localizedDescription);
     }
 }
-
 
 - (void)startSession
 {
@@ -187,6 +191,7 @@ SentrySessionReplayIntegration ()
 
     SentryOnDemandReplay *replayMaker = [[SentryOnDemandReplay alloc] initWithOutputPath:docs.path];
     replayMaker.bitRate = replayOptions.replayBitRate;
+    replayMaker.videoScale = replayOptions.sizeScale;
     replayMaker.cacheMaxSize
         = (NSInteger)(shouldReplayFullSession ? replayOptions.sessionSegmentDuration + 1
                                               : replayOptions.errorReplayDuration + 1);
@@ -223,7 +228,6 @@ SentrySessionReplayIntegration ()
     NSURL *dir = [NSURL fileURLWithPath:[SentryDependencyContainer.sharedInstance.fileManager sentryPath]];
     return [dir URLByAppendingPathComponent:SENTRY_REPLAY_FOLDER];
 }
-
 
 - (void)saveCurrentSessionInfo:(SentryId *)sessionId path:(NSString *)path options:(SentryReplayOptions *)options {
     NSDictionary * info = @{ @"replayId":sessionId.sentryIdString, @"path":path.lastPathComponent, @"errorSampleRate":@(options.errorSampleRate) };

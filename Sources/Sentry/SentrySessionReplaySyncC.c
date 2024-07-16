@@ -30,6 +30,7 @@ void sentrySessionReplaySync_updateInfo(unsigned int segmentId, double lastSegme
 
 void sentrySessionReplaySync_writeInfo(void) {
     int fd = open(crashReplay.path, O_RDWR | O_CREAT | O_TRUNC, 0644);
+    
     if (fd < 1) {
         SENTRY_ASYNC_SAFE_LOG_ERROR(
             "Could not open replay info crash for file %s: %s", crashReplay.path, strerror(errno));
@@ -73,7 +74,7 @@ bool sentrySessionReplaySync_readInfo(SentryCrashReplay *output, const char * co
         close(fd);
         return false;
     }
-
+    
     close(fd);
 
     // Assign read values to crashReplay struct or process them as needed

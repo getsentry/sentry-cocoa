@@ -44,9 +44,14 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
     
     var videoWidth = 200
     var videoHeight = 434
+    var videoScale : Float = 1
     var bitRate = 20_000
     var frameRate = 1
     var cacheMaxSize = UInt.max
+    
+    private var actualWidth: Int { Int(Float(videoWidth) * videoScale) }
+    private var actualHeight: Int { Int(Float(videoHeight) * videoScale) }
+    
         
     init(outputPath: String, workingQueue: SentryDispatchQueueWrapper, dateProvider: SentryCurrentDateProvider)  {
         self._outputPath = outputPath
@@ -76,6 +81,10 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
         self.init(withContentFrom: outputPath,
                   workingQueue: SentryDispatchQueueWrapper(name: "io.sentry.onDemandReplay", attributes: nil),
                   dateProvider: SentryCurrentDateProvider())
+        
+        guard let last = _frames.last, let image = UIImage(contentsOfFile: last.imagePath) else { return }
+        videoWidth = Int(image.size.width)
+        videoHeight = Int(image.size.height)
     }
     
     func addFrameAsync(image: UIImage, forScreen: String?) {
@@ -135,7 +144,7 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
         let videoWriter = try AVAssetWriter(url: outputFileURL, fileType: .mp4)
         let videoWriterInput = AVAssetWriterInput(mediaType: .video, outputSettings: createVideoSettings())
         
-        _currentPixelBuffer = SentryPixelBuffer(size: CGSize(width: videoWidth, height: videoHeight), videoWriterInput: videoWriterInput)
+        _currentPixelBuffer = SentryPixelBuffer(size: CGSize(width: actualWidth, height: actualHeight), videoWriterInput: videoWriterInput)
         if _currentPixelBuffer == nil { return }
         
         videoWriter.add(videoWriterInput)
@@ -169,7 +178,7 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
                                 completion(nil, SentryOnDemandReplayError.cantReadVideoSize)
                                 return
                             }
-                            videoInfo = SentryVideoInfo(path: outputFileURL, height: self.videoHeight, width: self.videoWidth, duration: TimeInterval(videoFrames.framesPaths.count / self.frameRate), frameCount: videoFrames.framesPaths.count, frameRate: self.frameRate, start: videoFrames.start, end: videoFrames.end, fileSize: fileSize, screens: videoFrames.screens)
+                            videoInfo = SentryVideoInfo(path: outputFileURL, height: self.actualHeight, width: self.actualWidth, duration: TimeInterval(videoFrames.framesPaths.count / self.frameRate), frameCount: videoFrames.framesPaths.count, frameRate: self.frameRate, start: videoFrames.start, end: videoFrames.end, fileSize: fileSize, screens: videoFrames.screens)
                         } catch {
                             completion(nil, error)
                         }
@@ -207,8 +216,8 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
     private func createVideoSettings() -> [String: Any] {
         return [
             AVVideoCodecKey: AVVideoCodecType.h264,
-            AVVideoWidthKey: videoWidth,
-            AVVideoHeightKey: videoHeight,
+            AVVideoWidthKey: actualWidth,
+            AVVideoHeightKey: actualHeight,
             AVVideoCompressionPropertiesKey: [
                 AVVideoAverageBitRateKey: bitRate,
                 AVVideoProfileLevelKey: AVVideoProfileLevelH264BaselineAutoLevel

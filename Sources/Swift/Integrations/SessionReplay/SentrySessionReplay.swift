@@ -82,8 +82,8 @@ class SentrySessionReplay: NSObject {
         videoSegmentStart = nil
         currentSegmentId = 0
         sessionReplayId = SentryId()
-        replayMaker.videoWidth = Int(Float(rootView.frame.size.width) * replayOptions.sizeScale)
-        replayMaker.videoHeight = Int(Float(rootView.frame.size.height) * replayOptions.sizeScale)
+        replayMaker.videoWidth = Int(rootView.frame.size.width)
+        replayMaker.videoHeight = Int(rootView.frame.size.height)
         imageCollection = []
 
         if fullSession {
