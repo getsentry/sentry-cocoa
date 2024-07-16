@@ -61,7 +61,7 @@ class SentrySessionReplay: NSObject {
     }
 
     func start(rootView: UIView, fullSession: Bool) {
-        guard lock.setFlag(flag: &isRunning, toRun: {
+        guard lock.setFlag(&isRunning, toRun: {
             displayLink.link(withTarget: self, selector: #selector(newFrame(_:)))
         }) else { return }
         
@@ -87,7 +87,7 @@ class SentrySessionReplay: NSObject {
     }
 
     func stop() {
-        guard lock.unsetFlag(flag: &isRunning, toRun: {
+        guard lock.unsetFlag(&isRunning, toRun: {
             displayLink.invalidate()
         }) else { return }
         

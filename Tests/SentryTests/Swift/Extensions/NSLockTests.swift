@@ -50,7 +50,7 @@ final class NSLockTests: XCTestCase {
         var flag = false
         var executed = false
         let lock = NSLock()
-        let result = lock.setFlag(flag: &flag) {
+        let result = lock.setFlag(&flag) {
             executed = true
         }
         XCTAssertTrue(result)
@@ -62,7 +62,7 @@ final class NSLockTests: XCTestCase {
         var flag = true
         var skipped = true
         let lock = NSLock()
-        let result = lock.setFlag(flag: &flag) {
+        let result = lock.setFlag(&flag) {
             skipped = false
         }
         XCTAssertFalse(result)
@@ -77,7 +77,7 @@ final class NSLockTests: XCTestCase {
         var correctGuard = 0
         
         testConcurrentModifications(asyncWorkItems: 100, writeLoopCount: 9, writeWork: { _ in
-            guard lock.setFlag(flag: &flag, toRun: { closureCalls += 1 }) else { return }
+            guard lock.setFlag(&flag, toRun: { closureCalls += 1 }) else { return }
             correctGuard += 1
         })
         
@@ -89,7 +89,7 @@ final class NSLockTests: XCTestCase {
         var flag = true
         var executed = false
         let lock = NSLock()
-        let result = lock.unsetFlag(flag: &flag) {
+        let result = lock.unsetFlag(&flag) {
             executed = true
         }
         XCTAssertTrue(result)
@@ -101,7 +101,7 @@ final class NSLockTests: XCTestCase {
         var flag = false
         var skipped = true
         let lock = NSLock()
-        let result = lock.unsetFlag(flag: &flag) {
+        let result = lock.unsetFlag(&flag) {
             skipped = false
         }
         XCTAssertFalse(result)
@@ -116,7 +116,7 @@ final class NSLockTests: XCTestCase {
         var correctGuard = 0
         
         testConcurrentModifications(asyncWorkItems: 100, writeLoopCount: 9, writeWork: { _ in
-            guard lock.unsetFlag(flag: &flag, toRun: { closureCalls += 1 }) else { return }
+            guard lock.unsetFlag(&flag, toRun: { closureCalls += 1 }) else { return }
             correctGuard += 1
         })
         

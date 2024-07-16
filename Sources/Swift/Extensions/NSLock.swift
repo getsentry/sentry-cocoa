@@ -21,7 +21,7 @@ extension NSLock {
     /// - Parameter toRun: The closure to run.
     ///
     /// - Returns: The value the closure generated or `nil` if the flag was enabled already.
-    func setFlag(flag: inout Bool, toRun closure: () throws -> Void) rethrows -> Bool {
+    func setFlag(_ flag: inout Bool, toRun closure: () throws -> Void) rethrows -> Bool {
         if flag { return false }
         self.lock()
         defer { self.unlock() }
@@ -39,7 +39,7 @@ extension NSLock {
     /// - Parameter toRun: The closure to run.
     ///
     /// - Returns: The value the closure generated or `nil` if the flag was enabled already.
-    func unsetFlag(flag: inout Bool, toRun closure: () throws -> Void) rethrows -> Bool {
+    func unsetFlag(_ flag: inout Bool, toRun closure: () throws -> Void) rethrows -> Bool {
         if !flag { return false }
         self.lock()
         defer { self.unlock() }
