@@ -571,7 +571,10 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     [self.transportAdapter recordLostEvent:category reason:reason];
 }
 
-- (void)recordLostEvent:(SentryDataCategory)category reason:(SentryDiscardReason)reason quantity:(NSUInteger)quantity {
+- (void)recordLostEvent:(SentryDataCategory)category
+                 reason:(SentryDiscardReason)reason
+               quantity:(NSUInteger)quantity
+{
     [self.transportAdapter recordLostEvent:category reason:reason quantity:quantity];
 }
 
@@ -722,10 +725,12 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         // useless. Still, we keep it for future compatibility reasons.
         event.user.ipAddress = @"{{auto}}";
     }
-    
-    BOOL eventIsATransaction = event.type != nil && [event.type isEqualToString:SentryEnvelopeItemTypeTransaction];
-    BOOL eventIsATransactionClass = eventIsATransaction && [event isKindOfClass:[SentryTransaction class]];
-    
+
+    BOOL eventIsATransaction
+        = event.type != nil && [event.type isEqualToString:SentryEnvelopeItemTypeTransaction];
+    BOOL eventIsATransactionClass
+        = eventIsATransaction && [event isKindOfClass:[SentryTransaction class]];
+
     NSUInteger currentSpanCount;
     if (eventIsATransactionClass) {
         SentryTransaction *transaction = (SentryTransaction *)event;
@@ -733,13 +738,15 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     } else {
         currentSpanCount = 0;
     }
-    
+
     event = [self callEventProcessors:event];
     if (event == nil) {
         [self recordLost:eventIsNotATransaction reason:kSentryDiscardReasonEventProcessor];
         if (eventIsATransaction) {
-            // We dropped the whole transaction, the dropped count includes all child spans + 1 root span
-            [self recordLostSpanWithReason:kSentryDiscardReasonEventProcessor quantity:currentSpanCount + 1];
+            // We dropped the whole transaction, the dropped count includes all child spans + 1 root
+            // span
+            [self recordLostSpanWithReason:kSentryDiscardReasonEventProcessor
+                                  quantity:currentSpanCount + 1];
         }
     } else {
         if (eventIsATransactionClass) {
@@ -765,14 +772,16 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                          withCurrentSpanCount:&currentSpanCount];
         }
     }
-    
+
     if (event != nil && nil != self.options.beforeSend) {
         event = self.options.beforeSend(event);
         if (event == nil) {
             [self recordLost:eventIsNotATransaction reason:kSentryDiscardReasonBeforeSend];
             if (eventIsATransaction) {
-                // We dropped the whole transaction, the dropped count includes all child spans + 1 root span
-                [self recordLostSpanWithReason:kSentryDiscardReasonBeforeSend quantity:currentSpanCount + 1];
+                // We dropped the whole transaction, the dropped count includes all child spans + 1
+                // root span
+                [self recordLostSpanWithReason:kSentryDiscardReasonBeforeSend
+                                      quantity:currentSpanCount + 1];
             }
         } else {
             if (eventIsATransactionClass) {
@@ -794,7 +803,10 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     return event;
 }
 
-- (void)recordPartiallyDroppedSpans:(SentryTransaction *)transaction withReason:(SentryDiscardReason)reason withCurrentSpanCount:(NSUInteger *)currentSpanCount {
+- (void)recordPartiallyDroppedSpans:(SentryTransaction *)transaction
+                         withReason:(SentryDiscardReason)reason
+               withCurrentSpanCount:(NSUInteger *)currentSpanCount
+{
     // If some spans got removed we still report them as dropped
     NSUInteger spanCountAfter = transaction.spans.count;
     NSUInteger droppedSpanCount = *currentSpanCount - spanCountAfter;

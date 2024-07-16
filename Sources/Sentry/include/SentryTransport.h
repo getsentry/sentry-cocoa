@@ -19,7 +19,9 @@ NS_SWIFT_NAME(Transport)
 
 - (void)recordLostEvent:(SentryDataCategory)category reason:(SentryDiscardReason)reason;
 
-- (void)recordLostEvent:(SentryDataCategory)category reason:(SentryDiscardReason)reason quantity:(NSUInteger)quantity;
+- (void)recordLostEvent:(SentryDataCategory)category
+                 reason:(SentryDiscardReason)reason
+               quantity:(NSUInteger)quantity;
 
 - (SentryFlushResult)flush:(NSTimeInterval)timeout;
 
