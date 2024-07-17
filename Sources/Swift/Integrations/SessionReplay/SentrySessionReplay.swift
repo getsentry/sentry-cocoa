@@ -14,9 +14,9 @@ protocol SentrySessionReplayDelegate: NSObjectProtocol {
 
 @objcMembers
 class SentrySessionReplay: NSObject {
-    private (set) var isRunning = false
-    private (set) var isFullSession = false
-    private (set) var sessionReplayId: SentryId?
+    private(set) var isRunning = false
+    private(set) var isFullSession = false
+    private(set) var sessionReplayId: SentryId?
 
     private var urlToCache: URL?
     private var rootView: UIView?
