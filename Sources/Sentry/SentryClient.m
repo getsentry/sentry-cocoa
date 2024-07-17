@@ -571,7 +571,8 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     [self.transportAdapter recordLostEvent:category reason:reason];
 }
 
-- (void)recordLostEvent:(SentryDataCategory)category reason:(SentryDiscardReason)reason quantity:(NSUInteger)quantity {
+- (void)recordLostEvent:(SentryDataCategory)category reason:(SentryDiscardReason)reason quantity:(NSUInteger)quantity
+{
     [self.transportAdapter recordLostEvent:category reason:reason quantity:quantity];
 }
 

@@ -285,6 +285,9 @@ SentryHub () <SentryMetricsAPIDelegate>
     if (decision != kSentrySampleDecisionYes) {
         [self.client recordLostEvent:kSentryDataCategoryTransaction
                               reason:kSentryDiscardReasonSampleRate];
+        [self.client recordLostEvent:kSentryDataCategorySpan
+                              reason:kSentryDiscardReasonSampleRate
+                            quantity: transaction.spans.count + 1];        
         return;
     }
 
