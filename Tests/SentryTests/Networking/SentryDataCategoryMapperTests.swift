@@ -27,9 +27,10 @@ class SentryDataCategoryMapperTests: XCTestCase {
         XCTAssertEqual(sentryDataCategoryForNSUInteger(8), .metricBucket)
         XCTAssertEqual(sentryDataCategoryForNSUInteger(9), .replay)
         XCTAssertEqual(sentryDataCategoryForNSUInteger(10), .profileChunk)
-        XCTAssertEqual(sentryDataCategoryForNSUInteger(11), .unknown)
+        XCTAssertEqual(sentryDataCategoryForNSUInteger(11), .span)
+        XCTAssertEqual(sentryDataCategoryForNSUInteger(12), .unknown)
 
-        XCTAssertEqual(.unknown, sentryDataCategoryForNSUInteger(11), "Failed to map unknown category number to case .unknown")
+        XCTAssertEqual(.unknown, sentryDataCategoryForNSUInteger(13), "Failed to map unknown category number to case .unknown")
     }
     
     func testMapStringToCategory() {
@@ -44,6 +45,7 @@ class SentryDataCategoryMapperTests: XCTestCase {
         XCTAssertEqual(sentryDataCategoryForString(kSentryDataCategoryNameProfileChunk), .profileChunk)
         XCTAssertEqual(sentryDataCategoryForString(kSentryDataCategoryNameMetricBucket), .metricBucket)
         XCTAssertEqual(sentryDataCategoryForString(kSentryDataCategoryNameReplay), .replay)
+        XCTAssertEqual(sentryDataCategoryForString(kSentryDataCategoryNameSpan), .span)
         XCTAssertEqual(sentryDataCategoryForString(kSentryDataCategoryNameUnknown), .unknown)
 
         XCTAssertEqual(.unknown, sentryDataCategoryForString("gdfagdfsa"), "Failed to map unknown category name to case .unknown")
@@ -61,6 +63,7 @@ class SentryDataCategoryMapperTests: XCTestCase {
         XCTAssertEqual(nameForSentryDataCategory(.profileChunk), kSentryDataCategoryNameProfileChunk)
         XCTAssertEqual(nameForSentryDataCategory(.metricBucket), kSentryDataCategoryNameMetricBucket)
         XCTAssertEqual(nameForSentryDataCategory(.replay), kSentryDataCategoryNameReplay)
+        XCTAssertEqual(nameForSentryDataCategory(.span), kSentryDataCategoryNameSpan)
         XCTAssertEqual(nameForSentryDataCategory(.unknown), kSentryDataCategoryNameUnknown)
     }
 }
