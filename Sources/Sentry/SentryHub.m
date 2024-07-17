@@ -287,7 +287,7 @@ SentryHub () <SentryMetricsAPIDelegate>
                               reason:kSentryDiscardReasonSampleRate];
         [self.client recordLostEvent:kSentryDataCategorySpan
                               reason:kSentryDiscardReasonSampleRate
-                            quantity: transaction.spans.count + 1];        
+                            quantity:transaction.spans.count + 1];
         return;
     }
 
