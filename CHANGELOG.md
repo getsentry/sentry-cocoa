@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-## Features
+### Features
 
 - Record dropped spans (#4172)
 
