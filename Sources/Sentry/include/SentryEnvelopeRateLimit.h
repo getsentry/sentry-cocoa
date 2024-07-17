@@ -23,7 +23,8 @@ NS_SWIFT_NAME(EnvelopeRateLimit)
 
 @protocol SentryEnvelopeRateLimitDelegate <NSObject>
 
-- (void)envelopeItemDropped:(SentryEnvelopeItem *)envelopeItem withCategory:(SentryDataCategory)dataCategory;
+- (void)envelopeItemDropped:(SentryEnvelopeItem *)envelopeItem
+               withCategory:(SentryDataCategory)dataCategory;
 
 @end
 

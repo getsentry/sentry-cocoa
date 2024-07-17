@@ -63,7 +63,7 @@ class SentryHttpTransportTests: XCTestCase {
                 children: [
                     tracer.startChild(operation: "child1"),
                     tracer.startChild(operation: "child2"),
-                    tracer.startChild(operation: "child3"),
+                    tracer.startChild(operation: "child3")
                 ]
             )
             
@@ -545,7 +545,6 @@ class SentryHttpTransportTests: XCTestCase {
         givenRateLimitResponse(forCategory: "error")
         sendEvent()
         sendEvent()
-        
         
         let actualEventRequest = fixture.requestManager.requests.last
         XCTAssertEqual(clientReportRequest.httpBody, actualEventRequest?.httpBody, "Client report not sent.")

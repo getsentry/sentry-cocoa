@@ -134,7 +134,8 @@ SENTRY_EXTERN void removeAppLaunchProfilingConfigFile(void);
 
 @protocol SentryFileManagerDelegate <NSObject>
 
-- (void)envelopeItemDeleted:(SentryEnvelopeItem *)envelopeItem withCategory:(SentryDataCategory)dataCategory;
+- (void)envelopeItemDeleted:(SentryEnvelopeItem *)envelopeItem
+               withCategory:(SentryDataCategory)dataCategory;
 
 @end
 

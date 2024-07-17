@@ -232,7 +232,8 @@ SentryHttpTransport ()
 /**
  * SentryEnvelopeRateLimitDelegate.
  */
-- (void)envelopeItemDropped:(SentryEnvelopeItem *)envelopeItem withCategory:(SentryDataCategory)dataCategory;
+- (void)envelopeItemDropped:(SentryEnvelopeItem *)envelopeItem
+               withCategory:(SentryDataCategory)dataCategory;
 {
     [self recordLostEvent:dataCategory reason:kSentryDiscardReasonRateLimitBackoff];
     [self recordLostSpans:envelopeItem reason:kSentryDiscardReasonRateLimitBackoff];
@@ -241,7 +242,8 @@ SentryHttpTransport ()
 /**
  * SentryFileManagerDelegate.
  */
-- (void)envelopeItemDeleted:(SentryEnvelopeItem *)envelopeItem withCategory:(SentryDataCategory)dataCategory
+- (void)envelopeItemDeleted:(SentryEnvelopeItem *)envelopeItem
+               withCategory:(SentryDataCategory)dataCategory
 {
     [self recordLostEvent:dataCategory reason:kSentryDiscardReasonCacheOverflow];
     [self recordLostSpans:envelopeItem reason:kSentryDiscardReasonCacheOverflow];
@@ -402,9 +404,11 @@ SentryHttpTransport ()
     }
 }
 
-- (void)recordLostSpans:(SentryEnvelopeItem *)envelopeItem reason:(SentryDiscardReason)reason {
-    if ([SentryEnvelopeItemTypeTransaction isEqual: envelopeItem.header.type]) {
-        NSDictionary *transactionJson = [SentrySerialization deserializeEventEnvelopeItem:envelopeItem.data];
+- (void)recordLostSpans:(SentryEnvelopeItem *)envelopeItem reason:(SentryDiscardReason)reason
+{
+    if ([SentryEnvelopeItemTypeTransaction isEqual:envelopeItem.header.type]) {
+        NSDictionary *transactionJson =
+            [SentrySerialization deserializeEventEnvelopeItem:envelopeItem.data];
         if (transactionJson == nil) {
             return;
         }
@@ -412,9 +416,7 @@ SentryHttpTransport ()
         if (spans == nil) {
             return;
         }
-        [self recordLostEvent:kSentryDataCategorySpan 
-                       reason:reason
-                     quantity:spans.count + 1];
+        [self recordLostEvent:kSentryDataCategorySpan reason:reason quantity:spans.count + 1];
     }
 }
 
