@@ -14,8 +14,8 @@ NSString *const kSentryDataCategoryNameProfile = @"profile";
 NSString *const kSentryDataCategoryNameProfileChunk = @"profile_chunk";
 NSString *const kSentryDataCategoryNameReplay = @"replay";
 NSString *const kSentryDataCategoryNameMetricBucket = @"metric_bucket";
-NSString *const kSentryDataCategoryNameUnknown = @"unknown";
 NSString *const kSentryDataCategoryNameSpan = @"span";
+NSString *const kSentryDataCategoryNameUnknown = @"unknown";
 
 NS_ASSUME_NONNULL_BEGIN
 
