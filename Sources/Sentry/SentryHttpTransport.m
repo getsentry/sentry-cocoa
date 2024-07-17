@@ -1,5 +1,6 @@
 #import "SentryHttpTransport.h"
 #import "SentryClientReport.h"
+#import "SentryDataCategory.h"
 #import "SentryDataCategoryMapper.h"
 #import "SentryDependencyContainer.h"
 #import "SentryDiscardReasonMapper.h"
@@ -231,17 +232,19 @@ SentryHttpTransport ()
 /**
  * SentryEnvelopeRateLimitDelegate.
  */
-- (void)envelopeItemDropped:(SentryDataCategory)dataCategory
+- (void)envelopeItemDropped:(SentryEnvelopeItem *)envelopeItem withCategory:(SentryDataCategory)dataCategory;
 {
     [self recordLostEvent:dataCategory reason:kSentryDiscardReasonRateLimitBackoff];
+    [self recordLostSpans:envelopeItem reason:kSentryDiscardReasonRateLimitBackoff];
 }
 
 /**
  * SentryFileManagerDelegate.
  */
-- (void)envelopeItemDeleted:(SentryDataCategory)dataCategory
+- (void)envelopeItemDeleted:(SentryEnvelopeItem *)envelopeItem withCategory:(SentryDataCategory)dataCategory
 {
     [self recordLostEvent:dataCategory reason:kSentryDiscardReasonCacheOverflow];
+    [self recordLostSpans:envelopeItem reason:kSentryDiscardReasonCacheOverflow];
 }
 
 #pragma mark private methods
@@ -395,6 +398,23 @@ SentryHttpTransport ()
         }
         SentryDataCategory category = sentryDataCategoryForEnvelopItemType(itemType);
         [self recordLostEvent:category reason:kSentryDiscardReasonNetworkError];
+        [self recordLostSpans:item reason:kSentryDiscardReasonNetworkError];
+    }
+}
+
+- (void)recordLostSpans:(SentryEnvelopeItem *)envelopeItem reason:(SentryDiscardReason)reason {
+    if ([SentryEnvelopeItemTypeTransaction isEqual: envelopeItem.header.type]) {
+        NSDictionary *transactionJson = [SentrySerialization deserializeEventEnvelopeItem:envelopeItem.data];
+        if (transactionJson == nil) {
+            return;
+        }
+        NSArray *spans = transactionJson[@"spans"];
+        if (spans == nil) {
+            return;
+        }
+        [self recordLostEvent:kSentryDataCategorySpan 
+                       reason:reason
+                     quantity:spans.count + 1];
     }
 }
 

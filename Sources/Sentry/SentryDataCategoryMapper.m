@@ -49,8 +49,6 @@ sentryDataCategoryForEnvelopItemType(NSString *itemType)
         return kSentryDataCategoryMetricBucket;
     }
 
-    // TODO: Mapping needed here?
-
     return kSentryDataCategoryDefault;
 }
 
