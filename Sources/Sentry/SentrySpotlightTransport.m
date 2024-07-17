@@ -102,7 +102,10 @@ SentrySpotlightTransport ()
     // Empty on purpose
 }
 
-- (void)recordLostEvent:(SentryDataCategory)category reason:(SentryDiscardReason)reason quantity:(NSUInteger)quantity { 
+- (void)recordLostEvent:(SentryDataCategory)category
+                 reason:(SentryDiscardReason)reason
+               quantity:(NSUInteger)quantity
+{
     // Empty on purpose
 }
 

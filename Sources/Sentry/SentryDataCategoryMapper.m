@@ -48,9 +48,9 @@ sentryDataCategoryForEnvelopItemType(NSString *itemType)
     if ([itemType isEqualToString:SentryEnvelopeItemTypeStatsd]) {
         return kSentryDataCategoryMetricBucket;
     }
-    
+
     // TODO: Mapping needed here?
-    
+
     return kSentryDataCategoryDefault;
 }
 

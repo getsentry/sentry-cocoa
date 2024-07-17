@@ -1314,7 +1314,7 @@ class SentryClientTest: XCTestCase {
             ]
         )
         
-        let numberOfSpansDropped: UInt = 2;
+        let numberOfSpansDropped: UInt = 2
         var dropped: UInt = 0
         fixture.getSut(configureOptions: { options in
             options.beforeSendSpan = { span in

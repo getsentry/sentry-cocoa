@@ -102,7 +102,10 @@ SentryTransportAdapter ()
     }
 }
 
-- (void)recordLostEvent:(SentryDataCategory)category reason:(SentryDiscardReason)reason quantity:(NSUInteger)quantity {
+- (void)recordLostEvent:(SentryDataCategory)category
+                 reason:(SentryDiscardReason)reason
+               quantity:(NSUInteger)quantity
+{
     for (id<SentryTransport> transport in self.transports) {
         [transport recordLostEvent:category reason:reason quantity:quantity];
     }
