@@ -414,7 +414,7 @@ SentryHttpTransport ()
         }
         NSArray *spans = transactionJson[@"spans"];
         if (spans == nil) {
-            return;
+            spans = [NSArray new];
         }
         [self recordLostEvent:kSentryDataCategorySpan reason:reason quantity:spans.count + 1];
     }
