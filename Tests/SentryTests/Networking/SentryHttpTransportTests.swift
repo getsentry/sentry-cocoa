@@ -2,6 +2,7 @@
 import SentryTestUtils
 import XCTest
 
+// swiftlint:disable file_length
 class SentryHttpTransportTests: XCTestCase {
 
     private static let dsnAsString = TestConstants.dsnAsString(username: "SentryHttpTransportTests")
@@ -1082,3 +1083,4 @@ class SentryHttpTransportTests: XCTestCase {
         XCTAssertEqual(0, dict?.count)
     }
 }
+// swiftlint:enable file_length
