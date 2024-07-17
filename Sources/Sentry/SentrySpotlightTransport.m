@@ -96,7 +96,6 @@ SentrySpotlightTransport ()
     // Empty on purpose
 }
 
-
 - (void)recordLostEvent:(SentryDataCategory)category
                  reason:(SentryDiscardReason)reason
                quantity:(NSUInteger)quantity
