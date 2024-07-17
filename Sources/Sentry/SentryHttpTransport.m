@@ -406,7 +406,7 @@ SentryHttpTransport ()
 
 - (void)recordLostSpans:(SentryEnvelopeItem *)envelopeItem reason:(SentryDiscardReason)reason
 {
-    if ([SentryEnvelopeItemTypeTransaction isEqual:envelopeItem.header.type]) {
+    if ([SentryEnvelopeItemTypeTransaction isEqualToString:envelopeItem.header.type]) {
         NSDictionary *transactionJson =
             [SentrySerialization deserializeEventEnvelopeItem:envelopeItem.data];
         if (transactionJson == nil) {
