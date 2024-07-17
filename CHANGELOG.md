@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+## Features
+
+- Record dropped spans (#4172)
+
 ## 8.31.1
 
 ### Fixes
