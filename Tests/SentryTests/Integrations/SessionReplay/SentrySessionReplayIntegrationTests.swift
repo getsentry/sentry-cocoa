@@ -206,7 +206,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         
         let replayInfo = try XCTUnwrap(hub.capturedReplayRecordingVideo.first)
         XCTAssertEqual(replayInfo.replay.replayType, SentryReplayType.session)
-        XCTAssertEqual(replayInfo.recording.segmentId,2)
+        XCTAssertEqual(replayInfo.recording.segmentId, 2)
         XCTAssertEqual(replayInfo.replay.replayStartTimestamp, Date(timeIntervalSinceReferenceDate: 5))
     }
     
@@ -233,15 +233,15 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         
         let replayInfo = try XCTUnwrap(hub.capturedReplayRecordingVideo.first)
         XCTAssertEqual(replayInfo.replay.replayType, SentryReplayType.buffer)
-        XCTAssertEqual(replayInfo.recording.segmentId,0)
+        XCTAssertEqual(replayInfo.recording.segmentId, 0)
         XCTAssertEqual(replayInfo.replay.replayStartTimestamp, Date(timeIntervalSinceReferenceDate: 5))
     }
     
-    func createLastSessionReplay(writeSessionInfo : Bool = true) throws {
+    func createLastSessionReplay(writeSessionInfo: Bool = true) throws {
         let replayFolder = SentryDependencyContainer.sharedInstance().fileManager.sentryPath + "/replay"
         let jsonPath = replayFolder + "/lastreplay"
         var sessionFolder = UUID().uuidString
-        let info : [String: Any] = ["replayId": SentryId().sentryIdString,
+        let info: [String: Any] = ["replayId": SentryId().sentryIdString,
                                     "path": sessionFolder,
                                     "errorSampleRate": 1]
         let data = SentrySerialization.data(withJSONObject: info)
@@ -249,7 +249,6 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         
         sessionFolder = "\(replayFolder)/\(sessionFolder)"
         try FileManager.default.createDirectory(atPath: sessionFolder, withIntermediateDirectories: true)
-        
                
         for i in 5...9 {
             let image = UIImage.add.jpegData(compressionQuality: 1)
