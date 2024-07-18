@@ -49,9 +49,8 @@ public class TestHub: SentryHub {
         capturedTransactionsWithScope.record((transaction.serialize(), scope))
         super.capture(transaction, with: scope)
     }
-    
-    
-    public var onReplayCapture: (()->Void)?
+
+    public var onReplayCapture: (() -> Void)?
     public var capturedReplayRecordingVideo = Invocations<(replay: SentryReplayEvent, recording: SentryReplayRecording, video: URL)>()
     public override func capture(_ replayEvent: SentryReplayEvent, replayRecording: SentryReplayRecording, video videoURL: URL) {
         capturedReplayRecordingVideo.record((replayEvent, replayRecording, videoURL))
