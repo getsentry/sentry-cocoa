@@ -1720,6 +1720,16 @@ class SentryClientTest: XCTestCase {
         XCTAssertNil(replayEvent.threads)
         XCTAssertNil(replayEvent.debugMeta)
     }
+    
+    func testCaptureCrashEventSetReplayInScope() {
+        let sut = fixture.getSut()
+        let event = Event()
+        event.isCrashEvent = true
+        let scope = Scope()
+        event.context = ["replay": ["replay_id": "someReplay"]]
+        sut.captureCrash(event, with: SentrySession(releaseName: "", distinctId: ""), with: scope)
+        XCTAssertEqual(scope.replayId, "someReplay")
+    }
 }
 
 private extension SentryClientTest {
