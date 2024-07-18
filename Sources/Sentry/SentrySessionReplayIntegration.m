@@ -117,23 +117,24 @@ SentrySessionReplayIntegration ()
     }
 
     NSError *replayError = nil;
-    
-    [_resumeReplayMaker createVideoWithBeginning:beginning
-                                             end:[beginning dateByAddingTimeInterval:duration]
-                                   outputFileURL:[lastReplayURL URLByAppendingPathComponent:@"lastVideo.mp4"]
-                                           error:&replayError
-                                      completion:^(SentryVideoInfo *video, NSError *error) {
-        if (error != nil) {
-            SENTRY_LOG_ERROR(@"Could not create replay video: %@", error);
-        } else {
-            [self captureVideo:video
-                      replayId:replayId
-                     segmentId:segmentId
-                          type:type];
-        }
-        self->_resumeReplayMaker = nil;
-    }];
-    
+
+    [_resumeReplayMaker
+        createVideoWithBeginning:beginning
+                             end:[beginning dateByAddingTimeInterval:duration]
+                   outputFileURL:[lastReplayURL URLByAppendingPathComponent:@"lastVideo.mp4"]
+                           error:&replayError
+                      completion:^(SentryVideoInfo *video, NSError *error) {
+                          if (error != nil) {
+                              SENTRY_LOG_ERROR(@"Could not create replay video: %@", error);
+                          } else {
+                              [self captureVideo:video
+                                        replayId:replayId
+                                       segmentId:segmentId
+                                            type:type];
+                          }
+                          self->_resumeReplayMaker = nil;
+                      }];
+
     if (replayError != nil) {
         SENTRY_LOG_ERROR(@"Could not create replay video: %@", replayError);
     } else {
