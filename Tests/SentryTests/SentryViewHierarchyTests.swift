@@ -156,8 +156,9 @@ class SentryViewHierarchyTests: XCTestCase {
         fixture.uiApplication.windows = [window]
 
         let path = FileManager.default.temporaryDirectory.appendingPathComponent("view.json").path
-        self.fixture.sut.reportAccessibilityIdentifier = false
-        self.fixture.sut.save(path)
+        let sut = self.fixture.sut
+        sut.reportAccessibilityIdentifier = false
+        sut.save(path)
 
         let descriptions = (try? String(contentsOfFile: path)) ?? ""
 
