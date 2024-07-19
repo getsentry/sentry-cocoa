@@ -119,7 +119,8 @@ writeJSONDataToMemory(const char *const data, const int length, void *const user
     tryJson(sentrycrashjson_addStringElement(
         context, "type", viewClassName, SentryCrashJSON_SIZE_AUTOMATIC));
 
-    if (self.reportAccessibilityIdentifier && view.accessibilityIdentifier && view.accessibilityIdentifier.length != 0) {
+    if (self.reportAccessibilityIdentifier && view.accessibilityIdentifier
+        && view.accessibilityIdentifier.length != 0) {
         tryJson(sentrycrashjson_addStringElement(context, "identifier",
             view.accessibilityIdentifier.UTF8String, SentryCrashJSON_SIZE_AUTOMATIC));
     }

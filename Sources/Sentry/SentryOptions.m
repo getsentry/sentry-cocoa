@@ -416,7 +416,7 @@ NSString *const kSentryDefaultEnvironment = @"production";
 
     [self setBool:options[@"attachViewHierarchy"]
             block:^(BOOL value) { self->_attachViewHierarchy = value; }];
-    
+
     [self setBool:options[@"reportAccessibilityIdentifier"]
             block:^(BOOL value) { self->_reportAccessibilityIdentifier = value; }];
 
