@@ -40,6 +40,7 @@ saveViewHierarchy(const char *reportDirectoryPath)
 
     sentrycrash_setSaveViewHierarchy(&saveViewHierarchy);
 
+    SentryDependencyContainer.sharedInstance.viewHierarchy.reportAccessibilityIdentifier = options.reportAccessibilityIdentifier;
     return YES;
 }
 

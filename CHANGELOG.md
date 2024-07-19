@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+- Add `reportAccessibilityIdentifier` option ()
+
 ## 8.31.1
 
 ### Fixes

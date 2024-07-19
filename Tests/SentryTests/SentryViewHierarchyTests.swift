@@ -148,6 +148,21 @@ class SentryViewHierarchyTests: XCTestCase {
 
         XCTAssertEqual(descriptions, "{\"rendering_system\":\"UIKIT\",\"windows\":[{\"type\":\"UIWindow\",\"identifier\":\"WindowId\",\"width\":10,\"height\":10,\"x\":0,\"y\":0,\"alpha\":1,\"visible\":false,\"children\":[]}]}")
     }
+    
+    func test_ViewHierarchy_save_noIdentifier() {
+        let window = UIWindow(frame: CGRect(x: 0, y: 0, width: 10, height: 10))
+        window.accessibilityIdentifier = "WindowId"
+
+        fixture.uiApplication.windows = [window]
+
+        let path = FileManager.default.temporaryDirectory.appendingPathComponent("view.json").path
+        self.fixture.sut.reportAccessibilityIdentifier = false
+        self.fixture.sut.save(path)
+
+        let descriptions = (try? String(contentsOfFile: path)) ?? ""
+
+        XCTAssertEqual(descriptions, "{\"rendering_system\":\"UIKIT\",\"windows\":[{\"type\":\"UIWindow\",\"width\":10,\"height\":10,\"x\":0,\"y\":0,\"alpha\":1,\"visible\":false,\"children\":[]}]}")
+    }
 
     func test_invalidFilePath() {
         let window = UIWindow(frame: CGRect(x: 0, y: 0, width: 10, height: 10))

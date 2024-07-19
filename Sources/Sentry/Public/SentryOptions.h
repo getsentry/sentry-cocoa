@@ -279,6 +279,15 @@ NS_SWIFT_NAME(Options)
 @property (nonatomic, assign) BOOL attachViewHierarchy;
 
 /**
+ * @brief If enabled, view hierarchy attachment will containt view `accessibilityIdentifier`.
+ * Set it to @c NO if your project uses `accessibilityIdentifier` for PII.
+ * @warning This feature is not available in @c DebugWithoutUIKit and @c ReleaseWithoutUIKit
+ * configurations even when targeting iOS or tvOS platforms.
+ * @note Default value is @c YES.
+ */
+@property (nonatomic, assign) BOOL reportAccessibilityIdentifier;
+
+/**
  * When enabled, the SDK creates transactions for UI events like buttons clicks, switch toggles,
  * and other ui elements that uses UIControl @c sendAction:to:forEvent:
  * @warning This feature is not available in @c DebugWithoutUIKit and @c ReleaseWithoutUIKit
