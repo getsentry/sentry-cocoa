@@ -957,7 +957,6 @@
     XCTAssertEqual(options.tracesSampleRate.doubleValue, 0.5);
 }
 
-
 - (void)testChanging_tracesSampler_afterSetting_enableTracing
 {
     SentryTracesSamplerCallback sampler
