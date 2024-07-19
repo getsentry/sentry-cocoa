@@ -4,7 +4,7 @@
 
 ### Features
 
-- Add `reportAccessibilityIdentifier` option ()
+- Add `reportAccessibilityIdentifier` option (#4183)
 
 ## 8.31.1
 
