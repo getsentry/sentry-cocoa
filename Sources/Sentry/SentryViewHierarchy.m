@@ -29,6 +29,13 @@ writeJSONDataToMemory(const char *const data, const int length, void *const user
 
 @implementation SentryViewHierarchy
 
+- (instancetype)init {
+    if (self = [super init]) {
+        self.reportAccessibilityIdentifier = YES;
+    }
+    return self;
+}
+
 - (BOOL)saveViewHierarchy:(NSString *)filePath
 {
     NSArray<UIWindow *> *windows = [SentryDependencyContainer.sharedInstance.application windows];
