@@ -29,7 +29,8 @@ writeJSONDataToMemory(const char *const data, const int length, void *const user
 
 @implementation SentryViewHierarchy
 
-- (instancetype)init {
+- (instancetype)init
+{
     if (self = [super init]) {
         self.reportAccessibilityIdentifier = YES;
     }
