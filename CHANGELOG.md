@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Deprecated
+
+- options.enableTracing was deprecated. Use options.tracesSampleRate or options.tracesSampler instead. ()
+
 ## 8.31.1
 
 ### Fixes

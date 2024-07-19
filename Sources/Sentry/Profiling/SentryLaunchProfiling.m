@@ -59,7 +59,8 @@ sentry_shouldProfileNextLaunch(SentryOptions *options)
     if (options.enableAppLaunchProfiling && [options isContinuousProfilingEnabled]) {
         return (SentryLaunchProfileConfig) { YES, nil, nil };
     }
-
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     BOOL shouldProfileNextLaunch = options.enableAppLaunchProfiling && options.enableTracing;
     if (!shouldProfileNextLaunch) {
         SENTRY_LOG_DEBUG(@"Won't profile next launch due to specified options configuration: "
@@ -67,7 +68,7 @@ sentry_shouldProfileNextLaunch(SentryOptions *options)
             options.enableAppLaunchProfiling, options.enableTracing);
         return (SentryLaunchProfileConfig) { NO, nil, nil };
     }
-
+#pragma clang diagnostic pop
     SentryTransactionContext *transactionContext =
         [[SentryTransactionContext alloc] initWithName:@"app.launch" operation:@"profile"];
     transactionContext.forNextAppLaunch = YES;

@@ -659,7 +659,10 @@
     XCTAssertEqual(options.experimental.sessionReplay.errorSampleRate, 0);
     XCTAssertEqual(options.experimental.sessionReplay.sessionSampleRate, 0);
 #endif // SENTRY_HAS_UIKIT
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     XCTAssertFalse(options.enableTracing);
+#pragma clang diagnostic pop
     XCTAssertTrue(options.enableAppHangTracking);
     XCTAssertEqual(options.appHangTimeoutInterval, 2);
     XCTAssertEqual(YES, options.enableNetworkTracking);
@@ -909,6 +912,8 @@
     XCTAssertEqualObjects(expected, options.swizzleClassNameExcludes);
 }
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
 - (void)testEnableTracing
 {
     SentryOptions *options = [self getValidOptions:@{ @"enableTracing" : @YES }];
@@ -952,6 +957,7 @@
     XCTAssertEqual(options.tracesSampleRate.doubleValue, 0.5);
 }
 
+
 - (void)testChanging_tracesSampler_afterSetting_enableTracing
 {
     SentryTracesSamplerCallback sampler
@@ -976,6 +982,7 @@
     XCTAssertEqual(options.tracesSampleRate.doubleValue, 0.1);
     XCTAssertTrue(options.enableTracing);
 }
+#pragma clang diagnostic pop
 
 - (void)testDefaultTracesSampleRate
 {
@@ -1028,6 +1035,8 @@
     return 0.1;
 }
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
 - (void)testTracesSampler
 {
     SentryTracesSamplerCallback sampler = ^(SentrySamplingContext *context) {
@@ -1041,6 +1050,7 @@
     XCTAssertEqual(options.tracesSampler(context), @1.0);
     XCTAssertTrue(options.enableTracing);
 }
+#pragma clang diagnostic pop
 
 - (void)testDefaultTracesSampler
 {
