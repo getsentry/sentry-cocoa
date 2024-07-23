@@ -10,6 +10,7 @@ NS_ASSUME_NONNULL_BEGIN
 @class SentryDispatchQueueWrapper;
 @class SentryEvent;
 @class SentryEnvelope;
+@class SentryEnvelopeItem;
 @class SentryFileContents;
 @class SentryOptions;
 @class SentrySession;
@@ -133,7 +134,8 @@ SENTRY_EXTERN void removeAppLaunchProfilingConfigFile(void);
 
 @protocol SentryFileManagerDelegate <NSObject>
 
-- (void)envelopeItemDeleted:(SentryDataCategory)dataCategory;
+- (void)envelopeItemDeleted:(SentryEnvelopeItem *)envelopeItem
+               withCategory:(SentryDataCategory)dataCategory;
 
 @end
 

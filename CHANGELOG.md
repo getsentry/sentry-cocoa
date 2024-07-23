@@ -5,6 +5,7 @@
 ### Features
 
 - Replay for crashes (#4171)
+- Record dropped spans (#4172)
 
 ### Fixes
 
