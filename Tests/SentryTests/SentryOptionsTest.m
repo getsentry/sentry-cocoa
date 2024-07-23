@@ -459,11 +459,15 @@
         @"Default integrations are not set correctly");
 }
 
-- (void)testSentryCrashIntegrationIsFirst
+#if SENTRY_HAS_UIKIT
+- (void)testIntegrationOrder
 {
     XCTAssertEqualObjects(SentryOptions.defaultIntegrations.firstObject,
-        NSStringFromClass([SentryCrashIntegration class]));
+        NSStringFromClass([SentrySessionReplayIntegration class]));
+    XCTAssertEqualObjects(
+        SentryOptions.defaultIntegrations[1], NSStringFromClass([SentryCrashIntegration class]));
 }
+#endif
 
 - (void)testSampleRateWithDict
 {

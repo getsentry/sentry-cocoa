@@ -136,8 +136,8 @@ class SentrySessionReplayTests: XCTestCase {
         view.frame = CGRect(x: 0, y: 0, width: 320, height: 900)
         sut.start(rootView: fixture.rootView, fullSession: true)
         
-        XCTAssertEqual(Int(320 * options.sizeScale), fixture.replayMaker.videoWidth)
-        XCTAssertEqual(Int(900 * options.sizeScale), fixture.replayMaker.videoHeight)
+        XCTAssertEqual(320, fixture.replayMaker.videoWidth)
+        XCTAssertEqual(900, fixture.replayMaker.videoHeight)
     }
     
     func testSentReplay_FullSession() {

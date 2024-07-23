@@ -110,7 +110,7 @@ class SentryOnDemandReplayTests: XCTestCase {
         
         group.wait()
         queue.queue.sync {} //Wait for all enqueued operation to finish
-        XCTAssertEqual(sut.frames.map({ ($0.imagePath as NSString).lastPathComponent }), (0..<10).map { "\($0).png" })
+        XCTAssertEqual(sut.frames.map({ ($0.imagePath as NSString).lastPathComponent }), (0..<10).map { "\($0).0.png" })
     }
     
     func testReleaseIsThreadSafe() {

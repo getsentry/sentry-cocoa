@@ -687,7 +687,7 @@ class SentryClientTest: XCTestCase {
             try assertValidErrorEvent(eventWithSessionArguments.event, error)
             XCTAssertEqual(fixture.session, eventWithSessionArguments.session)
             
-            let expectedTraceContext = SentryTraceContext(trace: scope.propagationContext.traceId, options: Options(), userSegment: "segment") 
+            let expectedTraceContext = SentryTraceContext(trace: scope.propagationContext.traceId, options: Options(), userSegment: "segment", replayId: nil) 
             XCTAssertEqual(eventWithSessionArguments.traceContext?.traceId,
                            expectedTraceContext.traceId)
         }
@@ -1719,6 +1719,16 @@ class SentryClientTest: XCTestCase {
         XCTAssertNil(replayEvent.breadcrumbs)
         XCTAssertNil(replayEvent.threads)
         XCTAssertNil(replayEvent.debugMeta)
+    }
+    
+    func testCaptureCrashEventSetReplayInScope() {
+        let sut = fixture.getSut()
+        let event = Event()
+        event.isCrashEvent = true
+        let scope = Scope()
+        event.context = ["replay": ["replay_id": "someReplay"]]
+        sut.captureCrash(event, with: SentrySession(releaseName: "", distinctId: ""), with: scope)
+        XCTAssertEqual(scope.replayId, "someReplay")
     }
 }
 

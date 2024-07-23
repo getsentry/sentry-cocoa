@@ -5,6 +5,9 @@
 ### Fixes
 
 - Session replay crash when writing the replay (#4186)
+### Features
+
+- Replay for crashes (#4171)
 
 ## 8.31.1
 
