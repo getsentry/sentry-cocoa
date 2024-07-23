@@ -90,6 +90,7 @@ to receive SIGTERM events, set the option `enableSigtermReporting = true`.
 
 ### Improvements
 
+- Include frame addresses in SentryFrame when possible ([#3994](https://github.com/getsentry/sentry-cocoa/pull/3994))
 - Stop FramesTracker when app is in background (#3979)
 - Speed up adding breadcrumbs (#4029, #4034)
 - Skip evaluating log messages when not logged (#4028)

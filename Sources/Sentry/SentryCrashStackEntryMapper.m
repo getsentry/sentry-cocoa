@@ -35,6 +35,10 @@ SentryCrashStackEntryMapper ()
 
     frame.instructionAddress = sentry_formatHexAddressUInt64(stackEntry.address);
 
+    if (stackEntry.frameAddress != 0) {
+        frame.frameAddress = sentry_formatHexAddressUInt64(stackEntry.frameAddress);
+    }
+
     if (stackEntry.symbolName != NULL) {
         frame.function = [NSString stringWithCString:stackEntry.symbolName
                                             encoding:NSUTF8StringEncoding];

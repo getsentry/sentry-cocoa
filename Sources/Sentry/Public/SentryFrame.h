@@ -49,6 +49,11 @@ NS_SWIFT_NAME(Frame)
 @property (nonatomic, copy) NSString *_Nullable instructionAddress;
 
 /**
+ * Address of the frame pointer.
+ */
+@property (nonatomic, copy) NSString *_Nullable frameAddress;
+
+/**
  * InstructionAddress of the frame
  */
 @property (nonatomic) NSUInteger instruction;
