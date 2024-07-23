@@ -14,7 +14,6 @@ protocol SentrySessionReplayDelegate: NSObjectProtocol {
 
 @objcMembers
 class SentrySessionReplay: NSObject {
-    private(set) var isRunning = false
     private(set) var isFullSession = false
     private(set) var sessionReplayId: SentryId?
 
@@ -35,6 +34,10 @@ class SentrySessionReplay: NSObject {
     private let dateProvider: SentryCurrentDateProvider
     private let touchTracker: SentryTouchTracker?
     private let lock = NSLock()
+    
+    var isRunning: Bool {
+        displayLink.isRunning()
+    }
     
     var screenshotProvider: SentryViewScreenshotProvider
     var breadcrumbConverter: SentryReplayBreadcrumbConverter
@@ -61,17 +64,7 @@ class SentrySessionReplay: NSObject {
     }
 
     func start(rootView: UIView, fullSession: Bool) {
-        guard !isRunning else { return }
-        
-        lock.lock()
-        guard !isRunning else {
-            lock.unlock()
-            return
-        }
         displayLink.link(withTarget: self, selector: #selector(newFrame(_:)))
-        isRunning = true
-        lock.unlock()
-        
         self.rootView = rootView
         lastScreenShot = dateProvider.date()
         videoSegmentStart = nil
@@ -94,12 +87,7 @@ class SentrySessionReplay: NSObject {
     }
 
     func stop() {
-        lock.lock()
-        defer { lock.unlock() }
-        guard isRunning else { return }
-        
         displayLink.invalidate()
-        isRunning = false
         prepareSegmentUntil(date: dateProvider.date())
     }
 
@@ -112,7 +100,6 @@ class SentrySessionReplay: NSObject {
         
         videoSegmentStart = nil
         displayLink.link(withTarget: self, selector: #selector(newFrame(_:)))
-        isRunning = true
     }
 
     deinit {
