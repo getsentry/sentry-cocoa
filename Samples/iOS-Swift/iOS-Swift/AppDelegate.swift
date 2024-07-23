@@ -164,7 +164,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         if ProcessInfo.processInfo.arguments.contains("--io.sentry.wipe-data") {
             removeAppData()
         }
-        AppDelegate.startSentry()
+        if !ProcessInfo.processInfo.arguments.contains("--skip-sentry-init") {
+            AppDelegate.startSentry()
+        }
         
         randomDistributionTimer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { _ in
             let random = Double.random(in: 0..<1_000)
