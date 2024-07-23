@@ -137,5 +137,26 @@ class SentryOnDemandReplayTests: XCTestCase {
         XCTAssertEqual(sut.frames.count, 0)
     }
     
+    func testInvalidWriter() {
+        let queue = SentryDispatchQueueWrapper()
+        let sut = SentryOnDemandReplay(outputPath: outputPath.path,
+                                       workingQueue: queue,
+                                       dateProvider: dateProvider)
+        let expect = expectation(description: "Video render")
+        
+        let start = dateProvider.date()
+        sut.addFrameAsync(image: UIImage.add)
+        dateProvider.advance(by: 1)
+        let end = dateProvider.date()
+        
+        try? sut.createVideoWith(beginning: start, end: end, outputFileURL: URL(fileURLWithPath: "/invalidPath/video.mp3")) { _, error in
+            XCTAssertNotNil(error)
+            XCTAssertEqual(error as? SentryOnDemandReplayError, SentryOnDemandReplayError.assetWriterNotReady)
+            expect.fulfill()
+        }
+        
+        wait(for: [expect], timeout: 1)
+    }
+    
 }
 #endif

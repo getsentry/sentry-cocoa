@@ -14,13 +14,13 @@ xcuitest:
 suites:
   - name: "High-end device"
     devices:
-      - name: "iPad Pro 12.9 2021"
-        platformVersion: "15"
+      - name: "iPad Pro 11 2024"
+        platformVersion: "17"
   - name: "Mid-range device"
+    devices:
+      - name: "iPhone 13 Mini"
+        platformVersion: "17"
+  - name: "Low-end device"
     devices:
       - name: "iPhone 8"
         platformVersion: "14"
-  - name: "Low-end device"
-    devices:
-      - name: "iPhone 6S"
-        platformVersion: "15"

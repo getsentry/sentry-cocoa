@@ -6,6 +6,10 @@
 
 - Replay for crashes (#4171)
 
+### Fixes
+
+- Session replay crash when writing the replay (#4186)
+
 ## 8.31.1
 
 ### Fixes
