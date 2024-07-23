@@ -365,7 +365,7 @@ SentryFileManager ()
                 continue;
             }
 
-            [_delegate envelopeItemDeleted:rateLimitCategory];
+            [_delegate envelopeItemDeleted:item withCategory:rateLimitCategory];
         }
 
         [self removeFileAtPath:envelopeFilePath];

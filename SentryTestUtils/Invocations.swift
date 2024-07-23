@@ -41,6 +41,15 @@ public class Invocations<T> {
         }
     }
     
+    public func get(_ index: Int) -> T? {
+        return queue.sync {
+            guard self._invocations.indices.contains(index) else {
+                return nil
+            }
+            return self._invocations[index]
+        }
+    }
+    
     public func record(_ invocation: T) {
         queue.async {
             self._invocations.append(invocation)
