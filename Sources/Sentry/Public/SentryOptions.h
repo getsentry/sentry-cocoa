@@ -334,7 +334,8 @@ NS_SWIFT_NAME(Options)
  * @c tracesSampler are @c nil. Changing either @c tracesSampleRate or @c tracesSampler to a value
  * other then @c nil will enable this in case this was never changed before.
  */
-@property (nonatomic) BOOL enableTracing;
+@property (nonatomic)
+    BOOL enableTracing DEPRECATED_MSG_ATTRIBUTE("Use tracesSampleRate or tracesSampler instead");
 
 /**
  * Indicates the percentage of the tracing data that is collected.
@@ -360,8 +361,8 @@ NS_SWIFT_NAME(Options)
 
 /**
  * If tracing is enabled or not.
- * @discussion @c YES if @c enabledTracing is @c YES and @c tracesSampleRate
- * is > @c 0 and \<= @c 1 or a @c tracesSampler is set, otherwise @c NO.
+ * @discussion @c YES if @c tracesSampleRateis > @c 0 and \<= @c 1
+ * or a @c tracesSampler is set, otherwise @c NO.
  */
 @property (nonatomic, assign, readonly) BOOL isTracingEnabled;
 

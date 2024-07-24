@@ -10,6 +10,10 @@
 
 - Session replay crash when writing the replay (#4186)
 
+### Deprecated
+
+- options.enableTracing was deprecated. Use options.tracesSampleRate or options.tracesSampler instead. (#4182)
+
 ## 8.31.1
 
 ### Fixes
