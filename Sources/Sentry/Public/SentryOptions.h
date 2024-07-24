@@ -279,7 +279,7 @@ NS_SWIFT_NAME(Options)
 @property (nonatomic, assign) BOOL attachViewHierarchy;
 
 /**
- * @brief If enabled, view hierarchy attachment will containt view `accessibilityIdentifier`.
+ * @brief If enabled, view hierarchy attachment will contain view `accessibilityIdentifier`.
  * Set it to @c NO if your project uses `accessibilityIdentifier` for PII.
  * @warning This feature is not available in @c DebugWithoutUIKit and @c ReleaseWithoutUIKit
  * configurations even when targeting iOS or tvOS platforms.
