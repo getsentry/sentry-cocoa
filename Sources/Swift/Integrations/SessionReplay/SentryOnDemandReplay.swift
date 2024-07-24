@@ -61,13 +61,18 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
         
     convenience init(withContentFrom outputPath: String, workingQueue: SentryDispatchQueueWrapper, dateProvider: SentryCurrentDateProvider) {
         self.init(outputPath: outputPath, workingQueue: workingQueue, dateProvider: dateProvider)
-        guard let content = try? FileManager.default.contentsOfDirectory(atPath: outputPath) else { return }
         
-        _frames = content.compactMap {
-            guard $0.hasSuffix(".png") else { return SentryReplayFrame?.none }
-            guard let time = Double($0.dropLast(4)) else { return nil }
-            return SentryReplayFrame(imagePath: "\(outputPath)/\($0)", time: Date(timeIntervalSinceReferenceDate: time), screenName: nil)
-        }.sorted { $0.time < $1.time }
+        do {
+            let content = try FileManager.default.contentsOfDirectory(atPath: outputPath)
+            _frames = content.compactMap {
+                guard $0.hasSuffix(".png") else { return SentryReplayFrame?.none }
+                guard let time = Double($0.dropLast(4)) else { return nil }
+                return SentryReplayFrame(imagePath: "\(outputPath)/\($0)", time: Date(timeIntervalSinceReferenceDate: time), screenName: nil)
+            }.sorted { $0.time < $1.time }
+        } catch {
+            print("[SentryOnDemandReplay:\(#line)] Could not list frames from replay: \(error.localizedDescription)")
+            return
+        }
     }
     
     convenience init(outputPath: String) {

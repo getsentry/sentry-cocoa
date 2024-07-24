@@ -273,11 +273,11 @@ SentrySessionReplayIntegration ()
                           path:(NSString *)path
                        options:(SentryReplayOptions *)options
 {
-    NSDictionary *info = @{
-        @"replayId" : sessionId.sentryIdString,
-        @"path" : path.lastPathComponent,
-        @"errorSampleRate" : @(options.errorSampleRate)
-    };
+    NSDictionary *info = [[NSDictionary alloc] initWithObjectsAndKeys: 
+                          sessionId.sentryIdString, @"replayId",
+                          path.lastPathComponent, @"path",
+                          @(options.errorSampleRate), @"errorSampleRate", nil];
+    
     NSData *data = [SentrySerialization dataWithJSONObject:info];
 
     NSString *infoPath =
