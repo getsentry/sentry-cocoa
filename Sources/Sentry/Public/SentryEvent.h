@@ -17,6 +17,11 @@ NS_SWIFT_NAME(Event)
 @property (nonatomic, strong) SentryId *eventId;
 
 /**
+ * The identifier of the Sentry report.
+ */
+@property (nonatomic, copy) NSString *reportId;
+
+/**
  * Message of the event.
  */
 @property (nonatomic, strong) SentryMessage *_Nullable message;

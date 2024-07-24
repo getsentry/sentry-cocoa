@@ -57,6 +57,7 @@ static SentryCrashMonitorType g_monitoring = SentryCrashMonitorTypeProductionSaf
 static char g_lastCrashReportFilePath[SentryCrashFU_MAX_PATH_LENGTH];
 static void (*g_saveScreenShot)(const char *) = 0;
 static void (*g_saveViewHierarchy)(const char *) = 0;
+static void (*g_beforeCrashCallback)(const char *) = 0;
 
 // ============================================================================
 #pragma mark - Utility -
@@ -105,6 +106,10 @@ onCrash(struct SentryCrash_MonitorContext *monitorContext)
                 g_saveViewHierarchy(crashAttachmentsPath);
             }
         }
+    }
+    
+    if (g_beforeCrashCallback) {
+        g_beforeCrashCallback(monitorContext->eventID);
     }
 }
 
@@ -191,6 +196,12 @@ void
 sentrycrash_setSaveScreenshots(void (*callback)(const char *))
 {
     g_saveScreenShot = callback;
+}
+
+void
+sentrycrash_setBeforeCrashCallback(void (*callback)(const char *))
+{
+    g_beforeCrashCallback = callback;
 }
 
 void
