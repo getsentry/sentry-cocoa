@@ -449,10 +449,12 @@ NSString *const kSentryDefaultEnvironment = @"production";
     if ([self isBlock:options[@"tracesSampler"]]) {
         self.tracesSampler = options[@"tracesSampler"];
     }
-
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     if ([options[@"enableTracing"] isKindOfClass:NSNumber.self]) {
         self.enableTracing = [options[@"enableTracing"] boolValue];
     }
+#pragma clang diagnostic pop
 
     if ([options[@"inAppIncludes"] isKindOfClass:[NSArray class]]) {
         NSArray<NSString *> *inAppIncludes =

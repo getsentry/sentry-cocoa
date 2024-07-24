@@ -1,6 +1,10 @@
 # Changelog
 
-## Unreleased
+## 8.32.0
+
+### Features
+
+- Record dropped spans (#4172)
 
 ### Fixes
 
@@ -8,6 +12,11 @@
 ### Features
 
 - Replay for crashes (#4171)
+- Collect only unique UIWindow references (#4159)
+
+### Deprecated
+
+- options.enableTracing was deprecated. Use options.tracesSampleRate or options.tracesSampler instead. (#4182)
 
 ## 8.31.1
 

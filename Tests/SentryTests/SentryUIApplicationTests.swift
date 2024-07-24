@@ -40,6 +40,43 @@ class SentryUIApplicationTests: XCTestCase {
 
     //Somehow this is running under iOS 12 and is breaking the test. Disabling it.
     @available(iOS 13.0, tvOS 13.0, *)
+    func test_applicationWithScenesAndDelegateWithWindow_Unique() {
+        let sceneDelegate = TestUISceneDelegate()
+        sceneDelegate.window = UIWindow()
+        let scene1 = MockUIScene()
+        scene1.delegate = sceneDelegate
+
+        let delegate = TestApplicationDelegate()
+        delegate.window = UIWindow()
+
+        let sut = MockSentryUIApplicationTests()
+        sut.scenes = [scene1]
+        sut.appDelegate = delegate
+
+        XCTAssertEqual(sut.windows?.count, 2)
+    }
+
+    //Somehow this is running under iOS 12 and is breaking the test. Disabling it.
+    @available(iOS 13.0, tvOS 13.0, *)
+    func test_applicationWithScenesAndDelegateWithWindow_Same() {
+        let window = UIWindow()
+        let sceneDelegate = TestUISceneDelegate()
+        sceneDelegate.window = window
+        let scene1 = MockUIScene()
+        scene1.delegate = sceneDelegate
+
+        let delegate = TestApplicationDelegate()
+        delegate.window = window
+
+        let sut = MockSentryUIApplicationTests()
+        sut.scenes = [scene1]
+        sut.appDelegate = delegate
+
+        XCTAssertEqual(sut.windows?.count, 1)
+    }
+
+    //Somehow this is running under iOS 12 and is breaking the test. Disabling it.
+    @available(iOS 13.0, tvOS 13.0, *)
     func test_applicationWithScenes_noWindow() {
         let sceneDelegate = TestUISceneDelegate()
 

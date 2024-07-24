@@ -578,6 +578,13 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     [self.transportAdapter recordLostEvent:category reason:reason];
 }
 
+- (void)recordLostEvent:(SentryDataCategory)category
+                 reason:(SentryDiscardReason)reason
+               quantity:(NSUInteger)quantity
+{
+    [self.transportAdapter recordLostEvent:category reason:reason quantity:quantity];
+}
+
 - (SentryEvent *_Nullable)prepareEvent:(SentryEvent *)event
                              withScope:(SentryScope *)scope
                 alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace
@@ -726,13 +733,35 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         event.user.ipAddress = @"{{auto}}";
     }
 
+    BOOL eventIsATransaction
+        = event.type != nil && [event.type isEqualToString:SentryEnvelopeItemTypeTransaction];
+    BOOL eventIsATransactionClass
+        = eventIsATransaction && [event isKindOfClass:[SentryTransaction class]];
+
+    NSUInteger currentSpanCount;
+    if (eventIsATransactionClass) {
+        SentryTransaction *transaction = (SentryTransaction *)event;
+        currentSpanCount = transaction.spans.count;
+    } else {
+        currentSpanCount = 0;
+    }
+
     event = [self callEventProcessors:event];
     if (event == nil) {
         [self recordLost:eventIsNotATransaction reason:kSentryDiscardReasonEventProcessor];
+        if (eventIsATransaction) {
+            // We dropped the whole transaction, the dropped count includes all child spans + 1 root
+            // span
+            [self recordLostSpanWithReason:kSentryDiscardReasonEventProcessor
+                                  quantity:currentSpanCount + 1];
+        }
+    } else {
+        if (eventIsATransactionClass) {
+            [self recordPartiallyDroppedSpans:(SentryTransaction *)event
+                                   withReason:kSentryDiscardReasonEventProcessor
+                         withCurrentSpanCount:&currentSpanCount];
+        }
     }
-
-    BOOL eventIsATransaction
-        = event.type != nil && [event.type isEqualToString:SentryEnvelopeItemTypeTransaction];
     if (event != nil && eventIsATransaction && self.options.beforeSendSpan != nil) {
         SentryTransaction *transaction = (SentryTransaction *)event;
         NSMutableArray<id<SentrySpan>> *processedSpans = [NSMutableArray array];
@@ -742,15 +771,31 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                 [processedSpans addObject:processedSpan];
             }
         }
-
         transaction.spans = processedSpans;
+
+        if (eventIsATransactionClass) {
+            [self recordPartiallyDroppedSpans:transaction
+                                   withReason:kSentryDiscardReasonBeforeSend
+                         withCurrentSpanCount:&currentSpanCount];
+        }
     }
 
     if (event != nil && nil != self.options.beforeSend) {
         event = self.options.beforeSend(event);
-
         if (event == nil) {
             [self recordLost:eventIsNotATransaction reason:kSentryDiscardReasonBeforeSend];
+            if (eventIsATransaction) {
+                // We dropped the whole transaction, the dropped count includes all child spans + 1
+                // root span
+                [self recordLostSpanWithReason:kSentryDiscardReasonBeforeSend
+                                      quantity:currentSpanCount + 1];
+            }
+        } else {
+            if (eventIsATransactionClass) {
+                [self recordPartiallyDroppedSpans:(SentryTransaction *)event
+                                       withReason:kSentryDiscardReasonBeforeSend
+                             withCurrentSpanCount:&currentSpanCount];
+            }
         }
     }
 
@@ -763,6 +808,19 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     }
 
     return event;
+}
+
+- (void)recordPartiallyDroppedSpans:(SentryTransaction *)transaction
+                         withReason:(SentryDiscardReason)reason
+               withCurrentSpanCount:(NSUInteger *)currentSpanCount
+{
+    // If some spans got removed we still report them as dropped
+    NSUInteger spanCountAfter = transaction.spans.count;
+    NSUInteger droppedSpanCount = *currentSpanCount - spanCountAfter;
+    if (droppedSpanCount > 0) {
+        [self recordLostSpanWithReason:reason quantity:droppedSpanCount];
+    }
+    *currentSpanCount = spanCountAfter;
 }
 
 - (BOOL)isSampled:(NSNumber *)sampleRate
@@ -976,6 +1034,11 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     } else {
         [self recordLostEvent:kSentryDataCategoryTransaction reason:reason];
     }
+}
+
+- (void)recordLostSpanWithReason:(SentryDiscardReason)reason quantity:(NSUInteger)quantity
+{
+    [self recordLostEvent:kSentryDataCategorySpan reason:reason quantity:quantity];
 }
 
 - (void)addAttachmentProcessor:(id<SentryClientAttachmentProcessor>)attachmentProcessor
