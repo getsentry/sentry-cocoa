@@ -89,7 +89,7 @@ sentrySessionReplaySync_readInfo(SentryCrashReplay *output, const char *const pa
     if (lastSegmentEnd != 0) {
         return false;
     }
-    
+
     // Assign read values to crashReplay struct or process them as needed
     output->segmentId = segmentId;
     output->lastSegmentEnd = lastSegmentEnd;
