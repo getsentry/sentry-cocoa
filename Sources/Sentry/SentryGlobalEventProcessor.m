@@ -32,7 +32,7 @@
     [self.processors removeAllObjects];
 }
 
-- (SentryEvent *)reportAll:(SentryEvent *)event
+- (nullable SentryEvent *)reportAll:(SentryEvent *)event
 {
     for (SentryEventProcessor proc in self.processors) {
         event = proc(event);

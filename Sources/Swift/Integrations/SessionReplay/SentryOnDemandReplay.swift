@@ -64,9 +64,8 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
         guard let content = try? FileManager.default.contentsOfDirectory(atPath: outputPath) else { return }
         
         _frames = content.compactMap {
-            guard let extensionIndex = $0.lastIndex(of: "."), $0[extensionIndex...] == ".png"
-            else { return SentryReplayFrame?.none }
-            guard let time = Double($0[..<extensionIndex]) else { return nil }
+            guard $0.hasSuffix(".png") else { return SentryReplayFrame?.none }
+            guard let time = Double($0.dropLast(4)) else { return nil }
             return SentryReplayFrame(imagePath: "\(outputPath)/\($0)", time: Date(timeIntervalSinceReferenceDate: time), screenName: nil)
         }.sorted { $0.time < $1.time }
     }

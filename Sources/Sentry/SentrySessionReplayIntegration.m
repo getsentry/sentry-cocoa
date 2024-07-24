@@ -137,11 +137,12 @@ SentrySessionReplayIntegration ()
 
     if (replayError != nil) {
         SENTRY_LOG_ERROR(@"Could not create replay video: %@", replayError);
-    } else {
-        NSMutableDictionary *eventContext = event.context.mutableCopy;
-        eventContext[@"replay"] = @{ @"replay_id" : replayId.sentryIdString };
-        event.context = eventContext;
-    }
+        return;
+    } 
+    
+     NSMutableDictionary *eventContext = event.context.mutableCopy;
+     eventContext[@"replay"] = [NSDictionary dictionaryWithObjectsAndKeys: replayId.sentryIdString, @"replay_id", nil];
+     event.context = eventContext;
 }
 
 - (void)captureVideo:(SentryVideoInfo *)video
