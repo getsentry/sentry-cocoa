@@ -22,6 +22,7 @@ private struct VideoFrames {
 
 enum SentryOnDemandReplayError: Error {
     case cantReadVideoSize
+    case assetWriterNotReady
 }
 
 @objcMembers
@@ -120,7 +121,11 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
         videoWriter.startSession(atSourceTime: .zero)
         
         videoWriterInput.requestMediaDataWhenReady(on: workingQueue.queue) { [weak self] in
-            guard let self = self else { return }
+            guard let self = self, videoWriter.status == .writing else {
+                videoWriter.cancelWriting()
+                completion(nil, SentryOnDemandReplayError.assetWriterNotReady)
+                return
+            }
             
             if frameCount < videoFrames.framesPaths.count {
                 let imagePath = videoFrames.framesPaths[frameCount]
