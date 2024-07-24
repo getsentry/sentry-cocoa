@@ -7,7 +7,18 @@ import XCTest
 class SentryOnDemandReplayTests: XCTestCase {
     
     let dateProvider = TestCurrentDateProvider()
-    let outputPath = FileManager.default.temporaryDirectory
+    var outputPath : URL = {
+        let temp = FileManager.default.temporaryDirectory.appendingPathComponent("replayTest")
+        try? FileManager.default.createDirectory(at: temp, withIntermediateDirectories: true)
+        return temp
+    }()
+    
+    override func tearDownWithError() throws {
+        let files = try FileManager.default.contentsOfDirectory(atPath: outputPath.path)
+        for file in files {
+            try? FileManager.default.removeItem(at: outputPath.appendingPathComponent(file))
+        }
+    }
     
     func getSut() -> SentryOnDemandReplay {
         let sut = SentryOnDemandReplay(outputPath: outputPath.path, 
@@ -72,19 +83,23 @@ class SentryOnDemandReplayTests: XCTestCase {
             sut.addFrameAsync(image: UIImage.add)
         }
         
-        let output = FileManager.default.temporaryDirectory.appendingPathComponent("video.mp4")
         let videoExpectation = expectation(description: "Wait for video render")
         
-        try? sut.createVideoWith(beginning: Date(timeIntervalSinceReferenceDate: 0), end: Date(timeIntervalSinceReferenceDate: 10), outputFileURL: output) { info, error in
+        try? sut.createVideoWith(beginning: Date(timeIntervalSinceReferenceDate: 0), end: Date(timeIntervalSinceReferenceDate: 10)) { info, error in
             XCTAssertNil(error)
             
             XCTAssertEqual(info?.duration, 10)
             XCTAssertEqual(info?.start, Date(timeIntervalSinceReferenceDate: 0))
             XCTAssertEqual(info?.end, Date(timeIntervalSinceReferenceDate: 10))
             
-            XCTAssertEqual(FileManager.default.fileExists(atPath: output.path), true)
+            guard let videoPath = info?.path else {
+                XCTFail("No video path for replay")
+                return
+            }
+            
+            XCTAssertEqual(FileManager.default.fileExists(atPath: videoPath.path), true)
             videoExpectation.fulfill()
-            try? FileManager.default.removeItem(at: output)
+            try? FileManager.default.removeItem(at: videoPath)
         }
         
         wait(for: [videoExpectation], timeout: 1)
@@ -149,9 +164,11 @@ class SentryOnDemandReplayTests: XCTestCase {
         dateProvider.advance(by: 1)
         let end = dateProvider.date()
         
-        try? sut.createVideoWith(beginning: start, end: end, outputFileURL: URL(fileURLWithPath: "/invalidPath/video.mp3")) { _, error in
+        //Creating a file where the replay would be written to cause an error in the writer
+        try? "tempFile".data(using: .utf8)?.write(to: outputPath.appendingPathComponent("0.0.mp4"))
+        
+        try? sut.createVideoWith(beginning: start, end: end) { _, error in
             XCTAssertNotNil(error)
-            XCTAssertEqual(error as? SentryOnDemandReplayError, SentryOnDemandReplayError.assetWriterNotReady)
             expect.fulfill()
         }
         

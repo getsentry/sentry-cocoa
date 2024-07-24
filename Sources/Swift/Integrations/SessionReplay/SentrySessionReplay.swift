@@ -82,8 +82,6 @@ class SentrySessionReplay: NSObject {
         videoSegmentStart = nil
         currentSegmentId = 0
         sessionReplayId = SentryId()
-        replayMaker.videoWidth = Int(rootView.frame.size.width)
-        replayMaker.videoHeight = Int(rootView.frame.size.height)
         imageCollection = []
 
         if fullSession {
@@ -148,14 +146,9 @@ class SentrySessionReplay: NSObject {
         }
 
         startFullReplay()
-
-        guard let finalPath = urlToCache?.appendingPathComponent("replay.mp4") else {
-            print("[SentrySessionReplay:\(#line)] Could not create replay video path")
-            return false
-        }
         let replayStart = dateProvider.date().addingTimeInterval(-replayOptions.errorReplayDuration - (Double(replayOptions.frameRate) / 2.0))
 
-        createAndCapture(videoUrl: finalPath, startedAt: replayStart)
+        createAndCapture(startedAt: replayStart)
 
         return true
     }
@@ -215,12 +208,12 @@ class SentrySessionReplay: NSObject {
         pathToSegment = pathToSegment.appendingPathComponent("\(currentSegmentId).mp4")
         let segmentStart = videoSegmentStart ?? dateProvider.date().addingTimeInterval(-replayOptions.sessionSegmentDuration)
 
-        createAndCapture(videoUrl: pathToSegment, startedAt: segmentStart)
+        createAndCapture(startedAt: segmentStart)
     }
 
-    private func createAndCapture(videoUrl: URL, startedAt: Date) {
+    private func createAndCapture(startedAt: Date) {
         do {
-            try replayMaker.createVideoWith(beginning: startedAt, end: dateProvider.date(), outputFileURL: videoUrl) { [weak self] videoInfo, error in
+            try replayMaker.createVideoWith(beginning: startedAt, end: dateProvider.date()) { [weak self] videoInfo, error in
                 guard let _self = self else { return }
                 if let error = error {
                     print("[SentrySessionReplay:\(#line)] Could not create replay video - \(error.localizedDescription)")

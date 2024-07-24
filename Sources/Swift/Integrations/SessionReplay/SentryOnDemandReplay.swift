@@ -13,23 +13,14 @@ struct SentryReplayFrame {
     let screenName: String?
 }
 
-private struct VideoFrames {
-    let framesPaths: [String]
-    let screens: [String]
-    let start: Date
-    let end: Date
-}
-
 enum SentryOnDemandReplayError: Error {
     case cantReadVideoSize
-    case assetWriterNotReady
 }
 
 @objcMembers
 class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
         
     private let _outputPath: String
-    private var _currentPixelBuffer: SentryPixelBuffer?
     private var _totalFrames = 0
     private let dateProvider: SentryCurrentDateProvider
     private let workingQueue: SentryDispatchQueueWrapper
@@ -42,16 +33,11 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
         set { _frames = newValue }
     }
     #endif // TEST || TESTCI || DEBUG
-    
-    var videoWidth = 200
-    var videoHeight = 434
+
     var videoScale: Float = 1
     var bitRate = 20_000
     var frameRate = 1
     var cacheMaxSize = UInt.max
-    
-    private var actualWidth: Int { Int(Float(videoWidth) * videoScale) }
-    private var actualHeight: Int { Int(Float(videoHeight) * videoScale) }
         
     init(outputPath: String, workingQueue: SentryDispatchQueueWrapper, dateProvider: SentryCurrentDateProvider) {
         self._outputPath = outputPath
@@ -81,10 +67,6 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
         self.init(withContentFrom: outputPath,
                   workingQueue: SentryDispatchQueueWrapper(name: "io.sentry.onDemandReplay", attributes: nil),
                   dateProvider: SentryCurrentDateProvider())
-        
-        guard let last = _frames.last, let image = UIImage(contentsOfFile: last.imagePath) else { return }
-        videoWidth = Int(image.size.width)
-        videoHeight = Int(image.size.height)
     }
     
     func addFrameAsync(image: UIImage, forScreen: String?) {
@@ -136,92 +118,101 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
         return _frames.first?.time
     }
     
-    func createVideoWith(beginning: Date, end: Date, outputFileURL: URL, completion: @escaping (SentryVideoInfo?, Error?) -> Void) throws {
+    func createVideoWith(beginning: Date, end: Date, completion: @escaping (SentryVideoInfo?, Error?) -> Void) throws {
         var frameCount = 0
         let videoFrames = filterFrames(beginning: beginning, end: end)
-        if videoFrames.framesPaths.isEmpty { return }
-        
+        guard let firstFrame = videoFrames.first, let image = UIImage(contentsOfFile: firstFrame.imagePath) else { return }
+        let videoWidth = image.size.width * CGFloat(videoScale)
+        let videoHeight = image.size.height * CGFloat(videoScale)
+        let outputFileURL = URL(fileURLWithPath: _outputPath.appending("/\(beginning.timeIntervalSinceReferenceDate).mp4"))
         let videoWriter = try AVAssetWriter(url: outputFileURL, fileType: .mp4)
-        let videoWriterInput = AVAssetWriterInput(mediaType: .video, outputSettings: createVideoSettings())
+        let videoWriterInput = AVAssetWriterInput(mediaType: .video, outputSettings: createVideoSettings(width: videoWidth, height: videoHeight))
         
-        _currentPixelBuffer = SentryPixelBuffer(size: CGSize(width: actualWidth, height: actualHeight), videoWriterInput: videoWriterInput)
+        let _currentPixelBuffer = SentryPixelBuffer(size: CGSize(width: videoWidth, height: videoHeight), videoWriterInput: videoWriterInput)
         if _currentPixelBuffer == nil { return }
         
         videoWriter.add(videoWriterInput)
         videoWriter.startWriting()
         videoWriter.startSession(atSourceTime: .zero)
         
+        var lastVideoSize: CGSize = CGSize(width: videoWidth, height: videoHeight)
+        var usedFrames = [SentryReplayFrame]()
         videoWriterInput.requestMediaDataWhenReady(on: workingQueue.queue) { [weak self] in
             guard let self = self, videoWriter.status == .writing else {
                 videoWriter.cancelWriting()
-                completion(nil, SentryOnDemandReplayError.assetWriterNotReady)
+                completion(nil, videoWriter.error)
                 return
             }
             
-            if frameCount < videoFrames.framesPaths.count {
-                let imagePath = videoFrames.framesPaths[frameCount]
-                if let image = UIImage(contentsOfFile: imagePath) {
-                    let presentTime = CMTime(seconds: Double(frameCount), preferredTimescale: CMTimeScale(1 / self.frameRate))
-
-                    guard self._currentPixelBuffer?.append(image: image, presentationTime: presentTime) == true 
-                    else {
-                        completion(nil, videoWriter.error)
+            if frameCount < videoFrames.count {
+                let frame = videoFrames[frameCount]
+                if let image = UIImage(contentsOfFile: frame.imagePath) {
+                    if lastVideoSize != image.size {
                         videoWriterInput.markAsFinished()
+                        finishVideo(outputFileURL: outputFileURL, usedFrames: usedFrames, videoHeight: Int(videoHeight), videoWidth: Int(videoWidth), videoWriter: videoWriter, completion: completion)
+                        
+                        workingQueue.dispatchAsyncOnMainQueue {
+                            if let previousEnd = usedFrames.min(by: { $0.time > $1.time })?.time {
+                                try? self.createVideoWith(beginning: previousEnd.addingTimeInterval(0.5 / Double(self.frameRate)), end: end, completion: completion)
+                            }
+                        }
+                        
                         return
                     }
+                    lastVideoSize = image.size
+                    
+                    let presentTime = CMTime(seconds: Double(frameCount), preferredTimescale: CMTimeScale(1 / self.frameRate))
+
+                    guard _currentPixelBuffer?.append(image: image, presentationTime: presentTime) == true
+                    else {
+                        completion(nil, videoWriter.error)
+                        videoWriter.cancelWriting()
+                        return
+                    }
+                    usedFrames.append(frame)
                 }
                 frameCount += 1
             } else {
                 videoWriterInput.markAsFinished()
-                videoWriter.finishWriting {
-                    var videoInfo: SentryVideoInfo?
-                    if videoWriter.status == .completed {
-                        do {
-                            let fileAttributes = try FileManager.default.attributesOfItem(atPath: outputFileURL.path)
-                            guard let fileSize = fileAttributes[FileAttributeKey.size] as? Int else {
-                                completion(nil, SentryOnDemandReplayError.cantReadVideoSize)
-                                return
-                            }
-                            videoInfo = SentryVideoInfo(path: outputFileURL, height: self.actualHeight, width: self.actualWidth, duration: TimeInterval(videoFrames.framesPaths.count / self.frameRate), frameCount: videoFrames.framesPaths.count, frameRate: self.frameRate, start: videoFrames.start, end: videoFrames.end, fileSize: fileSize, screens: videoFrames.screens)
-                        } catch {
-                            completion(nil, error)
-                        }
-                    }
-                    completion(videoInfo, videoWriter.error)
-                }
+                finishVideo(outputFileURL: outputFileURL, usedFrames: usedFrames, videoHeight: Int(videoHeight), videoWidth: Int(videoWidth), videoWriter: videoWriter, completion: completion)
             }
         }
     }
     
-    private func filterFrames(beginning: Date, end: Date) -> VideoFrames {
-        var framesPaths = [String]()
-        
-        var screens = [String]()
-        
-        var start = dateProvider.date()
-        var actualEnd = start
-        workingQueue.dispatchSync({
-            for frame in self._frames {
-                if frame.time < beginning { continue } else if frame.time > end { break }
-                
-                if frame.time < start { start = frame.time }
-                
-                if let screenName = frame.screenName {
-                    screens.append(screenName)
+    private func finishVideo(outputFileURL: URL, usedFrames: [SentryReplayFrame], videoHeight: Int, videoWidth: Int, videoWriter: AVAssetWriter, completion: @escaping (SentryVideoInfo?, Error?) -> Void) {
+        videoWriter.finishWriting {
+            var videoInfo: SentryVideoInfo?
+            if videoWriter.status == .completed {
+                do {
+                    let fileAttributes = try FileManager.default.attributesOfItem(atPath: outputFileURL.path)
+                    guard let fileSize = fileAttributes[FileAttributeKey.size] as? Int else {
+                        completion(nil, SentryOnDemandReplayError.cantReadVideoSize)
+                        return
+                    }
+                    guard let start = usedFrames.min(by: { $0.time < $1.time })?.time else { return }
+                    let duration = TimeInterval(usedFrames.count / self.frameRate)
+                    videoInfo = SentryVideoInfo(path: outputFileURL, height: Int(videoHeight), width: Int(videoWidth), duration: duration , frameCount: usedFrames.count, frameRate: self.frameRate, start: start, end: start.addingTimeInterval(duration), fileSize: fileSize, screens: usedFrames.compactMap({ $0.screenName }))
+                } catch {
+                    completion(nil, error)
                 }
-                
-                actualEnd = frame.time
-                framesPaths.append(frame.imagePath)
             }
-        })
-        return VideoFrames(framesPaths: framesPaths, screens: screens, start: start, end: actualEnd + TimeInterval((1 / Double(frameRate))))
+            completion(videoInfo, videoWriter.error)
+        }
     }
     
-    private func createVideoSettings() -> [String: Any] {
+    private func filterFrames(beginning: Date, end: Date) -> [SentryReplayFrame] {
+        var frames = [SentryReplayFrame]()
+        workingQueue.dispatchSync({
+            frames = self._frames.filter { $0.time >= beginning && $0.time <= end }
+        })
+        return frames
+    }
+    
+    private func createVideoSettings(width: CGFloat, height: CGFloat) -> [String: Any] {
         return [
             AVVideoCodecKey: AVVideoCodecType.h264,
-            AVVideoWidthKey: actualWidth,
-            AVVideoHeightKey: actualHeight,
+            AVVideoWidthKey: width,
+            AVVideoHeightKey: height,
             AVVideoCompressionPropertiesKey: [
                 AVVideoAverageBitRateKey: bitRate,
                 AVVideoProfileLevelKey: AVVideoProfileLevelH264BaselineAutoLevel

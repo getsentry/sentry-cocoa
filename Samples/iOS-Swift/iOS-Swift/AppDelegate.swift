@@ -20,6 +20,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         DSNStorage.shared.saveDSN(dsn: dsn)
         
         SentrySDK.start(configureOptions: { options in
+          //...
+            options.experimental.sessionReplay.redactAllText = false
+            options.experimental.sessionReplay.redactAllImages = false
+            
+        })
             options.dsn = dsn
             options.beforeSend = { event in
                 return event

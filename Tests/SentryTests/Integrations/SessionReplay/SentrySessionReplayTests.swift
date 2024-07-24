@@ -15,24 +15,20 @@ class SentrySessionReplayTests: XCTestCase {
     }
      
     private class TestReplayMaker: NSObject, SentryReplayVideoMaker {
-        var videoWidth: Int = 0
-        var videoHeight: Int = 0
-         
         var screens = [String]()
         
         struct CreateVideoCall {
             var beginning: Date
             var end: Date
-            var outputFileURL: URL
             var completion: ((Sentry.SentryVideoInfo?, Error?) -> Void)
         }
         
         var lastCallToCreateVideo: CreateVideoCall?
-        func createVideoWith(beginning: Date, end: Date, outputFileURL: URL, completion: @escaping (Sentry.SentryVideoInfo?, (Error)?) -> Void) throws {
+        func createVideoWith(beginning: Date, end: Date, completion: @escaping (Sentry.SentryVideoInfo?, (Error)?) -> Void) throws {
             lastCallToCreateVideo = CreateVideoCall(beginning: beginning,
                                                     end: end,
-                                                    outputFileURL: outputFileURL,
                                                     completion: completion)
+            let outputFileURL = FileManager.default.temporaryDirectory.appendingPathComponent("tempvideo.mp4")
             
             try? "Video Data".write(to: outputFileURL, atomically: true, encoding: .utf8)
             
@@ -128,18 +124,6 @@ class SentrySessionReplayTests: XCTestCase {
         XCTAssertNil(fixture.lastReplayEvent)
     }
     
-    func testVideoSize() {
-        let fixture = Fixture()
-        let options = SentryReplayOptions(sessionSampleRate: 1, errorSampleRate: 1)
-        let sut = fixture.getSut(options: options)
-        let view = fixture.rootView
-        view.frame = CGRect(x: 0, y: 0, width: 320, height: 900)
-        sut.start(rootView: fixture.rootView, fullSession: true)
-        
-        XCTAssertEqual(320, fixture.replayMaker.videoWidth)
-        XCTAssertEqual(900, fixture.replayMaker.videoHeight)
-    }
-    
     func testSentReplay_FullSession() {
         let fixture = Fixture()
         
@@ -162,10 +146,8 @@ class SentrySessionReplayTests: XCTestCase {
         
         XCTAssertEqual(videoArguments.end, startEvent.addingTimeInterval(5))
         XCTAssertEqual(videoArguments.beginning, startEvent)
-        XCTAssertEqual(videoArguments.outputFileURL, fixture.cacheFolder.appendingPathComponent("segments/0.mp4"))
         
         XCTAssertNotNil(fixture.lastReplayRecording)
-        XCTAssertEqual(fixture.lastVideoUrl, videoArguments.outputFileURL)
         assertFullSession(sut, expected: true)
     }
     

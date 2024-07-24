@@ -102,7 +102,7 @@ SentrySessionReplayIntegration ()
     SentryReplayType type = hasCrashInfo ? SentryReplayTypeSession : SentryReplayTypeBuffer;
     NSTimeInterval duration
         = hasCrashInfo ? _replayOptions.sessionSegmentDuration : _replayOptions.errorReplayDuration;
-    int segmentId = hasCrashInfo ? crashInfo.segmentId + 1 : 0;
+    __block int segmentId = hasCrashInfo ? crashInfo.segmentId + 1 : 0;
 
     _resumeReplayMaker = [[SentryOnDemandReplay alloc] initWithContentFrom:lastReplayURL.path];
     _resumeReplayMaker.bitRate = _replayOptions.replayBitRate;
@@ -121,7 +121,6 @@ SentrySessionReplayIntegration ()
     [_resumeReplayMaker
         createVideoWithBeginning:beginning
                              end:[beginning dateByAddingTimeInterval:duration]
-                   outputFileURL:[lastReplayURL URLByAppendingPathComponent:@"lastVideo.mp4"]
                            error:&replayError
                       completion:^(SentryVideoInfo *video, NSError *error) {
                           if (error != nil) {
@@ -131,6 +130,7 @@ SentrySessionReplayIntegration ()
                                         replayId:replayId
                                        segmentId:segmentId
                                             type:type];
+                              segmentId += 1;
                           }
                           self->_resumeReplayMaker = nil;
                       }];
