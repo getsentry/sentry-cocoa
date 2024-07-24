@@ -1260,6 +1260,181 @@ class SentryClientTest: XCTestCase {
         
         assertLostEventRecorded(category: .transaction, reason: .eventProcessor)
     }
+        
+    func testRecordEventProcessorDroppingTransaction() {
+        SentryGlobalEventProcessor.shared().add { _ in return nil }
+        
+        let transaction = Transaction(
+            trace: fixture.trace,
+            children: [
+                fixture.trace.startChild(operation: "child1"),
+                fixture.trace.startChild(operation: "child2"),
+                fixture.trace.startChild(operation: "child3")
+            ]
+        )
+        
+        fixture.getSut().capture(event: transaction)
+        
+        assertLostEventWithCountRecorded(category: .span, reason: .eventProcessor, quantity: 4)
+    }
+    
+    func testRecordEventProcessorDroppingPartiallySpans() {
+        SentryGlobalEventProcessor.shared().add { event in
+            if let transaction = event as? Transaction {
+                transaction.spans = transaction.spans.filter {
+                    $0.operation != "child2"
+                }
+                return transaction
+            } else {
+                return event
+            }
+        }
+        
+        let transaction = Transaction(
+            trace: fixture.trace,
+            children: [
+                fixture.trace.startChild(operation: "child1"),
+                fixture.trace.startChild(operation: "child2"),
+                fixture.trace.startChild(operation: "child3")
+            ]
+        )
+        
+        fixture.getSut().capture(event: transaction)
+        
+        assertLostEventWithCountRecorded(category: .span, reason: .eventProcessor, quantity: 1)
+    }
+    
+    func testRecordBeforeSendSpanDroppingPartiallySpans() {
+        let transaction = Transaction(
+            trace: fixture.trace,
+            children: [
+                fixture.trace.startChild(operation: "child1"),
+                fixture.trace.startChild(operation: "child2"),
+                fixture.trace.startChild(operation: "child3")
+            ]
+        )
+        
+        let numberOfSpansDropped: UInt = 2
+        var dropped: UInt = 0
+        fixture.getSut(configureOptions: { options in
+            options.beforeSendSpan = { span in
+                if dropped < numberOfSpansDropped {
+                    dropped++
+                    return nil
+                } else {
+                    return span
+                }
+            }
+        }).capture(event: transaction)
+        
+        assertLostEventWithCountRecorded(category: .span, reason: .beforeSend, quantity: numberOfSpansDropped)
+    }
+        
+    func testRecordBeforeSendDroppingTransaction() {
+        let transaction = Transaction(
+            trace: fixture.trace,
+            children: [
+                fixture.trace.startChild(operation: "child1"),
+                fixture.trace.startChild(operation: "child2"),
+                fixture.trace.startChild(operation: "child3")
+            ]
+        )
+        
+        fixture.getSut(configureOptions: { options in
+            options.beforeSend = { _ in
+                return nil
+            }
+        }).capture(event: transaction)
+        
+        assertLostEventWithCountRecorded(category: .span, reason: .beforeSend, quantity: 4)
+    }
+    
+    func testRecordBeforeSendCorrectlyRecordsPartiallyDroppedSpans() {
+        let transaction = Transaction(
+            trace: fixture.trace,
+            children: [
+                fixture.trace.startChild(operation: "child1"),
+                fixture.trace.startChild(operation: "child2"),
+                fixture.trace.startChild(operation: "child3")
+            ]
+        )
+        
+        fixture.getSut(configureOptions: { options in
+            options.beforeSend = { event in
+                if let transaction = event as? Transaction {
+                    transaction.spans = transaction.spans.filter {
+                        $0.operation != "child2"
+                    }
+                    return transaction
+                } else {
+                    return event
+                }
+            }
+        }).capture(event: transaction)
+        
+        // transaction has 3 span children and we dropped 1 of them
+        assertLostEventWithCountRecorded(category: .span, reason: .beforeSend, quantity: 1)
+    }
+    
+    func testCombinedPartiallyDroppedSpans() {
+        
+        SentryGlobalEventProcessor.shared().add { event in
+            if let transaction = event as? Transaction {
+                transaction.spans = transaction.spans.filter {
+                    $0.operation != "child1"
+                }
+                return transaction
+            } else {
+                return event
+            }
+        }
+        
+        let transaction = Transaction(
+            trace: fixture.trace,
+            children: [
+                fixture.trace.startChild(operation: "child1"),
+                fixture.trace.startChild(operation: "child2"),
+                fixture.trace.startChild(operation: "child3")
+            ]
+        )
+        
+        fixture.getSut(configureOptions: { options in
+            options.beforeSend = { event in
+                if let transaction = event as? Transaction {
+                    transaction.spans = transaction.spans.filter {
+                        $0.operation != "child2"
+                    }
+                    return transaction
+                } else {
+                    return event
+                }
+            }
+            options.beforeSendSpan = { span in
+                if span.operation == "child3" {
+                    return nil
+                } else {
+                    return span
+                }
+            }
+        }).capture(event: transaction)
+        
+        XCTAssertEqual(3, fixture.transport.recordLostEventsWithCount.count)
+        
+        // span dropped by event processor
+        XCTAssertEqual(fixture.transport.recordLostEventsWithCount.get(0)?.category, SentryDataCategory.span)
+        XCTAssertEqual(fixture.transport.recordLostEventsWithCount.get(0)?.reason, SentryDiscardReason.eventProcessor)
+        XCTAssertEqual(fixture.transport.recordLostEventsWithCount.get(0)?.quantity, 1)
+        
+        // span dropped by beforeSendSpan
+        XCTAssertEqual(fixture.transport.recordLostEventsWithCount.get(1)?.category, SentryDataCategory.span)
+        XCTAssertEqual(fixture.transport.recordLostEventsWithCount.get(1)?.reason, SentryDiscardReason.beforeSend)
+        XCTAssertEqual(fixture.transport.recordLostEventsWithCount.get(1)?.quantity, 1)
+        
+        // span dropped by beforeSend
+        XCTAssertEqual(fixture.transport.recordLostEventsWithCount.get(2)?.category, SentryDataCategory.span)
+        XCTAssertEqual(fixture.transport.recordLostEventsWithCount.get(2)?.reason, SentryDiscardReason.beforeSend)
+        XCTAssertEqual(fixture.transport.recordLostEventsWithCount.get(2)?.quantity, 1)
+    }
     
     func testNoDsn_UserFeedbackNotSent() {
         let sut = fixture.getSutWithNoDsn()
@@ -1846,6 +2021,14 @@ private extension SentryClientTest {
         XCTAssertEqual(reason, lostEvent?.reason)
     }
 
+    private func assertLostEventWithCountRecorded(category: SentryDataCategory, reason: SentryDiscardReason, quantity: UInt) {
+        XCTAssertEqual(1, fixture.transport.recordLostEventsWithCount.count)
+        let lostEvent = fixture.transport.recordLostEventsWithCount.first
+        XCTAssertEqual(category, lostEvent?.category)
+        XCTAssertEqual(reason, lostEvent?.reason)
+        XCTAssertEqual(quantity, lostEvent?.quantity)
+    }
+    
     private enum TestError: Error {
         case invalidTest
         case testIsFailing

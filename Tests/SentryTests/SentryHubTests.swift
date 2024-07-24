@@ -385,6 +385,27 @@ class SentryHubTests: XCTestCase {
         XCTAssertEqual(.sampleRate, lostEvent?.reason)
     }
     
+    func testCaptureSampledTransaction_RecordsLostSpans() throws {
+        let transaction = sut.startTransaction(transactionContext: TransactionContext(name: fixture.transactionName, operation: fixture.transactionOperation, sampled: .no))
+        let trans = Dynamic(transaction).toTransaction().asAnyObject
+        
+        if let tracer = transaction as? SentryTracer {
+            (trans as? Transaction)?.spans = [
+                tracer.startChild(operation: "child1"),
+                tracer.startChild(operation: "child2"),
+                tracer.startChild(operation: "child3")
+            ]
+        }
+        
+        sut.capture(try XCTUnwrap(trans as? Transaction), with: Scope())
+        
+        XCTAssertEqual(1, fixture.client.recordLostEventsWithQauntity.count)
+        let lostEvent = fixture.client.recordLostEventsWithQauntity.first
+        XCTAssertEqual(.span, lostEvent?.category)
+        XCTAssertEqual(.sampleRate, lostEvent?.reason)
+        XCTAssertEqual(4, lostEvent?.quantity)
+    }
+    
     func testCaptureMessageWithScope() {
         fixture.getSut().capture(message: fixture.message, scope: fixture.scope)
         

@@ -12,13 +12,13 @@ let package = Package(
     targets: [
         .binaryTarget(
                     name: "Sentry",
-                    url: "https://github.com/getsentry/sentry-cocoa/releases/download/8.30.1/Sentry.xcframework.zip",
-                    checksum: "62ba39319f3a9d433b8000dd3e94819cd79bafae920d97a20da1ec294c0d0ff0" //Sentry-Static
+                    url: "https://github.com/getsentry/sentry-cocoa/releases/download/8.31.1/Sentry.xcframework.zip",
+                    checksum: "078d3aaf2b3abba23b41fa7ed3fb6e58a981189ef4f9793afaab4ac1b6ec12e0" //Sentry-Static
                 ),
         .binaryTarget(
                     name: "Sentry-Dynamic",
-                    url: "https://github.com/getsentry/sentry-cocoa/releases/download/8.30.1/Sentry-Dynamic.xcframework.zip",
-                    checksum: "d45423698ed4d61f7f28aaf24156827052584ec580170db511994dee3de102fb" //Sentry-Dynamic
+                    url: "https://github.com/getsentry/sentry-cocoa/releases/download/8.31.1/Sentry-Dynamic.xcframework.zip",
+                    checksum: "f2848f30888df1f186549e27d86f8ca400bb3b7379d8a213156738115d51cbf0" //Sentry-Dynamic
                 ),
         .target ( name: "SentrySwiftUI",
                   dependencies: ["Sentry", "SentryInternal"],

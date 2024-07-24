@@ -14,9 +14,9 @@ protocol SentrySessionReplayDelegate: NSObjectProtocol {
 
 @objcMembers
 class SentrySessionReplay: NSObject {
-    private (set) var isRunning = false
-    private (set) var isFullSession = false
-    private (set) var sessionReplayId: SentryId?
+    private(set) var isRunning = false
+    private(set) var isFullSession = false
+    private(set) var sessionReplayId: SentryId?
 
     private var urlToCache: URL?
     private var rootView: UIView?
@@ -133,6 +133,7 @@ class SentrySessionReplay: NSObject {
         setEventContext(event: event)
     }
 
+    @discardableResult
     func captureReplay() -> Bool {
         guard isRunning else { return false }
         guard !isFullSession else { return true }
@@ -170,11 +171,11 @@ class SentrySessionReplay: NSObject {
 
     @objc 
     private func newFrame(_ sender: CADisplayLink) {
-        guard let sessionStart = sessionStart, let lastScreenShot = lastScreenShot, isRunning else { return }
+        guard let lastScreenShot = lastScreenShot, isRunning else { return }
 
         let now = dateProvider.date()
         
-        if isFullSession && now.timeIntervalSince(sessionStart) > replayOptions.maximumDuration {
+        if let sessionStart = sessionStart, isFullSession && now.timeIntervalSince(sessionStart) > replayOptions.maximumDuration {
             reachedMaximumDuration = true
             stop()
             return

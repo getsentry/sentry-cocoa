@@ -4,12 +4,29 @@
 
 ### Features
 
+- Record dropped spans (#4172)
+
+### Fixes
+
+- Session replay crash when writing the replay (#4186)
+- Collect only unique UIWindow references (#4159)
+
+## 8.31.1
+
+### Fixes
+
+- Session replay video duration from seconds to milliseconds (#4163)
+
+## 8.31.0
+
+### Features
+
 - Include the screen names in the session replay (#4126)
 
 ### Fixes
 
 - Properly handle invalid value for `NSUnderlyingErrorKey` (#4144)
-- Collect only unique UIWindow references (#4159)
+- Session replay in buffer mode not working (#4160)
 
 ## 8.30.1
 
