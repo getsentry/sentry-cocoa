@@ -203,6 +203,11 @@
             value = ""
             isEnabled = "NO">
          </EnvironmentVariable>
+         <EnvironmentVariable
+            key = "--io.sentry.sessionTrackingIntervalMillis"
+            value = ""
+            isEnabled = "NO">
+         </EnvironmentVariable>
       </EnvironmentVariables>
    </LaunchAction>
    <ProfileAction
