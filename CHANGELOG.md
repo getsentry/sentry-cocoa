@@ -9,6 +9,7 @@
 ### Fixes
 
 - Session replay crash when writing the replay (#4186)
+- Collect only unique UIWindow references (#4159)
 
 ### Deprecated
 
