@@ -14,7 +14,7 @@ on:
 
 jobs:
   prepare_framework:
-    runs-on: macos-13-xlarge
+    runs-on: macos-latest
     name: 'Create XCFramework'
     steps:
       - uses: actions/checkout@v4
