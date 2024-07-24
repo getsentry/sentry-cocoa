@@ -1,5 +1,6 @@
 #include "SentrySessionReplaySyncC.h"
 #include "SentryAsyncSafeLog.h"
+#include <SentryCrashFileUtils.h>
 #include <errno.h>
 #include <fcntl.h>
 #include <pthread.h>
@@ -42,15 +43,15 @@ sentrySessionReplaySync_writeInfo(void)
         return;
     }
 
-    if (write(fd, &crashReplay.segmentId, sizeof(crashReplay.segmentId))
-        != sizeof(crashReplay.segmentId)) {
+    if (!sentrycrashfu_writeBytesToFD(
+            fd, (char *)&crashReplay.segmentId, sizeof(crashReplay.segmentId))) {
         SENTRY_ASYNC_SAFE_LOG_ERROR("Error writing replay info for crash.");
         close(fd);
         return;
     }
 
-    if (write(fd, &crashReplay.lastSegmentEnd, sizeof(crashReplay.lastSegmentEnd))
-        != sizeof(crashReplay.lastSegmentEnd)) {
+    if (!sentrycrashfu_writeBytesToFD(
+            fd, (char *)&crashReplay.lastSegmentEnd, sizeof(crashReplay.lastSegmentEnd))) {
         SENTRY_ASYNC_SAFE_LOG_ERROR("Error writing replay info for crash.");
         close(fd);
         return;
@@ -72,13 +73,13 @@ sentrySessionReplaySync_readInfo(SentryCrashReplay *output, const char *const pa
     unsigned int segmentId = 0;
     double lastSegmentEnd = 0;
 
-    if (read(fd, &segmentId, sizeof(segmentId)) != sizeof(segmentId)) {
+    if (!sentrycrashfu_readBytesFromFD(fd, (char *)&segmentId, sizeof(segmentId))) {
         SENTRY_ASYNC_SAFE_LOG_ERROR("Error reading segmentId from replay info crash file.");
         close(fd);
         return false;
     }
 
-    if (read(fd, &lastSegmentEnd, sizeof(lastSegmentEnd)) != sizeof(lastSegmentEnd)) {
+    if (!sentrycrashfu_readBytesFromFD(fd, (char *)&lastSegmentEnd, sizeof(lastSegmentEnd))) {
         SENTRY_ASYNC_SAFE_LOG_ERROR("Error reading lastSegmentEnd from replay info crash file.");
         close(fd);
         return false;
@@ -86,11 +87,10 @@ sentrySessionReplaySync_readInfo(SentryCrashReplay *output, const char *const pa
 
     close(fd);
 
-    if (lastSegmentEnd != 0) {
+    if (lastSegmentEnd == 0) {
         return false;
     }
 
-    // Assign read values to crashReplay struct or process them as needed
     output->segmentId = segmentId;
     output->lastSegmentEnd = lastSegmentEnd;
     return true;
