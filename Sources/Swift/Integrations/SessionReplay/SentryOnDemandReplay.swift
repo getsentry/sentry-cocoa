@@ -191,7 +191,7 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
                     }
                     guard let start = usedFrames.min(by: { $0.time < $1.time })?.time else { return }
                     let duration = TimeInterval(usedFrames.count / self.frameRate)
-                    videoInfo = SentryVideoInfo(path: outputFileURL, height: Int(videoHeight), width: Int(videoWidth), duration: duration , frameCount: usedFrames.count, frameRate: self.frameRate, start: start, end: start.addingTimeInterval(duration), fileSize: fileSize, screens: usedFrames.compactMap({ $0.screenName }))
+                    videoInfo = SentryVideoInfo(path: outputFileURL, height: Int(videoHeight), width: Int(videoWidth), duration: duration, frameCount: usedFrames.count, frameRate: self.frameRate, start: start, end: start.addingTimeInterval(duration), fileSize: fileSize, screens: usedFrames.compactMap({ $0.screenName }))
                 } catch {
                     completion(nil, error)
                 }

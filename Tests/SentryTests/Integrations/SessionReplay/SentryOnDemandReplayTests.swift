@@ -7,7 +7,7 @@ import XCTest
 class SentryOnDemandReplayTests: XCTestCase {
     
     let dateProvider = TestCurrentDateProvider()
-    var outputPath : URL = {
+    var outputPath: URL = {
         let temp = FileManager.default.temporaryDirectory.appendingPathComponent("replayTest")
         try? FileManager.default.createDirectory(at: temp, withIntermediateDirectories: true)
         return temp
@@ -20,7 +20,7 @@ class SentryOnDemandReplayTests: XCTestCase {
         }
     }
     
-    func getSut(trueDispatchQueueWrapper : Bool = false) -> SentryOnDemandReplay {
+    func getSut(trueDispatchQueueWrapper: Bool = false) -> SentryOnDemandReplay {
         let sut = SentryOnDemandReplay(outputPath: outputPath.path,
                                        workingQueue: trueDispatchQueueWrapper ? SentryDispatchQueueWrapper() : TestSentryDispatchQueueWrapper(),
                                        dateProvider: dateProvider)
@@ -180,7 +180,7 @@ class SentryOnDemandReplayTests: XCTestCase {
         dateProvider.driftTimeForEveryRead = true
         dateProvider.driftTimeInterval = 1
         
-        let image = UIGraphicsImageRenderer(size: CGSize(width: 20, height: 10)).image { context in
+        let image = UIGraphicsImageRenderer(size: CGSize(width: 20, height: 10)).image { _ in
         }
         
         for i in 0..<10 {
