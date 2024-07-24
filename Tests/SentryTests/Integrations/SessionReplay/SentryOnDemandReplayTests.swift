@@ -20,9 +20,9 @@ class SentryOnDemandReplayTests: XCTestCase {
         }
     }
     
-    func getSut() -> SentryOnDemandReplay {
-        let sut = SentryOnDemandReplay(outputPath: outputPath.path, 
-                                       workingQueue: TestSentryDispatchQueueWrapper(),
+    func getSut(trueDispatchQueueWrapper : Bool = false) -> SentryOnDemandReplay {
+        let sut = SentryOnDemandReplay(outputPath: outputPath.path,
+                                       workingQueue: trueDispatchQueueWrapper ? SentryDispatchQueueWrapper() : TestSentryDispatchQueueWrapper(),
                                        dateProvider: dateProvider)
         return sut
     }
@@ -173,6 +173,53 @@ class SentryOnDemandReplayTests: XCTestCase {
         }
         
         wait(for: [expect], timeout: 1)
+    }
+    
+    func testGenerateVideoForEachSize() throws {
+        let sut = getSut(trueDispatchQueueWrapper: true)
+        dateProvider.driftTimeForEveryRead = true
+        dateProvider.driftTimeInterval = 1
+        
+        let image = UIGraphicsImageRenderer(size: CGSize(width: 20, height: 10)).image { context in
+        }
+        
+        for i in 0..<10 {
+            sut.addFrameAsync(image: i < 5 ? UIImage.add : image)
+        }
+        
+        let videoExpectation = expectation(description: "Wait for video render")
+        videoExpectation.expectedFulfillmentCount = 2
+        
+        var videos = [SentryVideoInfo]()
+        
+        try? sut.createVideoWith(beginning: Date(timeIntervalSinceReferenceDate: 0), end: Date(timeIntervalSinceReferenceDate: 10)) { info, error in
+            XCTAssertNil(error)
+            guard let info = info else { return }
+            videos.append(info)
+            videoExpectation.fulfill()
+        }
+        
+        wait(for: [videoExpectation], timeout: 1)
+        
+        XCTAssertEqual(videos.count, 2)
+        
+        let firstVideo = try XCTUnwrap(videos.first)
+        let secondVideo = try XCTUnwrap(videos.last)
+        
+        XCTAssertEqual(firstVideo.duration, 5)
+        XCTAssertEqual(secondVideo.duration, 5)
+        
+        XCTAssertEqual(firstVideo.start, Date(timeIntervalSinceReferenceDate: 0))
+        XCTAssertEqual(secondVideo.start, Date(timeIntervalSinceReferenceDate: 5))
+        
+        XCTAssertEqual(firstVideo.end, Date(timeIntervalSinceReferenceDate: 5))
+        XCTAssertEqual(secondVideo.end, Date(timeIntervalSinceReferenceDate: 10))
+        
+        XCTAssertEqual(firstVideo.width, 20)
+        XCTAssertEqual(firstVideo.height, 19)
+        
+        XCTAssertEqual(secondVideo.width, 20)
+        XCTAssertEqual(secondVideo.height, 10)
     }
     
 }
