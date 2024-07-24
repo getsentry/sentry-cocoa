@@ -139,6 +139,11 @@ void sentrycrash_setSaveScreenshots(SaveAttachmentCallback callback);
  */
 void sentrycrash_setSaveViewHierarchy(SaveAttachmentCallback callback);
 
+/**
+ * Set the callback to be called at the end of a crash.
+ */
+void sentrycrash_setBeforeCrashCallback(void (*callback)(const char *eventID));
+
 /** Report a custom, user defined exception.
  * This can be useful when dealing with scripting languages.
  *

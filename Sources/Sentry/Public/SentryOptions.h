@@ -93,6 +93,24 @@ NS_SWIFT_NAME(Options)
 #endif // !TARGET_OS_WATCH
 
 /**
+ * C Function to call before a crash to give the callee an opportunity to
+ * run a function before we crash. NULL = ignore.
+ *
+ * @warning Only call async-safe functions from this function! DO NOT call
+ * Objective-C methods!!!
+ * @note Default value is nil.
+ */
+@property (nullable, nonatomic, copy) SentryBeforeCrashCallback beforeCrash;
+
+
+/**
+ * When enabled, and when the beforeCrash handler is not null, this allows the callee
+ * an opportunity to run a function before we crash.
+ * @note Default value @c NO.
+ */
+@property (nonatomic, assign) BOOL enableBeforeCrashHandler;
+
+/**
  * How many breadcrumbs do you want to keep in memory?
  * @note Default is @c 100 .
  */
