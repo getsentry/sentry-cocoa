@@ -127,6 +127,11 @@ public class TestClient: SentryClient {
         recordLostEvents.record((category, reason))
     }
     
+    public var recordLostEventsWithQauntity = Invocations<(category: SentryDataCategory, reason: SentryDiscardReason, quantity: UInt)>()
+    public override func recordLostEvent(_ category: SentryDataCategory, reason: SentryDiscardReason, quantity: UInt) {
+        recordLostEventsWithQauntity.record((category, reason, quantity))
+    }
+    
     public var flushInvocations = Invocations<TimeInterval>()
     public override func flush(timeout: TimeInterval) {
         flushInvocations.record(timeout)

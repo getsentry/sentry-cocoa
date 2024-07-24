@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+### Features
+
+- Record dropped spans (#4172)
+
+### Fixes
+
+- Session replay crash when writing the replay (#4186)
+
 ### Deprecated
 
 - options.enableTracing was deprecated. Use options.tracesSampleRate or options.tracesSampler instead. (#4182)
