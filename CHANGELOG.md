@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+- Support orientation change for session replay (#4194)
+
 ## 8.32.0
 
 ### Features
@@ -9,6 +15,7 @@
 ### Fixes
 
 - Session replay crash when writing the replay (#4186)
+
 ### Features
 
 - Replay for crashes (#4171)
