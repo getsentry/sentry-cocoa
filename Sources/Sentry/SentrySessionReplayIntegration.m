@@ -109,6 +109,13 @@ SentrySessionReplayIntegration ()
         = hasCrashInfo ? _replayOptions.sessionSegmentDuration : _replayOptions.errorReplayDuration;
     int segmentId = hasCrashInfo ? crashInfo.segmentId + 1 : 0;
 
+    if (type == SentryReplayTypeBuffer) {
+        float errorSampleRate = [jsonObject[@"errorSampleRate"] floatValue];
+        if ([SentryDependencyContainer.sharedInstance.random nextNumber] >= errorSampleRate) {
+            return;
+        }
+    }
+
     _resumeReplayMaker = [[SentryOnDemandReplay alloc] initWithContentFrom:lastReplayURL.path];
     _resumeReplayMaker.bitRate = _replayOptions.replayBitRate;
     _resumeReplayMaker.videoScale = _replayOptions.sizeScale;

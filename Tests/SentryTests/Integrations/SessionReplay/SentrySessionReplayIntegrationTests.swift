@@ -237,13 +237,36 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         XCTAssertEqual(replayInfo.replay.replayStartTimestamp, Date(timeIntervalSinceReferenceDate: 5))
     }
     
-    func createLastSessionReplay(writeSessionInfo: Bool = true) throws {
+    func testBufferReplayIgnoredBecauseSampleRateForCrash() throws {
+        startSDK(sessionSampleRate: 1, errorSampleRate: 1)
+        
+        let client = SentryClient(options: try XCTUnwrap(SentrySDK.options))
+        let scope = Scope()
+        let hub = TestHub(client: client, andScope: scope)
+        SentrySDK.setCurrentHub(hub)
+        let expectation = expectation(description: "Replay to be capture")
+        expectation.isInverted = true
+        hub.onReplayCapture = {
+            expectation.fulfill()
+        }
+        
+        try createLastSessionReplay(writeSessionInfo: false, errorSampleRate: 0)
+        let crash = Event(error: NSError(domain: "Error", code: 1))
+        crash.context = [:]
+        crash.isCrashEvent = true
+        SentryGlobalEventProcessor.shared().reportAll(crash)
+        
+        wait(for: [expectation], timeout: 1)
+        XCTAssertEqual(hub.capturedReplayRecordingVideo.count, 0)
+    }
+    
+    func createLastSessionReplay(writeSessionInfo: Bool = true, errorSampleRate: Double = 1) throws {
         let replayFolder = SentryDependencyContainer.sharedInstance().fileManager.sentryPath + "/replay"
         let jsonPath = replayFolder + "/lastreplay"
         var sessionFolder = UUID().uuidString
         let info: [String: Any] = ["replayId": SentryId().sentryIdString,
                                     "path": sessionFolder,
-                                    "errorSampleRate": 1]
+                                    "errorSampleRate": errorSampleRate]
         let data = SentrySerialization.data(withJSONObject: info)
         try data?.write(to: URL(fileURLWithPath: jsonPath))
         
