@@ -160,7 +160,7 @@ class SentryViewHierarchyTests: XCTestCase {
         sut.reportAccessibilityIdentifier = false
         sut.save(path)
 
-        let descriptions = (try? String(contentsOfFile: path)) ?? ""
+        let descriptions = try XCTUnwrap(String(contentsOfFile: path))
 
         XCTAssertEqual(descriptions, "{\"rendering_system\":\"UIKIT\",\"windows\":[{\"type\":\"UIWindow\",\"width\":10,\"height\":10,\"x\":0,\"y\":0,\"alpha\":1,\"visible\":false,\"children\":[]}]}")
     }
