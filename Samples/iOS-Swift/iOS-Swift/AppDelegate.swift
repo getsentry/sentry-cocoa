@@ -72,7 +72,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             options.enableAppLaunchProfiling = args.contains("--profile-app-launches")
 
             options.enableAutoSessionTracking = !args.contains("--disable-automatic-session-tracking")
-            //options.sessionTrackingIntervalMillis = 5_000
+            if let sessionTrackingIntervalMillis = env["--io.sentry.sessionTrackingIntervalMillis"] {
+                options.sessionTrackingIntervalMillis = UInt((sessionTrackingIntervalMillis as NSString).integerValue)
+            }
             options.attachScreenshot = true
             options.attachViewHierarchy = true
        
@@ -164,7 +166,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         if ProcessInfo.processInfo.arguments.contains("--io.sentry.wipe-data") {
             removeAppData()
         }
-        AppDelegate.startSentry()
+        if !ProcessInfo.processInfo.arguments.contains("--skip-sentry-init") {
+            AppDelegate.startSentry()
+        }
         
         randomDistributionTimer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { _ in
             let random = Double.random(in: 0..<1_000)
