@@ -164,6 +164,18 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         XCTAssertNotNil(sut.sessionReplay)
     }
     
+    func testRestartReplayWithNewSessionClosePreviusReplay() throws {
+        startSDK(sessionSampleRate: 1, errorSampleRate: 0)
+        
+        let sut = try getSut()
+        SentrySDK.currentHub().startSession()
+        XCTAssertNotNil(sut.sessionReplay)
+        let oldSessionReplay = sut.sessionReplay
+        XCTAssertTrue(oldSessionReplay?.isRunning ?? false)
+        SentrySDK.currentHub().startSession()
+        XCTAssertFalse(oldSessionReplay?.isRunning ?? true)
+    }
+    
     func testScreenNameFromSentryUIApplication() throws {
         startSDK(sessionSampleRate: 1, errorSampleRate: 1)
         let sut: SentrySessionReplayDelegate = try getSut()

@@ -164,13 +164,15 @@ SentrySessionReplayIntegration ()
 
     NSError *error = nil;
     if (![[NSFileManager defaultManager] removeItemAtURL:video.path error:&error]) {
-        NSLog(@"[SentrySessionReplay:%d] Could not delete replay segment from disk: %@", __LINE__,
-            error.localizedDescription);
+        SENTRY_LOG_DEBUG(
+            @"Could not delete replay segment from disk: %@", error.localizedDescription);
     }
 }
 
 - (void)startSession
 {
+    [self.sessionReplay stop];
+
     _startedAsFullSession = [self shouldReplayFullSession:_replayOptions.sessionSampleRate];
 
     if (!_startedAsFullSession && _replayOptions.errorSampleRate == 0) {
@@ -311,9 +313,6 @@ SentrySessionReplayIntegration ()
 
 - (void)sentrySessionStarted:(SentrySession *)session
 {
-    if (_sessionReplay) {
-        return;
-    }
     [self startSession];
 }
 
