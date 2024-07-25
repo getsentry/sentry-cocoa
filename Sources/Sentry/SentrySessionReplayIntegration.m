@@ -131,7 +131,6 @@ SentrySessionReplayIntegration ()
     if (![_resumeReplayMaker
             createVideoWithBeginning:beginning
                                  end:[beginning dateByAddingTimeInterval:duration]
-                       outputFileURL:[lastReplayURL URLByAppendingPathComponent:@"lastVideo.mp4"]
                                error:&error
                           completion:^(SentryVideoInfo *video, NSError *renderError) {
                               if (renderError != nil) {
