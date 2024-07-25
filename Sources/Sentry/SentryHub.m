@@ -705,7 +705,7 @@ SentryHub () <SentryMetricsAPIDelegate>
     for (SentryEnvelopeItem *item in items) {
         if ([item.header.type isEqualToString:SentryEnvelopeItemTypeEvent]) {
             // If there is no level the default is error
-            NSDictionary *eventJson = [SentrySerialization deserializeEventEnvelopeItem:item.data];
+            NSDictionary *eventJson = [SentrySerialization deserializeDictionaryFromJsonData:item.data];
             if (eventJson == nil) {
                 return NO;
             }

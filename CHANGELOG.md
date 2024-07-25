@@ -1,10 +1,15 @@
 # Changelog
 
-## 8.32.0
+## Unreleased
 
 ### Features
 
 - Replay for crashes (#4171)
+
+## 8.32.0
+
+### Features
+
 - Record dropped spans (#4172)
 
 ### Fixes

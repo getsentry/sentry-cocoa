@@ -85,14 +85,9 @@ SentrySessionReplayIntegration ()
     if (lastReplay == nil) {
         return;
     }
-    NSError *error = nil;
-    NSDictionary<NSString *, id> *jsonObject = [NSJSONSerialization JSONObjectWithData:lastReplay
-                                                                               options:0
-                                                                                 error:&error];
-    if (jsonObject == nil) {
-        SENTRY_LOG_DEBUG(@"Can't open last session replay: %@", error);
-        return;
-    }
+
+    NSDictionary<NSString *, id> *jsonObject = [SentrySerialization deserializeDictionaryFromJsonData:lastReplay];
+    if (jsonObject == nil) { return; }
 
     SentryId *replayId = jsonObject[@"replayId"]
         ? [[SentryId alloc] initWithUUIDString:jsonObject[@"replayId"]]
@@ -128,6 +123,7 @@ SentrySessionReplayIntegration ()
         return; // no frames to send
     }
 
+    NSError * error;
     if (![_resumeReplayMaker
             createVideoWithBeginning:beginning
                                  end:[beginning dateByAddingTimeInterval:duration]
