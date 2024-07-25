@@ -86,8 +86,11 @@ SentrySessionReplayIntegration ()
         return;
     }
 
-    NSDictionary<NSString *, id> *jsonObject = [SentrySerialization deserializeDictionaryFromJsonData:lastReplay];
-    if (jsonObject == nil) { return; }
+    NSDictionary<NSString *, id> *jsonObject =
+        [SentrySerialization deserializeDictionaryFromJsonData:lastReplay];
+    if (jsonObject == nil) {
+        return;
+    }
 
     SentryId *replayId = jsonObject[@"replayId"]
         ? [[SentryId alloc] initWithUUIDString:jsonObject[@"replayId"]]
@@ -123,7 +126,7 @@ SentrySessionReplayIntegration ()
         return; // no frames to send
     }
 
-    NSError * error;
+    NSError *error;
     if (![_resumeReplayMaker
             createVideoWithBeginning:beginning
                                  end:[beginning dateByAddingTimeInterval:duration]
