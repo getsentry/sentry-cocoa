@@ -139,7 +139,7 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
         videoWriter.startWriting()
         videoWriter.startSession(atSourceTime: .zero)
         
-        var lastVideoSize: CGSize = CGSize(width: videoWidth, height: videoHeight)
+        var lastImageSize: CGSize = image.size
         var usedFrames = [SentryReplayFrame]()
         videoWriterInput.requestMediaDataWhenReady(on: workingQueue.queue) { [weak self] in
             guard let self = self, videoWriter.status == .writing else {
@@ -151,7 +151,7 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
             if frameCount < videoFrames.count {
                 let frame = videoFrames[frameCount]
                 if let image = UIImage(contentsOfFile: frame.imagePath) {
-                    if lastVideoSize != image.size {
+                    if lastImageSize != image.size {
                         videoWriterInput.markAsFinished()
                         finishVideo(outputFileURL: outputFileURL, usedFrames: usedFrames, videoHeight: Int(videoHeight), videoWidth: Int(videoWidth), videoWriter: videoWriter, completion: completion)
                         
@@ -163,7 +163,7 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
                         
                         return
                     }
-                    lastVideoSize = image.size
+                    lastImageSize = image.size
                     
                     let presentTime = CMTime(seconds: Double(frameCount), preferredTimescale: CMTimeScale(1 / self.frameRate))
 
