@@ -24,7 +24,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * Retrieves the json object from an event envelope item data.
  */
-+ (NSDictionary *)deserializeEventEnvelopeItem:(NSData *)eventEnvelopeItemData;
++ (NSDictionary *)deserializeDictionaryFromJsonData:(NSData *)data;
 
 /**
  * Extract the level from data of an envelopte item containing an event. Default is the 'error'

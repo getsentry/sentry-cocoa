@@ -408,7 +408,7 @@ SentryHttpTransport ()
 {
     if ([SentryEnvelopeItemTypeTransaction isEqualToString:envelopeItem.header.type]) {
         NSDictionary *transactionJson =
-            [SentrySerialization deserializeEventEnvelopeItem:envelopeItem.data];
+            [SentrySerialization deserializeDictionaryFromJsonData:envelopeItem.data];
         if (transactionJson == nil) {
             return;
         }
