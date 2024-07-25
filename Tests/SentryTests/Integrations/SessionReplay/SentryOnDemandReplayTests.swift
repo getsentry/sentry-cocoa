@@ -180,11 +180,11 @@ class SentryOnDemandReplayTests: XCTestCase {
         dateProvider.driftTimeForEveryRead = true
         dateProvider.driftTimeInterval = 1
         
-        let image = UIGraphicsImageRenderer(size: CGSize(width: 20, height: 10)).image { _ in
-        }
+        let image1 = UIGraphicsImageRenderer(size: CGSize(width: 20, height: 19)).image { _ in }
+        let image2 = UIGraphicsImageRenderer(size: CGSize(width: 20, height: 10)).image { _ in }
         
         for i in 0..<10 {
-            sut.addFrameAsync(image: i < 5 ? UIImage.add : image)
+            sut.addFrameAsync(image: i < 5 ? image1 : image2)
         }
         
         let videoExpectation = expectation(description: "Wait for video render")
