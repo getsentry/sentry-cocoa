@@ -5,12 +5,12 @@
 ### Features
 
 - Support orientation change for session replay (#4194)
+- Replay for crashes (#4171)
 
 ## 8.32.0
 
 ### Features
 
-- Replay for crashes (#4171)
 - Record dropped spans (#4172)
 
 ### Fixes
