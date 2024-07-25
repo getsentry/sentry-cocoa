@@ -15,7 +15,7 @@ SENTRY_NO_INIT
 
 - (void)addEventProcessor:(SentryEventProcessor)newProcessor;
 
-- (SentryEvent *)reportAll:(SentryEvent *)event;
+- (nullable SentryEvent *)reportAll:(SentryEvent *)event;
 
 @end
 

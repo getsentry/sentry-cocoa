@@ -286,8 +286,10 @@ class SentrySessionReplay: NSObject {
     }
 
     private func newImage(image: UIImage, forScreen screen: String?) {
-        processingScreenshot = false
-        replayMaker.addFrameAsync(image: image, forScreen: screen)
+        lock.synchronized {
+            processingScreenshot = false
+            replayMaker.addFrameAsync(image: image, forScreen: screen)
+        }
     }
 }
 

@@ -85,10 +85,15 @@ SentrySessionReplayIntegration ()
     if (lastReplay == nil) {
         return;
     }
-
+    NSError *error = nil;
     NSDictionary<NSString *, id> *jsonObject = [NSJSONSerialization JSONObjectWithData:lastReplay
                                                                                options:0
-                                                                                 error:nil];
+                                                                                 error:&error];
+    if (jsonObject == nil) {
+        SENTRY_LOG_DEBUG(@"Can't open last session replay: %@", error);
+        return;
+    }
+
     SentryId *replayId = jsonObject[@"replayId"]
         ? [[SentryId alloc] initWithUUIDString:jsonObject[@"replayId"]]
         : [[SentryId alloc] init];
@@ -104,6 +109,13 @@ SentrySessionReplayIntegration ()
         = hasCrashInfo ? _replayOptions.sessionSegmentDuration : _replayOptions.errorReplayDuration;
     __block int segmentId = hasCrashInfo ? crashInfo.segmentId + 1 : 0;
 
+    if (type == SentryReplayTypeBuffer) {
+        float errorSampleRate = [jsonObject[@"errorSampleRate"] floatValue];
+        if ([SentryDependencyContainer.sharedInstance.random nextNumber] >= errorSampleRate) {
+            return;
+        }
+    }
+
     _resumeReplayMaker = [[SentryOnDemandReplay alloc] initWithContentFrom:lastReplayURL.path];
     _resumeReplayMaker.bitRate = _replayOptions.replayBitRate;
     _resumeReplayMaker.videoScale = _replayOptions.sizeScale;
@@ -111,37 +123,36 @@ SentrySessionReplayIntegration ()
     NSDate *beginning = hasCrashInfo
         ? [NSDate dateWithTimeIntervalSinceReferenceDate:crashInfo.lastSegmentEnd]
         : [_resumeReplayMaker oldestFrameDate];
+
     if (beginning == nil) {
-        // no frames to send
+        return; // no frames to send
+    }
+
+    if (![_resumeReplayMaker
+            createVideoWithBeginning:beginning
+                                 end:[beginning dateByAddingTimeInterval:duration]
+                       outputFileURL:[lastReplayURL URLByAppendingPathComponent:@"lastVideo.mp4"]
+                               error:&error
+                          completion:^(SentryVideoInfo *video, NSError *renderError) {
+                              if (renderError != nil) {
+                                  SENTRY_LOG_ERROR(
+                                      @"Could not create replay video: %@", renderError);
+                              } else {
+                                  [self captureVideo:video
+                                            replayId:replayId
+                                           segmentId:segmentId
+                                                type:type];
+                              }
+                              self->_resumeReplayMaker = nil;
+                          }]) {
+        SENTRY_LOG_ERROR(@"Could not create replay video: %@", error);
         return;
     }
 
-    NSError *replayError = nil;
-
-    [_resumeReplayMaker
-        createVideoWithBeginning:beginning
-                             end:[beginning dateByAddingTimeInterval:duration]
-                           error:&replayError
-                      completion:^(SentryVideoInfo *video, NSError *error) {
-                          if (error != nil) {
-                              SENTRY_LOG_ERROR(@"Could not create replay video: %@", error);
-                          } else {
-                              [self captureVideo:video
-                                        replayId:replayId
-                                       segmentId:segmentId
-                                            type:type];
-                              segmentId += 1;
-                          }
-                          self->_resumeReplayMaker = nil;
-                      }];
-
-    if (replayError != nil) {
-        SENTRY_LOG_ERROR(@"Could not create replay video: %@", replayError);
-    } else {
-        NSMutableDictionary *eventContext = event.context.mutableCopy;
-        eventContext[@"replay"] = @{ @"replay_id" : replayId.sentryIdString };
-        event.context = eventContext;
-    }
+    NSMutableDictionary *eventContext = event.context.mutableCopy;
+    eventContext[@"replay"] =
+        [NSDictionary dictionaryWithObjectsAndKeys:replayId.sentryIdString, @"replay_id", nil];
+    event.context = eventContext;
 }
 
 - (void)captureVideo:(SentryVideoInfo *)video
@@ -271,11 +282,10 @@ SentrySessionReplayIntegration ()
                           path:(NSString *)path
                        options:(SentryReplayOptions *)options
 {
-    NSDictionary *info = @{
-        @"replayId" : sessionId.sentryIdString,
-        @"path" : path.lastPathComponent,
-        @"errorSampleRate" : @(options.errorSampleRate)
-    };
+    NSDictionary *info = [[NSDictionary alloc] initWithObjectsAndKeys:sessionId.sentryIdString,
+                                               @"replayId", path.lastPathComponent, @"path",
+                                               @(options.errorSampleRate), @"errorSampleRate", nil];
+
     NSData *data = [SentrySerialization dataWithJSONObject:info];
 
     NSString *infoPath =
