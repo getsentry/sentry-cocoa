@@ -72,6 +72,7 @@ class SentrySessionReplayTests: XCTestCase {
                                        touchTracker: SentryTouchTracker(dateProvider: dateProvider, scale: 0),
                                        dateProvider: dateProvider,
                                        delegate: self,
+                                       dispatchQueue: TestSentryDispatchQueueWrapper(),
                                        displayLinkWrapper: displayLink)
         }
         

@@ -251,6 +251,7 @@ SentrySessionReplayIntegration ()
                  touchTracker:_touchTracker
                  dateProvider:SentryDependencyContainer.sharedInstance.dateProvider
                      delegate:self
+                dispatchQueue:[[SentryDispatchQueueWrapper alloc] init]
            displayLinkWrapper:[[SentryDisplayLinkWrapper alloc] init]];
 
     [self.sessionReplay

@@ -53,9 +53,10 @@ class SentrySessionReplay: NSObject {
          touchTracker: SentryTouchTracker?,
          dateProvider: SentryCurrentDateProvider,
          delegate: SentrySessionReplayDelegate,
+         dispatchQueue: SentryDispatchQueueWrapper,
          displayLinkWrapper: SentryDisplayLinkWrapper) {
 
-        dispatchQueue = SentryDispatchQueueWrapper()
+        self.dispatchQueue = dispatchQueue
         self.replayOptions = replayOptions
         self.dateProvider = dateProvider
         self.delegate = delegate
