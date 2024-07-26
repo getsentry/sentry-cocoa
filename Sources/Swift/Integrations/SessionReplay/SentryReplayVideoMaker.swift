@@ -6,7 +6,7 @@ import UIKit
 protocol SentryReplayVideoMaker: NSObjectProtocol {
     func addFrameAsync(image: UIImage, forScreen: String?) 
     func releaseFramesUntil(_ date: Date)
-    func createVideoWith(beginning: Date, end: Date, completion: @escaping (SentryVideoInfo?, Error?) -> Void) throws
+    func createVideoWith(beginning: Date, end: Date) throws -> [SentryVideoInfo]
 }
 
 extension SentryReplayVideoMaker {

@@ -4,6 +4,7 @@
 
 #    import "SentryClient+Private.h"
 #    import "SentryDependencyContainer.h"
+#    import "SentryDispatchQueueWrapper.h"
 #    import "SentryDisplayLinkWrapper.h"
 #    import "SentryEvent+Private.h"
 #    import "SentryFileManager.h"
@@ -21,7 +22,6 @@
 #    import "SentrySwizzle.h"
 #    import "SentryUIApplication.h"
 #    import <UIKit/UIKit.h>
-
 NS_ASSUME_NONNULL_BEGIN
 
 static NSString *SENTRY_REPLAY_FOLDER = @"replay";
@@ -42,7 +42,7 @@ SentrySessionReplayIntegration ()
     BOOL _startedAsFullSession;
     SentryReplayOptions *_replayOptions;
     SentryNSNotificationCenterWrapper *_notificationCenter;
-    SentryOnDemandReplay *_resumeReplayMaker;
+    SentryDispatchQueueWrapper *_dispatchQueue;
 }
 
 - (BOOL)installWithOptions:(nonnull SentryOptions *)options
@@ -105,7 +105,7 @@ SentrySessionReplayIntegration ()
     SentryReplayType type = hasCrashInfo ? SentryReplayTypeSession : SentryReplayTypeBuffer;
     NSTimeInterval duration
         = hasCrashInfo ? _replayOptions.sessionSegmentDuration : _replayOptions.errorReplayDuration;
-    __block int segmentId = hasCrashInfo ? crashInfo.segmentId + 1 : 0;
+    int segmentId = hasCrashInfo ? crashInfo.segmentId + 1 : 0;
 
     if (type == SentryReplayTypeBuffer) {
         float errorSampleRate = [jsonObject[@"errorSampleRate"] floatValue];
@@ -114,38 +114,41 @@ SentrySessionReplayIntegration ()
         }
     }
 
-    _resumeReplayMaker = [[SentryOnDemandReplay alloc] initWithContentFrom:lastReplayURL.path];
-    _resumeReplayMaker.bitRate = _replayOptions.replayBitRate;
-    _resumeReplayMaker.videoScale = _replayOptions.sizeScale;
+    SentryOnDemandReplay *resumeReplayMaker =
+        [[SentryOnDemandReplay alloc] initWithContentFrom:lastReplayURL.path];
+    resumeReplayMaker.bitRate = _replayOptions.replayBitRate;
+    resumeReplayMaker.videoScale = _replayOptions.sizeScale;
 
     NSDate *beginning = hasCrashInfo
         ? [NSDate dateWithTimeIntervalSinceReferenceDate:crashInfo.lastSegmentEnd]
-        : [_resumeReplayMaker oldestFrameDate];
+        : [resumeReplayMaker oldestFrameDate];
 
     if (beginning == nil) {
         return; // no frames to send
     }
 
-    NSError *error;
-    if (![_resumeReplayMaker
+    _dispatchQueue = [[SentryDispatchQueueWrapper alloc] init];
+
+    [_dispatchQueue dispatchAsyncWithBlock:^{
+        SentryReplayType _type = type;
+        int _segmentId = segmentId;
+
+        NSError *error;
+        NSArray<SentryVideoInfo *> *videos = [resumeReplayMaker
             createVideoWithBeginning:beginning
                                  end:[beginning dateByAddingTimeInterval:duration]
-                               error:&error
-                          completion:^(SentryVideoInfo *video, NSError *renderError) {
-                              if (renderError != nil) {
-                                  SENTRY_LOG_ERROR(
-                                      @"Could not create replay video: %@", renderError);
-                              } else {
-                                  [self captureVideo:video
-                                            replayId:replayId
-                                           segmentId:segmentId
-                                                type:type];
-                              }
-                              self->_resumeReplayMaker = nil;
-                          }]) {
-        SENTRY_LOG_ERROR(@"Could not create replay video: %@", error);
-        return;
-    }
+                               error:&error];
+        if (videos == nil) {
+            SENTRY_LOG_ERROR(@"Could not create replay video: %@", error);
+            return;
+        }
+
+        for (SentryVideoInfo *video in videos) {
+            [self captureVideo:video replayId:replayId segmentId:_segmentId++ type:_type];
+            // type buffer is only for the first segment
+            _type = SentryReplayTypeSession;
+        }
+    }];
 
     NSMutableDictionary *eventContext = event.context.mutableCopy;
     eventContext[@"replay"] =

@@ -39,6 +39,7 @@ class SentrySessionReplay: NSObject {
     private let displayLink: SentryDisplayLinkWrapper
     private let dateProvider: SentryCurrentDateProvider
     private let touchTracker: SentryTouchTracker?
+    private let dispatchQueue: SentryDispatchQueueWrapper
     private let lock = NSLock()
     
     var screenshotProvider: SentryViewScreenshotProvider
@@ -54,6 +55,7 @@ class SentrySessionReplay: NSObject {
          delegate: SentrySessionReplayDelegate,
          displayLinkWrapper: SentryDisplayLinkWrapper) {
 
+        dispatchQueue = SentryDispatchQueueWrapper()
         self.replayOptions = replayOptions
         self.dateProvider = dateProvider
         self.delegate = delegate
@@ -212,17 +214,15 @@ class SentrySessionReplay: NSObject {
     }
 
     private func createAndCapture(startedAt: Date) {
-        do {
-            try replayMaker.createVideoWith(beginning: startedAt, end: dateProvider.date()) { [weak self] videoInfo, error in
-                guard let _self = self else { return }
-                if let error = error {
-                    print("[SentrySessionReplay:\(#line)] Could not create replay video - \(error.localizedDescription)")
-                } else if let videoInfo = videoInfo {
-                    _self.newSegmentAvailable(videoInfo: videoInfo)
+        dispatchQueue.dispatchAsync {
+            do {
+                let videos = try self.replayMaker.createVideoWith(beginning: startedAt, end: self.dateProvider.date())
+                for video in videos {
+                    self.newSegmentAvailable(videoInfo: video)
                 }
+            } catch {
+                print("[SentrySessionReplay:\(#line)] Could not create replay video - \(error.localizedDescription)")
             }
-        } catch {
-            print("[SentrySessionReplay:\(#line)] Could not create replay video - \(error.localizedDescription)")
         }
     }
 

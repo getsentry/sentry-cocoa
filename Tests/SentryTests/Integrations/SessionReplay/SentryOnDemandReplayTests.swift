@@ -74,7 +74,7 @@ class SentryOnDemandReplayTests: XCTestCase {
         }
     }
     
-    func testGenerateVideo() {
+    func testGenerateVideo() throws {
         let sut = getSut()
         dateProvider.driftTimeForEveryRead = true
         dateProvider.driftTimeInterval = 1
@@ -85,23 +85,20 @@ class SentryOnDemandReplayTests: XCTestCase {
         
         let videoExpectation = expectation(description: "Wait for video render")
         
-        try? sut.createVideoWith(beginning: Date(timeIntervalSinceReferenceDate: 0), end: Date(timeIntervalSinceReferenceDate: 10)) { info, error in
-            XCTAssertNil(error)
-            
-            XCTAssertEqual(info?.duration, 10)
-            XCTAssertEqual(info?.start, Date(timeIntervalSinceReferenceDate: 0))
-            XCTAssertEqual(info?.end, Date(timeIntervalSinceReferenceDate: 10))
-            
-            guard let videoPath = info?.path else {
-                XCTFail("No video path for replay")
-                return
-            }
-            
-            XCTAssertEqual(FileManager.default.fileExists(atPath: videoPath.path), true)
-            videoExpectation.fulfill()
-            try? FileManager.default.removeItem(at: videoPath)
-        }
+        let videos = try sut.createVideoWith(beginning: Date(timeIntervalSinceReferenceDate: 0), end: Date(timeIntervalSinceReferenceDate: 10))
+        XCTAssertEqual(videos.count, 1)
+        let info = try XCTUnwrap(videos.first)
         
+        XCTAssertEqual(info.duration, 10)
+        XCTAssertEqual(info.start, Date(timeIntervalSinceReferenceDate: 0))
+        XCTAssertEqual(info.end, Date(timeIntervalSinceReferenceDate: 10))
+        
+        let videoPath = info.path
+        
+        XCTAssertTrue(FileManager.default.fileExists(atPath: videoPath.path))
+        
+        videoExpectation.fulfill()
+        try FileManager.default.removeItem(at: videoPath)
         wait(for: [videoExpectation], timeout: 1)
     }
     
@@ -152,12 +149,11 @@ class SentryOnDemandReplayTests: XCTestCase {
         XCTAssertEqual(sut.frames.count, 0)
     }
     
-    func testInvalidWriter() {
-        let queue = SentryDispatchQueueWrapper()
+    func testInvalidWriter() throws {
+        let queue = TestSentryDispatchQueueWrapper()
         let sut = SentryOnDemandReplay(outputPath: outputPath.path,
                                        workingQueue: queue,
                                        dateProvider: dateProvider)
-        let expect = expectation(description: "Video render")
         
         let start = dateProvider.date()
         sut.addFrameAsync(image: UIImage.add)
@@ -165,18 +161,13 @@ class SentryOnDemandReplayTests: XCTestCase {
         let end = dateProvider.date()
         
         //Creating a file where the replay would be written to cause an error in the writer
-        try? "tempFile".data(using: .utf8)?.write(to: outputPath.appendingPathComponent("0.0.mp4"))
+        try "tempFile".data(using: .utf8)?.write(to: outputPath.appendingPathComponent("0.0.mp4"))
         
-        try? sut.createVideoWith(beginning: start, end: end) { _, error in
-            XCTAssertNotNil(error)
-            expect.fulfill()
-        }
-        
-        wait(for: [expect], timeout: 1)
+        XCTAssertThrowsError(try sut.createVideoWith(beginning: start, end: end))
     }
     
     func testGenerateVideoForEachSize() throws {
-        let sut = getSut(trueDispatchQueueWrapper: true)
+        let sut = getSut()
         dateProvider.driftTimeForEveryRead = true
         dateProvider.driftTimeInterval = 1
         
@@ -187,19 +178,7 @@ class SentryOnDemandReplayTests: XCTestCase {
             sut.addFrameAsync(image: i < 5 ? image1 : image2)
         }
         
-        let videoExpectation = expectation(description: "Wait for video render")
-        videoExpectation.expectedFulfillmentCount = 2
-        
-        var videos = [SentryVideoInfo]()
-        
-        try? sut.createVideoWith(beginning: Date(timeIntervalSinceReferenceDate: 0), end: Date(timeIntervalSinceReferenceDate: 10)) { info, error in
-            XCTAssertNil(error)
-            guard let info = info else { return }
-            videos.append(info)
-            videoExpectation.fulfill()
-        }
-        
-        wait(for: [videoExpectation], timeout: 1)
+        let videos = try sut.createVideoWith(beginning: Date(timeIntervalSinceReferenceDate: 0), end: Date(timeIntervalSinceReferenceDate: 10))
         
         XCTAssertEqual(videos.count, 2)
         

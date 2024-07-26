@@ -20,21 +20,17 @@ class SentrySessionReplayTests: XCTestCase {
         struct CreateVideoCall {
             var beginning: Date
             var end: Date
-            var completion: ((Sentry.SentryVideoInfo?, Error?) -> Void)
         }
         
         var lastCallToCreateVideo: CreateVideoCall?
-        func createVideoWith(beginning: Date, end: Date, completion: @escaping (Sentry.SentryVideoInfo?, (Error)?) -> Void) throws {
-            lastCallToCreateVideo = CreateVideoCall(beginning: beginning,
-                                                    end: end,
-                                                    completion: completion)
+        func createVideoWith(beginning: Date, end: Date) throws -> [SentryVideoInfo] {
+            lastCallToCreateVideo = CreateVideoCall(beginning: beginning, end: end)
             let outputFileURL = FileManager.default.temporaryDirectory.appendingPathComponent("tempvideo.mp4")
             
             try? "Video Data".write(to: outputFileURL, atomically: true, encoding: .utf8)
-            
             let videoInfo = SentryVideoInfo(path: outputFileURL, height: 1_024, width: 480, duration: end.timeIntervalSince(beginning), frameCount: 5, frameRate: 1, start: beginning, end: end, fileSize: 10, screens: screens)
             
-            completion(videoInfo, nil)
+            return [videoInfo]
         }
         
         var lastFrame: UIImage?
