@@ -16,6 +16,7 @@ struct SentryReplayFrame {
 enum SentryOnDemandReplayError: Error {
     case cantReadVideoSize
     case cantCreatePixelBuffer
+    case errorRenderingVideo
 }
 
 @objcMembers
@@ -159,26 +160,20 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
         var usedFrames = [SentryReplayFrame]()
         let group = DispatchGroup()
         
-        var renderError: Error?
-        var result: SentryVideoInfo?
+        var result: Result<SentryVideoInfo?, Error>?
         var frameCount = from
         
         group.enter()
         videoWriterInput.requestMediaDataWhenReady(on: workingQueue.queue) { [weak self] in
-            
             guard let self = self, videoWriter.status == .writing else {
                 videoWriter.cancelWriting()
-                renderError = videoWriter.error
+                result = .failure(videoWriter.error ?? SentryOnDemandReplayError.errorRenderingVideo )
                 group.leave()
                 return
             }
             
             if frameCount >= videoFrames.count {
-                do {
-                    result = try self.finishVideo(outputFileURL: outputFileURL, usedFrames: usedFrames, videoHeight: Int(videoHeight), videoWidth: Int(videoWidth), videoWriter: videoWriter)
-                } catch {
-                    renderError = error
-                }
+                result = self.finishVideo(outputFileURL: outputFileURL, usedFrames: usedFrames, videoHeight: Int(videoHeight), videoWidth: Int(videoWidth), videoWriter: videoWriter)
                 group.leave()
                 return
             }
@@ -186,11 +181,7 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
             let frame = videoFrames[frameCount]
             if let image = UIImage(contentsOfFile: frame.imagePath) {
                 if lastImageSize != image.size {
-                    do {
-                        result = try self.finishVideo(outputFileURL: outputFileURL, usedFrames: usedFrames, videoHeight: Int(videoHeight), videoWidth: Int(videoWidth), videoWriter: videoWriter)
-                    } catch {
-                        renderError = error
-                    }
+                    result = self.finishVideo(outputFileURL: outputFileURL, usedFrames: usedFrames, videoHeight: Int(videoHeight), videoWidth: Int(videoWidth), videoWriter: videoWriter)
                     group.leave()
                     return
                 }
@@ -199,8 +190,8 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
                 let presentTime = CMTime(seconds: Double(frameCount), preferredTimescale: CMTimeScale(1 / self.frameRate))
                 
                 if currentPixelBuffer.append(image: image, presentationTime: presentTime) != true {
-                    renderError = videoWriter.error
                     videoWriter.cancelWriting()
+                    result = .failure(videoWriter.error ?? SentryOnDemandReplayError.errorRenderingVideo )
                     group.leave()
                     return
                 }
@@ -210,13 +201,11 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
         }
         group.wait()
         from = frameCount
-        if let renderError = renderError {
-            throw renderError
-        }
-        return result
+        
+        return try result?.get()
     }
         
-    private func finishVideo(outputFileURL: URL, usedFrames: [SentryReplayFrame], videoHeight: Int, videoWidth: Int, videoWriter: AVAssetWriter) throws -> SentryVideoInfo? {
+    private func finishVideo(outputFileURL: URL, usedFrames: [SentryReplayFrame], videoHeight: Int, videoWidth: Int, videoWriter: AVAssetWriter) -> Result<SentryVideoInfo?, Error> {
         let group = DispatchGroup()
         var finishError: Error?
         var result: SentryVideoInfo?
@@ -242,8 +231,8 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
         }
         group.wait()
         
-        if let finishError { throw finishError }
-        return result
+        if let finishError { return .failure(finishError) }
+        return .success(result)
     }
     
     private func filterFrames(beginning: Date, end: Date) -> [SentryReplayFrame] {
