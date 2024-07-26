@@ -231,7 +231,7 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
         }
         group.wait()
         
-        if let finishError { return .failure(finishError) }
+        if let finishError = finishError { return .failure(finishError) }
         return .success(result)
     }
     
