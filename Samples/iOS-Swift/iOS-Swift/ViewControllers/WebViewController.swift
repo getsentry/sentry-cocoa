@@ -1,8 +1,6 @@
 import Foundation
 import WebKit
 
-
-
 class WebViewController: UIViewController {
     
     let webView = WKWebView()
@@ -12,6 +10,7 @@ class WebViewController: UIViewController {
     }
     
     override func viewDidLoad() {
+        super.viewDidLoad()
         if let url = URL(string: "https://sentry.io") {
             webView.load(URLRequest(url: url))
         }
