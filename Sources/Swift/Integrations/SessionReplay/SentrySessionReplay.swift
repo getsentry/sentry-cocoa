@@ -3,6 +3,11 @@ import Foundation
 @_implementationOnly import _SentryPrivate
 import UIKit
 
+enum SessionReplayError: Error {
+    case cantCreateReplayDirectory
+    case noFramesAvailable
+}
+
 @objc
 protocol SentrySessionReplayDelegate: NSObjectProtocol {
     func sessionReplayIsFullSession() -> Bool
@@ -77,8 +82,8 @@ class SentrySessionReplay: NSObject {
         videoSegmentStart = nil
         currentSegmentId = 0
         sessionReplayId = SentryId()
-        replayMaker.videoWidth = Int(Float(rootView.frame.size.width) * replayOptions.sizeScale)
-        replayMaker.videoHeight = Int(Float(rootView.frame.size.height) * replayOptions.sizeScale)
+        replayMaker.videoWidth = Int(rootView.frame.size.width)
+        replayMaker.videoHeight = Int(rootView.frame.size.height)
         imageCollection = []
 
         if fullSession {
@@ -250,7 +255,7 @@ class SentrySessionReplay: NSObject {
             touchTracker.flushFinishedEvents()
         }
 
-        let recording = SentryReplayRecording(segmentId: replayEvent.segmentId, size: video.fileSize, start: video.start, duration: video.duration, frameCount: video.frameCount, frameRate: video.frameRate, height: video.height, width: video.width, extraEvents: events)
+        let recording = SentryReplayRecording(segmentId: segment, video: video, extraEvents: events)
                 
         delegate?.sessionReplayNewSegment(replayEvent: replayEvent, replayRecording: recording, videoUrl: video.path)
 
@@ -268,14 +273,17 @@ class SentrySessionReplay: NSObject {
         }
         .compactMap(breadcrumbConverter.convert(from:))
     }
-
+    
     private func takeScreenshot() {
         guard let rootView = rootView, !processingScreenshot else { return }
-
-        lock.synchronized {
-            guard !processingScreenshot else { return }
-            processingScreenshot = true
+ 
+        lock.lock()
+        guard !processingScreenshot else {
+            lock.unlock()
+            return
         }
+        processingScreenshot = true
+        lock.unlock()
 
         let screenName = delegate?.currentScreenNameForSessionReplay()
         
@@ -285,8 +293,10 @@ class SentrySessionReplay: NSObject {
     }
 
     private func newImage(image: UIImage, forScreen screen: String?) {
-        processingScreenshot = false
-        replayMaker.addFrameAsync(image: image, forScreen: screen)
+        lock.synchronized {
+            processingScreenshot = false
+            replayMaker.addFrameAsync(image: image, forScreen: screen)
+        }
     }
 }
 

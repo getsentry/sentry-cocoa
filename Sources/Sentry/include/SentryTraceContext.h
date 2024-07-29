@@ -96,7 +96,8 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (instancetype)initWithTraceId:(SentryId *)traceId
                         options:(SentryOptions *)options
-                    userSegment:(nullable NSString *)userSegment;
+                    userSegment:(nullable NSString *)userSegment
+                       replayId:(nullable NSString *)replayId;
 
 /**
  * Create a SentryBaggage with the information of this SentryTraceContext.
