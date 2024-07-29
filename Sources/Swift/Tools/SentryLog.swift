@@ -46,3 +46,31 @@ class SentryLog: NSObject {
     
     #endif
 }
+
+extension SentryLog {
+    private static func log(level: SentryLevel, message: String, file: String, line: Int) {
+        let path = file as NSString
+        let fileName = (path.lastPathComponent as NSString).deletingPathExtension
+        log(message: "[\(fileName):\(line)] \(message)", andLevel: level)
+    }
+    
+    static func debug(_ message : String, file: String = #file, line: Int = #line) {
+        log(level: .debug, message: message, file: file, line: line)
+    }
+    
+    static func info(_ message : String, file: String = #file, line: Int = #line) {
+        log(level: .info, message: message, file: file, line: line)
+    }
+    
+    static func warning(_ message : String, file: String = #file, line: Int = #line) {
+        log(level: .warning, message: message, file: file, line: line)
+    }
+    
+    static func error(_ message : String, file: String = #file, line: Int = #line) {
+        log(level: .error, message: message, file: file, line: line)
+    }
+    
+    static func fatal(_ message : String, file: String = #file, line: Int = #line) {
+        log(level: .fatal, message: message, file: file, line: line)
+    }
+}

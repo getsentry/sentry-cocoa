@@ -91,4 +91,13 @@ class SentryLogTests: XCTestCase {
         XCTAssertTrue(logOutput.loggedMessages.isEmpty)
     }
     
+    func testConvenientLogFunction() {
+        let logOutput = TestLogOutput()
+        SentryLog.setLogOutput(logOutput)
+        SentryLog.configure(true, diagnosticLevel: SentryLevel.debug)
+        let line = #line + 1
+        SentryLog.debug("Debug Log")
+        XCTAssertEqual(["[Sentry] [debug] [SentryLogTests:\(line)] Debug Log"], logOutput.loggedMessages)
+    }
+    
 }
