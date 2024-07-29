@@ -65,7 +65,6 @@ class UIRedactBuilder {
             "_TtC7SwiftUIP33_A34643117F00277B93DEBAB70EC0697122_UIShapeHitTestingView",
             "SwiftUI._UIGraphicsView", "SwiftUI.ImageLayer", "UIWebView"
         ].compactMap { NSClassFromString($0) }
-    
         
 #if os(iOS)
         redactClasses += [ WKWebView.self ]
