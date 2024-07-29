@@ -66,7 +66,8 @@ class UIRedactBuilder {
             "SwiftUI._UIGraphicsView", "SwiftUI.ImageLayer"
         ].compactMap { NSClassFromString($0) }
 #if os(iOS)
-        ignoreClasses = [ UISlider.self, UISwitch.self, UIWebView.self, WKWebView.self ]
+        redactClasses += [UIWebView.self, WKWebView.self]
+        ignoreClasses = [ UISlider.self, UISwitch.self ]
 #else
         ignoreClasses = []
 #endif
