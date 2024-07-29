@@ -95,6 +95,8 @@ _sentry_threadUnsafe_transmitChunkEnvelope(void)
             SENTRY_LOG_WARN(@"Continuous profiler was unable to be initialized.");
             return;
         }
+        
+        _stopCalled = NO;
 
         static dispatch_once_t onceToken;
         dispatch_once(&onceToken, ^{ _profileSessionID = [[SentryId alloc] init]; });
@@ -128,11 +130,6 @@ _sentry_threadUnsafe_transmitChunkEnvelope(void)
         _stopCalled = YES;
 
         _sentry_threadUnsafe_transmitChunkEnvelope();
-        disableTimer();
-
-        [_threadUnsafe_gContinuousCurrentProfiler
-            stopForReason:SentryProfilerTruncationReasonNormal];
-        _threadUnsafe_gContinuousCurrentProfiler = nil;
     }
 }
 
@@ -175,6 +172,14 @@ _sentry_threadUnsafe_transmitChunkEnvelope(void)
     }
 
     _sentry_threadUnsafe_transmitChunkEnvelope();
+    
+    if (_stopCalled) {
+        disableTimer();
+        
+        [_threadUnsafe_gContinuousCurrentProfiler
+         stopForReason:SentryProfilerTruncationReasonNormal];
+        _threadUnsafe_gContinuousCurrentProfiler = nil;
+    }
 }
 
 #    pragma mark - Testing
