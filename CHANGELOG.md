@@ -5,6 +5,7 @@
 ### Features
 
 - Replay for crashes (#4171)
+- Add continuous profiling mode (#4010)
 
 ## 8.32.0
 
@@ -99,7 +100,6 @@ for SIGTERM reporting in the last release and enabled it by default.
 For some users, SIGTERM events were verbose and not actionable.
 Therefore, we disable it per default in this release. If you'd like
 to receive SIGTERM events, set the option `enableSigtermReporting = true`.
-- Add continuous profiling (#4010)
 
 ### Improvements
 
