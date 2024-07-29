@@ -150,7 +150,7 @@ class SentrySessionReplay: NSObject {
         startFullReplay()
 
         guard let finalPath = urlToCache?.appendingPathComponent("replay.mp4") else {
-            print("[SentrySessionReplay:\(#line)] Could not create replay video path")
+            SentryLog.debug("Could not create replay video path")
             return false
         }
         let replayStart = dateProvider.date().addingTimeInterval(-replayOptions.errorReplayDuration - (Double(replayOptions.frameRate) / 2.0))
@@ -207,7 +207,7 @@ class SentrySessionReplay: NSObject {
             do {
                 try fileManager.createDirectory(atPath: pathToSegment.path, withIntermediateDirectories: true, attributes: nil)
             } catch {
-                print("[SentrySessionReplay:\(#line)] Can't create session replay segment folder. Error: \(error.localizedDescription)")
+                SentryLog.debug("Can't create session replay segment folder. Error: \(error.localizedDescription)")
                 return
             }
         }
@@ -223,13 +223,13 @@ class SentrySessionReplay: NSObject {
             try replayMaker.createVideoWith(beginning: startedAt, end: dateProvider.date(), outputFileURL: videoUrl) { [weak self] videoInfo, error in
                 guard let _self = self else { return }
                 if let error = error {
-                    print("[SentrySessionReplay:\(#line)] Could not create replay video - \(error.localizedDescription)")
+                    SentryLog.debug("Could not create replay video - \(error.localizedDescription)")
                 } else if let videoInfo = videoInfo {
                     _self.newSegmentAvailable(videoInfo: videoInfo)
                 }
             }
         } catch {
-            print("[SentrySessionReplay:\(#line)] Could not create replay video - \(error.localizedDescription)")
+            SentryLog.debug("Could not create replay video - \(error.localizedDescription)")
         }
     }
 
@@ -262,7 +262,7 @@ class SentrySessionReplay: NSObject {
         do {
             try FileManager.default.removeItem(at: video.path)
         } catch {
-            print("[SentrySessionReplay:\(#line)] Could not delete replay segment from disk: \(error.localizedDescription)")
+            SentryLog.debug("Could not delete replay segment from disk: \(error.localizedDescription)")
         }
     }
 
