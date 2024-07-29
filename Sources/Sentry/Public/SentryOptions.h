@@ -455,19 +455,6 @@ NS_SWIFT_NAME(Options)
 @property (nonatomic, assign) BOOL enableCoreDataTracing;
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
-/*
- * @warning This is an experimental feature and may still have bugs.
- * Enable continuous profiling. This allows you to start and stop a profiler any time with
- * @c SentrySDK.startProfiler and @c SentrySDK.stopProfiler, which can run with no time limit,
- * periodically uploading profiling data. You can also set @c SentryOptions.enableAppLaunchProfiling
- * to have the profiler start on app launch; there is no automatic stop, you must stop it manually
- * at some later time if you choose to do so.
- * @note Sampling rates do not apply to continuous profiles, including those automatically started
- * for app launches. If you wish to sample them, you must do so at the callsites where you use the
- * API or configure launch profiling..
- */
-@property (nonatomic, assign) BOOL enableContinuousProfiling;
-
 /**
  * @warning This is an experimental feature and may still have bugs.
  * Set to @c YES to run the profiler as early as possible in an app launch, before you would

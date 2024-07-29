@@ -336,12 +336,14 @@ SENTRY_NO_INIT
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 /**
  * Start a new continuous profiling session if one is not already running.
+ * @warning Continuous profiling mode is experimental and may still contain bugs.
  * @seealso https://docs.sentry.io/platforms/apple/profiling/
  */
 + (void)startProfiler;
 
 /**
  * Stop a continuous profiling session if there is one ongoing.
+ * @warning Continuous profiling mode is experimental and may still contain bugs.
  * @seealso https://docs.sentry.io/platforms/apple/profiling/
  */
 + (void)stopProfiler;
