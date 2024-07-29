@@ -1,8 +1,8 @@
-import Nimble
 @testable import Sentry
 import SentryTestUtils
 import XCTest
 
+// swiftlint:disable file_length
 class SentryHttpTransportTests: XCTestCase {
 
     private static let dsnAsString = TestConstants.dsnAsString(username: "SentryHttpTransportTests")
@@ -11,7 +11,11 @@ class SentryHttpTransportTests: XCTestCase {
         let event: Event
         let eventEnvelope: SentryEnvelope
         let eventRequest: SentryNSURLRequest
+        let transaction: Transaction
+        let transactionEnvelope: SentryEnvelope
+        let transactionRequest: SentryNSURLRequest
         let attachmentEnvelopeItem: SentryEnvelopeItem
+        let transactionEnvelopeItem: SentryEnvelopeItem
         let eventWithAttachmentRequest: SentryNSURLRequest
         let eventWithSessionEnvelope: SentryEnvelope
         let eventWithSessionRequest: SentryNSURLRequest
@@ -54,15 +58,31 @@ class SentryHttpTransportTests: XCTestCase {
             event = Event()
             event.message = SentryMessage(formatted: "Some message")
 
+            let tracer = SentryTracer(transactionContext: TransactionContext(name: "SomeTransaction", operation: "SomeOperation"), hub: nil)
+            transaction = Transaction(
+                trace: tracer,
+                children: [
+                    tracer.startChild(operation: "child1"),
+                    tracer.startChild(operation: "child2"),
+                    tracer.startChild(operation: "child3")
+                ]
+            )
+            
             eventRequest = buildRequest(SentryEnvelope(event: event))
+            transactionRequest = buildRequest(SentryEnvelope(event: transaction))
             
             attachmentEnvelopeItem = SentryEnvelopeItem(attachment: TestData.dataAttachment, maxAttachmentSize: 5 * 1_024 * 1_024)!
-
+            transactionEnvelopeItem = SentryEnvelopeItem(event: transaction)
+            
             eventEnvelope = SentryEnvelope(id: event.eventId, items: [SentryEnvelopeItem(event: event), attachmentEnvelopeItem])
             // We are comparing byte data and the `sentAt` header is also set in the transport, so we also need them here in the expected envelope.
             eventEnvelope.header.sentAt = SentryDependencyContainer.sharedInstance().dateProvider.date()
             eventWithAttachmentRequest = buildRequest(eventEnvelope)
-
+            
+            transactionEnvelope = SentryEnvelope(id: transaction.eventId, items: [SentryEnvelopeItem(event: transaction), attachmentEnvelopeItem])
+            // We are comparing byte data and the `sentAt` header is also set in the transport, so we also need them here in the expected envelope.
+            transactionEnvelope.header.sentAt = SentryDependencyContainer.sharedInstance().dateProvider.date()
+            
             session = SentrySession(releaseName: "2.0.1", distinctId: "some-id")
             sessionEnvelope = SentryEnvelope(id: nil, singleItem: SentryEnvelopeItem(session: session))
             sessionEnvelope.header.sentAt = SentryDependencyContainer.sharedInstance().dateProvider.date()
@@ -445,7 +465,7 @@ class SentryHttpTransportTests: XCTestCase {
         let sessionRequest = try! SentryNSURLRequest(envelopeRequestWith: SentryHttpTransportTests.dsn(), andData: sessionData)
 
         if fixture.requestManager.requests.invocations.count > 3 {
-            XCTAssertEqual(sessionRequest.httpBody, fixture.requestManager.requests.invocations[3].httpBody, "Envelope with only session item should be sent.")
+            XCTAssertEqual(sessionRequest.httpBody, try XCTUnwrap(fixture.requestManager.requests.invocations.element(at: 3)).httpBody, "Envelope with only session item should be sent.")
         } else {
             XCTFail("Expected a fourth invocation")
         }
@@ -471,10 +491,10 @@ class SentryHttpTransportTests: XCTestCase {
 
         fixture.requestManager.waitForAllRequests()
         XCTAssertEqual(3, fixture.requestManager.requests.count)
-        XCTAssertEqual(fixture.eventWithAttachmentRequest.httpBody, fixture.requestManager.requests.invocations[1].httpBody, "Cached envelope was not sent first.")
+        XCTAssertEqual(fixture.eventWithAttachmentRequest.httpBody, try XCTUnwrap(fixture.requestManager.requests.invocations.element(at: 1)).httpBody, "Cached envelope was not sent first.")
 
         if fixture.requestManager.requests.invocations.count > 2 {
-            XCTAssertEqual(fixture.sessionRequest.httpBody, fixture.requestManager.requests.invocations[2].httpBody, "Cached envelope was not sent first.")
+            XCTAssertEqual(fixture.sessionRequest.httpBody, try XCTUnwrap(fixture.requestManager.requests.invocations.element(at: 2)).httpBody, "Cached envelope was not sent first.")
         } else {
             XCTFail("Expected a third invocation")
         }
@@ -531,6 +551,35 @@ class SentryHttpTransportTests: XCTestCase {
         XCTAssertEqual(clientReportRequest.httpBody, actualEventRequest?.httpBody, "Client report not sent.")
     }
     
+    func testTransactionRateLimited_RecordsLostSpans() {
+        let clientReport = SentryClientReport(
+            discardedEvents: [
+                SentryDiscardedEvent(reason: .rateLimitBackoff, category: .transaction, quantity: 1),
+                SentryDiscardedEvent(reason: .rateLimitBackoff, category: .span, quantity: 4)
+            ]
+        )
+        
+        let clientReportEnvelopeItems = [
+            fixture.attachmentEnvelopeItem,
+            SentryEnvelopeItem(clientReport: clientReport)
+        ]
+        
+        let clientReportEnvelope = SentryEnvelope(id: fixture.transaction.eventId, items: clientReportEnvelopeItems)
+        clientReportEnvelope.header.sentAt = SentryDependencyContainer.sharedInstance().dateProvider.date()
+        let clientReportRequest = SentryHttpTransportTests.buildRequest(clientReportEnvelope)
+        
+        givenRateLimitResponse(forCategory: "transaction")
+        
+        sut.send(envelope: fixture.transactionEnvelope)
+        waitForAllRequests()
+        
+        sut.send(envelope: fixture.transactionEnvelope)
+        waitForAllRequests()
+        
+        let actualEventRequest = fixture.requestManager.requests.last
+        XCTAssertEqual(clientReportRequest.httpBody, actualEventRequest?.httpBody, "Client report not sent.")
+    }
+    
     func testCacheFull_RecordsLostEvent() {
         givenNoInternetConnection()
         for _ in 0...fixture.options.maxCacheItems {
@@ -546,6 +595,26 @@ class SentryHttpTransportTests: XCTestCase {
         let deletedError = dict?["error:cache_overflow"]
         let attachment = dict?["attachment:cache_overflow"]
         XCTAssertEqual(1, deletedError?.quantity)
+        XCTAssertEqual(1, attachment?.quantity)
+    }
+    
+    func testCacheFull_RecordsLostSpans() {
+        givenNoInternetConnection()
+        for _ in 0...fixture.options.maxCacheItems {
+            sut.send(envelope: fixture.transactionEnvelope)
+        }
+        
+        waitForAllRequests()
+        
+        let dict = Dynamic(sut).discardedEvents.asDictionary as? [String: SentryDiscardedEvent]
+        XCTAssertNotNil(dict)
+        XCTAssertEqual(3, dict?.count)
+        
+        let transaction = dict?["transaction:cache_overflow"]
+        let span = dict?["span:cache_overflow"]
+        let attachment = dict?["attachment:cache_overflow"]
+        XCTAssertEqual(1, transaction?.quantity)
+        XCTAssertEqual(4, span?.quantity)
         XCTAssertEqual(1, attachment?.quantity)
     }
 
@@ -569,7 +638,7 @@ class SentryHttpTransportTests: XCTestCase {
 
         waitForAllRequests()
 
-        expect(self.fixture.requestManager.requests.count) == 21
+        XCTAssertEqual(self.fixture.requestManager.requests.count, 21)
     }
     
     func testBuildingRequestFails_DeletesEnvelopeAndSendsNext() {
@@ -616,6 +685,29 @@ class SentryHttpTransportTests: XCTestCase {
         let dict = Dynamic(sut).discardedEvents.asDictionary as? [String: SentryDiscardedEvent]
         XCTAssertNotNil(dict)
         XCTAssertEqual(1, dict?.count)
+        
+        let attachment = dict?["attachment:network_error"]
+        XCTAssertEqual(1, attachment?.quantity)
+        
+        assertEnvelopesStored(envelopeCount: 0)
+        assertRequestsSent(requestCount: 1)
+    }
+    
+    func testBuildingRequestFails_RecordsLostSpans() {
+        sendTransaction()
+        
+        fixture.requestBuilder.shouldFailWithError = true
+        sendTransaction()
+        
+        let dict = Dynamic(sut).discardedEvents.asDictionary as? [String: SentryDiscardedEvent]
+        XCTAssertNotNil(dict)
+        XCTAssertEqual(3, dict?.count)
+        
+        let transaction = dict?["transaction:network_error"]
+        XCTAssertEqual(1, transaction?.quantity)
+        
+        let span = dict?["span:network_error"]
+        XCTAssertEqual(4, span?.quantity)
         
         let attachment = dict?["attachment:network_error"]
         XCTAssertEqual(1, attachment?.quantity)
@@ -732,15 +824,14 @@ class SentryHttpTransportTests: XCTestCase {
             
             for _ in  0..<flushInvocations {
                 let beforeFlush = getAbsoluteTime()
-                expect(sut.flush(self.fixture.flushTimeout)).to(equal(.success), description: "Flush should not time out.")
+                XCTAssertEqual(sut.flush(self.fixture.flushTimeout), .success, "Flush should not time out.")
                 let blockingDuration = getDurationNs(beforeFlush, getAbsoluteTime()).toTimeInterval()
                 
                 blockingDurationSum += blockingDuration
             }
             
             let blockingDurationAverage = blockingDurationSum / Double(flushInvocations)
-            
-            expect(blockingDurationAverage) < 0.1
+            XCTAssertLessThan(blockingDurationAverage, 0.1)
             
         }
     }
@@ -760,15 +851,14 @@ class SentryHttpTransportTests: XCTestCase {
             
             for _ in  0..<flushInvocations {
                 let beforeFlush = getAbsoluteTime()
-                expect(sut.flush(self.fixture.flushTimeout)).to(equal(.success), description: "Flush should not time out.")
+                XCTAssertEqual(sut.flush(self.fixture.flushTimeout), .success, "Flush should not time out.")
                 let blockingDuration = getDurationNs(beforeFlush, getAbsoluteTime()).toTimeInterval()
                 
                 blockingDurationSum += blockingDuration
             }
             
             let blockingDurationAverage = blockingDurationSum / Double(flushInvocations)
-            
-            expect(blockingDurationAverage) < 0.1
+            XCTAssertLessThan(blockingDurationAverage, 0.1)
         }
     }
     
@@ -780,9 +870,9 @@ class SentryHttpTransportTests: XCTestCase {
             for _ in 0..<10 {
                 sut.send(envelope: fixture.eventEnvelope)
                 
-                expect(sut.flush(self.fixture.flushTimeout)).to(equal(.success), description: "Flush should not time out.")
+                XCTAssertEqual(sut.flush(self.fixture.flushTimeout), .success, "Flush should not time out.")
                 
-                expect(self.fixture.fileManager.getAllEnvelopes().count) == 0
+                XCTAssertEqual(self.fixture.fileManager.getAllEnvelopes().count, 0)
             }
         }
     }
@@ -816,14 +906,14 @@ class SentryHttpTransportTests: XCTestCase {
             ensureFlushingGroup.waitWithTimeout()
             
             // Now the transport should also have left the synchronized block, and the
-            // double-checked lock, should return immediately.
+            // flush should return immediately.
             
             let initiallyInactiveQueue = fixture.queue
             for _ in 0..<2 {
                 allFlushCallsGroup.enter()
                 initiallyInactiveQueue.async {
                     for _ in 0..<10 {
-                        XCTAssertEqual(.alreadyFlushing, self.sut.flush(flushTimeout), "Double checked lock should have returned immediately")
+                        XCTAssertEqual(.alreadyFlushing, self.sut.flush(flushTimeout), "Flush should have returned immediately")
                     }
                     
                     allFlushCallsGroup.leave()
@@ -934,6 +1024,15 @@ class SentryHttpTransportTests: XCTestCase {
     private func sendEventAsync() {
         sut.send(envelope: fixture.eventEnvelope)
     }
+    
+    private func sendTransaction() {
+        sendTransactionAsync()
+        waitForAllRequests()
+    }
+    
+    private func sendTransactionAsync() {
+        sut.send(envelope: fixture.transactionEnvelope)
+    }
 
     private func sendEnvelope(envelope: SentryEnvelope = TestConstants.envelope) {
         sut.send(envelope: envelope)
@@ -984,3 +1083,4 @@ class SentryHttpTransportTests: XCTestCase {
         XCTAssertEqual(0, dict?.count)
     }
 }
+// swiftlint:enable file_length

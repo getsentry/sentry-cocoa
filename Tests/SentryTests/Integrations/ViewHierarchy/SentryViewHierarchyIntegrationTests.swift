@@ -1,6 +1,5 @@
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
 
-import Nimble
 import Sentry
 import SentryTestUtils
 import XCTest
@@ -146,6 +145,23 @@ class SentryViewHierarchyIntegrationTests: XCTestCase {
         }
         
         wait(for: [ex], timeout: 1)
+    }
+    
+    func testReportAccessibilityIdentifierTrue() {
+        SentrySDK.start {
+            $0.attachViewHierarchy = true
+            $0.setIntegrations([SentryViewHierarchyIntegration.self])
+        }
+        XCTAssertTrue(SentryDependencyContainer.sharedInstance().viewHierarchy.reportAccessibilityIdentifier)
+    }
+    
+    func testReportAccessibilityIdentifierFalse() {
+        SentrySDK.start {
+            $0.attachViewHierarchy = true
+            $0.reportAccessibilityIdentifier = false
+            $0.setIntegrations([SentryViewHierarchyIntegration.self])
+        }
+        XCTAssertFalse(SentryDependencyContainer.sharedInstance().viewHierarchy.reportAccessibilityIdentifier)
     }
 }
 

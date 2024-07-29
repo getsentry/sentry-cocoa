@@ -47,11 +47,12 @@ SentryScope ()
 
 @property (atomic) NSUInteger maxBreadcrumbs;
 @property (atomic) NSUInteger currentBreadcrumbIndex;
-@property (atomic, strong) NSMutableArray<SentryBreadcrumb *> *breadcrumbArray;
 
 @property (atomic, strong) NSMutableArray<SentryAttachment *> *attachmentArray;
 
 @property (nonatomic, retain) NSMutableArray<id<SentryScopeObserver>> *observers;
+
+@property (atomic, strong) NSMutableArray<SentryBreadcrumb *> *breadcrumbArray;
 
 @end
 
@@ -379,6 +380,18 @@ SentryScope ()
 {
     @synchronized(_fingerprintArray) {
         return _fingerprintArray.copy;
+    }
+}
+
+- (void)setCurrentScreen:(nullable NSString *)currentScreen
+{
+    _currentScreen = currentScreen;
+
+    SEL setCurrentScreen = @selector(setCurrentScreen:);
+    for (id<SentryScopeObserver> observer in self.observers) {
+        if ([observer respondsToSelector:setCurrentScreen]) {
+            [observer setCurrentScreen:currentScreen];
+        }
     }
 }
 

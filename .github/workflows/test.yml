@@ -77,20 +77,6 @@ jobs:
       matrix:
         # Can't run tests on watchOS because XCTest is not available
         include:
-          # iOS 13.7
-          - runs-on: macos-11
-            platform: "iOS"
-            xcode: "13.2.1"
-            test-destination-os: "13.7"
-            device: "iPhone 8"
-
-          # iOS 14
-          - runs-on: macos-11
-            platform: "iOS"
-            xcode: "13.2.1"
-            test-destination-os: "14.5"
-            device: "iPhone 8"
-
           # iOS 15
           - runs-on: macos-12
             platform: "iOS"
@@ -111,12 +97,6 @@ jobs:
             xcode: "15.2"
             test-destination-os: "17.2"
             device: "iPhone 15"
-
-          # macOS 11
-          - runs-on: macos-11
-            platform: "macOS"
-            xcode: "13.2.1"
-            test-destination-os: "latest"
 
           # macOS 12
           - runs-on: macos-12
@@ -148,19 +128,19 @@ jobs:
           - runs-on: macos-12
             platform: "tvOS"
             xcode: "13.4.1"
-            test-destination-os: "latest"
+            test-destination-os: "16.1"
 
           # tvOS 16
           - runs-on: macos-13
             platform: "tvOS"
             xcode: "14.3"
-            test-destination-os: "latest"
+            test-destination-os: "17.2"
 
           # tvOS 17
           - runs-on: macos-14
             platform: "tvOS"
             xcode: "15.2"
-            test-destination-os: "latest"
+            test-destination-os: "17.5"
 
     steps:
       - uses: actions/checkout@v4
@@ -179,14 +159,6 @@ jobs:
         run: curl http://localhost:8080/echo-baggage-header
 
       - run: ./scripts/ci-select-xcode.sh ${{matrix.xcode}}
-
-      - name: Prepare iOS 13.7 simulator
-        if: ${{ matrix.platform == 'iOS' && matrix.test-destination-os == '13.7'}}
-        run: ./scripts/create-simulator.sh 11.7 13.7 13-7
-
-      - name: Prepare iOS 14.5 simulator
-        if: ${{ matrix.platform == 'iOS' && matrix.test-destination-os == '14.5'}}
-        run: ./scripts/create-simulator.sh 12.5.1 14.5 14-5
 
       - name: Install Slather
         run: gem install slather
@@ -238,7 +210,7 @@ jobs:
       # We don't upload codecov for scheduled runs as CodeCov only accepts a limited amount of uploads per commit.
       - name: Push code coverage to codecov
         id: codecov_1
-        uses: codecov/codecov-action@125fc84a9a348dbcf27191600683ec096ec9021c # pin@v4.4.1
+        uses: codecov/codecov-action@e28ff129e5465c2c0dcc6f003fc735cb6ae0c673 # pin@v4.5.0
         if: ${{ contains(matrix.platform, 'iOS') && !contains(github.ref, 'release') && github.event.schedule == '' }}
         with:
           # Although public repos should not have to specify a token there seems to be a bug with the Codecov GH action, which can
@@ -250,7 +222,7 @@ jobs:
       # Sometimes codecov uploads etc can fail. Retry one time to rule out e.g. intermittent network failures.
       - name: Push code coverage to codecov
         id: codecov_2
-        uses: codecov/codecov-action@125fc84a9a348dbcf27191600683ec096ec9021c # pin@v4.4.1
+        uses: codecov/codecov-action@e28ff129e5465c2c0dcc6f003fc735cb6ae0c673 # pin@v4.5.0
         if: ${{ steps.codecov_1.outcome == 'failure' && contains(matrix.platform, 'iOS') && !contains(github.ref, 'release') && github.event.schedule == '' }}
         with:
           token: ${{ secrets.CODECOV_TOKEN }}

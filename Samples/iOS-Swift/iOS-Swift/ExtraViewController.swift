@@ -25,7 +25,7 @@ class ExtraViewController: UIViewController {
             }
         }
 
-        if let uiTestName = ProcessInfo.processInfo.environment["io.sentry.ui-test.test-name"] {
+        if let uiTestName = ProcessInfo.processInfo.environment["--io.sentry.ui-test.test-name"] {
             uiTestNameLabel.text = uiTestName
         }
         
@@ -105,6 +105,21 @@ class ExtraViewController: UIViewController {
         triggerANRFillingRunLoop(button: self.anrFillingRunLoopButton)
     }
 
+    @IBAction func getPasteBoardString(_ sender: Any) {
+        SentrySDK.pauseAppHangTracking()
+        
+        // Getting the pasteboard string asks for permission
+        // and the SDK would detect an ANR if we don't pause it.
+        // Make sure to copy something into the pasteboard, cause
+        // iOS only opens the system permission dialog if you do.
+        
+        if let clipboard = UIPasteboard.general.string {
+            SentrySDK.capture(message: clipboard)
+        }
+        
+        SentrySDK.resumeAppHangTracking()
+    }
+    
     @IBAction func start100Threads(_ sender: UIButton) {
         highlightButton(sender)
         for _ in 0..<100 {

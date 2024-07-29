@@ -14,6 +14,7 @@ FOUNDATION_EXPORT NSString *const kSentryDataCategoryNameProfile;
 FOUNDATION_EXPORT NSString *const kSentryDataCategoryNameProfileChunk;
 FOUNDATION_EXPORT NSString *const kSentryDataCategoryNameReplay;
 FOUNDATION_EXPORT NSString *const kSentryDataCategoryNameMetricBucket;
+FOUNDATION_EXPORT NSString *const kSentryDataCategoryNameSpan;
 FOUNDATION_EXPORT NSString *const kSentryDataCategoryNameUnknown;
 
 SentryDataCategory sentryDataCategoryForNSUInteger(NSUInteger value);

@@ -59,9 +59,12 @@ NS_ASSUME_NONNULL_BEGIN
 
     NSString *userSegment;
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     if (scope.userObject.segment) {
         userSegment = scope.userObject.segment;
     }
+#pragma clang diagnostic pop
 
     NSString *sampleRate = nil;
     if ([tracer isKindOfClass:[SentryTransactionContext class]]) {
@@ -89,6 +92,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithTraceId:(SentryId *)traceId
                         options:(SentryOptions *)options
                     userSegment:(nullable NSString *)userSegment
+                       replayId:(nullable NSString *)replayId;
 {
     return [[SentryTraceContext alloc] initWithTraceId:traceId
                                              publicKey:options.parsedDsn.url.user
@@ -98,7 +102,7 @@ NS_ASSUME_NONNULL_BEGIN
                                            userSegment:userSegment
                                             sampleRate:nil
                                                sampled:nil
-                                              replayId:nil];
+                                              replayId:replayId];
 }
 
 - (nullable instancetype)initWithDict:(NSDictionary<NSString *, id> *)dictionary

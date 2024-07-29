@@ -18,7 +18,27 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
         XCTAssertEqual(1, client?.storedEnvelopeInvocations.count)
         XCTAssertEqual(envelope, client?.storedEnvelopeInvocations.first)
     }
+    
+    func testStoreEnvelopeWithUndhandled_MarksSessionAsCrashedAndDoesNotStartNewSession() throws {
+        let client = TestClient(options: Options())
+        let hub = TestHub(client: client, andScope: nil)
+        SentrySDK.setCurrentHub(hub)
+        hub.setTestSession()
+        let sessionToBeCrashed = hub.session
 
+        let envelope = getUnhandledExceptionEnvelope()
+        PrivateSentrySDKOnly.store(envelope)
+        
+        let storedEnvelope = client?.storedEnvelopeInvocations.first
+        let attachedSessionData = storedEnvelope!.items.last!.data
+        let attachedSession = try XCTUnwrap(try! JSONSerialization.jsonObject(with: attachedSessionData) as? [String: Any])
+        
+        XCTAssertEqual(0, hub.startSessionInvocations)
+        // Assert crashed session was attached to the envelope
+        XCTAssertEqual(sessionToBeCrashed!.sessionId.uuidString, try XCTUnwrap(attachedSession["sid"] as? String))
+        XCTAssertEqual("crashed", try XCTUnwrap(attachedSession["status"] as? String))
+    }
+    
     func testCaptureEnvelope() {
         let client = TestClient(options: Options())
         SentrySDK.setCurrentHub(TestHub(client: client, andScope: nil))
@@ -28,6 +48,27 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
 
         XCTAssertEqual(1, client?.captureEnvelopeInvocations.count)
         XCTAssertEqual(envelope, client?.captureEnvelopeInvocations.first)
+    }
+    
+    func testCaptureEnvelopeWithUndhandled_MarksSessionAsCrashedAndStartsNewSession() throws {
+        let client = TestClient(options: Options())
+        let hub = TestHub(client: client, andScope: nil)
+        SentrySDK.setCurrentHub(hub)
+        hub.setTestSession()
+        let sessionToBeCrashed = hub.session
+
+        let envelope = getUnhandledExceptionEnvelope()
+        PrivateSentrySDKOnly.capture(envelope)
+
+        let capturedEnvelope = client?.captureEnvelopeInvocations.first
+        let attachedSessionData = capturedEnvelope!.items.last!.data
+        let attachedSession = try XCTUnwrap(try! JSONSerialization.jsonObject(with: attachedSessionData) as? [String: Any])
+        
+        // Assert new session was started
+        XCTAssertEqual(1, hub.startSessionInvocations)
+        // Assert crashed session was attached to the envelope
+        XCTAssertEqual(sessionToBeCrashed!.sessionId.uuidString, try XCTUnwrap(attachedSession["sid"] as? String))
+        XCTAssertEqual("crashed", try XCTUnwrap(attachedSession["status"] as? String))
     }
 
     func testSetSdkName() {
@@ -93,23 +134,23 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
         XCTAssertNil(PrivateSentrySDKOnly.appStartMeasurement)
     }
 
-    func testGetAppStartMeasurementWithSpansCold() {
+    func testGetAppStartMeasurementWithSpansCold() throws {
         SentrySDK.setAppStartMeasurement(
             TestData.getAppStartMeasurement(type: .cold, runtimeInitSystemTimestamp: 1)
         )
 
-        let actualAppStartMeasurement = PrivateSentrySDKOnly.appStartMeasurementWithSpans()
-
-        XCTAssertNotNil(actualAppStartMeasurement)
-        XCTAssertEqual(actualAppStartMeasurement!["type"] as! String, "cold")
-        XCTAssertEqual(actualAppStartMeasurement!["is_pre_warmed"] as! Int, 0)
-        XCTAssertEqual((actualAppStartMeasurement!["spans"] as! NSArray).count, 1)
-        XCTAssertEqual(((actualAppStartMeasurement!["spans"] as! NSArray)[0] as! NSDictionary)["description"] as! String, "UIKit init")
-        XCTAssert(((actualAppStartMeasurement!["spans"] as! NSArray)[0] as! NSDictionary)["start_timestamp_ms"] is NSNumber)
-        XCTAssert(((actualAppStartMeasurement!["spans"] as! NSArray)[0] as! NSDictionary)["end_timestamp_ms"] is NSNumber)
+        let actualAppStartMeasurement = try XCTUnwrap(PrivateSentrySDKOnly.appStartMeasurementWithSpans())
+        XCTAssertEqual(try XCTUnwrap(actualAppStartMeasurement["type"] as? String), "cold")
+        XCTAssertEqual(try XCTUnwrap(actualAppStartMeasurement["is_pre_warmed"] as? Int), 0)
+        let spans = try XCTUnwrap(actualAppStartMeasurement["spans"] as? NSArray)
+        XCTAssertEqual(spans.count, 1)
+        let firstSpan = try XCTUnwrap(spans.firstObject as? NSDictionary)
+        XCTAssertEqual(try XCTUnwrap(firstSpan["description"] as? String), "UIKit init")
+        XCTAssert(firstSpan["start_timestamp_ms"] is NSNumber)
+        XCTAssert(firstSpan["end_timestamp_ms"] is NSNumber)
     }
 
-    func testGetAppStartMeasurementWithSpansPreWarmed() {
+    func testGetAppStartMeasurementWithSpansPreWarmed() throws {
         SentrySDK.setAppStartMeasurement(
             TestData.getAppStartMeasurement(
                 type: .warm,
@@ -117,24 +158,34 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
                 preWarmed: true)
         )
 
-        let actualAppStartMeasurement = PrivateSentrySDKOnly.appStartMeasurementWithSpans()
+        let actualAppStartMeasurement = try XCTUnwrap(PrivateSentrySDKOnly.appStartMeasurementWithSpans())
+        XCTAssertEqual(try XCTUnwrap(actualAppStartMeasurement["type"] as? String), "warm")
+        XCTAssertEqual( try XCTUnwrap(actualAppStartMeasurement["is_pre_warmed"] as? Int), 1)
 
-        XCTAssertNotNil(actualAppStartMeasurement)
-        XCTAssertEqual(actualAppStartMeasurement!["type"] as! String, "warm")
-        XCTAssertEqual(actualAppStartMeasurement!["is_pre_warmed"] as! Int, 1)
-        XCTAssertEqual((actualAppStartMeasurement!["spans"] as! NSArray).count, 3)
-        XCTAssertEqual(((actualAppStartMeasurement!["spans"] as! NSArray)[0] as! NSDictionary)["description"] as! String, "Pre Runtime Init")
-        XCTAssert(((actualAppStartMeasurement!["spans"] as! NSArray)[0] as! NSDictionary)["start_timestamp_ms"] is NSNumber)
-        XCTAssert(((actualAppStartMeasurement!["spans"] as! NSArray)[0] as! NSDictionary)["end_timestamp_ms"] is NSNumber)
-        XCTAssertEqual(((actualAppStartMeasurement!["spans"] as! NSArray)[1] as! NSDictionary)["description"] as! String, "Runtime init to Pre Main initializers")
-        XCTAssert(((actualAppStartMeasurement!["spans"] as! NSArray)[1] as! NSDictionary)["start_timestamp_ms"] is NSNumber)
-        XCTAssert(((actualAppStartMeasurement!["spans"] as! NSArray)[1] as! NSDictionary)["end_timestamp_ms"] is NSNumber)
-        XCTAssertEqual(((actualAppStartMeasurement!["spans"] as! NSArray)[2] as! NSDictionary)["description"] as! String, "UIKit init")
-        XCTAssert(((actualAppStartMeasurement!["spans"] as! NSArray)[2] as! NSDictionary)["start_timestamp_ms"] is NSNumber)
-        XCTAssert(((actualAppStartMeasurement!["spans"] as! NSArray)[2] as! NSDictionary)["end_timestamp_ms"] is NSNumber)
+        var spans = try XCTUnwrap(actualAppStartMeasurement["spans"] as? [NSDictionary])
+        XCTAssertEqual(spans.count, 3)
+
+        let span0 = try XCTUnwrap(spans.first)
+        XCTAssertEqual(span0["description"] as? String, "Pre Runtime Init")
+        XCTAssertTrue(span0["start_timestamp_ms"] is NSNumber)
+        XCTAssertTrue(span0["end_timestamp_ms"] is NSNumber)
+        
+        spans = [NSDictionary](spans.dropFirst())
+
+        let span1 = try XCTUnwrap(spans.first)
+        XCTAssertEqual(span1["description"] as? String, "Runtime init to Pre Main initializers")
+        XCTAssertTrue(span1["start_timestamp_ms"] is NSNumber)
+        XCTAssertTrue(span1["end_timestamp_ms"] is NSNumber)
+
+        spans = [NSDictionary](spans.dropFirst())
+        
+        let span2 = try XCTUnwrap(spans.first)
+        XCTAssertEqual(span2["description"] as? String, "UIKit init")
+        XCTAssertTrue(span2["start_timestamp_ms"] is NSNumber)
+        XCTAssertTrue(span2["end_timestamp_ms"] is NSNumber)
     }
 
-    func testGetAppStartMeasurementWithSpansReturnsTimestampsInMs() {
+    func testGetAppStartMeasurementWithSpansReturnsTimestampsInMs() throws {
         SentrySDK.setAppStartMeasurement(
             TestData.getAppStartMeasurement(
                 type: .cold,
@@ -146,17 +197,17 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
                 sdkStartTimestamp: Date(timeIntervalSince1970: 10))
         )
 
-        let actualAppStartMeasurement = PrivateSentrySDKOnly.appStartMeasurementWithSpans()
-
-        XCTAssertNotNil(actualAppStartMeasurement)
-        XCTAssert(actualAppStartMeasurement!["app_start_timestamp_ms"] is NSNumber)
-        XCTAssert(actualAppStartMeasurement!["runtime_init_timestamp_ms"] is NSNumber)
-        XCTAssert(actualAppStartMeasurement!["module_initialization_timestamp_ms"] is NSNumber)
-        XCTAssert(actualAppStartMeasurement!["sdk_start_timestamp_ms"] is NSNumber)
-        XCTAssertEqual(actualAppStartMeasurement!["app_start_timestamp_ms"] as! NSNumber, 5_000)
-        XCTAssertEqual(actualAppStartMeasurement!["runtime_init_timestamp_ms"] as! NSNumber, 15_000)
-        XCTAssertEqual(actualAppStartMeasurement!["module_initialization_timestamp_ms"] as! NSNumber, 20_000)
-        XCTAssertEqual(actualAppStartMeasurement!["sdk_start_timestamp_ms"] as! NSNumber, 10_000)
+        let actualAppStartMeasurement = try XCTUnwrap(PrivateSentrySDKOnly.appStartMeasurementWithSpans())
+            
+        XCTAssertTrue(actualAppStartMeasurement["app_start_timestamp_ms"] is NSNumber)
+        XCTAssertTrue(actualAppStartMeasurement["runtime_init_timestamp_ms"] is NSNumber)
+        XCTAssertTrue(actualAppStartMeasurement["module_initialization_timestamp_ms"] is NSNumber)
+        XCTAssertTrue(actualAppStartMeasurement["sdk_start_timestamp_ms"] is NSNumber)
+        
+        XCTAssertEqual(try XCTUnwrap(actualAppStartMeasurement["app_start_timestamp_ms"] as? NSNumber), 5_000)
+        XCTAssertEqual(try XCTUnwrap(actualAppStartMeasurement["runtime_init_timestamp_ms"] as? NSNumber), 15_000)
+        XCTAssertEqual(try XCTUnwrap(actualAppStartMeasurement["module_initialization_timestamp_ms"] as? NSNumber), 20_000)
+        XCTAssertEqual(try XCTUnwrap(actualAppStartMeasurement["sdk_start_timestamp_ms"] as? NSNumber), 10_000)
     }
     #endif
 
@@ -271,18 +322,6 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
 
     #endif
 
-    func testCaptureReplayShouldNotFailIfMissingReplayIntegration() {
-        PrivateSentrySDKOnly.captureReplay()
-    }
-
-    func testAddReplayIgnoreClassesShouldNotFailIfMissingReplayIntegration() {
-        PrivateSentrySDKOnly.addReplayIgnoreClasses([])
-    }
-
-    func testAddReplayRedactShouldNotFailIfMissingReplayIntegration() {
-        PrivateSentrySDKOnly.addReplayRedactClasses([])
-    }
-
     #if canImport(UIKit)
     func testCaptureReplayShouldCallReplayIntegration() {
         guard #available(iOS 16.0, tvOS 16.0, *) else { return }
@@ -334,8 +373,9 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
             return true
         }
 
-        override func captureReplay() {
+        override func captureReplay() -> Bool {
             TestSentrySessionReplayIntegration.captureReplayCalledTimes += 1
+            return true
         }
 
         static func captureReplayShouldBeCalledAtLeastOnce() -> Bool {
@@ -343,4 +383,13 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
         }
     }
     #endif
+    
+    func getUnhandledExceptionEnvelope() -> SentryEnvelope {
+        let event = Event()
+        event.message = SentryMessage(formatted: "Test Event with unhandled exception")
+        event.level = .error
+        event.exceptions = [TestData.exception]
+        event.exceptions?.first?.mechanism?.handled = false
+        return SentryEnvelope(event: event)
+    }
 }

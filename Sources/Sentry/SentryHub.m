@@ -44,6 +44,7 @@ SentryHub () <SentryMetricsAPIDelegate>
 @property (nonatomic, strong) SentryCrashWrapper *crashWrapper;
 @property (nonatomic, strong) NSMutableSet<NSString *> *installedIntegrationNames;
 @property (nonatomic) NSUInteger errorsBeforeSession;
+@property (nonatomic, weak) id<SentrySessionListener> sessionListener;
 
 @end
 
@@ -107,6 +108,7 @@ SentryHub () <SentryMetricsAPIDelegate>
                   andLevel:kSentryLevelError];
         return;
     }
+
     @synchronized(_sessionLock) {
         if (_session != nil) {
             lastSession = _session;
@@ -133,6 +135,8 @@ SentryHub () <SentryMetricsAPIDelegate>
     [lastSession
         endSessionExitedWithTimestamp:[SentryDependencyContainer.sharedInstance.dateProvider date]];
     [self captureSession:lastSession];
+
+    [_sessionListener sentrySessionStarted:_session];
 }
 
 - (void)endSession
@@ -156,6 +160,8 @@ SentryHub () <SentryMetricsAPIDelegate>
     }
     [currentSession endSessionExitedWithTimestamp:timestamp];
     [self captureSession:currentSession];
+
+    [_sessionListener sentrySessionEnded:currentSession];
 }
 
 - (void)storeCurrentSession:(SentrySession *)session
@@ -209,14 +215,9 @@ SentryHub () <SentryMetricsAPIDelegate>
         SentryClient *client = _client;
 
         if (client.options.diagnosticLevel == kSentryLevelDebug) {
-            NSData *sessionData = [NSJSONSerialization dataWithJSONObject:[session serialize]
-                                                                  options:0
-                                                                    error:nil];
-            NSString *sessionString = [[NSString alloc] initWithData:sessionData
-                                                            encoding:NSUTF8StringEncoding];
             [SentryLog
                 logWithMessage:[NSString stringWithFormat:@"Capturing session with status: %@",
-                                         sessionString]
+                                         [self createSessionDebugString:session]]
                       andLevel:kSentryLevelDebug];
         }
         [client captureSession:session];
@@ -284,6 +285,9 @@ SentryHub () <SentryMetricsAPIDelegate>
     if (decision != kSentrySampleDecisionYes) {
         [self.client recordLostEvent:kSentryDataCategoryTransaction
                               reason:kSentryDiscardReasonSampleRate];
+        [self.client recordLostEvent:kSentryDataCategorySpan
+                              reason:kSentryDiscardReasonSampleRate
+                            quantity:transaction.spans.count + 1];
         return;
     }
 
@@ -566,6 +570,18 @@ SentryHub () <SentryMetricsAPIDelegate>
     }
 }
 
+- (nullable id<SentryIntegrationProtocol>)getInstalledIntegration:(Class)integrationClass
+{
+    @synchronized(_integrationsLock) {
+        for (id<SentryIntegrationProtocol> item in _installedIntegrations) {
+            if ([item isKindOfClass:integrationClass]) {
+                return item;
+            }
+        }
+        return nil;
+    }
+}
+
 - (BOOL)hasIntegration:(NSString *)integrationName
 {
     // installedIntegrations and installedIntegrationNames share the same lock.
@@ -618,6 +634,21 @@ SentryHub () <SentryMetricsAPIDelegate>
     }
 }
 
+/**
+ * Needed by hybrid SDKs as react-native to synchronously store an envelope to disk.
+ */
+- (void)storeEnvelope:(SentryEnvelope *)envelope
+{
+    SentryClient *client = _client;
+    if (client == nil) {
+        return;
+    }
+
+    // Envelopes are stored only when crash occurs. We should not start a new session when
+    // the app is about to crash.
+    [client storeEnvelope:[self updateSessionState:envelope startNewSession:NO]];
+}
+
 - (void)captureEnvelope:(SentryEnvelope *)envelope
 {
     SentryClient *client = _client;
@@ -625,10 +656,13 @@ SentryHub () <SentryMetricsAPIDelegate>
         return;
     }
 
-    [client captureEnvelope:[self updateSessionState:envelope]];
+    // If captured envelope cointains not handled errors, these are not going to crash the app and
+    // we should create new session.
+    [client captureEnvelope:[self updateSessionState:envelope startNewSession:YES]];
 }
 
 - (SentryEnvelope *)updateSessionState:(SentryEnvelope *)envelope
+                       startNewSession:(BOOL)startNewSession
 {
     BOOL handled = YES;
     if ([self envelopeContainsEventWithErrorOrHigher:envelope.items wasHandled:&handled]) {
@@ -642,9 +676,17 @@ SentryHub () <SentryMetricsAPIDelegate>
                 [currentSession
                     endSessionCrashedWithTimestamp:[SentryDependencyContainer.sharedInstance
                                                            .dateProvider date]];
-                // Setting _session to nil so startSession doesn't capture it again
-                _session = nil;
-                [self startSession];
+                if (_client.options.diagnosticLevel == kSentryLevelDebug) {
+                    [SentryLog
+                        logWithMessage:[NSString stringWithFormat:@"Ending session with status: %@",
+                                                 [self createSessionDebugString:currentSession]]
+                              andLevel:kSentryLevelDebug];
+                }
+                if (startNewSession) {
+                    // Setting _session to nil so startSession doesn't capture it again
+                    _session = nil;
+                    [self startSession];
+                }
             }
         }
 
@@ -663,7 +705,8 @@ SentryHub () <SentryMetricsAPIDelegate>
     for (SentryEnvelopeItem *item in items) {
         if ([item.header.type isEqualToString:SentryEnvelopeItemTypeEvent]) {
             // If there is no level the default is error
-            NSDictionary *eventJson = [SentrySerialization deserializeEventEnvelopeItem:item.data];
+            NSDictionary *eventJson =
+                [SentrySerialization deserializeDictionaryFromJsonData:item.data];
             if (eventJson == nil) {
                 return NO;
             }
@@ -701,6 +744,18 @@ SentryHub () <SentryMetricsAPIDelegate>
         SENTRY_LOG_DEBUG(@"The options `enableTimeToFullDisplay` is disabled.");
     }
 #endif // SENTRY_HAS_UIKIT
+}
+
+- (NSString *)createSessionDebugString:(SentrySession *)session
+{
+    if (session == nil) {
+        return @"Session is nil.";
+    }
+
+    NSData *sessionData = [NSJSONSerialization dataWithJSONObject:[session serialize]
+                                                          options:0
+                                                            error:nil];
+    return [[NSString alloc] initWithData:sessionData encoding:NSUTF8StringEncoding];
 }
 
 - (void)flush:(NSTimeInterval)timeout
@@ -753,6 +808,18 @@ SentryHub () <SentryMetricsAPIDelegate>
         return [(SentrySpan *)span getLocalMetricsAggregator];
     }
     return nil;
+}
+
+- (void)registerSessionListener:(id<SentrySessionListener>)listener
+{
+    _sessionListener = listener;
+}
+
+- (void)unregisterSessionListener:(id<SentrySessionListener>)listener
+{
+    if (_sessionListener == listener) {
+        _sessionListener = nil;
+    }
 }
 
 #pragma mark - Protected

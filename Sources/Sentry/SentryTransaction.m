@@ -2,17 +2,12 @@
 #import "SentryEnvelopeItemType.h"
 #import "SentryMeasurementValue.h"
 #import "SentryNSDictionarySanitize.h"
+#import "SentryProfilingConditionals.h"
+#import "SentrySpan+Private.h"
 #import "SentrySwift.h"
 #import "SentryTransactionContext.h"
 
 NS_ASSUME_NONNULL_BEGIN
-
-@interface
-SentryTransaction ()
-
-@property (nonatomic, strong) NSArray<id<SentrySpan>> *spans;
-
-@end
 
 @implementation SentryTransaction
 
@@ -43,6 +38,12 @@ SentryTransaction ()
     if (serializedData[@"contexts"] != nil) {
         [mutableContext addEntriesFromDictionary:serializedData[@"contexts"]];
     }
+
+#if SENTRY_TARGET_PROFILING_SUPPORTED
+    NSMutableDictionary *profileContextData = [NSMutableDictionary dictionary];
+    profileContextData[@"profiler_id"] = self.trace.profileSessionID;
+    mutableContext[@"profile"] = profileContextData;
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
     // The metrics summary must be on the root level of the serialized transaction. For SentrySpans,
     // the metrics summary is on the span level. As the tracer inherits from SentrySpan the metrics

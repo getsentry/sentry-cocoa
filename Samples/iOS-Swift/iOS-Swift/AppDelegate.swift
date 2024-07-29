@@ -10,11 +10,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     static let defaultDSN = "https://6cc9bae94def43cab8444a99e0031c28@o447951.ingest.sentry.io/5428557"
 
-    //swiftlint:disable function_body_length
+    //swiftlint:disable function_body_length cyclomatic_complexity
     static func startSentry() {
+        let args = ProcessInfo.processInfo.arguments
+        let env = ProcessInfo.processInfo.environment
         
         // For testing purposes, we want to be able to change the DSN and store it to disk. In a real app, you shouldn't need this behavior.
-        let dsn = DSNStorage.shared.getDSN() ?? AppDelegate.defaultDSN
+        let dsn = env["--io.sentry.dsn"] ?? DSNStorage.shared.getDSN() ?? AppDelegate.defaultDSN
         DSNStorage.shared.saveDSN(dsn: dsn)
         
         SentrySDK.start(configureOptions: { options in
@@ -22,22 +24,24 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             options.beforeSend = { event in
                 return event
             }
+            options.beforeSendSpan = { span in
+                return span
+            }
             options.enableSigtermReporting = true
             options.beforeCaptureScreenshot = { _ in
                 return true
             }
             options.debug = true
             
-            if #available(iOS 16.0, *) {
+            if #available(iOS 16.0, *), !args.contains("--disable-session-replay") {
                 options.experimental.sessionReplay = SentryReplayOptions(sessionSampleRate: 1, errorSampleRate: 1, redactAllText: true, redactAllImages: true)
+                options.experimental.sessionReplay.quality = .high
             }
             
-            if #available(iOS 15.0, *) {
+            if #available(iOS 15.0, *), !args.contains("--disable-metrickit-integration") {
                 options.enableMetricKit = true
+                options.enableMetricKitRawPayload = true
             }
-            
-            let args = ProcessInfo.processInfo.arguments
-            let env = ProcessInfo.processInfo.environment
             
             var tracesSampleRate: NSNumber = 1
             if let tracesSampleRateOverride = env["--io.sentry.tracesSampleRate"] {
@@ -51,8 +55,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 }
             }
             
-            var profilesSampleRate: NSNumber = 1
-            if let profilesSampleRateOverride = env["--io.sentry.profilesSampleRate"] {
+            var profilesSampleRate: NSNumber? = 1
+            if args.contains("--io.sentry.enableContinuousProfiling") {
+                profilesSampleRate = nil
+            } else if let profilesSampleRateOverride = env["--io.sentry.profilesSampleRate"] {
                profilesSampleRate = NSNumber(value: (profilesSampleRateOverride as NSString).integerValue)
             }
             options.profilesSampleRate = profilesSampleRate
@@ -65,20 +71,21 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
             options.enableAppLaunchProfiling = args.contains("--profile-app-launches")
 
-            options.sessionTrackingIntervalMillis = 5_000
+            options.enableAutoSessionTracking = !args.contains("--disable-automatic-session-tracking")
+            if let sessionTrackingIntervalMillis = env["--io.sentry.sessionTrackingIntervalMillis"] {
+                options.sessionTrackingIntervalMillis = UInt((sessionTrackingIntervalMillis as NSString).integerValue)
+            }
             options.attachScreenshot = true
             options.attachViewHierarchy = true
        
 #if targetEnvironment(simulator)
-            options.enableSpotlight = true
-            options.environment = "test-app"
+            options.enableSpotlight = !args.contains("--disable-spotlight")
 #else
-            options.environment = "device-tests"
             options.enableWatchdogTerminationTracking = false // The UI tests generate false OOMs
 #endif
             options.enableTimeToFullDisplayTracing = true
             options.enablePerformanceV2 = true
-            options.enableMetrics = true
+            options.enableMetrics = !args.contains("--disable-metrics")
             options.profilesSampleRate = ProcessInfo.processInfo.arguments.contains("--io.sentry.enable-continuous-profiling") ? nil : 1
             
             options.add(inAppInclude: "iOS_External")
@@ -115,20 +122,26 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             }
             
             options.initialScope = { scope in
-                let processInfoEnvironment = env["io.sentry.sdk-environment"]
-                
-                if processInfoEnvironment != nil {
-                    scope.setEnvironment(processInfoEnvironment)
+                if let environmentOverride = env["--io.sentry.sdk-environment"] {
+                    scope.setEnvironment(environmentOverride)
                 } else if isBenchmarking {
                     scope.setEnvironment("benchmarking")
                 } else {
-                    scope.setEnvironment("debug")
+        #if targetEnvironment(simulator)
+                    scope.setEnvironment("simulator")
+        #else
+                    scope.setEnvironment("device")
+        #endif // targetEnvironment(simulator)
                 }
                 
                 scope.setTag(value: "swift", key: "language")
                
                 let user = User(userId: "1")
-                user.email = "tony@example.com"
+                user.email = env["--io.sentry.user.email"] ?? "tony@example.com"
+                // first check if the username has been overridden in the scheme for testing purposes; then try to use the system username so each person gets an automatic way to easily filter things on the dashboard; then fall back on a hardcoded value if none of these are present
+                let username = env["--io.sentry.user.username"] ?? (env["SIMULATOR_HOST_HOME"] as? NSString)?
+                    .lastPathComponent ?? "cocoa developer"
+                user.username = username
                 scope.setUser(user)
 
                 if let path = Bundle.main.path(forResource: "Tongariro", ofType: "jpg") {
@@ -144,7 +157,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         SentrySDK.metrics.increment(key: "app.start", value: 1.0, tags: ["view": "app-delegate"])
 
     }
-    //swiftlint:enable function_body_length
+    //swiftlint:enable function_body_length cyclomatic_complexity
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         
@@ -154,7 +167,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         if ProcessInfo.processInfo.arguments.contains("--io.sentry.wipe-data") {
             removeAppData()
         }
-        AppDelegate.startSentry()
+        if !ProcessInfo.processInfo.arguments.contains("--skip-sentry-init") {
+            AppDelegate.startSentry()
+        }
         
         randomDistributionTimer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { _ in
             let random = Double.random(in: 0..<1_000)

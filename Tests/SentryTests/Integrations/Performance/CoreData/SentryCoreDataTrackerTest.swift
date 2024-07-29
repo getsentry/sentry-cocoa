@@ -171,14 +171,14 @@ class SentryCoreDataTrackerTests: XCTestCase {
         try assertSave("INSERTED 2 items, UPDATED 2 items, DELETED 2 items")
     }
     
-    func test_Operation_InData() {
+    func test_Operation_InData() throws {
         fixture.context.inserted = [fixture.testEntity(), fixture.testEntity(), fixture.secondTestEntity()]
         fixture.context.updated = [fixture.testEntity(), fixture.secondTestEntity(), fixture.secondTestEntity()]
         fixture.context.deleted = [fixture.testEntity(), fixture.testEntity(), fixture.secondTestEntity(), fixture.secondTestEntity(), fixture.secondTestEntity()]
         
         let sut = fixture.getSut()
         
-        let transaction = startTransaction()
+        let transaction = try startTransaction()
         
         XCTAssertNoThrow(try sut.managedObjectContext(fixture.context) { _ in
             return true
@@ -186,7 +186,7 @@ class SentryCoreDataTrackerTests: XCTestCase {
         
         XCTAssertEqual(transaction.children.count, 1)
         
-        guard let operations = transaction.children[0].data["operations"] as? [String: Any?] else {
+        guard let operations = try XCTUnwrap(transaction.children.first).data["operations"] as? [String: Any?] else {
             XCTFail("Transaction has no `operations` extra")
             return
         }
@@ -223,10 +223,10 @@ class SentryCoreDataTrackerTests: XCTestCase {
         XCTAssertEqual(updated["SecondTestEntity"] as? Int, 2)
     }
     
-    func test_Request_with_Error() {
+    func test_Request_with_Error() throws {
         let fetch = NSFetchRequest<TestEntity>(entityName: "TestEntity")
         
-        let transaction = startTransaction()
+        let transaction = try startTransaction()
         let sut = fixture.getSut()
         
         let context = fixture.context
@@ -236,13 +236,13 @@ class SentryCoreDataTrackerTests: XCTestCase {
         }
         
         XCTAssertEqual(transaction.children.count, 1)
-        XCTAssertEqual(transaction.children[0].status, .internalError)
+        XCTAssertEqual(try XCTUnwrap(transaction.children.first).status, .internalError)
     }
     
-    func test_Request_with_Error_is_nil() {
+    func test_Request_with_Error_is_nil() throws {
         let fetch = NSFetchRequest<TestEntity>(entityName: "TestEntity")
         
-        let transaction = startTransaction()
+        let transaction = try startTransaction()
         let sut = fixture.getSut()
         
         let context = fixture.context
@@ -252,11 +252,11 @@ class SentryCoreDataTrackerTests: XCTestCase {
         })
         
         XCTAssertEqual(transaction.children.count, 1)
-        XCTAssertEqual(transaction.children[0].status, .internalError)
+        XCTAssertEqual(try XCTUnwrap(transaction.children.first).status, .internalError)
     }
     
-    func test_save_with_Error() {
-        let transaction = startTransaction()
+    func test_save_with_Error() throws {
+        let transaction = try startTransaction()
         let sut = fixture.getSut()
         fixture.context.inserted = [fixture.testEntity()]
         XCTAssertThrowsError(try sut.managedObjectContext(fixture.context) { _ in
@@ -264,11 +264,11 @@ class SentryCoreDataTrackerTests: XCTestCase {
         })
         
         XCTAssertEqual(transaction.children.count, 1)
-        XCTAssertEqual(transaction.children[0].status, .internalError)
+        XCTAssertEqual(try XCTUnwrap(transaction.children.first).status, .internalError)
     }
     
-    func test_save_with_error_is_nil() {
-        let transaction = startTransaction()
+    func test_save_with_error_is_nil() throws {
+        let transaction = try startTransaction()
         let sut = fixture.getSut()
         fixture.context.inserted = [fixture.testEntity()]
         
@@ -277,13 +277,13 @@ class SentryCoreDataTrackerTests: XCTestCase {
         }
         
         XCTAssertEqual(transaction.children.count, 1)
-        XCTAssertEqual(transaction.children[0].status, .internalError)
+        XCTAssertEqual(try XCTUnwrap(transaction.children.first).status, .internalError)
     }
     
-    func test_Save_NoChanges() {
+    func test_Save_NoChanges() throws {
         let sut = fixture.getSut()
         
-        let transaction = startTransaction()
+        let transaction = try startTransaction()
         
         XCTAssertNoThrow(try sut.managedObjectContext(fixture.context) { _ in
             return true
@@ -299,7 +299,7 @@ private extension SentryCoreDataTrackerTests {
     func assertSave(_ expectedDescription: String, mainThread: Bool = true) throws {
         let sut = fixture.getSut()
         
-        let transaction = startTransaction()
+        let transaction = try startTransaction()
         
         XCTAssertNoThrow(try sut.managedObjectContext(fixture.context) { _ in
             return true
@@ -311,7 +311,7 @@ private extension SentryCoreDataTrackerTests {
     }
     
     func assertRequest(_ fetch: NSFetchRequest<TestEntity>, expectedDescription: String, mainThread: Bool = true) throws {
-        let transaction = startTransaction()
+        let transaction = try startTransaction()
         let sut = fixture.getSut()
         
         let context = fixture.context
@@ -350,8 +350,8 @@ private extension SentryCoreDataTrackerTests {
         }
     }
     
-    private func startTransaction() -> SentryTracer {
-        return SentrySDK.startTransaction(name: "TestTransaction", operation: "TestTransaction", bindToScope: true) as! SentryTracer
+    private func startTransaction() throws -> SentryTracer {
+        return try XCTUnwrap(SentrySDK.startTransaction(name: "TestTransaction", operation: "TestTransaction", bindToScope: true) as? SentryTracer)
     }
     
 }

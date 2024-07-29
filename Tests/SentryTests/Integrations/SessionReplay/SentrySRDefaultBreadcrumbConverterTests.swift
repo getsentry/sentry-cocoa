@@ -2,34 +2,16 @@ import Foundation
 @testable import Sentry
 import XCTest
 
-class SentryBreadcrumbReplayConverterTests: XCTestCase {
-    
-    let from = Date(timeIntervalSince1970: 0)
-    let until = Date(timeIntervalSinceNow: 60)
-    
-    func testReplayBreadcrumbsWithEmptyArray() {
-        let sut = SentryReplayBreadcrumbConverter()
-        let result = sut.convert(breadcrumbs: [], from: from, until: until)
-        XCTAssertTrue(result.isEmpty)
-    }
-    
-    func testReplayBreadcrumbWithNilTimestamp() {
-        let sut = SentryReplayBreadcrumbConverter()
-        let breadcrumb = Breadcrumb(level: .debug, category: "Breadcrumb")
-        breadcrumb.timestamp = nil
-        let result = sut.convert(breadcrumbs: [breadcrumb], from: from, until: until)
-        XCTAssertEqual(result.count, 0)
-    }
+class SentrySRDefaultBreadcrumbConverterTests: XCTestCase {
     
     func testNavigationBreadcrumbAppLifecycle() {
-        let sut = SentryReplayBreadcrumbConverter()
+        let sut = SentrySRDefaultBreadcrumbConverter()
         let crumb = Breadcrumb(level: .info, category: "app.lifecycle")
         crumb.type = "navigation"
         crumb.data = ["state": "foreground"]
-        let result = sut.convert(breadcrumbs: [crumb], from: from, until: until)
+        let result = sut.convert(from: crumb)
         
-        XCTAssertEqual(result.count, 1)
-        let event = result.first?.serialize()
+        let event = result?.serialize()
         let eventData = event?["data"] as? [String: Any]
         let eventPayload = eventData?["payload"] as? [String: Any]
         
@@ -39,14 +21,13 @@ class SentryBreadcrumbReplayConverterTests: XCTestCase {
     }
     
     func testNavigationBreadcrumbOrientation() {
-        let sut = SentryReplayBreadcrumbConverter()
+        let sut = SentrySRDefaultBreadcrumbConverter()
         let crumb = Breadcrumb(level: .info, category: "device.orientation")
         crumb.type = "navigation"
         crumb.data = ["position": "portrait"]
-        let result = sut.convert(breadcrumbs: [crumb], from: from, until: until)
+        let result = sut.convert(from: crumb)
         
-        XCTAssertEqual(result.count, 1)
-        let event = result.first?.serialize()
+        let event = result?.serialize()
         let eventData = event?["data"] as? [String: Any]
         let eventPayload = eventData?["payload"] as? [String: Any]
         let payloadData = eventPayload?["data"] as? [String: Any]
@@ -58,14 +39,13 @@ class SentryBreadcrumbReplayConverterTests: XCTestCase {
     }
     
     func testNavigationBreadcrumbNavigate() {
-        let sut = SentryReplayBreadcrumbConverter()
+        let sut = SentrySRDefaultBreadcrumbConverter()
         let crumb = Breadcrumb(level: .info, category: "ui.lifecycle")
         crumb.type = "navigation"
         crumb.data = ["screen": "TestViewController"]
-        let result = sut.convert(breadcrumbs: [crumb], from: from, until: until)
+        let result = sut.convert(from: crumb)
         
-        XCTAssertEqual(result.count, 1)
-        let event = result.first?.serialize()
+        let event = result?.serialize()
         let eventData = event?["data"] as? [String: Any]
         let eventPayload = eventData?["payload"] as? [String: Any]
         let payloadData = eventPayload?["data"] as? [String: Any]
@@ -77,7 +57,7 @@ class SentryBreadcrumbReplayConverterTests: XCTestCase {
     }
     
     func testHttpBreadcrumb() throws {
-        let sut = SentryReplayBreadcrumbConverter()
+        let sut = SentrySRDefaultBreadcrumbConverter()
         let breadcrumb = Breadcrumb(level: .info, category: "http")
         let start = Date(timeIntervalSince1970: 5)
         
@@ -91,7 +71,7 @@ class SentryBreadcrumbReplayConverterTests: XCTestCase {
             "request_start": start
         ]
         
-        let result = try XCTUnwrap(sut.convert(breadcrumbs: [breadcrumb], from: from, until: until).first)
+        let result = try XCTUnwrap(sut.convert(from: breadcrumb) as? SentryRRWebSpanEvent)
         let crumbData = try XCTUnwrap(result.data)
         let payload = try XCTUnwrap(crumbData["payload"] as? [String: Any])
         let payloadData = try XCTUnwrap(payload["data"] as? [String: Any])
@@ -108,11 +88,11 @@ class SentryBreadcrumbReplayConverterTests: XCTestCase {
     }
     
     func testTouchBreadcrumb() throws {
-        let sut = SentryReplayBreadcrumbConverter()
+        let sut = SentrySRDefaultBreadcrumbConverter()
         let breadcrumb = Breadcrumb(level: .info, category: "touch")
         breadcrumb.message = "TestTapped:"
         
-        let result = try XCTUnwrap(sut.convert(breadcrumbs: [breadcrumb], from: from, until: until).first)
+        let result = try XCTUnwrap(sut.convert(from: breadcrumb) as? SentryRRWebBreadcrumbEvent)
         let crumbData = try XCTUnwrap(result.data)
         let payload = try XCTUnwrap(crumbData["payload"] as? [String: Any])
         
@@ -121,12 +101,12 @@ class SentryBreadcrumbReplayConverterTests: XCTestCase {
     }
     
     func testConnectivityBreadcrumb() throws {
-        let sut = SentryReplayBreadcrumbConverter()
+        let sut = SentrySRDefaultBreadcrumbConverter()
         let breadcrumb = Breadcrumb(level: .info, category: "device.connectivity")
         breadcrumb.type = "connectivity"
         breadcrumb.data = ["connectivity": "Wifi"]
         
-        let result = try XCTUnwrap(sut.convert(breadcrumbs: [breadcrumb], from: from, until: until).first)
+        let result = try XCTUnwrap(sut.convert(from: breadcrumb) as? SentryRRWebBreadcrumbEvent)
         let crumbData = try XCTUnwrap(result.data)
         let payload = try XCTUnwrap(crumbData["payload"] as? [String: Any])
         let payloadData = try XCTUnwrap(payload["data"] as? [String: Any])
@@ -136,12 +116,12 @@ class SentryBreadcrumbReplayConverterTests: XCTestCase {
     }
     
     func testBatteryBreadcrumb() throws {
-        let sut = SentryReplayBreadcrumbConverter()
+        let sut = SentrySRDefaultBreadcrumbConverter()
         let breadcrumb = Breadcrumb(level: .info, category: "device.event")
         breadcrumb.type = "system"
         breadcrumb.data = ["level": 0.5, "plugged": true, "action": "BATTERY_STATE_CHANGE"]
         
-        let result = try XCTUnwrap(sut.convert(breadcrumbs: [breadcrumb], from: from, until: until).first)
+        let result = try XCTUnwrap(sut.convert(from: breadcrumb) as? SentryRRWebBreadcrumbEvent)
         let crumbData = try XCTUnwrap(result.data)
         let payload = try XCTUnwrap(crumbData["payload"] as? [String: Any])
         let payloadData = try XCTUnwrap(payload["data"] as? [String: Any])
@@ -152,13 +132,13 @@ class SentryBreadcrumbReplayConverterTests: XCTestCase {
     }
     
     func testCustomBreadcrumbs() throws {
-        let sut = SentryReplayBreadcrumbConverter()
+        let sut = SentrySRDefaultBreadcrumbConverter()
         let breadcrumb = Breadcrumb(level: .info, category: "MyApp.MyBreadcrumb")
         breadcrumb.type = "interation"
         breadcrumb.data = ["SomeInfo": "Info"]
         breadcrumb.message = "Custom message"
         
-        let result = try XCTUnwrap(sut.convert(breadcrumbs: [breadcrumb], from: from, until: until).first)
+        let result = try XCTUnwrap(sut.convert(from: breadcrumb) as? SentryRRWebBreadcrumbEvent)
         let crumbData = try XCTUnwrap(result.data)
         let payload = try XCTUnwrap(crumbData["payload"] as? [String: Any])
         let payloadData = try XCTUnwrap(payload["data"] as? [String: Any])
@@ -166,5 +146,17 @@ class SentryBreadcrumbReplayConverterTests: XCTestCase {
         XCTAssertEqual(payload["category"] as? String, "MyApp.MyBreadcrumb")
         XCTAssertEqual(payload["message"] as? String, "Custom message")
         XCTAssertEqual(payloadData["SomeInfo"] as? String, "Info")
+    }
+
+    func testSerializedSRBreadcrumbLevelIsString() throws {
+        let sut = SentrySRDefaultBreadcrumbConverter()
+        let breadcrumb = Breadcrumb()
+        breadcrumb.level = .error
+
+        let result = try XCTUnwrap(sut.convert(from: breadcrumb) as? SentryRRWebBreadcrumbEvent)
+        let crumbData = try XCTUnwrap(result.data)
+        let payload = try XCTUnwrap(crumbData["payload"] as? [String: Any])
+
+        XCTAssertEqual(payload["level"] as! String, "error")
     }
 }

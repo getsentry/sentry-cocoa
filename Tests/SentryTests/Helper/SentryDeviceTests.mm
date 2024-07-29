@@ -89,10 +89,10 @@
     const auto osVersion = sentry_getOSVersion();
     XCTAssertNotEqual(osVersion.length, 0U);
 #if TARGET_OS_OSX
-    SENTRY_ASSERT_PREFIX(osVersion, @"10.", @"11.", @"12.", @"13.", @"14.");
+    SENTRY_ASSERT_PREFIX(osVersion, @"10.", @"11.", @"12.", @"13.", @"14.", @"15.");
 #elif TARGET_OS_IOS || TARGET_OS_MACCATALYST || TARGET_OS_TV
     SENTRY_ASSERT_PREFIX(
-        osVersion, @"9.", @"10.", @"11.", @"12.", @"13.", @"14.", @"15.", @"16.", @"17.");
+        osVersion, @"9.", @"10.", @"11.", @"12.", @"13.", @"14.", @"15.", @"16.", @"17.", @"18.");
 #elif TARGET_OS_WATCH
     // TODO: create a watch UI test target to test this branch
     SENTRY_ASSERT_PREFIX(osVersion, @"2.", @"3.", @"4.", @"5.", @"6.", @"7.", @"8.", @"9.");

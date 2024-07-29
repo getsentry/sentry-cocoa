@@ -12,7 +12,6 @@
 #if SENTRY_HAS_UIKIT
 #    import "MockUIScene.h"
 #    import "SentryFramesTracker+TestInit.h"
-#    import "SentrySessionReplay.h"
 #    import "SentrySessionReplayIntegration+Private.h"
 #    import "SentryUIApplication+Private.h"
 #    import "SentryUIApplication.h"
@@ -43,7 +42,6 @@
 
 #import "NSLocale+Sentry.h"
 #import "NSMutableDictionary+Sentry.h"
-#import "NSURLProtocolSwizzle.h"
 #import "PrivateSentrySDKOnly.h"
 #import "Sentry/Sentry-Swift.h"
 #import "SentryANRTracker.h"
@@ -170,7 +168,6 @@
 #import "SentryRateLimitParser.h"
 #import "SentryRateLimits.h"
 #import "SentryReachability.h"
-#import "SentryReplayEvent.h"
 #import "SentryRetryAfterHeaderParser.h"
 #import "SentrySDK+Private.h"
 #import "SentrySDK+Tests.h"
@@ -246,3 +243,4 @@
 #import "SentryCrashCachedData.h"
 #import "SentryCrashInstallation+Private.h"
 #import "SentryCrashMonitor_MachException.h"
+#import "SentrySessionReplaySyncC.h"

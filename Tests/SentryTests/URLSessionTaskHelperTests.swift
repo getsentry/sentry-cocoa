@@ -1,5 +1,4 @@
 import Foundation
-import Nimble
 @testable import Sentry
 import XCTest
 
@@ -13,7 +12,7 @@ final class URLSessionTaskHelperTests: XCTestCase {
 
         let operationName = URLSessionTaskHelper.getGraphQLOperationName(from: task)
 
-        expect(operationName) == nil
+        XCTAssertNil(operationName)
     }
 
     func testHTTPBodyDataInvalid() {
@@ -24,7 +23,7 @@ final class URLSessionTaskHelperTests: XCTestCase {
 
         let operationName = URLSessionTaskHelper.getGraphQLOperationName(from: task)
 
-        expect(operationName) == nil
+        XCTAssertNil(operationName)
     }
 
     func testHTTPBodyDataMissing() {
@@ -35,7 +34,7 @@ final class URLSessionTaskHelperTests: XCTestCase {
 
         let operationName = URLSessionTaskHelper.getGraphQLOperationName(from: task)
 
-        expect(operationName) == nil
+        XCTAssertNil(operationName)
     }
 
     func testHTTPBodyDataValidGraphQL() {
@@ -54,7 +53,7 @@ final class URLSessionTaskHelperTests: XCTestCase {
 
         let operationName = URLSessionTaskHelper.getGraphQLOperationName(from: task)
 
-        expect(operationName) == "MyOperation"
+        XCTAssertEqual(operationName, "MyOperation")
     }
 
 }

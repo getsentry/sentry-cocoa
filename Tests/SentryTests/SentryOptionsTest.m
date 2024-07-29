@@ -2,9 +2,9 @@
 #import "SentryError.h"
 #import "SentryOptions+HybridSDKs.h"
 #import "SentrySDK.h"
+#import "SentrySpan.h"
 #import "SentryTests-Swift.h"
 #import <XCTest/XCTest.h>
-@import Nimble;
 
 @interface SentryOptionsTest : XCTestCase
 
@@ -299,6 +299,21 @@
     XCTAssertFalse([options.beforeSend isEqual:[NSNull null]]);
 }
 
+- (void)testBeforeSendSpan
+{
+    SentryBeforeSendSpanCallback callback = ^(id<SentrySpan> span) { return span; };
+    SentryOptions *options = [self getValidOptions:@{ @"beforeSendSpan" : callback }];
+
+    XCTAssertEqual(callback, options.beforeSendSpan);
+}
+
+- (void)testDefaultBeforeSendSpan
+{
+    SentryOptions *options = [self getValidOptions:@{}];
+
+    XCTAssertNil(options.beforeSendSpan);
+}
+
 - (void)testBeforeBreadcrumb
 {
     SentryBeforeBreadcrumbCallback callback
@@ -444,11 +459,15 @@
         @"Default integrations are not set correctly");
 }
 
-- (void)testSentryCrashIntegrationIsFirst
+#if SENTRY_HAS_UIKIT
+- (void)testIntegrationOrder
 {
     XCTAssertEqualObjects(SentryOptions.defaultIntegrations.firstObject,
-        NSStringFromClass([SentryCrashIntegration class]));
+        NSStringFromClass([SentrySessionReplayIntegration class]));
+    XCTAssertEqualObjects(
+        SentryOptions.defaultIntegrations[1], NSStringFromClass([SentryCrashIntegration class]));
 }
+#endif
 
 - (void)testSampleRateWithDict
 {
@@ -641,10 +660,14 @@
     XCTAssertEqual(options.enableUserInteractionTracing, YES);
     XCTAssertEqual(options.enablePreWarmedAppStartTracing, NO);
     XCTAssertEqual(options.attachViewHierarchy, NO);
+    XCTAssertEqual(options.reportAccessibilityIdentifier, YES);
     XCTAssertEqual(options.experimental.sessionReplay.errorSampleRate, 0);
     XCTAssertEqual(options.experimental.sessionReplay.sessionSampleRate, 0);
 #endif // SENTRY_HAS_UIKIT
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     XCTAssertFalse(options.enableTracing);
+#pragma clang diagnostic pop
     XCTAssertTrue(options.enableAppHangTracking);
     XCTAssertEqual(options.appHangTimeoutInterval, 2);
     XCTAssertEqual(YES, options.enableNetworkTracking);
@@ -663,6 +686,7 @@
 #if SENTRY_HAS_METRIC_KIT
     if (@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, *)) {
         XCTAssertEqual(NO, options.enableMetricKit);
+        XCTAssertEqual(NO, options.enableMetricKitRawPayload);
     }
 #endif // SENTRY_HAS_METRIC_KIT
 
@@ -688,6 +712,7 @@
     XCTAssertNotNil(options.profilesSampleRate);
     XCTAssertEqual(options.profilesSampleRate.doubleValue, 0.0);
     XCTAssertNil(options.profilesSampler);
+    XCTAssertFalse([options isContinuousProfilingEnabled]);
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
     XCTAssertTrue([options.spotlightUrl isEqualToString:@"http://localhost:8969/stream"]);
@@ -789,6 +814,11 @@
     [self testBooleanField:@"attachScreenshot" defaultValue:NO];
 }
 
+- (void)testReportAccessibilityIdentifier
+{
+    [self testBooleanField:@"reportAccessibilityIdentifier" defaultValue:YES];
+}
+
 - (void)testEnableUserInteractionTracing
 {
     [self testBooleanField:@"enableUserInteractionTracing" defaultValue:YES];
@@ -852,6 +882,13 @@
         [self testBooleanField:@"enableMetricKit" defaultValue:NO];
     }
 }
+
+- (void)testenableMetricKitRawPayload
+{
+    if (@available(iOS 14.0, macOS 12.0, macCatalyst 14.0, *)) {
+        [self testBooleanField:@"enableMetricKitRawPayload" defaultValue:NO];
+    }
+}
 #endif // SENTRY_HAS_METRIC_KIT
 
 - (void)testEnableAppHangTracking
@@ -886,6 +923,8 @@
     XCTAssertEqualObjects(expected, options.swizzleClassNameExcludes);
 }
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
 - (void)testEnableTracing
 {
     SentryOptions *options = [self getValidOptions:@{ @"enableTracing" : @YES }];
@@ -953,6 +992,7 @@
     XCTAssertEqual(options.tracesSampleRate.doubleValue, 0.1);
     XCTAssertTrue(options.enableTracing);
 }
+#pragma clang diagnostic pop
 
 - (void)testDefaultTracesSampleRate
 {
@@ -1005,6 +1045,8 @@
     return 0.1;
 }
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
 - (void)testTracesSampler
 {
     SentryTracesSamplerCallback sampler = ^(SentrySamplingContext *context) {
@@ -1018,6 +1060,7 @@
     XCTAssertEqual(options.tracesSampler(context), @1.0);
     XCTAssertTrue(options.enableTracing);
 }
+#pragma clang diagnostic pop
 
 - (void)testDefaultTracesSampler
 {
@@ -1077,9 +1120,10 @@
 - (void)testDefaultProfilesSampleRate
 {
     SentryOptions *options = [self getValidOptions:@{}];
-    XCTAssertEqual(options.profilesSampleRate.doubleValue, 0);
+    XCTAssertNotNil(options.profilesSampleRate);
+    XCTAssertEqual(options.profilesSampleRate.doubleValue, 0.0);
     XCTAssertFalse(options.isProfilingEnabled);
-    XCTAssert([options isContinuousProfilingEnabled]);
+    XCTAssertFalse([options isContinuousProfilingEnabled]);
 }
 
 - (void)testProfilesSampleRate_SetToNil
@@ -1108,7 +1152,7 @@
 
     // setting an invalid sample rate effectively now enables continuous profiling, since it can let
     // the backing variable remain nil
-    XCTAssert([options isContinuousProfilingEnabled]);
+    XCTAssertFalse([options isContinuousProfilingEnabled]);
 }
 
 - (void)testProfilesSampleRateUpperBound
@@ -1128,7 +1172,7 @@
 
     // setting an invalid sample rate effectively now enables continuous profiling, since it can let
     // the backing variable remain nil
-    XCTAssert([options isContinuousProfilingEnabled]);
+    XCTAssertFalse([options isContinuousProfilingEnabled]);
 }
 
 - (void)testIsProfilingEnabled_NothingSet_IsDisabled
@@ -1136,7 +1180,7 @@
     SentryOptions *options = [[SentryOptions alloc] init];
     XCTAssertFalse(options.isProfilingEnabled);
     XCTAssertNotNil(options.profilesSampleRate);
-    XCTAssert([options isContinuousProfilingEnabled]);
+    XCTAssertFalse([options isContinuousProfilingEnabled]);
 }
 
 - (void)testIsProfilingEnabled_ProfilesSampleRateSetToZero_IsDisabled
@@ -1145,7 +1189,7 @@
     options.profilesSampleRate = @0.00;
     XCTAssertFalse(options.isProfilingEnabled);
     XCTAssertNotNil(options.profilesSampleRate);
-    XCTAssert([options isContinuousProfilingEnabled]);
+    XCTAssertFalse([options isContinuousProfilingEnabled]);
 }
 
 - (void)testIsProfilingEnabled_ProfilesSampleRateSet_IsEnabled
@@ -1200,14 +1244,14 @@
 {
     SentryOptions *options = [self getValidOptions:@{}];
     XCTAssertNil(options.profilesSampler);
-    XCTAssert([options isContinuousProfilingEnabled]);
+    XCTAssertFalse([options isContinuousProfilingEnabled]);
 }
 
 - (void)testGarbageProfilesSampler_ReturnsNil
 {
     SentryOptions *options = [self getValidOptions:@{ @"profilesSampler" : @"fault" }];
     XCTAssertNil(options.profilesSampler);
-    XCTAssert([options isContinuousProfilingEnabled]);
+    XCTAssertFalse([options isContinuousProfilingEnabled]);
 }
 
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED

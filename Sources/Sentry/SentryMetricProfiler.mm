@@ -297,7 +297,7 @@ SentrySerializedMetricEntry *_Nullable serializeContinuousProfileMetricReadings(
     reading.value = value;
     const auto dateProvider = SentryDependencyContainer.sharedInstance.dateProvider;
     reading.absoluteSystemTimestamp = dateProvider.systemTime;
-    reading.absoluteNSDateInterval = dateProvider.date.timeIntervalSinceReferenceDate;
+    reading.absoluteNSDateInterval = dateProvider.date.timeIntervalSince1970;
     return reading;
 }
 

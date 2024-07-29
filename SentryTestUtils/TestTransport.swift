@@ -13,6 +13,11 @@ public class TestTransport: NSObject, Transport {
         recordLostEvents.record((category, reason))
     }
     
+    public var recordLostEventsWithCount = Invocations<(category: SentryDataCategory, reason: SentryDiscardReason, quantity: UInt)>()
+    public func recordLostEvent(_ category: SentryDataCategory, reason: SentryDiscardReason, quantity: UInt) {
+        recordLostEventsWithCount.record((category, reason, quantity))
+    }
+    
     public var flushInvocations = Invocations<TimeInterval>()
     public func flush(_ timeout: TimeInterval) -> SentryFlushResult {
         flushInvocations.record(timeout)

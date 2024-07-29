@@ -2,31 +2,24 @@
 import Foundation
 
 @objcMembers
-class SentryReplayBreadcrumbConverter: NSObject {
+class SentryBreadcrumbReplayConverter: NSObject {
     
     private let supportedNetworkData = Set<String>([
         "status_code",
         "method",
-        "response_body_size",
-        "request_body_size",
+        "response_content_length",
+        "request_content_length",
         "http.query",
         "http.fragment"]
     )
     
-    func convert(breadcrumbs: [Breadcrumb], from: Date, until: Date) -> [SentryRRWebEvent] {
-        breadcrumbs.filter {
-            guard let timestamp = $0.timestamp else { return false }
-            return timestamp >= from && timestamp <= until
-        }
-        .compactMap { convert(from: $0) }
+    func replayBreadcrumbs(from breadcrumbs: [Breadcrumb]) -> [SentryRRWebEvent] {
+        breadcrumbs.compactMap { replayBreadcrumb(from: $0) }
     }
     
-    /**
-     * This function will convert the SDK breadcrumbs to session replay breadcrumbs in a format that the front-end understands.
-     * Any deviation in the information will cause the breadcrumb or the information itself to be discarded
-     * in order to avoid unknown behavior in the front-end.
-     */
-    private func convert(from breadcrumb: Breadcrumb) -> SentryRRWebEvent? {
+    //Convert breadcrumb information into something
+    //replay front understands
+    private func replayBreadcrumb(from breadcrumb: Breadcrumb) -> SentryRRWebEvent? {
         guard let timestamp = breadcrumb.timestamp else { return nil }
         if breadcrumb.category == "http" {
             return networkSpan(breadcrumb)
@@ -58,7 +51,7 @@ class SentryReplayBreadcrumbConverter: NSObject {
         if breadcrumb.category == "app.lifecycle" {
             guard let state = breadcrumb.data?["state"] else { return nil }
             return SentryRRWebBreadcrumbEvent(timestamp: timestamp, category: "app.\(state)")
-        } else if let position = breadcrumb.data?["position"] as? String, breadcrumb.category == "device.orientation" {
+        } else if let position = breadcrumb.data?["position"] as? String, breadcrumb.category == "device.orientation" && (position == "landscape" || position == "portrait") {
             return SentryRRWebBreadcrumbEvent(timestamp: timestamp, category: "device.orientation", data: ["position": position])
         } else {
             if let to = breadcrumb.data?["screen"] as? String {
@@ -70,23 +63,21 @@ class SentryReplayBreadcrumbConverter: NSObject {
     }
     
     private func networkSpan(_ breadcrumb: Breadcrumb) -> SentryRRWebSpanEvent? {
-        guard let timestamp = breadcrumb.timestamp,
-              let description = breadcrumb.data?["url"] as? String,
-              let startTimestamp = breadcrumb.data?["request_start"] as? Date
-        else { return nil }
+        guard let timestamp = breadcrumb.timestamp, let description = breadcrumb.data?["url"] as? String else { return nil }
         var data = [String: Any]()
         
-        breadcrumb.data?.forEach({ (key, value) in
-            guard supportedNetworkData.contains(key) else { return }
-            let newKey = key.replacingOccurrences(of: "http.", with: "")
-            data[newKey.snakeToCamelCase()] = value
+        breadcrumb.data?.forEach({
+            guard supportedNetworkData.contains($0.key) else { return }
+            let newKey = $0.key == "response_body_size" ? "bodySize" : $0.key.replacingOccurrences(of: "http.", with: "")
+            data[newKey.snakeToCamelCase()] = $0.value
         })
         
         //We dont have end of the request in the breadcrumb.
-        return SentryRRWebSpanEvent(timestamp: startTimestamp, endTimestamp: timestamp, operation: "resource.http", description: description, data: data)
+        return SentryRRWebSpanEvent(timestamp: timestamp, endTimestamp: timestamp, operation: "resource.http", description: description, data: data)
     }
     
-    private func getLevel(breadcrumb: Breadcrumb) -> SentryLevel {
+    private  func getLevel(breadcrumb: Breadcrumb) -> SentryLevel {
         return SentryLevel(rawValue: SentryLevelHelper.breadcrumbLevel(breadcrumb)) ?? .none
+        
     }
 }

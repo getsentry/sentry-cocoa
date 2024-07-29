@@ -10,6 +10,7 @@ NS_ASSUME_NONNULL_BEGIN
 @class SentryDispatchQueueWrapper;
 @class SentryEvent;
 @class SentryEnvelope;
+@class SentryEnvelopeItem;
 @class SentryFileContents;
 @class SentryOptions;
 @class SentrySession;
@@ -93,6 +94,9 @@ SENTRY_NO_INIT
 - (void)storeTimezoneOffset:(NSInteger)offset;
 - (void)deleteTimezoneOffset;
 
+BOOL createDirectoryIfNotExists(NSString *path, NSError **error);
+SENTRY_EXTERN NSString *_Nullable sentryApplicationSupportPath(void);
+
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 /**
  * @return @c YES if a launch profile config file is present, @c NO otherwise. If a config file is
@@ -130,7 +134,8 @@ SENTRY_EXTERN void removeAppLaunchProfilingConfigFile(void);
 
 @protocol SentryFileManagerDelegate <NSObject>
 
-- (void)envelopeItemDeleted:(SentryDataCategory)dataCategory;
+- (void)envelopeItemDeleted:(SentryEnvelopeItem *)envelopeItem
+               withCategory:(SentryDataCategory)dataCategory;
 
 @end
 

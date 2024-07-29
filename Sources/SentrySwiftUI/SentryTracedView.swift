@@ -1,5 +1,9 @@
 import Foundation
+#if SENTRY_NO_UIKIT
+import SentryWithoutUIKit
+#else
 import Sentry
+#endif
 #if CARTHAGE || SWIFT_PACKAGE
 @_implementationOnly import SentryInternal
 #endif

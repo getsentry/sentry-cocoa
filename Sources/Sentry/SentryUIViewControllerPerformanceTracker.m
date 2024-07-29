@@ -8,7 +8,6 @@
 #    import "SentryOptions.h"
 #    import "SentryPerformanceTracker.h"
 #    import "SentrySDK+Private.h"
-#    import "SentryScope.h"
 #    import "SentrySpanId.h"
 #    import "SentrySwift.h"
 #    import "SentryTimeToDisplayTracker.h"

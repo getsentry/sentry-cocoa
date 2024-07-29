@@ -1,5 +1,6 @@
 #import "SentrySDK.h"
 #import "PrivateSentrySDKOnly.h"
+#import "SentryANRTrackingIntegration.h"
 #import "SentryAppStartMeasurement.h"
 #import "SentryAppStateManager.h"
 #import "SentryBinaryImageCache.h"
@@ -20,7 +21,6 @@
 #import "SentryScope.h"
 #import "SentrySerialization.h"
 #import "SentrySwift.h"
-#import "SentryThreadWrapper.h"
 #import "SentryTransactionContext.h"
 
 #if TARGET_OS_OSX
@@ -225,7 +225,7 @@ static NSDate *_Nullable startTimestamp = nil;
     SENTRY_LOG_DEBUG(@"SDK initialized! Version: %@", SentryMeta.versionString);
 
     SENTRY_LOG_DEBUG(@"Dispatching init work required to run on main thread.");
-    [SentryThreadWrapper onMainThread:^{
+    [SentryDependencyContainer.sharedInstance.dispatchQueueWrapper dispatchAsyncOnMainQueue:^{
         SENTRY_LOG_DEBUG(@"SDK main thread init started...");
 
         [SentryCrashWrapper.sharedInstance startBinaryImageCache];
@@ -383,9 +383,7 @@ static NSDate *_Nullable startTimestamp = nil;
  */
 + (void)storeEnvelope:(SentryEnvelope *)envelope
 {
-    if (nil != [SentrySDK.currentHub getClient]) {
-        [[SentrySDK.currentHub getClient] storeEnvelope:envelope];
-    }
+    [SentrySDK.currentHub storeEnvelope:envelope];
 }
 
 + (void)captureUserFeedback:(SentryUserFeedback *)userFeedback
@@ -469,6 +467,24 @@ static NSDate *_Nullable startTimestamp = nil;
 + (void)reportFullyDisplayed
 {
     [SentrySDK.currentHub reportFullyDisplayed];
+}
+
++ (void)pauseAppHangTracking
+{
+    SentryANRTrackingIntegration *anrTrackingIntegration
+        = (SentryANRTrackingIntegration *)[SentrySDK.currentHub
+            getInstalledIntegration:[SentryANRTrackingIntegration class]];
+
+    [anrTrackingIntegration pauseAppHangTracking];
+}
+
++ (void)resumeAppHangTracking
+{
+    SentryANRTrackingIntegration *anrTrackingIntegration
+        = (SentryANRTrackingIntegration *)[SentrySDK.currentHub
+            getInstalledIntegration:[SentryANRTrackingIntegration class]];
+
+    [anrTrackingIntegration resumeAppHangTracking];
 }
 
 + (void)flush:(NSTimeInterval)timeout

@@ -1,4 +1,3 @@
-import Nimble
 import SentryTestUtils
 import XCTest
 
@@ -34,19 +33,19 @@ class SentryBinaryImageCacheTests: XCTestCase {
         sut.binaryImageAdded(&binaryImage2)
         XCTAssertEqual(sut.cache.count, 3)
         XCTAssertEqual(sut.cache.first?.name, "Expected Name at 100")
-        XCTAssertEqual(sut.cache[1].name, "Expected Name at 200")
+        XCTAssertEqual(try XCTUnwrap(sut.cache.element(at: 1)).name, "Expected Name at 200")
         XCTAssertEqual(sut.cache.last?.name, "Expected Name at 400")
 
         sut.binaryImageAdded(&binaryImage0)
         XCTAssertEqual(sut.cache.count, 4)
         XCTAssertEqual(sut.cache.first?.name, "Expected Name at 0")
-        XCTAssertEqual(sut.cache[1].name, "Expected Name at 100")
+        XCTAssertEqual(try XCTUnwrap(sut.cache.element(at: 1)).name, "Expected Name at 100")
     }
     
     func testBinaryImageAdded_IsNull() {
         sut.binaryImageAdded(nil)
         
-        expect(self.sut.cache.count) == 0
+        XCTAssertEqual(self.sut.cache.count, 0)
     }
 
     func testBinaryImageRemoved() {
@@ -88,7 +87,7 @@ class SentryBinaryImageCacheTests: XCTestCase {
         
         sut.binaryImageRemoved(nil)
         
-        expect(self.sut.cache.count) == 1
+        XCTAssertEqual(self.sut.cache.count, 1)
     }
 
     func testImageNameByAddress() {
@@ -120,16 +119,16 @@ class SentryBinaryImageCacheTests: XCTestCase {
         sut.binaryImageAdded(&binaryImage2)
         
         let path = sut.pathFor(inAppInclude: "Expected Name at 0")
-        expect(path) == "Expected Name at 0"
+        XCTAssertEqual(path, "Expected Name at 0")
         
         let path2 = sut.pathFor(inAppInclude: "Expected Name at 1")
-        expect(path2) == "Expected Name at 1"
+        XCTAssertEqual(path2, "Expected Name at 1")
         
         let path3 = sut.pathFor(inAppInclude: "Expected")
-        expect(path3) == "Expected Name at 0"
+        XCTAssertEqual(path3, "Expected Name at 0")
         
         let didNotFind = sut.pathFor(inAppInclude: "Name at 0")
-        expect(didNotFind) == nil
+        XCTAssertNil(didNotFind)
     }
     
     func testBinaryImageWithNULLName_DoesNotAddImage() {
@@ -151,8 +150,8 @@ class SentryBinaryImageCacheTests: XCTestCase {
         )
         
         sut.binaryImageAdded(&binaryImage)
-        expect(self.sut.image(byAddress: address)) == nil
-        expect(self.sut.cache.count) == 0
+        XCTAssertNil(self.sut.image(byAddress: address))
+        XCTAssertEqual(self.sut.cache.count, 0)
     }
     
     func testBinaryImageNameDifferentEncoding_DoesNotAddImage() {
@@ -178,8 +177,8 @@ class SentryBinaryImageCacheTests: XCTestCase {
         )
         
         sut.binaryImageAdded(&binaryImage)
-        expect(self.sut.image(byAddress: address)) == nil
-        expect(self.sut.cache.count) == 0
+        XCTAssertNil(self.sut.image(byAddress: address))
+        XCTAssertEqual(self.sut.cache.count, 0)
     }
     
     func testAddingImagesWhileStoppingAndStartingOnDifferentThread() {

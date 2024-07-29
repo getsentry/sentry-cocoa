@@ -56,7 +56,9 @@ import MetricKit
         }
         
         payloads.forEach { payload in
+            
             payload.crashDiagnostics?.forEach { diagnostic in
+                
                 if disableCrashDiagnostics {
                     return
                 }

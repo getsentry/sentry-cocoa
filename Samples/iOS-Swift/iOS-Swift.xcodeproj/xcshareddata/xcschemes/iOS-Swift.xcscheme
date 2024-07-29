@@ -74,8 +74,32 @@
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "--io.sentry.enable-continuous-profiling"
-            isEnabled = "YES">
+            argument = "--skip-sentry-init"
+            isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "--disable-spotlight"
+            isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "--disable-automatic-session-tracking"
+            isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "--disable-metrics"
+            isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "--disable-metrickit-integration"
+            isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "--disable-session-replay"
+            isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "--io.sentry.enableContinuousProfiling"
+            isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "--io.sentry.wipe-data"
@@ -135,7 +159,7 @@
          </CommandLineArgument>
          <CommandLineArgument
             argument = "--disable-ui-tracing"
-            isEnabled = "NO">
+            isEnabled = "YES">
          </CommandLineArgument>
       </CommandLineArguments>
       <EnvironmentVariables>
@@ -156,6 +180,31 @@
          </EnvironmentVariable>
          <EnvironmentVariable
             key = "--io.sentry.profilesSamplerValue"
+            value = ""
+            isEnabled = "NO">
+         </EnvironmentVariable>
+         <EnvironmentVariable
+            key = "--io.sentry.sdk-environment"
+            value = ""
+            isEnabled = "NO">
+         </EnvironmentVariable>
+         <EnvironmentVariable
+            key = "--io.sentry.dsn"
+            value = ""
+            isEnabled = "NO">
+         </EnvironmentVariable>
+         <EnvironmentVariable
+            key = "--io.sentry.user.username"
+            value = ""
+            isEnabled = "NO">
+         </EnvironmentVariable>
+         <EnvironmentVariable
+            key = "--io.sentry.user.email"
+            value = ""
+            isEnabled = "NO">
+         </EnvironmentVariable>
+         <EnvironmentVariable
+            key = "--io.sentry.sessionTrackingIntervalMillis"
             value = ""
             isEnabled = "NO">
          </EnvironmentVariable>

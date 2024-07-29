@@ -18,7 +18,7 @@ NS_ASSUME_NONNULL_BEGIN
  * returned a valid value, @c nil otherwise.
  */
 NSNumber *_Nullable _sentry_samplerCallbackRate(SentryTracesSamplerCallback _Nullable callback,
-    SentrySamplingContext *context, NSNumber *defaultSampleRate)
+    SentrySamplingContext *context, NSNumber *_Nullable defaultSampleRate)
 {
     if (callback == nil) {
         return nil;

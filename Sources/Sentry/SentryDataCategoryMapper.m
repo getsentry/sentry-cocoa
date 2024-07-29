@@ -14,6 +14,7 @@ NSString *const kSentryDataCategoryNameProfile = @"profile";
 NSString *const kSentryDataCategoryNameProfileChunk = @"profile_chunk";
 NSString *const kSentryDataCategoryNameReplay = @"replay";
 NSString *const kSentryDataCategoryNameMetricBucket = @"metric_bucket";
+NSString *const kSentryDataCategoryNameSpan = @"span";
 NSString *const kSentryDataCategoryNameUnknown = @"unknown";
 
 NS_ASSUME_NONNULL_BEGIN
@@ -47,6 +48,7 @@ sentryDataCategoryForEnvelopItemType(NSString *itemType)
     if ([itemType isEqualToString:SentryEnvelopeItemTypeStatsd]) {
         return kSentryDataCategoryMetricBucket;
     }
+
     return kSentryDataCategoryDefault;
 }
 
@@ -96,6 +98,9 @@ sentryDataCategoryForString(NSString *value)
     if ([value isEqualToString:kSentryDataCategoryNameMetricBucket]) {
         return kSentryDataCategoryMetricBucket;
     }
+    if ([value isEqualToString:kSentryDataCategoryNameSpan]) {
+        return kSentryDataCategorySpan;
+    }
 
     return kSentryDataCategoryUnknown;
 }
@@ -132,6 +137,8 @@ nameForSentryDataCategory(SentryDataCategory category)
         return kSentryDataCategoryNameUnknown;
     case kSentryDataCategoryReplay:
         return kSentryDataCategoryNameReplay;
+    case kSentryDataCategorySpan:
+        return kSentryDataCategoryNameSpan;
     }
 }
 

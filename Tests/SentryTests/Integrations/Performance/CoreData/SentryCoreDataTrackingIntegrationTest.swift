@@ -56,51 +56,51 @@ class SentryCoreDataTrackingIntegrationTests: XCTestCase {
         assert_DontInstall { $0.enableCoreDataTracing = false }
     }
     
-    func test_Fetch() {
+    func test_Fetch() throws {
         SentrySDK.start(options: fixture.options)
         let stack = fixture.coreDataStack
         let fetch = NSFetchRequest<TestEntity>(entityName: "TestEntity")
-        let transaction = startTransaction()
+        let transaction = try startTransaction()
         var _ = try? stack.managedObjectContext.fetch(fetch)
         XCTAssertEqual(transaction.children.count, 1)
     }
     
-    func test_Save() {
+    func test_Save() throws {
         SentrySDK.start(options: fixture.options)
         let stack = fixture.coreDataStack
-        let transaction = startTransaction()
+        let transaction = try startTransaction()
         let newEntity: TestEntity = stack.getEntity()
         newEntity.field1 = "Some Update"
         try? stack.managedObjectContext.save()
         
         XCTAssertEqual(transaction.children.count, 1)
-        XCTAssertEqual(transaction.children[0].operation, "db.sql.transaction")
+        XCTAssertEqual(try XCTUnwrap(transaction.children.first).operation, "db.sql.transaction")
     }
     
-    func test_Save_noChanges() {
+    func test_Save_noChanges() throws {
         SentrySDK.start(options: fixture.options)
         let stack = fixture.coreDataStack
-        let transaction = startTransaction()
+        let transaction = try startTransaction()
         
         try? stack.managedObjectContext.save()
         
         XCTAssertEqual(transaction.children.count, 0)
     }
     
-    func test_Fetch_StoppedSwizzling() {
+    func test_Fetch_StoppedSwizzling() throws {
         SentrySDK.start(options: fixture.options)
         let stack = fixture.coreDataStack
         let fetch = NSFetchRequest<TestEntity>(entityName: "TestEntity")
-        let transaction = startTransaction()
+        let transaction = try startTransaction()
         SentryCoreDataSwizzling.sharedInstance.stop()
         var _ = try? stack.managedObjectContext.fetch(fetch)
         XCTAssertEqual(transaction.children.count, 0)
     }
     
-    func test_Save_StoppedSwizzling() {
+    func test_Save_StoppedSwizzling() throws {
         SentrySDK.start(options: fixture.options)
         let stack = fixture.coreDataStack
-        let transaction = startTransaction()
+        let transaction = try startTransaction()
         let newEntity: TestEntity = stack.getEntity()
         newEntity.field1 = "Some Update"
         SentryCoreDataSwizzling.sharedInstance.stop()
@@ -116,7 +116,7 @@ class SentryCoreDataTrackingIntegrationTests: XCTestCase {
         XCTAssertNil(SentryCoreDataSwizzling.sharedInstance.coreDataTracker)
     }
     
-    private func startTransaction() -> SentryTracer {
-        return SentrySDK.startTransaction(name: "TestTransaction", operation: "TestTransaction", bindToScope: true) as! SentryTracer
+    private func startTransaction() throws -> SentryTracer {
+        return try XCTUnwrap(SentrySDK.startTransaction(name: "TestTransaction", operation: "TestTransaction", bindToScope: true) as? SentryTracer)
     }
 }

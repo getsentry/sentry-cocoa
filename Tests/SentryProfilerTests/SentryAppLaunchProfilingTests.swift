@@ -293,7 +293,7 @@ final class SentryAppLaunchProfilingSwiftTests: XCTestCase {
         ] {
             let options = Options()
             options.enableAppLaunchProfiling = testCase.enableAppLaunchProfiling
-            options.enableTracing = testCase.enableTracing
+            Dynamic(options).enableTracing = testCase.enableTracing
             options.tracesSampleRate = NSNumber(value: testCase.tracesSampleRate)
             if let profilesSampleRate = testCase.profilesSampleRate {
                 options.profilesSampleRate = NSNumber(value: profilesSampleRate)

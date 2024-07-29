@@ -1,5 +1,6 @@
 #import "SentryHttpTransport.h"
 #import "SentryClientReport.h"
+#import "SentryDataCategory.h"
 #import "SentryDataCategoryMapper.h"
 #import "SentryDependencyContainer.h"
 #import "SentryDiscardReasonMapper.h"
@@ -140,6 +141,13 @@ SentryHttpTransport ()
 
 - (void)recordLostEvent:(SentryDataCategory)category reason:(SentryDiscardReason)reason
 {
+    [self recordLostEvent:category reason:reason quantity:1];
+}
+
+- (void)recordLostEvent:(SentryDataCategory)category
+                 reason:(SentryDiscardReason)reason
+               quantity:(NSUInteger)quantity
+{
     if (!self.options.sendClientReports) {
         return;
     }
@@ -149,7 +157,6 @@ SentryHttpTransport ()
 
     @synchronized(self.discardedEvents) {
         SentryDiscardedEvent *event = self.discardedEvents[key];
-        NSUInteger quantity = 1;
         if (event != nil) {
             quantity = event.quantity + 1;
         }
@@ -176,12 +183,6 @@ SentryHttpTransport ()
     // the flush duration.
     dispatch_time_t delta = (int64_t)(timeout * (NSTimeInterval)NSEC_PER_SEC);
     dispatch_time_t dispatchTimeout = dispatch_time(DISPATCH_TIME_NOW, delta);
-
-    // Double-Checked Locking to avoid acquiring unnecessary locks.
-    if (_isFlushing) {
-        SENTRY_LOG_DEBUG(@"Already flushing.");
-        return kSentryFlushResultAlreadyFlushing;
-    }
 
     @synchronized(self) {
         if (_isFlushing) {
@@ -225,17 +226,21 @@ SentryHttpTransport ()
 /**
  * SentryEnvelopeRateLimitDelegate.
  */
-- (void)envelopeItemDropped:(SentryDataCategory)dataCategory
+- (void)envelopeItemDropped:(SentryEnvelopeItem *)envelopeItem
+               withCategory:(SentryDataCategory)dataCategory;
 {
     [self recordLostEvent:dataCategory reason:kSentryDiscardReasonRateLimitBackoff];
+    [self recordLostSpans:envelopeItem reason:kSentryDiscardReasonRateLimitBackoff];
 }
 
 /**
  * SentryFileManagerDelegate.
  */
-- (void)envelopeItemDeleted:(SentryDataCategory)dataCategory
+- (void)envelopeItemDeleted:(SentryEnvelopeItem *)envelopeItem
+               withCategory:(SentryDataCategory)dataCategory
 {
     [self recordLostEvent:dataCategory reason:kSentryDiscardReasonCacheOverflow];
+    [self recordLostSpans:envelopeItem reason:kSentryDiscardReasonCacheOverflow];
 }
 
 #pragma mark private methods
@@ -389,6 +394,20 @@ SentryHttpTransport ()
         }
         SentryDataCategory category = sentryDataCategoryForEnvelopItemType(itemType);
         [self recordLostEvent:category reason:kSentryDiscardReasonNetworkError];
+        [self recordLostSpans:item reason:kSentryDiscardReasonNetworkError];
+    }
+}
+
+- (void)recordLostSpans:(SentryEnvelopeItem *)envelopeItem reason:(SentryDiscardReason)reason
+{
+    if ([SentryEnvelopeItemTypeTransaction isEqualToString:envelopeItem.header.type]) {
+        NSDictionary *transactionJson =
+            [SentrySerialization deserializeDictionaryFromJsonData:envelopeItem.data];
+        if (transactionJson == nil) {
+            return;
+        }
+        NSArray *spans = transactionJson[@"spans"] ?: [NSArray array];
+        [self recordLostEvent:kSentryDataCategorySpan reason:reason quantity:spans.count + 1];
     }
 }
 

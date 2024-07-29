@@ -307,6 +307,19 @@ SENTRY_NO_INIT
 + (void)reportFullyDisplayed;
 
 /**
+ * Pauses sending detected app hangs to Sentry.
+ *
+ * @discussion This method doesn't close the detection of app hangs. Instead, the app hang detection
+ * will ignore detected app hangs until you call @c resumeAppHangTracking.
+ */
++ (void)pauseAppHangTracking;
+
+/**
+ * Resumes sending detected app hangs to Sentry.
+ */
++ (void)resumeAppHangTracking;
+
+/**
  * Waits synchronously for the SDK to flush out all queued and cached items for up to the specified
  * timeout in seconds. If there is no internet connection, the function returns immediately. The SDK
  * doesn't dispose the client or the hub.

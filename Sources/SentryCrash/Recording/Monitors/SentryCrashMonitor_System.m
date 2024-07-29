@@ -32,10 +32,9 @@
 #import "SentryCrashDynamicLinker.h"
 #import "SentryCrashMonitorContext.h"
 #import "SentryCrashSysCtl.h"
-#import "SentryCrashSystemCapabilities.h"
+#import "SentryInternalCDefines.h"
 
-// #define SentryCrashLogger_LocalLevel TRACE
-#import "SentryCrashLogger.h"
+#import "SentryLog.h"
 
 #import "SentryDefines.h"
 
@@ -178,14 +177,14 @@ VMStats(vm_statistics_data_t *const vmStats, vm_size_t *const pageSize)
     const mach_port_t hostPort = mach_host_self();
 
     if ((kr = host_page_size(hostPort, pageSize)) != KERN_SUCCESS) {
-        SentryCrashLOG_ERROR(@"host_page_size: %s", mach_error_string(kr));
+        SENTRY_LOG_ERROR(@"host_page_size: %s", mach_error_string(kr));
         return false;
     }
 
     mach_msg_type_number_t hostSize = sizeof(*vmStats) / sizeof(natural_t);
     kr = host_statistics(hostPort, HOST_VM_INFO, (host_info_t)vmStats, &hostSize);
     if (kr != KERN_SUCCESS) {
-        SentryCrashLOG_ERROR(@"host_statistics: %s", mach_error_string(kr));
+        SENTRY_LOG_ERROR(@"host_statistics: %s", mach_error_string(kr));
         return false;
     }
 
@@ -377,7 +376,7 @@ sentrycrash_isSimulatorBuild(void)
 static NSString *
 getReceiptUrlPath(void)
 {
-#if SentryCrashCRASH_HOST_IOS
+#if SENTRY_HOST_IOS
     return [NSBundle mainBundle].appStoreReceiptURL.path;
 #endif
     return nil;
@@ -510,15 +509,15 @@ initialize(void)
     NSDictionary *infoDict = [mainBundle infoDictionary];
     const struct mach_header *header = _dyld_get_image_header(0);
 
-#if SentryCrashCRASH_HOST_IOS
+#if SENTRY_HOST_IOS
     g_systemData.systemName = "iOS";
-#elif SentryCrashCRASH_HOST_TV
+#elif SENTRY_HOST_TV
     g_systemData.systemName = "tvOS";
-#elif SentryCrashCRASH_HOST_MAC
+#elif SENTRY_HOST_MAC
     g_systemData.systemName = "macOS";
-#elif SentryCrashCRASH_HOST_WATCH
+#elif SENTRY_HOST_WATCH
     g_systemData.systemName = "watchOS";
-#elif SentryCrashCRASH_HOST_VISION
+#elif SENTRY_HOST_VISION
     g_systemData.systemName = "visionOS";
 #else
     g_systemData.systemName = "unknown";
@@ -544,7 +543,7 @@ initialize(void)
         g_systemData.model = "simulator";
     } else {
         // TODO: combine this into SentryDevice?
-#if SentryCrashCRASH_HOST_MAC
+#if SENTRY_HOST_MAC
         // MacOS has the machine in the model field, and no model
         g_systemData.machine = stringSysctl("hw.model");
 #else

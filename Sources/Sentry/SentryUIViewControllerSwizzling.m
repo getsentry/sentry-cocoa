@@ -348,13 +348,15 @@ SentryUIViewControllerSwizzling ()
 
 - (void)swizzleLoadView:(Class)class
 {
-    // The UIViewController only searches for a nib file if you do not override the loadView method.
+    // Loading a Nib file is done automatically during `loadView` in the UIViewController
+    // or other native view controllers.
     // When swizzling the loadView of a custom UIViewController, the UIViewController doesn't search
-    // for a nib file and doesn't load a view. This would lead to crashes as no view is loaded. As a
-    // workaround, we skip swizzling the loadView and accept that the SKD doesn't create a span for
-    // loadView if the UIViewController doesn't implement it.
+    // for a nib file and doesn't load a view. This would lead to crashes as no view is loaded.
+    // By checking the implementation pointer of `loadView` from the current class with
+    // the implementation pointer of its parent class, we can determine if current class
+    // has a custom implementation of it, therefore it's safe to swizzle it.
     SEL selector = NSSelectorFromString(@"loadView");
-    IMP viewControllerImp = class_getMethodImplementation([UIViewController class], selector);
+    IMP viewControllerImp = class_getMethodImplementation([class superclass], selector);
     IMP classLoadViewImp = class_getMethodImplementation(class, selector);
     if (viewControllerImp == classLoadViewImp) {
         return;

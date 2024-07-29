@@ -46,8 +46,13 @@ public class SentryId: NSObject {
         }
         
         if uuidString.count == 32 {   
-            let dashedUUID = "\(uuidString[0..<8])-\(uuidString[8..<12])-\(uuidString[12..<16])-\(uuidString[16..<20])-\(uuidString[20...])"
-            if let id = UUID(uuidString: dashedUUID) {
+            let dashedUUID = uuidString.enumerated().reduce(into: [Character]()) { partialResult, next in
+                if next.offset == 8 || next.offset == 12 || next.offset == 16 || next.offset == 20 {
+                    partialResult.append("-")
+                }
+                partialResult.append(next.element)
+            }
+            if let id = UUID(uuidString: String(dashedUUID)) {
                 self.id = id
                 return
             }

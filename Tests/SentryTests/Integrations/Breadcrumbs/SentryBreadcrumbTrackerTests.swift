@@ -70,10 +70,8 @@ class SentryBreadcrumbTrackerTests: XCTestCase {
             return
         }
         
-        let breadcrumbConverter = SentryReplayBreadcrumbConverter()
-        let result = try XCTUnwrap(breadcrumbConverter.convert(breadcrumbs: [breadcrumb],
-                                                                         from: Date(timeIntervalSince1970: 0),
-                                                                         until: Date(timeIntervalSinceNow: 60)).first)
+        let breadcrumbConverter = SentrySRDefaultBreadcrumbConverter()
+        let result = try XCTUnwrap(breadcrumbConverter.convert(from: breadcrumb) as? SentryRRWebBreadcrumbEvent)
         
         let crumbData = try XCTUnwrap(result.data)
         let payload = try XCTUnwrap(crumbData["payload"] as? [String: Any])
@@ -83,7 +81,7 @@ class SentryBreadcrumbTrackerTests: XCTestCase {
         XCTAssertEqual(payloadData["state"] as? String, "cellular")
     }
 
-    func testSwizzlingStarted_ViewControllerAppears_AddsUILifeCycleBreadcrumb() {
+    func testSwizzlingStarted_ViewControllerAppears_AddsUILifeCycleBreadcrumb() throws {
         let testReachability = TestSentryReachability()
         
         // We already test the network breadcrumbs in a test above. Using the `TestReachability`
@@ -124,7 +122,7 @@ class SentryBreadcrumbTrackerTests: XCTestCase {
             return
         }
 
-        let lifeCycleCrumb = crumbs[1]
+        let lifeCycleCrumb = try XCTUnwrap(crumbs.element(at: 1))
         XCTAssertEqual("navigation", lifeCycleCrumb.type)
         XCTAssertEqual("ui.lifecycle", lifeCycleCrumb.category)
         XCTAssertEqual("false", lifeCycleCrumb.data?["beingPresented"] as? String)
@@ -138,20 +136,17 @@ class SentryBreadcrumbTrackerTests: XCTestCase {
     
     func testNavigationBreadcrumbForSessionReplay() throws {
         //Call the previous test to create the breadcrumb into the delegate
-        testSwizzlingStarted_ViewControllerAppears_AddsUILifeCycleBreadcrumb()
+        try testSwizzlingStarted_ViewControllerAppears_AddsUILifeCycleBreadcrumb()
         
-        let sut = SentryReplayBreadcrumbConverter()
+        let sut = SentrySRDefaultBreadcrumbConverter()
         
         guard let crumb = delegate.addCrumbInvocations.invocations.dropFirst().first else {
             XCTFail("No navigation breadcrumb")
             return
         }
-        let result = sut.convert(breadcrumbs: [crumb], 
-                                           from: Date(timeIntervalSince1970: 0),
-                                           until: Date(timeIntervalSinceNow: 60))
+        let result = sut.convert(from: crumb)
         
-        XCTAssertEqual(result.count, 1)
-        let event = result.first?.serialize()
+        let event = result?.serialize()
         let eventData = event?["data"] as? [String: Any]
         let eventPayload = eventData?["payload"] as? [String: Any]
         let payloadData = eventPayload?["data"] as? [String: Any]
@@ -173,17 +168,14 @@ class SentryBreadcrumbTrackerTests: XCTestCase {
         
         NotificationCenter.default.post(name: UIApplication.didEnterBackgroundNotification, object: nil)
         
-        let sut = SentryReplayBreadcrumbConverter()
+        let sut = SentrySRDefaultBreadcrumbConverter()
         guard let crumb = delegate.addCrumbInvocations.invocations.first(where: { $0.category == "app.lifecycle" }) else {
             XCTFail("No life cycle breadcrumb")
             return
         }
-        let result = sut.convert(breadcrumbs: [crumb], 
-                                           from: Date(timeIntervalSince1970: 0),
-                                           until: Date(timeIntervalSinceNow: 60))
+        let result = sut.convert(from: crumb)
         
-        XCTAssertEqual(result.count, 1)
-        let event = result.first?.serialize()
+        let event = result?.serialize()
         let eventData = event?["data"] as? [String: Any]
         let eventPayload = eventData?["payload"] as? [String: Any]
         
@@ -207,14 +199,13 @@ class SentryBreadcrumbTrackerTests: XCTestCase {
         
         swizzlingWrapper.execute(action: "methodPressed:", target: self, sender: self, event: nil)
         
-        let sut = SentryReplayBreadcrumbConverter()
+        let sut = SentrySRDefaultBreadcrumbConverter()
         guard let crumb = delegate.addCrumbInvocations.invocations.first(where: { $0.category == "touch" }) else {
             XCTFail("No touch breadcrumb")
             return
         }
                
-        let result = try XCTUnwrap(sut.convert(breadcrumbs: [crumb], from: Date(timeIntervalSince1970: 0),
-                                                         until: Date(timeIntervalSinceNow: 60)).first)
+        let result = try XCTUnwrap(sut.convert(from: crumb) as? SentryRRWebBreadcrumbEvent)
         let crumbData = try XCTUnwrap(result.data)
         let payload = try XCTUnwrap(crumbData["payload"] as? [String: Any])
         

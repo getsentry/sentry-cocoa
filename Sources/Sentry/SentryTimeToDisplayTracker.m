@@ -127,7 +127,7 @@ SentryTimeToDisplayTracker () <SentryFramesTrackerListener>
 {
     // All other accesses to _fullyDisplayedReported run on the main thread.
     // To avoid using locks, we execute this on the main queue instead.
-    [_dispatchQueueWrapper dispatchOnMainQueue:^{ self->_fullyDisplayedReported = YES; }];
+    [_dispatchQueueWrapper dispatchAsyncOnMainQueue:^{ self->_fullyDisplayedReported = YES; }];
 }
 
 - (void)framesTrackerHasNewFrame:(NSDate *)newFrameDate
@@ -142,7 +142,7 @@ SentryTimeToDisplayTracker () <SentryFramesTrackerListener>
         if (!_waitForFullDisplay) {
             [SentryDependencyContainer.sharedInstance.framesTracker removeListener:self];
 #    if SENTRY_TARGET_PROFILING_SUPPORTED
-            if (SentrySDK.options.profilesSampleRate != nil) {
+            if (![SentrySDK.options isContinuousProfilingEnabled]) {
                 sentry_stopAndDiscardLaunchProfileTracer();
             }
 #    endif // SENTRY_TARGET_PROFILING_SUPPORTED
@@ -154,7 +154,7 @@ SentryTimeToDisplayTracker () <SentryFramesTrackerListener>
         self.fullDisplaySpan.timestamp = newFrameDate;
         [self.fullDisplaySpan finish];
 #    if SENTRY_TARGET_PROFILING_SUPPORTED
-        if (SentrySDK.options.profilesSampleRate != nil) {
+        if (![SentrySDK.options isContinuousProfilingEnabled]) {
             sentry_stopAndDiscardLaunchProfileTracer();
         }
 #    endif // SENTRY_TARGET_PROFILING_SUPPORTED

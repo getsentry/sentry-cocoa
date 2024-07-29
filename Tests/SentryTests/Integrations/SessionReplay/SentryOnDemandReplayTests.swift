@@ -1,5 +1,4 @@
 import Foundation
-import Nimble
 @testable import Sentry
 import SentryTestUtils
 import XCTest
@@ -22,12 +21,12 @@ class SentryOnDemandReplayTests: XCTestCase {
         sut.addFrameAsync(image: UIImage.add)
        
         guard let frame = sut.frames.first else {
-            fail("Frame was not saved")
+            XCTFail("Frame was not saved")
             return
         }
         
-        expect(FileManager.default.fileExists(atPath: frame.imagePath)) == true
-        expect(frame.imagePath.hasPrefix(self.outputPath.path)) == true
+        XCTAssertEqual(FileManager.default.fileExists(atPath: frame.imagePath), true)
+        XCTAssertEqual(frame.imagePath.hasPrefix(self.outputPath.path), true)
     }
     
     func testReleaseFrames() {
@@ -42,9 +41,26 @@ class SentryOnDemandReplayTests: XCTestCase {
         
         let frames = sut.frames
         
-        expect(frames.count) == 5
-        expect(frames.first?.time) == Date(timeIntervalSinceReferenceDate: 5)
-        expect(frames.last?.time) == Date(timeIntervalSinceReferenceDate: 9)
+        XCTAssertEqual(frames.count, 5)
+        XCTAssertEqual(frames.first?.time, Date(timeIntervalSinceReferenceDate: 5))
+        XCTAssertEqual(frames.last?.time, Date(timeIntervalSinceReferenceDate: 9))
+    }
+    
+    func testFramesWithScreenName() {
+        let sut = getSut()
+        
+        for i in 0..<4 {
+            sut.addFrameAsync(image: UIImage.add, forScreen: "\(i)")
+            dateProvider.advance(by: 1)
+        }
+        
+        sut.releaseFramesUntil(dateProvider.date().addingTimeInterval(-5))
+        
+        let frames = sut.frames
+        
+        for i in 0..<4 {
+            XCTAssertEqual(frames[i].screenName, "\(i)")
+        }
     }
     
     func testGenerateVideo() {
@@ -59,14 +75,14 @@ class SentryOnDemandReplayTests: XCTestCase {
         let output = FileManager.default.temporaryDirectory.appendingPathComponent("video.mp4")
         let videoExpectation = expectation(description: "Wait for video render")
         
-        try? sut.createVideoWith(duration: 10, beginning: Date(timeIntervalSinceReferenceDate: 0), outputFileURL: output) { info, error in
-            expect(error) == nil
+        try? sut.createVideoWith(beginning: Date(timeIntervalSinceReferenceDate: 0), end: Date(timeIntervalSinceReferenceDate: 10), outputFileURL: output) { info, error in
+            XCTAssertNil(error)
             
-            expect(info?.duration) == 10
-            expect(info?.start) == Date(timeIntervalSinceReferenceDate: 0)
-            expect(info?.end) == Date(timeIntervalSinceReferenceDate: 10)
+            XCTAssertEqual(info?.duration, 10)
+            XCTAssertEqual(info?.start, Date(timeIntervalSinceReferenceDate: 0))
+            XCTAssertEqual(info?.end, Date(timeIntervalSinceReferenceDate: 10))
             
-            expect(FileManager.default.fileExists(atPath: output.path)) == true
+            XCTAssertEqual(FileManager.default.fileExists(atPath: output.path), true)
             videoExpectation.fulfill()
             try? FileManager.default.removeItem(at: output)
         }
@@ -94,7 +110,7 @@ class SentryOnDemandReplayTests: XCTestCase {
         
         group.wait()
         queue.queue.sync {} //Wait for all enqueued operation to finish
-        expect(sut.frames.map({ ($0.imagePath as NSString).lastPathComponent })) == (0..<10).map { "\($0).png" }
+        XCTAssertEqual(sut.frames.map({ ($0.imagePath as NSString).lastPathComponent }), (0..<10).map { "\($0).0.png" })
     }
     
     func testReleaseIsThreadSafe() {
@@ -103,7 +119,7 @@ class SentryOnDemandReplayTests: XCTestCase {
                                        workingQueue: queue,
                                        dateProvider: dateProvider)
                 
-        sut.frames = (0..<100).map { SentryReplayFrame(imagePath: outputPath.path + "/\($0).png", time: Date(timeIntervalSinceReferenceDate: Double($0))) }
+        sut.frames = (0..<100).map { SentryReplayFrame(imagePath: outputPath.path + "/\($0).png", time: Date(timeIntervalSinceReferenceDate: Double($0)), screenName: nil) }
                 
         let group = DispatchGroup()
         
@@ -118,7 +134,28 @@ class SentryOnDemandReplayTests: XCTestCase {
         group.wait()
         
         queue.queue.sync {} //Wait for all enqueued operation to finish
-        expect(sut.frames.count) == 0
+        XCTAssertEqual(sut.frames.count, 0)
+    }
+    
+    func testInvalidWriter() {
+        let queue = SentryDispatchQueueWrapper()
+        let sut = SentryOnDemandReplay(outputPath: outputPath.path,
+                                       workingQueue: queue,
+                                       dateProvider: dateProvider)
+        let expect = expectation(description: "Video render")
+        
+        let start = dateProvider.date()
+        sut.addFrameAsync(image: UIImage.add)
+        dateProvider.advance(by: 1)
+        let end = dateProvider.date()
+        
+        try? sut.createVideoWith(beginning: start, end: end, outputFileURL: URL(fileURLWithPath: "/invalidPath/video.mp3")) { _, error in
+            XCTAssertNotNil(error)
+            XCTAssertEqual(error as? SentryOnDemandReplayError, SentryOnDemandReplayError.assetWriterNotReady)
+            expect.fulfill()
+        }
+        
+        wait(for: [expect], timeout: 1)
     }
     
 }

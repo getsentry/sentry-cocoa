@@ -1,4 +1,3 @@
-import Nimble
 @testable import Sentry
 import SentryTestUtils
 import XCTest
@@ -10,7 +9,7 @@ final class EncodeMetricTests: XCTestCase {
 
         let data = encodeToStatsd(flushableBuckets: [12_345: [counterMetric]])
 
-        expect(data.decodeStatsd()) == "app.start@:1.0|c|T12345\n"
+        XCTAssertEqual(data.decodeStatsd(), "app.start@:1.0|c|T12345\n")
     }
     
     func testEncodeGaugeMetricWithOneTag() {
@@ -23,7 +22,7 @@ final class EncodeMetricTests: XCTestCase {
 
         let data = encodeToStatsd(flushableBuckets: [12_345: [metric]])
 
-        expect(data.decodeStatsd()) == "app.start@:1.0:0.0:5.0:15.0:6|g|#key:value|T12345\n"
+        XCTAssertEqual(data.decodeStatsd(), "app.start@:1.0:0.0:5.0:15.0:6|g|#key:value|T12345\n")
     }
     
     func testEncodeDistributionMetricWithOutTags() {
@@ -33,7 +32,7 @@ final class EncodeMetricTests: XCTestCase {
 
         let data = encodeToStatsd(flushableBuckets: [12_345: [metric]])
 
-        expect(data.decodeStatsd()) == "app.start@:0.0:5.12:1.0|d|T12345\n"
+        XCTAssertEqual(data.decodeStatsd(), "app.start@:0.0:5.12:1.0|d|T12345\n")
     }
     
     func testEncodeSetMetricWithOutTags() {
@@ -45,10 +44,11 @@ final class EncodeMetricTests: XCTestCase {
         let data = encodeToStatsd(flushableBuckets: [12_345: [metric]])
 
         let statsd = data.decodeStatsd()
-        expect(statsd).to(contain(["app.start@:", "|s|T12345\n"]))
+        XCTAssert(statsd.contains("app.start@:"))
+        XCTAssert(statsd.contains("|s|T12345\n"))
         
         // the set is unordered, so we have to check for both
-        expect(statsd.contains("1:0") || statsd.contains("0:1")).to(beTrue(), description: "statsd expected to contain either '1:0' or '0:1' for the set metric values")
+        XCTAssert(statsd.contains("1:0") || statsd.contains("0:1"), "statsd expected to contain either '1:0' or '0:1' for the set metric values")
     }
 
     func testEncodeCounterMetricWithFractionalPart() {
@@ -56,7 +56,7 @@ final class EncodeMetricTests: XCTestCase {
 
         let data = encodeToStatsd(flushableBuckets: [10_234: [counterMetric]])
 
-        expect(data.decodeStatsd()) == "app.start@second:1.123456|c|T10234\n"
+        XCTAssertEqual(data.decodeStatsd(), "app.start@second:1.123456|c|T10234\n")
     }
 
     func testEncodeCounterMetricWithOneTag() {
@@ -64,18 +64,17 @@ final class EncodeMetricTests: XCTestCase {
 
         let data = encodeToStatsd(flushableBuckets: [10_234: [counterMetric]])
 
-        expect(data.decodeStatsd()) == "app.start@second:10.1|c|#key:value|T10234\n"
+        XCTAssertEqual(data.decodeStatsd(), "app.start@second:10.1|c|#key:value|T10234\n")
     }
 
     func testEncodeCounterMetricWithTwoTags() {
         let counterMetric = CounterMetric(first: 10.1, key: "app.start", unit: MeasurementUnitDuration.second, tags: ["key1": "value1", "key2": "value2"])
 
-        let data = encodeToStatsd(flushableBuckets: [10_234: [counterMetric]])
-
-        expect(data.decodeStatsd()).to(beginWith("app.start@second:10.1|c|"))
-        expect(data.decodeStatsd()).to(endWith("|T10234\n"))
-        expect(data.decodeStatsd()).to(contain("key1:value1"))
-        expect(data.decodeStatsd()).to(contain("key2:value2"))
+        let data = encodeToStatsd(flushableBuckets: [10_234: [counterMetric]]).decodeStatsd()
+        XCTAssert(data.hasPrefix("app.start@second:10.1|c|"))
+        XCTAssert(data.hasSuffix("|T10234\n"))
+        XCTAssert(data.contains("key1:value1"))
+        XCTAssert(data.contains("key2:value2"))
     }
 
     func testEncodeCounterMetricWithKeyToSanitize() {
@@ -83,7 +82,7 @@ final class EncodeMetricTests: XCTestCase {
 
         let data = encodeToStatsd(flushableBuckets: [10_234: [counterMetric]])
 
-        expect(data.decodeStatsd()) == "abyzABYZ09__.-_a_a@second:10.1|c|T10234\n"
+        XCTAssertEqual(data.decodeStatsd(), "abyzABYZ09__.-_a_a@second:10.1|c|T10234\n")
     }
 
     func testEncodeCounterMetricWithTagKeyToSanitize() {
@@ -91,7 +90,7 @@ final class EncodeMetricTests: XCTestCase {
 
         let data = encodeToStatsd(flushableBuckets: [10_234: [counterMetric]])
 
-        expect(data.decodeStatsd()) == "app.start@second:10.1|c|#abcABC123_-./abcABC123:value|T10234\n"
+        XCTAssertEqual(data.decodeStatsd(), "app.start@second:10.1|c|#abcABC123_-./abcABC123:value|T10234\n")
     }
 
     func testEncodeCounterMetricWithTagValueToSanitize() {
@@ -99,7 +98,7 @@ final class EncodeMetricTests: XCTestCase {
 
         let data = encodeToStatsd(flushableBuckets: [10_234: [counterMetric]])
 
-        expect(data.decodeStatsd()).to(contain(#"abc\\n\\r\\t\\u{7c}\\u{2c}\\\\123"#))
+        XCTAssert(data.decodeStatsd().contains(#"abc\\n\\r\\t\\u{7c}\\u{2c}\\\\123"#))
     }
     
     func testEncodeCounterMetricWithUnitToSanitize() {
@@ -107,7 +106,7 @@ final class EncodeMetricTests: XCTestCase {
 
         let data = encodeToStatsd(flushableBuckets: [10_234: [counterMetric]])
 
-        expect(data.decodeStatsd()) == "app.start@abyzABYZ09_:10.1|c|T10234\n"
+        XCTAssertEqual(data.decodeStatsd(), "app.start@abyzABYZ09_:10.1|c|T10234\n")
     }
 }
 

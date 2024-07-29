@@ -25,16 +25,5 @@ class MetricKitManager: NSObject, MXMetricManagerSubscriber {
             attachments.forEach { scope.addAttachment($0) }
         }
     }
-    
-    func didReceive(_ payloads: [MXDiagnosticPayload]) {
-        var attachments: [Attachment] = []
-        for payload in payloads {
-            let attachment = Attachment(data: payload.jsonRepresentation(), filename: "MXDiagnosticPayload.json")
-            attachments.append(attachment)
-        }
-        
-        SentrySDK.capture(message: "MetricKit received MXDiagnosticPayload.") { scope in
-            attachments.forEach { scope.addAttachment($0) }
-        }
-    }
+
 }

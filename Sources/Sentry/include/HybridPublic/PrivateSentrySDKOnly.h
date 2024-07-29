@@ -9,6 +9,10 @@
 @class SentryUser;
 @class SentryEnvelope;
 @class SentryId;
+@class SentrySessionReplayIntegration;
+
+@protocol SentryReplayBreadcrumbConverter;
+@protocol SentryViewScreenshotProvider;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -128,46 +132,63 @@ typedef void (^SentryOnAppStartMeasurementAvailable)(
 #if SENTRY_UIKIT_AVAILABLE
 /**
  * Allows hybrid SDKs to enable frame tracking measurements despite other options.
- * @warning This feature is not available in @c Debug_without_UIKit and @c Release_without_UIKit
+ * @warning This feature is not available in @c DebugWithoutUIKit and @c ReleaseWithoutUIKit
  * configurations even when targeting iOS or tvOS platforms.
  */
 @property (class, nonatomic, assign) BOOL framesTrackingMeasurementHybridSDKMode;
 
 /**
- * @warning This feature is not available in @c Debug_without_UIKit and @c Release_without_UIKit
+ * @warning This feature is not available in @c DebugWithoutUIKit and @c ReleaseWithoutUIKit
  * configurations even when targeting iOS or tvOS platforms.
  */
 @property (class, nonatomic, assign, readonly) BOOL isFramesTrackingRunning;
 
 /**
- * @warning This feature is not available in @c Debug_without_UIKit and @c Release_without_UIKit
+ * @warning This feature is not available in @c DebugWithoutUIKit and @c ReleaseWithoutUIKit
  * configurations even when targeting iOS or tvOS platforms.
  */
 @property (class, nonatomic, assign, readonly) SentryScreenFrames *currentScreenFrames;
 
 /**
- * @warning This feature is not available in @c Debug_without_UIKit and @c Release_without_UIKit
+ * @warning This feature is not available in @c DebugWithoutUIKit and @c ReleaseWithoutUIKit
  * configurations even when targeting iOS or tvOS platforms.
  */
 + (NSArray<NSData *> *)captureScreenshots;
 
 /**
- * @warning This feature is not available in @c Debug_without_UIKit and @c Release_without_UIKit
+ * @warning This feature is not available in @c DebugWithoutUIKit and @c ReleaseWithoutUIKit
  * configurations even when targeting iOS or tvOS platforms.
  */
 + (NSData *)captureViewHierarchy;
+
+/**
+ * Allow Hybrids SDKs to set the current Screen.
+ */
++ (void)setCurrentScreen:(NSString *)screenName;
+
 #endif // SENTRY_UIKIT_AVAILABLE
 
-+ (nullable NSDictionary<NSString *, id> *)appStartMeasurementWithSpans;
+#if SENTRY_TARGET_REPLAY_SUPPORTED
 
-+ (SentryUser *)userWithDictionary:(NSDictionary *)dictionary;
-
-+ (SentryBreadcrumb *)breadcrumbWithDictionary:(NSDictionary *)dictionary;
+/**
+ * Configure session replay with different breadcrumb converter
+ * and screeshot provider. Used by the Hybrid SDKs.
+ * Passing nil will keep the previous value.
+ */
++ (void)configureSessionReplayWith:(nullable id<SentryReplayBreadcrumbConverter>)breadcrumbConverter
+                screenshotProvider:(nullable id<SentryViewScreenshotProvider>)screenshotProvider;
 
 + (void)captureReplay;
 + (NSString *__nullable)getReplayId;
 + (void)addReplayIgnoreClasses:(NSArray<Class> *_Nonnull)classes;
 + (void)addReplayRedactClasses:(NSArray<Class> *_Nonnull)classes;
+
+#endif
++ (nullable NSDictionary<NSString *, id> *)appStartMeasurementWithSpans;
+
++ (SentryUser *)userWithDictionary:(NSDictionary *)dictionary;
+
++ (SentryBreadcrumb *)breadcrumbWithDictionary:(NSDictionary *)dictionary;
 
 @end
 

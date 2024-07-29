@@ -18,6 +18,7 @@
 #import "SentrySessionReplayIntegration.h"
 #import "SentrySwift.h"
 #import "SentrySwiftAsyncIntegration.h"
+#import "SentryTracer.h"
 #import <objc/runtime.h>
 
 #if SENTRY_HAS_UIKIT
@@ -39,16 +40,16 @@ NSString *const kSentryDefaultEnvironment = @"production";
     BOOL _enableTracingManual;
 }
 
-- (void)setMeasurement:(SentryMeasurementValue *)measurement
-{
-}
-
 + (NSArray<NSString *> *)defaultIntegrations
 {
     // The order of integrations here is important.
     // SentryCrashIntegration needs to be initialized before SentryAutoSessionTrackingIntegration.
+    // And SentrySessionReplayIntegration before SentryCrashIntegration.
     NSMutableArray<NSString *> *defaultIntegrations =
         @[
+#if SENTRY_HAS_UIKIT && !TARGET_OS_VISION
+            NSStringFromClass([SentrySessionReplayIntegration class]),
+#endif
             NSStringFromClass([SentryCrashIntegration class]),
 #if SENTRY_HAS_UIKIT
             NSStringFromClass([SentryAppStartTrackingIntegration class]),
@@ -58,9 +59,6 @@ NSString *const kSentryDefaultEnvironment = @"production";
             NSStringFromClass([SentryUIEventTrackingIntegration class]),
             NSStringFromClass([SentryViewHierarchyIntegration class]),
             NSStringFromClass([SentryWatchdogTerminationTrackingIntegration class]),
-#    if !TARGET_OS_VISION
-            NSStringFromClass([SentrySessionReplayIntegration class]),
-#    endif
 #endif // SENTRY_HAS_UIKIT
             NSStringFromClass([SentryANRTrackingIntegration class]),
             NSStringFromClass([SentryAutoBreadcrumbTrackingIntegration class]),
@@ -117,8 +115,9 @@ NSString *const kSentryDefaultEnvironment = @"production";
         self.enableUIViewControllerTracing = YES;
         self.attachScreenshot = NO;
         self.attachViewHierarchy = NO;
+        self.reportAccessibilityIdentifier = YES;
         self.enableUserInteractionTracing = YES;
-        self.idleTimeout = 3.0;
+        self.idleTimeout = SentryTracerDefaultTimeout;
         self.enablePreWarmedAppStartTracing = NO;
 #endif // SENTRY_HAS_UIKIT
         self.enableAppHangTracking = YES;
@@ -196,6 +195,7 @@ NSString *const kSentryDefaultEnvironment = @"production";
 #if SENTRY_HAS_METRIC_KIT
         if (@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, *)) {
             self.enableMetricKit = NO;
+            self.enableMetricKitRawPayload = NO;
         }
 #endif // SENTRY_HAS_METRIC_KIT
     }
@@ -342,6 +342,10 @@ NSString *const kSentryDefaultEnvironment = @"production";
         self.beforeSend = options[@"beforeSend"];
     }
 
+    if ([self isBlock:options[@"beforeSendSpan"]]) {
+        self.beforeSendSpan = options[@"beforeSendSpan"];
+    }
+
     if ([self isBlock:options[@"beforeBreadcrumb"]]) {
         self.beforeBreadcrumb = options[@"beforeBreadcrumb"];
     }
@@ -414,6 +418,9 @@ NSString *const kSentryDefaultEnvironment = @"production";
     [self setBool:options[@"attachViewHierarchy"]
             block:^(BOOL value) { self->_attachViewHierarchy = value; }];
 
+    [self setBool:options[@"reportAccessibilityIdentifier"]
+            block:^(BOOL value) { self->_reportAccessibilityIdentifier = value; }];
+
     [self setBool:options[@"enableUserInteractionTracing"]
             block:^(BOOL value) { self->_enableUserInteractionTracing = value; }];
 
@@ -446,10 +453,12 @@ NSString *const kSentryDefaultEnvironment = @"production";
     if ([self isBlock:options[@"tracesSampler"]]) {
         self.tracesSampler = options[@"tracesSampler"];
     }
-
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     if ([options[@"enableTracing"] isKindOfClass:NSNumber.self]) {
         self.enableTracing = [options[@"enableTracing"] boolValue];
     }
+#pragma clang diagnostic pop
 
     if ([options[@"inAppIncludes"] isKindOfClass:[NSArray class]]) {
         NSArray<NSString *> *inAppIncludes =
@@ -518,6 +527,8 @@ NSString *const kSentryDefaultEnvironment = @"production";
     if (@available(iOS 14.0, macOS 12.0, macCatalyst 14.0, *)) {
         [self setBool:options[@"enableMetricKit"]
                 block:^(BOOL value) { self->_enableMetricKit = value; }];
+        [self setBool:options[@"enableMetricKitRawPayload"]
+                block:^(BOOL value) { self->_enableMetricKitRawPayload = value; }];
     }
 #endif // SENTRY_HAS_METRIC_KIT
 
@@ -647,7 +658,10 @@ sentry_isValidSampleRate(NSNumber *sampleRate)
 {
 #    pragma clang diagnostic push
 #    pragma clang diagnostic ignored "-Wdeprecated-declarations"
-    return _profilesSampleRate.doubleValue == 0 && _profilesSampler == nil && !self.enableProfiling;
+    // this looks a little weird with the `!self.enableProfiling` but that actually is the
+    // deprecated way to say "enable trace-based profiling", which necessarily disables continuous
+    // profiling as they are mutually exclusive modes
+    return _profilesSampleRate == nil && _profilesSampler == nil && !self.enableProfiling;
 #    pragma clang diagnostic pop
 }
 

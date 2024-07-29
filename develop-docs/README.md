@@ -100,7 +100,7 @@ You can use the `generate-classes.sh` to generate ViewControllers and other clas
 
 Some customers would like to not link UIKit for various reasons. Either they simply may not want to use our UIKit functionality, or they actually cannot link to it in certain circumstances, like a File Provider app extension.
 
-There are two build configurations they can use for this: `Debug_without_UIKit` and `Release_without_UIKit`, that are essentially the same as `Debug` and `Release` with the following differences:
+There are two build configurations they can use for this: `DebugWithoutUIKit` and `ReleaseWithoutUIKit`, that are essentially the same as `Debug` and `Release` with the following differences:
 - They set `CLANG_MODULES_AUTOLINK` to `NO`. This avoids a load command being automatically inserted for any UIKit API that make their way into the type system during compilation of SDK sources.
 - `GCC_PREPROCESSOR_DEFINITIONS` has an additional setting `SENTRY_NO_UIKIT=1`. This is now part of the definition of `SENTRY_HAS_UIKIT` in `SentryDefines.h` that is used to conditionally compile out any code that would otherwise use UIKit API and cause UIKit to be automatically linked as described above. There is another macro `SENTRY_UIKIT_AVAILABLE` defined as `SENTRY_HAS_UIKIT` used to be, meaning simply that compilation is targeting a platform where UIKit is available to be used. This is used in headers we deliver in the framework bundle to compile out declarations that rely on UIKit, and their corresponding implementations are switched over `SENTRY_HAS_UIKIT` to either provide the logic for configurations that link UIKit, or to provide a stub delivering a default value (`nil`, `0.0`, `NO` etc) and a warning log for publicly facing things like SentryOptions, or debug log for internal things like SentryDependencyContainer.
 
@@ -110,7 +110,7 @@ This feature is experimental and is currently not compatible with SPM.
 
 ## Logging
 
-We have a set of macros for debugging at various levels defined in SentryLog.h. These are not async-safe; to log from special places like crash handlers, see SentryCrashLogger.h; see the headerdocs in that header for how to work with those logging macros. There are also separate macros in SentryProfilingLogging.hpp specifically for the profiler; these are completely compiled out of release builds due to https://github.com/getsentry/sentry-cocoa/issues/3336.
+We have a set of macros for logging at various levels defined in SentryLog.h. These are not async-safe because they use NSLog, which takes its own lock; to log from special places like crash handlers, see SentryAsyncSafeLog.h. By default, it only writes to file. If you'll be debuggin, you can set `SENTRY_ASYNC_SAFE_LOG_ALSO_WRITE_TO_CONSOLE` to `1` and logs will also write to the console, but note this is unsafe to do from contexts that actually require async safety, so this should always remain disabled in version control by leaving it set it to `0`.
 
 ## Profiling
 

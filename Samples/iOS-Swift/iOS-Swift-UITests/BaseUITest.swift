@@ -11,7 +11,7 @@ class BaseUITest: XCTestCase {
         super.setUp()
         continueAfterFailure = false
         XCUIDevice.shared.orientation = .portrait
-        app.launchEnvironment["io.sentry.sdk-environment"] = "ui-tests"
+        app.launchEnvironment["--io.sentry.sdk-environment"] = "ui-tests"
         if automaticallyLaunchAndTerminateApp {
             launchApp()
         }
@@ -28,7 +28,7 @@ class BaseUITest: XCTestCase {
 extension BaseUITest {
     func newAppSession() -> XCUIApplication {
         let app = XCUIApplication()
-        app.launchEnvironment["io.sentry.ui-test.test-name"] = name
+        app.launchEnvironment["--io.sentry.ui-test.test-name"] = name
         return app
     }
     

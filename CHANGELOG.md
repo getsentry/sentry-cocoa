@@ -1,5 +1,91 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+- Replay for crashes (#4171)
+
+## 8.32.0
+
+### Features
+
+- Add `reportAccessibilityIdentifier` option (#4183)
+- Record dropped spans (#4172)
+
+### Fixes
+
+- Session replay crash when writing the replay (#4186)
+- Collect only unique UIWindow references (#4159)
+
+### Deprecated
+
+- options.enableTracing was deprecated. Use options.tracesSampleRate or options.tracesSampler instead. (#4182)
+
+## 8.31.1
+
+### Fixes
+
+- Session replay video duration from seconds to milliseconds (#4163)
+
+## 8.31.0
+
+### Features
+
+- Include the screen names in the session replay (#4126)
+
+### Fixes
+
+- Properly handle invalid value for `NSUnderlyingErrorKey` (#4144)
+- Session replay in buffer mode not working (#4160)
+
+## 8.30.1
+
+### Fixes
+
+- UIKitless configurations now produce a module with a different name (#4140)
+- Sentry Replay Serialized Breadcrumbs include level name ([#4141](https://github.com/getsentry/sentry-cocoa/pull/4141))
+
+## 8.30.0
+
+### Features
+
+- Restart replay session with mobile session (#4085)
+- Add pause and resume AppHangTracking API (#4077). You can now pause and resume app hang tracking with `SentrySDK.pauseAppHangTracking()` and `SentrySDK.resumeAppHangTracking()`.
+- Add `beforeSendSpan` callback (#4095)
+
+### Fixes
+
+- `storeEnvelope` ends session for unhandled errors (#4073)
+- Deprecate `SentryUser.segment`(#4092). Please remove usages of this property. We will remove it in the next major.
+- Double-quoted include in framework header (#4115)
+- Sentry Replay Network details should be available without Tracing (#4091)
+
+## 8.29.1
+
+### Fixes
+
+- Fix potential deadlock in app hang detection (#4063)
+- Swizzling of view controllers `loadView` that don`t implement `loadView` (#4071)
+
+## 8.29.0
+
+### Features
+
+- Add a touch tracker for replay (#4041)
+- Add enableMetricKitRawPayload (#4044)
+- Resume session replay when app enters foreground (#4053)
+
+### Fixes
+
+- `SentryCrashMonitor_CPPException.cpp` compilation using Xcode 16b1 (#4051)
+
+## 8.28.0
+
+### Features
+
+- Add replay quality option (#4035)
+
 ## 8.27.0
 
 ### Features

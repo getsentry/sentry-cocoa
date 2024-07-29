@@ -30,8 +30,7 @@
 #import "SentryCrashVarArgs.h"
 #import "SentryDictionaryDeepSearch.h"
 
-// #define SentryCrashLogger_LocalLevel TRACE
-#import "SentryCrashLogger.h"
+#import "SentryLog.h"
 
 @implementation SentryCrashReportFilterPassthrough
 
@@ -78,7 +77,7 @@ SentryCrashReportFilterCombine ()
     SentryCrashVA_Block block = ^(id entry) {
         if (isKey) {
             if (entry == nil) {
-                SentryCrashLOG_ERROR(@"key entry was nil");
+                SENTRY_LOG_ERROR(@"key entry was nil");
             } else {
                 [keys addObject:entry];
             }
@@ -87,7 +86,7 @@ SentryCrashReportFilterCombine ()
                 entry = [SentryCrashReportFilterPipeline filterWithFilters:entry, nil];
             }
             if (![entry conformsToProtocol:@protocol(SentryCrashReportFilter)]) {
-                SentryCrashLOG_ERROR(@"Not a filter: %@", entry);
+                SENTRY_LOG_ERROR(@"Not a filter: %@", entry);
                 // Cause next key entry to fail as well.
                 return;
             } else {

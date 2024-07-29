@@ -163,6 +163,12 @@ SentryNetworkTracker ()
         return;
     }
 
+    // Register request start date in the sessionTask to use for breadcrumb
+    if (self.isNetworkBreadcrumbEnabled) {
+        objc_setAssociatedObject(sessionTask, &SENTRY_NETWORK_REQUEST_START_DATE, [NSDate date],
+            OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    }
+
     @synchronized(self) {
         if (!self.isNetworkTrackingEnabled) {
             [self addTraceWithoutTransactionToTask:sessionTask];
@@ -220,10 +226,6 @@ SentryNetworkTracker ()
             @"SentryNetworkTracker automatically started HTTP span for sessionTask: %@",
             netSpan.description);
 
-        // Register request start date in the sessionTask to use for breadcrumb
-        objc_setAssociatedObject(sessionTask, &SENTRY_NETWORK_REQUEST_START_DATE, [NSDate date],
-            OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-
         objc_setAssociatedObject(sessionTask, &SENTRY_NETWORK_REQUEST_TRACKER_SPAN, netSpan,
             OBJC_ASSOCIATION_RETAIN_NONATOMIC);
     }
@@ -232,10 +234,14 @@ SentryNetworkTracker ()
 - (void)addTraceWithoutTransactionToTask:(NSURLSessionTask *)sessionTask
 {
     SentryPropagationContext *propagationContext = SentrySDK.currentHub.scope.propagationContext;
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     SentryTraceContext *traceContext =
         [[SentryTraceContext alloc] initWithTraceId:propagationContext.traceId
                                             options:SentrySDK.currentHub.client.options
-                                        userSegment:SentrySDK.currentHub.scope.userObject.segment];
+                                        userSegment:SentrySDK.currentHub.scope.userObject.segment
+                                           replayId:SentrySDK.currentHub.scope.replayId];
+#pragma clang diagnostic pop
 
     [self addBaggageHeader:[traceContext toBaggage]
                traceHeader:[propagationContext traceHeader]

@@ -1,5 +1,9 @@
-#include "../../Sources/Configuration/Sentry.xcconfig"
 #include "../../Sources/Configuration/DeploymentTargets.xcconfig"
+
+// (originally added to Sentry.xcconfig in #3716, but it's only needed in the test targets, not the SDK target)
+// This config is required so the test code can access the SentryPrivate module. Removing this setting
+// leads to an error: no such module '_SentryPrivate' when including the XCFramework with Carthage
+HEADER_SEARCH_PATHS = $(SRCROOT)/Sources/Sentry/include/**
 
 PRODUCT_NAME = Tests
 INFOPLIST_FILE = Tests/SentryTests/Info.plist

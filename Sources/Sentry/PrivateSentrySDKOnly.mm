@@ -11,6 +11,7 @@
 #import "SentryOptions.h"
 #import "SentrySDK+Private.h"
 #import "SentrySerialization.h"
+#import "SentrySessionReplayIntegration.h"
 #import "SentrySwift.h"
 #import "SentryThreadHandle.hpp"
 #import "SentryUser+Private.h"
@@ -20,7 +21,6 @@
 #import <SentryFramesTracker.h>
 #import <SentryScope+Private.h>
 #import <SentryScreenshot.h>
-#import <SentrySessionReplay.h>
 #import <SentrySessionReplayIntegration.h>
 #import <SentryUser.h>
 
@@ -282,6 +282,14 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
 #endif // SENTRY_HAS_UIKIT
 }
 
+#if SENTRY_UIKIT_AVAILABLE
++ (void)setCurrentScreen:(NSString *)screenName
+{
+    [SentrySDK.currentHub
+        configureScope:^(SentryScope *scope) { scope.currentScreen = screenName; }];
+}
+#endif // SENTRY_HAS_UIKIT
+
 + (NSData *)captureViewHierarchy
 {
 #if SENTRY_HAS_UIKIT
@@ -304,26 +312,32 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
     return [[SentryBreadcrumb alloc] initWithDictionary:dictionary];
 }
 
+#if SENTRY_TARGET_REPLAY_SUPPORTED
++ (nullable SentrySessionReplayIntegration *)getReplayIntegration
+{
+
+    NSArray *integrations = [[SentrySDK currentHub] installedIntegrations];
+    SentrySessionReplayIntegration *replayIntegration;
+    for (id obj in integrations) {
+        if ([obj isKindOfClass:[SentrySessionReplayIntegration class]]) {
+            replayIntegration = obj;
+            break;
+        }
+    }
+
+    return replayIntegration;
+}
+
 + (void)captureReplay
 {
-#if SENTRY_HAS_UIKIT && !TARGET_OS_VISION
-    if (@available(iOS 16.0, *)) {
-        NSArray *integrations = [[SentrySDK currentHub] installedIntegrations];
-        SentrySessionReplayIntegration *replayIntegration;
-        for (id obj in integrations) {
-            if ([obj isKindOfClass:[SentrySessionReplayIntegration class]]) {
-                replayIntegration = obj;
-                break;
-            }
-        }
+    [[PrivateSentrySDKOnly getReplayIntegration] captureReplay];
+}
 
-        [replayIntegration captureReplay];
-    }
-#else
-    SENTRY_LOG_DEBUG(
-        @"PrivateSentrySDKOnly.captureReplay only works with UIKit enabled and target is "
-        @"not visionOS. Ensure you're using the right configuration of Sentry that links UIKit.");
-#endif
++ (void)configureSessionReplayWith:(nullable id<SentryReplayBreadcrumbConverter>)breadcrumbConverter
+                screenshotProvider:(nullable id<SentryViewScreenshotProvider>)screenshotProvider
+{
+    [[PrivateSentrySDKOnly getReplayIntegration] configureReplayWith:breadcrumbConverter
+                                                  screenshotProvider:screenshotProvider];
 }
 
 + (NSString *__nullable)getReplayId
@@ -337,33 +351,13 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
 
 + (void)addReplayIgnoreClasses:(NSArray<Class> *_Nonnull)classes
 {
-#if SENTRY_HAS_UIKIT && !TARGET_OS_VISION
-    if (@available(iOS 16.0, tvOS 16.0, *)) {
-        [SentryViewPhotographer.shared addIgnoreClasses:classes];
-    } else {
-        SENTRY_LOG_DEBUG(@"PrivateSentrySDKOnly.addIgnoreClasses only works with iOS 16 and newer");
-    }
-#else
-    SENTRY_LOG_DEBUG(
-        @"PrivateSentrySDKOnly.addReplayIgnoreClasses only works with UIKit enabled and target is "
-        @"not visionOS. Ensure you're using the right configuration of Sentry that links UIKit.");
-#endif
+    [SentryViewPhotographer.shared addIgnoreClasses:classes];
 }
 
 + (void)addReplayRedactClasses:(NSArray<Class> *_Nonnull)classes
 {
-#if SENTRY_HAS_UIKIT && !TARGET_OS_VISION
-    if (@available(iOS 16.0, tvOS 16.0, *)) {
-        [SentryViewPhotographer.shared addRedactClasses:classes];
-    } else {
-        SENTRY_LOG_DEBUG(
-            @"PrivateSentrySDKOnly.addReplayRedactClasses only works with iOS 16 and newer");
-    }
-#else
-    SENTRY_LOG_DEBUG(
-        @"PrivateSentrySDKOnly.addReplayRedactClasses only works with UIKit enabled and target is "
-        @"not visionOS. Ensure you're using the right configuration of Sentry that links UIKit.");
-#endif
+    [SentryViewPhotographer.shared addRedactClasses:classes];
 }
+#endif
 
 @end
