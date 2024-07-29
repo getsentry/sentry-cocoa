@@ -35,7 +35,6 @@ class SentryLog: NSObject {
  
     #if TEST || TESTCI
     
-    @objc
     static func setOutput(_ output: SentryLogOutput) {
         logOutput = output
     }
