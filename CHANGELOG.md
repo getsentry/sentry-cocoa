@@ -5,6 +5,7 @@
 ### Features
 
 - Replay for crashes (#4171)
+- Redact web view from replay ()
 
 ## 8.32.0
 
