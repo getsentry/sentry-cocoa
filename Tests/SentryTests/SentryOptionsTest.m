@@ -709,9 +709,10 @@
 #    pragma clang diagnostic ignored "-Wdeprecated-declarations"
     XCTAssertEqual(NO, options.enableProfiling);
 #    pragma clang diagnostic pop
-    XCTAssertNil(options.profilesSampleRate);
+    XCTAssertNotNil(options.profilesSampleRate);
+    XCTAssertEqual(options.profilesSampleRate.doubleValue, 0.0);
     XCTAssertNil(options.profilesSampler);
-    XCTAssert([options isContinuousProfilingEnabled]);
+    XCTAssertFalse([options isContinuousProfilingEnabled]);
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
     XCTAssertTrue([options.spotlightUrl isEqualToString:@"http://localhost:8969/stream"]);
@@ -1119,9 +1120,10 @@
 - (void)testDefaultProfilesSampleRate
 {
     SentryOptions *options = [self getValidOptions:@{}];
-    XCTAssertNil(options.profilesSampleRate);
+    XCTAssertNotNil(options.profilesSampleRate);
+    XCTAssertEqual(options.profilesSampleRate.doubleValue, 0.0);
     XCTAssertFalse(options.isProfilingEnabled);
-    XCTAssert([options isContinuousProfilingEnabled]);
+    XCTAssertFalse([options isContinuousProfilingEnabled]);
 }
 
 - (void)testProfilesSampleRate_SetToNil
@@ -1148,6 +1150,8 @@
     options.profilesSampleRate = tooLow;
     XCTAssertEqual(options.profilesSampleRate.doubleValue, 0);
 
+    // setting an invalid sample rate effectively now enables continuous profiling, since it can let
+    // the backing variable remain nil
     XCTAssertFalse([options isContinuousProfilingEnabled]);
 }
 
@@ -1166,6 +1170,8 @@
     options.profilesSampleRate = tooLow;
     XCTAssertEqual(options.profilesSampleRate.doubleValue, 0);
 
+    // setting an invalid sample rate effectively now enables continuous profiling, since it can let
+    // the backing variable remain nil
     XCTAssertFalse([options isContinuousProfilingEnabled]);
 }
 
@@ -1173,8 +1179,8 @@
 {
     SentryOptions *options = [[SentryOptions alloc] init];
     XCTAssertFalse(options.isProfilingEnabled);
-    XCTAssertNil(options.profilesSampleRate);
-    XCTAssert([options isContinuousProfilingEnabled]);
+    XCTAssertNotNil(options.profilesSampleRate);
+    XCTAssertFalse([options isContinuousProfilingEnabled]);
 }
 
 - (void)testIsProfilingEnabled_ProfilesSampleRateSetToZero_IsDisabled
@@ -1203,7 +1209,7 @@
         return @0.0;
     };
     XCTAssertTrue(options.isProfilingEnabled);
-    XCTAssertNil(options.profilesSampleRate);
+    XCTAssertNotNil(options.profilesSampleRate);
     XCTAssertFalse([options isContinuousProfilingEnabled]);
 }
 
@@ -1215,7 +1221,7 @@
     options.enableProfiling = YES;
 #    pragma clang diagnostic pop
     XCTAssertTrue(options.isProfilingEnabled);
-    XCTAssertNil(options.profilesSampleRate);
+    XCTAssertNotNil(options.profilesSampleRate);
     XCTAssertFalse([options isContinuousProfilingEnabled]);
 }
 
@@ -1230,7 +1236,7 @@
 
     SentrySamplingContext *context = [[SentrySamplingContext alloc] init];
     XCTAssertEqual(options.profilesSampler(context), @1.0);
-    XCTAssertNil(options.profilesSampleRate);
+    XCTAssertNotNil(options.profilesSampleRate);
     XCTAssertFalse([options isContinuousProfilingEnabled]);
 }
 
@@ -1238,14 +1244,14 @@
 {
     SentryOptions *options = [self getValidOptions:@{}];
     XCTAssertNil(options.profilesSampler);
-    XCTAssert([options isContinuousProfilingEnabled]);
+    XCTAssertFalse([options isContinuousProfilingEnabled]);
 }
 
 - (void)testGarbageProfilesSampler_ReturnsNil
 {
     SentryOptions *options = [self getValidOptions:@{ @"profilesSampler" : @"fault" }];
     XCTAssertNil(options.profilesSampler);
-    XCTAssert([options isContinuousProfilingEnabled]);
+    XCTAssertFalse([options isContinuousProfilingEnabled]);
 }
 
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED

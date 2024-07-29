@@ -31,6 +31,11 @@ class SentryFramesTrackerTests: XCTestCase {
         super.setUp()
         fixture = Fixture()
     }
+    
+    override func tearDown() {
+        super.tearDown()
+        clearTestState()
+    }
 
     func testIsNotRunning_WhenNotStarted() {
         XCTAssertFalse(self.fixture.sut.isRunning)

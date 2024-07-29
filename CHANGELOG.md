@@ -5,6 +5,7 @@
 ### Features
 
 - Replay for crashes (#4171)
+- Add continuous profiling mode (#4010)
 
 ## 8.32.0
 
