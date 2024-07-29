@@ -35,6 +35,12 @@ NSTimer *_Nullable _chunkTimer;
 /** @note: The session ID is reused for any profile sessions started in the same app session. */
 SentryId *_profileSessionID;
 
+/** 
+ * To avoid sending small chunks at the end of profiles, we let the current chunk run to the full
+ * time after the call to stop the profiler is received.
+ * */
+BOOL _stopCalled;
+
 void
 disableTimer()
 {
@@ -118,6 +124,8 @@ _sentry_threadUnsafe_transmitChunkEnvelope(void)
             SENTRY_LOG_DEBUG(@"No continuous profiler is currently running.");
             return;
         }
+        
+        _stopCalled = YES;
 
         _sentry_threadUnsafe_transmitChunkEnvelope();
         disableTimer();
