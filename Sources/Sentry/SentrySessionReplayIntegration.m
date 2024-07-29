@@ -43,6 +43,7 @@ SentrySessionReplayIntegration ()
     SentryReplayOptions *_replayOptions;
     SentryNSNotificationCenterWrapper *_notificationCenter;
     SentryDispatchQueueWrapper *_dispatchQueue;
+    SentryOnDemandReplay *_resumeReplayMaker;
 }
 
 - (BOOL)installWithOptions:(nonnull SentryOptions *)options

@@ -115,6 +115,7 @@ NSString *const kSentryDefaultEnvironment = @"production";
         self.enableUIViewControllerTracing = YES;
         self.attachScreenshot = NO;
         self.attachViewHierarchy = NO;
+        self.reportAccessibilityIdentifier = YES;
         self.enableUserInteractionTracing = YES;
         self.idleTimeout = SentryTracerDefaultTimeout;
         self.enablePreWarmedAppStartTracing = NO;
@@ -416,6 +417,9 @@ NSString *const kSentryDefaultEnvironment = @"production";
 
     [self setBool:options[@"attachViewHierarchy"]
             block:^(BOOL value) { self->_attachViewHierarchy = value; }];
+
+    [self setBool:options[@"reportAccessibilityIdentifier"]
+            block:^(BOOL value) { self->_reportAccessibilityIdentifier = value; }];
 
     [self setBool:options[@"enableUserInteractionTracing"]
             block:^(BOOL value) { self->_enableUserInteractionTracing = value; }];

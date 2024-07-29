@@ -11,6 +11,7 @@
 
 ### Features
 
+- Add `reportAccessibilityIdentifier` option (#4183)
 - Record dropped spans (#4172)
 
 ### Fixes

@@ -906,14 +906,14 @@ class SentryHttpTransportTests: XCTestCase {
             ensureFlushingGroup.waitWithTimeout()
             
             // Now the transport should also have left the synchronized block, and the
-            // double-checked lock, should return immediately.
+            // flush should return immediately.
             
             let initiallyInactiveQueue = fixture.queue
             for _ in 0..<2 {
                 allFlushCallsGroup.enter()
                 initiallyInactiveQueue.async {
                     for _ in 0..<10 {
-                        XCTAssertEqual(.alreadyFlushing, self.sut.flush(flushTimeout), "Double checked lock should have returned immediately")
+                        XCTAssertEqual(.alreadyFlushing, self.sut.flush(flushTimeout), "Flush should have returned immediately")
                     }
                     
                     allFlushCallsGroup.leave()

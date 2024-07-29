@@ -660,6 +660,7 @@
     XCTAssertEqual(options.enableUserInteractionTracing, YES);
     XCTAssertEqual(options.enablePreWarmedAppStartTracing, NO);
     XCTAssertEqual(options.attachViewHierarchy, NO);
+    XCTAssertEqual(options.reportAccessibilityIdentifier, YES);
     XCTAssertEqual(options.experimental.sessionReplay.errorSampleRate, 0);
     XCTAssertEqual(options.experimental.sessionReplay.sessionSampleRate, 0);
 #endif // SENTRY_HAS_UIKIT
@@ -810,6 +811,11 @@
 - (void)testAttachScreenshot
 {
     [self testBooleanField:@"attachScreenshot" defaultValue:NO];
+}
+
+- (void)testReportAccessibilityIdentifier
+{
+    [self testBooleanField:@"reportAccessibilityIdentifier" defaultValue:YES];
 }
 
 - (void)testEnableUserInteractionTracing

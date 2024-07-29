@@ -35,11 +35,35 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
         set { _frames = newValue }
     }
     #endif // TEST || TESTCI || DEBUG
-
     var videoScale: Float = 1
     var bitRate = 20_000
     var frameRate = 1
     var cacheMaxSize = UInt.max
+        
+    init(outputPath: String, workingQueue: SentryDispatchQueueWrapper, dateProvider: SentryCurrentDateProvider) {
+        self._outputPath = outputPath
+        self.dateProvider = dateProvider
+        self.workingQueue = workingQueue
+    }
+        
+    convenience init(withContentFrom outputPath: String, workingQueue: SentryDispatchQueueWrapper, dateProvider: SentryCurrentDateProvider) {
+        self.init(outputPath: outputPath, workingQueue: workingQueue, dateProvider: dateProvider)
+        
+        do {
+            let content = try FileManager.default.contentsOfDirectory(atPath: outputPath)
+            _frames = content.compactMap {
+                guard $0.hasSuffix(".png") else { return SentryReplayFrame?.none }
+                guard let time = Double($0.dropLast(4)) else { return nil }
+                return SentryReplayFrame(imagePath: "\(outputPath)/\($0)", time: Date(timeIntervalSinceReferenceDate: time), screenName: nil)
+            }.sorted { $0.time < $1.time }
+        } catch {
+            print("[SentryOnDemandReplay:\(#line)] Could not list frames from replay: \(error.localizedDescription)")
+            return
+        }
+    }
+    
+    private var actualWidth: Int { Int(Float(videoWidth) * videoScale) }
+    private var actualHeight: Int { Int(Float(videoHeight) * videoScale) }
         
     init(outputPath: String, workingQueue: SentryDispatchQueueWrapper, dateProvider: SentryCurrentDateProvider) {
         self._outputPath = outputPath
