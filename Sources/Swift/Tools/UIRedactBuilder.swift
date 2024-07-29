@@ -2,6 +2,9 @@
 #if os(iOS) || os(tvOS)
 import Foundation
 import UIKit
+#if os(iOS)
+import WebKit
+#endif
 
 struct RedactRegion {
     let rect: CGRect
@@ -63,7 +66,7 @@ class UIRedactBuilder {
             "SwiftUI._UIGraphicsView", "SwiftUI.ImageLayer"
         ].compactMap { NSClassFromString($0) }
 #if os(iOS)
-        ignoreClasses = [ UISlider.self, UISwitch.self ]
+        ignoreClasses = [ UISlider.self, UISwitch.self, UIWebView.self, WKWebView.self ]
 #else
         ignoreClasses = []
 #endif
