@@ -307,7 +307,7 @@ SentrySpan ()
     }
     return [[self.tracer.traceContext toBaggage] toHTTPHeaderWithOriginalBaggage:nil];
 }
-        
+
 - (nullable SentryTraceContext *)traceContext
 {
     if (nil == self.tracer) {
