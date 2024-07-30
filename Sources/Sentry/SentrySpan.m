@@ -1,3 +1,4 @@
+#import "SentryBaggage.h"
 #import "SentryCrashThread.h"
 #import "SentryDependencyContainer.h"
 #import "SentryFrame.h"
@@ -13,10 +14,9 @@
 #import "SentrySwift.h"
 #import "SentryThreadInspector.h"
 #import "SentryTime.h"
+#import "SentryTraceContext.h"
 #import "SentryTraceHeader.h"
 #import "SentryTracer.h"
-#import "SentryTraceContext.h"
-#import "SentryBaggage.h"
 
 #if SENTRY_HAS_UIKIT
 #    import <SentryFramesTracker.h>
@@ -385,13 +385,14 @@ SentrySpan ()
 }
 
 // Getter for the computed property baggage
-- (NSString *)baggageHttpHeader {
+- (NSString *)baggageHttpHeader
+{
     if (nil == self.tracer) {
         return nil;
     }
     return [[self.tracer.traceContext toBaggage] toHTTPHeaderWithOriginalBaggage:nil];
 }
-        
+
 @end
 
 NS_ASSUME_NONNULL_END
