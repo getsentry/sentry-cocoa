@@ -6,6 +6,7 @@
 
 - Replay for crashes (#4171)
 - Redact web view from replay (#4203)
+- Expose span baggage API (#4207)
 
 ## 8.32.0
 
