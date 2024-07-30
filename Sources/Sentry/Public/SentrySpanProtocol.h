@@ -82,7 +82,7 @@ NS_SWIFT_NAME(Span)
 /**
  * Retrieves a trace context from this tracer.
  */
-@property (nonatomic, readonly) SentryTraceContext *traceContext;
+@property (nullable, nonatomic, readonly) SentryTraceContext *traceContext;
 
 /**
  * Starts a child span.
@@ -170,12 +170,6 @@ NS_SWIFT_NAME(Span)
  * @return SentryTraceHeader.
  */
 - (SentryTraceHeader *)toTraceHeader;
-
-/**
- * Retrieves a trace context from this span.
- * @return SentryTraceContext.
- */
-- (nullable SentryTraceContext *)traceContext;
 
 /**
  * Returns the baggage http header

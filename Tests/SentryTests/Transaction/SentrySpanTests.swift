@@ -688,7 +688,7 @@ class SentrySpanTests: XCTestCase {
         let client = TestClient(options: fixture.options)!
         let sut = fixture.getSut(client: client) as! SentrySpan
         
-        let expectedBaggage = sut.tracer?.traceContext.toBaggage().toHTTPHeader(withOriginalBaggage: nil)
+        let expectedBaggage = sut.tracer?.traceContext?.toBaggage().toHTTPHeader(withOriginalBaggage: nil)
         XCTAssertEqual(expectedBaggage, sut.baggageHttpHeader())
     }
     
