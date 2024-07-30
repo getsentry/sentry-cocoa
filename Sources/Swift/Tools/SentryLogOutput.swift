@@ -1,7 +1,6 @@
 import Foundation
 
-@objcMembers
-class SentryLogOutput: NSObject {
+class SentryLogOutput {
     func log(_ message: String) {
         print(message)
     }
