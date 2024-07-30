@@ -299,6 +299,14 @@ SentrySpan ()
                                               sampled:self.sampled];
 }
 
+// Getter for the computed property baggage
+- (nullable NSString *)baggageHttpHeader {
+    if (nil == self.tracer) {
+        return nil;
+    }
+    return [[self.tracer.traceContext toBaggage] toHTTPHeaderWithOriginalBaggage:nil];
+}
+        
 - (LocalMetricsAggregator *)getLocalMetricsAggregator
 {
     if (localMetricsAggregator == nil) {
@@ -383,15 +391,7 @@ SentrySpan ()
 
     return mutableDictionary;
 }
-
-// Getter for the computed property baggage
-- (NSString *)baggageHttpHeader {
-    if (nil == self.tracer) {
-        return nil;
-    }
-    return [[self.tracer.traceContext toBaggage] toHTTPHeaderWithOriginalBaggage:nil];
-}
-        
+     
 @end
 
 NS_ASSUME_NONNULL_END

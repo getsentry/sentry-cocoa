@@ -681,7 +681,7 @@ class SentrySpanTests: XCTestCase {
         let sut = fixture.getSut(client: client) as! SentrySpan
         
         let expectedBaggage = sut.tracer?.traceContext.toBaggage().toHTTPHeader(withOriginalBaggage: nil)
-        XCTAssertEqual(expectedBaggage, sut.baggageHttpHeader)
+        XCTAssertEqual(expectedBaggage, sut.baggageHttpHeader())
     }
     
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)

@@ -167,6 +167,12 @@ NS_SWIFT_NAME(Span)
  */
 - (SentryTraceHeader *)toTraceHeader;
 
+/**
+ * Returns the baggage http header
+ * @return NSString.
+ */
+- (nullable NSString *)baggageHttpHeader;
+
 @end
 
 NS_ASSUME_NONNULL_END

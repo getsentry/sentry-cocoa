@@ -88,11 +88,6 @@ SENTRY_NO_INIT
 - (LocalMetricsAggregator *)getLocalMetricsAggregator;
 
 /**
- * The span baggage http header
- */
-@property (nonatomic, readonly) NSString *baggageHttpHeader;
-
-/**
  * Init a @c SentrySpan with given transaction and context.
  * @param transaction The @c SentryTracer managing the transaction this span is associated with.
  * @param context This span context information.
