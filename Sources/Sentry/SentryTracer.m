@@ -412,7 +412,7 @@ static BOOL appStartMeasurementRead;
     [self canBeFinished];
 }
 
-- (SentryTraceContext *)traceContext
+- (nullable SentryTraceContext *)traceContext
 {
     if (_traceContext == nil) {
         @synchronized(self) {
