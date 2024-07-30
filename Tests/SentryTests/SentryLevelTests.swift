@@ -11,6 +11,7 @@ class SentryLevelTests: XCTestCase {
         XCTAssertEqual(SentryLevel.info, SentryLevel.fromName("info"))
         XCTAssertEqual(SentryLevel.fatal, SentryLevel.fromName("fatal"))
         XCTAssertEqual(SentryLevel.warning, SentryLevel.fromName("warning"))
+        XCTAssertEqual(SentryLevel.error, SentryLevel.fromName("invalid"))
         
         XCTAssertEqual(SentryLevel.none.description, "none")
         XCTAssertEqual(SentryLevel.debug.description, "debug")
