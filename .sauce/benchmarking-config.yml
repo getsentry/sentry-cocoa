@@ -23,4 +23,4 @@ suites:
   - name: "Low-end device"
     devices:
       - name: "iPhone SE 2020"
-        platformVersion: "13"
+        platformVersion: "14"
