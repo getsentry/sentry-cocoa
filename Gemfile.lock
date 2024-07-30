@@ -226,7 +226,7 @@ GEM
     mini_magick (4.13.1)
     mini_mime (1.1.5)
     mini_portile2 (2.8.7)
-    minitest (5.24.0)
+    minitest (5.24.1)
     molinillo (0.8.0)
     multi_json (1.15.0)
     multipart-post (2.4.1)
@@ -236,7 +236,7 @@ GEM
     naturally (2.2.1)
     netrc (0.11.0)
     nkf (0.2.0)
-    nokogiri (1.16.6)
+    nokogiri (1.16.7)
       mini_portile2 (~> 2.8.2)
       racc (~> 1.4)
     optparse (0.5.0)
@@ -270,7 +270,7 @@ GEM
     simctl (1.6.10)
       CFPropertyList
       naturally
-    slather (2.8.2)
+    slather (2.8.3)
       CFPropertyList (>= 2.2, < 4)
       activesupport
       clamp (~> 1.3)
