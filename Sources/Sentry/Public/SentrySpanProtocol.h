@@ -1,6 +1,7 @@
 #import "SentryDefines.h"
 #import "SentrySerializable.h"
 #import "SentrySpanContext.h"
+#import "SentryTraceContext.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -166,6 +167,12 @@ NS_SWIFT_NAME(Span)
  * @return SentryTraceHeader.
  */
 - (SentryTraceHeader *)toTraceHeader;
+
+/**
+ * Retrieves a trace context from this span.
+ * @return SentryTraceContext.
+ */
+- (nullable SentryTraceContext *)traceContext;
 
 /**
  * Returns the baggage http header
