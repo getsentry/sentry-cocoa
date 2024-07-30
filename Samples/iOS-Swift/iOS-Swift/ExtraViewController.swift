@@ -153,6 +153,10 @@ class ExtraViewController: UIViewController {
         // otherwise nil
         print("\(String(describing: eventId))")
     }
+    
+    @IBAction func openWeb(_ sender: UIButton) {
+        navigationController?.pushViewController(WebViewController(), animated: true)
+    }
 
     @IBAction func captureUserFeedback(_ sender: UIButton) {
         highlightButton(sender)
