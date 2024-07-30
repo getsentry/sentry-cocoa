@@ -2,6 +2,9 @@
 #if os(iOS) || os(tvOS)
 import Foundation
 import UIKit
+#if os(iOS)
+import WebKit
+#endif
 
 struct RedactRegion {
     let rect: CGRect
@@ -60,9 +63,11 @@ class UIRedactBuilder {
         //this classes are used by SwiftUI to display images.
         ["_TtCOCV7SwiftUI11DisplayList11ViewUpdater8Platform13CGDrawingView",
             "_TtC7SwiftUIP33_A34643117F00277B93DEBAB70EC0697122_UIShapeHitTestingView",
-            "SwiftUI._UIGraphicsView", "SwiftUI.ImageLayer"
+            "SwiftUI._UIGraphicsView", "SwiftUI.ImageLayer", "UIWebView"
         ].compactMap { NSClassFromString($0) }
+        
 #if os(iOS)
+        redactClasses += [ WKWebView.self ]
         ignoreClasses = [ UISlider.self, UISwitch.self ]
 #else
         ignoreClasses = []

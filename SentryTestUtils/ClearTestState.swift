@@ -1,5 +1,5 @@
 import Foundation
-import Sentry
+@testable import Sentry
 
 public func clearTestState() {
     TestCleanup.clearTestState()

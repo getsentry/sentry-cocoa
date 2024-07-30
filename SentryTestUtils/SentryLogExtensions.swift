@@ -1,4 +1,5 @@
 import Foundation
+@testable import Sentry
 
 extension SentryLog {
     public static func setTestDefaultLogLevel() {
