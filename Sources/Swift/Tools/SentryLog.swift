@@ -48,6 +48,7 @@ class SentryLog: NSObject {
 
 extension SentryLog {
     private static func log(level: SentryLevel, message: String, file: String, line: Int) {
+        guard willLog(atLevel: level) else { return }
         let path = file as NSString
         let fileName = (path.lastPathComponent as NSString).deletingPathExtension
         log(message: "[\(fileName):\(line)] \(message)", andLevel: level)
