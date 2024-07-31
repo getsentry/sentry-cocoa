@@ -164,22 +164,32 @@ _sentry_threadUnsafe_transmitChunkEnvelope(void)
 
 + (void)timerExpired
 {
+    {
+        std::lock_guard<std::mutex> l(_threadUnsafe_gContinuousProfilerLock);
+        if (![_threadUnsafe_gContinuousCurrentProfiler isRunning]) {
+            SENTRY_LOG_WARN(@"Current profiler is not running. Sending whatever data it has left "
+                            @"and disabling the timer from running again.");
+            disableTimer();
+        }
+
+        _sentry_threadUnsafe_transmitChunkEnvelope();
+
+        if (!_stopCalled) {
+            return;
+        }
+    }
+
+    [self stopTimerAndCleanup];
+}
+
++ (void)stopTimerAndCleanup
+{
     std::lock_guard<std::mutex> l(_threadUnsafe_gContinuousProfilerLock);
-    if (![_threadUnsafe_gContinuousCurrentProfiler isRunning]) {
-        SENTRY_LOG_WARN(@"Current profiler is not running. Sending whatever data it has left "
-                        @"and disabling the timer from running again.");
-        disableTimer();
-    }
 
-    _sentry_threadUnsafe_transmitChunkEnvelope();
+    disableTimer();
 
-    if (_stopCalled) {
-        disableTimer();
-
-        [_threadUnsafe_gContinuousCurrentProfiler
-            stopForReason:SentryProfilerTruncationReasonNormal];
-        _threadUnsafe_gContinuousCurrentProfiler = nil;
-    }
+    [_threadUnsafe_gContinuousCurrentProfiler stopForReason:SentryProfilerTruncationReasonNormal];
+    _threadUnsafe_gContinuousCurrentProfiler = nil;
 }
 
 #    pragma mark - Testing

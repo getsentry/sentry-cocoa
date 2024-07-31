@@ -43,9 +43,22 @@ class TestCleanup: NSObject {
         _sentry_threadUnsafe_traceProfileTimeoutTimer = nil
         SentryTraceProfiler.getCurrentProfiler()?.stop(for: SentryProfilerTruncationReason.normal)
         SentryTraceProfiler.resetConcurrencyTracking()
-        SentryContinuousProfiler.stop()
         removeAppLaunchProfilingConfigFile()
         sentry_stopAndDiscardLaunchProfileTracer()
+        
+        if SentryContinuousProfiler.isCurrentlyProfiling() {
+//            SentryContinuousProfiler.stop()
+//            // need to advance the time and fire the timer for the profiler to actually stop
+//            if let testDateProvider = SentryDependencyContainer.sharedInstance().dateProvider as? TestCurrentDateProvider {
+//                testDateProvider.advance(by: kSentryProfilerChunkExpirationInterval)
+//            }
+//            if let testTimerFactory = SentryDependencyContainer.sharedInstance().timerFactory as? TestSentryNSTimerFactory {
+//                testTimerFactory.fire()
+//            }
+            
+            // or, call an exposed internal method that just stops it
+            SentryContinuousProfiler.stopTimerAndCleanup()
+        }
 #endif // os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
 
         #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)

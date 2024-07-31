@@ -99,7 +99,7 @@ final class SentryContinuousProfilerTests: XCTestCase {
         SentryContinuousProfiler.start()
         XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
         SentrySDK.close()
-        XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
+        assertContinuousProfileStoppage()
     }
     
     func testStartingAPerformanceTransactionDoesNotStartProfiler() throws {
@@ -113,24 +113,20 @@ final class SentryContinuousProfilerTests: XCTestCase {
 
     // test that when stop is called, the profiler runs to the end of the last
     // chunk and transmits that before stopping
-    func testStoppingProfilerTransmitsLastChunk() throws {
+    func testStoppingProfilerTransmitsLastFullChunk() throws {
         SentryContinuousProfiler.start()
         XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
         
         // assert that the first chunk was sent
-        fixture.currentDateProvider.advanceBy(interval: 1)
-        fixture.timeoutTimerFactory.fire()
         fixture.currentDateProvider.advanceBy(interval: kSentryProfilerChunkExpirationInterval)
+        fixture.timeoutTimerFactory.fire()
         let envelope = try XCTUnwrap(self.fixture.client?.captureEnvelopeInvocations.last)
         let profileItem = try XCTUnwrap(envelope.items.first)
         XCTAssertEqual("profile_chunk", profileItem.header.type)
         
         // assert that the profiler doesn't stop until after the next timer period elapses
         SentryContinuousProfiler.stop()
-        XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
-        fixture.currentDateProvider.advanceBy(interval: kSentryProfilerChunkExpirationInterval)
-        fixture.timeoutTimerFactory.fire()
-        XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
+        assertContinuousProfileStoppage()
         
         // check that the last full chunk was sent
         let lastEnvelope = try XCTUnwrap(self.fixture.client?.captureEnvelopeInvocations.last)
@@ -178,6 +174,13 @@ private extension SentryContinuousProfilerTests {
         
         XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
         SentryContinuousProfiler.stop()
+        assertContinuousProfileStoppage()
+    }
+    
+    func assertContinuousProfileStoppage() {
+        XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
+        fixture.currentDateProvider.advance(by: kSentryProfilerTimeoutInterval)
+        fixture.timeoutTimerFactory.fire()
         XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
     }
     
