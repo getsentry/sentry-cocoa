@@ -354,6 +354,10 @@ NSString *const kSentryDefaultEnvironment = @"production";
         self.beforeCaptureScreenshot = options[@"beforeCaptureScreenshot"];
     }
 
+    if ([self isBlock:options[@"beforeCaptureViewHierarchy"]]) {
+        self.beforeCaptureViewHierarchy = options[@"beforeCaptureViewHierarchy"];
+    }
+
     if ([self isBlock:options[@"onCrashedLastRun"]]) {
         self.onCrashedLastRun = options[@"onCrashedLastRun"];
     }

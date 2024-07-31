@@ -6,6 +6,7 @@
 
 - Replay for crashes (#4171)
 - Redact web view from replay (#4203)
+- Add beforeCaptureViewHierarchy callback (#4210)
 
 ## 8.32.0
 
