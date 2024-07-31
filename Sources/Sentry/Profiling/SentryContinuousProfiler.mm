@@ -128,8 +128,6 @@ _sentry_threadUnsafe_transmitChunkEnvelope(void)
         }
 
         _stopCalled = YES;
-
-        _sentry_threadUnsafe_transmitChunkEnvelope();
     }
 }
 
