@@ -35,7 +35,7 @@ NSTimer *_Nullable _chunkTimer;
 /** @note: The session ID is reused for any profile sessions started in the same app session. */
 SentryId *_profileSessionID;
 
-/** 
+/**
  * To avoid sending small chunks at the end of profiles, we let the current chunk run to the full
  * time after the call to stop the profiler is received.
  * */
@@ -95,7 +95,7 @@ _sentry_threadUnsafe_transmitChunkEnvelope(void)
             SENTRY_LOG_WARN(@"Continuous profiler was unable to be initialized.");
             return;
         }
-        
+
         _stopCalled = NO;
 
         static dispatch_once_t onceToken;
@@ -126,7 +126,7 @@ _sentry_threadUnsafe_transmitChunkEnvelope(void)
             SENTRY_LOG_DEBUG(@"No continuous profiler is currently running.");
             return;
         }
-        
+
         _stopCalled = YES;
 
         _sentry_threadUnsafe_transmitChunkEnvelope();
@@ -150,6 +150,8 @@ _sentry_threadUnsafe_transmitChunkEnvelope(void)
     [SentryDependencyContainer.sharedInstance.dispatchQueueWrapper dispatchAsyncOnMainQueue:^{
         std::lock_guard<std::mutex> l(_threadUnsafe_gContinuousProfilerLock);
         if (_chunkTimer != nil) {
+            SENTRY_LOG_WARN(@"There was already a timer in flight, but this codepath shouldn't be "
+                            @"taken if there is no profiler running.");
             return;
         }
 
@@ -172,12 +174,12 @@ _sentry_threadUnsafe_transmitChunkEnvelope(void)
     }
 
     _sentry_threadUnsafe_transmitChunkEnvelope();
-    
+
     if (_stopCalled) {
         disableTimer();
-        
+
         [_threadUnsafe_gContinuousCurrentProfiler
-         stopForReason:SentryProfilerTruncationReasonNormal];
+            stopForReason:SentryProfilerTruncationReasonNormal];
         _threadUnsafe_gContinuousCurrentProfiler = nil;
     }
 }
