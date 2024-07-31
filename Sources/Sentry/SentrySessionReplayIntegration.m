@@ -143,7 +143,6 @@ SentrySessionReplayIntegration ()
             SENTRY_LOG_ERROR(@"Could not create replay video: %@", error);
             return;
         }
-
         for (SentryVideoInfo *video in videos) {
             [self captureVideo:video replayId:replayId segmentId:_segmentId++ type:_type];
             // type buffer is only for the first segment
