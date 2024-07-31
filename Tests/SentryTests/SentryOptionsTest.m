@@ -351,6 +351,27 @@
     XCTAssertNil(options.beforeCaptureScreenshot);
 }
 
+- (void)testBeforeCaptureViewHierarchy
+{
+    SentryBeforeCaptureScreenshotCallback callback = ^(SentryEvent *event) {
+        if (event.level == kSentryLevelFatal) {
+            return NO;
+        }
+
+        return YES;
+    };
+    SentryOptions *options = [self getValidOptions:@{ @"beforeCaptureViewHierarchy" : callback }];
+
+    XCTAssertEqual(callback, options.beforeCaptureViewHierarchy);
+}
+
+- (void)testDefaultBeforeCaptureViewHierarchy
+{
+    SentryOptions *options = [self getValidOptions:@{}];
+
+    XCTAssertNil(options.beforeCaptureViewHierarchy);
+}
+
 - (void)testTracePropagationTargets
 {
     SentryOptions *options =

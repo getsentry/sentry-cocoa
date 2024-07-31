@@ -31,6 +31,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             options.beforeCaptureScreenshot = { _ in
                 return true
             }
+            options.beforeCaptureViewHierarchy = { _ in
+                return true
+            }
             options.debug = true
             
             if #available(iOS 16.0, *), !args.contains("--disable-session-replay") {
