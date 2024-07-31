@@ -11,6 +11,7 @@
 #import "SentryDateUtil.h"
 #import "SentryDisplayLinkWrapper.h"
 #import "SentryLevelHelper.h"
+#import "SentryLogC.h"
 #import "SentryRandom.h"
 #import "SentrySdkInfo.h"
 #import "SentrySession.h"

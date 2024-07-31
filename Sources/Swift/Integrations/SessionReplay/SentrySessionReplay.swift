@@ -203,7 +203,7 @@ class SentrySessionReplay: NSObject {
             do {
                 try fileManager.createDirectory(atPath: pathToSegment.path, withIntermediateDirectories: true, attributes: nil)
             } catch {
-                print("[SentrySessionReplay:\(#line)] Can't create session replay segment folder. Error: \(error.localizedDescription)")
+                SentryLog.debug("Can't create session replay segment folder. Error: \(error.localizedDescription)")
                 return
             }
         }
@@ -256,7 +256,7 @@ class SentrySessionReplay: NSObject {
         do {
             try FileManager.default.removeItem(at: video.path)
         } catch {
-            print("[SentrySessionReplay:\(#line)] Could not delete replay segment from disk: \(error.localizedDescription)")
+            SentryLog.debug("Could not delete replay segment from disk: \(error.localizedDescription)")
         }
     }
 

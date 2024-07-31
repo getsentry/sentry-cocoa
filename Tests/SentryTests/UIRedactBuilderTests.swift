@@ -156,6 +156,27 @@ class UIRedactBuilderTests: XCTestCase {
         XCTAssertEqual(result.count, 0)
     }
     
+    func testRedactList() {
+        let expectedList = ["_TtCOCV7SwiftUI11DisplayList11ViewUpdater8Platform13CGDrawingView",
+            "_TtC7SwiftUIP33_A34643117F00277B93DEBAB70EC0697122_UIShapeHitTestingView",
+            "SwiftUI._UIGraphicsView", "SwiftUI.ImageLayer", "UIWebView", "UILabel", "UITextView", "UITextField", "WKWebView"
+        ].compactMap { NSClassFromString($0) }
+        
+        let sut = UIRedactBuilder()
+        expectedList.forEach { element in
+            XCTAssertTrue(sut.redactClasses.contains { element == $0 }, "\(element) not found")
+        }
+    }
+    
+    func testIgnoreList() {
+        let expectedList = ["UISlider", "UISwitch"].compactMap { NSClassFromString($0) }
+        
+        let sut = UIRedactBuilder()
+        expectedList.forEach { element in
+            XCTAssertTrue(sut.ignoreClasses.contains { element == $0 }, "\(element) not found")
+        }
+    }
+    
 }
 
 #endif

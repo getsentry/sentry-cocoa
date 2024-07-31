@@ -57,7 +57,7 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
                 return SentryReplayFrame(imagePath: "\(outputPath)/\($0)", time: Date(timeIntervalSinceReferenceDate: time), screenName: nil)
             }.sorted { $0.time < $1.time }
         } catch {
-            print("[SentryOnDemandReplay:\(#line)] Could not list frames from replay: \(error.localizedDescription)")
+            SentryLog.debug("Could not list frames from replay: \(error.localizedDescription)")
             return
         }
     }
@@ -88,7 +88,7 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
         do {
             try data.write(to: URL(fileURLWithPath: imagePath))
         } catch {
-            print("[SentryOnDemandReplay] Could not save replay frame. Error: \(error)")
+            SentryLog.debug("Could not save replay frame. Error: \(error)")
             return
         }
         _frames.append(SentryReplayFrame(imagePath: imagePath, time: date, screenName: forScreen))
