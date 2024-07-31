@@ -7,6 +7,10 @@
 - Replay for crashes (#4171)
 - Redact web view from replay (#4203)
 
+### Improvements
+
+- Reduce memory usage of storing envelopes
+
 ## 8.32.0
 
 ### Features
