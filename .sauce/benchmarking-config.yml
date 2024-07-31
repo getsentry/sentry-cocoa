@@ -22,5 +22,5 @@ suites:
         platformVersion: "17"
   - name: "Low-end device"
     devices:
-      - name: "iPhone 8"
-        platformVersion: "14"
+      - name: "iPhone SE 2022"
+        platformVersion: "15"
