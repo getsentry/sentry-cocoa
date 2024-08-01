@@ -127,7 +127,7 @@ SentrySessionReplayIntegration ()
         return; // no frames to send
     }
 
-    SentryDispatchQueueWrapper * dispatchQueue = [[SentryDispatchQueueWrapper alloc] init];
+    SentryDispatchQueueWrapper *dispatchQueue = [[SentryDispatchQueueWrapper alloc] init];
 
     [dispatchQueue dispatchAsyncWithBlock:^{
         SentryReplayType _type = type;
