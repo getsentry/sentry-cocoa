@@ -126,7 +126,7 @@ class SentryFileManagerTests: XCTestCase {
         let envelope = TestConstants.envelope
         sut.store(envelope)
         
-        let expectedData = try SentrySerialization.data(with: envelope)
+        let expectedData = try XCTUnwrap(SentrySerialization.data(with: envelope))
         
         let envelopes = sut.getAllEnvelopes()
         XCTAssertEqual(1, envelopes.count)

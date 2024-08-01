@@ -12,8 +12,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (SentrySession *_Nullable)sessionWithData:(NSData *)sessionData;
 
-+ (NSData *_Nullable)dataWithEnvelope:(SentryEnvelope *)envelope
-                                error:(NSError *_Nullable *_Nullable)error;
++ (NSData *_Nullable)dataWithEnvelope:(SentryEnvelope *)envelope;
 
 + (NSData *)dataWithReplayRecording:(SentryReplayRecording *)replayRecording;
 

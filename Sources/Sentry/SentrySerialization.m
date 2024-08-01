@@ -33,9 +33,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 + (NSData *_Nullable)dataWithEnvelope:(SentryEnvelope *)envelope
-                                error:(NSError *_Nullable *_Nullable)error
 {
-
     NSMutableData *envelopeData = [[NSMutableData alloc] init];
     NSMutableDictionary *serializedData = [NSMutableDictionary new];
     if (nil != envelope.header.eventId) {

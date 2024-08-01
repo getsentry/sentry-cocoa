@@ -149,7 +149,7 @@ class SentryHttpTransportTests: XCTestCase {
     }
 
     class func buildRequest(_ envelope: SentryEnvelope) -> SentryNSURLRequest {
-        let envelopeData = try! SentrySerialization.data(with: envelope)
+        let envelopeData = try! XCTUnwrap(SentrySerialization.data(with: envelope))
         return try! SentryNSURLRequest(envelopeRequestWith: dsn(), andData: envelopeData)
     }
 
@@ -447,7 +447,7 @@ class SentryHttpTransportTests: XCTestCase {
         XCTAssertEqual(fixture.dispatchQueueWrapper.dispatchAfterInvocations.first?.interval, 0.0)
     }
 
-    func testActiveRateLimitForSomeCachedEnvelopeItems() {
+    func testActiveRateLimitForSomeCachedEnvelopeItems() throws {
         givenNoInternetConnection()
         sendEvent()
         sut.send(envelope: fixture.eventWithSessionEnvelope)
@@ -461,7 +461,7 @@ class SentryHttpTransportTests: XCTestCase {
 
         let sessionEnvelope = SentryEnvelope(id: fixture.event.eventId, singleItem: SentryEnvelopeItem(session: fixture.session))
         sessionEnvelope.header.sentAt = SentryDependencyContainer.sharedInstance().dateProvider.date()
-        let sessionData = try! SentrySerialization.data(with: sessionEnvelope)
+        let sessionData = try XCTUnwrap(SentrySerialization.data(with: sessionEnvelope))
         let sessionRequest = try! SentryNSURLRequest(envelopeRequestWith: SentryHttpTransportTests.dsn(), andData: sessionData)
 
         if fixture.requestManager.requests.invocations.count > 3 {
