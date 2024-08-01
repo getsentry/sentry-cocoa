@@ -8,6 +8,10 @@
 - Redact web view from replay (#4203)
 - Add beforeCaptureViewHierarchy callback (#4210)
 
+### Fixes
+
+- Skip UI crumbs when target or sender is nil (#4211)
+
 ## 8.32.0
 
 ### Features

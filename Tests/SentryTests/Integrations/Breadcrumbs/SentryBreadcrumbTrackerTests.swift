@@ -184,6 +184,21 @@ class SentryBreadcrumbTrackerTests: XCTestCase {
         XCTAssertEqual(eventPayload?["category"] as? String, "app.background")
     }
     
+    func testSkipCrumbs_WhenSenderOrTargetIsNil() throws {
+        let swizzlingWrapper = TestSentrySwizzleWrapper()
+        SentryDependencyContainer.sharedInstance().swizzleWrapper = swizzlingWrapper
+        
+        let tracker = SentryBreadcrumbTracker()
+        tracker.start(with: delegate)
+        tracker.startSwizzle()
+        
+        swizzlingWrapper.execute(action: "methodPressed:", target: nil, sender: self, event: nil)
+        swizzlingWrapper.execute(action: "methodPressed:", target: self, sender: nil, event: nil)
+        
+        // The tracker adds 1 enabled crumb when being started
+        XCTAssertEqual(1, delegate.addCrumbInvocations.invocations.count)
+    }
+    
     func testTouchBreadcrumbForSessionReplay() throws {
         let scope = Scope()
         let client = TestClient(options: Options())
