@@ -23,6 +23,7 @@ NSString *const EnvelopesPathComponent = @"envelopes";
 BOOL
 createDirectoryIfNotExists(NSString *path, NSError **error)
 {
+
     if (![[NSFileManager defaultManager] createDirectoryAtPath:path
                                    withIntermediateDirectories:YES
                                                     attributes:nil
@@ -312,14 +313,10 @@ SentryFileManager ()
 
 - (NSString *)storeEnvelope:(SentryEnvelope *)envelope
 {
-    NSError *error;
     @synchronized(self) {
         NSString *path =
             [self.envelopesPath stringByAppendingPathComponent:[self uniqueAscendingJsonName]];
 
-        if (!createDirectoryIfNotExists(self.envelopesPath, &error)) {
-            return nil;
-        }
         SENTRY_LOG_DEBUG(@"Writing envelope to path: %@", path);
 
         [[NSFileManager defaultManager] createFileAtPath:path contents:nil attributes:nil];
