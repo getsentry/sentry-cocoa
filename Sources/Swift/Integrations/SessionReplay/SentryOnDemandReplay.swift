@@ -238,6 +238,7 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
     
     private func filterFrames(beginning: Date, end: Date) -> [SentryReplayFrame] {
         var frames = [SentryReplayFrame]()
+        //Using dispatch queue as sync mechanism since we need a queue already to generate the video.
         workingQueue.dispatchSync({
             frames = self._frames.filter { $0.time >= beginning && $0.time <= end }
         })
