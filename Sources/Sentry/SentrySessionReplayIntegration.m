@@ -42,7 +42,6 @@ SentrySessionReplayIntegration ()
     BOOL _startedAsFullSession;
     SentryReplayOptions *_replayOptions;
     SentryNSNotificationCenterWrapper *_notificationCenter;
-    SentryDispatchQueueWrapper *_dispatchQueue;
     SentryOnDemandReplay *_resumeReplayMaker;
 }
 
@@ -128,9 +127,9 @@ SentrySessionReplayIntegration ()
         return; // no frames to send
     }
 
-    _dispatchQueue = [[SentryDispatchQueueWrapper alloc] init];
+    SentryDispatchQueueWrapper * dispatchQueue = [[SentryDispatchQueueWrapper alloc] init];
 
-    [_dispatchQueue dispatchAsyncWithBlock:^{
+    [dispatchQueue dispatchAsyncWithBlock:^{
         SentryReplayType _type = type;
         int _segmentId = segmentId;
 

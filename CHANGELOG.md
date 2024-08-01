@@ -22,7 +22,6 @@
 
 ### Features
 
-- Replay for crashes (#4171)
 - Collect only unique UIWindow references (#4159)
 
 ### Deprecated

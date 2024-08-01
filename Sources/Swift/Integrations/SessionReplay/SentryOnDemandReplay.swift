@@ -198,7 +198,9 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
             }
             frameCount += 1
         }
-        group.wait()
+        if group.wait(timeout: .now() + 2) == .timedOut {
+            throw SentryOnDemandReplayError.errorRenderingVideo
+        }
         from = frameCount
         
         return try result?.get()
