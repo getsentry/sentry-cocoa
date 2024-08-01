@@ -42,7 +42,7 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
      * to the default.
      * - note: The default is 0.
      */
-    public var errorSampleRate: Float
+    public var onErrorSampleRate: Float
     
     /**
      * Indicates whether session replay should redact all text in the app
@@ -112,7 +112,7 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
      */
     public override init() {
         self.sessionSampleRate = 0
-        self.errorSampleRate = 0
+        self.onErrorSampleRate = 0
     }
     
     /**
@@ -122,9 +122,9 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
      *  - errorSampleRate Indicates the percentage in which a 30 seconds replay will be send with
      * error events.
      */
-    public init(sessionSampleRate: Float = 0, errorSampleRate: Float = 0, redactAllText: Bool = true, redactAllImages: Bool = true) {
+    public init(sessionSampleRate: Float = 0, onErrorSampleRate: Float = 0, redactAllText: Bool = true, redactAllImages: Bool = true) {
         self.sessionSampleRate = sessionSampleRate
-        self.errorSampleRate = errorSampleRate
+        self.onErrorSampleRate = onErrorSampleRate
         self.redactAllText = redactAllText
         self.redactAllImages = redactAllImages
     }
@@ -134,6 +134,6 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
         let onErrorSampleRate = (dictionary["errorSampleRate"] as? NSNumber)?.floatValue ?? 0
         let redactAllText = (dictionary["redactAllText"] as? NSNumber)?.boolValue ?? true
         let redactAllImages = (dictionary["redactAllImages"] as? NSNumber)?.boolValue ?? true
-        self.init(sessionSampleRate: sessionSampleRate, errorSampleRate: onErrorSampleRate, redactAllText: redactAllText, redactAllImages: redactAllImages)
+        self.init(sessionSampleRate: sessionSampleRate, onErrorSampleRate: onErrorSampleRate, redactAllText: redactAllText, redactAllImages: redactAllImages)
     }
 }

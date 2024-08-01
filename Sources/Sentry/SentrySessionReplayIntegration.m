@@ -183,7 +183,7 @@ SentrySessionReplayIntegration ()
 {
     _startedAsFullSession = [self shouldReplayFullSession:_replayOptions.sessionSampleRate];
 
-    if (!_startedAsFullSession && _replayOptions.errorSampleRate == 0) {
+    if (!_startedAsFullSession && _replayOptions.onErrorSampleRate == 0) {
         return;
     }
 
@@ -281,7 +281,7 @@ SentrySessionReplayIntegration ()
 {
     NSDictionary *info = [[NSDictionary alloc] initWithObjectsAndKeys:sessionId.sentryIdString,
                                                @"replayId", path.lastPathComponent, @"path",
-                                               @(options.errorSampleRate), @"errorSampleRate", nil];
+                                               @(options.onErrorSampleRate), @"errorSampleRate", nil];
 
     NSData *data = [SentrySerialization dataWithJSONObject:info];
 
@@ -422,7 +422,7 @@ SentrySessionReplayIntegration ()
 - (BOOL)sessionReplayIsFullSession
 {
     return SentryDependencyContainer.sharedInstance.random.nextNumber
-        <= _replayOptions.errorSampleRate;
+        <= _replayOptions.onErrorSampleRate;
 }
 
 - (void)sessionReplayNewSegmentWithReplayEvent:(SentryReplayEvent *)replayEvent
