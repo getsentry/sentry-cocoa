@@ -45,7 +45,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
     private func startSDK(sessionSampleRate: Float, errorSampleRate: Float, enableSwizzling: Bool = true) {
         SentrySDK.start {
             $0.dsn = "https://user@test.com/test"
-            $0.experimental.sessionReplay = SentryReplayOptions(sessionSampleRate: sessionSampleRate, errorSampleRate: errorSampleRate)
+            $0.experimental.sessionReplay = SentryReplayOptions(sessionSampleRate: sessionSampleRate, onErrorSampleRate: errorSampleRate)
             $0.setIntegrations([SentrySessionReplayIntegration.self])
             $0.enableSwizzling = enableSwizzling
             $0.cacheDirectoryPath = FileManager.default.temporaryDirectory.path
