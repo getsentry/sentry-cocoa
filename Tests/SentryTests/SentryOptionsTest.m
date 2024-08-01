@@ -1141,7 +1141,11 @@
 {
     SentryOptions *options = [self getValidOptions:@{}];
     XCTAssertNil(options.profilesSampleRate);
+
+    // This property now only refers to trace-based profiling, but renaming it would require a major
+    // rev
     XCTAssertFalse(options.isProfilingEnabled);
+
     XCTAssert([options isContinuousProfilingEnabled]);
 }
 
@@ -1150,7 +1154,11 @@
     SentryOptions *options = [[SentryOptions alloc] init];
     options.profilesSampleRate = nil;
     XCTAssertNil(options.profilesSampleRate);
+
+    // This property now only refers to trace-based profiling, but renaming it would require a major
+    // rev
     XCTAssertFalse(options.isProfilingEnabled);
+
     XCTAssert([options isContinuousProfilingEnabled]);
 }
 
@@ -1193,7 +1201,11 @@
 - (void)testIsProfilingEnabled_NothingSet_IsDisabled
 {
     SentryOptions *options = [[SentryOptions alloc] init];
+
+    // This property now only refers to trace-based profiling, but renaming it would require a major
+    // rev
     XCTAssertFalse(options.isProfilingEnabled);
+
     XCTAssertNil(options.profilesSampleRate);
     XCTAssert([options isContinuousProfilingEnabled]);
 }
@@ -1202,7 +1214,11 @@
 {
     SentryOptions *options = [[SentryOptions alloc] init];
     options.profilesSampleRate = @0.00;
+
+    // This property now only refers to trace-based profiling, but renaming it would require a major
+    // rev
     XCTAssertFalse(options.isProfilingEnabled);
+
     XCTAssertNotNil(options.profilesSampleRate);
     XCTAssertFalse([options isContinuousProfilingEnabled]);
 }
@@ -1211,7 +1227,11 @@
 {
     SentryOptions *options = [[SentryOptions alloc] init];
     options.profilesSampleRate = @0.01;
+
+    // This property now only refers to trace-based profiling, but renaming it would require a major
+    // rev
     XCTAssertTrue(options.isProfilingEnabled);
+
     XCTAssertNotNil(options.profilesSampleRate);
     XCTAssertFalse([options isContinuousProfilingEnabled]);
 }
@@ -1223,7 +1243,11 @@
         XCTAssertNotNil(context);
         return @0.0;
     };
+
+    // This property now only refers to trace-based profiling, but renaming it would require a major
+    // rev
     XCTAssertTrue(options.isProfilingEnabled);
+
     XCTAssertNil(options.profilesSampleRate);
     XCTAssertFalse([options isContinuousProfilingEnabled]);
 }
@@ -1235,7 +1259,11 @@
 #    pragma clang diagnostic ignored "-Wdeprecated-declarations"
     options.enableProfiling = YES;
 #    pragma clang diagnostic pop
+
+    // This property now only refers to trace-based profiling, but renaming it would require a major
+    // rev
     XCTAssertTrue(options.isProfilingEnabled);
+
     XCTAssertNil(options.profilesSampleRate);
     XCTAssertFalse([options isContinuousProfilingEnabled]);
 }
@@ -1251,6 +1279,25 @@
 
     SentrySamplingContext *context = [[SentrySamplingContext alloc] init];
     XCTAssertEqual(options.profilesSampler(context), @1.0);
+    XCTAssertNil(options.profilesSampleRate);
+    XCTAssertFalse([options isContinuousProfilingEnabled]);
+}
+
+// this is a tricky part of the API, because while a profilesSampleRate of nil enables continuous
+// profiling, just having the profilesSampler set at all disables it, even if the sampler function
+// would return nil
+- (void)testProfilesSamplerReturnsNil_ContinuousProfilingNotEnabled
+{
+    SentryTracesSamplerCallback sampler = ^(SentrySamplingContext *context) {
+        XCTAssertNotNil(context);
+        NSNumber *result = nil;
+        return result;
+    };
+
+    SentryOptions *options = [self getValidOptions:@{ @"profilesSampler" : sampler }];
+
+    SentrySamplingContext *context = [[SentrySamplingContext alloc] init];
+    XCTAssertNil(options.profilesSampler(context));
     XCTAssertNil(options.profilesSampleRate);
     XCTAssertFalse([options isContinuousProfilingEnabled]);
 }

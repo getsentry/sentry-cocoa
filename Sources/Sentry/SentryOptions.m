@@ -129,7 +129,7 @@ NSString *const kSentryDefaultEnvironment = @"production";
         self.tracesSampleRate = nil;
 #if SENTRY_TARGET_PROFILING_SUPPORTED
         _enableProfiling = NO;
-        self.profilesSampleRate = nil;
+        self.profilesSampleRate = SENTRY_INITIAL_PROFILES_SAMPLE_RATE;
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
         self.enableCoreDataTracing = YES;
         _enableSwizzling = YES;
