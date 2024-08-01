@@ -23,7 +23,6 @@ NSString *const EnvelopesPathComponent = @"envelopes";
 BOOL
 createDirectoryIfNotExists(NSString *path, NSError **error)
 {
-
     if (![[NSFileManager defaultManager] createDirectoryAtPath:path
                                    withIntermediateDirectories:YES
                                                     attributes:nil
