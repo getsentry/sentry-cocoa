@@ -8,6 +8,11 @@
 - Replay for crashes (#4171)
 - Redact web view from replay (#4203)
 - Add beforeCaptureViewHierarchy callback (#4210)
+- Rename session replay `errorSampleRate` property to `onErrorSampleRate` (#4218)
+
+### Fixes
+
+- Skip UI crumbs when target or sender is nil (#4211)
 
 ## 8.32.0
 
@@ -72,7 +77,7 @@
 ### Fixes
 
 - Fix potential deadlock in app hang detection (#4063)
-- Swizzling of view controllers `loadView` that don`t implement `loadView` (#4071)
+- Swizzling of view controllers `loadView` that don't implement `loadView` (#4071)
 
 ## 8.29.0
 

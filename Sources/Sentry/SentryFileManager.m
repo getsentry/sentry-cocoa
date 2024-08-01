@@ -312,7 +312,7 @@ SentryFileManager ()
 
 - (NSString *)storeEnvelope:(SentryEnvelope *)envelope
 {
-    NSData *envelopeData = [SentrySerialization dataWithEnvelope:envelope error:nil];
+    NSData *envelopeData = [SentrySerialization dataWithEnvelope:envelope];
 
     @synchronized(self) {
         NSString *path =

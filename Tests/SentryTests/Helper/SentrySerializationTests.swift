@@ -270,7 +270,7 @@ class SentrySerializationTests: XCTestCase {
     private func serializeEnvelope(envelope: SentryEnvelope) -> Data {
         var serializedEnvelope: Data = Data()
         do {
-            serializedEnvelope = try SentrySerialization.data(with: envelope)
+            serializedEnvelope = try XCTUnwrap(SentrySerialization.data(with: envelope))
         } catch {
             XCTFail("Could not serialize envelope.")
         }
