@@ -32,7 +32,7 @@ NS_ASSUME_NONNULL_BEGIN
     return data;
 }
 
-+ (BOOL)writeEnvelopeData:(SentryEnvelope *)envelope writeData:(NSDataWriter)writeData
++ (BOOL)writeEnvelopeData:(SentryEnvelope *)envelope writeData:(SentryDataWriter)writeData
 {
     NSMutableDictionary *serializedData = [NSMutableDictionary new];
     if (nil != envelope.header.eventId) {
