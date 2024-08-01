@@ -164,7 +164,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         XCTAssertNotNil(sut.sessionReplay)
     }
     
-    func testRestartReplayWithNewSessionClosePreviusReplay() throws {
+    func testRestartReplayWithNewSessionClosePreviousReplay() throws {
         startSDK(sessionSampleRate: 1, errorSampleRate: 0)
         
         let sut = try getSut()
