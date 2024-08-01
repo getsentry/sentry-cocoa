@@ -14,7 +14,7 @@
 
 ### Improvements
 
-- Reduce memory usage of storing envelopes
+- Reduce memory usage of storing envelopes (#4219)
 
 ## 8.32.0
 
