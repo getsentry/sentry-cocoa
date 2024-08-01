@@ -132,7 +132,7 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
         while frameCount < videoFrames.count {
             let outputFileURL = URL(fileURLWithPath: _outputPath.appending("/\(videoFrames[frameCount].time.timeIntervalSinceReferenceDate).mp4"))
             if let videoInfo = try renderVideo(with: videoFrames, from: &frameCount, at: outputFileURL) {
-                videos.append(info)
+                videos.append(videoInfo)
             } else {
                 frameCount++
             }  

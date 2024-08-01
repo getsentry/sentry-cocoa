@@ -222,7 +222,7 @@ class SentrySessionReplay: NSObject {
                     self.newSegmentAvailable(videoInfo: video)
                 }
             } catch {
-                print("[SentrySessionReplay:\(#line)] Could not create replay video - \(error.localizedDescription)")
+                SentryLog.debug("Could not create replay video - \(error.localizedDescription)")
             }
         }
     }
