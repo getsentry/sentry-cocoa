@@ -12,6 +12,7 @@
 ### Fixes
 
 - Skip UI crumbs when target or sender is nil (#4211)
+- Guard FramesTracker start and stop (#4224)
 
 ## 8.32.0
 

@@ -31,6 +31,8 @@ static CFTimeInterval const SentryPreviousFrameInitialValue = -1;
 @interface
 SentryFramesTracker ()
 
+@property (nonatomic, assign, readonly) BOOL isStarted;
+
 @property (nonatomic, strong, readonly) SentryDisplayLinkWrapper *displayLinkWrapper;
 @property (nonatomic, strong, readonly) SentryCurrentDateProvider *dateProvider;
 @property (nonatomic, strong, readonly) SentryDispatchQueueWrapper *dispatchQueueWrapper;
@@ -71,6 +73,7 @@ slowFrameThreshold(uint64_t actualFramesPerSecond)
 {
     if (self = [super init]) {
         _isRunning = NO;
+        _isStarted = NO;
         _displayLinkWrapper = displayLinkWrapper;
         _dateProvider = dateProvider;
         _dispatchQueueWrapper = dispatchQueueWrapper;
@@ -141,6 +144,12 @@ slowFrameThreshold(uint64_t actualFramesPerSecond)
 
 - (void)start
 {
+    if (_isStarted) {
+        return;
+    }
+
+    _isStarted = YES;
+
     [self.notificationCenter
         addObserver:self
            selector:@selector(didBecomeActive)
@@ -331,6 +340,12 @@ slowFrameThreshold(uint64_t actualFramesPerSecond)
 
 - (void)stop
 {
+    if (!_isStarted) {
+        return;
+    }
+
+    _isStarted = NO;
+
     [self pause];
     [self.delayedFramesTracker resetDelayedFramesTimeStamps];
 
