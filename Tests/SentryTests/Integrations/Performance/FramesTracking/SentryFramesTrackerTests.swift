@@ -4,9 +4,9 @@ import XCTest
 
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
 class SentryFramesTrackerTests: XCTestCase {
-
+    
     private class Fixture {
-
+        
         var displayLinkWrapper: TestDisplayLinkWrapper
         var queue: DispatchQueue
         var dateProvider = TestCurrentDateProvider()
@@ -14,28 +14,28 @@ class SentryFramesTrackerTests: XCTestCase {
         let keepDelayedFramesDuration = 10.0
         
         let slowestSlowFrameDelay: Double
-
+        
         init() {
             displayLinkWrapper = TestDisplayLinkWrapper(dateProvider: dateProvider)
             queue = DispatchQueue(label: "SentryFramesTrackerTests", qos: .background, attributes: [.concurrent])
             
             slowestSlowFrameDelay = (displayLinkWrapper.slowestSlowFrameDuration - slowFrameThreshold(displayLinkWrapper.currentFrameRate.rawValue))
         }
-
+        
         lazy var sut: SentryFramesTracker = SentryFramesTracker(displayLinkWrapper: displayLinkWrapper, dateProvider: dateProvider, dispatchQueueWrapper: SentryDispatchQueueWrapper(), notificationCenter: notificationCenter, keepDelayedFramesDuration: keepDelayedFramesDuration)
     }
-
+    
     private var fixture: Fixture!
-
+    
     override func setUp() {
         super.setUp()
         fixture = Fixture()
     }
-
+    
     func testIsNotRunning_WhenNotStarted() {
         XCTAssertFalse(self.fixture.sut.isRunning)
     }
-
+    
     func testIsRunning_WhenStarted() {
         let sut = fixture.sut
         sut.start()
@@ -49,13 +49,30 @@ class SentryFramesTrackerTests: XCTestCase {
         
         XCTAssertEqual(self.fixture.displayLinkWrapper.linkInvocations.count, 1)
     }
-
+    
+    func testStartTwice_SubscribesOnceToNotifications() {
+        let sut = fixture.sut
+        sut.start()
+        sut.start()
+        
+        XCTAssertEqual(self.fixture.notificationCenter.addObserverInvocationsCount, 2)
+    }
+    
     func testIsNotRunning_WhenStopped() {
         let sut = fixture.sut
         sut.start()
         sut.stop()
         
         XCTAssertFalse(self.fixture.sut.isRunning)
+    }
+    
+    func testWhenStoppedTwice_OnlyRemovesOnceFromNotifications() {
+        let sut = fixture.sut
+        sut.start()
+        sut.stop()
+        sut.stop()
+        
+        XCTAssertEqual(self.fixture.notificationCenter.removeObserverWithNameInvocationsCount, 2)
     }
     
     func testKeepFrames_WhenStopped() throws {
@@ -587,7 +604,16 @@ class SentryFramesTrackerTests: XCTestCase {
     
     func testDealloc_CallsStop() {
         func sutIsDeallocatedAfterCallingMe() {
-            _ = SentryFramesTracker(displayLinkWrapper: fixture.displayLinkWrapper, dateProvider: fixture.dateProvider, dispatchQueueWrapper: SentryDispatchQueueWrapper(), notificationCenter: TestNSNotificationCenterWrapper(), keepDelayedFramesDuration: 0)
+            
+            let notificationCenter = TestNSNotificationCenterWrapper()
+            notificationCenter.ignoreAddObserver = true
+            
+            let displayLinkWrapper = fixture.displayLinkWrapper
+            displayLinkWrapper.ignoreLinkInvocations = true
+            
+            let sut = SentryFramesTracker(displayLinkWrapper: displayLinkWrapper, dateProvider: fixture.dateProvider, dispatchQueueWrapper: SentryDispatchQueueWrapper(), notificationCenter: notificationCenter, keepDelayedFramesDuration: 0)
+            
+            sut.start()
         }
         sutIsDeallocatedAfterCallingMe()
         
