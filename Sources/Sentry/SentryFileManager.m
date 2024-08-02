@@ -310,7 +310,7 @@ SentryFileManager ()
     }
 }
 
-- (NSString *)storeEnvelope:(SentryEnvelope *)envelope
+- (void)storeEnvelope:(SentryEnvelope *)envelope
 {
     @synchronized(self) {
         NSString *path =
@@ -324,7 +324,7 @@ SentryFileManager ()
 
         if (!fileHandle) {
             SENTRY_LOG_ERROR(@"Couldn't get NSFileHandle for path: %@", path);
-            return path;
+            return;
         }
 
         @try {
@@ -344,7 +344,6 @@ SentryFileManager ()
         }
 
         [self handleEnvelopesLimit];
-        return path;
     }
 }
 
