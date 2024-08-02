@@ -127,27 +127,23 @@ SentrySessionReplayIntegration ()
         return; // no frames to send
     }
 
-    SentryDispatchQueueWrapper *dispatchQueue = [[SentryDispatchQueueWrapper alloc] init];
+    SentryReplayType _type = type;
+    int _segmentId = segmentId;
 
-    [dispatchQueue dispatchAsyncWithBlock:^{
-        SentryReplayType _type = type;
-        int _segmentId = segmentId;
-
-        NSError *error;
-        NSArray<SentryVideoInfo *> *videos = [resumeReplayMaker
-            createVideoWithBeginning:beginning
-                                 end:[beginning dateByAddingTimeInterval:duration]
-                               error:&error];
-        if (videos == nil) {
-            SENTRY_LOG_ERROR(@"Could not create replay video: %@", error);
-            return;
-        }
-        for (SentryVideoInfo *video in videos) {
-            [self captureVideo:video replayId:replayId segmentId:_segmentId++ type:_type];
-            // type buffer is only for the first segment
-            _type = SentryReplayTypeSession;
-        }
-    }];
+    NSError *error;
+    NSArray<SentryVideoInfo *> *videos =
+        [resumeReplayMaker createVideoWithBeginning:beginning
+                                                end:[beginning dateByAddingTimeInterval:duration]
+                                              error:&error];
+    if (videos == nil) {
+        SENTRY_LOG_ERROR(@"Could not create replay video: %@", error);
+        return;
+    }
+    for (SentryVideoInfo *video in videos) {
+        [self captureVideo:video replayId:replayId segmentId:_segmentId++ type:_type];
+        // type buffer is only for the first segment
+        _type = SentryReplayTypeSession;
+    }
 
     NSMutableDictionary *eventContext = event.context.mutableCopy;
     eventContext[@"replay"] =

@@ -215,6 +215,9 @@ class SentrySessionReplay: NSObject {
     }
 
     private func createAndCapture(startedAt: Date) {
+        //Creating a video is heavy and blocks the thread
+        //Since this function is always called in the main thread
+        //we dispatch it to a background thread.
         dispatchQueue.dispatchAsync {
             do {
                 let videos = try self.replayMaker.createVideoWith(beginning: startedAt, end: self.dateProvider.date())

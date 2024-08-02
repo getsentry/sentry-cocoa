@@ -163,20 +163,18 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
         var frameCount = from
         
         group.enter()
-        videoWriterInput.requestMediaDataWhenReady(on: workingQueue.queue) { [weak self] in
-            guard let self = self, videoWriter.status == .writing else {
+        videoWriterInput.requestMediaDataWhenReady(on: workingQueue.queue) {
+            guard videoWriter.status == .writing else {
                 videoWriter.cancelWriting()
                 result = .failure(videoWriter.error ?? SentryOnDemandReplayError.errorRenderingVideo )
                 group.leave()
                 return
             }
-            
             if frameCount >= videoFrames.count {
                 result = self.finishVideo(outputFileURL: outputFileURL, usedFrames: usedFrames, videoHeight: Int(videoHeight), videoWidth: Int(videoWidth), videoWriter: videoWriter)
                 group.leave()
                 return
             }
-            
             let frame = videoFrames[frameCount]
             if let image = UIImage(contentsOfFile: frame.imagePath) {
                 if lastImageSize != image.size {
@@ -187,7 +185,6 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
                 lastImageSize = image.size
                 
                 let presentTime = CMTime(seconds: Double(frameCount), preferredTimescale: CMTimeScale(1 / self.frameRate))
-                
                 if currentPixelBuffer.append(image: image, presentationTime: presentTime) != true {
                     videoWriter.cancelWriting()
                     result = .failure(videoWriter.error ?? SentryOnDemandReplayError.errorRenderingVideo )
@@ -198,9 +195,7 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
             }
             frameCount += 1
         }
-        if group.wait(timeout: .now() + 2) == .timedOut {
-            throw SentryOnDemandReplayError.errorRenderingVideo
-        }
+        guard group.wait(timeout: .now() + 2) == .success else { throw SentryOnDemandReplayError.errorRenderingVideo }
         from = frameCount
         
         return try result?.get()
