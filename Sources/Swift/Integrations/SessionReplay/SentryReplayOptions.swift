@@ -67,6 +67,20 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
     public var quality = SentryReplayQuality.low
     
     /**
+     * A list of custom UIView subclasses that need 
+     * to be masked during session replay.
+     * By default Sentry already mask text elements from UIKit
+     */
+    public var redactViewTypes = [AnyClass]()
+    
+    /**
+     * A list of custom UIView subclasses to be ignored
+     * during masking step of the session replay.
+     * The view itself and any child will be ignored and not masked.
+     */
+    public var ignoreRedactViewTypes = [AnyClass]()
+    
+    /**
      * Defines the quality of the session replay.
      * Higher bit rates better quality, but also bigger files to transfer.
      */
