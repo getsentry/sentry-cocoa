@@ -59,7 +59,7 @@ typedef unsigned long long bytes;
 
 // Mach APIs are explicitly marked as unavailable in tvOS and watchOS.
 // See https://github.com/getsentry/sentry-cocoa/issues/406#issuecomment-1171872518
-#if SENTRY_HOST_IOS || SENTRY_HOST_MAC
+#if SENTRY_HOST_IOS || SENTRY_HOST_MAC || SENTRY_HOST_VISION
 #    define SENTRY_HAS_MACH 1
 #else
 #    define SENTRY_HAS_MACH 0
@@ -67,19 +67,19 @@ typedef unsigned long long bytes;
 
 // signal APIs are explicitly marked as unavailable in watchOS.
 // See https://github.com/getsentry/sentry-cocoa/issues/406#issuecomment-1171872518
-#if SENTRY_HOST_IOS || SENTRY_HOST_MAC || SENTRY_HOST_TV
+#if SENTRY_HOST_IOS || SENTRY_HOST_MAC || SENTRY_HOST_TV || SENTRY_HOST_VISION
 #    define SENTRY_HAS_SIGNAL 1
 #else
 #    define SENTRY_HAS_SIGNAL 0
 #endif
 
-#if SENTRY_HOST_MAC || SENTRY_HOST_IOS
+#if SENTRY_HOST_MAC || SENTRY_HOST_IOS || SENTRY_HOST_VISION
 #    define SENTRY_HAS_SIGNAL_STACK 1
 #else
 #    define SENTRY_HAS_SIGNAL_STACK 0
 #endif
 
-#if SENTRY_HOST_MAC || SENTRY_HOST_IOS || SENTRY_HOST_TV
+#if SENTRY_HOST_MAC || SENTRY_HOST_IOS || SENTRY_HOST_TV || SENTRY_HOST_VISION
 #    define SENTRY_HAS_THREADS_API 1
 #else
 #    define SENTRY_HAS_THREADS_API 0
