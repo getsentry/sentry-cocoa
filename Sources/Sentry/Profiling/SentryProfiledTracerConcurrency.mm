@@ -123,6 +123,7 @@ SentryProfiler *_Nullable sentry_profilerForFinishedTracer(SentryId *internalTra
     _unsafe_cleanUpProfiler(profiler, tracerKey);
 
 #    if SENTRY_HAS_UIKIT
+    SENTRY_LOG_DEBUG(@"Grabbing copy of frames tracker screen frames data to attach to profiler.");
     profiler.screenFrameData =
         [SentryDependencyContainer.sharedInstance.framesTracker.currentFrames copy];
     if (_gProfilersToTracers.count == 0) {
