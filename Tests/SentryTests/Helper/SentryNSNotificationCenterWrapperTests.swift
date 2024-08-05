@@ -35,6 +35,20 @@ class SentryNSNotificationCenterWrapperTests: XCTestCase {
         wait(for: [didBecomeActiveExpectation, willResignActiveExpectation], timeout: 0.5)
     }
     
+    func testAddObserverWithBlock() {
+        let exp = expectation(description: "received notification block callback")
+        var observer: NSObject?
+        observer = sut.addObserver(forName: didBecomeActiveNotification, object: nil, queue: nil) { _ in
+            do {
+                self.sut.removeObserver(try XCTUnwrap(observer))
+            } catch {
+                XCTFail("notification observer was not correctly retained")
+            }
+            exp.fulfill()
+        } as? NSObject
+        wait(for: [exp], timeout: 0.5)
+    }
+    
     func testRemoveSpecificObserver() {
         sut.addObserver(self, selector: #selector(didBecomeActive), name: didBecomeActiveNotification)
         sut.addObserver(self, selector: #selector(willResignActive), name: willResignActiveNotification)
