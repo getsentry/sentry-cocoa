@@ -302,17 +302,11 @@ SentrySpan ()
 // Getter for the computed property baggage
 - (nullable NSString *)baggageHttpHeader
 {
-    if (nil == self.tracer) {
-        return nil;
-    }
     return [[self.tracer.traceContext toBaggage] toHTTPHeaderWithOriginalBaggage:nil];
 }
 
 - (nullable SentryTraceContext *)traceContext
 {
-    if (nil == self.tracer) {
-        return nil;
-    }
     return self.tracer.traceContext;
 }
 
