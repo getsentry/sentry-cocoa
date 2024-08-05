@@ -10,7 +10,7 @@ class SentryViewPhotographer: NSObject, SentryViewScreenshotProvider {
     
     static let shared = SentryViewPhotographer()
     
-    let redactBuilder = UIRedactBuilder()
+    private let redactBuilder = UIRedactBuilder()
         
     func image(view: UIView, options: SentryRedactOptions, onComplete: @escaping ScreenshotCallback ) {
         let image = UIGraphicsImageRenderer(size: view.bounds.size).image { _ in
@@ -42,6 +42,13 @@ class SentryViewPhotographer: NSObject, SentryViewScreenshotProvider {
     func addRedactClasses(classes: [AnyClass]) {
         redactBuilder.addRedactClasses(classes)
     }
+    
+#if TEST || TESTCI
+    func getRedactBuild() -> UIRedactBuilder {
+        redactBuilder
+    }
+#endif
+    
 }
 
 #endif // os(iOS) || os(tvOS)

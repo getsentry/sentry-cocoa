@@ -230,7 +230,7 @@ class UIRedactBuilderTests: XCTestCase {
         
         let sut = UIRedactBuilder()
         expectedList.forEach { element in
-            XCTAssertTrue(sut.hasRedactClass(element), "\(element) not found")
+            XCTAssertTrue(sut.containsRedactClass(element), "\(element) not found")
         }
     }
     
@@ -239,7 +239,7 @@ class UIRedactBuilderTests: XCTestCase {
         
         let sut = UIRedactBuilder()
         expectedList.forEach { element in
-            XCTAssertTrue(sut.hasIgnoreClass(element), "\(element) not found")
+            XCTAssertTrue(sut.containsIgnoreClass(element), "\(element) not found")
         }
     }
 }

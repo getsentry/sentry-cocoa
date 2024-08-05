@@ -76,11 +76,11 @@ class UIRedactBuilder {
         redactClassesIdentifiers = Set(redactClasses.map( { ObjectIdentifier($0) }))
     }
     
-    func hasIgnoreClass(_ ignoreClass: AnyClass) -> Bool {
+    func containsIgnoreClass(_ ignoreClass: AnyClass) -> Bool {
         return ignoreClassesIdentifiers.contains(ObjectIdentifier(ignoreClass))
     }
     
-    func hasRedactClass(_ redactClass: AnyClass) -> Bool {
+    func containsRedactClass(_ redactClass: AnyClass) -> Bool {
         return redactClassesIdentifiers.contains(ObjectIdentifier(redactClass))
     }
     
@@ -114,7 +114,7 @@ class UIRedactBuilder {
     }
         
     private func shouldIgnore(view: UIView) -> Bool {
-        return SentryRedactViewHelper.shouldIgnoreView(view) || hasIgnoreClass(type(of: view))
+        return SentryRedactViewHelper.shouldIgnoreView(view) || containsIgnoreClass(type(of: view))
     }
     
     private func shouldRedact(view: UIView, redactText: Bool, redactImage: Bool) -> Bool {
@@ -124,7 +124,7 @@ class UIRedactBuilder {
         if redactImage, let imageView = view as? UIImageView {
             return shouldRedact(imageView: imageView)
         }
-        return redactText && hasRedactClass(type(of: view))
+        return redactText && containsRedactClass(type(of: view))
     }
     
     private func shouldRedact(imageView: UIImageView) -> Bool {

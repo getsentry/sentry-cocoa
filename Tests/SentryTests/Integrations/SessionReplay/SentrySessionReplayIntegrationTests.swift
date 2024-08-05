@@ -269,8 +269,8 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
             options.experimental.sessionReplay.redactViewTypes = [AnotherLabel.self]
         }
     
-        let redactBuilder = SentryViewPhotographer.shared.redactBuilder
-        XCTAssertTrue(redactBuilder.hasRedactClass(AnotherLabel.self))
+        let redactBuilder = SentryViewPhotographer.shared.getRedactBuild()
+        XCTAssertTrue(redactBuilder.containsRedactClass(AnotherLabel.self))
     }
     
     func testIgnoreViewFromSDK() {
@@ -281,8 +281,8 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
             options.experimental.sessionReplay.ignoreRedactViewTypes = [AnotherLabel.self]
         }
     
-        let redactBuilder = SentryViewPhotographer.shared.redactBuilder
-        XCTAssertTrue(redactBuilder.hasIgnoreClass(AnotherLabel.self))
+        let redactBuilder = SentryViewPhotographer.shared.getRedactBuild()
+        XCTAssertTrue(redactBuilder.containsIgnoreClass(AnotherLabel.self))
     }
     
     func createLastSessionReplay(writeSessionInfo: Bool = true, errorSampleRate: Double = 1) throws {
