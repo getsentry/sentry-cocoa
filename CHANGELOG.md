@@ -14,6 +14,8 @@
 - Skip UI crumbs when target or sender is nil (#4211)
 - Guard FramesTracker start and stop (#4224)
 - Long-lasting TTID/TTFD spans (#4225). Avoid long TTID spans when the FrameTracker isn't running, which is the case when the app is in the background.
+- Missing mach info for crash reports (#4230)
+
 
 ### Improvements
 
