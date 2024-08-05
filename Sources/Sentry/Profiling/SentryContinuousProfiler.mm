@@ -19,6 +19,7 @@
 #    if SENTRY_HAS_UIKIT
 #        import "SentryFramesTracker.h"
 #        import "SentryScreenFrames.h"
+#        import <UIKit/UIKit.h>
 #    endif // SENTRY_HAS_UIKIT
 
 #    pragma mark - Private
@@ -40,6 +41,10 @@ SentryId *_profileSessionID;
  * time after the call to stop the profiler is received.
  * */
 BOOL _stopCalled;
+
+#    if SENTRY_HAS_UIKIT
+NSObject *_observerToken;
+#    endif // SENTRY_HAS_UIKIT
 
 void
 disableTimer()
@@ -109,6 +114,16 @@ _sentry_threadUnsafe_transmitChunkEnvelope(void)
                                    object:nil
                                  userInfo:nil]];
     [self scheduleTimer];
+
+    _observerToken = [SentryDependencyContainer.sharedInstance.notificationCenterWrapper
+        addObserverForName:UIApplicationWillResignActiveNotification
+                    object:nil
+                     queue:nil
+                usingBlock:^(NSNotification *_Nonnull notification) {
+                    [SentryDependencyContainer.sharedInstance.notificationCenterWrapper
+                        removeObserver:_observerToken];
+                    [self stopTimerAndCleanup];
+                }];
 }
 
 + (BOOL)isCurrentlyProfiling
@@ -179,6 +194,10 @@ _sentry_threadUnsafe_transmitChunkEnvelope(void)
         }
     }
 
+    if (_observerToken != nil) {
+        [SentryDependencyContainer.sharedInstance.notificationCenterWrapper
+            removeObserver:_observerToken];
+    }
     [self stopTimerAndCleanup];
 }
 
