@@ -176,7 +176,7 @@ class UIRedactBuilderTests: XCTestCase {
         
         let sut = UIRedactBuilder()
         let label = AnotherLabel(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
-        SentrySDK.ignoreView(forReplay: label)
+        SentrySDK.replayIgnore(label)
         rootView.addSubview(label)
         
         let result = sut.redactRegionsFor(view: rootView, options: RedactOptions())
@@ -189,7 +189,7 @@ class UIRedactBuilderTests: XCTestCase {
         
         let sut = UIRedactBuilder()
         let view = AnotherView(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
-        SentrySDK.redactView(forReplay: view)
+        SentrySDK.replayRedactView(view)
         rootView.addSubview(view)
         
         let result = sut.redactRegionsFor(view: rootView, options: RedactOptions())
