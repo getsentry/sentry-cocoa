@@ -220,7 +220,6 @@ class SentryCrashReportTests: XCTestCase {
     }
 
     struct CrashReportUserInfo: Decodable, Equatable {
-        let user: CrashReportUser?
         let dist: String?
         let context: [String: [String: String]]?
         let environment: String?
@@ -229,14 +228,6 @@ class SentryCrashReportTests: XCTestCase {
         let fingerprint: [String]?
         let level: String?
         let breadcrumbs: [CrashReportCrumb]?
-    }
-
-    struct CrashReportUser: Decodable, Equatable {
-        let id: String
-        let email: String
-        let username: String
-        let ip_address: String
-        let data: [String: [String: String]]
     }
 
     struct CrashReportCrumb: Decodable, Equatable {
