@@ -118,6 +118,7 @@ class SentryCrashReportTests: XCTestCase {
     }
     
     func testCrashReportContainsMachInfo() throws {
+        serializeToCrashReport(scope: fixture.scope)
         
         var monitorContext = SentryCrash_MonitorContext()
         monitorContext.mach.type = EXC_BAD_ACCESS
@@ -139,6 +140,7 @@ class SentryCrashReportTests: XCTestCase {
     }
     
     func testCrashReportContainsStandardMachInfo_WhenMachInfoIsEmpty() throws {
+        serializeToCrashReport(scope: fixture.scope)
         writeCrashReport()
         
         let crashReportContents = try XCTUnwrap( FileManager.default.contents(atPath: fixture.reportPath))
@@ -220,6 +222,7 @@ class SentryCrashReportTests: XCTestCase {
     }
 
     struct CrashReportUserInfo: Decodable, Equatable {
+        let user: CrashReportUser?
         let dist: String?
         let context: [String: [String: String]]?
         let environment: String?
@@ -228,6 +231,14 @@ class SentryCrashReportTests: XCTestCase {
         let fingerprint: [String]?
         let level: String?
         let breadcrumbs: [CrashReportCrumb]?
+    }
+    
+    struct CrashReportUser: Decodable, Equatable {
+        let id: String
+        let email: String
+        let username: String
+        let ip_address: String
+        let data: [String: [String: String]]
     }
 
     struct CrashReportCrumb: Decodable, Equatable {
