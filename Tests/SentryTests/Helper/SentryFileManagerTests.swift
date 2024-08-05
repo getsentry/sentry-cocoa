@@ -94,7 +94,6 @@ class SentryFileManagerTests: XCTestCase {
         sut.deleteAllFolders()
         sut.deleteTimestampLastInForeground()
         sut.deleteAppState()
-        clearTestState()
     }
     
     func testInitDoesNotOverrideDirectories() {
@@ -126,7 +125,7 @@ class SentryFileManagerTests: XCTestCase {
         let envelope = TestConstants.envelope
         sut.store(envelope)
         
-        let expectedData = try SentrySerialization.data(with: envelope)
+        let expectedData = try XCTUnwrap(SentrySerialization.data(with: envelope))
         
         let envelopes = sut.getAllEnvelopes()
         XCTAssertEqual(1, envelopes.count)
@@ -221,7 +220,8 @@ class SentryFileManagerTests: XCTestCase {
     
     func testDontDeleteYoungEnvelopes() throws {
         let envelope = TestConstants.envelope
-        let path = sut.store(envelope)
+        sut.store(envelope)
+        let path = try XCTUnwrap(sut.getAllEnvelopes().last?.path)
         
         let timeIntervalSince1970 = fixture.currentDateProvider.date().timeIntervalSince1970 - (90 * 24 * 60 * 60)
         let date = Date(timeIntervalSince1970: timeIntervalSince1970)
@@ -411,7 +411,8 @@ class SentryFileManagerTests: XCTestCase {
         }
         
         // Trying to load the file content of a directory is going to return nil for the envelope.
-        let envelopePath = sut.store(TestConstants.envelope)
+        sut.store(TestConstants.envelope)
+        let envelopePath = try XCTUnwrap(sut.getAllEnvelopes().last?.path)
         let fileManager = FileManager.default
         try! fileManager.removeItem(atPath: envelopePath)
         try! fileManager.createDirectory(atPath: envelopePath, withIntermediateDirectories: false, attributes: nil)
@@ -855,7 +856,8 @@ private extension SentryFileManagerTests {
     
     func givenOldEnvelopes() throws {
         let envelope = TestConstants.envelope
-        let path = sut.store(envelope)
+        sut.store(envelope)
+        let path = try XCTUnwrap(sut.getAllEnvelopes().last?.path)
 
         let timeIntervalSince1970 = fixture.currentDateProvider.date().timeIntervalSince1970 - (90 * 24 * 60 * 60)
         let date = Date(timeIntervalSince1970: timeIntervalSince1970 - 1)

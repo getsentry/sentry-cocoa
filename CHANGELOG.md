@@ -7,6 +7,21 @@
 - Replay for crashes (#4171)
 - Redact web view from replay (#4203)
 - Expose span baggage API (#4207)
+- Add beforeCaptureViewHierarchy callback (#4210)
+- Rename session replay `errorSampleRate` property to `onErrorSampleRate` (#4218)
+
+### Fixes
+
+- Skip UI crumbs when target or sender is nil (#4211)
+- Guard FramesTracker start and stop (#4224)
+- Long-lasting TTID/TTFD spans (#4225). Avoid long TTID spans when the FrameTracker isn't running, which is the case when the app is in the background.
+- Missing mach info for crash reports (#4230)
+- Crash reports not generated on visionOS (#4229)
+
+
+### Improvements
+
+- Reduce memory usage of storing envelopes (#4219)
 
 ## 8.32.0
 
@@ -68,7 +83,7 @@
 ### Fixes
 
 - Fix potential deadlock in app hang detection (#4063)
-- Swizzling of view controllers `loadView` that don`t implement `loadView` (#4071)
+- Swizzling of view controllers `loadView` that don't implement `loadView` (#4071)
 
 ## 8.29.0
 

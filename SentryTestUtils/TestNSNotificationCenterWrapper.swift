@@ -4,6 +4,7 @@ import Sentry
 @objcMembers public class TestNSNotificationCenterWrapper: SentryNSNotificationCenterWrapper {
     
     public var ignoreRemoveObserver = false
+    public var ignoreAddObserver = false
     
     public var addObserverInvocations = Invocations<(observer: WeakReference<NSObject>, selector: Selector, name: NSNotification.Name)>()
     public var addObserverInvocationsCount: Int {
@@ -11,7 +12,9 @@ import Sentry
     }
 
     public override func addObserver(_ observer: NSObject, selector aSelector: Selector, name aName: NSNotification.Name) {
-        addObserverInvocations.record((WeakReference(value: observer), aSelector, aName))
+        if ignoreAddObserver == false {
+            addObserverInvocations.record((WeakReference(value: observer), aSelector, aName))
+        }
     }
 
     public var removeObserverWithNameInvocations = Invocations< NSNotification.Name>()

@@ -129,7 +129,7 @@ NSString *const kSentryDefaultEnvironment = @"production";
         self.tracesSampleRate = nil;
 #if SENTRY_TARGET_PROFILING_SUPPORTED
         _enableProfiling = NO;
-        self.profilesSampleRate = nil;
+        self.profilesSampleRate = SENTRY_INITIAL_PROFILES_SAMPLE_RATE;
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
         self.enableCoreDataTracing = YES;
         _enableSwizzling = YES;
@@ -352,6 +352,10 @@ NSString *const kSentryDefaultEnvironment = @"production";
 
     if ([self isBlock:options[@"beforeCaptureScreenshot"]]) {
         self.beforeCaptureScreenshot = options[@"beforeCaptureScreenshot"];
+    }
+
+    if ([self isBlock:options[@"beforeCaptureViewHierarchy"]]) {
+        self.beforeCaptureViewHierarchy = options[@"beforeCaptureViewHierarchy"];
     }
 
     if ([self isBlock:options[@"onCrashedLastRun"]]) {
