@@ -77,6 +77,12 @@ SentrySessionReplayIntegration ()
     return YES;
 }
 
+/**
+ * Send the cached frames from a previous session that eventually crashed.
+ * This function is called when processing an event created by SentryCrashIntegration,
+ * which runs in the background. That's why we don't need to dispatch the generation of the
+ * replay to the background in this function.
+ */
 - (void)resumePreviousSessionReplay:(SentryEvent *)event
 {
     NSURL *dir = [self replayDirectory];
