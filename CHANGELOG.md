@@ -16,7 +16,7 @@
 - Long-lasting TTID/TTFD spans (#4225). Avoid long TTID spans when the FrameTracker isn't running, which is the case when the app is in the background.
 - Missing mach info for crash reports (#4230)
 - Crash reports not generated on visionOS (#4229)
-
+- Don’t force cast to `NSComparisonPredicate` in TERNARY operator (#4232)
 
 ### Improvements
 
