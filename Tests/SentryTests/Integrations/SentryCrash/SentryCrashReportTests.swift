@@ -189,8 +189,8 @@ class SentryCrashReportTests: XCTestCase {
     // We parse JSON so it's fine to disable identifier_name
     // swiftlint:disable identifier_name
     struct CrashReport: Decodable {
-        let user: CrashReportUserInfo
-        let sentry_sdk_scope: CrashReportUserInfo
+        let user: CrashReportUserInfo?
+        let sentry_sdk_scope: CrashReportUserInfo?
         let crash: Crash
     }
     
