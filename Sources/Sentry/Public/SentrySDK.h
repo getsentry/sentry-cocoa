@@ -337,11 +337,15 @@ SENTRY_NO_INIT
 #if SENTRY_HAS_UIKIT
 
 /**
+ * @warning This is an experimental feature and may still have bugs.
+ *
  * Marks this view to be redacted during replays.
  */
 + (void)replayRedactView:(UIView *)view;
 
 /**
+ * @warning This is an experimental feature and may still have bugs.
+ *
  * Marks this view to be ignored during redact step
  * of session replay. All its content will be visible in the replay.
  */
