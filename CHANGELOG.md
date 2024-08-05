@@ -4,6 +4,7 @@
 
 ### Features
 
+- Support orientation change for session replay (#4194)
 - Replay for crashes (#4171)
 - Redact web view from replay (#4203)
 - Add beforeCaptureViewHierarchy callback (#4210)
@@ -32,6 +33,9 @@
 ### Fixes
 
 - Session replay crash when writing the replay (#4186)
+
+### Features
+
 - Collect only unique UIWindow references (#4159)
 
 ### Deprecated
