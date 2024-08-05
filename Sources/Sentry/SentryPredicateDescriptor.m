@@ -77,7 +77,7 @@
         if (@available(macOS 10.11, *)) {
             return [NSString
                 stringWithFormat:@"TERNARY(%@,%@,%@)",
-                [self comparisonPredicateDescription:(NSComparisonPredicate *)predicate.predicate],
+                [self predicateDescription:predicate.predicate],
                 [self expressionDescription:predicate.trueExpression],
                 [self expressionDescription:predicate.falseExpression]];
         } else {
