@@ -398,7 +398,7 @@ class SentrySDKTests: XCTestCase {
         
         XCTAssertEqual(operation, transaction.operation)
         let tracer = try XCTUnwrap(transaction as? SentryTracer)
-        XCTAssertEqual(name, tracer.traceContext.transaction)
+        XCTAssertEqual(name, tracer.traceContext?.transaction)
         
         XCTAssertNil(SentrySDK.span)
     }
@@ -410,7 +410,7 @@ class SentrySDKTests: XCTestCase {
         
         XCTAssertEqual(fixture.operation, transaction.operation)
         let tracer = try XCTUnwrap(transaction as? SentryTracer)
-        XCTAssertEqual(fixture.transactionName, tracer.traceContext.transaction)
+        XCTAssertEqual(fixture.transactionName, tracer.traceContext?.transaction)
         XCTAssertEqual(.custom, tracer.transactionContext.nameSource)
         
         let newSpan = SentrySDK.span

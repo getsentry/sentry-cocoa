@@ -665,7 +665,7 @@ class SentryNetworkTrackerTests: XCTestCase {
         let transaction = try XCTUnwrap(startTransaction() as? SentryTracer)
         sut.urlSessionTaskResume(task)
 
-        let expectedBaggageHeader = transaction.traceContext.toBaggage().toHTTPHeader(withOriginalBaggage: nil)
+        let expectedBaggageHeader = transaction.traceContext?.toBaggage().toHTTPHeader(withOriginalBaggage: nil)
         XCTAssertEqual(task.currentRequest?.allHTTPHeaderFields?["baggage"] ?? "", expectedBaggageHeader)
     }
 

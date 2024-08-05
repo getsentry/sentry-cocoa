@@ -7,6 +7,7 @@
 - Support orientation change for session replay (#4194)
 - Replay for crashes (#4171)
 - Redact web view from replay (#4203)
+- Expose span baggage API (#4207)
 - Add beforeCaptureViewHierarchy callback (#4210)
 - Rename session replay `errorSampleRate` property to `onErrorSampleRate` (#4218)
 
