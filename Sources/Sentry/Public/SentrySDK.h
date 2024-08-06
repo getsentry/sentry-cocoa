@@ -334,7 +334,7 @@ SENTRY_NO_INIT
  */
 + (void)close;
 
-#if SENTRY_HAS_UIKIT
+#if SENTRY_TARGET_REPLAY_SUPPORTED
 
 /**
  * @warning This is an experimental feature and may still have bugs.
