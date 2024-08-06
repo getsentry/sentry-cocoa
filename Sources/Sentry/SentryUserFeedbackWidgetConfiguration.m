@@ -1,10 +1,10 @@
-#import "SentryUserFeedbackConfiguration.h"
+#import "SentryUserFeedbackWidgetConfiguration.h"
 
 #if SENTRY_HAS_UIKIT
 
 #    import <CoreGraphics/CoreGraphics.h>
 
-@implementation SentryUserFeedbackConfiguration
+@implementation SentryUserFeedbackWidgetConfiguration
 
 - (instancetype)init
 {
