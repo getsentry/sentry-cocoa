@@ -74,6 +74,9 @@ SentrySessionReplayIntegration ()
             return event;
         }];
 
+    [SentryViewPhotographer.shared addIgnoreClasses:_replayOptions.ignoreRedactViewTypes];
+    [SentryViewPhotographer.shared addRedactClasses:_replayOptions.redactViewTypes];
+
     return YES;
 }
 

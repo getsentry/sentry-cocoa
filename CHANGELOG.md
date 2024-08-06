@@ -9,6 +9,7 @@
 - Redact web view from replay (#4203)
 - Add beforeCaptureViewHierarchy callback (#4210)
 - Rename session replay `errorSampleRate` property to `onErrorSampleRate` (#4218)
+- Add options to redact or ignore view for Replay (#4228)
 
 ### Fixes
 

@@ -1,6 +1,7 @@
 #if canImport(UIKit) && !SENTRY_NO_UIKIT
 #if os(iOS) || os(tvOS)
 import Foundation
+import ObjectiveC.NSObjCRuntime
 import UIKit
 #if os(iOS)
 import WebKit
@@ -53,13 +54,13 @@ struct RedactRegion {
 class UIRedactBuilder {
     
     //This is a list of UIView subclasses that will be ignored during redact process
-    var ignoreClasses: [AnyClass] 
+    private var ignoreClassesIdentifiers: Set<ObjectIdentifier>
     //This is a list of UIView subclasses that need to be redacted from screenshot
-    var redactClasses: [AnyClass]
+    private var redactClassesIdentifiers: Set<ObjectIdentifier>
     
     init() {
         
-        redactClasses = [ UILabel.self, UITextView.self, UITextField.self ] +
+        var redactClasses = [ UILabel.self, UITextView.self, UITextField.self ] +
         //this classes are used by SwiftUI to display images.
         ["_TtCOCV7SwiftUI11DisplayList11ViewUpdater8Platform13CGDrawingView",
             "_TtC7SwiftUIP33_A34643117F00277B93DEBAB70EC0697122_UIShapeHitTestingView",
@@ -68,10 +69,35 @@ class UIRedactBuilder {
         
 #if os(iOS)
         redactClasses += [ WKWebView.self ]
-        ignoreClasses = [ UISlider.self, UISwitch.self ]
+        ignoreClassesIdentifiers = [ ObjectIdentifier(UISlider.self), ObjectIdentifier(UISwitch.self) ]
 #else
-        ignoreClasses = []
+        ignoreClassesIdentifiers = []
 #endif
+        redactClassesIdentifiers = Set(redactClasses.map( { ObjectIdentifier($0) }))
+    }
+    
+    func containsIgnoreClass(_ ignoreClass: AnyClass) -> Bool {
+        return ignoreClassesIdentifiers.contains(ObjectIdentifier(ignoreClass))
+    }
+    
+    func containsRedactClass(_ redactClass: AnyClass) -> Bool {
+        return redactClassesIdentifiers.contains(ObjectIdentifier(redactClass))
+    }
+    
+    func addIgnoreClass(_ ignoreClass: AnyClass) {
+        ignoreClassesIdentifiers.insert(ObjectIdentifier(ignoreClass))
+    }
+    
+    func addRedactClass(_ redactClass: AnyClass) {
+        redactClassesIdentifiers.insert(ObjectIdentifier(redactClass))
+    }
+    
+    func addIgnoreClasses(_ ignoreClasses: [AnyClass]) {
+        ignoreClasses.forEach(addIgnoreClass(_:))
+    }
+    
+    func addRedactClasses(_ redactClasses: [AnyClass]) {
+        redactClasses.forEach(addRedactClass(_:))
     }
     
     func redactRegionsFor(view: UIView, options: SentryRedactOptions?) -> [RedactRegion] {
@@ -86,16 +112,19 @@ class UIRedactBuilder {
         
         return redactingRegions
     }
-    
+        
     private func shouldIgnore(view: UIView) -> Bool {
-        ignoreClasses.contains { view.isKind(of: $0) }
+        return SentryRedactViewHelper.shouldIgnoreView(view) || containsIgnoreClass(type(of: view))
     }
     
     private func shouldRedact(view: UIView, redactText: Bool, redactImage: Bool) -> Bool {
+        if SentryRedactViewHelper.shouldRedactView(view) {
+            return true
+        }
         if redactImage, let imageView = view as? UIImageView {
             return shouldRedact(imageView: imageView)
         }
-        return redactText && redactClasses.contains { view.isKind(of: $0) }
+        return redactText && containsRedactClass(type(of: view))
     }
     
     private func shouldRedact(imageView: UIImageView) -> Bool {
@@ -137,6 +166,28 @@ class UIRedactBuilder {
     private func hasBackground(_ view: UIView) -> Bool {
         //Anything with an alpha greater than 0.9 is opaque enough that it's impossible to see anything behind it.
         return view.backgroundColor != nil && (view.backgroundColor?.cgColor.alpha ?? 0) > 0.9
+    }
+}
+
+@objcMembers
+class SentryRedactViewHelper: NSObject {
+    private static var associatedRedactObjectHandle: UInt8 = 0
+    private static var associatedIgnoreObjectHandle: UInt8 = 0
+
+    static func shouldRedactView(_ view: UIView) -> Bool {
+        (objc_getAssociatedObject(view, &associatedRedactObjectHandle) as? NSNumber)?.boolValue ?? false
+    }
+    
+    static func shouldIgnoreView(_ view: UIView) -> Bool {
+        (objc_getAssociatedObject(view, &associatedIgnoreObjectHandle) as? NSNumber)?.boolValue ?? false
+    }
+    
+    static func redactView(_ view: UIView) {
+        objc_setAssociatedObject(view, &associatedRedactObjectHandle, true, .OBJC_ASSOCIATION_ASSIGN)
+    }
+    
+    static func ignoreView(_ view: UIView) {
+        objc_setAssociatedObject(view, &associatedIgnoreObjectHandle, true, .OBJC_ASSOCIATION_ASSIGN)
     }
 }
 
