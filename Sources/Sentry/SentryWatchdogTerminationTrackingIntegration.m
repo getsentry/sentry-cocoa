@@ -103,7 +103,7 @@ SentryWatchdogTerminationTrackingIntegration ()
     [self.anrTracker removeListener:self];
 }
 
-- (void)anrDetected
+- (void)anrDetected:(SentryANRType)type
 {
     [self.appStateManager
         updateAppState:^(SentryAppState *appState) { appState.isANROngoing = YES; }];

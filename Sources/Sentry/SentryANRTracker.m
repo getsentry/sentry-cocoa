@@ -2,9 +2,11 @@
 #import "SentryCrashWrapper.h"
 #import "SentryDependencyContainer.h"
 #import "SentryDispatchQueueWrapper.h"
+#import "SentryFramesTracker.h"
 #import "SentryLog.h"
 #import "SentrySwift.h"
 #import "SentryThreadWrapper.h"
+#import "SentryTime.h"
 #import <stdatomic.h>
 
 NS_ASSUME_NONNULL_BEGIN
@@ -23,6 +25,7 @@ SentryANRTracker ()
 @property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueueWrapper;
 @property (nonatomic, strong) SentryThreadWrapper *threadWrapper;
 @property (nonatomic, strong) NSHashTable<id<SentryANRTrackerDelegate>> *listeners;
+@property (nonatomic, strong) SentryFramesTracker *framesTracker;
 @property (nonatomic, assign) NSTimeInterval timeoutInterval;
 
 @end
@@ -36,12 +39,14 @@ SentryANRTracker ()
                            crashWrapper:(SentryCrashWrapper *)crashWrapper
                    dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
                           threadWrapper:(SentryThreadWrapper *)threadWrapper
+                          framesTracker:(SentryFramesTracker *)framesTracker
 {
     if (self = [super init]) {
         self.timeoutInterval = timeoutInterval;
         self.crashWrapper = crashWrapper;
         self.dispatchQueueWrapper = dispatchQueueWrapper;
         self.threadWrapper = threadWrapper;
+        self.framesTracker = framesTracker;
         self.listeners = [NSHashTable weakObjectsHashTable];
         threadLock = [[NSObject alloc] init];
         state = kSentryANRTrackerNotRunning;
@@ -65,8 +70,8 @@ SentryANRTracker ()
         state = kSentryANRTrackerRunning;
     }
 
-    __block atomic_int ticksSinceUiUpdate = 0;
-    __block BOOL reported = NO;
+    BOOL reported = NO;
+    BOOL framesDelayReachNonFullyBlockingThreshold = NO;
 
     NSInteger reportThreshold = 5;
     NSTimeInterval sleepInterval = self.timeoutInterval / reportThreshold;
@@ -83,26 +88,12 @@ SentryANRTracker ()
 
         NSDate *blockDeadline = [[dateProvider date] dateByAddingTimeInterval:self.timeoutInterval];
 
-        atomic_fetch_add_explicit(&ticksSinceUiUpdate, 1, memory_order_relaxed);
-
-        [self.dispatchQueueWrapper dispatchAsyncOnMainQueue:^{
-            atomic_store_explicit(&ticksSinceUiUpdate, 0, memory_order_relaxed);
-
-            if (reported) {
-                SENTRY_LOG_WARN(@"ANR stopped.");
-
-                // The ANR stopped, don't block the main thread with calling ANRStopped listeners.
-                // While the ANR code reports an ANR and collects the stack trace, the ANR might
-                // stop simultaneously. In that case, the ANRs stack trace would contain the
-                // following code running on the main thread. To avoid this, we offload work to a
-                // background thread.
-                [self.dispatchQueueWrapper dispatchAsyncWithBlock:^{ [self ANRStopped]; }];
-            }
-
-            reported = NO;
-        }];
-
         [self.threadWrapper sleepForTimeInterval:sleepInterval];
+
+        if (![self.crashWrapper isApplicationInForeground]) {
+            SENTRY_LOG_DEBUG(@"Ignoring potential ANRs because the app is in the background");
+            continue;
+        }
 
         // The blockDeadline should be roughly executed after the timeoutInterval even if there is
         // an ANR. If the app gets suspended this thread could sleep and wake up again. To avoid
@@ -116,17 +107,55 @@ SentryANRTracker ()
             continue;
         }
 
-        if (atomic_load_explicit(&ticksSinceUiUpdate, memory_order_relaxed) >= reportThreshold
-            && !reported) {
-            reported = YES;
+        uint64_t nowSystemTimeStamp = dateProvider.systemTime;
 
-            if (![self.crashWrapper isApplicationInForeground]) {
-                SENTRY_LOG_DEBUG(@"Ignoring ANR because the app is in the background");
-                continue;
+        uint64_t frameDelayStartSystemTimestamp
+            = nowSystemTimeStamp - timeIntervalToNanoseconds(self.timeoutInterval);
+
+        CFTimeInterval framesDelay =
+            [self.framesTracker getFramesDelay:frameDelayStartSystemTimestamp
+                            endSystemTimestamp:nowSystemTimeStamp];
+
+        uint64_t sleepIntervalStartedSystemTimestamp
+            = nowSystemTimeStamp - timeIntervalToNanoseconds(sleepInterval);
+
+        CFTimeInterval framesDelayForThisSleepInterval =
+            [self.framesTracker getFramesDelay:sleepIntervalStartedSystemTimestamp
+                            endSystemTimestamp:nowSystemTimeStamp];
+
+        if (framesDelayForThisSleepInterval < sleepInterval * 0.3) {
+
+            if (reported) {
+                SENTRY_LOG_DEBUG(@"ANRR stopped.");
+
+                // The ANR stopped, don't block the main thread with calling ANRStopped listeners.
+                // While the ANR code reports an ANR and collects the stack trace, the ANR might
+                // stop simultaneously. In that case, the ANRs stack trace would contain the
+                // following code running on the main thread. To avoid this, we offload work to a
+                // background thread.
+                [self.dispatchQueueWrapper dispatchAsyncWithBlock:^{ [self ANRStopped]; }];
             }
 
-            SENTRY_LOG_WARN(@"ANR detected.");
-            [self ANRDetected];
+            reported = NO;
+            framesDelayReachNonFullyBlockingThreshold = NO;
+        }
+
+        NSTimeInterval framesDelayThreshold = self.timeoutInterval * 0.9;
+        if (fabs(framesDelay - self.timeoutInterval) < 0.001 && !reported) {
+            reported = YES;
+
+            SENTRY_LOG_WARN(@"ANR detected: fully-blocking.");
+            [self ANRDetected:kSentryANRTypeFullyBlocking];
+        } else if (framesDelay > framesDelayThreshold && !reported) {
+
+            if (!framesDelayReachNonFullyBlockingThreshold) {
+                framesDelayReachNonFullyBlockingThreshold = YES;
+            } else {
+                reported = YES;
+
+                SENTRY_LOG_WARN(@"ANR detected: non-fully-blocking.");
+                [self ANRDetected:kSentryANRTypeNonFullyBlocking];
+            }
         }
     }
 
@@ -136,7 +165,7 @@ SentryANRTracker ()
     }
 }
 
-- (void)ANRDetected
+- (void)ANRDetected:(SentryANRType)type
 {
     NSArray *localListeners;
     @synchronized(self.listeners) {
@@ -144,7 +173,7 @@ SentryANRTracker ()
     }
 
     for (id<SentryANRTrackerDelegate> target in localListeners) {
-        [target anrDetected];
+        [target anrDetected:type];
     }
 }
 

@@ -76,7 +76,7 @@ SentryANRTrackingIntegration ()
     [self uninstall];
 }
 
-- (void)anrDetected
+- (void)anrDetected:(SentryANRType)type
 {
     if (self.reportAppHangs == NO) {
         SENTRY_LOG_DEBUG(@"AppHangTracking paused. Ignoring reported app hang.")

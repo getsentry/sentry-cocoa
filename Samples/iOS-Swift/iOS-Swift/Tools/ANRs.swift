@@ -1,11 +1,8 @@
 import Foundation
 import UIKit
 
-func triggerANRFillingRunLoop(button: UIButton) {
+func triggerANRFillingRunLoop() {
     let dispatchQueue = DispatchQueue(label: "ANR")
-    
-    let buttonTitle = button.currentTitle
-    var i = 0
 
     func sleep(timeout: Double) {
         let group = DispatchGroup()
@@ -18,20 +15,14 @@ func triggerANRFillingRunLoop(button: UIButton) {
 
         group.wait()
     }
-
+    
     dispatchQueue.async {
-        for _ in 0...30 {
-            i += Int.random(in: 0...10)
-            i -= 1
-
-            DispatchQueue.main.async {
-                sleep(timeout: 0.1)
-                button.setTitle("Title \(i)", for: .normal)
+        for _ in 0...10 {
+            sleep(timeout: 0.001)
+            DispatchQueue.main.sync {
+                sleep(timeout: 0.5)
             }
         }
-
-        DispatchQueue.main.sync {
-            button.setTitle(buttonTitle, for: .normal)
-        }
     }
+
 }

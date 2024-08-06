@@ -1,8 +1,14 @@
 #import "SentryDefines.h"
 
 @class SentryOptions, SentryCrashWrapper, SentryDispatchQueueWrapper, SentryThreadWrapper;
+@class SentryFramesTracker;
 
 NS_ASSUME_NONNULL_BEGIN
+
+typedef NS_ENUM(NSInteger, SentryANRType) {
+    kSentryANRTypeFullyBlocking = 1,
+    kSentryANRTypeNonFullyBlocking,
+};
 
 @protocol SentryANRTrackerDelegate;
 
@@ -25,7 +31,8 @@ SENTRY_NO_INIT
 - (instancetype)initWithTimeoutInterval:(NSTimeInterval)timeoutInterval
                            crashWrapper:(SentryCrashWrapper *)crashWrapper
                    dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
-                          threadWrapper:(SentryThreadWrapper *)threadWrapper;
+                          threadWrapper:(SentryThreadWrapper *)threadWrapper
+                          framesTracker:(SentryFramesTracker *)framesTracker;
 
 - (void)addListener:(id<SentryANRTrackerDelegate>)listener;
 
@@ -41,7 +48,7 @@ SENTRY_NO_INIT
  */
 @protocol SentryANRTrackerDelegate <NSObject>
 
-- (void)anrDetected;
+- (void)anrDetected:(SentryANRType)type;
 
 - (void)anrStopped;
 

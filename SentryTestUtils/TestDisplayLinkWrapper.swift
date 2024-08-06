@@ -106,6 +106,11 @@ public class TestDisplayLinkWrapper: SentryDisplayLinkWrapper {
         call()
         return fastestFrozenFrameDuration
     }
+    
+    public func frozenFrame(duration: Double) {
+        dateProvider.advance(by: duration)
+        call()
+    }
 
     /// There's no upper bound for a frozen frame, except maybe for the watchdog time limit.
     /// - parameter extraTime: the additional time to add to the frozen frame threshold when simulating a frozen frame.

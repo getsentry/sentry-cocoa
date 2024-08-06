@@ -128,7 +128,7 @@ class TransactionsViewController: UIViewController {
     }
     
     @IBAction func anrFillingRunLoop(_ sender: Any) {
-        triggerANRFillingRunLoop(button: self.anrFillingRunLoopButton)
+        triggerANRFillingRunLoop()
     }
 
     @IBAction func captureTransaction(_ sender: UIButton) {
