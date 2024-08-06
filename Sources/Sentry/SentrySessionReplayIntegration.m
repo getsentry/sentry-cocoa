@@ -21,6 +21,7 @@
 #    import "SentrySwizzle.h"
 #    import "SentryUIApplication.h"
 #    import <UIKit/UIKit.h>
+#    import "SentryReachability.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -34,12 +35,13 @@ static NSString *SENTRY_REPLAY_FOLDER = @"replay";
 static SentryTouchTracker *_touchTracker;
 
 @interface
-SentrySessionReplayIntegration ()
+SentrySessionReplayIntegration () <SentryReachabilityObserver>
 - (void)newSceneActivate;
 @end
 
 @implementation SentrySessionReplayIntegration {
     BOOL _startedAsFullSession;
+    BOOL _isInForeground;
     SentryReplayOptions *_replayOptions;
     SentryNSNotificationCenterWrapper *_notificationCenter;
     SentryOnDemandReplay *_resumeReplayMaker;
@@ -52,7 +54,8 @@ SentrySessionReplayIntegration ()
     }
 
     _replayOptions = options.experimental.sessionReplay;
-
+    _isInForeground = true;
+    
     if (options.enableSwizzling) {
         _touchTracker = [[SentryTouchTracker alloc]
             initWithDateProvider:SentryDependencyContainer.sharedInstance.dateProvider
@@ -74,6 +77,8 @@ SentrySessionReplayIntegration ()
             return event;
         }];
 
+    [SentryDependencyContainer.sharedInstance.reachability addObserver:self];
+    
     return YES;
 }
 
@@ -298,11 +303,14 @@ SentrySessionReplayIntegration ()
 
 - (void)stop
 {
+    _isInForeground = false;
     [self.sessionReplay stop];
 }
 
 - (void)resume
 {
+    _isInForeground = true;
+    
     [self.sessionReplay resume];
 }
 
@@ -419,7 +427,7 @@ SentrySessionReplayIntegration ()
 
 #    pragma mark - SessionReplayDelegate
 
-- (BOOL)sessionReplayIsFullSession
+- (BOOL)sessionReplayShouldCaptureReplayForError
 {
     return SentryDependencyContainer.sharedInstance.random.nextNumber
         <= _replayOptions.onErrorSampleRate;
@@ -456,6 +464,17 @@ SentrySessionReplayIntegration ()
     return SentrySDK.currentHub.scope.currentScreen
         ?: [SentryDependencyContainer.sharedInstance.application relevantViewControllersNames]
                .firstObject;
+}
+
+#    pragma mark - SentryReachabilityObserver
+
+- (void)connectivityChanged:(BOOL)connected typeDescription:(nonnull NSString *)typeDescription { 
+    if (connected) {
+        
+        [_sessionReplay resume];
+    } else {
+        [_sessionReplay pause];
+    }
 }
 
 @end
