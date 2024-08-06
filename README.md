@@ -1,6 +1,6 @@
 <div align="center">
     <a href="https://sentry.io/?utm_source=github&utm_medium=logo" target="_blank">
-        <img src="https://sentry-brand.storage.googleapis.com/github-banners/github-sdk-laravel.png" alt="Sentry for Apple">
+        <img src="https://sentry-brand.storage.googleapis.com/github-banners/github-sdk-cocoa.jpg" alt="Sentry for Apple">
     </a>
 </div>
 
