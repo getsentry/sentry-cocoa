@@ -6,6 +6,10 @@ NS_ASSUME_NONNULL_BEGIN
 @class SentryDsn, SentryMeasurementValue, SentryHttpStatusCodeRange, SentryScope,
     SentryReplayOptions;
 @class SentryExperimentalOptions;
+@class SentryUserFeedbackConfiguration;
+
+typedef void (^SentryUserFeedbackConfigurationBlock)(
+    SentryUserFeedbackConfiguration *configuration);
 
 NS_SWIFT_NAME(Options)
 @interface SentryOptions : NSObject
@@ -703,6 +707,11 @@ NS_SWIFT_NAME(Options)
  * This block can be used to modify the event before it will be serialized and sent.
  */
 @property (nullable, nonatomic, copy) SentryBeforeEmitMetricCallback beforeEmitMetric;
+
+/**
+ * A block that can be defined that receives a user feedback object to configure
+ */
+@property (nonatomic, copy, nullable) SentryUserFeedbackConfigurationBlock configureUserFeedback;
 
 /**
  * This aggregates options for experimental features.
