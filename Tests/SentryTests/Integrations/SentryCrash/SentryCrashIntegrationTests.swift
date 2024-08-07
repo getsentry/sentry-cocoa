@@ -296,6 +296,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
     }
     
     private func givenSutWithGlobalHubAndCrashWrapper() -> (SentryCrashIntegration, SentryHub) {
+        SentryDependencyContainer.sharedInstance().uiDeviceWrapper.start()
         let sut = fixture.getSut(crashWrapper: SentryCrashWrapper.sharedInstance())
         let hub = fixture.hub
         SentrySDK.setCurrentHub(hub)
