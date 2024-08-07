@@ -225,7 +225,7 @@ static NSDate *_Nullable startTimestamp = nil;
 
         // The UIDeviceWrapper needs to start before the Hub, because the Hub
         // enriches the scope, which calls the UIDeviceWrapper.
-#if TARGET_OS_IOS && SENTRY_HAS_UIKIT
+#if SENTRY_HAS_UIKIT
         [SentryDependencyContainer.sharedInstance.uiDeviceWrapper start];
 #endif // TARGET_OS_IOS && SENTRY_HAS_UIKIT
 
