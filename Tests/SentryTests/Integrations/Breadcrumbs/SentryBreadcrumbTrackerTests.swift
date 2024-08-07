@@ -195,8 +195,10 @@ class SentryBreadcrumbTrackerTests: XCTestCase {
         swizzlingWrapper.execute(action: "methodPressed:", target: nil, sender: self, event: nil)
         swizzlingWrapper.execute(action: "methodPressed:", target: self, sender: nil, event: nil)
         
-        // The tracker adds 1 enabled crumb when being started
-        XCTAssertEqual(1, delegate.addCrumbInvocations.invocations.count)
+        let touchCrumbs = delegate.addCrumbInvocations.invocations.filter { crumb in
+            return crumb.category == "touch"
+        }
+        XCTAssertEqual(0, touchCrumbs.count)
     }
     
     func testTouchBreadcrumbForSessionReplay() throws {
