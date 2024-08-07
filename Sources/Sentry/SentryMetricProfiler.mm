@@ -113,6 +113,7 @@ SentrySerializedMetricEntry *_Nullable serializeContinuousProfileMetricReadings(
 - (instancetype)initWithMode:(SentryProfilerMode)mode
 {
     if (self = [super init]) {
+        // It doesn't make sense to acquire a lock in the init.
         [self clearNotThreadSafe];
         _mode = mode;
     }
