@@ -1152,44 +1152,47 @@ class SentryTracerTests: XCTestCase {
     #endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
     
     func testAddingSpansOnDifferentThread_WhileFinishing_DoesNotCrash() throws {
-        let sut = fixture.getSut(waitForChildren: false)
-        
-        let children = 1_000
-        for _ in 0..<children {
-            let child = sut.startChild(operation: self.fixture.transactionOperation)
-            child.finish()
-        }
-        
-        let queue = DispatchQueue(label: "SentryTracerTests", attributes: [.concurrent, .initiallyInactive])
-        let group = DispatchGroup()
-        
-        func addChildrenAsync() {
-            for _ in 0 ..< 100 {
-                group.enter()
-                queue.async {
-                    let child = sut.startChild(operation: self.fixture.transactionOperation)
-                    Dynamic(child).frames = [] as [Frame]
-                    child.finish()
-                    group.leave()
+        try SentryLog.withOutLogs {
+            
+            let sut = fixture.getSut(waitForChildren: false)
+                
+            let children = 1_000
+            for _ in 0..<children {
+                let child = sut.startChild(operation: self.fixture.transactionOperation)
+                child.finish()
+            }
+            
+            let queue = DispatchQueue(label: "SentryTracerTests", attributes: [.concurrent, .initiallyInactive])
+            let group = DispatchGroup()
+            
+            func addChildrenAsync() {
+                for _ in 0 ..< 100 {
+                    group.enter()
+                    queue.async {
+                        let child = sut.startChild(operation: self.fixture.transactionOperation)
+                        Dynamic(child).frames = [] as [Frame]
+                        child.finish()
+                        group.leave()
+                    }
                 }
             }
+            
+            addChildrenAsync()
+            
+            group.enter()
+            queue.async {
+                sut.finish()
+                group.leave()
+            }
+            
+            addChildrenAsync()
+            
+            queue.activate()
+            group.wait()
+            
+            let spans = try XCTUnwrap(try getSerializedTransaction()["spans"]! as? [[String: Any]])
+            XCTAssertGreaterThanOrEqual(spans.count, children)
         }
-
-       addChildrenAsync()
-        
-        group.enter()
-        queue.async {
-            sut.finish()
-            group.leave()
-        }
-        
-        addChildrenAsync()
-        
-        queue.activate()
-        group.wait()
-        
-        let spans = try XCTUnwrap(try getSerializedTransaction()["spans"]! as? [[String: Any]])
-        XCTAssertGreaterThanOrEqual(spans.count, children)
     }
     
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
