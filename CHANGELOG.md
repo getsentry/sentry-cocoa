@@ -24,6 +24,7 @@ This bug caused unhandled/crash events to have the unhandled property and mach i
 - Missing mach info for crash reports (#4230)
 - Crash reports not generated on visionOS (#4229)
 - Don’t force cast to `NSComparisonPredicate` in TERNARY operator (#4232)
+- EXC_BAD_ACCESS in SentryMetricProfiler (#4242)
 - Missing '#include <sys/_types/_ucontext64.h>' (#4244)
 
 ### Improvements
