@@ -41,7 +41,7 @@ case $PLATFORM in
     ;;
 esac
 
-if [ -n "$CONFIGURATION_OVERRIDE" ]; then
+if [ -n $CONFIGURATION_OVERRIDE ]; then
     CONFIGURATION="$CONFIGURATION_OVERRIDE"
 else
     case $REF_NAME in
