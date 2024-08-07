@@ -1084,39 +1084,41 @@ class SentryTracerTests: XCTestCase {
     }
     
     func testFinishAsync() throws {
-        let sut = fixture.getSut()
-        let child = sut.startChild(operation: fixture.transactionOperation)
-        sut.finish()
-        
-        let queue = DispatchQueue(label: "SentryTracerTests", attributes: [.concurrent, .initiallyInactive])
-        let group = DispatchGroup()
-
-        let children = 5
-        let grandchildren = 10
-        for _ in 0 ..< children {
-            group.enter()
-            queue.async {
-                let grandChild = child.startChild(operation: self.fixture.transactionOperation)
-                for _ in 0 ..< grandchildren {
-                    let grandGrandChild = grandChild.startChild(operation: self.fixture.transactionOperation)
-                    grandGrandChild.finish()
+        try SentryLog.withOutLogs {
+            let sut = fixture.getSut()
+            let child = sut.startChild(operation: fixture.transactionOperation)
+            sut.finish()
+            
+            let queue = DispatchQueue(label: "SentryTracerTests", attributes: [.concurrent, .initiallyInactive])
+            let group = DispatchGroup()
+            
+            let children = 5
+            let grandchildren = 10
+            for _ in 0 ..< children {
+                group.enter()
+                queue.async {
+                    let grandChild = child.startChild(operation: self.fixture.transactionOperation)
+                    for _ in 0 ..< grandchildren {
+                        let grandGrandChild = grandChild.startChild(operation: self.fixture.transactionOperation)
+                        grandGrandChild.finish()
+                    }
+                    
+                    grandChild.finish()
+                    self.assertTransactionNotCaptured(sut)
+                    group.leave()
                 }
-                
-                grandChild.finish()
-                self.assertTransactionNotCaptured(sut)
-                group.leave()
             }
+            
+            queue.activate()
+            group.wait()
+            
+            child.finish()
+            
+            assertOneTransactionCaptured(sut)
+            
+            let spans = try XCTUnwrap(try getSerializedTransaction()["spans"]! as? [[String: Any]])
+            XCTAssertEqual(spans.count, children * (grandchildren + 1) + 1)
         }
-        
-        queue.activate()
-        group.wait()
-        
-        child.finish()
-        
-        assertOneTransactionCaptured(sut)
-        
-        let spans = try XCTUnwrap(try getSerializedTransaction()["spans"]! as? [[String: Any]])
-        XCTAssertEqual(spans.count, children * (grandchildren + 1) + 1)
     }
 
     #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
