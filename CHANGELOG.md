@@ -19,6 +19,7 @@
 - Missing mach info for crash reports (#4230)
 - Crash reports not generated on visionOS (#4229)
 - Don’t force cast to `NSComparisonPredicate` in TERNARY operator (#4232)
+- Fix accessing UI API on bg thread in enrichScope (#4245)
 
 ### Improvements
 

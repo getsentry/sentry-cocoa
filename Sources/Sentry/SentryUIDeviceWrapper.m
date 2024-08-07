@@ -10,6 +10,7 @@ NS_ASSUME_NONNULL_BEGIN
 SentryUIDeviceWrapper ()
 @property (nonatomic) BOOL cleanupDeviceOrientationNotifications;
 @property (nonatomic) BOOL cleanupBatteryMonitoring;
+@property (nonatomic, copy) NSString *systemVersion;
 @end
 
 @implementation SentryUIDeviceWrapper
@@ -27,6 +28,8 @@ SentryUIDeviceWrapper ()
             self.cleanupBatteryMonitoring = YES;
             UIDevice.currentDevice.batteryMonitoringEnabled = YES;
         }
+
+        self.systemVersion = [UIDevice currentDevice].systemVersion;
     }];
 }
 
@@ -68,6 +71,11 @@ SentryUIDeviceWrapper ()
 - (float)batteryLevel
 {
     return [UIDevice currentDevice].batteryLevel;
+}
+
+- (NSString *)getSystemVersion
+{
+    return self.systemVersion;
 }
 
 @end

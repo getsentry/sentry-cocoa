@@ -691,6 +691,24 @@ class SentrySDKTests: XCTestCase {
         SentrySDK.close()
         XCTAssertFalse(deviceWrapper.started)
     }
+    
+    /// Ensure to start the UIDeviceWrapper before initializing the hub, so enrich scope sets the correct OS version.
+    func testStartSDK_ScopeContextContainsOSVersion() throws {
+        let expectation = expectation(description: "MainThreadTestIntegration install called")
+        MainThreadTestIntegration.expectation = expectation
+        
+        DispatchQueue.global(qos: .background).async {
+            SentrySDK.start { options in
+                options.integrations = [ NSStringFromClass(MainThreadTestIntegration.self) ]
+            }
+        }
+        
+        wait(for: [expectation], timeout: 1.0)
+        
+        let os = try XCTUnwrap (SentrySDK.currentHub().scope.contextDictionary["os"] as? [String: Any])
+        
+        XCTAssertEqual(UIDevice.current.systemVersion, os["version"] as? String)
+    }
 #endif
     
     func testResumeAndPauseAppHangTracking() {

@@ -12,10 +12,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)start;
 - (void)stop;
+
 - (UIDeviceOrientation)orientation;
 - (BOOL)isBatteryMonitoringEnabled;
 - (UIDeviceBatteryState)batteryState;
 - (float)batteryLevel;
+- (NSString *)getSystemVersion;
 
 @end
 
