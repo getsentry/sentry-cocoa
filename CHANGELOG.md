@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+This release fixes an essential bug (#4230) for release health and unhandled/crash events that we introduced with a refactoring (#4101) released in [8.30.1](https://github.com/getsentry/sentry-cocoa/releases/tag/8.30.1).
+This bug caused unhandled/crash events to have the unhandled property and mach info missing, which is required for release health to show events in the unhandled tab.
+This release fixes an essential bug (#4230) for release health and unhandled/crash events that we introduced with a refactoring (#4101) released in [8.30.0](https://github.com/getsentry/sentry-cocoa/releases/tag/8.30.0).
+This bug caused unhandled/crash events to have the unhandled property and mach info missing, which is required for release health to show events in the unhandled tab. It's essential to mention that this bug doesn't impact release health statistics, such as crash-free session or user rates.
+
 ### Features
 
 - Support orientation change for session replay (#4194)
@@ -20,6 +25,7 @@
 - Crash reports not generated on visionOS (#4229)
 - Don’t force cast to `NSComparisonPredicate` in TERNARY operator (#4232)
 - Fix accessing UI API on bg thread in enrichScope (#4245)
+- Missing '#include <sys/_types/_ucontext64.h>' (#4244)
 
 ### Improvements
 
