@@ -33,7 +33,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (id<NSObject>)addObserverForName:(nullable NSNotificationName)name
                             object:(nullable id)obj
                              queue:(nullable NSOperationQueue *)queue
-                        usingBlock:(void(NS_SWIFT_SENDABLE ^)(NSNotification *notification))block;
+                        usingBlock:(void (^)(NSNotification *notification))block;
 
 - (void)removeObserver:(id<NSObject>)observer
                   name:(NSNotificationName)aName
