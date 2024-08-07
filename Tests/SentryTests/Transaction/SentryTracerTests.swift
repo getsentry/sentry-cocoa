@@ -207,38 +207,39 @@ class SentryTracerTests: XCTestCase {
     /// to a crash when spans keep finishing while finishInternal is executed because
     /// shouldIgnoreWaitForChildrenCallback could be then nil in hasUnfinishedChildSpansToWaitFor.
     func testFinish_ShouldIgnoreWaitForChildrenCallback_DoesNotCrash() throws {
-        
-        for _ in 0..<5 {
-            let sut = fixture.getSut()
-            
-            let dispatchQueue = DispatchQueue(label: "test", attributes: [.concurrent, .initiallyInactive])
-            
-            let expectation = expectation(description: "call everything")
-            expectation.expectedFulfillmentCount = 11
-            
-            sut.shouldIgnoreWaitForChildrenCallback = { _ in
-                return true
-            }
-            
-            for _ in 0..<1_000 {
-                let child = sut.startChild(operation: self.fixture.transactionOperation)
-                child.finish()
-            }
-            
-            dispatchQueue.async {
-                for _ in 0..<10 {
+        SentryLog.withOutLogs {
+            for _ in 0..<5 {
+                let sut = fixture.getSut()
+                
+                let dispatchQueue = DispatchQueue(label: "test", attributes: [.concurrent, .initiallyInactive])
+                
+                let expectation = expectation(description: "call everything")
+                expectation.expectedFulfillmentCount = 11
+                
+                sut.shouldIgnoreWaitForChildrenCallback = { _ in
+                    return true
+                }
+                
+                for _ in 0..<1_000 {
                     let child = sut.startChild(operation: self.fixture.transactionOperation)
                     child.finish()
+                }
+                
+                dispatchQueue.async {
+                    for _ in 0..<10 {
+                        let child = sut.startChild(operation: self.fixture.transactionOperation)
+                        child.finish()
+                        expectation.fulfill()
+                    }
+                }
+                dispatchQueue.async {
+                    sut.finish()
                     expectation.fulfill()
                 }
+                
+                dispatchQueue.activate()
+                wait(for: [expectation], timeout: 1.0)
             }
-            dispatchQueue.async {
-                sut.finish()
-                expectation.fulfill()
-            }
-            
-            dispatchQueue.activate()
-            wait(for: [expectation], timeout: 1.0)
         }
     }
 
