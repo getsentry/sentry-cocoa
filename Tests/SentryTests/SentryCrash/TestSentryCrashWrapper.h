@@ -35,6 +35,8 @@ SENTRY_NO_INIT
 
 @property (nonatomic) BOOL binaryCacheStopped;
 
+@property (nonatomic) BOOL enrichScopeCalled;
+
 @end
 
 NS_ASSUME_NONNULL_END

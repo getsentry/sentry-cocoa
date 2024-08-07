@@ -73,7 +73,7 @@ class UIRedactBuilder {
 #else
         ignoreClassesIdentifiers = []
 #endif
-        redactClassesIdentifiers = Set(redactClasses.map( { ObjectIdentifier($0) }))
+        redactClassesIdentifiers = Set(redactClasses.map({ ObjectIdentifier($0) }))
     }
     
     func containsIgnoreClass(_ ignoreClass: AnyClass) -> Bool {

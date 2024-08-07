@@ -23,6 +23,7 @@
 ### Improvements
 
 - Reduce memory usage of storing envelopes (#4219)
+- Skip enriching scope when nil (#4243)
 
 ## 8.32.0
 
