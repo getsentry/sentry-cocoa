@@ -4,6 +4,8 @@
 
 This release fixes an essential bug (#4230) for release health and unhandled/crash events that we introduced with a refactoring (#4101) released in [8.30.1](https://github.com/getsentry/sentry-cocoa/releases/tag/8.30.1).
 This bug caused unhandled/crash events to have the unhandled property and mach info missing, which is required for release health to show events in the unhandled tab.
+This release fixes an essential bug (#4230) for release health and unhandled/crash events that we introduced with a refactoring (#4101) released in [8.30.0](https://github.com/getsentry/sentry-cocoa/releases/tag/8.30.0).
+This bug caused unhandled/crash events to have the unhandled property and mach info missing, which is required for release health to show events in the unhandled tab. It's essential to mention that this bug doesn't impact release health statistics, such as crash-free session or user rates.
 
 ### Features
 
