@@ -184,6 +184,10 @@ private extension SentryContinuousProfilerTests {
         XCTAssertFalse(try XCTUnwrap(firstImage["image_addr"] as? String).isEmpty)
         XCTAssertGreaterThan(try XCTUnwrap(firstImage["image_size"] as? Int), 0)
         XCTAssertEqual(try XCTUnwrap(firstImage["type"] as? String), "macho")
+        
+        let clientInfo = try XCTUnwrap(profile["client_sdk"] as? [String: String])
+        XCTAssertEqual(try XCTUnwrap(clientInfo["name"]), SentryMeta.sdkName)
+        XCTAssertEqual(try XCTUnwrap(clientInfo["version"]), SentryMeta.versionString)
 
         let sampledProfile = try XCTUnwrap(profile["profile"] as? [String: Any])
         let threadMetadata = try XCTUnwrap(sampledProfile["thread_metadata"] as? [String: [String: Any]])
