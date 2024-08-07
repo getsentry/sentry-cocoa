@@ -5,7 +5,7 @@ import UIKit
 
 class SwiftUIViewController: UIViewController {
     
-    let swiftUIView = UIHostingController(rootView: SwiftUI())
+    let swiftUIView = UIHostingController(rootView: SwiftUIView())
         
     override func viewDidLoad() {
         super.viewDidLoad()
