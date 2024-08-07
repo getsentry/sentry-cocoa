@@ -15,7 +15,6 @@
 
 #if SENTRY_HAS_UIKIT
 #    import "SentryUIApplication.h"
-#    import <UIKit/UIKit.h>
 #endif
 
 static NSString *const DEVICE_KEY = @"device";
