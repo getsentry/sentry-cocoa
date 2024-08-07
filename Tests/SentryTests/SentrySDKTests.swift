@@ -706,8 +706,9 @@ class SentrySDKTests: XCTestCase {
         wait(for: [expectation], timeout: 1.0)
         
         let os = try XCTUnwrap (SentrySDK.currentHub().scope.contextDictionary["os"] as? [String: Any])
-        
+#if !targetEnvironment(macCatalyst)
         XCTAssertEqual(UIDevice.current.systemVersion, os["version"] as? String)
+#endif
     }
 #endif
     

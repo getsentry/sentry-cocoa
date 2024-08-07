@@ -32,7 +32,7 @@
 @class SentryViewHierarchy;
 #endif // SENTRY_UIKIT_AVAILABLE
 
-#if TARGET_OS_IOS
+#if SENTRY_HAS_UIKIT
 @class SentryUIDeviceWrapper;
 #endif // TARGET_OS_IOS
 
@@ -80,7 +80,7 @@ SENTRY_NO_INIT
 @property (nonatomic, strong) SentryUIApplication *application;
 #endif // SENTRY_UIKIT_AVAILABLE
 
-#if TARGET_OS_IOS
+#if SENTRY_HAS_UIKIT
 @property (nonatomic, strong) SentryUIDeviceWrapper *uiDeviceWrapper;
 #endif // TARGET_OS_IOS
 
