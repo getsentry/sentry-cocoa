@@ -115,6 +115,7 @@ _sentry_threadUnsafe_transmitChunkEnvelope(void)
                                  userInfo:nil]];
     [self scheduleTimer];
 
+#    if SENTRY_HAS_UIKIT
     _observerToken = [SentryDependencyContainer.sharedInstance.notificationCenterWrapper
         addObserverForName:UIApplicationWillResignActiveNotification
                     object:nil
@@ -124,6 +125,7 @@ _sentry_threadUnsafe_transmitChunkEnvelope(void)
                         removeObserver:_observerToken];
                     [self stopTimerAndCleanup];
                 }];
+#    endif // SENTRY_HAS_UIKIT
 }
 
 + (BOOL)isCurrentlyProfiling
@@ -194,10 +196,13 @@ _sentry_threadUnsafe_transmitChunkEnvelope(void)
         }
     }
 
+#    if SENTRY_HAS_UIKIT
     if (_observerToken != nil) {
         [SentryDependencyContainer.sharedInstance.notificationCenterWrapper
             removeObserver:_observerToken];
     }
+#    endif // SENTRY_HAS_UIKIT
+
     [self stopTimerAndCleanup];
 }
 
