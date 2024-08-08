@@ -198,11 +198,10 @@ static NSObject *sentryDependencyContainerLock;
     }
 }
 
-#if TARGET_OS_IOS
+#if SENTRY_HAS_UIKIT
 - (SentryUIDeviceWrapper *)uiDeviceWrapper SENTRY_DISABLE_THREAD_SANITIZER(
     "double-checked lock produce false alarms")
 {
-#    if SENTRY_HAS_UIKIT
     if (_uiDeviceWrapper == nil) {
         @synchronized(sentryDependencyContainerLock) {
             if (_uiDeviceWrapper == nil) {
@@ -211,14 +210,9 @@ static NSObject *sentryDependencyContainerLock;
         }
     }
     return _uiDeviceWrapper;
-#    else
-    SENTRY_LOG_DEBUG(
-        @"SentryDependencyContainer.uiDeviceWrapper only works with UIKit enabled. Ensure you're "
-        @"using the right configuration of Sentry that links UIKit.");
-    return nil;
-#    endif // SENTRY_HAS_UIKIT
 }
-#endif // TARGET_OS_IOS
+
+#endif // SENTRY_HAS_UIKIT
 
 #if SENTRY_UIKIT_AVAILABLE
 - (SentryScreenshot *)screenshot SENTRY_DISABLE_THREAD_SANITIZER(

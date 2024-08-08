@@ -94,7 +94,7 @@ jobs:
           # iOS 17
           - runs-on: macos-14
             platform: "iOS"
-            xcode: "15.2"
+            xcode: "15.4"
             test-destination-os: "17.2"
             device: "iPhone 15"
 
@@ -104,16 +104,13 @@ jobs:
             xcode: "13.4.1"
             test-destination-os: "latest"
 
-          # macOS 13
-          - runs-on: macos-13
-            platform: "macOS"
-            xcode: "14.3"
-            test-destination-os: "latest"
+          # We don't run the unit tests on macOS 13 cause we run them on all on GH actions available iOS versions.
+          # The chance of missing a bug solely on tvOS 16 that doesn't occur on iOS, macOS 12 or macOS 14 is minimal.
 
           # macOS 14
           - runs-on: macos-14
             platform: "macOS"
-            xcode: "15.2"
+            xcode: "15.4"
             test-destination-os: "latest"
 
           # Catalyst. We only test the latest version, as
@@ -121,7 +118,7 @@ jobs:
           # on an older iOS or macOS version is low.
           - runs-on: macos-14
             platform: "Catalyst"
-            xcode: "15.2"
+            xcode: "15.4"
             test-destination-os: "latest"
 
           # tvOS 15
@@ -130,16 +127,13 @@ jobs:
             xcode: "13.4.1"
             test-destination-os: "16.1"
 
-          # tvOS 16
-          - runs-on: macos-13
-            platform: "tvOS"
-            xcode: "14.3"
-            test-destination-os: "17.2"
+          # We don't run the unit tests on tvOS 16 cause we run them on all on GH actions available iOS versions.
+          # The chance of missing a bug solely on tvOS 16 that doesn't occur on iOS, tvOS 15 or tvOS 16 is minimal.
 
           # tvOS 17
           - runs-on: macos-14
             platform: "tvOS"
-            xcode: "15.2"
+            xcode: "15.4"
             test-destination-os: "17.5"
 
     steps:

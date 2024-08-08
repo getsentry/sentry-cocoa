@@ -296,6 +296,9 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
     }
     
     private func givenSutWithGlobalHubAndCrashWrapper() -> (SentryCrashIntegration, SentryHub) {
+#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+        SentryDependencyContainer.sharedInstance().uiDeviceWrapper.start()
+#endif
         let sut = fixture.getSut(crashWrapper: SentryCrashWrapper.sharedInstance())
         let hub = fixture.hub
         SentrySDK.setCurrentHub(hub)

@@ -233,11 +233,11 @@ class SentrySessionReplayTests: XCTestCase {
         Dynamic(sut).newFrame(nil)
         fixture.dateProvider.advance(by: 5)
         Dynamic(sut).newFrame(nil)
-        XCTAssertTrue(sut.isRunning)
+        XCTAssertTrue(fixture.displayLink.isRunning())
         fixture.dateProvider.advance(by: 3_600)
         Dynamic(sut).newFrame(nil)
         
-        XCTAssertFalse(sut.isRunning)
+        XCTAssertFalse(fixture.displayLink.isRunning())
     }
     
     func testSaveScreenShotInBufferMode() {
