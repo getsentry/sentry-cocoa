@@ -94,7 +94,7 @@ jobs:
           # iOS 17
           - runs-on: macos-14
             platform: "iOS"
-            xcode: "15.2"
+            xcode: "15.4"
             test-destination-os: "17.2"
             device: "iPhone 15"
 
@@ -110,7 +110,7 @@ jobs:
           # macOS 14
           - runs-on: macos-14
             platform: "macOS"
-            xcode: "15.2"
+            xcode: "15.4"
             test-destination-os: "latest"
 
           # Catalyst. We only test the latest version, as
@@ -118,7 +118,7 @@ jobs:
           # on an older iOS or macOS version is low.
           - runs-on: macos-14
             platform: "Catalyst"
-            xcode: "15.2"
+            xcode: "15.4"
             test-destination-os: "latest"
 
           # tvOS 15
@@ -133,7 +133,7 @@ jobs:
           # tvOS 17
           - runs-on: macos-14
             platform: "tvOS"
-            xcode: "15.2"
+            xcode: "15.4"
             test-destination-os: "17.5"
 
     steps:
