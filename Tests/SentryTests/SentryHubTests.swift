@@ -17,7 +17,7 @@ class SentryHubTests: XCTestCase {
         let message = "some message"
         let event: Event
         let currentDateProvider = TestCurrentDateProvider()
-        let sentryCrash = TestSentryCrashWrapper.sharedInstance()
+        let sentryCrashWrapper = TestSentryCrashWrapper.sharedInstance()
         let fileManager: SentryFileManager
         let crashedSession: SentrySession
         let transactionName = "Some Transaction"
@@ -52,7 +52,7 @@ class SentryHubTests: XCTestCase {
         }
         
         func getSut(_ options: Options, _ scope: Scope? = nil) -> SentryHub {
-            let hub = SentryHub(client: client, andScope: scope, andCrashWrapper: sentryCrash, andDispatchQueue: self.dispatchQueueWrapper)
+            let hub = SentryHub(client: client, andScope: scope, andCrashWrapper: sentryCrashWrapper, andDispatchQueue: dispatchQueueWrapper)
             hub.bindClient(client)
             return hub
         }
@@ -178,12 +178,28 @@ class SentryHubTests: XCTestCase {
         XCTAssertNil(hub.scope.serialize()["breadcrumbs"])
     }
     
-    func testScopeEnriched() {
-        let hub = fixture.getSut(fixture.options, Scope())
+    func testScopeEnriched_WithInitializer() {
+        let hub = SentryHub(client: nil, andScope: Scope())
         XCTAssertFalse(hub.scope.contextDictionary.allValues.isEmpty)
         XCTAssertNotNil(hub.scope.contextDictionary["os"])
         XCTAssertNotNil(hub.scope.contextDictionary["device"])
         XCTAssertNotNil(hub.scope.contextDictionary["app"])
+    }
+    
+    func testScopeNotEnriched_WhenScopeIsNil() {
+        _ = fixture.getSut()
+     
+        XCTAssertFalse(fixture.sentryCrashWrapper.enrichScopeCalled)
+    }
+    
+    func testScopeEnriched_WhenCreatingDefaultScope() {
+        let hub = SentryHub(client: nil, andScope: nil)
+        
+        let scope = hub.scope
+        XCTAssertFalse(scope.contextDictionary.allValues.isEmpty)
+        XCTAssertNotNil(scope.contextDictionary["os"])
+        XCTAssertNotNil(scope.contextDictionary["device"])
+        XCTAssertNotNil(scope.contextDictionary["app"])
     }
     
     func testAddBreadcrumb_WithCallbackModifies() {
@@ -1161,7 +1177,7 @@ class SentryHubTests: XCTestCase {
     }
     
     private func givenCrashedSession() {
-        fixture.sentryCrash.internalCrashedLastLaunch = true
+        fixture.sentryCrashWrapper.internalCrashedLastLaunch = true
         fixture.fileManager.storeCrashedSession(fixture.crashedSession)
         sut.closeCachedSession(withTimestamp: fixture.currentDateProvider.date())
         sut.startSession()

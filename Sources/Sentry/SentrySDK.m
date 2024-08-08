@@ -571,6 +571,18 @@ static NSDate *_Nullable startTimestamp = nil;
 }
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
+#if SENTRY_TARGET_REPLAY_SUPPORTED
++ (void)replayRedactView:(UIView *)view
+{
+    [SentryRedactViewHelper redactView:view];
+}
+
++ (void)replayIgnoreView:(UIView *)view
+{
+    [SentryRedactViewHelper ignoreView:view];
+}
+#endif
+
 @end
 
 NS_ASSUME_NONNULL_END

@@ -15,10 +15,6 @@ class SentryNSNotificationCenterWrapperTests: XCTestCase {
         super.setUp()
         
         sut = SentryNSNotificationCenterWrapper()
-        
-        didBecomeActiveExpectation = expectation(description: "didBecomeActive")
-        willResignActiveExpectation = expectation(description: "willResignActive")
-        willResignActiveExpectation.isInverted = true
     }
     
     override func tearDown() {
@@ -28,6 +24,7 @@ class SentryNSNotificationCenterWrapperTests: XCTestCase {
     }
     
     func testAddObserver() {
+        addDefaultExpectations()
         sut.addObserver(self, selector: #selector(didBecomeActive), name: didBecomeActiveNotification)
         
         NotificationCenter.default.post(Notification(name: didBecomeActiveNotification))
@@ -46,10 +43,12 @@ class SentryNSNotificationCenterWrapperTests: XCTestCase {
             }
             exp.fulfill()
         } as? NSObject
+        NotificationCenter.default.post(.init(name: didBecomeActiveNotification))
         wait(for: [exp], timeout: 0.5)
     }
     
     func testRemoveSpecificObserver() {
+        addDefaultExpectations()
         sut.addObserver(self, selector: #selector(didBecomeActive), name: didBecomeActiveNotification)
         sut.addObserver(self, selector: #selector(willResignActive), name: willResignActiveNotification)
         
@@ -60,6 +59,7 @@ class SentryNSNotificationCenterWrapperTests: XCTestCase {
     }
     
     func testRemoveObserver() {
+        addDefaultExpectations()
         didBecomeActiveExpectation.isInverted = true
         
         sut.addObserver(self, selector: #selector(didBecomeActive), name: didBecomeActiveNotification)
@@ -72,6 +72,7 @@ class SentryNSNotificationCenterWrapperTests: XCTestCase {
     }
 
     func testPostNotificationsOnMock() {
+        addDefaultExpectations()
         let sut = TestNSNotificationCenterWrapper()
         sut.addObserver(self, selector: #selector(didBecomeActive), name: didBecomeActiveNotification)
         sut.post(Notification(name: didBecomeActiveNotification))
@@ -86,5 +87,11 @@ class SentryNSNotificationCenterWrapperTests: XCTestCase {
     
     func willResignActive() {
         willResignActiveExpectation.fulfill()
+    }
+    
+    func addDefaultExpectations() {
+        didBecomeActiveExpectation = expectation(description: "didBecomeActive")
+        willResignActiveExpectation = expectation(description: "willResignActive")
+        willResignActiveExpectation.isInverted = true
     }
 }
