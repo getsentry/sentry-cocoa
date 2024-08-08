@@ -209,10 +209,6 @@ SentryHttpTransport ()
 
     intptr_t result = dispatch_group_wait(self.dispatchGroup, dispatchTimeout);
 
-    @synchronized(self) {
-        self.isFlushing = NO;
-    }
-
     if (result == 0) {
         SENTRY_LOG_DEBUG(@"Finished flushing.");
         return kSentryFlushResultSuccess;

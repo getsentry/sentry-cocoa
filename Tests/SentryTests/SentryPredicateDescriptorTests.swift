@@ -115,6 +115,11 @@ class SentryPredicateDescriptorTests: XCTestCase {
         assertPredicate(predicate: pred, expectedResult: "field1 == %@ AND (field3 == %@ OR field2 == %@)")
     }
     
+    func test_compoundInTenary() {
+        let pred = NSPredicate(format: "TERNARY(field1 > 10 AND field1 < 20, 1, 0) == 1")
+        assertPredicate(predicate: pred, expectedResult: "TERNARY(field1 > %@ AND field1 < %@,%@,%@) == %@")
+    }
+    
     func test_UNKNOWN() {
         let pred = NSPredicate { _, _ in
             return false
