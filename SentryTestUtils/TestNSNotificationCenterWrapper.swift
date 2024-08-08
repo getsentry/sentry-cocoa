@@ -16,12 +16,19 @@ import Sentry
             addObserverInvocations.record((WeakReference(value: observer), aSelector, aName))
         }
     }
+    
+    public var addObserverWithBlockInvocations = Invocations<(observer: WeakReference<NSObject>, name: NSNotification.Name?, block: (Notification) -> Void)>()
+    public override func addObserver(forName name: NSNotification.Name?, object obj: Any?, queue: OperationQueue?, using block: @escaping (Notification) -> Void) -> any NSObjectProtocol {
+        let observer = NSObject()
+        addObserverWithBlockInvocations.record((WeakReference(value: observer), name, block))
+        return observer
+    }
 
     public var removeObserverWithNameInvocations = Invocations< NSNotification.Name>()
     public var removeObserverWithNameInvocationsCount: Int {
         return removeObserverWithNameInvocations.count
     }
-    public override func removeObserver(_ observer: NSObject, name aName: NSNotification.Name) {
+    public override func removeObserver(_ observer: any NSObjectProtocol, name aName: NSNotification.Name) {
         removeObserverWithNameInvocations.record(aName)
     }
 
@@ -32,7 +39,7 @@ import Sentry
     public var removeObserverInvocationsCount: Int {
         return removeObserverInvocations.count
     }
-    public override func removeObserver(_ observer: NSObject) {
+    public override func removeObserver(_ observer: any NSObjectProtocol) {
         if ignoreRemoveObserver == false {
             removeObserverInvocations.record(Void())
         }
@@ -44,5 +51,10 @@ import Sentry
             .forEach { observer, selector, _ in
                 _ = observer.value?.perform(selector, with: nil)
             }
+        addObserverWithBlockInvocations.invocations.forEach { _, name, block in
+            if let name = name {
+                block(Notification(name: name))
+            }
+        }
     }
 }
