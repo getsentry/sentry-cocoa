@@ -76,7 +76,7 @@ class SentrySessionReplayTests: XCTestCase {
                                        displayLinkWrapper: displayLink)
         }
         
-        func sessionReplayIsFullSession() -> Bool {
+        func sessionReplayShouldCaptureReplayForError() -> Bool {
             return isFullSession
         }
         
