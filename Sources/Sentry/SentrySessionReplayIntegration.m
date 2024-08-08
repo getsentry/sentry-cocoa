@@ -14,6 +14,7 @@
 #    import "SentryNSNotificationCenterWrapper.h"
 #    import "SentryOptions.h"
 #    import "SentryRandom.h"
+#    import "SentryReachability.h"
 #    import "SentrySDK+Private.h"
 #    import "SentryScope+Private.h"
 #    import "SentrySerialization.h"
@@ -22,7 +23,6 @@
 #    import "SentrySwizzle.h"
 #    import "SentryUIApplication.h"
 #    import <UIKit/UIKit.h>
-#    import "SentryReachability.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -56,7 +56,7 @@ SentrySessionReplayIntegration () <SentryReachabilityObserver>
 
     _replayOptions = options.experimental.sessionReplay;
     _isInForeground = true;
-    
+
     if (options.enableSwizzling) {
         _touchTracker = [[SentryTouchTracker alloc]
             initWithDateProvider:SentryDependencyContainer.sharedInstance.dateProvider
@@ -319,7 +319,7 @@ SentrySessionReplayIntegration () <SentryReachabilityObserver>
 - (void)resume
 {
     _isInForeground = true;
-    
+
     [self.sessionReplay resume];
 }
 
@@ -474,9 +474,10 @@ SentrySessionReplayIntegration () <SentryReachabilityObserver>
 
 #    pragma mark - SentryReachabilityObserver
 
-- (void)connectivityChanged:(BOOL)connected typeDescription:(nonnull NSString *)typeDescription { 
+- (void)connectivityChanged:(BOOL)connected typeDescription:(nonnull NSString *)typeDescription
+{
     if (connected) {
-        
+
         [_sessionReplay resume];
     } else {
         [_sessionReplay pause];
