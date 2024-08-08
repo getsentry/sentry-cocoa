@@ -80,4 +80,5 @@ jobs:
     runs-on: macos-13
     steps:
       - uses: actions/checkout@v4
-      - run: pre-commit run shellcheck
+      - run: brew install shellcheck
+      - run: shellcheck **/*.sh
