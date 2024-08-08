@@ -64,6 +64,7 @@ class SentrySessionReplay: NSObject {
     }
 
     func start(rootView: UIView, fullSession: Bool) {
+        guard !isRunning else { return }
         displayLink.link(withTarget: self, selector: #selector(newFrame(_:)))
         self.rootView = rootView
         lastScreenShot = dateProvider.date()
