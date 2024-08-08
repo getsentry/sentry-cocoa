@@ -48,7 +48,7 @@ class ProfilingUITests: BaseUITest {
             goToTransactions()
             startTransaction()
             
-            app.buttons["anrFillingRunLoop"].afterWaitingForExistence("Couldn't find button to ANR").tap()
+            app.buttons["appHangFullyBlocking"].afterWaitingForExistence("Couldn't find button to trigger fully blocking AppHang.").tap()
             stopTransaction()
             
             goToProfiling()
