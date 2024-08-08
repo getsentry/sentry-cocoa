@@ -916,6 +916,11 @@
     [self testBooleanField:@"enableAppHangTracking" defaultValue:YES];
 }
 
+- (void)testEnableAppHangTrackingV2
+{
+    [self testBooleanField:@"enableAppHangTrackingV2" defaultValue:NO];
+}
+
 - (void)testDefaultAppHangsTimeout
 {
     SentryOptions *options = [self getValidOptions:@{}];
