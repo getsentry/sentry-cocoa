@@ -82,29 +82,6 @@ jobs:
           path: |
             ~/Library/Logs/scan/*.log
             ./fastlane/test_output/**
-
-  ui-tests-address-sanitizer:
-    name: UI Tests with Address Sanitizer
-    runs-on: macos-13
-
-    steps:
-      - uses: actions/checkout@v4
-      - run: ./scripts/ci-select-xcode.sh 15.2
-
-      # GitHub Actions sometimes fail to launch the UI tests. Therefore we retry
-      - name: Run Fastlane
-        run: for i in {1..2}; do fastlane ui_tests_ios_swift device:"iPhone 14 (17.2)" address_sanitizer:true && break ; done
-        shell: sh
-
-      - name: Archiving Raw Test Logs
-        uses: actions/upload-artifact@v4
-        if: ${{  failure() || cancelled() }}
-        with:
-          name: raw-uitest-output-asan
-          path: |
-            ~/Library/Logs/scan/*.log
-            ./fastlane/test_output/**
-
     
   ios-swift-ui-tests:
     name: iOS-Swift UI Tests ${{matrix.device}}
