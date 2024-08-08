@@ -44,8 +44,12 @@ NSString *const kSentryDefaultEnvironment = @"production";
 {
     // The order of integrations here is important.
     // SentryCrashIntegration needs to be initialized before SentryAutoSessionTrackingIntegration.
+    // And SentrySessionReplayIntegration before SentryCrashIntegration.
     NSMutableArray<NSString *> *defaultIntegrations =
         @[
+#if SENTRY_HAS_UIKIT && !TARGET_OS_VISION
+            NSStringFromClass([SentrySessionReplayIntegration class]),
+#endif
             NSStringFromClass([SentryCrashIntegration class]),
 #if SENTRY_HAS_UIKIT
             NSStringFromClass([SentryAppStartTrackingIntegration class]),
@@ -55,9 +59,6 @@ NSString *const kSentryDefaultEnvironment = @"production";
             NSStringFromClass([SentryUIEventTrackingIntegration class]),
             NSStringFromClass([SentryViewHierarchyIntegration class]),
             NSStringFromClass([SentryWatchdogTerminationTrackingIntegration class]),
-#    if !TARGET_OS_VISION
-            NSStringFromClass([SentrySessionReplayIntegration class]),
-#    endif
 #endif // SENTRY_HAS_UIKIT
             NSStringFromClass([SentryANRTrackingIntegration class]),
             NSStringFromClass([SentryAutoBreadcrumbTrackingIntegration class]),
@@ -114,6 +115,7 @@ NSString *const kSentryDefaultEnvironment = @"production";
         self.enableUIViewControllerTracing = YES;
         self.attachScreenshot = NO;
         self.attachViewHierarchy = NO;
+        self.reportAccessibilityIdentifier = YES;
         self.enableUserInteractionTracing = YES;
         self.idleTimeout = SentryTracerDefaultTimeout;
         self.enablePreWarmedAppStartTracing = NO;
@@ -127,7 +129,7 @@ NSString *const kSentryDefaultEnvironment = @"production";
         self.tracesSampleRate = nil;
 #if SENTRY_TARGET_PROFILING_SUPPORTED
         _enableProfiling = NO;
-        self.profilesSampleRate = nil;
+        self.profilesSampleRate = SENTRY_INITIAL_PROFILES_SAMPLE_RATE;
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
         self.enableCoreDataTracing = YES;
         _enableSwizzling = YES;
@@ -352,6 +354,10 @@ NSString *const kSentryDefaultEnvironment = @"production";
         self.beforeCaptureScreenshot = options[@"beforeCaptureScreenshot"];
     }
 
+    if ([self isBlock:options[@"beforeCaptureViewHierarchy"]]) {
+        self.beforeCaptureViewHierarchy = options[@"beforeCaptureViewHierarchy"];
+    }
+
     if ([self isBlock:options[@"onCrashedLastRun"]]) {
         self.onCrashedLastRun = options[@"onCrashedLastRun"];
     }
@@ -416,6 +422,9 @@ NSString *const kSentryDefaultEnvironment = @"production";
     [self setBool:options[@"attachViewHierarchy"]
             block:^(BOOL value) { self->_attachViewHierarchy = value; }];
 
+    [self setBool:options[@"reportAccessibilityIdentifier"]
+            block:^(BOOL value) { self->_reportAccessibilityIdentifier = value; }];
+
     [self setBool:options[@"enableUserInteractionTracing"]
             block:^(BOOL value) { self->_enableUserInteractionTracing = value; }];
 
@@ -448,10 +457,12 @@ NSString *const kSentryDefaultEnvironment = @"production";
     if ([self isBlock:options[@"tracesSampler"]]) {
         self.tracesSampler = options[@"tracesSampler"];
     }
-
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     if ([options[@"enableTracing"] isKindOfClass:NSNumber.self]) {
         self.enableTracing = [options[@"enableTracing"] boolValue];
     }
+#pragma clang diagnostic pop
 
     if ([options[@"inAppIncludes"] isKindOfClass:[NSArray class]]) {
         NSArray<NSString *> *inAppIncludes =

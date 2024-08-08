@@ -13,7 +13,6 @@
 #import "SentryEnvelopeItemType.h"
 #import "SentryEnvelopeRateLimit.h"
 #import "SentryEvent.h"
-#import "SentryFileContents.h"
 #import "SentryFileManager.h"
 #import "SentryLog.h"
 #import "SentryNSURLRequest.h"
@@ -183,12 +182,6 @@ SentryHttpTransport ()
     // the flush duration.
     dispatch_time_t delta = (int64_t)(timeout * (NSTimeInterval)NSEC_PER_SEC);
     dispatch_time_t dispatchTimeout = dispatch_time(DISPATCH_TIME_NOW, delta);
-
-    // Double-Checked Locking to avoid acquiring unnecessary locks.
-    if (_isFlushing) {
-        SENTRY_LOG_DEBUG(@"Already flushing.");
-        return kSentryFlushResultAlreadyFlushing;
-    }
 
     @synchronized(self) {
         if (_isFlushing) {
@@ -408,7 +401,7 @@ SentryHttpTransport ()
 {
     if ([SentryEnvelopeItemTypeTransaction isEqualToString:envelopeItem.header.type]) {
         NSDictionary *transactionJson =
-            [SentrySerialization deserializeEventEnvelopeItem:envelopeItem.data];
+            [SentrySerialization deserializeDictionaryFromJsonData:envelopeItem.data];
         if (transactionJson == nil) {
             return;
         }

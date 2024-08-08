@@ -137,6 +137,14 @@ NS_SWIFT_NAME(Options)
 @property (nullable, nonatomic, copy) SentryBeforeCaptureScreenshotCallback beforeCaptureScreenshot;
 
 /**
+ * You can use this callback to decide if the SDK should capture a view hierarchy or not. Return @c
+ * true if the SDK should capture a view hierarchy, return @c false if not. This callback doesn't
+ * work for crashes.
+ */
+@property (nullable, nonatomic, copy)
+    SentryBeforeCaptureScreenshotCallback beforeCaptureViewHierarchy;
+
+/**
  * A block called shortly after the initialization of the SDK when the last program execution
  * terminated with a crash.
  * @discussion This callback is only executed once during the entire run of the program to avoid
@@ -279,6 +287,15 @@ NS_SWIFT_NAME(Options)
 @property (nonatomic, assign) BOOL attachViewHierarchy;
 
 /**
+ * @brief If enabled, view hierarchy attachment will contain view `accessibilityIdentifier`.
+ * Set it to @c NO if your project uses `accessibilityIdentifier` for PII.
+ * @warning This feature is not available in @c DebugWithoutUIKit and @c ReleaseWithoutUIKit
+ * configurations even when targeting iOS or tvOS platforms.
+ * @note Default value is @c YES.
+ */
+@property (nonatomic, assign) BOOL reportAccessibilityIdentifier;
+
+/**
  * When enabled, the SDK creates transactions for UI events like buttons clicks, switch toggles,
  * and other ui elements that uses UIControl @c sendAction:to:forEvent:
  * @warning This feature is not available in @c DebugWithoutUIKit and @c ReleaseWithoutUIKit
@@ -334,7 +351,8 @@ NS_SWIFT_NAME(Options)
  * @c tracesSampler are @c nil. Changing either @c tracesSampleRate or @c tracesSampler to a value
  * other then @c nil will enable this in case this was never changed before.
  */
-@property (nonatomic) BOOL enableTracing;
+@property (nonatomic)
+    BOOL enableTracing DEPRECATED_MSG_ATTRIBUTE("Use tracesSampleRate or tracesSampler instead");
 
 /**
  * Indicates the percentage of the tracing data that is collected.
@@ -360,8 +378,8 @@ NS_SWIFT_NAME(Options)
 
 /**
  * If tracing is enabled or not.
- * @discussion @c YES if @c enabledTracing is @c YES and @c tracesSampleRate
- * is > @c 0 and \<= @c 1 or a @c tracesSampler is set, otherwise @c NO.
+ * @discussion @c YES if @c tracesSampleRateis > @c 0 and \<= @c 1
+ * or a @c tracesSampler is set, otherwise @c NO.
  */
 @property (nonatomic, assign, readonly) BOOL isTracingEnabled;
 

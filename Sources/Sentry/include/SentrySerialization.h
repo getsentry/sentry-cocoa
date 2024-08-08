@@ -4,6 +4,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+typedef void (^SentryDataWriter)(NSData *data);
+
 @interface SentrySerialization : NSObject
 
 + (NSData *_Nullable)dataWithJSONObject:(id)jsonObject;
@@ -12,8 +14,13 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (SentrySession *_Nullable)sessionWithData:(NSData *)sessionData;
 
-+ (NSData *_Nullable)dataWithEnvelope:(SentryEnvelope *)envelope
-                                error:(NSError *_Nullable *_Nullable)error;
++ (BOOL)writeEnvelopeData:(SentryEnvelope *)envelope writeData:(SentryDataWriter)writeData;
+
+/**
+ * For large envelopes, consider using @c writeEnvelopeData, which lets you write the envelope in
+ * chunks to your desired location, to minimize the memory footprint.
+ */
++ (NSData *_Nullable)dataWithEnvelope:(SentryEnvelope *)envelope;
 
 + (NSData *)dataWithReplayRecording:(SentryReplayRecording *)replayRecording;
 
@@ -24,7 +31,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * Retrieves the json object from an event envelope item data.
  */
-+ (NSDictionary *)deserializeEventEnvelopeItem:(NSData *)eventEnvelopeItemData;
++ (NSDictionary *)deserializeDictionaryFromJsonData:(NSData *)data;
 
 /**
  * Extract the level from data of an envelopte item containing an event. Default is the 'error'

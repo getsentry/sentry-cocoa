@@ -40,10 +40,20 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
         let tracker = SentryPerformanceTracker.shared
         let dateProvider = TestCurrentDateProvider()
         
+        var displayLinkWrapper = TestDisplayLinkWrapper()
+        var framesTracker: SentryFramesTracker
+        
         var viewControllerName: String!
 
         var inAppLogic: SentryInAppLogic {
             return SentryInAppLogic(inAppIncludes: options.inAppIncludes, inAppExcludes: [])
+        }
+        
+        init() {
+            framesTracker = SentryFramesTracker(displayLinkWrapper: displayLinkWrapper, dateProvider: dateProvider, dispatchQueueWrapper: TestSentryDispatchQueueWrapper(),
+                                                notificationCenter: TestNSNotificationCenterWrapper(), keepDelayedFramesDuration: 0)
+            SentryDependencyContainer.sharedInstance().framesTracker = framesTracker
+            framesTracker.start()
         }
                 
         func getSut() -> SentryUIViewControllerPerformanceTracker {
@@ -280,6 +290,27 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
         let ttfdSpan = try XCTUnwrap(tracer?.children.element(at: 1))
         XCTAssertEqual(ttfdSpan.isFinished, true)
         XCTAssertEqual(ttfdSpan.timestamp, expectedTTFDTimestamp)
+    }
+    
+    func testFramesTrackerNotRunning_NoTTDTrackerAndSpans() {
+        fixture.framesTracker.stop()
+        let sut = fixture.getSut()
+        let tracker = fixture.tracker
+        let viewController = fixture.viewController
+        var tracer: SentryTracer?
+        
+        sut.viewControllerLoadView(viewController) {
+            let spans = self.getStack(tracker)
+            tracer = spans.first as? SentryTracer
+        }
+
+        let ttdTracker = Dynamic(sut).currentTTDTracker.asObject as? SentryTimeToDisplayTracker
+        XCTAssertNil(ttdTracker)
+        
+        sut.reportFullyDisplayed()
+        
+        XCTAssertEqual(tracer?.children.filter { $0.operation.contains("initial_display") }.count, 0, "Tracer must not contain a TTID span")
+        XCTAssertEqual(tracer?.children.filter { $0.operation.contains("full_display") }.count, 0, "Tracer must not contain a TTFD span")
     }
 
     func testSecondViewController() {

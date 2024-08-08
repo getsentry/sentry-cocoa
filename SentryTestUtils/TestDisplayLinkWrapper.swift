@@ -41,12 +41,15 @@ public class TestDisplayLinkWrapper: SentryDisplayLinkWrapper {
         fastestFrozenFrameDuration = frozenFrameThreshold + timeEpsilon
     }
 
+    public var ignoreLinkInvocations = false
     public var linkInvocations = Invocations<Void>()
     public override func link(withTarget target: Any, selector sel: Selector) {
-        linkInvocations.record(Void())
-        self.target = target as AnyObject
-        self.selector = sel
-        _isRunning = true
+        if ignoreLinkInvocations == false {
+            linkInvocations.record(Void())
+            self.target = target as AnyObject
+            self.selector = sel
+        	_isRunning = true
+        }
     }
 
     public override var timestamp: CFTimeInterval {

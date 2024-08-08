@@ -15,30 +15,22 @@ class SentrySessionReplayTests: XCTestCase {
     }
      
     private class TestReplayMaker: NSObject, SentryReplayVideoMaker {
-        var videoWidth: Int = 0
-        var videoHeight: Int = 0
-         
         var screens = [String]()
         
         struct CreateVideoCall {
             var beginning: Date
             var end: Date
-            var outputFileURL: URL
-            var completion: ((Sentry.SentryVideoInfo?, Error?) -> Void)
         }
         
         var lastCallToCreateVideo: CreateVideoCall?
-        func createVideoWith(beginning: Date, end: Date, outputFileURL: URL, completion: @escaping (Sentry.SentryVideoInfo?, (Error)?) -> Void) throws {
-            lastCallToCreateVideo = CreateVideoCall(beginning: beginning,
-                                                    end: end,
-                                                    outputFileURL: outputFileURL,
-                                                    completion: completion)
+        func createVideoWith(beginning: Date, end: Date) throws -> [SentryVideoInfo] {
+            lastCallToCreateVideo = CreateVideoCall(beginning: beginning, end: end)
+            let outputFileURL = FileManager.default.temporaryDirectory.appendingPathComponent("tempvideo.mp4")
             
             try? "Video Data".write(to: outputFileURL, atomically: true, encoding: .utf8)
-            
             let videoInfo = SentryVideoInfo(path: outputFileURL, height: 1_024, width: 480, duration: end.timeIntervalSince(beginning), frameCount: 5, frameRate: 1, start: beginning, end: end, fileSize: 10, screens: screens)
             
-            completion(videoInfo, nil)
+            return [videoInfo]
         }
         
         var lastFrame: UIImage?
@@ -71,7 +63,7 @@ class SentrySessionReplayTests: XCTestCase {
         var lastReplayId: SentryId?
         var currentScreen: String?
         
-        func getSut(options: SentryReplayOptions = .init(sessionSampleRate: 0, errorSampleRate: 0) ) -> SentrySessionReplay {
+        func getSut(options: SentryReplayOptions = .init(sessionSampleRate: 0, onErrorSampleRate: 0) ) -> SentrySessionReplay {
             return SentrySessionReplay(replayOptions: options,
                                        replayFolderPath: cacheFolder,
                                        screenshotProvider: screenshotProvider,
@@ -80,6 +72,7 @@ class SentrySessionReplayTests: XCTestCase {
                                        touchTracker: SentryTouchTracker(dateProvider: dateProvider, scale: 0),
                                        dateProvider: dateProvider,
                                        delegate: self,
+                                       dispatchQueue: TestSentryDispatchQueueWrapper(),
                                        displayLinkWrapper: displayLink)
         }
         
@@ -128,22 +121,10 @@ class SentrySessionReplayTests: XCTestCase {
         XCTAssertNil(fixture.lastReplayEvent)
     }
     
-    func testVideoSize() {
-        let fixture = Fixture()
-        let options = SentryReplayOptions(sessionSampleRate: 1, errorSampleRate: 1)
-        let sut = fixture.getSut(options: options)
-        let view = fixture.rootView
-        view.frame = CGRect(x: 0, y: 0, width: 320, height: 900)
-        sut.start(rootView: fixture.rootView, fullSession: true)
-        
-        XCTAssertEqual(Int(320 * options.sizeScale), fixture.replayMaker.videoWidth)
-        XCTAssertEqual(Int(900 * options.sizeScale), fixture.replayMaker.videoHeight)
-    }
-    
     func testSentReplay_FullSession() {
         let fixture = Fixture()
         
-        let sut = fixture.getSut(options: SentryReplayOptions(sessionSampleRate: 1, errorSampleRate: 1))
+        let sut = fixture.getSut(options: SentryReplayOptions(sessionSampleRate: 1, onErrorSampleRate: 1))
         sut.start(rootView: fixture.rootView, fullSession: true)
         XCTAssertEqual(fixture.lastReplayId, sut.sessionReplayId)
         
@@ -162,16 +143,14 @@ class SentrySessionReplayTests: XCTestCase {
         
         XCTAssertEqual(videoArguments.end, startEvent.addingTimeInterval(5))
         XCTAssertEqual(videoArguments.beginning, startEvent)
-        XCTAssertEqual(videoArguments.outputFileURL, fixture.cacheFolder.appendingPathComponent("segments/0.mp4"))
         
         XCTAssertNotNil(fixture.lastReplayRecording)
-        XCTAssertEqual(fixture.lastVideoUrl, videoArguments.outputFileURL)
         assertFullSession(sut, expected: true)
     }
     
     func testReplayScreenNames() throws {
         let fixture = Fixture()
-        let sut = fixture.getSut(options: SentryReplayOptions(sessionSampleRate: 1, errorSampleRate: 1))
+        let sut = fixture.getSut(options: SentryReplayOptions(sessionSampleRate: 1, onErrorSampleRate: 1))
         sut.start(rootView: fixture.rootView, fullSession: true)
         
         for i in 1...6 {
@@ -193,7 +172,7 @@ class SentrySessionReplayTests: XCTestCase {
     
     func testDontSentReplay_NotFullSession() {
         let fixture = Fixture()
-        let sut = fixture.getSut(options: SentryReplayOptions(sessionSampleRate: 1, errorSampleRate: 1))
+        let sut = fixture.getSut(options: SentryReplayOptions(sessionSampleRate: 1, onErrorSampleRate: 1))
         sut.start(rootView: fixture.rootView, fullSession: false)
         
         XCTAssertNil(fixture.lastReplayId)
@@ -212,7 +191,7 @@ class SentrySessionReplayTests: XCTestCase {
     
     func testChangeReplayMode_forErrorEvent() {
         let fixture = Fixture()
-        let sut = fixture.getSut(options: SentryReplayOptions(sessionSampleRate: 1, errorSampleRate: 1))
+        let sut = fixture.getSut(options: SentryReplayOptions(sessionSampleRate: 1, onErrorSampleRate: 1))
         sut.start(rootView: fixture.rootView, fullSession: false)
         XCTAssertNil(fixture.lastReplayId)
         let event = Event(error: NSError(domain: "Some error", code: 1))
@@ -225,7 +204,7 @@ class SentrySessionReplayTests: XCTestCase {
     
     func testDontChangeReplayMode_forNonErrorEvent() {
         let fixture = Fixture()
-        let sut = fixture.getSut(options: SentryReplayOptions(sessionSampleRate: 1, errorSampleRate: 1))
+        let sut = fixture.getSut(options: SentryReplayOptions(sessionSampleRate: 1, onErrorSampleRate: 1))
         sut.start(rootView: fixture.rootView, fullSession: false)
         
         let event = Event(level: .info)
@@ -237,7 +216,7 @@ class SentrySessionReplayTests: XCTestCase {
     
     func testChangeReplayMode_forHybridSDKEvent() {
         let fixture = Fixture()
-        let sut = fixture.getSut(options: SentryReplayOptions(sessionSampleRate: 1, errorSampleRate: 1))
+        let sut = fixture.getSut(options: SentryReplayOptions(sessionSampleRate: 1, onErrorSampleRate: 1))
         sut.start(rootView: fixture.rootView, fullSession: false)
 
         _ = sut.captureReplay()
@@ -248,7 +227,7 @@ class SentrySessionReplayTests: XCTestCase {
 
     func testSessionReplayMaximumDuration() {
         let fixture = Fixture()
-        let sut = fixture.getSut(options: SentryReplayOptions(sessionSampleRate: 1, errorSampleRate: 1))
+        let sut = fixture.getSut(options: SentryReplayOptions(sessionSampleRate: 1, onErrorSampleRate: 1))
         sut.start(rootView: fixture.rootView, fullSession: true)
         
         Dynamic(sut).newFrame(nil)
@@ -264,7 +243,7 @@ class SentrySessionReplayTests: XCTestCase {
     func testSaveScreenShotInBufferMode() {
         let fixture = Fixture()
         
-        let sut = fixture.getSut(options: SentryReplayOptions(sessionSampleRate: 0, errorSampleRate: 1))
+        let sut = fixture.getSut(options: SentryReplayOptions(sessionSampleRate: 0, onErrorSampleRate: 1))
         sut.start(rootView: fixture.rootView, fullSession: false)
         fixture.dateProvider.advance(by: 1)
         Dynamic(sut).newFrame(nil)
@@ -276,7 +255,7 @@ class SentrySessionReplayTests: XCTestCase {
     func testDealloc_CallsStop() {
         let fixture = Fixture()
         func sutIsDeallocatedAfterCallingMe() {
-            _ = fixture.getSut(options: SentryReplayOptions(sessionSampleRate: 1, errorSampleRate: 1))
+            _ = fixture.getSut(options: SentryReplayOptions(sessionSampleRate: 1, onErrorSampleRate: 1))
         }
         sutIsDeallocatedAfterCallingMe()
         

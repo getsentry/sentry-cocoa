@@ -11,11 +11,7 @@ class SentryHttpTransportTests: XCTestCase {
         let event: Event
         let eventEnvelope: SentryEnvelope
         let eventRequest: SentryNSURLRequest
-        let transaction: Transaction
-        let transactionEnvelope: SentryEnvelope
-        let transactionRequest: SentryNSURLRequest
         let attachmentEnvelopeItem: SentryEnvelopeItem
-        let transactionEnvelopeItem: SentryEnvelopeItem
         let eventWithAttachmentRequest: SentryNSURLRequest
         let eventWithSessionEnvelope: SentryEnvelope
         let eventWithSessionRequest: SentryNSURLRequest
@@ -57,31 +53,15 @@ class SentryHttpTransportTests: XCTestCase {
 
             event = Event()
             event.message = SentryMessage(formatted: "Some message")
-
-            let tracer = SentryTracer(transactionContext: TransactionContext(name: "SomeTransaction", operation: "SomeOperation"), hub: nil)
-            transaction = Transaction(
-                trace: tracer,
-                children: [
-                    tracer.startChild(operation: "child1"),
-                    tracer.startChild(operation: "child2"),
-                    tracer.startChild(operation: "child3")
-                ]
-            )
             
             eventRequest = buildRequest(SentryEnvelope(event: event))
-            transactionRequest = buildRequest(SentryEnvelope(event: transaction))
             
             attachmentEnvelopeItem = SentryEnvelopeItem(attachment: TestData.dataAttachment, maxAttachmentSize: 5 * 1_024 * 1_024)!
-            transactionEnvelopeItem = SentryEnvelopeItem(event: transaction)
             
             eventEnvelope = SentryEnvelope(id: event.eventId, items: [SentryEnvelopeItem(event: event), attachmentEnvelopeItem])
             // We are comparing byte data and the `sentAt` header is also set in the transport, so we also need them here in the expected envelope.
             eventEnvelope.header.sentAt = SentryDependencyContainer.sharedInstance().dateProvider.date()
             eventWithAttachmentRequest = buildRequest(eventEnvelope)
-            
-            transactionEnvelope = SentryEnvelope(id: transaction.eventId, items: [SentryEnvelopeItem(event: transaction), attachmentEnvelopeItem])
-            // We are comparing byte data and the `sentAt` header is also set in the transport, so we also need them here in the expected envelope.
-            transactionEnvelope.header.sentAt = SentryDependencyContainer.sharedInstance().dateProvider.date()
             
             session = SentrySession(releaseName: "2.0.1", distinctId: "some-id")
             sessionEnvelope = SentryEnvelope(id: nil, singleItem: SentryEnvelopeItem(session: session))
@@ -126,6 +106,24 @@ class SentryHttpTransportTests: XCTestCase {
             clientReportEnvelope.header.sentAt = SentryDependencyContainer.sharedInstance().dateProvider.date()
             clientReportRequest = buildRequest(clientReportEnvelope)
         }
+        
+        func getTransactionEnvelope() -> SentryEnvelope {
+            let tracer = SentryTracer(transactionContext: TransactionContext(name: "SomeTransaction", operation: "SomeOperation"), hub: nil)
+            let transaction = Transaction(
+                trace: tracer,
+                children: [
+                    tracer.startChild(operation: "child1"),
+                    tracer.startChild(operation: "child2"),
+                    tracer.startChild(operation: "child3")
+                ]
+            )
+            
+            let transactionEnvelope = SentryEnvelope(id: transaction.eventId, items: [SentryEnvelopeItem(event: transaction), attachmentEnvelopeItem])
+            // We are comparing byte data and the `sentAt` header is also set in the transport, so we also need them here in the expected envelope.
+            transactionEnvelope.header.sentAt = currentDateProvider.date()
+            
+            return transactionEnvelope
+        }
 
         func  getSut(dispatchQueueWrapper: SentryDispatchQueueWrapper? = nil) -> SentryHttpTransport {
             
@@ -149,7 +147,7 @@ class SentryHttpTransportTests: XCTestCase {
     }
 
     class func buildRequest(_ envelope: SentryEnvelope) -> SentryNSURLRequest {
-        let envelopeData = try! SentrySerialization.data(with: envelope)
+        let envelopeData = try! XCTUnwrap(SentrySerialization.data(with: envelope))
         return try! SentryNSURLRequest(envelopeRequestWith: dsn(), andData: envelopeData)
     }
 
@@ -447,7 +445,7 @@ class SentryHttpTransportTests: XCTestCase {
         XCTAssertEqual(fixture.dispatchQueueWrapper.dispatchAfterInvocations.first?.interval, 0.0)
     }
 
-    func testActiveRateLimitForSomeCachedEnvelopeItems() {
+    func testActiveRateLimitForSomeCachedEnvelopeItems() throws {
         givenNoInternetConnection()
         sendEvent()
         sut.send(envelope: fixture.eventWithSessionEnvelope)
@@ -461,7 +459,7 @@ class SentryHttpTransportTests: XCTestCase {
 
         let sessionEnvelope = SentryEnvelope(id: fixture.event.eventId, singleItem: SentryEnvelopeItem(session: fixture.session))
         sessionEnvelope.header.sentAt = SentryDependencyContainer.sharedInstance().dateProvider.date()
-        let sessionData = try! SentrySerialization.data(with: sessionEnvelope)
+        let sessionData = try XCTUnwrap(SentrySerialization.data(with: sessionEnvelope))
         let sessionRequest = try! SentryNSURLRequest(envelopeRequestWith: SentryHttpTransportTests.dsn(), andData: sessionData)
 
         if fixture.requestManager.requests.invocations.count > 3 {
@@ -472,7 +470,8 @@ class SentryHttpTransportTests: XCTestCase {
     }
 
     func testAllCachedEnvelopesCantDeserializeEnvelope() throws {
-        let path = fixture.fileManager.store(TestConstants.envelope)
+        fixture.fileManager.store(TestConstants.envelope)
+        let path = try XCTUnwrap(fixture.fileManager.getAllEnvelopes().last?.path)
         let faultyEnvelope = Data([0x70, 0xa3, 0x10, 0x45])
         try faultyEnvelope.write(to: URL(fileURLWithPath: path))
 
@@ -564,16 +563,18 @@ class SentryHttpTransportTests: XCTestCase {
             SentryEnvelopeItem(clientReport: clientReport)
         ]
         
-        let clientReportEnvelope = SentryEnvelope(id: fixture.transaction.eventId, items: clientReportEnvelopeItems)
+        let transactionEnvelope = fixture.getTransactionEnvelope()
+        
+        let clientReportEnvelope = SentryEnvelope(id: transactionEnvelope.header.eventId, items: clientReportEnvelopeItems)
         clientReportEnvelope.header.sentAt = SentryDependencyContainer.sharedInstance().dateProvider.date()
         let clientReportRequest = SentryHttpTransportTests.buildRequest(clientReportEnvelope)
         
         givenRateLimitResponse(forCategory: "transaction")
         
-        sut.send(envelope: fixture.transactionEnvelope)
+        sut.send(envelope: transactionEnvelope)
         waitForAllRequests()
         
-        sut.send(envelope: fixture.transactionEnvelope)
+        sut.send(envelope: transactionEnvelope)
         waitForAllRequests()
         
         let actualEventRequest = fixture.requestManager.requests.last
@@ -601,7 +602,7 @@ class SentryHttpTransportTests: XCTestCase {
     func testCacheFull_RecordsLostSpans() {
         givenNoInternetConnection()
         for _ in 0...fixture.options.maxCacheItems {
-            sut.send(envelope: fixture.transactionEnvelope)
+            sut.send(envelope: fixture.getTransactionEnvelope())
         }
         
         waitForAllRequests()
@@ -906,14 +907,14 @@ class SentryHttpTransportTests: XCTestCase {
             ensureFlushingGroup.waitWithTimeout()
             
             // Now the transport should also have left the synchronized block, and the
-            // double-checked lock, should return immediately.
+            // flush should return immediately.
             
             let initiallyInactiveQueue = fixture.queue
             for _ in 0..<2 {
                 allFlushCallsGroup.enter()
                 initiallyInactiveQueue.async {
                     for _ in 0..<10 {
-                        XCTAssertEqual(.alreadyFlushing, self.sut.flush(flushTimeout), "Double checked lock should have returned immediately")
+                        XCTAssertEqual(.alreadyFlushing, self.sut.flush(flushTimeout), "Flush should have returned immediately")
                     }
                     
                     allFlushCallsGroup.leave()
@@ -1031,7 +1032,7 @@ class SentryHttpTransportTests: XCTestCase {
     }
     
     private func sendTransactionAsync() {
-        sut.send(envelope: fixture.transactionEnvelope)
+        sut.send(envelope: fixture.getTransactionEnvelope())
     }
 
     private func sendEnvelope(envelope: SentryEnvelope = TestConstants.envelope) {

@@ -31,10 +31,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             options.beforeCaptureScreenshot = { _ in
                 return true
             }
+            options.beforeCaptureViewHierarchy = { _ in
+                return true
+            }
             options.debug = true
             
             if #available(iOS 16.0, *), !args.contains("--disable-session-replay") {
-                options.experimental.sessionReplay = SentryReplayOptions(sessionSampleRate: 1, errorSampleRate: 1, redactAllText: true, redactAllImages: true)
+                options.experimental.sessionReplay = SentryReplayOptions(sessionSampleRate: 1, onErrorSampleRate: 1, redactAllText: true, redactAllImages: true)
                 options.experimental.sessionReplay.quality = .high
             }
             
@@ -72,7 +75,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             options.enableAppLaunchProfiling = args.contains("--profile-app-launches")
 
             options.enableAutoSessionTracking = !args.contains("--disable-automatic-session-tracking")
-            //options.sessionTrackingIntervalMillis = 5_000
+            if let sessionTrackingIntervalMillis = env["--io.sentry.sessionTrackingIntervalMillis"] {
+                options.sessionTrackingIntervalMillis = UInt((sessionTrackingIntervalMillis as NSString).integerValue)
+            }
             options.attachScreenshot = true
             options.attachViewHierarchy = true
        
@@ -164,7 +169,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         if ProcessInfo.processInfo.arguments.contains("--io.sentry.wipe-data") {
             removeAppData()
         }
-        AppDelegate.startSentry()
+        if !ProcessInfo.processInfo.arguments.contains("--skip-sentry-init") {
+            AppDelegate.startSentry()
+        }
         
         randomDistributionTimer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { _ in
             let random = Double.random(in: 0..<1_000)

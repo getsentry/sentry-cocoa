@@ -373,8 +373,9 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
             return true
         }
 
-        override func captureReplay() {
+        override func captureReplay() -> Bool {
             TestSentrySessionReplayIntegration.captureReplayCalledTimes += 1
+            return true
         }
 
         static func captureReplayShouldBeCalledAtLeastOnce() -> Bool {

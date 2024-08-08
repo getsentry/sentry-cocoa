@@ -546,8 +546,10 @@ static NSDate *_Nullable startTimestamp = nil;
 {
     if (![currentHub.client.options isContinuousProfilingEnabled]) {
         SENTRY_LOG_WARN(
-            @"You must disable trace profiling by setting SentryOptions.profilesSampleRate to nil "
-            @"or 0 before using continuous profiling features.");
+            @"You must disable trace profiling by setting SentryOptions.profilesSampleRate and "
+            @"SentryOptions.profilesSampler to nil (which is the default initial value for both "
+            @"properties, so you can also just remove those lines from your configuration "
+            @"altogether) before attempting to start a continuous profiling session.");
         return;
     }
 
@@ -558,14 +560,28 @@ static NSDate *_Nullable startTimestamp = nil;
 {
     if (![currentHub.client.options isContinuousProfilingEnabled]) {
         SENTRY_LOG_WARN(
-            @"You must disable trace profiling by setting SentryOptions.profilesSampleRate to nil "
-            @"or 0 before using continuous profiling features.");
+            @"You must disable trace profiling by setting SentryOptions.profilesSampleRate and "
+            @"SentryOptions.profilesSampler to nil (which is the default initial value for both "
+            @"properties, so you can also just remove those lines from your configuration "
+            @"altogether) before attempting to stop a continuous profiling session.");
         return;
     }
 
     [SentryContinuousProfiler stop];
 }
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
+
+#if SENTRY_TARGET_REPLAY_SUPPORTED
++ (void)replayRedactView:(UIView *)view
+{
+    [SentryRedactViewHelper redactView:view];
+}
+
++ (void)replayIgnoreView:(UIView *)view
+{
+    [SentryRedactViewHelper ignoreView:view];
+}
+#endif
 
 @end
 

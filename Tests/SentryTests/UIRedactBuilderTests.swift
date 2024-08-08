@@ -1,6 +1,7 @@
 #if os(iOS)
 import Foundation
 @testable import Sentry
+import SentryTestUtils
 import UIKit
 import XCTest
 
@@ -149,13 +150,98 @@ class UIRedactBuilderTests: XCTestCase {
         }
         
         let sut = UIRedactBuilder()
-        sut.ignoreClasses.append(AnotherLabel.self)
+        sut.addIgnoreClass(AnotherLabel.self)
         rootView.addSubview(AnotherLabel(frame: CGRect(x: 20, y: 20, width: 40, height: 40)))
         
         let result = sut.redactRegionsFor(view: rootView, options: RedactOptions())
         XCTAssertEqual(result.count, 0)
     }
     
+    func testRedactlasses() {
+        class AnotherView: UIView {
+        }
+        
+        let sut = UIRedactBuilder()
+        let view = AnotherView(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
+        sut.addRedactClass(AnotherView.self)
+        rootView.addSubview(view)
+        
+        let result = sut.redactRegionsFor(view: rootView, options: RedactOptions())
+        XCTAssertEqual(result.count, 1)
+    }
+    
+    func testIgnoreView() {
+        class AnotherLabel: UILabel {
+        }
+        
+        let sut = UIRedactBuilder()
+        let label = AnotherLabel(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
+        SentrySDK.replayIgnore(label)
+        rootView.addSubview(label)
+        
+        let result = sut.redactRegionsFor(view: rootView, options: RedactOptions())
+        XCTAssertEqual(result.count, 0)
+    }
+    
+    func testRedactView() {
+        class AnotherView: UIView {
+        }
+        
+        let sut = UIRedactBuilder()
+        let view = AnotherView(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
+        SentrySDK.replayRedactView(view)
+        rootView.addSubview(view)
+        
+        let result = sut.redactRegionsFor(view: rootView, options: RedactOptions())
+        XCTAssertEqual(result.count, 1)
+    }
+    
+    func testIgnoreViewWithExtension() {
+        class AnotherLabel: UILabel {
+        }
+        
+        let sut = UIRedactBuilder()
+        let label = AnotherLabel(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
+        label.sentryReplayIgnore()
+        rootView.addSubview(label)
+        
+        let result = sut.redactRegionsFor(view: rootView, options: RedactOptions())
+        XCTAssertEqual(result.count, 0)
+    }
+    
+    func testRedactViewWithExtension() {
+        class AnotherView: UIView {
+        }
+        
+        let sut = UIRedactBuilder()
+        let view = AnotherView(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
+        view.sentryReplayRedact()
+        rootView.addSubview(view)
+        
+        let result = sut.redactRegionsFor(view: rootView, options: RedactOptions())
+        XCTAssertEqual(result.count, 1)
+    }
+    
+    func testRedactList() {
+        let expectedList = ["_TtCOCV7SwiftUI11DisplayList11ViewUpdater8Platform13CGDrawingView",
+            "_TtC7SwiftUIP33_A34643117F00277B93DEBAB70EC0697122_UIShapeHitTestingView",
+            "SwiftUI._UIGraphicsView", "SwiftUI.ImageLayer", "UIWebView", "UILabel", "UITextView", "UITextField", "WKWebView"
+        ].compactMap { NSClassFromString($0) }
+        
+        let sut = UIRedactBuilder()
+        expectedList.forEach { element in
+            XCTAssertTrue(sut.containsRedactClass(element), "\(element) not found")
+        }
+    }
+    
+    func testIgnoreList() {
+        let expectedList = ["UISlider", "UISwitch"].compactMap { NSClassFromString($0) }
+        
+        let sut = UIRedactBuilder()
+        expectedList.forEach { element in
+            XCTAssertTrue(sut.containsIgnoreClass(element), "\(element) not found")
+        }
+    }
 }
 
 #endif
