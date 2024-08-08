@@ -99,7 +99,7 @@ final class SentryContinuousProfilerTests: XCTestCase {
         SentryContinuousProfiler.start()
         XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
         SentrySDK.close()
-        XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
+        assertContinuousProfileStoppage()
     }
     
     func testStartingAPerformanceTransactionDoesNotStartProfiler() throws {
@@ -109,6 +109,32 @@ final class SentryContinuousProfilerTests: XCTestCase {
         XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
         manualSpan.finish()
         automaticSpan.finish()
+    }
+
+    // test that when stop is called, the profiler runs to the end of the last
+    // chunk and transmits that before stopping
+    func testStoppingProfilerTransmitsLastFullChunk() throws {
+        SentryContinuousProfiler.start()
+        XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
+        
+        // assert that the first chunk was sent
+        fixture.currentDateProvider.advanceBy(interval: kSentryProfilerChunkExpirationInterval)
+        fixture.timeoutTimerFactory.fire()
+        let envelope = try XCTUnwrap(self.fixture.client?.captureEnvelopeInvocations.last)
+        let profileItem = try XCTUnwrap(envelope.items.first)
+        XCTAssertEqual("profile_chunk", profileItem.header.type)
+        
+        // assert that the profiler doesn't stop until after the next timer period elapses
+        SentryContinuousProfiler.stop()
+        assertContinuousProfileStoppage()
+        
+        // check that the last full chunk was sent
+        let lastEnvelope = try XCTUnwrap(self.fixture.client?.captureEnvelopeInvocations.last)
+        let lastProfileItem = try XCTUnwrap(lastEnvelope.items.first)
+        XCTAssertEqual("profile_chunk", lastProfileItem.header.type)
+        
+        // check that two chunks were sent in total
+        XCTAssertEqual(2, self.fixture.client?.captureEnvelopeInvocations.count)
     }
 }
 
@@ -148,6 +174,13 @@ private extension SentryContinuousProfilerTests {
         
         XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
         SentryContinuousProfiler.stop()
+        assertContinuousProfileStoppage()
+    }
+    
+    func assertContinuousProfileStoppage() {
+        XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
+        fixture.currentDateProvider.advance(by: kSentryProfilerTimeoutInterval)
+        fixture.timeoutTimerFactory.fire()
         XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
     }
     
@@ -184,6 +217,10 @@ private extension SentryContinuousProfilerTests {
         XCTAssertFalse(try XCTUnwrap(firstImage["image_addr"] as? String).isEmpty)
         XCTAssertGreaterThan(try XCTUnwrap(firstImage["image_size"] as? Int), 0)
         XCTAssertEqual(try XCTUnwrap(firstImage["type"] as? String), "macho")
+        
+        let clientInfo = try XCTUnwrap(profile["client_sdk"] as? [String: String])
+        XCTAssertEqual(try XCTUnwrap(clientInfo["name"]), SentryMeta.sdkName)
+        XCTAssertEqual(try XCTUnwrap(clientInfo["version"]), SentryMeta.versionString)
 
         let sampledProfile = try XCTUnwrap(profile["profile"] as? [String: Any])
         let threadMetadata = try XCTUnwrap(sampledProfile["thread_metadata"] as? [String: [String: Any]])
