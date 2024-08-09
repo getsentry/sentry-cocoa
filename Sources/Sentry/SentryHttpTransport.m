@@ -290,12 +290,14 @@ SentryHttpTransport ()
 
     SentryEnvelope *envelope = [SentrySerialization envelopeWithData:envelopeFileContents.contents];
     if (nil == envelope) {
+        SENTRY_LOG_DEBUG(@"Envelope contained no deserializable data.");
         [self deleteEnvelopeAndSendNext:envelopeFileContents.path];
         return;
     }
 
     SentryEnvelope *rateLimitedEnvelope = [self.envelopeRateLimit removeRateLimitedItems:envelope];
     if (rateLimitedEnvelope.items.count == 0) {
+        SENTRY_LOG_DEBUG(@"Envelope had no rate-limited items, nothing to send.");
         [self deleteEnvelopeAndSendNext:envelopeFileContents.path];
         return;
     }
@@ -309,6 +311,7 @@ SentryHttpTransport ()
                                                       didFailWithError:&requestError];
 
     if (nil != requestError) {
+        SENTRY_LOG_DEBUG(@"Failed to build request: %@.", requestError);
         [self recordLostEventFor:rateLimitedEnvelope.items];
         [self deleteEnvelopeAndSendNext:envelopeFileContents.path];
         return;
@@ -350,12 +353,13 @@ SentryHttpTransport ()
                 return;
             }
 
-            // If the response is not nil we had an internet connection.
             if (error && response.statusCode != 429) {
+                SENTRY_LOG_DEBUG(@"Request error other than rate limit: %@", error);
                 [weakSelf recordLostEventFor:envelope.items];
             }
 
             if (nil != response) {
+                SENTRY_LOG_DEBUG(@"Envelope sent successfully!");
                 [weakSelf.rateLimits update:response];
                 [weakSelf deleteEnvelopeAndSendNext:envelopePath];
             } else {
@@ -367,7 +371,6 @@ SentryHttpTransport ()
 
 - (void)finishedSending
 {
-    SENTRY_LOG_DEBUG(@"Finished sending.");
     @synchronized(self) {
         self.isSending = NO;
         if (self.isFlushing) {
