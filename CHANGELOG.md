@@ -4,7 +4,7 @@
 
 ### Features
 
-- Add replay quality option for Objective-c ()
+- Add replay quality option for Objective-c (#4267)
 
 ## 8.33.0
 
