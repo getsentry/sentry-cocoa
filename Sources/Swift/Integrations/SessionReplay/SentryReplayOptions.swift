@@ -1,6 +1,6 @@
 import Foundation
 
-@objc
+@objcMembers
 public class SentryReplayOptions: NSObject, SentryRedactOptions {
     
     /**
@@ -34,7 +34,7 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
      * to the default.
      * - note:  The default is 0.
      */
-    @objc public var sessionSampleRate: Float
+    public var sessionSampleRate: Float
 
     /**
      * Indicates the percentage in which a 30 seconds replay will be send with error events.
@@ -43,7 +43,7 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
      * to the default.
      * - note: The default is 0.
      */
-    @objc public var onErrorSampleRate: Float
+    public var onErrorSampleRate: Float
     
     /**
      * Indicates whether session replay should redact all text in the app
@@ -51,7 +51,7 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
      *
      * - note: The default is true
      */
-    @objc public var redactAllText = true
+    public var redactAllText = true
     
     /**
      * Indicates whether session replay should redact all non-bundled image
@@ -59,27 +59,27 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
      *
      * - note: The default is true
      */
-    @objc public var redactAllImages = true
+    public var redactAllImages = true
     
     /**
      * Indicates the quality of the replay.
      * The higher the quality, the higher the CPU and bandwidth usage.
      */
-    @objc public var quality = SentryReplayQuality.low
+    public var quality = SentryReplayQuality.low
     
     /**
      * A list of custom UIView subclasses that need 
      * to be masked during session replay.
      * By default Sentry already mask text elements from UIKit
      */
-    @objc public var redactViewTypes = [AnyClass]()
+    public var redactViewTypes = [AnyClass]()
     
     /**
      * A list of custom UIView subclasses to be ignored
      * during masking step of the session replay.
      * The view itself and any child will be ignored and not masked.
      */
-    @objc public var ignoreRedactViewTypes = [AnyClass]()
+    public var ignoreRedactViewTypes = [AnyClass]()
     
     /**
      * Defines the quality of the session replay.
