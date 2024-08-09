@@ -251,6 +251,69 @@ class SentrySessionReplayTests: XCTestCase {
         XCTAssertNotNil(fixture.screenshotProvider.lastImageCall)
     }
     
+    func testPauseResume_FullSession() {
+        let fixture = Fixture()
+        
+        let sut = fixture.getSut(options: SentryReplayOptions(sessionSampleRate: 1, onErrorSampleRate: 1))
+        sut.start(rootView: fixture.rootView, fullSession: true)
+        
+        fixture.dateProvider.advance(by: 1)
+        Dynamic(sut).newFrame(nil)
+        XCTAssertNotNil(fixture.screenshotProvider.lastImageCall)
+        sut.pause()
+        fixture.screenshotProvider.lastImageCall = nil
+        
+        fixture.dateProvider.advance(by: 1)
+        Dynamic(sut).newFrame(nil)
+        XCTAssertNil(fixture.screenshotProvider.lastImageCall)
+        
+        fixture.dateProvider.advance(by: 4)
+        Dynamic(sut).newFrame(nil)
+        XCTAssertNil(fixture.replayMaker.lastCallToCreateVideo)
+        
+        sut.resume()
+        
+        fixture.dateProvider.advance(by: 1)
+        Dynamic(sut).newFrame(nil)
+        XCTAssertNotNil(fixture.screenshotProvider.lastImageCall)
+        
+        fixture.dateProvider.advance(by: 5)
+        Dynamic(sut).newFrame(nil)
+        XCTAssertNotNil(fixture.replayMaker.lastCallToCreateVideo)
+    }
+    
+    func testPause_BufferSession() {
+        let fixture = Fixture()
+        
+        let sut = fixture.getSut(options: SentryReplayOptions(sessionSampleRate: 0, onErrorSampleRate: 1))
+        sut.start(rootView: fixture.rootView, fullSession: false)
+        
+        fixture.dateProvider.advance(by: 1)
+        
+        Dynamic(sut).newFrame(nil)
+        XCTAssertNotNil(fixture.screenshotProvider.lastImageCall)
+        sut.pause()
+        fixture.screenshotProvider.lastImageCall = nil
+        
+        fixture.dateProvider.advance(by: 1)
+        Dynamic(sut).newFrame(nil)
+        XCTAssertNotNil(fixture.screenshotProvider.lastImageCall)
+        
+        fixture.dateProvider.advance(by: 4)
+        Dynamic(sut).newFrame(nil)
+        
+        let event = Event(error: NSError(domain: "Some error", code: 1))
+        sut.captureReplayFor(event: event)
+        
+        XCTAssertNotNil(fixture.replayMaker.lastCallToCreateVideo)
+        
+        //After changing to session mode the replay should pause
+        fixture.screenshotProvider.lastImageCall = nil
+        fixture.dateProvider.advance(by: 1)
+        Dynamic(sut).newFrame(nil)
+        XCTAssertNil(fixture.screenshotProvider.lastImageCall)
+    }
+    
     @available(iOS 16.0, tvOS 16, *)
     func testDealloc_CallsStop() {
         let fixture = Fixture()

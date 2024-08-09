@@ -101,25 +101,30 @@ class SentrySessionReplay: NSObject {
         videoSegmentStart = nil
     }
     
+    func unpause() {
+        isSessionPaused = false
+    }
+    
     func stop() {
         displayLink.invalidate()
-        prepareSegmentUntil(date: dateProvider.date())
+        if isFullSession {
+            prepareSegmentUntil(date: dateProvider.date())
+        }
         isSessionPaused = false
     }
 
     func resume() {
+        if isSessionPaused {
+            isSessionPaused = false
+            return
+        }
+        
         guard !reachedMaximumDuration else { return }
 
         lock.lock()
         defer { lock.unlock() }
         guard !isRunning else { return }
         
-        if isSessionPaused {
-            isSessionPaused = false
-        } else {
-            videoSegmentStart = nil
-            displayLink.link(withTarget: self, selector: #selector(newFrame(_:)))
-        }
         videoSegmentStart = nil
         displayLink.link(withTarget: self, selector: #selector(newFrame(_:)))
     }

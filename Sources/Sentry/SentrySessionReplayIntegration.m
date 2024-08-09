@@ -42,7 +42,6 @@ SentrySessionReplayIntegration () <SentryReachabilityObserver>
 
 @implementation SentrySessionReplayIntegration {
     BOOL _startedAsFullSession;
-    BOOL _isInForeground;
     SentryReplayOptions *_replayOptions;
     SentryNSNotificationCenterWrapper *_notificationCenter;
     SentryOnDemandReplay *_resumeReplayMaker;
@@ -55,7 +54,6 @@ SentrySessionReplayIntegration () <SentryReachabilityObserver>
     }
 
     _replayOptions = options.experimental.sessionReplay;
-    _isInForeground = true;
 
     if (options.enableSwizzling) {
         _touchTracker = [[SentryTouchTracker alloc]
@@ -312,14 +310,11 @@ SentrySessionReplayIntegration () <SentryReachabilityObserver>
 
 - (void)stop
 {
-    _isInForeground = false;
     [self.sessionReplay stop];
 }
 
 - (void)resume
 {
-    _isInForeground = true;
-
     [self.sessionReplay resume];
 }
 
@@ -477,7 +472,6 @@ SentrySessionReplayIntegration () <SentryReachabilityObserver>
 - (void)connectivityChanged:(BOOL)connected typeDescription:(nonnull NSString *)typeDescription
 {
     if (connected) {
-
         [_sessionReplay resume];
     } else {
         [_sessionReplay pause];

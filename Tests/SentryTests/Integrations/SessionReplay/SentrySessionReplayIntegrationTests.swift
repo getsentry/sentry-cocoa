@@ -273,6 +273,15 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         XCTAssertEqual(hub.capturedReplayRecordingVideo.count, 0)
     }
     
+    func testPauseSessionReplayWithReacheability() throws {
+        startSDK(sessionSampleRate: 1, errorSampleRate: 0)
+        let sut = try getSut()
+        (sut as? SentryReachabilityObserver)?.connectivityChanged(false, typeDescription: "")
+        XCTAssertTrue(sut.sessionReplay.isSessionPaused)
+        (sut as? SentryReachabilityObserver)?.connectivityChanged(true, typeDescription: "")
+        XCTAssertFalse(sut.sessionReplay.isSessionPaused)
+    }
+    
     func testMaskViewFromSDK() {
         class AnotherLabel: UILabel {
         }
