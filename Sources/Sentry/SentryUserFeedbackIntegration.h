@@ -1,6 +1,9 @@
 #import <Foundation/Foundation.h>
 
+#import "SentryDefines.h"
 #if SENTRY_HAS_UIKIT
+
+@class UIButton;
 
 NS_ASSUME_NONNULL_BEGIN
 

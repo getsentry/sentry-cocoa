@@ -2,7 +2,9 @@
 
 #if SENTRY_HAS_UIKIT
 
+#    import "SentryLog.h"
 #    import "SentryUserFeedbackWidgetConfiguration.h"
+#    import <UIKit/UIKit.h>
 
 @interface
 SentryUserFeedbackIntegration ()
@@ -27,22 +29,12 @@ SentryUserFeedbackIntegration ()
 
 - (void)createWidget
 {
-    // Implementation for creating the widget UI and injecting it into the app's view hierarchy.
-    NSLog(@"Creating feedback widget with ID: %@", self.configuration.widgetId);
-
-    // Example of how the form might be created and shown
-    [self showFeedbackForm];
+    // TODO: implement
 }
 
-- (void)removeFromDom
+- (void)removeWidget
 {
-    // Implementation for removing the widget from the app's view hierarchy.
-    NSLog(@"Removing feedback widget with ID: %@", self.configuration.widgetId);
-
-    // Call the form close callback if defined
-    if (self.configuration.onFormClose) {
-        self.configuration.onFormClose();
-    }
+    // TODO: implement
 }
 
 - (void)captureFeedback:(NSString *)message
@@ -50,22 +42,12 @@ SentryUserFeedbackIntegration ()
                   email:(NSString *)email
                   hints:(NSDictionary *)hints
 {
-    if (message == nil || [message isEqualToString:@""]) {
-        NSLog(@"Feedback message is required.");
-        return;
-    }
+    // TODO: implement
+}
 
-    // Simulate capturing feedback, e.g., sending it to a server
-    NSLog(@"Capturing feedback: %@, Name: %@, Email: %@", message, name, email);
-
-    // Simulate success callback
-    if (self.configuration.onSubmitSuccess) {
-        NSDictionary *data =
-            @{ @"message" : message, @"name" : name ?: @"", @"email" : email ?: @"" };
-        self.configuration.onSubmitSuccess(data);
-    }
-
-    // ... to be continued...
+- (void)attachToButton:(nonnull UIButton *)button
+{
+    // TODO: implement
 }
 
 @end

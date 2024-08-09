@@ -1,14 +1,28 @@
 #import <Foundation/Foundation.h>
 
+#import "SentryDefines.h"
 #if SENTRY_HAS_UIKIT
 
 #    import <UIKit/UIKit.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
+@class SentryUserFeedbackThemeOverrides;
+
+typedef void (^SentryUserFeedbackWidgetThemeOverridesBuilder)(SentryUserFeedbackThemeOverrides *);
+
+typedef enum : NSUInteger {
+    kSentryFeedbackWidgetColorSchemeSystem,
+    kSentryFeedbackWidgetColorSchemeLight,
+    kSentryFeedbackWidgetColorSchemeDark,
+} SentryFeedbackWidgetColorScheme;
+
 @interface SentryUserFeedbackWidgetConfiguration : NSObject
 /**
- * Injects the Feedback widget into the application when the integration is added.
+ * Injects the Feedback widget into the application when the integration is added. Set to @c NO if
+ * you want to call @c -[SentryUserFeedbackIntegration @c attachToButton:] or @c
+ * -[SentryUserFeedbackIntegration @c createWidget] directly, or only want to show the widget on
+ * certain views.
  * @note Default: @c YES
  */
 @property (nonatomic, assign) BOOL autoInject;
@@ -20,17 +34,11 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, assign) BOOL showBranding;
 
 /**
- * Shows the color theme choices. Options are "system", "light", or "dark".
- * "system" will use the OS color scheme.
- * @note Default: @"system"
+ * The color theme to use for the widget and form. @c kSentryFeedbackWidgetColorSchemeSystem will
+ * use the OS color scheme.
+ * @note Default: @c kSentryFeedbackWidgetColorSchemeSystem
  */
-@property (nonatomic, copy) NSString *colorScheme;
-
-/**
- * The id attribute of the <div> that contains the feedback widget.
- * @note Default: @"sentry-feedback"
- */
-@property (nonatomic, copy) NSString *widgetId;
+@property (nonatomic, assign) SentryFeedbackWidgetColorScheme colorScheme;
 
 /**
  * Tags to set on the feedback event. This is a dictionary where keys are strings
@@ -54,18 +62,21 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * Allows the user to send a screenshot attachment with their feedback.
  * @note Default: @c YES
+ * @note For self-hosted, release 24.4.2 is also required.
  */
 @property (nonatomic, assign) BOOL enableScreenshot;
 
 /**
  * Requires the name field on the feedback form to be filled in.
  * @note Default: @c NO
+ * @warning If @c showName is @c NO but this property is @c YES, then @c showName will be ignored.
  */
 @property (nonatomic, assign) BOOL isNameRequired;
 
 /**
  * Requires the email field on the feedback form to be filled in.
  * @note Default: @c NO
+ * @warning If @c showEmail is @c NO but this property is @c YES, then @c showEmail will be ignored.
  */
 @property (nonatomic, assign) BOOL isEmailRequired;
 
@@ -82,11 +93,10 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, copy) NSString *triggerLabel;
 
 /**
- * The aria label of the injected button that opens up the feedback form when clicked.
- * If not provided, will default to triggerLabel or @"Report a Bug".
- * @note Default: @c nil
+ * The accessibility label of the injected button that opens up the feedback form when clicked.
+ * @note Default: @c triggerLabel value
  */
-@property (nonatomic, copy) NSString *triggerAriaLabel;
+@property (nonatomic, copy) NSString *triggerAccessibilityLabel;
 
 /**
  * The title at the top of the feedback form.
@@ -173,44 +183,44 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, copy) NSString *successMessageText;
 
 /**
- * Customizes the theme for light mode by overriding default CSS variables.
- * Keys correspond to CSS properties such as background color, text color, etc.
+ * Builder for light mode theme overrides.
  * @note Default: @c nil
  */
-@property (nonatomic, copy) NSDictionary<NSString *, id> *themeLight;
+@property (nonatomic, copy, nullable)
+    SentryUserFeedbackWidgetThemeOverridesBuilder lightThemeOverrides;
 
 /**
- * Customizes the theme for dark mode by overriding default CSS variables.
- * Keys correspond to CSS properties such as background color, text color, etc.
+ * Builder for dark mode theme overrides.
  * @note Default: @c nil
  */
-@property (nonatomic, copy) NSDictionary<NSString *, id> *themeDark;
+@property (nonatomic, copy, nullable)
+    SentryUserFeedbackWidgetThemeOverridesBuilder darkThemeOverrides;
 
 /**
  * Called when the feedback form is opened.
  * @note Default: @c nil
  */
-@property (nonatomic, copy) void (^onFormOpen)(void);
+@property (nonatomic, copy, nullable) void (^onFormOpen)(void);
 
 /**
  * Called when the feedback form is closed.
  * @note Default: @c nil
  */
-@property (nonatomic, copy) void (^onFormClose)(void);
+@property (nonatomic, copy, nullable) void (^onFormClose)(void);
 
 /**
  * Called when feedback is successfully submitted.
  * The data dictionary contains the feedback details.
  * @note Default: @c nil
  */
-@property (nonatomic, copy) void (^onSubmitSuccess)(NSDictionary *data);
+@property (nonatomic, copy, nullable) void (^onSubmitSuccess)(NSDictionary *data);
 
 /**
  * Called when there is an error submitting feedback.
  * The error object contains details of the error.
  * @note Default: @c nil
  */
-@property (nonatomic, copy) void (^onSubmitError)(NSError *error);
+@property (nonatomic, copy, nullable) void (^onSubmitError)(NSError *error);
 
 @end
 

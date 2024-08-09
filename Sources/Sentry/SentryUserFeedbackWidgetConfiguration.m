@@ -10,11 +10,7 @@
 {
     self = [super init];
     if (self) {
-        _enableShakeGesture = NO;
-        _floatingButtonInitialCoordinates = CGRectZero;
-        _primaryColor = nil;
-        _secondaryColor = nil;
-        _tertiaryColor = nil;
+        // TODO: set defaults
     }
     return self;
 }
