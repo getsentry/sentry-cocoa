@@ -307,14 +307,22 @@ slowFrameThreshold(uint64_t actualFramesPerSecond)
 #    endif // SENTRY_TARGET_PROFILING_SUPPORTED
 }
 
-- (CFTimeInterval)getFramesDelay:(uint64_t)startSystemTimestamp
-              endSystemTimestamp:(uint64_t)endSystemTimestamp SENTRY_DISABLE_THREAD_SANITIZER()
+- (SentryFramesDelayResult *)getFramesDelay:(uint64_t)startSystemTimestamp
+                         endSystemTimestamp:(uint64_t)endSystemTimestamp
+    SENTRY_DISABLE_THREAD_SANITIZER()
 {
-    return [self.delayedFramesTracker getFramesDelay:startSystemTimestamp
-                                  endSystemTimestamp:endSystemTimestamp
-                                           isRunning:_isRunning
-                        previousFrameSystemTimestamp:self.previousFrameSystemTimestamp
-                                  slowFrameThreshold:slowFrameThreshold(_currentFrameRate)];
+    CFTimeInterval delay =
+        [self.delayedFramesTracker getFramesDelay:startSystemTimestamp
+                               endSystemTimestamp:endSystemTimestamp
+                                        isRunning:_isRunning
+                     previousFrameSystemTimestamp:self.previousFrameSystemTimestamp
+                               slowFrameThreshold:slowFrameThreshold(_currentFrameRate)];
+
+    SentryFramesDelayResult *data =
+        [[SentryFramesDelayResult alloc] initWithDelayDuration:delay
+                                      lastFrameSystemTimeStamp:self.previousFrameSystemTimestamp];
+
+    return data;
 }
 
 - (void)addListener:(id<SentryFramesTrackerListener>)listener
