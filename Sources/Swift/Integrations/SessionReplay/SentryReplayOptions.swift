@@ -6,6 +6,7 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
     /**
      * Enum to define the quality of the session replay.
      */
+    @objc
     public enum SentryReplayQuality: Int {
         /**
          * Video Scale: 80%
