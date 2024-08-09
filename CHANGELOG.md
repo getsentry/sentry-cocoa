@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+- Add replay quality option for Objective-c ()
+
 ## 8.33.0
 
 This release fixes a bug (#4230) that we introduced with a refactoring (#4101) released in [8.30.1](https://github.com/getsentry/sentry-cocoa/releases/tag/8.30.1).
