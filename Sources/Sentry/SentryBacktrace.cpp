@@ -12,10 +12,10 @@
 #    include "SentryThreadState.hpp"
 #    include "SentryTime.h"
 extern "C" {
-#define restrict
+#    define restrict
 /** Allow importing C99 headers that use the restrict keyword, which isn't valid in C++ */
 #    include "SentryCrashMemory.h"
-#undef restrict
+#    undef restrict
 }
 #    include <cassert>
 #    include <cstring>
