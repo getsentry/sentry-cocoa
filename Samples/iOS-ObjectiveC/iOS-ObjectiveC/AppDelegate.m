@@ -31,7 +31,7 @@ AppDelegate ()
         options.experimental.sessionReplay.redactAllImages = true;
         options.experimental.sessionReplay.sessionSampleRate = 0;
         options.experimental.sessionReplay.onErrorSampleRate = 1;
-        
+
         options.initialScope = ^(SentryScope *scope) {
             [scope setTagValue:@"" forKey:@""];
             return scope;
