@@ -17,87 +17,98 @@
 
 /**
  * The window level of the widget.
- * @note Default: @c UIWindowLevelAlert
+ * @note Default: @code UIWindowLevelNormal + 1 @endcode
  */
-@property (nonatomic, assign) UIWindowLevel windowLevel;
+@property (nonatomic, assign) UIWindowLevel widgetWindowLevel;
 
 /**
- * The inset value for positioning the widget.
- * @note Default: @"auto 0 0 auto"
- * TODO: convert this from CSS-centric to UIKit-centric
+ * The location for positioning the widget.
+ * @note Default: @code UIDirectionalRectEdgeBottom | UIDirectionalRectEdgeTrailing @endcode
  */
-@property (nonatomic, copy) NSString *inset;
+@property (nonatomic, assign)
+    UIDirectionalRectEdge widgetDirectionalLocation API_AVAILABLE(ios(13.0));
 
 /**
- * The margin from the edge of the screen that the widget should be positioned.
- * @note Default: @"16px"
- * TODO: convert this from CSS-centric to UIKit-centric
+ * The location for positioning the widget.
+ * @note Default: @code UIRectEdgeBottom | UIRectEdgeRight @endcode
+ * @note Prefer to use @c widgetDirectionalLocation on platform versions that support
+ * @c UIDirectionalRectEdge .
  */
-@property (nonatomic, copy) NSString *pageMargin;
+@property (nonatomic, assign) UIRectEdge widgetLocation;
+
+/**
+ * The distance to use from the widget button to the superview's @c layoutMarginsGuide .
+ * @note Default: @c UIOffsetZero .
+ */
+@property (nonatomic, assign) UIOffset widgetOffset;
 
 /**
  * Foreground (text) color.
- * @note Defaults light mode: @"#2b2233"; dark mode: @"#ebe6ef"
- * TODO: convert to RGB
+ * @note Defaults light mode: rgb(43, 34, 51); dark mode: rgb(235, 230, 239)
  */
 @property (nonatomic, strong) UIColor *foreground;
 
 /**
  * Background color of the widget (injected button and form).
- * @note Default light mode: @"#ffffff"; dark mode: @"#29232f"
- * TODO: convert to RGB
+ * @note Default light mode: rgb(255, 255, 255); dark mode: rgb(41, 35, 47)
  */
 @property (nonatomic, strong) UIColor *background;
 
 /**
  * Foreground color for the submit button.
- * @note Default: @"#ffffff" for both dark and light modes
- * TODO: convert to RGB
+ * @note Default: rgb(255, 255, 255) for both dark and light modes
  */
 @property (nonatomic, strong) UIColor *accentForeground;
 
 /**
  * Background color for the submit button in light and dark modes.
- * @note Default: @"rgba(88, 74, 192, 1)" for both light and dark modes
+ * @note Default: rgb(88, 74, 192) for both light and dark modes
  */
 @property (nonatomic, strong) UIColor *accentBackground;
 
 /**
  * Color used for success-related components (such as text color when feedback is submitted
  * successfully).
- * @note Default light mode: @"#268d75"; dark mode: @"#2da98c"
- * TODO: convert to RGB
+ * @note Default light mode: rgb(38, 141, 117); dark mode: rgb(45, 169, 140)
  */
 @property (nonatomic, strong) UIColor *successColor;
 
 /**
  * Color used for error-related components (such as text color when there's an error submitting
  * feedback).
- * @note Default light mode: @"#df3338"; dark mode: @"#f55459"
- * TODO: convert to RGB
+ * @note Default light mode: rgb(223, 51, 56); dark mode: rgb(245, 84, 89)
  */
 @property (nonatomic, strong) UIColor *errorColor;
 
 /**
- * Outline for form inputs when focused.
- * @note Default: @"1px auto var(--accent-background)"
- * TODO: convert this from CSS-centric to UIKit-centric
+ * Normal outline color for form inputs.
+ * @note Default: @c nil (system default)
  */
-@property (nonatomic, copy) UIColor *outlineColor;
+@property (nonatomic, strong) UIColor *outlineColor;
 
 /**
- * Outline for form inputs when focused.
- * @note Default: @"1px auto var(--accent-background)"
- * TODO: convert this from CSS-centric to UIKit-centric
+ * Outline color for form inputs when focused.
+ * @note Default: @c nil (system default)
  */
-@property (nonatomic, assign) CGFloat outlineThickness;
+@property (nonatomic, strong) UIColor *outlineColorFocussed;
 
 /**
- * Outline for form inputs when focused.
- * @note Default: @"1px auto var(--accent-background)"
- * TODO: convert this from CSS-centric to UIKit-centric
+ * Normal outline thickness for form inputs.
+ * @note Default: @c nil (system default)
  */
-@property (nonatomic, assign) CGFloat outlineCornerRadius;
+@property (nonatomic, strong) NSNumber *outlineThickness;
+
+/**
+ * Outline thickness for form inputs when focused.
+ * @note Default: @c nil (system default)
+ */
+@property (nonatomic, strong) NSNumber *outlineThicknessFocussed;
+
+/**
+ * Outline corner radius for form input elements.
+ * @note Default: @c nil (system default)
+ */
+@property (nonatomic, strong) NSNumber *cornerRadius;
 
 @end
 

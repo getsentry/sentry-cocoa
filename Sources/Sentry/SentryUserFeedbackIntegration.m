@@ -3,19 +3,19 @@
 #if SENTRY_HAS_UIKIT
 
 #    import "SentryLog.h"
-#    import "SentryUserFeedbackWidgetConfiguration.h"
+#    import "SentryUserFeedbackConfiguration.h"
 #    import <UIKit/UIKit.h>
 
 @interface
 SentryUserFeedbackIntegration ()
 
-@property (strong, nonatomic) SentryUserFeedbackWidgetConfiguration *configuration;
+@property (strong, nonatomic) SentryUserFeedbackConfiguration *configuration;
 
 @end
 
 @implementation SentryUserFeedbackIntegration
 
-- (instancetype)initWithConfiguration:(SentryUserFeedbackWidgetConfiguration *)configuration
+- (instancetype)initWithConfiguration:(SentryUserFeedbackConfiguration *)configuration
 {
     self = [super init];
     if (self) {

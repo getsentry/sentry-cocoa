@@ -11,18 +11,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 typedef void (^SentryUserFeedbackWidgetThemeOverridesBuilder)(SentryUserFeedbackThemeOverrides *);
 
-typedef enum : NSUInteger {
-    kSentryFeedbackWidgetColorSchemeSystem,
-    kSentryFeedbackWidgetColorSchemeLight,
-    kSentryFeedbackWidgetColorSchemeDark,
-} SentryFeedbackWidgetColorScheme;
-
-@interface SentryUserFeedbackWidgetConfiguration : NSObject
+@interface SentryUserFeedbackConfiguration : NSObject
 /**
- * Injects the Feedback widget into the application when the integration is added. Set to @c NO if
- * you want to call @c -[SentryUserFeedbackIntegration @c attachToButton:] or @c
- * -[SentryUserFeedbackIntegration @c createWidget] directly, or only want to show the widget on
- * certain views.
+ * Injects the Feedback widget into the application UI when the integration is added. Set to @c NO
+ * if you want to call @code -[SentryUserFeedbackIntegration attachToButton:] @endcode or
+ * @code -[SentryUserFeedbackIntegration createWidget] @endcode directly, or only want to show the
+ * widget on certain views.
  * @note Default: @c YES
  */
 @property (nonatomic, assign) BOOL autoInject;
@@ -34,18 +28,11 @@ typedef enum : NSUInteger {
 @property (nonatomic, assign) BOOL showBranding;
 
 /**
- * The color theme to use for the widget and form. @c kSentryFeedbackWidgetColorSchemeSystem will
- * use the OS color scheme.
- * @note Default: @c kSentryFeedbackWidgetColorSchemeSystem
- */
-@property (nonatomic, assign) SentryFeedbackWidgetColorScheme colorScheme;
-
-/**
  * Tags to set on the feedback event. This is a dictionary where keys are strings
  * and values can be different data types such as @c NSNumber, @c NSString, etc.
- * @note Default: @{}
+ * @note Default: @c nil
  */
-@property (nonatomic, copy) NSDictionary<NSString *, id> *tags;
+@property (nonatomic, copy, nullable) NSDictionary<NSString *, id> *tags;
 
 /**
  * Displays the name field on the feedback form.
@@ -69,22 +56,24 @@ typedef enum : NSUInteger {
 /**
  * Requires the name field on the feedback form to be filled in.
  * @note Default: @c NO
- * @warning If @c showName is @c NO but this property is @c YES, then @c showName will be ignored.
+ * @warning If @c showName is @c NO but this property is @c YES, then @c showName will be ignored
+ * and the name field will be displayed.
  */
 @property (nonatomic, assign) BOOL isNameRequired;
 
 /**
  * Requires the email field on the feedback form to be filled in.
  * @note Default: @c NO
- * @warning If @c showEmail is @c NO but this property is @c YES, then @c showEmail will be ignored.
+ * @warning If @c showEmail is @c NO but this property is @c YES, then @c showEmail will be ignored
+ * and the email field will be displayed.
  */
 @property (nonatomic, assign) BOOL isEmailRequired;
 
 /**
- * Sets the email and name fields to the corresponding Sentry SDK user fields.
- * @note Default: @{ @"email": @"email", @"name": @"username" }
+ * Sets the email and name field text content to @c SentryUser.email and @c SentryUser.name .
+ * @note Default: @c YES
  */
-@property (nonatomic, copy) NSDictionary<NSString *, NSString *> *useSentryUser;
+@property (nonatomic, assign) BOOL useSentryUser;
 
 /**
  * The label of the injected button that opens up the feedback form when clicked.

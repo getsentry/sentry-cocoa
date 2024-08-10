@@ -6,10 +6,10 @@ NS_ASSUME_NONNULL_BEGIN
 @class SentryDsn, SentryMeasurementValue, SentryHttpStatusCodeRange, SentryScope,
     SentryReplayOptions;
 @class SentryExperimentalOptions;
-@class SentryUserFeedbackWidgetConfiguration;
+@class SentryUserFeedbackConfiguration;
 
 typedef void (^SentryUserFeedbackWidgetConfigurationBlock)(
-    SentryUserFeedbackWidgetConfiguration *configuration);
+    SentryUserFeedbackConfiguration *configuration);
 
 NS_SWIFT_NAME(Options)
 @interface SentryOptions : NSObject
@@ -709,7 +709,7 @@ NS_SWIFT_NAME(Options)
 @property (nullable, nonatomic, copy) SentryBeforeEmitMetricCallback beforeEmitMetric;
 
 /**
- * A block that can be defined that receives a user feedback object to configure
+ * A block that can be defined that receives a user feedback configuration object to modify.
  */
 @property (nonatomic, copy, nullable)
     SentryUserFeedbackWidgetConfigurationBlock configureUserFeedback;

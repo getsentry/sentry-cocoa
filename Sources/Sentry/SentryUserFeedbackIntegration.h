@@ -7,21 +7,21 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class SentryUserFeedbackWidgetConfiguration;
+@class SentryUserFeedbackConfiguration;
 
 @interface SentryUserFeedbackIntegration : NSObject
 
-- (instancetype)initWithConfiguration:(SentryUserFeedbackWidgetConfiguration *)configuration;
+- (instancetype)initWithConfiguration:(SentryUserFeedbackConfiguration *)configuration;
 
 /**
  * Attaches the feedback widget to a specified UIButton. The button will trigger the feedback form.
- * @param button The UIButton to attach the widget to.
+ * @param button The @c UIButton to attach the widget to.
  */
 - (void)attachToButton:(UIButton *)button;
 
 /**
- * Creates and renders the feedback widget on the screen. If autoInject is NO, this must be called
- * explicitly.
+ * Creates and renders the feedback widget on the screen.
+ * @note If @c SentryUserFeedbackConfiguration.autoInject is @c NO, this must called explicitly.
  */
 - (void)createWidget;
 
@@ -37,6 +37,8 @@ NS_ASSUME_NONNULL_BEGIN
  * @param name The name of the user (optional).
  * @param email The email of the user (optional).
  * @param hints Additional hints or metadata for the feedback submission (optional).
+ * TODO: use SentryUserFeedback class here.
+ * ???: add hints property to SentryUserFeedback?
  */
 - (void)captureFeedback:(NSString *)message
                    name:(nullable NSString *)name
