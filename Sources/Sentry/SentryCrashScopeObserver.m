@@ -126,7 +126,7 @@
         syncToSentryCrash(NULL);
         return;
     }
-    
+
     id serialized;
     @synchronized(self) {
         serialized = serialize();
@@ -135,7 +135,7 @@
         syncToSentryCrash(NULL);
         return;
     }
-    
+
     NSData *jsonEncodedCString;
     @synchronized(self) {
         jsonEncodedCString = [self toJSONEncodedCString:serialized];
