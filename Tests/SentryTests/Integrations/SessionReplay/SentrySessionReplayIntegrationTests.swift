@@ -31,6 +31,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
     
     override func setUp() {
         SentryDependencyContainer.sharedInstance().application = uiApplication
+        SentryDependencyContainer.sharedInstance().reachability = TestSentryReachability()
     }
     
     override func tearDown() {
