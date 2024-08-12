@@ -471,7 +471,7 @@ SentrySessionReplayIntegration () <SentryReachabilityObserver>
 
 - (void)connectivityChanged:(BOOL)connected typeDescription:(nonnull NSString *)typeDescription
 {
-    
+
     if (connected) {
         [_sessionReplay resume];
     } else {
