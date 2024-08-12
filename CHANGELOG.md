@@ -5,6 +5,7 @@
 ### Features
 
 - Pause replay in session mode when offline (#4264)
+- Add replay quality option for Objective-C (#4267)
 
 ## 8.33.0
 
