@@ -126,14 +126,20 @@
         syncToSentryCrash(NULL);
         return;
     }
-
-    id serialized = serialize();
+    
+    id serialized;
+    @synchronized(self) {
+        serialized = serialize();
+    }
     if (serialized == nil) {
         syncToSentryCrash(NULL);
         return;
     }
-
-    NSData *jsonEncodedCString = [self toJSONEncodedCString:serialized];
+    
+    NSData *jsonEncodedCString;
+    @synchronized(self) {
+        jsonEncodedCString = [self toJSONEncodedCString:serialized];
+    }
     if (jsonEncodedCString == nil) {
         return;
     }

@@ -281,6 +281,17 @@ class SentryCrashScopeObserverTests: XCTestCase {
         assertEmptyScope()
     }
     
+    func testModifyScopeFromDifferentThreads() {
+        let scope = Scope()
+        scope.add(SentryCrashScopeObserver(maxBreadcrumbs: 100))
+        
+        testConcurrentModifications(asyncWorkItems: 20, writeLoopCount: 100, writeWork: { i in
+            let user = User()
+            user.name = "name \(i)"
+            scope.setUser(user)
+        })
+    }
+    
     private func serialize(object: Any) -> String {
         let serialized = try! SentryCrashJSONCodec.encode(object, options: SentryCrashJSONEncodeOptionSorted)
         return String(data: serialized, encoding: .utf8) ?? ""
