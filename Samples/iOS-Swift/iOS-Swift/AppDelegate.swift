@@ -110,7 +110,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             options.enableTracing = !args.contains("--disable-tracing")
 
             // because we run CPU for 15 seconds at full throttle, we trigger ANR issues being sent. disable such during benchmarks.
-            options.enableAppHangTracking = !isBenchmarking && !args.contains("--disable-anr-tracking")
+            options.enableAppHangTracking = false
+            options.enableAppHangTrackingV2 = true
             options.enableWatchdogTerminationTracking = !isBenchmarking && !args.contains("--disable-watchdog-tracking")
             options.appHangTimeoutInterval = 2
             options.enableCaptureFailedRequests = true

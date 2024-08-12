@@ -2,9 +2,11 @@
 #import "SentryCrashWrapper.h"
 #import "SentryDependencyContainer.h"
 #import "SentryDispatchQueueWrapper.h"
+#import "SentryFramesTracker.h"
 #import "SentryLog.h"
 #import "SentrySwift.h"
 #import "SentryThreadWrapper.h"
+#import "SentryTime.h"
 #import <stdatomic.h>
 
 NS_ASSUME_NONNULL_BEGIN
@@ -23,6 +25,7 @@ SentryANRTrackerV2 ()
 @property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueueWrapper;
 @property (nonatomic, strong) SentryThreadWrapper *threadWrapper;
 @property (nonatomic, strong) NSHashTable<id<SentryANRTrackerV2Delegate>> *listeners;
+@property (nonatomic, strong) SentryFramesTracker *framesTracker;
 @property (nonatomic, assign) NSTimeInterval timeoutInterval;
 
 @end
@@ -36,12 +39,14 @@ SentryANRTrackerV2 ()
                            crashWrapper:(SentryCrashWrapper *)crashWrapper
                    dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
                           threadWrapper:(SentryThreadWrapper *)threadWrapper
+                          framesTracker:(SentryFramesTracker *)framesTracker
 {
     if (self = [super init]) {
         self.timeoutInterval = timeoutInterval;
         self.crashWrapper = crashWrapper;
         self.dispatchQueueWrapper = dispatchQueueWrapper;
         self.threadWrapper = threadWrapper;
+        self.framesTracker = framesTracker;
         self.listeners = [NSHashTable weakObjectsHashTable];
         threadLock = [[NSObject alloc] init];
         state = kSentryANRTrackerNotRunning;
@@ -65,13 +70,16 @@ SentryANRTrackerV2 ()
         state = kSentryANRTrackerRunning;
     }
 
-    __block atomic_int ticksSinceUiUpdate = 0;
-    __block BOOL reported = NO;
+    SentryCurrentDateProvider *dateProvider = SentryDependencyContainer.sharedInstance.dateProvider;
+
+    BOOL reported = NO;
 
     NSInteger reportThreshold = 5;
     NSTimeInterval sleepInterval = self.timeoutInterval / reportThreshold;
+    uint64_t timeoutIntervalInNanos = timeIntervalToNanoseconds(self.timeoutInterval);
+    uint64_t recoveryIntervalInNanos = timeIntervalToNanoseconds(sleepInterval * 2);
 
-    SentryCurrentDateProvider *dateProvider = SentryDependencyContainer.sharedInstance.dateProvider;
+    uint64_t lastReportedAppHangSystemTime = dateProvider.systemTime;
 
     // Canceling the thread can take up to sleepInterval.
     while (YES) {
@@ -81,52 +89,90 @@ SentryANRTrackerV2 ()
             }
         }
 
-        NSDate *blockDeadline = [[dateProvider date] dateByAddingTimeInterval:self.timeoutInterval];
-
-        atomic_fetch_add_explicit(&ticksSinceUiUpdate, 1, memory_order_relaxed);
-
-        [self.dispatchQueueWrapper dispatchAsyncOnMainQueue:^{
-            atomic_store_explicit(&ticksSinceUiUpdate, 0, memory_order_relaxed);
-
-            if (reported) {
-                SENTRY_LOG_WARN(@"ANR stopped.");
-
-                // The ANR stopped, don't block the main thread with calling ANRStopped listeners.
-                // While the ANR code reports an ANR and collects the stack trace, the ANR might
-                // stop simultaneously. In that case, the ANRs stack trace would contain the
-                // following code running on the main thread. To avoid this, we offload work to a
-                // background thread.
-                [self.dispatchQueueWrapper dispatchAsyncWithBlock:^{ [self ANRStopped]; }];
-            }
-
-            reported = NO;
-        }];
+        NSDate *sleepDeadline = [[dateProvider date] dateByAddingTimeInterval:self.timeoutInterval];
 
         [self.threadWrapper sleepForTimeInterval:sleepInterval];
 
-        // The blockDeadline should be roughly executed after the timeoutInterval even if there is
-        // an ANR. If the app gets suspended this thread could sleep and wake up again. To avoid
-        // false positives, we don't report ANRs if the delta is too big.
-        NSTimeInterval deltaFromNowToBlockDeadline =
-            [[dateProvider date] timeIntervalSinceDate:blockDeadline];
-
-        if (deltaFromNowToBlockDeadline >= self.timeoutInterval) {
-            SENTRY_LOG_DEBUG(
-                @"Ignoring ANR because the delta is too big: %f.", deltaFromNowToBlockDeadline);
+        if (![self.crashWrapper isApplicationInForeground]) {
+            SENTRY_LOG_DEBUG(@"Ignoring potential app hangs because the app is in the background");
             continue;
         }
 
-        if (atomic_load_explicit(&ticksSinceUiUpdate, memory_order_relaxed) >= reportThreshold
-            && !reported) {
+        // The sleepDeadline should be roughly executed after the timeoutInterval even if there is
+        // an AppHang. If the app gets suspended this thread could sleep and wake up again. To avoid
+        // false positives, we don't report AppHangs if the delta is too big.
+        NSTimeInterval deltaFromNowToSleepDeadline =
+            [[dateProvider date] timeIntervalSinceDate:sleepDeadline];
+
+        if (deltaFromNowToSleepDeadline >= self.timeoutInterval) {
+            SENTRY_LOG_DEBUG(@"Ignoring App Hang because the delta is too big: %f.",
+                deltaFromNowToSleepDeadline);
+            continue;
+        }
+
+        uint64_t frameDelayEndSystemTime = dateProvider.systemTime;
+        uint64_t frameDelayStartSystemTime = frameDelayEndSystemTime - timeoutIntervalInNanos;
+
+        SentryFramesDelayResult *framesDelayForTimeInterval =
+            [self.framesTracker getFramesDelay:frameDelayStartSystemTime
+                            endSystemTimestamp:frameDelayEndSystemTime];
+
+        if (framesDelayForTimeInterval.delayDuration == -1) {
+            continue;
+        }
+
+        uint64_t recoveryIntervalStartSystemTime
+            = frameDelayEndSystemTime - recoveryIntervalInNanos;
+
+        SentryFramesDelayResult *framesDelayForRecoveryInterval =
+            [self.framesTracker getFramesDelay:recoveryIntervalStartSystemTime
+                            endSystemTimestamp:frameDelayEndSystemTime];
+
+        if (framesDelayForRecoveryInterval.delayDuration == -1) {
+            continue;
+        }
+
+        if (reported
+            && framesDelayForTimeInterval.delayDuration
+                < nanosecondsToTimeInterval(recoveryIntervalInNanos) * 0.2) {
+            SENTRY_LOG_DEBUG(@"App hang stopped.");
+
+            // The App Hang stopped, don't block the App Hangs thread or the main thread with
+            // calling ANRStopped listeners.
+            [self.dispatchQueueWrapper dispatchAsyncWithBlock:^{ [self ANRStopped]; }];
+
+            lastReportedAppHangSystemTime = dateProvider.systemTime;
+            reported = NO;
+        }
+
+        if (reported) {
+            continue;
+        }
+
+        uint64_t framesDelayForTimeIntervalInNanos
+            = timeIntervalToNanoseconds(framesDelayForTimeInterval.delayDuration);
+
+        BOOL isFullyBlocking = framesDelayForTimeInterval.framesCount == 1;
+
+        if (isFullyBlocking && framesDelayForTimeIntervalInNanos >= timeoutIntervalInNanos) {
+
             reported = YES;
 
-            if (![self.crashWrapper isApplicationInForeground]) {
-                SENTRY_LOG_DEBUG(@"Ignoring ANR because the app is in the background");
-                continue;
-            }
+            SENTRY_LOG_WARN(@"App Hang detected: fully-blocking.");
 
-            SENTRY_LOG_WARN(@"ANR detected.");
-            [self ANRDetected];
+            [self ANRDetected:kSentryANRTypeFullyBlocking];
+
+            continue;
+        }
+
+        NSTimeInterval nonFullyBlockingFramesDelayThreshold = self.timeoutInterval * 0.9;
+        if (!isFullyBlocking
+            && framesDelayForTimeInterval.delayDuration > nonFullyBlockingFramesDelayThreshold) {
+
+            reported = YES;
+
+            SENTRY_LOG_WARN(@"App Hang detected: non-fully-blocking.");
+            [self ANRDetected:kSentryANRTypeNonFullyBlocking];
         }
     }
 
@@ -136,7 +182,7 @@ SentryANRTrackerV2 ()
     }
 }
 
-- (void)ANRDetected
+- (void)ANRDetected:(SentryANRType)type
 {
     NSArray *localListeners;
     @synchronized(self.listeners) {
@@ -144,7 +190,7 @@ SentryANRTrackerV2 ()
     }
 
     for (id<SentryANRTrackerV2Delegate> target in localListeners) {
-        [target anrDetected];
+        [target anrDetected:type];
     }
 }
 
@@ -200,7 +246,7 @@ SentryANRTrackerV2 ()
 - (void)stop
 {
     @synchronized(threadLock) {
-        SENTRY_LOG_INFO(@"Stopping ANR detection");
+        SENTRY_LOG_INFO(@"Stopping App Hang detection");
         state = kSentryANRTrackerStopping;
     }
 }

@@ -3,6 +3,7 @@
 #if SENTRY_HAS_UIKIT
 
 @class SentryCurrentDateProvider;
+@class SentryFramesDelayResult;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -49,11 +50,11 @@ SENTRY_NO_INIT
  *
  * @return the frames delay duration or -1 if it can't calculate the frames delay.
  */
-- (CFTimeInterval)getFramesDelay:(uint64_t)startSystemTimestamp
-              endSystemTimestamp:(uint64_t)endSystemTimestamp
-                       isRunning:(BOOL)isRunning
-    previousFrameSystemTimestamp:(uint64_t)previousFrameSystemTimestamp
-              slowFrameThreshold:(CFTimeInterval)slowFrameThreshold;
+- (SentryFramesDelayResult *)getFramesDelay:(uint64_t)startSystemTimestamp
+                         endSystemTimestamp:(uint64_t)endSystemTimestamp
+                                  isRunning:(BOOL)isRunning
+               previousFrameSystemTimestamp:(uint64_t)previousFrameSystemTimestamp
+                         slowFrameThreshold:(CFTimeInterval)slowFrameThreshold;
 
 @end
 

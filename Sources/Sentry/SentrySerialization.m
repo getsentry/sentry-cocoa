@@ -223,14 +223,6 @@ NS_ASSUME_NONNULL_BEGIN
             }
 
             NSData *itemBody = [data subdataWithRange:NSMakeRange(i + 1, bodyLength)];
-#ifdef DEBUG
-            if ([SentryEnvelopeItemTypeEvent isEqual:type] ||
-                [SentryEnvelopeItemTypeSession isEqual:type]) {
-                NSString *event = [[NSString alloc] initWithData:itemBody
-                                                        encoding:NSUTF8StringEncoding];
-                SENTRY_LOG_DEBUG(@"Event %@", event);
-            }
-#endif
             SentryEnvelopeItem *envelopeItem = [[SentryEnvelopeItem alloc] initWithHeader:itemHeader
                                                                                      data:itemBody];
             [items addObject:envelopeItem];

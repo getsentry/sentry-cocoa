@@ -350,7 +350,8 @@ static NSObject *sentryDependencyContainerLock;
                     [[SentryANRTrackerV2 alloc] initWithTimeoutInterval:timeout
                                                            crashWrapper:self.crashWrapper
                                                    dispatchQueueWrapper:self.dispatchQueueWrapper
-                                                          threadWrapper:self.threadWrapper];
+                                                          threadWrapper:self.threadWrapper
+                                                          framesTracker:self.framesTracker];
             }
         }
     }
