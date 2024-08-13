@@ -14,6 +14,7 @@
 #    import "SentryNSNotificationCenterWrapper.h"
 #    import "SentryOptions.h"
 #    import "SentryRandom.h"
+#    import "SentryReachability.h"
 #    import "SentrySDK+Private.h"
 #    import "SentryScope+Private.h"
 #    import "SentrySerialization.h"
@@ -22,6 +23,7 @@
 #    import "SentrySwizzle.h"
 #    import "SentryUIApplication.h"
 #    import <UIKit/UIKit.h>
+
 NS_ASSUME_NONNULL_BEGIN
 
 static NSString *SENTRY_REPLAY_FOLDER = @"replay";
@@ -34,7 +36,7 @@ static NSString *SENTRY_REPLAY_FOLDER = @"replay";
 static SentryTouchTracker *_touchTracker;
 
 @interface
-SentrySessionReplayIntegration ()
+SentrySessionReplayIntegration () <SentryReachabilityObserver>
 - (void)newSceneActivate;
 @end
 
@@ -74,6 +76,7 @@ SentrySessionReplayIntegration ()
             return event;
         }];
 
+    [SentryDependencyContainer.sharedInstance.reachability addObserver:self];
     [SentryViewPhotographer.shared addIgnoreClasses:_replayOptions.ignoreRedactViewTypes];
     [SentryViewPhotographer.shared addRedactClasses:_replayOptions.redactViewTypes];
 
@@ -425,7 +428,7 @@ SentrySessionReplayIntegration ()
 
 #    pragma mark - SessionReplayDelegate
 
-- (BOOL)sessionReplayIsFullSession
+- (BOOL)sessionReplayShouldCaptureReplayForError
 {
     return SentryDependencyContainer.sharedInstance.random.nextNumber
         <= _replayOptions.onErrorSampleRate;
@@ -462,6 +465,18 @@ SentrySessionReplayIntegration ()
     return SentrySDK.currentHub.scope.currentScreen
         ?: [SentryDependencyContainer.sharedInstance.application relevantViewControllersNames]
                .firstObject;
+}
+
+#    pragma mark - SentryReachabilityObserver
+
+- (void)connectivityChanged:(BOOL)connected typeDescription:(nonnull NSString *)typeDescription
+{
+
+    if (connected) {
+        [_sessionReplay resume];
+    } else {
+        [_sessionReplay pause];
+    }
 }
 
 @end

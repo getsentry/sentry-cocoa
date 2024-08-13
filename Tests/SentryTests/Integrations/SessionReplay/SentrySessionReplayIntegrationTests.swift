@@ -31,6 +31,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
     
     override func setUp() {
         SentryDependencyContainer.sharedInstance().application = uiApplication
+        SentryDependencyContainer.sharedInstance().reachability = TestSentryReachability()
     }
     
     override func tearDown() {
@@ -271,6 +272,15 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         
         wait(for: [expectation], timeout: 1)
         XCTAssertEqual(hub.capturedReplayRecordingVideo.count, 0)
+    }
+    
+    func testPauseSessionReplayWithReacheability() throws {
+        startSDK(sessionSampleRate: 1, errorSampleRate: 0)
+        let sut = try getSut()
+        (sut as? SentryReachabilityObserver)?.connectivityChanged(false, typeDescription: "")
+        XCTAssertTrue(sut.sessionReplay.isSessionPaused)
+        (sut as? SentryReachabilityObserver)?.connectivityChanged(true, typeDescription: "")
+        XCTAssertFalse(sut.sessionReplay.isSessionPaused)
     }
     
     func testMaskViewFromSDK() {
