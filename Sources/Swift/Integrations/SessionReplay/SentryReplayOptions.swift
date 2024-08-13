@@ -6,6 +6,7 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
     /**
      * Enum to define the quality of the session replay.
      */
+    @objc
     public enum SentryReplayQuality: Int {
         /**
          * Video Scale: 80%
@@ -65,6 +66,20 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
      * The higher the quality, the higher the CPU and bandwidth usage.
      */
     public var quality = SentryReplayQuality.low
+    
+    /**
+     * A list of custom UIView subclasses that need 
+     * to be masked during session replay.
+     * By default Sentry already mask text elements from UIKit
+     */
+    public var redactViewTypes = [AnyClass]()
+    
+    /**
+     * A list of custom UIView subclasses to be ignored
+     * during masking step of the session replay.
+     * The view itself and any child will be ignored and not masked.
+     */
+    public var ignoreRedactViewTypes = [AnyClass]()
     
     /**
      * Defines the quality of the session replay.

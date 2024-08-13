@@ -4,11 +4,27 @@
 
 ### Features
 
+- Pause replay in session mode when offline (#4264)
+- Add replay quality option for Objective-C (#4267)
+
+### Fixes
+
+- Session replay not redacting buttons and other non UILabel texts (#4277)
+
+## 8.33.0
+
+This release fixes a bug (#4230) that we introduced with a refactoring (#4101) released in [8.30.1](https://github.com/getsentry/sentry-cocoa/releases/tag/8.30.1).
+This bug caused unhandled/crash events to have the unhandled property and mach info missing, which is required for release health to show events in the unhandled tab. It's essential to mention that this bug **doesn't impact** release health statistics, such as crash-free session or user rates.
+
+### Features
+
+- Support orientation change for session replay (#4194)
 - Replay for crashes (#4171)
 - Redact web view from replay (#4203)
 - Expose span baggage API (#4207)
 - Add beforeCaptureViewHierarchy callback (#4210)
 - Rename session replay `errorSampleRate` property to `onErrorSampleRate` (#4218)
+- Add options to redact or ignore view for Replay (#4228)
 
 ### Fixes
 
@@ -17,11 +33,16 @@
 - Long-lasting TTID/TTFD spans (#4225). Avoid long TTID spans when the FrameTracker isn't running, which is the case when the app is in the background.
 - Missing mach info for crash reports (#4230)
 - Crash reports not generated on visionOS (#4229)
-
+- Don’t force cast to `NSComparisonPredicate` in TERNARY operator (#4232)
+- Fix accessing UI API on bg thread in enrichScope (#4245)
+- EXC_BAD_ACCESS in SentryMetricProfiler (#4242)
+- Missing '#include <sys/_types/_ucontext64.h>' (#4244)
+- Rare flush timeout when called in tight loop (#4257)
 
 ### Improvements
 
 - Reduce memory usage of storing envelopes (#4219)
+- Skip enriching scope when nil (#4243)
 
 ## 8.32.0
 
@@ -33,6 +54,9 @@
 ### Fixes
 
 - Session replay crash when writing the replay (#4186)
+
+### Features
+
 - Collect only unique UIWindow references (#4159)
 
 ### Deprecated

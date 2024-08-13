@@ -4,6 +4,7 @@
 
 #    import "SentryClient+Private.h"
 #    import "SentryDependencyContainer.h"
+#    import "SentryDispatchQueueWrapper.h"
 #    import "SentryDisplayLinkWrapper.h"
 #    import "SentryEvent+Private.h"
 #    import "SentryFileManager.h"
@@ -13,6 +14,7 @@
 #    import "SentryNSNotificationCenterWrapper.h"
 #    import "SentryOptions.h"
 #    import "SentryRandom.h"
+#    import "SentryReachability.h"
 #    import "SentrySDK+Private.h"
 #    import "SentryScope+Private.h"
 #    import "SentrySerialization.h"
@@ -34,7 +36,7 @@ static NSString *SENTRY_REPLAY_FOLDER = @"replay";
 static SentryTouchTracker *_touchTracker;
 
 @interface
-SentrySessionReplayIntegration ()
+SentrySessionReplayIntegration () <SentryReachabilityObserver>
 - (void)newSceneActivate;
 @end
 
@@ -74,9 +76,19 @@ SentrySessionReplayIntegration ()
             return event;
         }];
 
+    [SentryDependencyContainer.sharedInstance.reachability addObserver:self];
+    [SentryViewPhotographer.shared addIgnoreClasses:_replayOptions.ignoreRedactViewTypes];
+    [SentryViewPhotographer.shared addRedactClasses:_replayOptions.redactViewTypes];
+
     return YES;
 }
 
+/**
+ * Send the cached frames from a previous session that eventually crashed.
+ * This function is called when processing an event created by SentryCrashIntegration,
+ * which runs in the background. That's why we don't need to dispatch the generation of the
+ * replay to the background in this function.
+ */
 - (void)resumePreviousSessionReplay:(SentryEvent *)event
 {
     NSURL *dir = [self replayDirectory];
@@ -114,38 +126,35 @@ SentrySessionReplayIntegration ()
         }
     }
 
-    _resumeReplayMaker = [[SentryOnDemandReplay alloc] initWithContentFrom:lastReplayURL.path];
-    _resumeReplayMaker.bitRate = _replayOptions.replayBitRate;
-    _resumeReplayMaker.videoScale = _replayOptions.sizeScale;
+    SentryOnDemandReplay *resumeReplayMaker =
+        [[SentryOnDemandReplay alloc] initWithContentFrom:lastReplayURL.path];
+    resumeReplayMaker.bitRate = _replayOptions.replayBitRate;
+    resumeReplayMaker.videoScale = _replayOptions.sizeScale;
 
     NSDate *beginning = hasCrashInfo
         ? [NSDate dateWithTimeIntervalSinceReferenceDate:crashInfo.lastSegmentEnd]
-        : [_resumeReplayMaker oldestFrameDate];
+        : [resumeReplayMaker oldestFrameDate];
 
     if (beginning == nil) {
         return; // no frames to send
     }
 
+    SentryReplayType _type = type;
+    int _segmentId = segmentId;
+
     NSError *error;
-    if (![_resumeReplayMaker
-            createVideoWithBeginning:beginning
-                                 end:[beginning dateByAddingTimeInterval:duration]
-                       outputFileURL:[lastReplayURL URLByAppendingPathComponent:@"lastVideo.mp4"]
-                               error:&error
-                          completion:^(SentryVideoInfo *video, NSError *renderError) {
-                              if (renderError != nil) {
-                                  SENTRY_LOG_ERROR(
-                                      @"Could not create replay video: %@", renderError);
-                              } else {
-                                  [self captureVideo:video
-                                            replayId:replayId
-                                           segmentId:segmentId
-                                                type:type];
-                              }
-                              self->_resumeReplayMaker = nil;
-                          }]) {
+    NSArray<SentryVideoInfo *> *videos =
+        [resumeReplayMaker createVideoWithBeginning:beginning
+                                                end:[beginning dateByAddingTimeInterval:duration]
+                                              error:&error];
+    if (videos == nil) {
         SENTRY_LOG_ERROR(@"Could not create replay video: %@", error);
         return;
+    }
+    for (SentryVideoInfo *video in videos) {
+        [self captureVideo:video replayId:replayId segmentId:_segmentId++ type:_type];
+        // type buffer is only for the first segment
+        _type = SentryReplayTypeSession;
     }
 
     NSMutableDictionary *eventContext = event.context.mutableCopy;
@@ -174,13 +183,15 @@ SentrySessionReplayIntegration ()
 
     NSError *error = nil;
     if (![[NSFileManager defaultManager] removeItemAtURL:video.path error:&error]) {
-        NSLog(@"[SentrySessionReplay:%d] Could not delete replay segment from disk: %@", __LINE__,
-            error.localizedDescription);
+        SENTRY_LOG_DEBUG(
+            @"Could not delete replay segment from disk: %@", error.localizedDescription);
     }
 }
 
 - (void)startSession
 {
+    [self.sessionReplay stop];
+
     _startedAsFullSession = [self shouldReplayFullSession:_replayOptions.sessionSampleRate];
 
     if (!_startedAsFullSession && _replayOptions.onErrorSampleRate == 0) {
@@ -247,6 +258,7 @@ SentrySessionReplayIntegration ()
                  touchTracker:_touchTracker
                  dateProvider:SentryDependencyContainer.sharedInstance.dateProvider
                      delegate:self
+                dispatchQueue:[[SentryDispatchQueueWrapper alloc] init]
            displayLinkWrapper:[[SentryDisplayLinkWrapper alloc] init]];
 
     [self.sessionReplay
@@ -320,9 +332,6 @@ SentrySessionReplayIntegration ()
 
 - (void)sentrySessionStarted:(SentrySession *)session
 {
-    if (_sessionReplay) {
-        return;
-    }
     [self startSession];
 }
 
@@ -419,7 +428,7 @@ SentrySessionReplayIntegration ()
 
 #    pragma mark - SessionReplayDelegate
 
-- (BOOL)sessionReplayIsFullSession
+- (BOOL)sessionReplayShouldCaptureReplayForError
 {
     return SentryDependencyContainer.sharedInstance.random.nextNumber
         <= _replayOptions.onErrorSampleRate;
@@ -456,6 +465,18 @@ SentrySessionReplayIntegration ()
     return SentrySDK.currentHub.scope.currentScreen
         ?: [SentryDependencyContainer.sharedInstance.application relevantViewControllersNames]
                .firstObject;
+}
+
+#    pragma mark - SentryReachabilityObserver
+
+- (void)connectivityChanged:(BOOL)connected typeDescription:(nonnull NSString *)typeDescription
+{
+
+    if (connected) {
+        [_sessionReplay resume];
+    } else {
+        [_sessionReplay pause];
+    }
 }
 
 @end

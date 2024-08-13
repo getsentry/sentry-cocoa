@@ -218,28 +218,33 @@ static NSDate *_Nullable startTimestamp = nil;
 
     SentryScope *scope
         = options.initialScope([[SentryScope alloc] initWithMaxBreadcrumbs:options.maxBreadcrumbs]);
-    // The Hub needs to be initialized with a client so that closing a session
-    // can happen.
-    SentryHub *hub = [[SentryHub alloc] initWithClient:newClient andScope:scope];
-    [SentrySDK setCurrentHub:hub];
-    SENTRY_LOG_DEBUG(@"SDK initialized! Version: %@", SentryMeta.versionString);
 
     SENTRY_LOG_DEBUG(@"Dispatching init work required to run on main thread.");
     [SentryDependencyContainer.sharedInstance.dispatchQueueWrapper dispatchAsyncOnMainQueue:^{
         SENTRY_LOG_DEBUG(@"SDK main thread init started...");
 
+        // The UIDeviceWrapper needs to start before the Hub, because the Hub
+        // enriches the scope, which calls the UIDeviceWrapper.
+#if SENTRY_HAS_UIKIT
+        [SentryDependencyContainer.sharedInstance.uiDeviceWrapper start];
+#endif // TARGET_OS_IOS && SENTRY_HAS_UIKIT
+
+        // The Hub needs to be initialized with a client so that closing a session
+        // can happen.
+        SentryHub *hub = [[SentryHub alloc] initWithClient:newClient andScope:scope];
+        [SentrySDK setCurrentHub:hub];
+
         [SentryCrashWrapper.sharedInstance startBinaryImageCache];
         [SentryDependencyContainer.sharedInstance.binaryImageCache start];
 
         [SentrySDK installIntegrations];
-#if TARGET_OS_IOS && SENTRY_HAS_UIKIT
-        [SentryDependencyContainer.sharedInstance.uiDeviceWrapper start];
-#endif // TARGET_OS_IOS && SENTRY_HAS_UIKIT
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
         sentry_manageTraceProfilerOnStartSDK(options, hub);
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
     }];
+
+    SENTRY_LOG_DEBUG(@"SDK initialized! Version: %@", SentryMeta.versionString);
 }
 
 + (void)startWithConfigureOptions:(void (^)(SentryOptions *options))configureOptions
@@ -570,6 +575,18 @@ static NSDate *_Nullable startTimestamp = nil;
     [SentryContinuousProfiler stop];
 }
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
+
+#if SENTRY_TARGET_REPLAY_SUPPORTED
++ (void)replayRedactView:(UIView *)view
+{
+    [SentryRedactViewHelper redactView:view];
+}
+
++ (void)replayIgnoreView:(UIView *)view
+{
+    [SentryRedactViewHelper ignoreView:view];
+}
+#endif
 
 @end
 

@@ -9,6 +9,7 @@
 @interface
 SentryContinuousProfiler ()
 
++ (void)stopTimerAndCleanup;
 + (nullable SentryProfiler *)profiler;
 
 @end

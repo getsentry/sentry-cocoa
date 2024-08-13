@@ -9,6 +9,6 @@ set -euxo pipefail
 SENTRY_AUTH_TOKEN="${1}"
 
 REPLACE="s/YOUR_AUTH_TOKEN/${SENTRY_AUTH_TOKEN}/g"
-sed -i '' $REPLACE ./scripts/upload-dsyms-with-xcode-build-phase.patch
+sed -i '' "$REPLACE" ./scripts/upload-dsyms-with-xcode-build-phase.patch
 
 git apply ./scripts/upload-dsyms-with-xcode-build-phase.patch

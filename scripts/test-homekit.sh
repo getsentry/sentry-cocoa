@@ -11,7 +11,7 @@ set -euo pipefail
 echo "### Integration test - Home Assistant ###"
 
 current_dir=$(pwd)
-scripts_path=$(dirname $(readlink -f "$0"))
+scripts_path=$(dirname "$(readlink -f "$0")")
 
 trap 'cd "$current_dir"' ERR
 

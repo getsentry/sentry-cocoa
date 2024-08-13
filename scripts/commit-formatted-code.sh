@@ -10,7 +10,7 @@ else
     git config --global user.name 'Sentry Github Bot'
     git config --global user.email 'bot+github-bot@sentry.io'
     git fetch
-    git checkout ${GITHUB_BRANCH}
+    git checkout "${GITHUB_BRANCH}"
     git commit -am "Format code"
-    git push --set-upstream origin ${GITHUB_BRANCH}
+    git push --set-upstream origin "${GITHUB_BRANCH}"
 fi
