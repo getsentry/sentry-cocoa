@@ -77,9 +77,12 @@ SentryANRTrackerV2 ()
     NSInteger reportThreshold = 5;
     NSTimeInterval sleepInterval = self.timeoutInterval / reportThreshold;
     uint64_t timeoutIntervalInNanos = timeIntervalToNanoseconds(self.timeoutInterval);
-    uint64_t recoveryIntervalInNanos = timeIntervalToNanoseconds(sleepInterval * 2);
 
-    uint64_t lastReportedAppHangSystemTime = dateProvider.systemTime;
+    uint64_t recoveryIntervalInNanos = timeIntervalToNanoseconds(sleepInterval * 2);
+    CFTimeInterval recoverIntervalFramesDelayThreshold
+        = nanosecondsToTimeInterval(recoveryIntervalInNanos) * 0.2;
+
+    uint64_t lastAppHangStoppedSystemTime = dateProvider.systemTime - timeoutIntervalInNanos;
 
     // Canceling the thread can take up to sleepInterval.
     while (YES) {
@@ -132,17 +135,26 @@ SentryANRTrackerV2 ()
             continue;
         }
 
+        SENTRY_LOG_DEBUG(@"App hang recovery: %f", framesDelayForRecoveryInterval.delayDuration);
+
         if (reported
-            && framesDelayForTimeInterval.delayDuration
-                < nanosecondsToTimeInterval(recoveryIntervalInNanos) * 0.2) {
-            SENTRY_LOG_DEBUG(@"App hang stopped.");
+            && framesDelayForRecoveryInterval.delayDuration < recoverIntervalFramesDelayThreshold) {
+            SENTRY_LOG_DEBUG(
+                @"App hang stopped with delay: %f", framesDelayForRecoveryInterval.delayDuration);
 
             // The App Hang stopped, don't block the App Hangs thread or the main thread with
             // calling ANRStopped listeners.
             [self.dispatchQueueWrapper dispatchAsyncWithBlock:^{ [self ANRStopped]; }];
 
-            lastReportedAppHangSystemTime = dateProvider.systemTime;
+            lastAppHangStoppedSystemTime = dateProvider.systemTime;
             reported = NO;
+        }
+
+        uint64_t lastAppHangLongEnoughInPastThreshold
+            = lastAppHangStoppedSystemTime + timeoutIntervalInNanos;
+
+        if (dateProvider.systemTime < lastAppHangLongEnoughInPastThreshold) {
+            continue;
         }
 
         if (reported) {
@@ -153,6 +165,8 @@ SentryANRTrackerV2 ()
             = timeIntervalToNanoseconds(framesDelayForTimeInterval.delayDuration);
 
         BOOL isFullyBlocking = framesDelayForTimeInterval.framesCount == 1;
+
+        SENTRY_LOG_WARN(@"App Hang: Delay: %f", framesDelayForTimeInterval.delayDuration);
 
         if (isFullyBlocking && framesDelayForTimeIntervalInNanos >= timeoutIntervalInNanos) {
 
@@ -165,7 +179,7 @@ SentryANRTrackerV2 ()
             continue;
         }
 
-        NSTimeInterval nonFullyBlockingFramesDelayThreshold = self.timeoutInterval * 0.9;
+        NSTimeInterval nonFullyBlockingFramesDelayThreshold = self.timeoutInterval * 0.95;
         if (!isFullyBlocking
             && framesDelayForTimeInterval.delayDuration > nonFullyBlockingFramesDelayThreshold) {
 

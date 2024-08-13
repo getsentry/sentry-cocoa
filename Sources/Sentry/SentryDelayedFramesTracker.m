@@ -145,6 +145,10 @@ SentryDelayedFramesTracker ()
                 actualDuration:nanosecondsToTimeInterval(
                                    endSystemTimestamp - previousFrameSystemTimestamp)];
 
+    if (frames.lastObject.startSystemTimestamp == previousFrameSystemTimestamp) {
+        SENTRY_LOG_DEBUG(@"Currently recording a frame.");
+    }
+
     [frames addObject:currentFrameDelay];
 
     // We need to calculate the intersections of the queried TimestampInterval

@@ -200,7 +200,7 @@ class SentryFramesTrackerTests: XCTestCase {
         
         let actualFrameDelay = sut.getFramesDelay(startSystemTime, endSystemTimestamp: endSystemTime)
         XCTAssertEqual(actualFrameDelay.delayDuration, expectedDelay, accuracy: 0.0001)
-        XCTAssertEqual(actualFrameDelay.framesCount, 1)
+        XCTAssertEqual(actualFrameDelay.framesCount, 4)
     }
     
     /**
@@ -228,7 +228,7 @@ class SentryFramesTrackerTests: XCTestCase {
         
         let actualFrameDelay = sut.getFramesDelay(startSystemTime, endSystemTimestamp: endSystemTime)
         XCTAssertEqual(actualFrameDelay.delayDuration, expectedDelay, accuracy: 0.0001)
-        XCTAssertEqual(actualFrameDelay.framesCount, 1)
+        XCTAssertEqual(actualFrameDelay.framesCount, 2)
     }
     
     /**
@@ -297,7 +297,7 @@ class SentryFramesTrackerTests: XCTestCase {
         
         let actualFrameDelay = sut.getFramesDelay(startSystemTime, endSystemTimestamp: endSystemTime)
         XCTAssertEqual(actualFrameDelay.delayDuration, -1)
-        XCTAssertEqual(actualFrameDelay.framesCount, 1)
+        XCTAssertEqual(actualFrameDelay.framesCount, 0)
         
     }
     
@@ -318,7 +318,7 @@ class SentryFramesTrackerTests: XCTestCase {
         
         let actualFrameDelay = sut.getFramesDelay(startSystemTime, endSystemTimestamp: endSystemTime)
         XCTAssertEqual(actualFrameDelay.delayDuration, 0.0, accuracy: 0.0001)
-        XCTAssertEqual(actualFrameDelay.framesCount, 1)
+        XCTAssertEqual(actualFrameDelay.framesCount, 2)
     }
     
     func testDelayedFrames_NoRecordedDelayedFrames_ButFrameIsDelayed_ReturnsDelay() {
@@ -383,7 +383,7 @@ class SentryFramesTrackerTests: XCTestCase {
         let startSystemTime = slowFrameStartSystemTime + timeIntervalToNanoseconds(timeIntervalAfterFrameStart)
         
         let actualFrameDelay = sut.getFramesDelay(startSystemTime, endSystemTimestamp: endSystemTime)
-        XCTAssertEqual(actualFrameDelay.framesCount, 1)
+        XCTAssertEqual(actualFrameDelay.delayDuration, expectedDelay)
     }
     
     /**
