@@ -165,7 +165,7 @@ SentryANRTrackerV2 ()
         uint64_t framesDelayForTimeIntervalInNanos
             = timeIntervalToNanoseconds(framesDelayForTimeInterval.delayDuration);
 
-        BOOL isFullyBlocking = framesDelayForTimeInterval.framesCount == 1;
+        BOOL isFullyBlocking = framesDelayForTimeInterval.framesContributingToDelayCount == 1;
 
         //        SENTRY_LOG_WARN(@"App Hang: Delay: %f", framesDelayForTimeInterval.delayDuration);
 

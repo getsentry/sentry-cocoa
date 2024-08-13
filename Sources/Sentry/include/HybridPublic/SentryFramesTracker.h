@@ -10,6 +10,7 @@
 @class SentryDispatchQueueWrapper;
 @class SentryNSNotificationCenterWrapper;
 @class SentryScreenFrames;
+@class SentryFramesDelayResult;
 
 NS_ASSUME_NONNULL_BEGIN
 
