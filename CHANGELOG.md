@@ -4,7 +4,12 @@
 
 ### Features
 
+- Pause replay in session mode when offline (#4264)
 - Add replay quality option for Objective-C (#4267)
+
+### Fixes
+
+- Session replay not redacting buttons and other non UILabel texts (#4277)
 
 ## 8.33.0
 

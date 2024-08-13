@@ -77,11 +77,18 @@ class UIRedactBuilder {
     }
     
     func containsIgnoreClass(_ ignoreClass: AnyClass) -> Bool {
-        return ignoreClassesIdentifiers.contains(ObjectIdentifier(ignoreClass))
+        return  ignoreClassesIdentifiers.contains(ObjectIdentifier(ignoreClass))
     }
     
     func containsRedactClass(_ redactClass: AnyClass) -> Bool {
-        return redactClassesIdentifiers.contains(ObjectIdentifier(redactClass))
+        var currentClass: AnyClass? = redactClass
+        while currentClass != nil && currentClass != UIView.self {
+            if let currentClass = currentClass, redactClassesIdentifiers.contains(ObjectIdentifier(currentClass)) {
+                return true
+            }
+            currentClass = currentClass?.superclass()
+        }
+        return false
     }
     
     func addIgnoreClass(_ ignoreClass: AnyClass) {
