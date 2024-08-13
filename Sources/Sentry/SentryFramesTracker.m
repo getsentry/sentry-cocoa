@@ -135,6 +135,7 @@ slowFrameThreshold(uint64_t actualFramesPerSecond)
 
 - (void)resetProfilingTimestampsInternal
 {
+    SENTRY_LOG_DEBUG(@"Resetting profiling GPU timeseries data.");
     self.frozenFrameTimestamps = [SentryMutableFrameInfoTimeSeries array];
     self.slowFrameTimestamps = [SentryMutableFrameInfoTimeSeries array];
     self.frameRateTimestamps = [SentryMutableFrameInfoTimeSeries array];
