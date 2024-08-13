@@ -307,7 +307,6 @@ slowFrameThreshold(uint64_t actualFramesPerSecond)
                                   endSystemTimestamp:endSystemTimestamp
                                            isRunning:_isRunning
                                   slowFrameThreshold:slowFrameThreshold(_currentFrameRate)];
-    ;
 }
 
 - (void)addListener:(id<SentryFramesTrackerListener>)listener

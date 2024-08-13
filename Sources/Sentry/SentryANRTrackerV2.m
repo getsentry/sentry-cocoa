@@ -78,9 +78,9 @@ SentryANRTrackerV2 ()
     NSTimeInterval sleepInterval = self.timeoutInterval / reportThreshold;
     uint64_t timeoutIntervalInNanos = timeIntervalToNanoseconds(self.timeoutInterval);
 
-    uint64_t recoveryIntervalInNanos = timeIntervalToNanoseconds(sleepInterval * 2);
-    CFTimeInterval recoverIntervalFramesDelayThreshold
-        = nanosecondsToTimeInterval(recoveryIntervalInNanos) * 0.2;
+    uint64_t appHangStoppedInterval = timeIntervalToNanoseconds(sleepInterval * 2);
+    CFTimeInterval appHangStoppedThreshold
+        = nanosecondsToTimeInterval(appHangStoppedInterval) * 0.2;
 
     uint64_t lastAppHangStoppedSystemTime = dateProvider.systemTime - timeoutIntervalInNanos;
 
@@ -113,52 +113,53 @@ SentryANRTrackerV2 ()
             continue;
         }
 
-        uint64_t frameDelayEndSystemTime = dateProvider.systemTime;
-        uint64_t frameDelayStartSystemTime = frameDelayEndSystemTime - timeoutIntervalInNanos;
+        uint64_t nowSystemTime = dateProvider.systemTime;
 
-        SentryFramesDelayResult *framesDelayForTimeInterval =
-            [self.framesTracker getFramesDelay:frameDelayStartSystemTime
-                            endSystemTimestamp:frameDelayEndSystemTime];
+        if (reported) {
 
-        if (framesDelayForTimeInterval.delayDuration == -1) {
-            continue;
+            uint64_t framesDelayStartSystemTime = nowSystemTime - appHangStoppedInterval;
+
+            SentryFramesDelayResult *framesDelay =
+                [self.framesTracker getFramesDelay:framesDelayStartSystemTime
+                                endSystemTimestamp:nowSystemTime];
+
+            if (framesDelay.delayDuration == -1) {
+                continue;
+            }
+
+            BOOL appHangStopped = framesDelay.delayDuration < appHangStoppedThreshold;
+
+            if (appHangStopped) {
+                SENTRY_LOG_DEBUG(@"App hang stopped.");
+
+                // The App Hang stopped, don't block the App Hangs thread or the main thread with
+                // calling ANRStopped listeners.
+                [self.dispatchQueueWrapper dispatchAsyncWithBlock:^{ [self ANRStopped]; }];
+
+                lastAppHangStoppedSystemTime = dateProvider.systemTime;
+                reported = NO;
+            }
         }
 
-        uint64_t recoveryIntervalStartSystemTime
-            = frameDelayEndSystemTime - recoveryIntervalInNanos;
-
-        SentryFramesDelayResult *framesDelayForRecoveryInterval =
-            [self.framesTracker getFramesDelay:recoveryIntervalStartSystemTime
-                            endSystemTimestamp:frameDelayEndSystemTime];
-
-        if (framesDelayForRecoveryInterval.delayDuration == -1) {
+        if (reported) {
             continue;
-        }
-
-        //        SENTRY_LOG_DEBUG(@"App hang recovery: %f",
-        //        framesDelayForRecoveryInterval.delayDuration);
-
-        if (reported
-            && framesDelayForRecoveryInterval.delayDuration < recoverIntervalFramesDelayThreshold) {
-            SENTRY_LOG_DEBUG(
-                @"App hang stopped with delay: %f", framesDelayForRecoveryInterval.delayDuration);
-
-            // The App Hang stopped, don't block the App Hangs thread or the main thread with
-            // calling ANRStopped listeners.
-            [self.dispatchQueueWrapper dispatchAsyncWithBlock:^{ [self ANRStopped]; }];
-
-            lastAppHangStoppedSystemTime = dateProvider.systemTime;
-            reported = NO;
         }
 
         uint64_t lastAppHangLongEnoughInPastThreshold
             = lastAppHangStoppedSystemTime + timeoutIntervalInNanos;
 
         if (dateProvider.systemTime < lastAppHangLongEnoughInPastThreshold) {
+            SENTRY_LOG_DEBUG(@"Ignoring app hang cause one happened recently.");
             continue;
         }
 
-        if (reported) {
+        uint64_t frameDelayStartSystemTime = nowSystemTime - timeoutIntervalInNanos;
+
+        SentryFramesDelayResult *framesDelayForTimeInterval =
+            [self.framesTracker getFramesDelay:frameDelayStartSystemTime
+                            endSystemTimestamp:nowSystemTime];
+
+        if (framesDelayForTimeInterval.delayDuration == -1) {
             continue;
         }
 
@@ -167,27 +168,11 @@ SentryANRTrackerV2 ()
 
         BOOL isFullyBlocking = framesDelayForTimeInterval.framesContributingToDelayCount == 1;
 
-        //        SENTRY_LOG_WARN(@"App Hang: Delay: %f", framesDelayForTimeInterval.delayDuration);
-
         if (isFullyBlocking && framesDelayForTimeIntervalInNanos >= timeoutIntervalInNanos) {
-
-            reported = YES;
-
             SENTRY_LOG_WARN(@"App Hang detected: fully-blocking.");
 
-            [self ANRDetected:kSentryANRTypeFullyBlocking];
-
-            continue;
-        }
-
-        NSTimeInterval nonFullyBlockingFramesDelayThreshold = self.timeoutInterval * 0.95;
-        if (!isFullyBlocking
-            && framesDelayForTimeInterval.delayDuration > nonFullyBlockingFramesDelayThreshold) {
-
             reported = YES;
-
-            SENTRY_LOG_WARN(@"App Hang detected: non-fully-blocking.");
-            [self ANRDetected:kSentryANRTypeNonFullyBlocking];
+            [self ANRDetected:kSentryANRTypeFullyBlocking];
         }
     }
 
