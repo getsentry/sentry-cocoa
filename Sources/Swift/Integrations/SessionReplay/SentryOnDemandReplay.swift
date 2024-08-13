@@ -114,7 +114,7 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
         workingQueue.dispatchAsync ({
             while let first = self._frames.first, first.time < date {
                 self._frames.removeFirst()
-               try? FileManager.default.removeItem(at: URL(fileURLWithPath: first.imagePath))
+                try? FileManager.default.removeItem(at: URL(fileURLWithPath: first.imagePath))
             }
         })
     }
