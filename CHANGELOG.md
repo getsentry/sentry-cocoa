@@ -6,6 +6,7 @@
 
 - Pause replay in session mode when offline (#4264)
 - Add replay quality option for Objective-C (#4267)
+- Expose span baggage API (#4207)
 
 ### Fixes
 
@@ -21,7 +22,6 @@ This bug caused unhandled/crash events to have the unhandled property and mach i
 - Support orientation change for session replay (#4194)
 - Replay for crashes (#4171)
 - Redact web view from replay (#4203)
-- Expose span baggage API (#4207)
 - Add beforeCaptureViewHierarchy callback (#4210)
 - Rename session replay `errorSampleRate` property to `onErrorSampleRate` (#4218)
 - Add options to redact or ignore view for Replay (#4228)
