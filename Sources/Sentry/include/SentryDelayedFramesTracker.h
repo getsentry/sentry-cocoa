@@ -24,8 +24,9 @@ SENTRY_NO_INIT
 - (void)resetDelayedFramesTimeStamps;
 
 - (void)recordDelayedFrame:(uint64_t)startSystemTimestamp
-          expectedDuration:(CFTimeInterval)expectedDuration
-            actualDuration:(CFTimeInterval)actualDuration;
+    thisFrameSystemTimestamp:(uint64_t)thisFrameSystemTimestamp
+            expectedDuration:(CFTimeInterval)expectedDuration
+              actualDuration:(CFTimeInterval)actualDuration;
 
 /**
  * This method returns the duration of all delayed frames between startSystemTimestamp and

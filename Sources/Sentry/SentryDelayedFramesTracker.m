@@ -15,6 +15,7 @@ SentryDelayedFramesTracker ()
 @property (nonatomic, assign) CFTimeInterval keepDelayedFramesDuration;
 @property (nonatomic, strong, readonly) SentryCurrentDateProvider *dateProvider;
 @property (nonatomic, strong) NSMutableArray<SentryDelayedFrame *> *delayedFrames;
+@property (nonatomic) uint64_t previousFrameSystemTimestamp;
 
 @end
 
@@ -42,8 +43,9 @@ SentryDelayedFramesTracker ()
 }
 
 - (void)recordDelayedFrame:(uint64_t)startSystemTimestamp
-          expectedDuration:(CFTimeInterval)expectedDuration
-            actualDuration:(CFTimeInterval)actualDuration
+    thisFrameSystemTimestamp:(uint64_t)thisFrameSystemTimestamp
+            expectedDuration:(CFTimeInterval)expectedDuration
+              actualDuration:(CFTimeInterval)actualDuration
 {
     @synchronized(self.delayedFrames) {
         [self removeOldDelayedFrames];
@@ -53,6 +55,7 @@ SentryDelayedFramesTracker ()
                                               expectedDuration:expectedDuration
                                                 actualDuration:actualDuration];
         [self.delayedFrames addObject:delayedFrame];
+        self.previousFrameSystemTimestamp = thisFrameSystemTimestamp;
     }
 }
 
@@ -120,6 +123,8 @@ SentryDelayedFramesTracker ()
         return cantCalculateFrameDelayReturnValue;
     }
 
+    u_int64_t previous = previousFrameSystemTimestamp;
+
     NSMutableArray<SentryDelayedFrame *> *frames;
     @synchronized(self.delayedFrames) {
         uint64_t oldestDelayedFrameStartTimestamp = UINT64_MAX;
@@ -136,18 +141,17 @@ SentryDelayedFramesTracker ()
 
         // Copy as late as possible to avoid allocating unnecessary memory.
         frames = self.delayedFrames.mutableCopy;
+
+        if (previousFrameSystemTimestamp < self.previousFrameSystemTimestamp) {
+            previous = self.previousFrameSystemTimestamp;
+        }
     }
 
     // Add a delayed frame for a potentially ongoing but not recorded delayed frame
     SentryDelayedFrame *currentFrameDelay = [[SentryDelayedFrame alloc]
-        initWithStartTimestamp:previousFrameSystemTimestamp
+        initWithStartTimestamp:previous
               expectedDuration:slowFrameThreshold
-                actualDuration:nanosecondsToTimeInterval(
-                                   endSystemTimestamp - previousFrameSystemTimestamp)];
-
-    if (frames.lastObject.startSystemTimestamp == previousFrameSystemTimestamp) {
-        SENTRY_LOG_DEBUG(@"Currently recording a frame.");
-    }
+                actualDuration:nanosecondsToTimeInterval(endSystemTimestamp - previous)];
 
     [frames addObject:currentFrameDelay];
 

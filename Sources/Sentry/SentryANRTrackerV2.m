@@ -135,7 +135,8 @@ SentryANRTrackerV2 ()
             continue;
         }
 
-        SENTRY_LOG_DEBUG(@"App hang recovery: %f", framesDelayForRecoveryInterval.delayDuration);
+        //        SENTRY_LOG_DEBUG(@"App hang recovery: %f",
+        //        framesDelayForRecoveryInterval.delayDuration);
 
         if (reported
             && framesDelayForRecoveryInterval.delayDuration < recoverIntervalFramesDelayThreshold) {
@@ -166,7 +167,7 @@ SentryANRTrackerV2 ()
 
         BOOL isFullyBlocking = framesDelayForTimeInterval.framesCount == 1;
 
-        SENTRY_LOG_WARN(@"App Hang: Delay: %f", framesDelayForTimeInterval.delayDuration);
+        //        SENTRY_LOG_WARN(@"App Hang: Delay: %f", framesDelayForTimeInterval.delayDuration);
 
         if (isFullyBlocking && framesDelayForTimeIntervalInNanos >= timeoutIntervalInNanos) {
 

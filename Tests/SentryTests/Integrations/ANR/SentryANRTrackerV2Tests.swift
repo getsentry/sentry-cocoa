@@ -14,10 +14,6 @@ class SentryANRTrackerV2Tests: XCTestCase {
         let crashWrapper = TestSentryCrashWrapper.sharedInstance()
         let dispatchQueue = TestSentryDispatchQueueWrapper()
         let threadWrapper = SentryTestThreadWrapper()
-    
-        threadWrapper.blockWhenSleeping = {
-//            Thread.sleep(forTimeInterval: 0.1)
-        }
         
         let displayLinkWrapper = TestDisplayLinkWrapper(dateProvider: currentDate)
         
@@ -312,7 +308,7 @@ class SentryANRTrackerV2Tests: XCTestCase {
     }
     
     func testAlmostFullyBlockingAppHang_NotReported() throws {
-        let (sut, currentDate, displayLinkWrapper, _, _) = try getSut()
+        let (sut, currentDate, _, _, _) = try getSut()
         defer { sut.clear() }
         
         let listener = SentryANRTrackerV2TestDelegate(shouldANRBeDetected: false, shouldStoppedBeCalled: false)
@@ -323,8 +319,6 @@ class SentryANRTrackerV2Tests: XCTestCase {
             advanced += 0.01
             currentDate.advance(by: 0.01)
         }
-        
-        renderNormalFramesToStopAppHang(displayLinkWrapper)
         
         wait(for: [listener.anrDetectedExpectation, listener.anrStoppedExpectation], timeout: waitTimeout)
     }

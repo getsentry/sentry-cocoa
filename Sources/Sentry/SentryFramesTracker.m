@@ -254,6 +254,7 @@ slowFrameThreshold(uint64_t actualFramesPerSecond)
 
     if (frameDuration > slowFrameThreshold(_currentFrameRate)) {
         [self.delayedFramesTracker recordDelayedFrame:self.previousFrameSystemTimestamp
+                             thisFrameSystemTimestamp:thisFrameSystemTimestamp
                                      expectedDuration:slowFrameThreshold(_currentFrameRate)
                                        actualDuration:frameDuration];
     }
