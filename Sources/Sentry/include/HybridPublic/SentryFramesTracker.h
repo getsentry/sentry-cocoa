@@ -3,7 +3,6 @@
 #if SENTRY_HAS_UIKIT
 
 #    import "SentryProfilingConditionals.h"
-#    import "SentrySwift.h"
 
 @class SentryDisplayLinkWrapper;
 @class SentryCurrentDateProvider;
