@@ -76,12 +76,24 @@ class UIRedactBuilder {
         redactClassesIdentifiers = Set(redactClasses.map({ ObjectIdentifier($0) }))
     }
     
+    
+    private func checkForClass(_ target: AnyClass, inSet: Set<ObjectIdentifier>) -> Bool {
+        var currentClass: AnyClass? = target
+        while currentClass != nil && currentClass != UIView.self {
+            if let currentClass = currentClass, inSet.contains(ObjectIdentifier(currentClass)) {
+                return true
+            }
+            currentClass = currentClass?.superclass()
+        }
+        return false
+    }
+    
     func containsIgnoreClass(_ ignoreClass: AnyClass) -> Bool {
-        return ignoreClassesIdentifiers.contains(ObjectIdentifier(ignoreClass))
+        return checkForClass(ignoreClass, inSet: ignoreClassesIdentifiers)
     }
     
     func containsRedactClass(_ redactClass: AnyClass) -> Bool {
-        return redactClassesIdentifiers.contains(ObjectIdentifier(redactClass))
+        return checkForClass(redactClass, inSet: redactClassesIdentifiers)
     }
     
     func addIgnoreClass(_ ignoreClass: AnyClass) {
