@@ -10,6 +10,8 @@
 ### Fixes
 
 - Session replay not redacting buttons and other non UILabel texts (#4277)
+- Crash deserializing empty envelope length>0 (#4281]
+
 
 ## 8.33.0
 
