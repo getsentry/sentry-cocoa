@@ -845,7 +845,8 @@ static BOOL appStartMeasurementRead;
     if (framesTracker.isRunning) {
         CFTimeInterval framesDelay = [framesTracker
                 getFramesDelay:self.startSystemTime
-            endSystemTimestamp:SentryDependencyContainer.sharedInstance.dateProvider.systemTime];
+            endSystemTimestamp:SentryDependencyContainer.sharedInstance.dateProvider.systemTime]
+                                         .delayDuration;
 
         if (framesDelay >= 0) {
             [self setDataValue:@(framesDelay) forKey:@"frames.delay"];
