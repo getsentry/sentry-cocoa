@@ -8,7 +8,7 @@
 
 ### Fixes
 
-- Session replay not redacting buttons and other non UILabel texts ()
+- Session replay not redacting buttons and other non UILabel texts (#4277)
 
 ## 8.33.0
 
