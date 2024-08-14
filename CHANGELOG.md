@@ -4,11 +4,15 @@
 
 ### Features
 
+- Pause replay in session mode when offline (#4264)
 - Add replay quality option for Objective-C (#4267)
 
 ### Fixes
 
 - Fix `SIGABRT` when modifying scope user (#4274)
+- Session replay not redacting buttons and other non UILabel texts (#4277)
+- Crash deserializing empty envelope length>0 (#4281]
+
 
 ## 8.33.0
 
