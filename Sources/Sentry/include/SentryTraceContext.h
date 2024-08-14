@@ -9,6 +9,7 @@ NS_ASSUME_NONNULL_BEGIN
 @class SentryScope, SentryOptions, SentryTracer, SentryUser, SentryBaggage;
 @class SentryId;
 
+NS_SWIFT_NAME(TraceContext)
 @interface SentryTraceContext : NSObject <SentrySerializable>
 
 /**
