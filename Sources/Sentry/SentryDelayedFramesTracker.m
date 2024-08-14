@@ -112,12 +112,13 @@ SentryDelayedFramesTracker ()
     [self.delayedFrames removeObjectsInRange:NSMakeRange(0, left)];
 }
 
-- (CFTimeInterval)getFramesDelay:(uint64_t)startSystemTimestamp
-              endSystemTimestamp:(uint64_t)endSystemTimestamp
-                       isRunning:(BOOL)isRunning
-              slowFrameThreshold:(CFTimeInterval)slowFrameThreshold
+- (SentryFramesDelayResult *)getFramesDelay:(uint64_t)startSystemTimestamp
+                         endSystemTimestamp:(uint64_t)endSystemTimestamp
+                                  isRunning:(BOOL)isRunning
+                         slowFrameThreshold:(CFTimeInterval)slowFrameThreshold
 {
-    CFTimeInterval cantCalculateFrameDelayReturnValue = -1.0;
+    SentryFramesDelayResult *cantCalculateFrameDelayReturnValue =
+        [[SentryFramesDelayResult alloc] initWithDelayDuration:-1.0 framesCount:0];
 
     if (isRunning == NO) {
         SENTRY_LOG_DEBUG(@"Not calculating frames delay because frames tracker isn't running.");
@@ -189,6 +190,7 @@ SentryDelayedFramesTracker ()
                                                                           endDate:endDate];
 
     CFTimeInterval delay = 0.0;
+    NSUInteger framesCount = 0;
 
     // Iterate in reverse order, as younger frame delays are more likely to match the queried
     // period.
@@ -201,9 +203,13 @@ SentryDelayedFramesTracker ()
         }
 
         delay = delay + [self calculateDelay:frame queryDateInterval:queryDateInterval];
+        framesCount++;
     }
 
-    return delay;
+    SentryFramesDelayResult *data =
+        [[SentryFramesDelayResult alloc] initWithDelayDuration:delay framesCount:framesCount];
+
+    return data;
 }
 
 - (CFTimeInterval)calculateDelay:(SentryDelayedFrame *)delayedFrame
