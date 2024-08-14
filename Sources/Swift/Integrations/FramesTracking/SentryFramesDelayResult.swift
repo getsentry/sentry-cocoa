@@ -6,8 +6,8 @@ class SentryFramesDelayResult: NSObject {
     let delayDuration: CFTimeInterval
     let framesContributingToDelayCount: UInt
 
-    init(delayDuration: CFTimeInterval, framesCount: UInt) {
+    init(delayDuration: CFTimeInterval, framesContributingToDelayCount: UInt) {
         self.delayDuration = delayDuration
-        self.framesContributingToDelayCount = framesCount
+        self.framesContributingToDelayCount = framesContributingToDelayCount
     }
 }

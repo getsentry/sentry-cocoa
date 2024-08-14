@@ -79,7 +79,7 @@ SentryANRTrackerV2 ()
     uint64_t timeoutIntervalInNanos = timeIntervalToNanoseconds(self.timeoutInterval);
 
     uint64_t appHangStoppedInterval = timeIntervalToNanoseconds(sleepInterval * 2);
-    CFTimeInterval appHangStoppedThreshold
+    CFTimeInterval appHangStoppedFrameDelayThreshold
         = nanosecondsToTimeInterval(appHangStoppedInterval) * 0.2;
 
     uint64_t lastAppHangStoppedSystemTime = dateProvider.systemTime - timeoutIntervalInNanos;
@@ -127,7 +127,7 @@ SentryANRTrackerV2 ()
                 continue;
             }
 
-            BOOL appHangStopped = framesDelay.delayDuration < appHangStoppedThreshold;
+            BOOL appHangStopped = framesDelay.delayDuration < appHangStoppedFrameDelayThreshold;
 
             if (appHangStopped) {
                 SENTRY_LOG_DEBUG(@"App hang stopped.");
@@ -139,9 +139,7 @@ SentryANRTrackerV2 ()
                 lastAppHangStoppedSystemTime = dateProvider.systemTime;
                 reported = NO;
             }
-        }
 
-        if (reported) {
             continue;
         }
 
