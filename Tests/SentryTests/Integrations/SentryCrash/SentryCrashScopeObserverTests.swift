@@ -285,7 +285,7 @@ class SentryCrashScopeObserverTests: XCTestCase {
         let scope = Scope()
         scope.add(SentryCrashScopeObserver(maxBreadcrumbs: 100))
         
-        testConcurrentModifications(asyncWorkItems: 20, writeLoopCount: 100, writeWork: { i in
+        testConcurrentModifications(asyncWorkItems: 10, writeLoopCount: 1_000, writeWork: { i in
             let user = User()
             user.name = "name \(i)"
             scope.setUser(user)
