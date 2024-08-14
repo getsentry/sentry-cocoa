@@ -1,26 +1,26 @@
 #import "SentryANRTrackingIntegrationV2.h"
-#import "SentryANRTrackerV2.h"
-#import "SentryClient+Private.h"
-#import "SentryCrashMachineContext.h"
-#import "SentryCrashWrapper.h"
-#import "SentryDependencyContainer.h"
-#import "SentryDispatchQueueWrapper.h"
-#import "SentryEvent.h"
-#import "SentryException.h"
-#import "SentryHub+Private.h"
-#import "SentryLog.h"
-#import "SentryMechanism.h"
-#import "SentrySDK+Private.h"
-#import "SentryStacktrace.h"
-#import "SentryThread.h"
-#import "SentryThreadInspector.h"
-#import "SentryThreadWrapper.h"
-#import "SentryUIApplication.h"
-#import <SentryOptions+Private.h>
 
 #if SENTRY_HAS_UIKIT
+
+#    import "SentryANRTrackerV2.h"
+#    import "SentryClient+Private.h"
+#    import "SentryCrashMachineContext.h"
+#    import "SentryCrashWrapper.h"
+#    import "SentryDependencyContainer.h"
+#    import "SentryDispatchQueueWrapper.h"
+#    import "SentryEvent.h"
+#    import "SentryException.h"
+#    import "SentryHub+Private.h"
+#    import "SentryLog.h"
+#    import "SentryMechanism.h"
+#    import "SentrySDK+Private.h"
+#    import "SentryStacktrace.h"
+#    import "SentryThread.h"
+#    import "SentryThreadInspector.h"
+#    import "SentryThreadWrapper.h"
+#    import "SentryUIApplication.h"
+#    import <SentryOptions+Private.h>
 #    import <UIKit/UIKit.h>
-#endif
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -83,14 +83,13 @@ SentryANRTrackingIntegrationV2 ()
         return;
     }
 
-#if SENTRY_HAS_UIKIT
     // If the app is not active, the main thread may be blocked or too busy.
     // Since there is no UI for the user to interact, there is no need to report app hang.
     if (SentryDependencyContainer.sharedInstance.application.applicationState
         != UIApplicationStateActive) {
         return;
     }
-#endif
+
     SentryThreadInspector *threadInspector = SentrySDK.currentHub.getClient.threadInspector;
 
     NSArray<SentryThread *> *threads = [threadInspector getCurrentThreadsWithStackTrace];
@@ -128,3 +127,5 @@ SentryANRTrackingIntegrationV2 ()
 @end
 
 NS_ASSUME_NONNULL_END
+
+#endif // SENTRY_HAS_UIKIT

@@ -1,6 +1,7 @@
 import SentryTestUtils
 import XCTest
 
+#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
 class SentryANRTrackingIntegrationV2Tests: SentrySDKIntegrationTestsBase {
     
     private class Fixture {
@@ -227,3 +228,5 @@ class SentryANRTrackingIntegrationV2Tests: SentrySDKIntegrationTestsBase {
         SentrySDK.currentHub().getClient()?.threadInspector = threadInspector
     }
 }
+
+#endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)

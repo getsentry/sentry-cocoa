@@ -1,5 +1,7 @@
 #import "SentryDefines.h"
 
+#if SENTRY_HAS_UIKIT
+
 @class SentryCrashWrapper;
 @class SentryDispatchQueueWrapper;
 @class SentryThreadWrapper;
@@ -44,3 +46,5 @@ SENTRY_NO_INIT
 @end
 
 NS_ASSUME_NONNULL_END
+
+#endif // SENTRY_HAS_UIKIT

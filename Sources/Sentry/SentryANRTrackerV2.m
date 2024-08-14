@@ -1,13 +1,16 @@
 #import "SentryANRTrackerV2.h"
-#import "SentryCrashWrapper.h"
-#import "SentryDependencyContainer.h"
-#import "SentryDispatchQueueWrapper.h"
-#import "SentryFramesTracker.h"
-#import "SentryLog.h"
-#import "SentrySwift.h"
-#import "SentryThreadWrapper.h"
-#import "SentryTime.h"
-#import <stdatomic.h>
+
+#if SENTRY_HAS_UIKIT
+
+#    import "SentryCrashWrapper.h"
+#    import "SentryDependencyContainer.h"
+#    import "SentryDispatchQueueWrapper.h"
+#    import "SentryFramesTracker.h"
+#    import "SentryLog.h"
+#    import "SentrySwift.h"
+#    import "SentryThreadWrapper.h"
+#    import "SentryTime.h"
+#    import <stdatomic.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -252,3 +255,5 @@ SentryANRTrackerV2 ()
 @end
 
 NS_ASSUME_NONNULL_END
+
+#endif // SENTRY_HAS_UIKIT
