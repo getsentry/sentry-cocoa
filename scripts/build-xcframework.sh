@@ -72,10 +72,10 @@ generate_xcframework() {
     $createxcframework
 }
 
+generate_xcframework "Sentry" "-WithoutUIKitOrAppKit" mh_dylib WithoutUIKit
+
 generate_xcframework "Sentry" "-Dynamic"
 
 generate_xcframework "Sentry" "" staticlib
 
 generate_xcframework "SentrySwiftUI"
-
-generate_xcframework "Sentry" "-WithoutUIKitOrAppKit" mh_dylib WithoutUIKit
