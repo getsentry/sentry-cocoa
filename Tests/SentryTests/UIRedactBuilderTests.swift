@@ -146,24 +146,33 @@ class UIRedactBuilderTests: XCTestCase {
     }
     
     func testIgnoreClasses() {
-        class AnotherLabel: UILabel {
-        }
-        
         let sut = UIRedactBuilder()
-        sut.addIgnoreClass(AnotherLabel.self)
-        rootView.addSubview(AnotherLabel(frame: CGRect(x: 20, y: 20, width: 40, height: 40)))
+        sut.addIgnoreClass(UILabel.self)
+        rootView.addSubview(UILabel(frame: CGRect(x: 20, y: 20, width: 40, height: 40)))
         
         let result = sut.redactRegionsFor(view: rootView, options: RedactOptions())
         XCTAssertEqual(result.count, 0)
     }
     
-    func testRedactlasses() {
+    func testRedactClasses() {
         class AnotherView: UIView {
         }
         
         let sut = UIRedactBuilder()
         let view = AnotherView(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
         sut.addRedactClass(AnotherView.self)
+        rootView.addSubview(view)
+        
+        let result = sut.redactRegionsFor(view: rootView, options: RedactOptions())
+        XCTAssertEqual(result.count, 1)
+    }
+    
+    func testRedactSubClass() {
+        class AnotherView: UILabel {
+        }
+        
+        let sut = UIRedactBuilder()
+        let view = AnotherView(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
         rootView.addSubview(view)
         
         let result = sut.redactRegionsFor(view: rootView, options: RedactOptions())
