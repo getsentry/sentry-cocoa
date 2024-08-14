@@ -534,6 +534,41 @@ class SentryFramesTrackerTests: XCTestCase {
         wait(for: [expectation], timeout: 3.0)
     }
     
+    func testGetFramesDelayOnTightLoop_WhileKeepAddingDelayedFrames() {
+        let displayLink = fixture.displayLinkWrapper
+        let dateProvider = fixture.dateProvider
+        
+        let sut = fixture.sut
+        sut.start()
+        
+        for _ in 0..<100 {
+            displayLink.normalFrame()
+        }
+        
+        let expectation = expectation(description: "Get Frames Delays")
+        
+        DispatchQueue.global().async {
+            
+            for _ in 0..<1_000 {
+
+                let endSystemTimestamp = dateProvider.systemTime()
+                let startSystemTimestamp = endSystemTimestamp - timeIntervalToNanoseconds(1.0)
+                
+                let frameDelay = sut.getFramesDelay(startSystemTimestamp, endSystemTimestamp: endSystemTimestamp)
+                
+                XCTAssertLessThanOrEqual(frameDelay, 1.0)
+            }
+            
+            expectation.fulfill()
+        }
+        
+        for _ in 0..<1_000 {
+            displayLink.frameWith(delay: 1.0)
+        }
+        
+        wait(for: [expectation], timeout: 3.0)
+    }
+    
     func testAddMultipleListeners_AllCalledWithSameDate() {
         let sut = fixture.sut
         let listener1 = FrameTrackerListener()
