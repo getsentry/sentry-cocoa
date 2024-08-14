@@ -1,6 +1,5 @@
 #import "SentryANRTracker.h"
 #import "SentryANRTrackingIntegration.h"
-#import "SentryANRTrackingIntegrationV2.h"
 #import "SentryAutoBreadcrumbTrackingIntegration.h"
 #import "SentryAutoSessionTrackingIntegration.h"
 #import "SentryCoreDataTrackingIntegration.h"
@@ -62,7 +61,6 @@ NSString *const kSentryDefaultEnvironment = @"production";
             NSStringFromClass([SentryWatchdogTerminationTrackingIntegration class]),
 #endif // SENTRY_HAS_UIKIT
             NSStringFromClass([SentryANRTrackingIntegration class]),
-            NSStringFromClass([SentryANRTrackingIntegrationV2 class]),
             NSStringFromClass([SentryAutoBreadcrumbTrackingIntegration class]),
             NSStringFromClass([SentryAutoSessionTrackingIntegration class]),
             NSStringFromClass([SentryCoreDataTrackingIntegration class]),

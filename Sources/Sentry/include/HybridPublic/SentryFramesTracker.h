@@ -1,5 +1,4 @@
 #import "SentryDefines.h"
-#import "SentrySwift.h"
 
 #if SENTRY_HAS_UIKIT
 
