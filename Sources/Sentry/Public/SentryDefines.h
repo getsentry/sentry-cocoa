@@ -60,8 +60,17 @@
 #    define SENTRY_HAS_REACHABILITY 0
 #endif
 
-@class SentryEvent, SentryBreadcrumb, SentrySamplingContext;
+@class SentryBreadcrumb;
+@class SentryEvent;
+@class SentrySamplingContext;
+@class SentryUserFeedbackConfiguration;
 @protocol SentrySpan;
+
+/**
+ * Block used to configure the user feedback widget, form, behaviors and submission data.
+ */
+typedef void (^SentryUserFeedbackWidgetConfigurationBlock)(
+    SentryUserFeedbackConfiguration *_Nonnull configuration);
 
 /**
  * Block used for returning after a request finished

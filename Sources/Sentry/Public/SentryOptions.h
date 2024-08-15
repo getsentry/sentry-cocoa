@@ -6,10 +6,6 @@ NS_ASSUME_NONNULL_BEGIN
 @class SentryDsn, SentryMeasurementValue, SentryHttpStatusCodeRange, SentryScope,
     SentryReplayOptions;
 @class SentryExperimentalOptions;
-@class SentryUserFeedbackConfiguration;
-
-typedef void (^SentryUserFeedbackWidgetConfigurationBlock)(
-    SentryUserFeedbackConfiguration *configuration);
 
 NS_SWIFT_NAME(Options)
 @interface SentryOptions : NSObject
