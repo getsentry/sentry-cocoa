@@ -4,7 +4,7 @@ import Foundation
 import UIKit
 
 /**
- * Configuration class for overriding theming components for the User Feedback Widget.
+ * Settings for overriding theming components for the User Feedback Widget.
  */
 @available(iOSApplicationExtension 13.0, *)
 @objc public class SentryUserFeedbackThemeConfiguration: NSObject {

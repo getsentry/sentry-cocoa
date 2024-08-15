@@ -3,14 +3,37 @@ import Foundation
 @_implementationOnly import _SentryPrivate
 import UIKit
 
+/**
+ * The settings to use for how the user feedback form is presented, what data is required and how
+ * it's submitted, and some auxiliary hooks to customize the workflow.
+ */
 @available(iOSApplicationExtension 13.0, *)
 @objc public class SentryUserFeedbackConfiguration: NSObject {
-    
     /**
      * Configuration settings specific to the managed widget that displays the UI form.
-     * - note: Default: `nil`
+     * - note: Default: `nil` to use the default widget settings.
      */
     public var widget: ((SentryUserFeedbackWidgetConfiguration) -> Void)?
+    
+    /**
+     * A custom gesture a user can perform to display the user feedback form.
+     * - note: Setting this property does not disable the widget. In order to do so, you must set `SentryUserFeedbackWidgetConfiguration.autoInject` to `false` using the `SentryUserFeedbackConfiguration.widget` config builder. 
+     */
+    public var gesture: UIGestureRecognizer?
+    
+    /**
+     * Use a shake gesture to display the form.
+     * - note: Default: `false`
+     * - note: Setting this to true does not disable the widget. In order to do so, you must set `SentryUserFeedbackWidgetConfiguration.autoInject` to `false` using the `SentryUserFeedbackConfiguration.widget` config builder.
+     */
+    public var useShakeGesture: Bool = false
+    
+    /**
+     * Any time a user takes a screenshot, bring up the form with the screenshot attached.
+     * - note: Default: `false`
+     * - note: Setting this to true does not disable the widget. In order to do so, you must set `SentryUserFeedbackWidgetConfiguration.autoInject` to `false` using the `SentryUserFeedbackConfiguration.widget` config builder.
+     */
+    public var showFormForScreenshots: Bool = false
     
     /**
      * Configuration settings specific to the managed UI form to gather user input.

@@ -3,6 +3,10 @@ import Foundation
 @_implementationOnly import _SentryPrivate
 import UIKit
 
+/**
+ * An integration managing a workflow for end users to report feedback via Sentry.
+ * - note: The default method to show the feedback form is via a floating widget placed in the bottom trailing corner of the screen. See the configuration classes for alternative options.
+ */
 @available(iOSApplicationExtension 13.0, *)
 class SentryUserFeedbackIntegration {
     let configuration: SentryUserFeedbackConfiguration

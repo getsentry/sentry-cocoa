@@ -3,6 +3,9 @@ import Foundation
 @_implementationOnly import _SentryPrivate
 import UIKit
 
+/**
+ * Settings for whether to show the widget and how it should appear.
+ */
 @objc public class SentryUserFeedbackWidgetConfiguration: NSObject {
     /**
      * Injects the Feedback widget into the application UI when the integration is added. Set to `false`
