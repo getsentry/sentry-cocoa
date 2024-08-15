@@ -4,6 +4,7 @@
 
 #    import "SentryLog.h"
 #    import "SentryUserFeedbackConfiguration.h"
+#    import "SentryUserFeedbackWidgetConfiguration.h"
 #    import <UIKit/UIKit.h>
 
 @interface
@@ -20,9 +21,9 @@ SentryUserFeedbackIntegration ()
     self = [super init];
     if (self) {
         _configuration = configuration;
-        if (_configuration.autoInject) {
-            [self createWidget];
-        }
+        //        if (_configuration.widget.autoInject) {
+        //            [self createWidget];
+        //        }
     }
     return self;
 }
