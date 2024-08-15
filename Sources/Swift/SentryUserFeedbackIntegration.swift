@@ -6,9 +6,39 @@ import UIKit
 @available(iOSApplicationExtension 13.0, *)
 class SentryUserFeedbackIntegration {
     let configuration: SentryUserFeedbackConfiguration
+    private var widgetConfig: SentryUserFeedbackWidgetConfiguration?
+    private var uiFormConfig: SentryUserFeedbackFormConfiguration?
+    private var lightThemeOverrides: SentryUserFeedbackThemeConfiguration?
+    private var darkThemeOverrides: SentryUserFeedbackThemeConfiguration?
     
     init(configuration: SentryUserFeedbackConfiguration) {
         self.configuration = configuration
+        
+        if let widgetConfigBuilder = configuration.widget {
+            let config = SentryUserFeedbackWidgetConfiguration()
+            widgetConfigBuilder(config)
+            self.widgetConfig = config
+        }
+        if let uiFormConfigBuilder = configuration.uiForm {
+            let config = SentryUserFeedbackFormConfiguration()
+            uiFormConfigBuilder(config)
+            self.uiFormConfig = config
+            
+            if let lightThemeOverrideBuilder = config.lightThemeOverrides {
+                let overrides = SentryUserFeedbackThemeConfiguration()
+                lightThemeOverrideBuilder(overrides)
+                self.lightThemeOverrides = overrides
+            }
+            if let darkThemeOverrideBuilder = config.darkThemeOverrides {
+                let overrides = SentryUserFeedbackThemeConfiguration()
+                darkThemeOverrideBuilder(overrides)
+                self.darkThemeOverrides = overrides
+            }
+        }
+        
+        if widgetConfig?.autoInject ?? false {
+            createWidget()
+        }
     }
     
     /**

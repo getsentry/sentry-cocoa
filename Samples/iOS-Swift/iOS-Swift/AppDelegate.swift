@@ -11,7 +11,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     static let defaultDSN = "https://6cc9bae94def43cab8444a99e0031c28@o447951.ingest.sentry.io/5428557"
 
     //swiftlint:disable function_body_length cyclomatic_complexity
-    static func startSentry() {
+    func startSentry() {
         let args = ProcessInfo.processInfo.arguments
         let env = ProcessInfo.processInfo.environment
         
@@ -154,6 +154,33 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 }
                 return scope
             }
+            
+            options.configureUserFeedback = {
+                $0.widget = {
+                    $0.triggerLabel = "Report Jank"
+                    $0.triggerAccessibilityLabel = "io.sentry.iOS-Swift.button.report-jank"
+                }
+                $0.uiForm = {
+                    $0.formTitle = "Jank Report"
+                    $0.submitButtonLabel = "Report that jank"
+                    $0.addScreenshotButtonLabel = "Show us the jank"
+                    $0.messagePlaceholder = "Describe the nature of the jank. Its essence, if you will."
+                    $0.lightThemeOverrides = {
+                        $0.font = UIFont(name: "Comic Sans", size: 25)
+                    }
+                }
+                $0.onSubmitSuccess = { info in
+                    let name = info["name"] ?? "$shakespearean_insult_name"
+                    let alert = UIAlertController(title: "Thanks?", message: "We have enough jank of our own, we really didn't need yours too, \(name).", preferredStyle: .alert)
+                    alert.addAction(.init(title: "Derp", style: .default))
+                    self.window?.rootViewController?.present(alert, animated: true)
+                }
+                $0.onSubmitError = { error in
+                    let alert = UIAlertController(title: "D'oh", message: "You tried to report jank, and encountered more jank. The jank has you now: \(error).", preferredStyle: .alert)
+                    alert.addAction(.init(title: "Derp", style: .default))
+                    self.window?.rootViewController?.present(alert, animated: true)
+                }
+            }
         })
 
     }
@@ -168,7 +195,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             removeAppData()
         }
         if !ProcessInfo.processInfo.arguments.contains("--skip-sentry-init") {
-            AppDelegate.startSentry()
+            startSentry()
         }
         
         if #available(iOS 15.0, *) {
