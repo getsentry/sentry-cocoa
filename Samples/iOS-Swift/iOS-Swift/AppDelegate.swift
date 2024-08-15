@@ -156,7 +156,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             }
             
             options.configureUserFeedback = {
+                $0.useShakeGesture = true
+                $0.showFormForScreenshots = true
                 $0.widget = {
+                    $0.autoInject = args.contains("--io.sentry.iOS-Swift.auto-inject-user-feedback-widget")
                     $0.triggerLabel = "Report Jank"
                     $0.triggerAccessibilityLabel = "io.sentry.iOS-Swift.button.report-jank"
                 }

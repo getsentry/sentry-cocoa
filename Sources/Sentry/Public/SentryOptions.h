@@ -705,6 +705,14 @@ NS_SWIFT_NAME(Options)
 @property (nullable, nonatomic, copy) SentryBeforeEmitMetricCallback beforeEmitMetric;
 
 /**
+ * Enables the User Feedback integration. See `configureUserFeedback` for options that customize the
+ * experience.
+ * @warning This is an experimental feature and may still have bugs.
+ * @note Default value is @c NO . 
+ */
+@property (nonatomic, assign) BOOL enableUserFeedbackIntegration;
+
+/**
  * A block that can be defined that receives a user feedback configuration object to modify.
  */
 @property (nonatomic, copy, nullable)
