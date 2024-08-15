@@ -708,7 +708,7 @@ NS_SWIFT_NAME(Options)
  * Enables the User Feedback integration. See `configureUserFeedback` for options that customize the
  * experience.
  * @warning This is an experimental feature and may still have bugs.
- * @note Default value is @c NO . 
+ * @note Default value is @c NO .
  */
 @property (nonatomic, assign) BOOL enableUserFeedbackIntegration;
 

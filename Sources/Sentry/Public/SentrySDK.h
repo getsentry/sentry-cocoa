@@ -239,7 +239,8 @@ SENTRY_NO_INIT
     NS_SWIFT_NAME(capture(userFeedback:));
 
 /**
- * Display a form to gather information from an end user in the app to send to Sentry as a user feedback event.
+ * Display a form to gather information from an end user in the app to send to Sentry as a user
+ * feedback event.
  * @see @c SentryOptions.enableUserFeedbackIntegration and @c SentryOptions.configureUserFeedback to
  * enable the functionality and customize the experience.
  * @note If @c SentryOptions.enableUserFeedbackIntegration is @c NO, this method is a no-op.
