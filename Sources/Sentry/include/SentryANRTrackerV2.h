@@ -1,4 +1,5 @@
 #import "SentryDefines.h"
+#import "SentrySwift.h"
 
 #if SENTRY_HAS_UIKIT
 
@@ -8,8 +9,6 @@
 @class SentryFramesTracker;
 
 NS_ASSUME_NONNULL_BEGIN
-
-@protocol SentryANRTrackerV2Delegate;
 
 @interface SentryANRTrackerV2 : NSObject
 SENTRY_NO_INIT
@@ -26,17 +25,6 @@ SENTRY_NO_INIT
 
 // Function used for tests
 - (void)clear;
-
-@end
-
-/**
- * The ``SentryANRTrackerV2`` calls the methods from background threads.
- */
-@protocol SentryANRTrackerV2Delegate <NSObject>
-
-- (void)anrDetected;
-
-- (void)anrStopped;
 
 @end
 
