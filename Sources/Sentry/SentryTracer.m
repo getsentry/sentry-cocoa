@@ -412,14 +412,17 @@ static BOOL appStartMeasurementRead;
     [self canBeFinished];
 }
 
-- (SentryTraceContext *)traceContext
+- (nullable SentryTraceContext *)traceContext
 {
     if (_traceContext == nil) {
         @synchronized(self) {
             if (_traceContext == nil) {
-                _traceContext = [[SentryTraceContext alloc] initWithTracer:self
-                                                                     scope:_hub.scope
-                                                                   options:SentrySDK.options];
+                _traceContext = [[SentryTraceContext alloc]
+                    initWithTracer:self
+                             scope:_hub.scope
+                           options:_hub.client.options
+                               ?: SentrySDK.options]; // We should remove static classes and always
+                                                      // inject dependencies.
             }
         }
     }

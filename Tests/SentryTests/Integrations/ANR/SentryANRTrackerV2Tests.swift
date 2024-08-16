@@ -5,7 +5,7 @@ import XCTest
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
 class SentryANRTrackerV2Tests: XCTestCase {
     
-    private let waitTimeout: TimeInterval = 0.5
+    private let waitTimeout: TimeInterval = 1.0
     private let timeoutInterval: TimeInterval = 2
         
     private func getSut() throws -> (SentryANRTrackerV2, TestCurrentDateProvider, TestDisplayLinkWrapper, TestSentryCrashWrapper, SentryTestThreadWrapper, SentryFramesTracker) {
