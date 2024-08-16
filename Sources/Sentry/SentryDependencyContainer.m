@@ -301,6 +301,32 @@ static NSObject *sentryDependencyContainerLock;
 #    endif // SENTRY_HAS_UIKIT
 }
 
+- (SentryANRTrackerV2 *)getANRTrackerV2:(NSTimeInterval)timeout
+    SENTRY_DISABLE_THREAD_SANITIZER("double-checked lock produce false alarms")
+{
+#    if SENTRY_HAS_UIKIT
+    if (_anrTrackerV2 == nil) {
+        @synchronized(sentryDependencyContainerLock) {
+            if (_anrTrackerV2 == nil) {
+                _anrTrackerV2 =
+                    [[SentryANRTrackerV2 alloc] initWithTimeoutInterval:timeout
+                                                           crashWrapper:self.crashWrapper
+                                                   dispatchQueueWrapper:self.dispatchQueueWrapper
+                                                          threadWrapper:self.threadWrapper
+                                                          framesTracker:self.framesTracker];
+            }
+        }
+    }
+
+    return _anrTrackerV2;
+#    else
+    SENTRY_LOG_DEBUG(
+        @"SentryDependencyContainer.getANRTrackerV2 only works with UIKit enabled. Ensure you're "
+        @"using the right configuration of Sentry that links UIKit.");
+    return nil;
+#    endif // SENTRY_HAS_UIKIT
+}
+
 - (SentrySwizzleWrapper *)swizzleWrapper SENTRY_DISABLE_THREAD_SANITIZER(
     "double-checked lock produce false alarms")
 {
@@ -338,24 +364,6 @@ static NSObject *sentryDependencyContainerLock;
     }
 
     return _anrTracker;
-}
-
-- (SentryANRTrackerV2 *)getANRTrackerV2:(NSTimeInterval)timeout
-    SENTRY_DISABLE_THREAD_SANITIZER("double-checked lock produce false alarms")
-{
-    if (_anrTrackerV2 == nil) {
-        @synchronized(sentryDependencyContainerLock) {
-            if (_anrTrackerV2 == nil) {
-                _anrTrackerV2 =
-                    [[SentryANRTrackerV2 alloc] initWithTimeoutInterval:timeout
-                                                           crashWrapper:self.crashWrapper
-                                                   dispatchQueueWrapper:self.dispatchQueueWrapper
-                                                          threadWrapper:self.threadWrapper];
-            }
-        }
-    }
-
-    return _anrTrackerV2;
 }
 
 - (SentryNSProcessInfoWrapper *)processInfoWrapper SENTRY_DISABLE_THREAD_SANITIZER(

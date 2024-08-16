@@ -1,6 +1,11 @@
 #import "SentryDefines.h"
 
-@class SentryOptions, SentryCrashWrapper, SentryDispatchQueueWrapper, SentryThreadWrapper;
+#if SENTRY_HAS_UIKIT
+
+@class SentryCrashWrapper;
+@class SentryDispatchQueueWrapper;
+@class SentryThreadWrapper;
+@class SentryFramesTracker;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -12,7 +17,8 @@ SENTRY_NO_INIT
 - (instancetype)initWithTimeoutInterval:(NSTimeInterval)timeoutInterval
                            crashWrapper:(SentryCrashWrapper *)crashWrapper
                    dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
-                          threadWrapper:(SentryThreadWrapper *)threadWrapper;
+                          threadWrapper:(SentryThreadWrapper *)threadWrapper
+                          framesTracker:(SentryFramesTracker *)framesTracker;
 
 - (void)addListener:(id<SentryANRTrackerV2Delegate>)listener;
 
@@ -23,6 +29,9 @@ SENTRY_NO_INIT
 
 @end
 
+/**
+ * The ``SentryANRTrackerV2`` calls the methods from background threads.
+ */
 @protocol SentryANRTrackerV2Delegate <NSObject>
 
 - (void)anrDetected;
@@ -32,3 +41,5 @@ SENTRY_NO_INIT
 @end
 
 NS_ASSUME_NONNULL_END
+
+#endif // SENTRY_HAS_UIKIT
