@@ -396,6 +396,11 @@ static NSDate *_Nullable startTimestamp = nil;
     [SentrySDK.currentHub captureUserFeedback:userFeedback];
 }
 
++ (void)gatherUserFeedback
+{
+    // TODO: implement
+}
+
 + (void)addBreadcrumb:(SentryBreadcrumb *)crumb
 {
     [SentrySDK.currentHub addBreadcrumb:crumb];
