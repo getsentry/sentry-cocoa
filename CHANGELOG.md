@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 8.34.0
 
 ### Features
 
@@ -11,8 +11,9 @@
 
 - Fix `SIGABRT` when modifying scope user (#4274)
 - Session replay not redacting buttons and other non UILabel texts (#4277)
+- Rarely reporting too long frame delays (#4278) by fixing a race condition in the frames tracking logic.
 - Crash deserializing empty envelope length>0 (#4281]
-
+- Guard dereferencing of stack frame pointer in SentryBacktrace ([#4268](https://github.com/getsentry/sentry-cocoa/pull/4268))
 
 ## 8.33.0
 
