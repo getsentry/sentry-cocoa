@@ -11,22 +11,22 @@ import UIKit
 class SentryUserFeedbackIntegration {
     let configuration: SentryUserFeedbackConfiguration
     private var widgetConfig: SentryUserFeedbackWidgetConfiguration?
-    private var uiFormConfig: SentryUserFeedbackFormConfiguration?
+    private var formConfig: SentryUserFeedbackFormConfiguration?
     private var lightThemeOverrides: SentryUserFeedbackThemeConfiguration?
     private var darkThemeOverrides: SentryUserFeedbackThemeConfiguration?
     
     init(configuration: SentryUserFeedbackConfiguration) {
         self.configuration = configuration
         
-        if let widgetConfigBuilder = configuration.widget {
+        if let widgetConfigBuilder = configuration.configureWidget {
             let config = SentryUserFeedbackWidgetConfiguration()
             widgetConfigBuilder(config)
             self.widgetConfig = config
         }
-        if let uiFormConfigBuilder = configuration.uiForm {
+        if let uiFormConfigBuilder = configuration.configureForm {
             let config = SentryUserFeedbackFormConfiguration()
             uiFormConfigBuilder(config)
-            self.uiFormConfig = config
+            self.formConfig = config
             
             if let lightThemeOverrideBuilder = config.lightThemeOverrides {
                 let overrides = SentryUserFeedbackThemeConfiguration()

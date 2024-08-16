@@ -38,7 +38,7 @@ import UIKit
      * The location for positioning the widget.
      * - note: Default: `[.bottom, .trailing]`
      */
-    public var directionalLocation: UIDirectionalRectEdge = [.bottom, .trailing]
+    public var location: UIDirectionalRectEdge = [.bottom, .trailing]
     
     /**
      * The distance to use from the widget button to the superview's `layoutMarginsGuide`.

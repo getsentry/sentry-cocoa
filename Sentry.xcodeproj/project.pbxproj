@@ -3519,13 +3519,21 @@
 		847B1A002C618ACA002CB1F3 /* UserFeedback */ = {
 			isa = PBXGroup;
 			children = (
+				849B8F9E2C70091A00148E1F /* Configuration */,
+				849B8F962C6E906900148E1F /* SentryUserFeedbackIntegration.swift */,
+			);
+			name = UserFeedback;
+			sourceTree = "<group>";
+		};
+		849B8F9E2C70091A00148E1F /* Configuration */ = {
+			isa = PBXGroup;
+			children = (
 				849B8F952C6E906900148E1F /* SentryUserFeedbackConfiguration.swift */,
 				849B8F942C6E906900148E1F /* SentryUserFeedbackFormConfiguration.swift */,
-				849B8F962C6E906900148E1F /* SentryUserFeedbackIntegration.swift */,
 				849B8F972C6E906900148E1F /* SentryUserFeedbackThemeConfiguration.swift */,
 				849B8F982C6E906900148E1F /* SentryUserFeedbackWidgetConfiguration.swift */,
 			);
-			name = UserFeedback;
+			name = Configuration;
 			sourceTree = "<group>";
 		};
 		8E25C94F25F836AB00DC215B /* Tools */ = {

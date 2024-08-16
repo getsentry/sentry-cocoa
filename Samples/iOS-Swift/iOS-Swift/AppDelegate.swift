@@ -158,7 +158,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             options.configureUserFeedback = { config in
                 config.useShakeGesture = true
                 config.showFormForScreenshots = true
-                config.widget = { widget in
+                config.configureWidget = { widget in
                     if args.contains("--io.sentry.iOS-Swift.auto-inject-user-feedback-widget") {
                         widget.triggerLabel = "Report Jank"
                         widget.triggerAccessibilityLabel = "io.sentry.iOS-Swift.button.report-jank"
@@ -166,7 +166,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                         widget.autoInject = false
                     }
                 }
-                config.uiForm = { uiForm in
+                config.configureForm = { uiForm in
                     uiForm.formTitle = "Jank Report"
                     uiForm.submitButtonLabel = "Report that jank"
                     uiForm.addScreenshotButtonLabel = "Show us the jank"
