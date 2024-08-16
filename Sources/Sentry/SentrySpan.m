@@ -1,3 +1,4 @@
+#import "SentryBaggage.h"
 #import "SentryCrashThread.h"
 #import "SentryDependencyContainer.h"
 #import "SentryFrame.h"
@@ -13,6 +14,7 @@
 #import "SentrySwift.h"
 #import "SentryThreadInspector.h"
 #import "SentryTime.h"
+#import "SentryTraceContext.h"
 #import "SentryTraceHeader.h"
 #import "SentryTracer.h"
 
@@ -296,6 +298,17 @@ SentrySpan ()
     return [[SentryTraceHeader alloc] initWithTraceId:self.traceId
                                                spanId:self.spanId
                                               sampled:self.sampled];
+}
+
+// Getter for the computed property baggage
+- (nullable NSString *)baggageHttpHeader
+{
+    return [[self.tracer.traceContext toBaggage] toHTTPHeaderWithOriginalBaggage:nil];
+}
+
+- (nullable SentryTraceContext *)traceContext
+{
+    return self.tracer.traceContext;
 }
 
 - (LocalMetricsAggregator *)getLocalMetricsAggregator

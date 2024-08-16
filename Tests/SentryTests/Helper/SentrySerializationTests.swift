@@ -5,7 +5,7 @@ class SentrySerializationTests: XCTestCase {
     
     private class Fixture {
         static var invalidData = "hi".data(using: .utf8)!
-        static var traceContext = SentryTraceContext(trace: SentryId(), publicKey: "PUBLIC_KEY", releaseName: "RELEASE_NAME", environment: "TEST", transaction: "transaction", userSegment: "some segment", sampleRate: "0.25", sampled: "true", replayId: nil)
+        static var traceContext = TraceContext(trace: SentryId(), publicKey: "PUBLIC_KEY", releaseName: "RELEASE_NAME", environment: "TEST", transaction: "transaction", userSegment: "some segment", sampleRate: "0.25", sampled: "true", replayId: nil)
     }
     
     func testSerializationFailsWithInvalidJSONObject() {
@@ -119,7 +119,7 @@ class SentrySerializationTests: XCTestCase {
     }
     
     func testSentryEnvelopeSerializer_TraceStateWithoutUser() throws {
-        let trace = SentryTraceContext(trace: SentryId(), publicKey: "PUBLIC_KEY", releaseName: "RELEASE_NAME", environment: "TEST", transaction: "transaction", userSegment: nil, sampleRate: nil, sampled: nil, replayId: nil)
+        let trace = TraceContext(trace: SentryId(), publicKey: "PUBLIC_KEY", releaseName: "RELEASE_NAME", environment: "TEST", transaction: "transaction", userSegment: nil, sampleRate: nil, sampled: nil, replayId: nil)
         
         let envelopeHeader = SentryEnvelopeHeader(id: nil, traceContext: trace)
         let envelope = SentryEnvelope(header: envelopeHeader, singleItem: createItemWithEmptyAttachment())
@@ -288,7 +288,7 @@ class SentrySerializationTests: XCTestCase {
         XCTAssertEqual(sdkInfo, deserializedEnvelope.header.sdkInfo)
     }
     
-    func assertTraceState(firstTrace: SentryTraceContext, secondTrace: SentryTraceContext) {
+    func assertTraceState(firstTrace: TraceContext, secondTrace: TraceContext) {
         XCTAssertEqual(firstTrace.traceId, secondTrace.traceId)
         XCTAssertEqual(firstTrace.publicKey, secondTrace.publicKey)
         XCTAssertEqual(firstTrace.releaseName, secondTrace.releaseName)

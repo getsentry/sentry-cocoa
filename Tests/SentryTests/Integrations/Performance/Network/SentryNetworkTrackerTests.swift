@@ -665,7 +665,7 @@ class SentryNetworkTrackerTests: XCTestCase {
         let transaction = try XCTUnwrap(startTransaction() as? SentryTracer)
         sut.urlSessionTaskResume(task)
 
-        let expectedBaggageHeader = transaction.traceContext.toBaggage().toHTTPHeader(withOriginalBaggage: nil)
+        let expectedBaggageHeader = transaction.traceContext?.toBaggage().toHTTPHeader(withOriginalBaggage: nil)
         XCTAssertEqual(task.currentRequest?.allHTTPHeaderFields?["baggage"] ?? "", expectedBaggageHeader)
     }
 
@@ -715,7 +715,7 @@ class SentryNetworkTrackerTests: XCTestCase {
         sut.urlSessionTaskResume(task)
 
         let expectedTraceHeader = SentrySDK.currentHub().scope.propagationContext.traceHeader.value()
-        let traceContext = SentryTraceContext(trace: SentrySDK.currentHub().scope.propagationContext.traceId, options: self.fixture.options, userSegment: self.fixture.scope.userObject?.segment, replayId: nil)
+        let traceContext = TraceContext(trace: SentrySDK.currentHub().scope.propagationContext.traceId, options: self.fixture.options, userSegment: self.fixture.scope.userObject?.segment, replayId: nil)
         let expectedBaggageHeader = traceContext.toBaggage().toHTTPHeader(withOriginalBaggage: nil)
         XCTAssertEqual(task.currentRequest?.allHTTPHeaderFields?["baggage"] ?? "", expectedBaggageHeader)
         XCTAssertEqual(task.currentRequest?.allHTTPHeaderFields?["sentry-trace"] ?? "", expectedTraceHeader)
@@ -728,7 +728,7 @@ class SentryNetworkTrackerTests: XCTestCase {
         sut.urlSessionTaskResume(task)
 
         let expectedTraceHeader = SentrySDK.currentHub().scope.propagationContext.traceHeader.value()
-        let traceContext = SentryTraceContext(trace: SentrySDK.currentHub().scope.propagationContext.traceId, options: self.fixture.options, userSegment: self.fixture.scope.userObject?.segment, replayId: nil)
+        let traceContext = TraceContext(trace: SentrySDK.currentHub().scope.propagationContext.traceId, options: self.fixture.options, userSegment: self.fixture.scope.userObject?.segment, replayId: nil)
         let expectedBaggageHeader = traceContext.toBaggage().toHTTPHeader(withOriginalBaggage: nil)
         XCTAssertEqual(task.currentRequest?.allHTTPHeaderFields?["baggage"] ?? "", expectedBaggageHeader)
         XCTAssertEqual(task.currentRequest?.allHTTPHeaderFields?["sentry-trace"] ?? "", expectedTraceHeader)
