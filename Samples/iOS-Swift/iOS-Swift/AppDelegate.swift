@@ -155,30 +155,33 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 return scope
             }
             
-            options.configureUserFeedback = {
-                $0.useShakeGesture = true
-                $0.showFormForScreenshots = true
-                $0.widget = {
-                    $0.autoInject = args.contains("--io.sentry.iOS-Swift.auto-inject-user-feedback-widget")
-                    $0.triggerLabel = "Report Jank"
-                    $0.triggerAccessibilityLabel = "io.sentry.iOS-Swift.button.report-jank"
-                }
-                $0.uiForm = {
-                    $0.formTitle = "Jank Report"
-                    $0.submitButtonLabel = "Report that jank"
-                    $0.addScreenshotButtonLabel = "Show us the jank"
-                    $0.messagePlaceholder = "Describe the nature of the jank. Its essence, if you will."
-                    $0.lightThemeOverrides = {
-                        $0.font = UIFont(name: "Comic Sans", size: 25)
+            options.configureUserFeedback = { config in
+                config.useShakeGesture = true
+                config.showFormForScreenshots = true
+                config.widget = { widget in
+                    if args.contains("--io.sentry.iOS-Swift.auto-inject-user-feedback-widget") {
+                        widget.triggerLabel = "Report Jank"
+                        widget.triggerAccessibilityLabel = "io.sentry.iOS-Swift.button.report-jank"
+                    } else {
+                        widget.autoInject = false
                     }
                 }
-                $0.onSubmitSuccess = { info in
+                config.uiForm = { uiForm in
+                    uiForm.formTitle = "Jank Report"
+                    uiForm.submitButtonLabel = "Report that jank"
+                    uiForm.addScreenshotButtonLabel = "Show us the jank"
+                    uiForm.messagePlaceholder = "Describe the nature of the jank. Its essence, if you will."
+                    uiForm.lightThemeOverrides = { lightTheme in
+                        lightTheme.font = UIFont(name: "Comic Sans", size: 25)
+                    }
+                }
+                config.onSubmitSuccess = { info in
                     let name = info["name"] ?? "$shakespearean_insult_name"
                     let alert = UIAlertController(title: "Thanks?", message: "We have enough jank of our own, we really didn't need yours too, \(name).", preferredStyle: .alert)
                     alert.addAction(.init(title: "Derp", style: .default))
                     self.window?.rootViewController?.present(alert, animated: true)
                 }
-                $0.onSubmitError = { error in
+                config.onSubmitError = { error in
                     let alert = UIAlertController(title: "D'oh", message: "You tried to report jank, and encountered more jank. The jank has you now: \(error).", preferredStyle: .alert)
                     alert.addAction(.init(title: "Derp", style: .default))
                     self.window?.rootViewController?.present(alert, animated: true)

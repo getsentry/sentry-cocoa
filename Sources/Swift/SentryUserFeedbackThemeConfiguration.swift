@@ -13,25 +13,6 @@ import UIKit
      * - note: Defaults to the current system default.
      */
     public var font: UIFont?
-    
-    /**
-     * The window level of the widget.
-     * - note: Default: `UIWindow.Level.normal + 1`
-     */
-    public var widgetWindowLevel: UIWindow.Level = UIWindow.Level.normal + 1
-    
-    /**
-     * The location for positioning the widget.
-     * - note: Default: `[.bottom, .trailing]`
-     */
-    public var widgetDirectionalLocation: UIDirectionalRectEdge = [.bottom, .trailing]
-    
-    /**
-     * The distance to use from the widget button to the superview's `layoutMarginsGuide`.
-     * - note: Default: `UIOffset.zero`
-     */
-    public var widgetOffset: UIOffset = UIOffset.zero
-    
     /**
      * Foreground text color.
      * - note: Default light mode: `rgb(43, 34, 51)`; dark mode: `rgb(235, 230, 239)`

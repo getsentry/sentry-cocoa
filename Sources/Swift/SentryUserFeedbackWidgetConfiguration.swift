@@ -6,6 +6,7 @@ import UIKit
 /**
  * Settings for whether to show the widget and how it should appear.
  */
+@available(iOSApplicationExtension 13.0, *)
 @objc public class SentryUserFeedbackWidgetConfiguration: NSObject {
     /**
      * Injects the Feedback widget into the application UI when the integration is added. Set to `false`
@@ -26,6 +27,24 @@ import UIKit
      * - note: Default: `triggerLabel` value
      */
     public var triggerAccessibilityLabel: String?
+    
+    /**
+     * The window level of the widget.
+     * - note: Default: `UIWindow.Level.normal + 1`
+     */
+    public var windowLevel: UIWindow.Level = UIWindow.Level.normal + 1
+    
+    /**
+     * The location for positioning the widget.
+     * - note: Default: `[.bottom, .trailing]`
+     */
+    public var directionalLocation: UIDirectionalRectEdge = [.bottom, .trailing]
+    
+    /**
+     * The distance to use from the widget button to the superview's `layoutMarginsGuide`.
+     * - note: Default: `UIOffset.zero`
+     */
+    public var layoutOffset: UIOffset = UIOffset.zero
 }
 
 #endif // (os(iOS) || os(tvOS)) && !SENTRY_NO_UIKIT
