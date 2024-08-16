@@ -676,6 +676,22 @@ class SentrySpanTests: XCTestCase {
         XCTAssertEqual(nameForSentrySpanStatus(.dataLoss), kSentrySpanStatusNameDataLoss)
     }
     
+    func testTraceContext() {
+        let client = TestClient(options: fixture.options)!
+        let sut = fixture.getSut(client: client) as! SentrySpan
+        
+        let expectedTraceContext = sut.tracer?.traceContext
+        XCTAssertEqual(expectedTraceContext, sut.traceContext)
+    }
+    
+    func testBaggageHttpHeader() {
+        let client = TestClient(options: fixture.options)!
+        let sut = fixture.getSut(client: client) as! SentrySpan
+        
+        let expectedBaggage = sut.tracer?.traceContext?.toBaggage().toHTTPHeader(withOriginalBaggage: nil)
+        XCTAssertEqual(expectedBaggage, sut.baggageHttpHeader())
+    }
+    
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
     func testAddSlowFrozenFramesToData() {
         let (displayLinkWrapper, framesTracker) = givenFramesTracker()

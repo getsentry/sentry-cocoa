@@ -1,6 +1,9 @@
+@testable import _SentryPrivate
+@testable import Sentry
 import SentryTestUtils
 import XCTest
 
+#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
 class SentryANRTrackingIntegrationV2Tests: SentrySDKIntegrationTestsBase {
     
     private class Fixture {
@@ -68,7 +71,7 @@ class SentryANRTrackingIntegrationV2Tests: SentrySDKIntegrationTestsBase {
         givenInitializedTracker()
         setUpThreadInspector()
         
-        Dynamic(sut).anrDetected()
+        Dynamic(sut).anrDetectedWithType(SentryANRType.fullyBlocking)
         
         try assertEventWithScopeCaptured { event, _, _ in
             XCTAssertNotNil(event)
@@ -106,7 +109,7 @@ class SentryANRTrackingIntegrationV2Tests: SentrySDKIntegrationTestsBase {
         setUpThreadInspector()
         sut.pauseAppHangTracking()
         
-        Dynamic(sut).anrDetected()
+        Dynamic(sut).anrDetectedWithType(SentryANRType.fullyBlocking)
         
         assertNoEventCaptured()
     }
@@ -117,7 +120,7 @@ class SentryANRTrackingIntegrationV2Tests: SentrySDKIntegrationTestsBase {
         sut.pauseAppHangTracking()
         sut.resumeAppHangTracking()
         
-        Dynamic(sut).anrDetected()
+        Dynamic(sut).anrDetectedWithType(SentryANRType.fullyBlocking)
         
         try assertEventWithScopeCaptured { event, _, _ in
             XCTAssertNotNil(event)
@@ -135,10 +138,10 @@ class SentryANRTrackingIntegrationV2Tests: SentrySDKIntegrationTestsBase {
         
         testConcurrentModifications(asyncWorkItems: 100, writeLoopCount: 10, writeWork: {_ in
             self.sut.pauseAppHangTracking()
-            Dynamic(self.sut).anrDetected()
+            Dynamic(self.sut).anrDetectedWithType(SentryANRType.fullyBlocking)
         }, readWork: {
             self.sut.resumeAppHangTracking()
-            Dynamic(self.sut).anrDetected()
+            Dynamic(self.sut).anrDetectedWithType(SentryANRType.fullyBlocking)
         })
     }
     
@@ -146,7 +149,7 @@ class SentryANRTrackingIntegrationV2Tests: SentrySDKIntegrationTestsBase {
         givenInitializedTracker()
         setUpThreadInspector(addThreads: false)
         
-        Dynamic(sut).anrDetected()
+        Dynamic(sut).anrDetectedWithType(SentryANRType.fullyBlocking)
         
         assertNoEventCaptured()
     }
@@ -161,7 +164,7 @@ class SentryANRTrackingIntegrationV2Tests: SentrySDKIntegrationTestsBase {
         setUpThreadInspector()
         SentryDependencyContainer.sharedInstance().application = BackgroundSentryUIApplication()
 
-        Dynamic(sut).anrDetected()
+        Dynamic(sut).anrDetectedWithType(SentryANRType.fullyBlocking)
 
         assertNoEventCaptured()
     }
@@ -227,3 +230,5 @@ class SentryANRTrackingIntegrationV2Tests: SentrySDKIntegrationTestsBase {
         SentrySDK.currentHub().getClient()?.threadInspector = threadInspector
     }
 }
+
+#endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)

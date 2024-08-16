@@ -162,9 +162,6 @@ NS_ASSUME_NONNULL_BEGIN
     NSUInteger endOfEnvelope = data.length - 1;
     for (NSInteger i = itemHeaderStart; i <= endOfEnvelope; ++i) {
         if (bytes[i] == '\n' || i == endOfEnvelope) {
-            if (endOfEnvelope == i) {
-                i++; // 0 byte attachment
-            }
 
             NSData *itemHeaderData =
                 [data subdataWithRange:NSMakeRange(itemHeaderStart, i - itemHeaderStart)];
@@ -222,15 +219,10 @@ NS_ASSUME_NONNULL_BEGIN
                 itemHeader = [[SentryEnvelopeItemHeader alloc] initWithType:type length:bodyLength];
             }
 
-            NSData *itemBody = [data subdataWithRange:NSMakeRange(i + 1, bodyLength)];
-#ifdef DEBUG
-            if ([SentryEnvelopeItemTypeEvent isEqual:type] ||
-                [SentryEnvelopeItemTypeSession isEqual:type]) {
-                NSString *event = [[NSString alloc] initWithData:itemBody
-                                                        encoding:NSUTF8StringEncoding];
-                SENTRY_LOG_DEBUG(@"Event %@", event);
+            if (endOfEnvelope == i) {
+                i++; // 0 byte attachment
             }
-#endif
+            NSData *itemBody = [data subdataWithRange:NSMakeRange(i + 1, bodyLength)];
             SentryEnvelopeItem *envelopeItem = [[SentryEnvelopeItem alloc] initWithHeader:itemHeader
                                                                                      data:itemBody];
             [items addObject:envelopeItem];
