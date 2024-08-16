@@ -69,7 +69,7 @@ class SentryANRTrackingIntegrationV2Tests: SentrySDKIntegrationTestsBase {
         givenInitializedTracker()
         setUpThreadInspector()
         
-        Dynamic(sut).anrDetected(SentryANRType.fullyBlocking)
+        Dynamic(sut).anrDetected()
         
         try assertEventWithScopeCaptured { event, _, _ in
             XCTAssertNotNil(event)
@@ -107,7 +107,7 @@ class SentryANRTrackingIntegrationV2Tests: SentrySDKIntegrationTestsBase {
         setUpThreadInspector()
         sut.pauseAppHangTracking()
         
-        Dynamic(sut).anrDetected(SentryANRType.fullyBlocking)
+        Dynamic(sut).anrDetected()
         
         assertNoEventCaptured()
     }
@@ -118,7 +118,7 @@ class SentryANRTrackingIntegrationV2Tests: SentrySDKIntegrationTestsBase {
         sut.pauseAppHangTracking()
         sut.resumeAppHangTracking()
         
-        Dynamic(sut).anrDetected(SentryANRType.fullyBlocking)
+        Dynamic(sut).anrDetected()
         
         try assertEventWithScopeCaptured { event, _, _ in
             XCTAssertNotNil(event)
@@ -136,10 +136,10 @@ class SentryANRTrackingIntegrationV2Tests: SentrySDKIntegrationTestsBase {
         
         testConcurrentModifications(asyncWorkItems: 100, writeLoopCount: 10, writeWork: {_ in
             self.sut.pauseAppHangTracking()
-            Dynamic(self.sut).anrDetected(SentryANRType.fullyBlocking)
+            Dynamic(self.sut).anrDetected()
         }, readWork: {
             self.sut.resumeAppHangTracking()
-            Dynamic(self.sut).anrDetected(SentryANRType.fullyBlocking)
+            Dynamic(self.sut).anrDetected()
         })
     }
     
@@ -147,7 +147,7 @@ class SentryANRTrackingIntegrationV2Tests: SentrySDKIntegrationTestsBase {
         givenInitializedTracker()
         setUpThreadInspector(addThreads: false)
         
-        Dynamic(sut).anrDetected(SentryANRType.fullyBlocking)
+        Dynamic(sut).anrDetected()
         
         assertNoEventCaptured()
     }
@@ -162,7 +162,7 @@ class SentryANRTrackingIntegrationV2Tests: SentrySDKIntegrationTestsBase {
         setUpThreadInspector()
         SentryDependencyContainer.sharedInstance().application = BackgroundSentryUIApplication()
 
-        Dynamic(sut).anrDetected(SentryANRType.fullyBlocking)
+        Dynamic(sut).anrDetected()
 
         assertNoEventCaptured()
     }

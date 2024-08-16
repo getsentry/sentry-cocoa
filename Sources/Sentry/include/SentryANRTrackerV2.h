@@ -9,11 +9,6 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-typedef NS_ENUM(NSInteger, SentryANRType) {
-    kSentryANRTypeFullyBlocking = 1,
-    kSentryANRTypeNonFullyBlocking,
-};
-
 @protocol SentryANRTrackerV2Delegate;
 
 @interface SentryANRTrackerV2 : NSObject
@@ -39,7 +34,7 @@ SENTRY_NO_INIT
  */
 @protocol SentryANRTrackerV2Delegate <NSObject>
 
-- (void)anrDetected:(SentryANRType)type;
+- (void)anrDetected;
 
 - (void)anrStopped;
 

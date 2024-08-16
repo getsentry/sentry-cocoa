@@ -173,7 +173,7 @@ SentryANRTrackerV2 ()
             SENTRY_LOG_WARN(@"App Hang detected: fully-blocking.");
 
             reported = YES;
-            [self ANRDetected:kSentryANRTypeFullyBlocking];
+            [self ANRDetected];
         }
     }
 
@@ -183,7 +183,7 @@ SentryANRTrackerV2 ()
     }
 }
 
-- (void)ANRDetected:(SentryANRType)type
+- (void)ANRDetected
 {
     NSArray *localListeners;
     @synchronized(self.listeners) {
@@ -191,7 +191,7 @@ SentryANRTrackerV2 ()
     }
 
     for (id<SentryANRTrackerV2Delegate> target in localListeners) {
-        [target anrDetected:type];
+        [target anrDetected];
     }
 }
 

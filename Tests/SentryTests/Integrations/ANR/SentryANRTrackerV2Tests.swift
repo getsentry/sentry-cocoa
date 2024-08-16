@@ -70,7 +70,6 @@ class SentryANRTrackerV2Tests: XCTestCase {
         }
         
         wait(for: [listener.anrDetectedExpectation], timeout: timeoutInterval)
-        XCTAssertEqual(SentryANRType.fullyBlocking, listener.lastANRDetectedType)
         
         renderNormalFramesToStopAppHang(displayLinkWrapper)
         
@@ -145,7 +144,6 @@ class SentryANRTrackerV2Tests: XCTestCase {
         dateProvider.advance(by: 2.1)
         
         wait(for: [listener.anrDetectedExpectation], timeout: waitTimeout)
-        XCTAssertEqual(SentryANRType.fullyBlocking, listener.lastANRDetectedType)
         
         displayLinkWrapper.normalFrame()
         dateProvider.advance(by: 1.0)
@@ -180,7 +178,6 @@ class SentryANRTrackerV2Tests: XCTestCase {
         triggerFullyBlockingAppHang(currentDate)
         
         wait(for: [secondListener.anrDetectedExpectation], timeout: waitTimeout)
-        XCTAssertEqual(SentryANRType.fullyBlocking, secondListener.lastANRDetectedType)
         
         renderNormalFramesToStopAppHang(displayLinkWrapper)
         
@@ -192,15 +189,12 @@ class SentryANRTrackerV2Tests: XCTestCase {
         triggerFullyBlockingAppHang(currentDate)
         
         wait(for: [thirdListener.anrDetectedExpectation], timeout: waitTimeout)
-        XCTAssertEqual(SentryANRType.fullyBlocking, thirdListener.lastANRDetectedType)
         
         renderNormalFramesToStopAppHang(displayLinkWrapper)
         
         wait(for: [thirdListener.anrStoppedExpectation], timeout: waitTimeout)
         
         wait(for: [firstListener.anrDetectedExpectation, firstListener.anrStoppedExpectation], timeout: waitTimeout)
-        
-        XCTAssertEqual(SentryANRType.fullyBlocking, firstListener.lastANRDetectedType)
     }
     
     /// Long fully blocking app hang, app hang stops, no non fully blocking gets falsely reported
@@ -223,7 +217,6 @@ class SentryANRTrackerV2Tests: XCTestCase {
         triggerFullyBlockingAppHang(currentDate)
         
         wait(for: [secondListener.anrDetectedExpectation], timeout: waitTimeout)
-        XCTAssertEqual(SentryANRType.fullyBlocking, secondListener.lastANRDetectedType)
         
         let thirdListener = SentryANRTrackerV2TestDelegate(shouldANRBeDetected: false)
         sut.addListener(thirdListener)
@@ -231,7 +224,6 @@ class SentryANRTrackerV2Tests: XCTestCase {
         renderNormalFramesToStopAppHang(displayLinkWrapper)
         
         wait(for: [firstListener.anrDetectedExpectation, firstListener.anrStoppedExpectation, thirdListener.anrStoppedExpectation, thirdListener.anrDetectedExpectation], timeout: waitTimeout)
-        XCTAssertEqual(SentryANRType.fullyBlocking, firstListener.lastANRDetectedType)
     }
     
     func testTwoListeners_FullyBlocking_ReportedToBothListeners() throws {
@@ -248,9 +240,6 @@ class SentryANRTrackerV2Tests: XCTestCase {
         triggerFullyBlockingAppHang(currentDate)
         
         wait(for: [firstListener.anrDetectedExpectation, secondListener.anrDetectedExpectation], timeout: waitTimeout)
-        
-        XCTAssertEqual(SentryANRType.fullyBlocking, firstListener.lastANRDetectedType)
-        XCTAssertEqual(SentryANRType.fullyBlocking, secondListener.lastANRDetectedType)
         
         renderNormalFramesToStopAppHang(displayLinkWrapper)
         
@@ -443,8 +432,6 @@ class SentryANRTrackerV2TestDelegate: NSObject, SentryANRTrackerV2Delegate {
     let anrDetectedExpectation = XCTestExpectation(description: "Test Delegate ANR Detection")
     let anrStoppedExpectation  = XCTestExpectation(description: "Test Delegate ANR Stopped")
     
-    var lastANRDetectedType: SentryANRType?
-    
     init(shouldANRBeDetected: Bool = true, shouldStoppedBeCalled: Bool = true) {
         if !shouldANRBeDetected {
             anrDetectedExpectation.isInverted = true
@@ -462,9 +449,8 @@ class SentryANRTrackerV2TestDelegate: NSObject, SentryANRTrackerV2Delegate {
         anrStoppedExpectation.fulfill()
     }
     
-    func anrDetected(_ type: SentryANRType) {
+    func anrDetected() {
         anrDetectedExpectation.fulfill()
-        lastANRDetectedType = type
     }
 }
 
