@@ -16,12 +16,6 @@ import UIKit
     public var configureWidget: ((SentryUserFeedbackWidgetConfiguration) -> Void)?
     
     /**
-     * A custom gesture a user can perform to display the user feedback form.
-     * - note: Setting this property does not disable the widget. In order to do so, you must set `SentryUserFeedbackWidgetConfiguration.autoInject` to `false` using the `SentryUserFeedbackConfiguration.configureWidget` config builder. 
-     */
-    public var gesture: UIGestureRecognizer?
-    
-    /**
      * Use a shake gesture to display the form.
      * - note: Default: `false`
      * - note: Setting this to true does not disable the widget. In order to do so, you must set `SentryUserFeedbackWidgetConfiguration.autoInject` to `false` using the `SentryUserFeedbackConfiguration.configureWidget` config builder.
