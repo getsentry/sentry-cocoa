@@ -127,20 +127,18 @@
         return;
     }
 
-    @synchronized(self) {
-        id serialized = serialize();
-        if (serialized == nil) {
-            syncToSentryCrash(NULL);
-            return;
-        }
-
-        NSData *jsonEncodedCString = [self toJSONEncodedCString:serialized];
-        if (jsonEncodedCString == nil) {
-            return;
-        }
-
-        syncToSentryCrash([jsonEncodedCString bytes]);
+    id serialized = serialize();
+    if (serialized == nil) {
+        syncToSentryCrash(NULL);
+        return;
     }
+
+    NSData *jsonEncodedCString = [self toJSONEncodedCString:serialized];
+    if (jsonEncodedCString == nil) {
+        return;
+    }
+
+    syncToSentryCrash([jsonEncodedCString bytes]);
 }
 
 - (nullable NSData *)toJSONEncodedCString:(id)toSerialize
