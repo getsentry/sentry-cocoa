@@ -173,7 +173,17 @@ SentryANRTrackerV2 ()
             SENTRY_LOG_WARN(@"App Hang detected: fully-blocking.");
 
             reported = YES;
-            [self ANRDetected];
+            [self ANRDetected:SentryANRTypeFullyBlocking];
+        }
+
+        NSTimeInterval nonFullyBlockingFramesDelayThreshold = self.timeoutInterval * 0.99;
+        if (!isFullyBlocking
+            && framesDelayForTimeInterval.delayDuration > nonFullyBlockingFramesDelayThreshold) {
+
+            SENTRY_LOG_WARN(@"App Hang detected: non-fully-blocking.");
+
+            reported = YES;
+            [self ANRDetected:SentryANRTypeNonFullyBlocking];
         }
     }
 
@@ -183,7 +193,7 @@ SentryANRTrackerV2 ()
     }
 }
 
-- (void)ANRDetected
+- (void)ANRDetected:(enum SentryANRType)type
 {
     NSArray *localListeners;
     @synchronized(self.listeners) {
@@ -191,7 +201,7 @@ SentryANRTrackerV2 ()
     }
 
     for (id<SentryANRTrackerV2Delegate> target in localListeners) {
-        [target anrDetected];
+        [target anrDetectedWithType:type];
     }
 }
 

@@ -161,7 +161,7 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         setUpThreadInspector()
         SentryDependencyContainer.sharedInstance().application = BackgroundSentryUIApplication()
 
-        Dynamic(sut).anrDetected()
+        Dynamic(sut).anrsDetected()
 
         assertNoEventCaptured()
     }
