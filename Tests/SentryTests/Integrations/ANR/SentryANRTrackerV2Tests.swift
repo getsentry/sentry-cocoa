@@ -85,7 +85,30 @@ class SentryANRTrackerV2Tests: XCTestCase {
     /// [||||------|--------]
     /// - means no frame rendered
     /// | means a rendered frame
-    func testNonFullyBlockingAppHang_NotReported() throws {
+    func testNonFullyBlockingAppHang_Reported() throws {
+        let (sut, _, displayLinkWrapper, _, _, _) = try getSut()
+        defer { sut.clear() }
+        
+        let listener = SentryANRTrackerV2TestDelegate()
+        
+        sut.addListener(listener)
+    
+        triggerNonFullyBlockingAppHang(displayLinkWrapper)
+        
+        wait(for: [listener.anrDetectedExpectation], timeout: waitTimeout)
+        XCTAssertEqual(listener.anrsDetected.last, .nonFullyBlocking)
+        
+        renderNormalFramesToStopAppHang(displayLinkWrapper)
+        
+        wait(for: [listener.anrStoppedExpectation], timeout: waitTimeout)
+    }
+    
+    /// 3 frozen frames aren't enough for a non fully blocking app hang.
+    ///
+    /// [||||---|------|-----]
+    /// - means no frame rendered
+    /// | means a rendered frame
+    func testAlmostNonFullyBlockingAppHang_NoneReported() throws {
         let (sut, _, displayLinkWrapper, _, _, _) = try getSut()
         defer { sut.clear() }
         
@@ -93,9 +116,9 @@ class SentryANRTrackerV2Tests: XCTestCase {
         
         sut.addListener(listener)
         
-        displayLinkWrapper.frameWith(delay: 1.0)
-        displayLinkWrapper.normalFrame()
-        displayLinkWrapper.frameWith(delay: 0.91)
+        displayLinkWrapper.frameWith(delay: 0.7)
+        displayLinkWrapper.frameWith(delay: 0.7)
+        displayLinkWrapper.frameWith(delay: 0.7)
         
         wait(for: [listener.anrDetectedExpectation], timeout: waitTimeout)
         
@@ -141,14 +164,11 @@ class SentryANRTrackerV2Tests: XCTestCase {
         
         sut.addListener(listener)
         
-        dateProvider.advance(by: 2.1)
+        triggerFullyBlockingAppHang(dateProvider)
         
         wait(for: [listener.anrDetectedExpectation], timeout: waitTimeout)
         
-        displayLinkWrapper.normalFrame()
-        dateProvider.advance(by: 1.0)
-        displayLinkWrapper.normalFrame()
-        dateProvider.advance(by: 1.0)
+        triggerNonFullyBlockingAppHang(displayLinkWrapper)
         
         renderNormalFramesToStopAppHang(displayLinkWrapper)
         
@@ -425,12 +445,19 @@ class SentryANRTrackerV2Tests: XCTestCase {
             currentDate.advance(by: 0.01)
         }
     }
+    
+    private func triggerNonFullyBlockingAppHang(_ displayLinkWrapper: TestDisplayLinkWrapper) {
+        displayLinkWrapper.frameWith(delay: 1.0)
+        displayLinkWrapper.frameWith(delay: 1.0)
+    }
+    
 }
 
 class SentryANRTrackerV2TestDelegate: NSObject, SentryANRTrackerV2Delegate {
     
     let anrDetectedExpectation = XCTestExpectation(description: "Test Delegate ANR Detection")
     let anrStoppedExpectation  = XCTestExpectation(description: "Test Delegate ANR Stopped")
+    let anrsDetected = Invocations<Sentry.SentryANRType>()
     
     init(shouldANRBeDetected: Bool = true, shouldStoppedBeCalled: Bool = true) {
         if !shouldANRBeDetected {
@@ -449,7 +476,8 @@ class SentryANRTrackerV2TestDelegate: NSObject, SentryANRTrackerV2Delegate {
         anrStoppedExpectation.fulfill()
     }
     
-    func anrDetected() {
+    func anrDetected(type: Sentry.SentryANRType) {
+        anrsDetected.record(type)
         anrDetectedExpectation.fulfill()
     }
 }
