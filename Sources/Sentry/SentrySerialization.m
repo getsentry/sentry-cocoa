@@ -32,8 +32,9 @@ NS_ASSUME_NONNULL_BEGIN
     return data;
 }
 
-+ (BOOL)writeEnvelopeData:(SentryEnvelope *)envelope writeData:(SentryDataWriter)writeData
++ (NSData *_Nullable)dataWithEnvelope:(SentryEnvelope *)envelope
 {
+    NSMutableData *envelopeData = [[NSMutableData alloc] init];
     NSMutableDictionary *serializedData = [NSMutableDictionary new];
     if (nil != envelope.header.eventId) {
         [serializedData setValue:[envelope.header.eventId sentryIdString] forKey:@"event_id"];
@@ -56,40 +57,25 @@ NS_ASSUME_NONNULL_BEGIN
     NSData *header = [SentrySerialization dataWithJSONObject:serializedData];
     if (nil == header) {
         SENTRY_LOG_ERROR(@"Envelope header cannot be converted to JSON.");
-        return NO;
+        return nil;
     }
-    writeData(header);
+    [envelopeData appendData:header];
 
     for (int i = 0; i < envelope.items.count; ++i) {
-        writeData([@"\n" dataUsingEncoding:NSUTF8StringEncoding]);
+        [envelopeData appendData:[@"\n" dataUsingEncoding:NSUTF8StringEncoding]];
         NSDictionary *serializedItemHeaderData = [envelope.items[i].header serialize];
 
         NSData *itemHeader = [SentrySerialization dataWithJSONObject:serializedItemHeaderData];
         if (nil == itemHeader) {
             SENTRY_LOG_ERROR(@"Envelope item header cannot be converted to JSON.");
-            return NO;
+            return nil;
         }
-        writeData(itemHeader);
-        writeData([@"\n" dataUsingEncoding:NSUTF8StringEncoding]);
-        writeData(envelope.items[i].data);
+        [envelopeData appendData:itemHeader];
+        [envelopeData appendData:[@"\n" dataUsingEncoding:NSUTF8StringEncoding]];
+        [envelopeData appendData:envelope.items[i].data];
     }
 
-    return YES;
-}
-
-+ (NSData *_Nullable)dataWithEnvelope:(SentryEnvelope *)envelope
-{
-    NSMutableData *envelopeData = [[NSMutableData alloc] init];
-
-    BOOL result =
-        [SentrySerialization writeEnvelopeData:envelope
-                                     writeData:^(NSData *data) { [envelopeData appendData:data]; }];
-
-    if (result == YES) {
-        return envelopeData;
-    } else {
-        return nil;
-    }
+    return envelopeData;
 }
 
 + (SentryEnvelope *_Nullable)envelopeWithData:(NSData *)data
