@@ -5,6 +5,7 @@
 ### Fixes
 
 - Fix `SIGABRT` when modifying scope user (#4274)
+- Crash during SDK initialization due to corrupted envelope (#4291)
 
 ## 8.34.0
 
