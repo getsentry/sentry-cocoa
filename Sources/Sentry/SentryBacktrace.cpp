@@ -75,6 +75,35 @@ ALWAYS_INLINE void *getSpecificDirect(unsigned long slot) {
 
 namespace sentry {
 namespace profiling {
+    // From https://github.com/apple-oss-distributions/Libc/blob/899a3b2d52d95d75e05fb286a5e64975ec3de757/gen/thread_stack_pcs.c#L44
+    // Tests if a frame is part of an async extended stack.
+    // If an extended frame record is needed, the prologue of the function will
+    // store 3 pointers consecutively in memory:
+    //    [ AsyncContext, FP | (1 << 60), LR]
+    // and set the new FP to point to that second element. Bits 63:60 of that
+    // in-memory FP should be considered an ABI tag of some kind, and stack
+    // walkers can expect to see 3 different values in the wild:
+    //    * 0b0000 if there is an old-style frame (and still most non-Swift)
+    //             record with just [FP, LR].
+    //    * 0b0001 if there is one of these [Ctx, FP, LR] records.
+    //    * 0b1111 in current kernel code.
+    std::uint32_t isAsyncFrame(std::uintptr_t frame) {
+        const auto storedFp = *reinterpret_cast<std::uint64_t *>(frame);
+        if ((storedFp >> 60) != 1) {
+            return 0;
+        }
+        // The Swift runtime stores the async Task pointer in the 3rd Swift
+        // private TSD.
+        const auto taskAddress = reinterpret_cast<std::uintptr_t>(getSpecificDirect(__PTK_FRAMEWORK_SWIFT_KEY3));
+        if (taskAddress == 0)
+            return 0;
+        // This offset is an ABI guarantee from the Swift runtime.
+        const auto taskIDOffset = 4 * sizeof(void *) + 4;
+        const auto taskIDAddress = reinterpret_cast<std::uint32_t *>(taskAddress + taskIDOffset);
+        // The TaskID is guaranteed to be non-zero.
+        return *taskIDAddress;
+    }
+
     NOT_TAIL_CALLED NEVER_INLINE std::size_t
     backtrace(const ThreadHandle &targetThread, const ThreadHandle &callingThread,
         std::uintptr_t *addresses, const StackBounds &bounds, bool *reachedEndOfStackPtr,
@@ -127,6 +156,45 @@ namespace profiling {
                 break;
             }
             std::uintptr_t returnAddress;
+#if __LP64__ || __ARM64_ARCH_8_32__
+            const auto asyncTaskID = isAsyncFrame(current);
+            if (asyncTaskID) {
+                // From https://github.com/apple-oss-distributions/Libc/blob/899a3b2d52d95d75e05fb286a5e64975ec3de757/gen/thread_stack_pcs.c#L83
+                // The async context pointer is stored right before the saved FP
+                auto asyncContext = *reinterpret_cast<std::uint64_t *>(current - 8);
+                std::uintptr_t resumeAddr, nextAsyncContext;
+                while (depth < maxDepth) {
+                    // The async context starts with 2 pointers:
+                    // - the parent async context (morally equivalent to the parent
+                    //   async frame frame pointer)
+                    // - the resumption PC (morally equivalent to the return address)
+                    // We can just use pthread_stack_frame_decode_np() because it just
+                    // strips a data and a code pointer.
+#if  __ARM64_ARCH_8_32__
+                    // On arm64_32, the stack layout is the same (64bit pointers), but
+                    // the regular pointers in the async context are still 32 bits.
+                    // Given arm64_32 never has PAC, we can just read them.
+                    next = *reinterpret_cast<std::uintptr_t *>(static_cast<uintptr_t>(asyncContext));
+                    resumeAddr = *reinterpret_cast<std::uintptr_t *>(static_cast<uintptr_t>(asyncContext+4));
+#else
+                    nextAsyncContext = pthread_stack_frame_decode_np(asyncContext, &resumeAddr);
+#endif
+                    if (!resumeAddr) {
+                        break;
+                    }
+                    if (LIKELY(skip == 0)) {
+                        addresses[depth++] = resumeAddr;
+                    } else {
+                        skip--;
+                    }
+                    if (nextAsyncContext && StackFrame::isAligned(nextAsyncContext)) {
+                        asyncContext = nextAsyncContext;
+                    } else {
+                        break;
+                    }
+                }
+            }
+#endif
             const auto next = pthread_stack_frame_decode_np(current, &returnAddress);
             if (LIKELY(skip == 0)) {
                 addresses[depth++] = getPreviousInstructionAddress(returnAddress);
@@ -145,35 +213,6 @@ namespace profiling {
             *reachedEndOfStackPtr = reachedEndOfStack;
         }
         return depth;
-    }
-
-    // From https://github.com/apple-oss-distributions/Libc/blob/899a3b2d52d95d75e05fb286a5e64975ec3de757/gen/thread_stack_pcs.c#L44
-    // Tests if a frame is part of an async extended stack.
-    // If an extended frame record is needed, the prologue of the function will
-    // store 3 pointers consecutively in memory:
-    //    [ AsyncContext, FP | (1 << 60), LR]
-    // and set the new FP to point to that second element. Bits 63:60 of that
-    // in-memory FP should be considered an ABI tag of some kind, and stack
-    // walkers can expect to see 3 different values in the wild:
-    //    * 0b0000 if there is an old-style frame (and still most non-Swift)
-    //             record with just [FP, LR].
-    //    * 0b0001 if there is one of these [Ctx, FP, LR] records.
-    //    * 0b1111 in current kernel code.
-    std::uint32_t isAsyncFrame(std::uintptr_t frame) {
-        const auto storedFp = *reinterpret_cast<std::uint64_t *>(frame);
-        if ((storedFp >> 60) != 1) {
-            return 0;
-        }
-        // The Swift runtime stores the async Task pointer in the 3rd Swift
-        // private TSD.
-        const auto taskAddress = reinterpret_cast<std::uintptr_t>(getSpecificDirect(__PTK_FRAMEWORK_SWIFT_KEY3));
-        if (taskAddress == 0)
-            return 0;
-        // This offset is an ABI guarantee from the Swift runtime.
-        const auto taskIDOffset = 4 * sizeof(void *) + 4;
-        const auto taskIDAddress = reinterpret_cast<std::uint32_t *>(taskAddress + taskIDOffset);
-        // The TaskID is guaranteed to be non-zero.
-        return *taskIDAddress;
     }
 
     void
