@@ -4,6 +4,7 @@
 
 #    include "SentryAsyncSafeLog.h"
 #    include "SentryCompiler.h"
+#    include "SentryCPU.h"
 #    include "SentryMachLogging.hpp"
 #    include "SentryStackBounds.hpp"
 #    include "SentryStackFrame.hpp"
@@ -35,6 +36,42 @@ isValidFrame(std::uintptr_t frame, const StackBounds &bounds)
 constexpr std::size_t kMaxBacktraceDepth = 128;
 
 } // namespace
+
+// From https://github.com/apple-oss-distributions/libpthread/blob/d8c4e3c212553d3e0f5d76bb7d45a8acd61302dc/private/pthread/tsd_private.h#L215
+#define __PTK_FRAMEWORK_SWIFT_KEY3        103
+
+extern "C" {
+// From https://github.com/apple-oss-distributions/xnu/blob/94d3b452840153a99b38a3a9659680b2a006908e/libsyscall/os/tsd.h#L149
+ALWAYS_INLINE void **tsdGetBase(void) {
+#if CPU(ARM)
+    uintptr_t tsd;
+    __asm__("mrc p15, 0, %0, c13, c0, 3\n"
+                "bic %0, %0, #0x3\n" : "=r" (tsd));
+#elif CPU(ARM64)
+    uint64_t tsd;
+    __asm__ ("mrs %0, TPIDRRO_EL0" : "=r" (tsd));
+#endif
+    return (void**)(uintptr_t)tsd;
+}
+// From https://github.com/apple-oss-distributions/libpthread/blob/d8c4e3c212553d3e0f5d76bb7d45a8acd61302dc/private/pthread/tsd_private.h#L293
+ALWAYS_INLINE void *getSpecificDirect(unsigned long slot) {
+#if TARGET_OS_SIMULATOR
+    return pthread_getspecific(slot);
+#else
+#if CPU(X86) || CPU(X86_64)
+    // From https://github.com/apple-oss-distributions/xnu/blob/94d3b452840153a99b38a3a9659680b2a006908e/libsyscall/os/tsd.h#L123
+    void *ret;
+    __asm__("mov %%gs:%1, %0" : "=r" (ret) : "m" (*(void **)(slot * sizeof(void *))));
+    return ret;
+#elif CPU(ARM) || CPU(ARM64)
+    // From https://github.com/apple-oss-distributions/xnu/blob/94d3b452840153a99b38a3a9659680b2a006908e/libsyscall/os/tsd.h#L177
+    return tsdGetBase()[slot];
+#else
+#error Unsupported architecture!
+#endif
+#endif
+}
+}
 
 namespace sentry {
 namespace profiling {
@@ -108,6 +145,35 @@ namespace profiling {
             *reachedEndOfStackPtr = reachedEndOfStack;
         }
         return depth;
+    }
+
+    // From https://github.com/apple-oss-distributions/Libc/blob/899a3b2d52d95d75e05fb286a5e64975ec3de757/gen/thread_stack_pcs.c#L44
+    // Tests if a frame is part of an async extended stack.
+    // If an extended frame record is needed, the prologue of the function will
+    // store 3 pointers consecutively in memory:
+    //    [ AsyncContext, FP | (1 << 60), LR]
+    // and set the new FP to point to that second element. Bits 63:60 of that
+    // in-memory FP should be considered an ABI tag of some kind, and stack
+    // walkers can expect to see 3 different values in the wild:
+    //    * 0b0000 if there is an old-style frame (and still most non-Swift)
+    //             record with just [FP, LR].
+    //    * 0b0001 if there is one of these [Ctx, FP, LR] records.
+    //    * 0b1111 in current kernel code.
+    std::uint32_t isAsyncFrame(std::uintptr_t frame) {
+        const auto storedFp = *reinterpret_cast<std::uint64_t *>(frame);
+        if ((storedFp >> 60) != 1) {
+            return 0;
+        }
+        // The Swift runtime stores the async Task pointer in the 3rd Swift
+        // private TSD.
+        const auto taskAddress = reinterpret_cast<std::uintptr_t>(getSpecificDirect(__PTK_FRAMEWORK_SWIFT_KEY3));
+        if (taskAddress == 0)
+            return 0;
+        // This offset is an ABI guarantee from the Swift runtime.
+        const auto taskIDOffset = 4 * sizeof(void *) + 4;
+        const auto taskIDAddress = reinterpret_cast<std::uint32_t *>(taskAddress + taskIDOffset);
+        // The TaskID is guaranteed to be non-zero.
+        return *taskIDAddress;
     }
 
     void
