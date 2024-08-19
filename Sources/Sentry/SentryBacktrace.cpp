@@ -20,6 +20,7 @@ extern "C" {
 #    include <cassert>
 #    include <cstring>
 #    include <dispatch/dispatch.h>
+#    include <pthread/stack_np.h>
 
 using namespace sentry::profiling;
 using namespace sentry::profiling::thread;
@@ -85,16 +86,16 @@ namespace profiling {
 
         bool reachedEndOfStack = false;
         while (depth < maxDepth) {
-            const auto frame = reinterpret_cast<StackFrame *>(current);
-            if (!sentrycrashmem_isMemoryReadable(frame, sizeof(StackFrame))) {
+            if (!sentrycrashmem_isMemoryReadable(reinterpret_cast<StackFrame *>(current), sizeof(StackFrame))) {
                 break;
             }
+            std::uintptr_t returnAddress;
+            const auto next = pthread_stack_frame_decode_np(current, &returnAddress);
             if (LIKELY(skip == 0)) {
-                addresses[depth++] = getPreviousInstructionAddress(frame->returnAddress);
+                addresses[depth++] = getPreviousInstructionAddress(returnAddress);
             } else {
                 skip--;
             }
-            const auto next = reinterpret_cast<std::uintptr_t>(frame->next);
             if (next > current && isValidFrame(next, bounds)) {
                 current = next;
             } else {
