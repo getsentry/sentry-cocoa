@@ -6,6 +6,7 @@
 
 - Fix `SIGABRT` when modifying scope user (#4274)
 - Crash during SDK initialization due to corrupted envelope (#4291)
+  - Reverts [#4219](https://github.com/getsentry/sentry-cocoa/pull/4219) as potential fix
 
 ## 8.34.0
 
