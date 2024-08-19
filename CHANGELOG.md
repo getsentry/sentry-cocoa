@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Fix `SIGABRT` when modifying scope user (#4274)
+
 ## 8.34.0
 
 ### Features
