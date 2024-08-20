@@ -41,15 +41,18 @@ constexpr std::size_t kMaxBacktraceDepth = 128;
 #define __PTK_FRAMEWORK_SWIFT_KEY3        103
 
 extern "C" {
-// From https://github.com/apple-oss-distributions/xnu/blob/94d3b452840153a99b38a3a9659680b2a006908e/libsyscall/os/tsd.h#L149
-ALWAYS_INLINE void **tsdGetBase(void) {
+// From https://github.com/apple/darwin-xnu/blob/2ff845c2e033bd0ff64b5b6aa6063a1f8f65aa32/libsyscall/os/tsd.h#L117
+__attribute__((always_inline, pure)) __inline__ void **tsdGetBase(void) {
 #if CPU(ARM)
     uintptr_t tsd;
     __asm__("mrc p15, 0, %0, c13, c0, 3\n"
-                "bic %0, %0, #0x3\n" : "=r" (tsd));
+            "bic %0, %0, #0x3\n" : "=r" (tsd));
+    /* lower 2-bits contain CPU number */
 #elif CPU(ARM64)
     uint64_t tsd;
-    __asm__ ("mrs %0, TPIDRRO_EL0" : "=r" (tsd));
+    __asm__("mrs %0, TPIDRRO_EL0\n"
+            "bic %0, %0, #0x7\n" : "=r" (tsd));
+    /* lower 3-bits contain CPU number */
 #endif
     return (void**)(uintptr_t)tsd;
 }
@@ -95,8 +98,9 @@ namespace profiling {
         // The Swift runtime stores the async Task pointer in the 3rd Swift
         // private TSD.
         const auto taskAddress = reinterpret_cast<std::uintptr_t>(getSpecificDirect(__PTK_FRAMEWORK_SWIFT_KEY3));
-        if (taskAddress == 0)
+        if (taskAddress == 0) {
             return 0;
+        }
         // This offset is an ABI guarantee from the Swift runtime.
         const auto taskIDOffset = 4 * sizeof(void *) + 4;
         const auto taskIDAddress = reinterpret_cast<std::uint32_t *>(taskAddress + taskIDOffset);
@@ -152,9 +156,9 @@ namespace profiling {
 
         bool reachedEndOfStack = false;
         while (depth < maxDepth) {
-            if (!sentrycrashmem_isMemoryReadable(reinterpret_cast<StackFrame *>(current), sizeof(StackFrame))) {
-                break;
-            }
+//            if (!sentrycrashmem_isMemoryReadable(reinterpret_cast<StackFrame *>(current), sizeof(StackFrame))) {
+//                break;
+//            }
             std::uintptr_t returnAddress;
 #if __LP64__ || __ARM64_ARCH_8_32__
             const auto asyncTaskID = isAsyncFrame(current);
@@ -192,6 +196,9 @@ namespace profiling {
                     } else {
                         break;
                     }
+                }
+                if (depth >= maxDepth) {
+                    break;
                 }
             }
 #endif
