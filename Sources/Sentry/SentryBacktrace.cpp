@@ -37,45 +37,6 @@ constexpr std::size_t kMaxBacktraceDepth = 128;
 
 } // namespace
 
-// From https://github.com/apple-oss-distributions/libpthread/blob/d8c4e3c212553d3e0f5d76bb7d45a8acd61302dc/private/pthread/tsd_private.h#L215
-#define __PTK_FRAMEWORK_SWIFT_KEY3        103
-
-extern "C" {
-// From https://github.com/apple/darwin-xnu/blob/2ff845c2e033bd0ff64b5b6aa6063a1f8f65aa32/libsyscall/os/tsd.h#L117
-__attribute__((always_inline, pure)) __inline__ void **tsdGetBase(void) {
-#if CPU(ARM)
-    uintptr_t tsd;
-    __asm__("mrc p15, 0, %0, c13, c0, 3\n"
-            "bic %0, %0, #0x3\n" : "=r" (tsd));
-    /* lower 2-bits contain CPU number */
-#elif CPU(ARM64)
-    uint64_t tsd;
-    __asm__("mrs %0, TPIDRRO_EL0\n"
-            "bic %0, %0, #0x7\n" : "=r" (tsd));
-    /* lower 3-bits contain CPU number */
-#endif
-    return (void**)(uintptr_t)tsd;
-}
-// From https://github.com/apple-oss-distributions/libpthread/blob/d8c4e3c212553d3e0f5d76bb7d45a8acd61302dc/private/pthread/tsd_private.h#L293
-ALWAYS_INLINE void *getSpecificDirect(unsigned long slot) {
-#if TARGET_OS_SIMULATOR
-    return pthread_getspecific(slot);
-#else
-#if CPU(X86) || CPU(X86_64)
-    // From https://github.com/apple-oss-distributions/xnu/blob/94d3b452840153a99b38a3a9659680b2a006908e/libsyscall/os/tsd.h#L123
-    void *ret;
-    __asm__("mov %%gs:%1, %0" : "=r" (ret) : "m" (*(void **)(slot * sizeof(void *))));
-    return ret;
-#elif CPU(ARM) || CPU(ARM64)
-    // From https://github.com/apple-oss-distributions/xnu/blob/94d3b452840153a99b38a3a9659680b2a006908e/libsyscall/os/tsd.h#L177
-    return tsdGetBase()[slot];
-#else
-#error Unsupported architecture!
-#endif
-#endif
-}
-}
-
 namespace sentry {
 namespace profiling {
     // From https://github.com/apple-oss-distributions/Libc/blob/899a3b2d52d95d75e05fb286a5e64975ec3de757/gen/thread_stack_pcs.c#L44
@@ -90,22 +51,9 @@ namespace profiling {
     //             record with just [FP, LR].
     //    * 0b0001 if there is one of these [Ctx, FP, LR] records.
     //    * 0b1111 in current kernel code.
-    std::uint32_t isAsyncFrame(std::uintptr_t frame) {
+    bool isAsyncFrame(std::uintptr_t frame) {
         const auto storedFp = *reinterpret_cast<std::uint64_t *>(frame);
-        if ((storedFp >> 60) != 1) {
-            return 0;
-        }
-        // The Swift runtime stores the async Task pointer in the 3rd Swift
-        // private TSD.
-        const auto taskAddress = reinterpret_cast<std::uintptr_t>(getSpecificDirect(__PTK_FRAMEWORK_SWIFT_KEY3));
-        if (taskAddress == 0) {
-            return 0;
-        }
-        // This offset is an ABI guarantee from the Swift runtime.
-        const auto taskIDOffset = 4 * sizeof(void *) + 4;
-        const auto taskIDAddress = reinterpret_cast<std::uint32_t *>(taskAddress + taskIDOffset);
-        // The TaskID is guaranteed to be non-zero.
-        return *taskIDAddress;
+        return (storedFp >> 60) == 1;
     }
 
     NOT_TAIL_CALLED NEVER_INLINE std::size_t
@@ -156,13 +104,12 @@ namespace profiling {
 
         bool reachedEndOfStack = false;
         while (depth < maxDepth) {
-//            if (!sentrycrashmem_isMemoryReadable(reinterpret_cast<StackFrame *>(current), sizeof(StackFrame))) {
-//                break;
-//            }
+            if (!sentrycrashmem_isMemoryReadable(reinterpret_cast<StackFrame *>(current), sizeof(StackFrame))) {
+                break;
+            }
             std::uintptr_t returnAddress;
 #if __LP64__ || __ARM64_ARCH_8_32__
-            const auto asyncTaskID = isAsyncFrame(current);
-            if (asyncTaskID) {
+            if (isAsyncFrame(current)) {
                 // From https://github.com/apple-oss-distributions/Libc/blob/899a3b2d52d95d75e05fb286a5e64975ec3de757/gen/thread_stack_pcs.c#L83
                 // The async context pointer is stored right before the saved FP
                 auto asyncContext = *reinterpret_cast<std::uint64_t *>(current - 8);
