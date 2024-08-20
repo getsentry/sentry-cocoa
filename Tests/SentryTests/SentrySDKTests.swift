@@ -697,7 +697,7 @@ class SentrySDKTests: XCTestCase {
         let expectation = expectation(description: "MainThreadTestIntegration install called")
         MainThreadTestIntegration.expectation = expectation
         
-        DispatchQueue.global(qos: .background).async {
+        DispatchQueue.global(qos: .default).async {
             SentrySDK.start { options in
                 options.integrations = [ NSStringFromClass(MainThreadTestIntegration.self) ]
             }
