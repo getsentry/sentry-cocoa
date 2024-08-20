@@ -6,6 +6,8 @@
 
 #    import "SentryBacktrace.hpp"
 #    import "SentryThreadHandle.hpp"
+#    import "SentryProfilerTests-Swift.h"
+#    import "SentrySpan.h"
 
 #    import <cmath>
 #    import <dlfcn.h>
@@ -245,6 +247,41 @@ countof(Array &)
 
     XCTAssertTrue(foundThread1);
     XCTAssertTrue(foundThread2);
+}
+
+// This is the mangled version of the following symbol:
+//
+// (2) await resume partial function for fib #1 (n: Swift.Int) async -> Swift.Int in closure #1 @Sendable () async -> () in static SentryProfilerTests.SentryProfilerAsyncAwaitTestFixture.startAsyncTransaction() -> __C.SentrySpan?
+static const char *kAsyncMangledSymbol = "$s19SentryProfilerTests0aB21AsyncAwaitTestFixtureC05startD11TransactionSo0A4Span_pSgyFZyyYaYbcfU_3fibL_1nS2i_tYaFTQ1_";
+
+- (void)testCollectsAsyncBacktrace {
+    if (@available(iOS 13.0, watchOS 6.0, tvOS 13.0, macOS 10.15, *)) {
+        id<SentrySpan> const transaction = [SentryProfilerAsyncAwaitTestFixture startAsyncTransaction];
+        const auto cache = std::make_shared<ThreadMetadataCache>();
+        XCTestExpectation *const exp = [self expectationWithDescription:@"found async symbol"];
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+            bool foundAsyncSymbol = false;
+            while (!foundAsyncSymbol) {
+                enumerateBacktracesForAllThreads([&](auto &backtrace) {
+                    if (foundAsyncSymbol) { return; }
+                    for (std::size_t i = 0; i < backtrace.addresses.size(); i++) {
+                        auto symbol = symbolicate(backtrace.addresses[i]);
+                        // If we're symbolicating async frames correctly, we should be able to
+                        // find at least one recursive call.
+                        if (i + 1 < backtrace.addresses.size() &&
+                            symbolicate(backtrace.addresses[i]) == kAsyncMangledSymbol &&
+                            symbolicate(backtrace.addresses[i + 1]) == kAsyncMangledSymbol) {
+                            foundAsyncSymbol = true;
+                            [transaction finish];
+                            [exp fulfill];
+                            break;
+                        }
+                    }
+                }, cache);
+            }
+        });
+        [self waitForExpectations:@[exp] timeout:5.0];
+    }
 }
 
 @end
