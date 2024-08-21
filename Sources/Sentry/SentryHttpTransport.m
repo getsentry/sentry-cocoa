@@ -54,8 +54,7 @@ SentryHttpTransport ()
 @property (nonatomic, strong)
     NSMutableDictionary<NSString *, SentryDiscardedEvent *> *discardedEvents;
 
-@property (nonatomic, strong)
-    NSMutableArray<SentryEnvelope *> *notStoredEnvelopes;
+@property (nonatomic, strong) NSMutableArray<SentryEnvelope *> *notStoredEnvelopes;
 
 /**
  * Synching with a dispatch queue to have concurrent reads and writes as barrier blocks is roughly
@@ -288,10 +287,10 @@ SentryHttpTransport ()
         }
         self.isSending = YES;
     }
-    
+
     SentryEnvelope *envelope;
     NSString *envelopeFilePath;
-    
+
     if (self.notStoredEnvelopes.count > 0) {
         envelope = self.notStoredEnvelopes[0];
         [self.notStoredEnvelopes removeObjectAtIndex:0];
@@ -302,7 +301,7 @@ SentryHttpTransport ()
             [self finishedSending];
             return;
         }
-        
+
         envelopeFilePath = envelopeFileContents.path;
 
         envelope = [SentrySerialization envelopeWithData:envelopeFileContents.contents];
@@ -334,9 +333,7 @@ SentryHttpTransport ()
         [self deleteEnvelopeAndSendNext:envelopeFilePath];
         return;
     } else {
-        [self sendEnvelope:rateLimitedEnvelope
-              envelopePath:envelopeFilePath
-                   request:request];
+        [self sendEnvelope:rateLimitedEnvelope envelopePath:envelopeFilePath request:request];
     }
 }
 

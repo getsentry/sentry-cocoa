@@ -154,7 +154,7 @@ public class TestFileManager: SentryFileManager {
     public override func store(_ envelope: SentryEnvelope) -> String {
         storeEnvelopeInvocations.record(envelope)
         if let storeEnvelopePath {
-            return storeEnvelopePath;
+            return storeEnvelopePath
         } else {
             return super.store(envelope)
         }
