@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+- Send envelopes that cannot be cached to disk (#4294)
+
 ## 8.35.0
 
 ### Features
