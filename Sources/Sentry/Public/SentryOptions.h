@@ -48,7 +48,7 @@ NS_SWIFT_NAME(Options)
 @property (nullable, nonatomic, copy) NSString *dist;
 
 /**
- * The environment used for this event.
+ * The environment used for events if no environment is set on the current scope.
  * @note Default value is @c @"production".
  */
 @property (nonatomic, copy) NSString *environment;
