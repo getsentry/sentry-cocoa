@@ -4,6 +4,7 @@
 NSObject (SentryAppSetup)
 + (void)load
 {
+    NSString *const a, *const b;
     NSLog(@"[iOS-Swift] Starting app launch work");
     if ([NSProcessInfo.processInfo.arguments containsObject:@"--io.sentry.slow-load-method"]) {
         NSMutableString *a = [NSMutableString string];
