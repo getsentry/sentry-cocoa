@@ -5,7 +5,7 @@
 
 ### Fixes
 
-- Crash when reading corrupted envelope ()
+- Crash when reading corrupted envelope (#4297)
 
 ## 8.35.0
 
