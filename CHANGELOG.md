@@ -1,5 +1,9 @@
 # Changelog
+## Unreleased
 
+### Fixes
+
+- Proper redact SR during animation (#4289)
 
 ## 8.35.1
 
