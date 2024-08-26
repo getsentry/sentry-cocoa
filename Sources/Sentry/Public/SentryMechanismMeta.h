@@ -1,6 +1,6 @@
-#import "SentryDefines.h"
-#import "SentrySerializable.h"
 #import <Foundation/Foundation.h>
+#import <Sentry/SentryDefines.h>
+#import <Sentry/SentrySerializable.h>
 
 @class SentryNSError;
 

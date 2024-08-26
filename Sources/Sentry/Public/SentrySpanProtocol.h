@@ -1,6 +1,6 @@
-#import "SentryDefines.h"
-#import "SentrySerializable.h"
-#import "SentrySpanContext.h"
+#import <Sentry/SentryDefines.h>
+#import <Sentry/SentrySerializable.h>
+#import <Sentry/SentrySpanContext.h>
 NS_ASSUME_NONNULL_BEGIN
 
 @class SentrySpanId, SentryId, SentryTraceHeader, SentryMeasurementUnit, SentryTraceContext;

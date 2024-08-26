@@ -1,7 +1,7 @@
-#import "SentryDefines.h"
-#import "SentrySampleDecision.h"
-#import "SentrySerializable.h"
-#import "SentrySpanStatus.h"
+#import <Sentry/SentryDefines.h>
+#import <Sentry/SentrySampleDecision.h>
+#import <Sentry/SentrySerializable.h>
+#import <Sentry/SentrySpanStatus.h>
 
 NS_ASSUME_NONNULL_BEGIN
 

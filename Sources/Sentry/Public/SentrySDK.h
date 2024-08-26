@@ -1,4 +1,4 @@
-#import "SentryDefines.h"
+#import <Sentry/SentryDefines.h>
 
 @protocol SentrySpan;
 

@@ -1,4 +1,4 @@
-#import "SentryDefines.h"
+#import <Sentry/SentryDefines.h>
 
 @class SentryOptions, SentryEvent, SentryScope, SentryFileManager, SentryId, SentryUserFeedback,
     SentryTransaction;
