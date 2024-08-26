@@ -38,7 +38,7 @@ SENTRY_NO_INIT
 
 - (void)setDelegate:(id<SentryFileManagerDelegate>)delegate;
 
-- (void)storeEnvelope:(SentryEnvelope *)envelope;
+- (NSString *)storeEnvelope:(SentryEnvelope *)envelope;
 
 - (void)storeCurrentSession:(SentrySession *)session;
 - (void)storeCrashedSession:(SentrySession *)session;

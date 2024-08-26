@@ -1,10 +1,27 @@
 # Changelog
-
 ## Unreleased
 
 ### Fixes
 
 - Proper redact SR during animation (#4289)
+
+## 8.35.1
+
+### Fixes
+
+- Crash when reading corrupted envelope (#4297)
+
+## 8.35.0
+
+### Features
+
+- Expose span baggage API (#4207)
+
+### Fixes
+
+- Fix `SIGABRT` when modifying scope user (#4274)
+- Crash during SDK initialization due to corrupted envelope (#4291)
+  - Reverts [#4219](https://github.com/getsentry/sentry-cocoa/pull/4219) as potential fix
 
 ## 8.34.0
 
@@ -12,7 +29,6 @@
 
 - Pause replay in session mode when offline (#4264)
 - Add replay quality option for Objective-C (#4267)
-- Expose span baggage API (#4207)
 
 ### Fixes
 

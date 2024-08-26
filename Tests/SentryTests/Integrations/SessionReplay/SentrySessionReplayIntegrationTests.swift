@@ -99,7 +99,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
     func testInstallFullSessionReplayBecauseOfRandom() throws {
         SentryDependencyContainer.sharedInstance().random = TestRandom(value: 0.1)
         
-        startSDK(sessionSampleRate: 0.2, errorSampleRate: 0)
+        startSDK(sessionSampleRate: 0.3, errorSampleRate: 0)
         
         XCTAssertEqual(SentrySDK.currentHub().trimmedInstalledIntegrationNames().count, 1)
         XCTAssertEqual(SentryGlobalEventProcessor.shared().processors.count, 1)
