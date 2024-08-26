@@ -1,0 +1,405 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		920623C12C7CC15A000C0686 /* Sentry-Dynamic.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 920623C02C7CC15A000C0686 /* Sentry-Dynamic.xcframework */; };
+		920623C22C7CC15A000C0686 /* Sentry-Dynamic.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 920623C02C7CC15A000C0686 /* Sentry-Dynamic.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		92DCADF72C7CAA6D0011EB4E /* sentry_cocoa_testApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92DCADF62C7CAA6D0011EB4E /* sentry_cocoa_testApp.swift */; };
+		92DCADF92C7CAA6D0011EB4E /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92DCADF82C7CAA6D0011EB4E /* ContentView.swift */; };
+		92DCADFB2C7CAA6F0011EB4E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 92DCADFA2C7CAA6F0011EB4E /* Assets.xcassets */; };
+		92DCADFE2C7CAA6F0011EB4E /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 92DCADFD2C7CAA6F0011EB4E /* Preview Assets.xcassets */; };
+		92DCAE092C7CACDD0011EB4E /* ProcessTimeManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 92DCAE082C7CACDD0011EB4E /* ProcessTimeManager.m */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		927531022C7CB8B000537792 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				920623C22C7CC15A000C0686 /* Sentry-Dynamic.xcframework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		920623C02C7CC15A000C0686 /* Sentry-Dynamic.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = "Sentry-Dynamic.xcframework"; path = "../../Carthage/Sentry-Dynamic.xcframework"; sourceTree = "<group>"; };
+		92DCADF32C7CAA6D0011EB4E /* sentry-cocoa-test.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "sentry-cocoa-test.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		92DCADF62C7CAA6D0011EB4E /* sentry_cocoa_testApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = sentry_cocoa_testApp.swift; sourceTree = "<group>"; };
+		92DCADF82C7CAA6D0011EB4E /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		92DCADFA2C7CAA6F0011EB4E /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		92DCADFD2C7CAA6F0011EB4E /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		92DCAE072C7CACDC0011EB4E /* sentry-cocoa-test-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "sentry-cocoa-test-Bridging-Header.h"; sourceTree = "<group>"; };
+		92DCAE082C7CACDD0011EB4E /* ProcessTimeManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ProcessTimeManager.m; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		92DCADF02C7CAA6D0011EB4E /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				920623C12C7CC15A000C0686 /* Sentry-Dynamic.xcframework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		927530E32C7CB18900537792 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				920623C02C7CC15A000C0686 /* Sentry-Dynamic.xcframework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		92DCADEA2C7CAA6D0011EB4E = {
+			isa = PBXGroup;
+			children = (
+				92DCADF52C7CAA6D0011EB4E /* sentry-cocoa-test */,
+				92DCADF42C7CAA6D0011EB4E /* Products */,
+				927530E32C7CB18900537792 /* Frameworks */,
+			);
+			sourceTree = "<group>";
+		};
+		92DCADF42C7CAA6D0011EB4E /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				92DCADF32C7CAA6D0011EB4E /* sentry-cocoa-test.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		92DCADF52C7CAA6D0011EB4E /* sentry-cocoa-test */ = {
+			isa = PBXGroup;
+			children = (
+				92DCADF62C7CAA6D0011EB4E /* sentry_cocoa_testApp.swift */,
+				92DCAE082C7CACDD0011EB4E /* ProcessTimeManager.m */,
+				92DCADF82C7CAA6D0011EB4E /* ContentView.swift */,
+				92DCADFA2C7CAA6F0011EB4E /* Assets.xcassets */,
+				92DCADFC2C7CAA6F0011EB4E /* Preview Content */,
+				92DCAE072C7CACDC0011EB4E /* sentry-cocoa-test-Bridging-Header.h */,
+			);
+			path = "sentry-cocoa-test";
+			sourceTree = "<group>";
+		};
+		92DCADFC2C7CAA6F0011EB4E /* Preview Content */ = {
+			isa = PBXGroup;
+			children = (
+				92DCADFD2C7CAA6F0011EB4E /* Preview Assets.xcassets */,
+			);
+			path = "Preview Content";
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		92DCADF22C7CAA6D0011EB4E /* sentry-cocoa-test */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 92DCAE012C7CAA6F0011EB4E /* Build configuration list for PBXNativeTarget "sentry-cocoa-test" */;
+			buildPhases = (
+				92DCADEF2C7CAA6D0011EB4E /* Sources */,
+				92DCADF02C7CAA6D0011EB4E /* Frameworks */,
+				92DCADF12C7CAA6D0011EB4E /* Resources */,
+				927531022C7CB8B000537792 /* Embed Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "sentry-cocoa-test";
+			packageProductDependencies = (
+			);
+			productName = "sentry-cocoa-test";
+			productReference = 92DCADF32C7CAA6D0011EB4E /* sentry-cocoa-test.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		92DCADEB2C7CAA6D0011EB4E /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1540;
+				LastUpgradeCheck = 1540;
+				TargetAttributes = {
+					92DCADF22C7CAA6D0011EB4E = {
+						CreatedOnToolsVersion = 15.4;
+						LastSwiftMigration = 1540;
+					};
+				};
+			};
+			buildConfigurationList = 92DCADEE2C7CAA6D0011EB4E /* Build configuration list for PBXProject "sentry-cocoa-test" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 92DCADEA2C7CAA6D0011EB4E;
+			packageReferences = (
+			);
+			productRefGroup = 92DCADF42C7CAA6D0011EB4E /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				92DCADF22C7CAA6D0011EB4E /* sentry-cocoa-test */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		92DCADF12C7CAA6D0011EB4E /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				92DCADFE2C7CAA6F0011EB4E /* Preview Assets.xcassets in Resources */,
+				92DCADFB2C7CAA6F0011EB4E /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		92DCADEF2C7CAA6D0011EB4E /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				92DCADF92C7CAA6D0011EB4E /* ContentView.swift in Sources */,
+				92DCADF72C7CAA6D0011EB4E /* sentry_cocoa_testApp.swift in Sources */,
+				92DCAE092C7CACDD0011EB4E /* ProcessTimeManager.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		92DCADFF2C7CAA6F0011EB4E /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.5;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		92DCAE002C7CAA6F0011EB4E /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.5;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		92DCAE022C7CAA6F0011EB4E /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"sentry-cocoa-test/Preview Content\"";
+				DEVELOPMENT_TEAM = 9ZFD4KCY8F;
+				ENABLE_PREVIEWS = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+				);
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				MERGEABLE_LIBRARY = NO;
+				MERGED_BINARY_TYPE = none;
+				PRODUCT_BUNDLE_IDENTIFIER = "eu.andrasec.sentry-cocoa-test";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = "sentry-cocoa-test/sentry-cocoa-test-Bridging-Header.h";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		92DCAE032C7CAA6F0011EB4E /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"sentry-cocoa-test/Preview Content\"";
+				DEVELOPMENT_TEAM = 9ZFD4KCY8F;
+				ENABLE_PREVIEWS = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+				);
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				MERGEABLE_LIBRARY = NO;
+				MERGED_BINARY_TYPE = none;
+				PRODUCT_BUNDLE_IDENTIFIER = "eu.andrasec.sentry-cocoa-test";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = "sentry-cocoa-test/sentry-cocoa-test-Bridging-Header.h";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		92DCADEE2C7CAA6D0011EB4E /* Build configuration list for PBXProject "sentry-cocoa-test" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				92DCADFF2C7CAA6F0011EB4E /* Debug */,
+				92DCAE002C7CAA6F0011EB4E /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		92DCAE012C7CAA6F0011EB4E /* Build configuration list for PBXNativeTarget "sentry-cocoa-test" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				92DCAE022C7CAA6F0011EB4E /* Debug */,
+				92DCAE032C7CAA6F0011EB4E /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 92DCADEB2C7CAA6D0011EB4E /* Project object */;
+}
