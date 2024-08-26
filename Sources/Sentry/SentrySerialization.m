@@ -208,12 +208,12 @@ NS_ASSUME_NONNULL_BEGIN
             if (endOfEnvelope == i) {
                 i++; // 0 byte attachment
             }
-            
-            if (data.length < (i+1+bodyLength)) {
+
+            if (data.length < (i + 1 + bodyLength)) {
                 SENTRY_LOG_DEBUG(@"Envelope is corrupted or has invalid data.")
                 return nil;
             }
-            
+
             NSData *itemBody = [data subdataWithRange:NSMakeRange(i + 1, bodyLength)];
             SentryEnvelopeItem *envelopeItem = [[SentryEnvelopeItem alloc] initWithHeader:itemHeader
                                                                                      data:itemBody];
