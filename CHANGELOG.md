@@ -4,7 +4,7 @@
 
 ### Fixes
 
-- Double-quoted include, expected angle-bracketed instead ()
+- Double-quoted include, expected angle-bracketed instead (#4298)
 
 ## 8.35.0
 
