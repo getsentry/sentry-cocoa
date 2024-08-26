@@ -1,6 +1,10 @@
 # Changelog
 ## Unreleased
 
+### Features
+
+- Continuous mode profiling (see `SentrySDK.startProfiler` and `SentryOptions.profilesSampleRate`) (#4010)
+
 ### Fixes
 
 - Proper redact SR during animation (#4289)
@@ -46,7 +50,6 @@ This bug caused unhandled/crash events to have the unhandled property and mach i
 
 - Support orientation change for session replay (#4194)
 - Replay for crashes (#4171)
-- Add continuous profiling mode (#4010)
 - Redact web view from replay (#4203)
 - Add beforeCaptureViewHierarchy callback (#4210)
 - Rename session replay `errorSampleRate` property to `onErrorSampleRate` (#4218)
