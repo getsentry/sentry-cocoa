@@ -212,7 +212,7 @@ NS_ASSUME_NONNULL_BEGIN
             if (bodyLength > 0 && data.length < (i + 1 + bodyLength)) {
                 SENTRY_LOG_ERROR(@"Envelope is corrupted or has invalid data. Trying to read %li "
                                  @"bytes by skiping %li from a buffer of %li bytes.",
-                                 (unsigned long)data.length, bodyLength, i + 1);
+                    (unsigned long)data.length, bodyLength, i + 1);
                 return nil;
             }
 
