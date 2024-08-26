@@ -5,8 +5,8 @@
 //  Created by Denis Andrašec on 26.08.24.
 //
 
-import SwiftUI
 import Sentry
+import SwiftUI
 
 @main
 struct sentry_cocoa_testApp: App {
