@@ -1,5 +1,12 @@
 # Changelog
 
+
+## Unreleased
+
+### Fixes
+
+- Crash when reading corrupted envelope ()
+
 ## 8.35.0
 
 ### Features
