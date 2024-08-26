@@ -102,7 +102,7 @@ class ExtraViewController: UIViewController {
 
     @IBAction func anrFillingRunLoop(_ sender: UIButton) {
         highlightButton(sender)
-        triggerANRFillingRunLoop(button: self.anrFillingRunLoopButton)
+        triggerNonFullyBlockingAppHang()
     }
 
     @IBAction func getPasteBoardString(_ sender: Any) {
@@ -152,6 +152,10 @@ class ExtraViewController: UIViewController {
         // Returns eventId in case of successfull processed event
         // otherwise nil
         print("\(String(describing: eventId))")
+    }
+    
+    @IBAction func openWeb(_ sender: UIButton) {
+        navigationController?.pushViewController(WebViewController(), animated: true)
     }
 
     @IBAction func captureUserFeedback(_ sender: UIButton) {

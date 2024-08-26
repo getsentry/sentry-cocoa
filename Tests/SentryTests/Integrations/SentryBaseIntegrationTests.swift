@@ -1,4 +1,4 @@
-import Sentry
+@testable import Sentry
 import XCTest
 
 class MyTestIntegration: SentryBaseIntegration {
@@ -15,10 +15,10 @@ class SentryBaseIntegrationTests: XCTestCase {
 
     override func setUp() {
         super.setUp()
-        oldDebug = SentryLog.isDebug()
-        oldLevel = SentryLog.diagnosticLevel()
-        oldOutput = SentryLog.logOutput()
+        oldDebug = SentryLog.isDebug
+        oldLevel = SentryLog.diagnosticLevel
         SentryLog.configure(true, diagnosticLevel: SentryLevel.debug)
+        oldOutput = SentryLog.getOutput()
         logOutput = TestLogOutput()
         SentryLog.setLogOutput(logOutput)
     }

@@ -398,7 +398,7 @@ class SentrySDKTests: XCTestCase {
         
         XCTAssertEqual(operation, transaction.operation)
         let tracer = try XCTUnwrap(transaction as? SentryTracer)
-        XCTAssertEqual(name, tracer.traceContext.transaction)
+        XCTAssertEqual(name, tracer.traceContext?.transaction)
         
         XCTAssertNil(SentrySDK.span)
     }
@@ -410,7 +410,7 @@ class SentrySDKTests: XCTestCase {
         
         XCTAssertEqual(fixture.operation, transaction.operation)
         let tracer = try XCTUnwrap(transaction as? SentryTracer)
-        XCTAssertEqual(fixture.transactionName, tracer.traceContext.transaction)
+        XCTAssertEqual(fixture.transactionName, tracer.traceContext?.transaction)
         XCTAssertEqual(.custom, tracer.transactionContext.nameSource)
         
         let newSpan = SentrySDK.span
@@ -690,6 +690,25 @@ class SentrySDKTests: XCTestCase {
         SentrySDK.start(options: fixture.options)
         SentrySDK.close()
         XCTAssertFalse(deviceWrapper.started)
+    }
+    
+    /// Ensure to start the UIDeviceWrapper before initializing the hub, so enrich scope sets the correct OS version.
+    func testStartSDK_ScopeContextContainsOSVersion() throws {
+        let expectation = expectation(description: "MainThreadTestIntegration install called")
+        MainThreadTestIntegration.expectation = expectation
+        
+        DispatchQueue.global(qos: .default).async {
+            SentrySDK.start { options in
+                options.integrations = [ NSStringFromClass(MainThreadTestIntegration.self) ]
+            }
+        }
+        
+        wait(for: [expectation], timeout: 1.0)
+        
+        let os = try XCTUnwrap (SentrySDK.currentHub().scope.contextDictionary["os"] as? [String: Any])
+#if !targetEnvironment(macCatalyst)
+        XCTAssertEqual(UIDevice.current.systemVersion, os["version"] as? String)
+#endif
     }
 #endif
     

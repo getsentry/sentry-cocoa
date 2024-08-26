@@ -48,7 +48,7 @@ NS_SWIFT_NAME(Options)
 @property (nullable, nonatomic, copy) NSString *dist;
 
 /**
- * The environment used for this event.
+ * The environment used for events if no environment is set on the current scope.
  * @note Default value is @c @"production".
  */
 @property (nonatomic, copy) NSString *environment;
@@ -135,6 +135,14 @@ NS_SWIFT_NAME(Options)
  * crashes.
  */
 @property (nullable, nonatomic, copy) SentryBeforeCaptureScreenshotCallback beforeCaptureScreenshot;
+
+/**
+ * You can use this callback to decide if the SDK should capture a view hierarchy or not. Return @c
+ * true if the SDK should capture a view hierarchy, return @c false if not. This callback doesn't
+ * work for crashes.
+ */
+@property (nullable, nonatomic, copy)
+    SentryBeforeCaptureScreenshotCallback beforeCaptureViewHierarchy;
 
 /**
  * A block called shortly after the initialization of the SDK when the last program execution

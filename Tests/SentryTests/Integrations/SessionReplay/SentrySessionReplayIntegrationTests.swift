@@ -31,6 +31,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
     
     override func setUp() {
         SentryDependencyContainer.sharedInstance().application = uiApplication
+        SentryDependencyContainer.sharedInstance().reachability = TestSentryReachability()
     }
     
     override func tearDown() {
@@ -42,13 +43,14 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         return try XCTUnwrap(SentrySDK.currentHub().installedIntegrations().first as? SentrySessionReplayIntegration)
     }
     
-    private func startSDK(sessionSampleRate: Float, errorSampleRate: Float, enableSwizzling: Bool = true) {
+    private func startSDK(sessionSampleRate: Float, errorSampleRate: Float, enableSwizzling: Bool = true, configure: ((Options) -> Void)? = nil) {
         SentrySDK.start {
             $0.dsn = "https://user@test.com/test"
-            $0.experimental.sessionReplay = SentryReplayOptions(sessionSampleRate: sessionSampleRate, errorSampleRate: errorSampleRate)
+            $0.experimental.sessionReplay = SentryReplayOptions(sessionSampleRate: sessionSampleRate, onErrorSampleRate: errorSampleRate)
             $0.setIntegrations([SentrySessionReplayIntegration.self])
             $0.enableSwizzling = enableSwizzling
             $0.cacheDirectoryPath = FileManager.default.temporaryDirectory.path
+            configure?($0)
         }
         SentrySDK.currentHub().startSession()
     }
@@ -97,7 +99,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
     func testInstallFullSessionReplayBecauseOfRandom() throws {
         SentryDependencyContainer.sharedInstance().random = TestRandom(value: 0.1)
         
-        startSDK(sessionSampleRate: 0.2, errorSampleRate: 0)
+        startSDK(sessionSampleRate: 0.3, errorSampleRate: 0)
         
         XCTAssertEqual(SentrySDK.currentHub().trimmedInstalledIntegrationNames().count, 1)
         XCTAssertEqual(SentryGlobalEventProcessor.shared().processors.count, 1)
@@ -162,6 +164,18 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         XCTAssertNil(sut.sessionReplay)
         SentrySDK.currentHub().startSession()
         XCTAssertNotNil(sut.sessionReplay)
+    }
+    
+    func testRestartReplayWithNewSessionClosePreviousReplay() throws {
+        startSDK(sessionSampleRate: 1, errorSampleRate: 0)
+        
+        let sut = try getSut()
+        SentrySDK.currentHub().startSession()
+        XCTAssertNotNil(sut.sessionReplay)
+        let oldSessionReplay = sut.sessionReplay
+        XCTAssertTrue(oldSessionReplay?.isRunning ?? false)
+        SentrySDK.currentHub().startSession()
+        XCTAssertFalse(oldSessionReplay?.isRunning ?? true)
     }
     
     func testScreenNameFromSentryUIApplication() throws {
@@ -258,6 +272,39 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         
         wait(for: [expectation], timeout: 1)
         XCTAssertEqual(hub.capturedReplayRecordingVideo.count, 0)
+    }
+    
+    func testPauseSessionReplayWithReacheability() throws {
+        startSDK(sessionSampleRate: 1, errorSampleRate: 0)
+        let sut = try getSut()
+        (sut as? SentryReachabilityObserver)?.connectivityChanged(false, typeDescription: "")
+        XCTAssertTrue(sut.sessionReplay.isSessionPaused)
+        (sut as? SentryReachabilityObserver)?.connectivityChanged(true, typeDescription: "")
+        XCTAssertFalse(sut.sessionReplay.isSessionPaused)
+    }
+    
+    func testMaskViewFromSDK() {
+        class AnotherLabel: UILabel {
+        }
+            
+        startSDK(sessionSampleRate: 1, errorSampleRate: 1) { options in
+            options.experimental.sessionReplay.redactViewTypes = [AnotherLabel.self]
+        }
+    
+        let redactBuilder = SentryViewPhotographer.shared.getRedactBuild()
+        XCTAssertTrue(redactBuilder.containsRedactClass(AnotherLabel.self))
+    }
+    
+    func testIgnoreViewFromSDK() {
+        class AnotherLabel: UILabel {
+        }
+            
+        startSDK(sessionSampleRate: 1, errorSampleRate: 1) { options in
+            options.experimental.sessionReplay.ignoreRedactViewTypes = [AnotherLabel.self]
+        }
+    
+        let redactBuilder = SentryViewPhotographer.shared.getRedactBuild()
+        XCTAssertTrue(redactBuilder.containsIgnoreClass(AnotherLabel.self))
     }
     
     func createLastSessionReplay(writeSessionInfo: Bool = true, errorSampleRate: Double = 1) throws {

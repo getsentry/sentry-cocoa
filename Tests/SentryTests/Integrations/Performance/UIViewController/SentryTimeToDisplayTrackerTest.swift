@@ -47,6 +47,24 @@ class SentryTimeToDisplayTrackerTest: XCTestCase {
         super.tearDown()
         clearTestState()
     }
+    
+    /// This can happen when a UIViewController is presented when the app is in the background.
+    func testNoSpansCreated_WhenFramesTrackerNotRunning() throws {
+        fixture.framesTracker.stop()
+        
+        let sut = fixture.getSut(for: UIViewController(), waitForFullDisplay: false)
+        
+        fixture.dateProvider.setDate(date: Date(timeIntervalSince1970: 7))
+        let tracer = try fixture.getTracer()
+        
+        XCTAssertFalse(sut.start(for: tracer))
+        
+        sut.reportInitialDisplay()
+        sut.reportFullyDisplayed()
+        
+        fixture.framesTracker.start()
+        XCTAssertEqual(tracer.children.count, 0)
+    }
 
     func testReportInitialDisplay_notWaitingForFullDisplay() throws {
         let sut = fixture.getSut(for: UIViewController(), waitForFullDisplay: false)
@@ -54,7 +72,7 @@ class SentryTimeToDisplayTrackerTest: XCTestCase {
         fixture.dateProvider.setDate(date: Date(timeIntervalSince1970: 7))
         let tracer = try fixture.getTracer()
 
-        sut.start(for: tracer)
+        XCTAssertTrue(sut.start(for: tracer))
         XCTAssertEqual(tracer.children.count, 1)
         XCTAssertEqual(Dynamic(self.fixture.framesTracker).listeners.count, 1)
 

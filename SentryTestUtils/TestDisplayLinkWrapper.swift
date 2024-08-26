@@ -29,6 +29,8 @@ public class TestDisplayLinkWrapper: SentryDisplayLinkWrapper {
     public var dateProvider: TestCurrentDateProvider
     /// The smallest magnitude of time that is significant to how frames are classified as normal/slow/frozen.
     public let timeEpsilon = 0.001
+    
+    public var _isRunning: Bool = false
 
     public init(dateProvider: TestCurrentDateProvider? = nil) {
         self.dateProvider = dateProvider ?? TestCurrentDateProvider()
@@ -39,15 +41,23 @@ public class TestDisplayLinkWrapper: SentryDisplayLinkWrapper {
         fastestFrozenFrameDuration = frozenFrameThreshold + timeEpsilon
     }
 
+    public var ignoreLinkInvocations = false
     public var linkInvocations = Invocations<Void>()
     public override func link(withTarget target: Any, selector sel: Selector) {
-        linkInvocations.record(Void())
-        self.target = target as AnyObject
-        self.selector = sel
+        if ignoreLinkInvocations == false {
+            linkInvocations.record(Void())
+            self.target = target as AnyObject
+            self.selector = sel
+        	_isRunning = true
+        }
     }
 
     public override var timestamp: CFTimeInterval {
         return dateProvider.systemTime().toTimeInterval()
+    }
+    
+    public override func isRunning() -> Bool {
+        _isRunning
     }
 
     public override var targetTimestamp: CFTimeInterval {
@@ -58,6 +68,7 @@ public class TestDisplayLinkWrapper: SentryDisplayLinkWrapper {
     public override func invalidate() {
         target = nil
         selector = nil
+        _isRunning = false
         invalidateInvocations.record(Void())
     }
     
@@ -102,6 +113,11 @@ public class TestDisplayLinkWrapper: SentryDisplayLinkWrapper {
         dateProvider.advance(by: fastestFrozenFrameDuration)
         call()
         return fastestFrozenFrameDuration
+    }
+    
+    public func frameWith(delay: Double) {
+        dateProvider.advance(by: currentFrameRate.tickDuration + delay)
+        call()
     }
 
     /// There's no upper bound for a frozen frame, except maybe for the watchdog time limit.

@@ -5,7 +5,7 @@ class SentrySerializationTests: XCTestCase {
     
     private class Fixture {
         static var invalidData = "hi".data(using: .utf8)!
-        static var traceContext = SentryTraceContext(trace: SentryId(), publicKey: "PUBLIC_KEY", releaseName: "RELEASE_NAME", environment: "TEST", transaction: "transaction", userSegment: "some segment", sampleRate: "0.25", sampled: "true", replayId: nil)
+        static var traceContext = TraceContext(trace: SentryId(), publicKey: "PUBLIC_KEY", releaseName: "RELEASE_NAME", environment: "TEST", transaction: "transaction", userSegment: "some segment", sampleRate: "0.25", sampled: "true", replayId: nil)
     }
     
     func testSerializationFailsWithInvalidJSONObject() {
@@ -119,7 +119,7 @@ class SentrySerializationTests: XCTestCase {
     }
     
     func testSentryEnvelopeSerializer_TraceStateWithoutUser() throws {
-        let trace = SentryTraceContext(trace: SentryId(), publicKey: "PUBLIC_KEY", releaseName: "RELEASE_NAME", environment: "TEST", transaction: "transaction", userSegment: nil, sampleRate: nil, sampled: nil, replayId: nil)
+        let trace = TraceContext(trace: SentryId(), publicKey: "PUBLIC_KEY", releaseName: "RELEASE_NAME", environment: "TEST", transaction: "transaction", userSegment: nil, sampleRate: nil, sampled: nil, replayId: nil)
         
         let envelopeHeader = SentryEnvelopeHeader(id: nil, traceContext: trace)
         let envelope = SentryEnvelope(header: envelopeHeader, singleItem: createItemWithEmptyAttachment())
@@ -267,10 +267,21 @@ class SentrySerializationTests: XCTestCase {
         XCTAssertNil(actual)
     }
     
+    func testReturnNilForCorruptedEnvelope() throws {
+        let envelope = SentryEnvelope(event: Event(error: NSError(domain: "test", code: -1, userInfo: nil)))
+        let data = try XCTUnwrap(SentrySerialization.data(with: envelope))
+        
+        let corruptedData = data[0..<data.count - 1]
+        
+        let unserialized = SentrySerialization.envelope(with: corruptedData)
+        
+        XCTAssertNil(unserialized)
+    }
+    
     private func serializeEnvelope(envelope: SentryEnvelope) -> Data {
         var serializedEnvelope: Data = Data()
         do {
-            serializedEnvelope = try SentrySerialization.data(with: envelope)
+            serializedEnvelope = try XCTUnwrap(SentrySerialization.data(with: envelope))
         } catch {
             XCTFail("Could not serialize envelope.")
         }
@@ -288,7 +299,7 @@ class SentrySerializationTests: XCTestCase {
         XCTAssertEqual(sdkInfo, deserializedEnvelope.header.sdkInfo)
     }
     
-    func assertTraceState(firstTrace: SentryTraceContext, secondTrace: SentryTraceContext) {
+    func assertTraceState(firstTrace: TraceContext, secondTrace: TraceContext) {
         XCTAssertEqual(firstTrace.traceId, secondTrace.traceId)
         XCTAssertEqual(firstTrace.publicKey, secondTrace.publicKey)
         XCTAssertEqual(firstTrace.releaseName, secondTrace.releaseName)

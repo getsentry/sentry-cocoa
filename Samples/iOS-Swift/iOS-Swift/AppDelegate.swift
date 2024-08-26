@@ -31,10 +31,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             options.beforeCaptureScreenshot = { _ in
                 return true
             }
+            options.beforeCaptureViewHierarchy = { _ in
+                return true
+            }
             options.debug = true
             
             if #available(iOS 16.0, *), !args.contains("--disable-session-replay") {
-                options.experimental.sessionReplay = SentryReplayOptions(sessionSampleRate: 1, errorSampleRate: 1, redactAllText: true, redactAllImages: true)
+                options.experimental.sessionReplay = SentryReplayOptions(sessionSampleRate: 1, onErrorSampleRate: 1, redactAllText: true, redactAllImages: true)
                 options.experimental.sessionReplay.quality = .high
             }
             
@@ -153,8 +156,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 return scope
             }
         })
-        
-        SentrySDK.metrics.increment(key: "app.start", value: 1.0, tags: ["view": "app-delegate"])
 
     }
     //swiftlint:enable function_body_length cyclomatic_complexity
@@ -169,11 +170,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         }
         if !ProcessInfo.processInfo.arguments.contains("--skip-sentry-init") {
             AppDelegate.startSentry()
-        }
-        
-        randomDistributionTimer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { _ in
-            let random = Double.random(in: 0..<1_000)
-            SentrySDK.metrics.distribution(key: "random.distribution", value: random)
         }
         
         if #available(iOS 15.0, *) {

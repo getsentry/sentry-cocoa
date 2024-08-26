@@ -96,7 +96,7 @@ class SentryTransportAdapterTests: XCTestCase {
             XCTAssertTrue(containsData, "Envelope data with type:\(expectedHeader.type) doesn't match.")
         }
         
-        let actualSerialized = try SentrySerialization.data(with: actual)
-        XCTAssertEqual(try SentrySerialization.data(with: expected), actualSerialized)
+        let actualSerialized = try XCTUnwrap(SentrySerialization.data(with: actual))
+        XCTAssertEqual(try XCTUnwrap(SentrySerialization.data(with: expected)), actualSerialized)
     }
 }
