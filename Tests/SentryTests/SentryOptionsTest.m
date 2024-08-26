@@ -731,7 +731,6 @@
     XCTAssertEqual(NO, options.enableProfiling);
 #    pragma clang diagnostic pop
     XCTAssertNil(options.profilesSampleRate);
-    XCTAssertEqual(options.profilesSampleRate.doubleValue, 0.0);
     XCTAssertNil(options.profilesSampler);
     XCTAssertTrue([options isContinuousProfilingEnabled]);
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
@@ -1148,7 +1147,6 @@
     SentryOptions *options = [self getValidOptions:@{}];
     XCTAssertNil(options.profilesSampleRate);
 
-    XCTAssertEqual(options.profilesSampleRate.doubleValue, 0.0);
     // This property now only refers to trace-based profiling, but renaming it would require a major
     // rev
     XCTAssertFalse(options.isProfilingEnabled);
