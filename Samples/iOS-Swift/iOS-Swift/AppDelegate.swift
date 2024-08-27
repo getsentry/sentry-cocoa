@@ -89,6 +89,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             options.enableTimeToFullDisplayTracing = true
             options.enablePerformanceV2 = true
             options.enableMetrics = !args.contains("--disable-metrics")
+            options.profilesSampleRate = ProcessInfo.processInfo.arguments.contains("--io.sentry.enable-continuous-profiling") ? nil : 1
             
             options.add(inAppInclude: "iOS_External")
 

@@ -1,6 +1,10 @@
 # Changelog
 ## Unreleased
 
+### Features
+
+- Continuous mode profiling (see `SentrySDK.startProfiler` and `SentryOptions.profilesSampleRate`) (#4010)
+
 ### Fixes
 
 - Proper redact SR during animation (#4289)
