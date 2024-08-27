@@ -1,5 +1,5 @@
 # Changelog
-## Unreleased
+## 8.36.0
 
 ### Features
 
