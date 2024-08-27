@@ -229,7 +229,6 @@ class SentryTransactionTests: XCTestCase {
 #if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
     func testTransactionWithContinuousProfile() throws {
         let options = Options()
-        options.profilesSampleRate = nil // enables continuous profiling
         SentrySDK.setStart(options)
         let transaction = fixture.getTransaction()
         SentryContinuousProfiler.start()
