@@ -1,4 +1,11 @@
 # Changelog
+
+## Unreleased
+
+### Fixes
+
+- Resumes replay when the app becomes active (#4303)
+
 ## 8.36.0
 
 ### Features
