@@ -272,7 +272,7 @@ SentrySessionReplayIntegration () <SentryReachabilityObserver>
 
     [_notificationCenter addObserver:self
                             selector:@selector(resume)
-                                name:UIApplicationWillEnterForegroundNotification
+                                name:UIApplicationDidBecomeActiveNotification
                               object:nil];
 
     [self saveCurrentSessionInfo:self.sessionReplay.sessionReplayId
