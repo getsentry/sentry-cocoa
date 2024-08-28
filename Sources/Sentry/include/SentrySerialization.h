@@ -4,8 +4,6 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-typedef void (^SentryDataWriter)(NSData *data);
-
 @interface SentrySerialization : NSObject
 
 + (NSData *_Nullable)dataWithJSONObject:(id)jsonObject;
@@ -14,12 +12,6 @@ typedef void (^SentryDataWriter)(NSData *data);
 
 + (SentrySession *_Nullable)sessionWithData:(NSData *)sessionData;
 
-+ (BOOL)writeEnvelopeData:(SentryEnvelope *)envelope writeData:(SentryDataWriter)writeData;
-
-/**
- * For large envelopes, consider using @c writeEnvelopeData, which lets you write the envelope in
- * chunks to your desired location, to minimize the memory footprint.
- */
 + (NSData *_Nullable)dataWithEnvelope:(SentryEnvelope *)envelope;
 
 + (NSData *)dataWithReplayRecording:(SentryReplayRecording *)replayRecording;

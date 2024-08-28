@@ -1,7 +1,10 @@
 #import "SentryANRTrackerV2.h"
-#import "SentryBaseIntegration.h"
-#import "SentrySwift.h"
-#import <Foundation/Foundation.h>
+
+#if SENTRY_HAS_UIKIT
+
+#    import "SentryBaseIntegration.h"
+#    import "SentrySwift.h"
+#    import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -16,3 +19,5 @@ static NSString *const SentryANRExceptionTypeV2 = @"App Hanging";
 @end
 
 NS_ASSUME_NONNULL_END
+
+#endif // SENTRY_HAS_UIKIT

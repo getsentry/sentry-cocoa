@@ -2,6 +2,40 @@
 
 ## Unreleased
 
+### Fixes
+
+- Resumes replay when the app becomes active (#4303)
+
+## 8.36.0
+
+### Features
+
+- Continuous mode profiling (see `SentrySDK.startProfiler` and `SentryOptions.profilesSampleRate`) (#4010)
+
+### Fixes
+
+- Proper redact SR during animation (#4289)
+
+## 8.35.1
+
+### Fixes
+
+- Crash when reading corrupted envelope (#4297)
+
+## 8.35.0
+
+### Features
+
+- Expose span baggage API (#4207)
+
+### Fixes
+
+- Fix `SIGABRT` when modifying scope user (#4274)
+- Crash during SDK initialization due to corrupted envelope (#4291)
+  - Reverts [#4219](https://github.com/getsentry/sentry-cocoa/pull/4219) as potential fix
+
+## 8.34.0
+
 ### Features
 
 - Pause replay in session mode when offline (#4264)
@@ -10,6 +44,9 @@
 ### Fixes
 
 - Session replay not redacting buttons and other non UILabel texts (#4277)
+- Rarely reporting too long frame delays (#4278) by fixing a race condition in the frames tracking logic.
+- Crash deserializing empty envelope length>0 (#4281]
+- Guard dereferencing of stack frame pointer in SentryBacktrace ([#4268](https://github.com/getsentry/sentry-cocoa/pull/4268))
 
 ## 8.33.0
 
