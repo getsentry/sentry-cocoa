@@ -14,6 +14,12 @@
 #        import <SentryWithoutUIKit/SentryWithoutUIKit-Swift.h>
 #    endif
 #else // !__has_include(<SentryWithoutUIKit/Sentry.h>)
+
+// this is needed to fix a build issue when building iOS-ObjectiveC where the definitions of some
+// UIKIt enums used from SentryUserFeedbackWidgetConfiguration.swift aren't visible from the
+// generated ObjC interface for that class in Sentry-Swift.h
+#    import <UIKit/UIKit.h>
+
 #    if __has_include("Sentry-Swift.h")
 #        import "Sentry-Swift.h"
 #    else
