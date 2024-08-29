@@ -757,6 +757,7 @@ class SentryClientTest: XCTestCase {
         XCTAssertNil(event.context?["device"]?["orientation"])
         XCTAssertNil(event.context?["device"]?["charging"])
         XCTAssertNil(event.context?["device"]?["battery_level"])
+        XCTAssertNil(event.context?["device"]?["thermal_state"])
         XCTAssertNil(event.context?["app"]?["app_memory"])
     }
     
@@ -840,6 +841,9 @@ class SentryClientTest: XCTestCase {
 
         let batteryLevel = actual.context?["device"]?["battery_level"] as? Int
         XCTAssertEqual(batteryLevel, 60)
+
+        let thermalState = actual.context?["device"]?["thermal_state"] as? String
+        XCTAssertEqual(thermalState, "nominal")
     }
 
     func testCaptureEvent_DeviceProperties_OtherValues() throws {

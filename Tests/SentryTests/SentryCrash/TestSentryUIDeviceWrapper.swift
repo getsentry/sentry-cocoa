@@ -6,6 +6,7 @@ class TestSentryUIDeviceWrapper: SentryUIDeviceWrapper {
     var internalIsBatteryMonitoringEnabled = true
     var internalBatteryLevel: Float = 0.6
     var internalBatteryState = UIDevice.BatteryState.charging
+    var internalThermalState = "nominal"
     var started = false
 
     override func start() {

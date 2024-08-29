@@ -44,6 +44,23 @@ SentryExtraContextProvider ()
     extraDeviceContext[SentryDeviceContextFreeMemoryKey] = @(self.crashWrapper.freeMemorySize);
     extraDeviceContext[@"processor_count"] = @([self.processInfoWrapper processorCount]);
 
+    switch([self.processInfoWrapper thermalState]){
+    case NSProcessInfoThermalStateNominal:
+        extraDeviceContext[@"thermal_state"] = @"nominal";
+        break;
+    case NSProcessInfoThermalStateFair:
+        extraDeviceContext[@"thermal_state"] = @"fair";
+        break;
+    case NSProcessInfoThermalStateSerious:
+        extraDeviceContext[@"thermal_state"] = @"serious";
+        break;
+    case NSProcessInfoThermalStateCritical:
+        extraDeviceContext[@"thermal_state"] = @"critical";
+        break;
+    default:
+        break;
+    }
+
 #if TARGET_OS_IOS && SENTRY_HAS_UIKIT
     SentryUIDeviceWrapper *deviceWrapper = SentryDependencyContainer.sharedInstance.uiDeviceWrapper;
     if (deviceWrapper.orientation != UIDeviceOrientationUnknown) {
