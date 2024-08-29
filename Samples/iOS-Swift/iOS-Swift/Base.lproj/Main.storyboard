@@ -172,7 +172,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-234" y="1269"/>
+            <point key="canvasLocation" x="-201" y="1581"/>
         </scene>
         <!--Profiling-->
         <scene sceneID="f4B-j3-STc">
@@ -445,7 +445,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="MLd-fY-Tsv" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-245" y="2093"/>
+            <point key="canvasLocation" x="-199" y="2540"/>
         </scene>
         <!--Navigation Transaction-->
         <scene sceneID="nC1-NO-4uj">
@@ -691,7 +691,7 @@
             <objects>
                 <navigationController id="5CD-RQ-aBU" sceneMemberID="viewController">
                     <navigationBar key="navigationBar" contentMode="scaleToFill" id="SjT-Zj-cMF">
-                        <rect key="frame" x="0.0" y="20" width="320" height="44"/>
+                        <rect key="frame" x="0.0" y="20" width="320" height="50"/>
                         <autoresizingMask key="autoresizingMask"/>
                     </navigationBar>
                     <connections>
@@ -952,7 +952,7 @@
                                                         </connections>
                                                     </button>
                                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ckT-1E-GWZ">
-                                                        <rect key="frame" x="0.0" y="32" width="152" height="28"/>
+                                                        <rect key="frame" x="0.0" y="28" width="152" height="28"/>
                                                         <fontDescription key="fontDescription" type="system" pointSize="13"/>
                                                         <state key="normal" title="Close SDK"/>
                                                         <connections>
@@ -960,7 +960,7 @@
                                                         </connections>
                                                     </button>
                                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="rpD-Rf-xbz">
-                                                        <rect key="frame" x="0.0" y="64" width="152" height="28"/>
+                                                        <rect key="frame" x="0.0" y="56" width="152" height="28"/>
                                                         <fontDescription key="fontDescription" type="system" pointSize="13"/>
                                                         <state key="normal" title="ANR fully blocking"/>
                                                         <connections>
@@ -968,7 +968,7 @@
                                                         </connections>
                                                     </button>
                                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="2e4-48-rLl">
-                                                        <rect key="frame" x="0.0" y="96" width="152" height="28"/>
+                                                        <rect key="frame" x="0.0" y="84" width="152" height="28"/>
                                                         <accessibility key="accessibilityConfiguration" identifier="anrFillingRunLoopExtra"/>
                                                         <fontDescription key="fontDescription" type="system" pointSize="13"/>
                                                         <state key="normal" title="ANR filling run loop"/>
@@ -977,7 +977,7 @@
                                                         </connections>
                                                     </button>
                                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="6Jr-19-VhC">
-                                                        <rect key="frame" x="0.0" y="128" width="152" height="28"/>
+                                                        <rect key="frame" x="0.0" y="112" width="152" height="28"/>
                                                         <accessibility key="accessibilityConfiguration" identifier="anrFillingRunLoopExtra"/>
                                                         <fontDescription key="fontDescription" type="system" pointSize="13"/>
                                                         <state key="normal" title="Pasteboard Contents"/>
@@ -986,7 +986,7 @@
                                                         </connections>
                                                     </button>
                                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="F0l-xf-cQd">
-                                                        <rect key="frame" x="0.0" y="160" width="152" height="28"/>
+                                                        <rect key="frame" x="0.0" y="140" width="152" height="28"/>
                                                         <fontDescription key="fontDescription" type="system" pointSize="13"/>
                                                         <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
                                                         <state key="normal" title="Start 100 threads"/>
@@ -995,7 +995,7 @@
                                                         </connections>
                                                     </button>
                                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Evt-B9-zEC">
-                                                        <rect key="frame" x="0.0" y="192" width="152" height="28"/>
+                                                        <rect key="frame" x="0.0" y="168" width="152" height="28"/>
                                                         <accessibility key="accessibilityConfiguration" identifier="breadcrumbInfoButton"/>
                                                         <fontDescription key="fontDescription" type="system" pointSize="13"/>
                                                         <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
@@ -1005,13 +1005,23 @@
                                                         </connections>
                                                     </button>
                                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="5U2-RQ-FCu">
-                                                        <rect key="frame" x="0.0" y="224" width="152" height="28"/>
+                                                        <rect key="frame" x="0.0" y="196" width="152" height="28"/>
                                                         <accessibility key="accessibilityConfiguration" identifier="TOPVCBTN"/>
                                                         <fontDescription key="fontDescription" type="system" pointSize="13"/>
                                                         <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
                                                         <state key="normal" title="Top VC Inspector"/>
                                                         <connections>
                                                             <action selector="showTopVCInspector:" destination="VqS-l1-kwe" eventType="touchUpInside" id="e8l-PC-9Q1"/>
+                                                        </connections>
+                                                    </button>
+                                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="NEs-RL-K3q">
+                                                        <rect key="frame" x="0.0" y="224" width="152" height="28"/>
+                                                        <accessibility key="accessibilityConfiguration" identifier="TOPVCBTN"/>
+                                                        <fontDescription key="fontDescription" type="system" pointSize="13"/>
+                                                        <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
+                                                        <state key="normal" title="Show UI Test"/>
+                                                        <connections>
+                                                            <segue destination="9PG-vw-mrg" kind="show" id="n2m-cz-6iQ"/>
                                                         </connections>
                                                     </button>
                                                 </subviews>
@@ -1091,6 +1101,60 @@
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Lml-ok-XC1" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="-233" y="-81"/>
+        </scene>
+        <!--Test View Controller-->
+        <scene sceneID="ShC-i6-txq">
+            <objects>
+                <viewController id="9PG-vw-mrg" customClass="UITestViewController" customModule="iOS_Swift" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="PyF-g1-Myh">
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="This is a label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="QLx-Ff-Zy1">
+                                <rect key="frame" x="108.5" y="305.5" width="103" height="21"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="28x-YX-9Dj">
+                                <rect key="frame" x="107" y="502" width="106" height="35"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="35" id="dhH-Zh-p4d"/>
+                                </constraints>
+                                <state key="normal" title="Button"/>
+                                <buttonConfiguration key="configuration" style="plain" title="Open Alert"/>
+                                <connections>
+                                    <action selector="showAlert:" destination="9PG-vw-mrg" eventType="touchUpInside" id="4q4-Eg-XW6"/>
+                                </connections>
+                            </button>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Nch-qj-FJO">
+                                <rect key="frame" x="40" y="301" width="240" height="30"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="30" id="WuH-r4-icd"/>
+                                    <constraint firstAttribute="width" constant="240" id="dn8-bG-2cz"/>
+                                </constraints>
+                            </view>
+                        </subviews>
+                        <viewLayoutGuide key="safeArea" id="Qfh-TT-5mw"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <constraints>
+                            <constraint firstItem="28x-YX-9Dj" firstAttribute="centerX" secondItem="Qfh-TT-5mw" secondAttribute="centerX" id="I0T-ER-JPP"/>
+                            <constraint firstItem="Nch-qj-FJO" firstAttribute="centerX" secondItem="Qfh-TT-5mw" secondAttribute="centerX" id="JdJ-6L-ACU"/>
+                            <constraint firstItem="Nch-qj-FJO" firstAttribute="centerY" secondItem="Qfh-TT-5mw" secondAttribute="centerY" id="NQQ-Ce-48S"/>
+                            <constraint firstItem="QLx-Ff-Zy1" firstAttribute="centerX" secondItem="Qfh-TT-5mw" secondAttribute="centerX" id="css-Ih-V6J"/>
+                            <constraint firstItem="QLx-Ff-Zy1" firstAttribute="centerY" secondItem="Qfh-TT-5mw" secondAttribute="centerY" id="gPb-Gi-lhd"/>
+                            <constraint firstItem="Qfh-TT-5mw" firstAttribute="bottom" secondItem="28x-YX-9Dj" secondAttribute="bottom" constant="31" id="yme-nl-u4J"/>
+                        </constraints>
+                    </view>
+                    <navigationItem key="navigationItem" id="IKp-8n-e0m"/>
+                    <connections>
+                        <outlet property="label" destination="QLx-Ff-Zy1" id="gnc-AD-TCJ"/>
+                        <outlet property="transparentView" destination="Nch-qj-FJO" id="Oa0-hv-zsg"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="wpE-MN-0Ua" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-234.375" y="692.95774647887322"/>
         </scene>
         <!--Event Breadcrumb Controller-->
         <scene sceneID="WeY-ca-Tsi">

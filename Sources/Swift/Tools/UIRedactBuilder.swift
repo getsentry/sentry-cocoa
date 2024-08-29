@@ -9,10 +9,12 @@ import WebKit
 
 struct RedactRegion {
     let rect: CGRect
+    let transform: CGAffineTransform
     let color: UIColor?
-    
-    init(rect: CGRect, color: UIColor? = nil) {
+     
+    init(rect: CGRect, transform: CGAffineTransform, color: UIColor?) {
         self.rect = rect
+        self.transform = transform
         self.color = color
     }
     
