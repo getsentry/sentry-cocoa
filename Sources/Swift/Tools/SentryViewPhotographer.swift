@@ -17,16 +17,34 @@ class SentryViewPhotographer: NSObject, SentryViewScreenshotProvider {
             view.drawHierarchy(in: view.bounds, afterScreenUpdates: false)
         }
         
-        let redact = redactBuilder.redactRegionsFor(view: view, options: options)
+        let redact = redactBuilder.redactRegionsFor(view: view, options: options).reversed()
         let imageSize = view.bounds.size
         DispatchQueue.global().async {
             let screenshot = UIGraphicsImageRenderer(size: imageSize, format: .init(for: .init(displayScale: 1))).image { context in
+                
+                context.cgContext.addRect(CGRect(origin: CGPoint.zero, size: imageSize))
+                context.cgContext.clip(using: .evenOdd)
+                
                 context.cgContext.interpolationQuality = .none
                 image.draw(at: .zero)
                 
                 for region in redact {
-                    (region.color ?? UIImageHelper.averageColor(of: context.currentImage, at: region.rect)).setFill()
-                    context.fill(region.rect)
+                    context.cgContext.saveGState()
+                    context.cgContext.concatenate(region.transform)
+                    
+                    let rect = CGRect(origin: CGPoint.zero, size: region.size)
+                    switch region.type {
+                    case .redact:
+                        (region.color ?? UIImageHelper.averageColor(of: context.currentImage, at: rect)).setFill()
+                        context.fill(rect)
+                        context.cgContext.restoreGState()
+                    case .clip:
+                        context.cgContext.addRect(context.cgContext.boundingBoxOfClipPath)
+                        context.cgContext.addRect(rect)
+                        context.cgContext.restoreGState()
+                        context.cgContext.clip(using: .evenOdd)
+                    }
+                    
                 }
             }
             onComplete(screenshot)

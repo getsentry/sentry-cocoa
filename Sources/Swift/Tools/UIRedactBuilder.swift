@@ -7,49 +7,22 @@ import UIKit
 import WebKit
 #endif
 
+enum RedactRegionType {
+    case clip
+    case redact
+}
+
 struct RedactRegion {
-    let rect: CGRect
+    let size: CGSize
     let transform: CGAffineTransform
+    let type: RedactRegionType
     let color: UIColor?
      
-    init(rect: CGRect, transform: CGAffineTransform, color: UIColor?) {
-        self.rect = rect
+    init(size: CGSize, transform: CGAffineTransform, type: RedactRegionType, color: UIColor? = nil) {
+        self.size = size
         self.transform = transform
+        self.type = type
         self.color = color
-    }
-    
-    func splitBySubtracting(region: CGRect) -> [RedactRegion] {
-        guard rect.intersects(region) else { return [self] }
-        guard !region.contains(rect) else { return [] }
-        
-        let intersectionRect = rect.intersection(region)
-        var resultRegions: [CGRect] = []
-        
-        // Calculate the top region.
-        resultRegions.append(CGRect(x: rect.minX,
-                                    y: rect.minY,
-                                    width: rect.width,
-                                    height: intersectionRect.minY - rect.minY))
-        
-        // Calculate the bottom region.
-        resultRegions.append(CGRect(x: rect.minX,
-                                    y: intersectionRect.maxY,
-                                    width: rect.width,
-                                    height: rect.maxY - intersectionRect.maxY))
-        
-        // Calculate the left region.
-        resultRegions.append(CGRect(x: rect.minX,
-                                    y: max(rect.minY, intersectionRect.minY),
-                                    width: intersectionRect.minX - rect.minX,
-                                    height: min(intersectionRect.maxY, rect.maxY) - max(rect.minY, intersectionRect.minY)))
-        
-        // Calculate the right region.
-        resultRegions.append(CGRect(x: intersectionRect.maxX,
-                                    y: max(rect.minY, intersectionRect.minY),
-                                    width: rect.maxX - intersectionRect.maxX,
-                                    height: min(intersectionRect.maxY, rect.maxY) - max(rect.minY, intersectionRect.minY)))
-        
-        return resultRegions.filter { !$0.isEmpty }.map { RedactRegion(rect: $0, color: color) }
     }
 }
 
@@ -117,11 +90,12 @@ class UIRedactBuilder {
                              redacting: &redactingRegions,
                              area: view.frame,
                              redactText: options?.redactAllText ?? true,
-                             redactImage: options?.redactAllImages ?? true)
+                             redactImage: options?.redactAllImages ?? true,
+                             transform: CGAffineTransform.identity)
         
         return redactingRegions
     }
-        
+    
     private func shouldIgnore(view: UIView) -> Bool {
         return SentryRedactViewHelper.shouldIgnoreView(view) || containsIgnoreClass(type(of: view))
     }
@@ -143,29 +117,47 @@ class UIRedactBuilder {
         return image.imageAsset?.value(forKey: "_containingBundle") == nil
     }
     
-    private func mapRedactRegion(fromView view: UIView, to: CALayer, redacting: inout [RedactRegion], area: CGRect, redactText: Bool, redactImage: Bool) {
-        let rectInWindow = (view.layer.presentation() ?? view.layer).convert(view.bounds, to: to)
-        guard (redactImage || redactText) && area.intersects(rectInWindow) && !view.isHidden && view.alpha != 0 else { return }
+    private func mapRedactRegion(fromView view: UIView, to: CALayer, redacting: inout [RedactRegion], area: CGRect, redactText: Bool, redactImage: Bool, transform: CGAffineTransform) {
+        guard (redactImage || redactText) && !view.isHidden && view.alpha != 0 else { return }
+        let layer = view.layer.presentation() ?? view.layer
+        let size = layer.bounds.size
+        let layerMiddle = CGPoint(x: size.width / 2.0, y: size.height / 2.0)
+        
+        var newTransform = transform.translatedBy(x: layer.position.x, y: layer.position.y)
+        newTransform = view.transform.concatenating(newTransform)
+        newTransform = newTransform.translatedBy(x: -layerMiddle.x, y: -layerMiddle.y)
         
         let ignore = shouldIgnore(view: view)
         let redact = shouldRedact(view: view, redactText: redactText, redactImage: redactImage)
         
         if !ignore && redact {
-            redacting.append(RedactRegion(rect: rectInWindow, color: self.color(for: view)))
+            redacting.append(RedactRegion(size: size, transform: newTransform, type: .redact, color: self.color(for: view)))
             return
         } else if hasBackground(view) {
-            if rectInWindow == area {
+            if layerOriginalFrame(layer: layer) == area {
                 redacting.removeAll()
             } else {
-                redacting = redacting.flatMap { $0.splitBySubtracting(region: rectInWindow) }
+                redacting.append(RedactRegion(size: size, transform: newTransform, type: .clip))
             }
         }
         
         if !ignore {
             for subview in view.subviews {
-                mapRedactRegion(fromView: subview, to: to, redacting: &redacting, area: area, redactText: redactText, redactImage: redactImage)
+                mapRedactRegion(fromView: subview, to: to, redacting: &redacting, area: area, redactText: redactText, redactImage: redactImage, transform: newTransform)
             }
         }
+    }
+    
+    private func layerOriginalFrame(layer: CALayer) -> CGRect {
+        let originalCenter = layer.position
+        let originalBounds = layer.bounds
+        
+        return CGRect(
+            x: originalCenter.x - originalBounds.width / 2,
+            y: originalCenter.y - originalBounds.height / 2,
+            width: originalBounds.width,
+            height: originalBounds.height
+        )
     }
     
     private func color(for view: UIView) -> UIColor? {
