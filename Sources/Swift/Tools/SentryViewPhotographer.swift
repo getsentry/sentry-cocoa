@@ -5,17 +5,37 @@ import CoreGraphics
 import Foundation
 import UIKit
 
-@objcMembers
-class SentryViewPhotographer: NSObject, SentryViewScreenshotProvider {
-    
-    static let shared = SentryViewPhotographer()
-    
-    private let redactBuilder = UIRedactBuilder()
-        
-    func image(view: UIView, options: SentryRedactOptions, onComplete: @escaping ScreenshotCallback ) {
+protocol ViewRenderer {
+    func render(view: UIView) -> UIImage
+}
+
+class DefaultViewRenderer: ViewRenderer {
+    func render(view: UIView) -> UIImage {
         let image = UIGraphicsImageRenderer(size: view.bounds.size).image { _ in
             view.drawHierarchy(in: view.bounds, afterScreenUpdates: false)
         }
+        return image
+    }
+}
+
+@objcMembers
+class SentryViewPhotographer: NSObject, SentryViewScreenshotProvider {
+    static let shared = SentryViewPhotographer()
+    private let redactBuilder = UIRedactBuilder()
+
+    var renderer: ViewRenderer
+        
+    init(renderer: ViewRenderer) {
+        self.renderer = renderer
+        super.init()
+    }
+    
+    private convenience override init() {
+        self.init(renderer: DefaultViewRenderer())
+    }
+        
+    func image(view: UIView, options: SentryRedactOptions, onComplete: @escaping ScreenshotCallback ) {
+        let image = renderer.render(view: view)
         
         let redact = redactBuilder.redactRegionsFor(view: view, options: options).reversed()
         let imageSize = view.bounds.size
@@ -44,7 +64,6 @@ class SentryViewPhotographer: NSObject, SentryViewScreenshotProvider {
                         context.cgContext.restoreGState()
                         context.cgContext.clip(using: .evenOdd)
                     }
-                    
                 }
             }
             onComplete(screenshot)
