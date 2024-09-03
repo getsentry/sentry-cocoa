@@ -142,7 +142,7 @@ class UIRedactBuilder {
         }
         
         if !ignore {
-            for subview in view.subviews {
+            for subview in view.subviews.sorted(by: { $0.layer.zPosition < $1.layer.zPosition }) {
                 mapRedactRegion(fromView: subview, to: to, redacting: &redacting, area: area, redactText: redactText, redactImage: redactImage, transform: newTransform)
             }
         }

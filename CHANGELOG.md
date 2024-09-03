@@ -6,6 +6,7 @@
 
 - Resumes replay when the app becomes active (#4303)
 - Session replay redact view with transformation (#4308)
+- Correct redact UIView with higher zPosition (#4309) 
 
 ## 8.36.0
 
