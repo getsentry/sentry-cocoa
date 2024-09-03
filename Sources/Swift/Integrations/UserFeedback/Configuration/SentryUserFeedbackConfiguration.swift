@@ -7,7 +7,6 @@ import UIKit
  * The settings to use for how the user feedback form is presented, what data is required and how
  * it's submitted, and some auxiliary hooks to customize the workflow.
  */
-@available(iOSApplicationExtension 13.0, *)
 @objc public class SentryUserFeedbackConfiguration: NSObject {
     /**
      * Configuration settings specific to the managed widget that displays the UI form.

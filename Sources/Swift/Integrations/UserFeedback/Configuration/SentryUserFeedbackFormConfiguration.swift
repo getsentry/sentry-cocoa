@@ -6,7 +6,6 @@ import UIKit
 /**
  * Settings to control the behavior and appearance of the UI form.
  */
-@available(iOSApplicationExtension 13.0, *)
 @objc public class SentryUserFeedbackFormConfiguration: NSObject {
     // MARK: General settings
     

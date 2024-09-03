@@ -6,7 +6,6 @@ import UIKit
 /**
  * Settings for whether to show the widget and how it should appear.
  */
-@available(iOSApplicationExtension 13.0, *)
 @objc public class SentryUserFeedbackWidgetConfiguration: NSObject {
     /**
      * Injects the Feedback widget into the application UI when the integration is added. Set to `false`
@@ -36,9 +35,9 @@ import UIKit
     
     /**
      * The location for positioning the widget.
-     * - note: Default: `[.bottom, .trailing]`
+     * - note: Default: `[.bottom, .right]`
      */
-    @objc public var location: UIDirectionalRectEdge = [.bottom, .trailing]
+    @objc public var location: UIRectEdge = [.bottom, .right]
     
     /**
      * The distance to use from the widget button to the superview's `layoutMarginsGuide`.
