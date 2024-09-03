@@ -61,12 +61,12 @@ class SentryViewPhotographerTests: XCTestCase {
         let label = UILabel(frame: CGRect(x: 0, y: 0, width: 30, height: 30))
         label.text = "Test"
         let viewOnTop = UIView(frame: CGRect(x: 0, y: 0, width: 50, height: 50))
-        viewOnTop.backgroundColor = .red
+        viewOnTop.backgroundColor = .green
         
         let image = try XCTUnwrap(prepare(views: [label, viewOnTop]))
         let pixel = color(at: CGPoint(x: 10, y: 10), in: image)
         
-        assertColor(pixel, .red)
+        assertColor(pixel, .green)
     }
     
     func testLabelNotRedactedWithTwoOpaqueViewsOnTop() throws {
@@ -76,12 +76,12 @@ class SentryViewPhotographerTests: XCTestCase {
         viewOnTop1.backgroundColor = .red
         
         let viewOnTop2 = UIView(frame: CGRect(x: 0, y: 0, width: 50, height: 50))
-        viewOnTop2.backgroundColor = .blue
+        viewOnTop2.backgroundColor = .green
         
         let image = try XCTUnwrap(prepare(views: [label, viewOnTop1, viewOnTop2]))
         let pixel = color(at: CGPoint(x: 10, y: 10), in: image)
         
-        assertColor(pixel, .blue)
+        assertColor(pixel, .green)
     }
     
     func testLabelRedactedWithNonOpaqueViewOnTop() throws {
@@ -113,7 +113,7 @@ class SentryViewPhotographerTests: XCTestCase {
         let label = UILabel(frame: CGRect(x: 0, y: 0, width: 50, height: 30))
         label.text = "Test"
         let viewOnTop = UIView(frame: CGRect(x: 20, y: 0, width: 20, height: 50))
-        viewOnTop.backgroundColor = .red
+        viewOnTop.backgroundColor = .green
         
         let image = try XCTUnwrap(prepare(views: [label, viewOnTop]))
         let pixel1 = color(at: CGPoint(x: 10, y: 10), in: image)
@@ -121,14 +121,14 @@ class SentryViewPhotographerTests: XCTestCase {
         assertColor(pixel1, .black)
         
         let pixel2 = color(at: CGPoint(x: 22, y: 10), in: image)
-        assertColor(pixel2, .red)
+        assertColor(pixel2, .green)
     }
     
     func testClipPartOfLabelTopTransformed() throws {
         let label = UILabel(frame: CGRect(x: 0, y: 0, width: 50, height: 30))
         label.text = "Test"
         let viewOnTop = UIView(frame: CGRect(x: 0, y: 15, width: 50, height: 20))
-        viewOnTop.backgroundColor = .red
+        viewOnTop.backgroundColor = .green
         viewOnTop.transform = CGAffineTransform(rotationAngle: 90 * .pi / 180.0)
         
         let image = try XCTUnwrap(prepare(views: [label, viewOnTop]))
@@ -137,7 +137,7 @@ class SentryViewPhotographerTests: XCTestCase {
         assertColor(pixel1, .black)
         
         let pixel2 = color(at: CGPoint(x: 22, y: 10), in: image)
-        assertColor(pixel2, .red)
+        assertColor(pixel2, .green)
     }
     
     private func assertColor(_ color1: UIColor, _ color2: UIColor) {
@@ -160,9 +160,9 @@ class SentryViewPhotographerTests: XCTestCase {
         let bytesPerRow = cgImage.bytesPerRow
         let pixelOffset = Int(point.y) * bytesPerRow + Int(point.x) * bytesPerPixel
         
-        let blue = CGFloat(data[pixelOffset]) / 255.0
+        let red = CGFloat(data[pixelOffset]) / 255.0
         let green = CGFloat(data[pixelOffset + 1]) / 255.0
-        let red = CGFloat(data[pixelOffset + 2]) / 255.0
+        let blue = CGFloat(data[pixelOffset + 2]) / 255.0
         let alpha = CGFloat(data[pixelOffset + 3]) / 255.0
         
         return UIColor(red: red, green: green, blue: blue, alpha: alpha)
