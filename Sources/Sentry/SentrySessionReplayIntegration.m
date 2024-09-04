@@ -27,6 +27,8 @@
 NS_ASSUME_NONNULL_BEGIN
 
 static NSString *SENTRY_REPLAY_FOLDER = @"replay";
+static NSString *SENTRY_CURRENT_REPLAY = @"replay.current";
+static NSString *SENTRY_LAST_REPLAY = @"replay.last";
 
 /**
  * We need to use this from the swizzled block
@@ -64,8 +66,8 @@ SentrySessionReplayIntegration () <SentryReachabilityObserver>
 
     _notificationCenter = SentryDependencyContainer.sharedInstance.notificationCenterWrapper;
 
+    [self moveCurrentReplay];
     [SentrySDK.currentHub registerSessionListener:self];
-
     [SentryGlobalEventProcessor.shared
         addEventProcessor:^SentryEvent *_Nullable(SentryEvent *_Nonnull event) {
             if (event.isCrashEvent) {
@@ -92,8 +94,9 @@ SentrySessionReplayIntegration () <SentryReachabilityObserver>
 - (void)resumePreviousSessionReplay:(SentryEvent *)event
 {
     NSURL *dir = [self replayDirectory];
-    NSData *lastReplay =
-        [NSData dataWithContentsOfURL:[dir URLByAppendingPathComponent:@"lastreplay"]];
+    NSURL *lastReplayUrl = [dir URLByAppendingPathComponent:SENTRY_LAST_REPLAY];
+    NSData *lastReplay = [NSData dataWithContentsOfURL:lastReplayUrl];
+
     if (lastReplay == nil) {
         return;
     }
@@ -161,6 +164,10 @@ SentrySessionReplayIntegration () <SentryReachabilityObserver>
     eventContext[@"replay"] =
         [NSDictionary dictionaryWithObjectsAndKeys:replayId.sentryIdString, @"replay_id", nil];
     event.context = eventContext;
+
+    if ([NSFileManager.defaultManager removeItemAtURL:lastReplayURL error:&error] == NO) {
+        SENTRY_LOG_ERROR(@"Can`t delete '%@': %@", SENTRY_LAST_REPLAY, error);
+    }
 }
 
 - (void)captureVideo:(SentryVideoInfo *)video
@@ -297,8 +304,8 @@ SentrySessionReplayIntegration () <SentryReachabilityObserver>
 
     NSData *data = [SentrySerialization dataWithJSONObject:info];
 
-    NSString *infoPath =
-        [[path stringByDeletingLastPathComponent] stringByAppendingPathComponent:@"lastreplay"];
+    NSString *infoPath = [[path stringByDeletingLastPathComponent]
+        stringByAppendingPathComponent:SENTRY_CURRENT_REPLAY];
     if ([NSFileManager.defaultManager fileExistsAtPath:infoPath]) {
         [NSFileManager.defaultManager removeItemAtPath:infoPath error:nil];
     }
@@ -306,6 +313,25 @@ SentrySessionReplayIntegration () <SentryReachabilityObserver>
 
     sentrySessionReplaySync_start([[path stringByAppendingPathComponent:@"crashInfo"]
         cStringUsingEncoding:NSUTF8StringEncoding]);
+}
+
+- (void)moveCurrentReplay
+{
+    NSURL *path = [self replayDirectory];
+    NSURL *current = [path URLByAppendingPathComponent:SENTRY_CURRENT_REPLAY];
+    NSURL *last = [path URLByAppendingPathComponent:SENTRY_LAST_REPLAY];
+
+    NSError *error;
+    if ([NSFileManager.defaultManager fileExistsAtPath:last.path]) {
+        if ([NSFileManager.defaultManager removeItemAtURL:last error:&error] == NO) {
+            SENTRY_LOG_ERROR(@"Could not delete 'lastreplay' file: %@", error);
+            return;
+        }
+    }
+
+    if ([NSFileManager.defaultManager moveItemAtURL:current toURL:last error:nil] == NO) {
+        SENTRY_LOG_ERROR(@"Could not move 'currentreplay' to 'lastreplat': %@", error);
+    }
 }
 
 - (void)stop
