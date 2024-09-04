@@ -3,6 +3,7 @@
 #import "SentryCrashWrapper.h"
 #import "SentryDefines.h"
 #import "SentryDependencyContainer.h"
+#import "SentryLog.h"
 #import "SentryNSProcessInfoWrapper.h"
 #import "SentryUIDeviceWrapper.h"
 
@@ -49,7 +50,8 @@ SentryExtraContextProvider ()
     extraDeviceContext[SentryDeviceContextFreeMemoryKey] = @(self.crashWrapper.freeMemorySize);
     extraDeviceContext[@"processor_count"] = @([self.processInfoWrapper processorCount]);
 
-    switch ([self.processInfoWrapper thermalState]) {
+    NSProcessInfoThermalState thermalState = [self.processInfoWrapper thermalState];
+    switch (thermalState) {
     case NSProcessInfoThermalStateNominal:
         extraDeviceContext[@"thermal_state"] = kSentryProcessInfoThermalStateNominal;
         break;
@@ -63,6 +65,7 @@ SentryExtraContextProvider ()
         extraDeviceContext[@"thermal_state"] = kSentryProcessInfoThermalStateCritical;
         break;
     default:
+        SENTRY_LOG_WARN(@"Unexpected thermal state enum value: %ld", (long)thermalState);
         break;
     }
 
