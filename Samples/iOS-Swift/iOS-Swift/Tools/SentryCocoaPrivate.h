@@ -24,7 +24,6 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nullable, nonatomic, copy) NSDate *sentAt;
 @property (nullable, nonatomic, readonly, copy) SentryId *eventId;
 @property (nullable, nonatomic, readonly, copy) SentrySdkInfo *sdkInfo;
-@property (nullable, nonatomic, readonly, copy) SentryTraceContext *traceContext;
 
 @end
 
