@@ -51,7 +51,6 @@ final class SentryExtraContextProviderTests: XCTestCase {
         fixture.deviceWrapper.internalOrientation = .landscapeLeft
         fixture.deviceWrapper.internalBatteryState = .full
         fixture.deviceWrapper.internalBatteryLevel = 0.44
-        fixture.deviceWrapper.internalThermalState = "critical"
         
         let actualContext = sut.getExtraContext()
         let device = actualContext["device"] as? [String: Any]
@@ -59,18 +58,20 @@ final class SentryExtraContextProviderTests: XCTestCase {
         XCTAssertEqual(device?["orientation"] as? String, "landscape")
         XCTAssertFalse(try XCTUnwrap(device?["charging"] as? Bool))
         XCTAssertEqual(device?["battery_level"] as? UInt, 44)
-        XCTAssertEqual(device?["thermal_state"] as? String, "critical")
 #endif // os(iOS) || targetEnvironment(macCatalyst)
     }
     
     func testExtraProcessInfo() {
         let sut = fixture.getSut()
         fixture.processWrapper.overrides.processorCount = 12
-        
+        fixture.processWrapper.overrides.thermalState = .critical
+
         let actualContext = sut.getExtraContext()
         let device = actualContext["device"] as? [String: Any]
         
         XCTAssertEqual(device?["processor_count"] as? UInt, fixture.processWrapper.overrides.processorCount)
+        XCTAssertEqual(device?["thermal_state"] as? ProcessInfo.ThermalState,
+            fixture.processWrapper.overrides.thermalState)
     }
 
 }
