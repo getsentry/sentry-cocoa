@@ -92,6 +92,15 @@ class LaunchUITests: BaseUITest {
         XCTAssertTrue(0.5 > frozenFramesPercentage, "Too many frozen frames.")
     }
     
+    func testCorruptEnvelope() {
+        app.buttons["Corrupt Envelope"].tap()
+        XCTAssertEqual(app.state, .notRunning)
+        
+        app.launch()
+        XCTAssertEqual(app.state, .runningForeground)
+        app.tabBars.firstMatch.waitForExistence("App did not open again")
+    }
+    
     func testCheckTotalFrames() {
         app.buttons["Extra"].tap()
         
