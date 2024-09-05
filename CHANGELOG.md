@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Features
+
+- Added `thermal_state` to device context (#4305)
+
 ### Fixes
 
 - Resumes replay when the app becomes active (#4303)

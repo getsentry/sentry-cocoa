@@ -9,7 +9,7 @@ struct SwiftUIView: View {
     }
 }
 
-struct SwiftUI_Previews: PreviewProvider {
+struct SwiftUIView_Previews: PreviewProvider {
     static var previews: some View {
         SwiftUIView()
     }
