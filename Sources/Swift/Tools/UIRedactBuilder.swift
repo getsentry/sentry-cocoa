@@ -166,7 +166,7 @@ class UIRedactBuilder {
     
     private func hasBackground(_ view: UIView) -> Bool {
         //Anything with an alpha greater than 0.9 is opaque enough that it's impossible to see anything behind it.
-        return view.backgroundColor != nil && view.alpha > 0.9 && (view.backgroundColor?.cgColor.alpha ?? 0) > 0.9
+        return  view.alpha > 0.9 && view.backgroundColor != nil &&(view.backgroundColor?.cgColor.alpha ?? 0) > 0.9
     }
 }
 
