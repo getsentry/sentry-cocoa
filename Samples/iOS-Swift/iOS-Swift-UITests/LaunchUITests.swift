@@ -96,7 +96,7 @@ class LaunchUITests: BaseUITest {
         // This is to prevent https://github.com/getsentry/sentry-cocoa/issues/4280
         // Tapping "Corrupt Envelope" will try to capture an envelope but it closes the app
         // in the middle of the process. For 8.33.0 this would generate a corrupted envelope.
-        // 8.35.0 does not write the envelope to disk at all.
+        // 8.35.0+ reverts to writing envelopes atomically, so that in this scenario no envelope is written, as is expected.
         // By opening the app again we can check whether the SDK can handle such scenario.
         app.buttons["Corrupt Envelope"].tap()
         XCTAssertEqual(app.state, .notRunning)
