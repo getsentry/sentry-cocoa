@@ -17,7 +17,7 @@ struct RedactRegion {
     let transform: CGAffineTransform
     let type: RedactRegionType
     let color: UIColor?
-     
+    
     init(size: CGSize, transform: CGAffineTransform, type: RedactRegionType, color: UIColor? = nil) {
         self.size = size
         self.transform = transform
@@ -38,8 +38,8 @@ class UIRedactBuilder {
         var redactClasses = [ UILabel.self, UITextView.self, UITextField.self ] +
         //this classes are used by SwiftUI to display images.
         ["_TtCOCV7SwiftUI11DisplayList11ViewUpdater8Platform13CGDrawingView",
-            "_TtC7SwiftUIP33_A34643117F00277B93DEBAB70EC0697122_UIShapeHitTestingView",
-            "SwiftUI._UIGraphicsView", "SwiftUI.ImageLayer", "UIWebView"
+         "_TtC7SwiftUIP33_A34643117F00277B93DEBAB70EC0697122_UIShapeHitTestingView",
+         "SwiftUI._UIGraphicsView", "SwiftUI.ImageLayer", "UIWebView"
         ].compactMap { NSClassFromString($0) }
         
 #if os(iOS)
@@ -82,6 +82,24 @@ class UIRedactBuilder {
         redactClasses.forEach(addRedactClass(_:))
     }
     
+    /**
+     This function identifies and returns the regions within a given UIView that need to be redacted, based on the specified redaction options.
+     
+     - Parameter view: The root UIView for which redaction regions are to be calculated.
+     - Parameter options: A `SentryRedactOptions` object specifying whether to redact all text (`redactAllText`) or all images (`redactAllImages`). If `options` is nil, defaults are used (redacting all text and images).
+     
+     - Returns: An array of `RedactRegion` objects representing areas of the view (and its subviews) that require redaction, based on the current visibility, opacity, and content (text or images).
+     
+     The method recursively traverses the view hierarchy, collecting redaction areas from the view and all its subviews. Each redaction area is calculated based on the view’s presentation layer, size, transformation matrix, and other attributes.
+     
+     The redaction process considers several key factors:
+     1. **Text Redaction**: If `redactAllText` is set to true, regions containing text within the view or its subviews are marked for redaction.
+     2. **Image Redaction**: If `redactAllImages` is set to true, image-containing regions are also marked for redaction.
+     3. **Opaque View Handling**: If an opaque view covers the entire area, obfuscating views beneath it, those hidden views are excluded from processing, and we can remove them from the result.
+     4. **Clip Area Creation**: If a smaller opaque view blocks another view, we create a clip area to avoid drawing a redact mask on top of a view that does not require redaction.
+     
+     This function returns the redaction regions in reverse order from what was found in the view hierarchy, allowing the processing of regions from top to bottom. This ensures that clip regions are applied first before drawing a redact mask on lower views.
+     */
     func redactRegionsFor(view: UIView, options: SentryRedactOptions?) -> [RedactRegion] {
         var redactingRegions = [RedactRegion]()
         
@@ -93,7 +111,7 @@ class UIRedactBuilder {
                              redactImage: options?.redactAllImages ?? true,
                              transform: CGAffineTransform.identity)
         
-        return redactingRegions
+        return redactingRegions.reversed()
     }
     
     private func shouldIgnore(view: UIView) -> Bool {
@@ -174,7 +192,7 @@ class UIRedactBuilder {
 class SentryRedactViewHelper: NSObject {
     private static var associatedRedactObjectHandle: UInt8 = 0
     private static var associatedIgnoreObjectHandle: UInt8 = 0
-
+    
     static func shouldRedactView(_ view: UIView) -> Bool {
         (objc_getAssociatedObject(view, &associatedRedactObjectHandle) as? NSNumber)?.boolValue ?? false
     }
