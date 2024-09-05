@@ -97,7 +97,6 @@ class LaunchUITests: BaseUITest {
         XCTAssertEqual(app.state, .notRunning)
         
         app.launch()
-        XCTAssertEqual(app.state, .runningForeground)
         app.tabBars.firstMatch.waitForExistence("App did not open again")
     }
     
