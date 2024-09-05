@@ -24,7 +24,7 @@
                                 <nil key="highlightedColor"/>
                             </label>
                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="YCS-AD-9ZR">
-                                <rect key="frame" x="16" y="136.5" width="382" height="120"/>
+                                <rect key="frame" x="16" y="136.5" width="382" height="150"/>
                                 <subviews>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Gup-Ip-5r6">
                                         <rect key="frame" x="0.0" y="0.0" width="382" height="30"/>
@@ -47,8 +47,15 @@
                                             <action selector="captureTransaction:" destination="BYZ-38-t0r" eventType="touchUpInside" id="p2Y-rq-BX4"/>
                                         </connections>
                                     </button>
-                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ANQ-Az-4NG" userLabel="Show SwiftUI">
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="0ZK-9G-NBW">
                                         <rect key="frame" x="0.0" y="90" width="382" height="30"/>
+                                        <state key="normal" title="crash"/>
+                                        <connections>
+                                            <action selector="crash:" destination="BYZ-38-t0r" eventType="touchUpInside" id="Zoz-fJ-17Y"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ANQ-Az-4NG" userLabel="Show SwiftUI">
+                                        <rect key="frame" x="0.0" y="120" width="382" height="30"/>
                                         <state key="normal" title="Show SwiftUI"/>
                                         <connections>
                                             <segue destination="F5J-3Y-bGd" kind="show" id="ZFh-G7-YHg"/>
