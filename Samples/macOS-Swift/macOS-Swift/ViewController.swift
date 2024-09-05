@@ -1,8 +1,11 @@
 import Cocoa
+import SwiftUI
 import Sentry
 
 class ViewController: NSViewController {
 
+    private let diskWriteException = DiskWriteException()
+    
     @IBAction func addBreadCrumb(_ sender: Any) {
         let crumb = Breadcrumb(level: SentryLevel.info, category: "Debug")
         crumb.message = "tapped addBreadcrumb"
@@ -71,10 +74,17 @@ class ViewController: NSViewController {
         let wrapper = CppWrapper()
         wrapper.rethrowNoActiveCPPException()
     }
+    
     @IBAction func asyncCrash(_ sender: Any) {
         DispatchQueue.main.async {
             self.asyncCrash1()
         }
+    }
+    
+    @IBAction func diskWriteException(_ sender: Any) {
+        diskWriteException.continuouslyWriteToDisk()
+        // As we are writing to disk continuously we would keep adding spans to this UIEventTransaction.
+        SentrySDK.span?.finish()
     }
     
     func asyncCrash1() {
