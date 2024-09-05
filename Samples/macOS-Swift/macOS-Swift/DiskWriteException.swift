@@ -6,7 +6,6 @@
 //  Copyright © 2024 Sentry. All rights reserved.
 //
 
-
 import Foundation
 import Sentry
 

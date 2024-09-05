@@ -1,6 +1,6 @@
 import Cocoa
-import SwiftUI
 import Sentry
+import SwiftUI
 
 class ViewController: NSViewController {
 
