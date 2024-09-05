@@ -319,6 +319,9 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
                                     "path": sessionFolder,
                                     "errorSampleRate": errorSampleRate]
         let data = SentrySerialization.data(withJSONObject: info)
+        
+        try FileManager.default.createDirectory(atPath: replayFolder, withIntermediateDirectories: true)
+        
         try data?.write(to: URL(fileURLWithPath: jsonPath))
         
         sessionFolder = "\(replayFolder)/\(sessionFolder)"
