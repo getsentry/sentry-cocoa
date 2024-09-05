@@ -17,6 +17,20 @@ class ViewController: NSViewController {
         print("\(String(describing: eventId))")
     }
     
+    @IBAction func captureError(_ sendder: Any) {
+        let error = NSError(domain: "SampleErrorDomain", code: 1, userInfo: [NSLocalizedDescriptionKey: "Object does not exist"])
+        SentrySDK.capture(error: error) { (scope) in
+            scope.setTag(value: "value", key: "myTag")
+        }
+    }
+    
+    @IBAction func captureException(_ sender: Any) {
+        let exception = NSException(name: NSExceptionName("My Custom exeption"), reason: "User clicked the button", userInfo: nil)
+        let scope = Scope()
+        scope.setLevel(.fatal)
+        SentrySDK.capture(exception: exception, scope: scope)
+    }
+    
     @IBAction func captureUserFeedback(_ sender: Any) {
         let error = NSError(domain: "UserFeedbackErrorDomain", code: 0, userInfo: [NSLocalizedDescriptionKey: "This never happens."])
 
