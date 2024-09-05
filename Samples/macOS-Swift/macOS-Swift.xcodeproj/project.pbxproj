@@ -17,6 +17,9 @@
 		7B948A06275E459C00F04173 /* CppSample.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B948A04275E459C00F04173 /* CppSample.cpp */; };
 		7B948A0A275E4A9900F04173 /* CppWrapper.m in Sources */ = {isa = PBXBuildFile; fileRef = 7B948A09275E4A9900F04173 /* CppWrapper.m */; };
 		924D21562C89FE2D00E0FEFD /* DiskWriteException.swift in Sources */ = {isa = PBXBuildFile; fileRef = 924D21552C89FE2D00E0FEFD /* DiskWriteException.swift */; };
+		924D21682C8A01F800E0FEFD /* SentrySwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 924D215D2C89FE2D00E0FEFD /* SentrySwiftUI.framework */; };
+		924D21692C8A01F800E0FEFD /* SentrySwiftUI.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 924D215D2C89FE2D00E0FEFD /* SentrySwiftUI.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		924D216B2C8A020C00E0FEFD /* SwiftUIView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 924D216A2C8A020C00E0FEFD /* SwiftUIView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -79,6 +82,7 @@
 			dstSubfolderSpec = 10;
 			files = (
 				6308534F2440C5FB00DDE4CE /* Sentry.framework in Embed Frameworks */,
+				924D21692C8A01F800E0FEFD /* SentrySwiftUI.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -102,6 +106,7 @@
 		7B948A08275E498E00F04173 /* CppWrapper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CppWrapper.h; sourceTree = "<group>"; };
 		7B948A09275E4A9900F04173 /* CppWrapper.m */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; path = CppWrapper.m; sourceTree = "<group>"; };
 		924D21552C89FE2D00E0FEFD /* DiskWriteException.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiskWriteException.swift; sourceTree = "<group>"; };
+		924D216A2C8A020C00E0FEFD /* SwiftUIView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftUIView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -110,6 +115,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				6308534E2440C5FB00DDE4CE /* Sentry.framework in Frameworks */,
+				924D21682C8A01F800E0FEFD /* SentrySwiftUI.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -150,6 +156,7 @@
 		637AFDED243B04320034958B /* macOS-Swift */ = {
 			isa = PBXGroup;
 			children = (
+				924D216A2C8A020C00E0FEFD /* SwiftUIView.swift */,
 				924D21552C89FE2D00E0FEFD /* DiskWriteException.swift */,
 				637AFDEE243B04320034958B /* AppDelegate.swift */,
 				637AFDF0243B04320034958B /* ViewController.swift */,
@@ -302,6 +309,7 @@
 			files = (
 				637AFDF1243B04320034958B /* ViewController.swift in Sources */,
 				924D21562C89FE2D00E0FEFD /* DiskWriteException.swift in Sources */,
+				924D216B2C8A020C00E0FEFD /* SwiftUIView.swift in Sources */,
 				7B948A06275E459C00F04173 /* CppSample.cpp in Sources */,
 				637AFDEF243B04320034958B /* AppDelegate.swift in Sources */,
 				7B948A0A275E4A9900F04173 /* CppWrapper.m in Sources */,
