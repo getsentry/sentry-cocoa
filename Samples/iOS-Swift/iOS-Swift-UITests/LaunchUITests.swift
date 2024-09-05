@@ -98,6 +98,7 @@ class LaunchUITests: BaseUITest {
         
         app.launch()
         app.tabBars.firstMatch.waitForExistence("App did not open again")
+        XCTAssertEqual(app.state, .runningForeground)
     }
     
     func testCheckTotalFrames() {
