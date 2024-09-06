@@ -687,7 +687,7 @@ class SentryClientTest: XCTestCase {
             try assertValidErrorEvent(eventWithSessionArguments.event, error)
             XCTAssertEqual(fixture.session, eventWithSessionArguments.session)
             
-            let expectedTraceContext = SentryTraceContext(trace: scope.propagationContext.traceId, options: Options(), userSegment: "segment", replayId: nil) 
+            let expectedTraceContext = TraceContext(trace: scope.propagationContext.traceId, options: Options(), userSegment: "segment", replayId: nil) 
             XCTAssertEqual(eventWithSessionArguments.traceContext?.traceId,
                            expectedTraceContext.traceId)
         }
@@ -753,11 +753,9 @@ class SentryClientTest: XCTestCase {
 
         let event = try lastSentEventWithAttachment()
         XCTAssertEqual(oomEvent.eventId, event.eventId)
-        XCTAssertNil(event.context?["device"]?["free_memory"])
-        XCTAssertNil(event.context?["device"]?["orientation"])
-        XCTAssertNil(event.context?["device"]?["charging"])
-        XCTAssertNil(event.context?["device"]?["battery_level"])
-        XCTAssertNil(event.context?["app"]?["app_memory"])
+
+        let deviceContext = try XCTUnwrap(event.context?["device"] as? [String: Any])
+        XCTAssertEqual(deviceContext.count, 0)
     }
     
     func testCaptureOOMEvent_WithNoContext_ContextNotModified() throws {
@@ -832,14 +830,18 @@ class SentryClientTest: XCTestCase {
         fixture.getSut().capture(event: TestData.event)
 
         let actual = try lastSentEvent()
-        let orientation = actual.context?["device"]?["orientation"] as? String
+        let deviceContext = try XCTUnwrap(actual.context?["device"] as? [String: Any])
+        let orientation = try XCTUnwrap(deviceContext["orientation"] as? String)
         XCTAssertEqual(orientation, "portrait")
 
-        let charging = actual.context?["device"]?["charging"] as? Bool
+        let charging = try XCTUnwrap(deviceContext["charging"] as? Bool)
         XCTAssertEqual(charging, true)
 
-        let batteryLevel = actual.context?["device"]?["battery_level"] as? Int
+        let batteryLevel = try XCTUnwrap(deviceContext["battery_level"] as? Int)
         XCTAssertEqual(batteryLevel, 60)
+
+        let thermalState = try XCTUnwrap(deviceContext["thermal_state"] as? String)
+        XCTAssertEqual(thermalState, "nominal")
     }
 
     func testCaptureEvent_DeviceProperties_OtherValues() throws {

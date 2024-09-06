@@ -9,8 +9,10 @@ class SentryTestThreadWrapper: SentryThreadWrapper {
     var threadStartedInvocations = Invocations<UUID>()
     var threadFinishedInvocations = Invocations<UUID>()
     
+    public var blockWhenSleeping: () -> Void = {}
     override func sleep(forTimeInterval timeInterval: TimeInterval) {
         // Don't sleep. Do nothing.
+        blockWhenSleeping()
     }
 
     override func threadStarted(_ threadID: UUID) {

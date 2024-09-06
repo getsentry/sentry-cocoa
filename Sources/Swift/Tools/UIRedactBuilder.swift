@@ -77,11 +77,18 @@ class UIRedactBuilder {
     }
     
     func containsIgnoreClass(_ ignoreClass: AnyClass) -> Bool {
-        return ignoreClassesIdentifiers.contains(ObjectIdentifier(ignoreClass))
+        return  ignoreClassesIdentifiers.contains(ObjectIdentifier(ignoreClass))
     }
     
     func containsRedactClass(_ redactClass: AnyClass) -> Bool {
-        return redactClassesIdentifiers.contains(ObjectIdentifier(redactClass))
+        var currentClass: AnyClass? = redactClass
+        while currentClass != nil && currentClass != UIView.self {
+            if let currentClass = currentClass, redactClassesIdentifiers.contains(ObjectIdentifier(currentClass)) {
+                return true
+            }
+            currentClass = currentClass?.superclass()
+        }
+        return false
     }
     
     func addIgnoreClass(_ ignoreClass: AnyClass) {
@@ -104,7 +111,7 @@ class UIRedactBuilder {
         var redactingRegions = [RedactRegion]()
         
         self.mapRedactRegion(fromView: view,
-                             to: view,
+                             to: view.layer.presentation() ?? view.layer,
                              redacting: &redactingRegions,
                              area: view.frame,
                              redactText: options?.redactAllText ?? true,
@@ -134,8 +141,8 @@ class UIRedactBuilder {
         return image.imageAsset?.value(forKey: "_containingBundle") == nil
     }
     
-    private func mapRedactRegion(fromView view: UIView, to: UIView, redacting: inout [RedactRegion], area: CGRect, redactText: Bool, redactImage: Bool) {
-        let rectInWindow = view.convert(view.bounds, to: to)
+    private func mapRedactRegion(fromView view: UIView, to: CALayer, redacting: inout [RedactRegion], area: CGRect, redactText: Bool, redactImage: Bool) {
+        let rectInWindow = (view.layer.presentation() ?? view.layer).convert(view.bounds, to: to)
         guard (redactImage || redactText) && area.intersects(rectInWindow) && !view.isHidden && view.alpha != 0 else { return }
         
         let ignore = shouldIgnore(view: view)

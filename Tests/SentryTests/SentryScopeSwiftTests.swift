@@ -684,6 +684,17 @@ class SentryScopeSwiftTests: XCTestCase {
         XCTAssertEqual(0, scopeCrumbs?.count ?? 0)
     }
     
+    func testModifyScopeFromDifferentThreads() {
+        let scope = Scope()
+        scope.add(SentryCrashScopeObserver(maxBreadcrumbs: 100))
+        
+        testConcurrentModifications(asyncWorkItems: 10, writeLoopCount: 1_000, writeWork: { i in
+            let user = User()
+            user.name = "name \(i)"
+            scope.setUser(user)
+        })
+    }
+    
     class TestScopeObserver: NSObject, SentryScopeObserver {
         var tags: [String: String]?
         func setTags(_ tags: [String: String]?) {
