@@ -3,7 +3,7 @@ import UIKit
 
 class TransactionsViewController: UIViewController {
 
-    @IBOutlet weak var appHangFullyBlockingButton: UIButton!
+    @IBOutlet weak var anrFillingRunLoopButton: UIButton!
     
     private let dispatchQueue = DispatchQueue(label: "ViewController", attributes: .concurrent)
     private var timer: Timer?
@@ -127,8 +127,8 @@ class TransactionsViewController: UIViewController {
         present(alert, animated: true)
     }
     
-    @IBAction func appHangFullyBlocking(_ sender: Any) {
-        triggerFullyBlockingAppHang(button: self.appHangFullyBlockingButton)
+    @IBAction func anrFillingRunLoop(_ sender: Any) {
+        triggerANRFillingRunLoop(button: self.anrFillingRunLoopButton)
     }
 
     @IBAction func captureTransaction(_ sender: UIButton) {

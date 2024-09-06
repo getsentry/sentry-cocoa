@@ -3,7 +3,6 @@
 #if SENTRY_HAS_UIKIT
 
 #    import "SentryDelayedFrame.h"
-#    import "SentryInternalCDefines.h"
 #    import "SentryLog.h"
 #    import "SentrySwift.h"
 #    import "SentryTime.h"
@@ -16,8 +15,6 @@ SentryDelayedFramesTracker ()
 @property (nonatomic, assign) CFTimeInterval keepDelayedFramesDuration;
 @property (nonatomic, strong, readonly) SentryCurrentDateProvider *dateProvider;
 @property (nonatomic, strong) NSMutableArray<SentryDelayedFrame *> *delayedFrames;
-@property (nonatomic) uint64_t lastDelayedFrameSystemTimestamp;
-@property (nonatomic) uint64_t previousFrameSystemTimestamp;
 
 @end
 
@@ -34,20 +31,6 @@ SentryDelayedFramesTracker ()
     return self;
 }
 
-- (void)setPreviousFrameSystemTimestamp:(uint64_t)previousFrameSystemTimestamp
-    SENTRY_DISABLE_THREAD_SANITIZER("We don't want to synchronize the access to this property to "
-                                    "avoid slowing down the main thread.")
-{
-    _previousFrameSystemTimestamp = previousFrameSystemTimestamp;
-}
-
-- (uint64_t)getPreviousFrameSystemTimestamp SENTRY_DISABLE_THREAD_SANITIZER(
-    "We don't want to synchronize the access to this property to avoid slowing down the main "
-    "thread.")
-{
-    return _previousFrameSystemTimestamp;
-}
-
 - (void)resetDelayedFramesTimeStamps
 {
     _delayedFrames = [NSMutableArray array];
@@ -59,13 +42,9 @@ SentryDelayedFramesTracker ()
 }
 
 - (void)recordDelayedFrame:(uint64_t)startSystemTimestamp
-    thisFrameSystemTimestamp:(uint64_t)thisFrameSystemTimestamp
-            expectedDuration:(CFTimeInterval)expectedDuration
-              actualDuration:(CFTimeInterval)actualDuration
+          expectedDuration:(CFTimeInterval)expectedDuration
+            actualDuration:(CFTimeInterval)actualDuration
 {
-    // This @synchronized block only gets called for delayed frames.
-    // We accept the tradeoff of slowing down the main thread a bit to
-    // record the frame delay data.
     @synchronized(self.delayedFrames) {
         [self removeOldDelayedFrames];
 
@@ -74,8 +53,6 @@ SentryDelayedFramesTracker ()
                                               expectedDuration:expectedDuration
                                                 actualDuration:actualDuration];
         [self.delayedFrames addObject:delayedFrame];
-        self.lastDelayedFrameSystemTimestamp = thisFrameSystemTimestamp;
-        self.previousFrameSystemTimestamp = thisFrameSystemTimestamp;
     }
 }
 
@@ -112,14 +89,13 @@ SentryDelayedFramesTracker ()
     [self.delayedFrames removeObjectsInRange:NSMakeRange(0, left)];
 }
 
-- (SentryFramesDelayResult *)getFramesDelay:(uint64_t)startSystemTimestamp
-                         endSystemTimestamp:(uint64_t)endSystemTimestamp
-                                  isRunning:(BOOL)isRunning
-                         slowFrameThreshold:(CFTimeInterval)slowFrameThreshold
+- (CFTimeInterval)getFramesDelay:(uint64_t)startSystemTimestamp
+              endSystemTimestamp:(uint64_t)endSystemTimestamp
+                       isRunning:(BOOL)isRunning
+    previousFrameSystemTimestamp:(uint64_t)previousFrameSystemTimestamp
+              slowFrameThreshold:(CFTimeInterval)slowFrameThreshold
 {
-    SentryFramesDelayResult *cantCalculateFrameDelayReturnValue =
-        [[SentryFramesDelayResult alloc] initWithDelayDuration:-1.0
-                                framesContributingToDelayCount:0];
+    CFTimeInterval cantCalculateFrameDelayReturnValue = -1.0;
 
     if (isRunning == NO) {
         SENTRY_LOG_DEBUG(@"Not calculating frames delay because frames tracker isn't running.");
@@ -138,20 +114,13 @@ SentryDelayedFramesTracker ()
         return cantCalculateFrameDelayReturnValue;
     }
 
-    // Make a local copy because this method can be called on a background thread and the value
-    // could change.
-    uint64_t localPreviousFrameSystemTimestamp;
+    if (previousFrameSystemTimestamp == 0) {
+        SENTRY_LOG_DEBUG(@"Not calculating frames delay because no frames yet recorded.");
+        return cantCalculateFrameDelayReturnValue;
+    }
 
     NSMutableArray<SentryDelayedFrame *> *frames;
     @synchronized(self.delayedFrames) {
-
-        localPreviousFrameSystemTimestamp = self.previousFrameSystemTimestamp;
-
-        if (localPreviousFrameSystemTimestamp == 0) {
-            SENTRY_LOG_DEBUG(@"Not calculating frames delay because no frames yet recorded.");
-            return cantCalculateFrameDelayReturnValue;
-        }
-
         uint64_t oldestDelayedFrameStartTimestamp = UINT64_MAX;
         SentryDelayedFrame *oldestDelayedFrame = self.delayedFrames.firstObject;
         if (oldestDelayedFrame != nil) {
@@ -170,10 +139,10 @@ SentryDelayedFramesTracker ()
 
     // Add a delayed frame for a potentially ongoing but not recorded delayed frame
     SentryDelayedFrame *currentFrameDelay = [[SentryDelayedFrame alloc]
-        initWithStartTimestamp:localPreviousFrameSystemTimestamp
+        initWithStartTimestamp:previousFrameSystemTimestamp
               expectedDuration:slowFrameThreshold
                 actualDuration:nanosecondsToTimeInterval(
-                                   endSystemTimestamp - localPreviousFrameSystemTimestamp)];
+                                   endSystemTimestamp - previousFrameSystemTimestamp)];
 
     [frames addObject:currentFrameDelay];
 
@@ -191,7 +160,6 @@ SentryDelayedFramesTracker ()
                                                                           endDate:endDate];
 
     CFTimeInterval delay = 0.0;
-    NSUInteger framesCount = 0;
 
     // Iterate in reverse order, as younger frame delays are more likely to match the queried
     // period.
@@ -204,14 +172,9 @@ SentryDelayedFramesTracker ()
         }
 
         delay = delay + [self calculateDelay:frame queryDateInterval:queryDateInterval];
-        framesCount++;
     }
 
-    SentryFramesDelayResult *data =
-        [[SentryFramesDelayResult alloc] initWithDelayDuration:delay
-                                framesContributingToDelayCount:framesCount];
-
-    return data;
+    return delay;
 }
 
 - (CFTimeInterval)calculateDelay:(SentryDelayedFrame *)delayedFrame

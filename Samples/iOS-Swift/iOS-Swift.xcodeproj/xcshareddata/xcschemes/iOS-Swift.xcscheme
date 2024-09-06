@@ -159,7 +159,7 @@
          </CommandLineArgument>
          <CommandLineArgument
             argument = "--disable-ui-tracing"
-            isEnabled = "NO">
+            isEnabled = "YES">
          </CommandLineArgument>
       </CommandLineArguments>
       <EnvironmentVariables>

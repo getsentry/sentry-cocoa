@@ -398,7 +398,7 @@ class SentrySDKTests: XCTestCase {
         
         XCTAssertEqual(operation, transaction.operation)
         let tracer = try XCTUnwrap(transaction as? SentryTracer)
-        XCTAssertEqual(name, tracer.traceContext?.transaction)
+        XCTAssertEqual(name, tracer.traceContext.transaction)
         
         XCTAssertNil(SentrySDK.span)
     }
@@ -410,7 +410,7 @@ class SentrySDKTests: XCTestCase {
         
         XCTAssertEqual(fixture.operation, transaction.operation)
         let tracer = try XCTUnwrap(transaction as? SentryTracer)
-        XCTAssertEqual(fixture.transactionName, tracer.traceContext?.transaction)
+        XCTAssertEqual(fixture.transactionName, tracer.traceContext.transaction)
         XCTAssertEqual(.custom, tracer.transactionContext.nameSource)
         
         let newSpan = SentrySDK.span
@@ -423,18 +423,17 @@ class SentrySDKTests: XCTestCase {
     func testStartingContinuousProfilerWithSampleRateZero() throws {
         givenSdkWithHub()
         
-        fixture.options.profilesSampleRate = 0
-        XCTAssertEqual(try XCTUnwrap(fixture.options.profilesSampleRate).doubleValue, 0)
-
+        // nil is the default value for profilesSampleRate, so we don't have to explicitly set it on the fixture
+        XCTAssertNil(fixture.options.profilesSampleRate)
         XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
         SentrySDK.startProfiler()
-        XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
+        XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
     }
 
     func testStartingContinuousProfilerWithSampleRateNil() throws {
         givenSdkWithHub()
         
-        // nil is the default initial value for profilesSampleRate, so we don't have to explicitly set it on the fixture
+        fixture.options.profilesSampleRate = nil
         XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
         SentrySDK.startProfiler()
         XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
@@ -698,7 +697,7 @@ class SentrySDKTests: XCTestCase {
         let expectation = expectation(description: "MainThreadTestIntegration install called")
         MainThreadTestIntegration.expectation = expectation
         
-        DispatchQueue.global(qos: .default).async {
+        DispatchQueue.global(qos: .background).async {
             SentrySDK.start { options in
                 options.integrations = [ NSStringFromClass(MainThreadTestIntegration.self) ]
             }

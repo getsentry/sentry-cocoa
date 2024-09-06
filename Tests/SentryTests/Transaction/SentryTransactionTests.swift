@@ -47,11 +47,6 @@ class SentryTransactionTests: XCTestCase {
         super.setUp()
         fixture = Fixture()
     }
-    
-    override func tearDown() {
-        super.tearDown()
-        clearTestState()
-    }
 
     func testSerializeMeasurements_NoMeasurements() {
         let actual = fixture.getTransaction().serialize()
@@ -228,8 +223,7 @@ class SentryTransactionTests: XCTestCase {
     
 #if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
     func testTransactionWithContinuousProfile() throws {
-        let options = Options()
-        SentrySDK.setStart(options)
+        SentrySDK.setStart(Options())
         let transaction = fixture.getTransaction()
         SentryContinuousProfiler.start()
         let profileId = try XCTUnwrap(SentryContinuousProfiler.profiler()?.profilerId.sentryIdString)

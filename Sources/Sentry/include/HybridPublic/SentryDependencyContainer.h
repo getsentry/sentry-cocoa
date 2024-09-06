@@ -1,7 +1,6 @@
 #import "SentryDefines.h"
 
 @class SentryANRTracker;
-@class SentryANRTrackerV2;
 @class SentryAppStateManager;
 @class SentryBinaryImageCache;
 @class SentryCrash;
@@ -64,7 +63,6 @@ SENTRY_NO_INIT
 @property (nonatomic, strong) SentryNSNotificationCenterWrapper *notificationCenterWrapper;
 @property (nonatomic, strong) SentryDebugImageProvider *debugImageProvider;
 @property (nonatomic, strong) SentryANRTracker *anrTracker;
-@property (nonatomic, strong) SentryANRTrackerV2 *anrTrackerV2;
 @property (nonatomic, strong) SentryNSProcessInfoWrapper *processInfoWrapper;
 @property (nonatomic, strong) SentrySystemWrapper *systemWrapper;
 @property (nonatomic, strong) SentryDispatchFactory *dispatchFactory;
@@ -91,9 +89,6 @@ SENTRY_NO_INIT
 #endif // !TARGET_OS_WATCH
 
 - (SentryANRTracker *)getANRTracker:(NSTimeInterval)timeout;
-#if SENTRY_UIKIT_AVAILABLE
-- (SentryANRTrackerV2 *)getANRTrackerV2:(NSTimeInterval)timeout;
-#endif // SENTRY_UIKIT_AVAILABLE
 
 #if SENTRY_HAS_METRIC_KIT
 @property (nonatomic, strong) SentryMXManager *metricKitManager API_AVAILABLE(

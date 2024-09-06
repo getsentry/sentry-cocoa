@@ -20,4 +20,4 @@ else
     sed -i "" "s/checksum: \".*\" \/\/Sentry-Dynamic/checksum: \"$NEW_CHECKSUM_DYNAMIC\" \/\/Sentry-Dynamic/" Package.swift
 fi
 
-echo "$GITHUB_RUN_ID" > .github/last-release-runid
+echo $GITHUB_RUN_ID > .github/last-release-runid

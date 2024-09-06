@@ -4,7 +4,6 @@ class TestSentryNSProcessInfoWrapper: SentryNSProcessInfoWrapper {
     struct Override {
         var processorCount: UInt?
         var processDirectoryPath: String?
-        var thermalState: ProcessInfo.ThermalState?
     }
 
     var overrides = Override()
@@ -15,9 +14,5 @@ class TestSentryNSProcessInfoWrapper: SentryNSProcessInfoWrapper {
 
     override var processDirectoryPath: String {
         overrides.processDirectoryPath ?? super.processDirectoryPath
-    }
-
-    override var thermalState: ProcessInfo.ThermalState {
-        overrides.thermalState ?? super.thermalState
     }
 }

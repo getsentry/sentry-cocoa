@@ -10,7 +10,7 @@ enum SessionReplayError: Error {
 
 @objc
 protocol SentrySessionReplayDelegate: NSObjectProtocol {
-    func sessionReplayShouldCaptureReplayForError() -> Bool
+    func sessionReplayIsFullSession() -> Bool
     func sessionReplayNewSegment(replayEvent: SentryReplayEvent, replayRecording: SentryReplayRecording, videoUrl: URL)
     func sessionReplayStarted(replayId: SentryId)
     func breadcrumbsForSessionReplay() -> [Breadcrumb]
@@ -32,7 +32,6 @@ class SentrySessionReplay: NSObject {
     private var currentSegmentId = 0
     private var processingScreenshot = false
     private var reachedMaximumDuration = false
-    private(set) var isSessionPaused = false
     
     private let replayOptions: SentryReplayOptions
     private let replayMaker: SentryReplayVideoMaker
@@ -71,8 +70,6 @@ class SentrySessionReplay: NSObject {
         self.breadcrumbConverter = breadcrumbConverter
         self.touchTracker = touchTracker
     }
-    
-    deinit { displayLink.invalidate() }
 
     func start(rootView: UIView, fullSession: Bool) {
         guard !isRunning else { return }
@@ -96,39 +93,24 @@ class SentrySessionReplay: NSObject {
         delegate?.sessionReplayStarted(replayId: sessionReplayId)
     }
 
-    func pause() {
-        lock.lock()
-        defer { lock.unlock() }
-        
-        self.isSessionPaused = true
-        self.videoSegmentStart = nil
-    }
-    
     func stop() {
-        lock.lock()
-        defer { lock.unlock() }
-        
         displayLink.invalidate()
-        if isFullSession {
-            prepareSegmentUntil(date: dateProvider.date())
-        }
-        isSessionPaused = false
+        prepareSegmentUntil(date: dateProvider.date())
     }
 
     func resume() {
+        guard !reachedMaximumDuration else { return }
+
         lock.lock()
         defer { lock.unlock() }
-        
-        if isSessionPaused {
-            isSessionPaused = false
-            return
-        }
-        
-        guard !reachedMaximumDuration else { return }
         guard !isRunning else { return }
         
         videoSegmentStart = nil
         displayLink.link(withTarget: self, selector: #selector(newFrame(_:)))
+    }
+
+    deinit {
+        displayLink.invalidate()
     }
 
     func captureReplayFor(event: Event) {
@@ -150,14 +132,15 @@ class SentrySessionReplay: NSObject {
         guard isRunning else { return false }
         guard !isFullSession else { return true }
 
-        guard delegate?.sessionReplayShouldCaptureReplayForError() == true else {
+        guard delegate?.sessionReplayIsFullSession() == true else {
             return false
         }
 
         startFullReplay()
         let replayStart = dateProvider.date().addingTimeInterval(-replayOptions.errorReplayDuration - (Double(replayOptions.frameRate) / 2.0))
 
-        createAndCapture(startedAt: replayStart, replayType: .buffer)
+        createAndCapture(startedAt: replayStart)
+
         return true
     }
 
@@ -177,9 +160,7 @@ class SentrySessionReplay: NSObject {
 
     @objc 
     private func newFrame(_ sender: CADisplayLink) {
-        guard let lastScreenShot = lastScreenShot, isRunning &&
-                !(isFullSession && isSessionPaused) //If replay is in session mode but it is paused we dont take screenshots
-        else { return }
+        guard let lastScreenShot = lastScreenShot, isRunning else { return }
 
         let now = dateProvider.date()
         
@@ -218,10 +199,10 @@ class SentrySessionReplay: NSObject {
         pathToSegment = pathToSegment.appendingPathComponent("\(currentSegmentId).mp4")
         let segmentStart = videoSegmentStart ?? dateProvider.date().addingTimeInterval(-replayOptions.sessionSegmentDuration)
 
-        createAndCapture(startedAt: segmentStart, replayType: .session)
+        createAndCapture(startedAt: segmentStart)
     }
 
-    private func createAndCapture(startedAt: Date, replayType: SentryReplayType) {
+    private func createAndCapture(startedAt: Date) {
         //Creating a video is heavy and blocks the thread
         //Since this function is always called in the main thread
         //we dispatch it to a background thread.
@@ -229,7 +210,7 @@ class SentrySessionReplay: NSObject {
             do {
                 let videos = try self.replayMaker.createVideoWith(beginning: startedAt, end: self.dateProvider.date())
                 for video in videos {
-                    self.newSegmentAvailable(videoInfo: video, replayType: replayType)
+                    self.newSegmentAvailable(videoInfo: video)
                 }
             } catch {
                 SentryLog.debug("Could not create replay video - \(error.localizedDescription)")
@@ -237,9 +218,9 @@ class SentrySessionReplay: NSObject {
         }
     }
 
-    private func newSegmentAvailable(videoInfo: SentryVideoInfo, replayType: SentryReplayType) {
+    private func newSegmentAvailable(videoInfo: SentryVideoInfo) {
         guard let sessionReplayId = sessionReplayId else { return }
-        captureSegment(segment: currentSegmentId, video: videoInfo, replayId: sessionReplayId, replayType: replayType)
+        captureSegment(segment: currentSegmentId, video: videoInfo, replayId: sessionReplayId, replayType: .session)
         replayMaker.releaseFramesUntil(videoInfo.end)
         videoSegmentStart = videoInfo.end
         currentSegmentId++

@@ -1,6 +1,5 @@
 #import "SentryProfilerState.h"
 #if SENTRY_TARGET_PROFILING_SUPPORTED
-#    import "SentryAsyncSafeLog.h"
 #    import "SentryBacktrace.hpp"
 #    import "SentryDependencyContainer.h"
 #    import "SentryDispatchQueueWrapper.h"
@@ -122,8 +121,7 @@ parseBacktraceSymbolsFunctionName(const char *symbol)
         const auto symbols
             = backtrace_symbols(reinterpret_cast<void *const *>(backtrace.addresses.data()),
                 static_cast<int>(backtrace.addresses.size()));
-        const auto *backtraceFunctionNames = [NSMutableArray<NSString *> array];
-#    endif // defined(DEBUG)
+#    endif
 
         const auto stack = [NSMutableArray<NSNumber *> array];
         for (std::vector<uintptr_t>::size_type backtraceAddressIdx = 0;
@@ -135,10 +133,8 @@ parseBacktraceSymbolsFunctionName(const char *symbol)
                 const auto frame = [NSMutableDictionary<NSString *, id> dictionary];
                 frame[@"instruction_addr"] = instructionAddress;
 #    if defined(DEBUG)
-                const auto functionName
+                frame[@"function"]
                     = parseBacktraceSymbolsFunctionName(symbols[backtraceAddressIdx]);
-                frame[@"function"] = functionName;
-                [backtraceFunctionNames addObject:functionName];
 #    endif
                 const auto newFrameIndex = @(state.frames.count);
                 [stack addObject:newFrameIndex];
@@ -150,7 +146,7 @@ parseBacktraceSymbolsFunctionName(const char *symbol)
         }
 #    if defined(DEBUG)
         free(symbols);
-#    endif // defined(DEBUG)
+#    endif
 
         const auto sample = [[SentrySample alloc] init];
         sample.absoluteTimestamp = backtrace.absoluteTimestamp;
@@ -168,14 +164,6 @@ parseBacktraceSymbolsFunctionName(const char *symbol)
             state.stackIndexLookup[stackKey] = nextStackIndex;
             [state.stacks addObject:stack];
         }
-
-#    if defined(DEBUG)
-        if (backtraceFunctionNames.count > 0) {
-            SENTRY_ASYNC_SAFE_LOG_DEBUG("Recorded backtrace for thread %s at %llu: %s",
-                threadID.UTF8String, sample.absoluteTimestamp,
-                backtraceFunctionNames.description.UTF8String);
-        }
-#    endif // defined(DEBUG)
 
         [state.samples addObject:sample];
     }];

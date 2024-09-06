@@ -3,14 +3,8 @@
 #import "SentryCrashWrapper.h"
 #import "SentryDefines.h"
 #import "SentryDependencyContainer.h"
-#import "SentryLog.h"
 #import "SentryNSProcessInfoWrapper.h"
 #import "SentryUIDeviceWrapper.h"
-
-NSString *const kSentryProcessInfoThermalStateNominal = @"nominal";
-NSString *const kSentryProcessInfoThermalStateFair = @"fair";
-NSString *const kSentryProcessInfoThermalStateSerious = @"serious";
-NSString *const kSentryProcessInfoThermalStateCritical = @"critical";
 
 @interface
 SentryExtraContextProvider ()
@@ -49,25 +43,6 @@ SentryExtraContextProvider ()
 
     extraDeviceContext[SentryDeviceContextFreeMemoryKey] = @(self.crashWrapper.freeMemorySize);
     extraDeviceContext[@"processor_count"] = @([self.processInfoWrapper processorCount]);
-
-    NSProcessInfoThermalState thermalState = [self.processInfoWrapper thermalState];
-    switch (thermalState) {
-    case NSProcessInfoThermalStateNominal:
-        extraDeviceContext[@"thermal_state"] = kSentryProcessInfoThermalStateNominal;
-        break;
-    case NSProcessInfoThermalStateFair:
-        extraDeviceContext[@"thermal_state"] = kSentryProcessInfoThermalStateFair;
-        break;
-    case NSProcessInfoThermalStateSerious:
-        extraDeviceContext[@"thermal_state"] = kSentryProcessInfoThermalStateSerious;
-        break;
-    case NSProcessInfoThermalStateCritical:
-        extraDeviceContext[@"thermal_state"] = kSentryProcessInfoThermalStateCritical;
-        break;
-    default:
-        SENTRY_LOG_WARN(@"Unexpected thermal state enum value: %ld", (long)thermalState);
-        break;
-    }
 
 #if TARGET_OS_IOS && SENTRY_HAS_UIKIT
     SentryUIDeviceWrapper *deviceWrapper = SentryDependencyContainer.sharedInstance.uiDeviceWrapper;

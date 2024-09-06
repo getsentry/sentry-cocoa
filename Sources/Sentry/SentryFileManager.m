@@ -310,21 +310,40 @@ SentryFileManager ()
     }
 }
 
-- (NSString *)storeEnvelope:(SentryEnvelope *)envelope
+- (void)storeEnvelope:(SentryEnvelope *)envelope
 {
-    NSData *envelopeData = [SentrySerialization dataWithEnvelope:envelope];
-
     @synchronized(self) {
         NSString *path =
             [self.envelopesPath stringByAppendingPathComponent:[self uniqueAscendingJsonName]];
+
         SENTRY_LOG_DEBUG(@"Writing envelope to path: %@", path);
 
-        if (![self writeData:envelopeData toPath:path]) {
-            SENTRY_LOG_WARN(@"Failed to store envelope.");
+        [[NSFileManager defaultManager] createFileAtPath:path contents:nil attributes:nil];
+
+        NSFileHandle *fileHandle = [NSFileHandle fileHandleForWritingAtPath:path];
+
+        if (!fileHandle) {
+            SENTRY_LOG_ERROR(@"Couldn't get NSFileHandle for path: %@", path);
+            return;
+        }
+
+        @try {
+            BOOL success = [SentrySerialization
+                writeEnvelopeData:envelope
+                        writeData:^(NSData *data) { [fileHandle writeData:data]; }];
+
+            if (!success) {
+                SENTRY_LOG_WARN(@"Failed to store envelope.");
+                [self removeFileAtPath:path];
+            }
+        } @catch (NSException *exception) {
+            SENTRY_LOG_ERROR(@"Error while writing data: %@ ", exception.description);
+            [self removeFileAtPath:path];
+        } @finally {
+            [fileHandle closeFile];
         }
 
         [self handleEnvelopesLimit];
-        return path;
     }
 }
 

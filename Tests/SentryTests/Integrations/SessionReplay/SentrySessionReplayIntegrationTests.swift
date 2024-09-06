@@ -31,7 +31,6 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
     
     override func setUp() {
         SentryDependencyContainer.sharedInstance().application = uiApplication
-        SentryDependencyContainer.sharedInstance().reachability = TestSentryReachability()
     }
     
     override func tearDown() {
@@ -99,7 +98,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
     func testInstallFullSessionReplayBecauseOfRandom() throws {
         SentryDependencyContainer.sharedInstance().random = TestRandom(value: 0.1)
         
-        startSDK(sessionSampleRate: 0.3, errorSampleRate: 0)
+        startSDK(sessionSampleRate: 0.2, errorSampleRate: 0)
         
         XCTAssertEqual(SentrySDK.currentHub().trimmedInstalledIntegrationNames().count, 1)
         XCTAssertEqual(SentryGlobalEventProcessor.shared().processors.count, 1)
@@ -133,7 +132,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         
         NotificationCenter.default.post(name: UIApplication.didEnterBackgroundNotification, object: nil)
         XCTAssertFalse(Dynamic(sut.sessionReplay).isRunning.asBool ?? true)
-        NotificationCenter.default.post(name: UIApplication.didBecomeActiveNotification, object: nil)
+        NotificationCenter.default.post(name: UIApplication.willEnterForegroundNotification, object: nil)
         XCTAssertTrue(Dynamic(sut.sessionReplay).isRunning.asBool ?? false)
     }
     
@@ -272,15 +271,6 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         
         wait(for: [expectation], timeout: 1)
         XCTAssertEqual(hub.capturedReplayRecordingVideo.count, 0)
-    }
-    
-    func testPauseSessionReplayWithReacheability() throws {
-        startSDK(sessionSampleRate: 1, errorSampleRate: 0)
-        let sut = try getSut()
-        (sut as? SentryReachabilityObserver)?.connectivityChanged(false, typeDescription: "")
-        XCTAssertTrue(sut.sessionReplay.isSessionPaused)
-        (sut as? SentryReachabilityObserver)?.connectivityChanged(true, typeDescription: "")
-        XCTAssertFalse(sut.sessionReplay.isSessionPaused)
     }
     
     func testMaskViewFromSDK() {

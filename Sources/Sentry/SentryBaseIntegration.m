@@ -89,18 +89,6 @@ NS_ASSUME_NONNULL_BEGIN
         }
     }
 
-    if (integrationOptions & kIntegrationOptionEnableAppHangTrackingV2) {
-        if (!options.enableAppHangTrackingV2) {
-            [self logWithOptionName:@"enableAppHangTrackingV2"];
-            return NO;
-        }
-
-        if (options.appHangTimeoutInterval == 0) {
-            [self logWithReason:@"because appHangTimeoutInterval is 0"];
-            return NO;
-        }
-    }
-
     if ((integrationOptions & kIntegrationOptionEnableNetworkTracking)
         && !options.enableNetworkTracking) {
         [self logWithOptionName:@"enableNetworkTracking"];

@@ -102,7 +102,7 @@ class ExtraViewController: UIViewController {
 
     @IBAction func anrFillingRunLoop(_ sender: UIButton) {
         highlightButton(sender)
-        triggerNonFullyBlockingAppHang()
+        triggerANRFillingRunLoop(button: self.anrFillingRunLoopButton)
     }
 
     @IBAction func getPasteBoardString(_ sender: Any) {

@@ -412,17 +412,14 @@ static BOOL appStartMeasurementRead;
     [self canBeFinished];
 }
 
-- (nullable SentryTraceContext *)traceContext
+- (SentryTraceContext *)traceContext
 {
     if (_traceContext == nil) {
         @synchronized(self) {
             if (_traceContext == nil) {
-                _traceContext = [[SentryTraceContext alloc]
-                    initWithTracer:self
-                             scope:_hub.scope
-                           options:_hub.client.options
-                               ?: SentrySDK.options]; // We should remove static classes and always
-                                                      // inject dependencies.
+                _traceContext = [[SentryTraceContext alloc] initWithTracer:self
+                                                                     scope:_hub.scope
+                                                                   options:SentrySDK.options];
             }
         }
     }
@@ -848,8 +845,7 @@ static BOOL appStartMeasurementRead;
     if (framesTracker.isRunning) {
         CFTimeInterval framesDelay = [framesTracker
                 getFramesDelay:self.startSystemTime
-            endSystemTimestamp:SentryDependencyContainer.sharedInstance.dateProvider.systemTime]
-                                         .delayDuration;
+            endSystemTimestamp:SentryDependencyContainer.sharedInstance.dateProvider.systemTime];
 
         if (framesDelay >= 0) {
             [self setDataValue:@(framesDelay) forKey:@"frames.delay"];

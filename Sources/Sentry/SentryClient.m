@@ -1001,7 +1001,6 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                       [device removeObjectForKey:@"orientation"];
                       [device removeObjectForKey:@"charging"];
                       [device removeObjectForKey:@"battery_level"];
-                      [device removeObjectForKey:@"thermal_state"];
                   }];
 
     [self modifyContext:event

@@ -122,7 +122,6 @@ NSString *const kSentryDefaultEnvironment = @"production";
 #endif // SENTRY_HAS_UIKIT
         self.enableAppHangTracking = YES;
         self.appHangTimeoutInterval = 2.0;
-        self.enableAppHangTrackingV2 = NO;
         self.enableAutoBreadcrumbTracking = YES;
         self.enableNetworkTracking = YES;
         self.enableFileIOTracing = YES;
@@ -444,9 +443,6 @@ NSString *const kSentryDefaultEnvironment = @"production";
     if ([options[@"appHangTimeoutInterval"] isKindOfClass:[NSNumber class]]) {
         self.appHangTimeoutInterval = [options[@"appHangTimeoutInterval"] doubleValue];
     }
-
-    [self setBool:options[@"enableAppHangTrackingV2"]
-            block:^(BOOL value) { self->_enableAppHangTrackingV2 = value; }];
 
     [self setBool:options[@"enableNetworkTracking"]
             block:^(BOOL value) { self->_enableNetworkTracking = value; }];

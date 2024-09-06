@@ -84,14 +84,14 @@ class ErrorsViewController: UIViewController {
     }
     
     @IBAction func corruptEnvelope(_ sender: UIButton) {
-        class TestSentryEnvelopeItem: SentryEnvelopeItem {
+        class TestSentryEnvelopeItem : SentryEnvelopeItem {
             override var header: SentryEnvelopeItemHeader {
                 SentryEnvelopeItemHeader(type: "test", length: 50)
             }
             
             override var data: Data {
                 defer { exit(0) }
-                return Data(repeating: 1, count: 100_000_000)
+                return Data(repeating: 1, count: 100000000)
             }
         }
         

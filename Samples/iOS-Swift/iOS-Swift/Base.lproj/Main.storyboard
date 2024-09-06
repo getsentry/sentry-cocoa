@@ -63,13 +63,13 @@
                                             <action selector="stopTransaction:" destination="BYZ-38-t0r" eventType="touchUpInside" id="r2S-U5-Af9"/>
                                         </connections>
                                     </button>
-                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="LvU-yx-01i">
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="LvU-yx-01i" userLabel="triggerANRRunLoop">
                                         <rect key="frame" x="0.0" y="84" width="259" height="28"/>
-                                        <accessibility key="accessibilityConfiguration" identifier="appHangFullyBlocking"/>
+                                        <accessibility key="accessibilityConfiguration" identifier="anrFillingRunLoop"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="13"/>
-                                        <state key="normal" title="AppHangFullyBlocking"/>
+                                        <state key="normal" title="ANR filling run loop"/>
                                         <connections>
-                                            <action selector="appHangFullyBlocking:" destination="BYZ-38-t0r" eventType="touchUpInside" id="uqP-sv-C4a"/>
+                                            <action selector="anrFillingRunLoop:" destination="BYZ-38-t0r" eventType="touchUpInside" id="uqP-sv-C4a"/>
                                         </connections>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="5IM-MG-9GW">
@@ -167,7 +167,7 @@
                     <tabBarItem key="tabBarItem" title="Transactions" image="clock.fill" catalog="system" selectedImage="clock.fill" id="ypv-KA-BBe"/>
                     <navigationItem key="navigationItem" title="Sentry Test App (Swift)" id="Ddh-Ww-vzM"/>
                     <connections>
-                        <outlet property="appHangFullyBlockingButton" destination="LvU-yx-01i" id="Epa-mo-uMP"/>
+                        <outlet property="anrFillingRunLoopButton" destination="LvU-yx-01i" id="Epa-mo-uMP"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>

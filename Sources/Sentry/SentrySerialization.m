@@ -32,9 +32,8 @@ NS_ASSUME_NONNULL_BEGIN
     return data;
 }
 
-+ (NSData *_Nullable)dataWithEnvelope:(SentryEnvelope *)envelope
++ (BOOL)writeEnvelopeData:(SentryEnvelope *)envelope writeData:(SentryDataWriter)writeData
 {
-    NSMutableData *envelopeData = [[NSMutableData alloc] init];
     NSMutableDictionary *serializedData = [NSMutableDictionary new];
     if (nil != envelope.header.eventId) {
         [serializedData setValue:[envelope.header.eventId sentryIdString] forKey:@"event_id"];
@@ -57,25 +56,40 @@ NS_ASSUME_NONNULL_BEGIN
     NSData *header = [SentrySerialization dataWithJSONObject:serializedData];
     if (nil == header) {
         SENTRY_LOG_ERROR(@"Envelope header cannot be converted to JSON.");
-        return nil;
+        return NO;
     }
-    [envelopeData appendData:header];
+    writeData(header);
 
     for (int i = 0; i < envelope.items.count; ++i) {
-        [envelopeData appendData:[@"\n" dataUsingEncoding:NSUTF8StringEncoding]];
+        writeData([@"\n" dataUsingEncoding:NSUTF8StringEncoding]);
         NSDictionary *serializedItemHeaderData = [envelope.items[i].header serialize];
 
         NSData *itemHeader = [SentrySerialization dataWithJSONObject:serializedItemHeaderData];
         if (nil == itemHeader) {
             SENTRY_LOG_ERROR(@"Envelope item header cannot be converted to JSON.");
-            return nil;
+            return NO;
         }
-        [envelopeData appendData:itemHeader];
-        [envelopeData appendData:[@"\n" dataUsingEncoding:NSUTF8StringEncoding]];
-        [envelopeData appendData:envelope.items[i].data];
+        writeData(itemHeader);
+        writeData([@"\n" dataUsingEncoding:NSUTF8StringEncoding]);
+        writeData(envelope.items[i].data);
     }
 
-    return envelopeData;
+    return YES;
+}
+
++ (NSData *_Nullable)dataWithEnvelope:(SentryEnvelope *)envelope
+{
+    NSMutableData *envelopeData = [[NSMutableData alloc] init];
+
+    BOOL result =
+        [SentrySerialization writeEnvelopeData:envelope
+                                     writeData:^(NSData *data) { [envelopeData appendData:data]; }];
+
+    if (result == YES) {
+        return envelopeData;
+    } else {
+        return nil;
+    }
 }
 
 + (SentryEnvelope *_Nullable)envelopeWithData:(NSData *)data
@@ -148,6 +162,9 @@ NS_ASSUME_NONNULL_BEGIN
     NSUInteger endOfEnvelope = data.length - 1;
     for (NSInteger i = itemHeaderStart; i <= endOfEnvelope; ++i) {
         if (bytes[i] == '\n' || i == endOfEnvelope) {
+            if (endOfEnvelope == i) {
+                i++; // 0 byte attachment
+            }
 
             NSData *itemHeaderData =
                 [data subdataWithRange:NSMakeRange(itemHeaderStart, i - itemHeaderStart)];
@@ -205,18 +222,15 @@ NS_ASSUME_NONNULL_BEGIN
                 itemHeader = [[SentryEnvelopeItemHeader alloc] initWithType:type length:bodyLength];
             }
 
-            if (endOfEnvelope == i) {
-                i++; // 0 byte attachment
-            }
-
-            if (bodyLength > 0 && data.length < (i + 1 + bodyLength)) {
-                SENTRY_LOG_ERROR(@"Envelope is corrupted or has invalid data. Trying to read %li "
-                                 @"bytes by skiping %li from a buffer of %li bytes.",
-                    (unsigned long)data.length, (unsigned long)bodyLength, (long)(i + 1));
-                return nil;
-            }
-
             NSData *itemBody = [data subdataWithRange:NSMakeRange(i + 1, bodyLength)];
+#ifdef DEBUG
+            if ([SentryEnvelopeItemTypeEvent isEqual:type] ||
+                [SentryEnvelopeItemTypeSession isEqual:type]) {
+                NSString *event = [[NSString alloc] initWithData:itemBody
+                                                        encoding:NSUTF8StringEncoding];
+                SENTRY_LOG_DEBUG(@"Event %@", event);
+            }
+#endif
             SentryEnvelopeItem *envelopeItem = [[SentryEnvelopeItem alloc] initWithHeader:itemHeader
                                                                                      data:itemBody];
             [items addObject:envelopeItem];

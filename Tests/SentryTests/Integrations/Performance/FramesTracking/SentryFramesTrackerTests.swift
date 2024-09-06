@@ -1,5 +1,4 @@
-@testable import _SentryPrivate
-@testable import Sentry
+import _SentryPrivate
 import SentryTestUtils
 import XCTest
 
@@ -33,11 +32,6 @@ class SentryFramesTrackerTests: XCTestCase {
         fixture = Fixture()
     }
     
-    override func tearDown() {
-        super.tearDown()
-        clearTestState()
-    }
-
     func testIsNotRunning_WhenNotStarted() {
         XCTAssertFalse(self.fixture.sut.isRunning)
     }
@@ -204,8 +198,7 @@ class SentryFramesTrackerTests: XCTestCase {
         let expectedDelay = displayLink.timeEpsilon + displayLink.slowestSlowFrameDuration - slowFrameThreshold(displayLink.currentFrameRate.rawValue)
         
         let actualFrameDelay = sut.getFramesDelay(startSystemTime, endSystemTimestamp: endSystemTime)
-        XCTAssertEqual(actualFrameDelay.delayDuration, expectedDelay, accuracy: 0.0001)
-        XCTAssertEqual(actualFrameDelay.framesContributingToDelayCount, 4)
+        XCTAssertEqual(actualFrameDelay, expectedDelay, accuracy: 0.0001)
     }
     
     /**
@@ -232,8 +225,7 @@ class SentryFramesTrackerTests: XCTestCase {
         let expectedDelay = delayWithoutFrameRecord - slowFrameThreshold(displayLink.currentFrameRate.rawValue)
         
         let actualFrameDelay = sut.getFramesDelay(startSystemTime, endSystemTimestamp: endSystemTime)
-        XCTAssertEqual(actualFrameDelay.delayDuration, expectedDelay, accuracy: 0.0001)
-        XCTAssertEqual(actualFrameDelay.framesContributingToDelayCount, 2)
+        XCTAssertEqual(actualFrameDelay, expectedDelay, accuracy: 0.0001)
     }
     
     /**
@@ -301,8 +293,7 @@ class SentryFramesTrackerTests: XCTestCase {
         let endSystemTime = fixture.dateProvider.systemTime()
         
         let actualFrameDelay = sut.getFramesDelay(startSystemTime, endSystemTimestamp: endSystemTime)
-        XCTAssertEqual(actualFrameDelay.delayDuration, -1)
-        XCTAssertEqual(actualFrameDelay.framesContributingToDelayCount, 0)
+        XCTAssertEqual(actualFrameDelay, -1)
     }
     
     func testDelayedFrames_NoRecordedDelayedFrames_ReturnsZero() {
@@ -321,8 +312,7 @@ class SentryFramesTrackerTests: XCTestCase {
         let endSystemTime = fixture.dateProvider.systemTime()
         
         let actualFrameDelay = sut.getFramesDelay(startSystemTime, endSystemTimestamp: endSystemTime)
-        XCTAssertEqual(actualFrameDelay.delayDuration, 0.0, accuracy: 0.0001)
-        XCTAssertEqual(actualFrameDelay.framesContributingToDelayCount, 2)
+        XCTAssertEqual(actualFrameDelay, 0.0, accuracy: 0.0001)
     }
     
     func testDelayedFrames_NoRecordedDelayedFrames_ButFrameIsDelayed_ReturnsDelay() {
@@ -344,8 +334,7 @@ class SentryFramesTrackerTests: XCTestCase {
         let expectedDelay = delay - slowFrameThreshold(fixture.displayLinkWrapper.currentFrameRate.rawValue)
         
         let actualFrameDelay = sut.getFramesDelay(startSystemTime, endSystemTimestamp: endSystemTime)
-        XCTAssertEqual(actualFrameDelay.delayDuration, expectedDelay, accuracy: 0.0001)
-        XCTAssertEqual(actualFrameDelay.framesContributingToDelayCount, 2)
+        XCTAssertEqual(actualFrameDelay, expectedDelay, accuracy: 0.0001)
     }
     
     func testDelayedFrames_FrameIsDelayedSmallerThanSlowFrameThreshold_ReturnsDelay() {
@@ -370,9 +359,7 @@ class SentryFramesTrackerTests: XCTestCase {
         let expectedDelay = delay
         
         let actualFrameDelay = sut.getFramesDelay(startSystemTime, endSystemTimestamp: endSystemTime)
-        XCTAssertEqual(
-            actualFrameDelay.delayDuration, expectedDelay, accuracy: 0.0001)
-        XCTAssertEqual(actualFrameDelay.framesContributingToDelayCount, 1)
+        XCTAssertEqual(actualFrameDelay, expectedDelay, accuracy: 0.0001)
     }
     
     private func testFrameDelay(timeIntervalAfterFrameStart: TimeInterval = 0.0, timeIntervalBeforeFrameEnd: TimeInterval = 0.0, expectedDelay: TimeInterval) {
@@ -390,7 +377,7 @@ class SentryFramesTrackerTests: XCTestCase {
         let startSystemTime = slowFrameStartSystemTime + timeIntervalToNanoseconds(timeIntervalAfterFrameStart)
         
         let actualFrameDelay = sut.getFramesDelay(startSystemTime, endSystemTimestamp: endSystemTime)
-        XCTAssertEqual(actualFrameDelay.delayDuration, expectedDelay, accuracy: 0.0001)
+        XCTAssertEqual(actualFrameDelay, expectedDelay, accuracy: 0.0001)
     }
     
     /**
@@ -418,7 +405,7 @@ class SentryFramesTrackerTests: XCTestCase {
         let expectedDelay = displayLink.slowestSlowFrameDuration - slowFrameThreshold(displayLink.currentFrameRate.rawValue)
         
         let actualFrameDelay = sut.getFramesDelay(startSystemTime, endSystemTimestamp: endSystemTime)
-        XCTAssertEqual(actualFrameDelay.delayDuration, expectedDelay, accuracy: 0.0001)
+        XCTAssertEqual(actualFrameDelay, expectedDelay, accuracy: 0.0001)
     }
     
     func testFrameDelay_WithStartBeforeEnd_ReturnsMinusOne() {
@@ -430,7 +417,7 @@ class SentryFramesTrackerTests: XCTestCase {
         _ = displayLink.slowestSlowFrame()
         
         let actualFrameDelay = sut.getFramesDelay(1, endSystemTimestamp: 0)
-        XCTAssertEqual(actualFrameDelay.delayDuration, -1.0)
+        XCTAssertEqual(actualFrameDelay, -1.0)
     }
     
     func testFrameDelay_LongestTimeStamp_ReturnsMinusOne() {
@@ -442,7 +429,7 @@ class SentryFramesTrackerTests: XCTestCase {
         _ = displayLink.slowestSlowFrame()
 
         let actualFrameDelay = sut.getFramesDelay(0, endSystemTimestamp: UInt64.max)
-        XCTAssertEqual(actualFrameDelay.delayDuration, -1.0)
+        XCTAssertEqual(actualFrameDelay, -1.0)
     }
     
     func testFrameDelay_KeepAddingSlowFrames_OnlyTheMaxDurationFramesReturned() {
@@ -454,7 +441,7 @@ class SentryFramesTrackerTests: XCTestCase {
         let endSystemTime = fixture.dateProvider.systemTime()
 
         let actualFrameDelay = sut.getFramesDelay(startSystemTime, endSystemTimestamp: endSystemTime)
-        XCTAssertEqual(actualFrameDelay.delayDuration, expectedDelay, accuracy: 0.0001)
+        XCTAssertEqual(actualFrameDelay, expectedDelay, accuracy: 0.0001)
     }
     
     func testFrameDelay_MoreThanMaxDuration_FrameInformationMissing_DelayReturned() {
@@ -472,7 +459,7 @@ class SentryFramesTrackerTests: XCTestCase {
         let expectedDelay = slowFramesDelay + delayNotRecorded
 
         let actualFrameDelay = sut.getFramesDelay(startSystemTime, endSystemTimestamp: endSystemTime)
-        XCTAssertEqual(actualFrameDelay.delayDuration, expectedDelay, accuracy: 0.0001)
+        XCTAssertEqual(actualFrameDelay, expectedDelay, accuracy: 0.0001)
     }
     
     func testFrameDelay_MoreThanMaxDuration_StartTimeTooEarly_ReturnsMinusOne() {
@@ -484,7 +471,7 @@ class SentryFramesTrackerTests: XCTestCase {
         let endSystemTime = fixture.dateProvider.systemTime()
         
         let actualFrameDelay = sut.getFramesDelay(startSystemTime - 1, endSystemTimestamp: endSystemTime)
-        XCTAssertEqual(actualFrameDelay.delayDuration, -1, accuracy: 0.0001, "startSystemTimeStamp starts one nanosecond before the oldest slow frame. Therefore the frame delay can't be calculated and should me 0.")
+        XCTAssertEqual(actualFrameDelay, -1, accuracy: 0.0001, "startSystemTimeStamp starts one nanosecond before the oldest slow frame. Therefore the frame delay can't be calculated and should me 0.")
     }
     
     func testFrameDelay_FramesTrackerNotRunning_ReturnsMinusOne() {
@@ -502,7 +489,7 @@ class SentryFramesTrackerTests: XCTestCase {
         sut.stop()
         
         let actualFrameDelay = sut.getFramesDelay(startSystemTime, endSystemTimestamp: endSystemTime)
-        XCTAssertEqual(actualFrameDelay.delayDuration, -1.0)
+        XCTAssertEqual(actualFrameDelay, -1.0)
     }
     
     func testFrameDelay_RestartTracker_ReturnsMinusOne() {
@@ -517,7 +504,7 @@ class SentryFramesTrackerTests: XCTestCase {
         let endSystemTime = fixture.dateProvider.systemTime()
         
         let actualFrameDelay = sut.getFramesDelay(startSystemTime, endSystemTimestamp: endSystemTime)
-        XCTAssertEqual(actualFrameDelay.delayDuration, -1.0)
+        XCTAssertEqual(actualFrameDelay, -1.0)
     }
     
     func testFrameDelay_GetInfoFromBackgroundThreadWhileAdding() {
@@ -536,48 +523,13 @@ class SentryFramesTrackerTests: XCTestCase {
                 
                 let actualFrameDelay = sut.getFramesDelay(startSystemTime, endSystemTimestamp: endSystemTime)
                 
-                XCTAssertGreaterThanOrEqual(actualFrameDelay.delayDuration, -1)
+                XCTAssertGreaterThanOrEqual(actualFrameDelay, -1)
                 
                 expectation.fulfill()
             }
         }
         
         _ = givenMoreDelayedFramesThanTransactionMaxDuration(sut)
-        
-        wait(for: [expectation], timeout: 3.0)
-    }
-    
-    func testGetFramesDelayOnTightLoop_WhileKeepAddingDelayedFrames() {
-        let displayLink = fixture.displayLinkWrapper
-        let dateProvider = fixture.dateProvider
-        
-        let sut = fixture.sut
-        sut.start()
-        
-        for _ in 0..<100 {
-            displayLink.normalFrame()
-        }
-        
-        let expectation = expectation(description: "Get Frames Delays")
-        
-        DispatchQueue.global().async {
-            
-            for _ in 0..<1_000 {
-
-                let endSystemTimestamp = dateProvider.systemTime()
-                let startSystemTimestamp = endSystemTimestamp - timeIntervalToNanoseconds(1.0)
-                
-                let frameDelay = sut.getFramesDelay(startSystemTimestamp, endSystemTimestamp: endSystemTimestamp)
-                
-                XCTAssertLessThanOrEqual(frameDelay.delayDuration, 1.0)
-            }
-            
-            expectation.fulfill()
-        }
-        
-        for _ in 0..<1_000 {
-            displayLink.frameWith(delay: 1.0)
-        }
         
         wait(for: [expectation], timeout: 3.0)
     }
