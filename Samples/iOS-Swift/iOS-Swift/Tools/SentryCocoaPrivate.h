@@ -1,5 +1,5 @@
-#import <Sentry/Sentry.h>
 #import <Foundation/Foundation.h>
+#import <Sentry/Sentry.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -13,7 +13,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, readonly, copy) NSString *version;
 
 - (instancetype)initWithName:(NSString *)name
-                 andVersion:(NSString *)version NS_DESIGNATED_INITIALIZER;
+                  andVersion:(NSString *)version NS_DESIGNATED_INITIALIZER;
 
 @end
 
