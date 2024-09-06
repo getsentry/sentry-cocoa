@@ -1,0 +1,262 @@
+name: Test
+on:
+  push:
+    branches:
+      - main
+      - release/**
+
+  pull_request:
+    paths:
+      - "Sources/**"
+      - "Tests/**"
+      - "SentryTestUtils/**"
+      - "test-server/**"
+      - "Samples/**"
+      - ".github/workflows/test.yml"
+      - "fastlane/**"
+      - "scripts/tests-with-thread-sanitizer.sh"
+      - "scripts/ci-select-xcode.sh"
+      - "scripts/xcode-test.sh"
+      - ".codecov.yml"
+      - Sentry.xcodeproj
+
+# https://docs.github.com/en/actions/using-jobs/using-concurrency#example-using-a-fallback-value
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  build-test-server:
+    name: Build test server
+    runs-on: macos-13
+    steps:
+      - uses: actions/checkout@v4
+      - name: Cache for Test Server
+        id: cache_test_server
+        uses: actions/cache@v4
+        with:
+          path: ./test-server/.build
+          key: test-server-${{ hashFiles('./test-server') }}
+          restore-keys: |
+            test-server-${{ hashFiles('./test-server') }}
+            test-server-
+
+      - name: Build Test Server
+        if: steps.cache_test_server.outputs.cache-hit != 'true'
+        working-directory: test-server
+        run: >-
+          swift build -c release 2>&1 | tee test-server-build.log
+
+      - name: Copy exec
+        working-directory: test-server
+        run: cp $(swift build --show-bin-path -c release)/Run test-server-exec
+
+      - name: Archiving DerivedData
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-server
+          path: |
+            ./test-server/test-server-exec
+
+      - name: Archiving Raw Test Logs
+        uses: actions/upload-artifact@v4
+        if: ${{  failure() || cancelled() }}
+        with:
+          name: test-server-build-log-${{matrix.platform}}-xcode-${{matrix.xcode}}-os-${{matrix.test-destination-os}}
+          path: |
+            raw-test-output.log
+
+  unit-tests:
+    name: Unit ${{matrix.platform}} - Xcode ${{matrix.xcode}} - OS ${{matrix.test-destination-os}}
+    runs-on: ${{matrix.runs-on}}
+    timeout-minutes: 20
+    needs: build-test-server
+
+    strategy:
+      fail-fast: false
+      matrix:
+        # Can't run tests on watchOS because XCTest is not available
+        include:
+          # iOS 15
+          - runs-on: macos-12
+            platform: "iOS"
+            xcode: "13.4.1"
+            test-destination-os: "latest"
+            device: "iPhone 8"
+
+          # iOS 16
+          - runs-on: macos-13
+            platform: "iOS"
+            xcode: "14.3"
+            test-destination-os: "16.4"
+            device: "iPhone 14"
+
+          # iOS 17
+          - runs-on: macos-14
+            platform: "iOS"
+            xcode: "15.4"
+            test-destination-os: "17.2"
+            device: "iPhone 15"
+
+          # macOS 12
+          - runs-on: macos-12
+            platform: "macOS"
+            xcode: "13.4.1"
+            test-destination-os: "latest"
+
+          # We don't run the unit tests on macOS 13 cause we run them on all on GH actions available iOS versions.
+          # The chance of missing a bug solely on tvOS 16 that doesn't occur on iOS, macOS 12 or macOS 14 is minimal.
+
+          # macOS 14
+          - runs-on: macos-14
+            platform: "macOS"
+            xcode: "15.4"
+            test-destination-os: "latest"
+
+          # Catalyst. We only test the latest version, as
+          # the risk something breaking on Catalyst and not
+          # on an older iOS or macOS version is low.
+          - runs-on: macos-14
+            platform: "Catalyst"
+            xcode: "15.4"
+            test-destination-os: "latest"
+
+          # tvOS 15
+          - runs-on: macos-12
+            platform: "tvOS"
+            xcode: "13.4.1"
+            test-destination-os: "16.1"
+
+          # We don't run the unit tests on tvOS 16 cause we run them on all on GH actions available iOS versions.
+          # The chance of missing a bug solely on tvOS 16 that doesn't occur on iOS, tvOS 15 or tvOS 16 is minimal.
+
+          # tvOS 17
+          - runs-on: macos-14
+            platform: "tvOS"
+            xcode: "15.4"
+            test-destination-os: "17.5"
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: test-server
+
+      - name: Print hardware info
+        run: system_profiler SPHardwareDataType
+
+      - name: Allow test-server to run
+        run: chmod +x ./test-server-exec
+      - run: ./test-server-exec &
+
+      - name: Check test-server runs
+        run: curl http://localhost:8080/echo-baggage-header
+
+      - run: ./scripts/ci-select-xcode.sh ${{matrix.xcode}}
+
+      - name: Install Slather
+        run: gem install slather
+
+      # We split building and running tests in two steps so we know how long running the tests takes.
+      - name: Build tests
+        id: build_tests
+        run: ./scripts/xcode-test.sh ${{matrix.platform}} ${{matrix.test-destination-os}} $GITHUB_REF_NAME ci build-for-testing "${{matrix.device}}" TestCI
+
+      - name: Run tests
+        # We call a script with the platform so the destination
+        # passed to xcodebuild doesn't end up in the job name,
+        # because GitHub Actions don't provide an easy way of
+        # manipulating string in expressions.
+        run: ./scripts/xcode-test.sh ${{matrix.platform}} ${{matrix.test-destination-os}} $GITHUB_REF_NAME ci test-without-building "${{matrix.device}}" TestCI
+
+      - name: Slowest Tests
+        if: ${{ always() }}
+        run: ./scripts/xcode-slowest-tests.sh
+
+      - name: Archiving DerivedData Logs
+        uses: actions/upload-artifact@v4
+        if: steps.build_tests.outcome == 'failure'
+        with:
+          name: derived-data-${{matrix.platform}}-xcode-${{matrix.xcode}}-os-${{matrix.test-destination-os}}
+          path: |
+            /Users/runner/Library/Developer/Xcode/DerivedData/**/Logs/**
+
+      - name: Archiving Raw Test Logs
+        uses: actions/upload-artifact@v4
+        if: ${{  failure() || cancelled() }}
+        with:
+          name: raw-test-output-${{matrix.platform}}-xcode-${{matrix.xcode}}-os-${{matrix.test-destination-os}}
+          path: |
+            raw-test-output.log
+
+      - name: Archiving Crash Logs
+        uses: actions/upload-artifact@v4
+        if: ${{  failure() || cancelled() }}
+        with:
+          name: crash-logs-${{matrix.platform}}-xcode-${{matrix.xcode}}-os-${{matrix.test-destination-os}}
+          path: |
+            ~/Library/Logs/DiagnosticReports/**
+
+      # We can upload all coverage reports, because codecov merges them.
+      # See https://docs.codecov.io/docs/merging-reports
+      # Checkout .codecov.yml to see the config of Codecov
+      # We don't upload codecov for release branches, as we don't want a failing coverage check to block a release.
+      # We don't upload codecov for scheduled runs as CodeCov only accepts a limited amount of uploads per commit.
+      - name: Push code coverage to codecov
+        id: codecov_1
+        uses: codecov/codecov-action@e28ff129e5465c2c0dcc6f003fc735cb6ae0c673 # pin@v4.5.0
+        if: ${{ contains(matrix.platform, 'iOS') && !contains(github.ref, 'release') && github.event.schedule == '' }}
+        with:
+          # Although public repos should not have to specify a token there seems to be a bug with the Codecov GH action, which can
+          # be solved by specifying the token, see https://github.com/codecov/codecov-action/issues/557#issuecomment-1224970469
+          token: ${{ secrets.CODECOV_TOKEN }}
+          fail_ci_if_error: false
+          verbose: true
+
+      # Sometimes codecov uploads etc can fail. Retry one time to rule out e.g. intermittent network failures.
+      - name: Push code coverage to codecov
+        id: codecov_2
+        uses: codecov/codecov-action@e28ff129e5465c2c0dcc6f003fc735cb6ae0c673 # pin@v4.5.0
+        if: ${{ steps.codecov_1.outcome == 'failure' && contains(matrix.platform, 'iOS') && !contains(github.ref, 'release') && github.event.schedule == '' }}
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          fail_ci_if_error: true
+          verbose: true
+
+  # We don't run all unit tests with Thread Sanitizer enabled because
+  # that adds a significant overhead.
+  thread-sanitizer:
+    name: Unit iOS - Thread Sanitizer
+    runs-on: macos-13
+    timeout-minutes: 20
+    needs: [build-test-server]
+    
+    # There are several ways this test can flake. Sometimes threaded tests will just hang and the job will time out, other times waiting on expectations will take much longer than in a non-TSAN run and the test case will fail. We're making this nonfailable and will grep the logs to extract any actual thread sanitizer warnings to push to the PR, and ignore everything else.
+    continue-on-error: true
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: test-server
+
+      - name: Allow test-server to run
+        run: chmod +x ./test-server-exec
+
+      - run: ./test-server-exec &
+
+      - name: Check test-server runs
+        run: curl http://localhost:8080/echo-baggage-header
+
+      - run: ./scripts/ci-select-xcode.sh
+
+      - name: Running tests with ThreadSanitizer
+        run: ./scripts/tests-with-thread-sanitizer.sh
+
+      - name: Archiving Test Logs
+        uses: actions/upload-artifact@v4
+        if: ${{  failure() || cancelled() }}
+        with:
+          name: thread-sanitizer
+          path: thread-sanitizer.log

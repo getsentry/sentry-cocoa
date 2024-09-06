@@ -1,0 +1,76 @@
+name: lint
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "Sources/**"
+      - "Tests/**"
+      - "test-server/**"
+      - "Samples/**"
+      - ".github/workflows/lint.yml"
+      - "scripts/ci-select-xcode.sh"
+
+  pull_request:
+    paths:
+      - "Sources/**"
+      - "Tests/**"
+      - "test-server/**"
+      - "Samples/**"
+      - ".github/workflows/lint.yml"
+      - "scripts/ci-select-xcode.sh"
+      - "Sentry.xcodeproj/**"
+      - "*.podspec"
+      - "Gemfile.lock"
+
+# https://docs.github.com/en/actions/using-jobs/using-concurrency#example-using-a-fallback-value
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  swift-lint:
+    name: Swift Lint
+    runs-on: macos-13
+    steps:
+      - uses: actions/checkout@v4
+      - run: swiftlint --version
+      - name: Run SwiftLint
+        run: swiftlint --strict
+
+  xcode-analyze:
+    name: Xcode Analyze
+    runs-on: macos-13
+    steps:
+      - uses: actions/checkout@v4
+      - run: ./scripts/ci-select-xcode.sh
+      - run: make analyze
+
+  lint-podspec:
+    name: pod lint ${{ matrix.podspec}} ${{ matrix.library_type }} ${{ matrix.platform}}
+    runs-on: macos-13
+    strategy:
+      fail-fast: false
+      matrix:
+        podspec: ["Sentry", "SentrySwiftUI"]
+        platform: ["ios", "macos", "tvos", "watchos"]
+        library_type: ["dynamic", "static"]
+
+    steps:
+      - uses: actions/checkout@v4
+      - run: ./scripts/ci-select-xcode.sh
+      # We need to update the spec-repo, because it can happen that it is not up to date and then the lint fails.
+      - run: pod repo update
+      - name: Validate Podspec
+        run: ./scripts/pod-lib-lint.sh ${{ matrix.platform }} ${{ matrix.podspec}} ${{ matrix.library_type}}
+
+  lint-hybrid-sdk-podspec:
+    name: pod lint Sentry/HybridSDK
+    runs-on: macos-13
+
+    steps:
+      - uses: actions/checkout@v4
+      - run: ./scripts/ci-select-xcode.sh
+      - run: pod repo update
+      - name: Validate HybridPod Podspec
+        run: pod lib lint ./Tests/HybridSDKTest/HybridPod.podspec --allow-warnings --verbose --platforms=ios "--include-podspecs={Sentry.podspec}"

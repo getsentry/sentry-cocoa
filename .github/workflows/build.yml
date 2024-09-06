@@ -1,0 +1,254 @@
+name: Build
+on:
+  push:
+    branches:
+      - main
+      - release/**
+
+  pull_request:
+    paths:
+      - 'Sources/**'
+      - 'test-server/**'
+      - 'Samples/**'
+      - '.github/workflows/build.yml'
+      - 'fastlane/**'
+      - 'scripts/ci-select-xcode.sh'
+      - Sentry.xcworkspace/**
+      - Sentry.xcodeproj/**
+      - Gemfile.lock
+      - 'Package.swift'
+      - 'scripts/build-xcframework'
+
+# https://docs.github.com/en/actions/using-jobs/using-concurrency#example-using-a-fallback-value
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  # We had issues that the release build was broken on main.
+  # With this we catch potential issues already in the PR.
+  ios-swift-release:
+    name: Release Build of iOS Swift
+    runs-on: macos-13
+    steps:
+      - uses: actions/checkout@v4
+      - run: ./scripts/ci-select-xcode.sh
+      - uses: ruby/setup-ruby@v1
+        with:
+          bundler-cache: true
+      - name: Run Fastlane
+        env:
+          APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+          APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+          APP_STORE_CONNECT_KEY: ${{ secrets.APP_STORE_CONNECT_KEY }}
+          FASTLANE_KEYCHAIN_PASSWORD: ${{ secrets.FASTLANE_KEYCHAIN_PASSWORD }}
+          MATCH_GIT_PRIVATE_KEY: ${{ secrets.MATCH_GIT_PRIVATE_KEY }}
+          MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+          MATCH_USERNAME: ${{ secrets.MATCH_USERNAME }}
+        run: bundle exec fastlane build_ios_swift
+        shell: sh
+
+  build-sample:
+    name: Sample ${{ matrix.scheme }}
+    runs-on: macos-13
+    strategy:
+      fail-fast: false
+      matrix:
+        # other sample projects are built in ui-tests
+        scheme:
+          - macOS-Swift
+          - iOS13-Swift
+
+    steps:
+      - uses: actions/checkout@v4
+      - run: ./scripts/ci-select-xcode.sh
+
+      # Disable code signing. We just want to make sure these compile.
+      - run: >-
+          env NSUnbufferedIO=YES
+          xcodebuild
+          -workspace Sentry.xcworkspace
+          -scheme '${{matrix.scheme}}'
+          -configuration Debug
+          CODE_SIGNING_ALLOWED="NO"
+          build
+
+  build-watch-os-sample:
+    name: Sample watchOS
+    runs-on: macos-12
+    steps:
+      - uses: actions/checkout@v4
+      - run: ./scripts/ci-select-xcode.sh 13.4.1
+      - run: make build-for-watchos
+
+      # Disable code signing. We just want to make sure these compile.
+      - run: >-
+          env NSUnbufferedIO=YES
+          xcodebuild
+          -project Samples/watchOS-Swift/watchOS-Swift.xcodeproj
+          -configuration Debug
+          CODE_SIGNING_ALLOWED="NO"
+          build
+
+  build-xcframework:
+    name: Build XCFramework
+    # The macos-13 uses an Intel processor and doesn't compile the XCFramework for visionOS. 
+    # The large image compiles on arm64 and successfully creates the XCFramework for visionOS.
+    runs-on: macos-13-xlarge
+    steps:
+      - uses: actions/checkout@v4
+      - run: ./scripts/ci-select-xcode.sh 15.2
+      - run: echo "FRAMEWORK_RUN_ID=$(./scripts/xcframework-generated-run.sh)" >> $GITHUB_ENV
+      
+      - uses: actions/download-artifact@v4
+        if: startsWith(github.ref, 'refs/heads/release/')
+        with:
+          name: xcframeworks.zip
+          path: Carthage/
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          run-id: ${{ env.FRAMEWORK_RUN_ID }}
+      
+      - name: Check XCFramework
+       #We dont compile the framework during releases to not change the artefact SHA value
+       #instead we use the one archive as an artefact
+        if: startsWith(github.ref, 'refs/heads/release/') 
+        run: |
+          ls -R Carthage
+          if [ ! -f Carthage/Sentry.xcframework.zip ]; then
+            echo "XCFramework is not available"
+            exit 1
+          fi
+      
+      - name: Build xcframework
+        if: startsWith(github.ref, 'refs/heads/release/') == false
+        run: make build-xcframework
+        shell: sh
+
+      - name: Archiving XCFramework.zip
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ github.sha }}
+          if-no-files-found: error
+          path: |
+            ${{ github.workspace }}/Carthage/*.zip
+
+      - name: Archive build log if failed
+        uses: actions/upload-artifact@v4
+        if: ${{  failure() || cancelled() }}
+        with:
+          name: raw-build-output-build-xcframework
+          path: |
+            build-xcframework.log
+
+  validate-xcframework:
+    name: Validate XCFramework
+    runs-on: macos-13
+    needs: build-xcframework
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: ${{ github.sha }}
+          path: Carthage/
+      - run: ./scripts/ci-select-xcode.sh 15.2
+      - run: make build-xcframework-sample
+        shell: sh
+
+  # Use github.event.pull_request.head.sha instead of github.sha when available as
+  # the github.sha is be the pre merge commit id for PRs.
+  # See https://github.community/t/github-sha-isnt-the-value-expected/17903/17906.
+  validate-spm:
+    name: Validate Swift Package Manager
+    runs-on: macos-13
+    needs: build-xcframework
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: ${{ github.sha }}
+      - name: Change path of the framework
+        run: |
+          sed -i '' 's/url.*//g' Package.swift
+          sed -i '' 's/checksum: ".*" \/\/Sentry-Static/path: "Sentry.xcframework.zip"/g' Package.swift
+          sed -i '' 's/checksum: ".*" \/\/Sentry-Dynamic/path: "Sentry-Dynamic.xcframework.zip"/g' Package.swift
+        shell: bash
+      - run: swift build
+        working-directory: Samples/macOS-SPM-CommandLine
+        shell: sh
+
+  validate-spm-dynamic:
+    name: Validate Swift Package Manager Dynamic
+    runs-on: macos-13
+    needs: build-xcframework
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: ${{ github.sha }}
+      - name: Change path of the framework
+        run: |
+          sed -i '' 's/url.*//g' Package.swift
+          sed -i '' 's/checksum: ".*" \/\/Sentry-Static/path: "Sentry.xcframework.zip"/g' Package.swift
+          sed -i '' 's/checksum: ".*" \/\/Sentry-Dynamic/path: "Sentry-Dynamic.xcframework.zip"/g' Package.swift
+        shell: bash
+      - run: swift build
+        working-directory: Samples/SPM-Dynamic
+        shell: sh
+
+  swift-build:
+    name: Build with Swift
+    runs-on: macos-13
+    needs: build-xcframework
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: ${{ github.sha }}
+      - name: Change path of the framework
+        run: |
+          sed -i '' 's/url.*//g' Package.swift
+          sed -i '' 's/checksum: ".*" \/\/Sentry-Static/path: "Sentry.xcframework.zip"/g' Package.swift
+          sed -i '' 's/checksum: ".*" \/\/Sentry-Dynamic/path: "Sentry-Dynamic.xcframework.zip"/g' Package.swift
+        shell: bash
+      - run: swift build
+        shell: sh
+
+  check-debug-without-UIKit:
+    name: Check no UIKit linkage (DebugWithoutUIKit)
+    runs-on: macos-13
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build for Debug
+        run: ./scripts/xcode-test.sh "iOS" "latest" $GITHUB_REF_NAME ci build "iPhone 14" DebugWithoutUIKit uikit-check-build
+      - name: Ensure UIKit is not linked
+        run: ./scripts/check-uikit-linkage.sh DebugWithoutUIKit uikit-check-build unlinked SentryWithoutUIKit
+
+  check-release-without-UIKit:
+    name: Check no UIKit linkage (ReleaseWithoutUIKit)
+    runs-on: macos-13
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build for Release
+        run: ./scripts/xcode-test.sh "iOS" "latest" $GITHUB_REF_NAME ci build "iPhone 14" ReleaseWithoutUIKit uikit-check-build
+      - name: Ensure UIKit is not linked
+        run: ./scripts/check-uikit-linkage.sh ReleaseWithoutUIKit uikit-check-build unlinked SentryWithoutUIKit
+
+  check-debug-with-UIKit:
+    name: Check UIKit linkage (Debug)
+    runs-on: macos-13
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build for Debug
+        run: ./scripts/xcode-test.sh "iOS" "latest" $GITHUB_REF_NAME ci build "iPhone 14" Debug uikit-check-build
+      - name: Ensure UIKit is linked
+        run: ./scripts/check-uikit-linkage.sh Debug uikit-check-build linked Sentry
+
+  check-release-with-UIKit:
+    name: Check UIKit linkage (Release)
+    runs-on: macos-13
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build for Release
+        run: ./scripts/xcode-test.sh "iOS" "latest" $GITHUB_REF_NAME ci build "iPhone 14" Release uikit-check-build
+      - name: Ensure UIKit is linked
+        run: ./scripts/check-uikit-linkage.sh Release uikit-check-build linked Sentry
