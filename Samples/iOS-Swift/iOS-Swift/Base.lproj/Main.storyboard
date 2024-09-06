@@ -1105,7 +1105,7 @@
         <scene sceneID="ShC-i6-txq">
             <objects>
                 <viewController id="9PG-vw-mrg" customClass="UITestViewController" customModule="iOS_Swift" customModuleProvider="target" sceneMemberID="viewController">
-                    <view key="view" contentMode="scaleToFill" id="PyF-g1-Myh" customClass="TargetView" customModule="iOS_Swift" customModuleProvider="target">
+                    <view key="view" contentMode="scaleToFill" id="PyF-g1-Myh">
                         <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
@@ -1141,6 +1141,20 @@
                                     <constraint firstAttribute="height" constant="30" id="WuH-r4-icd"/>
                                     <constraint firstAttribute="width" constant="240" id="dn8-bG-2cz"/>
                                 </constraints>
+                            </view>
+                            <view clipsSubviews="YES" contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="c2s-RE-RVj" customClass="TargetView" customModule="iOS_Swift" customModuleProvider="target">
+                                <rect key="frame" x="40" y="96" width="240" height="128"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <subviews>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="This should not appear" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="1nY-h8-rp3">
+                                        <rect key="frame" x="30" y="156" width="175" height="21"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                        <nil key="textColor"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                </subviews>
+                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                             </view>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="Qfh-TT-5mw"/>

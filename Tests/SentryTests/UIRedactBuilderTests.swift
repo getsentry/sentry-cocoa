@@ -235,6 +235,21 @@ class UIRedactBuilderTests: XCTestCase {
         XCTAssertEqual(result.count, 1)
     }
     
+    func testIgnoreViewsBeforeARootSizedView() {
+        let sut = UIRedactBuilder()
+        let label = UILabel(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
+        label.textColor = .purple
+        rootView.addSubview(label)
+        
+        let overView = UIView(frame: rootView.bounds)
+        overView.backgroundColor = .black
+        rootView.addSubview(overView)
+        
+        let result = sut.redactRegionsFor(view: rootView, options: RedactOptions())
+        
+        XCTAssertEqual(result.count, 0)
+    }
+    
     func testRedactList() {
         let expectedList = ["_TtCOCV7SwiftUI11DisplayList11ViewUpdater8Platform13CGDrawingView",
             "_TtC7SwiftUIP33_A34643117F00277B93DEBAB70EC0697122_UIShapeHitTestingView",

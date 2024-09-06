@@ -28,9 +28,9 @@ struct RedactRegion {
 
 class UIRedactBuilder {
     
-    //This is a list of UIView subclasses that will be ignored during redact process
+    ///This is a list of UIView subclasses that will be ignored during redact process
     private var ignoreClassesIdentifiers: Set<ObjectIdentifier>
-    //This is a list of UIView subclasses that need to be redacted from screenshot
+    ///This is a list of UIView subclasses that need to be redacted from screenshot
     private var redactClassesIdentifiers: Set<ObjectIdentifier>
     
     init() {
@@ -104,11 +104,9 @@ class UIRedactBuilder {
         var redactingRegions = [RedactRegion]()
         
         self.mapRedactRegion(fromView: view,
-                             to: view.layer.presentation() ?? view.layer,
                              redacting: &redactingRegions,
-                             area: view.frame,
-                             redactText: options?.redactAllText ?? true,
-                             redactImage: options?.redactAllImages ?? true,
+                             rootFrame: view.frame,
+                             redactOptions: options ?? SentryReplayOptions(),
                              transform: CGAffineTransform.identity)
         
         return redactingRegions.reversed()
@@ -118,14 +116,14 @@ class UIRedactBuilder {
         return SentryRedactViewHelper.shouldIgnoreView(view) || containsIgnoreClass(type(of: view))
     }
     
-    private func shouldRedact(view: UIView, redactText: Bool, redactImage: Bool) -> Bool {
+    private func shouldRedact(view: UIView, redactOptions: SentryRedactOptions) -> Bool {
         if SentryRedactViewHelper.shouldRedactView(view) {
             return true
         }
-        if redactImage, let imageView = view as? UIImageView {
+        if redactOptions.redactAllImages, let imageView = view as? UIImageView {
             return shouldRedact(imageView: imageView)
         }
-        return redactText && containsRedactClass(type(of: view))
+        return redactOptions.redactAllText && containsRedactClass(type(of: view))
     }
     
     private func shouldRedact(imageView: UIImageView) -> Bool {
@@ -135,24 +133,27 @@ class UIRedactBuilder {
         return image.imageAsset?.value(forKey: "_containingBundle") == nil
     }
     
-    private func mapRedactRegion(fromView view: UIView, to: CALayer, redacting: inout [RedactRegion], area: CGRect, redactText: Bool, redactImage: Bool, transform: CGAffineTransform) {
-        guard (redactImage || redactText) && !view.isHidden && view.alpha != 0 else { return }
+    private func mapRedactRegion(fromView view: UIView, redacting: inout [RedactRegion], rootFrame: CGRect, redactOptions: SentryRedactOptions, transform: CGAffineTransform) {
+        guard (redactOptions.redactAllImages || redactOptions.redactAllText) && !view.isHidden && view.alpha != 0 else { return }
+        
         let layer = view.layer.presentation() ?? view.layer
         let size = layer.bounds.size
-        let layerMiddle = CGPoint(x: size.width / 2.0, y: size.height / 2.0)
+        let layerMiddle = CGPoint(x: size.width * layer.anchorPoint.x, y: size.height * layer.anchorPoint.y)
         
         var newTransform = transform.translatedBy(x: layer.position.x, y: layer.position.y)
         newTransform = view.transform.concatenating(newTransform)
         newTransform = newTransform.translatedBy(x: -layerMiddle.x, y: -layerMiddle.y)
         
         let ignore = shouldIgnore(view: view)
-        let redact = shouldRedact(view: view, redactText: redactText, redactImage: redactImage)
+        let redact = shouldRedact(view: view, redactOptions: redactOptions)
         
         if !ignore && redact {
             redacting.append(RedactRegion(size: size, transform: newTransform, type: .redact, color: self.color(for: view)))
             return
-        } else if hasBackground(view) {
-            if layerOriginalFrame(layer: layer) == area {
+        } else if isOpaque(view) {
+            let finalViewFrame = CGRect(origin: .zero, size: size).applying(newTransform)
+            if isAxisAligned(newTransform) && finalViewFrame == rootFrame {
+                //Because the current view is covering everything we found so far we can clear `redacting` list
                 redacting.removeAll()
             } else {
                 redacting.append(RedactRegion(size: size, transform: newTransform, type: .clip))
@@ -161,28 +162,27 @@ class UIRedactBuilder {
         
         if !ignore {
             for subview in view.subviews {
-                mapRedactRegion(fromView: subview, to: to, redacting: &redacting, area: area, redactText: redactText, redactImage: redactImage, transform: newTransform)
+                mapRedactRegion(fromView: subview, redacting: &redacting, rootFrame: rootFrame, redactOptions: redactOptions, transform: newTransform)
             }
         }
     }
     
-    private func layerOriginalFrame(layer: CALayer) -> CGRect {
-        let originalCenter = layer.position
-        let originalBounds = layer.bounds
-        
-        return CGRect(
-            x: originalCenter.x - originalBounds.width / 2,
-            y: originalCenter.y - originalBounds.height / 2,
-            width: originalBounds.width,
-            height: originalBounds.height
-        )
+    /**
+     Whether the transform does not contains rotation or skew
+     */
+    func isAxisAligned(_ transform: CGAffineTransform) -> Bool {
+        // Rotation exists if b or c are not zero
+        return transform.b == 0 && transform.c == 0
     }
-    
+
     private func color(for view: UIView) -> UIColor? {
         return (view as? UILabel)?.textColor
     }
     
-    private func hasBackground(_ view: UIView) -> Bool {
+    /**
+     Indicates whether the view is opaque and will block other view behind it
+     */
+    private func isOpaque(_ view: UIView) -> Bool {
         //Anything with an alpha greater than 0.9 is opaque enough that it's impossible to see anything behind it.
         return  view.alpha > 0.9 && view.backgroundColor != nil && (view.backgroundColor?.cgColor.alpha ?? 0) > 0.9
     }
