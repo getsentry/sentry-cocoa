@@ -99,10 +99,12 @@ class LaunchUITests: BaseUITest {
         // 8.35.0+ reverts to writing envelopes atomically, so that in this scenario no envelope is written, as is expected.
         // By opening the app again we can check whether the SDK can handle such scenario.
         app.buttons["Corrupt Envelope"].tap()
-        XCTAssertEqual(app.state, .notRunning)
+        Thread.sleep(forTimeInterval: 1) // Give the test a second for the tap to take effect.
+        XCTAssertFalse(app.exists)
         
         app.launch()
-        app.tabBars.firstMatch.waitForExistence("App did not open again")
+        app.waitForExistence("App did not open again")
+        XCTAssertEqual(app.state, .runningForeground)
     }
     
     func testCheckTotalFrames() {
