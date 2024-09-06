@@ -1,6 +1,7 @@
 #if canImport(UIKit) && !SENTRY_NO_UIKIT
 #if os(iOS) || os(tvOS)
 
+@_implementationOnly import _SentryPrivate
 import CoreGraphics
 import Foundation
 import UIKit
@@ -22,6 +23,7 @@ class DefaultViewRenderer: ViewRenderer {
 class SentryViewPhotographer: NSObject, SentryViewScreenshotProvider {
     static let shared = SentryViewPhotographer()
     private let redactBuilder = UIRedactBuilder()
+    private let dispatchQueue = SentryDispatchQueueWrapper()
 
     var renderer: ViewRenderer
         
@@ -39,7 +41,7 @@ class SentryViewPhotographer: NSObject, SentryViewScreenshotProvider {
         
         let redact = redactBuilder.redactRegionsFor(view: view, options: options)
         let imageSize = view.bounds.size
-        DispatchQueue.global().async {
+        dispatchQueue.dispatchAsync {
             let screenshot = UIGraphicsImageRenderer(size: imageSize, format: .init(for: .init(displayScale: 1))).image { context in
                 
                 context.cgContext.addRect(CGRect(origin: CGPoint.zero, size: imageSize))
