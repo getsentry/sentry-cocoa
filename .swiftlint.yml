@@ -44,7 +44,6 @@ only_rules:
   - mark
   - nimble_operator
   - number_separator
-  - object_literal
   - opening_brace
   - operator_usage_whitespace
   - operator_whitespace
