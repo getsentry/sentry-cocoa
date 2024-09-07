@@ -16,8 +16,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         let env = ProcessInfo.processInfo.environment
         
         // For testing purposes, we want to be able to change the DSN and store it to disk. In a real app, you shouldn't need this behavior.
-        let dsn = env["--io.sentry.dsn"] ?? DSNStorage.shared.getDSN() ?? AppDelegate.defaultDSN
-        DSNStorage.shared.saveDSN(dsn: dsn)
+        var dsn: String?
+        do {
+            if let dsn = env["--io.sentry.dsn"] {
+                try DSNStorage.shared.saveDSN(dsn: dsn)
+            }
+            dsn = try DSNStorage.shared.getDSN() ?? AppDelegate.defaultDSN
+        } catch {
+            print("[iOS-Swift] Error encountered while reading stored DSN: \(error)")
+        }
         
         SentrySDK.start(configureOptions: { options in
             options.dsn = dsn
