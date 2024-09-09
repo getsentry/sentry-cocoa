@@ -1109,10 +1109,10 @@
             </objects>
             <point key="canvasLocation" x="-233" y="-81"/>
         </scene>
-        <!--Test View Controller-->
+        <!--Redact Sample View Controller-->
         <scene sceneID="ShC-i6-txq">
             <objects>
-                <viewController id="9PG-vw-mrg" customClass="UITestViewController" customModule="iOS_Swift" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController id="9PG-vw-mrg" customClass="SRRedactSampleViewController" customModule="iOS_Swift" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="PyF-g1-Myh">
                         <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -1123,18 +1123,7 @@
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="28x-YX-9Dj">
-                                <rect key="frame" x="107" y="502" width="106" height="35"/>
-                                <constraints>
-                                    <constraint firstAttribute="height" constant="35" id="dhH-Zh-p4d"/>
-                                </constraints>
-                                <state key="normal" title="Button"/>
-                                <buttonConfiguration key="configuration" style="plain" title="Open Alert"/>
-                                <connections>
-                                    <action selector="showAlert:" destination="9PG-vw-mrg" eventType="touchUpInside" id="4q4-Eg-XW6"/>
-                                </connections>
-                            </button>
-                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Nch-qj-FJO" customClass="TargetView" customModule="iOS_Swift" customModuleProvider="target">
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Nch-qj-FJO">
                                 <rect key="frame" x="40" y="301" width="240" height="30"/>
                                 <subviews>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="This should not be redact" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="zye-8M-uzl">
@@ -1150,36 +1139,20 @@
                                     <constraint firstAttribute="width" constant="240" id="dn8-bG-2cz"/>
                                 </constraints>
                             </view>
-                            <view clipsSubviews="YES" contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="c2s-RE-RVj" customClass="TargetView" customModule="iOS_Swift" customModuleProvider="target">
-                                <rect key="frame" x="40" y="96" width="240" height="128"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                <subviews>
-                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="This should not appear" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="1nY-h8-rp3">
-                                        <rect key="frame" x="30" y="156" width="175" height="21"/>
-                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                        <nil key="textColor"/>
-                                        <nil key="highlightedColor"/>
-                                    </label>
-                                </subviews>
-                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
-                            </view>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="Qfh-TT-5mw"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
-                            <constraint firstItem="28x-YX-9Dj" firstAttribute="centerX" secondItem="Qfh-TT-5mw" secondAttribute="centerX" id="I0T-ER-JPP"/>
                             <constraint firstItem="Nch-qj-FJO" firstAttribute="centerX" secondItem="Qfh-TT-5mw" secondAttribute="centerX" id="JdJ-6L-ACU"/>
                             <constraint firstItem="Nch-qj-FJO" firstAttribute="centerY" secondItem="Qfh-TT-5mw" secondAttribute="centerY" id="NQQ-Ce-48S"/>
                             <constraint firstItem="QLx-Ff-Zy1" firstAttribute="centerX" secondItem="Qfh-TT-5mw" secondAttribute="centerX" id="css-Ih-V6J"/>
                             <constraint firstItem="QLx-Ff-Zy1" firstAttribute="centerY" secondItem="Qfh-TT-5mw" secondAttribute="centerY" id="gPb-Gi-lhd"/>
-                            <constraint firstItem="Qfh-TT-5mw" firstAttribute="bottom" secondItem="28x-YX-9Dj" secondAttribute="bottom" constant="31" id="yme-nl-u4J"/>
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" id="IKp-8n-e0m"/>
                     <connections>
                         <outlet property="label" destination="QLx-Ff-Zy1" id="gnc-AD-TCJ"/>
-                        <outlet property="transparentView" destination="Nch-qj-FJO" id="Oa0-hv-zsg"/>
+                        <outlet property="notRedactedView" destination="Nch-qj-FJO" id="eTE-nC-OQb"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="wpE-MN-0Ua" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
@@ -1264,7 +1237,7 @@
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>
         <systemColor name="systemGray5Color">
-            <color red="0.89803921568627454" green="0.89803921568627454" blue="0.91764705882352937" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="0.8980392157" green="0.8980392157" blue="0.91764705879999997" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
     </resources>
 </document>

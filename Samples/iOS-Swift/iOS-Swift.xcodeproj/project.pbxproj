@@ -99,7 +99,7 @@
 		D8D7BB4A2750067900044146 /* UIAssert.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8D7BB492750067900044146 /* UIAssert.swift */; };
 		D8D7BB4C2750095800044146 /* UIViewExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8D7BB4B2750095800044146 /* UIViewExtension.swift */; };
 		D8D7BB4E27501B9400044146 /* SpanObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8D7BB4D27501B9400044146 /* SpanObserver.swift */; };
-		D8DA29042C7F2199008BC825 /* UITestViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8DA29032C7F2199008BC825 /* UITestViewController.swift */; };
+		D8DA29042C7F2199008BC825 /* SRRedactSampleViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8DA29032C7F2199008BC825 /* SRRedactSampleViewController.swift */; };
 		D8DBDA76274D591F00007380 /* TableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8DBDA75274D591F00007380 /* TableViewController.swift */; };
 		D8DBDA78274D5FC400007380 /* SplitViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8DBDA77274D5FC400007380 /* SplitViewController.swift */; };
 		D8F01DEA2A1376B5008F4996 /* InfoForBreadcrumbController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F01DE92A1376B5008F4996 /* InfoForBreadcrumbController.swift */; };
@@ -358,7 +358,7 @@
 		D8D7BB492750067900044146 /* UIAssert.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIAssert.swift; sourceTree = "<group>"; };
 		D8D7BB4B2750095800044146 /* UIViewExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIViewExtension.swift; sourceTree = "<group>"; };
 		D8D7BB4D27501B9400044146 /* SpanObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpanObserver.swift; sourceTree = "<group>"; };
-		D8DA29032C7F2199008BC825 /* UITestViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UITestViewController.swift; sourceTree = "<group>"; };
+		D8DA29032C7F2199008BC825 /* SRRedactSampleViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SRRedactSampleViewController.swift; sourceTree = "<group>"; };
 		D8DBDA75274D591F00007380 /* TableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TableViewController.swift; sourceTree = "<group>"; };
 		D8DBDA77274D5FC400007380 /* SplitViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplitViewController.swift; sourceTree = "<group>"; };
 		D8F01DE92A1376B5008F4996 /* InfoForBreadcrumbController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InfoForBreadcrumbController.swift; sourceTree = "<group>"; };
@@ -594,7 +594,7 @@
 				D8832B1D2AF52D0500C522B0 /* PageViewController.swift */,
 				B70038842BB33E7700065A38 /* ReplaceContentViewController.swift */,
 				D8AE48C82C57DC2F0092A2A6 /* WebViewController.swift */,
-				D8DA29032C7F2199008BC825 /* UITestViewController.swift */,
+				D8DA29032C7F2199008BC825 /* SRRedactSampleViewController.swift */,
 			);
 			path = ViewControllers;
 			sourceTree = "<group>";
@@ -940,7 +940,7 @@
 				D8444E4C275E38090042F4DE /* UIViewControllerExtension.swift in Sources */,
 				637AFDAE243B02760034958B /* TransactionsViewController.swift in Sources */,
 				D8832B132AF4F7FE00C522B0 /* TopViewControllerInspector.swift in Sources */,
-				D8DA29042C7F2199008BC825 /* UITestViewController.swift in Sources */,
+				D8DA29042C7F2199008BC825 /* SRRedactSampleViewController.swift in Sources */,
 				0AABE2EA28855FF80057ED69 /* PermissionsViewController.swift in Sources */,
 				7B5525B32938B5B5006A2932 /* DiskWriteException.swift in Sources */,
 				D8F3D062274EBD4800B56F8C /* SpanExtension.swift in Sources */,
