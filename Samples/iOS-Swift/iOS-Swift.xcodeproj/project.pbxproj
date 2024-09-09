@@ -316,6 +316,7 @@
 		84B527BC28DD25E400475E8D /* SentryDevice.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = SentryDevice.mm; path = ../../../Sources/Sentry/SentryDevice.mm; sourceTree = "<group>"; };
 		84BA72052C8F87AE0045B828 /* inject-git-info.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = "inject-git-info.sh"; sourceTree = "<group>"; };
 		84BA72072C8F9D310045B828 /* GitInjections.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GitInjections.swift; sourceTree = "<group>"; };
+		84BA720C2C8FA4290045B828 /* reset-git-info.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = "reset-git-info.sh"; sourceTree = "<group>"; };
 		84BE546E287503F100ACC735 /* SentrySDKPerformanceBenchmarkTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentrySDKPerformanceBenchmarkTests.m; sourceTree = "<group>"; };
 		84BE54782876451D00ACC735 /* SentryProcessInfo.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SentryProcessInfo.h; sourceTree = "<group>"; };
 		84BE54792876451D00ACC735 /* SentryProcessInfo.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentryProcessInfo.m; sourceTree = "<group>"; };
@@ -450,6 +451,7 @@
 			children = (
 				84BA72062C8F9D270045B828 /* Shared */,
 				84BA72052C8F87AE0045B828 /* inject-git-info.sh */,
+				84BA720C2C8FA4290045B828 /* reset-git-info.sh */,
 				848A2576286E3490008A8858 /* PerformanceBenchmarks */,
 				6308532C2440C44F00DDE4CE /* Sentry.xcodeproj */,
 				637AFDA8243B02760034958B /* iOS-Swift */,
@@ -656,12 +658,13 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 637AFDBA243B02770034958B /* Build configuration list for PBXNativeTarget "iOS-Swift" */;
 			buildPhases = (
-				84BA71F92C8F7F920045B828 /* Inject Git information */,
+				84BA71F92C8F7F920045B828 /* Inject Git information into Info.plist */,
 				637AFDA2243B02760034958B /* Sources */,
 				637AFDA3243B02760034958B /* Frameworks */,
 				637AFDA4243B02760034958B /* Resources */,
 				630853552440C60F00DDE4CE /* Embed Frameworks */,
 				D840D535273A07F600CDF142 /* Embed App Clips */,
+				84BA720D2C8FA48D0045B828 /* Reset Git fields in Info.plist */,
 			);
 			buildRules = (
 			);
@@ -720,11 +723,12 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = D8269A4D274C096000BD5BD5 /* Build configuration list for PBXNativeTarget "iOS13-Swift" */;
 			buildPhases = (
-				84BA720A2C8F9DEB0045B828 /* Inject Git information */,
+				84BA720A2C8F9DEB0045B828 /* Inject Git information into Info.plist */,
 				D8269A35274C095E00BD5BD5 /* Sources */,
 				D8269A36274C095E00BD5BD5 /* Frameworks */,
 				D8269A37274C095E00BD5BD5 /* Resources */,
 				D8269A5B274C100300BD5BD5 /* Embed Frameworks */,
+				84BA720B2C8FA3E60045B828 /* Reset Git fields in Info.plist */,
 			);
 			buildRules = (
 			);
@@ -943,7 +947,7 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		84BA71F92C8F7F920045B828 /* Inject Git information */ = {
+		84BA71F92C8F7F920045B828 /* Inject Git information into Info.plist */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -952,7 +956,7 @@
 			);
 			inputPaths = (
 			);
-			name = "Inject Git information";
+			name = "Inject Git information into Info.plist";
 			outputFileListPaths = (
 			);
 			outputPaths = (
@@ -961,7 +965,7 @@
 			shellPath = /bin/sh;
 			shellScript = "./inject-git-info.sh\n";
 		};
-		84BA720A2C8F9DEB0045B828 /* Inject Git information */ = {
+		84BA720A2C8F9DEB0045B828 /* Inject Git information into Info.plist */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -970,7 +974,7 @@
 			);
 			inputPaths = (
 			);
-			name = "Inject Git information";
+			name = "Inject Git information into Info.plist";
 			outputFileListPaths = (
 			);
 			outputPaths = (
@@ -978,6 +982,42 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "./inject-git-info.sh\n";
+		};
+		84BA720B2C8FA3E60045B828 /* Reset Git fields in Info.plist */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Reset Git fields in Info.plist";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "./reset-git-info.sh\n";
+		};
+		84BA720D2C8FA48D0045B828 /* Reset Git fields in Info.plist */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Reset Git fields in Info.plist";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "./reset-git-info.sh\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
