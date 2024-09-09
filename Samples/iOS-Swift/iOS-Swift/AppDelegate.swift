@@ -136,6 +136,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         #endif // targetEnvironment(simulator)
                 }
                 
+                scope.setTag(value: "swift", key: "language")
+                
                 scope.injectGitInformation()
                                                
                 let user = User(userId: "1")
