@@ -41,6 +41,10 @@
 		84BA71EC2C8BC3B90045B828 /* SwiftMessages in Frameworks */ = {isa = PBXBuildFile; productRef = 84BA71EB2C8BC3B90045B828 /* SwiftMessages */; };
 		84BA71EF2C8BC3C40045B828 /* Anchorage in Frameworks */ = {isa = PBXBuildFile; productRef = 84BA71EE2C8BC3C40045B828 /* Anchorage */; };
 		84BA71F12C8BC55A0045B828 /* Toasts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BA71F02C8BC55A0045B828 /* Toasts.swift */; };
+		84BA71F22C8F73FD0045B828 /* DSNDisplayViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BA71E32C8BBBEC0045B828 /* DSNDisplayViewController.swift */; };
+		84BA71F32C8F74080045B828 /* Toasts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BA71F02C8BC55A0045B828 /* Toasts.swift */; };
+		84BA71F52C8F74660045B828 /* SwiftMessages in Frameworks */ = {isa = PBXBuildFile; productRef = 84BA71F42C8F74660045B828 /* SwiftMessages */; };
+		84BA71F72C8F74660045B828 /* Anchorage in Frameworks */ = {isa = PBXBuildFile; productRef = 84BA71F62C8F74660045B828 /* Anchorage */; };
 		84BE546F287503F100ACC735 /* SentrySDKPerformanceBenchmarkTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 84BE546E287503F100ACC735 /* SentrySDKPerformanceBenchmarkTests.m */; };
 		84BE547E287645B900ACC735 /* SentryProcessInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = 84BE54792876451D00ACC735 /* SentryProcessInfo.m */; };
 		84FB812A284001B800F3A94A /* SentryBenchmarking.mm in Sources */ = {isa = PBXBuildFile; fileRef = 84FB8129284001B800F3A94A /* SentryBenchmarking.mm */; };
@@ -407,6 +411,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				D8269A59274C100300BD5BD5 /* Sentry.framework in Frameworks */,
+				84BA71F72C8F74660045B828 /* Anchorage in Frameworks */,
+				84BA71F52C8F74660045B828 /* SwiftMessages in Frameworks */,
 				D8105B61297E824C00299F03 /* SentrySwiftUI.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -729,6 +735,10 @@
 			dependencies = (
 			);
 			name = "iOS13-Swift";
+			packageProductDependencies = (
+				84BA71F42C8F74660045B828 /* SwiftMessages */,
+				84BA71F62C8F74660045B828 /* Anchorage */,
+			);
 			productName = "iOS13-Swift";
 			productReference = D8269A39274C095E00BD5BD5 /* iOS13-Swift.app */;
 			productType = "com.apple.product-type.application";
@@ -1016,6 +1026,7 @@
 			files = (
 				D8832B1A2AF5000F00C522B0 /* TopViewControllerInspector.swift in Sources */,
 				D8AE48CF2C57E0BD0092A2A6 /* WebViewController.swift in Sources */,
+				84BA71F22C8F73FD0045B828 /* DSNDisplayViewController.swift in Sources */,
 				D8444E56275F79590042F4DE /* UIViewExtension.swift in Sources */,
 				D8269A57274C0FA100BD5BD5 /* NibViewController.swift in Sources */,
 				D8269A4E274C09A400BD5BD5 /* SwiftUIViewController.swift in Sources */,
@@ -1042,6 +1053,7 @@
 				D8444E54275F794D0042F4DE /* SpanObserver.swift in Sources */,
 				D8269A55274C0F9A00BD5BD5 /* TraceTestViewController.swift in Sources */,
 				D80D021C29EE9E400084393D /* ExtraViewController.swift in Sources */,
+				84BA71F32C8F74080045B828 /* Toasts.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2156,6 +2168,16 @@
 			productName = SwiftMessages;
 		};
 		84BA71EE2C8BC3C40045B828 /* Anchorage */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 84BA71ED2C8BC3C40045B828 /* XCRemoteSwiftPackageReference "Anchorage" */;
+			productName = Anchorage;
+		};
+		84BA71F42C8F74660045B828 /* SwiftMessages */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 84BA71EA2C8BC3B90045B828 /* XCRemoteSwiftPackageReference "SwiftMessages" */;
+			productName = SwiftMessages;
+		};
+		84BA71F62C8F74660045B828 /* Anchorage */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 84BA71ED2C8BC3C40045B828 /* XCRemoteSwiftPackageReference "Anchorage" */;
 			productName = Anchorage;

@@ -1,6 +1,7 @@
 import SwiftMessages
+import UIKit
 
-@MainActor func showToast(in view: UIView, type: Theme, message: String) {
+@MainActor public func showToast(in view: UIView, type: Theme, message: String) {
     let view = MessageView.viewFromNib(layout: .statusLine)
     view.configureTheme(type)
     let iconText: String
