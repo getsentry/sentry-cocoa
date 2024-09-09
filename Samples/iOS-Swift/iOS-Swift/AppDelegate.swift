@@ -8,6 +8,9 @@ extension Bundle {
     var branchName: String? {
         infoDictionary?["GIT_BRANCH"] as? String
     }
+    var statusClean: Bool {
+        (infoDictionary?["GIT_STATUS_CLEAN"] as? NSNumber)?.boolValue ?? false
+    }
 }
 
 @UIApplicationMain
@@ -147,10 +150,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 
                 scope.setTag(value: "swift", key: "language")
                 if let commitHash = Bundle.main.commitHash {
-                    scope.setTag(value: "git-commit-hash", key: commitHash)
+                    scope.setTag(value: "\(commitHash)\(Bundle.main.statusClean ? "" : "-dirty")", key: "git-commit-hash")
                 }
                 if let branchName = Bundle.main.branchName {
-                    scope.setTag(value: "git-branch-name", key: branchName)
+                    scope.setTag(value: branchName, key: "git-branch-name")
                 }
                                                
                 let user = User(userId: "1")

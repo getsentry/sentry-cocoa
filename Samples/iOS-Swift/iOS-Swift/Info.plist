@@ -19,10 +19,10 @@
 	<key>CFBundleVersion</key>
 	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<key>GIT_BRANCH</key>
-	<string></string>
+	<string>armcknight/ci/inject-git-branch-commit-hash</string>
 	<key>GIT_COMMIT_HASH</key>
-	<string>9b9f2a08</string>
-	<key>GIT_STATUS</key>
+	<string>5eeb442c</string>
+	<key>GIT_STATUS_CLEAN</key>
 	<string></string>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>

@@ -944,7 +944,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "COMMIT_HASH=`git rev-parse --short HEAD`\n/usr/libexec/PlistBuddy -c \"Set :GIT_COMMIT_HASH $COMMIT_HASH\" \"${INFOPLIST_FILE}\"\n\nBRANCH_NAME=`git rev-parse --abbrev-ref HEAD`\n/usr/libexec/PlistBuddy -c \"Set :GIT_BRANCH $BRANCH_NAME\" \"${INFOPLIST_FILE}\"\n\nGIT_STATUS=`git rev-parse --abbrev-ref HEAD`\n/usr/libexec/PlistBuddy -c \"Set :GIT_BRANCH $BRANCH_NAME\" \"${INFOPLIST_FILE}\"\n\n";
+			shellScript = "COMMIT_HASH=`git rev-parse --short HEAD`\n/usr/libexec/PlistBuddy -c \"Set :GIT_COMMIT_HASH $COMMIT_HASH\" \"${INFOPLIST_FILE}\"\n\nBRANCH_NAME=`git rev-parse --abbrev-ref HEAD`\n/usr/libexec/PlistBuddy -c \"Set :GIT_BRANCH $BRANCH_NAME\" \"${INFOPLIST_FILE}\"\n\nGIT_STATUS_CLEAN=`test -n \"$(git status --porcelain)\"`\n/usr/libexec/PlistBuddy -c \"Set :GIT_STATUS_CLEAN $GIT_STATUS_CLEAN\" \"${INFOPLIST_FILE}\"\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
