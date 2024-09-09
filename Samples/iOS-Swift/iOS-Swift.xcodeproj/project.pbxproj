@@ -2148,7 +2148,7 @@
 			repositoryURL = "https://github.com/SwiftKickMobile/SwiftMessages";
 			requirement = {
 				kind = upToNextMajorVersion;
-				minimumVersion = 10.0.0;
+				minimumVersion = 9.0.9;
 			};
 		};
 		84BA71ED2C8BC3C40045B828 /* XCRemoteSwiftPackageReference "Anchorage" */ = {
