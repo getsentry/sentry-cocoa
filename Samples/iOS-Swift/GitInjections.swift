@@ -9,7 +9,7 @@ extension Bundle {
         infoDictionary?["GIT_BRANCH"] as? String
     }
     var gitStatusClean: Bool {
-        (infoDictionary?["GIT_STATUS_CLEAN"] as? NSNumber)?.boolValue ?? false
+        (infoDictionary?["GIT_STATUS_CLEAN"] as? String) == "1"
     }
 }
 
