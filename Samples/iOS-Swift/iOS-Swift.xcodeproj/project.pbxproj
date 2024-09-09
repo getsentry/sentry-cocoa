@@ -642,6 +642,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 637AFDBA243B02770034958B /* Build configuration list for PBXNativeTarget "iOS-Swift" */;
 			buildPhases = (
+				84BA71F92C8F7F920045B828 /* Inject Git information */,
 				637AFDA2243B02760034958B /* Sources */,
 				637AFDA3243B02760034958B /* Frameworks */,
 				637AFDA4243B02760034958B /* Resources */,
@@ -925,6 +926,27 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		84BA71F92C8F7F920045B828 /* Inject Git information */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Inject Git information";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "COMMIT_HASH=`git rev-parse --short HEAD`\n/usr/libexec/PlistBuddy -c \"Set :GIT_COMMIT_HASH $COMMIT_HASH\" \"${INFOPLIST_FILE}\"\n\nBRANCH_NAME=`git rev-parse --abbrev-ref HEAD`\n/usr/libexec/PlistBuddy -c \"Set :GIT_BRANCH $BRANCH_NAME\" \"${INFOPLIST_FILE}\"\n\nGIT_STATUS=`git rev-parse --abbrev-ref HEAD`\n/usr/libexec/PlistBuddy -c \"Set :GIT_BRANCH $BRANCH_NAME\" \"${INFOPLIST_FILE}\"\n\n";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		637AFDA2243B02760034958B /* Sources */ = {

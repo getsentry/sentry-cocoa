@@ -1,6 +1,15 @@
 import Sentry
 import UIKit
 
+extension Bundle {
+    var commitHash: String? {
+        infoDictionary?["GIT_COMMIT_HASH"] as? String
+    }
+    var branchName: String? {
+        infoDictionary?["GIT_BRANCH"] as? String
+    }
+}
+
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
     
@@ -137,7 +146,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 }
                 
                 scope.setTag(value: "swift", key: "language")
-               
+                if let commitHash = Bundle.main.commitHash {
+                    scope.setTag(value: "git-commit-hash", key: commitHash)
+                }
+                if let branchName = Bundle.main.branchName {
+                    scope.setTag(value: "git-branch-name", key: branchName)
+                }
+                                               
                 let user = User(userId: "1")
                 user.email = env["--io.sentry.user.email"] ?? "tony@example.com"
                 // first check if the username has been overridden in the scheme for testing purposes; then try to use the system username so each person gets an automatic way to easily filter things on the dashboard; then fall back on a hardcoded value if none of these are present
