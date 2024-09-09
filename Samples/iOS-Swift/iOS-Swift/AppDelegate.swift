@@ -1,18 +1,6 @@
 import Sentry
 import UIKit
 
-extension Bundle {
-    var commitHash: String? {
-        infoDictionary?["GIT_COMMIT_HASH"] as? String
-    }
-    var branchName: String? {
-        infoDictionary?["GIT_BRANCH"] as? String
-    }
-    var statusClean: Bool {
-        (infoDictionary?["GIT_STATUS_CLEAN"] as? NSNumber)?.boolValue ?? false
-    }
-}
-
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
     
@@ -148,13 +136,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         #endif // targetEnvironment(simulator)
                 }
                 
-                scope.setTag(value: "swift", key: "language")
-                if let commitHash = Bundle.main.commitHash {
-                    scope.setTag(value: "\(commitHash)\(Bundle.main.statusClean ? "" : "-dirty")", key: "git-commit-hash")
-                }
-                if let branchName = Bundle.main.branchName {
-                    scope.setTag(value: branchName, key: "git-branch-name")
-                }
+                scope.injectGitInformation()
                                                
                 let user = User(userId: "1")
                 user.email = env["--io.sentry.user.email"] ?? "tony@example.com"
