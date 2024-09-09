@@ -11,7 +11,6 @@ on:
       - "Tests/**"
       - "SentryTestUtils/**"
       - "test-server/**"
-      - "Samples/**"
       - ".github/workflows/test.yml"
       - "fastlane/**"
       - "scripts/tests-with-thread-sanitizer.sh"
