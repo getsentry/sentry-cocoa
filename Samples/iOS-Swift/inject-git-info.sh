@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -x
+
 COMMIT_HASH=$(git rev-parse --short HEAD)
 /usr/libexec/PlistBuddy -c "Set :GIT_COMMIT_HASH $COMMIT_HASH" "${INFOPLIST_FILE}"
 
