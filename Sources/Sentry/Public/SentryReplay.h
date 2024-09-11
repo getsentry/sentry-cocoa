@@ -1,9 +1,9 @@
 #import <Foundation/Foundation.h>
 
 #if __has_include(<Sentry/SentryDefines.h>)
-#import <Sentry/SentryDefines.h>
+#    import <Sentry/SentryDefines.h>
 #else
-#import <SentryWithoutUIKit/SentryDefines.h>
+#    import <SentryWithoutUIKit/SentryDefines.h>
 #endif
 
 #if SENTRY_TARGET_REPLAY_SUPPORTED
