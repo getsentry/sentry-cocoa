@@ -86,6 +86,7 @@ jobs:
           env NSUnbufferedIO=YES
           xcodebuild
           -project Samples/watchOS-Swift/watchOS-Swift.xcodeproj
+          -scheme "watchOS-Swift WatchKit Extension"
           -configuration Debug
           CODE_SIGNING_ALLOWED="NO"
           build
