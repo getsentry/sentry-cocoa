@@ -19,7 +19,7 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * @warning This is an experimental feature and may still have bugs.
  */
-- (void)redactView:(UIView *)view;
+- (void)redactView:(UIView *)view NS_SWIFT_NAME(redactView(_:));
 
 /**
  * Marks this view to be ignored during redact step of session replay.
@@ -27,7 +27,7 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * @warning This is an experimental feature and may still have bugs.
  */
-- (void)ignoreView:(UIView *)view;
+- (void)ignoreView:(UIView *)view NS_SWIFT_NAME(ignoreView(_:));
 
 /**
  * Pauses the replay.
