@@ -2,9 +2,30 @@
 
 ## Unreleased
 
+### Features
+
+- Added `thermal_state` to device context (#4305)
+
 ### Fixes
 
+- Resumes replay when the app becomes active (#4303)
 - Double-quoted include, expected angle-bracketed instead (#4298)
+
+## 8.36.0
+
+### Features
+
+- Continuous mode profiling (see `SentrySDK.startProfiler` and `SentryOptions.profilesSampleRate`) (#4010)
+
+### Fixes
+
+- Proper redact SR during animation (#4289)
+
+## 8.35.1
+
+### Fixes
+
+- Crash when reading corrupted envelope (#4297)
 
 ## 8.35.0
 
@@ -33,6 +54,10 @@
 - Guard dereferencing of stack frame pointer in SentryBacktrace ([#4268](https://github.com/getsentry/sentry-cocoa/pull/4268))
 
 ## 8.33.0
+
+### Note: Due to a bug (#4280) introduced in this release, we recommend upgrading to [8.35.0](https://github.com/getsentry/sentry-cocoa/releases/tag/8.35.0) or newer.
+
+---
 
 This release fixes a bug (#4230) that we introduced with a refactoring (#4101) released in [8.30.1](https://github.com/getsentry/sentry-cocoa/releases/tag/8.30.1).
 This bug caused unhandled/crash events to have the unhandled property and mach info missing, which is required for release health to show events in the unhandled tab. It's essential to mention that this bug **doesn't impact** release health statistics, such as crash-free session or user rates.

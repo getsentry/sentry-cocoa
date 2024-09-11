@@ -267,6 +267,17 @@ class SentrySerializationTests: XCTestCase {
         XCTAssertNil(actual)
     }
     
+    func testReturnNilForCorruptedEnvelope() throws {
+        let envelope = SentryEnvelope(event: Event(error: NSError(domain: "test", code: -1, userInfo: nil)))
+        let data = try XCTUnwrap(SentrySerialization.data(with: envelope))
+        
+        let corruptedData = data[0..<data.count - 1]
+        
+        let unserialized = SentrySerialization.envelope(with: corruptedData)
+        
+        XCTAssertNil(unserialized)
+    }
+    
     private func serializeEnvelope(envelope: SentryEnvelope) -> Data {
         var serializedEnvelope: Data = Data()
         do {

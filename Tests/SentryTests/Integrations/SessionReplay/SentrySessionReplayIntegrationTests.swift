@@ -133,7 +133,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         
         NotificationCenter.default.post(name: UIApplication.didEnterBackgroundNotification, object: nil)
         XCTAssertFalse(Dynamic(sut.sessionReplay).isRunning.asBool ?? true)
-        NotificationCenter.default.post(name: UIApplication.willEnterForegroundNotification, object: nil)
+        NotificationCenter.default.post(name: UIApplication.didBecomeActiveNotification, object: nil)
         XCTAssertTrue(Dynamic(sut.sessionReplay).isRunning.asBool ?? false)
     }
     

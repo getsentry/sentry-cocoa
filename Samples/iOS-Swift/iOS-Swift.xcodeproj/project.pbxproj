@@ -42,6 +42,7 @@
 		84FB812A284001B800F3A94A /* SentryBenchmarking.mm in Sources */ = {isa = PBXBuildFile; fileRef = 84FB8129284001B800F3A94A /* SentryBenchmarking.mm */; };
 		84FB812B284001B800F3A94A /* SentryBenchmarking.mm in Sources */ = {isa = PBXBuildFile; fileRef = 84FB8129284001B800F3A94A /* SentryBenchmarking.mm */; };
 		8E8C57AF25EF16E6001CEEFA /* TraceTestViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E8C57AE25EF16E6001CEEFA /* TraceTestViewController.swift */; };
+		924857562C89A86300774AC3 /* MainViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 924857552C89A85F00774AC3 /* MainViewController.swift */; };
 		B70038852BB33E7700065A38 /* ReplaceContentViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B70038842BB33E7700065A38 /* ReplaceContentViewController.swift */; };
 		D80D021329EE93630084393D /* ErrorsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D80D021229EE93630084393D /* ErrorsViewController.swift */; };
 		D80D021A29EE936F0084393D /* ExtraViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D80D021929EE936F0084393D /* ExtraViewController.swift */; };
@@ -53,7 +54,7 @@
 		D8269A3E274C095E00BD5BD5 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8269A3D274C095E00BD5BD5 /* SceneDelegate.swift */; };
 		D8269A43274C095F00BD5BD5 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D8269A41274C095F00BD5BD5 /* Main.storyboard */; };
 		D8269A4E274C09A400BD5BD5 /* SwiftUIViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B4F33FA271EBE0C00C8591E /* SwiftUIViewController.swift */; };
-		D8269A4F274C09A400BD5BD5 /* SwiftUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B4F33F7271EBD2500C8591E /* SwiftUI.swift */; };
+		D8269A4F274C09A400BD5BD5 /* SwiftUIView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B4F33F7271EBD2500C8591E /* SwiftUIView.swift */; };
 		D8269A50274C0F6800BD5BD5 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 637AFDB2243B02770034958B /* Assets.xcassets */; };
 		D8269A51274C0F6C00BD5BD5 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 637AFDB4243B02770034958B /* LaunchScreen.storyboard */; };
 		D8269A52274C0F7200BD5BD5 /* Tongariro.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 7B3427F725876A5200056519 /* Tongariro.jpg */; };
@@ -291,7 +292,7 @@
 		637AFDB7243B02770034958B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		63F93AA9245AC91600A500DB /* iOS-Swift.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "iOS-Swift.entitlements"; sourceTree = "<group>"; };
 		7B3427F725876A5200056519 /* Tongariro.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = Tongariro.jpg; sourceTree = "<group>"; };
-		7B4F33F7271EBD2500C8591E /* SwiftUI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftUI.swift; sourceTree = "<group>"; };
+		7B4F33F7271EBD2500C8591E /* SwiftUIView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftUIView.swift; sourceTree = "<group>"; };
 		7B4F33FA271EBE0C00C8591E /* SwiftUIViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftUIViewController.swift; sourceTree = "<group>"; };
 		7B5525B22938B5B5006A2932 /* DiskWriteException.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiskWriteException.swift; sourceTree = "<group>"; };
 		7B64386826A6C544000D0F65 /* iOS-Swift-UITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "iOS-Swift-UITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -318,6 +319,7 @@
 		84FB8129284001B800F3A94A /* SentryBenchmarking.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = SentryBenchmarking.mm; sourceTree = "<group>"; };
 		84FB812C2840021B00F3A94A /* iOS-Swift-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "iOS-Swift-Bridging-Header.h"; sourceTree = "<group>"; };
 		8E8C57AE25EF16E6001CEEFA /* TraceTestViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TraceTestViewController.swift; sourceTree = "<group>"; };
+		924857552C89A85F00774AC3 /* MainViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainViewController.swift; sourceTree = "<group>"; };
 		B70038842BB33E7700065A38 /* ReplaceContentViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReplaceContentViewController.swift; sourceTree = "<group>"; };
 		D80D021229EE93630084393D /* ErrorsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ErrorsViewController.swift; sourceTree = "<group>"; };
 		D80D021929EE936F0084393D /* ExtraViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExtraViewController.swift; sourceTree = "<group>"; };
@@ -327,6 +329,7 @@
 		D8269A42274C095F00BD5BD5 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		D8269A49274C096000BD5BD5 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		D8269A5C274C108100BD5BD5 /* iOS13-Swift.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "iOS13-Swift.entitlements"; sourceTree = "<group>"; };
+		D82915932C889F1800A6CDD4 /* SentryCocoaPrivate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SentryCocoaPrivate.h; sourceTree = "<group>"; };
 		D83A30DF279F1F5C00372D0A /* fatal-error-binary-images-message2.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = "fatal-error-binary-images-message2.json"; path = "../../../Tests/Resources/fatal-error-binary-images-message2.json"; sourceTree = "<group>"; };
 		D840D520273A07F400CDF142 /* iOS-SwiftClip.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "iOS-SwiftClip.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		D840D522273A07F400CDF142 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -536,11 +539,12 @@
 		D8269A3A274C095E00BD5BD5 /* iOS13-Swift */ = {
 			isa = PBXGroup;
 			children = (
+				924857552C89A85F00774AC3 /* MainViewController.swift */,
 				D8269A5C274C108100BD5BD5 /* iOS13-Swift.entitlements */,
 				D8269A3B274C095E00BD5BD5 /* AppDelegate.swift */,
 				D8269A3D274C095E00BD5BD5 /* SceneDelegate.swift */,
 				7B4F33FA271EBE0C00C8591E /* SwiftUIViewController.swift */,
-				7B4F33F7271EBD2500C8591E /* SwiftUI.swift */,
+				7B4F33F7271EBD2500C8591E /* SwiftUIView.swift */,
 				D8269A41274C095F00BD5BD5 /* Main.storyboard */,
 				D8269A49274C096000BD5BD5 /* Info.plist */,
 				D88E666D28732B6700153425 /* iOS13-Swift-Bridging-Header.h */,
@@ -608,6 +612,7 @@
 				D8F01DF02A1377D0008F4996 /* SentryExposure.h */,
 				D8832B192AF4FE2000C522B0 /* SentryUIApplication.h */,
 				629EC8AC2B0B537400858855 /* TriggerAppHang.swift */,
+				D82915932C889F1800A6CDD4 /* SentryCocoaPrivate.h */,
 			);
 			path = Tools;
 			sourceTree = "<group>";
@@ -996,8 +1001,9 @@
 				D8444E56275F79590042F4DE /* UIViewExtension.swift in Sources */,
 				D8269A57274C0FA100BD5BD5 /* NibViewController.swift in Sources */,
 				D8269A4E274C09A400BD5BD5 /* SwiftUIViewController.swift in Sources */,
-				D8269A4F274C09A400BD5BD5 /* SwiftUI.swift in Sources */,
+				D8269A4F274C09A400BD5BD5 /* SwiftUIView.swift in Sources */,
 				D8444E57275F795D0042F4DE /* UIViewControllerExtension.swift in Sources */,
+				924857562C89A86300774AC3 /* MainViewController.swift in Sources */,
 				D8F3D058274E57D600B56F8C /* TableViewController.swift in Sources */,
 				7B5525B62938B644006A2932 /* DiskWriteException.swift in Sources */,
 				D8269A58274C0FC700BD5BD5 /* TransactionsViewController.swift in Sources */,
@@ -1257,7 +1263,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 8.35.0;
+				MARKETING_VERSION = 8.36.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "io.sentry.sample.iOS-Swift";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "match Development io.sentry.sample.iOS-Swift";
@@ -1286,7 +1292,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 8.35.0;
+				MARKETING_VERSION = 8.36.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "io.sentry.sample.iOS-Swift";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "match AppStore io.sentry.sample.iOS-Swift";
@@ -1935,7 +1941,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 8.35.0;
+				MARKETING_VERSION = 8.36.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "io.sentry.sample.iOS-Swift.Clip";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "match Development io.sentry.sample.iOS-Swift.Clip";
@@ -1970,7 +1976,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 8.35.0;
+				MARKETING_VERSION = 8.36.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "io.sentry.sample.iOS-Swift.Clip";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "match AppStore io.sentry.sample.iOS-Swift.Clip";
