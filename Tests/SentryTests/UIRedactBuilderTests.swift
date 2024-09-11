@@ -185,7 +185,7 @@ class UIRedactBuilderTests: XCTestCase {
         
         let sut = UIRedactBuilder()
         let label = AnotherLabel(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
-        SentrySDK.replay.ignore(label)
+        SentrySDK.replay.ignoreView(label)
         rootView.addSubview(label)
         
         let result = sut.redactRegionsFor(view: rootView, options: RedactOptions())
