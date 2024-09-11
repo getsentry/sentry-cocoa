@@ -8,7 +8,7 @@
 
 ### Refactoring
 
-- Moved session replay API to `SentrySDK.replay` and changed default quality to `medium` ()
+- Moved session replay API to `SentrySDK.replay` and changed default quality to `medium` (#4326)
 
 ### Fixes
 
