@@ -19,8 +19,12 @@ class UIRedactBuilderTests: XCTestCase {
     
     private let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
     
+    func getSut() -> UIRedactBuilder {
+        return UIRedactBuilder(options: RedactOptions())
+    }
+    
     func testNoNeedForRedact() {
-        let sut = UIRedactBuilder()
+        let sut = getSut()
         rootView.addSubview(UIView(frame: CGRect(x: 20, y: 20, width: 40, height: 40)))
         
         let result = sut.redactRegionsFor(view: rootView, options: RedactOptions())
@@ -29,7 +33,7 @@ class UIRedactBuilderTests: XCTestCase {
     }
     
     func testRedactALabel() {
-        let sut = UIRedactBuilder()
+        let sut = getSut()
         let label = UILabel(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
         label.textColor = .purple
         rootView.addSubview(label)
@@ -44,7 +48,7 @@ class UIRedactBuilderTests: XCTestCase {
     }
     
     func testDontRedactALabelOptionDisabled() {
-        let sut = UIRedactBuilder()
+        let sut = getSut()
         let label = UILabel(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
         label.textColor = .purple
         rootView.addSubview(label)
@@ -55,7 +59,7 @@ class UIRedactBuilderTests: XCTestCase {
     }
     
     func testRedactAImage() {
-        let sut = UIRedactBuilder()
+        let sut = getSut()
         
         let image = UIGraphicsImageRenderer(size: CGSize(width: 40, height: 40)).image { context in
             context.fill(CGRect(x: 0, y: 0, width: 40, height: 40))
@@ -73,7 +77,7 @@ class UIRedactBuilderTests: XCTestCase {
     }
     
     func testDontRedactAImageOptionDisabled() {
-        let sut = UIRedactBuilder()
+        let sut = getSut()
         
         let image = UIGraphicsImageRenderer(size: CGSize(width: 40, height: 40)).image { context in
             context.fill(CGRect(x: 0, y: 0, width: 40, height: 40))
@@ -92,7 +96,7 @@ class UIRedactBuilderTests: XCTestCase {
         //The check for bundled image only works for iOS 16 and above
         //For others versions all images will be redacted
         guard #available(iOS 16, *) else { return }
-        let sut = UIRedactBuilder()
+        let sut = getSut()
         
         let imageView = UIImageView(image: .add)
         imageView.frame = CGRect(x: 20, y: 20, width: 40, height: 40)
@@ -104,7 +108,7 @@ class UIRedactBuilderTests: XCTestCase {
     }
     
     func testDontRedactAHiddenView() {
-        let sut = UIRedactBuilder()
+        let sut = getSut()
         let label = UILabel(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
         label.isHidden = true
         rootView.addSubview(label)
@@ -115,7 +119,7 @@ class UIRedactBuilderTests: XCTestCase {
     }
     
     func testDontRedactATransparentView() {
-        let sut = UIRedactBuilder()
+        let sut = getSut()
         let label = UILabel(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
         label.alpha = 0
         rootView.addSubview(label)
@@ -130,7 +134,7 @@ class UIRedactBuilderTests: XCTestCase {
         opaqueView.backgroundColor = .white
         rootView.addSubview(opaqueView)
         
-        let sut = UIRedactBuilder()
+        let sut = getSut()
         let result = sut.redactRegionsFor(view: rootView, options: RedactOptions())
         
         XCTAssertEqual(result.count, 1)
@@ -139,7 +143,7 @@ class UIRedactBuilderTests: XCTestCase {
     }
     
     func testRedactALabelBehindATransparentView() {
-        let sut = UIRedactBuilder()
+        let sut = getSut()
         let label = UILabel(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
         rootView.addSubview(label)
         let topView = UIView(frame: CGRect(x: 10, y: 10, width: 60, height: 60))
@@ -150,7 +154,7 @@ class UIRedactBuilderTests: XCTestCase {
     }
     
     func testIgnoreClasses() {
-        let sut = UIRedactBuilder()
+        let sut = getSut()
         sut.addIgnoreClass(UILabel.self)
         rootView.addSubview(UILabel(frame: CGRect(x: 20, y: 20, width: 40, height: 40)))
         
@@ -162,7 +166,7 @@ class UIRedactBuilderTests: XCTestCase {
         class AnotherView: UIView {
         }
         
-        let sut = UIRedactBuilder()
+        let sut = getSut()
         let view = AnotherView(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
         sut.addRedactClass(AnotherView.self)
         rootView.addSubview(view)
@@ -175,7 +179,7 @@ class UIRedactBuilderTests: XCTestCase {
         class AnotherView: UILabel {
         }
         
-        let sut = UIRedactBuilder()
+        let sut = getSut()
         let view = AnotherView(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
         rootView.addSubview(view)
         
@@ -187,7 +191,7 @@ class UIRedactBuilderTests: XCTestCase {
         class AnotherLabel: UILabel {
         }
         
-        let sut = UIRedactBuilder()
+        let sut = getSut()
         let label = AnotherLabel(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
         SentrySDK.replayIgnore(label)
         rootView.addSubview(label)
@@ -200,7 +204,7 @@ class UIRedactBuilderTests: XCTestCase {
         class AnotherView: UIView {
         }
         
-        let sut = UIRedactBuilder()
+        let sut = getSut()
         let view = AnotherView(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
         SentrySDK.replayRedactView(view)
         rootView.addSubview(view)
@@ -213,7 +217,7 @@ class UIRedactBuilderTests: XCTestCase {
         class AnotherLabel: UILabel {
         }
         
-        let sut = UIRedactBuilder()
+        let sut = getSut()
         let label = AnotherLabel(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
         label.sentryReplayIgnore()
         rootView.addSubview(label)
@@ -226,7 +230,7 @@ class UIRedactBuilderTests: XCTestCase {
         class AnotherView: UIView {
         }
         
-        let sut = UIRedactBuilder()
+        let sut = getSut()
         let view = AnotherView(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
         view.sentryReplayRedact()
         rootView.addSubview(view)
@@ -236,7 +240,7 @@ class UIRedactBuilderTests: XCTestCase {
     }
     
     func testIgnoreViewsBeforeARootSizedView() {
-        let sut = UIRedactBuilder()
+        let sut = getSut()
         let label = UILabel(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
         label.textColor = .purple
         rootView.addSubview(label)
@@ -256,7 +260,7 @@ class UIRedactBuilderTests: XCTestCase {
             "SwiftUI._UIGraphicsView", "SwiftUI.ImageLayer", "UIWebView", "UILabel", "UITextView", "UITextField", "WKWebView"
         ].compactMap { NSClassFromString($0) }
         
-        let sut = UIRedactBuilder()
+        let sut = getSut()
         expectedList.forEach { element in
             XCTAssertTrue(sut.containsRedactClass(element), "\(element) not found")
         }
@@ -265,7 +269,7 @@ class UIRedactBuilderTests: XCTestCase {
     func testIgnoreList() {
         let expectedList = ["UISlider", "UISwitch"].compactMap { NSClassFromString($0) }
         
-        let sut = UIRedactBuilder()
+        let sut = getSut()
         expectedList.forEach { element in
             XCTAssertTrue(sut.containsIgnoreClass(element), "\(element) not found")
         }

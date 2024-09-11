@@ -21,19 +21,20 @@ class DefaultViewRenderer: ViewRenderer {
 
 @objcMembers
 class SentryViewPhotographer: NSObject, SentryViewScreenshotProvider {
-    static let shared = SentryViewPhotographer()
-    private let redactBuilder = UIRedactBuilder()
+    private let redactBuilder: UIRedactBuilder
     private let dispatchQueue = SentryDispatchQueueWrapper()
 
     var renderer: ViewRenderer
         
-    init(renderer: ViewRenderer) {
+    init(renderer: ViewRenderer, redactOptions: SentryRedactOptions) {
         self.renderer = renderer
+        redactBuilder = UIRedactBuilder(options: redactOptions)
         super.init()
     }
     
-    private convenience override init() {
-        self.init(renderer: DefaultViewRenderer())
+    init(redactOptions: SentryRedactOptions) {
+        self.renderer = DefaultViewRenderer()
+        self.redactBuilder = UIRedactBuilder(options: redactOptions)
     }
         
     func image(view: UIView, options: SentryRedactOptions, onComplete: @escaping ScreenshotCallback ) {

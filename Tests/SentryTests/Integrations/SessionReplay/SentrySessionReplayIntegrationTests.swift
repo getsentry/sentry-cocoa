@@ -282,20 +282,21 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         (sut as? SentryReachabilityObserver)?.connectivityChanged(true, typeDescription: "")
         XCTAssertFalse(sut.sessionReplay.isSessionPaused)
     }
-    
-    func testMaskViewFromSDK() {
+  
+    func testMaskViewFromSDK() throws {
         class AnotherLabel: UILabel {
         }
             
         startSDK(sessionSampleRate: 1, errorSampleRate: 1) { options in
             options.experimental.sessionReplay.redactViewTypes = [AnotherLabel.self]
         }
-    
-        let redactBuilder = SentryViewPhotographer.shared.getRedactBuild()
+        
+        let sut = try getSut()
+        let redactBuilder = sut.viewPhotographer.getRedactBuild()
         XCTAssertTrue(redactBuilder.containsRedactClass(AnotherLabel.self))
     }
     
-    func testIgnoreViewFromSDK() {
+    func testIgnoreViewFromSDK() throws {
         class AnotherLabel: UILabel {
         }
             
@@ -303,7 +304,8 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
             options.experimental.sessionReplay.ignoreRedactViewTypes = [AnotherLabel.self]
         }
     
-        let redactBuilder = SentryViewPhotographer.shared.getRedactBuild()
+        let sut = try getSut()
+        let redactBuilder = sut.viewPhotographer.getRedactBuild()
         XCTAssertTrue(redactBuilder.containsIgnoreClass(AnotherLabel.self))
     }
     

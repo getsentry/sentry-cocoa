@@ -44,18 +44,26 @@ class UIRedactBuilder {
     private var ignoreClassesIdentifiers: Set<ObjectIdentifier>
     ///This is a list of UIView subclasses that need to be redacted from screenshot
     private var redactClassesIdentifiers: Set<ObjectIdentifier>
-    
-    init() {
         
-        var redactClasses = [ UILabel.self, UITextView.self, UITextField.self ] +
-        //this classes are used by SwiftUI to display images.
-        ["_TtCOCV7SwiftUI11DisplayList11ViewUpdater8Platform13CGDrawingView",
-         "_TtC7SwiftUIP33_A34643117F00277B93DEBAB70EC0697122_UIShapeHitTestingView",
-         "SwiftUI._UIGraphicsView", "SwiftUI.ImageLayer", "UIWebView"
-        ].compactMap { NSClassFromString($0) }
+    init(options: SentryRedactOptions) {
+        var redactClasses = [AnyClass]()
+        
+        if options.redactAllText {
+            redactClasses += [ UILabel.self, UITextView.self, UITextField.self ]
+        }
+        
+        if options.redactAllImages {
+            //this classes are used by SwiftUI to display images.
+            redactClasses += ["_TtCOCV7SwiftUI11DisplayList11ViewUpdater8Platform13CGDrawingView",
+             "_TtC7SwiftUIP33_A34643117F00277B93DEBAB70EC0697122_UIShapeHitTestingView",
+             "SwiftUI._UIGraphicsView", "SwiftUI.ImageLayer"
+            ].compactMap { NSClassFromString($0) }
+            
+            redactClasses.append(UIImageView.self)
+        }
         
 #if os(iOS)
-        redactClasses += [ WKWebView.self ]
+        redactClasses += [ WKWebView.self, UIWebView.self ]
         ignoreClassesIdentifiers = [ ObjectIdentifier(UISlider.self), ObjectIdentifier(UISwitch.self) ]
 #else
         ignoreClassesIdentifiers = []
@@ -118,7 +126,6 @@ class UIRedactBuilder {
         self.mapRedactRegion(fromView: view,
                              redacting: &redactingRegions,
                              rootFrame: view.frame,
-                             redactOptions: options ?? SentryReplayOptions(),
                              transform: CGAffineTransform.identity)
         
         return redactingRegions.reversed()
@@ -128,14 +135,14 @@ class UIRedactBuilder {
         return SentryRedactViewHelper.shouldIgnoreView(view) || containsIgnoreClass(type(of: view))
     }
     
-    private func shouldRedact(view: UIView, redactOptions: SentryRedactOptions) -> Bool {
+    private func shouldRedact(view: UIView) -> Bool {
         if SentryRedactViewHelper.shouldRedactView(view) {
             return true
         }
-        if redactOptions.redactAllImages, let imageView = view as? UIImageView {
+        if let imageView = view as? UIImageView, containsRedactClass(UIImageView.self) {
             return shouldRedact(imageView: imageView)
         }
-        return redactOptions.redactAllText && containsRedactClass(type(of: view))
+        return containsRedactClass(type(of: view))
     }
     
     private func shouldRedact(imageView: UIImageView) -> Bool {
@@ -145,15 +152,15 @@ class UIRedactBuilder {
         return image.imageAsset?.value(forKey: "_containingBundle") == nil
     }
     
-    private func mapRedactRegion(fromView view: UIView, redacting: inout [RedactRegion], rootFrame: CGRect, redactOptions: SentryRedactOptions, transform: CGAffineTransform) {
-        guard (redactOptions.redactAllImages || redactOptions.redactAllText) && !view.isHidden && view.alpha != 0 else { return }
+    private func mapRedactRegion(fromView view: UIView, redacting: inout [RedactRegion], rootFrame: CGRect, transform: CGAffineTransform) {
+        guard !redactClassesIdentifiers.isEmpty && !view.isHidden && view.alpha != 0 else { return }
         
         let layer = view.layer.presentation() ?? view.layer
         
         let newTransform = concatenateTranform(transform, with: layer)
         
         let ignore = shouldIgnore(view: view)
-        let redact = shouldRedact(view: view, redactOptions: redactOptions)
+        let redact = shouldRedact(view: view)
         
         if !ignore && redact {
             redacting.append(RedactRegion(size: layer.bounds.size, transform: newTransform, type: .redact, color: self.color(for: view)))
@@ -178,7 +185,7 @@ class UIRedactBuilder {
             redacting.append(RedactRegion(size: layer.bounds.size, transform: newTransform, type: .clipEnd))
         }
         for subview in view.subviews {
-            mapRedactRegion(fromView: subview, redacting: &redacting, rootFrame: rootFrame, redactOptions: redactOptions, transform: newTransform)
+            mapRedactRegion(fromView: subview, redacting: &redacting, rootFrame: rootFrame, transform: newTransform)
         }
         if view.clipsToBounds {
             redacting.append(RedactRegion(size: layer.bounds.size, transform: newTransform, type: .clipBegin))

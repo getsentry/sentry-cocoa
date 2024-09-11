@@ -5,12 +5,15 @@
 #if SENTRY_TARGET_REPLAY_SUPPORTED
 
 @class SentrySessionReplay;
+@class SentryViewPhotographer;
 
 @interface
 SentrySessionReplayIntegration () <SentryIntegrationProtocol, SentrySessionListener,
     SentrySessionReplayDelegate>
 
 @property (nonatomic, strong) SentrySessionReplay *sessionReplay;
+
+@property (nonatomic, strong) SentryViewPhotographer *viewPhotographer;
 
 @end
 

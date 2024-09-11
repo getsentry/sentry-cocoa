@@ -54,7 +54,8 @@ SentrySessionReplayIntegration () <SentryReachabilityObserver>
     }
 
     _replayOptions = options.experimental.sessionReplay;
-
+    _viewPhotographer = [[SentryViewPhotographer alloc] initWithRedactOptions:options.experimental.sessionReplay];
+    
     if (options.enableSwizzling) {
         _touchTracker = [[SentryTouchTracker alloc]
             initWithDateProvider:SentryDependencyContainer.sharedInstance.dateProvider
@@ -77,8 +78,8 @@ SentrySessionReplayIntegration () <SentryReachabilityObserver>
         }];
 
     [SentryDependencyContainer.sharedInstance.reachability addObserver:self];
-    [SentryViewPhotographer.shared addIgnoreClasses:_replayOptions.ignoreRedactViewTypes];
-    [SentryViewPhotographer.shared addRedactClasses:_replayOptions.redactViewTypes];
+    [_viewPhotographer addIgnoreClasses:_replayOptions.ignoreRedactViewTypes];
+    [_viewPhotographer addRedactClasses:_replayOptions.redactViewTypes];
 
     return YES;
 }
@@ -221,7 +222,7 @@ SentrySessionReplayIntegration () <SentryReachabilityObserver>
              fullSession:(BOOL)shouldReplayFullSession
 {
     [self startWithOptions:replayOptions
-         screenshotProvider:SentryViewPhotographer.shared
+         screenshotProvider:_viewPhotographer
         breadcrumbConverter:[[SentrySRDefaultBreadcrumbConverter alloc] init]
                 fullSession:shouldReplayFullSession];
 }
