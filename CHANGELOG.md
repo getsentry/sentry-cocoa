@@ -10,7 +10,7 @@
 
 - Resumes replay when the app becomes active (#4303)
 - Session replay redact view with transformation (#4308)
-- Don't redact clipped views ()
+- Don't redact clipped views (#4325)
 
 ## 8.36.0
 
