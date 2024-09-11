@@ -87,7 +87,7 @@ jobs:
           xcodebuild
           -project Samples/watchOS-Swift/watchOS-Swift.xcodeproj
           -scheme "watchOS-Swift WatchKit Extension"
-          -destination "watch Simulator""
+          -destination "watch Simulator"
           -configuration Debug
           CODE_SIGNING_ALLOWED="NO"
           build
