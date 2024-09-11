@@ -274,7 +274,7 @@ SentrySessionReplayIntegration () <SentryReachabilityObserver>
               fullSession:[self shouldReplayFullSession:replayOptions.sessionSampleRate]];
 
     [_notificationCenter addObserver:self
-                            selector:@selector(stop)
+                            selector:@selector(pause)
                                 name:UIApplicationDidEnterBackgroundNotification
                               object:nil];
 
@@ -370,6 +370,10 @@ SentrySessionReplayIntegration () <SentryReachabilityObserver>
     [SentrySDK.currentHub unregisterSessionListener:self];
     _touchTracker = nil;
     [self pause];
+    
+    if (_installedInstance == self) {
+        _installedInstance = nil;
+    }
 }
 
 - (void)dealloc
