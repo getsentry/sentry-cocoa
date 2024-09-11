@@ -8,8 +8,20 @@ import WebKit
 #endif
 
 enum RedactRegionType {
-    case clip
+    /// Redacts the region.
     case redact
+    
+    /// Marks a region to not draw anything.
+    /// This is used for opaque views.
+    case clipOut
+    
+    /// Push a clip region to the drawing context.
+    /// This is used for views that clip to its bounds.
+    case clipBegin
+    
+    /// Pop the last Pushed region from the drawing context.
+    /// Used after prossing every child of a view that clip to its bounds.
+    case clipEnd
 }
 
 struct RedactRegion {
@@ -137,40 +149,58 @@ class UIRedactBuilder {
         guard (redactOptions.redactAllImages || redactOptions.redactAllText) && !view.isHidden && view.alpha != 0 else { return }
         
         let layer = view.layer.presentation() ?? view.layer
-        let size = layer.bounds.size
-        let layerMiddle = CGPoint(x: size.width * layer.anchorPoint.x, y: size.height * layer.anchorPoint.y)
         
-        var newTransform = transform.translatedBy(x: layer.position.x, y: layer.position.y)
-        newTransform = view.transform.concatenating(newTransform)
-        newTransform = newTransform.translatedBy(x: -layerMiddle.x, y: -layerMiddle.y)
+        let newTransform = concatenateTranform(transform, with: layer)
         
         let ignore = shouldIgnore(view: view)
         let redact = shouldRedact(view: view, redactOptions: redactOptions)
         
         if !ignore && redact {
-            redacting.append(RedactRegion(size: size, transform: newTransform, type: .redact, color: self.color(for: view)))
+            redacting.append(RedactRegion(size: layer.bounds.size, transform: newTransform, type: .redact, color: self.color(for: view)))
             return
-        } else if isOpaque(view) {
-            let finalViewFrame = CGRect(origin: .zero, size: size).applying(newTransform)
+        }
+        
+        if isOpaque(view) {
+            let finalViewFrame = CGRect(origin: .zero, size: layer.bounds.size).applying(newTransform)
             if isAxisAligned(newTransform) && finalViewFrame == rootFrame {
                 //Because the current view is covering everything we found so far we can clear `redacting` list
                 redacting.removeAll()
             } else {
-                redacting.append(RedactRegion(size: size, transform: newTransform, type: .clip))
+                redacting.append(RedactRegion(size: layer.bounds.size, transform: newTransform, type: .clipOut))
             }
         }
         
-        if !ignore {
-            for subview in view.subviews {
-                mapRedactRegion(fromView: subview, redacting: &redacting, rootFrame: rootFrame, redactOptions: redactOptions, transform: newTransform)
-            }
+        guard !ignore else { return }
+        
+        if view.clipsToBounds {
+            /// Because the order in which we process the redacted regions is reversed, we add the end of the clip region first.
+            /// The beginning will be added after all the subviews have been mapped.
+            redacting.append(RedactRegion(size: layer.bounds.size, transform: newTransform, type: .clipEnd))
         }
+        for subview in view.subviews {
+            mapRedactRegion(fromView: subview, redacting: &redacting, rootFrame: rootFrame, redactOptions: redactOptions, transform: newTransform)
+        }
+        if view.clipsToBounds {
+            redacting.append(RedactRegion(size: layer.bounds.size, transform: newTransform, type: .clipBegin))
+        }
+    }
+    
+    /**
+     Apply the layer transformation and position to given transformation.
+     */
+    private func concatenateTranform(_ transform: CGAffineTransform, with layer: CALayer) -> CGAffineTransform {
+        let size = layer.bounds.size
+        let layerMiddle = CGPoint(x: size.width * layer.anchorPoint.x, y: size.height * layer.anchorPoint.y)
+        
+        var newTransform = transform.translatedBy(x: layer.position.x, y: layer.position.y)
+        newTransform = CATransform3DGetAffineTransform(layer.transform).concatenating(newTransform)
+        return newTransform.translatedBy(x: -layerMiddle.x, y: -layerMiddle.y)
     }
     
     /**
      Whether the transform does not contains rotation or skew
      */
-    func isAxisAligned(_ transform: CGAffineTransform) -> Bool {
+    private func isAxisAligned(_ transform: CGAffineTransform) -> Bool {
         // Rotation exists if b or c are not zero
         return transform.b == 0 && transform.c == 0
     }

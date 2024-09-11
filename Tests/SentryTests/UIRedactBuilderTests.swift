@@ -134,7 +134,7 @@ class UIRedactBuilderTests: XCTestCase {
         let result = sut.redactRegionsFor(view: rootView, options: RedactOptions())
         
         XCTAssertEqual(result.count, 1)
-        XCTAssertEqual(result.first?.type, .clip)
+        XCTAssertEqual(result.first?.type, .clipOut)
         XCTAssertEqual(result.first?.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 10, ty: 10))
     }
     
