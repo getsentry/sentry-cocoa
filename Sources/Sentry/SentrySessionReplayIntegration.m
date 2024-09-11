@@ -370,7 +370,7 @@ SentrySessionReplayIntegration () <SentryReachabilityObserver>
     [SentrySDK.currentHub unregisterSessionListener:self];
     _touchTracker = nil;
     [self pause];
-    
+
     if (_installedInstance == self) {
         _installedInstance = nil;
     }
