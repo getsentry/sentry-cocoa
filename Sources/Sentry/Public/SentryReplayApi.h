@@ -12,14 +12,14 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SentryReplay : NSObject
+@interface SentryReplayApi : NSObject
 
 /**
  * Marks this view to be redacted during replays.
  *
  * @warning This is an experimental feature and may still have bugs.
  */
-- (void)replayRedactView:(UIView *)view;
+- (void)redactView:(UIView *)view;
 
 /**
  * Marks this view to be ignored during redact step of session replay.
@@ -27,7 +27,7 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * @warning This is an experimental feature and may still have bugs.
  */
-- (void)replayIgnoreView:(UIView *)view;
+- (void)ignoreView:(UIView *)view;
 
 /**
  * Pauses the replay.

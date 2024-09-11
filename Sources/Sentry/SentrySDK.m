@@ -17,7 +17,7 @@
 #import "SentryMeta.h"
 #import "SentryOptions+Private.h"
 #import "SentryProfilingConditionals.h"
-#import "SentryReplay.h"
+#import "SentryReplayApi.h"
 #import "SentrySamplingContext.h"
 #import "SentryScope.h"
 #import "SentrySerialization.h"
@@ -96,11 +96,11 @@ static NSDate *_Nullable startTimestamp = nil;
     }
 }
 #if SENTRY_TARGET_REPLAY_SUPPORTED
-+ (SentryReplay *)replay
++ (SentryReplayApi *)replay
 {
-    static SentryReplay *replay;
+    static SentryReplayApi *replay;
     static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{ replay = [[SentryReplay alloc] init]; });
+    dispatch_once(&onceToken, ^{ replay = [[SentryReplayApi alloc] init]; });
     return replay;
 }
 #endif

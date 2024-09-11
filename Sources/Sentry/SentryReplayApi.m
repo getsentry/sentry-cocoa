@@ -1,4 +1,4 @@
-#import "SentryReplay.h"
+#import "SentryReplayApi.h"
 
 #if SENTRY_TARGET_REPLAY_SUPPORTED
 
@@ -6,14 +6,14 @@
 #    import "SentrySwift.h"
 #    import <UIKit/UIKit.h>
 
-@implementation SentryReplay
+@implementation SentryReplayApi
 
-- (void)replayRedactView:(UIView *)view
+- (void)redactView:(UIView *)view
 {
     [SentryRedactViewHelper redactView:view];
 }
 
-- (void)replayIgnoreView:(UIView *)view
+- (void)ignoreView:(UIView *)view
 {
     [SentryRedactViewHelper ignoreView:view];
 }

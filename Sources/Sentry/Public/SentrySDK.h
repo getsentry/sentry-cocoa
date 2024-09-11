@@ -6,7 +6,7 @@
     SentryUserFeedback, SentryTransactionContext;
 @class SentryMetricsAPI;
 @class UIView;
-@class SentryReplay;
+@class SentryReplayApi;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -33,7 +33,7 @@ SENTRY_NO_INIT
 /**
  * API to control session replay
  */
-@property (class, nonatomic, readonly) SentryReplay *replay;
+@property (class, nonatomic, readonly) SentryReplayApi *replay;
 #endif
 
 /**
