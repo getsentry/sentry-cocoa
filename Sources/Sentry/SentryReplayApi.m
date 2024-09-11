@@ -5,6 +5,8 @@
 #    import "SentrySessionReplayIntegration.h"
 #    import "SentrySwift.h"
 #    import <UIKit/UIKit.h>
+#    import "SentryHub+Private.h"
+#    import "SentrySDK+Private.h"
 
 @implementation SentryReplayApi
 
@@ -20,12 +22,14 @@
 
 - (void)pause
 {
-    [SentrySessionReplayIntegration.installed pause];
+    SentrySessionReplayIntegration * replayIntegration = [SentrySDK.currentHub getInstalledIntegration:SentrySessionReplayIntegration.class];
+    [replayIntegration pause];
 }
 
 - (void)resume
 {
-    [SentrySessionReplayIntegration.installed resume];
+    SentrySessionReplayIntegration * replayIntegration = [SentrySDK.currentHub getInstalledIntegration:SentrySessionReplayIntegration.class];
+    [replayIntegration resume];
 }
 
 @end
