@@ -17,6 +17,7 @@
 #import "SentryMeta.h"
 #import "SentryOptions+Private.h"
 #import "SentryProfilingConditionals.h"
+#import "SentryReplay.h"
 #import "SentrySamplingContext.h"
 #import "SentryScope.h"
 #import "SentrySerialization.h"
@@ -93,6 +94,14 @@ static NSDate *_Nullable startTimestamp = nil;
     @synchronized(startOptionsLock) {
         return startOption;
     }
+}
+
++ (SentryReplay *)replay
+{
+    static SentryReplay *replay;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{ replay = [[SentryReplay alloc] init]; });
+    return replay;
 }
 
 /** Internal, only needed for testing. */
@@ -575,18 +584,6 @@ static NSDate *_Nullable startTimestamp = nil;
     [SentryContinuousProfiler stop];
 }
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
-
-#if SENTRY_TARGET_REPLAY_SUPPORTED
-+ (void)replayRedactView:(UIView *)view
-{
-    [SentryRedactViewHelper redactView:view];
-}
-
-+ (void)replayIgnoreView:(UIView *)view
-{
-    [SentryRedactViewHelper ignoreView:view];
-}
-#endif
 
 @end
 

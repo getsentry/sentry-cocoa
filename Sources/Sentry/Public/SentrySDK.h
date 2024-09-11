@@ -6,6 +6,7 @@
     SentryUserFeedback, SentryTransactionContext;
 @class SentryMetricsAPI;
 @class UIView;
+@class SentryReplay;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -27,6 +28,13 @@ SENTRY_NO_INIT
 @property (class, nonatomic, readonly) BOOL isEnabled;
 
 @property (class, nonatomic, readonly) SentryMetricsAPI *metrics;
+
+#if SENTRY_TARGET_REPLAY_SUPPORTED
+/**
+ * API to control session replay
+ */
+@property (class, nonatomic, readonly) SentryReplay *replay;
+#endif
 
 /**
  * Inits and configures Sentry (SentryHub, SentryClient) and sets up all integrations. Make sure to
@@ -333,25 +341,6 @@ SENTRY_NO_INIT
  * @c SentryOptions.shutdownTimeInterval .
  */
 + (void)close;
-
-#if SENTRY_TARGET_REPLAY_SUPPORTED
-
-/**
- * @warning This is an experimental feature and may still have bugs.
- *
- * Marks this view to be redacted during replays.
- */
-+ (void)replayRedactView:(UIView *)view;
-
-/**
- * @warning This is an experimental feature and may still have bugs.
- *
- * Marks this view to be ignored during redact step
- * of session replay. All its content will be visible in the replay.
- */
-+ (void)replayIgnoreView:(UIView *)view;
-
-#endif
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 /**

@@ -96,7 +96,7 @@ class SentrySessionReplay: NSObject {
         delegate?.sessionReplayStarted(replayId: sessionReplayId)
     }
 
-    func pause() {
+    func pauseSessionMode() {
         lock.lock()
         defer { lock.unlock() }
         
@@ -104,7 +104,7 @@ class SentrySessionReplay: NSObject {
         self.videoSegmentStart = nil
     }
     
-    func stop() {
+    func pause() {
         lock.lock()
         defer { lock.unlock() }
         
@@ -185,7 +185,7 @@ class SentrySessionReplay: NSObject {
         
         if let sessionStart = sessionStart, isFullSession && now.timeIntervalSince(sessionStart) > replayOptions.maximumDuration {
             reachedMaximumDuration = true
-            stop()
+            pause()
             return
         }
 

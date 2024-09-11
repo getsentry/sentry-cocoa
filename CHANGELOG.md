@@ -6,6 +6,10 @@
 
 - Added `thermal_state` to device context (#4305)
 
+### Refactoring
+
+- Moved session replay API to `SentrySDK.replay` and changed default quality to `medium` ()
+
 ### Fixes
 
 - Resumes replay when the app becomes active (#4303)
