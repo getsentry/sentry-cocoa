@@ -95,7 +95,7 @@ static NSDate *_Nullable startTimestamp = nil;
         return startOption;
     }
 }
-
+#if SENTRY_TARGET_REPLAY_SUPPORTED
 + (SentryReplay *)replay
 {
     static SentryReplay *replay;
@@ -103,7 +103,7 @@ static NSDate *_Nullable startTimestamp = nil;
     dispatch_once(&onceToken, ^{ replay = [[SentryReplay alloc] init]; });
     return replay;
 }
-
+#endif
 /** Internal, only needed for testing. */
 + (void)setCurrentHub:(nullable SentryHub *)hub
 {
