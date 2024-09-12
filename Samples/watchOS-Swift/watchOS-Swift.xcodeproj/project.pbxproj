@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 52;
+	objectVersion = 54;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -21,6 +21,7 @@
 		7B82C4A524C98A96002CA6D1 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7B82C4A424C98A96002CA6D1 /* Preview Assets.xcassets */; };
 		7B82C4C624C993E6002CA6D1 /* Sentry.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7B82C4BA24C98CFC002CA6D1 /* Sentry.xcframework */; };
 		7B82C4C724C993E6002CA6D1 /* Sentry.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 7B82C4BA24C98CFC002CA6D1 /* Sentry.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		84BA72BB2C9369D70045B828 /* GitInjections.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BA72B92C9369D70045B828 /* GitInjections.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -97,6 +98,7 @@
 		7B82C4BA24C98CFC002CA6D1 /* Sentry.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = Sentry.xcframework; path = libs/Sentry.xcframework; sourceTree = "<group>"; };
 		7B82C4BF24C99340002CA6D1 /* Sentry.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = Sentry.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		7B82C4C224C9939A002CA6D1 /* Sentry.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = Sentry.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		84BA72B92C9369D70045B828 /* GitInjections.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GitInjections.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -114,6 +116,7 @@
 		7B82C47824C98A93002CA6D1 = {
 			isa = PBXGroup;
 			children = (
+				84BA72BA2C9369D70045B828 /* Shared */,
 				7B82C48724C98A93002CA6D1 /* watchOS-Swift WatchKit App */,
 				7B82C49624C98A95002CA6D1 /* watchOS-Swift WatchKit Extension */,
 				7B82C48024C98A93002CA6D1 /* Products */,
@@ -177,6 +180,15 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		84BA72BA2C9369D70045B828 /* Shared */ = {
+			isa = PBXGroup;
+			children = (
+				84BA72B92C9369D70045B828 /* GitInjections.swift */,
+			);
+			name = Shared;
+			path = ../Shared;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -220,8 +232,10 @@
 			buildPhases = (
 				7B82C48E24C98A95002CA6D1 /* Sources */,
 				7B82C48F24C98A95002CA6D1 /* Frameworks */,
+				84BA72A32C9368660045B828 /* Inject Git information into Info.plist */,
 				7B82C49024C98A95002CA6D1 /* Resources */,
 				7B82C4C824C993E6002CA6D1 /* Embed Frameworks */,
+				84BA72A42C9368670045B828 /* Reset Git fields in Info.plist */,
 			);
 			buildRules = (
 			);
@@ -302,6 +316,45 @@
 		};
 /* End PBXResourcesBuildPhase section */
 
+/* Begin PBXShellScriptBuildPhase section */
+		84BA72A32C9368660045B828 /* Inject Git information into Info.plist */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Inject Git information into Info.plist";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "../Shared/inject-git-info.sh\n";
+		};
+		84BA72A42C9368670045B828 /* Reset Git fields in Info.plist */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Reset Git fields in Info.plist";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "../Shared/reset-git-info.sh\n";
+		};
+/* End PBXShellScriptBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
 		7B82C48E24C98A95002CA6D1 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
@@ -311,6 +364,7 @@
 				7B82C49824C98A95002CA6D1 /* ContentView.swift in Sources */,
 				7B82C49E24C98A95002CA6D1 /* NotificationController.swift in Sources */,
 				7B82C49C24C98A95002CA6D1 /* ExtensionDelegate.swift in Sources */,
+				84BA72BB2C9369D70045B828 /* GitInjections.swift in Sources */,
 				7B82C4A024C98A95002CA6D1 /* NotificationView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
