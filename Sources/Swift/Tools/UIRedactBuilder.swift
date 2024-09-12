@@ -71,17 +71,17 @@ class UIRedactBuilder {
             redactClasses += ["_TtCOCV7SwiftUI11DisplayList11ViewUpdater8Platform13CGDrawingView",
              "_TtC7SwiftUIP33_A34643117F00277B93DEBAB70EC0697122_UIShapeHitTestingView",
              "SwiftUI._UIGraphicsView", "SwiftUI.ImageLayer"
-            ].compactMap { NSClassFromString($0) }
+            ].compactMap(NSClassFromString(_:))
             
             redactClasses.append(UIImageView.self)
         }
         
 #if os(iOS)
-        redactClasses += [ WKWebView.self]
-#if !targetEnvironment(macCatalyst)
-        redactClasses += [ UIWebView.self ]
-#endif
-        
+        redactClasses += [ WKWebView.self ]
+
+        //If we try to use 'UIWebView.self' it will crash for macCatalyst, but the class does exists.
+        redactClasses += [ "UIWebView" ].compactMap(NSClassFromString(_:))
+
         ignoreClassesIdentifiers = [ ObjectIdentifier(UISlider.self), ObjectIdentifier(UISwitch.self) ]
 #else
         ignoreClassesIdentifiers = []
