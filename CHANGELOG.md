@@ -17,6 +17,7 @@
 - Session replay redact view with transformation (#4308)
 - Don't redact clipped views (#4325)
 - Double-quoted include, expected angle-bracketed instead (#4298)
+- Stop using `redactAllText` as an indicator tha redact is enabled (#4327)
 
 ## 8.36.0
 
