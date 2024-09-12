@@ -1,5 +1,10 @@
-#import "SentryDefines.h"
-#import "SentryProfilingConditionals.h"
+#if __has_include(<Sentry/Sentry.h>)
+#    import <Sentry/SentryDefines.h>
+#    import <Sentry/SentryProfilingConditionals.h>
+#else
+#    import <SentryWithoutUIKit/SentryDefines.h>
+#    import <SentryWithoutUIKit/SentryProfilingConditionals.h>
+#endif
 
 NS_ASSUME_NONNULL_BEGIN
 
