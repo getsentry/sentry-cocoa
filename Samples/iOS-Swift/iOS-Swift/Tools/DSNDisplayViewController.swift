@@ -1,5 +1,3 @@
-import Anchorage
-import SwiftMessages
 import UIKit
 
 let fontSize: CGFloat = 12
@@ -7,7 +5,7 @@ let fontSize: CGFloat = 12
 func addDSNDisplay(_ vc: UIViewController, vcview: UIView) {
     let dsnVC = DSNDisplayViewController(nibName: nil, bundle: nil)
     vcview.addSubview(dsnVC.view)
-    dsnVC.view.edgeAnchors == vcview.edgeAnchors
+    dsnVC.view.matchEdgeAnchors(from: vcview)
     vc.addChild(dsnVC)
 }
 
@@ -49,8 +47,9 @@ class DSNDisplayViewController: UIViewController {
         ])
         
         view.addSubview(stack)
-        stack.edgeAnchors == view.edgeAnchors
-        buttonStack.widthAnchor == view.widthAnchor / 3
+        stack.matchEdgeAnchors(from: view, leadingPad: 20)
+        buttonStack.translatesAutoresizingMaskIntoConstraints = false
+        buttonStack.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.3).isActive = true
     }
     
     required init?(coder: NSCoder) {
@@ -71,12 +70,12 @@ class DSNDisplayViewController: UIViewController {
                 do {
                     try DSNStorage.shared.saveDSN(dsn: dsn)
                     DispatchQueue.main.async {
-                        showToast(in: self.view, type: .success, message: "DSN changed!")
+                        showToast(in: self, type: .success, message: "DSN changed!")
                     }
                 } catch {
                     SentrySDK.capture(error: error)
                     DispatchQueue.main.async {
-                        showToast(in: self.view, type: .error, message: error.localizedDescription)
+                        showToast(in: self, type: .error, message: error.localizedDescription)
                     }
                 }
                 DispatchQueue.main.async {
@@ -84,14 +83,14 @@ class DSNDisplayViewController: UIViewController {
                 }
             }
         } else {
-            showToast(in: self.view, type: .warning, message: "Invalid DSN, reverting to the default.")
+            showToast(in: self, type: .warning, message: "Invalid DSN, reverting to the default.")
             self.dispatchQueue.async {
                 do {
                     try DSNStorage.shared.deleteDSN()
                 } catch {
                     SentrySDK.capture(error: error)
                     DispatchQueue.main.async {
-                        showToast(in: self.view, type: .error, message: error.localizedDescription)
+                        showToast(in: self, type: .error, message: error.localizedDescription)
                     }
                 }
                 DispatchQueue.main.async {
@@ -122,12 +121,12 @@ class DSNDisplayViewController: UIViewController {
             do {
                 try DSNStorage.shared.deleteDSN()
                 DispatchQueue.main.async {
-                    showToast(in: self.view, type: .success, message: "DSN reset to default!")
+                    showToast(in: self, type: .success, message: "DSN reset to default!")
                 }
             } catch {
                 SentrySDK.capture(error: error)
                 DispatchQueue.main.async {
-                    showToast(in: self.view, type: .error, message: "Failed to reset DSN: \(error)")
+                    showToast(in: self, type: .error, message: "Failed to reset DSN: \(error)")
                 }
             }
             DispatchQueue.main.async {
@@ -143,7 +142,7 @@ class DSNDisplayViewController: UIViewController {
         } catch {
             SentrySDK.capture(error: error)
             DispatchQueue.main.async {
-                showToast(in: self.view, type: .error, message: "Failed to read DSN: \(error)")
+                showToast(in: self, type: .error, message: "Failed to read DSN: \(error)")
             }
         }
     }

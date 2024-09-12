@@ -38,16 +38,12 @@
 		84B527B928DD24BA00475E8D /* SentryDeviceTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 84B527B728DD24BA00475E8D /* SentryDeviceTests.mm */; };
 		84B527BD28DD25E400475E8D /* SentryDevice.mm in Sources */ = {isa = PBXBuildFile; fileRef = 84B527BC28DD25E400475E8D /* SentryDevice.mm */; };
 		84BA71E42C8BBBEC0045B828 /* DSNDisplayViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BA71E32C8BBBEC0045B828 /* DSNDisplayViewController.swift */; };
-		84BA72A72C93698E0045B828 /* GitInjections.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BA72A52C93698E0045B828 /* GitInjections.swift */; };
-		84BA71EC2C8BC3B90045B828 /* SwiftMessages in Frameworks */ = {isa = PBXBuildFile; productRef = 84BA71EB2C8BC3B90045B828 /* SwiftMessages */; };
-		84BA71EF2C8BC3C40045B828 /* Anchorage in Frameworks */ = {isa = PBXBuildFile; productRef = 84BA71EE2C8BC3C40045B828 /* Anchorage */; };
 		84BA71F12C8BC55A0045B828 /* Toasts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BA71F02C8BC55A0045B828 /* Toasts.swift */; };
 		84BA71F22C8F73FD0045B828 /* DSNDisplayViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BA71E32C8BBBEC0045B828 /* DSNDisplayViewController.swift */; };
+		84BA71F32C8F74080045B828 /* Toasts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BA71F02C8BC55A0045B828 /* Toasts.swift */; };
+		84BA72A72C93698E0045B828 /* GitInjections.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BA72A52C93698E0045B828 /* GitInjections.swift */; };
 		84BA72A82C93698E0045B828 /* GitInjections.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BA72A52C93698E0045B828 /* GitInjections.swift */; };
 		84BA72DE2C9391920045B828 /* GitInjections.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BA72A52C93698E0045B828 /* GitInjections.swift */; };
-		84BA71F32C8F74080045B828 /* Toasts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BA71F02C8BC55A0045B828 /* Toasts.swift */; };
-		84BA71F52C8F74660045B828 /* SwiftMessages in Frameworks */ = {isa = PBXBuildFile; productRef = 84BA71F42C8F74660045B828 /* SwiftMessages */; };
-		84BA71F72C8F74660045B828 /* Anchorage in Frameworks */ = {isa = PBXBuildFile; productRef = 84BA71F62C8F74660045B828 /* Anchorage */; };
 		84BE546F287503F100ACC735 /* SentrySDKPerformanceBenchmarkTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 84BE546E287503F100ACC735 /* SentrySDKPerformanceBenchmarkTests.m */; };
 		84BE547E287645B900ACC735 /* SentryProcessInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = 84BE54792876451D00ACC735 /* SentryProcessInfo.m */; };
 		84FB812A284001B800F3A94A /* SentryBenchmarking.mm in Sources */ = {isa = PBXBuildFile; fileRef = 84FB8129284001B800F3A94A /* SentryBenchmarking.mm */; };
@@ -389,8 +385,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				84BA71EF2C8BC3C40045B828 /* Anchorage in Frameworks */,
-				84BA71EC2C8BC3B90045B828 /* SwiftMessages in Frameworks */,
 				630853532440C60F00DDE4CE /* Sentry.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -415,8 +409,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				D8269A59274C100300BD5BD5 /* Sentry.framework in Frameworks */,
-				84BA71F72C8F74660045B828 /* Anchorage in Frameworks */,
-				84BA71F52C8F74660045B828 /* SwiftMessages in Frameworks */,
 				D8105B61297E824C00299F03 /* SentrySwiftUI.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -688,8 +680,6 @@
 			);
 			name = "iOS-Swift";
 			packageProductDependencies = (
-				84BA71EB2C8BC3B90045B828 /* SwiftMessages */,
-				84BA71EE2C8BC3C40045B828 /* Anchorage */,
 			);
 			productName = "iOS-Swift";
 			productReference = 637AFDA6243B02760034958B /* iOS-Swift.app */;
@@ -754,8 +744,6 @@
 			);
 			name = "iOS13-Swift";
 			packageProductDependencies = (
-				84BA71F42C8F74660045B828 /* SwiftMessages */,
-				84BA71F62C8F74660045B828 /* Anchorage */,
 			);
 			productName = "iOS13-Swift";
 			productReference = D8269A39274C095E00BD5BD5 /* iOS13-Swift.app */;
@@ -842,8 +830,6 @@
 			);
 			mainGroup = 637AFD9D243B02760034958B;
 			packageReferences = (
-				84BA71EA2C8BC3B90045B828 /* XCRemoteSwiftPackageReference "SwiftMessages" */,
-				84BA71ED2C8BC3C40045B828 /* XCRemoteSwiftPackageReference "Anchorage" */,
 			);
 			productRefGroup = 637AFDA7243B02760034958B /* Products */;
 			projectDirPath = "";
@@ -2275,48 +2261,6 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
-
-/* Begin XCRemoteSwiftPackageReference section */
-		84BA71EA2C8BC3B90045B828 /* XCRemoteSwiftPackageReference "SwiftMessages" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/SwiftKickMobile/SwiftMessages";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 9.0.9;
-			};
-		};
-		84BA71ED2C8BC3C40045B828 /* XCRemoteSwiftPackageReference "Anchorage" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/Rightpoint/Anchorage";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 4.5.0;
-			};
-		};
-/* End XCRemoteSwiftPackageReference section */
-
-/* Begin XCSwiftPackageProductDependency section */
-		84BA71EB2C8BC3B90045B828 /* SwiftMessages */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 84BA71EA2C8BC3B90045B828 /* XCRemoteSwiftPackageReference "SwiftMessages" */;
-			productName = SwiftMessages;
-		};
-		84BA71EE2C8BC3C40045B828 /* Anchorage */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 84BA71ED2C8BC3C40045B828 /* XCRemoteSwiftPackageReference "Anchorage" */;
-			productName = Anchorage;
-		};
-		84BA71F42C8F74660045B828 /* SwiftMessages */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 84BA71EA2C8BC3B90045B828 /* XCRemoteSwiftPackageReference "SwiftMessages" */;
-			productName = SwiftMessages;
-		};
-		84BA71F62C8F74660045B828 /* Anchorage */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 84BA71ED2C8BC3C40045B828 /* XCRemoteSwiftPackageReference "Anchorage" */;
-			productName = Anchorage;
-		};
-/* End XCSwiftPackageProductDependency section */
 
 /* Begin XCVersionGroup section */
 		D845F35927BAD4CC00A4D7A2 /* SentryData.xcdatamodeld */ = {
