@@ -12,6 +12,10 @@ struct VisionOSSwiftApp: App {
             options.profilesSampleRate = 1.0
             options.attachScreenshot = true
             options.attachViewHierarchy = true
+            options.initialScope = { scope in
+                scope.injectGitInformation()
+                return scope
+            }
         }
     }
 

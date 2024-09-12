@@ -14,7 +14,7 @@ extension Bundle {
 }
 
 extension Scope {
-    func injectGitInformation() {
+    @objc public func injectGitInformation() {
         if let commitHash = Bundle.main.gitCommitHash {
             setTag(value: "\(commitHash)\(Bundle.main.gitStatusClean ? "" : "-dirty")", key: "git-commit-hash")
         }
