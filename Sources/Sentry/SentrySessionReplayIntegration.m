@@ -61,8 +61,9 @@ SentrySessionReplayIntegration () <SentryReachabilityObserver>
     }
 
     _replayOptions = options.experimental.sessionReplay;
-    _viewPhotographer = [[SentryViewPhotographer alloc] initWithRedactOptions:options.experimental.sessionReplay];
-    
+    _viewPhotographer =
+        [[SentryViewPhotographer alloc] initWithRedactOptions:options.experimental.sessionReplay];
+
     if (options.enableSwizzling) {
         _touchTracker = [[SentryTouchTracker alloc]
             initWithDateProvider:SentryDependencyContainer.sharedInstance.dateProvider
