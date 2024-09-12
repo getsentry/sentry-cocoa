@@ -86,9 +86,7 @@ SentrySessionReplayIntegration () <SentryReachabilityObserver>
         }];
 
     [SentryDependencyContainer.sharedInstance.reachability addObserver:self];
-    [_viewPhotographer addIgnoreClasses:_replayOptions.ignoreRedactViewTypes];
-    [_viewPhotographer addRedactClasses:_replayOptions.redactViewTypes];
-
+    
     _installedInstance = self;
     return YES;
 }

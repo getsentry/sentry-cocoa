@@ -45,6 +45,20 @@ class UIRedactBuilder {
     ///This is a list of UIView subclasses that need to be redacted from screenshot
     private var redactClassesIdentifiers: Set<ObjectIdentifier>
         
+    /**
+     Initializes a new instance of the redaction process with specified options.
+
+     This initializer configures which `UIView` subclasses should be redacted from screenshots and which should be ignored during the redaction process.
+
+     - parameter options: A `SentryRedactOptions` object that specifies the configuration for the redaction process.
+     
+     - If `options.redactAllText` is `true`, common text-related views such as `UILabel`, `UITextView`, and `UITextField` are redacted.
+     - If `options.redactAllImages` is `true`, common image-related views such as `UIImageView` and various internal `SwiftUI` image views are redacted.
+     - The `options.ignoreRedactViewTypes` allows specifying custom view types to be ignored during the redaction process.
+     - The `options.redactViewTypes` allows specifying additional custom view types to be redacted.
+
+     - note: On iOS, views such as `WKWebView` and `UIWebView` are automatically redacted, and controls like `UISlider` and `UISwitch` are ignored.
+     */
     init(options: SentryRedactOptions) {
         var redactClasses = [AnyClass]()
         
@@ -68,7 +82,16 @@ class UIRedactBuilder {
 #else
         ignoreClassesIdentifiers = []
 #endif
+        
         redactClassesIdentifiers = Set(redactClasses.map({ ObjectIdentifier($0) }))
+        
+        for type in options.ignoreRedactViewTypes {
+            self.ignoreClassesIdentifiers.insert(ObjectIdentifier(type))
+        }
+        
+        for type in options.redactViewTypes {
+            self.redactClassesIdentifiers.insert(ObjectIdentifier(type))
+        }
     }
     
     func containsIgnoreClass(_ ignoreClass: AnyClass) -> Bool {

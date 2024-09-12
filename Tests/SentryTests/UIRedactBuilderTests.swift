@@ -5,17 +5,21 @@ import SentryTestUtils
 import UIKit
 import XCTest
 
-class UIRedactBuilderTests: XCTestCase {
+class RedactOptions: SentryRedactOptions {
+    var redactViewTypes: [AnyClass]
+    var ignoreRedactViewTypes: [AnyClass]
+    var redactAllText: Bool
+    var redactAllImages: Bool
     
-    private class RedactOptions: SentryRedactOptions {
-        var redactAllText: Bool
-        var redactAllImages: Bool
-        
-        init(redactAllText: Bool = true, redactAllImages: Bool = true) {
-            self.redactAllText = redactAllText
-            self.redactAllImages = redactAllImages
-        }
+    init(redactAllText: Bool = true, redactAllImages: Bool = true) {
+        self.redactAllText = redactAllText
+        self.redactAllImages = redactAllImages
+        redactViewTypes = []
+        ignoreRedactViewTypes = []
     }
+}
+
+class UIRedactBuilderTests: XCTestCase {
     
     private let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
     
