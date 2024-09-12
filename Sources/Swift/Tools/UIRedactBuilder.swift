@@ -79,7 +79,7 @@ class UIRedactBuilder {
 #if os(iOS)
         redactClasses += [ WKWebView.self ]
 
-        //If we try to use 'UIWebView.self' it will crash for macCatalyst, but the class does exists.
+        //If we try to use 'UIWebView.self' it will not compile for macCatalyst, but the class does exists.
         redactClasses += [ "UIWebView" ].compactMap(NSClassFromString(_:))
 
         ignoreClassesIdentifiers = [ ObjectIdentifier(UISlider.self), ObjectIdentifier(UISwitch.self) ]
