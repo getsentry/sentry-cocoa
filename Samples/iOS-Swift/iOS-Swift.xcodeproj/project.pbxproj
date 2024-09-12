@@ -38,10 +38,13 @@
 		84B527B928DD24BA00475E8D /* SentryDeviceTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 84B527B728DD24BA00475E8D /* SentryDeviceTests.mm */; };
 		84B527BD28DD25E400475E8D /* SentryDevice.mm in Sources */ = {isa = PBXBuildFile; fileRef = 84B527BC28DD25E400475E8D /* SentryDevice.mm */; };
 		84BA71E42C8BBBEC0045B828 /* DSNDisplayViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BA71E32C8BBBEC0045B828 /* DSNDisplayViewController.swift */; };
+		84BA72A72C93698E0045B828 /* GitInjections.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BA72A52C93698E0045B828 /* GitInjections.swift */; };
 		84BA71EC2C8BC3B90045B828 /* SwiftMessages in Frameworks */ = {isa = PBXBuildFile; productRef = 84BA71EB2C8BC3B90045B828 /* SwiftMessages */; };
 		84BA71EF2C8BC3C40045B828 /* Anchorage in Frameworks */ = {isa = PBXBuildFile; productRef = 84BA71EE2C8BC3C40045B828 /* Anchorage */; };
 		84BA71F12C8BC55A0045B828 /* Toasts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BA71F02C8BC55A0045B828 /* Toasts.swift */; };
 		84BA71F22C8F73FD0045B828 /* DSNDisplayViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BA71E32C8BBBEC0045B828 /* DSNDisplayViewController.swift */; };
+		84BA72A82C93698E0045B828 /* GitInjections.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BA72A52C93698E0045B828 /* GitInjections.swift */; };
+		84BA72DE2C9391920045B828 /* GitInjections.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BA72A52C93698E0045B828 /* GitInjections.swift */; };
 		84BA71F32C8F74080045B828 /* Toasts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BA71F02C8BC55A0045B828 /* Toasts.swift */; };
 		84BA71F52C8F74660045B828 /* SwiftMessages in Frameworks */ = {isa = PBXBuildFile; productRef = 84BA71F42C8F74660045B828 /* SwiftMessages */; };
 		84BA71F72C8F74660045B828 /* Anchorage in Frameworks */ = {isa = PBXBuildFile; productRef = 84BA71F62C8F74660045B828 /* Anchorage */; };
@@ -322,6 +325,7 @@
 		84B527BC28DD25E400475E8D /* SentryDevice.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = SentryDevice.mm; path = ../../../Sources/Sentry/SentryDevice.mm; sourceTree = "<group>"; };
 		84BA71E32C8BBBEC0045B828 /* DSNDisplayViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DSNDisplayViewController.swift; sourceTree = "<group>"; };
 		84BA71F02C8BC55A0045B828 /* Toasts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Toasts.swift; sourceTree = "<group>"; };
+		84BA72A52C93698E0045B828 /* GitInjections.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GitInjections.swift; sourceTree = "<group>"; };
 		84BE546E287503F100ACC735 /* SentrySDKPerformanceBenchmarkTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentrySDKPerformanceBenchmarkTests.m; sourceTree = "<group>"; };
 		84BE54782876451D00ACC735 /* SentryProcessInfo.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SentryProcessInfo.h; sourceTree = "<group>"; };
 		84BE54792876451D00ACC735 /* SentryProcessInfo.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentryProcessInfo.m; sourceTree = "<group>"; };
@@ -458,6 +462,7 @@
 		637AFD9D243B02760034958B = {
 			isa = PBXGroup;
 			children = (
+				84BA72A62C93698E0045B828 /* Shared */,
 				848A2576286E3490008A8858 /* PerformanceBenchmarks */,
 				6308532C2440C44F00DDE4CE /* Sentry.xcodeproj */,
 				637AFDA8243B02760034958B /* iOS-Swift */,
@@ -548,6 +553,15 @@
 				84ACC43B2A73CB5900932A18 /* ProfilingNetworkScanner.swift */,
 			);
 			path = Profiling;
+			sourceTree = "<group>";
+		};
+		84BA72A62C93698E0045B828 /* Shared */ = {
+			isa = PBXGroup;
+			children = (
+				84BA72A52C93698E0045B828 /* GitInjections.swift */,
+			);
+			name = Shared;
+			path = ../Shared;
 			sourceTree = "<group>";
 		};
 		D8269A3A274C095E00BD5BD5 /* iOS13-Swift */ = {
@@ -660,9 +674,11 @@
 			buildPhases = (
 				637AFDA2243B02760034958B /* Sources */,
 				637AFDA3243B02760034958B /* Frameworks */,
+				84BA71F92C8F7F920045B828 /* Inject Git information into Info.plist */,
 				637AFDA4243B02760034958B /* Resources */,
 				630853552440C60F00DDE4CE /* Embed Frameworks */,
 				D840D535273A07F600CDF142 /* Embed App Clips */,
+				84BA720D2C8FA48D0045B828 /* Reset Git fields in Info.plist */,
 			);
 			buildRules = (
 			);
@@ -727,8 +743,10 @@
 			buildPhases = (
 				D8269A35274C095E00BD5BD5 /* Sources */,
 				D8269A36274C095E00BD5BD5 /* Frameworks */,
+				84BA720A2C8F9DEB0045B828 /* Inject Git information into Info.plist */,
 				D8269A37274C095E00BD5BD5 /* Resources */,
 				D8269A5B274C100300BD5BD5 /* Embed Frameworks */,
+				84BA720B2C8FA3E60045B828 /* Reset Git fields in Info.plist */,
 			);
 			buildRules = (
 			);
@@ -749,8 +767,10 @@
 			buildPhases = (
 				D840D51C273A07F400CDF142 /* Sources */,
 				D840D51D273A07F400CDF142 /* Frameworks */,
+				84BA72DF2C93919C0045B828 /* Inject Git information into Info.plist */,
 				D840D51E273A07F400CDF142 /* Resources */,
 				D8B56CF2273A8D97004DF238 /* Embed Frameworks */,
+				84BA72E02C93919D0045B828 /* Reset Git fields in Info.plist */,
 			);
 			buildRules = (
 			);
@@ -952,6 +972,117 @@
 		};
 /* End PBXResourcesBuildPhase section */
 
+/* Begin PBXShellScriptBuildPhase section */
+		84BA71F92C8F7F920045B828 /* Inject Git information into Info.plist */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Inject Git information into Info.plist";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "../Shared/inject-git-info.sh\n";
+		};
+		84BA720A2C8F9DEB0045B828 /* Inject Git information into Info.plist */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Inject Git information into Info.plist";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "../Shared/inject-git-info.sh\n";
+		};
+		84BA720B2C8FA3E60045B828 /* Reset Git fields in Info.plist */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Reset Git fields in Info.plist";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "../Shared/reset-git-info.sh\n";
+		};
+		84BA720D2C8FA48D0045B828 /* Reset Git fields in Info.plist */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Reset Git fields in Info.plist";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "../Shared/reset-git-info.sh\n";
+		};
+		84BA72DF2C93919C0045B828 /* Inject Git information into Info.plist */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Inject Git information into Info.plist";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "../Shared/inject-git-info.sh\n";
+		};
+		84BA72E02C93919D0045B828 /* Reset Git fields in Info.plist */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Reset Git fields in Info.plist";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "../Shared/reset-git-info.sh\n";
+		};
+/* End PBXShellScriptBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
 		637AFDA2243B02760034958B /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
@@ -966,6 +1097,7 @@
 				0AABE2EA28855FF80057ED69 /* PermissionsViewController.swift in Sources */,
 				84BA71E42C8BBBEC0045B828 /* DSNDisplayViewController.swift in Sources */,
 				7B5525B32938B5B5006A2932 /* DiskWriteException.swift in Sources */,
+				84BA72A72C93698E0045B828 /* GitInjections.swift in Sources */,
 				D8F3D062274EBD4800B56F8C /* SpanExtension.swift in Sources */,
 				637AFDAA243B02760034958B /* AppDelegate.swift in Sources */,
 				D8F57BC527BBD787000D09D4 /* CoreDataViewController.swift in Sources */,
@@ -1032,6 +1164,7 @@
 				D8269A4E274C09A400BD5BD5 /* SwiftUIViewController.swift in Sources */,
 				D8269A4F274C09A400BD5BD5 /* SwiftUIView.swift in Sources */,
 				D8444E57275F795D0042F4DE /* UIViewControllerExtension.swift in Sources */,
+				84BA72A82C93698E0045B828 /* GitInjections.swift in Sources */,
 				924857562C89A86300774AC3 /* MainViewController.swift in Sources */,
 				D8F3D058274E57D600B56F8C /* TableViewController.swift in Sources */,
 				7B5525B62938B644006A2932 /* DiskWriteException.swift in Sources */,
@@ -1061,6 +1194,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				84BA72DE2C9391920045B828 /* GitInjections.swift in Sources */,
 				D840D527273A07F400CDF142 /* ViewController.swift in Sources */,
 				D840D523273A07F400CDF142 /* AppDelegate.swift in Sources */,
 				D840D525273A07F400CDF142 /* SceneDelegate.swift in Sources */,

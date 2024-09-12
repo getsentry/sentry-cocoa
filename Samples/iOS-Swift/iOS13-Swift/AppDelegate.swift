@@ -23,6 +23,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             if ProcessInfo.processInfo.arguments.contains("--io.sentry.profiling.enable") {
                 options.profilesSampleRate = 1
             }
+            options.initialScope = { scope in
+                scope.injectGitInformation()
+                return scope
+            }
         }
     }
 

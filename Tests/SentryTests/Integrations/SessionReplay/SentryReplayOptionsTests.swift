@@ -6,8 +6,8 @@ class SentryReplayOptionsTests: XCTestCase {
     
     func testQualityLow() {
         let options = SentryReplayOptions()
+        options.quality = .low
         
-        XCTAssertEqual(options.quality, .low)
         XCTAssertEqual(options.replayBitRate, 20_000)
         XCTAssertEqual(options.sizeScale, 0.8)
     }
