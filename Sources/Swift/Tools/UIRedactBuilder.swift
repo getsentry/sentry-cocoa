@@ -77,7 +77,11 @@ class UIRedactBuilder {
         }
         
 #if os(iOS)
-        redactClasses += [ WKWebView.self, UIWebView.self ]
+        redactClasses += [ WKWebView.self]
+#if !targetEnvironment(macCatalyst)
+        redactClasses += [ UIWebView.self ]
+#endif
+        
         ignoreClassesIdentifiers = [ ObjectIdentifier(UISlider.self), ObjectIdentifier(UISwitch.self) ]
 #else
         ignoreClassesIdentifiers = []
