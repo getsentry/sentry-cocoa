@@ -40,7 +40,7 @@ class SentryViewPhotographer: NSObject, SentryViewScreenshotProvider {
     func image(view: UIView, options: SentryRedactOptions, onComplete: @escaping ScreenshotCallback ) {
         let image = renderer.render(view: view)
         
-        let redact = redactBuilder.redactRegionsFor(view: view, options: options)
+        let redact = redactBuilder.redactRegionsFor(view: view)
         let imageSize = view.bounds.size
         dispatchQueue.dispatchAsync {
             let screenshot = UIGraphicsImageRenderer(size: imageSize, format: .init(for: .init(displayScale: 1))).image { context in

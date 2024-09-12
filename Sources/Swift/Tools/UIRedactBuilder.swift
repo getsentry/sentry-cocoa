@@ -120,7 +120,7 @@ class UIRedactBuilder {
      
      This function returns the redaction regions in reverse order from what was found in the view hierarchy, allowing the processing of regions from top to bottom. This ensures that clip regions are applied first before drawing a redact mask on lower views.
      */
-    func redactRegionsFor(view: UIView, options: SentryRedactOptions?) -> [RedactRegion] {
+    func redactRegionsFor(view: UIView) -> [RedactRegion] {
         var redactingRegions = [RedactRegion]()
         
         self.mapRedactRegion(fromView: view,
