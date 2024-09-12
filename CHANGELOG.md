@@ -2,10 +2,20 @@
 
 ## Unreleased
 
+### Features
+
+- Added `thermal_state` to device context (#4305)
+
+### Refactoring
+
+- Moved session replay API to `SentrySDK.replay` (#4326)
+- Changed default session replay quality to `medium` (#4326)
+
 ### Fixes
 
 - Resumes replay when the app becomes active (#4303)
 - Session replay for crash not created because of a race condition (#4314)
+- Double-quoted include, expected angle-bracketed instead (#4298)
 
 ## 8.36.0
 

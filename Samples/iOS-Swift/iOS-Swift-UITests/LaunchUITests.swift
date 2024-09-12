@@ -92,6 +92,20 @@ class LaunchUITests: BaseUITest {
         XCTAssertTrue(0.5 > frozenFramesPercentage, "Too many frozen frames.")
     }
     
+    func testCorruptEnvelope() {
+        // This is to prevent https://github.com/getsentry/sentry-cocoa/issues/4280
+        // Tapping "Corrupt Envelope" will try to capture an envelope but it closes the app
+        // in the middle of the process. For 8.33.0 this would generate a corrupted envelope.
+        // 8.35.0+ reverts to writing envelopes atomically, so that in this scenario no envelope is written, as is expected.
+        // By opening the app again we can check whether the SDK can handle such scenario.
+        app.buttons["Corrupt Envelope"].tap()
+        app.tabBars.firstMatch.waitForNonExistence("The app did not closed")
+        
+        app.launch()
+        app.waitForExistence("App did not open again")
+        XCTAssertEqual(app.state, .runningForeground)
+    }
+    
     func testCheckTotalFrames() {
         app.buttons["Extra"].tap()
         

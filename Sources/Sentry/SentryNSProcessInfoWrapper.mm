@@ -45,4 +45,9 @@
     return NSProcessInfo.processInfo.processorCount;
 }
 
+- (NSProcessInfoThermalState)thermalState
+{
+    return NSProcessInfo.processInfo.thermalState;
+}
+
 @end

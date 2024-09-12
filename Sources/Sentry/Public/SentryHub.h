@@ -1,5 +1,11 @@
-#import "SentryDefines.h"
-#import "SentrySpanProtocol.h"
+
+#if __has_include(<Sentry/Sentry.h>)
+#    import <Sentry/SentryDefines.h>
+#    import <Sentry/SentrySpanProtocol.h>
+#else
+#    import <SentryWithoutUIKit/SentryDefines.h>
+#    import <SentryWithoutUIKit/SentrySpanProtocol.h>
+#endif
 
 @class SentryEvent, SentryClient, SentryScope, SentryUser, SentryBreadcrumb, SentryId,
     SentryUserFeedback, SentryTransactionContext;
