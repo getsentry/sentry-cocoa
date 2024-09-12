@@ -260,7 +260,7 @@ class SentrySessionReplayTests: XCTestCase {
         fixture.dateProvider.advance(by: 1)
         Dynamic(sut).newFrame(nil)
         XCTAssertNotNil(fixture.screenshotProvider.lastImageCall)
-        sut.pause()
+        sut.pauseSessionMode()
         fixture.screenshotProvider.lastImageCall = nil
         
         fixture.dateProvider.advance(by: 1)
@@ -292,7 +292,7 @@ class SentrySessionReplayTests: XCTestCase {
         
         Dynamic(sut).newFrame(nil)
         XCTAssertNotNil(fixture.screenshotProvider.lastImageCall)
-        sut.pause()
+        sut.pauseSessionMode()
         fixture.screenshotProvider.lastImageCall = nil
         
         fixture.dateProvider.advance(by: 1)

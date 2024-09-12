@@ -10,6 +10,10 @@ struct SwiftUIApp: App {
             options.debug = true
             options.tracesSampleRate = 1.0
             options.profilesSampleRate = 1.0
+            options.initialScope = { scope in
+                scope.injectGitInformation()
+                return scope
+            }
         }
     }
     
