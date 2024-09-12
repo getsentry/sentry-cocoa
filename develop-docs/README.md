@@ -6,11 +6,6 @@ This page contains internal documentation for development.
 
 To use Swift in the project take a look at [Swift Usage](Swift-Usage.md) documentation.
 
-## Sample app tags
-
-To help pinpoint where to look to debug an issue we see on our Sentry dashboard for the `sentry-sdks` project for events coming from our sample apps, each sample app injects some information from the build environment automatically. 
-- The Git commit hash, branch name and working index status at build time into its Info.plist, which is then accessed on app launch and injected into the initial scope during options configuration in the call to `SentrySDK.startWithOptions`. These then show up as tags in the event detail named `git-branch-name` and `git-commit-hash`. Some apps weren't instrumented yet:
-    - tvOS-SBSwift and iOS15-Swift, as those use plist generation from build settings, and that doesn't work with the current strategy implemented with the scripts
 ## Code Signing
 
 This repository follows the [codesiging.guide](https://codesigning.guide/) in combination with [fastlane match](https://docs.fastlane.tools/actions/match/).
