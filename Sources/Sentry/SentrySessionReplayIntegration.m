@@ -86,7 +86,7 @@ SentrySessionReplayIntegration () <SentryReachabilityObserver>
         }];
 
     [SentryDependencyContainer.sharedInstance.reachability addObserver:self];
-    
+
     _installedInstance = self;
     return YES;
 }
