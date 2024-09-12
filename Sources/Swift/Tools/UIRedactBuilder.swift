@@ -150,7 +150,9 @@ class UIRedactBuilder {
         if !ignore && redact {
             redacting.append(RedactRegion(size: size, transform: newTransform, type: .redact, color: self.color(for: view)))
             return
-        } else if isOpaque(view) {
+        }
+        
+        if isOpaque(view) {
             let finalViewFrame = CGRect(origin: .zero, size: size).applying(newTransform)
             if isAxisAligned(newTransform) && finalViewFrame == rootFrame {
                 //Because the current view is covering everything we found so far we can clear `redacting` list
