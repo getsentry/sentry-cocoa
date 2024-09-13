@@ -177,7 +177,7 @@ class UIRedactBuilder {
             /// The beginning will be added after all the subviews have been mapped.
             redacting.append(RedactRegion(size: layer.bounds.size, transform: newTransform, type: .clipEnd))
         }
-        for subview in view.subviews {
+        for subview in view.subviews.sorted(by: { $0.layer.zPosition < $1.layer.zPosition }) {
             mapRedactRegion(fromView: subview, redacting: &redacting, rootFrame: rootFrame, redactOptions: redactOptions, transform: newTransform)
         }
         if view.clipsToBounds {
