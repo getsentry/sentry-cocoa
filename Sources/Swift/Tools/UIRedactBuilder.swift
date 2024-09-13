@@ -204,6 +204,8 @@ class UIRedactBuilder {
             }
         }
         
+        guard view.subviews.count > 0 else { return }
+        
         if view.clipsToBounds {
             /// Because the order in which we process the redacted regions is reversed, we add the end of the clip region first.
             /// The beginning will be added after all the subviews have been mapped.
