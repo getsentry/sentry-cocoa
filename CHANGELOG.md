@@ -15,6 +15,7 @@
 
 - Resumes replay when the app becomes active (#4303)
 - Session replay redact view with transformation (#4308)
+- Don't redact clipped views (#4325)
 - Double-quoted include, expected angle-bracketed instead (#4298)
 
 ## 8.36.0

@@ -46,25 +46,32 @@ class SentryViewPhotographer: NSObject, SentryViewScreenshotProvider {
                 
                 context.cgContext.addRect(CGRect(origin: CGPoint.zero, size: imageSize))
                 context.cgContext.clip(using: .evenOdd)
+                UIColor.blue.setStroke()
                 
                 context.cgContext.interpolationQuality = .none
                 image.draw(at: .zero)
                 
                 for region in redact {
-                    context.cgContext.saveGState()
-                    context.cgContext.concatenate(region.transform)
-                    
                     let rect = CGRect(origin: CGPoint.zero, size: region.size)
+                    var transform = region.transform
+                    let path = CGPath(rect: rect, transform: &transform)
+                    
                     switch region.type {
                     case .redact:
-                        (region.color ?? UIImageHelper.averageColor(of: context.currentImage, at: rect)).setFill()
-                        context.fill(rect)
-                        context.cgContext.restoreGState()
-                    case .clip:
+                        (region.color ?? UIImageHelper.averageColor(of: context.currentImage, at: rect.applying(region.transform))).setFill()
+                        context.cgContext.addPath(path)
+                        context.cgContext.fillPath()
+                    case .clipOut:
                         context.cgContext.addRect(context.cgContext.boundingBoxOfClipPath)
-                        context.cgContext.addRect(rect)
-                        context.cgContext.restoreGState()
+                        context.cgContext.addPath(path)
                         context.cgContext.clip(using: .evenOdd)
+                    case .clipBegin:
+                        context.cgContext.saveGState()
+                        context.cgContext.resetClip()
+                        context.cgContext.addPath(path)
+                        context.cgContext.clip()
+                    case .clipEnd:
+                        context.cgContext.restoreGState()
                     }
                 }
             }
