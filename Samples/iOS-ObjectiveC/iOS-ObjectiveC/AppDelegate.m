@@ -1,9 +1,11 @@
 #import "AppDelegate.h"
 @import CoreData;
 @import Sentry;
+
+#import "iOS_ObjectiveC-Swift.h"
+
 @interface
 AppDelegate ()
-
 @end
 
 @implementation AppDelegate
@@ -34,6 +36,7 @@ AppDelegate ()
 
         options.initialScope = ^(SentryScope *scope) {
             [scope setTagValue:@"" forKey:@""];
+            [scope injectGitInformation];
             return scope;
         };
     }];

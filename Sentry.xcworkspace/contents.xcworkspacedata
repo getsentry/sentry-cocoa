@@ -5,6 +5,9 @@
       location = "container:"
       name = "Samples">
       <FileRef
+         location = "group:Samples/Shared">
+      </FileRef>
+      <FileRef
          location = "group:Samples/README.md">
       </FileRef>
       <FileRef

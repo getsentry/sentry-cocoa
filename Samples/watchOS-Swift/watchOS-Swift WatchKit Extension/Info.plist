@@ -20,6 +20,12 @@
 	<string>1.0</string>
 	<key>CFBundleVersion</key>
 	<string>1</string>
+    <key>GIT_BRANCH</key>
+    <string>&lt;branch&gt;</string>
+    <key>GIT_COMMIT_HASH</key>
+    <string>&lt;sha&gt;</string>
+    <key>GIT_STATUS_CLEAN</key>
+    <string>&lt;status&gt;</string>
 	<key>NSExtension</key>
 	<dict>
 		<key>NSExtensionAttributes</key>
