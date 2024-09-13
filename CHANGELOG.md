@@ -15,6 +15,7 @@
 
 - Resumes replay when the app becomes active (#4303)
 - Session replay redact view with transformation (#4308)
+- Correct redact UIView with higher zPosition (#4309) 
 - Don't redact clipped views (#4325)
 - Double-quoted include, expected angle-bracketed instead (#4298)
 
