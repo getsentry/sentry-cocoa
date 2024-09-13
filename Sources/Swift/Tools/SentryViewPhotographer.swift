@@ -1,6 +1,7 @@
 #if canImport(UIKit) && !SENTRY_NO_UIKIT
 #if os(iOS) || os(tvOS)
 
+@_implementationOnly import _SentryPrivate
 import CoreGraphics
 import Foundation
 import UIKit
@@ -22,6 +23,7 @@ class DefaultViewRenderer: ViewRenderer {
 class SentryViewPhotographer: NSObject, SentryViewScreenshotProvider {
     static let shared = SentryViewPhotographer()
     private let redactBuilder = UIRedactBuilder()
+    private let dispatchQueue = SentryDispatchQueueWrapper()
 
     var renderer: ViewRenderer
         
@@ -37,32 +39,39 @@ class SentryViewPhotographer: NSObject, SentryViewScreenshotProvider {
     func image(view: UIView, options: SentryRedactOptions, onComplete: @escaping ScreenshotCallback ) {
         let image = renderer.render(view: view)
         
-        let redact = redactBuilder.redactRegionsFor(view: view, options: options).reversed()
+        let redact = redactBuilder.redactRegionsFor(view: view, options: options)
         let imageSize = view.bounds.size
-        DispatchQueue.global().async {
+        dispatchQueue.dispatchAsync {
             let screenshot = UIGraphicsImageRenderer(size: imageSize, format: .init(for: .init(displayScale: 1))).image { context in
                 
                 context.cgContext.addRect(CGRect(origin: CGPoint.zero, size: imageSize))
                 context.cgContext.clip(using: .evenOdd)
+                UIColor.blue.setStroke()
                 
                 context.cgContext.interpolationQuality = .none
                 image.draw(at: .zero)
                 
                 for region in redact {
-                    context.cgContext.saveGState()
-                    context.cgContext.concatenate(region.transform)
-                    
                     let rect = CGRect(origin: CGPoint.zero, size: region.size)
+                    var transform = region.transform
+                    let path = CGPath(rect: rect, transform: &transform)
+                    
                     switch region.type {
                     case .redact:
-                        (region.color ?? UIImageHelper.averageColor(of: context.currentImage, at: rect)).setFill()
-                        context.fill(rect)
-                        context.cgContext.restoreGState()
-                    case .clip:
+                        (region.color ?? UIImageHelper.averageColor(of: context.currentImage, at: rect.applying(region.transform))).setFill()
+                        context.cgContext.addPath(path)
+                        context.cgContext.fillPath()
+                    case .clipOut:
                         context.cgContext.addRect(context.cgContext.boundingBoxOfClipPath)
-                        context.cgContext.addRect(rect)
-                        context.cgContext.restoreGState()
+                        context.cgContext.addPath(path)
                         context.cgContext.clip(using: .evenOdd)
+                    case .clipBegin:
+                        context.cgContext.saveGState()
+                        context.cgContext.resetClip()
+                        context.cgContext.addPath(path)
+                        context.cgContext.clip()
+                    case .clipEnd:
+                        context.cgContext.restoreGState()
                     }
                 }
             }

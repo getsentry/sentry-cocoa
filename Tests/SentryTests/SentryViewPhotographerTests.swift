@@ -154,6 +154,42 @@ class SentryViewPhotographerTests: XCTestCase {
         assertColor(pixel2, .green)
     }
     
+    func testDontRedactClippedLabel() throws {
+        let label = UILabel(frame: CGRect(x: 0, y: 25, width: 50, height: 25))
+        label.text = "Test"
+        
+        let labelParent = UIView(frame: CGRect(x: 0, y: 0, width: 50, height: 25))
+        labelParent.backgroundColor = .green
+        labelParent.clipsToBounds = true
+        labelParent.addSubview(label)
+        
+        let image = try XCTUnwrap(prepare(views: [labelParent]))
+        let pixel1 = color(at: CGPoint(x: 10, y: 10), in: image)
+        
+        assertColor(pixel1, .green)
+        
+        let pixel2 = color(at: CGPoint(x: 10, y: 30), in: image)
+        assertColor(pixel2, .white)
+    }
+    
+    func testRedactLabelInsideClippedView() throws {
+        let label = UILabel(frame: CGRect(x: 0, y: 0, width: 50, height: 25))
+        label.text = "Test"
+        
+        let labelParent = UIView(frame: CGRect(x: 0, y: 0, width: 50, height: 25))
+        labelParent.backgroundColor = .green
+        labelParent.clipsToBounds = true
+        labelParent.addSubview(label)
+        
+        let image = try XCTUnwrap(prepare(views: [labelParent]))
+        let pixel1 = color(at: CGPoint(x: 10, y: 10), in: image)
+        
+        assertColor(pixel1, .black)
+        
+        let pixel2 = color(at: CGPoint(x: 10, y: 30), in: image)
+        assertColor(pixel2, .white)
+    }
+    
     private func assertColor(_ color1: UIColor, _ color2: UIColor) {
         let sRGBColor1 = color1.cgColor.converted(to: CGColorSpace(name: CGColorSpace.sRGB)!, intent: .defaultIntent, options: nil)
         let sRGBColor2 = color2.cgColor.converted(to: CGColorSpace(name: CGColorSpace.sRGB)!, intent: .defaultIntent, options: nil)

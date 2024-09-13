@@ -122,7 +122,7 @@ class SentryScreenShotTests: XCTestCase {
     class TestWindow: UIWindow {
         var onDrawHierarchy: (() -> Void)?
         
-        override func drawHierarchy(in size: CGRect, afterScreenUpdates afterUpdates: Bool) -> Bool {
+        override func drawHierarchy(in rect: CGRect, afterScreenUpdates afterUpdates: Bool) -> Bool {
             onDrawHierarchy?()
             return true
         }

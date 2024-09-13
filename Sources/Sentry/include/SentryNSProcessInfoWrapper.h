@@ -7,6 +7,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, readonly) NSString *processDirectoryPath;
 @property (nullable, nonatomic, readonly) NSString *processPath;
 @property (readonly) NSUInteger processorCount;
+@property (readonly) NSProcessInfoThermalState thermalState;
 
 #if defined(TEST) || defined(TESTCI) || defined(DEBUG)
 - (void)setProcessPath:(NSString *)path;

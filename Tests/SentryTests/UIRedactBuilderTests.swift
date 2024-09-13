@@ -134,7 +134,7 @@ class UIRedactBuilderTests: XCTestCase {
         let result = sut.redactRegionsFor(view: rootView, options: RedactOptions())
         
         XCTAssertEqual(result.count, 1)
-        XCTAssertEqual(result.first?.type, .clip)
+        XCTAssertEqual(result.first?.type, .clipOut)
         XCTAssertEqual(result.first?.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 10, ty: 10))
     }
     
@@ -189,7 +189,7 @@ class UIRedactBuilderTests: XCTestCase {
         
         let sut = UIRedactBuilder()
         let label = AnotherLabel(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
-        SentrySDK.replayIgnore(label)
+        SentrySDK.replay.ignoreView(label)
         rootView.addSubview(label)
         
         let result = sut.redactRegionsFor(view: rootView, options: RedactOptions())
@@ -202,7 +202,7 @@ class UIRedactBuilderTests: XCTestCase {
         
         let sut = UIRedactBuilder()
         let view = AnotherView(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
-        SentrySDK.replayRedactView(view)
+        SentrySDK.replay.redactView(view)
         rootView.addSubview(view)
         
         let result = sut.redactRegionsFor(view: rootView, options: RedactOptions())
@@ -233,6 +233,21 @@ class UIRedactBuilderTests: XCTestCase {
         
         let result = sut.redactRegionsFor(view: rootView, options: RedactOptions())
         XCTAssertEqual(result.count, 1)
+    }
+    
+    func testIgnoreViewsBeforeARootSizedView() {
+        let sut = UIRedactBuilder()
+        let label = UILabel(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
+        label.textColor = .purple
+        rootView.addSubview(label)
+        
+        let overView = UIView(frame: rootView.bounds)
+        overView.backgroundColor = .black
+        rootView.addSubview(overView)
+        
+        let result = sut.redactRegionsFor(view: rootView, options: RedactOptions())
+        
+        XCTAssertEqual(result.count, 0)
     }
     
     func testRedactList() {

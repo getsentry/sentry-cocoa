@@ -65,7 +65,7 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
      * Indicates the quality of the replay.
      * The higher the quality, the higher the CPU and bandwidth usage.
      */
-    public var quality = SentryReplayQuality.low
+    public var quality = SentryReplayQuality.medium
     
     /**
      * A list of custom UIView subclasses that need 
@@ -78,6 +78,7 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
      * A list of custom UIView subclasses to be ignored
      * during masking step of the session replay.
      * The view itself and any child will be ignored and not masked.
+     * This property has precedence over `redactViewTypes`.
      */
     public var ignoreRedactViewTypes = [AnyClass]()
     

@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="32700.99.1234" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="5CD-RQ-aBU">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="23094" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="5CD-RQ-aBU">
     <device id="retina4_0" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="22685"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="23084"/>
         <capability name="Image references" minToolsVersion="12.0"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
@@ -711,13 +711,13 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="40A-vG-dFA">
-                                <rect key="frame" x="0.0" y="64" width="320" height="246.5"/>
+                                <rect key="frame" x="0.0" y="64" width="320" height="268"/>
                                 <subviews>
                                     <stackView opaque="NO" contentMode="scaleToFill" distribution="fillEqually" translatesAutoresizingMaskIntoConstraints="NO" id="fn9-mQ-2PY">
-                                        <rect key="frame" x="0.0" y="0.0" width="320" height="118.5"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="320" height="140"/>
                                         <subviews>
                                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="equalSpacing" translatesAutoresizingMaskIntoConstraints="NO" id="Q2k-6Y-RnD">
-                                                <rect key="frame" x="0.0" y="0.0" width="160" height="118.5"/>
+                                                <rect key="frame" x="0.0" y="0.0" width="160" height="140"/>
                                                 <subviews>
                                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="NFC-V3-lgW">
                                                         <rect key="frame" x="0.0" y="0.0" width="160" height="28"/>
@@ -728,7 +728,7 @@
                                                         </connections>
                                                     </button>
                                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Llv-Yz-cwF">
-                                                        <rect key="frame" x="0.0" y="30" width="160" height="28"/>
+                                                        <rect key="frame" x="0.0" y="28" width="160" height="28"/>
                                                         <fontDescription key="fontDescription" type="system" pointSize="13"/>
                                                         <state key="normal" title="Capture NSException"/>
                                                         <connections>
@@ -736,7 +736,7 @@
                                                         </connections>
                                                     </button>
                                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="wJ4-gS-64G" userLabel="fatalError">
-                                                        <rect key="frame" x="0.0" y="60.5" width="160" height="28"/>
+                                                        <rect key="frame" x="0.0" y="56" width="160" height="28"/>
                                                         <fontDescription key="fontDescription" type="system" pointSize="13"/>
                                                         <state key="normal" title="Throw FatalError"/>
                                                         <connections>
@@ -744,17 +744,25 @@
                                                         </connections>
                                                     </button>
                                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="NYx-6R-0bb">
-                                                        <rect key="frame" x="0.0" y="90.5" width="160" height="28"/>
+                                                        <rect key="frame" x="0.0" y="84" width="160" height="28"/>
                                                         <fontDescription key="fontDescription" type="system" pointSize="13"/>
                                                         <state key="normal" title="OOM crash"/>
                                                         <connections>
                                                             <action selector="oomCrash:" destination="QmU-DD-itF" eventType="touchUpInside" id="U4n-XL-dJf"/>
                                                         </connections>
                                                     </button>
+                                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="rJk-dh-q7U">
+                                                        <rect key="frame" x="0.0" y="112" width="160" height="28"/>
+                                                        <fontDescription key="fontDescription" type="system" pointSize="13"/>
+                                                        <state key="normal" title="Corrupt Envelope"/>
+                                                        <connections>
+                                                            <action selector="corruptEnvelope:" destination="QmU-DD-itF" eventType="touchUpInside" id="5hY-Uf-cey"/>
+                                                        </connections>
+                                                    </button>
                                                 </subviews>
                                             </stackView>
                                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="equalSpacing" translatesAutoresizingMaskIntoConstraints="NO" id="2CV-VI-MDY">
-                                                <rect key="frame" x="160" y="0.0" width="160" height="118.5"/>
+                                                <rect key="frame" x="160" y="0.0" width="160" height="140"/>
                                                 <subviews>
                                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Zbo-2T-1Zm">
                                                         <rect key="frame" x="0.0" y="0.0" width="160" height="28"/>
@@ -766,7 +774,7 @@
                                                         </connections>
                                                     </button>
                                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="s6w-E3-5yE" userLabel="DiskWriteException">
-                                                        <rect key="frame" x="0.0" y="28" width="160" height="28"/>
+                                                        <rect key="frame" x="0.0" y="35" width="160" height="28"/>
                                                         <fontDescription key="fontDescription" type="system" pointSize="13"/>
                                                         <state key="normal" title="DiskWriteException"/>
                                                         <connections>
@@ -774,7 +782,7 @@
                                                         </connections>
                                                     </button>
                                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="NNd-Ec-zXw">
-                                                        <rect key="frame" x="0.0" y="56" width="160" height="28"/>
+                                                        <rect key="frame" x="0.0" y="70.5" width="160" height="28"/>
                                                         <accessibility key="accessibilityConfiguration" label="crashTheApp"/>
                                                         <fontDescription key="fontDescription" type="system" pointSize="13"/>
                                                         <state key="normal" title="Crash the app"/>
@@ -783,7 +791,7 @@
                                                         </connections>
                                                     </button>
                                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="wJs-Av-cg2">
-                                                        <rect key="frame" x="0.0" y="84" width="160" height="34.5"/>
+                                                        <rect key="frame" x="0.0" y="105.5" width="160" height="34.5"/>
                                                         <state key="normal" title="Button"/>
                                                         <buttonConfiguration key="configuration" style="plain" title="Use-after-free"/>
                                                         <connections>
@@ -795,7 +803,7 @@
                                         </subviews>
                                     </stackView>
                                     <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="1zm-ho-TCr">
-                                        <rect key="frame" x="0.0" y="118.5" width="320" height="128"/>
+                                        <rect key="frame" x="0.0" y="140" width="320" height="128"/>
                                         <constraints>
                                             <constraint firstAttribute="height" constant="128" id="lc6-97-p3W"/>
                                         </constraints>
@@ -1101,11 +1109,11 @@
             </objects>
             <point key="canvasLocation" x="-233" y="-81"/>
         </scene>
-        <!--Test View Controller-->
+        <!--Redact Sample View Controller-->
         <scene sceneID="ShC-i6-txq">
             <objects>
-                <viewController id="9PG-vw-mrg" customClass="UITestViewController" customModule="iOS_Swift" customModuleProvider="target" sceneMemberID="viewController">
-                    <view key="view" contentMode="scaleToFill" id="PyF-g1-Myh" customClass="TargetView" customModule="iOS_Swift" customModuleProvider="target">
+                <viewController id="9PG-vw-mrg" customClass="SRRedactSampleViewController" customModule="iOS_Swift" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="PyF-g1-Myh">
                         <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
@@ -1115,18 +1123,7 @@
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="28x-YX-9Dj">
-                                <rect key="frame" x="107" y="502" width="106" height="35"/>
-                                <constraints>
-                                    <constraint firstAttribute="height" constant="35" id="dhH-Zh-p4d"/>
-                                </constraints>
-                                <state key="normal" title="Button"/>
-                                <buttonConfiguration key="configuration" style="plain" title="Open Alert"/>
-                                <connections>
-                                    <action selector="showAlert:" destination="9PG-vw-mrg" eventType="touchUpInside" id="4q4-Eg-XW6"/>
-                                </connections>
-                            </button>
-                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Nch-qj-FJO" customClass="TargetView" customModule="iOS_Swift" customModuleProvider="target">
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Nch-qj-FJO">
                                 <rect key="frame" x="40" y="301" width="240" height="30"/>
                                 <subviews>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="This should not be redact" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="zye-8M-uzl">
@@ -1142,22 +1139,41 @@
                                     <constraint firstAttribute="width" constant="240" id="dn8-bG-2cz"/>
                                 </constraints>
                             </view>
+                            <view clipsSubviews="YES" contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="nXU-s5-VDP">
+                                <rect key="frame" x="40" y="90" width="240" height="128"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <subviews>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="This should not appear" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Cuu-no-Hgq">
+                                        <rect key="frame" x="33" y="150" width="175" height="21"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                        <nil key="textColor"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="A label inside a clip view" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="TkV-ad-u0T">
+                                        <rect key="frame" x="28" y="54" width="184" height="21"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                        <nil key="textColor"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                </subviews>
+                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                            </view>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="Qfh-TT-5mw"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
-                            <constraint firstItem="28x-YX-9Dj" firstAttribute="centerX" secondItem="Qfh-TT-5mw" secondAttribute="centerX" id="I0T-ER-JPP"/>
                             <constraint firstItem="Nch-qj-FJO" firstAttribute="centerX" secondItem="Qfh-TT-5mw" secondAttribute="centerX" id="JdJ-6L-ACU"/>
                             <constraint firstItem="Nch-qj-FJO" firstAttribute="centerY" secondItem="Qfh-TT-5mw" secondAttribute="centerY" id="NQQ-Ce-48S"/>
                             <constraint firstItem="QLx-Ff-Zy1" firstAttribute="centerX" secondItem="Qfh-TT-5mw" secondAttribute="centerX" id="css-Ih-V6J"/>
                             <constraint firstItem="QLx-Ff-Zy1" firstAttribute="centerY" secondItem="Qfh-TT-5mw" secondAttribute="centerY" id="gPb-Gi-lhd"/>
-                            <constraint firstItem="Qfh-TT-5mw" firstAttribute="bottom" secondItem="28x-YX-9Dj" secondAttribute="bottom" constant="31" id="yme-nl-u4J"/>
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" id="IKp-8n-e0m"/>
                     <connections>
                         <outlet property="label" destination="QLx-Ff-Zy1" id="gnc-AD-TCJ"/>
-                        <outlet property="transparentView" destination="Nch-qj-FJO" id="Oa0-hv-zsg"/>
+                        <outlet property="notRedactedView" destination="Nch-qj-FJO" id="eTE-nC-OQb"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="wpE-MN-0Ua" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
@@ -1242,7 +1258,7 @@
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>
         <systemColor name="systemGray5Color">
-            <color red="0.89803921568627454" green="0.89803921568627454" blue="0.91764705882352937" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="0.8980392157" green="0.8980392157" blue="0.91764705879999997" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
     </resources>
 </document>

@@ -12,10 +12,7 @@ on:
       - 'fastlane/**'
       - '.sauce/config.yml'
       - 'scripts/ci-select-xcode.sh'
-
-      # run the workflow any time an Xcode scheme changes for one of the sample apps with a UI test suite we run in saucelabs
-      - 'Samples/iOS-Swift/iOS-Swift.xcodeproj/xcshareddata/xcschemes/iOS-Swift-UITests.xcscheme'
-      - 'Samples/iOS-Swift/iOS-Swift.xcodeproj/xcshareddata/xcschemes/iOS-Swift.xcscheme'
+      - 'Samples/iOS-Swift/**'
 
 
 # https://docs.github.com/en/actions/using-jobs/using-concurrency#example-using-a-fallback-value
