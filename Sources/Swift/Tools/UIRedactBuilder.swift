@@ -179,22 +179,22 @@ class UIRedactBuilder {
         return image.imageAsset?.value(forKey: "_containingBundle") == nil
     }
     
-    private func mapRedactRegion(fromView view: UIView, redacting: inout [RedactRegion], rootFrame: CGRect, transform: CGAffineTransform) {
+    private func mapRedactRegion(fromView view: UIView, redacting: inout [RedactRegion], rootFrame: CGRect, transform: CGAffineTransform, forceRedact: Bool = false) {
         guard !redactClassesIdentifiers.isEmpty && !view.isHidden && view.alpha != 0 else { return }
         
         let layer = view.layer.presentation() ?? view.layer
         
         let newTransform = concatenateTranform(transform, with: layer)
         
-        let ignore = shouldIgnore(view: view)
-        let redact = shouldRedact(view: view)
+        let ignore = !forceRedact && shouldIgnore(view: view)
+        let redact = forceRedact || shouldRedact(view: view)
+        var enforceRedact = forceRedact
         
         if !ignore && redact {
             redacting.append(RedactRegion(size: layer.bounds.size, transform: newTransform, type: .redact, color: self.color(for: view)))
-            return
-        }
-        
-        if isOpaque(view) {
+            guard !view.clipsToBounds else { return }
+            enforceRedact = true
+        } else if isOpaque(view) {
             let finalViewFrame = CGRect(origin: .zero, size: layer.bounds.size).applying(newTransform)
             if isAxisAligned(newTransform) && finalViewFrame == rootFrame {
                 //Because the current view is covering everything we found so far we can clear `redacting` list
@@ -204,15 +204,13 @@ class UIRedactBuilder {
             }
         }
         
-        guard !ignore else { return }
-        
         if view.clipsToBounds {
             /// Because the order in which we process the redacted regions is reversed, we add the end of the clip region first.
             /// The beginning will be added after all the subviews have been mapped.
             redacting.append(RedactRegion(size: layer.bounds.size, transform: newTransform, type: .clipEnd))
         }
         for subview in view.subviews {
-            mapRedactRegion(fromView: subview, redacting: &redacting, rootFrame: rootFrame, transform: newTransform)
+            mapRedactRegion(fromView: subview, redacting: &redacting, rootFrame: rootFrame, transform: newTransform, forceRedact: enforceRedact)
         }
         if view.clipsToBounds {
             redacting.append(RedactRegion(size: layer.bounds.size, transform: newTransform, type: .clipBegin))
