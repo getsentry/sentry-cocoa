@@ -18,16 +18,10 @@
 		7B3427FB25876DDC00056519 /* Tongariro.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 7B3427F925876DDB00056519 /* Tongariro.jpg */; };
 		7B64387A26A6C69F000D0F65 /* LaunchUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B64387926A6C69F000D0F65 /* LaunchUITests.swift */; };
 		7B8A5C9E2715B5DE008ACD3B /* InitializerViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 7B8A5C9D2715B5DE008ACD3B /* InitializerViewController.m */; };
+		84BA72AB2C9369A40045B828 /* GitInjections.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BA72A92C9369A40045B828 /* GitInjections.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		0AE58866292B7C5E00494AF8 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 630853352440C45500DDE4CE /* Sentry.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = D81A3488291D0AC0005A27A9;
-			remoteInfo = SentryPrivate;
-		};
 		6308533A2440C45500DDE4CE /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 630853352440C45500DDE4CE /* Sentry.xcodeproj */;
@@ -55,6 +49,34 @@
 			proxyType = 1;
 			remoteGlobalIDString = 637AFDC5243B036B0034958B;
 			remoteInfo = "iOS-ObjectiveC";
+		};
+		84BA72732C9367A10045B828 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 630853352440C45500DDE4CE /* Sentry.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = D8199DAA29376E9B0074249E;
+			remoteInfo = SentrySwiftUI;
+		};
+		84BA72752C9367A10045B828 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 630853352440C45500DDE4CE /* Sentry.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 8431EFD929B27B1100D8DC56;
+			remoteInfo = SentryProfilerTests;
+		};
+		84BA72772C9367A10045B828 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 630853352440C45500DDE4CE /* Sentry.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 8431F00A29B284F200D8DC56;
+			remoteInfo = SentryTestUtils;
+		};
+		84BA72792C9367A10045B828 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 630853352440C45500DDE4CE /* Sentry.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = D84DAD4D2B17428D003CF120;
+			remoteInfo = SentryTestUtilsDynamic;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -91,6 +113,7 @@
 		7B64387B26A6C69F000D0F65 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		7B8A5C9C2715B5CF008ACD3B /* InitializerViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = InitializerViewController.h; sourceTree = "<group>"; };
 		7B8A5C9D2715B5DE008ACD3B /* InitializerViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = InitializerViewController.m; sourceTree = "<group>"; };
+		84BA72A92C9369A40045B828 /* GitInjections.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GitInjections.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -117,7 +140,10 @@
 			children = (
 				6308533B2440C45500DDE4CE /* Sentry.framework */,
 				6308533D2440C45500DDE4CE /* SentryTests.xctest */,
-				0AE58867292B7C5E00494AF8 /* SentryPrivate.framework */,
+				84BA72742C9367A10045B828 /* SentrySwiftUI.framework */,
+				84BA72762C9367A10045B828 /* SentryProfilerTests.xctest */,
+				84BA72782C9367A10045B828 /* libSentryTestUtils.a */,
+				84BA727A2C9367A10045B828 /* SentryTestUtilsDynamic.framework */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -133,6 +159,7 @@
 		637AFDBD243B036B0034958B = {
 			isa = PBXGroup;
 			children = (
+				84BA72AA2C9369A40045B828 /* Shared */,
 				630853352440C45500DDE4CE /* Sentry.xcodeproj */,
 				637AFDC8243B036B0034958B /* iOS-ObjectiveC */,
 				7B64387826A6C69F000D0F65 /* iOS-ObjectiveCUITests */,
@@ -178,6 +205,15 @@
 			path = "iOS-ObjectiveCUITests";
 			sourceTree = "<group>";
 		};
+		84BA72AA2C9369A40045B828 /* Shared */ = {
+			isa = PBXGroup;
+			children = (
+				84BA72A92C9369A40045B828 /* GitInjections.swift */,
+			);
+			name = Shared;
+			path = ../Shared;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -187,8 +223,10 @@
 			buildPhases = (
 				637AFDC2243B036B0034958B /* Sources */,
 				637AFDC3243B036B0034958B /* Frameworks */,
+				84BA727B2C9367A20045B828 /* Inject Git information into Info.plist */,
 				637AFDC4243B036B0034958B /* Resources */,
 				6308534B2440C46E00DDE4CE /* Embed Frameworks */,
+				84BA726D2C9367A10045B828 /* Reset Git fields in Info.plist */,
 			);
 			buildRules = (
 			);
@@ -263,13 +301,6 @@
 /* End PBXProject section */
 
 /* Begin PBXReferenceProxy section */
-		0AE58867292B7C5E00494AF8 /* SentryPrivate.framework */ = {
-			isa = PBXReferenceProxy;
-			fileType = wrapper.framework;
-			path = SentryPrivate.framework;
-			remoteRef = 0AE58866292B7C5E00494AF8 /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
 		6308533B2440C45500DDE4CE /* Sentry.framework */ = {
 			isa = PBXReferenceProxy;
 			fileType = wrapper.framework;
@@ -282,6 +313,34 @@
 			fileType = wrapper.cfbundle;
 			path = SentryTests.xctest;
 			remoteRef = 6308533C2440C45500DDE4CE /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		84BA72742C9367A10045B828 /* SentrySwiftUI.framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.framework;
+			path = SentrySwiftUI.framework;
+			remoteRef = 84BA72732C9367A10045B828 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		84BA72762C9367A10045B828 /* SentryProfilerTests.xctest */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.cfbundle;
+			path = SentryProfilerTests.xctest;
+			remoteRef = 84BA72752C9367A10045B828 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		84BA72782C9367A10045B828 /* libSentryTestUtils.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libSentryTestUtils.a;
+			remoteRef = 84BA72772C9367A10045B828 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		84BA727A2C9367A10045B828 /* SentryTestUtilsDynamic.framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.framework;
+			path = SentryTestUtilsDynamic.framework;
+			remoteRef = 84BA72792C9367A10045B828 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 /* End PBXReferenceProxy section */
@@ -307,6 +366,45 @@
 		};
 /* End PBXResourcesBuildPhase section */
 
+/* Begin PBXShellScriptBuildPhase section */
+		84BA726D2C9367A10045B828 /* Reset Git fields in Info.plist */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Reset Git fields in Info.plist";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "../Shared/reset-git-info.sh\n";
+		};
+		84BA727B2C9367A20045B828 /* Inject Git information into Info.plist */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Inject Git information into Info.plist";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "../Shared/inject-git-info.sh\n";
+		};
+/* End PBXShellScriptBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
 		637AFDC2243B036B0034958B /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
@@ -315,6 +413,7 @@
 				637AFDD1243B036B0034958B /* ViewController.m in Sources */,
 				7B8A5C9E2715B5DE008ACD3B /* InitializerViewController.m in Sources */,
 				637AFDCB243B036B0034958B /* AppDelegate.m in Sources */,
+				84BA72AB2C9369A40045B828 /* GitInjections.swift in Sources */,
 				637AFDDC243B036D0034958B /* main.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -491,6 +590,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "io.sentry.iOS-ObjectiveC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
+				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				USER_HEADER_SEARCH_PATHS = "";
 			};
@@ -513,6 +613,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "io.sentry.iOS-ObjectiveC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
+				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				USER_HEADER_SEARCH_PATHS = "";
 			};
@@ -521,6 +622,7 @@
 		7B64387E26A6C69F000D0F65 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 97JCY7859U;
 				INFOPLIST_FILE = "iOS-ObjectiveCUITests/Info.plist";
@@ -543,6 +645,7 @@
 		7B64387F26A6C69F000D0F65 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 97JCY7859U;
 				INFOPLIST_FILE = "iOS-ObjectiveCUITests/Info.plist";
@@ -634,6 +737,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "io.sentry.iOS-ObjectiveC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
+				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				USER_HEADER_SEARCH_PATHS = "";
 			};
@@ -642,6 +746,7 @@
 		84D4FE9B28ECD21F00EDAAFE /* Test */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 97JCY7859U;
 				INFOPLIST_FILE = "iOS-ObjectiveCUITests/Info.plist";
@@ -733,6 +838,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "io.sentry.iOS-ObjectiveC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
+				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				USER_HEADER_SEARCH_PATHS = "";
 			};
@@ -741,6 +847,7 @@
 		84D4FE9F28ECD22300EDAAFE /* TestCI */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 97JCY7859U;
 				INFOPLIST_FILE = "iOS-ObjectiveCUITests/Info.plist";

@@ -17,6 +17,7 @@
 		7B948A06275E459C00F04173 /* CppSample.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B948A04275E459C00F04173 /* CppSample.cpp */; };
 		7B948A0A275E4A9900F04173 /* CppWrapper.m in Sources */ = {isa = PBXBuildFile; fileRef = 7B948A09275E4A9900F04173 /* CppWrapper.m */; };
 		924D21562C89FE2D00E0FEFD /* DiskWriteException.swift in Sources */ = {isa = PBXBuildFile; fileRef = 924D21552C89FE2D00E0FEFD /* DiskWriteException.swift */; };
+		84BA72AE2C9369B80045B828 /* GitInjections.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BA72AC2C9369B80045B828 /* GitInjections.swift */; };
 		924D21682C8A01F800E0FEFD /* SentrySwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 924D215D2C89FE2D00E0FEFD /* SentrySwiftUI.framework */; };
 		924D21692C8A01F800E0FEFD /* SentrySwiftUI.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 924D215D2C89FE2D00E0FEFD /* SentrySwiftUI.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		924D216B2C8A020C00E0FEFD /* SwiftUIView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 924D216A2C8A020C00E0FEFD /* SwiftUIView.swift */; };
@@ -107,6 +108,7 @@
 		7B948A09275E4A9900F04173 /* CppWrapper.m */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; path = CppWrapper.m; sourceTree = "<group>"; };
 		924D21552C89FE2D00E0FEFD /* DiskWriteException.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiskWriteException.swift; sourceTree = "<group>"; };
 		924D216A2C8A020C00E0FEFD /* SwiftUIView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftUIView.swift; sourceTree = "<group>"; };
+		84BA72AC2C9369B80045B828 /* GitInjections.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GitInjections.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -138,6 +140,7 @@
 		637AFDE2243B04320034958B = {
 			isa = PBXGroup;
 			children = (
+				84BA72AD2C9369B80045B828 /* Shared */,
 				6308533E2440C45A00DDE4CE /* Sentry.xcodeproj */,
 				637AFDED243B04320034958B /* macOS-Swift */,
 				637AFDEC243B04320034958B /* Products */,
@@ -182,6 +185,15 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		84BA72AD2C9369B80045B828 /* Shared */ = {
+			isa = PBXGroup;
+			children = (
+				84BA72AC2C9369B80045B828 /* GitInjections.swift */,
+			);
+			name = Shared;
+			path = ../Shared;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -191,8 +203,10 @@
 			buildPhases = (
 				637AFDE7243B04320034958B /* Sources */,
 				637AFDE8243B04320034958B /* Frameworks */,
+				84BA725E2C9367780045B828 /* Inject Git information into Info.plist */,
 				637AFDE9243B04320034958B /* Resources */,
 				630853502440C5FB00DDE4CE /* Embed Frameworks */,
+				84BA726C2C9367830045B828 /* Reset Git fields in Info.plist */,
 			);
 			buildRules = (
 			);
@@ -302,6 +316,45 @@
 		};
 /* End PBXResourcesBuildPhase section */
 
+/* Begin PBXShellScriptBuildPhase section */
+		84BA725E2C9367780045B828 /* Inject Git information into Info.plist */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Inject Git information into Info.plist";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "../Shared/inject-git-info.sh\n";
+		};
+		84BA726C2C9367830045B828 /* Reset Git fields in Info.plist */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Reset Git fields in Info.plist";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "../Shared/reset-git-info.sh\n";
+		};
+/* End PBXShellScriptBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
 		637AFDE7243B04320034958B /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
@@ -312,6 +365,7 @@
 				924D216B2C8A020C00E0FEFD /* SwiftUIView.swift in Sources */,
 				7B948A06275E459C00F04173 /* CppSample.cpp in Sources */,
 				637AFDEF243B04320034958B /* AppDelegate.swift in Sources */,
+				84BA72AE2C9369B80045B828 /* GitInjections.swift in Sources */,
 				7B948A0A275E4A9900F04173 /* CppWrapper.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

@@ -2,9 +2,6 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-
-	<key>NSFaceIDUsageDescription</key>
-	<string>$(PRODUCT_NAME) Authentication with TouchId or FaceID for testing purposes of the Sentry Cocoa SDK.</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleExecutable</key>
@@ -21,10 +18,18 @@
 	<string>$(MARKETING_VERSION)</string>
 	<key>CFBundleVersion</key>
 	<string>$(CURRENT_PROJECT_VERSION)</string>
+	<key>GIT_BRANCH</key>
+	<string>&lt;branch&gt;</string>
+	<key>GIT_COMMIT_HASH</key>
+	<string>&lt;sha&gt;</string>
+	<key>GIT_STATUS_CLEAN</key>
+	<string>&lt;status&gt;</string>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSFaceIDUsageDescription</key>
+	<string>$(PRODUCT_NAME) Authentication with TouchId or FaceID for testing purposes of the Sentry Cocoa SDK.</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
 	<string>Testing location permissions</string>
 	<key>NSLocationAlwaysUsageDescription</key>

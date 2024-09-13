@@ -18,7 +18,8 @@ class ProfilingViewController: UIViewController, UITextFieldDelegate {
     @IBOutlet weak var launchProfilingMarkerFileCheckButton: UIButton!
     @IBOutlet weak var profilingUITestDataMarshalingTextField: UITextField!
     @IBOutlet weak var profilingUITestDataMarshalingStatus: UILabel!
-    
+        
+    @IBOutlet weak var dsnView: UIView!
     override func viewDidLoad() {
         super.viewDidLoad()
         minWorkIntensityTextField.text = String(defaultLongestIntervalMicros)
@@ -35,6 +36,8 @@ class ProfilingViewController: UIViewController, UITextFieldDelegate {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         SentrySDK.reportFullyDisplayed()
+        
+        addDSNDisplay(self, vcview: dsnView)
     }
     
     @IBAction func startBenchmark(_ sender: UIButton) {

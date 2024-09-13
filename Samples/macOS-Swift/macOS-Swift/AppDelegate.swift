@@ -32,6 +32,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                     scope.addAttachment(Attachment(data: data, filename: "log.txt"))
                 }
                 
+                scope.injectGitInformation()
+                
                 return scope
             }
         }

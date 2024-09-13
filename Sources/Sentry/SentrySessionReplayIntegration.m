@@ -27,6 +27,8 @@
 NS_ASSUME_NONNULL_BEGIN
 
 static NSString *SENTRY_REPLAY_FOLDER = @"replay";
+static NSString *SENTRY_CURRENT_REPLAY = @"replay.current";
+static NSString *SENTRY_LAST_REPLAY = @"replay.last";
 
 /**
  * We need to use this from the swizzled block
@@ -34,6 +36,8 @@ static NSString *SENTRY_REPLAY_FOLDER = @"replay";
  * and leak memory.
  */
 static SentryTouchTracker *_touchTracker;
+
+static SentrySessionReplayIntegration *_installedInstance;
 
 @interface
 SentrySessionReplayIntegration () <SentryReachabilityObserver>
@@ -45,6 +49,11 @@ SentrySessionReplayIntegration () <SentryReachabilityObserver>
     SentryReplayOptions *_replayOptions;
     SentryNSNotificationCenterWrapper *_notificationCenter;
     SentryOnDemandReplay *_resumeReplayMaker;
+}
+
++ (nullable SentrySessionReplayIntegration *)installed
+{
+    return _installedInstance;
 }
 
 - (BOOL)installWithOptions:(nonnull SentryOptions *)options
@@ -64,8 +73,8 @@ SentrySessionReplayIntegration () <SentryReachabilityObserver>
 
     _notificationCenter = SentryDependencyContainer.sharedInstance.notificationCenterWrapper;
 
+    [self moveCurrentReplay];
     [SentrySDK.currentHub registerSessionListener:self];
-
     [SentryGlobalEventProcessor.shared
         addEventProcessor:^SentryEvent *_Nullable(SentryEvent *_Nonnull event) {
             if (event.isCrashEvent) {
@@ -80,6 +89,7 @@ SentrySessionReplayIntegration () <SentryReachabilityObserver>
     [SentryViewPhotographer.shared addIgnoreClasses:_replayOptions.ignoreRedactViewTypes];
     [SentryViewPhotographer.shared addRedactClasses:_replayOptions.redactViewTypes];
 
+    _installedInstance = self;
     return YES;
 }
 
@@ -92,8 +102,9 @@ SentrySessionReplayIntegration () <SentryReachabilityObserver>
 - (void)resumePreviousSessionReplay:(SentryEvent *)event
 {
     NSURL *dir = [self replayDirectory];
-    NSData *lastReplay =
-        [NSData dataWithContentsOfURL:[dir URLByAppendingPathComponent:@"lastreplay"]];
+    NSURL *lastReplayUrl = [dir URLByAppendingPathComponent:SENTRY_LAST_REPLAY];
+    NSData *lastReplay = [NSData dataWithContentsOfURL:lastReplayUrl];
+
     if (lastReplay == nil) {
         return;
     }
@@ -161,6 +172,10 @@ SentrySessionReplayIntegration () <SentryReachabilityObserver>
     eventContext[@"replay"] =
         [NSDictionary dictionaryWithObjectsAndKeys:replayId.sentryIdString, @"replay_id", nil];
     event.context = eventContext;
+
+    if ([NSFileManager.defaultManager removeItemAtURL:lastReplayURL error:&error] == NO) {
+        SENTRY_LOG_ERROR(@"Can`t delete '%@': %@", SENTRY_LAST_REPLAY, error);
+    }
 }
 
 - (void)captureVideo:(SentryVideoInfo *)video
@@ -190,7 +205,7 @@ SentrySessionReplayIntegration () <SentryReachabilityObserver>
 
 - (void)startSession
 {
-    [self.sessionReplay stop];
+    [self.sessionReplay pause];
 
     _startedAsFullSession = [self shouldReplayFullSession:_replayOptions.sessionSampleRate];
 
@@ -266,7 +281,7 @@ SentrySessionReplayIntegration () <SentryReachabilityObserver>
               fullSession:[self shouldReplayFullSession:replayOptions.sessionSampleRate]];
 
     [_notificationCenter addObserver:self
-                            selector:@selector(stop)
+                            selector:@selector(pause)
                                 name:UIApplicationDidEnterBackgroundNotification
                               object:nil];
 
@@ -297,8 +312,8 @@ SentrySessionReplayIntegration () <SentryReachabilityObserver>
 
     NSData *data = [SentrySerialization dataWithJSONObject:info];
 
-    NSString *infoPath =
-        [[path stringByDeletingLastPathComponent] stringByAppendingPathComponent:@"lastreplay"];
+    NSString *infoPath = [[path stringByDeletingLastPathComponent]
+        stringByAppendingPathComponent:SENTRY_CURRENT_REPLAY];
     if ([NSFileManager.defaultManager fileExistsAtPath:infoPath]) {
         [NSFileManager.defaultManager removeItemAtPath:infoPath error:nil];
     }
@@ -308,9 +323,28 @@ SentrySessionReplayIntegration () <SentryReachabilityObserver>
         cStringUsingEncoding:NSUTF8StringEncoding]);
 }
 
-- (void)stop
+- (void)moveCurrentReplay
 {
-    [self.sessionReplay stop];
+    NSURL *path = [self replayDirectory];
+    NSURL *current = [path URLByAppendingPathComponent:SENTRY_CURRENT_REPLAY];
+    NSURL *last = [path URLByAppendingPathComponent:SENTRY_LAST_REPLAY];
+
+    NSError *error;
+    if ([NSFileManager.defaultManager fileExistsAtPath:last.path]) {
+        if ([NSFileManager.defaultManager removeItemAtURL:last error:&error] == NO) {
+            SENTRY_LOG_ERROR(@"Could not delete 'lastreplay' file: %@", error);
+            return;
+        }
+    }
+
+    if ([NSFileManager.defaultManager moveItemAtURL:current toURL:last error:nil] == NO) {
+        SENTRY_LOG_ERROR(@"Could not move 'currentreplay' to 'lastreplat': %@", error);
+    }
+}
+
+- (void)pause
+{
+    [self.sessionReplay pause];
 }
 
 - (void)resume
@@ -320,7 +354,7 @@ SentrySessionReplayIntegration () <SentryReachabilityObserver>
 
 - (void)sentrySessionEnded:(SentrySession *)session
 {
-    [self stop];
+    [self pause];
     [_notificationCenter removeObserver:self
                                    name:UIApplicationDidEnterBackgroundNotification
                                  object:nil];
@@ -361,7 +395,11 @@ SentrySessionReplayIntegration () <SentryReachabilityObserver>
 {
     [SentrySDK.currentHub unregisterSessionListener:self];
     _touchTracker = nil;
-    [self stop];
+    [self pause];
+
+    if (_installedInstance == self) {
+        _installedInstance = nil;
+    }
 }
 
 - (void)dealloc
@@ -475,7 +513,7 @@ SentrySessionReplayIntegration () <SentryReachabilityObserver>
     if (connected) {
         [_sessionReplay resume];
     } else {
-        [_sessionReplay pause];
+        [_sessionReplay pauseSessionMode];
     }
 }
 
