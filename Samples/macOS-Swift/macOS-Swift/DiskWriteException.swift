@@ -1,11 +1,3 @@
-//
-//  DiskWriteException.swift
-//  macOS-Swift
-//
-//  Created by Denis Andrašec on 05.09.24.
-//  Copyright © 2024 Sentry. All rights reserved.
-//
-
 import Foundation
 import Sentry
 
@@ -24,7 +16,7 @@ class DiskWriteException {
         // swiftlint:disable force_unwrapping
         let cachesDirectory = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first!
         // swiftlint:enable force_unwrapping
-        folder = cachesDirectory.appendingPathComponent("DiskWriteException/")
+        folder = cachesDirectory.appendingPathComponent("DiskWriteException")
     }
     
     func continuouslyWriteToDisk() {
