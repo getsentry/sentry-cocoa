@@ -146,13 +146,16 @@ import UIKit
     // MARK: Theme
     
     /**
-     * Builder for light mode theme overrides.
+     * Builder for default/light theme overrides.
+     * - note: On iOS versions predating dark mode (≤12) this is the only theme override used. Apps
+     * running on later versions that include dark mode should also consider `darkThemeOverrides`.
      * - note: Default: `nil`
      */
-    public var lightThemeOverrides: ((SentryUserFeedbackThemeConfiguration) -> Void)?
+    public var themeOverrides: ((SentryUserFeedbackThemeConfiguration) -> Void)?
     
     /**
-     * Builder for dark mode theme overrides.
+     * Builder for dark mode theme overrides. If your app does not deploy a different theme for dark
+     * mode, assign the same builder to this property as you do for `themeOverrides`.
      * - note: Default: `nil`
      */
     public var darkThemeOverrides: ((SentryUserFeedbackThemeConfiguration) -> Void)?

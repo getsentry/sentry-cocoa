@@ -11,7 +11,7 @@ class SentryUserFeedbackIntegration {
     let configuration: SentryUserFeedbackConfiguration
     private var widgetConfig: SentryUserFeedbackWidgetConfiguration?
     private var formConfig: SentryUserFeedbackFormConfiguration?
-    private var lightThemeOverrides: SentryUserFeedbackThemeConfiguration?
+    private var themeOverrides: SentryUserFeedbackThemeConfiguration?
     private var darkThemeOverrides: SentryUserFeedbackThemeConfiguration?
     
     init(configuration: SentryUserFeedbackConfiguration) {
@@ -27,10 +27,10 @@ class SentryUserFeedbackIntegration {
             uiFormConfigBuilder(config)
             self.formConfig = config
             
-            if let lightThemeOverrideBuilder = config.lightThemeOverrides {
+            if let themeOverrideBuilder = config.themeOverrides {
                 let overrides = SentryUserFeedbackThemeConfiguration()
-                lightThemeOverrideBuilder(overrides)
-                self.lightThemeOverrides = overrides
+                themeOverrideBuilder(overrides)
+                self.themeOverrides = overrides
             }
             if let darkThemeOverrideBuilder = config.darkThemeOverrides {
                 let overrides = SentryUserFeedbackThemeConfiguration()

@@ -172,8 +172,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                     uiForm.submitButtonLabel = "Report that jank"
                     uiForm.addScreenshotButtonLabel = "Show us the jank"
                     uiForm.messagePlaceholder = "Describe the nature of the jank. Its essence, if you will."
-                    uiForm.lightThemeOverrides = { lightTheme in
-                        lightTheme.font = UIFont(name: "Comic Sans", size: 25)
+                    uiForm.themeOverrides = { theme in
+                        theme.font = UIFont(name: "Comic Sans", size: 25)
                     }
                 }
                 config.onSubmitSuccess = { info in

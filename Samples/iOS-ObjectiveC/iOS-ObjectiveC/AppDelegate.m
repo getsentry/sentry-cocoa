@@ -55,10 +55,9 @@ AppDelegate ()
                 uiForm.addScreenshotButtonLabel = @"Show us the jank";
                 uiForm.messagePlaceholder
                     = @"Describe the nature of the jank. Its essence, if you will.";
-                uiForm.lightThemeOverrides
-                    = ^(SentryUserFeedbackThemeConfiguration *_Nonnull lightTheme) {
-                          lightTheme.font = [UIFont fontWithName:@"Comic Sans" size:25];
-                      };
+                uiForm.themeOverrides = ^(SentryUserFeedbackThemeConfiguration *_Nonnull theme) {
+                    theme.font = [UIFont fontWithName:@"Comic Sans" size:25];
+                };
             };
             config.onSubmitSuccess = ^(NSDictionary<NSString *, id> *_Nonnull info) {
                 NSString *name = info[@"name"] ?: @"$shakespearean_insult_name";
