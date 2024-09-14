@@ -69,7 +69,7 @@
 /**
  * Block used to configure the user feedback widget, form, behaviors and submission data.
  */
-typedef void (^SentryUserFeedbackWidgetConfigurationBlock)(
+typedef void (^SentryUserFeedbackConfigurationBlock)(
     SentryUserFeedbackConfiguration *_Nonnull configuration);
 
 /**

@@ -66,16 +66,20 @@ import UIKit
     public var onFormClose: (() -> Void)?
     
     /**
-     * Called when feedback is successfully submitted.
+     * Called when feedback is successfully submitted via the prepared form.
      * The data dictionary contains the feedback details.
      * - note: Default: `nil`
+     * - note: This is unrelated to `SentrySDK.captureUserFeedback` and is not called when using 
+     * that function.
      */
     public var onSubmitSuccess: (([String: Any]) -> Void)?
     
     /**
-     * Called when there is an error submitting feedback.
+     * Called when there is an error submitting feedback via the prepared form.
      * The error object contains details of the error.
      * - note: Default: `nil`
+     * - note: This is unrelated to `SentrySDK.captureUserFeedback` and is not called when using 
+     * that function.
      */
     public var onSubmitError: ((Error) -> Void)?
 }
