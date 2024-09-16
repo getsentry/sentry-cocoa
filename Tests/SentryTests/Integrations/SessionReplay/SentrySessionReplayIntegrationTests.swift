@@ -288,7 +288,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         }
             
         startSDK(sessionSampleRate: 1, errorSampleRate: 1) { options in
-            options.experimental.sessionReplay.redactViewTypes = [AnotherLabel.self]
+            options.experimental.sessionReplay.redactViewClasses = [AnotherLabel.self]
         }
         
         let sut = try getSut()
@@ -301,7 +301,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         }
             
         startSDK(sessionSampleRate: 1, errorSampleRate: 1) { options in
-            options.experimental.sessionReplay.ignoreRedactViewTypes = [AnotherLabel.self]
+            options.experimental.sessionReplay.ignoreViewClasses = [AnotherLabel.self]
         }
     
         let sut = try getSut()

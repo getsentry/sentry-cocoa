@@ -89,11 +89,11 @@ class UIRedactBuilder {
         
         redactClassesIdentifiers = Set(redactClasses.map({ ObjectIdentifier($0) }))
         
-        for type in options.ignoreRedactViewTypes {
+        for type in options.ignoreViewClasses {
             self.ignoreClassesIdentifiers.insert(ObjectIdentifier(type))
         }
         
-        for type in options.redactViewTypes {
+        for type in options.redactViewClasses {
             self.redactClassesIdentifiers.insert(ObjectIdentifier(type))
         }
     }

@@ -4,6 +4,6 @@ import Foundation
 protocol SentryRedactOptions {
     var redactAllText: Bool { get }
     var redactAllImages: Bool { get }
-    var redactViewTypes: [AnyClass] { get }
-    var ignoreRedactViewTypes: [AnyClass] { get }
+    var redactViewClasses: [AnyClass] { get }
+    var ignoreViewClasses: [AnyClass] { get }
 }

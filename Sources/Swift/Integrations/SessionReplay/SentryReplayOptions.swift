@@ -73,7 +73,7 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
      * By default Sentry already mask text and image elements from UIKit
      * Every child of a view that is redacted will also be redacted.
      */
-    public var redactViewTypes = [AnyClass]()
+    public var redactViewClasses = [AnyClass]()
     
     /**
      * A list of custom UIView subclasses to be ignored
@@ -81,7 +81,7 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
      * The views of given classes will not be redacted but their children may be.
      * This property has precedence over `redactViewTypes`.
      */
-    public var ignoreRedactViewTypes = [AnyClass]()
+    public var ignoreViewClasses = [AnyClass]()
     
     /**
      * Defines the quality of the session replay.
