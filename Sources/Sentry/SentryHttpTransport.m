@@ -293,7 +293,7 @@ SentryHttpTransport ()
     SentryEnvelope *envelope;
     NSString *envelopeFilePath;
 
-    @synchronized (self.notStoredEnvelopes) {
+    @synchronized(self.notStoredEnvelopes) {
         if (self.notStoredEnvelopes.count > 0) {
             envelope = self.notStoredEnvelopes[0];
             [self.notStoredEnvelopes removeObjectAtIndex:0];
