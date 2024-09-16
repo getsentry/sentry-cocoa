@@ -65,7 +65,7 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
      * Indicates the quality of the replay.
      * The higher the quality, the higher the CPU and bandwidth usage.
      */
-    public var quality = SentryReplayQuality.low
+    public var quality = SentryReplayQuality.medium
     
     /**
      * A list of custom UIView subclasses that need 

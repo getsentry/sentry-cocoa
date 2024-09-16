@@ -1,4 +1,8 @@
-#import "SentryDefines.h"
+#if __has_include(<Sentry/Sentry.h>)
+#    import <Sentry/SentryDefines.h>
+#else
+#    import <SentryWithoutUIKit/SentryDefines.h>
+#endif
 
 @protocol SentrySpan;
 
@@ -6,6 +10,7 @@
     SentryUserFeedback, SentryTransactionContext;
 @class SentryMetricsAPI;
 @class UIView;
+@class SentryReplayApi;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -27,6 +32,13 @@ SENTRY_NO_INIT
 @property (class, nonatomic, readonly) BOOL isEnabled;
 
 @property (class, nonatomic, readonly) SentryMetricsAPI *metrics;
+
+#if SENTRY_TARGET_REPLAY_SUPPORTED
+/**
+ * API to control session replay
+ */
+@property (class, nonatomic, readonly) SentryReplayApi *replay;
+#endif
 
 /**
  * Inits and configures Sentry (SentryHub, SentryClient) and sets up all integrations. Make sure to
@@ -334,24 +346,25 @@ SENTRY_NO_INIT
  */
 + (void)close;
 
-#if SENTRY_TARGET_REPLAY_SUPPORTED
+#if SENTRY_TARGET_PROFILING_SUPPORTED
+/**
+ * Start a new continuous profiling session if one is not already running.
+ * @note Unlike trace-based profiling, continuous profiling does not take into account @c
+ * SentryOptions.profilesSampleRate ; a call to this method will always start a profile if one is
+ * not already running. This includes app launch profiles configured with @c
+ * SentryOptions.enableAppLaunchProfiling .
+ * @warning Continuous profiling mode is experimental and may still contain bugs.
+ * @seealso https://docs.sentry.io/platforms/apple/guides/ios/profiling/#continuous-profiling
+ */
++ (void)startProfiler;
 
 /**
- * @warning This is an experimental feature and may still have bugs.
- *
- * Marks this view to be redacted during replays.
+ * Stop a continuous profiling session if there is one ongoing.
+ * @warning Continuous profiling mode is experimental and may still contain bugs.
+ * @seealso https://docs.sentry.io/platforms/apple/guides/ios/profiling/#continuous-profiling
  */
-+ (void)replayRedactView:(UIView *)view;
-
-/**
- * @warning This is an experimental feature and may still have bugs.
- *
- * Marks this view to be ignored during redact step
- * of session replay. All its content will be visible in the replay.
- */
-+ (void)replayIgnoreView:(UIView *)view;
-
-#endif
++ (void)stopProfiler;
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
 @end
 

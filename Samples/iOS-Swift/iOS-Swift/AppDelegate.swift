@@ -16,8 +16,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         let env = ProcessInfo.processInfo.environment
         
         // For testing purposes, we want to be able to change the DSN and store it to disk. In a real app, you shouldn't need this behavior.
-        let dsn = env["--io.sentry.dsn"] ?? DSNStorage.shared.getDSN() ?? AppDelegate.defaultDSN
-        DSNStorage.shared.saveDSN(dsn: dsn)
+        var dsn: String?
+        do {
+            if let dsn = env["--io.sentry.dsn"] {
+                try DSNStorage.shared.saveDSN(dsn: dsn)
+            }
+            dsn = try DSNStorage.shared.getDSN() ?? AppDelegate.defaultDSN
+        } catch {
+            print("[iOS-Swift] Error encountered while reading stored DSN: \(error)")
+        }
         
         SentrySDK.start(configureOptions: { options in
             options.dsn = dsn
@@ -137,7 +144,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 }
                 
                 scope.setTag(value: "swift", key: "language")
-               
+                
+                scope.injectGitInformation()
+                                               
                 let user = User(userId: "1")
                 user.email = env["--io.sentry.user.email"] ?? "tony@example.com"
                 // first check if the username has been overridden in the scheme for testing purposes; then try to use the system username so each person gets an automatic way to easily filter things on the dashboard; then fall back on a hardcoded value if none of these are present

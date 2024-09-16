@@ -1,6 +1,12 @@
-#import "SentryDefines.h"
-#import "SentrySerializable.h"
-#import "SentrySpanProtocol.h"
+#if __has_include(<Sentry/Sentry.h>)
+#    import <Sentry/SentryDefines.h>
+#    import <Sentry/SentrySerializable.h>
+#    import <Sentry/SentrySpanProtocol.h>
+#else
+#    import <SentryWithoutUIKit/SentryDefines.h>
+#    import <SentryWithoutUIKit/SentrySerializable.h>
+#    import <SentryWithoutUIKit/SentrySpanProtocol.h>
+#endif
 
 @class SentryUser, SentryOptions, SentryBreadcrumb, SentryAttachment;
 

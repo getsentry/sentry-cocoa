@@ -15,6 +15,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             // Sampling 100% - In Production you probably want to adjust this
             options.tracesSampleRate = 1.0
             options.sessionTrackingIntervalMillis = 5_000
+            options.initialScope = { scope in
+                scope.injectGitInformation()
+                return scope
+            }
         }
         
         return true

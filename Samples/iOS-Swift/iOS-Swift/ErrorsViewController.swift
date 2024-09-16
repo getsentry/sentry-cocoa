@@ -8,9 +8,11 @@ class ErrorsViewController: UIViewController {
     private let dispatchQueue = DispatchQueue(label: "ErrorsViewController", attributes: .concurrent)
     private let diskWriteException = DiskWriteException()
     
+    @IBOutlet weak var dsnView: UIView!
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         SentrySDK.reportFullyDisplayed()
+        addDSNDisplay(self, vcview: dsnView)
     }
 
     @IBAction func useAfterFree(_ sender: UIButton) {
@@ -81,5 +83,21 @@ class ErrorsViewController: UIViewController {
                 }
             }
         }
+    }
+    
+    @IBAction func corruptEnvelope(_ sender: UIButton) {
+        class TestSentryEnvelopeItem: SentryEnvelopeItem {
+            override var header: SentryEnvelopeItemHeader {
+                SentryEnvelopeItemHeader(type: "test", length: 50)
+            }
+            
+            override var data: Data {
+                defer { exit(0) }
+                return Data(repeating: 1, count: 100_000_000)
+            }
+        }
+        
+        let envelope = SentryEnvelope(id: SentryId(uuid: UUID()), singleItem: TestSentryEnvelopeItem())
+        SentrySDK.capture(envelope)
     }
 }
