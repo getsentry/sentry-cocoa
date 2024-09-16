@@ -151,7 +151,7 @@ public class TestFileManager: SentryFileManager {
         try super.init(options: options, dispatchQueueWrapper: TestSentryDispatchQueueWrapper())
     }
     
-    public override func store(_ envelope: SentryEnvelope) -> String {
+    public override func store(_ envelope: SentryEnvelope) -> String? {
         storeEnvelopeInvocations.record(envelope)
         if let storeEnvelopePath {
             return storeEnvelopePath

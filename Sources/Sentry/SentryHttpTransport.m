@@ -137,9 +137,11 @@ SentryHttpTransport ()
     __weak SentryHttpTransport *weakSelf = self;
     [self.dispatchQueue dispatchAsyncWithBlock:^{
         NSString *path = [weakSelf.fileManager storeEnvelope:envelopeToStore];
-        if (![[NSFileManager defaultManager] fileExistsAtPath:path]) {
+        if (path == nil) {
             SENTRY_LOG_DEBUG(@"Could not store envelope. Schedule for sending.");
-            [weakSelf.notStoredEnvelopes addObject:envelopeToStore];
+            @synchronized(weakSelf.notStoredEnvelopes) {
+                [weakSelf.notStoredEnvelopes addObject:envelopeToStore];
+            }
         }
         [weakSelf sendAllCachedEnvelopes];
     }];
@@ -291,24 +293,26 @@ SentryHttpTransport ()
     SentryEnvelope *envelope;
     NSString *envelopeFilePath;
 
-    if (self.notStoredEnvelopes.count > 0) {
-        envelope = self.notStoredEnvelopes[0];
-        [self.notStoredEnvelopes removeObjectAtIndex:0];
-    } else {
-        SentryFileContents *envelopeFileContents = [self.fileManager getOldestEnvelope];
-        if (nil == envelopeFileContents) {
-            SENTRY_LOG_DEBUG(@"No envelopes left to send.");
-            [self finishedSending];
-            return;
-        }
+    @synchronized (self.notStoredEnvelopes) {
+        if (self.notStoredEnvelopes.count > 0) {
+            envelope = self.notStoredEnvelopes[0];
+            [self.notStoredEnvelopes removeObjectAtIndex:0];
+        } else {
+            SentryFileContents *envelopeFileContents = [self.fileManager getOldestEnvelope];
+            if (nil == envelopeFileContents) {
+                SENTRY_LOG_DEBUG(@"No envelopes left to send.");
+                [self finishedSending];
+                return;
+            }
 
-        envelopeFilePath = envelopeFileContents.path;
+            envelopeFilePath = envelopeFileContents.path;
 
-        envelope = [SentrySerialization envelopeWithData:envelopeFileContents.contents];
-        if (nil == envelope) {
-            SENTRY_LOG_DEBUG(@"Envelope contained no deserializable data.");
-            [self deleteEnvelopeAndSendNext:envelopeFilePath];
-            return;
+            envelope = [SentrySerialization envelopeWithData:envelopeFileContents.contents];
+            if (nil == envelope) {
+                SENTRY_LOG_DEBUG(@"Envelope contained no deserializable data.");
+                [self deleteEnvelopeAndSendNext:envelopeFilePath];
+                return;
+            }
         }
     }
 

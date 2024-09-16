@@ -4,8 +4,8 @@
 
 ### Features
 
-- Send envelopes that cannot be cached to disk (#4294)
 - Added `thermal_state` to device context (#4305)
+- Send envelopes that cannot be cached to disk (#4294)
 
 ### Refactoring
 

@@ -220,7 +220,7 @@ class SentryFileManagerTests: XCTestCase {
     
     func testDontDeleteYoungEnvelopes() throws {
         let envelope = TestConstants.envelope
-        let path = sut.store(envelope)
+        let path = sut.store(envelope)!
         
         let timeIntervalSince1970 = fixture.currentDateProvider.date().timeIntervalSince1970 - (90 * 24 * 60 * 60)
         let date = Date(timeIntervalSince1970: timeIntervalSince1970)
@@ -410,7 +410,7 @@ class SentryFileManagerTests: XCTestCase {
         }
         
         // Trying to load the file content of a directory is going to return nil for the envelope.
-        let envelopePath = sut.store(TestConstants.envelope)
+        let envelopePath = sut.store(TestConstants.envelope)!
         let fileManager = FileManager.default
         try! fileManager.removeItem(atPath: envelopePath)
         try! fileManager.createDirectory(atPath: envelopePath, withIntermediateDirectories: false, attributes: nil)
@@ -854,7 +854,7 @@ private extension SentryFileManagerTests {
     
     func givenOldEnvelopes() throws {
         let envelope = TestConstants.envelope
-        let path = sut.store(envelope)
+        let path = sut.store(envelope)!
 
         let timeIntervalSince1970 = fixture.currentDateProvider.date().timeIntervalSince1970 - (90 * 24 * 60 * 60)
         let date = Date(timeIntervalSince1970: timeIntervalSince1970 - 1)
