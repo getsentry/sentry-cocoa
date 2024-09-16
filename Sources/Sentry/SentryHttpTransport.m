@@ -341,7 +341,7 @@ SentryHttpTransport ()
     }
 }
 
-- (void)deleteEnvelopeAndSendNext:(NSString *)envelopePath
+- (void)deleteEnvelopeAndSendNext:(nullable NSString *)envelopePath
 {
     SENTRY_LOG_DEBUG(@"Deleting envelope and sending next.");
     if (envelopePath != nil) {
