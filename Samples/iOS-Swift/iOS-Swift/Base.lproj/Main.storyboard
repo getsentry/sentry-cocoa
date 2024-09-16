@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="32700.99.1234" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="5CD-RQ-aBU">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="23094" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="5CD-RQ-aBU">
     <device id="retina4_0" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="22685"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="23084"/>
         <capability name="Image references" minToolsVersion="12.0"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
@@ -184,7 +184,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-234" y="1269"/>
+            <point key="canvasLocation" x="-201" y="1581"/>
         </scene>
         <!--Profiling-->
         <scene sceneID="f4B-j3-STc">
@@ -474,7 +474,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="MLd-fY-Tsv" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-245" y="2093"/>
+            <point key="canvasLocation" x="-199" y="2540"/>
         </scene>
         <!--Navigation Transaction-->
         <scene sceneID="nC1-NO-4uj">
@@ -1007,7 +1007,7 @@
                                                         </connections>
                                                     </button>
                                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ckT-1E-GWZ">
-                                                        <rect key="frame" x="0.0" y="32" width="152" height="28"/>
+                                                        <rect key="frame" x="0.0" y="28" width="152" height="28"/>
                                                         <fontDescription key="fontDescription" type="system" pointSize="13"/>
                                                         <state key="normal" title="Close SDK"/>
                                                         <connections>
@@ -1015,7 +1015,7 @@
                                                         </connections>
                                                     </button>
                                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="rpD-Rf-xbz">
-                                                        <rect key="frame" x="0.0" y="64" width="152" height="28"/>
+                                                        <rect key="frame" x="0.0" y="56" width="152" height="28"/>
                                                         <fontDescription key="fontDescription" type="system" pointSize="13"/>
                                                         <state key="normal" title="ANR fully blocking"/>
                                                         <connections>
@@ -1023,7 +1023,7 @@
                                                         </connections>
                                                     </button>
                                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="2e4-48-rLl">
-                                                        <rect key="frame" x="0.0" y="96" width="152" height="28"/>
+                                                        <rect key="frame" x="0.0" y="84" width="152" height="28"/>
                                                         <accessibility key="accessibilityConfiguration" identifier="anrFillingRunLoopExtra"/>
                                                         <fontDescription key="fontDescription" type="system" pointSize="13"/>
                                                         <state key="normal" title="ANR filling run loop"/>
@@ -1032,7 +1032,7 @@
                                                         </connections>
                                                     </button>
                                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="6Jr-19-VhC">
-                                                        <rect key="frame" x="0.0" y="128" width="152" height="28"/>
+                                                        <rect key="frame" x="0.0" y="112" width="152" height="28"/>
                                                         <accessibility key="accessibilityConfiguration" identifier="anrFillingRunLoopExtra"/>
                                                         <fontDescription key="fontDescription" type="system" pointSize="13"/>
                                                         <state key="normal" title="Pasteboard Contents"/>
@@ -1041,7 +1041,7 @@
                                                         </connections>
                                                     </button>
                                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="F0l-xf-cQd">
-                                                        <rect key="frame" x="0.0" y="160" width="152" height="28"/>
+                                                        <rect key="frame" x="0.0" y="140" width="152" height="28"/>
                                                         <fontDescription key="fontDescription" type="system" pointSize="13"/>
                                                         <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
                                                         <state key="normal" title="Start 100 threads"/>
@@ -1050,7 +1050,7 @@
                                                         </connections>
                                                     </button>
                                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Evt-B9-zEC">
-                                                        <rect key="frame" x="0.0" y="192" width="152" height="28"/>
+                                                        <rect key="frame" x="0.0" y="168" width="152" height="28"/>
                                                         <accessibility key="accessibilityConfiguration" identifier="breadcrumbInfoButton"/>
                                                         <fontDescription key="fontDescription" type="system" pointSize="13"/>
                                                         <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
@@ -1060,13 +1060,22 @@
                                                         </connections>
                                                     </button>
                                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="5U2-RQ-FCu">
-                                                        <rect key="frame" x="0.0" y="224" width="152" height="28"/>
+                                                        <rect key="frame" x="0.0" y="196" width="152" height="28"/>
                                                         <accessibility key="accessibilityConfiguration" identifier="TOPVCBTN"/>
                                                         <fontDescription key="fontDescription" type="system" pointSize="13"/>
                                                         <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
                                                         <state key="normal" title="Top VC Inspector"/>
                                                         <connections>
                                                             <action selector="showTopVCInspector:" destination="VqS-l1-kwe" eventType="touchUpInside" id="e8l-PC-9Q1"/>
+                                                        </connections>
+                                                    </button>
+                                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="NEs-RL-K3q">
+                                                        <rect key="frame" x="0.0" y="224" width="152" height="28"/>
+                                                        <fontDescription key="fontDescription" type="system" pointSize="13"/>
+                                                        <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
+                                                        <state key="normal" title="Show UI Test"/>
+                                                        <connections>
+                                                            <segue destination="9PG-vw-mrg" kind="show" id="n2m-cz-6iQ"/>
                                                         </connections>
                                                     </button>
                                                 </subviews>
@@ -1128,6 +1137,77 @@
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Lml-ok-XC1" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="-233" y="-81"/>
+        </scene>
+        <!--Redact Sample View Controller-->
+        <scene sceneID="ShC-i6-txq">
+            <objects>
+                <viewController id="9PG-vw-mrg" customClass="SRRedactSampleViewController" customModule="iOS_Swift" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="PyF-g1-Myh">
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="This is a label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="QLx-Ff-Zy1">
+                                <rect key="frame" x="108.5" y="305.5" width="103" height="21"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Nch-qj-FJO">
+                                <rect key="frame" x="40" y="301" width="240" height="30"/>
+                                <subviews>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="This should not be redact" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="zye-8M-uzl">
+                                        <rect key="frame" x="23" y="5" width="194" height="21"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                        <nil key="textColor"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                </subviews>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="30" id="WuH-r4-icd"/>
+                                    <constraint firstAttribute="width" constant="240" id="dn8-bG-2cz"/>
+                                </constraints>
+                            </view>
+                            <view clipsSubviews="YES" contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="nXU-s5-VDP">
+                                <rect key="frame" x="40" y="90" width="240" height="128"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <subviews>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="This should not appear" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Cuu-no-Hgq">
+                                        <rect key="frame" x="33" y="150" width="175" height="21"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                        <nil key="textColor"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="A label inside a clip view" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="TkV-ad-u0T">
+                                        <rect key="frame" x="28" y="54" width="184" height="21"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                        <nil key="textColor"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                </subviews>
+                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                            </view>
+                        </subviews>
+                        <viewLayoutGuide key="safeArea" id="Qfh-TT-5mw"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <constraints>
+                            <constraint firstItem="Nch-qj-FJO" firstAttribute="centerX" secondItem="Qfh-TT-5mw" secondAttribute="centerX" id="JdJ-6L-ACU"/>
+                            <constraint firstItem="Nch-qj-FJO" firstAttribute="centerY" secondItem="Qfh-TT-5mw" secondAttribute="centerY" id="NQQ-Ce-48S"/>
+                            <constraint firstItem="QLx-Ff-Zy1" firstAttribute="centerX" secondItem="Qfh-TT-5mw" secondAttribute="centerX" id="css-Ih-V6J"/>
+                            <constraint firstItem="QLx-Ff-Zy1" firstAttribute="centerY" secondItem="Qfh-TT-5mw" secondAttribute="centerY" id="gPb-Gi-lhd"/>
+                        </constraints>
+                    </view>
+                    <navigationItem key="navigationItem" id="IKp-8n-e0m"/>
+                    <connections>
+                        <outlet property="label" destination="QLx-Ff-Zy1" id="gnc-AD-TCJ"/>
+                        <outlet property="notRedactedView" destination="Nch-qj-FJO" id="eTE-nC-OQb"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="wpE-MN-0Ua" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-234.375" y="692.95774647887322"/>
         </scene>
         <!--Event Breadcrumb Controller-->
         <scene sceneID="WeY-ca-Tsi">
@@ -1207,7 +1287,7 @@
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>
         <systemColor name="systemGray5Color">
-            <color red="0.89803921568627454" green="0.89803921568627454" blue="0.91764705882352937" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="0.8980392157" green="0.8980392157" blue="0.91764705879999997" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
     </resources>
 </document>

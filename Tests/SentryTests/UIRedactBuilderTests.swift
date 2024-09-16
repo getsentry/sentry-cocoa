@@ -38,7 +38,9 @@ class UIRedactBuilderTests: XCTestCase {
         
         XCTAssertEqual(result.count, 1)
         XCTAssertEqual(result.first?.color, .purple)
-        XCTAssertEqual(result.first?.rect, CGRect(x: 20, y: 20, width: 40, height: 40))
+        XCTAssertEqual(result.first?.size, CGSize(width: 40, height: 40))
+        XCTAssertEqual(result.first?.type, .redact)
+        XCTAssertEqual(result.first?.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 20, ty: 20))
     }
     
     func testDontRedactALabelOptionDisabled() {
@@ -67,7 +69,7 @@ class UIRedactBuilderTests: XCTestCase {
         
         XCTAssertEqual(result.count, 1)
         XCTAssertNil(result.first?.color)
-        XCTAssertEqual(result.first?.rect, CGRect(x: 20, y: 20, width: 40, height: 40))
+        XCTAssertEqual(result.first?.size, CGSize(width: 40, height: 40))
     }
     
     func testDontRedactAImageOptionDisabled() {
@@ -123,15 +125,17 @@ class UIRedactBuilderTests: XCTestCase {
         XCTAssertEqual(result.count, 0)
     }
     
-    func testDontRedactALabelBehindAOpaqueView() {
+    func testClipForOpaqueView() {
+        let opaqueView = UIView(frame: CGRect(x: 10, y: 10, width: 60, height: 60))
+        opaqueView.backgroundColor = .white
+        rootView.addSubview(opaqueView)
+        
         let sut = UIRedactBuilder()
-        let label = UILabel(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
-        rootView.addSubview(label)
-        let topView = UIView(frame: CGRect(x: 10, y: 10, width: 60, height: 60))
-        topView.backgroundColor = .white
-        rootView.addSubview(topView)
         let result = sut.redactRegionsFor(view: rootView, options: RedactOptions())
-        XCTAssertEqual(result.count, 0)
+        
+        XCTAssertEqual(result.count, 1)
+        XCTAssertEqual(result.first?.type, .clipOut)
+        XCTAssertEqual(result.first?.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 10, ty: 10))
     }
     
     func testRedactALabelBehindATransparentView() {
@@ -229,6 +233,21 @@ class UIRedactBuilderTests: XCTestCase {
         
         let result = sut.redactRegionsFor(view: rootView, options: RedactOptions())
         XCTAssertEqual(result.count, 1)
+    }
+    
+    func testIgnoreViewsBeforeARootSizedView() {
+        let sut = UIRedactBuilder()
+        let label = UILabel(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
+        label.textColor = .purple
+        rootView.addSubview(label)
+        
+        let overView = UIView(frame: rootView.bounds)
+        overView.backgroundColor = .black
+        rootView.addSubview(overView)
+        
+        let result = sut.redactRegionsFor(view: rootView, options: RedactOptions())
+        
+        XCTAssertEqual(result.count, 0)
     }
     
     func testRedactList() {
