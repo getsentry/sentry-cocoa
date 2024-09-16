@@ -746,6 +746,15 @@ NSString *_Nullable sentryApplicationSupportPath(void)
         }
         sentryApplicationSupportPath =
             [applicationSupportDirectory stringByAppendingPathComponent:@"io.sentry"];
+
+        // exclude our app support directory from backups
+        NSURL *url = [NSURL URLWithString:sentryApplicationSupportPath];
+        NSError *error;
+        if (![url setResourceValue:@YES forKey:NSURLIsExcludedFromBackupKey error:&error]) {
+            SENTRY_LOG_WARN(
+                @"Application support directory was not able to be excluded from backups: %@",
+                error);
+        }
     });
     return sentryApplicationSupportPath;
 }
