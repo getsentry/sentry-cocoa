@@ -472,7 +472,7 @@ class SentryHttpTransportTests: XCTestCase {
     func testAllCachedEnvelopesCantDeserializeEnvelope() throws {
         let path = fixture.fileManager.store(TestConstants.envelope)
         let faultyEnvelope = Data([0x70, 0xa3, 0x10, 0x45])
-        if let path {
+        if let path = path {
             try faultyEnvelope.write(to: URL(fileURLWithPath: path))
         }
 
