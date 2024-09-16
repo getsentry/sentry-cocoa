@@ -87,9 +87,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
     
     func testInstallFullSessionReplayButDontRunBecauseOfRandom() throws {
         SentryDependencyContainer.sharedInstance().random = TestRandom(value: 0.3)
-        
         startSDK(sessionSampleRate: 0.2, errorSampleRate: 0)
-        
         XCTAssertEqual(SentrySDK.currentHub().trimmedInstalledIntegrationNames().count, 1)
         XCTAssertEqual(SentryGlobalEventProcessor.shared().processors.count, 1)
         let sut = try getSut()
@@ -198,6 +196,8 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
     }
     
     func testSessionReplayForCrash() throws {
+        try createLastSessionReplay()
+        
         startSDK(sessionSampleRate: 1, errorSampleRate: 1)
         
         let client = SentryClient(options: try XCTUnwrap(SentrySDK.options))
@@ -209,7 +209,6 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
             expectation.fulfill()
         }
         
-        try createLastSessionReplay()
         let crash = Event(error: NSError(domain: "Error", code: 1))
         crash.context = [:]
         crash.isCrashEvent = true
@@ -225,6 +224,8 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
     }
     
     func testBufferReplayForCrash() throws {
+        try createLastSessionReplay(writeSessionInfo: false)
+        
         startSDK(sessionSampleRate: 1, errorSampleRate: 1)
         
         let client = SentryClient(options: try XCTUnwrap(SentrySDK.options))
@@ -236,7 +237,6 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
             expectation.fulfill()
         }
         
-        try createLastSessionReplay(writeSessionInfo: false)
         let crash = Event(error: NSError(domain: "Error", code: 1))
         crash.context = [:]
         crash.isCrashEvent = true
@@ -310,13 +310,20 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
     }
     
     func createLastSessionReplay(writeSessionInfo: Bool = true, errorSampleRate: Double = 1) throws {
-        let replayFolder = SentryDependencyContainer.sharedInstance().fileManager.sentryPath + "/replay"
-        let jsonPath = replayFolder + "/lastreplay"
+        let options = Options()
+        options.dsn = "https://user@test.com/test"
+        options.cacheDirectoryPath = FileManager.default.temporaryDirectory.path
+        
+        let replayFolder = options.cacheDirectoryPath + "/io.sentry/\(options.parsedDsn?.getHash() ?? "")/replay"
+        let jsonPath = replayFolder + "/replay.current"
         var sessionFolder = UUID().uuidString
         let info: [String: Any] = ["replayId": SentryId().sentryIdString,
                                     "path": sessionFolder,
                                     "errorSampleRate": errorSampleRate]
         let data = SentrySerialization.data(withJSONObject: info)
+        
+        try FileManager.default.createDirectory(atPath: replayFolder, withIntermediateDirectories: true)
+        
         try data?.write(to: URL(fileURLWithPath: jsonPath))
         
         sessionFolder = "\(replayFolder)/\(sessionFolder)"

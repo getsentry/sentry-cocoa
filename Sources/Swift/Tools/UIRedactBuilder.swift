@@ -192,6 +192,7 @@ class UIRedactBuilder {
         
         if !ignore && redact {
             redacting.append(RedactRegion(size: layer.bounds.size, transform: newTransform, type: .redact, color: self.color(for: view)))
+
             guard !view.clipsToBounds else { return }
             enforceRedact = true
         } else if isOpaque(view) {

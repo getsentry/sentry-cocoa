@@ -74,6 +74,20 @@ class SentryViewPhotographerTests: XCTestCase {
         assertColor(pixel, .green)
     }
     
+    func testLabelRedactedWithHigherZpotition() throws {
+        let label = UILabel(frame: CGRect(x: 0, y: 0, width: 30, height: 30))
+        label.text = "Test"
+        label.layer.zPosition = 1
+        
+        let viewOnTop = UIView(frame: CGRect(x: 0, y: 0, width: 50, height: 50))
+        viewOnTop.backgroundColor = .green
+        
+        let image = try XCTUnwrap(prepare(views: [label, viewOnTop]))
+        let pixel = color(at: CGPoint(x: 10, y: 10), in: image)
+        
+        assertColor(pixel, .black)
+    }
+    
     func testLabelRedactedWithNonOpaqueViewOnTop() throws {
         let label = UILabel(frame: CGRect(x: 0, y: 0, width: 30, height: 30))
         label.text = "Test"
