@@ -13,8 +13,7 @@ NS_ASSUME_NONNULL_BEGIN
 static NSString *const SentryUIEventTrackerSwizzleSendAction
     = @"SentryUIEventTrackerSwizzleSendAction";
 
-@interface
-SentryUIEventTracker ()
+@interface SentryUIEventTracker ()
 
 @property (nonatomic, strong) id<SentryUIEventTrackerMode> uiEventTrackerMode;
 

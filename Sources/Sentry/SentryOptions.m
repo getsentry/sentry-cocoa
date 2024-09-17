@@ -175,7 +175,7 @@ NSString *const kSentryDefaultEnvironment = @"production";
         if (infoDict != nil) {
             self.releaseName =
                 [NSString stringWithFormat:@"%@@%@+%@", infoDict[@"CFBundleIdentifier"],
-                          infoDict[@"CFBundleShortVersionString"], infoDict[@"CFBundleVersion"]];
+                    infoDict[@"CFBundleShortVersionString"], infoDict[@"CFBundleVersion"]];
         }
 
         NSRegularExpression *everythingAllowedRegex =
@@ -703,7 +703,7 @@ sentry_isValidSampleRate(NSNumber *sampleRate)
     static Class blockClass;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        blockClass = [^{} class];
+        blockClass = [^{ } class];
         while ([blockClass superclass] != NSObject.class) {
             blockClass = [blockClass superclass];
         }

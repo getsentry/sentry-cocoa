@@ -8,8 +8,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 FOUNDATION_EXPORT NSString *const kSentryDefaultEnvironment;
 
-@interface
-SentryOptions ()
+@interface SentryOptions ()
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 @property (nonatomic, assign) BOOL enableProfiling_DEPRECATED_TEST_ONLY;
 - (BOOL)isContinuousProfilingEnabled;
