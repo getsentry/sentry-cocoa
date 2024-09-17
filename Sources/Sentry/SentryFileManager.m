@@ -310,9 +310,14 @@ SentryFileManager ()
     }
 }
 
-- (NSString *)storeEnvelope:(SentryEnvelope *)envelope
+- (nullable NSString *)storeEnvelope:(SentryEnvelope *)envelope
 {
     NSData *envelopeData = [SentrySerialization dataWithEnvelope:envelope];
+
+    if (envelopeData == nil) {
+        SENTRY_LOG_ERROR(@"Serialization of envelope failed. Can't store envelope.");
+        return nil;
+    }
 
     @synchronized(self) {
         NSString *path =
