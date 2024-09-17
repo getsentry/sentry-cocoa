@@ -19,6 +19,7 @@
 - Don't redact clipped views (#4325)
 - Session replay for crash not created because of a race condition (#4314)
 - Double-quoted include, expected angle-bracketed instead (#4298)
+- Safe guard `strncpy` usage ()
 
 ## 8.36.0
 
