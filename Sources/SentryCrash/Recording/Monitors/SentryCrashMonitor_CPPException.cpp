@@ -39,6 +39,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <typeinfo>
+#include "SentryStringUtils.h"
+
 
 #define STACKTRACE_BUFFER_LENGTH 30
 #define DESCRIPTION_BUFFER_LENGTH 1000
@@ -160,7 +162,7 @@ CPPExceptionTerminate(void)
             try {
                 throw;
             } catch (std::exception &exc) {
-                strncpy(descriptionBuff, exc.what(), sizeof(descriptionBuff));
+                strncpy_safe(descriptionBuff, exc.what(), sizeof(descriptionBuff));
             }
 #define CATCH_VALUE(TYPE, PRINTFTYPE)                                                              \
     catch (TYPE value) {                                                                           \

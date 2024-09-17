@@ -242,3 +242,4 @@
 #import "SentryCrashInstallation+Private.h"
 #import "SentryCrashMonitor_MachException.h"
 #import "SentrySessionReplaySyncC.h"
+#import "SentryStringUtils.h"
