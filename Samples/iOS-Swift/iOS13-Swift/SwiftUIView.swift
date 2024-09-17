@@ -4,7 +4,12 @@ import SwiftUI
 struct SwiftUIView: View {
     var body: some View {
         SentryTracedView("SwiftUI View") {
-            Text("SwiftUI!")
+            VStack {
+                Text("Welcome")
+                    .replayRedact()
+                Text("SwiftUI!")
+            }
+            .background(Color.green)
         }
     }
 }
