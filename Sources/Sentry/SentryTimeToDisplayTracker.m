@@ -24,8 +24,7 @@
 #        import "SentryLaunchProfiling.h"
 #    endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
-@interface
-SentryTimeToDisplayTracker () <SentryFramesTrackerListener>
+@interface SentryTimeToDisplayTracker () <SentryFramesTrackerListener>
 
 @property (nonatomic, weak) SentrySpan *initialDisplaySpan;
 @property (nonatomic, weak) SentrySpan *fullDisplaySpan;
@@ -73,7 +72,7 @@ SentryTimeToDisplayTracker () <SentryFramesTrackerListener>
         self.fullDisplaySpan =
             [tracer startChildWithOperation:SentrySpanOperationUILoadFullDisplay
                                 description:[NSString stringWithFormat:@"%@ full display",
-                                                      _controllerName]];
+                                                _controllerName]];
         self.fullDisplaySpan.origin = SentryTraceOriginManualUITimeToDisplay;
 
         // By concept TTID and TTFD spans should have the same beginning,

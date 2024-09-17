@@ -8,8 +8,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface
-SentryFramesTrackingIntegration ()
+@interface SentryFramesTrackingIntegration ()
 
 @property (nonatomic, strong) SentryFramesTracker *tracker;
 

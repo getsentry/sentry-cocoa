@@ -12,8 +12,7 @@
 #    import <SentryDependencyContainer.h>
 #    import <SentryDispatchQueueWrapper.h>
 
-@interface
-SentryAppStartTrackingIntegration ()
+@interface SentryAppStartTrackingIntegration ()
 
 @property (nonatomic, strong) SentryAppStartTracker *tracker;
 

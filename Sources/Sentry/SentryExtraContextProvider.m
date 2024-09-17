@@ -12,8 +12,7 @@ NSString *const kSentryProcessInfoThermalStateFair = @"fair";
 NSString *const kSentryProcessInfoThermalStateSerious = @"serious";
 NSString *const kSentryProcessInfoThermalStateCritical = @"critical";
 
-@interface
-SentryExtraContextProvider ()
+@interface SentryExtraContextProvider ()
 
 @property (nonatomic, strong) SentryCrashWrapper *crashWrapper;
 @property (nonatomic, strong) SentryNSProcessInfoWrapper *processInfoWrapper;

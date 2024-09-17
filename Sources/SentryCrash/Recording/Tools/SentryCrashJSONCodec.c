@@ -1210,7 +1210,7 @@ decodeElement(const char *const name, SentryCrashJSONDecodeContext *context)
         const char *const start = context->bufferPtr;
 
         for (; context->bufferPtr < context->bufferEnd && isdigit(*context->bufferPtr);
-             context->bufferPtr++) {
+            context->bufferPtr++) {
             unlikely_if((isOverflow = accum > (ULLONG_MAX / 10))) { break; }
             accum *= 10;
             int nextDigit = (*context->bufferPtr - '0');

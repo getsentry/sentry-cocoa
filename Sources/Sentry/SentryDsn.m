@@ -5,8 +5,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface
-SentryDsn ()
+@interface SentryDsn ()
 
 @end
 
@@ -79,7 +78,7 @@ SentryDsn ()
         [paths removeObjectAtIndex:0]; // We remove the leading /
         [paths removeLastObject]; // We remove projectId since we add it later
         path = [NSString stringWithFormat:@"/%@",
-                         [paths componentsJoinedByString:@"/"]]; // We put together the path
+            [paths componentsJoinedByString:@"/"]]; // We put together the path
     }
     NSURLComponents *components = [NSURLComponents new];
     components.scheme = url.scheme;
