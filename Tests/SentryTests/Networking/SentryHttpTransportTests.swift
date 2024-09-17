@@ -484,7 +484,7 @@ class SentryHttpTransportTests: XCTestCase {
     
     func testFailureToStoreEvenlopeEventStillSendsRequest() throws {
         let fileManger = try TestFileManager(options: fixture.options)
-        fileManger.storeEnvelopePath = "path that does not exist"
+        fileManger.storeEnvelopePathNil = true // Failure to store envelope returns nil path
         let sut = fixture.getSut(fileManager: fileManger)
                                               
         sut.send(envelope: fixture.eventEnvelope)

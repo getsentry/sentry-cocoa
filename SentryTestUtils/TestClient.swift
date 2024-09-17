@@ -146,6 +146,7 @@ public class TestFileManager: SentryFileManager {
 
     public var storeEnvelopeInvocations = Invocations<SentryEnvelope>()
     public var storeEnvelopePath: String?
+    public var storeEnvelopePathNil: Bool = false
     
     public init(options: Options) throws {
         try super.init(options: options, dispatchQueueWrapper: TestSentryDispatchQueueWrapper())
@@ -153,7 +154,11 @@ public class TestFileManager: SentryFileManager {
     
     public override func store(_ envelope: SentryEnvelope) -> String? {
         storeEnvelopeInvocations.record(envelope)
-        return storeEnvelopePath ?? super.store(envelope)
+        if storeEnvelopePathNil {
+            return nil
+        } else {
+            return storeEnvelopePath ?? super.store(envelope)
+        }
     }
     
     public var deleteOldEnvelopeItemsInvocations = Invocations<Void>()
