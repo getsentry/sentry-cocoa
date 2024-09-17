@@ -22,7 +22,7 @@
 
 ### Improvements
 
-- Avoid extra work when storing invalid envelopes
+- Avoid extra work when storing invalid envelopes (#4337)
 
 ## 8.36.0
 
