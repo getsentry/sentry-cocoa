@@ -219,13 +219,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
      */
     private func removeAppData() {
         print("[iOS-Swift] [debug] removing app data")
-        let appSupport = NSSearchPathForDirectoriesInDomains(.applicationSupportDirectory, .userDomainMask, true).first!
         let cache = NSSearchPathForDirectoriesInDomains(.cachesDirectory, .userDomainMask, true).first!
-        for path in [appSupport, cache] {
-            guard let files = FileManager.default.enumerator(atPath: path) else { return }
-            for item in files {
-                try! FileManager.default.removeItem(atPath: (path as NSString).appendingPathComponent((item as! String)))
-            }
+        guard let files = FileManager.default.enumerator(atPath: cache) else { return }
+        for item in files {
+            try! FileManager.default.removeItem(atPath: (cache as NSString).appendingPathComponent((item as! String)))
         }
     }
 }
