@@ -22,6 +22,10 @@
 - Double-quoted include, expected angle-bracketed instead (#4298)
 - Stop using `redactAllText` as an indicator tha redact is enabled (#4327)
 
+### Improvements
+
+- Avoid extra work when storing invalid envelopes (#4337)
+
 ## 8.36.0
 
 ### Features
