@@ -1,7 +1,6 @@
 #import "SentryBreadcrumb.h"
 
-@interface
-SentryBreadcrumb ()
+@interface SentryBreadcrumb ()
 
 /**
  * Initializes a SentryBreadcrumb from a JSON object.

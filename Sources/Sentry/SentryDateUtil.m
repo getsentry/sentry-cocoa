@@ -3,8 +3,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface
-SentryDateUtil ()
+@interface SentryDateUtil ()
 
 @property (nonatomic, strong) SentryCurrentDateProvider *currentDateProvider;
 

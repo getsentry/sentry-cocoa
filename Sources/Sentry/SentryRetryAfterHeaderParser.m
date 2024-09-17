@@ -5,8 +5,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface
-SentryRetryAfterHeaderParser ()
+@interface SentryRetryAfterHeaderParser ()
 
 @property (nonatomic, strong) SentryHttpDateParser *httpDateParser;
 @property (nonatomic, strong) SentryCurrentDateProvider *currentDateProvider;

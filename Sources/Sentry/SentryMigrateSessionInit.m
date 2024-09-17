@@ -108,7 +108,7 @@ NS_ASSUME_NONNULL_BEGIN
         [SentryLog
             logWithMessage:[NSString stringWithFormat:@"Could not migrate session init, because "
                                                       @"storing the updated envelope failed: %@",
-                                     error.description]
+                               error.description]
                   andLevel:kSentryLevelError];
     }
 }
