@@ -24,7 +24,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SentryANRTrackingIntegrationV2 ()
+@interface
+SentryANRTrackingIntegrationV2 ()
 
 @property (nonatomic, strong) SentryANRTrackerV2 *tracker;
 @property (nonatomic, strong) SentryOptions *options;
@@ -100,7 +101,7 @@ NS_ASSUME_NONNULL_BEGIN
     }
 
     NSString *message = [NSString stringWithFormat:@"App hanging for at least %li ms.",
-        (long)(self.options.appHangTimeoutInterval * 1000)];
+                                  (long)(self.options.appHangTimeoutInterval * 1000)];
     SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelError];
     SentryException *sentryException =
         [[SentryException alloc] initWithValue:message type:SentryANRExceptionTypeV2];

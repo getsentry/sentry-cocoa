@@ -54,7 +54,7 @@ sentry_writeProfileFile(NSData *JSONData)
     NSUInteger numberOfProfiles = [contents count];
     NSString *pathToWrite = [testProfileDirPath
         stringByAppendingPathComponent:[NSString stringWithFormat:@"profile%lld",
-                                           (long long)numberOfProfiles]];
+                                                 (long long)numberOfProfiles]];
 
     if ([fm fileExistsAtPath:pathToWrite]) {
         SENTRY_LOG_DEBUG(@"Already a profile file present; make sure to remove them right after "

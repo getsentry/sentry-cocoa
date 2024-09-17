@@ -9,7 +9,8 @@
 #    import <UIKit/UIKit.h>
 #endif // SENTRY_HAS_UIKIT
 
-@interface SentrySubClassFinder ()
+@interface
+SentrySubClassFinder ()
 
 @property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueue;
 @property (nonatomic, strong) id<SentryObjCRuntimeWrapper> objcRuntimeWrapper;
@@ -91,7 +92,7 @@
             [SentryLog
                 logWithMessage:[NSString stringWithFormat:@"The following UIViewControllers will "
                                                           @"generate automatic transactions: %@",
-                                   [classesToSwizzle componentsJoinedByString:@", "]]
+                                         [classesToSwizzle componentsJoinedByString:@", "]]
                       andLevel:kSentryLevelDebug];
         }];
     }];

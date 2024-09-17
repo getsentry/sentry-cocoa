@@ -54,7 +54,8 @@ crashCallback(const SentryCrashReportWriter *writer)
     }
 }
 
-@interface SentryCrashInstallation ()
+@interface
+SentryCrashInstallation ()
 
 @property (nonatomic, readwrite, assign) int nextFieldIndex;
 @property (nonatomic, readonly, assign) CrashHandlerData *crashHandlerData;
@@ -76,15 +77,16 @@ crashCallback(const SentryCrashReportWriter *writer)
     [NSException raise:NSInternalInconsistencyException
                 format:@"%@ does not support init. Subclasses must call "
                        @"initWithMaxReportFieldCount:requiredProperties:",
-        [self class]];
+                [self class]];
     return nil;
 }
 
 - (id)initWithRequiredProperties:(NSArray *)requiredProperties
 {
     if ((self = [super init])) {
-        self.crashHandlerDataBacking = [NSMutableData dataWithLength:sizeof(*self.crashHandlerData)
-            + sizeof(*self.crashHandlerData->reportFields) * kMaxProperties];
+        self.crashHandlerDataBacking =
+            [NSMutableData dataWithLength:sizeof(*self.crashHandlerData)
+                           + sizeof(*self.crashHandlerData->reportFields) * kMaxProperties];
         self.fields = [NSMutableDictionary dictionary];
         self.requiredProperties = requiredProperties;
     }

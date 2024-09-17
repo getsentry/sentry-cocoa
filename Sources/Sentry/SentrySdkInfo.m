@@ -25,7 +25,8 @@ static SentryPackageManagerOption SENTRY_PACKAGE_INFO = SentryPackageManagerUnko
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SentrySdkInfo ()
+@interface
+SentrySdkInfo ()
 
 @property (nonatomic) SentryPackageManagerOption packageManager;
 

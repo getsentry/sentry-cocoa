@@ -10,7 +10,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SentryDefaultRateLimits ()
+@interface
+SentryDefaultRateLimits ()
 
 @property (nonatomic, strong) SentryConcurrentRateLimitsDictionary *rateLimits;
 @property (nonatomic, strong) SentryRetryAfterHeaderParser *retryAfterHeaderParser;

@@ -3,7 +3,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SentryHttpDateParser ()
+@interface
+SentryHttpDateParser ()
 
 @property (nonatomic, strong) NSDateFormatter *dateFormatter;
 

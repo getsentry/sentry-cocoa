@@ -12,7 +12,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SentrySpotlightTransport ()
+@interface
+SentrySpotlightTransport ()
 
 @property (nonatomic, strong) id<SentryRequestManager> requestManager;
 @property (nonatomic, strong) SentryNSURLRequestBuilder *requestBuilder;

@@ -5,7 +5,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SentryPerformanceTracker (Testing) <SentryTracerDelegate>
+@interface
+SentryPerformanceTracker (Testing) <SentryTracerDelegate>
 
 - (void)clear;
 

@@ -13,7 +13,8 @@
 #import <SentryLog.h>
 #import <objc/runtime.h>
 
-@interface SentryNSDataSwizzling ()
+@interface
+SentryNSDataSwizzling ()
 
 @property (nonatomic, strong) SentryNSDataTracker *dataTracker;
 

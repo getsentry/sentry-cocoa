@@ -9,7 +9,8 @@
 #import "SentrySwift.h"
 #import "SentryWatchdogTerminationLogic.h"
 
-@interface SentrySessionCrashedHandler ()
+@interface
+SentrySessionCrashedHandler ()
 
 @property (nonatomic, strong) SentryCrashWrapper *crashWrapper;
 #if SENTRY_HAS_UIKIT

@@ -11,7 +11,8 @@
 #import "SentryThread.h"
 #import <Foundation/Foundation.h>
 
-@interface SentryDebugImageProvider ()
+@interface
+SentryDebugImageProvider ()
 
 @property (nonatomic, strong) id<SentryCrashBinaryImageProvider> binaryImageProvider;
 @end

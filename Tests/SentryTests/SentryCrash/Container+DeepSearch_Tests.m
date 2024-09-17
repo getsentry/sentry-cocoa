@@ -38,10 +38,11 @@
 {
     id expected = @"Object";
     id container = [NSDictionary
-        dictionaryWithObjectsAndKeys:[NSDictionary dictionaryWithObjectsAndKeys:
-                                             [NSDictionary dictionaryWithObjectsAndKeys:expected,
-                                                 @"key3", nil],
-                                         @"key2", nil],
+        dictionaryWithObjectsAndKeys:
+            [NSDictionary
+                dictionaryWithObjectsAndKeys:[NSDictionary dictionaryWithObjectsAndKeys:expected,
+                                                           @"key3", nil],
+                @"key2", nil],
         @"key1", nil];
 
     id actual = sentry_objectForKeyPath(container, @"key1/key2/key3");
@@ -52,10 +53,11 @@
 {
     id expected = @"Object";
     id container = [NSDictionary
-        dictionaryWithObjectsAndKeys:[NSDictionary dictionaryWithObjectsAndKeys:
-                                             [NSDictionary dictionaryWithObjectsAndKeys:expected,
-                                                 @"key3", nil],
-                                         @"key2", nil],
+        dictionaryWithObjectsAndKeys:
+            [NSDictionary
+                dictionaryWithObjectsAndKeys:[NSDictionary dictionaryWithObjectsAndKeys:expected,
+                                                           @"key3", nil],
+                @"key2", nil],
         @"key1", nil];
 
     id actual = sentry_objectForKeyPath(container, @"/key1/key2/key3");
@@ -66,10 +68,11 @@
 {
     id expected = @"Object";
     id container = [NSDictionary
-        dictionaryWithObjectsAndKeys:[NSDictionary dictionaryWithObjectsAndKeys:
-                                             [NSDictionary
+        dictionaryWithObjectsAndKeys:
+            [NSDictionary
+                dictionaryWithObjectsAndKeys:[NSDictionary
                                                  dictionaryWithObjectsAndKeys:expected, @"3", nil],
-                                         @"2", nil],
+                @"2", nil],
         @"1", nil];
 
     id actual = sentry_objectForKeyPath(container, @"1/2/3");
@@ -81,8 +84,8 @@
     id expected = @"Object";
     id container =
         [NSArray arrayWithObjects:[NSArray arrayWithObjects:@"blah",
-                                      [NSArray arrayWithObjects:@"blah2", expected, nil], nil],
-            nil];
+                                           [NSArray arrayWithObjects:@"blah2", expected, nil], nil],
+                 nil];
 
     id actual = sentry_objectForKeyPath(container, @"0/1/1");
     XCTAssertEqualObjects(expected, actual, @"");
@@ -93,9 +96,9 @@
     id expected = @"Object";
     id container = [NSDictionary
         dictionaryWithObjectsAndKeys:[NSArray arrayWithObjects:@"blah",
-                                         [NSDictionary
-                                             dictionaryWithObjectsAndKeys:expected, @"key3", nil],
-                                         nil],
+                                              [NSDictionary dictionaryWithObjectsAndKeys:expected,
+                                                            @"key3", nil],
+                                              nil],
         @"key1", nil];
 
     id actual = sentry_objectForKeyPath(container, @"key1/1/key3");

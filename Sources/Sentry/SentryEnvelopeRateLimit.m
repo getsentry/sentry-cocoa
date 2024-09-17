@@ -7,7 +7,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SentryEnvelopeRateLimit ()
+@interface
+SentryEnvelopeRateLimit ()
 
 @property (nonatomic, strong) id<SentryRateLimits> rateLimits;
 @property (nonatomic, weak) id<SentryEnvelopeRateLimitDelegate> delegate;

@@ -1,6 +1,7 @@
 #import "SentryTracer.h"
 
-@interface SentryTracer ()
+@interface
+SentryTracer ()
 
 @property (nonatomic, strong) SentryHub *hub;
 

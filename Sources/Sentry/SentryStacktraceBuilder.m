@@ -12,7 +12,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SentryStacktraceBuilder ()
+@interface
+SentryStacktraceBuilder ()
 
 @property (nonatomic, strong) SentryCrashStackEntryMapper *crashStackEntryMapper;
 

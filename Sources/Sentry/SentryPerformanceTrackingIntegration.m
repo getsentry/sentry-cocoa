@@ -12,7 +12,8 @@
 #    import "SentryUIViewControllerPerformanceTracker.h"
 #    import "SentryUIViewControllerSwizzling.h"
 
-@interface SentryPerformanceTrackingIntegration ()
+@interface
+SentryPerformanceTrackingIntegration ()
 
 @property (nonatomic, strong) SentryUIViewControllerSwizzling *swizzling;
 

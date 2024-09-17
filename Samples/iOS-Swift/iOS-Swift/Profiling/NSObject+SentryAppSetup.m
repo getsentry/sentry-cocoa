@@ -1,6 +1,7 @@
 #import "NSObject+SentryAppSetup.h"
 
-@implementation NSObject (SentryAppSetup)
+@implementation
+NSObject (SentryAppSetup)
 + (void)load
 {
     NSLog(@"[iOS-Swift] Starting app launch work");

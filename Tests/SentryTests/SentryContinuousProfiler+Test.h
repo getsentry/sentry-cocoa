@@ -6,7 +6,8 @@
 
 @class SentryProfiler;
 
-@interface SentryContinuousProfiler ()
+@interface
+SentryContinuousProfiler ()
 
 + (void)stopTimerAndCleanup;
 + (nullable SentryProfiler *)profiler;

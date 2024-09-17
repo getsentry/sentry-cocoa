@@ -37,7 +37,8 @@
  * break on specific iOS versions to ensure it works properly when modifying this file. If they
  * could, please add UI tests and run them on older iOS versions.
  */
-@interface SentryNetworkTracker ()
+@interface
+SentryNetworkTracker ()
 
 @property (nonatomic, assign) BOOL isNetworkTrackingEnabled;
 @property (nonatomic, assign) BOOL isNetworkBreadcrumbEnabled;
@@ -189,8 +190,9 @@
         [SentrySDK.currentHub.scope useSpan:^(id<SentrySpan> _Nullable innerSpan) {
             if (innerSpan != nil) {
                 span = innerSpan;
-                netSpan = [span startChildWithOperation:SENTRY_NETWORK_REQUEST_OPERATION
-                                            description:[NSString stringWithFormat:@"%@ %@",
+                netSpan =
+                    [span startChildWithOperation:SENTRY_NETWORK_REQUEST_OPERATION
+                                      description:[NSString stringWithFormat:@"%@ %@",
                                                             sessionTask.currentRequest.HTTPMethod,
                                                             safeUrl.sanitizedUrl]];
                 netSpan.origin = SentryTraceOriginAutoHttpNSURLSession;

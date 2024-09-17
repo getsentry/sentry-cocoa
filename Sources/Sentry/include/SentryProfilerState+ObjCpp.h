@@ -10,7 +10,8 @@
  * a bridging header via SentryProfilerState.h due to C++/Swift interop limitations.
  */
 
-@interface SentryProfilerState ()
+@interface
+SentryProfilerState ()
 
 - (void)appendBacktrace:(const sentry::profiling::Backtrace &)backtrace;
 

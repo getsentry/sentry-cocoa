@@ -55,7 +55,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SentryClient ()
+@interface
+SentryClient ()
 
 @property (nonatomic, strong) SentryTransportAdapter *transportAdapter;
 @property (nonatomic, strong) SentryDebugImageProvider *debugImageProvider;
@@ -984,7 +985,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                               app[@"view_names"] = @[ scope.currentScreen ];
                           } else {
                               app[@"view_names"] = [SentryDependencyContainer.sharedInstance
-                                      .application relevantViewControllersNames];
+                                                        .application relevantViewControllersNames];
                           }
                       }
                   }];

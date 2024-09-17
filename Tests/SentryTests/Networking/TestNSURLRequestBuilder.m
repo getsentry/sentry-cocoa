@@ -2,7 +2,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface TestNSURLRequestBuilder ()
+@interface
+TestNSURLRequestBuilder ()
 
 @property (nonatomic, strong) SentryNSURLRequestBuilder *builder;
 @property (nonatomic, strong) NSError *error;

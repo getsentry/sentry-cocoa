@@ -1,7 +1,8 @@
 #import "SentryAttachment+Equality.h"
 #import "SentryAttachment+Private.h"
 
-@implementation SentryAttachment (Equality)
+@implementation
+SentryAttachment (Equality)
 
 - (BOOL)isEqual:(id _Nullable)other
 {

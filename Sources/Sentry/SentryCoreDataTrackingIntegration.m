@@ -8,7 +8,8 @@
 #import "SentryOptions.h"
 #import "SentryThreadInspector.h"
 
-@interface SentryCoreDataTrackingIntegration ()
+@interface
+SentryCoreDataTrackingIntegration ()
 
 @property (nonatomic, strong) SentryCoreDataTracker *tracker;
 

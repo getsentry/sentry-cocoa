@@ -2,7 +2,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SentrySession (Equality)
+@interface
+SentrySession (Equality)
 
 - (BOOL)isEqual:(id _Nullable)object;
 

@@ -9,7 +9,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SentryScope ()
+@interface
+SentryScope ()
 
 @property (atomic, copy, nullable) NSString *environmentString;
 

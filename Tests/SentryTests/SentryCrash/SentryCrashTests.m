@@ -7,7 +7,8 @@
 
 @end
 
-@interface SentryCrash ()
+@interface
+SentryCrash ()
 
 - (NSString *)clearBundleName:(NSString *)filename;
 
@@ -35,7 +36,7 @@
     XCTAssertEqual(files.count, 1);
     XCTAssertEqualObjects(files.firstObject,
         [self.tempPath stringByAppendingPathComponent:
-                @"Reports/AppName-report-000000000000000c-attachments/0.png"]);
+                           @"Reports/AppName-report-000000000000000c-attachments/0.png"]);
 }
 
 - (void)test_getScreenshots_TwoFiles

@@ -9,7 +9,8 @@ NS_ASSUME_NONNULL_BEGIN
 SENTRY_EXTERN double slowFrameThreshold(uint64_t actualFramesPerSecond);
 SENTRY_EXTERN CFTimeInterval const SentryFrozenFrameThreshold;
 
-@interface SentryFramesTracker (TestInit)
+@interface
+SentryFramesTracker (TestInit)
 
 - (instancetype)initWithDisplayLinkWrapper:(SentryDisplayLinkWrapper *)displayLinkWrapper;
 

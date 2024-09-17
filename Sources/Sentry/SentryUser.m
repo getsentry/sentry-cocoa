@@ -4,7 +4,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SentryUser ()
+@interface
+SentryUser ()
 @property (atomic, strong) NSDictionary<NSString *, id> *_Nullable unknown;
 @end
 

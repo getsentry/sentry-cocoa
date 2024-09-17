@@ -17,7 +17,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SentryHub ()
+@interface
+SentryHub ()
 
 @property (nullable, nonatomic, strong) SentrySession *session;
 

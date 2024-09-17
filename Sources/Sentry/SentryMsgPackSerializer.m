@@ -71,7 +71,8 @@
 
 @end
 
-@implementation NSURL (SentryStreameble)
+@implementation
+NSURL (SentryStreameble)
 
 - (NSInputStream *)asInputStream
 {
@@ -93,7 +94,8 @@
 
 @end
 
-@implementation NSData (SentryStreameble)
+@implementation
+NSData (SentryStreameble)
 
 - (NSInputStream *)asInputStream
 {

@@ -17,7 +17,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SentryTransportFactory ()
+@interface
+SentryTransportFactory ()
 
 @end
 

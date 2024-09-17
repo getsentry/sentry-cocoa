@@ -54,7 +54,8 @@
 #pragma mark - Globals -
 // ============================================================================
 
-@interface SentryCrash ()
+@interface
+SentryCrash ()
 
 @property (nonatomic, readwrite, retain) NSString *bundleName;
 @property (nonatomic, readwrite, assign) SentryCrashMonitorType monitoringWhenUninstalled;
@@ -447,8 +448,8 @@ SYNTHESIZE_CRASH_STATE_PROPERTY(BOOL, crashedLastLaunch)
     NSMutableDictionary *crashReport =
         [SentryCrashJSONCodec decode:jsonData
                              options:SentryCrashJSONDecodeOptionIgnoreNullInArray
-            | SentryCrashJSONDecodeOptionIgnoreNullInObject
-            | SentryCrashJSONDecodeOptionKeepPartialObject
+                             | SentryCrashJSONDecodeOptionIgnoreNullInObject
+                             | SentryCrashJSONDecodeOptionKeepPartialObject
                                error:&error];
 
     if (error != nil) {

@@ -4,7 +4,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SentryQueueableRequestManager ()
+@interface
+SentryQueueableRequestManager ()
 
 @property (nonatomic, strong) NSOperationQueue *queue;
 @property (nonatomic, strong) NSURLSession *session;

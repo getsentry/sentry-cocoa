@@ -9,7 +9,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SentryAutoBreadcrumbTrackingIntegration ()
+@interface
+SentryAutoBreadcrumbTrackingIntegration ()
 
 @property (nonatomic, strong) SentryBreadcrumbTracker *breadcrumbTracker;
 

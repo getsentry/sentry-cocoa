@@ -27,7 +27,8 @@ saveViewHierarchy(const char *reportDirectoryPath)
     [SentryDependencyContainer.sharedInstance.viewHierarchy saveViewHierarchy:reportPath];
 }
 
-@interface SentryViewHierarchyIntegration ()
+@interface
+SentryViewHierarchyIntegration ()
 
 @property (nonatomic, strong) SentryOptions *options;
 

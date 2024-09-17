@@ -35,7 +35,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SentryHub () <SentryMetricsAPIDelegate>
+@interface
+SentryHub () <SentryMetricsAPIDelegate>
 
 @property (nullable, nonatomic, strong) SentryClient *client;
 @property (nullable, nonatomic, strong) SentryScope *scope;
@@ -219,7 +220,7 @@ NS_ASSUME_NONNULL_BEGIN
         if (client.options.diagnosticLevel == kSentryLevelDebug) {
             [SentryLog
                 logWithMessage:[NSString stringWithFormat:@"Capturing session with status: %@",
-                                   [self createSessionDebugString:session]]
+                                         [self createSessionDebugString:session]]
                       andLevel:kSentryLevelDebug];
         }
         [client captureSession:session];
@@ -681,7 +682,7 @@ NS_ASSUME_NONNULL_BEGIN
                 if (_client.options.diagnosticLevel == kSentryLevelDebug) {
                     [SentryLog
                         logWithMessage:[NSString stringWithFormat:@"Ending session with status: %@",
-                                           [self createSessionDebugString:currentSession]]
+                                                 [self createSessionDebugString:currentSession]]
                               andLevel:kSentryLevelDebug];
                 }
                 if (startNewSession) {

@@ -320,9 +320,10 @@ NS_ASSUME_NONNULL_BEGIN
                                                                       error:&error];
     if (nil != error) {
         [SentryLog
-            logWithMessage:[NSString stringWithFormat:
-                                   @"Failed to retrieve event level from envelope item data: %@",
-                               error]
+            logWithMessage:
+                [NSString
+                    stringWithFormat:@"Failed to retrieve event level from envelope item data: %@",
+                    error]
                   andLevel:kSentryLevelError];
         return kSentryLevelError;
     }

@@ -31,7 +31,8 @@
 #import "SentryCrashJSONCodec.h"
 #import "SentryCrashNSErrorUtil.h"
 
-@interface SentryCrashJSONCodec ()
+@interface
+SentryCrashJSONCodec ()
 
 #pragma mark Properties
 

@@ -16,7 +16,8 @@ typedef NS_ENUM(NSInteger, SentryANRTrackerState) {
     kSentryANRTrackerStopping
 };
 
-@interface SentryANRTracker ()
+@interface
+SentryANRTracker ()
 
 @property (nonatomic, strong) SentryCrashWrapper *crashWrapper;
 @property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueueWrapper;

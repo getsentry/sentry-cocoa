@@ -11,7 +11,8 @@
 
 #    import <UIKit/UIKit.h>
 
-@interface SentrySystemEventBreadcrumbs ()
+@interface
+SentrySystemEventBreadcrumbs ()
 @property (nonatomic, weak) id<SentryBreadcrumbDelegate> delegate;
 @property (nonatomic, strong) SentryFileManager *fileManager;
 @property (nonatomic, strong) SentryNSNotificationCenterWrapper *notificationCenterWrapper;

@@ -7,7 +7,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SentryStatsdClient ()
+@interface
+SentryStatsdClient ()
 
 @property (nonatomic, strong) SentryClient *client;
 

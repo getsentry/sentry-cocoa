@@ -25,7 +25,8 @@ NS_ASSUME_NONNULL_BEGIN
 static NSString *const SentryBreadcrumbTrackerSwizzleSendAction
     = @"SentryBreadcrumbTrackerSwizzleSendAction";
 
-@interface SentryBreadcrumbTracker ()
+@interface
+SentryBreadcrumbTracker ()
 #if SENTRY_HAS_REACHABILITY
     <SentryReachabilityObserver>
 #endif // !TARGET_OS_WATCH

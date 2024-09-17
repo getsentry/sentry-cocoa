@@ -15,7 +15,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SentryPerformanceTracker () <SentryTracerDelegate>
+@interface
+SentryPerformanceTracker () <SentryTracerDelegate>
 
 @property (nonatomic, strong) NSMutableDictionary<SentrySpanId *, id<SentrySpan>> *spans;
 @property (nonatomic, strong) NSMutableArray<id<SentrySpan>> *activeSpanStack;

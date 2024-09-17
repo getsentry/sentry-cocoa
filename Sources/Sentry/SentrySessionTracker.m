@@ -15,7 +15,8 @@
 #    import <Cocoa/Cocoa.h>
 #endif
 
-@interface SentrySessionTracker ()
+@interface
+SentrySessionTracker ()
 
 @property (nonatomic, strong) SentryOptions *options;
 @property (atomic, strong) NSDate *lastInForeground;
