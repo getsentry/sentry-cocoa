@@ -18,7 +18,9 @@
  * @note Ensure that `n` is greater than 0.
  * This can silently truncate src if it is larger than `n` - 1.
  */
-static inline char *strncpy_safe(char *dst, const char *src, size_t n) {
+static inline char *
+strncpy_safe(char *dst, const char *src, size_t n)
+{
     strncpy(dst, src, n - 1);
     dst[n - 1] = '\0';
     return dst;
