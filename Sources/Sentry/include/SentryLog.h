@@ -4,9 +4,9 @@
 #define SENTRY_LOG(_SENTRY_LOG_LEVEL, ...)                                                         \
     if ([SentryLog willLogAtLevel:_SENTRY_LOG_LEVEL]) {                                            \
         [SentryLog logWithMessage:[NSString stringWithFormat:@"[%@:%d] %@",                        \
-                                            [[[NSString stringWithUTF8String:__FILE__]             \
-                                                lastPathComponent] stringByDeletingPathExtension], \
-                                            __LINE__, [NSString stringWithFormat:__VA_ARGS__]]     \
+                                      [[[NSString stringWithUTF8String:__FILE__]                   \
+                                          lastPathComponent] stringByDeletingPathExtension],       \
+                                      __LINE__, [NSString stringWithFormat:__VA_ARGS__]]           \
                          andLevel:_SENTRY_LOG_LEVEL];                                              \
     }
 #define SENTRY_LOG_DEBUG(...) SENTRY_LOG(kSentryLevelDebug, __VA_ARGS__)

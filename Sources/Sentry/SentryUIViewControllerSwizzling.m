@@ -31,12 +31,10 @@
  * see https://github.com/getsentry/sentry-cocoa/issues/3763. This category doesn't contain any
  * functions and is safe to use.
  */
-@interface
-UIApplication (SentryUIApplication) <SentryUIApplication>
+@interface UIApplication (SentryUIApplication) <SentryUIApplication>
 @end
 
-@interface
-SentryUIViewControllerSwizzling ()
+@interface SentryUIViewControllerSwizzling ()
 
 @property (nonatomic, strong) SentryInAppLogic *inAppLogic;
 @property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueue;

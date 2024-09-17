@@ -22,8 +22,7 @@ saveScreenShot(const char *path)
     [SentryDependencyContainer.sharedInstance.screenshot saveScreenShots:reportPath];
 }
 
-@interface
-SentryScreenshotIntegration ()
+@interface SentryScreenshotIntegration ()
 
 @property (nonatomic, strong) SentryOptions *options;
 

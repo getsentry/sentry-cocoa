@@ -2,8 +2,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface
-SentryInvalidJSONString ()
+@interface SentryInvalidJSONString ()
 
 @property (nonatomic, strong) NSString *stringHolder;
 @property (nonatomic, assign) NSUInteger lengthInvocations;

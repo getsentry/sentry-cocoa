@@ -16,8 +16,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface
-SentryUIEventTrackerTransactionMode ()
+@interface SentryUIEventTrackerTransactionMode ()
 
 @property (nonatomic, assign) NSTimeInterval idleTimeout;
 @property (nullable, nonatomic, strong) NSMutableArray<SentryTracer *> *activeTransactions;

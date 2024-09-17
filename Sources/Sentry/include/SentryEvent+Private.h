@@ -3,8 +3,7 @@
 #import "SentryProfilingConditionals.h"
 #import <Foundation/Foundation.h>
 
-@interface
-SentryEvent ()
+@interface SentryEvent ()
 
 /**
  * This indicates whether this event is a result of a crash.
