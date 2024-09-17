@@ -17,6 +17,30 @@ class SentrySerializationTests: XCTestCase {
         XCTAssertNil(data)
     }
     
+    func testSerializationFailsWithFirstValidAndThenInvalidJSONObject() {
+        let json = [ SentryInvalidJSONString(lengthInvocationsToBeInvalid: 1)]
+        let data = SentrySerialization.data(withJSONObject: json)
+        XCTAssertNil(data)
+    }
+    
+    func testDataWithEnvelope_InvalidEnvelopeHeaderJSON_ReturnsNil() {
+        let sdkInfoWithInvalidJSON = SentrySdkInfo(name: SentryInvalidJSONString() as String, andVersion: "8.0.0")
+        let headerWithInvalidJSON = SentryEnvelopeHeader(id: nil, sdkInfo: sdkInfoWithInvalidJSON, traceContext: nil)
+        
+        let envelope = SentryEnvelope(header: headerWithInvalidJSON, items: [])
+        
+        XCTAssertNil(SentrySerialization.data(with: envelope))
+    }
+    
+    func testDataWithEnvelope_InvalidEnvelopeItemHeaderJSON_ReturnsNil() throws {
+        let envelopeItemHeader = SentryEnvelopeItemHeader(type: SentryInvalidJSONString() as String, length: 0)
+        let envelopeItem = SentryEnvelopeItem(header: envelopeItemHeader, data: Data())
+        
+        let envelope = SentryEnvelope(header: SentryEnvelopeHeader(id: SentryId()), singleItem: envelopeItem)
+        
+        XCTAssertNil(SentrySerialization.data(with: envelope))
+    }
+    
     func testSentryEnvelopeSerializer_WithSingleEvent() throws {
         // Arrange
         let event = Event()

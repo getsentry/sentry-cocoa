@@ -20,6 +20,10 @@
 - Session replay for crash not created because of a race condition (#4314)
 - Double-quoted include, expected angle-bracketed instead (#4298)
 
+### Improvements
+
+- Avoid extra work when storing invalid envelopes
+
 ## 8.36.0
 
 ### Features

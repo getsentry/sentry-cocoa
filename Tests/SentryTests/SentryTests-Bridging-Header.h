@@ -134,6 +134,7 @@
 #import "SentryInstallation+Test.h"
 #import "SentryInstallation.h"
 #import "SentryInternalNotificationNames.h"
+#import "SentryInvalidJSONString.h"
 #import "SentryLevelMapper.h"
 #import "SentryLog.h"
 #import "SentryLogTestHelper.h"
