@@ -35,9 +35,18 @@ struct SentryReplayView<Content: View>: UIViewRepresentable {
 
 @available(iOS 13, macOS 10.15, tvOS 13, watchOS 6.0, *)
 public extension View {
+    
+    /// Marks the view as containing sensitive information that should be redacted during replays.
+    ///
+    /// When this modifier is applied, any sensitive content within the view will be hidden or masked
+    /// during session replays to ensure user privacy. This is useful for views containing personal
+    /// data or confidential information that shouldn't be visible when the replay is reviewed.
+    ///
+    /// - Returns: A view that redacts sensitive information during session replays.
+    ///
     func replayRedact() -> some View {
         return SentryReplayView(replayBehaviour: .redact) {
             self
-        }.fixedSize()
+        }.fixedSize() //We use `fixedSize` to make SentryReplayView only wrap its content and not used all available space
     }
 }
