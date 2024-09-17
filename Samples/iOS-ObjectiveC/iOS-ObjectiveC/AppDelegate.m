@@ -4,8 +4,7 @@
 
 #import "iOS_ObjectiveC-Swift.h"
 
-@interface
-AppDelegate ()
+@interface AppDelegate ()
 @end
 
 @implementation AppDelegate

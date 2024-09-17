@@ -28,8 +28,7 @@ typedef NSMutableArray<NSDictionary<NSString *, NSNumber *> *> SentryMutableFram
 static CFTimeInterval const SentryFrozenFrameThreshold = 0.7;
 static CFTimeInterval const SentryPreviousFrameInitialValue = -1;
 
-@interface
-SentryFramesTracker ()
+@interface SentryFramesTracker ()
 
 @property (nonatomic, assign, readonly) BOOL isStarted;
 

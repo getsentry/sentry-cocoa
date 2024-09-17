@@ -30,8 +30,7 @@ static SentryCrashInstallationReporter *installation = nil;
 static NSString *const DEVICE_KEY = @"device";
 static NSString *const LOCALE_KEY = @"locale";
 
-@interface
-SentryCrashIntegration ()
+@interface SentryCrashIntegration ()
 
 @property (nonatomic, weak) SentryOptions *options;
 @property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueueWrapper;
