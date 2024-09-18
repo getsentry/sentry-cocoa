@@ -9,8 +9,7 @@
 
 typedef IMP (^SentrySwizzleImpProvider)(void);
 
-@interface
-SentrySwizzleInfo ()
+@interface SentrySwizzleInfo ()
 @property (nonatomic, copy) SentrySwizzleImpProvider impProviderBlock;
 @property (nonatomic, readwrite) SEL selector;
 @end
@@ -157,7 +156,7 @@ swizzledClassesForKey(const void *key)
                 }
             } else if (mode == SentrySwizzleModeOncePerClassAndSuperclasses) {
                 for (Class currentClass = classToSwizzle; nil != currentClass;
-                     currentClass = class_getSuperclass(currentClass)) {
+                    currentClass = class_getSuperclass(currentClass)) {
                     if ([swizzledClasses containsObject:currentClass]) {
                         return NO;
                     }

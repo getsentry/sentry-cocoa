@@ -9,8 +9,7 @@
 #    import <SentryOptions.h>
 #    import <SentrySDK+Private.h>
 
-@interface
-SentryWatchdogTerminationLogic ()
+@interface SentryWatchdogTerminationLogic ()
 
 @property (nonatomic, strong) SentryOptions *options;
 @property (nonatomic, strong) SentryCrashWrapper *crashAdapter;

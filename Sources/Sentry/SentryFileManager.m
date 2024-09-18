@@ -57,8 +57,7 @@ _non_thread_safe_removeFileAtPath(NSString *path)
     }
 }
 
-@interface
-SentryFileManager ()
+@interface SentryFileManager ()
 
 @property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueue;
 @property (nonatomic, copy) NSString *basePath;
@@ -149,8 +148,7 @@ SentryFileManager ()
     //      need this because otherwise 10 would be sorted before 2 for example.
     // %@ = NSString
     // For example 978307200.000000-00001-3FE8C3AE-EB9C-4BEB-868C-14B8D47C33DD.json
-    return [NSString
-        stringWithFormat:@"%f-%05lu-%@.json",
+    return [NSString stringWithFormat:@"%f-%05lu-%@.json",
         [[SentryDependencyContainer.sharedInstance.dateProvider date] timeIntervalSince1970],
         (unsigned long)self.currentFileCounter++, [NSUUID UUID].UUIDString];
 }
@@ -310,9 +308,14 @@ SentryFileManager ()
     }
 }
 
-- (NSString *)storeEnvelope:(SentryEnvelope *)envelope
+- (nullable NSString *)storeEnvelope:(SentryEnvelope *)envelope
 {
     NSData *envelopeData = [SentrySerialization dataWithEnvelope:envelope];
+
+    if (envelopeData == nil) {
+        SENTRY_LOG_ERROR(@"Serialization of envelope failed. Can't store envelope.");
+        return nil;
+    }
 
     @synchronized(self) {
         NSString *path =

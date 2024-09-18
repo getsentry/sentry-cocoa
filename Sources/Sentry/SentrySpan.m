@@ -33,8 +33,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface
-SentrySpan ()
+@interface SentrySpan ()
 @end
 
 @implementation SentrySpan {

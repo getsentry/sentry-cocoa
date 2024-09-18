@@ -145,10 +145,10 @@
         if (items && items.count > 0) {
             if (items.count == 1) {
                 [resultParts addObject:[NSString stringWithFormat:@"%@ %@ '%@'", op,
-                                                 items.allValues[0], items.allKeys[0]]];
+                                           items.allValues[0], items.allKeys[0]]];
             } else {
                 [resultParts addObject:[NSString stringWithFormat:@"%@ %lu items", op,
-                                                 (unsigned long)total]];
+                                           (unsigned long)total]];
             }
         }
     };
@@ -197,7 +197,7 @@
 
     if (request.predicate) {
         [result appendFormat:@" WHERE %@",
-                [predicateDescriptor predicateDescription:request.predicate]];
+            [predicateDescriptor predicateDescription:request.predicate]];
     }
 
     if (request.sortDescriptors.count > 0) {

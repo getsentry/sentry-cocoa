@@ -145,8 +145,7 @@ SentryConnectivityActualCallback(
     SentryConnectivityCallback(flags);
 }
 
-@interface
-SentryReachability ()
+@interface SentryReachability ()
 
 @property SCNetworkReachabilityRef sentry_reachability_ref;
 

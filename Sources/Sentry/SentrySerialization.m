@@ -137,7 +137,7 @@ NS_ASSUME_NONNULL_BEGIN
 
     NSAssert(envelopeHeaderIndex > 0, @"EnvelopeHeader was parsed, its index is expected.");
     if (envelopeHeaderIndex == 0) {
-        NSLog(@"EnvelopeHeader was parsed, its index is expected.");
+        SENTRY_LOG_ERROR(@"EnvelopeHeader was parsed, its index is expected.");
         return nil;
     }
 
@@ -146,6 +146,7 @@ NS_ASSUME_NONNULL_BEGIN
 
     NSMutableArray<SentryEnvelopeItem *> *items = [NSMutableArray new];
     NSUInteger endOfEnvelope = data.length - 1;
+
     for (NSInteger i = itemHeaderStart; i <= endOfEnvelope; ++i) {
         if (bytes[i] == '\n' || i == endOfEnvelope) {
 
@@ -211,7 +212,7 @@ NS_ASSUME_NONNULL_BEGIN
 
             if (bodyLength > 0 && data.length < (i + 1 + bodyLength)) {
                 SENTRY_LOG_ERROR(@"Envelope is corrupted or has invalid data. Trying to read %li "
-                                 @"bytes by skiping %li from a buffer of %li bytes.",
+                                 @"bytes by skipping %li from a buffer of %li bytes.",
                     (unsigned long)data.length, (unsigned long)bodyLength, (long)(i + 1));
                 return nil;
             }
@@ -320,10 +321,9 @@ NS_ASSUME_NONNULL_BEGIN
                                                                       error:&error];
     if (nil != error) {
         [SentryLog
-            logWithMessage:
-                [NSString
-                    stringWithFormat:@"Failed to retrieve event level from envelope item data: %@",
-                    error]
+            logWithMessage:[NSString stringWithFormat:
+                                   @"Failed to retrieve event level from envelope item data: %@",
+                               error]
                   andLevel:kSentryLevelError];
         return kSentryLevelError;
     }
