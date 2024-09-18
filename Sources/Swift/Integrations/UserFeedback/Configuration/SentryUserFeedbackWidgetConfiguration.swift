@@ -43,7 +43,7 @@ import UIKit
      * The distance to use from the widget button to the superview's `layoutMarginsGuide`.
      * - note: Default: `UIOffset.zero`
      */
-    public var layoutOffset: UIOffset = UIOffset.zero
+    public var layoutUIOffset: UIOffset = UIOffset.zero
 }
 
 #endif // (os(iOS) || os(tvOS)) && !SENTRY_NO_UIKIT
