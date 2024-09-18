@@ -82,9 +82,10 @@ NS_ASSUME_NONNULL_BEGIN
 {
     SentryEnvelopeHeader *envelopeHeader = nil;
     const unsigned char *bytes = [data bytes];
+    NSUInteger endOfEnvelope = data.length - 1;
     int envelopeHeaderIndex = 0;
 
-    for (int i = 0; i < data.length; ++i) {
+    for (int i = 0; i <= endOfEnvelope; ++i) {
         if (bytes[i] == '\n') {
             envelopeHeaderIndex = i;
             // Envelope header end
@@ -100,32 +101,33 @@ NS_ASSUME_NONNULL_BEGIN
                                                                                error:&error];
             if (nil != error) {
                 SENTRY_LOG_ERROR(@"Failed to parse envelope header %@", error);
-            } else {
-                SentryId *eventId = nil;
-                NSString *eventIdAsString = headerDictionary[@"event_id"];
-                if (nil != eventIdAsString) {
-                    eventId = [[SentryId alloc] initWithUUIDString:eventIdAsString];
-                }
-
-                SentrySdkInfo *sdkInfo = nil;
-                if (nil != headerDictionary[@"sdk"]) {
-                    sdkInfo = [[SentrySdkInfo alloc] initWithDict:headerDictionary];
-                }
-
-                SentryTraceContext *traceContext = nil;
-                if (nil != headerDictionary[@"trace"]) {
-                    traceContext =
-                        [[SentryTraceContext alloc] initWithDict:headerDictionary[@"trace"]];
-                }
-
-                envelopeHeader = [[SentryEnvelopeHeader alloc] initWithId:eventId
-                                                                  sdkInfo:sdkInfo
-                                                             traceContext:traceContext];
-
-                if (headerDictionary[@"sent_at"] != nil) {
-                    envelopeHeader.sentAt = sentry_fromIso8601String(headerDictionary[@"sent_at"]);
-                }
+                break;
             }
+
+            SentryId *eventId = nil;
+            NSString *eventIdAsString = headerDictionary[@"event_id"];
+            if (nil != eventIdAsString) {
+                eventId = [[SentryId alloc] initWithUUIDString:eventIdAsString];
+            }
+
+            SentrySdkInfo *sdkInfo = nil;
+            if (nil != headerDictionary[@"sdk"]) {
+                sdkInfo = [[SentrySdkInfo alloc] initWithDict:headerDictionary];
+            }
+
+            SentryTraceContext *traceContext = nil;
+            if (nil != headerDictionary[@"trace"]) {
+                traceContext = [[SentryTraceContext alloc] initWithDict:headerDictionary[@"trace"]];
+            }
+
+            envelopeHeader = [[SentryEnvelopeHeader alloc] initWithId:eventId
+                                                              sdkInfo:sdkInfo
+                                                         traceContext:traceContext];
+
+            if (headerDictionary[@"sent_at"] != nil) {
+                envelopeHeader.sentAt = sentry_fromIso8601String(headerDictionary[@"sent_at"]);
+            }
+
             break;
         }
     }
@@ -135,9 +137,8 @@ NS_ASSUME_NONNULL_BEGIN
         return nil;
     }
 
-    NSAssert(envelopeHeaderIndex > 0, @"EnvelopeHeader was parsed, its index is expected.");
     if (envelopeHeaderIndex == 0) {
-        NSLog(@"EnvelopeHeader was parsed, its index is expected.");
+        SENTRY_LOG_ERROR(@"EnvelopeHeader was parsed, its index is expected.");
         return nil;
     }
 
@@ -145,7 +146,7 @@ NS_ASSUME_NONNULL_BEGIN
     NSInteger itemHeaderStart = envelopeHeaderIndex + 1;
 
     NSMutableArray<SentryEnvelopeItem *> *items = [NSMutableArray new];
-    NSUInteger endOfEnvelope = data.length - 1;
+
     for (NSInteger i = itemHeaderStart; i <= endOfEnvelope; ++i) {
         if (bytes[i] == '\n' || i == endOfEnvelope) {
 
@@ -211,7 +212,7 @@ NS_ASSUME_NONNULL_BEGIN
 
             if (bodyLength > 0 && data.length < (i + 1 + bodyLength)) {
                 SENTRY_LOG_ERROR(@"Envelope is corrupted or has invalid data. Trying to read %li "
-                                 @"bytes by skiping %li from a buffer of %li bytes.",
+                                 @"bytes by skipping %li from a buffer of %li bytes.",
                     (unsigned long)data.length, (unsigned long)bodyLength, (long)(i + 1));
                 return nil;
             }
