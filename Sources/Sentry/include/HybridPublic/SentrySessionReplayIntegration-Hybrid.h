@@ -18,8 +18,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
-@interface
-SentrySessionReplayIntegration ()
+@interface SentrySessionReplayIntegration ()
 
 + (id<SentryRRWebEvent>)createBreadcrumbwithTimestamp:(NSDate *)timestamp
                                              category:(NSString *)category

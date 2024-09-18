@@ -37,11 +37,19 @@
 		84ACC4432A73CD0700932A18 /* ProfilingCPUWork.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84ACC4422A73CD0700932A18 /* ProfilingCPUWork.swift */; };
 		84B527B928DD24BA00475E8D /* SentryDeviceTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 84B527B728DD24BA00475E8D /* SentryDeviceTests.mm */; };
 		84B527BD28DD25E400475E8D /* SentryDevice.mm in Sources */ = {isa = PBXBuildFile; fileRef = 84B527BC28DD25E400475E8D /* SentryDevice.mm */; };
+		84BA71E42C8BBBEC0045B828 /* DSNDisplayViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BA71E32C8BBBEC0045B828 /* DSNDisplayViewController.swift */; };
+		84BA71F12C8BC55A0045B828 /* Toasts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BA71F02C8BC55A0045B828 /* Toasts.swift */; };
+		84BA71F22C8F73FD0045B828 /* DSNDisplayViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BA71E32C8BBBEC0045B828 /* DSNDisplayViewController.swift */; };
+		84BA71F32C8F74080045B828 /* Toasts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BA71F02C8BC55A0045B828 /* Toasts.swift */; };
+		84BA72A72C93698E0045B828 /* GitInjections.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BA72A52C93698E0045B828 /* GitInjections.swift */; };
+		84BA72A82C93698E0045B828 /* GitInjections.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BA72A52C93698E0045B828 /* GitInjections.swift */; };
+		84BA72DE2C9391920045B828 /* GitInjections.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BA72A52C93698E0045B828 /* GitInjections.swift */; };
 		84BE546F287503F100ACC735 /* SentrySDKPerformanceBenchmarkTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 84BE546E287503F100ACC735 /* SentrySDKPerformanceBenchmarkTests.m */; };
 		84BE547E287645B900ACC735 /* SentryProcessInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = 84BE54792876451D00ACC735 /* SentryProcessInfo.m */; };
 		84FB812A284001B800F3A94A /* SentryBenchmarking.mm in Sources */ = {isa = PBXBuildFile; fileRef = 84FB8129284001B800F3A94A /* SentryBenchmarking.mm */; };
 		84FB812B284001B800F3A94A /* SentryBenchmarking.mm in Sources */ = {isa = PBXBuildFile; fileRef = 84FB8129284001B800F3A94A /* SentryBenchmarking.mm */; };
 		8E8C57AF25EF16E6001CEEFA /* TraceTestViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E8C57AE25EF16E6001CEEFA /* TraceTestViewController.swift */; };
+		924857562C89A86300774AC3 /* MainViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 924857552C89A85F00774AC3 /* MainViewController.swift */; };
 		B70038852BB33E7700065A38 /* ReplaceContentViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B70038842BB33E7700065A38 /* ReplaceContentViewController.swift */; };
 		D80D021329EE93630084393D /* ErrorsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D80D021229EE93630084393D /* ErrorsViewController.swift */; };
 		D80D021A29EE936F0084393D /* ExtraViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D80D021929EE936F0084393D /* ExtraViewController.swift */; };
@@ -53,7 +61,7 @@
 		D8269A3E274C095E00BD5BD5 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8269A3D274C095E00BD5BD5 /* SceneDelegate.swift */; };
 		D8269A43274C095F00BD5BD5 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D8269A41274C095F00BD5BD5 /* Main.storyboard */; };
 		D8269A4E274C09A400BD5BD5 /* SwiftUIViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B4F33FA271EBE0C00C8591E /* SwiftUIViewController.swift */; };
-		D8269A4F274C09A400BD5BD5 /* SwiftUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B4F33F7271EBD2500C8591E /* SwiftUI.swift */; };
+		D8269A4F274C09A400BD5BD5 /* SwiftUIView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B4F33F7271EBD2500C8591E /* SwiftUIView.swift */; };
 		D8269A50274C0F6800BD5BD5 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 637AFDB2243B02770034958B /* Assets.xcassets */; };
 		D8269A51274C0F6C00BD5BD5 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 637AFDB4243B02770034958B /* LaunchScreen.storyboard */; };
 		D8269A52274C0F7200BD5BD5 /* Tongariro.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 7B3427F725876A5200056519 /* Tongariro.jpg */; };
@@ -98,6 +106,7 @@
 		D8D7BB4A2750067900044146 /* UIAssert.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8D7BB492750067900044146 /* UIAssert.swift */; };
 		D8D7BB4C2750095800044146 /* UIViewExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8D7BB4B2750095800044146 /* UIViewExtension.swift */; };
 		D8D7BB4E27501B9400044146 /* SpanObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8D7BB4D27501B9400044146 /* SpanObserver.swift */; };
+		D8DA29042C7F2199008BC825 /* SRRedactSampleViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8DA29032C7F2199008BC825 /* SRRedactSampleViewController.swift */; };
 		D8DBDA76274D591F00007380 /* TableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8DBDA75274D591F00007380 /* TableViewController.swift */; };
 		D8DBDA78274D5FC400007380 /* SplitViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8DBDA77274D5FC400007380 /* SplitViewController.swift */; };
 		D8F01DEA2A1376B5008F4996 /* InfoForBreadcrumbController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F01DE92A1376B5008F4996 /* InfoForBreadcrumbController.swift */; };
@@ -291,7 +300,7 @@
 		637AFDB7243B02770034958B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		63F93AA9245AC91600A500DB /* iOS-Swift.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "iOS-Swift.entitlements"; sourceTree = "<group>"; };
 		7B3427F725876A5200056519 /* Tongariro.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = Tongariro.jpg; sourceTree = "<group>"; };
-		7B4F33F7271EBD2500C8591E /* SwiftUI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftUI.swift; sourceTree = "<group>"; };
+		7B4F33F7271EBD2500C8591E /* SwiftUIView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftUIView.swift; sourceTree = "<group>"; };
 		7B4F33FA271EBE0C00C8591E /* SwiftUIViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftUIViewController.swift; sourceTree = "<group>"; };
 		7B5525B22938B5B5006A2932 /* DiskWriteException.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiskWriteException.swift; sourceTree = "<group>"; };
 		7B64386826A6C544000D0F65 /* iOS-Swift-UITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "iOS-Swift-UITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -311,6 +320,9 @@
 		84B527B728DD24BA00475E8D /* SentryDeviceTests.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = SentryDeviceTests.mm; path = ../../../Tests/SentryTests/Helper/SentryDeviceTests.mm; sourceTree = "<group>"; };
 		84B527BB28DD25E400475E8D /* SentryDevice.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SentryDevice.h; path = ../../../Sources/Sentry/include/SentryDevice.h; sourceTree = "<group>"; };
 		84B527BC28DD25E400475E8D /* SentryDevice.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = SentryDevice.mm; path = ../../../Sources/Sentry/SentryDevice.mm; sourceTree = "<group>"; };
+		84BA71E32C8BBBEC0045B828 /* DSNDisplayViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DSNDisplayViewController.swift; sourceTree = "<group>"; };
+		84BA71F02C8BC55A0045B828 /* Toasts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Toasts.swift; sourceTree = "<group>"; };
+		84BA72A52C93698E0045B828 /* GitInjections.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GitInjections.swift; sourceTree = "<group>"; };
 		84BE546E287503F100ACC735 /* SentrySDKPerformanceBenchmarkTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentrySDKPerformanceBenchmarkTests.m; sourceTree = "<group>"; };
 		84BE54782876451D00ACC735 /* SentryProcessInfo.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SentryProcessInfo.h; sourceTree = "<group>"; };
 		84BE54792876451D00ACC735 /* SentryProcessInfo.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentryProcessInfo.m; sourceTree = "<group>"; };
@@ -318,6 +330,7 @@
 		84FB8129284001B800F3A94A /* SentryBenchmarking.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = SentryBenchmarking.mm; sourceTree = "<group>"; };
 		84FB812C2840021B00F3A94A /* iOS-Swift-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "iOS-Swift-Bridging-Header.h"; sourceTree = "<group>"; };
 		8E8C57AE25EF16E6001CEEFA /* TraceTestViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TraceTestViewController.swift; sourceTree = "<group>"; };
+		924857552C89A85F00774AC3 /* MainViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainViewController.swift; sourceTree = "<group>"; };
 		B70038842BB33E7700065A38 /* ReplaceContentViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReplaceContentViewController.swift; sourceTree = "<group>"; };
 		D80D021229EE93630084393D /* ErrorsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ErrorsViewController.swift; sourceTree = "<group>"; };
 		D80D021929EE936F0084393D /* ExtraViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExtraViewController.swift; sourceTree = "<group>"; };
@@ -327,6 +340,7 @@
 		D8269A42274C095F00BD5BD5 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		D8269A49274C096000BD5BD5 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		D8269A5C274C108100BD5BD5 /* iOS13-Swift.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "iOS13-Swift.entitlements"; sourceTree = "<group>"; };
+		D82915932C889F1800A6CDD4 /* SentryCocoaPrivate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SentryCocoaPrivate.h; sourceTree = "<group>"; };
 		D83A30DF279F1F5C00372D0A /* fatal-error-binary-images-message2.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = "fatal-error-binary-images-message2.json"; path = "../../../Tests/Resources/fatal-error-binary-images-message2.json"; sourceTree = "<group>"; };
 		D840D520273A07F400CDF142 /* iOS-SwiftClip.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "iOS-SwiftClip.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		D840D522273A07F400CDF142 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -354,6 +368,7 @@
 		D8D7BB492750067900044146 /* UIAssert.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIAssert.swift; sourceTree = "<group>"; };
 		D8D7BB4B2750095800044146 /* UIViewExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIViewExtension.swift; sourceTree = "<group>"; };
 		D8D7BB4D27501B9400044146 /* SpanObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpanObserver.swift; sourceTree = "<group>"; };
+		D8DA29032C7F2199008BC825 /* SRRedactSampleViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SRRedactSampleViewController.swift; sourceTree = "<group>"; };
 		D8DBDA75274D591F00007380 /* TableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TableViewController.swift; sourceTree = "<group>"; };
 		D8DBDA77274D5FC400007380 /* SplitViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplitViewController.swift; sourceTree = "<group>"; };
 		D8F01DE92A1376B5008F4996 /* InfoForBreadcrumbController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InfoForBreadcrumbController.swift; sourceTree = "<group>"; };
@@ -441,6 +456,7 @@
 		637AFD9D243B02760034958B = {
 			isa = PBXGroup;
 			children = (
+				84BA72A62C93698E0045B828 /* Shared */,
 				848A2576286E3490008A8858 /* PerformanceBenchmarks */,
 				6308532C2440C44F00DDE4CE /* Sentry.xcodeproj */,
 				637AFDA8243B02760034958B /* iOS-Swift */,
@@ -533,14 +549,24 @@
 			path = Profiling;
 			sourceTree = "<group>";
 		};
+		84BA72A62C93698E0045B828 /* Shared */ = {
+			isa = PBXGroup;
+			children = (
+				84BA72A52C93698E0045B828 /* GitInjections.swift */,
+			);
+			name = Shared;
+			path = ../Shared;
+			sourceTree = "<group>";
+		};
 		D8269A3A274C095E00BD5BD5 /* iOS13-Swift */ = {
 			isa = PBXGroup;
 			children = (
+				924857552C89A85F00774AC3 /* MainViewController.swift */,
 				D8269A5C274C108100BD5BD5 /* iOS13-Swift.entitlements */,
 				D8269A3B274C095E00BD5BD5 /* AppDelegate.swift */,
 				D8269A3D274C095E00BD5BD5 /* SceneDelegate.swift */,
 				7B4F33FA271EBE0C00C8591E /* SwiftUIViewController.swift */,
-				7B4F33F7271EBD2500C8591E /* SwiftUI.swift */,
+				7B4F33F7271EBD2500C8591E /* SwiftUIView.swift */,
 				D8269A41274C095F00BD5BD5 /* Main.storyboard */,
 				D8269A49274C096000BD5BD5 /* Info.plist */,
 				D88E666D28732B6700153425 /* iOS13-Swift-Bridging-Header.h */,
@@ -588,6 +614,7 @@
 				D8832B1D2AF52D0500C522B0 /* PageViewController.swift */,
 				B70038842BB33E7700065A38 /* ReplaceContentViewController.swift */,
 				D8AE48C82C57DC2F0092A2A6 /* WebViewController.swift */,
+				D8DA29032C7F2199008BC825 /* SRRedactSampleViewController.swift */,
 			);
 			path = ViewControllers;
 			sourceTree = "<group>";
@@ -608,6 +635,9 @@
 				D8F01DF02A1377D0008F4996 /* SentryExposure.h */,
 				D8832B192AF4FE2000C522B0 /* SentryUIApplication.h */,
 				629EC8AC2B0B537400858855 /* TriggerAppHang.swift */,
+				D82915932C889F1800A6CDD4 /* SentryCocoaPrivate.h */,
+				84BA71E32C8BBBEC0045B828 /* DSNDisplayViewController.swift */,
+				84BA71F02C8BC55A0045B828 /* Toasts.swift */,
 			);
 			path = Tools;
 			sourceTree = "<group>";
@@ -639,9 +669,11 @@
 			buildPhases = (
 				637AFDA2243B02760034958B /* Sources */,
 				637AFDA3243B02760034958B /* Frameworks */,
+				84BA71F92C8F7F920045B828 /* Inject Git information into Info.plist */,
 				637AFDA4243B02760034958B /* Resources */,
 				630853552440C60F00DDE4CE /* Embed Frameworks */,
 				D840D535273A07F600CDF142 /* Embed App Clips */,
+				84BA720D2C8FA48D0045B828 /* Reset Git fields in Info.plist */,
 			);
 			buildRules = (
 			);
@@ -650,6 +682,8 @@
 				D840D533273A07F600CDF142 /* PBXTargetDependency */,
 			);
 			name = "iOS-Swift";
+			packageProductDependencies = (
+			);
 			productName = "iOS-Swift";
 			productReference = 637AFDA6243B02760034958B /* iOS-Swift.app */;
 			productType = "com.apple.product-type.application";
@@ -702,14 +736,18 @@
 			buildPhases = (
 				D8269A35274C095E00BD5BD5 /* Sources */,
 				D8269A36274C095E00BD5BD5 /* Frameworks */,
+				84BA720A2C8F9DEB0045B828 /* Inject Git information into Info.plist */,
 				D8269A37274C095E00BD5BD5 /* Resources */,
 				D8269A5B274C100300BD5BD5 /* Embed Frameworks */,
+				84BA720B2C8FA3E60045B828 /* Reset Git fields in Info.plist */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 			);
 			name = "iOS13-Swift";
+			packageProductDependencies = (
+			);
 			productName = "iOS13-Swift";
 			productReference = D8269A39274C095E00BD5BD5 /* iOS13-Swift.app */;
 			productType = "com.apple.product-type.application";
@@ -720,8 +758,10 @@
 			buildPhases = (
 				D840D51C273A07F400CDF142 /* Sources */,
 				D840D51D273A07F400CDF142 /* Frameworks */,
+				84BA72DF2C93919C0045B828 /* Inject Git information into Info.plist */,
 				D840D51E273A07F400CDF142 /* Resources */,
 				D8B56CF2273A8D97004DF238 /* Embed Frameworks */,
+				84BA72E02C93919D0045B828 /* Reset Git fields in Info.plist */,
 			);
 			buildRules = (
 			);
@@ -921,6 +961,117 @@
 		};
 /* End PBXResourcesBuildPhase section */
 
+/* Begin PBXShellScriptBuildPhase section */
+		84BA71F92C8F7F920045B828 /* Inject Git information into Info.plist */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Inject Git information into Info.plist";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "../Shared/inject-git-info.sh\n";
+		};
+		84BA720A2C8F9DEB0045B828 /* Inject Git information into Info.plist */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Inject Git information into Info.plist";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "../Shared/inject-git-info.sh\n";
+		};
+		84BA720B2C8FA3E60045B828 /* Reset Git fields in Info.plist */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Reset Git fields in Info.plist";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "../Shared/reset-git-info.sh\n";
+		};
+		84BA720D2C8FA48D0045B828 /* Reset Git fields in Info.plist */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Reset Git fields in Info.plist";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "../Shared/reset-git-info.sh\n";
+		};
+		84BA72DF2C93919C0045B828 /* Inject Git information into Info.plist */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Inject Git information into Info.plist";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "../Shared/inject-git-info.sh\n";
+		};
+		84BA72E02C93919D0045B828 /* Reset Git fields in Info.plist */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Reset Git fields in Info.plist";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "../Shared/reset-git-info.sh\n";
+		};
+/* End PBXShellScriptBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
 		637AFDA2243B02760034958B /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
@@ -932,8 +1083,11 @@
 				D8444E4C275E38090042F4DE /* UIViewControllerExtension.swift in Sources */,
 				637AFDAE243B02760034958B /* TransactionsViewController.swift in Sources */,
 				D8832B132AF4F7FE00C522B0 /* TopViewControllerInspector.swift in Sources */,
+				D8DA29042C7F2199008BC825 /* SRRedactSampleViewController.swift in Sources */,
 				0AABE2EA28855FF80057ED69 /* PermissionsViewController.swift in Sources */,
+				84BA71E42C8BBBEC0045B828 /* DSNDisplayViewController.swift in Sources */,
 				7B5525B32938B5B5006A2932 /* DiskWriteException.swift in Sources */,
+				84BA72A72C93698E0045B828 /* GitInjections.swift in Sources */,
 				D8F3D062274EBD4800B56F8C /* SpanExtension.swift in Sources */,
 				637AFDAA243B02760034958B /* AppDelegate.swift in Sources */,
 				D8F57BC527BBD787000D09D4 /* CoreDataViewController.swift in Sources */,
@@ -954,6 +1108,7 @@
 				7B79000429028C7300A7F467 /* MetricKitManager.swift in Sources */,
 				D8D7BB4A2750067900044146 /* UIAssert.swift in Sources */,
 				D8F3D057274E574200B56F8C /* LoremIpsumViewController.swift in Sources */,
+				84BA71F12C8BC55A0045B828 /* Toasts.swift in Sources */,
 				629EC8AD2B0B537400858855 /* TriggerAppHang.swift in Sources */,
 				D8AE48C92C57DC2F0092A2A6 /* WebViewController.swift in Sources */,
 				D8DBDA78274D5FC400007380 /* SplitViewController.swift in Sources */,
@@ -993,11 +1148,14 @@
 			files = (
 				D8832B1A2AF5000F00C522B0 /* TopViewControllerInspector.swift in Sources */,
 				D8AE48CF2C57E0BD0092A2A6 /* WebViewController.swift in Sources */,
+				84BA71F22C8F73FD0045B828 /* DSNDisplayViewController.swift in Sources */,
 				D8444E56275F79590042F4DE /* UIViewExtension.swift in Sources */,
 				D8269A57274C0FA100BD5BD5 /* NibViewController.swift in Sources */,
 				D8269A4E274C09A400BD5BD5 /* SwiftUIViewController.swift in Sources */,
-				D8269A4F274C09A400BD5BD5 /* SwiftUI.swift in Sources */,
+				D8269A4F274C09A400BD5BD5 /* SwiftUIView.swift in Sources */,
 				D8444E57275F795D0042F4DE /* UIViewControllerExtension.swift in Sources */,
+				84BA72A82C93698E0045B828 /* GitInjections.swift in Sources */,
+				924857562C89A86300774AC3 /* MainViewController.swift in Sources */,
 				D8F3D058274E57D600B56F8C /* TableViewController.swift in Sources */,
 				7B5525B62938B644006A2932 /* DiskWriteException.swift in Sources */,
 				D8269A58274C0FC700BD5BD5 /* TransactionsViewController.swift in Sources */,
@@ -1018,6 +1176,7 @@
 				D8444E54275F794D0042F4DE /* SpanObserver.swift in Sources */,
 				D8269A55274C0F9A00BD5BD5 /* TraceTestViewController.swift in Sources */,
 				D80D021C29EE9E400084393D /* ExtraViewController.swift in Sources */,
+				84BA71F32C8F74080045B828 /* Toasts.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1025,6 +1184,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				84BA72DE2C9391920045B828 /* GitInjections.swift in Sources */,
 				D840D527273A07F400CDF142 /* ViewController.swift in Sources */,
 				D840D523273A07F400CDF142 /* AppDelegate.swift in Sources */,
 				D840D525273A07F400CDF142 /* SceneDelegate.swift in Sources */,
@@ -1252,7 +1412,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 97JCY7859U;
 				INFOPLIST_FILE = "iOS-Swift/Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -1281,7 +1441,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 97JCY7859U;
 				INFOPLIST_FILE = "iOS-Swift/Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -1467,7 +1627,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 97JCY7859U;
 				INFOPLIST_FILE = "iOS-Swift/Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -1692,7 +1852,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 97JCY7859U;
 				INFOPLIST_FILE = "iOS-Swift/Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",

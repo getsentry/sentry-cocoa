@@ -1,7 +1,7 @@
 import SentrySwiftUI
 import SwiftUI
 
-struct SwiftUI: View {
+struct SwiftUIView: View {
     var body: some View {
         SentryTracedView("SwiftUI View") {
             Text("SwiftUI!")
@@ -9,8 +9,8 @@ struct SwiftUI: View {
     }
 }
 
-struct SwiftUI_Previews: PreviewProvider {
+struct SwiftUIView_Previews: PreviewProvider {
     static var previews: some View {
-        SwiftUI()
+        SwiftUIView()
     }
 }

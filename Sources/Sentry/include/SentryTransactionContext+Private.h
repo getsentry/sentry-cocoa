@@ -3,8 +3,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface
-SentryTransactionContext ()
+@interface SentryTransactionContext ()
 
 - (instancetype)initWithName:(NSString *)name
                   nameSource:(SentryTransactionNameSource)source

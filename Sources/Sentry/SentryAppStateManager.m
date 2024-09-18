@@ -17,8 +17,7 @@
 #    import <UIKit/UIKit.h>
 #endif
 
-@interface
-SentryAppStateManager ()
+@interface SentryAppStateManager ()
 
 @property (nonatomic, strong) SentryOptions *options;
 @property (nonatomic, strong) SentryCrashWrapper *crashWrapper;

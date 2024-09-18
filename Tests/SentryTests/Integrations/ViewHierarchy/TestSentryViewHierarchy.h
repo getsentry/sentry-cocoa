@@ -7,8 +7,7 @@
 
 void saveViewHierarchy(const char *path);
 
-@interface
-SentryViewHierarchy (Test)
+@interface SentryViewHierarchy (Test)
 - (int)viewHierarchyFromView:(UIView *)view intoContext:(SentryCrashJSONEncodeContext *)context;
 - (BOOL)processViewHierarchy:(NSArray<UIView *> *)windows
                  addFunction:(SentryCrashJSONAddDataFunc)addJSONDataFunc

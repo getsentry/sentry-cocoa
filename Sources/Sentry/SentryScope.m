@@ -17,8 +17,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface
-SentryScope ()
+@interface SentryScope ()
 
 /**
  * Set global tags -> these will be sent with every event

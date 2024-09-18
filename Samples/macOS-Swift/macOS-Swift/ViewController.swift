@@ -1,8 +1,11 @@
 import Cocoa
 import Sentry
+import SwiftUI
 
 class ViewController: NSViewController {
 
+    private let diskWriteException = DiskWriteException()
+    
     @IBAction func addBreadCrumb(_ sender: Any) {
         let crumb = Breadcrumb(level: SentryLevel.info, category: "Debug")
         crumb.message = "tapped addBreadcrumb"
@@ -15,6 +18,20 @@ class ViewController: NSViewController {
         // Returns eventId in case of successfull processed event
         // otherwise nil
         print("\(String(describing: eventId))")
+    }
+    
+    @IBAction func captureError(_ sendder: Any) {
+        let error = NSError(domain: "SampleErrorDomain", code: 1, userInfo: [NSLocalizedDescriptionKey: "Object does not exist"])
+        SentrySDK.capture(error: error) { (scope) in
+            scope.setTag(value: "value", key: "myTag")
+        }
+    }
+    
+    @IBAction func captureException(_ sender: Any) {
+        let exception = NSException(name: NSExceptionName("My Custom exeption"), reason: "User clicked the button", userInfo: nil)
+        let scope = Scope()
+        scope.setLevel(.fatal)
+        SentrySDK.capture(exception: exception, scope: scope)
     }
     
     @IBAction func captureUserFeedback(_ sender: Any) {
@@ -57,10 +74,25 @@ class ViewController: NSViewController {
         let wrapper = CppWrapper()
         wrapper.rethrowNoActiveCPPException()
     }
+    
     @IBAction func asyncCrash(_ sender: Any) {
         DispatchQueue.main.async {
             self.asyncCrash1()
         }
+    }
+    
+    @IBAction func diskWriteException(_ sender: Any) {
+        diskWriteException.continuouslyWriteToDisk()
+        // As we are writing to disk continuously we would keep adding spans to this UIEventTransaction.
+        SentrySDK.span?.finish()
+    }
+    
+    @IBAction func showSwiftUIView(_ sender: Any) {
+        let controller = NSHostingController(rootView: SwiftUIView())
+        let window = NSWindow(contentViewController: controller)
+        window.setContentSize(NSSize(width: 300, height: 200))
+        let windowController = NSWindowController(window: window)
+        windowController.showWindow(self)
     }
     
     func asyncCrash1() {
