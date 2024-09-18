@@ -46,7 +46,7 @@ class UIRedactBuilder {
     private var redactClassesIdentifiers: Set<ObjectIdentifier>
         
     /**
-     Initializes a new instance of the redaction process with specified options.
+     Initializes a new instance of the redaction process with the specified options.
 
      This initializer configures which `UIView` subclasses should be redacted from screenshots and which should be ignored during the redaction process.
 
