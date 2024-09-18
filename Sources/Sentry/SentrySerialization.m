@@ -100,33 +100,32 @@ NS_ASSUME_NONNULL_BEGIN
                                                                                error:&error];
             if (nil != error) {
                 SENTRY_LOG_ERROR(@"Failed to parse envelope header %@", error);
-                break;
+            } else {
+                SentryId *eventId = nil;
+                NSString *eventIdAsString = headerDictionary[@"event_id"];
+                if (nil != eventIdAsString) {
+                    eventId = [[SentryId alloc] initWithUUIDString:eventIdAsString];
+                }
+
+                SentrySdkInfo *sdkInfo = nil;
+                if (nil != headerDictionary[@"sdk"]) {
+                    sdkInfo = [[SentrySdkInfo alloc] initWithDict:headerDictionary];
+                }
+
+                SentryTraceContext *traceContext = nil;
+                if (nil != headerDictionary[@"trace"]) {
+                    traceContext =
+                        [[SentryTraceContext alloc] initWithDict:headerDictionary[@"trace"]];
+                }
+
+                envelopeHeader = [[SentryEnvelopeHeader alloc] initWithId:eventId
+                                                                  sdkInfo:sdkInfo
+                                                             traceContext:traceContext];
+
+                if (headerDictionary[@"sent_at"] != nil) {
+                    envelopeHeader.sentAt = sentry_fromIso8601String(headerDictionary[@"sent_at"]);
+                }
             }
-
-            SentryId *eventId = nil;
-            NSString *eventIdAsString = headerDictionary[@"event_id"];
-            if (nil != eventIdAsString) {
-                eventId = [[SentryId alloc] initWithUUIDString:eventIdAsString];
-            }
-
-            SentrySdkInfo *sdkInfo = nil;
-            if (nil != headerDictionary[@"sdk"]) {
-                sdkInfo = [[SentrySdkInfo alloc] initWithDict:headerDictionary];
-            }
-
-            SentryTraceContext *traceContext = nil;
-            if (nil != headerDictionary[@"trace"]) {
-                traceContext = [[SentryTraceContext alloc] initWithDict:headerDictionary[@"trace"]];
-            }
-
-            envelopeHeader = [[SentryEnvelopeHeader alloc] initWithId:eventId
-                                                              sdkInfo:sdkInfo
-                                                         traceContext:traceContext];
-
-            if (headerDictionary[@"sent_at"] != nil) {
-                envelopeHeader.sentAt = sentry_fromIso8601String(headerDictionary[@"sent_at"]);
-            }
-
             break;
         }
     }
@@ -136,6 +135,7 @@ NS_ASSUME_NONNULL_BEGIN
         return nil;
     }
 
+    NSAssert(envelopeHeaderIndex > 0, @"EnvelopeHeader was parsed, its index is expected.");
     if (envelopeHeaderIndex == 0) {
         SENTRY_LOG_ERROR(@"EnvelopeHeader was parsed, its index is expected.");
         return nil;
