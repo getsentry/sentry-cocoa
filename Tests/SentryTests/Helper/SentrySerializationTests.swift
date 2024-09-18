@@ -166,7 +166,7 @@ class SentrySerializationTests: XCTestCase {
         XCTAssertNotNil(SentrySerialization.envelope(with: itemData))
     }
     
-    func testSentryEnvelopeSerializer_EnvelopeWithHeaderAndItemWithAttachmet() throws {
+    func testSentryEnvelopeSerializer_EnvelopeWithHeaderAndItemWithAttachment() throws {
         let eventId = SentryId(uuidString: "12c2d058-d584-4270-9aa2-eca08bf20986")
         let payloadAsString = "helloworld"
         
@@ -176,17 +176,15 @@ class SentrySerializationTests: XCTestCase {
                        \(payloadAsString)
                        """.data(using: .utf8)!
         
-        if let envelope = SentrySerialization.envelope(with: itemData) {
-            XCTAssertEqual(eventId, envelope.header.eventId!)
-            
-            XCTAssertEqual(1, envelope.items.count)
-            let item = try XCTUnwrap(envelope.items.first)
-            XCTAssertEqual(10, item.header.length)
-            XCTAssertEqual("attachment", item.header.type)
-            XCTAssertEqual(payloadAsString.data(using: .utf8), item.data)
-        } else {
-            XCTFail("Failed to deserialize envelope")
-        }
+        let envelope = try XCTUnwrap(SentrySerialization.envelope(with: itemData), "Failed to deserialize envelope")
+        XCTAssertEqual(eventId, envelope.header.eventId!)
+        
+        XCTAssertEqual(1, envelope.items.count)
+        let item = try XCTUnwrap(envelope.items.first)
+        XCTAssertEqual(10, item.header.length)
+        XCTAssertEqual("attachment", item.header.type)
+        XCTAssertEqual(payloadAsString.data(using: .utf8), item.data)
+      
     }
     
     func testSentryEnvelopeSerializer_ItemWithoutTypeReturnsNil() {
@@ -241,9 +239,7 @@ class SentrySerializationTests: XCTestCase {
     }
     
     func testSerializeSessionWithGarbage() throws {
-        guard let data = "started".data(using: .ascii) else {
-            XCTFail("Failed to create data"); return
-        }
+        let data = try XCTUnwrap("started".data(using: .ascii))
         
         XCTAssertNil(SentrySerialization.session(with: data))
     }
