@@ -132,16 +132,34 @@ import UIKit
     public var submitButtonLabel: String = "Send Bug Report"
     
     /**
+     * The accessibility label of the form's "Submit" button.
+     * - note: Default: `submitButtonLabel` value
+     */
+    public var submitButtonAccessibilityLabel: String?
+    
+    /**
      * The label of cancel buttons used in the feedback form.
      * - note: Default: `"Cancel"`
      */
     public var cancelButtonLabel: String = "Cancel"
     
     /**
+     * The accessibility label of the form's "Cancel" button.
+     * - note: Default: `cancelButtonLabel` value
+     */
+    public var cancelButtonAccessibilityLabel: String?
+    
+    /**
      * The label of confirm buttons used in the feedback form.
      * - note: Default: `"Confirm"`
      */
     public var confirmButtonLabel: String = "Confirm"
+    
+    /**
+     * The accessibility label of the form's "Confirm" button.
+     * - note: Default: `confirmButtonLabel` value
+     */
+    public var confirmButtonAccessibilityLabel: String?
     
     // MARK: Theme
     
