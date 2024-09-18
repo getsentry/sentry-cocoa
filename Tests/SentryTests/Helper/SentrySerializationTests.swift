@@ -288,10 +288,13 @@ class SentrySerializationTests: XCTestCase {
         
         XCTAssertEqual(1, envelope.items.count)
         let item = try XCTUnwrap(envelope.items.first)
-        XCTAssertEqual(10, item.header.length)
-        XCTAssertEqual("attachment", item.header.type)
-        XCTAssertEqual("hello.txt", item.header.filename)
-        XCTAssertNil(item.header.contentType)
+        
+        let header = try XCTUnwrap(item.header as? SentryEnvelopeAttachmentHeader)
+        XCTAssertEqual(10, header.length)
+        XCTAssertEqual("attachment", header.type)
+        XCTAssertEqual("hello.txt", header.filename)
+        XCTAssertEqual(SentryAttachmentType.eventAttachment, header.attachmentType)
+        XCTAssertNil(header.contentType)
         XCTAssertEqual(payloadAsString.data(using: .utf8), item.data)
     }
     
