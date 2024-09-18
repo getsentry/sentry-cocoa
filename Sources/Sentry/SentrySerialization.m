@@ -135,6 +135,7 @@ NS_ASSUME_NONNULL_BEGIN
         return nil;
     }
 
+    NSAssert(envelopeHeaderIndex > 0, @"EnvelopeHeader was parsed, its index is expected.");
     if (envelopeHeaderIndex == 0) {
         SENTRY_LOG_ERROR(@"EnvelopeHeader was parsed, its index is expected.");
         return nil;
