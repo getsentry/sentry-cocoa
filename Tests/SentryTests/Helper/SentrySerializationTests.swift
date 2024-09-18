@@ -184,7 +184,89 @@ class SentrySerializationTests: XCTestCase {
         XCTAssertEqual(10, item.header.length)
         XCTAssertEqual("attachment", item.header.type)
         XCTAssertEqual(payloadAsString.data(using: .utf8), item.data)
-      
+    }
+    
+    func testEnvelopeWithData_WithAttachmentWithFileName() throws {
+        let eventId = SentryId(uuidString: "12c2d058-d584-4270-9aa2-eca08bf20986")
+        let payloadAsString = "helloworld"
+        
+        let itemData = """
+                       {\"event_id\":\"\(eventId)\"}
+                       {\"length\":10,\"type\":\"attachment\",\"filename\":\"hello.txt\"}
+                       \(payloadAsString)
+                       """.data(using: .utf8)!
+        
+        let envelope = try XCTUnwrap(SentrySerialization.envelope(with: itemData), "Failed to deserialize envelope")
+        XCTAssertEqual(eventId, envelope.header.eventId!)
+        
+        XCTAssertEqual(1, envelope.items.count)
+        let item = try XCTUnwrap(envelope.items.first)
+        XCTAssertEqual(10, item.header.length)
+        XCTAssertEqual("attachment", item.header.type)
+        XCTAssertEqual("hello.txt", item.header.filename)
+        XCTAssertNil(item.header.contentType)
+        XCTAssertEqual(payloadAsString.data(using: .utf8), item.data)
+    }
+    
+    func testEnvelopeWithData_CorruptHeader_ReturnsNil() throws {
+        var itemData = Data()
+        itemData.append(contentsOf: [0xFF, 0xFF, 0xFF]) // Invalid UTF-8 bytes
+        itemData.append(try XCTUnwrap("\n".data(using: .utf8)))
+        
+        XCTAssertNil(SentrySerialization.envelope(with: itemData))
+    }
+    
+    func testEnvelopeWithData_EmptyHeader_ReturnsNil() throws {
+        let itemData = try XCTUnwrap("\n".data(using: .utf8))
+        
+        XCTAssertNil(SentrySerialization.envelope(with: itemData))
+    }
+    
+    func testEnvelopeWithData_EmptyItemHeader_ReturnsNil() throws {
+        let eventId = SentryId(uuidString: "12c2d058-d584-4270-9aa2-eca08bf20986")
+        
+        let itemData = try XCTUnwrap("""
+                       {\"event_id\":\"\(eventId)\"}
+                       
+                       """.data(using: .utf8))
+        
+        XCTAssertNil(SentrySerialization.envelope(with: itemData))
+    }
+    
+    func testEnvelopeWithData_EmptyItemHeaderFollwedByNewLine_ReturnsNil() throws {
+        let eventId = SentryId(uuidString: "12c2d058-d584-4270-9aa2-eca08bf20986")
+        
+        let itemData = try XCTUnwrap("""
+                       {\"event_id\":\"\(eventId)\"}
+                       
+                       
+                       """.data(using: .utf8))
+        
+        XCTAssertNil(SentrySerialization.envelope(with: itemData))
+    }
+    
+    func testEnvelopeWithData_ItemHeaderWithSpace_ReturnsNil() throws {
+        let eventId = SentryId(uuidString: "12c2d058-d584-4270-9aa2-eca08bf20986")
+        
+        let itemData = try XCTUnwrap("""
+                       {\"event_id\":\"\(eventId)\"}
+                        
+                       """.data(using: .utf8))
+        
+        XCTAssertNil(SentrySerialization.envelope(with: itemData))
+    }
+    
+    func testEnvelopeWithData_ItemHeaderWithoutType_ReturnsNil() throws {
+        let eventId = SentryId(uuidString: "12c2d058-d584-4270-9aa2-eca08bf20986")
+        let payloadAsString = "helloworld"
+        
+        let itemData = try XCTUnwrap("""
+                       {\"event_id\":\"\(eventId)\"}
+                       {\"typ\":\"attachment\"}
+                       \(payloadAsString)
+                       """.data(using: .utf8))
+        
+        XCTAssertNil(SentrySerialization.envelope(with: itemData))
     }
     
     func testSentryEnvelopeSerializer_ItemWithoutTypeReturnsNil() {
