@@ -18,8 +18,7 @@
 #    import <UIKit/UIKit.h>
 #    import <objc/runtime.h>
 
-@interface
-SentryUIViewControllerPerformanceTracker ()
+@interface SentryUIViewControllerPerformanceTracker ()
 
 @property (nonatomic, strong) SentryPerformanceTracker *tracker;
 @property (nullable, nonatomic, weak) SentryTimeToDisplayTracker *currentTTDTracker;

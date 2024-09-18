@@ -38,8 +38,7 @@
 #    import "SentryProfiler+Private.h"
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
-@interface
-SentrySDK ()
+@interface SentrySDK ()
 
 @property (class) SentryHub *currentHub;
 

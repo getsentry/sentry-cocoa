@@ -15,18 +15,8 @@ class SentryViewPhotographerTests: XCTestCase {
         }
     }
     
-    private class RedactOptions: SentryRedactOptions {
-        var redactAllText: Bool
-        var redactAllImages: Bool
-        
-        init(redactAllText: Bool = true, redactAllImages: Bool = true) {
-            self.redactAllText = redactAllText
-            self.redactAllImages = redactAllImages
-        }
-    }
-    
     func sut() -> SentryViewPhotographer {
-        return SentryViewPhotographer(renderer: TestViewRenderer())
+        return SentryViewPhotographer(renderer: TestViewRenderer(), redactOptions: RedactOptions())
     }
     
     private func prepare(views: [UIView], options: any SentryRedactOptions = RedactOptions()) -> UIImage? {

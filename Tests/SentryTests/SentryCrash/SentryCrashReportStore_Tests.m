@@ -253,7 +253,7 @@
 
     XCTAssertEqualObjects([NSString stringWithUTF8String:attachmentsPath],
         [self.tempPath stringByAppendingPathComponent:
-                           @"/ReportPath/AppName-report-00000013b0ac358d-attachments"]);
+                @"/ReportPath/AppName-report-00000013b0ac358d-attachments"]);
 }
 
 - (void)test_AttachmentsPath_forReport
@@ -271,7 +271,7 @@
 
     XCTAssertEqualObjects([NSString stringWithUTF8String:attachmentsPath],
         [self.tempPath stringByAppendingPathComponent:
-                           @"/ReportPath/AppName-report-00000013b0ac358d-attachments"]);
+                @"/ReportPath/AppName-report-00000013b0ac358d-attachments"]);
 }
 
 - (void)test_initializeIDs

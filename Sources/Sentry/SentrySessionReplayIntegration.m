@@ -39,8 +39,7 @@ static SentryTouchTracker *_touchTracker;
 
 static SentrySessionReplayIntegration *_installedInstance;
 
-@interface
-SentrySessionReplayIntegration () <SentryReachabilityObserver>
+@interface SentrySessionReplayIntegration () <SentryReachabilityObserver>
 - (void)newSceneActivate;
 @end
 
@@ -63,6 +62,8 @@ SentrySessionReplayIntegration () <SentryReachabilityObserver>
     }
 
     _replayOptions = options.experimental.sessionReplay;
+    _viewPhotographer =
+        [[SentryViewPhotographer alloc] initWithRedactOptions:options.experimental.sessionReplay];
 
     if (options.enableSwizzling) {
         _touchTracker = [[SentryTouchTracker alloc]
@@ -86,8 +87,6 @@ SentrySessionReplayIntegration () <SentryReachabilityObserver>
         }];
 
     [SentryDependencyContainer.sharedInstance.reachability addObserver:self];
-    [SentryViewPhotographer.shared addIgnoreClasses:_replayOptions.ignoreRedactViewTypes];
-    [SentryViewPhotographer.shared addRedactClasses:_replayOptions.redactViewTypes];
 
     _installedInstance = self;
     return YES;
@@ -236,7 +235,7 @@ SentrySessionReplayIntegration () <SentryReachabilityObserver>
              fullSession:(BOOL)shouldReplayFullSession
 {
     [self startWithOptions:replayOptions
-         screenshotProvider:SentryViewPhotographer.shared
+         screenshotProvider:_viewPhotographer
         breadcrumbConverter:[[SentrySRDefaultBreadcrumbConverter alloc] init]
                 fullSession:shouldReplayFullSession];
 }
@@ -306,9 +305,9 @@ SentrySessionReplayIntegration () <SentryReachabilityObserver>
                           path:(NSString *)path
                        options:(SentryReplayOptions *)options
 {
-    NSDictionary *info = [[NSDictionary alloc]
-        initWithObjectsAndKeys:sessionId.sentryIdString, @"replayId", path.lastPathComponent,
-        @"path", @(options.onErrorSampleRate), @"errorSampleRate", nil];
+    NSDictionary *info =
+        [[NSDictionary alloc] initWithObjectsAndKeys:sessionId.sentryIdString, @"replayId",
+            path.lastPathComponent, @"path", @(options.onErrorSampleRate), @"errorSampleRate", nil];
 
     NSData *data = [SentrySerialization dataWithJSONObject:info];
 

@@ -34,7 +34,7 @@
                                          @"sentry_version=7,sentry_client=sentry.cocoa/"
                                          @"%@,sentry_key=username,sentry_"
                                          @"secret=password",
-                          SentryMeta.versionString];
+            SentryMeta.versionString];
 
     XCTAssertEqualObjects(request.allHTTPHeaderFields[@"X-Sentry-Auth"], authHeader);
     XCTAssertNil(error);
@@ -53,7 +53,7 @@
         [[NSString alloc] initWithFormat:@"Sentry "
                                          @"sentry_version=7,sentry_client=sentry.cocoa/"
                                          @"%@,sentry_key=username",
-                          SentryMeta.versionString];
+            SentryMeta.versionString];
 
     XCTAssertEqualObjects(request.allHTTPHeaderFields[@"X-Sentry-Auth"], authHeader);
     XCTAssertNil(error);

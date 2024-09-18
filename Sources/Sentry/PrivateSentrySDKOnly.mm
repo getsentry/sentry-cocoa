@@ -11,7 +11,7 @@
 #import "SentryOptions.h"
 #import "SentrySDK+Private.h"
 #import "SentrySerialization.h"
-#import "SentrySessionReplayIntegration.h"
+#import "SentrySessionReplayIntegration+Private.h"
 #import "SentrySwift.h"
 #import "SentryThreadHandle.hpp"
 #import "SentryUser+Private.h"
@@ -21,7 +21,6 @@
 #import <SentryFramesTracker.h>
 #import <SentryScope+Private.h>
 #import <SentryScreenshot.h>
-#import <SentrySessionReplayIntegration.h>
 #import <SentryUser.h>
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
@@ -351,12 +350,12 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
 
 + (void)addReplayIgnoreClasses:(NSArray<Class> *_Nonnull)classes
 {
-    [SentryViewPhotographer.shared addIgnoreClasses:classes];
+    [[PrivateSentrySDKOnly getReplayIntegration].viewPhotographer addIgnoreClasses:classes];
 }
 
 + (void)addReplayRedactClasses:(NSArray<Class> *_Nonnull)classes
 {
-    [SentryViewPhotographer.shared addRedactClasses:classes];
+    [[PrivateSentrySDKOnly getReplayIntegration].viewPhotographer addRedactClasses:classes];
 }
 #endif
 
