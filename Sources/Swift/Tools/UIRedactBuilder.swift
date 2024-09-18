@@ -44,23 +44,58 @@ class UIRedactBuilder {
     private var ignoreClassesIdentifiers: Set<ObjectIdentifier>
     ///This is a list of UIView subclasses that need to be redacted from screenshot
     private var redactClassesIdentifiers: Set<ObjectIdentifier>
-    
-    init() {
         
-        var redactClasses = [ UILabel.self, UITextView.self, UITextField.self ] +
-        //this classes are used by SwiftUI to display images.
-        ["_TtCOCV7SwiftUI11DisplayList11ViewUpdater8Platform13CGDrawingView",
-         "_TtC7SwiftUIP33_A34643117F00277B93DEBAB70EC0697122_UIShapeHitTestingView",
-         "SwiftUI._UIGraphicsView", "SwiftUI.ImageLayer", "UIWebView"
-        ].compactMap { NSClassFromString($0) }
+    /**
+     Initializes a new instance of the redaction process with the specified options.
+
+     This initializer configures which `UIView` subclasses should be redacted from screenshots and which should be ignored during the redaction process.
+
+     - parameter options: A `SentryRedactOptions` object that specifies the configuration for the redaction process.
+     
+     - If `options.redactAllText` is `true`, common text-related views such as `UILabel`, `UITextView`, and `UITextField` are redacted.
+     - If `options.redactAllImages` is `true`, common image-related views such as `UIImageView` and various internal `SwiftUI` image views are redacted.
+     - The `options.ignoreRedactViewTypes` allows specifying custom view types to be ignored during the redaction process.
+     - The `options.redactViewTypes` allows specifying additional custom view types to be redacted.
+
+     - note: On iOS, views such as `WKWebView` and `UIWebView` are automatically redacted, and controls like `UISlider` and `UISwitch` are ignored.
+     */
+    init(options: SentryRedactOptions) {
+        var redactClasses = [AnyClass]()
+        
+        if options.redactAllText {
+            redactClasses += [ UILabel.self, UITextView.self, UITextField.self ]
+        }
+        
+        if options.redactAllImages {
+            //this classes are used by SwiftUI to display images.
+            redactClasses += ["_TtCOCV7SwiftUI11DisplayList11ViewUpdater8Platform13CGDrawingView",
+             "_TtC7SwiftUIP33_A34643117F00277B93DEBAB70EC0697122_UIShapeHitTestingView",
+             "SwiftUI._UIGraphicsView", "SwiftUI.ImageLayer"
+            ].compactMap(NSClassFromString(_:))
+            
+            redactClasses.append(UIImageView.self)
+        }
         
 #if os(iOS)
         redactClasses += [ WKWebView.self ]
+
+        //If we try to use 'UIWebView.self' it will not compile for macCatalyst, but the class does exists.
+        redactClasses += [ "UIWebView" ].compactMap(NSClassFromString(_:))
+
         ignoreClassesIdentifiers = [ ObjectIdentifier(UISlider.self), ObjectIdentifier(UISwitch.self) ]
 #else
         ignoreClassesIdentifiers = []
 #endif
+        
         redactClassesIdentifiers = Set(redactClasses.map({ ObjectIdentifier($0) }))
+        
+        for type in options.ignoreViewClasses {
+            self.ignoreClassesIdentifiers.insert(ObjectIdentifier(type))
+        }
+        
+        for type in options.redactViewClasses {
+            self.redactClassesIdentifiers.insert(ObjectIdentifier(type))
+        }
     }
     
     func containsIgnoreClass(_ ignoreClass: AnyClass) -> Bool {
@@ -112,13 +147,12 @@ class UIRedactBuilder {
      
      This function returns the redaction regions in reverse order from what was found in the view hierarchy, allowing the processing of regions from top to bottom. This ensures that clip regions are applied first before drawing a redact mask on lower views.
      */
-    func redactRegionsFor(view: UIView, options: SentryRedactOptions?) -> [RedactRegion] {
+    func redactRegionsFor(view: UIView) -> [RedactRegion] {
         var redactingRegions = [RedactRegion]()
         
         self.mapRedactRegion(fromView: view,
                              redacting: &redactingRegions,
                              rootFrame: view.frame,
-                             redactOptions: options ?? SentryReplayOptions(),
                              transform: CGAffineTransform.identity)
         
         return redactingRegions.reversed()
@@ -128,14 +162,14 @@ class UIRedactBuilder {
         return SentryRedactViewHelper.shouldIgnoreView(view) || containsIgnoreClass(type(of: view))
     }
     
-    private func shouldRedact(view: UIView, redactOptions: SentryRedactOptions) -> Bool {
+    private func shouldRedact(view: UIView) -> Bool {
         if SentryRedactViewHelper.shouldRedactView(view) {
             return true
         }
-        if redactOptions.redactAllImages, let imageView = view as? UIImageView {
+        if let imageView = view as? UIImageView, containsRedactClass(UIImageView.self) {
             return shouldRedact(imageView: imageView)
         }
-        return redactOptions.redactAllText && containsRedactClass(type(of: view))
+        return containsRedactClass(type(of: view))
     }
     
     private func shouldRedact(imageView: UIImageView) -> Bool {
@@ -145,22 +179,23 @@ class UIRedactBuilder {
         return image.imageAsset?.value(forKey: "_containingBundle") == nil
     }
     
-    private func mapRedactRegion(fromView view: UIView, redacting: inout [RedactRegion], rootFrame: CGRect, redactOptions: SentryRedactOptions, transform: CGAffineTransform) {
-        guard (redactOptions.redactAllImages || redactOptions.redactAllText) && !view.isHidden && view.alpha != 0 else { return }
+    private func mapRedactRegion(fromView view: UIView, redacting: inout [RedactRegion], rootFrame: CGRect, transform: CGAffineTransform, forceRedact: Bool = false) {
+        guard !redactClassesIdentifiers.isEmpty && !view.isHidden && view.alpha != 0 else { return }
         
         let layer = view.layer.presentation() ?? view.layer
         
         let newTransform = concatenateTranform(transform, with: layer)
         
-        let ignore = shouldIgnore(view: view)
-        let redact = shouldRedact(view: view, redactOptions: redactOptions)
+        let ignore = !forceRedact && shouldIgnore(view: view)
+        let redact = forceRedact || shouldRedact(view: view)
+        var enforceRedact = forceRedact
         
         if !ignore && redact {
             redacting.append(RedactRegion(size: layer.bounds.size, transform: newTransform, type: .redact, color: self.color(for: view)))
-            return
-        }
-        
-        if isOpaque(view) {
+
+            guard !view.clipsToBounds else { return }
+            enforceRedact = true
+        } else if isOpaque(view) {
             let finalViewFrame = CGRect(origin: .zero, size: layer.bounds.size).applying(newTransform)
             if isAxisAligned(newTransform) && finalViewFrame == rootFrame {
                 //Because the current view is covering everything we found so far we can clear `redacting` list
@@ -170,7 +205,7 @@ class UIRedactBuilder {
             }
         }
         
-        guard !ignore else { return }
+        guard view.subviews.count > 0 else { return }
         
         if view.clipsToBounds {
             /// Because the order in which we process the redacted regions is reversed, we add the end of the clip region first.
@@ -178,7 +213,7 @@ class UIRedactBuilder {
             redacting.append(RedactRegion(size: layer.bounds.size, transform: newTransform, type: .clipEnd))
         }
         for subview in view.subviews.sorted(by: { $0.layer.zPosition < $1.layer.zPosition }) {
-            mapRedactRegion(fromView: subview, redacting: &redacting, rootFrame: rootFrame, redactOptions: redactOptions, transform: newTransform)
+            mapRedactRegion(fromView: subview, redacting: &redacting, rootFrame: rootFrame, transform: newTransform, forceRedact: enforceRedact)
         }
         if view.clipsToBounds {
             redacting.append(RedactRegion(size: layer.bounds.size, transform: newTransform, type: .clipBegin))

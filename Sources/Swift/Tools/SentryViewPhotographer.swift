@@ -21,25 +21,26 @@ class DefaultViewRenderer: ViewRenderer {
 
 @objcMembers
 class SentryViewPhotographer: NSObject, SentryViewScreenshotProvider {
-    static let shared = SentryViewPhotographer()
-    private let redactBuilder = UIRedactBuilder()
+    private let redactBuilder: UIRedactBuilder
     private let dispatchQueue = SentryDispatchQueueWrapper()
 
     var renderer: ViewRenderer
         
-    init(renderer: ViewRenderer) {
+    init(renderer: ViewRenderer, redactOptions: SentryRedactOptions) {
         self.renderer = renderer
+        redactBuilder = UIRedactBuilder(options: redactOptions)
         super.init()
     }
     
-    private convenience override init() {
-        self.init(renderer: DefaultViewRenderer())
+    init(redactOptions: SentryRedactOptions) {
+        self.renderer = DefaultViewRenderer()
+        self.redactBuilder = UIRedactBuilder(options: redactOptions)
     }
         
     func image(view: UIView, options: SentryRedactOptions, onComplete: @escaping ScreenshotCallback ) {
         let image = renderer.render(view: view)
         
-        let redact = redactBuilder.redactRegionsFor(view: view, options: options)
+        let redact = redactBuilder.redactRegionsFor(view: view)
         let imageSize = view.bounds.size
         dispatchQueue.dispatchAsync {
             let screenshot = UIGraphicsImageRenderer(size: imageSize, format: .init(for: .init(displayScale: 1))).image { context in
