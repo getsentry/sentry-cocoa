@@ -6,8 +6,7 @@
 #    import <SentryFileManager.h>
 #    import <SentryLog.h>
 
-@interface
-SentryWatchdogTerminationScopeObserver ()
+@interface SentryWatchdogTerminationScopeObserver ()
 
 @property (strong, nonatomic) SentryFileManager *fileManager;
 @property (strong, nonatomic) NSFileHandle *fileHandle;

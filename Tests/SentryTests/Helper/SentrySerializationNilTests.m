@@ -1,3 +1,4 @@
+#import "SentryEnvelope.h"
 #import "SentrySerialization.h"
 #import <XCTest/XCTest.h>
 

@@ -8,9 +8,11 @@ class ErrorsViewController: UIViewController {
     private let dispatchQueue = DispatchQueue(label: "ErrorsViewController", attributes: .concurrent)
     private let diskWriteException = DiskWriteException()
     
+    @IBOutlet weak var dsnView: UIView!
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         SentrySDK.reportFullyDisplayed()
+        addDSNDisplay(self, vcview: dsnView)
     }
 
     @IBAction func useAfterFree(_ sender: UIButton) {

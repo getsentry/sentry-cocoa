@@ -46,7 +46,7 @@ class UIRedactBuilder {
     private var redactClassesIdentifiers: Set<ObjectIdentifier>
         
     /**
-     Initializes a new instance of the redaction process with specified options.
+     Initializes a new instance of the redaction process with the specified options.
 
      This initializer configures which `UIView` subclasses should be redacted from screenshots and which should be ignored during the redaction process.
 
@@ -212,7 +212,7 @@ class UIRedactBuilder {
             /// The beginning will be added after all the subviews have been mapped.
             redacting.append(RedactRegion(size: layer.bounds.size, transform: newTransform, type: .clipEnd))
         }
-        for subview in view.subviews {
+        for subview in view.subviews.sorted(by: { $0.layer.zPosition < $1.layer.zPosition }) {
             mapRedactRegion(fromView: subview, redacting: &redacting, rootFrame: rootFrame, transform: newTransform, forceRedact: enforceRedact)
         }
         if view.clipsToBounds {

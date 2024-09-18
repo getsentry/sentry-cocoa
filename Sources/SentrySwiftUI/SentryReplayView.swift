@@ -1,6 +1,6 @@
+import Sentry
 import SwiftUI
 import UIKit
-import Sentry
 
 public enum ReplayBehaviour {
     case redact
@@ -31,7 +31,6 @@ struct SentryReplayView<Content: View>: UIViewRepresentable {
         }
     }
 }
-
 
 @available(iOS 13, macOS 10.15, tvOS 13, watchOS 6.0, *)
 public extension View {

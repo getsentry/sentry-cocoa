@@ -16,8 +16,7 @@
 #import <SentryWatchdogTerminationLogic.h>
 #import <SentryWatchdogTerminationTracker.h>
 
-@interface
-SentryWatchdogTerminationTracker ()
+@interface SentryWatchdogTerminationTracker ()
 
 @property (nonatomic, strong) SentryOptions *options;
 @property (nonatomic, strong) SentryWatchdogTerminationLogic *watchdogTerminationLogic;
