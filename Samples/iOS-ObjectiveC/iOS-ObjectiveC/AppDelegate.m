@@ -66,9 +66,9 @@
                 UIAlertController *alert = [UIAlertController
                     alertControllerWithTitle:@"Thanks?"
                                      message:[NSString stringWithFormat:
-                                                           @"We have enough jank of our own, we "
-                                                           @"really didn't need yours too, %@",
-                                                       name]
+                                                     @"We have enough jank of our own, we "
+                                                     @"really didn't need yours too, %@",
+                                                 name]
                               preferredStyle:UIAlertControllerStyleAlert];
                 [alert addAction:[UIAlertAction actionWithTitle:@"Derp"
                                                           style:UIAlertActionStyleDefault
@@ -80,8 +80,7 @@
             config.onSubmitError = ^(NSError *_Nonnull error) {
                 UIAlertController *alert = [UIAlertController
                     alertControllerWithTitle:@"D'oh"
-                                     message:[NSString
-                                                 stringWithFormat:
+                                     message:[NSString stringWithFormat:
                                                      @"You tried to report jank, and encountered "
                                                      @"more jank. The jank has you now: %@",
                                                  error]
