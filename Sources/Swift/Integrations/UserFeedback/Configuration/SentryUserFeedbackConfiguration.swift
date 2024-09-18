@@ -15,12 +15,6 @@ import UIKit
     public var configureWidget: ((SentryUserFeedbackWidgetConfiguration) -> Void)?
     
     /**
-     * Whether users should be able to drag the widget to new locations.
-     * - note: Default: `false`
-     */
-    public var draggable: Bool = false
-    
-    /**
      * Use a shake gesture to display the form.
      * - note: Default: `false`
      * - note: Setting this to true does not disable the widget. In order to do so, you must set `SentryUserFeedbackWidgetConfiguration.autoInject` to `false` using the `SentryUserFeedbackConfiguration.configureWidget` config builder.

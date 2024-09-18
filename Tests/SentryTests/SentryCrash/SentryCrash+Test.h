@@ -1,5 +1,6 @@
 #import "SentryCrash.h"
 
-@interface SentryCrash (Test)
+@interface
+SentryCrash (Test)
 - (NSString *)getBundleName;
 @end

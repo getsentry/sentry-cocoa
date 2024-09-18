@@ -19,13 +19,13 @@ import UIKit
      * The label of the injected button that opens up the feedback form when clicked.
      * - note: Default: `"Report a Bug"`
      */
-    public var triggerLabel: String = "Report a Bug"
+    public var labelText: String = "Report a Bug"
     
     /**
      * The accessibility label of the injected button that opens up the feedback form when clicked.
      * - note: Default: `triggerLabel` value
      */
-    public var triggerAccessibilityLabel: String?
+    public var widgetAccessibilityLabel: String?
     
     /**
      * The window level of the widget.

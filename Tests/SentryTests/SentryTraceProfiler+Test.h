@@ -10,7 +10,8 @@
 
 SENTRY_EXTERN NSTimer *_Nullable _sentry_threadUnsafe_traceProfileTimeoutTimer;
 
-@interface SentryTraceProfiler ()
+@interface
+SentryTraceProfiler ()
 
 #    if defined(TEST) || defined(TESTCI) || defined(DEBUG)
 

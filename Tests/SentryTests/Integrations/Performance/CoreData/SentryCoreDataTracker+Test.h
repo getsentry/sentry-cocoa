@@ -3,7 +3,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SentryCoreDataTracker (Test)
+@interface
+SentryCoreDataTracker (Test)
 
 - (BOOL)saveManagedObjectContextWithNilError:(NSManagedObjectContext *)context
                                  originalImp:(BOOL(NS_NOESCAPE ^)(NSError **))original;

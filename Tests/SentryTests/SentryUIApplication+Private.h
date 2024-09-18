@@ -9,7 +9,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SentryUIApplication ()
+@interface
+SentryUIApplication ()
 
 - (NSArray<UIViewController *> *)relevantViewControllers;
 

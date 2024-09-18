@@ -9,7 +9,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SentryClient ()
+@interface
+SentryClient ()
 
 - (_Nullable instancetype)initWithOptions:(SentryOptions *)options
                             dispatchQueue:(SentryDispatchQueueWrapper *)dispatchQueue

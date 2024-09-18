@@ -1,7 +1,8 @@
 #import "SentryBinaryImageCache.h"
 #import "SentryCrashBinaryImageCache.h"
 
-@interface SentryBinaryImageCache ()
+@interface
+SentryBinaryImageCache ()
 
 @property (nonatomic, strong) NSArray<SentryBinaryImageInfo *> *cache;
 

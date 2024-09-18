@@ -2,7 +2,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SentryDebugImageProvider (TestInit)
+@interface
+SentryDebugImageProvider (TestInit)
 - (instancetype)initWithBinaryImageProvider:(id<SentryCrashBinaryImageProvider>)binaryImageProvider;
 
 @end

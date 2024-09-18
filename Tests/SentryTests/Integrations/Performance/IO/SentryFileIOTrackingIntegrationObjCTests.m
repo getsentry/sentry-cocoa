@@ -219,8 +219,9 @@
     if ([operation isEqualToString:SENTRY_FILE_READ_OPERATION]) {
         XCTAssertEqualObjects(ioSpan.spanDescription, filename);
     } else {
-        NSString *expectedString = [NSString stringWithFormat:@"%@ (%@)", filename,
-            [SentryByteCountFormatter bytesCountDescription:someData.length]];
+        NSString *expectedString =
+            [NSString stringWithFormat:@"%@ (%@)", filename,
+                      [SentryByteCountFormatter bytesCountDescription:someData.length]];
 
         XCTAssertEqualObjects(ioSpan.spanDescription, expectedString);
     }

@@ -84,7 +84,7 @@
 {
     NSDictionary *infoDict = [[NSBundle mainBundle] infoDictionary];
     return [NSString stringWithFormat:@"%@@%@+%@", infoDict[@"CFBundleIdentifier"],
-        infoDict[@"CFBundleShortVersionString"], infoDict[@"CFBundleVersion"]];
+                     infoDict[@"CFBundleShortVersionString"], infoDict[@"CFBundleVersion"]];
 }
 
 - (void)testEnvironment

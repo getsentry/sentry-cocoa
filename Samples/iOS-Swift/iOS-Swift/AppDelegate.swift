@@ -169,8 +169,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 config.showFormForScreenshots = true
                 config.configureWidget = { widget in
                     if args.contains("--io.sentry.iOS-Swift.auto-inject-user-feedback-widget") {
-                        widget.triggerLabel = "Report Jank"
-                        widget.triggerAccessibilityLabel = "io.sentry.iOS-Swift.button.report-jank"
+                        widget.labelText = "Report Jank"
+                        widget.widgetAccessibilityLabel = "io.sentry.iOS-Swift.button.report-jank"
                     } else {
                         widget.autoInject = false
                     }
