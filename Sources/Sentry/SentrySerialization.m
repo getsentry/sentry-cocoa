@@ -82,10 +82,9 @@ NS_ASSUME_NONNULL_BEGIN
 {
     SentryEnvelopeHeader *envelopeHeader = nil;
     const unsigned char *bytes = [data bytes];
-    NSUInteger endOfEnvelope = data.length - 1;
     int envelopeHeaderIndex = 0;
 
-    for (int i = 0; i <= endOfEnvelope; ++i) {
+    for (int i = 0; i < data.length; ++i) {
         if (bytes[i] == '\n') {
             envelopeHeaderIndex = i;
             // Envelope header end
@@ -146,6 +145,7 @@ NS_ASSUME_NONNULL_BEGIN
     NSInteger itemHeaderStart = envelopeHeaderIndex + 1;
 
     NSMutableArray<SentryEnvelopeItem *> *items = [NSMutableArray new];
+    NSUInteger endOfEnvelope = data.length - 1;
 
     for (NSInteger i = itemHeaderStart; i <= endOfEnvelope; ++i) {
         if (bytes[i] == '\n' || i == endOfEnvelope) {
