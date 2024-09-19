@@ -16,18 +16,18 @@
 #else // !__has_include(<SentryWithoutUIKit/Sentry.h>)
 
 // needed for the check for SENTRY_HAS_UIKIT below
-#if __has_include(<Sentry/SentryDefines.h>)
-#    import <Sentry/SentryDefines.h>
-#else
-#    import "SentryDefines.h"
-#endif // __has_include(<Sentry/SentryDefines.h>)
+#    if __has_include(<Sentry/SentryDefines.h>)
+#        import <Sentry/SentryDefines.h>
+#    else
+#        import "SentryDefines.h"
+#    endif // __has_include(<Sentry/SentryDefines.h>)
 
-#if SENTRY_HAS_UIKIT
+#    if SENTRY_HAS_UIKIT
 // this is needed to fix a build issue when building iOS-ObjectiveC where the definitions of some
 // UIKIt enums used from SentryUserFeedbackWidgetConfiguration.swift aren't visible from the
 // generated ObjC interface for that class in Sentry-Swift.h
-#    import <UIKit/UIKit.h>
-#endif //SENTRY_HAS_UIKIT
+#        import <UIKit/UIKit.h>
+#    endif // SENTRY_HAS_UIKIT
 
 #    if __has_include("Sentry-Swift.h")
 #        import "Sentry-Swift.h"
