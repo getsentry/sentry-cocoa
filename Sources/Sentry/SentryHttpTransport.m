@@ -296,24 +296,27 @@
         if (self.notStoredEnvelopes.count > 0) {
             envelope = self.notStoredEnvelopes[0];
             [self.notStoredEnvelopes removeObjectAtIndex:0];
-        } else {
-            SentryFileContents *envelopeFileContents = [self.fileManager getOldestEnvelope];
-            if (nil == envelopeFileContents) {
-                SENTRY_LOG_DEBUG(@"No envelopes left to send.");
-                [self finishedSending];
-                return;
-            }
-
-            envelopeFilePath = envelopeFileContents.path;
-
-            envelope = [SentrySerialization envelopeWithData:envelopeFileContents.contents];
-            if (nil == envelope) {
-                SENTRY_LOG_DEBUG(@"Envelope contained no deserializable data.");
-                [self deleteEnvelopeAndSendNext:envelopeFilePath];
-                return;
-            }
         }
     }
+    
+    if (envelope == nil) {
+        SentryFileContents *envelopeFileContents = [self.fileManager getOldestEnvelope];
+        if (nil == envelopeFileContents) {
+            SENTRY_LOG_DEBUG(@"No envelopes left to send.");
+            [self finishedSending];
+            return;
+        }
+
+        envelopeFilePath = envelopeFileContents.path;
+
+        envelope = [SentrySerialization envelopeWithData:envelopeFileContents.contents];
+        if (nil == envelope) {
+            SENTRY_LOG_DEBUG(@"Envelope contained no deserializable data.");
+            [self deleteEnvelopeAndSendNext:envelopeFilePath];
+            return;
+        }
+    }
+    
 
     SentryEnvelope *rateLimitedEnvelope = [self.envelopeRateLimit removeRateLimitedItems:envelope];
     if (rateLimitedEnvelope.items.count == 0) {
