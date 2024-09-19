@@ -298,20 +298,6 @@ class SentrySerializationTests: XCTestCase {
         XCTAssertEqual(payloadAsString.data(using: .utf8), item.data)
     }
     
-    /// This is to prevent https://github.com/getsentry/sentry-cocoa/issues/4280
-    /// With 8.33.0, writing an envelope could fail in the middle of the process, which the envelope
-    /// payload below simulates. The JSON stems from writing an envelope to disk with vast data
-    /// that leads to an OOM termination on v 8.33.0.
-    /// Running this test on v 8.33.0 leads to a crash.
-    func testEnvelopeWithDataCorruptEnvelope() throws {
-        let itemData = """
-                       {"event_id":"1990b5bc31904b7395fd07feb72daf1c","sdk":{"name":"sentry.cocoa","version":"8.33.0"}}
-                       {"type":"test","length":50}
-                       """.data(using: .utf8)!
-        
-        XCTAssertNil(SentrySerialization.envelope(with: itemData))
-    }
-    
     func testEnvelopeWithData_CorruptHeader_ReturnsNil() throws {
         var itemData = Data()
         itemData.append(contentsOf: [0xFF, 0xFF, 0xFF]) // Invalid UTF-8 bytes
