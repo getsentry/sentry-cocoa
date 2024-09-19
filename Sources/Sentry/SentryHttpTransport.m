@@ -298,7 +298,7 @@
             [self.notStoredEnvelopes removeObjectAtIndex:0];
         }
     }
-    
+
     if (envelope == nil) {
         SentryFileContents *envelopeFileContents = [self.fileManager getOldestEnvelope];
         if (nil == envelopeFileContents) {
@@ -316,7 +316,6 @@
             return;
         }
     }
-    
 
     SentryEnvelope *rateLimitedEnvelope = [self.envelopeRateLimit removeRateLimitedItems:envelope];
     if (rateLimitedEnvelope.items.count == 0) {
