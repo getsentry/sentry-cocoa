@@ -67,12 +67,6 @@
 @protocol SentrySpan;
 
 /**
- * Block used to configure the user feedback widget, form, behaviors and submission data.
- */
-typedef void (^SentryUserFeedbackConfigurationBlock)(
-    SentryUserFeedbackConfiguration *_Nonnull configuration);
-
-/**
  * Block used for returning after a request finished
  */
 typedef void (^SentryRequestFinished)(NSError *_Nullable error);
