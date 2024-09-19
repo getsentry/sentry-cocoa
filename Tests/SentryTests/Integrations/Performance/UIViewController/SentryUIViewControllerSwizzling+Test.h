@@ -4,8 +4,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface
-SentryUIViewControllerSwizzling (Test)
+@interface SentryUIViewControllerSwizzling (Test)
 
 - (BOOL)shouldSwizzleViewController:(Class)class;
 

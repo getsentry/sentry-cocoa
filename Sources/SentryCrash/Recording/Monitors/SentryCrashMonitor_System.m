@@ -533,7 +533,7 @@ initialize(void)
             stringWithFormat:@"%d.%d", (int)version.majorVersion, (int)version.minorVersion];
     } else {
         systemVersion = [NSString stringWithFormat:@"%d.%d.%d", (int)version.majorVersion,
-                                  (int)version.minorVersion, (int)version.patchVersion];
+            (int)version.minorVersion, (int)version.patchVersion];
     }
     g_systemData.systemVersion = cString(systemVersion);
 

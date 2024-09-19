@@ -2,8 +2,7 @@
 
 @import Sentry;
 
-@interface
-ViewController ()
+@interface ViewController ()
 
 @end
 

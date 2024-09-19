@@ -6,8 +6,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface
-SentryRateLimitParser ()
+@interface SentryRateLimitParser ()
 
 @property (nonatomic, strong) SentryCurrentDateProvider *currentDateProvider;
 

@@ -25,8 +25,7 @@
 #    import "SentryReachability.h"
 #endif // !TARGET_OS_WATCH
 
-@interface
-SentryHttpTransport ()
+@interface SentryHttpTransport ()
 #if SENTRY_HAS_REACHABILITY
     <SentryReachabilityObserver>
 #endif // !TARGET_OS_WATCH
@@ -161,7 +160,7 @@ SentryHttpTransport ()
     }
 
     NSString *key = [NSString stringWithFormat:@"%@:%@", nameForSentryDataCategory(category),
-                              nameForSentryDiscardReason(reason)];
+        nameForSentryDiscardReason(reason)];
 
     @synchronized(self.discardedEvents) {
         SentryDiscardedEvent *event = self.discardedEvents[key];

@@ -13,8 +13,7 @@
 #import <XCTest/XCTest.h>
 @import Sentry;
 
-@interface
-SentryBreadcrumbTracker ()
+@interface SentryBreadcrumbTracker ()
 
 + (NSString *)sanitizeViewControllerName:(NSString *)controller;
 

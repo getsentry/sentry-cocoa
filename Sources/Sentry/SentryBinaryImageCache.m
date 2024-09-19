@@ -11,8 +11,7 @@ static void binaryImageWasRemoved(const SentryCrashBinaryImage *image);
 @implementation SentryBinaryImageInfo
 @end
 
-@interface
-SentryBinaryImageCache ()
+@interface SentryBinaryImageCache ()
 @property (nonatomic, strong) NSMutableArray<SentryBinaryImageInfo *> *cache;
 - (void)binaryImageAdded:(const SentryCrashBinaryImage *)image;
 - (void)binaryImageRemoved:(const SentryCrashBinaryImage *)image;

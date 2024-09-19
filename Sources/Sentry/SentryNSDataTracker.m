@@ -21,8 +21,7 @@
 
 const NSString *SENTRY_TRACKING_COUNTER_KEY = @"SENTRY_TRACKING_COUNTER_KEY";
 
-@interface
-SentryNSDataTracker ()
+@interface SentryNSDataTracker ()
 
 @property (nonatomic, assign) BOOL isEnabled;
 @property (nonatomic, strong) NSMutableSet<NSData *> *processingData;
@@ -265,7 +264,7 @@ SentryNSDataTracker ()
 - (NSString *)transactionDescriptionForFile:(NSString *)path fileSize:(NSUInteger)size
 {
     return size > 0 ? [NSString stringWithFormat:@"%@ (%@)", [path lastPathComponent],
-                                [SentryByteCountFormatter bytesCountDescription:size]]
+                          [SentryByteCountFormatter bytesCountDescription:size]]
                     : [NSString stringWithFormat:@"%@", [path lastPathComponent]];
 }
 
