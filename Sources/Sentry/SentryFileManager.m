@@ -319,7 +319,7 @@ _non_thread_safe_removeFileAtPath(NSString *path)
 
         if (![self writeData:envelopeData toPath:path]) {
             SENTRY_LOG_WARN(@"Failed to store envelope.");
-            path = nil;
+            return nil;
         }
 
         [self handleEnvelopesLimit];
