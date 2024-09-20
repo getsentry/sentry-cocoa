@@ -1,4 +1,5 @@
 #import "SentryDefines.h"
+#import "SentrySwift.h"
 
 @class SentryOptions, SentryCrashWrapper, SentryDispatchQueueWrapper, SentryThreadWrapper;
 
@@ -33,17 +34,6 @@ SENTRY_NO_INIT
 
 // Function used for tests
 - (void)clear;
-
-@end
-
-/**
- * The ``SentryANRTracker`` calls the methods from background threads.
- */
-@protocol SentryANRTrackerDelegate <NSObject>
-
-- (void)anrDetected;
-
-- (void)anrStopped;
 
 @end
 

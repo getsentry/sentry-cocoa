@@ -75,7 +75,7 @@ NS_ASSUME_NONNULL_BEGIN
     [self uninstall];
 }
 
-- (void)anrDetected
+- (void)anrDetectedWithType:(enum SentryANRType)type
 {
     if (self.reportAppHangs == NO) {
         SENTRY_LOG_DEBUG(@"AppHangTracking paused. Ignoring reported app hang.")

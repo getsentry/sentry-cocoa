@@ -453,7 +453,7 @@ class SentryANRTrackerV2Tests: XCTestCase {
     
 }
 
-class SentryANRTrackerV2TestDelegate: NSObject, SentryANRTrackerV2Delegate {
+class SentryANRTrackerV2TestDelegate: NSObject, SentryANRTrackerDelegate {
     
     let anrDetectedExpectation = XCTestExpectation(description: "Test Delegate ANR Detection")
     let anrStoppedExpectation  = XCTestExpectation(description: "Test Delegate ANR Stopped")
