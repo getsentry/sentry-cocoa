@@ -378,10 +378,12 @@
     crumb2.type = @"type";
     crumb2.timestamp = date;
     crumb2.message = @"message";
+    crumb2.origin = @"origin";
     NSDictionary *serialized2 = @{
         @"level" : @"info",
         @"type" : @"type",
         @"message" : @"message",
+        @"origin" : @"origin",
         @"timestamp" : sentry_toIso8601String(date),
         @"category" : @"http",
         @"data" : @ { @"bla" : @"1" },

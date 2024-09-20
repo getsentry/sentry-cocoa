@@ -170,6 +170,7 @@
                      category:storedCrumb[@"category"]];
             crumb.message = storedCrumb[@"message"];
             crumb.type = storedCrumb[@"type"];
+            crumb.origin = storedCrumb[@"origin"];
             crumb.timestamp = sentry_fromIso8601String(storedCrumb[@"timestamp"]);
             crumb.data = storedCrumb[@"data"];
             [breadcrumbs addObject:crumb];
