@@ -143,7 +143,7 @@ typedef NS_ENUM(NSInteger, SentryANRTrackerState) {
     }
 
     for (id<SentryANRTrackerDelegate> target in localListeners) {
-        [target anrDetected];
+        [target anrDetectedWithType:SentryANRTypeUnknown];
     }
 }
 

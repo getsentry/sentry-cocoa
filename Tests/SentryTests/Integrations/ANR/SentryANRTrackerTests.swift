@@ -205,7 +205,7 @@ class SentryANRTrackerTests: XCTestCase, SentryANRTrackerDelegate {
         XCTAssertEqual(1, fixture.threadWrapper.threadFinishedInvocations.count)
     }
     
-    func anrDetected() {
+    func anrDetected(type: Sentry.SentryANRType) {
         anrDetectedExpectation.fulfill()
     }
     
@@ -231,7 +231,7 @@ class SentryANRTrackerTestDelegate: NSObject, SentryANRTrackerDelegate {
         anrStoppedExpectation.fulfill()
     }
     
-    func anrDetected() {
+    func anrDetected(type: Sentry.SentryANRType) {
         anrDetectedExpectation.fulfill()
     }
 }

@@ -102,7 +102,7 @@ NS_ASSUME_NONNULL_BEGIN
     [self.anrTracker removeListener:self];
 }
 
-- (void)anrDetected
+- (void)anrDetectedWithType:(enum SentryANRType)type
 {
     [self.appStateManager
         updateAppState:^(SentryAppState *appState) { appState.isANROngoing = YES; }];
