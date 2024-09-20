@@ -19,10 +19,13 @@ NS_ASSUME_NONNULL_BEGIN
     return self;
 }
 
-- (NSURLRequest *)createEnvelopeRequest:(SentryEnvelope *)envelope
-                                    dsn:(SentryDsn *)dsn
-                       didFailWithError:(NSError *_Nullable *_Nullable)error
+- (nullable NSURLRequest *)createEnvelopeRequest:(SentryEnvelope *)envelope
+                                             dsn:(SentryDsn *)dsn
+                                didFailWithError:(NSError *_Nullable *_Nullable)error
 {
+    if (self.shouldFailReturningNil) {
+        return nil;
+    }
     NSURLRequest *request = [self.builder createEnvelopeRequest:envelope
                                                             dsn:dsn
                                                didFailWithError:error];
@@ -33,10 +36,13 @@ NS_ASSUME_NONNULL_BEGIN
     return request;
 }
 
-- (NSURLRequest *)createEnvelopeRequest:(SentryEnvelope *)envelope
-                                    url:(NSURL *)url
-                       didFailWithError:(NSError *_Nullable *_Nullable)error
+- (nullable NSURLRequest *)createEnvelopeRequest:(SentryEnvelope *)envelope
+                                             url:(NSURL *)url
+                                didFailWithError:(NSError *_Nullable *_Nullable)error
 {
+    if (self.shouldFailReturningNil) {
+        return nil;
+    }
     NSURLRequest *request = [self.builder createEnvelopeRequest:envelope
                                                             url:url
                                                didFailWithError:error];
