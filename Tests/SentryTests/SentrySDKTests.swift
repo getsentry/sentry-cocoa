@@ -746,11 +746,11 @@ class SentrySDKTests: XCTestCase {
         let anrTrackingIntegration = SentrySDK.currentHub().getInstalledIntegration(SentryANRTrackingIntegration.self)
         
         SentrySDK.pauseAppHangTracking()
-        Dynamic(anrTrackingIntegration).anrDetected()
+        Dynamic(anrTrackingIntegration).anrDetectedWithType(SentryANRType.unknown)
         XCTAssertEqual(0, client.captureEventWithScopeInvocations.count)
         
         SentrySDK.resumeAppHangTracking()
-        Dynamic(anrTrackingIntegration).anrDetected()
+        Dynamic(anrTrackingIntegration).anrDetectedWithType(SentryANRType.unknown)
         
         if SentryDependencyContainer.sharedInstance().crashWrapper.isBeingTraced() {
             XCTAssertEqual(0, client.captureEventWithScopeInvocations.count)
