@@ -2,33 +2,20 @@ import Sentry
 import SwiftUI
 import UIKit
 
-public enum ReplayBehaviour {
-    case redact
-    case ignore
+class SentryRedactView: UIView {
+    
 }
 
 @available(iOS 13, macOS 10.15, tvOS 13, watchOS 6.0, *)
-struct SentryReplayView<Content: View>: UIViewRepresentable {
-    
-    public let content: () -> Content
-    public let replayBehaviour: ReplayBehaviour
-    
-    public init(replayBehaviour: ReplayBehaviour = .redact, @ViewBuilder content: @escaping () -> Content) {
-        self.content = content
-        self.replayBehaviour = replayBehaviour
-    }
-    
+struct SentryReplayView: UIViewRepresentable {
     public func makeUIView(context: Context) -> UIView {
-        let hostingController = UIHostingController(rootView: content())
-        hostingController.view.backgroundColor = .clear
-        return hostingController.view
+        let result = SentryRedactView()
+        result.sentryReplayRedact()
+        return result
     }
     
     public func updateUIView(_ uiView: UIView, context: Context) {
-        switch replayBehaviour {
-            case .ignore: uiView.sentryReplayIgnore()
-            case .redact: uiView.sentryReplayRedact()
-        }
+        // This is blank on purpose. UIViewRepresentable requires this function.
     }
 }
 
@@ -44,8 +31,8 @@ public extension View {
     /// - Returns: A view that redacts sensitive information during session replays.
     ///
     func replayRedact() -> some View {
-        return SentryReplayView(replayBehaviour: .redact) {
-            self
-        }.fixedSize() //We use `fixedSize` to make SentryReplayView only wrap its content and not used all available space
+        self.background(
+            SentryReplayView()
+        )
     }
 }

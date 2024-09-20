@@ -2,6 +2,7 @@
 #if os(iOS) || os(tvOS)
 import Foundation
 import ObjectiveC.NSObjCRuntime
+import ObjectiveC.runtime
 import UIKit
 #if os(iOS)
 import WebKit
@@ -154,7 +155,6 @@ class UIRedactBuilder {
                              redacting: &redactingRegions,
                              rootFrame: view.frame,
                              transform: CGAffineTransform.identity)
-        
         return redactingRegions.reversed()
     }
     
@@ -181,7 +181,7 @@ class UIRedactBuilder {
     
     private func mapRedactRegion(fromView view: UIView, redacting: inout [RedactRegion], rootFrame: CGRect, transform: CGAffineTransform, forceRedact: Bool = false) {
         guard !redactClassesIdentifiers.isEmpty && !view.isHidden && view.alpha != 0 else { return }
-        
+
         let layer = view.layer.presentation() ?? view.layer
         
         let newTransform = concatenateTranform(transform, with: layer)
