@@ -5,8 +5,6 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@protocol SentryANRTrackerDelegate;
-
 /**
  * This class detects ANRs with a dedicated watchdog thread. The thread schedules a simple block to
  * run on the main thread, sleeps for the configured timeout interval, and checks if the main thread
