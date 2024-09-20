@@ -1,5 +1,6 @@
 import Sentry
 import SwiftUI
+#if canImport(UIKit)
 import UIKit
 
 class SentryRedactView: UIView {
@@ -36,3 +37,4 @@ public extension View {
         )
     }
 }
+#endif
