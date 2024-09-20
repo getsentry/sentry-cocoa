@@ -5,6 +5,7 @@
 ### Features
 
 - Added `thermal_state` to device context (#4305)
+- Added breadcrumb.origin field (#4358)
 
 ### Refactoring
 
