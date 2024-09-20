@@ -769,6 +769,7 @@
 		8EE017A126704CD500470616 /* SentryUIViewControllerPerformanceTrackerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8EA1ED0E2669152F00E62B98 /* SentryUIViewControllerPerformanceTrackerTests.swift */; };
 		8F0D6AA22B04115A00D048B1 /* SentryInstallation+Test.h in Sources */ = {isa = PBXBuildFile; fileRef = 8F0D6AA12B040A0100D048B1 /* SentryInstallation+Test.h */; };
 		8F73BC312B02B87E00C3CEF4 /* SentryInstallationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F73BC302B02B87E00C3CEF4 /* SentryInstallationTests.swift */; };
+		92136D672C9D7660002A9FB8 /* SentryNSURLRequestBuilderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92136D662C9D765D002A9FB8 /* SentryNSURLRequestBuilderTests.swift */; };
 		92672BB629C9A2A9006B021C /* SentryBreadcrumb+Private.h in Headers */ = {isa = PBXBuildFile; fileRef = 92672BB529C9A2A9006B021C /* SentryBreadcrumb+Private.h */; };
 		9286059529A5096600F96038 /* SentryGeo.h in Headers */ = {isa = PBXBuildFile; fileRef = 9286059429A5096600F96038 /* SentryGeo.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		9286059729A5098900F96038 /* SentryGeo.m in Sources */ = {isa = PBXBuildFile; fileRef = 9286059629A5098900F96038 /* SentryGeo.m */; };
@@ -1836,6 +1837,7 @@
 		8F0D6AA12B040A0100D048B1 /* SentryInstallation+Test.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "SentryInstallation+Test.h"; sourceTree = "<group>"; };
 		8F73BC302B02B87E00C3CEF4 /* SentryInstallationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryInstallationTests.swift; sourceTree = "<group>"; };
 		8FF94DF22B06A24C00BCD650 /* SentryCrash+Test.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "SentryCrash+Test.h"; sourceTree = "<group>"; };
+		92136D662C9D765D002A9FB8 /* SentryNSURLRequestBuilderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryNSURLRequestBuilderTests.swift; sourceTree = "<group>"; };
 		92672BB529C9A2A9006B021C /* SentryBreadcrumb+Private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "SentryBreadcrumb+Private.h"; path = "include/HybridPublic/SentryBreadcrumb+Private.h"; sourceTree = "<group>"; };
 		9286059429A5096600F96038 /* SentryGeo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SentryGeo.h; path = Public/SentryGeo.h; sourceTree = "<group>"; };
 		9286059629A5098900F96038 /* SentryGeo.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SentryGeo.m; sourceTree = "<group>"; };
@@ -3037,6 +3039,7 @@
 		7BBD18AF24517E5D00427C76 /* Networking */ = {
 			isa = PBXGroup;
 			children = (
+				92136D662C9D765D002A9FB8 /* SentryNSURLRequestBuilderTests.swift */,
 				7BBD18B124517FE800427C76 /* RateLimits */,
 				7BC8523A2458849E005A70F0 /* SentryDataCategoryMapperTests.swift */,
 				7B58816627FC5D790098B121 /* SentryDiscardReasonMapperTests.swift */,
@@ -4983,6 +4986,7 @@
 				D86130122BB563FD004C0F5E /* SentrySessionReplayIntegrationTests.swift in Sources */,
 				7BFC16BA2524D4AF00FF6266 /* SentryMessage+Equality.m in Sources */,
 				7B4260342630315C00B36EDD /* SampleError.swift in Sources */,
+				92136D672C9D7660002A9FB8 /* SentryNSURLRequestBuilderTests.swift in Sources */,
 				D855B3E827D652AF00BCED76 /* SentryCoreDataTrackingIntegrationTest.swift in Sources */,
 				D855AD62286ED6A4002573E1 /* SentryCrashTests.m in Sources */,
 				D8AFC0012BD252B900118BE1 /* SentryOnDemandReplayTests.swift in Sources */,
