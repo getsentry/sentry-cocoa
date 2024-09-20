@@ -11,7 +11,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     static let defaultDSN = "https://6cc9bae94def43cab8444a99e0031c28@o447951.ingest.sentry.io/5428557"
 
     //swiftlint:disable function_body_length cyclomatic_complexity
-    static func startSentry() {
+    func startSentry() {
         let args = ProcessInfo.processInfo.arguments
         let env = ProcessInfo.processInfo.environment
         
@@ -163,6 +163,39 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 }
                 return scope
             }
+            
+            options.configureUserFeedback = { config in
+                config.useShakeGesture = true
+                config.showFormForScreenshots = true
+                config.configureWidget = { widget in
+                    if args.contains("--io.sentry.iOS-Swift.auto-inject-user-feedback-widget") {
+                        widget.labelText = "Report Jank"
+                        widget.widgetAccessibilityLabel = "io.sentry.iOS-Swift.button.report-jank"
+                    } else {
+                        widget.autoInject = false
+                    }
+                }
+                config.configureForm = { uiForm in
+                    uiForm.formTitle = "Jank Report"
+                    uiForm.submitButtonLabel = "Report that jank"
+                    uiForm.addScreenshotButtonLabel = "Show us the jank"
+                    uiForm.messagePlaceholder = "Describe the nature of the jank. Its essence, if you will."
+                    uiForm.themeOverrides = { theme in
+                        theme.font = UIFont(name: "Comic Sans", size: 25)
+                    }
+                }
+                config.onSubmitSuccess = { info in
+                    let name = info["name"] ?? "$shakespearean_insult_name"
+                    let alert = UIAlertController(title: "Thanks?", message: "We have enough jank of our own, we really didn't need yours too, \(name).", preferredStyle: .alert)
+                    alert.addAction(.init(title: "Derp", style: .default))
+                    self.window?.rootViewController?.present(alert, animated: true)
+                }
+                config.onSubmitError = { error in
+                    let alert = UIAlertController(title: "D'oh", message: "You tried to report jank, and encountered more jank. The jank has you now: \(error).", preferredStyle: .alert)
+                    alert.addAction(.init(title: "Derp", style: .default))
+                    self.window?.rootViewController?.present(alert, animated: true)
+                }
+            }
         })
 
     }
@@ -177,7 +210,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             removeAppData()
         }
         if !ProcessInfo.processInfo.arguments.contains("--skip-sentry-init") {
-            AppDelegate.startSentry()
+            startSentry()
         }
         
         if #available(iOS 15.0, *) {

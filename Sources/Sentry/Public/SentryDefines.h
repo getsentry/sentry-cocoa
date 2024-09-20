@@ -60,7 +60,10 @@
 #    define SENTRY_HAS_REACHABILITY 0
 #endif
 
-@class SentryEvent, SentryBreadcrumb, SentrySamplingContext;
+@class SentryBreadcrumb;
+@class SentryEvent;
+@class SentrySamplingContext;
+@class SentryUserFeedbackConfiguration;
 @protocol SentrySpan;
 
 /**

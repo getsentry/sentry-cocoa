@@ -161,6 +161,10 @@
             argument = "--disable-ui-tracing"
             isEnabled = "NO">
          </CommandLineArgument>
+         <CommandLineArgument
+            argument = "--io.sentry.iOS-Swift.auto-inject-user-feedback-widget"
+            isEnabled = "NO">
+         </CommandLineArgument>
       </CommandLineArguments>
       <EnvironmentVariables>
          <EnvironmentVariable
