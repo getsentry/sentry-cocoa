@@ -1417,7 +1417,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 8.36.0;
+				MARKETING_VERSION = 8.37.0-beta.1;
 				PRODUCT_BUNDLE_IDENTIFIER = "io.sentry.sample.iOS-Swift";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "match Development io.sentry.sample.iOS-Swift";
@@ -1446,7 +1446,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 8.36.0;
+				MARKETING_VERSION = 8.37.0-beta.1;
 				PRODUCT_BUNDLE_IDENTIFIER = "io.sentry.sample.iOS-Swift";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "match AppStore io.sentry.sample.iOS-Swift";
@@ -2095,7 +2095,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 8.36.0;
+				MARKETING_VERSION = 8.37.0-beta.1;
 				PRODUCT_BUNDLE_IDENTIFIER = "io.sentry.sample.iOS-Swift.Clip";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "match Development io.sentry.sample.iOS-Swift.Clip";
@@ -2130,7 +2130,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 8.36.0;
+				MARKETING_VERSION = 8.37.0-beta.1;
 				PRODUCT_BUNDLE_IDENTIFIER = "io.sentry.sample.iOS-Swift.Clip";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "match AppStore io.sentry.sample.iOS-Swift.Clip";
