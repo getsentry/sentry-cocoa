@@ -1,7 +1,10 @@
 #import "SentryDefines.h"
 #import "SentrySwift.h"
 
-@class SentryOptions, SentryCrashWrapper, SentryDispatchQueueWrapper, SentryThreadWrapper;
+@class SentryOptions;
+@class SentryCrashWrapper;
+@class SentryDispatchQueueWrapper;
+@class SentryThreadWrapper;
 
 NS_ASSUME_NONNULL_BEGIN
 
