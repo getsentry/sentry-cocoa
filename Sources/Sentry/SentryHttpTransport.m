@@ -333,8 +333,10 @@
                                                                    dsn:self.options.parsedDsn
                                                       didFailWithError:&requestError];
 
-    if (nil != requestError) {
-        SENTRY_LOG_DEBUG(@"Failed to build request: %@.", requestError);
+    if (nil == request || nil != requestError) {
+        if (nil != requestError) {
+            SENTRY_LOG_DEBUG(@"Failed to build request: %@.", requestError);
+        }
         [self recordLostEventFor:rateLimitedEnvelope.items];
         [self deleteEnvelopeAndSendNext:envelopeFilePath];
         return;

@@ -662,6 +662,16 @@ class SentryHttpTransportTests: XCTestCase {
         assertRequestsSent(requestCount: 1)
     }
     
+    func testBuildingRequestFailsReturningNil_DeletesEnvelopeAndSendsNext() {
+        givenNoInternetConnection()
+        sendEvent()
+        
+        fixture.requestBuilder.shouldFailReturningNil = true
+        sendEvent()
+        assertEnvelopesStored(envelopeCount: 0)
+        assertRequestsSent(requestCount: 1)
+    }
+    
     func testDeallocated_CachedEnvelopesNotAllSent() throws {
         givenNoInternetConnection()
         givenCachedEvents(amount: 10)

@@ -3,28 +3,39 @@
 #import "SentryNSURLRequest.h"
 #import "SentrySerialization.h"
 #import <Foundation/Foundation.h>
+#import "SentryLog.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 @implementation SentryNSURLRequestBuilder
 
-- (NSURLRequest *)createEnvelopeRequest:(SentryEnvelope *)envelope
+- (nullable NSURLRequest *)createEnvelopeRequest:(SentryEnvelope *)envelope
                                     dsn:(SentryDsn *)dsn
                        didFailWithError:(NSError *_Nullable *_Nullable)error
 {
+    NSData *data = [SentrySerialization dataWithEnvelope:envelope];
+    if (nil == data) {
+        SENTRY_LOG_ERROR(@"Envelope cannot be converted to data");
+        return nil;
+    }
     return [[SentryNSURLRequest alloc]
         initEnvelopeRequestWithDsn:dsn
-                           andData:[SentrySerialization dataWithEnvelope:envelope]
+                           andData:data
                   didFailWithError:error];
 }
 
-- (NSURLRequest *)createEnvelopeRequest:(SentryEnvelope *)envelope
+- (nullable NSURLRequest *)createEnvelopeRequest:(SentryEnvelope *)envelope
                                     url:(NSURL *)url
                        didFailWithError:(NSError *_Nullable *_Nullable)error
 {
+    NSData *data = [SentrySerialization dataWithEnvelope:envelope];
+    if (nil == data) {
+        SENTRY_LOG_ERROR(@"Envelope cannot be converted to data");
+        return nil;
+    }
     return [[SentryNSURLRequest alloc]
         initEnvelopeRequestWithURL:url
-                           andData:[SentrySerialization dataWithEnvelope:envelope]
+                           andData:data
                         authHeader:nil
                   didFailWithError:error];
 }
