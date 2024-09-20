@@ -20,8 +20,8 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (nullable NSURLRequest *)createEnvelopeRequest:(SentryEnvelope *)envelope
-                                    dsn:(SentryDsn *)dsn
-                       didFailWithError:(NSError *_Nullable *_Nullable)error
+                                             dsn:(SentryDsn *)dsn
+                                didFailWithError:(NSError *_Nullable *_Nullable)error
 {
     if (self.shouldFailReturningNil) {
         return nil;
@@ -37,8 +37,8 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (nullable NSURLRequest *)createEnvelopeRequest:(SentryEnvelope *)envelope
-                                    url:(NSURL *)url
-                       didFailWithError:(NSError *_Nullable *_Nullable)error
+                                             url:(NSURL *)url
+                                didFailWithError:(NSError *_Nullable *_Nullable)error
 {
     if (self.shouldFailReturningNil) {
         return nil;
