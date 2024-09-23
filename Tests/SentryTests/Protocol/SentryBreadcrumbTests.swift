@@ -72,6 +72,10 @@ class SentryBreadcrumbTests: XCTestCase {
     func testIsNotEqualToOtherClass() {
         XCTAssertFalse(fixture.breadcrumb.isEqual(1))
     }
+    
+    func testIsNotEqualToNil() {
+        XCTAssertFalse(fixture.breadcrumb.isEqual(nil))
+    }
 
     func testIsEqualToOtherInstanceWithSameValues() {
         let fixture2 = Fixture()
