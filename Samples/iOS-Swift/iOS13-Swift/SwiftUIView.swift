@@ -1,7 +1,7 @@
 import SentrySwiftUI
 import SwiftUI
 
-struct SwiftUIView: View {    
+struct SwiftUIView: View {
     var body: some View {
         SentryTracedView("SwiftUI View") {
             Text("SwiftUI!")

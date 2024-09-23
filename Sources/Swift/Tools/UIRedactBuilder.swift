@@ -180,7 +180,7 @@ class UIRedactBuilder {
     
     private func mapRedactRegion(fromView view: UIView, redacting: inout [RedactRegion], rootFrame: CGRect, transform: CGAffineTransform, forceRedact: Bool = false) {
         guard !redactClassesIdentifiers.isEmpty && !view.isHidden && view.alpha != 0 else { return }
-
+        
         let layer = view.layer.presentation() ?? view.layer
         
         let newTransform = concatenateTranform(transform, with: layer)
