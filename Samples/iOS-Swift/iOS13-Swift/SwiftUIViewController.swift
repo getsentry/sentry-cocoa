@@ -9,6 +9,7 @@ class SwiftUIViewController: UIViewController {
         
     override func viewDidLoad() {
         super.viewDidLoad()
+        
         addChild(swiftUIView)
         view.addSubview(swiftUIView.view)
         
