@@ -44,6 +44,8 @@ class SentryUserFeedbackIntegration {
         }
     }
     
+// swiftlint:disable todo
+    
     /**
      * Attaches the feedback widget to a specified UIButton. The button will trigger the feedback form.
      * - Parameter button: The UIButton to attach the widget to.
@@ -66,6 +68,8 @@ class SentryUserFeedbackIntegration {
     func removeWidget() {
         // TODO: Implementation to remove widget from view hierarchy
     }
+    
+// swiftlint:enable todo
     
     /**
      * Captures feedback using custom UI. This method allows you to submit feedback data directly.
