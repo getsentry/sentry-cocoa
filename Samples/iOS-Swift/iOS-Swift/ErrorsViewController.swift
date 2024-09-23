@@ -51,6 +51,15 @@ class ErrorsViewController: UIViewController {
                 // It contains all data but mutations only influence the event being sent
                 scope.setTag(value: "value", key: "myTag")
             }
+            
+            if !ProcessInfo.processInfo.arguments.contains("--io.sentry.iOS-Swift.auto-inject-user-feedback-widget") {
+                let alert = UIAlertController(title: "Uh-oh!", message: "There was an error. Would you like to tell us what happened?", preferredStyle: .alert)
+                alert.addAction(.init(title: "Yes", style: .default, handler: { _ in
+                    SentrySDK.showUserFeedbackForm()
+                }))
+                alert.addAction(.init(title: "No", style: .cancel))
+                self.present(alert, animated: true)
+            }
         }
     }
 
@@ -83,21 +92,5 @@ class ErrorsViewController: UIViewController {
                 }
             }
         }
-    }
-    
-    @IBAction func corruptEnvelope(_ sender: UIButton) {
-        class TestSentryEnvelopeItem: SentryEnvelopeItem {
-            override var header: SentryEnvelopeItemHeader {
-                SentryEnvelopeItemHeader(type: "test", length: 50)
-            }
-            
-            override var data: Data {
-                defer { exit(0) }
-                return Data(repeating: 1, count: 100_000_000)
-            }
-        }
-        
-        let envelope = SentryEnvelope(id: SentryId(uuid: UUID()), singleItem: TestSentryEnvelopeItem())
-        SentrySDK.capture(envelope)
     }
 }

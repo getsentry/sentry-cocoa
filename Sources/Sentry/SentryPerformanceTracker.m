@@ -221,7 +221,7 @@ NS_ASSUME_NONNULL_BEGIN
     }
 }
 
-- (nullable id<SentrySpan>)activeSpanForTracer:(SentryTracer *)tracer
+- (nullable id<SentrySpan>)getActiveSpan
 {
     @synchronized(self.activeSpanStack) {
         return [self.activeSpanStack lastObject];

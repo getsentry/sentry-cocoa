@@ -1,10 +1,11 @@
 # Changelog
 
-## Unreleased
+## 8.37.0-beta.1
 
 ### Features
 
 - Added `thermal_state` to device context (#4305)
+- Send envelopes that cannot be cached to disk (#4294)
 
 ### Refactoring
 
@@ -20,6 +21,8 @@
 - Don't redact clipped views (#4325)
 - Session replay for crash not created because of a race condition (#4314)
 - Double-quoted include, expected angle-bracketed instead (#4298)
+- Discontinue use of NSApplicationSupportDirectory in favor of NSCachesDirectory (#4335)
+- Safe guard `strncpy` usage (#4336)
 - Stop using `redactAllText` as an indicator tha redact is enabled (#4327)
 
 ### Improvements

@@ -10,10 +10,10 @@ void
 sentry_initializeAsyncLogFile(void)
 {
     const char *asyncLogPath =
-        [[sentryApplicationSupportPath() stringByAppendingPathComponent:@"async.log"] UTF8String];
+        [[sentryStaticCachesPath() stringByAppendingPathComponent:@"async.log"] UTF8String];
 
     NSError *error;
-    if (!createDirectoryIfNotExists(sentryApplicationSupportPath(), &error)) {
+    if (!createDirectoryIfNotExists(sentryStaticCachesPath(), &error)) {
         SENTRY_LOG_ERROR(@"Failed to initialize directory for async log file: %@", error);
         return;
     }

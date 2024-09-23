@@ -328,7 +328,7 @@ static BOOL appStartMeasurementRead;
 
     if (self.delegate) {
         @synchronized(_children) {
-            span = [self.delegate activeSpanForTracer:self];
+            span = [self.delegate getActiveSpan];
             if (span == nil || ![_children containsObject:span]) {
                 span = self;
             }

@@ -244,11 +244,29 @@ SENTRY_NO_INIT
     NS_SWIFT_NAME(capture(message:block:));
 
 /**
- * Captures a manually created user feedback and sends it to Sentry.
+ * Captures user feedback that was manually gathered and sends it to Sentry.
  * @param userFeedback The user feedback to send to Sentry.
+ * @note If you'd prefer not to have to build the UI required to gather the feedback from the user,
+ * consider using `showUserFeedbackForm`, which delivers a prepackaged user feedback experience. See
+ * @c SentryOptions.configureUserFeedback to customize a fully managed integration. See
+ * https://docs.sentry.io/platforms/apple/user-feedback/#user-feedback-api and (TODO: add link to
+ * new docs) for more information on each approach.
  */
 + (void)captureUserFeedback:(SentryUserFeedback *)userFeedback
     NS_SWIFT_NAME(capture(userFeedback:));
+
+/**
+ * Display a form to gather information from an end user in the app to send to Sentry as a user
+ * feedback event.
+ * @see @c SentryOptions.enableUserFeedbackIntegration and @c SentryOptions.configureUserFeedback to
+ * enable the functionality and customize the experience.
+ * @note If @c SentryOptions.enableUserFeedbackIntegration is @c NO, this method is a no-op.
+ * @note This is a fully managed user feedback flow; there will be no need to call
+ * @c SentrySDK.captureUserFeedback . See
+ * https://docs.sentry.io/platforms/apple/user-feedback/#user-feedback-api and (TODO: add link to
+ * new docs) for more information on each approach.
+ */
++ (void)showUserFeedbackForm;
 
 /**
  * Adds a Breadcrumb to the current Scope of the current Hub. If the total number of breadcrumbs

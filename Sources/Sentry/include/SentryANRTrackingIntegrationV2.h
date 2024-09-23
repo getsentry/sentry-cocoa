@@ -11,7 +11,7 @@ NS_ASSUME_NONNULL_BEGIN
 static NSString *const SentryANRExceptionTypeV2 = @"App Hanging";
 
 @interface SentryANRTrackingIntegrationV2
-    : SentryBaseIntegration <SentryIntegrationProtocol, SentryANRTrackerV2Delegate>
+    : SentryBaseIntegration <SentryIntegrationProtocol, SentryANRTrackerDelegate>
 
 - (void)pauseAppHangTracking;
 - (void)resumeAppHangTracking;

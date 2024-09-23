@@ -107,11 +107,6 @@ _non_thread_safe_removeFileAtPath(NSString *path)
         if (!createDirectoryIfNotExists(self.envelopesPath, error)) {
             return nil;
         }
-#if SENTRY_TARGET_PROFILING_SUPPORTED
-        if (!createDirectoryIfNotExists(sentryApplicationSupportPath(), error)) {
-            return nil;
-        }
-#endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
         self.currentFileCounter = 0;
         self.maxEnvelopes = options.maxCacheItems;
@@ -324,6 +319,7 @@ _non_thread_safe_removeFileAtPath(NSString *path)
 
         if (![self writeData:envelopeData toPath:path]) {
             SENTRY_LOG_WARN(@"Failed to store envelope.");
+            return nil;
         }
 
         [self handleEnvelopesLimit];
@@ -730,27 +726,21 @@ _non_thread_safe_removeFileAtPath(NSString *path)
     self.envelopesPath = [self.sentryPath stringByAppendingPathComponent:EnvelopesPathComponent];
 }
 
-/**
- * @note This method must be statically accessible because it will be called during app launch,
- * before any instance of @c SentryFileManager exists, and so wouldn't be able to access this path
- * from an objc property on it like the other paths.
- */
-NSString *_Nullable sentryApplicationSupportPath(void)
+NSString *_Nullable sentryStaticCachesPath(void)
 {
-    static NSString *_Nullable sentryApplicationSupportPath = nil;
+    static NSString *_Nullable sentryStaticCachesPath = nil;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        NSArray *paths = NSSearchPathForDirectoriesInDomains(
-            NSApplicationSupportDirectory, NSUserDomainMask, YES);
-        NSString *applicationSupportDirectory = [paths firstObject];
-        if (applicationSupportDirectory == nil) {
-            SENTRY_LOG_WARN(@"No application support directory location reported.");
+        NSString *cachesDirectory
+            = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES)
+                  .firstObject;
+        if (cachesDirectory == nil) {
+            SENTRY_LOG_WARN(@"No caches directory location reported.");
             return;
         }
-        sentryApplicationSupportPath =
-            [applicationSupportDirectory stringByAppendingPathComponent:@"io.sentry"];
+        sentryStaticCachesPath = [cachesDirectory stringByAppendingPathComponent:@"io.sentry"];
     });
-    return sentryApplicationSupportPath;
+    return sentryStaticCachesPath;
 }
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
@@ -761,13 +751,13 @@ NSURL *_Nullable launchProfileConfigFileURL(void)
 {
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        NSString *appSupportPath = sentryApplicationSupportPath();
-        if (appSupportPath == nil) {
+        NSString *cachesPath = sentryStaticCachesPath();
+        if (cachesPath == nil) {
             SENTRY_LOG_WARN(@"No location available to write a launch profiling config.");
             return;
         }
-        sentryLaunchConfigFileURL = [NSURL
-            fileURLWithPath:[appSupportPath stringByAppendingPathComponent:@"profileLaunch"]];
+        sentryLaunchConfigFileURL =
+            [NSURL fileURLWithPath:[cachesPath stringByAppendingPathComponent:@"profileLaunch"]];
     });
     return sentryLaunchConfigFileURL;
 }
@@ -816,9 +806,6 @@ removeAppLaunchProfilingConfigFile(void)
 - (void)clearDiskState
 {
     [self removeFileAtPath:self.basePath];
-#if SENTRY_TARGET_PROFILING_SUPPORTED
-    [self removeFileAtPath:sentryApplicationSupportPath()];
-#endif // SENTRY_TARGET_PROFILING_SUPPORTED
 }
 
 @end
