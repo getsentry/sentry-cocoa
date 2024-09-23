@@ -1,22 +1,28 @@
+#if SENTRY_NO_UIKIT
+import SentryWithoutUIKit
+#else
 import Sentry
-import SwiftUI
+#endif
 #if canImport(UIKit)
+import SwiftUI
 import UIKit
-
-class SentryRedactView: UIView {
-    
-}
 
 @available(iOS 13, macOS 10.15, tvOS 13, watchOS 6.0, *)
 struct SentryReplayView: UIViewRepresentable {
-    public func makeUIView(context: Context) -> UIView {
-        let result = SentryRedactView()
+    func makeUIView(context: Context) -> UIView {
+        let result = UIView()
         result.sentryReplayRedact()
         return result
     }
     
-    public func updateUIView(_ uiView: UIView, context: Context) {
+    func updateUIView(_ uiView: UIView, context: Context) {
         // This is blank on purpose. UIViewRepresentable requires this function.
+    }
+}
+
+struct SentryReplayModifier: ViewModifier {
+    func body(content: Content) -> some View {
+        content.background(SentryReplayView())
     }
 }
 
@@ -29,12 +35,10 @@ public extension View {
     /// during session replays to ensure user privacy. This is useful for views containing personal
     /// data or confidential information that shouldn't be visible when the replay is reviewed.
     ///
-    /// - Returns: A view that redacts sensitive information during session replays.
+    /// - Returns: A modifier that redacts sensitive information during session replays.
     ///
     func replayRedact() -> some View {
-        self.background(
-            SentryReplayView()
-        )
+        modifier(SentryReplayModifier())
     }
 }
 #endif
