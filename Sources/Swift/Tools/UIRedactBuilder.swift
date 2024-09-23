@@ -154,6 +154,7 @@ class UIRedactBuilder {
                              redacting: &redactingRegions,
                              rootFrame: view.frame,
                              transform: CGAffineTransform.identity)
+        
         return redactingRegions.reversed()
     }
     
