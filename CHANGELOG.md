@@ -1,11 +1,16 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+- Added breadcrumb.origin field (#4358)
+
 ## 8.37.0-beta.1
 
 ### Features
 
 - Added `thermal_state` to device context (#4305)
-- Added breadcrumb.origin field (#4358)
 - Send envelopes that cannot be cached to disk (#4294)
 
 ### Refactoring
