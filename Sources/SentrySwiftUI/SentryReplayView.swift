@@ -3,11 +3,10 @@ import SentryWithoutUIKit
 #else
 import Sentry
 #endif
-#if canImport(UIKit)
 import SwiftUI
 import UIKit
 
-@available(iOS 13, macOS 10.15, tvOS 13, watchOS 6.0, *)
+@available(iOS 13, macOS 10.15, tvOS 13, *)
 struct SentryReplayView: UIViewRepresentable {
     func makeUIView(context: Context) -> UIView {
         let result = UIView()
@@ -20,13 +19,14 @@ struct SentryReplayView: UIViewRepresentable {
     }
 }
 
+@available(iOS 13, macOS 10.15, tvOS 13, *)
 struct SentryReplayModifier: ViewModifier {
     func body(content: Content) -> some View {
         content.background(SentryReplayView())
     }
 }
 
-@available(iOS 13, macOS 10.15, tvOS 13, watchOS 6.0, *)
+@available(iOS 13, macOS 10.15, tvOS 13, *)
 public extension View {
     
     /// Marks the view as containing sensitive information that should be redacted during replays.
@@ -41,4 +41,3 @@ public extension View {
         modifier(SentryReplayModifier())
     }
 }
-#endif

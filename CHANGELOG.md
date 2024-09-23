@@ -4,7 +4,7 @@
 
 ### Features
 
-- Custom redact modifier for SwiftUI ()
+- Custom redact modifier for SwiftUI (#4362)
 
 ## 8.37.0-beta.1
 
