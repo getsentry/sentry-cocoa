@@ -1,17 +1,10 @@
 import SentrySwiftUI
 import SwiftUI
 
-struct SwiftUIView: View {
-    @State var sliderValue: Double = 0
-    
+struct SwiftUIView: View {    
     var body: some View {
         SentryTracedView("SwiftUI View") {
-            VStack {
-                Text("Welcome \(sliderValue)")
-                    .background(Color.green)
-                    .replayRedact()
-                Text("SwiftUI!")
-            }
+            Text("SwiftUI!")
         }
     }
 }

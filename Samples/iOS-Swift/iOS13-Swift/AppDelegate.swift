@@ -24,9 +24,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 options.profilesSampleRate = 1
             }
             
-            options.experimental.sessionReplay.sessionSampleRate = 1
-            options.experimental.sessionReplay.redactAllImages = false
-            
             options.initialScope = { scope in
                 scope.injectGitInformation()
                 return scope
