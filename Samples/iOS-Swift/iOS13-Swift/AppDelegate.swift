@@ -8,7 +8,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     
     func startSentry() {
         // For testing purposes, we want to be able to change the DSN and store it to disk. In a real app, you shouldn't need this behavior.
-        var storedDsn: String? = nil
+        var storedDsn: String?
         do {
             storedDsn = try DSNStorage.shared.getDSN()
             try DSNStorage.shared.saveDSN(dsn: storedDsn ?? Self.defaultDSN)
