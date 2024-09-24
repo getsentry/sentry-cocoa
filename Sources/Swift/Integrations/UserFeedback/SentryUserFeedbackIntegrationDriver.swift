@@ -7,19 +7,22 @@ import UIKit
  * An integration managing a workflow for end users to report feedback via Sentry.
  * - note: The default method to show the feedback form is via a floating widget placed in the bottom trailing corner of the screen. See the configuration classes for alternative options.
  */
-class SentryUserFeedbackIntegration {
+@objcMembers public class SentryUserFeedbackIntegrationDriver: NSObject {
     let configuration: SentryUserFeedbackConfiguration
     private var widgetConfig: SentryUserFeedbackWidgetConfiguration?
     private var formConfig: SentryUserFeedbackFormConfiguration?
     private var themeOverrides: SentryUserFeedbackThemeConfiguration?
     private var darkThemeOverrides: SentryUserFeedbackThemeConfiguration?
+    private var window: SentryWidget.Window?
     
-    init(configuration: SentryUserFeedbackConfiguration) {
+    public init(configuration: SentryUserFeedbackConfiguration) {
         self.configuration = configuration
+        super.init()
         
         if let widgetConfigBuilder = configuration.configureWidget {
             let config = SentryUserFeedbackWidgetConfiguration()
             widgetConfigBuilder(config)
+            validate(config)
             self.widgetConfig = config
         }
         if let uiFormConfigBuilder = configuration.configureForm {
@@ -57,7 +60,12 @@ class SentryUserFeedbackIntegration {
      * If `SentryUserFeedbackConfiguration.autoInject` is `false`, this must be called explicitly.
      */
     func createWidget() {
-        // TODO: Implementation to create and render widget
+        guard let config = widgetConfig else {
+            SentryLog.warning("Cannot create a user feedback widget without a configuration.")
+            return
+        }
+        window = SentryWidget.Window(config: config)
+        window?.isHidden = false
     }
     
     /**
@@ -77,6 +85,25 @@ class SentryUserFeedbackIntegration {
      */
     func captureFeedback(message: String, name: String? = nil, email: String? = nil, hints: [String: Any]? = nil) {
         // Implementation to capture feedback
+    }
+    
+    private func validate(_ config: SentryUserFeedbackWidgetConfiguration) {
+        let noOpposingHorizontals = config.location.contains(.right) && !config.location.contains(.left)
+            || !config.location.contains(.right) && config.location.contains(.left)
+        let noOpposingVerticals = config.location.contains(.top) && !config.location.contains(.bottom)
+            || !config.location.contains(.top) && config.location.contains(.bottom)
+        let atLeastOneLocation = config.location.contains(.right)
+            || config.location.contains(.left)
+            || config.location.contains(.top)
+            || config.location.contains(.bottom)
+        let notAll = !config.location.contains(.all)
+        let valid = noOpposingVerticals && noOpposingHorizontals && atLeastOneLocation && notAll
+        #if DEBUG
+        assert(valid, "Invalid widget location specified: \(config.location). Must specify either one edge or one corner of the screen rect to place the widget.")
+        #endif // DEBUG
+        if !valid {
+            SentryLog.warning("Invalid widget location specified: \(config.location). Must specify either one edge or one corner of the screen rect to place the widget.")
+        }
     }
 }
 

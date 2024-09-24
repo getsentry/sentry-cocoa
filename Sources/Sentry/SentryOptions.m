@@ -19,6 +19,7 @@
 #import "SentrySwift.h"
 #import "SentrySwiftAsyncIntegration.h"
 #import "SentryTracer.h"
+#import "SentryUserFeedbackIntegration.h"
 #import <objc/runtime.h>
 
 #if SENTRY_HAS_UIKIT
@@ -36,17 +37,22 @@
 #endif // SENTRY_HAS_METRIC_KIT
 NSString *const kSentryDefaultEnvironment = @"production";
 
+@interface SentryOptions ()
+
+@property (nullable, nonatomic, copy) NSMutableArray<NSString *> *integrations;
+
+@end
+
 @implementation SentryOptions {
     BOOL _enableTracingManual;
 }
 
-+ (NSArray<NSString *> *)defaultIntegrations
-{
+NSMutableArray<NSString *> *sentry_defaultIntegrations(void) {
     // The order of integrations here is important.
     // SentryCrashIntegration needs to be initialized before SentryAutoSessionTrackingIntegration.
     // And SentrySessionReplayIntegration before SentryCrashIntegration.
     NSMutableArray<NSString *> *defaultIntegrations =
-        @[
+        [NSMutableArray<NSString *> arrayWithObjects:
 #if SENTRY_HAS_UIKIT && !TARGET_OS_VISION
             NSStringFromClass([SentrySessionReplayIntegration class]),
 #endif
@@ -66,17 +72,22 @@ NSString *const kSentryDefaultEnvironment = @"production";
             NSStringFromClass([SentryCoreDataTrackingIntegration class]),
             NSStringFromClass([SentryFileIOTrackingIntegration class]),
             NSStringFromClass([SentryNetworkTrackingIntegration class]),
-            NSStringFromClass([SentrySwiftAsyncIntegration class])
-        ]
-            .mutableCopy;
-
+            NSStringFromClass([SentrySwiftAsyncIntegration class]),
+            nil
+        ];
+    
 #if SENTRY_HAS_METRIC_KIT
     if (@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, *)) {
         [defaultIntegrations addObject:NSStringFromClass([SentryMetricKitIntegration class])];
     }
 #endif // SENTRY_HAS_METRIC_KIT
-
+    
     return defaultIntegrations;
+}
+
++ (NSArray<NSString *> *)defaultIntegrations
+{
+    return sentry_defaultIntegrations();
 }
 
 - (instancetype)init
@@ -92,7 +103,7 @@ NSString *const kSentryDefaultEnvironment = @"production";
         self.debug = NO;
         self.maxBreadcrumbs = defaultMaxBreadcrumbs;
         self.maxCacheItems = 30;
-        _integrations = SentryOptions.defaultIntegrations;
+        _integrations = sentry_defaultIntegrations();
         self.sampleRate = SENTRY_DEFAULT_SAMPLE_RATE;
         self.enableAutoSessionTracking = YES;
         self.enableGraphQLOperationTracking = NO;
@@ -251,7 +262,7 @@ NSString *const kSentryDefaultEnvironment = @"production";
     SENTRY_LOG_WARN(
         @"Setting `SentryOptions.integrations` is deprecated. Integrations should be enabled or "
         @"disabled using their respective `SentryOptions.enable*` property.");
-    _integrations = integrations;
+    _integrations = integrations.mutableCopy;
 }
 
 - (void)setDsn:(NSString *)dsn
@@ -364,7 +375,7 @@ NSString *const kSentryDefaultEnvironment = @"production";
     }
 
     if ([options[@"integrations"] isKindOfClass:[NSArray class]]) {
-        self.integrations = [options[@"integrations"] filteredArrayUsingPredicate:isNSString];
+        self.integrations = [[options[@"integrations"] filteredArrayUsingPredicate:isNSString] mutableCopy];
     }
 
     if ([options[@"sampleRate"] isKindOfClass:[NSNumber class]]) {
@@ -791,6 +802,12 @@ sentry_isValidSampleRate(NSNumber *sampleRate)
                         @"only for local development.");
     }
 #endif // defined(RELEASE)
+}
+
+- (void)setConfigureUserFeedback:(SentryUserFeedbackConfigurationBlock)configureUserFeedback {
+    self.userFeedbackConfiguration = [[SentryUserFeedbackConfiguration alloc] init];
+    configureUserFeedback(self.userFeedbackConfiguration);
+    [_integrations addObject:NSStringFromClass([SentryUserFeedbackIntegration class])];
 }
 
 #if defined(DEBUG) || defined(TEST) || defined(TESTCI)

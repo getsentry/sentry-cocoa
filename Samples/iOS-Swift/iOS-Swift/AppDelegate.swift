@@ -171,6 +171,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                     if args.contains("--io.sentry.iOS-Swift.auto-inject-user-feedback-widget") {
                         widget.labelText = "Report Jank"
                         widget.widgetAccessibilityLabel = "io.sentry.iOS-Swift.button.report-jank"
+                        widget.layoutUIOffset = .init(horizontal: 12, vertical: 50)
                     } else {
                         widget.autoInject = false
                     }

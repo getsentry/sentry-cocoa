@@ -30,6 +30,8 @@ FOUNDATION_EXPORT NSString *const kSentryDefaultEnvironment;
  */
 @property (nonatomic, copy, nullable) SentryUserFeedbackConfigurationBlock configureUserFeedback;
 
+@property (nonatomic, strong, nullable) SentryUserFeedbackConfiguration *userFeedbackConfiguration;
+
 SENTRY_EXTERN BOOL sentry_isValidSampleRate(NSNumber *sampleRate);
 
 @property (nonatomic, assign) BOOL enableAppHangTrackingV2;

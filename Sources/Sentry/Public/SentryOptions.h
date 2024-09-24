@@ -164,7 +164,7 @@ NS_SWIFT_NAME(Options)
 /**
  * Array of integrations to install.
  */
-@property (nullable, nonatomic, copy) NSArray<NSString *> *integrations;
+@property (nullable, nonatomic, readonly) NSArray<NSString *> *integrations;
 
 /**
  * Array of default integrations. Will be used if @c integrations is @c nil .
