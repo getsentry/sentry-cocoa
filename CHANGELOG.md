@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+- Add mergeable libraries support to dynamic libraries (#4367) This is not supported for watchOS targets.
+
 ## 8.37.0-beta.1
 
 ### Features
