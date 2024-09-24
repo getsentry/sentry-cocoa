@@ -3,7 +3,8 @@
 set -eou pipefail
 
 sdks=( iphoneos iphonesimulator macosx appletvos appletvsimulator watchos watchsimulator xros xrsimulator )
-
+## watchos and watchsimulator emit error: ld: unknown option: -make_mergeable
+un_mergable_sdks=( watchos watchsimulator )
 rm -rf Carthage/
 mkdir Carthage
 
@@ -16,7 +17,7 @@ generate_xcframework() {
     local configuration_suffix="${4-}"
     local createxcframework="xcodebuild -create-xcframework "
     local GCC_GENERATE_DEBUGGING_SYMBOLS="YES"
-    local OTHER_LDFLAGS=""
+    local OTHER_LDFLAGS="-Wl,-make_mergeable" # Default value with -make_mergeable flag
 
     local resolved_configuration="Release$configuration_suffix"
     local resolved_product_name="$scheme$configuration_suffix"
@@ -24,16 +25,19 @@ generate_xcframework() {
     if [ "$MACH_O_TYPE" = "staticlib" ]; then
         #For static framework we disabled symbols because they are not distributed in the framework causing warnings.
         GCC_GENERATE_DEBUGGING_SYMBOLS="NO"
-    else
-        # Set the linker flag only for dynamic libraries
-        OTHER_LDFLAGS="-Wl,-make_mergeable"
+        OTHER_LDFLAGS="" # Remove the make_mergeable linker flag for static libs
     fi
-    
+
     rm -rf Carthage/DerivedData
     
     for sdk in "${sdks[@]}"; do
         if grep -q "${sdk}" <<< "$ALL_SDKS"; then
 
+            # Remove the make_mergeable linker flag for un-mergable SDKs
+            if [[ " ${un_mergable_sdks[@]} " =~ " ${sdk} " ]]; then
+                OTHER_LDFLAGS=""
+            fi
+            
             xcodebuild archive \
                 -project Sentry.xcodeproj/ \
                 -scheme "$scheme" \
