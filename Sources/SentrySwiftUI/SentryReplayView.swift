@@ -1,4 +1,4 @@
-#if canImport(SwiftUI) && canImport(UIKit) && !os(watchOS)
+#if canImport(SwiftUI) && canImport(UIKit) && !os(watchOS) && !os(visionOS)
 import Sentry
 import SwiftUI
 import UIKit
