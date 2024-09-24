@@ -1,3 +1,4 @@
+#if canImport(SwiftUI) && canImport(UIKit)
 #if SENTRY_NO_UIKIT
 import SentryWithoutUIKit
 #else
@@ -8,8 +9,11 @@ import UIKit
 
 @available(iOS 13, macOS 10.15, tvOS 13, *)
 struct SentryReplayView: UIViewRepresentable {
+    class SentryRedactView: UIView {
+    }
+    
     func makeUIView(context: Context) -> UIView {
-        let result = UIView()
+        let result = SentryRedactView()
         result.sentryReplayRedact()
         return result
     }
@@ -36,8 +40,9 @@ public extension View {
     /// data or confidential information that shouldn't be visible when the replay is reviewed.
     ///
     /// - Returns: A modifier that redacts sensitive information during session replays.
-    ///
+    /// - Experiment: This is an experimental feature and may still have bugs.
     func sentryReplayRedact() -> some View {
         modifier(SentryReplayModifier())
     }
 }
+#endif
