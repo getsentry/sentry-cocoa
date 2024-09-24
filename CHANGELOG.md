@@ -5,6 +5,9 @@
 ### Features
 
 - Add mergeable libraries support to dynamic libraries (#4367) This is not supported for watchOS targets.
+### Improvements
+
+- Speed up HTTP tracking for multiple requests in parallel (#4366)
 
 ## 8.37.0-beta.1
 
