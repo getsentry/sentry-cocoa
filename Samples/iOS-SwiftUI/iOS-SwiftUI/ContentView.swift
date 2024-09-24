@@ -199,7 +199,7 @@ struct ContentView: View {
                                 Text("Form Screen")
                             }
                         }
-                        .replayRedact()
+                        .sentryReplayRedact()
                     }
                     SecondView()
                 }

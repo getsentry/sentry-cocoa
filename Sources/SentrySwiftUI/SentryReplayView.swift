@@ -37,7 +37,7 @@ public extension View {
     ///
     /// - Returns: A modifier that redacts sensitive information during session replays.
     ///
-    func replayRedact() -> some View {
+    func sentryReplayRedact() -> some View {
         modifier(SentryReplayModifier())
     }
 }
