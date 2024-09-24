@@ -1,9 +1,5 @@
-#if canImport(SwiftUI) && canImport(UIKit)
-#if SENTRY_NO_UIKIT
-import SentryWithoutUIKit
-#else
+#if canImport(SwiftUI) && canImport(UIKit) && !os(watchOS)
 import Sentry
-#endif
 import SwiftUI
 import UIKit
 
