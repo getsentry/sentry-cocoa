@@ -1,4 +1,4 @@
-#if canImport(SwiftUI) && canImport(UIKit)
+#if canImport(SwiftUI)
 import Foundation
 #if SENTRY_NO_UIKIT
 import SentryWithoutUIKit
