@@ -1,7 +1,8 @@
 import Foundation
 
+/// The  methods are called from a  background thread.
 @objc
-protocol SentryANRTrackerV2Delegate {
+protocol SentryANRTrackerDelegate {
     func anrDetected(type: SentryANRType)
     func anrStopped()
 }
@@ -10,4 +11,5 @@ protocol SentryANRTrackerV2Delegate {
 enum SentryANRType: Int {
     case fullyBlocking
     case nonFullyBlocking
+    case unknown
 }

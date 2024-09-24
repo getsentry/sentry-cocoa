@@ -357,6 +357,27 @@ class SentrySDKTests: XCTestCase {
         XCTAssertEqual(envelope.header.eventId, fixture.client.storedEnvelopeInvocations.first?.header.eventId)
     }
     
+    /// This is to prevent https://github.com/getsentry/sentry-cocoa/issues/4280
+    /// With 8.33.0, writing an envelope could fail in the middle of the process, which the envelope
+    /// payload below simulates. The JSON stems from writing an envelope to disk with vast data
+    /// that leads to an OOM termination on v 8.33.0.
+    /// Running this test on v 8.33.0 leads to a crash.
+    func testStartSDK_WithCorruptedEnvelope() throws {
+        
+        let fileManager = try SentryFileManager(options: fixture.options)
+        
+        let corruptedEnvelopeData = """
+                       {"event_id":"1990b5bc31904b7395fd07feb72daf1c","sdk":{"name":"sentry.cocoa","version":"8.33.0"}}
+                       {"type":"test","length":50}
+                       """.data(using: .utf8)!
+        
+        try corruptedEnvelopeData.write(to: URL(fileURLWithPath: "\(fileManager.envelopesPath)/corrupted-envelope.json"))
+        
+        SentrySDK.start(options: fixture.options)
+        
+        fileManager.deleteAllEnvelopes()
+    }
+    
     func testStoreEnvelope_WhenNoClient_NoCrash() {
         SentrySDK.store(SentryEnvelope(event: TestData.event))
         
@@ -423,17 +444,18 @@ class SentrySDKTests: XCTestCase {
     func testStartingContinuousProfilerWithSampleRateZero() throws {
         givenSdkWithHub()
         
-        // nil is the default value for profilesSampleRate, so we don't have to explicitly set it on the fixture
-        XCTAssertNil(fixture.options.profilesSampleRate)
+        fixture.options.profilesSampleRate = 0
+        XCTAssertEqual(try XCTUnwrap(fixture.options.profilesSampleRate).doubleValue, 0)
+
         XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
         SentrySDK.startProfiler()
-        XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
+        XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
     }
 
     func testStartingContinuousProfilerWithSampleRateNil() throws {
         givenSdkWithHub()
         
-        fixture.options.profilesSampleRate = nil
+        // nil is the default initial value for profilesSampleRate, so we don't have to explicitly set it on the fixture
         XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
         SentrySDK.startProfiler()
         XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
@@ -724,11 +746,11 @@ class SentrySDKTests: XCTestCase {
         let anrTrackingIntegration = SentrySDK.currentHub().getInstalledIntegration(SentryANRTrackingIntegration.self)
         
         SentrySDK.pauseAppHangTracking()
-        Dynamic(anrTrackingIntegration).anrDetected()
+        Dynamic(anrTrackingIntegration).anrDetectedWithType(SentryANRType.unknown)
         XCTAssertEqual(0, client.captureEventWithScopeInvocations.count)
         
         SentrySDK.resumeAppHangTracking()
-        Dynamic(anrTrackingIntegration).anrDetected()
+        Dynamic(anrTrackingIntegration).anrDetectedWithType(SentryANRType.unknown)
         
         if SentryDependencyContainer.sharedInstance().crashWrapper.isBeingTraced() {
             XCTAssertEqual(0, client.captureEventWithScopeInvocations.count)

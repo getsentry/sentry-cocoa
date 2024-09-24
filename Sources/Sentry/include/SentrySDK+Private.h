@@ -14,8 +14,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface
-SentrySDK ()
+@interface SentrySDK ()
 
 + (void)captureCrashEvent:(SentryEvent *)event;
 
@@ -51,22 +50,6 @@ SentrySDK ()
  * Needed by hybrid SDKs as react-native to synchronously capture an envelope.
  */
 + (void)captureEnvelope:(SentryEnvelope *)envelope;
-
-#if SENTRY_TARGET_PROFILING_SUPPORTED
-/**
- * Start a new continuous profiling session if one is not already running.
- * @seealso https://docs.sentry.io/platforms/apple/profiling/
- */
-+ (void)startProfiler;
-
-/**
- * Stop a continuous profiling session if there is one ongoing. This doesn't immediately
- * stop the profiler, rather, the current profiling chunk timer will be allowed to expire and will
- * not be renewed afterwards.
- * @seealso https://docs.sentry.io/platforms/apple/profiling/
- */
-+ (void)stopProfiler;
-#endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
 @end
 

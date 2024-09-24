@@ -19,8 +19,7 @@ NSString *nameForSentryAttachmentType(SentryAttachmentType attachmentType);
 
 SentryAttachmentType typeForSentryAttachmentName(NSString *name);
 
-@interface
-SentryAttachment ()
+@interface SentryAttachment ()
 SENTRY_NO_INIT
 
 /**

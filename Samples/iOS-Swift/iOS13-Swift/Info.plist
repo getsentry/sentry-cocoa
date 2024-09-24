@@ -2,6 +2,12 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>GIT_BRANCH</key>
+	<string>&lt;branch&gt;</string>
+	<key>GIT_COMMIT_HASH</key>
+	<string>&lt;sha&gt;</string>
+	<key>GIT_STATUS_CLEAN</key>
+	<string>&lt;status&gt;</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

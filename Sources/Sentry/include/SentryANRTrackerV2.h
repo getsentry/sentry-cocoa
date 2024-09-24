@@ -29,9 +29,9 @@ SENTRY_NO_INIT
                           threadWrapper:(SentryThreadWrapper *)threadWrapper
                           framesTracker:(SentryFramesTracker *)framesTracker;
 
-- (void)addListener:(id<SentryANRTrackerV2Delegate>)listener;
+- (void)addListener:(id<SentryANRTrackerDelegate>)listener;
 
-- (void)removeListener:(id<SentryANRTrackerV2Delegate>)listener;
+- (void)removeListener:(id<SentryANRTrackerDelegate>)listener;
 
 // Function used for tests
 - (void)clear;

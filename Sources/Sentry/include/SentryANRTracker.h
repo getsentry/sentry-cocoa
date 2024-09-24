@@ -1,10 +1,12 @@
 #import "SentryDefines.h"
+#import "SentrySwift.h"
 
-@class SentryOptions, SentryCrashWrapper, SentryDispatchQueueWrapper, SentryThreadWrapper;
+@class SentryOptions;
+@class SentryCrashWrapper;
+@class SentryDispatchQueueWrapper;
+@class SentryThreadWrapper;
 
 NS_ASSUME_NONNULL_BEGIN
-
-@protocol SentryANRTrackerDelegate;
 
 /**
  * This class detects ANRs with a dedicated watchdog thread. The thread schedules a simple block to
@@ -33,17 +35,6 @@ SENTRY_NO_INIT
 
 // Function used for tests
 - (void)clear;
-
-@end
-
-/**
- * The ``SentryANRTracker`` calls the methods from background threads.
- */
-@protocol SentryANRTrackerDelegate <NSObject>
-
-- (void)anrDetected;
-
-- (void)anrStopped;
 
 @end
 

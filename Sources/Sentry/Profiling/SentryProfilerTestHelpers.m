@@ -28,20 +28,20 @@ sentry_writeProfileFile(NSData *JSONData)
 {
     NSFileManager *fm = [NSFileManager defaultManager];
     NSString *testProfileDirPath =
-        [sentryApplicationSupportPath() stringByAppendingPathComponent:@"profiles"];
+        [sentryStaticCachesPath() stringByAppendingPathComponent:@"profiles"];
 
     if (![fm fileExistsAtPath:testProfileDirPath]) {
-        SENTRY_LOG_DEBUG(@"Creating app support directory.");
+        SENTRY_LOG_DEBUG(@"Creating Sentry static cache directory.");
         NSError *error;
         if (!SENTRY_CASSERT_RETURN([fm createDirectoryAtPath:testProfileDirPath
                                        withIntermediateDirectories:YES
                                                         attributes:nil
                                                              error:&error],
-                @"Failed to create sentry app support directory")) {
+                @"Failed to create Sentry static cache directory")) {
             return;
         }
     } else {
-        SENTRY_LOG_DEBUG(@"App support directory already exists.");
+        SENTRY_LOG_DEBUG(@"Sentry static cache directory already exists.");
     }
 
     NSError *error;
@@ -54,7 +54,7 @@ sentry_writeProfileFile(NSData *JSONData)
     NSUInteger numberOfProfiles = [contents count];
     NSString *pathToWrite = [testProfileDirPath
         stringByAppendingPathComponent:[NSString stringWithFormat:@"profile%lld",
-                                                 (long long)numberOfProfiles]];
+                                           (long long)numberOfProfiles]];
 
     if ([fm fileExistsAtPath:pathToWrite]) {
         SENTRY_LOG_DEBUG(@"Already a profile file present; make sure to remove them right after "

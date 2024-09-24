@@ -12,7 +12,7 @@ class SentryTracerTests: XCTestCase {
 
         var activeSpan: Span?
 
-        func activeSpan(for tracer: SentryTracer) -> Span? {
+        func getActiveSpan() -> (any Span)? {
             return activeSpan
         }
 

@@ -12,8 +12,15 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             options.dsn = "https://6cc9bae94def43cab8444a99e0031c28@o447951.ingest.sentry.io/5428557"
             options.debug = true
             options.tracesSampleRate = 1.0
-            if ProcessInfo.processInfo.arguments.contains("--io.sentry.profiling.enable") {
+            
+            let args = ProcessInfo.processInfo.arguments
+            
+            if args.contains("--io.sentry.profiling.enable") {
                 options.profilesSampleRate = 1
+            }
+            if #available(macOS 12.0, *), !args.contains("--disable-metrickit-integration") {
+                options.enableMetricKit = true
+                options.enableMetricKitRawPayload = true
             }
             
             options.initialScope = { scope in
@@ -24,6 +31,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                 if let data = "hello".data(using: .utf8) {
                     scope.addAttachment(Attachment(data: data, filename: "log.txt"))
                 }
+                
+                scope.injectGitInformation()
                 
                 return scope
             }

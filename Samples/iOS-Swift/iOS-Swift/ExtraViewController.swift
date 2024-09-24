@@ -4,27 +4,17 @@ import UIKit
 
 class ExtraViewController: UIViewController {
 
-    @IBOutlet weak var dsnTextField: UITextField!
     @IBOutlet weak var framesLabel: UILabel!
     @IBOutlet weak var breadcrumbLabel: UILabel!
     @IBOutlet weak var uiTestNameLabel: UILabel!
     @IBOutlet weak var anrFullyBlockingButton: UIButton!
     @IBOutlet weak var anrFillingRunLoopButton: UIButton!
 
+    @IBOutlet weak var dsnView: UIView!
     private let dispatchQueue = DispatchQueue(label: "ExtraViewControllers", attributes: .concurrent)
-
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-
-        dispatchQueue.async {
-            let dsn = DSNStorage.shared.getDSN()
-
-            DispatchQueue.main.async {
-                self.dsnTextField.text = dsn
-                self.dsnTextField.backgroundColor = UIColor.systemGreen
-            }
-        }
-
         if let uiTestName = ProcessInfo.processInfo.environment["--io.sentry.ui-test.test-name"] {
             uiTestNameLabel.text = uiTestName
         }
@@ -54,35 +44,8 @@ class ExtraViewController: UIViewController {
         }
         
         SentrySDK.reportFullyDisplayed()
-    }
-
-    @IBAction func dsnChanged(_ sender: UITextField) {
-        let options = Options()
-        options.dsn = sender.text
-
-        if let dsn = options.dsn {
-            sender.backgroundColor = UIColor.systemGreen
-
-            dispatchQueue.async {
-                DSNStorage.shared.saveDSN(dsn: dsn)
-            }
-        } else {
-            sender.backgroundColor = UIColor.systemRed
-
-            dispatchQueue.async {
-                DSNStorage.shared.deleteDSN()
-            }
-        }
-    }
-
-    @IBAction func resetDSN(_ sender: UIButton) {
-        highlightButton(sender)
-        self.dsnTextField.text = AppDelegate.defaultDSN
-        self.dsnTextField.backgroundColor = UIColor.systemGreen
-
-        dispatchQueue.async {
-            DSNStorage.shared.saveDSN(dsn: AppDelegate.defaultDSN)
-        }
+        
+        addDSNDisplay(self, vcview: dsnView)
     }
 
     @IBAction func anrFullyBlocking(_ sender: UIButton) {
@@ -196,7 +159,7 @@ class ExtraViewController: UIViewController {
 
     @IBAction func startSDK(_ sender: UIButton) {
         highlightButton(sender)
-        AppDelegate.startSentry()
+        (UIApplication.shared.delegate as? AppDelegate)?.startSentry()
     }
 
     @IBAction func causeFrozenFrames(_ sender: Any) {

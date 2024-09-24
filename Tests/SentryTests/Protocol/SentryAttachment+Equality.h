@@ -2,8 +2,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface
-SentryAttachment (Equality)
+@interface SentryAttachment (Equality)
 
 - (BOOL)isEqual:(id _Nullable)other;
 

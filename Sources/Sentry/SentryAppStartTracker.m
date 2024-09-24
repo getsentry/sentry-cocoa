@@ -28,8 +28,7 @@ static BOOL isActivePrewarm = NO;
  */
 static const NSTimeInterval SENTRY_APP_START_MAX_DURATION = 180.0;
 
-@interface
-SentryAppStartTracker () <SentryFramesTrackerListener>
+@interface SentryAppStartTracker () <SentryFramesTrackerListener>
 
 @property (nonatomic, strong) SentryAppState *previousAppState;
 @property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueue;
