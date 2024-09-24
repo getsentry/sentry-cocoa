@@ -16,13 +16,17 @@ generate_xcframework() {
     local configuration_suffix="${4-}"
     local createxcframework="xcodebuild -create-xcframework "
     local GCC_GENERATE_DEBUGGING_SYMBOLS="YES"
-    
+    local OTHER_LDFLAGS=""
+
     local resolved_configuration="Release$configuration_suffix"
     local resolved_product_name="$scheme$configuration_suffix"
     
     if [ "$MACH_O_TYPE" = "staticlib" ]; then
         #For static framework we disabled symbols because they are not distributed in the framework causing warnings.
         GCC_GENERATE_DEBUGGING_SYMBOLS="NO"
+    else
+        # Set the linker flag only for dynamic libraries
+        OTHER_LDFLAGS="-Wl,-make_mergeable"
     fi
     
     rm -rf Carthage/DerivedData
@@ -30,7 +34,20 @@ generate_xcframework() {
     for sdk in "${sdks[@]}"; do
         if grep -q "${sdk}" <<< "$ALL_SDKS"; then
 
-            xcodebuild archive -project Sentry.xcodeproj/ -scheme "$scheme" -configuration "$resolved_configuration" -sdk "$sdk" -archivePath "./Carthage/archive/${scheme}${suffix}/${sdk}.xcarchive" CODE_SIGNING_REQUIRED=NO SKIP_INSTALL=NO CODE_SIGN_IDENTITY= CARTHAGE=YES MACH_O_TYPE="$MACH_O_TYPE" ENABLE_CODE_COVERAGE=NO GCC_GENERATE_DEBUGGING_SYMBOLS="$GCC_GENERATE_DEBUGGING_SYMBOLS"
+            xcodebuild archive \
+                -project Sentry.xcodeproj/ \
+                -scheme "$scheme" \
+                -configuration "$resolved_configuration" \
+                -sdk "$sdk" \
+                -archivePath "./Carthage/archive/${scheme}${suffix}/${sdk}.xcarchive" \
+                CODE_SIGNING_REQUIRED=NO \
+                SKIP_INSTALL=NO \
+                CODE_SIGN_IDENTITY= \
+                CARTHAGE=YES \
+                MACH_O_TYPE="$MACH_O_TYPE" \
+                ENABLE_CODE_COVERAGE=NO \
+                GCC_GENERATE_DEBUGGING_SYMBOLS="$GCC_GENERATE_DEBUGGING_SYMBOLS" \
+                OTHER_LDFLAGS="$OTHER_LDFLAGS"
                  
             createxcframework+="-framework Carthage/archive/${scheme}${suffix}/${sdk}.xcarchive/Products/Library/Frameworks/${resolved_product_name}.framework "
 
@@ -48,7 +65,7 @@ generate_xcframework() {
             
             if [ -d "Carthage/archive/${scheme}${suffix}/${sdk}.xcarchive/dSYMs/${resolved_product_name}.framework.dSYM" ]; then
                 # Has debug symbols
-                    createxcframework+="-debug-symbols $(pwd -P)/Carthage/archive/${scheme}${suffix}/${sdk}.xcarchive/dSYMs/${resolved_product_name}.framework.dSYM "
+                createxcframework+="-debug-symbols $(pwd -P)/Carthage/archive/${scheme}${suffix}/${sdk}.xcarchive/dSYMs/${resolved_product_name}.framework.dSYM "
             fi
         else
             echo "${sdk} SDK not found"
@@ -56,8 +73,22 @@ generate_xcframework() {
     done
     
     #Create framework for mac catalyst
-    xcodebuild -project Sentry.xcodeproj/ -scheme "$scheme" -configuration "$resolved_configuration" -sdk iphoneos -destination 'platform=macOS,variant=Mac Catalyst' -derivedDataPath ./Carthage/DerivedData CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY= CARTHAGE=YES MACH_O_TYPE="$MACH_O_TYPE" SUPPORTS_MACCATALYST=YES ENABLE_CODE_COVERAGE=NO GCC_GENERATE_DEBUGGING_SYMBOLS="$GCC_GENERATE_DEBUGGING_SYMBOLS"
-
+    xcodebuild \
+        -project Sentry.xcodeproj/ \
+        -scheme "$scheme" \
+        -configuration "$resolved_configuration" \
+        -sdk iphoneos \
+        -destination 'platform=macOS,variant=Mac Catalyst' \
+        -derivedDataPath ./Carthage/DerivedData \
+        CODE_SIGNING_REQUIRED=NO \
+        CODE_SIGN_IDENTITY= \
+        CARTHAGE=YES \
+        MACH_O_TYPE="$MACH_O_TYPE" \
+        SUPPORTS_MACCATALYST=YES \
+        ENABLE_CODE_COVERAGE=NO \
+        GCC_GENERATE_DEBUGGING_SYMBOLS="$GCC_GENERATE_DEBUGGING_SYMBOLS" \
+        OTHER_LDFLAGS="$OTHER_LDFLAGS"
+        
     if [ "$MACH_O_TYPE" = "staticlib" ]; then
         local infoPlist="Carthage/DerivedData/Build/Products/$resolved_configuration-maccatalyst/${scheme}.framework/Resources/Info.plist"
         plutil -replace "MinimumOSVersion" -string "100.0" "$infoPlist"
