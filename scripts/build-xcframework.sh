@@ -3,8 +3,6 @@
 set -eou pipefail
 
 sdks=( iphoneos iphonesimulator macosx appletvos appletvsimulator watchos watchsimulator xros xrsimulator )
-## watchos and watchsimulator emit error: ld: unknown option: -make_mergeable
-un_mergable_sdks=( watchos watchsimulator )
 rm -rf Carthage/
 mkdir Carthage
 
@@ -33,8 +31,8 @@ generate_xcframework() {
     for sdk in "${sdks[@]}"; do
         if grep -q "${sdk}" <<< "$ALL_SDKS"; then
 
-            # Remove the make_mergeable linker flag for un-mergable SDKs
-            if [[ " ${un_mergable_sdks[@]} " =~ " ${sdk} " ]]; then
+            ## watchos and watchsimulator dont support make_mergeable: ld: unknown option: -make_mergeable
+            if [[ "$sdk" == "watchos" || "$sdk" == "watchsimulator" ]]; then
                 OTHER_LDFLAGS=""
             fi
             
