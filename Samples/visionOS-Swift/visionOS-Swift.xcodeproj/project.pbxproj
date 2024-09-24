@@ -8,7 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		62D7C6EF2AEFBE3400339924 /* SentrySwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 62D7C6EE2AEFBE3400339924 /* SentrySwiftUI.framework */; };
-		62D7C6F02AEFBE3400339924 /* SentrySwiftUI.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 62D7C6EE2AEFBE3400339924 /* SentrySwiftUI.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		62D7C6F22AEFC03700339924 /* LoremIpsumView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62D7C6F12AEFC03700339924 /* LoremIpsumView.swift */; };
 		62D7C6F42AEFC14F00339924 /* LoremIpsum.txt in Resources */ = {isa = PBXBuildFile; fileRef = 62D7C6F32AEFC14F00339924 /* LoremIpsum.txt */; };
 		D84C37E32ACDC4A000EF74BE /* VisionOSSwiftApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = D84C37E22ACDC4A000EF74BE /* VisionOSSwiftApp.swift */; };
@@ -16,7 +15,6 @@
 		D84C37E92ACDC4A100EF74BE /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D84C37E82ACDC4A100EF74BE /* Assets.xcassets */; };
 		D84C37EC2ACDC4A100EF74BE /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D84C37EB2ACDC4A100EF74BE /* Preview Assets.xcassets */; };
 		D84C37F52ACDC7DB00EF74BE /* Sentry.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D84C37F42ACDC7DB00EF74BE /* Sentry.framework */; };
-		D84C37F62ACDC7DB00EF74BE /* Sentry.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = D84C37F42ACDC7DB00EF74BE /* Sentry.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -26,8 +24,6 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				D84C37F62ACDC7DB00EF74BE /* Sentry.framework in Embed Frameworks */,
-				62D7C6F02AEFBE3400339924 /* SentrySwiftUI.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;

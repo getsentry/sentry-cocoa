@@ -12,7 +12,6 @@
 		7B5166502758C6F400C0A720 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7B51664F2758C6F400C0A720 /* Assets.xcassets */; };
 		7B5166532758C6F400C0A720 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7B5166522758C6F400C0A720 /* Preview Assets.xcassets */; };
 		7B5166772758C72600C0A720 /* Sentry.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7B5166762758C72600C0A720 /* Sentry.framework */; };
-		7B5166782758C72600C0A720 /* Sentry.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 7B5166762758C72600C0A720 /* Sentry.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -22,7 +21,6 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				7B5166782758C72600C0A720 /* Sentry.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;

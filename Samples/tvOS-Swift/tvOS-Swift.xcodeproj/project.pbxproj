@@ -13,7 +13,6 @@
 		7BA61D68247FA32600C130A8 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BA61D67247FA32600C130A8 /* ContentView.swift */; };
 		7BA61D6A247FA32600C130A8 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7BA61D69247FA32600C130A8 /* Assets.xcassets */; };
 		7BA61D70247FA32600C130A8 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 7BA61D6E247FA32600C130A8 /* LaunchScreen.storyboard */; };
-		7BA61D7A247FA35500C130A8 /* Sentry.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 7BA61D78247FA35500C130A8 /* Sentry.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		8466D4E328DE64F100932CE7 /* SentryDeviceTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 8466D4E228DE64F100932CE7 /* SentryDeviceTests.mm */; };
 		8466D4E428DE64F100932CE7 /* SentryDevice.mm in Sources */ = {isa = PBXBuildFile; fileRef = 8466D4E128DE64F000932CE7 /* SentryDevice.mm */; };
 		84BA72B12C9369C10045B828 /* GitInjections.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BA72AF2C9369C00045B828 /* GitInjections.swift */; };
@@ -25,7 +24,6 @@
 		D822A4282760D15000E7B241 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D822A4262760D15000E7B241 /* Main.storyboard */; };
 		D822A42A2760D15100E7B241 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D822A4292760D15100E7B241 /* Assets.xcassets */; };
 		D822A42D2760D15100E7B241 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D822A42B2760D15100E7B241 /* LaunchScreen.storyboard */; };
-		D822A4332760D7E100E7B241 /* Sentry.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = D822A4312760D7E100E7B241 /* Sentry.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		D822A4362760DB1900E7B241 /* ActionCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = D822A4352760DB1900E7B241 /* ActionCell.swift */; };
 		D822A4392760E90B00E7B241 /* TableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D822A4382760E90B00E7B241 /* TableViewController.swift */; };
 		D822A43B2760EA1000E7B241 /* NibViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = D822A43A2760EA1000E7B241 /* NibViewController.xib */; };
@@ -100,7 +98,6 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				7BA61D7A247FA35500C130A8 /* Sentry.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -111,7 +108,6 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				D822A4332760D7E100E7B241 /* Sentry.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -946,6 +942,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
+				MERGED_BINARY_TYPE = automatic;
 				PRODUCT_BUNDLE_IDENTIFIER = "io.sentry.tvOS-SBSwift";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -1090,6 +1087,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
+				MERGED_BINARY_TYPE = automatic;
 				PRODUCT_BUNDLE_IDENTIFIER = "io.sentry.tvOS-SBSwift";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -1137,6 +1135,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
+				MERGED_BINARY_TYPE = automatic;
 				PRODUCT_BUNDLE_IDENTIFIER = "io.sentry.tvOS-SBSwift";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -1162,6 +1161,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
+				MERGED_BINARY_TYPE = automatic;
 				PRODUCT_BUNDLE_IDENTIFIER = "io.sentry.tvOS-SBSwift";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;

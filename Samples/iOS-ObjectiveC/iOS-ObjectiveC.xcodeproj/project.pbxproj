@@ -8,7 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		630853492440C46E00DDE4CE /* Sentry.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6308533B2440C45500DDE4CE /* Sentry.framework */; };
-		6308534A2440C46E00DDE4CE /* Sentry.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 6308533B2440C45500DDE4CE /* Sentry.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		637AFDCB243B036B0034958B /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 637AFDCA243B036B0034958B /* AppDelegate.m */; };
 		637AFDD1243B036B0034958B /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 637AFDD0243B036B0034958B /* ViewController.m */; };
 		637AFDD4243B036B0034958B /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 637AFDD2243B036B0034958B /* Main.storyboard */; };
@@ -87,7 +86,6 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				6308534A2440C46E00DDE4CE /* Sentry.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;

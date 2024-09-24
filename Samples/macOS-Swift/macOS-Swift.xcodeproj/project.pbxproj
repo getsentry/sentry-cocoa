@@ -8,7 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		6308534E2440C5FB00DDE4CE /* Sentry.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 630853442440C45A00DDE4CE /* Sentry.framework */; };
-		6308534F2440C5FB00DDE4CE /* Sentry.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 630853442440C45A00DDE4CE /* Sentry.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		637AFDEF243B04320034958B /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 637AFDEE243B04320034958B /* AppDelegate.swift */; };
 		637AFDF1243B04320034958B /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 637AFDF0243B04320034958B /* ViewController.swift */; };
 		637AFDF3243B04340034958B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 637AFDF2243B04340034958B /* Assets.xcassets */; };
@@ -19,7 +18,6 @@
 		84BA72AE2C9369B80045B828 /* GitInjections.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BA72AC2C9369B80045B828 /* GitInjections.swift */; };
 		924D21562C89FE2D00E0FEFD /* DiskWriteException.swift in Sources */ = {isa = PBXBuildFile; fileRef = 924D21552C89FE2D00E0FEFD /* DiskWriteException.swift */; };
 		924D21682C8A01F800E0FEFD /* SentrySwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 924D215D2C89FE2D00E0FEFD /* SentrySwiftUI.framework */; };
-		924D21692C8A01F800E0FEFD /* SentrySwiftUI.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 924D215D2C89FE2D00E0FEFD /* SentrySwiftUI.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		924D216B2C8A020C00E0FEFD /* SwiftUIView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 924D216A2C8A020C00E0FEFD /* SwiftUIView.swift */; };
 /* End PBXBuildFile section */
 
@@ -82,8 +80,6 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				6308534F2440C5FB00DDE4CE /* Sentry.framework in Embed Frameworks */,
-				924D21692C8A01F800E0FEFD /* SentrySwiftUI.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
