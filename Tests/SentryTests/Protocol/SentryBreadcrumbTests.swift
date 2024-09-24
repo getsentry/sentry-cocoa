@@ -80,7 +80,7 @@ class SentryBreadcrumbTests: XCTestCase {
     func testIsNotEqualIfOriginDiffers() {
         let fixture2 = Fixture()
         fixture2.breadcrumb.origin = "origin2"
-        XCTAssertFalse(fixture.breadcrumb, fixture2.breadcrumb)
+        XCTAssertNotEqual(fixture.breadcrumb, fixture2.breadcrumb)
     }
 
     func testIsEqualToOtherInstanceWithSameValues() {
