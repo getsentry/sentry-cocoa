@@ -38,7 +38,7 @@ NS_SWIFT_NAME(Breadcrumb)
  * Origin of the breadcrumb that is used to identify source of the breadcrumb
  * For example hybrid SDKs can identify native breadcrumbs from JS or Flutter
  */
-@property (nonatomic, copy, nullable) NSString * origin;
+@property (nonatomic, copy, nullable) NSString *origin;
 
 /**
  * Message for the breadcrumb
