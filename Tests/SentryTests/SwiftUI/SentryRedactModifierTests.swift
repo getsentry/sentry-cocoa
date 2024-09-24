@@ -6,7 +6,7 @@ import XCTest
 
 class SentryRedactModifierTests: XCTestCase {
 
-    func testViewRedate() throws {
+    func testViewRedacted() throws {
         let text = Text("Hello, World!")
         let redactedText = text.sentryReplayRedact()
         
