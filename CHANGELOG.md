@@ -6,6 +6,10 @@
 
 - Custom redact modifier for SwiftUI (#4362)
 
+### Improvements
+
+- Speed up HTTP tracking for multiple requests in parallel (#4366)
+
 ## 8.37.0-beta.1
 
 ### Features
