@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Improvements
+
+- Speed up HTTP tracking for multiple requests in parallel
+
 ## 8.37.0-beta.1
 
 ### Features
