@@ -6,6 +6,7 @@ let fromVersionFile = "./Sentry.podspec"
 
 let files = [
     "./Sentry.podspec",
+    "./Package.swift",
     "./SentryPrivate.podspec",
     "./SentrySwiftUI.podspec",
     "./Sources/Sentry/SentryMeta.m",
@@ -17,8 +18,7 @@ let files = [
 // This will enable publishing apps with SDK beta version.
 let restrictFiles = [
     "./Sources/Configuration/SDK.xcconfig",
-    "./Sources/Configuration/SentrySwiftUI.xcconfig",
-    "./Package.swift"
+    "./Sources/Configuration/SentrySwiftUI.xcconfig"
 ]
 
 let args = CommandLine.arguments
@@ -57,8 +57,8 @@ func updateVersion(_ file: String, _ fromVersion: String, _ toVersion: String) t
     let contents: String = readFile.read()
     let newContents = contents.replacingOccurrences(of: fromVersion, with: toVersion)
     let overwriteFile = try! open(forWriting: file, overwrite: true)
-    //overwriteFile.write(newContents)
-    //overwriteFile.close()
+    overwriteFile.write(newContents)
+    overwriteFile.close()
 }
 
 func extractVersionOnly(_ version: String) -> String {
