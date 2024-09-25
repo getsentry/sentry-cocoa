@@ -8,6 +8,7 @@
 #import "SentryHttpStatusCodeRange+Private.h"
 #import "SentryHttpStatusCodeRange.h"
 #import "SentryHub+Private.h"
+#import "SentryInternalCDefines.h"
 #import "SentryLog.h"
 #import "SentryMechanism.h"
 #import "SentryNoOpSpan.h"
@@ -27,6 +28,10 @@
 #import "SentryTracer.h"
 #import "SentryUser.h"
 #import <objc/runtime.h>
+
+static NSString *const SentryNetworkTrackerThreadSanitizerMessage
+    = @"We accept race conditions for turning flags on and off to avoid acquiring locks, which can "
+      @"significantly slow down many HTTP requests running in parallel.";
 
 /**
  * WARNING: We had issues in the past with this code on older iOS versions. We don't run unit tests
@@ -67,42 +72,37 @@
     return self;
 }
 
-- (void)enableNetworkTracking
+- (void)enableNetworkTracking SENTRY_DISABLE_THREAD_SANITIZER(
+    SentryNetworkTrackerThreadSanitizerMessage)
 {
-    @synchronized(self) {
-        _isNetworkTrackingEnabled = YES;
-    }
+    _isNetworkTrackingEnabled = YES;
 }
 
-- (void)enableNetworkBreadcrumbs
+- (void)enableNetworkBreadcrumbs SENTRY_DISABLE_THREAD_SANITIZER(
+    SentryNetworkTrackerThreadSanitizerMessage)
 {
-    @synchronized(self) {
-        _isNetworkBreadcrumbEnabled = YES;
-    }
+    _isNetworkBreadcrumbEnabled = YES;
 }
 
-- (void)enableCaptureFailedRequests
+- (void)enableCaptureFailedRequests SENTRY_DISABLE_THREAD_SANITIZER(
+    SentryNetworkTrackerThreadSanitizerMessage)
 {
-    @synchronized(self) {
-        _isCaptureFailedRequestsEnabled = YES;
-    }
+    _isCaptureFailedRequestsEnabled = YES;
 }
 
-- (void)enableGraphQLOperationTracking
+- (void)enableGraphQLOperationTracking SENTRY_DISABLE_THREAD_SANITIZER(
+    SentryNetworkTrackerThreadSanitizerMessage)
 {
-    @synchronized(self) {
-        _isGraphQLOperationTrackingEnabled = YES;
-    }
+
+    _isGraphQLOperationTrackingEnabled = YES;
 }
 
-- (void)disable
+- (void)disable SENTRY_DISABLE_THREAD_SANITIZER(SentryNetworkTrackerThreadSanitizerMessage)
 {
-    @synchronized(self) {
-        _isNetworkBreadcrumbEnabled = NO;
-        _isNetworkTrackingEnabled = NO;
-        _isCaptureFailedRequestsEnabled = NO;
-        _isGraphQLOperationTrackingEnabled = NO;
-    }
+    _isNetworkBreadcrumbEnabled = NO;
+    _isNetworkTrackingEnabled = NO;
+    _isCaptureFailedRequestsEnabled = NO;
+    _isGraphQLOperationTrackingEnabled = NO;
 }
 
 - (BOOL)isTargetMatch:(NSURL *)URL withTargets:(NSArray *)targets
@@ -168,11 +168,9 @@
             OBJC_ASSOCIATION_RETAIN_NONATOMIC);
     }
 
-    @synchronized(self) {
-        if (!self.isNetworkTrackingEnabled) {
-            [self addTraceWithoutTransactionToTask:sessionTask];
-            return;
-        }
+    if (!self.isNetworkTrackingEnabled) {
+        [self addTraceWithoutTransactionToTask:sessionTask];
+        return;
     }
 
     UrlSanitized *safeUrl = [[UrlSanitized alloc] initWithURL:url];
@@ -365,12 +363,10 @@
 
 - (void)captureFailedRequests:(NSURLSessionTask *)sessionTask
 {
-    @synchronized(self) {
-        if (!self.isCaptureFailedRequestsEnabled) {
-            SENTRY_LOG_DEBUG(
-                @"captureFailedRequestsEnabled is disabled, not capturing HTTP Client errors.");
-            return;
-        }
+    if (!self.isCaptureFailedRequestsEnabled) {
+        SENTRY_LOG_DEBUG(
+            @"captureFailedRequestsEnabled is disabled, not capturing HTTP Client errors.");
+        return;
     }
 
     // if request or response are null, we can't raise the event

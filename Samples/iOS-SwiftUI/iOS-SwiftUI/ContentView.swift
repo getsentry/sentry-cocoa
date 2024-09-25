@@ -163,7 +163,6 @@ struct ContentView: View {
                             Button(action: captureTransactionAction) {
                                 Text("Capture Transaction")
                             }
-
                         }
                         VStack(spacing: 16) {
                             Button(action: {
@@ -200,6 +199,7 @@ struct ContentView: View {
                                 Text("Form Screen")
                             }
                         }
+                        .sentryReplayRedact()
                     }
                     SecondView()
                 }
