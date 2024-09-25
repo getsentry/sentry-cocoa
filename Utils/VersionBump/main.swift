@@ -36,16 +36,12 @@ if let match = Regex(semver, options: [.dotMatchesLineSeparators]).firstMatch(in
     var fromVersion = match.matchedString
     var toVersion = args[1]
 
-    print("from: \(fromVersion) to: \(toVersion)")
-    
     for file in files {
         try updateVersion(file, fromVersion, toVersion)
     }
     
     fromVersion = extractVersionOnly(fromVersion)
     toVersion = extractVersionOnly(toVersion)
-    
-    print("from: \(fromVersion) to: \(toVersion)")
     
     for file in restrictFiles {
         try updateVersion(file, fromVersion, toVersion)
