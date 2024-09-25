@@ -1,4 +1,5 @@
 #import "SentryBreadcrumb.h"
+#import "SentryBreadcrumb+Private.h"
 #import "SentryDateUtils.h"
 #import "SentryLevelMapper.h"
 #import "SentryNSDictionarySanitize.h"

@@ -4,7 +4,7 @@
 
 ### Features
 
-- Added breadcrumb.origin field (#4358)
+- Added breadcrumb.origin private field (#4358)
 - Custom redact modifier for SwiftUI (#4362)
 
 ### Improvements
