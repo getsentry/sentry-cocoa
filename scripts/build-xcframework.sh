@@ -31,9 +31,13 @@ generate_xcframework() {
     for sdk in "${sdks[@]}"; do
         if grep -q "${sdk}" <<< "$ALL_SDKS"; then
 
-            ## watchos and watchsimulator dont support make_mergeable: ld: unknown option: -make_mergeable
+           
             if [[ "$sdk" == "watchos" || "$sdk" == "watchsimulator" ]]; then
+                ## watchos and watchsimulator dont support make_mergeable: ld: unknown option: -make_mergeable
                 OTHER_LDFLAGS=""
+                ## watchos and watchsimulator cant even build if the MERGED_BINARY_TYPE key is present, even if set to none.
+                ## So we need to comment it out...
+                sed -i '' 's/\( *\)MERGEABLE_LIBRARY = YES;/\1\/\/MERGEABLE_LIBRARY = YES;/' "Sentry.xcodeproj/project.pbxproj"
             fi
             
             xcodebuild archive \
@@ -51,6 +55,11 @@ generate_xcframework() {
                 GCC_GENERATE_DEBUGGING_SYMBOLS="$GCC_GENERATE_DEBUGGING_SYMBOLS" \
                 OTHER_LDFLAGS="$OTHER_LDFLAGS"
                  
+            if [[ "$sdk" == "watchos" || "$sdk" == "watchsimulator" ]]; then
+                ## ...and comment it in again
+                sed -i '' 's/\( *\)\/\/MERGEABLE_LIBRARY = YES;/\1MERGEABLE_LIBRARY = YES;/' "Sentry.xcodeproj/project.pbxproj"
+            fi
+
             createxcframework+="-framework Carthage/archive/${scheme}${suffix}/${sdk}.xcarchive/Products/Library/Frameworks/${resolved_product_name}.framework "
 
             if [ "$MACH_O_TYPE" = "staticlib" ]; then
