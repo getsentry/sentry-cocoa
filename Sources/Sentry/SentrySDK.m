@@ -23,6 +23,7 @@
 #import "SentrySerialization.h"
 #import "SentrySwift.h"
 #import "SentryTransactionContext.h"
+#import "SentryUserFeedbackIntegration.h"
 
 #if TARGET_OS_OSX
 #    import "SentryCrashExceptionApplication.h"
@@ -459,7 +460,11 @@ static NSDate *_Nullable startTimestamp = nil;
         return;
     }
     SentryOptions *options = [SentrySDK.currentHub getClient].options;
-    for (NSString *integrationName in [SentrySDK.currentHub getClient].options.integrations) {
+    NSMutableArray<NSString *> *integrationNames = [SentrySDK.currentHub getClient].options.integrations.mutableCopy;
+    if (options.userFeedbackConfiguration != nil) {
+        [integrationNames addObject:NSStringFromClass([SentryUserFeedbackIntegration class])];
+    }
+    for (NSString *integrationName in integrationNames) {
         Class integrationClass = NSClassFromString(integrationName);
         if (nil == integrationClass) {
             SENTRY_LOG_ERROR(@"[SentryHub doInstallIntegrations] "

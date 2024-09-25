@@ -7,7 +7,7 @@ import UIKit
  * An integration managing a workflow for end users to report feedback via Sentry.
  * - note: The default method to show the feedback form is via a floating widget placed in the bottom trailing corner of the screen. See the configuration classes for alternative options.
  */
-@objcMembers public class SentryUserFeedbackIntegrationDriver: NSObject {
+@objcMembers class SentryUserFeedbackIntegrationDriver: NSObject {
     let configuration: SentryUserFeedbackConfiguration
     private var widgetConfig: SentryUserFeedbackWidgetConfiguration?
     private var formConfig: SentryUserFeedbackFormConfiguration?
@@ -52,7 +52,7 @@ import UIKit
      * - Parameter button: The UIButton to attach the widget to.
      */
     func attachToButton(_ button: UIButton) {
-        // TODO: Implementation to attach widget to button
+        
     }
     
     /**
@@ -72,7 +72,7 @@ import UIKit
      * Removes the feedback widget from the view hierarchy. Useful for cleanup when the widget is no longer needed.
      */
     func removeWidget() {
-        // TODO: Implementation to remove widget from view hierarchy
+        
     }
     
     /**

@@ -19,7 +19,6 @@
 #import "SentrySwift.h"
 #import "SentrySwiftAsyncIntegration.h"
 #import "SentryTracer.h"
-#import "SentryUserFeedbackIntegration.h"
 #import <objc/runtime.h>
 
 #if SENTRY_HAS_UIKIT
@@ -36,12 +35,6 @@
 #    import "SentryMetricKitIntegration.h"
 #endif // SENTRY_HAS_METRIC_KIT
 NSString *const kSentryDefaultEnvironment = @"production";
-
-@interface SentryOptions ()
-
-@property (nullable, nonatomic, copy) NSMutableArray<NSString *> *integrations;
-
-@end
 
 @implementation SentryOptions {
     BOOL _enableTracingManual;
@@ -807,7 +800,6 @@ sentry_isValidSampleRate(NSNumber *sampleRate)
 - (void)setConfigureUserFeedback:(SentryUserFeedbackConfigurationBlock)configureUserFeedback {
     self.userFeedbackConfiguration = [[SentryUserFeedbackConfiguration alloc] init];
     configureUserFeedback(self.userFeedbackConfiguration);
-    [_integrations addObject:NSStringFromClass([SentryUserFeedbackIntegration class])];
 }
 
 #if defined(DEBUG) || defined(TEST) || defined(TESTCI)
