@@ -132,7 +132,7 @@ NS_ASSUME_NONNULL_BEGIN
 #else
     NSOperatingSystemVersion version = [NSProcessInfo processInfo].operatingSystemVersion;
     NSString *systemVersion = [NSString stringWithFormat:@"%d.%d.%d", (int)version.majorVersion,
-                                        (int)version.minorVersion, (int)version.patchVersion];
+        (int)version.minorVersion, (int)version.patchVersion];
     [osData setValue:systemVersion forKey:@"version"];
 
 #endif

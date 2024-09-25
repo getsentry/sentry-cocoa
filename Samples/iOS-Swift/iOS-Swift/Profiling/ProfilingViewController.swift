@@ -18,7 +18,8 @@ class ProfilingViewController: UIViewController, UITextFieldDelegate {
     @IBOutlet weak var launchProfilingMarkerFileCheckButton: UIButton!
     @IBOutlet weak var profilingUITestDataMarshalingTextField: UITextField!
     @IBOutlet weak var profilingUITestDataMarshalingStatus: UILabel!
-    
+        
+    @IBOutlet weak var dsnView: UIView!
     override func viewDidLoad() {
         super.viewDidLoad()
         minWorkIntensityTextField.text = String(defaultLongestIntervalMicros)
@@ -35,6 +36,8 @@ class ProfilingViewController: UIViewController, UITextFieldDelegate {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         SentrySDK.reportFullyDisplayed()
+        
+        addDSNDisplay(self, vcview: dsnView)
     }
     
     @IBAction func startBenchmark(_ sender: UIButton) {
@@ -96,7 +99,7 @@ class ProfilingViewController: UIViewController, UITextFieldDelegate {
     }
     
     @IBAction func checkLaunchProfilingMarkerFile(_ sender: Any) {
-        let launchProfileMarkerPath = ((NSSearchPathForDirectoriesInDomains(.applicationSupportDirectory, .userDomainMask, true).first! as NSString).appendingPathComponent("io.sentry") as NSString).appendingPathComponent("profileLaunch")
+        let launchProfileMarkerPath = ((NSSearchPathForDirectoriesInDomains(.cachesDirectory, .userDomainMask, true).first! as NSString).appendingPathComponent("io.sentry") as NSString).appendingPathComponent("profileLaunch")
         if FileManager.default.fileExists(atPath: launchProfileMarkerPath) {
             profilingUITestDataMarshalingTextField.text = "<exists>"
         } else {
@@ -133,9 +136,9 @@ class ProfilingViewController: UIViewController, UITextFieldDelegate {
     }
     
     private func withProfile(first: Bool, block: (URL?) -> Void) {
-        let appSupportDirectory = NSSearchPathForDirectoriesInDomains(.applicationSupportDirectory, .userDomainMask, true).first!
+        let cachesDirectory = NSSearchPathForDirectoriesInDomains(.cachesDirectory, .userDomainMask, true).first!
         let fm = FileManager.default
-        let dir = "\(appSupportDirectory)/io.sentry/profiles"
+        let dir = "\(cachesDirectory)/io.sentry/profiles"
         let count = try! fm.contentsOfDirectory(atPath: dir).count
         //swiftlint:disable empty_count
         guard first || count > 0 else {

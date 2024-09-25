@@ -125,19 +125,19 @@ class SentryHttpTransportTests: XCTestCase {
             return transactionEnvelope
         }
 
-        func  getSut(dispatchQueueWrapper: SentryDispatchQueueWrapper? = nil) -> SentryHttpTransport {
-            
-            let dispatchQueue = dispatchQueueWrapper ?? self.dispatchQueueWrapper
-            
+        func getSut(
+            fileManager: SentryFileManager? = nil,
+            dispatchQueueWrapper: SentryDispatchQueueWrapper? = nil
+        ) -> SentryHttpTransport {
             return SentryHttpTransport(
                 options: options,
                 cachedEnvelopeSendDelay: 0.0,
-                fileManager: fileManager,
+                fileManager: fileManager ?? self.fileManager,
                 requestManager: requestManager,
                 requestBuilder: requestBuilder,
                 rateLimits: rateLimits,
                 envelopeRateLimit: EnvelopeRateLimit(rateLimits: rateLimits),
-                dispatchQueueWrapper: dispatchQueue
+                dispatchQueueWrapper: dispatchQueueWrapper ?? self.dispatchQueueWrapper
             )
         }
     }
@@ -470,7 +470,7 @@ class SentryHttpTransportTests: XCTestCase {
     }
 
     func testAllCachedEnvelopesCantDeserializeEnvelope() throws {
-        let path = fixture.fileManager.store(TestConstants.envelope)
+        let path = try XCTUnwrap(fixture.fileManager.store(TestConstants.envelope))
         let faultyEnvelope = Data([0x70, 0xa3, 0x10, 0x45])
         try faultyEnvelope.write(to: URL(fileURLWithPath: path))
 
@@ -478,6 +478,17 @@ class SentryHttpTransportTests: XCTestCase {
 
         assertRequestsSent(requestCount: 1)
         assertEnvelopesStored(envelopeCount: 0)
+    }
+    
+    func testFailureToStoreEvenlopeEventStillSendsRequest() throws {
+        let fileManger = try TestFileManager(options: fixture.options)
+        fileManger.storeEnvelopePathNil = true // Failure to store envelope returns nil path
+        let sut = fixture.getSut(fileManager: fileManger)
+                                              
+        sut.send(envelope: fixture.eventEnvelope)
+        
+        XCTAssertEqual(fileManger.storeEnvelopeInvocations.count, 1)
+        assertRequestsSent(requestCount: 1)
     }
 
     func testSendCachedEnvelopesFirst() throws {
@@ -646,6 +657,16 @@ class SentryHttpTransportTests: XCTestCase {
         sendEvent()
         
         fixture.requestBuilder.shouldFailWithError = true
+        sendEvent()
+        assertEnvelopesStored(envelopeCount: 0)
+        assertRequestsSent(requestCount: 1)
+    }
+    
+    func testBuildingRequestFailsReturningNil_DeletesEnvelopeAndSendsNext() {
+        givenNoInternetConnection()
+        sendEvent()
+        
+        fixture.requestBuilder.shouldFailReturningNil = true
         sendEvent()
         assertEnvelopesStored(envelopeCount: 0)
         assertRequestsSent(requestCount: 1)

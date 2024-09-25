@@ -1,5 +1,6 @@
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
 
+@testable import Sentry
 import SentryTestUtils
 import XCTest
 
@@ -72,7 +73,7 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
         let sut = givenIntegration()
         sut.install(with: Options())
         
-        Dynamic(sut).anrDetected()
+        Dynamic(sut).anrDetectedWithType(SentryANRType.unknown)
 
         let appState = try XCTUnwrap(fixture.fileManager.readAppState())
         

@@ -12,8 +12,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface
-SentrySpotlightTransport ()
+@interface SentrySpotlightTransport ()
 
 @property (nonatomic, strong) id<SentryRequestManager> requestManager;
 @property (nonatomic, strong) SentryNSURLRequestBuilder *requestBuilder;
@@ -71,8 +70,10 @@ SentrySpotlightTransport ()
                                                                    url:self.apiURL
                                                       didFailWithError:&requestError];
 
-    if (requestError) {
-        SENTRY_LOG_ERROR(@"Unable to build envelope request with error %@", requestError);
+    if (nil == request || nil != requestError) {
+        if (nil != requestError) {
+            SENTRY_LOG_ERROR(@"Unable to build envelope request with error %@", requestError);
+        }
         return;
     }
 

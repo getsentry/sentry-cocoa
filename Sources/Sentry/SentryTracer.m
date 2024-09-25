@@ -64,8 +64,7 @@ static const NSTimeInterval SENTRY_APP_START_MEASUREMENT_DIFFERENCE = 5.0;
 
 static const NSTimeInterval SENTRY_AUTO_TRANSACTION_DEADLINE = 30.0;
 
-@interface
-SentryTracer ()
+@interface SentryTracer ()
 
 @property (nonatomic) uint64_t startSystemTime;
 @property (nonatomic) SentrySpanStatus finishStatus;
@@ -329,7 +328,7 @@ static BOOL appStartMeasurementRead;
 
     if (self.delegate) {
         @synchronized(_children) {
-            span = [self.delegate activeSpanForTracer:self];
+            span = [self.delegate getActiveSpan];
             if (span == nil || ![_children containsObject:span]) {
                 span = self;
             }
@@ -417,12 +416,11 @@ static BOOL appStartMeasurementRead;
     if (_traceContext == nil) {
         @synchronized(self) {
             if (_traceContext == nil) {
-                _traceContext = [[SentryTraceContext alloc]
-                    initWithTracer:self
-                             scope:_hub.scope
-                           options:_hub.client.options
-                               ?: SentrySDK.options]; // We should remove static classes and always
-                                                      // inject dependencies.
+                _traceContext = [[SentryTraceContext alloc] initWithTracer:self
+                                                                     scope:_hub.scope
+                                                                   options:_hub.client.options
+                        ?: SentrySDK.options]; // We should remove static classes and always
+                                               // inject dependencies.
             }
         }
     }

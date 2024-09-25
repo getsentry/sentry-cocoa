@@ -21,13 +21,12 @@ typedef NS_ENUM(NSInteger, SentryANRTrackerState) {
     kSentryANRTrackerStopping
 };
 
-@interface
-SentryANRTrackerV2 ()
+@interface SentryANRTrackerV2 ()
 
 @property (nonatomic, strong) SentryCrashWrapper *crashWrapper;
 @property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueueWrapper;
 @property (nonatomic, strong) SentryThreadWrapper *threadWrapper;
-@property (nonatomic, strong) NSHashTable<id<SentryANRTrackerV2Delegate>> *listeners;
+@property (nonatomic, strong) NSHashTable<id<SentryANRTrackerDelegate>> *listeners;
 @property (nonatomic, strong) SentryFramesTracker *framesTracker;
 @property (nonatomic, assign) NSTimeInterval timeoutInterval;
 
@@ -200,7 +199,7 @@ SentryANRTrackerV2 ()
         localListeners = [self.listeners allObjects];
     }
 
-    for (id<SentryANRTrackerV2Delegate> target in localListeners) {
+    for (id<SentryANRTrackerDelegate> target in localListeners) {
         [target anrDetectedWithType:type];
     }
 }
@@ -212,12 +211,12 @@ SentryANRTrackerV2 ()
         targets = [self.listeners allObjects];
     }
 
-    for (id<SentryANRTrackerV2Delegate> target in targets) {
+    for (id<SentryANRTrackerDelegate> target in targets) {
         [target anrStopped];
     }
 }
 
-- (void)addListener:(id<SentryANRTrackerV2Delegate>)listener
+- (void)addListener:(id<SentryANRTrackerDelegate>)listener
 {
     @synchronized(self.listeners) {
         [self.listeners addObject:listener];
@@ -235,7 +234,7 @@ SentryANRTrackerV2 ()
     }
 }
 
-- (void)removeListener:(id<SentryANRTrackerV2Delegate>)listener
+- (void)removeListener:(id<SentryANRTrackerDelegate>)listener
 {
     @synchronized(self.listeners) {
         [self.listeners removeObject:listener];

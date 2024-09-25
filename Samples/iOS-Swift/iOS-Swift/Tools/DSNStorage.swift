@@ -17,37 +17,25 @@ class DSNStorage {
         dsnFile = cachesDirectory.appendingPathComponent("dsn")
     }
     
-    func saveDSN(dsn: String) {
-        do {
-            deleteDSN()
-            try dsn.write(to: dsnFile, atomically: true, encoding: .utf8)
-        } catch {
-            SentrySDK.capture(error: error)
-        }
+    func saveDSN(dsn: String) throws {
+        try deleteDSN()
+        try dsn.write(to: dsnFile, atomically: true, encoding: .utf8)
     }
     
-    func getDSN() -> String? {
+    func getDSN() throws -> String? {
         let fileManager = FileManager.default
-        do {
-            if fileManager.fileExists(atPath: dsnFile.path) {
-                return try String(contentsOfFile: dsnFile.path)
-            }
-        } catch {
-            SentrySDK.capture(error: error)
+        
+        guard fileManager.fileExists(atPath: dsnFile.path) else {
+            return nil
         }
         
-        return nil
+        return try String(contentsOfFile: dsnFile.path)
     }
     
-    func deleteDSN() {
+    func deleteDSN() throws {
         let fileManager = FileManager.default
-        do {
-            
-            if fileManager.fileExists(atPath: dsnFile.path) {
-                try fileManager.removeItem(at: dsnFile)
-            }
-        } catch {
-            SentrySDK.capture(error: error)
+        if fileManager.fileExists(atPath: dsnFile.path) {
+            try fileManager.removeItem(at: dsnFile)
         }
     }
 }

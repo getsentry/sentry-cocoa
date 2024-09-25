@@ -134,6 +134,7 @@
 #import "SentryInstallation+Test.h"
 #import "SentryInstallation.h"
 #import "SentryInternalNotificationNames.h"
+#import "SentryInvalidJSONString.h"
 #import "SentryLevelMapper.h"
 #import "SentryLog.h"
 #import "SentryLogTestHelper.h"
@@ -242,3 +243,4 @@
 #import "SentryCrashInstallation+Private.h"
 #import "SentryCrashMonitor_MachException.h"
 #import "SentrySessionReplaySyncC.h"
+#import "SentryStringUtils.h"

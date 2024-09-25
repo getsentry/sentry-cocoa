@@ -9,8 +9,7 @@ NS_ASSUME_NONNULL_BEGIN
  * have started the launch profiler by the time this runs. This must be done in Objective-C because
  * Swift does not allow implementation of `NSObject.load()`.
  */
-@interface
-NSObject (SentryAppSetup)
+@interface NSObject (SentryAppSetup)
 @end
 
 NS_ASSUME_NONNULL_END
