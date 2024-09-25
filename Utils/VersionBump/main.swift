@@ -6,14 +6,19 @@ let fromVersionFile = "./Sentry.podspec"
 
 let files = [
     "./Sentry.podspec",
-    "./Package.swift",
     "./SentryPrivate.podspec",
     "./SentrySwiftUI.podspec",
     "./Sources/Sentry/SentryMeta.m",
-    "./Sources/Configuration/SDK.xcconfig",
-    "./Sources/Configuration/SentrySwiftUI.xcconfig",
     "./Samples/iOS-Swift/iOS-Swift.xcodeproj/project.pbxproj",
     "./Tests/HybridSDKTest/HybridPod.podspec"
+]
+
+// Files that only accept the format x.x.x in order to release an app using the framework.
+// This will enable publishing apps with SDK beta version.
+let restrictFiles = [
+    "./Sources/Configuration/SDK.xcconfig",
+    "./Sources/Configuration/SentrySwiftUI.xcconfig",
+    "./Package.swift"
 ]
 
 let args = CommandLine.arguments
@@ -28,10 +33,21 @@ let fromVersionFileHandler = try open(fromVersionFile)
 let fromFileContent: String = fromVersionFileHandler.read()
 
 if let match = Regex(semver, options: [.dotMatchesLineSeparators]).firstMatch(in: fromFileContent) {
-    let fromVersion = match.matchedString
-    let toVersion = args[1]
+    var fromVersion = match.matchedString
+    var toVersion = args[1]
 
+    print("from: \(fromVersion) to: \(toVersion)")
+    
     for file in files {
+        try updateVersion(file, fromVersion, toVersion)
+    }
+    
+    fromVersion = extractVersionOnly(fromVersion)
+    toVersion = extractVersionOnly(toVersion)
+    
+    print("from: \(fromVersion) to: \(toVersion)")
+    
+    for file in restrictFiles {
         try updateVersion(file, fromVersion, toVersion)
     }
 }
@@ -41,6 +57,11 @@ func updateVersion(_ file: String, _ fromVersion: String, _ toVersion: String) t
     let contents: String = readFile.read()
     let newContents = contents.replacingOccurrences(of: fromVersion, with: toVersion)
     let overwriteFile = try! open(forWriting: file, overwrite: true)
-    overwriteFile.write(newContents)
-    overwriteFile.close()
+    //overwriteFile.write(newContents)
+    //overwriteFile.close()
+}
+
+func extractVersionOnly(_ version: String) -> String {
+    guard let indexOfHypen = version.firstIndex(of: "-") else { return version }
+    return String(version.prefix(upTo: indexOfHypen))
 }
