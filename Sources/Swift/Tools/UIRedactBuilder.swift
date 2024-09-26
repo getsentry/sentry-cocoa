@@ -62,11 +62,11 @@ class UIRedactBuilder {
     init(options: SentryRedactOptions) {
         var redactClasses = [AnyClass]()
         
-        if options.redactAllText {
+        if options.maskAllText {
             redactClasses += [ UILabel.self, UITextView.self, UITextField.self ]
         }
         
-        if options.redactAllImages {
+        if options.maskAllImages {
             //this classes are used by SwiftUI to display images.
             redactClasses += ["_TtCOCV7SwiftUI11DisplayList11ViewUpdater8Platform13CGDrawingView",
              "_TtC7SwiftUIP33_A34643117F00277B93DEBAB70EC0697122_UIShapeHitTestingView",
@@ -89,11 +89,11 @@ class UIRedactBuilder {
         
         redactClassesIdentifiers = Set(redactClasses.map({ ObjectIdentifier($0) }))
         
-        for type in options.ignoreViewClasses {
+        for type in options.unmaskedViewClasses {
             self.ignoreClassesIdentifiers.insert(ObjectIdentifier(type))
         }
         
-        for type in options.redactViewClasses {
+        for type in options.maskedViewClasses {
             self.redactClassesIdentifiers.insert(ObjectIdentifier(type))
         }
     }
@@ -159,11 +159,11 @@ class UIRedactBuilder {
     }
     
     private func shouldIgnore(view: UIView) -> Bool {
-        return SentryRedactViewHelper.shouldIgnoreView(view) || containsIgnoreClass(type(of: view))
+        return SentryRedactViewHelper.shouldUnmask(view) || containsIgnoreClass(type(of: view))
     }
     
     private func shouldRedact(view: UIView) -> Bool {
-        if SentryRedactViewHelper.shouldRedactView(view) {
+        if SentryRedactViewHelper.shouldMaskView(view) {
             return true
         }
         if let imageView = view as? UIImageView, containsRedactClass(UIImageView.self) {
@@ -257,19 +257,19 @@ class SentryRedactViewHelper: NSObject {
     private static var associatedRedactObjectHandle: UInt8 = 0
     private static var associatedIgnoreObjectHandle: UInt8 = 0
     
-    static func shouldRedactView(_ view: UIView) -> Bool {
+    static func shouldMaskView(_ view: UIView) -> Bool {
         (objc_getAssociatedObject(view, &associatedRedactObjectHandle) as? NSNumber)?.boolValue ?? false
     }
     
-    static func shouldIgnoreView(_ view: UIView) -> Bool {
+    static func shouldUnmask(_ view: UIView) -> Bool {
         (objc_getAssociatedObject(view, &associatedIgnoreObjectHandle) as? NSNumber)?.boolValue ?? false
     }
     
-    static func redactView(_ view: UIView) {
+    static func maskView(_ view: UIView) {
         objc_setAssociatedObject(view, &associatedRedactObjectHandle, true, .OBJC_ASSOCIATION_ASSIGN)
     }
     
-    static func ignoreView(_ view: UIView) {
+    static func unmaskView(_ view: UIView) {
         objc_setAssociatedObject(view, &associatedIgnoreObjectHandle, true, .OBJC_ASSOCIATION_ASSIGN)
     }
 }

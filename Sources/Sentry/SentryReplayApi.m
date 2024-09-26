@@ -10,14 +10,14 @@
 
 @implementation SentryReplayApi
 
-- (void)redactView:(UIView *)view
+- (void)maskView:(UIView *)view
 {
-    [SentryRedactViewHelper redactView:view];
+    [SentryRedactViewHelper maskView:view];
 }
 
-- (void)ignoreView:(UIView *)view
+- (void)unmaskView:(UIView *)view
 {
-    [SentryRedactViewHelper ignoreView:view];
+    [SentryRedactViewHelper unmaskView:view];
 }
 
 - (void)pause

@@ -6,16 +6,16 @@ import UIKit
 import XCTest
 
 class RedactOptions: SentryRedactOptions {
-    var redactViewClasses: [AnyClass]
-    var ignoreViewClasses: [AnyClass]
-    var redactAllText: Bool
-    var redactAllImages: Bool
+    var maskedViewClasses: [AnyClass]
+    var unmaskedViewClasses: [AnyClass]
+    var maskAllText: Bool
+    var maskAllImages: Bool
     
     init(redactAllText: Bool = true, redactAllImages: Bool = true) {
-        self.redactAllText = redactAllText
-        self.redactAllImages = redactAllImages
-        redactViewClasses = []
-        ignoreViewClasses = []
+        self.maskAllText = redactAllText
+        self.maskAllImages = redactAllImages
+        maskedViewClasses = []
+        unmaskedViewClasses = []
     }
 }
 

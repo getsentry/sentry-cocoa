@@ -10,7 +10,7 @@ struct SentryReplayView: UIViewRepresentable {
     
     func makeUIView(context: Context) -> UIView {
         let result = SentryRedactView()
-        result.sentryReplayRedact()
+        result.sentryReplayMask()
         return result
     }
     
