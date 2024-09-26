@@ -66,7 +66,7 @@ NS_ASSUME_NONNULL_BEGIN
 {
     return [SentryInAppLogic
         isImageNameLastPathComponentInApp:imageName.lastPathComponent.lowercaseString
-                             inAppInclude:inAppInclude];
+                             inAppInclude:inAppInclude.lowercaseString];
 }
 
 + (BOOL)isImageNameLastPathComponentInApp:(NSString *)imageNameLastPathComponent
