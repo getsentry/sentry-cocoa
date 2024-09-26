@@ -26,23 +26,23 @@ NS_SWIFT_NAME(Breadcrumb)
 /**
  * @c NSDate when the breadcrumb happened
  */
-@property (nonatomic, strong) NSDate *_Nullable timestamp;
+@property (nonatomic, strong, nullable) NSDate *timestamp;
 
 /**
  * Type of breadcrumb, can be e.g.: http, empty, user, navigation
  * This will be used as icon of the breadcrumb
  */
-@property (nonatomic, copy) NSString *_Nullable type;
+@property (nonatomic, copy, nullable) NSString *type;
 
 /**
  * Message for the breadcrumb
  */
-@property (nonatomic, copy) NSString *_Nullable message;
+@property (nonatomic, copy, nullable) NSString *message;
 
 /**
  * Arbitrary additional data that will be sent with the breadcrumb
  */
-@property (nonatomic, strong) NSDictionary<NSString *, id> *_Nullable data;
+@property (nonatomic, strong, nullable) NSDictionary<NSString *, id> *data;
 
 /**
  * Initializer for @c SentryBreadcrumb

@@ -58,6 +58,7 @@
 #import "SentryAutoBreadcrumbTrackingIntegration.h"
 #import "SentryAutoSessionTrackingIntegration.h"
 #import "SentryBooleanSerialization.h"
+#import "SentryBreadcrumb+Private.h"
 #import "SentryBreadcrumbDelegate.h"
 #import "SentryBreadcrumbTracker.h"
 #import "SentryByteCountFormatter.h"

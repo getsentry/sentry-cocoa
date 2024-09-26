@@ -10,6 +10,7 @@
 #import "SentryMeta.h"
 #import "SentryOptions+HybridSDKs.h"
 #import "SentrySDK+Private.h"
+#import <SentryBreadcrumb+Private.h>
 #import <XCTest/XCTest.h>
 @import Sentry;
 
@@ -78,6 +79,7 @@
     SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:kSentryLevelInfo
                                                              category:@"testCategory"];
     crumb.type = @"testType";
+    crumb.origin = @"testOrigin";
     crumb.message = @"testMessage";
     crumb.data = @{ @"testDataKey" : @"testDataVaue" };
 
