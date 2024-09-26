@@ -5,12 +5,25 @@ init: setup-git
 	rbenv install --skip-existing
 	rbenv exec gem update bundler
 	rbenv exec bundle install
-
-.PHONY: setup-git
-setup-git:
-ifneq (, $(shell which pre-commit))
 	pre-commit install
-endif
+
+BREW_CLANG_FORMAT_VERSION=$(jq '.entries.brew."clang-format".version' Brewfile.lock.json | sed s/'"'//g)
+BREW_SWIFTLINT_VERSION=$(jq '.entries.brew.swiftlint.version' Brewfile.lock.json | sed s/'"'//g)
+LOCAL_CLANG_FORMAT_VERSION=$(clang-format --version | awk '{print $$3}')
+LOCAL_SWIFTLINT_VERSION=$(swiftlint version)
+.PHONY: check-versions
+check-versions:
+	@if [ "$(LOCAL_CLANG_FORMAT_VERSION)" != "$(BREW_CLANG_FORMAT_VERSION)" ]; then \
+		echo "clang-format version mismatch!"; \
+		echo "Expected: $(BREW_CLANG_FORMAT_VERSION), but found: $(LOCAL_CLANG_FORMAT_VERSION)"; \
+		exit 1; \
+	fi
+	
+	@if [ "$(LOCAL_SWIFTLINT_VERSION)" != "$(BREW_SWIFTLINT_VERSION)" ]; then \
+		echo "swiftlint version mismatch!"; \
+		echo "Expected: $(BREW_SWIFTLINT_VERSION), but found: $(LOCAL_SWIFTLINT_VERSION)"; \
+		exit 1; \
+	fi
 
 lint:
 	@echo "--> Running Swiftlint and Clang-Format"
