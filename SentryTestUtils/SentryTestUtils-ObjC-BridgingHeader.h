@@ -17,6 +17,7 @@
 #import "SentryProfilingConditionals.h"
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
+#    import "SentryContinuousProfiler+Test.h"
 #    import "SentryContinuousProfiler.h"
 #    import "SentryLaunchProfiling.h"
 #    import "SentryProfiler+Private.h"
@@ -51,7 +52,6 @@
 #import "SentrySDK+Private.h"
 #import "SentrySDK+Tests.h"
 #import "SentryScopeSyncC.h"
-#import "SentrySession.h"
 #import "SentrySwizzleWrapper.h"
 #import "SentrySystemWrapper.h"
 #import "SentryThreadInspector.h"

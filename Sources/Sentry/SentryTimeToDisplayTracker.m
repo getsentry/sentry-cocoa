@@ -24,8 +24,7 @@
 #        import "SentryLaunchProfiling.h"
 #    endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
-@interface
-SentryTimeToDisplayTracker () <SentryFramesTrackerListener>
+@interface SentryTimeToDisplayTracker () <SentryFramesTrackerListener>
 
 @property (nonatomic, weak) SentrySpan *initialDisplaySpan;
 @property (nonatomic, weak) SentrySpan *fullDisplaySpan;
@@ -54,8 +53,14 @@ SentryTimeToDisplayTracker () <SentryFramesTrackerListener>
     return self;
 }
 
-- (void)startForTracer:(SentryTracer *)tracer
+- (BOOL)startForTracer:(SentryTracer *)tracer
 {
+    if (SentryDependencyContainer.sharedInstance.framesTracker.isRunning == NO) {
+        SENTRY_LOG_DEBUG(@"Skipping TTID/TTFD spans, because can't report them correctly when the "
+                         @"frames tracker isn't running.");
+        return NO;
+    }
+
     SENTRY_LOG_DEBUG(@"Starting initial display span");
     self.initialDisplaySpan = [tracer
         startChildWithOperation:SentrySpanOperationUILoadInitialDisplay
@@ -67,7 +72,7 @@ SentryTimeToDisplayTracker () <SentryFramesTrackerListener>
         self.fullDisplaySpan =
             [tracer startChildWithOperation:SentrySpanOperationUILoadFullDisplay
                                 description:[NSString stringWithFormat:@"%@ full display",
-                                                      _controllerName]];
+                                                _controllerName]];
         self.fullDisplaySpan.origin = SentryTraceOriginManualUITimeToDisplay;
 
         // By concept TTID and TTFD spans should have the same beginning,
@@ -116,6 +121,8 @@ SentryTimeToDisplayTracker () <SentryFramesTrackerListener>
             stringWithFormat:@"%@ - Deadline Exceeded", self.fullDisplaySpan.spanDescription];
         [self addTimeToDisplayMeasurement:self.fullDisplaySpan name:@"time_to_full_display"];
     }];
+
+    return YES;
 }
 
 - (void)reportInitialDisplay
@@ -127,7 +134,7 @@ SentryTimeToDisplayTracker () <SentryFramesTrackerListener>
 {
     // All other accesses to _fullyDisplayedReported run on the main thread.
     // To avoid using locks, we execute this on the main queue instead.
-    [_dispatchQueueWrapper dispatchOnMainQueue:^{ self->_fullyDisplayedReported = YES; }];
+    [_dispatchQueueWrapper dispatchAsyncOnMainQueue:^{ self->_fullyDisplayedReported = YES; }];
 }
 
 - (void)framesTrackerHasNewFrame:(NSDate *)newFrameDate

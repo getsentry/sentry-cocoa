@@ -6,10 +6,17 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     static let defaultDSN = "https://6cc9bae94def43cab8444a99e0031c28@o447951.ingest.sentry.io/5428557"
     
-    static func startSentry() {
+    func startSentry() {
         // For testing purposes, we want to be able to change the DSN and store it to disk. In a real app, you shouldn't need this behavior.
-        let dsn = DSNStorage.shared.getDSN() ?? AppDelegate.defaultDSN
-        DSNStorage.shared.saveDSN(dsn: dsn)
+        var storedDsn: String?
+        do {
+            storedDsn = try DSNStorage.shared.getDSN()
+            try DSNStorage.shared.saveDSN(dsn: storedDsn ?? Self.defaultDSN)
+        } catch {
+            print("[iOS-Swift] Failed to read/write DSN: \(error)")
+        }
+        
+        let dsn = storedDsn ?? Self.defaultDSN
         
         SentrySDK.start { options in
             options.dsn = dsn
@@ -25,13 +32,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             options.attachViewHierarchy = true
             options.environment = "test-app"
             options.enableTimeToFullDisplayTracing = true
+            options.initialScope = { scope in
+                scope.injectGitInformation()
+                return scope
+            }
         }
     }
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-                   
-        AppDelegate.startSentry()
-        
+        startSentry()
         return true
     }
 

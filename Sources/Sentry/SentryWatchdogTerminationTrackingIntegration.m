@@ -18,8 +18,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface
-SentryWatchdogTerminationTrackingIntegration ()
+@interface SentryWatchdogTerminationTrackingIntegration ()
 
 @property (nonatomic, strong) SentryWatchdogTerminationTracker *tracker;
 @property (nonatomic, strong) SentryANRTracker *anrTracker;
@@ -103,7 +102,7 @@ SentryWatchdogTerminationTrackingIntegration ()
     [self.anrTracker removeListener:self];
 }
 
-- (void)anrDetected
+- (void)anrDetectedWithType:(enum SentryANRType)type
 {
     [self.appStateManager
         updateAppState:^(SentryAppState *appState) { appState.isANROngoing = YES; }];

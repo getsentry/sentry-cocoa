@@ -44,6 +44,12 @@
 #    define SENTRY_HAS_METRIC_KIT 0
 #endif
 
+#if SENTRY_HAS_UIKIT && !TARGET_OS_VISION
+#    define SENTRY_TARGET_REPLAY_SUPPORTED 1
+#else
+#    define SENTRY_TARGET_REPLAY_SUPPORTED 0
+#endif
+
 #define SENTRY_NO_INIT                                                                             \
     -(instancetype)init NS_UNAVAILABLE;                                                            \
     +(instancetype) new NS_UNAVAILABLE;
@@ -54,7 +60,10 @@
 #    define SENTRY_HAS_REACHABILITY 0
 #endif
 
-@class SentryEvent, SentryBreadcrumb, SentrySamplingContext;
+@class SentryBreadcrumb;
+@class SentryEvent;
+@class SentrySamplingContext;
+@class SentryUserFeedbackConfiguration;
 @protocol SentrySpan;
 
 /**
@@ -82,10 +91,23 @@ typedef SentryBreadcrumb *_Nullable (^SentryBeforeBreadcrumbCallback)(
 typedef SentryEvent *_Nullable (^SentryBeforeSendEventCallback)(SentryEvent *_Nonnull event);
 
 /**
+ * Use this block to drop or modify a span before the SDK sends it to Sentry. Return @c nil to drop
+ * the span.
+ */
+typedef id<SentrySpan> _Nullable (^SentryBeforeSendSpanCallback)(id<SentrySpan> _Nonnull span);
+
+/**
  * Block can be used to decide if the SDK should capture a screenshot or not. Return @c true if the
  * SDK should capture a screenshot, return @c false if not. This callback doesn't work for crashes.
  */
 typedef BOOL (^SentryBeforeCaptureScreenshotCallback)(SentryEvent *_Nonnull event);
+
+/**
+ * Block can be used to decide if the SDK should capture a view hierarchy or not. Return @c true if
+ * the SDK should capture a view hierarchy, return @c false if not. This callback doesn't work for
+ * crashes.
+ */
+typedef BOOL (^SentryBeforeCaptureViewHierarchyCallback)(SentryEvent *_Nonnull event);
 
 /**
  * A callback to be notified when the last program execution terminated with a crash.

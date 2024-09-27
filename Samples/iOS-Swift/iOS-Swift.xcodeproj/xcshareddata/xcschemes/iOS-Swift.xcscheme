@@ -74,6 +74,10 @@
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
+            argument = "--skip-sentry-init"
+            isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
             argument = "--disable-spotlight"
             isEnabled = "NO">
          </CommandLineArgument>
@@ -95,7 +99,7 @@
          </CommandLineArgument>
          <CommandLineArgument
             argument = "--io.sentry.enableContinuousProfiling"
-            isEnabled = "YES">
+            isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "--io.sentry.wipe-data"
@@ -157,6 +161,10 @@
             argument = "--disable-ui-tracing"
             isEnabled = "NO">
          </CommandLineArgument>
+         <CommandLineArgument
+            argument = "--io.sentry.iOS-Swift.auto-inject-user-feedback-widget"
+            isEnabled = "NO">
+         </CommandLineArgument>
       </CommandLineArguments>
       <EnvironmentVariables>
          <EnvironmentVariable
@@ -186,6 +194,21 @@
          </EnvironmentVariable>
          <EnvironmentVariable
             key = "--io.sentry.dsn"
+            value = ""
+            isEnabled = "NO">
+         </EnvironmentVariable>
+         <EnvironmentVariable
+            key = "--io.sentry.user.username"
+            value = ""
+            isEnabled = "NO">
+         </EnvironmentVariable>
+         <EnvironmentVariable
+            key = "--io.sentry.user.email"
+            value = ""
+            isEnabled = "NO">
+         </EnvironmentVariable>
+         <EnvironmentVariable
+            key = "--io.sentry.sessionTrackingIntervalMillis"
             value = ""
             isEnabled = "NO">
          </EnvironmentVariable>

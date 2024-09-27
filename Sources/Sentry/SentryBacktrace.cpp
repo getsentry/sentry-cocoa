@@ -2,7 +2,7 @@
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
-#    include "SentryAsyncSafeLogging.h"
+#    include "SentryAsyncSafeLog.h"
 #    include "SentryCompiler.h"
 #    include "SentryMachLogging.hpp"
 #    include "SentryStackBounds.hpp"
@@ -11,7 +11,12 @@
 #    include "SentryThreadMetadataCache.hpp"
 #    include "SentryThreadState.hpp"
 #    include "SentryTime.h"
-
+extern "C" {
+#    define restrict
+/** Allow importing C99 headers that use the restrict keyword, which isn't valid in C++ */
+#    include "SentryCrashMemory.h"
+#    undef restrict
+}
 #    include <cassert>
 #    include <cstring>
 #    include <dispatch/dispatch.h>
@@ -44,7 +49,7 @@ namespace profiling {
         std::size_t depth = 0;
         MachineContext machineContext;
         if (fillThreadState(targetThread.nativeHandle(), &machineContext) != KERN_SUCCESS) {
-            SENTRY_LOG_ASYNC_SAFE_ERROR("Failed to fill thread state");
+            SENTRY_ASYNC_SAFE_LOG_ERROR("Failed to fill thread state");
             return 0;
         }
         if (LIKELY(skip == 0)) {
@@ -81,6 +86,9 @@ namespace profiling {
         bool reachedEndOfStack = false;
         while (depth < maxDepth) {
             const auto frame = reinterpret_cast<StackFrame *>(current);
+            if (!sentrycrashmem_isMemoryReadable(frame, sizeof(StackFrame))) {
+                break;
+            }
             if (LIKELY(skip == 0)) {
                 addresses[depth++] = getPreviousInstructionAddress(frame->returnAddress);
             } else {

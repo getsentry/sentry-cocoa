@@ -1,9 +1,8 @@
-@_implementationOnly import _SentryPrivate
 import Foundation
 
 @objc
 protocol SentryReplayBreadcrumbConverter: NSObjectProtocol {
-    func convert(breadcrumbs: [Breadcrumb], from: Date, until: Date) -> [SentryRRWebEvent]
+    func convert(from breadcrumb: Breadcrumb) -> SentryRRWebEventProtocol?
 }
 
 @objcMembers
@@ -18,20 +17,12 @@ class SentrySRDefaultBreadcrumbConverter: NSObject, SentryReplayBreadcrumbConver
         "http.fragment"]
     )
     
-    func convert(breadcrumbs: [Breadcrumb], from: Date, until: Date) -> [SentryRRWebEvent] {
-        breadcrumbs.filter {
-            guard let timestamp = $0.timestamp else { return false }
-            return timestamp >= from && timestamp <= until
-        }
-        .compactMap { convert(from: $0) }
-    }
-    
     /**
      * This function will convert the SDK breadcrumbs to session replay breadcrumbs in a format that the front-end understands.
      * Any deviation in the information will cause the breadcrumb or the information itself to be discarded
      * in order to avoid unknown behavior in the front-end.
      */
-    func convert(from breadcrumb: Breadcrumb) -> SentryRRWebEvent? {
+    func convert(from breadcrumb: Breadcrumb) -> SentryRRWebEventProtocol? {
         guard let timestamp = breadcrumb.timestamp else { return nil }
         if breadcrumb.category == "http" {
             return networkSpan(breadcrumb)
@@ -92,6 +83,6 @@ class SentrySRDefaultBreadcrumbConverter: NSObject, SentryReplayBreadcrumbConver
     }
     
     private func getLevel(breadcrumb: Breadcrumb) -> SentryLevel {
-        return SentryLevel(rawValue: SentryLevelHelper.breadcrumbLevel(breadcrumb)) ?? .none
+        return SentryLevelHelper.breadcrumbLevel(breadcrumb) ?? .none
     }
 }

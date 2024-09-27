@@ -1,11 +1,21 @@
-PRODUCT_NAME = Sentry
+#include "DeploymentTargets.xcconfig"
+
 INFOPLIST_FILE = Sources/Resources/Info.plist
-PRODUCT_BUNDLE_IDENTIFIER = io.sentry.Sentry
 
-CURRENT_PROJECT_VERSION = 8.29.1
-
-MODULEMAP_FILE = $(SRCROOT)/Sources/Resources/Sentry.modulemap
+SENTRY_MODULE_NAME = Sentry
+SENTRY_WITHOUT_UIKIT_MODULE_NAME = SentryWithoutUIKit
 
 // This config is required so the test code can access the SentryPrivate module. Removing this setting
 // leads to an error: no such module '_SentryPrivate' when including the XCFramework with Carthage
 HEADER_SEARCH_PATHS = $(SRCROOT)/Sources/Sentry/include/**
+
+PRODUCT_MODULE_NAME_Debug = $(SENTRY_MODULE_NAME)
+PRODUCT_MODULE_NAME_DebugWithoutUIKit = $(SENTRY_WITHOUT_UIKIT_MODULE_NAME)
+PRODUCT_MODULE_NAME_Test = $(SENTRY_MODULE_NAME)
+PRODUCT_MODULE_NAME_TestCI = $(SENTRY_MODULE_NAME)
+PRODUCT_MODULE_NAME_Release = $(SENTRY_MODULE_NAME)
+PRODUCT_MODULE_NAME_ReleaseWithoutUIKit = $(SENTRY_WITHOUT_UIKIT_MODULE_NAME)
+PRODUCT_MODULE_NAME = $(PRODUCT_MODULE_NAME_$(CONFIGURATION))
+PRODUCT_NAME = $(PRODUCT_MODULE_NAME)
+PRODUCT_BUNDLE_IDENTIFIER = io.sentry.$(PRODUCT_MODULE_NAME)
+MODULEMAP_FILE = $(SRCROOT)/Sources/Resources/$(PRODUCT_MODULE_NAME_$(CONFIGURATION)).modulemap

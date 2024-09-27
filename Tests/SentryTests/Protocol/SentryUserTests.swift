@@ -1,5 +1,6 @@
 import XCTest
 
+@available(*, deprecated)
 class SentryUserTests: XCTestCase {
 
     func testInitWithDictionary() {
@@ -25,8 +26,8 @@ class SentryUserTests: XCTestCase {
         XCTAssertEqual(user.value(forKey: "unknown") as? NSDictionary, ["foo": "bar"])
     }
     
-    func testSerializationWithAllProperties() {
-        let user = TestData.user.copy() as! User
+    func testSerializationWithAllProperties() throws {
+        let user = try XCTUnwrap(TestData.user.copy() as? User)
         user.setValue(["some": "data"], forKey: "unknown")
         
         let actual = user.serialize()
@@ -90,29 +91,29 @@ class SentryUserTests: XCTestCase {
     }
     
     func testIsEqualToCopy() {
-        XCTAssertEqual(TestData.user, TestData.user.copy() as! User)
+        XCTAssertEqual(TestData.user, try XCTUnwrap(TestData.user.copy() as? User))
     }
     
-    func testNotIsEqual() {
-        testIsNotEqual { user in user.userId = "" }
-        testIsNotEqual { user in user.email = "" }
-        testIsNotEqual { user in user.username = "" }
-        testIsNotEqual { user in user.ipAddress = "" }
-        testIsNotEqual { user in user.segment = "" }
-        testIsNotEqual { user in user.name = "" }
-        testIsNotEqual { user in user.geo = Geo() }
-        testIsNotEqual { user in user.data?.removeAll() }
+    func testNotIsEqual() throws {
+        try testIsNotEqual { user in user.userId = "" }
+        try testIsNotEqual { user in user.email = "" }
+        try testIsNotEqual { user in user.username = "" }
+        try testIsNotEqual { user in user.ipAddress = "" }
+        try testIsNotEqual { user in user.segment = "" }
+        try testIsNotEqual { user in user.name = "" }
+        try testIsNotEqual { user in user.geo = Geo() }
+        try testIsNotEqual { user in user.data?.removeAll() }
     }
     
-    func testIsNotEqual(block: (User) -> Void ) {
-        let user = TestData.user.copy() as! User
+    func testIsNotEqual(block: (User) -> Void ) throws {
+        let user = try XCTUnwrap(TestData.user.copy() as? User)
         block(user)
         XCTAssertNotEqual(TestData.user, user)
     }
     
-    func testCopyWithZone_CopiesDeepCopy() {
+    func testCopyWithZone_CopiesDeepCopy() throws {
         let user = TestData.user
-        let copiedUser = user.copy() as! User
+        let copiedUser = try XCTUnwrap(user.copy() as? User)
         
         // Modifying the original does not change the copy
         user.userId = ""
@@ -127,11 +128,11 @@ class SentryUserTests: XCTestCase {
         XCTAssertEqual(TestData.user, copiedUser)
     }
     
-    func testModifyingFromMultipleThreads() {
+    func testModifyingFromMultipleThreads() throws {
         let queue = DispatchQueue(label: "SentryUserTests", qos: .userInteractive, attributes: [.concurrent, .initiallyInactive])
         let group = DispatchGroup()
         
-        let user = TestData.user.copy() as! User
+        let user = try XCTUnwrap(TestData.user.copy() as? User)
         
         for i in 0...20 {
             group.enter()

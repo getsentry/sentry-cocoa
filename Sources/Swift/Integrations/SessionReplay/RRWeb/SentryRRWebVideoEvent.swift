@@ -9,7 +9,7 @@ class SentryRRWebVideoEvent: SentryRRWebCustomEvent {
             "timestamp": timestamp.timeIntervalSince1970,
             "segmentId": segmentId,
             "size": size,
-            "duration": duration,
+            "duration": Int(duration * 1_000),
             "encoding": encoding,
             "container": container,
             "height": height,

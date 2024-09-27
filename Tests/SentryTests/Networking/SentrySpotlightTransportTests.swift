@@ -1,5 +1,4 @@
-import Nimble
-import Sentry
+@testable import Sentry
 import SentryTestUtils
 import XCTest
 
@@ -56,13 +55,13 @@ final class SentrySpotlightTransportTests: XCTestCase {
         
         sut.send(envelope: eventEnvelope)
         
-        expect(self.requestManager.requests.count) == 1
+        XCTAssertEqual(self.requestManager.requests.count, 1)
         
         let request = try XCTUnwrap(requestManager.requests.first)
-        expect(request.url?.absoluteString) == options.spotlightUrl
+        XCTAssertEqual(request.url?.absoluteString, options.spotlightUrl)
         
         let expectedData = try getSerializedGzippedData(envelope: eventEnvelope)
-        expect(request.httpBody) == expectedData
+        XCTAssertEqual(request.httpBody, expectedData)
     }
     
     func testShouldSendTransactionEnvelope() throws {
@@ -71,13 +70,13 @@ final class SentrySpotlightTransportTests: XCTestCase {
         
         sut.send(envelope: transactionEnvelope)
         
-        expect(self.requestManager.requests.count) == 1
+        XCTAssertEqual(self.requestManager.requests.count, 1)
         
         let request = try XCTUnwrap(requestManager.requests.first)
-        expect(request.url?.absoluteString) == options.spotlightUrl
+        XCTAssertEqual(request.url?.absoluteString, options.spotlightUrl)
         
         let expectedData = try getSerializedGzippedData(envelope: transactionEnvelope)
-        expect(request.httpBody) == expectedData
+        XCTAssertEqual(request.httpBody, expectedData)
     }
     
     func testShouldRemoveAttachmentsFromEventEnvelope() throws {
@@ -86,10 +85,10 @@ final class SentrySpotlightTransportTests: XCTestCase {
         
         sut.send(envelope: eventEnvelope)
         
-        expect(self.requestManager.requests.count) == 1
+        XCTAssertEqual(self.requestManager.requests.count, 1)
         
         let request = try XCTUnwrap(requestManager.requests.first)
-        expect(request.url?.absoluteString) == options.spotlightUrl
+        XCTAssertEqual(request.url?.absoluteString, options.spotlightUrl)
         
         let expectedData = try getSerializedGzippedData(envelope: givenEventEnvelope())
         let expectedDataCountLower = expectedData.count - 20
@@ -97,7 +96,7 @@ final class SentrySpotlightTransportTests: XCTestCase {
         
         // Compressing with GZip doesn't always produce the same results
         // We only want to know if the attachment got removed. Therefore, a comparison with a range is acceptable.
-        expect(request.httpBody?.count).to(beWithin(expectedDataCountLower...expectedDataCountUpper))
+        XCTAssert((expectedDataCountLower...expectedDataCountUpper).contains(try XCTUnwrap(request.httpBody?.count)))
     }
     
     func testShouldNotSendEnvelope_WhenMalformedURL() throws {
@@ -108,7 +107,7 @@ final class SentrySpotlightTransportTests: XCTestCase {
         sut.send(envelope: eventEnvelope)
         
         requestManager.waitForAllRequests()
-        expect(self.requestManager.requests.count) == 0
+        XCTAssertEqual(self.requestManager.requests.count, 0)
     }
     
     func testShouldNotSendEnvelope_WhenRequestError() throws {
@@ -119,13 +118,24 @@ final class SentrySpotlightTransportTests: XCTestCase {
         sut.send(envelope: eventEnvelope)
         
         requestManager.waitForAllRequests()
-        expect(self.requestManager.requests.count) == 0
+        XCTAssertEqual(self.requestManager.requests.count, 0)
+    }
+    
+    func testShouldNotSendEnvelope_WhenRequestNil() throws {
+        let eventEnvelope = try givenEventEnvelope()
+        requestBuilder.shouldFailReturningNil = true
+        let sut = givenSut()
+        
+        sut.send(envelope: eventEnvelope)
+        
+        requestManager.waitForAllRequests()
+        XCTAssertEqual(self.requestManager.requests.count, 0)
     }
     
     func testShouldLogError_WhenRequestManagerCompletesWithError() throws {
         let logOutput = TestLogOutput()
         SentryLog.setLogOutput(logOutput)
-        SentryLog.configure(true, diagnosticLevel: .debug)
+        SentryLog.configureLog(true, diagnosticLevel: .debug)
         
         let eventEnvelope = try givenEventEnvelope()
         requestManager.nextError = NSError(domain: "error", code: 47)
@@ -140,11 +150,11 @@ final class SentrySpotlightTransportTests: XCTestCase {
             $0.contains("Error while performing request")
         }
         
-        expect(logMessages.count) == 1
+        XCTAssertEqual(logMessages.count, 1)
     }
     
     private func getSerializedGzippedData(envelope: SentryEnvelope) throws -> Data {
-        let expectedData = try SentrySerialization.data(with: envelope) as NSData
+        let expectedData = try XCTUnwrap(SentrySerialization.data(with: envelope)) as NSData
         return sentry_gzippedWithCompressionLevel(expectedData as Data, -1, nil) ?? Data()
     }
 

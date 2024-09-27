@@ -7,8 +7,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface
-SentryEnvelopeRateLimit ()
+@interface SentryEnvelopeRateLimit ()
 
 @property (nonatomic, strong) id<SentryRateLimits> rateLimits;
 @property (nonatomic, weak) id<SentryEnvelopeRateLimitDelegate> delegate;
@@ -59,7 +58,7 @@ SentryEnvelopeRateLimit ()
             = sentryDataCategoryForEnvelopItemType(item.header.type);
         if ([self.rateLimits isRateLimitActive:rateLimitCategory]) {
             [itemsToDrop addObject:item];
-            [self.delegate envelopeItemDropped:rateLimitCategory];
+            [self.delegate envelopeItemDropped:item withCategory:rateLimitCategory];
         }
     }
 

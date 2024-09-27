@@ -3,7 +3,6 @@
 
 # Races to fix
 race:returnResponse
-race:enableNetworkTracking
 race:enableNetworkBreadcrumbs
 race:disable
 race:URLSessionDataTaskMock

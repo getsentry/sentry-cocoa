@@ -11,27 +11,40 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     static let defaultDSN = "https://6cc9bae94def43cab8444a99e0031c28@o447951.ingest.sentry.io/5428557"
 
     //swiftlint:disable function_body_length cyclomatic_complexity
-    static func startSentry() {
+    func startSentry() {
         let args = ProcessInfo.processInfo.arguments
         let env = ProcessInfo.processInfo.environment
         
         // For testing purposes, we want to be able to change the DSN and store it to disk. In a real app, you shouldn't need this behavior.
-        let dsn = env["--io.sentry.dsn"] ?? DSNStorage.shared.getDSN() ?? AppDelegate.defaultDSN
-        DSNStorage.shared.saveDSN(dsn: dsn)
+        var dsn: String?
+        do {
+            if let dsn = env["--io.sentry.dsn"] {
+                try DSNStorage.shared.saveDSN(dsn: dsn)
+            }
+            dsn = try DSNStorage.shared.getDSN() ?? AppDelegate.defaultDSN
+        } catch {
+            print("[iOS-Swift] Error encountered while reading stored DSN: \(error)")
+        }
         
         SentrySDK.start(configureOptions: { options in
             options.dsn = dsn
             options.beforeSend = { event in
                 return event
             }
+            options.beforeSendSpan = { span in
+                return span
+            }
             options.enableSigtermReporting = true
             options.beforeCaptureScreenshot = { _ in
+                return true
+            }
+            options.beforeCaptureViewHierarchy = { _ in
                 return true
             }
             options.debug = true
             
             if #available(iOS 16.0, *), !args.contains("--disable-session-replay") {
-                options.experimental.sessionReplay = SentryReplayOptions(sessionSampleRate: 1, errorSampleRate: 1, redactAllText: true, redactAllImages: true)
+                options.experimental.sessionReplay = SentryReplayOptions(sessionSampleRate: 1, onErrorSampleRate: 1, redactAllText: true, redactAllImages: true)
                 options.experimental.sessionReplay.quality = .high
             }
             
@@ -69,7 +82,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             options.enableAppLaunchProfiling = args.contains("--profile-app-launches")
 
             options.enableAutoSessionTracking = !args.contains("--disable-automatic-session-tracking")
-            options.sessionTrackingIntervalMillis = 5_000
+            if let sessionTrackingIntervalMillis = env["--io.sentry.sessionTrackingIntervalMillis"] {
+                options.sessionTrackingIntervalMillis = UInt((sessionTrackingIntervalMillis as NSString).integerValue)
+            }
             options.attachScreenshot = true
             options.attachViewHierarchy = true
        
@@ -129,9 +144,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 }
                 
                 scope.setTag(value: "swift", key: "language")
-               
+                
+                scope.injectGitInformation()
+                                               
                 let user = User(userId: "1")
-                user.email = "tony@example.com"
+                user.email = env["--io.sentry.user.email"] ?? "tony@example.com"
+                // first check if the username has been overridden in the scheme for testing purposes; then try to use the system username so each person gets an automatic way to easily filter things on the dashboard; then fall back on a hardcoded value if none of these are present
+                let username = env["--io.sentry.user.username"] ?? (env["SIMULATOR_HOST_HOME"] as? NSString)?
+                    .lastPathComponent ?? "cocoa developer"
+                user.username = username
                 scope.setUser(user)
 
                 if let path = Bundle.main.path(forResource: "Tongariro", ofType: "jpg") {
@@ -142,9 +163,40 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 }
                 return scope
             }
+            
+            options.configureUserFeedback = { config in
+                config.useShakeGesture = true
+                config.showFormForScreenshots = true
+                config.configureWidget = { widget in
+                    if args.contains("--io.sentry.iOS-Swift.auto-inject-user-feedback-widget") {
+                        widget.labelText = "Report Jank"
+                        widget.widgetAccessibilityLabel = "io.sentry.iOS-Swift.button.report-jank"
+                    } else {
+                        widget.autoInject = false
+                    }
+                }
+                config.configureForm = { uiForm in
+                    uiForm.formTitle = "Jank Report"
+                    uiForm.submitButtonLabel = "Report that jank"
+                    uiForm.addScreenshotButtonLabel = "Show us the jank"
+                    uiForm.messagePlaceholder = "Describe the nature of the jank. Its essence, if you will."
+                    uiForm.themeOverrides = { theme in
+                        theme.font = UIFont(name: "Comic Sans", size: 25)
+                    }
+                }
+                config.onSubmitSuccess = { info in
+                    let name = info["name"] ?? "$shakespearean_insult_name"
+                    let alert = UIAlertController(title: "Thanks?", message: "We have enough jank of our own, we really didn't need yours too, \(name).", preferredStyle: .alert)
+                    alert.addAction(.init(title: "Derp", style: .default))
+                    self.window?.rootViewController?.present(alert, animated: true)
+                }
+                config.onSubmitError = { error in
+                    let alert = UIAlertController(title: "D'oh", message: "You tried to report jank, and encountered more jank. The jank has you now: \(error).", preferredStyle: .alert)
+                    alert.addAction(.init(title: "Derp", style: .default))
+                    self.window?.rootViewController?.present(alert, animated: true)
+                }
+            }
         })
-        
-        SentrySDK.metrics.increment(key: "app.start", value: 1.0, tags: ["view": "app-delegate"])
 
     }
     //swiftlint:enable function_body_length cyclomatic_complexity
@@ -157,11 +209,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         if ProcessInfo.processInfo.arguments.contains("--io.sentry.wipe-data") {
             removeAppData()
         }
-        AppDelegate.startSentry()
-        
-        randomDistributionTimer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { _ in
-            let random = Double.random(in: 0..<1_000)
-            SentrySDK.metrics.distribution(key: "random.distribution", value: random)
+        if !ProcessInfo.processInfo.arguments.contains("--skip-sentry-init") {
+            startSentry()
         }
         
         if #available(iOS 15.0, *) {
@@ -203,13 +252,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
      */
     private func removeAppData() {
         print("[iOS-Swift] [debug] removing app data")
-        let appSupport = NSSearchPathForDirectoriesInDomains(.applicationSupportDirectory, .userDomainMask, true).first!
         let cache = NSSearchPathForDirectoriesInDomains(.cachesDirectory, .userDomainMask, true).first!
-        for path in [appSupport, cache] {
-            guard let files = FileManager.default.enumerator(atPath: path) else { return }
-            for item in files {
-                try! FileManager.default.removeItem(atPath: (path as NSString).appendingPathComponent((item as! String)))
-            }
+        guard let files = FileManager.default.enumerator(atPath: cache) else { return }
+        for item in files {
+            try! FileManager.default.removeItem(atPath: (cache as NSString).appendingPathComponent((item as! String)))
         }
     }
 }

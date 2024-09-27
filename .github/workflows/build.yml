@@ -213,42 +213,42 @@ jobs:
       - run: swift build
         shell: sh
 
-  check-uikit-linkage-debug-UIKitless:
-    name: Check no UIKit linkage (Debug_without_UIKit)
+  check-debug-without-UIKit:
+    name: Check no UIKit linkage (DebugWithoutUIKit)
     runs-on: macos-13
     steps:
       - uses: actions/checkout@v4
       - name: Build for Debug
-        run: ./scripts/xcode-test.sh "iOS" "latest" $GITHUB_REF_NAME ci build "iPhone 14" Debug_without_UIKit uikit-check-build
-      - name: Ensure no UIKit
-        run: ./scripts/check-uikit-linkage.sh Debug_without_UIKit uikit-check-build unlinked
+        run: ./scripts/xcode-test.sh "iOS" "latest" $GITHUB_REF_NAME ci build "iPhone 14" DebugWithoutUIKit uikit-check-build
+      - name: Ensure UIKit is not linked
+        run: ./scripts/check-uikit-linkage.sh DebugWithoutUIKit uikit-check-build unlinked SentryWithoutUIKit
 
-  check-uikit-linkage-release-UIKitless:
-    name: Check no UIKit linkage (Release_without_UIKit)
+  check-release-without-UIKit:
+    name: Check no UIKit linkage (ReleaseWithoutUIKit)
     runs-on: macos-13
     steps:
       - uses: actions/checkout@v4
       - name: Build for Release
-        run: ./scripts/xcode-test.sh "iOS" "latest" $GITHUB_REF_NAME ci build "iPhone 14" Release_without_UIKit uikit-check-build
-      - name: Ensure no UIKit
-        run: ./scripts/check-uikit-linkage.sh Release_without_UIKit uikit-check-build unlinked
+        run: ./scripts/xcode-test.sh "iOS" "latest" $GITHUB_REF_NAME ci build "iPhone 14" ReleaseWithoutUIKit uikit-check-build
+      - name: Ensure UIKit is not linked
+        run: ./scripts/check-uikit-linkage.sh ReleaseWithoutUIKit uikit-check-build unlinked SentryWithoutUIKit
 
-  check-uikit-linkage-debug:
+  check-debug-with-UIKit:
     name: Check UIKit linkage (Debug)
     runs-on: macos-13
     steps:
       - uses: actions/checkout@v4
       - name: Build for Debug
         run: ./scripts/xcode-test.sh "iOS" "latest" $GITHUB_REF_NAME ci build "iPhone 14" Debug uikit-check-build
-      - name: Ensure no UIKit
-        run: ./scripts/check-uikit-linkage.sh Debug uikit-check-build linked
+      - name: Ensure UIKit is linked
+        run: ./scripts/check-uikit-linkage.sh Debug uikit-check-build linked Sentry
 
-  check-uikit-linkage-release:
+  check-release-with-UIKit:
     name: Check UIKit linkage (Release)
     runs-on: macos-13
     steps:
       - uses: actions/checkout@v4
       - name: Build for Release
         run: ./scripts/xcode-test.sh "iOS" "latest" $GITHUB_REF_NAME ci build "iPhone 14" Release uikit-check-build
-      - name: Ensure no UIKit
-        run: ./scripts/check-uikit-linkage.sh Release uikit-check-build linked
+      - name: Ensure UIKit is linked
+        run: ./scripts/check-uikit-linkage.sh Release uikit-check-build linked Sentry

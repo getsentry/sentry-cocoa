@@ -7,8 +7,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface
-SentryTransportAdapter ()
+@interface SentryTransportAdapter ()
 
 @property (nonatomic, strong) NSArray<id<SentryTransport>> *transports;
 @property (nonatomic, strong) SentryOptions *options;
@@ -99,6 +98,15 @@ SentryTransportAdapter ()
 {
     for (id<SentryTransport> transport in self.transports) {
         [transport recordLostEvent:category reason:reason];
+    }
+}
+
+- (void)recordLostEvent:(SentryDataCategory)category
+                 reason:(SentryDiscardReason)reason
+               quantity:(NSUInteger)quantity
+{
+    for (id<SentryTransport> transport in self.transports) {
+        [transport recordLostEvent:category reason:reason quantity:quantity];
     }
 }
 

@@ -1,4 +1,3 @@
-import Nimble
 import SentryTestUtils
 import XCTest
 
@@ -60,7 +59,7 @@ class SentryDateUtilTests: XCTestCase {
         let testDate = Date(timeIntervalSince1970: 60)
         let timestamp = SentryDateUtil.millisecondsSince1970(testDate)
         
-        expect(timestamp) == 60_000
+        XCTAssertEqual(timestamp, 60_000)
     }
     
 }

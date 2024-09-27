@@ -1,5 +1,10 @@
-#import "SentryDefines.h"
-#import "SentrySerializable.h"
+#if __has_include(<Sentry/Sentry.h>)
+#    import <Sentry/SentryDefines.h>
+#    import <Sentry/SentrySerializable.h>
+#else
+#    import <SentryWithoutUIKit/SentryDefines.h>
+#    import <SentryWithoutUIKit/SentrySerializable.h>
+#endif
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -30,8 +35,10 @@ NS_SWIFT_NAME(User)
 
 /**
  * The user segment, for apps that divide users in user segments.
+ * @deprecated This field will be removed in the next major version.
  */
-@property (atomic, copy) NSString *_Nullable segment;
+@property (atomic, copy) NSString *_Nullable segment DEPRECATED_MSG_ATTRIBUTE(
+    "This field is deprecated and will be removed in the next major update.");
 
 /**
  * Optional: Human readable name

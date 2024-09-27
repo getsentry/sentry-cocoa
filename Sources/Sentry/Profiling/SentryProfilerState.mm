@@ -1,12 +1,13 @@
 #import "SentryProfilerState.h"
 #if SENTRY_TARGET_PROFILING_SUPPORTED
+#    import "SentryAsyncSafeLog.h"
 #    import "SentryBacktrace.hpp"
 #    import "SentryDependencyContainer.h"
+#    import "SentryDispatchQueueWrapper.h"
 #    import "SentryFormatter.h"
 #    import "SentryProfileTimeseries.h"
 #    import "SentrySample.h"
 #    import "SentrySwift.h"
-#    import "SentryThreadWrapper.h"
 #    import <mach/mach_types.h>
 #    import <mach/port.h>
 #    import <mutex>
@@ -66,7 +67,8 @@ parseBacktraceSymbolsFunctionName(const char *symbol)
     if (self = [super init]) {
         _mutableState = [[SentryProfilerMutableState alloc] init];
         _mainThreadID = 0;
-        [SentryThreadWrapper onMainThread:^{ [self cacheMainThreadID]; }];
+        [SentryDependencyContainer.sharedInstance.dispatchQueueWrapper
+            dispatchAsyncOnMainQueue:^{ [self cacheMainThreadID]; }];
     }
     return self;
 }
@@ -120,11 +122,12 @@ parseBacktraceSymbolsFunctionName(const char *symbol)
         const auto symbols
             = backtrace_symbols(reinterpret_cast<void *const *>(backtrace.addresses.data()),
                 static_cast<int>(backtrace.addresses.size()));
-#    endif
+        const auto *backtraceFunctionNames = [NSMutableArray<NSString *> array];
+#    endif // defined(DEBUG)
 
         const auto stack = [NSMutableArray<NSNumber *> array];
         for (std::vector<uintptr_t>::size_type backtraceAddressIdx = 0;
-             backtraceAddressIdx < backtrace.addresses.size(); backtraceAddressIdx++) {
+            backtraceAddressIdx < backtrace.addresses.size(); backtraceAddressIdx++) {
             const auto instructionAddress
                 = sentry_formatHexAddressUInt64(backtrace.addresses[backtraceAddressIdx]);
             const auto frameIndex = state.frameIndexLookup[instructionAddress];
@@ -132,8 +135,10 @@ parseBacktraceSymbolsFunctionName(const char *symbol)
                 const auto frame = [NSMutableDictionary<NSString *, id> dictionary];
                 frame[@"instruction_addr"] = instructionAddress;
 #    if defined(DEBUG)
-                frame[@"function"]
+                const auto functionName
                     = parseBacktraceSymbolsFunctionName(symbols[backtraceAddressIdx]);
+                frame[@"function"] = functionName;
+                [backtraceFunctionNames addObject:functionName];
 #    endif
                 const auto newFrameIndex = @(state.frames.count);
                 [stack addObject:newFrameIndex];
@@ -145,7 +150,7 @@ parseBacktraceSymbolsFunctionName(const char *symbol)
         }
 #    if defined(DEBUG)
         free(symbols);
-#    endif
+#    endif // defined(DEBUG)
 
         const auto sample = [[SentrySample alloc] init];
         sample.absoluteTimestamp = backtrace.absoluteTimestamp;
@@ -163,6 +168,14 @@ parseBacktraceSymbolsFunctionName(const char *symbol)
             state.stackIndexLookup[stackKey] = nextStackIndex;
             [state.stacks addObject:stack];
         }
+
+#    if defined(DEBUG)
+        if (backtraceFunctionNames.count > 0) {
+            SENTRY_ASYNC_SAFE_LOG_DEBUG("Recorded backtrace for thread %s at %llu: %s",
+                threadID.UTF8String, sample.absoluteTimestamp,
+                backtraceFunctionNames.description.UTF8String);
+        }
+#    endif // defined(DEBUG)
 
         [state.samples addObject:sample];
     }];

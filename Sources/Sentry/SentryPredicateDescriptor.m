@@ -32,8 +32,8 @@
 
     if (expressions.count == 1) {
         return [NSString stringWithFormat:@"%@ %@",
-                         [self compoundPredicateTypeDescription:predicate.compoundPredicateType],
-                         expressions.firstObject];
+            [self compoundPredicateTypeDescription:predicate.compoundPredicateType],
+            expressions.firstObject];
     }
 
     return [expressions
@@ -75,9 +75,8 @@
         break;
     case NSConditionalExpressionType:
         if (@available(macOS 10.11, *)) {
-            return [NSString
-                stringWithFormat:@"TERNARY(%@,%@,%@)",
-                [self comparisonPredicateDescription:(NSComparisonPredicate *)predicate.predicate],
+            return [NSString stringWithFormat:@"TERNARY(%@,%@,%@)",
+                [self predicateDescription:predicate.predicate],
                 [self expressionDescription:predicate.trueExpression],
                 [self expressionDescription:predicate.falseExpression]];
         } else {

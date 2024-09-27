@@ -1,4 +1,3 @@
-import Nimble
 @testable import Sentry
 import SentryTestUtils
 import XCTest
@@ -196,19 +195,19 @@ class SentrySDKTests: XCTestCase {
     }
     
     func testCrashedLastRun() {
-        expect(SentryDependencyContainer.sharedInstance().crashReporter.crashedLastLaunch) == SentrySDK.crashedLastRun
+        XCTAssertEqual(SentryDependencyContainer.sharedInstance().crashReporter.crashedLastLaunch, SentrySDK.crashedLastRun)
     }
     
     func testDetectedStartUpCrash_DefaultValue() {
-        expect(SentrySDK.detectedStartUpCrash) == false
+        XCTAssertFalse(SentrySDK.detectedStartUpCrash)
     }
     
     func testDetectedStartUpCrash() {
         SentrySDK.setDetectedStartUpCrash(true)
-        expect(SentrySDK.detectedStartUpCrash) == true
+        XCTAssertEqual(SentrySDK.detectedStartUpCrash, true)
         
         SentrySDK.setDetectedStartUpCrash(false)
-        expect(SentrySDK.detectedStartUpCrash) == false
+        XCTAssertFalse(SentrySDK.detectedStartUpCrash)
     }
     
     func testCaptureCrashEvent() {
@@ -358,6 +357,27 @@ class SentrySDKTests: XCTestCase {
         XCTAssertEqual(envelope.header.eventId, fixture.client.storedEnvelopeInvocations.first?.header.eventId)
     }
     
+    /// This is to prevent https://github.com/getsentry/sentry-cocoa/issues/4280
+    /// With 8.33.0, writing an envelope could fail in the middle of the process, which the envelope
+    /// payload below simulates. The JSON stems from writing an envelope to disk with vast data
+    /// that leads to an OOM termination on v 8.33.0.
+    /// Running this test on v 8.33.0 leads to a crash.
+    func testStartSDK_WithCorruptedEnvelope() throws {
+        
+        let fileManager = try SentryFileManager(options: fixture.options)
+        
+        let corruptedEnvelopeData = """
+                       {"event_id":"1990b5bc31904b7395fd07feb72daf1c","sdk":{"name":"sentry.cocoa","version":"8.33.0"}}
+                       {"type":"test","length":50}
+                       """.data(using: .utf8)!
+        
+        try corruptedEnvelopeData.write(to: URL(fileURLWithPath: "\(fileManager.envelopesPath)/corrupted-envelope.json"))
+        
+        SentrySDK.start(options: fixture.options)
+        
+        fileManager.deleteAllEnvelopes()
+    }
+    
     func testStoreEnvelope_WhenNoClient_NoCrash() {
         SentrySDK.store(SentryEnvelope(event: TestData.event))
         
@@ -390,7 +410,7 @@ class SentrySDKTests: XCTestCase {
         XCTAssertEqual(event?.user, user)
     }
     
-    func testStartTransaction() {
+    func testStartTransaction() throws {
         givenSdkWithHub()
         
         let operation = "ui.load"
@@ -398,18 +418,21 @@ class SentrySDKTests: XCTestCase {
         let transaction = SentrySDK.startTransaction(name: name, operation: operation)
         
         XCTAssertEqual(operation, transaction.operation)
-        let tracer = transaction as! SentryTracer
-        XCTAssertEqual(name, tracer.traceContext.transaction)
+        let tracer = try XCTUnwrap(transaction as? SentryTracer)
+        XCTAssertEqual(name, tracer.traceContext?.transaction)
         
         XCTAssertNil(SentrySDK.span)
     }
     
-    func testStartTransaction_WithBindToScope() {
+    func testStartTransaction_WithBindToScope() throws {
         givenSdkWithHub()
         
         let transaction = SentrySDK.startTransaction(name: fixture.transactionName, operation: fixture.operation, bindToScope: true)
         
-        assertTransaction(transaction: transaction)
+        XCTAssertEqual(fixture.operation, transaction.operation)
+        let tracer = try XCTUnwrap(transaction as? SentryTracer)
+        XCTAssertEqual(fixture.transactionName, tracer.traceContext?.transaction)
+        XCTAssertEqual(.custom, tracer.transactionContext.nameSource)
         
         let newSpan = SentrySDK.span
         
@@ -421,17 +444,18 @@ class SentrySDKTests: XCTestCase {
     func testStartingContinuousProfilerWithSampleRateZero() throws {
         givenSdkWithHub()
         
-        // nil is the default value for profilesSampleRate, so we don't have to explicitly set it on the fixture
-        XCTAssertNil(fixture.options.profilesSampleRate)
+        fixture.options.profilesSampleRate = 0
+        XCTAssertEqual(try XCTUnwrap(fixture.options.profilesSampleRate).doubleValue, 0)
+
         XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
         SentrySDK.startProfiler()
-        XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
+        XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
     }
 
     func testStartingContinuousProfilerWithSampleRateNil() throws {
         givenSdkWithHub()
         
-        fixture.options.profilesSampleRate = nil
+        // nil is the default initial value for profilesSampleRate, so we don't have to explicitly set it on the fixture
         XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
         SentrySDK.startProfiler()
         XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
@@ -563,17 +587,17 @@ class SentrySDKTests: XCTestCase {
         let currentDateProvider = TestCurrentDateProvider()
         SentryDependencyContainer.sharedInstance().dateProvider = currentDateProvider
         
-        expect(SentrySDK.startTimestamp) == nil
+        XCTAssertNil(SentrySDK.startTimestamp)
         
         SentrySDK.start { options in
             options.dsn = SentrySDKTests.dsnAsString
             options.removeAllIntegrations()
         }
         
-        expect(SentrySDK.startTimestamp) == currentDateProvider.date()
+        XCTAssertEqual(SentrySDK.startTimestamp, currentDateProvider.date())
         
         SentrySDK.close()
-        expect(SentrySDK.startTimestamp) == nil
+        XCTAssertNil(SentrySDK.startTimestamp)
     }
     
     func testIsEnabled() {
@@ -689,6 +713,25 @@ class SentrySDKTests: XCTestCase {
         SentrySDK.close()
         XCTAssertFalse(deviceWrapper.started)
     }
+    
+    /// Ensure to start the UIDeviceWrapper before initializing the hub, so enrich scope sets the correct OS version.
+    func testStartSDK_ScopeContextContainsOSVersion() throws {
+        let expectation = expectation(description: "MainThreadTestIntegration install called")
+        MainThreadTestIntegration.expectation = expectation
+        
+        DispatchQueue.global(qos: .default).async {
+            SentrySDK.start { options in
+                options.integrations = [ NSStringFromClass(MainThreadTestIntegration.self) ]
+            }
+        }
+        
+        wait(for: [expectation], timeout: 1.0)
+        
+        let os = try XCTUnwrap (SentrySDK.currentHub().scope.contextDictionary["os"] as? [String: Any])
+#if !targetEnvironment(macCatalyst)
+        XCTAssertEqual(UIDevice.current.systemVersion, os["version"] as? String)
+#endif
+    }
 #endif
     
     func testResumeAndPauseAppHangTracking() {
@@ -703,11 +746,11 @@ class SentrySDKTests: XCTestCase {
         let anrTrackingIntegration = SentrySDK.currentHub().getInstalledIntegration(SentryANRTrackingIntegration.self)
         
         SentrySDK.pauseAppHangTracking()
-        Dynamic(anrTrackingIntegration).anrDetected()
+        Dynamic(anrTrackingIntegration).anrDetectedWithType(SentryANRType.unknown)
         XCTAssertEqual(0, client.captureEventWithScopeInvocations.count)
         
         SentrySDK.resumeAppHangTracking()
-        Dynamic(anrTrackingIntegration).anrDetected()
+        Dynamic(anrTrackingIntegration).anrDetectedWithType(SentryANRType.unknown)
         
         if SentryDependencyContainer.sharedInstance().crashWrapper.isBeingTraced() {
             XCTAssertEqual(0, client.captureEventWithScopeInvocations.count)
@@ -817,17 +860,17 @@ class SentrySDKTests: XCTestCase {
         SentrySDK.metrics.increment(key: "key")
         SentrySDK.flush(timeout: 1.0)
         
-        expect(client.captureEnvelopeInvocations.count) == 1
+        XCTAssertEqual(client.captureEnvelopeInvocations.count, 1)
         
         let envelope = try XCTUnwrap(client.captureEnvelopeInvocations.first)
-        expect(envelope.header.eventId) != nil
+        XCTAssertNotNil(envelope.header.eventId)
 
         // We only check if it's an envelope with a statsd envelope item.
         // We validate the contents of the envelope in SentryMetricsClientTests
-        expect(envelope.items.count) == 1
+        XCTAssertEqual(envelope.items.count, 1)
         let envelopeItem = try XCTUnwrap(envelope.items.first)
-        expect(envelopeItem.header.type) == SentryEnvelopeItemTypeStatsd
-        expect(envelopeItem.header.contentType) == "application/octet-stream"
+        XCTAssertEqual(envelopeItem.header.type, SentryEnvelopeItemTypeStatsd)
+        XCTAssertEqual(envelopeItem.header.contentType, "application/octet-stream")
     }
     
     func testMetrics_BeforeEmitMetricCallback_DiscardEveryThing() throws {
@@ -843,7 +886,7 @@ class SentrySDKTests: XCTestCase {
         SentrySDK.metrics.increment(key: "key")
         SentrySDK.flush(timeout: 1.0)
         
-        expect(client.captureEnvelopeInvocations.count) == 0
+        XCTAssertEqual(client.captureEnvelopeInvocations.count, 0)
     }
 
 #if SENTRY_HAS_UIKIT
@@ -956,13 +999,6 @@ class SentrySDKTests: XCTestCase {
         XCTAssertEqual(fixture.scope, hubScope)
     }
     
-    private func assertTransaction(transaction: Span) {
-        XCTAssertEqual(fixture.operation, transaction.operation)
-        let tracer = transaction as! SentryTracer
-        XCTAssertEqual(fixture.transactionName, tracer.traceContext.transaction)
-        XCTAssertEqual(.custom, tracer.transactionContext.nameSource)
-    }
-    
     private func advanceTime(bySeconds: TimeInterval) {
         fixture.currentDate.setDate(date: SentryDependencyContainer.sharedInstance().dateProvider.date().addingTimeInterval(bySeconds))
     }
@@ -992,7 +1028,7 @@ class SentrySDKWithSetupTests: XCTestCase {
                 
                 concurrentQueue.async {
                     let hub = SentryHub(client: nil, andScope: nil)
-                    expect(hub) != nil
+                    XCTAssertNotNil(hub)
                     
                     expectation.fulfill()
                 }

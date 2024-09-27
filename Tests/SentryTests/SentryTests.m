@@ -10,11 +10,11 @@
 #import "SentryMeta.h"
 #import "SentryOptions+HybridSDKs.h"
 #import "SentrySDK+Private.h"
+#import <SentryBreadcrumb+Private.h>
 #import <XCTest/XCTest.h>
 @import Sentry;
 
-@interface
-SentryBreadcrumbTracker ()
+@interface SentryBreadcrumbTracker ()
 
 + (NSString *)sanitizeViewControllerName:(NSString *)controller;
 
@@ -79,6 +79,7 @@ SentryBreadcrumbTracker ()
     SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:kSentryLevelInfo
                                                              category:@"testCategory"];
     crumb.type = @"testType";
+    crumb.origin = @"testOrigin";
     crumb.message = @"testMessage";
     crumb.data = @{ @"testDataKey" : @"testDataVaue" };
 
@@ -110,26 +111,6 @@ SentryBreadcrumbTracker ()
                             code:200
                         userInfo:@{ NSLocalizedDescriptionKey : @"test ran out of money" }];
     [SentrySDK captureError:error];
-}
-
-- (void)testLevelNames
-{
-    XCTAssertEqual(kSentryLevelNone, sentryLevelForString(kSentryLevelNameNone));
-    XCTAssertEqual(kSentryLevelDebug, sentryLevelForString(kSentryLevelNameDebug));
-    XCTAssertEqual(kSentryLevelInfo, sentryLevelForString(kSentryLevelNameInfo));
-    XCTAssertEqual(kSentryLevelWarning, sentryLevelForString(kSentryLevelNameWarning));
-    XCTAssertEqual(kSentryLevelError, sentryLevelForString(kSentryLevelNameError));
-    XCTAssertEqual(kSentryLevelFatal, sentryLevelForString(kSentryLevelNameFatal));
-
-    XCTAssertEqual(kSentryLevelError, sentryLevelForString(@"fdjsafdsa"),
-        @"Failed to map an unexpected string value to the default case.");
-
-    XCTAssertEqualObjects(kSentryLevelNameNone, nameForSentryLevel(kSentryLevelNone));
-    XCTAssertEqualObjects(kSentryLevelNameDebug, nameForSentryLevel(kSentryLevelDebug));
-    XCTAssertEqualObjects(kSentryLevelNameInfo, nameForSentryLevel(kSentryLevelInfo));
-    XCTAssertEqualObjects(kSentryLevelNameWarning, nameForSentryLevel(kSentryLevelWarning));
-    XCTAssertEqualObjects(kSentryLevelNameError, nameForSentryLevel(kSentryLevelError));
-    XCTAssertEqualObjects(kSentryLevelNameFatal, nameForSentryLevel(kSentryLevelFatal));
 }
 
 - (void)testLevelOrder

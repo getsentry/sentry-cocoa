@@ -17,8 +17,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface
-SentryScope ()
+@interface SentryScope ()
 
 /**
  * Set global tags -> these will be sent with every event
@@ -337,10 +336,12 @@ SentryScope ()
 
 - (void)setUser:(SentryUser *_Nullable)user
 {
-    self.userObject = user;
+    @synchronized(self) {
+        self.userObject = user;
 
-    for (id<SentryScopeObserver> observer in self.observers) {
-        [observer setUser:user];
+        for (id<SentryScopeObserver> observer in self.observers) {
+            [observer setUser:user];
+        }
     }
 }
 
@@ -380,6 +381,18 @@ SentryScope ()
 {
     @synchronized(_fingerprintArray) {
         return _fingerprintArray.copy;
+    }
+}
+
+- (void)setCurrentScreen:(nullable NSString *)currentScreen
+{
+    _currentScreen = currentScreen;
+
+    SEL setCurrentScreen = @selector(setCurrentScreen:);
+    for (id<SentryScopeObserver> observer in self.observers) {
+        if ([observer respondsToSelector:setCurrentScreen]) {
+            [observer setCurrentScreen:currentScreen];
+        }
     }
 }
 

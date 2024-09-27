@@ -1,5 +1,4 @@
 import _SentryPrivate
-import Nimble
 import SentryTestUtils
 import XCTest
 
@@ -24,7 +23,7 @@ class SentryAppStartTrackingIntegrationTests: NotificationCenterTestCase {
 
     override class func setUp() {
         super.setUp()
-        SentryLog.configure(true, diagnosticLevel: .debug)
+        SentryLog.configureLog(true, diagnosticLevel: .debug)
         clearTestState()
     }
     
@@ -115,16 +114,16 @@ class SentryAppStartTrackingIntegrationTests: NotificationCenterTestCase {
         let options = fixture.options
         options.enablePerformanceV2 = true
         
-        expect(self.sut.install(with: options)) == true
+        XCTAssertEqual(self.sut.install(with: options), true)
         
         let tracker = Dynamic(sut).tracker.asAnyObject as? SentryAppStartTracker
-        expect(Dynamic(tracker).enablePerformanceV2.asBool) == true
+        XCTAssertEqual(Dynamic(tracker).enablePerformanceV2.asBool, true)
     }
 
     func assertTrackerSetupAndRunning(_ tracker: SentryAppStartTracker) throws {
         _ = try XCTUnwrap(Dynamic(tracker).dispatchQueue.asAnyObject as? SentryDispatchQueueWrapper, "Tracker does not have a dispatch queue.")
         
-        expect(Dynamic(tracker).enablePerformanceV2.asBool) == false
+        XCTAssertFalse(try XCTUnwrap(Dynamic(tracker).enablePerformanceV2.asBool))
 
         let appStateManager = Dynamic(tracker).appStateManager.asObject as? SentryAppStateManager
 

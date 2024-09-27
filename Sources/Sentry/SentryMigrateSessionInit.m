@@ -99,8 +99,7 @@ NS_ASSUME_NONNULL_BEGIN
                                          items:envelopeItemsWithUpdatedSession];
 
     NSError *error;
-    NSData *envelopeWithInitFlagData = [SentrySerialization dataWithEnvelope:envelopeWithInitFlag
-                                                                       error:&error];
+    NSData *envelopeWithInitFlagData = [SentrySerialization dataWithEnvelope:envelopeWithInitFlag];
     [envelopeWithInitFlagData writeToFile:envelopeFilePath
                                   options:NSDataWritingAtomic
                                     error:&error];
@@ -109,7 +108,7 @@ NS_ASSUME_NONNULL_BEGIN
         [SentryLog
             logWithMessage:[NSString stringWithFormat:@"Could not migrate session init, because "
                                                       @"storing the updated envelope failed: %@",
-                                     error.description]
+                               error.description]
                   andLevel:kSentryLevelError];
     }
 }

@@ -1,5 +1,4 @@
 import Foundation
-import Nimble
 @testable import Sentry
 import SentryTestUtils
 import XCTest
@@ -8,11 +7,22 @@ import XCTest
 class SentryOnDemandReplayTests: XCTestCase {
     
     let dateProvider = TestCurrentDateProvider()
-    let outputPath = FileManager.default.temporaryDirectory
+    var outputPath: URL = {
+        let temp = FileManager.default.temporaryDirectory.appendingPathComponent("replayTest")
+        try? FileManager.default.createDirectory(at: temp, withIntermediateDirectories: true)
+        return temp
+    }()
     
-    func getSut() -> SentryOnDemandReplay {
-        let sut = SentryOnDemandReplay(outputPath: outputPath.path, 
-                                       workingQueue: TestSentryDispatchQueueWrapper(),
+    override func tearDownWithError() throws {
+        let files = try FileManager.default.contentsOfDirectory(atPath: outputPath.path)
+        for file in files {
+            try? FileManager.default.removeItem(at: outputPath.appendingPathComponent(file))
+        }
+    }
+    
+    func getSut(trueDispatchQueueWrapper: Bool = false) -> SentryOnDemandReplay {
+        let sut = SentryOnDemandReplay(outputPath: outputPath.path,
+                                       workingQueue: trueDispatchQueueWrapper ? SentryDispatchQueueWrapper() : TestSentryDispatchQueueWrapper(),
                                        dateProvider: dateProvider)
         return sut
     }
@@ -22,12 +32,12 @@ class SentryOnDemandReplayTests: XCTestCase {
         sut.addFrameAsync(image: UIImage.add)
        
         guard let frame = sut.frames.first else {
-            fail("Frame was not saved")
+            XCTFail("Frame was not saved")
             return
         }
         
-        expect(FileManager.default.fileExists(atPath: frame.imagePath)) == true
-        expect(frame.imagePath.hasPrefix(self.outputPath.path)) == true
+        XCTAssertEqual(FileManager.default.fileExists(atPath: frame.imagePath), true)
+        XCTAssertEqual(frame.imagePath.hasPrefix(self.outputPath.path), true)
     }
     
     func testReleaseFrames() {
@@ -42,12 +52,29 @@ class SentryOnDemandReplayTests: XCTestCase {
         
         let frames = sut.frames
         
-        expect(frames.count) == 5
-        expect(frames.first?.time) == Date(timeIntervalSinceReferenceDate: 5)
-        expect(frames.last?.time) == Date(timeIntervalSinceReferenceDate: 9)
+        XCTAssertEqual(frames.count, 5)
+        XCTAssertEqual(frames.first?.time, Date(timeIntervalSinceReferenceDate: 5))
+        XCTAssertEqual(frames.last?.time, Date(timeIntervalSinceReferenceDate: 9))
     }
     
-    func testGenerateVideo() {
+    func testFramesWithScreenName() {
+        let sut = getSut()
+        
+        for i in 0..<4 {
+            sut.addFrameAsync(image: UIImage.add, forScreen: "\(i)")
+            dateProvider.advance(by: 1)
+        }
+        
+        sut.releaseFramesUntil(dateProvider.date().addingTimeInterval(-5))
+        
+        let frames = sut.frames
+        
+        for i in 0..<4 {
+            XCTAssertEqual(frames[i].screenName, "\(i)")
+        }
+    }
+    
+    func testGenerateVideo() throws {
         let sut = getSut()
         dateProvider.driftTimeForEveryRead = true
         dateProvider.driftTimeInterval = 1
@@ -56,21 +83,22 @@ class SentryOnDemandReplayTests: XCTestCase {
             sut.addFrameAsync(image: UIImage.add)
         }
         
-        let output = FileManager.default.temporaryDirectory.appendingPathComponent("video.mp4")
         let videoExpectation = expectation(description: "Wait for video render")
         
-        try? sut.createVideoWith(duration: 10, beginning: Date(timeIntervalSinceReferenceDate: 0), outputFileURL: output) { info, error in
-            expect(error) == nil
-            
-            expect(info?.duration) == 10
-            expect(info?.start) == Date(timeIntervalSinceReferenceDate: 0)
-            expect(info?.end) == Date(timeIntervalSinceReferenceDate: 10)
-            
-            expect(FileManager.default.fileExists(atPath: output.path)) == true
-            videoExpectation.fulfill()
-            try? FileManager.default.removeItem(at: output)
-        }
+        let videos = try sut.createVideoWith(beginning: Date(timeIntervalSinceReferenceDate: 0), end: Date(timeIntervalSinceReferenceDate: 10))
+        XCTAssertEqual(videos.count, 1)
+        let info = try XCTUnwrap(videos.first)
         
+        XCTAssertEqual(info.duration, 10)
+        XCTAssertEqual(info.start, Date(timeIntervalSinceReferenceDate: 0))
+        XCTAssertEqual(info.end, Date(timeIntervalSinceReferenceDate: 10))
+        
+        let videoPath = info.path
+        
+        XCTAssertTrue(FileManager.default.fileExists(atPath: videoPath.path))
+        
+        videoExpectation.fulfill()
+        try FileManager.default.removeItem(at: videoPath)
         wait(for: [videoExpectation], timeout: 1)
     }
     
@@ -94,7 +122,7 @@ class SentryOnDemandReplayTests: XCTestCase {
         
         group.wait()
         queue.queue.sync {} //Wait for all enqueued operation to finish
-        expect(sut.frames.map({ ($0.imagePath as NSString).lastPathComponent })) == (0..<10).map { "\($0).png" }
+        XCTAssertEqual(sut.frames.map({ ($0.imagePath as NSString).lastPathComponent }), (0..<10).map { "\($0).0.png" })
     }
     
     func testReleaseIsThreadSafe() {
@@ -103,7 +131,7 @@ class SentryOnDemandReplayTests: XCTestCase {
                                        workingQueue: queue,
                                        dateProvider: dateProvider)
                 
-        sut.frames = (0..<100).map { SentryReplayFrame(imagePath: outputPath.path + "/\($0).png", time: Date(timeIntervalSinceReferenceDate: Double($0))) }
+        sut.frames = (0..<100).map { SentryReplayFrame(imagePath: outputPath.path + "/\($0).png", time: Date(timeIntervalSinceReferenceDate: Double($0)), screenName: nil) }
                 
         let group = DispatchGroup()
         
@@ -118,7 +146,59 @@ class SentryOnDemandReplayTests: XCTestCase {
         group.wait()
         
         queue.queue.sync {} //Wait for all enqueued operation to finish
-        expect(sut.frames.count) == 0
+        XCTAssertEqual(sut.frames.count, 0)
+    }
+    
+    func testInvalidWriter() throws {
+        let queue = TestSentryDispatchQueueWrapper()
+        let sut = SentryOnDemandReplay(outputPath: outputPath.path,
+                                       workingQueue: queue,
+                                       dateProvider: dateProvider)
+        
+        let start = dateProvider.date()
+        sut.addFrameAsync(image: UIImage.add)
+        dateProvider.advance(by: 1)
+        let end = dateProvider.date()
+        
+        //Creating a file where the replay would be written to cause an error in the writer
+        try "tempFile".data(using: .utf8)?.write(to: outputPath.appendingPathComponent("0.0.mp4"))
+        
+        XCTAssertThrowsError(try sut.createVideoWith(beginning: start, end: end))
+    }
+    
+    func testGenerateVideoForEachSize() throws {
+        let sut = getSut()
+        dateProvider.driftTimeForEveryRead = true
+        dateProvider.driftTimeInterval = 1
+        
+        let image1 = UIGraphicsImageRenderer(size: CGSize(width: 20, height: 19)).image { _ in }
+        let image2 = UIGraphicsImageRenderer(size: CGSize(width: 20, height: 10)).image { _ in }
+        
+        for i in 0..<10 {
+            sut.addFrameAsync(image: i < 5 ? image1 : image2)
+        }
+        
+        let videos = try sut.createVideoWith(beginning: Date(timeIntervalSinceReferenceDate: 0), end: Date(timeIntervalSinceReferenceDate: 10))
+        
+        XCTAssertEqual(videos.count, 2)
+        
+        let firstVideo = try XCTUnwrap(videos.first)
+        let secondVideo = try XCTUnwrap(videos.last)
+        
+        XCTAssertEqual(firstVideo.duration, 5)
+        XCTAssertEqual(secondVideo.duration, 5)
+        
+        XCTAssertEqual(firstVideo.start, Date(timeIntervalSinceReferenceDate: 0))
+        XCTAssertEqual(secondVideo.start, Date(timeIntervalSinceReferenceDate: 5))
+        
+        XCTAssertEqual(firstVideo.end, Date(timeIntervalSinceReferenceDate: 5))
+        XCTAssertEqual(secondVideo.end, Date(timeIntervalSinceReferenceDate: 10))
+        
+        XCTAssertEqual(firstVideo.width, 20)
+        XCTAssertEqual(firstVideo.height, 19)
+        
+        XCTAssertEqual(secondVideo.width, 20)
+        XCTAssertEqual(secondVideo.height, 10)
     }
     
 }

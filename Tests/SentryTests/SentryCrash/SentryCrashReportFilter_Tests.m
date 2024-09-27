@@ -278,8 +278,8 @@
     NSArray *source = [NSArray arrayWithObjects:@"1", @"2", @"3", nil];
     NSArray *expected =
         [NSArray arrayWithObjects:(id _Nonnull)[@"1" dataUsingEncoding:NSUTF8StringEncoding],
-                 (id _Nonnull)[@"2" dataUsingEncoding:NSUTF8StringEncoding],
-                 (id _Nonnull)[@"3" dataUsingEncoding:NSUTF8StringEncoding], nil];
+            (id _Nonnull)[@"2" dataUsingEncoding:NSUTF8StringEncoding],
+            (id _Nonnull)[@"3" dataUsingEncoding:NSUTF8StringEncoding], nil];
     id<SentryCrashReportFilter> filter = [SentryCrashReportFilterStringToData filter];
 
     [filter filterReports:source
@@ -294,8 +294,8 @@
 {
     NSArray *source =
         [NSArray arrayWithObjects:(id _Nonnull)[@"1" dataUsingEncoding:NSUTF8StringEncoding],
-                 (id _Nonnull)[@"2" dataUsingEncoding:NSUTF8StringEncoding],
-                 (id _Nonnull)[@"3" dataUsingEncoding:NSUTF8StringEncoding], nil];
+            (id _Nonnull)[@"2" dataUsingEncoding:NSUTF8StringEncoding],
+            (id _Nonnull)[@"3" dataUsingEncoding:NSUTF8StringEncoding], nil];
     NSArray *expected = [NSArray arrayWithObjects:@"1", @"2", @"3", nil];
     id<SentryCrashReportFilter> filter = [SentryCrashReportFilterDataToString filter];
 
@@ -327,8 +327,8 @@
     NSArray *expected1 = [NSArray arrayWithObjects:@"1", @"2", @"3", nil];
     NSArray *expected2 =
         [NSArray arrayWithObjects:(id _Nonnull)[@"1" dataUsingEncoding:NSUTF8StringEncoding],
-                 (id _Nonnull)[@"2" dataUsingEncoding:NSUTF8StringEncoding],
-                 (id _Nonnull)[@"3" dataUsingEncoding:NSUTF8StringEncoding], nil];
+            (id _Nonnull)[@"2" dataUsingEncoding:NSUTF8StringEncoding],
+            (id _Nonnull)[@"3" dataUsingEncoding:NSUTF8StringEncoding], nil];
     id<SentryCrashReportFilter> filter = [SentryCrashReportFilterCombine
         filterWithFiltersAndKeys:[SentryCrashReportFilterPassthrough filter], @"normal",
         [SentryCrashReportFilterStringToData filter], @"data", nil];
@@ -354,8 +354,8 @@
     NSArray *expected1 = [NSArray arrayWithObjects:@"1", @"2", @"3", nil];
     NSArray *expected2 =
         [NSArray arrayWithObjects:(id _Nonnull)[@"1" dataUsingEncoding:NSUTF8StringEncoding],
-                 (id _Nonnull)[@"2" dataUsingEncoding:NSUTF8StringEncoding],
-                 (id _Nonnull)[@"3" dataUsingEncoding:NSUTF8StringEncoding], nil];
+            (id _Nonnull)[@"2" dataUsingEncoding:NSUTF8StringEncoding],
+            (id _Nonnull)[@"3" dataUsingEncoding:NSUTF8StringEncoding], nil];
     id<SentryCrashReportFilter> filter = [[SentryCrashReportFilterCombine alloc]
         initWithFiltersAndKeys:[SentryCrashReportFilterPassthrough filter], @"normal",
         [SentryCrashReportFilterStringToData filter], @"data", nil];
@@ -429,8 +429,8 @@
     NSArray *expected1 = [NSArray arrayWithObjects:@"1", @"2", @"3", nil];
     NSArray *expected2 =
         [NSArray arrayWithObjects:(id _Nonnull)[@"1" dataUsingEncoding:NSUTF8StringEncoding],
-                 (id _Nonnull)[@"2" dataUsingEncoding:NSUTF8StringEncoding],
-                 (id _Nonnull)[@"3" dataUsingEncoding:NSUTF8StringEncoding], nil];
+            (id _Nonnull)[@"2" dataUsingEncoding:NSUTF8StringEncoding],
+            (id _Nonnull)[@"3" dataUsingEncoding:NSUTF8StringEncoding], nil];
     id<SentryCrashReportFilter> filter = [SentryCrashReportFilterCombine
         filterWithFiltersAndKeys:[NSArray
                                      arrayWithObject:[SentryCrashReportFilterPassthrough filter]],
@@ -544,8 +544,8 @@
 - (void)testConcatenate
 {
     NSArray *reports = [NSArray arrayWithObjects:[NSDictionary dictionaryWithObjectsAndKeys:@"1",
-                                                               @"first", @"a", @"second", nil],
-                                nil];
+                                                     @"first", @"a", @"second", nil],
+        nil];
     NSString *expected = @"1,a";
     id<SentryCrashReportFilter> filter =
         [SentryCrashReportFilterConcatenate filterWithSeparatorFmt:@","
@@ -562,8 +562,8 @@
 - (void)testConcatenateInit
 {
     NSArray *reports = [NSArray arrayWithObjects:[NSDictionary dictionaryWithObjectsAndKeys:@"1",
-                                                               @"first", @"a", @"second", nil],
-                                nil];
+                                                     @"first", @"a", @"second", nil],
+        nil];
     NSString *expected = @"1,a";
     id<SentryCrashReportFilter> filter =
         [[SentryCrashReportFilterConcatenate alloc] initWithSeparatorFmt:@","
@@ -582,8 +582,8 @@
 {
     NSArray *reports =
         [NSArray arrayWithObjects:[NSDictionary dictionaryWithObjectsAndKeys:@"1", @"first", @"a",
-                                                @"second", @"b", @"third", nil],
-                 nil];
+                                      @"second", @"b", @"third", nil],
+            nil];
     NSDictionary *expected =
         [NSDictionary dictionaryWithObjectsAndKeys:@"1", @"first", @"b", @"third", nil];
     id<SentryCrashReportFilter> filter =
@@ -601,8 +601,8 @@
 {
     NSArray *reports =
         [NSArray arrayWithObjects:[NSDictionary dictionaryWithObjectsAndKeys:@"1", @"first", @"a",
-                                                @"second", @"b", @"third", nil],
-                 nil];
+                                      @"second", @"b", @"third", nil],
+            nil];
     id<SentryCrashReportFilter> filter =
         [SentryCrashReportFilterSubset filterWithKeys:@"first", @"aaa", nil];
 
@@ -617,8 +617,8 @@
 {
     NSArray *reports =
         [NSArray arrayWithObjects:[NSDictionary dictionaryWithObjectsAndKeys:@"1", @"first", @"a",
-                                                @"second", @"b", @"third", nil],
-                 nil];
+                                      @"second", @"b", @"third", nil],
+            nil];
     NSDictionary *expected =
         [NSDictionary dictionaryWithObjectsAndKeys:@"1", @"first", @"b", @"third", nil];
     id<SentryCrashReportFilter> filter =

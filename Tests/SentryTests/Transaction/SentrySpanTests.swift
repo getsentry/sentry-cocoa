@@ -1,4 +1,3 @@
-import Nimble
 @testable import Sentry
 import SentryTestUtils
 import XCTest
@@ -245,45 +244,53 @@ class SentrySpanTests: XCTestCase {
     
     func testInit_SetsMainThreadInfoAsSpanData() {
         let span = fixture.getSut()
-        XCTAssertEqual("main", span.data["thread.name"] as! String)
+        XCTAssertEqual("main", try XCTUnwrap(span.data["thread.name"] as? String))
         
         let threadId = sentrycrashthread_self()
-        XCTAssertEqual(NSNumber(value: threadId), span.data["thread.id"] as! NSNumber)
+        XCTAssertEqual(NSNumber(value: threadId), try XCTUnwrap(span.data["thread.id"] as? NSNumber))
     }
     
     func testInit_SetsThreadInfoAsSpanData_FromBackgroundThread() {
         let expect = expectation(description: "Thread must be called.")
         
+        var spanData: [String: Any]?
+        var threadId: SentryCrashThread?
+        let threadName = "test-thread-name"
         Thread.detachNewThread {
-            let threadName = "test-thread-name"
             Thread.current.name = threadName
             
             let span = self.fixture.getSut()
-            XCTAssertEqual(threadName, span.data["thread.name"] as! String)
-            let threadId = sentrycrashthread_self()
-            XCTAssertEqual(NSNumber(value: threadId), span.data["thread.id"] as! NSNumber)
+            spanData = span.data
+            threadId = sentrycrashthread_self()
             
             expect.fulfill()
         }
         
         wait(for: [expect], timeout: 1.0)
+        
+        XCTAssertEqual(NSNumber(value: try XCTUnwrap(threadId)), try XCTUnwrap(spanData?["thread.id"] as? NSNumber))
+        XCTAssertEqual(threadName, try XCTUnwrap(spanData?["thread.name"] as? String))
     }
     
     func testInit_SetsThreadInfoAsSpanData_FromBackgroundThreadWithNoName() {
         let expect = expectation(description: "Thread must be called.")
         
+        var spanData: [String: Any]?
+        var threadId: SentryCrashThread?
         Thread.detachNewThread {
             Thread.current.name = ""
             
             let span = self.fixture.getSut()
-            XCTAssertNil(span.data["thread.name"])
-            let threadId = sentrycrashthread_self()
-            XCTAssertEqual(NSNumber(value: threadId), span.data["thread.id"] as! NSNumber)
+            spanData = span.data
+            threadId = sentrycrashthread_self()
             
             expect.fulfill()
         }
         
         wait(for: [expect], timeout: 1.0)
+        
+        XCTAssertNil(try XCTUnwrap(spanData)["thread.name"])
+        XCTAssertEqual(NSNumber(value: try XCTUnwrap(threadId)), try XCTUnwrap(spanData?["thread.id"] as? NSNumber))
     }
     
     func testFinish() throws {
@@ -368,8 +375,8 @@ class SentrySpanTests: XCTestCase {
         let lastEvent = try XCTUnwrap(client.captureEventWithScopeInvocations.invocations.first).event
         let serializedData = lastEvent.serialize()
         
-        let spans = serializedData["spans"] as! [Any]
-        let serializedChild = spans[0] as! [String: Any]
+        let spans = try XCTUnwrap(serializedData["spans"] as? [Any])
+        let serializedChild = try XCTUnwrap(spans.first as? [String: Any])
         
         XCTAssertEqual(serializedChild["span_id"] as? String, childSpan.spanId.sentrySpanIdString)
         XCTAssertEqual(serializedChild["parent_span_id"] as? String, span.spanId.sentrySpanIdString)
@@ -425,7 +432,7 @@ class SentrySpanTests: XCTestCase {
         span.setData(value: fixture.extraValue, key: fixture.extraKey)
         
         XCTAssertEqual(span.data.count, 3)
-        XCTAssertEqual(span.data[fixture.extraKey] as! String, fixture.extraValue)
+        XCTAssertEqual(try XCTUnwrap(span.data[fixture.extraKey] as? String), fixture.extraValue)
         
         span.removeData(key: fixture.extraKey)
         XCTAssertEqual(span.data.count, 2, "Only expected thread.name and thread.id in data.")
@@ -472,8 +479,8 @@ class SentrySpanTests: XCTestCase {
         XCTAssertNotNil(serialization["tags"])
         
         let data = serialization["data"] as? [String: Any]
-        XCTAssertEqual(data?[fixture.extraKey] as! String, fixture.extraValue)
-        XCTAssertEqual((serialization["tags"] as! Dictionary)[fixture.extraKey], fixture.extraValue)
+        XCTAssertEqual(try XCTUnwrap(data?[fixture.extraKey] as? String), fixture.extraValue)
+        XCTAssertEqual((try XCTUnwrap(serialization["tags"] as? Dictionary)[fixture.extraKey]), fixture.extraValue)
         XCTAssertEqual("manual", serialization["origin"] as? String)
     }
     
@@ -531,7 +538,7 @@ class SentrySpanTests: XCTestCase {
         let sut = fixture.getSut()
         
         let serialized = sut.serialize()
-        expect(serialized["_metrics_summary"]) == nil
+        XCTAssertNil(serialized["_metrics_summary"])
     }
     
     func testLocalMetricsAggregator_GetsSerializedAsMetricsSummary() throws {
@@ -543,15 +550,15 @@ class SentrySpanTests: XCTestCase {
         let serialized = sut.serialize()
         
         let metricsSummary = try XCTUnwrap(serialized["_metrics_summary"] as? [String: [[String: Any]]])
-        expect(metricsSummary.count) == 1
+        XCTAssertEqual(metricsSummary.count, 1)
         
         let bucket = try XCTUnwrap(metricsSummary["c:key"])
-        expect(bucket.count) == 1
+        XCTAssertEqual(bucket.count, 1)
         let metric = try XCTUnwrap(bucket.first)
-        expect(metric["min"] as? Double) == 1.0
-        expect(metric["max"] as? Double) == 1.0
-        expect(metric["count"] as? Int) == 1
-        expect(metric["sum"] as? Double) == 1.0
+        XCTAssertEqual(metric["min"] as? Double, 1.0)
+        XCTAssertEqual(metric["max"] as? Double, 1.0)
+        XCTAssertEqual(metric["count"] as? Int, 1)
+        XCTAssertEqual(metric["sum"] as? Double, 1.0)
     }
     
     func testTraceHeaderNotSampled() {
@@ -669,6 +676,22 @@ class SentrySpanTests: XCTestCase {
         XCTAssertEqual(nameForSentrySpanStatus(.dataLoss), kSentrySpanStatusNameDataLoss)
     }
     
+    func testTraceContext() {
+        let client = TestClient(options: fixture.options)!
+        let sut = fixture.getSut(client: client) as! SentrySpan
+        
+        let expectedTraceContext = sut.tracer?.traceContext
+        XCTAssertEqual(expectedTraceContext, sut.traceContext)
+    }
+    
+    func testBaggageHttpHeader() {
+        let client = TestClient(options: fixture.options)!
+        let sut = fixture.getSut(client: client) as! SentrySpan
+        
+        let expectedBaggage = sut.tracer?.traceContext?.toBaggage().toHTTPHeader(withOriginalBaggage: nil)
+        XCTAssertEqual(expectedBaggage, sut.baggageHttpHeader())
+    }
+    
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
     func testAddSlowFrozenFramesToData() {
         let (displayLinkWrapper, framesTracker) = givenFramesTracker()
@@ -682,9 +705,9 @@ class SentrySpanTests: XCTestCase {
         
         sut.finish()
         
-        expect(sut.data["frames.total"] as? NSNumber) == NSNumber(value: slow + frozen + normal)
-        expect(sut.data["frames.slow"] as? NSNumber) == NSNumber(value: slow)
-        expect(sut.data["frames.frozen"] as? NSNumber) == NSNumber(value: frozen)
+        XCTAssertEqual(sut.data["frames.total"] as? NSNumber, NSNumber(value: slow + frozen + normal))
+        XCTAssertEqual(sut.data["frames.slow"] as? NSNumber, NSNumber(value: slow))
+        XCTAssertEqual(sut.data["frames.frozen"] as? NSNumber, NSNumber(value: frozen))
     }
     
     func testDontAddAllZeroSlowFrozenFramesToData() {
@@ -694,9 +717,9 @@ class SentrySpanTests: XCTestCase {
         
         sut.finish()
         
-        expect(sut.data["frames.total"]) == nil
-        expect(sut.data["frames.slow"]) == nil
-        expect(sut.data["frames.frozen"]) == nil
+        XCTAssertNil(sut.data["frames.total"])
+        XCTAssertNil(sut.data["frames.slow"])
+        XCTAssertNil(sut.data["frames.frozen"])
     }
     
     func testAddFrameStatisticsToData_WithPreexistingCounts() {
@@ -718,14 +741,14 @@ class SentrySpanTests: XCTestCase {
         
         sut.finish()
         
-        expect(sut.data["frames.total"] as? NSNumber) == NSNumber(value: totalFrames)
-        expect(sut.data["frames.slow"] as? NSNumber) == NSNumber(value: slowFrames)
-        expect(sut.data["frames.frozen"] as? NSNumber) == NSNumber(value: frozenFrames)
+        XCTAssertEqual(sut.data["frames.total"] as? NSNumber, NSNumber(value: totalFrames))
+        XCTAssertEqual(sut.data["frames.slow"] as? NSNumber, NSNumber(value: slowFrames))
+        XCTAssertEqual(sut.data["frames.frozen"] as? NSNumber, NSNumber(value: frozenFrames))
         
         let expectedFrameDuration = slowFrameThreshold(displayLinkWrapper.currentFrameRate.rawValue)
         let expectedDelay = displayLinkWrapper.slowestSlowFrameDuration + displayLinkWrapper.fastestFrozenFrameDuration - expectedFrameDuration * 2 as NSNumber
         
-        expect(sut.data["frames.delay"] as? NSNumber).to(beCloseTo(expectedDelay, within: 0.0001))
+        XCTAssertEqual(try XCTUnwrap(sut.data["frames.delay"] as? NSNumber).doubleValue, expectedDelay.doubleValue, accuracy: 0.0001)
     }
     
     func testNoFramesTracker_NoFramesAddedToData() {
@@ -733,10 +756,10 @@ class SentrySpanTests: XCTestCase {
         
         sut.finish()
         
-        expect(sut.data["frames.total"]) == nil
-        expect(sut.data["frames.slow"]) == nil
-        expect(sut.data["frames.frozen"]) == nil
-        expect(sut.data["frames.delay"]) == nil
+        XCTAssertNil(sut.data["frames.total"])
+        XCTAssertNil(sut.data["frames.slow"])
+        XCTAssertNil(sut.data["frames.frozen"])
+        XCTAssertNil(sut.data["frames.delay"])
     }
     
     func givenFramesTracker() -> (TestDisplayLinkWrapper, SentryFramesTracker) {

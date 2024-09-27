@@ -3,7 +3,7 @@
 #import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
-#if SENTRY_HAS_UIKIT && !TARGET_OS_VISION
+#if SENTRY_TARGET_REPLAY_SUPPORTED
 
 @protocol SentryReplayBreadcrumbConverter;
 @protocol SentryViewScreenshotProvider;
@@ -11,9 +11,14 @@ NS_ASSUME_NONNULL_BEGIN
 @interface SentrySessionReplayIntegration : SentryBaseIntegration
 
 /**
+ * The last instance of the installed integration
+ */
+@property (class, nonatomic, readonly, nullable) SentrySessionReplayIntegration *installed;
+
+/**
  * Captures Replay. Used by the Hybrid SDKs.
  */
-- (void)captureReplay;
+- (BOOL)captureReplay;
 
 /**
  * Configure session replay with different breadcrumb converter
@@ -23,6 +28,10 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)configureReplayWith:(nullable id<SentryReplayBreadcrumbConverter>)breadcrumbConverter
          screenshotProvider:(nullable id<SentryViewScreenshotProvider>)screenshotProvider;
 
+- (void)pause;
+
+- (void)resume;
+
 @end
-#endif // SENTRY_HAS_UIKIT && !TARGET_OS_VISION
+#endif // SENTRY_TARGET_REPLAY_SUPPORTED
 NS_ASSUME_NONNULL_END

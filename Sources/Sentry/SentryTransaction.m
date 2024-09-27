@@ -9,13 +9,6 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface
-SentryTransaction ()
-
-@property (nonatomic, strong) NSArray<id<SentrySpan>> *spans;
-
-@end
-
 @implementation SentryTransaction
 
 - (instancetype)initWithTrace:(SentryTracer *)trace children:(NSArray<id<SentrySpan>> *)children
@@ -46,6 +39,12 @@ SentryTransaction ()
         [mutableContext addEntriesFromDictionary:serializedData[@"contexts"]];
     }
 
+#if SENTRY_TARGET_PROFILING_SUPPORTED
+    NSMutableDictionary *profileContextData = [NSMutableDictionary dictionary];
+    profileContextData[@"profiler_id"] = self.trace.profileSessionID;
+    mutableContext[@"profile"] = profileContextData;
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED
+
     // The metrics summary must be on the root level of the serialized transaction. For SentrySpans,
     // the metrics summary is on the span level. As the tracer inherits from SentrySpan the metrics
     // summary ends up in the serialized tracer dictionary. We grab it from there and move it to the
@@ -56,12 +55,6 @@ SentryTransaction ()
         serializedData[@"_metrics_summary"] = metricsSummary;
         [serializedTrace removeObjectForKey:@"_metrics_summary"];
     }
-#if SENTRY_TARGET_PROFILING_SUPPORTED
-    NSMutableDictionary *traceDataEntry =
-        [serializedTrace[@"data"] mutableCopy] ?: [NSMutableDictionary dictionary];
-    traceDataEntry[@"profiler_id"] = self.trace.profileSessionID;
-    serializedTrace[@"data"] = traceDataEntry;
-#endif // SENTRY_TARGET_PROFILING_SUPPORTED
     mutableContext[@"trace"] = serializedTrace;
 
     [serializedData setValue:mutableContext forKey:@"contexts"];

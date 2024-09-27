@@ -1,4 +1,5 @@
 #import "SentryCrashReportConverter.h"
+#import "SentryBreadcrumb+Private.h"
 #import "SentryBreadcrumb.h"
 #import "SentryCrashStackCursor.h"
 #import "SentryDateUtils.h"
@@ -16,8 +17,7 @@
 #import "SentryThread.h"
 #import "SentryUser.h"
 
-@interface
-SentryCrashReportConverter ()
+@interface SentryCrashReportConverter ()
 
 @property (nonatomic, strong) NSDictionary *report;
 @property (nonatomic, assign) NSInteger crashedThreadIndex;
@@ -132,7 +132,7 @@ SentryCrashReportConverter ()
             && appContext[@"app_build"]) {
             event.releaseName =
                 [NSString stringWithFormat:@"%@@%@+%@", appContext[@"app_identifier"],
-                          appContext[@"app_version"], appContext[@"app_build"]];
+                    appContext[@"app_version"], appContext[@"app_build"]];
         }
 
         if (nil == event.dist && appContext[@"app_build"]) {
@@ -171,6 +171,7 @@ SentryCrashReportConverter ()
                      category:storedCrumb[@"category"]];
             crumb.message = storedCrumb[@"message"];
             crumb.type = storedCrumb[@"type"];
+            crumb.origin = storedCrumb[@"origin"];
             crumb.timestamp = sentry_fromIso8601String(storedCrumb[@"timestamp"]);
             crumb.data = storedCrumb[@"data"];
             [breadcrumbs addObject:crumb];
@@ -369,16 +370,16 @@ SentryCrashReportConverter ()
     } else if ([exceptionType isEqualToString:@"mach"]) {
         exception = [[SentryException alloc]
             initWithValue:[NSString stringWithFormat:@"Exception %@, Code %@, Subcode %@",
-                                    self.exceptionContext[@"mach"][@"exception"],
-                                    self.exceptionContext[@"mach"][@"code"],
-                                    self.exceptionContext[@"mach"][@"subcode"]]
+                              self.exceptionContext[@"mach"][@"exception"],
+                              self.exceptionContext[@"mach"][@"code"],
+                              self.exceptionContext[@"mach"][@"subcode"]]
                      type:self.exceptionContext[@"mach"][@"exception_name"]];
     } else if ([exceptionType isEqualToString:@"signal"]) {
-        exception = [[SentryException alloc]
-            initWithValue:[NSString stringWithFormat:@"Signal %@, Code %@",
-                                    self.exceptionContext[@"signal"][@"signal"],
-                                    self.exceptionContext[@"signal"][@"code"]]
-                     type:self.exceptionContext[@"signal"][@"name"]];
+        exception =
+            [[SentryException alloc] initWithValue:[NSString stringWithFormat:@"Signal %@, Code %@",
+                                                       self.exceptionContext[@"signal"][@"signal"],
+                                                       self.exceptionContext[@"signal"][@"code"]]
+                                              type:self.exceptionContext[@"signal"][@"name"]];
     } else if ([exceptionType isEqualToString:@"user"]) {
         NSString *exceptionReason =
             [NSString stringWithFormat:@"%@", self.exceptionContext[@"reason"]];
@@ -451,9 +452,8 @@ SentryCrashReportConverter ()
         }
     }
     if (reasons.count > 0) {
-        exception.value =
-            [[[reasons array] sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)]
-                componentsJoinedByString:@" > "];
+        exception.value = [[[reasons array] sortedArrayUsingSelector:@selector
+            (localizedCaseInsensitiveCompare:)] componentsJoinedByString:@" > "];
     }
 }
 

@@ -4,8 +4,6 @@
 
 #    import "SentryClient+Private.h"
 #    import "SentryDateUtils.h"
-#    import "SentryDebugImageProvider.h"
-#    import "SentryDebugMeta.h"
 #    import "SentryDependencyContainer.h"
 #    import "SentryDevice.h"
 #    import "SentryEnvelope.h"
@@ -13,11 +11,10 @@
 #    import "SentryEnvelopeItemType.h"
 #    import "SentryEvent+Private.h"
 #    import "SentryFormatter.h"
-#    import "SentryHub.h"
 #    import "SentryInternalDefines.h"
 #    import "SentryLog.h"
+#    import "SentryMeta.h"
 #    import "SentryMetricProfiler.h"
-#    import "SentryOptions.h"
 #    import "SentryProfileTimeseries.h"
 #    import "SentryProfiledTracerConcurrency.h"
 #    import "SentryProfiler+Private.h"
@@ -30,7 +27,6 @@
 #    import "SentryScope+Private.h"
 #    import "SentrySerialization.h"
 #    import "SentrySwift.h"
-#    import "SentryThread.h"
 #    import "SentryTime.h"
 #    import "SentryTracer+Private.h"
 #    import "SentryTransaction.h"
@@ -259,6 +255,11 @@ sentry_serializedContinuousProfileChunk(SentryId *profileID, SentryId *chunkID,
     payload[@"environment"] = hub.scope.environmentString ?: hub.getClient.options.environment;
     payload[@"release"] = hub.getClient.options.releaseName;
     payload[@"platform"] = SentryPlatformName;
+
+    const auto clientInfo = [NSMutableDictionary dictionary];
+    clientInfo[@"name"] = SentryMeta.sdkName;
+    clientInfo[@"version"] = SentryMeta.versionString;
+    payload[@"client_sdk"] = clientInfo;
 
     // add the gathered metrics
     auto metrics = serializedMetrics;

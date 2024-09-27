@@ -1,10 +1,16 @@
-#import "SentryDefines.h"
-#import "SentrySerializable.h"
-#import "SentrySpanContext.h"
+#if __has_include(<Sentry/Sentry.h>)
+#    import <Sentry/SentryDefines.h>
+#    import <Sentry/SentrySerializable.h>
+#    import <Sentry/SentrySpanContext.h>
+#else
+#    import <SentryWithoutUIKit/SentryDefines.h>
+#    import <SentryWithoutUIKit/SentrySerializable.h>
+#    import <SentryWithoutUIKit/SentrySpanContext.h>
+#endif
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class SentrySpanId, SentryId, SentryTraceHeader, SentryMeasurementUnit;
+@class SentrySpanId, SentryId, SentryTraceHeader, SentryMeasurementUnit, SentryTraceContext;
 
 NS_SWIFT_NAME(Span)
 @protocol SentrySpan <SentrySerializable>
@@ -79,6 +85,11 @@ NS_SWIFT_NAME(Span)
  * Whether the span is finished.
  */
 @property (readonly) BOOL isFinished;
+
+/**
+ * Retrieves a trace context from this tracer.
+ */
+@property (nullable, nonatomic, readonly) SentryTraceContext *traceContext;
 
 /**
  * Starts a child span.
@@ -166,6 +177,12 @@ NS_SWIFT_NAME(Span)
  * @return SentryTraceHeader.
  */
 - (SentryTraceHeader *)toTraceHeader;
+
+/**
+ * Returns the baggage http header
+ * @return NSString.
+ */
+- (nullable NSString *)baggageHttpHeader;
 
 @end
 

@@ -1,4 +1,3 @@
-import Nimble
 @testable import Sentry
 import SentryTestUtils
 import XCTest
@@ -21,11 +20,11 @@ class SentryCrashInstallationReporterTests: XCTestCase {
         try givenStoredSentryCrashReport(resource: "Resources/crash-report-1")
 
         sut.sendAllReports { filteredReports, _, _ in
-            expect(filteredReports?.count) == 1
+            XCTAssertEqual(filteredReports?.count, 1)
         }
         
-        expect(self.testClient.captureCrashEventInvocations.count) == 1
-        expect(sentrycrash_getReportCount()) == 0
+        XCTAssertEqual(self.testClient.captureCrashEventInvocations.count, 1)
+        XCTAssertEqual(sentrycrash_getReportCount(), 0)
     }
     
     /**
@@ -37,16 +36,16 @@ class SentryCrashInstallationReporterTests: XCTestCase {
         try givenStoredSentryCrashReport(resource: "Resources/crash-report-legacy-storage-info")
 
         sut.sendAllReports { filteredReports, _, _ in
-            expect(filteredReports?.count) == 1
+            XCTAssertEqual(filteredReports?.count, 1)
         }
         
-        expect(self.testClient.captureCrashEventInvocations.count) == 1
-        expect(sentrycrash_getReportCount()) == 0
+        XCTAssertEqual(self.testClient.captureCrashEventInvocations.count, 1)
+        XCTAssertEqual(sentrycrash_getReportCount(), 0)
         
         let event = self.testClient.captureCrashEventInvocations.last?.event
-        expect(event?.context?["device"]?["free_storage"] as? Int) == 278_914_420_736
+        XCTAssertEqual(event?.context?["device"]?["free_storage"] as? Int, 278_914_420_736)
         // total_storage got converted to storage_size
-        expect(event?.context?["device"]?["storage_size"] as? Int) == 994_662_584_320
+        XCTAssertEqual(event?.context?["device"]?["storage_size"] as? Int, 994_662_584_320)
     }
     
     func testShouldCaptureCrashReportWithoutDeviceContext() throws {
@@ -55,15 +54,15 @@ class SentryCrashInstallationReporterTests: XCTestCase {
         try givenStoredSentryCrashReport(resource: "Resources/crash-report-without-device-context")
 
         sut.sendAllReports { filteredReports, _, _ in
-            expect(filteredReports?.count) == 1
+            XCTAssertEqual(filteredReports?.count, 1)
         }
         
-        expect(self.testClient.captureCrashEventInvocations.count) == 1
-        expect(sentrycrash_getReportCount()) == 0
+        XCTAssertEqual(self.testClient.captureCrashEventInvocations.count, 1)
+        XCTAssertEqual(sentrycrash_getReportCount(), 0)
         
         let event = self.testClient.captureCrashEventInvocations.last?.event
-        expect(event?.context?["device"]) == nil
-        expect(event?.context?["app"]?["app_name"] as? String) == "iOS-Swift"
+        XCTAssertNil(event?.context?["device"])
+        XCTAssertEqual(event?.context?["app"]?["app_name"] as? String, "iOS-Swift")
     }
     
     func testFaultyReportIsNotSentAndDeleted() throws {
@@ -72,11 +71,11 @@ class SentryCrashInstallationReporterTests: XCTestCase {
         try givenStoredSentryCrashReport(resource: "Resources/Crash-faulty-report")
 
         sut.sendAllReports { filteredReports, _, _ in
-            expect(filteredReports?.count) == 0
+            XCTAssertEqual(filteredReports?.count, 0)
         }
         
-        expect(self.testClient.captureCrashEventInvocations.count) == 0
-        expect(sentrycrash_getReportCount()) == 0
+        XCTAssertEqual(self.testClient.captureCrashEventInvocations.count, 0)
+        XCTAssertEqual(sentrycrash_getReportCount(), 0)
     }
     
     private func givenSutWithStartedSDK() {

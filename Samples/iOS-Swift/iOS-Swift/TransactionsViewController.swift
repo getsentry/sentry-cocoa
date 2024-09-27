@@ -3,11 +3,12 @@ import UIKit
 
 class TransactionsViewController: UIViewController {
 
-    @IBOutlet weak var anrFillingRunLoopButton: UIButton!
+    @IBOutlet weak var appHangFullyBlockingButton: UIButton!
     
     private let dispatchQueue = DispatchQueue(label: "ViewController", attributes: .concurrent)
     private var timer: Timer?
-
+    @IBOutlet weak var dsnView: UIView!
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         SentrySDK.reportFullyDisplayed()
@@ -16,6 +17,8 @@ class TransactionsViewController: UIViewController {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         periodicallyDoWork()
+        
+        addDSNDisplay(self, vcview: dsnView)
     }
     
     override func viewDidDisappear(_ animated: Bool) {
@@ -127,8 +130,8 @@ class TransactionsViewController: UIViewController {
         present(alert, animated: true)
     }
     
-    @IBAction func anrFillingRunLoop(_ sender: Any) {
-        triggerANRFillingRunLoop(button: self.anrFillingRunLoopButton)
+    @IBAction func appHangFullyBlocking(_ sender: Any) {
+        triggerFullyBlockingAppHang(button: self.appHangFullyBlockingButton)
     }
 
     @IBAction func captureTransaction(_ sender: UIButton) {

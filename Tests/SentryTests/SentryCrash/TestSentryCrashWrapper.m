@@ -17,6 +17,7 @@
     instance.uninstallAsyncHooksCalled = NO;
     instance.internalFreeMemorySize = 0;
     instance.internalAppMemorySize = 0;
+    instance.enrichScopeCalled = NO;
     return instance;
 }
 
@@ -85,6 +86,12 @@
 - (bytes)appMemorySize
 {
     return self.internalAppMemorySize;
+}
+
+- (void)enrichScope:(SentryScope *)scope
+{
+    self.enrichScopeCalled = YES;
+    [super enrichScope:scope];
 }
 
 @end

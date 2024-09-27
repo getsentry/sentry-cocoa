@@ -1,15 +1,187 @@
 # Changelog
 
-## 8.29.1
+## Unreleased
 
 ### Features
 
+- Added breadcrumb.origin private field (#4358)
+- Custom redact modifier for SwiftUI (#4362)
+
+### Improvements
+
+- Speed up HTTP tracking for multiple requests in parallel (#4366)
+- Slightly speed up SentryInAppLogic (#4370)
+
+## 8.37.0-beta.1
+
+### Features
+
+- Added `thermal_state` to device context (#4305)
+- Send envelopes that cannot be cached to disk (#4294)
+
+### Refactoring
+
+- Moved session replay API to `SentrySDK.replay` (#4326)
+- Changed default session replay quality to `medium` (#4326)
+
+### Fixes
+
+- Resumes replay when the app becomes active (#4303)
+- Session replay redact view with transformation (#4308)
+- Correct redact UIView with higher zPosition (#4309)
+- Don't redact clipped views (#4325)
+- Session replay for crash not created because of a race condition (#4314)
+- Double-quoted include, expected angle-bracketed instead (#4298)
+- Discontinue use of NSApplicationSupportDirectory in favor of NSCachesDirectory (#4335)
+- Safe guard `strncpy` usage (#4336)
+- Stop using `redactAllText` as an indicator tha redact is enabled (#4327)
+
+### Improvements
+
+- Avoid extra work when storing invalid envelopes (#4337)
+
+## 8.36.0
+
+### Features
+
+- Continuous mode profiling (see `SentrySDK.startProfiler` and `SentryOptions.profilesSampleRate`) (#4010)
+
+### Fixes
+
+- Proper redact SR during animation (#4289)
+
+## 8.35.1
+
+### Fixes
+
+- Crash when reading corrupted envelope (#4297)
+
+## 8.35.0
+
+### Features
+
+- Expose span baggage API (#4207)
+
+### Fixes
+
+- Fix `SIGABRT` when modifying scope user (#4274)
+- Crash during SDK initialization due to corrupted envelope (#4291)
+  - Reverts [#4219](https://github.com/getsentry/sentry-cocoa/pull/4219) as potential fix
+
+## 8.34.0
+
+### Features
+
+- Pause replay in session mode when offline (#4264)
+- Add replay quality option for Objective-C (#4267)
+
+### Fixes
+
+- Session replay not redacting buttons and other non UILabel texts (#4277)
+- Rarely reporting too long frame delays (#4278) by fixing a race condition in the frames tracking logic.
+- Crash deserializing empty envelope length>0 (#4281]
+- Guard dereferencing of stack frame pointer in SentryBacktrace ([#4268](https://github.com/getsentry/sentry-cocoa/pull/4268))
+
+## 8.33.0
+
+### Note: Due to a bug (#4280) introduced in this release, we recommend upgrading to [8.35.0](https://github.com/getsentry/sentry-cocoa/releases/tag/8.35.0) or newer.
+
+---
+
+This release fixes a bug (#4230) that we introduced with a refactoring (#4101) released in [8.30.1](https://github.com/getsentry/sentry-cocoa/releases/tag/8.30.1).
+This bug caused unhandled/crash events to have the unhandled property and mach info missing, which is required for release health to show events in the unhandled tab. It's essential to mention that this bug **doesn't impact** release health statistics, such as crash-free session or user rates.
+
+### Features
+
+- Support orientation change for session replay (#4194)
+- Replay for crashes (#4171)
+- Redact web view from replay (#4203)
+- Add beforeCaptureViewHierarchy callback (#4210)
+- Rename session replay `errorSampleRate` property to `onErrorSampleRate` (#4218)
+- Add options to redact or ignore view for Replay (#4228)
+
+### Fixes
+
+- Skip UI crumbs when target or sender is nil (#4211)
+- Guard FramesTracker start and stop (#4224)
+- Long-lasting TTID/TTFD spans (#4225). Avoid long TTID spans when the FrameTracker isn't running, which is the case when the app is in the background.
+- Missing mach info for crash reports (#4230)
+- Crash reports not generated on visionOS (#4229)
+- Don’t force cast to `NSComparisonPredicate` in TERNARY operator (#4232)
+- Fix accessing UI API on bg thread in enrichScope (#4245)
+- EXC_BAD_ACCESS in SentryMetricProfiler (#4242)
+- Missing '#include <sys/_types/_ucontext64.h>' (#4244)
+- Rare flush timeout when called in tight loop (#4257)
+
+### Improvements
+
+- Reduce memory usage of storing envelopes (#4219)
+- Skip enriching scope when nil (#4243)
+
+## 8.32.0
+
+### Features
+
+- Add `reportAccessibilityIdentifier` option (#4183)
+- Record dropped spans (#4172)
+
+### Fixes
+
+- Session replay crash when writing the replay (#4186)
+
+### Features
+
+- Collect only unique UIWindow references (#4159)
+
+### Deprecated
+
+- options.enableTracing was deprecated. Use options.tracesSampleRate or options.tracesSampler instead. (#4182)
+
+## 8.31.1
+
+### Fixes
+
+- Session replay video duration from seconds to milliseconds (#4163)
+
+## 8.31.0
+
+### Features
+
+- Include the screen names in the session replay (#4126)
+
+### Fixes
+
+- Properly handle invalid value for `NSUnderlyingErrorKey` (#4144)
+- Session replay in buffer mode not working (#4160)
+
+## 8.30.1
+
+### Fixes
+
+- UIKitless configurations now produce a module with a different name (#4140)
+- Sentry Replay Serialized Breadcrumbs include level name ([#4141](https://github.com/getsentry/sentry-cocoa/pull/4141))
+
+## 8.30.0
+
+### Features
+
+- Restart replay session with mobile session (#4085)
 - Add pause and resume AppHangTracking API (#4077). You can now pause and resume app hang tracking with `SentrySDK.pauseAppHangTracking()` and `SentrySDK.resumeAppHangTracking()`.
+- Add `beforeSendSpan` callback (#4095)
+
+### Fixes
+
+- `storeEnvelope` ends session for unhandled errors (#4073)
+- Deprecate `SentryUser.segment`(#4092). Please remove usages of this property. We will remove it in the next major.
+- Double-quoted include in framework header (#4115)
+- Sentry Replay Network details should be available without Tracing (#4091)
+
+## 8.29.1
 
 ### Fixes
 
 - Fix potential deadlock in app hang detection (#4063)
-- Swizzling of view controllers `loadView` that don`t implement `loadView` (#4071)
+- Swizzling of view controllers `loadView` that don't implement `loadView` (#4071)
 
 ## 8.29.0
 

@@ -15,8 +15,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface
-SentryPerformanceTracker () <SentryTracerDelegate>
+@interface SentryPerformanceTracker () <SentryTracerDelegate>
 
 @property (nonatomic, strong) NSMutableDictionary<SentrySpanId *, id<SentrySpan>> *spans;
 @property (nonatomic, strong) NSMutableArray<id<SentrySpan>> *activeSpanStack;
@@ -222,7 +221,7 @@ SentryPerformanceTracker () <SentryTracerDelegate>
     }
 }
 
-- (nullable id<SentrySpan>)activeSpanForTracer:(SentryTracer *)tracer
+- (nullable id<SentrySpan>)getActiveSpan
 {
     @synchronized(self.activeSpanStack) {
         return [self.activeSpanStack lastObject];

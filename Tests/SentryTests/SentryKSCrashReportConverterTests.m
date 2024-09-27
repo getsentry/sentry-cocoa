@@ -75,11 +75,14 @@
         stringWithFormat:@"%@", [exception.mechanism.meta.signal valueForKeyPath:@"number"]];
     NSString *exc = [NSString
         stringWithFormat:@"%@", [exception.mechanism.meta.machException valueForKeyPath:@"name"]];
+
     XCTAssertEqualObjects(code, @"0");
     XCTAssertEqualObjects(number, @"10");
     XCTAssertEqualObjects(exc, @"EXC_BAD_ACCESS");
     XCTAssertEqualObjects(
         [exception.mechanism.data valueForKeyPath:@"relevant_address"], @"0x0000000102468000");
+    XCTAssertNotNil(exception.mechanism.handled);
+    XCTAssertFalse(exception.mechanism.handled.boolValue);
 
     XCTAssertTrue([NSJSONSerialization isValidJSONObject:[event serialize]]);
     XCTAssertNotNil([[event serialize] valueForKeyPath:@"exception.values"]);
@@ -443,7 +446,7 @@
 
     NSLog(@"%@",
         [NSString stringWithFormat:@"%@",
-                  [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding]]);
+            [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding]]);
 }
 
 - (void)testBreadcrumb:(NSString *)reportPath

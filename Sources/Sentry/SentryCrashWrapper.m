@@ -5,6 +5,7 @@
 #import "SentryCrashMonitor_AppState.h"
 #import "SentryCrashMonitor_System.h"
 #import "SentryScope.h"
+#import "SentryUIDeviceWrapper.h"
 #import <Foundation/Foundation.h>
 #import <SentryCrashCachedData.h>
 #import <SentryCrashDebug.h>
@@ -126,11 +127,12 @@ NS_ASSUME_NONNULL_BEGIN
     // For MacCatalyst the UIDevice returns the current version of MacCatalyst and not the
     // macOSVersion. Therefore we have to use NSProcessInfo.
 #if SENTRY_HAS_UIKIT && !TARGET_OS_MACCATALYST
-    [osData setValue:[UIDevice currentDevice].systemVersion forKey:@"version"];
+    [osData setValue:[SentryDependencyContainer.sharedInstance.uiDeviceWrapper getSystemVersion]
+              forKey:@"version"];
 #else
     NSOperatingSystemVersion version = [NSProcessInfo processInfo].operatingSystemVersion;
     NSString *systemVersion = [NSString stringWithFormat:@"%d.%d.%d", (int)version.majorVersion,
-                                        (int)version.minorVersion, (int)version.patchVersion];
+        (int)version.minorVersion, (int)version.patchVersion];
     [osData setValue:systemVersion forKey:@"version"];
 
 #endif
@@ -181,7 +183,7 @@ NS_ASSUME_NONNULL_BEGIN
     [deviceData setValue:locale forKey:LOCALE_KEY];
 
 // The UIWindowScene is unavailable on visionOS
-#if SENTRY_HAS_UIKIT && !TARGET_OS_VISION
+#if SENTRY_TARGET_REPLAY_SUPPORTED
 
     NSArray<UIWindow *> *appWindows = SentryDependencyContainer.sharedInstance.application.windows;
     if ([appWindows count] > 0) {

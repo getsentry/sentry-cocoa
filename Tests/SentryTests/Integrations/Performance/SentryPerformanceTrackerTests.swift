@@ -39,11 +39,11 @@ class SentryPerformanceTrackerTests: XCTestCase {
         clearTestState()
     }
    
-    func testStartSpan_CheckScopeSpan() {
+    func testStartSpan_CheckScopeSpan() throws {
         let sut = fixture.getSut()
         let spanId = startSpan(tracker: sut)
         
-        let transaction = sut.getSpan(spanId) as! SentryTracer
+        let transaction = try XCTUnwrap(sut.getSpan(spanId) as? SentryTracer)
         
         let scopeSpan = fixture.scope.span
         
@@ -282,7 +282,7 @@ class SentryPerformanceTrackerTests: XCTestCase {
         
     func testStartSpanAsync() {
         // To not spam the test logs
-        SentryLog.configure(true, diagnosticLevel: .error)
+        SentryLog.configureLog(true, diagnosticLevel: .error)
         
         let sut = fixture.getSut()
         let spanId = startSpan(tracker: sut)

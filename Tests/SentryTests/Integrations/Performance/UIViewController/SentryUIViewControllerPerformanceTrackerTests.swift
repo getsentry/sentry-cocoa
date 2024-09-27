@@ -1,6 +1,5 @@
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
 
-import Nimble
 import ObjectiveC
 @testable import Sentry
 import SentryTestUtils
@@ -41,10 +40,20 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
         let tracker = SentryPerformanceTracker.shared
         let dateProvider = TestCurrentDateProvider()
         
+        var displayLinkWrapper = TestDisplayLinkWrapper()
+        var framesTracker: SentryFramesTracker
+        
         var viewControllerName: String!
 
         var inAppLogic: SentryInAppLogic {
             return SentryInAppLogic(inAppIncludes: options.inAppIncludes, inAppExcludes: [])
+        }
+        
+        init() {
+            framesTracker = SentryFramesTracker(displayLinkWrapper: displayLinkWrapper, dateProvider: dateProvider, dispatchQueueWrapper: TestSentryDispatchQueueWrapper(),
+                                                notificationCenter: TestNSNotificationCenterWrapper(), keepDelayedFramesDuration: 0)
+            SentryDependencyContainer.sharedInstance().framesTracker = framesTracker
+            framesTracker.start()
         }
                 
         func getSut() -> SentryUIViewControllerPerformanceTracker {
@@ -259,7 +268,7 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
         wait(for: [callbackExpectation], timeout: 0)
     }
     
-    func testReportFullyDisplayed() {
+    func testReportFullyDisplayed() throws {
         let sut = fixture.getSut()
         sut.enableWaitForFullDisplay = true
         let viewController = fixture.viewController
@@ -278,9 +287,30 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
         reportFrame()
         let expectedTTFDTimestamp = fixture.dateProvider.date()
 
-        let ttfdSpan = tracer?.children[1]
-        expect(ttfdSpan?.isFinished) == true
-        expect(ttfdSpan?.timestamp) == expectedTTFDTimestamp
+        let ttfdSpan = try XCTUnwrap(tracer?.children.element(at: 1))
+        XCTAssertEqual(ttfdSpan.isFinished, true)
+        XCTAssertEqual(ttfdSpan.timestamp, expectedTTFDTimestamp)
+    }
+    
+    func testFramesTrackerNotRunning_NoTTDTrackerAndSpans() {
+        fixture.framesTracker.stop()
+        let sut = fixture.getSut()
+        let tracker = fixture.tracker
+        let viewController = fixture.viewController
+        var tracer: SentryTracer?
+        
+        sut.viewControllerLoadView(viewController) {
+            let spans = self.getStack(tracker)
+            tracer = spans.first as? SentryTracer
+        }
+
+        let ttdTracker = Dynamic(sut).currentTTDTracker.asObject as? SentryTimeToDisplayTracker
+        XCTAssertNil(ttdTracker)
+        
+        sut.reportFullyDisplayed()
+        
+        XCTAssertEqual(tracer?.children.filter { $0.operation.contains("initial_display") }.count, 0, "Tracer must not contain a TTID span")
+        XCTAssertEqual(tracer?.children.filter { $0.operation.contains("full_display") }.count, 0, "Tracer must not contain a TTFD span")
     }
 
     func testSecondViewController() {
@@ -532,8 +562,8 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
             tracer = self.getStack(tracker).first as? SentryTracer
         }
         XCTAssertEqual(tracer?.children.count, 3)
-        XCTAssertEqual(tracer?.children[1].operation, "ui.load.full_display")
-        XCTAssertEqual(tracer?.children[1].origin, "manual.ui.time_to_display")
+        XCTAssertEqual(try XCTUnwrap(tracer?.children.element(at: 1)).operation, "ui.load.full_display")
+        XCTAssertEqual(try XCTUnwrap(tracer?.children.element(at: 1)).origin, "manual.ui.time_to_display")
     }
 
     func test_dontWaitForFullDisplay() {
@@ -607,7 +637,7 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
         let timestamp = try XCTUnwrap(span.timestamp)
         let startTimestamp = try XCTUnwrap(span.startTimestamp)
         let duration = timestamp.timeIntervalSince(startTimestamp)
-        expect(duration).to(beCloseTo(expectedDuration, within: 0.001))
+        XCTAssertEqual(duration, expectedDuration, accuracy: 0.001)
     }
     
     private func assertTrackerIsEmpty(_ tracker: SentryPerformanceTracker) {

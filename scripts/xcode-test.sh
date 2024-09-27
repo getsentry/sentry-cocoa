@@ -14,7 +14,7 @@ REF_NAME="${3-HEAD}"
 IS_LOCAL_BUILD="${4:-ci}"
 COMMAND="${5:-test}"
 DEVICE=${6:-iPhone 14}
-CONFIGURATION_OVERRIDE="${7}"
+CONFIGURATION_OVERRIDE="${7:-}"
 DERIVED_DATA_PATH="${8:-}"
 
 case $PLATFORM in
@@ -41,8 +41,8 @@ case $PLATFORM in
     ;;
 esac
 
-if [ -n $CONFIGURATION_OVERRIDE ]; then
-    CONFIGURATION=$CONFIGURATION_OVERRIDE
+if [ -n "$CONFIGURATION_OVERRIDE" ]; then
+    CONFIGURATION="$CONFIGURATION_OVERRIDE"
 else
     case $REF_NAME in
     "main")
@@ -91,9 +91,9 @@ if [ $RUN_BUILD == true ]; then
     env NSUnbufferedIO=YES xcodebuild \
         -workspace Sentry.xcworkspace \
         -scheme Sentry \
-        -configuration $CONFIGURATION \
+        -configuration "$CONFIGURATION" \
         -destination "$DESTINATION" \
-        -derivedDataPath $DERIVED_DATA_PATH \
+        -derivedDataPath "$DERIVED_DATA_PATH" \
         -quiet \
         build
 fi
@@ -102,7 +102,7 @@ if [ $RUN_BUILD_FOR_TESTING == true ]; then
     env NSUnbufferedIO=YES xcodebuild \
         -workspace Sentry.xcworkspace \
         -scheme Sentry \
-        -configuration $CONFIGURATION \
+        -configuration "$CONFIGURATION" \
         -destination "$DESTINATION" -quiet \
         build-for-testing
 fi
@@ -111,11 +111,11 @@ if [ $RUN_TEST_WITHOUT_BUILDING == true ]; then
     env NSUnbufferedIO=YES xcodebuild \
         -workspace Sentry.xcworkspace \
         -scheme Sentry \
-        -configuration $CONFIGURATION \
+        -configuration "$CONFIGURATION" \
         -destination "$DESTINATION" \
         test-without-building |
         tee raw-test-output.log |
         $RUBY_ENV_ARGS xcpretty -t &&
-        slather coverage --configuration $CONFIGURATION &&
-        exit ${PIPESTATUS[0]}
+        slather coverage --configuration "$CONFIGURATION" &&
+        exit "${PIPESTATUS[0]}"
 fi

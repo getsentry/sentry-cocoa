@@ -102,11 +102,11 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         assertContext(context: context)
     }
     
-    func testEndSessionAsCrashed_WithCurrentSession() {
+    func testEndSessionAsCrashed_WithCurrentSession() throws {
         let expectedCrashedSession = givenCrashedSession()
         SentrySDK.setCurrentHub(fixture.hub)
         
-        advanceTime(bySeconds: 10)
+        try advanceTime(bySeconds: 10)
         
         let sut = fixture.getSut()
         sut.install(with: Options())
@@ -115,14 +115,14 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
     }
     
     #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
-    func testEndSessionAsCrashed_WhenOOM_WithCurrentSession() {
+    func testEndSessionAsCrashed_WhenOOM_WithCurrentSession() throws {
         givenOOMAppState()
         SentrySDK.startInvocations = 1
         
         let expectedCrashedSession = givenCrashedSession()
         
         SentrySDK.setCurrentHub(fixture.hub)
-        advanceTime(bySeconds: 10)
+        try advanceTime(bySeconds: 10)
         
         let sut = fixture.sutWithoutCrash
         sut.install(with: fixture.options)
@@ -296,6 +296,9 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
     }
     
     private func givenSutWithGlobalHubAndCrashWrapper() -> (SentryCrashIntegration, SentryHub) {
+#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+        SentryDependencyContainer.sharedInstance().uiDeviceWrapper.start()
+#endif
         let sut = fixture.getSut(crashWrapper: SentryCrashWrapper.sharedInstance())
         let hub = fixture.hub
         SentrySDK.setCurrentHub(hub)
@@ -371,7 +374,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         XCTAssertEqual(locale, device["locale"] as? String)
     }
     
-    private func advanceTime(bySeconds: TimeInterval) {
-        (SentryDependencyContainer.sharedInstance().dateProvider as! TestCurrentDateProvider).setDate(date: SentryDependencyContainer.sharedInstance().dateProvider.date().addingTimeInterval(bySeconds))
+    private func advanceTime(bySeconds: TimeInterval) throws {
+        try XCTUnwrap(SentryDependencyContainer.sharedInstance().dateProvider as? TestCurrentDateProvider).setDate(date: SentryDependencyContainer.sharedInstance().dateProvider.date().addingTimeInterval(bySeconds))
     }
 }

@@ -13,11 +13,11 @@
 @class SentryReplayEvent;
 @class SentryReplayRecording;
 @protocol SentryIntegrationProtocol;
+@protocol SentrySessionListener;
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface
-SentryHub ()
+@interface SentryHub ()
 
 @property (nullable, nonatomic, strong) SentrySession *session;
 
@@ -60,8 +60,11 @@ SentryHub ()
                   withScope:(SentryScope *)scope
     additionalEnvelopeItems:(NSArray<SentryEnvelopeItem *> *)additionalEnvelopeItems;
 
+- (void)storeEnvelope:(SentryEnvelope *)envelope;
 - (void)captureEnvelope:(SentryEnvelope *)envelope;
 
+- (void)registerSessionListener:(id<SentrySessionListener>)listener;
+- (void)unregisterSessionListener:(id<SentrySessionListener>)listener;
 - (nullable id<SentryIntegrationProtocol>)getInstalledIntegration:(Class)integrationClass;
 
 @end

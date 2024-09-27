@@ -1,4 +1,5 @@
 import Foundation
+@testable import Sentry
 import XCTest
 
 class TestLogOutput: SentryLogOutput {

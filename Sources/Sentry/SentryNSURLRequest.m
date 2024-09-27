@@ -95,6 +95,8 @@ NSTimeInterval const SentryRequestTimeout = 15;
             forHTTPHeaderField:@"User-Agent"];
         [self setValue:@"gzip" forHTTPHeaderField:@"Content-Encoding"];
         self.HTTPBody = sentry_gzippedWithCompressionLevel(data, -1, error);
+
+        SENTRY_LOG_DEBUG(@"Constructed request: %@", self);
     }
 
     return self;
@@ -111,8 +113,7 @@ newAuthHeader(NSURL *url)
 {
     NSMutableString *string = [NSMutableString stringWithString:@"Sentry "];
     [string appendFormat:@"%@,", newHeaderPart(@"sentry_version", SentryServerVersionString)];
-    [string
-        appendFormat:@"%@,",
+    [string appendFormat:@"%@,",
         newHeaderPart(@"sentry_client",
             [NSString stringWithFormat:@"%@/%@", SentryMeta.sdkName, SentryMeta.versionString])];
     [string appendFormat:@"%@", newHeaderPart(@"sentry_key", url.user)];

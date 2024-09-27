@@ -24,8 +24,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface
-SentryANRTrackingIntegration ()
+@interface SentryANRTrackingIntegration ()
 
 @property (nonatomic, strong) SentryANRTracker *tracker;
 @property (nonatomic, strong) SentryOptions *options;
@@ -76,7 +75,7 @@ SentryANRTrackingIntegration ()
     [self uninstall];
 }
 
-- (void)anrDetected
+- (void)anrDetectedWithType:(enum SentryANRType)type
 {
     if (self.reportAppHangs == NO) {
         SENTRY_LOG_DEBUG(@"AppHangTracking paused. Ignoring reported app hang.")
@@ -102,7 +101,7 @@ SentryANRTrackingIntegration ()
     }
 
     NSString *message = [NSString stringWithFormat:@"App hanging for at least %li ms.",
-                                  (long)(self.options.appHangTimeoutInterval * 1000)];
+        (long)(self.options.appHangTimeoutInterval * 1000)];
     SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelError];
     SentryException *sentryException =
         [[SentryException alloc] initWithValue:message type:SentryANRExceptionType];

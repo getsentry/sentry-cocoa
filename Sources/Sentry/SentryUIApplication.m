@@ -28,8 +28,9 @@
         // We store the application state when the app is initialized
         // and we keep track of its changes by the notifications
         // this way we avoid calling sharedApplication in a background thread
-        [SentryDependencyContainer.sharedInstance.dispatchQueueWrapper
-            dispatchOnMainQueue:^{ self->appState = self.sharedApplication.applicationState; }];
+        [SentryDependencyContainer.sharedInstance.dispatchQueueWrapper dispatchAsyncOnMainQueue:^{
+            self->appState = self.sharedApplication.applicationState;
+        }];
     }
     return self;
 }
@@ -68,7 +69,7 @@
     [SentryDependencyContainer.sharedInstance.dispatchQueueWrapper
         dispatchSyncOnMainQueue:^{
             UIApplication *app = [self sharedApplication];
-            NSMutableArray *result = [NSMutableArray array];
+            NSMutableSet *result = [NSMutableSet set];
 
             if (@available(iOS 13.0, tvOS 13.0, *)) {
                 NSArray<UIScene *> *scenes = [self getApplicationConnectedScenes:app];
@@ -90,7 +91,7 @@
                 [result addObject:appDelegate.window];
             }
 
-            windows = result;
+            windows = [result allObjects];
         }
                         timeout:0.01];
     return windows ?: @[];

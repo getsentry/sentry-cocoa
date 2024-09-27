@@ -12,7 +12,7 @@ set -euo pipefail
 echo "### Integration test - Alamofire ###"
 
 current_dir=$(pwd)
-scripts_path=$(dirname $(readlink -f "$0"))
+scripts_path=$(dirname "$(readlink -f "$0")")
 
 trap 'cd "$current_dir"' ERR
 

@@ -23,10 +23,10 @@ static const NSTimeInterval SENTRY_AUTO_TRANSACTION_MAX_DURATION = 500.0;
 @protocol SentryTracerDelegate
 
 /**
- * Return the active span of given tracer.
+ * Return the active span.
  * This function is used to determine which span will be used to create a new child.
  */
-- (nullable id<SentrySpan>)activeSpanForTracer:(SentryTracer *)tracer;
+- (nullable id<SentrySpan>)getActiveSpan;
 
 /**
  * Report that the tracer has finished.
@@ -42,11 +42,6 @@ static const NSTimeInterval SENTRY_AUTO_TRANSACTION_MAX_DURATION = 500.0;
 @property (nullable, nonatomic, copy) void (^finishCallback)(SentryTracer *);
 
 @property (nullable, nonatomic, copy) BOOL (^shouldIgnoreWaitForChildrenCallback)(id<SentrySpan>);
-
-/**
- * Retrieves a trace context from this tracer.
- */
-@property (nonatomic, readonly) SentryTraceContext *traceContext;
 
 /**
  * All the spans that where created with this tracer but rootSpan.
