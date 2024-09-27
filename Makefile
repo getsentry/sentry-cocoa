@@ -1,5 +1,5 @@
 .PHONY: init
-init: setup-git
+init:
 	which brew || /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 	brew bundle
 	rbenv install --skip-existing
@@ -7,23 +7,9 @@ init: setup-git
 	rbenv exec bundle install
 	pre-commit install
 
-BREW_CLANG_FORMAT_VERSION=$(jq '.entries.brew."clang-format".version' Brewfile.lock.json | sed s/'"'//g)
-BREW_SWIFTLINT_VERSION=$(jq '.entries.brew.swiftlint.version' Brewfile.lock.json | sed s/'"'//g)
-LOCAL_CLANG_FORMAT_VERSION=$(clang-format --version | awk '{print $$3}')
-LOCAL_SWIFTLINT_VERSION=$(swiftlint version)
 .PHONY: check-versions
 check-versions:
-	@if [ "$(LOCAL_CLANG_FORMAT_VERSION)" != "$(BREW_CLANG_FORMAT_VERSION)" ]; then \
-		echo "clang-format version mismatch!"; \
-		echo "Expected: $(BREW_CLANG_FORMAT_VERSION), but found: $(LOCAL_CLANG_FORMAT_VERSION)"; \
-		exit 1; \
-	fi
-	
-	@if [ "$(LOCAL_SWIFTLINT_VERSION)" != "$(BREW_SWIFTLINT_VERSION)" ]; then \
-		echo "swiftlint version mismatch!"; \
-		echo "Expected: $(BREW_SWIFTLINT_VERSION), but found: $(LOCAL_SWIFTLINT_VERSION)"; \
-		exit 1; \
-	fi
+	./scripts/check-tooling-versions.sh
 
 lint:
 	@echo "--> Running Swiftlint and Clang-Format"
