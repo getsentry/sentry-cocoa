@@ -5,6 +5,12 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+@interface SentryInAppLogic ()
+
+@property (nonnull, readonly) NSArray<NSString *> *inAppExcludes;
+
+@end
+
 @implementation SentryInAppLogic
 
 - (instancetype)initWithInAppIncludes:(NSArray<NSString *> *)inAppIncludes
