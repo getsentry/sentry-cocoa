@@ -6,6 +6,10 @@
 
 - Speed up HTTP tracking for multiple requests in parallel (#4366)
 
+### Fixes
+
+- Fix the versioning to support app release with Beta versions (#4368)
+
 ## 8.37.0-beta.1
 
 ### Features
