@@ -56,7 +56,7 @@ namespace profiling {
     private:
         mach_timespec_t delaySpec_;
         std::function<void(const Backtrace &)> callback_;
-        std::shared_ptr<ThreadMetadataCache> cache_;
+        std::unique_ptr<ThreadMetadataCache> cache_;
         bool isInitialized_;
         std::mutex isSamplingLock_;
         bool isSampling_;
