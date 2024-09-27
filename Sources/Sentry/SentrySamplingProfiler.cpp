@@ -139,8 +139,8 @@ namespace profiling {
             SENTRY_ASYNC_SAFE_LOG_ERRNO_RETURN(pthread_attr_setschedparam(&attr, &param));
         }
 
-        const auto params = new SamplingThreadParams { port_, clock_, delaySpec_, cache_.get(), callback_,
-            std::ref(numSamples_), std::move(onThreadStart) };
+        const auto params = new SamplingThreadParams { port_, clock_, delaySpec_, cache_.get(),
+            callback_, std::ref(numSamples_), std::move(onThreadStart) };
         if (SENTRY_ASYNC_SAFE_LOG_ERRNO_RETURN(
                 pthread_create(&thread_, &attr, samplingThreadMain, params))
             != 0) {
