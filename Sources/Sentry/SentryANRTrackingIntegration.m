@@ -29,6 +29,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, strong) id<SentryANRTracker> tracker;
 @property (nonatomic, strong) SentryOptions *options;
 @property (atomic, assign) BOOL reportAppHangs;
+@property (atomic, assign) BOOL enableReportNonFullyBlockingAppHangs;
 
 @end
 
@@ -40,9 +41,15 @@ NS_ASSUME_NONNULL_BEGIN
         return NO;
     }
 
+#if SENTRY_HAS_UIKIT
     self.tracker =
-        [SentryDependencyContainer.sharedInstance getANRTrackerV1:options.appHangTimeoutInterval];
+        [SentryDependencyContainer.sharedInstance getANRTracker:options.appHangTimeoutInterval
+                                                    isV2Enabled:options.enableAppHangTrackingV2];
+#else
+    self.tracker =
+        [SentryDependencyContainer.sharedInstance getANRTracker:options.appHangTimeoutInterval];
 
+#endif // SENTRY_HAS_UIKIT
     [self.tracker addListener:self];
     self.options = options;
     self.reportAppHangs = YES;
@@ -82,6 +89,12 @@ NS_ASSUME_NONNULL_BEGIN
         return;
     }
 
+    if (type == SentryANRTypeNonFullyBlocking
+        && !self.options.enableReportNonFullyBlockingAppHangs) {
+        SENTRY_LOG_DEBUG(@"Ignoring non fully blocking app hang.")
+        return;
+    }
+
 #if SENTRY_HAS_UIKIT
     // If the app is not active, the main thread may be blocked or too busy.
     // Since there is no UI for the user to interact, there is no need to report app hang.
@@ -103,8 +116,10 @@ NS_ASSUME_NONNULL_BEGIN
     NSString *message = [NSString stringWithFormat:@"App hanging for at least %li ms.",
         (long)(self.options.appHangTimeoutInterval * 1000)];
     SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelError];
-    SentryException *sentryException =
-        [[SentryException alloc] initWithValue:message type:SentryANRExceptionType];
+
+    NSString *exceptionType = [SentryAppHangTypeMapper getExceptionTypeWithAnrType:type];
+    SentryException *sentryException = [[SentryException alloc] initWithValue:message
+                                                                         type:exceptionType];
 
     sentryException.mechanism = [[SentryMechanism alloc] initWithType:@"AppHang"];
     sentryException.stacktrace = [threads[0] stacktrace];

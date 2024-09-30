@@ -6,10 +6,3 @@ protocol SentryANRTrackerDelegate {
     func anrDetected(type: SentryANRType)
     func anrStopped()
 }
-
-@objc
-enum SentryANRType: Int {
-    case fullyBlocking
-    case nonFullyBlocking
-    case unknown
-}
