@@ -5,10 +5,13 @@
 ### Features
 
 - Add mergeable libraries support to dynamic libraries (#4367) This is not supported for watchOS targets.
+- Added breadcrumb.origin private field (#4358)
+- Custom redact modifier for SwiftUI (#4362)
 
 ### Improvements
 
 - Speed up HTTP tracking for multiple requests in parallel (#4366)
+- Slightly speed up SentryInAppLogic (#4370)
 
 ## 8.37.0-beta.1
 
@@ -26,7 +29,7 @@
 
 - Resumes replay when the app becomes active (#4303)
 - Session replay redact view with transformation (#4308)
-- Correct redact UIView with higher zPosition (#4309) 
+- Correct redact UIView with higher zPosition (#4309)
 - Don't redact clipped views (#4325)
 - Session replay for crash not created because of a race condition (#4314)
 - Double-quoted include, expected angle-bracketed instead (#4298)

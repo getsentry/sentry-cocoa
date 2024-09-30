@@ -1,3 +1,4 @@
+#if canImport(SwiftUI)
 import Foundation
 #if SENTRY_NO_UIKIT
 import SentryWithoutUIKit
@@ -104,3 +105,4 @@ public extension View {
         }
     }
 }
+#endif

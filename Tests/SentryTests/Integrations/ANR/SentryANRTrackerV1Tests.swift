@@ -3,7 +3,7 @@ import SentryTestUtils
 import XCTest
 
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
-class SentryANRTrackerTests: XCTestCase, SentryANRTrackerDelegate {
+class SentryANRTrackerV1Tests: XCTestCase, SentryANRTrackerDelegate {
     
     private var sut: SentryANRTracker!
     private var fixture: Fixture!
@@ -33,7 +33,7 @@ class SentryANRTrackerTests: XCTestCase, SentryANRTrackerDelegate {
         
         fixture = Fixture()
         
-        sut = SentryANRTracker(
+        sut = SentryANRTrackerV1(
             timeoutInterval: fixture.timeoutInterval,
             crashWrapper: fixture.crashWrapper,
             dispatchQueueWrapper: fixture.dispatchQueue,
@@ -50,7 +50,7 @@ class SentryANRTrackerTests: XCTestCase, SentryANRTrackerDelegate {
     }
     
     func start() {
-        sut.addListener(self)
+        sut.add(listener: self)
     }
     
     func testContinuousANR_OneReported() {
@@ -70,7 +70,7 @@ class SentryANRTrackerTests: XCTestCase, SentryANRTrackerDelegate {
         }
         
         let secondListener = SentryANRTrackerTestDelegate()
-        sut.addListener(secondListener)
+        sut.add(listener: secondListener)
         
         start()
         
@@ -134,7 +134,7 @@ class SentryANRTrackerTests: XCTestCase, SentryANRTrackerDelegate {
         let mainBlockExpectation = expectation(description: "Main Block")
        
         fixture.dispatchQueue.blockBeforeMainBlock = {
-            self.sut.removeListener(self)
+            self.sut.remove(listener: self)
             mainBlockExpectation.fulfill()
             return true
         }
@@ -160,7 +160,7 @@ class SentryANRTrackerTests: XCTestCase, SentryANRTrackerDelegate {
             return true
         }
         
-        sut.addListener(secondListener)
+        sut.add(listener: secondListener)
         start()
         wait(for: [anrDetectedExpectation, anrStoppedExpectation, mainBlockExpectation, secondListener.anrStoppedExpectation, secondListener.anrDetectedExpectation], timeout: waitTimeout)
 
@@ -174,13 +174,13 @@ class SentryANRTrackerTests: XCTestCase, SentryANRTrackerDelegate {
         let addListenersCount = 10
         func addListeners() {
             for _ in 0..<addListenersCount {
-                self.sut.addListener(SentryANRTrackerTestDelegate())
+                self.sut.add(listener: SentryANRTrackerTestDelegate())
             }
         }
         addListeners()
         
-        sut.addListener(self)
-        sut.removeListener(self)
+        sut.add(listener: self)
+        sut.remove(listener: self)
         
         let listeners = Dynamic(sut).listeners.asObject as? NSHashTable<NSObject>
         
@@ -194,7 +194,7 @@ class SentryANRTrackerTests: XCTestCase, SentryANRTrackerDelegate {
         
         let invocations = 10
         for _ in 0..<invocations {
-            sut.addListener(self)
+            sut.add(listener: self)
             sut.clear()
         }
         
