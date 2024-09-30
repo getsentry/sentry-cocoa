@@ -30,7 +30,7 @@ jobs:
     runs-on: macos-13
     steps:
       - uses: actions/checkout@v4
-      - run: ./scripts/ci-select-xcode.sh
+      - run: ./scripts/ci-select-xcode.sh 15.2
       - uses: ruby/setup-ruby@v1
         with:
           bundler-cache: true
@@ -106,7 +106,7 @@ jobs:
     steps:
       - name: Git checkout
         uses: actions/checkout@v4
-      - run: ./scripts/ci-select-xcode.sh
+      - run: ./scripts/ci-select-xcode.sh 15.2
       - uses: ruby/setup-ruby@v1
         with:
           bundler-cache: true
