@@ -15,7 +15,6 @@ generate_xcframework() {
     local configuration_suffix="${4-}"
     local createxcframework="xcodebuild -create-xcframework "
     local GCC_GENERATE_DEBUGGING_SYMBOLS="YES"
-    local OTHER_LDFLAGS="-Wl,-make_mergeable" # Default value with -make_mergeable flag
 
     local resolved_configuration="Release$configuration_suffix"
     local resolved_product_name="$scheme$configuration_suffix"
@@ -31,15 +30,6 @@ generate_xcframework() {
     for sdk in "${sdks[@]}"; do
         if grep -q "${sdk}" <<< "$ALL_SDKS"; then
 
-           
-            if [[ "$sdk" == "watchos" || "$sdk" == "watchsimulator" ]]; then
-                ## watchos and watchsimulator dont support make_mergeable: ld: unknown option: -make_mergeable
-                OTHER_LDFLAGS=""
-                ## watchos and watchsimulator cant even build if the MERGED_BINARY_TYPE key is present, even if set to none.
-                ## So we need to comment it out...
-                sed -i '' 's/\( *\)MERGEABLE_LIBRARY = YES;/\1\/\/MERGEABLE_LIBRARY = YES;/' "Sentry.xcodeproj/project.pbxproj"
-            fi
-            
             xcodebuild archive \
                 -project Sentry.xcodeproj/ \
                 -scheme "$scheme" \
@@ -52,13 +42,8 @@ generate_xcframework() {
                 CARTHAGE=YES \
                 MACH_O_TYPE="$MACH_O_TYPE" \
                 ENABLE_CODE_COVERAGE=NO \
-                GCC_GENERATE_DEBUGGING_SYMBOLS="$GCC_GENERATE_DEBUGGING_SYMBOLS" \
-                OTHER_LDFLAGS="$OTHER_LDFLAGS"
+                GCC_GENERATE_DEBUGGING_SYMBOLS="$GCC_GENERATE_DEBUGGING_SYMBOLS"
                  
-            if [[ "$sdk" == "watchos" || "$sdk" == "watchsimulator" ]]; then
-                ## ...and comment it in again
-                sed -i '' 's/\( *\)\/\/MERGEABLE_LIBRARY = YES;/\1MERGEABLE_LIBRARY = YES;/' "Sentry.xcodeproj/project.pbxproj"
-            fi
 
             createxcframework+="-framework Carthage/archive/${scheme}${suffix}/${sdk}.xcarchive/Products/Library/Frameworks/${resolved_product_name}.framework "
 
@@ -97,8 +82,7 @@ generate_xcframework() {
         MACH_O_TYPE="$MACH_O_TYPE" \
         SUPPORTS_MACCATALYST=YES \
         ENABLE_CODE_COVERAGE=NO \
-        GCC_GENERATE_DEBUGGING_SYMBOLS="$GCC_GENERATE_DEBUGGING_SYMBOLS" \
-        OTHER_LDFLAGS="$OTHER_LDFLAGS"
+        GCC_GENERATE_DEBUGGING_SYMBOLS="$GCC_GENERATE_DEBUGGING_SYMBOLS"
         
     if [ "$MACH_O_TYPE" = "staticlib" ]; then
         local infoPlist="Carthage/DerivedData/Build/Products/$resolved_configuration-maccatalyst/${scheme}.framework/Resources/Info.plist"
