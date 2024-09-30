@@ -1,4 +1,3 @@
-#import "SentryANRTracker.h"
 #import "SentryANRTrackingIntegration.h"
 #import "SentryAutoBreadcrumbTrackingIntegration.h"
 #import "SentryAutoSessionTrackingIntegration.h"

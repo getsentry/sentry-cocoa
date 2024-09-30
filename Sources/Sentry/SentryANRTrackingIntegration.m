@@ -1,5 +1,4 @@
 #import "SentryANRTrackingIntegration.h"
-#import "SentryANRTracker.h"
 #import "SentryClient+Private.h"
 #import "SentryCrashMachineContext.h"
 #import "SentryCrashWrapper.h"
@@ -12,6 +11,7 @@
 #import "SentryMechanism.h"
 #import "SentrySDK+Private.h"
 #import "SentryStacktrace.h"
+#import "SentrySwift.h"
 #import "SentryThread.h"
 #import "SentryThreadInspector.h"
 #import "SentryThreadWrapper.h"
@@ -26,7 +26,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface SentryANRTrackingIntegration ()
 
-@property (nonatomic, strong) SentryANRTracker *tracker;
+@property (nonatomic, strong) id<SentryANRTracker> tracker;
 @property (nonatomic, strong) SentryOptions *options;
 @property (atomic, assign) BOOL reportAppHangs;
 
@@ -41,7 +41,7 @@ NS_ASSUME_NONNULL_BEGIN
     }
 
     self.tracker =
-        [SentryDependencyContainer.sharedInstance getANRTracker:options.appHangTimeoutInterval];
+        [SentryDependencyContainer.sharedInstance getANRTrackerV1:options.appHangTimeoutInterval];
 
     [self.tracker addListener:self];
     self.options = options;
