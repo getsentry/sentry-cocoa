@@ -31,6 +31,26 @@ class SentryTraceProfilerTests: XCTestCase {
         span.finish()
         try self.assertMetricsPayload()
     }
+    
+    func testProfileCapturedOnBGThread() throws {
+        let span = try fixture.newTransaction()
+        try addMockSamples()
+        try fixture.gatherMockedTraceProfileMetrics()
+        self.fixture.currentDateProvider.advanceBy(nanoseconds: 1.toNanoSeconds())
+        
+        let asyncInvocationsBeforeFinish = self.fixture.dispatchQueueWrapper.dispatchAsyncInvocations.count
+        
+        span.finish()
+        
+        try self.assertMetricsPayload()
+        
+        let asyncInvocationsAfterFinish = self.fixture.dispatchQueueWrapper.dispatchAsyncInvocations.count
+        
+        // One invocation for the tracer and another one for the hub capturing the transaction
+        // with the profile.
+        let expectedAsyncInvocations = asyncInvocationsBeforeFinish + 2
+        XCTAssertEqual(expectedAsyncInvocations, asyncInvocationsAfterFinish)
+    }
 
     func testTransactionWithMutatedTracerID() throws {
         let span = try fixture.newTransaction()

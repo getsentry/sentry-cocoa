@@ -631,19 +631,31 @@ static BOOL appStartMeasurementRead;
 - (void)captureTransactionWithProfile:(SentryTransaction *)transaction
                        startTimestamp:(NSDate *)startTimestamp
 {
-    SentryEnvelopeItem *profileEnvelopeItem
-        = sentry_traceProfileEnvelopeItem(transaction, startTimestamp);
+    // This code can run on the main thread, and the profile serialization can take a couple of
+    // milliseconds. Therefore, we move this to a background thread to avoid potentially blocking
+    // the main thread.
+    __weak SentryTracer *weakSelf = self;
+    [self.dispatchQueue dispatchAsyncWithBlock:^{
+        if (weakSelf == nil) {
+            SENTRY_LOG_DEBUG(@"WeakSelf is nil. Not doing anything.");
+            return;
+        }
 
-    if (!profileEnvelopeItem) {
-        [_hub captureTransaction:transaction withScope:_hub.scope];
-        return;
-    }
+        SentryEnvelopeItem *profileEnvelopeItem
+            = sentry_traceProfileEnvelopeItem(transaction, startTimestamp);
 
-    SENTRY_LOG_DEBUG(@"Capturing transaction id %@ with profiling data attached for tracer id %@.",
-        transaction.eventId.sentryIdString, self.internalID.sentryIdString);
-    [_hub captureTransaction:transaction
-                      withScope:_hub.scope
-        additionalEnvelopeItems:@[ profileEnvelopeItem ]];
+        if (!profileEnvelopeItem) {
+            [weakSelf.hub captureTransaction:transaction withScope:weakSelf.hub.scope];
+            return;
+        }
+
+        SENTRY_LOG_DEBUG(
+            @"Capturing transaction id %@ with profiling data attached for tracer id %@.",
+            transaction.eventId.sentryIdString, self.internalID.sentryIdString);
+        [weakSelf.hub captureTransaction:transaction
+                               withScope:weakSelf.hub.scope
+                 additionalEnvelopeItems:@[ profileEnvelopeItem ]];
+    }];
 }
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
