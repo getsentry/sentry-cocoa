@@ -89,13 +89,13 @@ NS_ASSUME_NONNULL_BEGIN
         return;
     }
 
+#if SENTRY_HAS_UIKIT
     if (type == SentryANRTypeNonFullyBlocking
         && !self.options.enableReportNonFullyBlockingAppHangs) {
         SENTRY_LOG_DEBUG(@"Ignoring non fully blocking app hang.")
         return;
     }
 
-#if SENTRY_HAS_UIKIT
     // If the app is not active, the main thread may be blocked or too busy.
     // Since there is no UI for the user to interact, there is no need to report app hang.
     if (SentryDependencyContainer.sharedInstance.application.applicationState

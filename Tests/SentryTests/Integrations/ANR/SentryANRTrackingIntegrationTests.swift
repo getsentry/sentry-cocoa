@@ -195,6 +195,7 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         }
     }
     
+#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
     func testANRDetected_NonFullyBlockedDisabled_EventNotCaptured() throws {
         fixture.options.enableReportNonFullyBlockingAppHangs = false
         givenInitializedTracker()
@@ -204,6 +205,7 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
 
         assertNoEventCaptured()
     }
+#endif
     
     func testANRDetected_DetectingPaused_NoEventCaptured() {
         givenInitializedTracker()
@@ -254,6 +256,7 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         
         assertNoEventCaptured()
     }
+    
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
     func testANRDetected_ButBackground_EventNotCaptured() {
 
