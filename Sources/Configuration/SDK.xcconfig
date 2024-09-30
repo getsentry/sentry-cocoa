@@ -21,7 +21,9 @@ ONLY_ACTIVE_ARCH[config=Debug] = YES
 GCC_OPTIMIZATION_LEVEL[config=Debug] = 0
 COPY_PHASE_STRIP[config=Debug] = NO
 
-OTHER_LDFLAGS[sdk=watch*] = $(inherited) -framework WatchKit
+COMMON_LDFLAGS = $(inherited)
+OTHER_LDFLAGS = $(COMMON_LDFLAGS) -Wl,-make_mergeable
+OTHER_LDFLAGS[sdk=watch*] = $(COMMON_LDFLAGS) -framework WatchKit
 
 SUPPORTS_MACCATALYST = YES
 
