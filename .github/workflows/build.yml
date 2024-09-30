@@ -61,7 +61,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - run: ./scripts/ci-select-xcode.sh
+      - run: ./scripts/ci-select-xcode.sh 15.2
 
       # Disable code signing. We just want to make sure these compile.
       - run: >-
