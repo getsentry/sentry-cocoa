@@ -3,6 +3,7 @@
 set -eou pipefail
 
 sdks=( iphoneos iphonesimulator macosx appletvos appletvsimulator watchos watchsimulator xros xrsimulator )
+
 rm -rf Carthage/
 mkdir Carthage
 
@@ -15,7 +16,7 @@ generate_xcframework() {
     local configuration_suffix="${4-}"
     local createxcframework="xcodebuild -create-xcframework "
     local GCC_GENERATE_DEBUGGING_SYMBOLS="YES"
-
+    
     local resolved_configuration="Release$configuration_suffix"
     local resolved_product_name="$scheme$configuration_suffix"
     
