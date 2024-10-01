@@ -14,3 +14,5 @@ OTHER_LDFLAGS_Test = -framework Sentry
 OTHER_LDFLAGS_TestCI = -framework Sentry
 OTHER_LDFLAGS_Release = -framework Sentry
 OTHER_LDFLAGS = $(OTHER_LDFLAGS_$(CONFIGURATION))
+ARCHS = $(ARCHS_STANDARD) arm64e
+ARCHS[sdk=*simulator] = $(ARCHS_STANDARD)
