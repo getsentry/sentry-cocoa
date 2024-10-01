@@ -1,5 +1,5 @@
 #import "SentryANRTrackerV1.h"
-#import "SentryANRTrackerV2.h"
+
 #import "SentryBinaryImageCache.h"
 #import "SentryDispatchFactory.h"
 #import "SentryDispatchQueueWrapper.h"
@@ -32,6 +32,7 @@
 #import <SentryTracer.h>
 
 #if SENTRY_HAS_UIKIT
+#    import "SentryANRTrackerV2.h"
 #    import "SentryFramesTracker.h"
 #    import "SentryUIApplication.h"
 #    import <SentryScreenshot.h>
@@ -346,9 +347,10 @@ static NSObject *sentryDependencyContainerLock;
     return _anrTracker;
 }
 
-#if SENTRY_HAS_UIKIT
-- (id<SentryANRTracker>)getANRTracker:(NSTimeInterval)timeout isV2Enabled:(BOOL)isV2Enabled;
-SENTRY_DISABLE_THREAD_SANITIZER("double-checked lock produce false alarms")
+#if SENTRY_UIKIT_AVAILABLE
+- (id<SentryANRTracker>)getANRTracker:(NSTimeInterval)timeout
+                          isV2Enabled:(BOOL)isV2Enabled
+    SENTRY_DISABLE_THREAD_SANITIZER("double-checked lock produce false alarms")
 {
     if (isV2Enabled) {
         if (_anrTracker == nil) {
@@ -369,7 +371,7 @@ SENTRY_DISABLE_THREAD_SANITIZER("double-checked lock produce false alarms")
         return [self getANRTracker:timeout];
     }
 }
-#endif // SENTRY_HAS_UIKIT
+#endif // SENTRY_UIKIT_AVAILABLE
 
 - (SentryNSProcessInfoWrapper *)processInfoWrapper SENTRY_DISABLE_THREAD_SANITIZER(
     "double-checked lock produce false alarms")
