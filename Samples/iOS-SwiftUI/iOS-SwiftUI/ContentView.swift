@@ -189,7 +189,7 @@ struct ContentView: View {
                             
                             NavigationLink(destination: LoremIpsumView()) {
                                 Text("Lorem Ipsum")
-                            }
+                            }.sentryReplayMask()
                             
                             NavigationLink(destination: UIKitScreen()) {
                                 Text("UIKit Screen")
@@ -199,7 +199,8 @@ struct ContentView: View {
                                 Text("Form Screen")
                             }
                         }
-                        .sentryReplayRedact()
+                        .background(Color.white)
+                        .sentryReplayUnmask()
                     }
                     SecondView()
                 }
