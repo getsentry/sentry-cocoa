@@ -1,16 +1,15 @@
 .PHONY: init
-init: setup-git
+init:
 	which brew || /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 	brew bundle
 	rbenv install --skip-existing
 	rbenv exec gem update bundler
 	rbenv exec bundle install
-
-.PHONY: setup-git
-setup-git:
-ifneq (, $(shell which pre-commit))
 	pre-commit install
-endif
+
+.PHONY: check-versions
+check-versions:
+	./scripts/check-tooling-versions.sh
 
 lint:
 	@echo "--> Running Swiftlint and Clang-Format"
