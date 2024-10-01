@@ -19,12 +19,11 @@ generate_xcframework() {
     
     local resolved_configuration="Release$configuration_suffix"
     local resolved_product_name="$scheme$configuration_suffix"
-    local OTHER_LDFLAGS="-Wl,-make_mergeable"
+    local OTHER_LDFLAGS=""
 
     if [ "$MACH_O_TYPE" = "staticlib" ]; then
         #For static framework we disabled symbols because they are not distributed in the framework causing warnings.
         GCC_GENERATE_DEBUGGING_SYMBOLS="NO"
-        OTHER_LDFLAGS="" # Disable mergeable libraries for static libs
     fi
     
     rm -rf Carthage/DerivedData
@@ -32,9 +31,11 @@ generate_xcframework() {
     for sdk in "${sdks[@]}"; do
         if grep -q "${sdk}" <<< "$ALL_SDKS"; then
 
-            ## watchos and watchsimulator dont support make_mergeable: ld: unknown option: -make_mergeable
+            ## watchos, watchsimulator dont support make_mergeable: ld: unknown option: -make_mergeable
             if [[ "$sdk" == "watchos" || "$sdk" == "watchsimulator" ]]; then
                 OTHER_LDFLAGS=""
+            elif [ "$MACH_O_TYPE" != "staticlib" ]; then
+                OTHER_LDFLAGS="-Wl,-make_mergeable"
             fi
 
             xcodebuild archive \
@@ -75,6 +76,11 @@ generate_xcframework() {
         fi
     done
     
+    # for the case that watch* sdks are last in list
+    if [ "$MACH_O_TYPE" != "staticlib" ]; then
+        OTHER_LDFLAGS="-Wl,-make_mergeable"
+    fi
+
     #Create framework for mac catalyst
     xcodebuild \
         -project Sentry.xcodeproj/ \
