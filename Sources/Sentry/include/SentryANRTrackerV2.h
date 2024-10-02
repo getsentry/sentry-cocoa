@@ -20,7 +20,7 @@ NS_ASSUME_NONNULL_BEGIN
  * seconds, it can still respond to user input to navigate to a different screen, for example. In
  * that scenario, the frame delay is around 97%.
  */
-@interface SentryANRTrackerV2 : NSObject
+@interface SentryANRTrackerV2 : NSObject <SentryANRTracker>
 SENTRY_NO_INIT
 
 - (instancetype)initWithTimeoutInterval:(NSTimeInterval)timeoutInterval
@@ -28,13 +28,6 @@ SENTRY_NO_INIT
                    dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
                           threadWrapper:(SentryThreadWrapper *)threadWrapper
                           framesTracker:(SentryFramesTracker *)framesTracker;
-
-- (void)addListener:(id<SentryANRTrackerDelegate>)listener;
-
-- (void)removeListener:(id<SentryANRTrackerDelegate>)listener;
-
-// Function used for tests
-- (void)clear;
 
 @end
 

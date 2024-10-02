@@ -61,7 +61,7 @@ struct SentryWidget {
                 NSLayoutConstraint.activate([
                     label.leadingAnchor.constraint(equalTo: formDialog.view.leadingAnchor),
                     label.trailingAnchor.constraint(equalTo: formDialog.view.trailingAnchor),
-                    label.centerYAnchor.constraint(equalTo: formDialog.view.centerYAnchor),
+                    label.centerYAnchor.constraint(equalTo: formDialog.view.centerYAnchor)
                 ])
                 present(formDialog, animated: true)
             }

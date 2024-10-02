@@ -3,6 +3,7 @@
 #if SENTRY_HAS_UIKIT
 
 #    import "SentryScope+Private.h"
+#    import <SentryANRTrackerV1.h>
 #    import <SentryAppState.h>
 #    import <SentryAppStateManager.h>
 #    import <SentryClient+Private.h>
@@ -12,6 +13,7 @@
 #    import <SentryHub.h>
 #    import <SentryOptions+Private.h>
 #    import <SentrySDK+Private.h>
+#    import <SentrySwift.h>
 #    import <SentryWatchdogTerminationLogic.h>
 #    import <SentryWatchdogTerminationScopeObserver.h>
 #    import <SentryWatchdogTerminationTracker.h>
@@ -21,7 +23,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface SentryWatchdogTerminationTrackingIntegration ()
 
 @property (nonatomic, strong) SentryWatchdogTerminationTracker *tracker;
-@property (nonatomic, strong) SentryANRTracker *anrTracker;
+@property (nonatomic, strong) id<SentryANRTracker> anrTracker;
 @property (nullable, nonatomic, copy) NSString *testConfigurationFilePath;
 @property (nonatomic, strong) SentryAppStateManager *appStateManager;
 
@@ -72,7 +74,7 @@ NS_ASSUME_NONNULL_BEGIN
     [self.tracker start];
 
     self.anrTracker =
-        [SentryDependencyContainer.sharedInstance getANRTracker:options.appHangTimeoutInterval];
+        [SentryDependencyContainer.sharedInstance getANRTrackerV1:options.appHangTimeoutInterval];
     [self.anrTracker addListener:self];
 
     self.appStateManager = appStateManager;

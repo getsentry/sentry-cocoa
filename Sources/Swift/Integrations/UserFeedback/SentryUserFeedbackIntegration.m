@@ -6,8 +6,10 @@
     SentryUserFeedbackIntegrationDriver *_driver;
 }
 
-- (BOOL)installWithOptions:(SentryOptions *)options {
-    _driver = [[SentryUserFeedbackIntegrationDriver alloc] initWithConfiguration:options.userFeedbackConfiguration];
+- (BOOL)installWithOptions:(SentryOptions *)options
+{
+    _driver = [[SentryUserFeedbackIntegrationDriver alloc]
+        initWithConfiguration:options.userFeedbackConfiguration];
     return YES;
 }
 

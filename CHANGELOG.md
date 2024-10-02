@@ -1,5 +1,23 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+- Added breadcrumb.origin private field (#4358)
+- Custom redact modifier for SwiftUI (#4362)
+- Add mergeable libraries support to dynamic libraries (#4381)
+
+### Improvements
+
+- Speed up HTTP tracking for multiple requests in parallel (#4366)
+- Slightly speed up SentryInAppLogic (#4370)
+- Stop canceling timer for manual transactions (#4380)
+
+### Fixes
+
+- Fix the versioning to support app release with Beta versions (#4368)
+
 ## 8.37.0-beta.1
 
 ### Features
@@ -16,7 +34,7 @@
 
 - Resumes replay when the app becomes active (#4303)
 - Session replay redact view with transformation (#4308)
-- Correct redact UIView with higher zPosition (#4309) 
+- Correct redact UIView with higher zPosition (#4309)
 - Don't redact clipped views (#4325)
 - Session replay for crash not created because of a race condition (#4314)
 - Double-quoted include, expected angle-bracketed instead (#4298)

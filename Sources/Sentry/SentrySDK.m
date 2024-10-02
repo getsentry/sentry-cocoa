@@ -460,7 +460,8 @@ static NSDate *_Nullable startTimestamp = nil;
         return;
     }
     SentryOptions *options = [SentrySDK.currentHub getClient].options;
-    NSMutableArray<NSString *> *integrationNames = [SentrySDK.currentHub getClient].options.integrations.mutableCopy;
+    NSMutableArray<NSString *> *integrationNames =
+        [SentrySDK.currentHub getClient].options.integrations.mutableCopy;
     if (options.userFeedbackConfiguration != nil) {
         [integrationNames addObject:NSStringFromClass([SentryUserFeedbackIntegration class])];
     }

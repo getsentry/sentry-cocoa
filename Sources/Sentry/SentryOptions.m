@@ -1,4 +1,3 @@
-#import "SentryANRTracker.h"
 #import "SentryANRTrackingIntegration.h"
 #import "SentryAutoBreadcrumbTrackingIntegration.h"
 #import "SentryAutoSessionTrackingIntegration.h"
@@ -40,41 +39,40 @@ NSString *const kSentryDefaultEnvironment = @"production";
     BOOL _enableTracingManual;
 }
 
-NSMutableArray<NSString *> *sentry_defaultIntegrations(void) {
+NSMutableArray<NSString *> *
+sentry_defaultIntegrations(void)
+{
     // The order of integrations here is important.
     // SentryCrashIntegration needs to be initialized before SentryAutoSessionTrackingIntegration.
     // And SentrySessionReplayIntegration before SentryCrashIntegration.
-    NSMutableArray<NSString *> *defaultIntegrations =
-        [NSMutableArray<NSString *> arrayWithObjects:
+    NSMutableArray<NSString *> *defaultIntegrations = [NSMutableArray<NSString *> arrayWithObjects:
 #if SENTRY_HAS_UIKIT && !TARGET_OS_VISION
             NSStringFromClass([SentrySessionReplayIntegration class]),
 #endif
-            NSStringFromClass([SentryCrashIntegration class]),
+        NSStringFromClass([SentryCrashIntegration class]),
 #if SENTRY_HAS_UIKIT
-            NSStringFromClass([SentryAppStartTrackingIntegration class]),
-            NSStringFromClass([SentryFramesTrackingIntegration class]),
-            NSStringFromClass([SentryPerformanceTrackingIntegration class]),
-            NSStringFromClass([SentryScreenshotIntegration class]),
-            NSStringFromClass([SentryUIEventTrackingIntegration class]),
-            NSStringFromClass([SentryViewHierarchyIntegration class]),
-            NSStringFromClass([SentryWatchdogTerminationTrackingIntegration class]),
+        NSStringFromClass([SentryAppStartTrackingIntegration class]),
+        NSStringFromClass([SentryFramesTrackingIntegration class]),
+        NSStringFromClass([SentryPerformanceTrackingIntegration class]),
+        NSStringFromClass([SentryScreenshotIntegration class]),
+        NSStringFromClass([SentryUIEventTrackingIntegration class]),
+        NSStringFromClass([SentryViewHierarchyIntegration class]),
+        NSStringFromClass([SentryWatchdogTerminationTrackingIntegration class]),
 #endif // SENTRY_HAS_UIKIT
-            NSStringFromClass([SentryANRTrackingIntegration class]),
-            NSStringFromClass([SentryAutoBreadcrumbTrackingIntegration class]),
-            NSStringFromClass([SentryAutoSessionTrackingIntegration class]),
-            NSStringFromClass([SentryCoreDataTrackingIntegration class]),
-            NSStringFromClass([SentryFileIOTrackingIntegration class]),
-            NSStringFromClass([SentryNetworkTrackingIntegration class]),
-            NSStringFromClass([SentrySwiftAsyncIntegration class]),
-            nil
-        ];
-    
+        NSStringFromClass([SentryANRTrackingIntegration class]),
+        NSStringFromClass([SentryAutoBreadcrumbTrackingIntegration class]),
+        NSStringFromClass([SentryAutoSessionTrackingIntegration class]),
+        NSStringFromClass([SentryCoreDataTrackingIntegration class]),
+        NSStringFromClass([SentryFileIOTrackingIntegration class]),
+        NSStringFromClass([SentryNetworkTrackingIntegration class]),
+        NSStringFromClass([SentrySwiftAsyncIntegration class]), nil];
+
 #if SENTRY_HAS_METRIC_KIT
     if (@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, *)) {
         [defaultIntegrations addObject:NSStringFromClass([SentryMetricKitIntegration class])];
     }
 #endif // SENTRY_HAS_METRIC_KIT
-    
+
     return defaultIntegrations;
 }
 
@@ -368,7 +366,8 @@ NSMutableArray<NSString *> *sentry_defaultIntegrations(void) {
     }
 
     if ([options[@"integrations"] isKindOfClass:[NSArray class]]) {
-        self.integrations = [[options[@"integrations"] filteredArrayUsingPredicate:isNSString] mutableCopy];
+        self.integrations =
+            [[options[@"integrations"] filteredArrayUsingPredicate:isNSString] mutableCopy];
     }
 
     if ([options[@"sampleRate"] isKindOfClass:[NSNumber class]]) {
@@ -797,7 +796,8 @@ sentry_isValidSampleRate(NSNumber *sampleRate)
 #endif // defined(RELEASE)
 }
 
-- (void)setConfigureUserFeedback:(SentryUserFeedbackConfigurationBlock)configureUserFeedback {
+- (void)setConfigureUserFeedback:(SentryUserFeedbackConfigurationBlock)configureUserFeedback
+{
     self.userFeedbackConfiguration = [[SentryUserFeedbackConfiguration alloc] init];
     configureUserFeedback(self.userFeedbackConfiguration);
 }

@@ -1,6 +1,17 @@
 ## You can find more hooks here https://pre-commit.com/hooks.html
 
 repos:
+  - repo: local
+    hooks:
+      - id: check-versions
+        name: Check development environment tooling versions
+        entry: make
+        language: system
+        types_or: ["swift", "objective-c", "objective-c++", "c", "c++" ]
+        fail_fast: true
+        args:
+          - "check-versions"
+        
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.3.0
     hooks:
