@@ -17,7 +17,6 @@ CLANG_ENABLE_OBJC_ARC = YES
 CLANG_ENABLE_MODULES = YES
 //OTHER_CFLAGS = -Wall -Wextra -Wpedantic -Wno-gnu-conditional-omitted-operand
 
-ONLY_ACTIVE_ARCH[config=Debug] = YES
 GCC_OPTIMIZATION_LEVEL[config=Debug] = 0
 COPY_PHASE_STRIP[config=Debug] = NO
 
