@@ -1,7 +1,5 @@
 name: Benchmarking
 on:
-  schedule:
-    - cron: '0 0 * * *' # every night at midnight UTC
   push:
     branches:
       - main

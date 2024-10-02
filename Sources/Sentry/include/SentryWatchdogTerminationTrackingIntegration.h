@@ -1,8 +1,6 @@
 #import "SentryDefines.h"
 
 #if SENTRY_HAS_UIKIT
-
-#    import "SentryANRTracker.h"
 #    import "SentryBaseIntegration.h"
 #    import "SentrySwift.h"
 #    import <Foundation/Foundation.h>

@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		498CC1A52C9217E20045143E /* Sentry.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 498CC1982C9217D50045143E /* Sentry.framework */; };
 		7B34280225876DFC00056519 /* Tongariro.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 7B34280125876DFC00056519 /* Tongariro.jpg */; };
 		7B82C48424C98A93002CA6D1 /* watchOS-Swift WatchKit App.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = 7B82C48324C98A93002CA6D1 /* watchOS-Swift WatchKit App.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		7B82C48A24C98A93002CA6D1 /* Interface.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 7B82C48824C98A93002CA6D1 /* Interface.storyboard */; };
@@ -19,12 +20,60 @@
 		7B82C4A024C98A95002CA6D1 /* NotificationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B82C49F24C98A95002CA6D1 /* NotificationView.swift */; };
 		7B82C4A224C98A96002CA6D1 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7B82C4A124C98A96002CA6D1 /* Assets.xcassets */; };
 		7B82C4A524C98A96002CA6D1 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7B82C4A424C98A96002CA6D1 /* Preview Assets.xcassets */; };
-		7B82C4C624C993E6002CA6D1 /* Sentry.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7B82C4BA24C98CFC002CA6D1 /* Sentry.xcframework */; };
-		7B82C4C724C993E6002CA6D1 /* Sentry.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 7B82C4BA24C98CFC002CA6D1 /* Sentry.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		9273C09E2C89E76B0006FD34 /* Sentry.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 9273C09C2C89E76B0006FD34 /* Sentry.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		84BA72BB2C9369D70045B828 /* GitInjections.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BA72B92C9369D70045B828 /* GitInjections.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		498CC1972C9217D50045143E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 498CC18E2C9217D50045143E /* Sentry.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 63AA759B1EB8AEF500D153DE;
+			remoteInfo = Sentry;
+		};
+		498CC1992C9217D50045143E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 498CC18E2C9217D50045143E /* Sentry.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 63AA76651EB8CB2F00D153DE;
+			remoteInfo = SentryTests;
+		};
+		498CC19B2C9217D50045143E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 498CC18E2C9217D50045143E /* Sentry.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = D8199DAA29376E9B0074249E;
+			remoteInfo = SentrySwiftUI;
+		};
+		498CC19D2C9217D50045143E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 498CC18E2C9217D50045143E /* Sentry.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 8431EFD929B27B1100D8DC56;
+			remoteInfo = SentryProfilerTests;
+		};
+		498CC19F2C9217D50045143E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 498CC18E2C9217D50045143E /* Sentry.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 8431F00A29B284F200D8DC56;
+			remoteInfo = SentryTestUtils;
+		};
+		498CC1A12C9217D50045143E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 498CC18E2C9217D50045143E /* Sentry.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = D84DAD4D2B17428D003CF120;
+			remoteInfo = SentryTestUtilsDynamic;
+		};
+		498CC1A32C9217DB0045143E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 498CC18E2C9217D50045143E /* Sentry.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 63AA759A1EB8AEF500D153DE;
+			remoteInfo = Sentry;
+		};
 		7B82C48524C98A93002CA6D1 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 7B82C47924C98A93002CA6D1 /* Project object */;
@@ -64,13 +113,13 @@
 			name = "Embed Watch Content";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		7B82C4C824C993E6002CA6D1 /* Embed Frameworks */ = {
+		9273C09F2C89E76B0006FD34 /* Embed Frameworks */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				7B82C4C724C993E6002CA6D1 /* Sentry.xcframework in Embed Frameworks */,
+				9273C09E2C89E76B0006FD34 /* Sentry.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -78,6 +127,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		498CC18E2C9217D50045143E /* Sentry.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = Sentry.xcodeproj; path = ../../Sentry.xcodeproj; sourceTree = "<group>"; };
 		7B34280125876DFC00056519 /* Tongariro.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = Tongariro.jpg; sourceTree = "<group>"; };
 		7B82C47F24C98A93002CA6D1 /* watchOS-Swift.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "watchOS-Swift.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		7B82C48324C98A93002CA6D1 /* watchOS-Swift WatchKit App.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "watchOS-Swift WatchKit App.app"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -98,6 +148,7 @@
 		7B82C4BA24C98CFC002CA6D1 /* Sentry.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = Sentry.xcframework; path = libs/Sentry.xcframework; sourceTree = "<group>"; };
 		7B82C4BF24C99340002CA6D1 /* Sentry.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = Sentry.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		7B82C4C224C9939A002CA6D1 /* Sentry.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = Sentry.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		9273C09C2C89E76B0006FD34 /* Sentry.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = Sentry.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		84BA72B92C9369D70045B828 /* GitInjections.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GitInjections.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -106,16 +157,30 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				7B82C4C624C993E6002CA6D1 /* Sentry.xcframework in Frameworks */,
+				498CC1A52C9217E20045143E /* Sentry.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		498CC18F2C9217D50045143E /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				498CC1982C9217D50045143E /* Sentry.framework */,
+				498CC19A2C9217D50045143E /* SentryTests.xctest */,
+				498CC19C2C9217D50045143E /* SentrySwiftUI.framework */,
+				498CC19E2C9217D50045143E /* SentryProfilerTests.xctest */,
+				498CC1A02C9217D50045143E /* libSentryTestUtils.a */,
+				498CC1A22C9217D50045143E /* SentryTestUtilsDynamic.framework */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 		7B82C47824C98A93002CA6D1 = {
 			isa = PBXGroup;
 			children = (
+				498CC18E2C9217D50045143E /* Sentry.xcodeproj */,
 				84BA72BA2C9369D70045B828 /* Shared */,
 				7B82C48724C98A93002CA6D1 /* watchOS-Swift WatchKit App */,
 				7B82C49624C98A95002CA6D1 /* watchOS-Swift WatchKit Extension */,
@@ -172,6 +237,7 @@
 		7B82C4B524C98AF4002CA6D1 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				9273C09C2C89E76B0006FD34 /* Sentry.framework */,
 				7B82C4C224C9939A002CA6D1 /* Sentry.framework */,
 				7B82C4BF24C99340002CA6D1 /* Sentry.framework */,
 				7B82C4BA24C98CFC002CA6D1 /* Sentry.xcframework */,
@@ -234,12 +300,13 @@
 				7B82C48F24C98A95002CA6D1 /* Frameworks */,
 				84BA72A32C9368660045B828 /* Inject Git information into Info.plist */,
 				7B82C49024C98A95002CA6D1 /* Resources */,
-				7B82C4C824C993E6002CA6D1 /* Embed Frameworks */,
+				9273C09F2C89E76B0006FD34 /* Embed Frameworks */,
 				84BA72A42C9368670045B828 /* Reset Git fields in Info.plist */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				498CC1A42C9217DB0045143E /* PBXTargetDependency */,
 			);
 			name = "watchOS-Swift WatchKit Extension";
 			productName = "watchOS-Swift WatchKit Extension";
@@ -278,6 +345,12 @@
 			mainGroup = 7B82C47824C98A93002CA6D1;
 			productRefGroup = 7B82C48024C98A93002CA6D1 /* Products */;
 			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = 498CC18F2C9217D50045143E /* Products */;
+					ProjectRef = 498CC18E2C9217D50045143E /* Sentry.xcodeproj */;
+				},
+			);
 			projectRoot = "";
 			targets = (
 				7B82C47E24C98A93002CA6D1 /* watchOS-Swift */,
@@ -286,6 +359,51 @@
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXReferenceProxy section */
+		498CC1982C9217D50045143E /* Sentry.framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.framework;
+			path = Sentry.framework;
+			remoteRef = 498CC1972C9217D50045143E /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		498CC19A2C9217D50045143E /* SentryTests.xctest */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.cfbundle;
+			path = SentryTests.xctest;
+			remoteRef = 498CC1992C9217D50045143E /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		498CC19C2C9217D50045143E /* SentrySwiftUI.framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.framework;
+			path = SentrySwiftUI.framework;
+			remoteRef = 498CC19B2C9217D50045143E /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		498CC19E2C9217D50045143E /* SentryProfilerTests.xctest */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.cfbundle;
+			path = SentryProfilerTests.xctest;
+			remoteRef = 498CC19D2C9217D50045143E /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		498CC1A02C9217D50045143E /* libSentryTestUtils.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libSentryTestUtils.a;
+			remoteRef = 498CC19F2C9217D50045143E /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		498CC1A22C9217D50045143E /* SentryTestUtilsDynamic.framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.framework;
+			path = SentryTestUtilsDynamic.framework;
+			remoteRef = 498CC1A12C9217D50045143E /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+/* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
 		7B82C47D24C98A93002CA6D1 /* Resources */ = {
@@ -372,6 +490,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		498CC1A42C9217DB0045143E /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = Sentry;
+			targetProxy = 498CC1A32C9217DB0045143E /* PBXContainerItemProxy */;
+		};
 		7B82C48624C98A93002CA6D1 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 7B82C48224C98A93002CA6D1 /* watchOS-Swift WatchKit App */;

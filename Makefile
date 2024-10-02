@@ -1,16 +1,15 @@
 .PHONY: init
-init: setup-git
+init:
 	which brew || /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 	brew bundle
 	rbenv install --skip-existing
 	rbenv exec gem update bundler
 	rbenv exec bundle install
-
-.PHONY: setup-git
-setup-git:
-ifneq (, $(shell which pre-commit))
 	pre-commit install
-endif
+
+.PHONY: check-versions
+check-versions:
+	./scripts/check-tooling-versions.sh
 
 lint:
 	@echo "--> Running Swiftlint and Clang-Format"
@@ -71,16 +70,6 @@ build-xcframework-sample:
 	./scripts/create-carthage-json.sh
 	cd Samples/Carthage-Validation/XCFramework/ && carthage update --use-xcframeworks
 	xcodebuild -project "Samples/Carthage-Validation/XCFramework/XCFramework.xcodeproj" -configuration Release CODE_SIGNING_ALLOWED="NO" build
-
-## Build Sentry as a XCFramework that can be used with watchOS and save it to
-## the watchOS sample.
-watchOSLibPath = ./Samples/watchOS-Swift/libs
-build-for-watchos:
-	@echo "--> Building Sentry as a XCFramework that can be used with watchOS"
-	rm -rf ${watchOSLibPath}
-	xcodebuild archive -scheme Sentry -destination="watchOS" -archivePath ${watchOSLibPath}/watchos.xcarchive -sdk watchos SKIP_INSTALL=NO BUILD_LIBRARY_FOR_DISTRIBUTION=YES
-	xcodebuild archive -scheme Sentry -destination="watch Simulator" -archivePath ${watchOSLibPath}//watchsimulator.xcarchive -sdk watchsimulator SKIP_INSTALL=NO BUILD_LIBRARY_FOR_DISTRIBUTION=YES
-	xcodebuild -create-xcframework -allow-internal-distribution -framework ${watchOSLibPath}/watchos.xcarchive/Products/Library/Frameworks/Sentry.framework -framework ${watchOSLibPath}/watchsimulator.xcarchive/Products/Library/Frameworks/Sentry.framework -output ${watchOSLibPath}//Sentry.xcframework
 
 # call this like `make bump-version TO=5.0.0-rc.0`
 bump-version: clean-version-bump

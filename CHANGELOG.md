@@ -12,6 +12,7 @@
 - Speed up HTTP tracking for multiple requests in parallel (#4366)
 - Slightly speed up SentryInAppLogic (#4370)
 - Rename session replay `redact` options and APIs to `mask` (#4373)
+- Stop canceling timer for manual transactions (#4380)
 
 ## 8.37.0-beta.1
 
