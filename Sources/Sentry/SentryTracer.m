@@ -36,6 +36,7 @@
 #import <SentrySpanOperations.h>
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
+#    import "SentryCaptureTransactionWithProfile.h"
 #    import "SentryLaunchProfiling.h"
 #    import "SentryProfiledTracerConcurrency.h"
 #    import "SentryProfilerSerialization.h"
@@ -623,41 +624,14 @@ static BOOL appStartMeasurementRead;
             startTimestamp = [SentryDependencyContainer.sharedInstance.dateProvider date];
         }
 
-        [self captureTransactionWithProfile:transaction startTimestamp:startTimestamp];
+        sentry_captureTransactionWithProfile(
+            self.hub, self.dispatchQueue, transaction, startTimestamp);
         return;
     }
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
     [_hub captureTransaction:transaction withScope:_hub.scope];
 }
-
-#if SENTRY_TARGET_PROFILING_SUPPORTED
-- (void)captureTransactionWithProfile:(SentryTransaction *)transaction
-                       startTimestamp:(NSDate *)startTimestamp
-{
-    // This code can run on the main thread, and the profile serialization can take a couple of
-    // milliseconds. Therefore, we move this to a background thread to avoid potentially blocking
-    // the main thread.
-    // We use a strong reference to self here on purpose to avoid the tracer being deallocated,
-    // which would mean we lose the transaction with the profile.
-    [self.dispatchQueue dispatchAsyncWithBlock:^{
-        SentryEnvelopeItem *profileEnvelopeItem
-            = sentry_traceProfileEnvelopeItem(transaction, startTimestamp);
-
-        if (!profileEnvelopeItem) {
-            [self.hub captureTransaction:transaction withScope:self.hub.scope];
-            return;
-        }
-
-        SENTRY_LOG_DEBUG(
-            @"Capturing transaction id %@ with profiling data attached for tracer id %@.",
-            transaction.eventId.sentryIdString, self.internalID.sentryIdString);
-        [self.hub captureTransaction:transaction
-                           withScope:self.hub.scope
-             additionalEnvelopeItems:@[ profileEnvelopeItem ]];
-    }];
-}
-#endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
 - (void)trimEndTimestamp
 {
