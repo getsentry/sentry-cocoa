@@ -12,6 +12,7 @@
 - Speed up HTTP tracking for multiple requests in parallel (#4366)
 - Slightly speed up SentryInAppLogic (#4370)
 - Serializing profile on a BG Thread (#4377) to avoid potentially slightly blocking the main thread.
+- Stop canceling timer for manual transactions (#4380)
 
 ## 8.37.0-beta.1
 
