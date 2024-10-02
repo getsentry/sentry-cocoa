@@ -57,18 +57,4 @@ typedef NS_ENUM(NSUInteger, SentrySpanStatus);
 
 @end
 
-// Exposing SentryRedactViewHelper for our SentrySwiftUI external module
-@interface SentryRedactViewHelper : NSObject
-- (nonnull instancetype)init;
-+ (nonnull instancetype)new;
-+ (void)maskView:(UIView *_Nonnull)view;
-+ (BOOL)shouldMaskView:(UIView *_Nonnull)view;
-+ (BOOL)shouldUnmask:(UIView *_Nonnull)view;
-+ (void)unmaskView:(UIView *_Nonnull)view;
-+ (BOOL)shouldClipOut:(UIView *_Nonnull)view;
-+ (void)clipOutView:(UIView *_Nonnull)view;
-+ (BOOL)shouldRedactSwiftUI:(UIView *_Nonnull)view;
-+ (void)maskSwiftUI:(UIView *_Nonnull)view;
-@end
-
 NS_ASSUME_NONNULL_END

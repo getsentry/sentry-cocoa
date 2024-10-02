@@ -268,9 +268,8 @@ class UIRedactBuilder {
     }
 }
 
-@objc(SentryRedactViewHelper)
 @objcMembers
-class SentryRedactViewHelper: NSObject {
+public class SentryRedactViewHelper: NSObject {
     private static var associatedRedactObjectHandle: UInt8 = 0
     private static var associatedIgnoreObjectHandle: UInt8 = 0
     private static var associatedClipOutObjectHandle: UInt8 = 0
@@ -298,7 +297,7 @@ class SentryRedactViewHelper: NSObject {
         (objc_getAssociatedObject(view, &associatedClipOutObjectHandle) as? NSNumber)?.boolValue ?? false
     }
     
-    static func clipOutView(_ view: UIView) {
+    static public func clipOutView(_ view: UIView) {
         objc_setAssociatedObject(view, &associatedClipOutObjectHandle, true, .OBJC_ASSOCIATION_ASSIGN)
     }
     
@@ -306,7 +305,7 @@ class SentryRedactViewHelper: NSObject {
         (objc_getAssociatedObject(view, &associatedSwiftUIRedactObjectHandle) as? NSNumber)?.boolValue ?? false
     }
     
-    static func maskSwiftUI(_ view: UIView) {
+    static public func maskSwiftUI(_ view: UIView) {
         objc_setAssociatedObject(view, &associatedSwiftUIRedactObjectHandle, true, .OBJC_ASSOCIATION_ASSIGN)
     }
 }
