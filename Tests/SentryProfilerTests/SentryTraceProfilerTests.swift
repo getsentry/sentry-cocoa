@@ -32,24 +32,46 @@ class SentryTraceProfilerTests: XCTestCase {
         try self.assertMetricsPayload()
     }
     
-    func testProfileCapturedOnBGThread() throws {
+    func testCaptureTransactionWithProfile_StopsProfileOnCallingThread() throws {
         let span = try fixture.newTransaction()
         try addMockSamples()
         try fixture.gatherMockedTraceProfileMetrics()
         self.fixture.currentDateProvider.advanceBy(nanoseconds: 1.toNanoSeconds())
         
-        let asyncInvocationsBeforeFinish = self.fixture.dispatchQueueWrapper.dispatchAsyncInvocations.count
+        self.fixture.dispatchQueueWrapper.dispatchAsyncExecutesBlock = false
         
         span.finish()
         
+        let currentProfiler = try XCTUnwrap(SentryTraceProfiler.getCurrentProfiler())
+        
+        XCTAssertFalse(currentProfiler.isRunning(), "Profiler must be stopped on the calling thread.")
+    }
+    
+    func testCaptureTransactionWithProfile_SetsCorrectAmountOfSamples() throws {
+        let span = try fixture.newTransaction()
+        try addMockSamples()
+        try fixture.gatherMockedTraceProfileMetrics()
+        self.fixture.currentDateProvider.advanceBy(nanoseconds: 1.toNanoSeconds())
+        
+        self.fixture.dispatchQueueWrapper.dispatchAsyncExecutesBlock = false
+        
+        span.finish()
+        
+        let currentProfiler = try XCTUnwrap(SentryTraceProfiler.getCurrentProfiler())
+        let data = currentProfiler.state.copyProfilingData()
+        let profile = try XCTUnwrap(data["profile"] as? [String: Any])
+        let samples = try XCTUnwrap(profile["samples"] as? [Any])
+        let expectedSampleCount = samples.count
+        
+        self.fixture.dispatchQueueWrapper.dispatchAsyncExecutesBlock = true
+        
+        try addMockSamples()
+        fixture.currentDateProvider.advanceBy(interval: 0.1)
+        
+        self.fixture.dispatchQueueWrapper.invokeLastDispatchAsync()
+        
         try self.assertMetricsPayload()
-        
-        let asyncInvocationsAfterFinish = self.fixture.dispatchQueueWrapper.dispatchAsyncInvocations.count
-        
-        // One invocation for the tracer and another one for the hub capturing the transaction
-        // with the profile.
-        let expectedAsyncInvocations = asyncInvocationsBeforeFinish + 2
-        XCTAssertEqual(expectedAsyncInvocations, asyncInvocationsAfterFinish)
+        try self.assertValidTraceProfileData(expectedSampleCount: expectedSampleCount)
     }
 
     func testTransactionWithMutatedTracerID() throws {
@@ -507,7 +529,7 @@ private extension SentryTraceProfilerTests {
         case notEnoughAppStartSpans
     }
 
-    func assertValidTraceProfileData(transactionEnvironment: String = kSentryDefaultEnvironment, shouldTimeout: Bool = false, expectedAddresses: [NSNumber]? = nil, expectedThreadMetadata: [SentryProfileTestFixture.ThreadMetadata]? = nil, appStartProfile: Bool = false) throws {
+    func assertValidTraceProfileData(transactionEnvironment: String = kSentryDefaultEnvironment, shouldTimeout: Bool = false, expectedAddresses: [NSNumber]? = nil, expectedThreadMetadata: [SentryProfileTestFixture.ThreadMetadata]? = nil, appStartProfile: Bool = false, expectedSampleCount: Int? = nil) throws {
         let data = try getLatestProfileData()
         let profile = try XCTUnwrap(try JSONSerialization.jsonObject(with: data) as? [String: Any])
 
@@ -572,6 +594,10 @@ private extension SentryTraceProfilerTests {
 
         let samples = try XCTUnwrap(sampledProfile["samples"] as? [[String: Any]])
         XCTAssertFalse(samples.isEmpty)
+        
+        if let count = expectedSampleCount {
+            XCTAssertEqual(count, samples.count)
+        }
 
         let frames = try XCTUnwrap(sampledProfile["frames"] as? [[String: Any]])
         XCTAssertFalse(frames.isEmpty)
