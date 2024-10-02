@@ -20,7 +20,9 @@ struct SentryReplayView: UIViewRepresentable {
     }
     
     func makeUIView(context: Context) -> UIView {
-        return SentryRedactView()
+        let view = SentryRedactView()
+        view.isUserInteractionEnabled = false
+        return view
     }
     
     func updateUIView(_ uiView: UIView, context: Context) {
