@@ -3,6 +3,10 @@ import Sentry
 import SwiftUI
 import UIKit
 
+#if CARTHAGE || SWIFT_PACKAGE
+@_implementationOnly import SentryInternal
+#endif
+
 enum MaskBehaviour {
     case mask
     case unmask
@@ -21,8 +25,8 @@ struct SentryReplayView: UIViewRepresentable {
     
     func updateUIView(_ uiView: UIView, context: Context) {
         switch maskBehaviour {
-            case .mask: uiView.sentryReplayMaskSwiftUI()
-            case .unmask: uiView.sentryReplayClipOut()
+            case .mask: SentryRedactViewHelper.maskSwiftUI(uiView)
+            case .unmask: SentryRedactViewHelper.clipOutView(uiView)
         }
     }
 }

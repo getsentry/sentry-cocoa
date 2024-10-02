@@ -268,12 +268,15 @@ class UIRedactBuilder {
     }
 }
 
+@objc(SentryRedactViewHelper)
 @objcMembers
 class SentryRedactViewHelper: NSObject {
     private static var associatedRedactObjectHandle: UInt8 = 0
     private static var associatedIgnoreObjectHandle: UInt8 = 0
     private static var associatedClipOutObjectHandle: UInt8 = 0
     private static var associatedSwiftUIRedactObjectHandle: UInt8 = 0
+    
+    override private init() {}
     
     static func maskView(_ view: UIView) {
         objc_setAssociatedObject(view, &associatedRedactObjectHandle, true, .OBJC_ASSOCIATION_ASSIGN)
