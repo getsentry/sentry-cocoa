@@ -6,47 +6,64 @@ import UIKit
 struct SentryWidget {
     class Window: UIWindow {
         class RootViewController: UIViewController {
-            lazy var button: UIView = {
+            class Button: UIView {
                 let layoutSpace: CGFloat = 8
+                let svgSize: CGFloat = 16
+                
+                lazy var megaphone: UIView = {
+                    let svgLayer = CAShapeLayer()
+                    svgLayer.path = createSVGPath()
+                    svgLayer.fillColor = UIColor.black.cgColor
+                    svgLayer.fillRule = .evenOdd
+                    
+                    let svgView = UIView(frame: .zero)
+                    svgView.layer.addSublayer(svgLayer)
+                    svgView.translatesAutoresizingMaskIntoConstraints = false
+                    
+                    return svgView
+                }()
+                
+                override init(frame: CGRect) {
+                    let label = UILabel(frame: .zero)
+                    label.text = "Report a Bug"
+                    label.textColor = .black
+                    label.translatesAutoresizingMaskIntoConstraints = false
+                    
+                    var size = label.intrinsicContentSize
+                    size.width += svgSize + 2 * layoutSpace
+                    size.height += 2 * layoutSpace
+                    
+                    super.init(frame: CGRect(origin: .zero, size: size))
+                    translatesAutoresizingMaskIntoConstraints = false
+                    addSubview(megaphone)
+                    addSubview(label)
+                    
+                    backgroundColor = .white
+                    layer.cornerRadius = layoutSpace
+                    layer.borderWidth = 1
+                    layer.borderColor = UIColor.gray.cgColor
 
-                let svgLayer = CAShapeLayer()
-                svgLayer.path = createSVGPath()
-                svgLayer.fillColor = UIColor.black.cgColor
-                svgLayer.fillRule = .evenOdd
+                    NSLayoutConstraint.activate([
+                        megaphone.widthAnchor.constraint(equalToConstant: svgSize),
+                        megaphone.heightAnchor.constraint(equalToConstant: svgSize),
+                        megaphone.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 2 * layoutSpace),
+                        label.leadingAnchor.constraint(equalTo: megaphone.trailingAnchor, constant: layoutSpace),
+                        megaphone.centerYAnchor.constraint(equalTo: label.centerYAnchor),
+                        label.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -2 * layoutSpace),
+                        label.topAnchor.constraint(equalTo: topAnchor, constant: 2 * layoutSpace),
+                        label.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -2 * layoutSpace)
+                    ])
+                    
+                    let tapGesture = UITapGestureRecognizer(target: self, action: #selector(buttonPressed))
+                    addGestureRecognizer(tapGesture)
+                }
                 
-                let svgSize: CGFloat = 24
-                let svgView = UIView(frame: CGRect(origin: .zero, size: .init(width: svgSize, height: svgSize)))
-                svgView.layer.addSublayer(svgLayer)
-                
-                let label = UILabel(frame: .zero)
-                label.text = "Report a Bug"
-                label.textColor = .black
-                
-                let stackView = UIStackView(arrangedSubviews: [svgView, label])
-                stackView.axis = .horizontal
-                stackView.spacing = layoutSpace
-                stackView.translatesAutoresizingMaskIntoConstraints = false
-                
-                var size = label.intrinsicContentSize
-                size.width += svgSize + 2 * layoutSpace
-                size.height += 2 * layoutSpace
-                let buttonView = UIView(frame: CGRect(origin: .zero, size: size))
-                buttonView.translatesAutoresizingMaskIntoConstraints = false
-                buttonView.addSubview(stackView)
-
-                NSLayoutConstraint.activate([
-                    svgView.widthAnchor.constraint(equalToConstant: svgSize),
-                    stackView.leadingAnchor.constraint(equalTo: buttonView.leadingAnchor),
-                    stackView.trailingAnchor.constraint(equalTo: buttonView.trailingAnchor),
-                    stackView.topAnchor.constraint(equalTo: buttonView.topAnchor),
-                    stackView.bottomAnchor.constraint(equalTo: buttonView.bottomAnchor)
-                ])
-                
-                let tapGesture = UITapGestureRecognizer(target: self, action: #selector(buttonPressed))
-                buttonView.addGestureRecognizer(tapGesture)
-                
-                return buttonView
-            }()
+                required init?(coder: NSCoder) {
+                    fatalError("init(coder:) has not been implemented")
+                }
+            }
+            
+            lazy var button = Button()
             
             let config: SentryUserFeedbackWidgetConfiguration
             
