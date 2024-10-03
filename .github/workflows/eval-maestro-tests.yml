@@ -1,4 +1,4 @@
-name: UI Tests
+name: Maestro UI Tests
 on:
   push:
     branches:
