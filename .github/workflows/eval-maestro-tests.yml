@@ -48,7 +48,7 @@ jobs:
           # - runs-on: macos-12
           #   xcode: "13.4.1"
 
-          - runs-on: macos-13
+          - runs-on: macos-14
             xcode: "15.4"
             device: "iPhone 15"
             os_version: "17.2"
@@ -64,8 +64,8 @@ jobs:
           path: iOS-SwiftUI.app
       - uses: futureware-tech/simulator-action@bfa03d93ec9de6dacb0c5553bbf8da8afc6c2ee9 # pin@v3
         with:
-          model: 'iPhone 8'
-          os_version: '16.1'
+          model: ${{matrix.device}}
+          os_version: ${{matrix.os_version}}
       - run: |
           # https://github.com/facebook/react-native/blob/24e7f7d25629a7af6d877a0b79fed2faaab96437/.github/actions/maestro-ios/action.yml#L57
           export MAESTRO_DRIVER_STARTUP_TIMEOUT=1500000 # 25 min. CI is extremely slow
