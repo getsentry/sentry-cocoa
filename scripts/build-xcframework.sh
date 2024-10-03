@@ -2,7 +2,9 @@
 
 set -eou pipefail
 
-if [ "$1" = "reduced" ]; then
+args="${1:-}"
+
+if [ "$args" = "reduced" ]; then
     sdks=( iphoneos iphonesimulator )
 else
     sdks=( iphoneos iphonesimulator macosx appletvos appletvsimulator watchos watchsimulator xros xrsimulator )
@@ -85,7 +87,7 @@ generate_xcframework() {
         OTHER_LDFLAGS="-Wl,-make_mergeable"
     fi
 
-    if [ "$1" != "reduced" ]; then
+    if [ "$args" != "reduced" ]; then
         #Create framework for mac catalyst
         xcodebuild \
             -project Sentry.xcodeproj/ \
@@ -120,7 +122,7 @@ generate_xcframework() {
 
 generate_xcframework "Sentry" "-Dynamic"
 
-if [ "$1" != "reduced" ]; then
+if [ "$args" != "reduced" ]; then
     generate_xcframework "Sentry" "" staticlib
 
     generate_xcframework "SentrySwiftUI"
