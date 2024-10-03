@@ -11,7 +11,9 @@ struct SentryWidget {
 
                 let svgLayer = CAShapeLayer()
                 svgLayer.path = createSVGPath()
-                svgLayer.fillColor = UIColor.clear.cgColor
+                svgLayer.fillColor = UIColor.white.cgColor
+                svgLayer.fillRule = .evenOdd
+                svgLayer.strokeColor = UIColor.black.cgColor
                 
                 let svgSize: CGFloat = 24
                 let svgView = UIView(frame: CGRect(origin: .zero, size: .init(width: svgSize, height: svgSize)))
@@ -34,6 +36,7 @@ struct SentryWidget {
                 buttonView.addSubview(stackView)
 
                 NSLayoutConstraint.activate([
+                    svgView.widthAnchor.constraint(equalToConstant: svgSize),
                     stackView.leadingAnchor.constraint(equalTo: buttonView.leadingAnchor),
                     stackView.trailingAnchor.constraint(equalTo: buttonView.trailingAnchor),
                     stackView.topAnchor.constraint(equalTo: buttonView.topAnchor),
@@ -124,103 +127,80 @@ struct SentryWidget {
 private func createSVGPath() -> CGPath {
     let path = UIBezierPath()
     
-    path.move(to: CGPoint(x: 15.6622, y: 15))
-    path.addLine(to: CGPoint(x: 12.3997, y: 14.9959))
-    path.addLine(to: CGPoint(x: 12.031, y: 14.9396))
-    path.addLine(to: CGPoint(x: 11.8747, y: 14.8375))
-    path.addLine(to: CGPoint(x: 8.04965, y: 12.2))
-    path.addLine(to: CGPoint(x: 7.49956, y: 19.1))
-    path.addLine(to: CGPoint(x: 7.4875, y: 19.3348))
-    path.addLine(to: CGPoint(x: 7.3888, y: 19.5568))
-    path.addLine(to: CGPoint(x: 7.22256, y: 19.723))
-    path.addLine(to: CGPoint(x: 7.05632, y: 19.8892))
-    path.addLine(to: CGPoint(x: 6.83435, y: 19.9879))
-    path.addLine(to: CGPoint(x: 6.59956, y: 20))
-    path.addLine(to: CGPoint(x: 2.04956, y: 20))
-    path.addLine(to: CGPoint(x: 1.80193, y: 19.9968))
-    path.addLine(to: CGPoint(x: 1.56535, y: 19.8969))
-    path.addLine(to: CGPoint(x: 1.39023, y: 19.7218))
-    path.addLine(to: CGPoint(x: 1.21511, y: 19.5467))
-    path.addLine(to: CGPoint(x: 1.1153, y: 19.3101))
-    path.addLine(to: CGPoint(x: 1.11206, y: 19.0625))
-    path.addLine(to: CGPoint(x: 1.11206, y: 12.2))
-    path.addLine(to: CGPoint(x: 0.949652, y: 12.2017))
-    path.addLine(to: CGPoint(x: 0.824431, y: 12.1783))
-    path.addLine(to: CGPoint(x: 0.700142, y: 12.1311))
-    path.addLine(to: CGPoint(x: 0.584123, y: 12.084))
-    path.addLine(to: CGPoint(x: 0.468104, y: 12.014))
-    path.addLine(to: CGPoint(x: 0.362708, y: 11.9255))
-    path.addLine(to: CGPoint(x: 0.274155, y: 11.8369))
-    path.addLine(to: CGPoint(x: 0.185602, y: 11.7315))
-    path.addLine(to: CGPoint(x: 0.115689, y: 11.6155))
-    path.addLine(to: CGPoint(x: 0.0685419, y: 11.4995))
-    path.addLine(to: CGPoint(x: -0.00202913, y: 11.3752))
-    path.addLine(to: CGPoint(x: -0.00034808, y: 11.25))
-    path.addLine(to: CGPoint(x: -0.00900498, y: 3.75))
-    path.addLine(to: CGPoint(x: 0.0092504, y: 3.49095))
-    path.addLine(to: CGPoint(x: 0.0532651, y: 3.36904))
-    path.addLine(to: CGPoint(x: 0.0972798, y: 3.24712))
-    path.addLine(to: CGPoint(x: 0.166097, y: 3.13566))
-    path.addLine(to: CGPoint(x: 0.255372, y: 3.04168))
-    path.addLine(to: CGPoint(x: 0.344646, y: 2.94771))
-    path.addLine(to: CGPoint(x: 0.452437, y: 2.87327))
-    path.addLine(to: CGPoint(x: 0.571937, y: 2.82307))
-    path.addLine(to: CGPoint(x: 0.691437, y: 2.77286))
-    path.addLine(to: CGPoint(x: 0.82005, y: 2.74798))
-    path.addLine(to: CGPoint(x: 0.949652, y: 2.75))
-    path.addLine(to: CGPoint(x: 8.04965, y: 2.75))
-    path.addLine(to: CGPoint(x: 11.8747, y: 0.1625))
-    path.addLine(to: CGPoint(x: 12.031, y: 0.0603649))
-    path.addLine(to: CGPoint(x: 12.2129, y: 0.00407221))
-    path.addLine(to: CGPoint(x: 12.3997, y: 0))
-    path.addLine(to: CGPoint(x: 15.6622, y: 0))
-    path.addLine(to: CGPoint(x: 15.9098, y: 0.00323746))
-    path.addLine(to: CGPoint(x: 16.1464, y: 0.103049))
-    path.addLine(to: CGPoint(x: 16.3215, y: 0.278167))
-    path.addLine(to: CGPoint(x: 16.4966, y: 0.453286))
-    path.addLine(to: CGPoint(x: 16.5964, y: 0.689866))
-    path.addLine(to: CGPoint(x: 16.5997, y: 0.9375))
-    path.addLine(to: CGPoint(x: 17.3969, y: 3.42959))
-    path.addLine(to: CGPoint(x: 18.1345, y: 3.83026))
-    path.addLine(to: CGPoint(x: 18.7211, y: 4.41679))
-    path.addLine(to: CGPoint(x: 19.5322, y: 5.22788))
-    path.addLine(to: CGPoint(x: 19.9878, y: 6.32796))
-    path.addLine(to: CGPoint(x: 19.9878, y: 7.47502))
-    path.addLine(to: CGPoint(x: 19.9878, y: 8.62209))
-    path.addLine(to: CGPoint(x: 19.5322, y: 9.72217))
-    path.addLine(to: CGPoint(x: 18.7211, y: 10.5333))
-    path.addLine(to: CGPoint(x: 18.1345, y: 11.1198))
-    path.addLine(to: CGPoint(x: 17.3969, y: 11.5205))
-    path.addLine(to: CGPoint(x: 16.5997, y: 11.6974))
-    path.addLine(to: CGPoint(x: 16.6047, y: 14.0125))
-    path.addLine(to: CGPoint(x: 16.6536, y: 5.02355))
-    path.addLine(to: CGPoint(x: 16.7072, y: 5.03495))
-    path.addLine(to: CGPoint(x: 16.7605, y: 5.04814))
-    path.addLine(to: CGPoint(x: 17.1202, y: 5.13709))
-    path.addLine(to: CGPoint(x: 17.4556, y: 5.30487))
-    path.addLine(to: CGPoint(x: 17.7425, y: 5.53934))
-    path.addLine(to: CGPoint(x: 18.0293, y: 5.77381))
-    path.addLine(to: CGPoint(x: 18.2605, y: 6.06912))
-    path.addLine(to: CGPoint(x: 18.4192, y: 6.40389))
-    path.addLine(to: CGPoint(x: 18.578, y: 6.73866))
-    path.addLine(to: CGPoint(x: 18.6603, y: 7.10452))
-    path.addLine(to: CGPoint(x: 18.6603, y: 7.47502))
-    path.addLine(to: CGPoint(x: 18.6603, y: 7.84552))
-    path.addLine(to: CGPoint(x: 18.578, y: 8.21139))
-    path.addLine(to: CGPoint(x: 18.4192, y: 8.54616))
-    path.addLine(to: CGPoint(x: 18.2605, y: 8.88093))
-    path.addLine(to: CGPoint(x: 18.0293, y: 9.17624))
-    path.addLine(to: CGPoint(x: 17.7425, y: 9.41071))
-    path.addLine(to: CGPoint(x: 17.4556, y: 9.64518))
-    path.addLine(to: CGPoint(x: 17.1202, y: 9.81296))
-    path.addLine(to: CGPoint(x: 16.7605, y: 9.90191))
-    path.addLine(to: CGPoint(x: 16.7072, y: 9.91509))
-    path.addLine(to: CGPoint(x: 16.6536, y: 9.9265))
-    path.addLine(to: CGPoint(x: 16.5997, y: 9.93612))
-    
-    path.close()
+    //M12.5297 12.03
+    path.move(to: <#T##CGPoint#>)
+    //H9.91972
+    //C9.77033 12.0268 9.62483 11.9817 9.49972 11.9
+    //L6.43972 9.79003
+    //H5.99965
+    //V15.31
+    //C5.99 15.4979 5.91104 15.6754 5.77805 15.8084
+    //C5.64506 15.9414 5.46748 16.0204 5.27965 16.03
+    //H1.63965
+    //C1.44154 16.0274 1.25228 15.9476 1.11218 15.8075
+    //C0.972088 15.6674 0.892238 15.4781 0.889648 15.28
+    //V9.79003
+    //H0.759722
+    //C0.659545 9.79137 0.560114 9.77264 0.467299 9.73492
+    //C0.374484 9.6972 0.290166 9.64127 0.219324 9.57043
+    //C0.148482 9.49959 0.0925509 9.41527 0.0548335 9.32245
+    //C0.0171161 9.22964 -0.0016233 9.13021 -0.000278464 9.03003
+    //V3.03003
+    //C-0.00720398 2.92657 0.00740032 2.82279 0.0426121 2.72526
+    //C0.0778238 2.62773 0.132878 2.53855 0.204297 2.46338
+    //C0.275717 2.3882 0.36195 2.32865 0.45755 2.28848
+    //C0.55315 2.24832 0.65604 2.22842 0.759722 2.23003
+    //H6.43972
+    //L9.49972 0.160029
+    //C9.62483 0.0783212 9.77033 0.0332871 9.91972 0.0300293
+    //H12.5297
+    //C12.7278 0.0326193 12.9171 0.112468 13.0572 0.252563
+    //C13.1973 0.392658 13.2771 0.581922 13.2797 0.780029
+    //V2.63218
+    //C13.9175 2.7737 14.5076 3.09424 14.9769 3.56346
+    //C15.6257 4.21234 15.9903 5.0924 15.9903 6.01005
+    //C15.9903 6.9277 15.6257 7.80776 14.9769 8.45664
+    //C14.5076 8.92586 13.9175 9.2464 13.2797 9.38792
+    //V11.24
+    //C13.2837 11.3415 13.2674 11.4427 13.2316 11.5378
+    //C13.1959 11.6328 13.1414 11.7197 13.0715 11.7934
+    //C13.0016 11.867 12.9176 11.9259 12.8246 11.9665
+    //C12.7315 12.0072 12.6313 12.0288 12.5297 12.03
+    //Z
+    //M1.51756 8.29003
+    //H1.50972
+    //V3.73003
+    //H6.66972
+    //C6.81938 3.72844 6.96533 3.68326 7.08972 3.60003
+    //L10.1497 1.53003
+    //H11.7797
+    //V10.53
+    //H10.1497
+    //L7.08972 8.42003
+    //C6.96533 8.3368 6.81938 8.29162 6.66972 8.29003
+    //H1.76173
+    //C1.72164 8.28341 1.68082 8.28003 1.63965 8.28003
+    //C1.59848 8.28003 1.55766 8.28341 1.51756 8.29003
+    //Z
+    //M2.38965 9.79003
+    //V14.56
+    //H4.52965
+    //V9.79003
+    //H2.38965
+    //Z
+    //M13.2797 7.97893
+    //V4.04117
+    //C13.3228 4.04887 13.3658 4.05799 13.4084 4.06854
+    //C13.6962 4.1397 13.9645 4.27393 14.194 4.4615
+    //C14.4235 4.64908 14.6084 4.88532 14.7354 5.15314
+    //C14.8624 5.42095 14.9283 5.71365 14.9283 6.01005
+    //C14.9283 6.30645 14.8624 6.59914 14.7354 6.86696
+    //C14.6084 7.13478 14.4235 7.37102 14.194 7.55859
+    //C13.9645 7.74617 13.6962 7.8804 13.4084 7.95156
+    //C13.3658 7.9621 13.3228 7.97123 13.2797 7.97893
+    //Z
 
-    return path.cgPath
+    return path
 }
 //swiftlint:enable function_body_length
 
