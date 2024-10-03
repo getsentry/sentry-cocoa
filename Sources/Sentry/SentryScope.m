@@ -2,7 +2,7 @@
 #import "SentryAttachment+Private.h"
 #import "SentryBreadcrumb.h"
 #import "SentryEnvelopeItemType.h"
-#import "SentryEvent.h"
+#import "SentryEvent+Private.h"
 #import "SentryGlobalEventProcessor.h"
 #import "SentryLevelMapper.h"
 #import "SentryLog.h"
@@ -562,6 +562,13 @@ NS_ASSUME_NONNULL_BEGIN
     NSMutableDictionary *newContext = [self context].mutableCopy;
     if (event.context != nil) {
         [SentryDictionary mergeEntriesFromDictionary:event.context intoDictionary:newContext];
+    }
+
+    // Don't add the trace context of a current trace to a crash event because crash events are from
+    // a previous run.
+    if (event.isCrashEvent) {
+        event.context = newContext;
+        return event;
     }
 
     if (self.span != nil) {
