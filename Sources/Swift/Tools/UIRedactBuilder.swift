@@ -52,10 +52,10 @@ class UIRedactBuilder {
 
      - parameter options: A `SentryRedactOptions` object that specifies the configuration for the redaction process.
      
-     - If `options.redactAllText` is `true`, common text-related views such as `UILabel`, `UITextView`, and `UITextField` are redacted.
-     - If `options.redactAllImages` is `true`, common image-related views such as `UIImageView` and various internal `SwiftUI` image views are redacted.
-     - The `options.ignoreRedactViewTypes` allows specifying custom view types to be ignored during the redaction process.
-     - The `options.redactViewTypes` allows specifying additional custom view types to be redacted.
+     - If `options.maskAllText` is `true`, common text-related views such as `UILabel`, `UITextView`, and `UITextField` are redacted.
+     - If `options.maskAllImages` is `true`, common image-related views such as `UIImageView` and various internal `SwiftUI` image views are redacted.
+     - The `options.unmaskViewTypes` allows specifying custom view types to be ignored during the redaction process.
+     - The `options.maskViewTypes` allows specifying additional custom view types to be redacted.
 
      - note: On iOS, views such as `WKWebView` and `UIWebView` are automatically redacted, and controls like `UISlider` and `UISwitch` are ignored.
      */
@@ -133,15 +133,15 @@ class UIRedactBuilder {
      This function identifies and returns the regions within a given UIView that need to be redacted, based on the specified redaction options.
      
      - Parameter view: The root UIView for which redaction regions are to be calculated.
-     - Parameter options: A `SentryRedactOptions` object specifying whether to redact all text (`redactAllText`) or all images (`redactAllImages`). If `options` is nil, defaults are used (redacting all text and images).
+     - Parameter options: A `SentryRedactOptions` object specifying whether to redact all text (`maskAllText`) or all images (`maskAllImages`). If `options` is nil, defaults are used (redacting all text and images).
      
      - Returns: An array of `RedactRegion` objects representing areas of the view (and its subviews) that require redaction, based on the current visibility, opacity, and content (text or images).
      
      The method recursively traverses the view hierarchy, collecting redaction areas from the view and all its subviews. Each redaction area is calculated based on the view’s presentation layer, size, transformation matrix, and other attributes.
      
      The redaction process considers several key factors:
-     1. **Text Redaction**: If `redactAllText` is set to true, regions containing text within the view or its subviews are marked for redaction.
-     2. **Image Redaction**: If `redactAllImages` is set to true, image-containing regions are also marked for redaction.
+     1. **Text Redaction**: If `maskAllText` is set to true, regions containing text within the view or its subviews are marked for redaction.
+     2. **Image Redaction**: If `maskAllImages` is set to true, image-containing regions are also marked for redaction.
      3. **Opaque View Handling**: If an opaque view covers the entire area, obfuscating views beneath it, those hidden views are excluded from processing, and we can remove them from the result.
      4. **Clip Area Creation**: If a smaller opaque view blocks another view, we create a clip area to avoid drawing a redact mask on top of a view that does not require redaction.
      
