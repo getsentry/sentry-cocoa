@@ -11,9 +11,8 @@ struct SentryWidget {
 
                 let svgLayer = CAShapeLayer()
                 svgLayer.path = createSVGPath()
-                svgLayer.fillColor = UIColor.white.cgColor
+                svgLayer.fillColor = UIColor.black.cgColor
                 svgLayer.fillRule = .evenOdd
-                svgLayer.strokeColor = UIColor.black.cgColor
                 
                 let svgSize: CGFloat = 24
                 let svgView = UIView(frame: CGRect(origin: .zero, size: .init(width: svgSize, height: svgSize)))
@@ -136,7 +135,7 @@ private func createSVGPath() -> CGPath {
     //L6.43972 9.79003
     bezier1.addLine(to: CGPoint(x: 6.43972, y: 9.79003))
     //H5.99965
-    bezier1.addLine(to: CGPoint(x: 5.99965, y: 15.31))
+    bezier1.addLine(to: CGPoint(x: 5.99965, y: 9.79003))
     //V15.31
     bezier1.addLine(to: CGPoint(x: 5.99965, y: 15.31))
     //C5.99 15.4979 5.91104 15.6754 5.77805 15.8084
@@ -150,7 +149,7 @@ private func createSVGPath() -> CGPath {
     //C0.972088 15.6674 0.892238 15.4781 0.889648 15.28
     bezier1.addCurve(to: CGPoint(x: 0.889648, y: 15.28), controlPoint1: CGPoint(x: 0.972088, y: 15.6674), controlPoint2: CGPoint(x: 0.892238, y: 15.4781))
     //V9.79003
-    bezier1.addLine(to: CGPoint(x: 0.759722, y: 9.79003))
+    bezier1.addLine(to: CGPoint(x: 0.889648, y: 9.79003))
     //H0.759722
     bezier1.addLine(to: CGPoint(x: 0.759722, y: 9.79003))
     //C0.659545 9.79137 0.560114 9.77264 0.467299 9.73492
@@ -162,47 +161,47 @@ private func createSVGPath() -> CGPath {
     //C0.0171161 9.22964 -0.0016233 9.13021 -0.000278464 9.03003
     bezier1.addCurve(to: CGPoint(x: -0.000278464, y: 9.03003), controlPoint1: CGPoint(x: 0.0171161, y: 9.22964), controlPoint2: CGPoint(x: -0.0016233, y: 9.13021))
     //V3.03003
-    bezier1.addLine(to: CGPoint(x: 0.0426121, y: 2.72526))
+    bezier1.addLine(to: CGPoint(x: -0.000278464, y: 3.03003))
     //C-0.00720398 2.92657 0.00740032 2.82279 0.0426121 2.72526
     bezier1.addCurve(to: CGPoint(x: 0.0426121, y: 2.72526), controlPoint1: CGPoint(x: -0.00720398, y: 2.92657), controlPoint2: CGPoint(x: 0.00740032, y: 2.82279))
-    //C0.0778238 2.62773 0.132878 2.53855 0.204297 2.46338 x
-    bezier1.addCurve(to: CGPoint(x: 0.204297, y: 2.46338), controlPoint1: CGPoint(x: 0.132878, y: 2.53855), controlPoint2: CGPoint(x: 0.0778238, y: 2.62773))
-    //C0.275717 2.3882 0.36195 2.32865 0.45755 2.28848 x
-    bezier1.addCurve(to: CGPoint(x: 0.45755, y: 2.28848), controlPoint1: CGPoint(x: 0.36195, y: 2.32865), controlPoint2: CGPoint(x: 0.275717, y: 2.3882))
-    //C0.55315 2.24832 0.65604 2.22842 0.759722 2.23003 x
-    bezier1.addCurve(to: CGPoint(x: 0.759722, y: 2.23003), controlPoint1: CGPoint(x: 0.65604, y: 2.22842), controlPoint2: CGPoint(x: 0.55315, y: 2.24832))
+    //C0.0778238 2.62773 0.132878 2.53855 0.204297 2.46338
+    bezier1.addCurve(to: CGPoint(x: 0.204297, y: 2.46338), controlPoint1: CGPoint(x: 0.0778238, y: 2.62773), controlPoint2: CGPoint(x: 0.132878, y: 2.53855))
+    //C0.275717 2.3882 0.36195 2.32865 0.45755 2.28848
+    bezier1.addCurve(to: CGPoint(x: 0.45755, y: 2.28848), controlPoint1: CGPoint(x: 0.275717, y: 2.3882), controlPoint2: CGPoint(x: 0.36195, y: 2.32865))
+    //C0.55315 2.24832 0.65604 2.22842 0.759722 2.23003
+    bezier1.addCurve(to: CGPoint(x: 0.759722, y: 2.23003), controlPoint1: CGPoint(x: 0.55315, y: 2.24832), controlPoint2: CGPoint(x: 0.65604, y: 2.22842))
     //H6.43972
-    bezier1.addLine(to: CGPoint(x: 6.43972, y: 0.160029))
+    bezier1.addLine(to: CGPoint(x: 6.43972, y: 2.23003))
     //L9.49972 0.160029
     bezier1.addLine(to: CGPoint(x: 9.49972, y: 0.160029))
-    //C9.62483 0.0783212 9.77033 0.0332871 9.91972 0.0300293 x
-    bezier1.addCurve(to: CGPoint(x: 9.91972, y: 0.0300293), controlPoint1: CGPoint(x: 9.77033, y: 0.0332871), controlPoint2: CGPoint(x: 9.62483, y: 0.0783212))
+    //C9.62483 0.0783212 9.77033 0.0332871 9.91972 0.0300293
+    bezier1.addCurve(to: CGPoint(x: 9.91972, y: 0.0300293), controlPoint1: CGPoint(x: 9.62483, y: 0.0783212), controlPoint2: CGPoint(x: 9.77033, y: 0.0332871))
     //H12.5297
-    bezier1.addLine(to: CGPoint(x: 12.5297, y: 0.03))
-    //C12.7278 0.0326193 12.9171 0.112468 13.0572 0.252563 x
-    bezier1.addCurve(to: CGPoint(x: 13.0572, y: 0.252563), controlPoint1: CGPoint(x: 12.9171, y: 0.112468), controlPoint2: CGPoint(x: 12.7278, y: 0.0326193))
-    //C13.1973 0.392658 13.2771 0.581922 13.2797 0.780029 x
-    bezier1.addCurve(to: CGPoint(x: 13.2797, y: 0.780029), controlPoint1: CGPoint(x: 13.2771, y: 0.581922), controlPoint2: CGPoint(x: 13.1973, y: 0.392658))
+    bezier1.addLine(to: CGPoint(x: 12.5297, y: 0.0300293))
+    //C12.7278 0.0326193 12.9171 0.112468 13.0572 0.252563
+    bezier1.addCurve(to: CGPoint(x: 13.0572, y: 0.252563), controlPoint1: CGPoint(x: 12.7278, y: 0.0326193), controlPoint2: CGPoint(x: 12.9171, y: 0.112468))
+    //C13.1973 0.392658 13.2771 0.581922 13.2797 0.780029
+    bezier1.addCurve(to: CGPoint(x: 13.2797, y: 0.780029), controlPoint1: CGPoint(x: 13.1973, y: 0.392658), controlPoint2: CGPoint(x: 13.2771, y: 0.581922))
     //V2.63218
     bezier1.addLine(to: CGPoint(x: 13.2797, y: 2.63218))
-    //C13.9175 2.7737 14.5076 3.09424 14.9769 3.56346 x
-    bezier1.addCurve(to: CGPoint(x: 14.9769, y: 3.56346), controlPoint1: CGPoint(x: 14.5076, y: 3.09424), controlPoint2: CGPoint(x: 13.9175, y: 2.7737))
-    //C15.6257 4.21234 15.9903 5.0924 15.9903 6.01005 x
-    bezier1.addCurve(to: CGPoint(x: 15.9903, y: 6.01005), controlPoint1: CGPoint(x: 15.9903, y: 5.0924), controlPoint2: CGPoint(x: 15.6257, y: 4.21234))
-    //C15.9903 6.9277 15.6257 7.80776 14.9769 8.45664 x
-    bezier1.addCurve(to: CGPoint(x: 14.9769, y: 8.45664), controlPoint1: CGPoint(x: 15.6257, y: 7.80776), controlPoint2: CGPoint(x: 15.9903, y: 6.9277))
-    //C14.5076 8.92586 13.9175 9.2464 13.2797 9.38792 x
-    bezier1.addCurve(to: CGPoint(x: 13.2797, y: 9.38792), controlPoint1: CGPoint(x: 13.9175, y: 9.2464), controlPoint2: CGPoint(x: 14.5076, y: 8.92586))
+    //C13.9175 2.7737 14.5076 3.09424 14.9769 3.56346
+    bezier1.addCurve(to: CGPoint(x: 14.9769, y: 3.56346), controlPoint1: CGPoint(x: 13.9175, y: 2.7737), controlPoint2: CGPoint(x: 14.5076, y: 3.09424))
+    //C15.6257 4.21234 15.9903 5.0924 15.9903 6.01005
+    bezier1.addCurve(to: CGPoint(x: 15.9903, y: 6.01005), controlPoint1: CGPoint(x: 15.6257, y: 4.21234), controlPoint2: CGPoint(x: 15.9903, y: 5.0924))
+    //C15.9903 6.9277 15.6257 7.80776 14.9769 8.45664
+    bezier1.addCurve(to: CGPoint(x: 14.9769, y: 8.45664), controlPoint1: CGPoint(x: 15.9903, y: 6.9277), controlPoint2: CGPoint(x: 15.6257, y: 7.80776))
+    //C14.5076 8.92586 13.9175 9.2464 13.2797 9.38792
+    bezier1.addCurve(to: CGPoint(x: 13.2797, y: 9.38792), controlPoint1: CGPoint(x: 14.5076, y: 8.92586), controlPoint2: CGPoint(x: 13.9175, y: 9.2464))
     //V11.24
     bezier1.addLine(to: CGPoint(x: 13.2797, y: 11.24))
-    //C13.2837 11.3415 13.2674 11.4427 13.2316 11.5378 x
-    bezier1.addCurve(to: CGPoint(x: 13.2316, y: 11.5378), controlPoint1: CGPoint(x: 13.2674, y: 11.4427), controlPoint2: CGPoint(x: 13.2837, y: 11.3415))
-    //C13.1959 11.6328 13.1414 11.7197 13.0715 11.7934 x
-    bezier1.addCurve(to: CGPoint(x: 13.0715, y: 11.7934), controlPoint1: CGPoint(x: 13.1414, y: 11.7197), controlPoint2: CGPoint(x: 13.1959, y: 11.6328))
-    //C13.0016 11.867 12.9176 11.9259 12.8246 11.9665 x
-    bezier1.addCurve(to: CGPoint(x: 12.8246, y: 11.9665), controlPoint1: CGPoint(x: 12.9176, y: 11.9259), controlPoint2: CGPoint(x: 13.0016, y: 11.867))
-    //C12.7315 12.0072 12.6313 12.0288 12.5297 12.03 x
-    bezier1.addCurve(to: CGPoint(x: 12.5297, y: 12.03), controlPoint1: CGPoint(x: 12.6313, y: 12.0288), controlPoint2: CGPoint(x: 12.7315, y: 12.0072))
+    //C13.2837 11.3415 13.2674 11.4427 13.2316 11.5378
+    bezier1.addCurve(to: CGPoint(x: 13.2316, y: 11.5378), controlPoint1: CGPoint(x: 13.2837, y: 11.3415), controlPoint2: CGPoint(x: 13.2674, y: 11.4427))
+    //C13.1959 11.6328 13.1414 11.7197 13.0715 11.7934
+    bezier1.addCurve(to: CGPoint(x: 13.0715, y: 11.7934), controlPoint1: CGPoint(x: 13.1959, y: 11.6328), controlPoint2: CGPoint(x: 13.1414, y: 11.7197))
+    //C13.0016 11.867 12.9176 11.9259 12.8246 11.9665
+    bezier1.addCurve(to: CGPoint(x: 12.8246, y: 11.9665), controlPoint1: CGPoint(x: 13.0016, y: 11.867), controlPoint2: CGPoint(x: 12.9176, y: 11.9259))
+    //C12.7315 12.0072 12.6313 12.0288 12.5297 12.03
+    bezier1.addCurve(to: CGPoint(x: 12.5297, y: 12.03), controlPoint1: CGPoint(x: 12.5297, y: 12.03), controlPoint2: CGPoint(x: 12.6313, y: 12.0288))
     //Z
     bezier1.close()
 
@@ -214,8 +213,8 @@ private func createSVGPath() -> CGPath {
     bezier1.addLine(to: CGPoint(x: 1.50972, y: 3.73003))
     //H6.66972
     bezier1.addLine(to: CGPoint(x: 6.66972, y: 3.72844))
-    //C6.81938 3.72844 6.96533 3.68326 7.08972 3.60003 x
-    bezier1.addCurve(to: CGPoint(x: 7.08972, y: 3.60003), controlPoint1: CGPoint(x: 6.96533, y: 3.68326), controlPoint2: CGPoint(x: 6.81938, y: 3.72844))
+    //C6.81938 3.72844 6.96533 3.68326 7.08972 3.60003
+    bezier1.addCurve(to: CGPoint(x: 7.08972, y: 3.60003), controlPoint1: CGPoint(x: 6.81938, y: 3.72844), controlPoint2: CGPoint(x: 6.96533, y: 3.68326))
     //L10.1497 1.53003
     bezier1.addLine(to: CGPoint(x: 10.1497, y: 1.53003))
     //H11.7797
@@ -226,14 +225,14 @@ private func createSVGPath() -> CGPath {
     bezier1.addLine(to: CGPoint(x: 10.1497, y: 10.53))
     //L7.08972 8.42003
     bezier1.addLine(to: CGPoint(x: 7.08972, y: 8.42003))
-    //C6.96533 8.3368 6.81938 8.29162 6.66972 8.29003 x
-    bezier1.addCurve(to: CGPoint(x: 6.66972, y: 8.29003), controlPoint1: CGPoint(x: 6.81938, y: 8.29162), controlPoint2: CGPoint(x: 6.96533, y: 8.3368))
+    //C6.96533 8.3368 6.81938 8.29162 6.66972 8.29003
+    bezier1.addCurve(to: CGPoint(x: 6.66972, y: 8.29003), controlPoint1: CGPoint(x: 6.96533, y: 8.3368), controlPoint2: CGPoint(x: 6.81938, y: 8.29162))
     //H1.76173
     bezier1.addLine(to: CGPoint(x: 1.76173, y: 8.29003))
-    //C1.72164 8.28341 1.68082 8.28003 1.63965 8.28003 x
-    bezier1.addCurve(to: CGPoint(x: 1.63965, y: 8.28003), controlPoint1: CGPoint(x: 1.68082, y: 8.28003), controlPoint2: CGPoint(x: 1.72164, y: 8.28341))
-    //C1.59848 8.28003 1.55766 8.28341 1.51756 8.29003 x
-    bezier1.addCurve(to: CGPoint(x: 1.51756, y: 8.29003), controlPoint1: CGPoint(x: 1.55766, y: 8.28341), controlPoint2: CGPoint(x: 1.59848, y: 8.28003))
+    //C1.72164 8.28341 1.68082 8.28003 1.63965 8.28003
+    bezier1.addCurve(to: CGPoint(x: 1.63965, y: 8.28003), controlPoint1: CGPoint(x: 1.72164, y: 8.28341), controlPoint2: CGPoint(x: 1.68082, y: 8.28003))
+    //C1.59848 8.28003 1.55766 8.28341 1.51756 8.29003
+    bezier1.addCurve(to: CGPoint(x: 1.51756, y: 8.29003), controlPoint1: CGPoint(x: 1.59848, y: 8.28003), controlPoint2: CGPoint(x: 1.55766, y: 8.28341))
     //Z
     bezier1.close()
 
@@ -244,7 +243,7 @@ private func createSVGPath() -> CGPath {
     //H4.52965
     bezier1.addLine(to: CGPoint(x: 4.52965, y: 14.56))
     //V9.79003
-    bezier1.addLine(to: CGPoint(x: 2.38965, y: 9.79003))
+    bezier1.addLine(to: CGPoint(x: 4.52965, y: 9.79003))
     //H2.38965
     bezier1.addLine(to: CGPoint(x: 2.38965, y: 9.79003))
     //Z
@@ -257,7 +256,7 @@ private func createSVGPath() -> CGPath {
     //C13.3228 4.04887 13.3658 4.05799 13.4084 4.06854
     bezier1.addCurve(to: CGPoint(x: 13.4084, y: 4.06854), controlPoint1: CGPoint(x: 13.3228, y: 4.04887), controlPoint2: CGPoint(x: 13.3658, y: 4.05799))
     //C13.6962 4.1397 13.9645 4.27393 14.194 4.4615
-    bezier1.addCurve(to: CGPoint(x: 14.194, y: 4.4615), controlPoint1: CGPoint(x: 13.9645, y: 4.27393), controlPoint2: CGPoint(x: 13.6962, y: 4.1397))
+    bezier1.addCurve(to: CGPoint(x: 14.194, y: 4.4615), controlPoint1: CGPoint(x: 13.6962, y: 4.1397), controlPoint2: CGPoint(x: 13.9645, y: 4.27393))
     //C14.4235 4.64908 14.6084 4.88532 14.7354 5.15314
     bezier1.addCurve(to: CGPoint(x: 14.7354, y: 5.15314), controlPoint1: CGPoint(x: 14.4235, y: 4.64908), controlPoint2: CGPoint(x: 14.6084, y: 4.88532))
     //C14.8624 5.42095 14.9283 5.71365 14.9283 6.01005
