@@ -16,6 +16,7 @@ on:
       - '.sauce/benchmarking-config.yml'
       - 'fastlane/**'
       - 'scripts/ci-select-xcode.sh'
+      - 'scripts/build-xcframework.sh'
 
 # https://docs.github.com/en/actions/using-jobs/using-concurrency#example-using-a-fallback-value
 concurrency:
