@@ -28,7 +28,7 @@ jobs:
     runs-on: macos-13
     steps:
       - uses: actions/checkout@v4
-      - run: ./scripts/ci-select-xcode.sh
+      - run: ./scripts/ci-select-xcode.sh 15.2
       - uses: ruby/setup-ruby@v1
         with:
           bundler-cache: true
@@ -91,7 +91,7 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           name: DerivedData-Xcode
-      - run: npm install -g saucectl@0.173.2
+      - run: npm install -g saucectl@0.186.0
       - name: Run Benchmarks in SauceLab
         env:
           SAUCE_USERNAME: ${{ secrets.SAUCE_USERNAME }}
@@ -100,11 +100,11 @@ jobs:
 
   app-metrics:
     name: Collect app metrics
-    runs-on: macos-13
+    runs-on: macos-13-xlarge
     steps:
       - name: Git checkout
         uses: actions/checkout@v4
-      - run: ./scripts/ci-select-xcode.sh
+      - run: ./scripts/ci-select-xcode.sh 15.2
       - uses: ruby/setup-ruby@v1
         with:
           bundler-cache: true
