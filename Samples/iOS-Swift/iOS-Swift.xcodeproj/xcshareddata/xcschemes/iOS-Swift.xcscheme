@@ -74,6 +74,10 @@
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
+            argument = "--io.sentry.iOS-Swift.user-feedback.icon-only-widget"
+            isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
             argument = "--skip-sentry-init"
             isEnabled = "NO">
          </CommandLineArgument>
