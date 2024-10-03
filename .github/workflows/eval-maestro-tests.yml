@@ -1,0 +1,64 @@
+name: UI Tests
+on:
+  push:
+    branches:
+      - main
+
+  pull_request:
+    paths:
+      - 'Sources/**'
+      - 'Tests/**'
+      - '.github/workflows/ui-tests.yml'
+      - 'fastlane/**'
+      - '.sauce/config.yml'
+      - 'scripts/ci-select-xcode.sh'
+      - 'Samples/iOS-Swift/**'
+
+
+# https://docs.github.com/en/actions/using-jobs/using-concurrency#example-using-a-fallback-value
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  build-swift-ui:
+    name: Maestro Build SwiftUI for UI Tests Simulator
+    runs-on: macos-13
+
+    steps:
+      - uses: actions/checkout@v4
+      - run: ./scripts/ci-select-xcode.sh 14.3
+      - uses: ruby/setup-ruby@v1
+        with:
+          bundler-cache: true
+      - run: bundle exec fastlane build_ios_swift_ui_for_tests
+      - uses: actions/upload-artifact@v4
+        with:
+          name: maestro-ios-swift-ui-for-tests
+          path: DerivedData/Build/Products/Debug-iphonesimulator/iOS-SwiftUI.app
+
+  eval-maestro-swift-ui-tests:
+    name: Maestro UI Tests for SwiftUI on ${{matrix.device}} Simulator
+    needs: [build-swift-ui]
+    runs-on: ${{matrix.runs-on}}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # - runs-on: macos-12
+          #   xcode: "13.4.1"
+
+          - runs-on: macos-13
+            xcode: "14.3"
+
+    steps:
+      - uses: actions/checkout@v4
+      - run: ./scripts/ci-select-xcode.sh ${{matrix.xcode}}
+      - run: which maestro || brew tap mobile-dev-inc/tap && brew install maestro
+      - run: brew tap facebook/fb && brew install idb-companion
+      - uses: actions/download-artifact@v4
+        with:
+          name: maestro-ios-swift-ui-for-tests
+          path: iOS-SwiftUI.app
+      - run: maestro start-device --platform ios --os-version 16
+      - run: maestro test crash.yaml

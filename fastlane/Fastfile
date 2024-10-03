@@ -21,7 +21,7 @@ platform :ios do
       )
     new_version = version.split("-", -1)[0]
 
-    # We also need to replace the MARKETING_VERSION otherwise the build will fail with 
+    # We also need to replace the MARKETING_VERSION otherwise the build will fail with
     # error: The CFBundleShortVersionString of an App Clip ('8.9.0-beta.1') must match that of its containing parent app ('8.9.0').
     sh "sed -i '' 's/MARKETING_VERSION = #{version}/MARKETING_VERSION = #{new_version}/g' ../Samples/iOS-Swift/iOS-Swift.xcodeproj/project.pbxproj"
 
@@ -118,6 +118,23 @@ platform :ios do
     )
 
     delete_keychain(name: "fastlane_tmp_keychain") unless is_ci
+  end
+
+  lane :build_ios_swift_ui_for_tests do
+
+    setup_ci(
+      force: true
+    )
+
+    build_app(
+      workspace: "Sentry.xcworkspace",
+      scheme: "iOS-SwiftUI",
+      configuration: "Debug",
+      derived_data_path: "DerivedData",
+      destination: "generic/platform=iOS Simulator",
+      xcargs: "-sdk 'iphonesimulator'",
+      skip_archive: true
+    )
   end
 
   lane :build_ios_swift_ui_test do

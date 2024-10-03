@@ -1,0 +1,5 @@
+appId: io.sentry.iOS-SwiftUI
+---
+- launchApp
+- tapOn: "Crash"
+- launchApp
