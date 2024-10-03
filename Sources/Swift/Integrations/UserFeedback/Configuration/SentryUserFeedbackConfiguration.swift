@@ -91,16 +91,18 @@ import UIKit
      */
     public var configureTheme: ((SentryUserFeedbackThemeConfiguration) -> Void)?
     
-    lazy var themeOverrides = SentryUserFeedbackThemeConfiguration()
+    lazy var theme = SentryUserFeedbackThemeConfiguration()
     
     /**
      * Builder for dark mode theme overrides. If your app does not deploy a different theme for dark
-     * mode, assign the same builder to this property as you do for `configureTheme`.
+     * mode, but you still want to override some theme settings, assign the same builder to this
+     * property as you do for `configureTheme`.
      * - note: Default: `nil`
+     * - note: Only applies to iOS ≤12.
      */
     public var configureDarkTheme: ((SentryUserFeedbackThemeConfiguration) -> Void)?
     
-    lazy var darkThemeOverrides = SentryUserFeedbackThemeConfiguration()
+    lazy var darkTheme = SentryUserFeedbackThemeConfiguration()
 }
 
 #endif // (os(iOS) || os(tvOS)) && !SENTRY_NO_UIKIT

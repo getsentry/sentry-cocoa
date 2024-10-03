@@ -7,9 +7,11 @@ class SentryUserFeedbackWidgetButtonView: UIView {
     
     lazy var tapGesture = UITapGestureRecognizer(target: self, action: #selector(buttonPressed))
     let action: (SentryUserFeedbackWidgetButtonView) -> Void
+    let config: SentryUserFeedbackConfiguration
     
     init(config: SentryUserFeedbackConfiguration, action: @escaping (SentryUserFeedbackWidgetButtonView) -> Void) {
         self.action = action
+        self.config = config
         super.init(frame: .zero)
         translatesAutoresizingMaskIntoConstraints = false
         
@@ -57,8 +59,27 @@ class SentryUserFeedbackWidgetButtonView: UIView {
     func label(text: String) -> UILabel {
         let label = UILabel(frame: .zero)
         label.text = text
-        label.textColor = .black
         label.translatesAutoresizingMaskIntoConstraints = false
+
+        func configureLightTheme() {
+            label.textColor = config.theme.foreground
+        }
+        if #available(iOS 12.0, *) {
+            if UIScreen.main.traitCollection.userInterfaceStyle == .dark {
+                label.textColor = config.darkTheme.foreground
+            } else {
+                configureLightTheme()
+            }
+        } else {
+            configureLightTheme()
+        }
+        
+        var font = UIFont.systemFont(ofSize: UIFont.systemFontSize)
+        if let fontOverride = config.theme.font {
+            font = fontOverride
+        }
+        label.font = font
+        
         return label
     }
     
@@ -84,15 +105,42 @@ class SentryUserFeedbackWidgetButtonView: UIView {
         
         let lozengeLayer = CAShapeLayer()
         lozengeLayer.path = lozengeShape.cgPath
-        lozengeLayer.fillColor = UIColor.white.cgColor
-        lozengeLayer.strokeColor = UIColor.lightGray.cgColor
+        
+        func configureLightTheme() {
+            lozengeLayer.fillColor = config.theme.background.cgColor
+            lozengeLayer.strokeColor = config.theme.outlineColor.cgColor
+        }
+        if #available(iOS 12.0, *) {
+            if UIScreen.main.traitCollection.userInterfaceStyle == .dark {
+                lozengeLayer.fillColor = config.darkTheme.background.cgColor
+                lozengeLayer.strokeColor = config.darkTheme.outlineColor.cgColor
+            } else {
+                configureLightTheme()
+            }
+        } else {
+            configureLightTheme()
+        }
+        
         return lozengeLayer
     }
     
     lazy var megaphone: UIView = {
         let svgLayer = CAShapeLayer()
         svgLayer.path = megaphoneShape
-        svgLayer.fillColor = UIColor.black.cgColor
+        
+        func configureLightTheme() {
+            svgLayer.fillColor = config.theme.foreground.cgColor
+        }
+        if #available(iOS 12.0, *) {
+            if UIScreen.main.traitCollection.userInterfaceStyle == .dark {
+                svgLayer.fillColor = config.darkTheme.foreground.cgColor
+            } else {
+                configureLightTheme()
+            }
+        } else {
+            configureLightTheme()
+        }
+        
         svgLayer.fillRule = .evenOdd
         
         let svgView = UIView(frame: .zero)

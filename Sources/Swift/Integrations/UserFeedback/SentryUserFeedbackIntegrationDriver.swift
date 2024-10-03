@@ -23,10 +23,10 @@ import UIKit
             uiFormConfigBuilder(configuration.formConfig)
         }
         if let themeOverrideBuilder = configuration.configureTheme {
-            themeOverrideBuilder(configuration.themeOverrides)
+            themeOverrideBuilder(configuration.theme)
         }
         if let darkThemeOverrideBuilder = configuration.configureDarkTheme {
-            darkThemeOverrideBuilder(configuration.darkThemeOverrides)
+            darkThemeOverrideBuilder(configuration.darkTheme)
         }
         
         if configuration.widgetConfig.autoInject {
