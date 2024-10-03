@@ -7,7 +7,8 @@ struct SentryWidget {
     class Window: UIWindow {
         class RootViewController: UIViewController {
             class Button: UIView {
-                let layoutSpace: CGFloat = 8
+                let padding: CGFloat = 16
+                let spacing: CGFloat = 8
                 let svgSize: CGFloat = 16
                 
                 lazy var megaphone: UIView = {
@@ -30,28 +31,31 @@ struct SentryWidget {
                     label.translatesAutoresizingMaskIntoConstraints = false
                     
                     var size = label.intrinsicContentSize
-                    size.width += svgSize + 2 * layoutSpace
-                    size.height += 2 * layoutSpace
+                    size.width += svgSize + 2 * padding + spacing
+                    size.height += 2 * padding
                     
                     super.init(frame: CGRect(origin: .zero, size: size))
                     translatesAutoresizingMaskIntoConstraints = false
+                    
+                    // add a sublayer that is a lozenge shape
+                    let lozengeLayer = CAShapeLayer()
+                    lozengeLayer.path = createLozengePath(size: size)
+                    lozengeLayer.fillColor = UIColor.white.cgColor
+                    lozengeLayer.strokeColor = UIColor.lightGray.cgColor
+                    layer.addSublayer(lozengeLayer)
+                    
                     addSubview(megaphone)
                     addSubview(label)
-                    
-                    backgroundColor = .white
-                    layer.cornerRadius = layoutSpace
-                    layer.borderWidth = 1
-                    layer.borderColor = UIColor.gray.cgColor
 
                     NSLayoutConstraint.activate([
                         megaphone.widthAnchor.constraint(equalToConstant: svgSize),
                         megaphone.heightAnchor.constraint(equalToConstant: svgSize),
-                        megaphone.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 2 * layoutSpace),
-                        label.leadingAnchor.constraint(equalTo: megaphone.trailingAnchor, constant: layoutSpace),
+                        megaphone.leadingAnchor.constraint(equalTo: leadingAnchor, constant: padding),
+                        label.leadingAnchor.constraint(equalTo: megaphone.trailingAnchor, constant: spacing),
                         megaphone.centerYAnchor.constraint(equalTo: label.centerYAnchor),
-                        label.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -2 * layoutSpace),
-                        label.topAnchor.constraint(equalTo: topAnchor, constant: 2 * layoutSpace),
-                        label.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -2 * layoutSpace)
+                        label.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -padding),
+                        label.topAnchor.constraint(equalTo: topAnchor, constant: padding),
+                        label.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -padding)
                     ])
                     
                     let tapGesture = UITapGestureRecognizer(target: self, action: #selector(buttonPressed))
@@ -292,5 +296,31 @@ private func createSVGPath() -> CGPath {
     return bezier1.cgPath
 }
 //swiftlint:enable function_body_length
+
+private func createLozengePath(size: CGSize) -> CGPath {
+    let radius: CGFloat = size.height / 2
+
+    let bezier = UIBezierPath()
+
+    /*
+     this, but with half-circles at the ends
+         ____________________
+        /                    \
+       /                      \
+      (                        )
+       \                      /
+        \____________________/
+     
+     */
+    
+    bezier.move(to: .init(x: radius, y: 0))
+    bezier.addLine(to: .init(x: size.width - radius, y: 0))
+    bezier.addArc(withCenter: .init(x: size.width - radius, y: radius), radius: radius, startAngle: 3 * .pi / 2, endAngle: .pi / 2, clockwise: true)
+    bezier.addLine(to: .init(x: radius, y: size.height))
+    bezier.addArc(withCenter: .init(x: radius, y: radius), radius: radius, startAngle: .pi / 2, endAngle: 3 * .pi / 2, clockwise: true)
+
+    bezier.close()
+    return bezier.cgPath
+}
 
 #endif // (os(iOS) || os(tvOS)) && !SENTRY_NO_UIKIT
