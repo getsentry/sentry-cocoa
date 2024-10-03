@@ -349,6 +349,18 @@ class SentryTracerTests: XCTestCase {
 
         fixture.timerFactory.fire()
     }
+    
+    func testDeadlineTimerForManualTransaction_NoWorkQueuedOnMainQueue() {
+        let sut = fixture.getSut(waitForChildren: false, idleTimeout: 0.0)
+        
+        let invocationsBeforeFinish = fixture.dispatchQueue.blockOnMainInvocations.count
+        
+        sut.finish()
+        
+        let invocationsAfterFinish = fixture.dispatchQueue.blockOnMainInvocations.count
+        
+        XCTAssertEqual(invocationsBeforeFinish, invocationsAfterFinish)
+    }
 
     func testFramesofSpans_SetsDebugMeta() {
         let sut = fixture.getSut()
