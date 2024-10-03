@@ -126,6 +126,15 @@ jobs:
           MATCH_USERNAME: ${{ secrets.MATCH_USERNAME }}
       - name: Build Framework
         run: make build-xcframework
+        
+      - name: Archive build log if failed
+        uses: actions/upload-artifact@v4
+        if: ${{  failure() || cancelled() }}
+        with:
+          name: raw-build-output-build-xcframework
+          path: |
+            build-xcframework.log
+
       - name: Build test app with sentry
         run: bundle exec fastlane build_perf_test_app_sentry
         env:
