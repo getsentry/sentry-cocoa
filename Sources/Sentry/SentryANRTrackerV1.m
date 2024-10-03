@@ -1,4 +1,4 @@
-#import "SentryANRTracker.h"
+#import "SentryANRTrackerV1.h"
 #import "SentryCrashWrapper.h"
 #import "SentryDependencyContainer.h"
 #import "SentryDispatchQueueWrapper.h"
@@ -16,7 +16,7 @@ typedef NS_ENUM(NSInteger, SentryANRTrackerState) {
     kSentryANRTrackerStopping
 };
 
-@interface SentryANRTracker ()
+@interface SentryANRTrackerV1 ()
 
 @property (nonatomic, strong) SentryCrashWrapper *crashWrapper;
 @property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueueWrapper;
@@ -26,7 +26,7 @@ typedef NS_ENUM(NSInteger, SentryANRTrackerState) {
 
 @end
 
-@implementation SentryANRTracker {
+@implementation SentryANRTrackerV1 {
     NSObject *threadLock;
     SentryANRTrackerState state;
 }

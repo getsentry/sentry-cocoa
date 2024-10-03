@@ -180,7 +180,7 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         
         initIntegration()
         
-        let tracker = SentryDependencyContainer.sharedInstance().getANRTracker(self.options.appHangTimeoutInterval)
+        let tracker = SentryDependencyContainer.sharedInstance().getANRTrackerV1(self.options.appHangTimeoutInterval)
         
         let listeners = Dynamic(tracker).listeners.asObject as? NSHashTable<NSObject>
         

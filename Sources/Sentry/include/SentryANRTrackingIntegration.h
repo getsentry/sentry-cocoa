@@ -1,4 +1,4 @@
-#import "SentryANRTracker.h"
+#import "SentryANRTrackerV1.h"
 #import "SentryBaseIntegration.h"
 #import "SentrySwift.h"
 #import <Foundation/Foundation.h>

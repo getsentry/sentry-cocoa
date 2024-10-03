@@ -17,7 +17,7 @@ on:
       - Sentry.xcodeproj/**
       - Gemfile.lock
       - 'Package.swift'
-      - 'scripts/build-xcframework'
+      - 'scripts/build-xcframework.sh'
 
 # https://docs.github.com/en/actions/using-jobs/using-concurrency#example-using-a-fallback-value
 concurrency:
@@ -58,6 +58,7 @@ jobs:
         scheme:
           - macOS-Swift
           - iOS13-Swift
+          - watchOS-Swift WatchKit App
 
     steps:
       - uses: actions/checkout@v4
@@ -69,23 +70,6 @@ jobs:
           xcodebuild
           -workspace Sentry.xcworkspace
           -scheme '${{matrix.scheme}}'
-          -configuration Debug
-          CODE_SIGNING_ALLOWED="NO"
-          build
-
-  build-watch-os-sample:
-    name: Sample watchOS
-    runs-on: macos-12
-    steps:
-      - uses: actions/checkout@v4
-      - run: ./scripts/ci-select-xcode.sh 13.4.1
-      - run: make build-for-watchos
-
-      # Disable code signing. We just want to make sure these compile.
-      - run: >-
-          env NSUnbufferedIO=YES
-          xcodebuild
-          -project Samples/watchOS-Swift/watchOS-Swift.xcodeproj
           -configuration Debug
           CODE_SIGNING_ALLOWED="NO"
           build

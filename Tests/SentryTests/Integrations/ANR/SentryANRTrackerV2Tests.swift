@@ -8,7 +8,7 @@ class SentryANRTrackerV2Tests: XCTestCase {
     private let waitTimeout: TimeInterval = 1.0
     private let timeoutInterval: TimeInterval = 2
         
-    private func getSut() throws -> (SentryANRTrackerV2, TestCurrentDateProvider, TestDisplayLinkWrapper, TestSentryCrashWrapper, SentryTestThreadWrapper, SentryFramesTracker) {
+    private func getSut() throws -> (SentryANRTracker, TestCurrentDateProvider, TestDisplayLinkWrapper, TestSentryCrashWrapper, SentryTestThreadWrapper, SentryFramesTracker) {
         
         let currentDate = TestCurrentDateProvider()
         let crashWrapper = TestSentryCrashWrapper.sharedInstance()
@@ -60,7 +60,7 @@ class SentryANRTrackerV2Tests: XCTestCase {
         defer { sut.clear() }
         
         let listener = SentryANRTrackerV2TestDelegate()
-        sut.addListener(listener)
+        sut.add(listener: listener)
         
         // The app must hang for slightly over the timeoutInterval to report an app hang
         var advanced = 0.0
@@ -91,7 +91,7 @@ class SentryANRTrackerV2Tests: XCTestCase {
         
         let listener = SentryANRTrackerV2TestDelegate()
         
-        sut.addListener(listener)
+        sut.add(listener: listener)
     
         triggerNonFullyBlockingAppHang(displayLinkWrapper)
         
@@ -114,7 +114,7 @@ class SentryANRTrackerV2Tests: XCTestCase {
         
         let listener = SentryANRTrackerV2TestDelegate(shouldANRBeDetected: false, shouldStoppedBeCalled: false)
         
-        sut.addListener(listener)
+        sut.add(listener: listener)
         
         displayLinkWrapper.frameWith(delay: 0.7)
         displayLinkWrapper.frameWith(delay: 0.7)
@@ -136,7 +136,7 @@ class SentryANRTrackerV2Tests: XCTestCase {
         
         let listener = SentryANRTrackerV2TestDelegate(shouldANRBeDetected: false, shouldStoppedBeCalled: false)
         
-        sut.addListener(listener)
+        sut.add(listener: listener)
         
         for _ in 0..<100 {
             displayLinkWrapper.normalFrame()
@@ -162,7 +162,7 @@ class SentryANRTrackerV2Tests: XCTestCase {
         
         let listener = SentryANRTrackerV2TestDelegate()
         
-        sut.addListener(listener)
+        sut.add(listener: listener)
         
         triggerFullyBlockingAppHang(dateProvider)
         
@@ -188,12 +188,12 @@ class SentryANRTrackerV2Tests: XCTestCase {
         let firstListener = SentryANRTrackerV2TestDelegate()
         firstListener.anrDetectedExpectation.expectedFulfillmentCount = 2
         firstListener.anrStoppedExpectation.expectedFulfillmentCount = 2
-        sut.addListener(firstListener)
+        sut.add(listener: firstListener)
         
         let secondListener = SentryANRTrackerV2TestDelegate()
         secondListener.anrDetectedExpectation.assertForOverFulfill = false
         secondListener.anrStoppedExpectation.assertForOverFulfill = false
-        sut.addListener(secondListener)
+        sut.add(listener: secondListener)
         
         triggerFullyBlockingAppHang(currentDate)
         
@@ -204,7 +204,7 @@ class SentryANRTrackerV2Tests: XCTestCase {
         wait(for: [secondListener.anrStoppedExpectation], timeout: waitTimeout)
         
         let thirdListener = SentryANRTrackerV2TestDelegate()
-        sut.addListener(thirdListener)
+        sut.add(listener: thirdListener)
         
         triggerFullyBlockingAppHang(currentDate)
         
@@ -227,10 +227,10 @@ class SentryANRTrackerV2Tests: XCTestCase {
         defer { sut.clear() }
         
         let firstListener = SentryANRTrackerV2TestDelegate()
-        sut.addListener(firstListener)
+        sut.add(listener: firstListener)
         
         let secondListener = SentryANRTrackerV2TestDelegate()
-        sut.addListener(secondListener)
+        sut.add(listener: secondListener)
         
         triggerFullyBlockingAppHang(currentDate)
         triggerFullyBlockingAppHang(currentDate)
@@ -239,7 +239,7 @@ class SentryANRTrackerV2Tests: XCTestCase {
         wait(for: [secondListener.anrDetectedExpectation], timeout: waitTimeout)
         
         let thirdListener = SentryANRTrackerV2TestDelegate(shouldANRBeDetected: false)
-        sut.addListener(thirdListener)
+        sut.add(listener: thirdListener)
         
         renderNormalFramesToStopAppHang(displayLinkWrapper)
         
@@ -252,10 +252,10 @@ class SentryANRTrackerV2Tests: XCTestCase {
         
         let firstListener = SentryANRTrackerV2TestDelegate()
         
-        sut.addListener(firstListener)
+        sut.add(listener: firstListener)
         
         let secondListener = SentryANRTrackerV2TestDelegate()
-        sut.addListener(secondListener)
+        sut.add(listener: secondListener)
         
         triggerFullyBlockingAppHang(currentDate)
         
@@ -274,7 +274,7 @@ class SentryANRTrackerV2Tests: XCTestCase {
         
         let listener = SentryANRTrackerV2TestDelegate(shouldANRBeDetected: false, shouldStoppedBeCalled: false)
         
-        sut.addListener(listener)
+        sut.add(listener: listener)
         
         triggerFullyBlockingAppHang(currentDate)
         
@@ -297,7 +297,7 @@ class SentryANRTrackerV2Tests: XCTestCase {
             currentDate.setDate(date: currentDate.date().addingTimeInterval(delta))
         }
         
-        sut.addListener(listener)
+        sut.add(listener: listener)
         
         triggerFullyBlockingAppHang(currentDate)
         
@@ -313,13 +313,13 @@ class SentryANRTrackerV2Tests: XCTestCase {
         let mainBlockExpectation = expectation(description: "Main Block")
         
         threadWrapper.blockWhenSleeping = {
-            sut.removeListener(listener)
+            sut.remove(listener: listener)
             mainBlockExpectation.fulfill()
         }
         
         triggerFullyBlockingAppHang(currentDate)
         
-        sut.addListener(listener)
+        sut.add(listener: listener)
         
         wait(for: [listener.anrDetectedExpectation, listener.anrStoppedExpectation, mainBlockExpectation], timeout: waitTimeout)
     }
@@ -341,8 +341,8 @@ class SentryANRTrackerV2Tests: XCTestCase {
             mainBlockExpectation.fulfill()
         }
         
-        sut.addListener(secondListener)
-        sut.addListener(firstListener)
+        sut.add(listener: secondListener)
+        sut.add(listener: firstListener)
         
         triggerFullyBlockingAppHang(currentDate)
         
@@ -359,13 +359,13 @@ class SentryANRTrackerV2Tests: XCTestCase {
         let addListenersCount = 10
         func addListeners() {
             for _ in 0..<addListenersCount {
-                sut.addListener(SentryANRTrackerV2TestDelegate())
+                sut.add(listener: SentryANRTrackerV2TestDelegate())
             }
         }
         addListeners()
         
-        sut.addListener(listener)
-        sut.removeListener(listener)
+        sut.add(listener: listener)
+        sut.remove(listener: listener)
         
         triggerFullyBlockingAppHang(currentDate)
         
@@ -379,7 +379,7 @@ class SentryANRTrackerV2Tests: XCTestCase {
     func testClearStopsThread() throws {
         let (sut, _, _, _, threadWrapper, _) = try getSut()
         
-        sut.addListener(SentryANRTrackerV2TestDelegate())
+        sut.add(listener: SentryANRTrackerV2TestDelegate())
         
         sut.clear()
         
@@ -395,7 +395,7 @@ class SentryANRTrackerV2Tests: XCTestCase {
         
         let invocations = 10
         for _ in 0..<invocations {
-            sut.addListener(listener)
+            sut.add(listener: listener)
             sut.clear()
         }
         
@@ -416,7 +416,7 @@ class SentryANRTrackerV2Tests: XCTestCase {
         
         let listener = SentryANRTrackerV2TestDelegate(shouldANRBeDetected: false, shouldStoppedBeCalled: false)
         
-        sut.addListener(listener)
+        sut.add(listener: listener)
         
         triggerFullyBlockingAppHang(currentDate)
         
