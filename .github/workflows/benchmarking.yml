@@ -100,7 +100,7 @@ jobs:
 
   app-metrics:
     name: Collect app metrics
-    runs-on: macos-13
+    runs-on: macos-13-xlarge
     steps:
       - name: Git checkout
         uses: actions/checkout@v4
