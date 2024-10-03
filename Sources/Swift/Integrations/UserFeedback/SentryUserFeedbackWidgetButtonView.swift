@@ -8,24 +8,40 @@ class SentryUserFeedbackWidgetButtonView: UIView {
     lazy var tapGesture = UITapGestureRecognizer(target: self, action: #selector(buttonPressed))
     let action: (SentryUserFeedbackWidgetButtonView) -> Void
     
-    init(action: @escaping (SentryUserFeedbackWidgetButtonView) -> Void) {
+    init(config: SentryUserFeedbackConfiguration, action: @escaping (SentryUserFeedbackWidgetButtonView) -> Void) {
         self.action = action
         super.init(frame: .zero)
         translatesAutoresizingMaskIntoConstraints = false
-        layer.addSublayer(lozengeLayer(size: sizeWithLabel))
-        addSubview(megaphone)
-        addSubview(label)
         
-        NSLayoutConstraint.activate([
+        var constraints = [
             megaphone.widthAnchor.constraint(equalToConstant: svgSize),
             megaphone.heightAnchor.constraint(equalToConstant: svgSize),
-            megaphone.leadingAnchor.constraint(equalTo: leadingAnchor, constant: padding),
-            label.leadingAnchor.constraint(equalTo: megaphone.trailingAnchor, constant: spacing),
-            megaphone.centerYAnchor.constraint(equalTo: label.centerYAnchor),
-            label.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -padding),
-            label.topAnchor.constraint(equalTo: topAnchor, constant: padding),
-            label.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -padding)
-        ])
+            megaphone.leadingAnchor.constraint(equalTo: leadingAnchor, constant: padding)
+        ]
+        
+        if let title = config.widgetConfig.labelText {
+            let label = label(text: title)
+            layer.addSublayer(lozengeLayer(size: sizeWithLabel(label: label)))
+            addSubview(label)
+            addSubview(megaphone)
+            constraints.append(contentsOf: [
+                label.leadingAnchor.constraint(equalTo: megaphone.trailingAnchor, constant: spacing),
+                megaphone.centerYAnchor.constraint(equalTo: label.centerYAnchor),
+                label.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -padding),
+                label.topAnchor.constraint(equalTo: topAnchor, constant: padding),
+                label.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -padding)
+            ])
+        } else {
+            layer.addSublayer(lozengeLayer(size: sizeWithoutLabel))
+            addSubview(megaphone)
+            constraints.append(contentsOf: [
+                megaphone.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -padding),
+                megaphone.topAnchor.constraint(equalTo: topAnchor, constant: padding),
+                megaphone.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -padding)
+            ])
+        }
+        
+        NSLayoutConstraint.activate(constraints)
         
         addGestureRecognizer(tapGesture)
     }
@@ -38,20 +54,22 @@ class SentryUserFeedbackWidgetButtonView: UIView {
         self.action(self)
     }
     
-    lazy var label: UILabel = {
+    func label(text: String) -> UILabel {
         let label = UILabel(frame: .zero)
-        label.text = "Report a Bug"
+        label.text = text
         label.textColor = .black
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
-    }()
+    }
     
-    lazy var sizeWithLabel: CGSize = {
+    lazy var sizeWithoutLabel = CGSize(width: svgSize + 2 * padding, height: svgSize + 2 * padding)
+    
+    func sizeWithLabel(label: UILabel) -> CGSize {
         var sizeWithLabel = label.intrinsicContentSize
         sizeWithLabel.width += svgSize + 2 * padding + spacing
         sizeWithLabel.height += 2 * padding
         return sizeWithLabel
-    }()
+    }
     
     func lozengeLayer(size: CGSize) -> CAShapeLayer {
         let radius: CGFloat = size.height / 2

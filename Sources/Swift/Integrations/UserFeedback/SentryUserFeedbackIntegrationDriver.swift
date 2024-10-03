@@ -9,46 +9,31 @@ import UIKit
  */
 @objcMembers class SentryUserFeedbackIntegrationDriver: NSObject {
     let configuration: SentryUserFeedbackConfiguration
-    private var widgetConfig: SentryUserFeedbackWidgetConfiguration?
-    private var formConfig: SentryUserFeedbackFormConfiguration?
-    private var themeOverrides: SentryUserFeedbackThemeConfiguration?
-    private var darkThemeOverrides: SentryUserFeedbackThemeConfiguration?
-    private var window: SentryWidget.Window?
+    private var window: SentryUserFeedbackWidget.Window?
     
     public init(configuration: SentryUserFeedbackConfiguration) {
         self.configuration = configuration
         super.init()
         
         if let widgetConfigBuilder = configuration.configureWidget {
-            let config = SentryUserFeedbackWidgetConfiguration()
-            widgetConfigBuilder(config)
-            validate(config)
-            self.widgetConfig = config
+            widgetConfigBuilder(configuration.widgetConfig)
+            validate(configuration.widgetConfig)
         }
         if let uiFormConfigBuilder = configuration.configureForm {
-            let config = SentryUserFeedbackFormConfiguration()
-            uiFormConfigBuilder(config)
-            self.formConfig = config
-            
-            if let themeOverrideBuilder = config.themeOverrides {
-                let overrides = SentryUserFeedbackThemeConfiguration()
-                themeOverrideBuilder(overrides)
-                self.themeOverrides = overrides
-            }
-            if let darkThemeOverrideBuilder = config.darkThemeOverrides {
-                let overrides = SentryUserFeedbackThemeConfiguration()
-                darkThemeOverrideBuilder(overrides)
-                self.darkThemeOverrides = overrides
-            }
+            uiFormConfigBuilder(configuration.formConfig)
+        }
+        if let themeOverrideBuilder = configuration.configureTheme {
+            themeOverrideBuilder(configuration.themeOverrides)
+        }
+        if let darkThemeOverrideBuilder = configuration.configureDarkTheme {
+            darkThemeOverrideBuilder(configuration.darkThemeOverrides)
         }
         
-        if widgetConfig?.autoInject ?? false {
+        if configuration.widgetConfig.autoInject {
             createWidget()
         }
     }
-    
-// swiftlint:disable todo
-    
+
     /**
      * Attaches the feedback widget to a specified UIButton. The button will trigger the feedback form.
      * - Parameter button: The UIButton to attach the widget to.
@@ -62,11 +47,7 @@ import UIKit
      * If `SentryUserFeedbackConfiguration.autoInject` is `false`, this must be called explicitly.
      */
     func createWidget() {
-        guard let config = widgetConfig else {
-            SentryLog.warning("Cannot create a user feedback widget without a configuration.")
-            return
-        }
-        window = SentryWidget.Window(config: config)
+        window = SentryUserFeedbackWidget.Window(config: configuration)
         window?.isHidden = false
     }
     
@@ -76,8 +57,6 @@ import UIKit
     func removeWidget() {
         
     }
-    
-// swiftlint:enable todo
     
     /**
      * Captures feedback using custom UI. This method allows you to submit feedback data directly.

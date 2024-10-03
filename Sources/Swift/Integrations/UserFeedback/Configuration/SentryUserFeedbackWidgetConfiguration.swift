@@ -22,10 +22,10 @@ import UIKit
     public var animations: Bool = true
     
     /**
-     * The label of the injected button that opens up the feedback form when clicked.
+     * The label of the injected button that opens up the feedback form when clicked. If `nil`, no text is displayed and only the icon image is shown.
      * - note: Default: `"Report a Bug"`
      */
-    public var labelText: String = "Report a Bug"
+    public var labelText: String? = "Report a Bug"
     
     /**
      * The accessibility label of the injected button that opens up the feedback form when clicked.

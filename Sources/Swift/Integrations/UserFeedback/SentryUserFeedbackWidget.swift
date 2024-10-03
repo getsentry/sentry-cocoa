@@ -3,18 +3,20 @@ import Foundation
 @_implementationOnly import _SentryPrivate
 import UIKit
 
-struct SentryWidget {
+struct SentryUserFeedbackWidget {
     class Window: UIWindow {
         class RootViewController: UIViewController {
+            let defaultWidgetSpacing: CGFloat = 8
             
-            lazy var button = SentryUserFeedbackWidgetButtonView(action: { sender in
-                if self.config.animations {
+            lazy var button = SentryUserFeedbackWidgetButtonView(config: config, action: { sender in
+                if self.config.widgetConfig.animations {
                     UIView.animate(withDuration: 0.3, delay: 0, options: .curveEaseInOut) {
                         sender.alpha = 0
                     }
                 } else {
                     sender.isHidden = true
                 }
+                
                 let formDialog = UIViewController(nibName: nil, bundle: nil)
                 formDialog.view.backgroundColor = .white
                 let label = UILabel(frame: .zero)
@@ -27,29 +29,29 @@ struct SentryWidget {
                     label.trailingAnchor.constraint(equalTo: formDialog.view.trailingAnchor),
                     label.centerYAnchor.constraint(equalTo: formDialog.view.centerYAnchor)
                 ])
-                self.present(formDialog, animated: self.config.animations)
+                
+                self.present(formDialog, animated: self.config.widgetConfig.animations)
             })
             
-            let config: SentryUserFeedbackWidgetConfiguration
+            let config: SentryUserFeedbackConfiguration
             
-            init(config: SentryUserFeedbackWidgetConfiguration) {
+            init(config: SentryUserFeedbackConfiguration) {
                 self.config = config
                 super.init(nibName: nil, bundle: nil)
-                                
                 view.addSubview(button)
                 
                 var constraints = [NSLayoutConstraint]()
-                if config.location.contains(.bottom) {
-                    constraints.append(button.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -config.layoutUIOffset.vertical))
+                if config.widgetConfig.location.contains(.bottom) {
+                    constraints.append(button.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -config.widgetConfig.layoutUIOffset.vertical))
                 }
-                if config.location.contains(.top) {
-                    constraints.append(button.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: config.layoutUIOffset.vertical))
+                if config.widgetConfig.location.contains(.top) {
+                    constraints.append(button.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: config.widgetConfig.layoutUIOffset.vertical))
                 }
-                if config.location.contains(.right) {
-                    constraints.append(button.rightAnchor.constraint(equalTo: view.safeAreaLayoutGuide.rightAnchor, constant: -config.layoutUIOffset.horizontal))
+                if config.widgetConfig.location.contains(.right) {
+                    constraints.append(button.rightAnchor.constraint(equalTo: view.safeAreaLayoutGuide.rightAnchor, constant: -config.widgetConfig.layoutUIOffset.horizontal))
                 }
-                if config.location.contains(.left) {
-                    constraints.append(button.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: config.layoutUIOffset.horizontal))
+                if config.widgetConfig.location.contains(.left) {
+                    constraints.append(button.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: config.widgetConfig.layoutUIOffset.horizontal))
                 }
                 NSLayoutConstraint.activate(constraints)
             }
@@ -59,10 +61,10 @@ struct SentryWidget {
             }
         }
         
-        init(config: SentryUserFeedbackWidgetConfiguration) {
+        init(config: SentryUserFeedbackConfiguration) {
             super.init(frame: UIScreen.main.bounds)
             rootViewController = RootViewController(config: config)
-            windowLevel = config.windowLevel
+            windowLevel = config.widgetConfig.windowLevel
         }
         
         required init?(coder: NSCoder) {

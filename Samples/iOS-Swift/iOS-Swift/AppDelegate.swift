@@ -175,15 +175,18 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                     } else {
                         widget.autoInject = false
                     }
+                    if args.contains("--io.sentry.iOS-Swift.user-feedback.icon-only-widget") {
+                        widget.labelText = nil
+                    }
                 }
                 config.configureForm = { uiForm in
                     uiForm.formTitle = "Jank Report"
                     uiForm.submitButtonLabel = "Report that jank"
                     uiForm.addScreenshotButtonLabel = "Show us the jank"
                     uiForm.messagePlaceholder = "Describe the nature of the jank. Its essence, if you will."
-                    uiForm.themeOverrides = { theme in
-                        theme.font = UIFont(name: "Comic Sans", size: 25)
-                    }
+                }
+                config.configureTheme = { theme in
+                    theme.font = UIFont(name: "Comic Sans", size: 25)
                 }
                 config.onSubmitSuccess = { info in
                     let name = info["name"] ?? "$shakespearean_insult_name"
