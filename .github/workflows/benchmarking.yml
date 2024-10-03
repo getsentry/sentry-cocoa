@@ -126,7 +126,7 @@ jobs:
           MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
           MATCH_USERNAME: ${{ secrets.MATCH_USERNAME }}
       - name: Build Framework
-        run: make build-xcframework
+        run: ./scripts/build-xcframework.sh reduced
         
       - name: Archive build log if failed
         uses: actions/upload-artifact@v4
