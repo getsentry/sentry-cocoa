@@ -88,9 +88,9 @@ SENTRY_NO_INIT
 #endif // !TARGET_OS_WATCH
 
 - (id<SentryANRTracker>)getANRTracker:(NSTimeInterval)timeout;
-#if SENTRY_UIKIT_AVAILABLE
+#if SENTRY_HAS_UIKIT
 - (id<SentryANRTracker>)getANRTracker:(NSTimeInterval)timeout isV2Enabled:(BOOL)isV2Enabled;
-#endif // SENTRY_UIKIT_AVAILABLE
+#endif // SENTRY_HAS_UIKIT
 
 #if SENTRY_HAS_METRIC_KIT
 @property (nonatomic, strong) SentryMXManager *metricKitManager API_AVAILABLE(

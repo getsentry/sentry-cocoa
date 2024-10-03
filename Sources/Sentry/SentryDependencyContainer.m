@@ -347,7 +347,7 @@ static NSObject *sentryDependencyContainerLock;
     return _anrTracker;
 }
 
-#if SENTRY_UIKIT_AVAILABLE
+#if SENTRY_HAS_UIKIT
 - (id<SentryANRTracker>)getANRTracker:(NSTimeInterval)timeout
                           isV2Enabled:(BOOL)isV2Enabled
     SENTRY_DISABLE_THREAD_SANITIZER("double-checked lock produce false alarms")
@@ -371,7 +371,7 @@ static NSObject *sentryDependencyContainerLock;
         return [self getANRTracker:timeout];
     }
 }
-#endif // SENTRY_UIKIT_AVAILABLE
+#endif // SENTRY_HAS_UIKIT
 
 - (SentryNSProcessInfoWrapper *)processInfoWrapper SENTRY_DISABLE_THREAD_SANITIZER(
     "double-checked lock produce false alarms")
