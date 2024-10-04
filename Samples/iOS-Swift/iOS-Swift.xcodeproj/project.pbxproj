@@ -102,6 +102,8 @@
 		D8B56CF0273A8D97004DF238 /* Sentry.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 630853322440C44F00DDE4CE /* Sentry.framework */; };
 		D8B56CF1273A8D97004DF238 /* Sentry.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 630853322440C44F00DDE4CE /* Sentry.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		D8BC843E2B021C5200A662B7 /* SwiftUIView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B4F33F7271EBD2500C8591E /* SwiftUIView.swift */; };
+		D8BCCDE22CAFDE9400E8A030 /* Sample.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = D8BCCDE12CAFDE9400E8A030 /* Sample.xcconfig */; };
+		D8BCCDE32CAFDE9400E8A030 /* Sample.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = D8BCCDE12CAFDE9400E8A030 /* Sample.xcconfig */; };
 		D8C33E1F29FBB1F70071B75A /* UIEventBreadcrumbsController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8C33E1E29FBB1F70071B75A /* UIEventBreadcrumbsController.swift */; };
 		D8C33E2629FBB8D90071B75A /* UIEventBreadcrumbTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8C33E2529FBB8D90071B75A /* UIEventBreadcrumbTests.swift */; };
 		D8D7BB4A2750067900044146 /* UIAssert.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8D7BB492750067900044146 /* UIAssert.swift */; };
@@ -364,6 +366,7 @@
 		D890CD3B26CEE2FA001246CF /* NibViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = NibViewController.xib; sourceTree = "<group>"; };
 		D890CD3E26CEE31B001246CF /* NibViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NibViewController.swift; sourceTree = "<group>"; };
 		D8AE48C82C57DC2F0092A2A6 /* WebViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebViewController.swift; sourceTree = "<group>"; };
+		D8BCCDE12CAFDE9400E8A030 /* Sample.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Sample.xcconfig; sourceTree = "<group>"; };
 		D8C33E1E29FBB1F70071B75A /* UIEventBreadcrumbsController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIEventBreadcrumbsController.swift; sourceTree = "<group>"; };
 		D8C33E2529FBB8D90071B75A /* UIEventBreadcrumbTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIEventBreadcrumbTests.swift; sourceTree = "<group>"; };
 		D8D7BB492750067900044146 /* UIAssert.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIAssert.swift; sourceTree = "<group>"; };
@@ -505,6 +508,7 @@
 				637AFDB4243B02770034958B /* LaunchScreen.storyboard */,
 				637AFDB7243B02770034958B /* Info.plist */,
 				D845F35927BAD4CC00A4D7A2 /* SentryData.xcdatamodeld */,
+				D8BCCDE12CAFDE9400E8A030 /* Sample.xcconfig */,
 			);
 			path = "iOS-Swift";
 			sourceTree = "<group>";
@@ -905,6 +909,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D8BCCDE22CAFDE9400E8A030 /* Sample.xcconfig in Resources */,
 				D890CD3C26CEE2FA001246CF /* NibViewController.xib in Resources */,
 				7BFC8B0626D4D24B000D3504 /* LoremIpsum.txt in Resources */,
 				637AFDB6243B02770034958B /* LaunchScreen.storyboard in Resources */,
@@ -937,6 +942,7 @@
 			files = (
 				D8269A56274C0F9E00BD5BD5 /* NibViewController.xib in Resources */,
 				D8269A51274C0F6C00BD5BD5 /* LaunchScreen.storyboard in Resources */,
+				D8BCCDE32CAFDE9400E8A030 /* Sample.xcconfig in Resources */,
 				D8269A52274C0F7200BD5BD5 /* Tongariro.jpg in Resources */,
 				D8269A50274C0F6800BD5BD5 /* Assets.xcassets in Resources */,
 				D8269A43274C095F00BD5BD5 /* Main.storyboard in Resources */,
@@ -1287,6 +1293,7 @@
 /* Begin XCBuildConfiguration section */
 		637AFDB8243B02770034958B /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = D8BCCDE12CAFDE9400E8A030 /* Sample.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_NONNULL = YES;
@@ -1348,6 +1355,7 @@
 		};
 		637AFDB9243B02770034958B /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = D8BCCDE12CAFDE9400E8A030 /* Sample.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_NONNULL = YES;
@@ -1419,7 +1427,6 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = "8.37.0-beta.1";
 				PRODUCT_BUNDLE_IDENTIFIER = "io.sentry.sample.iOS-Swift";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "match Development io.sentry.sample.iOS-Swift";
@@ -1448,7 +1455,6 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = "8.37.0-beta.1";
 				PRODUCT_BUNDLE_IDENTIFIER = "io.sentry.sample.iOS-Swift";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "match AppStore io.sentry.sample.iOS-Swift";
@@ -1560,6 +1566,7 @@
 		};
 		84D4FE8028ECD1EA00EDAAFE /* Test */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = D8BCCDE12CAFDE9400E8A030 /* Sample.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_NONNULL = YES;
@@ -1634,7 +1641,6 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 7.27.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "io.sentry.sample.iOS-Swift";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "match Development io.sentry.sample.iOS-Swift";
@@ -1719,7 +1725,6 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 7.27.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "io.sentry.sample.iOS-Swift.Clip";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "match Development io.sentry.sample.iOS-Swift.Clip";
@@ -1793,6 +1798,7 @@
 		};
 		84D4FE8828ECD1ED00EDAAFE /* TestCI */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = D8BCCDE12CAFDE9400E8A030 /* Sample.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_NONNULL = YES;
@@ -1867,7 +1873,6 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 7.27.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "io.sentry.sample.iOS-Swift";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "match Development io.sentry.sample.iOS-Swift";
@@ -1952,7 +1957,6 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 7.27.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "io.sentry.sample.iOS-Swift.Clip";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "match Development io.sentry.sample.iOS-Swift.Clip";
@@ -2123,7 +2127,6 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = "8.37.0-beta.1";
 				PRODUCT_BUNDLE_IDENTIFIER = "io.sentry.sample.iOS-Swift.Clip";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "match Development io.sentry.sample.iOS-Swift.Clip";
@@ -2158,7 +2161,6 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = "8.37.0-beta.1";
 				PRODUCT_BUNDLE_IDENTIFIER = "io.sentry.sample.iOS-Swift.Clip";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "match AppStore io.sentry.sample.iOS-Swift.Clip";

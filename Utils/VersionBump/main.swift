@@ -10,13 +10,13 @@ let files = [
     "./SentryPrivate.podspec",
     "./SentrySwiftUI.podspec",
     "./Sources/Sentry/SentryMeta.m",
-    "./Samples/iOS-Swift/iOS-Swift.xcodeproj/project.pbxproj",
     "./Tests/HybridSDKTest/HybridPod.podspec"
 ]
 
 // Files that only accept the format x.x.x in order to release an app using the framework.
 // This will enable publishing apps with SDK beta version.
 let restrictFiles = [
+    "./Samples/iOS-Swift/iOS-Swift/Sample.xcconfig",
     "./Sources/Configuration/SDK.xcconfig",
     "./Sources/Configuration/SentrySwiftUI.xcconfig"
 ]
