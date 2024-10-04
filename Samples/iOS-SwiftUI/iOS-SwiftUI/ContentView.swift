@@ -202,7 +202,6 @@ struct ContentView: View {
                             }
                         }
                         .background(Color.white)
-                        .sentryReplayMask()
                     }
                     SecondView()
                 }
