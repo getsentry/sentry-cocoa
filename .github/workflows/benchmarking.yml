@@ -134,7 +134,7 @@ jobs:
           name: raw-build-output-build-xcframework
           path: |
             build-xcframework.log
-
+        
       - name: Build test app with sentry
         run: bundle exec fastlane build_perf_test_app_sentry
         env:
