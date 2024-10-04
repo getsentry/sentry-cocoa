@@ -165,6 +165,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             }
             
             options.configureUserFeedback = { config in
+                guard !args.contains("--io.sentry.iOS-Swift.user-feedback.all-defaults") else {
+                    config.configureWidget = { widget in   
+                        widget.layoutUIOffset = .init(horizontal: 12, vertical: 50)
+                    }
+                    return
+                }
                 config.useShakeGesture = true
                 config.showFormForScreenshots = true
                 config.configureWidget = { widget in
@@ -186,7 +192,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                     uiForm.messagePlaceholder = "Describe the nature of the jank. Its essence, if you will."
                 }
                 config.configureTheme = { theme in
-                    theme.font = UIFont(name: "Comic Sans", size: 25)
+                    theme.font = UIFont(name: "ChalkboardSE-Regular", size: 60)
+                    theme.outlineColor = .purple
+                    theme.foreground = .purple
+                    theme.background = .purple.withAlphaComponent(0.1)
                 }
                 config.onSubmitSuccess = { info in
                     let name = info["name"] ?? "$shakespearean_insult_name"

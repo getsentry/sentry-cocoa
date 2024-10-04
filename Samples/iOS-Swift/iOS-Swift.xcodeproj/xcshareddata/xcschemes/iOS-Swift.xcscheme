@@ -78,6 +78,10 @@
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
+            argument = "--io.sentry.iOS-Swift.user-feedback.all-defaults"
+            isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
             argument = "--skip-sentry-init"
             isEnabled = "NO">
          </CommandLineArgument>
