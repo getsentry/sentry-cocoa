@@ -2,7 +2,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SentryUserFeedbackIntegration : SentryBaseIntegration
+@interface SentryUserFeedbackIntegrationShell : SentryBaseIntegration
 
 @end
 

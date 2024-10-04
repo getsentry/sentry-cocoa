@@ -1,14 +1,14 @@
-#import "SentryUserFeedbackIntegration.h"
+#import "SentryUserFeedbackIntegrationShell.h"
 #import "SentryOptions+Private.h"
 #import "SentrySwift.h"
 
-@implementation SentryUserFeedbackIntegration {
-    SentryUserFeedbackIntegrationDriver *_driver;
+@implementation SentryUserFeedbackIntegrationShell {
+    SentryUserFeedbackIntegration *_driver;
 }
 
 - (BOOL)installWithOptions:(SentryOptions *)options
 {
-    _driver = [[SentryUserFeedbackIntegrationDriver alloc]
+    _driver = [[SentryUserFeedbackIntegration alloc]
         initWithConfiguration:options.userFeedbackConfiguration];
     return YES;
 }

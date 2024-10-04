@@ -7,7 +7,7 @@ import UIKit
  * An integration managing a workflow for end users to report feedback via Sentry.
  * - note: The default method to show the feedback form is via a floating widget placed in the bottom trailing corner of the screen. See the configuration classes for alternative options.
  */
-@objcMembers class SentryUserFeedbackIntegrationDriver: NSObject {
+@objcMembers class SentryUserFeedbackIntegration: NSObject {
     let configuration: SentryUserFeedbackConfiguration
     private var window: SentryUserFeedbackWidget.Window?
     
