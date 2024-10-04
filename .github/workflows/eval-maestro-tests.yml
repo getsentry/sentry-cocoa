@@ -21,38 +21,70 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  build-swift-ui:
-    name: Maestro Build SwiftUI for UI Tests Simulator
-    runs-on: macos-13
+  build-sample-for-maestro:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - sample-name: ObjectiveC
+            lane_name: build_ios_objc_for_sim_tests
+            artifact-name: maestro-ios-objc
+            app_path: DerivedData/Build/Products/Debug-iphonesimulator/iOS-ObjectiveC.app
+          - sample-name: Swift
+            lane_name: build_ios_swift_for_sim_tests
+            artifact-name: maestro-ios-swift
+            app_path: DerivedData/Build/Products/Debug-iphonesimulator/iOS-Swift.app
+          - sample-name: SwiftUI
+            lane_name: build_ios_swift_ui_for_sim_tests
+            artifact-name: maestro-ios-swift-ui
+            app_path: DerivedData/Build/Products/Debug-iphonesimulator/iOS-SwiftUI.app
+    name: Build ${{matrix.sample-name}} Sample for Maestro
+    runs-on: macos-14
 
     steps:
       - uses: actions/checkout@v4
-      - run: ./scripts/ci-select-xcode.sh 14.3
+      - run: ./scripts/ci-select-xcode.sh 15.4
       - uses: ruby/setup-ruby@v1
         with:
           bundler-cache: true
-      - run: bundle exec fastlane build_ios_swift_ui_for_tests
+      - run: bundle exec fastlane ${{matrix.lane_name}}
       - uses: actions/upload-artifact@v4
         with:
-          name: maestro-ios-swift-ui-for-tests
-          path: DerivedData/Build/Products/Debug-iphonesimulator/iOS-SwiftUI.app
+          name: ${{matrix.artifact-name}}
+          path: ${{matrix.app_path}}
 
   eval-maestro-swift-ui-tests:
-    name: Maestro UI Tests for SwiftUI on ${{matrix.device}} Simulator
-    needs: [build-swift-ui]
+    name: Maestro Test of ${{matrix.sample-name}} on iOS ${{matrix.os-version}} on ${{matrix.device}} Simulator
+    needs: [build-sample-for-maestro]
     runs-on: ${{matrix.runs-on}}
     strategy:
       fail-fast: false
       matrix:
         include:
-          # - runs-on: macos-12
-          #   xcode: "13.4.1"
-
-          - runs-on: macos-14
-            xcode: "15.4"
-            device: "iPhone 15"
-            os_version: "17.2"
-            app: "iOS-SwiftUI.app"
+          - sample-name: iOS-ObjectiveC
+            runs-on: macos-13
+            xcode: "14.3"
+            device: "iPhone 8"
+            os-version: "16.1"
+            artifact-name: maestro-ios-objc
+            app: "Sample.app"
+            test_suit: "Samples/iOS-ObjectiveC/.maestro"
+          - sample-name: iOS-SwiftUI
+            runs-on: macos-12
+            xcode: "13.4.1"
+            device: "iPhone 8"
+            os-version: "15.2"
+            artifact-name: maestro-ios-swift-ui
+            app: "Sample.app"
+            test_suit: "Samples/iOS-SwiftUI/.maestro"
+          - sample-name: iOS-SwiftUI
+            runs-on: macos-14
+            xcode: "14.3.1"
+            device: "iPhone 14"
+            os-version: "16.4"
+            artifact-name: maestro-ios-swift-ui
+            app: "Sample.app"
+            test_suit: "Samples/iOS-SwiftUI/.maestro"
 
     steps:
       - uses: actions/checkout@v4
@@ -63,17 +95,17 @@ jobs:
         run: brew tap facebook/fb && brew install facebook/fb/idb-companion
       - uses: actions/download-artifact@v4
         with:
-          name: maestro-ios-swift-ui-for-tests
+          name: ${{matrix.artifact-name}}
           path: ${{ matrix.app }}
       - uses: futureware-tech/simulator-action@bfa03d93ec9de6dacb0c5553bbf8da8afc6c2ee9 # pin@v3
         with:
           model: ${{matrix.device}}
-          os_version: ${{matrix.os_version}}
+          os-version: ${{matrix.os-version}}
       - name: Run Maestro Flows
-        run: |
+        env:
           # https://github.com/facebook/react-native/blob/24e7f7d25629a7af6d877a0b79fed2faaab96437/.github/actions/maestro-ios/action.yml#L57
-          export MAESTRO_DRIVER_STARTUP_TIMEOUT=1500000 # 25 min. CI is extremely slow
-
+          MAESTRO_DRIVER_STARTUP_TIMEOUT: 1500000 # 25 min, CI can be slow at times
+        run: |
           xcrun simctl install booted ${{ matrix.app}}
 
-          maestro test .maestro --format junit
+          maestro test ${{matrix.test_suit}} --format junit
