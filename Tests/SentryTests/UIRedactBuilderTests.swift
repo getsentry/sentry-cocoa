@@ -11,9 +11,9 @@ class RedactOptions: SentryRedactOptions {
     var maskAllText: Bool
     var maskAllImages: Bool
     
-    init(redactAllText: Bool = true, redactAllImages: Bool = true) {
-        self.maskAllText = redactAllText
-        self.maskAllImages = redactAllImages
+    init(maskAllText: Bool = true, maskAllImages: Bool = true) {
+        self.maskAllText = maskAllText
+        self.maskAllImages = maskAllImages
         maskedViewClasses = []
         unmaskedViewClasses = []
     }
@@ -52,7 +52,7 @@ class UIRedactBuilderTests: XCTestCase {
     }
     
     func testDontRedactALabelOptionDisabled() {
-        let sut = getSut(RedactOptions(redactAllText: false))
+        let sut = getSut(RedactOptions(maskAllText: false))
         let label = UILabel(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
         label.textColor = .purple
         rootView.addSubview(label)
@@ -81,7 +81,7 @@ class UIRedactBuilderTests: XCTestCase {
     }
     
     func testDontRedactAImageOptionDisabled() {
-        let sut = getSut(RedactOptions(redactAllImages: false))
+        let sut = getSut(RedactOptions(maskAllImages: false))
         
         let image = UIGraphicsImageRenderer(size: CGSize(width: 40, height: 40)).image { context in
             context.fill(CGRect(x: 0, y: 0, width: 40, height: 40))

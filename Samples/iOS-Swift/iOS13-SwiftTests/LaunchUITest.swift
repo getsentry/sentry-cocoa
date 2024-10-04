@@ -25,6 +25,11 @@ class LaunchUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["SwiftUI!"].waitForExistence(timeout: timeout), "SwiftUI not loaded.")
     }
     
+    func testNavigationTransaction() {
+        app.buttons["Test Navigation Transaction"].tap()
+        XCTAssertEqual(app.state, .runningForeground)
+    }
+    
     private func waitForExistenceOfMainScreen() {
         XCTAssertTrue(app.buttons["captureMessage"].waitForExistence(timeout: timeout), "Home Screen doesn't exist.")
     }
