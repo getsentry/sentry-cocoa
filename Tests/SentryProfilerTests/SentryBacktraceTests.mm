@@ -199,7 +199,7 @@ countof(Array &)
     XCTAssertEqual(
         pthread_create(&thread2, nullptr, threadEntry, reinterpret_cast<void *>(bc_d)), 0);
 
-    const auto cache = std::make_shared<ThreadMetadataCache>();
+    ThreadMetadataCache cache;
     bool foundThread1 = false, foundThread2 = false;
     // Try up to 3 times.
     for (int i = 0; i < 3; i++) {
@@ -230,7 +230,7 @@ countof(Array &)
                     }
                 }
             },
-            cache);
+            &cache);
         if (foundThread1 && foundThread2) {
             break;
         }

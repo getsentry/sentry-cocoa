@@ -29,8 +29,8 @@
         options.failedRequestStatusCodes = @[ httpStatusCodeRange ];
 
         options.experimental.sessionReplay.quality = SentryReplayQualityMedium;
-        options.experimental.sessionReplay.redactAllText = true;
-        options.experimental.sessionReplay.redactAllImages = true;
+        options.experimental.sessionReplay.maskAllText = true;
+        options.experimental.sessionReplay.maskAllImages = true;
         options.experimental.sessionReplay.sessionSampleRate = 0;
         options.experimental.sessionReplay.onErrorSampleRate = 1;
 

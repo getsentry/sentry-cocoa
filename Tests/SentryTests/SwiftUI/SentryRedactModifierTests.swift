@@ -8,7 +8,7 @@ class SentryRedactModifierTests: XCTestCase {
 
     func testViewRedacted() throws {
         let text = Text("Hello, World!")
-        let redactedText = text.sentryReplayRedact()
+        let redactedText = text.sentryReplayMask()
         
         XCTAssertTrue(redactedText is ModifiedContent<Text, SentryReplayModifier>)
     }

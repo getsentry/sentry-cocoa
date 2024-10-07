@@ -7,17 +7,20 @@
 - Added breadcrumb.origin private field (#4358)
 - Custom redact modifier for SwiftUI (#4362)
 - AppHangV2 detection (#4379) Add a new algorithm for detecting app hangs that differentiates between fully blocking and non-fully blocking app hangs. Read more in-depth in our [docs](https://docs.sentry.io/platforms/apple/guides/ios/configuration/app-hangs/#app-hangs-v2).
+- Add support for arm64e (#3398)
 - Add mergeable libraries support to dynamic libraries (#4381)
 
 ### Improvements
 
 - Speed up HTTP tracking for multiple requests in parallel (#4366)
 - Slightly speed up SentryInAppLogic (#4370)
+- Rename session replay `redact` options and APIs to `mask` (#4373)
 - Stop canceling timer for manual transactions (#4380)
 
 ### Fixes
 
 - Fix the versioning to support app release with Beta versions (#4368)
+- Linking ongoing trace to crash event (#4393)
 
 ## 8.37.0-beta.1
 
