@@ -351,6 +351,35 @@ static SentrySessionReplayIntegration *_installedInstance;
     [self.sessionReplay resume];
 }
 
+- (void)start
+{
+    if (self.sessionReplay != nil && self.sessionReplay.isRunning) {
+        return;
+    } else if (self.sessionReplay.isFullSession == NO) {
+        [self.sessionReplay captureReplay];
+        return;
+    }
+
+    _startedAsFullSession = YES;
+    if (SentryDependencyContainer.sharedInstance.application.windows.count > 0) {
+        // If a window its already available start replay right away
+        [self startWithOptions:_replayOptions fullSession:YES];
+    } else {
+        // Wait for a scene to be available to started the replay
+        if (@available(iOS 13.0, tvOS 13.0, *)) {
+            [_notificationCenter addObserver:self
+                                    selector:@selector(newSceneActivate)
+                                        name:UISceneDidActivateNotification];
+        }
+    }
+}
+
+- (void)stop
+{
+    [self.sessionReplay pause];
+    self.sessionReplay = nil;
+}
+
 - (void)sentrySessionEnded:(SentrySession *)session
 {
     [self pause];

@@ -32,6 +32,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)resume;
 
+- (void)stop;
+
+- (void)start;
+
 @end
 #endif // SENTRY_TARGET_REPLAY_SUPPORTED
 NS_ASSUME_NONNULL_END

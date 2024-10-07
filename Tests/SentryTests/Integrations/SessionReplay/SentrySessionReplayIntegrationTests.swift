@@ -39,15 +39,15 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         clearTestState()
     }
     
-    private func getSut() throws -> SentrySessionReplayIntegration {
+    private func  getSut() throws -> SentrySessionReplayIntegration {
         return try XCTUnwrap(SentrySDK.currentHub().installedIntegrations().first as? SentrySessionReplayIntegration)
     }
     
-    private func startSDK(sessionSampleRate: Float, errorSampleRate: Float, enableSwizzling: Bool = true, configure: ((Options) -> Void)? = nil) {
+    private func startSDK(sessionSampleRate: Float, errorSampleRate: Float, enableSwizzling: Bool = true, noIntegrations: Bool = false, configure: ((Options) -> Void)? = nil) {
         SentrySDK.start {
             $0.dsn = "https://user@test.com/test"
             $0.experimental.sessionReplay = SentryReplayOptions(sessionSampleRate: sessionSampleRate, onErrorSampleRate: errorSampleRate)
-            $0.setIntegrations([SentrySessionReplayIntegration.self])
+            $0.setIntegrations(noIntegrations ? [] : [SentrySessionReplayIntegration.self])
             $0.enableSwizzling = enableSwizzling
             $0.cacheDirectoryPath = FileManager.default.temporaryDirectory.path
             configure?($0)
@@ -307,6 +307,31 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         let sut = try getSut()
         let redactBuilder = sut.viewPhotographer.getRedactBuild()
         XCTAssertTrue(redactBuilder.containsIgnoreClass(AnotherLabel.self))
+    }
+    
+    func testStop() throws {
+        startSDK(sessionSampleRate: 1, errorSampleRate: 1)
+        let sut = try getSut()
+        let sessionReplay = sut.sessionReplay
+        XCTAssertTrue(sessionReplay?.isRunning ?? false)
+        
+        SentrySDK.replay.stop()
+        
+        XCTAssertFalse(sessionReplay?.isRunning ?? true)
+        XCTAssertNil(sut.sessionReplay)
+    }
+    
+    func testStart() throws {
+        startSDK(sessionSampleRate: 1, errorSampleRate: 1, noIntegrations: true)
+        var sut = SentrySDK.currentHub().installedIntegrations().first as? SentrySessionReplayIntegration
+        XCTAssertNil(sut)
+        SentrySDK.replay.start()
+        sut = try getSut()
+        
+        let sessionReplay = sut?.sessionReplay
+        XCTAssertTrue(sessionReplay?.isRunning ?? false)
+        XCTAssertTrue(sessionReplay?.isFullSession ?? false)
+        XCTAssertNotNil(sut?.sessionReplay)
     }
     
     func createLastSessionReplay(writeSessionInfo: Bool = true, errorSampleRate: Double = 1) throws {
