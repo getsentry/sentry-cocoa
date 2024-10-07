@@ -105,7 +105,7 @@ jobs:
 
       - name: Create iOS 16.4 simulator
         if: ${{ matrix.device == 'iPhone 14 (16.4)' }}
-        run: ./scripts/create-simulator.sh 14.3.1 16.4 16-4
+        run: ./scripts/create-simulator.sh 14.3.1 16.4 "iPhone 14"
 
       - name: Run Fastlane
         run: fastlane ui_tests_ios_swift device:"${{matrix.device}}"
