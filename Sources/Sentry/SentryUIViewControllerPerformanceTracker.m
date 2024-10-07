@@ -68,6 +68,18 @@
         return;
     }
 
+    SentryOptions *options = [SentrySDK options];
+
+    if ([SentrySwizzleClassNameExclude
+            shouldExcludeClassWithClassName:NSStringFromClass([controller class])
+                   swizzleClassNameExcludes:options.swizzleClassNameExcludes]) {
+        SENTRY_LOG_DEBUG(@"Won't track view controller because it's excluded with the option "
+                         @"swizzleClassNameExcludes: %@",
+            controller);
+        callbackToOrigin();
+        return;
+    }
+
     [self limitOverride:@"loadView"
                   target:controller
         callbackToOrigin:callbackToOrigin

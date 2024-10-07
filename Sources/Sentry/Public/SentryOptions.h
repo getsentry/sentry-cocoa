@@ -446,17 +446,17 @@ NS_SWIFT_NAME(Options)
 @property (nonatomic, assign) BOOL enableSwizzling;
 
 /**
- * An array of class names to ignore for swizzling.
+ * A set of class names to ignore for swizzling.
  *
  * @discussion The SDK checks if a class name of a class to swizzle contains a class name of this
  * array. For example, if you add MyUIViewController to this list, the SDK excludes the following
  * classes from swizzling: YourApp.MyUIViewController, YourApp.MyUIViewControllerA,
  * MyApp.MyUIViewController.
- * We can't use an @c NSArray<Class>  here because we use this as a workaround for which users have
+ * We can't use an @c NSSet<Class>  here because we use this as a workaround for which users have
  * to pass in class names that aren't available on specific iOS versions. By using @c
- * NSArray<NSString *>, users can specify unavailable class names.
+ * NSSet<NSString *>, users can specify unavailable class names.
  *
- * @note Default is an empty array.
+ * @note Default is an empty set.
  */
 @property (nonatomic, strong) NSSet<NSString *> *swizzleClassNameExcludes;
 
