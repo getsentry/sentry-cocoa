@@ -13,14 +13,13 @@ class SentryUIViewControllerSwizzlingTests: XCTestCase {
         let subClassFinder: TestSubClassFinder
         let processInfoWrapper = SentryNSProcessInfoWrapper()
         let binaryImageCache: SentryBinaryImageCache
+        var options: Options
         
         init() {
             subClassFinder = TestSubClassFinder(dispatchQueue: dispatchQueue, objcRuntimeWrapper: objcRuntimeWrapper, swizzleClassNameExcludes: [])
             binaryImageCache = SentryDependencyContainer.sharedInstance().binaryImageCache
-        }
-         
-        var options: Options {
-            let options = Options.noIntegrations()
+            
+            options = Options.noIntegrations()
             
             let imageName = String(
                 cString: class_getImageName(SentryUIViewControllerSwizzlingTests.self)!,
@@ -31,8 +30,6 @@ class SentryUIViewControllerSwizzlingTests: XCTestCase {
                 cString: class_getImageName(ExternalUIViewController.self)!,
                 encoding: .utf8)! as NSString
             options.add(inAppInclude: externalImageName.lastPathComponent)
-            
-            return options
         }
         
         var sut: SentryUIViewControllerSwizzling {
@@ -96,6 +93,18 @@ class SentryUIViewControllerSwizzlingTests: XCTestCase {
     func testShouldNotSwizzle_UIViewController() {
         let result = fixture.sut.shouldSwizzleViewController(UIViewController.self)
         XCTAssertFalse(result)
+    }
+    
+    func testShouldNotSwizzle_UIViewControllerExcludedFromSwizzling() {
+        fixture.options.swizzleClassNameExcludes = ["TestViewController"]
+        
+        XCTAssertFalse(fixture.sut.shouldSwizzleViewController(TestViewController.self))
+    }
+    
+    func testShouldSwizzle_UIViewControllerNotExcludedFromSwizzling() {
+        fixture.options.swizzleClassNameExcludes = ["TestViewController1"]
+        
+        XCTAssertTrue(fixture.sut.shouldSwizzleViewController(TestViewController.self))
     }
     
     func testUIViewController_loadView_noTransactionBoundToScope() {

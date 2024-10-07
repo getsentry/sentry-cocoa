@@ -22,6 +22,7 @@
 - Linking ongoing trace to crash event (#4393)
 - Edge case for swizzleClassNameExclude (#4405): Skip creating transactions for UIViewControllers ignored for swizzling
 via the option `swizzleClassNameExclude`.
+- Fix swizzling 
 
 ## 8.37.0-beta.1
 
