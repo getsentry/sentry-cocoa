@@ -62,29 +62,55 @@ jobs:
       matrix:
         include:
           - sample-name: iOS-ObjectiveC
+            artifact-name: maestro-ios-objc
+            app: "Sample.app"
+            test_suit: "Samples/iOS-ObjectiveC/.maestro"
             runs-on: macos-13
             xcode: "14.3"
             device: "iPhone 8"
             os-version: "16.1"
-            artifact-name: maestro-ios-objc
-            app: "Sample.app"
-            test_suit: "Samples/iOS-ObjectiveC/.maestro"
+
           - sample-name: iOS-SwiftUI
+            artifact-name: maestro-ios-swift-ui
+            app: "Sample.app"
+            test_suit: "Samples/iOS-SwiftUI/.maestro"
             runs-on: macos-12
             xcode: "13.4.1"
             device: "iPhone 8"
             os-version: "15.2"
+          - sample-name: iOS-SwiftUI
             artifact-name: maestro-ios-swift-ui
             app: "Sample.app"
             test_suit: "Samples/iOS-SwiftUI/.maestro"
-          - sample-name: iOS-SwiftUI
             runs-on: macos-14
             xcode: "14.3.1"
             device: "iPhone 14"
             os-version: "16.4"
-            artifact-name: maestro-ios-swift-ui
+
+          - sample-name: iOS-Swift
+            artifact-name: maestro-ios-swift
             app: "Sample.app"
-            test_suit: "Samples/iOS-SwiftUI/.maestro"
+            test_suit: "Samples/iOS-Swift/.maestro"
+            runs-on: macos-12
+            xcode: "13.4.1"
+            device: "iPhone 8"
+            os-version: "15.5"
+          - sample-name: iOS-Swift
+            artifact-name: maestro-ios-swift
+            app: "Sample.app"
+            test_suit: "Samples/iOS-Swift/.maestro"
+            runs-on: macos-13
+            xcode: "15.2"
+            device: "iPhone 14"
+            os-version: "16.4"
+          - sample-name: iOS-Swift
+            artifact-name: maestro-ios-swift
+            app: "Sample.app"
+            test_suit: "Samples/iOS-Swift/.maestro"
+            runs-on: macos-14
+            xcode: "15.4"
+            device: "iPhone 15"
+            os-version: "17.2"
 
     steps:
       - uses: actions/checkout@v4
