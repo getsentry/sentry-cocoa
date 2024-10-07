@@ -681,38 +681,6 @@ NS_SWIFT_NAME(Options)
 @property (nonatomic, copy) NSString *spotlightUrl;
 
 /**
- * Wether to enable DDM (delightful developer metrics) or not. For more information see
- * https://docs.sentry.io/product/metrics/.
- *
- * @warning This is an experimental feature and may still have bugs.
- * @note Default value is @c NO .
- */
-@property (nonatomic, assign) BOOL enableMetrics;
-
-/**
- * Wether to enable adding some default tags to every metrics or not. You need to enable @c
- * enableMetrics for this flag to work.
- *
- * @warning This is an experimental feature and may still have bugs.
- * @note Default value is @c YES .
- */
-@property (nonatomic, assign) BOOL enableDefaultTagsForMetrics;
-
-/**
- * Wether to enable connecting metrics to spans and transactions or not. You need to enable @c
- * enableMetrics for this flag to work.
- *
- * @warning This is an experimental feature and may still have bugs.
- * @note Default value is @c YES .
- */
-@property (nonatomic, assign) BOOL enableSpanLocalMetricAggregation;
-
-/**
- * This block can be used to modify the event before it will be serialized and sent.
- */
-@property (nullable, nonatomic, copy) SentryBeforeEmitMetricCallback beforeEmitMetric;
-
-/**
  * This aggregates options for experimental features.
  * Be aware that the options available for experimental can change at any time.
  */

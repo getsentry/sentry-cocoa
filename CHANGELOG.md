@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Removal of Experimental API
+
+- Remove the deprecated experimental Metrics API (#4406): [Learn more](https://sentry.zendesk.com/hc/en-us/articles/26369339769883-Metrics-Beta-Coming-to-an-End)
+
 ### Features
 
 - Added breadcrumb.origin private field (#4358)
