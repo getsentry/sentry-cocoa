@@ -26,19 +26,19 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - sample-name: ObjectiveC
+          - sample-name: iOS-ObjectiveC
             lane_name: build_ios_objc_for_sim_tests
             artifact-name: maestro-ios-objc
             app_path: DerivedData/Build/Products/Debug-iphonesimulator/iOS-ObjectiveC.app
-          - sample-name: Swift
+          - sample-name: iOS-Swift
             lane_name: build_ios_swift_for_sim_tests
             artifact-name: maestro-ios-swift
             app_path: DerivedData/Build/Products/Debug-iphonesimulator/iOS-Swift.app
-          - sample-name: SwiftUI
+          - sample-name: iOS-SwiftUI
             lane_name: build_ios_swift_ui_for_sim_tests
             artifact-name: maestro-ios-swift-ui
             app_path: DerivedData/Build/Products/Debug-iphonesimulator/iOS-SwiftUI.app
-    name: Build ${{matrix.sample-name}} Sample for Maestro
+    name: Build ${{matrix.sample-name}} Sample
     runs-on: macos-14
 
     steps:
@@ -54,7 +54,7 @@ jobs:
           path: ${{matrix.app_path}}
 
   eval-maestro-swift-ui-tests:
-    name: Maestro Test of ${{matrix.sample-name}} on iOS ${{matrix.os-version}} on ${{matrix.device}} Simulator
+    name: Test ${{matrix.sample-name}} on iOS ${{matrix.os-version}} on ${{matrix.device}} Simulator
     needs: [build-sample-for-maestro]
     runs-on: ${{matrix.runs-on}}
     strategy:
