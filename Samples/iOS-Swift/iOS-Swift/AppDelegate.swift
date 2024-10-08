@@ -95,7 +95,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 #endif
             options.enableTimeToFullDisplayTracing = true
             options.enablePerformanceV2 = true
-            options.enableMetrics = !args.contains("--disable-metrics")
             
             options.add(inAppInclude: "iOS_External")
 

@@ -1504,42 +1504,6 @@
     XCTAssertEqualObjects(options3.spotlightUrl, @"http://localhost:8969/stream");
 }
 
-- (void)testEnableMetrics
-{
-    [self testBooleanField:@"enableMetrics" defaultValue:NO];
-}
-
-- (void)testEnableDefaultTagsForMetrics
-{
-    [self testBooleanField:@"enableDefaultTagsForMetrics" defaultValue:YES];
-}
-
-- (void)testEnableSpanLocalMetricAggregation
-{
-    [self testBooleanField:@"enableSpanLocalMetricAggregation" defaultValue:YES];
-}
-
-- (void)testBeforeEmitMetric
-{
-    SentryBeforeEmitMetricCallback callback
-        = ^(NSString *_Nonnull key, NSDictionary<NSString *, NSString *> *_Nonnull tags) {
-              // Use tags and key to silence unused compiler error
-              XCTAssertNotNil(key);
-              XCTAssertNotNil(tags);
-              return YES;
-          };
-    SentryOptions *options = [self getValidOptions:@{ @"beforeEmitMetric" : callback }];
-
-    XCTAssertEqual(callback, options.beforeEmitMetric);
-}
-
-- (void)testDefaultBeforeEmitMetric
-{
-    SentryOptions *options = [self getValidOptions:@{}];
-
-    XCTAssertNil(options.beforeEmitMetric);
-}
-
 #pragma mark - Private
 
 - (void)assertArrayEquals:(NSArray<NSString *> *)expected actual:(NSArray<NSString *> *)actual
