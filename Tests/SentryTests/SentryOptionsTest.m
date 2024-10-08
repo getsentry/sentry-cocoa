@@ -916,10 +916,19 @@
     [self testBooleanField:@"enableAppHangTracking" defaultValue:YES];
 }
 
+#if SENTRY_UIKIT_AVAILABLE
+
 - (void)testEnableAppHangTrackingV2
 {
     [self testBooleanField:@"enableAppHangTrackingV2" defaultValue:NO];
 }
+
+- (void)testEnableReportNonFullyBlockingAppHangs
+{
+    [self testBooleanField:@"enableReportNonFullyBlockingAppHangs" defaultValue:YES];
+}
+
+#endif // SENTRY_UIKIT_AVAILABLE
 
 - (void)testDefaultAppHangsTimeout
 {

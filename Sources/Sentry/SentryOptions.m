@@ -118,10 +118,11 @@ NSString *const kSentryDefaultEnvironment = @"production";
         self.enableUserInteractionTracing = YES;
         self.idleTimeout = SentryTracerDefaultTimeout;
         self.enablePreWarmedAppStartTracing = NO;
+        self.enableAppHangTrackingV2 = NO;
+        self.enableReportNonFullyBlockingAppHangs = YES;
 #endif // SENTRY_HAS_UIKIT
         self.enableAppHangTracking = YES;
         self.appHangTimeoutInterval = 2.0;
-        self.enableAppHangTrackingV2 = NO;
         self.enableAutoBreadcrumbTracking = YES;
         self.enableNetworkTracking = YES;
         self.enableFileIOTracing = YES;
@@ -432,6 +433,12 @@ NSString *const kSentryDefaultEnvironment = @"production";
     [self setBool:options[@"enablePreWarmedAppStartTracing"]
             block:^(BOOL value) { self->_enablePreWarmedAppStartTracing = value; }];
 
+    [self setBool:options[@"enableAppHangTrackingV2"]
+            block:^(BOOL value) { self->_enableAppHangTrackingV2 = value; }];
+
+    [self setBool:options[@"enableReportNonFullyBlockingAppHangs"]
+            block:^(BOOL value) { self->_enableReportNonFullyBlockingAppHangs = value; }];
+
 #endif // SENTRY_HAS_UIKIT
 
     [self setBool:options[@"enableAppHangTracking"]
@@ -440,9 +447,6 @@ NSString *const kSentryDefaultEnvironment = @"production";
     if ([options[@"appHangTimeoutInterval"] isKindOfClass:[NSNumber class]]) {
         self.appHangTimeoutInterval = [options[@"appHangTimeoutInterval"] doubleValue];
     }
-
-    [self setBool:options[@"enableAppHangTrackingV2"]
-            block:^(BOOL value) { self->_enableAppHangTrackingV2 = value; }];
 
     [self setBool:options[@"enableNetworkTracking"]
             block:^(BOOL value) { self->_enableNetworkTracking = value; }];

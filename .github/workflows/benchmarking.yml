@@ -16,6 +16,7 @@ on:
       - '.sauce/benchmarking-config.yml'
       - 'fastlane/**'
       - 'scripts/ci-select-xcode.sh'
+      - 'scripts/build-xcframework.sh'
 
 # https://docs.github.com/en/actions/using-jobs/using-concurrency#example-using-a-fallback-value
 concurrency:
@@ -125,7 +126,7 @@ jobs:
           MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
           MATCH_USERNAME: ${{ secrets.MATCH_USERNAME }}
       - name: Build Framework
-        run: make build-xcframework
+        run: ./scripts/build-xcframework.sh iOSOnly
         
       - name: Archive build log if failed
         uses: actions/upload-artifact@v4

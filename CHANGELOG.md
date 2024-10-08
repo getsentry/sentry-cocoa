@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 8.38.0-beta.1
 
 ### Removal of Experimental API
 
@@ -10,6 +10,7 @@
 
 - Added breadcrumb.origin private field (#4358)
 - Custom redact modifier for SwiftUI (#4362)
+- AppHangV2 detection (#4379) Add a new algorithm for detecting app hangs that differentiates between fully blocking and non-fully blocking app hangs. Read more in-depth in our [docs](https://docs.sentry.io/platforms/apple/guides/ios/configuration/app-hangs/#app-hangs-v2).
 - Add support for arm64e (#3398)
 - Add mergeable libraries support to dynamic libraries (#4381)
 
@@ -24,6 +25,34 @@
 
 - Fix the versioning to support app release with Beta versions (#4368)
 - Linking ongoing trace to crash event (#4393)
+
+## 8.37.0
+
+### Features
+
+- Added `thermal_state` to device context (#4305)
+- Send envelopes that cannot be cached to disk (#4294)
+
+### Refactoring
+
+- Moved session replay API to `SentrySDK.replay` (#4326)
+- Changed default session replay quality to `medium` (#4326)
+
+### Fixes
+
+- Resumes replay when the app becomes active (#4303)
+- Session replay redact view with transformation (#4308)
+- Correct redact UIView with higher zPosition (#4309)
+- Don't redact clipped views (#4325)
+- Session replay for crash not created because of a race condition (#4314)
+- Double-quoted include, expected angle-bracketed instead (#4298)
+- Discontinue use of NSApplicationSupportDirectory in favor of NSCachesDirectory (#4335)
+- Safe guard `strncpy` usage (#4336)
+- Stop using `redactAllText` as an indicator tha redact is enabled (#4327)
+
+### Improvements
+
+- Avoid extra work when storing invalid envelopes (#4337)
 
 ## 8.37.0-beta.1
 
