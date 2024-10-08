@@ -1,0 +1,5 @@
+appId: io.sentry.sample.iOS-Swift
+---
+- launchApp
+- tapOn: "Extra"
+- assertVisible: "{ category: ui.lifecycle, parentViewController: UITabBarController, beingPresented: false, window_isKeyWindow: true, is_window_rootViewController: false }"

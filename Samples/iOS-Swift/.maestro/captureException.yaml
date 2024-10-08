@@ -1,0 +1,4 @@
+appId: io.sentry.sample.iOS-Swift
+---
+- launchApp
+- tapOn: "Capture NSException"

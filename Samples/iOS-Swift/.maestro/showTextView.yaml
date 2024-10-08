@@ -1,0 +1,7 @@
+appId: io.sentry.sample.iOS-Swift
+---
+- launchApp
+- tapOn: "Transactions"
+- tapOn: "Lorem Ipsum Controller"
+- assertVisible:
+    id: "LoremIpsumTextView"

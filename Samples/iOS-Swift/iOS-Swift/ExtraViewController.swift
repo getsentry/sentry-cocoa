@@ -5,6 +5,7 @@ import UIKit
 class ExtraViewController: UIViewController {
 
     @IBOutlet weak var framesLabel: UILabel!
+    @IBOutlet weak var framesCheckLabel: UILabel!
     @IBOutlet weak var breadcrumbLabel: UILabel!
     @IBOutlet weak var uiTestNameLabel: UILabel!
     @IBOutlet weak var anrFullyBlockingButton: UIButton!
@@ -18,7 +19,6 @@ class ExtraViewController: UIViewController {
         if let uiTestName = ProcessInfo.processInfo.environment["--io.sentry.ui-test.test-name"] {
             uiTestNameLabel.text = uiTestName
         }
-        
         Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { _ in
             self.framesLabel?.text = "Frames Total:\(PrivateSentrySDKOnly.currentScreenFrames.total) Slow:\(PrivateSentrySDKOnly.currentScreenFrames.slow) Frozen:\(PrivateSentrySDKOnly.currentScreenFrames.frozen)"
         }
@@ -190,6 +190,56 @@ class ExtraViewController: UIViewController {
             print("Corrupted envelope saved to: " + envelopePath)
         } catch {
             fatalError("Error while writing corrupted envelope to: " + envelopePath)
+        }
+    }
+
+    @IBAction func checkFramesProportions(_ sender: UIButton) {
+        let slowFramesPercentage = Double(PrivateSentrySDKOnly.currentScreenFrames.slow) / Double(PrivateSentrySDKOnly.currentScreenFrames.total)
+        if slowFramesPercentage > 0.5 {
+            fatalError("Too many slow frames.")
+        }
+
+        let frozenFramesPercentage = Double(PrivateSentrySDKOnly.currentScreenFrames.frozen) / Double(PrivateSentrySDKOnly.currentScreenFrames.total)
+        if frozenFramesPercentage > 0.5 {
+            fatalError("Too many frozen frames.")
+        }
+
+        framesCheckLabel.text = "Frames Proportions OK"
+    }
+
+    @IBAction func checkFramesCount(_ sender: UIButton) {
+        let startDate = Date()
+        let startSlowFrames = PrivateSentrySDKOnly.currentScreenFrames.slow
+        let startTotalFrames = PrivateSentrySDKOnly.currentScreenFrames.total
+
+        Timer.scheduledTimer(withTimeInterval: 1, repeats: false) { _ in
+            let endDate = Date()
+            let endSlowFrames = PrivateSentrySDKOnly.currentScreenFrames.slow
+            let endTotalFrames = PrivateSentrySDKOnly.currentScreenFrames.total
+
+            let secondsBetween = endDate.timeIntervalSince(startDate)
+
+            // We don't calculate the min and max values based on the frame rate, as it could have changed while waiting for them to render.
+            // Instead, we pick the minimum value based on 60fps and the maximum value based on 120fps.
+            let slowFrames = endSlowFrames - startSlowFrames
+            let slowFramesBuffer = Double(slowFrames) * 0.2
+
+            let expectedMinimumTotalFrames = (secondsBetween - 0.5 - slowFramesBuffer) * 60
+            let expectedMaximumTotalFrames = (secondsBetween + 0.5) * 120
+
+            let actualTotalFrames = Double(endTotalFrames - startTotalFrames)
+
+            if actualTotalFrames < expectedMinimumTotalFrames {
+                print("Actual frames:\(actualTotalFrames) should be greater than or equal to \(expectedMinimumTotalFrames)")
+                return
+            }
+
+            if actualTotalFrames > expectedMaximumTotalFrames {
+                print("Actual frames:\(actualTotalFrames) should be less than or equal to \(expectedMaximumTotalFrames)")
+                return
+            }
+
+            self.framesCheckLabel?.text = "Frames Count OK"
         }
     }
 

@@ -1,0 +1,8 @@
+appId: io.sentry.sample.iOS-Swift
+env:
+  MAESTRO_FLOW_NAME: "Check Frames Proportions"
+---
+- launchApp
+- tapOn: "Extra"
+- tapOn: "Frames Proportions"
+- assertVisible: "Frames Proportions OK"

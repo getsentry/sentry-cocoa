@@ -136,4 +136,11 @@ jobs:
         run: |
           xcrun simctl install booted ${{ matrix.app}}
 
-          maestro test ${{matrix.test_suit}} --format junit
+          maestro test ${{matrix.test_suit}} --format junit --debug-output /tmp/MaestroLogs
+
+      - name: Store Maestro Logs
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: maestro-logs-${{matrix.sample-name}}-${{matrix.device}}-${{matrix.os-version}}
+          path: /tmp/MaestroLogs

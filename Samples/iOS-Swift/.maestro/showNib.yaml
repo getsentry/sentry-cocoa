@@ -1,0 +1,7 @@
+appId: io.sentry.sample.iOS-Swift
+---
+- launchApp
+- tapOn: "Transactions"
+- tapOn: "Nib Controller"
+- assertVisible: "a lonely button"
+- assertVisible: "ASSERT: SUCCESS"

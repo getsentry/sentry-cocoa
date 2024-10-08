@@ -1,0 +1,6 @@
+appId: io.sentry.sample.iOS-Swift
+---
+- launchApp
+- tapOn: "Transactions"
+- tapOn: "Split Controller"
+- assertVisible: "ASSERT: SUCCESS"
