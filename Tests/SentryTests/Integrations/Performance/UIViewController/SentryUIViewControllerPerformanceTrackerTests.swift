@@ -26,15 +26,7 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
     
     private class Fixture {
         
-        var options: Options {
-            let options = Options.noIntegrations()
-            let imageName = String(
-                cString: class_getImageName(SentryUIViewControllerSwizzlingTests.self)!,
-                encoding: .utf8)! as NSString
-            options.add(inAppInclude: imageName.lastPathComponent)
-            options.debug = true
-            return options
-        }
+        var options: Options
         
         let viewController = TestViewController()
         let tracker = SentryPerformanceTracker.shared
@@ -50,6 +42,13 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
         }
         
         init() {
+            options = Options.noIntegrations()
+            let imageName = String(
+                cString: class_getImageName(SentryUIViewControllerSwizzlingTests.self)!,
+                encoding: .utf8)! as NSString
+            options.add(inAppInclude: imageName.lastPathComponent)
+            options.debug = true
+            
             framesTracker = SentryFramesTracker(displayLinkWrapper: displayLinkWrapper, dateProvider: dateProvider, dispatchQueueWrapper: TestSentryDispatchQueueWrapper(),
                                                 notificationCenter: TestNSNotificationCenterWrapper(), keepDelayedFramesDuration: 0)
             SentryDependencyContainer.sharedInstance().framesTracker = framesTracker
@@ -500,7 +499,7 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
         wait(for: [callbackExpectation], timeout: 0)
     }
     
-    func testLoadView_withUIViewController() {
+    func testLoadView_withNonInAppUIViewController_DoesNotStartTransaction() {
         let sut = fixture.getSut()
         let viewController = UIViewController()
         let tracker = fixture.tracker
@@ -516,6 +515,26 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
         }
                
         XCTAssertNil(transactionSpan)
+        wait(for: [callbackExpectation], timeout: 0)
+    }
+    
+    func testLoadView_withIgnoreSwizzleUIViewController_DoesNotStartTransaction() {
+        fixture.options.swizzleClassNameExcludes = ["TestViewController"]
+        let sut = fixture.getSut()
+        let viewController = fixture.viewController
+        let tracker = fixture.tracker
+        var transactionSpan: Span!
+        let callbackExpectation = expectation(description: "Callback Expectation")
+        
+        XCTAssertTrue(getStack(tracker).isEmpty)
+        
+        sut.viewControllerLoadView(viewController) {
+            let spans = self.getStack(tracker)
+            transactionSpan = spans.first
+            callbackExpectation.fulfill()
+        }
+               
+        XCTAssertNil(transactionSpan, "Expected to transaction.")
         wait(for: [callbackExpectation], timeout: 0)
     }
     

@@ -6,6 +6,11 @@
 
 - Remove the deprecated experimental Metrics API (#4406): [Learn more](https://sentry.zendesk.com/hc/en-us/articles/26369339769883-Metrics-Beta-Coming-to-an-End)
 
+### Fixes
+
+- Edge case for swizzleClassNameExclude (#4405): Skip creating transactions for UIViewControllers ignored for swizzling
+via the option `swizzleClassNameExclude`.
+
 ## 8.38.0-beta.1
 
 ### Features
