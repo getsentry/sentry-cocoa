@@ -6,6 +6,7 @@
 
 - Added breadcrumb.origin private field (#4358)
 - Custom redact modifier for SwiftUI (#4362)
+- AppHangV2 detection (#4379) Add a new algorithm for detecting app hangs that differentiates between fully blocking and non-fully blocking app hangs. Read more in-depth in our [docs](https://docs.sentry.io/platforms/apple/guides/ios/configuration/app-hangs/#app-hangs-v2).
 - Add support for arm64e (#3398)
 - Add mergeable libraries support to dynamic libraries (#4381)
 
