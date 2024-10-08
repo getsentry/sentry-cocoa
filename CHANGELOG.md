@@ -1,10 +1,12 @@
 # Changelog
 
-## 8.38.0-beta.1
+## Unreleased
 
 ### Removal of Experimental API
 
 - Remove the deprecated experimental Metrics API (#4406): [Learn more](https://sentry.zendesk.com/hc/en-us/articles/26369339769883-Metrics-Beta-Coming-to-an-End)
+
+## 8.38.0-beta.1
 
 ### Features
 
