@@ -74,7 +74,8 @@ NS_ASSUME_NONNULL_BEGIN
     [self.tracker start];
 
     self.anrTracker =
-        [SentryDependencyContainer.sharedInstance getANRTrackerV1:options.appHangTimeoutInterval];
+        [SentryDependencyContainer.sharedInstance getANRTracker:options.appHangTimeoutInterval
+                                                    isV2Enabled:options.enableAppHangTrackingV2];
     [self.anrTracker addListener:self];
 
     self.appStateManager = appStateManager;
