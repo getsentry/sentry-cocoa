@@ -169,6 +169,30 @@ class ExtraViewController: UIViewController {
         }
     }
 
+    @IBAction func corruptEnvelope(_ sender: UIButton) {
+        guard let dsnHash = SentrySDK.options?.parsedDsn?.getHash() else {
+            fatalError("dsnHash can not be nil!")
+        }
+
+        guard let cachePath = SentrySDK.options?.cacheDirectoryPath else {
+            fatalError("cachePath can not be nil!")
+        }
+
+        let envelopePath = "\(cachePath)/io.sentry/\(dsnHash)/envelopes/corrupted-envelope.json"
+
+        let corruptedEnvelopeData = """
+                       {"event_id":"1990b5bc31904b7395fd07feb72daf1c","sdk":{"name":"sentry.cocoa","version":"8.33.0"}}
+                       {"type":"test","length":50}
+                       """.data(using: .utf8)!
+
+        do {
+            try corruptedEnvelopeData.write(to: URL(fileURLWithPath: envelopePath))
+            print("Corrupted envelope saved to: " + envelopePath)
+        } catch {
+            fatalError("Error while writing corrupted envelope to: " + envelopePath)
+        }
+    }
+
     private func calcPi() -> Double {
         var denominator = 1.0
         var pi = 0.0
