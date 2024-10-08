@@ -32,6 +32,9 @@ via the option `swizzleClassNameExclude`.
 
 - Fix the versioning to support app release with Beta versions (#4368)
 - Linking ongoing trace to crash event (#4393)
+- Edge case for swizzleClassNameExclude (#4405): Skip creating transactions for UIViewControllers ignored for swizzling
+via the option `swizzleClassNameExclude`.
+- Swizzling RootUIViewController if ignored by `swizzleClassNameExclude` (#4407)
 
 ## 8.37.0
 
