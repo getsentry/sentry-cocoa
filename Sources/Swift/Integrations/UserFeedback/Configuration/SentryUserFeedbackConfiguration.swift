@@ -14,6 +14,8 @@ import UIKit
      */
     public var configureWidget: ((SentryUserFeedbackWidgetConfiguration) -> Void)?
     
+    lazy var widgetConfig = SentryUserFeedbackWidgetConfiguration()
+    
     /**
      * Use a shake gesture to display the form.
      * - note: Default: `false`
@@ -33,6 +35,8 @@ import UIKit
      * - note: Default: `nil`
      */
     public var configureForm: ((SentryUserFeedbackFormConfiguration) -> Void)?
+    
+    lazy var formConfig = SentryUserFeedbackFormConfiguration()
 
     /**
      * Tags to set on the feedback event. This is a dictionary where keys are strings
@@ -76,6 +80,29 @@ import UIKit
      * that function.
      */
     public var onSubmitError: ((Error) -> Void)?
+    
+    // MARK: Theme
+    
+    /**
+     * Builder for default/light theme overrides.
+     * - note: On iOS versions predating dark mode (≤12) this is the only theme override used. Apps
+     * running on later versions that include dark mode should also consider `configureDarkTheme`.
+     * - note: Default: `nil`
+     */
+    public var configureTheme: ((SentryUserFeedbackThemeConfiguration) -> Void)?
+    
+    lazy var theme = SentryUserFeedbackThemeConfiguration()
+    
+    /**
+     * Builder for dark mode theme overrides. If your app does not deploy a different theme for dark
+     * mode, but you still want to override some theme settings, assign the same builder to this
+     * property as you do for `configureTheme`.
+     * - note: Default: `nil`
+     * - note: Only applies to iOS ≤12.
+     */
+    public var configureDarkTheme: ((SentryUserFeedbackThemeConfiguration) -> Void)?
+    
+    lazy var darkTheme = SentryUserFeedbackThemeConfiguration()
 }
 
 #endif // (os(iOS) || os(tvOS)) && !SENTRY_NO_UIKIT

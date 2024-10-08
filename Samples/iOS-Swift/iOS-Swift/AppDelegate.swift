@@ -164,14 +164,24 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             }
             
             options.configureUserFeedback = { config in
+                guard !args.contains("--io.sentry.iOS-Swift.user-feedback.all-defaults") else {
+                    config.configureWidget = { widget in   
+                        widget.layoutUIOffset = .init(horizontal: 12, vertical: 50)
+                    }
+                    return
+                }
                 config.useShakeGesture = true
                 config.showFormForScreenshots = true
                 config.configureWidget = { widget in
                     if args.contains("--io.sentry.iOS-Swift.auto-inject-user-feedback-widget") {
                         widget.labelText = "Report Jank"
                         widget.widgetAccessibilityLabel = "io.sentry.iOS-Swift.button.report-jank"
+                        widget.layoutUIOffset = .init(horizontal: 12, vertical: 50)
                     } else {
                         widget.autoInject = false
+                    }
+                    if args.contains("--io.sentry.iOS-Swift.user-feedback.icon-only-widget") {
+                        widget.labelText = nil
                     }
                 }
                 config.configureForm = { uiForm in
@@ -179,9 +189,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                     uiForm.submitButtonLabel = "Report that jank"
                     uiForm.addScreenshotButtonLabel = "Show us the jank"
                     uiForm.messagePlaceholder = "Describe the nature of the jank. Its essence, if you will."
-                    uiForm.themeOverrides = { theme in
-                        theme.font = UIFont(name: "Comic Sans", size: 25)
-                    }
+                }
+                config.configureTheme = { theme in
+                    theme.font = UIFont(name: "ChalkboardSE-Regular", size: 60)
+                    theme.outlineColor = .purple
+                    theme.foreground = .purple
+                    theme.background = .purple.withAlphaComponent(0.1)
                 }
                 config.onSubmitSuccess = { info in
                     let name = info["name"] ?? "$shakespearean_insult_name"

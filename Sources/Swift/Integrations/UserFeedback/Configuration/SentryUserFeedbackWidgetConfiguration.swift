@@ -16,10 +16,16 @@ import UIKit
     public var autoInject: Bool = true
     
     /**
-     * The label of the injected button that opens up the feedback form when clicked.
+     * Whether or not to show animations, like for presenting and dismissing the form.
+     * - note: Default: `true`.
+     */
+    public var animations: Bool = true
+    
+    /**
+     * The label of the injected button that opens up the feedback form when clicked. If `nil`, no text is displayed and only the icon image is shown.
      * - note: Default: `"Report a Bug"`
      */
-    public var labelText: String = "Report a Bug"
+    public var labelText: String? = "Report a Bug"
     
     /**
      * The accessibility label of the injected button that opens up the feedback form when clicked.
@@ -40,7 +46,7 @@ import UIKit
     public var location: UIRectEdge = [.bottom, .right]
     
     /**
-     * The distance to use from the widget button to the superview's `layoutMarginsGuide`.
+     * The distance to use from the widget button to the `safeAreaLayoutGuide` of the root view in the widget's container window.
      * - note: Default: `UIOffset.zero`
      */
     public var layoutUIOffset: UIOffset = UIOffset.zero

@@ -48,6 +48,7 @@
                         containsObject:@"--io.sentry.iOS-Swift.auto-inject-user-feedback-widget"]) {
                     widget.labelText = @"Report Jank";
                     widget.widgetAccessibilityLabel = @"io.sentry.iOS-Swift.button.report-jank";
+                    widget.layoutUIOffset = UIOffsetMake(12, 50);
                 } else {
                     widget.autoInject = NO;
                 }

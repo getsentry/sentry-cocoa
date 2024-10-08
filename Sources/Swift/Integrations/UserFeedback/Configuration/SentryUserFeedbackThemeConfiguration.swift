@@ -4,7 +4,7 @@ import Foundation
 import UIKit
 
 /**
- * Settings for overriding theming components for the User Feedback Widget.
+ * Settings for overriding theming components for the User Feedback Widget and Form.
  */
 @objcMembers public class SentryUserFeedbackThemeConfiguration: NSObject {
     /**
@@ -14,12 +14,12 @@ import UIKit
     public var font: UIFont?
     
     /**
-     * Foreground text color.
+     * Foreground text color of the widget and form.
      * - note: Default light mode: `rgb(43, 34, 51)`; dark mode: `rgb(235, 230, 239)`
      */
     public var foreground: UIColor = {
         let lightModeDefault = UIColor(red: 43 / 255, green: 34 / 255, blue: 51 / 255, alpha: 1)
-        if #available(iOSApplicationExtension 12.0, *) {
+        if #available(iOS 12.0, *) {
             return UIScreen.main.traitCollection.userInterfaceStyle == .dark ? UIColor(red: 235 / 255, green: 230 / 255, blue: 239 / 255, alpha: 1) : lightModeDefault
         } else {
             return lightModeDefault
@@ -27,12 +27,12 @@ import UIKit
     }()
     
     /**
-     * Background color of the widget (injected button and form).
+     * Background color of the widget and form.
      * - note: Default light mode: `rgb(255, 255, 255)`; dark mode: `rgb(41, 35, 47)`
      */
     public var background: UIColor = {
         let lightModeDefault = UIColor.white
-        if #available(iOSApplicationExtension 12.0, *) {
+        if #available(iOS 12.0, *) {
             return UIScreen.main.traitCollection.userInterfaceStyle == .dark ? UIColor(red: 41 / 255, green: 35 / 255, blue: 47 / 255, alpha: 1) : lightModeDefault
         } else {
             return lightModeDefault
@@ -40,13 +40,13 @@ import UIKit
     }()
     
     /**
-     * Foreground color for the submit button.
+     * Foreground color for the form submit button.
      * - note: Default: `rgb(255, 255, 255)` for both dark and light modes
      */
     public var accentForeground: UIColor = UIColor.white
     
     /**
-     * Background color for the submit button in light and dark modes.
+     * Background color for the form submit button in light and dark modes.
      * - note: Default: `rgb(88, 74, 192)` for both light and dark modes
      */
     public var accentBackground: UIColor = UIColor(red: 88 / 255, green: 74 / 255, blue: 192 / 255, alpha: 1)
@@ -57,7 +57,7 @@ import UIKit
      */
     public var successColor: UIColor = {
         let lightModeDefault = UIColor(red: 38 / 255, green: 141 / 255, blue: 117 / 255, alpha: 1)
-        if #available(iOSApplicationExtension 12.0, *) {
+        if #available(iOS 12.0, *) {
             return UIScreen.main.traitCollection.userInterfaceStyle == .dark ? UIColor(red: 45 / 255, green: 169 / 255, blue: 140 / 255, alpha: 1) : lightModeDefault
         } else {
             return lightModeDefault
@@ -70,7 +70,7 @@ import UIKit
      */
     public var errorColor: UIColor = {
         let lightModeDefault = UIColor(red: 223 / 255, green: 51 / 255, blue: 56 / 255, alpha: 1)
-        if #available(iOSApplicationExtension 12.0, *) {
+        if #available(iOS 12.0, *) {
             return UIScreen.main.traitCollection.userInterfaceStyle == .dark ? UIColor(red: 245 / 255, green: 84 / 255, blue: 89 / 255, alpha: 1) : lightModeDefault
         } else {
             return lightModeDefault
@@ -81,7 +81,13 @@ import UIKit
      * Normal outline color for form inputs.
      * - note: Default: `nil (system default)`
      */
-    public var outlineColor: UIColor?
+    public var outlineColor: UIColor = {
+        if #available(iOS 13.0, *) {
+            return UIColor.systemGray3
+        } else {
+            return UIColor.lightGray
+        }
+    }()
     
     /**
      * Outline color for form inputs when focused.
