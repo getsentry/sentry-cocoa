@@ -10,7 +10,7 @@ struct SentryReplayView: UIViewRepresentable {
     
     func makeUIView(context: Context) -> UIView {
         let result = SentryRedactView()
-        result.sentryReplayRedact()
+        result.sentryReplayMask()
         return result
     }
     
@@ -29,15 +29,15 @@ struct SentryReplayModifier: ViewModifier {
 @available(iOS 13, macOS 10.15, tvOS 13, *)
 public extension View {
     
-    /// Marks the view as containing sensitive information that should be redacted during replays.
+    /// Marks the view as containing sensitive information that should be masked during replays.
     ///
-    /// When this modifier is applied, any sensitive content within the view will be hidden or masked
+    /// When this modifier is applied, any sensitive content within the view will be masked
     /// during session replays to ensure user privacy. This is useful for views containing personal
     /// data or confidential information that shouldn't be visible when the replay is reviewed.
     ///
     /// - Returns: A modifier that redacts sensitive information during session replays.
     /// - Experiment: This is an experimental feature and may still have bugs.
-    func sentryReplayRedact() -> some View {
+    func sentryReplayMask() -> some View {
         modifier(SentryReplayModifier())
     }
 }

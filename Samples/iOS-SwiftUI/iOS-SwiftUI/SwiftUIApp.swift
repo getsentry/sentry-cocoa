@@ -11,8 +11,8 @@ struct SwiftUIApp: App {
             options.tracesSampleRate = 1.0
             options.profilesSampleRate = 1.0
             options.experimental.sessionReplay.sessionSampleRate = 1.0
-            options.experimental.sessionReplay.redactAllImages = false
-            options.experimental.sessionReplay.redactAllText = false
+            options.experimental.sessionReplay.maskAllImages = false
+            options.experimental.sessionReplay.maskAllText = false
             options.initialScope = { scope in
                 scope.injectGitInformation()
                 return scope

@@ -52,21 +52,21 @@ class UIRedactBuilder {
 
      - parameter options: A `SentryRedactOptions` object that specifies the configuration for the redaction process.
      
-     - If `options.redactAllText` is `true`, common text-related views such as `UILabel`, `UITextView`, and `UITextField` are redacted.
-     - If `options.redactAllImages` is `true`, common image-related views such as `UIImageView` and various internal `SwiftUI` image views are redacted.
-     - The `options.ignoreRedactViewTypes` allows specifying custom view types to be ignored during the redaction process.
-     - The `options.redactViewTypes` allows specifying additional custom view types to be redacted.
+     - If `options.maskAllText` is `true`, common text-related views such as `UILabel`, `UITextView`, and `UITextField` are redacted.
+     - If `options.maskAllImages` is `true`, common image-related views such as `UIImageView` and various internal `SwiftUI` image views are redacted.
+     - The `options.unmaskViewTypes` allows specifying custom view types to be ignored during the redaction process.
+     - The `options.maskViewTypes` allows specifying additional custom view types to be redacted.
 
      - note: On iOS, views such as `WKWebView` and `UIWebView` are automatically redacted, and controls like `UISlider` and `UISwitch` are ignored.
      */
     init(options: SentryRedactOptions) {
         var redactClasses = [AnyClass]()
         
-        if options.redactAllText {
+        if options.maskAllText {
             redactClasses += [ UILabel.self, UITextView.self, UITextField.self ]
         }
         
-        if options.redactAllImages {
+        if options.maskAllImages {
             //this classes are used by SwiftUI to display images.
             redactClasses += ["_TtCOCV7SwiftUI11DisplayList11ViewUpdater8Platform13CGDrawingView",
              "_TtC7SwiftUIP33_A34643117F00277B93DEBAB70EC0697122_UIShapeHitTestingView",
@@ -89,11 +89,11 @@ class UIRedactBuilder {
         
         redactClassesIdentifiers = Set(redactClasses.map({ ObjectIdentifier($0) }))
         
-        for type in options.ignoreViewClasses {
+        for type in options.unmaskedViewClasses {
             self.ignoreClassesIdentifiers.insert(ObjectIdentifier(type))
         }
         
-        for type in options.redactViewClasses {
+        for type in options.maskedViewClasses {
             self.redactClassesIdentifiers.insert(ObjectIdentifier(type))
         }
     }
@@ -133,15 +133,15 @@ class UIRedactBuilder {
      This function identifies and returns the regions within a given UIView that need to be redacted, based on the specified redaction options.
      
      - Parameter view: The root UIView for which redaction regions are to be calculated.
-     - Parameter options: A `SentryRedactOptions` object specifying whether to redact all text (`redactAllText`) or all images (`redactAllImages`). If `options` is nil, defaults are used (redacting all text and images).
+     - Parameter options: A `SentryRedactOptions` object specifying whether to redact all text (`maskAllText`) or all images (`maskAllImages`). If `options` is nil, defaults are used (redacting all text and images).
      
      - Returns: An array of `RedactRegion` objects representing areas of the view (and its subviews) that require redaction, based on the current visibility, opacity, and content (text or images).
      
      The method recursively traverses the view hierarchy, collecting redaction areas from the view and all its subviews. Each redaction area is calculated based on the view’s presentation layer, size, transformation matrix, and other attributes.
      
      The redaction process considers several key factors:
-     1. **Text Redaction**: If `redactAllText` is set to true, regions containing text within the view or its subviews are marked for redaction.
-     2. **Image Redaction**: If `redactAllImages` is set to true, image-containing regions are also marked for redaction.
+     1. **Text Redaction**: If `maskAllText` is set to true, regions containing text within the view or its subviews are marked for redaction.
+     2. **Image Redaction**: If `maskAllImages` is set to true, image-containing regions are also marked for redaction.
      3. **Opaque View Handling**: If an opaque view covers the entire area, obfuscating views beneath it, those hidden views are excluded from processing, and we can remove them from the result.
      4. **Clip Area Creation**: If a smaller opaque view blocks another view, we create a clip area to avoid drawing a redact mask on top of a view that does not require redaction.
      
@@ -159,11 +159,11 @@ class UIRedactBuilder {
     }
     
     private func shouldIgnore(view: UIView) -> Bool {
-        return SentryRedactViewHelper.shouldIgnoreView(view) || containsIgnoreClass(type(of: view))
+        return SentryRedactViewHelper.shouldUnmask(view) || containsIgnoreClass(type(of: view))
     }
     
     private func shouldRedact(view: UIView) -> Bool {
-        if SentryRedactViewHelper.shouldRedactView(view) {
+        if SentryRedactViewHelper.shouldMaskView(view) {
             return true
         }
         if let imageView = view as? UIImageView, containsRedactClass(UIImageView.self) {
@@ -257,19 +257,19 @@ class SentryRedactViewHelper: NSObject {
     private static var associatedRedactObjectHandle: UInt8 = 0
     private static var associatedIgnoreObjectHandle: UInt8 = 0
     
-    static func shouldRedactView(_ view: UIView) -> Bool {
+    static func shouldMaskView(_ view: UIView) -> Bool {
         (objc_getAssociatedObject(view, &associatedRedactObjectHandle) as? NSNumber)?.boolValue ?? false
     }
     
-    static func shouldIgnoreView(_ view: UIView) -> Bool {
+    static func shouldUnmask(_ view: UIView) -> Bool {
         (objc_getAssociatedObject(view, &associatedIgnoreObjectHandle) as? NSNumber)?.boolValue ?? false
     }
     
-    static func redactView(_ view: UIView) {
+    static func maskView(_ view: UIView) {
         objc_setAssociatedObject(view, &associatedRedactObjectHandle, true, .OBJC_ASSOCIATION_ASSIGN)
     }
     
-    static func ignoreView(_ view: UIView) {
+    static func unmaskView(_ view: UIView) {
         objc_setAssociatedObject(view, &associatedIgnoreObjectHandle, true, .OBJC_ASSOCIATION_ASSIGN)
     }
 }

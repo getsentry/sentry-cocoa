@@ -16,6 +16,7 @@ on:
       - '.sauce/benchmarking-config.yml'
       - 'fastlane/**'
       - 'scripts/ci-select-xcode.sh'
+      - 'scripts/build-xcframework.sh'
 
 # https://docs.github.com/en/actions/using-jobs/using-concurrency#example-using-a-fallback-value
 concurrency:
@@ -28,7 +29,7 @@ jobs:
     runs-on: macos-13
     steps:
       - uses: actions/checkout@v4
-      - run: ./scripts/ci-select-xcode.sh
+      - run: ./scripts/ci-select-xcode.sh 15.2
       - uses: ruby/setup-ruby@v1
         with:
           bundler-cache: true
@@ -91,7 +92,7 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           name: DerivedData-Xcode
-      - run: npm install -g saucectl@0.173.2
+      - run: npm install -g saucectl@0.186.0
       - name: Run Benchmarks in SauceLab
         env:
           SAUCE_USERNAME: ${{ secrets.SAUCE_USERNAME }}
@@ -100,11 +101,11 @@ jobs:
 
   app-metrics:
     name: Collect app metrics
-    runs-on: macos-13
+    runs-on: macos-13-xlarge
     steps:
       - name: Git checkout
         uses: actions/checkout@v4
-      - run: ./scripts/ci-select-xcode.sh
+      - run: ./scripts/ci-select-xcode.sh 15.2
       - uses: ruby/setup-ruby@v1
         with:
           bundler-cache: true
@@ -125,7 +126,16 @@ jobs:
           MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
           MATCH_USERNAME: ${{ secrets.MATCH_USERNAME }}
       - name: Build Framework
-        run: make build-xcframework
+        run: ./scripts/build-xcframework.sh iOSOnly
+        
+      - name: Archive build log if failed
+        uses: actions/upload-artifact@v4
+        if: ${{  failure() || cancelled() }}
+        with:
+          name: raw-build-output-build-xcframework
+          path: |
+            build-xcframework.log
+        
       - name: Build test app with sentry
         run: bundle exec fastlane build_perf_test_app_sentry
         env:

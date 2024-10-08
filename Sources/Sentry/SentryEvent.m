@@ -204,7 +204,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (BOOL)isAppHangEvent
 {
     return self.exceptions.count == 1 &&
-        [self.exceptions.firstObject.type isEqualToString:SentryANRExceptionType];
+        [SentryAppHangTypeMapper
+            isExceptionTypeAppHangWithExceptionType:self.exceptions.firstObject.type];
 }
 
 @end

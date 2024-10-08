@@ -2,7 +2,13 @@
 
 set -eou pipefail
 
-sdks=( iphoneos iphonesimulator macosx appletvos appletvsimulator watchos watchsimulator xros xrsimulator )
+args="${1:-}"
+
+if [ "$args" = "iOSOnly" ]; then
+    sdks=( iphoneos iphonesimulator )
+else
+    sdks=( iphoneos iphonesimulator macosx appletvos appletvsimulator watchos watchsimulator xros xrsimulator )
+fi
 
 rm -rf Carthage/
 mkdir Carthage
@@ -19,7 +25,8 @@ generate_xcframework() {
     
     local resolved_configuration="Release$configuration_suffix"
     local resolved_product_name="$scheme$configuration_suffix"
-    
+    local OTHER_LDFLAGS=""
+
     if [ "$MACH_O_TYPE" = "staticlib" ]; then
         #For static framework we disabled symbols because they are not distributed in the framework causing warnings.
         GCC_GENERATE_DEBUGGING_SYMBOLS="NO"
@@ -30,7 +37,27 @@ generate_xcframework() {
     for sdk in "${sdks[@]}"; do
         if grep -q "${sdk}" <<< "$ALL_SDKS"; then
 
-            xcodebuild archive -project Sentry.xcodeproj/ -scheme "$scheme" -configuration "$resolved_configuration" -sdk "$sdk" -archivePath "./Carthage/archive/${scheme}${suffix}/${sdk}.xcarchive" CODE_SIGNING_REQUIRED=NO SKIP_INSTALL=NO CODE_SIGN_IDENTITY= CARTHAGE=YES MACH_O_TYPE="$MACH_O_TYPE" ENABLE_CODE_COVERAGE=NO GCC_GENERATE_DEBUGGING_SYMBOLS="$GCC_GENERATE_DEBUGGING_SYMBOLS"
+            ## watchos, watchsimulator dont support make_mergeable: ld: unknown option: -make_mergeable
+            if [[ "$sdk" == "watchos" || "$sdk" == "watchsimulator" ]]; then
+                OTHER_LDFLAGS=""
+            elif [ "$MACH_O_TYPE" != "staticlib" ]; then
+                OTHER_LDFLAGS="-Wl,-make_mergeable"
+            fi
+
+            xcodebuild archive \
+                -project Sentry.xcodeproj/ \
+                -scheme "$scheme" \
+                -configuration "$resolved_configuration" \
+                -sdk "$sdk" \
+                -archivePath "./Carthage/archive/${scheme}${suffix}/${sdk}.xcarchive" \
+                CODE_SIGNING_REQUIRED=NO \
+                SKIP_INSTALL=NO \
+                CODE_SIGN_IDENTITY= \
+                CARTHAGE=YES \
+                MACH_O_TYPE="$MACH_O_TYPE" \
+                ENABLE_CODE_COVERAGE=NO \
+                GCC_GENERATE_DEBUGGING_SYMBOLS="$GCC_GENERATE_DEBUGGING_SYMBOLS" \
+                OTHER_LDFLAGS="$OTHER_LDFLAGS"
                  
             createxcframework+="-framework Carthage/archive/${scheme}${suffix}/${sdk}.xcarchive/Products/Library/Frameworks/${resolved_product_name}.framework "
 
@@ -55,17 +82,38 @@ generate_xcframework() {
         fi
     done
     
-    #Create framework for mac catalyst
-    xcodebuild -project Sentry.xcodeproj/ -scheme "$scheme" -configuration "$resolved_configuration" -sdk iphoneos -destination 'platform=macOS,variant=Mac Catalyst' -derivedDataPath ./Carthage/DerivedData CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY= CARTHAGE=YES MACH_O_TYPE="$MACH_O_TYPE" SUPPORTS_MACCATALYST=YES ENABLE_CODE_COVERAGE=NO GCC_GENERATE_DEBUGGING_SYMBOLS="$GCC_GENERATE_DEBUGGING_SYMBOLS"
-
-    if [ "$MACH_O_TYPE" = "staticlib" ]; then
-        local infoPlist="Carthage/DerivedData/Build/Products/$resolved_configuration-maccatalyst/${scheme}.framework/Resources/Info.plist"
-        plutil -replace "MinimumOSVersion" -string "100.0" "$infoPlist"
+    # for the case that watch* sdks are last in list
+    if [ "$MACH_O_TYPE" != "staticlib" ]; then
+        OTHER_LDFLAGS="-Wl,-make_mergeable"
     fi
-    
-    createxcframework+="-framework Carthage/DerivedData/Build/Products/$resolved_configuration-maccatalyst/${resolved_product_name}.framework "
-    if [ -d "Carthage/DerivedData/Build/Products/$resolved_configuration-maccatalyst/${resolved_product_name}.framework.dSYM" ]; then
-        createxcframework+="-debug-symbols $(pwd -P)/Carthage/DerivedData/Build/Products/$resolved_configuration-maccatalyst/${resolved_product_name}.framework.dSYM "
+
+    if [ "$args" != "iOSOnly" ]; then
+        #Create framework for mac catalyst
+        xcodebuild \
+            -project Sentry.xcodeproj/ \
+            -scheme "$scheme" \
+            -configuration "$resolved_configuration" \
+            -sdk iphoneos \
+            -destination 'platform=macOS,variant=Mac Catalyst' \
+            -derivedDataPath ./Carthage/DerivedData \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY= \
+            CARTHAGE=YES \
+            MACH_O_TYPE="$MACH_O_TYPE" \
+            SUPPORTS_MACCATALYST=YES \
+            ENABLE_CODE_COVERAGE=NO \
+            GCC_GENERATE_DEBUGGING_SYMBOLS="$GCC_GENERATE_DEBUGGING_SYMBOLS" \
+            OTHER_LDFLAGS="$OTHER_LDFLAGS"
+
+        if [ "$MACH_O_TYPE" = "staticlib" ]; then
+            local infoPlist="Carthage/DerivedData/Build/Products/$resolved_configuration-maccatalyst/${scheme}.framework/Resources/Info.plist"
+            plutil -replace "MinimumOSVersion" -string "100.0" "$infoPlist"
+        fi
+        
+        createxcframework+="-framework Carthage/DerivedData/Build/Products/$resolved_configuration-maccatalyst/${resolved_product_name}.framework "
+        if [ -d "Carthage/DerivedData/Build/Products/$resolved_configuration-maccatalyst/${resolved_product_name}.framework.dSYM" ]; then
+            createxcframework+="-debug-symbols $(pwd -P)/Carthage/DerivedData/Build/Products/$resolved_configuration-maccatalyst/${resolved_product_name}.framework.dSYM "
+        fi
     fi
     
     createxcframework+="-output Carthage/${scheme}${suffix}.xcframework"
@@ -74,8 +122,10 @@ generate_xcframework() {
 
 generate_xcframework "Sentry" "-Dynamic"
 
-generate_xcframework "Sentry" "" staticlib
+if [ "$args" != "iOSOnly" ]; then
+    generate_xcframework "Sentry" "" staticlib
 
-generate_xcframework "SentrySwiftUI"
+    generate_xcframework "SentrySwiftUI"
 
-generate_xcframework "Sentry" "-WithoutUIKitOrAppKit" mh_dylib WithoutUIKit
+    generate_xcframework "Sentry" "-WithoutUIKitOrAppKit" mh_dylib WithoutUIKit
+fi

@@ -12,6 +12,6 @@ class SRRedactSampleViewController: UIViewController {
         notRedactedView.backgroundColor = .green
         notRedactedView.transform = CGAffineTransform(rotationAngle: 45 * .pi / 180.0)
         
-        SentrySDK.replay.ignoreView(notRedactedView)
+        SentrySDK.replay.maskView(notRedactedView)
       }
 }
