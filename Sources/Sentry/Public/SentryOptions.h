@@ -559,6 +559,40 @@ NS_SWIFT_NAME(Options)
  */
 @property (nonatomic, assign) BOOL enableAppHangTracking;
 
+#if SENTRY_UIKIT_AVAILABLE
+
+/**
+ * AppHangTrackingV2 can differentiate between fully-blocking and non-fully blocking app hangs.
+ * fully-blocking app hang is when the main thread is stuck completely, and the app can't render a
+ * single frame. A non-fully-blocking app hang is when the app appears stuck to the user but can
+ still
+ * render a few frames. Fully-blocking app hangs are more actionable because the stacktrace shows
+ the
+ * exact blocking location on the main thread. As the main thread isn't completely blocked,
+ * non-fully-blocking app hangs can have a stacktrace that doesn't highlight the exact blocking
+ * location.
+ *
+ * You can use @c enableReportNonFullyBlockingAppHangs to ignore non-fully-blocking app hangs.
+ *
+ * @note This flag wins over enableAppHangTracking. When enabling both enableAppHangTracking and
+ enableAppHangTrackingV2, the SDK only enables enableAppHangTrackingV2 and disables
+ enableAppHangTracking.
+ *
+ * @warning This is an experimental feature and may still have bugs.
+ */
+@property (nonatomic, assign) BOOL enableAppHangTrackingV2;
+
+/**
+ * When enabled the SDK reports non-fully-blocking app hangs. A non-fully-blocking app hang is when
+ * the app appears stuck to the user but can still render a few frames. For more information see @c
+ * enableAppHangTrackingV2.
+ *
+ * @note The default is @c YES. This feature only works when @c enableAppHangTrackingV2 is enabled.
+ */
+@property (nonatomic, assign) BOOL enableReportNonFullyBlockingAppHangs;
+
+#endif // SENTRY_UIKIT_AVAILABLE
+
 /**
  * The minimum amount of time an app should be unresponsive to be classified as an App Hanging.
  * @note The actual amount may be a little longer.

@@ -1,5 +1,5 @@
 #import "SentryANRTrackerV1.h"
-#import "SentryANRTrackerV2.h"
+
 #import "SentryBinaryImageCache.h"
 #import "SentryDispatchFactory.h"
 #import "SentryDispatchQueueWrapper.h"
@@ -32,6 +32,7 @@
 #import <SentryTracer.h>
 
 #if SENTRY_HAS_UIKIT
+#    import "SentryANRTrackerV2.h"
 #    import "SentryFramesTracker.h"
 #    import "SentryUIApplication.h"
 #    import <SentryScreenshot.h>
@@ -45,6 +46,12 @@
 #if !TARGET_OS_WATCH
 #    import "SentryReachability.h"
 #endif // !TARGET_OS_WATCH
+
+@interface SentryDependencyContainer ()
+
+@property (nonatomic, strong) id<SentryANRTracker> anrTracker;
+
+@end
 
 @implementation SentryDependencyContainer
 
@@ -301,32 +308,6 @@ static NSObject *sentryDependencyContainerLock;
 #    endif // SENTRY_HAS_UIKIT
 }
 
-- (SentryANRTrackerV2 *)getANRTrackerV2:(NSTimeInterval)timeout
-    SENTRY_DISABLE_THREAD_SANITIZER("double-checked lock produce false alarms")
-{
-#    if SENTRY_HAS_UIKIT
-    if (_anrTrackerV2 == nil) {
-        @synchronized(sentryDependencyContainerLock) {
-            if (_anrTrackerV2 == nil) {
-                _anrTrackerV2 =
-                    [[SentryANRTrackerV2 alloc] initWithTimeoutInterval:timeout
-                                                           crashWrapper:self.crashWrapper
-                                                   dispatchQueueWrapper:self.dispatchQueueWrapper
-                                                          threadWrapper:self.threadWrapper
-                                                          framesTracker:self.framesTracker];
-            }
-        }
-    }
-
-    return _anrTrackerV2;
-#    else
-    SENTRY_LOG_DEBUG(
-        @"SentryDependencyContainer.getANRTrackerV2 only works with UIKit enabled. Ensure you're "
-        @"using the right configuration of Sentry that links UIKit.");
-    return nil;
-#    endif // SENTRY_HAS_UIKIT
-}
-
 - (SentrySwizzleWrapper *)swizzleWrapper SENTRY_DISABLE_THREAD_SANITIZER(
     "double-checked lock produce false alarms")
 {
@@ -348,13 +329,13 @@ static NSObject *sentryDependencyContainerLock;
 }
 #endif // SENTRY_UIKIT_AVAILABLE
 
-- (SentryANRTrackerV1 *)getANRTrackerV1:(NSTimeInterval)timeout
+- (id<SentryANRTracker>)getANRTracker:(NSTimeInterval)timeout
     SENTRY_DISABLE_THREAD_SANITIZER("double-checked lock produce false alarms")
 {
-    if (_anrTrackerV1 == nil) {
+    if (_anrTracker == nil) {
         @synchronized(sentryDependencyContainerLock) {
-            if (_anrTrackerV1 == nil) {
-                _anrTrackerV1 =
+            if (_anrTracker == nil) {
+                _anrTracker =
                     [[SentryANRTrackerV1 alloc] initWithTimeoutInterval:timeout
                                                            crashWrapper:self.crashWrapper
                                                    dispatchQueueWrapper:self.dispatchQueueWrapper
@@ -363,8 +344,34 @@ static NSObject *sentryDependencyContainerLock;
         }
     }
 
-    return _anrTrackerV1;
+    return _anrTracker;
 }
+
+#if SENTRY_HAS_UIKIT
+- (id<SentryANRTracker>)getANRTracker:(NSTimeInterval)timeout
+                          isV2Enabled:(BOOL)isV2Enabled
+    SENTRY_DISABLE_THREAD_SANITIZER("double-checked lock produce false alarms")
+{
+    if (isV2Enabled) {
+        if (_anrTracker == nil) {
+            @synchronized(sentryDependencyContainerLock) {
+                if (_anrTracker == nil) {
+                    _anrTracker = [[SentryANRTrackerV2 alloc]
+                        initWithTimeoutInterval:timeout
+                                   crashWrapper:self.crashWrapper
+                           dispatchQueueWrapper:self.dispatchQueueWrapper
+                                  threadWrapper:self.threadWrapper
+                                  framesTracker:self.framesTracker];
+                }
+            }
+        }
+
+        return _anrTracker;
+    } else {
+        return [self getANRTracker:timeout];
+    }
+}
+#endif // SENTRY_HAS_UIKIT
 
 - (SentryNSProcessInfoWrapper *)processInfoWrapper SENTRY_DISABLE_THREAD_SANITIZER(
     "double-checked lock produce false alarms")
