@@ -321,8 +321,8 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         XCTAssertNil(sut.sessionReplay)
     }
     
-    func testStart() throws {
-        startSDK(sessionSampleRate: 1, errorSampleRate: 1, noIntegrations: true)
+    func testStartWithNoSessionReplay() throws {
+        startSDK(sessionSampleRate: 0, errorSampleRate: 0, noIntegrations: true)
         var sut = SentrySDK.currentHub().installedIntegrations().first as? SentrySessionReplayIntegration
         XCTAssertNil(sut)
         SentrySDK.replay.start()
@@ -332,6 +332,30 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         XCTAssertTrue(sessionReplay?.isRunning ?? false)
         XCTAssertTrue(sessionReplay?.isFullSession ?? false)
         XCTAssertNotNil(sut?.sessionReplay)
+    }
+    
+    func testStartWithSessionReplayRunning() throws {
+        startSDK(sessionSampleRate: 1, errorSampleRate: 1)
+        let sut = try getSut()
+        let sessionReplay = try XCTUnwrap(sut.sessionReplay)
+        let replayId = sessionReplay.sessionReplayId
+        
+        SentrySDK.replay.start()
+        
+        //Test whether the integration keeps the same instance of the session replay
+        XCTAssertEqual(sessionReplay, sut.sessionReplay)
+        //Test whether the session Id is still the same
+        XCTAssertEqual(sessionReplay.sessionReplayId, replayId)
+    }
+    
+    func testStartWithBufferSessionReplay() throws {
+        startSDK(sessionSampleRate: 0, errorSampleRate: 1)
+        let sut = try getSut()
+        let sessionReplay = try XCTUnwrap(sut.sessionReplay)
+        
+        XCTAssertFalse(sessionReplay.isFullSession)
+        SentrySDK.replay.start()
+        XCTAssertTrue(sessionReplay.isFullSession)
     }
     
     func createLastSessionReplay(writeSessionInfo: Bool = true, errorSampleRate: Double = 1) throws {

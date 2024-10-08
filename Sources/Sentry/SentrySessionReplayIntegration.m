@@ -353,10 +353,10 @@ static SentrySessionReplayIntegration *_installedInstance;
 
 - (void)start
 {
-    if (self.sessionReplay != nil && self.sessionReplay.isRunning) {
-        return;
-    } else if (self.sessionReplay.isFullSession == NO) {
-        [self.sessionReplay captureReplay];
+    if (self.sessionReplay != nil) {
+        if (self.sessionReplay.isFullSession == NO) {
+            [self.sessionReplay captureReplay];
+        }
         return;
     }
 
