@@ -11,6 +11,10 @@
 - Edge case for swizzleClassNameExclude (#4405): Skip creating transactions for UIViewControllers ignored for swizzling
 via the option `swizzleClassNameExclude`.
 
+### Improvements
+
+- Serializing profile on a BG Thread (#4377) to avoid potentially slightly blocking the main thread.
+
 ## 8.38.0-beta.1
 
 ### Features
@@ -25,7 +29,6 @@ via the option `swizzleClassNameExclude`.
 
 - Speed up HTTP tracking for multiple requests in parallel (#4366)
 - Slightly speed up SentryInAppLogic (#4370)
-- Serializing profile on a BG Thread (#4377) to avoid potentially slightly blocking the main thread.
 - Rename session replay `redact` options and APIs to `mask` (#4373)
 - Stop canceling timer for manual transactions (#4380)
 
