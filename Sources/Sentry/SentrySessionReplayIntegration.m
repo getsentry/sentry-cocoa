@@ -37,8 +37,6 @@ static NSString *SENTRY_LAST_REPLAY = @"replay.last";
  */
 static SentryTouchTracker *_touchTracker;
 
-static SentrySessionReplayIntegration *_installedInstance;
-
 @interface SentrySessionReplayIntegration () <SentryReachabilityObserver>
 - (void)newSceneActivate;
 @end
@@ -50,9 +48,20 @@ static SentrySessionReplayIntegration *_installedInstance;
     SentryOnDemandReplay *_resumeReplayMaker;
 }
 
-+ (nullable SentrySessionReplayIntegration *)installed
+- (instancetype)init
 {
-    return _installedInstance;
+    self = [super init];
+    return self;
+}
+
+- (instancetype)initForManualUse:(nonnull SentryOptions *)options
+{
+    if (self = [super init]) {
+        [self setupWith:options.experimental.sessionReplay
+            enableTouchTracker:options.enableSwizzling];
+        [self startWithOptions:options.experimental.sessionReplay fullSession:YES];
+    }
+    return self;
 }
 
 - (BOOL)installWithOptions:(nonnull SentryOptions *)options
@@ -61,14 +70,19 @@ static SentrySessionReplayIntegration *_installedInstance;
         return NO;
     }
 
-    _replayOptions = options.experimental.sessionReplay;
-    _viewPhotographer =
-        [[SentryViewPhotographer alloc] initWithRedactOptions:options.experimental.sessionReplay];
+    [self setupWith:options.experimental.sessionReplay enableTouchTracker:options.enableSwizzling];
+    return YES;
+}
 
-    if (options.enableSwizzling) {
+- (void)setupWith:(SentryReplayOptions *)replayOptions enableTouchTracker:(BOOL)touchTracker
+{
+    _replayOptions = replayOptions;
+    _viewPhotographer = [[SentryViewPhotographer alloc] initWithRedactOptions:replayOptions];
+
+    if (touchTracker) {
         _touchTracker = [[SentryTouchTracker alloc]
             initWithDateProvider:SentryDependencyContainer.sharedInstance.dateProvider
-                           scale:options.experimental.sessionReplay.sizeScale];
+                           scale:replayOptions.sizeScale];
         [self swizzleApplicationTouch];
     }
 
@@ -87,9 +101,6 @@ static SentrySessionReplayIntegration *_installedInstance;
         }];
 
     [SentryDependencyContainer.sharedInstance.reachability addObserver:self];
-
-    _installedInstance = self;
-    return YES;
 }
 
 /**
@@ -421,10 +432,6 @@ static SentrySessionReplayIntegration *_installedInstance;
     [SentrySDK.currentHub unregisterSessionListener:self];
     _touchTracker = nil;
     [self pause];
-
-    if (_installedInstance == self) {
-        _installedInstance = nil;
-    }
 }
 
 - (void)dealloc
