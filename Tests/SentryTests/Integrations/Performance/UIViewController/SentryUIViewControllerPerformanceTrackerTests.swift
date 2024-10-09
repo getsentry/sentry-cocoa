@@ -622,7 +622,7 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
         XCTAssertEqual("viewDidLoad", secondChild.spanDescription)
     }
     
-    func test_OnlyLoadViewAndViewDidLoad_CreatesOneTTIDSpan() throws {
+    func test_BothLoadViewAndViewDidLoad_CreatesOneTTIDSpan() throws {
         let sut = fixture.getSut()
         let tracker = fixture.tracker
         let controller = TestViewController()
