@@ -21,6 +21,7 @@ public extension UIView {
     func sentryReplayUnmask() {
         SentryRedactViewHelper.unmaskView(self)
     }
+
 }
 
 #endif
