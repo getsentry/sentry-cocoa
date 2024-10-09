@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		6250B97C2CB69C96009512D6 /* NoARCCrash.m in Sources */ = {isa = PBXBuildFile; fileRef = 6250B97B2CB69C96009512D6 /* NoARCCrash.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 		630853492440C46E00DDE4CE /* Sentry.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6308533B2440C45500DDE4CE /* Sentry.framework */; };
 		6308534A2440C46E00DDE4CE /* Sentry.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 6308533B2440C45500DDE4CE /* Sentry.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		637AFDCB243B036B0034958B /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 637AFDCA243B036B0034958B /* AppDelegate.m */; };
@@ -95,6 +96,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		6250B9752CB69C86009512D6 /* NoARCCrash.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NoARCCrash.h; sourceTree = "<group>"; };
+		6250B97B2CB69C96009512D6 /* NoARCCrash.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NoARCCrash.m; sourceTree = "<group>"; };
 		630853352440C45500DDE4CE /* Sentry.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = Sentry.xcodeproj; path = ../../Sentry.xcodeproj; sourceTree = "<group>"; };
 		634C7EC724406A4900AFDE9F /* Sentry.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = Sentry.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		637AFDC6243B036B0034958B /* iOS-ObjectiveC.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "iOS-ObjectiveC.app"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -186,6 +189,8 @@
 				637AFDD0243B036B0034958B /* ViewController.m */,
 				7B8A5C9C2715B5CF008ACD3B /* InitializerViewController.h */,
 				7B8A5C9D2715B5DE008ACD3B /* InitializerViewController.m */,
+				6250B9752CB69C86009512D6 /* NoARCCrash.h */,
+				6250B97B2CB69C96009512D6 /* NoARCCrash.m */,
 				637AFDD2243B036B0034958B /* Main.storyboard */,
 				637AFDD5243B036D0034958B /* Assets.xcassets */,
 				7B3427F925876DDB00056519 /* Tongariro.jpg */,
@@ -415,6 +420,7 @@
 				637AFDCB243B036B0034958B /* AppDelegate.m in Sources */,
 				84BA72AB2C9369A40045B828 /* GitInjections.swift in Sources */,
 				637AFDDC243B036D0034958B /* main.m in Sources */,
+				6250B97C2CB69C96009512D6 /* NoARCCrash.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
