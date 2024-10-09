@@ -11,7 +11,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 typedef NS_ENUM(NSInteger, SentryTransactionNameSource);
 
-@class UIView;
 @class SentrySpanId;
 @protocol SentrySpan;
 
