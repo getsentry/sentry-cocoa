@@ -295,7 +295,7 @@ static SentryTouchTracker *_touchTracker;
 
     [self.sessionReplay
         startWithRootView:SentryDependencyContainer.sharedInstance.application.windows.firstObject
-              fullSession:[self shouldReplayFullSession:replayOptions.sessionSampleRate]];
+              fullSession:shouldReplayFullSession];
 
     [_notificationCenter addObserver:self
                             selector:@selector(pause)
