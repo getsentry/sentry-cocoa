@@ -1,0 +1,121 @@
+name: Maestro UI Tests
+on:
+  push:
+    branches:
+      - main
+
+  pull_request:
+    paths:
+      - 'Sources/**'
+      - '.github/workflows/eval-ui-tests-p0.yml'
+      - 'fastlane/**'
+      - 'Shared/**'
+      - 'TestSamples/**'
+
+# https://docs.github.com/en/actions/using-jobs/using-concurrency#example-using-a-fallback-value
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  build-sample-for-maestro:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - sample-name: iOS-ObjectiveC
+            lane_name: build_ios_objc_for_sim_tests
+            artifact-name: maestro-ios-objc
+            app_path: DerivedData/Build/Products/Debug-iphonesimulator/iOS-ObjectiveC.app
+          - sample-name: iOS-Swift
+            lane_name: build_ios_swift_for_sim_tests
+            artifact-name: maestro-ios-swift
+            app_path: DerivedData/Build/Products/Debug-iphonesimulator/iOS-Swift.app
+          - sample-name: iOS-SwiftUI
+            lane_name: build_ios_swift_ui_for_sim_tests
+            artifact-name: maestro-ios-swift-ui
+            app_path: DerivedData/Build/Products/Debug-iphonesimulator/iOS-SwiftUI.app
+    name: Build ${{matrix.sample-name}} Sample
+    runs-on: macos-14
+
+    steps:
+      - uses: actions/checkout@v4
+      - run: ./scripts/ci-select-xcode.sh 15.4
+      - uses: ruby/setup-ruby@v1
+        with:
+          bundler-cache: true
+      - run: bundle exec fastlane build_ios_swift_ui_test_sample
+      - uses: actions/upload-artifact@v4
+        with:
+          name: SwiftUITestSample
+          path: DerivedData/Build/Products/Debug-iphonesimulator/SwiftUITestSample.app
+
+  eval-run-maestro-tests:
+    name: Test iOS ${{matrix.os-version}} on ${{matrix.device}} Simulator
+    needs: [build-sample-for-maestro]
+    runs-on: ${{matrix.runs-on}}
+    env:
+      APP_ARTIFACT_NAME: "SwiftUITestSample"
+      APP_PATH: "Sample.app"
+
+      MAESTRO_FLOWS_PATH: "TestSamples/SwiftUITestSample/Maestro"
+      MAESTRO_LOGS_PATH: "MaestroLogs"
+
+      # https://github.com/facebook/react-native/blob/24e7f7d25629a7af6d877a0b79fed2faaab96437/.github/actions/maestro-ios/action.yml#L57
+      MAESTRO_DRIVER_STARTUP_TIMEOUT: 1500000 # 25 min, CI can be slow at times
+      MAX_ATTEMPTS: 3 # Maestro test suits re runs in case of flakyness
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runs-on: macos-12
+            xcode: "13.4.1"
+            device: "iPhone 8"
+            os-version: "15.5"
+          - runs-on: macos-13
+            xcode: "14.3.1"
+            device: "iPhone 14"
+            os-version: "16.4"
+          - runs-on: macos-14
+            xcode: "15.4"
+            device: "iPhone 15"
+            os-version: "17.5"
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Create ${{matrix.device}} (${{matrix.os-version}}) Simulator using Xcode ${{matrix.xcode}}
+        run: ./scripts/create-simulator.sh "${{matrix.xcode}}" "${{matrix.os-version}}" "${{matrix.device}}"
+      - name: Install Maestro
+        run: brew tap mobile-dev-inc/tap && brew install mobile-dev-inc/tap/maestro@1.38
+      - name: Install iDB Companion
+        run: brew tap facebook/fb && brew install facebook/fb/idb-companion
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: ${{env.APP_ARTIFACT_NAME}}
+          path: ${{env.APP_PATH}}
+      - uses: futureware-tech/simulator-action@bfa03d93ec9de6dacb0c5553bbf8da8afc6c2ee9 # pin@v3
+        with:
+          model: ${{matrix.device}}
+          os_version: ${{matrix.os-version}}
+      - name: Run Maestro Flows
+        run: |
+          xcrun simctl install booted ${{env.APP_PATH}}
+
+          # Avoid exit after command fails
+          set +e
+          # Add retries for flakyness
+          CURR_ATTEMPT=0
+          RESULT=1
+          while [[ $CURR_ATTEMPT -lt $MAX_ATTEMPTS ]] && [[ $RESULT -ne 0 ]]; do
+            maestro test ${{env.MAESTRO_FLOWS_PATH}} --format junit --debug-output ${{env.MAESTRO_LOGS_PATH}}
+            RESULT=$?
+          done
+          exit $RESULT
+
+      - name: Store Maestro Logs
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: maestro-logs-${{matrix.device}}-${{matrix.os-version}}
+          path: ${{env.MAESTRO_LOGS_PATH}}

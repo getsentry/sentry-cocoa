@@ -211,7 +211,7 @@
 				84BA72A92C9369A40045B828 /* GitInjections.swift */,
 			);
 			name = Shared;
-			path = ../Shared;
+			path = ../../Shared;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */

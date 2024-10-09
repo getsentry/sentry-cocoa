@@ -1,0 +1,4 @@
+parent_config: ../.swiftlint.yml
+
+disabled_rules:
+  - force_unwrapping

@@ -250,7 +250,7 @@
 				84BA72AF2C9369C00045B828 /* GitInjections.swift */,
 			);
 			name = Shared;
-			path = ../Shared;
+			path = ../../Shared;
 			sourceTree = "<group>";
 		};
 		84D4FEB728ECD8A100EDAAFE /* Products */ = {

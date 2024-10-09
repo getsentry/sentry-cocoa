@@ -5,9 +5,6 @@
       location = "container:"
       name = "Samples">
       <FileRef
-         location = "group:Samples/Shared">
-      </FileRef>
-      <FileRef
          location = "group:Samples/README.md">
       </FileRef>
       <FileRef
@@ -38,4 +35,24 @@
    <FileRef
       location = "group:Sentry.xcodeproj">
    </FileRef>
+   <Group
+      location = "group:TestSamples"
+      name = "TestSamples">
+      <FileRef
+         location = "group:SwiftUITestSample/SwiftUITestSample.xcodeproj">
+      </FileRef>
+   </Group>
+   <Group
+      location = "group:Shared"
+      name = "Shared">
+      <FileRef
+         location = "group:inject-git-info.sh">
+      </FileRef>
+      <FileRef
+         location = "group:reset-git-info.sh">
+      </FileRef>
+      <FileRef
+         location = "group:GitInjections.swift">
+      </FileRef>
+   </Group>
 </Workspace>

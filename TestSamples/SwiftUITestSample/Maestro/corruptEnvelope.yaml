@@ -1,0 +1,9 @@
+appId: io.sentry.tests.SwiftUITestSample
+---
+- launchApp
+- tapOn: "Write Corrupted Envelope"
+- tapOn: "Close SDK"
+- tapOn: "Write Corrupted Envelope"
+- stopApp
+- launchApp
+- assertVisible: "Welcome!"
