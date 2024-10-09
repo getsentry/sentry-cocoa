@@ -25,12 +25,12 @@ sentry_captureTransactionWithProfile(SentryHub *hub, SentryDispatchQueueWrapper 
         return;
     }
 
-    const auto profilingData = [profiler.state copyProfilingData];
-
     // This code can run on the main thread, and the profile serialization can take a couple of
     // milliseconds. Therefore, we move this to a background thread to avoid potentially blocking
     // the main thread.
     [dispatchQueue dispatchAsyncWithBlock:^{
+        const auto profilingData = [profiler.state copyProfilingData];
+
         const auto profileEnvelopeItem = sentry_traceProfileEnvelopeItem(
             hub, profiler, profilingData, transaction, startTimestamp);
 
