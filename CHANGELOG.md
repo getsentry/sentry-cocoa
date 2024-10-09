@@ -2,6 +2,17 @@
 
 ## Unreleased
 
+### Removal of Experimental API
+
+- Remove the deprecated experimental Metrics API (#4406): [Learn more](https://sentry.zendesk.com/hc/en-us/articles/26369339769883-Metrics-Beta-Coming-to-an-End)
+
+### Fixes
+
+- Edge case for swizzleClassNameExclude (#4405): Skip creating transactions for UIViewControllers ignored for swizzling
+via the option `swizzleClassNameExclude`.
+
+## 8.38.0-beta.1
+
 ### Features
 
 - Added breadcrumb.origin private field (#4358)
@@ -22,6 +33,9 @@
 
 - Fix the versioning to support app release with Beta versions (#4368)
 - Linking ongoing trace to crash event (#4393)
+- Edge case for swizzleClassNameExclude (#4405): Skip creating transactions for UIViewControllers ignored for swizzling
+via the option `swizzleClassNameExclude`.
+- Swizzling RootUIViewController if ignored by `swizzleClassNameExclude` (#4407)
 
 ## 8.37.0
 
