@@ -1,0 +1,8 @@
+appId: io.sentry.sample.iOS-Swift
+---
+- launchApp
+- tapOn: "Transactions"
+- tapOn: "Lorem Ipsum Controller"
+- copyTextFrom:
+    id: "LoremIpsumTextView"
+- assertTrue: "maestro.copiedText.startsWith('Lorem ipsum dolor sit amet')"

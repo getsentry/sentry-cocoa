@@ -1,0 +1,13 @@
+appId: io.sentry.iOS-SwiftUI
+---
+- launchApp
+
+- tapOn: "Form Screen"
+- copyTextFrom:
+    id: "SPAN_ID"
+- assertTrue: ${maestro.copiedText != "NO SPAN"}
+
+- tapOn: "Test"
+- copyTextFrom:
+    id: "SPAN_ID"
+- assertTrue: ${maestro.copiedText == "NO SPAN"}

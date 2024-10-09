@@ -1,0 +1,6 @@
+appId: io.sentry.sample.iOS-Swift
+---
+- launchApp
+- tapOn: "Transactions"
+- tapOn: "Load Image Controller"
+- assertVisible: "ASSERT: SUCCESS"

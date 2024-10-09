@@ -1,0 +1,24 @@
+appId: io.sentry.iOS-SwiftUI
+---
+- launchApp
+
+- copyTextFrom:
+    id: "TRANSACTION_NAME"
+- assertTrue: ${maestro.copiedText == "Content View Body"}
+- copyTextFrom:
+    id: "CHILD_NAME"
+- assertTrue: ${maestro.copiedText == "Child Span"}
+
+- copyTextFrom:
+    id: "CHILD_PARENT_SPANID"
+- evalScript: ${output.childParentSpanId = maestro.copiedText}
+- copyTextFrom:
+    id: "TRANSACTION_ID"
+- assertTrue: ${maestro.copiedText == output.childParentSpanId}
+
+- copyTextFrom:
+    id: "TRACE_ORIGIN"
+- assertTrue: ${maestro.copiedText == "auto.ui.swift_ui"}
+- copyTextFrom:
+    id: "CHILD_TRACE_ORIGIN"
+- assertTrue: ${maestro.copiedText == "auto.ui.swift_ui"}

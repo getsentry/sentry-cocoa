@@ -120,7 +120,41 @@ platform :ios do
     delete_keychain(name: "fastlane_tmp_keychain") unless is_ci
   end
 
-  lane :build_ios_swift_ui_for_tests do
+  lane :build_ios_objc_for_sim_tests do
+
+    setup_ci(
+      force: true
+    )
+
+    build_app(
+      workspace: "Sentry.xcworkspace",
+      scheme: "iOS-ObjectiveC",
+      configuration: "Debug",
+      derived_data_path: "DerivedData",
+      destination: "generic/platform=iOS Simulator",
+      xcargs: "-sdk 'iphonesimulator'",
+      skip_archive: true
+    )
+  end
+
+  lane :build_ios_swift_for_sim_tests do
+
+    setup_ci(
+      force: true
+    )
+
+    build_app(
+      workspace: "Sentry.xcworkspace",
+      scheme: "iOS-Swift",
+      configuration: "Debug",
+      derived_data_path: "DerivedData",
+      destination: "generic/platform=iOS Simulator",
+      xcargs: "-sdk 'iphonesimulator'",
+      skip_archive: true
+    )
+  end
+
+  lane :build_ios_swift_ui_for_sim_tests do
 
     setup_ci(
       force: true

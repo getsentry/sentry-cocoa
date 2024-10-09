@@ -1,0 +1,7 @@
+appId: io.sentry.sample.iOS-Swift
+---
+- launchApp
+- tapOn: "Transactions"
+- tapOn: "Table Controller"
+- assertVisible: "Gradient Table View"
+- assertVisible: "ASSERT: SUCCESS"

@@ -1,0 +1,9 @@
+appId: io.sentry.sample.iOS-Swift
+---
+- launchApp
+- tapOn: "Extra"
+- tapOn: "Corrupt Envelope"
+- tapOn: "Close SDK"
+- tapOn: "Corrupt Envelope"
+- stopApp
+- launchApp
