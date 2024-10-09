@@ -622,6 +622,34 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
         XCTAssertEqual("viewDidLoad", secondChild.spanDescription)
     }
     
+    func test_OnlyViewDidLoadTTFDEnabled_CreatesTTIDAndTTFDSpans() throws {
+        let sut = fixture.getSut()
+        sut.enableWaitForFullDisplay = true
+        let tracker = fixture.tracker
+
+        var tracer: SentryTracer!
+
+        sut.viewControllerViewDidLoad(TestViewController()) {
+            tracer = self.getStack(tracker).first as? SentryTracer
+        }
+
+        let children: [Span]? = Dynamic(tracer).children as [Span]?
+
+        XCTAssertEqual(children?.count, 3)
+        
+        let child1 = try XCTUnwrap(children?.first)
+        XCTAssertEqual("ui.load.initial_display", child1.operation)
+        XCTAssertEqual("TestViewController initial display", child1.spanDescription)
+        
+        let child2 = try XCTUnwrap(children?[1])
+        XCTAssertEqual("ui.load.full_display", child2.operation)
+        XCTAssertEqual("TestViewController full display", child2.spanDescription)
+        
+        let child3 = try XCTUnwrap(children?[2])
+        XCTAssertEqual("ui.load", child3.operation)
+        XCTAssertEqual("viewDidLoad", child3.spanDescription)
+    }
+    
     func test_BothLoadViewAndViewDidLoad_CreatesOneTTIDSpan() throws {
         let sut = fixture.getSut()
         let tracker = fixture.tracker
