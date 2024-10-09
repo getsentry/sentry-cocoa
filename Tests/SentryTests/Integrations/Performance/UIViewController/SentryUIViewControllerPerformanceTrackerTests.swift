@@ -26,15 +26,7 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
     
     private class Fixture {
         
-        var options: Options {
-            let options = Options.noIntegrations()
-            let imageName = String(
-                cString: class_getImageName(SentryUIViewControllerSwizzlingTests.self)!,
-                encoding: .utf8)! as NSString
-            options.add(inAppInclude: imageName.lastPathComponent)
-            options.debug = true
-            return options
-        }
+        var options: Options
         
         let viewController = TestViewController()
         let tracker = SentryPerformanceTracker.shared
@@ -50,6 +42,13 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
         }
         
         init() {
+            options = Options.noIntegrations()
+            let imageName = String(
+                cString: class_getImageName(SentryUIViewControllerSwizzlingTests.self)!,
+                encoding: .utf8)! as NSString
+            options.add(inAppInclude: imageName.lastPathComponent)
+            options.debug = true
+            
             framesTracker = SentryFramesTracker(displayLinkWrapper: displayLinkWrapper, dateProvider: dateProvider, dispatchQueueWrapper: TestSentryDispatchQueueWrapper(),
                                                 notificationCenter: TestNSNotificationCenterWrapper(), keepDelayedFramesDuration: 0)
             SentryDependencyContainer.sharedInstance().framesTracker = framesTracker
@@ -500,7 +499,7 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
         wait(for: [callbackExpectation], timeout: 0)
     }
     
-    func testLoadView_withUIViewController() {
+    func testLoadView_withNonInAppUIViewController_DoesNotStartTransaction() {
         let sut = fixture.getSut()
         let viewController = UIViewController()
         let tracker = fixture.tracker
@@ -516,6 +515,26 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
         }
                
         XCTAssertNil(transactionSpan)
+        wait(for: [callbackExpectation], timeout: 0)
+    }
+    
+    func testLoadView_withIgnoreSwizzleUIViewController_DoesNotStartTransaction() {
+        fixture.options.swizzleClassNameExcludes = ["TestViewController"]
+        let sut = fixture.getSut()
+        let viewController = fixture.viewController
+        let tracker = fixture.tracker
+        var transactionSpan: Span!
+        let callbackExpectation = expectation(description: "Callback Expectation")
+        
+        XCTAssertTrue(getStack(tracker).isEmpty)
+        
+        sut.viewControllerLoadView(viewController) {
+            let spans = self.getStack(tracker)
+            transactionSpan = spans.first
+            callbackExpectation.fulfill()
+        }
+               
+        XCTAssertNil(transactionSpan, "Expected to transaction.")
         wait(for: [callbackExpectation], timeout: 0)
     }
     
@@ -557,7 +576,6 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
 
         sut.enableWaitForFullDisplay = true
 
-        //The first view controller creates a transaction
         sut.viewControllerLoadView(firstController) {
             tracer = self.getStack(tracker).first as? SentryTracer
         }
@@ -575,12 +593,91 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
 
         sut.enableWaitForFullDisplay = false
 
-        //The first view controller creates a transaction
         sut.viewControllerLoadView(firstController) {
             tracer = self.getStack(tracker).first as? SentryTracer
         }
 
         XCTAssertEqual(tracer?.children.count, 2)
+    }
+    
+    func test_OnlyViewDidLoad_CreatesTTIDSpan() throws {
+        let sut = fixture.getSut()
+        let tracker = fixture.tracker
+
+        var tracer: SentryTracer!
+
+        sut.viewControllerViewDidLoad(TestViewController()) {
+            tracer = self.getStack(tracker).first as? SentryTracer
+        }
+
+        let children: [Span]? = Dynamic(tracer).children as [Span]?
+
+        XCTAssertEqual(children?.count, 2)
+        
+        let firstChild = try XCTUnwrap(children?.first)
+        XCTAssertEqual("ui.load.initial_display", firstChild.operation)
+        XCTAssertEqual("TestViewController initial display", firstChild.spanDescription)
+        let secondChild = try XCTUnwrap(children?[1])
+        XCTAssertEqual("ui.load", secondChild.operation)
+        XCTAssertEqual("viewDidLoad", secondChild.spanDescription)
+    }
+    
+    func test_OnlyViewDidLoadTTFDEnabled_CreatesTTIDAndTTFDSpans() throws {
+        let sut = fixture.getSut()
+        sut.enableWaitForFullDisplay = true
+        let tracker = fixture.tracker
+
+        var tracer: SentryTracer!
+
+        sut.viewControllerViewDidLoad(TestViewController()) {
+            tracer = self.getStack(tracker).first as? SentryTracer
+        }
+
+        let children: [Span]? = Dynamic(tracer).children as [Span]?
+
+        XCTAssertEqual(children?.count, 3)
+        
+        let child1 = try XCTUnwrap(children?.first)
+        XCTAssertEqual("ui.load.initial_display", child1.operation)
+        XCTAssertEqual("TestViewController initial display", child1.spanDescription)
+        
+        let child2 = try XCTUnwrap(children?[1])
+        XCTAssertEqual("ui.load.full_display", child2.operation)
+        XCTAssertEqual("TestViewController full display", child2.spanDescription)
+        
+        let child3 = try XCTUnwrap(children?[2])
+        XCTAssertEqual("ui.load", child3.operation)
+        XCTAssertEqual("viewDidLoad", child3.spanDescription)
+    }
+    
+    func test_BothLoadViewAndViewDidLoad_CreatesOneTTIDSpan() throws {
+        let sut = fixture.getSut()
+        let tracker = fixture.tracker
+        let controller = TestViewController()
+        var tracer: SentryTracer!
+        
+        sut.viewControllerLoadView(controller) {
+            tracer = self.getStack(tracker).first as? SentryTracer
+        }
+
+        sut.viewControllerViewDidLoad(controller) {
+            // Empty on purpose
+        }
+
+        let children: [Span]? = Dynamic(tracer).children as [Span]?
+
+        XCTAssertEqual(children?.count, 3)
+        
+        let child1 = try XCTUnwrap(children?.first)
+        XCTAssertEqual("ui.load.initial_display", child1.operation)
+        
+        let child2 = try XCTUnwrap(children?[1])
+        XCTAssertEqual("ui.load", child2.operation)
+        XCTAssertEqual("loadView", child2.spanDescription)
+        
+        let child3 = try XCTUnwrap(children?[2])
+        XCTAssertEqual("ui.load", child3.operation)
+        XCTAssertEqual("viewDidLoad", child3.spanDescription)
     }
 
     func test_captureAllAutomaticSpans() {
@@ -624,12 +721,13 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
 
         let children: [Span]? = Dynamic(tracer).children as [Span]?
 
-        //First Controller viewDidLoad
-        //Second Controller root span
-        //Second Controller viewDidLoad
-        //Third Controller root span
-        //Third Controller viewDidLoad
-        XCTAssertEqual(children?.count, 5)
+        // First Controller initial_display
+        // First Controller viewDidLoad
+        // Second Controller root span
+        // Second Controller viewDidLoad
+        // Third Controller root span
+        // Third Controller viewDidLoad
+        XCTAssertEqual(children?.count, 6)
     }
 
     private func assertSpanDuration(span: Span?, expectedDuration: TimeInterval) throws {

@@ -5,6 +5,22 @@
 ### Features
 
 - feat: API to manually start/stop Session Replay (#4414)
+- Custom redact modifier for SwiftUI (#4362, #4392)
+
+### Removal of Experimental API
+
+- Remove the deprecated experimental Metrics API (#4406): [Learn more](https://sentry.zendesk.com/hc/en-us/articles/26369339769883-Metrics-Beta-Coming-to-an-End)
+
+### Fixes
+
+- Edge case for swizzleClassNameExclude (#4405): Skip creating transactions for UIViewControllers ignored for swizzling
+via the option `swizzleClassNameExclude`.
+- Add TTID/TTFD spans when loadView gets skipped (#4415)
+- Swizzling RootUIViewController if ignored by `swizzleClassNameExclude` (#4407)
+
+### Improvements
+
+- Serializing profile on a BG Thread (#4377) to avoid potentially slightly blocking the main thread.
 
 ## 8.38.0-beta.1
 
@@ -27,6 +43,8 @@
 
 - Fix the versioning to support app release with Beta versions (#4368)
 - Linking ongoing trace to crash event (#4393)
+- Edge case for swizzleClassNameExclude (#4405): Skip creating transactions for UIViewControllers ignored for swizzling
+via the option `swizzleClassNameExclude`.
 
 ## 8.37.0
 

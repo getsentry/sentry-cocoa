@@ -58,7 +58,7 @@ class SentryViewPhotographer: NSObject, SentryViewScreenshotProvider {
                     let path = CGPath(rect: rect, transform: &transform)
                     
                     switch region.type {
-                    case .redact:
+                    case .redact, .redactSwiftUI:
                         (region.color ?? UIImageHelper.averageColor(of: context.currentImage, at: rect.applying(region.transform))).setFill()
                         context.cgContext.addPath(path)
                         context.cgContext.fillPath()
