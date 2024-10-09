@@ -23,15 +23,37 @@ class SentryUserFeedbackWidgetButtonView: UIView {
         
         if let title = config.widgetConfig.labelText {
             let label = label(text: title)
-            layer.addSublayer(lozengeLayer(size: sizeWithLabel(label: label)))
+            let labelSize = sizeWithLabel(label: label)
+            let lozengeLayer = lozengeLayer(size: labelSize)
+            layer.addSublayer(lozengeLayer)
             addSubview(label)
+            
+            let lineHeight = label.font.lineHeight
+            let ascender = label.font.ascender
+            let capHeight = label.font.capHeight
+            
+            let textEffectiveHeight = capHeight
+            let textEffectiveHeightCenter = textEffectiveHeight / 2
+            let centeringMegaphoneToLabelYOffset = textEffectiveHeightCenter
+            
+            /// the amount of space between the top of capital letters/tall letters to the top of the label, which appears to be the same as the space between the bottom of the label and the baseline of the text
+//            let verticalPaddingAmount = lineHeight - ascender
+            let centeringLabelInContainerYOffset = padding
+            print("label size: \(labelSize)")
+            print("lineHeight: \(lineHeight)")
+            print("ascender: \(ascender)")
+            print("capHeight: \(capHeight)")
+//            print("verticalPaddingAmount: \(verticalPaddingAmount)")
+            print("centeringLabelInContainerYOffset: \(centeringLabelInContainerYOffset)")
+            lozengeLayer.transform = CATransform3DTranslate(lozengeLayer.transform, 0, -centeringLabelInContainerYOffset, 0)
+            
             addSubview(megaphone)
             constraints.append(contentsOf: [
                 label.leadingAnchor.constraint(equalTo: megaphone.trailingAnchor, constant: spacing),
-                megaphone.centerYAnchor.constraint(equalTo: label.centerYAnchor),
+                megaphone.centerYAnchor.constraint(equalTo: label.firstBaselineAnchor, constant: -centeringMegaphoneToLabelYOffset),
                 label.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -padding),
-                label.topAnchor.constraint(equalTo: topAnchor, constant: padding),
-                label.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -padding)
+                label.topAnchor.constraint(equalTo: topAnchor),
+                label.bottomAnchor.constraint(equalTo: bottomAnchor)
             ])
         } else {
             layer.addSublayer(lozengeLayer(size: sizeWithoutLabel))
