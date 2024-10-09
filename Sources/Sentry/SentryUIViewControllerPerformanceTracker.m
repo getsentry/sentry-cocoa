@@ -102,6 +102,7 @@
                    block:^{
                        SENTRY_LOG_DEBUG(@"Tracking viewDidLoad");
                        [self createTransaction:controller];
+                       [self createTimeToDisplay:controller];
                        [self measurePerformance:@"viewDidLoad"
                                          target:controller
                                callbackToOrigin:callbackToOrigin];
