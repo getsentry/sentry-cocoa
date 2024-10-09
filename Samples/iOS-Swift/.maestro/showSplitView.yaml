@@ -1,7 +1,6 @@
 appId: io.sentry.sample.iOS-Swift
 ---
 - launchApp
-# Based on initial test seems flaky
-# - tapOn: "Transactions"
-# - tapOn: "Split Controller"
-# - assertVisible: "ASSERT: SUCCESS"
+- tapOn: "Transactions"
+- tapOn: "Split Controller"
+- assertVisible: "ASSERT: SUCCESS"
