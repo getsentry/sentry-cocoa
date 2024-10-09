@@ -26,7 +26,7 @@ struct SentryReplayView: UIViewRepresentable {
     }
     
     func updateUIView(_ uiView: UIView, context: Context) {
-        switch maskBehaviour {
+        switch maskBehavior {
             case .mask: SentryRedactViewHelper.maskSwiftUI(uiView)
             case .unmask: SentryRedactViewHelper.clipOutView(uiView)
         }
@@ -35,9 +35,9 @@ struct SentryReplayView: UIViewRepresentable {
 
 @available(iOS 13, macOS 10.15, tvOS 13, *)
 struct SentryReplayModifier: ViewModifier {
-    let behaviour: MaskBehaviour
+    let behavior: MaskBehavior
     func body(content: Content) -> some View {
-        content.overlay(SentryReplayView(maskBehaviour: behaviour))
+        content.overlay(SentryReplayView(maskBehavior: behavior))
     }
 }
 
@@ -53,7 +53,7 @@ public extension View {
     /// - Returns: A modifier that redacts sensitive information during session replays.
     /// - Experiment: This is an experimental feature and may still have bugs.
     func sentryReplayMask() -> some View {
-        modifier(SentryReplayModifier(behaviour: .mask))
+        modifier(SentryReplayModifier(behavior: .mask))
     }
     
     /// Marks the view as safe to not be masked during session replay.
@@ -63,7 +63,7 @@ public extension View {
     /// - Returns: A modifier that prevents a view from being masked in the session replay.
     /// - Experiment: This is an experimental feature and may still have bugs.
     func sentryReplayUnmask() -> some View {
-        modifier(SentryReplayModifier(behaviour: .unmask))
+        modifier(SentryReplayModifier(behavior: .unmask))
     }
 }
 #endif
