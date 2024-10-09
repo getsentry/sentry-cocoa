@@ -21,7 +21,7 @@ via the option `swizzleClassNameExclude`.
 ### Improvements
 
 - Serializing profile on a BG Thread (#4377) to avoid potentially slightly blocking the main thread.
-- Session Replay performance for SwiftUI ()
+- Session Replay performance for SwiftUI (#4419)
 
 ## 8.38.0-beta.1
 
