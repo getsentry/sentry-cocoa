@@ -6,6 +6,8 @@ args="${1:-}"
 
 if [ "$args" = "iOSOnly" ]; then
     sdks=( iphoneos iphonesimulator )
+elif [ "$args" = "gameOnly" ]; then
+    sdks=( iphoneos iphonesimulator macosx )
 else
     sdks=( iphoneos iphonesimulator macosx appletvos appletvsimulator watchos watchsimulator xros xrsimulator )
 fi
@@ -124,8 +126,9 @@ generate_xcframework "Sentry" "-Dynamic"
 
 if [ "$args" != "iOSOnly" ]; then
     generate_xcframework "Sentry" "" staticlib
-
-    generate_xcframework "SentrySwiftUI"
-
-    generate_xcframework "Sentry" "-WithoutUIKitOrAppKit" mh_dylib WithoutUIKit
+    
+    if [ "$args" != "gameOnly" ]; then
+        generate_xcframework "SentrySwiftUI"
+        generate_xcframework "Sentry" "-WithoutUIKitOrAppKit" mh_dylib WithoutUIKit
+    fi
 fi
