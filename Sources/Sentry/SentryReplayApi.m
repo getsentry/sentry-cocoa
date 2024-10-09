@@ -44,12 +44,9 @@
             getInstalledIntegration:SentrySessionReplayIntegration.class];
 
     if (replayIntegration == nil) {
-        replayIntegration = [[SentrySessionReplayIntegration alloc] init];
-
-        SentryOptions *options = [[SentryOptions alloc] init];
-        options.enableSwizzling = SentrySDK.currentHub.client.options.enableSwizzling;
-        options.experimental.sessionReplay.sessionSampleRate = 1;
-        __unused BOOL installed = [replayIntegration installWithOptions:options];
+        SentryOptions *currentOptions = SentrySDK.currentHub.client.options;
+        replayIntegration =
+            [[SentrySessionReplayIntegration alloc] initForManualUse:currentOptions];
 
         [SentrySDK.currentHub addInstalledIntegration:replayIntegration
                                                  name:NSStringFromClass(SentrySessionReplay.class)];

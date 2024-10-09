@@ -4,7 +4,7 @@
 
 ### Features
 
-- feat: Start/Stop session replay (#4414)
+- feat: API to manually start/stop Session Replay (#4414)
 - Custom redact modifier for SwiftUI (#4362, #4392)
 
 ### Removal of Experimental API

@@ -130,17 +130,7 @@ class SentrySessionReplay: NSObject {
         videoSegmentStart = nil
         displayLink.link(withTarget: self, selector: #selector(newFrame(_:)))
     }
-    
-    func stop() {
-        lock.lock()
-        defer { lock.unlock() }
-        displayLink.invalidate()
-        if isFullSession {
-            prepareSegmentUntil(date: dateProvider.date())
-        }
-        
-    }
-
+  
     func captureReplayFor(event: Event) {
         guard isRunning else { return }
 
