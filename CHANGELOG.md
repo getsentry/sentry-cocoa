@@ -6,7 +6,6 @@
 
 - Added breadcrumb.origin private field (#4358)
 - Custom redact modifier for SwiftUI (#4362, #4392)
-- Custom redact modifier for SwiftUI (#4362)
 - Add support for arm64e (#3398)
 - Add mergeable libraries support to dynamic libraries (#4381)
 

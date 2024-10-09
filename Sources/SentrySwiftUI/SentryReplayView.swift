@@ -7,14 +7,14 @@ import UIKit
 @_implementationOnly import SentryInternal
 #endif
 
-enum MaskBehaviour {
+enum MaskBehavior {
     case mask
     case unmask
 }
 
 @available(iOS 13, macOS 10.15, tvOS 13, *)
 struct SentryReplayView: UIViewRepresentable {
-    let maskBehaviour: MaskBehaviour
+    let maskBehavior: MaskBehavior
     
     class SentryRedactView: UIView {
     }
