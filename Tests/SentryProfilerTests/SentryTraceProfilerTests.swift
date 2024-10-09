@@ -31,6 +31,29 @@ class SentryTraceProfilerTests: XCTestCase {
         span.finish()
         try self.assertMetricsPayload()
     }
+    
+    func testCaptureTransactionWithProfile_StopsProfileOnCallingThread() throws {
+        let span = try fixture.newTransaction()
+        try addMockSamples()
+        try fixture.gatherMockedTraceProfileMetrics()
+        
+        self.fixture.dispatchQueueWrapper.dispatchAsyncExecutesBlock = false
+        let currentProfiler = try XCTUnwrap(SentryTraceProfiler.getCurrentProfiler())
+        
+        XCTAssertTrue(currentProfiler.isRunning())
+        
+        span.finish()
+        
+        XCTAssertFalse(currentProfiler.isRunning(), "Profiler must be stopped on the calling thread.")
+        XCTAssertEqual(SentryProfilerTruncationReason.normal, currentProfiler.truncationReason)
+        
+        self.fixture.currentDateProvider.advanceBy(nanoseconds: 1.toNanoSeconds())
+        self.fixture.dispatchQueueWrapper.dispatchAsyncExecutesBlock = true
+        self.fixture.dispatchQueueWrapper.invokeLastDispatchAsync()
+        
+        try self.assertMetricsPayload()
+        try self.assertValidTraceProfileData()
+    }
 
     func testTransactionWithMutatedTracerID() throws {
         let span = try fixture.newTransaction()

@@ -13,6 +13,10 @@ via the option `swizzleClassNameExclude`.
 - Add TTID/TTFD spans when loadView gets skipped (#4415)
 - Swizzling RootUIViewController if ignored by `swizzleClassNameExclude` (#4407)
 
+### Improvements
+
+- Serializing profile on a BG Thread (#4377) to avoid potentially slightly blocking the main thread.
+
 ## 8.38.0-beta.1
 
 ### Features
