@@ -3,26 +3,41 @@ import Sentry
 import SwiftUI
 import UIKit
 
+#if CARTHAGE || SWIFT_PACKAGE
+@_implementationOnly import SentryInternal
+#endif
+
+enum MaskBehavior {
+    case mask
+    case unmask
+}
+
 @available(iOS 13, macOS 10.15, tvOS 13, *)
 struct SentryReplayView: UIViewRepresentable {
+    let maskBehavior: MaskBehavior
+    
     class SentryRedactView: UIView {
     }
     
     func makeUIView(context: Context) -> UIView {
-        let result = SentryRedactView()
-        result.sentryReplayMask()
-        return result
+        let view = SentryRedactView()
+        view.isUserInteractionEnabled = false
+        return view
     }
     
     func updateUIView(_ uiView: UIView, context: Context) {
-        // This is blank on purpose. UIViewRepresentable requires this function.
+        switch maskBehavior {
+            case .mask: SentryRedactViewHelper.maskSwiftUI(uiView)
+            case .unmask: SentryRedactViewHelper.clipOutView(uiView)
+        }
     }
 }
 
 @available(iOS 13, macOS 10.15, tvOS 13, *)
 struct SentryReplayModifier: ViewModifier {
+    let behavior: MaskBehavior
     func body(content: Content) -> some View {
-        content.background(SentryReplayView())
+        content.overlay(SentryReplayView(maskBehavior: behavior))
     }
 }
 
@@ -38,7 +53,17 @@ public extension View {
     /// - Returns: A modifier that redacts sensitive information during session replays.
     /// - Experiment: This is an experimental feature and may still have bugs.
     func sentryReplayMask() -> some View {
-        modifier(SentryReplayModifier())
+        modifier(SentryReplayModifier(behavior: .mask))
+    }
+    
+    /// Marks the view as safe to not be masked during session replay.
+    ///
+    /// Anything that is behind this view will also not be masked anymore.
+    ///
+    /// - Returns: A modifier that prevents a view from being masked in the session replay.
+    /// - Experiment: This is an experimental feature and may still have bugs.
+    func sentryReplayUnmask() -> some View {
+        modifier(SentryReplayModifier(behavior: .unmask))
     }
 }
 #endif

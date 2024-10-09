@@ -15,7 +15,6 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
         options.enablePerformanceV2 = true
         options.enableTimeToFullDisplayTracing = true
         options.swiftAsyncStacktraces = true
-        options.enableMetrics = true
 
 #if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
         options.enableAppLaunchProfiling = true
@@ -33,7 +32,6 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
         XCTAssert(features.contains("performanceV2"))
         XCTAssert(features.contains("timeToFullDisplayTracing"))
         XCTAssert(features.contains("swiftAsyncStacktraces"))
-        XCTAssert(features.contains("metrics"))
         
 #if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
         XCTAssert(features.contains("appLaunchProfiling"))

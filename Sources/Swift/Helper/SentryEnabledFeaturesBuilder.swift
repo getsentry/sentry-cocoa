@@ -36,10 +36,6 @@ import Foundation
             features.append("swiftAsyncStacktraces")
         }
         
-        if options.enableMetrics {
-            features.append("metrics")
-        }
-        
         return features
     }
 }
