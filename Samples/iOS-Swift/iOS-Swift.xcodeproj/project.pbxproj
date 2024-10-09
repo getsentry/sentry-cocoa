@@ -560,7 +560,7 @@
 				84BA72A52C93698E0045B828 /* GitInjections.swift */,
 			);
 			name = Shared;
-			path = ../../Shared;
+			path = ../Shared;
 			sourceTree = "<group>";
 		};
 		D8269A3A274C095E00BD5BD5 /* iOS13-Swift */ = {

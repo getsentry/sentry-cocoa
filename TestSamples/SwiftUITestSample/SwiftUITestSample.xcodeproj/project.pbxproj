@@ -9,7 +9,6 @@
 /* Begin PBXBuildFile section */
 		330854EE2CB6C1DA00D06618 /* Sentry.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 330854ED2CB6C1DA00D06618 /* Sentry.framework */; };
 		330854EF2CB6C1DA00D06618 /* Sentry.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 330854ED2CB6C1DA00D06618 /* Sentry.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		330855072CB6CAEB00D06618 /* GitInjections.swift in Sources */ = {isa = PBXBuildFile; fileRef = 330855032CB6CAEB00D06618 /* GitInjections.swift */; };
 		330855282CB6CC3C00D06618 /* .gitignore in Resources */ = {isa = PBXBuildFile; fileRef = 330855272CB6CC3400D06618 /* .gitignore */; };
 /* End PBXBuildFile section */
 
@@ -30,7 +29,6 @@
 /* Begin PBXFileReference section */
 		330854C22CB6B5CF00D06618 /* SwiftUITestSample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SwiftUITestSample.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		330854ED2CB6C1DA00D06618 /* Sentry.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = Sentry.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		330855032CB6CAEB00D06618 /* GitInjections.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GitInjections.swift; sourceTree = "<group>"; };
 		330855252CB6CC0B00D06618 /* crash.yaml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = crash.yaml; sourceTree = "<group>"; };
 		330855262CB6CC1700D06618 /* corruptEnvelope.yaml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = corruptEnvelope.yaml; sourceTree = "<group>"; };
 		330855272CB6CC3400D06618 /* .gitignore */ = {isa = PBXFileReference; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
@@ -61,7 +59,6 @@
 			children = (
 				330855272CB6CC3400D06618 /* .gitignore */,
 				330855242CB6CC0600D06618 /* Maestro */,
-				330855062CB6CAEB00D06618 /* Shared */,
 				330854C42CB6B5CF00D06618 /* SwiftUITestSample */,
 				330854EC2CB6C1DA00D06618 /* Frameworks */,
 				330854C32CB6B5CF00D06618 /* Products */,
@@ -83,15 +80,6 @@
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
-		};
-		330855062CB6CAEB00D06618 /* Shared */ = {
-			isa = PBXGroup;
-			children = (
-				330855032CB6CAEB00D06618 /* GitInjections.swift */,
-			);
-			name = Shared;
-			path = ../../Shared;
-			sourceTree = SOURCE_ROOT;
 		};
 		330855242CB6CC0600D06618 /* Maestro */ = {
 			isa = PBXGroup;
@@ -178,7 +166,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				330855072CB6CAEB00D06618 /* GitInjections.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
