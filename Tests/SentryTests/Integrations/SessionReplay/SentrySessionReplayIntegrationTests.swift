@@ -39,7 +39,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         clearTestState()
     }
     
-    private func  getSut() throws -> SentrySessionReplayIntegration {
+    private func getSut() throws -> SentrySessionReplayIntegration {
         return try XCTUnwrap(SentrySDK.currentHub().installedIntegrations().first as? SentrySessionReplayIntegration)
     }
     
