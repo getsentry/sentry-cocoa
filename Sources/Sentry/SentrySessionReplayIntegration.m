@@ -212,23 +212,30 @@ static SentrySessionReplayIntegration *_installedInstance;
         return;
     }
 
+    [self runReplayForAvailableWindow];
+}
+
+- (void)runReplayForAvailableWindow
+{
     if (SentryDependencyContainer.sharedInstance.application.windows.count > 0) {
         // If a window its already available start replay right away
         [self startWithOptions:_replayOptions fullSession:_startedAsFullSession];
-    } else {
+    } else if (@available(iOS 13.0, tvOS 13.0, *)) {
         // Wait for a scene to be available to started the replay
-        if (@available(iOS 13.0, tvOS 13.0, *)) {
-            [_notificationCenter addObserver:self
-                                    selector:@selector(newSceneActivate)
-                                        name:UISceneDidActivateNotification];
-        }
+        [_notificationCenter addObserver:self
+                                selector:@selector(newSceneActivate)
+                                    name:UISceneDidActivateNotification];
     }
 }
 
 - (void)newSceneActivate
 {
-    [SentryDependencyContainer.sharedInstance.notificationCenterWrapper removeObserver:self];
-    [self startWithOptions:_replayOptions fullSession:_startedAsFullSession];
+    if (@available(iOS 13.0, tvOS 13.0, *)) {
+        [SentryDependencyContainer.sharedInstance.notificationCenterWrapper
+            removeObserver:self
+                      name:UISceneDidActivateNotification];
+        [self startWithOptions:_replayOptions fullSession:_startedAsFullSession];
+    }
 }
 
 - (void)startWithOptions:(SentryReplayOptions *)replayOptions
@@ -361,17 +368,7 @@ static SentrySessionReplayIntegration *_installedInstance;
     }
 
     _startedAsFullSession = YES;
-    if (SentryDependencyContainer.sharedInstance.application.windows.count > 0) {
-        // If a window its already available start replay right away
-        [self startWithOptions:_replayOptions fullSession:YES];
-    } else {
-        // Wait for a scene to be available to started the replay
-        if (@available(iOS 13.0, tvOS 13.0, *)) {
-            [_notificationCenter addObserver:self
-                                    selector:@selector(newSceneActivate)
-                                        name:UISceneDidActivateNotification];
-        }
-    }
+    [self runReplayForAvailableWindow];
 }
 
 - (void)stop
