@@ -24,7 +24,7 @@ enum RedactRegionType {
     case clipEnd
 }
 
-struct RedactRegion {
+struct RedactRegion: Equatable {
     let size: CGSize
     let transform: CGAffineTransform
     let type: RedactRegionType
@@ -35,6 +35,10 @@ struct RedactRegion {
         self.transform = transform
         self.type = type
         self.color = color
+    }
+    
+    static func == (lhs: RedactRegion, rhs: RedactRegion) -> Bool {
+        lhs.size == rhs.size && lhs.transform == rhs.transform && lhs.type == rhs.type
     }
 }
 
