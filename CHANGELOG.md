@@ -4,7 +4,7 @@
 
 ### Features
 
-- feat: Start/Stop session replay (#4414)
+- feat: API to manually start/stop Session Replay (#4414)
 
 ## 8.38.0-beta.1
 
