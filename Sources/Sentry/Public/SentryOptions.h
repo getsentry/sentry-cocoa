@@ -446,17 +446,17 @@ NS_SWIFT_NAME(Options)
 @property (nonatomic, assign) BOOL enableSwizzling;
 
 /**
- * An array of class names to ignore for swizzling.
+ * A set of class names to ignore for swizzling.
  *
  * @discussion The SDK checks if a class name of a class to swizzle contains a class name of this
  * array. For example, if you add MyUIViewController to this list, the SDK excludes the following
  * classes from swizzling: YourApp.MyUIViewController, YourApp.MyUIViewControllerA,
  * MyApp.MyUIViewController.
- * We can't use an @c NSArray<Class>  here because we use this as a workaround for which users have
+ * We can't use an @c NSSet<Class>  here because we use this as a workaround for which users have
  * to pass in class names that aren't available on specific iOS versions. By using @c
- * NSArray<NSString *>, users can specify unavailable class names.
+ * NSSet<NSString *>, users can specify unavailable class names.
  *
- * @note Default is an empty array.
+ * @note Default is an empty set.
  */
 @property (nonatomic, strong) NSSet<NSString *> *swizzleClassNameExcludes;
 
@@ -558,6 +558,40 @@ NS_SWIFT_NAME(Options)
  * @note ANR tracking is automatically disabled if a debugger is attached.
  */
 @property (nonatomic, assign) BOOL enableAppHangTracking;
+
+#if SENTRY_UIKIT_AVAILABLE
+
+/**
+ * AppHangTrackingV2 can differentiate between fully-blocking and non-fully blocking app hangs.
+ * fully-blocking app hang is when the main thread is stuck completely, and the app can't render a
+ * single frame. A non-fully-blocking app hang is when the app appears stuck to the user but can
+ still
+ * render a few frames. Fully-blocking app hangs are more actionable because the stacktrace shows
+ the
+ * exact blocking location on the main thread. As the main thread isn't completely blocked,
+ * non-fully-blocking app hangs can have a stacktrace that doesn't highlight the exact blocking
+ * location.
+ *
+ * You can use @c enableReportNonFullyBlockingAppHangs to ignore non-fully-blocking app hangs.
+ *
+ * @note This flag wins over enableAppHangTracking. When enabling both enableAppHangTracking and
+ enableAppHangTrackingV2, the SDK only enables enableAppHangTrackingV2 and disables
+ enableAppHangTracking.
+ *
+ * @warning This is an experimental feature and may still have bugs.
+ */
+@property (nonatomic, assign) BOOL enableAppHangTrackingV2;
+
+/**
+ * When enabled the SDK reports non-fully-blocking app hangs. A non-fully-blocking app hang is when
+ * the app appears stuck to the user but can still render a few frames. For more information see @c
+ * enableAppHangTrackingV2.
+ *
+ * @note The default is @c YES. This feature only works when @c enableAppHangTrackingV2 is enabled.
+ */
+@property (nonatomic, assign) BOOL enableReportNonFullyBlockingAppHangs;
+
+#endif // SENTRY_UIKIT_AVAILABLE
 
 /**
  * The minimum amount of time an app should be unresponsive to be classified as an App Hanging.
@@ -679,38 +713,6 @@ NS_SWIFT_NAME(Options)
  * https://spotlightjs.com/
  */
 @property (nonatomic, copy) NSString *spotlightUrl;
-
-/**
- * Wether to enable DDM (delightful developer metrics) or not. For more information see
- * https://docs.sentry.io/product/metrics/.
- *
- * @warning This is an experimental feature and may still have bugs.
- * @note Default value is @c NO .
- */
-@property (nonatomic, assign) BOOL enableMetrics;
-
-/**
- * Wether to enable adding some default tags to every metrics or not. You need to enable @c
- * enableMetrics for this flag to work.
- *
- * @warning This is an experimental feature and may still have bugs.
- * @note Default value is @c YES .
- */
-@property (nonatomic, assign) BOOL enableDefaultTagsForMetrics;
-
-/**
- * Wether to enable connecting metrics to spans and transactions or not. You need to enable @c
- * enableMetrics for this flag to work.
- *
- * @warning This is an experimental feature and may still have bugs.
- * @note Default value is @c YES .
- */
-@property (nonatomic, assign) BOOL enableSpanLocalMetricAggregation;
-
-/**
- * This block can be used to modify the event before it will be serialized and sent.
- */
-@property (nullable, nonatomic, copy) SentryBeforeEmitMetricCallback beforeEmitMetric;
 
 /**
  * This aggregates options for experimental features.

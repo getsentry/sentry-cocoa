@@ -346,22 +346,16 @@ SentryEnvelope *_Nullable sentry_continuousProfileChunkEnvelope(
     return [[SentryEnvelope alloc] initWithId:chunkID singleItem:envelopeItem];
 }
 
-SentryEnvelopeItem *_Nullable sentry_traceProfileEnvelopeItem(
+SentryEnvelopeItem *_Nullable sentry_traceProfileEnvelopeItem(SentryHub *hub,
+    SentryProfiler *profiler, NSDictionary<NSString *, id> *profilingData,
     SentryTransaction *transaction, NSDate *startTimestamp)
 {
-    SENTRY_LOG_DEBUG(@"Creating profiling envelope item");
-    const auto profiler = sentry_profilerForFinishedTracer(transaction.trace.internalID);
-    if (!profiler) {
-        return nil;
-    }
-
     const auto payload = sentry_serializedTraceProfileData(
-        [profiler.state copyProfilingData], transaction.startSystemTime, transaction.endSystemTime,
+        profilingData, transaction.startSystemTime, transaction.endSystemTime,
         sentry_profilerTruncationReasonName(profiler.truncationReason),
         [profiler.metricProfiler serializeTraceProfileMetricsBetween:transaction.startSystemTime
                                                                  and:transaction.endSystemTime],
-        [SentryDependencyContainer.sharedInstance.debugImageProvider getDebugImagesCrashed:NO],
-        transaction.trace.hub
+        [SentryDependencyContainer.sharedInstance.debugImageProvider getDebugImagesCrashed:NO], hub
 #    if SENTRY_HAS_UIKIT
         ,
         profiler.screenFrameData

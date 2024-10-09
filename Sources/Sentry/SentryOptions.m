@@ -118,10 +118,11 @@ NSString *const kSentryDefaultEnvironment = @"production";
         self.enableUserInteractionTracing = YES;
         self.idleTimeout = SentryTracerDefaultTimeout;
         self.enablePreWarmedAppStartTracing = NO;
+        self.enableAppHangTrackingV2 = NO;
+        self.enableReportNonFullyBlockingAppHangs = YES;
 #endif // SENTRY_HAS_UIKIT
         self.enableAppHangTracking = YES;
         self.appHangTimeoutInterval = 2.0;
-        self.enableAppHangTrackingV2 = NO;
         self.enableAutoBreadcrumbTracking = YES;
         self.enableNetworkTracking = YES;
         self.enableFileIOTracing = YES;
@@ -138,9 +139,6 @@ NSString *const kSentryDefaultEnvironment = @"production";
         self.swiftAsyncStacktraces = NO;
         self.enableSpotlight = NO;
         self.spotlightUrl = @"http://localhost:8969/stream";
-        self.enableMetrics = NO;
-        self.enableDefaultTagsForMetrics = YES;
-        self.enableSpanLocalMetricAggregation = YES;
 
 #if TARGET_OS_OSX
         NSString *dsn = [[[NSProcessInfo processInfo] environment] objectForKey:@"SENTRY_DSN"];
@@ -435,6 +433,12 @@ NSString *const kSentryDefaultEnvironment = @"production";
     [self setBool:options[@"enablePreWarmedAppStartTracing"]
             block:^(BOOL value) { self->_enablePreWarmedAppStartTracing = value; }];
 
+    [self setBool:options[@"enableAppHangTrackingV2"]
+            block:^(BOOL value) { self->_enableAppHangTrackingV2 = value; }];
+
+    [self setBool:options[@"enableReportNonFullyBlockingAppHangs"]
+            block:^(BOOL value) { self->_enableReportNonFullyBlockingAppHangs = value; }];
+
 #endif // SENTRY_HAS_UIKIT
 
     [self setBool:options[@"enableAppHangTracking"]
@@ -443,9 +447,6 @@ NSString *const kSentryDefaultEnvironment = @"production";
     if ([options[@"appHangTimeoutInterval"] isKindOfClass:[NSNumber class]]) {
         self.appHangTimeoutInterval = [options[@"appHangTimeoutInterval"] doubleValue];
     }
-
-    [self setBool:options[@"enableAppHangTrackingV2"]
-            block:^(BOOL value) { self->_enableAppHangTrackingV2 = value; }];
 
     [self setBool:options[@"enableNetworkTracking"]
             block:^(BOOL value) { self->_enableNetworkTracking = value; }];
@@ -544,18 +545,6 @@ NSString *const kSentryDefaultEnvironment = @"production";
 
     if ([options[@"spotlightUrl"] isKindOfClass:[NSString class]]) {
         self.spotlightUrl = options[@"spotlightUrl"];
-    }
-
-    [self setBool:options[@"enableMetrics"] block:^(BOOL value) { self->_enableMetrics = value; }];
-
-    [self setBool:options[@"enableDefaultTagsForMetrics"]
-            block:^(BOOL value) { self->_enableDefaultTagsForMetrics = value; }];
-
-    [self setBool:options[@"enableSpanLocalMetricAggregation"]
-            block:^(BOOL value) { self->_enableSpanLocalMetricAggregation = value; }];
-
-    if ([self isBlock:options[@"beforeEmitMetric"]]) {
-        self.beforeEmitMetric = options[@"beforeEmitMetric"];
     }
 
     if ([options[@"experimental"] isKindOfClass:NSDictionary.class]) {
