@@ -23,10 +23,7 @@ class SentryUserFeedbackWidgetButtonView: UIView {
         
         if let title = config.widgetConfig.labelText {
             let label = label(text: title)
-            let capHeight = label.font.capHeight
-            let lineHeight = label.font.lineHeight
-            let ascender = label.font.ascender
-            let textEffectiveHeight = capHeight
+            let textEffectiveHeight = label.font.capHeight
             let textEffectiveHeightCenter = textEffectiveHeight / 2
             
             var lozengeSize = label.intrinsicContentSize
