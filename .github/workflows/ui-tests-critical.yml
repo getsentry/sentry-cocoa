@@ -65,6 +65,10 @@ jobs:
             xcode: "15.4"
             device: "iPhone 15"
             os-version: "17.5"
+          - runs-on: macos-15
+            xcode: "16"
+            device: "iPhone 16"
+            os-version: "18.0"
 
     steps:
       - uses: actions/checkout@v4
