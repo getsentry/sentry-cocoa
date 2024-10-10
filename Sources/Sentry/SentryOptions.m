@@ -804,5 +804,4 @@ sentry_isValidSampleRate(NSNumber *sampleRate)
     return [NSString stringWithFormat:@"<%@: {\n%@\n}>", self, propertiesDescription];
 }
 #endif // defined(DEBUG) || defined(TEST) || defined(TESTCI)
-
 @end

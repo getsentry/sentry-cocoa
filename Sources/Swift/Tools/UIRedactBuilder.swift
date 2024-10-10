@@ -39,6 +39,10 @@ struct RedactRegion {
         self.type = type
         self.color = color
     }
+    
+    func canReplace(as other: RedactRegion) -> Bool {
+        size == other.size && transform == other.transform && type == other.type
+    }
 }
 
 class UIRedactBuilder {
@@ -170,7 +174,7 @@ class UIRedactBuilder {
         }
         
         //The swiftUI type needs to appear first in the list so it always get masked
-        return swiftUIRedact + otherRegions.reversed()
+        return (otherRegions + swiftUIRedact).reversed()
     }
     
     private func shouldIgnore(view: UIView) -> Bool {

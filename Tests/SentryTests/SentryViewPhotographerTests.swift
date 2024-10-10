@@ -180,6 +180,21 @@ class SentryViewPhotographerTests: XCTestCase {
         assertColor(pixel2, .white)
     }
     
+    func testSkipSameRegion() throws {
+        let label1 = UILabel(frame: CGRect(x: 0, y: 0, width: 50, height: 25))
+        label1.text = "Test"
+        label1.textColor = .red
+        
+        let label2 = UILabel(frame: CGRect(x: 0, y: 0, width: 50, height: 25))
+        label2.text = "Test"
+        label2.textColor = .green
+        
+        let image = try XCTUnwrap(prepare(views: [label1, label2]))
+        let pixel1 = color(at: CGPoint(x: 10, y: 10), in: image)
+        
+        assertColor(pixel1, .green)
+    }
+    
     private func assertColor(_ color1: UIColor, _ color2: UIColor) {
         let sRGBColor1 = color1.cgColor.converted(to: CGColorSpace(name: CGColorSpace.sRGB)!, intent: .defaultIntent, options: nil)
         let sRGBColor2 = color2.cgColor.converted(to: CGColorSpace(name: CGColorSpace.sRGB)!, intent: .defaultIntent, options: nil)

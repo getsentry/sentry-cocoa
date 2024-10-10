@@ -43,11 +43,11 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         return try XCTUnwrap(SentrySDK.currentHub().installedIntegrations().first as? SentrySessionReplayIntegration)
     }
     
-    private func startSDK(sessionSampleRate: Float, errorSampleRate: Float, enableSwizzling: Bool = true, configure: ((Options) -> Void)? = nil) {
+    private func startSDK(sessionSampleRate: Float, errorSampleRate: Float, enableSwizzling: Bool = true, noIntegrations: Bool = false, configure: ((Options) -> Void)? = nil) {
         SentrySDK.start {
             $0.dsn = "https://user@test.com/test"
             $0.experimental.sessionReplay = SentryReplayOptions(sessionSampleRate: sessionSampleRate, onErrorSampleRate: errorSampleRate)
-            $0.setIntegrations([SentrySessionReplayIntegration.self])
+            $0.setIntegrations(noIntegrations ? [] : [SentrySessionReplayIntegration.self])
             $0.enableSwizzling = enableSwizzling
             $0.cacheDirectoryPath = FileManager.default.temporaryDirectory.path
             configure?($0)
@@ -307,6 +307,55 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         let sut = try getSut()
         let redactBuilder = sut.viewPhotographer.getRedactBuild()
         XCTAssertTrue(redactBuilder.containsIgnoreClass(AnotherLabel.self))
+    }
+    
+    func testStop() throws {
+        startSDK(sessionSampleRate: 1, errorSampleRate: 1)
+        let sut = try getSut()
+        let sessionReplay = sut.sessionReplay
+        XCTAssertTrue(sessionReplay?.isRunning ?? false)
+        
+        SentrySDK.replay.stop()
+        
+        XCTAssertFalse(sessionReplay?.isRunning ?? true)
+        XCTAssertNil(sut.sessionReplay)
+    }
+    
+    func testStartWithNoSessionReplay() throws {
+        startSDK(sessionSampleRate: 0, errorSampleRate: 0, noIntegrations: true)
+        var sut = SentrySDK.currentHub().installedIntegrations().first as? SentrySessionReplayIntegration
+        XCTAssertNil(sut)
+        SentrySDK.replay.start()
+        sut = try getSut()
+        
+        let sessionReplay = sut?.sessionReplay
+        XCTAssertTrue(sessionReplay?.isRunning ?? false)
+        XCTAssertTrue(sessionReplay?.isFullSession ?? false)
+        XCTAssertNotNil(sut?.sessionReplay)
+    }
+    
+    func testStartWithSessionReplayRunning() throws {
+        startSDK(sessionSampleRate: 1, errorSampleRate: 1)
+        let sut = try getSut()
+        let sessionReplay = try XCTUnwrap(sut.sessionReplay)
+        let replayId = sessionReplay.sessionReplayId
+        
+        SentrySDK.replay.start()
+        
+        //Test whether the integration keeps the same instance of the session replay
+        XCTAssertEqual(sessionReplay, sut.sessionReplay)
+        //Test whether the session Id is still the same
+        XCTAssertEqual(sessionReplay.sessionReplayId, replayId)
+    }
+    
+    func testStartWithBufferSessionReplay() throws {
+        startSDK(sessionSampleRate: 0, errorSampleRate: 1)
+        let sut = try getSut()
+        let sessionReplay = try XCTUnwrap(sut.sessionReplay)
+        
+        XCTAssertFalse(sessionReplay.isFullSession)
+        SentrySDK.replay.start()
+        XCTAssertTrue(sessionReplay.isFullSession)
     }
     
     func createLastSessionReplay(writeSessionInfo: Bool = true, errorSampleRate: Double = 1) throws {
