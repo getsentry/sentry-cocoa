@@ -7,7 +7,7 @@ on:
   pull_request:
     paths:
       - 'Sources/**'
-      - '.github/workflows/eval-ui-tests-p0.yml'
+      - '.github/workflows/ui-tests-critical.yml'
       - 'fastlane/**'
       - 'Shared/**'
       - 'TestSamples/**'
