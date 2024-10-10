@@ -9,7 +9,6 @@ on:
       - 'Sources/**'
       - '.github/workflows/ui-tests-critical.yml'
       - 'fastlane/**'
-      - 'Shared/**'
       - 'TestSamples/**'
 
 # https://docs.github.com/en/actions/using-jobs/using-concurrency#example-using-a-fallback-value
@@ -35,7 +34,7 @@ jobs:
 
   run-tests:
     name: Test iOS ${{matrix.os-version}} on ${{matrix.device}} Simulator
-    needs: [build-sample-for-maestro]
+    needs: [build-sample]
     runs-on: ${{matrix.runs-on}}
     env:
       APP_ARTIFACT_NAME: "SwiftUITestSample"
