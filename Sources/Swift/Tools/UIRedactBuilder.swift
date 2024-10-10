@@ -27,7 +27,7 @@ enum RedactRegionType {
     case redactSwiftUI
 }
 
-struct RedactRegion: Equatable {
+struct RedactRegion {
     let size: CGSize
     let transform: CGAffineTransform
     let type: RedactRegionType
@@ -40,8 +40,8 @@ struct RedactRegion: Equatable {
         self.color = color
     }
     
-    static func == (lhs: RedactRegion, rhs: RedactRegion) -> Bool {
-        lhs.size == rhs.size && lhs.transform == rhs.transform && lhs.type == rhs.type
+    func canReplace(as other: RedactRegion) -> Bool {
+        size == other.size && transform == other.transform && type == other.type
     }
 }
 

@@ -61,7 +61,7 @@ class SentryViewPhotographer: NSObject, SentryViewScreenshotProvider {
                     
                     defer { latestRegion = region }
                     
-                    guard region != latestRegion && imageRect.contains(path.boundingBoxOfPath) else { continue }
+                    guard latestRegion?.canReplace(as: region) != true && imageRect.contains(path.boundingBoxOfPath) else { continue }
                     
                     switch region.type {
                     case .redact, .redactSwiftUI:
