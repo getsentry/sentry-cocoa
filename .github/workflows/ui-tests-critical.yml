@@ -1,4 +1,4 @@
-name: Maestro UI Tests
+name: UI Tests Critical
 on:
   push:
     branches:
@@ -18,7 +18,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  build-sample-for-maestro:
+  build-sample:
     name: Build SwiftUITestSample Sample
     runs-on: macos-14
     steps:
@@ -33,7 +33,7 @@ jobs:
           name: SwiftUITestSample
           path: DerivedData/Build/Products/Debug-iphonesimulator/SwiftUITestSample.app
 
-  eval-run-maestro-tests:
+  run-tests:
     name: Test iOS ${{matrix.os-version}} on ${{matrix.device}} Simulator
     needs: [build-sample-for-maestro]
     runs-on: ${{matrix.runs-on}}
