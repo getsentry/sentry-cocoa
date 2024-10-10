@@ -23,34 +23,28 @@ class SentryUserFeedbackWidgetButtonView: UIView {
         
         if let title = config.widgetConfig.labelText {
             let label = label(text: title)
-            let labelSize = sizeWithLabel(label: label)
-            let lozengeLayer = lozengeLayer(size: labelSize)
+            let capHeight = label.font.capHeight
+            let lineHeight = label.font.lineHeight
+            let ascender = label.font.ascender
+            let textEffectiveHeight = capHeight
+            let textEffectiveHeightCenter = textEffectiveHeight / 2
+            
+            var lozengeSize = label.intrinsicContentSize
+            lozengeSize.width += svgSize + 2 * padding + spacing
+            lozengeSize.height = 2 * (label.font.ascender - textEffectiveHeightCenter) + 2 * padding
+
+            let lozengeLayer = lozengeLayer(size: lozengeSize)
             layer.addSublayer(lozengeLayer)
             addSubview(label)
             
-            let lineHeight = label.font.lineHeight
-            let ascender = label.font.ascender
-            let capHeight = label.font.capHeight
-            
-            let textEffectiveHeight = capHeight
-            let textEffectiveHeightCenter = textEffectiveHeight / 2
-            let centeringMegaphoneToLabelYOffset = textEffectiveHeightCenter
-            
-            /// the amount of space between the top of capital letters/tall letters to the top of the label, which appears to be the same as the space between the bottom of the label and the baseline of the text
-//            let verticalPaddingAmount = lineHeight - ascender
-            let centeringLabelInContainerYOffset = padding
-            print("label size: \(labelSize)")
-            print("lineHeight: \(lineHeight)")
-            print("ascender: \(ascender)")
-            print("capHeight: \(capHeight)")
-//            print("verticalPaddingAmount: \(verticalPaddingAmount)")
-            print("centeringLabelInContainerYOffset: \(centeringLabelInContainerYOffset)")
+            let verticalPaddingAmount = padding
+            let centeringLabelInContainerYOffset = verticalPaddingAmount
             lozengeLayer.transform = CATransform3DTranslate(lozengeLayer.transform, 0, -centeringLabelInContainerYOffset, 0)
             
             addSubview(megaphone)
             constraints.append(contentsOf: [
                 label.leadingAnchor.constraint(equalTo: megaphone.trailingAnchor, constant: spacing),
-                megaphone.centerYAnchor.constraint(equalTo: label.firstBaselineAnchor, constant: -centeringMegaphoneToLabelYOffset),
+                megaphone.centerYAnchor.constraint(equalTo: label.firstBaselineAnchor, constant: -textEffectiveHeightCenter),
                 label.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -padding),
                 label.topAnchor.constraint(equalTo: topAnchor),
                 label.bottomAnchor.constraint(equalTo: bottomAnchor)
@@ -110,7 +104,13 @@ class SentryUserFeedbackWidgetButtonView: UIView {
     func sizeWithLabel(label: UILabel) -> CGSize {
         var sizeWithLabel = label.intrinsicContentSize
         sizeWithLabel.width += svgSize + 2 * padding + spacing
-        sizeWithLabel.height += 2 * padding
+        
+        let capHeight = label.font.capHeight
+        let textEffectiveHeight = capHeight
+        let textEffectiveHeightCenter = textEffectiveHeight / 2
+        let height = 2 * (label.font.ascender - textEffectiveHeightCenter)
+        
+        sizeWithLabel.height = height + 2 * padding
         return sizeWithLabel
     }
     
