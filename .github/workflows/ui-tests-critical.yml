@@ -88,18 +88,7 @@ jobs:
         run: |
           xcrun simctl install booted ${{env.APP_PATH}}
 
-          # Avoid exit after command fails
-          set +e
-          # Add retries for flakyness
-          CURR_ATTEMPT=0
-          RESULT=1
-          while [[ $CURR_ATTEMPT -lt $MAX_ATTEMPTS ]] && [[ $RESULT -ne 0 ]]; do
-            CURR_ATTEMPT=$((CURR_ATTEMPT+1))
-            echo "Attempt number $CURR_ATTEMPT"
-            maestro test ${{env.MAESTRO_FLOWS_PATH}} --format junit --debug-output ${{env.MAESTRO_LOGS_PATH}}
-            RESULT=$?
-          done
-          exit $RESULT
+          maestro test ${{env.MAESTRO_FLOWS_PATH}} --format junit --debug-output ${{env.MAESTRO_LOGS_PATH}}
 
       - name: Store Maestro Logs
         uses: actions/upload-artifact@v4
