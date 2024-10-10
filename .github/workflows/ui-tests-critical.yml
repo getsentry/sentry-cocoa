@@ -60,14 +60,14 @@ jobs:
             device: "iPhone 14"
             os-version: "16.4"
             create-simulator: true
-          - runs-on: macos-14
+          - runs-on: macos-14-xlarge
             xcode: "15.4"
             device: "iPhone 15"
             os-version: "17.5"
           - runs-on: macos-15
             xcode: "16"
             device: "iPhone 16"
-            os-version: "18.0"
+            os-version: "18.1"
 
     steps:
       - uses: actions/checkout@v4
