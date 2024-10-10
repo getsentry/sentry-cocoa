@@ -55,10 +55,12 @@ jobs:
             xcode: "13.4.1"
             device: "iPhone 8"
             os-version: "15.5"
+            create-simulator: true
           - runs-on: macos-13
             xcode: "14.3.1"
             device: "iPhone 14"
             os-version: "16.4"
+            create-simulator: true
           - runs-on: macos-14
             xcode: "15.4"
             device: "iPhone 15"
@@ -67,6 +69,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Create ${{matrix.device}} (${{matrix.os-version}}) Simulator using Xcode ${{matrix.xcode}}
+        if: ${{matrix.create-simulator}}
         run: ./scripts/create-simulator.sh "${{matrix.xcode}}" "${{matrix.os-version}}" "${{matrix.device}}"
       - name: Install Maestro
         run: brew tap mobile-dev-inc/tap && brew install mobile-dev-inc/tap/maestro@1.38
