@@ -171,7 +171,7 @@ platform :ios do
       workspace: "Sentry.xcworkspace",
       scheme: "SwiftUITestSample",
       configuration: "Debug",
-      derived_data_path: "DerivedData",
+      derived_data_path: "TestSamples/SwiftUITestSample/DerivedData",
       destination: "generic/platform=iOS Simulator",
       xcargs: "-sdk 'iphonesimulator'",
       skip_archive: true
