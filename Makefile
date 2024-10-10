@@ -50,6 +50,9 @@ test-alamofire:
 test-homekit:
 	./scripts/test-homekit.sh
 
+test-ui-critical:
+	./scripts/test-ui-critical.sh
+
 analyze:
 	rm -rf analyzer
 	xcodebuild analyze -workspace Sentry.xcworkspace -scheme Sentry -configuration Release CLANG_ANALYZER_OUTPUT=html CLANG_ANALYZER_OUTPUT_DIR=analyzer -destination "platform=iOS Simulator,OS=latest,name=iPhone 11"  CODE_SIGNING_ALLOWED="NO" | xcpretty -t && [[ -z `find analyzer -name "*.html"` ]]

@@ -38,4 +38,11 @@
    <FileRef
       location = "group:Sentry.xcodeproj">
    </FileRef>
+   <Group
+      location = "container:"
+      name = "TestSamples">
+      <FileRef
+         location = "group:TestSamples/SwiftUITestSample/SwiftUITestSample.xcodeproj">
+      </FileRef>
+   </Group>
 </Workspace>

@@ -278,6 +278,22 @@
             }
           }
         }
+      },
+      "facebook/fb/idb-companion": {
+        "version": "1.1.8",
+        "bottle": false
+      },
+      "mobile-dev-inc/tap/maestro": {
+        "version": "1.38.1",
+        "bottle": false
+      }
+    },
+    "tap": {
+      "facebook/fb": {
+        "revision": "c0386793f59da10c619787f2aa18d938ef1d69c9"
+      },
+      "mobile-dev-inc/tap": {
+        "revision": "14a5d2ab054e7829e8028e827d35a2cc3156a4a0"
       }
     }
   },

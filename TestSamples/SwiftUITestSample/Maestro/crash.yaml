@@ -1,0 +1,6 @@
+appId: io.sentry.tests.SwiftUITestSample
+---
+- launchApp
+- tapOn: "Crash"
+- launchApp
+- assertVisible: "Welcome!"
