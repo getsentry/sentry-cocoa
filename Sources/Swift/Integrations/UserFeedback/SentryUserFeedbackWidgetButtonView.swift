@@ -34,9 +34,7 @@ class SentryUserFeedbackWidgetButtonView: UIView {
             layer.addSublayer(lozengeLayer)
             addSubview(label)
             
-            let verticalPaddingAmount = padding
-            let centeringLabelInContainerYOffset = verticalPaddingAmount
-            lozengeLayer.transform = CATransform3DTranslate(lozengeLayer.transform, 0, -centeringLabelInContainerYOffset, 0)
+            lozengeLayer.transform = CATransform3DTranslate(lozengeLayer.transform, 0, -padding, 0)
             
             addSubview(megaphone)
             constraints.append(contentsOf: [

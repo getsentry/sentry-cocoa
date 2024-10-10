@@ -192,7 +192,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                     uiForm.messagePlaceholder = "Describe the nature of the jank. Its essence, if you will."
                 }
                 config.configureTheme = { theme in
-                    theme.font = UIFont(name: "ChalkboardSE-Regular", size: 60)
+                    theme.font = UIFont(name: "HelveticaNeue", size: 16)
                     theme.outlineColor = .purple
                     theme.foreground = .purple
                     theme.background = .purple.withAlphaComponent(0.1)
