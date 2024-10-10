@@ -65,16 +65,9 @@
 
 - (NSArray<SentryDebugMeta *> *)getDebugImagesForFrames:(NSArray<SentryFrame *> *)frames
 {
-    // maintains previous behavior for the same method call by also trying to gather crash info
-    return [self getDebugImagesForFrames:frames isCrash:YES];
-}
-
-- (NSArray<SentryDebugMeta *> *)getDebugImagesForFrames:(NSArray<SentryFrame *> *)frames
-                                                isCrash:(BOOL)isCrash
-{
     NSMutableSet<NSString *> *imageAddresses = [[NSMutableSet alloc] init];
     [self extractDebugImageAddressFromFrames:frames intoSet:imageAddresses];
-    return [self getDebugImagesForAddresses:imageAddresses isCrash:isCrash];
+    return [self getDebugImagesForAddresses:imageAddresses isCrash:NO];
 }
 
 - (NSArray<SentryDebugMeta *> *)getDebugImagesForThreads:(NSArray<SentryThread *> *)threads

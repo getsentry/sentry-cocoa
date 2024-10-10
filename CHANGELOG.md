@@ -16,6 +16,7 @@
 via the option `swizzleClassNameExclude`.
 - Add TTID/TTFD spans when loadView gets skipped (#4415)
 - Swizzling RootUIViewController if ignored by `swizzleClassNameExclude` (#4407)
+- Make SentryDebugImageProvider internal (#4425), cause it's reserved for Hybrid SDKs only. If you require `SentryDebugImageProvide` to be public, [please open](https://github.com/getsentry/sentry-cocoa/issues/new) an issue explaining why you need the API.
 
 ### Improvements
 

@@ -6,7 +6,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * Reserved for hybrid SDKs that the debug image list for symbolication.
- * @todo This class should be renamed to @c SentryDebugImage in a future version.
  */
 @interface SentryDebugImageProvider : NSObject
 
@@ -36,23 +35,8 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * Returns a list of debug images that are being referenced by the given frames.
  * @param frames A list of stack frames.
- * @warning This assumes a crash has occurred and attempts to read the crash information from each
- * image's data segment, which may not be present or be invalid if a crash has not actually
- * occurred. To avoid this, use the new @c -[getDebugImagesForFrames:isCrash:] instead.
- * @deprecated Use @c -[getDebugImagesForFrames:isCrash:] instead.
  */
-- (NSArray<SentryDebugMeta *> *)getDebugImagesForFrames:(NSArray<SentryFrame *> *)frames
-    DEPRECATED_MSG_ATTRIBUTE("Use -[getDebugImagesForFrames:isCrash:] instead.");
-
-/**
- * Returns a list of debug images that are being referenced by the given frames.
- * @param frames A list of stack frames.
- * @param isCrash @c YES if we're collecting binary images for a crash report, @c NO if we're
- * gathering them for other backtrace information, like a performance transaction. If this is for a
- * crash, each image's data section crash info is also included.
- */
-- (NSArray<SentryDebugMeta *> *)getDebugImagesForFrames:(NSArray<SentryFrame *> *)frames
-                                                isCrash:(BOOL)isCrash;
+- (NSArray<SentryDebugMeta *> *)getDebugImagesForFrames:(NSArray<SentryFrame *> *)frames;
 
 /**
  * Returns the current list of debug images. Be aware that the @c SentryDebugMeta is actually
