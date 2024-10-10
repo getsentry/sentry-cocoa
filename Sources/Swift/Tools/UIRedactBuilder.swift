@@ -174,7 +174,7 @@ class UIRedactBuilder {
         }
         
         //The swiftUI type needs to appear first in the list so it always get masked
-        return swiftUIRedact + otherRegions.reversed()
+        return (otherRegions + swiftUIRedact).reversed()
     }
     
     private func shouldIgnore(view: UIView) -> Bool {
