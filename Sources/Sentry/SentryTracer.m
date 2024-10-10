@@ -717,8 +717,7 @@ static BOOL appStartMeasurementRead;
     if (framesOfAllSpans.count > 0) {
         SentryDebugImageProvider *debugImageProvider
             = SentryDependencyContainer.sharedInstance.debugImageProvider;
-        transaction.debugMeta = [debugImageProvider getDebugImagesForFrames:framesOfAllSpans
-                                                                    isCrash:NO];
+        transaction.debugMeta = [debugImageProvider getDebugImagesForFrames:framesOfAllSpans];
     }
 
 #if SENTRY_HAS_UIKIT
