@@ -21,4 +21,15 @@ final class SentryFormatterTests: XCTestCase {
             XCTAssertEqual(sentry_stringForUInt64(UInt64(input)), expected)
         }
     }
+    
+    func testParseHexAddress() {
+        XCTAssertEqual(0x000000008e902bf0, sentry_parseHexAddress("0x000000008e902bf0"))
+        
+        XCTAssertEqual(0x000000008e902bf0, sentry_parseHexAddress("0000000102cdb070"))
+        
+        let originalValue: UInt64 = 1_234_345
+        let hexValue = sentry_formatHexAddressUInt64(1_234_345)
+        XCTAssertEqual(originalValue, sentry_parseHexAddress(hexValue))
+    }
+    
 }

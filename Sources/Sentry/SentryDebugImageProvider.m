@@ -1,8 +1,10 @@
 #import "SentryDebugImageProvider.h"
+#import "SentryBinaryImageCache.h"
 #import "SentryCrashDefaultBinaryImageProvider.h"
 #import "SentryCrashDynamicLinker.h"
 #import "SentryCrashUUIDConversion.h"
 #import "SentryDebugMeta.h"
+#import "SentryDependencyContainer.h"
 #import "SentryFormatter.h"
 #import "SentryFrame.h"
 #import "SentryInternalDefines.h"
@@ -14,6 +16,8 @@
 @interface SentryDebugImageProvider ()
 
 @property (nonatomic, strong) id<SentryCrashBinaryImageProvider> binaryImageProvider;
+@property (nonatomic, strong) SentryBinaryImageCache *binaryImageCache;
+
 @end
 
 @implementation SentryDebugImageProvider
@@ -24,6 +28,7 @@
         [[SentryCrashDefaultBinaryImageProvider alloc] init];
 
     self = [self initWithBinaryImageProvider:provider];
+    self.binaryImageCache = SentryDependencyContainer.sharedInstance.binaryImageCache;
 
     return self;
 }
@@ -38,16 +43,20 @@
 }
 
 - (NSArray<SentryDebugMeta *> *)getDebugImagesForAddresses:(NSSet<NSString *> *)addresses
-                                                   isCrash:(BOOL)isCrash
 {
     NSMutableArray<SentryDebugMeta *> *result = [NSMutableArray array];
+    SentryBinaryImageCache *binaryImageCache
+        = SentryDependencyContainer.sharedInstance.binaryImageCache;
 
-    NSArray<SentryDebugMeta *> *binaryImages = [self getDebugImagesCrashed:isCrash];
-
-    for (SentryDebugMeta *sourceImage in binaryImages) {
-        if ([addresses containsObject:sourceImage.imageAddress]) {
-            [result addObject:sourceImage];
+    for (NSString *address in addresses) {
+        const uint64_t add = sentry_parseHexAddress(address);
+        NSString *hex = sentry_formatHexAddressUInt64(add);
+        if (![hex isEqualToString:address]) {
+            SENTRY_LOG_DEBUG(@"NO");
         }
+        SentryBinaryImageInfo *info = [binaryImageCache imageByAddress:add];
+        SentryDebugMeta *debugMeta = [self fillDebugMetaFromBinaryImageInfo:info];
+        [result addObject:debugMeta];
     }
 
     return result;
@@ -57,8 +66,8 @@
                                    intoSet:(NSMutableSet<NSString *> *)set
 {
     for (SentryFrame *frame in frames) {
-        if (frame.imageAddress) {
-            [set addObject:frame.imageAddress];
+        if (frame.instructionAddress) {
+            [set addObject:frame.instructionAddress];
         }
     }
 }
@@ -67,17 +76,10 @@
 {
     NSMutableSet<NSString *> *imageAddresses = [[NSMutableSet alloc] init];
     [self extractDebugImageAddressFromFrames:frames intoSet:imageAddresses];
-    return [self getDebugImagesForAddresses:imageAddresses isCrash:NO];
+    return [self getDebugImagesForAddresses:imageAddresses];
 }
 
 - (NSArray<SentryDebugMeta *> *)getDebugImagesForThreads:(NSArray<SentryThread *> *)threads
-{
-    // maintains previous behavior for the same method call by also trying to gather crash info
-    return [self getDebugImagesForThreads:threads isCrash:YES];
-}
-
-- (NSArray<SentryDebugMeta *> *)getDebugImagesForThreads:(NSArray<SentryThread *> *)threads
-                                                 isCrash:(BOOL)isCrash
 {
     NSMutableSet<NSString *> *imageAddresses = [[NSMutableSet alloc] init];
 
@@ -85,7 +87,7 @@
         [self extractDebugImageAddressFromFrames:thread.stacktrace.frames intoSet:imageAddresses];
     }
 
-    return [self getDebugImagesForAddresses:imageAddresses isCrash:isCrash];
+    return [self getDebugImagesForAddresses:imageAddresses];
 }
 
 - (NSArray<SentryDebugMeta *> *)getDebugImages
@@ -125,6 +127,23 @@
     if (nil != image.name) {
         debugMeta.codeFile = [[NSString alloc] initWithUTF8String:image.name];
     }
+
+    return debugMeta;
+}
+
+- (SentryDebugMeta *)fillDebugMetaFromBinaryImageInfo:(SentryBinaryImageInfo *)image
+{
+    SentryDebugMeta *debugMeta = [[SentryDebugMeta alloc] init];
+    debugMeta.debugID = image.UUID;
+    debugMeta.type = SentryDebugImageType;
+
+    if (image.vmAddress > 0) {
+        debugMeta.imageVmAddress = sentry_formatHexAddressUInt64(image.vmAddress);
+    }
+
+    debugMeta.imageAddress = sentry_formatHexAddressUInt64(image.address);
+    debugMeta.imageSize = @(image.size);
+    debugMeta.codeFile = image.name;
 
     return debugMeta;
 }

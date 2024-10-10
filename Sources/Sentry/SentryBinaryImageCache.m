@@ -1,5 +1,6 @@
 #import "SentryBinaryImageCache.h"
 #import "SentryCrashBinaryImageCache.h"
+#include "SentryCrashUUIDConversion.h"
 #import "SentryDependencyContainer.h"
 #import "SentryInAppLogic.h"
 #import "SentryLog.h"
@@ -59,6 +60,8 @@ static void binaryImageWasRemoved(const SentryCrashBinaryImage *image);
 
     SentryBinaryImageInfo *newImage = [[SentryBinaryImageInfo alloc] init];
     newImage.name = imageName;
+    newImage.UUID = [self convertUUID:image->uuid];
+    newImage.vmAddress = image->vmAddress;
     newImage.address = image->address;
     newImage.size = image->size;
 
@@ -78,6 +81,17 @@ static void binaryImageWasRemoved(const SentryCrashBinaryImage *image);
 
         [_cache insertObject:newImage atIndex:left];
     }
+}
+
+- (NSString *_Nullable)convertUUID:(const unsigned char *const)value
+{
+    if (nil == value) {
+        return nil;
+    }
+
+    char uuidBuffer[37];
+    sentrycrashdl_convertBinaryImageUUID(value, uuidBuffer);
+    return [[NSString alloc] initWithCString:uuidBuffer encoding:NSASCIIStringEncoding];
 }
 
 - (void)binaryImageRemoved:(const SentryCrashBinaryImage *)image

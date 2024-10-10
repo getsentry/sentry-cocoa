@@ -12,6 +12,22 @@ sentry_snprintfHexAddress(uint64_t value)
     return nsString;
 }
 
+static inline uint64_t
+sentry_parseHexAddress(NSString *hexString)
+{
+    // Remove the "0x" prefix if present
+    if ([hexString hasPrefix:@"0x"] || [hexString hasPrefix:@"0X"]) {
+        hexString = [hexString substringFromIndex:2];
+    }
+
+    // Convert the hex string to a uint64_t
+    uint64_t value = 0;
+    NSScanner *scanner = [NSScanner scannerWithString:hexString];
+    [scanner scanHexLongLong:&value];
+
+    return value;
+}
+
 static inline NSString *
 sentry_stringForUInt64(uint64_t value)
 {

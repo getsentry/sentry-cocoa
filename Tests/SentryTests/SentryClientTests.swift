@@ -2004,7 +2004,7 @@ private extension SentryClientTest {
     }
     
     private func assertValidDebugMeta(actual: [DebugMeta]?, forThreads threads: [SentryThread]?) {
-        let debugMetas = fixture.debugImageBuilder.getDebugImages(for: threads ?? [], isCrash: false)
+        let debugMetas = fixture.debugImageBuilder.getDebugImages(for: threads ?? [])
         
         XCTAssertEqual(debugMetas, actual ?? [])
     }
