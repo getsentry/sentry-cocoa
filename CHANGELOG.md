@@ -4,6 +4,7 @@
 
 ### Features
 
+- feat: API to manually start/stop Session Replay (#4414)
 - Custom redact modifier for SwiftUI (#4362, #4392)
 
 ### Removal of Experimental API
@@ -20,6 +21,7 @@ via the option `swizzleClassNameExclude`.
 ### Improvements
 
 - Serializing profile on a BG Thread (#4377) to avoid potentially slightly blocking the main thread.
+- Session Replay performance for SwiftUI (#4419)
 
 ## 8.38.0-beta.1
 

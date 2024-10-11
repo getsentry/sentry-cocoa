@@ -130,7 +130,7 @@ class SentrySessionReplay: NSObject {
         videoSegmentStart = nil
         displayLink.link(withTarget: self, selector: #selector(newFrame(_:)))
     }
-
+  
     func captureReplayFor(event: Event) {
         guard isRunning else { return }
 
