@@ -16,6 +16,7 @@
 - Edge case for swizzleClassNameExclude (#4405): Skip creating transactions for UIViewControllers ignored for swizzling
 via the option `swizzleClassNameExclude`.
 - Add TTID/TTFD spans when loadView gets skipped (#4415)
+- Finish TTID correctly when viewWillAppear is skipped (#4417)
 - Swizzling RootUIViewController if ignored by `swizzleClassNameExclude` (#4407)
 
 ### Improvements

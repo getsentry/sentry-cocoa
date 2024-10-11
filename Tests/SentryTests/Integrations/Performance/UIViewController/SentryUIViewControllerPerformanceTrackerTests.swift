@@ -267,6 +267,90 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
         wait(for: [callbackExpectation], timeout: 0)
     }
     
+    func testReportInitialDisplay_WhenViewWillAppear() throws {
+        let sut = fixture.getSut()
+        let viewController = fixture.viewController
+        let tracker = fixture.tracker
+        var tracer: SentryTracer?
+
+        sut.viewControllerLoadView(viewController) {
+            let spans = self.getStack(tracker)
+            tracer = spans.first as? SentryTracer
+        }
+        sut.viewControllerViewWillAppear(viewController) {
+            self.advanceTime(bySeconds: 0.1)
+        }
+
+        reportFrame()
+        let expectedTTIDTimestamp = fixture.dateProvider.date()
+        
+        let children: [Span]? = Dynamic(tracer).children as [Span]?
+
+        let ttidSpan = try XCTUnwrap(children?.first)
+        XCTAssertEqual("ui.load.initial_display", ttidSpan.operation)
+        XCTAssertEqual("TestViewController initial display", ttidSpan.spanDescription)
+        XCTAssertEqual(expectedTTIDTimestamp, ttidSpan.timestamp)
+        XCTAssertTrue(ttidSpan.isFinished)
+    }
+    
+    func testReportInitialDisplay_WhenViewWillAppearSkipped_WillLayoutSubViewsCalled() throws {
+        let sut = fixture.getSut()
+        let viewController = fixture.viewController
+        let tracker = fixture.tracker
+        var tracer: SentryTracer?
+
+        sut.viewControllerLoadView(viewController) {
+            let spans = self.getStack(tracker)
+            tracer = spans.first as? SentryTracer
+        }
+        
+        sut.viewControllerViewWillLayoutSubViews(viewController) {
+            self.advanceTime(bySeconds: 0.1)
+        }
+
+        reportFrame()
+        let expectedTTIDTimestamp = fixture.dateProvider.date()
+        
+        let children: [Span]? = Dynamic(tracer).children as [Span]?
+
+        let ttidSpan = try XCTUnwrap(children?.first)
+        XCTAssertEqual("ui.load.initial_display", ttidSpan.operation)
+        XCTAssertEqual("TestViewController initial display", ttidSpan.spanDescription)
+        XCTAssertEqual(expectedTTIDTimestamp, ttidSpan.timestamp)
+        XCTAssertTrue(ttidSpan.isFinished)
+    }
+    
+    func testReportInitialDisplay_WhenViewWillAppearAndWillLayoutSubviews() throws {
+        let sut = fixture.getSut()
+        let viewController = fixture.viewController
+        let tracker = fixture.tracker
+        var tracer: SentryTracer?
+
+        sut.viewControllerLoadView(viewController) {
+            let spans = self.getStack(tracker)
+            tracer = spans.first as? SentryTracer
+        }
+        sut.viewControllerViewWillAppear(viewController) {
+            self.advanceTime(bySeconds: 0.1)
+        }
+
+        reportFrame()
+        let expectedTTIDTimestamp = fixture.dateProvider.date()
+        
+        // It's doubtful that the OS renders a frame between viewWillAppear and viewWillLayoutSubViews, but if it does, we need to pick the end TTID on viewWillAppear.
+        sut.viewControllerViewWillLayoutSubViews(viewController) {
+            self.advanceTime(bySeconds: 0.1)
+        }
+        
+        let children: [Span]? = Dynamic(tracer).children as [Span]?
+
+        let ttidSpan = try XCTUnwrap(children?.first)
+        XCTAssertEqual("ui.load.initial_display", ttidSpan.operation)
+        XCTAssertEqual("TestViewController initial display", ttidSpan.spanDescription)
+        XCTAssertEqual(expectedTTIDTimestamp, ttidSpan.timestamp)
+        XCTAssertTrue(ttidSpan.isFinished)
+    }
+    
     func testReportFullyDisplayed() throws {
         let sut = fixture.getSut()
         sut.enableWaitForFullDisplay = true

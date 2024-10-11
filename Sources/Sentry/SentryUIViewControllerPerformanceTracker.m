@@ -198,10 +198,7 @@
         };
 
         [self.tracker activateSpan:spanId duringBlock:duringBlock];
-
-        SentryTimeToDisplayTracker *ttdTracker
-            = objc_getAssociatedObject(controller, &SENTRY_UI_PERFORMANCE_TRACKER_TTD_TRACKER);
-        [ttdTracker reportInitialDisplay];
+        [self reportInitialDisplay:controller];
     };
 
     [self limitOverride:@"viewWillAppear"
@@ -320,6 +317,15 @@
                 OBJC_ASSOCIATION_RETAIN_NONATOMIC);
         };
         [self.tracker activateSpan:spanId duringBlock:duringBlock];
+
+        // According to the Apple docs
+        // (https://developer.apple.com/documentation/uikit/uiviewcontroller/1621510-viewwillappear),
+        // viewWillAppear should be called for before the UIViewController is added to the view
+        // hierarchy. There are some edge cases, though, when this doesn't happen, and we saw
+        // customers' transactions also proofing this. Therefore, we must also report the initial
+        // display here, as the customers' transactions had spans for `viewWillLayoutSubviews`.
+
+        [self reportInitialDisplay:controller];
     };
 
     [self limitOverride:@"viewWillLayoutSubviews"
@@ -419,6 +425,13 @@
                                     parentSpanId:spanId
                                          inBlock:callbackToOrigin];
     }
+}
+
+- (void)reportInitialDisplay:(UIViewController *)controller
+{
+    SentryTimeToDisplayTracker *ttdTracker
+        = objc_getAssociatedObject(controller, &SENTRY_UI_PERFORMANCE_TRACKER_TTD_TRACKER);
+    [ttdTracker reportInitialDisplay];
 }
 
 @end
