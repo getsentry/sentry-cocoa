@@ -1,7 +1,7 @@
 import Foundation
 @testable import Sentry
 
-public class TestCurrentDateProvider: NSObject, SentryCurrentDateProvider {
+public class TestCurrentDateProvider: SentryCurrentDateProvider {
     public static let defaultStartingDate = Date(timeIntervalSinceReferenceDate: 0)
     private var internalDate = defaultStartingDate
     private var internalSystemTime: UInt64 = 0
@@ -9,7 +9,7 @@ public class TestCurrentDateProvider: NSObject, SentryCurrentDateProvider {
     public var driftTimeInterval = 0.1
     private var _systemUptime: TimeInterval = 0
     
-    public override init() {
+    public init() {
     }
     
     public func date() -> Date {
