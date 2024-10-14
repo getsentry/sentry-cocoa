@@ -39,10 +39,7 @@ class SentryTracerTests: XCTestCase {
         
         let currentDateProvider = TestCurrentDateProvider()
         var appStart: Date
-        var appStartSystemTime: UInt64 {
-            let res = currentDateProvider.systemTime()
-            return res
-        }
+        lazy var appStartSystemTime = currentDateProvider.systemTime()
         var appStartEnd: Date
         var appStartDuration = 0.5
         let testKey = "extra_key"
@@ -1219,9 +1216,16 @@ class SentryTracerTests: XCTestCase {
         child.shouldIgnore = true
        
         sut.finish()
-        let transaction = try XCTUnwrap(fixture.hub.capturedTransactionsWithScope.first?.transaction as? Transaction)
-        
-        XCTAssertEqual(transaction.spans.count, 0)
+        let transaction = try XCTUnwrap(fixture.hub.capturedTransactionsWithScope.first?.transaction as? [String:Any])
+        let spans = try XCTUnwrap(transaction["spans"]! as? [[String: Any]])
+        XCTAssertEqual(spans.count, 0)
+    }
+    
+    func testDontCaptureWithShouldIgnoreTrue() throws {
+        let sut = fixture.getSut()
+        sut.shouldIgnore = true
+        sut.finish()
+        XCTAssertEqual(fixture.hub.capturedTransactionsWithScope.count, 0)
     }
     
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)

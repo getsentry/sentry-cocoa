@@ -132,6 +132,7 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
             callbackExpectation.fulfill()
         }
         let tracer = try XCTUnwrap(transactionSpan as? SentryTracer)
+        XCTAssertTrue(tracer.shouldIgnore)
         XCTAssertEqual(tracer.transactionContext.name, fixture.viewControllerName)
         XCTAssertEqual(tracer.transactionContext.nameSource, .component)
         XCTAssertEqual(tracer.transactionContext.origin, origin)
@@ -193,6 +194,7 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
 
         lifecycleEndingMethod(sut, viewController, tracker, callbackExpectation, tracer)
 
+        XCTAssertFalse(tracer.shouldIgnore)
         XCTAssertEqual(Dynamic(transactionSpan).children.asArray!.count, 8)
         XCTAssertTrue(tracer.isFinished)
         XCTAssertEqual(finishStatus.rawValue, tracer.status.rawValue)
