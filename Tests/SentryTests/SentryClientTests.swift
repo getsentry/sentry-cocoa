@@ -13,7 +13,7 @@ class SentryClientTest: XCTestCase {
         let transport: TestTransport
         let transportAdapter: TestTransportAdapter
         
-        let debugImageBuilder = SentryDebugImageProvider()
+        let debugImageProvider = TestDebugImageProvider()
         let threadInspector = TestThreadInspector.instance
         
         let session: SentrySession
@@ -63,6 +63,8 @@ class SentryClientTest: XCTestCase {
             
             crashWrapper.internalFreeMemorySize = 123_456
             crashWrapper.internalAppMemorySize = 234_567
+            
+            debugImageProvider.debugImages = [TestData.debugImage]
 
             #if os(iOS) || targetEnvironment(macCatalyst)
             SentryDependencyContainer.sharedInstance().uiDeviceWrapper = deviceWrapper
@@ -87,6 +89,7 @@ class SentryClientTest: XCTestCase {
                     fileManager: fileManager,
                     deleteOldEnvelopeItems: false,
                     threadInspector: threadInspector,
+                    debugImageProvider: debugImageProvider,
                     random: random,
                     locale: locale,
                     timezone: timezone
@@ -523,6 +526,18 @@ class SentryClientTest: XCTestCase {
         eventId.assertIsNotEmpty()
         let actual = try lastSentEventWithAttachment()
         try assertValidErrorEvent(actual, error)
+    }
+    
+    func testCaptureEvent_RetrievesDebugMetaFromCache() throws {
+        let event = Event(level: SentryLevel.warning)
+        
+        let eventId = fixture.getSut().capture(event: event)
+        
+        eventId.assertIsNotEmpty()
+
+        let actual = try lastSentEvent()
+        XCTAssertNotNil(actual.debugMeta)
+        XCTAssertEqual(1, fixture.debugImageProvider.getDebugImagesFromCacheForThreadsInvocations.count, "Client must retrieve debug images from cache.")
     }
     
     func testCaptureErrorWithEnum() throws {
@@ -2004,8 +2019,9 @@ private extension SentryClientTest {
     }
     
     private func assertValidDebugMeta(actual: [DebugMeta]?, forThreads threads: [SentryThread]?) {
-        let debugMetas = fixture.debugImageBuilder.getDebugImages(for: threads ?? [], isCrash: false)
+        let debugMetas = fixture.debugImageProvider.getDebugImagesFromCacheForThreads(threads: threads ?? [])
         
+        XCTAssertEqual(debugMetas.count, actual?.count)
         XCTAssertEqual(debugMetas, actual ?? [])
     }
     
