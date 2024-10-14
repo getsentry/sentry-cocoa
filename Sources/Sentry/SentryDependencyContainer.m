@@ -94,7 +94,7 @@ static NSObject *sentryDependencyContainerLock;
         _threadWrapper = [[SentryThreadWrapper alloc] init];
         _binaryImageCache = [[SentryBinaryImageCache alloc] init];
         _debugImageProvider = [[SentryDebugImageProvider alloc] init];
-        _dateProvider = [[SentryCurrentDateProvider alloc] init];
+        _dateProvider = [[SentryDefaultCurrentDateProvider alloc] init];
     }
     return self;
 }

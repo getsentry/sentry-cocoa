@@ -1,37 +1,24 @@
 @_implementationOnly import _SentryPrivate
 import Foundation
 
-#if TEST
-@objcMembers
-public class SentryCurrentDateProvider: NSObject {
-    public func date() -> Date {
-        return Date()
-    }
-
-    public func timezoneOffset() -> Int {
-        return TimeZone.current.secondsFromGMT()
-    }
-
-    public func systemTime() -> UInt64 {
-        getAbsoluteTime()
-    }
-    
-    public func systemUptime() -> TimeInterval {
-        ProcessInfo.processInfo.systemUptime
-    }
+@objc
+protocol SentryCurrentDateProvider: NSObjectProtocol {
+    func date() -> Date
+    func timezoneOffset() -> Int
+    func systemTime() -> UInt64
+    func systemUptime() -> TimeInterval
 }
-#else
+
 @objcMembers
-class SentryCurrentDateProvider: NSObject {
-    
+class SentryDefaultCurrentDateProvider: NSObject, SentryCurrentDateProvider {
     func date() -> Date {
         return Date()
     }
-
+    
     func timezoneOffset() -> Int {
         return TimeZone.current.secondsFromGMT()
     }
-
+    
     func systemTime() -> UInt64 {
         getAbsoluteTime()
     }
@@ -40,4 +27,3 @@ class SentryCurrentDateProvider: NSObject {
         ProcessInfo.processInfo.systemUptime
     }
 }
-#endif

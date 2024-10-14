@@ -3,7 +3,7 @@
 #import "SentryTransport.h"
 
 @class SentryOptions, SentryFileManager;
-@class SentryCurrentDateProvider;
+@protocol SentryCurrentDateProvider;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -12,7 +12,7 @@ NS_SWIFT_NAME(TransportInitializer)
 
 + (NSArray<id<SentryTransport>> *)initTransports:(SentryOptions *)options
                                sentryFileManager:(SentryFileManager *)sentryFileManager
-                             currentDateProvider:(SentryCurrentDateProvider *)currentDateProvider;
+                             currentDateProvider:(id<SentryCurrentDateProvider>)currentDateProvider;
 
 @end
 
