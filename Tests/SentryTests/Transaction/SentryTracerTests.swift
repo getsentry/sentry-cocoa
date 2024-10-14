@@ -39,7 +39,7 @@ class SentryTracerTests: XCTestCase {
         
         let currentDateProvider = TestCurrentDateProvider()
         var appStart: Date
-        var appStartSystemTime : UInt64 {
+        var appStartSystemTime: UInt64 {
             let res = currentDateProvider.systemTime()
             return res
         }

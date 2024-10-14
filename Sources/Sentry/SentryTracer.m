@@ -506,7 +506,7 @@ static BOOL appStartMeasurementRead;
     }
 
     @synchronized(_children) {
-        for (SentrySpan * span in _children) {
+        for (SentrySpan *span in _children) {
             if (self.shouldIgnoreWaitForChildrenCallback != nil
                 && self.shouldIgnoreWaitForChildrenCallback(span)) {
                 continue;
@@ -641,8 +641,9 @@ static BOOL appStartMeasurementRead;
     NSDate *oldest = self.startTimestamp;
 
     @synchronized(_children) {
-        for (SentrySpan * childSpan in _children) {
-            if (!childSpan.shouldIgnore && [oldest compare:childSpan.timestamp] == NSOrderedAscending) {
+        for (SentrySpan *childSpan in _children) {
+            if (!childSpan.shouldIgnore &&
+                [oldest compare:childSpan.timestamp] == NSOrderedAscending) {
                 oldest = childSpan.timestamp;
             }
         }
@@ -662,11 +663,11 @@ static BOOL appStartMeasurementRead;
 - (nullable SentryTransaction *)toTransaction
 {
     if (self.shouldIgnore) {
-        //If this transaction was marked as "not used" we drop it.
+        // If this transaction was marked as "not used" we drop it.
         SENTRY_LOG_WARN(@"Transaction '%@' was not used.", self.transactionContext.name);
         return nil;
     }
-    
+
     NSUInteger capacity;
 #if SENTRY_HAS_UIKIT
     [self addFrameStatistics];
@@ -680,7 +681,7 @@ static BOOL appStartMeasurementRead;
     NSMutableArray<id<SentrySpan>> *spans = [[NSMutableArray alloc] initWithCapacity:capacity];
 
     @synchronized(_children) {
-        for (SentrySpan * child in _children) {
+        for (SentrySpan *child in _children) {
             if (child.shouldIgnore == NO) {
                 [spans addObject:child];
             }
