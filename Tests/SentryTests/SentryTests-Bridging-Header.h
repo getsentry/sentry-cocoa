@@ -96,7 +96,7 @@
 #import "SentryDataCategoryMapper.h"
 #import "SentryDateUtil.h"
 #import "SentryDateUtils.h"
-#import "SentryDebugImageProvider+Private.h"
+#import "SentryDebugImageProvider+HybridSDKs.h"
 #import "SentryDebugImageProvider+TestInit.h"
 #import "SentryDebugMeta.h"
 #import "SentryDefaultObjCRuntimeWrapper.h"
