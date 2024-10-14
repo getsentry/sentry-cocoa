@@ -1217,7 +1217,7 @@ class SentryTracerTests: XCTestCase {
         child.shouldIgnore = true
        
         sut.finish()
-        let transaction = try XCTUnwrap(fixture.hub.capturedTransactionsWithScope.first?.transaction as? [String:Any])
+        let transaction = try XCTUnwrap(fixture.hub.capturedTransactionsWithScope.first?.transaction as? [String: Any])
         let spans = try XCTUnwrap(transaction["spans"]! as? [[String: Any]])
         XCTAssertEqual(spans.count, 0)
     }
