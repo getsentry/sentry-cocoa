@@ -14,7 +14,7 @@ public class TestCurrentDateProvider: SentryCurrentDateProvider {
     }
     
     public override func date() -> Date {
-        
+
         defer {
             if driftTimeForEveryRead {
                 internalDate = internalDate.addingTimeInterval(driftTimeInterval)
