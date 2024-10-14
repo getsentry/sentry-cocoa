@@ -93,7 +93,6 @@ static NSObject *sentryDependencyContainerLock;
         _random = [[SentryRandom alloc] init];
         _threadWrapper = [[SentryThreadWrapper alloc] init];
         _binaryImageCache = [[SentryBinaryImageCache alloc] init];
-        _debugImageProvider = [[SentryDebugImageProvider alloc] init];
         _dateProvider = [[SentryCurrentDateProvider alloc] init];
     }
     return self;
@@ -181,6 +180,16 @@ static NSObject *sentryDependencyContainerLock;
         }
     }
     return _threadInspector;
+}
+
+- (SentryDebugImageProvider *)debugImageProvider
+{
+    @synchronized(sentryDependencyContainerLock) {
+        if (_debugImageProvider == nil) {
+            _debugImageProvider = [[SentryDebugImageProvider alloc] init];
+        }
+        return _debugImageProvider;
+    }
 }
 
 - (SentryExtraContextProvider *)extraContextProvider SENTRY_DISABLE_THREAD_SANITIZER(
