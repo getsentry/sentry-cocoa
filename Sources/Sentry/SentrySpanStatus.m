@@ -18,7 +18,6 @@ NSString *const kSentrySpanStatusNameFailedPrecondition = @"failed_precondition"
 NSString *const kSentrySpanStatusNameAborted = @"aborted";
 NSString *const kSentrySpanStatusNameOutOfRange = @"out_of_range";
 NSString *const kSentrySpanStatusNameDataLoss = @"data_loss";
-NSString *const kSentrySpanStatusNameUnused = @"unused";
 
 NSString *
 nameForSentrySpanStatus(SentrySpanStatus status)
