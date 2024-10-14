@@ -19,11 +19,13 @@ via the option `swizzleClassNameExclude`.
 - Finish TTID correctly when viewWillAppear is skipped (#4417)
 - Swizzling RootUIViewController if ignored by `swizzleClassNameExclude` (#4407)
 - Do not create transaction for unused view controllers (#4437)
+- Data race in SentrySwizzleInfo.originalCalled (#4434)
 
 ### Improvements
 
 - Serializing profile on a BG Thread (#4377) to avoid potentially slightly blocking the main thread.
 - Session Replay performance for SwiftUI (#4419)
+- Speed up getBinaryImages (#4435) for finishing transactions and capturing events
 
 ## 8.38.0-beta.1
 
