@@ -2,7 +2,7 @@
 import Foundation
 
 @objc
-protocol SentryCurrentDateProvider: NSObjectProtocol {
+protocol SentryCurrentDateProvider {
     func date() -> Date
     func timezoneOffset() -> Int
     func systemTime() -> UInt64
