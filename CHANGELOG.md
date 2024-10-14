@@ -18,6 +18,7 @@ via the option `swizzleClassNameExclude`.
 - Add TTID/TTFD spans when loadView gets skipped (#4415)
 - Finish TTID correctly when viewWillAppear is skipped (#4417)
 - Swizzling RootUIViewController if ignored by `swizzleClassNameExclude` (#4407)
+- Data race in SentrySwizzleInfo.originalCalled (#4434)
 
 ### Improvements
 
