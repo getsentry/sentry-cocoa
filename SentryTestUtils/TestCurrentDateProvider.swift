@@ -10,9 +10,11 @@ public class TestCurrentDateProvider: SentryCurrentDateProvider {
     private var _systemUptime: TimeInterval = 0
     
     public override init() {
+        
     }
     
     public override func date() -> Date {
+        
         defer {
             if driftTimeForEveryRead {
                 internalDate = internalDate.addingTimeInterval(driftTimeInterval)
@@ -54,7 +56,7 @@ public class TestCurrentDateProvider: SentryCurrentDateProvider {
     }
 
     public override func systemTime() -> UInt64 {
-        return 0 //internalSystemTime
+        return internalSystemTime
     }
     
     override public func systemUptime() -> TimeInterval {
