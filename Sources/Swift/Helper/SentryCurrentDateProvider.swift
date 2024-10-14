@@ -3,19 +3,19 @@ import Foundation
 
 @objcMembers class SentryCurrentDateProvider: NSObject {
     
-    func date() -> Date {
+    public func date() -> Date {
         return Date()
     }
 
-    func timezoneOffset() -> Int {
+    public func timezoneOffset() -> Int {
         return TimeZone.current.secondsFromGMT()
     }
 
-    func systemTime() -> UInt64 {
+    public func systemTime() -> UInt64 {
         getAbsoluteTime()
     }
     
-    func systemUptime() -> TimeInterval {
+    public func systemUptime() -> TimeInterval {
         ProcessInfo.processInfo.systemUptime
     }
 }

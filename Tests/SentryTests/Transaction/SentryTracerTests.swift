@@ -39,7 +39,10 @@ class SentryTracerTests: XCTestCase {
         
         let currentDateProvider = TestCurrentDateProvider()
         var appStart: Date
-        lazy var appStartSystemTime = currentDateProvider.systemTime()
+        var appStartSystemTime : UInt64 {
+            let res = currentDateProvider.systemTime()
+            return res
+        }
         var appStartEnd: Date
         var appStartDuration = 0.5
         let testKey = "extra_key"
@@ -1208,6 +1211,17 @@ class SentryTracerTests: XCTestCase {
             let spans = try XCTUnwrap(try getSerializedTransaction()["spans"]! as? [[String: Any]])
             XCTAssertGreaterThanOrEqual(spans.count, children)
         }
+    }
+    
+    func testRemoveChildWithShouldIgnoreTrue() throws {
+        let sut = fixture.getSut()
+        let child = try XCTUnwrap(sut.startChild(operation: fixture.transactionOperation) as? SentrySpan)
+        child.shouldIgnore = true
+       
+        sut.finish()
+        let transaction = try XCTUnwrap(fixture.hub.capturedTransactionsWithScope.first?.transaction as? Transaction)
+        
+        XCTAssertEqual(transaction.spans.count, 0)
     }
     
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)

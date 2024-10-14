@@ -85,6 +85,14 @@ SENTRY_NO_INIT
 @property (nullable, nonatomic, strong) NSArray<SentryFrame *> *frames;
 
 /**
+ * Indicates whether this span should be ignored when finishing a transaction.
+ * Ignored spans are not included in the transaction and not taken in account
+ * when trimming transaction timeout.
+ * Default value is @c NO
+ */
+@property (nonatomic) BOOL shouldIgnore;
+
+/**
  * Init a @c SentrySpan with given transaction and context.
  * @param transaction The @c SentryTracer managing the transaction this span is associated with.
  * @param context This span context information.

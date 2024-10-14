@@ -96,7 +96,7 @@ NS_ASSUME_NONNULL_BEGIN
         _spanId = context.spanId;
         _sampled = context.sampled;
         _origin = context.origin;
-
+        _shouldIgnore = NO;
 #if SENTRY_TARGET_PROFILING_SUPPORTED
         _isContinuousProfiling = [SentrySDK.options isContinuousProfilingEnabled];
         if (_isContinuousProfiling) {
