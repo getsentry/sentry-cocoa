@@ -1,6 +1,6 @@
 #import "PrivateSentrySDKOnly.h"
 #import "SentryClient.h"
-#import "SentryDebugImageProvider.h"
+#import "SentryDebugImageProvider+Private.h"
 #import "SentryDependencyContainer.h"
 #import "SentryEvent+Private.h"
 #import "SentryFileManager.h"
@@ -717,8 +717,8 @@ static BOOL appStartMeasurementRead;
     if (framesOfAllSpans.count > 0) {
         SentryDebugImageProvider *debugImageProvider
             = SentryDependencyContainer.sharedInstance.debugImageProvider;
-        transaction.debugMeta = [debugImageProvider getDebugImagesForFrames:framesOfAllSpans
-                                                                    isCrash:NO];
+        transaction.debugMeta =
+            [debugImageProvider getDebugImagesFromCacheForFrames:framesOfAllSpans];
     }
 
 #if SENTRY_HAS_UIKIT
