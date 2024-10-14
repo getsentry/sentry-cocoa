@@ -34,7 +34,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             options.beforeSendSpan = { span in
                 return span
             }
-            options.enableSigtermReporting = true
             options.beforeCaptureScreenshot = { _ in
                 return true
             }
