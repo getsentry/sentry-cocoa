@@ -374,6 +374,7 @@ class SentryTracerTests: XCTestCase {
 
         XCTAssertEqual(transaction?.debugMeta?.count ?? 0, 1)
         XCTAssertEqual(transaction?.debugMeta?.first, TestData.debugImage)
+        XCTAssertEqual(1, debugImageProvider.getDebugImagesFromCacheForFramesInvocations.count, "Tracer must retrieve debug images from cache.")
     }
 
     func testDeadlineTimer_OnlyForAutoTransactions() {
