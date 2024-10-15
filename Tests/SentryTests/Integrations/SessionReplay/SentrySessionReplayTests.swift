@@ -17,6 +17,8 @@ class SentrySessionReplayTests: XCTestCase {
     private class TestReplayMaker: NSObject, SentryReplayVideoMaker {
         var screens = [String]()
         
+        var createVideoCallBack: ((SentryVideoInfo) -> Void)?
+        
         struct CreateVideoCall {
             var beginning: Date
             var end: Date
@@ -30,6 +32,7 @@ class SentrySessionReplayTests: XCTestCase {
             try? "Video Data".write(to: outputFileURL, atomically: true, encoding: .utf8)
             let videoInfo = SentryVideoInfo(path: outputFileURL, height: 1_024, width: 480, duration: end.timeIntervalSince(beginning), frameCount: 5, frameRate: 1, start: beginning, end: end, fileSize: 10, screens: screens)
             
+            createVideoCallBack?(videoInfo)
             return [videoInfo]
         }
         
@@ -146,6 +149,25 @@ class SentrySessionReplayTests: XCTestCase {
         
         XCTAssertNotNil(fixture.lastReplayRecording)
         assertFullSession(sut, expected: true)
+    }
+    
+    func testMakeReplayQueueQos() {
+        let fixture = Fixture()
+        
+        let sut = fixture.getSut(options: SentryReplayOptions(sessionSampleRate: 1, onErrorSampleRate: 1))
+        sut.start(rootView: fixture.rootView, fullSession: true)
+        
+        let expect = expectation(description: "create video called")
+        fixture.replayMaker.createVideoCallBack = { _ in
+            let current = qos_class_self()
+            XCTAssertEqual(current, QOS_CLASS_UTILITY)
+            expect.fulfill()
+        }
+        
+        fixture.dateProvider.advance(by: 5)
+        Dynamic(sut).newFrame(nil)
+                
+        wait(for: [expect], timeout: 1)
     }
     
     func testReplayScreenNames() throws {
