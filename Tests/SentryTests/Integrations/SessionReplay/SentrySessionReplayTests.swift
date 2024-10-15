@@ -66,7 +66,7 @@ class SentrySessionReplayTests: XCTestCase {
         var lastReplayId: SentryId?
         var currentScreen: String?
         
-        func getSut(options: SentryReplayOptions = .init(sessionSampleRate: 0, onErrorSampleRate: 0) ) -> SentrySessionReplay {
+        func getSut(options: SentryReplayOptions = .init(sessionSampleRate: 0, onErrorSampleRate: 0), dispatchQueue: SentryDispatchQueueWrapper = TestSentryDispatchQueueWrapper() ) -> SentrySessionReplay {
             return SentrySessionReplay(replayOptions: options,
                                        replayFolderPath: cacheFolder,
                                        screenshotProvider: screenshotProvider,
@@ -75,7 +75,7 @@ class SentrySessionReplayTests: XCTestCase {
                                        touchTracker: SentryTouchTracker(dateProvider: dateProvider, scale: 0),
                                        dateProvider: dateProvider,
                                        delegate: self,
-                                       dispatchQueue: TestSentryDispatchQueueWrapper(),
+                                       dispatchQueue: dispatchQueue,
                                        displayLinkWrapper: displayLink)
         }
         
