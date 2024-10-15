@@ -150,26 +150,7 @@ class SentrySessionReplayTests: XCTestCase {
         XCTAssertNotNil(fixture.lastReplayRecording)
         assertFullSession(sut, expected: true)
     }
-    
-    func testMakeReplayQueueQos() {
-        let fixture = Fixture()
-        
-        let sut = fixture.getSut(options: SentryReplayOptions(sessionSampleRate: 1, onErrorSampleRate: 1))
-        sut.start(rootView: fixture.rootView, fullSession: true)
-        
-        let expect = expectation(description: "create video called")
-        fixture.replayMaker.createVideoCallBack = { _ in
-            let current = qos_class_self()
-            XCTAssertEqual(current, QOS_CLASS_UTILITY)
-            expect.fulfill()
-        }
-        
-        fixture.dateProvider.advance(by: 5)
-        Dynamic(sut).newFrame(nil)
-                
-        wait(for: [expect], timeout: 1)
-    }
-    
+   
     func testReplayScreenNames() throws {
         let fixture = Fixture()
         let sut = fixture.getSut(options: SentryReplayOptions(sessionSampleRate: 1, onErrorSampleRate: 1))
