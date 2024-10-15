@@ -33,7 +33,7 @@ static CFTimeInterval const SentryPreviousFrameInitialValue = -1;
 @property (nonatomic, assign, readonly) BOOL isStarted;
 
 @property (nonatomic, strong, readonly) SentryDisplayLinkWrapper *displayLinkWrapper;
-@property (nonatomic, strong, readonly) SentryCurrentDateProvider *dateProvider;
+@property (nonatomic, strong, readonly) id<SentryCurrentDateProvider> dateProvider;
 @property (nonatomic, strong, readonly) SentryDispatchQueueWrapper *dispatchQueueWrapper;
 @property (nonatomic, strong) SentryNSNotificationCenterWrapper *notificationCenter;
 @property (nonatomic, assign) CFTimeInterval previousFrameTimestamp;
@@ -65,7 +65,7 @@ slowFrameThreshold(uint64_t actualFramesPerSecond)
 }
 
 - (instancetype)initWithDisplayLinkWrapper:(SentryDisplayLinkWrapper *)displayLinkWrapper
-                              dateProvider:(SentryCurrentDateProvider *)dateProvider
+                              dateProvider:(id<SentryCurrentDateProvider>)dateProvider
                       dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
                         notificationCenter:(SentryNSNotificationCenterWrapper *)notificationCenter
                  keepDelayedFramesDuration:(CFTimeInterval)keepDelayedFramesDuration

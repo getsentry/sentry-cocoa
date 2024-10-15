@@ -21,15 +21,36 @@ via the option `swizzleClassNameExclude`.
 - Swizzling RootUIViewController if ignored by `swizzleClassNameExclude` (#4407)
 - Data race in SentrySwizzleInfo.originalCalled (#4434)
 
+
 ### Improvements
 
 - Serializing profile on a BG Thread (#4377) to avoid potentially slightly blocking the main thread.
 - Session Replay performance for SwiftUI (#4419)
 - Speed up getBinaryImages (#4435) for finishing transactions and capturing events
+- Use UInts in envelope deserialization (#4441)
 
 ## 8.38.0
 
-- No documented changes.
+### Features
+
+- Added breadcrumb.origin private field (#4358)
+- Custom redact modifier for SwiftUI (#4362)
+- AppHangV2 detection (#4379) Add a new algorithm for detecting app hangs that differentiates between fully blocking and non-fully blocking app hangs. Read more in-depth in our [docs](https://docs.sentry.io/platforms/apple/guides/ios/configuration/app-hangs/#app-hangs-v2).
+- Add support for arm64e (#3398)
+- Add mergeable libraries support to dynamic libraries (#4381)
+
+### Improvements
+
+- Speed up HTTP tracking for multiple requests in parallel (#4366)
+- Slightly speed up SentryInAppLogic (#4370)
+- Rename session replay `redact` options and APIs to `mask` (#4373)
+- Stop canceling timer for manual transactions (#4380)
+
+### Fixes
+
+- Fix the versioning to support app release with Beta versions (#4368)
+- Linking ongoing trace to crash event (#4393)
+- Edge case for swizzleClassNameExclude (#4405)
 
 ## 8.38.0-beta.1
 
