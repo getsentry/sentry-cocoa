@@ -1,5 +1,6 @@
 import UIKit
 
+//swiftlint:disable type_body_length
 class SentryUserFeedbackWidgetButtonView: UIView {
     let padding: CGFloat = 16
     let spacing: CGFloat = 8
@@ -9,55 +10,73 @@ class SentryUserFeedbackWidgetButtonView: UIView {
     let action: (SentryUserFeedbackWidgetButtonView) -> Void
     let config: SentryUserFeedbackConfiguration
     
+    lazy var textEffectiveHeightCenter: CGFloat = {
+        config.theme.font.capHeight / 2
+    }()
+    
+    //swiftlint:disable function_body_length
     init(config: SentryUserFeedbackConfiguration, action: @escaping (SentryUserFeedbackWidgetButtonView) -> Void) {
         self.action = action
         self.config = config
         super.init(frame: .zero)
         translatesAutoresizingMaskIntoConstraints = false
         
-        var constraints = [
-            megaphone.widthAnchor.constraint(equalToConstant: svgSize),
-            megaphone.heightAnchor.constraint(equalToConstant: svgSize),
-            megaphone.leadingAnchor.constraint(equalTo: leadingAnchor, constant: padding)
-        ]
+        var constraints = [NSLayoutConstraint]()
         
-        if let title = config.widgetConfig.labelText {
-            let label = label(text: title)
-            let textEffectiveHeight = label.font.capHeight
-            let textEffectiveHeightCenter = textEffectiveHeight / 2
+#if DEBUG
+            precondition(config.widgetConfig.showIcon || config.widgetConfig.labelText != nil)
+#endif // DEBUG
+        
+        if let label = label {
+            if config.widgetConfig.showIcon {
+                constraints.append(contentsOf: [
+                    megaphone.widthAnchor.constraint(equalToConstant: svgSize),
+                    megaphone.heightAnchor.constraint(equalToConstant: svgSize),
+                    megaphone.leadingAnchor.constraint(equalTo: leadingAnchor, constant: padding)
+                ])
+            }
             
-            var lozengeSize = label.intrinsicContentSize
-            lozengeSize.width += svgSize + 2 * padding + spacing
-            lozengeSize.height = 2 * (label.font.ascender - textEffectiveHeightCenter) + 2 * padding
-
-            let lozengeLayer = lozengeLayer(size: lozengeSize)
+            let lozengeLayer = lozengeLayer(size: label.intrinsicContentSize)
             layer.addSublayer(lozengeLayer)
             addSubview(label)
             
-            lozengeLayer.transform = CATransform3DTranslate(lozengeLayer.transform, 0, -padding, 0)
-            
-            addSubview(megaphone)
+            if config.widgetConfig.showIcon {
+                addSubview(megaphone)
+                constraints.append(contentsOf: [
+                    label.leadingAnchor.constraint(equalTo: megaphone.trailingAnchor, constant: spacing),
+                    megaphone.centerYAnchor.constraint(equalTo: label.firstBaselineAnchor, constant: -textEffectiveHeightCenter)
+                ])
+            } else {
+                constraints.append(contentsOf: [
+                    label.leadingAnchor.constraint(equalTo: leadingAnchor, constant: padding)
+                ])
+            }
             constraints.append(contentsOf: [
-                label.leadingAnchor.constraint(equalTo: megaphone.trailingAnchor, constant: spacing),
-                megaphone.centerYAnchor.constraint(equalTo: label.firstBaselineAnchor, constant: -textEffectiveHeightCenter),
                 label.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -padding),
                 label.topAnchor.constraint(equalTo: topAnchor),
                 label.bottomAnchor.constraint(equalTo: bottomAnchor)
             ])
-        } else {
-            layer.addSublayer(lozengeLayer(size: sizeWithoutLabel))
+        } else if config.widgetConfig.showIcon {
+            let lozenge = lozengeLayer(size: sizeWithoutLabel)
+            layer.addSublayer(lozenge)
             addSubview(megaphone)
             constraints.append(contentsOf: [
+                megaphone.leadingAnchor.constraint(equalTo: leadingAnchor, constant: padding),
                 megaphone.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -padding),
                 megaphone.topAnchor.constraint(equalTo: topAnchor, constant: padding),
-                megaphone.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -padding)
+                megaphone.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -padding),
+                megaphone.heightAnchor.constraint(equalToConstant: svgSize * iconScaleFactor),
+                megaphone.widthAnchor.constraint(equalTo: megaphone.heightAnchor)
             ])
+        } else {
+            SentryLog.warning("User Feedback widget attempted to be displayed with neither text label or icon.")
         }
         
         NSLayoutConstraint.activate(constraints)
         
         addGestureRecognizer(tapGesture)
     }
+    //swiftlint:enable function_body_length
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
@@ -67,8 +86,21 @@ class SentryUserFeedbackWidgetButtonView: UIView {
         self.action(self)
     }
     
-    func label(text: String) -> UILabel {
+    lazy var label: UILabel? = {
+        guard let text = config.widgetConfig.labelText else {
+            return nil
+        }
+        
         let label = UILabel(frame: .zero)
+
+#if DEBUG
+        precondition(!text.isEmpty)
+#endif // DEBUG
+        
+        if text.isEmpty {
+            SentryLog.warning("Attempted to show widget button with empty text label. If you don't want to show text, set `SentryUserFeedbackWidgetConfiguration.labelText` to `nil`.")
+        }
+        
         label.text = text
         label.translatesAutoresizingMaskIntoConstraints = false
 
@@ -88,31 +120,28 @@ class SentryUserFeedbackWidgetButtonView: UIView {
         label.font = config.theme.font
         
         return label
-    }
+    }()
     
     lazy var sizeWithoutLabel = CGSize(width: svgSize + 2 * padding, height: svgSize + 2 * padding)
     
-    func sizeWithLabel(label: UILabel) -> CGSize {
-        var sizeWithLabel = label.intrinsicContentSize
-        sizeWithLabel.width += svgSize + 2 * padding + spacing
-        
-        let capHeight = label.font.capHeight
-        let textEffectiveHeight = capHeight
-        let textEffectiveHeightCenter = textEffectiveHeight / 2
-        let height = 2 * (label.font.ascender - textEffectiveHeightCenter)
-        
-        sizeWithLabel.height = height + 2 * padding
-        return sizeWithLabel
-    }
-    
     func lozengeLayer(size: CGSize) -> CAShapeLayer {
-        let radius: CGFloat = size.height / 2
+        var finalSize = size
+        
+        let hasText = config.widgetConfig.labelText != nil
+        let scaledLeftPadding = padding * iconScaleFactor
+        let scaledIconSize = svgSize * iconScaleFactor
+        let scaledSpacing = hasText ? spacing * iconScaleFactor : 0
+        let iconWidthAdditions = config.widgetConfig.showIcon ? scaledLeftPadding + scaledIconSize + scaledSpacing : 0
+        finalSize.width += iconWidthAdditions + padding
+        finalSize.height = 2 * (config.theme.font.ascender - textEffectiveHeightCenter) + 2 * padding
+        
+        let radius: CGFloat = finalSize.height / 2
 
         let lozengeShape = UIBezierPath()
         lozengeShape.move(to: .init(x: radius, y: 0))
-        lozengeShape.addLine(to: .init(x: size.width - radius, y: 0))
-        lozengeShape.addArc(withCenter: .init(x: size.width - radius, y: radius), radius: radius, startAngle: 3 * .pi / 2, endAngle: .pi / 2, clockwise: true)
-        lozengeShape.addLine(to: .init(x: radius, y: size.height))
+        lozengeShape.addLine(to: .init(x: finalSize.width - radius, y: 0))
+        lozengeShape.addArc(withCenter: .init(x: finalSize.width - radius, y: radius), radius: radius, startAngle: 3 * .pi / 2, endAngle: .pi / 2, clockwise: true)
+        lozengeShape.addLine(to: .init(x: radius, y: finalSize.height))
         lozengeShape.addArc(withCenter: .init(x: radius, y: radius), radius: radius, startAngle: .pi / 2, endAngle: 3 * .pi / 2, clockwise: true)
         lozengeShape.close()
         
@@ -133,6 +162,12 @@ class SentryUserFeedbackWidgetButtonView: UIView {
         } else {
             configureLightTheme()
         }
+        
+        let paddingDifference = scaledLeftPadding - padding
+        let iconSizeDifference = (scaledIconSize - svgSize) / 2
+        let spacingDifference = hasText ? scaledSpacing - spacing : 0
+        let increasedIconLeftPadAmountDueToScaling = config.widgetConfig.showIcon ? paddingDifference + iconSizeDifference + spacingDifference : 0
+        lozengeLayer.transform = CATransform3DTranslate(lozengeLayer.transform, -increasedIconLeftPadAmountDueToScaling, -padding, 0)
         
         return lozengeLayer
     }
@@ -160,7 +195,24 @@ class SentryUserFeedbackWidgetButtonView: UIView {
         svgView.layer.addSublayer(svgLayer)
         svgView.translatesAutoresizingMaskIntoConstraints = false
         
+        if iconScaleFactor != 1 {
+            let translation = (svgSize * iconScaleFactor - svgSize) / 2
+            let additionalSpacing = config.widgetConfig.labelText != nil ? iconScaleFactor * spacing : 0
+            svgLayer.transform = CATransform3DTranslate(svgLayer.transform, -translation - additionalSpacing, -translation, 0)
+            svgLayer.transform = CATransform3DScale(svgLayer.transform, iconScaleFactor, iconScaleFactor, 0)
+        }
+        
         return svgView
+    }()
+    
+    lazy var iconScaleFactor: CGFloat = {
+        let fontSize = config.theme.font.pointSize
+        guard fontSize > 0 else {
+            return 1
+        }
+        
+        return fontSize / UIFont.systemFontSize
+
     }()
     
     //swiftlint:disable function_body_length
@@ -314,3 +366,4 @@ extension UIFont {
             ?? [:]
     }
 }
+//swiftlint:enable function_body_length
