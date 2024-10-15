@@ -89,6 +89,8 @@ static SentryTouchTracker *_touchTracker;
     _notificationCenter = SentryDependencyContainer.sharedInstance.notificationCenterWrapper;
 
     [self moveCurrentReplay];
+    [self cleanUp];
+
     [SentrySDK.currentHub registerSessionListener:self];
     [SentryGlobalEventProcessor.shared
         addEventProcessor:^SentryEvent *_Nullable(SentryEvent *_Nonnull event) {
@@ -103,6 +105,19 @@ static SentryTouchTracker *_touchTracker;
     [SentryDependencyContainer.sharedInstance.reachability addObserver:self];
 }
 
+- (nullable NSDictionary<NSString *, id> *)lastReplayInfo
+{
+    NSURL *dir = [self replayDirectory];
+    NSURL *lastReplayUrl = [dir URLByAppendingPathComponent:SENTRY_LAST_REPLAY];
+    NSData *lastReplay = [NSData dataWithContentsOfURL:lastReplayUrl];
+
+    if (lastReplay == nil) {
+        return nil;
+    }
+
+    return [SentrySerialization deserializeDictionaryFromJsonData:lastReplay];
+}
+
 /**
  * Send the cached frames from a previous session that eventually crashed.
  * This function is called when processing an event created by SentryCrashIntegration,
@@ -112,15 +127,8 @@ static SentryTouchTracker *_touchTracker;
 - (void)resumePreviousSessionReplay:(SentryEvent *)event
 {
     NSURL *dir = [self replayDirectory];
-    NSURL *lastReplayUrl = [dir URLByAppendingPathComponent:SENTRY_LAST_REPLAY];
-    NSData *lastReplay = [NSData dataWithContentsOfURL:lastReplayUrl];
+    NSDictionary<NSString *, id> *jsonObject = [self lastReplayInfo];
 
-    if (lastReplay == nil) {
-        return;
-    }
-
-    NSDictionary<NSString *, id> *jsonObject =
-        [SentrySerialization deserializeDictionaryFromJsonData:lastReplay];
     if (jsonObject == nil) {
         return;
     }
@@ -357,6 +365,43 @@ static SentryTouchTracker *_touchTracker;
     if ([NSFileManager.defaultManager moveItemAtURL:current toURL:last error:nil] == NO) {
         SENTRY_LOG_ERROR(@"Could not move 'currentreplay' to 'lastreplat': %@", error);
     }
+}
+
+- (void)cleanUp
+{
+    NSURL *replayDir = [self replayDirectory];
+    NSDictionary<NSString *, id> *lastReplayInfo = [self lastReplayInfo];
+    NSString *lastReplayFolder = lastReplayInfo[@"path"];
+
+    // Mapping replay folder here and not in dispatched queue to prevent a race condition between
+    // listing files and creating a new replay session.
+    NSArray *replayFiles =
+        [SentryDependencyContainer.sharedInstance.fileManager allFilesInFolder:replayDir.path];
+    if (replayFiles.count == 0) {
+        return;
+    }
+
+    [SentryDependencyContainer.sharedInstance.dispatchQueueWrapper dispatchAsyncWithBlock:^{
+        NSFileManager *fileManager = [NSFileManager defaultManager];
+        for (NSString *file in replayFiles) {
+            NSString *filePath = [replayDir.path stringByAppendingPathComponent:file];
+
+            // Skip the last replay folder.
+            if ([file isEqualToString:lastReplayFolder]) {
+                continue;
+            }
+
+            // Check if the file exists and is a directory before deleting it.
+            BOOL isDirectory = NO;
+            if ([fileManager fileExistsAtPath:filePath isDirectory:&isDirectory] && isDirectory) {
+                NSError *error = nil;
+                if (![fileManager removeItemAtPath:filePath error:&error]) {
+                    SENTRY_LOG_ERROR(@"Error deleting file at path: %@, error: %@", filePath,
+                        error.localizedDescription);
+                }
+            }
+        }
+    }];
 }
 
 - (void)pause
