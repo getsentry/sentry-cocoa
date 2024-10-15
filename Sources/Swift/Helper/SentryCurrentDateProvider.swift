@@ -1,6 +1,10 @@
 @_implementationOnly import _SentryPrivate
 import Foundation
 
+/**
+ * We need a protocol to expose SentryCurrentDateProvider to tests.
+ * Mocking the previous private class from `SentryTestUtils` stopped working in Xcode 16.
+*/
 @objc
 protocol SentryCurrentDateProvider {
     func date() -> Date
