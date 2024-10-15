@@ -103,6 +103,28 @@ import UIKit
     public var configureDarkTheme: ((SentryUserFeedbackThemeConfiguration) -> Void)?
     
     lazy var darkTheme = SentryUserFeedbackThemeConfiguration()
+    
+    // MARK: Derived properties
+    
+    lazy var textEffectiveHeightCenter: CGFloat = {
+        theme.font.capHeight / 2
+    }()
+    
+    /// The ratio of the configured font size to the system default font size, to know how large to scale things like the icon and lozenge shape.
+    lazy var scaleFactor: CGFloat = {
+        let fontSize = theme.font.pointSize
+        guard fontSize > 0 else {
+            return 1
+        }
+        
+        return fontSize / UIFont.systemFontSize
+    }()
+    
+    /// Too much padding as the font size grows larger makes the button look weird with lots of negative space. Keeping the padding constant looks weird if the text is too small. So, scale it down below system default font sizes, but keep it fixed with larger font sizes.
+    lazy var paddingScaleFactor: CGFloat = {
+        scaleFactor > 1 ? 1 : scaleFactor
+    }()
+    
 }
 
 #endif // (os(iOS) || os(tvOS)) && !SENTRY_NO_UIKIT
