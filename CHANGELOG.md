@@ -4,19 +4,105 @@
 
 ### Features
 
+- feat: API to manually start/stop Session Replay (#4414)
+- Custom redact modifier for SwiftUI (#4362, #4392)
+
+### Removal of Experimental API
+
+- Remove the deprecated experimental Metrics API (#4406): [Learn more](https://sentry.zendesk.com/hc/en-us/articles/26369339769883-Metrics-Beta-Coming-to-an-End)
+
+### Fixes
+
+- Edge case for swizzleClassNameExclude (#4405): Skip creating transactions for UIViewControllers ignored for swizzling
+via the option `swizzleClassNameExclude`.
+- Add TTID/TTFD spans when loadView gets skipped (#4415)
+- Finish TTID correctly when viewWillAppear is skipped (#4417)
+- Swizzling RootUIViewController if ignored by `swizzleClassNameExclude` (#4407)
+- Data race in SentrySwizzleInfo.originalCalled (#4434)
+- Thread running at user-initiated quality-of-service for session replay (#4439)
+
+
+### Improvements
+
+- Serializing profile on a BG Thread (#4377) to avoid potentially slightly blocking the main thread.
+- Session Replay performance for SwiftUI (#4419)
+- Speed up getBinaryImages (#4435) for finishing transactions and capturing events
+- Use UInts in envelope deserialization (#4441)
+
+## 8.38.0
+
+### Features
+
 - Added breadcrumb.origin private field (#4358)
 - Custom redact modifier for SwiftUI (#4362)
+- AppHangV2 detection (#4379) Add a new algorithm for detecting app hangs that differentiates between fully blocking and non-fully blocking app hangs. Read more in-depth in our [docs](https://docs.sentry.io/platforms/apple/guides/ios/configuration/app-hangs/#app-hangs-v2).
+- Add support for arm64e (#3398)
 - Add mergeable libraries support to dynamic libraries (#4381)
 
 ### Improvements
 
 - Speed up HTTP tracking for multiple requests in parallel (#4366)
 - Slightly speed up SentryInAppLogic (#4370)
+- Rename session replay `redact` options and APIs to `mask` (#4373)
 - Stop canceling timer for manual transactions (#4380)
 
 ### Fixes
 
 - Fix the versioning to support app release with Beta versions (#4368)
+- Linking ongoing trace to crash event (#4393)
+- Edge case for swizzleClassNameExclude (#4405)
+
+## 8.38.0-beta.1
+
+### Features
+
+- Added breadcrumb.origin private field (#4358)
+- Custom redact modifier for SwiftUI (#4362)
+- AppHangV2 detection (#4379) Add a new algorithm for detecting app hangs that differentiates between fully blocking and non-fully blocking app hangs. Read more in-depth in our [docs](https://docs.sentry.io/platforms/apple/guides/ios/configuration/app-hangs/#app-hangs-v2).
+- Add support for arm64e (#3398)
+- Add mergeable libraries support to dynamic libraries (#4381)
+
+### Improvements
+
+- Speed up HTTP tracking for multiple requests in parallel (#4366)
+- Slightly speed up SentryInAppLogic (#4370)
+- Rename session replay `redact` options and APIs to `mask` (#4373)
+- Stop canceling timer for manual transactions (#4380)
+
+### Fixes
+
+- Fix the versioning to support app release with Beta versions (#4368)
+- Linking ongoing trace to crash event (#4393)
+- Edge case for swizzleClassNameExclude (#4405): Skip creating transactions for UIViewControllers ignored for swizzling
+via the option `swizzleClassNameExclude`.
+
+## 8.37.0
+
+### Features
+
+- Added `thermal_state` to device context (#4305)
+- Send envelopes that cannot be cached to disk (#4294)
+
+### Refactoring
+
+- Moved session replay API to `SentrySDK.replay` (#4326)
+- Changed default session replay quality to `medium` (#4326)
+
+### Fixes
+
+- Resumes replay when the app becomes active (#4303)
+- Session replay redact view with transformation (#4308)
+- Correct redact UIView with higher zPosition (#4309)
+- Don't redact clipped views (#4325)
+- Session replay for crash not created because of a race condition (#4314)
+- Double-quoted include, expected angle-bracketed instead (#4298)
+- Discontinue use of NSApplicationSupportDirectory in favor of NSCachesDirectory (#4335)
+- Safe guard `strncpy` usage (#4336)
+- Stop using `redactAllText` as an indicator tha redact is enabled (#4327)
+
+### Improvements
+
+- Avoid extra work when storing invalid envelopes (#4337)
 
 ## 8.37.0-beta.1
 

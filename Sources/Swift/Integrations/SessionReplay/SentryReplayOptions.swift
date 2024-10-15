@@ -51,7 +51,7 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
      *
      * - note: The default is true
      */
-    public var redactAllText = true
+    public var maskAllText = true
     
     /**
      * Indicates whether session replay should redact all non-bundled image
@@ -59,7 +59,7 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
      *
      * - note: The default is true
      */
-    public var redactAllImages = true
+    public var maskAllImages = true
     
     /**
      * Indicates the quality of the replay.
@@ -73,7 +73,7 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
      * By default Sentry already mask text and image elements from UIKit
      * Every child of a view that is redacted will also be redacted.
      */
-    public var redactViewClasses = [AnyClass]()
+    public var maskedViewClasses = [AnyClass]()
     
     /**
      * A list of custom UIView subclasses to be ignored
@@ -81,7 +81,7 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
      * The views of given classes will not be redacted but their children may be.
      * This property has precedence over `redactViewTypes`.
      */
-    public var ignoreViewClasses = [AnyClass]()
+    public var unmaskedViewClasses = [AnyClass]()
     
     /**
      * Defines the quality of the session replay.
@@ -139,18 +139,18 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
      *  - errorSampleRate Indicates the percentage in which a 30 seconds replay will be send with
      * error events.
      */
-    public init(sessionSampleRate: Float = 0, onErrorSampleRate: Float = 0, redactAllText: Bool = true, redactAllImages: Bool = true) {
+    public init(sessionSampleRate: Float = 0, onErrorSampleRate: Float = 0, maskAllText: Bool = true, maskAllImages: Bool = true) {
         self.sessionSampleRate = sessionSampleRate
         self.onErrorSampleRate = onErrorSampleRate
-        self.redactAllText = redactAllText
-        self.redactAllImages = redactAllImages
+        self.maskAllText = maskAllText
+        self.maskAllImages = maskAllImages
     }
     
     convenience init(dictionary: [String: Any]) {
         let sessionSampleRate = (dictionary["sessionSampleRate"] as? NSNumber)?.floatValue ?? 0
         let onErrorSampleRate = (dictionary["errorSampleRate"] as? NSNumber)?.floatValue ?? 0
-        let redactAllText = (dictionary["redactAllText"] as? NSNumber)?.boolValue ?? true
-        let redactAllImages = (dictionary["redactAllImages"] as? NSNumber)?.boolValue ?? true
-        self.init(sessionSampleRate: sessionSampleRate, onErrorSampleRate: onErrorSampleRate, redactAllText: redactAllText, redactAllImages: redactAllImages)
+        let maskAllText = (dictionary["maskAllText"] as? NSNumber)?.boolValue ?? true
+        let maskAllImages = (dictionary["maskAllImages"] as? NSNumber)?.boolValue ?? true
+        self.init(sessionSampleRate: sessionSampleRate, onErrorSampleRate: onErrorSampleRate, maskAllText: maskAllText, maskAllImages: maskAllImages)
     }
 }

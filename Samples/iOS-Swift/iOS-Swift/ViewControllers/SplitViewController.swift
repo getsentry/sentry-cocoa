@@ -66,7 +66,6 @@ class SecondarySplitViewController: UIViewController {
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        SentrySDK.reportFullyDisplayed()
         
         if let topvc = TopViewControllerInspector.shared {
             topvc.bringToFront()

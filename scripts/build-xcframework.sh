@@ -2,7 +2,15 @@
 
 set -eou pipefail
 
-sdks=( iphoneos iphonesimulator macosx appletvos appletvsimulator watchos watchsimulator xros xrsimulator )
+args="${1:-}"
+
+if [ "$args" = "iOSOnly" ]; then
+    sdks=( iphoneos iphonesimulator )
+elif [ "$args" = "gameOnly" ]; then
+    sdks=( iphoneos iphonesimulator macosx )
+else
+    sdks=( iphoneos iphonesimulator macosx appletvos appletvsimulator watchos watchsimulator xros xrsimulator )
+fi
 
 rm -rf Carthage/
 mkdir Carthage
@@ -81,31 +89,33 @@ generate_xcframework() {
         OTHER_LDFLAGS="-Wl,-make_mergeable"
     fi
 
-    #Create framework for mac catalyst
-    xcodebuild \
-        -project Sentry.xcodeproj/ \
-        -scheme "$scheme" \
-        -configuration "$resolved_configuration" \
-        -sdk iphoneos \
-        -destination 'platform=macOS,variant=Mac Catalyst' \
-        -derivedDataPath ./Carthage/DerivedData \
-        CODE_SIGNING_REQUIRED=NO \
-        CODE_SIGN_IDENTITY= \
-        CARTHAGE=YES \
-        MACH_O_TYPE="$MACH_O_TYPE" \
-        SUPPORTS_MACCATALYST=YES \
-        ENABLE_CODE_COVERAGE=NO \
-        GCC_GENERATE_DEBUGGING_SYMBOLS="$GCC_GENERATE_DEBUGGING_SYMBOLS" \
-        OTHER_LDFLAGS="$OTHER_LDFLAGS"
+    if [ "$args" != "iOSOnly" ]; then
+        #Create framework for mac catalyst
+        xcodebuild \
+            -project Sentry.xcodeproj/ \
+            -scheme "$scheme" \
+            -configuration "$resolved_configuration" \
+            -sdk iphoneos \
+            -destination 'platform=macOS,variant=Mac Catalyst' \
+            -derivedDataPath ./Carthage/DerivedData \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY= \
+            CARTHAGE=YES \
+            MACH_O_TYPE="$MACH_O_TYPE" \
+            SUPPORTS_MACCATALYST=YES \
+            ENABLE_CODE_COVERAGE=NO \
+            GCC_GENERATE_DEBUGGING_SYMBOLS="$GCC_GENERATE_DEBUGGING_SYMBOLS" \
+            OTHER_LDFLAGS="$OTHER_LDFLAGS"
 
-    if [ "$MACH_O_TYPE" = "staticlib" ]; then
-        local infoPlist="Carthage/DerivedData/Build/Products/$resolved_configuration-maccatalyst/${scheme}.framework/Resources/Info.plist"
-        plutil -replace "MinimumOSVersion" -string "100.0" "$infoPlist"
-    fi
-    
-    createxcframework+="-framework Carthage/DerivedData/Build/Products/$resolved_configuration-maccatalyst/${resolved_product_name}.framework "
-    if [ -d "Carthage/DerivedData/Build/Products/$resolved_configuration-maccatalyst/${resolved_product_name}.framework.dSYM" ]; then
-        createxcframework+="-debug-symbols $(pwd -P)/Carthage/DerivedData/Build/Products/$resolved_configuration-maccatalyst/${resolved_product_name}.framework.dSYM "
+        if [ "$MACH_O_TYPE" = "staticlib" ]; then
+            local infoPlist="Carthage/DerivedData/Build/Products/$resolved_configuration-maccatalyst/${scheme}.framework/Resources/Info.plist"
+            plutil -replace "MinimumOSVersion" -string "100.0" "$infoPlist"
+        fi
+        
+        createxcframework+="-framework Carthage/DerivedData/Build/Products/$resolved_configuration-maccatalyst/${resolved_product_name}.framework "
+        if [ -d "Carthage/DerivedData/Build/Products/$resolved_configuration-maccatalyst/${resolved_product_name}.framework.dSYM" ]; then
+            createxcframework+="-debug-symbols $(pwd -P)/Carthage/DerivedData/Build/Products/$resolved_configuration-maccatalyst/${resolved_product_name}.framework.dSYM "
+        fi
     fi
     
     createxcframework+="-output Carthage/${scheme}${suffix}.xcframework"
@@ -114,8 +124,11 @@ generate_xcframework() {
 
 generate_xcframework "Sentry" "-Dynamic"
 
-generate_xcframework "Sentry" "" staticlib
-
-generate_xcframework "SentrySwiftUI"
-
-generate_xcframework "Sentry" "-WithoutUIKitOrAppKit" mh_dylib WithoutUIKit
+if [ "$args" != "iOSOnly" ]; then
+    generate_xcframework "Sentry" "" staticlib
+    
+    if [ "$args" != "gameOnly" ]; then
+        generate_xcframework "SentrySwiftUI"
+        generate_xcframework "Sentry" "-WithoutUIKitOrAppKit" mh_dylib WithoutUIKit
+    fi
+fi

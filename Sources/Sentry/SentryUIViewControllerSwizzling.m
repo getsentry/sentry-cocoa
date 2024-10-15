@@ -36,6 +36,7 @@
 
 @interface SentryUIViewControllerSwizzling ()
 
+@property (nonatomic, strong) SentryOptions *options;
 @property (nonatomic, strong) SentryInAppLogic *inAppLogic;
 @property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueue;
 @property (nonatomic, strong) id<SentryObjCRuntimeWrapper> objcRuntimeWrapper;
@@ -56,6 +57,7 @@
                binaryImageCache:(SentryBinaryImageCache *)binaryImageCache
 {
     if (self = [super init]) {
+        self.options = options;
         self.inAppLogic = [[SentryInAppLogic alloc] initWithInAppIncludes:options.inAppIncludes
                                                             inAppExcludes:options.inAppExcludes];
         self.dispatchQueue = dispatchQueue;
@@ -341,6 +343,15 @@
  */
 - (BOOL)shouldSwizzleViewController:(Class)class
 {
+    NSString *className = NSStringFromClass(class);
+
+    BOOL shouldExcludeClassFromSwizzling = [SentrySwizzleClassNameExclude
+        shouldExcludeClassWithClassName:className
+               swizzleClassNameExcludes:self.options.swizzleClassNameExcludes];
+    if (shouldExcludeClassFromSwizzling) {
+        return NO;
+    }
+
     return [self.inAppLogic isClassInApp:class];
 }
 

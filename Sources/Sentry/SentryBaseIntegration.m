@@ -78,22 +78,17 @@ NS_ASSUME_NONNULL_BEGIN
 #endif
 
     if (integrationOptions & kIntegrationOptionEnableAppHangTracking) {
+#if SENTRY_HAS_UIKIT
+        if (!options.enableAppHangTracking && !options.enableAppHangTrackingV2) {
+            [self logWithOptionName:@"enableAppHangTracking && enableAppHangTrackingV2"];
+            return NO;
+        }
+#else
         if (!options.enableAppHangTracking) {
             [self logWithOptionName:@"enableAppHangTracking"];
             return NO;
         }
-
-        if (options.appHangTimeoutInterval == 0) {
-            [self logWithReason:@"because appHangTimeoutInterval is 0"];
-            return NO;
-        }
-    }
-
-    if (integrationOptions & kIntegrationOptionEnableAppHangTrackingV2) {
-        if (!options.enableAppHangTrackingV2) {
-            [self logWithOptionName:@"enableAppHangTrackingV2"];
-            return NO;
-        }
+#endif // SENTRY_HAS_UIKIT
 
         if (options.appHangTimeoutInterval == 0) {
             [self logWithReason:@"because appHangTimeoutInterval is 0"];

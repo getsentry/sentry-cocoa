@@ -2,6 +2,7 @@
 #import "SentryDispatchQueueWrapper.h"
 #import "SentryLog.h"
 #import "SentryObjCRuntimeWrapper.h"
+#import "SentrySwift.h"
 #import <objc/runtime.h>
 #import <string.h>
 
@@ -61,13 +62,9 @@
         for (int i = 0; i < count; i++) {
             NSString *className = [NSString stringWithUTF8String:classes[i]];
 
-            BOOL shouldExcludeClassFromSwizzling = NO;
-            for (NSString *swizzleClassNameExclude in self.swizzleClassNameExcludes) {
-                if ([className containsString:swizzleClassNameExclude]) {
-                    shouldExcludeClassFromSwizzling = YES;
-                    break;
-                }
-            }
+            BOOL shouldExcludeClassFromSwizzling = [SentrySwizzleClassNameExclude
+                shouldExcludeClassWithClassName:className
+                       swizzleClassNameExcludes:self.swizzleClassNameExcludes];
 
             // It is vital to avoid calling NSClassFromString for the excluded classes because we
             // had crashes for specific classes when calling NSClassFromString, such as

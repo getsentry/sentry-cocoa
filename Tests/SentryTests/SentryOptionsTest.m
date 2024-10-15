@@ -916,10 +916,19 @@
     [self testBooleanField:@"enableAppHangTracking" defaultValue:YES];
 }
 
+#if SENTRY_UIKIT_AVAILABLE
+
 - (void)testEnableAppHangTrackingV2
 {
     [self testBooleanField:@"enableAppHangTrackingV2" defaultValue:NO];
 }
+
+- (void)testEnableReportNonFullyBlockingAppHangs
+{
+    [self testBooleanField:@"enableReportNonFullyBlockingAppHangs" defaultValue:YES];
+}
+
+#endif // SENTRY_UIKIT_AVAILABLE
 
 - (void)testDefaultAppHangsTimeout
 {
@@ -1493,42 +1502,6 @@
 
     SentryOptions *options3 = [self getValidOptions:@{ @"spotlightUrl" : @2 }];
     XCTAssertEqualObjects(options3.spotlightUrl, @"http://localhost:8969/stream");
-}
-
-- (void)testEnableMetrics
-{
-    [self testBooleanField:@"enableMetrics" defaultValue:NO];
-}
-
-- (void)testEnableDefaultTagsForMetrics
-{
-    [self testBooleanField:@"enableDefaultTagsForMetrics" defaultValue:YES];
-}
-
-- (void)testEnableSpanLocalMetricAggregation
-{
-    [self testBooleanField:@"enableSpanLocalMetricAggregation" defaultValue:YES];
-}
-
-- (void)testBeforeEmitMetric
-{
-    SentryBeforeEmitMetricCallback callback
-        = ^(NSString *_Nonnull key, NSDictionary<NSString *, NSString *> *_Nonnull tags) {
-              // Use tags and key to silence unused compiler error
-              XCTAssertNotNil(key);
-              XCTAssertNotNil(tags);
-              return YES;
-          };
-    SentryOptions *options = [self getValidOptions:@{ @"beforeEmitMetric" : callback }];
-
-    XCTAssertEqual(callback, options.beforeEmitMetric);
-}
-
-- (void)testDefaultBeforeEmitMetric
-{
-    SentryOptions *options = [self getValidOptions:@{}];
-
-    XCTAssertNil(options.beforeEmitMetric);
 }
 
 #pragma mark - Private

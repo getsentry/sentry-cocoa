@@ -118,14 +118,16 @@ struct ContentView: View {
         return SentryTracedView("Content View Body") {
             NavigationView {
                 VStack(alignment: HorizontalAlignment.center, spacing: 16) {
-                    Text(getCurrentTracer()?.transactionContext.name ?? "NO SPAN")
-                        .accessibilityIdentifier("TRANSACTION_NAME")
-                    Text(getCurrentTracer()?.transactionContext.spanId.sentrySpanIdString ?? "NO ID")
-                        .accessibilityIdentifier("TRANSACTION_ID")
-                    
-                    Text(getCurrentTracer()?.transactionContext.origin ?? "NO ORIGIN")
-                        .accessibilityIdentifier("TRACE_ORIGIN")
-                    
+                    Group {
+                        Text(getCurrentTracer()?.transactionContext.name ?? "NO SPAN")
+                            .accessibilityIdentifier("TRANSACTION_NAME")
+                        Text(getCurrentTracer()?.transactionContext.spanId.sentrySpanIdString ?? "NO ID")
+                            .accessibilityIdentifier("TRANSACTION_ID")
+                            .sentryReplayMask()
+                        
+                        Text(getCurrentTracer()?.transactionContext.origin ?? "NO ORIGIN")
+                            .accessibilityIdentifier("TRACE_ORIGIN")
+                    }.sentryReplayUnmask()
                     SentryTracedView("Child Span") {
                         VStack {
                             Text(getCurrentSpan()?.spanDescription ?? "NO SPAN")
@@ -199,7 +201,7 @@ struct ContentView: View {
                                 Text("Form Screen")
                             }
                         }
-                        .sentryReplayRedact()
+                        .background(Color.white)
                     }
                     SecondView()
                 }

@@ -1,5 +1,4 @@
 #import "SentryThreadInspector.h"
-#import "SentryBinaryImageCache.h"
 #import "SentryCrashDefaultMachineContextWrapper.h"
 #import "SentryCrashStackCursor.h"
 #include "SentryCrashStackCursor_MachineContext.h"

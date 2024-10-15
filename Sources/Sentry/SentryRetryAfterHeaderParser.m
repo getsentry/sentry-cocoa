@@ -8,14 +8,14 @@ NS_ASSUME_NONNULL_BEGIN
 @interface SentryRetryAfterHeaderParser ()
 
 @property (nonatomic, strong) SentryHttpDateParser *httpDateParser;
-@property (nonatomic, strong) SentryCurrentDateProvider *currentDateProvider;
+@property (nonatomic, strong) id<SentryCurrentDateProvider> currentDateProvider;
 
 @end
 
 @implementation SentryRetryAfterHeaderParser
 
 - (instancetype)initWithHttpDateParser:(SentryHttpDateParser *)httpDateParser
-                   currentDateProvider:(SentryCurrentDateProvider *)currentDateProvider
+                   currentDateProvider:(id<SentryCurrentDateProvider>)currentDateProvider
 {
     if (self = [super init]) {
         self.httpDateParser = httpDateParser;

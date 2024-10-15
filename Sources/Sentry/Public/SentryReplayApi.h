@@ -15,19 +15,18 @@ NS_ASSUME_NONNULL_BEGIN
 @interface SentryReplayApi : NSObject
 
 /**
- * Marks this view to be redacted during replays.
+ * Marks this view to be masked during replays.
  *
  * @warning This is an experimental feature and may still have bugs.
  */
-- (void)redactView:(UIView *)view NS_SWIFT_NAME(redactView(_:));
+- (void)maskView:(UIView *)view NS_SWIFT_NAME(maskView(_:));
 
 /**
- * Marks this view to be ignored during redact step of session replay.
- * All its content will be visible in the replay.
+ * Marks this view to not be masked during redact step of session replay.
  *
  * @warning This is an experimental feature and may still have bugs.
  */
-- (void)ignoreView:(UIView *)view NS_SWIFT_NAME(ignoreView(_:));
+- (void)unmaskView:(UIView *)view NS_SWIFT_NAME(unmaskView(_:));
 
 /**
  * Pauses the replay.
@@ -42,6 +41,20 @@ NS_ASSUME_NONNULL_BEGIN
  * @warning This is an experimental feature and may still have bugs.
  */
 - (void)resume;
+
+/**
+ * Start recording a session replay if not started.
+ *
+ * @warning This is an experimental feature and may still have bugs.
+ */
+- (void)start;
+
+/**
+ * Stop the current session replay recording.
+ *
+ * @warning This is an experimental feature and may still have bugs.
+ */
+- (void)stop;
 
 @end
 
