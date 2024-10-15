@@ -165,9 +165,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             }
             
             options.configureUserFeedback = { config in
+                let layoutOffset = UIOffset(horizontal: 25, vertical: 75)
                 guard !args.contains("--io.sentry.iOS-Swift.user-feedback.all-defaults") else {
                     config.configureWidget = { widget in   
-                        widget.layoutUIOffset = .init(horizontal: 12, vertical: 50)
+                        widget.layoutUIOffset = layoutOffset
                     }
                     return
                 }
@@ -177,12 +178,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                     if args.contains("--io.sentry.iOS-Swift.auto-inject-user-feedback-widget") {
                         widget.labelText = "Report Jank"
                         widget.widgetAccessibilityLabel = "io.sentry.iOS-Swift.button.report-jank"
-                        widget.layoutUIOffset = .init(horizontal: 12, vertical: 50)
+                        widget.layoutUIOffset = layoutOffset
                     } else {
                         widget.autoInject = false
                     }
-                    if args.contains("--io.sentry.iOS-Swift.user-feedback.icon-only-widget") {
+                    if args.contains("--io.sentry.iOS-Swift.user-feedback.no-widget-text") {
                         widget.labelText = nil
+                    }
+                    if args.contains("--io.sentry.iOS-Swift.user-feedback.no-widget-icon") {
+                        widget.showIcon = false
                     }
                 }
                 config.configureForm = { uiForm in
@@ -192,7 +196,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                     uiForm.messagePlaceholder = "Describe the nature of the jank. Its essence, if you will."
                 }
                 config.configureTheme = { theme in
-                    theme.font = UIFont(name: "HelveticaNeue", size: 16)
+                    let fontSize: CGFloat = 40
+                    theme.font = UIFont(name: "HelveticaNeue", size: fontSize) ?? UIFont.systemFont(ofSize: fontSize)
                     theme.outlineColor = .purple
                     theme.foreground = .purple
                     theme.background = .purple.withAlphaComponent(0.1)

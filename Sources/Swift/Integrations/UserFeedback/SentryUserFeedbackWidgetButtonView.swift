@@ -85,11 +85,7 @@ class SentryUserFeedbackWidgetButtonView: UIView {
             configureLightTheme()
         }
         
-        var font = UIFont.systemFont(ofSize: UIFont.systemFontSize)
-        if let fontOverride = config.theme.font {
-            font = fontOverride
-        }
-        label.font = font
+        label.font = config.theme.font
         
         return label
     }

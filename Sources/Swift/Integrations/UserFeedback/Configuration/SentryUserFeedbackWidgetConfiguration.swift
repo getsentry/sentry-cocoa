@@ -28,8 +28,14 @@ import UIKit
     public var labelText: String? = "Report a Bug"
     
     /**
+     * Whether or not to show our icon along with the text in the button.
+     * - note: Default: `true`.
+     */
+    public var showIcon: Bool = true
+    
+    /**
      * The accessibility label of the injected button that opens up the feedback form when clicked.
-     * - note: Default: `triggerLabel` value
+     * - note: Default: `labelText` value
      */
     public var widgetAccessibilityLabel: String?
     

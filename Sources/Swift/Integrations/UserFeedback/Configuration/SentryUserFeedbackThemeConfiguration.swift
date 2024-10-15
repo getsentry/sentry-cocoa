@@ -11,7 +11,7 @@ import UIKit
      * The default font to use.
      * - note: Defaults to the current system default.
      */
-    public var font: UIFont?
+    public var font: UIFont = UIFont.systemFont(ofSize: UIFont.systemFontSize)
     
     /**
      * Foreground text color of the widget and form.
