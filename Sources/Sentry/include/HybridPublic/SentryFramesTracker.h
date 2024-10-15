@@ -6,11 +6,11 @@
 
 #if SENTRY_HAS_UIKIT
 
-#if __has_include(<Sentry/SentryProfilingConditionals.h>)
-#    import <Sentry/SentryProfilingConditionals.h>
-#else
-#    import "SentryProfilingConditionals.h"
-#endif
+#    if __has_include(<Sentry/SentryProfilingConditionals.h>)
+#        import <Sentry/SentryProfilingConditionals.h>
+#    else
+#        import "SentryProfilingConditionals.h"
+#    endif
 
 @class SentryDisplayLinkWrapper;
 @class SentryCurrentDateProvider;
