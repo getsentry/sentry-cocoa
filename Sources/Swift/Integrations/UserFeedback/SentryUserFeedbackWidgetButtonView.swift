@@ -250,3 +250,16 @@ class SentryUserFeedbackWidgetButtonView: UIView {
     }()
     //swiftlint:enable function_body_length
 }
+
+extension UIFont {
+    var weight: UIFont.Weight {
+        guard let weightNumber = traits[.weight] as? Double else { return .regular }
+        let weight = UIFont.Weight(rawValue: weightNumber)
+        return weight
+    }
+
+    private var traits: [UIFontDescriptor.TraitKey: Any] {
+        return fontDescriptor.object(forKey: .traits) as? [UIFontDescriptor.TraitKey: Any]
+            ?? [:]
+    }
+}
