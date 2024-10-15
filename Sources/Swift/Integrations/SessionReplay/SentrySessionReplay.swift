@@ -225,7 +225,7 @@ class SentrySessionReplay: NSObject {
         //Creating a video is heavy and blocks the thread
         //Since this function is always called in the main thread
         //we dispatch it to a background thread.
-        dispatchQueue.queue.async(qos: .utility) {
+        dispatchQueue.dispatchAsync {
             do {
                 let videos = try self.replayMaker.createVideoWith(beginning: startedAt, end: self.dateProvider.date())
                 for video in videos {
