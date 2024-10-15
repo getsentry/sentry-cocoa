@@ -44,10 +44,10 @@ struct ContentView: View {
                 }
 
                 let envelopePath = "\(cachePath)/io.sentry/\(dsnHash)/envelopes/corrupted-envelope.json"
-                let corruptedEnvelopeData = """
-                       {"event_id":"1990b5bc31904b7395fd07feb72daf1c","sdk":{"name":"sentry.cocoa","version":"8.33.0"}}
-                       {"type":"test","length":50}
-                       """.data(using: .utf8)!
+                let corruptedEnvelopeData = Data("""
+                   {"event_id":"1990b5bc31904b7395fd07feb72daf1c","sdk":{"name":"sentry.cocoa","version":"8.33.0"}}
+                   {"type":"test","length":50}
+                   """.utf8)
 
                 do {
                     try corruptedEnvelopeData.write(to: URL(fileURLWithPath: envelopePath))
