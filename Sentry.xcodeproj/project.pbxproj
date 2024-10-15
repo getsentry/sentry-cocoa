@@ -83,11 +83,6 @@
 		621D9F2F2B9B0320003D94DE /* SentryCurrentDateProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 621D9F2E2B9B0320003D94DE /* SentryCurrentDateProvider.swift */; };
 		621F61F12BEA073A005E654F /* SentryEnabledFeaturesBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 621F61F02BEA073A005E654F /* SentryEnabledFeaturesBuilder.swift */; };
 		6221BBCA2CAA932100C627CA /* SentryANRType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6221BBC92CAA932100C627CA /* SentryANRType.swift */; };
-		62262B862BA1C46D004DA3DD /* SentryStatsdClient.h in Headers */ = {isa = PBXBuildFile; fileRef = 62262B852BA1C46D004DA3DD /* SentryStatsdClient.h */; };
-		62262B882BA1C490004DA3DD /* SentryStatsdClient.m in Sources */ = {isa = PBXBuildFile; fileRef = 62262B872BA1C490004DA3DD /* SentryStatsdClient.m */; };
-		62262B8B2BA1C4C1004DA3DD /* EncodeMetrics.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62262B8A2BA1C4C1004DA3DD /* EncodeMetrics.swift */; };
-		62262B8D2BA1C4DB004DA3DD /* Metric.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62262B8C2BA1C4DB004DA3DD /* Metric.swift */; };
-		62262B912BA1C520004DA3DD /* CounterMetric.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62262B902BA1C520004DA3DD /* CounterMetric.swift */; };
 		6229416A2BB2F123004765D1 /* SentryNSDataUtilsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 622941692BB2F123004765D1 /* SentryNSDataUtilsTests.swift */; };
 		622C08D829E546F4002571D4 /* SentryTraceOrigins.h in Headers */ = {isa = PBXBuildFile; fileRef = 622C08D729E546F4002571D4 /* SentryTraceOrigins.h */; };
 		622C08DB29E554B9002571D4 /* SentrySpanContext+Private.h in Headers */ = {isa = PBXBuildFile; fileRef = 622C08D929E554B9002571D4 /* SentrySpanContext+Private.h */; };
@@ -1077,12 +1072,6 @@
 		621D9F2E2B9B0320003D94DE /* SentryCurrentDateProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryCurrentDateProvider.swift; sourceTree = "<group>"; };
 		621F61F02BEA073A005E654F /* SentryEnabledFeaturesBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryEnabledFeaturesBuilder.swift; sourceTree = "<group>"; };
 		6221BBC92CAA932100C627CA /* SentryANRType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryANRType.swift; sourceTree = "<group>"; };
-		62262B852BA1C46D004DA3DD /* SentryStatsdClient.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SentryStatsdClient.h; path = include/SentryStatsdClient.h; sourceTree = "<group>"; };
-		62262B872BA1C490004DA3DD /* SentryStatsdClient.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentryStatsdClient.m; sourceTree = "<group>"; };
-		62262B8A2BA1C4C1004DA3DD /* EncodeMetrics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EncodeMetrics.swift; sourceTree = "<group>"; };
-		62262B8C2BA1C4DB004DA3DD /* Metric.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Metric.swift; sourceTree = "<group>"; };
-		62262B902BA1C520004DA3DD /* CounterMetric.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CounterMetric.swift; sourceTree = "<group>"; };
-		62262B952BA1C564004DA3DD /* EncodeMetricTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EncodeMetricTests.swift; sourceTree = "<group>"; };
 		622941692BB2F123004765D1 /* SentryNSDataUtilsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryNSDataUtilsTests.swift; sourceTree = "<group>"; };
 		622C08D729E546F4002571D4 /* SentryTraceOrigins.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SentryTraceOrigins.h; path = include/SentryTraceOrigins.h; sourceTree = "<group>"; };
 		622C08D929E554B9002571D4 /* SentrySpanContext+Private.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "SentrySpanContext+Private.h"; path = "include/SentrySpanContext+Private.h"; sourceTree = "<group>"; };

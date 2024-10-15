@@ -42,6 +42,20 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)resume;
 
+/**
+ * Start recording a session replay if not started.
+ *
+ * @warning This is an experimental feature and may still have bugs.
+ */
+- (void)start;
+
+/**
+ * Stop the current session replay recording.
+ *
+ * @warning This is an experimental feature and may still have bugs.
+ */
+- (void)stop;
+
 @end
 
 NS_ASSUME_NONNULL_END
