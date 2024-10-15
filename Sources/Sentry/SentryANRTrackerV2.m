@@ -72,7 +72,8 @@ typedef NS_ENUM(NSInteger, SentryANRTrackerState) {
         state = kSentryANRTrackerRunning;
     }
 
-    SentryCurrentDateProvider *dateProvider = SentryDependencyContainer.sharedInstance.dateProvider;
+    id<SentryCurrentDateProvider> dateProvider
+        = SentryDependencyContainer.sharedInstance.dateProvider;
 
     BOOL reported = NO;
 

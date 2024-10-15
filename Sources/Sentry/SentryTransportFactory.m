@@ -25,7 +25,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (NSArray<id<SentryTransport>> *)initTransports:(SentryOptions *)options
                                sentryFileManager:(SentryFileManager *)sentryFileManager
-                             currentDateProvider:(SentryCurrentDateProvider *)currentDateProvider
+                             currentDateProvider:(id<SentryCurrentDateProvider>)currentDateProvider
 {
     NSURLSession *session;
 
