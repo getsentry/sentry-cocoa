@@ -8,11 +8,25 @@ import XCTest
 class SentryDebugImageProviderTests: XCTestCase {
     
     private class Fixture {
+        
+        let cache: SentryBinaryImageCache
+        
+        init() {
+            cache = SentryBinaryImageCache()
+        }
+        
         func getSut(images: [SentryCrashBinaryImage] = []) -> SentryDebugImageProvider {
             let imageProvider = TestSentryCrashBinaryImageProvider()
             imageProvider.imageCount = images.count
             imageProvider.binaryImage = images
-            return SentryDebugImageProvider(binaryImageProvider: imageProvider)
+            
+            cache.start()
+            for image in images {
+                var i = image
+                cache.binaryImageAdded(&i)
+            }
+            
+            return SentryDebugImageProvider(binaryImageProvider: imageProvider, binaryImageCache: cache)
         }
         
         func getTestImages() -> [SentryCrashBinaryImage] {
@@ -54,6 +68,11 @@ class SentryDebugImageProviderTests: XCTestCase {
     }
     
     private let fixture = Fixture()
+    
+    override func tearDown() {
+        fixture.cache.stop()
+        super.tearDown()
+    }
     
     func testThreeImages() throws {
         let sut = fixture.getSut(images: fixture.getTestImages())
@@ -153,6 +172,103 @@ class SentryDebugImageProviderTests: XCTestCase {
         let sut = fixture.getSut(images: fixture.getTestImages())
         let thread = SentryThread(threadId: NSNumber(value: 1))
         let actual = sut.getDebugImages(for: [thread], isCrash: false)
+        
+        XCTAssertEqual(actual.count, 0)
+    }
+    
+    func testGetDebugImagesFromCacheForThreads() throws {
+        let sut = fixture.getSut(images: fixture.getTestImages())
+        
+        let frame1 = Sentry.Frame()
+        frame1.imageAddress = "0x0000000105705000"
+        
+        let frame2 = Sentry.Frame()
+        frame2.imageAddress = "0x00000001410b1a00"
+        
+        let thread1 = SentryThread(threadId: NSNumber(value: 1))
+        thread1.stacktrace = SentryStacktrace(frames: [frame1, frame2], registers: [:])
+        
+        let thread2 = SentryThread(threadId: NSNumber(value: 2))
+        thread2.stacktrace = SentryStacktrace(frames: [frame2], registers: [:])
+        
+        let actual = sut.getDebugImagesFromCacheForThreads(threads: [thread1, thread2])
+        
+        XCTAssertEqual(actual.count, 2)
+        let image1 = try XCTUnwrap(actual.first)
+        
+        XCTAssertEqual(image1.debugID, "84BAEBDA-AD1A-33F4-B35D-8A45F5DAF322")
+        XCTAssertEqual(image1.type, SentryDebugImageType)
+        XCTAssertEqual(image1.imageVmAddress, "0x0000daf262294000")
+        XCTAssertEqual(image1.imageAddress, "0x00000001410b1a00")
+        XCTAssertEqual(image1.imageSize, 1_352_256)
+        XCTAssertEqual(image1.codeFile, "UIKit")
+        
+        let image2 = try XCTUnwrap(actual.last)
+        
+        XCTAssertEqual(image2.debugID, "84BAEBDA-AD1A-33F4-B35D-8A45F5DAF322")
+        XCTAssertEqual(image2.type, SentryDebugImageType)
+        XCTAssertEqual(image2.imageVmAddress, "0x00007fff51af0000")
+        XCTAssertEqual(image2.imageAddress, "0x0000000105705000")
+        XCTAssertEqual(image2.imageSize, 352_256)
+        XCTAssertEqual(image2.codeFile, "dyld_sim")
+    }
+    
+    func testGetDebugImagesFromCacheForFrames() throws {
+        let sut = fixture.getSut(images: fixture.getTestImages())
+        
+        let frame1 = Sentry.Frame()
+        frame1.imageAddress = "0x0000000105705000"
+        
+        let frame2 = Sentry.Frame()
+        frame2.imageAddress = "0x00000001410b1a00"
+        
+        let actual = sut.getDebugImagesFromCacheForFrames(frames: [frame1, frame2])
+        
+        XCTAssertEqual(actual.count, 2)
+        let image1 = try XCTUnwrap(actual.first)
+        
+        XCTAssertEqual(image1.debugID, "84BAEBDA-AD1A-33F4-B35D-8A45F5DAF322")
+        XCTAssertEqual(image1.type, SentryDebugImageType)
+        XCTAssertEqual(image1.imageVmAddress, "0x0000daf262294000")
+        XCTAssertEqual(image1.imageAddress, "0x00000001410b1a00")
+        XCTAssertEqual(image1.imageSize, 1_352_256)
+        XCTAssertEqual(image1.codeFile, "UIKit")
+        
+        let image2 = try XCTUnwrap(actual.last)
+        
+        XCTAssertEqual(image2.debugID, "84BAEBDA-AD1A-33F4-B35D-8A45F5DAF322")
+        XCTAssertEqual(image2.type, SentryDebugImageType)
+        XCTAssertEqual(image2.imageVmAddress, "0x00007fff51af0000")
+        XCTAssertEqual(image2.imageAddress, "0x0000000105705000")
+        XCTAssertEqual(image2.imageSize, 352_256)
+        XCTAssertEqual(image2.codeFile, "dyld_sim")
+    }
+    
+    func testGetDebugImagesFromCacheForFrames_GarbageImageAddress() throws {
+        let sut = fixture.getSut(images: fixture.getTestImages())
+        
+        let frame1 = Sentry.Frame()
+        frame1.imageAddress = "0x0000000105705000"
+        
+        let frame2 = Sentry.Frame()
+        frame2.imageAddress = "garbage"
+        
+        let actual = sut.getDebugImagesFromCacheForFrames(frames: [frame1, frame2])
+        
+        XCTAssertEqual(actual.count, 1)
+        let image = try XCTUnwrap(actual.first)
+        XCTAssertEqual(image.debugID, "84BAEBDA-AD1A-33F4-B35D-8A45F5DAF322")
+        XCTAssertEqual(image.type, SentryDebugImageType)
+        XCTAssertEqual(image.imageVmAddress, "0x00007fff51af0000")
+        XCTAssertEqual(image.imageAddress, "0x0000000105705000")
+        XCTAssertEqual(image.imageSize, 352_256)
+        XCTAssertEqual(image.codeFile, "dyld_sim")
+    }
+    
+    func testGetDebugImagesFromCacheForThreads_EmptyArray() throws {
+        let sut = fixture.getSut(images: fixture.getTestImages())
+        
+        let actual = sut.getDebugImagesFromCacheForThreads(threads: [])
         
         XCTAssertEqual(actual.count, 0)
     }

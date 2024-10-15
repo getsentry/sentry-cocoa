@@ -24,7 +24,7 @@ typedef IMP (^SentrySwizzleImpProvider)(void);
         return NULL;
     }
 
-#if defined(TEST) || defined(TESTCI) || defined(DEBUG)
+#if defined(TEST) || defined(TESTCI)
     @synchronized(self) {
         self.originalCalled = YES;
     }

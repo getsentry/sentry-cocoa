@@ -22,6 +22,9 @@ enum RedactRegionType {
     /// Pop the last Pushed region from the drawing context.
     /// Used after prossing every child of a view that clip to its bounds.
     case clipEnd
+    
+    /// These regions are redacted first, there is no way to avoid it.
+    case redactSwiftUI
 }
 
 struct RedactRegion {
@@ -35,6 +38,10 @@ struct RedactRegion {
         self.transform = transform
         self.type = type
         self.color = color
+    }
+    
+    func canReplace(as other: RedactRegion) -> Bool {
+        size == other.size && transform == other.transform && type == other.type
     }
 }
 
@@ -155,7 +162,19 @@ class UIRedactBuilder {
                              rootFrame: view.frame,
                              transform: CGAffineTransform.identity)
         
-        return redactingRegions.reversed()
+        var swiftUIRedact = [RedactRegion]()
+        var otherRegions = [RedactRegion]()
+        
+        for region in redactingRegions {
+            if region.type == .redactSwiftUI {
+                swiftUIRedact.append(region)
+            } else {
+                otherRegions.append(region)
+            }
+        }
+        
+        //The swiftUI type needs to appear first in the list so it always get masked
+        return (otherRegions + swiftUIRedact).reversed()
     }
     
     private func shouldIgnore(view: UIView) -> Bool {
@@ -187,11 +206,12 @@ class UIRedactBuilder {
         let newTransform = concatenateTranform(transform, with: layer)
         
         let ignore = !forceRedact && shouldIgnore(view: view)
-        let redact = forceRedact || shouldRedact(view: view)
+        let swiftUI = SentryRedactViewHelper.shouldRedactSwiftUI(view)
+        let redact = forceRedact || shouldRedact(view: view) || swiftUI
         var enforceRedact = forceRedact
         
         if !ignore && redact {
-            redacting.append(RedactRegion(size: layer.bounds.size, transform: newTransform, type: .redact, color: self.color(for: view)))
+            redacting.append(RedactRegion(size: layer.bounds.size, transform: newTransform, type: swiftUI ? .redactSwiftUI : .redact, color: self.color(for: view)))
 
             guard !view.clipsToBounds else { return }
             enforceRedact = true
@@ -248,14 +268,22 @@ class UIRedactBuilder {
      Indicates whether the view is opaque and will block other view behind it
      */
     private func isOpaque(_ view: UIView) -> Bool {
-        return  view.alpha == 1 && view.backgroundColor != nil && (view.backgroundColor?.cgColor.alpha ?? 0) == 1
+        return SentryRedactViewHelper.shouldClipOut(view) || (view.alpha == 1 && view.backgroundColor != nil && (view.backgroundColor?.cgColor.alpha ?? 0) == 1)
     }
 }
 
 @objcMembers
-class SentryRedactViewHelper: NSObject {
+public class SentryRedactViewHelper: NSObject {
     private static var associatedRedactObjectHandle: UInt8 = 0
     private static var associatedIgnoreObjectHandle: UInt8 = 0
+    private static var associatedClipOutObjectHandle: UInt8 = 0
+    private static var associatedSwiftUIRedactObjectHandle: UInt8 = 0
+    
+    override private init() {}
+    
+    static func maskView(_ view: UIView) {
+        objc_setAssociatedObject(view, &associatedRedactObjectHandle, true, .OBJC_ASSOCIATION_ASSIGN)
+    }
     
     static func shouldMaskView(_ view: UIView) -> Bool {
         (objc_getAssociatedObject(view, &associatedRedactObjectHandle) as? NSNumber)?.boolValue ?? false
@@ -265,12 +293,24 @@ class SentryRedactViewHelper: NSObject {
         (objc_getAssociatedObject(view, &associatedIgnoreObjectHandle) as? NSNumber)?.boolValue ?? false
     }
     
-    static func maskView(_ view: UIView) {
-        objc_setAssociatedObject(view, &associatedRedactObjectHandle, true, .OBJC_ASSOCIATION_ASSIGN)
-    }
-    
     static func unmaskView(_ view: UIView) {
         objc_setAssociatedObject(view, &associatedIgnoreObjectHandle, true, .OBJC_ASSOCIATION_ASSIGN)
+    }
+    
+    static func shouldClipOut(_ view: UIView) -> Bool {
+        (objc_getAssociatedObject(view, &associatedClipOutObjectHandle) as? NSNumber)?.boolValue ?? false
+    }
+    
+    static public func clipOutView(_ view: UIView) {
+        objc_setAssociatedObject(view, &associatedClipOutObjectHandle, true, .OBJC_ASSOCIATION_ASSIGN)
+    }
+    
+    static func shouldRedactSwiftUI(_ view: UIView) -> Bool {
+        (objc_getAssociatedObject(view, &associatedSwiftUIRedactObjectHandle) as? NSNumber)?.boolValue ?? false
+    }
+    
+    static public func maskSwiftUI(_ view: UIView) {
+        objc_setAssociatedObject(view, &associatedSwiftUIRedactObjectHandle, true, .OBJC_ASSOCIATION_ASSIGN)
     }
 }
 

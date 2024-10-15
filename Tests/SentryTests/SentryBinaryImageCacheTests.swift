@@ -17,18 +17,22 @@ class SentryBinaryImageCacheTests: XCTestCase {
     }
 
     func testBinaryImageAdded() {
-        var binaryImage0 = createCrashBinaryImage(0)
-        var binaryImage1 = createCrashBinaryImage(100)
-        var binaryImage2 = createCrashBinaryImage(200)
-        var binaryImage3 = createCrashBinaryImage(400)
+        var binaryImage0 = createCrashBinaryImage(0, vmAddress: 0)
+        var binaryImage1 = createCrashBinaryImage(100, vmAddress: 100)
+        var binaryImage2 = createCrashBinaryImage(200, vmAddress: 200)
+        var binaryImage3 = createCrashBinaryImage(400, vmAddress: 400)
         sut.binaryImageAdded(&binaryImage1)
 
         XCTAssertEqual(sut.cache.count, 1)
         XCTAssertEqual(sut.cache.first?.name, "Expected Name at 100")
+        XCTAssertEqual(sut.cache.first?.uuid, "84BAEBDA-AD1A-33F4-B35D-8A45F5DAF322")
+        XCTAssertEqual(sut.cache.first?.vmAddress, 100)
 
         sut.binaryImageAdded(&binaryImage3)
         XCTAssertEqual(sut.cache.count, 2)
         XCTAssertEqual(sut.cache.last?.name, "Expected Name at 400")
+        XCTAssertEqual(sut.cache.last?.uuid, "84BAEBDA-AD1A-33F4-B35D-8A45F5DAF322")
+        XCTAssertEqual(sut.cache.last?.vmAddress, 400)
 
         sut.binaryImageAdded(&binaryImage2)
         XCTAssertEqual(sut.cache.count, 3)
@@ -201,16 +205,21 @@ class SentryBinaryImageCacheTests: XCTestCase {
         waitForExpectations(timeout: 1)
     }
 
-    func createCrashBinaryImage(_ address: UInt) -> SentryCrashBinaryImage {
+    func createCrashBinaryImage(_ address: UInt, vmAddress: UInt64 = 0) -> SentryCrashBinaryImage {
         let name = "Expected Name at \(address)"
         let nameCString = name.withCString { strdup($0) }
+        
+        var uuidPointer = UnsafeMutablePointer<UInt8>(nil)
+        let uuidAsCharArray: [UInt8] = [132, 186, 235, 218, 173, 26, 51, 244, 179, 93, 138, 69, 245, 218, 243, 34]
+        uuidPointer = UnsafeMutablePointer<UInt8>.allocate(capacity: uuidAsCharArray.count)
+        uuidPointer?.initialize(from: uuidAsCharArray, count: uuidAsCharArray.count)
 
         let binaryImage = SentryCrashBinaryImage(
             address: UInt64(address),
-            vmAddress: 0,
+            vmAddress: vmAddress,
             size: 100,
             name: nameCString,
-            uuid: nil,
+            uuid: uuidPointer,
             cpuType: 1,
             cpuSubType: 1,
             majorVersion: 1,

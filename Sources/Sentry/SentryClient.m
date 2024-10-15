@@ -5,7 +5,7 @@
 #import "SentryCrashDefaultMachineContextWrapper.h"
 #import "SentryCrashIntegration.h"
 #import "SentryCrashStackEntryMapper.h"
-#import "SentryDebugImageProvider.h"
+#import "SentryDebugImageProvider+HybridSDKs.h"
 #import "SentryDependencyContainer.h"
 #import "SentryDispatchQueueWrapper.h"
 #import "SentryDsn.h"
@@ -128,6 +128,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                      fileManager:fileManager
           deleteOldEnvelopeItems:deleteOldEnvelopeItems
                  threadInspector:threadInspector
+              debugImageProvider:[SentryDependencyContainer sharedInstance].debugImageProvider
                           random:[SentryDependencyContainer sharedInstance].random
                           locale:[NSLocale autoupdatingCurrentLocale]
                         timezone:[NSCalendar autoupdatingCurrentCalendar].timeZone];
@@ -138,6 +139,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                     fileManager:(SentryFileManager *)fileManager
          deleteOldEnvelopeItems:(BOOL)deleteOldEnvelopeItems
                 threadInspector:(SentryThreadInspector *)threadInspector
+             debugImageProvider:(SentryDebugImageProvider *)debugImageProvider
                          random:(id<SentryRandom>)random
                          locale:(NSLocale *)locale
                        timezone:(NSTimeZone *)timezone
@@ -149,7 +151,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         self.fileManager = fileManager;
         self.threadInspector = threadInspector;
         self.random = random;
-        self.debugImageProvider = [SentryDependencyContainer sharedInstance].debugImageProvider;
+        self.debugImageProvider = debugImageProvider;
         self.locale = locale;
         self.timezone = timezone;
         self.attachmentProcessors = [[NSMutableArray alloc] init];
@@ -688,8 +690,8 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         BOOL debugMetaNotAttached = !(nil != event.debugMeta && event.debugMeta.count > 0);
         if (!isCrashEvent && shouldAttachStacktrace && debugMetaNotAttached
             && event.threads != nil) {
-            event.debugMeta = [self.debugImageProvider getDebugImagesForThreads:event.threads
-                                                                        isCrash:NO];
+            event.debugMeta =
+                [self.debugImageProvider getDebugImagesFromCacheForThreads:event.threads];
         }
     }
 

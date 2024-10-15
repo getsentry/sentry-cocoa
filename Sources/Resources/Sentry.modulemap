@@ -10,6 +10,7 @@ framework module Sentry {
         header "SentryAppStartMeasurement.h"
         header "SentryBinaryImageCache.h"
         header "SentryBreadcrumb+Private.h"
+        header "SentryDebugImageProvider+HybridSDKs.h"
         header "SentryDependencyContainer.h"
 //        header "SentryEnvelope.h"
         header "SentryEnvelopeItemType.h"
