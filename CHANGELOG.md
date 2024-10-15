@@ -25,6 +25,7 @@ via the option `swizzleClassNameExclude`.
 - Serializing profile on a BG Thread (#4377) to avoid potentially slightly blocking the main thread.
 - Session Replay performance for SwiftUI (#4419)
 - Speed up getBinaryImages (#4435) for finishing transactions and capturing events
+- Expose `HybridSDK` from `Sentry` framework (#4440)
 
 ## 8.38.0-beta.1
 
