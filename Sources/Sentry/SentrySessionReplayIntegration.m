@@ -284,7 +284,7 @@ static SentryTouchTracker *_touchTracker;
     dispatch_queue_attr_t attributes = dispatch_queue_attr_make_with_qos_class(
         DISPATCH_QUEUE_SERIAL, DISPATCH_QUEUE_PRIORITY_LOW, 0);
     SentryDispatchQueueWrapper *dispatchQueue =
-        [[SentryDispatchQueueWrapper alloc] initWithName:"Sentry Session Replay"
+        [[SentryDispatchQueueWrapper alloc] initWithName:"io.sentry.session-replay"
                                               attributes:attributes];
 
     self.sessionReplay = [[SentrySessionReplay alloc]
