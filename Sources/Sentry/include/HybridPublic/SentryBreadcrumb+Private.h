@@ -1,4 +1,8 @@
-#import "SentryBreadcrumb.h"
+#if __has_include(<Sentry/SentryBreadcrumb.h>)
+#    import <Sentry/SentryBreadcrumb.h>
+#else
+#    import "SentryBreadcrumb.h"
+#endif
 
 @interface SentryBreadcrumb ()
 

@@ -1,5 +1,15 @@
-#import "SentryDefines.h"
-#import "SentryInternalSerializable.h"
+#if __has_include(<Sentry/SentryDefines.h>)
+#    import <Sentry/SentryDefines.h>
+#else
+#    import "SentryDefines.h"
+#endif
+
+#if __has_include(<Sentry/SentryInternalSerializable.h>)
+#    import <Sentry/SentryInternalSerializable.h>
+#else
+#    import "SentryInternalSerializable.h"
+#endif
+
 #import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
