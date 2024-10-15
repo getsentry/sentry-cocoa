@@ -1612,6 +1612,9 @@ writeScopeJson(const SentryCrashReportWriter *const writer)
         if (scope->context) {
             addJSONElement(writer, "context", scope->context, false);
         }
+        if (scope->traceContext) {
+            addJSONElement(writer, "traceContext", scope->traceContext, false);
+        }
         if (scope->environment) {
             addJSONElement(writer, "environment", scope->environment, false);
         }

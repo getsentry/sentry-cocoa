@@ -139,6 +139,8 @@ void sentrycrash_setSaveScreenshots(SaveAttachmentCallback callback);
  */
 void sentrycrash_setSaveViewHierarchy(SaveAttachmentCallback callback);
 
+void sentrycrash_setOnCrashCallback(void (*callback)(void));
+
 /** Report a custom, user defined exception.
  * This can be useful when dealing with scripting languages.
  *
@@ -245,6 +247,8 @@ bool sentrycrash_hasSaveScreenshotCallback(void);
  * Indicates that a callback was registered for view hierarchy.
  */
 bool sentrycrash_hasSaveViewHierarchyCallback(void);
+
+bool sentrycrash_hasOnCrashCallback(void);
 
 #ifdef __cplusplus
 }

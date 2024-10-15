@@ -1053,6 +1053,11 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     [self.attachmentProcessors removeObject:attachmentProcessor];
 }
 
+- (void)storeOnly
+{
+    [self.transportAdapter storeOnly];
+}
+
 @end
 
 NS_ASSUME_NONNULL_END

@@ -166,6 +166,11 @@
     // Left blank on purpose
 }
 
+- (void)setTraceContext:(nullable NSDictionary<NSString *, id> *)traceContext
+{
+    // Left blank on purpose
+}
+
 @end
 
 #endif // SENTRY_HAS_UIKIT

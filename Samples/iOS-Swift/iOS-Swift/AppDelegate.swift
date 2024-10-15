@@ -65,19 +65,19 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 }
             }
             
-            var profilesSampleRate: NSNumber? = 1
-            if args.contains("--io.sentry.enableContinuousProfiling") {
-                profilesSampleRate = nil
-            } else if let profilesSampleRateOverride = env["--io.sentry.profilesSampleRate"] {
-               profilesSampleRate = NSNumber(value: (profilesSampleRateOverride as NSString).integerValue)
-            }
-            options.profilesSampleRate = profilesSampleRate
-            
-            if let profilesSamplerValue = env["--io.sentry.profilesSamplerValue"] {
-                options.profilesSampler = { _ in
-                    return NSNumber(value: (profilesSamplerValue as NSString).integerValue)
-                }
-            }
+//            var profilesSampleRate: NSNumber? = 1
+//            if args.contains("--io.sentry.enableContinuousProfiling") {
+//                profilesSampleRate = nil
+//            } else if let profilesSampleRateOverride = env["--io.sentry.profilesSampleRate"] {
+//               profilesSampleRate = NSNumber(value: (profilesSampleRateOverride as NSString).integerValue)
+//            }
+//            options.profilesSampleRate = profilesSampleRate
+//            
+//            if let profilesSamplerValue = env["--io.sentry.profilesSamplerValue"] {
+//                options.profilesSampler = { _ in
+//                    return NSNumber(value: (profilesSamplerValue as NSString).integerValue)
+//                }
+//            }
 
             options.enableAppLaunchProfiling = args.contains("--profile-app-launches")
 
@@ -101,7 +101,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             let isBenchmarking = args.contains("--io.sentry.test.benchmarking")
 
             // the benchmark test starts and stops a custom transaction using a UIButton, and automatic user interaction tracing stops the transaction that begins with that button press after the idle timeout elapses, stopping the profiler (only one profiler runs regardless of the number of concurrent transactions)
-            options.enableUserInteractionTracing = !isBenchmarking && !args.contains("--disable-ui-tracing")
+            options.enableUserInteractionTracing = false
             options.enableAutoPerformanceTracing = !isBenchmarking && !args.contains("--disable-auto-performance-tracing")
             options.enablePreWarmedAppStartTracing = !isBenchmarking
 
@@ -147,8 +147,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 scope.injectGitInformation()
                                                
                 let user = User(userId: "1")
-                user.email = env["--io.sentry.user.email"] ?? "tony@example.com"
-                // first check if the username has been overridden in the scheme for testing purposes; then try to use the system username so each person gets an automatic way to easily filter things on the dashboard; then fall back on a hardcoded value if none of these are present
+                user.email = "philip@sentry.io"
                 let username = env["--io.sentry.user.username"] ?? (env["SIMULATOR_HOST_HOME"] as? NSString)?
                     .lastPathComponent ?? "cocoa developer"
                 user.username = username

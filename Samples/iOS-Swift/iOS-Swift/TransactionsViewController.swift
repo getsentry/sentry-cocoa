@@ -184,6 +184,6 @@ class TransactionsViewController: UIViewController {
 
 fileprivate extension TransactionsViewController {
     func startNewTransaction() {
-        spans.append(SentrySDK.startTransaction(name: "Manual Transaction", operation: "Manual Operation"))
+        spans.append(SentrySDK.startTransaction(name: "Manual Transaction", operation: "Manual Operation", bindToScope: true))
     }
 }

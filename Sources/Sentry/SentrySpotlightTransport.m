@@ -110,6 +110,10 @@ NS_ASSUME_NONNULL_BEGIN
     // Empty on purpose
 }
 
+- (void)storeOnly
+{
+}
+
 #endif // defined(TEST) || defined(TESTCI) || defined(DEBUG)
 
 @end

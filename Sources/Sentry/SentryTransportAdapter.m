@@ -137,6 +137,13 @@ NS_ASSUME_NONNULL_BEGIN
     return items;
 }
 
+- (void)storeOnly
+{
+    for (id<SentryTransport> transport in self.transports) {
+        [transport storeOnly];
+    }
+}
+
 @end
 
 NS_ASSUME_NONNULL_END

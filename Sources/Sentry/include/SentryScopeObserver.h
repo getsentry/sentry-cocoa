@@ -3,6 +3,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @class SentryUser;
+@protocol SentrySpan;
 
 /**
  * An observer to sync the scope to SentryCrash.
@@ -16,6 +17,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)setExtras:(nullable NSDictionary<NSString *, id> *)extras;
 
 - (void)setContext:(nullable NSDictionary<NSString *, id> *)context;
+
+- (void)setTraceContext:(nullable NSDictionary<NSString *, id> *)traceContext;
 
 - (void)setDist:(nullable NSString *)dist;
 

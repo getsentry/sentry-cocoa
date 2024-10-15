@@ -1,8 +1,15 @@
 #import "SentryDispatchQueueWrapper.h"
+#import "SentryLog.h"
 #import "SentryThreadWrapper.h"
 #import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
+
+@interface SentryDispatchQueueWrapper ()
+
+@property (nonatomic, assign) BOOL callingThread;
+
+@end
 
 @implementation SentryDispatchQueueWrapper
 
@@ -21,12 +28,25 @@ NS_ASSUME_NONNULL_BEGIN
 {
     if (self = [super init]) {
         _queue = dispatch_queue_create(name, attributes);
+        _callingThread = NO;
     }
     return self;
 }
 
+- (void)dispatchAllOnCallingThread
+{
+    SENTRY_LOG_DEBUG(@"dispatchAllOnCallingThread: YES");
+    _callingThread = YES;
+}
+
 - (void)dispatchAsyncWithBlock:(void (^)(void))block
 {
+    if (self.callingThread == YES) {
+        SENTRY_LOG_DEBUG(@"CallingThread: Yes");
+        block();
+        return;
+    }
+
     dispatch_async(_queue, ^{
         @autoreleasepool {
             block();

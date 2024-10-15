@@ -63,6 +63,8 @@
 
 @property (atomic) BOOL isFlushing;
 
+@property (nonatomic, assign) BOOL onlyStoreEnvelopes;
+
 @end
 
 @implementation SentryHttpTransport
@@ -88,6 +90,7 @@
         self.dispatchGroup = dispatch_group_create();
         _isSending = NO;
         _isFlushing = NO;
+        _onlyStoreEnvelopes = NO;
         self.discardedEvents = [NSMutableDictionary new];
         self.notStoredEnvelopes = [NSMutableArray new];
         [self.envelopeRateLimit setDelegate:self];
@@ -121,6 +124,12 @@
 
 - (void)sendEnvelope:(SentryEnvelope *)envelope
 {
+    if (_onlyStoreEnvelopes) {
+        SENTRY_LOG_DEBUG(@"Store only");
+        [self.fileManager storeEnvelope:envelope];
+        return;
+    }
+
     envelope = [self.envelopeRateLimit removeRateLimitedItems:envelope];
 
     if (envelope.items.count == 0) {
@@ -226,6 +235,12 @@
     }
 }
 
+- (void)storeOnly
+{
+    SENTRY_LOG_DEBUG(@"onlyStoreEnvelopes yes.");
+    _onlyStoreEnvelopes = YES;
+}
+
 /**
  * SentryEnvelopeRateLimitDelegate.
  */
@@ -279,6 +294,11 @@
 
 - (void)sendAllCachedEnvelopes
 {
+    if (_onlyStoreEnvelopes) {
+        SENTRY_LOG_DEBUG(@"sendAllCachedEnvelopes only storing, skipping sending.");
+        return;
+    }
+
     SENTRY_LOG_DEBUG(@"sendAllCachedEnvelopes start.");
 
     @synchronized(self) {
