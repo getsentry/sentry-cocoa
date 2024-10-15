@@ -5,7 +5,6 @@
 @class SentryBinaryImageCache;
 @class SentryCrash;
 @class SentryCrashWrapper;
-@class SentryCurrentDateProvider;
 @class SentryDebugImageProvider;
 @class SentryDispatchFactory;
 @class SentryDispatchQueueWrapper;
@@ -20,6 +19,7 @@
 @class SentryThreadWrapper;
 @class SentryThreadInspector;
 @protocol SentryRandom;
+@protocol SentryCurrentDateProvider;
 
 #if SENTRY_HAS_METRIC_KIT
 @class SentryMXManager;
@@ -66,7 +66,7 @@ SENTRY_NO_INIT
 @property (nonatomic, strong) SentrySystemWrapper *systemWrapper;
 @property (nonatomic, strong) SentryDispatchFactory *dispatchFactory;
 @property (nonatomic, strong) SentryNSTimerFactory *timerFactory;
-@property (nonatomic, strong) SentryCurrentDateProvider *dateProvider;
+@property (nonatomic, strong) id<SentryCurrentDateProvider> dateProvider;
 @property (nonatomic, strong) SentryBinaryImageCache *binaryImageCache;
 @property (nonatomic, strong) SentryExtraContextProvider *extraContextProvider;
 @property (nonatomic, strong) SentrySysctl *sysctlWrapper;

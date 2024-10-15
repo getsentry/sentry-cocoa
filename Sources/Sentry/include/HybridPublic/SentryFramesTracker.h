@@ -5,7 +5,7 @@
 #    import "SentryProfilingConditionals.h"
 
 @class SentryDisplayLinkWrapper;
-@class SentryCurrentDateProvider;
+@protocol SentryCurrentDateProvider;
 @class SentryDispatchQueueWrapper;
 @class SentryNSNotificationCenterWrapper;
 @class SentryScreenFrames;
@@ -33,7 +33,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface SentryFramesTracker : NSObject
 
 - (instancetype)initWithDisplayLinkWrapper:(SentryDisplayLinkWrapper *)displayLinkWrapper
-                              dateProvider:(SentryCurrentDateProvider *)dateProvider
+                              dateProvider:(id<SentryCurrentDateProvider>)dateProvider
                       dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
                         notificationCenter:(SentryNSNotificationCenterWrapper *)notificationCenter
                  keepDelayedFramesDuration:(CFTimeInterval)keepDelayedFramesDuration;
