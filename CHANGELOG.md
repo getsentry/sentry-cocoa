@@ -20,11 +20,13 @@ via the option `swizzleClassNameExclude`.
 - Swizzling RootUIViewController if ignored by `swizzleClassNameExclude` (#4407)
 - Data race in SentrySwizzleInfo.originalCalled (#4434)
 
+
 ### Improvements
 
 - Serializing profile on a BG Thread (#4377) to avoid potentially slightly blocking the main thread.
 - Session Replay performance for SwiftUI (#4419)
 - Speed up getBinaryImages (#4435) for finishing transactions and capturing events
+- Use UInts in envelope deserialization (#4441)
 
 ## 8.38.0-beta.1
 
