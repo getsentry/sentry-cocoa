@@ -1,5 +1,9 @@
 # Changelog
 
+## 8.38.0
+
+- No documented changes.
+
 ## 8.38.0-beta.1
 
 ### Features
