@@ -373,16 +373,15 @@ static SentryTouchTracker *_touchTracker;
     NSDictionary<NSString *, id> *lastReplayInfo = [self lastReplayInfo];
     NSString *lastReplayFolder = lastReplayInfo[@"path"];
 
+    SentryFileManager * fileManager = SentryDependencyContainer.sharedInstance.fileManager;
     // Mapping replay folder here and not in dispatched queue to prevent a race condition between
     // listing files and creating a new replay session.
-    NSArray *replayFiles =
-        [SentryDependencyContainer.sharedInstance.fileManager allFilesInFolder:replayDir.path];
+    NSArray *replayFiles = [fileManager allFilesInFolder:replayDir.path];
     if (replayFiles.count == 0) {
         return;
     }
 
     [SentryDependencyContainer.sharedInstance.dispatchQueueWrapper dispatchAsyncWithBlock:^{
-        NSFileManager *fileManager = [NSFileManager defaultManager];
         for (NSString *file in replayFiles) {
             // Skip the last replay folder.
             if ([file isEqualToString:lastReplayFolder]) {
@@ -391,14 +390,9 @@ static SentryTouchTracker *_touchTracker;
             
             NSString *filePath = [replayDir.path stringByAppendingPathComponent:file];
 
-            // Check if the file exists and is a directory before deleting it.
-            BOOL isDirectory = NO;
-            if ([fileManager fileExistsAtPath:filePath isDirectory:&isDirectory] && isDirectory) {
-                NSError *error = nil;
-                if (![fileManager removeItemAtPath:filePath error:&error]) {
-                    SENTRY_LOG_ERROR(@"Error deleting file at path: %@, error: %@", filePath,
-                        error.localizedDescription);
-                }
+            // Check if the file is a directory before deleting it.
+            if ([fileManager isDirectory:filePath]) {
+                [fileManager removeFileAtPath:filePath];
             }
         }
     }];

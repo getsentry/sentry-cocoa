@@ -90,7 +90,7 @@ SENTRY_NO_INIT
 - (void)storeTimezoneOffset:(NSInteger)offset;
 - (void)deleteTimezoneOffset;
 - (NSArray<NSString *> *)allFilesInFolder:(NSString *)path;
-
+- (BOOL)isDirectory:(NSString *)path;
 BOOL createDirectoryIfNotExists(NSString *path, NSError **error);
 
 /**
