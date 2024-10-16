@@ -128,6 +128,7 @@ class SentryUserFeedbackWidgetButtonView: UIView {
         }
         
         label.font = config.theme.font
+        label.adjustsFontForContentSizeCategory = true
         
         return label
     }()
