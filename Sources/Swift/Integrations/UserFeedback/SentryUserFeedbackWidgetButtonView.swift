@@ -173,7 +173,7 @@ class SentryUserFeedbackWidgetButtonView: UIView {
         if hasText {
             let paddingDifference = (scaledLeftPadding - padding) / 2
             let spacingDifference = scaledSpacing - spacing
-            let increasedIconLeftPadAmountDueToScaling = config.widgetConfig.showIcon ? paddingDifference + iconSizeDifference + spacingDifference : 0
+            let increasedIconLeftPadAmountDueToScaling: CGFloat = config.widgetConfig.showIcon ? SentryLocale.isRightToLeftLanguage() ? paddingDifference : paddingDifference + iconSizeDifference + spacingDifference : 0
             lozengeLayer.transform = CATransform3DTranslate(lozengeLayer.transform, -increasedIconLeftPadAmountDueToScaling, -padding * config.paddingScaleFactor, 0)
         } else {
             lozengeLayer.transform = CATransform3DTranslate(lozengeLayer.transform, -iconSizeDifference, -iconSizeDifference, 0)

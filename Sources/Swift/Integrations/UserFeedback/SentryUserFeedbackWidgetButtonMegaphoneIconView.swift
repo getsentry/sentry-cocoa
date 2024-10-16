@@ -25,9 +25,16 @@ class SentryUserFeedbackWidgetButtonMegaphoneIconView: UIView {
         layer.addSublayer(svgLayer)
         translatesAutoresizingMaskIntoConstraints = false
         
+        var transform = CATransform3DIdentity
         if config.scaleFactor != 1 {
-            layer.transform = CATransform3DMakeScale(config.scaleFactor, config.scaleFactor, 0)
+            transform = CATransform3DConcat(transform, CATransform3DMakeScale(config.scaleFactor, config.scaleFactor, 0))
         }
+        
+        if SentryLocale.isRightToLeftLanguage() {
+            transform = CATransform3DConcat(transform, CATransform3DMakeScale(-1, 1, 1))
+        }
+        
+        layer.transform = transform
     }
     
     required init?(coder: NSCoder) {

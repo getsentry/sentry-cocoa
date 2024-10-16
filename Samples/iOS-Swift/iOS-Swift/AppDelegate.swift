@@ -174,7 +174,17 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 config.showFormForScreenshots = true
                 config.configureWidget = { widget in
                     if args.contains("--io.sentry.iOS-Swift.auto-inject-user-feedback-widget") {
-                        widget.labelText = "Report Jank"
+                        if Locale.current.languageCode == "ar" { // arabic
+                            widget.labelText = "﷽"
+                        } else if Locale.current.languageCode == "ur" { // urdu
+                            widget.labelText = "نستعلیق"
+                        } else if Locale.current.languageCode == "he" { // hebrew
+                            widget.labelText = "עִבְרִית‎"
+                        } else if Locale.current.languageCode == "hi" { // Hindi
+                            widget.labelText = "नागरि"
+                        } else {
+                            widget.labelText = "Report Jank"
+                        }
                         widget.widgetAccessibilityLabel = "io.sentry.iOS-Swift.button.report-jank"
                         widget.layoutUIOffset = layoutOffset
                     } else {
@@ -195,7 +205,20 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 }
                 config.configureTheme = { theme in
                     let fontSize: CGFloat = 40
-                    theme.font = UIFont(name: "HelveticaNeue", size: fontSize) ?? UIFont.systemFont(ofSize: fontSize)
+                    
+                    let fontFamily: String
+                    if Locale.current.languageCode == "ar" { // arabic; ar_EG
+                        fontFamily = "Damascus"
+                    } else if Locale.current.languageCode == "ur" { // urdu; ur_PK
+                        fontFamily = "NotoNastaliq"
+                    } else if Locale.current.languageCode == "he" { // hebrew; he_IL
+                        fontFamily = "Arial Hebrew"
+                    } else if Locale.current.languageCode == "hi" { // Hindi; hi_IN
+                        fontFamily = "DevanagariSangamMN"
+                    } else {
+                        fontFamily = "ChalkboardSE-Regular"
+                    }
+                    theme.font = UIFont(name: fontFamily, size: fontSize) ?? UIFont.systemFont(ofSize: fontSize)
                     theme.outlineColor = .purple
                     theme.foreground = .purple
                     theme.background = .purple.withAlphaComponent(0.1)
