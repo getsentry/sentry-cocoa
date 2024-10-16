@@ -384,12 +384,12 @@ static SentryTouchTracker *_touchTracker;
     [SentryDependencyContainer.sharedInstance.dispatchQueueWrapper dispatchAsyncWithBlock:^{
         NSFileManager *fileManager = [NSFileManager defaultManager];
         for (NSString *file in replayFiles) {
-            NSString *filePath = [replayDir.path stringByAppendingPathComponent:file];
-
             // Skip the last replay folder.
             if ([file isEqualToString:lastReplayFolder]) {
                 continue;
             }
+            
+            NSString *filePath = [replayDir.path stringByAppendingPathComponent:file];
 
             // Check if the file exists and is a directory before deleting it.
             BOOL isDirectory = NO;
