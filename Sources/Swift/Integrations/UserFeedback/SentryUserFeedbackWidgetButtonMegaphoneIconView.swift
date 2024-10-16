@@ -1,3 +1,6 @@
+import Foundation
+#if (os(iOS) || os(tvOS)) && !SENTRY_NO_UIKIT
+@_implementationOnly import _SentryPrivate
 import UIKit
 
 class SentryUserFeedbackWidgetButtonMegaphoneIconView: UIView {
@@ -179,3 +182,5 @@ class SentryUserFeedbackWidgetButtonMegaphoneIconView: UIView {
     }()
     //swiftlint:enable function_body_length
 }
+
+#endif // (os(iOS) || os(tvOS)) && !SENTRY_NO_UIKIT
