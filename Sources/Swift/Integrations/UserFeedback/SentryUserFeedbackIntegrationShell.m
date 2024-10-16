@@ -2,6 +2,8 @@
 #import "SentryOptions+Private.h"
 #import "SentrySwift.h"
 
+#if TARGET_OS_IOS && SENTRY_HAS_UIKIT
+
 @implementation SentryUserFeedbackIntegrationShell {
     SentryUserFeedbackIntegration *_driver;
 }
@@ -14,3 +16,5 @@
 }
 
 @end
+
+#endif // TARGET_OS_IOS && SENTRY_HAS_UIKIT

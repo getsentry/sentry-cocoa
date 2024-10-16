@@ -785,11 +785,13 @@ sentry_isValidSampleRate(NSNumber *sampleRate)
 #endif // defined(RELEASE)
 }
 
+#if TARGET_OS_IOS && SENTRY_HAS_UIKIT
 - (void)setConfigureUserFeedback:(SentryUserFeedbackConfigurationBlock)configureUserFeedback
 {
     self.userFeedbackConfiguration = [[SentryUserFeedbackConfiguration alloc] init];
     configureUserFeedback(self.userFeedbackConfiguration);
 }
+#endif // TARGET_OS_IOS && SENTRY_HAS_UIKIT
 
 #if defined(DEBUG) || defined(TEST) || defined(TESTCI)
 - (NSString *)debugDescription

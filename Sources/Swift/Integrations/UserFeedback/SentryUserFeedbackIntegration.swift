@@ -1,5 +1,5 @@
 import Foundation
-#if (os(iOS) || os(tvOS)) && !SENTRY_NO_UIKIT
+#if os(iOS) && !SENTRY_NO_UIKIT
 @_implementationOnly import _SentryPrivate
 import UIKit
 
@@ -90,4 +90,4 @@ import UIKit
     }
 }
 
-#endif // (os(iOS) || os(tvOS)) && !SENTRY_NO_UIKIT
+#endif // os(iOS) && !SENTRY_NO_UIKIT
