@@ -27,6 +27,7 @@ class SentryUserFeedbackWidgetButtonView: UIView {
         self.config = config
         super.init(frame: .zero)
         translatesAutoresizingMaskIntoConstraints = false
+        accessibilityLabel = config.widgetConfig.widgetAccessibilityLabel ?? config.widgetConfig.labelText
         
         var constraints = [NSLayoutConstraint]()
         
