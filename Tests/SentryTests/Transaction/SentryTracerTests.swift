@@ -1292,6 +1292,15 @@ class SentryTracerTests: XCTestCase {
     }
 #endif
     
+    func testFinishShouldBeCalled_Timeout_NotCaptured() {
+        fixture.dispatchQueue.blockBeforeMainBlock = { true }
+        
+        let sut = fixture.getSut()
+        sut.finishMustBeCalled = true
+        fixture.timerFactory.fire()
+        assertTransactionNotCaptured(sut)
+    }
+    
     @available(*, deprecated)
     func testSetExtra_ForwardsToSetData() {
         let sut = fixture.getSut()

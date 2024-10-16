@@ -44,6 +44,13 @@ static const NSTimeInterval SENTRY_AUTO_TRANSACTION_MAX_DURATION = 500.0;
 @property (nullable, nonatomic, copy) BOOL (^shouldIgnoreWaitForChildrenCallback)(id<SentrySpan>);
 
 /**
+ * This flag indicates whether the trace should be captured when the timeout triggers.
+ * If Yes, this tracer will be discarced in case the timeout triggers.
+ * Default @c NO
+ */
+@property (nonatomic) BOOL finishMustBeCalled;
+
+/**
  * All the spans that where created with this tracer but rootSpan.
  */
 @property (nonatomic, readonly) NSArray<id<SentrySpan>> *children;
