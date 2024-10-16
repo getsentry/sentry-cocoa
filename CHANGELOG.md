@@ -6,6 +6,7 @@
 
 - feat: API to manually start/stop Session Replay (#4414)
 - Custom redact modifier for SwiftUI (#4362, #4392)
+- Track usage of appHangTrackingV2 (#4445)
 
 ### Removal of Experimental API
 
