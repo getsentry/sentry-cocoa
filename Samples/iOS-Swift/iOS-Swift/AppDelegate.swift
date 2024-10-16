@@ -204,7 +204,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                     uiForm.messagePlaceholder = "Describe the nature of the jank. Its essence, if you will."
                 }
                 config.configureTheme = { theme in
-                    let fontSize: CGFloat = 40
+                    let fontSize: CGFloat = 25
                     
                     let fontFamily: String
                     if Locale.current.languageCode == "ar" { // arabic; ar_EG
