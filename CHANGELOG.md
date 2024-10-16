@@ -2,15 +2,15 @@
 
 ## Unreleased
 
+### Removal of Experimental API
+
+- Remove the deprecated experimental Metrics API (#4406): [Learn more](https://sentry.zendesk.com/hc/en-us/articles/26369339769883-Metrics-Beta-Coming-to-an-End)
+
 ### Features
 
 - feat: API to manually start/stop Session Replay (#4414)
 - Custom redact modifier for SwiftUI (#4362, #4392)
 - Track usage of appHangTrackingV2 (#4445)
-
-### Removal of Experimental API
-
-- Remove the deprecated experimental Metrics API (#4406): [Learn more](https://sentry.zendesk.com/hc/en-us/articles/26369339769883-Metrics-Beta-Coming-to-an-End)
 
 ### Fixes
 
