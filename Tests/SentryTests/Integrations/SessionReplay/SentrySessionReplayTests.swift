@@ -17,6 +17,8 @@ class SentrySessionReplayTests: XCTestCase {
     private class TestReplayMaker: NSObject, SentryReplayVideoMaker {
         var screens = [String]()
         
+        var createVideoCallBack: ((SentryVideoInfo) -> Void)?
+        
         struct CreateVideoCall {
             var beginning: Date
             var end: Date
@@ -30,6 +32,7 @@ class SentrySessionReplayTests: XCTestCase {
             try? "Video Data".write(to: outputFileURL, atomically: true, encoding: .utf8)
             let videoInfo = SentryVideoInfo(path: outputFileURL, height: 1_024, width: 480, duration: end.timeIntervalSince(beginning), frameCount: 5, frameRate: 1, start: beginning, end: end, fileSize: 10, screens: screens)
             
+            createVideoCallBack?(videoInfo)
             return [videoInfo]
         }
         
@@ -63,7 +66,7 @@ class SentrySessionReplayTests: XCTestCase {
         var lastReplayId: SentryId?
         var currentScreen: String?
         
-        func getSut(options: SentryReplayOptions = .init(sessionSampleRate: 0, onErrorSampleRate: 0) ) -> SentrySessionReplay {
+        func getSut(options: SentryReplayOptions = .init(sessionSampleRate: 0, onErrorSampleRate: 0), dispatchQueue: SentryDispatchQueueWrapper = TestSentryDispatchQueueWrapper() ) -> SentrySessionReplay {
             return SentrySessionReplay(replayOptions: options,
                                        replayFolderPath: cacheFolder,
                                        screenshotProvider: screenshotProvider,
@@ -72,7 +75,7 @@ class SentrySessionReplayTests: XCTestCase {
                                        touchTracker: SentryTouchTracker(dateProvider: dateProvider, scale: 0),
                                        dateProvider: dateProvider,
                                        delegate: self,
-                                       dispatchQueue: TestSentryDispatchQueueWrapper(),
+                                       dispatchQueue: dispatchQueue,
                                        displayLinkWrapper: displayLink)
         }
         
@@ -147,7 +150,7 @@ class SentrySessionReplayTests: XCTestCase {
         XCTAssertNotNil(fixture.lastReplayRecording)
         assertFullSession(sut, expected: true)
     }
-    
+   
     func testReplayScreenNames() throws {
         let fixture = Fixture()
         let sut = fixture.getSut(options: SentryReplayOptions(sessionSampleRate: 1, onErrorSampleRate: 1))

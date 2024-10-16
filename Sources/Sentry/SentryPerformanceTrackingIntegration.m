@@ -29,7 +29,7 @@
     dispatch_queue_attr_t attributes = dispatch_queue_attr_make_with_qos_class(
         DISPATCH_QUEUE_SERIAL, DISPATCH_QUEUE_PRIORITY_HIGH, 0);
     SentryDispatchQueueWrapper *dispatchQueue =
-        [[SentryDispatchQueueWrapper alloc] initWithName:"sentry-ui-view-controller-swizzling"
+        [[SentryDispatchQueueWrapper alloc] initWithName:"io.sentry.ui-view-controller-swizzling"
                                               attributes:attributes];
 
     SentrySubClassFinder *subClassFinder = [[SentrySubClassFinder alloc]

@@ -289,6 +289,12 @@ static SentryTouchTracker *_touchTracker;
         = (NSInteger)(shouldReplayFullSession ? replayOptions.sessionSegmentDuration + 1
                                               : replayOptions.errorReplayDuration + 1);
 
+    dispatch_queue_attr_t attributes = dispatch_queue_attr_make_with_qos_class(
+        DISPATCH_QUEUE_SERIAL, DISPATCH_QUEUE_PRIORITY_LOW, 0);
+    SentryDispatchQueueWrapper *dispatchQueue =
+        [[SentryDispatchQueueWrapper alloc] initWithName:"io.sentry.session-replay"
+                                              attributes:attributes];
+
     self.sessionReplay = [[SentrySessionReplay alloc]
         initWithReplayOptions:replayOptions
              replayFolderPath:docs
@@ -298,7 +304,7 @@ static SentryTouchTracker *_touchTracker;
                  touchTracker:_touchTracker
                  dateProvider:SentryDependencyContainer.sharedInstance.dateProvider
                      delegate:self
-                dispatchQueue:[[SentryDispatchQueueWrapper alloc] init]
+                dispatchQueue:dispatchQueue
            displayLinkWrapper:[[SentryDisplayLinkWrapper alloc] init]];
 
     [self.sessionReplay
