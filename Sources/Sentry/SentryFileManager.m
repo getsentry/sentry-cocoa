@@ -270,7 +270,8 @@ _non_thread_safe_removeFileAtPath(NSString *path)
     }
 }
 
-- (BOOL)isDirectory:(NSString *)path {
+- (BOOL)isDirectory:(NSString *)path
+{
     BOOL isDir = NO;
     return [NSFileManager.defaultManager fileExistsAtPath:path isDirectory:&isDir] && isDir;
 }

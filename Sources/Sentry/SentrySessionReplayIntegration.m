@@ -379,7 +379,7 @@ static SentryTouchTracker *_touchTracker;
     NSDictionary<NSString *, id> *lastReplayInfo = [self lastReplayInfo];
     NSString *lastReplayFolder = lastReplayInfo[@"path"];
 
-    SentryFileManager * fileManager = SentryDependencyContainer.sharedInstance.fileManager;
+    SentryFileManager *fileManager = SentryDependencyContainer.sharedInstance.fileManager;
     // Mapping replay folder here and not in dispatched queue to prevent a race condition between
     // listing files and creating a new replay session.
     NSArray *replayFiles = [fileManager allFilesInFolder:replayDir.path];
@@ -393,7 +393,7 @@ static SentryTouchTracker *_touchTracker;
             if ([file isEqualToString:lastReplayFolder]) {
                 continue;
             }
-            
+
             NSString *filePath = [replayDir.path stringByAppendingPathComponent:file];
 
             // Check if the file is a directory before deleting it.
