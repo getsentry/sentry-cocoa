@@ -28,6 +28,7 @@ via the option `swizzleClassNameExclude`.
 - Serializing profile on a BG Thread (#4377) to avoid potentially slightly blocking the main thread.
 - Session Replay performance for SwiftUI (#4419)
 - Speed up getBinaryImages (#4435) for finishing transactions and capturing events
+- Align SDK dispatch queue names (#4442) to start with `io.sentry`
 - Use UInts in envelope deserialization (#4441)
 
 ## 8.38.0

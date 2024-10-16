@@ -53,7 +53,7 @@ NS_ASSUME_NONNULL_BEGIN
     dispatch_queue_attr_t attributes = dispatch_queue_attr_make_with_qos_class(
         DISPATCH_QUEUE_SERIAL, DISPATCH_QUEUE_PRIORITY_HIGH, 0);
     SentryDispatchQueueWrapper *dispatchQueueWrapper =
-        [[SentryDispatchQueueWrapper alloc] initWithName:"sentry-out-of-memory-tracker"
+        [[SentryDispatchQueueWrapper alloc] initWithName:"io.sentry.watchdog-termination-tracker"
                                               attributes:attributes];
 
     SentryFileManager *fileManager = [[[SentrySDK currentHub] getClient] fileManager];
