@@ -21,7 +21,7 @@ via the option `swizzleClassNameExclude`.
 - Swizzling RootUIViewController if ignored by `swizzleClassNameExclude` (#4407)
 - Data race in SentrySwizzleInfo.originalCalled (#4434)
 - Thread running at user-initiated quality-of-service for session replay (#4439)
-
+- Do not create transaction for unused ViewControllers (#4448)
 
 ### Improvements
 
