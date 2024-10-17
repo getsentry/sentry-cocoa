@@ -95,7 +95,7 @@ class SentryTracerTests: XCTestCase {
         }
         #endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
         
-        func getSut(waitForChildren: Bool = true, idleTimeout: TimeInterval = 0.0) -> SentryTracer {
+        func getSut(waitForChildren: Bool = true, idleTimeout: TimeInterval = 0.0, finishMustBeCalled: Bool = false) -> SentryTracer {
             let tracer = hub.startTransaction(
                 with: transactionContext,
                 bindToScope: false,
@@ -104,6 +104,7 @@ class SentryTracerTests: XCTestCase {
                     $0.waitForChildren = waitForChildren
                     $0.timerFactory = self.timerFactory
                     $0.idleTimeout = idleTimeout
+                    $0.finishMustBeCalled = finishMustBeCalled
                 }))
             return tracer
         }
@@ -1291,6 +1292,14 @@ class SentryTracerTests: XCTestCase {
         try assertNoMeasurementsAdded()
     }
 #endif
+    
+    func testFinishShouldBeCalled_Timeout_NotCaptured() {
+        fixture.dispatchQueue.blockBeforeMainBlock = { true }
+        
+        let sut = fixture.getSut(finishMustBeCalled: true)
+        fixture.timerFactory.fire()
+        assertTransactionNotCaptured(sut)
+    }
     
     @available(*, deprecated)
     func testSetExtra_ForwardsToSetData() {

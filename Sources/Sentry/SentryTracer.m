@@ -303,7 +303,8 @@ static BOOL appStartMeasurementRead;
         }
     }
 
-    [self finishWithStatus:kSentrySpanStatusDeadlineExceeded];
+    _finishStatus = kSentrySpanStatusDeadlineExceeded;
+    [self finishInternal];
 }
 
 - (void)cancelDeadlineTimer
@@ -580,6 +581,12 @@ static BOOL appStartMeasurementRead;
             [self->_hub.scope setSpan:nil];
         }
     }];
+
+    if (self.configuration.finishMustBeCalled && !self.wasFinishCalled) {
+        SENTRY_LOG_DEBUG(
+            @"Not capturing transaction because finish was not called before timing out.");
+        return;
+    }
 
     @synchronized(_children) {
         if (_configuration.idleTimeout > 0.0 && _children.count == 0) {
