@@ -20,8 +20,8 @@ via the option `swizzleClassNameExclude`.
 - Finish TTID correctly when viewWillAppear is skipped (#4417)
 - Swizzling RootUIViewController if ignored by `swizzleClassNameExclude` (#4407)
 - Data race in SentrySwizzleInfo.originalCalled (#4434)
+- Delete old session replay files (#4446)
 - Thread running at user-initiated quality-of-service for session replay (#4439)
-
 
 ### Improvements
 
