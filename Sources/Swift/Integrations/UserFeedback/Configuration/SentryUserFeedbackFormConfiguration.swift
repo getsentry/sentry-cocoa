@@ -1,5 +1,5 @@
 import Foundation
-#if (os(iOS) || os(tvOS)) && !SENTRY_NO_UIKIT
+#if os(iOS) && !SENTRY_NO_UIKIT
 @_implementationOnly import _SentryPrivate
 import UIKit
 
@@ -160,23 +160,6 @@ import UIKit
      * - note: Default: `confirmButtonLabel` value
      */
     public var confirmButtonAccessibilityLabel: String?
-    
-    // MARK: Theme
-    
-    /**
-     * Builder for default/light theme overrides.
-     * - note: On iOS versions predating dark mode (≤12) this is the only theme override used. Apps
-     * running on later versions that include dark mode should also consider `darkThemeOverrides`.
-     * - note: Default: `nil`
-     */
-    public var themeOverrides: ((SentryUserFeedbackThemeConfiguration) -> Void)?
-    
-    /**
-     * Builder for dark mode theme overrides. If your app does not deploy a different theme for dark
-     * mode, assign the same builder to this property as you do for `themeOverrides`.
-     * - note: Default: `nil`
-     */
-    public var darkThemeOverrides: ((SentryUserFeedbackThemeConfiguration) -> Void)?
 }
 
-#endif // (os(iOS) || os(tvOS)) && !SENTRY_NO_UIKIT
+#endif // os(iOS) && !SENTRY_NO_UIKIT

@@ -1,5 +1,5 @@
 import Foundation
-#if (os(iOS) || os(tvOS)) && !SENTRY_NO_UIKIT
+#if os(iOS) && !SENTRY_NO_UIKIT
 @_implementationOnly import _SentryPrivate
 import UIKit
 
@@ -16,14 +16,26 @@ import UIKit
     public var autoInject: Bool = true
     
     /**
-     * The label of the injected button that opens up the feedback form when clicked.
+     * Whether or not to show animations, like for presenting and dismissing the form.
+     * - note: Default: `true`.
+     */
+    public var animations: Bool = true
+    
+    /**
+     * The label of the injected button that opens up the feedback form when clicked. If `nil`, no text is displayed and only the icon image is shown.
      * - note: Default: `"Report a Bug"`
      */
-    public var labelText: String = "Report a Bug"
+    public var labelText: String? = "Report a Bug"
+    
+    /**
+     * Whether or not to show our icon along with the text in the button.
+     * - note: Default: `true`.
+     */
+    public var showIcon: Bool = true
     
     /**
      * The accessibility label of the injected button that opens up the feedback form when clicked.
-     * - note: Default: `triggerLabel` value
+     * - note: Default: `labelText` value
      */
     public var widgetAccessibilityLabel: String?
     
@@ -40,10 +52,10 @@ import UIKit
     public var location: UIRectEdge = [.bottom, .right]
     
     /**
-     * The distance to use from the widget button to the superview's `layoutMarginsGuide`.
+     * The distance to use from the widget button to the `safeAreaLayoutGuide` of the root view in the widget's container window.
      * - note: Default: `UIOffset.zero`
      */
     public var layoutUIOffset: UIOffset = UIOffset.zero
 }
 
-#endif // (os(iOS) || os(tvOS)) && !SENTRY_NO_UIKIT
+#endif // os(iOS) && !SENTRY_NO_UIKIT
