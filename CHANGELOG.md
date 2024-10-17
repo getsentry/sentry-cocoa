@@ -30,6 +30,7 @@ via the option `swizzleClassNameExclude`.
 - Speed up getBinaryImages (#4435) for finishing transactions and capturing events
 - Align SDK dispatch queue names (#4442) to start with `io.sentry`
 - Use UInts in envelope deserialization (#4441)
+- Make `SentrySDK.replay.start()` thread safe ()
 
 ## 8.38.0
 
