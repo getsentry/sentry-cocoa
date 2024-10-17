@@ -76,13 +76,6 @@ jobs:
       matrix:
         # Can't run tests on watchOS because XCTest is not available
         include:
-          # iOS 15
-          - runs-on: macos-12
-            platform: "iOS"
-            xcode: "13.4.1"
-            test-destination-os: "latest"
-            device: "iPhone 8"
-
           # iOS 16
           - runs-on: macos-13
             platform: "iOS"
@@ -96,12 +89,6 @@ jobs:
             xcode: "15.4"
             test-destination-os: "17.2"
             device: "iPhone 15"
-
-          # macOS 12
-          - runs-on: macos-12
-            platform: "macOS"
-            xcode: "13.4.1"
-            test-destination-os: "latest"
 
           # We don't run the unit tests on macOS 13 cause we run them on all on GH actions available iOS versions.
           # The chance of missing a bug solely on tvOS 16 that doesn't occur on iOS, macOS 12 or macOS 14 is minimal.
@@ -119,12 +106,6 @@ jobs:
             platform: "Catalyst"
             xcode: "15.4"
             test-destination-os: "latest"
-
-          # tvOS 15
-          - runs-on: macos-12
-            platform: "tvOS"
-            xcode: "13.4.1"
-            test-destination-os: "16.1"
 
           # We don't run the unit tests on tvOS 16 cause we run them on all on GH actions available iOS versions.
           # The chance of missing a bug solely on tvOS 16 that doesn't occur on iOS, tvOS 15 or tvOS 16 is minimal.
