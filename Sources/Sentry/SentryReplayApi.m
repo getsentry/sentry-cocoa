@@ -3,6 +3,7 @@
 #if SENTRY_TARGET_REPLAY_SUPPORTED
 
 #    import "SentryHub+Private.h"
+#    import "SentryInternalCDefines.h"
 #    import "SentryOptions+Private.h"
 #    import "SentrySDK+Private.h"
 #    import "SentrySessionReplayIntegration+Private.h"
@@ -37,28 +38,31 @@
     [replayIntegration resume];
 }
 
-- (void)start
+- (void)start SENTRY_DISABLE_THREAD_SANITIZER("double-checked lock produce false alarms")
 {
+    SentrySessionReplayIntegration *replayIntegration
+        = (SentrySessionReplayIntegration *)[SentrySDK.currentHub
+            getInstalledIntegration:SentrySessionReplayIntegration.class];
+
     // Start could be misused and called multiple times, causing it to
     // be initialized more than once before being installed.
     // Synchronizing it will prevent this problem.
-    @synchronized(self) {
-        SentrySessionReplayIntegration *replayIntegration
-            = (SentrySessionReplayIntegration *)[SentrySDK.currentHub
+    if (replayIntegration == nil) {
+        @synchronized(self) {
+            replayIntegration = (SentrySessionReplayIntegration *)[SentrySDK.currentHub
                 getInstalledIntegration:SentrySessionReplayIntegration.class];
+            if (replayIntegration == nil) {
+                SentryOptions *currentOptions = SentrySDK.currentHub.client.options;
+                replayIntegration =
+                    [[SentrySessionReplayIntegration alloc] initForManualUse:currentOptions];
 
-        if (replayIntegration == nil) {
-            SentryOptions *currentOptions = SentrySDK.currentHub.client.options;
-            replayIntegration =
-                [[SentrySessionReplayIntegration alloc] initForManualUse:currentOptions];
-
-            [SentrySDK.currentHub
-                addInstalledIntegration:replayIntegration
-                                   name:NSStringFromClass(SentrySessionReplay.class)];
+                [SentrySDK.currentHub
+                    addInstalledIntegration:replayIntegration
+                                       name:NSStringFromClass(SentrySessionReplay.class)];
+            }
         }
-
-        [replayIntegration start];
     }
+    [replayIntegration start];
 }
 
 - (void)stop
