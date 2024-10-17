@@ -42,20 +42,21 @@
     // Start could be misused and called multiple times, causing it to
     // be initialized more than once before being installed.
     // Synchronizing it will prevent this problem.
-    @synchronized (self) {
+    @synchronized(self) {
         SentrySessionReplayIntegration *replayIntegration
-        = (SentrySessionReplayIntegration *)[SentrySDK.currentHub
-                                             getInstalledIntegration:SentrySessionReplayIntegration.class];
-        
+            = (SentrySessionReplayIntegration *)[SentrySDK.currentHub
+                getInstalledIntegration:SentrySessionReplayIntegration.class];
+
         if (replayIntegration == nil) {
             SentryOptions *currentOptions = SentrySDK.currentHub.client.options;
             replayIntegration =
-            [[SentrySessionReplayIntegration alloc] initForManualUse:currentOptions];
-            
-            [SentrySDK.currentHub addInstalledIntegration:replayIntegration
-                                                     name:NSStringFromClass(SentrySessionReplay.class)];
+                [[SentrySessionReplayIntegration alloc] initForManualUse:currentOptions];
+
+            [SentrySDK.currentHub
+                addInstalledIntegration:replayIntegration
+                                   name:NSStringFromClass(SentrySessionReplay.class)];
         }
-        
+
         [replayIntegration start];
     }
 }
