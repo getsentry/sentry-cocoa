@@ -376,6 +376,27 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         XCTAssertEqual(content.count, 2)
     }
     
+    func testCleanUpWithNoFiles() throws {
+        let options = Options()
+        options.dsn = "https://user@test.com/test"
+        options.cacheDirectoryPath = FileManager.default.temporaryDirectory.path
+        
+        let dispatchQueue = TestSentryDispatchQueueWrapper()
+        SentryDependencyContainer.sharedInstance().dispatchQueueWrapper = dispatchQueue
+        SentryDependencyContainer.sharedInstance().fileManager = try SentryFileManager(options: options)
+        
+        if FileManager.default.fileExists(atPath: replayFolder()) {
+            try FileManager.default.removeItem(atPath: replayFolder())
+        }
+        
+        // We can't use SentrySDK.start because the dependency container dispatch queue is used for other tasks.
+        // Manually starting the integration and initializing it makes the test more controlled.
+        let integration = SentrySessionReplayIntegration()
+        integration.install(with: options)
+        
+        XCTAssertEqual(dispatchQueue.dispatchAsyncCalled, 0)
+    }
+    
     func createLastSessionReplay(writeSessionInfo: Bool = true, errorSampleRate: Double = 1) throws {
         let replayFolder = replayFolder()
         let jsonPath = replayFolder + "/replay.current"
