@@ -97,6 +97,13 @@ jobs:
             test-destination-os: "17.2"
             device: "iPhone 15"
 
+          # iOS 18
+          - runs-on: macos-15
+            platform: "iOS"
+            xcode: "16.0"
+            test-destination-os: "18.0"
+            device: "iPhone 16"
+
           # macOS 12
           - runs-on: macos-12
             platform: "macOS"

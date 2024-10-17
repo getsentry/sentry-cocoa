@@ -99,6 +99,10 @@ jobs:
             xcode: "15.4"
             device: "iPhone 15 (17.2)"
 
+          - runs-on: macos-15
+            xcode: "16.0"
+            device: "iPhone 16 (18.0)"
+
     steps:
       - uses: actions/checkout@v4
       - run: ./scripts/ci-select-xcode.sh ${{matrix.xcode}}
