@@ -7,6 +7,7 @@
 #import "SentrySpanId.h"
 #import "SentrySpanProtocol.h"
 #import "SentryTracer.h"
+#import "SentryTracerConfiguration.h"
 #import "SentryTransactionContext+Private.h"
 
 #if SENTRY_HAS_UIKIT
@@ -86,6 +87,7 @@ NS_ASSUME_NONNULL_BEGIN
                               configuration:[SentryTracerConfiguration configurationWithBlock:^(
                                                 SentryTracerConfiguration *configuration) {
                                   configuration.waitForChildren = YES;
+                                  configuration.finishMustBeCalled = YES;
                               }]];
 
             [(SentryTracer *)newSpan setDelegate:self];

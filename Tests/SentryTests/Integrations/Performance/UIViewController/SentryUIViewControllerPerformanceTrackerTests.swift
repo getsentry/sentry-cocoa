@@ -136,7 +136,9 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
         XCTAssertEqual(tracer.transactionContext.nameSource, .component)
         XCTAssertEqual(tracer.transactionContext.origin, origin)
         XCTAssertFalse(tracer.isFinished)
-        XCTAssertTrue(tracer.finishMustBeCalled)
+        
+        let config = try XCTUnwrap(Dynamic(tracer).configuration.asObject as? SentryTracerConfiguration)
+        XCTAssertTrue(config.finishMustBeCalled)
 
         sut.viewControllerViewDidLoad(viewController) {
             if let blockSpan = self.getStack(tracker).last {

@@ -96,7 +96,6 @@ static const NSTimeInterval SENTRY_AUTO_TRANSACTION_DEADLINE = 30.0;
     dispatch_block_t _idleTimeoutBlock;
     NSMutableArray<id<SentrySpan>> *_children;
     BOOL _startTimeChanged;
-    BOOL _timeout;
     NSObject *_idleTimeoutLock;
 
 #if SENTRY_HAS_UIKIT
@@ -149,8 +148,6 @@ static BOOL appStartMeasurementRead;
     self.wasFinishCalled = NO;
     _measurements = [[NSMutableDictionary alloc] init];
     self.finishStatus = kSentrySpanStatusUndefined;
-    self.finishMustBeCalled = NO;
-    _timeout = YES;
 
     if (_configuration.timerFactory == nil) {
         _configuration.timerFactory = [[SentryNSTimerFactory alloc] init];
@@ -292,8 +289,6 @@ static BOOL appStartMeasurementRead;
 - (void)deadlineTimerFired
 {
     SENTRY_LOG_DEBUG(@"Sentry tracer deadline fired");
-    _timeout = YES;
-
     @synchronized(self) {
         // This try to minimize a race condition with a proper call to `finishInternal`.
         if (self.isFinished) {
@@ -587,7 +582,7 @@ static BOOL appStartMeasurementRead;
         }
     }];
 
-    if (self.finishMustBeCalled && !self.wasFinishCalled) {
+    if (self.configuration.finishMustBeCalled && !self.wasFinishCalled) {
         SENTRY_LOG_DEBUG(
             @"Not capturing transaction because finish was not called before timing out.");
         return;

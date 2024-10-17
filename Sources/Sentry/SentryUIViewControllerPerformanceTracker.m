@@ -125,12 +125,6 @@
         SENTRY_LOG_DEBUG(@"Started span with id %@ to track view controller %@.",
             spanId.sentrySpanIdString, name);
 
-        id<SentrySpan> vcSpan = [self.tracker getSpan:spanId];
-        if ([vcSpan isKindOfClass:SentryTracer.class]) {
-            SentryTracer *vcTracer = (SentryTracer *)vcSpan;
-            vcTracer.finishMustBeCalled = YES;
-        }
-
         // Use the target itself to store the spanId to avoid using a global mapper.
         objc_setAssociatedObject(controller, &SENTRY_UI_PERFORMANCE_TRACKER_SPAN_ID, spanId,
             OBJC_ASSOCIATION_RETAIN_NONATOMIC);
