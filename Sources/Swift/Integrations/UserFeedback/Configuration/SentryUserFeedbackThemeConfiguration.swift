@@ -6,7 +6,9 @@ import UIKit
 /**
  * Settings for overriding theming components for the User Feedback Widget and Form.
  */
-@objcMembers public class SentryUserFeedbackThemeConfiguration: NSObject {
+@available(iOS 13.0, *)
+@objcMembers
+public class SentryUserFeedbackThemeConfiguration: NSObject {
     /**
      * The default font to use.
      * - note: Defaults to the current system default.
@@ -18,12 +20,7 @@ import UIKit
      * - note: Default light mode: `rgb(43, 34, 51)`; dark mode: `rgb(235, 230, 239)`
      */
     public var foreground: UIColor = {
-        let lightModeDefault = UIColor(red: 43 / 255, green: 34 / 255, blue: 51 / 255, alpha: 1)
-        if #available(iOS 12.0, *) {
-            return UIScreen.main.traitCollection.userInterfaceStyle == .dark ? UIColor(red: 235 / 255, green: 230 / 255, blue: 239 / 255, alpha: 1) : lightModeDefault
-        } else {
-            return lightModeDefault
-        }
+        UIScreen.main.traitCollection.userInterfaceStyle == .dark ? UIColor(red: 235 / 255, green: 230 / 255, blue: 239 / 255, alpha: 1) : UIColor(red: 43 / 255, green: 34 / 255, blue: 51 / 255, alpha: 1)
     }()
     
     /**
@@ -31,12 +28,7 @@ import UIKit
      * - note: Default light mode: `rgb(255, 255, 255)`; dark mode: `rgb(41, 35, 47)`
      */
     public var background: UIColor = {
-        let lightModeDefault = UIColor.white
-        if #available(iOS 12.0, *) {
-            return UIScreen.main.traitCollection.userInterfaceStyle == .dark ? UIColor(red: 41 / 255, green: 35 / 255, blue: 47 / 255, alpha: 1) : lightModeDefault
-        } else {
-            return lightModeDefault
-        }
+        UIScreen.main.traitCollection.userInterfaceStyle == .dark ? UIColor(red: 41 / 255, green: 35 / 255, blue: 47 / 255, alpha: 1) : UIColor.white
     }()
     
     /**

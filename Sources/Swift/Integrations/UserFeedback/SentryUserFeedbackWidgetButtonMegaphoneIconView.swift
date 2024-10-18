@@ -3,6 +3,7 @@ import Foundation
 @_implementationOnly import _SentryPrivate
 import UIKit
 
+@available(iOS 13.0, *)
 class SentryUserFeedbackWidgetButtonMegaphoneIconView: UIView {
     init(config: SentryUserFeedbackConfiguration) {
         super.init(frame: .zero)
@@ -10,17 +11,10 @@ class SentryUserFeedbackWidgetButtonMegaphoneIconView: UIView {
         let svgLayer = CAShapeLayer()
         svgLayer.path = megaphoneShape
         
-        func configureLightTheme() {
-            svgLayer.fillColor = config.theme.foreground.cgColor
-        }
-        if #available(iOS 12.0, *) {
-            if UIScreen.main.traitCollection.userInterfaceStyle == .dark {
-                svgLayer.fillColor = config.darkTheme.foreground.cgColor
-            } else {
-                configureLightTheme()
-            }
+        if UIScreen.main.traitCollection.userInterfaceStyle == .dark {
+            svgLayer.fillColor = config.darkTheme.foreground.cgColor
         } else {
-            configureLightTheme()
+            svgLayer.fillColor = config.theme.foreground.cgColor
         }
         
         svgLayer.fillRule = .evenOdd

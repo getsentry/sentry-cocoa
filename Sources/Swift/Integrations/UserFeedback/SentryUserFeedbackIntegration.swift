@@ -7,7 +7,9 @@ import UIKit
  * An integration managing a workflow for end users to report feedback via Sentry.
  * - note: The default method to show the feedback form is via a floating widget placed in the bottom trailing corner of the screen. See the configuration classes for alternative options.
  */
-@objcMembers class SentryUserFeedbackIntegration: NSObject {
+@available(iOS 13.0, *)
+@objcMembers
+class SentryUserFeedbackIntegration: NSObject {
     let configuration: SentryUserFeedbackConfiguration
     private var window: SentryUserFeedbackWidget.Window?
     
@@ -71,12 +73,12 @@ import UIKit
     }
     
     private func validate(_ config: SentryUserFeedbackWidgetConfiguration) {
-        let noOpposingHorizontals = config.location.contains(.right) && !config.location.contains(.left)
-            || !config.location.contains(.right) && config.location.contains(.left)
+        let noOpposingHorizontals = config.location.contains(.trailing) && !config.location.contains(.leading)
+            || !config.location.contains(.trailing) && config.location.contains(.leading)
         let noOpposingVerticals = config.location.contains(.top) && !config.location.contains(.bottom)
             || !config.location.contains(.top) && config.location.contains(.bottom)
-        let atLeastOneLocation = config.location.contains(.right)
-            || config.location.contains(.left)
+        let atLeastOneLocation = config.location.contains(.trailing)
+            || config.location.contains(.leading)
             || config.location.contains(.top)
             || config.location.contains(.bottom)
         let notAll = !config.location.contains(.all)

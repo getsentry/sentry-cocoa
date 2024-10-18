@@ -3,6 +3,7 @@ import Foundation
 @_implementationOnly import _SentryPrivate
 import UIKit
 
+@available(iOS 13.0, *)
 class SentryUserFeedbackWidgetButtonView: UIView {
     // MARK: Measurements
     
@@ -159,19 +160,12 @@ class SentryUserFeedbackWidgetButtonView: UIView {
         let lozengeLayer = CAShapeLayer()
         lozengeLayer.path = lozengeShape.cgPath
         
-        func configureLightTheme() {
+        if UIScreen.main.traitCollection.userInterfaceStyle == .dark {
+            lozengeLayer.fillColor = config.darkTheme.background.cgColor
+            lozengeLayer.strokeColor = config.darkTheme.outlineColor.cgColor
+        } else {
             lozengeLayer.fillColor = config.theme.background.cgColor
             lozengeLayer.strokeColor = config.theme.outlineColor.cgColor
-        }
-        if #available(iOS 12.0, *) {
-            if UIScreen.main.traitCollection.userInterfaceStyle == .dark {
-                lozengeLayer.fillColor = config.darkTheme.background.cgColor
-                lozengeLayer.strokeColor = config.darkTheme.outlineColor.cgColor
-            } else {
-                configureLightTheme()
-            }
-        } else {
-            configureLightTheme()
         }
         
         let iconSizeDifference = (scaledIconSize - svgSize) / 2

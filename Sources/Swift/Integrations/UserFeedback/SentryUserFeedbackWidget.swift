@@ -3,6 +3,7 @@ import Foundation
 @_implementationOnly import _SentryPrivate
 import UIKit
 
+@available(iOS 13.0, *)
 struct SentryUserFeedbackWidget {
     class Window: UIWindow {
         class RootViewController: UIViewController {
@@ -47,11 +48,11 @@ struct SentryUserFeedbackWidget {
                 if config.widgetConfig.location.contains(.top) {
                     constraints.append(button.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: config.widgetConfig.layoutUIOffset.vertical))
                 }
-                if config.widgetConfig.location.contains(.right) {
-                    constraints.append(button.rightAnchor.constraint(equalTo: view.safeAreaLayoutGuide.rightAnchor, constant: -config.widgetConfig.layoutUIOffset.horizontal))
+                if config.widgetConfig.location.contains(.trailing) {
+                    constraints.append(button.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -config.widgetConfig.layoutUIOffset.horizontal))
                 }
-                if config.widgetConfig.location.contains(.left) {
-                    constraints.append(button.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: config.widgetConfig.layoutUIOffset.horizontal))
+                if config.widgetConfig.location.contains(.leading) {
+                    constraints.append(button.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: config.widgetConfig.layoutUIOffset.horizontal))
                 }
                 NSLayoutConstraint.activate(constraints)
             }
