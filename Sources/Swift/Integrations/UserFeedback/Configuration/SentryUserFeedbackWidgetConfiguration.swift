@@ -51,7 +51,7 @@ public class SentryUserFeedbackWidgetConfiguration: NSObject {
      * The location for positioning the widget.
      * - note: Default: `[.bottom, .right]`
      */
-    public var location: UIDirectionalRectEdge = [.bottom, .trailing]
+    public var location: NSDirectionalRectEdge = [.bottom, .trailing]
     
     /**
      * The distance to use from the widget button to the `safeAreaLayoutGuide` of the root view in the widget's container window.
