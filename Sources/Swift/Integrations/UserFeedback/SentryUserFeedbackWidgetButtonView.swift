@@ -115,17 +115,10 @@ class SentryUserFeedbackWidgetButtonView: UIView {
         label.text = text
         label.translatesAutoresizingMaskIntoConstraints = false
 
-        func configureLightTheme() {
-            label.textColor = config.theme.foreground
-        }
-        if #available(iOS 12.0, *) {
-            if UIScreen.main.traitCollection.userInterfaceStyle == .dark {
-                label.textColor = config.darkTheme.foreground
-            } else {
-                configureLightTheme()
-            }
+        if UIScreen.main.traitCollection.userInterfaceStyle == .dark {
+            label.textColor = config.darkTheme.foreground
         } else {
-            configureLightTheme()
+            label.textColor = config.theme.foreground
         }
         
         label.font = config.theme.font
