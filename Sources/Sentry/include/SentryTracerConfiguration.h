@@ -28,6 +28,13 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property (nonatomic) BOOL waitForChildren;
 
+/**
+ * This flag indicates whether the trace should be captured when the timeout triggers.
+ * If Yes, this tracer will be discarced in case the timeout triggers.
+ * Default @c NO
+ */
+@property (nonatomic) BOOL finishMustBeCalled;
+
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 /**
  * Whether to sample a profile corresponding to this transaction

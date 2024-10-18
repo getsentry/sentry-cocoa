@@ -22,6 +22,7 @@ via the option `swizzleClassNameExclude`.
 - Data race in SentrySwizzleInfo.originalCalled (#4434)
 - Delete old session replay files (#4446)
 - Thread running at user-initiated quality-of-service for session replay (#4439)
+- Don't create transactions for unused UIViewControllers (#4448)
 
 ### Improvements
 
