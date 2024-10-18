@@ -2,15 +2,15 @@
 
 ## Unreleased
 
+### Removal of Experimental API
+
+- Remove the deprecated experimental Metrics API (#4406): [Learn more](https://sentry.zendesk.com/hc/en-us/articles/26369339769883-Metrics-Beta-Coming-to-an-End)
+
 ### Features
 
 - feat: API to manually start/stop Session Replay (#4414)
 - Custom redact modifier for SwiftUI (#4362, #4392)
 - Track usage of appHangTrackingV2 (#4445)
-
-### Removal of Experimental API
-
-- Remove the deprecated experimental Metrics API (#4406): [Learn more](https://sentry.zendesk.com/hc/en-us/articles/26369339769883-Metrics-Beta-Coming-to-an-End)
 
 ### Fixes
 
@@ -20,6 +20,7 @@ via the option `swizzleClassNameExclude`.
 - Finish TTID correctly when viewWillAppear is skipped (#4417)
 - Swizzling RootUIViewController if ignored by `swizzleClassNameExclude` (#4407)
 - Data race in SentrySwizzleInfo.originalCalled (#4434)
+- Delete old session replay files (#4446)
 - Thread running at user-initiated quality-of-service for session replay (#4439)
 - Don't create transactions for unused UIViewControllers (#4448)
 
