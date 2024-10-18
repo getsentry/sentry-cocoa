@@ -109,7 +109,7 @@ public class SentryUserFeedbackConfiguration: NSObject {
     // MARK: Derived properties
     
     lazy var textEffectiveHeightCenter: CGFloat = {
-        theme.font.capHeight / 2
+        theme.font.familyName == "Damascus" ? theme.font.lineHeight / 2 + theme.font.lineHeight - theme.font.capHeight : theme.font.capHeight / 2
     }()
     
     /// The ratio of the configured font size to the system default font size, to know how large to scale things like the icon and lozenge shape.
