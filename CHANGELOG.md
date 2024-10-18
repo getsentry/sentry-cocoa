@@ -11,11 +11,11 @@
 - feat: API to manually start/stop Session Replay (#4414)
 - Custom redact modifier for SwiftUI (#4362, #4392)
 - Track usage of appHangTrackingV2 (#4445)
+- AppHangV2 detection (#4379) Add a new algorithm for detecting app hangs that differentiates between fully blocking and non-fully blocking app hangs. Read more in-depth in our [docs](https://docs.sentry.io/platforms/apple/guides/ios/configuration/app-hangs/#app-hangs-v2).
 
 ### Fixes
 
-- Edge case for swizzleClassNameExclude (#4405): Skip creating transactions for UIViewControllers ignored for swizzling
-via the option `swizzleClassNameExclude`.
+- Edge case for swizzleClassNameExclude (#4405): Skip creating transactions for UIViewControllers ignored for swizzling via the option `swizzleClassNameExclude`.
 - Add TTID/TTFD spans when loadView gets skipped (#4415)
 - Finish TTID correctly when viewWillAppear is skipped (#4417)
 - Swizzling RootUIViewController if ignored by `swizzleClassNameExclude` (#4407)
@@ -37,7 +37,6 @@ via the option `swizzleClassNameExclude`.
 
 - Added breadcrumb.origin private field (#4358)
 - Custom redact modifier for SwiftUI (#4362)
-- AppHangV2 detection (#4379) Add a new algorithm for detecting app hangs that differentiates between fully blocking and non-fully blocking app hangs. Read more in-depth in our [docs](https://docs.sentry.io/platforms/apple/guides/ios/configuration/app-hangs/#app-hangs-v2).
 - Add support for arm64e (#3398)
 - Add mergeable libraries support to dynamic libraries (#4381)
 
@@ -52,7 +51,6 @@ via the option `swizzleClassNameExclude`.
 
 - Fix the versioning to support app release with Beta versions (#4368)
 - Linking ongoing trace to crash event (#4393)
-- Edge case for swizzleClassNameExclude (#4405)
 
 ## 8.38.0-beta.1
 
@@ -60,7 +58,6 @@ via the option `swizzleClassNameExclude`.
 
 - Added breadcrumb.origin private field (#4358)
 - Custom redact modifier for SwiftUI (#4362)
-- AppHangV2 detection (#4379) Add a new algorithm for detecting app hangs that differentiates between fully blocking and non-fully blocking app hangs. Read more in-depth in our [docs](https://docs.sentry.io/platforms/apple/guides/ios/configuration/app-hangs/#app-hangs-v2).
 - Add support for arm64e (#3398)
 - Add mergeable libraries support to dynamic libraries (#4381)
 
@@ -75,8 +72,6 @@ via the option `swizzleClassNameExclude`.
 
 - Fix the versioning to support app release with Beta versions (#4368)
 - Linking ongoing trace to crash event (#4393)
-- Edge case for swizzleClassNameExclude (#4405): Skip creating transactions for UIViewControllers ignored for swizzling
-via the option `swizzleClassNameExclude`.
 
 ## 8.37.0
 
