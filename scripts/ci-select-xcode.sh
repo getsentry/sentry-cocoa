@@ -1,7 +1,6 @@
 #!/bin/bash
 
 # For available Xcode versions see:
-# - https://github.com/actions/runner-images/blob/main/images/macos/macos-12-Readme.md
 # - https://github.com/actions/runner-images/blob/main/images/macos/macos-13-Readme.md
 # - https://github.com/actions/runner-images/blob/main/images/macos/macos-14-Readme.md
 # - https://github.com/actions/runner-images/blob/main/images/macos/macos-15-Readme.md
