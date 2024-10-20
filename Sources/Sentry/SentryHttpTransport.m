@@ -124,7 +124,7 @@
     envelope = [self.envelopeRateLimit removeRateLimitedItems:envelope];
 
     if (envelope.items.count == 0) {
-        SENTRY_LOG_DEBUG(@"RateLimit is active for all envelope items.");
+        SENTRY_LOG_WARN(@"RateLimit is active for all envelope items.");
         return;
     }
 
