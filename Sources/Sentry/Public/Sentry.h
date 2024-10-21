@@ -49,4 +49,9 @@ FOUNDATION_EXPORT const unsigned char SentryVersionString[];
 #    import <Sentry/SentryUser.h>
 #    import <Sentry/SentryUserFeedback.h>
 #    import <Sentry/SentryWithoutUIKit.h>
+
+#    if TARGET_OS_OSX
+#        import <Sentry/SentryUncaughtNSExceptions.h>
+#    endif // TARGET_OS_OSX
+
 #endif // __has_include(<Sentry/Sentry.h>)

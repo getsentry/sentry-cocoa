@@ -50,8 +50,7 @@ class ViewController: NSViewController {
 
     @IBAction func crashOnException(_ sender: Any) {
         let userInfo: [String: String] = ["user-info-key-1": "user-info-value-1", "user-info-key-2": "user-info-value-2"]
-        let exception = NSException(name: NSExceptionName("My Custom exception"), reason: "User clicked the button", userInfo: userInfo)
-        NSApplication.shared.reportException(exception)
+        let exception = NSException(name: NSExceptionName("My Custom exception"), reason: "User clicked the button", userInfo: userInfo).raise()
     }
     
     @IBAction func captureTransaction(_ sender: Any) {

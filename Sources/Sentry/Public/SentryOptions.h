@@ -80,6 +80,12 @@ NS_SWIFT_NAME(Options)
  */
 @property (nonatomic, assign) BOOL enableCrashHandler;
 
+#if TARGET_OS_OSX
+
+@property (nonatomic, assign) BOOL enableReportingUncaughtExceptions;
+
+#endif // TARGET_OS_OSX
+
 #if !TARGET_OS_WATCH
 
 /**

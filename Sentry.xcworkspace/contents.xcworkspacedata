@@ -23,6 +23,9 @@
          location = "group:Samples/tvOS-Swift/tvOS-Swift.xcodeproj">
       </FileRef>
       <FileRef
+         location = "group:Samples/macOS-SwiftUI/macOS-SwiftUI.xcodeproj">
+      </FileRef>
+      <FileRef
          location = "group:Samples/macOS-Swift/macOS-Swift.xcodeproj">
       </FileRef>
       <FileRef
