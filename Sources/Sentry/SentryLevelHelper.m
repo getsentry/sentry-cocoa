@@ -2,7 +2,8 @@
 #import "SentryBreadcrumb+Private.h"
 
 @implementation SentryLevelBridge : NSObject
-+ (NSUInteger) breadcrumbLevel:(SentryBreadcrumb *)breadcrumb {
++ (NSUInteger)breadcrumbLevel:(SentryBreadcrumb *)breadcrumb
+{
     return breadcrumb.level;
 }
 @end
