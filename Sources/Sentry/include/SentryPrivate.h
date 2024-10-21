@@ -6,7 +6,6 @@
 
 // Headers that also import SentryDefines should be at the end of this list
 // otherwise it wont compile
-#import "SentryBreadcrumb+Private.h"
 #import "SentryDateUtil.h"
 #import "SentryDisplayLinkWrapper.h"
 #import "SentryLevelHelper.h"
