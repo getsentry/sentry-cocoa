@@ -59,6 +59,7 @@ jobs:
           - macOS-Swift
           - iOS13-Swift
           - watchOS-Swift WatchKit App
+          - macOS-SwiftUI
 
     steps:
       - uses: actions/checkout@v4
