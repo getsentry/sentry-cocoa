@@ -232,6 +232,7 @@
 - (void)envelopeItemDropped:(SentryEnvelopeItem *)envelopeItem
                withCategory:(SentryDataCategory)dataCategory;
 {
+    SENTRY_LOG_WARN(@"Envelope item dropped due to exceeding rate limit. Category: %@", nameForSentryDataCategory(dataCategory));
     [self recordLostEvent:dataCategory reason:kSentryDiscardReasonRateLimitBackoff];
     [self recordLostSpans:envelopeItem reason:kSentryDiscardReasonRateLimitBackoff];
 }
