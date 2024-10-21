@@ -47,6 +47,6 @@ class SentryLevelHelper: NSObject {
     }
 
     static func breadcrumbLevel(_ breadcrumb: Breadcrumb) -> SentryLevel? {
-        SentryLevel(rawValue: breadcrumb.rawLevel())
+        SentryLevel(rawValue: sentry_breadcrumbLevel(breadcrumb))
     }
 }
