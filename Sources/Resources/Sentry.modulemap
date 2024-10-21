@@ -21,6 +21,7 @@ framework module Sentry {
         header "SentrySessionReplayIntegration-Hybrid.h"
         header "SentrySwizzle.h"
         header "SentryUser+Private.h"
+        
         export *
     }
 }
