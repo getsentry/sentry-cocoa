@@ -15,7 +15,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, strong) SentryConcurrentRateLimitsDictionary *rateLimits;
 @property (nonatomic, strong) SentryRetryAfterHeaderParser *retryAfterHeaderParser;
 @property (nonatomic, strong) SentryRateLimitParser *rateLimitParser;
-@property (nonatomic, strong) SentryCurrentDateProvider *currentDateProvider;
+@property (nonatomic, strong) id<SentryCurrentDateProvider> currentDateProvider;
 @property (nonatomic, strong) SentryDateUtil *dateUtil;
 
 @end
@@ -25,7 +25,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithRetryAfterHeaderParser:
                     (SentryRetryAfterHeaderParser *)retryAfterHeaderParser
                             andRateLimitParser:(SentryRateLimitParser *)rateLimitParser
-                           currentDateProvider:(SentryCurrentDateProvider *)currentDateProvider
+                           currentDateProvider:(id<SentryCurrentDateProvider>)currentDateProvider
 {
     if (self = [super init]) {
         self.rateLimits = [[SentryConcurrentRateLimitsDictionary alloc] init];

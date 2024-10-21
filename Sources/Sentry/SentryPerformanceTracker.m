@@ -86,6 +86,7 @@ NS_ASSUME_NONNULL_BEGIN
                               configuration:[SentryTracerConfiguration configurationWithBlock:^(
                                                 SentryTracerConfiguration *configuration) {
                                   configuration.waitForChildren = YES;
+                                  configuration.finishMustBeCalled = YES;
                               }]];
 
             [(SentryTracer *)newSpan setDelegate:self];

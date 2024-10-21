@@ -25,7 +25,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (NSArray<id<SentryTransport>> *)initTransports:(SentryOptions *)options
                                sentryFileManager:(SentryFileManager *)sentryFileManager
-                             currentDateProvider:(SentryCurrentDateProvider *)currentDateProvider
+                             currentDateProvider:(id<SentryCurrentDateProvider>)currentDateProvider
 {
     NSURLSession *session;
 
@@ -59,7 +59,7 @@ NS_ASSUME_NONNULL_BEGIN
     dispatch_queue_attr_t attributes = dispatch_queue_attr_make_with_qos_class(
         DISPATCH_QUEUE_SERIAL, DISPATCH_QUEUE_PRIORITY_LOW, 0);
     SentryDispatchQueueWrapper *dispatchQueueWrapper =
-        [[SentryDispatchQueueWrapper alloc] initWithName:"sentry-http-transport"
+        [[SentryDispatchQueueWrapper alloc] initWithName:"io.sentry.http-transport"
                                               attributes:attributes];
 
     SentryNSURLRequestBuilder *requestBuilder = [[SentryNSURLRequestBuilder alloc] init];

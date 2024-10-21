@@ -358,12 +358,47 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         XCTAssertTrue(sessionReplay.isFullSession)
     }
     
-    func createLastSessionReplay(writeSessionInfo: Bool = true, errorSampleRate: Double = 1) throws {
+    func testCleanUp() throws {
+        // Create 3 old Sessions
+        try createLastSessionReplay()
+        try createLastSessionReplay()
+        try createLastSessionReplay()
+        SentryDependencyContainer.sharedInstance().dispatchQueueWrapper = TestSentryDispatchQueueWrapper()
+        
+        // Start the integration with a configuration that will enable it
+        startSDK(sessionSampleRate: 0, errorSampleRate: 1)
+        
+        // Check whether there is only one old session directory and the current session directory
+        let content = try FileManager.default.contentsOfDirectory(atPath: replayFolder()).filter { name in
+            !name.hasPrefix("replay") && !name.hasPrefix(".") //remove replay info files and system directories
+        }
+        
+        XCTAssertEqual(content.count, 2)
+    }
+    
+    func testCleanUpWithNoFiles() throws {
         let options = Options()
         options.dsn = "https://user@test.com/test"
         options.cacheDirectoryPath = FileManager.default.temporaryDirectory.path
         
-        let replayFolder = options.cacheDirectoryPath + "/io.sentry/\(options.parsedDsn?.getHash() ?? "")/replay"
+        let dispatchQueue = TestSentryDispatchQueueWrapper()
+        SentryDependencyContainer.sharedInstance().dispatchQueueWrapper = dispatchQueue
+        SentryDependencyContainer.sharedInstance().fileManager = try SentryFileManager(options: options)
+        
+        if FileManager.default.fileExists(atPath: replayFolder()) {
+            try FileManager.default.removeItem(atPath: replayFolder())
+        }
+        
+        // We can't use SentrySDK.start because the dependency container dispatch queue is used for other tasks.
+        // Manually starting the integration and initializing it makes the test more controlled.
+        let integration = SentrySessionReplayIntegration()
+        integration.install(with: options)
+        
+        XCTAssertEqual(dispatchQueue.dispatchAsyncCalled, 0)
+    }
+    
+    func createLastSessionReplay(writeSessionInfo: Bool = true, errorSampleRate: Double = 1) throws {
+        let replayFolder = replayFolder()
         let jsonPath = replayFolder + "/replay.current"
         var sessionFolder = UUID().uuidString
         let info: [String: Any] = ["replayId": SentryId().sentryIdString,
@@ -388,6 +423,13 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
             sentrySessionReplaySync_updateInfo(1, Double(4))
             sentrySessionReplaySync_writeInfo()
         }
+    }
+    
+    func replayFolder() -> String {
+        let options = Options()
+        options.dsn = "https://user@test.com/test"
+        options.cacheDirectoryPath = FileManager.default.temporaryDirectory.path
+        return options.cacheDirectoryPath + "/io.sentry/\(options.parsedDsn?.getHash() ?? "")/replay"
     }
 }
 

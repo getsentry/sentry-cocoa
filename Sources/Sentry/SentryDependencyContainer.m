@@ -93,7 +93,7 @@ static NSObject *sentryDependencyContainerLock;
         _random = [[SentryRandom alloc] init];
         _threadWrapper = [[SentryThreadWrapper alloc] init];
         _binaryImageCache = [[SentryBinaryImageCache alloc] init];
-        _dateProvider = [[SentryCurrentDateProvider alloc] init];
+        _dateProvider = [[SentryDefaultCurrentDateProvider alloc] init];
     }
     return self;
 }
