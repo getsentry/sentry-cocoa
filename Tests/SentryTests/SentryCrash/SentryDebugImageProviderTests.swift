@@ -272,6 +272,42 @@ class SentryDebugImageProviderTests: XCTestCase {
         
         XCTAssertEqual(actual.count, 0)
     }
+    
+    func testGetDebugImagesForImageAddressesFromCache() throws {
+        let sut = fixture.getSut(images: fixture.getTestImages())
+        
+        let imageAddress = "0x00000001410b1a00"
+        
+        let actual = sut.getDebugImagesForImageAddressesFromCache(imageAddresses: [imageAddress])
+        
+        XCTAssertEqual(actual.count, 1)
+        let image = try XCTUnwrap(actual.first)
+        
+        XCTAssertEqual(image.debugID, "84BAEBDA-AD1A-33F4-B35D-8A45F5DAF322")
+        XCTAssertEqual(image.type, SentryDebugImageType)
+        XCTAssertEqual(image.imageVmAddress, "0x0000daf262294000")
+        XCTAssertEqual(image.imageAddress, "0x00000001410b1a00")
+        XCTAssertEqual(image.imageSize, 1_352_256)
+        XCTAssertEqual(image.codeFile, "UIKit")
+    }
+    
+    func testGetDebugImagesForImageAddressesFromCache_GarbageImageAddress() throws {
+        let sut = fixture.getSut(images: fixture.getTestImages())
+        
+        let imageAddress = "garbage"
+        
+        let actual = sut.getDebugImagesForImageAddressesFromCache(imageAddresses: [imageAddress])
+
+        XCTAssertEqual(actual.count, 0)
+    }
+    
+    func testGetDebugImagesForImageAddressesFromCache_EmptyArray() throws {
+        let sut = fixture.getSut(images: fixture.getTestImages())
+        
+        let actual = sut.getDebugImagesForImageAddressesFromCache(imageAddresses: [])
+        
+        XCTAssertEqual(actual.count, 0)
+    }
         
     private static func createSentryCrashBinaryImage(
         address: UInt64 = 0,
