@@ -141,7 +141,8 @@
     return [NSString stringWithFormat:@"<%@: %p, %@>", [self class], self, [self serialize]];
 }
 
-- (NSUInteger)rawLevel {
+- (NSUInteger)rawLevel
+{
     return self.level;
 }
 

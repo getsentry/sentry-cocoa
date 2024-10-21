@@ -14,6 +14,7 @@
 #import "SentryHub+Private.h"
 #import "SentryInternalDefines.h"
 #import "SentryLog.h"
+#import "SentryLogC.h"
 #import "SentryMeta.h"
 #import "SentryOptions+Private.h"
 #import "SentryProfilingConditionals.h"
@@ -23,7 +24,6 @@
 #import "SentrySerialization.h"
 #import "SentrySwift.h"
 #import "SentryTransactionContext.h"
-#import "SentryLogC.h"
 
 #if TARGET_OS_OSX
 #    import "SentryCrashExceptionApplication.h"
