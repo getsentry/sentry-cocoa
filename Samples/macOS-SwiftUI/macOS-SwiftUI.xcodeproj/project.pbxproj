@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		62870A9B2CC7C0650071284D /* SampleAssets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 62870A9A2CC7C0650071284D /* SampleAssets.xcassets */; };
 		62C97D2B2CC6353C00DDA204 /* Sentry.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 62C97D2A2CC6353C00DDA204 /* Sentry.framework */; };
 		62C97D2C2CC6353C00DDA204 /* Sentry.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 62C97D2A2CC6353C00DDA204 /* Sentry.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		62C97D2F2CC6354300DDA204 /* SentrySwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 62C97D2E2CC6354300DDA204 /* SentrySwiftUI.framework */; };
@@ -29,6 +30,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		62870A9A2CC7C0650071284D /* SampleAssets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = SampleAssets.xcassets; path = ../SampleAssets.xcassets; sourceTree = "<group>"; };
 		62C97D0F2CC634DD00DDA204 /* macOS-SwiftUI.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "macOS-SwiftUI.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		62C97D2A2CC6353C00DDA204 /* Sentry.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = Sentry.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		62C97D2E2CC6354300DDA204 /* SentrySwiftUI.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = SentrySwiftUI.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -58,6 +60,7 @@
 		62C97D062CC634DD00DDA204 = {
 			isa = PBXGroup;
 			children = (
+				62870A9A2CC7C0650071284D /* SampleAssets.xcassets */,
 				62C97D112CC634DD00DDA204 /* macOS-SwiftUI */,
 				62C97D292CC6353C00DDA204 /* Frameworks */,
 				62C97D102CC634DD00DDA204 /* Products */,
@@ -146,6 +149,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				62870A9B2CC7C0650071284D /* SampleAssets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
