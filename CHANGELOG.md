@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Improvements
+
+- Expose `HybridSDK` from `Sentry` framework (#4440)
+
 ## 8.39.0-beta.1
 
 ### Removal of Experimental API

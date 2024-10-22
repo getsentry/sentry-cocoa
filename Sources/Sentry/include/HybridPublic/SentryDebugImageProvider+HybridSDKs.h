@@ -1,4 +1,8 @@
-#import "SentryDebugImageProvider.h"
+#if __has_include(<Sentry/SentryDebugImageProvider.h>)
+#    import <Sentry/SentryDebugImageProvider.h>
+#else
+#    import "SentryDebugImageProvider.h"
+#endif
 
 @class SentryDebugMeta;
 @class SentryThread;
