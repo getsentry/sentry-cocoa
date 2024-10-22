@@ -8,8 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		498CC1A52C9217E20045143E /* Sentry.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 498CC1982C9217D50045143E /* Sentry.framework */; };
-		62C97DB42CC69A8100DDA204 /* SampleAssets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 62C97DB32CC69A8100DDA204 /* SampleAssets.xcassets */; };
-		62C97DB62CC69AA100DDA204 /* SampleAssets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 62C97DB52CC69AA100DDA204 /* SampleAssets.xcassets */; };
 		7B34280225876DFC00056519 /* Tongariro.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 7B34280125876DFC00056519 /* Tongariro.jpg */; };
 		7B82C48424C98A93002CA6D1 /* watchOS-Swift WatchKit App.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = 7B82C48324C98A93002CA6D1 /* watchOS-Swift WatchKit App.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		7B82C48A24C98A93002CA6D1 /* Interface.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 7B82C48824C98A93002CA6D1 /* Interface.storyboard */; };
@@ -410,7 +408,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				62C97DB42CC69A8100DDA204 /* SampleAssets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -418,7 +415,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				62C97DB62CC69AA100DDA204 /* SampleAssets.xcassets in Resources */,
 				7B82C48A24C98A93002CA6D1 /* Interface.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
