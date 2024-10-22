@@ -8,12 +8,12 @@
 
 /* Begin PBXBuildFile section */
 		6250B97C2CB69C96009512D6 /* NoARCCrash.m in Sources */ = {isa = PBXBuildFile; fileRef = 6250B97B2CB69C96009512D6 /* NoARCCrash.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
+		62C97D832CC698BD00DDA204 /* SampleAssets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 62C97D7D2CC698BD00DDA204 /* SampleAssets.xcassets */; };
 		630853492440C46E00DDE4CE /* Sentry.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6308533B2440C45500DDE4CE /* Sentry.framework */; };
 		6308534A2440C46E00DDE4CE /* Sentry.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 6308533B2440C45500DDE4CE /* Sentry.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		637AFDCB243B036B0034958B /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 637AFDCA243B036B0034958B /* AppDelegate.m */; };
 		637AFDD1243B036B0034958B /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 637AFDD0243B036B0034958B /* ViewController.m */; };
 		637AFDD4243B036B0034958B /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 637AFDD2243B036B0034958B /* Main.storyboard */; };
-		637AFDD6243B036D0034958B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 637AFDD5243B036D0034958B /* Assets.xcassets */; };
 		637AFDD9243B036D0034958B /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 637AFDD7243B036D0034958B /* LaunchScreen.storyboard */; };
 		637AFDDC243B036D0034958B /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 637AFDDB243B036D0034958B /* main.m */; };
 		7B3427FB25876DDC00056519 /* Tongariro.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 7B3427F925876DDB00056519 /* Tongariro.jpg */; };
@@ -98,6 +98,7 @@
 /* Begin PBXFileReference section */
 		6250B9752CB69C86009512D6 /* NoARCCrash.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NoARCCrash.h; sourceTree = "<group>"; };
 		6250B97B2CB69C96009512D6 /* NoARCCrash.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NoARCCrash.m; sourceTree = "<group>"; };
+		62C97D7D2CC698BD00DDA204 /* SampleAssets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = SampleAssets.xcassets; path = ../../SampleAssets.xcassets; sourceTree = "<group>"; };
 		630853352440C45500DDE4CE /* Sentry.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = Sentry.xcodeproj; path = ../../Sentry.xcodeproj; sourceTree = "<group>"; };
 		634C7EC724406A4900AFDE9F /* Sentry.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = Sentry.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		637AFDC6243B036B0034958B /* iOS-ObjectiveC.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "iOS-ObjectiveC.app"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -106,7 +107,6 @@
 		637AFDCF243B036B0034958B /* ViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
 		637AFDD0243B036B0034958B /* ViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
 		637AFDD3243B036B0034958B /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
-		637AFDD5243B036D0034958B /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		637AFDD8243B036D0034958B /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		637AFDDA243B036D0034958B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		637AFDDB243B036D0034958B /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
@@ -192,11 +192,11 @@
 				6250B9752CB69C86009512D6 /* NoARCCrash.h */,
 				6250B97B2CB69C96009512D6 /* NoARCCrash.m */,
 				637AFDD2243B036B0034958B /* Main.storyboard */,
-				637AFDD5243B036D0034958B /* Assets.xcassets */,
 				7B3427F925876DDB00056519 /* Tongariro.jpg */,
 				637AFDD7243B036D0034958B /* LaunchScreen.storyboard */,
 				637AFDDA243B036D0034958B /* Info.plist */,
 				637AFDDB243B036D0034958B /* main.m */,
+				62C97D7D2CC698BD00DDA204 /* SampleAssets.xcassets */,
 			);
 			path = "iOS-ObjectiveC";
 			sourceTree = "<group>";
@@ -355,9 +355,9 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				62C97D832CC698BD00DDA204 /* SampleAssets.xcassets in Resources */,
 				637AFDD9243B036D0034958B /* LaunchScreen.storyboard in Resources */,
 				7B3427FB25876DDC00056519 /* Tongariro.jpg in Resources */,
-				637AFDD6243B036D0034958B /* Assets.xcassets in Resources */,
 				637AFDD4243B036B0034958B /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
