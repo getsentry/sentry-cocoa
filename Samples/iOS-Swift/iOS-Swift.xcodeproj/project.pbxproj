@@ -12,11 +12,11 @@
 		629EC8AD2B0B537400858855 /* TriggerAppHang.swift in Sources */ = {isa = PBXBuildFile; fileRef = 629EC8AC2B0B537400858855 /* TriggerAppHang.swift */; };
 		629EC8BB2B0B5BAE00858855 /* TriggerAppHang.swift in Sources */ = {isa = PBXBuildFile; fileRef = 629EC8AC2B0B537400858855 /* TriggerAppHang.swift */; };
 		62C07D5C2AF3E3F500894688 /* BaseUITest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62C07D5B2AF3E3F500894688 /* BaseUITest.swift */; };
+		62C97DBF2CC69B0300DDA204 /* SampleAssets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 62C97DB92CC69B0200DDA204 /* SampleAssets.xcassets */; };
 		630853532440C60F00DDE4CE /* Sentry.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 630853322440C44F00DDE4CE /* Sentry.framework */; };
 		637AFDAA243B02760034958B /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 637AFDA9243B02760034958B /* AppDelegate.swift */; };
 		637AFDAE243B02760034958B /* TransactionsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 637AFDAD243B02760034958B /* TransactionsViewController.swift */; };
 		637AFDB1243B02760034958B /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 637AFDAF243B02760034958B /* Main.storyboard */; };
-		637AFDB3243B02770034958B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 637AFDB2243B02770034958B /* Assets.xcassets */; };
 		637AFDB6243B02770034958B /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 637AFDB4243B02770034958B /* LaunchScreen.storyboard */; };
 		7B3427F825876A5200056519 /* Tongariro.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 7B3427F725876A5200056519 /* Tongariro.jpg */; };
 		7B5525B32938B5B5006A2932 /* DiskWriteException.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5525B22938B5B5006A2932 /* DiskWriteException.swift */; };
@@ -62,7 +62,6 @@
 		D8269A43274C095F00BD5BD5 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D8269A41274C095F00BD5BD5 /* Main.storyboard */; };
 		D8269A4E274C09A400BD5BD5 /* SwiftUIViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B4F33FA271EBE0C00C8591E /* SwiftUIViewController.swift */; };
 		D8269A4F274C09A400BD5BD5 /* SwiftUIView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B4F33F7271EBD2500C8591E /* SwiftUIView.swift */; };
-		D8269A50274C0F6800BD5BD5 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 637AFDB2243B02770034958B /* Assets.xcassets */; };
 		D8269A51274C0F6C00BD5BD5 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 637AFDB4243B02770034958B /* LaunchScreen.storyboard */; };
 		D8269A52274C0F7200BD5BD5 /* Tongariro.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 7B3427F725876A5200056519 /* Tongariro.jpg */; };
 		D8269A55274C0F9A00BD5BD5 /* TraceTestViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E8C57AE25EF16E6001CEEFA /* TraceTestViewController.swift */; };
@@ -293,12 +292,12 @@
 		0AABE2E928855FF80057ED69 /* PermissionsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PermissionsViewController.swift; sourceTree = "<group>"; };
 		629EC8AC2B0B537400858855 /* TriggerAppHang.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TriggerAppHang.swift; sourceTree = "<group>"; };
 		62C07D5B2AF3E3F500894688 /* BaseUITest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseUITest.swift; sourceTree = "<group>"; };
+		62C97DB92CC69B0200DDA204 /* SampleAssets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = SampleAssets.xcassets; path = ../SampleAssets.xcassets; sourceTree = "<group>"; };
 		6308532C2440C44F00DDE4CE /* Sentry.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = Sentry.xcodeproj; path = ../../Sentry.xcodeproj; sourceTree = "<group>"; };
 		637AFDA6243B02760034958B /* iOS-Swift.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "iOS-Swift.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		637AFDA9243B02760034958B /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		637AFDAD243B02760034958B /* TransactionsViewController.swift */ = {isa = PBXFileReference; indentWidth = 4; lastKnownFileType = sourcecode.swift; path = TransactionsViewController.swift; sourceTree = "<group>"; tabWidth = 4; };
 		637AFDB0243B02760034958B /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
-		637AFDB2243B02770034958B /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		637AFDB5243B02770034958B /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		637AFDB7243B02770034958B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		63F93AA9245AC91600A500DB /* iOS-Swift.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "iOS-Swift.entitlements"; sourceTree = "<group>"; };
@@ -460,6 +459,7 @@
 		637AFD9D243B02760034958B = {
 			isa = PBXGroup;
 			children = (
+				62C97DB92CC69B0200DDA204 /* SampleAssets.xcassets */,
 				84BA72A62C93698E0045B828 /* Shared */,
 				848A2576286E3490008A8858 /* PerformanceBenchmarks */,
 				6308532C2440C44F00DDE4CE /* Sentry.xcodeproj */,
@@ -502,7 +502,6 @@
 				D80D021229EE93630084393D /* ErrorsViewController.swift */,
 				D80D021929EE936F0084393D /* ExtraViewController.swift */,
 				637AFDAF243B02760034958B /* Main.storyboard */,
-				637AFDB2243B02770034958B /* Assets.xcassets */,
 				7B3427F725876A5200056519 /* Tongariro.jpg */,
 				7BFC8B0526D4D24B000D3504 /* LoremIpsum.txt */,
 				637AFDB4243B02770034958B /* LaunchScreen.storyboard */,
@@ -914,7 +913,6 @@
 				7BFC8B0626D4D24B000D3504 /* LoremIpsum.txt in Resources */,
 				637AFDB6243B02770034958B /* LaunchScreen.storyboard in Resources */,
 				7B3427F825876A5200056519 /* Tongariro.jpg in Resources */,
-				637AFDB3243B02770034958B /* Assets.xcassets in Resources */,
 				637AFDB1243B02760034958B /* Main.storyboard in Resources */,
 				D8FD68C42C1C86E300A70055 /* TableViewController.xib in Resources */,
 			);
@@ -940,11 +938,11 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				62C97DBF2CC69B0300DDA204 /* SampleAssets.xcassets in Resources */,
 				D8269A56274C0F9E00BD5BD5 /* NibViewController.xib in Resources */,
 				D8269A51274C0F6C00BD5BD5 /* LaunchScreen.storyboard in Resources */,
 				D8BCCDE32CAFDE9400E8A030 /* Sample.xcconfig in Resources */,
 				D8269A52274C0F7200BD5BD5 /* Tongariro.jpg in Resources */,
-				D8269A50274C0F6800BD5BD5 /* Assets.xcassets in Resources */,
 				D8269A43274C095F00BD5BD5 /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
