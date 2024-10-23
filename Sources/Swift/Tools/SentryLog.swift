@@ -15,6 +15,7 @@ class SentryLog: NSObject {
             self.isDebug = isDebug
             self.diagnosticLevel = diagnosticLevel
         }
+        SentryAsyncLogWrapper.initializeAsyncLogFile()
     }
     
     @objc

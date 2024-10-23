@@ -3,12 +3,12 @@
 #import "SentryInternalCDefines.h"
 #import "SentryLevelMapper.h"
 #import "SentryLog.h"
+#import "SentryLogC.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-void
-sentry_initializeAsyncLogFile(void)
-{
+@implementation SentryAsyncLogWrapper
++ (void) initializeAsyncLogFile {
     const char *asyncLogPath =
         [[sentryStaticCachesPath() stringByAppendingPathComponent:@"async.log"] UTF8String];
 
@@ -25,5 +25,7 @@ sentry_initializeAsyncLogFile(void)
             @"Could not open a handle to specified path for async logging %s", asyncLogPath);
     };
 }
+@end
+
 
 NS_ASSUME_NONNULL_END
