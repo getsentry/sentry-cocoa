@@ -3,7 +3,7 @@
 #import <Foundation/Foundation.h>
 
 @interface SentryAsyncLogWrapper : NSObject
-+ (void) initializeAsyncLogFile;
++ (void)initializeAsyncLogFile;
 @end
 
 #endif

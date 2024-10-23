@@ -1,14 +1,15 @@
+#import "SentryLogC.h"
 #import "SentryAsyncSafeLog.h"
 #import "SentryFileManager.h"
 #import "SentryInternalCDefines.h"
 #import "SentryLevelMapper.h"
 #import "SentryLog.h"
-#import "SentryLogC.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 @implementation SentryAsyncLogWrapper
-+ (void) initializeAsyncLogFile {
++ (void)initializeAsyncLogFile
+{
     const char *asyncLogPath =
         [[sentryStaticCachesPath() stringByAppendingPathComponent:@"async.log"] UTF8String];
 
@@ -26,6 +27,5 @@ NS_ASSUME_NONNULL_BEGIN
     };
 }
 @end
-
 
 NS_ASSUME_NONNULL_END
