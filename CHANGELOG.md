@@ -5,6 +5,7 @@
 ### Fixes
 
 - Build visionOS project with static Sentry SDK (#4462)
+- Time-of-check time-of-use filesystem race condition (#4473)
 
 ### Improvements
 
