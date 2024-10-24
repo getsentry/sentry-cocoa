@@ -257,7 +257,10 @@ slowFrameThreshold(uint64_t actualFramesPerSecond)
 - (void)reportNewFrame
 {
     NSDate *newFrameDate = [self.dateProvider date];
-    for (id<SentryFramesTrackerListener> listener in self.listeners) {
+    // We need to copy the list because some listeners will remove themselves
+    // from the list during the callback, causing a crash during iteration.
+    NSArray<id<SentryFramesTrackerListener>> *listeners = [self.listeners copy];
+    for (id<SentryFramesTrackerListener> listener in listeners) {
         [listener framesTrackerHasNewFrame:newFrameDate];
     }
 }
