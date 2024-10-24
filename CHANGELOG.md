@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Improvements
+
+- Log a warning when dropping envelopes due to rate-limiting (#4463)
+
 ## 8.39.0-beta.1
 
 ### Removal of Experimental API
