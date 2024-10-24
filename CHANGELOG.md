@@ -5,6 +5,11 @@
 ## Feature
 
 - Add option to report uncaught NSExceptions on macOS (#4471)
+- Build visionOS project with static Sentry SDK (#4462)
+
+### Improvements
+
+- Log a warning when dropping envelopes due to rate-limiting (#4463)
 
 ## 8.39.0-beta.1
 

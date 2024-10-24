@@ -124,7 +124,7 @@
     envelope = [self.envelopeRateLimit removeRateLimitedItems:envelope];
 
     if (envelope.items.count == 0) {
-        SENTRY_LOG_DEBUG(@"RateLimit is active for all envelope items.");
+        SENTRY_LOG_WARN(@"RateLimit is active for all envelope items.");
         return;
     }
 
@@ -232,6 +232,8 @@
 - (void)envelopeItemDropped:(SentryEnvelopeItem *)envelopeItem
                withCategory:(SentryDataCategory)dataCategory;
 {
+    SENTRY_LOG_WARN(@"Envelope item dropped due to exceeding rate limit. Category: %@",
+        nameForSentryDataCategory(dataCategory));
     [self recordLostEvent:dataCategory reason:kSentryDiscardReasonRateLimitBackoff];
     [self recordLostSpans:envelopeItem reason:kSentryDiscardReasonRateLimitBackoff];
 }
