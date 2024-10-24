@@ -226,3 +226,13 @@ please refer to this [PR](https://github.com/getsentry/sentry-cocoa/pull/3623).
 When coding with Swift be aware of two things:
 1. If you want to use swift code in an Objc file: `#import "SentrySwift.h"`
 2. If you want to use Objc code from Swift, first add the desired header file to `SentryInternal.h`, then, in your Swift file, `@_implementationOnly import _SentryPrivate` (the underscore makes auto-complete ignore it since we dont want users importing this module).
+
+## Enabling C++/Objective-c++ interoperability for visionOS
+
+Date: October 23, 2024
+Contributors: @brustolin, @philipphofmann
+
+To enable visionOS support with the Sentry static framework, you need to set the `SWIFT_OBJC_INTEROP_MODE` build setting to `objcxx`. This setting will only be applied for visionOS, but because much of the codebase is shared across platforms, this change introduces a limitation: we won’t be able to call C functions directly from Swift code.
+
+However, C functions can still be accessed from code that is conditionally compiled using directives, such as `#if os(iOS)`.
+
