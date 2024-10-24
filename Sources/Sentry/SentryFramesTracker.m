@@ -256,14 +256,8 @@ slowFrameThreshold(uint64_t actualFramesPerSecond)
 
 - (void)reportNewFrame
 {
-    NSArray *localListeners;
-    @synchronized(self.listeners) {
-        localListeners = [self.listeners allObjects];
-    }
-
     NSDate *newFrameDate = [self.dateProvider date];
-
-    for (id<SentryFramesTrackerListener> listener in localListeners) {
+    for (id<SentryFramesTrackerListener> listener in self.listeners) {
         [listener framesTrackerHasNewFrame:newFrameDate];
     }
 }
@@ -310,17 +304,15 @@ slowFrameThreshold(uint64_t actualFramesPerSecond)
 
 - (void)addListener:(id<SentryFramesTrackerListener>)listener
 {
-
-    @synchronized(self.listeners) {
-        [self.listeners addObject:listener];
-    }
+    // Adding listeners on the main thread to avoid race condition with new frame callback
+    [self.dispatchQueueWrapper dispatchAsyncOnMainQueue:^{ [self.listeners addObject:listener]; }];
 }
 
 - (void)removeListener:(id<SentryFramesTrackerListener>)listener
 {
-    @synchronized(self.listeners) {
-        [self.listeners removeObject:listener];
-    }
+    // Removing listeners on the main thread to avoid race condition with new frame callback
+    [self.dispatchQueueWrapper
+        dispatchAsyncOnMainQueue:^{ [self.listeners removeObject:listener]; }];
 }
 
 - (void)pause

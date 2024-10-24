@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Improvements
+
+- Improve frames tracker performance ()
+
 ## 8.39.0-beta.1
 
 ### Removal of Experimental API
