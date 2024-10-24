@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+## Feature
+
+- Add option to report uncaught NSExceptions on macOS (#4456)
+
 ## 8.39.0-beta.1
 
 ### Removal of Experimental API
