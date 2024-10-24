@@ -4,7 +4,7 @@
 
 ### Improvements
 
-- Improve frames tracker performance ()
+- Improve frames tracker performance (#4469)
 
 ## 8.39.0-beta.1
 
