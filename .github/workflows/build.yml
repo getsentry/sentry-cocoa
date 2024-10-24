@@ -55,11 +55,15 @@ jobs:
       fail-fast: false
       matrix:
         # other sample projects are built in ui-tests
-        scheme:
-          - macOS-Swift
-          - iOS13-Swift
-          - watchOS-Swift WatchKit App
-          - macOS-SwiftUI
+        include:
+          - scheme: macOS-Swift
+            xcode: 15.4
+          - scheme: iOS13-Swift
+            xcode: 15.4
+          - scheme: watchOS-Swift WatchKit App
+            xcode: 15.4
+          - scheme: macOS-SwiftUI
+            xcode: 16.0
 
     steps:
       - uses: actions/checkout@v4
