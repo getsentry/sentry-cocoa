@@ -24,6 +24,10 @@
 #    import <UIKit/UIKit.h>
 #endif
 
+#if TARGET_OS_OSX
+#    import "SentryUncaughtNSExceptions.h"
+#endif // TARGET_OS_OSX
+
 static dispatch_once_t installationToken = 0;
 static SentryCrashInstallationReporter *installation = nil;
 
@@ -93,8 +97,19 @@ static NSString *const LOCALE_KEY = @"locale";
     enableSigtermReporting = options.enableSigtermReporting;
 #endif // !TARGET_OS_WATCH
 
+#if TARGET_OS_OSX
+    BOOL enableReportingUncaughtExceptions = NO;
+    if (options.enableSwizzling) {
+        enableReportingUncaughtExceptions = options.enableUncaughtNSExceptionReporting;
+    }
+#endif // TARGET_OS_OSX
+
     [self startCrashHandler:options.cacheDirectoryPath
-        enableSigtermReporting:enableSigtermReporting];
+                   enableSigtermReporting:enableSigtermReporting
+#if TARGET_OS_OSX
+        enableReportingUncaughtExceptions:enableReportingUncaughtExceptions
+#endif // TARGET_OS_OSX
+    ];
 
     [self configureScope];
 
@@ -107,7 +122,10 @@ static NSString *const LOCALE_KEY = @"locale";
 }
 
 - (void)startCrashHandler:(NSString *)cacheDirectory
-    enableSigtermReporting:(BOOL)enableSigtermReporting
+               enableSigtermReporting:(BOOL)enableSigtermReporting
+#if TARGET_OS_OSX
+    enableReportingUncaughtExceptions:(BOOL)enableReportingUncaughtExceptions
+#endif // TARGET_OS_OSX
 {
     void (^block)(void) = ^{
         BOOL canSendReports = NO;
@@ -127,6 +145,13 @@ static NSString *const LOCALE_KEY = @"locale";
         sentrycrashcm_setEnableSigtermReporting(enableSigtermReporting);
 
         [installation install:cacheDirectory];
+
+#if TARGET_OS_OSX
+        if (enableReportingUncaughtExceptions) {
+            [SentryUncaughtNSExceptions configureCrashOnExceptions];
+            [SentryUncaughtNSExceptions swizzleNSApplicationReportException];
+        }
+#endif // TARGET_OS_OSX
 
         // We need to send the crashed event together with the crashed session in the same envelope
         // to have proper statistics in release health. To achieve this we need both synchronously

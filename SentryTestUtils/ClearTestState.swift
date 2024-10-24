@@ -5,6 +5,13 @@ public func clearTestState() {
     TestCleanup.clearTestState()
 }
 
+public func resetUserDefaults() {
+    if let appDomain = Bundle.main.bundleIdentifier {
+        UserDefaults.standard.removePersistentDomain(forName: appDomain)
+        UserDefaults.standard.synchronize()
+    }
+}
+
 @objcMembers
 class TestCleanup: NSObject {
     static func clearTestState() {

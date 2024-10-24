@@ -80,6 +80,27 @@ NS_SWIFT_NAME(Options)
  */
 @property (nonatomic, assign) BOOL enableCrashHandler;
 
+#if TARGET_OS_OSX
+
+/**
+ * When enabled, the SDK captures uncaught NSExceptions. As this feature uses swizzling, disabling
+ * @c enableSwizzling also disables this feature.
+ *
+ * @discussion This option registers the `NSApplicationCrashOnExceptions` UserDefault,
+ * so your macOS application crashes when an uncaught exception occurs. As the Cocoa Frameworks are
+ * generally not exception-safe on macOS, we recommend this approach because the application could
+ * otherwise end up in a corrupted state.
+ *
+ * @warning Don't use this in combination with `SentryCrashExceptionApplication`. Either enable this
+ * feature or use the `SentryCrashExceptionApplication`. Having both enabled can lead to duplicated
+ * reports.
+ *
+ * @note Default value is @c NO .
+ */
+@property (nonatomic, assign) BOOL enableUncaughtNSExceptionReporting;
+
+#endif // TARGET_OS_OSX
+
 #if !TARGET_OS_WATCH
 
 /**

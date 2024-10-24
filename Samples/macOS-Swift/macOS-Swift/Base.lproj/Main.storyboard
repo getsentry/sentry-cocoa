@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="23091" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" initialViewController="B8D-0N-5wS">
+<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="23094" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" initialViewController="B8D-0N-5wS">
     <dependencies>
         <deployment identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="23091"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="23094"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
@@ -710,10 +710,10 @@
                         <autoresizingMask key="autoresizingMask"/>
                         <subviews>
                             <stackView distribution="fill" orientation="vertical" alignment="centerX" spacing="12" horizontalStackHuggingPriority="249.99998474121094" verticalStackHuggingPriority="249.99998474121094" fixedFrame="YES" detachesHiddenViews="YES" translatesAutoresizingMaskIntoConstraints="NO" id="fsa-9g-bf3">
-                                <rect key="frame" x="161" y="136" width="224" height="404"/>
+                                <rect key="frame" x="161" y="72" width="224" height="468"/>
                                 <subviews>
                                     <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="nAm-U5-PON">
-                                        <rect key="frame" x="44" y="377" width="136" height="32"/>
+                                        <rect key="frame" x="44" y="441" width="136" height="32"/>
                                         <buttonCell key="cell" type="push" title="Add Breadcrumb" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="zk9-d6-mm1">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                             <font key="font" metaFont="system"/>
@@ -723,7 +723,7 @@
                                         </connections>
                                     </button>
                                     <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="dzU-Gi-2VZ">
-                                        <rect key="frame" x="42" y="345" width="141" height="32"/>
+                                        <rect key="frame" x="42" y="409" width="141" height="32"/>
                                         <buttonCell key="cell" type="push" title="Capture Message" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="EQH-kc-eDD">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                             <font key="font" metaFont="system"/>
@@ -733,7 +733,7 @@
                                         </connections>
                                     </button>
                                     <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="LiD-mH-Y7l">
-                                        <rect key="frame" x="54" y="313" width="116" height="32"/>
+                                        <rect key="frame" x="54" y="377" width="116" height="32"/>
                                         <buttonCell key="cell" type="push" title="Capture Error" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="Tlg-FD-XnA">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                             <font key="font" metaFont="system"/>
@@ -743,7 +743,7 @@
                                         </connections>
                                     </button>
                                     <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="zMq-8z-Bqi">
-                                        <rect key="frame" x="39" y="281" width="146" height="32"/>
+                                        <rect key="frame" x="39" y="345" width="146" height="32"/>
                                         <buttonCell key="cell" type="push" title="Capture Exception" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="PwR-RA-ikK">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                             <font key="font" metaFont="system"/>
@@ -753,7 +753,7 @@
                                         </connections>
                                     </button>
                                     <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="Ocz-Nk-ZQ2">
-                                        <rect key="frame" x="23" y="249" width="178" height="32"/>
+                                        <rect key="frame" x="23" y="313" width="178" height="32"/>
                                         <buttonCell key="cell" type="push" title="Capture User Feedback" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="nui-gg-F5o">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                             <font key="font" metaFont="system"/>
@@ -763,14 +763,34 @@
                                         </connections>
                                     </button>
                                     <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="GQW-jy-1TZ">
-                                        <rect key="frame" x="34" y="217" width="156" height="32"/>
-                                        <buttonCell key="cell" type="push" title="_crashOnException:" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="7rF-ep-EYR">
+                                        <rect key="frame" x="42" y="281" width="141" height="32"/>
+                                        <buttonCell key="cell" type="push" title="raiseNSException" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="7rF-ep-EYR">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                             <font key="font" metaFont="system"/>
                                             <connections>
-                                                <action selector="crashOnException:" target="XfG-lQ-9wD" id="6mx-hG-Prh"/>
+                                                <action selector="raiseNSException:" target="XfG-lQ-9wD" id="6mx-hG-Prh"/>
                                             </connections>
                                         </buttonCell>
+                                    </button>
+                                    <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="TkR-L2-cU3" userLabel="reportNSException">
+                                        <rect key="frame" x="38" y="249" width="149" height="32"/>
+                                        <buttonCell key="cell" type="push" title="reportNSException" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="89W-TG-dLd">
+                                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                            <font key="font" metaFont="system"/>
+                                        </buttonCell>
+                                        <connections>
+                                            <action selector="reportNSException:" target="XfG-lQ-9wD" id="aAF-y5-R3W"/>
+                                        </connections>
+                                    </button>
+                                    <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="HXP-Is-MDM">
+                                        <rect key="frame" x="37" y="217" width="150" height="32"/>
+                                        <buttonCell key="cell" type="push" title="NSRangeException" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="f0L-i6-NLd">
+                                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                            <font key="font" metaFont="system"/>
+                                        </buttonCell>
+                                        <connections>
+                                            <action selector="throwNSRangeException:" target="XfG-lQ-9wD" id="VqV-4q-Tzd"/>
+                                        </connections>
                                     </button>
                                     <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="c5W-zA-19P">
                                         <rect key="frame" x="37" y="185" width="150" height="32"/>
@@ -857,8 +877,12 @@
                                     <integer value="1000"/>
                                     <integer value="1000"/>
                                     <integer value="1000"/>
+                                    <integer value="1000"/>
+                                    <integer value="1000"/>
                                 </visibilityPriorities>
                                 <customSpacing>
+                                    <real value="3.4028234663852886e+38"/>
+                                    <real value="3.4028234663852886e+38"/>
                                     <real value="3.4028234663852886e+38"/>
                                     <real value="3.4028234663852886e+38"/>
                                     <real value="3.4028234663852886e+38"/>

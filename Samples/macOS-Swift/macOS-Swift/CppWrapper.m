@@ -16,4 +16,10 @@
     cppTool.rethrowNoActiveCPPException();
 }
 
+- (void)throwNSRangeException
+{
+    NSArray *array = [NSArray array];
+    NSLog(@"%@", array[9]);
+}
+
 @end

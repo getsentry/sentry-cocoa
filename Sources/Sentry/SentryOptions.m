@@ -84,6 +84,9 @@ NSString *const kSentryDefaultEnvironment = @"production";
         self.enabled = YES;
         self.shutdownTimeInterval = 2.0;
         self.enableCrashHandler = YES;
+#if TARGET_OS_OSX
+        self.enableUncaughtNSExceptionReporting = NO;
+#endif // TARGET_OS_OSX
 #if !TARGET_OS_WATCH
         self.enableSigtermReporting = NO;
 #endif // !TARGET_OS_WATCH
@@ -315,6 +318,11 @@ NSString *const kSentryDefaultEnvironment = @"production";
 
     [self setBool:options[@"enableCrashHandler"]
             block:^(BOOL value) { self->_enableCrashHandler = value; }];
+
+#if TARGET_OS_OSX
+    [self setBool:options[@"enableReportingUncaughtExceptions"]
+            block:^(BOOL value) { self->_enableUncaughtNSExceptionReporting = value; }];
+#endif // TARGET_OS_OSX
 
 #if !TARGET_OS_WATCH
     [self setBool:options[@"enableSigtermReporting"]
