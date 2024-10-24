@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 54;
+	objectVersion = 50;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -11,17 +11,15 @@
 		7B34280225876DFC00056519 /* Tongariro.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 7B34280125876DFC00056519 /* Tongariro.jpg */; };
 		7B82C48424C98A93002CA6D1 /* watchOS-Swift WatchKit App.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = 7B82C48324C98A93002CA6D1 /* watchOS-Swift WatchKit App.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		7B82C48A24C98A93002CA6D1 /* Interface.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 7B82C48824C98A93002CA6D1 /* Interface.storyboard */; };
-		7B82C48C24C98A95002CA6D1 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7B82C48B24C98A95002CA6D1 /* Assets.xcassets */; };
 		7B82C49324C98A95002CA6D1 /* watchOS-Swift WatchKit Extension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 7B82C49224C98A95002CA6D1 /* watchOS-Swift WatchKit Extension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		7B82C49824C98A95002CA6D1 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B82C49724C98A95002CA6D1 /* ContentView.swift */; };
 		7B82C49A24C98A95002CA6D1 /* HostingController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B82C49924C98A95002CA6D1 /* HostingController.swift */; };
 		7B82C49C24C98A95002CA6D1 /* ExtensionDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B82C49B24C98A95002CA6D1 /* ExtensionDelegate.swift */; };
 		7B82C49E24C98A95002CA6D1 /* NotificationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B82C49D24C98A95002CA6D1 /* NotificationController.swift */; };
 		7B82C4A024C98A95002CA6D1 /* NotificationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B82C49F24C98A95002CA6D1 /* NotificationView.swift */; };
-		7B82C4A224C98A96002CA6D1 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7B82C4A124C98A96002CA6D1 /* Assets.xcassets */; };
 		7B82C4A524C98A96002CA6D1 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7B82C4A424C98A96002CA6D1 /* Preview Assets.xcassets */; };
-		9273C09E2C89E76B0006FD34 /* Sentry.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 9273C09C2C89E76B0006FD34 /* Sentry.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		84BA72BB2C9369D70045B828 /* GitInjections.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BA72B92C9369D70045B828 /* GitInjections.swift */; };
+		9273C09E2C89E76B0006FD34 /* Sentry.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 9273C09C2C89E76B0006FD34 /* Sentry.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -128,11 +126,12 @@
 
 /* Begin PBXFileReference section */
 		498CC18E2C9217D50045143E /* Sentry.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = Sentry.xcodeproj; path = ../../Sentry.xcodeproj; sourceTree = "<group>"; };
+		62C97DB32CC69A8100DDA204 /* SampleAssets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = SampleAssets.xcassets; path = ../../SampleAssets.xcassets; sourceTree = "<group>"; };
+		62C97DB52CC69AA100DDA204 /* SampleAssets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = SampleAssets.xcassets; path = ../../SampleAssets.xcassets; sourceTree = "<group>"; };
 		7B34280125876DFC00056519 /* Tongariro.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = Tongariro.jpg; sourceTree = "<group>"; };
 		7B82C47F24C98A93002CA6D1 /* watchOS-Swift.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "watchOS-Swift.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		7B82C48324C98A93002CA6D1 /* watchOS-Swift WatchKit App.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "watchOS-Swift WatchKit App.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		7B82C48924C98A93002CA6D1 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Interface.storyboard; sourceTree = "<group>"; };
-		7B82C48B24C98A95002CA6D1 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		7B82C48D24C98A95002CA6D1 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		7B82C49224C98A95002CA6D1 /* watchOS-Swift WatchKit Extension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "watchOS-Swift WatchKit Extension.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
 		7B82C49724C98A95002CA6D1 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -140,7 +139,6 @@
 		7B82C49B24C98A95002CA6D1 /* ExtensionDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExtensionDelegate.swift; sourceTree = "<group>"; };
 		7B82C49D24C98A95002CA6D1 /* NotificationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationController.swift; sourceTree = "<group>"; };
 		7B82C49F24C98A95002CA6D1 /* NotificationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationView.swift; sourceTree = "<group>"; };
-		7B82C4A124C98A96002CA6D1 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		7B82C4A424C98A96002CA6D1 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		7B82C4A624C98A96002CA6D1 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		7B82C4A724C98A96002CA6D1 /* PushNotificationPayload.apns */ = {isa = PBXFileReference; lastKnownFileType = text; path = PushNotificationPayload.apns; sourceTree = "<group>"; };
@@ -148,8 +146,8 @@
 		7B82C4BA24C98CFC002CA6D1 /* Sentry.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = Sentry.xcframework; path = libs/Sentry.xcframework; sourceTree = "<group>"; };
 		7B82C4BF24C99340002CA6D1 /* Sentry.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = Sentry.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		7B82C4C224C9939A002CA6D1 /* Sentry.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = Sentry.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		9273C09C2C89E76B0006FD34 /* Sentry.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = Sentry.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		84BA72B92C9369D70045B828 /* GitInjections.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GitInjections.swift; sourceTree = "<group>"; };
+		9273C09C2C89E76B0006FD34 /* Sentry.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = Sentry.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -203,7 +201,7 @@
 			isa = PBXGroup;
 			children = (
 				7B82C48824C98A93002CA6D1 /* Interface.storyboard */,
-				7B82C48B24C98A95002CA6D1 /* Assets.xcassets */,
+				62C97DB32CC69A8100DDA204 /* SampleAssets.xcassets */,
 				7B82C48D24C98A95002CA6D1 /* Info.plist */,
 			);
 			path = "watchOS-Swift WatchKit App";
@@ -217,8 +215,8 @@
 				7B82C49B24C98A95002CA6D1 /* ExtensionDelegate.swift */,
 				7B82C49D24C98A95002CA6D1 /* NotificationController.swift */,
 				7B82C49F24C98A95002CA6D1 /* NotificationView.swift */,
-				7B82C4A124C98A96002CA6D1 /* Assets.xcassets */,
 				7B34280125876DFC00056519 /* Tongariro.jpg */,
+				62C97DB52CC69AA100DDA204 /* SampleAssets.xcassets */,
 				7B82C4A624C98A96002CA6D1 /* Info.plist */,
 				7B82C4A724C98A96002CA6D1 /* PushNotificationPayload.apns */,
 				7B82C4A324C98A96002CA6D1 /* Preview Content */,
@@ -417,7 +415,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				7B82C48C24C98A95002CA6D1 /* Assets.xcassets in Resources */,
 				7B82C48A24C98A93002CA6D1 /* Interface.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -428,7 +425,6 @@
 			files = (
 				7B82C4A524C98A96002CA6D1 /* Preview Assets.xcassets in Resources */,
 				7B34280225876DFC00056519 /* Tongariro.jpg in Resources */,
-				7B82C4A224C98A96002CA6D1 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
