@@ -62,6 +62,7 @@ jobs:
             xcode: 15.4
           - scheme: watchOS-Swift WatchKit App
             xcode: 15.4
+          # Only compiles on Xcode 16.0
           - scheme: macOS-SwiftUI
             xcode: 16.0
 
