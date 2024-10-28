@@ -7,6 +7,8 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * This is a workaround to access SentryLevel value from swift
  */
-NSUInteger sentry_breadcrumbLevel(SentryBreadcrumb *breadcrumb);
+@interface SentryLevelBridge : NSObject
++ (NSUInteger)breadcrumbLevel:(SentryBreadcrumb *)breadcrumb;
+@end
 
 NS_ASSUME_NONNULL_END

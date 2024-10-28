@@ -105,6 +105,7 @@
 		D8BCCDE32CAFDE9400E8A030 /* Sample.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = D8BCCDE12CAFDE9400E8A030 /* Sample.xcconfig */; };
 		D8C33E1F29FBB1F70071B75A /* UIEventBreadcrumbsController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8C33E1E29FBB1F70071B75A /* UIEventBreadcrumbsController.swift */; };
 		D8C33E2629FBB8D90071B75A /* UIEventBreadcrumbTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8C33E2529FBB8D90071B75A /* UIEventBreadcrumbTests.swift */; };
+		D8C484852CCF902F00503B14 /* SampleAssets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 62C97DB92CC69B0200DDA204 /* SampleAssets.xcassets */; };
 		D8D7BB4A2750067900044146 /* UIAssert.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8D7BB492750067900044146 /* UIAssert.swift */; };
 		D8D7BB4C2750095800044146 /* UIViewExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8D7BB4B2750095800044146 /* UIViewExtension.swift */; };
 		D8D7BB4E27501B9400044146 /* SpanObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8D7BB4D27501B9400044146 /* SpanObserver.swift */; };
@@ -914,6 +915,7 @@
 				637AFDB6243B02770034958B /* LaunchScreen.storyboard in Resources */,
 				7B3427F825876A5200056519 /* Tongariro.jpg in Resources */,
 				637AFDB1243B02760034958B /* Main.storyboard in Resources */,
+				D8C484852CCF902F00503B14 /* SampleAssets.xcassets in Resources */,
 				D8FD68C42C1C86E300A70055 /* TableViewController.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
