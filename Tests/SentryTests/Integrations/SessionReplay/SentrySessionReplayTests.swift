@@ -22,7 +22,6 @@ class SentrySessionReplayTests: XCTestCase {
             return super.replayEvents(from: from, until: until)
         }
     }
-                                        
     
     private class TestReplayMaker: NSObject, SentryReplayVideoMaker {
         var screens = [String]()
