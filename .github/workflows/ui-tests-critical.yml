@@ -82,7 +82,7 @@ jobs:
         with:
           name: ${{env.APP_ARTIFACT_NAME}}
           path: ${{env.APP_PATH}}
-      - uses: futureware-tech/simulator-action@bfa03d93ec9de6dacb0c5553bbf8da8afc6c2ee9 # pin@v3
+      - uses: futureware-tech/simulator-action@dab10d813144ef59b48d401cd95da151222ef8cd # pin@v4
         with:
           model: ${{matrix.device}}
           os_version: ${{matrix.os-version}}
