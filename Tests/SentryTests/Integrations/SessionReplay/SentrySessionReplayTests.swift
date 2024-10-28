@@ -28,6 +28,7 @@ class SentrySessionReplayTests: XCTestCase {
         var screens = [String]()
         
         var createVideoCallBack: ((SentryVideoInfo) -> Void)?
+        var overrideBeginning : Date?
         
         struct CreateVideoCall {
             var beginning: Date
@@ -40,7 +41,7 @@ class SentrySessionReplayTests: XCTestCase {
             let outputFileURL = FileManager.default.temporaryDirectory.appendingPathComponent("tempvideo.mp4")
             
             try? "Video Data".write(to: outputFileURL, atomically: true, encoding: .utf8)
-            let videoInfo = SentryVideoInfo(path: outputFileURL, height: 1_024, width: 480, duration: end.timeIntervalSince(beginning), frameCount: 5, frameRate: 1, start: beginning, end: end, fileSize: 10, screens: screens)
+            let videoInfo = SentryVideoInfo(path: outputFileURL, height: 1_024, width: 480, duration: end.timeIntervalSince(overrideBeginning ?? beginning), frameCount: 5, frameRate: 1, start: overrideBeginning ?? beginning, end: end, fileSize: 10, screens: screens)
             
             createVideoCallBack?(videoInfo)
             return [videoInfo]
@@ -360,6 +361,9 @@ class SentrySessionReplayTests: XCTestCase {
             XCTAssertEqual(end, fixture.dateProvider.date())
             expect.fulfill()
         }
+        
+        // This will make the mock videoInfo starts at second 7 as well
+        fixture.replayMaker.overrideBeginning = Date(timeIntervalSinceReferenceDate: 7)
         
         //Advancing another 5 seconds to close the second segment
         fixture.dateProvider.advance(by: 5)
