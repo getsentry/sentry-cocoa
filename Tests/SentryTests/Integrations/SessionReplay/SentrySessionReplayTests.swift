@@ -14,6 +14,16 @@ class SentrySessionReplayTests: XCTestCase {
         }
     }
      
+    private class TestTouchTracker: SentryTouchTracker {
+        var replayEventsCallback: ((Date, Date) -> Void)?
+        
+        override func replayEvents(from: Date, until: Date) -> [SentryRRWebEvent] {
+            replayEventsCallback?(from, until)
+            return super.replayEvents(from: from, until: until)
+        }
+    }
+                                        
+    
     private class TestReplayMaker: NSObject, SentryReplayVideoMaker {
         var screens = [String]()
         
@@ -66,13 +76,13 @@ class SentrySessionReplayTests: XCTestCase {
         var lastReplayId: SentryId?
         var currentScreen: String?
         
-        func getSut(options: SentryReplayOptions = .init(sessionSampleRate: 0, onErrorSampleRate: 0), dispatchQueue: SentryDispatchQueueWrapper = TestSentryDispatchQueueWrapper() ) -> SentrySessionReplay {
+        func getSut(options: SentryReplayOptions = .init(sessionSampleRate: 0, onErrorSampleRate: 0), dispatchQueue: SentryDispatchQueueWrapper = TestSentryDispatchQueueWrapper(), touchTracker: SentryTouchTracker? = nil) -> SentrySessionReplay {
             return SentrySessionReplay(replayOptions: options,
                                        replayFolderPath: cacheFolder,
                                        screenshotProvider: screenshotProvider,
                                        replayMaker: replayMaker,
                                        breadcrumbConverter: SentrySRDefaultBreadcrumbConverter(),
-                                       touchTracker: SentryTouchTracker(dateProvider: dateProvider, scale: 0),
+                                       touchTracker: touchTracker ?? SentryTouchTracker(dateProvider: dateProvider, scale: 0),
                                        dateProvider: dateProvider,
                                        delegate: self,
                                        dispatchQueue: dispatchQueue,
@@ -315,6 +325,47 @@ class SentrySessionReplayTests: XCTestCase {
         fixture.dateProvider.advance(by: 1)
         Dynamic(sut).newFrame(nil)
         XCTAssertNil(fixture.screenshotProvider.lastImageCall)
+    }
+    
+    func testCaptureAllTouches() {
+        let fixture = Fixture()
+        let touchTracker = TestTouchTracker(dateProvider: fixture.dateProvider, scale: 1)
+        let sut = fixture.getSut(options: SentryReplayOptions(sessionSampleRate: 1, onErrorSampleRate: 1), touchTracker: touchTracker)
+        sut.start(rootView: fixture.rootView, fullSession: true)
+        
+        //Starting session replay at time 0
+        Dynamic(sut).newFrame(nil)
+        
+        //Advancing one second and capturing another frame
+        fixture.dateProvider.advance(by: 1)
+        Dynamic(sut).newFrame(nil)
+        
+        //Advancing 5 more second to complete one segment
+        fixture.dateProvider.advance(by: 5)
+        Dynamic(sut).newFrame(nil)
+        
+        let endOfFirstSegment = fixture.dateProvider.date()
+        
+        //Advancing 2 seconds to start another segment at second 7
+        //This means session replay didnt capture screens between seconds 5 and 7
+        fixture.dateProvider.advance(by: 2)
+        Dynamic(sut).newFrame(nil)
+        
+        let expect = expectation(description: "Touch Tracker called")
+        touchTracker.replayEventsCallback = { begin, end in
+            // Even though the second segment started at second 7,
+            // we should capture all touch events since the end of the first segment.
+            
+            XCTAssertEqual(begin, endOfFirstSegment)
+            XCTAssertEqual(end, fixture.dateProvider.date())
+            expect.fulfill()
+        }
+        
+        //Advancing another 5 seconds to close the second segment
+        fixture.dateProvider.advance(by: 5)
+        Dynamic(sut).newFrame(nil)
+        
+        wait(for: [expect], timeout: 1)
     }
     
     @available(iOS 16.0, tvOS 16, *)
