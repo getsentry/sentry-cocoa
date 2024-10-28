@@ -22,13 +22,12 @@ class SentrySessionReplayTests: XCTestCase {
             return super.replayEvents(from: from, until: until)
         }
     }
-                                        
     
     private class TestReplayMaker: NSObject, SentryReplayVideoMaker {
         var screens = [String]()
         
         var createVideoCallBack: ((SentryVideoInfo) -> Void)?
-        var overrideBeginning : Date?
+        var overrideBeginning: Date?
         
         struct CreateVideoCall {
             var beginning: Date
