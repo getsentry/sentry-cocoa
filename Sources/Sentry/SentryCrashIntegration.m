@@ -97,8 +97,8 @@ static NSString *const LOCALE_KEY = @"locale";
     enableSigtermReporting = options.enableSigtermReporting;
 #endif // !TARGET_OS_WATCH
 
-#if TARGET_OS_OSX
     BOOL enableUncaughtNSExceptionReporting = NO;
+#if TARGET_OS_OSX
     if (options.enableSwizzling) {
         enableUncaughtNSExceptionReporting = options.enableUncaughtNSExceptionReporting;
     }
@@ -106,10 +106,7 @@ static NSString *const LOCALE_KEY = @"locale";
 
     [self startCrashHandler:options.cacheDirectoryPath
                    enableSigtermReporting:enableSigtermReporting
-#if TARGET_OS_OSX
-        enableReportingUncaughtExceptions:enableUncaughtNSExceptionReporting
-#endif // TARGET_OS_OSX
-    ];
+        enableReportingUncaughtExceptions:enableUncaughtNSExceptionReporting];
 
     [self configureScope];
 
@@ -123,9 +120,7 @@ static NSString *const LOCALE_KEY = @"locale";
 
 - (void)startCrashHandler:(NSString *)cacheDirectory
                enableSigtermReporting:(BOOL)enableSigtermReporting
-#if TARGET_OS_OSX
     enableReportingUncaughtExceptions:(BOOL)enableReportingUncaughtExceptions
-#endif // TARGET_OS_OSX
 {
     void (^block)(void) = ^{
         BOOL canSendReports = NO;
