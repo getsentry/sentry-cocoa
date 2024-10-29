@@ -8,8 +8,12 @@ struct ContentView: View {
                 Text("Capture Error")
             }
             
-            Button(action: uncaughtNSException) {
-                Text("Uncaught NSException")
+            Button(action: raiseNSException) {
+                Text("Raise NSException")
+            }
+            
+            Button(action: reportNSException) {
+                Text("Report NSException")
             }
             
             Button(action: crash) {
@@ -24,10 +28,16 @@ struct ContentView: View {
         SentrySDK.capture(error: error)
     }
     
-    func uncaughtNSException() {
-        NSException(name: NSExceptionName(rawValue: "ExplodingPotato"),
-                    reason: "Potato is exploding!",
-                    userInfo: nil).raise()
+    func raiseNSException() {
+        let userInfo: [String: String] = ["user-info-key-1": "user-info-value-1", "user-info-key-2": "user-info-value-2"]
+        let exception = NSException(name: NSExceptionName("NSException via NSException raise"), reason: "Raised NSException", userInfo: userInfo)
+        exception.raise()
+    }
+    
+    func reportNSException() {
+        let userInfo: [String: String] = ["user-info-key-1": "user-info-value-1", "user-info-key-2": "user-info-value-2"]
+        let exception = NSException(name: NSExceptionName("NSException via NSApplication report"), reason: "It doesn't work", userInfo: userInfo)
+        NSApplication.shared.reportException(exception)
     }
     
     func crash() {
