@@ -320,7 +320,7 @@ NSString *const kSentryDefaultEnvironment = @"production";
             block:^(BOOL value) { self->_enableCrashHandler = value; }];
 
 #if TARGET_OS_OSX
-    [self setBool:options[@"enableReportingUncaughtExceptions"]
+    [self setBool:options[@"enableUncaughtNSExceptionReporting"]
             block:^(BOOL value) { self->_enableUncaughtNSExceptionReporting = value; }];
 #endif // TARGET_OS_OSX
 

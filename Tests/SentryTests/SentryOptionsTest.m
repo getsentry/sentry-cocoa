@@ -88,9 +88,9 @@
 }
 
 #if TARGET_OS_OSX
-- (void)testEnableReportingUncaughtExceptions
+- (void)testEnableReportingUncaughtNSExceptions
 {
-    [self testBooleanField:@"enableReportingUncaughtExceptions" defaultValue:NO];
+    [self testBooleanField:@"enableUncaughtNSExceptionReporting" defaultValue:NO];
 }
 #endif // TARGET_OS_OSX
 

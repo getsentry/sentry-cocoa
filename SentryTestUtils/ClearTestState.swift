@@ -8,6 +8,9 @@ public func clearTestState() {
 public func resetUserDefaults() {
     if let appDomain = Bundle.main.bundleIdentifier {
         UserDefaults.standard.removePersistentDomain(forName: appDomain)
+        // Although the Apple docs state this shouldn't be used we need it
+        // to avoid race conditions in tests for UserDefaults. Not calling
+        // this can lead to flaky tests.
         UserDefaults.standard.synchronize()
     }
 }

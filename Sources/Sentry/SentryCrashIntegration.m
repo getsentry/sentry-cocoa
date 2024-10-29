@@ -98,16 +98,16 @@ static NSString *const LOCALE_KEY = @"locale";
 #endif // !TARGET_OS_WATCH
 
 #if TARGET_OS_OSX
-    BOOL enableReportingUncaughtExceptions = NO;
+    BOOL enableUncaughtNSExceptionReporting = NO;
     if (options.enableSwizzling) {
-        enableReportingUncaughtExceptions = options.enableUncaughtNSExceptionReporting;
+        enableUncaughtNSExceptionReporting = options.enableUncaughtNSExceptionReporting;
     }
 #endif // TARGET_OS_OSX
 
     [self startCrashHandler:options.cacheDirectoryPath
                    enableSigtermReporting:enableSigtermReporting
 #if TARGET_OS_OSX
-        enableReportingUncaughtExceptions:enableReportingUncaughtExceptions
+        enableReportingUncaughtExceptions:enableUncaughtNSExceptionReporting
 #endif // TARGET_OS_OSX
     ];
 

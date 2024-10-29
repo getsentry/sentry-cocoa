@@ -271,7 +271,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         
         let (sut, _) = givenSutWithGlobalHubAndCrashWrapper()
         let options = Options()
-        options.enableReportingUncaughtExceptions = true
+        options.enableUncaughtNSExceptionReporting = true
         sut.install(with: options)
         
         XCTAssertTrue(UserDefaults.standard.bool(forKey: "NSApplicationCrashOnExceptions"))
@@ -295,7 +295,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         
         let (sut, _) = givenSutWithGlobalHubAndCrashWrapper()
         let options = Options()
-        options.enableReportingUncaughtExceptions = true
+        options.enableUncaughtNSExceptionReporting = true
         options.enableSwizzling = false
         sut.install(with: options)
         
@@ -318,7 +318,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         
         let (sut, _) = givenSutWithGlobalHubAndCrashWrapper()
         let options = Options()
-        options.enableReportingUncaughtExceptions = false
+        options.enableUncaughtNSExceptionReporting = false
         sut.install(with: options)
         
         XCTAssertFalse(UserDefaults.standard.bool(forKey: "NSApplicationCrashOnExceptions"))
