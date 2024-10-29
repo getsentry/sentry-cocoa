@@ -74,6 +74,18 @@
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
+            argument = "--io.sentry.iOS-Swift.user-feedback.no-widget-icon"
+            isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "--io.sentry.iOS-Swift.user-feedback.no-widget-text"
+            isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "--io.sentry.iOS-Swift.user-feedback.all-defaults"
+            isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
             argument = "--skip-sentry-init"
             isEnabled = "NO">
          </CommandLineArgument>
@@ -163,7 +175,7 @@
          </CommandLineArgument>
          <CommandLineArgument
             argument = "--io.sentry.iOS-Swift.auto-inject-user-feedback-widget"
-            isEnabled = "NO">
+            isEnabled = "YES">
          </CommandLineArgument>
       </CommandLineArguments>
       <EnvironmentVariables>
