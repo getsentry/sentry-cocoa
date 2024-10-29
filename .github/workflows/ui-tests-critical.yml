@@ -55,14 +55,6 @@ jobs:
             os-version: "16.4"
             create-simulator: true
 
-          - runs-on: macos-14-xlarge
-            # on macos-14 the iOS 17.5 simulator was unstable
-            # crashing and failing all UI tests
-            # iOS 15.5, 16.4 and 18.1 worked on the base runners
-            xcode: "15.4"
-            device: "iPhone 15"
-            os-version: "17.5"
-
           - runs-on: macos-15
             xcode: "16"
             device: "iPhone 16"
