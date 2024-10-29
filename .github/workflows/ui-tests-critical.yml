@@ -55,6 +55,8 @@ jobs:
             os-version: "16.4"
             create-simulator: true
 
+          # macos-14 iOS 17 not included due to the XCUIServerNotFound errors causing flaky tests 
+
           - runs-on: macos-15
             xcode: "16"
             device: "iPhone 16"
