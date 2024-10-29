@@ -9,7 +9,41 @@
 
 ### Improvements
 
+- Improve frames tracker performance (#4469)
 - Log a warning when dropping envelopes due to rate-limiting (#4463)
+
+## 8.39.0
+
+### Removal of Experimental API
+
+- Remove the deprecated experimental Metrics API (#4406): [Learn more](https://sentry.zendesk.com/hc/en-us/articles/26369339769883-Metrics-Beta-Coming-to-an-End)
+
+### Features
+
+- feat: API to manually start/stop Session Replay (#4414)
+- Custom redact modifier for SwiftUI (#4362, #4392)
+- Track usage of appHangTrackingV2 (#4445)
+- AppHangV2 detection (#4379) Add a new algorithm for detecting app hangs that differentiates between fully blocking and non-fully blocking app hangs. Read more in-depth in our [docs](https://docs.sentry.io/platforms/apple/guides/ios/configuration/app-hangs/#app-hangs-v2).
+
+### Fixes
+
+- Edge case for swizzleClassNameExclude (#4405): Skip creating transactions for UIViewControllers ignored for swizzling via the option `swizzleClassNameExclude`.
+- Add TTID/TTFD spans when loadView gets skipped (#4415)
+- Finish TTID correctly when viewWillAppear is skipped (#4417)
+- Swizzling RootUIViewController if ignored by `swizzleClassNameExclude` (#4407)
+- Data race in SentrySwizzleInfo.originalCalled (#4434)
+- Delete old session replay files (#4446)
+- Thread running at user-initiated quality-of-service for session replay (#4439)
+- Don't create transactions for unused UIViewControllers (#4448)
+
+### Improvements
+
+- Serializing profile on a BG Thread (#4377) to avoid potentially slightly blocking the main thread.
+- Session Replay performance for SwiftUI (#4419)
+- Speed up getBinaryImages (#4435) for finishing transactions and capturing events
+- Align SDK dispatch queue names (#4442) to start with `io.sentry`
+- Use UInts in envelope deserialization (#4441)
+- Make `SentrySDK.replay.start()` thread safe (#4455)
 
 ## 8.39.0-beta.1
 

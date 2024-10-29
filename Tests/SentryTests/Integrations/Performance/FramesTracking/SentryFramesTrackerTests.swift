@@ -24,6 +24,7 @@ class SentryFramesTrackerTests: XCTestCase {
         }
         
         lazy var sut: SentryFramesTracker = SentryFramesTracker(displayLinkWrapper: displayLinkWrapper, dateProvider: dateProvider, dispatchQueueWrapper: SentryDispatchQueueWrapper(), notificationCenter: notificationCenter, keepDelayedFramesDuration: keepDelayedFramesDuration)
+        
     }
     
     private var fixture: Fixture!
@@ -601,6 +602,16 @@ class SentryFramesTrackerTests: XCTestCase {
         
         XCTAssertEqual(listener2.newFrameInvocations.count, 1)
         XCTAssertEqual(listener2.newFrameInvocations.first?.timeIntervalSince1970, expectedFrameDate.timeIntervalSince1970)
+    }
+    
+    func testListenerAreAddedInMainThread() {
+        let dispatchQueueWrapper = TestSentryDispatchQueueWrapper()
+        let sut = SentryFramesTracker(displayLinkWrapper: fixture.displayLinkWrapper, dateProvider: fixture.dateProvider, dispatchQueueWrapper: dispatchQueueWrapper, notificationCenter: fixture.notificationCenter, keepDelayedFramesDuration: fixture.keepDelayedFramesDuration)
+        let listener = FrameTrackerListener()
+        
+        sut.add(listener)
+        
+        XCTAssertEqual(dispatchQueueWrapper.blockOnMainInvocations.count, 1)
     }
 
     func testRemoveListener() {
