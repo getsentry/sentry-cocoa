@@ -5,6 +5,7 @@
 ### Fixes
 
 - Build visionOS project with static Sentry SDK (#4462)
+- Too many navigation breadcrumbs for Session Replay (#4480)
 
 ### Improvements
 
