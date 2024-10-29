@@ -6,6 +6,7 @@
 
 - Add option to report uncaught NSExceptions on macOS (#4471)
 - Build visionOS project with static Sentry SDK (#4462)
+- Capture all touches with session replay (#4477)
 
 ### Improvements
 
