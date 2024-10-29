@@ -2,7 +2,7 @@
 
 #if TARGET_OS_OSX
 
-#    import <Sentry/SentryDefines.h>
+#    import "SentryDefines.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
