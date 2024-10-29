@@ -48,10 +48,20 @@ class ViewController: NSViewController {
         SentrySDK.capture(userFeedback: userFeedback)
     }
 
-    @IBAction func crashOnException(_ sender: Any) {
+    @IBAction func raiseNSException(_ sender: Any) {
         let userInfo: [String: String] = ["user-info-key-1": "user-info-value-1", "user-info-key-2": "user-info-value-2"]
-        let exception = NSException(name: NSExceptionName("My Custom exception"), reason: "User clicked the button", userInfo: userInfo)
+        let exception = NSException(name: NSExceptionName("NSException via NSException raise"), reason: "Raised NSException", userInfo: userInfo)
+        exception.raise()
+    }
+    
+    @IBAction func reportNSException(_ sender: Any) {
+        let userInfo: [String: String] = ["user-info-key-1": "user-info-value-1", "user-info-key-2": "user-info-value-2"]
+        let exception = NSException(name: NSExceptionName("NSException via NSApplication report"), reason: "It doesn't work", userInfo: userInfo)
         NSApplication.shared.reportException(exception)
+    }
+    
+    @IBAction func throwNSRangeException(_ sender: Any) {
+        CppWrapper().throwNSRangeException()
     }
     
     @IBAction func captureTransaction(_ sender: Any) {
