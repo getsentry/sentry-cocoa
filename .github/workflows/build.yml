@@ -140,8 +140,7 @@ jobs:
         with:
           name: ${{ github.sha }}
           path: Carthage/
-      # Test with Xcode 14.1 version to ensure backwards compatibility for users compiling from source.
-      - run: ./scripts/ci-select-xcode.sh 14.1
+      - run: ./scripts/ci-select-xcode.sh 15.2
       - run: make build-xcframework-sample
         shell: sh
 
