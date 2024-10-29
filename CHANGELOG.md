@@ -5,7 +5,7 @@
 ### Fixes
 
 - Build visionOS project with static Sentry SDK (#4462)
-- Building SDK from source with Xcode 15.3
+- Building SDK from source with Xcode 15.3 (#4483)
 
 ### Improvements
 
