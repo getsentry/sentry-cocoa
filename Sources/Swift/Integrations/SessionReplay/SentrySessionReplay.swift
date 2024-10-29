@@ -255,7 +255,7 @@ class SentrySessionReplay: NSObject {
 
         var events = convertBreadcrumbs(breadcrumbs: breadcrumbs, from: video.start, until: video.end)
         if let touchTracker = touchTracker {
-            events.append(contentsOf: touchTracker.replayEvents(from: video.start, until: video.end))
+            events.append(contentsOf: touchTracker.replayEvents(from: videoSegmentStart ?? video.start, until: video.end))
             touchTracker.flushFinishedEvents()
         }
 

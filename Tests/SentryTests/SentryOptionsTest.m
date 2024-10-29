@@ -87,6 +87,13 @@
         infoDict[@"CFBundleShortVersionString"], infoDict[@"CFBundleVersion"]];
 }
 
+#if TARGET_OS_OSX
+- (void)testEnableReportingUncaughtNSExceptions
+{
+    [self testBooleanField:@"enableUncaughtNSExceptionReporting" defaultValue:NO];
+}
+#endif // TARGET_OS_OSX
+
 - (void)testEnvironment
 {
     SentryOptions *options = [self getValidOptions:@{}];
