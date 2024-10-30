@@ -5,12 +5,12 @@
 #if TARGET_OS_IOS && SENTRY_HAS_UIKIT
 
 @implementation SentryUserFeedbackIntegration {
-    SentryUserFeedbackIntegration *_driver;
+    SentryUserFeedbackIntegrationDriver *_driver;
 }
 
 - (BOOL)installWithOptions:(SentryOptions *)options
 {
-    _driver = [[SentryUserFeedbackIntegration alloc]
+    _driver = [[SentryUserFeedbackIntegrationDriver alloc]
         initWithConfiguration:options.userFeedbackConfiguration];
     return YES;
 }
