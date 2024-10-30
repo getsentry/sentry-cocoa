@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Scheme
    LastUpgradeVersion = "1600"
-   version = "1.7">
+   version = "1.8">
    <BuildAction
       parallelizeBuildables = "YES"
       buildImplicitDependencies = "YES"
@@ -15,7 +15,7 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "330854C12CB6B5CF00D06618"
+               BlueprintIdentifier = "62363A7F2CD1105F0073E53B"
                BuildableName = "SwiftUITestSample.app"
                BlueprintName = "SwiftUITestSample"
                ReferencedContainer = "container:SwiftUITestSample.xcodeproj">
@@ -44,7 +44,7 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "330854C12CB6B5CF00D06618"
+            BlueprintIdentifier = "62363A7F2CD1105F0073E53B"
             BuildableName = "SwiftUITestSample.app"
             BlueprintName = "SwiftUITestSample"
             ReferencedContainer = "container:SwiftUITestSample.xcodeproj">
@@ -61,7 +61,7 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "330854C12CB6B5CF00D06618"
+            BlueprintIdentifier = "62363A7F2CD1105F0073E53B"
             BuildableName = "SwiftUITestSample.app"
             BlueprintName = "SwiftUITestSample"
             ReferencedContainer = "container:SwiftUITestSample.xcodeproj">
