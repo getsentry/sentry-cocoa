@@ -2,10 +2,12 @@
 
 ## Unreleased
 
-### Fixes
+## Feature
 
+- Add option to report uncaught NSExceptions on macOS (#4471)
 - Build visionOS project with static Sentry SDK (#4462)
 - Building SDK from source with Xcode 15.3 (#4483)
+- Capture all touches with session replay (#4477)
 
 ### Improvements
 
