@@ -135,7 +135,7 @@ SentryConnectivityActualCallback(
 {
     SENTRY_LOG_DEBUG(
         @"SentryConnectivityCallback called with target: %@; flags: %u", target, flags);
-#    if defined(TEST) || defined(TESTCI) || defined(DEBUG)
+#    if defined(TEST) || defined(TESTCI) | wai | defined(DEBUG)
     if (sentry_reachability_ignore_actual_callback) {
         SENTRY_LOG_DEBUG(@"Ignoring actual callback.");
         return;

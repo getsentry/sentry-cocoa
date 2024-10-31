@@ -5,7 +5,7 @@ import XCTest
 class SentryTransportFactoryTests: XCTestCase {
     
     private static let dsnAsString = TestConstants.dsnAsString(username: "SentryTransportFactoryTests")
-
+    
     func testIntegration_UrlSessionDelegate_PassedToRequestManager() throws {
         let urlSessionDelegateSpy = UrlSessionDelegateSpy()
         
@@ -19,7 +19,7 @@ class SentryTransportFactoryTests: XCTestCase {
         options.urlSessionDelegate = urlSessionDelegateSpy
         
         let fileManager = try! SentryFileManager(options: options, dispatchQueueWrapper: TestSentryDispatchQueueWrapper())
-        let transports = TransportInitializer.initTransports(options, sentryFileManager: fileManager, currentDateProvider: TestCurrentDateProvider())
+        let transports = TransportInitializer.initTransports(options, sentryFileManager: fileManager, rateLimits: rateLimiting())
         let httpTransport = transports.first
         let requestManager = try XCTUnwrap(Dynamic(httpTransport).requestManager.asObject as? SentryQueueableRequestManager)
         
@@ -44,7 +44,7 @@ class SentryTransportFactoryTests: XCTestCase {
         options.urlSession = sessionConfiguration
         
         let fileManager = try! SentryFileManager(options: options, dispatchQueueWrapper: TestSentryDispatchQueueWrapper())
-        let transports = TransportInitializer.initTransports(options, sentryFileManager: fileManager, currentDateProvider: TestCurrentDateProvider())
+        let transports = TransportInitializer.initTransports(options, sentryFileManager: fileManager, rateLimits: rateLimiting())
                 
         let httpTransport = transports.first
         let requestManager = try XCTUnwrap(Dynamic(httpTransport).requestManager.asObject as? SentryQueueableRequestManager)
@@ -60,7 +60,7 @@ class SentryTransportFactoryTests: XCTestCase {
     func testShouldReturnTwoTransports_WhenSpotlightEnabled() throws {
         let options = Options()
         options.enableSpotlight = true
-        let transports = TransportInitializer.initTransports(options, sentryFileManager: try SentryFileManager(options: options), currentDateProvider: TestCurrentDateProvider())
+        let transports = TransportInitializer.initTransports(options, sentryFileManager: try SentryFileManager(options: options), rateLimits: rateLimiting())
         
         XCTAssert(transports.contains {
             $0.isKind(of: SentrySpotlightTransport.self)
@@ -69,6 +69,14 @@ class SentryTransportFactoryTests: XCTestCase {
         XCTAssert(transports.contains {
             $0.isKind(of: SentryHttpTransport.self)
         })
+    }
+
+    func rateLimiting() -> RateLimits {
+        let dateProvider = TestCurrentDateProvider()
+        let retryAfterHeaderParser = RetryAfterHeaderParser(httpDateParser: HttpDateParser(), currentDateProvider: dateProvider)
+        let rateLimitParser = RateLimitParser(currentDateProvider: dateProvider)
+        
+        return DefaultRateLimits(retryAfterHeaderParser: retryAfterHeaderParser, andRateLimitParser: rateLimitParser, currentDateProvider: dateProvider)
     }
     
 }

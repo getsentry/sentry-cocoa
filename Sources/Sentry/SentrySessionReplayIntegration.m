@@ -14,6 +14,7 @@
 #    import "SentryNSNotificationCenterWrapper.h"
 #    import "SentryOptions.h"
 #    import "SentryRandom.h"
+#    import "SentryRateLimits.h"
 #    import "SentryReachability.h"
 #    import "SentrySDK+Private.h"
 #    import "SentryScope+Private.h"
@@ -46,6 +47,8 @@ static SentryTouchTracker *_touchTracker;
     SentryReplayOptions *_replayOptions;
     SentryNSNotificationCenterWrapper *_notificationCenter;
     SentryOnDemandReplay *_resumeReplayMaker;
+    id<SentryRateLimits> _rateLimits;
+    BOOL _rateLimited;
 }
 
 - (instancetype)init
@@ -78,6 +81,7 @@ static SentryTouchTracker *_touchTracker;
 {
     _replayOptions = replayOptions;
     _viewPhotographer = [[SentryViewPhotographer alloc] initWithRedactOptions:replayOptions];
+    _rateLimits = SentryDependencyContainer.sharedInstance.rateLimits;
 
     if (touchTracker) {
         _touchTracker = [[SentryTouchTracker alloc]
@@ -416,6 +420,12 @@ static SentryTouchTracker *_touchTracker;
 
 - (void)start
 {
+    if (_rateLimited) {
+        SENTRY_LOG_WARN(
+            @"This session was rate limited. Not starting session replay until next app session");
+        return;
+    }
+
     if (self.sessionReplay != nil) {
         if (self.sessionReplay.isFullSession == NO) {
             [self.sessionReplay captureReplay];
@@ -447,6 +457,7 @@ static SentryTouchTracker *_touchTracker;
 
 - (void)sentrySessionStarted:(SentrySession *)session
 {
+    _rateLimited = NO;
     [self startSession];
 }
 
@@ -553,6 +564,15 @@ static SentryTouchTracker *_touchTracker;
                                replayRecording:(SentryReplayRecording *)replayRecording
                                       videoUrl:(NSURL *)videoUrl
 {
+    if ([_rateLimits isRateLimitActive:kSentryDataCategoryReplay] ||
+        [_rateLimits isRateLimitActive:kSentryDataCategoryAll]) {
+        SENTRY_LOG_DEBUG(
+            @"Rate limiting is active for replays. Stopping session replay until next session.");
+        _rateLimited = YES;
+        [self stop];
+        return;
+    }
+
     [SentrySDK.currentHub captureReplayEvent:replayEvent
                              replayRecording:replayRecording
                                        video:videoUrl];
