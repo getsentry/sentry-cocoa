@@ -103,7 +103,7 @@ class SentryReplayOptionsTests: XCTestCase {
         ])
 
         XCTAssertEqual(options.unmaskedViewClasses.count, 1)
-        XCTAssertEqual(ObjectIdentifier(options.unmaskedViewClasses.first as AnyClass), ObjectIdentifier(UILabel.self))
+        XCTAssertEqual(ObjectIdentifier(options.unmaskedViewClasses.first!), ObjectIdentifier(UILabel.self))
     }
 
     func testInitFromDictUnmaskedViewClassesAsString() {
@@ -174,8 +174,8 @@ class SentryReplayOptionsTests: XCTestCase {
         XCTAssertFalse(options.maskAllText)
         XCTAssertTrue(options.maskAllImages)
         XCTAssertEqual(options.maskedViewClasses.count, 1)
-        XCTAssertEqual(ObjectIdentifier(options.maskedViewClasses.first), ObjectIdentifier(UIView.self))
+        XCTAssertEqual(ObjectIdentifier(options.maskedViewClasses.first!), ObjectIdentifier(UIView.self))
         XCTAssertEqual(options.unmaskedViewClasses.count, 1)
-        XCTAssertEqual(options.unmaskedViewClasses.first, UILabel.self)
+        XCTAssertEqual(ObjectIdentifier(options.unmaskedViewClasses.first!), ObjectIdentifier(UILabel.self))
     }
 }
