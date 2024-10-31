@@ -41,6 +41,13 @@
         };
 
         options.configureUserFeedback = ^(SentryUserFeedbackConfiguration *_Nonnull config) {
+            UIOffset layoutOffset = UIOffsetMake(25, 75);
+            if ([args containsObject:@"--io.sentry.iOS-Swift.user-feedback.all-defaults"]) {
+                config.configureWidget = ^(SentryUserFeedbackWidgetConfiguration *widget) {
+                    widget.layoutUIOffset = layoutOffset;
+                };
+                return;
+            }
             config.useShakeGesture = YES;
             config.showFormForScreenshots = YES;
             config.configureWidget = ^(SentryUserFeedbackWidgetConfiguration *_Nonnull widget) {
@@ -48,8 +55,16 @@
                         containsObject:@"--io.sentry.iOS-Swift.auto-inject-user-feedback-widget"]) {
                     widget.labelText = @"Report Jank";
                     widget.widgetAccessibilityLabel = @"io.sentry.iOS-Swift.button.report-jank";
+                    widget.layoutUIOffset = layoutOffset;
                 } else {
                     widget.autoInject = NO;
+                }
+
+                if ([args containsObject:@"--io.sentry.iOS-Swift.user-feedback.no-widget-text"]) {
+                    widget.labelText = nil;
+                }
+                if ([args containsObject:@"--io.sentry.iOS-Swift.user-feedback.no-widget-icon"]) {
+                    widget.showIcon = NO;
                 }
             };
             config.configureForm = ^(SentryUserFeedbackFormConfiguration *_Nonnull uiForm) {
@@ -58,9 +73,9 @@
                 uiForm.addScreenshotButtonLabel = @"Show us the jank";
                 uiForm.messagePlaceholder
                     = @"Describe the nature of the jank. Its essence, if you will.";
-                uiForm.themeOverrides = ^(SentryUserFeedbackThemeConfiguration *_Nonnull theme) {
-                    theme.font = [UIFont fontWithName:@"Comic Sans" size:25];
-                };
+            };
+            config.configureTheme = ^(SentryUserFeedbackThemeConfiguration *_Nonnull theme) {
+                theme.font = [UIFont fontWithName:@"ChalkboardSE-Regular" size:25];
             };
             config.onSubmitSuccess = ^(NSDictionary<NSString *, id> *_Nonnull info) {
                 NSString *name = info[@"name"] ?: @"$shakespearean_insult_name";

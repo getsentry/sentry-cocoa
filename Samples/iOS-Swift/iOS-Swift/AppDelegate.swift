@@ -163,14 +163,38 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             }
             
             options.configureUserFeedback = { config in
+                let layoutOffset = UIOffset(horizontal: 25, vertical: 75)
+                guard !args.contains("--io.sentry.iOS-Swift.user-feedback.all-defaults") else {
+                    config.configureWidget = { widget in   
+                        widget.layoutUIOffset = layoutOffset
+                    }
+                    return
+                }
                 config.useShakeGesture = true
                 config.showFormForScreenshots = true
                 config.configureWidget = { widget in
                     if args.contains("--io.sentry.iOS-Swift.auto-inject-user-feedback-widget") {
-                        widget.labelText = "Report Jank"
+                        if Locale.current.languageCode == "ar" { // arabic
+                            widget.labelText = "﷽"
+                        } else if Locale.current.languageCode == "ur" { // urdu
+                            widget.labelText = "نستعلیق"
+                        } else if Locale.current.languageCode == "he" { // hebrew
+                            widget.labelText = "עִבְרִית‎"
+                        } else if Locale.current.languageCode == "hi" { // Hindi
+                            widget.labelText = "नागरि"
+                        } else {
+                            widget.labelText = "Report Jank"
+                        }
                         widget.widgetAccessibilityLabel = "io.sentry.iOS-Swift.button.report-jank"
+                        widget.layoutUIOffset = layoutOffset
                     } else {
                         widget.autoInject = false
+                    }
+                    if args.contains("--io.sentry.iOS-Swift.user-feedback.no-widget-text") {
+                        widget.labelText = nil
+                    }
+                    if args.contains("--io.sentry.iOS-Swift.user-feedback.no-widget-icon") {
+                        widget.showIcon = false
                     }
                 }
                 config.configureForm = { uiForm in
@@ -178,9 +202,26 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                     uiForm.submitButtonLabel = "Report that jank"
                     uiForm.addScreenshotButtonLabel = "Show us the jank"
                     uiForm.messagePlaceholder = "Describe the nature of the jank. Its essence, if you will."
-                    uiForm.themeOverrides = { theme in
-                        theme.font = UIFont(name: "Comic Sans", size: 25)
+                }
+                config.configureTheme = { theme in
+                    let fontSize: CGFloat = 25
+                    
+                    let fontFamily: String
+                    if Locale.current.languageCode == "ar" { // arabic; ar_EG
+                        fontFamily = "Damascus"
+                    } else if Locale.current.languageCode == "ur" { // urdu; ur_PK
+                        fontFamily = "NotoNastaliq"
+                    } else if Locale.current.languageCode == "he" { // hebrew; he_IL
+                        fontFamily = "Arial Hebrew"
+                    } else if Locale.current.languageCode == "hi" { // Hindi; hi_IN
+                        fontFamily = "DevanagariSangamMN"
+                    } else {
+                        fontFamily = "ChalkboardSE-Regular"
                     }
+                    theme.font = UIFont(name: fontFamily, size: fontSize) ?? UIFont.systemFont(ofSize: fontSize)
+                    theme.outlineColor = .purple
+                    theme.foreground = .purple
+                    theme.background = .purple.withAlphaComponent(0.1)
                 }
                 config.onSubmitSuccess = { info in
                     let name = info["name"] ?? "$shakespearean_insult_name"
