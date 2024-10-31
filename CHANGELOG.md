@@ -13,7 +13,7 @@
 - Improve frames tracker performance (#4469)
 - Log a warning when dropping envelopes due to rate-limiting (#4463)
 - Expose `SentrySessionReplayIntegration-Hybrid.h` as `private` (#4486)
-- Stops session replay if rate limiting is activated ()
+- Stops session replay if rate limiting is activated (#4496)
 
 ## 8.39.0
 
