@@ -391,7 +391,7 @@ to receive SIGTERM events, set the option `enableSigtermReporting = true`.
 
 ### Features
 
-The following two features, disabled by default, were mistakenly added to the release. We usually only add features in minor releases. 
+The following two features, disabled by default, were mistakenly added to the release. We usually only add features in minor releases.
 
 - Add option to use own NSURLSession for transport (#3811)
 - Support sending GraphQL operation names in HTTP breadcrumbs (#3931)
@@ -412,9 +412,9 @@ The following two features, disabled by default, were mistakenly added to the re
 
 - Remove not needed lock for logging (#3934)
 - Session replay Improvements (#3877)
-  - Use image average color and text font color to redact session replay 
+  - Use image average color and text font color to redact session replay
   - Removed iOS 16 restriction from session replay
-  - Performance improvement 
+  - Performance improvement
 
 ## 8.25.0
 
@@ -426,7 +426,7 @@ The following two features, disabled by default, were mistakenly added to the re
 ### Fixes
 
 - Crash due to a background call to -[UIApplication applicationState] (#3855)
-- Save framework without UIKit/AppKit as Github Asset for releases (#3858) 
+- Save framework without UIKit/AppKit as Github Asset for releases (#3858)
 - Fix crash associated with runtime collision in global C function names (#3862)
 - Remove wrong error log in SentryCoreDataTracker (#3894)
 - Don't transmit device boot time in envelopes enriched with crash data (#3912, #3916)
@@ -445,7 +445,7 @@ The following two features, disabled by default, were mistakenly added to the re
 ### Fixes
 
 - Crash due to a background call to -[UIApplication applicationState] (#3855)
-- Save framework without UIKit/AppKit as Github Asset for releases (#3858) 
+- Save framework without UIKit/AppKit as Github Asset for releases (#3858)
 - Fix crash associated with runtime collision in global C function names (#3862)
 - Remove wrong error log in SentryCoreDataTracker (#3894)
 
@@ -504,7 +504,7 @@ more about how to use the Metrics API.
 
 ## 8.22.1
 
-### Fixes 
+### Fixes
 
 - Checksum error when resolving the SDK via SPM (#3760)
 
@@ -581,7 +581,7 @@ information retrieved via `NSFileSystemFreeSize` and `NSFileSystemSize` off a de
 - Add visionOS as device family (#3548)
 - Add VisionOS Support for Carthage (#3565)
 
-### Fixes 
+### Fixes
 
 - Move header reference out of "extern C" (#3538)
 - Clarify FramesTracker log message (#3570)
@@ -630,7 +630,7 @@ information retrieved via `NSFileSystemFreeSize` and `NSFileSystemSize` off a de
 
 ## 8.17.1
 
-### Fixes 
+### Fixes
 
 - Crash when UINavigationController doesn't have rootViewController (#3455)
 - Crash when synchronizing invalid JSON breadcrumbs to SentryWatchdogTermination (#3458)
@@ -642,7 +642,7 @@ information retrieved via `NSFileSystemFreeSize` and `NSFileSystemSize` off a de
 
 ### Features
 
-- SwiftUI support is no longer in Beta (#3441) 
+- SwiftUI support is no longer in Beta (#3441)
 
 ## 8.16.1
 
@@ -802,7 +802,7 @@ and [MXCPUExceptionDiagnostic](https://developer.apple.com/documentation/metrick
 ## 8.9.4
 
 ### Fixes
- 
+
 - Remove linker settings from Package.swift (#3188)
 - Free memory returned by backtrace_symbols() in debug builds ([#3202](https://github.com/getsentry/sentry-cocoa/pull/3202))
 
@@ -929,7 +929,7 @@ For the Swift error above Sentry displays:
 [Customized error descriptions](https://docs.sentry.io/platforms/apple/usage/#customizing-error-descriptions) have precedence over this feature.
 This change has no impact on grouping of the issues in Sentry.
 
-### Fixes 
+### Fixes
 
 - Propagate span when copying scope (#2952)
 - Remove "/" from crash report file name (#3005)
@@ -944,7 +944,7 @@ This change has no impact on grouping of the issues in Sentry.
 
 - Create User and Breadcrumb from map (#2820)
 
-### Fixes 
+### Fixes
 
 - Improved performance serializing profiling data (#2863)
 - Possible crash in Core Data tracking (#2865)
@@ -978,9 +978,9 @@ The `stitchAsyncCode` experimental option has been removed from `SentryOptions` 
 - Add `name` and `geo` to User (#2710)
 
 ### Fixes
- 
+
 - Correctly track and send GPU frame render data in profiles (#2823)
-- Xcode 14.3 compiling issue regarding functions declaration with no prototype (#2852) 
+- Xcode 14.3 compiling issue regarding functions declaration with no prototype (#2852)
 
 ## 8.3.3
 
@@ -1006,7 +1006,7 @@ The `stitchAsyncCode` experimental option has been removed from `SentryOptions` 
 
 ## 8.3.1
 
-### Fixes 
+### Fixes
 
 - Stop using UIScreen.main (#2762)
 - Profile timestamp alignment with transactions (#2771) and app start spans (#2772)
@@ -1072,7 +1072,7 @@ This change might mark 3rd party library frames as in-app, which the SDK previou
 
 ### Features
 
-This version adds a dependency on Swift. 
+This version adds a dependency on Swift.
 We renamed the default branch from `master` to `main`. We are going to keep the `master` branch for backwards compatibility for package managers pointing to the `master` branch.
 
 ### Features
@@ -1088,7 +1088,7 @@ We renamed the default branch from `master` to `main`. We are going to keep the 
 - Enable CaptureFailedRequests by default (#2507)
 - Support the [`SENTRY_DSN` environment variable](https://docs.sentry.io/platforms/apple/guides/macos/configuration/options/#dsn) on macOS (#2534)
 - Experimental MetricKit integration (#2519) for
-  - [MXHangDiagnostic](https://developer.apple.com/documentation/metrickit/mxhangdiagnostic) 
+  - [MXHangDiagnostic](https://developer.apple.com/documentation/metrickit/mxhangdiagnostic)
   - [MXDiskWriteExceptionDiagnostic](https://developer.apple.com/documentation/metrickit/mxdiskwriteexceptiondiagnostic)
   - [MXCPUExceptionDiagnostic](https://developer.apple.com/documentation/metrickit/mxcpuexceptiondiagnostic)
 - Add a timeout for auto-generated transactions (#2535)
@@ -1115,7 +1115,7 @@ We renamed the default branch from `master` to `main`. We are going to keep the 
 - Make `SpanProtocol.data` non nullable (#2409)
 - Mark `- [SpanProtocol setExtraValue:forKey:]` as deprecated (#2413)
 - Make SpanContext immutable (#2408)
-    - Remove tags from SpanContext 
+    - Remove tags from SpanContext
     - Remove context property from SentrySpan
 - Bump minimum supported OS versions to macOS 10.13, iOS 11, tvOS 11, and watchOS 4 (#2414)
 - Make public APIs Swift friendly
@@ -1128,8 +1128,8 @@ We renamed the default branch from `master` to `main`. We are going to keep the 
     - Remove `SentryScope.apply(to:maxBreadcrumb:)` (#2416)
     - Remove `- [SentryOptions initWithDict:didFailWithError:]` (#2404)
     - Remove `- [SentryOptions sdkInfo]` (#2404)
-    - Make SentrySession and SentrySDKInfo internal (#2451)  
-- Marks App hang's event stacktrace snapshot as true (#2441) 
+    - Make SentrySession and SentrySDKInfo internal (#2451)
+- Marks App hang's event stacktrace snapshot as true (#2441)
 - Enable user interaction tracing by default (#2442)
 - Remove default attachment content type (#2443)
 - Rename APM tracking feature flags to tracing (#2450)
