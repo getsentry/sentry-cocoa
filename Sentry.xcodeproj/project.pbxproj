@@ -936,6 +936,7 @@
 		D8F6A24B2885515C00320515 /* SentryPredicateDescriptor.h in Headers */ = {isa = PBXBuildFile; fileRef = D8F6A24A2885515B00320515 /* SentryPredicateDescriptor.h */; };
 		D8F6A24E288553A800320515 /* SentryPredicateDescriptorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F6A24C2885534E00320515 /* SentryPredicateDescriptorTests.swift */; };
 		D8F8F5572B835BC600AC5465 /* SentryMsgPackSerializerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = D8F8F5562B835BC600AC5465 /* SentryMsgPackSerializerTests.m */; };
+		D8FC98AB2CD0DAB30009824C /* BreadcrumbExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8FC98AA2CD0DAAC0009824C /* BreadcrumbExtension.swift */; };
 		D8FFE50C2703DBB400607131 /* SwizzlingCallTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8FFE50B2703DAAE00607131 /* SwizzlingCallTests.swift */; };
 /* End PBXBuildFile section */
 
@@ -2024,6 +2025,7 @@
 		D8F6A24A2885515B00320515 /* SentryPredicateDescriptor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SentryPredicateDescriptor.h; path = include/SentryPredicateDescriptor.h; sourceTree = "<group>"; };
 		D8F6A24C2885534E00320515 /* SentryPredicateDescriptorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryPredicateDescriptorTests.swift; sourceTree = "<group>"; };
 		D8F8F5562B835BC600AC5465 /* SentryMsgPackSerializerTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentryMsgPackSerializerTests.m; sourceTree = "<group>"; };
+		D8FC98AA2CD0DAAC0009824C /* BreadcrumbExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BreadcrumbExtension.swift; sourceTree = "<group>"; };
 		D8FFE50B2703DAAE00607131 /* SwizzlingCallTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwizzlingCallTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -3469,6 +3471,7 @@
 			isa = PBXGroup;
 			children = (
 				84AEB4682C2F9673007E46E1 /* ArrayAccesses.swift */,
+				D8FC98AA2CD0DAAC0009824C /* BreadcrumbExtension.swift */,
 				841325DE2BFED0510029228F /* TestFramesTracker.swift */,
 				841325C42BF49EC40029228F /* SentryLaunchProfiling+Tests.h */,
 				7B4C817124D1BC2B0076ACE4 /* SentryFileManager+Test.h */,
@@ -5153,6 +5156,7 @@
 				84AC61DB29F7654A009EEF61 /* TestDispatchSourceWrapper.swift in Sources */,
 				8431F01729B2851500D8DC56 /* TestSentrySystemWrapper.swift in Sources */,
 				84281C632A579D0700EE88F2 /* SentryProfilerMocks.mm in Sources */,
+				D8FC98AB2CD0DAB30009824C /* BreadcrumbExtension.swift in Sources */,
 				84B7FA4129B28CD200AD93B1 /* TestSentryDispatchQueueWrapper.swift in Sources */,
 				84B7FA3E29B28ADD00AD93B1 /* TestClient.swift in Sources */,
 			);
