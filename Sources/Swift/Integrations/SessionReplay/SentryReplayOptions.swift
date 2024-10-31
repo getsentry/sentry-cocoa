@@ -2,7 +2,7 @@ import Foundation
 
 @objcMembers
 public class SentryReplayOptions: NSObject, SentryRedactOptions {
-    
+
     /**
      * Enum to define the quality of the session replay.
      */
@@ -48,7 +48,7 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
      * - note: The default is 0.
      */
     public var onErrorSampleRate: Float
-    
+
     /**
      * Indicates whether session replay should redact all text in the app
      * by drawing a black rectangle over it.
@@ -56,7 +56,7 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
      * - note: The default is true
      */
     public var maskAllText = true
-    
+
     /**
      * Indicates whether session replay should redact all non-bundled image
      * in the app by drawing a black rectangle over it.
@@ -64,21 +64,21 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
      * - note: The default is true
      */
     public var maskAllImages = true
-    
+
     /**
      * Indicates the quality of the replay.
      * The higher the quality, the higher the CPU and bandwidth usage.
      */
     public var quality = SentryReplayQuality.medium
-    
+
     /**
-     * A list of custom UIView subclasses that need 
+     * A list of custom UIView subclasses that need
      * to be masked during session replay.
      * By default Sentry already mask text and image elements from UIKit
      * Every child of a view that is redacted will also be redacted.
      */
     public var maskedViewClasses = [AnyClass]()
-    
+
     /**
      * A list of custom UIView subclasses to be ignored
      * during masking step of the session replay.
@@ -86,7 +86,7 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
      * This property has precedence over `redactViewTypes`.
      */
     public var unmaskedViewClasses = [AnyClass]()
-    
+
     /**
      * Defines the quality of the session replay.
      * Higher bit rates better quality, but also bigger files to transfer.
@@ -94,14 +94,14 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
     var replayBitRate: Int {
         quality.rawValue * 20_000 + 20_000
     }
-    
+
     /**
      * The scale related to the window size at which the replay will be created
      */
     var sizeScale: Float {
         quality == .low ? 0.8 : 1.0
     }
-   
+
     /**
      * Number of frames per second of the replay.
      * The more the havier the process is.
@@ -112,22 +112,22 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
             if frameRate < 1 { frameRate = 1 }
         }
     }
-        
+
     /**
      * The maximum duration of replays for error events.
      */
     let errorReplayDuration = TimeInterval(30)
-    
+
     /**
      * The maximum duration of the segment of a session replay.
      */
     let sessionSegmentDuration = TimeInterval(5)
-    
+
     /**
      * The maximum duration of a replay session.
      */
     let maximumDuration = TimeInterval(3_600)
-    
+
     /**
      * Inittialize session replay options disabled
      */
@@ -135,7 +135,7 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
         self.sessionSampleRate = 0
         self.onErrorSampleRate = 0
     }
-    
+
     /**
      * Initialize session replay options
      * - parameters:
@@ -149,7 +149,7 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
         self.maskAllText = maskAllText
         self.maskAllImages = maskAllImages
     }
-    
+
     convenience init(dictionary: [String: Any]) {
         let sessionSampleRate = (dictionary["sessionSampleRate"] as? NSNumber)?.floatValue ?? 0
         let onErrorSampleRate = (dictionary["errorSampleRate"] as? NSNumber)?.floatValue ?? 0
