@@ -15,6 +15,7 @@
 - Improve frames tracker performance (#4469)
 - Log a warning when dropping envelopes due to rate-limiting (#4463)
 - Expose `SentrySessionReplayIntegration-Hybrid.h` as `private` (#4486)
+- Add `maskedViewClasses` and `unmaskedViewClasses` to SentryReplayOptions init via dict (#4492)
 
 ## 8.39.0
 

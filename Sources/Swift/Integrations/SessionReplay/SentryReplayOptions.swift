@@ -152,5 +152,11 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
         let maskAllText = (dictionary["maskAllText"] as? NSNumber)?.boolValue ?? true
         let maskAllImages = (dictionary["maskAllImages"] as? NSNumber)?.boolValue ?? true
         self.init(sessionSampleRate: sessionSampleRate, onErrorSampleRate: onErrorSampleRate, maskAllText: maskAllText, maskAllImages: maskAllImages)
+        self.maskedViewClasses = ((dictionary["maskedViewClasses"] as? NSArray) ?? []).compactMap({ element in
+            NSClassFromString((element as? String) ?? "")
+        })
+        self.unmaskedViewClasses = ((dictionary["unmaskedViewClasses"] as? NSArray) ?? []).compactMap({ element in
+            NSClassFromString((element as? String) ?? "")
+        })
     }
 }
