@@ -74,16 +74,16 @@ class SentryReplayOptionsTests: XCTestCase {
 
     func testInitFromDictMaskedViewClasses() {
         let options = SentryReplayOptions(dictionary: [
-            "maskedViewClasses": ["UILabel"]
+            "maskedViewClasses": ["NSString"]
         ])
 
         XCTAssertEqual(options.maskedViewClasses.count, 1)
-        XCTAssertEqual(ObjectIdentifier(options.maskedViewClasses[0]), ObjectIdentifier(UILabel.self))
+        XCTAssertEqual(ObjectIdentifier(options.maskedViewClasses.first!), ObjectIdentifier(NSString.self))
     }
 
     func testInitFromDictMaskedViewClassesAsString() {
         let options = SentryReplayOptions(dictionary: [
-            "maskedViewClasses": "UILabel"
+            "maskedViewClasses": "ExampleView1"
         ])
 
         XCTAssertEqual(options.maskedViewClasses.count, 0)
@@ -99,11 +99,11 @@ class SentryReplayOptionsTests: XCTestCase {
 
     func testInitFromDictUnmaskedViewClasses() {
         let options = SentryReplayOptions(dictionary: [
-            "unmaskedViewClasses": ["UILabel"]
+            "unmaskedViewClasses": ["NSString"]
         ])
 
         XCTAssertEqual(options.unmaskedViewClasses.count, 1)
-        XCTAssertEqual(ObjectIdentifier(options.unmaskedViewClasses.first!), ObjectIdentifier(UILabel.self))
+        XCTAssertEqual(ObjectIdentifier(options.unmaskedViewClasses.first!), ObjectIdentifier(NSString.self))
     }
 
     func testInitFromDictUnmaskedViewClassesAsString() {
@@ -116,7 +116,7 @@ class SentryReplayOptionsTests: XCTestCase {
 
     func testInitFromDictUnmaskedViewClassesWithInvalidValues() {
         let options = SentryReplayOptions(dictionary: [
-            "unmaskedViewClasses": [123, "not.class"]
+            "unmaskedViewClasses": [123, "not.class"] as [Any]
         ])
 
         XCTAssertEqual(options.unmaskedViewClasses.count, 0)
@@ -165,8 +165,8 @@ class SentryReplayOptionsTests: XCTestCase {
             "sessionSampleRate": 0.5,
             "errorSampleRate": 0.8,
             "maskAllText": false,
-            "maskedViewClasses": ["UIView", "not.a.class", 123],
-            "unmaskedViewClasses": ["UILabel", "invalid", true]
+            "maskedViewClasses": ["NSString", "not.a.class", 123] as [Any],
+            "unmaskedViewClasses": ["NSNumber", "invalid", true] as [Any]
         ])
 
         XCTAssertEqual(options.sessionSampleRate, 0.5)
@@ -174,8 +174,8 @@ class SentryReplayOptionsTests: XCTestCase {
         XCTAssertFalse(options.maskAllText)
         XCTAssertTrue(options.maskAllImages)
         XCTAssertEqual(options.maskedViewClasses.count, 1)
-        XCTAssertEqual(ObjectIdentifier(options.maskedViewClasses.first!), ObjectIdentifier(UIView.self))
+        XCTAssertEqual(ObjectIdentifier(options.maskedViewClasses.first!), ObjectIdentifier(NSString.self))
         XCTAssertEqual(options.unmaskedViewClasses.count, 1)
-        XCTAssertEqual(ObjectIdentifier(options.unmaskedViewClasses.first!), ObjectIdentifier(UILabel.self))
+        XCTAssertEqual(ObjectIdentifier(options.unmaskedViewClasses.first!), ObjectIdentifier(NSNumber.self))
     }
 }
