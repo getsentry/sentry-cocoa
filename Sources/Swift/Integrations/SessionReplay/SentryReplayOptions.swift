@@ -8,25 +8,29 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
      */
     @objc
     public enum SentryReplayQuality: Int {
+        static let names = [ "low", "medium", "high"]
+
         /**
          * Video Scale: 80%
          * Bit Rate: 20.000
          */
-        case low
-        
+        case low = 0
+
         /**
          * Video Scale: 100%
          * Bit Rate: 40.000
          */
-        case medium
-        
+        case medium = 1
+
         /**
          * Video Scale: 100%
          * Bit Rate: 60.000
          */
-        case high
+        case high = 2
     }
-    
+
+    static let defaultQuality: SentryReplayQuality = .medium
+
     /**
      * Indicates the percentage in which the replay for the session will be created.
      * - Specifying @c 0 means never, @c 1.0 means always.
@@ -158,5 +162,20 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
         self.unmaskedViewClasses = ((dictionary["unmaskedViewClasses"] as? NSArray) ?? []).compactMap({ element in
             NSClassFromString((element as? String) ?? "")
         })
+        if let quality = (dictionary["quality"] as? String) {
+            self.quality = SentryReplayQuality.fromName(quality)
+        }
+
+    }
+}
+
+extension SentryReplayOptions.SentryReplayQuality: CustomStringConvertible {
+    public var description: String {
+        return SentryReplayOptions.SentryReplayQuality.names[Int(self.rawValue)]
+    }
+
+    static func fromName(_ name: String) -> SentryReplayOptions.SentryReplayQuality {
+        guard let index = SentryReplayOptions.SentryReplayQuality.names.firstIndex(of: name) else { return SentryReplayOptions.defaultQuality }
+        return SentryReplayOptions.SentryReplayQuality(rawValue: Int(index)) ?? SentryReplayOptions.defaultQuality
     }
 }
