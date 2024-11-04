@@ -14,6 +14,7 @@ class TestData {
     }
     static let sdk = ["name": SentryMeta.sdkName, "version": SentryMeta.versionString]
     static let context: [String: [String: Any]] = ["context": ["c": "a", "date": timestamp]]
+    static let traceContext: [String: [String: Any]] = ["trace": ["trace_id": "1234567890", "span_id": "1234567890"]]
     
     static let malformedURLString = "http://example.com:-80/"
     
