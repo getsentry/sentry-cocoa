@@ -19,7 +19,7 @@
 
 ### Fixes
 
-- Masking text with transparent text color
+- Masking text with transparent text color (#4499)
 
 ## 8.39.0
 
