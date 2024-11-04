@@ -7,8 +7,8 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
      * Enum to define the quality of the session replay.
      */
     @objc
-    public enum SentryReplayQuality: Int {
-        static let names = [ "low", "medium", "high"]
+    public enum SentryReplayQuality: Int, CustomStringConvertible {
+        fileprivate static let defaultQuality: SentryReplayQuality = .medium
 
         /**
          * Video Scale: 80%
@@ -27,9 +27,24 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
          * Bit Rate: 60.000
          */
         case high = 2
-    }
 
-    private static let defaultQuality: SentryReplayQuality = .medium
+        public var description: String {
+            switch self {
+            case .low: return "low"
+            case .medium: return "medium"
+            case .high: return "high"
+            }
+        }
+
+        static func fromName(_ name: String) -> SentryReplayOptions.SentryReplayQuality {
+            switch name {
+            case "low": return .low
+            case "medium": return .medium
+            case "high": return .high
+            default: return defaultQuality
+            }
+        }
+    }
 
     /**
      * Indicates the percentage in which the replay for the session will be created.
@@ -69,7 +84,7 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
      * Indicates the quality of the replay.
      * The higher the quality, the higher the CPU and bandwidth usage.
      */
-    public var quality = SentryReplayQuality.medium
+    public var quality = SentryReplayQuality.defaultQuality
 
     /**
      * A list of custom UIView subclasses that need
@@ -165,17 +180,5 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
         if let quality = (dictionary["quality"] as? String) {
             self.quality = SentryReplayQuality.fromName(quality)
         }
-
-    }
-}
-
-extension SentryReplayOptions.SentryReplayQuality: CustomStringConvertible {
-    public var description: String {
-        return SentryReplayOptions.SentryReplayQuality.names[Int(self.rawValue)]
-    }
-
-    static func fromName(_ name: String) -> SentryReplayOptions.SentryReplayQuality {
-        guard let index = SentryReplayOptions.SentryReplayQuality.names.firstIndex(of: name) else { return SentryReplayOptions.defaultQuality }
-        return SentryReplayOptions.SentryReplayQuality(rawValue: Int(index)) ?? SentryReplayOptions.defaultQuality
     }
 }
