@@ -36,6 +36,9 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
             }
         }
 
+        /**
+         * Used by Hybrid SDKs.
+         */
         static func fromName(_ name: String) -> SentryReplayOptions.SentryReplayQuality {
             switch name {
             case "low": return .low
@@ -177,8 +180,8 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
         self.unmaskedViewClasses = ((dictionary["unmaskedViewClasses"] as? NSArray) ?? []).compactMap({ element in
             NSClassFromString((element as? String) ?? "")
         })
-        if let quality = (dictionary["quality"] as? String) {
-            self.quality = SentryReplayQuality.fromName(quality)
+        if let quality = SentryReplayQuality(rawValue: dictionary["quality"] as? Int ?? -1) {
+            self.quality = quality
         }
     }
 }

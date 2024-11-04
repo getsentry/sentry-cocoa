@@ -4,6 +4,13 @@ import XCTest
 
 class SentryReplayOptionsTests: XCTestCase {
 
+    func testQualityConversion() {
+        XCTAssertEqual(SentryReplayOptions.SentryReplayQuality.fromName("low"), .low)
+        XCTAssertEqual(SentryReplayOptions.SentryReplayQuality.fromName("medium"), .medium)
+        XCTAssertEqual(SentryReplayOptions.SentryReplayQuality.fromName("high"), .high)
+        XCTAssertEqual(SentryReplayOptions.SentryReplayQuality.fromName("invalid_value"), .medium)
+    }
+
     func testQualityLow() {
         let options = SentryReplayOptions()
         options.quality = .low
@@ -169,17 +176,17 @@ class SentryReplayOptionsTests: XCTestCase {
 
     func testInitFromDictQualityWithString() {
         let options = SentryReplayOptions(dictionary: [
-            "quality": "low"
+            "quality": 0 // low
         ])
         XCTAssertEqual(options.quality, .low)
 
         let options2 = SentryReplayOptions(dictionary: [
-            "quality": "medium"
+            "quality": 1 // medium
         ])
         XCTAssertEqual(options2.quality, .medium)
 
         let options3 = SentryReplayOptions(dictionary: [
-            "quality": "high"
+            "quality": 2 // high
         ])
         XCTAssertEqual(options3.quality, .high)
     }
@@ -203,7 +210,7 @@ class SentryReplayOptionsTests: XCTestCase {
             "maskAllText": false,
             "maskedViewClasses": ["NSString", "not.a.class", 123] as [Any],
             "unmaskedViewClasses": ["NSNumber", "invalid", true] as [Any],
-            "quality": "low"
+            "quality": 0 // low
         ])
 
         XCTAssertEqual(options.sessionSampleRate, 0.5)
