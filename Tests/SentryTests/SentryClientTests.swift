@@ -1749,6 +1749,34 @@ class SentryClientTest: XCTestCase {
         wait(for: [callbackExpectation], timeout: 0.1)
     }
     
+    func testSaveCrashTransaction_StoresEventWithTraceContext() throws {
+        let transaction = fixture.transaction
+        let client = fixture.getSut()
+        client.saveCrash(transaction, with: fixture.scope)
+        
+        XCTAssertEqual(fixture.transportAdapter.saveEventInvocations.first?.traceContext?.traceId, transaction.trace.traceId)
+    }
+    
+    func testSaveCrashTransaction_StoresEventWithScope() throws {
+        let transaction = fixture.transaction
+        let client = fixture.getSut()
+        client.saveCrash(transaction, with: fixture.scope)
+
+        let savedEvent = try XCTUnwrap(fixture.transportAdapter.saveEventInvocations.first?.event)
+        
+        XCTAssertEqual(["key": "value"], savedEvent.tags)
+    }
+    
+    func testSaveCrashTransaction_DisabledClient_StoresNothing() throws {
+        let transaction = fixture.transaction
+        
+        let client = fixture.getSutDisabledSdk()
+        
+        client.saveCrash(transaction, with: fixture.scope)
+
+        XCTAssertEqual(0, fixture.transportAdapter.saveEventInvocations.count)
+    }
+    
     func testCaptureTransactionEvent_sendTraceState() {
         let transaction = fixture.transaction
         let client = fixture.getSut()

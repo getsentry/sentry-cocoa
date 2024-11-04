@@ -358,6 +358,10 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                              alwaysAttachStacktrace:NO
                                        isCrashEvent:NO];
 
+    if (preparedEvent == nil) {
+        return;
+    }
+
     SentryTraceContext *traceContext = [self getTraceStateWithEvent:transaction withScope:scope];
 
     [self.transportAdapter saveEvent:preparedEvent traceContext:traceContext];
