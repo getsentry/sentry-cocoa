@@ -14,19 +14,19 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
          * Video Scale: 80%
          * Bit Rate: 20.000
          */
-        case low = 0
+        case low
 
         /**
          * Video Scale: 100%
          * Bit Rate: 40.000
          */
-        case medium = 1
+        case medium
 
         /**
          * Video Scale: 100%
          * Bit Rate: 60.000
          */
-        case high = 2
+        case high
 
         public var description: String {
             switch self {
