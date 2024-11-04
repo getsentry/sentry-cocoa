@@ -327,6 +327,40 @@ class SentrySessionReplayTests: XCTestCase {
         XCTAssertNil(fixture.screenshotProvider.lastImageCall)
     }
     
+    func testFilterCloseNavigationBreadcrumbs() {
+        let fixture = Fixture()
+        
+        let sut = fixture.getSut(options: SentryReplayOptions(sessionSampleRate: 1, onErrorSampleRate: 1))
+        sut.start(rootView: fixture.rootView, fullSession: true)
+        XCTAssertEqual(fixture.lastReplayId, sut.sessionReplayId)
+        
+        fixture.dateProvider.advance(by: 1)
+        let startEvent = fixture.dateProvider.date()
+                 
+        fixture.breadcrumbs = [
+            .navigation(screen: "Some Screen", date: startEvent.addingTimeInterval(0.1)), // This should not filter out
+            .custom(date: startEvent.addingTimeInterval(0.11)), // This should not filter out
+            .navigation(screen: "Child VC 1", date: startEvent.addingTimeInterval(0.11)), // Dont keep this one
+            .navigation(screen: "Child VC 2", date: startEvent.addingTimeInterval(0.12)), // Dont keep this one
+            .navigation(screen: "Child VC 3", date: startEvent.addingTimeInterval(0.15)), // Dont keep this one
+            .navigation(screen: "Another Screen", date: startEvent.addingTimeInterval(0.16)) // This should not filter out
+        ]
+                
+        Dynamic(sut).newFrame(nil)
+        fixture.dateProvider.advance(by: 5)
+        Dynamic(sut).newFrame(nil)
+        
+        let event = Event(error: NSError(domain: "Some error", code: 1))
+        sut.captureReplayFor(event: event)
+        
+        let breadCrumbRREvents = fixture.lastReplayRecording?.events.compactMap( { $0 as? SentryRRWebBreadcrumbEvent }) ?? []
+        
+        XCTAssertEqual(breadCrumbRREvents.count, 3)
+        XCTAssertEqual((breadCrumbRREvents[0].data?["payload"] as? [String: Any])?["message"] as? String, "Some Screen")
+        XCTAssertEqual((breadCrumbRREvents[1].data?["payload"] as? [String: Any])?["category"] as? String, "custom")
+        XCTAssertEqual((breadCrumbRREvents[2].data?["payload"] as? [String: Any])?["message"] as? String, "Another Screen")
+    }
+  
     func testCaptureAllTouches() {
         let fixture = Fixture()
         let touchTracker = TestTouchTracker(dateProvider: fixture.dateProvider, scale: 1)

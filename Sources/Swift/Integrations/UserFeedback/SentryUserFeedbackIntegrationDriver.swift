@@ -9,7 +9,7 @@ import UIKit
  */
 @available(iOS 13.0, *)
 @objcMembers
-class SentryUserFeedbackIntegration: NSObject {
+class SentryUserFeedbackIntegrationDriver: NSObject {
     let configuration: SentryUserFeedbackConfiguration
     private var window: SentryUserFeedbackWidget.Window?
     

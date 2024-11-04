@@ -269,13 +269,25 @@ class SentrySessionReplay: NSObject {
             SentryLog.debug("Could not delete replay segment from disk: \(error.localizedDescription)")
         }
     }
-
+    
     private func convertBreadcrumbs(breadcrumbs: [Breadcrumb], from: Date, until: Date) -> [any SentryRRWebEventProtocol] {
-        return breadcrumbs.filter {
-            guard let time = $0.timestamp, time >= from && time < until else { return false }
-            return true
+        var filteredResult: [Breadcrumb] = []
+        var lastNavigationTime: Date = from.addingTimeInterval(-1)
+        
+        for breadcrumb in breadcrumbs {
+            guard let time = breadcrumb.timestamp, time >= from && time < until else { continue }
+            
+            // If it's a "navigation" breadcrumb, check the timestamp difference from the previous breadcrumb.
+            // Skip any breadcrumbs that have occurred within 50ms of the last one,
+            // as these represent child view controllers that don’t need their own navigation breadcrumb.
+            if breadcrumb.type == "navigation" {
+                if time.timeIntervalSince(lastNavigationTime) < 0.05 { continue }
+                lastNavigationTime = time
+            }
+            filteredResult.append(breadcrumb)
         }
-        .compactMap(breadcrumbConverter.convert(from:))
+        
+        return filteredResult.compactMap(breadcrumbConverter.convert(from:))
     }
     
     private func takeScreenshot() {
