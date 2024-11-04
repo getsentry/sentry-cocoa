@@ -20,9 +20,9 @@ public class TestTransportAdapter: SentryTransportAdapter {
         sendEventWithTraceStateInvocations.record((event, traceContext, attachments, additionalEnvelopeItems))
     }
     
-    public var saveEventInvocations = Invocations<(event: Event, traceContext: TraceContext?)>()
-    public override func save(_ event: Event, traceContext: TraceContext?) {
-        saveEventInvocations.record((event, traceContext))
+    public var storeEventInvocations = Invocations<(event: Event, traceContext: TraceContext?)>()
+    public override func store(_ event: Event, traceContext: TraceContext?) {
+        storeEventInvocations.record((event, traceContext))
     }
 
     public var userFeedbackInvocations = Invocations<UserFeedback>()

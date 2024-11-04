@@ -39,7 +39,7 @@ SENTRY_NO_INIT
      traceContext:(nullable SentryTraceContext *)traceContext
       attachments:(NSArray<SentryAttachment *> *)attachments;
 
-- (void)saveEvent:(SentryEvent *)event traceContext:(nullable SentryTraceContext *)traceContext;
+- (void)storeEvent:(SentryEvent *)event traceContext:(nullable SentryTraceContext *)traceContext;
 
 - (void)sendUserFeedback:(SentryUserFeedback *)userFeedback NS_SWIFT_NAME(send(userFeedback:));
 

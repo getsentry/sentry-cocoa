@@ -1336,8 +1336,6 @@ class SentryTracerTests: XCTestCase {
         let sut = fixture.getSut()
         _ = sut.startChild(operation: "ui.load")
         
-        advanceTime(bySeconds: 1.0)
-        
         sut.finishForCrash()
         sut.finishForCrash()
         

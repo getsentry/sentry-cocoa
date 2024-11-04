@@ -1,6 +1,5 @@
 #import "SentryBaggage.h"
 #import "SentryCrashThread.h"
-#import "SentryCrashWrapper.h"
 #import "SentryDependencyContainer.h"
 #import "SentryFrame.h"
 #import "SentryInternalDefines.h"

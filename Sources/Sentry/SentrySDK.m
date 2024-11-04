@@ -23,7 +23,6 @@
 #import "SentryScope.h"
 #import "SentrySerialization.h"
 #import "SentrySwift.h"
-
 #import "SentryTransactionContext.h"
 #import "SentryUserFeedbackIntegration.h"
 

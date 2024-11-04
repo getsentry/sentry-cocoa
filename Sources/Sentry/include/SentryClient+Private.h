@@ -36,7 +36,9 @@ NS_ASSUME_NONNULL_BEGIN
                     withSession:(SentrySession *)session
                       withScope:(SentryScope *)scope;
 
-- (void)saveCrashTransaction:(SentryTransaction *)transaction withScope:(SentryScope *)scope;
+- (void)saveCrashTransaction:(SentryTransaction *)transaction
+                   withScope:(SentryScope *)scope
+    NS_SWIFT_NAME(saveCrashTransaction(transaction:scope:));
 
 - (SentryId *)captureEvent:(SentryEvent *)event
                   withScope:(SentryScope *)scope

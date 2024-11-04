@@ -286,7 +286,7 @@ NS_SWIFT_NAME(Options)
  *
  * @note The default is @c NO .
  */
-@property (nonatomic, assign) BOOL enableTracingForCrashes;
+@property (nonatomic, assign) BOOL enableTracingWhenCrashing;
 
 /**
  * A block that configures the initial scope when starting the SDK.

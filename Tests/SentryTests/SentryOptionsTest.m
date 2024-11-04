@@ -830,9 +830,9 @@
     [self testBooleanField:@"enablePerformanceV2" defaultValue:NO];
 }
 
-- (void)testEnableTracingForCrashes
+- (void)testEnableTracingWhenCrashing
 {
-    [self testBooleanField:@"enableTracingForCrashes" defaultValue:NO];
+    [self testBooleanField:@"enableTracingWhenCrashing" defaultValue:NO];
 }
 
 #if SENTRY_HAS_UIKIT

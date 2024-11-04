@@ -69,9 +69,9 @@ class SentryTransportAdapterTests: XCTestCase {
         try assertSentEnvelope(expected: expectedEnvelope)
     }
     
-    func testSaveEvent_StoresCorrectEnvelope() throws {
+    func testStoreEvent_StoresCorrectEnvelope() throws {
         let event = TestData.event
-        sut.save(event, traceContext: nil)
+        sut.store(event, traceContext: nil)
         
         let expectedEnvelope = SentryEnvelope(id: event.eventId, items: [
             SentryEnvelopeItem(event: event)

@@ -364,7 +364,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
     SentryTraceContext *traceContext = [self getTraceStateWithEvent:transaction withScope:scope];
 
-    [self.transportAdapter saveEvent:preparedEvent traceContext:traceContext];
+    [self.transportAdapter storeEvent:preparedEvent traceContext:traceContext];
 }
 
 - (SentryId *)captureEvent:(SentryEvent *)event

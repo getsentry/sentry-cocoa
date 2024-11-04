@@ -108,7 +108,7 @@ sentry_defaultIntegrations(void)
         self.sendDefaultPii = NO;
         self.enableAutoPerformanceTracing = YES;
         self.enablePerformanceV2 = NO;
-        self.enableTracingForCrashes = NO;
+        self.enableTracingWhenCrashing = NO;
         self.enableCaptureFailedRequests = YES;
         self.environment = kSentryDefaultEnvironment;
         self.enableTimeToFullDisplayTracing = NO;
@@ -414,8 +414,8 @@ sentry_defaultIntegrations(void)
     [self setBool:options[@"enablePerformanceV2"]
             block:^(BOOL value) { self->_enablePerformanceV2 = value; }];
 
-    [self setBool:options[@"enableTracingForCrashes"]
-            block:^(BOOL value) { self->_enableTracingForCrashes = value; }];
+    [self setBool:options[@"enableTracingWhenCrashing"]
+            block:^(BOOL value) { self->_enableTracingWhenCrashing = value; }];
 
     [self setBool:options[@"enableCaptureFailedRequests"]
             block:^(BOOL value) { self->_enableCaptureFailedRequests = value; }];

@@ -77,7 +77,7 @@ NS_ASSUME_NONNULL_BEGIN
     [self sendEnvelope:envelope];
 }
 
-- (void)saveEvent:(SentryEvent *)event traceContext:(nullable SentryTraceContext *)traceContext
+- (void)storeEvent:(SentryEvent *)event traceContext:(nullable SentryTraceContext *)traceContext
 {
     SentryEnvelopeItem *item = [[SentryEnvelopeItem alloc] initWithEvent:event];
 

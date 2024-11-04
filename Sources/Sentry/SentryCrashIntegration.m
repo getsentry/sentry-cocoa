@@ -112,8 +112,8 @@ static NSString *const LOCALE_KEY = @"locale";
 
     [self configureScope];
 
-    if (options.enableTracingForCrashes) {
-        [self configureTracingForCrashes];
+    if (options.enableTracingWhenCrashing) {
+        [self configureTracingWhenCrashing];
     }
 
     return YES;
@@ -251,7 +251,7 @@ static NSString *const LOCALE_KEY = @"locale";
     }];
 }
 
-- (void)configureTracingForCrashes
+- (void)configureTracingWhenCrashing
 {
     sentrycrash_setSaveTransaction(&sentry_finishAndSaveTransaction);
 }

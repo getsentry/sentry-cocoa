@@ -109,7 +109,7 @@ public class TestClient: SentryClient {
     }
     
     public var saveCrashTransactionInvocations = Invocations<(event: Event, scope: Scope)>()
-    public override func saveCrash(_ transaction: Transaction, with scope: Scope) {
+    public override func saveCrashTransaction(transaction: Transaction, scope: Scope) {
         saveCrashTransactionInvocations.record((transaction, scope))
     }
     

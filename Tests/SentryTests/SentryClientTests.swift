@@ -1752,17 +1752,17 @@ class SentryClientTest: XCTestCase {
     func testSaveCrashTransaction_StoresEventWithTraceContext() throws {
         let transaction = fixture.transaction
         let client = fixture.getSut()
-        client.saveCrash(transaction, with: fixture.scope)
+        client.saveCrashTransaction(transaction: transaction, scope: fixture.scope)
         
-        XCTAssertEqual(fixture.transportAdapter.saveEventInvocations.first?.traceContext?.traceId, transaction.trace.traceId)
+        XCTAssertEqual(fixture.transportAdapter.storeEventInvocations.first?.traceContext?.traceId, transaction.trace.traceId)
     }
     
     func testSaveCrashTransaction_StoresEventWithScope() throws {
         let transaction = fixture.transaction
         let client = fixture.getSut()
-        client.saveCrash(transaction, with: fixture.scope)
+        client.saveCrashTransaction(transaction: transaction, scope: fixture.scope)
 
-        let savedEvent = try XCTUnwrap(fixture.transportAdapter.saveEventInvocations.first?.event)
+        let savedEvent = try XCTUnwrap(fixture.transportAdapter.storeEventInvocations.first?.event)
         
         XCTAssertEqual(["key": "value"], savedEvent.tags)
     }
@@ -1772,9 +1772,9 @@ class SentryClientTest: XCTestCase {
         
         let client = fixture.getSutDisabledSdk()
         
-        client.saveCrash(transaction, with: fixture.scope)
+        client.saveCrashTransaction(transaction: transaction, scope: fixture.scope)
 
-        XCTAssertEqual(0, fixture.transportAdapter.saveEventInvocations.count)
+        XCTAssertEqual(0, fixture.transportAdapter.storeEventInvocations.count)
     }
     
     func testCaptureTransactionEvent_sendTraceState() {
