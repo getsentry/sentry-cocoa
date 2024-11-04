@@ -39,7 +39,7 @@ public class SentryUserFeedbackFormConfiguration: NSObject {
      * The label shown next to an input field that is required.
      * - note: Default: `"(required)"`
      */
-    public var isRequiredLabel: String = "(required)"
+    public var isRequiredLabel: String = "(Required)"
     
     /**
      * The message displayed after a successful feedback submission.

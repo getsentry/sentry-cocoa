@@ -3,10 +3,12 @@ import Foundation
 @_implementationOnly import _SentryPrivate
 import UIKit
 
+var displayingForm = false
+
 @available(iOS 13.0, *)
 struct SentryUserFeedbackWidget {
     class Window: UIWindow {
-        class RootViewController: UIViewController {
+        class RootViewController: UIViewController, SentryUserFeedbackFormDelegate {
             let defaultWidgetSpacing: CGFloat = 8
             
             lazy var button = SentryUserFeedbackWidgetButtonView(config: config, action: { sender in
@@ -18,20 +20,9 @@ struct SentryUserFeedbackWidget {
                     sender.isHidden = true
                 }
                 
-                let formDialog = UIViewController(nibName: nil, bundle: nil)
-                formDialog.view.backgroundColor = .white
-                let label = UILabel(frame: .zero)
-                label.text = "Hi, I'm a user feedback form!"
-                formDialog.view.addSubview(label)
-                label.translatesAutoresizingMaskIntoConstraints = false
-                label.textAlignment = .center
-                NSLayoutConstraint.activate([
-                    label.leadingAnchor.constraint(equalTo: formDialog.view.leadingAnchor),
-                    label.trailingAnchor.constraint(equalTo: formDialog.view.trailingAnchor),
-                    label.centerYAnchor.constraint(equalTo: formDialog.view.centerYAnchor)
-                ])
-                
-                self.present(formDialog, animated: self.config.widgetConfig.animations)
+                displayingForm = true
+                let form = SentryUserFeedbackForm(config: self.config, delegate: self)
+                self.present(form, animated: self.config.widgetConfig.animations)
             })
             
             let config: SentryUserFeedbackConfiguration
@@ -60,6 +51,30 @@ struct SentryUserFeedbackWidget {
             required init?(coder: NSCoder) {
                 fatalError("init(coder:) has not been implemented")
             }
+            
+            func closeForm() {
+                if config.widgetConfig.animations {
+                    UIView.animate(withDuration: 0.3, delay: 0, options: .curveEaseInOut) {
+                        self.button.alpha = 1
+                    }
+                } else {
+                    button.isHidden = false
+                }
+                
+                displayingForm = false
+                dismiss(animated: config.widgetConfig.animations)
+            }
+            
+            // MARK: SentryUserFeedbackFormDelegate
+            
+            func cancelled() {
+                closeForm()
+            }
+            
+            func confirmed() {
+                // TODO: submit
+                closeForm()
+            }
         }
         
         init(config: SentryUserFeedbackConfiguration) {
@@ -73,6 +88,10 @@ struct SentryUserFeedbackWidget {
         }
         
         override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
+            guard !displayingForm else {
+                return super.hitTest(point, with: event)
+            }
+            
             guard let result = super.hitTest(point, with: event) else {
                 return nil
             }
