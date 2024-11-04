@@ -17,6 +17,10 @@
 - Expose `SentrySessionReplayIntegration-Hybrid.h` as `private` (#4486)
 - Add `maskedViewClasses` and `unmaskedViewClasses` to SentryReplayOptions init via dict (#4492)
 
+### Fixes
+
+- Session replay masking not working inside scroll view ()
+
 ## 8.39.0
 
 ### Removal of Experimental API
