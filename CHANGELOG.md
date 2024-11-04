@@ -19,7 +19,7 @@
 
 ### Fixes
 
-- Session replay masking not working inside scroll view ()
+- Session replay masking not working inside scroll view (#4498)
 
 ## 8.39.0
 
