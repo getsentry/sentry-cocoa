@@ -29,7 +29,7 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
         case high = 2
     }
 
-    static let defaultQuality: SentryReplayQuality = .medium
+    private static let defaultQuality: SentryReplayQuality = .medium
 
     /**
      * Indicates the percentage in which the replay for the session will be created.
