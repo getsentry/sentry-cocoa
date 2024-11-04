@@ -1309,6 +1309,40 @@ class SentryTracerTests: XCTestCase {
         let data = sut.data as [String: Any]
         XCTAssertEqual(0, data["key"] as? Int)
     }
+    
+    func testFinishForCrash_WithWaitForChildren_GetsFinished() {
+        let sut = fixture.getSut()
+        let child = sut.startChild(operation: "ui.load")
+        
+        advanceTime(bySeconds: 1.0)
+        
+        sut.finishForCrash()
+        
+        let currentTime = fixture.currentDateProvider.date()
+        
+        XCTAssertTrue(sut.isFinished)
+        XCTAssertEqual(currentTime, sut.timestamp)
+        
+        XCTAssertTrue(child.isFinished)
+        XCTAssertEqual(currentTime, child.timestamp)
+        XCTAssertEqual(SentrySpanStatus.internalError, child.status)
+        
+        XCTAssertEqual(SentrySpanStatus.internalError, sut.status)
+        
+        XCTAssertEqual(1, fixture.client.saveCrashTransactionInvocations.count)
+    }
+    
+    func testFinishForCrash_CallFinishTwice_OnlyOnceSaved() {
+        let sut = fixture.getSut()
+        _ = sut.startChild(operation: "ui.load")
+        
+        advanceTime(bySeconds: 1.0)
+        
+        sut.finishForCrash()
+        sut.finishForCrash()
+        
+        XCTAssertEqual(1, fixture.client.saveCrashTransactionInvocations.count)
+    }
 
     private func advanceTime(bySeconds: TimeInterval) {
         fixture.currentDateProvider.setDate(date: fixture.currentDateProvider.date().addingTimeInterval(bySeconds))

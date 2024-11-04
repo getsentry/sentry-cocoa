@@ -143,6 +143,16 @@ NS_ASSUME_NONNULL_BEGIN
 {
     @synchronized(_spanLock) {
         _span = span;
+
+        for (id<SentryScopeObserver> observer in self.observers) {
+            if (span != nil) {
+                SENTRY_LOG_DEBUG(@"PropagationContext: set span");
+                [observer setTraceContext:[span serialize]];
+            } else {
+                SENTRY_LOG_DEBUG(@"PropagationContext: set default");
+                [observer setTraceContext:[self.propagationContext traceContextForEvent]];
+            }
+        }
     }
 }
 

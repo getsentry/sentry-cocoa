@@ -113,6 +113,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             options.enableSwizzling = !args.contains("--disable-swizzling")
             options.enableCrashHandler = !args.contains("--disable-crash-handler")
             options.enableTracing = !args.contains("--disable-tracing")
+            options.enableTracingForCrashes = true
 
             // because we run CPU for 15 seconds at full throttle, we trigger ANR issues being sent. disable such during benchmarks.
             options.enableAppHangTracking = !isBenchmarking && !args.contains("--disable-anr-tracking")
@@ -146,8 +147,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 scope.injectGitInformation()
                                                
                 let user = User(userId: "1")
-                user.email = env["--io.sentry.user.email"] ?? "tony@example.com"
-                // first check if the username has been overridden in the scheme for testing purposes; then try to use the system username so each person gets an automatic way to easily filter things on the dashboard; then fall back on a hardcoded value if none of these are present
+                user.email = "philipp@sentry.io"
                 let username = env["--io.sentry.user.username"] ?? (env["SIMULATOR_HOST_HOME"] as? NSString)?
                     .lastPathComponent ?? "cocoa developer"
                 user.username = username

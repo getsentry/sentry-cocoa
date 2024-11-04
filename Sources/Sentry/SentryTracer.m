@@ -467,6 +467,21 @@ static BOOL appStartMeasurementRead;
     [self canBeFinished];
 }
 
+- (void)finishForCrash
+{
+    self.wasFinishCalled = YES;
+    _finishStatus = kSentrySpanStatusInternalError;
+
+    BOOL discardTransaction = [self finishTracer:kSentrySpanStatusInternalError];
+    if (discardTransaction) {
+        return;
+    }
+
+    SentryTransaction *transaction = [self toTransaction];
+
+    [_hub saveCrashTransaction:transaction];
+}
+
 - (void)canBeFinished
 {
     // Transaction already finished and captured.
@@ -521,16 +536,58 @@ static BOOL appStartMeasurementRead;
 
 - (void)finishInternal
 {
+    BOOL discardTransaction = [self finishTracer];
+    if (discardTransaction) {
+        return;
+    }
+
+    SentryTransaction *transaction = [self toTransaction];
+
+#if SENTRY_TARGET_PROFILING_SUPPORTED
+    if (self.isProfiling) {
+        NSDate *startTimestamp;
+
+#    if SENTRY_HAS_UIKIT
+        if (appStartMeasurement != nil) {
+            startTimestamp = appStartMeasurement.runtimeInitTimestamp;
+        }
+#    endif // SENTRY_HAS_UIKIT
+
+        if (startTimestamp == nil) {
+            startTimestamp = self.startTimestamp;
+        }
+        if (!SENTRY_ASSERT_RETURN(startTimestamp != nil,
+                @"A transaction with a profile should have a start timestamp already. We will "
+                @"assign the current time but this will be incorrect.")) {
+            startTimestamp = [SentryDependencyContainer.sharedInstance.dateProvider date];
+        }
+
+        sentry_captureTransactionWithProfile(
+            self.hub, self.dispatchQueue, transaction, startTimestamp);
+        return;
+    }
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED
+
+    [_hub captureTransaction:transaction withScope:_hub.scope];
+}
+
+- (BOOL)finishTracer
+{
+    return [self finishTracer:kSentrySpanStatusDeadlineExceeded];
+}
+
+- (BOOL)finishTracer:(SentrySpanStatus)unfinishedSpansFinishStatus
+{
     [self cancelDeadlineTimer];
     if (self.isFinished) {
         SENTRY_LOG_DEBUG(@"Tracer %@ was already finished.", _traceContext.traceId.sentryIdString);
-        return;
+        return YES;
     }
     @synchronized(self) {
         if (self.isFinished) {
             SENTRY_LOG_DEBUG(@"Tracer %@ was already finished after synchronizing.",
                 _traceContext.traceId.sentryIdString);
-            return;
+            return YES;
         }
         // Keep existing status of auto generated transactions if set by the user.
 
@@ -567,13 +624,13 @@ static BOOL appStartMeasurementRead;
         SENTRY_LOG_INFO(@"Auto generated transaction exceeded the max duration of %f seconds. Not "
                         @"capturing transaction.",
             SENTRY_AUTO_TRANSACTION_MAX_DURATION);
-        return;
+        return YES;
     }
 
     if (_hub == nil) {
         SENTRY_LOG_DEBUG(
             @"Hub was nil for tracer %@, nothing to do.", _traceContext.traceId.sentryIdString);
-        return;
+        return YES;
     }
 
     [_hub.scope useSpan:^(id<SentrySpan> _Nullable span) {
@@ -585,19 +642,19 @@ static BOOL appStartMeasurementRead;
     if (self.configuration.finishMustBeCalled && !self.wasFinishCalled) {
         SENTRY_LOG_DEBUG(
             @"Not capturing transaction because finish was not called before timing out.");
-        return;
+        return YES;
     }
 
     @synchronized(_children) {
         if (_configuration.idleTimeout > 0.0 && _children.count == 0) {
             SENTRY_LOG_DEBUG(@"Was waiting for timeout for UI event trace but it had no children, "
                              @"will not keep transaction.");
-            return;
+            return YES;
         }
 
         for (id<SentrySpan> span in _children) {
             if (!span.isFinished) {
-                [span finishWithStatus:kSentrySpanStatusDeadlineExceeded];
+                [span finishWithStatus:unfinishedSpansFinishStatus];
 
                 // Unfinished children should have the same
                 // end timestamp as their parent transaction
@@ -610,34 +667,7 @@ static BOOL appStartMeasurementRead;
         }
     }
 
-    SentryTransaction *transaction = [self toTransaction];
-
-#if SENTRY_TARGET_PROFILING_SUPPORTED
-    if (self.isProfiling) {
-        NSDate *startTimestamp;
-
-#    if SENTRY_HAS_UIKIT
-        if (appStartMeasurement != nil) {
-            startTimestamp = appStartMeasurement.runtimeInitTimestamp;
-        }
-#    endif // SENTRY_HAS_UIKIT
-
-        if (startTimestamp == nil) {
-            startTimestamp = self.startTimestamp;
-        }
-        if (!SENTRY_ASSERT_RETURN(startTimestamp != nil,
-                @"A transaction with a profile should have a start timestamp already. We will "
-                @"assign the current time but this will be incorrect.")) {
-            startTimestamp = [SentryDependencyContainer.sharedInstance.dateProvider date];
-        }
-
-        sentry_captureTransactionWithProfile(
-            self.hub, self.dispatchQueue, transaction, startTimestamp);
-        return;
-    }
-#endif // SENTRY_TARGET_PROFILING_SUPPORTED
-
-    [_hub captureTransaction:transaction withScope:_hub.scope];
+    return NO;
 }
 
 - (void)trimEndTimestamp

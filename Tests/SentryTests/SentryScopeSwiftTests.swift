@@ -722,6 +722,11 @@ class SentryScopeSwiftTests: XCTestCase {
             self.context = context
         }
         
+        var traceContext: [String: Any]?
+        func setTraceContext(_ traceContext: [String: Any]?) {
+            self.traceContext = traceContext
+        }
+        
         var dist: String?
         func setDist(_ dist: String?) {
             self.dist = dist

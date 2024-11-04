@@ -22,6 +22,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
             options = Options()
             options.dsn = SentryCrashIntegrationTests.dsnAsString
             options.releaseName = TestData.appState.releaseName
+            options.tracesSampleRate = 1.0
             
             client = TestClient(options: options, fileManager: try! SentryFileManager(options: options, dispatchQueueWrapper: dispatchQueueWrapper), deleteOldEnvelopeItems: false)
             hub = TestHub(client: client, andScope: nil)
@@ -335,6 +336,100 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         XCTAssertFalse(wasUncaughtExceptionHandlerCalled)
     }
 #endif // os(macOS)
+    
+    func testEnableTracingForCrashes_SetsCallback() throws {
+        let (sut, _) = givenSutWithGlobalHubAndCrashWrapper()
+        let options = Options()
+        options.enableTracingForCrashes = true
+        sut.install(with: options)
+        
+        XCTAssertTrue(sentrycrash_hasSaveTransaction())
+    }
+    
+    func testEnableTracingForCrashes_Uninstall_RemovesCallback() throws {
+        let (sut, _) = givenSutWithGlobalHubAndCrashWrapper()
+        let options = Options()
+        options.enableTracingForCrashes = true
+        sut.install(with: options)
+        
+        sut.uninstall()
+        
+        XCTAssertFalse(sentrycrash_hasSaveTransaction())
+    }
+    
+    func testEnableTracingForCrashes_Disabled_DoesNotSetCallback() throws {
+        let (sut, _) = givenSutWithGlobalHubAndCrashWrapper()
+        let options = Options()
+        options.enableTracingForCrashes = false
+        sut.install(with: options)
+        
+        XCTAssertFalse(sentrycrash_hasSaveTransaction())
+    }
+    
+    func testEnableTracingForCrashes_InvokeCallback_StoresTransaction() throws {
+        let options = fixture.options
+        options.enableTracingForCrashes = true
+        
+        let client = SentryClient(options: options)
+        defer { client?.fileManager.deleteAllEnvelopes() }
+        let hub = SentryHub(client: client, andScope: nil)
+        SentrySDK.setCurrentHub(hub)
+        
+        let sut = fixture.getSut(crashWrapper: SentryCrashWrapper.sharedInstance())
+        sut.install(with: options)
+        
+        let transaction = SentrySDK.startTransaction(name: "Crashing", operation: "Operation", bindToScope: true)
+        
+        sentrycrash_invokeSaveTransaction()
+        
+        XCTAssertTrue(transaction.isFinished)
+        
+        XCTAssertEqual(1, client?.fileManager.getAllEnvelopes().count)
+        let transactionEnvelopeFileContents = try XCTUnwrap(client?.fileManager.getOldestEnvelope())
+        let envelope = try XCTUnwrap(SentrySerialization.envelope(with: transactionEnvelopeFileContents.contents))
+        XCTAssertEqual(1, envelope.items.count)
+        XCTAssertEqual("transaction", envelope.items.first?.header.type)
+    }
+    
+    func testEnableTracingForCrashes_InvokeCallbackWhenNoSpanOnScope_TransactionNotFinished() throws {
+        let options = fixture.options
+        options.enableTracingForCrashes = true
+        
+        let client = SentryClient(options: options)
+        defer { client?.fileManager.deleteAllEnvelopes() }
+        let hub = SentryHub(client: client, andScope: nil)
+        SentrySDK.setCurrentHub(hub)
+        
+        let sut = fixture.getSut(crashWrapper: SentryCrashWrapper.sharedInstance())
+        sut.install(with: options)
+        
+        let transaction = SentrySDK.startTransaction(name: "name", operation: "operation", bindToScope: true)
+        SentrySDK.currentHub().scope.span = nil
+        
+        sentrycrash_invokeSaveTransaction()
+        
+        XCTAssertFalse(transaction.isFinished)
+        XCTAssertEqual(0, client?.fileManager.getAllEnvelopes().count)
+    }
+    
+    func testEnableTracingForCrashes_InvokeCallback_WhenSpanOnScopeIsNotATracer_TransactionNotFinished() throws {
+        let options = fixture.options
+        options.enableTracingForCrashes = true
+        
+        let client = SentryClient(options: options)
+        defer { client?.fileManager.deleteAllEnvelopes() }
+        let hub = SentryHub(client: client, andScope: nil)
+        SentrySDK.setCurrentHub(hub)
+        
+        let transaction = SentrySDK.startTransaction(name: "name", operation: "operation", bindToScope: true)
+        let span = transaction.startChild(operation: "child")
+        SentrySDK.currentHub().scope.span = span
+        
+        sentrycrash_invokeSaveTransaction()
+        
+        XCTAssertFalse(transaction.isFinished)
+        XCTAssertEqual(0, client?.fileManager.getAllEnvelopes().count)
+    }
     
     private func givenCurrentSession() -> SentrySession {
         // serialize sets the timestamp

@@ -36,6 +36,8 @@ NS_ASSUME_NONNULL_BEGIN
                     withSession:(SentrySession *)session
                       withScope:(SentryScope *)scope;
 
+- (void)saveCrashTransaction:(SentryTransaction *)transaction withScope:(SentryScope *)scope;
+
 - (SentryId *)captureEvent:(SentryEvent *)event
                   withScope:(SentryScope *)scope
     additionalEnvelopeItems:(NSArray<SentryEnvelopeItem *> *)additionalEnvelopeItems
