@@ -476,7 +476,6 @@ static BOOL appStartMeasurementRead;
     // code that leads to the app hanging and not terminating.
     BOOL discardTransaction = [self finishTracer:kSentrySpanStatusInternalError shouldCleanUp:NO];
     if (discardTransaction) {
-        SENTRY_LOG_DEBUG(@"Discard transaction");
         return;
     }
 
