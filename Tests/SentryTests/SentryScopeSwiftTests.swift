@@ -70,12 +70,6 @@ class SentryScopeSwiftTests: XCTestCase {
             transaction = SentryTracer(transactionContext: TransactionContext(name: transactionName, operation: transactionOperation), hub: nil)
         }
         
-        var contextWithTraceContext: [String: [String: String]] {
-            var expectedContext = context
-            expectedContext["trace"] = scope.propagationContext.traceForEvent()
-            return expectedContext
-        }
-        
         var observer: TestScopeObserver {
             return TestScopeObserver()
         }
@@ -113,7 +107,10 @@ class SentryScopeSwiftTests: XCTestCase {
         XCTAssertEqual(["key": "value"], actual["tags"] as? [String: String])
         XCTAssertEqual(["key": "value"], actual["extra"] as? [String: String])
         
-        XCTAssertEqual(fixture.contextWithTraceContext, actual["context"] as? [String: [String: String]])
+        XCTAssertEqual(fixture.context, actual["context"] as? [String: [String: String]])
+        
+        let propagationContext = fixture.scope.propagationContext
+        XCTAssertEqual(["span_id": propagationContext.spanId.sentrySpanIdString, "trace_id": propagationContext.traceId.sentryIdString], actual["traceContext"] as? [String: String])
         
         let actualUser = actual["user"] as? [String: Any]
         XCTAssertEqual(fixture.ipAddress, actualUser?["ip_address"] as? String)
