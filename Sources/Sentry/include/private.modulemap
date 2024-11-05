@@ -1,0 +1,12 @@
+explicit module Sentry.HybridSDK {
+    header "PrivateSentrySDKOnly.h"
+    header "SentryEnvelope.h"
+    header "SentryBreadcrumb+Private.h"
+    header "SentryUser+Private.h"
+    
+    // Integrations
+    header "SentryAppStartMeasurement.h"
+    header "SentrySessionReplayIntegration-Hybrid.h"
+    
+    export *
+}

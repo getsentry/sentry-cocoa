@@ -90,7 +90,7 @@
 		623C45B02A651D8200D9E88B /* SentryCoreDataTracker+Test.m in Sources */ = {isa = PBXBuildFile; fileRef = 623C45AF2A651D8200D9E88B /* SentryCoreDataTracker+Test.m */; };
 		624688192C048EF10006179C /* SentryBaggageSerialization.swift in Sources */ = {isa = PBXBuildFile; fileRef = 624688182C048EF10006179C /* SentryBaggageSerialization.swift */; };
 		626E2D4C2BEA0C37005596FE /* SentryEnabledFeaturesBuilderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 626E2D4B2BEA0C37005596FE /* SentryEnabledFeaturesBuilderTests.swift */; };
-		6271ADF32BA06D9B0098D2E9 /* SentryInternalSerializable.h in Headers */ = {isa = PBXBuildFile; fileRef = 6271ADF22BA06D9B0098D2E9 /* SentryInternalSerializable.h */; };
+		6271ADF32BA06D9B0098D2E9 /* SentryInternalSerializable.h in Headers */ = {isa = PBXBuildFile; fileRef = 6271ADF22BA06D9B0098D2E9 /* SentryInternalSerializable.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		6273513F2CBD14970021D100 /* SentryDebugImageProvider+HybridSDKs.h in Headers */ = {isa = PBXBuildFile; fileRef = 6273513E2CBD14970021D100 /* SentryDebugImageProvider+HybridSDKs.h */; };
 		627E7589299F6FE40085504D /* SentryInternalDefines.h in Headers */ = {isa = PBXBuildFile; fileRef = 627E7588299F6FE40085504D /* SentryInternalDefines.h */; };
 		62862B1C2B1DDBC8009B16E3 /* SentryDelayedFrame.h in Headers */ = {isa = PBXBuildFile; fileRef = 62862B1B2B1DDBC8009B16E3 /* SentryDelayedFrame.h */; };
@@ -1838,6 +1838,7 @@
 		8F73BC302B02B87E00C3CEF4 /* SentryInstallationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryInstallationTests.swift; sourceTree = "<group>"; };
 		8FF94DF22B06A24C00BCD650 /* SentryCrash+Test.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "SentryCrash+Test.h"; sourceTree = "<group>"; };
 		92136D662C9D765D002A9FB8 /* SentryNSURLRequestBuilderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryNSURLRequestBuilderTests.swift; sourceTree = "<group>"; };
+		922345082CDA4DFD009B968F /* private.modulemap */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.module-map"; name = private.modulemap; path = Sources/Sentry/include/private.modulemap; sourceTree = SOURCE_ROOT; };
 		92672BB529C9A2A9006B021C /* SentryBreadcrumb+Private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "SentryBreadcrumb+Private.h"; path = "include/HybridPublic/SentryBreadcrumb+Private.h"; sourceTree = "<group>"; };
 		9286059429A5096600F96038 /* SentryGeo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SentryGeo.h; path = Public/SentryGeo.h; sourceTree = "<group>"; };
 		9286059629A5098900F96038 /* SentryGeo.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SentryGeo.m; sourceTree = "<group>"; };
@@ -3621,6 +3622,7 @@
 				D856272A2A374A6800FB8062 /* Tools */,
 				D800942628F82F3A005D3943 /* SwiftDescriptor.swift */,
 				D87C892A2BC67BC20086C7DF /* SentryExperimentalOptions.swift */,
+				922345082CDA4DFD009B968F /* private.modulemap */,
 				D8B665BB2B95F5A100BD0E7B /* module.modulemap */,
 			);
 			path = Swift;
@@ -5344,6 +5346,7 @@
 				GCC_WARN_SHADOW = YES;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_DYLIB_INSTALL_NAME = "$(DYLIB_INSTALL_NAME_BASE:standardizepath)/$(EXECUTABLE_PATH)";
+				MODULEMAP_PRIVATE_FILE = "$(SRCROOT)/Sources/Sentry/include/private.modulemap";
 				OTHER_CFLAGS = "-DCARTHAGE_$(CARTHAGE)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
@@ -5381,6 +5384,7 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
+				MODULEMAP_PRIVATE_FILE = "$(SRCROOT)/Sources/Sentry/include/private.modulemap";
 				OTHER_CFLAGS = "-DCARTHAGE_$(CARTHAGE)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_VERSION = 5.0;
@@ -5540,6 +5544,7 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
+				MODULEMAP_PRIVATE_FILE = "$(SRCROOT)/Sources/Sentry/include/private.modulemap";
 				OTHER_CFLAGS = "-DCARTHAGE_$(CARTHAGE)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
@@ -5666,6 +5671,7 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
+				MODULEMAP_PRIVATE_FILE = "$(SRCROOT)/Sources/Sentry/include/private.modulemap";
 				OTHER_CFLAGS = "-DCARTHAGE_$(CARTHAGE)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
@@ -6144,6 +6150,7 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
+				MODULEMAP_PRIVATE_FILE = "$(SRCROOT)/Sources/Sentry/include/private.modulemap";
 				OTHER_CFLAGS = "-DCARTHAGE_$(CARTHAGE)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_VERSION = 5.0;
@@ -6373,6 +6380,7 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
+				MODULEMAP_PRIVATE_FILE = "$(SRCROOT)/Sources/Sentry/include/private.modulemap";
 				OTHER_CFLAGS = "-DCARTHAGE_$(CARTHAGE)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
