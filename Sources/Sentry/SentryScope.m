@@ -97,7 +97,7 @@ NS_ASSUME_NONNULL_BEGIN
         [_fingerprintArray addObjectsFromArray:[scope fingerprints]];
         [_attachmentArray addObjectsFromArray:[scope attachments]];
 
-        self.propagationContext = [[SentryPropagationContext alloc] init];
+        self.propagationContext = scope.propagationContext;
         self.maxBreadcrumbs = scope.maxBreadcrumbs;
         self.userObject = scope.userObject.copy;
         self.distString = scope.distString;
@@ -145,11 +145,7 @@ NS_ASSUME_NONNULL_BEGIN
         _span = span;
 
         for (id<SentryScopeObserver> observer in self.observers) {
-            if (span != nil) {
-                [observer setTraceContext:[span serialize]];
-            } else {
-                [observer setTraceContext:[self.propagationContext traceContextForEvent]];
-            }
+            [observer setTraceContext:[self buildTraceContext:span]];
         }
     }
 }
@@ -461,9 +457,16 @@ NS_ASSUME_NONNULL_BEGIN
     if (self.extras.count > 0) {
         [serializedData setValue:[self extras] forKey:@"extra"];
     }
-    if (self.context.count > 0) {
-        [serializedData setValue:[self context] forKey:@"context"];
+
+    NSDictionary *traceContext = nil;
+    @synchronized(_spanLock) {
+        traceContext = [self buildTraceContext:_span];
     }
+
+    NSMutableDictionary *newContext = [self context].mutableCopy;
+    newContext[@"trace"] = traceContext;
+    [serializedData setValue:newContext forKey:@"context"];
+
     [serializedData setValue:[self.userObject serialize] forKey:@"user"];
     [serializedData setValue:self.distString forKey:@"dist"];
     [serializedData setValue:self.environmentString forKey:@"environment"];
@@ -607,6 +610,18 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)addObserver:(id<SentryScopeObserver>)observer
 {
     [self.observers addObject:observer];
+}
+
+/**
+ * Make sure to call this inside @c  synchronized(_spanLock) caus this method isn't thread safe.
+ */
+- (NSDictionary *)buildTraceContext:(id<SentrySpan>)span
+{
+    if (span != nil) {
+        return [span serialize];
+    } else {
+        return [self.propagationContext traceContextForEvent];
+    }
 }
 
 @end
