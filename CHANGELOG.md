@@ -1,6 +1,23 @@
 # Changelog
 
-## Unreleased
+## 8.40.0
+
+### Various fixes & improvements
+
+- chore(deps): bump cocoapods from 1.15.2 to 1.16.2 (#4501) by @dependabot
+- fix: Masking text with transparent text color (#4499) by @brustolin
+- internal(hybrid): Add Replay Mask options to dict init (#4495) by @krystofwoldrich
+- internal(hybrid): Add Replay Mask options to dict init (#4492) by @krystofwoldrich
+- fix: Too many navigation breadcrumbs for Session Replay (#4480) by @brustolin
+- Fix: Time-of-check time-of-use filesystem race condition (#4473) by @brustolin
+- Expose `SentrySessionReplayIntegration-Hybrid.h` as `private` (#4486) by @denrase
+- fix: Capture all touches with session replay (#4477) by @brustolin
+- feat: Option for uncaught NSExceptions on macOS (#4471) by @philipphofmann
+- chore(deps): bump rexml from 3.3.8 to 3.3.9 (#4478) by @dependabot
+- ref: Improve frames tracker performance (#4469) by @brustolin
+- fix: Build visionOS project with static Sentry SDK (#4462) by @brustolin
+- ref(transport): Log a warning when dropping envelopes due to rate-limiting (#4463) by @rwachtler
+- chore(deps): bump fastlane from 2.224.0 to 2.225.0 (#4464) by @dependabot
 
 ## Feature
 
