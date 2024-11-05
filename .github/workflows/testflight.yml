@@ -3,8 +3,6 @@ on:
   push:
     branches:
       - main
-      # TODO: Remove before merging
-      - feat/transactions-for-crashes
 
     paths:
       - 'Sources/**'
