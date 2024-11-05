@@ -472,8 +472,11 @@ static BOOL appStartMeasurementRead;
     self.wasFinishCalled = YES;
     _finishStatus = kSentrySpanStatusInternalError;
 
-    BOOL discardTransaction = [self finishTracer:kSentrySpanStatusInternalError];
+    // We don't need to clean up during finish cause we're crashing, and the cleanup can execute
+    // code that leads to the app hanging and not terminating.
+    BOOL discardTransaction = [self finishTracer:kSentrySpanStatusInternalError shouldCleanUp:NO];
     if (discardTransaction) {
+        SENTRY_LOG_DEBUG(@"Discard transaction");
         return;
     }
 
@@ -573,12 +576,15 @@ static BOOL appStartMeasurementRead;
 
 - (BOOL)finishTracer
 {
-    return [self finishTracer:kSentrySpanStatusDeadlineExceeded];
+    return [self finishTracer:kSentrySpanStatusDeadlineExceeded shouldCleanUp:YES];
 }
 
-- (BOOL)finishTracer:(SentrySpanStatus)unfinishedSpansFinishStatus
+- (BOOL)finishTracer:(SentrySpanStatus)unfinishedSpansFinishStatus shouldCleanUp:(BOOL)shouldCleanUp
 {
-    [self cancelDeadlineTimer];
+    if (shouldCleanUp) {
+        [self cancelDeadlineTimer];
+    }
+
     if (self.isFinished) {
         SENTRY_LOG_DEBUG(@"Tracer %@ was already finished.", _traceContext.traceId.sentryIdString);
         return YES;
@@ -605,14 +611,16 @@ static BOOL appStartMeasurementRead;
     }
 #endif // SENTRY_HAS_UIKIT
 
-    [self.delegate tracerDidFinish:self];
+    if (shouldCleanUp) {
+        [self.delegate tracerDidFinish:self];
 
-    if (self.finishCallback) {
-        self.finishCallback(self);
+        if (self.finishCallback) {
+            self.finishCallback(self);
 
-        // The callback will only be executed once. No need to keep the reference and we avoid
-        // potential retain cycles.
-        self.finishCallback = nil;
+            // The callback will only be executed once. No need to keep the reference and we avoid
+            // potential retain cycles.
+            self.finishCallback = nil;
+        }
     }
 
     // Prewarming can execute code up to viewDidLoad of a UIViewController, and keep the app in the
@@ -633,11 +641,13 @@ static BOOL appStartMeasurementRead;
         return YES;
     }
 
-    [_hub.scope useSpan:^(id<SentrySpan> _Nullable span) {
-        if (span == self) {
-            [self->_hub.scope setSpan:nil];
-        }
-    }];
+    if (shouldCleanUp) {
+        [_hub.scope useSpan:^(id<SentrySpan> _Nullable span) {
+            if (span == self) {
+                [self->_hub.scope setSpan:nil];
+            }
+        }];
+    }
 
     if (self.configuration.finishMustBeCalled && !self.wasFinishCalled) {
         SENTRY_LOG_DEBUG(

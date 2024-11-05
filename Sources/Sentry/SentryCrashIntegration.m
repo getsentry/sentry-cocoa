@@ -36,6 +36,16 @@ static SentryCrashInstallationReporter *installation = nil;
 static NSString *const DEVICE_KEY = @"device";
 static NSString *const LOCALE_KEY = @"locale";
 
+void
+sentry_finishAndSaveTransaction(void)
+{
+    id<SentrySpan> span = SentrySDK.currentHub.scope.span;
+    if (span != nil && [span isKindOfClass:[SentryTracer class]]) {
+        SentryTracer *tracer = (SentryTracer *)span;
+        [tracer finishForCrash];
+    }
+}
+
 @interface SentryCrashIntegration ()
 
 @property (nonatomic, weak) SentryOptions *options;
@@ -254,16 +264,6 @@ static NSString *const LOCALE_KEY = @"locale";
 - (void)configureTracingWhenCrashing
 {
     sentrycrash_setSaveTransaction(&sentry_finishAndSaveTransaction);
-}
-
-void
-sentry_finishAndSaveTransaction(void)
-{
-    id<SentrySpan> span = SentrySDK.currentHub.scope.span;
-    if (span != nil && [span isKindOfClass:[SentryTracer class]]) {
-        SentryTracer *tracer = (SentryTracer *)span;
-        [tracer finishForCrash];
-    }
 }
 
 @end

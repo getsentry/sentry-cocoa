@@ -1342,6 +1342,56 @@ class SentryTracerTests: XCTestCase {
         XCTAssertEqual(1, fixture.client.saveCrashTransactionInvocations.count)
     }
 
+    func testFinishForCrash_DoesNotCancelDeadlineTimer() throws {
+        fixture.dispatchQueue.blockBeforeMainBlock = { true }
+        
+        let sut = fixture.getSut()
+        _ = sut.startChild(operation: fixture.transactionOperation)
+        let timer = try XCTUnwrap(Dynamic(sut).deadlineTimer.asObject as? Timer)
+        
+        sut.finishForCrash()
+        
+        XCTAssertTrue(timer.isValid)
+    }
+
+    func testFinishForCrash_DoesNotCallFinishCallback() throws {
+        let callbackExpectation = expectation(description: "FinishCallback called")
+        callbackExpectation.isInverted = true
+        
+        let sut = fixture.getSut(idleTimeout: fixture.idleTimeout)
+        
+        sut.finishCallback = { tracer in
+            XCTAssertEqual(sut, tracer)
+            callbackExpectation.fulfill()
+        }
+        
+        sut.finishForCrash()
+        
+        wait(for: [callbackExpectation], timeout: 0.01)
+    }
+    
+    func testFinishForCrash_DoesNotCallTracerDidFinish() throws {
+        let delegate = TracerDelegate()
+
+        let sut = fixture.getSut()
+        sut.delegate = delegate
+        
+        sut.finishForCrash()
+        
+        XCTAssertFalse(delegate.tracerDidFinishCalled)
+    }
+    
+    func testFinishForCrash_DoesNotSetSpanOnScopeToNil() throws {
+        
+        let sut = fixture.getSut()
+        
+        fixture.hub.scope.span = sut
+        
+        sut.finishForCrash()
+        
+        XCTAssertNotNil(fixture.hub.scope.span)
+    }
+
     private func advanceTime(bySeconds: TimeInterval) {
         fixture.currentDateProvider.setDate(date: fixture.currentDateProvider.date().addingTimeInterval(bySeconds))
     }
