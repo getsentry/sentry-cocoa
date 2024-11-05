@@ -8,20 +8,13 @@ var displayingForm = false
 @available(iOS 13.0, *)
 struct SentryUserFeedbackWidget {
     class Window: UIWindow {
-        class RootViewController: UIViewController, SentryUserFeedbackFormDelegate {
+        class RootViewController: UIViewController, SentryUserFeedbackFormDelegate, UIAdaptivePresentationControllerDelegate {
             let defaultWidgetSpacing: CGFloat = 8
             
             lazy var button = SentryUserFeedbackWidgetButtonView(config: config, action: { sender in
-                if self.config.widgetConfig.animations {
-                    UIView.animate(withDuration: 0.3, delay: 0, options: .curveEaseInOut) {
-                        sender.alpha = 0
-                    }
-                } else {
-                    sender.isHidden = true
-                }
-                
-                displayingForm = true
+                self.setWidget(visible: false)
                 let form = SentryUserFeedbackForm(config: self.config, delegate: self)
+                form.presentationController?.delegate = self
                 self.present(form, animated: self.config.widgetConfig.animations)
             })
             
@@ -52,16 +45,22 @@ struct SentryUserFeedbackWidget {
                 fatalError("init(coder:) has not been implemented")
             }
             
-            func closeForm() {
+            // MARK: Helpers
+            
+            func setWidget(visible: Bool) {
                 if config.widgetConfig.animations {
                     UIView.animate(withDuration: 0.3, delay: 0, options: .curveEaseInOut) {
-                        self.button.alpha = 1
+                        self.button.alpha = visible ? 1 : 0
                     }
                 } else {
-                    button.isHidden = false
+                    button.isHidden = !visible
                 }
                 
-                displayingForm = false
+                displayingForm = !visible
+            }
+            
+            func closeForm() {
+                setWidget(visible: true)
                 dismiss(animated: config.widgetConfig.animations)
             }
             
@@ -74,6 +73,12 @@ struct SentryUserFeedbackWidget {
             func confirmed() {
                 // TODO: submit
                 closeForm()
+            }
+            
+            // MARK: UIAdaptivePresentationControllerDelegate
+            
+            func presentationControllerWillDismiss(_ presentationController: UIPresentationController) {
+                setWidget(visible: true)
             }
         }
         
