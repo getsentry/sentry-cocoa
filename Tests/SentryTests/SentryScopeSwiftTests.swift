@@ -631,6 +631,43 @@ class SentryScopeSwiftTests: XCTestCase {
         XCTAssertEqual(2, observer.clearBreadcrumbInvocations)
     }
     
+    func testScopeObserver_setSpan_SetsTraceContext() throws {
+        let sut = Scope()
+        let observer = fixture.observer
+        sut.add(observer)
+        
+        let transaction = fixture.transaction
+        sut.span = transaction
+
+        let traceContext = try XCTUnwrap(observer.traceContext)
+        let serializedTransaction = transaction.serialize()
+
+        XCTAssertEqual(Set(serializedTransaction.keys), Set(traceContext.keys))
+        
+        XCTAssertEqual(serializedTransaction["trace_id"] as? String, traceContext["trace_id"] as? String)
+        XCTAssertEqual(serializedTransaction["span_id"] as? String, traceContext["span_id"] as? String)
+        XCTAssertEqual(serializedTransaction["op"] as? String, traceContext["op"] as? String)
+        XCTAssertEqual(serializedTransaction["origin"] as? String, traceContext["origin"] as? String)
+        XCTAssertEqual(serializedTransaction["type"] as? String, traceContext["type"] as? String)
+        XCTAssertEqual(serializedTransaction["start_timestamp"] as? Double, traceContext["start_timestamp"] as? Double)
+        XCTAssertEqual(serializedTransaction["timestamp"] as? Double, traceContext["timestamp"] as? Double)
+    }
+
+    func testScopeObserver_setSpanToNil_SetsTraceContextToPropagationContext() throws {
+        let sut = Scope()
+        let observer = fixture.observer
+        sut.add(observer)
+        
+        sut.span = fixture.transaction
+        sut.span = nil
+        
+        let traceContext = try XCTUnwrap(observer.traceContext)
+
+        XCTAssertEqual(2, traceContext.count)
+        XCTAssertEqual(sut.propagationContext.traceId.sentryIdString, traceContext["trace_id"] as? String)
+        XCTAssertEqual(sut.propagationContext.spanId.sentrySpanIdString, traceContext["span_id"] as? String)
+    }
+    
     func testScopeObserver_clear() {
         let sut = Scope()
         let observer = fixture.observer

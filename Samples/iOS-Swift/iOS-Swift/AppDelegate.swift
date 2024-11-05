@@ -113,7 +113,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             options.enableSwizzling = !args.contains("--disable-swizzling")
             options.enableCrashHandler = !args.contains("--disable-crash-handler")
             options.enableTracing = !args.contains("--disable-tracing")
-            options.enableTracingForCrashes = true
+            options.enableTracingWhenCrashing = true
 
             // because we run CPU for 15 seconds at full throttle, we trigger ANR issues being sent. disable such during benchmarks.
             options.enableAppHangTracking = !isBenchmarking && !args.contains("--disable-anr-tracking")
