@@ -18,6 +18,10 @@
 - Add `maskedViewClasses` and `unmaskedViewClasses` to SentryReplayOptions init via dict (#4492)
 - Add `quality` to SentryReplayOptions init via dict (#4495)
 
+### Fixes
+
+- Masking text with transparent text color (#4499)
+
 ## 8.39.0
 
 ### Removal of Experimental API
