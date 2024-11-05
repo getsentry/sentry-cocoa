@@ -297,6 +297,8 @@ class TestData {
         crumb2.message = "Crumb 2"
         scope.addBreadcrumb(crumb2)
         
+        scope.span = nil
+        
         return scope
     }
     

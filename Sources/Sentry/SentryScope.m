@@ -462,10 +462,12 @@ NS_ASSUME_NONNULL_BEGIN
     @synchronized(_spanLock) {
         traceContext = [self buildTraceContext:_span];
     }
+    serializedData[@"traceContext"] = traceContext;
 
-    NSMutableDictionary *newContext = [self context].mutableCopy;
-    newContext[@"trace"] = traceContext;
-    [serializedData setValue:newContext forKey:@"context"];
+    NSDictionary *context = [self context];
+    if (context.count > 0) {
+        [serializedData setValue:context forKey:@"context"];
+    }
 
     [serializedData setValue:[self.userObject serialize] forKey:@"user"];
     [serializedData setValue:self.distString forKey:@"dist"];
@@ -582,8 +584,9 @@ NS_ASSUME_NONNULL_BEGIN
         return event;
     }
 
+    id<SentrySpan> span;
+
     if (self.span != nil) {
-        id<SentrySpan> span;
         @synchronized(_spanLock) {
             span = self.span;
         }
@@ -594,14 +597,10 @@ NS_ASSUME_NONNULL_BEGIN
                 [span isKindOfClass:[SentryTracer class]]) {
                 event.transaction = [[(SentryTracer *)span transactionContext] name];
             }
-            newContext[@"trace"] = [span serialize];
         }
     }
 
-    if (newContext[@"trace"] == nil) {
-        // If this is an error event we need to add the distributed trace context.
-        newContext[@"trace"] = [self.propagationContext traceContextForEvent];
-    }
+    newContext[@"trace"] = [self buildTraceContext:span];
 
     event.context = newContext;
     return event;
@@ -615,7 +614,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * Make sure to call this inside @c  synchronized(_spanLock) caus this method isn't thread safe.
  */
-- (NSDictionary *)buildTraceContext:(id<SentrySpan>)span
+- (NSDictionary *)buildTraceContext:(nullable id<SentrySpan>)span
 {
     if (span != nil) {
         return [span serialize];
