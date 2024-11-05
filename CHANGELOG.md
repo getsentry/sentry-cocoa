@@ -17,6 +17,11 @@
 - Log a warning when dropping envelopes due to rate-limiting (#4463)
 - Expose `SentrySessionReplayIntegration-Hybrid.h` as `private` (#4486)
 - Add `maskedViewClasses` and `unmaskedViewClasses` to SentryReplayOptions init via dict (#4492)
+- Add `quality` to SentryReplayOptions init via dict (#4495)
+
+### Fixes
+
+- Masking text with transparent text color (#4499)
 
 ## 8.39.0
 

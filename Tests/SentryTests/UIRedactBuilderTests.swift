@@ -51,6 +51,16 @@ class UIRedactBuilderTests: XCTestCase {
         XCTAssertEqual(result.first?.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 20, ty: 20))
     }
     
+    func testDontUseLabelTransparentColor() {
+        let sut = getSut()
+        let label = UILabel(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
+        label.textColor = .purple.withAlphaComponent(0.5)
+        rootView.addSubview(label)
+
+        let result = sut.redactRegionsFor(view: rootView)
+        XCTAssertEqual(result.first?.color, .purple)
+    }
+    
     func testDontRedactALabelOptionDisabled() {
         let sut = getSut(RedactOptions(maskAllText: false))
         let label = UILabel(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
