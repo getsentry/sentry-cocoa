@@ -35,6 +35,8 @@ public class SentryUserFeedbackFormConfiguration: NSObject {
      */
     public var messagePlaceholder: String = "What's the bug? What did you expect?"
     
+    public lazy var messageTextViewAccessibilityLabel: String = messagePlaceholder
+    
     /**
      * The label shown next to an input field that is required.
      * - note: Default: `"(required)"`
@@ -62,12 +64,16 @@ public class SentryUserFeedbackFormConfiguration: NSObject {
      */
     public var addScreenshotButtonLabel: String = "Add a screenshot"
     
+    public lazy var addScreenshotButtonAccessibilityLabel = addScreenshotButtonLabel
+    
     /**
      * The label of the button to remove the screenshot from the form.
      * - note: Default: `"Remove screenshot"`
      * - note: ignored if `enableScreenshot` is `false`.
      */
     public var removeScreenshotButtonLabel: String = "Remove screenshot"
+    
+    public lazy var removeScreenshotButtonAccessibilityLabel = removeScreenshotButtonLabel
     
     // MARK: Name
     
@@ -98,6 +104,8 @@ public class SentryUserFeedbackFormConfiguration: NSObject {
      */
     public var namePlaceholder: String = "Your Name"
     
+    public lazy var nameTextFieldAccessibilityLabel = namePlaceholder
+    
     // MARK: Email
     
     /**
@@ -125,6 +133,8 @@ public class SentryUserFeedbackFormConfiguration: NSObject {
      */
     public var emailPlaceholder: String = "your.email@example.org"
     
+    public lazy var emailTextFieldAccessibilityLabel = emailPlaceholder
+    
     // MARK: Buttons
     
     /**
@@ -137,7 +147,7 @@ public class SentryUserFeedbackFormConfiguration: NSObject {
      * The accessibility label of the form's "Submit" button.
      * - note: Default: `submitButtonLabel` value
      */
-    public var submitButtonAccessibilityLabel: String?
+    public lazy var submitButtonAccessibilityLabel: String = submitButtonLabel
     
     /**
      * The label of cancel buttons used in the feedback form.
@@ -149,19 +159,7 @@ public class SentryUserFeedbackFormConfiguration: NSObject {
      * The accessibility label of the form's "Cancel" button.
      * - note: Default: `cancelButtonLabel` value
      */
-    public var cancelButtonAccessibilityLabel: String?
-    
-    /**
-     * The label of confirm buttons used in the feedback form.
-     * - note: Default: `"Confirm"`
-     */
-    public var confirmButtonLabel: String = "Confirm"
-    
-    /**
-     * The accessibility label of the form's "Confirm" button.
-     * - note: Default: `confirmButtonLabel` value
-     */
-    public var confirmButtonAccessibilityLabel: String?
+    public lazy var cancelButtonAccessibilityLabel: String = cancelButtonLabel
 }
 
 #endif // os(iOS) && !SENTRY_NO_UIKIT
