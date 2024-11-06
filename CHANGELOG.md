@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Improvements
+
+- Add extra logs for UIViewControllerSwizzling (#4511)
+
 ## 8.40.0
 
 ## Feature
@@ -17,7 +23,6 @@
 - Expose `SentrySessionReplayIntegration-Hybrid.h` as `private` (#4486)
 - Add `maskedViewClasses` and `unmaskedViewClasses` to SentryReplayOptions init via dict (#4492)
 - Add `quality` to SentryReplayOptions init via dict (#4495)
-- Add extra logs for UIViewControllerSwizzling (#4511)
 
 ### Fixes
 
