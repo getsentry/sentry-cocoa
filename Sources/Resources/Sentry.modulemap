@@ -4,23 +4,8 @@ framework module Sentry {
     export *
     module * { export * }
     
-    explicit module HybridSDK {
-        header "PrivateSentrySDKOnly.h"
-        header "PrivatesHeader.h"
-        header "SentryAppStartMeasurement.h"
-        header "SentryBinaryImageCache.h"
-        header "SentryBreadcrumb+Private.h"
-        header "SentryDebugImageProvider+HybridSDKs.h"
-        header "SentryDependencyContainer.h"
-//        header "SentryEnvelope.h"
-        header "SentryEnvelopeItemType.h"
-        header "SentryFormatter.h"
-        header "SentryFramesTracker.h"
-        header "SentryOptions+HybridSDKs.h"
-        header "SentryScreenFrames.h"
-        header "SentrySessionReplayIntegration-Hybrid.h"
-        header "SentrySwizzle.h"
-        header "SentryUser+Private.h"
+    explicit module _Hybrid {
+        header "SentryHybrid.h"
         
         export *
     }
