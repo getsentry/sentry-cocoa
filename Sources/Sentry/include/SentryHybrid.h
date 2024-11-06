@@ -1,9 +1,4 @@
-#if __has_include(<Sentry/PrivateSentrySDKOnly.h>)
-#    import <Sentry/PrivateSentrySDKOnly.h>
-#else
-#    import "PrivateSentrySDKOnly.h"
-#endif
-
+#import "PrivateSentrySDKOnly.h"
 #import "PrivatesHeader.h"
 #import "SentryAppStartMeasurement.h"
 #import "SentryBinaryImageCache.h"
