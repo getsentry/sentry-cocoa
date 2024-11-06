@@ -8,11 +8,11 @@
 @class SentrySdkInfo;
 #else
 
-#if __has_include(<Sentry/SentrySdkInfo.h>)
-#    import <Sentry/SentrySdkInfo.h>
-#else
-#    import "SentrySdkInfo.h"
-#endif
+#    if __has_include(<Sentry/SentrySdkInfo.h>)
+#        import <Sentry/SentrySdkInfo.h>
+#    else
+#        import "SentrySdkInfo.h"
+#    endif
 
 #endif
 
