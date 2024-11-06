@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Improvements
+
+- Add extra logs for UIViewControllerSwizzling (#4511)
+
 ## 8.40.0
 
 ## Feature

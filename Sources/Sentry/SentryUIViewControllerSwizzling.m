@@ -284,16 +284,23 @@
     NSArray<UIViewController *> *allViewControllers =
         [SentryViewController descendantsOfViewController:rootViewController];
 
+    SENTRY_LOG_DEBUG(@"Found %lu descendants for RootViewController %@", allViewControllers.count,
+        rootViewController.description);
+
     for (UIViewController *viewController in allViewControllers) {
         Class viewControllerClass = [viewController class];
         if (viewControllerClass != nil) {
-            SENTRY_LOG_DEBUG(@"Calling swizzleRootViewController.");
+            SENTRY_LOG_DEBUG(
+                @"Calling swizzleRootViewController for %@", viewController.description);
             [self swizzleViewControllerSubClass:viewControllerClass];
 
             // We can't get the image name with the app delegate class for some apps. Therefore, we
             // use the rootViewController and its subclasses as a fallback.  The following method
             // ensures we don't swizzle ViewControllers of UIKit.
             [self swizzleUIViewControllersOfClassesInImageOf:viewControllerClass];
+        } else {
+            SENTRY_LOG_WARN(@"ViewControllerClass was nil for UIViewController: %@",
+                viewController.description);
         }
     }
 }
@@ -318,8 +325,10 @@
 
 - (void)swizzleViewControllerSubClass:(Class)class
 {
-    if (![self shouldSwizzleViewController:class])
+    if (![self shouldSwizzleViewController:class]) {
+        SENTRY_LOG_DEBUG(@"Skipping swizzling of class: %@", class);
         return;
+    }
 
     // This are the five main functions related to UI creation in a view controller.
     // We are swizzling it to track anything that happens inside one of this functions.
