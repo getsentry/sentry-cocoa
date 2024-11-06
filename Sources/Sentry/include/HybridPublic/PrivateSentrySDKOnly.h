@@ -1,5 +1,14 @@
-#import "PrivatesHeader.h"
-#import "SentryScreenFrames.h"
+#if __has_include(<Sentry/PrivatesHeader.h>)
+#    import <Sentry/PrivatesHeader.h>
+#else
+#    import "PrivatesHeader.h"
+#endif
+
+#if __has_include(<Sentry/SentryScreenFrames.h>)
+#    import <Sentry/SentryScreenFrames.h>
+#else
+#    import "SentryScreenFrames.h"
+#endif
 
 @class SentryDebugMeta;
 @class SentryScreenFrames;

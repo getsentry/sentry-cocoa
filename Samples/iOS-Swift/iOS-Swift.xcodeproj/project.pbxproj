@@ -343,7 +343,6 @@
 		D8269A42274C095F00BD5BD5 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		D8269A49274C096000BD5BD5 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		D8269A5C274C108100BD5BD5 /* iOS13-Swift.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "iOS13-Swift.entitlements"; sourceTree = "<group>"; };
-		D82915932C889F1800A6CDD4 /* SentryCocoaPrivate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SentryCocoaPrivate.h; sourceTree = "<group>"; };
 		D83A30DF279F1F5C00372D0A /* fatal-error-binary-images-message2.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = "fatal-error-binary-images-message2.json"; path = "../../../Tests/Resources/fatal-error-binary-images-message2.json"; sourceTree = "<group>"; };
 		D840D520273A07F400CDF142 /* iOS-SwiftClip.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "iOS-SwiftClip.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		D840D522273A07F400CDF142 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -640,7 +639,6 @@
 				D8F01DF02A1377D0008F4996 /* SentryExposure.h */,
 				D8832B192AF4FE2000C522B0 /* SentryUIApplication.h */,
 				629EC8AC2B0B537400858855 /* TriggerAppHang.swift */,
-				D82915932C889F1800A6CDD4 /* SentryCocoaPrivate.h */,
 				84BA71E32C8BBBEC0045B828 /* DSNDisplayViewController.swift */,
 				84BA71F02C8BC55A0045B828 /* Toasts.swift */,
 			);

@@ -1,9 +1,18 @@
-#import "PrivatesHeader.h"
+#if __has_include(<Sentry/PrivatesHeader.h>)
+#    import <Sentry/PrivatesHeader.h>
+#else
+#    import "PrivatesHeader.h"
+#endif
 
 #if COCOAPODS
 @class SentrySdkInfo;
 #else
+
+#if __has_include(<Sentry/SentrySdkInfo.h>)
+#    import <Sentry/SentrySdkInfo.h>
+#else
 #    import "SentrySdkInfo.h"
+#endif
 
 #endif
 
