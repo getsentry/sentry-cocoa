@@ -4,7 +4,8 @@
 
 ### Improvements
 
-- Expose `HybridSDK` from `Sentry` framework (#4440)
+- Expose `Sentry._Hybrid` explicit module (#4440)
+
 ## 8.40.0
 
 ## Feature
