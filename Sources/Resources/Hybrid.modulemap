@@ -1,0 +1,5 @@
+explicit module Sentry._Hybrid {
+    header "SentryHybrid.h"
+    
+    export *
+}

@@ -3,10 +3,4 @@ framework module Sentry {
 
     export *
     module * { export * }
-    
-    explicit module _Hybrid {
-        header "SentryHybrid.h"
-        
-        export *
-    }
 }

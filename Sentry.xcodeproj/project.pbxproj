@@ -1842,6 +1842,7 @@
 		9286059629A5098900F96038 /* SentryGeo.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SentryGeo.m; sourceTree = "<group>"; };
 		9286059829A50BAA00F96038 /* SentryGeoTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SentryGeoTests.swift; sourceTree = "<group>"; };
 		92E5F3D22CDBAC0A00B7AD98 /* SentryHybrid.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SentryHybrid.h; path = include/SentryHybrid.h; sourceTree = "<group>"; };
+		92E5F3D72CDBB57000B7AD98 /* Hybrid.modulemap */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.module-map"; path = Hybrid.modulemap; sourceTree = "<group>"; };
 		92F6726A29C8B7B000BFD34D /* SentryUser+Private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "SentryUser+Private.h"; path = "include/HybridPublic/SentryUser+Private.h"; sourceTree = "<group>"; };
 		A811D866248E2770008A41EA /* SentrySystemEventBreadcrumbsTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentrySystemEventBreadcrumbsTest.swift; sourceTree = "<group>"; };
 		A839D89724864B80003B7AFD /* SentrySystemEventBreadcrumbs.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SentrySystemEventBreadcrumbs.h; path = include/SentrySystemEventBreadcrumbs.h; sourceTree = "<group>"; };
@@ -3894,6 +3895,7 @@
 			children = (
 				7B9660B12783500E0014A767 /* ThreadSanitizer.sup */,
 				D8B0542D2A7D2C720056BAF6 /* PrivacyInfo.xcprivacy */,
+				92E5F3D72CDBB57000B7AD98 /* Hybrid.modulemap */,
 				D8511F722BAC8F750015E6FD /* Sentry.modulemap */,
 			);
 			path = Resources;
@@ -5343,6 +5345,7 @@
 				GCC_WARN_SHADOW = YES;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_DYLIB_INSTALL_NAME = "$(DYLIB_INSTALL_NAME_BASE:standardizepath)/$(EXECUTABLE_PATH)";
+				MODULEMAP_PRIVATE_FILE = "$(SRCROOT)/Sources/Resources/Hybrid.modulemap";
 				OTHER_CFLAGS = "-DCARTHAGE_$(CARTHAGE)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
@@ -5380,6 +5383,7 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
+				MODULEMAP_PRIVATE_FILE = "$(SRCROOT)/Sources/Resources/Hybrid.modulemap";
 				OTHER_CFLAGS = "-DCARTHAGE_$(CARTHAGE)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_VERSION = 5.0;
@@ -5537,6 +5541,7 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
+				MODULEMAP_PRIVATE_FILE = "$(SRCROOT)/Sources/Resources/Hybrid.modulemap";
 				OTHER_CFLAGS = "-DCARTHAGE_$(CARTHAGE)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
@@ -5662,6 +5667,7 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
+				MODULEMAP_PRIVATE_FILE = "$(SRCROOT)/Sources/Resources/Hybrid.modulemap";
 				OTHER_CFLAGS = "-DCARTHAGE_$(CARTHAGE)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
@@ -6138,6 +6144,7 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
+				MODULEMAP_PRIVATE_FILE = "$(SRCROOT)/Sources/Resources/Hybrid.modulemap";
 				OTHER_CFLAGS = "-DCARTHAGE_$(CARTHAGE)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_VERSION = 5.0;
@@ -6365,6 +6372,7 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
+				MODULEMAP_PRIVATE_FILE = "$(SRCROOT)/Sources/Resources/Hybrid.modulemap";
 				OTHER_CFLAGS = "-DCARTHAGE_$(CARTHAGE)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
