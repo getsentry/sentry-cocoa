@@ -8,6 +8,5 @@ framework module Sentry {
         header "SentryHybrid.h"
         
         export *
-        private
     }
 }
