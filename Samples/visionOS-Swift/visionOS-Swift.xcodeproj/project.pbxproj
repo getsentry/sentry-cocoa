@@ -7,13 +7,13 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		62C97DB82CC69AE500DDA204 /* SampleAssets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 62C97DB72CC69AE500DDA204 /* SampleAssets.xcassets */; };
 		62D7C6EF2AEFBE3400339924 /* SentrySwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 62D7C6EE2AEFBE3400339924 /* SentrySwiftUI.framework */; };
 		62D7C6F02AEFBE3400339924 /* SentrySwiftUI.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 62D7C6EE2AEFBE3400339924 /* SentrySwiftUI.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		62D7C6F22AEFC03700339924 /* LoremIpsumView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62D7C6F12AEFC03700339924 /* LoremIpsumView.swift */; };
 		62D7C6F42AEFC14F00339924 /* LoremIpsum.txt in Resources */ = {isa = PBXBuildFile; fileRef = 62D7C6F32AEFC14F00339924 /* LoremIpsum.txt */; };
 		D84C37E32ACDC4A000EF74BE /* VisionOSSwiftApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = D84C37E22ACDC4A000EF74BE /* VisionOSSwiftApp.swift */; };
 		D84C37E52ACDC4A000EF74BE /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D84C37E42ACDC4A000EF74BE /* ContentView.swift */; };
-		D84C37E92ACDC4A100EF74BE /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D84C37E82ACDC4A100EF74BE /* Assets.xcassets */; };
 		D84C37EC2ACDC4A100EF74BE /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D84C37EB2ACDC4A100EF74BE /* Preview Assets.xcassets */; };
 		D84C37F52ACDC7DB00EF74BE /* Sentry.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D84C37F42ACDC7DB00EF74BE /* Sentry.framework */; };
 		D84C37F62ACDC7DB00EF74BE /* Sentry.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = D84C37F42ACDC7DB00EF74BE /* Sentry.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
@@ -35,13 +35,13 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		62C97DB72CC69AE500DDA204 /* SampleAssets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = SampleAssets.xcassets; path = ../../SampleAssets.xcassets; sourceTree = "<group>"; };
 		62D7C6EE2AEFBE3400339924 /* SentrySwiftUI.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = SentrySwiftUI.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		62D7C6F12AEFC03700339924 /* LoremIpsumView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoremIpsumView.swift; sourceTree = "<group>"; };
 		62D7C6F32AEFC14F00339924 /* LoremIpsum.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = LoremIpsum.txt; sourceTree = "<group>"; };
 		D84C37DB2ACDC4A000EF74BE /* visionOS-Swift.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "visionOS-Swift.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		D84C37E22ACDC4A000EF74BE /* VisionOSSwiftApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisionOSSwiftApp.swift; sourceTree = "<group>"; };
 		D84C37E42ACDC4A000EF74BE /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
-		D84C37E82ACDC4A100EF74BE /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		D84C37EB2ACDC4A100EF74BE /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		D84C37ED2ACDC4A100EF74BE /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		D84C37F42ACDC7DB00EF74BE /* Sentry.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = Sentry.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -83,9 +83,9 @@
 				D84C37E22ACDC4A000EF74BE /* VisionOSSwiftApp.swift */,
 				D84C37E42ACDC4A000EF74BE /* ContentView.swift */,
 				62D7C6F12AEFC03700339924 /* LoremIpsumView.swift */,
-				D84C37E82ACDC4A100EF74BE /* Assets.xcassets */,
 				62D7C6F32AEFC14F00339924 /* LoremIpsum.txt */,
 				D84C37ED2ACDC4A100EF74BE /* Info.plist */,
+				62C97DB72CC69AE500DDA204 /* SampleAssets.xcassets */,
 				D84C37EA2ACDC4A100EF74BE /* Preview Content */,
 			);
 			path = "visionOS-Swift";
@@ -169,9 +169,9 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				62C97DB82CC69AE500DDA204 /* SampleAssets.xcassets in Resources */,
 				D84C37EC2ACDC4A100EF74BE /* Preview Assets.xcassets in Resources */,
 				62D7C6F42AEFC14F00339924 /* LoremIpsum.txt in Resources */,
-				D84C37E92ACDC4A100EF74BE /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

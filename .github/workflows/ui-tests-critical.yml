@@ -53,15 +53,9 @@ jobs:
             xcode: "14.3.1"
             device: "iPhone 14"
             os-version: "16.4"
-            create-simulator: true
+            force-sim-runtime: true
 
-          - runs-on: macos-14-xlarge
-            # on macos-14 the iOS 17.5 simulator was unstable
-            # crashing and failing all UI tests
-            # iOS 15.5, 16.4 and 18.1 worked on the base runners
-            xcode: "15.4"
-            device: "iPhone 15"
-            os-version: "17.5"
+          # macos-14 iOS 17 not included due to the XCUIServerNotFound errors causing flaky tests
 
           - runs-on: macos-15
             xcode: "16"
@@ -71,8 +65,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Create ${{matrix.device}} (${{matrix.os-version}}) Simulator using Xcode ${{matrix.xcode}}
-        if: ${{matrix.create-simulator}}
-        run: ./scripts/create-simulator.sh "${{matrix.xcode}}" "${{matrix.os-version}}" "${{matrix.device}}"
+        run: ./scripts/create-simulator.sh "${{matrix.xcode}}" "${{matrix.os-version}}" "${{matrix.device}}" "${{matrix.force-sim-runtime}}"
       - name: Install Maestro
         run: brew tap mobile-dev-inc/tap && brew install mobile-dev-inc/tap/maestro@1.38
       - name: Install iDB Companion
@@ -82,15 +75,16 @@ jobs:
         with:
           name: ${{env.APP_ARTIFACT_NAME}}
           path: ${{env.APP_PATH}}
-      - uses: futureware-tech/simulator-action@bfa03d93ec9de6dacb0c5553bbf8da8afc6c2ee9 # pin@v3
-        with:
-          model: ${{matrix.device}}
-          os_version: ${{matrix.os-version}}
+
       - name: Run Maestro Flows
         run: |
           xcrun simctl install booted ${{env.APP_PATH}}
 
           maestro test ${{env.MAESTRO_FLOWS_PATH}} --format junit --debug-output ${{env.MAESTRO_LOGS_PATH}}
+
+      - name: Delete Simulator
+        if: always()
+        run: ./scripts/delete-simulator.sh
 
       - name: Store Maestro Logs
         uses: actions/upload-artifact@v4

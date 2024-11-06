@@ -261,7 +261,7 @@ class UIRedactBuilder {
     }
 
     private func color(for view: UIView) -> UIColor? {
-        return (view as? UILabel)?.textColor
+        return (view as? UILabel)?.textColor.withAlphaComponent(1)
     }
     
     /**

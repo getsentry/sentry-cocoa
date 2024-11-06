@@ -264,6 +264,78 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         api?.pointee.setEnabled(false)
     }
     
+#if os(macOS)
+    
+    func testUncaughtExceptions_Enabled() throws {
+        defer { resetUserDefaults() }
+        
+        let (sut, _) = givenSutWithGlobalHubAndCrashWrapper()
+        let options = Options()
+        options.enableUncaughtNSExceptionReporting = true
+        sut.install(with: options)
+        
+        XCTAssertTrue(UserDefaults.standard.bool(forKey: "NSApplicationCrashOnExceptions"))
+        // We have to set the flat to false, cause otherwise we would crash
+        UserDefaults.standard.set(false, forKey: "NSApplicationCrashOnExceptions")
+        
+        let crashReporter = SentryDependencyContainer.sharedInstance().crashReporter
+        
+        defer {
+            crashReporter.uncaughtExceptionHandler = nil
+            wasUncaughtExceptionHandlerCalled = false
+        }
+        crashReporter.uncaughtExceptionHandler = uncaughtExceptionHandler
+        
+        NSApplication.shared.reportException(uncaughtInternalInconsistencyException)
+        XCTAssertTrue(wasUncaughtExceptionHandlerCalled)
+    }
+    
+    func testUncaughtExceptions_Enabled_ButSwizzlingDisabled() throws {
+        defer { resetUserDefaults() }
+        
+        let (sut, _) = givenSutWithGlobalHubAndCrashWrapper()
+        let options = Options()
+        options.enableUncaughtNSExceptionReporting = true
+        options.enableSwizzling = false
+        sut.install(with: options)
+        
+        XCTAssertFalse(UserDefaults.standard.bool(forKey: "NSApplicationCrashOnExceptions"))
+        
+        let crashReporter = SentryDependencyContainer.sharedInstance().crashReporter
+        
+        defer {
+            crashReporter.uncaughtExceptionHandler = nil
+            wasUncaughtExceptionHandlerCalled = false
+        }
+        crashReporter.uncaughtExceptionHandler = uncaughtExceptionHandler
+        
+        NSApplication.shared.reportException(uncaughtInternalInconsistencyException)
+        XCTAssertFalse(wasUncaughtExceptionHandlerCalled)
+    }
+    
+    func testUncaughtExceptions_Disabled() {
+        defer { resetUserDefaults() }
+        
+        let (sut, _) = givenSutWithGlobalHubAndCrashWrapper()
+        let options = Options()
+        options.enableUncaughtNSExceptionReporting = false
+        sut.install(with: options)
+        
+        XCTAssertFalse(UserDefaults.standard.bool(forKey: "NSApplicationCrashOnExceptions"))
+        
+        let crashReporter = SentryDependencyContainer.sharedInstance().crashReporter
+        
+        defer {
+            crashReporter.uncaughtExceptionHandler = nil
+            wasUncaughtExceptionHandlerCalled = false
+        }
+        crashReporter.uncaughtExceptionHandler = uncaughtExceptionHandler
+        
+        NSApplication.shared.reportException(uncaughtInternalInconsistencyException)
+        XCTAssertFalse(wasUncaughtExceptionHandlerCalled)
+    }
+#endif // os(macOS)
+    
     private func givenCurrentSession() -> SentrySession {
         // serialize sets the timestamp
         let session = SentrySession(jsonObject: fixture.session.serialize())!

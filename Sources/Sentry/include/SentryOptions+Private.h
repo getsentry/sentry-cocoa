@@ -9,6 +9,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * Block used to configure the user feedback widget, form, behaviors and submission data.
  */
+API_AVAILABLE(ios(13.0))
 typedef void (^SentryUserFeedbackConfigurationBlock)(
     SentryUserFeedbackConfiguration *_Nonnull configuration);
 
@@ -28,7 +29,11 @@ FOUNDATION_EXPORT NSString *const kSentryDefaultEnvironment;
  * https://docs.sentry.io/platforms/apple/user-feedback/#user-feedback-api and (TODO: add link to
  * new docs) for more information on each approach.
  */
-@property (nonatomic, copy, nullable) SentryUserFeedbackConfigurationBlock configureUserFeedback;
+@property (nonatomic, copy, nullable)
+    SentryUserFeedbackConfigurationBlock configureUserFeedback API_AVAILABLE(ios(13.0));
+
+@property (nonatomic, strong, nullable)
+    SentryUserFeedbackConfiguration *userFeedbackConfiguration API_AVAILABLE(ios(13.0));
 
 SENTRY_EXTERN BOOL sentry_isValidSampleRate(NSNumber *sampleRate);
 
