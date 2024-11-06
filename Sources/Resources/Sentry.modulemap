@@ -5,6 +5,7 @@ framework module Sentry {
     module * { export * }
     
     explicit module _Hybrid {
+        // Headers that are not part of the public API and should only be used by hybrid SDKs
         header "PrivateSentrySDKOnly.h"
         header "PrivatesHeader.h"
         header "SentryAppStartMeasurement.h"
