@@ -767,6 +767,7 @@
 		9286059729A5098900F96038 /* SentryGeo.m in Sources */ = {isa = PBXBuildFile; fileRef = 9286059629A5098900F96038 /* SentryGeo.m */; };
 		9286059929A50BAB00F96038 /* SentryGeoTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9286059829A50BAA00F96038 /* SentryGeoTests.swift */; };
 		92E5F3D32CDBAC0A00B7AD98 /* SentryHybrid.h in Headers */ = {isa = PBXBuildFile; fileRef = 92E5F3D22CDBAC0A00B7AD98 /* SentryHybrid.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		92E5F3D62CDBB3BF00B7AD98 /* SentrySampling.h in Headers */ = {isa = PBXBuildFile; fileRef = 8E8C57A525EEFC42001CEEFA /* SentrySampling.h */; };
 		92F6726B29C8B7B100BFD34D /* SentryUser+Private.h in Headers */ = {isa = PBXBuildFile; fileRef = 92F6726A29C8B7B000BFD34D /* SentryUser+Private.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		A811D867248E2770008A41EA /* SentrySystemEventBreadcrumbsTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = A811D866248E2770008A41EA /* SentrySystemEventBreadcrumbsTest.swift */; };
 		A839D89824864B80003B7AFD /* SentrySystemEventBreadcrumbs.h in Headers */ = {isa = PBXBuildFile; fileRef = A839D89724864B80003B7AFD /* SentrySystemEventBreadcrumbs.h */; };
@@ -3974,6 +3975,7 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				92E5F3D62CDBB3BF00B7AD98 /* SentrySampling.h in Headers */,
 				92672BB629C9A2A9006B021C /* SentryBreadcrumb+Private.h in Headers */,
 				03BCC38E27E2A377003232C7 /* SentryProfilingConditionals.h in Headers */,
 				0ADC33EE28D9BB890078D980 /* SentryUIDeviceWrapper.h in Headers */,
@@ -4214,8 +4216,6 @@
 				63FE716F20DA4C1100CDBAE8 /* SentryCrashCPU_Apple.h in Headers */,
 				639FCFA81EBC80CC00778193 /* SentryFrame.h in Headers */,
 				D8BFE37229A3782F002E73F3 /* SentryTimeToDisplayTracker.h in Headers */,
-				8E8C57A625EEFC43001CEEFA /* SentrySampling.h in Headers */,
-				8E8C57A625EEFC43001CEEFA /* SentrySampling.h in Headers */,
 				7B634599280EB9D100CFA05A /* SentryUIEventTrackingIntegration.h in Headers */,
 				63FE716D20DA4C1100CDBAE8 /* SentryCrashSysCtl.h in Headers */,
 				639889BB1EDED18400EA7442 /* SentrySwizzle.h in Headers */,
