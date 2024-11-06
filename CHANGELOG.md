@@ -5,6 +5,7 @@
 ### Improvements
 
 - Expose `Sentry._Hybrid` explicit module (#4440)
+- Add extra logs for UIViewControllerSwizzling (#4511)
 
 ## 8.40.0
 
