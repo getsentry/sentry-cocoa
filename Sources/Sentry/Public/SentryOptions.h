@@ -153,14 +153,16 @@ NS_SWIFT_NAME(Options)
 /**
  * This block can be used to modify the event before it will be serialized and sent.
  */
-@property (nullable, nonatomic, copy) SentryBeforeBreadcrumbCallback beforeBreadcrumb NS_SWIFT_SENDABLE;
+@property (nullable, nonatomic, copy)
+    SentryBeforeBreadcrumbCallback beforeBreadcrumb NS_SWIFT_SENDABLE;
 
 /**
  * You can use this callback to decide if the SDK should capture a screenshot or not. Return @c true
  * if the SDK should capture a screenshot, return @c false if not. This callback doesn't work for
  * crashes.
  */
-@property (nullable, nonatomic, copy) SentryBeforeCaptureScreenshotCallback beforeCaptureScreenshot NS_SWIFT_SENDABLE;
+@property (nullable, nonatomic, copy)
+    SentryBeforeCaptureScreenshotCallback beforeCaptureScreenshot NS_SWIFT_SENDABLE;
 
 /**
  * You can use this callback to decide if the SDK should capture a view hierarchy or not. Return @c
@@ -180,7 +182,8 @@ NS_SWIFT_NAME(Options)
  * @warning It is not guaranteed that this is called on the main thread.
  * @note Crash reporting is automatically disabled if a debugger is attached.
  */
-@property (nullable, nonatomic, copy) SentryOnCrashedLastRunCallback onCrashedLastRun NS_SWIFT_SENDABLE;
+@property (nullable, nonatomic, copy)
+    SentryOnCrashedLastRunCallback onCrashedLastRun NS_SWIFT_SENDABLE;
 
 /**
  * Array of integrations to install.
