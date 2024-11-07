@@ -6,7 +6,6 @@ final class iOS_Swift6UITests: XCTestCase {
         continueAfterFailure = false
     }
 
-
     @MainActor
     func testLauchAndCaptureError() throws {
         let app = XCUIApplication()
