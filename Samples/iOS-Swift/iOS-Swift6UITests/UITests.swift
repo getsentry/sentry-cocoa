@@ -1,6 +1,6 @@
 import XCTest
 
-final class iOS_SwiftUITests: XCTestCase {
+final class UITests: XCTestCase {
 
     override func setUpWithError() throws {
         continueAfterFailure = false
