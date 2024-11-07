@@ -206,6 +206,14 @@ platform :ios do
       configuration: configuration
     )
   end
+  
+    lane :ui_tests_ios_swift6 do
+    run_tests(
+      workspace: "Sentry.xcworkspace",
+      scheme: "iOS-Swift6",
+      configuration: configuration
+    )
+  end
 
   lane :ui_tests_ios_objc do
     run_tests(
