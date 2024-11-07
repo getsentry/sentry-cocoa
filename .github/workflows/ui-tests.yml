@@ -94,7 +94,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: ./scripts/ci-select-xcode.sh ${{matrix.xcode}}
-      - run: xcodebuild -workspace Sentry.xcworkspace -list
 
       - name: Create iOS 16.4 simulator
         if: ${{ matrix.device == 'iPhone 14 (16.4)' }}
