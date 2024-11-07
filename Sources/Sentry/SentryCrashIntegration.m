@@ -122,7 +122,7 @@ sentry_finishAndSaveTransaction(void)
 
     [self configureScope];
 
-    if (options.enableTracingWhenCrashing) {
+    if (options.enablePersistingTracesWhenCrashing) {
         [self configureTracingWhenCrashing];
     }
 

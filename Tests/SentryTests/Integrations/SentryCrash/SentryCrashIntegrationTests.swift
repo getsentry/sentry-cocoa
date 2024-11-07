@@ -340,7 +340,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
     func testEnableTracingForCrashes_SetsCallback() throws {
         let (sut, _) = givenSutWithGlobalHubAndCrashWrapper()
         let options = Options()
-        options.enableTracingWhenCrashing = true
+        options.enablePersistingTracesWhenCrashing = true
         sut.install(with: options)
         
         XCTAssertTrue(sentrycrash_hasSaveTransaction())
@@ -349,7 +349,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
     func testEnableTracingForCrashes_Uninstall_RemovesCallback() throws {
         let (sut, _) = givenSutWithGlobalHubAndCrashWrapper()
         let options = Options()
-        options.enableTracingWhenCrashing = true
+        options.enablePersistingTracesWhenCrashing = true
         sut.install(with: options)
         
         sut.uninstall()
@@ -360,7 +360,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
     func testEnableTracingForCrashes_Disabled_DoesNotSetCallback() throws {
         let (sut, _) = givenSutWithGlobalHubAndCrashWrapper()
         let options = Options()
-        options.enableTracingWhenCrashing = false
+        options.enablePersistingTracesWhenCrashing = false
         sut.install(with: options)
         
         XCTAssertFalse(sentrycrash_hasSaveTransaction())
@@ -368,7 +368,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
     
     func testEnableTracingForCrashes_InvokeCallback_StoresTransaction() throws {
         let options = fixture.options
-        options.enableTracingWhenCrashing = true
+        options.enablePersistingTracesWhenCrashing = true
         
         let client = SentryClient(options: options)
         defer { client?.fileManager.deleteAllEnvelopes() }
@@ -393,7 +393,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
     
     func testEnableTracingForCrashes_InvokeCallbackWhenNoSpanOnScope_TransactionNotFinished() throws {
         let options = fixture.options
-        options.enableTracingWhenCrashing = true
+        options.enablePersistingTracesWhenCrashing = true
         
         let client = SentryClient(options: options)
         defer { client?.fileManager.deleteAllEnvelopes() }
@@ -414,7 +414,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
     
     func testEnableTracingForCrashes_InvokeCallback_WhenSpanOnScopeIsNotATracer_TransactionNotFinished() throws {
         let options = fixture.options
-        options.enableTracingWhenCrashing = true
+        options.enablePersistingTracesWhenCrashing = true
         
         let client = SentryClient(options: options)
         defer { client?.fileManager.deleteAllEnvelopes() }
