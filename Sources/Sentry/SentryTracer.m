@@ -538,7 +538,8 @@ static BOOL appStartMeasurementRead;
 
 - (void)finishInternal
 {
-    BOOL discardTransaction = [self finishTracer];
+    BOOL discardTransaction = [self finishTracer:kSentrySpanStatusDeadlineExceeded
+                                   shouldCleanUp:YES];
     if (discardTransaction) {
         return;
     }
@@ -571,11 +572,6 @@ static BOOL appStartMeasurementRead;
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
     [_hub captureTransaction:transaction withScope:_hub.scope];
-}
-
-- (BOOL)finishTracer
-{
-    return [self finishTracer:kSentrySpanStatusDeadlineExceeded shouldCleanUp:YES];
 }
 
 - (BOOL)finishTracer:(SentrySpanStatus)unfinishedSpansFinishStatus shouldCleanUp:(BOOL)shouldCleanUp
