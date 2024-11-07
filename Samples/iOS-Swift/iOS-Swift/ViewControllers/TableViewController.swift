@@ -36,6 +36,7 @@ class TableViewController: UITableViewController {
         
         let w = 1.0 - (Double(indexPath.row) / 99)
         cell.backgroundColor = UIColor(white: CGFloat(w), alpha: 1)
+        cell.textLabel?.text = "Row #\(indexPath.row)"
 
         return cell
     }

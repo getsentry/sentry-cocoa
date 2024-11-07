@@ -29,6 +29,10 @@
 
 - Masking text with transparent text color (#4499)
 
+### Fixes
+
+- Session replay masking not working inside scroll view (#4498)
+
 ## 8.39.0
 
 ### Removal of Experimental API
