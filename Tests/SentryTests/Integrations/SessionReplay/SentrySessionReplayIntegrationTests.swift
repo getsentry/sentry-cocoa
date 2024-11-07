@@ -348,6 +348,110 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         XCTAssertEqual(sessionReplay.sessionReplayId, replayId)
     }
     
+    func testStopBecauseOfReplayRateLimit() throws {
+        let rateLimiter = TestRateLimits()
+        SentryDependencyContainer.sharedInstance().rateLimits = rateLimiter
+        rateLimiter.rateLimits.append(.replay)
+        
+        startSDK(sessionSampleRate: 1, errorSampleRate: 1)
+        let sut = try getSut()
+        let sessionReplay = sut.sessionReplay
+        
+        XCTAssertTrue(sessionReplay?.isRunning ?? false)
+  
+        let videoUrl = URL(fileURLWithPath: "video.mp4")
+        let videoInfo = SentryVideoInfo(path: videoUrl, height: 1_024, width: 480, duration: 5, frameCount: 5, frameRate: 1, start: Date(), end: Date(), fileSize: 10, screens: [])
+        let replayEvent = SentryReplayEvent(eventId: SentryId(), replayStartTimestamp: Date(), replayType: .session, segmentId: 0)
+        
+        (sut as SentrySessionReplayDelegate).sessionReplayNewSegment(replayEvent: replayEvent,
+                                                                     replayRecording: SentryReplayRecording(segmentId: 0, video: videoInfo, extraEvents: []),
+                                                                     videoUrl: videoUrl)
+        
+        XCTAssertFalse(sessionReplay?.isRunning ?? true)
+        XCTAssertNil(sut.sessionReplay)
+    }
+    
+    func testStopBecauseOfAllRateLimit() throws {
+        let rateLimiter = TestRateLimits()
+        SentryDependencyContainer.sharedInstance().rateLimits = rateLimiter
+        rateLimiter.rateLimits.append(.all)
+        
+        startSDK(sessionSampleRate: 1, errorSampleRate: 1)
+        let sut = try getSut()
+        let sessionReplay = sut.sessionReplay
+        
+        XCTAssertTrue(sessionReplay?.isRunning ?? false)
+  
+        let videoUrl = URL(fileURLWithPath: "video.mp4")
+        let videoInfo = SentryVideoInfo(path: videoUrl, height: 1_024, width: 480, duration: 5, frameCount: 5, frameRate: 1, start: Date(), end: Date(), fileSize: 10, screens: [])
+        let replayEvent = SentryReplayEvent(eventId: SentryId(), replayStartTimestamp: Date(), replayType: .session, segmentId: 0)
+        
+        (sut as SentrySessionReplayDelegate).sessionReplayNewSegment(replayEvent: replayEvent,
+                                                                     replayRecording: SentryReplayRecording(segmentId: 0, video: videoInfo, extraEvents: []),
+                                                                     videoUrl: videoUrl)
+        
+        XCTAssertFalse(sessionReplay?.isRunning ?? true)
+        XCTAssertNil(sut.sessionReplay)
+    }
+    
+    func testDontRestartAfterRateLimit() throws {
+        let rateLimiter = TestRateLimits()
+        SentryDependencyContainer.sharedInstance().rateLimits = rateLimiter
+        rateLimiter.rateLimits.append(.all)
+        
+        startSDK(sessionSampleRate: 1, errorSampleRate: 1)
+        let sut = try getSut()
+        let sessionReplay = sut.sessionReplay
+        
+        XCTAssertTrue(sessionReplay?.isRunning ?? false)
+  
+        let videoUrl = URL(fileURLWithPath: "video.mp4")
+        let videoInfo = SentryVideoInfo(path: videoUrl, height: 1_024, width: 480, duration: 5, frameCount: 5, frameRate: 1, start: Date(), end: Date(), fileSize: 10, screens: [])
+        let replayEvent = SentryReplayEvent(eventId: SentryId(), replayStartTimestamp: Date(), replayType: .session, segmentId: 0)
+        
+        (sut as SentrySessionReplayDelegate).sessionReplayNewSegment(replayEvent: replayEvent,
+                                                                     replayRecording: SentryReplayRecording(segmentId: 0, video: videoInfo, extraEvents: []),
+                                                                     videoUrl: videoUrl)
+        
+        XCTAssertFalse(sessionReplay?.isRunning ?? true)
+        XCTAssertNil(sut.sessionReplay)
+        
+        sut.start()
+        
+        XCTAssertFalse(sessionReplay?.isRunning ?? true)
+        XCTAssertNil(sut.sessionReplay)
+    }
+    
+    func testAlowStartForNewSessionAfterRateLimit() throws {
+        let rateLimiter = TestRateLimits()
+        SentryDependencyContainer.sharedInstance().rateLimits = rateLimiter
+        rateLimiter.rateLimits.append(.all)
+        
+        startSDK(sessionSampleRate: 0, errorSampleRate: 1)
+        let sut = try getSut()
+        let sessionReplay = sut.sessionReplay
+        sut.start()
+        
+        XCTAssertTrue(sessionReplay?.isRunning ?? false)
+  
+        let videoUrl = URL(fileURLWithPath: "video.mp4")
+        let videoInfo = SentryVideoInfo(path: videoUrl, height: 1_024, width: 480, duration: 5, frameCount: 5, frameRate: 1, start: Date(), end: Date(), fileSize: 10, screens: [])
+        let replayEvent = SentryReplayEvent(eventId: SentryId(), replayStartTimestamp: Date(), replayType: .session, segmentId: 0)
+        
+        (sut as SentrySessionReplayDelegate).sessionReplayNewSegment(replayEvent: replayEvent,
+                                                                     replayRecording: SentryReplayRecording(segmentId: 0, video: videoInfo, extraEvents: []),
+                                                                     videoUrl: videoUrl)
+        XCTAssertNil(sut.sessionReplay)
+        
+        sut.start()
+        XCTAssertNil(sut.sessionReplay)
+        
+        (sut as SentrySessionListener).sentrySessionStarted(SentrySession(releaseName: "", distinctId: ""))
+        
+        sut.start()
+        XCTAssertTrue(sut.sessionReplay?.isRunning ?? false)
+    }
+    
     func testStartWithBufferSessionReplay() throws {
         startSDK(sessionSampleRate: 0, errorSampleRate: 1)
         let sut = try getSut()
