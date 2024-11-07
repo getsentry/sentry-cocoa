@@ -8,7 +8,7 @@
 
 ### Fixes
 
-- Concurrency crash with Swift 6 ()
+- Concurrency crash with Swift 6 (#4512)
 
 ## 8.40.0
 
