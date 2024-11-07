@@ -412,7 +412,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         XCTAssertEqual(0, client?.fileManager.getAllEnvelopes().count)
     }
     
-    func testEnableTracingForCrashes_InvokeCallback_WhenSpanOnScopeIsNotATracer_TransactionNotFinished() throws {
+    func testEnableTracingForCrashes_InvokeCallback_WhenSpanOnScopeIsNotATracer_StoresTransaction() throws {
         let options = fixture.options
         options.enablePersistingTracesWhenCrashing = true
         
@@ -421,14 +421,20 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         let hub = SentryHub(client: client, andScope: nil)
         SentrySDK.setCurrentHub(hub)
         
+        let sut = fixture.getSut(crashWrapper: SentryCrashWrapper.sharedInstance())
+        sut.install(with: options)
+        
         let transaction = SentrySDK.startTransaction(name: "name", operation: "operation", bindToScope: true)
         let span = transaction.startChild(operation: "child")
         SentrySDK.currentHub().scope.span = span
         
         sentrycrash_invokeSaveTransaction()
         
-        XCTAssertFalse(transaction.isFinished)
-        XCTAssertEqual(0, client?.fileManager.getAllEnvelopes().count)
+        XCTAssertEqual(1, client?.fileManager.getAllEnvelopes().count)
+        let transactionEnvelopeFileContents = try XCTUnwrap(client?.fileManager.getOldestEnvelope())
+        let envelope = try XCTUnwrap(SentrySerialization.envelope(with: transactionEnvelopeFileContents.contents))
+        XCTAssertEqual(1, envelope.items.count)
+        XCTAssertEqual("transaction", envelope.items.first?.header.type)
     }
     
     private func givenCurrentSession() -> SentrySession {

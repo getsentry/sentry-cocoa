@@ -12,6 +12,7 @@
 #import "SentrySDK+Private.h"
 #import "SentryScope+Private.h"
 #import "SentrySessionCrashedHandler.h"
+#import "SentrySpan+Private.h"
 #import "SentryTracer.h"
 #import "SentryWatchdogTerminationLogic.h"
 #import <SentryAppStateManager.h>
@@ -39,9 +40,10 @@ static NSString *const LOCALE_KEY = @"locale";
 void
 sentry_finishAndSaveTransaction(void)
 {
-    id<SentrySpan> span = SentrySDK.currentHub.scope.span;
-    if (span != nil && [span isKindOfClass:[SentryTracer class]]) {
-        SentryTracer *tracer = (SentryTracer *)span;
+    SentrySpan *span = SentrySDK.currentHub.scope.span;
+
+    if (span != nil) {
+        SentryTracer *tracer = [span tracer];
         [tracer finishForCrash];
     }
 }
