@@ -61,7 +61,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: ./scripts/ci-select-xcode.sh ${{matrix.xcode}}
-
+      
       # GitHub Actions sometimes fail to launch the UI tests. Therefore we retry
       - name: Run Fastlane
         run: for i in {1..2}; do fastlane ui_tests_ios_swiftui device:"${{matrix.device}}" && break ; done
@@ -94,6 +94,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: ./scripts/ci-select-xcode.sh ${{matrix.xcode}}
+      - run: xcodebuild -workspace Sentry.xcworkspace -list
 
       - name: Create iOS 16.4 simulator
         if: ${{ matrix.device == 'iPhone 14 (16.4)' }}
@@ -119,7 +120,7 @@ jobs:
       - uses: actions/checkout@v4
       - run: ./scripts/ci-select-xcode.sh "16.1"
       - name: Run Fastlane
-        run: fastlane ui_tests_ios_swift6 device:"iPhone 15 (18.0)"
+        run: fastlane ui_tests_ios_swift6 device:"iPhone 15 (17.2)"
 
       - name: Archiving Raw Test Logs
         uses: actions/upload-artifact@v4
