@@ -127,7 +127,6 @@
 		D8F71A5B2CDD03BB00334022 /* Base in Resources */ = {isa = PBXBuildFile; fileRef = D8F71A5A2CDD03BB00334022 /* Base */; };
 		D8F71A702CDD03BB00334022 /* UITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F71A6F2CDD03BB00334022 /* UITests.swift */; };
 		D8F71A822CDD04C200334022 /* (null) in Frameworks */ = {isa = PBXBuildFile; };
-		D8F71A832CDD04C200334022 /* (null) in Embed Frameworks */ = {isa = PBXBuildFile; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		D8FD68C42C1C86E300A70055 /* TableViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = D8FD68C32C1C86E300A70055 /* TableViewController.xib */; };
 /* End PBXBuildFile section */
 
@@ -240,7 +239,6 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				D8F71A832CDD04C200334022 /* (null) in Embed Frameworks */,
 				D86B9CA12CDD11670039211C /* Sentry.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
