@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+### Fixes
+
+- Session replay masking not working inside scroll view (#4498)
+
+### Improvements
+
+- Add extra logs for UIViewControllerSwizzling (#4511)
+
+## 8.40.0
+
 ## Feature
 
 - Add option to report uncaught NSExceptions on macOS (#4471)
@@ -16,6 +26,7 @@
 - Improve frames tracker performance (#4469)
 - Log a warning when dropping envelopes due to rate-limiting (#4463)
 - Expose `SentrySessionReplayIntegration-Hybrid.h` as `private` (#4486)
+- Stops session replay if rate limiting is activated (#4496)
 - Add `maskedViewClasses` and `unmaskedViewClasses` to SentryReplayOptions init via dict (#4492)
 - Add `quality` to SentryReplayOptions init via dict (#4495)
 

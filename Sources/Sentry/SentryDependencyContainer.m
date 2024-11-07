@@ -22,8 +22,12 @@
 #import <SentryCrash.h>
 #import <SentryCrashWrapper.h>
 #import <SentryDebugImageProvider.h>
+#import <SentryDefaultRateLimits.h>
 #import <SentryDependencyContainer.h>
+#import <SentryHttpDateParser.h>
 #import <SentryNSNotificationCenterWrapper.h>
+#import <SentryRateLimitParser.h>
+#import <SentryRetryAfterHeaderParser.h>
 #import <SentrySDK+Private.h>
 #import <SentrySwift.h>
 #import <SentrySwizzleWrapper.h>
@@ -212,6 +216,26 @@ static NSObject *sentryDependencyContainerLock;
             _notificationCenterWrapper = [[SentryNSNotificationCenterWrapper alloc] init];
         }
         return _notificationCenterWrapper;
+    }
+}
+
+- (id<SentryRateLimits>)rateLimits
+{
+    @synchronized(sentryDependencyContainerLock) {
+        if (_rateLimits == nil) {
+            SentryRetryAfterHeaderParser *retryAfterHeaderParser =
+                [[SentryRetryAfterHeaderParser alloc]
+                    initWithHttpDateParser:[[SentryHttpDateParser alloc] init]
+                       currentDateProvider:self.dateProvider];
+            SentryRateLimitParser *rateLimitParser =
+                [[SentryRateLimitParser alloc] initWithCurrentDateProvider:self.dateProvider];
+
+            _rateLimits = [[SentryDefaultRateLimits alloc]
+                initWithRetryAfterHeaderParser:retryAfterHeaderParser
+                            andRateLimitParser:rateLimitParser
+                           currentDateProvider:self.dateProvider];
+        }
+        return _rateLimits;
     }
 }
 

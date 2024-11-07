@@ -36,6 +36,8 @@
 - (void)actOnSubclassesOfViewControllerInImage:(NSString *)imageName block:(void (^)(Class))block;
 {
     [self.dispatchQueue dispatchAsyncWithBlock:^{
+        SENTRY_LOG_DEBUG(@"ActOnSubclassesOfViewControllerInImage: %@", imageName);
+
         Class viewControllerClass = [UIViewController class];
         if (viewControllerClass == nil) {
             SENTRY_LOG_DEBUG(@"UIViewController class not found.");
@@ -85,11 +87,9 @@
                 block(NSClassFromString(className));
             }
 
-            [SentryLog
-                logWithMessage:[NSString stringWithFormat:@"The following UIViewControllers will "
-                                                          @"generate automatic transactions: %@",
-                                   [classesToSwizzle componentsJoinedByString:@", "]]
-                      andLevel:kSentryLevelDebug];
+            SENTRY_LOG_DEBUG(
+                @"The following UIViewControllers will generate automatic transactions: %@",
+                [classesToSwizzle componentsJoinedByString:@", "]);
         }];
     }];
 }

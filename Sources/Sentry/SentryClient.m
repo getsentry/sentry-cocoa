@@ -99,10 +99,10 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                     fileManager:(SentryFileManager *)fileManager
          deleteOldEnvelopeItems:(BOOL)deleteOldEnvelopeItems
 {
-    NSArray<id<SentryTransport>> *transports = [SentryTransportFactory
-             initTransports:options
-          sentryFileManager:fileManager
-        currentDateProvider:SentryDependencyContainer.sharedInstance.dateProvider];
+    NSArray<id<SentryTransport>> *transports =
+        [SentryTransportFactory initTransports:options
+                             sentryFileManager:fileManager
+                                    rateLimits:SentryDependencyContainer.sharedInstance.rateLimits];
 
     SentryTransportAdapter *transportAdapter =
         [[SentryTransportAdapter alloc] initWithTransports:transports options:options];
