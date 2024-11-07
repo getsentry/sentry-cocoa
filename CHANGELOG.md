@@ -6,6 +6,10 @@
 
 - Add extra logs for UIViewControllerSwizzling (#4511)
 
+### Fixes
+
+- Concurrency crash with Swift 6 ()
+
 ## 8.40.0
 
 ## Feature
