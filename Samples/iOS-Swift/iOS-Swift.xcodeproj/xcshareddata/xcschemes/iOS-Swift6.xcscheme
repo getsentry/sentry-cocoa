@@ -15,7 +15,7 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "D8F6108C2CDCBCF700A77147"
+               BlueprintIdentifier = "D8F71A4B2CDD03B900334022"
                BuildableName = "iOS-Swift6.app"
                BlueprintName = "iOS-Swift6"
                ReferencedContainer = "container:iOS-Swift.xcodeproj">
@@ -35,7 +35,7 @@
             parallelizable = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "D8F610AB2CDCBCF900A77147"
+               BlueprintIdentifier = "D8F71A6A2CDD03BB00334022"
                BuildableName = "iOS-Swift6UITests.xctest"
                BlueprintName = "iOS-Swift6UITests"
                ReferencedContainer = "container:iOS-Swift.xcodeproj">
@@ -68,7 +68,7 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "D8F6108C2CDCBCF700A77147"
+            BlueprintIdentifier = "D8F71A4B2CDD03B900334022"
             BuildableName = "iOS-Swift6.app"
             BlueprintName = "iOS-Swift6"
             ReferencedContainer = "container:iOS-Swift.xcodeproj">
@@ -85,7 +85,7 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "D8F6108C2CDCBCF700A77147"
+            BlueprintIdentifier = "D8F71A4B2CDD03B900334022"
             BuildableName = "iOS-Swift6.app"
             BlueprintName = "iOS-Swift6"
             ReferencedContainer = "container:iOS-Swift.xcodeproj">

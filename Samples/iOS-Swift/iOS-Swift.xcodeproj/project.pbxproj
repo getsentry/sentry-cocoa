@@ -118,8 +118,8 @@
 		D8F71A582CDD03BB00334022 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D8F71A572CDD03BB00334022 /* Assets.xcassets */; };
 		D8F71A5B2CDD03BB00334022 /* Base in Resources */ = {isa = PBXBuildFile; fileRef = D8F71A5A2CDD03BB00334022 /* Base */; };
 		D8F71A702CDD03BB00334022 /* UITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F71A6F2CDD03BB00334022 /* UITests.swift */; };
-		D8F71A822CDD04C200334022 /* Sentry.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 630853322440C44F00DDE4CE /* Sentry.framework */; };
-		D8F71A832CDD04C200334022 /* Sentry.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 630853322440C44F00DDE4CE /* Sentry.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		D8F71A822CDD04C200334022 /* (null) in Frameworks */ = {isa = PBXBuildFile; };
+		D8F71A832CDD04C200334022 /* (null) in Embed Frameworks */ = {isa = PBXBuildFile; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		D8FD68C42C1C86E300A70055 /* TableViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = D8FD68C32C1C86E300A70055 /* TableViewController.xib */; };
 /* End PBXBuildFile section */
 
@@ -168,7 +168,6 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				D8F610D12CDCC25900A77147 /* Sentry.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -199,7 +198,6 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				D8F610D72CDCC27200A77147 /* Sentry.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -221,18 +219,6 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				D8F610D42CDCC26C00A77147 /* Sentry.framework in Embed Frameworks */,
-			);
-			name = "Embed Frameworks";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		D8F610CB2CDCBDAB00A77147 /* Embed Frameworks */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 10;
-			files = (
-				D8F610CE2CDCC24B00A77147 /* Sentry.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -243,7 +229,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				D8F71A832CDD04C200334022 /* Sentry.framework in Embed Frameworks */,
+				D8F71A832CDD04C200334022 /* (null) in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -356,27 +342,11 @@
 		D8FD68C32C1C86E300A70055 /* TableViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = TableViewController.xib; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
-/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		D8F610C02CDCBCF900A77147 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				Info.plist,
-			);
-			target = D8F6108C2CDCBCF700A77147 /* iOS-Swift6 */;
-		};
-/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
-
-/* Begin PBXFileSystemSynchronizedRootGroup section */
-		D8F6108E2CDCBCF700A77147 /* iOS-Swift6 */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (D8F610C02CDCBCF900A77147 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = "iOS-Swift6"; sourceTree = "<group>"; };
-		D8F610AF2CDCBCF900A77147 /* iOS-Swift6UITests */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = "iOS-Swift6UITests"; sourceTree = "<group>"; };
-/* End PBXFileSystemSynchronizedRootGroup section */
-
 /* Begin PBXFrameworksBuildPhase section */
 		637AFDA3243B02760034958B /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D8F610D02CDCC25900A77147 /* Sentry.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -398,7 +368,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D8F610D62CDCC27200A77147 /* Sentry.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -406,7 +375,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D8F610D32CDCC26C00A77147 /* Sentry.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -421,7 +389,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D8F71A822CDD04C200334022 /* Sentry.framework in Frameworks */,
+				D8F71A822CDD04C200334022 /* (null) in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -438,10 +406,6 @@
 		634C7EC124406A4200AFDE9F /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				D8F610D52CDCC27200A77147 /* Sentry.framework */,
-				D8F610D22CDCC26C00A77147 /* Sentry.framework */,
-				D8F610CF2CDCC25900A77147 /* Sentry.framework */,
-				D8F610CC2CDCC24B00A77147 /* Sentry.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -2296,7 +2260,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_VERSION = 5.0;
+				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
@@ -2330,7 +2294,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "io.sentry.iOS-Swift6";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_VERSION = 5.0;
+				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
@@ -2364,7 +2328,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "io.sentry.iOS-Swift6";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_VERSION = 5.0;
+				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = TestCI;
@@ -2398,7 +2362,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "io.sentry.iOS-Swift6";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_VERSION = 5.0;
+				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Test;
