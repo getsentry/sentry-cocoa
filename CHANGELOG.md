@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Keep PropagationContext when cloning scope (#4518)
+
 ## 8.40.1
 
 ### Fixes
