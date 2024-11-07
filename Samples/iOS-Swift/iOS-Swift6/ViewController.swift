@@ -1,5 +1,5 @@
-import UIKit
 import Sentry
+import UIKit
 
 class ViewController: UIViewController {
     @IBAction func buttonTapped(_ sender: Any) {
@@ -8,4 +8,3 @@ class ViewController: UIViewController {
         }
     }
 }
-
