@@ -25,7 +25,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (NSArray<id<SentryTransport>> *)initTransports:(SentryOptions *)options
                                sentryFileManager:(SentryFileManager *)sentryFileManager
-                             currentDateProvider:(id<SentryCurrentDateProvider>)currentDateProvider
+                                      rateLimits:(id<SentryRateLimits>)rateLimits
 {
     NSURLSession *session;
 
@@ -41,17 +41,6 @@ NS_ASSUME_NONNULL_BEGIN
 
     id<SentryRequestManager> requestManager =
         [[SentryQueueableRequestManager alloc] initWithSession:session];
-
-    SentryHttpDateParser *httpDateParser = [[SentryHttpDateParser alloc] init];
-    SentryRetryAfterHeaderParser *retryAfterHeaderParser =
-        [[SentryRetryAfterHeaderParser alloc] initWithHttpDateParser:httpDateParser
-                                                 currentDateProvider:currentDateProvider];
-    SentryRateLimitParser *rateLimitParser =
-        [[SentryRateLimitParser alloc] initWithCurrentDateProvider:currentDateProvider];
-    id<SentryRateLimits> rateLimits =
-        [[SentryDefaultRateLimits alloc] initWithRetryAfterHeaderParser:retryAfterHeaderParser
-                                                     andRateLimitParser:rateLimitParser
-                                                    currentDateProvider:currentDateProvider];
 
     SentryEnvelopeRateLimit *envelopeRateLimit =
         [[SentryEnvelopeRateLimit alloc] initWithRateLimits:rateLimits];

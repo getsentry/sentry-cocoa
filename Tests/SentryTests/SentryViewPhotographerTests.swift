@@ -195,6 +195,21 @@ class SentryViewPhotographerTests: XCTestCase {
         assertColor(pixel1, .green)
     }
     
+    func testLabelInsideScrollView() throws {
+        let label1 = UILabel(frame: CGRect(x: 0, y: 25, width: 50, height: 25))
+        label1.text = "Test"
+        label1.textColor = .green
+        
+        let scrollView = UIScrollView(frame: CGRect(x: 0, y: 0, width: 50, height: 50))
+        scrollView.addSubview(label1)
+        scrollView.contentOffset = CGPoint(x: 0, y: 25)
+        
+        let image = try XCTUnwrap(prepare(views: [scrollView]))
+        let pixel1 = color(at: CGPoint(x: 10, y: 10), in: image)
+        
+        assertColor(pixel1, .green)
+    }
+    
     private func assertColor(_ color1: UIColor, _ color2: UIColor) {
         let sRGBColor1 = color1.cgColor.converted(to: CGColorSpace(name: CGColorSpace.sRGB)!, intent: .defaultIntent, options: nil)
         let sRGBColor2 = color2.cgColor.converted(to: CGColorSpace(name: CGColorSpace.sRGB)!, intent: .defaultIntent, options: nil)
