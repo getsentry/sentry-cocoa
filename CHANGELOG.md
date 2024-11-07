@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Fixes
+
+- Session replay masking not working inside scroll view (#4498)
+
 ### Improvements
 
 - Add extra logs for UIViewControllerSwizzling (#4511)
@@ -28,10 +32,6 @@
 ### Fixes
 
 - Masking text with transparent text color (#4499)
-
-### Fixes
-
-- Session replay masking not working inside scroll view (#4498)
 
 ## 8.39.0
 
