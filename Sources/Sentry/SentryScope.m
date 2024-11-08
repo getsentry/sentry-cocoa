@@ -97,7 +97,7 @@ NS_ASSUME_NONNULL_BEGIN
         [_fingerprintArray addObjectsFromArray:[scope fingerprints]];
         [_attachmentArray addObjectsFromArray:[scope attachments]];
 
-        self.propagationContext = [[SentryPropagationContext alloc] init];
+        self.propagationContext = scope.propagationContext;
         self.maxBreadcrumbs = scope.maxBreadcrumbs;
         self.userObject = scope.userObject.copy;
         self.distString = scope.distString;
