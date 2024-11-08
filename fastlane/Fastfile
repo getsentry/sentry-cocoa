@@ -211,7 +211,6 @@ platform :ios do
     run_tests(
       workspace: "Sentry.xcworkspace",
       scheme: "iOS-Swift6",
-      device: options[:device],
       configuration: configuration
     )
   end
