@@ -5,6 +5,7 @@
 ### Fixes
 
 - Keep PropagationContext when cloning scope (#4518)
+- Concurrency crash with Swift 6 (#4512)
 
 ## 8.40.1
 
@@ -15,10 +16,6 @@
 ### Improvements
 
 - Add extra logs for UIViewControllerSwizzling (#4511)
-
-### Fixes
-
-- Concurrency crash with Swift 6 (#4512)
 
 ## 8.40.0
 
