@@ -10,7 +10,7 @@ on:
       - 'Sources/**'
 
       # test changes to benchmarking implementation
-      - 'Samples/iOS-Swift/iOS-Swift/**'
+      - 'Samples/iOS-Swift/**'
       - 'Samples/iOS-Swift/PerformanceBenchmarks/**'
       - '.github/workflows/benchmarking.yml'
       - '.sauce/benchmarking-config.yml'
