@@ -117,9 +117,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - run: ./scripts/ci-select-xcode.sh "16.1"
+      - run: ./scripts/ci-select-xcode.sh "16.0"
       - name: Run Fastlane
-        run: fastlane ui_tests_ios_swift6 device:"iPhone 15 (17.2)"
+        run: fastlane ui_tests_ios_swift6 device:"iPhone 16"
 
       - name: Archiving Raw Test Logs
         uses: actions/upload-artifact@v4
