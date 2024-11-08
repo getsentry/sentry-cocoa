@@ -8,6 +8,12 @@
 
 ### Fixes
 
+- Keep PropagationContext when cloning scope (#4518)
+
+## 8.40.1
+
+### Fixes
+
 - Session replay masking not working inside scroll view (#4498)
 
 ### Improvements
