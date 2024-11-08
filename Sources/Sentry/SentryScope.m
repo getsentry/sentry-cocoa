@@ -59,6 +59,8 @@ NS_ASSUME_NONNULL_BEGIN
     NSObject *_spanLock;
 }
 
+@synthesize span = _span;
+
 #pragma mark Initializer
 
 - (instancetype)initWithMaxBreadcrumbs:(NSInteger)maxBreadcrumbs
@@ -146,12 +148,16 @@ NS_ASSUME_NONNULL_BEGIN
     }
 }
 
+- (nullable id<SentrySpan>)span
+{
+    @synchronized(_spanLock) {
+        return _span;
+    }
+}
+
 - (void)useSpan:(SentrySpanCallback)callback
 {
-    id<SentrySpan> localSpan = nil;
-    @synchronized(_spanLock) {
-        localSpan = _span;
-    }
+    id<SentrySpan> localSpan = [self span];
     callback(localSpan);
 }
 

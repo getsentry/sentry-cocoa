@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Make `Scope.span` fully thread safe (#4519)
+
 ## 8.40.1
 
 ### Fixes
