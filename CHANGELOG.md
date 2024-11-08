@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Features
+
+- Transactions for crashes (#4504): Finish the transaction bound to the scope when the app crashes. This __experimental__ feature is disabled by default. You can enable it via the option `enablePersistingTracesWhenCrashing`.
+
 ### Fixes
 
 - Keep PropagationContext when cloning scope (#4518)
@@ -25,6 +29,7 @@
 - Too many navigation breadcrumbs for Session Replay (#4480)
 - Time-of-check time-of-use filesystem race condition (#4473)
 - Capture all touches with session replay (#4477)
+
 
 ### Improvements
 

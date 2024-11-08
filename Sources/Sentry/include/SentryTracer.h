@@ -93,6 +93,13 @@ static const NSTimeInterval SENTRY_AUTO_TRANSACTION_MAX_DURATION = 500.0;
 
 - (void)dispatchIdleTimeout;
 
+/**
+ * This method is designed to be used when the app crashes. It finishes the transaction and stores
+ * it to disk on the calling thread. This method skips adding a profile to the transaction to
+ * increase the likelihood of storing it before the app exits.
+ */
+- (void)finishForCrash;
+
 @end
 
 NS_ASSUME_NONNULL_END

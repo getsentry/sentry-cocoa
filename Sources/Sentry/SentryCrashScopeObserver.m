@@ -47,6 +47,12 @@
         syncToSentryCrash:^(const void *bytes) { sentrycrash_scopesync_setContext(bytes); }];
 }
 
+- (void)setTraceContext:(nullable NSDictionary<NSString *, id> *)traceContext
+{
+    [self syncScope:traceContext
+        syncToSentryCrash:^(const void *bytes) { sentrycrash_scopesync_setTraceContext(bytes); }];
+}
+
 - (void)setExtras:(nullable NSDictionary<NSString *, id> *)extras
 {
     [self syncScope:extras

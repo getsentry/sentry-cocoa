@@ -422,6 +422,33 @@ class SentryHubTests: XCTestCase {
         XCTAssertEqual(4, lostEvent?.quantity)
     }
     
+    func testSaveCrashTransaction_SavesTransaction() throws {
+        let scope = fixture.scope
+        let sut = SentryHub(client: fixture.client, andScope: scope)
+        
+        let transaction = sut.startTransaction(transactionContext: TransactionContext(name: fixture.transactionName, operation: fixture.transactionOperation, sampled: .yes))
+        
+        let trans = Dynamic(transaction).toTransaction().asAnyObject
+        sut.saveCrash(try XCTUnwrap(trans as? Transaction))
+        
+        let client = fixture.client
+        XCTAssertEqual(1, client.saveCrashTransactionInvocations.count)
+        XCTAssertEqual(scope, client.saveCrashTransactionInvocations.first?.scope)
+        XCTAssertEqual(0, client.recordLostEvents.count)
+    }
+    
+    func testSaveCrashTransaction_NotSampled_DoesNotSaveTransaction() throws {
+        let scope = fixture.scope
+        let sut = SentryHub(client: fixture.client, andScope: scope)
+        
+        let transaction = sut.startTransaction(transactionContext: TransactionContext(name: fixture.transactionName, operation: fixture.transactionOperation, sampled: .no))
+        
+        let trans = Dynamic(transaction).toTransaction().asAnyObject
+        sut.saveCrash(try XCTUnwrap(trans as? Transaction))
+        
+        XCTAssertEqual(self.fixture.client.saveCrashTransactionInvocations.count, 0)
+    }
+    
     func testCaptureMessageWithScope() {
         fixture.getSut().capture(message: fixture.message, scope: fixture.scope)
         

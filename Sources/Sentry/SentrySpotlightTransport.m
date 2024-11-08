@@ -86,6 +86,11 @@ NS_ASSUME_NONNULL_BEGIN
         }];
 }
 
+- (void)storeEnvelope:(SentryEnvelope *)envelope
+{
+    [self sendEnvelope:envelope];
+}
+
 - (SentryFlushResult)flush:(NSTimeInterval)timeout
 {
     // Empty on purpose

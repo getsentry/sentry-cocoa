@@ -278,6 +278,17 @@ NS_SWIFT_NAME(Options)
 @property (nonatomic, assign) BOOL enablePerformanceV2;
 
 /**
+ * @warning This is an experimental feature and may still have bugs.
+ *
+ * When enabled, the SDK finishes the ongoing transaction bound to the scope and links them to the
+ * crash event when your app crashes. The SDK skips adding profiles to increase the chance of
+ * keeping the transaction.
+ *
+ * @note The default is @c NO .
+ */
+@property (nonatomic, assign) BOOL enablePersistingTracesWhenCrashing;
+
+/**
  * A block that configures the initial scope when starting the SDK.
  * @discussion The block receives a suggested default scope. You can either
  * configure and return this, or create your own scope instead.

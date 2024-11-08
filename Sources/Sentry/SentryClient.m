@@ -351,6 +351,22 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     return [self sendEvent:preparedEvent withSession:session withScope:scope];
 }
 
+- (void)saveCrashTransaction:(SentryTransaction *)transaction withScope:(SentryScope *)scope
+{
+    SentryEvent *preparedEvent = [self prepareEvent:transaction
+                                          withScope:scope
+                             alwaysAttachStacktrace:NO
+                                       isCrashEvent:NO];
+
+    if (preparedEvent == nil) {
+        return;
+    }
+
+    SentryTraceContext *traceContext = [self getTraceStateWithEvent:transaction withScope:scope];
+
+    [self.transportAdapter storeEvent:preparedEvent traceContext:traceContext];
+}
+
 - (SentryId *)captureEvent:(SentryEvent *)event
 {
     return [self captureEvent:event withScope:[[SentryScope alloc] init]];
