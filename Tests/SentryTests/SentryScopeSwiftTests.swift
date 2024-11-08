@@ -127,6 +127,8 @@ class SentryScopeSwiftTests: XCTestCase {
 
         let cloned = Scope(scope: scope)
         XCTAssertEqual(try XCTUnwrap(cloned.serialize() as? [String: AnyHashable]), snapshot)
+        XCTAssertEqual(scope.propagationContext.spanId, cloned.propagationContext.spanId)
+        XCTAssertEqual(scope.propagationContext.traceId, cloned.propagationContext.traceId)
 
         let (event1, event2) = (Event(), Event())
         (event1.timestamp, event2.timestamp) = (fixture.date, fixture.date)
