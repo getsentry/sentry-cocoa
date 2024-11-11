@@ -365,6 +365,25 @@
     XCTAssertEqual(event.extra.count, (unsigned long)3);
 }
 
+- (void)testTraceContext
+{
+    [self isValidReport:@"Resources/fatal-error-notable-addresses"];
+    NSDictionary *rawCrash = [self getCrashReport:@"Resources/fatal-error-notable-addresses"];
+    SentryCrashReportConverter *reportConverter =
+        [[SentryCrashReportConverter alloc] initWithReport:rawCrash inAppLogic:self.inAppLogic];
+    reportConverter.userContext = @{
+        @"context" : @ { @"some" : @"context" },
+        @"traceContext" : @ { @"trace_id" : @"1234567890", @"span_id" : @"1234567890" }
+    };
+    SentryEvent *event = [reportConverter convertReportToEvent];
+    NSDictionary *expectedContext = @{
+        @"some" : @"context",
+        @"trace" : @ { @"trace_id" : @"1234567890", @"span_id" : @"1234567890" }
+    };
+    [self compareDict:expectedContext withDict:event.context];
+    XCTAssertNil(event.context[@"traceContext"]);
+}
+
 /**
  * Uses two valid crash reports taken from a simulator, with matching scope data.
  */

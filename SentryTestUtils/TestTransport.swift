@@ -2,10 +2,15 @@ import _SentryPrivate
 import Foundation
 
 public class TestTransport: NSObject, Transport {
-    
+
     public var sentEnvelopes = Invocations<SentryEnvelope>()
     public func send(envelope: SentryEnvelope) {
         sentEnvelopes.record(envelope)
+    }
+    
+    public var storedEnvelopes = Invocations<SentryEnvelope>()
+    public func store(_ envelope: SentryEnvelope) {
+        storedEnvelopes.record(envelope)
     }
     
     public var recordLostEvents = Invocations<(category: SentryDataCategory, reason: SentryDiscardReason)>()

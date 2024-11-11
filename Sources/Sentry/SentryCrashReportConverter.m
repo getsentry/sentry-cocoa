@@ -112,7 +112,15 @@
 
         event.dist = self.userContext[@"dist"];
         event.environment = self.userContext[@"environment"];
-        event.context = self.userContext[@"context"];
+
+        NSMutableDictionary *mutableContext =
+            [[NSMutableDictionary alloc] initWithDictionary:self.userContext[@"context"]];
+        if (self.userContext[@"traceContext"]) {
+            mutableContext[@"trace"] = self.userContext[@"traceContext"];
+        }
+
+        event.context = mutableContext;
+
         event.extra = self.userContext[@"extra"];
         event.tags = self.userContext[@"tags"];
         //    event.level we do not set the level here since this always resulted

@@ -28,7 +28,14 @@ class ErrorsViewController: UIViewController {
     }
 
     @IBAction func crash(_ sender: UIButton) {
-        SentrySDK.crash()
+        let transaction = SentrySDK.startTransaction(name: "Crashing Transaction", operation: "ui.load", bindToScope: true)
+        
+        transaction.startChild(operation: "operation explode")
+        
+        DispatchQueue.global().asyncAfter(deadline: .now() + 0.1) {
+            transaction.startChild(operation: "operation crash")
+            SentrySDK.crash()
+        }
     }
 
     // swiftlint:disable force_unwrapping

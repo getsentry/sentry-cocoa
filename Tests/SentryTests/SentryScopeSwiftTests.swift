@@ -87,7 +87,7 @@ class SentryScopeSwiftTests: XCTestCase {
         fixture = Fixture()
     }
     
-    func testSerialize() {
+    func testSerialize() throws {
         let scope = fixture.scope
         let actual = scope.serialize()
         
@@ -106,7 +106,11 @@ class SentryScopeSwiftTests: XCTestCase {
         
         XCTAssertEqual(["key": "value"], actual["tags"] as? [String: String])
         XCTAssertEqual(["key": "value"], actual["extra"] as? [String: String])
+        
         XCTAssertEqual(fixture.context, actual["context"] as? [String: [String: String]])
+        
+        let propagationContext = fixture.scope.propagationContext
+        XCTAssertEqual(["span_id": propagationContext.spanId.sentrySpanIdString, "trace_id": propagationContext.traceId.sentryIdString], actual["traceContext"] as? [String: String])
         
         let actualUser = actual["user"] as? [String: Any]
         XCTAssertEqual(fixture.ipAddress, actualUser?["ip_address"] as? String)
@@ -127,6 +131,8 @@ class SentryScopeSwiftTests: XCTestCase {
 
         let cloned = Scope(scope: scope)
         XCTAssertEqual(try XCTUnwrap(cloned.serialize() as? [String: AnyHashable]), snapshot)
+        XCTAssertEqual(scope.propagationContext.spanId, cloned.propagationContext.spanId)
+        XCTAssertEqual(scope.propagationContext.traceId, cloned.propagationContext.traceId)
 
         let (event1, event2) = (Event(), Event())
         (event1.timestamp, event2.timestamp) = (fixture.date, fixture.date)
@@ -651,6 +657,43 @@ class SentryScopeSwiftTests: XCTestCase {
         XCTAssertEqual(2, observer.clearBreadcrumbInvocations)
     }
     
+    func testScopeObserver_setSpan_SetsTraceContext() throws {
+        let sut = Scope()
+        let observer = fixture.observer
+        sut.add(observer)
+        
+        let transaction = fixture.transaction
+        sut.span = transaction
+
+        let traceContext = try XCTUnwrap(observer.traceContext)
+        let serializedTransaction = transaction.serialize()
+
+        XCTAssertEqual(Set(serializedTransaction.keys), Set(traceContext.keys))
+        
+        XCTAssertEqual(serializedTransaction["trace_id"] as? String, traceContext["trace_id"] as? String)
+        XCTAssertEqual(serializedTransaction["span_id"] as? String, traceContext["span_id"] as? String)
+        XCTAssertEqual(serializedTransaction["op"] as? String, traceContext["op"] as? String)
+        XCTAssertEqual(serializedTransaction["origin"] as? String, traceContext["origin"] as? String)
+        XCTAssertEqual(serializedTransaction["type"] as? String, traceContext["type"] as? String)
+        XCTAssertEqual(serializedTransaction["start_timestamp"] as? Double, traceContext["start_timestamp"] as? Double)
+        XCTAssertEqual(serializedTransaction["timestamp"] as? Double, traceContext["timestamp"] as? Double)
+    }
+
+    func testScopeObserver_setSpanToNil_SetsTraceContextToPropagationContext() throws {
+        let sut = Scope()
+        let observer = fixture.observer
+        sut.add(observer)
+        
+        sut.span = fixture.transaction
+        sut.span = nil
+        
+        let traceContext = try XCTUnwrap(observer.traceContext)
+
+        XCTAssertEqual(2, traceContext.count)
+        XCTAssertEqual(sut.propagationContext.traceId.sentryIdString, traceContext["trace_id"] as? String)
+        XCTAssertEqual(sut.propagationContext.spanId.sentrySpanIdString, traceContext["span_id"] as? String)
+    }
+    
     func testScopeObserver_clear() {
         let sut = Scope()
         let observer = fixture.observer
@@ -740,6 +783,11 @@ class SentryScopeSwiftTests: XCTestCase {
         var context: [String: Any]?
         func setContext(_ context: [String: Any]?) {
             self.context = context
+        }
+        
+        var traceContext: [String: Any]?
+        func setTraceContext(_ traceContext: [String: Any]?) {
+            self.traceContext = traceContext
         }
         
         var dist: String?
