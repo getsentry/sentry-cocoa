@@ -1,6 +1,16 @@
 #import <Foundation/Foundation.h>
-#import <Sentry/SentryDefines.h>
-#import <Sentry/SentrySessionReplayIntegration.h>
+
+#if __has_include(<Sentry/SentryDefines.h>)
+#    import <Sentry/SentryDefines.h>
+#else
+#    import "SentryDefines.h"
+#endif
+
+#if __has_include(<Sentry/SentrySessionReplayIntegration.h>)
+#    import <Sentry/SentrySessionReplayIntegration.h>
+#else
+#    import "SentrySessionReplayIntegration.h"
+#endif
 
 NS_ASSUME_NONNULL_BEGIN
 #if SENTRY_TARGET_REPLAY_SUPPORTED
