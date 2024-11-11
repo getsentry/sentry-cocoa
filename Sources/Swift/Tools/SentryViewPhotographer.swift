@@ -96,9 +96,14 @@ class SentryViewPhotographer: NSObject, SentryViewScreenshotProvider {
         redactBuilder.addRedactClasses(classes)
     }
 
-    @objc(setIgnoreWrapperClass:)
-    func setIgnoreWrapperClass(wrapperClass: AnyClass) {
-        redactBuilder.setIgnoreWrapperClass(wrapperClass)
+    @objc(setIgnoreContainerClass:)
+    func setIgnoreContainerClass(containerClass: AnyClass) {
+        redactBuilder.setIgnoreContainerClass(containerClass)
+    }
+
+    @objc(setRedactContainerClass:)
+    func setRedactContainerClass(containerClass: AnyClass) {
+        redactBuilder.setRedactContainerClass(containerClass)
     }
 
 #if TEST || TESTCI

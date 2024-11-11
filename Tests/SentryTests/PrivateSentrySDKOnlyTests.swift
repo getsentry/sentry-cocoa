@@ -370,23 +370,39 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
         PrivateSentrySDKOnly.addReplayRedactClasses([UILabel.self])
     }
 
-    func testAddIgnoreWrapper() throws {
-        class IgnoreWrapper: UIView {}
+    func testAddIgnoreContainer() throws {
+        class IgnoreContainer: UIView {}
 
         SentrySDK.start {
             $0.experimental.sessionReplay = SentryReplayOptions(sessionSampleRate: 1, onErrorSampleRate: 1)
             $0.setIntegrations([SentrySessionReplayIntegration.self])
         }
 
-        PrivateSentrySDKOnly.setIgnoreWrapperClass(IgnoreWrapper.self)
+        PrivateSentrySDKOnly.setIgnoreContainerClass(IgnoreContainer.self)
 
-        let replayIntegration = try getReplayIntegration()
+        let replayIntegration = try getFirstIntegrationAsReplay()
 
         let redactBuilder = replayIntegration.viewPhotographer.getRedactBuild()
-        XCTAssertTrue(redactBuilder.isIgnoreWrapperClassTestOnly(IgnoreWrapper.self))
+        XCTAssertTrue(redactBuilder.isIgnoreContainerClassTestOnly(IgnoreContainer.self))
     }
 
-    private func getReplayIntegration() throws -> SentrySessionReplayIntegration {
+    func testAddRedactContainer() throws {
+        class RedactContainer: UIView {}
+
+        SentrySDK.start {
+            $0.experimental.sessionReplay = SentryReplayOptions(sessionSampleRate: 1, onErrorSampleRate: 1)
+            $0.setIntegrations([SentrySessionReplayIntegration.self])
+        }
+
+        PrivateSentrySDKOnly.setRedactContainerClass(RedactContainer.self)
+
+        let replayIntegration = try getFirstIntegrationAsReplay()
+
+        let redactBuilder = replayIntegration.viewPhotographer.getRedactBuild()
+        XCTAssertTrue(redactBuilder.isRedactContainerClassTestOnly(RedactContainer.self))
+    }
+
+    private func getFirstIntegrationAsReplay() throws -> SentrySessionReplayIntegration {
         return try XCTUnwrap(SentrySDK.currentHub().installedIntegrations().first as? SentrySessionReplayIntegration)
     }
 

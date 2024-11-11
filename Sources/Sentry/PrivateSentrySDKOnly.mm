@@ -358,11 +358,18 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
     [[PrivateSentrySDKOnly getReplayIntegration].viewPhotographer addRedactClasses:classes];
 }
 
-+ (void)setIgnoreWrapperClass:(Class _Nonnull)ignoreClass
++ (void)setIgnoreContainerClass:(Class _Nonnull)containerClass
 {
     [[PrivateSentrySDKOnly getReplayIntegration].viewPhotographer
-        setIgnoreWrapperClass:ignoreClass];
+        setIgnoreContainerClass:containerClass];
 }
+
++ (void)setRedactContainerClass:(Class _Nonnull)containerClass
+{
+    [[PrivateSentrySDKOnly getReplayIntegration].viewPhotographer
+        setRedactContainerClass:containerClass];
+}
+
 #endif
 
 @end
