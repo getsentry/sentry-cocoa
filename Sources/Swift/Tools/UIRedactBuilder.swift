@@ -46,7 +46,8 @@ struct RedactRegion {
 }
 
 class UIRedactBuilder {
-    
+    ///This is a wrapper which marks it's direct children to be redacted
+    private var ignoreWrapperClassIdentifier: ObjectIdentifier?
     ///This is a list of UIView subclasses that will be ignored during redact process
     private var ignoreClassesIdentifiers: Set<ObjectIdentifier>
     ///This is a list of UIView subclasses that need to be redacted from screenshot
@@ -135,7 +136,17 @@ class UIRedactBuilder {
     func addRedactClasses(_ redactClasses: [AnyClass]) {
         redactClasses.forEach(addRedactClass(_:))
     }
-    
+
+    func setIgnoreWrapperClass(_ ignoreClasss: AnyClass) {
+        ignoreWrapperClassIdentifier = ObjectIdentifier(ignoreClasss)
+    }
+
+#if TEST || TESTCI
+    func isIgnoreWrapperClassTestOnly(_ unmaskWrapperClass: AnyClass) -> Bool {
+        return isIgnoreWrapperClass(unmaskWrapperClass)
+    }
+#endif
+
     /**
      This function identifies and returns the regions within a given UIView that need to be redacted, based on the specified redaction options.
      
@@ -178,7 +189,24 @@ class UIRedactBuilder {
     }
     
     private func shouldIgnore(view: UIView) -> Bool {
-        return SentryRedactViewHelper.shouldUnmask(view) || containsIgnoreClass(type(of: view))
+
+        return  SentryRedactViewHelper.shouldUnmask(view) || containsIgnoreClass(type(of: view)) || isParentUnmaskWrapper(view)
+    }
+
+    private func isParentUnmaskWrapper(_ view: UIView) -> Bool {
+        let parent = view.superview
+        if let parent = parent {
+            return isIgnoreWrapperClass(type(of: parent))
+        }
+        return false
+    }
+
+    private func isIgnoreWrapperClass(_ unmaskWrapperClass: AnyClass) -> Bool {
+        if ignoreWrapperClassIdentifier == nil {
+            return false
+        }
+
+        return ObjectIdentifier(unmaskWrapperClass) == ignoreWrapperClassIdentifier
     }
     
     private func shouldRedact(view: UIView) -> Bool {

@@ -1,3 +1,4 @@
+@testable import Sentry
 import SentryTestUtils
 import XCTest
 
@@ -367,6 +368,26 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
         SentrySDK.start(options: options)
 
         PrivateSentrySDKOnly.addReplayRedactClasses([UILabel.self])
+    }
+
+    func testAddIgnoreWrapper() throws {
+        class IgnoreWrapper: UIView {}
+
+        SentrySDK.start {
+            $0.experimental.sessionReplay = SentryReplayOptions(sessionSampleRate: 1, onErrorSampleRate: 1)
+            $0.setIntegrations([SentrySessionReplayIntegration.self])
+        }
+
+        PrivateSentrySDKOnly.setIgnoreWrapperClass(IgnoreWrapper.self)
+
+        let replayIntegration = try getReplayIntegration()
+
+        let redactBuilder = replayIntegration.viewPhotographer.getRedactBuild()
+        XCTAssertTrue(redactBuilder.isIgnoreWrapperClassTestOnly(IgnoreWrapper.self))
+    }
+
+    private func getReplayIntegration() throws -> SentrySessionReplayIntegration {
+        return try XCTUnwrap(SentrySDK.currentHub().installedIntegrations().first as? SentrySessionReplayIntegration)
     }
 
     let VALID_REPLAY_ID = "0eac7ab503354dd5819b03e263627a29"

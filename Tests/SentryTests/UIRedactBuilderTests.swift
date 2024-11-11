@@ -200,7 +200,41 @@ class UIRedactBuilderTests: XCTestCase {
         let result = sut.redactRegionsFor(view: rootView)
         XCTAssertEqual(result.count, 1)
     }
-    
+
+    func testIgnoreWrappedChildView() {
+        class IgnoreWrapper: UIView {}
+        class AnotherLabel: UILabel {}
+
+        let sut = getSut()
+        sut.setIgnoreWrapperClass(IgnoreWrapper.self)
+
+        let ignoreWrapper = IgnoreWrapper(frame: CGRect(x: 0, y: 0, width: 60, height: 60))
+        let wrappedLabel = AnotherLabel(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
+        ignoreWrapper.addSubview(wrappedLabel)
+        rootView.addSubview(ignoreWrapper)
+
+        let result = sut.redactRegionsFor(view: rootView)
+        XCTAssertEqual(result.count, 0)
+    }
+
+    func testIgnoreWrappedDirectChildView() {
+        class IgnoreWrapper: UIView {}
+        class AnotherLabel: UILabel {}
+
+        let sut = getSut()
+        sut.setIgnoreWrapperClass(IgnoreWrapper.self)
+
+        let ignoreWrapper = IgnoreWrapper(frame: CGRect(x: 0, y: 0, width: 60, height: 60))
+        let wrappedLabel = AnotherLabel(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
+        let redactedLabel = AnotherLabel(frame: CGRect(x: 10, y: 10, width: 10, height: 10))
+        wrappedLabel.addSubview(redactedLabel)
+        ignoreWrapper.addSubview(wrappedLabel)
+        rootView.addSubview(ignoreWrapper)
+
+        let result = sut.redactRegionsFor(view: rootView)
+        XCTAssertEqual(result.count, 1)
+    }
+
     func testIgnoreView() {
         class AnotherLabel: UILabel {
         }
