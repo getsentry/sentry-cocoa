@@ -1,5 +1,6 @@
 #import <Foundation/Foundation.h>
 #import <Sentry/SentryDefines.h>
+#import <Sentry/SentrySessionReplayIntegration.h>
 
 NS_ASSUME_NONNULL_BEGIN
 #if SENTRY_UIKIT_AVAILABLE
@@ -9,16 +10,12 @@ NS_ASSUME_NONNULL_BEGIN
 @protocol SentryReplayBreadcrumbConverter;
 @protocol SentryRRWebEvent;
 
-@interface SentrySessionReplayIntegration : NSObject
+@interface SentrySessionReplayIntegration ()
 
 - (void)startWithOptions:(SentryReplayOptions *)replayOptions
       screenshotProvider:(id<SentryViewScreenshotProvider>)screenshotProvider
      breadcrumbConverter:(id<SentryReplayBreadcrumbConverter>)breadcrumbConverter
              fullSession:(BOOL)shouldReplayFullSession;
-
-@end
-
-@interface SentrySessionReplayIntegration ()
 
 + (id<SentryRRWebEvent>)createBreadcrumbwithTimestamp:(NSDate *)timestamp
                                              category:(NSString *)category

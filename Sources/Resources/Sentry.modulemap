@@ -19,10 +19,13 @@ framework module Sentry {
         header "SentryFramesTracker.h"
         header "SentryOptions+HybridSDKs.h"
         header "SentryScreenFrames.h"
-        header "SentrySessionReplayIntegration-Hybrid.h"
         header "SentrySwizzle.h"
         header "SentryUser+Private.h"
 
+        header "SentryBaseIntegration.h"
+        header "SentrySessionReplayIntegration.h"
+        header "SentrySessionReplayIntegration-Hybrid.h"
+        
         header "SentrySdkInfo.h"
         header "SentryInternalSerializable.h"
         
