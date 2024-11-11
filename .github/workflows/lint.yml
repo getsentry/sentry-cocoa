@@ -31,7 +31,7 @@ concurrency:
 jobs:
   swift-lint:
     name: Swift Lint
-    runs-on: macos-13
+    runs-on: macos-14
     steps:
       - uses: actions/checkout@v4
       - run: swiftlint --version
@@ -40,7 +40,7 @@ jobs:
 
   xcode-analyze:
     name: Xcode Analyze
-    runs-on: macos-13
+    runs-on: macos-14
     steps:
       - uses: actions/checkout@v4
       - run: ./scripts/ci-select-xcode.sh
@@ -48,7 +48,7 @@ jobs:
 
   lint-podspec:
     name: pod lint ${{ matrix.podspec}} ${{ matrix.library_type }} ${{ matrix.platform}}
-    runs-on: macos-13
+    runs-on: macos-14
     strategy:
       fail-fast: false
       matrix:
@@ -66,7 +66,7 @@ jobs:
 
   lint-hybrid-sdk-podspec:
     name: pod lint Sentry/HybridSDK
-    runs-on: macos-13
+    runs-on: macos-14
 
     steps:
       - uses: actions/checkout@v4
