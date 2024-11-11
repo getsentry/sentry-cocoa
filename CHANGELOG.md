@@ -10,6 +10,10 @@
 
 - Keep PropagationContext when cloning scope (#4518)
 
+### Improvements
+
+- Expose `Sentry._Hybrid` explicit module (#4440)
+
 ## 8.40.1
 
 ### Fixes
@@ -18,7 +22,6 @@
 
 ### Improvements
 
-- Expose `Sentry._Hybrid` explicit module (#4440)
 - Add extra logs for UIViewControllerSwizzling (#4511)
 
 ## 8.40.0
