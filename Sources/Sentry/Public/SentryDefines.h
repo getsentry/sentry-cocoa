@@ -139,16 +139,6 @@ typedef NSNumber *_Nullable (^SentryTracesSamplerCallback)(
 typedef void (^SentrySpanCallback)(id<SentrySpan> _Nullable span);
 
 /**
- * A callback block which gets called right before a metric is about to be emitted.
-
- * @param key  The key of the metric.
- * @param tags A dictionary of key-value pairs associated with the metric.
- * @return BOOL YES if the metric should be emitted, NO otherwise.
- */
-typedef BOOL (^SentryBeforeEmitMetricCallback)(
-    NSString *_Nonnull key, NSDictionary<NSString *, NSString *> *_Nonnull tags);
-
-/**
  * Log level.
  */
 typedef NS_ENUM(NSInteger, SentryLogLevel) {

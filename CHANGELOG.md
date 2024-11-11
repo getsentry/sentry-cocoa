@@ -2,6 +2,20 @@
 
 ## Unreleased
 
+### Features
+
+- Transactions for crashes (#4504): Finish the transaction bound to the scope when the app crashes. This __experimental__ feature is disabled by default. You can enable it via the option `enablePersistingTracesWhenCrashing`.
+
+### Fixes
+
+- Keep PropagationContext when cloning scope (#4518)
+
+## 8.40.1
+
+### Fixes
+
+- Session replay masking not working inside scroll view (#4498)
+
 ### Improvements
 
 - Expose `Sentry._Hybrid` explicit module (#4440)
@@ -17,11 +31,13 @@
 - Time-of-check time-of-use filesystem race condition (#4473)
 - Capture all touches with session replay (#4477)
 
+
 ### Improvements
 
 - Improve frames tracker performance (#4469)
 - Log a warning when dropping envelopes due to rate-limiting (#4463)
 - Expose `SentrySessionReplayIntegration-Hybrid.h` as `private` (#4486)
+- Stops session replay if rate limiting is activated (#4496)
 - Add `maskedViewClasses` and `unmaskedViewClasses` to SentryReplayOptions init via dict (#4492)
 - Add `quality` to SentryReplayOptions init via dict (#4495)
 

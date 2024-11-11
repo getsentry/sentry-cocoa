@@ -146,6 +146,11 @@
     }];
 }
 
+- (void)storeEnvelope:(SentryEnvelope *)envelope
+{
+    [self.fileManager storeEnvelope:envelope];
+}
+
 - (void)recordLostEvent:(SentryDataCategory)category reason:(SentryDiscardReason)reason
 {
     [self recordLostEvent:category reason:reason quantity:1];

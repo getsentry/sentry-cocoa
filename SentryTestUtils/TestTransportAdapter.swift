@@ -19,6 +19,11 @@ public class TestTransportAdapter: SentryTransportAdapter {
     public override func send(event: Event, traceContext: TraceContext?, attachments: [Attachment], additionalEnvelopeItems: [SentryEnvelopeItem]) {
         sendEventWithTraceStateInvocations.record((event, traceContext, attachments, additionalEnvelopeItems))
     }
+    
+    public var storeEventInvocations = Invocations<(event: Event, traceContext: TraceContext?)>()
+    public override func store(_ event: Event, traceContext: TraceContext?) {
+        storeEventInvocations.record((event, traceContext))
+    }
 
     public var userFeedbackInvocations = Invocations<UserFeedback>()
     public override func send(userFeedback: UserFeedback) {

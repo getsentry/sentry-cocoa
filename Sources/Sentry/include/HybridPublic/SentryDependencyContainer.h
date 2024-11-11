@@ -24,6 +24,7 @@
 @class SentryThreadInspector;
 @protocol SentryRandom;
 @protocol SentryCurrentDateProvider;
+@protocol SentryRateLimits;
 
 #if SENTRY_HAS_METRIC_KIT
 @class SentryMXManager;
@@ -75,6 +76,7 @@ SENTRY_NO_INIT
 @property (nonatomic, strong) SentryExtraContextProvider *extraContextProvider;
 @property (nonatomic, strong) SentrySysctl *sysctlWrapper;
 @property (nonatomic, strong) SentryThreadInspector *threadInspector;
+@property (nonatomic, strong) id<SentryRateLimits> rateLimits;
 
 #if SENTRY_UIKIT_AVAILABLE
 @property (nonatomic, strong) SentryFramesTracker *framesTracker;

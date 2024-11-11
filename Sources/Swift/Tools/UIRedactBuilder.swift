@@ -158,9 +158,9 @@ class UIRedactBuilder {
         var redactingRegions = [RedactRegion]()
         
         self.mapRedactRegion(fromView: view,
+                             relativeTo: nil,
                              redacting: &redactingRegions,
-                             rootFrame: view.frame,
-                             transform: CGAffineTransform.identity)
+                             rootFrame: view.frame)
         
         var swiftUIRedact = [RedactRegion]()
         var otherRegions = [RedactRegion]()
@@ -198,12 +198,12 @@ class UIRedactBuilder {
         return image.imageAsset?.value(forKey: "_containingBundle") == nil
     }
     
-    private func mapRedactRegion(fromView view: UIView, redacting: inout [RedactRegion], rootFrame: CGRect, transform: CGAffineTransform, forceRedact: Bool = false) {
+    private func mapRedactRegion(fromView view: UIView, relativeTo parentLayer: CALayer?, redacting: inout [RedactRegion], rootFrame: CGRect, forceRedact: Bool = false) {
         guard !redactClassesIdentifiers.isEmpty && !view.isHidden && view.alpha != 0 else { return }
         
         let layer = view.layer.presentation() ?? view.layer
         
-        let newTransform = concatenateTranform(transform, with: layer)
+        let newTransform = getTranform(from: layer, withParent: parentLayer)
         
         let ignore = !forceRedact && shouldIgnore(view: view)
         let swiftUI = SentryRedactViewHelper.shouldRedactSwiftUI(view)
@@ -233,23 +233,24 @@ class UIRedactBuilder {
             redacting.append(RedactRegion(size: layer.bounds.size, transform: newTransform, type: .clipEnd))
         }
         for subview in view.subviews.sorted(by: { $0.layer.zPosition < $1.layer.zPosition }) {
-            mapRedactRegion(fromView: subview, redacting: &redacting, rootFrame: rootFrame, transform: newTransform, forceRedact: enforceRedact)
+            mapRedactRegion(fromView: subview, relativeTo: layer, redacting: &redacting, rootFrame: rootFrame, forceRedact: enforceRedact)
         }
         if view.clipsToBounds {
             redacting.append(RedactRegion(size: layer.bounds.size, transform: newTransform, type: .clipBegin))
         }
     }
-    
+
     /**
-     Apply the layer transformation and position to given transformation.
+     Gets a transform that represents the layer global position.
      */
-    private func concatenateTranform(_ transform: CGAffineTransform, with layer: CALayer) -> CGAffineTransform {
+    private func getTranform(from layer: CALayer, withParent parentLayer: CALayer?) -> CGAffineTransform {
         let size = layer.bounds.size
-        let layerMiddle = CGPoint(x: size.width * layer.anchorPoint.x, y: size.height * layer.anchorPoint.y)
-        
-        var newTransform = transform.translatedBy(x: layer.position.x, y: layer.position.y)
+        let anchorPoint = CGPoint(x: size.width * layer.anchorPoint.x, y: size.height * layer.anchorPoint.y)
+        let position = parentLayer?.convert(layer.position, to: nil) ?? layer.position
+
+        var newTransform = CGAffineTransform(translationX: position.x, y: position.y)
         newTransform = CATransform3DGetAffineTransform(layer.transform).concatenating(newTransform)
-        return newTransform.translatedBy(x: -layerMiddle.x, y: -layerMiddle.y)
+        return newTransform.translatedBy(x: -anchorPoint.x, y: -anchorPoint.y)
     }
     
     /**

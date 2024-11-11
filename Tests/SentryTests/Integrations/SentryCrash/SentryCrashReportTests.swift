@@ -65,6 +65,21 @@ class SentryCrashReportTests: XCTestCase {
         }
     }
     
+    func testWriteTraceContext_EndsUpInSDKScope() throws {
+        let scope = fixture.scope
+        scope.span = nil
+        
+        serializeToCrashReport(scope: scope)
+        writeCrashReport()
+        
+        let crashReportContents = try XCTUnwrap(FileManager.default.contents(atPath: fixture.reportPath))
+        
+        let crashReport: CrashReport = try JSONDecoder().decode(CrashReport.self, from: crashReportContents)
+        
+        XCTAssertEqual(scope.propagationContext.traceId.sentryIdString, crashReport.sentry_sdk_scope?.traceContext?["trace_id"])
+        XCTAssertEqual(scope.propagationContext.spanId.sentrySpanIdString, crashReport.sentry_sdk_scope?.traceContext?["span_id"])
+    }
+    
     func testShouldWriteReason_WhenWritingNSException() throws {
         var monitorContext = SentryCrash_MonitorContext()
         
@@ -225,6 +240,7 @@ class SentryCrashReportTests: XCTestCase {
         let user: CrashReportUser?
         let dist: String?
         let context: [String: [String: String]]?
+        let traceContext: [String: String]?
         let environment: String?
         let tags: [String: String]?
         let extra: [String: String]?
