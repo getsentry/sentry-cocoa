@@ -141,16 +141,18 @@ static void binaryImageWasRemoved(const SentryCrashBinaryImage *image);
     return -1; // Address not found
 }
 
-- (nullable NSString *)pathForInAppInclude:(NSString *)inAppInclude
+- (NSSet<NSString *> *)imagePathsForInAppInclude:(NSString *)inAppInclude
 {
+    NSMutableSet<NSString *> *imagePaths = [NSMutableSet new];
+
     @synchronized(self) {
         for (SentryBinaryImageInfo *info in _cache) {
             if ([SentryInAppLogic isImageNameInApp:info.name inAppInclude:inAppInclude]) {
-                return info.name;
+                [imagePaths addObject:info.name];
             }
         }
     }
-    return nil;
+    return imagePaths;
 }
 
 @end

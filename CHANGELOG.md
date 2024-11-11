@@ -9,6 +9,7 @@
 ### Fixes
 
 - Keep PropagationContext when cloning scope (#4518)
+- UIViewController with Xcode 16 in debug (#4523). The Xcode 16 build setting [ENABLE_DEBUG_DYLIB](https://developer.apple.com/documentation/xcode/build-settings-reference#Enable-Debug-Dylib-Support), which is turned on by default only in debug, could lead to missing UIViewController traces. 
 
 ## 8.40.1
 
