@@ -210,26 +210,17 @@ class UIRedactBuilder {
             return false
         }
 
-        if let parent = view.superview {
-            return isIgnoreContainerClass(type(of: parent))
-        }
-
-        return false
+        guard let parent = view.superview  else { return false }
+        return isIgnoreContainerClass(type(of: parent))
     }
 
     private func isIgnoreContainerClass(_ containerClass: AnyClass) -> Bool {
-        if ignoreContainerClassIdentifier == nil {
-            return false
-        }
-
+        guard ignoreContainerClassIdentifier != nil  else { return false }
         return ObjectIdentifier(containerClass) == ignoreContainerClassIdentifier
     }
 
     private func isRedactContainerClass(_ containerClass: AnyClass) -> Bool {
-        if redactContainerClassIdentifier == nil {
-            return false
-        }
-
+        guard redactContainerClassIdentifier != nil  else { return false }
         return ObjectIdentifier(containerClass) == redactContainerClassIdentifier
     }
 
