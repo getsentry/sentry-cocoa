@@ -142,25 +142,27 @@ NS_SWIFT_NAME(Options)
 /**
  * This block can be used to modify the event before it will be serialized and sent.
  */
-@property (nullable, nonatomic, copy) SentryBeforeSendEventCallback beforeSend;
+@property (nullable, nonatomic, copy) SentryBeforeSendEventCallback beforeSend NS_SWIFT_SENDABLE;
 
 /**
  * Use this callback to drop or modify a span before the SDK sends it to Sentry. Return @c nil to
  * drop the span.
  */
-@property (nullable, nonatomic, copy) SentryBeforeSendSpanCallback beforeSendSpan;
+@property (nullable, nonatomic, copy) SentryBeforeSendSpanCallback beforeSendSpan NS_SWIFT_SENDABLE;
 
 /**
  * This block can be used to modify the event before it will be serialized and sent.
  */
-@property (nullable, nonatomic, copy) SentryBeforeBreadcrumbCallback beforeBreadcrumb;
+@property (nullable, nonatomic, copy)
+    SentryBeforeBreadcrumbCallback beforeBreadcrumb NS_SWIFT_SENDABLE;
 
 /**
  * You can use this callback to decide if the SDK should capture a screenshot or not. Return @c true
  * if the SDK should capture a screenshot, return @c false if not. This callback doesn't work for
  * crashes.
  */
-@property (nullable, nonatomic, copy) SentryBeforeCaptureScreenshotCallback beforeCaptureScreenshot;
+@property (nullable, nonatomic, copy)
+    SentryBeforeCaptureScreenshotCallback beforeCaptureScreenshot NS_SWIFT_SENDABLE;
 
 /**
  * You can use this callback to decide if the SDK should capture a view hierarchy or not. Return @c
@@ -168,7 +170,7 @@ NS_SWIFT_NAME(Options)
  * work for crashes.
  */
 @property (nullable, nonatomic, copy)
-    SentryBeforeCaptureScreenshotCallback beforeCaptureViewHierarchy;
+    SentryBeforeCaptureScreenshotCallback beforeCaptureViewHierarchy NS_SWIFT_SENDABLE;
 
 /**
  * A block called shortly after the initialization of the SDK when the last program execution
@@ -180,7 +182,8 @@ NS_SWIFT_NAME(Options)
  * @warning It is not guaranteed that this is called on the main thread.
  * @note Crash reporting is automatically disabled if a debugger is attached.
  */
-@property (nullable, nonatomic, copy) SentryOnCrashedLastRunCallback onCrashedLastRun;
+@property (nullable, nonatomic, copy)
+    SentryOnCrashedLastRunCallback onCrashedLastRun NS_SWIFT_SENDABLE;
 
 /**
  * Array of integrations to install.
@@ -411,7 +414,7 @@ NS_SWIFT_NAME(Options)
  * with @c SentrySamplingContext.forNextAppLaunch set to @c YES, and the result will be persisted to
  * disk for use on the next app launch.
  */
-@property (nullable, nonatomic) SentryTracesSamplerCallback tracesSampler;
+@property (nullable, nonatomic) SentryTracesSamplerCallback tracesSampler NS_SWIFT_SENDABLE;
 
 /**
  * If tracing is enabled or not.
@@ -548,7 +551,7 @@ NS_SWIFT_NAME(Options)
  * disk for use on the next app launch.
  * @note Profiling is automatically disabled if a thread sanitizer is attached.
  */
-@property (nullable, nonatomic) SentryTracesSamplerCallback profilesSampler;
+@property (nullable, nonatomic) SentryTracesSamplerCallback profilesSampler NS_SWIFT_SENDABLE;
 
 /**
  * If profiling should be enabled or not.
