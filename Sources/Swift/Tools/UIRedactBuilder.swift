@@ -190,10 +190,10 @@ class UIRedactBuilder {
     
     private func shouldIgnore(view: UIView) -> Bool {
 
-        return  SentryRedactViewHelper.shouldUnmask(view) || containsIgnoreClass(type(of: view)) || isParentUnmaskWrapper(view)
+        return  SentryRedactViewHelper.shouldUnmask(view) || containsIgnoreClass(type(of: view)) || isParentIgnoreWrapper(view)
     }
 
-    private func isParentUnmaskWrapper(_ view: UIView) -> Bool {
+    private func isParentIgnoreWrapper(_ view: UIView) -> Bool {
         let parent = view.superview
         if let parent = parent {
             return isIgnoreWrapperClass(type(of: parent))
