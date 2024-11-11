@@ -49,6 +49,8 @@
             copyClassNamesForImage:[imageName cStringUsingEncoding:NSUTF8StringEncoding]
                             amount:&count];
 
+        SENTRY_LOG_DEBUG(@"Found %u number of classes in image: %@.", count, imageName);
+
         // Storing the actual classes in an NSArray would call initializer of the class, which we
         // must avoid as we are on a background thread here and dealing with UIViewControllers,
         // which assume they are running on the main thread. Therefore, we store the class name
@@ -87,9 +89,9 @@
                 block(NSClassFromString(className));
             }
 
-            SENTRY_LOG_DEBUG(
-                @"The following UIViewControllers will generate automatic transactions: %@",
-                [classesToSwizzle componentsJoinedByString:@", "]);
+            SENTRY_LOG_DEBUG(@"The following UIViewControllers for image: %@ will generate "
+                             @"automatic transactions: %@",
+                imageName, [classesToSwizzle componentsJoinedByString:@", "]);
         }];
     }];
 }
