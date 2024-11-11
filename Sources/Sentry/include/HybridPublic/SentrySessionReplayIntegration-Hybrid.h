@@ -3,7 +3,7 @@
 #import <Sentry/SentrySessionReplayIntegration.h>
 
 NS_ASSUME_NONNULL_BEGIN
-#if SENTRY_UIKIT_AVAILABLE
+#if SENTRY_TARGET_REPLAY_SUPPORTED
 @class SentryReplayOptions;
 
 @protocol SentryViewScreenshotProvider;
