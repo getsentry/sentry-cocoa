@@ -149,7 +149,6 @@
             @"status deadline exceeded.");
 
         [self.fullDisplaySpan finishWithStatus:kSentrySpanStatusDeadlineExceeded];
-        return;
     }
 }
 
