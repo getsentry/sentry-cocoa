@@ -92,7 +92,13 @@ class SentryUserFeedbackForm: UIViewController {
     lazy var fullNameTextField = {
         let field = UITextField(frame: .zero)
         field.placeholder = config.formConfig.namePlaceholder
-        field.borderStyle = .roundedRect
+        if config.theme.outlineStyle == config.theme.defaultOutlineStyle {
+            field.borderStyle = .roundedRect
+        } else {
+            field.layer.cornerRadius = config.theme.outlineStyle.cornerRadius
+            field.layer.borderWidth = config.theme.outlineStyle.outlineWidth
+            field.layer.borderColor = config.theme.outlineStyle.outlineColor.cgColor
+        }
         field.accessibilityLabel = config.formConfig.nameTextFieldAccessibilityLabel
         return field
     }()
@@ -106,7 +112,13 @@ class SentryUserFeedbackForm: UIViewController {
     lazy var emailTextField = {
         let field = UITextField(frame: .zero)
         field.placeholder = config.formConfig.emailPlaceholder
-        field.borderStyle = .roundedRect
+        if config.theme.outlineStyle == config.theme.defaultOutlineStyle {
+            field.borderStyle = .roundedRect
+        } else {
+            field.layer.cornerRadius = config.theme.outlineStyle.cornerRadius
+            field.layer.borderWidth = config.theme.outlineStyle.outlineWidth
+            field.layer.borderColor = config.theme.outlineStyle.outlineColor.cgColor
+        }
         field.accessibilityLabel = config.formConfig.emailTextFieldAccessibilityLabel
         return field
     }()
@@ -122,9 +134,9 @@ class SentryUserFeedbackForm: UIViewController {
         textView.text = config.formConfig.messagePlaceholder // TODO: color the text as placeholder if this is the content of the textview, otherwise change to regular foreground color
         textView.isScrollEnabled = true
         textView.isEditable = true
-        textView.layer.borderWidth = 0.3
-        textView.layer.borderColor = UIColor(white: 204 / 255, alpha: 1).cgColor // this is the observed color of a textfield outline when using borderStyle = .roundedRect
-        textView.layer.cornerRadius = 5
+        textView.layer.cornerRadius = config.theme.outlineStyle.cornerRadius
+        textView.layer.borderWidth = config.theme.outlineStyle.outlineWidth
+        textView.layer.borderColor = config.theme.outlineStyle.outlineColor.cgColor
         textView.accessibilityLabel = config.formConfig.messageTextViewAccessibilityLabel
         return textView
     }()
@@ -133,8 +145,12 @@ class SentryUserFeedbackForm: UIViewController {
         let button = UIButton(frame: .zero)
         button.setTitle(config.formConfig.addScreenshotButtonLabel, for: .normal)
         button.accessibilityLabel = config.formConfig.addScreenshotButtonAccessibilityLabel
-        button.backgroundColor = .systemBlue
+        button.backgroundColor = config.theme.buttonBackground
+        button.setTitleColor(config.theme.buttonForeground, for: .normal)
         button.addTarget(self, action: #selector(addScreenshotButtonTapped), for: .touchUpInside)
+        button.layer.cornerRadius = config.theme.outlineStyle.cornerRadius
+        button.layer.borderWidth = config.theme.outlineStyle.outlineWidth
+        button.layer.borderColor = config.theme.outlineStyle.outlineColor.cgColor
         return button
     }()
     
@@ -142,8 +158,12 @@ class SentryUserFeedbackForm: UIViewController {
         let button = UIButton(frame: .zero)
         button.setTitle(config.formConfig.removeScreenshotButtonLabel, for: .normal)
         button.accessibilityLabel = config.formConfig.removeScreenshotButtonAccessibilityLabel
-        button.backgroundColor = .systemBlue
+        button.backgroundColor = config.theme.buttonBackground
+        button.setTitleColor(config.theme.buttonForeground, for: .normal)
         button.addTarget(self, action: #selector(removeScreenshotButtonTapped), for: .touchUpInside)
+        button.layer.cornerRadius = config.theme.outlineStyle.cornerRadius
+        button.layer.borderWidth = config.theme.outlineStyle.outlineWidth
+        button.layer.borderColor = config.theme.outlineStyle.outlineColor.cgColor
         return button
     }()
     
@@ -151,8 +171,12 @@ class SentryUserFeedbackForm: UIViewController {
         let button = UIButton(frame: .zero)
         button.setTitle(config.formConfig.submitButtonLabel, for: .normal)
         button.accessibilityLabel = config.formConfig.submitButtonAccessibilityLabel
-        button.backgroundColor = .systemGreen
+        button.backgroundColor = config.theme.submitBackground
+        button.setTitleColor(config.theme.submitForeground, for: .normal)
         button.addTarget(self, action: #selector(submitFeedbackButtonTapped), for: .touchUpInside)
+        button.layer.cornerRadius = config.theme.outlineStyle.cornerRadius
+        button.layer.borderWidth = config.theme.outlineStyle.outlineWidth
+        button.layer.borderColor = config.theme.outlineStyle.outlineColor.cgColor
         return button
     }()
     
@@ -160,8 +184,12 @@ class SentryUserFeedbackForm: UIViewController {
         let button = UIButton(frame: .zero)
         button.setTitle(config.formConfig.cancelButtonLabel, for: .normal)
         button.accessibilityLabel = config.formConfig.cancelButtonAccessibilityLabel
-        button.backgroundColor = .systemRed
+        button.backgroundColor = config.theme.buttonBackground
+        button.setTitleColor(config.theme.buttonForeground, for: .normal)
         button.addTarget(self, action: #selector(cancelButtonTapped), for: .touchUpInside)
+        button.layer.cornerRadius = config.theme.outlineStyle.cornerRadius
+        button.layer.borderWidth = config.theme.outlineStyle.outlineWidth
+        button.layer.borderColor = config.theme.outlineStyle.outlineColor.cgColor
         return button
     }()
     

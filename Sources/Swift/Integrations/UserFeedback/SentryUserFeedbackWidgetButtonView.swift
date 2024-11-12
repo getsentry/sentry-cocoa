@@ -158,10 +158,10 @@ class SentryUserFeedbackWidgetButtonView: UIView {
         
         if UIScreen.main.traitCollection.userInterfaceStyle == .dark {
             lozengeLayer.fillColor = config.darkTheme.background.cgColor
-            lozengeLayer.strokeColor = config.darkTheme.outlineColor.cgColor
+            lozengeLayer.strokeColor = config.darkTheme.outlineStyle.outlineColor.cgColor
         } else {
             lozengeLayer.fillColor = config.theme.background.cgColor
-            lozengeLayer.strokeColor = config.theme.outlineColor.cgColor
+            lozengeLayer.strokeColor = config.theme.outlineStyle.outlineColor.cgColor
         }
         
         let iconSizeDifference = (scaledIconSize - svgSize) / 2

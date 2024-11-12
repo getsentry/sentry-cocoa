@@ -219,7 +219,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                         fontFamily = "ChalkboardSE-Regular"
                     }
                     theme.font = UIFont(name: fontFamily, size: fontSize) ?? UIFont.systemFont(ofSize: fontSize)
-                    theme.outlineColor = .purple
+                    theme.outlineStyle = .init(outlineColor: .purple)
                     theme.foreground = .purple
                     theme.background = .purple.withAlphaComponent(0.1)
                 }
