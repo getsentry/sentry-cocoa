@@ -46,7 +46,11 @@ struct RedactRegion {
 }
 
 class UIRedactBuilder {
-    
+    ///This is a wrapper which marks it's direct children to be ignored
+    private var ignoreContainerClassIdentifier: ObjectIdentifier?
+    ///This is a wrapper which marks it's direct children to be redacted
+    private var redactContainerClassIdentifier: ObjectIdentifier?
+
     ///This is a list of UIView subclasses that will be ignored during redact process
     private var ignoreClassesIdentifiers: Set<ObjectIdentifier>
     ///This is a list of UIView subclasses that need to be redacted from screenshot
@@ -135,7 +139,27 @@ class UIRedactBuilder {
     func addRedactClasses(_ redactClasses: [AnyClass]) {
         redactClasses.forEach(addRedactClass(_:))
     }
-    
+
+    func setIgnoreContainerClass(_ containerClass: AnyClass) {
+        ignoreContainerClassIdentifier = ObjectIdentifier(containerClass)
+    }
+
+    func setRedactContainerClass(_ containerClass: AnyClass) {
+        let id = ObjectIdentifier(containerClass)
+        redactContainerClassIdentifier = id
+        redactClassesIdentifiers.insert(id)
+    }
+
+#if TEST || TESTCI
+    func isIgnoreContainerClassTestOnly(_ containerClass: AnyClass) -> Bool {
+        return isIgnoreContainerClass(containerClass)
+    }
+
+    func isRedactContainerClassTestOnly(_ containerClass: AnyClass) -> Bool {
+        return isRedactContainerClass(containerClass)
+    }
+#endif
+
     /**
      This function identifies and returns the regions within a given UIView that need to be redacted, based on the specified redaction options.
      
@@ -178,9 +202,24 @@ class UIRedactBuilder {
     }
     
     private func shouldIgnore(view: UIView) -> Bool {
-        return SentryRedactViewHelper.shouldUnmask(view) || containsIgnoreClass(type(of: view))
+        return  SentryRedactViewHelper.shouldUnmask(view) || containsIgnoreClass(type(of: view)) || shouldIgnoreParentContainer(view)
     }
-    
+
+    private func shouldIgnoreParentContainer(_ view: UIView) -> Bool {
+        guard !isRedactContainerClass(type(of: view)), let parent = view.superview else { return false }
+        return isIgnoreContainerClass(type(of: parent))
+    }
+
+    private func isIgnoreContainerClass(_ containerClass: AnyClass) -> Bool {
+        guard ignoreContainerClassIdentifier != nil  else { return false }
+        return ObjectIdentifier(containerClass) == ignoreContainerClassIdentifier
+    }
+
+    private func isRedactContainerClass(_ containerClass: AnyClass) -> Bool {
+        guard redactContainerClassIdentifier != nil  else { return false }
+        return ObjectIdentifier(containerClass) == redactContainerClassIdentifier
+    }
+
     private func shouldRedact(view: UIView) -> Bool {
         if SentryRedactViewHelper.shouldMaskView(view) {
             return true
