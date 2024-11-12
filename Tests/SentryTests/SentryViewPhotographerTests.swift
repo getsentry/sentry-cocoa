@@ -144,6 +144,22 @@ class SentryViewPhotographerTests: XCTestCase {
         assertColor(pixel2, .green)
     }
     
+    func testRedactLabelWithParentTransformed() throws {
+        let label = UILabel(frame: CGRect(x: 0, y: 0, width: 50, height: 25))
+        label.text = "Test"
+        let parentView = UIView(frame: CGRect(x: 0, y: 17, width: 50, height: 25))
+        parentView.backgroundColor = .green
+        parentView.transform = CGAffineTransform(rotationAngle: 90 * .pi / 180.0)
+        parentView.addSubview(label)
+        
+        let image = try XCTUnwrap(prepare(views: [parentView] ))
+        let pixel1 = color(at: CGPoint(x: 10, y: 10), in: image)
+        assertColor(pixel1, .white)
+        
+        let pixel2 = color(at: CGPoint(x: 22, y: 10), in: image)
+        assertColor(pixel2, .black)
+    }
+    
     func testDontRedactClippedLabel() throws {
         let label = UILabel(frame: CGRect(x: 0, y: 25, width: 50, height: 25))
         label.text = "Test"
