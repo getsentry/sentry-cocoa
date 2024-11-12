@@ -9,7 +9,7 @@
 ### Fixes
 
 - Keep PropagationContext when cloning scope (#4518)
-- Session replay transformed view masking ()
+- Session replay transformed view masking (#4529)
 
 ## 8.40.1
 
