@@ -120,7 +120,8 @@
         // active span. If the user didn't call reportFullyDisplayed, the previous UIViewController
         // transaction is still bound to the scope because it waits for its children to finish,
         // including the TTFD span. Therefore, we need to finish the TTFD span so the tracer can
-        // finish and remove itself from the scope.
+        // finish and remove itself from the scope. We don't need to finish the transaction because
+        // we already finished it in viewControllerViewDidAppear.
         if (self.tracker.activeSpanId == nil) {
             [self.currentTTDTracker finishSpansIfNotFinished];
         }
