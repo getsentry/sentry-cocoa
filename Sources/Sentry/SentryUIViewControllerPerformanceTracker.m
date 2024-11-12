@@ -163,8 +163,10 @@
         objc_setAssociatedObject(controller, &SENTRY_UI_PERFORMANCE_TRACKER_TTD_TRACKER, ttdTracker,
             OBJC_ASSOCIATION_ASSIGN);
 
+        [self.currentTTDTracker finishSpansIfNotFinished];
         self.currentTTDTracker = ttdTracker;
     } else {
+        [self.currentTTDTracker finishSpansIfNotFinished];
         self.currentTTDTracker = nil;
     }
 }

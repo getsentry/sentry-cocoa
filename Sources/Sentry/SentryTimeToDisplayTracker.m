@@ -137,6 +137,22 @@
     [_dispatchQueueWrapper dispatchAsyncOnMainQueue:^{ self->_fullyDisplayedReported = YES; }];
 }
 
+- (void)finishSpansIfNotFinished
+{
+    if (self.initialDisplaySpan.isFinished == NO) {
+        [self.initialDisplaySpan finish];
+    }
+
+    if (self.fullDisplaySpan.isFinished == NO) {
+        SENTRY_LOG_WARN(
+            @"You didn't call SentrySDK.reportFullyDisplayed(). Finishing full display span with "
+            @"status deadline exceeded.");
+
+        [self.fullDisplaySpan finishWithStatus:kSentrySpanStatusDeadlineExceeded];
+        return;
+    }
+}
+
 - (void)framesTrackerHasNewFrame:(NSDate *)newFrameDate
 {
     // The purpose of TTID and TTFD is to measure how long
