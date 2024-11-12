@@ -201,29 +201,41 @@ class SentryUserFeedbackForm: UIViewController {
         
         let stack = UIStackView()
         stack.axis = .vertical
-        stack.spacing = 8
+        stack.spacing = 50
         
         stack.addArrangedSubview(headerStack)
         
+        let inputStack = UIStackView()
+        
         if self.config.formConfig.showName {
-            stack.addArrangedSubview(self.fullNameLabel)
-            stack.addArrangedSubview(self.fullNameTextField)
+            inputStack.addArrangedSubview(self.fullNameLabel)
+            inputStack.addArrangedSubview(self.fullNameTextField)
         }
         
         if self.config.formConfig.showEmail {
-            stack.addArrangedSubview(self.emailLabel)
-            stack.addArrangedSubview(self.emailTextField)
+            inputStack.addArrangedSubview(self.emailLabel)
+            inputStack.addArrangedSubview(self.emailTextField)
         }
         
-        stack.addArrangedSubview(self.messageLabel)
-        stack.addArrangedSubview(self.messageTextView)
+        inputStack.addArrangedSubview(self.messageLabel)
+        inputStack.addArrangedSubview(self.messageTextView)
         
         if self.config.formConfig.enableScreenshot {
-            stack.addArrangedSubview(self.addScreenshotButton)
+            inputStack.addArrangedSubview(self.addScreenshotButton)
         }
         
-        stack.addArrangedSubview(self.submitButton)
-        stack.addArrangedSubview(self.cancelButton)
+        stack.addArrangedSubview(inputStack)
+        
+        let controlsStack = UIStackView()
+        
+        controlsStack.addArrangedSubview(self.submitButton)
+        controlsStack.addArrangedSubview(self.cancelButton)
+        stack.addArrangedSubview(controlsStack)
+        
+        [inputStack, controlsStack].forEach {
+            $0.axis = .vertical
+            $0.spacing = 8
+        }
         
         stack.translatesAutoresizingMaskIntoConstraints = false
         

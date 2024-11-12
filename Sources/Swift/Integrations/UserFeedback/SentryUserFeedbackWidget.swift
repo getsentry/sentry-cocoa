@@ -11,7 +11,7 @@ struct SentryUserFeedbackWidget {
         class RootViewController: UIViewController, SentryUserFeedbackFormDelegate, UIAdaptivePresentationControllerDelegate {
             let defaultWidgetSpacing: CGFloat = 8
             
-            lazy var button = SentryUserFeedbackWidgetButtonView(config: config, action: { sender in
+            lazy var button = SentryUserFeedbackWidgetButtonView(config: config, action: { _ in
                 self.setWidget(visible: false)
                 let form = SentryUserFeedbackForm(config: self.config, delegate: self)
                 form.presentationController?.delegate = self
