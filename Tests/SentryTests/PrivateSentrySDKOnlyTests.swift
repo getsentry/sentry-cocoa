@@ -1,3 +1,4 @@
+@testable import Sentry
 import SentryTestUtils
 import XCTest
 
@@ -367,6 +368,42 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
         SentrySDK.start(options: options)
 
         PrivateSentrySDKOnly.addReplayRedactClasses([UILabel.self])
+    }
+
+    func testAddIgnoreContainer() throws {
+        class IgnoreContainer: UIView {}
+
+        SentrySDK.start {
+            $0.experimental.sessionReplay = SentryReplayOptions(sessionSampleRate: 1, onErrorSampleRate: 1)
+            $0.setIntegrations([SentrySessionReplayIntegration.self])
+        }
+
+        PrivateSentrySDKOnly.setIgnoreContainerClass(IgnoreContainer.self)
+
+        let replayIntegration = try getFirstIntegrationAsReplay()
+
+        let redactBuilder = replayIntegration.viewPhotographer.getRedactBuild()
+        XCTAssertTrue(redactBuilder.isIgnoreContainerClassTestOnly(IgnoreContainer.self))
+    }
+
+    func testAddRedactContainer() throws {
+        class RedactContainer: UIView {}
+
+        SentrySDK.start {
+            $0.experimental.sessionReplay = SentryReplayOptions(sessionSampleRate: 1, onErrorSampleRate: 1)
+            $0.setIntegrations([SentrySessionReplayIntegration.self])
+        }
+
+        PrivateSentrySDKOnly.setRedactContainerClass(RedactContainer.self)
+
+        let replayIntegration = try getFirstIntegrationAsReplay()
+
+        let redactBuilder = replayIntegration.viewPhotographer.getRedactBuild()
+        XCTAssertTrue(redactBuilder.isRedactContainerClassTestOnly(RedactContainer.self))
+    }
+
+    private func getFirstIntegrationAsReplay() throws -> SentrySessionReplayIntegration {
+        return try XCTUnwrap(SentrySDK.currentHub().installedIntegrations().first as? SentrySessionReplayIntegration)
     }
 
     let VALID_REPLAY_ID = "0eac7ab503354dd5819b03e263627a29"

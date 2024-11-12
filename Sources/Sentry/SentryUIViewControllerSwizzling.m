@@ -79,12 +79,17 @@
 - (void)start
 {
     for (NSString *inAppInclude in self.inAppLogic.inAppIncludes) {
-        NSString *pathToImage = [self.binaryImageCache pathForInAppInclude:inAppInclude];
-        if (pathToImage != nil) {
-            [self swizzleUIViewControllersOfImage:pathToImage];
+        NSSet<NSString *> *imagePathsToInAppInclude =
+            [self.binaryImageCache imagePathsForInAppInclude:inAppInclude];
+
+        if (imagePathsToInAppInclude.count > 0) {
+            for (NSString *imagePath in imagePathsToInAppInclude) {
+                [self swizzleUIViewControllersOfImage:imagePath];
+            }
         } else {
-            SENTRY_LOG_WARN(@"Failed to find the binary image for inAppInclude <%@> and, therefore "
-                            @"can't instrument UIViewControllers in that binary",
+            SENTRY_LOG_WARN(
+                @"Failed to find the binary image(s) for inAppInclude <%@> and, therefore "
+                @"can't instrument UIViewControllers in these binaries.",
                 inAppInclude);
         }
     }

@@ -25,11 +25,6 @@ class SentryUIViewControllerSwizzlingTests: XCTestCase {
                 cString: class_getImageName(SentryUIViewControllerSwizzlingTests.self)!,
                 encoding: .utf8)! as NSString
             options.add(inAppInclude: imageName.lastPathComponent)
-            
-            let externalImageName = String(
-                cString: class_getImageName(ExternalUIViewController.self)!,
-                encoding: .utf8)! as NSString
-            options.add(inAppInclude: externalImageName.lastPathComponent)
         }
         
         var sut: SentryUIViewControllerSwizzling {
@@ -167,11 +162,57 @@ class SentryUIViewControllerSwizzlingTests: XCTestCase {
     }
     
     func testSwizzlingOfExternalLibs() {
+        let externalImageName = String(
+            cString: class_getImageName(ExternalUIViewController.self)!,
+            encoding: .utf8)! as NSString
+        fixture.options.add(inAppInclude: externalImageName.lastPathComponent)
+        
         let sut = fixture.sut
         sut.start()
         let controller = ExternalUIViewController()
         controller.loadView()
         XCTAssertNotNil(SentrySDK.span)
+    }
+    
+    func testSwizzleInAppIncludes_WithShortenedInAppInclude() throws {
+        let imageName = try XCTUnwrap(String(
+            cString: class_getImageName(ExternalUIViewController.self)!,
+            encoding: .utf8) as? NSString)
+        
+        let lastPathComponent = String(imageName.lastPathComponent)
+        let shortenedLastPathComponent = String(lastPathComponent.prefix(5))
+        
+        fixture.options.add(inAppInclude: shortenedLastPathComponent)
+        
+        let sut = fixture.sut
+        sut.start()
+        let controller = ExternalUIViewController()
+        controller.loadView()
+        XCTAssertNotNil(SentrySDK.span)
+    }
+    
+    /// Xcode 16 introduces a new flag ENABLE_DEBUG_DYLIB (https://developer.apple.com/documentation/xcode/build-settings-reference#Enable-Debug-Dylib-Support)
+    /// If this flag is enabled, debug builds of app and app extension targets on supported platforms and SDKs
+    /// will be built with the main binary code in a separate “NAME.debug.dylib”.
+    /// This test adds this debug.dylib and checks if it gets swizzled.
+    func testSwizzle_DebugDylib_GetsSwizzled() {
+        let imageName = String(
+            cString: class_getImageName(SentryUIViewControllerSwizzlingTests.self)!,
+            encoding: .utf8)! as NSString
+        
+        let debugDylib = "\(imageName).debug.dylib"
+        
+        var image = createCrashBinaryImage(0, name: debugDylib)
+        SentryDependencyContainer.sharedInstance().binaryImageCache.start()
+        SentryDependencyContainer.sharedInstance().binaryImageCache.binaryImageAdded(&image)
+        
+        let sut = fixture.sut
+        sut.start()
+        
+        let subClassFinderInvocations = fixture.subClassFinder.invocations
+        let result = subClassFinderInvocations.invocations.filter { $0.imageName == debugDylib }
+            
+        XCTAssertEqual(1, result.count)
     }
     
     func testSwizzle_fromScene_invalidNotification_NoObject() {

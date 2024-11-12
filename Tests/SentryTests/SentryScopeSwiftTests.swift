@@ -281,6 +281,7 @@ class SentryScopeSwiftTests: XCTestCase {
     
     func testUseSpanLock_DoesNotBlock_WithBlockingCallback() {
         let scope = fixture.scope
+        scope.span = fixture.transaction
         let queue = DispatchQueue(label: "test-queue", attributes: [.initiallyInactive, .concurrent])
         let expect = expectation(description: "useSpan callback is non-blocking")
         
@@ -313,6 +314,7 @@ class SentryScopeSwiftTests: XCTestCase {
     func testUseSpanLock_IsReentrant() {
         let expect = expectation(description: "finish on time")
         let scope = fixture.scope
+        scope.span = fixture.transaction
         scope.useSpan { _ in
             scope.useSpan { _ in
                 expect.fulfill()
@@ -320,6 +322,22 @@ class SentryScopeSwiftTests: XCTestCase {
 
         }
         wait(for: [expect], timeout: 0.1)
+    }
+    
+    func testSpan_FromMultipleThreads() {
+        let scope = fixture.scope
+        
+        testConcurrentModifications(asyncWorkItems: 20, writeLoopCount: 10, writeWork: { _ in
+            
+            scope.span = SentryTracer(transactionContext: TransactionContext(name: self.fixture.transactionName, operation: self.fixture.transactionOperation), hub: nil)
+            
+            scope.useSpan { span in
+                XCTAssertNotNil(span)
+            }
+            
+        }, readWork: {
+            XCTAssertNotNil(scope.span)
+        })
     }
     
     func testMaxBreadcrumbs_IsZero() {
@@ -467,6 +485,8 @@ class SentryScopeSwiftTests: XCTestCase {
             scope.addAttachment(TestData.fileAttachment)
             scope.clearAttachments()
             scope.addAttachment(TestData.fileAttachment)
+            
+            scope.span = SentryTracer(transactionContext: TransactionContext(name: self.fixture.transactionName, operation: self.fixture.transactionOperation), hub: nil)
             
             for _ in 0...10 {
                 scope.addBreadcrumb(self.fixture.breadcrumb)
