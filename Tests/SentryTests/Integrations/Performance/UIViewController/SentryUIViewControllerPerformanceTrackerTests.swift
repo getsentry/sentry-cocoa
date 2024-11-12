@@ -799,10 +799,12 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
         XCTAssertFalse(firstFullDisplaySpan.isFinished)
         
         XCTAssertEqual(firstTracer?.traceId, SentrySDK.span?.traceId)
-        
+
         sut.viewControllerLoadView(secondController) {
             secondTracer = self.getStack(tracker).first as? SentryTracer
         }
+        
+        XCTAssertEqual(secondTracer?.traceId, SentrySDK.span?.traceId)
         
         XCTAssertTrue(firstFullDisplaySpan.isFinished)
         XCTAssertEqual(.deadlineExceeded, firstFullDisplaySpan.status)
@@ -849,13 +851,15 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
             secondTracer = self.getStack(tracker).first as? SentryTracer
         }
         
+        XCTAssertEqual(secondTracer?.traceId, SentrySDK.span?.traceId)
+        XCTAssertTrue(firstTracer?.isFinished ?? false)
         XCTAssertTrue(firstFullDisplaySpan.isFinished)
         XCTAssertEqual(.deadlineExceeded, firstFullDisplaySpan.status)
         
         XCTAssertEqual(0, secondTracer?.children.filter { $0.operation == "ui.load.full_display" }.count, "There should be no full display span, because the frames tracker is not running.")
     }
     
-    func test_ForceBindToScope() throws {
+    func test_waitForFullDisplay_NestedUIViewControllers_DoesNotFinishTTFDSpan() throws {
         let sut = fixture.getSut()
         let tracker = fixture.tracker
         let firstController = TestViewController()
@@ -863,6 +867,8 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
 
         var firstTracer: SentryTracer?
         var secondTracer: SentryTracer?
+
+        sut.enableWaitForFullDisplay = true
 
         sut.viewControllerLoadView(firstController) {
             firstTracer = self.getStack(tracker).first as? SentryTracer
@@ -875,17 +881,21 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
         sut.viewControllerViewWillAppear(firstController) {
             // Empty on purpose
         }
+        
+        let firstFullDisplaySpan = try XCTUnwrap(firstTracer?.children.first { $0.operation == "ui.load.full_display" })
 
-        XCTAssertFalse(firstTracer?.isFinished ?? true)
-        XCTAssertEqual(firstTracer?.traceId, SentrySDK.span?.traceId)
+        XCTAssertFalse(firstFullDisplaySpan.isFinished)
         
         sut.viewControllerLoadView(secondController) {
             secondTracer = self.getStack(tracker).first as? SentryTracer
         }
         
-        XCTAssertFalse(firstTracer?.isFinished ?? true, "Force bind to scope should not finish the first transaction. It should only remove it from the scope.")
+        XCTAssertEqual(firstTracer?.traceId, secondTracer?.traceId, "First and second tracer should have the same trace id as the second view controller is nested in the first one.")
         
-        XCTAssertEqual(secondTracer?.traceId, SentrySDK.span?.traceId)
+        XCTAssertEqual(firstTracer?.traceId.sentryIdString, SentrySDK.span?.traceId.sentryIdString)
+        
+        XCTAssertFalse(firstTracer?.isFinished ?? true)
+        XCTAssertFalse(firstFullDisplaySpan.isFinished)
     }
 
     func test_captureAllAutomaticSpans() {

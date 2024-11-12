@@ -144,10 +144,9 @@
     }
 
     if (self.fullDisplaySpan.isFinished == NO) {
-        SENTRY_LOG_WARN(
-            @"You didn't call SentrySDK.reportFullyDisplayed(). Finishing full display span with "
-            @"status: %@.",
-            nameForSentrySpanStatus(kSentrySpanStatusDeadlineExceeded));
+        SENTRY_LOG_WARN(@"You didn't call SentrySDK.reportFullyDisplayed() for UIViewController: "
+                        @"%@. Finishing full display span with status: %@.",
+            _controllerName, nameForSentrySpanStatus(kSentrySpanStatusDeadlineExceeded));
 
         [self.fullDisplaySpan finishWithStatus:kSentrySpanStatusDeadlineExceeded];
     }

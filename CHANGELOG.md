@@ -5,7 +5,7 @@
 ### Fixes
 
 - Make `Scope.span` fully thread safe (#4519)
-- Finish TTFD on new UIViewControllers when not calling reportFullyDisplayed (#4526).
+- Finish TTFD when not calling reportFullyDisplayed before binding a new transaction to the scope (#4526).
 
 ### Features
 
