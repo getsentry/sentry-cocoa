@@ -146,7 +146,8 @@
     if (self.fullDisplaySpan.isFinished == NO) {
         SENTRY_LOG_WARN(
             @"You didn't call SentrySDK.reportFullyDisplayed(). Finishing full display span with "
-            @"status deadline exceeded.");
+            @"status: %@.",
+            nameForSentrySpanStatus(kSentrySpanStatusDeadlineExceeded));
 
         [self.fullDisplaySpan finishWithStatus:kSentrySpanStatusDeadlineExceeded];
     }
