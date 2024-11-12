@@ -206,11 +206,7 @@ class UIRedactBuilder {
     }
 
     private func shouldIgnoreParentContainer(_ view: UIView) -> Bool {
-        if isRedactContainerClass(type(of: view)) {
-            return false
-        }
-
-        guard let parent = view.superview  else { return false }
+        guard !isRedactContainerClass(type(of: view)), let parent = view.superview else { return false }
         return isIgnoreContainerClass(type(of: parent))
     }
 
