@@ -287,7 +287,6 @@ class UIRedactBuilder {
         let size = layer.bounds.size
         let anchorPoint = CGPoint(x: size.width * layer.anchorPoint.x, y: size.height * layer.anchorPoint.y)
         let position = parentLayer?.convert(layer.position, to: nil) ?? layer.position
-
         
         var newTransform = transform
         newTransform.tx = position.x
