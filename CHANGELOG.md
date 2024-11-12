@@ -5,6 +5,8 @@
 ### Fixes
 
 - Make `Scope.span` fully thread safe (#4519)
+- Finish TTFD on new UIViewControllers when not calling reportFullyDisplayed (#4526).
+
 ### Features
 
 - Transactions for crashes (#4504): Finish the transaction bound to the scope when the app crashes. This __experimental__ feature is disabled by default. You can enable it via the option `enablePersistingTracesWhenCrashing`.
