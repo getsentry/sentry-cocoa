@@ -34,7 +34,10 @@ class SentryUserFeedbackForm: UIViewController {
             stack.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
             stack.widthAnchor.constraint(equalTo: scrollView.widthAnchor),
             
-            messageTextView.heightAnchor.constraint(equalToConstant: config.theme.font.lineHeight * 5)
+            messageTextView.heightAnchor.constraint(equalToConstant: config.theme.font.lineHeight * 5),
+            
+            sentryLogoView.widthAnchor.constraint(equalToConstant: 72),
+            sentryLogoView.heightAnchor.constraint(equalToConstant: 66)
         ])
     }
     

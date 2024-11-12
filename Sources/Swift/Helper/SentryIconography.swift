@@ -1,166 +1,192 @@
 import CoreGraphics
 
+extension CGMutablePath {
+    func addSVGArc(startPoint: CGPoint, xyRadii: CGFloat, clockwise: Bool, endPoint: CGPoint) {
+        let midX: CGFloat = (startPoint.x + endPoint.x) / 2
+        let midY: CGFloat = (startPoint.y + endPoint.y) / 2
+        let d: CGFloat = sqrt(pow(endPoint.x - startPoint.x, 2) + pow(endPoint.y - startPoint.y, 2))
+        let h: CGFloat = sqrt(pow(xyRadii, 2) - pow(d / 2, 2))
+        let orientation: CGFloat = clockwise ? 1 : -1
+        
+        let centerX = midX + orientation * h * (startPoint.y - endPoint.y) / d
+        let centerY = midY + orientation * h * (endPoint.x - startPoint.x) / d
+        let centerPoint = CGPoint(x: centerX, y: centerY)
+        
+        let startAngleAtan2X = startPoint.x - centerX
+        let startAngleAtan2Y = startPoint.y - centerY
+        let startAngle: CGFloat = atan2(startAngleAtan2Y, startAngleAtan2X)
+        
+        let endAngleAtan2X = endPoint.x - centerX
+        let endAngleAtan2Y = endPoint.y - centerY
+        let endAngle: CGFloat = atan2(endAngleAtan2Y, endAngleAtan2X)
+        
+        addArc(center: centerPoint, radius: xyRadii, startAngle: startAngle, endAngle: endAngle, clockwise: !clockwise)
+    }
+}
+
+extension CGPoint {
+    func translated(x: CGFloat = 0, y: CGFloat = 0) -> CGPoint {
+        .init(x: self.x + x, y: self.y + y)
+    }
+}
+
 struct SentryIconography {
     static let logo = {
-        let svg = """
-<svg class="css-lfbo6j e1igk8x04" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 72 66" width="400" height="367"><path d="M29,2.26a4.67,4.67,0,0,0-8,0L14.42,13.53A32.21,32.21,0,0,1,32.17,40.19H27.55A27.68,27.68,0,0,0,12.09,17.47L6,28a15.92,15.92,0,0,1,9.23,12.17H4.62A.76.76,0,0,1,4,39.06l2.94-5a10.74,10.74,0,0,0-3.36-1.9l-2.91,5a4.54,4.54,0,0,0,1.69,6.24A4.66,4.66,0,0,0,4.62,44H19.15a19.4,19.4,0,0,0-8-17.31l2.31-4A23.87,23.87,0,0,1,23.76,44H36.07a35.88,35.88,0,0,0-16.41-31.8l4.67-8a.77.77,0,0,1,1.05-.27c.53.29,20.29,34.77,20.66,35.17a.76.76,0,0,1-.68,1.13H40.6q.09,1.91,0,3.81h4.78A4.59,4.59,0,0,0,50,39.43a4.49,4.49,0,0,0-.62-2.28Z" transform="translate(11, 11)" fill="#362d59"></path></svg>
-"""
         let path = CGMutablePath()
 
-        // M 29,2.26
-        // Pick up the pen and Move it to { x: 29, y: 2.26 }
-        path.move(to: CGPoint(x: 29, y: 2.26))
+        // M29,2.26
+        var point: CGPoint = .init(x: 29, y: 2.26)
+        path.move(to: point)
 
-        // a 4.67,4.67 0 0 0 -8,0
-        // Put down the pen and Draw an Arc curve from the current point to a new point { x: previous point - 8, y: previous point + 0 }
-        // Its radii are { x: 4.67, y: 4.67 }, and with no rotation
-        // Out of the 4 possible arcs described by the above parameters, this arc is the one lesser than 180 degrees and moving at negative angles
-        path.addArc(center: CGPoint(x: 21, y: 2.26), radius: 4.67, startAngle: CGFloat.pi, endAngle: 0, clockwise: false)
+        // a4.67,4.67,0,0,0-8,0
+        var endpoint: CGPoint = point.translated(x: -8)
+        path.addSVGArc(startPoint: point, xyRadii: 4.67, clockwise: false, endPoint: endpoint)
+        point = endpoint
 
-        // L 14.42,13.53
-        // Draw a line to { x: 14.42, y: 13.53 }
-        path.addLine(to: CGPoint(x: 14.42, y: 13.53))
+        // L14.42,13.53
+        endpoint = .init(x: 14.42, y: 13.53)
+        path.addLine(to: endpoint)
+        point = endpoint
 
-        // A 32.21,32.21 0 0 1 32.17,40.19
-        // Draw an Arc curve from the current point to a new point { x: 32.17, y: 40.19 }
-        // Its radii are { x: 32.21, y: 32.21 }, and with no rotation
-        // Out of the 4 possible arcs described by the above parameters, this arc is the one lesser than 180 degrees and moving at positive angles
-        path.addArc(center: CGPoint(x: 32.17, y: 26.53), radius: 32.21, startAngle: CGFloat.pi, endAngle: 0, clockwise: true)
+        // A32.21,32.21,0,0,1,32.17,40.19
+        endpoint = .init(x: 32.17, y: 40.19)
+        path.addSVGArc(startPoint: point, xyRadii: 32.21, clockwise: true, endPoint: endpoint)
+        point = endpoint
 
-        // H 27.55
-        // Move horizontally to 27.55
-        path.addLine(to: CGPoint(x: 27.55, y: 26.53))
+        // H27.55
+        endpoint = .init(x: 27.55, y: point.y)
+        path.addLine(to: endpoint)
+        point = endpoint
 
-        // A 27.68,27.68 0 0 0 12.09,17.47
-        // Draw an Arc curve from the current point to a new point { x: 12.09, y: 17.47 }
-        // Its radii are { x: 27.68, y: 27.68 }, and with no rotation
-        // Out of the 4 possible arcs described by the above parameters, this arc is the one lesser than 180 degrees and moving at negative angles
-        path.addArc(center: CGPoint(x: 19.62, y: 17.47), radius: 27.68, startAngle: CGFloat.pi, endAngle: 0, clockwise: false)
+        // A27.68,27.68,0,0,0,12.09,17.47
+        endpoint = .init(x: 12.09, y: 17.47)
+        path.addSVGArc(startPoint: point, xyRadii: 27.68, clockwise: false, endPoint: endpoint)
+        point = endpoint
+        
+        // L6,28
+        endpoint = CGPoint(x: 6, y: 28)
+        path.addLine(to: endpoint)
+        point = endpoint
 
-        // L 6,28
-        // Draw a line to { x: 6, y: 28 }
-        path.addLine(to: CGPoint(x: 6, y: 28))
+        // a15.92,15.92,0,0,1,9.23,12.17
+        endpoint = point.translated(x: 9.23, y: 12.17)
+        path.addSVGArc(startPoint: point, xyRadii: 15.92, clockwise: true, endPoint: endpoint)
+        point = endpoint
 
-        // a 15.92,15.92 0 0 1 9.23,12.17
-        // Draw an Arc curve from the current point to a new point { x: previous point + 9.23, y: previous point + 12.17 }
-        // Its radii are { x: 15.92, y: 15.92 }, and with no rotation
-        // Out of the 4 possible arcs described by the above parameters, this arc is the one lesser than 180 degrees and moving at positive angles
-        path.addArc(center: CGPoint(x: 15.23, y: 40.17), radius: 15.92, startAngle: 0, endAngle: CGFloat.pi / 2, clockwise: true)
+        // H4.62
+        endpoint = .init(x: 4.62, y: point.y)
+        path.addLine(to: endpoint)
+        point = endpoint
 
-        // H 4.62
-        // Move horizontally to 4.62
-        path.addLine(to: CGPoint(x: 4.62, y: 40.17))
+        // A.76.76,0,0,1,4,39.06
+        endpoint = .init(x: 4, y: 39.06)
+        path.addSVGArc(startPoint: point, xyRadii: 0.76, clockwise: true, endPoint: endpoint)
+        point = endpoint
 
-        // A 0.76,0.76 0 0 1 4,39.06
-        // Draw an Arc curve from the current point to a new point { x: 4, y: 39.06 }
-        // Its radii are { x: 0.76, y: 0.76 }, and with no rotation
-        // Out of the 4 possible arcs described by the above parameters, this arc is the one lesser than 180 degrees and moving at positive angles
-        path.addArc(center: CGPoint(x: 4, y: 39.06), radius: 0.76, startAngle: 0, endAngle: CGFloat.pi / 2, clockwise: true)
+        // l2.94-5
+        endpoint = point.translated(x: 2.94, y: -5)
+        path.addLine(to: endpoint)
+        point = endpoint
 
-        // l 2.94,-5
-        // Move right 2.94 and top 5 from the current position
-        path.addLine(to: CGPoint(x: 7.56, y: 34.06))
+        // a10.74,10.74,0,0,0-3.36-1.9
+        endpoint = point.translated(x: -3.36, y: -1.9)
+        path.addSVGArc(startPoint: point, xyRadii: 10.74, clockwise: false, endPoint: endpoint)
+        point = endpoint
 
-        // a 10.74,10.74 0 0 0 -3.36,-1.9
-        // Draw an Arc curve from the current point to a new point { x: previous point - 3.36, y: previous point - 1.9 }
-        // Its radii are { x: 10.74, y: 10.74 }, and with no rotation
-        // Out of the 4 possible arcs described by the above parameters, this arc is the one lesser than 180 degrees and moving at negative angles
-        path.addArc(center: CGPoint(x: 4.2, y: 32.16), radius: 10.74, startAngle: CGFloat.pi, endAngle: 0, clockwise: false)
+        // l-2.91,5
+        endpoint = point.translated(x: -2.91, y: 5)
+        path.addLine(to: endpoint)
+        point = endpoint
 
-        // l -2.91,5
-        // Move left 2.91 and bottom 5 from the current position
-        path.addLine(to: CGPoint(x: 4.62, y: 39.06))
+        // a4.54,4.54,0,0,0,1.69,6.24
+        endpoint = point.translated(x: 1.69, y: 6.24)
+        path.addSVGArc(startPoint: point, xyRadii: 4.54, clockwise: false, endPoint: endpoint)
+        point = endpoint
 
-        // a 4.54,4.54 0 0 0 1.69,6.24
-        // Draw an Arc curve from the current point to a new point { x: previous point + 1.69, y: previous point + 6.24 }
-        // Its radii are { x: 4.54, y: 4.54 }, and with no rotation
-        // Out of the 4 possible arcs described by the above parameters, this arc is the one lesser than 180 degrees and moving at negative angles
-        path.addArc(center: CGPoint(x: 4.62, y: 44), radius: 4.54, startAngle: 0, endAngle: CGFloat.pi / 2, clockwise: false)
+        // A4.66,4.66,0,0,0,4.62,44
+        endpoint = .init(x: 4.62, y: 44)
+        path.addSVGArc(startPoint: point, xyRadii: 4.66, clockwise: false, endPoint: endpoint)
+        point = endpoint
 
-        // A 4.66,4.66 0 0 0 4.62,44
-        // Draw an Arc curve from the current point to a new point { x: 4.62, y: 44 }
-        // Its radii are { x: 4.66, y: 4.66 }, and with no rotation
-        // Out of the 4 possible arcs described by the above parameters, this arc is the one lesser than 180 degrees and moving at negative angles
-        path.addArc(center: CGPoint(x: 4.62, y: 44), radius: 4.66, startAngle: 0, endAngle: CGFloat.pi / 2, clockwise: false)
+        // H19.15
+        endpoint = CGPoint(x: 19.15, y: point.y)
+        path.addLine(to: endpoint)
+        point = endpoint
 
-        // H 19.15
-        // Move horizontally to 19.15
-        path.addLine(to: CGPoint(x: 19.15, y: 44))
+        // a19.4,19.4,0,0,0-8-17.31
+        endpoint = point.translated(x: -8, y: -17.31)
+        path.addSVGArc(startPoint: point, xyRadii: 19.4, clockwise: false, endPoint: endpoint)
+        point = endpoint
 
-        // a 19.4,19.4 0 0 0 -8,-17.31
-        // Draw an Arc curve from the current point to a new point { x: previous point - 8, y: previous point - 17.31 }
-        // Its radii are { x: 19.4, y: 19.4 }, and with no rotation
-        // Out of the 4 possible arcs described by the above parameters, this arc is the one lesser than 180 degrees and moving at negative angles
-        path.addArc(center: CGPoint(x: 11.15, y: 26.69), radius: 19.4, startAngle: CGFloat.pi, endAngle: 0, clockwise: false)
+        // l2.31-4
+        endpoint = point.translated(x: 2.31, y: -4)
+        path.addLine(to: endpoint)
+        point = endpoint
 
-        // l 2.31,-4
-        // Move right 2.31 and top 4 from the current position
-        path.addLine(to: CGPoint(x: 21.46, y: 40.69))
+        // A23.87,23.87,0,0,1,23.76,44
+        endpoint = .init(x: 23.76, y: 44)
+        path.addSVGArc(startPoint: point, xyRadii: 23.87, clockwise: true, endPoint: endpoint)
+        point = endpoint
 
-        // A 23.87,23.87 0 0 1 23.76,44
-        // Draw an Arc curve from the current point to a new point { x: 23.76, y: 44 }
-        // Its radii are { x: 23.87, y: 23.87 }, and with no rotation
-        // Out of the 4 possible arcs described by the above parameters, this arc is the one lesser than 180 degrees and moving at positive angles
-        path.addArc(center: CGPoint(x: 23.76, y: 44), radius: 23.87, startAngle: CGFloat.pi, endAngle: 0, clockwise: true)
+        // H36.07
+        endpoint = CGPoint(x: 36.07, y: point.y)
+        path.addLine(to: endpoint)
+        point = endpoint
 
-        // H 36.07
-        // Move horizontally to 36.07
-        path.addLine(to: CGPoint(x: 36.07, y: 44))
+        // a35.88,35.88,0,0,0-16.41-31.8
+        endpoint = point.translated(x: -16.41, y: -31.8)
+        path.addSVGArc(startPoint: point, xyRadii: 35.88, clockwise: false, endPoint: endpoint)
+        point = endpoint
 
-        // a 35.88,35.88 0 0 0 -16.41,-31.8
-        // Draw an Arc curve from the current point to a new point { x: previous point - 16.41, y: previous point - 31.8 }
-        // Its radii are { x: 35.88, y: 35.88 }, and with no rotation
-        // Out of the 4 possible arcs described by the above parameters, this arc is the one lesser than 180 degrees and moving at negative angles
-        path.addArc(center: CGPoint(x: 19.66, y: 12.2), radius: 35.88, startAngle: CGFloat.pi, endAngle: 0, clockwise: false)
+        // l4.67-8
+        endpoint = point.translated(x: 4.67, y: -8)
+        path.addLine(to: endpoint)
+        point = endpoint
 
-        // l 4.67,-8
-        // Move right 4.67 and top 8 from the current position
-        path.addLine(to: CGPoint(x: 40.74, y: 36.07))
+        // a.77.77,0,0,1,1.05-.27
+        endpoint = point.translated(x: 1.05, y: -0.27)
+        path.addSVGArc(startPoint: point, xyRadii: 0.77, clockwise: true, endPoint: endpoint)
+        point = endpoint
 
-        // a 0.77,0.77 0 0 1 1.05,-0.27
-        // Draw an Arc curve from the current point to a new point { x: previous point + 1.05, y: previous point - 0.27 }
-        // Its radii are { x: 0.77, y: 0.77 }, and with no rotation
-        // Out of the 4 possible arcs described by the above parameters, this arc is the one lesser than 180 degrees and moving at positive angles
-        path.addArc(center: CGPoint(x: 41.81, y: 35.8), radius: 0.77, startAngle: CGFloat.pi, endAngle: 0, clockwise: true)
+        // c.53.29,20.29,34.77,20.66,35.17
+        var c1 = point.translated(x: 0.53, y: 0.29)
+        var c2 = point.translated(x: 20.29, y: 34.77)
+        endpoint = point.translated(x: 20.66, y: 35.17)
+        path.addCurve(to: endpoint, control1: c1, control2: c2)
+        point = endpoint
 
-        // c 0.53,0.29 20.29,34.77 20.66,35.17
-        // Draw a Bézier curve from the current point to a new point { x: previous point + 20.66, y: previous point + 35.17 }
-        // The start control point is { x: previous point + 0.53, y: previous point + 0.29 } and the end control point is { x: previous point + 20.29, y: previous point + 34.77 }
-        path.addCurve(to: CGPoint(x: 20.66, y: 35.17), control1: CGPoint(x: 21.34, y: 36.09), control2: CGPoint(x: 20.29, y: 34.77))
+        // a.76.76,0,0,1-.68,1.13
+        endpoint = point.translated(x: -0.68, y: 1.13)
+        path.addSVGArc(startPoint: point, xyRadii: 0.76, clockwise: true, endPoint: endpoint)
+        point = endpoint
 
-        // a 0.76,0.76 0 0 1 -0.68,1.13
-        // Draw an Arc curve from the current point to a new point { x: previous point - 0.68, y: previous point + 1.13 }
-        // Its radii are { x: 0.76, y: 0.76 }, and with no rotation
-        // Out of the 4 possible arcs described by the above parameters, this arc is the one lesser than 180 degrees and moving at positive angles
-        path.addArc(center: CGPoint(x: 40.6, y: 40.6), radius: 0.76, startAngle: 0, endAngle: CGFloat.pi / 2, clockwise: true)
+        // H40.6
+        endpoint = CGPoint(x: 40.6, y: point.y)
+        path.addLine(to: endpoint)
+        point = endpoint
 
-        // H 40.6
-        // Move horizontally to 40.6
-        path.addLine(to: CGPoint(x: 40.6, y: 44.41))
+        // q.09,1.91,0,3.81
+        c1 = .init(x: point.x + 0.09, y: point.y + 1.91)
+        endpoint = .init(x: point.x, y: point.y + 3.81)
+        path.addQuadCurve(to: endpoint, control: c1)
+        point = endpoint
 
-        // q 0.09,1.91 0,3.81
-        // Draw a quadratic Bézier curve from the current point to a new point { x: previous point + 0, y: previous point + 3.81 }
-        // The control point is { x: previous point + 0.09, y: previous point + 1.91 }
-        path.addQuadCurve(to: CGPoint(x: 40.6, y: 48.22), control: CGPoint(x: 40.69, y: 46.32))
+        // h4.78
+        endpoint = .init(x: point.x + 4.78, y: point.y)
+        path.addLine(to: endpoint)
+        point = endpoint
 
-        // h 4.78
-        // Move right 4.78 from the current position
-        path.addLine(to: CGPoint(x: 45.38, y: 48.22))
+        // A4.59,4.59,0,0,0,50,39.43
+        endpoint = .init(x: 50, y: 39.43)
+        path.addSVGArc(startPoint: point, xyRadii: 4.59, clockwise: false, endPoint: endpoint)
+        point = endpoint
 
-        // A 4.59,4.59 0 0 0 50,39.43
-        // Draw an Arc curve from the current point to a new point { x: 50, y: 39.43 }
-        // Its radii are { x: 4.59, y: 4.59 }, and with no rotation
-        // Out of the 4 possible arcs described by the above parameters, this arc is the one lesser than 180 degrees and moving at negative angles
-        path.addArc(center: CGPoint(x: 50, y: 39.43), radius: 4.59, startAngle: 0, endAngle: CGFloat.pi / 2, clockwise: false)
-
-        // a 4.49,4.49 0 0 0 -0.62,-2.28
-        // Draw an Arc curve from the current point to a new point { x: previous point - 0.62, y: previous point - 2.28 }
-        // Its radii are { x: 4.49, y: 4.49 }, and with no rotation
-        // Out of the 4 possible arcs described by the above parameters, this arc is the one lesser than 180 degrees and moving at negative angles
-        path.addArc(center: CGPoint(x: 49.38, y: 37.15), radius: 4.49, startAngle: 0, endAngle: CGFloat.pi / 2, clockwise: false)
+        // a4.49,4.49,0,0,0-.62-2.28
+        endpoint = point.translated(x: -0.62, y: -2.28)
+        path.addSVGArc(startPoint: point, xyRadii: 4.49, clockwise: false, endPoint: endpoint)
+        point = endpoint
 
         // Z
-        // Draw a line straight back to the start
         path.closeSubpath()
 
         return path
