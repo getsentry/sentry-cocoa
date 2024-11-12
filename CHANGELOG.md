@@ -2,15 +2,13 @@
 
 ## Unreleased
 
-### Fixes
-
-- Make `Scope.span` fully thread safe (#4519)
 ### Features
 
 - Transactions for crashes (#4504): Finish the transaction bound to the scope when the app crashes. This __experimental__ feature is disabled by default. You can enable it via the option `enablePersistingTracesWhenCrashing`.
 
 ### Fixes
 
+- Make `Scope.span` fully thread safe (#4519)
 - Keep PropagationContext when cloning scope (#4518)
 - Session replay transformed view masking (#4529)
 - UIViewController with Xcode 16 in debug (#4523). The Xcode 16 build setting [ENABLE_DEBUG_DYLIB](https://developer.apple.com/documentation/xcode/build-settings-reference#Enable-Debug-Dylib-Support), which is turned on by default only in debug, could lead to missing UIViewController traces.
