@@ -816,7 +816,7 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
     }
     
     func test_waitForFullDisplay_NewViewControllerLoaded_BeforeReportTTFD_withBackgroundWork() throws {
-        class CustomVC : UIViewController {
+        class CustomVC: UIViewController {
             var workSpan: Span?
             
             override func viewDidAppear(_ animated: Bool) {
