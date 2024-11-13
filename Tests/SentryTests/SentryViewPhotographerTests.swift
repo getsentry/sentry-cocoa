@@ -147,17 +147,28 @@ class SentryViewPhotographerTests: XCTestCase {
     func testRedactLabelWithParentTransformed() throws {
         let label = UILabel(frame: CGRect(x: 0, y: 0, width: 50, height: 25))
         label.text = "Test"
-        let parentView = UIView(frame: CGRect(x: 0, y: 17, width: 50, height: 25))
+        
+        let parentView = UIView(frame: CGRect(x: 0, y:12.5, width: 50, height: 25))
         parentView.backgroundColor = .green
-        parentView.transform = CGAffineTransform(rotationAngle: 90 * .pi / 180.0)
+        parentView.transform = CGAffineTransform(rotationAngle: .pi / 2)
         parentView.addSubview(label)
         
         let image = try XCTUnwrap(prepare(views: [parentView] ))
-        let pixel1 = color(at: CGPoint(x: 10, y: 10), in: image)
-        assertColor(pixel1, .white)
+        assertColor(.white, in: image, at: [
+            CGPoint(x: 2, y: 2),
+            CGPoint(x: 10, y: 2),
+            CGPoint(x: 2, y: 47),
+            CGPoint(x: 10, y: 47),
+            CGPoint(x: 39, y: 2),
+            CGPoint(x: 39, y: 47),
+        ])
         
-        let pixel2 = color(at: CGPoint(x: 22, y: 10), in: image)
-        assertColor(pixel2, .black)
+        assertColor(.black, in: image, at: [
+            CGPoint(x: 13, y: 2),
+            CGPoint(x: 35, y: 2),
+            CGPoint(x: 13, y: 47),
+            CGPoint(x: 35, y: 47),
+        ])
     }
     
     func testDontRedactClippedLabel() throws {
@@ -225,6 +236,46 @@ class SentryViewPhotographerTests: XCTestCase {
         
         assertColor(pixel1, .green)
     }
+    
+    func testNotMaskingLabelInsideclippedViewHiddenByAnOpaqueExternalView() throws {
+        let topView = UIView(frame: CGRect(x: 25, y: 0, width: 25, height: 25))
+        topView.backgroundColor = .green
+        
+        
+        let label1 = UILabel(frame: CGRect(x: 0, y: 0, width: 50, height: 25))
+        label1.text = "Test"
+        label1.textColor = .black
+        
+        let parentView = UIView(frame: CGRect(x: 0, y: 0, width: 50, height: 25))
+        parentView.addSubview(label1)
+        parentView.clipsToBounds = true
+        
+        let image = try XCTUnwrap(prepare(views: [parentView, topView]))
+        
+        assertColor(.green, in: image, at: [
+            CGPoint(x: 27, y: 3),
+            CGPoint(x: 27, y: 22),
+            CGPoint(x: 35, y: 12),
+            CGPoint(x: 47, y: 3),
+            CGPoint(x: 47, y: 22),
+        ])
+        
+        assertColor(.black, in: image, at: [
+            CGPoint(x: 3, y: 3),
+            CGPoint(x: 3, y: 22),
+            CGPoint(x: 12, y: 12),
+            CGPoint(x: 22, y: 3),
+            CGPoint(x: 22, y: 22),
+        ])
+    }
+    
+    private func assertColor(_ color: UIColor, in image: UIImage, at points: [CGPoint]) {
+        points.forEach {
+            let pixel = self.color(at: $0, in: image)
+            assertColor(color, pixel)
+        }
+    }
+        
     
     private func assertColor(_ color1: UIColor, _ color2: UIColor) {
         let sRGBColor1 = color1.cgColor.converted(to: CGColorSpace(name: CGColorSpace.sRGB)!, intent: .defaultIntent, options: nil)
