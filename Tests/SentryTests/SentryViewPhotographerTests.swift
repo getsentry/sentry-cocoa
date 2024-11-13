@@ -237,7 +237,7 @@ class SentryViewPhotographerTests: XCTestCase {
         assertColor(pixel1, .green)
     }
     
-    func testNotMaskingLabelInsideclippedViewHiddenByAnOpaqueExternalView() throws {
+    func testNotMaskingLabelInsideClippedViewHiddenByAnOpaqueExternalView() throws {
         let topView = UIView(frame: CGRect(x: 25, y: 0, width: 25, height: 25))
         topView.backgroundColor = .green
         
