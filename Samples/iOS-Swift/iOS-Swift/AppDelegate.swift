@@ -43,7 +43,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             options.debug = true
             
             if #available(iOS 16.0, *), !args.contains("--disable-session-replay") {
-                options.experimental.sessionReplay = SentryReplayOptions(sessionSampleRate: 0, onErrorSampleRate: 1, maskAllText: true, maskAllImages: true)
+                options.experimental.sessionReplay = SentryReplayOptions(sessionSampleRate: 1, onErrorSampleRate: 1, maskAllText: true, maskAllImages: true)
                 options.experimental.sessionReplay.quality = .high
             }
             
