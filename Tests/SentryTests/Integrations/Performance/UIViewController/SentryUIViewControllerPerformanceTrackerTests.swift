@@ -48,6 +48,7 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
                 encoding: .utf8)! as NSString
             options.add(inAppInclude: imageName.lastPathComponent)
             options.debug = true
+            options.enableTimeToFullDisplayTracing = true
             
             framesTracker = SentryFramesTracker(displayLinkWrapper: displayLinkWrapper, dateProvider: dateProvider, dispatchQueueWrapper: TestSentryDispatchQueueWrapper(),
                                                 notificationCenter: TestNSNotificationCenterWrapper(), keepDelayedFramesDuration: 0)
@@ -812,6 +813,95 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
         let secondFullDisplaySpan = try XCTUnwrap(secondTracer?.children.first { $0.operation == "ui.load.full_display" })
         
         XCTAssertFalse(secondFullDisplaySpan.isFinished)
+    }
+    
+    func test_waitForFullDisplay_NewViewControllerLoaded_BeforeReportTTFD_withBackgroundWork() throws {
+        class CustomVC : UIViewController {
+            var workSpan: Span?
+            
+            override func viewDidAppear(_ animated: Bool) {
+                super.viewDidAppear(animated)
+                //Start some work, it could be a http request
+                workSpan = SentrySDK.span?.startChild(operation: "Work")
+            }
+            
+            // We will use a function to finish the work
+            // but it could be the request response
+            func finishWork() {
+                workSpan?.finish()
+                SentrySDK.reportFullyDisplayed()
+            }
+        }
+        
+        let dateProvider = fixture.dateProvider
+        let sut = fixture.getSut()
+        let tracker = fixture.tracker
+        let firstController = CustomVC()
+        let secondController = CustomVC()
+
+        var firstTracer: SentryTracer?
+        var secondTracer: SentryTracer?
+
+        sut.enableWaitForFullDisplay = true
+
+        dateProvider.advance(by: 1)
+        sut.viewControllerLoadView(firstController) {
+            firstController.loadView()
+            firstTracer = self.getStack(tracker).first as? SentryTracer
+        }
+        
+        sut.viewControllerViewDidLoad(firstController) {
+            firstController.viewDidLoad()
+        }
+        
+        dateProvider.advance(by: 1)
+        sut.viewControllerViewWillAppear(firstController) {
+            firstController.viewWillAppear(false)
+        }
+        
+        sut.viewControllerViewDidAppear(firstController) {
+            firstController.viewDidAppear(false)
+        }
+        
+        fixture.displayLinkWrapper.normalFrame()
+        
+        let firstFullDisplaySpan = try XCTUnwrap(firstTracer?.children.first { $0.operation == "ui.load.full_display" })
+
+        XCTAssertFalse(firstFullDisplaySpan.isFinished)
+        
+        XCTAssertEqual(firstTracer?.traceId, SentrySDK.span?.traceId)
+        
+        dateProvider.advance(by: 1)
+        sut.viewControllerLoadView(secondController) {
+            secondController.loadView()
+            secondTracer = self.getStack(tracker).first as? SentryTracer
+        }
+        
+        dateProvider.advance(by: 1)
+        firstController.finishWork()
+        fixture.displayLinkWrapper.normalFrame()
+        
+        dateProvider.advance(by: 1)
+        sut.viewControllerViewWillAppear(secondController) {
+            secondController.viewWillAppear(false)
+        }
+        sut.viewControllerViewDidAppear(secondController) {
+            secondController.viewDidAppear(false)
+        }
+        fixture.displayLinkWrapper.normalFrame()
+        
+        dateProvider.advance(by: 1)
+        let timeOfSecondControllerFinishWork = dateProvider.date()
+        secondController.finishWork()
+       
+        fixture.displayLinkWrapper.normalFrame()
+        
+        XCTAssertTrue(firstFullDisplaySpan.isFinished)
+        XCTAssertEqual(.deadlineExceeded, firstFullDisplaySpan.status)
+        
+        let secondFullDisplaySpan = try XCTUnwrap(secondTracer?.children.first { $0.operation == "ui.load.full_display" })
+        
+        XCTAssertEqual(secondFullDisplaySpan.timestamp, timeOfSecondControllerFinishWork)
     }
     
     func test_waitForFullDisplay_NewViewControllerLoaded_BeforeReportTTFD_FramesTrackerStopped() throws {
