@@ -148,7 +148,7 @@ class SentryViewPhotographerTests: XCTestCase {
         let label = UILabel(frame: CGRect(x: 0, y: 0, width: 50, height: 25))
         label.text = "Test"
         
-        let parentView = UIView(frame: CGRect(x: 0, y:12.5, width: 50, height: 25))
+        let parentView = UIView(frame: CGRect(x: 0, y: 12.5, width: 50, height: 25))
         parentView.backgroundColor = .green
         parentView.transform = CGAffineTransform(rotationAngle: .pi / 2)
         parentView.addSubview(label)
@@ -160,14 +160,14 @@ class SentryViewPhotographerTests: XCTestCase {
             CGPoint(x: 2, y: 47),
             CGPoint(x: 10, y: 47),
             CGPoint(x: 39, y: 2),
-            CGPoint(x: 39, y: 47),
+            CGPoint(x: 39, y: 47)
         ])
         
         assertColor(.black, in: image, at: [
             CGPoint(x: 13, y: 2),
             CGPoint(x: 35, y: 2),
             CGPoint(x: 13, y: 47),
-            CGPoint(x: 35, y: 47),
+            CGPoint(x: 35, y: 47)
         ])
     }
     
@@ -241,7 +241,6 @@ class SentryViewPhotographerTests: XCTestCase {
         let topView = UIView(frame: CGRect(x: 25, y: 0, width: 25, height: 25))
         topView.backgroundColor = .green
         
-        
         let label1 = UILabel(frame: CGRect(x: 0, y: 0, width: 50, height: 25))
         label1.text = "Test"
         label1.textColor = .black
@@ -257,7 +256,7 @@ class SentryViewPhotographerTests: XCTestCase {
             CGPoint(x: 27, y: 22),
             CGPoint(x: 35, y: 12),
             CGPoint(x: 47, y: 3),
-            CGPoint(x: 47, y: 22),
+            CGPoint(x: 47, y: 22)
         ])
         
         assertColor(.black, in: image, at: [
@@ -265,7 +264,7 @@ class SentryViewPhotographerTests: XCTestCase {
             CGPoint(x: 3, y: 22),
             CGPoint(x: 12, y: 12),
             CGPoint(x: 22, y: 3),
-            CGPoint(x: 22, y: 22),
+            CGPoint(x: 22, y: 22)
         ])
     }
     
@@ -275,7 +274,6 @@ class SentryViewPhotographerTests: XCTestCase {
             assertColor(color, pixel)
         }
     }
-        
     
     private func assertColor(_ color1: UIColor, _ color2: UIColor) {
         let sRGBColor1 = color1.cgColor.converted(to: CGColorSpace(name: CGColorSpace.sRGB)!, intent: .defaultIntent, options: nil)
