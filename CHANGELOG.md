@@ -13,6 +13,7 @@
 - Concurrency crash with Swift 6 (#4512)
 - Make `Scope.span` fully thread safe (#4519)
 - Session replay opacity animation masking (#4532)
+- Finish TTFD when not calling reportFullyDisplayed before binding a new transaction to the scope (#4526).
 
 ## 8.40.1
 
