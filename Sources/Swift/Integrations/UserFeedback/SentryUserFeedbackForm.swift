@@ -50,6 +50,36 @@ class SentryUserFeedbackForm: UIViewController {
             messageTextViewPlaceholder.leadingAnchor.constraint(equalTo: messageTextView.leadingAnchor, constant: messageTextView.textContainerInset.left + 5),
             messageTextViewPlaceholder.topAnchor.constraint(equalTo: messageTextView.topAnchor, constant: messageTextView.textContainerInset.top)
         ])
+        
+        [fullNameTextField, emailTextField].forEach {
+            $0.font = config.theme.font
+            if config.theme.outlineStyle == config.theme.defaultOutlineStyle {
+                $0.borderStyle = .roundedRect
+            } else {
+                $0.layer.cornerRadius = config.theme.outlineStyle.cornerRadius
+                $0.layer.borderWidth = config.theme.outlineStyle.outlineWidth
+                $0.layer.borderColor = config.theme.outlineStyle.outlineColor.cgColor
+            }
+        }
+        
+        [fullNameLabel, emailLabel, messageLabel].forEach {
+            $0.font = config.theme.headingFont
+        }
+        
+        [submitButton, addScreenshotButton, removeScreenshotButton, cancelButton].forEach {
+            $0.titleLabel?.font = config.theme.headingFont
+        }
+        
+        [submitButton, addScreenshotButton, removeScreenshotButton, cancelButton, messageTextView].forEach {
+            $0.layer.cornerRadius = config.theme.outlineStyle.cornerRadius
+            $0.layer.borderWidth = config.theme.outlineStyle.outlineWidth
+            $0.layer.borderColor = config.theme.outlineStyle.outlineColor.cgColor
+        }
+        
+        [addScreenshotButton, removeScreenshotButton, cancelButton].forEach {
+            $0.backgroundColor = config.theme.buttonBackground
+            $0.setTitleColor(config.theme.buttonForeground, for: .normal)
+        }
     }
     
     required init?(coder: NSCoder) {
@@ -99,21 +129,12 @@ class SentryUserFeedbackForm: UIViewController {
     lazy var fullNameLabel = {
         let label = UILabel(frame: .zero)
         label.text = config.formConfig.nameLabelContents
-        label.font = config.theme.headingFont
         return label
     }()
     
     lazy var fullNameTextField = {
         let field = UITextField(frame: .zero)
         field.placeholder = config.formConfig.namePlaceholder
-        field.font = config.theme.font
-        if config.theme.outlineStyle == config.theme.defaultOutlineStyle {
-            field.borderStyle = .roundedRect
-        } else {
-            field.layer.cornerRadius = config.theme.outlineStyle.cornerRadius
-            field.layer.borderWidth = config.theme.outlineStyle.outlineWidth
-            field.layer.borderColor = config.theme.outlineStyle.outlineColor.cgColor
-        }
         field.accessibilityLabel = config.formConfig.nameTextFieldAccessibilityLabel
         return field
     }()
@@ -121,21 +142,12 @@ class SentryUserFeedbackForm: UIViewController {
     lazy var emailLabel = {
         let label = UILabel(frame: .zero)
         label.text = config.formConfig.emailLabelContents
-        label.font = config.theme.headingFont
         return label
     }()
     
     lazy var emailTextField = {
         let field = UITextField(frame: .zero)
         field.placeholder = config.formConfig.emailPlaceholder
-        field.font = config.theme.font
-        if config.theme.outlineStyle == config.theme.defaultOutlineStyle {
-            field.borderStyle = .roundedRect
-        } else {
-            field.layer.cornerRadius = config.theme.outlineStyle.cornerRadius
-            field.layer.borderWidth = config.theme.outlineStyle.outlineWidth
-            field.layer.borderColor = config.theme.outlineStyle.outlineColor.cgColor
-        }
         field.accessibilityLabel = config.formConfig.emailTextFieldAccessibilityLabel
         return field
     }()
@@ -143,7 +155,6 @@ class SentryUserFeedbackForm: UIViewController {
     lazy var messageLabel = {
         let label = UILabel(frame: .zero)
         label.text = config.formConfig.messageLabelContents
-        label.font = config.theme.headingFont
         return label
     }()
     
@@ -159,11 +170,6 @@ class SentryUserFeedbackForm: UIViewController {
     lazy var messageTextView = {
         let textView = UITextView(frame: .zero)
         textView.font = config.theme.font
-        textView.isScrollEnabled = true
-        textView.isEditable = true
-        textView.layer.cornerRadius = config.theme.outlineStyle.cornerRadius
-        textView.layer.borderWidth = config.theme.outlineStyle.outlineWidth
-        textView.layer.borderColor = config.theme.outlineStyle.outlineColor.cgColor
         textView.accessibilityLabel = config.formConfig.messageTextViewAccessibilityLabel
         textView.textContainerInset = .init(top: 13, left: 2, bottom: 13, right: 2)
         textView.delegate = self
@@ -173,56 +179,34 @@ class SentryUserFeedbackForm: UIViewController {
     lazy var addScreenshotButton = {
         let button = UIButton(frame: .zero)
         button.setTitle(config.formConfig.addScreenshotButtonLabel, for: .normal)
-        button.titleLabel?.font = config.theme.headingFont
         button.accessibilityLabel = config.formConfig.addScreenshotButtonAccessibilityLabel
-        button.backgroundColor = config.theme.buttonBackground
-        button.setTitleColor(config.theme.buttonForeground, for: .normal)
         button.addTarget(self, action: #selector(addScreenshotButtonTapped), for: .touchUpInside)
-        button.layer.cornerRadius = config.theme.outlineStyle.cornerRadius
-        button.layer.borderWidth = config.theme.outlineStyle.outlineWidth
-        button.layer.borderColor = config.theme.outlineStyle.outlineColor.cgColor
         return button
     }()
     
     lazy var removeScreenshotButton = {
         let button = UIButton(frame: .zero)
         button.setTitle(config.formConfig.removeScreenshotButtonLabel, for: .normal)
-        button.titleLabel?.font = config.theme.headingFont
         button.accessibilityLabel = config.formConfig.removeScreenshotButtonAccessibilityLabel
-        button.backgroundColor = config.theme.buttonBackground
-        button.setTitleColor(config.theme.buttonForeground, for: .normal)
         button.addTarget(self, action: #selector(removeScreenshotButtonTapped), for: .touchUpInside)
-        button.layer.cornerRadius = config.theme.outlineStyle.cornerRadius
-        button.layer.borderWidth = config.theme.outlineStyle.outlineWidth
-        button.layer.borderColor = config.theme.outlineStyle.outlineColor.cgColor
         return button
     }()
     
     lazy var submitButton = {
         let button = UIButton(frame: .zero)
         button.setTitle(config.formConfig.submitButtonLabel, for: .normal)
-        button.titleLabel?.font = config.theme.headingFont
         button.accessibilityLabel = config.formConfig.submitButtonAccessibilityLabel
         button.backgroundColor = config.theme.submitBackground
         button.setTitleColor(config.theme.submitForeground, for: .normal)
         button.addTarget(self, action: #selector(submitFeedbackButtonTapped), for: .touchUpInside)
-        button.layer.cornerRadius = config.theme.outlineStyle.cornerRadius
-        button.layer.borderWidth = config.theme.outlineStyle.outlineWidth
-        button.layer.borderColor = config.theme.outlineStyle.outlineColor.cgColor
         return button
     }()
     
     lazy var cancelButton = {
         let button = UIButton(frame: .zero)
         button.setTitle(config.formConfig.cancelButtonLabel, for: .normal)
-        button.titleLabel?.font = config.theme.headingFont
         button.accessibilityLabel = config.formConfig.cancelButtonAccessibilityLabel
-        button.backgroundColor = config.theme.buttonBackground
-        button.setTitleColor(config.theme.buttonForeground, for: .normal)
         button.addTarget(self, action: #selector(cancelButtonTapped), for: .touchUpInside)
-        button.layer.cornerRadius = config.theme.outlineStyle.cornerRadius
-        button.layer.borderWidth = config.theme.outlineStyle.outlineWidth
-        button.layer.borderColor = config.theme.outlineStyle.outlineColor.cgColor
         return button
     }()
     
