@@ -24,7 +24,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (nullable SentryBinaryImageInfo *)imageByAddress:(const uint64_t)address;
 
-- (nullable NSString *)pathForInAppInclude:(NSString *)inAppInclude;
+- (NSSet<NSString *> *)imagePathsForInAppInclude:(NSString *)inAppInclude;
 
 + (NSString *_Nullable)convertUUID:(const unsigned char *const)value;
 

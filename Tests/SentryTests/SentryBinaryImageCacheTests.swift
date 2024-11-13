@@ -122,17 +122,17 @@ class SentryBinaryImageCacheTests: XCTestCase {
         sut.binaryImageAdded(&binaryImage)
         sut.binaryImageAdded(&binaryImage2)
         
-        let path = sut.pathFor(inAppInclude: "Expected Name at 0")
-        XCTAssertEqual(path, "Expected Name at 0")
+        let paths = sut.imagePathsFor(inAppInclude: "Expected Name at 0")
+        XCTAssertEqual(paths.first, "Expected Name at 0")
         
-        let path2 = sut.pathFor(inAppInclude: "Expected Name at 1")
-        XCTAssertEqual(path2, "Expected Name at 1")
+        let paths2 = sut.imagePathsFor(inAppInclude: "Expected Name at 1")
+        XCTAssertEqual(paths2.first, "Expected Name at 1")
         
-        let path3 = sut.pathFor(inAppInclude: "Expected")
-        XCTAssertEqual(path3, "Expected Name at 0")
+        let bothPaths = sut.imagePathsFor(inAppInclude: "Expected")
+        XCTAssertEqual(bothPaths, ["Expected Name at 0", "Expected Name at 1"])
         
-        let didNotFind = sut.pathFor(inAppInclude: "Name at 0")
-        XCTAssertNil(didNotFind)
+        let didNotFind = sut.imagePathsFor(inAppInclude: "Name at 0")
+        XCTAssertTrue(didNotFind.isEmpty)
     }
     
     func testBinaryImageWithNULLName_DoesNotAddImage() {
@@ -193,7 +193,7 @@ class SentryBinaryImageCacheTests: XCTestCase {
         
         for i in 0..<count {
             DispatchQueue.global().async {
-                var binaryImage0 = self.createCrashBinaryImage(UInt(i * 10))
+                var binaryImage0 = createCrashBinaryImage(UInt(i * 10))
                 self.sut.binaryImageAdded(&binaryImage0)
                 
                 self.sut.stop()
@@ -204,32 +204,31 @@ class SentryBinaryImageCacheTests: XCTestCase {
         
         waitForExpectations(timeout: 1)
     }
+}
 
-    func createCrashBinaryImage(_ address: UInt, vmAddress: UInt64 = 0) -> SentryCrashBinaryImage {
-        let name = "Expected Name at \(address)"
-        let nameCString = name.withCString { strdup($0) }
-        
-        var uuidPointer = UnsafeMutablePointer<UInt8>(nil)
-        let uuidAsCharArray: [UInt8] = [132, 186, 235, 218, 173, 26, 51, 244, 179, 93, 138, 69, 245, 218, 243, 34]
-        uuidPointer = UnsafeMutablePointer<UInt8>.allocate(capacity: uuidAsCharArray.count)
-        uuidPointer?.initialize(from: uuidAsCharArray, count: uuidAsCharArray.count)
+func createCrashBinaryImage(_ address: UInt, vmAddress: UInt64 = 0, name: String? = nil) -> SentryCrashBinaryImage {
+    let imageName = name ?? "Expected Name at \(address)"
+    let nameCString = imageName.withCString { strdup($0) }
+    
+    var uuidPointer = UnsafeMutablePointer<UInt8>(nil)
+    let uuidAsCharArray: [UInt8] = [132, 186, 235, 218, 173, 26, 51, 244, 179, 93, 138, 69, 245, 218, 243, 34]
+    uuidPointer = UnsafeMutablePointer<UInt8>.allocate(capacity: uuidAsCharArray.count)
+    uuidPointer?.initialize(from: uuidAsCharArray, count: uuidAsCharArray.count)
 
-        let binaryImage = SentryCrashBinaryImage(
-            address: UInt64(address),
-            vmAddress: vmAddress,
-            size: 100,
-            name: nameCString,
-            uuid: uuidPointer,
-            cpuType: 1,
-            cpuSubType: 1,
-            majorVersion: 1,
-            minorVersion: 0,
-            revisionVersion: 0,
-            crashInfoMessage: nil,
-            crashInfoMessage2: nil
-        )
+    let binaryImage = SentryCrashBinaryImage(
+        address: UInt64(address),
+        vmAddress: vmAddress,
+        size: 100,
+        name: nameCString,
+        uuid: uuidPointer,
+        cpuType: 1,
+        cpuSubType: 1,
+        majorVersion: 1,
+        minorVersion: 0,
+        revisionVersion: 0,
+        crashInfoMessage: nil,
+        crashInfoMessage2: nil
+    )
 
-        return binaryImage
-    }
-
+    return binaryImage
 }

@@ -113,7 +113,7 @@ jobs:
             
   ui-tests-swift6:
     name: UI Tests for iOS-Swift6 Simulator
-    runs-on: macos-14
+    runs-on: macos-15
 
     steps:
       - uses: actions/checkout@v4

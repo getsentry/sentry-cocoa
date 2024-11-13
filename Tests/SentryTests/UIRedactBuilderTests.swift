@@ -200,7 +200,113 @@ class UIRedactBuilderTests: XCTestCase {
         let result = sut.redactRegionsFor(view: rootView)
         XCTAssertEqual(result.count, 1)
     }
-    
+
+    func testIgnoreContainerChildView() {
+        class IgnoreContainer: UIView {}
+        class AnotherLabel: UILabel {}
+
+        let sut = getSut()
+        sut.setIgnoreContainerClass(IgnoreContainer.self)
+
+        let ignoreContainer = IgnoreContainer(frame: CGRect(x: 0, y: 0, width: 60, height: 60))
+        let wrappedLabel = AnotherLabel(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
+        ignoreContainer.addSubview(wrappedLabel)
+        rootView.addSubview(ignoreContainer)
+
+        let result = sut.redactRegionsFor(view: rootView)
+        XCTAssertEqual(result.count, 0)
+    }
+
+    func testIgnoreContainerDirectChildView() {
+        class IgnoreContainer: UIView {}
+        class AnotherLabel: UILabel {}
+
+        let sut = getSut()
+        sut.setIgnoreContainerClass(IgnoreContainer.self)
+
+        let ignoreContainer = IgnoreContainer(frame: CGRect(x: 0, y: 0, width: 60, height: 60))
+        let wrappedLabel = AnotherLabel(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
+        let redactedLabel = AnotherLabel(frame: CGRect(x: 10, y: 10, width: 10, height: 10))
+        wrappedLabel.addSubview(redactedLabel)
+        ignoreContainer.addSubview(wrappedLabel)
+        rootView.addSubview(ignoreContainer)
+
+        let result = sut.redactRegionsFor(view: rootView)
+        XCTAssertEqual(result.count, 1)
+    }
+
+    func testRedactIgnoreContainerAsChildOfMaskedView() {
+        class IgnoreContainer: UIView {}
+
+        let sut = getSut()
+        sut.setIgnoreContainerClass(IgnoreContainer.self)
+
+        let redactedLabel = UILabel(frame: CGRect(x: 0, y: 0, width: 60, height: 60))
+        let ignoreContainer = IgnoreContainer(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
+        let redactedChildLabel = UILabel(frame: CGRect(x: 10, y: 10, width: 10, height: 10))
+        ignoreContainer.addSubview(redactedChildLabel)
+        redactedLabel.addSubview(ignoreContainer)
+        rootView.addSubview(redactedLabel)
+
+        let result = sut.redactRegionsFor(view: rootView)
+        XCTAssertEqual(result.count, 3)
+    }
+
+    func testRedactChildrenOfRedactContainer() {
+        class RedactContainer: UIView {}
+        class AnotherView: UIView {}
+
+        let sut = getSut()
+        sut.setRedactContainerClass(RedactContainer.self)
+
+        let redactContainer = RedactContainer(frame: CGRect(x: 0, y: 0, width: 60, height: 60))
+        let redactedView = AnotherView(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
+        let redactedView2 = AnotherView(frame: CGRect(x: 10, y: 10, width: 10, height: 10))
+        redactedView.addSubview(redactedView2)
+        redactContainer.addSubview(redactedView)
+        rootView.addSubview(redactContainer)
+
+        let result = sut.redactRegionsFor(view: rootView)
+        XCTAssertEqual(result.count, 3)
+    }
+
+    func testRedactChildrenOfRedactedView() {
+        class AnotherView: UIView {}
+
+        let sut = getSut()
+
+        let redactedLabel = UILabel(frame: CGRect(x: 0, y: 0, width: 60, height: 60))
+        let redactedView = AnotherView(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
+        redactedLabel.addSubview(redactedView)
+        rootView.addSubview(redactedLabel)
+
+        let result = sut.redactRegionsFor(view: rootView)
+        XCTAssertEqual(result.count, 2)
+    }
+
+    func testRedactContainerHasPriorityOverIgnoreContainer() {
+        class IgnoreContainer: UIView {}
+        class RedactContainer: UIView {}
+        class AnotherView: UIView {}
+
+        let sut = getSut()
+        sut.setRedactContainerClass(RedactContainer.self)
+
+        let ignoreContainer = IgnoreContainer(frame: CGRect(x: 0, y: 0, width: 80, height: 80))
+        let redactContainer = RedactContainer(frame: CGRect(x: 0, y: 0, width: 60, height: 60))
+        let redactedView = AnotherView(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
+        let ignoreContainer2 = IgnoreContainer(frame: CGRect(x: 10, y: 10, width: 10, height: 10))
+        let redactedView2 = AnotherView(frame: CGRect(x: 15, y: 15, width: 5, height: 5))
+        ignoreContainer2.addSubview(redactedView2)
+        redactedView.addSubview(ignoreContainer2)
+        redactContainer.addSubview(redactedView)
+        ignoreContainer.addSubview(redactContainer)
+        rootView.addSubview(ignoreContainer)
+
+        let result = sut.redactRegionsFor(view: rootView)
+        XCTAssertEqual(result.count, 4)
+    }
+
     func testIgnoreView() {
         class AnotherLabel: UILabel {
         }
