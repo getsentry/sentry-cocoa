@@ -877,6 +877,8 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
             secondTracer = self.getStack(tracker).first as? SentryTracer
         }
         
+        // The work of the first controller asynchronously ended here, and a new frame was rendered
+        // while the second controller hasn’t appeared yet.
         dateProvider.advance(by: 1)
         firstController.finishWork()
         fixture.displayLinkWrapper.normalFrame()
