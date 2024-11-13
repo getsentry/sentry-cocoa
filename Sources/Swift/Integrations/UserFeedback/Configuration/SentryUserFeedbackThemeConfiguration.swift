@@ -15,6 +15,10 @@ public class SentryUserFeedbackThemeConfiguration: NSObject {
      */
     public var font: UIFont = UIFont.preferredFont(forTextStyle: .callout)
     
+    public var titleFont = UIFont.preferredFont(forTextStyle: .title1)
+    
+    public var headingFont = UIFont.preferredFont(forTextStyle: .headline)
+    
     /**
      * Foreground text color of the widget and form.
      * - note: Default light mode: `rgb(43, 34, 51)`; dark mode: `rgb(235, 230, 239)`
@@ -68,7 +72,7 @@ public class SentryUserFeedbackThemeConfiguration: NSObject {
          * Outline color for form inputs.
          * - note: Default: The system default of a UITextField outline with borderStyle of .roundedRect.
          */
-        public var outlineColor =  UIColor(white: 204 / 255, alpha: 1)
+        public var outlineColor = UIColor(white: 204 / 255, alpha: 1)
         
         /**
          * Outline corner radius for form input elements.
@@ -89,7 +93,7 @@ public class SentryUserFeedbackThemeConfiguration: NSObject {
     public lazy var outlineStyle: OutlineStyle = defaultOutlineStyle
     
     public var inputBackground: UIColor = UIColor.secondarySystemBackground
-    public var inputBorder: CGFloat? = nil
+    public var inputBorder: CGFloat?
 }
 
 #endif // os(iOS) && !SENTRY_NO_UIKIT

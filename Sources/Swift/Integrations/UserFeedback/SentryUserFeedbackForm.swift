@@ -22,11 +22,12 @@ class SentryUserFeedbackForm: UIViewController {
         
         view.backgroundColor = .systemBackground
         
+        let formElementHeight: CGFloat = 50
         NSLayoutConstraint.activate([
-            scrollView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: config.spacing),
-            scrollView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: config.spacing),
-            scrollView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -config.spacing),
-            scrollView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -config.spacing),
+            scrollView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: config.margin),
+            scrollView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: config.margin),
+            scrollView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -config.margin),
+            scrollView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -config.margin),
             
             stack.topAnchor.constraint(equalTo: scrollView.topAnchor),
             stack.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
@@ -36,8 +37,18 @@ class SentryUserFeedbackForm: UIViewController {
             
             messageTextView.heightAnchor.constraint(equalToConstant: config.theme.font.lineHeight * 5),
             
-            sentryLogoView.widthAnchor.constraint(equalToConstant: 72),
-            sentryLogoView.heightAnchor.constraint(equalToConstant: 66)
+            sentryLogoView.widthAnchor.constraint(equalToConstant: 50),
+            sentryLogoView.heightAnchor.constraint(equalTo: sentryLogoView.widthAnchor, multiplier: 66 / 72),
+
+            fullNameTextField.heightAnchor.constraint(equalToConstant: formElementHeight),
+            emailTextField.heightAnchor.constraint(equalToConstant: formElementHeight),
+            addScreenshotButton.heightAnchor.constraint(equalToConstant: formElementHeight),
+            removeScreenshotButton.heightAnchor.constraint(equalToConstant: formElementHeight),
+            submitButton.heightAnchor.constraint(equalToConstant: formElementHeight),
+            cancelButton.heightAnchor.constraint(equalToConstant: formElementHeight),
+            
+            messageTextViewPlaceholder.leadingAnchor.constraint(equalTo: messageTextView.leadingAnchor, constant: messageTextView.textContainerInset.left + 5),
+            messageTextViewPlaceholder.topAnchor.constraint(equalTo: messageTextView.topAnchor, constant: messageTextView.textContainerInset.top)
         ])
     }
     
@@ -69,6 +80,8 @@ class SentryUserFeedbackForm: UIViewController {
     lazy var formTitleLabel = {
         let label = UILabel(frame: .zero)
         label.text = config.formConfig.formTitle
+        label.font = config.theme.titleFont
+        label.setContentCompressionResistancePriority(.required, for: .horizontal)
         return label
     }()
     
@@ -85,13 +98,15 @@ class SentryUserFeedbackForm: UIViewController {
     
     lazy var fullNameLabel = {
         let label = UILabel(frame: .zero)
-        label.text = fullLabelText(labelText: config.formConfig.nameLabel, required: config.formConfig.isNameRequired)
+        label.text = config.formConfig.nameLabelContents
+        label.font = config.theme.headingFont
         return label
     }()
     
     lazy var fullNameTextField = {
         let field = UITextField(frame: .zero)
         field.placeholder = config.formConfig.namePlaceholder
+        field.font = config.theme.font
         if config.theme.outlineStyle == config.theme.defaultOutlineStyle {
             field.borderStyle = .roundedRect
         } else {
@@ -105,13 +120,15 @@ class SentryUserFeedbackForm: UIViewController {
     
     lazy var emailLabel = {
         let label = UILabel(frame: .zero)
-        label.text = fullLabelText(labelText: config.formConfig.emailLabel, required: config.formConfig.isEmailRequired)
+        label.text = config.formConfig.emailLabelContents
+        label.font = config.theme.headingFont
         return label
     }()
     
     lazy var emailTextField = {
         let field = UITextField(frame: .zero)
         field.placeholder = config.formConfig.emailPlaceholder
+        field.font = config.theme.font
         if config.theme.outlineStyle == config.theme.defaultOutlineStyle {
             field.borderStyle = .roundedRect
         } else {
@@ -125,25 +142,38 @@ class SentryUserFeedbackForm: UIViewController {
     
     lazy var messageLabel = {
         let label = UILabel(frame: .zero)
-        label.text = config.formConfig.messageLabel
+        label.text = config.formConfig.messageLabelContents
+        label.font = config.theme.headingFont
+        return label
+    }()
+    
+    lazy var messageTextViewPlaceholder = {
+        let label = UILabel(frame: .zero)
+        label.text = config.formConfig.messagePlaceholder
+        label.font = config.theme.font
+        label.textColor = .placeholderText
+        label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
     
     lazy var messageTextView = {
         let textView = UITextView(frame: .zero)
-        textView.text = config.formConfig.messagePlaceholder // TODO: color the text as placeholder if this is the content of the textview, otherwise change to regular foreground color
+        textView.font = config.theme.font
         textView.isScrollEnabled = true
         textView.isEditable = true
         textView.layer.cornerRadius = config.theme.outlineStyle.cornerRadius
         textView.layer.borderWidth = config.theme.outlineStyle.outlineWidth
         textView.layer.borderColor = config.theme.outlineStyle.outlineColor.cgColor
         textView.accessibilityLabel = config.formConfig.messageTextViewAccessibilityLabel
+        textView.textContainerInset = .init(top: 13, left: 2, bottom: 13, right: 2)
+        textView.delegate = self
         return textView
     }()
     
     lazy var addScreenshotButton = {
         let button = UIButton(frame: .zero)
         button.setTitle(config.formConfig.addScreenshotButtonLabel, for: .normal)
+        button.titleLabel?.font = config.theme.headingFont
         button.accessibilityLabel = config.formConfig.addScreenshotButtonAccessibilityLabel
         button.backgroundColor = config.theme.buttonBackground
         button.setTitleColor(config.theme.buttonForeground, for: .normal)
@@ -157,6 +187,7 @@ class SentryUserFeedbackForm: UIViewController {
     lazy var removeScreenshotButton = {
         let button = UIButton(frame: .zero)
         button.setTitle(config.formConfig.removeScreenshotButtonLabel, for: .normal)
+        button.titleLabel?.font = config.theme.headingFont
         button.accessibilityLabel = config.formConfig.removeScreenshotButtonAccessibilityLabel
         button.backgroundColor = config.theme.buttonBackground
         button.setTitleColor(config.theme.buttonForeground, for: .normal)
@@ -170,6 +201,7 @@ class SentryUserFeedbackForm: UIViewController {
     lazy var submitButton = {
         let button = UIButton(frame: .zero)
         button.setTitle(config.formConfig.submitButtonLabel, for: .normal)
+        button.titleLabel?.font = config.theme.headingFont
         button.accessibilityLabel = config.formConfig.submitButtonAccessibilityLabel
         button.backgroundColor = config.theme.submitBackground
         button.setTitleColor(config.theme.submitForeground, for: .normal)
@@ -183,6 +215,7 @@ class SentryUserFeedbackForm: UIViewController {
     lazy var cancelButton = {
         let button = UIButton(frame: .zero)
         button.setTitle(config.formConfig.cancelButtonLabel, for: .normal)
+        button.titleLabel?.font = config.theme.headingFont
         button.accessibilityLabel = config.formConfig.cancelButtonAccessibilityLabel
         button.backgroundColor = config.theme.buttonBackground
         button.setTitleColor(config.theme.buttonForeground, for: .normal)
@@ -206,6 +239,8 @@ class SentryUserFeedbackForm: UIViewController {
         stack.addArrangedSubview(headerStack)
         
         let inputStack = UIStackView()
+        inputStack.axis = .vertical
+        inputStack.spacing = config.theme.font.xHeight
         
         if self.config.formConfig.showName {
             inputStack.addArrangedSubview(self.fullNameLabel)
@@ -218,24 +253,25 @@ class SentryUserFeedbackForm: UIViewController {
         }
         
         inputStack.addArrangedSubview(self.messageLabel)
-        inputStack.addArrangedSubview(self.messageTextView)
+        
+        let messageAndScreenshotStack = UIStackView(arrangedSubviews: [self.messageTextView])
+        messageAndScreenshotStack.axis = .vertical
         
         if self.config.formConfig.enableScreenshot {
-            inputStack.addArrangedSubview(self.addScreenshotButton)
+            messageAndScreenshotStack.addArrangedSubview(self.addScreenshotButton)
         }
+        messageAndScreenshotStack.spacing = config.theme.font.lineHeight - config.theme.font.xHeight
+        
+        inputStack.addArrangedSubview(messageAndScreenshotStack)
         
         stack.addArrangedSubview(inputStack)
         
         let controlsStack = UIStackView()
-        
+        controlsStack.axis = .vertical
+        controlsStack.spacing = config.theme.font.lineHeight - config.theme.font.xHeight
         controlsStack.addArrangedSubview(self.submitButton)
         controlsStack.addArrangedSubview(self.cancelButton)
         stack.addArrangedSubview(controlsStack)
-        
-        [inputStack, controlsStack].forEach {
-            $0.axis = .vertical
-            $0.spacing = 8
-        }
         
         stack.translatesAutoresizingMaskIntoConstraints = false
         
@@ -247,17 +283,15 @@ class SentryUserFeedbackForm: UIViewController {
         view.addSubview(scrollView)
         scrollView.addSubview(stack)
         scrollView.translatesAutoresizingMaskIntoConstraints = false
+        scrollView.addSubview(messageTextViewPlaceholder)
         return scrollView
     }()
-    
-    // MARK: Helpers
-    
-    func fullLabelText(labelText: String, required: Bool) -> String {
-        if required {
-            return labelText + " " + config.formConfig.isRequiredLabel
-        } else {
-            return labelText
-        }
+}
+
+@available(iOS 13.0, *)
+extension SentryUserFeedbackForm: UITextViewDelegate {
+    func textViewDidChange(_ textView: UITextView) {
+        messageTextViewPlaceholder.isHidden = textView.text != ""
     }
 }
 

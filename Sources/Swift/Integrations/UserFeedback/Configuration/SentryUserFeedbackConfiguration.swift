@@ -131,6 +131,7 @@ public class SentryUserFeedbackConfiguration: NSObject {
     
     let padding: CGFloat = 16
     let spacing: CGFloat = 8
+    let margin: CGFloat = 32
 }
 
 #endif // os(iOS) && !SENTRY_NO_UIKIT

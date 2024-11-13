@@ -29,6 +29,8 @@ public class SentryUserFeedbackFormConfiguration: NSObject {
      */
     public var messageLabel: String = "Description"
     
+    lazy var messageLabelContents = fullLabelText(labelText: messageLabel, required: true)
+    
     /**
      * The placeholder for the feedback description input field.
      * - note: Default: `"What's the bug? What did you expect?"`
@@ -97,6 +99,8 @@ public class SentryUserFeedbackFormConfiguration: NSObject {
      */
     public var nameLabel: String = "Name"
     
+    lazy var nameLabelContents = fullLabelText(labelText: nameLabel, required: isNameRequired)
+    
     /**
      * The placeholder for the name input field.
      * - note: Default: `"Your Name"`
@@ -126,6 +130,8 @@ public class SentryUserFeedbackFormConfiguration: NSObject {
      * - note: Default: `"Email"`
      */
     public var emailLabel: String = "Email"
+    
+    lazy var emailLabelContents = fullLabelText(labelText: emailLabel, required: isEmailRequired)
     
     /**
      * The placeholder for the email input field.
@@ -160,6 +166,10 @@ public class SentryUserFeedbackFormConfiguration: NSObject {
      * - note: Default: `cancelButtonLabel` value
      */
     public lazy var cancelButtonAccessibilityLabel: String = cancelButtonLabel
+    
+    func fullLabelText(labelText: String, required: Bool) -> String {
+        required ? labelText + " " + isRequiredLabel : labelText
+    }
 }
 
 #endif // os(iOS) && !SENTRY_NO_UIKIT
