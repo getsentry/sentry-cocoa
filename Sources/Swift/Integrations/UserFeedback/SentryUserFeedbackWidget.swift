@@ -77,7 +77,7 @@ struct SentryUserFeedbackWidget {
             
             // MARK: UIAdaptivePresentationControllerDelegate
             
-            func presentationControllerWillDismiss(_ presentationController: UIPresentationController) {
+            func presentationControllerDidDismiss(_ presentationController: UIPresentationController) {
                 setWidget(visible: true)
             }
         }
