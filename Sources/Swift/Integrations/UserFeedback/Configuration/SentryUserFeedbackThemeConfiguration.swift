@@ -91,10 +91,14 @@ public class SentryUserFeedbackThemeConfiguration: NSObject {
         
         /**
          * Outline corner radius for form input elements.
-         * - note: Default: `5`
+         * - note: Default: `5`.
          */
         public var cornerRadius: CGFloat = 5
         
+        /**
+         * The thickness of the outline.
+         * - note: Default: `0.5`.
+         */
         public var outlineWidth: CGFloat = 0.5
         
         public init(outlineColor: UIColor = UIColor(white: 204 / 255, alpha: 1), cornerRadius: CGFloat = 5, outlineWidth: CGFloat = 0.5) {
