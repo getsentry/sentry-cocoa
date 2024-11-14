@@ -9,15 +9,30 @@ import UIKit
 @available(iOS 13.0, *)
 @objcMembers
 public class SentryUserFeedbackThemeConfiguration: NSObject {
+    lazy var defaultFont = UIFont.preferredFont(forTextStyle: .callout)
+    
+    lazy var defaultTitleFont = UIFont.preferredFont(forTextStyle: .title1)
+    
+    lazy var defaultHeadingFont = UIFont.preferredFont(forTextStyle: .headline)
+    
     /**
      * The default font to use.
      * - note: Defaults to the current system default.
      */
-    public var font: UIFont = UIFont.preferredFont(forTextStyle: .callout)
+    public lazy var font = defaultFont
     
-    public var titleFont = UIFont.preferredFont(forTextStyle: .title1)
+    public lazy var titleFont = defaultTitleFont
     
-    public var headingFont = UIFont.preferredFont(forTextStyle: .headline)
+    public lazy var headingFont = defaultHeadingFont
+    
+    func updateDefaultFonts() {
+        defaultFont = UIFont.preferredFont(forTextStyle: .callout)
+        defaultTitleFont = UIFont.preferredFont(forTextStyle: .title1)
+        defaultHeadingFont = UIFont.preferredFont(forTextStyle: .headline)
+        font = defaultFont
+        titleFont = defaultTitleFont
+        headingFont = defaultHeadingFont
+    }
     
     /**
      * Foreground text color of the widget and form.
@@ -89,11 +104,14 @@ public class SentryUserFeedbackThemeConfiguration: NSObject {
         }
     }
     
+    // We need to keep a reference to a default instance of this for comparison purposes later. We don't use the default to give UITextFields a default style, instead, we use `UITextField.BorderStyle.roundedRect` if `SentryUserFeedbackThemeConfiguration.outlineStyle == defaultOutlineStyle`.
     let defaultOutlineStyle = OutlineStyle()
+    
+    // Options for styling the outline of input elements and buttons in the feedback form.
     public lazy var outlineStyle: OutlineStyle = defaultOutlineStyle
     
+    // The background color to use for text inputs in the feedback form.
     public var inputBackground: UIColor = UIColor.secondarySystemBackground
-    public var inputBorder: CGFloat?
 }
 
 #endif // os(iOS) && !SENTRY_NO_UIKIT
