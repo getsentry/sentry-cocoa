@@ -16,33 +16,16 @@ class SentryUserFeedbackForm: UIViewController {
     weak var delegate: (any SentryUserFeedbackFormDelegate)?
     
     override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
-        if config.theme.font == config.theme.defaultFont {
-            config.theme.updateDefaultFonts()
-            config.recalculateScaleFactors()
-        }
-        
+        config.theme.updateDefaultFonts()
+        config.recalculateScaleFactors()
         updateLayout()
     }
-    
-    let formElementHeight: CGFloat = 40
-    let logoWidth: CGFloat = 47
-    lazy var messageTextViewHeightConstraint = messageTextView.heightAnchor.constraint(equalToConstant: config.theme.font.lineHeight * 5)
-    lazy var logoViewWidthConstraint = sentryLogoView.widthAnchor.constraint(equalToConstant: logoWidth * config.scaleFactor)
-    lazy var messagePlaceholderLeadingConstraint = messageTextViewPlaceholder.leadingAnchor.constraint(equalTo: messageTextView.leadingAnchor, constant: messageTextView.textContainerInset.left + 5)
-    lazy var messagePlaceholderTopConstraint = messageTextViewPlaceholder.topAnchor.constraint(equalTo: messageTextView.topAnchor, constant: messageTextView.textContainerInset.top)
-    lazy var fullNameTextFieldHeightConstraint = fullNameTextField.heightAnchor.constraint(equalToConstant: formElementHeight * config.scaleFactor)
-    lazy var emailTextFieldHeightConstraint = emailTextField.heightAnchor.constraint(equalToConstant: formElementHeight * config.scaleFactor)
-    lazy var addScreenshotButtonHeightConstraint = addScreenshotButton.heightAnchor.constraint(equalToConstant: formElementHeight * config.scaleFactor)
-    lazy var removeScreenshotButtonHeightConstraint = removeScreenshotButton.heightAnchor.constraint(equalToConstant: formElementHeight * config.scaleFactor)
-    lazy var submitButtonHeightConstraint = submitButton.heightAnchor.constraint(equalToConstant: formElementHeight * config.scaleFactor)
-    lazy var cancelButtonHeightConstraint = cancelButton.heightAnchor.constraint(equalToConstant: formElementHeight * config.scaleFactor)
     
     init(config: SentryUserFeedbackConfiguration, delegate: any SentryUserFeedbackFormDelegate) {
         self.config = config
         self.delegate = delegate
         super.init(nibName: nil, bundle: nil)
-        view.backgroundColor = .systemBackground
-        
+        view.backgroundColor = config.theme.background
         
         NSLayoutConstraint.activate([
             scrollView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: config.margin),
@@ -90,12 +73,12 @@ class SentryUserFeedbackForm: UIViewController {
         }
         
         [fullNameLabel, emailLabel, messageLabel].forEach {
-            $0.font = config.theme.headingFont
+            $0.font = config.theme.titleFont
             $0.adjustsFontForContentSizeCategory = true
         }
         
         [submitButton, addScreenshotButton, removeScreenshotButton, cancelButton].forEach {
-            $0.titleLabel?.font = config.theme.headingFont
+            $0.titleLabel?.font = config.theme.titleFont
             $0.titleLabel?.adjustsFontForContentSizeCategory = true
         }
         
@@ -134,7 +117,20 @@ class SentryUserFeedbackForm: UIViewController {
         delegate?.cancelled()
     }
     
-    // MARK: UI
+    // MARK: Layout
+    
+    let formElementHeight: CGFloat = 40
+    let logoWidth: CGFloat = 47
+    lazy var messageTextViewHeightConstraint = messageTextView.heightAnchor.constraint(equalToConstant: config.theme.font.lineHeight * 5)
+    lazy var logoViewWidthConstraint = sentryLogoView.widthAnchor.constraint(equalToConstant: logoWidth * config.scaleFactor)
+    lazy var messagePlaceholderLeadingConstraint = messageTextViewPlaceholder.leadingAnchor.constraint(equalTo: messageTextView.leadingAnchor, constant: messageTextView.textContainerInset.left + 5)
+    lazy var messagePlaceholderTopConstraint = messageTextViewPlaceholder.topAnchor.constraint(equalTo: messageTextView.topAnchor, constant: messageTextView.textContainerInset.top)
+    lazy var fullNameTextFieldHeightConstraint = fullNameTextField.heightAnchor.constraint(equalToConstant: formElementHeight * config.scaleFactor)
+    lazy var emailTextFieldHeightConstraint = emailTextField.heightAnchor.constraint(equalToConstant: formElementHeight * config.scaleFactor)
+    lazy var addScreenshotButtonHeightConstraint = addScreenshotButton.heightAnchor.constraint(equalToConstant: formElementHeight * config.scaleFactor)
+    lazy var removeScreenshotButtonHeightConstraint = removeScreenshotButton.heightAnchor.constraint(equalToConstant: formElementHeight * config.scaleFactor)
+    lazy var submitButtonHeightConstraint = submitButton.heightAnchor.constraint(equalToConstant: formElementHeight * config.scaleFactor)
+    lazy var cancelButtonHeightConstraint = cancelButton.heightAnchor.constraint(equalToConstant: formElementHeight * config.scaleFactor)
     
     func updateLayout() {
         let verticalPadding: CGFloat = 8
@@ -150,14 +146,14 @@ class SentryUserFeedbackForm: UIViewController {
         removeScreenshotButtonHeightConstraint.constant = formElementHeight * config.scaleFactor
         submitButtonHeightConstraint.constant = formElementHeight * config.scaleFactor
         cancelButtonHeightConstraint.constant = formElementHeight * config.scaleFactor
-        
-        
     }
+    
+    // MARK: UI Elements
     
     lazy var formTitleLabel = {
         let label = UILabel(frame: .zero)
         label.text = config.formConfig.formTitle
-        label.font = config.theme.titleFont
+        label.font = config.theme.headerFont
         label.setContentCompressionResistancePriority(.required, for: .horizontal)
         label.adjustsFontForContentSizeCategory = true
         return label
@@ -321,6 +317,7 @@ class SentryUserFeedbackForm: UIViewController {
     }()
 }
 
+// MARK: UITextViewDelegate
 @available(iOS 13.0, *)
 extension SentryUserFeedbackForm: UITextViewDelegate {
     func textViewDidChange(_ textView: UITextView) {

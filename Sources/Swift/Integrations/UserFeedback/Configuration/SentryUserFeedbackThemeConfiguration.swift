@@ -9,29 +9,47 @@ import UIKit
 @available(iOS 13.0, *)
 @objcMembers
 public class SentryUserFeedbackThemeConfiguration: NSObject {
-    lazy var defaultFont = UIFont.preferredFont(forTextStyle: .callout)
-    
-    lazy var defaultTitleFont = UIFont.preferredFont(forTextStyle: .title1)
-    
-    lazy var defaultHeadingFont = UIFont.preferredFont(forTextStyle: .headline)
+    /**
+     * The font family to use for form text elements.
+     * - note: Defaults to the system default, if this property is `nil`.
+     */
+    public lazy var fontFamily: String? = nil
     
     /**
-     * The default font to use.
-     * - note: Defaults to the current system default.
+     * Font for form input elements.
+     * - note: Defaults to `UIFont.TextStyle.callout`.
      */
-    public lazy var font = defaultFont
+    lazy var font = scaledFont(style: .callout)
     
-    public lazy var titleFont = defaultTitleFont
+    /**
+     * Font for main header title of the feedback form.
+     * - note: Defaults to `UIFont.TextStyle.title1`.
+     */
+    lazy var headerFont = scaledFont(style: .title1)
     
-    public lazy var headingFont = defaultHeadingFont
+    /**
+     * Font for titles of text fields and buttons in the form.
+     * - note: Defaults to `UIFont.TextStyle.headline`.
+     */
+    lazy var titleFont = scaledFont(style: .headline)
     
+    /**
+     * Return a scaled font for the given style, using the configured font family.
+     */
+    func scaledFont(style: UIFont.TextStyle) -> UIFont {
+        guard let fontFamily = fontFamily, let font = UIFont(name: fontFamily, size: UIFont.systemFontSize) else {
+            return UIFont.preferredFont(forTextStyle: style)
+        }
+        return UIFontMetrics(forTextStyle: style).scaledFont(for: font)
+    }
+    
+    /**
+     * Helps respond to dynamic font size changes when the app is in the background, and then comes back to the foreground.
+     */
     func updateDefaultFonts() {
-        defaultFont = UIFont.preferredFont(forTextStyle: .callout)
-        defaultTitleFont = UIFont.preferredFont(forTextStyle: .title1)
-        defaultHeadingFont = UIFont.preferredFont(forTextStyle: .headline)
-        font = defaultFont
-        titleFont = defaultTitleFont
-        headingFont = defaultHeadingFont
+        font = scaledFont(style: .callout)
+        headerFont = scaledFont(style: .title1)
+        titleFont = scaledFont(style: .headline)
     }
     
     /**
@@ -108,13 +126,19 @@ public class SentryUserFeedbackThemeConfiguration: NSObject {
         }
     }
     
-    // We need to keep a reference to a default instance of this for comparison purposes later. We don't use the default to give UITextFields a default style, instead, we use `UITextField.BorderStyle.roundedRect` if `SentryUserFeedbackThemeConfiguration.outlineStyle == defaultOutlineStyle`.
+    /**
+     * - note: We need to keep a reference to a default instance of this for comparison purposes later. We don't use the default to give UITextFields a default style, instead, we use `UITextField.BorderStyle.roundedRect` if `SentryUserFeedbackThemeConfiguration.outlineStyle == defaultOutlineStyle`.
+     */
     let defaultOutlineStyle = OutlineStyle()
     
-    // Options for styling the outline of input elements and buttons in the feedback form.
+    /**
+     * Options for styling the outline of input elements and buttons in the feedback form.
+     */
     public lazy var outlineStyle: OutlineStyle = defaultOutlineStyle
     
-    // The background color to use for text inputs in the feedback form.
+    /**
+     * Background color to use for text inputs in the feedback form.
+     */
     public var inputBackground: UIColor = UIColor.secondarySystemBackground
 }
 
