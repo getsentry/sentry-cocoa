@@ -12,7 +12,7 @@
 - UIViewController with Xcode 16 in debug (#4523). The Xcode 16 build setting [ENABLE_DEBUG_DYLIB](https://developer.apple.com/documentation/xcode/build-settings-reference#Enable-Debug-Dylib-Support), which is turned on by default only in debug, could lead to missing UIViewController traces.
 - Concurrency crash with Swift 6 (#4512)
 - Make `Scope.span` fully thread safe (#4519)
-- - Finish TTFD when not calling reportFullyDisplayed before binding a new transaction to the scope (#4526).
+- Finish TTFD when not calling reportFullyDisplayed before binding a new transaction to the scope (#4526).
 
 ## 8.40.1
 
