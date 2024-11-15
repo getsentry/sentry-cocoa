@@ -471,6 +471,15 @@ static NSDate *_Nullable startTimestamp = nil;
         integrationDictionary[NSStringFromClass(integrationClass)] = integrationClass;
     }
 
+#if TARGET_OS_IOS && SENTRY_HAS_UIKIT
+    if (@available(iOS 13.0, *)) {
+        if (options.userFeedbackConfiguration != nil) {
+            integrationDictionary[NSStringFromClass([SentryUserFeedbackIntegration class])] = [SentryUserFeedbackIntegration class];
+            [integrationNames addObject:NSStringFromClass([SentryUserFeedbackIntegration class])];
+        }
+    }
+#endif // TARGET_OS_IOS && SENTRY_HAS_UIKIT
+    
     for (NSString *integrationName in integrationNames) {
         Class integrationClass = NSClassFromString(integrationName);
         if (nil == integrationClass) {
