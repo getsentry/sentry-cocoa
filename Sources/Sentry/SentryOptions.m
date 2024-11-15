@@ -26,9 +26,9 @@
 #    import "SentryPerformanceTrackingIntegration.h"
 #    import "SentryScreenshotIntegration.h"
 #    import "SentryUIEventTrackingIntegration.h"
+#    import "SentryUserFeedbackIntegration.h"
 #    import "SentryViewHierarchyIntegration.h"
 #    import "SentryWatchdogTerminationTrackingIntegration.h"
-#    import "SentryUserFeedbackIntegration.h"
 #endif // SENTRY_HAS_UIKIT
 
 #if SENTRY_HAS_METRIC_KIT
@@ -73,7 +73,7 @@ sentry_defaultIntegrations(void)
         [defaultIntegrations addObject:NSStringFromClass([SentryUserFeedbackIntegration class])];
     }
 #endif // TARGET_OS_IOS && SENTRY_HAS_UIKIT
-    
+
 #if SENTRY_HAS_METRIC_KIT
     if (@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, *)) {
         [defaultIntegrations addObject:NSStringFromClass([SentryMetricKitIntegration class])];

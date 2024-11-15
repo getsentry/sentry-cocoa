@@ -13,7 +13,7 @@
     if (options.userFeedbackConfiguration == nil) {
         return NO;
     }
-    
+
     _driver = [[SentryUserFeedbackIntegrationDriver alloc]
         initWithConfiguration:options.userFeedbackConfiguration];
     return YES;
