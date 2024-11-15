@@ -14,6 +14,7 @@
 - Make `Scope.span` fully thread safe (#4519)
 - Finish TTFD when not calling reportFullyDisplayed before binding a new transaction to the scope (#4526).
 - Session replay opacity animation masking (#4532)
+- Load integration from same binary (#4541)
 
 ## 8.40.1
 
