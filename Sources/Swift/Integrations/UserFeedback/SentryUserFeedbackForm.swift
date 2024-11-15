@@ -8,8 +8,7 @@ import UIKit
 
 @available(iOS 13.0, *)
 protocol SentryUserFeedbackFormDelegate: NSObjectProtocol {
-    func cancelled()
-    func captureFeedback(message: String, name: String?, email: String?, hints: [String: Any]?)
+    func finished()
 }
 
 @available(iOS 13.0, *)
@@ -132,12 +131,18 @@ class SentryUserFeedbackForm: UIViewController {
             present(alert, animated: config.animations)
             return
         }
-        
-		delegate?.captureFeedback(message: messageTextView.text, name: fullNameTextField.text, email: emailTextField.text, hints: nil)
+        let error = NSError(domain: "user-feedback", code: 1)
+        let eventId = SentrySDK.capture(error: error)
+        let uf = UserFeedback(eventId: eventId)
+        uf.name = name
+        uf.email = email
+        uf.comments = messageTextView.text
+        SentrySDK.capture(userFeedback: uf)
+        delegate?.finished()
     }
     
     func cancelButtonTapped() {
-        delegate?.cancelled()
+        delegate?.finished()
     }
     
     // MARK: Layout
