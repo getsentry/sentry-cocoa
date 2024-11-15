@@ -463,14 +463,13 @@ static NSDate *_Nullable startTimestamp = nil;
     SentryOptions *options = [SentrySDK.currentHub getClient].options;
     NSMutableArray<NSString *> *integrationNames =
         [SentrySDK.currentHub getClient].options.integrations.mutableCopy;
-
-#if TARGET_OS_IOS && SENTRY_HAS_UIKIT
-    if (@available(iOS 13.0, *)) {
-        if (options.userFeedbackConfiguration != nil) {
-            [integrationNames addObject:NSStringFromClass([SentryUserFeedbackIntegration class])];
-        }
+    
+    NSArray<Class> * defaultIntegrations = SentryOptions.defaultIntegrationClasses;
+    NSMutableDictionary<NSString *, Class> * integrationDictionary = [[NSMutableDictionary alloc] init];
+    
+    for (Class integrationClass in defaultIntegrations) {
+        integrationDictionary[NSStringFromClass(integrationClass)] = integrationClass;
     }
-#endif // TARGET_OS_IOS && SENTRY_HAS_UIKIT
 
     for (NSString *integrationName in integrationNames) {
         Class integrationClass = NSClassFromString(integrationName);
