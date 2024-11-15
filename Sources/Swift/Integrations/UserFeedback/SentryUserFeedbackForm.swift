@@ -9,7 +9,7 @@ import UIKit
 @available(iOS 13.0, *)
 protocol SentryUserFeedbackFormDelegate: NSObjectProtocol {
     func cancelled()
-    func confirmed()
+    func captureFeedback(message: String, name: String?, email: String?, hints: [String: Any]?)
 }
 
 @available(iOS 13.0, *)
@@ -133,7 +133,7 @@ class SentryUserFeedbackForm: UIViewController {
             return
         }
         
-        delegate?.confirmed()
+		delegate?.captureFeedback(message: messageTextView.text, name: fullNameTextField.text, email: emailTextField.text, hints: nil)
     }
     
     func cancelButtonTapped() {
