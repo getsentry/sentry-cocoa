@@ -463,6 +463,14 @@ static NSDate *_Nullable startTimestamp = nil;
     NSMutableArray<NSString *> *integrationNames =
         [SentrySDK.currentHub getClient].options.integrations.mutableCopy;
 
+    NSArray<Class> *defaultIntegrations = SentryOptions.defaultIntegrationClasses;
+    NSMutableDictionary<NSString *, Class> *integrationDictionary =
+        [[NSMutableDictionary alloc] init];
+
+    for (Class integrationClass in defaultIntegrations) {
+        integrationDictionary[NSStringFromClass(integrationClass)] = integrationClass;
+    }
+
     for (NSString *integrationName in integrationNames) {
         Class integrationClass = NSClassFromString(integrationName);
         if (nil == integrationClass) {
