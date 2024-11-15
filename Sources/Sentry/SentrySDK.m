@@ -463,10 +463,11 @@ static NSDate *_Nullable startTimestamp = nil;
     SentryOptions *options = [SentrySDK.currentHub getClient].options;
     NSMutableArray<NSString *> *integrationNames =
         [SentrySDK.currentHub getClient].options.integrations.mutableCopy;
-    
-    NSArray<Class> * defaultIntegrations = SentryOptions.defaultIntegrationClasses;
-    NSMutableDictionary<NSString *, Class> * integrationDictionary = [[NSMutableDictionary alloc] init];
-    
+
+    NSArray<Class> *defaultIntegrations = SentryOptions.defaultIntegrationClasses;
+    NSMutableDictionary<NSString *, Class> *integrationDictionary =
+        [[NSMutableDictionary alloc] init];
+
     for (Class integrationClass in defaultIntegrations) {
         integrationDictionary[NSStringFromClass(integrationClass)] = integrationClass;
     }
@@ -474,12 +475,13 @@ static NSDate *_Nullable startTimestamp = nil;
 #if TARGET_OS_IOS && SENTRY_HAS_UIKIT
     if (@available(iOS 13.0, *)) {
         if (options.userFeedbackConfiguration != nil) {
-            integrationDictionary[NSStringFromClass([SentryUserFeedbackIntegration class])] = [SentryUserFeedbackIntegration class];
+            integrationDictionary[NSStringFromClass([SentryUserFeedbackIntegration class])] =
+                [SentryUserFeedbackIntegration class];
             [integrationNames addObject:NSStringFromClass([SentryUserFeedbackIntegration class])];
         }
     }
 #endif // TARGET_OS_IOS && SENTRY_HAS_UIKIT
-    
+
     for (NSString *integrationName in integrationNames) {
         Class integrationClass = NSClassFromString(integrationName);
         if (nil == integrationClass) {

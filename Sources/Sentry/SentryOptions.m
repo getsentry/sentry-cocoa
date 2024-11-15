@@ -42,16 +42,18 @@ NSString *const kSentryDefaultEnvironment = @"production";
 + (NSArray<NSString *> *)defaultIntegrations
 {
     NSArray<Class> *defaultIntegrationClasses = [self defaultIntegrationClasses];
-    NSMutableArray<NSString *> * defaultIntegrationNames = [[NSMutableArray alloc] initWithCapacity:defaultIntegrationClasses.count];
-    
+    NSMutableArray<NSString *> *defaultIntegrationNames =
+        [[NSMutableArray alloc] initWithCapacity:defaultIntegrationClasses.count];
+
     for (Class class in defaultIntegrationClasses) {
         [defaultIntegrationNames addObject:NSStringFromClass(class)];
     }
-    
+
     return defaultIntegrationNames;
 }
 
-+ (NSArray<Class> *)defaultIntegrationClasses {
++ (NSArray<Class> *)defaultIntegrationClasses
+{
     // The order of integrations here is important.
     // SentryCrashIntegration needs to be initialized before SentryAutoSessionTrackingIntegration.
     // And SentrySessionReplayIntegration before SentryCrashIntegration.
@@ -61,20 +63,14 @@ NSString *const kSentryDefaultEnvironment = @"production";
 #endif
         [SentryCrashIntegration class],
 #if SENTRY_HAS_UIKIT
-        [SentryAppStartTrackingIntegration class],
-        [SentryFramesTrackingIntegration class],
-        [SentryPerformanceTrackingIntegration class],
-        [SentryScreenshotIntegration class],
-        [SentryUIEventTrackingIntegration class],
-        [SentryViewHierarchyIntegration class],
+        [SentryAppStartTrackingIntegration class], [SentryFramesTrackingIntegration class],
+        [SentryPerformanceTrackingIntegration class], [SentryScreenshotIntegration class],
+        [SentryUIEventTrackingIntegration class], [SentryViewHierarchyIntegration class],
         [SentryWatchdogTerminationTrackingIntegration class],
 #endif // SENTRY_HAS_UIKIT
-        [SentryANRTrackingIntegration class],
-        [SentryAutoBreadcrumbTrackingIntegration class],
-        [SentryAutoSessionTrackingIntegration class],
-        [SentryCoreDataTrackingIntegration class],
-        [SentryFileIOTrackingIntegration class],
-        [SentryNetworkTrackingIntegration class],
+        [SentryANRTrackingIntegration class], [SentryAutoBreadcrumbTrackingIntegration class],
+        [SentryAutoSessionTrackingIntegration class], [SentryCoreDataTrackingIntegration class],
+        [SentryFileIOTrackingIntegration class], [SentryNetworkTrackingIntegration class],
         [SentrySwiftAsyncIntegration class], nil];
 
 #if SENTRY_HAS_METRIC_KIT
