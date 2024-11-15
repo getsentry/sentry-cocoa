@@ -9,11 +9,6 @@ var displayingForm = false
 
 @available(iOS 13.0, *)
 struct SentryUserFeedbackWidget {
-    
-    protocol Delegate: NSObjectProtocol {
-        func captureFeedback(message: String, name: String?, email: String?, hints: [String: Any]?)
-    }
-    
     class Window: UIWindow {
         class RootViewController: UIViewController, SentryUserFeedbackFormDelegate, UIAdaptivePresentationControllerDelegate {
             let defaultWidgetSpacing: CGFloat = 8
@@ -27,11 +22,8 @@ struct SentryUserFeedbackWidget {
             
             let config: SentryUserFeedbackConfiguration
             
-            weak var delegate: (any Delegate)?
-            
-            init(config: SentryUserFeedbackConfiguration, delegate: any Delegate) {
+            init(config: SentryUserFeedbackConfiguration) {
                 self.config = config
-                self.delegate = delegate
                 super.init(nibName: nil, bundle: nil)
                 view.addSubview(button)
                 
@@ -76,7 +68,7 @@ struct SentryUserFeedbackWidget {
             
             // MARK: SentryUserFeedbackFormDelegate
             
-            func cancelled() {
+            func finished() {
                 closeForm()
             }
             
@@ -94,9 +86,9 @@ struct SentryUserFeedbackWidget {
             }
         }
         
-        init(config: SentryUserFeedbackConfiguration, delegate: Delegate) {
+        init(config: SentryUserFeedbackConfiguration) {
             super.init(frame: UIScreen.main.bounds)
-            rootViewController = RootViewController(config: config, delegate: delegate)
+            rootViewController = RootViewController(config: config)
             windowLevel = config.widgetConfig.windowLevel
         }
         
