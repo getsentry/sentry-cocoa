@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - main
+      - impr/speed-up-get-debug-images-v2
 
     paths:
       - 'Sources/**'
