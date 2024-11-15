@@ -109,7 +109,28 @@ class SentryUserFeedbackForm: UIViewController {
     }
     
     func submitFeedbackButtonTapped() {
-        // TODO: validate and package entries
+        var missing = [String]()
+        
+        if config.formConfig.isNameRequired && fullNameTextField.hasText {
+            missing.append("name")
+        }
+        
+        if config.formConfig.isEmailRequired && emailTextField.hasText {
+            missing.append("email")
+        }
+        
+        if !messageTextView.hasText {
+            missing.append("description")
+        }
+        
+        guard missing.isEmpty else {
+            let list = missing.count == 1 ? missing[0] : missing[0 ..< missing.count - 1].joined(separator: ", ") + " and " + missing[missing.count - 1]
+            let alert = UIAlertController(title: "Error", message: "You must provide all required information. Please check the following fields: \(list).", preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "OK", style: .default))
+            present(alert, animated: config.widgetConfig.animations)
+            return
+        }
+        
         delegate?.confirmed()
     }
     
@@ -193,6 +214,7 @@ class SentryUserFeedbackForm: UIViewController {
         let field = UITextField(frame: .zero)
         field.placeholder = config.formConfig.emailPlaceholder
         field.accessibilityLabel = config.formConfig.emailTextFieldAccessibilityLabel
+        field.keyboardType = .emailAddress
         return field
     }()
     
