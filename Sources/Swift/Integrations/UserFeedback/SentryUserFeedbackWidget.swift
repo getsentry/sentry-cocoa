@@ -9,6 +9,11 @@ var displayingForm = false
 
 @available(iOS 13.0, *)
 struct SentryUserFeedbackWidget {
+    
+    protocol Delegate: NSObjectProtocol {
+        func captureFeedback(message: String, name: String?, email: String?, hints: [String: Any]?)
+    }
+    
     class Window: UIWindow {
         class RootViewController: UIViewController, SentryUserFeedbackFormDelegate, UIAdaptivePresentationControllerDelegate {
             let defaultWidgetSpacing: CGFloat = 8
@@ -22,8 +27,11 @@ struct SentryUserFeedbackWidget {
             
             let config: SentryUserFeedbackConfiguration
             
-            init(config: SentryUserFeedbackConfiguration) {
+            weak var delegate: (any Delegate)?
+            
+            init(config: SentryUserFeedbackConfiguration, delegate: any Delegate) {
                 self.config = config
+                self.delegate = delegate
                 super.init(nibName: nil, bundle: nil)
                 view.addSubview(button)
                 
@@ -73,9 +81,9 @@ struct SentryUserFeedbackWidget {
             }
             
 //swiftlint:disable todo
-            func confirmed() {
-                // TODO: submit
+            func captureFeedback(message: String, name: String?, email: String?, hints: [String : Any]?) {
                 closeForm()
+                self.delegate?.captureFeedback(message: message, name: name, email: email, hints: hints)
             }
 //swiftlint:enable todo
             
@@ -86,9 +94,9 @@ struct SentryUserFeedbackWidget {
             }
         }
         
-        init(config: SentryUserFeedbackConfiguration) {
+        init(config: SentryUserFeedbackConfiguration, delegate: Delegate) {
             super.init(frame: UIScreen.main.bounds)
-            rootViewController = RootViewController(config: config)
+            rootViewController = RootViewController(config: config, delegate: delegate)
             windowLevel = config.widgetConfig.windowLevel
         }
         
