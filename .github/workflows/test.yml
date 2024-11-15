@@ -83,12 +83,12 @@ jobs:
             test-destination-os: "16.4"
             device: "iPhone 14"
 
-          # iOS 17
-          - runs-on: macos-14
+          # iOS 18
+          - runs-on: macos-15
             platform: "iOS"
-            xcode: "15.4"
-            test-destination-os: "17.2"
-            device: "iPhone 15"
+            xcode: "16.0"
+            test-destination-os: "18.0"
+            device: "iPhone 16"
 
           # We don't run the unit tests on macOS 13 cause we run them on all on GH actions available iOS versions.
           # The chance of missing a bug solely on tvOS 16 that doesn't occur on iOS, macOS 12 or macOS 14 is minimal.
