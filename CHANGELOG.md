@@ -14,6 +14,10 @@
 - Make `Scope.span` fully thread safe (#4519)
 - Finish TTFD when not calling reportFullyDisplayed before binding a new transaction to the scope (#4526).
 
+### Improvements
+
+- impr: Speed up getBinaryImages V2 (#4539). Follow up on (#4435)
+
 ## 8.40.1
 
 ### Fixes

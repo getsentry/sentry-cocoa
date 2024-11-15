@@ -32,6 +32,9 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSArray<SentryDebugMeta *> *)getDebugImagesForImageAddressesFromCache:
     (NSSet<NSString *> *)imageAddresses
     NS_SWIFT_NAME(getDebugImagesForImageAddressesFromCache(imageAddresses:));
+
+- (NSArray<SentryDebugMeta *> *)getDebugImagesFromCache;
+
 @end
 
 NS_ASSUME_NONNULL_END

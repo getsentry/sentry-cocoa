@@ -4,6 +4,7 @@
 
 #    import "SentryClient+Private.h"
 #    import "SentryDateUtils.h"
+#    import "SentryDebugImageProvider+HybridSDKs.h"
 #    import "SentryDependencyContainer.h"
 #    import "SentryDevice.h"
 #    import "SentryEnvelope.h"
@@ -312,7 +313,7 @@ SentryEnvelope *_Nullable sentry_continuousProfileChunkEnvelope(
     const auto chunkID = [[SentryId alloc] init];
     const auto payload = sentry_serializedContinuousProfileChunk(
         profileID, chunkID, profileState, metricProfilerState,
-        [SentryDependencyContainer.sharedInstance.debugImageProvider getDebugImagesCrashed:NO],
+        [SentryDependencyContainer.sharedInstance.debugImageProvider getDebugImagesFromCache],
         SentrySDK.currentHub
 #    if SENTRY_HAS_UIKIT
         ,
@@ -350,12 +351,14 @@ SentryEnvelopeItem *_Nullable sentry_traceProfileEnvelopeItem(SentryHub *hub,
     SentryProfiler *profiler, NSDictionary<NSString *, id> *profilingData,
     SentryTransaction *transaction, NSDate *startTimestamp)
 {
+    const auto images =
+        [SentryDependencyContainer.sharedInstance.debugImageProvider getDebugImagesFromCache];
     const auto payload = sentry_serializedTraceProfileData(
         profilingData, transaction.startSystemTime, transaction.endSystemTime,
         sentry_profilerTruncationReasonName(profiler.truncationReason),
         [profiler.metricProfiler serializeTraceProfileMetricsBetween:transaction.startSystemTime
                                                                  and:transaction.endSystemTime],
-        [SentryDependencyContainer.sharedInstance.debugImageProvider getDebugImagesCrashed:NO], hub
+        images, hub
 #    if SENTRY_HAS_UIKIT
         ,
         profiler.screenFrameData
@@ -403,7 +406,7 @@ NSMutableDictionary<NSString *, id> *_Nullable sentry_collectProfileDataHybridSD
         endSystemTime, sentry_profilerTruncationReasonName(profiler.truncationReason),
         [profiler.metricProfiler serializeTraceProfileMetricsBetween:startSystemTime
                                                                  and:endSystemTime],
-        [SentryDependencyContainer.sharedInstance.debugImageProvider getDebugImagesCrashed:NO], hub
+        [SentryDependencyContainer.sharedInstance.debugImageProvider getDebugImagesFromCache], hub
 #    if SENTRY_HAS_UIKIT
         ,
         profiler.screenFrameData

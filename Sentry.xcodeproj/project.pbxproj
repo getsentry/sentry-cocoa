@@ -76,6 +76,7 @@
 		620203B22C59025E0008317C /* SentryFileContents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 620203B12C59025E0008317C /* SentryFileContents.swift */; };
 		620379DB2AFE1415005AC0C1 /* SentryBuildAppStartSpans.h in Headers */ = {isa = PBXBuildFile; fileRef = 620379DA2AFE1415005AC0C1 /* SentryBuildAppStartSpans.h */; };
 		620379DD2AFE1432005AC0C1 /* SentryBuildAppStartSpans.m in Sources */ = {isa = PBXBuildFile; fileRef = 620379DC2AFE1432005AC0C1 /* SentryBuildAppStartSpans.m */; };
+		6205B4A42CE73AA100744684 /* TestDebugImageProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = D85790282976A69F00C6AC1F /* TestDebugImageProvider.swift */; };
 		621AE74B2C626C230012E730 /* SentryANRTrackerV2.h in Headers */ = {isa = PBXBuildFile; fileRef = 621AE74A2C626C230012E730 /* SentryANRTrackerV2.h */; };
 		621AE74D2C626C510012E730 /* SentryANRTrackerV2.m in Sources */ = {isa = PBXBuildFile; fileRef = 621AE74C2C626C510012E730 /* SentryANRTrackerV2.m */; };
 		621C88482CAD23B9000EABCB /* SentryCaptureTransactionWithProfile.h in Headers */ = {isa = PBXBuildFile; fileRef = 621C88472CAD23B9000EABCB /* SentryCaptureTransactionWithProfile.h */; };
@@ -834,7 +835,6 @@
 		D855AD62286ED6A4002573E1 /* SentryCrashTests.m in Sources */ = {isa = PBXBuildFile; fileRef = D855AD61286ED6A4002573E1 /* SentryCrashTests.m */; };
 		D855B3E827D652AF00BCED76 /* SentryCoreDataTrackingIntegrationTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = D855B3E727D652AF00BCED76 /* SentryCoreDataTrackingIntegrationTest.swift */; };
 		D855B3EA27D652C700BCED76 /* TestCoreDataStack.swift in Sources */ = {isa = PBXBuildFile; fileRef = D855B3E927D652C700BCED76 /* TestCoreDataStack.swift */; };
-		D85790292976A69F00C6AC1F /* TestDebugImageProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = D85790282976A69F00C6AC1F /* TestDebugImageProvider.swift */; };
 		D85852B627ECEEDA00C6D8AE /* SentryScreenshot.m in Sources */ = {isa = PBXBuildFile; fileRef = D85852B427ECEEDA00C6D8AE /* SentryScreenshot.m */; };
 		D85852BA27EDDC5900C6D8AE /* SentryUIApplication.m in Sources */ = {isa = PBXBuildFile; fileRef = D85852B827EDDC5900C6D8AE /* SentryUIApplication.m */; };
 		D858FA662A29EAB3002A3503 /* SentryBinaryImageCache.h in Headers */ = {isa = PBXBuildFile; fileRef = D858FA642A29EAB3002A3503 /* SentryBinaryImageCache.h */; };
@@ -3069,7 +3069,6 @@
 				7B2A70DE27D60904008B0D15 /* SentryTestThreadWrapper.swift */,
 				7B18DE4928DA0C8B004845C6 /* SentryNSNotificationCenterWrapperTests.swift */,
 				84A8892028DBD8D600C51DFD /* SentryDeviceTests.mm */,
-				D85790282976A69F00C6AC1F /* TestDebugImageProvider.swift */,
 				8431EE5A29ADB8EA00D8DC56 /* SentryTimeTests.m */,
 				62C3168A2B1F865A000D7031 /* SentryTimeSwiftTests.swift */,
 				33042A1629DC2C4300C60085 /* SentryExtraContextProviderTests.swift */,
@@ -3487,6 +3486,7 @@
 				8E25C97425F8511A00DC215B /* TestRandom.swift */,
 				7BE3C7762445E50A00A38442 /* TestCurrentDateProvider.swift */,
 				7BDB03BE25136A7D00BAE198 /* TestSentryDispatchQueueWrapper.swift */,
+				D85790282976A69F00C6AC1F /* TestDebugImageProvider.swift */,
 				7BAF3DC7243DB90E008A5414 /* TestTransport.swift */,
 				7BA0C049280563AA003E0326 /* TestTransportAdapter.swift */,
 				7B944FAF2469B46000A10721 /* TestClient.swift */,
@@ -4859,7 +4859,6 @@
 				62F05D2B2C0DB1F100916E3F /* SentryLogTestHelper.m in Sources */,
 				7B68345128F7EB3D00FB7064 /* SentryMeasurementUnitTests.swift in Sources */,
 				7B14089A248791660035403D /* SentryCrashStackEntryMapperTests.swift in Sources */,
-				D85790292976A69F00C6AC1F /* TestDebugImageProvider.swift in Sources */,
 				7B869EBC249B91D8004F4FDB /* SentryDebugMetaEquality.swift in Sources */,
 				7B01CE3D271993AC00B5AF31 /* SentryTransportFactoryTests.swift in Sources */,
 				7B30B68026527C3C006B2752 /* SentryFramesTrackerTests.swift in Sources */,
@@ -5136,6 +5135,7 @@
 				84A5D75B29D5170700388BFA /* TimeInterval+Sentry.swift in Sources */,
 				62AB8C9E2BF3925700BFC2AC /* WeakReference.swift in Sources */,
 				84AC61D929F7643B009EEF61 /* TestDispatchFactory.swift in Sources */,
+				6205B4A42CE73AA100744684 /* TestDebugImageProvider.swift in Sources */,
 				8431F01929B2852D00D8DC56 /* Invocation.swift in Sources */,
 				84B7FA4629B2935F00AD93B1 /* ClearTestState.swift in Sources */,
 				84281C622A579D0700EE88F2 /* SentryProfilerMocksSwiftCompatible.mm in Sources */,

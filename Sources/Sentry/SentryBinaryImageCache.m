@@ -5,6 +5,8 @@
 #import "SentryInAppLogic.h"
 #import "SentryLog.h"
 
+NS_ASSUME_NONNULL_BEGIN
+
 static void binaryImageWasAdded(const SentryCrashBinaryImage *image);
 
 static void binaryImageWasRemoved(const SentryCrashBinaryImage *image);
@@ -155,6 +157,13 @@ static void binaryImageWasRemoved(const SentryCrashBinaryImage *image);
     return imagePaths;
 }
 
+- (NSArray<SentryBinaryImageInfo *> *)getAllBinaryImages
+{
+    @synchronized(self) {
+        return _cache.copy;
+    }
+}
+
 @end
 
 static void
@@ -168,3 +177,5 @@ binaryImageWasRemoved(const SentryCrashBinaryImage *image)
 {
     [SentryDependencyContainer.sharedInstance.binaryImageCache binaryImageRemoved:image];
 }
+
+NS_ASSUME_NONNULL_END
