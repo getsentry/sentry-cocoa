@@ -238,9 +238,8 @@ class UIRedactBuilder {
     }
     
     private func mapRedactRegion(fromView view: UIView, relativeTo parentLayer: CALayer?, redacting: inout [RedactRegion], rootFrame: CGRect, forceRedact: Bool = false) {
-        guard !redactClassesIdentifiers.isEmpty && !view.isHidden && view.alpha != 0 else { return }
-        
         let layer = view.layer.presentation() ?? view.layer
+        guard !redactClassesIdentifiers.isEmpty && !layer.isHidden && layer.opacity != 0 else { return }
         
         let newTransform = getTranform(from: layer, withParent: parentLayer)
         
@@ -308,7 +307,8 @@ class UIRedactBuilder {
      Indicates whether the view is opaque and will block other view behind it
      */
     private func isOpaque(_ view: UIView) -> Bool {
-        return SentryRedactViewHelper.shouldClipOut(view) || (view.alpha == 1 && view.backgroundColor != nil && (view.backgroundColor?.cgColor.alpha ?? 0) == 1)
+        let layer = view.layer.presentation() ?? view.layer
+        return SentryRedactViewHelper.shouldClipOut(view) || (layer.opacity == 1 && view.backgroundColor != nil && (view.backgroundColor?.cgColor.alpha ?? 0) == 1)
     }
 }
 
