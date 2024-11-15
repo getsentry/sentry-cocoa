@@ -20,6 +20,17 @@ class RedactOptions: SentryRedactOptions {
 }
 
 class UIRedactBuilderTests: XCTestCase {
+    private class CustomVisibilityView: UIView {
+        class CustomLayer: CALayer {
+            override var opacity: Float {
+                get { 0.5 }
+                set { }
+            }
+        }
+        override class var layerClass: AnyClass {
+            return CustomLayer.self
+        }
+    }
     
     private let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
     
@@ -393,6 +404,32 @@ class UIRedactBuilderTests: XCTestCase {
         expectedList.forEach { element in
             XCTAssertTrue(sut.containsIgnoreClass(element), "\(element) not found")
         }
+    }
+    
+    func testLayerIsNotFullyTransparentRedacted() {
+        let sut = getSut()
+        let view = CustomVisibilityView(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
+        view.alpha = 0
+        view.sentryReplayMask()
+        
+        view.backgroundColor = .purple
+        rootView.addSubview(view)
+        
+        let result = sut.redactRegionsFor(view: rootView)
+        XCTAssertEqual(result.count, 1)
+    }
+    
+    func testViewLayerOnTopIsNotFullyTransparentRedacted() {
+        let sut = getSut()
+        let view = CustomVisibilityView(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
+        let label = UILabel(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
+        view.backgroundColor = .purple
+        rootView.addSubview(label)
+        rootView.addSubview(view)
+        
+        let result = sut.redactRegionsFor(view: rootView)
+        XCTAssertEqual(result.first?.type, .redact)
+        XCTAssertEqual(result.count, 1)
     }
 }
 
