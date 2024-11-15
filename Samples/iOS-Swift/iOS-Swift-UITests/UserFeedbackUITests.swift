@@ -43,14 +43,14 @@ class UserFeedbackUITests: BaseUITest {
     }
     
     func testSubmitWithNoFieldsFilled() throws {
-        throw XCTSkip("Needs error state implementation")
-        
         let widgetButton: XCUIElement = app.staticTexts["Report a Bug"]
         widgetButton.tap()
         
         app.staticTexts["Send Bug Report"].tap()
         
-        // TODO: need to implement some kind of error dialog and then assert for it
+        XCTAssert(app.staticTexts["Error"].exists)
+        
+        app.buttons["OK"].tap()
     }
     
     func testSubmitWithOnlyRequiredFieldsFilled() {
@@ -67,8 +67,6 @@ class UserFeedbackUITests: BaseUITest {
     }
     
     func testSubmitOnlyWithOptionalFieldsFilled() throws {
-        throw XCTSkip("Needs error state implementation")
-        
         let widgetButton: XCUIElement = app.staticTexts["Report a Bug"]
         widgetButton.tap()
         
@@ -82,7 +80,9 @@ class UserFeedbackUITests: BaseUITest {
         
         app.staticTexts["Send Bug Report"].tap()
         
-        // TODO: need to implement some kind of error dialog and then assert for it
+        XCTAssert(app.staticTexts["Error"].exists)
+        
+        app.buttons["OK"].tap()
     }
     
     func testCancelFromFormByButton() {
