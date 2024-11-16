@@ -585,6 +585,16 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     [self.transportAdapter sendUserFeedback:userFeedback];
 }
 
+- (void)captureFeedback:(SentryFeedback *)feedback
+{
+    if ([self isDisabled]) {
+        [self logDisabledMessage];
+        return;
+    }
+
+    [self.transportAdapter sendFeedback:feedback];
+}
+
 - (void)storeEnvelope:(SentryEnvelope *)envelope
 {
     [self.fileManager storeEnvelope:envelope];
