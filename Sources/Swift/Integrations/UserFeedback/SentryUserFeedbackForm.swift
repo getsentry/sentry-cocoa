@@ -131,13 +131,9 @@ class SentryUserFeedbackForm: UIViewController {
             present(alert, animated: config.animations)
             return
         }
-        let error = NSError(domain: "user-feedback", code: 1)
-        let eventId = SentrySDK.capture(error: error)
-        let uf = UserFeedback(eventId: eventId)
-        uf.name = name
-        uf.email = email
-        uf.comments = messageTextView.text
-        SentrySDK.capture(userFeedback: uf)
+
+        let feedback = SentryFeedback(name: fullNameTextField.text, email: emailTextField.text, message: messageTextView.text, hints: nil)
+        SentrySDK.capture(feedback: feedback)
         delegate?.finished()
     }
     
