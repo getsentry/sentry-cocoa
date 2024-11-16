@@ -10,7 +10,11 @@
 #    import "SentrySDK.h"
 #endif
 
-@class SentryHub, SentryId, SentryAppStartMeasurement, SentryEnvelope;
+@class SentryAppStartMeasurement;
+@class SentryEnvelope;
+@class SentryFeedback;
+@class SentryHub;
+@class SentryId;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -50,6 +54,8 @@ NS_ASSUME_NONNULL_BEGIN
  * Needed by hybrid SDKs as react-native to synchronously capture an envelope.
  */
 + (void)captureEnvelope:(SentryEnvelope *)envelope;
+
++ (void)captureFeedback:(SentryFeedback *)feedback;
 
 @end
 

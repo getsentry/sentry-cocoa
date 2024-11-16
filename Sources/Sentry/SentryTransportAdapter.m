@@ -3,6 +3,7 @@
 #import "SentryEvent.h"
 #import "SentryOptions.h"
 #import "SentryUserFeedback.h"
+#import "SentrySwift.h"
 #import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
@@ -97,6 +98,16 @@ NS_ASSUME_NONNULL_BEGIN
     SentryEnvelopeItem *item = [[SentryEnvelopeItem alloc] initWithUserFeedback:userFeedback];
     SentryEnvelopeHeader *envelopeHeader =
         [[SentryEnvelopeHeader alloc] initWithId:userFeedback.eventId traceContext:nil];
+    SentryEnvelope *envelope = [[SentryEnvelope alloc] initWithHeader:envelopeHeader
+                                                           singleItem:item];
+    [self sendEnvelope:envelope];
+}
+
+- (void)sendFeedback:(SentryFeedback *)feedback
+{
+    SentryEnvelopeItem *item = [[SentryEnvelopeItem alloc] initWithFeedback:feedback];
+    SentryEnvelopeHeader *envelopeHeader =
+        [[SentryEnvelopeHeader alloc] initWithId:feedback.eventId];
     SentryEnvelope *envelope = [[SentryEnvelope alloc] initWithHeader:envelopeHeader
                                                            singleItem:item];
     [self sendEnvelope:envelope];

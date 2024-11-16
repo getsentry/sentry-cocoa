@@ -129,6 +129,24 @@ NS_ASSUME_NONNULL_BEGIN
                            data:json];
 }
 
+- (instancetype)initWithFeedback:(SentryFeedback *)feedback
+{
+    NSError *error = nil;
+    NSData *json = [NSJSONSerialization dataWithJSONObject:[feedback serialize]
+                                                   options:0
+                                                     error:&error];
+
+    if (nil != error) {
+        SENTRY_LOG_ERROR(@"Couldn't serialize feedback.");
+        json = [NSData new];
+    }
+
+    return [self initWithHeader:[[SentryEnvelopeItemHeader alloc]
+                                    initWithType:SentryEnvelopeItemTypeFeedback
+                                          length:json.length]
+                           data:json];
+}
+
 - (instancetype)initWithClientReport:(SentryClientReport *)clientReport
 {
     NSError *error = nil;
