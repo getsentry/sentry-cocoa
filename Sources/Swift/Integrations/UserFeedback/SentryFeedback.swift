@@ -35,7 +35,7 @@ class SentryFeedback: NSObject, SentrySerializable {
         super.init()
     }
     
-    func serialize() -> [String : Any] {
+    func serialize() -> [String: Any] {
         var dict: [String: Any] = [
             "message": message
         ]
