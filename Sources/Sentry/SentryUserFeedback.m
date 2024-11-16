@@ -5,7 +5,7 @@
 typedef enum : NSUInteger {
     /** A user feedback attached to a transaction or error event. */
     kSentryUserFeedbackTypeAttached,
-    
+
     /** A user feedback sent as its own event independent of any other event. */
     kSentryUserFeedbackTypeStandalone,
 } SentryUserFeedbackType;
@@ -14,7 +14,8 @@ typedef enum : NSUInteger {
     SentryUserFeedbackType _type;
 }
 
-- (instancetype)init {
+- (instancetype)init
+{
     if (self = [super init]) {
         _type = kSentryUserFeedbackTypeStandalone;
         _eventId = [[SentryId alloc] init];
@@ -46,7 +47,7 @@ typedef enum : NSUInteger {
         };
     case kSentryUserFeedbackTypeStandalone:
         return @{
-            
+
         };
     }
 }

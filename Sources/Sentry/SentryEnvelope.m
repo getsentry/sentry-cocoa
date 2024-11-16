@@ -141,10 +141,10 @@ NS_ASSUME_NONNULL_BEGIN
         json = [NSData new];
     }
 
-    return [self initWithHeader:[[SentryEnvelopeItemHeader alloc]
-                                    initWithType:SentryEnvelopeItemTypeFeedback
-                                          length:json.length]
-                           data:json];
+    return [self
+        initWithHeader:[[SentryEnvelopeItemHeader alloc] initWithType:SentryEnvelopeItemTypeFeedback
+                                                               length:json.length]
+                  data:json];
 }
 
 - (instancetype)initWithClientReport:(SentryClientReport *)clientReport
