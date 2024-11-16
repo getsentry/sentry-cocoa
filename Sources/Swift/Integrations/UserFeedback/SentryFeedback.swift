@@ -24,7 +24,7 @@ class SentryFeedback: NSObject, SentrySerializable {
     /// The event id that this feedback is associated with, like a crash report.
     var associatedEventId: String?
 
-    init(name: String?, email: String?, message: String, hints: [String: Any]?, source: Source, associatedEventId: String?) {
+    init(name: String?, email: String?, message: String, hints: [String: Any]? = nil, source: Source = .widget, associatedEventId: String? = nil) {
         self.eventId = SentryId()
         self.name = name
         self.email = email

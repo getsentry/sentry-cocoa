@@ -6,6 +6,7 @@
 #import "SentrySDK+Private.h"
 #import "SentryScope+Private.h"
 #import "SentryTime.h"
+#import "SentrySDK+Private.h"
 
 // Headers that also import SentryDefines should be at the end of this list
 // otherwise it wont compile
