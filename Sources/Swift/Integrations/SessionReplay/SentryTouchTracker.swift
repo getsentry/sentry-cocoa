@@ -34,6 +34,7 @@ class SentryTouchTracker: NSObject {
      * will ever have the same pointer.
      */
     private var trackedTouches = [UITouch: TouchInfo]()
+    private let trackedTouchesLock = NSLock()
     private var touchId = 1
     private let dateProvider: SentryCurrentDateProvider
     private let scale: CGAffineTransform
@@ -45,28 +46,29 @@ class SentryTouchTracker: NSObject {
     
     func trackTouchFrom(event: UIEvent) {
         guard let touches = event.allTouches else { return }
-        for touch in touches {
-            guard touch.phase == .began || touch.phase == .ended || touch.phase == .moved || touch.phase == .cancelled else { continue }
-            let info = trackedTouches[touch] ?? TouchInfo(id: touchId++)
-            let position = touch.location(in: nil).applying(scale)
-            let newEvent = TouchEvent(x: position.x, y: position.y, timestamp: event.timestamp, phase: touch.phase.toRRWebTouchPhase())
-            
-            switch touch.phase {
-            case .began:
-                info.startEvent = newEvent
-            case .ended, .cancelled:
-                info.endEvent = newEvent
-            case .moved:
-                // If the distance between two points is smaller than 10 points, we don't record the second movement.
-                // iOS event polling is fast and will capture any movement; we don't need this granularity for replay.
-                if let last = info.moveEvents.last, touchesDelta(last.point, position) < 10 { continue }
-                info.moveEvents.append(newEvent)
-                debounceEvents(in: info)
-            default:
-                continue
+        trackedTouchesLock.synchronized {
+            for touch in touches {
+                guard touch.phase == .began || touch.phase == .ended || touch.phase == .moved || touch.phase == .cancelled else { continue }
+                let info = trackedTouches[touch] ?? TouchInfo(id: touchId++)
+                let position = touch.location(in: nil).applying(scale)
+                let newEvent = TouchEvent(x: position.x, y: position.y, timestamp: event.timestamp, phase: touch.phase.toRRWebTouchPhase())
+                
+                switch touch.phase {
+                case .began:
+                    info.startEvent = newEvent
+                case .ended, .cancelled:
+                    info.endEvent = newEvent
+                case .moved:
+                    // If the distance between two points is smaller than 10 points, we don't record the second movement.
+                    // iOS event polling is fast and will capture any movement; we don't need this granularity for replay.
+                    if let last = info.moveEvents.last, touchesDelta(last.point, position) < 10 { continue }
+                    info.moveEvents.append(newEvent)
+                    debounceEvents(in: info)
+                default:
+                    continue
+                }
+                trackedTouches[touch] = info
             }
-            
-            trackedTouches[touch] = info
         }
     }
     
@@ -103,9 +105,11 @@ class SentryTouchTracker: NSObject {
 
         return abs(abAngle - bcAngle) < 0.05 || abs(abAngle - (2 * .pi - bcAngle)) < 0.05
     }
-  
+    
     func flushFinishedEvents() {
-        trackedTouches = trackedTouches.filter { $0.value.endEvent == nil }
+        trackedTouchesLock.synchronized {
+            trackedTouches = trackedTouches.filter { $0.value.endEvent == nil }
+        }
     }
     
     func replayEvents(from: Date, until: Date) -> [SentryRRWebEvent] {
@@ -116,7 +120,11 @@ class SentryTouchTracker: NSObject {
         
         var result = [SentryRRWebEvent]()
         
-        for info in trackedTouches.values {
+        trackedTouchesLock.lock()
+        let touches = trackedTouches.values
+        trackedTouchesLock.unlock()
+        
+        for info in touches {
             if let infoStart = info.startEvent, infoStart.timestamp >= startTimeInterval && infoStart.timestamp <= endTimeInterval {
                 result.append(RRWebTouchEvent(timestamp: now.addingTimeInterval(infoStart.timestamp - uptime), touchId: info.id, x: Float(infoStart.x), y: Float(infoStart.y), phase: .start))
             }

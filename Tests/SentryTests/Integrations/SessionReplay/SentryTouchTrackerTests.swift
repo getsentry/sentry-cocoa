@@ -300,5 +300,38 @@ class SentryTouchTrackerTests: XCTestCase {
         XCTAssertEqual(positions?.count, 3)
     }
     
+    func testLock() {
+        let sut = getSut()
+        
+        let group = DispatchGroup()
+        
+        DispatchQueue.global().async {
+            group.enter()
+            for i in 0..<50_000 {
+                let event = MockUIEvent(timestamp: Double(i))
+                let touch = MockUITouch(phase: .ended, location: CGPoint(x: 100, y: 100))
+                event.addTouch(touch)
+                sut.trackTouchFrom(event: event)
+            }
+            group.leave()
+        }
+        
+        DispatchQueue.global().async {
+            group.enter()
+            for _ in 0..<50_000 {
+                sut.flushFinishedEvents()
+            }
+            group.leave()
+        }
+        
+        DispatchQueue.global().async {
+            group.enter()
+            for _ in 0..<50_000 {
+                _ = sut.replayEvents(from: self.referenceDate, until: self.referenceDate.addingTimeInterval(10000.0))
+            }
+            group.leave()
+        }
+        group.wait()
+    }
 }
 #endif

@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Session replay touch tracking race condition ()
+
 ## 8.41.0-beta.1
 
 ### Features
