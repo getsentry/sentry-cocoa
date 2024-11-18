@@ -483,7 +483,7 @@ static NSDate *_Nullable startTimestamp = nil;
 #endif // TARGET_OS_IOS && SENTRY_HAS_UIKIT
 
     for (NSString *integrationName in integrationNames) {
-        Class integrationClass = NSClassFromString(integrationName);
+        Class integrationClass = integrationDictionary[integrationName] ?: NSClassFromString(integrationName);
         if (nil == integrationClass) {
             SENTRY_LOG_ERROR(@"[SentryHub doInstallIntegrations] "
                              @"couldn't find \"%@\" -> skipping.",
