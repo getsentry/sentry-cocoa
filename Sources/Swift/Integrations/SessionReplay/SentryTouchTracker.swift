@@ -120,9 +120,9 @@ class SentryTouchTracker: NSObject {
         
         var result = [SentryRRWebEvent]()
         
-        trackedTouchesLock.lock()
-        let touches = trackedTouches.values
-        trackedTouchesLock.unlock()
+        let touches = trackedTouchesLock.synchronized {
+            return trackedTouches.values
+        }
         
         for info in touches {
             if let infoStart = info.startEvent, infoStart.timestamp >= startTimeInterval && infoStart.timestamp <= endTimeInterval {
