@@ -465,7 +465,7 @@ static NSDate *_Nullable startTimestamp = nil;
         [SentrySDK.currentHub getClient].options.integrations.mutableCopy;
 
     NSArray<Class> *defaultIntegrations = SentryOptions.defaultIntegrationClasses;
-    
+
     // We are going to use a dictionary that links the classes with their names
     // so we can quickly check whether that class is in the option integrations collection.
     // We cannot load the class itself with NSClassFromString because doing so may load a class
