@@ -40,15 +40,15 @@ jobs:
 
   xcode-analyze:
     name: Xcode Analyze
-    runs-on: macos-13
+    runs-on: macos-14
     steps:
       - uses: actions/checkout@v4
-      - run: ./scripts/ci-select-xcode.sh
+      - run: ./scripts/ci-select-xcode.sh 15.0
       - run: make analyze
 
   lint-podspec:
     name: pod lint ${{ matrix.podspec}} ${{ matrix.library_type }} ${{ matrix.platform}}
-    runs-on: macos-13
+    runs-on: macos-14
     strategy:
       fail-fast: false
       matrix:
@@ -58,7 +58,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - run: ./scripts/ci-select-xcode.sh
+      - run: ./scripts/ci-select-xcode.sh 15.0
       # We need to update the spec-repo, because it can happen that it is not up to date and then the lint fails.
       - run: pod repo update
       - name: Validate Podspec
@@ -66,11 +66,11 @@ jobs:
 
   lint-hybrid-sdk-podspec:
     name: pod lint Sentry/HybridSDK
-    runs-on: macos-13
+    runs-on: macos-14
 
     steps:
       - uses: actions/checkout@v4
-      - run: ./scripts/ci-select-xcode.sh
+      - run: ./scripts/ci-select-xcode.sh 15.0
       - run: pod repo update
       - name: Validate HybridPod Podspec
         run: pod lib lint ./Tests/HybridSDKTest/HybridPod.podspec --allow-warnings --verbose --platforms=ios "--include-podspecs={Sentry.podspec}"

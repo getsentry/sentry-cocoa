@@ -1,4 +1,8 @@
-#import "SentryUser.h"
+#if __has_include(<Sentry/SentryUser.h>)
+#    import <Sentry/SentryUser.h>
+#else
+#    import "SentryUser.h"
+#endif
 
 @interface SentryUser ()
 
