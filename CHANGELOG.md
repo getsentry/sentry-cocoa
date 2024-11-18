@@ -4,7 +4,7 @@
 
 ### Fixes
 
-- Session replay touch tracking race condition ()
+- Session replay touch tracking race condition (#4548)
 
 ## 8.41.0-beta.1
 
