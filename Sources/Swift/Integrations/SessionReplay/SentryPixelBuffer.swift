@@ -1,13 +1,13 @@
 #if canImport(UIKit) && !SENTRY_NO_UIKIT
 #if os(iOS) || os(tvOS)
 
-import AVFoundation
+@preconcurrency import AVFoundation
 import CoreGraphics
 import Foundation
 import UIKit
 
-class SentryPixelBuffer {
-    private var pixelBuffer: CVPixelBuffer?
+final class SentryPixelBuffer : Sendable {
+    private nonisolated(unsafe) var pixelBuffer: CVPixelBuffer?
     private let rgbColorSpace = CGColorSpaceCreateDeviceRGB()
     private let size: CGSize
     private let pixelBufferAdapter: AVAssetWriterInputPixelBufferAdaptor

@@ -9,6 +9,7 @@ import UIKit
  */
 @available(iOS 13.0, *)
 @objcMembers
+@MainActor
 public class SentryUserFeedbackConfiguration: NSObject {
     /**
      * Configuration settings specific to the managed widget that displays the UI form.

@@ -7,7 +7,7 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
      * Enum to define the quality of the session replay.
      */
     @objc
-    public enum SentryReplayQuality: Int, CustomStringConvertible {
+    public enum SentryReplayQuality: Int, CustomStringConvertible, Sendable {
         fileprivate static let defaultQuality: SentryReplayQuality = .medium
 
         /**

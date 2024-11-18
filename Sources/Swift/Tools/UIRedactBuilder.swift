@@ -45,6 +45,7 @@ struct RedactRegion {
     }
 }
 
+@MainActor
 class UIRedactBuilder {
     ///This is a wrapper which marks it's direct children to be ignored
     private var ignoreContainerClassIdentifier: ObjectIdentifier?
@@ -314,10 +315,10 @@ class UIRedactBuilder {
 
 @objcMembers
 public class SentryRedactViewHelper: NSObject {
-    private static var associatedRedactObjectHandle: UInt8 = 0
-    private static var associatedIgnoreObjectHandle: UInt8 = 0
-    private static var associatedClipOutObjectHandle: UInt8 = 0
-    private static var associatedSwiftUIRedactObjectHandle: UInt8 = 0
+    private static nonisolated(unsafe) var associatedRedactObjectHandle: UInt8 = 0
+    private static nonisolated(unsafe) var associatedIgnoreObjectHandle: UInt8 = 0
+    private static nonisolated(unsafe) var associatedClipOutObjectHandle: UInt8 = 0
+    private static nonisolated(unsafe) var associatedSwiftUIRedactObjectHandle: UInt8 = 0
     
     override private init() {}
     

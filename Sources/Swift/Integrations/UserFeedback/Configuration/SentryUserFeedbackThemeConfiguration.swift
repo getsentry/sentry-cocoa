@@ -8,6 +8,7 @@ import UIKit
  */
 @available(iOS 13.0, *)
 @objcMembers
+@MainActor
 public class SentryUserFeedbackThemeConfiguration: NSObject {
     /**
      * The default font to use.

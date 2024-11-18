@@ -175,7 +175,8 @@ class SentrySessionReplay: NSObject {
         event.tags = tags
     }
 
-    @objc 
+    @objc
+    @MainActor
     private func newFrame(_ sender: CADisplayLink) {
         guard let lastScreenShot = lastScreenShot, isRunning &&
                 !(isFullSession && isSessionPaused) //If replay is in session mode but it is paused we dont take screenshots
@@ -290,6 +291,7 @@ class SentrySessionReplay: NSObject {
         return filteredResult.compactMap(breadcrumbConverter.convert(from:))
     }
     
+    @MainActor
     private func takeScreenshot() {
         guard let rootView = rootView, !processingScreenshot else { return }
  

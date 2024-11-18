@@ -1,7 +1,7 @@
 import Foundation
 
 @objcMembers
-class SentryVideoInfo: NSObject {
+final class SentryVideoInfo: NSObject, Sendable {
     
     let path: URL
     let height: Int

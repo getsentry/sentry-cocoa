@@ -6,7 +6,7 @@ import Foundation
  * Mocking the previous private class from `SentryTestUtils` stopped working in Xcode 16.
 */
 @objc
-protocol SentryCurrentDateProvider {
+protocol SentryCurrentDateProvider: Sendable {
     func date() -> Date
     func timezoneOffset() -> Int
     func systemTime() -> UInt64
@@ -14,7 +14,7 @@ protocol SentryCurrentDateProvider {
 }
 
 @objcMembers
-class SentryDefaultCurrentDateProvider: NSObject, SentryCurrentDateProvider {
+final class SentryDefaultCurrentDateProvider: NSObject, SentryCurrentDateProvider {
     func date() -> Date {
         return Date()
     }

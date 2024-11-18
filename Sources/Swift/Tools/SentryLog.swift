@@ -3,11 +3,10 @@ import Foundation
 
 @objc
 class SentryLog: NSObject {
-    
-    static private(set) var isDebug = true
-    static private(set) var diagnosticLevel = SentryLevel.error
-    private static var logOutput = SentryLogOutput()
-    private static var logConfigureLock = NSLock()
+    static private(set) nonisolated(unsafe) var isDebug = true
+    static private(set) nonisolated(unsafe) var diagnosticLevel = SentryLevel.error
+    private static nonisolated(unsafe) var logOutput = SentryLogOutput()
+    private static let logConfigureLock = NSLock()
 
     @objc
     static func configure(_ isDebug: Bool, diagnosticLevel: SentryLevel) {

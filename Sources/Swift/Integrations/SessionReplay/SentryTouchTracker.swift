@@ -3,6 +3,7 @@ import Foundation
 import UIKit
 
 @objcMembers
+@MainActor
 class SentryTouchTracker: NSObject {
     
     private struct TouchEvent {
@@ -33,7 +34,7 @@ class SentryTouchTracker: NSObject {
      * for the same touch. As long we holding the reference no two UITouches
      * will ever have the same pointer.
      */
-    private var trackedTouches = [UITouch: TouchInfo]()
+    private nonisolated(unsafe) var trackedTouches = [UITouch: TouchInfo]()
     private var touchId = 1
     private let dateProvider: SentryCurrentDateProvider
     private let scale: CGAffineTransform
@@ -104,11 +105,11 @@ class SentryTouchTracker: NSObject {
         return abs(abAngle - bcAngle) < 0.05 || abs(abAngle - (2 * .pi - bcAngle)) < 0.05
     }
   
-    func flushFinishedEvents() {
+    nonisolated func flushFinishedEvents() {
         trackedTouches = trackedTouches.filter { $0.value.endEvent == nil }
     }
     
-    func replayEvents(from: Date, until: Date) -> [SentryRRWebEvent] {
+    nonisolated func replayEvents(from: Date, until: Date) -> [SentryRRWebEvent] {
         let uptime = dateProvider.systemUptime()
         let now = dateProvider.date()
         let startTimeInterval = uptime - now.timeIntervalSince(from)

@@ -1,8 +1,8 @@
 #if canImport(UIKit) && !SENTRY_NO_UIKIT
 #if os(iOS) || os(tvOS)
 
-@_implementationOnly import _SentryPrivate
-import AVFoundation
+@_implementationOnly @preconcurrency import _SentryPrivate
+@preconcurrency import AVFoundation
 import CoreGraphics
 import Foundation
 import UIKit
@@ -20,13 +20,13 @@ enum SentryOnDemandReplayError: Error {
 }
 
 @objcMembers
-class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
+final class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker, Sendable {
         
     private let _outputPath: String
-    private var _totalFrames = 0
+    private nonisolated(unsafe) var _totalFrames = 0
     private let dateProvider: SentryCurrentDateProvider
     private let workingQueue: SentryDispatchQueueWrapper
-    private var _frames = [SentryReplayFrame]()
+    private nonisolated(unsafe) var _frames = [SentryReplayFrame]()
     
     #if TEST || TESTCI || DEBUG
     //This is exposed only for tests, no need to make it thread safe.
@@ -35,10 +35,10 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
         set { _frames = newValue }
     }
     #endif // TEST || TESTCI || DEBUG
-    var videoScale: Float = 1
-    var bitRate = 20_000
-    var frameRate = 1
-    var cacheMaxSize = UInt.max
+    nonisolated(unsafe) var videoScale: Float = 1
+    nonisolated(unsafe) var bitRate = 20_000
+    nonisolated(unsafe) var frameRate = 1
+    nonisolated(unsafe) var cacheMaxSize = UInt.max
         
     init(outputPath: String, workingQueue: SentryDispatchQueueWrapper, dateProvider: SentryCurrentDateProvider) {
         self._outputPath = outputPath
@@ -155,12 +155,12 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
         videoWriter.startWriting()
         videoWriter.startSession(atSourceTime: .zero)
         
-        var lastImageSize: CGSize = image.size
-        var usedFrames = [SentryReplayFrame]()
+        nonisolated(unsafe) var lastImageSize: CGSize = image.size
+        nonisolated(unsafe) var usedFrames = [SentryReplayFrame]()
         let group = DispatchGroup()
         
-        var result: Result<SentryVideoInfo?, Error>?
-        var frameCount = from
+        nonisolated(unsafe) var result: Result<SentryVideoInfo?, Error>?
+        nonisolated(unsafe) var frameCount = from
         
         group.enter()
         videoWriterInput.requestMediaDataWhenReady(on: workingQueue.queue) {
@@ -203,8 +203,8 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
         
     private func finishVideo(outputFileURL: URL, usedFrames: [SentryReplayFrame], videoHeight: Int, videoWidth: Int, videoWriter: AVAssetWriter) -> Result<SentryVideoInfo?, Error> {
         let group = DispatchGroup()
-        var finishError: Error?
-        var result: SentryVideoInfo?
+        nonisolated(unsafe) var finishError: Error?
+        nonisolated(unsafe) var result: SentryVideoInfo?
         
         group.enter()
         videoWriter.inputs.forEach { $0.markAsFinished() }
