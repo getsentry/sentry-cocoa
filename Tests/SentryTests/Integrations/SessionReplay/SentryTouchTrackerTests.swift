@@ -327,7 +327,7 @@ class SentryTouchTrackerTests: XCTestCase {
         DispatchQueue.global().async {
             group.enter()
             for _ in 0..<50_000 {
-                _ = sut.replayEvents(from: self.referenceDate, until: self.referenceDate.addingTimeInterval(10000.0))
+                _ = sut.replayEvents(from: self.referenceDate, until: self.referenceDate.addingTimeInterval(10_000.0))
             }
             group.leave()
         }
