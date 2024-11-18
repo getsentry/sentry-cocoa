@@ -303,35 +303,35 @@ class SentryTouchTrackerTests: XCTestCase {
     func testLock() {
         let sut = getSut()
         
-        let group = DispatchGroup()
+        let addExp = expectation(description: "add")
+        let removeExp = expectation(description: "remove")
+        let readExp = expectation(description: "read")
         
         DispatchQueue.global().async {
-            group.enter()
             for i in 0..<50_000 {
                 let event = MockUIEvent(timestamp: Double(i))
                 let touch = MockUITouch(phase: .ended, location: CGPoint(x: 100, y: 100))
                 event.addTouch(touch)
                 sut.trackTouchFrom(event: event)
             }
-            group.leave()
+            addExp.fulfill()
         }
         
         DispatchQueue.global().async {
-            group.enter()
             for _ in 0..<50_000 {
                 sut.flushFinishedEvents()
             }
-            group.leave()
+            removeExp.fulfill()
         }
         
         DispatchQueue.global().async {
-            group.enter()
             for _ in 0..<50_000 {
                 _ = sut.replayEvents(from: self.referenceDate, until: self.referenceDate.addingTimeInterval(10_000.0))
             }
-            group.leave()
+            readExp.fulfill()
         }
-        group.wait()
+        
+        wait(for: [addExp, removeExp, readExp], timeout: 1)
     }
 }
 #endif
