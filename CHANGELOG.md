@@ -1,6 +1,35 @@
 # Changelog
 
-## Unreleased
+## 8.41.0-beta.1
+
+### Features
+
+- Transactions for crashes (#4504): Finish the transaction bound to the scope when the app crashes. This __experimental__ feature is disabled by default. You can enable it via the option `enablePersistingTracesWhenCrashing`.
+
+### Fixes
+
+- Keep PropagationContext when cloning scope (#4518)
+- UIViewController with Xcode 16 in debug (#4523). The Xcode 16 build setting [ENABLE_DEBUG_DYLIB](https://developer.apple.com/documentation/xcode/build-settings-reference#Enable-Debug-Dylib-Support), which is turned on by default only in debug, could lead to missing UIViewController traces.
+- Concurrency crash with Swift 6 (#4512)
+- Make `Scope.span` fully thread safe (#4519)
+- Finish TTFD when not calling reportFullyDisplayed before binding a new transaction to the scope (#4526).
+- Session replay opacity animation masking (#4532)
+
+### Improvements
+
+- Expose `Sentry._Hybrid` explicit module (#4440)
+
+## 8.40.1
+
+### Fixes
+
+- Session replay masking not working inside scroll view (#4498)
+
+### Improvements
+
+- Add extra logs for UIViewControllerSwizzling (#4511)
+
+## 8.40.0
 
 ## Feature
 
@@ -10,13 +39,19 @@
 - Time-of-check time-of-use filesystem race condition (#4473)
 - Capture all touches with session replay (#4477)
 
+
 ### Improvements
 
 - Improve frames tracker performance (#4469)
 - Log a warning when dropping envelopes due to rate-limiting (#4463)
 - Expose `SentrySessionReplayIntegration-Hybrid.h` as `private` (#4486)
+- Stops session replay if rate limiting is activated (#4496)
 - Add `maskedViewClasses` and `unmaskedViewClasses` to SentryReplayOptions init via dict (#4492)
 - Add `quality` to SentryReplayOptions init via dict (#4495)
+
+### Fixes
+
+- Masking text with transparent text color (#4499)
 
 ## 8.39.0
 

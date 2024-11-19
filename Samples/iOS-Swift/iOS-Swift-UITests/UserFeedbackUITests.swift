@@ -1,3 +1,5 @@
+//swiftlint:disable todo
+
 import XCTest
 
 class UserFeedbackUITests: BaseUITest {
@@ -152,3 +154,5 @@ class UserFeedbackUITests: BaseUITest {
         XCTAssertEqual(try XCTUnwrap(messageTextView.value as? String), "")
     }
 }
+
+//swiftlint:enable todo

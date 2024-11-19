@@ -61,36 +61,37 @@ NS_ASSUME_NONNULL_BEGIN
                                                                                  operation:operation
                                                                                     origin:origin];
 
-        [SentrySDK.currentHub.scope useSpan:^(id<SentrySpan> span) {
-            BOOL bindToScope = NO;
-            if (span == nil) {
+        id<SentrySpan> span = SentrySDK.currentHub.scope.span;
+
+        BOOL bindToScope = NO;
+        if (span == nil) {
+            bindToScope = YES;
+        }
+#if SENTRY_HAS_UIKIT
+        else {
+            if ([SentryUIEventTracker isUIEventOperation:span.operation]) {
+                SENTRY_LOG_DEBUG(
+                    @"Cancelling previous UI event span %@", span.spanId.sentrySpanIdString);
+                [span finishWithStatus:kSentrySpanStatusCancelled];
                 bindToScope = YES;
             }
-#if SENTRY_HAS_UIKIT
-            else {
-                if ([SentryUIEventTracker isUIEventOperation:span.operation]) {
-                    SENTRY_LOG_DEBUG(
-                        @"Cancelling previous UI event span %@", span.spanId.sentrySpanIdString);
-                    [span finishWithStatus:kSentrySpanStatusCancelled];
-                    bindToScope = YES;
-                }
-            }
+        }
 #endif // SENTRY_HAS_UIKIT
 
-            SENTRY_LOG_DEBUG(@"Creating new transaction bound to scope: %d", bindToScope);
+        SENTRY_LOG_DEBUG(
+            @"Starting new transaction for %@ with bindToScope: %d", name, bindToScope);
 
-            newSpan = [SentrySDK.currentHub
-                startTransactionWithContext:context
-                                bindToScope:bindToScope
-                      customSamplingContext:@{}
-                              configuration:[SentryTracerConfiguration configurationWithBlock:^(
-                                                SentryTracerConfiguration *configuration) {
-                                  configuration.waitForChildren = YES;
-                                  configuration.finishMustBeCalled = YES;
-                              }]];
+        newSpan = [SentrySDK.currentHub
+            startTransactionWithContext:context
+                            bindToScope:bindToScope
+                  customSamplingContext:@{}
+                          configuration:[SentryTracerConfiguration configurationWithBlock:^(
+                                            SentryTracerConfiguration *configuration) {
+                              configuration.waitForChildren = YES;
+                              configuration.finishMustBeCalled = YES;
+                          }]];
 
-            [(SentryTracer *)newSpan setDelegate:self];
-        }];
+        [(SentryTracer *)newSpan setDelegate:self];
     }
 
     SentrySpanId *spanId = newSpan.spanId;

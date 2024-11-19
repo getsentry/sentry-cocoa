@@ -119,6 +119,31 @@ class SentryCrashScopeObserverTests: XCTestCase {
 
         XCTAssertNil(getScopeJson { $0.context })
     }
+    
+    func testTraceContext() {
+        let sut = fixture.sut
+        sut.setTraceContext(TestData.traceContext)
+
+        let expected = serialize(object: TestData.traceContext)
+
+        XCTAssertEqual(expected, getScopeJson { $0.traceContext })
+    }
+
+    func testTraceContext_setToNil() {
+        let sut = fixture.sut
+        sut.setTraceContext(TestData.traceContext)
+        sut.setTraceContext(nil)
+
+        XCTAssertNil(getScopeJson { $0.traceContext })
+    }
+
+    func testTraceContext_setEmptyDict() {
+        let sut = fixture.sut
+        sut.setTraceContext(TestData.traceContext)
+        sut.setTraceContext([:])
+
+        XCTAssertNil(getScopeJson { $0.traceContext })
+    }
 
     func testFingerprint() {
         let sut = fixture.sut

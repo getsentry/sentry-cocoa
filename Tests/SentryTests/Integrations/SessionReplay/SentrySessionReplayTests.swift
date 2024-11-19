@@ -353,7 +353,7 @@ class SentrySessionReplayTests: XCTestCase {
         let event = Event(error: NSError(domain: "Some error", code: 1))
         sut.captureReplayFor(event: event)
         
-        let breadCrumbRREvents = fixture.lastReplayRecording?.events.compactMap( { $0 as? SentryRRWebBreadcrumbEvent }) ?? []
+        let breadCrumbRREvents = fixture.lastReplayRecording?.events.compactMap({ $0 as? SentryRRWebBreadcrumbEvent }) ?? []
         
         XCTAssertEqual(breadCrumbRREvents.count, 3)
         XCTAssertEqual((breadCrumbRREvents[0].data?["payload"] as? [String: Any])?["message"] as? String, "Some Screen")

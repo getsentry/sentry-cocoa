@@ -139,6 +139,12 @@ void sentrycrash_setSaveScreenshots(SaveAttachmentCallback callback);
  */
 void sentrycrash_setSaveViewHierarchy(SaveAttachmentCallback callback);
 
+/**
+ * Set the callback to be called at the end of a crash to make the app save the ongoing transaction
+ * bound to the scope.
+ */
+void sentrycrash_setSaveTransaction(void (*callback)(void));
+
 #pragma mark-- Notifications --
 
 /** Notify the crash reporter of the application active state.
@@ -217,6 +223,17 @@ bool sentrycrash_hasSaveScreenshotCallback(void);
  * Indicates that a callback was registered for view hierarchy.
  */
 bool sentrycrash_hasSaveViewHierarchyCallback(void);
+
+/**
+ * For testing purpose.
+ * Indicates that a callback was registered for saving the transaction.
+ */
+bool sentrycrash_hasSaveTransaction(void);
+
+/**
+ * For testing purposes.
+ */
+void sentrycrash_invokeSaveTransaction(void);
 
 #ifdef __cplusplus
 }

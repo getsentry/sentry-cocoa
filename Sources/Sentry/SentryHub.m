@@ -291,6 +291,21 @@ NS_ASSUME_NONNULL_BEGIN
     }];
 }
 
+- (void)saveCrashTransaction:(SentryTransaction *)transaction
+{
+    SentrySampleDecision decision = transaction.trace.sampled;
+
+    if (decision != kSentrySampleDecisionYes) {
+        // No need to update client reports when we're crashing cause they get lost anyways.
+        return;
+    }
+
+    SentryClient *client = _client;
+    if (client != nil) {
+        [client saveCrashTransaction:transaction withScope:self.scope];
+    }
+}
+
 - (SentryId *)captureEvent:(SentryEvent *)event
 {
     return [self captureEvent:event withScope:self.scope];

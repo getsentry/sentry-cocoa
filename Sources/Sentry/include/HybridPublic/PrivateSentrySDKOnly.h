@@ -1,5 +1,14 @@
-#import "PrivatesHeader.h"
-#import "SentryScreenFrames.h"
+#if __has_include(<Sentry/PrivatesHeader.h>)
+#    import <Sentry/PrivatesHeader.h>
+#else
+#    import "PrivatesHeader.h"
+#endif
+
+#if __has_include(<Sentry/SentryScreenFrames.h>)
+#    import <Sentry/SentryScreenFrames.h>
+#else
+#    import "SentryScreenFrames.h"
+#endif
 
 @class SentryDebugMeta;
 @class SentryScreenFrames;
@@ -182,6 +191,8 @@ typedef void (^SentryOnAppStartMeasurementAvailable)(
 + (NSString *__nullable)getReplayId;
 + (void)addReplayIgnoreClasses:(NSArray<Class> *_Nonnull)classes;
 + (void)addReplayRedactClasses:(NSArray<Class> *_Nonnull)classes;
++ (void)setIgnoreContainerClass:(Class _Nonnull)containerClass;
++ (void)setRedactContainerClass:(Class _Nonnull)containerClass;
 
 #endif
 + (nullable NSDictionary<NSString *, id> *)appStartMeasurementWithSpans;

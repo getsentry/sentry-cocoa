@@ -17,6 +17,8 @@ NS_SWIFT_NAME(Transport)
 
 - (void)sendEnvelope:(SentryEnvelope *)envelope NS_SWIFT_NAME(send(envelope:));
 
+- (void)storeEnvelope:(SentryEnvelope *)envelope;
+
 - (void)recordLostEvent:(SentryDataCategory)category reason:(SentryDiscardReason)reason;
 
 - (void)recordLostEvent:(SentryDataCategory)category
