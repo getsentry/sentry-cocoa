@@ -1,12 +1,12 @@
 import Foundation
 
 @objcMembers
-public class SentryId: NSObject {
+final public class SentryId: NSObject, Sendable {
 
     /**
      * A @c SentryId with an empty UUID "00000000000000000000000000000000".
      */
-    public static var empty = SentryId(uuidString: "00000000-0000-0000-0000-000000000000")
+    public static let empty = SentryId(uuidString: "00000000-0000-0000-0000-000000000000")
     
     /**
      * Returns a 32 lowercase character hexadecimal string description of the @c SentryId, such as

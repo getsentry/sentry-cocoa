@@ -1,5 +1,9 @@
 # Changelog
 
+### Improvements
+
+- Make SentryId Sendable
+
 ## 8.41.0-beta.1
 
 ### Features
