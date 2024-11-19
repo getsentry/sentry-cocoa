@@ -6,7 +6,7 @@ import CoreGraphics
 import Foundation
 import UIKit
 
-final class SentryPixelBuffer : Sendable {
+final class SentryPixelBuffer: Sendable {
     private nonisolated(unsafe) var pixelBuffer: CVPixelBuffer?
     private let rgbColorSpace = CGColorSpaceCreateDeviceRGB()
     private let size: CGSize
