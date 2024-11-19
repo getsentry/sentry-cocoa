@@ -4,7 +4,7 @@ import Foundation
 import UIKit
 
 /**
- * A user feedback item that serializes to an envelope with the new format described at
+ * A user feedback item that serializes to an envelope with the format described at
  * https://develop.sentry.dev/application/feedback-architecture/#feedback-events.
  */
 @objcMembers

@@ -15,23 +15,13 @@ NS_ASSUME_NONNULL_BEGIN
  */
 NS_SWIFT_NAME(UserFeedback)
 @interface SentryUserFeedback : NSObject <SentrySerializable>
+SENTRY_NO_INIT
 
 /**
  * Initializes SentryUserFeedback and sets the required eventId.
  * @param eventId The eventId of the event to which the user feedback is associated.
- * @note Uses the old envelope format descried at
- * https://develop.sentry.dev/sdk/data-model/envelope-items/#user-feedback and will be deprecated in
- * the future.
  */
 - (instancetype)initWithEventId:(SentryId *)eventId;
-
-/**
- * Initializes a new `SentryUserFeedback` as its own event, instead of one attached to a transaction
- * or error event.
- * @note Uses the new envelope format described at
- * https://develop.sentry.dev/application/feedback-architecture/#feedback-events.
- */
-- (instancetype)init;
 
 /**
  * The eventId of the event to which the user feedback is associated.

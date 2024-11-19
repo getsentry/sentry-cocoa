@@ -77,8 +77,6 @@ NS_ASSUME_NONNULL_BEGIN
 + (void)showUserFeedbackForm;
 #endif // TARGET_OS_IOS && SENTRY_HAS_UIKIT
 
-+ (void)captureFeedback:(SentryFeedback *)feedback;
-
 @end
 
 NS_ASSUME_NONNULL_END
