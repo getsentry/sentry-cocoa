@@ -55,8 +55,6 @@ NS_ASSUME_NONNULL_BEGIN
  */
 + (void)captureEnvelope:(SentryEnvelope *)envelope;
 
-+ (void)captureFeedback:(SentryFeedback *)feedback;
-
 @end
 
 NS_ASSUME_NONNULL_END
