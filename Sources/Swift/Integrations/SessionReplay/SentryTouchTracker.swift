@@ -1,6 +1,6 @@
 import Foundation
 #if (os(iOS) || os(tvOS)) && !SENTRY_NO_UIKIT
-@_implementationOnly import _SentryPrivate
+@preconcurrency @_implementationOnly import _SentryPrivate
 import UIKit
 
 @objcMembers
@@ -36,7 +36,7 @@ class SentryTouchTracker: NSObject {
      * will ever have the same pointer.
      */
     private nonisolated(unsafe) var trackedTouches = [UITouch: TouchInfo]()
-    private let dispatchQueue: SentryDispatchQueueWrapper
+    private nonisolated let dispatchQueue: SentryDispatchQueueWrapper
     private nonisolated(unsafe) var touchId = 1
     private let dateProvider: SentryCurrentDateProvider
     private let scale: CGAffineTransform
