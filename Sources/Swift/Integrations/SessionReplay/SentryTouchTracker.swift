@@ -1,7 +1,7 @@
 import Foundation
 #if (os(iOS) || os(tvOS)) && !SENTRY_NO_UIKIT
-import UIKit
 @_implementationOnly import _SentryPrivate
+import UIKit
 
 @objcMembers
 class SentryTouchTracker: NSObject {
