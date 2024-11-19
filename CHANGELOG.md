@@ -9,6 +9,7 @@
 ### Improvements
 
 - Make SentryId Sendable (#4553)
+- Enable Strict concurrency check (#4554)
 
 ## 8.41.0-beta.1
 
