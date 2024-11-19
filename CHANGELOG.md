@@ -2,7 +2,7 @@
 
 ### Improvements
 
-- Make SentryId Sendable
+- Make SentryId Sendable (#4553)
 
 ## 8.41.0-beta.1
 
