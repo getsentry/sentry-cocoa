@@ -66,8 +66,8 @@ class SentryTouchTrackerTests: XCTestCase {
     
     private var referenceDate = Date(timeIntervalSinceReferenceDate: 0)
     
-    func getSut() -> SentryTouchTracker {
-        return SentryTouchTracker(dateProvider: dateprovider, scale: 1)
+    func getSut(dispatchQueue: SentryDispatchQueueWrapper = TestSentryDispatchQueueWrapper()) -> SentryTouchTracker {
+        return SentryTouchTracker(dateProvider: dateprovider, scale: 1, dispatchQueue: dispatchQueue)
     }
     
     func testTrackTouchFromEvent() {
@@ -301,7 +301,7 @@ class SentryTouchTrackerTests: XCTestCase {
     }
     
     func testLock() {
-        let sut = getSut()
+        let sut = getSut(dispatchQueue: SentryDispatchQueueWrapper())
         
         let addExp = expectation(description: "add")
         let removeExp = expectation(description: "remove")

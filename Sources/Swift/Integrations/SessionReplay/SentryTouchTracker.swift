@@ -40,15 +40,21 @@ class SentryTouchTracker: NSObject {
     private let dateProvider: SentryCurrentDateProvider
     private let scale: CGAffineTransform
     
-    init(dateProvider: SentryCurrentDateProvider, scale: Float, dispatchQueue: SentryDispatchQueueWrapper = SentryDispatchQueueWrapper()) {
+    init(dateProvider: SentryCurrentDateProvider, scale: Float, dispatchQueue: SentryDispatchQueueWrapper) {
         self.dateProvider = dateProvider
         self.scale = CGAffineTransform(scaleX: CGFloat(scale), y: CGFloat(scale))
+        self.dispatchQueue = dispatchQueue
+    }
+    
+    convenience init(dateProvider: SentryCurrentDateProvider, scale: Float) {
+        self.init(dateProvider: dateProvider, scale: scale, dispatchQueue: SentryDispatchQueueWrapper())
     }
     
     func trackTouchFrom(event: UIEvent) {
         guard let touches = event.allTouches else { return }
         let timestamp = event.timestamp
         
+        dispatchQueue.dispatchAsync { [self] in
             for touch in touches {
                 guard touch.phase == .began || touch.phase == .ended || touch.phase == .moved || touch.phase == .cancelled else { continue }
                 let info = trackedTouches[touch] ?? TouchInfo(id: touchId++)
@@ -65,13 +71,13 @@ class SentryTouchTracker: NSObject {
                     // iOS event polling is fast and will capture any movement; we don't need this granularity for replay.
                     if let last = info.moveEvents.last, touchesDelta(last.point, position) < 10 { continue }
                     info.moveEvents.append(newEvent)
-                    debounceEvents(in: info)
+                    self.debounceEvents(in: info)
                 default:
                     continue
                 }
                 trackedTouches[touch] = info
             }
-        
+        }
     }
     
     private func touchesDelta(_ lastTouch: CGPoint, _ newTouch: CGPoint) -> CGFloat {
@@ -109,7 +115,9 @@ class SentryTouchTracker: NSObject {
     }
     
     func flushFinishedEvents() {
-        trackedTouches = trackedTouches.filter { $0.value.endEvent == nil }
+        dispatchQueue.dispatchSync { [self] in
+            trackedTouches = trackedTouches.filter { $0.value.endEvent == nil }
+        }
     }
     
     func replayEvents(from: Date, until: Date) -> [SentryRRWebEvent] {
@@ -120,7 +128,10 @@ class SentryTouchTracker: NSObject {
         
         var result = [SentryRRWebEvent]()
         
-        let touches = trackedTouches.values
+        var touches = [TouchInfo]()
+        dispatchQueue.dispatchSync { [self] in
+            touches = Array(trackedTouches.values)
+        }
         
         for info in touches {
             if let infoStart = info.startEvent, infoStart.timestamp >= startTimeInterval && infoStart.timestamp <= endTimeInterval {
