@@ -1,6 +1,7 @@
 import Foundation
 #if (os(iOS) || os(tvOS)) && !SENTRY_NO_UIKIT
 import UIKit
+@_implementationOnly import _SentryPrivate
 
 @objcMembers
 class SentryTouchTracker: NSObject {
@@ -34,24 +35,25 @@ class SentryTouchTracker: NSObject {
      * will ever have the same pointer.
      */
     private var trackedTouches = [UITouch: TouchInfo]()
-    private let trackedTouchesLock = NSLock()
+    private let dispatchQueue: SentryDispatchQueueWrapper
     private var touchId = 1
     private let dateProvider: SentryCurrentDateProvider
     private let scale: CGAffineTransform
     
-    init(dateProvider: SentryCurrentDateProvider, scale: Float) {
+    init(dateProvider: SentryCurrentDateProvider, scale: Float, dispatchQueue: SentryDispatchQueueWrapper = SentryDispatchQueueWrapper()) {
         self.dateProvider = dateProvider
         self.scale = CGAffineTransform(scaleX: CGFloat(scale), y: CGFloat(scale))
     }
     
     func trackTouchFrom(event: UIEvent) {
         guard let touches = event.allTouches else { return }
-        trackedTouchesLock.synchronized {
+        let timestamp = event.timestamp
+        
             for touch in touches {
                 guard touch.phase == .began || touch.phase == .ended || touch.phase == .moved || touch.phase == .cancelled else { continue }
                 let info = trackedTouches[touch] ?? TouchInfo(id: touchId++)
                 let position = touch.location(in: nil).applying(scale)
-                let newEvent = TouchEvent(x: position.x, y: position.y, timestamp: event.timestamp, phase: touch.phase.toRRWebTouchPhase())
+                let newEvent = TouchEvent(x: position.x, y: position.y, timestamp: timestamp, phase: touch.phase.toRRWebTouchPhase())
                 
                 switch touch.phase {
                 case .began:
@@ -69,7 +71,7 @@ class SentryTouchTracker: NSObject {
                 }
                 trackedTouches[touch] = info
             }
-        }
+        
     }
     
     private func touchesDelta(_ lastTouch: CGPoint, _ newTouch: CGPoint) -> CGFloat {
@@ -107,9 +109,7 @@ class SentryTouchTracker: NSObject {
     }
     
     func flushFinishedEvents() {
-        trackedTouchesLock.synchronized {
-            trackedTouches = trackedTouches.filter { $0.value.endEvent == nil }
-        }
+        trackedTouches = trackedTouches.filter { $0.value.endEvent == nil }
     }
     
     func replayEvents(from: Date, until: Date) -> [SentryRRWebEvent] {
@@ -120,9 +120,7 @@ class SentryTouchTracker: NSObject {
         
         var result = [SentryRRWebEvent]()
         
-        trackedTouchesLock.lock()
         let touches = trackedTouches.values
-        trackedTouchesLock.unlock()
         
         for info in touches {
             if let infoStart = info.startEvent, infoStart.timestamp >= startTimeInterval && infoStart.timestamp <= endTimeInterval {
