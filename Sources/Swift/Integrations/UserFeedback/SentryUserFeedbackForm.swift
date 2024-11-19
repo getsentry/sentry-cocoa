@@ -26,72 +26,8 @@ class SentryUserFeedbackForm: UIViewController {
         self.delegate = delegate
         super.init(nibName: nil, bundle: nil)
         view.backgroundColor = config.theme.background
-        
-        NSLayoutConstraint.activate([
-            scrollView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: config.margin),
-            scrollView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: config.margin),
-            scrollView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -config.margin),
-            scrollView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -config.margin),
-            
-            stack.topAnchor.constraint(equalTo: scrollView.topAnchor),
-            stack.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
-            stack.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor),
-            stack.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
-            stack.widthAnchor.constraint(equalTo: scrollView.widthAnchor),
-            
-            messageTextViewHeightConstraint,
-            
-            logoViewWidthConstraint,
-            sentryLogoView.heightAnchor.constraint(equalTo: sentryLogoView.widthAnchor, multiplier: 41 / 47),
-
-            fullNameTextFieldHeightConstraint,
-            emailTextFieldHeightConstraint,
-            addScreenshotButtonHeightConstraint,
-            removeScreenshotButtonHeightConstraint,
-            submitButtonHeightConstraint,
-            cancelButtonHeightConstraint,
-            
-            // the extra 5 pixels was observed experimentally and is invariant under changes in dynamic type sizes
-            messagePlaceholderLeadingConstraint,
-            messagePlaceholderTopConstraint
-        ])
-        
-        [fullNameTextField, emailTextField].forEach {
-            $0.font = config.theme.font
-            $0.adjustsFontForContentSizeCategory = true
-            if config.theme.outlineStyle == config.theme.defaultOutlineStyle {
-                $0.borderStyle = .roundedRect
-            } else {
-                $0.layer.cornerRadius = config.theme.outlineStyle.cornerRadius
-                $0.layer.borderWidth = config.theme.outlineStyle.outlineWidth
-                $0.layer.borderColor = config.theme.outlineStyle.outlineColor.cgColor
-            }
-        }
-        
-        [fullNameTextField, emailTextField, messageTextView].forEach {
-            $0.backgroundColor = config.theme.inputBackground
-        }
-        
-        [fullNameLabel, emailLabel, messageLabel].forEach {
-            $0.font = config.theme.titleFont
-            $0.adjustsFontForContentSizeCategory = true
-        }
-        
-        [submitButton, addScreenshotButton, removeScreenshotButton, cancelButton].forEach {
-            $0.titleLabel?.font = config.theme.titleFont
-            $0.titleLabel?.adjustsFontForContentSizeCategory = true
-        }
-        
-        [submitButton, addScreenshotButton, removeScreenshotButton, cancelButton, messageTextView].forEach {
-            $0.layer.cornerRadius = config.theme.outlineStyle.cornerRadius
-            $0.layer.borderWidth = config.theme.outlineStyle.outlineWidth
-            $0.layer.borderColor = config.theme.outlineStyle.outlineColor.cgColor
-        }
-        
-        [addScreenshotButton, removeScreenshotButton, cancelButton].forEach {
-            $0.backgroundColor = config.theme.buttonBackground
-            $0.setTitleColor(config.theme.buttonForeground, for: .normal)
-        }
+        initLayout()
+        themeElements()
     }
     
     required init?(coder: NSCoder) {
@@ -132,6 +68,38 @@ class SentryUserFeedbackForm: UIViewController {
     lazy var submitButtonHeightConstraint = submitButton.heightAnchor.constraint(equalToConstant: formElementHeight * config.scaleFactor)
     lazy var cancelButtonHeightConstraint = cancelButton.heightAnchor.constraint(equalToConstant: formElementHeight * config.scaleFactor)
     
+    func initLayout() {
+        NSLayoutConstraint.activate([
+            scrollView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: config.margin),
+            scrollView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: config.margin),
+            scrollView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -config.margin),
+            scrollView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -config.margin),
+            
+            stack.topAnchor.constraint(equalTo: scrollView.topAnchor),
+            stack.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
+            stack.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor),
+            stack.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
+            stack.widthAnchor.constraint(equalTo: scrollView.widthAnchor),
+            
+            messageTextViewHeightConstraint,
+            
+            logoViewWidthConstraint,
+            sentryLogoView.heightAnchor.constraint(equalTo: sentryLogoView.widthAnchor, multiplier: 41 / 47),
+
+            fullNameTextFieldHeightConstraint,
+            emailTextFieldHeightConstraint,
+            addScreenshotButtonHeightConstraint,
+            removeScreenshotButtonHeightConstraint,
+            submitButtonHeightConstraint,
+            cancelButtonHeightConstraint,
+            
+            // the extra 5 pixels was observed experimentally and is invariant under changes in dynamic type sizes
+            messagePlaceholderLeadingConstraint,
+            messagePlaceholderTopConstraint
+        ])
+    }
+    
+    /// Update the constants of constraints and any other layout, like transforms, in response to e.g. accessibility dynamic text size changes.
     func updateLayout() {
         let verticalPadding: CGFloat = 8
         messageTextView.textContainerInset = .init(top: verticalPadding * config.scaleFactor, left: 2 * config.scaleFactor, bottom: verticalPadding * config.scaleFactor, right: 2 * config.scaleFactor)
@@ -149,6 +117,45 @@ class SentryUserFeedbackForm: UIViewController {
     }
     
     // MARK: UI Elements
+    
+    func themeElements() {
+        [fullNameTextField, emailTextField].forEach {
+            $0.font = config.theme.font
+            $0.adjustsFontForContentSizeCategory = true
+            if config.theme.outlineStyle == config.theme.defaultOutlineStyle {
+                $0.borderStyle = .roundedRect
+            } else {
+                $0.layer.cornerRadius = config.theme.outlineStyle.cornerRadius
+                $0.layer.borderWidth = config.theme.outlineStyle.outlineWidth
+                $0.layer.borderColor = config.theme.outlineStyle.outlineColor.cgColor
+            }
+        }
+        
+        [fullNameTextField, emailTextField, messageTextView].forEach {
+            $0.backgroundColor = config.theme.inputBackground
+        }
+        
+        [fullNameLabel, emailLabel, messageLabel].forEach {
+            $0.font = config.theme.titleFont
+            $0.adjustsFontForContentSizeCategory = true
+        }
+        
+        [submitButton, addScreenshotButton, removeScreenshotButton, cancelButton].forEach {
+            $0.titleLabel?.font = config.theme.titleFont
+            $0.titleLabel?.adjustsFontForContentSizeCategory = true
+        }
+        
+        [submitButton, addScreenshotButton, removeScreenshotButton, cancelButton, messageTextView].forEach {
+            $0.layer.cornerRadius = config.theme.outlineStyle.cornerRadius
+            $0.layer.borderWidth = config.theme.outlineStyle.outlineWidth
+            $0.layer.borderColor = config.theme.outlineStyle.outlineColor.cgColor
+        }
+        
+        [addScreenshotButton, removeScreenshotButton, cancelButton].forEach {
+            $0.backgroundColor = config.theme.buttonBackground
+            $0.setTitleColor(config.theme.buttonForeground, for: .normal)
+        }
+    }
     
     lazy var formTitleLabel = {
         let label = UILabel(frame: .zero)
