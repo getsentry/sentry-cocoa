@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Session replay touch tracking race condition (#4548)
+
 ## 8.41.0-beta.1
 
 ### Features
@@ -14,6 +20,10 @@
 - Make `Scope.span` fully thread safe (#4519)
 - Finish TTFD when not calling reportFullyDisplayed before binding a new transaction to the scope (#4526).
 - Session replay opacity animation masking (#4532)
+
+### Improvements
+
+- Expose `Sentry._Hybrid` explicit module (#4440)
 
 ## 8.40.1
 

@@ -1,4 +1,5 @@
 import Sentry
+import Sentry._Hybrid
 import UIKit
 
 @main
@@ -11,6 +12,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             options.debug = true
             options.sessionTrackingIntervalMillis = 5_000
         }
+        
+        // Available through Sentry._Hybrid
+        print(PrivateSentrySDKOnly.getSdkName())
         
         return true
     }
