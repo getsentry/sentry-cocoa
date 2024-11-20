@@ -17,19 +17,17 @@ class SentryFeedback: NSObject, SentrySerializable {
     var name: String?
     var email: String?
     var message: String
-    var hints: [String: Any]?
     var source: Source
     let eventId: SentryId
     
     /// The event id that this feedback is associated with, like a crash report.
     var associatedEventId: String?
 
-    init(name: String?, email: String?, message: String, hints: [String: Any]? = nil, source: Source = .widget, associatedEventId: String? = nil) {
+    init(message: String, name: String?, email: String?, source: Source = .widget, associatedEventId: String? = nil) {
         self.eventId = SentryId()
         self.name = name
         self.email = email
         self.message = message
-        self.hints = hints
         self.source = source
         self.associatedEventId = associatedEventId
         super.init()

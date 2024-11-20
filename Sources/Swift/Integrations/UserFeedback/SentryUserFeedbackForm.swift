@@ -25,6 +25,7 @@ class SentryUserFeedbackForm: UIViewController {
         updateLayout()
     }
     
+    //swiftlint:disable function_body_length
     init(config: SentryUserFeedbackConfiguration, delegate: any SentryUserFeedbackFormDelegate) {
         self.config = config
         self.delegate = delegate
@@ -82,6 +83,7 @@ class SentryUserFeedbackForm: UIViewController {
             $0.setTitleColor(config.theme.buttonForeground, for: .normal)
         }
     }
+    //swiftlint:enable function_body_length
     
     // MARK: Actions
     
@@ -132,7 +134,7 @@ class SentryUserFeedbackForm: UIViewController {
             return
         }
 
-        let feedback = SentryFeedback(name: fullNameTextField.text, email: emailTextField.text, message: messageTextView.text, hints: nil)
+        let feedback = SentryFeedback(message: messageTextView.text, name: fullNameTextField.text, email: emailTextField.text)
         SentrySDK.capture(feedback: feedback)
         delegate?.finished()
     }
