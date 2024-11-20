@@ -44,10 +44,12 @@ class SentryUserFeedbackForm: UIViewController {
         
     }
     
+    //swiftlint:disable todo
     func submitFeedbackButtonTapped() {
         // TODO: validate and package entries
         delegate?.confirmed()
     }
+    //swiftlint:enable todo
     
     func cancelButtonTapped() {
         delegate?.cancelled()
