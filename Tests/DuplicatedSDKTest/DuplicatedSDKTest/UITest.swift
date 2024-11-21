@@ -1,6 +1,6 @@
 import XCTest
 
-final class UITest_DuplicatedSDK: XCTestCase {
+final class UITestDuplicatedSDK: XCTestCase {
 
     @MainActor
     func testExample() throws {
