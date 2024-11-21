@@ -1,7 +1,10 @@
 # Changelog
 
+## Unreleased
+
 ### Improvements
 
+- impr: Speed up getBinaryImages V2 (#4539). Follow up on (#4435)
 - Make SentryId Sendable (#4553)
 
 ## 8.41.0-beta.1
