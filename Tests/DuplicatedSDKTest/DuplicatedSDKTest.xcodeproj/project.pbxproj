@@ -79,37 +79,31 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		D89DD6412CEF650A009C3509 /* Exceptions for "ModuleA" folder in "ModuleA" target */ = {
+		D89DD6412CEF650A009C3509 /* Exceptions for "Modules" folder in "ModuleA" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			publicHeaders = (
-				ModuleA.h,
+				Module.h,
 			);
 			target = D89DD6352CEF650A009C3509 /* ModuleA */;
 		};
-		D89DD6502CEF6516009C3509 /* Exceptions for "ModuleB" folder in "ModuleB" target */ = {
+		D89DD66A2CEF74DC009C3509 /* Exceptions for "Modules" folder in "ModuleB" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			publicHeaders = (
-				ModuleB.h,
+			membershipExceptions = (
+				Module.h,
+				SomeWork.swift,
 			);
 			target = D89DD6472CEF6516009C3509 /* ModuleB */;
 		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		D89DD6372CEF650A009C3509 /* ModuleA */ = {
+		D89DD6372CEF650A009C3509 /* Modules */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				D89DD6412CEF650A009C3509 /* Exceptions for "ModuleA" folder in "ModuleA" target */,
+				D89DD6412CEF650A009C3509 /* Exceptions for "Modules" folder in "ModuleA" target */,
+				D89DD66A2CEF74DC009C3509 /* Exceptions for "Modules" folder in "ModuleB" target */,
 			);
-			path = ModuleA;
-			sourceTree = "<group>";
-		};
-		D89DD6492CEF6516009C3509 /* ModuleB */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-				D89DD6502CEF6516009C3509 /* Exceptions for "ModuleB" folder in "ModuleB" target */,
-			);
-			path = ModuleB;
+			path = Modules;
 			sourceTree = "<group>";
 		};
 		D8C030D02CEF633A007FC5B4 /* DuplicatedSDKTest */ = {
@@ -160,8 +154,7 @@
 			isa = PBXGroup;
 			children = (
 				D8C030D02CEF633A007FC5B4 /* DuplicatedSDKTest */,
-				D89DD6372CEF650A009C3509 /* ModuleA */,
-				D89DD6492CEF6516009C3509 /* ModuleB */,
+				D89DD6372CEF650A009C3509 /* Modules */,
 				D89DD6542CEF652B009C3509 /* Frameworks */,
 				D8C030CF2CEF633A007FC5B4 /* Products */,
 			);
@@ -212,7 +205,7 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				D89DD6372CEF650A009C3509 /* ModuleA */,
+				D89DD6372CEF650A009C3509 /* Modules */,
 			);
 			name = ModuleA;
 			packageProductDependencies = (
@@ -234,9 +227,6 @@
 			buildRules = (
 			);
 			dependencies = (
-			);
-			fileSystemSynchronizedGroups = (
-				D89DD6492CEF6516009C3509 /* ModuleB */,
 			);
 			name = ModuleB;
 			packageProductDependencies = (
@@ -404,7 +394,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = io.sentry.ModuleA;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
-				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) MODULE_A";
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_INSTALL_OBJC_HEADER = NO;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
@@ -478,7 +468,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = io.sentry.ModuleB;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
-				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) MODULE_B";
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_INSTALL_OBJC_HEADER = NO;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
