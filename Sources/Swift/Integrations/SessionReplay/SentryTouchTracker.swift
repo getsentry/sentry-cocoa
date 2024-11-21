@@ -47,6 +47,9 @@ class SentryTouchTracker: NSObject {
     }
     
     convenience init(dateProvider: SentryCurrentDateProvider, scale: Float) {
+        // SentryTouchTracker has it own dispatch queue instead of using the one
+        // from Dependency container to avoid the bottleneck of sharing the same
+        // queue with the rest of the SDK.
         self.init(dateProvider: dateProvider, scale: scale, dispatchQueue: SentryDispatchQueueWrapper())
     }
     
