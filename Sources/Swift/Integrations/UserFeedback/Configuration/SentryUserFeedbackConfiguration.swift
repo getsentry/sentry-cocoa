@@ -113,20 +113,34 @@ public class SentryUserFeedbackConfiguration: NSObject {
     }()
     
     /// The ratio of the configured font size to the system default font size, to know how large to scale things like the icon and lozenge shape.
-    lazy var scaleFactor: CGFloat = {
+    lazy var scaleFactor = calculateScaleFactor()
+    
+    func calculateScaleFactor() -> CGFloat {
         let fontSize = theme.font.pointSize
         guard fontSize > 0 else {
             return 1
         }
             
         return fontSize / UIFont.systemFontSize
-    }()
+    }
     
     /// Too much padding as the font size grows larger makes the button look weird with lots of negative space. Keeping the padding constant looks weird if the text is too small. So, scale it down below system default font sizes, but keep it fixed with larger font sizes.
-    lazy var paddingScaleFactor: CGFloat = {
-        scaleFactor > 1 ? 1 : scaleFactor
-    }()
+    lazy var paddingScaleFactor = calculatePaddingScaleFactor()
     
+    func calculatePaddingScaleFactor() -> CGFloat {
+        scaleFactor > 1 ? 1 : scaleFactor
+    }
+    
+    func recalculateScaleFactors() {
+        scaleFactor = calculateScaleFactor()
+        paddingScaleFactor = calculatePaddingScaleFactor()
+    }
+    
+    // MARK: Layout
+    
+    let padding: CGFloat = 16
+    let spacing: CGFloat = 8
+    let margin: CGFloat = 32
 }
 
 #endif // os(iOS) && !SENTRY_NO_UIKIT

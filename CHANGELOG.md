@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 8.41.0-beta.1
 
 ### Features
 
@@ -18,6 +18,7 @@
 ### Improvements
 
 - impr: Speed up getBinaryImages V2 (#4539). Follow up on (#4435)
+- Expose `Sentry._Hybrid` explicit module (#4440)
 
 ## 8.40.1
 

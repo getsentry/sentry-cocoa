@@ -23,11 +23,13 @@ public class SentryUserFeedbackWidgetConfiguration: NSObject {
      */
     public var animations: Bool = true
     
+    let defaultLabelText = "Report a Bug"
+    
     /**
      * The label of the injected button that opens up the feedback form when clicked. If `nil`, no text is displayed and only the icon image is shown.
      * - note: Default: `"Report a Bug"`
      */
-    public var labelText: String? = "Report a Bug"
+    public lazy var labelText: String? = defaultLabelText
     
     /**
      * Whether or not to show our icon along with the text in the button.
@@ -39,7 +41,7 @@ public class SentryUserFeedbackWidgetConfiguration: NSObject {
      * The accessibility label of the injected button that opens up the feedback form when clicked.
      * - note: Default: `labelText` value
      */
-    public var widgetAccessibilityLabel: String?
+    public lazy var widgetAccessibilityLabel: String? = labelText ?? defaultLabelText
     
     /**
      * The window level of the widget.
