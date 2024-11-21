@@ -1,6 +1,6 @@
-import SwiftUI
-import Sentry
 import ObjectiveC.runtime
+import Sentry
+import SwiftUI
 
 @main
 struct DuplicatedSDKTestApp: App {
@@ -39,7 +39,7 @@ struct ContentView: View {
         let sentryImage = String(cString: sentryImageC)
         
         return integrations.allSatisfy({ element in
-            guard let integrationImageC  = class_getImageName(type(of: element as AnyObject)) else { return false }
+            guard let integrationImageC = class_getImageName(type(of: element as AnyObject)) else { return false }
             return sentryImage == String(cString: integrationImageC)
         })
     }
