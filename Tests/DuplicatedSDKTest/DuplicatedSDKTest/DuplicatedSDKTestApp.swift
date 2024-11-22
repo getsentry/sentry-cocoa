@@ -3,6 +3,10 @@ import Sentry
 import SwiftUI
 
 @main
+
+// We will use this sample for the only purpose of testing 
+// whether the SDK will work if its duplicated in an App,
+// by loading it in two different frameworks used by the app.
 struct DuplicatedSDKTestApp: App {
     
     init () {
