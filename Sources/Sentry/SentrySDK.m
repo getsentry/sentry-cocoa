@@ -488,9 +488,9 @@ static NSDate *_Nullable startTimestamp = nil;
 #endif // TARGET_OS_IOS && SENTRY_HAS_UIKIT
 
     for (NSString *integrationName in integrationNames) {
-        //Class integrationClass
-        //    = integrationDictionary[integrationName] ?: NSClassFromString(integrationName);
-        // For test: Dont merge
+        // Class integrationClass
+        //     = integrationDictionary[integrationName] ?: NSClassFromString(integrationName);
+        //  For test: Dont merge
         Class integrationClass = NSClassFromString(integrationName);
         if (nil == integrationClass) {
             SENTRY_LOG_ERROR(@"[SentryHub doInstallIntegrations] "
