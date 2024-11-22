@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Features
+
+- Add in_foreground app context to transactions (#4561)
+
 ### Improvements
 
 - impr: Speed up getBinaryImages V2 (#4539). Follow up on (#4435)
