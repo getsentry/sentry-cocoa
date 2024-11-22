@@ -5,6 +5,7 @@
 ### Features
 
 - Add in_foreground app context to transactions (#4561)
+- Promote the option `performanceV2` from experimental to stable (#4564)
 
 ### Improvements
 
