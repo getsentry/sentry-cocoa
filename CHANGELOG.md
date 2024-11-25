@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Fixes
+
+- Session replay touch tracking race condition (#4548)
+
 ### Features
 
 - Add in_foreground app context to transactions (#4561)
@@ -11,6 +15,7 @@
 
 - impr: Speed up getBinaryImages V2 (#4539). Follow up on (#4435)
 - Make SentryId Sendable (#4553)
+
 ## 8.41.0
 
 ### Features
@@ -25,6 +30,10 @@
 - Make `Scope.span` fully thread safe (#4519)
 - Finish TTFD when not calling reportFullyDisplayed before binding a new transaction to the scope (#4526).
 - Session replay opacity animation masking (#4532)
+
+### Improvements
+
+- Expose `Sentry._Hybrid` explicit module (#4440)
 
 ## 8.41.0-beta.1
 
