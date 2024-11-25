@@ -60,8 +60,11 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
 
 + (NSArray<SentryDebugMeta *> *)getDebugImagesCrashed:(BOOL)isCrash
 {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     return [[SentryDependencyContainer sharedInstance].debugImageProvider
         getDebugImagesCrashed:isCrash];
+#pragma clang diagnostic pop
 }
 
 + (nullable SentryAppStartMeasurement *)appStartMeasurement

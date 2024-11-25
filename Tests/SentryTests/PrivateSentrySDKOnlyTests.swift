@@ -248,6 +248,19 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
       * Smoke Tests profiling via PrivateSentrySDKOnly. Actual profiling unit tests are done elsewhere.
      */
     func testProfilingStartAndCollect() throws {
+        let image = DebugMeta()
+        image.name = "sentrytest"
+        image.imageAddress = "0x0000000105705000"
+        image.imageVmAddress = "0x0000000105705000"
+        image.codeFile = "codeFile"
+        image.debugID = "debugID"
+        image.imageSize = 100
+        image.type = "macho"
+        
+        let debugImageProvider = TestDebugImageProvider()
+        debugImageProvider.debugImages = [image]
+        SentryDependencyContainer.sharedInstance().debugImageProvider = debugImageProvider
+        
         if sentry_threadSanitizerIsPresent() {
             throw XCTSkip("Profiler does not run if thread sanitizer is attached.")
         }
@@ -264,7 +277,19 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
         let payload = PrivateSentrySDKOnly.collectProfileBetween(startTime, and: startTime + 200_000_000, forTrace: traceIdA)
         XCTAssertNotNil(payload)
         XCTAssertEqual(payload?["platform"] as? String, "cocoa")
-        XCTAssertNotNil(payload?["debug_meta"])
+        
+        XCTAssertEqual(1, debugImageProvider.getDebugImagesFromCacheInvocations.count, "You must retrieve debug images from cache.")
+        let debugMeta = try XCTUnwrap(payload?["debug_meta"] as? [String: Any])
+        let images = try XCTUnwrap(debugMeta["images"] as? [[String: Any]])
+        let debugImage = try XCTUnwrap(images.first)
+        XCTAssertEqual(debugImage["name"] as? String, image.name)
+        XCTAssertEqual(debugImage["image_addr"] as? String, image.imageAddress)
+        XCTAssertEqual(debugImage["image_vmaddr"] as? String, image.imageVmAddress)
+        XCTAssertEqual(debugImage["code_file"] as? String, image.codeFile)
+        XCTAssertEqual(debugImage["debug_id"] as? String, image.debugID)
+        XCTAssertEqual(debugImage["image_size"] as? NSNumber, image.imageSize)
+        XCTAssertEqual(debugImage["type"] as? String, image.type)
+        
         XCTAssertNotNil(payload?["device"])
         XCTAssertNotNil(payload?["profile_id"])
         let profile = payload?["profile"] as? NSDictionary

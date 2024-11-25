@@ -78,7 +78,8 @@ NS_ASSUME_NONNULL_BEGIN
         }
 #endif // SENTRY_HAS_UIKIT
 
-        SENTRY_LOG_DEBUG(@"Creating new transaction bound to scope: %d", bindToScope);
+        SENTRY_LOG_DEBUG(
+            @"Starting new transaction for %@ with bindToScope: %d", name, bindToScope);
 
         newSpan = [SentrySDK.currentHub
             startTransactionWithContext:context

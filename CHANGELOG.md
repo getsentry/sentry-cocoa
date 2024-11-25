@@ -2,6 +2,22 @@
 
 ## Unreleased
 
+### Fixes
+
+- Session replay touch tracking race condition (#4548)
+
+### Features
+
+- Add in_foreground app context to transactions (#4561)
+- Promote the option `performanceV2` from experimental to stable (#4564)
+
+### Improvements
+
+- impr: Speed up getBinaryImages V2 (#4539). Follow up on (#4435)
+- Make SentryId Sendable (#4553)
+
+## 8.41.0
+
 ### Features
 
 - Transactions for crashes (#4504): Finish the transaction bound to the scope when the app crashes. This __experimental__ feature is disabled by default. You can enable it via the option `enablePersistingTracesWhenCrashing`.
@@ -14,6 +30,31 @@
 - UIViewController with Xcode 16 in debug (#4523). The Xcode 16 build setting [ENABLE_DEBUG_DYLIB](https://developer.apple.com/documentation/xcode/build-settings-reference#Enable-Debug-Dylib-Support), which is turned on by default only in debug, could lead to missing UIViewController traces.
 - Concurrency crash with Swift 6 (#4512)
 - Make `Scope.span` fully thread safe (#4519)
+- Finish TTFD when not calling reportFullyDisplayed before binding a new transaction to the scope (#4526).
+- Session replay opacity animation masking (#4532)
+
+### Improvements
+
+- Expose `Sentry._Hybrid` explicit module (#4440)
+
+## 8.41.0-beta.1
+
+### Features
+
+- Transactions for crashes (#4504): Finish the transaction bound to the scope when the app crashes. This __experimental__ feature is disabled by default. You can enable it via the option `enablePersistingTracesWhenCrashing`.
+
+### Fixes
+
+- Keep PropagationContext when cloning scope (#4518)
+- UIViewController with Xcode 16 in debug (#4523). The Xcode 16 build setting [ENABLE_DEBUG_DYLIB](https://developer.apple.com/documentation/xcode/build-settings-reference#Enable-Debug-Dylib-Support), which is turned on by default only in debug, could lead to missing UIViewController traces.
+- Concurrency crash with Swift 6 (#4512)
+- Make `Scope.span` fully thread safe (#4519)
+- Finish TTFD when not calling reportFullyDisplayed before binding a new transaction to the scope (#4526).
+- Session replay opacity animation masking (#4532)
+
+### Improvements
+
+- Expose `Sentry._Hybrid` explicit module (#4440)
 
 ## 8.40.1
 
