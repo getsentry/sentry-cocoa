@@ -28,7 +28,7 @@ NS_ASSUME_NONNULL_BEGIN
     }
 
     [self installWithOptions:options
-             breadcrumbTracker:[[SentryBreadcrumbTracker alloc] init]
+           breadcrumbTracker:[[SentryBreadcrumbTracker alloc] initReportAccessibilityIdentifier:options.reportAccessibilityIdentifier]
 #if TARGET_OS_IOS && SENTRY_HAS_UIKIT
         systemEventBreadcrumbs:
             [[SentrySystemEventBreadcrumbs alloc]

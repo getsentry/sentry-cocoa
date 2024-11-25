@@ -4,6 +4,26 @@ import XCTest
 
 class SentryBreadcrumbTrackerTests: XCTestCase {
     
+    private class TestEvent: UIEvent {
+        let touchedView: UIView?
+        class TestEndTouch: UITouch {
+            let touchedView: UIView?
+            init(touchedView: UIView?) {
+                self.touchedView = touchedView
+            }
+            override var phase: UITouch.Phase { .ended }
+            override var view: UIView? { touchedView }
+        }
+    
+        init(touchedView: UIView?) {
+            self.touchedView = touchedView
+        }
+        
+        override var allTouches: Set<UITouch> { [
+            TestEndTouch(touchedView: touchedView)
+        ] }
+    }
+    
     private var delegate: SentryBreadcrumbTestDelegate!
     
     override func setUp() {
@@ -228,6 +248,62 @@ class SentryBreadcrumbTrackerTests: XCTestCase {
         
         XCTAssertEqual(payload["category"] as? String, "ui.tap")
         XCTAssertEqual(payload["message"] as? String, "methodPressed:")
+  }
+    
+    func testTouchBreadcrumb_DontReportAccessibilityIdentifier() throws {
+        let scope = Scope()
+        let client = TestClient(options: Options())
+        let hub = TestHub(client: client, andScope: scope)
+        SentrySDK.setCurrentHub(hub)
+        
+        let swizzlingWrapper = TestSentrySwizzleWrapper()
+        SentryDependencyContainer.sharedInstance().swizzleWrapper = swizzlingWrapper
+        
+        let tracker = SentryBreadcrumbTracker(reportAccessibilityIdentifier: false)
+        tracker.start(with: delegate)
+        tracker.startSwizzle()
+        
+        let button = UIButton()
+        button.accessibilityIdentifier = "TestAccessibilityIdentifier"
+        
+        swizzlingWrapper.execute(action: "methodPressed:", target: self, sender: button, event: TestEvent(touchedView: button))
+        
+        guard let crumb = delegate.addCrumbInvocations.invocations.first(where: { $0.category == "touch" }) else {
+            XCTFail("No touch breadcrumb")
+            return
+        }
+               
+        let crumbData = try XCTUnwrap(crumb.data)
+
+        XCTAssertNil(crumbData["accessibilityIdentifier"])
+    }
+    
+    func testTouchBreadcrumb_ReportAccessibilityIdentifier() throws {
+        let scope = Scope()
+        let client = TestClient(options: Options())
+        let hub = TestHub(client: client, andScope: scope)
+        SentrySDK.setCurrentHub(hub)
+        
+        let swizzlingWrapper = TestSentrySwizzleWrapper()
+        SentryDependencyContainer.sharedInstance().swizzleWrapper = swizzlingWrapper
+        
+        let tracker = SentryBreadcrumbTracker(reportAccessibilityIdentifier: true)
+        tracker.start(with: delegate)
+        tracker.startSwizzle()
+        
+        let button = UIButton()
+        button.accessibilityIdentifier = "TestAccessibilityIdentifier"
+        
+        swizzlingWrapper.execute(action: "methodPressed:", target: self, sender: button, event: TestEvent(touchedView: button))
+        
+        guard let crumb = delegate.addCrumbInvocations.invocations.first(where: { $0.category == "touch" }) else {
+            XCTFail("No touch breadcrumb")
+            return
+        }
+               
+        let crumbData = try XCTUnwrap(crumb.data)
+
+        XCTAssertEqual(crumbData["accessibilityIdentifier"] as? String, "TestAccessibilityIdentifier")
     }
     
 #endif

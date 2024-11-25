@@ -6,6 +6,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface SentryBreadcrumbTracker : NSObject
 
+- (instancetype)initReportAccessibilityIdentifier:(BOOL)report;
+
 - (void)startWithDelegate:(id<SentryBreadcrumbDelegate>)delegate;
 #if SENTRY_HAS_UIKIT
 - (void)startSwizzle;
