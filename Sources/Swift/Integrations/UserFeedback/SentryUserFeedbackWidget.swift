@@ -3,35 +3,19 @@ import Foundation
 @_implementationOnly import _SentryPrivate
 import UIKit
 
+var displayingForm = false
+
 @available(iOS 13.0, *)
 struct SentryUserFeedbackWidget {
     class Window: UIWindow {
-        class RootViewController: UIViewController {
+        class RootViewController: UIViewController, SentryUserFeedbackFormDelegate, UIAdaptivePresentationControllerDelegate {
             let defaultWidgetSpacing: CGFloat = 8
             
-            lazy var button = SentryUserFeedbackWidgetButtonView(config: config, action: { sender in
-                if self.config.widgetConfig.animations {
-                    UIView.animate(withDuration: 0.3, delay: 0, options: .curveEaseInOut) {
-                        sender.alpha = 0
-                    }
-                } else {
-                    sender.isHidden = true
-                }
-                
-                let formDialog = UIViewController(nibName: nil, bundle: nil)
-                formDialog.view.backgroundColor = .white
-                let label = UILabel(frame: .zero)
-                label.text = "Hi, I'm a user feedback form!"
-                formDialog.view.addSubview(label)
-                label.translatesAutoresizingMaskIntoConstraints = false
-                label.textAlignment = .center
-                NSLayoutConstraint.activate([
-                    label.leadingAnchor.constraint(equalTo: formDialog.view.leadingAnchor),
-                    label.trailingAnchor.constraint(equalTo: formDialog.view.trailingAnchor),
-                    label.centerYAnchor.constraint(equalTo: formDialog.view.centerYAnchor)
-                ])
-                
-                self.present(formDialog, animated: self.config.widgetConfig.animations)
+            lazy var button = SentryUserFeedbackWidgetButtonView(config: config, action: { _ in
+                self.setWidget(visible: false)
+                let form = SentryUserFeedbackForm(config: self.config, delegate: self)
+                form.presentationController?.delegate = self
+                self.present(form, animated: self.config.widgetConfig.animations)
             })
             
             let config: SentryUserFeedbackConfiguration
@@ -60,6 +44,44 @@ struct SentryUserFeedbackWidget {
             required init?(coder: NSCoder) {
                 fatalError("init(coder:) has not been implemented")
             }
+            
+            // MARK: Helpers
+            
+            func setWidget(visible: Bool) {
+                if config.widgetConfig.animations {
+                    UIView.animate(withDuration: 0.3, delay: 0, options: .curveEaseInOut) {
+                        self.button.alpha = visible ? 1 : 0
+                    }
+                } else {
+                    button.isHidden = !visible
+                }
+                
+                displayingForm = !visible
+            }
+            
+            func closeForm() {
+                setWidget(visible: true)
+                dismiss(animated: config.widgetConfig.animations)
+            }
+            
+            // MARK: SentryUserFeedbackFormDelegate
+            
+            func cancelled() {
+                closeForm()
+            }
+            
+//swiftlint:disable todo
+            func confirmed() {
+                // TODO: submit
+                closeForm()
+            }
+//swiftlint:enable todo
+            
+            // MARK: UIAdaptivePresentationControllerDelegate
+            
+            func presentationControllerDidDismiss(_ presentationController: UIPresentationController) {
+                setWidget(visible: true)
+            }
         }
         
         init(config: SentryUserFeedbackConfiguration) {
@@ -73,6 +95,10 @@ struct SentryUserFeedbackWidget {
         }
         
         override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
+            guard !displayingForm else {
+                return super.hitTest(point, with: event)
+            }
+            
             guard let result = super.hitTest(point, with: event) else {
                 return nil
             }

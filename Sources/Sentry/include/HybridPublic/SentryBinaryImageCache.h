@@ -22,6 +22,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)stop;
 
+- (NSArray<SentryBinaryImageInfo *> *)getAllBinaryImages;
+
 - (nullable SentryBinaryImageInfo *)imageByAddress:(const uint64_t)address;
 
 - (NSSet<NSString *> *)imagePathsForInAppInclude:(NSString *)inAppInclude;
