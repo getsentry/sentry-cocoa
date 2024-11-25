@@ -128,8 +128,8 @@ We frequently release a beta version of our SDK and dogfood it with internal app
 2. Duplicate the Changelog.md entry of the beta release and change header of the version number to unreleased.
 3. Commit and push the changes.
 4. Trigger the release workflow with use workflow from the `publish/x.x.x` branch and set the target branch to merge into to `publish/x.x.x`, cause per default craft will merge into the main branch and this could lead to merge conflicts in the changelog.
-  a. After the successful release, craft merges the changes back into `publish/x.x.x` branch and deletes the release branch.
-5. Manually open a PR from the `publish/x.x.x` branch into the main branch and merge it.
+5. After the successful release, validate that craft merged the changes back into `publish/x.x.x` branch and deleted the release branch.
+6. Manually open a PR from the `publish/x.x.x` branch into the main branch and merge it.
 
 ## Final Notes
 
