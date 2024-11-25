@@ -26,7 +26,9 @@
     SentryUIEventTrackerTransactionMode *mode =
         [[SentryUIEventTrackerTransactionMode alloc] initWithIdleTimeout:options.idleTimeout];
 
-    self.uiEventTracker = [[SentryUIEventTracker alloc] initWithMode:mode reportAccessibilityIdentifier:options.reportAccessibilityIdentifier];
+    self.uiEventTracker =
+        [[SentryUIEventTracker alloc] initWithMode:mode
+                     reportAccessibilityIdentifier:options.reportAccessibilityIdentifier];
 
     [self.uiEventTracker start];
 

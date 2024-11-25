@@ -23,7 +23,8 @@ static NSString *const SentryUIEventTrackerSwizzleSendAction
     BOOL _reportAccessibilityIdentifier;
 }
 
-- (instancetype)initWithMode:(id<SentryUIEventTrackerMode>)mode reportAccessibilityIdentifier:(BOOL)report
+- (instancetype)initWithMode:(id<SentryUIEventTrackerMode>)mode
+    reportAccessibilityIdentifier:(BOOL)report
 {
     if (self = [super init]) {
         self.uiEventTrackerMode = mode;

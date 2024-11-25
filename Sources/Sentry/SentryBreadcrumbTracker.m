@@ -46,11 +46,13 @@ static NSString *const SentryBreadcrumbTrackerSwizzleSendAction
 #endif // !TARGET_OS_WATCH
 
 // Convenient initializer for tests
-- (instancetype)init {
+- (instancetype)init
+{
     return [self initReportAccessibilityIdentifier:YES];
 }
 
-- (instancetype)initReportAccessibilityIdentifier:(BOOL)report {
+- (instancetype)initReportAccessibilityIdentifier:(BOOL)report
+{
     if (self = [super init]) {
         _reportAccessibilityIdentifier = report;
     }
@@ -225,7 +227,9 @@ static NSString *const SentryBreadcrumbTrackerSwizzleSendAction
             NSDictionary *data = nil;
             for (UITouch *touch in event.allTouches) {
                 if (touch.phase == UITouchPhaseCancelled || touch.phase == UITouchPhaseEnded) {
-                    data = [SentryBreadcrumbTracker extractDataFromView:touch.view withAccessibilityIdentifier:self->_reportAccessibilityIdentifier];
+                    data = [SentryBreadcrumbTracker
+                                extractDataFromView:touch.view
+                        withAccessibilityIdentifier:self->_reportAccessibilityIdentifier];
                 }
             }
 
@@ -277,7 +281,8 @@ static NSString *const SentryBreadcrumbTrackerSwizzleSendAction
 #    pragma clang diagnostic pop
 }
 
-+ (NSDictionary *)extractDataFromView:(UIView *)view withAccessibilityIdentifier:(BOOL)includeIdentifier
++ (NSDictionary *)extractDataFromView:(UIView *)view
+          withAccessibilityIdentifier:(BOOL)includeIdentifier
 {
     NSMutableDictionary *result =
         @{ @"view" : [NSString stringWithFormat:@"%@", view] }.mutableCopy;
@@ -286,7 +291,8 @@ static NSString *const SentryBreadcrumbTrackerSwizzleSendAction
         [result setValue:[NSNumber numberWithInteger:view.tag] forKey:@"tag"];
     }
 
-    if (includeIdentifier && view.accessibilityIdentifier && ![view.accessibilityIdentifier isEqualToString:@""]) {
+    if (includeIdentifier && view.accessibilityIdentifier
+        && ![view.accessibilityIdentifier isEqualToString:@""]) {
         [result setValue:view.accessibilityIdentifier forKey:@"accessibilityIdentifier"];
     }
 
