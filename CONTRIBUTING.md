@@ -120,6 +120,17 @@ You can run samples in a real device without changing certificates and provision
 
 This will setup certificates and provisioning profiles into your machine, but in order to be able to run a sample in a real device you need to register that device with Sentry AppConnect account, add the device to the provisioning profile you want to use, download the profile again and open it with Xcode.
 
+## Promoting a beta release to a normal release
+
+We frequently release a beta version of our SDK and dogfood it with internal apps to increase our SDK stability. We continue to merge PRs to the main branch, so we can't promote a beta release by publishing it from the main branch. Instead, we create a branch from the GH tag of the beta release and promote it from there. To do this, follow these steps:
+
+1. Checkout a new branch from the GH tag of the beta release: `git checkout -b publish/x.x.x x.x.x-beta.1`. You can't use `release/x.x.x` or `x.x.x` as the branch name as craft will fail, as it creates a `release/x.x.x` branch for updating the changelog and it will create a tag `x.x.x` for the release.
+2. Duplicate the Changelog.md entry of the beta release and change header of the version number to unreleased.
+3. Commit and push the changes.
+4. Trigger the release workflow with use workflow from the `publish/x.x.x` branch and set the target branch to merge into to `publish/x.x.x`, cause per default craft will merge into the main branch and this could lead to merge conflicts in the changelog.
+5. After the successful release, validate that craft merged the changes back into `publish/x.x.x` branch and deleted the release branch.
+6. Manually open a PR from the `publish/x.x.x` branch into the main branch and merge it.
+
 ## Final Notes
 
 When contributing to the codebase, please make note of the following:

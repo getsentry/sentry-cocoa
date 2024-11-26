@@ -32,6 +32,8 @@ FOUNDATION_EXPORT NSString *const kSentryDefaultEnvironment;
 @property (nonatomic, copy, nullable)
     SentryUserFeedbackConfigurationBlock configureUserFeedback API_AVAILABLE(ios(13.0));
 
+@property (nonatomic, readonly, class) NSArray<Class> *defaultIntegrationClasses;
+
 @property (nonatomic, strong, nullable)
     SentryUserFeedbackConfiguration *userFeedbackConfiguration API_AVAILABLE(ios(13.0));
 
