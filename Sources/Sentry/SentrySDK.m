@@ -466,7 +466,13 @@ static NSDate *_Nullable startTimestamp = nil;
 
     NSArray<Class> *defaultIntegrations = SentryOptions.defaultIntegrationClasses;
 
-    // We are going to use a dictionary that links the classes with their names
+    // Since 8.22.0, we use a precompiled XCFramework for SPM, which can lead to Sentry's 
+    // definition getting duplicated in the app with a warning “SentrySDK is defined in both
+    // ModuleA and ModuleB”. This doesn't happen when users use Sentry-Dynamic and
+    // when compiling Sentry from source via SPM. Due to the duplication, some users didn't
+    // see any crashes reported to Sentry cause the SentryCrashReportSink couldn't find
+    // a hub bound to the SentrySDK, and it dropped the crash events. This problem
+    // is fixed now by using a dictionary that links the classes with their names
     // so we can quickly check whether that class is in the option integrations collection.
     // We cannot load the class itself with NSClassFromString because doing so may load a class
     // that was duplicated in another module, leading to undefined behavior.
