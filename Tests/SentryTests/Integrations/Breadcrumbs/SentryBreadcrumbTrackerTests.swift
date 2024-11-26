@@ -2,6 +2,12 @@
 import SentryTestUtils
 import XCTest
 
+extension SentryBreadcrumbTracker {
+    override convenience init() {
+        self.init(reportAccessibilityIdentifier: true)
+    }
+}
+
 class SentryBreadcrumbTrackerTests: XCTestCase {
     
     private var delegate: SentryBreadcrumbTestDelegate!
@@ -276,11 +282,7 @@ class SentryBreadcrumbTrackerTests: XCTestCase {
         
         swizzlingWrapper.execute(action: "methodPressed:", target: self, sender: button, event: TestEvent(touchedView: button))
         
-        guard let crumb = delegate.addCrumbInvocations.invocations.first(where: { $0.category == "touch" }) else {
-            XCTFail("No touch breadcrumb")
-            return
-        }
-        
+        let crumb = try XCTUnwrap(delegate.addCrumbInvocations.invocations.first(where: { $0.category == "touch" }))
         let crumbData = try XCTUnwrap(crumb.data)
         
         XCTAssertEqual(crumbData["accessibilityIdentifier"] as? String, "TestAccessibilityIdentifier")

@@ -45,12 +45,6 @@ static NSString *const SentryBreadcrumbTrackerSwizzleSendAction
 }
 #endif // !TARGET_OS_WATCH
 
-// Convenient initializer for tests
-- (instancetype)init
-{
-    return [self initReportAccessibilityIdentifier:YES];
-}
-
 - (instancetype)initReportAccessibilityIdentifier:(BOOL)report
 {
     if (self = [super init]) {
