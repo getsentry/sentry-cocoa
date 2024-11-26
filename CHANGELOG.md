@@ -5,6 +5,7 @@
 ### Fixes
 
 - Session replay touch tracking race condition (#4548)
+- Session replay transformed view masking (#4529)
 
 ### Features
 

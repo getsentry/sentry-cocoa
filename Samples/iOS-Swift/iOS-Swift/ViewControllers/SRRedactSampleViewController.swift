@@ -3,6 +3,7 @@ import Foundation
 class SRRedactSampleViewController: UIViewController {
     
     @IBOutlet var notRedactedView: UIView!
+    @IBOutlet var notRedactedLabel: UILabel!
     
     @IBOutlet var label: UILabel!
     
@@ -11,7 +12,6 @@ class SRRedactSampleViewController: UIViewController {
         
         notRedactedView.backgroundColor = .green
         notRedactedView.transform = CGAffineTransform(rotationAngle: 45 * .pi / 180.0)
-        
-        SentrySDK.replay.maskView(notRedactedView)
+        SentrySDK.replay.unmaskView(notRedactedLabel)
       }
 }
