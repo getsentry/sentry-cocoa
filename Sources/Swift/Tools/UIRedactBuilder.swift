@@ -181,7 +181,7 @@ class UIRedactBuilder {
     func redactRegionsFor(view: UIView) -> [RedactRegion] {
         var redactingRegions = [RedactRegion]()
         
-        self.mapRedactRegion(fromView: view,
+        self.mapRedactRegion(fromLayer: view.layer.presentation() ?? view.layer,
                              relativeTo: nil,
                              redacting: &redactingRegions,
                              rootFrame: view.frame,
@@ -238,10 +238,8 @@ class UIRedactBuilder {
         return image.imageAsset?.value(forKey: "_containingBundle") == nil
     }
     
-    private func mapRedactRegion(fromView view: UIView, relativeTo parentLayer: CALayer?, redacting: inout [RedactRegion], rootFrame: CGRect, transform: CGAffineTransform, forceRedact: Bool = false) {
-        guard !redactClassesIdentifiers.isEmpty && !view.isHidden && view.alpha != 0 else { return }
-        let layer = view.layer.presentation() ?? view.layer
-        guard !redactClassesIdentifiers.isEmpty && !layer.isHidden && layer.opacity != 0 else { return }
+    private func mapRedactRegion(fromLayer layer: CALayer, relativeTo parentLayer: CALayer?, redacting: inout [RedactRegion], rootFrame: CGRect, transform: CGAffineTransform, forceRedact: Bool = false) {
+        guard !redactClassesIdentifiers.isEmpty && !layer.isHidden && layer.opacity != 0, let view = layer.delegate as? UIView else { return }
         
         let newTransform = concatenateTranform(transform, from: layer, withParent: parentLayer)
         
@@ -272,8 +270,8 @@ class UIRedactBuilder {
             /// The beginning will be added after all the subviews have been mapped.
             redacting.append(RedactRegion(size: layer.bounds.size, transform: newTransform, type: .clipEnd))
         }
-        for subview in view.subviews.sorted(by: { $0.layer.zPosition < $1.layer.zPosition }) {
-            mapRedactRegion(fromView: subview, relativeTo: layer, redacting: &redacting, rootFrame: rootFrame, transform: newTransform, forceRedact: enforceRedact)
+        for subLayer in (layer.sublayers ?? []).sorted(by: { $0.zPosition < $1.zPosition }) {
+            mapRedactRegion(fromLayer: subLayer, relativeTo: layer, redacting: &redacting, rootFrame: rootFrame, transform: newTransform, forceRedact: enforceRedact)
         }
         if view.clipsToBounds {
             redacting.append(RedactRegion(size: layer.bounds.size, transform: newTransform, type: .clipBegin))
