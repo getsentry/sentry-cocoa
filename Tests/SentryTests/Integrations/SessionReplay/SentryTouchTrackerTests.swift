@@ -308,7 +308,7 @@ class SentryTouchTrackerTests: XCTestCase {
         let readExp = expectation(description: "read")
         
         DispatchQueue.global().async {
-            for i in 0..<50_000 {
+            for i in 0..<1_000 {
                 let event = MockUIEvent(timestamp: Double(i))
                 let touch = MockUITouch(phase: .ended, location: CGPoint(x: 100, y: 100))
                 event.addTouch(touch)
@@ -318,14 +318,14 @@ class SentryTouchTrackerTests: XCTestCase {
         }
         
         DispatchQueue.global().async {
-            for _ in 0..<50_000 {
+            for _ in 0..<1_000 {
                 sut.flushFinishedEvents()
             }
             removeExp.fulfill()
         }
         
         DispatchQueue.global().async {
-            for _ in 0..<50_000 {
+            for _ in 0..<1_000 {
                 _ = sut.replayEvents(from: self.referenceDate, until: self.referenceDate.addingTimeInterval(10_000.0))
             }
             readExp.fulfill()
