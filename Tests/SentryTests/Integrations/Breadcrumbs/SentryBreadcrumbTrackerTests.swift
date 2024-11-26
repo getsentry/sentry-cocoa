@@ -4,26 +4,6 @@ import XCTest
 
 class SentryBreadcrumbTrackerTests: XCTestCase {
     
-    private class TestEvent: UIEvent {
-        let touchedView: UIView?
-        class TestEndTouch: UITouch {
-            let touchedView: UIView?
-            init(touchedView: UIView?) {
-                self.touchedView = touchedView
-            }
-            override var phase: UITouch.Phase { .ended }
-            override var view: UIView? { touchedView }
-        }
-    
-        init(touchedView: UIView?) {
-            self.touchedView = touchedView
-        }
-        
-        override var allTouches: Set<UITouch> { [
-            TestEndTouch(touchedView: touchedView)
-        ] }
-    }
-    
     private var delegate: SentryBreadcrumbTestDelegate!
     
     override func setUp() {
@@ -41,15 +21,15 @@ class SentryBreadcrumbTrackerTests: XCTestCase {
     
     func testStopRemovesSwizzleSendAction() {
         let sut = SentryBreadcrumbTracker()
-
+        
         sut.start(with: delegate)
         sut.startSwizzle()
         sut.stop()
-
+        
         let dict = Dynamic(SentryDependencyContainer.sharedInstance().swizzleWrapper).swizzleSendActionCallbacks().asDictionary
         XCTAssertEqual(0, dict?.count)
     }
-
+    
     func testNetworkConnectivityChangeBreadcrumbs() throws {
         let testReachability = TestSentryReachability()
         
@@ -58,11 +38,11 @@ class SentryBreadcrumbTrackerTests: XCTestCase {
         let sut = SentryBreadcrumbTracker()
         sut.start(with: delegate)
         let states = [SentryConnectivityCellular,
-        SentryConnectivityWiFi,
-        SentryConnectivityNone,
-        SentryConnectivityWiFi,
-        SentryConnectivityCellular,
-        SentryConnectivityWiFi
+                      SentryConnectivityWiFi,
+                      SentryConnectivityNone,
+                      SentryConnectivityWiFi,
+                      SentryConnectivityCellular,
+                      SentryConnectivityWiFi
         ]
         states.forEach {
             testReachability.setReachabilityState(state: $0)
@@ -84,7 +64,7 @@ class SentryBreadcrumbTrackerTests: XCTestCase {
         sut.start(with: delegate)
         testReachability.setReachabilityState(state: SentryConnectivityCellular)
         sut.stop()
-                
+        
         guard let breadcrumb = delegate.addCrumbInvocations.invocations.dropFirst().first else {
             XCTFail("No connectivity breadcrumb")
             return
@@ -100,7 +80,7 @@ class SentryBreadcrumbTrackerTests: XCTestCase {
         XCTAssertEqual(payload["category"] as? String, "device.connectivity")
         XCTAssertEqual(payloadData["state"] as? String, "cellular")
     }
-
+    
     func testSwizzlingStarted_ViewControllerAppears_AddsUILifeCycleBreadcrumb() throws {
         let testReachability = TestSentryReachability()
         
@@ -119,7 +99,7 @@ class SentryBreadcrumbTrackerTests: XCTestCase {
         let sut = SentryBreadcrumbTracker()
         sut.start(with: delegate)
         sut.startSwizzle()
-
+        
         // Using UINavigationController as a parent doesn't work on tvOS 17.0
         // for an unknown reason. Therefore, we manually set the parent.
         class ParentUIViewController: UIViewController {
@@ -133,15 +113,15 @@ class SentryBreadcrumbTrackerTests: XCTestCase {
         print("delegate: \(String(describing: delegate))")
         print("tracker: \(sut); SentryBreadcrumbTracker.delegate: \(String(describing: Dynamic(sut).delegate.asObject))")
         viewController.viewDidAppear(false)
-
+        
         let crumbs = delegate.addCrumbInvocations.invocations
-
+        
         // one breadcrumb for starting the tracker, one for the first reachability breadcrumb and one final one for the swizzled viewDidAppear
         guard crumbs.count == 2 else {
             XCTFail("Expected exactly 2 breadcrumbs, got: \(crumbs)")
             return
         }
-
+        
         let lifeCycleCrumb = try XCTUnwrap(crumbs.element(at: 1))
         XCTAssertEqual("navigation", lifeCycleCrumb.type)
         XCTAssertEqual("ui.lifecycle", lifeCycleCrumb.category)
@@ -241,14 +221,14 @@ class SentryBreadcrumbTrackerTests: XCTestCase {
             XCTFail("No touch breadcrumb")
             return
         }
-               
+        
         let result = try XCTUnwrap(sut.convert(from: crumb) as? SentryRRWebBreadcrumbEvent)
         let crumbData = try XCTUnwrap(result.data)
         let payload = try XCTUnwrap(crumbData["payload"] as? [String: Any])
         
         XCTAssertEqual(payload["category"] as? String, "ui.tap")
         XCTAssertEqual(payload["message"] as? String, "methodPressed:")
-  }
+    }
     
     func testTouchBreadcrumb_DontReportAccessibilityIdentifier() throws {
         let scope = Scope()
@@ -272,9 +252,9 @@ class SentryBreadcrumbTrackerTests: XCTestCase {
             XCTFail("No touch breadcrumb")
             return
         }
-               
+        
         let crumbData = try XCTUnwrap(crumb.data)
-
+        
         XCTAssertNil(crumbData["accessibilityIdentifier"])
     }
     
@@ -300,12 +280,32 @@ class SentryBreadcrumbTrackerTests: XCTestCase {
             XCTFail("No touch breadcrumb")
             return
         }
-               
+        
         let crumbData = try XCTUnwrap(crumb.data)
-
+        
         XCTAssertEqual(crumbData["accessibilityIdentifier"] as? String, "TestAccessibilityIdentifier")
     }
     
+    private class TestEvent: UIEvent {
+        let touchedView: UIView?
+        class TestEndTouch: UITouch {
+            let touchedView: UIView?
+            init(touchedView: UIView?) {
+                self.touchedView = touchedView
+            }
+            override var phase: UITouch.Phase { .ended }
+            override var view: UIView? { touchedView }
+        }
+        
+        init(touchedView: UIView?) {
+            self.touchedView = touchedView
+        }
+        
+        override var allTouches: Set<UITouch> { [
+            TestEndTouch(touchedView: touchedView)
+        ] }
+    }
+    
 #endif
-
+    
 }
