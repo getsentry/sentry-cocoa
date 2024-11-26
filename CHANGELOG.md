@@ -5,7 +5,7 @@
 ### Fixes
 
 - Session replay touch tracking race condition (#4548)
-- Use `options.reportAccessibilityIdentifier` for Breadcrumbs and UIEvents () 
+- Use `options.reportAccessibilityIdentifier` for Breadcrumbs and UIEvents (#4569) 
 
 ### Features
 
