@@ -863,7 +863,7 @@ static BOOL appStartMeasurementRead;
 
             // The backend calculates statistics on the number and size of debug images for app
             // start transactions. Therefore, we add all debug images here.
-            transaction.debugMeta = [self.debugImageProvider getDebugImagesCrashed:NO];
+            transaction.debugMeta = [self.debugImageProvider getDebugImagesFromCache];
         }
     }
 }

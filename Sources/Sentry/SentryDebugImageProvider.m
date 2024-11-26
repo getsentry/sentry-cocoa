@@ -13,6 +13,8 @@
 #import "SentryThread.h"
 #import <Foundation/Foundation.h>
 
+NS_ASSUME_NONNULL_BEGIN
+
 @interface SentryDebugImageProvider ()
 
 @property (nonatomic, strong) id<SentryCrashBinaryImageProvider> binaryImageProvider;
@@ -50,7 +52,10 @@
 {
     NSMutableArray<SentryDebugMeta *> *result = [NSMutableArray array];
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     NSArray<SentryDebugMeta *> *binaryImages = [self getDebugImagesCrashed:isCrash];
+#pragma clang diagnostic pop
 
     for (SentryDebugMeta *sourceImage in binaryImages) {
         if ([addresses containsObject:sourceImage.imageAddress]) {
@@ -134,19 +139,7 @@
             continue;
         }
 
-        SentryDebugMeta *debugMeta = [[SentryDebugMeta alloc] init];
-        debugMeta.debugID = info.UUID;
-        debugMeta.type = SentryDebugImageType;
-
-        if (info.vmAddress > 0) {
-            debugMeta.imageVmAddress = sentry_formatHexAddressUInt64(info.vmAddress);
-        }
-
-        debugMeta.imageAddress = sentry_formatHexAddressUInt64(info.address);
-        debugMeta.imageSize = @(info.size);
-        debugMeta.codeFile = info.name;
-
-        [result addObject:debugMeta];
+        [result addObject:[self fillDebugMetaFromBinaryImageInfo:info]];
     }
 
     return result;
@@ -156,6 +149,17 @@
 {
     // maintains previous behavior for the same method call by also trying to gather crash info
     return [self getDebugImagesCrashed:YES];
+}
+
+- (NSArray<SentryDebugMeta *> *)getDebugImagesFromCache
+{
+    NSArray<SentryBinaryImageInfo *> *infos = [self.binaryImageCache getAllBinaryImages];
+    NSMutableArray<SentryDebugMeta *> *result =
+        [[NSMutableArray alloc] initWithCapacity:infos.count];
+    for (SentryBinaryImageInfo *info in infos) {
+        [result addObject:[self fillDebugMetaFromBinaryImageInfo:info]];
+    }
+    return result;
 }
 
 - (NSArray<SentryDebugMeta *> *)getDebugImagesCrashed:(BOOL)isCrash
@@ -193,4 +197,23 @@
     return debugMeta;
 }
 
+- (SentryDebugMeta *)fillDebugMetaFromBinaryImageInfo:(SentryBinaryImageInfo *)info
+{
+    SentryDebugMeta *debugMeta = [[SentryDebugMeta alloc] init];
+    debugMeta.debugID = info.UUID;
+    debugMeta.type = SentryDebugImageType;
+
+    if (info.vmAddress > 0) {
+        debugMeta.imageVmAddress = sentry_formatHexAddressUInt64(info.vmAddress);
+    }
+
+    debugMeta.imageAddress = sentry_formatHexAddressUInt64(info.address);
+    debugMeta.imageSize = @(info.size);
+    debugMeta.codeFile = info.name;
+
+    return debugMeta;
+}
+
 @end
+
+NS_ASSUME_NONNULL_END

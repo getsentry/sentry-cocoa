@@ -43,7 +43,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             options.debug = true
             
             if #available(iOS 16.0, *), !args.contains("--disable-session-replay") {
-                options.experimental.sessionReplay = SentryReplayOptions(sessionSampleRate: 1, onErrorSampleRate: 1, maskAllText: true, maskAllImages: true)
+                options.experimental.sessionReplay = SentryReplayOptions(sessionSampleRate: 0, onErrorSampleRate: 1, maskAllText: true, maskAllImages: true)
                 options.experimental.sessionReplay.quality = .high
             }
             
@@ -205,8 +205,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                     uiForm.messagePlaceholder = "Describe the nature of the jank. Its essence, if you will."
                 }
                 config.configureTheme = { theme in
-                    let fontSize: CGFloat = 25
-                    
                     let fontFamily: String
                     if Locale.current.languageCode == "ar" { // arabic; ar_EG
                         fontFamily = "Damascus"
@@ -219,15 +217,19 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                     } else {
                         fontFamily = "ChalkboardSE-Regular"
                     }
-                    theme.font = UIFont(name: fontFamily, size: fontSize) ?? UIFont.systemFont(ofSize: fontSize)
-                    theme.outlineColor = .purple
+                    theme.fontFamily = fontFamily
+                    theme.outlineStyle = .init(outlineColor: .purple)
                     theme.foreground = .purple
-                    theme.background = .purple.withAlphaComponent(0.1)
+                    theme.background = .init(red: 0.95, green: 0.9, blue: 0.95, alpha: 1)
+                    theme.submitBackground = .orange
+                    theme.submitForeground = .purple
+                    theme.buttonBackground = .purple
+                    theme.buttonForeground = .white
                 }
                 config.onSubmitSuccess = { info in
                     let name = info["name"] ?? "$shakespearean_insult_name"
                     let alert = UIAlertController(title: "Thanks?", message: "We have enough jank of our own, we really didn't need yours too, \(name).", preferredStyle: .alert)
-                    alert.addAction(.init(title: "Derp", style: .default))
+                    alert.addAction(.init(title: "Deal with it 🕶️", style: .default))
                     self.window?.rootViewController?.present(alert, animated: true)
                 }
                 config.onSubmitError = { error in

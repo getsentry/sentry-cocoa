@@ -10,10 +10,47 @@ import UIKit
 @objcMembers
 public class SentryUserFeedbackThemeConfiguration: NSObject {
     /**
-     * The default font to use.
-     * - note: Defaults to the current system default.
+     * The font family to use for form text elements.
+     * - note: Defaults to the system default, if this property is `nil`.
      */
-    public var font: UIFont = UIFont.preferredFont(forTextStyle: .callout)
+    public lazy var fontFamily: String? = nil
+    
+    /**
+     * Font for form input elements.
+     * - note: Defaults to `UIFont.TextStyle.callout`.
+     */
+    lazy var font = scaledFont(style: .callout)
+    
+    /**
+     * Font for main header title of the feedback form.
+     * - note: Defaults to `UIFont.TextStyle.title1`.
+     */
+    lazy var headerFont = scaledFont(style: .title1)
+    
+    /**
+     * Font for titles of text fields and buttons in the form.
+     * - note: Defaults to `UIFont.TextStyle.headline`.
+     */
+    lazy var titleFont = scaledFont(style: .headline)
+    
+    /**
+     * Return a scaled font for the given style, using the configured font family.
+     */
+    func scaledFont(style: UIFont.TextStyle) -> UIFont {
+        guard let fontFamily = fontFamily, let font = UIFont(name: fontFamily, size: UIFont.systemFontSize) else {
+            return UIFont.preferredFont(forTextStyle: style)
+        }
+        return UIFontMetrics(forTextStyle: style).scaledFont(for: font)
+    }
+    
+    /**
+     * Helps respond to dynamic font size changes when the app is in the background, and then comes back to the foreground.
+     */
+    func updateDefaultFonts() {
+        font = scaledFont(style: .callout)
+        headerFont = scaledFont(style: .title1)
+        titleFont = scaledFont(style: .headline)
+    }
     
     /**
      * Foreground text color of the widget and form.
@@ -31,13 +68,25 @@ public class SentryUserFeedbackThemeConfiguration: NSObject {
      * Foreground color for the form submit button.
      * - note: Default: `rgb(255, 255, 255)` for both dark and light modes
      */
-    public var accentForeground: UIColor = UIColor.white
+    public var submitForeground: UIColor = UIColor.white
     
     /**
      * Background color for the form submit button in light and dark modes.
      * - note: Default: `rgb(88, 74, 192)` for both light and dark modes
      */
-    public var accentBackground: UIColor = UIColor(red: 88 / 255, green: 74 / 255, blue: 192 / 255, alpha: 1)
+    public var submitBackground: UIColor = UIColor(red: 88 / 255, green: 74 / 255, blue: 192 / 255, alpha: 1)
+    
+    /**
+     * Foreground color for the cancel and screenshot buttons.
+     * - note: Default: Same as `foreground` for both dark and light modes
+     */
+    public lazy var buttonForeground: UIColor = foreground
+    
+    /**
+     * Background color for the form cancel and screenshot buttons in light and dark modes.
+     * - note: Default: Transparent for both light and dark modes
+     */
+    public var buttonBackground: UIColor = UIColor.clear
     
     /**
      * Color used for success-related components (such as text color when feedback is submitted successfully).
@@ -51,35 +100,46 @@ public class SentryUserFeedbackThemeConfiguration: NSObject {
      */
     public var errorColor = UIScreen.main.traitCollection.userInterfaceStyle == .dark ? UIColor(red: 245 / 255, green: 84 / 255, blue: 89 / 255, alpha: 1) : UIColor(red: 223 / 255, green: 51 / 255, blue: 56 / 255, alpha: 1)
     
-    /**
-     * Normal outline color for form inputs.
-     * - note: Default: `nil (system default)`
-     */
-    public var outlineColor = UIColor.systemGray3
+    public struct OutlineStyle: Equatable {
+        /**
+         * Outline color for form inputs.
+         * - note: Default: The system default of a UITextField outline with borderStyle of .roundedRect.
+         */
+        public var outlineColor = UIColor(white: 204 / 255, alpha: 1)
+        
+        /**
+         * Outline corner radius for form input elements.
+         * - note: Default: `5`.
+         */
+        public var cornerRadius: CGFloat = 5
+        
+        /**
+         * The thickness of the outline.
+         * - note: Default: `0.5`.
+         */
+        public var outlineWidth: CGFloat = 0.5
+        
+        public init(outlineColor: UIColor = UIColor(white: 204 / 255, alpha: 1), cornerRadius: CGFloat = 5, outlineWidth: CGFloat = 0.5) {
+            self.outlineColor = outlineColor
+            self.cornerRadius = cornerRadius
+            self.outlineWidth = outlineWidth
+        }
+    }
     
     /**
-     * Outline color for form inputs when focused.
-     * - note: Default: `nil (system default)`
+     * - note: We need to keep a reference to a default instance of this for comparison purposes later. We don't use the default to give UITextFields a default style, instead, we use `UITextField.BorderStyle.roundedRect` if `SentryUserFeedbackThemeConfiguration.outlineStyle == defaultOutlineStyle`.
      */
-    public var outlineColorFocussed: UIColor?
+    let defaultOutlineStyle = OutlineStyle()
     
     /**
-     * Normal outline thickness for form inputs.
-     * - note: Default: `nil (system default)`
+     * Options for styling the outline of input elements and buttons in the feedback form.
      */
-    public var outlineThickness: NSNumber?
+    public lazy var outlineStyle: OutlineStyle = defaultOutlineStyle
     
     /**
-     * Outline thickness for form inputs when focused.
-     * - note: Default: `nil (system default)`
+     * Background color to use for text inputs in the feedback form.
      */
-    public var outlineThicknessFocussed: NSNumber?
-    
-    /**
-     * Outline corner radius for form input elements.
-     * - note: Default: `nil (system default)`
-     */
-    public var cornerRadius: NSNumber?
+    public var inputBackground: UIColor = UIColor.secondarySystemBackground
 }
 
 #endif // os(iOS) && !SENTRY_NO_UIKIT
