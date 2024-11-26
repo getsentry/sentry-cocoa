@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+### Fixes
+
+- Session replay touch tracking race condition (#4548)
+- Use `options.reportAccessibilityIdentifier` for Breadcrumbs and UIEvents (#4569)  
+- Session replay transformed view masking (#4529)
+
 ### Features
 
 - Add in_foreground app context to transactions (#4561)
