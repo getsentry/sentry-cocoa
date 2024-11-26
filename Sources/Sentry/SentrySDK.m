@@ -466,7 +466,7 @@ static NSDate *_Nullable startTimestamp = nil;
 
     NSArray<Class> *defaultIntegrations = SentryOptions.defaultIntegrationClasses;
 
-    // Since 8.22.0, we use a precompiled XCFramework for SPM, which can lead to Sentry's 
+    // Since 8.22.0, we use a precompiled XCFramework for SPM, which can lead to Sentry's
     // definition getting duplicated in the app with a warning “SentrySDK is defined in both
     // ModuleA and ModuleB”. This doesn't happen when users use Sentry-Dynamic and
     // when compiling Sentry from source via SPM. Due to the duplication, some users didn't
