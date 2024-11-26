@@ -27,17 +27,18 @@ NS_ASSUME_NONNULL_BEGIN
         return NO;
     }
 
+#if TARGET_OS_IOS && SENTRY_HAS_UIKIT
     [self installWithOptions:options
              breadcrumbTracker:[[SentryBreadcrumbTracker alloc] initReportAccessibilityIdentifier:
                                        options.reportAccessibilityIdentifier]
-#if TARGET_OS_IOS && SENTRY_HAS_UIKIT
         systemEventBreadcrumbs:
             [[SentrySystemEventBreadcrumbs alloc]
                          initWithFileManager:[SentryDependencyContainer sharedInstance].fileManager
                 andNotificationCenterWrapper:[SentryDependencyContainer sharedInstance]
-                                                 .notificationCenterWrapper]
+                                                 .notificationCenterWrapper]];
+#else
+    [self installWithOptions:options breadcrumbTracker:[[SentryBreadcrumbTracker alloc] init]];
 #endif // TARGET_OS_IOS && SENTRY_HAS_UIKIT
-    ];
 
     return YES;
 }
