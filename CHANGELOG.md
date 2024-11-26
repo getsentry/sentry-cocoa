@@ -12,6 +12,7 @@
 - Session replay touch tracking race condition (#4548)
 - Session replay transformed view masking (#4529)
 - Load integration from same binary (#4541)
+- Masking for fast animations #4574
 
 
 ### Improvements
