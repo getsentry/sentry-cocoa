@@ -39,46 +39,47 @@ NSString *const kSentryDefaultEnvironment = @"production";
     BOOL _enableTracingManual;
 }
 
-NSMutableArray<NSString *> *
-sentry_defaultIntegrations(void)
++ (NSArray<NSString *> *)defaultIntegrations
+{
+    NSArray<Class> *defaultIntegrationClasses = [self defaultIntegrationClasses];
+    NSMutableArray<NSString *> *defaultIntegrationNames =
+        [[NSMutableArray alloc] initWithCapacity:defaultIntegrationClasses.count];
+
+    for (Class class in defaultIntegrationClasses) {
+        [defaultIntegrationNames addObject:NSStringFromClass(class)];
+    }
+
+    return defaultIntegrationNames;
+}
+
++ (NSArray<Class> *)defaultIntegrationClasses
 {
     // The order of integrations here is important.
     // SentryCrashIntegration needs to be initialized before SentryAutoSessionTrackingIntegration.
     // And SentrySessionReplayIntegration before SentryCrashIntegration.
-    NSMutableArray<NSString *> *defaultIntegrations = [NSMutableArray<NSString *> arrayWithObjects:
+    NSMutableArray<Class> *defaultIntegrations = [NSMutableArray<Class> arrayWithObjects:
 #if SENTRY_HAS_UIKIT && !TARGET_OS_VISION
-            NSStringFromClass([SentrySessionReplayIntegration class]),
+            [SentrySessionReplayIntegration class],
 #endif
-        NSStringFromClass([SentryCrashIntegration class]),
+        [SentryCrashIntegration class],
 #if SENTRY_HAS_UIKIT
-        NSStringFromClass([SentryAppStartTrackingIntegration class]),
-        NSStringFromClass([SentryFramesTrackingIntegration class]),
-        NSStringFromClass([SentryPerformanceTrackingIntegration class]),
-        NSStringFromClass([SentryScreenshotIntegration class]),
-        NSStringFromClass([SentryUIEventTrackingIntegration class]),
-        NSStringFromClass([SentryViewHierarchyIntegration class]),
-        NSStringFromClass([SentryWatchdogTerminationTrackingIntegration class]),
+        [SentryAppStartTrackingIntegration class], [SentryFramesTrackingIntegration class],
+        [SentryPerformanceTrackingIntegration class], [SentryScreenshotIntegration class],
+        [SentryUIEventTrackingIntegration class], [SentryViewHierarchyIntegration class],
+        [SentryWatchdogTerminationTrackingIntegration class],
 #endif // SENTRY_HAS_UIKIT
-        NSStringFromClass([SentryANRTrackingIntegration class]),
-        NSStringFromClass([SentryAutoBreadcrumbTrackingIntegration class]),
-        NSStringFromClass([SentryAutoSessionTrackingIntegration class]),
-        NSStringFromClass([SentryCoreDataTrackingIntegration class]),
-        NSStringFromClass([SentryFileIOTrackingIntegration class]),
-        NSStringFromClass([SentryNetworkTrackingIntegration class]),
-        NSStringFromClass([SentrySwiftAsyncIntegration class]), nil];
+        [SentryANRTrackingIntegration class], [SentryAutoBreadcrumbTrackingIntegration class],
+        [SentryAutoSessionTrackingIntegration class], [SentryCoreDataTrackingIntegration class],
+        [SentryFileIOTrackingIntegration class], [SentryNetworkTrackingIntegration class],
+        [SentrySwiftAsyncIntegration class], nil];
 
 #if SENTRY_HAS_METRIC_KIT
     if (@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, *)) {
-        [defaultIntegrations addObject:NSStringFromClass([SentryMetricKitIntegration class])];
+        [defaultIntegrations addObject:[SentryMetricKitIntegration class]];
     }
 #endif // SENTRY_HAS_METRIC_KIT
 
     return defaultIntegrations;
-}
-
-+ (NSArray<NSString *> *)defaultIntegrations
-{
-    return sentry_defaultIntegrations();
 }
 
 - (instancetype)init
@@ -97,7 +98,7 @@ sentry_defaultIntegrations(void)
         self.debug = NO;
         self.maxBreadcrumbs = defaultMaxBreadcrumbs;
         self.maxCacheItems = 30;
-        _integrations = sentry_defaultIntegrations();
+        _integrations = [SentryOptions defaultIntegrations];
         self.sampleRate = SENTRY_DEFAULT_SAMPLE_RATE;
         self.enableAutoSessionTracking = YES;
         self.enableGraphQLOperationTracking = NO;
