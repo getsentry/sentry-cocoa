@@ -240,6 +240,14 @@ platform :ios do
       configuration: configuration
     )
   end
+  
+  desc "Run Duplication test"
+  lane :duplication_test do
+    run_tests(
+      project: "./Tests/DuplicatedSDKTest/DuplicatedSDKTest.xcodeproj",
+      scheme: "DuplicatedSDKTest"
+    )
+  end
 
   desc "Build Perf-test app without Sentry"
   lane :build_perf_test_app_plain do
