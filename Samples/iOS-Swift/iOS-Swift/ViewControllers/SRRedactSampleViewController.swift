@@ -29,17 +29,6 @@ class SRRedactSampleViewController: UIViewController {
     
     }
     
-    func inspectViewLayer() {
-        guard let layer = view.layer.presentation() else {
-            print("### No presentation layer")
-            return
-        }
-        
-        layer.sublayers?.forEach { sublayer in
-            print("### Sublayer: \(sublayer.delegate)")
-        }
-    }
-    
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         continueAnimating = false
