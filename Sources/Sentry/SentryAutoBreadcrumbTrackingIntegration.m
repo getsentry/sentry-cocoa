@@ -37,7 +37,9 @@ NS_ASSUME_NONNULL_BEGIN
                 andNotificationCenterWrapper:[SentryDependencyContainer sharedInstance]
                                                  .notificationCenterWrapper]];
 #else
-    [self installWithOptions:options breadcrumbTracker:[[SentryBreadcrumbTracker alloc] initReportAccessibilityIdentifier:false]];
+    [self installWithOptions:options
+           breadcrumbTracker:[[SentryBreadcrumbTracker alloc]
+                                 initReportAccessibilityIdentifier:false]];
 #endif // TARGET_OS_IOS && SENTRY_HAS_UIKIT
 
     return YES;
