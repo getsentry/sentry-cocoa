@@ -36,7 +36,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)handleUIEvent:(NSString *)action
                   operation:(NSString *)operation
-    accessibilityIdentifier:(NSString *)accessibilityIdentifier
+    accessibilityIdentifier:(nullable NSString *)accessibilityIdentifier
 {
 
     // There might be more active transactions stored, but only the last one might still be
