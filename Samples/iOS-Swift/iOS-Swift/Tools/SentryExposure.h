@@ -3,6 +3,7 @@
 
 @interface SentryBreadcrumbTracker : NSObject
 
-+ (NSDictionary *)extractDataFromView:(UIView *)view withAccessibilityIdentifier:(BOOL)includeIdentifier;
++ (NSDictionary *)extractDataFromView:(UIView *)view
+          withAccessibilityIdentifier:(BOOL)includeIdentifier;
 
 @end
