@@ -63,14 +63,13 @@
 
 ## 8.40.0
 
-## Feature
+### Features
 
 - Add option to report uncaught NSExceptions on macOS (#4471)
 - Build visionOS project with static Sentry SDK (#4462)
 - Too many navigation breadcrumbs for Session Replay (#4480)
 - Time-of-check time-of-use filesystem race condition (#4473)
 - Capture all touches with session replay (#4477)
-
 
 ### Improvements
 
