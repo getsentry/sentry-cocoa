@@ -1,6 +1,6 @@
 #import "AppDelegate.h"
 @import CoreData;
-@import Sentry;
+#import <Sentry/Sentry.h>
 #import <Sentry/SentryOptions+Private.h>
 
 #import "iOS_ObjectiveC-Swift.h"
