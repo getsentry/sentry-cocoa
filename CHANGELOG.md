@@ -1,10 +1,11 @@
 # Changelog
 
-## Unreleased
+## 8.42.0-beta.1
 
 ### Features
 
 - Add in_foreground app context to transactions (#4561)
+- Add in_foreground app context to crash events ((#4584)
 - Promote the option `performanceV2` from experimental to stable (#4564)
 
 ### Fixes
@@ -14,6 +15,7 @@
 - Session replay transformed view masking (#4529)
 - Load integration from same binary (#4541)
 - Easy use of Swift classes in Objective-C projects (#4585)
+- Masking for fast animations #4574
 
 ### Improvements
 
@@ -63,14 +65,13 @@
 
 ## 8.40.0
 
-## Feature
+### Features
 
 - Add option to report uncaught NSExceptions on macOS (#4471)
 - Build visionOS project with static Sentry SDK (#4462)
 - Too many navigation breadcrumbs for Session Replay (#4480)
 - Time-of-check time-of-use filesystem race condition (#4473)
 - Capture all touches with session replay (#4477)
-
 
 ### Improvements
 
