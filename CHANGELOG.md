@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+
+- Easy use of Swift classes in Objective-C projects (#4585)
+
 ## 8.42.0-beta.1
 
 ### Features
@@ -14,7 +20,6 @@
 - Use `options.reportAccessibilityIdentifier` for Breadcrumbs and UIEvents (#4569) 
 - Session replay transformed view masking (#4529)
 - Load integration from same binary (#4541)
-- Easy use of Swift classes in Objective-C projects (#4585)
 - Masking for fast animations #4574
 
 ### Improvements
