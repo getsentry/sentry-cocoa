@@ -62,6 +62,9 @@ jobs:
           - scheme: iOS13-Swift
             xcode: 15.4
             runs-on: macos-14
+          - scheme: iOS-ObjectiveC
+            xcode: 15.4
+            runs-on: macos-14
           - scheme: watchOS-Swift WatchKit App
             xcode: 15.4
             runs-on: macos-14
