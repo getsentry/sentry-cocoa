@@ -16,7 +16,6 @@
 - Load integration from same binary (#4541)
 - Masking for fast animations #4574
 
-
 ### Improvements
 
 - impr: Speed up getBinaryImages V2 (#4539). Follow up on (#4435)

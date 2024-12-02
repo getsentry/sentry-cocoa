@@ -4,6 +4,7 @@
 
 @class SentrySpan;
 @class SentryInAppLogic;
+@class SentryTimeToDisplayTracker;
 @class UIViewController;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -100,6 +101,8 @@ static NSString *const SENTRY_UI_PERFORMANCE_TRACKER_TTD_TRACKER
                            callbackToOrigin:(void (^)(void))callback;
 
 - (void)reportFullyDisplayed;
+
+- (void)setTimeToDisplayTracker:(SentryTimeToDisplayTracker *)ttdTracker;
 
 @end
 

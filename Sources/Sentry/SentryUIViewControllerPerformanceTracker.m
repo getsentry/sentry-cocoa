@@ -166,9 +166,9 @@
     [self.currentTTDTracker finishSpansIfNotFinished];
 
     SentryTimeToDisplayTracker *ttdTracker =
-        [[SentryTimeToDisplayTracker alloc] initForController:controller
-                                           waitForFullDisplay:self.enableWaitForFullDisplay
-                                         dispatchQueueWrapper:_dispatchQueueWrapper];
+    [[SentryTimeToDisplayTracker alloc] initWithName: [SwiftDescriptor getObjectClassName:controller]
+                                  waitForFullDisplay:self.enableWaitForFullDisplay
+                                dispatchQueueWrapper:_dispatchQueueWrapper];
 
     if ([ttdTracker startForTracer:(SentryTracer *)vcSpan]) {
         objc_setAssociatedObject(controller, &SENTRY_UI_PERFORMANCE_TRACKER_TTD_TRACKER, ttdTracker,
@@ -182,6 +182,10 @@
 - (void)reportFullyDisplayed
 {
     [self.currentTTDTracker reportFullyDisplayed];
+}
+
+- (void)setTimeToDisplayTracker:(SentryTimeToDisplayTracker *)ttdTracker {
+    self.currentTTDTracker = ttdTracker;
 }
 
 - (void)viewControllerViewWillAppear:(UIViewController *)controller
