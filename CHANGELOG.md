@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Fix GraphQL context for HTTP client error tracking (#4567)
+
 ## 8.42.0-beta.1
 
 ### Features
