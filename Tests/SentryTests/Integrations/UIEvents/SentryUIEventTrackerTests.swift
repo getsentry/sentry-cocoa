@@ -20,8 +20,8 @@ class SentryUIEventTrackerTests: XCTestCase {
             uiEventTrackerMode = SentryUIEventTrackerTransactionMode(idleTimeout: 3.0)
         }
         
-        func getSut() -> SentryUIEventTracker {
-            return SentryUIEventTracker(mode: uiEventTrackerMode)
+        func getSut(reportAccessibilityIdentifier: Bool = true) -> SentryUIEventTracker {
+            return SentryUIEventTracker(mode: uiEventTrackerMode, reportAccessibilityIdentifier: reportAccessibilityIdentifier)
         }
     }
 
@@ -112,6 +112,23 @@ class SentryUIEventTrackerTests: XCTestCase {
         let span = try! XCTUnwrap(SentrySDK.span as? SentryTracer)
         XCTAssertTrue(span.tags.contains {
             $0.key == "accessibilityIdentifier" && $0.value == accessibilityIdentifier
+        })
+    }
+    
+    func test_UIViewWithAccessibilityIdentifier_DontReportAccessibilityIdentifier() throws {
+        fixture.swizzleWrapper.removeAllCallbacks()
+        
+        let button = fixture.button
+        button.accessibilityIdentifier = accessibilityIdentifier
+        
+        let sut = fixture.getSut(reportAccessibilityIdentifier: false)
+        sut.start()
+        
+        callExecuteAction(action: action, target: fixture.target, sender: button, event: TestUIEvent())
+        
+        let span = try! XCTUnwrap(SentrySDK.span as? SentryTracer)
+        XCTAssertFalse(span.tags.contains {
+            $0.key == "accessibilityIdentifier"
         })
     }
     
