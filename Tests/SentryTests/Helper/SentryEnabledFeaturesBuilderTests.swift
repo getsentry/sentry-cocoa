@@ -50,5 +50,16 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
         XCTAssert(features.contains("appHangTrackingV2"))
 #endif //os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+        
+    }
+    
+    func testEnablePersistingTracesWhenCrashing() {
+        let options = Options()
+        
+        options.enablePersistingTracesWhenCrashing = true
+        
+        let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
+        
+        XCTAssert(features.contains("persistingTracesWhenCrashing"))
     }
 }
