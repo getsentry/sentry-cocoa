@@ -36,6 +36,47 @@ class SentryUserFeedbackForm: UIViewController {
         fatalError("init(coder:) has not been implemented")
     }
     
+    // MARK: UI Elements
+    
+    func themeElements() {
+        [fullNameTextField, emailTextField].forEach {
+            $0.font = config.theme.font
+            $0.adjustsFontForContentSizeCategory = true
+            if config.theme.outlineStyle == config.theme.defaultOutlineStyle {
+                $0.borderStyle = .roundedRect
+            } else {
+                $0.layer.cornerRadius = config.theme.outlineStyle.cornerRadius
+                $0.layer.borderWidth = config.theme.outlineStyle.outlineWidth
+                $0.layer.borderColor = config.theme.outlineStyle.outlineColor.cgColor
+            }
+        }
+        
+        [fullNameTextField, emailTextField, messageTextView].forEach {
+            $0.backgroundColor = config.theme.inputBackground
+        }
+        
+        [fullNameLabel, emailLabel, messageLabel].forEach {
+            $0.font = config.theme.titleFont
+            $0.adjustsFontForContentSizeCategory = true
+        }
+        
+        [submitButton, addScreenshotButton, removeScreenshotButton, cancelButton].forEach {
+            $0.titleLabel?.font = config.theme.titleFont
+            $0.titleLabel?.adjustsFontForContentSizeCategory = true
+        }
+        
+        [submitButton, addScreenshotButton, removeScreenshotButton, cancelButton, messageTextView].forEach {
+            $0.layer.cornerRadius = config.theme.outlineStyle.cornerRadius
+            $0.layer.borderWidth = config.theme.outlineStyle.outlineWidth
+            $0.layer.borderColor = config.theme.outlineStyle.outlineColor.cgColor
+        }
+        
+        [addScreenshotButton, removeScreenshotButton, cancelButton].forEach {
+            $0.backgroundColor = config.theme.buttonBackground
+            $0.setTitleColor(config.theme.buttonForeground, for: .normal)
+        }
+    }
+    
     // MARK: Actions
     
     func addScreenshotButtonTapped() {
@@ -46,12 +87,10 @@ class SentryUserFeedbackForm: UIViewController {
         
     }
     
-    //swiftlint:disable todo
     func submitFeedbackButtonTapped() {
         // TODO: validate and package entries
         delegate?.confirmed()
     }
-    //swiftlint:enable todo
     
     func cancelButtonTapped() {
         delegate?.cancelled()
@@ -102,102 +141,6 @@ class SentryUserFeedbackForm: UIViewController {
             messagePlaceholderTopConstraint
         ])
     }
-    
-    /// Update the constants of constraints and any other layout, like transforms, in response to e.g. accessibility dynamic text size changes.
-    func updateLayout() {
-        let verticalPadding: CGFloat = 8
-        messageTextView.textContainerInset = .init(top: verticalPadding * config.scaleFactor, left: 2 * config.scaleFactor, bottom: verticalPadding * config.scaleFactor, right: 2 * config.scaleFactor)
-        
-        messageTextViewHeightConstraint.constant = config.theme.font.lineHeight * 5
-        logoViewWidthConstraint.constant = logoWidth * config.scaleFactor
-        messagePlaceholderLeadingConstraint.constant = messageTextView.textContainerInset.left + 5
-        messagePlaceholderTopConstraint.constant = messageTextView.textContainerInset.top
-        fullNameTextFieldHeightConstraint.constant = formElementHeight * config.scaleFactor
-        emailTextFieldHeightConstraint.constant = formElementHeight * config.scaleFactor
-        addScreenshotButtonHeightConstraint.constant = formElementHeight * config.scaleFactor
-        removeScreenshotButtonHeightConstraint.constant = formElementHeight * config.scaleFactor
-        submitButtonHeightConstraint.constant = formElementHeight * config.scaleFactor
-        cancelButtonHeightConstraint.constant = formElementHeight * config.scaleFactor
-    }
-    
-    // MARK: UI Elements
-    
-    func themeElements() {
-        [fullNameTextField, emailTextField].forEach {
-            $0.font = config.theme.font
-            $0.adjustsFontForContentSizeCategory = true
-            if config.theme.outlineStyle == config.theme.defaultOutlineStyle {
-                $0.borderStyle = .roundedRect
-            } else {
-                $0.layer.cornerRadius = config.theme.outlineStyle.cornerRadius
-                $0.layer.borderWidth = config.theme.outlineStyle.outlineWidth
-                $0.layer.borderColor = config.theme.outlineStyle.outlineColor.cgColor
-            }
-        }
-        
-        [fullNameTextField, emailTextField, messageTextView].forEach {
-            $0.backgroundColor = config.theme.inputBackground
-        }
-        
-        [fullNameLabel, emailLabel, messageLabel].forEach {
-            $0.font = config.theme.titleFont
-            $0.adjustsFontForContentSizeCategory = true
-        }
-        
-        [submitButton, addScreenshotButton, removeScreenshotButton, cancelButton].forEach {
-            $0.titleLabel?.font = config.theme.titleFont
-            $0.titleLabel?.adjustsFontForContentSizeCategory = true
-        }
-        
-        [submitButton, addScreenshotButton, removeScreenshotButton, cancelButton, messageTextView].forEach {
-            $0.layer.cornerRadius = config.theme.outlineStyle.cornerRadius
-            $0.layer.borderWidth = config.theme.outlineStyle.outlineWidth
-            $0.layer.borderColor = config.theme.outlineStyle.outlineColor.cgColor
-        }
-        
-        [addScreenshotButton, removeScreenshotButton, cancelButton].forEach {
-            $0.backgroundColor = config.theme.buttonBackground
-            $0.setTitleColor(config.theme.buttonForeground, for: .normal)
-        }
-    }
-    
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-    
-    // MARK: Actions
-    
-    func addScreenshotButtonTapped() {
-        
-    }
-    
-    func removeScreenshotButtonTapped() {
-        
-    }
-    
-    func submitFeedbackButtonTapped() {
-        // TODO: validate and package entries
-        delegate?.confirmed()
-    }
-    
-    func cancelButtonTapped() {
-        delegate?.cancelled()
-    }
-    
-    // MARK: Layout
-    
-    let formElementHeight: CGFloat = 40
-    let logoWidth: CGFloat = 47
-    lazy var messageTextViewHeightConstraint = messageTextView.heightAnchor.constraint(equalToConstant: config.theme.font.lineHeight * 5)
-    lazy var logoViewWidthConstraint = sentryLogoView.widthAnchor.constraint(equalToConstant: logoWidth * config.scaleFactor)
-    lazy var messagePlaceholderLeadingConstraint = messageTextViewPlaceholder.leadingAnchor.constraint(equalTo: messageTextView.leadingAnchor, constant: messageTextView.textContainerInset.left + 5)
-    lazy var messagePlaceholderTopConstraint = messageTextViewPlaceholder.topAnchor.constraint(equalTo: messageTextView.topAnchor, constant: messageTextView.textContainerInset.top)
-    lazy var fullNameTextFieldHeightConstraint = fullNameTextField.heightAnchor.constraint(equalToConstant: formElementHeight * config.scaleFactor)
-    lazy var emailTextFieldHeightConstraint = emailTextField.heightAnchor.constraint(equalToConstant: formElementHeight * config.scaleFactor)
-    lazy var addScreenshotButtonHeightConstraint = addScreenshotButton.heightAnchor.constraint(equalToConstant: formElementHeight * config.scaleFactor)
-    lazy var removeScreenshotButtonHeightConstraint = removeScreenshotButton.heightAnchor.constraint(equalToConstant: formElementHeight * config.scaleFactor)
-    lazy var submitButtonHeightConstraint = submitButton.heightAnchor.constraint(equalToConstant: formElementHeight * config.scaleFactor)
-    lazy var cancelButtonHeightConstraint = cancelButton.heightAnchor.constraint(equalToConstant: formElementHeight * config.scaleFactor)
     
     func updateLayout() {
         let verticalPadding: CGFloat = 8
