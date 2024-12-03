@@ -17,7 +17,7 @@ struct SentryUserFeedbackWidget {
                 self.setWidget(visible: false)
                 let form = SentryUserFeedbackForm(config: self.config, delegate: self)
                 form.presentationController?.delegate = self
-                self.present(form, animated: self.config.widgetConfig.animations)
+                self.present(form, animated: self.config.animations)
             })
             
             let config: SentryUserFeedbackConfiguration
@@ -50,7 +50,7 @@ struct SentryUserFeedbackWidget {
             // MARK: Helpers
             
             func setWidget(visible: Bool) {
-                if config.widgetConfig.animations {
+                if config.animations {
                     UIView.animate(withDuration: 0.3, delay: 0, options: .curveEaseInOut) {
                         self.button.alpha = visible ? 1 : 0
                     }
@@ -63,7 +63,7 @@ struct SentryUserFeedbackWidget {
             
             func closeForm() {
                 setWidget(visible: true)
-                dismiss(animated: config.widgetConfig.animations)
+                dismiss(animated: config.animations)
             }
             
             // MARK: SentryUserFeedbackFormDelegate
