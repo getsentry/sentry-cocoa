@@ -1,3 +1,5 @@
+//swiftlint:disable todo type_body_length
+
 import Foundation
 #if os(iOS) && !SENTRY_NO_UIKIT
 @_implementationOnly import _SentryPrivate
@@ -26,36 +28,17 @@ class SentryUserFeedbackForm: UIViewController {
         self.delegate = delegate
         super.init(nibName: nil, bundle: nil)
         view.backgroundColor = config.theme.background
-        
-        NSLayoutConstraint.activate([
-            scrollView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: config.margin),
-            scrollView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: config.margin),
-            scrollView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -config.margin),
-            scrollView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -config.margin),
-            
-            stack.topAnchor.constraint(equalTo: scrollView.topAnchor),
-            stack.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
-            stack.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor),
-            stack.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
-            stack.widthAnchor.constraint(equalTo: scrollView.widthAnchor),
-            
-            messageTextViewHeightConstraint,
-            
-            logoViewWidthConstraint,
-            sentryLogoView.heightAnchor.constraint(equalTo: sentryLogoView.widthAnchor, multiplier: 41 / 47),
-
-            fullNameTextFieldHeightConstraint,
-            emailTextFieldHeightConstraint,
-            addScreenshotButtonHeightConstraint,
-            removeScreenshotButtonHeightConstraint,
-            submitButtonHeightConstraint,
-            cancelButtonHeightConstraint,
-            
-            // the extra 5 pixels was observed experimentally and is invariant under changes in dynamic type sizes
-            messagePlaceholderLeadingConstraint,
-            messagePlaceholderTopConstraint
-        ])
-        
+        initLayout()
+        themeElements()
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    // MARK: UI Elements
+    
+    func themeElements() {
         [fullNameTextField, emailTextField].forEach {
             $0.font = config.theme.font
             $0.adjustsFontForContentSizeCategory = true
@@ -92,10 +75,6 @@ class SentryUserFeedbackForm: UIViewController {
             $0.backgroundColor = config.theme.buttonBackground
             $0.setTitleColor(config.theme.buttonForeground, for: .normal)
         }
-    }
-    
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
     }
     
     // MARK: Actions
@@ -153,6 +132,37 @@ class SentryUserFeedbackForm: UIViewController {
     lazy var submitButtonHeightConstraint = submitButton.heightAnchor.constraint(equalToConstant: formElementHeight * config.scaleFactor)
     lazy var cancelButtonHeightConstraint = cancelButton.heightAnchor.constraint(equalToConstant: formElementHeight * config.scaleFactor)
     
+    func initLayout() {
+        NSLayoutConstraint.activate([
+            scrollView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: config.margin),
+            scrollView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: config.margin),
+            scrollView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -config.margin),
+            scrollView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -config.margin),
+            
+            stack.topAnchor.constraint(equalTo: scrollView.topAnchor),
+            stack.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
+            stack.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor),
+            stack.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
+            stack.widthAnchor.constraint(equalTo: scrollView.widthAnchor),
+            
+            messageTextViewHeightConstraint,
+            
+            logoViewWidthConstraint,
+            sentryLogoView.heightAnchor.constraint(equalTo: sentryLogoView.widthAnchor, multiplier: 41 / 47),
+
+            fullNameTextFieldHeightConstraint,
+            emailTextFieldHeightConstraint,
+            addScreenshotButtonHeightConstraint,
+            removeScreenshotButtonHeightConstraint,
+            submitButtonHeightConstraint,
+            cancelButtonHeightConstraint,
+            
+            // the extra 5 pixels was observed experimentally and is invariant under changes in dynamic type sizes
+            messagePlaceholderLeadingConstraint,
+            messagePlaceholderTopConstraint
+        ])
+    }
+    
     func updateLayout() {
         let verticalPadding: CGFloat = 8
         messageTextView.textContainerInset = .init(top: verticalPadding * config.scaleFactor, left: 2 * config.scaleFactor, bottom: verticalPadding * config.scaleFactor, right: 2 * config.scaleFactor)
@@ -201,6 +211,7 @@ class SentryUserFeedbackForm: UIViewController {
         let field = UITextField(frame: .zero)
         field.placeholder = config.formConfig.namePlaceholder
         field.accessibilityLabel = config.formConfig.nameTextFieldAccessibilityLabel
+        field.accessibilityIdentifier = "io.sentry.feedback.form.name"
         return field
     }()
     
@@ -214,6 +225,7 @@ class SentryUserFeedbackForm: UIViewController {
         let field = UITextField(frame: .zero)
         field.placeholder = config.formConfig.emailPlaceholder
         field.accessibilityLabel = config.formConfig.emailTextFieldAccessibilityLabel
+        field.accessibilityIdentifier = "io.sentry.feedback.form.email"
         field.keyboardType = .emailAddress
         return field
     }()
@@ -240,6 +252,7 @@ class SentryUserFeedbackForm: UIViewController {
         textView.adjustsFontForContentSizeCategory = true
         textView.accessibilityLabel = config.formConfig.messageTextViewAccessibilityLabel
         textView.delegate = self
+        textView.accessibilityIdentifier = "io.sentry.feedback.form.message"
         return textView
     }()
     
@@ -348,3 +361,5 @@ extension SentryUserFeedbackForm: UITextViewDelegate {
 }
 
 #endif // os(iOS) && !SENTRY_NO_UIKIT
+
+//swiftlint:enable todo type_body_length

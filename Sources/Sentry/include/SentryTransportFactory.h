@@ -4,6 +4,7 @@
 
 @class SentryOptions, SentryFileManager;
 @protocol SentryCurrentDateProvider;
+@protocol SentryRateLimits;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -12,7 +13,7 @@ NS_SWIFT_NAME(TransportInitializer)
 
 + (NSArray<id<SentryTransport>> *)initTransports:(SentryOptions *)options
                                sentryFileManager:(SentryFileManager *)sentryFileManager
-                             currentDateProvider:(id<SentryCurrentDateProvider>)currentDateProvider;
+                                      rateLimits:(id<SentryRateLimits>)rateLimits;
 
 @end
 

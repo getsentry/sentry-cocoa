@@ -1,8 +1,16 @@
-#import "SentryDefines.h"
+#if __has_include(<Sentry/SentryDefines.h>)
+#    import <Sentry/SentryDefines.h>
+#else
+#    import "SentryDefines.h"
+#endif
 
 #if SENTRY_HAS_UIKIT
 
-#    import "SentryProfilingConditionals.h"
+#    if __has_include(<Sentry/SentryProfilingConditionals.h>)
+#        import <Sentry/SentryProfilingConditionals.h>
+#    else
+#        import "SentryProfilingConditionals.h"
+#    endif
 
 @class SentryDisplayLinkWrapper;
 @protocol SentryCurrentDateProvider;

@@ -1,6 +1,7 @@
 #import "SentryCrashIntegration.h"
 #import "SentryCrashInstallationReporter.h"
 
+#import "SentryCrashC.h"
 #include "SentryCrashMonitor_Signal.h"
 #import "SentryCrashWrapper.h"
 #import "SentryDispatchQueueWrapper.h"
@@ -11,6 +12,8 @@
 #import "SentrySDK+Private.h"
 #import "SentryScope+Private.h"
 #import "SentrySessionCrashedHandler.h"
+#import "SentrySpan+Private.h"
+#import "SentryTracer.h"
 #import "SentryWatchdogTerminationLogic.h"
 #import <SentryAppStateManager.h>
 #import <SentryClient+Private.h>
@@ -33,6 +36,17 @@ static SentryCrashInstallationReporter *installation = nil;
 
 static NSString *const DEVICE_KEY = @"device";
 static NSString *const LOCALE_KEY = @"locale";
+
+void
+sentry_finishAndSaveTransaction(void)
+{
+    SentrySpan *span = SentrySDK.currentHub.scope.span;
+
+    if (span != nil) {
+        SentryTracer *tracer = [span tracer];
+        [tracer finishForCrash];
+    }
+}
 
 @interface SentryCrashIntegration ()
 
@@ -109,6 +123,10 @@ static NSString *const LOCALE_KEY = @"locale";
         enableReportingUncaughtExceptions:enableUncaughtNSExceptionReporting];
 
     [self configureScope];
+
+    if (options.enablePersistingTracesWhenCrashing) {
+        [self configureTracingWhenCrashing];
+    }
 
     return YES;
 }
@@ -193,6 +211,8 @@ static NSString *const LOCALE_KEY = @"locale";
         installationToken = 0;
     }
 
+    sentrycrash_setSaveTransaction(NULL);
+
     [NSNotificationCenter.defaultCenter removeObserver:self
                                                   name:NSCurrentLocaleDidChangeNotification
                                                 object:nil];
@@ -241,6 +261,11 @@ static NSString *const LOCALE_KEY = @"locale";
 
         [scope setContextValue:device forKey:DEVICE_KEY];
     }];
+}
+
+- (void)configureTracingWhenCrashing
+{
+    sentrycrash_setSaveTransaction(&sentry_finishAndSaveTransaction);
 }
 
 @end

@@ -99,10 +99,10 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                     fileManager:(SentryFileManager *)fileManager
          deleteOldEnvelopeItems:(BOOL)deleteOldEnvelopeItems
 {
-    NSArray<id<SentryTransport>> *transports = [SentryTransportFactory
-             initTransports:options
-          sentryFileManager:fileManager
-        currentDateProvider:SentryDependencyContainer.sharedInstance.dateProvider];
+    NSArray<id<SentryTransport>> *transports =
+        [SentryTransportFactory initTransports:options
+                             sentryFileManager:fileManager
+                                    rateLimits:SentryDependencyContainer.sharedInstance.rateLimits];
 
     SentryTransportAdapter *transportAdapter =
         [[SentryTransportAdapter alloc] initWithTransports:transports options:options];
@@ -349,6 +349,22 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                              alwaysAttachStacktrace:NO
                                        isCrashEvent:YES];
     return [self sendEvent:preparedEvent withSession:session withScope:scope];
+}
+
+- (void)saveCrashTransaction:(SentryTransaction *)transaction withScope:(SentryScope *)scope
+{
+    SentryEvent *preparedEvent = [self prepareEvent:transaction
+                                          withScope:scope
+                             alwaysAttachStacktrace:NO
+                                       isCrashEvent:NO];
+
+    if (preparedEvent == nil) {
+        return;
+    }
+
+    SentryTraceContext *traceContext = [self getTraceStateWithEvent:transaction withScope:scope];
+
+    [self.transportAdapter storeEvent:preparedEvent traceContext:traceContext];
 }
 
 - (SentryId *)captureEvent:(SentryEvent *)event

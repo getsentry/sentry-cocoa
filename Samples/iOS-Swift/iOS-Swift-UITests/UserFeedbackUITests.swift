@@ -1,3 +1,5 @@
+//swiftlint:disable todo
+
 import XCTest
 
 class UserFeedbackUITests: BaseUITest {
@@ -13,18 +15,14 @@ class UserFeedbackUITests: BaseUITest {
     }
     
     func testSubmitFullyFilledForm() throws {
-        let widgetButton: XCUIElement = app.staticTexts["Report a Bug"]
         widgetButton.tap()
         
-        let nameField: XCUIElement = app.textFields["Your Name"]
         nameField.tap()
         nameField.typeText("Andrew")
         
-        let emailField: XCUIElement = app.textFields["your.email@example.org"]
         emailField.tap()
         emailField.typeText("andrew.mcknight@sentry.io")
         
-        let messageTextView: XCUIElement = app.textViews["What's the bug? What did you expect?"]
         messageTextView.tap()
         messageTextView.typeText("UITest user feedback")
         
@@ -43,7 +41,6 @@ class UserFeedbackUITests: BaseUITest {
     }
     
     func testSubmitWithNoFieldsFilled() throws {
-        let widgetButton: XCUIElement = app.staticTexts["Report a Bug"]
         widgetButton.tap()
         
         app.staticTexts["Send Bug Report"].tap()
@@ -54,10 +51,8 @@ class UserFeedbackUITests: BaseUITest {
     }
     
     func testSubmitWithOnlyRequiredFieldsFilled() {
-        let widgetButton: XCUIElement = app.staticTexts["Report a Bug"]
         widgetButton.tap()
         
-        let messageTextView: XCUIElement = app.textViews["What's the bug? What did you expect?"]
         messageTextView.tap()
         messageTextView.typeText("UITest user feedback")
         
@@ -67,14 +62,11 @@ class UserFeedbackUITests: BaseUITest {
     }
     
     func testSubmitOnlyWithOptionalFieldsFilled() throws {
-        let widgetButton: XCUIElement = app.staticTexts["Report a Bug"]
         widgetButton.tap()
         
-        let nameField: XCUIElement = app.textFields["Your Name"]
         nameField.tap()
         nameField.typeText("Andrew")
         
-        let emailField: XCUIElement = app.textFields["your.email@example.org"]
         emailField.tap()
         emailField.typeText("andrew.mcknight@sentry.io")
         
@@ -86,20 +78,15 @@ class UserFeedbackUITests: BaseUITest {
     }
     
     func testCancelFromFormByButton() {
-        let widgetButton: XCUIElement = app.staticTexts["Report a Bug"]
-        
         widgetButton.tap()
         
         // fill out the fields; we'll assert later that the entered data does not reappear on subsequent displays
-        let nameField: XCUIElement = app.textFields["Your Name"]
         nameField.tap()
         nameField.typeText("Andrew")
         
-        let emailField: XCUIElement = app.textFields["your.email@example.org"]
         emailField.tap()
         emailField.typeText("andrew.mcknight@sentry.io")
         
-        let messageTextView: XCUIElement = app.textViews["What's the bug? What did you expect?"]
         messageTextView.tap()
         messageTextView.typeText("UITest user feedback")
         
@@ -119,29 +106,26 @@ class UserFeedbackUITests: BaseUITest {
     }
     
     func testCancelFromFormBySwipeDown() {
-        let widgetButton: XCUIElement = app.staticTexts["Report a Bug"]
-        
         widgetButton.tap()
         
         // fill out the fields; we'll assert later that the entered data does not reappear on subsequent displays
-        let nameField: XCUIElement = app.textFields["Your Name"]
         nameField.tap()
         nameField.typeText("Andrew")
         
-        let emailField: XCUIElement = app.textFields["your.email@example.org"]
         emailField.tap()
         emailField.typeText("andrew.mcknight@sentry.io")
         
-        let messageTextView: XCUIElement = app.textViews["What's the bug? What did you expect?"]
         messageTextView.tap()
         messageTextView.typeText("UITest user feedback")
         
         // the cancel gesture
         app.swipeDown(velocity: .fast)
         
+        // the swipe dismiss animation takes an extra moment, so we need to wait for the widget to be visible again
+        XCTAssert(widgetButton.waitForExistence(timeout: 1))
+        
         // displaying the form again ensures the widget button still works afterwards; also assert that the fields are in their default state to ensure the entered data is not persisted between displays
         
-        XCTAssert(widgetButton.waitForExistence(timeout: 1))
         widgetButton.tap()
         
         // the placeholder text is returned for XCUIElement.value
@@ -151,4 +135,24 @@ class UserFeedbackUITests: BaseUITest {
         // the UITextView doesn't hav a placeholder, it's a label on top of it. so it is actually empty
         XCTAssertEqual(try XCTUnwrap(messageTextView.value as? String), "")
     }
+    
+    // MARK: Private
+    
+    var widgetButton: XCUIElement {
+        app.otherElements["io.sentry.feedback.widget"]
+    }
+    
+    var nameField: XCUIElement {
+        app.textFields["io.sentry.feedback.form.name"]
+    }
+    
+    var emailField: XCUIElement {
+        app.textFields["io.sentry.feedback.form.email"]
+    }
+    
+    var messageTextView: XCUIElement {
+        app.textViews["io.sentry.feedback.form.message"]
+    }
 }
+
+//swiftlint:enable todo

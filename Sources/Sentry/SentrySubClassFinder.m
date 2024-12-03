@@ -36,6 +36,8 @@
 - (void)actOnSubclassesOfViewControllerInImage:(NSString *)imageName block:(void (^)(Class))block;
 {
     [self.dispatchQueue dispatchAsyncWithBlock:^{
+        SENTRY_LOG_DEBUG(@"ActOnSubclassesOfViewControllerInImage: %@", imageName);
+
         Class viewControllerClass = [UIViewController class];
         if (viewControllerClass == nil) {
             SENTRY_LOG_DEBUG(@"UIViewController class not found.");
@@ -46,6 +48,8 @@
         const char **classes = [self.objcRuntimeWrapper
             copyClassNamesForImage:[imageName cStringUsingEncoding:NSUTF8StringEncoding]
                             amount:&count];
+
+        SENTRY_LOG_DEBUG(@"Found %u number of classes in image: %@.", count, imageName);
 
         // Storing the actual classes in an NSArray would call initializer of the class, which we
         // must avoid as we are on a background thread here and dealing with UIViewControllers,
@@ -85,11 +89,9 @@
                 block(NSClassFromString(className));
             }
 
-            [SentryLog
-                logWithMessage:[NSString stringWithFormat:@"The following UIViewControllers will "
-                                                          @"generate automatic transactions: %@",
-                                   [classesToSwizzle componentsJoinedByString:@", "]]
-                      andLevel:kSentryLevelDebug];
+            SENTRY_LOG_DEBUG(@"The following UIViewControllers for image: %@ will generate "
+                             @"automatic transactions: %@",
+                imageName, [classesToSwizzle componentsJoinedByString:@", "]);
         }];
     }];
 }
