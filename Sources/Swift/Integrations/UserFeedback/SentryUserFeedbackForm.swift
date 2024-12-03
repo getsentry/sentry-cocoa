@@ -111,11 +111,11 @@ class SentryUserFeedbackForm: UIViewController {
     func submitFeedbackButtonTapped() {
         var missing = [String]()
         
-        if config.formConfig.isNameRequired && fullNameTextField.hasText {
+        if config.formConfig.isNameRequired && !fullNameTextField.hasText {
             missing.append("name")
         }
         
-        if config.formConfig.isEmailRequired && emailTextField.hasText {
+        if config.formConfig.isEmailRequired && !emailTextField.hasText {
             missing.append("email")
         }
         
