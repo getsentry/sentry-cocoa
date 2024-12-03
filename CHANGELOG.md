@@ -6,6 +6,11 @@
 
 - Easy use of Swift classes in Objective-C projects (#4585)
 
+### Improvements
+
+- Track adoption of `enablePersistingTracesWhenCrashing` (#4587)
+
+
 ## 8.42.0-beta.1
 
 ### Features
