@@ -190,6 +190,7 @@ class SentryUserFeedbackForm: UIViewController {
         let field = UITextField(frame: .zero)
         field.placeholder = config.formConfig.namePlaceholder
         field.accessibilityLabel = config.formConfig.nameTextFieldAccessibilityLabel
+        field.accessibilityIdentifier = "io.sentry.feedback.form.name"
         return field
     }()
     
@@ -203,6 +204,7 @@ class SentryUserFeedbackForm: UIViewController {
         let field = UITextField(frame: .zero)
         field.placeholder = config.formConfig.emailPlaceholder
         field.accessibilityLabel = config.formConfig.emailTextFieldAccessibilityLabel
+        field.accessibilityIdentifier = "io.sentry.feedback.form.email"
         return field
     }()
     
@@ -228,6 +230,7 @@ class SentryUserFeedbackForm: UIViewController {
         textView.adjustsFontForContentSizeCategory = true
         textView.accessibilityLabel = config.formConfig.messageTextViewAccessibilityLabel
         textView.delegate = self
+        textView.accessibilityIdentifier = "io.sentry.feedback.form.message"
         return textView
     }()
     
