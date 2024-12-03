@@ -1,7 +1,7 @@
 #import "ViewController.h"
 #import "NoARCCrash.h"
 
-@import Sentry;
+#import <Sentry/Sentry.h>
 
 @interface ViewController ()
 
