@@ -2019,7 +2019,7 @@
 		D8F016B52B962548007B9AFB /* StringExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StringExtensions.swift; sourceTree = "<group>"; };
 		D8F01DE42A126B62008F4996 /* HybridPod.podspec */ = {isa = PBXFileReference; explicitFileType = text.script.ruby; path = HybridPod.podspec; sourceTree = "<group>"; };
 		D8F01DE52A126BF5008F4996 /* HybridTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HybridTest.swift; sourceTree = "<group>"; };
-		D8F0F24E2CFEEBFF00826CE3 /* SentryObjc.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SentryObjc.h; sourceTree = "<group>"; };
+		D8F0F24E2CFEEBFF00826CE3 /* SentryObjc.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SentryObjc.h; path = include/HybridPublic/SentryObjc.h; sourceTree = "<group>"; };
 		D8F67AED2BE0D19200C9197B /* UIImageHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIImageHelper.swift; sourceTree = "<group>"; };
 		D8F67AEF2BE0D31A00C9197B /* UIImageHelperTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIImageHelperTests.swift; sourceTree = "<group>"; };
 		D8F67AF22BE10F7600C9197B /* UIRedactBuilderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIRedactBuilderTests.swift; sourceTree = "<group>"; };
