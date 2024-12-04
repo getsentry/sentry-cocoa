@@ -16,6 +16,8 @@ protocol SentryUserFeedbackFormDelegate: NSObjectProtocol {
 class SentryUserFeedbackForm: UIViewController {
     let config: SentryUserFeedbackConfiguration
     weak var delegate: (any SentryUserFeedbackFormDelegate)?
+    var editingTextField: UITextField?
+    var editingTextView: UITextView?
     
     override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
         config.theme.updateDefaultFonts()
@@ -30,6 +32,17 @@ class SentryUserFeedbackForm: UIViewController {
         view.backgroundColor = config.theme.background
         initLayout()
         themeElements()
+        
+        NotificationCenter.default.addObserver(forName: UIResponder.keyboardDidShowNotification, object: nil, queue: nil) { note in
+            guard let keyboardValue = note.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue else { return }
+            let keyboardViewEndFrame = self.view.convert(keyboardValue.cgRectValue, from: self.view.window)
+            self.setScrollViewBottomInset(keyboardViewEndFrame.height - self.view.safeAreaInsets.bottom)
+
+        }
+        NotificationCenter.default.addObserver(forName: UIResponder.keyboardWillHideNotification, object: nil, queue: nil) { note in
+            self.setScrollViewBottomInset(0)
+        }
+        
     }
     
     required init?(coder: NSCoder) {
@@ -111,18 +124,24 @@ class SentryUserFeedbackForm: UIViewController {
     lazy var submitButtonHeightConstraint = submitButton.heightAnchor.constraint(equalToConstant: formElementHeight * config.scaleFactor)
     lazy var cancelButtonHeightConstraint = cancelButton.heightAnchor.constraint(equalToConstant: formElementHeight * config.scaleFactor)
     
+    func setScrollViewBottomInset(_ inset: CGFloat) {
+        scrollView.contentInset = .init(top: 0, left: config.margin, bottom: inset, right: config.margin)
+        scrollView.scrollIndicatorInsets = .init(top: 0, left: 0, bottom: inset, right: 0)
+    }
+    
     func initLayout() {
+        setScrollViewBottomInset(0)
         NSLayoutConstraint.activate([
+            scrollView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
+            scrollView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
             scrollView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: config.margin),
-            scrollView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: config.margin),
-            scrollView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -config.margin),
             scrollView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -config.margin),
             
             stack.topAnchor.constraint(equalTo: scrollView.topAnchor),
             stack.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
             stack.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor),
             stack.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
-            stack.widthAnchor.constraint(equalTo: scrollView.widthAnchor),
+            stack.widthAnchor.constraint(equalTo: scrollView.widthAnchor, constant: -2 * config.margin),
             
             messageTextViewHeightConstraint,
             
@@ -191,6 +210,7 @@ class SentryUserFeedbackForm: UIViewController {
         field.placeholder = config.formConfig.namePlaceholder
         field.accessibilityLabel = config.formConfig.nameTextFieldAccessibilityLabel
         field.accessibilityIdentifier = "io.sentry.feedback.form.name"
+        field.delegate = self
         return field
     }()
     
@@ -205,6 +225,7 @@ class SentryUserFeedbackForm: UIViewController {
         field.placeholder = config.formConfig.emailPlaceholder
         field.accessibilityLabel = config.formConfig.emailTextFieldAccessibilityLabel
         field.accessibilityIdentifier = "io.sentry.feedback.form.email"
+        field.delegate = self
         return field
     }()
     
@@ -330,10 +351,21 @@ class SentryUserFeedbackForm: UIViewController {
     }()
 }
 
+// MARK: UITextFieldDelegate
+@available(iOS 13.0, *)
+extension SentryUserFeedbackForm: UITextFieldDelegate {
+    func textFieldDidBeginEditing(_ textField: UITextField) {
+        editingTextField = textField
+        editingTextView = nil
+    }
+}
+
 // MARK: UITextViewDelegate
 @available(iOS 13.0, *)
 extension SentryUserFeedbackForm: UITextViewDelegate {
     func textViewDidChange(_ textView: UITextView) {
+        editingTextField = nil
+        editingTextView = textView
         messageTextViewPlaceholder.isHidden = textView.text != ""
     }
 }
