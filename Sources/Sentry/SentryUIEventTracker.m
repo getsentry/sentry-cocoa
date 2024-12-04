@@ -19,12 +19,16 @@ static NSString *const SentryUIEventTrackerSwizzleSendAction
 
 @end
 
-@implementation SentryUIEventTracker
+@implementation SentryUIEventTracker {
+    BOOL _reportAccessibilityIdentifier;
+}
 
 - (instancetype)initWithMode:(id<SentryUIEventTrackerMode>)mode
+    reportAccessibilityIdentifier:(BOOL)report
 {
     if (self = [super init]) {
         self.uiEventTrackerMode = mode;
+        _reportAccessibilityIdentifier = report;
     }
     return self;
 }
@@ -73,7 +77,7 @@ static NSString *const SentryUIEventTrackerSwizzleSendAction
     NSString *operation = [self getOperation:sender];
 
     NSString *accessibilityIdentifier = nil;
-    if ([[sender class] isSubclassOfClass:[UIView class]]) {
+    if (_reportAccessibilityIdentifier && [[sender class] isSubclassOfClass:[UIView class]]) {
         UIView *view = sender;
         accessibilityIdentifier = view.accessibilityIdentifier;
     }

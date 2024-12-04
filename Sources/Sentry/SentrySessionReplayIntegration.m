@@ -377,7 +377,7 @@ static SentryTouchTracker *_touchTracker;
     }
 
     if ([NSFileManager.defaultManager moveItemAtURL:current toURL:last error:nil] == NO) {
-        SENTRY_LOG_ERROR(@"Could not move 'currentreplay' to 'lastreplat': %@", error);
+        SENTRY_LOG_ERROR(@"Could not move 'currentreplay' to 'lastreplay': %@", error);
     }
 }
 
