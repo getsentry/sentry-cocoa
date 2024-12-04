@@ -118,9 +118,10 @@ class UserFeedbackUITests: BaseUITest {
         
         messageTextView.tap()
         messageTextView.typeText("UITest user feedback")
-        
-        // the cancel gesture
+
+        // first swipe down dismisses the keyboard that's still visible from typing the above inputs
         app.swipeDown(velocity: .fast)
+        // the cancel gesture
         app.swipeDown(velocity: .fast)
         
         // the swipe dismiss animation takes an extra moment, so we need to wait for the widget to be visible again
