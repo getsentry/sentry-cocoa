@@ -17,6 +17,8 @@ protocol SentryUserFeedbackFormDelegate: NSObjectProtocol {
 class SentryUserFeedbackForm: UIViewController {
     let config: SentryUserFeedbackConfiguration
     weak var delegate: (any SentryUserFeedbackFormDelegate)?
+    var editingTextField: UITextField?
+    var editingTextView: UITextView?
     
     override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
         config.theme.updateDefaultFonts()
@@ -31,6 +33,10 @@ class SentryUserFeedbackForm: UIViewController {
         view.backgroundColor = config.theme.background
         initLayout()
         themeElements()
+        
+        let nc = NotificationCenter.default
+        nc.addObserver(self, selector: #selector(showedKeyboard(note:)), name: UIResponder.keyboardDidShowNotification, object: nil)
+        nc.addObserver(self, selector: #selector(hidKeyboard), name: UIResponder.keyboardWillHideNotification, object: nil)
     }
     
     required init?(coder: NSCoder) {
@@ -82,7 +88,7 @@ class SentryUserFeedbackForm: UIViewController {
     
     func addScreenshotButtonTapped() {
         // the iOS photo picker UI doesn't play nicely with XCUITest, so we'll just mock the selection here
-#if TEST
+#if TEST || TESTCI
         //swiftlint:disable force_try force_unwrapping
         let url = Bundle.main.url(forResource: "Tongariro", withExtension: "jpg")!
         let image = try! UIImage(data: Data(contentsOf: url))!
@@ -95,7 +101,7 @@ class SentryUserFeedbackForm: UIViewController {
         imagePickerController.sourceType = .photoLibrary
         imagePickerController.allowsEditing = true
         present(imagePickerController, animated: config.animations)
-#endif // TEST
+#endif // TEST || TESTCI
     }
     
     func removeScreenshotButtonTapped() {
@@ -140,8 +146,6 @@ class SentryUserFeedbackForm: UIViewController {
     let logoWidth: CGFloat = 47
     lazy var messageTextViewHeightConstraint = messageTextView.heightAnchor.constraint(equalToConstant: config.theme.font.lineHeight * 5)
     lazy var logoViewWidthConstraint = sentryLogoView.widthAnchor.constraint(equalToConstant: logoWidth * config.scaleFactor)
-    lazy var messagePlaceholderLeadingConstraint = messageTextViewPlaceholder.leadingAnchor.constraint(equalTo: messageTextView.leadingAnchor, constant: messageTextView.textContainerInset.left + 5)
-    lazy var messagePlaceholderTopConstraint = messageTextViewPlaceholder.topAnchor.constraint(equalTo: messageTextView.topAnchor, constant: messageTextView.textContainerInset.top)
     lazy var fullNameTextFieldHeightConstraint = fullNameTextField.heightAnchor.constraint(equalToConstant: formElementHeight * config.scaleFactor)
     lazy var emailTextFieldHeightConstraint = emailTextField.heightAnchor.constraint(equalToConstant: formElementHeight * config.scaleFactor)
     lazy var addScreenshotButtonHeightConstraint = addScreenshotButton.heightAnchor.constraint(equalToConstant: formElementHeight * config.scaleFactor)
@@ -150,18 +154,30 @@ class SentryUserFeedbackForm: UIViewController {
     lazy var cancelButtonHeightConstraint = cancelButton.heightAnchor.constraint(equalToConstant: formElementHeight * config.scaleFactor)
     lazy var screenshotImageAspectRatioConstraint = screenshotImageView.widthAnchor.constraint(equalTo: screenshotImageView.heightAnchor)
     
+    // the extra 5 pixels was observed experimentally and is invariant under changes in dynamic type sizes
+    lazy var messagePlaceholderLeadingConstraint = messageTextViewPlaceholder.leadingAnchor.constraint(equalTo: messageTextView.leadingAnchor, constant: messageTextView.textContainerInset.left + 5)
+    lazy var messagePlaceholderTrailingConstraint = messageTextViewPlaceholder.trailingAnchor.constraint(equalTo: messageTextView.trailingAnchor, constant: messageTextView.textContainerInset.right - 5)
+    lazy var messagePlaceholderTopConstraint = messageTextViewPlaceholder.topAnchor.constraint(equalTo: messageTextView.topAnchor, constant: messageTextView.textContainerInset.top)
+    lazy var messagePlaceholderBottomConstraint = messageTextViewPlaceholder.bottomAnchor.constraint(equalTo: messageTextView.bottomAnchor, constant: messageTextView.textContainerInset.bottom)
+    
+    func setScrollViewBottomInset(_ inset: CGFloat) {
+        scrollView.contentInset = .init(top: config.margin, left: config.margin, bottom: inset + config.margin, right: config.margin)
+        scrollView.scrollIndicatorInsets = .init(top: 0, left: 0, bottom: inset, right: 0)
+    }
+    
     func initLayout() {
+        setScrollViewBottomInset(0)
         NSLayoutConstraint.activate([
-            scrollView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: config.margin),
-            scrollView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: config.margin),
-            scrollView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -config.margin),
-            scrollView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -config.margin),
+            scrollView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
+            scrollView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
+            scrollView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            scrollView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
             
             stack.topAnchor.constraint(equalTo: scrollView.topAnchor),
             stack.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
             stack.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor),
             stack.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
-            stack.widthAnchor.constraint(equalTo: scrollView.widthAnchor),
+            stack.widthAnchor.constraint(equalTo: scrollView.widthAnchor, constant: -2 * config.margin),
             
             messageTextViewHeightConstraint,
             
@@ -175,9 +191,9 @@ class SentryUserFeedbackForm: UIViewController {
             submitButtonHeightConstraint,
             cancelButtonHeightConstraint,
             
-            // the extra 5 pixels was observed experimentally and is invariant under changes in dynamic type sizes
             messagePlaceholderLeadingConstraint,
             messagePlaceholderTopConstraint,
+            messagePlaceholderTrailingConstraint,
             
             screenshotImageView.heightAnchor.constraint(equalTo: addScreenshotButton.heightAnchor),
             screenshotImageAspectRatioConstraint
@@ -191,6 +207,7 @@ class SentryUserFeedbackForm: UIViewController {
         messageTextViewHeightConstraint.constant = config.theme.font.lineHeight * 5
         logoViewWidthConstraint.constant = logoWidth * config.scaleFactor
         messagePlaceholderLeadingConstraint.constant = messageTextView.textContainerInset.left + 5
+        messagePlaceholderTrailingConstraint.constant = messageTextView.textContainerInset.right - 5
         messagePlaceholderTopConstraint.constant = messageTextView.textContainerInset.top
         fullNameTextFieldHeightConstraint.constant = formElementHeight * config.scaleFactor
         emailTextFieldHeightConstraint.constant = formElementHeight * config.scaleFactor
@@ -198,6 +215,16 @@ class SentryUserFeedbackForm: UIViewController {
         removeScreenshotButtonHeightConstraint.constant = formElementHeight * config.scaleFactor
         submitButtonHeightConstraint.constant = formElementHeight * config.scaleFactor
         cancelButtonHeightConstraint.constant = formElementHeight * config.scaleFactor
+    }
+    
+    func showedKeyboard(note: Notification) {
+        guard let keyboardValue = note.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue else { return }
+        let keyboardViewEndFrame = self.view.convert(keyboardValue.cgRectValue, from: self.view.window)
+        self.setScrollViewBottomInset(keyboardViewEndFrame.height - self.view.safeAreaInsets.bottom)
+    }
+    
+    func hidKeyboard() {
+        self.setScrollViewBottomInset(0)
     }
     
     // MARK: UI Elements
@@ -233,6 +260,7 @@ class SentryUserFeedbackForm: UIViewController {
         field.placeholder = config.formConfig.namePlaceholder
         field.accessibilityLabel = config.formConfig.nameTextFieldAccessibilityLabel
         field.accessibilityIdentifier = "io.sentry.feedback.form.name"
+        field.delegate = self
         return field
     }()
     
@@ -247,6 +275,7 @@ class SentryUserFeedbackForm: UIViewController {
         field.placeholder = config.formConfig.emailPlaceholder
         field.accessibilityLabel = config.formConfig.emailTextFieldAccessibilityLabel
         field.accessibilityIdentifier = "io.sentry.feedback.form.email"
+        field.delegate = self
         field.keyboardType = .emailAddress
         return field
     }()
@@ -261,6 +290,7 @@ class SentryUserFeedbackForm: UIViewController {
         let label = UILabel(frame: .zero)
         label.text = config.formConfig.messagePlaceholder
         label.font = config.theme.font
+        label.numberOfLines = 0
         label.textColor = .placeholderText
         label.translatesAutoresizingMaskIntoConstraints = false
         label.adjustsFontForContentSizeCategory = true
@@ -381,14 +411,26 @@ class SentryUserFeedbackForm: UIViewController {
         scrollView.addSubview(stack)
         scrollView.translatesAutoresizingMaskIntoConstraints = false
         scrollView.addSubview(messageTextViewPlaceholder)
+        scrollView.keyboardDismissMode = .interactive
         return scrollView
     }()
+}
+
+// MARK: UITextFieldDelegate
+@available(iOS 13.0, *)
+extension SentryUserFeedbackForm: UITextFieldDelegate {
+    func textFieldDidBeginEditing(_ textField: UITextField) {
+        editingTextField = textField
+        editingTextView = nil
+    }
 }
 
 // MARK: UITextViewDelegate
 @available(iOS 13.0, *)
 extension SentryUserFeedbackForm: UITextViewDelegate {
     func textViewDidChange(_ textView: UITextView) {
+        editingTextField = nil
+        editingTextView = textView
         messageTextViewPlaceholder.isHidden = textView.text != ""
     }
 }

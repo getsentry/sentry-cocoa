@@ -121,6 +121,7 @@ class UserFeedbackUITests: BaseUITest {
         
         // the cancel gesture
         app.swipeDown(velocity: .fast)
+        app.swipeDown(velocity: .fast)
         
         // the swipe dismiss animation takes an extra moment, so we need to wait for the widget to be visible again
         XCTAssert(widgetButton.waitForExistence(timeout: 1))
@@ -140,10 +141,10 @@ class UserFeedbackUITests: BaseUITest {
     func testAddingAndRemovingScreenshots() {
         widgetButton.tap()
         addScreenshotButton.tap()
-        removeScreenshotButton.waitForExistence("Remove screenshot button should replace add screenshot button")
+        XCTAssert(removeScreenshotButton.isHittable)
         XCTAssertFalse(addScreenshotButton.isHittable)
         removeScreenshotButton.tap()
-        addScreenshotButton.waitForExistence("Add screenshot button should replace remove screenshot button")
+        XCTAssert(addScreenshotButton.isHittable)
         XCTAssertFalse(removeScreenshotButton.isHittable)
     }
     
