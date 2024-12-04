@@ -22,6 +22,7 @@
 #import <SentryScope+Private.h>
 #import <SentryScreenshot.h>
 #import <SentryUser.h>
+#import <SentrySdkPackage.h>
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 #    import "SentryProfiledTracerConcurrency.h"
@@ -186,6 +187,11 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
 + (NSString *)getSdkVersionString
 {
     return SentryMeta.versionString;
+}
+
++ (void)addSdkPackage:(nonnull NSString *) name version:(nonnull NSString *)version
+{
+    [SentryMeta addSdkPackage:[[SentrySdkPackage alloc] initWithName:name andVersion:version]];
 }
 
 + (NSDictionary *)getExtraContext

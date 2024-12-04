@@ -427,6 +427,13 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
         XCTAssertTrue(redactBuilder.isRedactContainerClassTestOnly(RedactContainer.self))
     }
 
+    func testAddSdkPackageWithoutSdkPackge() {
+        PrivateSentrySDKOnly.addSdkPackage("package1", version: "version1")
+        PrivateSentrySDKOnly.addSdkPackage("package2", version: "version2")
+
+        XCTAssertEqual(SentryMeta.sdkPackages(), [SentrySdkPackage(name: "package1", andVersion: "version1"), SentrySdkPackage(name: "package2", andVersion: "version2")])
+    }
+
     private func getFirstIntegrationAsReplay() throws -> SentrySessionReplayIntegration {
         return try XCTUnwrap(SentrySDK.currentHub().installedIntegrations().first as? SentrySessionReplayIntegration)
     }

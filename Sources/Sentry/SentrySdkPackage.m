@@ -39,7 +39,6 @@ NS_ASSUME_NONNULL_BEGIN
     if (self = [super init]) {
         _name = name ?: @"";
         _version = version ?: @"";
-        _packageManager = SENTRY_PACKAGE_INFO;
     }
 
     return self;

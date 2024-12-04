@@ -48,7 +48,13 @@ static NSSet<SentrySdkPackage *> *sdkPackages;
 
 + (void)initializeSdkPackages
 {
-    sdkPackages = [NSSet setWithObject:[SentrySdkPackage getSentrySDKPackage]];
+    SentrySdkPackage* sdkPackage = [SentrySdkPackage getSentrySDKPackage];
+    if (nil == sdkPackage) {
+        sdkPackages = [NSSet set];
+        return;
+    }
+
+    sdkPackages = [NSSet setWithObject:sdkPackage];
 }
 
 @end
