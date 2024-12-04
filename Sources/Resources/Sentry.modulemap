@@ -21,7 +21,7 @@ framework module Sentry {
         header "SentryScreenFrames.h"
         header "SentrySwizzle.h"
         header "SentryUser+Private.h"
-        
+
         header "SentryBaseIntegration.h"
         header "SentrySessionReplayIntegration.h"
         header "SentrySessionReplayIntegration-Hybrid.h"
@@ -29,7 +29,7 @@ framework module Sentry {
         header "SentrySdkInfo.h"
         header "SentrySdkPackage.h"
         header "SentryInternalSerializable.h"
-
+        
         export *
     }
 }
