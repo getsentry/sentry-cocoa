@@ -94,7 +94,7 @@ typedef void (^SentryOnAppStartMeasurementAvailable)(
 /**
  * Add a package to the SDK packages
  */
-+ (void)addSdkPackage: (NSString*) name version: (NSString*) version;
++ (void)addSdkPackage:(NSString *)name version:(NSString *)version;
 
 /**
  * Retrieves extra context
