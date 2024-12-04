@@ -4,7 +4,7 @@
 
 ### Features
 
-- SwiftUI time for initial display and time for full display ()
+- SwiftUI time for initial display and time for full display (#4596)
 
 ## 8.42.0-beta.1
 
