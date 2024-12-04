@@ -3,7 +3,7 @@ framework module Sentry {
 
     export *
     module * { export * }
-
+    
     explicit module _Hybrid {
         // Headers that are not part of the public API and should only be used by hybrid SDKs
         header "PrivateSentrySDKOnly.h"
@@ -25,11 +25,11 @@ framework module Sentry {
         header "SentryBaseIntegration.h"
         header "SentrySessionReplayIntegration.h"
         header "SentrySessionReplayIntegration-Hybrid.h"
-
+        
         header "SentrySdkInfo.h"
         header "SentrySdkPackage.h"
         header "SentryInternalSerializable.h"
-
+        
         export *
     }
 }
