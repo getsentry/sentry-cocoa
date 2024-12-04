@@ -140,10 +140,11 @@ class UserFeedbackUITests: BaseUITest {
     func testAddingAndRemovingScreenshots() {
         widgetButton.tap()
         addScreenshotButton.tap()
+        removeScreenshotButton.waitForExistence("Remove screenshot button should replace add screenshot button")
         XCTAssertFalse(addScreenshotButton.isHittable)
         removeScreenshotButton.tap()
+        addScreenshotButton.waitForExistence("Add screenshot button should replace remove screenshot button")
         XCTAssertFalse(removeScreenshotButton.isHittable)
-        XCTAssert(addScreenshotButton.isHittable)
     }
     
     // MARK: Private
