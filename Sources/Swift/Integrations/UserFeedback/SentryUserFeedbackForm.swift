@@ -94,11 +94,21 @@ class SentryUserFeedbackForm: UIViewController {
     // MARK: Actions
     
     func addScreenshotButtonTapped() {
+        // the iOS photo picker UI doesn't play nicely with XCUITest, so we'll just mock the selection here
+#if TEST
+        //swiftlint:disable force_try force_unwrapping
+        let url = Bundle.main.url(forResource: "Tongariro", withExtension: "jpg")!
+        let image = try! UIImage(data: Data(contentsOf: url))!
+        //swiftlint:ensable force_try force_unwrapping
+        addedScreenshot(image: image)
+        return
+#else
         let imagePickerController = UIImagePickerController()
         imagePickerController.delegate = self
         imagePickerController.sourceType = .photoLibrary
         imagePickerController.allowsEditing = true
         present(imagePickerController, animated: config.animations)
+#endif // TEST
     }
     
     func removeScreenshotButtonTapped() {
@@ -429,13 +439,17 @@ extension SentryUserFeedbackForm: UIImagePickerControllerDelegate & UINavigation
             // TODO: handle error
             return
         }
-        screenshotImageView.image = photo
+        addedScreenshot(image: photo)
+        dismiss(animated: config.animations)
+    }
+    
+    func addedScreenshot(image: UIImage) {
+        screenshotImageView.image = image
         screenshotImageAspectRatioConstraint.isActive = false
-        screenshotImageAspectRatioConstraint = screenshotImageView.widthAnchor.constraint(equalTo: screenshotImageView.heightAnchor, multiplier: photo.size.width / photo.size.height)
+        screenshotImageAspectRatioConstraint = screenshotImageView.widthAnchor.constraint(equalTo: screenshotImageView.heightAnchor, multiplier: image.size.width / image.size.height)
         screenshotImageAspectRatioConstraint.isActive = true
         addScreenshotButton.isHidden = true
         removeScreenshotStack.isHidden = false
-        dismiss(animated: config.animations)
     }
 }
 

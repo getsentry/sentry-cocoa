@@ -140,12 +140,6 @@ class UserFeedbackUITests: BaseUITest {
     func testAddingAndRemovingScreenshots() {
         widgetButton.tap()
         addScreenshotButton.tap()
-        app.scrollViews.otherElements.images["Photo, March 30, 2018, 11:14"].tap()
-        
-        // for some reason you have to send this button a tap twice for it to register: https://stackoverflow.com/questions/67926596/xcuitest-clicking-choose-for-uiimagepickercontroller#comment138446686_67926596
-        app.buttons["Choose"].tap()
-        app.buttons["Choose"].tap()
-        
         XCTAssertFalse(addScreenshotButton.isHittable)
         removeScreenshotButton.tap()
         XCTAssertFalse(removeScreenshotButton.isHittable)
