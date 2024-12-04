@@ -140,9 +140,11 @@ class UserFeedbackUITests: BaseUITest {
     func testAddingAndRemovingScreenshots() {
         widgetButton.tap()
         addScreenshotButton.tap()
+        sleep(1)
         XCTAssert(removeScreenshotButton.isHittable)
         XCTAssertFalse(addScreenshotButton.isHittable)
         removeScreenshotButton.tap()
+        sleep(1)
         XCTAssert(addScreenshotButton.isHittable)
         XCTAssertFalse(removeScreenshotButton.isHittable)
     }
