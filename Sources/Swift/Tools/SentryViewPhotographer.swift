@@ -36,14 +36,17 @@ class SentryViewPhotographer: NSObject, SentryViewScreenshotProvider {
         self.renderer = DefaultViewRenderer()
         self.redactBuilder = UIRedactBuilder(options: redactOptions)
     }
-        
+    
     func image(view: UIView, options: SentryRedactOptions, onComplete: @escaping ScreenshotCallback ) {
+        let redact = redactBuilder.redactRegionsFor(view: view)
         let image = renderer.render(view: view)
         
-        let redact = redactBuilder.redactRegionsFor(view: view)
         let imageSize = view.bounds.size
         dispatchQueue.dispatchAsync {
             let screenshot = UIGraphicsImageRenderer(size: imageSize, format: .init(for: .init(displayScale: 1))).image { context in
+                
+                let clipOutPath = CGMutablePath(rect: CGRect(origin: .zero, size: imageSize), transform: nil)
+                var clipPaths = [CGPath]()
                 
                 let imageRect = CGRect(origin: .zero, size: imageSize)
                 context.cgContext.addRect(CGRect(origin: CGPoint.zero, size: imageSize))
@@ -62,28 +65,43 @@ class SentryViewPhotographer: NSObject, SentryViewScreenshotProvider {
                     defer { latestRegion = region }
                     
                     guard latestRegion?.canReplace(as: region) != true && imageRect.intersects(path.boundingBoxOfPath) else { continue }
-                    
+                          
                     switch region.type {
                     case .redact, .redactSwiftUI:
                         (region.color ?? UIImageHelper.averageColor(of: context.currentImage, at: rect.applying(region.transform))).setFill()
                         context.cgContext.addPath(path)
                         context.cgContext.fillPath()
                     case .clipOut:
-                        context.cgContext.addRect(context.cgContext.boundingBoxOfClipPath)
-                        context.cgContext.addPath(path)
-                        context.cgContext.clip(using: .evenOdd)
+                        clipOutPath.addPath(path)
+                        self.updateClipping(for: context.cgContext,
+                                            clipPaths: clipPaths,
+                                            clipOutPath: clipOutPath)
                     case .clipBegin:
-                        context.cgContext.saveGState()
-                        context.cgContext.resetClip()
-                        context.cgContext.addPath(path)
-                        context.cgContext.clip()
+                        clipPaths.append(path)
+                        self.updateClipping(for: context.cgContext,
+                                            clipPaths: clipPaths,
+                                            clipOutPath: clipOutPath)
                     case .clipEnd:
-                        context.cgContext.restoreGState()
+                        clipPaths.removeLast()
+                        self.updateClipping(for: context.cgContext,
+                                            clipPaths: clipPaths,
+                                            clipOutPath: clipOutPath)
                     }
                 }
             }
             onComplete(screenshot)
         }
+    }
+    
+    private func updateClipping(for context: CGContext, clipPaths: [CGPath], clipOutPath: CGPath) {
+        context.resetClip()
+        clipPaths.reversed().forEach {
+            context.addPath($0)
+            context.clip()
+        }
+    
+        context.addPath(clipOutPath)
+        context.clip(using: .evenOdd)
     }
     
     @objc(addIgnoreClasses:)

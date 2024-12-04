@@ -198,6 +198,34 @@ class SentryBinaryImageCacheTests: XCTestCase {
                 
                 self.sut.stop()
                 self.sut.start()
+                
+                expectation.fulfill()
+            }
+        }
+        
+        waitForExpectations(timeout: 1)
+    }
+    
+    func testAddingImagesWhileGettingAllOnDifferentThread() {
+        let count = 1_000
+        
+        let expectation = expectation(description: "Add images on background thread")
+        expectation.expectedFulfillmentCount = count
+        
+        self.sut.start()
+        
+        for i in 0..<count {
+            DispatchQueue.global().async {
+                var binaryImage = createCrashBinaryImage(UInt(i * 10), name: "image")
+                self.sut.binaryImageAdded(&binaryImage)
+                
+                let allBinaryImages = self.sut.getAllBinaryImages()
+                XCTAssertGreaterThan(allBinaryImages.count, 0)
+                
+                for image in allBinaryImages {
+                    XCTAssertEqual("image", image.name)
+                }
+                
                 expectation.fulfill()
             }
         }
