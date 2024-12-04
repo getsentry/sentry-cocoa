@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+- SwiftUI time for initial display and time for full display ()
+
 ## 8.42.0-beta.1
 
 ### Features
