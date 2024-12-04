@@ -171,6 +171,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                     }
                     return
                 }
+                config.animations = !args.contains("--io.sentry.feedback.no-animations")
                 config.useShakeGesture = true
                 config.showFormForScreenshots = true
                 config.configureWidget = { widget in
@@ -200,6 +201,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 }
                 config.configureForm = { uiForm in
                     uiForm.formTitle = "Jank Report"
+                    uiForm.isEmailRequired = true
                     uiForm.submitButtonLabel = "Report that jank"
                     uiForm.addScreenshotButtonLabel = "Show us the jank"
                     uiForm.messagePlaceholder = "Describe the nature of the jank. Its essence, if you will."

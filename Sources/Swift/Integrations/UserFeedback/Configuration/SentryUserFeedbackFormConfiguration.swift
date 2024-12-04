@@ -63,6 +63,7 @@ public class SentryUserFeedbackFormConfiguration: NSObject {
      * The label of the button to add a screenshot to the form.
      * - note: Default: `"Add a screenshot"`
      * - note: ignored if `enableScreenshot` is `false`.`
+     * - warning: If you support adding screenshots using the button, you need to add `NSPhotoLibraryUsageDescription` to your app's Info.plist.
      */
     public var addScreenshotButtonLabel: String = "Add a screenshot"
     
