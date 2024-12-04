@@ -140,8 +140,13 @@ class UserFeedbackUITests: BaseUITest {
     func testAddingAndRemovingScreenshots() {
         widgetButton.tap()
         addScreenshotButton.tap()
+        print("app ui state after tapping add screenshot:")
+        print(app.debugDescription)
         removeScreenshotButton.tap()
+        print("app ui state after tapping remove screenshot:")
+        print(app.debugDescription)
         addScreenshotButton.tap()
+        print(app.debugDescription)
     }
     
     // MARK: Private
