@@ -8,6 +8,8 @@
 static NSString *versionString = @"8.42.0-beta.1";
 static NSString *sdkName = @"sentry.cocoa";
 
+static NSSet<SentrySdkPackage *> *sdkPackages;
+
 + (NSString *)versionString
 {
     return versionString;
@@ -26,6 +28,27 @@ static NSString *sdkName = @"sentry.cocoa";
 + (void)setSdkName:(NSString *)value
 {
     sdkName = value;
+}
+
++ (NSSet<SentrySdkPackage *> *)sdkPackages
+{
+    if (sdkPackages == nil) {
+        [self initializeSdkPackages];
+    }
+    return sdkPackages;
+}
+
++ (void)addSdkPackage:(SentrySdkPackage *_Nonnull)value
+{
+    if (sdkPackages == nil) {
+        [self initializeSdkPackages];
+    }
+    sdkPackages = [sdkPackages setByAddingObject:value];
+}
+
++ (void)initializeSdkPackages
+{
+    sdkPackages = [NSSet setWithObject:[SentrySdkPackage getSentrySDKPackage]];
 }
 
 @end

@@ -10,6 +10,12 @@
 #    import "SentryInternalSerializable.h"
 #endif
 
+#if __has_include(<Sentry/SentrySdkPackage.h>)
+#    import <Sentry/SentrySdkPackage.h>
+#else
+#    import "SentrySdkPackage.h"
+#endif
+
 #import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
@@ -34,8 +40,13 @@ SENTRY_NO_INIT
  */
 @property (nonatomic, readonly, copy) NSString *version;
 
+@property (nonatomic, copy) NSSet<SentrySdkPackage *> *packages;
+
+- (instancetype)initWithName:(NSString *)name andVersion:(NSString *)version;
+
 - (instancetype)initWithName:(NSString *)name
-                  andVersion:(NSString *)version NS_DESIGNATED_INITIALIZER;
+                  andVersion:(NSString *)version
+                 andPackages:(NSSet<SentrySdkPackage *> *)packages NS_DESIGNATED_INITIALIZER;
 
 - (instancetype)initWithDict:(NSDictionary *)dict;
 

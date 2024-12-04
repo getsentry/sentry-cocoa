@@ -31,7 +31,8 @@ NS_ASSUME_NONNULL_BEGIN
               traceContext:(nullable SentryTraceContext *)traceContext
 {
     SentrySdkInfo *sdkInfo = [[SentrySdkInfo alloc] initWithName:SentryMeta.sdkName
-                                                      andVersion:SentryMeta.versionString];
+                                                      andVersion:SentryMeta.versionString
+                                                     andPackages:SentryMeta.sdkPackages];
     self = [self initWithId:eventId sdkInfo:sdkInfo traceContext:traceContext];
     return self;
 }
