@@ -1753,6 +1753,7 @@
 		849B8F962C6E906900148E1F /* SentryUserFeedbackIntegrationDriver.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SentryUserFeedbackIntegrationDriver.swift; sourceTree = "<group>"; };
 		849B8F972C6E906900148E1F /* SentryUserFeedbackThemeConfiguration.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = SentryUserFeedbackThemeConfiguration.swift; path = Configuration/SentryUserFeedbackThemeConfiguration.swift; sourceTree = "<group>"; };
 		849B8F982C6E906900148E1F /* SentryUserFeedbackWidgetConfiguration.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = SentryUserFeedbackWidgetConfiguration.swift; path = Configuration/SentryUserFeedbackWidgetConfiguration.swift; sourceTree = "<group>"; };
+		849DF0522D00270A00A202DF /* Brewfile-ci */ = {isa = PBXFileReference; explicitFileType = text.script.ruby; path = "Brewfile-ci"; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.ruby; };
 		84A305472BC72A0A00D84283 /* SentryAppLaunchProfilingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryAppLaunchProfilingTests.swift; sourceTree = "<group>"; };
 		84A305552BC9EF8C00D84283 /* SentryTraceProfiler.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SentryTraceProfiler.h; path = ../include/SentryTraceProfiler.h; sourceTree = "<group>"; };
 		84A305562BC9EF8C00D84283 /* SentryTraceProfiler.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = SentryTraceProfiler.mm; sourceTree = "<group>"; };
@@ -3836,6 +3837,7 @@
 				844DA80A28246D5000E6B62E /* .swiftlint.yml */,
 				843BD6282AD8752300B0098F /* .clang-format */,
 				844DA80B28246D5000E6B62E /* Brewfile */,
+				849DF0522D00270A00A202DF /* Brewfile-ci */,
 			);
 			name = Aux;
 			sourceTree = "<group>";
