@@ -1,8 +1,8 @@
 #if canImport(SwiftUI)
 
 import Foundation
-import SwiftUI
 import Sentry
+import SwiftUI
 
 #if CARTHAGE || SWIFT_PACKAGE
 @_implementationOnly import SentryInternal
