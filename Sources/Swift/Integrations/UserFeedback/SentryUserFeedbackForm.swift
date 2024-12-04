@@ -96,7 +96,6 @@ class SentryUserFeedbackForm: UIViewController {
     func addScreenshotButtonTapped() {
         // the iOS photo picker UI doesn't play nicely with XCUITest, so we'll just mock the selection here
 #if TEST || TESTCI
-        #error("Error: mocked")
         print("Mocking photo selection")
         //swiftlint:disable force_try force_unwrapping
         let url = Bundle.main.url(forResource: "Tongariro", withExtension: "jpg")!
@@ -105,7 +104,6 @@ class SentryUserFeedbackForm: UIViewController {
         addedScreenshot(image: image)
         return
 #else
-        #error("Error: unmocked")
         print("Real photo selection")
         let imagePickerController = UIImagePickerController()
         imagePickerController.delegate = self
