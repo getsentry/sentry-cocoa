@@ -6,6 +6,14 @@
 
 - SwiftUI time for initial display and time for full display (#4596)
 
+### Fixes
+
+- Fix GraphQL context for HTTP client error tracking (#4567)
+
+### Improvements
+
+- Track adoption of `enablePersistingTracesWhenCrashing` (#4587)
+
 ## 8.42.0-beta.1
 
 ### Features

@@ -53,9 +53,11 @@
     return self;
 }
 
-- (instancetype)initWithName:(NSString *)name
-          waitForFullDisplay:(BOOL)waitForFullDisplay {
-    return [self initWithName:name waitForFullDisplay:waitForFullDisplay dispatchQueueWrapper:SentryDependencyContainer.sharedInstance.dispatchQueueWrapper];
+- (instancetype)initWithName:(NSString *)name waitForFullDisplay:(BOOL)waitForFullDisplay
+{
+    return [self initWithName:name
+           waitForFullDisplay:waitForFullDisplay
+         dispatchQueueWrapper:SentryDependencyContainer.sharedInstance.dispatchQueueWrapper];
 }
 
 - (BOOL)startForTracer:(SentryTracer *)tracer
@@ -67,17 +69,16 @@
     }
 
     SENTRY_LOG_DEBUG(@"Starting initial display span");
-    self.initialDisplaySpan = [tracer
-        startChildWithOperation:SentrySpanOperationUILoadInitialDisplay
-                    description:[NSString stringWithFormat:@"%@ initial display", _name]];
+    self.initialDisplaySpan =
+        [tracer startChildWithOperation:SentrySpanOperationUILoadInitialDisplay
+                            description:[NSString stringWithFormat:@"%@ initial display", _name]];
     self.initialDisplaySpan.origin = SentryTraceOriginAutoUITimeToDisplay;
 
     if (self.waitForFullDisplay) {
         SENTRY_LOG_DEBUG(@"Starting full display span");
         self.fullDisplaySpan =
             [tracer startChildWithOperation:SentrySpanOperationUILoadFullDisplay
-                                description:[NSString stringWithFormat:@"%@ full display",
-                                                _name]];
+                                description:[NSString stringWithFormat:@"%@ full display", _name]];
         self.fullDisplaySpan.origin = SentryTraceOriginManualUITimeToDisplay;
 
         // By concept TTID and TTFD spans should have the same beginning,

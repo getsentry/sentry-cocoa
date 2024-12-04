@@ -4,10 +4,9 @@ import Foundation
 import SwiftUI
 
 #if CARTHAGE || SWIFT_PACKAGE
-@_implementationOnly import SentryInternal
 import Sentry
+@_implementationOnly import SentryInternal
 #endif
-
 
 /// A control to measure the performance of your views and send the result as a transaction to Sentry.io.
 ///

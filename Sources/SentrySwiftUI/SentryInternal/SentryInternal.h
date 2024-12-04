@@ -8,9 +8,9 @@
 #import <Foundation/Foundation.h>
 
 #if __has_include(<Sentry/Sentry.h>)
-#import <Sentry/Sentry.h>
+#    import <Sentry/Sentry.h>
 #elif __has_include("Sentry.h")
-#import "Sentry.h"
+#    import "Sentry.h"
 #endif
 
 NS_ASSUME_NONNULL_BEGIN
@@ -22,7 +22,6 @@ typedef NS_ENUM(NSInteger, SentryTransactionNameSource);
 
 @interface SentryTracer : NSObject <SentrySpan>
 @end
-
 
 typedef NS_ENUM(NSUInteger, SentrySpanStatus);
 
@@ -67,8 +66,8 @@ typedef NS_ENUM(NSUInteger, SentrySpanStatus);
 @end
 
 @interface SentryTimeToDisplayTracker : NSObject
--(instancetype)init NS_UNAVAILABLE;                                                            
-+(instancetype) new NS_UNAVAILABLE;
+- (instancetype)init NS_UNAVAILABLE;
++ (instancetype)new NS_UNAVAILABLE;
 
 @property (nullable, nonatomic, weak, readonly) SentrySpan *initialDisplaySpan;
 
@@ -80,8 +79,7 @@ typedef NS_ENUM(NSUInteger, SentrySpanStatus);
           waitForFullDisplay:(BOOL)waitForFullDisplay
         dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper;
 
-- (instancetype)initWithName:(NSString *)name
-          waitForFullDisplay:(BOOL)waitForFullDisplay;
+- (instancetype)initWithName:(NSString *)name waitForFullDisplay:(BOOL)waitForFullDisplay;
 
 - (BOOL)startForTracer:(SentryTracer *)tracer;
 
@@ -106,6 +104,5 @@ typedef NS_ENUM(NSUInteger, SentrySpanStatus);
 @interface SentrySDK ()
 @property (nonatomic, nullable, readonly, class) SentryOptions *options;
 @end
-
 
 NS_ASSUME_NONNULL_END

@@ -7,7 +7,6 @@ import SwiftUI
 @_implementationOnly import SentryInternal
 #endif
 
-
 @available(iOS 13, macOS 10.15, tvOS 13, *)
 struct TracingView: UIViewRepresentable {
     

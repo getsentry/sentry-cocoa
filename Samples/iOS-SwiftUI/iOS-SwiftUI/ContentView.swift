@@ -213,7 +213,7 @@ struct ContentView: View {
                     }
                     SecondView()
                 }
-            }
+        }
         }
     }
 }
