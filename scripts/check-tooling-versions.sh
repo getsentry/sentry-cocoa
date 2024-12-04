@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 REMOTE_CLANG_FORMAT_VERSION=$(cat scripts/.clang-format-version)
-REMOTE_SWIFTLINT_VERSION=$(cat scripts/.swiftlint-versoin)
+REMOTE_SWIFTLINT_VERSION=$(cat scripts/.swiftlint-version)
 LOCAL_CLANG_FORMAT_VERSION=$(clang-format --version | awk '{print $3}')
 LOCAL_SWIFTLINT_VERSION=$(swiftlint version)
 RESOLUTION_MESSAGE="Please run \`make init\` to update your local dev tools. This may actually upgrade to a newer version than what is currently recorded in the lockfile; if that happens, please commit the update to the lockfile as well."
