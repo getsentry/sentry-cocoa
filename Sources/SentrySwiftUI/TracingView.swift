@@ -1,4 +1,4 @@
-#if canImport(SwiftUI)
+#if canImport(SwiftUI) && canImport(UIKit) && os(iOS) || os(tvOS)
 
 import Foundation
 import SwiftUI

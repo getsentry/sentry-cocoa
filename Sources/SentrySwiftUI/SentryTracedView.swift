@@ -41,9 +41,10 @@ public struct SentryTracedView<Content: View>: View {
     let content: () -> Content
     let name: String
     let nameSource: SentryTransactionNameSource
-    let waitforFullDisplay: Bool
-    
     let traceOrigin = "auto.ui.swift_ui"
+    
+#if canImport(SwiftUI) && canImport(UIKit) && os(iOS) || os(tvOS)
+    let waitforFullDisplay: Bool
     
     /// Creates a view that measures the performance of its `content`.
     ///
@@ -57,6 +58,17 @@ public struct SentryTracedView<Content: View>: View {
         self.nameSource = viewName == nil ? .component : .custom
         self.waitforFullDisplay = waitForFullDisplay ?? SentrySDK.options?.enableTimeToFullDisplayTracing ?? false
     }
+#else
+    /// Creates a view that measures the performance of its `content`.
+    ///
+    /// - Parameter viewName: The name that will be used for the span, if nil we try to get the name of the content class.
+    /// - Parameter content: The content that you want to track the performance
+    public init(_ viewName: String? = nil, @ViewBuilder content: @escaping () -> Content) {
+        self.content = content
+        self.name = viewName ?? SentryTracedView.extractName(content: Content.self)
+        self.nameSource = viewName == nil ? .component : .custom
+    }
+#endif
     
     private static func extractName(content: Any) -> String {
         var result = String(describing: content)
@@ -83,12 +95,15 @@ public struct SentryTracedView<Content: View>: View {
             }
         }
         
-        // We need to add a UIView to the view hierarchy to be able to
-        // monitor ui life cycles. We will use the background modifier
-        // to add this tracking view behind the content.
         return content()
-            .background(TracingView(name: self.name, waitForFullDisplay: self.waitforFullDisplay, tracer: trace))
             .onAppear { viewAppeared = true }
+#if canImport(SwiftUI) && canImport(UIKit) && os(iOS) || os(tvOS)
+            // We need to add a UIView to the view hierarchy to be able to
+            // monitor ui life cycles. We will use the background modifier
+            // to add this tracking view behind the content.
+            .background(TracingView(name: self.name, waitForFullDisplay: self.waitforFullDisplay, tracer: trace))
+#endif
+
     }
     
     private func ensureTransactionExists() -> SentryTracer? {

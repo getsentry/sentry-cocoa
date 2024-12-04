@@ -19,6 +19,7 @@ typedef NS_ENUM(NSInteger, SentryTransactionNameSource);
 
 @class SentrySpanId;
 @class SentrySpan;
+@class SentryDispatchQueueWrapper;
 
 @interface SentryTracer : NSObject <SentrySpan>
 @end
