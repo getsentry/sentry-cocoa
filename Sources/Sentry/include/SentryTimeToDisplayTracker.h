@@ -29,8 +29,7 @@ SENTRY_NO_INIT
           waitForFullDisplay:(BOOL)waitForFullDisplay
         dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper;
 
-- (instancetype)initWithName:(NSString *)name
-          waitForFullDisplay:(BOOL)waitForFullDisplay;
+- (instancetype)initWithName:(NSString *)name waitForFullDisplay:(BOOL)waitForFullDisplay;
 
 - (BOOL)startForTracer:(SentryTracer *)tracer;
 
