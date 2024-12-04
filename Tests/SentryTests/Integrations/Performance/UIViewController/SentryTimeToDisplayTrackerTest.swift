@@ -22,7 +22,7 @@ class SentryTimeToDisplayTrackerTest: XCTestCase {
         }
 
         func getSut(name: String, waitForFullDisplay: Bool) -> SentryTimeToDisplayTracker {
-            return SentryTimeToDisplayTracker(name:name, waitForFullDisplay: waitForFullDisplay, dispatchQueueWrapper: SentryDispatchQueueWrapper())
+            return SentryTimeToDisplayTracker(name: name, waitForFullDisplay: waitForFullDisplay, dispatchQueueWrapper: SentryDispatchQueueWrapper())
         }
         
         func getTracer() throws -> SentryTracer {
