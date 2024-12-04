@@ -1,50 +1,13 @@
 #if canImport(SwiftUI)
 
 import Foundation
+import SwiftUI
+
 #if CARTHAGE || SWIFT_PACKAGE
 @_implementationOnly import SentryInternal
 import Sentry
 #endif
-import SwiftUI
 
-@available(iOS 13, macOS 10.15, tvOS 13, *)
-struct SentryTrackView: UIViewRepresentable {
-    
-    let name : String
-    let waitForFullDisplay : Bool
-    
-    class SentryView: UIView {
-        
-        let name : String
-        let waitForFullDisplay : Bool
-        
-        init(name: String, waitForFullDisplay: Bool) {
-            self.name = name
-            self.waitForFullDisplay = waitForFullDisplay
-            super.init(frame: CGRect(origin: .zero, size: CGSize(width: 1, height: 1)))
-        }
-        
-        required init?(coder: NSCoder) {
-            fatalError("init(coder:) has not been implemented")
-        }
-        
-        override func didMoveToWindow() {
-            super.didMoveToWindow()
-            
-            let ttdTracker = SentryTimeToDisplayTracker(name: "", waitForFullDisplay: true)
-            print(ttdTracker);
-        }
-    }
-    
-    func makeUIView(context: Context) -> UIView {
-        let view = SentryView(name: name, waitForFullDisplay: waitForFullDisplay)
-        view.isUserInteractionEnabled = false
-        return view
-    }
-    
-    func updateUIView(_ uiView: UIView, context: Context) {
-    }
-}
 
 /// A control to measure the performance of your views and send the result as a transaction to Sentry.io.
 ///
@@ -79,13 +42,21 @@ public struct SentryTracedView<Content: View>: View {
     let content: () -> Content
     let name: String
     let nameSource: SentryTransactionNameSource
+    let waitforFullDisplay: Bool
     
     let traceOrigin = "auto.ui.swift_ui"
     
-    public init(_ viewName: String? = nil, content: @escaping () -> Content) {
+    /// Creates a view that measures the performance of its `content`.
+    ///
+    /// - Parameter viewName: The name that will be used for the span, if nil we try to get the name of the content class.
+    /// - Parameter waitForFullDisplay: Indicates whether this view transaction should wait for `SentrySDK.reportFullyDisplayed()`
+    /// in case you need to track some asyncronous task. This is ignored for any `SentryTracedView` that is child of another `SentryTracedView`
+    /// - Parameter content: The content that you want to track the performance
+    public init(_ viewName: String? = nil, waitForFullDisplay: Bool? = nil, @ViewBuilder content: @escaping () -> Content) {
         self.content = content
         self.name = viewName ?? SentryTracedView.extractName(content: Content.self)
         self.nameSource = viewName == nil ? .component : .custom
+        self.waitforFullDisplay = waitForFullDisplay ?? SentrySDK.options?.enableTimeToFullDisplayTracing ?? false
     }
     
     private static func extractName(content: Any) -> String {
@@ -99,25 +70,30 @@ public struct SentryTracedView<Content: View>: View {
     }
     
     public var body: some View {
-        let content = !viewAppeared ? content() : tracedContent()
-        return content.onAppear {
-            viewAppeared = true
+        var trace: SentryTracer?
+        var spanId: SpanId?
+        
+        if !viewAppeared {
+            trace = ensureTransactionExists()
+            spanId = createAndPushBodySpan(transactionCreated: trace != nil)
         }
-    }
         
-    private func tracedContent() -> Content {
-        let transactionCreated = ensureTransactionExists()
-        
-        let spanId = createAndPushBodySpan(transactionCreated: transactionCreated)
         defer {
-            finishSpan(spanId)
+            if let spanId = spanId {
+                finishSpan(spanId)
+            }
         }
         
+        // We need to add a UIView to the view hierarchy to be able to
+        // monitor ui life cycles. We will use the background modifier
+        // to add this tracking view behind the content.
         return content()
+            .background(TracingView(name: self.name, waitForFullDisplay: self.waitforFullDisplay, tracer: trace))
+            .onAppear { viewAppeared = true }
     }
     
-    private func ensureTransactionExists() -> Bool {
-        guard SentryPerformanceTracker.shared.activeSpanId() == nil else { return false }
+    private func ensureTransactionExists() -> SentryTracer? {
+        guard SentryPerformanceTracker.shared.activeSpanId() == nil else { return nil }
         
         let transactionId = SentryPerformanceTracker.shared.startSpan(
             withName: name,
@@ -135,7 +111,7 @@ public struct SentryTracedView<Content: View>: View {
             self.finishSpan(transactionId)
         }
         
-        return true
+        return SentryPerformanceTracker.shared.getSpan(transactionId) as? SentryTracer
     }
     
     private func createAndPushBodySpan(transactionCreated: Bool) -> SpanId {

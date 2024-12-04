@@ -45,7 +45,7 @@
         self.inAppLogic = [[SentryInAppLogic alloc] initWithInAppIncludes:options.inAppIncludes
                                                             inAppExcludes:options.inAppExcludes];
 
-        _enableWaitForFullDisplay = NO;
+        _alwaysWaitForFullDisplay = NO;
         _dispatchQueueWrapper = SentryDependencyContainer.sharedInstance.dispatchQueueWrapper;
     }
     return self;
@@ -167,7 +167,7 @@
 
     SentryTimeToDisplayTracker *ttdTracker =
     [[SentryTimeToDisplayTracker alloc] initWithName: [SwiftDescriptor getObjectClassName:controller]
-                                  waitForFullDisplay:self.enableWaitForFullDisplay
+                                  waitForFullDisplay:self.alwaysWaitForFullDisplay
                                 dispatchQueueWrapper:_dispatchQueueWrapper];
 
     if ([ttdTracker startForTracer:(SentryTracer *)vcSpan]) {
@@ -181,7 +181,16 @@
 
 - (void)reportFullyDisplayed
 {
-    [self.currentTTDTracker reportFullyDisplayed];
+    SentryTimeToDisplayTracker* tracker = self.currentTTDTracker;
+    if (tracker) {
+        if (tracker.waitForFullDisplay) {
+            [self.currentTTDTracker reportFullyDisplayed];
+        } else {
+            SENTRY_LOG_DEBUG(@"Transaction is not waiting for full display report. You can enable `enableTimeToFullDisplay` option, or use the waitForFullDisplay property in our `SentryTracedView` view for SwiftUI.");
+        }
+    } else {
+        SENTRY_LOG_DEBUG(@"No screen transaction being tracked right now.")
+    }
 }
 
 - (void)setTimeToDisplayTracker:(SentryTimeToDisplayTracker *)ttdTracker {

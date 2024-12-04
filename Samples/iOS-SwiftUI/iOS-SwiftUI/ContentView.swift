@@ -115,12 +115,12 @@ struct ContentView: View {
     }
 
     var body: some View {
-        return SentryTracedView("Content View Body") {
-            NavigationView {
+        return SentryTracedView("Content View Body", waitForFullDisplay: true) {             NavigationView {
                 VStack(alignment: HorizontalAlignment.center, spacing: 16) {
                     Group {
                         Text(getCurrentTracer()?.transactionContext.name ?? "NO SPAN")
                             .accessibilityIdentifier("TRANSACTION_NAME")
+                            
                         Text(getCurrentTracer()?.transactionContext.spanId.sentrySpanIdString ?? "NO ID")
                             .accessibilityIdentifier("TRANSACTION_ID")
                             .sentryReplayMask()
@@ -128,6 +128,14 @@ struct ContentView: View {
                         Text(getCurrentTracer()?.transactionContext.origin ?? "NO ORIGIN")
                             .accessibilityIdentifier("TRACE_ORIGIN")
                     }.sentryReplayUnmask()
+                        .onAppear {
+                            Task {
+                                if #available(iOS 16.0, *) {
+                                    try? await Task.sleep(for: .seconds(2))
+                                }
+                                SentrySDK.reportFullyDisplayed()
+                            }
+                        }
                     SentryTracedView("Child Span") {
                         VStack {
                             Text(getCurrentSpan()?.spanDescription ?? "NO SPAN")

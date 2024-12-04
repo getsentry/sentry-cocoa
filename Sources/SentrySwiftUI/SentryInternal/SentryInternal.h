@@ -103,4 +103,9 @@ typedef NS_ENUM(NSUInteger, SentrySpanStatus);
 
 @end
 
+@interface SentrySDK ()
+@property (nonatomic, nullable, readonly, class) SentryOptions *options;
+@end
+
+
 NS_ASSUME_NONNULL_END
