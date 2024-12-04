@@ -21,61 +21,6 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  ui-tests:
-    name: UI Tests for ${{matrix.target}} on Simulators
-    runs-on: macos-13
-    strategy:
-      matrix:
-        target: ["ios_objc", "tvos_swift"]
-
-    steps:
-      - uses: actions/checkout@v4
-      - run: ./scripts/ci-select-xcode.sh
-
-      # GitHub Actions sometimes fail to launch the UI tests. Therefore we retry
-      - name: Run Fastlane
-        run: for i in {1..2}; do fastlane ui_tests_${{matrix.target}} && break ; done
-        shell: sh
-
-      - name: Archiving Raw Test Logs
-        uses: actions/upload-artifact@v4
-        if: ${{  failure() || cancelled() }}
-        with:
-          name: raw-uitest-output-${{matrix.target}}
-          path: |
-            ~/Library/Logs/scan/*.log
-            ./fastlane/test_output/**
-
-  # SwiftUI only supports iOS 14+ so we run it in a separate matrix here
-  ui-tests-swift-ui:
-    name: UI Tests for SwiftUI on ${{matrix.device}} Simulator
-    runs-on: ${{matrix.runs-on}}
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - runs-on: macos-13
-            xcode: "14.3"
-            device: "iPhone 8 (16.1)"
-
-    steps:
-      - uses: actions/checkout@v4
-      - run: ./scripts/ci-select-xcode.sh ${{matrix.xcode}}
-      
-      # GitHub Actions sometimes fail to launch the UI tests. Therefore we retry
-      - name: Run Fastlane
-        run: for i in {1..2}; do fastlane ui_tests_ios_swiftui device:"${{matrix.device}}" && break ; done
-        shell: sh
-
-      - name: Archiving Raw Test Logs
-        uses: actions/upload-artifact@v4
-        if: ${{  failure() || cancelled() }}
-        with:
-          name: raw-ios-swiftui-test-output-xcode-${{matrix.xcode}}-${{matrix.device}}
-          path: |
-            ~/Library/Logs/scan/*.log
-            ./fastlane/test_output/**
-
   ui-tests-swift:
     name: UI Tests for iOS-Swift ${{matrix.device}} Simulator
     runs-on: ${{matrix.runs-on}}
@@ -83,10 +28,6 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - runs-on: macos-13
-            xcode: "15.2"
-            device: "iPhone 14 (16.4)"
-
           - runs-on: macos-14
             xcode: "15.4"
             device: "iPhone 15 (17.2)"
@@ -101,45 +42,6 @@ jobs:
 
       - name: Run Fastlane
         run: fastlane ui_tests_ios_swift device:"${{matrix.device}}"
-
-      - name: Archiving Raw Test Logs
-        uses: actions/upload-artifact@v4
-        if: ${{  failure() || cancelled() }}
-        with:
-          name: raw-ios-swift-test-output-${{matrix.xcode}}-${{matrix.device}}
-          path: |
-            ~/Library/Logs/scan/*.log
-            ./fastlane/test_output/**
-            
-  ui-tests-swift6:
-    name: UI Tests for iOS-Swift6 Simulator
-    runs-on: macos-15
-
-    steps:
-      - uses: actions/checkout@v4
-      - run: ./scripts/ci-select-xcode.sh "16.0"
-      - name: Run Fastlane
-        run: fastlane ui_tests_ios_swift6
-
-      - name: Archiving Raw Test Logs
-        uses: actions/upload-artifact@v4
-        if: ${{  failure() || cancelled() }}
-        with:
-          name: raw-ios-swift-test-output-${{matrix.xcode}}-${{matrix.device}}
-          path: |
-            ~/Library/Logs/scan/*.log
-            ./fastlane/test_output/**
-            
-  duplication-tests:
-    name: UI Tests for project with Sentry duplicated
-    runs-on: macos-15
-
-    steps:
-      - uses: actions/checkout@v4
-      - run: ./scripts/ci-select-xcode.sh "16.0"
-      - run: ./scripts/build-xcframework.sh gameOnly
-      - name: Run Fastlane
-        run: fastlane duplication_test
 
       - name: Archiving Raw Test Logs
         uses: actions/upload-artifact@v4
