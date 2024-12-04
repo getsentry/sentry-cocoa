@@ -1,5 +1,3 @@
-//swiftlint:disable todo
-
 import XCTest
 
 class UserFeedbackUITests: BaseUITest {
@@ -175,5 +173,3 @@ class UserFeedbackUITests: BaseUITest {
         app.buttons["io.sentry.feedback.form.remove-screenshot"]
     }
 }
-
-//swiftlint:enable todo
