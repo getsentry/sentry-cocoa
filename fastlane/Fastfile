@@ -83,7 +83,9 @@ platform :ios do
     sync_code_signing(
       type: "appstore",
       readonly: true,
-      app_identifier: ["io.sentry.sample.iOS-Swift",  "io.sentry.sample.iOS-Swift.Clip"]
+      app_identifier: ["io.sentry.sample.iOS-Swift",  "io.sentry.sample.iOS-Swift.Clip"],
+      git_branch: "master",
+      clone_branch_directly: true
     )
 
     build_app(
@@ -107,7 +109,9 @@ platform :ios do
     sync_code_signing(
       type: "development",
       readonly: true,
-      app_identifier: ["io.sentry.sample.iOS-Swift", "io.sentry.sample.iOS-Swift.Clip"]
+      app_identifier: ["io.sentry.sample.iOS-Swift", "io.sentry.sample.iOS-Swift.Clip"],
+      git_branch: "master",
+      clone_branch_directly: true
     )
 
     build_app(
@@ -129,7 +133,9 @@ platform :ios do
     sync_code_signing(
       type: "development",
       readonly: true,
-      app_identifier: ["io.sentry.sample.iOS-Swift", "io.sentry.sample.iOS-Swift.Clip", "io.sentry.iOS-Swift-UITests.xctrunner"]
+      app_identifier: ["io.sentry.sample.iOS-Swift", "io.sentry.sample.iOS-Swift.Clip", "io.sentry.iOS-Swift-UITests.xctrunner"],
+      git_branch: "master",
+      clone_branch_directly: true
     )
 
     # don't use gym here because it always appends a "build" command which fails, since this is a test target not configured for running
@@ -147,7 +153,9 @@ platform :ios do
     sync_code_signing(
       type: "development",
       readonly: true,
-      app_identifier: ["io.sentry.sample.iOS-Swift", "io.sentry.sample.iOS-Swift.Clip", "io.sentry.iOS-Benchmarking.xctrunner"]
+      app_identifier: ["io.sentry.sample.iOS-Swift", "io.sentry.sample.iOS-Swift.Clip", "io.sentry.iOS-Benchmarking.xctrunner"],
+      git_branch: "master",
+      clone_branch_directly: true
     )
 
     build_app(
@@ -258,7 +266,9 @@ platform :ios do
     sync_code_signing(
       type: "development",
       readonly: true,
-      app_identifier: ["io.sentry.cocoa.perf-test-app-plain"]
+      app_identifier: ["io.sentry.cocoa.perf-test-app-plain"],
+      git_branch: "master",
+      clone_branch_directly: true
     )
 
     build_app(
@@ -283,7 +293,9 @@ platform :ios do
     sync_code_signing(
       type: "development",
       readonly: true,
-      app_identifier: ["io.sentry.cocoa.perf-test-app-sentry"]
+      app_identifier: ["io.sentry.cocoa.perf-test-app-sentry"],
+      git_branch: "master",
+      clone_branch_directly: true
     )
 
     build_app(
