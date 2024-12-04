@@ -34,16 +34,9 @@ class SentryUserFeedbackForm: UIViewController {
         initLayout()
         themeElements()
         
-        NotificationCenter.default.addObserver(forName: UIResponder.keyboardDidShowNotification, object: nil, queue: nil) { note in
-            guard let keyboardValue = note.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue else { return }
-            let keyboardViewEndFrame = self.view.convert(keyboardValue.cgRectValue, from: self.view.window)
-            self.setScrollViewBottomInset(keyboardViewEndFrame.height - self.view.safeAreaInsets.bottom)
-
-        }
-        NotificationCenter.default.addObserver(forName: UIResponder.keyboardWillHideNotification, object: nil, queue: nil) { _ in
-            self.setScrollViewBottomInset(0)
-        }
-        
+        let nc = NotificationCenter.default
+        nc.addObserver(self, selector: #selector(showedKeyboard(note:)), name: UIResponder.keyboardDidShowNotification, object: nil)
+        nc.addObserver(self, selector: #selector(hidKeyboard), name: UIResponder.keyboardWillHideNotification, object: nil)
     }
     
     required init?(coder: NSCoder) {
@@ -222,6 +215,16 @@ class SentryUserFeedbackForm: UIViewController {
         removeScreenshotButtonHeightConstraint.constant = formElementHeight * config.scaleFactor
         submitButtonHeightConstraint.constant = formElementHeight * config.scaleFactor
         cancelButtonHeightConstraint.constant = formElementHeight * config.scaleFactor
+    }
+    
+    func showedKeyboard(note: Notification) {
+        guard let keyboardValue = note.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue else { return }
+        let keyboardViewEndFrame = self.view.convert(keyboardValue.cgRectValue, from: self.view.window)
+        self.setScrollViewBottomInset(keyboardViewEndFrame.height - self.view.safeAreaInsets.bottom)
+    }
+    
+    func hidKeyboard() {
+        self.setScrollViewBottomInset(0)
     }
     
     // MARK: UI Elements
@@ -408,6 +411,7 @@ class SentryUserFeedbackForm: UIViewController {
         scrollView.addSubview(stack)
         scrollView.translatesAutoresizingMaskIntoConstraints = false
         scrollView.addSubview(messageTextViewPlaceholder)
+        scrollView.keyboardDismissMode = .interactive
         return scrollView
     }()
 }
