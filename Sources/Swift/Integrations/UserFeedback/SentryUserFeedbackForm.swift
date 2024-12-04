@@ -125,7 +125,7 @@ class SentryUserFeedbackForm: UIViewController {
     lazy var cancelButtonHeightConstraint = cancelButton.heightAnchor.constraint(equalToConstant: formElementHeight * config.scaleFactor)
     
     func setScrollViewBottomInset(_ inset: CGFloat) {
-        scrollView.contentInset = .init(top: config.margin, left: config.margin, bottom: inset - config.margin, right: config.margin)
+        scrollView.contentInset = .init(top: config.margin, left: config.margin, bottom: inset + config.margin, right: config.margin)
         scrollView.scrollIndicatorInsets = .init(top: 0, left: 0, bottom: inset, right: 0)
     }
     
