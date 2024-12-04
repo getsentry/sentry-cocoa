@@ -74,6 +74,10 @@
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
+            argument = "--io.sentry.feedback.no-animations"
+            isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
             argument = "--io.sentry.iOS-Swift.user-feedback.no-widget-icon"
             isEnabled = "NO">
          </CommandLineArgument>

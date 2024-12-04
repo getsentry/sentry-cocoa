@@ -43,7 +43,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             options.debug = true
             
             if #available(iOS 16.0, *), !args.contains("--disable-session-replay") {
-                options.experimental.sessionReplay = SentryReplayOptions(sessionSampleRate: 1, onErrorSampleRate: 1, maskAllText: true, maskAllImages: true)
+                options.experimental.sessionReplay = SentryReplayOptions(sessionSampleRate: 0, onErrorSampleRate: 1, maskAllText: true, maskAllImages: true)
                 options.experimental.sessionReplay.quality = .high
             }
             
@@ -171,6 +171,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                     }
                     return
                 }
+                config.animations = !args.contains("--io.sentry.feedback.no-animations")
                 config.useShakeGesture = true
                 config.showFormForScreenshots = true
                 config.configureWidget = { widget in
@@ -200,6 +201,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 }
                 config.configureForm = { uiForm in
                     uiForm.formTitle = "Jank Report"
+                    uiForm.isEmailRequired = true
                     uiForm.submitButtonLabel = "Report that jank"
                     uiForm.addScreenshotButtonLabel = "Show us the jank"
                     uiForm.messagePlaceholder = "Describe the nature of the jank. Its essence, if you will."

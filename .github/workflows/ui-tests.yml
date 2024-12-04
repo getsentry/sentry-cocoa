@@ -129,3 +129,23 @@ jobs:
           path: |
             ~/Library/Logs/scan/*.log
             ./fastlane/test_output/**
+            
+  duplication-tests:
+    name: UI Tests for project with Sentry duplicated
+    runs-on: macos-15
+
+    steps:
+      - uses: actions/checkout@v4
+      - run: ./scripts/ci-select-xcode.sh "16.0"
+      - run: ./scripts/build-xcframework.sh gameOnly
+      - name: Run Fastlane
+        run: fastlane duplication_test
+
+      - name: Archiving Raw Test Logs
+        uses: actions/upload-artifact@v4
+        if: ${{  failure() || cancelled() }}
+        with:
+          name: raw-ios-swift-test-output-${{matrix.xcode}}-${{matrix.device}}
+          path: |
+            ~/Library/Logs/scan/*.log
+            ./fastlane/test_output/**

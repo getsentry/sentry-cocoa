@@ -806,6 +806,47 @@ class SentryNetworkTrackerTests: XCTestCase {
         XCTAssertEqual(sentryRequest.fragment, "myFragment")
         XCTAssertEqual(sentryRequest.queryString, "query=myQuery")
     }
+    
+    func testCaptureHTTPClientErrorRequest_graphQLEnabled() throws {
+        let sut = fixture.getSut()
+        
+        let task = createDataTask {
+            var request = $0
+            
+            request.httpMethod = "POST"
+            request.httpBody = """
+            {
+                "operationName": "someOperationName",
+                "variables": { "a": 1 },
+                "query": "query someOperationName { someField }"
+            }
+            """.data(using: .utf8)
+            request.allHTTPHeaderFields = ["content-type": "application/json"]
+            
+            return request
+        }
+        task.setResponse(createResponse(code: 500))
+        
+        sut.urlSessionTask(task, setState: .completed)
+        
+        let envelope = try XCTUnwrap(
+            fixture.hub.capturedEventsWithScopes.first,
+            "Expected to capture 1 event"
+        )
+        
+        let graphQLContext = try XCTUnwrap(
+            envelope.event.context?["graphql"],
+            "Expected 'graphql' object in context"
+        )
+        
+        XCTAssertEqual(graphQLContext.count, 1)
+        let operationName = try XCTUnwrap(
+            graphQLContext["operation_name"] as? String,
+            "Expected graphql.operation_name to be a String"
+        )
+        
+        XCTAssertEqual(operationName, "someOperationName")
+    }
 
     func testCaptureHTTPClientErrorRequest_noSecurityInfo() {
         let sut = fixture.getSut()

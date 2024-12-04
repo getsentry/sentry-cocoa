@@ -915,6 +915,18 @@ class SentryClientTest: XCTestCase {
         let inForeground = actual.context?["app"]?["in_foreground"] as? Bool
         XCTAssertEqual(inForeground, true)
     }
+    
+    func testCaptureTransaction_WithAppStateInForegroudWhenAppIsInForeground() throws {
+        let app = TestSentryUIApplication()
+        app.applicationState = .active
+        SentryDependencyContainer.sharedInstance().application = app
+        
+        let event = fixture.transaction
+        fixture.getSut().capture(event: event)
+        let actual = try lastSentEvent()
+        let inForeground = actual.context?["app"]?["in_foreground"] as? Bool
+        XCTAssertEqual(inForeground, true)
+    }
 
     func testCaptureExceptionWithAppStateInForegroudWhenAppIsInBackground() throws {
         let app = TestSentryUIApplication()

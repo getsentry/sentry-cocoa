@@ -1,8 +1,9 @@
-//swiftlint:disable todo type_body_length
+//swiftlint:disable todo type_body_length file_length
 
 import Foundation
 #if os(iOS) && !SENTRY_NO_UIKIT
 @_implementationOnly import _SentryPrivate
+import PhotosUI
 import UIKit
 
 @available(iOS 13.0, *)
@@ -93,15 +94,42 @@ class SentryUserFeedbackForm: UIViewController {
     // MARK: Actions
     
     func addScreenshotButtonTapped() {
-        
+        let imagePickerController = UIImagePickerController()
+        imagePickerController.delegate = self
+        imagePickerController.sourceType = .photoLibrary
+        imagePickerController.allowsEditing = true
+        present(imagePickerController, animated: config.animations)
     }
     
     func removeScreenshotButtonTapped() {
-        
+        screenshotImageView.image = nil
+        removeScreenshotStack.isHidden = true
+        addScreenshotButton.isHidden = false
     }
     
     func submitFeedbackButtonTapped() {
-        // TODO: validate and package entries
+        var missing = [String]()
+        
+        if config.formConfig.isNameRequired && !fullNameTextField.hasText {
+            missing.append("name")
+        }
+        
+        if config.formConfig.isEmailRequired && !emailTextField.hasText {
+            missing.append("email")
+        }
+        
+        if !messageTextView.hasText {
+            missing.append("description")
+        }
+        
+        guard missing.isEmpty else {
+            let list = missing.count == 1 ? missing[0] : missing[0 ..< missing.count - 1].joined(separator: ", ") + " and " + missing[missing.count - 1]
+            let alert = UIAlertController(title: "Error", message: "You must provide all required information. Please check the following fields: \(list).", preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "OK", style: .default))
+            present(alert, animated: config.animations)
+            return
+        }
+        
         delegate?.confirmed()
     }
     
@@ -121,6 +149,7 @@ class SentryUserFeedbackForm: UIViewController {
     lazy var removeScreenshotButtonHeightConstraint = removeScreenshotButton.heightAnchor.constraint(equalToConstant: formElementHeight * config.scaleFactor)
     lazy var submitButtonHeightConstraint = submitButton.heightAnchor.constraint(equalToConstant: formElementHeight * config.scaleFactor)
     lazy var cancelButtonHeightConstraint = cancelButton.heightAnchor.constraint(equalToConstant: formElementHeight * config.scaleFactor)
+    lazy var screenshotImageAspectRatioConstraint = screenshotImageView.widthAnchor.constraint(equalTo: screenshotImageView.heightAnchor)
     
     // the extra 5 pixels was observed experimentally and is invariant under changes in dynamic type sizes
     lazy var messagePlaceholderLeadingConstraint = messageTextViewPlaceholder.leadingAnchor.constraint(equalTo: messageTextView.leadingAnchor, constant: messageTextView.textContainerInset.left + 5)
@@ -129,7 +158,7 @@ class SentryUserFeedbackForm: UIViewController {
     lazy var messagePlaceholderBottomConstraint = messageTextViewPlaceholder.bottomAnchor.constraint(equalTo: messageTextView.bottomAnchor, constant: messageTextView.textContainerInset.bottom)
     
     func setScrollViewBottomInset(_ inset: CGFloat) {
-        scrollView.contentInset = .init(top: config.margin, left: config.margin, bottom: inset - config.margin, right: config.margin)
+        scrollView.contentInset = .init(top: config.margin, left: config.margin, bottom: inset + config.margin, right: config.margin)
         scrollView.scrollIndicatorInsets = .init(top: 0, left: 0, bottom: inset, right: 0)
     }
     
@@ -161,7 +190,10 @@ class SentryUserFeedbackForm: UIViewController {
             
             messagePlaceholderLeadingConstraint,
             messagePlaceholderTopConstraint,
-            messagePlaceholderTrailingConstraint
+            messagePlaceholderTrailingConstraint,
+            
+            screenshotImageView.heightAnchor.constraint(equalTo: addScreenshotButton.heightAnchor),
+            screenshotImageAspectRatioConstraint
         ])
     }
     
@@ -231,6 +263,7 @@ class SentryUserFeedbackForm: UIViewController {
         field.accessibilityLabel = config.formConfig.emailTextFieldAccessibilityLabel
         field.accessibilityIdentifier = "io.sentry.feedback.form.email"
         field.delegate = self
+        field.keyboardType = .emailAddress
         return field
     }()
     
@@ -261,11 +294,14 @@ class SentryUserFeedbackForm: UIViewController {
         return textView
     }()
     
+    lazy var screenshotImageView = UIImageView()
+    
     lazy var addScreenshotButton = {
         let button = UIButton(frame: .zero)
         button.setTitle(config.formConfig.addScreenshotButtonLabel, for: .normal)
         button.accessibilityLabel = config.formConfig.addScreenshotButtonAccessibilityLabel
         button.addTarget(self, action: #selector(addScreenshotButtonTapped), for: .touchUpInside)
+        button.accessibilityIdentifier = "io.sentry.feedback.form.add-screenshot"
         return button
     }()
     
@@ -274,6 +310,7 @@ class SentryUserFeedbackForm: UIViewController {
         button.setTitle(config.formConfig.removeScreenshotButtonLabel, for: .normal)
         button.accessibilityLabel = config.formConfig.removeScreenshotButtonAccessibilityLabel
         button.addTarget(self, action: #selector(removeScreenshotButtonTapped), for: .touchUpInside)
+        button.accessibilityIdentifier = "io.sentry.feedback.form.remove-screenshot"
         return button
     }()
     
@@ -293,6 +330,12 @@ class SentryUserFeedbackForm: UIViewController {
         button.accessibilityLabel = config.formConfig.cancelButtonAccessibilityLabel
         button.addTarget(self, action: #selector(cancelButtonTapped), for: .touchUpInside)
         return button
+    }()
+    
+    lazy var removeScreenshotStack = {
+        let stack = UIStackView(arrangedSubviews: [self.screenshotImageView, self.removeScreenshotButton])
+        stack.spacing = config.theme.font.lineHeight - config.theme.font.xHeight
+        return stack
     }()
     
     lazy var stack = {
@@ -328,6 +371,8 @@ class SentryUserFeedbackForm: UIViewController {
         
         if self.config.formConfig.enableScreenshot {
             messageAndScreenshotStack.addArrangedSubview(self.addScreenshotButton)
+            messageAndScreenshotStack.addArrangedSubview(removeScreenshotStack)
+            self.removeScreenshotStack.isHidden = true
         }
         messageAndScreenshotStack.spacing = config.theme.font.lineHeight - config.theme.font.xHeight
         
@@ -376,6 +421,24 @@ extension SentryUserFeedbackForm: UITextViewDelegate {
     }
 }
 
+// MARK: UIImagePickerControllerDelegate & UINavigationControllerDelegate
+@available(iOS 13.0, *)
+extension SentryUserFeedbackForm: UIImagePickerControllerDelegate & UINavigationControllerDelegate {
+    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey: Any]) {
+        guard let photo = info[.editedImage] as? UIImage else {
+            // TODO: handle error
+            return
+        }
+        screenshotImageView.image = photo
+        screenshotImageAspectRatioConstraint.isActive = false
+        screenshotImageAspectRatioConstraint = screenshotImageView.widthAnchor.constraint(equalTo: screenshotImageView.heightAnchor, multiplier: photo.size.width / photo.size.height)
+        screenshotImageAspectRatioConstraint.isActive = true
+        addScreenshotButton.isHidden = true
+        removeScreenshotStack.isHidden = false
+        dismiss(animated: config.animations)
+    }
+}
+
 #endif // os(iOS) && !SENTRY_NO_UIKIT
 
-//swiftlint:enable todo type_body_length
+//swiftlint:enable todo type_body_length file_length
