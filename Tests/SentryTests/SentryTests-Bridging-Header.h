@@ -194,6 +194,7 @@
 #import "SentryPerformanceTracker+Testing.h"
 #import "SentryPropagationContext.h"
 #import "SentrySampleDecision+Private.h"
+#import "SentrySdkPackage+Private.h"
 #import "SentrySerialization.h"
 #import "SentrySession+Private.h"
 #import "SentrySessionTracker.h"

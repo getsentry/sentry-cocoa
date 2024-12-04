@@ -19,6 +19,10 @@
         return NO;
     }
 
+    if (![self.packages isEqualToSet:otherSdkInfo.packages]) {
+        return NO;
+    }
+
     return YES;
 }
 
@@ -28,6 +32,7 @@
 
     hash = hash * 23 + [self.name hash];
     hash = hash * 23 + [self.version hash];
+    hash = hash * 23 + [self.packages hash];
 
     return hash;
 }

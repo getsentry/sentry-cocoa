@@ -22,6 +22,9 @@ NS_ASSUME_NONNULL_BEGIN
 @interface SentrySdkPackage : NSObject <SentryInternalSerializable>
 SENTRY_NO_INIT
 
+- (instancetype)initWithName:(NSString *)name
+                  andVersion:(NSString *)version NS_DESIGNATED_INITIALIZER;
+
 /**
  * Initialize Package frrom serialized dictionary if possible else returns nil
  */

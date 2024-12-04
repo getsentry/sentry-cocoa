@@ -73,9 +73,9 @@ NS_ASSUME_NONNULL_BEGIN
     };
 }
 
-+ (nullable NSString *)getSentrySDKPackageName
++ (nullable NSString *)getSentrySDKPackageName:(SentryPackageManagerOption)packageManager
 {
-    switch (SENTRY_PACKAGE_INFO) {
+    switch (packageManager) {
     case SentrySwiftPackageManager:
         return @"spm:getsentry/%@";
     case SentryCocoaPods:
@@ -87,19 +87,26 @@ NS_ASSUME_NONNULL_BEGIN
     }
 }
 
-+ (nullable SentrySdkPackage *)getSentrySDKPackage
++ (nullable SentrySdkPackage *)getSentrySDKPackage:(SentryPackageManagerOption)packageManager
 {
 
-    if (SENTRY_PACKAGE_INFO == SentryPackageManagerUnkown) {
+    if (packageManager == SentryPackageManagerUnkown) {
         return nil;
     }
 
-    NSString *name = [SentrySdkPackage getSentrySDKPackageName];
+    NSString *name = [SentrySdkPackage getSentrySDKPackageName:packageManager];
     if (nil == name) {
         return nil;
     }
 
-    return [[SentrySdkPackage alloc] initWithName:name andVersion:SentryMeta.versionString];
+    return
+        [[SentrySdkPackage alloc] initWithName:[NSString stringWithFormat:name, SentryMeta.sdkName]
+                                    andVersion:SentryMeta.versionString];
+}
+
++ (nullable SentrySdkPackage *)getSentrySDKPackage
+{
+    return [SentrySdkPackage getSentrySDKPackage:SENTRY_PACKAGE_INFO];
 }
 
 @end
