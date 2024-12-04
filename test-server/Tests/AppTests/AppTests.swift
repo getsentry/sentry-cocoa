@@ -1,6 +1,5 @@
 @testable import App
 import XCTVapor
-
 final class AppTests: XCTestCase {
     fun testHelloWorld() throws {
         let app = Application(.testing)
