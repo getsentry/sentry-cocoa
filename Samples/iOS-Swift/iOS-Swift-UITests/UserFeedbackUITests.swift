@@ -9,7 +9,8 @@ class UserFeedbackUITests: BaseUITest {
         super.setUp()
         app.launchArguments.append(contentsOf: [
             "--io.sentry.iOS-Swift.auto-inject-user-feedback-widget",
-            "--io.sentry.iOS-Swift.user-feedback.all-defaults"
+            "--io.sentry.iOS-Swift.user-feedback.all-defaults",
+            "--io.sentry.feedback.no-animations"
         ])
         launchApp()
     }
@@ -41,13 +42,13 @@ class UserFeedbackUITests: BaseUITest {
     }
     
     func testSubmitWithNoFieldsFilled() throws {
-        throw XCTSkip("Needs error state implementation")
-        
         widgetButton.tap()
         
         app.staticTexts["Send Bug Report"].tap()
         
-        // TODO: need to implement some kind of error dialog and then assert for it
+        XCTAssert(app.staticTexts["Error"].exists)
+        
+        app.buttons["OK"].tap()
     }
     
     func testSubmitWithOnlyRequiredFieldsFilled() {
@@ -62,8 +63,6 @@ class UserFeedbackUITests: BaseUITest {
     }
     
     func testSubmitOnlyWithOptionalFieldsFilled() throws {
-        throw XCTSkip("Needs error state implementation")
-        
         widgetButton.tap()
         
         nameField.tap()
@@ -74,7 +73,9 @@ class UserFeedbackUITests: BaseUITest {
         
         app.staticTexts["Send Bug Report"].tap()
         
-        // TODO: need to implement some kind of error dialog and then assert for it
+        XCTAssert(app.staticTexts["Error"].exists)
+        
+        app.buttons["OK"].tap()
     }
     
     func testCancelFromFormByButton() {
@@ -136,6 +137,21 @@ class UserFeedbackUITests: BaseUITest {
         XCTAssertEqual(try XCTUnwrap(messageTextView.value as? String), "")
     }
     
+    func testAddingAndRemovingScreenshots() {
+        widgetButton.tap()
+        addScreenshotButton.tap()
+        app.scrollViews.otherElements.images["Photo, March 30, 2018, 11:14"].tap()
+        
+        // for some reason you have to send this button a tap twice for it to register: https://stackoverflow.com/questions/67926596/xcuitest-clicking-choose-for-uiimagepickercontroller#comment138446686_67926596
+        app.buttons["Choose"].tap()
+        app.buttons["Choose"].tap()
+        
+        XCTAssertFalse(addScreenshotButton.isHittable)
+        removeScreenshotButton.tap()
+        XCTAssertFalse(removeScreenshotButton.isHittable)
+        XCTAssert(addScreenshotButton.isHittable)
+    }
+    
     // MARK: Private
     
     var widgetButton: XCUIElement {
@@ -152,6 +168,14 @@ class UserFeedbackUITests: BaseUITest {
     
     var messageTextView: XCUIElement {
         app.textViews["io.sentry.feedback.form.message"]
+    }
+    
+    var addScreenshotButton: XCUIElement {
+        app.buttons["io.sentry.feedback.form.add-screenshot"]
+    }
+    
+    var removeScreenshotButton: XCUIElement {
+        app.buttons["io.sentry.feedback.form.remove-screenshot"]
     }
 }
 
