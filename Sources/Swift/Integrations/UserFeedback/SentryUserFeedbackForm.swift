@@ -125,7 +125,7 @@ class SentryUserFeedbackForm: UIViewController {
     lazy var cancelButtonHeightConstraint = cancelButton.heightAnchor.constraint(equalToConstant: formElementHeight * config.scaleFactor)
     
     func setScrollViewBottomInset(_ inset: CGFloat) {
-        scrollView.contentInset = .init(top: 0, left: config.margin, bottom: inset, right: config.margin)
+        scrollView.contentInset = .init(top: config.margin, left: config.margin, bottom: inset - config.margin, right: config.margin)
         scrollView.scrollIndicatorInsets = .init(top: 0, left: 0, bottom: inset, right: 0)
     }
     
@@ -134,8 +134,8 @@ class SentryUserFeedbackForm: UIViewController {
         NSLayoutConstraint.activate([
             scrollView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
             scrollView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
-            scrollView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: config.margin),
-            scrollView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -config.margin),
+            scrollView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            scrollView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
             
             stack.topAnchor.constraint(equalTo: scrollView.topAnchor),
             stack.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
