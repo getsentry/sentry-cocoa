@@ -14,8 +14,8 @@ class InfoForBreadcrumbController: UIViewController {
 
     @IBAction func buttonPressed(_ sender: Any) {
         guard let view = self.view,
-              let viewInfo = SentryBreadcrumbTracker.extractData(from: view),
-              let buttonInfo = SentryBreadcrumbTracker.extractData(from: button)
+              let viewInfo = SentryBreadcrumbTracker.extractData(from: view, withAccessibilityIdentifier: true),
+              let buttonInfo = SentryBreadcrumbTracker.extractData(from: button, withAccessibilityIdentifier: true)
         else {
             label?.text = "ERROR"
             return

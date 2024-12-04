@@ -994,7 +994,9 @@ class SentryTracerTests: XCTestCase {
         let serializedTransaction = fixture.hub.capturedEventsWithScopes.first?.event.serialize()
         
         let debugMeta = serializedTransaction?["debug_meta"] as? [String: Any]
-        XCTAssertEqual(debugMeta?.count, fixture.debugImageProvider.getDebugImagesCrashed(false).count)
+        XCTAssertEqual(debugMeta?.count, fixture.debugImageProvider.getDebugImagesFromCache().count)
+        
+        XCTAssertEqual(2, fixture.debugImageProvider.getDebugImagesFromCacheInvocations.count, "The tracer must retrieve all the debug images from the cache, cause otherwise it can cause app hangs.")
     }
     
     func testNoAppStartTransaction_AddsNoDebugMeta() {

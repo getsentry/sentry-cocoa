@@ -6,6 +6,8 @@ init:
 	rbenv exec gem update bundler
 	rbenv exec bundle install
 	pre-commit install
+	clang-format --version | awk '{print $3}' > scripts/.clang-format-version
+	swiftlint version > scripts/.swiftlint-version
 
 .PHONY: check-versions
 check-versions:

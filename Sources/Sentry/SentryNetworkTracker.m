@@ -456,8 +456,10 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
     context[@"response"] = response;
 
     if (self.isGraphQLOperationTrackingEnabled) {
-        context[@"graphql_operation_name"] =
-            [URLSessionTaskHelper getGraphQLOperationNameFrom:sessionTask];
+        NSString *operationName = [URLSessionTaskHelper getGraphQLOperationNameFrom:sessionTask];
+        if (operationName != nil) {
+            context[@"graphql"] = @{ @"operation_name" : operationName };
+        }
     }
 
     event.context = context;
