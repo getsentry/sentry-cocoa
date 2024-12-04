@@ -133,7 +133,15 @@ class SentrySdkInfoTests: XCTestCase {
         let version = "10.3.1"
         let expected = SentrySdkInfo(name: sdkName, andVersion: version)
 
-        let dict: [String: Any] = ["sdk": [ "name": sdkName, "version": version, "packages": ["name": "package1", "version": "version1"]]]
+        let dict: [String: Any] = [
+            "sdk": [
+                "name": sdkName,
+                "version": version,
+                "packages": [
+                    ["name": "package1", "version": "version1"]
+                ] as [[String: Any]]
+            ] as [String: Any]
+        ]
 
         XCTAssertEqual(expected, SentrySdkInfo(dict: dict))
     }
@@ -145,10 +153,14 @@ class SentrySdkInfoTests: XCTestCase {
             SentrySdkPackage(name: "package2", andVersion: "version2")
         ])
 
-        let dict: [String: Any] = ["sdk": [ "name": sdkName, "version": version, "packages": [
-            ["name": "package1", "version": "version1"],
-            ["name": "package2", "version": "version2"]
-        ]]]
+        let dict: [String: Any] = [
+            "sdk": [
+                "name": sdkName,
+                "version": version,
+                "packages": [
+                    ["name": "package1", "version": "version1"],
+                    ["name": "package2", "version": "version2"]
+        ] as [[String: Any]]] as [String: Any]]
 
         XCTAssertEqual(expected, SentrySdkInfo(dict: dict))
     }
