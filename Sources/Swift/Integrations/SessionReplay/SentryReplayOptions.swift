@@ -109,14 +109,14 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
      * Defines the quality of the session replay.
      * Higher bit rates better quality, but also bigger files to transfer.
      */
-    var replayBitRate: Int {
+    public var replayBitRate: Int {
         quality.rawValue * 20_000 + 20_000
     }
 
     /**
      * The scale related to the window size at which the replay will be created
      */
-    var sizeScale: Float {
+    public var sizeScale: Float {
         quality == .low ? 0.8 : 1.0
     }
 
@@ -134,12 +134,12 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
     /**
      * The maximum duration of replays for error events.
      */
-    let errorReplayDuration = TimeInterval(30)
+    public let errorReplayDuration = TimeInterval(30)
 
     /**
      * The maximum duration of the segment of a session replay.
      */
-    let sessionSegmentDuration = TimeInterval(5)
+    public let sessionSegmentDuration = TimeInterval(5)
 
     /**
      * The maximum duration of a replay session.

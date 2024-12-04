@@ -323,7 +323,7 @@ public class SentryRedactViewHelper: NSObject {
     
     override private init() {}
     
-    static func maskView(_ view: UIView) {
+    public static func maskView(_ view: UIView) {
         objc_setAssociatedObject(view, &associatedRedactObjectHandle, true, .OBJC_ASSOCIATION_ASSIGN)
     }
     
@@ -335,7 +335,7 @@ public class SentryRedactViewHelper: NSObject {
         (objc_getAssociatedObject(view, &associatedIgnoreObjectHandle) as? NSNumber)?.boolValue ?? false
     }
     
-    static func unmaskView(_ view: UIView) {
+    public static func unmaskView(_ view: UIView) {
         objc_setAssociatedObject(view, &associatedIgnoreObjectHandle, true, .OBJC_ASSOCIATION_ASSIGN)
     }
     

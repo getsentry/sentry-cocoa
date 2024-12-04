@@ -3,7 +3,7 @@ import Foundation
 import UIKit
 
 @objc
-protocol SentryReplayVideoMaker: NSObjectProtocol {
+public protocol SentryReplayVideoMaker: NSObjectProtocol {
     func addFrameAsync(image: UIImage, forScreen: String?) 
     func releaseFramesUntil(_ date: Date)
     func createVideoWith(beginning: Date, end: Date) throws -> [SentryVideoInfo]

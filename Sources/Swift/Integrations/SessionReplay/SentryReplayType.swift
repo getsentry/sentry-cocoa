@@ -1,7 +1,7 @@
 import Foundation
 
 @objc
-enum SentryReplayType: Int {
+public enum SentryReplayType: Int {
     case session
     case buffer
 }

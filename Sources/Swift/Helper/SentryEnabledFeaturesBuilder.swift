@@ -1,8 +1,9 @@
 import Foundation
 
-@objcMembers class SentryEnabledFeaturesBuilder: NSObject {
+@objcMembers
+public class SentryEnabledFeaturesBuilder: NSObject {
     
-    static func getEnabledFeatures(options: Options) -> [String] {
+    public static func getEnabledFeatures(options: Options) -> [String] {
         
         var features: [String] = []
         

@@ -125,7 +125,7 @@ NS_ASSUME_NONNULL_BEGIN
         endSessionExitedWithTimestamp:[SentryDependencyContainer.sharedInstance.dateProvider date]];
     [self captureSession:lastSession];
 
-    [_sessionListener sentrySessionStarted:_session];
+    [_sessionListener sentrySessionStarted];
 }
 
 - (void)endSession
@@ -150,7 +150,7 @@ NS_ASSUME_NONNULL_BEGIN
     [currentSession endSessionExitedWithTimestamp:timestamp];
     [self captureSession:currentSession];
 
-    [_sessionListener sentrySessionEnded:currentSession];
+    [_sessionListener sentrySessionEnded];
 }
 
 - (void)storeCurrentSession:(SentrySession *)session

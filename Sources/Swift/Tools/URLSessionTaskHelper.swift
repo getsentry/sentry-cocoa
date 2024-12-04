@@ -1,9 +1,9 @@
 import Foundation
 
 @objcMembers
-class URLSessionTaskHelper: NSObject {
+public class URLSessionTaskHelper: NSObject {
 
-    static func getGraphQLOperationName(from task: URLSessionTask?) -> String? {
+    public static func getGraphQLOperationName(from task: URLSessionTask?) -> String? {
         guard let task = task else { return nil }
         guard task.originalRequest?.value(forHTTPHeaderField: "Content-Type") == "application/json" else { return nil }
         guard let requestBody = task.originalRequest?.httpBody else { return nil }

@@ -1,12 +1,12 @@
 @objc
-enum SentryANRType: Int {
+public enum SentryANRType: Int {
     case fullyBlocking
     case nonFullyBlocking
     case unknown
 }
 
 @objc
-class SentryAppHangTypeMapper: NSObject {
+public class SentryAppHangTypeMapper: NSObject {
 
     private enum ExceptionType: String {
         case fullyBlocking = "App Hanging Fully Blocked"
@@ -15,7 +15,7 @@ class SentryAppHangTypeMapper: NSObject {
     }
 
     @objc
-    static func getExceptionType(anrType: SentryANRType) -> String {
+    public static func getExceptionType(anrType: SentryANRType) -> String {
         switch anrType {
         case .fullyBlocking:
             return ExceptionType.fullyBlocking.rawValue
@@ -27,7 +27,7 @@ class SentryAppHangTypeMapper: NSObject {
     }
 
     @objc
-    static func isExceptionTypeAppHang(exceptionType: String) -> Bool {
+    public static func isExceptionTypeAppHang(exceptionType: String) -> Bool {
         return ExceptionType(rawValue: exceptionType) != nil
     }
 }

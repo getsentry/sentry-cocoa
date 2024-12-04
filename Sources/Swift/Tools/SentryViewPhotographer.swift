@@ -20,7 +20,7 @@ class DefaultViewRenderer: ViewRenderer {
 }
 
 @objcMembers
-class SentryViewPhotographer: NSObject, SentryViewScreenshotProvider {
+public class SentryViewPhotographer: NSObject, SentryViewScreenshotProvider {
     private let redactBuilder: UIRedactBuilder
     private let dispatchQueue = SentryDispatchQueueWrapper()
 
@@ -32,12 +32,12 @@ class SentryViewPhotographer: NSObject, SentryViewScreenshotProvider {
         super.init()
     }
     
-    init(redactOptions: SentryRedactOptions) {
+    public init(redactOptions: SentryRedactOptions) {
         self.renderer = DefaultViewRenderer()
         self.redactBuilder = UIRedactBuilder(options: redactOptions)
     }
     
-    func image(view: UIView, options: SentryRedactOptions, onComplete: @escaping ScreenshotCallback ) {
+    public func image(view: UIView, options: SentryRedactOptions, onComplete: @escaping ScreenshotCallback ) {
         let redact = redactBuilder.redactRegionsFor(view: view)
         let image = renderer.render(view: view)
         
@@ -105,22 +105,22 @@ class SentryViewPhotographer: NSObject, SentryViewScreenshotProvider {
     }
     
     @objc(addIgnoreClasses:)
-    func addIgnoreClasses(classes: [AnyClass]) {
+    public func addIgnoreClasses(classes: [AnyClass]) {
         redactBuilder.addIgnoreClasses(classes)
     }
 
     @objc(addRedactClasses:)
-    func addRedactClasses(classes: [AnyClass]) {
+    public func addRedactClasses(classes: [AnyClass]) {
         redactBuilder.addRedactClasses(classes)
     }
 
     @objc(setIgnoreContainerClass:)
-    func setIgnoreContainerClass(_ containerClass: AnyClass) {
+    public func setIgnoreContainerClass(_ containerClass: AnyClass) {
         redactBuilder.setIgnoreContainerClass(containerClass)
     }
 
     @objc(setRedactContainerClass:)
-    func setRedactContainerClass(_ containerClass: AnyClass) {
+    public func setRedactContainerClass(_ containerClass: AnyClass) {
         redactBuilder.setRedactContainerClass(containerClass)
     }
 

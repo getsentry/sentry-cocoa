@@ -7,7 +7,7 @@ public class SentryExperimentalOptions: NSObject {
     public var sessionReplay = SentryReplayOptions(sessionSampleRate: 0, onErrorSampleRate: 0)
     #endif
 
-    func validateOptions(_ options: [String: Any]?) {
+    public func validateOptions(_ options: [String: Any]?) {
         #if canImport(UIKit)
         if let sessionReplayOptions = options?["sessionReplay"] as? [String: Any] {
             sessionReplay = SentryReplayOptions(dictionary: sessionReplayOptions)

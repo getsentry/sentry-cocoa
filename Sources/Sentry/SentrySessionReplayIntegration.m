@@ -304,16 +304,16 @@ static SentryTouchTracker *_touchTracker;
                                               attributes:attributes];
 
     self.sessionReplay = [[SentrySessionReplay alloc]
-        initWithReplayOptions:replayOptions
-             replayFolderPath:docs
-           screenshotProvider:screenshotProvider
-                  replayMaker:replayMaker
-          breadcrumbConverter:breadcrumbConverter
-                 touchTracker:_touchTracker
-                 dateProvider:SentryDependencyContainer.sharedInstance.dateProvider
-                     delegate:self
-                dispatchQueue:dispatchQueue
-           displayLinkWrapper:[[SentryDisplayLinkWrapper alloc] init]];
+            initWithReplayOptions:replayOptions
+                 replayFolderPath:docs
+               screenshotProvider:screenshotProvider
+                      replayMaker:replayMaker
+              breadcrumbConverter:breadcrumbConverter
+                     touchTracker:_touchTracker
+                     dateProvider:SentryDependencyContainer.sharedInstance.dateProvider
+                         delegate:self
+             dispatchQueueGeneric:dispatchQueue
+        displayLinkWrapperGeneric:[[SentryDisplayLinkWrapper alloc] init]];
 
     [self.sessionReplay
         startWithRootView:SentryDependencyContainer.sharedInstance.application.windows.firstObject
@@ -447,7 +447,7 @@ static SentryTouchTracker *_touchTracker;
     self.sessionReplay = nil;
 }
 
-- (void)sentrySessionEnded:(SentrySession *)session
+- (void)sentrySessionEnded
 {
     [self pause];
     [_notificationCenter removeObserver:self
@@ -459,7 +459,7 @@ static SentryTouchTracker *_touchTracker;
     _sessionReplay = nil;
 }
 
-- (void)sentrySessionStarted:(SentrySession *)session
+- (void)sentrySessionStarted
 {
     _rateLimited = NO;
     [self startSession];
