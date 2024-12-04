@@ -121,6 +121,7 @@ class UserFeedbackUITests: BaseUITest {
         
         // the cancel gesture
         app.swipeDown(velocity: .fast)
+        app.swipeDown(velocity: .fast)
         
         // the swipe dismiss animation takes an extra moment, so we need to wait for the widget to be visible again
         XCTAssert(widgetButton.waitForExistence(timeout: 1))
