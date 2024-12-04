@@ -6,8 +6,8 @@ class UserFeedbackUITests: BaseUITest {
     override func setUp() {
         super.setUp()
         app.launchArguments.append(contentsOf: [
-            "--io.sentry.iOS-Swift.auto-inject-user-feedback-widget",
-            "--io.sentry.iOS-Swift.user-feedback.all-defaults",
+            "--io.sentry.feedback.auto-inject-widget",
+            "--io.sentry.feedback.all-defaults",
             "--io.sentry.feedback.no-animations"
         ])
         launchApp()

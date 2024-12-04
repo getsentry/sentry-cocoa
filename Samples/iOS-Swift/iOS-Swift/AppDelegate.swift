@@ -165,7 +165,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             
             options.configureUserFeedback = { config in
                 let layoutOffset = UIOffset(horizontal: 25, vertical: 75)
-                guard !args.contains("--io.sentry.iOS-Swift.user-feedback.all-defaults") else {
+                guard !args.contains("--io.sentry.feedback.all-defaults") else {
                     config.configureWidget = { widget in   
                         widget.layoutUIOffset = layoutOffset
                     }
@@ -175,7 +175,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 config.useShakeGesture = true
                 config.showFormForScreenshots = true
                 config.configureWidget = { widget in
-                    if args.contains("--io.sentry.iOS-Swift.auto-inject-user-feedback-widget") {
+                    if args.contains("--io.sentry.feedback.auto-inject-widget") {
                         if Locale.current.languageCode == "ar" { // arabic
                             widget.labelText = "﷽"
                         } else if Locale.current.languageCode == "ur" { // urdu
@@ -192,10 +192,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                     } else {
                         widget.autoInject = false
                     }
-                    if args.contains("--io.sentry.iOS-Swift.user-feedback.no-widget-text") {
+                    if args.contains("--io.sentry.feedback.no-widget-text") {
                         widget.labelText = nil
                     }
-                    if args.contains("--io.sentry.iOS-Swift.user-feedback.no-widget-icon") {
+                    if args.contains("--io.sentry.feedback.no-widget-icon") {
                         widget.showIcon = false
                     }
                 }
