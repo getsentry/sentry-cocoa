@@ -2,10 +2,14 @@
 init:
 	which brew || /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 	brew bundle
+	pre-commit install
+	
+# installs the tools needed to test various CI tasks locally
+init-ci: init
+	brew bundle --file Brewfile-ci
 	rbenv install --skip-existing
 	rbenv exec gem update bundler
 	rbenv exec bundle install
-	pre-commit install
 
 .PHONY: check-versions
 check-versions:
