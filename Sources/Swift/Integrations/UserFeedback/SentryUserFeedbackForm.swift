@@ -115,14 +115,18 @@ class SentryUserFeedbackForm: UIViewController {
     let logoWidth: CGFloat = 47
     lazy var messageTextViewHeightConstraint = messageTextView.heightAnchor.constraint(equalToConstant: config.theme.font.lineHeight * 5)
     lazy var logoViewWidthConstraint = sentryLogoView.widthAnchor.constraint(equalToConstant: logoWidth * config.scaleFactor)
-    lazy var messagePlaceholderLeadingConstraint = messageTextViewPlaceholder.leadingAnchor.constraint(equalTo: messageTextView.leadingAnchor, constant: messageTextView.textContainerInset.left + 5)
-    lazy var messagePlaceholderTopConstraint = messageTextViewPlaceholder.topAnchor.constraint(equalTo: messageTextView.topAnchor, constant: messageTextView.textContainerInset.top)
     lazy var fullNameTextFieldHeightConstraint = fullNameTextField.heightAnchor.constraint(equalToConstant: formElementHeight * config.scaleFactor)
     lazy var emailTextFieldHeightConstraint = emailTextField.heightAnchor.constraint(equalToConstant: formElementHeight * config.scaleFactor)
     lazy var addScreenshotButtonHeightConstraint = addScreenshotButton.heightAnchor.constraint(equalToConstant: formElementHeight * config.scaleFactor)
     lazy var removeScreenshotButtonHeightConstraint = removeScreenshotButton.heightAnchor.constraint(equalToConstant: formElementHeight * config.scaleFactor)
     lazy var submitButtonHeightConstraint = submitButton.heightAnchor.constraint(equalToConstant: formElementHeight * config.scaleFactor)
     lazy var cancelButtonHeightConstraint = cancelButton.heightAnchor.constraint(equalToConstant: formElementHeight * config.scaleFactor)
+    
+    // the extra 5 pixels was observed experimentally and is invariant under changes in dynamic type sizes
+    lazy var messagePlaceholderLeadingConstraint = messageTextViewPlaceholder.leadingAnchor.constraint(equalTo: messageTextView.leadingAnchor, constant: messageTextView.textContainerInset.left + 5)
+    lazy var messagePlaceholderTrailingConstraint = messageTextViewPlaceholder.trailingAnchor.constraint(equalTo: messageTextView.trailingAnchor, constant: messageTextView.textContainerInset.right - 5)
+    lazy var messagePlaceholderTopConstraint = messageTextViewPlaceholder.topAnchor.constraint(equalTo: messageTextView.topAnchor, constant: messageTextView.textContainerInset.top)
+    lazy var messagePlaceholderBottomConstraint = messageTextViewPlaceholder.bottomAnchor.constraint(equalTo: messageTextView.bottomAnchor, constant: messageTextView.textContainerInset.bottom)
     
     func setScrollViewBottomInset(_ inset: CGFloat) {
         scrollView.contentInset = .init(top: config.margin, left: config.margin, bottom: inset - config.margin, right: config.margin)
@@ -155,9 +159,9 @@ class SentryUserFeedbackForm: UIViewController {
             submitButtonHeightConstraint,
             cancelButtonHeightConstraint,
             
-            // the extra 5 pixels was observed experimentally and is invariant under changes in dynamic type sizes
             messagePlaceholderLeadingConstraint,
-            messagePlaceholderTopConstraint
+            messagePlaceholderTopConstraint,
+            messagePlaceholderTrailingConstraint
         ])
     }
     
@@ -168,6 +172,7 @@ class SentryUserFeedbackForm: UIViewController {
         messageTextViewHeightConstraint.constant = config.theme.font.lineHeight * 5
         logoViewWidthConstraint.constant = logoWidth * config.scaleFactor
         messagePlaceholderLeadingConstraint.constant = messageTextView.textContainerInset.left + 5
+        messagePlaceholderTrailingConstraint.constant = messageTextView.textContainerInset.right - 5
         messagePlaceholderTopConstraint.constant = messageTextView.textContainerInset.top
         fullNameTextFieldHeightConstraint.constant = formElementHeight * config.scaleFactor
         emailTextFieldHeightConstraint.constant = formElementHeight * config.scaleFactor
@@ -239,6 +244,7 @@ class SentryUserFeedbackForm: UIViewController {
         let label = UILabel(frame: .zero)
         label.text = config.formConfig.messagePlaceholder
         label.font = config.theme.font
+        label.numberOfLines = 0
         label.textColor = .placeholderText
         label.translatesAutoresizingMaskIntoConstraints = false
         label.adjustsFontForContentSizeCategory = true
