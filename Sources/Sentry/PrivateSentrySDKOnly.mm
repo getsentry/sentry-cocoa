@@ -191,7 +191,7 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
 
 + (void)addSdkPackage:(nonnull NSString *)name version:(nonnull NSString *)version
 {
-    [SentryMeta addSdkPackage:[[SentrySdkPackage alloc] initWithName:name andVersion:version]];
+    [SentryMeta addSdkPackage:name version:version];
 }
 
 + (NSDictionary *)getExtraContext

@@ -30,20 +30,34 @@ static NSSet<SentrySdkPackage *> *sdkPackages;
     sdkName = value;
 }
 
-+ (NSSet<SentrySdkPackage *> *)sdkPackages
++ (NSArray<NSDictionary<NSString *, NSString *> *> *)getSdkPackagesSerialized
 {
-    if (sdkPackages == nil) {
-        [self initializeSdkPackages];
+    NSMutableArray *serializedPackages = [NSMutableArray array];
+    for (SentrySdkPackage *package in [self getSdkPackages]) {
+        [serializedPackages addObject:[package serialize]];
     }
-    return sdkPackages;
+    return serializedPackages;
 }
 
-+ (void)addSdkPackage:(SentrySdkPackage *_Nonnull)value
++ (NSSet<SentrySdkPackage *> *)getSdkPackages
 {
-    if (sdkPackages == nil) {
-        [self initializeSdkPackages];
+    @synchronized(self) {
+        if (sdkPackages == nil) {
+            [self initializeSdkPackages];
+        }
+        return sdkPackages;
     }
-    sdkPackages = [sdkPackages setByAddingObject:value];
+}
+
++ (void)addSdkPackage:(NSString *_Nonnull)name version:(NSString *_Nonnull)version
+{
+    @synchronized(self) {
+        if (sdkPackages == nil) {
+            [self initializeSdkPackages];
+        }
+        sdkPackages = [sdkPackages
+            setByAddingObject:[[SentrySdkPackage alloc] initWithName:name andVersion:version]];
+    }
 }
 
 + (void)initializeSdkPackages
@@ -56,5 +70,12 @@ static NSSet<SentrySdkPackage *> *sdkPackages;
 
     sdkPackages = [NSSet setWithObject:sdkPackage];
 }
+
+#if TEST
++ (void)clearSdkPackages
+{
+    sdkPackages = nil;
+}
+#endif
 
 @end

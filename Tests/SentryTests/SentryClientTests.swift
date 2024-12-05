@@ -148,6 +148,7 @@ class SentryClientTest: XCTestCase {
     override func tearDown() {
         super.tearDown()
         clearTestState()
+        SentryMeta.clearSdkPackages()
     }
     
     func testInit_CallsDeleteOldEnvelopeItemsInvocations() throws {
@@ -1571,6 +1572,17 @@ class SentryClientTest: XCTestCase {
         let features = try XCTUnwrap(actual.sdk?["features"] as? [String])
         XCTAssert(features.contains("performanceV2"))
         XCTAssert(features.contains("captureFailedRequests"))
+    }
+
+    func testSetSDKPackages() throws {
+        SentryMeta.addSdkPackage("package1", version: "version1")
+        let sut = fixture.getSut()
+
+        sut.capture(message: "message")
+
+        let actual = try lastSentEvent()
+        let packages = try XCTUnwrap(actual.sdk?["packages"] as? [[String: String]])
+        XCTAssert(packages.contains(["name": "package1", "version": "version1"]))
     }
 
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)

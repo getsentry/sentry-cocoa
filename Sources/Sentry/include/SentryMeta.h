@@ -16,14 +16,26 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, class, copy) NSString *sdkName;
 
 /**
+ * Return an array of Serialized SDK packages
+ */
++ (NSArray<NSDictionary<NSString *, NSString *> *> *)getSdkPackagesSerialized;
+
+/**
  * Return an array of SDK packages present in the runtime
  */
-+ (NSSet<SentrySdkPackage *> *)sdkPackages;
++ (NSSet<SentrySdkPackage *> *)getSdkPackages;
 
 /**
  * Add a SDK package to the set of SDK packages
  */
-+ (void)addSdkPackage:(SentrySdkPackage *)value;
++ (void)addSdkPackage:(NSString *_Nonnull)name version:(NSString *_Nonnull)version;
+
+#if TEST
+/**
+ * Clear all SDK packages. For testing purposes only.
+ */
++ (void)clearSdkPackages;
+#endif
 
 @end
 

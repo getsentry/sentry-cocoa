@@ -108,6 +108,13 @@ NS_ASSUME_NONNULL_BEGIN
     return [SentrySdkPackage getSentrySDKPackage:SENTRY_PACKAGE_INFO];
 }
 
+#if TEST
++ (void)setSentryPackageInfoForTests:(NSUInteger)value
+{
+    SENTRY_PACKAGE_INFO = value;
+}
+#endif
+
 @end
 
 NS_ASSUME_NONNULL_END

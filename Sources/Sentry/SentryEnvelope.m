@@ -32,7 +32,7 @@ NS_ASSUME_NONNULL_BEGIN
 {
     SentrySdkInfo *sdkInfo = [[SentrySdkInfo alloc] initWithName:SentryMeta.sdkName
                                                       andVersion:SentryMeta.versionString
-                                                     andPackages:SentryMeta.sdkPackages];
+                                                     andPackages:[SentryMeta getSdkPackages]];
     self = [self initWithId:eventId sdkInfo:sdkInfo traceContext:traceContext];
     return self;
 }

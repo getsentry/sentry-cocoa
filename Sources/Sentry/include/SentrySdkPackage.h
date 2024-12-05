@@ -47,6 +47,10 @@ SENTRY_NO_INIT
  */
 + (nullable instancetype)getSentrySDKPackage;
 
+#if TEST
++ (void)setSentryPackageInfoForTests:(NSUInteger)value;
+#endif
+
 @end
 
 NS_ASSUME_NONNULL_END
