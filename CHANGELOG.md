@@ -9,6 +9,7 @@
 ### Improvements
 
 - Track adoption of `enablePersistingTracesWhenCrashing` (#4587)
+- Improve compiler error message for missing Swift declarations due to APPLICATION_EXTENSION_API_ONLY (#4603)
 
 ## 8.42.0-beta.1
 
@@ -21,7 +22,7 @@
 ### Fixes
 
 - Session replay touch tracking race condition (#4548)
-- Use `options.reportAccessibilityIdentifier` for Breadcrumbs and UIEvents (#4569) 
+- Use `options.reportAccessibilityIdentifier` for Breadcrumbs and UIEvents (#4569)
 - Session replay transformed view masking (#4529)
 - Load integration from same binary (#4541)
 - Masking for fast animations #4574
