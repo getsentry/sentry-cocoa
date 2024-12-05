@@ -10,10 +10,6 @@
 
 - (BOOL)installWithOptions:(SentryOptions *)options
 {
-    if (options.userFeedbackConfiguration == nil) {
-        return NO;
-    }
-
     _driver = [[SentryUserFeedbackIntegrationDriver alloc]
         initWithConfiguration:options.userFeedbackConfiguration];
     return YES;
