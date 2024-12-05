@@ -2,6 +2,10 @@
 
 ## 8.42.0-beta.2
 
+### Features
+
+- SwiftUI time for initial display and time for full display (#4596)
+
 ### Fixes
 
 - Fix GraphQL context for HTTP client error tracking (#4567)
@@ -25,7 +29,6 @@
 - Session replay transformed view masking (#4529)
 - Load integration from same binary (#4541)
 - Masking for fast animations #4574
-
 
 ### Improvements
 

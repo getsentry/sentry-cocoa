@@ -4,6 +4,7 @@
 
 @class SentrySpan;
 @class SentryInAppLogic;
+@class SentryTimeToDisplayTracker;
 @class UIViewController;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -30,7 +31,7 @@ static NSString *const SENTRY_UI_PERFORMANCE_TRACKER_TTD_TRACKER
 
 @property (nonatomic, strong) SentryInAppLogic *inAppLogic;
 
-@property (nonatomic) BOOL enableWaitForFullDisplay;
+@property (nonatomic) BOOL alwaysWaitForFullDisplay;
 
 /**
  * Measures @c controller's @c loadView method.
@@ -100,6 +101,8 @@ static NSString *const SENTRY_UI_PERFORMANCE_TRACKER_TTD_TRACKER
                            callbackToOrigin:(void (^)(void))callback;
 
 - (void)reportFullyDisplayed;
+
+- (void)setTimeToDisplayTracker:(SentryTimeToDisplayTracker *)ttdTracker;
 
 @end
 

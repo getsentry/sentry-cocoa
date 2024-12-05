@@ -1,14 +1,12 @@
 #if canImport(SwiftUI)
+
 import Foundation
-#if SENTRY_NO_UIKIT
-import SentryWithoutUIKit
-#else
 import Sentry
-#endif
+import SwiftUI
+
 #if CARTHAGE || SWIFT_PACKAGE
 @_implementationOnly import SentryInternal
 #endif
-import SwiftUI
 
 /// A control to measure the performance of your views and send the result as a transaction to Sentry.io.
 ///
@@ -39,61 +37,112 @@ import SwiftUI
 @available(iOS 13, macOS 10.15, tvOS 13, watchOS 6.0, *)
 public struct SentryTracedView<Content: View>: View {
     @State var viewAppeared = false
-
+    
     let content: () -> Content
     let name: String
     let nameSource: SentryTransactionNameSource
-    
     let traceOrigin = "auto.ui.swift_ui"
-
-    public init(_ viewName: String? = nil, content: @escaping () -> Content) {
+    
+#if canImport(SwiftUI) && canImport(UIKit) && os(iOS) || os(tvOS)
+    let waitforFullDisplay: Bool
+    
+    /// Creates a view that measures the performance of its `content`.
+    ///
+    /// - Parameter viewName: The name that will be used for the span, if nil we try to get the name of the content class.
+    /// - Parameter waitForFullDisplay: Indicates whether this view transaction should wait for `SentrySDK.reportFullyDisplayed()`
+    /// in case you need to track some asyncronous task. This is ignored for any `SentryTracedView` that is child of another `SentryTracedView`
+    /// - Parameter content: The content that you want to track the performance
+    public init(_ viewName: String? = nil, waitForFullDisplay: Bool? = nil, @ViewBuilder content: @escaping () -> Content) {
+        self.content = content
+        self.name = viewName ?? SentryTracedView.extractName(content: Content.self)
+        self.nameSource = viewName == nil ? .component : .custom
+        self.waitforFullDisplay = waitForFullDisplay ?? SentrySDK.options?.enableTimeToFullDisplayTracing ?? false
+    }
+#else
+    /// Creates a view that measures the performance of its `content`.
+    ///
+    /// - Parameter viewName: The name that will be used for the span, if nil we try to get the name of the content class.
+    /// - Parameter content: The content that you want to track the performance
+    public init(_ viewName: String? = nil, @ViewBuilder content: @escaping () -> Content) {
         self.content = content
         self.name = viewName ?? SentryTracedView.extractName(content: Content.self)
         self.nameSource = viewName == nil ? .component : .custom
     }
-
+#endif
+    
     private static func extractName(content: Any) -> String {
         var result = String(describing: content)
-
+        
         if let index = result.firstIndex(of: "<") {
             result = String(result[result.startIndex ..< index])
         }
-
+        
         return result
     }
-
+    
     public var body: some View {
-        if viewAppeared {
-            return self.content().onAppear()
+        var trace: SentryTracer?
+        var spanId: SpanId?
+        
+        if !viewAppeared {
+            trace = ensureTransactionExists()
+            spanId = createAndPushBodySpan(transactionCreated: trace != nil)
         }
-
-        var transactionCreated = false
-        if SentryPerformanceTracker.shared.activeSpanId() == nil {
-            transactionCreated = true
-            let transactionId = SentryPerformanceTracker.shared.startSpan(withName: self.name, nameSource: nameSource, operation: "ui.load", origin: self.traceOrigin)
-            SentryPerformanceTracker.shared.pushActiveSpan(transactionId)
-
-            //According to Apple's documentation, the call to `body` needs to be fast
-            //and can be made many times in one frame. Therefore they don't use async code to process the view.
-            //Scheduling to finish the transaction at the end of the main loop seems the least hack solution right now.
-            //'onAppear' is not a suitable place to do this because it may happen before other view `body` property get called.
-            DispatchQueue.main.async {
-                SentryPerformanceTracker.shared.popActiveSpan()
-                SentryPerformanceTracker.shared.finishSpan(transactionId)
+        
+        defer {
+            if let spanId = spanId {
+                finishSpan(spanId)
             }
         }
+        
+        return content()
+            .onAppear { viewAppeared = true }
+#if canImport(SwiftUI) && canImport(UIKit) && os(iOS) || os(tvOS)
+            // We need to add a UIView to the view hierarchy to be able to
+            // monitor ui life cycles. We will use the background modifier
+            // to add this tracking view behind the content.
+            .background(TracingView(name: self.name, waitForFullDisplay: self.waitforFullDisplay, tracer: trace))
+#endif
 
-        let id = SentryPerformanceTracker.shared.startSpan(withName: transactionCreated ? "\(self.name) - body" : self.name, nameSource: nameSource, operation: "ui.load", origin: self.traceOrigin)
-
-        SentryPerformanceTracker.shared.pushActiveSpan(id)
-        defer {
-            SentryPerformanceTracker.shared.popActiveSpan()
-            SentryPerformanceTracker.shared.finishSpan(id)
+    }
+    
+    private func ensureTransactionExists() -> SentryTracer? {
+        guard SentryPerformanceTracker.shared.activeSpanId() == nil else { return nil }
+        
+        let transactionId = SentryPerformanceTracker.shared.startSpan(
+            withName: name,
+            nameSource: nameSource,
+            operation: "ui.load",
+            origin: traceOrigin
+        )
+        SentryPerformanceTracker.shared.pushActiveSpan(transactionId)
+        
+        //According to Apple's documentation, the call to body needs to be fast
+        //and can be made many times in one frame. Therefore they don't use async code to process the view.
+        //Scheduling to finish the transaction at the end of the main loop seems the least hack solution right now.
+        //'onAppear' is not a suitable place to do this because it may happen before other view body property get called.
+        DispatchQueue.main.async {
+            self.finishSpan(transactionId)
         }
-
-        return self.content().onAppear {
-            self.viewAppeared = true
-        }
+        
+        return SentryPerformanceTracker.shared.getSpan(transactionId) as? SentryTracer
+    }
+    
+    private func createAndPushBodySpan(transactionCreated: Bool) -> SpanId {
+        let spanName = transactionCreated ? "\(name) - body" : name
+        let spanId = SentryPerformanceTracker.shared.startSpan(
+            withName: spanName,
+            nameSource: nameSource,
+            operation: "ui.load",
+            origin: traceOrigin
+        )
+        SentryPerformanceTracker.shared.pushActiveSpan(spanId)
+        return spanId
+    }
+    
+    private func finishSpan(_ spanId: SpanId) {
+        SentryPerformanceTracker.shared.popActiveSpan()
+        SentryPerformanceTracker.shared.finishSpan(spanId)
     }
 }
 
