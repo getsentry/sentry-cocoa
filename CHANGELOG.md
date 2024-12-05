@@ -8,7 +8,7 @@
 
 ### Fixes
 
-- Don't start the SDK inside Xcode preview (#4061)
+- Don't start the SDK inside Xcode preview (#4601)
 
 ## 8.42.0-beta.2
 
