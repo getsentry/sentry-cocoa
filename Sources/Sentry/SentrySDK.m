@@ -39,15 +39,20 @@
 #    import "SentryProfiler+Private.h"
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
+#define XCODE_PREVIEW_ENVIRONMENT_KEY @"XCODE_RUNNING_FOR_PREVIEWS"
+
 @interface SentrySDK ()
 
 @property (class) SentryHub *currentHub;
+
+#if TEST
+@property (nonatomic, strong, class) NSDictionary<NSString *, NSString *> *processInfoEnvironment;
+#endif
 
 @end
 
 NS_ASSUME_NONNULL_BEGIN
 @implementation SentrySDK
-
 static SentryHub *_Nullable currentHub;
 static NSObject *currentHubLock;
 static BOOL crashedLastRunCalled;
@@ -201,6 +206,17 @@ static NSDate *_Nullable startTimestamp = nil;
 
 + (void)startWithOptions:(SentryOptions *)options
 {
+#if TEST
+    if ([SentrySDK.processInfoEnvironment[XCODE_PREVIEW_ENVIRONMENT_KEY] isEqualToString:@"1"]) {
+        return;
+    }
+#else
+    if ([NSProcessInfo.processInfo.environment[XCODE_PREVIEW_ENVIRONMENT_KEY]
+            isEqualToString:@"1"]) {
+        return;
+    }
+#endif
+
     startOption = options;
     [SentryLog configure:options.debug diagnosticLevel:options.diagnosticLevel];
 
@@ -612,6 +628,21 @@ static NSDate *_Nullable startTimestamp = nil;
     [SentryContinuousProfiler stop];
 }
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
+
+#if TEST
+static NSDictionary<NSString *, NSString *> *_processInfoEnvironment;
+
++ (void)setProcessInfoEnvironment:(NSDictionary<NSString *, NSString *> *)dictionary
+{
+    _processInfoEnvironment = dictionary;
+}
+
++ (NSDictionary<NSString *, NSString *> *)processInfoEnvironment
+{
+    return _processInfoEnvironment;
+}
+
+#endif
 
 @end
 

@@ -79,12 +79,21 @@ public struct SentryTracedView<Content: View>: View {
         
         return result
     }
+
+    private func shouldTrace() -> Bool {
+#if DEBUG
+        if  ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] == "1" {
+            return false
+        }
+#endif
+        return !viewAppeared
+    }
     
     public var body: some View {
         var trace: SentryTracer?
         var spanId: SpanId?
         
-        if !viewAppeared {
+        if shouldTrace() {
             trace = ensureTransactionExists()
             spanId = createAndPushBodySpan(transactionCreated: trace != nil)
         }

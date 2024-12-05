@@ -194,6 +194,17 @@ class SentrySDKTests: XCTestCase {
         XCTAssertIdentical(scope, SentrySDK.currentHub().scope)
     }
     
+    func testDontStartInsideXcodePreview() {
+        SentrySDK.processInfoEnvironment = ["XCODE_RUNNING_FOR_PREVIEWS": "1"]
+        
+        SentrySDK.start { options in
+            options.debug = true
+            options.removeAllIntegrations()
+        }
+
+        XCTAssertFalse(SentrySDK.isEnabled)
+    }
+    
     func testCrashedLastRun() {
         XCTAssertEqual(SentryDependencyContainer.sharedInstance().crashReporter.crashedLastLaunch, SentrySDK.crashedLastRun)
     }
