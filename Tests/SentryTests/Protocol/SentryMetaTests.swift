@@ -4,6 +4,7 @@ class SentryMetaTests: XCTestCase {
 
     override func tearDown() {
         SentryMeta.clearSdkPackages()
+        SentrySdkPackage.setSentryPackageInfoForTests(3) //Unknown (default)
     }
 
     func testPackagesAreNotNil() {
