@@ -72,13 +72,6 @@ struct SentryUserFeedbackWidget {
                 closeForm()
             }
             
-//swiftlint:disable todo
-            func captureFeedback(message: String, name: String?, email: String?, hints: [String : Any]?) {
-                closeForm()
-                self.delegate?.captureFeedback(message: message, name: name, email: email, hints: hints)
-            }
-//swiftlint:enable todo
-            
             // MARK: UIAdaptivePresentationControllerDelegate
             
             func presentationControllerDidDismiss(_ presentationController: UIPresentationController) {
