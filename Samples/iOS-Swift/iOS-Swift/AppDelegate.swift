@@ -1,6 +1,8 @@
 import Sentry
 import UIKit
 
+//swiftlint:disable type_body_length
+
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
     
@@ -201,10 +203,18 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 }
                 config.configureForm = { uiForm in
                     uiForm.formTitle = "Jank Report"
-                    uiForm.isEmailRequired = true
+                    uiForm.isEmailRequired = args.contains("--io.sentry.feedback.require-email")
+                    uiForm.isNameRequired = args.contains("--io.sentry.feedback.require-name")
                     uiForm.submitButtonLabel = "Report that jank"
                     uiForm.addScreenshotButtonLabel = "Show us the jank"
+                    uiForm.removeScreenshotButtonLabel = "Oof too nsfl"
+                    uiForm.cancelButtonLabel = "What, me worry?"
                     uiForm.messagePlaceholder = "Describe the nature of the jank. Its essence, if you will."
+                    uiForm.namePlaceholder = "Yo name"
+                    uiForm.emailPlaceholder = "Yo email"
+                    uiForm.messageLabel = "Thy complaint"
+                    uiForm.emailLabel = "Thine email"
+                    uiForm.nameLabel = "Thy name"
                 }
                 config.configureTheme = { theme in
                     let fontFamily: String
@@ -241,7 +251,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 }
             }
         })
-
     }
     //swiftlint:enable function_body_length cyclomatic_complexity
 
@@ -303,3 +312,5 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         }
     }
 }
+
+//swiftlint:enable type_body_length

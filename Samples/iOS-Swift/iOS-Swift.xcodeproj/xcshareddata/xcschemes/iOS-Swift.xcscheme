@@ -74,6 +74,14 @@
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
+            argument = "--io.sentry.feedback.require-name"
+            isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "--io.sentry.feedback.require-email"
+            isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
             argument = "--io.sentry.feedback.no-animations"
             isEnabled = "NO">
          </CommandLineArgument>
