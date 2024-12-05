@@ -7,17 +7,15 @@ import XCTest
 class SentryRedactModifierTests: XCTestCase {
 
     func testViewMask() throws {
-        let text = Text("Hello, World!")
-        let redactedText = text.sentryReplayMask()
-        
-        XCTAssertTrue(redactedText is ModifiedContent<Text, SentryReplayModifier>)
+        let redactedText = Text("Hello, World!").sentryReplayMask()
+        let description = String(describing: redactedText)
+        XCTAssertTrue(description.starts(with: "AnyView(ModifiedContent<Text, SentryReplayModifier>"))
     }
     
     func testViewUnmask() throws {
-        let text = Text("Hello, World!")
-        let redactedText = text.sentryReplayUnmask()
-        
-        XCTAssertTrue(redactedText is ModifiedContent<Text, SentryReplayModifier>)
+        let redactedText = Text("Hello, World!").sentryReplayUnmask()
+        let description = String(describing: redactedText)
+        XCTAssertTrue(description.starts(with: "AnyView(ModifiedContent<Text, SentryReplayModifier>"))
     }
 
 }
