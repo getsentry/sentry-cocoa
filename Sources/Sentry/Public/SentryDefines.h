@@ -1,5 +1,11 @@
 #import <Foundation/Foundation.h>
 
+// SentryDefines.h is a key header and will be checked early,
+// ensuring this error appears first during the compile process.
+#if APPLICATION_EXTENSION_API_ONLY_NO
+#error Set APPLICATION_EXTENSION_API_ONLY to YES in the Sentry build settings.
+#endif
+
 #ifdef __cplusplus
 #    define SENTRY_EXTERN extern "C" __attribute__((visibility("default")))
 #else

@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Improvements
+
+- Improve compiler error message for missing Swift declarations due to APPLICATION_EXTENSION_API_ONLY (#4603)
+
 ## 8.42.0-beta.2
 
 ### Fixes
@@ -9,7 +15,6 @@
 ### Improvements
 
 - Track adoption of `enablePersistingTracesWhenCrashing` (#4587)
-- Improve compiler error message for missing Swift declarations due to APPLICATION_EXTENSION_API_ONLY (#4603)
 
 ## 8.42.0-beta.1
 

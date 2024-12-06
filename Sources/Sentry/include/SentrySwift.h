@@ -35,6 +35,5 @@
 #        import <Sentry/Sentry-Swift.h>
 #    endif
 #endif // __has_include(<SentryWithoutUIKit/Sentry.h>)
-static If_You_See_This_Set_APPLICATION_EXTENSION_API_ONLY_To_YES_For_Sentry *SentrySwiftHeaderCheck
-    = nil;
+
 #endif
