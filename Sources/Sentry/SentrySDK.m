@@ -206,7 +206,7 @@ static NSDate *_Nullable startTimestamp = nil;
 
 + (void)startWithOptions:(SentryOptions *)options
 {
-#if TEST
+#if TEST || TESTCI
     if ([SentrySDK.processInfoEnvironment[SENTRY_XCODE_PREVIEW_ENVIRONMENT_KEY]
             isEqualToString:@"1"]) {
         return;
