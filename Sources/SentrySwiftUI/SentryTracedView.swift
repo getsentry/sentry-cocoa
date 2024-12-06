@@ -82,7 +82,7 @@ public struct SentryTracedView<Content: View>: View {
 
     private func shouldTrace() -> Bool {
 #if DEBUG
-        if  ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] == "1" {
+        if  ProcessInfo.processInfo.environment[SENTRY_XCODE_PREVIEW_ENVIRONMENT_KEY] == "1" {
             return false
         }
 #endif
