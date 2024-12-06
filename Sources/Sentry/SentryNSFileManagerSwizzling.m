@@ -49,25 +49,31 @@
 #pragma clang diagnostic ignored "-Wshadow"
 + (void)swizzleNSFileManager
 {
-    SEL createFileAtPathContentsAttributes
-        = NSSelectorFromString(@"createFileAtPath:contents:attributes:");
-    SentrySwizzleInstanceMethod(NSFileManager.class, createFileAtPathContentsAttributes,
-        SentrySWReturnType(BOOL),
-        SentrySWArguments(
-            NSString * path, NSData * data, NSDictionary<NSFileAttributeKey, id> * attributes),
-        SentrySWReplacement({
-            return [SentryNSFileManagerSwizzling.shared.dataTracker
-                measureNSFileManagerCreateFileAtPath:path
-                                                data:data
-                                          attributes:attributes
-                                              method:^BOOL(NSString *path, NSData *data,
-                                                  NSDictionary<NSFileAttributeKey, id>
-                                                      *attributes) {
-                                                  return SentrySWCallOriginal(
-                                                      path, data, attributes);
-                                              }];
-        }),
-        SentrySwizzleModeOncePerClassAndSuperclasses, (void *)createFileAtPathContentsAttributes);
+    // Before iOS 18.0 and macOS 15.0 the NSFileManager used NSData.writeToFile internally,
+    // which was tracked using swizzling of NSData. This behaviour changed, therefore the
+    // file manager needs to swizzled for later versions.
+    if (@available(iOS 18, macOS 15, *)) {
+        SEL createFileAtPathContentsAttributes
+            = NSSelectorFromString(@"createFileAtPath:contents:attributes:");
+        SentrySwizzleInstanceMethod(NSFileManager.class, createFileAtPathContentsAttributes,
+            SentrySWReturnType(BOOL),
+            SentrySWArguments(
+                NSString * path, NSData * data, NSDictionary<NSFileAttributeKey, id> * attributes),
+            SentrySWReplacement({
+                return [SentryNSFileManagerSwizzling.shared.dataTracker
+                    measureNSFileManagerCreateFileAtPath:path
+                                                    data:data
+                                              attributes:attributes
+                                                  method:^BOOL(NSString *path, NSData *data,
+                                                      NSDictionary<NSFileAttributeKey, id>
+                                                          *attributes) {
+                                                      return SentrySWCallOriginal(
+                                                          path, data, attributes);
+                                                  }];
+            }),
+            SentrySwizzleModeOncePerClassAndSuperclasses,
+            (void *)createFileAtPathContentsAttributes);
+    }
 }
 #pragma clang diagnostic pop
 @end
