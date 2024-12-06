@@ -123,9 +123,9 @@ jobs:
             xcode: "15.4"
             test-destination-os: "latest"
 
-          - runs-on: macos-14
+          - runs-on: macos-15
             platform: "Catalyst"
-            xcode: "15.4"
+            xcode: "16.1"
             test-destination-os: "latest"
 
           # We don't run the unit tests on tvOS 16 cause we run them on all on GH actions available iOS versions.
