@@ -90,6 +90,13 @@ jobs:
             test-destination-os: "17.2"
             device: "iPhone 15"
 
+          # iOS 18
+          - runs-on: macos-15
+            platform: "iOS"
+            xcode: "16.1"
+            test-destination-os: "18.2"
+            device: "iPhone 16"
+
           # We don't run the unit tests on macOS 13 cause we run them on all on GH actions available iOS versions.
           # The chance of missing a bug solely on tvOS 16 that doesn't occur on iOS, macOS 12 or macOS 14 is minimal.
 
@@ -97,6 +104,12 @@ jobs:
           - runs-on: macos-14
             platform: "macOS"
             xcode: "15.4"
+            test-destination-os: "latest"
+
+          # macOS 15
+          - runs-on: macos-15
+            platform: "macOS"
+            xcode: "16.1"
             test-destination-os: "latest"
 
           # Catalyst. We only test the latest version, as
