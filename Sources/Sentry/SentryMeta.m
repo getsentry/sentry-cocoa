@@ -8,6 +8,8 @@
 static NSString *versionString = @"8.42.0-beta.2";
 static NSString *sdkName = @"sentry.cocoa";
 
+static NSSet<SentrySdkPackage *> *sdkPackages;
+
 + (NSString *)versionString
 {
     return versionString;
@@ -27,5 +29,53 @@ static NSString *sdkName = @"sentry.cocoa";
 {
     sdkName = value;
 }
+
++ (NSArray<NSDictionary<NSString *, NSString *> *> *)getSdkPackagesSerialized
+{
+    NSMutableArray *serializedPackages = [NSMutableArray array];
+    for (SentrySdkPackage *package in [self getSdkPackages]) {
+        [serializedPackages addObject:[package serialize]];
+    }
+    return serializedPackages;
+}
+
++ (NSSet<SentrySdkPackage *> *)getSdkPackages
+{
+    @synchronized(self) {
+        if (sdkPackages == nil) {
+            [self initializeSdkPackages];
+        }
+        return sdkPackages;
+    }
+}
+
++ (void)addSdkPackage:(NSString *_Nonnull)name version:(NSString *_Nonnull)version
+{
+    @synchronized(self) {
+        if (sdkPackages == nil) {
+            [self initializeSdkPackages];
+        }
+        sdkPackages = [sdkPackages
+            setByAddingObject:[[SentrySdkPackage alloc] initWithName:name andVersion:version]];
+    }
+}
+
++ (void)initializeSdkPackages
+{
+    SentrySdkPackage *sdkPackage = [SentrySdkPackage getSentrySDKPackage];
+    if (nil == sdkPackage) {
+        sdkPackages = [NSSet set];
+        return;
+    }
+
+    sdkPackages = [NSSet setWithObject:sdkPackage];
+}
+
+#if TEST
++ (void)clearSdkPackages
+{
+    sdkPackages = nil;
+}
+#endif
 
 @end

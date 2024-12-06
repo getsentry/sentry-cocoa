@@ -13,4 +13,5 @@
 #import "SentryLogC.h"
 #import "SentryRandom.h"
 #import "SentrySdkInfo.h"
+#import "SentrySdkPackage.h"
 #import "SentrySession.h"

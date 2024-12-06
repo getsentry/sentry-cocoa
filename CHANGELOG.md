@@ -10,6 +10,10 @@
 
 - Track adoption of `enablePersistingTracesWhenCrashing` (#4587)
 
+### Internal
+
+- Add `packages` set to SentrySdkInfo (#4598)
+
 ## 8.42.0-beta.1
 
 ### Features
