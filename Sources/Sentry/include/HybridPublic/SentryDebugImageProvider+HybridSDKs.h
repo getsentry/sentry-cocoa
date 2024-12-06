@@ -1,4 +1,8 @@
-#import "SentryDebugImageProvider.h"
+#if __has_include(<Sentry/SentryDebugImageProvider.h>)
+#    import <Sentry/SentryDebugImageProvider.h>
+#else
+#    import "SentryDebugImageProvider.h"
+#endif
 
 @class SentryDebugMeta;
 @class SentryThread;
@@ -32,6 +36,9 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSArray<SentryDebugMeta *> *)getDebugImagesForImageAddressesFromCache:
     (NSSet<NSString *> *)imageAddresses
     NS_SWIFT_NAME(getDebugImagesForImageAddressesFromCache(imageAddresses:));
+
+- (NSArray<SentryDebugMeta *> *)getDebugImagesFromCache;
+
 @end
 
 NS_ASSUME_NONNULL_END

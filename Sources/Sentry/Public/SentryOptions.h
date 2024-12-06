@@ -270,13 +270,11 @@ NS_SWIFT_NAME(Options)
 @property (nonatomic, assign) BOOL enableAutoPerformanceTracing;
 
 /**
- * @warning This is an experimental feature and may still have bugs.
- *
- * Sentry works on reworking the whole performance offering with the code Mobile Starfish, which
- * aims to provide better insights into the performance of mobile apps and highlight clear actions
- * to improve app performance to developers. This feature flag enables experimental features that
- * impact the v1 performance offering and would require a major version update. Sentry aims to
- * include most features in the next major by default.
+ * We're working to update our Performance product offering in order to be able to provide better
+ * insights and highlight specific actions you can take to improve your mobile app's overall
+ * performance. The performanceV2 option changes the following behavior: The app start duration will
+ * now finish when the first frame is drawn instead of when the OS posts the
+ * UIWindowDidBecomeVisibleNotification. This change will be the default in the next major version.
  */
 @property (nonatomic, assign) BOOL enablePerformanceV2;
 

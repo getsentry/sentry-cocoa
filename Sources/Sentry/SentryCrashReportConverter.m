@@ -25,6 +25,7 @@
 @property (nonatomic, strong) NSArray *binaryImages;
 @property (nonatomic, strong) NSArray *threads;
 @property (nonatomic, strong) NSDictionary *systemContext;
+@property (nonatomic, strong) NSDictionary *applicationStats;
 @property (nonatomic, strong) NSString *diagnosis;
 @property (nonatomic, strong) SentryInAppLogic *inAppLogic;
 
@@ -38,7 +39,6 @@
     if (self) {
         self.report = report;
         self.inAppLogic = inAppLogic;
-        self.systemContext = report[@"system"];
 
         NSDictionary *userContextUnMerged = report[@"user"];
         if (userContextUnMerged == nil) {
@@ -72,6 +72,11 @@
         self.diagnosis = crashContext[@"diagnosis"];
         self.exceptionContext = crashContext[@"error"];
         [self initThreads:crashContext[@"threads"]];
+
+        self.systemContext = report[@"system"];
+        if (self.systemContext[@"application_stats"] != nil) {
+            self.applicationStats = self.systemContext[@"application_stats"];
+        }
     }
     return self;
 }
@@ -119,6 +124,14 @@
             mutableContext[@"trace"] = self.userContext[@"traceContext"];
         }
 
+        NSMutableDictionary *appContext;
+        if (mutableContext[@"app"] != nil) {
+            appContext = [mutableContext[@"app"] mutableCopy];
+        } else {
+            appContext = [NSMutableDictionary new];
+        }
+        appContext[@"in_foreground"] = self.applicationStats[@"application_in_foreground"];
+        mutableContext[@"app"] = appContext;
         event.context = mutableContext;
 
         event.extra = self.userContext[@"extra"];
@@ -135,7 +148,6 @@
         // We want to set the release and dist to the version from the crash report
         // itself otherwise it can happend that we have two different version when
         // the app crashes right before an app update #218 #219
-        NSDictionary *appContext = event.context[@"app"];
         if (nil == event.releaseName && appContext[@"app_identifier"] && appContext[@"app_version"]
             && appContext[@"app_build"]) {
             event.releaseName =

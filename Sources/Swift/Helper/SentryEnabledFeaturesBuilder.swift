@@ -42,6 +42,10 @@ import Foundation
         }
 #endif //os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
         
+        if options.enablePersistingTracesWhenCrashing {
+            features.append("persistingTracesWhenCrashing")
+        }
+        
         return features
     }
 }
