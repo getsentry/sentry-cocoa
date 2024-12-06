@@ -143,6 +143,23 @@ const NSString *SENTRY_TRACKING_COUNTER_KEY = @"SENTRY_TRACKING_COUNTER_KEY";
     return result;
 }
 
+- (BOOL)measureNSFileManagerCreateFileAtPath:(NSString *)path
+                                        data:(NSData *)data
+                                  attributes:(NSDictionary<NSFileAttributeKey, id> *)attributes
+                                      method:
+                                          (BOOL (^)(NSString *_Nonnull, NSData *_Nonnull,
+                                              NSDictionary<NSFileAttributeKey, id> *_Nonnull))method
+{
+    id<SentrySpan> span = [self startTrackingWritingNSData:data filePath:path];
+
+    BOOL result = method(path, data, attributes);
+
+    if (span != nil) {
+        [self finishTrackingNSData:data span:span];
+    }
+    return result;
+}
+
 - (nullable id<SentrySpan>)spanForPath:(NSString *)path
                              operation:(NSString *)operation
                                   size:(NSUInteger)size
