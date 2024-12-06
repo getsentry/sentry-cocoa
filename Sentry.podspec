@@ -24,7 +24,8 @@ Pod::Spec.new do |s|
       # APPLICATION_EXTENSION_API_ONLY has a side effect of exposing all `@objc` marked entities in `Sentry-Swift.h` (regardless of access level)
       # This is currently needed for Sentry module to compile. Changing this to NO will break the build.
       'APPLICATION_EXTENSION_API_ONLY' => 'YES',
-      'SWIFT_INCLUDE_PATHS' => '${PODS_TARGET_SRCROOT}/Sources/Sentry/include'
+      'SWIFT_INCLUDE_PATHS' => '${PODS_TARGET_SRCROOT}/Sources/Sentry/include',
+      'OTHER_CFLAGS' => '$(inherited) -DAPPLICATION_EXTENSION_API_ONLY_$(APPLICATION_EXTENSION_API_ONLY)'
   }
   s.watchos.pod_target_xcconfig = {
       'OTHER_LDFLAGS' => '$(inherited) -framework WatchKit'

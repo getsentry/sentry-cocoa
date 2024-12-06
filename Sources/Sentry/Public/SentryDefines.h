@@ -1,5 +1,19 @@
 #import <Foundation/Foundation.h>
 
+// SentryDefines.h is a key header and will be checked early,
+// ensuring this error appears first during the compile process.
+//
+// Setting APPLICATION_EXTENSION_API_ONLY to YES has a side effect of
+// including all Swift classes in the `Sentry-Swift.h` header which is
+// required for the SDK to work.
+//
+// https://github.com/getsentry/sentry-cocoa/issues/4426
+#if APPLICATION_EXTENSION_API_ONLY_NO
+#    error "Set APPLICATION_EXTENSION_API_ONLY to YES in the Sentry build settings.\
+ Setting the flag to YES has a side effect of including all Swift classes in the `Sentry-Swift.h` header which is required for the SDK to work.\
+ For more information, visit https://docs.sentry.io/platforms/apple/troubleshooting/#unknown-receiver-somereceiver-use-of-undeclared-identifier-someidentifier
+#endif
+
 #ifdef __cplusplus
 #    define SENTRY_EXTERN extern "C" __attribute__((visibility("default")))
 #else
