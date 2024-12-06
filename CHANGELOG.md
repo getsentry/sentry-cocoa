@@ -16,7 +16,6 @@
 
 - Fix GraphQL context for HTTP client error tracking (#4567)
 
-
 ### Improvements
 
 - Track adoption of `enablePersistingTracesWhenCrashing` (#4587)
