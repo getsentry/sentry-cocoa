@@ -630,7 +630,7 @@ static NSDate *_Nullable startTimestamp = nil;
 }
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
-#if TEST
+#if TEST || TESTCI
 static NSDictionary<NSString *, NSString *> *_processInfoEnvironment;
 
 + (void)setProcessInfoEnvironment:(NSDictionary<NSString *, NSString *> *)dictionary
