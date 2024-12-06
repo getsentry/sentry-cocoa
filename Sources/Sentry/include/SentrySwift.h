@@ -35,4 +35,5 @@
 #        import <Sentry/Sentry-Swift.h>
 #    endif
 #endif // __has_include(<SentryWithoutUIKit/Sentry.h>)
+
 #endif
