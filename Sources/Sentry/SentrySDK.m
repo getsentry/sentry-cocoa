@@ -39,7 +39,7 @@
 #    import "SentryProfiler+Private.h"
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
-NSString* const SENTRY_XCODE_PREVIEW_ENVIRONMENT_KEY = @"XCODE_RUNNING_FOR_PREVIEWS";
+NSString *const SENTRY_XCODE_PREVIEW_ENVIRONMENT_KEY = @"XCODE_RUNNING_FOR_PREVIEWS";
 
 @interface SentrySDK ()
 
@@ -207,7 +207,8 @@ static NSDate *_Nullable startTimestamp = nil;
 + (void)startWithOptions:(SentryOptions *)options
 {
 #if TEST
-    if ([SentrySDK.processInfoEnvironment[SENTRY_XCODE_PREVIEW_ENVIRONMENT_KEY] isEqualToString:@"1"]) {
+    if ([SentrySDK.processInfoEnvironment[SENTRY_XCODE_PREVIEW_ENVIRONMENT_KEY]
+            isEqualToString:@"1"]) {
         return;
     }
 #else
