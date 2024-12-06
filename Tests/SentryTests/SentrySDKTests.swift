@@ -199,7 +199,6 @@ class SentrySDKTests: XCTestCase {
         
         SentrySDK.start { options in
             options.debug = true
-            options.removeAllIntegrations()
         }
 
         XCTAssertFalse(SentrySDK.isEnabled)

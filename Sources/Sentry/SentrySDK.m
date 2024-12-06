@@ -45,7 +45,7 @@
 
 @property (class) SentryHub *currentHub;
 
-#if TEST
+#if TEST || TESTCI
 @property (nonatomic, strong, class) NSDictionary<NSString *, NSString *> *processInfoEnvironment;
 #endif
 
