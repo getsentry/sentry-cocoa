@@ -84,6 +84,9 @@ platform :ios do
       type: "appstore",
       readonly: true,
       app_identifier: ["io.sentry.sample.iOS-Swift",  "io.sentry.sample.iOS-Swift.Clip"],
+      
+      # Directly cloning the branch instead of using a shallow clone fixes the rare error:
+      #   fatal: a branch named 'master' already exists in GitHub Action workflows.
       git_branch: "master",
       clone_branch_directly: true
     )
@@ -110,6 +113,9 @@ platform :ios do
       type: "development",
       readonly: true,
       app_identifier: ["io.sentry.sample.iOS-Swift", "io.sentry.sample.iOS-Swift.Clip"],
+      
+      # Directly cloning the branch instead of using a shallow clone fixes the rare error:
+      #   fatal: a branch named 'master' already exists in GitHub Action workflows.
       git_branch: "master",
       clone_branch_directly: true
     )
@@ -134,6 +140,9 @@ platform :ios do
       type: "development",
       readonly: true,
       app_identifier: ["io.sentry.sample.iOS-Swift", "io.sentry.sample.iOS-Swift.Clip", "io.sentry.iOS-Swift-UITests.xctrunner"],
+      
+      # Directly cloning the branch instead of using a shallow clone fixes the rare error:
+      #   fatal: a branch named 'master' already exists in GitHub Action workflows.
       git_branch: "master",
       clone_branch_directly: true
     )
@@ -154,6 +163,10 @@ platform :ios do
       type: "development",
       readonly: true,
       app_identifier: ["io.sentry.sample.iOS-Swift", "io.sentry.sample.iOS-Swift.Clip", "io.sentry.iOS-Benchmarking.xctrunner"],
+      
+      
+      # Directly cloning the branch instead of using a shallow clone fixes the rare error:
+      #   fatal: a branch named 'master' already exists in GitHub Action workflows.
       git_branch: "master",
       clone_branch_directly: true
     )
@@ -267,6 +280,9 @@ platform :ios do
       type: "development",
       readonly: true,
       app_identifier: ["io.sentry.cocoa.perf-test-app-plain"],
+      
+      # Directly cloning the branch instead of using a shallow clone fixes the rare error:
+      #   fatal: a branch named 'master' already exists in GitHub Action workflows.
       git_branch: "master",
       clone_branch_directly: true
     )
@@ -294,6 +310,9 @@ platform :ios do
       type: "development",
       readonly: true,
       app_identifier: ["io.sentry.cocoa.perf-test-app-sentry"],
+      
+      # Directly cloning the branch instead of using a shallow clone fixes the rare error:
+      #   fatal: a branch named 'master' already exists in GitHub Action workflows.
       git_branch: "master",
       clone_branch_directly: true
     )
