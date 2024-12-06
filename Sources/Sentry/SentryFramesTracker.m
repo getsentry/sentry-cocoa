@@ -20,7 +20,6 @@
 #    if SENTRY_TARGET_PROFILING_SUPPORTED
 #        import "SentryContinuousProfiler.h"
 #        import "SentryTraceProfiler.h"
-
 /** A mutable version of @c SentryFrameInfoTimeSeries so we can accumulate results. */
 typedef NSMutableArray<NSDictionary<NSString *, NSNumber *> *> SentryMutableFrameInfoTimeSeries;
 #    endif // SENTRY_TARGET_PROFILING_SUPPORTED
@@ -62,6 +61,7 @@ slowFrameThreshold(uint64_t actualFramesPerSecond)
     unsigned int _totalFrames;
     unsigned int _slowFrames;
     unsigned int _frozenFrames;
+    NSString *test;
 }
 
 - (instancetype)initWithDisplayLinkWrapper:(SentryDisplayLinkWrapper *)displayLinkWrapper
@@ -223,8 +223,8 @@ slowFrameThreshold(uint64_t actualFramesPerSecond)
         && frameDuration <= SentryFrozenFrameThreshold) {
         _slowFrames++;
 #    if SENTRY_TARGET_PROFILING_SUPPORTED
-        SENTRY_LOG_DEBUG(
-            @"Detected slow frame starting at %@ (frame tracker: %@).", profilingTimestamp, self);
+        SENTRY_LOG_DEBUG(@"Detected slow frame starting at %@ (frame tracker: %@). %@",
+            profilingTimestamp, self, test);
         [self recordTimestamp:profilingTimestamp
                         value:@(thisFrameSystemTimestamp - self.previousFrameSystemTimestamp)
                         array:self.slowFrameTimestamps];

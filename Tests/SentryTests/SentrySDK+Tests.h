@@ -8,6 +8,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface SentrySDK ()
 
+@property (nonatomic, strong, class) NSDictionary<NSString *, NSString *> *processInfoEnvironment;
+
 + (void)setCurrentHub:(nullable SentryHub *)hub;
 
 + (void)setStartOptions:(nullable SentryOptions *)options;

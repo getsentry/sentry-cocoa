@@ -21,7 +21,7 @@ class TestCleanup: NSObject {
         // You must call clearTestState on the main thread. Calling it on a background thread
         // could interfere with another currently running test, making the tests flaky.
         assert(Thread.isMainThread, "You must call clearTestState on the main thread.")
-        
+        SentrySDK.processInfoEnvironment = [:]
         SentrySDK.close()
         SentrySDK.setCurrentHub(nil)
         SentrySDK.crashedLastRunCalled = false
