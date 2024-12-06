@@ -76,6 +76,8 @@ jobs:
       matrix:
         # Can't run tests on watchOS because XCTest is not available
         include:
+          # We are running tests on iOS 17 and later, as there were OS-internal changes introduced in succeeding versions.
+
           # iOS 16
           - runs-on: macos-13
             platform: "iOS"
@@ -83,15 +85,23 @@ jobs:
             test-destination-os: "16.4"
             device: "iPhone 14"
 
+          # iOS 17
+          - runs-on: macos-14
+            platform: "iOS"
+            xcode: "15.4"
+            test-destination-os: "17.2"
+            device: "iPhone 15"
+
           # iOS 18
           - runs-on: macos-15
             platform: "iOS"
-            xcode: "16.0"
-            test-destination-os: "18.0"
+            xcode: "16.1"
+            test-destination-os: "18.1"
             device: "iPhone 16"
 
           # We don't run the unit tests on macOS 13 cause we run them on all on GH actions available iOS versions.
           # The chance of missing a bug solely on tvOS 16 that doesn't occur on iOS, macOS 12 or macOS 14 is minimal.
+          # We are running tests on macOS 14 and later, as there were OS-internal changes introduced in succeeding versions.
 
           # macOS 14
           - runs-on: macos-14
@@ -99,9 +109,20 @@ jobs:
             xcode: "15.4"
             test-destination-os: "latest"
 
-          # Catalyst. We only test the latest version, as
-          # the risk something breaking on Catalyst and not
+          # macOS 15
+          - runs-on: macos-15
+            platform: "macOS"
+            xcode: "16.1"
+            test-destination-os: "latest"
+
+          # Catalyst. We test the latest version, as the risk something breaking on Catalyst and not
           # on an older iOS or macOS version is low.
+          # In addition we are running tests on macOS 14, as there were OS-internal changes introduced in succeeding versions.
+          - runs-on: macos-14
+            platform: "Catalyst"
+            xcode: "15.4"
+            test-destination-os: "latest"
+
           - runs-on: macos-14
             platform: "Catalyst"
             xcode: "15.4"
@@ -109,12 +130,19 @@ jobs:
 
           # We don't run the unit tests on tvOS 16 cause we run them on all on GH actions available iOS versions.
           # The chance of missing a bug solely on tvOS 16 that doesn't occur on iOS, tvOS 15 or tvOS 16 is minimal.
+          # We are running tests on tvOS 17 and latest, as there were OS-internal changes introduced in succeeding versions.
 
           # tvOS 17
           - runs-on: macos-14
             platform: "tvOS"
             xcode: "15.4"
             test-destination-os: "17.5"
+
+          # tvOS 18
+          - runs-on: macos-15
+            platform: "tvOS"
+            xcode: "16.1"
+            test-destination-os: "18.1"
 
     steps:
       - uses: actions/checkout@v4
@@ -184,7 +212,7 @@ jobs:
       # We don't upload codecov for scheduled runs as CodeCov only accepts a limited amount of uploads per commit.
       - name: Push code coverage to codecov
         id: codecov_1
-        uses: codecov/codecov-action@b9fd7d16f6d7d1b5d2bec1a2887e65ceed900238 # pin@v4.6.0
+        uses: codecov/codecov-action@015f24e6818733317a2da2edd6290ab26238649a # pin@v5.0.7
         if: ${{ contains(matrix.platform, 'iOS') && !contains(github.ref, 'release') && github.event.schedule == '' }}
         with:
           # Although public repos should not have to specify a token there seems to be a bug with the Codecov GH action, which can
@@ -196,7 +224,7 @@ jobs:
       # Sometimes codecov uploads etc can fail. Retry one time to rule out e.g. intermittent network failures.
       - name: Push code coverage to codecov
         id: codecov_2
-        uses: codecov/codecov-action@b9fd7d16f6d7d1b5d2bec1a2887e65ceed900238 # pin@v4.6.0
+        uses: codecov/codecov-action@015f24e6818733317a2da2edd6290ab26238649a # pin@v5.0.7
         if: ${{ steps.codecov_1.outcome == 'failure' && contains(matrix.platform, 'iOS') && !contains(github.ref, 'release') && github.event.schedule == '' }}
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
