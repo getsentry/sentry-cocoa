@@ -26,6 +26,7 @@ class SentryUserFeedbackWidgetButtonView: UIView {
         super.init(frame: .zero)
         translatesAutoresizingMaskIntoConstraints = false
         accessibilityLabel = config.widgetConfig.widgetAccessibilityLabel ?? config.widgetConfig.labelText
+        accessibilityIdentifier = "io.sentry.feedback.widget"
         
         let atLeastOneElement = config.widgetConfig.showIcon || config.widgetConfig.labelText != nil
         let preconditionMessage = "User Feedback widget attempted to be displayed with neither text label or icon."
