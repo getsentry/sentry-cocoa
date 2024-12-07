@@ -7,7 +7,12 @@ class UserFeedbackUITests: BaseUITest {
     
     override func setUp() {
         super.setUp()
+        
         app.launchArguments.append(contentsOf: [
+            "--io.sentry.feedback.auto-inject-widget",
+            "--io.sentry.feedback.no-animations",
+            
+            // since the goal of these tests is only to exercise the UI of the widget and form, disable as much as possible from the SDK to avoid any confounding factors that might fail or crash a test case
             "--disable-spotlight",
             "--disable-automatic-session-tracking",
             "--disable-metrickit-integration",
@@ -22,9 +27,7 @@ class UserFeedbackUITests: BaseUITest {
             "--disable-automatic-breadcrumbs",
             "--disable-anr-tracking",
             "--disable-auto-performance-tracing",
-            "--disable-ui-tracing",
-            "--io.sentry.feedback.auto-inject-widget",
-            "--io.sentry.feedback.no-animations"
+            "--disable-ui-tracing"
         ])
         continueAfterFailure = true
     }
