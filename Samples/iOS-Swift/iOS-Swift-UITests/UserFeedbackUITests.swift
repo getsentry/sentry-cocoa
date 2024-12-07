@@ -107,15 +107,13 @@ class UserFeedbackUITests: BaseUITest {
         sendButton.tap()
         
         // displaying the form again ensures the widget button still works afterwards; also assert that the fields are in their default state to ensure the entered data is not persisted between displays
-        
         widgetButton.tap()
         
         // the placeholder text is returned for XCUIElement.value
         XCTAssertEqual(try XCTUnwrap(nameField.value as? String), "Your Name")
         XCTAssertEqual(try XCTUnwrap(emailField.value as? String), "your.email@example.org")
         
-        // the UITextView doesn't hav a placeholder, it's a label on top of it. so it is actually empty
-        XCTAssertEqual(try XCTUnwrap(messageTextView.value as? String), "")
+        XCTAssertEqual(try XCTUnwrap(messageTextView.value as? String), "", "The UITextView shouldn't have any initial text functioning as a placeholder; as UITextView has no placeholder property, the \"placeholder\" is a label on top of it.")
     }
     
     func testSubmitWithOnlyRequiredFieldsFilled() {
@@ -147,7 +145,6 @@ class UserFeedbackUITests: BaseUITest {
         cancelButton.tap()
         
         // displaying the form again ensures the widget button still works afterwards; also assert that the fields are in their default state to ensure the entered data is not persisted between displays
-        
         widgetButton.tap()
         
         // the placeholder text is returned for XCUIElement.value
@@ -174,14 +171,14 @@ class UserFeedbackUITests: BaseUITest {
 
         // first swipe down dismisses the keyboard that's still visible from typing the above inputs
         app.swipeDown(velocity: .fast)
-        // the cancel gesture
+        
+        // the modal cancel gesture
         app.swipeDown(velocity: .fast)
         
         // the swipe dismiss animation takes an extra moment, so we need to wait for the widget to be visible again
         XCTAssert(widgetButton.waitForExistence(timeout: 1))
         
         // displaying the form again ensures the widget button still works afterwards; also assert that the fields are in their default state to ensure the entered data is not persisted between displays
-        
         widgetButton.tap()
         
         // the placeholder text is returned for XCUIElement.value
