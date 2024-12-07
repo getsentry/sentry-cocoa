@@ -114,20 +114,20 @@ class SentryUserFeedbackForm: UIViewController {
         var missing = [String]()
         
         if config.formConfig.isNameRequired && !fullNameTextField.hasText {
-            missing.append("name")
+            missing.append(config.formConfig.nameLabel.lowercased())
         }
         
         if config.formConfig.isEmailRequired && !emailTextField.hasText {
-            missing.append("email")
+            missing.append(config.formConfig.emailLabel.lowercased())
         }
         
         if !messageTextView.hasText {
-            missing.append("description")
+            missing.append(config.formConfig.messageLabel.lowercased())
         }
         
         guard missing.isEmpty else {
             let list = missing.count == 1 ? missing[0] : missing[0 ..< missing.count - 1].joined(separator: ", ") + " and " + missing[missing.count - 1]
-            let alert = UIAlertController(title: "Error", message: "You must provide all required information. Please check the following fields: \(list).", preferredStyle: .alert)
+            let alert = UIAlertController(title: "Error", message: "You must provide all required information. Please check the following field\(missing.count > 1 ? "s" : ""): \(list).", preferredStyle: .alert)
             alert.addAction(UIAlertAction(title: "OK", style: .default))
             present(alert, animated: config.animations)
             return
@@ -334,6 +334,7 @@ class SentryUserFeedbackForm: UIViewController {
         button.backgroundColor = config.theme.submitBackground
         button.setTitleColor(config.theme.submitForeground, for: .normal)
         button.addTarget(self, action: #selector(submitFeedbackButtonTapped), for: .touchUpInside)
+        button.accessibilityIdentifier = "io.sentry.feedback.form.submit"
         return button
     }()
     
@@ -341,6 +342,7 @@ class SentryUserFeedbackForm: UIViewController {
         let button = UIButton(frame: .zero)
         button.setTitle(config.formConfig.cancelButtonLabel, for: .normal)
         button.accessibilityLabel = config.formConfig.cancelButtonAccessibilityLabel
+        button.accessibilityIdentifier = "io.sentry.feedback.form.cancel"
         button.addTarget(self, action: #selector(cancelButtonTapped), for: .touchUpInside)
         return button
     }()
