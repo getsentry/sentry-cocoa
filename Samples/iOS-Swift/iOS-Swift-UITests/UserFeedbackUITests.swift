@@ -1,3 +1,5 @@
+//swiftlint:disable todo
+
 import XCTest
 
 class UserFeedbackUITests: BaseUITest {
@@ -107,6 +109,7 @@ class UserFeedbackUITests: BaseUITest {
         sendButton.tap()
         
         // displaying the form again ensures the widget button still works afterwards; also assert that the fields are in their default state to ensure the entered data is not persisted between displays
+        
         widgetButton.tap()
         
         // the placeholder text is returned for XCUIElement.value
@@ -114,6 +117,16 @@ class UserFeedbackUITests: BaseUITest {
         XCTAssertEqual(try XCTUnwrap(emailField.value as? String), "your.email@example.org")
         
         XCTAssertEqual(try XCTUnwrap(messageTextView.value as? String), "", "The UITextView shouldn't have any initial text functioning as a placeholder; as UITextView has no placeholder property, the \"placeholder\" is a label on top of it.")
+    }
+    
+    func testSubmitWithNoFieldsFilled() throws {
+        widgetButton.tap()
+        
+        sendButton.tap()
+        
+        XCTAssert(app.staticTexts["Error"].exists)
+        
+        app.buttons["OK"].tap()
     }
     
     func testSubmitWithOnlyRequiredFieldsFilled() {
@@ -128,8 +141,23 @@ class UserFeedbackUITests: BaseUITest {
         XCTAssert(widgetButton.waitForExistence(timeout: 1))
     }
     
-    func testCancelFromFormByButton() throws {
-        launchApp(args: ["--io.sentry.feedback.all-defaults"])
+    func testSubmitOnlyWithOptionalFieldsFilled() throws {
+        widgetButton.tap()
+        
+        nameField.tap()
+        nameField.typeText("Andrew")
+        
+        emailField.tap()
+        emailField.typeText("andrew.mcknight@sentry.io")
+        
+        app.staticTexts["Send Bug Report"].tap()
+        
+        XCTAssert(app.staticTexts["Error"].exists)
+        
+        app.buttons["OK"].tap()
+    }
+    
+    func testCancelFromFormByButton() {
         widgetButton.tap()
         
         // fill out the fields; we'll assert later that the entered data does not reappear on subsequent displays
@@ -142,9 +170,11 @@ class UserFeedbackUITests: BaseUITest {
         messageTextView.tap()
         messageTextView.typeText("UITest user feedback")
         
+        let cancelButton: XCUIElement = app.staticTexts["Cancel"]
         cancelButton.tap()
         
         // displaying the form again ensures the widget button still works afterwards; also assert that the fields are in their default state to ensure the entered data is not persisted between displays
+        
         widgetButton.tap()
         
         // the placeholder text is returned for XCUIElement.value
@@ -179,6 +209,7 @@ class UserFeedbackUITests: BaseUITest {
         XCTAssert(widgetButton.waitForExistence(timeout: 1))
         
         // displaying the form again ensures the widget button still works afterwards; also assert that the fields are in their default state to ensure the entered data is not persisted between displays
+        
         widgetButton.tap()
         
         // the placeholder text is returned for XCUIElement.value
@@ -324,3 +355,5 @@ class UserFeedbackUITests: BaseUITest {
         app.buttons["io.sentry.feedback.form.remove-screenshot"]
     }
 }
+
+//swiftlint:enable todo
