@@ -29,6 +29,8 @@ class UserFeedbackUITests: BaseUITest {
         continueAfterFailure = true
     }
     
+    // MARK: Tests ensuring correct appearance
+    
     func testUIElementsWithDefaults() {
         launchApp(args: ["--io.sentry.feedback.all-defaults"])
         // widget button text
@@ -92,6 +94,8 @@ class UserFeedbackUITests: BaseUITest {
         XCTAssertFalse(app.staticTexts["Thy name (Required)"].exists)
     }
     
+    // MARK: Tests validating happy path / successful submission
+    
     func testSubmitFullyFilledForm() throws {
         launchApp(args: ["--io.sentry.feedback.all-defaults"])
         
@@ -109,7 +113,6 @@ class UserFeedbackUITests: BaseUITest {
         sendButton.tap()
         
         // displaying the form again ensures the widget button still works afterwards; also assert that the fields are in their default state to ensure the entered data is not persisted between displays
-        
         widgetButton.tap()
         
         // the placeholder text is returned for XCUIElement.value
@@ -117,16 +120,6 @@ class UserFeedbackUITests: BaseUITest {
         XCTAssertEqual(try XCTUnwrap(emailField.value as? String), "your.email@example.org")
         
         XCTAssertEqual(try XCTUnwrap(messageTextView.value as? String), "", "The UITextView shouldn't have any initial text functioning as a placeholder; as UITextView has no placeholder property, the \"placeholder\" is a label on top of it.")
-    }
-    
-    func testSubmitWithNoFieldsFilled() throws {
-        widgetButton.tap()
-        
-        sendButton.tap()
-        
-        XCTAssert(app.staticTexts["Error"].exists)
-        
-        app.buttons["OK"].tap()
     }
     
     func testSubmitWithOnlyRequiredFieldsFilled() {
@@ -141,23 +134,10 @@ class UserFeedbackUITests: BaseUITest {
         XCTAssert(widgetButton.waitForExistence(timeout: 1))
     }
     
-    func testSubmitOnlyWithOptionalFieldsFilled() throws {
-        widgetButton.tap()
-        
-        nameField.tap()
-        nameField.typeText("Andrew")
-        
-        emailField.tap()
-        emailField.typeText("andrew.mcknight@sentry.io")
-        
-        app.staticTexts["Send Bug Report"].tap()
-        
-        XCTAssert(app.staticTexts["Error"].exists)
-        
-        app.buttons["OK"].tap()
-    }
+    // MARK: Tests validating cancellation functions correctly
     
     func testCancelFromFormByButton() {
+        launchApp(args: ["--io.sentry.feedback.all-defaults"])
         widgetButton.tap()
         
         // fill out the fields; we'll assert later that the entered data does not reappear on subsequent displays
@@ -174,15 +154,13 @@ class UserFeedbackUITests: BaseUITest {
         cancelButton.tap()
         
         // displaying the form again ensures the widget button still works afterwards; also assert that the fields are in their default state to ensure the entered data is not persisted between displays
-        
         widgetButton.tap()
         
         // the placeholder text is returned for XCUIElement.value
         XCTAssertEqual(try XCTUnwrap(nameField.value as? String), "Your Name")
         XCTAssertEqual(try XCTUnwrap(emailField.value as? String), "your.email@example.org")
         
-        // the UITextView doesn't hav a placeholder, it's a label on top of it. so it is actually empty
-        XCTAssertEqual(try XCTUnwrap(messageTextView.value as? String), "")
+        XCTAssertEqual(try XCTUnwrap(messageTextView.value as? String), "", "The UITextView shouldn't have any initial text functioning as a placeholder; as UITextView has no placeholder property, the \"placeholder\" is a label on top of it.")
     }
     
     func testCancelFromFormBySwipeDown() {
@@ -209,16 +187,16 @@ class UserFeedbackUITests: BaseUITest {
         XCTAssert(widgetButton.waitForExistence(timeout: 1))
         
         // displaying the form again ensures the widget button still works afterwards; also assert that the fields are in their default state to ensure the entered data is not persisted between displays
-        
         widgetButton.tap()
         
         // the placeholder text is returned for XCUIElement.value
         XCTAssertEqual(try XCTUnwrap(nameField.value as? String), "Your Name")
         XCTAssertEqual(try XCTUnwrap(emailField.value as? String), "your.email@example.org")
         
-        // the UITextView doesn't hav a placeholder, it's a label on top of it. so it is actually empty
-        XCTAssertEqual(try XCTUnwrap(messageTextView.value as? String), "")
+        XCTAssertEqual(try XCTUnwrap(messageTextView.value as? String), "", "The UITextView shouldn't have any initial text functioning as a placeholder; as UITextView has no placeholder property, the \"placeholder\" is a label on top of it.")
     }
+    
+    // MARK: Tests validating screenshot functionality
     
     func testAddingAndRemovingScreenshots() {
         launchApp(args: ["--io.sentry.feedback.all-defaults"])
@@ -230,6 +208,8 @@ class UserFeedbackUITests: BaseUITest {
         XCTAssert(addScreenshotButton.isHittable)
         XCTAssertFalse(removeScreenshotButton.isHittable)
     }
+    
+    // MARK: Tests validating error cases
     
     func testSubmitWithNoFieldsFilledDefault() throws {
         launchApp(args: ["--io.sentry.feedback.all-defaults"])
@@ -319,6 +299,24 @@ class UserFeedbackUITests: BaseUITest {
         XCTAssert(app.staticTexts["You must provide all required information. Please check the following field: description."].exists)
         
         app.buttons["OK"].tap()
+    }
+    
+    func testSubmissionErrorThenSuccessAfterFixingIssues() {
+        launchApp(args: ["--io.sentry.feedback.all-defaults"])
+        widgetButton.tap()
+        
+        sendButton.tap()
+        
+        XCTAssert(app.staticTexts["Error"].exists)
+        
+        app.buttons["OK"].tap()
+        
+        messageTextView.tap()
+        messageTextView.typeText("UITest user feedback")
+        
+        sendButton.tap()
+        
+        XCTAssert(widgetButton.waitForExistence(timeout: 1))
     }
     
     // MARK: Private
