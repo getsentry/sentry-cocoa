@@ -504,6 +504,14 @@ NS_ASSUME_NONNULL_BEGIN
     }
 }
 
+- (void)captureFeedback:(SentryFeedback *)feedback
+{
+    SentryClient *client = _client;
+    if (client != nil) {
+        [client captureFeedback:feedback];
+    }
+}
+
 - (void)addBreadcrumb:(SentryBreadcrumb *)crumb
 {
     SentryOptions *options = [[self client] options];
