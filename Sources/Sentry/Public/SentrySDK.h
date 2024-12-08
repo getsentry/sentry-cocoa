@@ -4,10 +4,12 @@
 #    import <SentryWithoutUIKit/SentryDefines.h>
 #endif
 
+#import "SentryOptions.h"
+
 @protocol SentrySpan;
 
-@class SentryOptions, SentryEvent, SentryBreadcrumb, SentryScope, SentryUser, SentryId,
-    SentryUserFeedback, SentryTransactionContext;
+@class SentryEvent, SentryBreadcrumb, SentryScope, SentryUser, SentryId, SentryUserFeedback,
+    SentryTransactionContext;
 @class SentryMetricsAPI;
 @class UIView;
 @class SentryReplayApi;

@@ -2,7 +2,7 @@
 import Foundation
 
 @objc
-class SentryLog: NSObject {
+public class SentryLog: NSObject {
     
     static private(set) var isDebug = true
     static private(set) var diagnosticLevel = SentryLevel.error
@@ -10,7 +10,7 @@ class SentryLog: NSObject {
     private static var logConfigureLock = NSLock()
 
     @objc
-    static func configure(_ isDebug: Bool, diagnosticLevel: SentryLevel) {
+    public static func configure(_ isDebug: Bool, diagnosticLevel: SentryLevel) {
         logConfigureLock.synchronized {
             self.isDebug = isDebug
             self.diagnosticLevel = diagnosticLevel
@@ -19,7 +19,7 @@ class SentryLog: NSObject {
     }
     
     @objc
-    static func log(message: String, andLevel level: SentryLevel) {
+    public static func log(message: String, andLevel level: SentryLevel) {
         guard willLog(atLevel: level) else { return }
         logOutput.log("[Sentry] [\(level)] \(message)")
     }
@@ -29,7 +29,7 @@ class SentryLog: NSObject {
      * @c NO if not.
      */
     @objc
-    static func willLog(atLevel level: SentryLevel) -> Bool {
+    public static func willLog(atLevel level: SentryLevel) -> Bool {
         return isDebug && level != .none && level.rawValue >= diagnosticLevel.rawValue
     }
  

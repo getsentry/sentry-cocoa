@@ -2,7 +2,7 @@
 import Foundation
 
 @objc
-protocol SentrySessionListener: NSObjectProtocol {
-    func sentrySessionEnded(_ session: SentrySession)
-    func sentrySessionStarted(_ session: SentrySession)
+public protocol SentrySessionListener: NSObjectProtocol {
+    func sentrySessionEnded()
+    func sentrySessionStarted()
 }

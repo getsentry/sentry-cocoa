@@ -1,7 +1,7 @@
 import Foundation
 
 @objcMembers
-class SentryRRWebCustomEvent: SentryRRWebEvent {
+public class SentryRRWebCustomEvent: SentryRRWebEvent {
     let tag: String
     
     init(timestamp: Date, tag: String, payload: [String: Any]) {

@@ -5,47 +5,47 @@ import Foundation
  * JSON specification of MXCallStackTree can be found here https://developer.apple.com/documentation/metrickit/mxcallstacktree/3552293-jsonrepresentation
  */
 @objcMembers
-class SentryMXCallStackTree: NSObject, Codable {
+public class SentryMXCallStackTree: NSObject, Codable {
     
-    let callStacks: [SentryMXCallStack]
-    let callStackPerThread: Bool
+    public let callStacks: [SentryMXCallStack]
+    public let callStackPerThread: Bool
     
-    init(callStacks: [SentryMXCallStack], callStackPerThread: Bool) {
+    public init(callStacks: [SentryMXCallStack], callStackPerThread: Bool) {
         self.callStacks = callStacks
         self.callStackPerThread = callStackPerThread
     }
     
-    static func from(data: Data) throws -> SentryMXCallStackTree {
+    public static func from(data: Data) throws -> SentryMXCallStackTree {
         return try JSONDecoder().decode(SentryMXCallStackTree.self, from: data)
     }
 }
 
 @objcMembers
-class SentryMXCallStack: NSObject, Codable {
-    var threadAttributed: Bool?
-    var callStackRootFrames: [SentryMXFrame]
+public class SentryMXCallStack: NSObject, Codable {
+    public var threadAttributed: Bool?
+    public var callStackRootFrames: [SentryMXFrame]
     
-    var flattenedRootFrames: [SentryMXFrame] {
+    public var flattenedRootFrames: [SentryMXFrame] {
         return callStackRootFrames.flatMap { [$0] + $0.frames }
     }
 
-    init(threadAttributed: Bool, rootFrames: [SentryMXFrame]) {
+    public init(threadAttributed: Bool, rootFrames: [SentryMXFrame]) {
         self.threadAttributed = threadAttributed
         self.callStackRootFrames = rootFrames
     }
 }
 
 @objcMembers
-class SentryMXFrame: NSObject, Codable {
-    var binaryUUID: UUID
-    var offsetIntoBinaryTextSegment: Int
-    var binaryName: String?
-    var address: UInt64
-    var subFrames: [SentryMXFrame]?
+public class SentryMXFrame: NSObject, Codable {
+    public var binaryUUID: UUID
+    public var offsetIntoBinaryTextSegment: Int
+    public var binaryName: String?
+    public var address: UInt64
+    public var subFrames: [SentryMXFrame]?
     
-    var sampleCount: Int?
+    public var sampleCount: Int?
     
-    init(binaryUUID: UUID, offsetIntoBinaryTextSegment: Int, sampleCount: Int? = nil, binaryName: String? = nil, address: UInt64, subFrames: [SentryMXFrame]?) {
+    public init(binaryUUID: UUID, offsetIntoBinaryTextSegment: Int, sampleCount: Int? = nil, binaryName: String? = nil, address: UInt64, subFrames: [SentryMXFrame]?) {
         self.binaryUUID = binaryUUID
         self.offsetIntoBinaryTextSegment = offsetIntoBinaryTextSegment
         self.sampleCount = sampleCount
@@ -54,11 +54,11 @@ class SentryMXFrame: NSObject, Codable {
         self.subFrames = subFrames
     }
     
-    var frames: [SentryMXFrame] {
+    public var frames: [SentryMXFrame] {
         return (subFrames?.flatMap { [$0] + $0.frames } ?? [])
     }
     
-    var framesIncludingSelf: [SentryMXFrame] {
+    public var framesIncludingSelf: [SentryMXFrame] {
         return [self] + frames
     }
 }

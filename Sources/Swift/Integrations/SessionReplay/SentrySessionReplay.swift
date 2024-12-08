@@ -9,7 +9,7 @@ enum SessionReplayError: Error {
 }
 
 @objc
-protocol SentrySessionReplayDelegate: NSObjectProtocol {
+public protocol SentrySessionReplayDelegate: NSObjectProtocol {
     func sessionReplayShouldCaptureReplayForError() -> Bool
     func sessionReplayNewSegment(replayEvent: SentryReplayEvent, replayRecording: SentryReplayRecording, videoUrl: URL)
     func sessionReplayStarted(replayId: SentryId)
@@ -17,10 +17,11 @@ protocol SentrySessionReplayDelegate: NSObjectProtocol {
     func currentScreenNameForSessionReplay() -> String?
 }
 
+// swiftlint:disable type_body_length
 @objcMembers
-class SentrySessionReplay: NSObject {
-    private(set) var isFullSession = false
-    private(set) var sessionReplayId: SentryId?
+public class SentrySessionReplay: NSObject {
+    public private(set) var isFullSession = false
+    public private(set) var sessionReplayId: SentryId?
 
     private var urlToCache: URL?
     private var rootView: UIView?
@@ -46,8 +47,8 @@ class SentrySessionReplay: NSObject {
         displayLink.isRunning()
     }
     
-    var screenshotProvider: SentryViewScreenshotProvider
-    var breadcrumbConverter: SentryReplayBreadcrumbConverter
+    public var screenshotProvider: SentryViewScreenshotProvider
+    public var breadcrumbConverter: SentryReplayBreadcrumbConverter
     
     init(replayOptions: SentryReplayOptions,
          replayFolderPath: URL,
@@ -72,9 +73,33 @@ class SentrySessionReplay: NSObject {
         self.touchTracker = touchTracker
     }
     
+    // swiftlint:disable force_cast
+    public convenience init(replayOptions: SentryReplayOptions,
+                            replayFolderPath: URL,
+                            screenshotProvider: SentryViewScreenshotProvider,
+                            replayMaker: SentryReplayVideoMaker,
+                            breadcrumbConverter: SentryReplayBreadcrumbConverter,
+                            touchTracker: SentryTouchTracker?,
+                            dateProvider: SentryCurrentDateProvider,
+                            delegate: SentrySessionReplayDelegate,
+                            dispatchQueueGeneric: Any,
+                            displayLinkWrapperGeneric: Any) {
+        self.init(replayOptions: replayOptions,
+                  replayFolderPath: replayFolderPath,
+                  screenshotProvider: screenshotProvider,
+                  replayMaker: replayMaker,
+                  breadcrumbConverter: breadcrumbConverter,
+                  touchTracker: touchTracker,
+                  dateProvider: dateProvider,
+                  delegate: delegate,
+                  dispatchQueue: dispatchQueueGeneric as! SentryDispatchQueueWrapper,
+                  displayLinkWrapper: displayLinkWrapperGeneric as! SentryDisplayLinkWrapper)
+    }
+    // swiftlint:enable force_cast
+    
     deinit { displayLink.invalidate() }
 
-    func start(rootView: UIView, fullSession: Bool) {
+    public func start(rootView: UIView, fullSession: Bool) {
         guard !isRunning else { return }
         displayLink.link(withTarget: self, selector: #selector(newFrame(_:)))
         self.rootView = rootView
@@ -96,7 +121,7 @@ class SentrySessionReplay: NSObject {
         delegate?.sessionReplayStarted(replayId: sessionReplayId)
     }
 
-    func pauseSessionMode() {
+    public func pauseSessionMode() {
         lock.lock()
         defer { lock.unlock() }
         
@@ -104,7 +129,7 @@ class SentrySessionReplay: NSObject {
         self.videoSegmentStart = nil
     }
     
-    func pause() {
+    public func pause() {
         lock.lock()
         defer { lock.unlock() }
         
@@ -115,7 +140,7 @@ class SentrySessionReplay: NSObject {
         isSessionPaused = false
     }
 
-    func resume() {
+    public func resume() {
         lock.lock()
         defer { lock.unlock() }
         
@@ -131,7 +156,7 @@ class SentrySessionReplay: NSObject {
         displayLink.link(withTarget: self, selector: #selector(newFrame(_:)))
     }
   
-    func captureReplayFor(event: Event) {
+    public func captureReplayFor(event: Event) {
         guard isRunning else { return }
 
         if isFullSession {
@@ -146,7 +171,7 @@ class SentrySessionReplay: NSObject {
     }
 
     @discardableResult
-    func captureReplay() -> Bool {
+    public func captureReplay() -> Bool {
         guard isRunning else { return false }
         guard !isFullSession else { return true }
 
@@ -315,5 +340,6 @@ class SentrySessionReplay: NSObject {
         }
     }
 }
+// swiftlint:enable type_body_length
 
 #endif

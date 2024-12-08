@@ -1,7 +1,7 @@
 import Foundation
 
 @objc
-protocol SentryANRTracker {
+public protocol SentryANRTracker {
     @objc(addListener:)
     func add(listener: SentryANRTrackerDelegate)
     @objc(removeListener:)

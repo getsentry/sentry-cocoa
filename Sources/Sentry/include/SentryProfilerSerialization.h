@@ -3,11 +3,11 @@
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
 #    import "SentryDefines.h"
+#    import "SentryHub.h"
 #    import <Foundation/Foundation.h>
 
 @class SentryEnvelope;
 @class SentryEnvelopeItem;
-@class SentryHub;
 @class SentryId;
 @class SentryScreenFrames;
 @class SentryTransaction;

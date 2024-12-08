@@ -1,15 +1,15 @@
 import Foundation
 
 @objc
-class SwiftDescriptor: NSObject {
+public class SwiftDescriptor: NSObject {
     
     @objc
-    static func getObjectClassName(_ object: AnyObject) -> String { 
+    public static func getObjectClassName(_ object: AnyObject) -> String { 
         return String(describing: type(of: object))
     }
     
     @objc
-    static func getSwiftErrorDescription(_ error: Error) -> String? {
+    public static func getSwiftErrorDescription(_ error: Error) -> String? {
         return String(describing: error)
     }
 }

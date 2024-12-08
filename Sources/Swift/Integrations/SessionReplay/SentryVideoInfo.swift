@@ -1,20 +1,20 @@
 import Foundation
 
 @objcMembers
-class SentryVideoInfo: NSObject {
+public class SentryVideoInfo: NSObject {
     
-    let path: URL
-    let height: Int
-    let width: Int
-    let duration: TimeInterval
-    let frameCount: Int
-    let frameRate: Int
-    let start: Date
-    let end: Date
-    let fileSize: Int
-    let screens: [String]
+    public let path: URL
+    public let height: Int
+    public let width: Int
+    public let duration: TimeInterval
+    public let frameCount: Int
+    public let frameRate: Int
+    public let start: Date
+    public let end: Date
+    public let fileSize: Int
+    public let screens: [String]
     
-    init(path: URL, height: Int, width: Int, duration: TimeInterval, frameCount: Int, frameRate: Int, start: Date, end: Date, fileSize: Int, screens: [String]) {
+    public init(path: URL, height: Int, width: Int, duration: TimeInterval, frameCount: Int, frameRate: Int, start: Date, end: Date, fileSize: Int, screens: [String]) {
         self.height = height
         self.width = width
         self.duration = duration

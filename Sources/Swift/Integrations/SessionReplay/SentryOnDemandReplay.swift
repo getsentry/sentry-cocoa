@@ -20,7 +20,7 @@ enum SentryOnDemandReplayError: Error {
 }
 
 @objcMembers
-class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
+public class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
         
     private let _outputPath: String
     private var _totalFrames = 0
@@ -35,10 +35,10 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
         set { _frames = newValue }
     }
     #endif // TEST || TESTCI || DEBUG
-    var videoScale: Float = 1
-    var bitRate = 20_000
+    public var videoScale: Float = 1
+    public var bitRate = 20_000
     var frameRate = 1
-    var cacheMaxSize = UInt.max
+    public var cacheMaxSize = UInt.max
         
     init(outputPath: String, workingQueue: SentryDispatchQueueWrapper, dateProvider: SentryCurrentDateProvider) {
         self._outputPath = outputPath
@@ -62,19 +62,19 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
         }
     }
     
-    convenience init(outputPath: String) {
+    public convenience init(outputPath: String) {
         self.init(outputPath: outputPath,
                   workingQueue: SentryDispatchQueueWrapper(name: "io.sentry.onDemandReplay", attributes: nil),
                   dateProvider: SentryDefaultCurrentDateProvider())
     }
     
-    convenience init(withContentFrom outputPath: String) {
+    public convenience init(withContentFrom outputPath: String) {
         self.init(withContentFrom: outputPath,
                   workingQueue: SentryDispatchQueueWrapper(name: "io.sentry.onDemandReplay", attributes: nil),
                   dateProvider: SentryDefaultCurrentDateProvider())
     }
     
-    func addFrameAsync(image: UIImage, forScreen: String?) {
+    public func addFrameAsync(image: UIImage, forScreen: String?) {
         workingQueue.dispatchAsync({
             self.addFrame(image: image, forScreen: forScreen)
         })
@@ -110,7 +110,7 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
         return UIGraphicsGetImageFromCurrentImageContext()
     }
     
-    func releaseFramesUntil(_ date: Date) {
+    public func releaseFramesUntil(_ date: Date) {
         workingQueue.dispatchAsync ({
             while let first = self._frames.first, first.time < date {
                 self._frames.removeFirst()
@@ -119,11 +119,11 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
         })
     }
         
-    var oldestFrameDate: Date? {
+    public var oldestFrameDate: Date? {
         return _frames.first?.time
     }
     
-    func createVideoWith(beginning: Date, end: Date) throws -> [SentryVideoInfo] {
+    public func createVideoWith(beginning: Date, end: Date) throws -> [SentryVideoInfo] {
         let videoFrames = filterFrames(beginning: beginning, end: end)
         var frameCount = 0
         
