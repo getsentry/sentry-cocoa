@@ -15,6 +15,8 @@ class DataBag {
 
 struct ContentView: View {
 
+    @State var TTDInfo: String = ""
+    
     var addBreadcrumbAction: () -> Void = {
         let crumb = Breadcrumb(level: SentryLevel.info, category: "Debug")
         crumb.message = "tapped addBreadcrumb"
@@ -89,11 +91,33 @@ struct ContentView: View {
         }
     }
 
+    func showTTD() {
+        guard let tracer = getCurrentTracer() else { return }
+        
+        var log = [String]()
+        
+        if !hasTTID(tracer: tracer) { log.append("TTID not found") }
+        if !hasTTFD(tracer: tracer) { log.append("TTFD not found") }
+        
+        if log.isEmpty {
+            log.append("TTID and TTFD found")
+        }
+        TTDInfo = log.joined(separator: "\n")
+    }
+    
     func getCurrentTracer() -> SentryTracer? {
         if DataBag.shared.info["initialTransaction"] == nil {
             DataBag.shared.info["initialTransaction"] = SentrySDK.span as? SentryTracer
         }
         return DataBag.shared.info["initialTransaction"] as? SentryTracer
+    }
+    
+    func hasTTID(tracer: SentryTracer?) -> Bool {
+        tracer?.children.contains { $0.spanDescription?.contains("initial display") == true } == true
+    }
+    
+    func hasTTFD(tracer: SentryTracer?) -> Bool {
+        tracer?.children.contains { $0.spanDescription?.contains("full display") == true } == true
     }
 
     func getCurrentSpan() -> Span? {
@@ -115,12 +139,12 @@ struct ContentView: View {
     }
 
     var body: some View {
-        return SentryTracedView("Content View Body") {
-            NavigationView {
+        return SentryTracedView("Content View Body", waitForFullDisplay: true) {             NavigationView {
                 VStack(alignment: HorizontalAlignment.center, spacing: 16) {
                     Group {
                         Text(getCurrentTracer()?.transactionContext.name ?? "NO SPAN")
                             .accessibilityIdentifier("TRANSACTION_NAME")
+                            
                         Text(getCurrentTracer()?.transactionContext.spanId.sentrySpanIdString ?? "NO ID")
                             .accessibilityIdentifier("TRANSACTION_ID")
                             .sentryReplayMask()
@@ -128,6 +152,9 @@ struct ContentView: View {
                         Text(getCurrentTracer()?.transactionContext.origin ?? "NO ORIGIN")
                             .accessibilityIdentifier("TRACE_ORIGIN")
                     }.sentryReplayUnmask()
+                        .onAppear {
+                            SentrySDK.reportFullyDisplayed()
+                        }
                     SentryTracedView("Child Span") {
                         VStack {
                             Text(getCurrentSpan()?.spanDescription ?? "NO SPAN")
@@ -164,6 +191,9 @@ struct ContentView: View {
 
                             Button(action: captureTransactionAction) {
                                 Text("Capture Transaction")
+                            }
+                            Button(action: showTTD) {
+                                Text("Show TTD")
                             }
                         }
                         VStack(spacing: 16) {
@@ -204,8 +234,11 @@ struct ContentView: View {
                         .background(Color.white)
                     }
                     SecondView()
+                    
+                    Text(TTDInfo)
+                        .accessibilityIdentifier("TTDInfo")
                 }
-            }
+        }
         }
     }
 }
