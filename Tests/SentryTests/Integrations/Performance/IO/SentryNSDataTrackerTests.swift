@@ -275,6 +275,25 @@ class SentryNSDataTrackerTests: XCTestCase {
         assertDataSpan(span, path: url.path, operation: SENTRY_FILE_READ_OPERATION, size: fixture.data.count)
     }
     
+    func testCreateFile() {
+        let sut = fixture.getSut()
+        var methodPath: String?
+        var methodData: Data?
+        var methodAttributes: [FileAttributeKey: Any]?
+        
+        sut.measureNSFileManagerCreateFile(atPath: fixture.filePath, data: fixture.data, attributes: [
+            FileAttributeKey.size: 123
+        ], method: { path, data, attributes in
+            methodPath = path
+            methodData = data
+            methodAttributes = attributes
+            return true
+        })
+        XCTAssertEqual(methodPath, fixture.filePath)
+        XCTAssertEqual(methodData, fixture.data)
+        XCTAssertEqual(methodAttributes?[FileAttributeKey.size] as? Int, 123)
+    }
+    
     func testDontTrackSentryFilesRead() {
         let sut = fixture.getSut()
         let transaction = SentrySDK.startTransaction(name: "Transaction", operation: "Test", bindToScope: true)
