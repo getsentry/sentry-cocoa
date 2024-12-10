@@ -24,6 +24,7 @@
 #import "SentrySerialization.h"
 #import "SentrySwift.h"
 #import "SentryTransactionContext.h"
+#import "SentryNSProcessInfoWrapper.h"
 
 #if TARGET_OS_OSX
 #    import "SentryCrashExceptionApplication.h"
@@ -44,10 +45,6 @@ NSString *const SENTRY_XCODE_PREVIEW_ENVIRONMENT_KEY = @"XCODE_RUNNING_FOR_PREVI
 @interface SentrySDK ()
 
 @property (class) SentryHub *currentHub;
-
-#if TEST || TESTCI
-@property (nonatomic, strong, class) NSDictionary<NSString *, NSString *> *processInfoEnvironment;
-#endif
 
 @end
 
@@ -206,17 +203,10 @@ static NSDate *_Nullable startTimestamp = nil;
 
 + (void)startWithOptions:(SentryOptions *)options
 {
-#if TEST
-    if ([SentrySDK.processInfoEnvironment[SENTRY_XCODE_PREVIEW_ENVIRONMENT_KEY]
+    if ([SentryDependencyContainer.sharedInstance.processInfoWrapper.environment[SENTRY_XCODE_PREVIEW_ENVIRONMENT_KEY]
             isEqualToString:@"1"]) {
         return;
     }
-#else
-    if ([NSProcessInfo.processInfo.environment[SENTRY_XCODE_PREVIEW_ENVIRONMENT_KEY]
-            isEqualToString:@"1"]) {
-        return;
-    }
-#endif
 
     startOption = options;
     [SentryLog configure:options.debug diagnosticLevel:options.diagnosticLevel];

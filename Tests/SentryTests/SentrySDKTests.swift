@@ -195,7 +195,10 @@ class SentrySDKTests: XCTestCase {
     }
     
     func testDontStartInsideXcodePreview() {
-        SentrySDK.processInfoEnvironment = ["XCODE_RUNNING_FOR_PREVIEWS": "1"]
+        let testProcessInfoWrapper = TestSentryNSProcessInfoWrapper()
+        testProcessInfoWrapper.overrides.environment = ["XCODE_RUNNING_FOR_PREVIEWS": "1"]
+        
+        SentryDependencyContainer.sharedInstance().processInfoWrapper = testProcessInfoWrapper
         
         SentrySDK.start { options in
             options.debug = true
