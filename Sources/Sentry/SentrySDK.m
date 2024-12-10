@@ -16,6 +16,7 @@
 #import "SentryLog.h"
 #import "SentryLogC.h"
 #import "SentryMeta.h"
+#import "SentryNSProcessInfoWrapper.h"
 #import "SentryOptions+Private.h"
 #import "SentryProfilingConditionals.h"
 #import "SentryReplayApi.h"
@@ -24,7 +25,6 @@
 #import "SentrySerialization.h"
 #import "SentrySwift.h"
 #import "SentryTransactionContext.h"
-#import "SentryNSProcessInfoWrapper.h"
 
 #if TARGET_OS_OSX
 #    import "SentryCrashExceptionApplication.h"
@@ -203,8 +203,8 @@ static NSDate *_Nullable startTimestamp = nil;
 
 + (void)startWithOptions:(SentryOptions *)options
 {
-    if ([SentryDependencyContainer.sharedInstance.processInfoWrapper.environment[SENTRY_XCODE_PREVIEW_ENVIRONMENT_KEY]
-            isEqualToString:@"1"]) {
+    if ([SentryDependencyContainer.sharedInstance.processInfoWrapper
+                .environment[SENTRY_XCODE_PREVIEW_ENVIRONMENT_KEY] isEqualToString:@"1"]) {
         return;
     }
 

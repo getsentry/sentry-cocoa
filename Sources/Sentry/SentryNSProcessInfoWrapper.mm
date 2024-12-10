@@ -50,7 +50,8 @@
     return NSProcessInfo.processInfo.thermalState;
 }
 
-- (NSDictionary<NSString *, NSString *> *)environment {
+- (NSDictionary<NSString *, NSString *> *)environment
+{
     return NSProcessInfo.processInfo.environment;
 }
 
