@@ -898,7 +898,8 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         @"name" : SentryMeta.sdkName,
         @"version" : SentryMeta.versionString,
         @"integrations" : integrations,
-        @"features" : features
+        @"features" : features,
+        @"packages" : [SentryMeta getSdkPackagesSerialized],
     };
 }
 
