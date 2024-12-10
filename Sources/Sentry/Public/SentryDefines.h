@@ -8,7 +8,7 @@
 // required for the SDK to work.
 //
 // https://github.com/getsentry/sentry-cocoa/issues/4426
-// 
+//
 // This mainly came up in RN SDK, because
 // some libraries advice to users
 // to set APPLICATION_EXTENSION_API_ONLY_NO
