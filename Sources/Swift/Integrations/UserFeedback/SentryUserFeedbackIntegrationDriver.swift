@@ -60,18 +60,6 @@ class SentryUserFeedbackIntegrationDriver: NSObject {
         
     }
     
-    /**
-     * Captures feedback using custom UI. This method allows you to submit feedback data directly.
-     * - Parameters:
-     *   - message: The feedback message (required).
-     *   - name: The name of the user (optional).
-     *   - email: The email of the user (optional).
-     *   - hints: Additional hints or metadata for the feedback submission (optional).
-     */
-    func captureFeedback(message: String, name: String? = nil, email: String? = nil, hints: [String: Any]? = nil) {
-        // Implementation to capture feedback
-    }
-    
     private func validate(_ config: SentryUserFeedbackWidgetConfiguration) {
         let noOpposingHorizontals = config.location.contains(.trailing) && !config.location.contains(.leading)
             || !config.location.contains(.trailing) && config.location.contains(.leading)

@@ -405,6 +405,11 @@ static NSDate *_Nullable startTimestamp = nil;
     [SentrySDK.currentHub captureUserFeedback:userFeedback];
 }
 
++ (void)captureFeedback:(SentryFeedback *)feedback
+{
+    [SentrySDK.currentHub captureFeedback:feedback];
+}
+
 + (void)showUserFeedbackForm
 {
     // TODO: implement

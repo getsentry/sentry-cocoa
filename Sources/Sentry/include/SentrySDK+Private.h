@@ -10,7 +10,11 @@
 #    import "SentrySDK.h"
 #endif
 
-@class SentryHub, SentryId, SentryAppStartMeasurement, SentryEnvelope;
+@class SentryAppStartMeasurement;
+@class SentryEnvelope;
+@class SentryFeedback;
+@class SentryHub;
+@class SentryId;
 
 NS_ASSUME_NONNULL_BEGIN
 
