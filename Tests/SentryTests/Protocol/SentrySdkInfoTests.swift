@@ -1,3 +1,4 @@
+@testable import Sentry
 import SentryTestUtils
 import XCTest
 
@@ -7,7 +8,7 @@ class SentrySdkInfoTests: XCTestCase {
     
     func testWithPatchLevelSuffix() {
         let version = "50.10.20-beta1"
-        let actual = SentrySdkInfo(name: sdkName, andVersion: version)
+        let actual = SentrySdkInfo(name: sdkName, version: version)
         
         XCTAssertEqual(sdkName, actual.name)
         XCTAssertEqual(version, actual.version)
@@ -15,7 +16,7 @@ class SentrySdkInfoTests: XCTestCase {
     
     func testWithAnyVersion() {
         let version = "anyVersion"
-        let actual = SentrySdkInfo(name: sdkName, andVersion: version)
+        let actual = SentrySdkInfo(name: sdkName, version: version)
         
         XCTAssertEqual(sdkName, actual.name)
         XCTAssertEqual(version, actual.version)
@@ -23,7 +24,7 @@ class SentrySdkInfoTests: XCTestCase {
     
     func testSerialization() {
         let version = "5.2.0"
-        let actual = SentrySdkInfo(name: sdkName, andVersion: version).serialize()
+        let actual = SentrySdkInfo(name: sdkName, version: version).serialize()
         
         if let sdkInfo = actual["sdk"] as? [String: Any] {
             XCTAssertEqual(2, sdkInfo.count)
@@ -36,8 +37,8 @@ class SentrySdkInfoTests: XCTestCase {
 
     func testSPM_packageInfo() throws {
         let version = "5.2.0"
-        let actual = SentrySdkInfo(name: sdkName, andVersion: version)
-        Dynamic(actual).packageManager = 0
+        let actual = SentrySdkInfo(name: sdkName, version: version, packageManager: .spm)
+        Dynamic(actual).packageManager = SentrySdkPackageManager.spm
         let serialization = actual.serialize()
 
         if let sdkInfo = serialization["sdk"] as? [String: Any] {
@@ -53,8 +54,7 @@ class SentrySdkInfoTests: XCTestCase {
 
     func testCarthage_packageInfo() throws {
         let version = "5.2.0"
-        let actual = SentrySdkInfo(name: sdkName, andVersion: version)
-        Dynamic(actual).packageManager = 2
+        let actual = SentrySdkInfo(name: sdkName, version: version, packageManager: .carthage)
         let serialization = actual.serialize()
 
         if let sdkInfo = serialization["sdk"] as? [String: Any] {
@@ -70,8 +70,7 @@ class SentrySdkInfoTests: XCTestCase {
 
     func testcocoapods_packageInfo() throws {
         let version = "5.2.0"
-        let actual = SentrySdkInfo(name: sdkName, andVersion: version)
-        Dynamic(actual).packageManager = 1
+        let actual = SentrySdkInfo(name: sdkName, version: version, packageManager: .cocoapods)
         let serialization = actual.serialize()
 
         if let sdkInfo = serialization["sdk"] as? [String: Any] {
@@ -86,13 +85,12 @@ class SentrySdkInfoTests: XCTestCase {
     }
 
     func testNoPackageNames () {
-        let actual = SentrySdkInfo(name: sdkName, andVersion: "")
-        XCTAssertNil(Dynamic(actual).getPackageName(3).asString)
+        XCTAssertNil(SentrySdkInfo.getPackageName(.unknown, ""))
     }
     
     func testInitWithDict_SdkInfo() {
         let version = "10.3.1"
-        let expected = SentrySdkInfo(name: sdkName, andVersion: version)
+        let expected = SentrySdkInfo(name: sdkName, version: version)
         
         let dict = ["sdk": [ "name": sdkName, "version": version]]
         
@@ -118,6 +116,6 @@ class SentrySdkInfoTests: XCTestCase {
     }
     
     private func assertEmptySdkInfo(actual: SentrySdkInfo) {
-        XCTAssertEqual(SentrySdkInfo(name: "", andVersion: ""), actual)
+        XCTAssertEqual(SentrySdkInfo(name: "", version: ""), actual)
     }
 }
