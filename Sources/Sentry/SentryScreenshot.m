@@ -7,8 +7,18 @@
 #    import "SentryDispatchQueueWrapper.h"
 #    import "SentryUIApplication.h"
 #    import <UIKit/UIKit.h>
+#    import "SentrySwift.h"
 
-@implementation SentryScreenshot
+@implementation SentryScreenshot {
+    SentryViewPhotographer * photographer;
+}
+
+- (instancetype)init {
+    if (self = [super init]) {
+        photographer = [[SentryViewPhotographer alloc] initWithRedactOptions:[[SentryRedactDefaultOptions alloc] init]];
+    }
+    return self;
+}
 
 - (NSArray<NSData *> *)appScreenshotsFromMainThread
 {
@@ -40,8 +50,9 @@
 
 - (NSArray<NSData *> *)appScreenshots
 {
+//    [SentryViewPhotographer alloc] ini
+    
     NSArray<UIWindow *> *windows = [SentryDependencyContainer.sharedInstance.application windows];
-
     NSMutableArray *result = [NSMutableArray arrayWithCapacity:windows.count];
 
     for (UIWindow *window in windows) {
@@ -53,6 +64,8 @@
             continue;
         }
 
+        //photographer imageWithView:window options:<#(id<SentryRedactOptions> _Nonnull)#> onComplete:<#^(UIImage * _Nonnull)onComplete#>
+        
         UIGraphicsBeginImageContext(size);
 
         if ([window drawViewHierarchyInRect:window.bounds afterScreenUpdates:false]) {
