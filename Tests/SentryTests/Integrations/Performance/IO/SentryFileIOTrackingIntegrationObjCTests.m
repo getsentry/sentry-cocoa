@@ -178,7 +178,7 @@
 - (void)test_NSFileManagerCreateFile
 {
     if (@available(iOS 18, macOS 15, tvOS 15, *)) {
-        XCTSkip("File IO tracking for Swift.Data is disabled for this OS version");
+        XCTSkip("File IO tracking for NSFileManager is disabled for this OS version");
     }
     [self assertTransactionForOperation:SENTRY_FILE_WRITE_OPERATION
                                   block:^{
