@@ -37,7 +37,7 @@ class SentrySdkInfoTests: XCTestCase {
 
     func testSPM_packageInfo() throws {
         let version = "5.2.0"
-        let actual = SentrySdkInfo(name: sdkName, version: version, packageManager: .spm)
+        let actual = SentrySdkInfo(name: sdkName, version: version, packageManager: SentrySdkPackageManager.spm)
         Dynamic(actual).packageManager = SentrySdkPackageManager.spm
         let serialization = actual.serialize()
 
@@ -54,7 +54,7 @@ class SentrySdkInfoTests: XCTestCase {
 
     func testCarthage_packageInfo() throws {
         let version = "5.2.0"
-        let actual = SentrySdkInfo(name: sdkName, version: version, packageManager: .carthage)
+        let actual = SentrySdkInfo(name: sdkName, version: version, packageManager: SentrySdkPackageManager.carthage)
         let serialization = actual.serialize()
 
         if let sdkInfo = serialization["sdk"] as? [String: Any] {
@@ -70,7 +70,7 @@ class SentrySdkInfoTests: XCTestCase {
 
     func testcocoapods_packageInfo() throws {
         let version = "5.2.0"
-        let actual = SentrySdkInfo(name: sdkName, version: version, packageManager: .cocoapods)
+        let actual = SentrySdkInfo(name: sdkName, version: version, packageManager: SentrySdkPackageManager.cocoapods)
         let serialization = actual.serialize()
 
         if let sdkInfo = serialization["sdk"] as? [String: Any] {

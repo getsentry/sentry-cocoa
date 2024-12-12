@@ -42,20 +42,20 @@ class SentrySdkInfo: NSObject, SentrySerializable {
     let name: String
     let version: String
 
-    @objc(initWithName:andVersion:)
-    init(name: String, version: String) {
-        self.name = name
-        self.version = version
-        self.packageManager = SentrySdkInfo.PACKAGE_MANAGER
-    }
-
-#if TEST
-    init(name: String, version: String, packageManager: SentrySdkPackageManager) {
+    internal init(name: String, version: String, packageManager: SentrySdkPackageManager) {
         self.name = name
         self.version = version
         self.packageManager = packageManager
     }
-#endif
+
+    @objc(initWithName:andVersion:)
+    convenience init(name: String, version: String) {
+        self.init(
+            name: name,
+            version: version,
+            packageManager: SentrySdkInfo.PACKAGE_MANAGER
+        )
+    }
 
     convenience init(dict: [String: Any]) {
         guard let sdkDict = dict["sdk"] as? [String: Any] else {
