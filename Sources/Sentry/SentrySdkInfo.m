@@ -1,4 +1,9 @@
 #import "SentrySdkInfo.h"
+#import "SentryClient+Private.h"
+#import "SentryHub+Private.h"
+#import "SentryMeta.h"
+#import "SentrySDK+Private.h"
+#import "SentrySwift.h"
 #import <Foundation/Foundation.h>
 
 typedef NS_ENUM(NSUInteger, SentryPackageManagerOption) {
@@ -33,12 +38,48 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation SentrySdkInfo
 
-- (instancetype)initWithName:(NSString *)name andVersion:(NSString *)version
++ (instancetype)fromOptions:(SentryOptions *)options
+{
+    NSArray<NSString *> *features =
+        [SentryEnabledFeaturesBuilder getEnabledFeaturesWithOptions:options];
+
+    NSMutableArray<NSString *> *integrations =
+        [SentrySDK.currentHub trimmedInstalledIntegrationNames];
+
+#if SENTRY_HAS_UIKIT
+    if (options.enablePreWarmedAppStartTracing) {
+        [integrations addObject:@"PreWarmedAppStartTracing"];
+    }
+#endif
+
+    return [[SentrySdkInfo alloc] initWithName:SentryMeta.sdkName
+                                       version:SentryMeta.versionString
+                                  integrations:integrations
+                                      features:features];
+}
+
++ (instancetype)fromGlobals
+{
+    return [SentrySdkInfo fromOptions:[SentrySDK.currentHub getClient].options];
+}
+
++ (NSDictionary<NSString *, id> *)serializedFromOptions:(SentryOptions *)options
+{
+
+    return [[SentrySdkInfo fromOptions:options] serialize];
+}
+
+- (instancetype)initWithName:(NSString *)name
+                     version:(NSString *)version
+                integrations:(NSArray<NSString *> *)integrations
+                    features:(NSArray<NSString *> *)features
 {
     if (self = [super init]) {
         _name = name ?: @"";
         _version = version ?: @"";
         _packageManager = SENTRY_PACKAGE_INFO;
+        _integrations = integrations ?: @[];
+        _features = features ?: @[];
     }
 
     return self;
@@ -59,22 +100,19 @@ NS_ASSUME_NONNULL_BEGIN
     NSString *name = @"";
     NSString *version = @"";
 
-    if (nil != dict[@"sdk"] && [dict[@"sdk"] isKindOfClass:[NSDictionary class]]) {
-        NSDictionary<NSString *, id> *sdkInfoDict = dict[@"sdk"];
-        if ([sdkInfoDict[@"name"] isKindOfClass:[NSString class]]) {
-            name = sdkInfoDict[@"name"];
-        } else if (info && info.name) {
-            name = info.name;
-        }
-
-        if ([sdkInfoDict[@"version"] isKindOfClass:[NSString class]]) {
-            version = sdkInfoDict[@"version"];
-        } else if (info && info.version) {
-            version = info.version;
-        }
+    if ([dict[@"name"] isKindOfClass:[NSString class]]) {
+        name = dict[@"name"];
+    } else if (info && info.name) {
+        name = info.name;
     }
 
-    return [self initWithName:name andVersion:version];
+    if ([dict[@"version"] isKindOfClass:[NSString class]]) {
+        version = dict[@"version"];
+    } else if (info && info.version) {
+        version = info.version;
+    }
+
+    return [self initWithName:name version:version integrations:@[] features:@[]];
 }
 
 - (nullable NSString *)getPackageName:(SentryPackageManagerOption)packageManager
@@ -96,6 +134,8 @@ NS_ASSUME_NONNULL_BEGIN
     NSMutableDictionary *sdk = @{
         @"name" : self.name,
         @"version" : self.version,
+        @"integrations" : self.integrations,
+        @"features" : self.features,
     }
                                    .mutableCopy;
     if (self.packageManager != SentryPackageManagerUnkown) {
@@ -110,7 +150,7 @@ NS_ASSUME_NONNULL_BEGIN
         }
     }
 
-    return @{ @"sdk" : sdk };
+    return sdk;
 }
 
 @end

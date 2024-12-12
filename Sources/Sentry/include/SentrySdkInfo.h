@@ -10,6 +10,12 @@
 #    import "SentryInternalSerializable.h"
 #endif
 
+#if __has_include(<Sentry/SentryOptions.h>)
+#    import <Sentry/SentryOptions.h>
+#else
+#    import "SentryOptions.h"
+#endif
+
 #import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
@@ -21,6 +27,10 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @interface SentrySdkInfo : NSObject <SentryInternalSerializable>
 SENTRY_NO_INIT
+
++ (instancetype)fromGlobals;
+
++ (NSDictionary<NSString *, id> *)serializedFromOptions:(SentryOptions *)options;
 
 /**
  * The name of the SDK. Examples: sentry.cocoa, sentry.cocoa.vapor, ...
@@ -34,8 +44,26 @@ SENTRY_NO_INIT
  */
 @property (nonatomic, readonly, copy) NSString *version;
 
+/**
+ * A list of names identifying enabled integrations. The list should
+ * have all enabled integrations, including default integrations. Default
+ * integrations are included because different SDK releases may contain different
+ * default integrations.
+ */
+@property (nonatomic, readonly, copy) NSArray<NSString *> *integrations;
+
+/**
+ * A list of feature names identifying enabled SDK features. This list
+ * should contain all enabled SDK features. On some SDKs, enabling a feature in the
+ * options also adds an integration. We encourage tracking such features with either
+ * integrations or features but not both to reduce the payload size.
+ */
+@property (nonatomic, readonly, copy) NSArray<NSString *> *features;
+
 - (instancetype)initWithName:(NSString *)name
-                  andVersion:(NSString *)version NS_DESIGNATED_INITIALIZER;
+                     version:(NSString *)version
+                integrations:(NSArray<NSString *> *)integrations
+                    features:(NSArray<NSString *> *)features NS_DESIGNATED_INITIALIZER;
 
 - (instancetype)initWithDict:(NSDictionary *)dict;
 
