@@ -303,7 +303,7 @@ class SentrySessionReplay: NSObject {
 
         let screenName = delegate?.currentScreenNameForSessionReplay()
         
-        screenshotProvider.image(view: rootView, options: replayOptions) { [weak self] screenshot in
+        screenshotProvider.image(view: rootView) { [weak self] screenshot in
             self?.newImage(image: screenshot, forScreen: screenName)
         }
     }

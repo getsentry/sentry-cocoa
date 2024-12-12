@@ -74,15 +74,27 @@
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "--io.sentry.iOS-Swift.user-feedback.no-widget-icon"
+            argument = "--io.sentry.feedback.require-name"
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "--io.sentry.iOS-Swift.user-feedback.no-widget-text"
+            argument = "--io.sentry.feedback.require-email"
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "--io.sentry.iOS-Swift.user-feedback.all-defaults"
+            argument = "--io.sentry.feedback.no-animations"
+            isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "--io.sentry.feedback.no-widget-icon"
+            isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "--io.sentry.feedback.no-widget-text"
+            isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "--io.sentry.feedback.all-defaults"
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
@@ -174,7 +186,7 @@
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "--io.sentry.iOS-Swift.auto-inject-user-feedback-widget"
+            argument = "--io.sentry.feedback.auto-inject-widget"
             isEnabled = "YES">
          </CommandLineArgument>
       </CommandLineArguments>

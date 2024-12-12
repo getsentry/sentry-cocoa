@@ -212,7 +212,7 @@ jobs:
       # We don't upload codecov for scheduled runs as CodeCov only accepts a limited amount of uploads per commit.
       - name: Push code coverage to codecov
         id: codecov_1
-        uses: codecov/codecov-action@015f24e6818733317a2da2edd6290ab26238649a # pin@v5.0.7
+        uses: codecov/codecov-action@7f8b4b4bde536c465e797be725718b88c5d95e0e # pin@v5.1.1
         if: ${{ contains(matrix.platform, 'iOS') && !contains(github.ref, 'release') && github.event.schedule == '' }}
         with:
           # Although public repos should not have to specify a token there seems to be a bug with the Codecov GH action, which can
@@ -224,7 +224,7 @@ jobs:
       # Sometimes codecov uploads etc can fail. Retry one time to rule out e.g. intermittent network failures.
       - name: Push code coverage to codecov
         id: codecov_2
-        uses: codecov/codecov-action@015f24e6818733317a2da2edd6290ab26238649a # pin@v5.0.7
+        uses: codecov/codecov-action@7f8b4b4bde536c465e797be725718b88c5d95e0e # pin@v5.1.1
         if: ${{ steps.codecov_1.outcome == 'failure' && contains(matrix.platform, 'iOS') && !contains(github.ref, 'release') && github.event.schedule == '' }}
         with:
           token: ${{ secrets.CODECOV_TOKEN }}

@@ -19,7 +19,7 @@ class SentryViewPhotographerTests: XCTestCase {
         return SentryViewPhotographer(renderer: TestViewRenderer(), redactOptions: RedactOptions())
     }
     
-    private func prepare(views: [UIView], options: any SentryRedactOptions = RedactOptions()) -> UIImage? {
+    private func prepare(views: [UIView]) -> UIImage? {
         let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 50, height: 50))
         rootView.backgroundColor = .white
         views.forEach(rootView.addSubview(_:))
@@ -28,7 +28,7 @@ class SentryViewPhotographerTests: XCTestCase {
         let expect = expectation(description: "Image rendered")
         var result: UIImage?
              
-        sut.image(view: rootView, options: options) { image in
+        sut.image(view: rootView) { image in
             result = image
             expect.fulfill()
         }

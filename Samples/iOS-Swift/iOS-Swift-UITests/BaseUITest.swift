@@ -32,7 +32,11 @@ extension BaseUITest {
         return app
     }
     
-    func launchApp() {
+    func launchApp(args: [String] = [], env: [String: String] = [:]) {
+        app.launchArguments.append(contentsOf: args)
+        for (k, v) in env {
+            app.launchEnvironment[k] = v
+        }
         app.launch()
         waitForExistenceOfMainScreen()
     }
