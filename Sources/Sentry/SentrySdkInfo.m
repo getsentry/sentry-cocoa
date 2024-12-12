@@ -38,8 +38,14 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation SentrySdkInfo
 
-+ (instancetype)fromOptions:(SentryOptions *)options
++ (instancetype)fromGlobals
 {
+    return [[SentrySdkInfo alloc] initWithOptions:[SentrySDK.currentHub getClient].options];
+}
+
+- (instancetype)initWithOptions:(SentryOptions *)options
+{
+
     NSArray<NSString *> *features =
         [SentryEnabledFeaturesBuilder getEnabledFeaturesWithOptions:options];
 
@@ -52,21 +58,10 @@ NS_ASSUME_NONNULL_BEGIN
     }
 #endif
 
-    return [[SentrySdkInfo alloc] initWithName:SentryMeta.sdkName
-                                       version:SentryMeta.versionString
-                                  integrations:integrations
-                                      features:features];
-}
-
-+ (instancetype)fromGlobals
-{
-    return [SentrySdkInfo fromOptions:[SentrySDK.currentHub getClient].options];
-}
-
-+ (NSDictionary<NSString *, id> *)serializedFromOptions:(SentryOptions *)options
-{
-
-    return [[SentrySdkInfo fromOptions:options] serialize];
+    return [self initWithName:SentryMeta.sdkName
+                      version:SentryMeta.versionString
+                 integrations:integrations
+                     features:features];
 }
 
 - (instancetype)initWithName:(NSString *)name

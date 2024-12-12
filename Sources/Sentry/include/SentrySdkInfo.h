@@ -30,8 +30,6 @@ SENTRY_NO_INIT
 
 + (instancetype)fromGlobals;
 
-+ (NSDictionary<NSString *, id> *)serializedFromOptions:(SentryOptions *)options;
-
 /**
  * The name of the SDK. Examples: sentry.cocoa, sentry.cocoa.vapor, ...
  */
@@ -59,6 +57,8 @@ SENTRY_NO_INIT
  * integrations or features but not both to reduce the payload size.
  */
 @property (nonatomic, readonly, copy) NSArray<NSString *> *features;
+
+- (instancetype)initWithOptions:(SentryOptions *)options;
 
 - (instancetype)initWithName:(NSString *)name
                      version:(NSString *)version

@@ -33,6 +33,7 @@
 #import "SentryRandom.h"
 #import "SentrySDK+Private.h"
 #import "SentryScope+Private.h"
+#import "SentrySdkInfo.h"
 #import "SentrySerialization.h"
 #import "SentrySession.h"
 #import "SentryStacktraceBuilder.h"
@@ -880,7 +881,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         return;
     }
 
-    event.sdk = [SentrySdkInfo serializedFromOptions:self.options];
+    event.sdk = [[[SentrySdkInfo alloc] initWithOptions:self.options] serialize];
 }
 
 - (void)setUserInfo:(NSDictionary *)userInfo withEvent:(SentryEvent *)event
