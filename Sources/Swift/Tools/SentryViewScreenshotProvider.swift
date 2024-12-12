@@ -7,7 +7,7 @@ typealias ScreenshotCallback = (UIImage) -> Void
 
 @objc
 protocol SentryViewScreenshotProvider: NSObjectProtocol {
-    func image(view: UIView, options: SentryRedactOptions, onComplete: @escaping ScreenshotCallback)
+    func image(view: UIView, onComplete: @escaping ScreenshotCallback)
 }
 #endif
 #endif
