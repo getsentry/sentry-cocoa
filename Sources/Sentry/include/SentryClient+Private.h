@@ -78,7 +78,8 @@ NS_ASSUME_NONNULL_BEGIN
  * Captures a new-style user feedback and sends it to Sentry.
  * @param feedback The user feedback to send to Sentry.
  */
-- (void)captureFeedback:(SentryFeedback *)feedback NS_SWIFT_NAME(capture(feedback:));
+- (void)captureFeedback:(SentryFeedback *)feedback
+              withScope:(SentryScope *)scope NS_SWIFT_NAME(capture(feedback:scope:));
 
 @end
 

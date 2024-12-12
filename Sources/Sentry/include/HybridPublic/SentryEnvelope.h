@@ -92,7 +92,6 @@ SENTRY_NO_INIT
 - (instancetype)initWithEvent:(SentryEvent *)event;
 - (instancetype)initWithSession:(SentrySession *)session;
 - (instancetype)initWithUserFeedback:(SentryUserFeedback *)userFeedback;
-- (instancetype)initWithFeedback:(SentryFeedback *)feedback;
 - (_Nullable instancetype)initWithAttachment:(SentryAttachment *)attachment
                            maxAttachmentSize:(NSUInteger)maxAttachmentSize;
 - (instancetype)initWithHeader:(SentryEnvelopeItemHeader *)header

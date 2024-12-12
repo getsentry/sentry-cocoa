@@ -103,16 +103,6 @@ NS_ASSUME_NONNULL_BEGIN
     [self sendEnvelope:envelope];
 }
 
-- (void)sendFeedback:(SentryFeedback *)feedback
-{
-    SentryEnvelopeItem *item = [[SentryEnvelopeItem alloc] initWithFeedback:feedback];
-    SentryEnvelopeHeader *envelopeHeader =
-        [[SentryEnvelopeHeader alloc] initWithId:feedback.eventId];
-    SentryEnvelope *envelope = [[SentryEnvelope alloc] initWithHeader:envelopeHeader
-                                                           singleItem:item];
-    [self sendEnvelope:envelope];
-}
-
 - (void)sendEnvelope:(SentryEnvelope *)envelope
 {
     for (id<SentryTransport> transport in self.transports) {
