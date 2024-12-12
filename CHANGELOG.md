@@ -10,6 +10,10 @@
 
 - Track adoption of `enablePersistingTracesWhenCrashing` (#4587)
 
+### Internal
+
+- Convert SentrySdkInfo to Swift (#4622)
+
 ## 8.42.0-beta.1
 
 ### Features
@@ -21,7 +25,7 @@
 ### Fixes
 
 - Session replay touch tracking race condition (#4548)
-- Use `options.reportAccessibilityIdentifier` for Breadcrumbs and UIEvents (#4569) 
+- Use `options.reportAccessibilityIdentifier` for Breadcrumbs and UIEvents (#4569)
 - Session replay transformed view masking (#4529)
 - Load integration from same binary (#4541)
 - Masking for fast animations #4574
