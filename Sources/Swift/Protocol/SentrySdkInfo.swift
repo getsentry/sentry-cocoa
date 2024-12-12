@@ -98,6 +98,14 @@ class SentrySdkInfo: NSObject, SentrySerializable {
         self.version == other.version &&
         self.packageManager == other.packageManager
     }
+
+    override var hash: Int {
+        var hasher = Hasher()
+        hasher.combine(name)
+        hasher.combine(version)
+        hasher.combine(packageManager)
+        return hasher.finalize()
+    }
 #endif
 
 }
