@@ -88,7 +88,7 @@ class SentrySdkInfo: NSObject, SentrySerializable {
         }
     }
 
-#if TEST
+#if TEST || TESTCI
     override func isEqual(_ object: Any?) -> Bool {
         guard let other = object as? SentrySdkInfo else {
             return false
