@@ -101,10 +101,12 @@ NS_ASSUME_NONNULL_BEGIN
     if (self.packageManager != SentryPackageManagerUnkown) {
         NSString *format = [self getPackageName:self.packageManager];
         if (format != nil) {
-            sdk[@"packages"] = @{
-                @"name" : [NSString stringWithFormat:format, self.name],
-                @"version" : self.version
-            };
+            sdk[@"packages"] = @[
+                @{
+                    @"name" : [NSString stringWithFormat:format, self.name],
+                    @"version" : self.version
+                },
+            ];
         }
     }
 
