@@ -67,25 +67,18 @@ class SentrySdkInfo: NSObject, SentrySerializable {
     }
 
     func serialize() -> [String: Any] {
-        if let sdkPackageName = SentrySdkInfo.getPackageName(packageManager, name) {
-            return [
-                "sdk": [
-                    "name": name,
-                    "version": version,
-                    "packages": [
-                        "name": sdkPackageName,
-                        "version": version
-                    ]
-                ]
-            ] as [String: Any]
-        } else {
-            return [
-                "sdk": [
-                    "name": name,
-                    "version": version
-                ]
-            ]
+        var packages: [[String: String]] = []
+        if let packageName = SentrySdkInfo.getPackageName(packageManager, name) {
+            packages = [["name": packageName, "version": version]]
         }
+
+        return [
+            "sdk": [
+                "name": name,
+                "version": version,
+                "packages": packages
+            ]
+        ] as [String: Any]
     }
 
 #if TEST

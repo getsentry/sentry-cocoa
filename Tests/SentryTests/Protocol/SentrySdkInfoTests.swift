@@ -27,9 +27,10 @@ class SentrySdkInfoTests: XCTestCase {
         let actual = SentrySdkInfo(name: sdkName, version: version).serialize()
         
         if let sdkInfo = actual["sdk"] as? [String: Any] {
-            XCTAssertEqual(2, sdkInfo.count)
+            XCTAssertEqual(3, sdkInfo.count)
             XCTAssertEqual(sdkName, sdkInfo["name"] as? String)
             XCTAssertEqual(version, sdkInfo["version"] as? String)
+            XCTAssertEqual([], sdkInfo["packages"] as? [[String: String]])
         } else {
             XCTFail("Serialization of SdkInfo doesn't contain sdk")
         }
@@ -44,9 +45,10 @@ class SentrySdkInfoTests: XCTestCase {
         if let sdkInfo = serialization["sdk"] as? [String: Any] {
             XCTAssertEqual(3, sdkInfo.count)
 
-            let packageInfo = try XCTUnwrap(sdkInfo["packages"] as? [String: Any])
-            XCTAssertEqual(packageInfo["name"] as? String, "spm:getsentry/\(sdkName)")
-            XCTAssertEqual(packageInfo["version"] as? String, version)
+            let packages = try XCTUnwrap(sdkInfo["packages"] as? [[String: String]])
+            XCTAssertEqual(packages.count, 1)
+            XCTAssertEqual(packages[0]["name"], "spm:getsentry/\(sdkName)")
+            XCTAssertEqual(packages[0]["version"], version)
         } else {
             XCTFail("Serialization of SdkInfo doesn't contain sdk")
         }
@@ -60,9 +62,10 @@ class SentrySdkInfoTests: XCTestCase {
         if let sdkInfo = serialization["sdk"] as? [String: Any] {
             XCTAssertEqual(3, sdkInfo.count)
 
-            let packageInfo = try XCTUnwrap(sdkInfo["packages"] as? [String: Any])
-            XCTAssertEqual(packageInfo["name"] as? String, "carthage:getsentry/\(sdkName)")
-            XCTAssertEqual(packageInfo["version"] as? String, version)
+            let packages = try XCTUnwrap(sdkInfo["packages"] as? [[String: String]])
+            XCTAssertEqual(packages.count, 1)
+            XCTAssertEqual(packages[0]["name"], "carthage:getsentry/\(sdkName)")
+            XCTAssertEqual(packages[0]["version"], version)
         } else {
             XCTFail("Serialization of SdkInfo doesn't contain sdk")
         }
@@ -76,9 +79,10 @@ class SentrySdkInfoTests: XCTestCase {
         if let sdkInfo = serialization["sdk"] as? [String: Any] {
             XCTAssertEqual(3, sdkInfo.count)
 
-            let packageInfo = try XCTUnwrap(sdkInfo["packages"] as? [String: Any])
-            XCTAssertEqual(packageInfo["name"] as? String, "cocoapods:getsentry/\(sdkName)")
-            XCTAssertEqual(packageInfo["version"] as? String, version)
+            let packages = try XCTUnwrap(sdkInfo["packages"] as? [[String: String]])
+            XCTAssertEqual(packages.count, 1)
+            XCTAssertEqual(packages[0]["name"], "cocoapods:getsentry/\(sdkName)")
+            XCTAssertEqual(packages[0]["version"], version)
         } else {
             XCTFail("Serialization of SdkInfo doesn't contain sdk")
         }
