@@ -925,7 +925,6 @@
 		D8DBE0D22C0EFFC300FAB1FD /* SentryReplayOptionsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8DBE0D12C0EFFC300FAB1FD /* SentryReplayOptionsTests.swift */; };
 		D8F016B32B9622D6007B9AFB /* SentryId.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F016B22B9622D6007B9AFB /* SentryId.swift */; };
 		D8F016B62B962548007B9AFB /* StringExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F016B52B962548007B9AFB /* StringExtensions.swift */; };
-		D8F0F3B72D005B0400826CE3 /* TracingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F0F3B62D005AFB00826CE3 /* TracingView.swift */; };
 		D8F67AEE2BE0D19200C9197B /* UIImageHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F67AED2BE0D19200C9197B /* UIImageHelper.swift */; };
 		D8F67AF12BE0D33F00C9197B /* UIImageHelperTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F67AEF2BE0D31A00C9197B /* UIImageHelperTests.swift */; };
 		D8F67AF42BE10F9600C9197B /* UIRedactBuilderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F67AF22BE10F7600C9197B /* UIRedactBuilderTests.swift */; };
@@ -2008,7 +2007,6 @@
 		D8F016B52B962548007B9AFB /* StringExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StringExtensions.swift; sourceTree = "<group>"; };
 		D8F01DE42A126B62008F4996 /* HybridPod.podspec */ = {isa = PBXFileReference; explicitFileType = text.script.ruby; path = HybridPod.podspec; sourceTree = "<group>"; };
 		D8F01DE52A126BF5008F4996 /* HybridTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HybridTest.swift; sourceTree = "<group>"; };
-		D8F0F3B62D005AFB00826CE3 /* TracingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TracingView.swift; sourceTree = "<group>"; };
 		D8F67AED2BE0D19200C9197B /* UIImageHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIImageHelper.swift; sourceTree = "<group>"; };
 		D8F67AEF2BE0D31A00C9197B /* UIImageHelperTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIImageHelperTests.swift; sourceTree = "<group>"; };
 		D8F67AF22BE10F7600C9197B /* UIRedactBuilderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIRedactBuilderTests.swift; sourceTree = "<group>"; };
@@ -3678,7 +3676,6 @@
 				D8199DB529376ECC0074249E /* SentrySwiftUI.h */,
 				D88D25E92B8E0BAC0073C3D5 /* module.modulemap */,
 				D8199DB629376ECC0074249E /* SentryTracedView.swift */,
-				D8F0F3B62D005AFB00826CE3 /* TracingView.swift */,
 				D8A65B5C2C98656000974B74 /* SentryReplayView.swift */,
 			);
 			path = SentrySwiftUI;
@@ -5152,7 +5149,6 @@
 			files = (
 				D8199DC129376EEC0074249E /* SentryTracedView.swift in Sources */,
 				D8199DBF29376EE20074249E /* SentryInternal.m in Sources */,
-				D8F0F3B72D005B0400826CE3 /* TracingView.swift in Sources */,
 				D8A65B5D2C98656800974B74 /* SentryReplayView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -5324,6 +5320,7 @@
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_DYLIB_INSTALL_NAME = "$(DYLIB_INSTALL_NAME_BASE:standardizepath)/$(EXECUTABLE_PATH)";
 				MODULEMAP_PRIVATE_FILE = "";
+				OTHER_SWIFT_FLAGS = "";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
@@ -5360,6 +5357,7 @@
 					"@loader_path/Frameworks",
 				);
 				MODULEMAP_PRIVATE_FILE = "";
+				OTHER_SWIFT_FLAGS = "";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_VERSION = 5.0;
 				USE_HEADERMAP = YES;
@@ -5516,6 +5514,7 @@
 					"@loader_path/Frameworks",
 				);
 				MODULEMAP_PRIVATE_FILE = "";
+				OTHER_SWIFT_FLAGS = "";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
@@ -5640,6 +5639,7 @@
 					"@loader_path/Frameworks",
 				);
 				MODULEMAP_PRIVATE_FILE = "";
+				OTHER_SWIFT_FLAGS = "";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
@@ -6115,6 +6115,7 @@
 					"@loader_path/Frameworks",
 				);
 				MODULEMAP_PRIVATE_FILE = "";
+				OTHER_SWIFT_FLAGS = "";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_VERSION = 5.0;
 				USE_HEADERMAP = YES;
@@ -6341,6 +6342,7 @@
 					"@loader_path/Frameworks",
 				);
 				MODULEMAP_PRIVATE_FILE = "";
+				OTHER_SWIFT_FLAGS = "";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;

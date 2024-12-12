@@ -8,6 +8,11 @@ import SwiftUI
 @_implementationOnly import SentryInternal
 #endif
 
+class SentryTraceViewModel {
+    var tracker: SentryTimeToDisplayTracker?
+}
+
+
 /// A control to measure the performance of your views and send the result as a transaction to Sentry.io.
 ///
 /// You create a transaction by wrapping your views with this.
@@ -36,7 +41,8 @@ import SwiftUI
 ///
 @available(iOS 13, macOS 10.15, tvOS 13, watchOS 6.0, *)
 public struct SentryTracedView<Content: View>: View {
-    @State var viewAppeared = false
+    @State private var viewAppeared = false
+    @State private var viewModel = SentryTraceViewModel()
     
     let content: () -> Content
     let name: String
@@ -86,24 +92,29 @@ public struct SentryTracedView<Content: View>: View {
         
         if !viewAppeared {
             trace = ensureTransactionExists()
+            if let trace = trace { startTTDTraker(for: trace) }
             spanId = createAndPushBodySpan(transactionCreated: trace != nil)
         }
         
         defer {
-            if let spanId = spanId {
-                finishSpan(spanId)
-            }
+            if let spanId = spanId { finishSpan(spanId) }
         }
         
         return content()
-            .onAppear { viewAppeared = true }
-#if canImport(SwiftUI) && canImport(UIKit) && os(iOS) || os(tvOS)
-            // We need to add a UIView to the view hierarchy to be able to
-            // monitor ui life cycles. We will use the background modifier
-            // to add this tracking view behind the content.
-            .background(TracingView(name: self.name, waitForFullDisplay: self.waitforFullDisplay, tracer: trace))
-#endif
-
+            .onAppear {
+                if !viewAppeared {
+                    viewAppeared = true
+                    viewModel.tracker?.reportInitialDisplay()
+                }
+            }
+    }
+    
+    private func startTTDTraker(for trace: SentryTracer) {
+        let tracker = SentryTimeToDisplayTracker(name: self.name, waitForFullDisplay: self.waitforFullDisplay)
+        SentryUIViewControllerPerformanceTracker.shared.setTimeToDisplay(tracker)
+        tracker.start(for: trace)
+        
+        viewModel.tracker = tracker
     }
     
     private func ensureTransactionExists() -> SentryTracer? {

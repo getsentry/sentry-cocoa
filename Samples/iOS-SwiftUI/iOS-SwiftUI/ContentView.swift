@@ -137,7 +137,7 @@ struct ContentView: View {
 
         return DataBag.shared.info["lastSpan"] as? Span
     }
-
+    
     var body: some View {
         return SentryTracedView("Content View Body", waitForFullDisplay: true) {             NavigationView {
                 VStack(alignment: HorizontalAlignment.center, spacing: 16) {
@@ -155,7 +155,7 @@ struct ContentView: View {
                         .onAppear {
                             SentrySDK.reportFullyDisplayed()
                         }
-                    SentryTracedView("Child Span") {
+                    //SentryTracedView("Child Span") {
                         VStack {
                             Text(getCurrentSpan()?.spanDescription ?? "NO SPAN")
                                 .accessibilityIdentifier("CHILD_NAME")
@@ -165,7 +165,7 @@ struct ContentView: View {
                             Text(getCurrentSpan()?.origin ?? "NO CHILD ORIGIN")
                                 .accessibilityIdentifier("CHILD_TRACE_ORIGIN")
                         }
-                    }
+                    //}
                     HStack (spacing: 30) {
                         VStack(spacing: 16) {
 
@@ -245,9 +245,9 @@ struct ContentView: View {
 
 struct SecondView: View {
     var body: some View {
-        SentryTracedView("Second View") {
+        //SentryTracedView("Second View") {
             Text("This is the detail view 1")
-        }
+        //}
     }
 }
 
