@@ -5,17 +5,19 @@
 #    import "SentryCompiler.h"
 #    import "SentryDependencyContainer.h"
 #    import "SentryDispatchQueueWrapper.h"
+#    import "SentrySwift.h"
 #    import "SentryUIApplication.h"
 #    import <UIKit/UIKit.h>
-#    import "SentrySwift.h"
 
 @implementation SentryScreenshot {
-    SentryViewPhotographer * photographer;
+    SentryViewPhotographer *photographer;
 }
 
-- (instancetype)init {
+- (instancetype)init
+{
     if (self = [super init]) {
-        photographer = [[SentryViewPhotographer alloc] initWithRedactOptions:[[SentryRedactDefaultOptions alloc] init]];
+        photographer = [[SentryViewPhotographer alloc]
+            initWithRedactOptions:[[SentryRedactDefaultOptions alloc] init]];
     }
     return self;
 }
@@ -62,8 +64,8 @@
             continue;
         }
 
-        UIImage * img = [photographer imageWithView:window];
-        
+        UIImage *img = [photographer imageWithView:window];
+
         // this shouldn't happen now that we discard windows with either 0 height or 0 width,
         // but still, we shouldn't send any images with either one.
         if (LIKELY(img.size.width > 0 && img.size.height > 0)) {
