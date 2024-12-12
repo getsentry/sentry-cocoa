@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Internal
+
+- Convert SentrySdkInfo to Swift (#4622)
+
 ## 8.42.0-beta.2
 
 ### Fixes
@@ -9,10 +15,6 @@
 ### Improvements
 
 - Track adoption of `enablePersistingTracesWhenCrashing` (#4587)
-
-### Internal
-
-- Convert SentrySdkInfo to Swift (#4622)
 
 ## 8.42.0-beta.1
 
