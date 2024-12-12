@@ -222,8 +222,8 @@ slowFrameThreshold(uint64_t actualFramesPerSecond)
         && frameDuration <= SentryFrozenFrameThreshold) {
         _slowFrames++;
 #    if SENTRY_TARGET_PROFILING_SUPPORTED
-        SENTRY_LOG_DEBUG(@"Detected slow frame starting at %@ (frame tracker: %@).",
-            profilingTimestamp, self);
+        SENTRY_LOG_DEBUG(
+            @"Detected slow frame starting at %@ (frame tracker: %@).", profilingTimestamp, self);
         [self recordTimestamp:profilingTimestamp
                         value:@(thisFrameSystemTimestamp - self.previousFrameSystemTimestamp)
                         array:self.slowFrameTimestamps];
