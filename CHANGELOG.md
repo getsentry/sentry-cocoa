@@ -10,6 +10,10 @@
 
 - `SentrySdkInfo.packages` should be an array (#4626)
 
+### Internal
+
+- Remove loading `integrations` names from `event.extra` (#4627)
+
 ## 8.42.0-beta.2
 
 ### Fixes
