@@ -76,8 +76,8 @@ class SentrySdkInfo: NSObject, SentrySerializable {
                         "name": sdkPackageName,
                         "version": version
                     ]
-                ]
-            ] as [String: Any]
+                ] as [String: Any]
+            ]
         } else {
             return [
                 "sdk": [
