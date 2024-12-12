@@ -5319,7 +5319,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 63AA75C51EB8B00100D153DE /* Sentry.xcconfig */;
 			buildSettings = {
-				APPLICATION_EXTENSION_API_ONLY = YES;
 				BUILD_LIBRARY_FOR_DISTRIBUTION = YES;
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_WARN_ASSIGN_ENUM = NO;
@@ -5340,7 +5339,6 @@
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_DYLIB_INSTALL_NAME = "$(DYLIB_INSTALL_NAME_BASE:standardizepath)/$(EXECUTABLE_PATH)";
 				MODULEMAP_PRIVATE_FILE = "";
-				OTHER_CFLAGS = "-DCARTHAGE_$(CARTHAGE)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
@@ -5352,7 +5350,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 63AA75C51EB8B00100D153DE /* Sentry.xcconfig */;
 			buildSettings = {
-				APPLICATION_EXTENSION_API_ONLY = YES;
 				BUILD_LIBRARY_FOR_DISTRIBUTION = YES;
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_WARN_ASSIGN_ENUM = NO;
@@ -5378,7 +5375,6 @@
 					"@loader_path/Frameworks",
 				);
 				MODULEMAP_PRIVATE_FILE = "";
-				OTHER_CFLAGS = "-DCARTHAGE_$(CARTHAGE)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_VERSION = 5.0;
 				USE_HEADERMAP = YES;
@@ -5510,7 +5506,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 63AA75C51EB8B00100D153DE /* Sentry.xcconfig */;
 			buildSettings = {
-				APPLICATION_EXTENSION_API_ONLY = YES;
 				BUILD_LIBRARY_FOR_DISTRIBUTION = YES;
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_WARN_ASSIGN_ENUM = NO;
@@ -5536,7 +5531,6 @@
 					"@loader_path/Frameworks",
 				);
 				MODULEMAP_PRIVATE_FILE = "";
-				OTHER_CFLAGS = "-DCARTHAGE_$(CARTHAGE)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
@@ -5636,7 +5630,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 63AA75C51EB8B00100D153DE /* Sentry.xcconfig */;
 			buildSettings = {
-				APPLICATION_EXTENSION_API_ONLY = YES;
 				BUILD_LIBRARY_FOR_DISTRIBUTION = YES;
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_WARN_ASSIGN_ENUM = NO;
@@ -5662,7 +5655,6 @@
 					"@loader_path/Frameworks",
 				);
 				MODULEMAP_PRIVATE_FILE = "";
-				OTHER_CFLAGS = "-DCARTHAGE_$(CARTHAGE)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
@@ -6113,7 +6105,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 63AA75C51EB8B00100D153DE /* Sentry.xcconfig */;
 			buildSettings = {
-				APPLICATION_EXTENSION_API_ONLY = YES;
 				BUILD_LIBRARY_FOR_DISTRIBUTION = YES;
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_WARN_ASSIGN_ENUM = NO;
@@ -6139,7 +6130,6 @@
 					"@loader_path/Frameworks",
 				);
 				MODULEMAP_PRIVATE_FILE = "";
-				OTHER_CFLAGS = "-DCARTHAGE_$(CARTHAGE)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_VERSION = 5.0;
 				USE_HEADERMAP = YES;
@@ -6341,7 +6331,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 63AA75C51EB8B00100D153DE /* Sentry.xcconfig */;
 			buildSettings = {
-				APPLICATION_EXTENSION_API_ONLY = YES;
 				BUILD_LIBRARY_FOR_DISTRIBUTION = YES;
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_WARN_ASSIGN_ENUM = NO;
@@ -6367,7 +6356,6 @@
 					"@loader_path/Frameworks",
 				);
 				MODULEMAP_PRIVATE_FILE = "";
-				OTHER_CFLAGS = "-DCARTHAGE_$(CARTHAGE)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
