@@ -457,13 +457,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
     SentryTraceContext *traceContext = [self getTraceStateWithEvent:event withScope:scope];
 
-    NSArray *attachments = scope.attachments;
-    if (self.attachmentProcessors.count) {
-        for (id<SentryClientAttachmentProcessor> attachmentProcessor in self.attachmentProcessors) {
-            attachments = [attachmentProcessor processAttachments:attachments
-                                                         forEvent:preparedEvent];
-        }
-    }
+    NSArray *attachments = [self attachmentsForEvent:preparedEvent scope:scope];
 
     [self.transportAdapter sendEvent:preparedEvent
                         traceContext:traceContext
@@ -473,18 +467,23 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     return preparedEvent.eventId;
 }
 
+- (NSArray *)attachmentsForEvent:(SentryEvent *)event scope:(SentryScope *)scope
+{
+    NSArray *attachments = scope.attachments;
+    if (self.attachmentProcessors.count) {
+        for (id<SentryClientAttachmentProcessor> attachmentProcessor in self.attachmentProcessors) {
+            attachments = [attachmentProcessor processAttachments:attachments forEvent:event];
+        }
+    }
+    return attachments;
+}
+
 - (SentryId *)sendEvent:(SentryEvent *)event
             withSession:(SentrySession *)session
               withScope:(SentryScope *)scope
 {
     if (nil != event) {
-        NSArray *attachments = scope.attachments;
-        if (self.attachmentProcessors.count) {
-            for (id<SentryClientAttachmentProcessor> attachmentProcessor in self
-                     .attachmentProcessors) {
-                attachments = [attachmentProcessor processAttachments:attachments forEvent:event];
-            }
-        }
+        NSArray *attachments = [self attachmentsForEvent:event scope:scope];
 
         if (event.isCrashEvent && event.context[@"replay"] &&
             [event.context[@"replay"] isKindOfClass:NSDictionary.class]) {
