@@ -1,6 +1,8 @@
 import Sentry
 import UIKit
 
+//swiftlint:disable type_body_length
+
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
     
@@ -165,16 +167,17 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             
             options.configureUserFeedback = { config in
                 let layoutOffset = UIOffset(horizontal: 25, vertical: 75)
-                guard !args.contains("--io.sentry.iOS-Swift.user-feedback.all-defaults") else {
+                guard !args.contains("--io.sentry.feedback.all-defaults") else {
                     config.configureWidget = { widget in   
                         widget.layoutUIOffset = layoutOffset
                     }
                     return
                 }
+                config.animations = !args.contains("--io.sentry.feedback.no-animations")
                 config.useShakeGesture = true
                 config.showFormForScreenshots = true
                 config.configureWidget = { widget in
-                    if args.contains("--io.sentry.iOS-Swift.auto-inject-user-feedback-widget") {
+                    if args.contains("--io.sentry.feedback.auto-inject-widget") {
                         if Locale.current.languageCode == "ar" { // arabic
                             widget.labelText = "﷽"
                         } else if Locale.current.languageCode == "ur" { // urdu
@@ -191,18 +194,27 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                     } else {
                         widget.autoInject = false
                     }
-                    if args.contains("--io.sentry.iOS-Swift.user-feedback.no-widget-text") {
+                    if args.contains("--io.sentry.feedback.no-widget-text") {
                         widget.labelText = nil
                     }
-                    if args.contains("--io.sentry.iOS-Swift.user-feedback.no-widget-icon") {
+                    if args.contains("--io.sentry.feedback.no-widget-icon") {
                         widget.showIcon = false
                     }
                 }
                 config.configureForm = { uiForm in
                     uiForm.formTitle = "Jank Report"
+                    uiForm.isEmailRequired = args.contains("--io.sentry.feedback.require-email")
+                    uiForm.isNameRequired = args.contains("--io.sentry.feedback.require-name")
                     uiForm.submitButtonLabel = "Report that jank"
                     uiForm.addScreenshotButtonLabel = "Show us the jank"
+                    uiForm.removeScreenshotButtonLabel = "Oof too nsfl"
+                    uiForm.cancelButtonLabel = "What, me worry?"
                     uiForm.messagePlaceholder = "Describe the nature of the jank. Its essence, if you will."
+                    uiForm.namePlaceholder = "Yo name"
+                    uiForm.emailPlaceholder = "Yo email"
+                    uiForm.messageLabel = "Thy complaint"
+                    uiForm.emailLabel = "Thine email"
+                    uiForm.nameLabel = "Thy name"
                 }
                 config.configureTheme = { theme in
                     let fontFamily: String
@@ -239,7 +251,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 }
             }
         })
-
     }
     //swiftlint:enable function_body_length cyclomatic_complexity
 
@@ -301,3 +312,5 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         }
     }
 }
+
+//swiftlint:enable type_body_length
