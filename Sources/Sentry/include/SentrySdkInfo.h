@@ -10,13 +10,9 @@
 #    import "SentryInternalSerializable.h"
 #endif
 
-#if __has_include(<Sentry/SentryOptions.h>)
-#    import <Sentry/SentryOptions.h>
-#else
-#    import "SentryOptions.h"
-#endif
-
 #import <Foundation/Foundation.h>
+
+@class SentryOptions;
 
 NS_ASSUME_NONNULL_BEGIN
 

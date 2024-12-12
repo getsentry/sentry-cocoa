@@ -2,6 +2,7 @@
 #import "SentryClient+Private.h"
 #import "SentryHub+Private.h"
 #import "SentryMeta.h"
+#import "SentryOptions.h"
 #import "SentrySDK+Private.h"
 #import "SentrySwift.h"
 #import <Foundation/Foundation.h>
