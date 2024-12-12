@@ -91,7 +91,9 @@ public struct SentryTracedView<Content: View>: View {
         
         if !viewAppeared {
             trace = ensureTransactionExists()
+#if canImport(SwiftUI) && canImport(UIKit) && os(iOS) || os(tvOS)
             if let trace = trace { startTTDTraker(for: trace) }
+#endif
             spanId = createAndPushBodySpan(transactionCreated: trace != nil)
         }
         
@@ -107,7 +109,7 @@ public struct SentryTracedView<Content: View>: View {
                 }
             }
     }
-    
+#if canImport(SwiftUI) && canImport(UIKit) && os(iOS) || os(tvOS)
     private func startTTDTraker(for trace: SentryTracer) {
         let tracker = SentryTimeToDisplayTracker(name: self.name, waitForFullDisplay: self.waitforFullDisplay)
         SentryUIViewControllerPerformanceTracker.shared.setTimeToDisplay(tracker)
@@ -115,6 +117,7 @@ public struct SentryTracedView<Content: View>: View {
         
         viewModel.tracker = tracker
     }
+#endif
     
     private func ensureTransactionExists() -> SentryTracer? {
         guard SentryPerformanceTracker.shared.activeSpanId() == nil else { return nil }
