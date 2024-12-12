@@ -61,7 +61,6 @@ slowFrameThreshold(uint64_t actualFramesPerSecond)
     unsigned int _totalFrames;
     unsigned int _slowFrames;
     unsigned int _frozenFrames;
-    NSString *test;
 }
 
 - (instancetype)initWithDisplayLinkWrapper:(SentryDisplayLinkWrapper *)displayLinkWrapper
@@ -223,8 +222,8 @@ slowFrameThreshold(uint64_t actualFramesPerSecond)
         && frameDuration <= SentryFrozenFrameThreshold) {
         _slowFrames++;
 #    if SENTRY_TARGET_PROFILING_SUPPORTED
-        SENTRY_LOG_DEBUG(@"Detected slow frame starting at %@ (frame tracker: %@). %@",
-            profilingTimestamp, self, test);
+        SENTRY_LOG_DEBUG(@"Detected slow frame starting at %@ (frame tracker: %@).",
+            profilingTimestamp, self);
         [self recordTimestamp:profilingTimestamp
                         value:@(thisFrameSystemTimestamp - self.previousFrameSystemTimestamp)
                         array:self.slowFrameTimestamps];
