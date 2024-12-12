@@ -154,6 +154,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 let username = env["--io.sentry.user.username"] ?? (env["SIMULATOR_HOST_HOME"] as? NSString)?
                     .lastPathComponent ?? "cocoa developer"
                 user.username = username
+                user.name = env["--io.sentry.user.name"]
                 scope.setUser(user)
 
                 if let path = Bundle.main.path(forResource: "Tongariro", ofType: "jpg") {

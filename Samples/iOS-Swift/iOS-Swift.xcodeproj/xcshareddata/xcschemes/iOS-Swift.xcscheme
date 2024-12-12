@@ -70,6 +70,10 @@
       </BuildableProductRunnable>
       <CommandLineArguments>
          <CommandLineArgument
+            argument = "--io.sentry.disable-everything"
+            isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
             argument = "--disable-file-io-tracing"
             isEnabled = "NO">
          </CommandLineArgument>
@@ -237,6 +241,11 @@
          </EnvironmentVariable>
          <EnvironmentVariable
             key = "--io.sentry.sessionTrackingIntervalMillis"
+            value = ""
+            isEnabled = "NO">
+         </EnvironmentVariable>
+         <EnvironmentVariable
+            key = "--io.sentry.user.name"
             value = ""
             isEnabled = "NO">
          </EnvironmentVariable>
