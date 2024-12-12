@@ -3,8 +3,8 @@
 #import "SentryCrashMachineContextWrapper.h"
 #import "SentryCrashStackEntryMapper.h"
 #import "SentryDependencyContainer.h"
+#import "SentryFileIOTracker.h"
 #import "SentryInAppLogic.h"
-#import "SentryNSDataTracker.h"
 #import "SentryNSProcessInfoWrapper.h"
 #import "SentryOptions+Private.h"
 #import "SentryStacktraceBuilder.h"
@@ -15,7 +15,7 @@
 
 @interface SentryNSFileManagerSwizzling ()
 
-@property (nonatomic, strong) SentryNSDataTracker *dataTracker;
+@property (nonatomic, strong) SentryFileIOTracker *dataTracker;
 
 @end
 
@@ -31,7 +31,7 @@
 
 - (void)startWithOptions:(SentryOptions *)options
 {
-    self.dataTracker = [[SentryNSDataTracker alloc]
+    self.dataTracker = [[SentryFileIOTracker alloc]
         initWithThreadInspector:[[SentryThreadInspector alloc] initWithOptions:options]
              processInfoWrapper:[SentryDependencyContainer.sharedInstance processInfoWrapper]];
     [self.dataTracker enable];

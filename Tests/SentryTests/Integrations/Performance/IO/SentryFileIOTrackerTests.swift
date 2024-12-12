@@ -1,7 +1,7 @@
 import SentryTestUtils
 import XCTest
 
-class SentryNSDataTrackerTests: XCTestCase {
+class SentryFileIOTrackerTests: XCTestCase {
 
     private class Fixture {
         
@@ -12,7 +12,7 @@ class SentryNSDataTrackerTests: XCTestCase {
         let threadInspector = TestThreadInspector.instance
         let imageProvider = TestDebugImageProvider()
 
-        func getSut() -> SentryNSDataTracker {
+        func getSut() -> SentryFileIOTracker {
             imageProvider.debugImages = [TestData.debugImage]
             SentryDependencyContainer.sharedInstance().debugImageProvider = imageProvider
 
@@ -21,7 +21,7 @@ class SentryNSDataTrackerTests: XCTestCase {
             let processInfoWrapper = TestSentryNSProcessInfoWrapper()
             processInfoWrapper.overrides.processDirectoryPath = "sentrytest"
 
-            let result = SentryNSDataTracker(threadInspector: threadInspector, processInfoWrapper: processInfoWrapper)
+            let result = SentryFileIOTracker(threadInspector: threadInspector, processInfoWrapper: processInfoWrapper)
             SentryDependencyContainer.sharedInstance().dateProvider = dateProvider
             result.enable()
             return result

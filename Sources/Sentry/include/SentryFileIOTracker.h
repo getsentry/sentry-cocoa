@@ -8,7 +8,7 @@ static NSString *const SENTRY_FILE_READ_OPERATION = @"file.read";
 
 @class SentryThreadInspector, SentryNSProcessInfoWrapper;
 
-@interface SentryNSDataTracker : NSObject
+@interface SentryFileIOTracker : NSObject
 SENTRY_NO_INIT
 
 - (instancetype)initWithThreadInspector:(SentryThreadInspector *)threadInspector
