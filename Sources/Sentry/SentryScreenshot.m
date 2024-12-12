@@ -50,8 +50,6 @@
 
 - (NSArray<NSData *> *)appScreenshots
 {
-//    [SentryViewPhotographer alloc] ini
-    
     NSArray<UIWindow *> *windows = [SentryDependencyContainer.sharedInstance.application windows];
     NSMutableArray *result = [NSMutableArray arrayWithCapacity:windows.count];
 
@@ -64,23 +62,16 @@
             continue;
         }
 
-        //photographer imageWithView:window options:<#(id<SentryRedactOptions> _Nonnull)#> onComplete:<#^(UIImage * _Nonnull)onComplete#>
+        UIImage * img = [photographer imageWithView:window];
         
-        UIGraphicsBeginImageContext(size);
-
-        if ([window drawViewHierarchyInRect:window.bounds afterScreenUpdates:false]) {
-            UIImage *img = UIGraphicsGetImageFromCurrentImageContext();
-            // this shouldn't happen now that we discard windows with either 0 height or 0 width,
-            // but still, we shouldn't send any images with either one.
-            if (LIKELY(img.size.width > 0 && img.size.height > 0)) {
-                NSData *bytes = UIImagePNGRepresentation(img);
-                if (bytes && bytes.length > 0) {
-                    [result addObject:bytes];
-                }
+        // this shouldn't happen now that we discard windows with either 0 height or 0 width,
+        // but still, we shouldn't send any images with either one.
+        if (LIKELY(img.size.width > 0 && img.size.height > 0)) {
+            NSData *bytes = UIImagePNGRepresentation(img);
+            if (bytes && bytes.length > 0) {
+                [result addObject:bytes];
             }
         }
-
-        UIGraphicsEndImageContext();
     }
     return result;
 }
