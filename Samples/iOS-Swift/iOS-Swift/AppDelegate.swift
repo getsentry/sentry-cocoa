@@ -174,6 +174,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                     return
                 }
                 config.animations = !args.contains("--io.sentry.feedback.no-animations")
+                config.useSentryUser = args.contains("--io.sentry.feedback.use-sentry-user")
                 config.useShakeGesture = true
                 config.showFormForScreenshots = true
                 config.configureWidget = { widget in

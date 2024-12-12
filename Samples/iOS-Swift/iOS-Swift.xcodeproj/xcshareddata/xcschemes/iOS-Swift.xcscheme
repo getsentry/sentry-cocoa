@@ -74,6 +74,10 @@
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
+            argument = "--io.sentry.feedback.use-sentry-user"
+            isEnabled = "YES">
+         </CommandLineArgument>
+         <CommandLineArgument
             argument = "--io.sentry.feedback.require-name"
             isEnabled = "NO">
          </CommandLineArgument>
