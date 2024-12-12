@@ -91,10 +91,10 @@ public struct SentryTracedView<Content: View>: View {
         
         if !viewAppeared {
             trace = ensureTransactionExists()
+            spanId = createAndPushBodySpan(transactionCreated: trace != nil)
 #if canImport(SwiftUI) && canImport(UIKit) && os(iOS) || os(tvOS)
             if let trace = trace { startTTDTraker(for: trace) }
 #endif
-            spanId = createAndPushBodySpan(transactionCreated: trace != nil)
         }
         
         defer {
