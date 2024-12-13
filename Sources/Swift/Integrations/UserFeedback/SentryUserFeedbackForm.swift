@@ -263,7 +263,7 @@ class SentryUserFeedbackForm: UIViewController {
         field.delegate = self
         field.autocapitalizationType = .words
         if config.useSentryUser {
-            field.text = SentrySDK.currentHub().scope.userObject?.name
+            field.text = sentry_getCurrentUser()?.name
         }
         return field
     }()
@@ -283,7 +283,7 @@ class SentryUserFeedbackForm: UIViewController {
         field.keyboardType = .emailAddress
         field.autocapitalizationType = .none
         if config.useSentryUser {
-            field.text = SentrySDK.currentHub().scope.userObject?.email
+            field.text = sentry_getCurrentUser()?.email
         }
         return field
     }()
