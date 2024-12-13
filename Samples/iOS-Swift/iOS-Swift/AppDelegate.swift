@@ -113,6 +113,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             options.enableCoreDataTracing = !args.contains("--disable-core-data-tracing")
             options.enableNetworkBreadcrumbs = !args.contains("--disable-network-breadcrumbs")
             options.enableSwizzling = !args.contains("--disable-swizzling")
+            options.experimental.enableFileManagerSwizzling = !args.contains("--disable-filemanager-swizzling")
             options.enableCrashHandler = !args.contains("--disable-crash-handler")
             options.enableTracing = !args.contains("--disable-tracing")
             options.enablePersistingTracesWhenCrashing = true

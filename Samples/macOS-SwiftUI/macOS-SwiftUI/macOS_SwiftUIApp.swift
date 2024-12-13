@@ -22,6 +22,7 @@ class MyAppDelegate: NSObject, NSApplicationDelegate, ObservableObject {
             options.tracesSampleRate = 1.0
             options.profilesSampleRate = 1.0
             options.enableUncaughtNSExceptionReporting = true
+            options.experimental.enableFileManagerSwizzling = true
         }
     }
     

@@ -35,6 +35,11 @@
         initWithThreadInspector:[[SentryThreadInspector alloc] initWithOptions:options]
              processInfoWrapper:[SentryDependencyContainer.sharedInstance processInfoWrapper]];
     [self.dataTracker enable];
+
+    if (!options.experimental.enableFileManagerSwizzling) {
+        SENTRY_LOG_DEBUG(@"Experimental auto-tracking of FileManager is disabled")
+        return;
+    }
     [SentryNSFileManagerSwizzling swizzleNSFileManager];
 }
 

@@ -7,6 +7,11 @@ public class SentryExperimentalOptions: NSObject {
     public var sessionReplay = SentryReplayOptions(sessionSampleRate: 0, onErrorSampleRate: 0)
     #endif
 
+    /**
+     * Enables swizzling of `NSFileManager`
+     */
+    public var enableFileManagerSwizzling = false
+
     func validateOptions(_ options: [String: Any]?) {
         #if canImport(UIKit)
         if let sessionReplayOptions = options?["sessionReplay"] as? [String: Any] {
