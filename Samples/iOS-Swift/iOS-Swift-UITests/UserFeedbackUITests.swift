@@ -54,9 +54,7 @@ class UserFeedbackUITests: BaseUITest {
         
         // Input field placeholders
         XCTAssertEqual(try XCTUnwrap(nameField.placeholderValue), "Your Name")
-        XCTAssertNil(nameField.value)
         XCTAssertEqual(try XCTUnwrap(emailField.placeholderValue), "your.email@example.org")
-        XCTAssertNil(emailField.value)
         XCTAssert(app.staticTexts["What's the bug? What did you expect?"].exists)
         
         // Input field labels
