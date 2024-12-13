@@ -1,7 +1,7 @@
 import SentryTestUtils
 import XCTest
 
-class SentryFileIOTrackerTests: XCTestCase {
+class SentryNSDataTrackerTests: XCTestCase {
 
     private class Fixture {
         
@@ -12,7 +12,7 @@ class SentryFileIOTrackerTests: XCTestCase {
         let threadInspector = TestThreadInspector.instance
         let imageProvider = TestDebugImageProvider()
 
-        func getSut() -> SentryFileIOTracker {
+        func getSut() -> SentryNSDataTracker {
             imageProvider.debugImages = [TestData.debugImage]
             SentryDependencyContainer.sharedInstance().debugImageProvider = imageProvider
 
@@ -21,7 +21,7 @@ class SentryFileIOTrackerTests: XCTestCase {
             let processInfoWrapper = TestSentryNSProcessInfoWrapper()
             processInfoWrapper.overrides.processDirectoryPath = "sentrytest"
 
-            let result = SentryFileIOTracker(threadInspector: threadInspector, processInfoWrapper: processInfoWrapper)
+            let result = SentryNSDataTracker(threadInspector: threadInspector, processInfoWrapper: processInfoWrapper)
             SentryDependencyContainer.sharedInstance().dateProvider = dateProvider
             result.enable()
             return result
@@ -273,25 +273,6 @@ class SentryFileIOTrackerTests: XCTestCase {
         XCTAssertEqual(usedOptions, .uncached)
         
         assertDataSpan(span, path: url.path, operation: SENTRY_FILE_READ_OPERATION, size: fixture.data.count)
-    }
-    
-    func testCreateFile() {
-        let sut = fixture.getSut()
-        var methodPath: String?
-        var methodData: Data?
-        var methodAttributes: [FileAttributeKey: Any]?
-        
-        sut.measureNSFileManagerCreateFile(atPath: fixture.filePath, data: fixture.data, attributes: [
-            FileAttributeKey.size: 123
-        ], method: { path, data, attributes in
-            methodPath = path
-            methodData = data
-            methodAttributes = attributes
-            return true
-        })
-        XCTAssertEqual(methodPath, fixture.filePath)
-        XCTAssertEqual(methodData, fixture.data)
-        XCTAssertEqual(methodAttributes?[FileAttributeKey.size] as? Int, 123)
     }
     
     func testDontTrackSentryFilesRead() {

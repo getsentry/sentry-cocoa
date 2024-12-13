@@ -1,5 +1,5 @@
 #import "SentryByteCountFormatter.h"
-#import "SentryFileIOTracker.h"
+#import "SentryNSDataTracker.h"
 #import "SentryOptions.h"
 #import "SentrySDK.h"
 #import "SentrySpan.h"

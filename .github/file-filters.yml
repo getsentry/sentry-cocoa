@@ -5,7 +5,6 @@ high_risk_code: &high_risk_code
   - 'Sources/Sentry/SentryNetworkTracker.m'
   - 'Sources/Sentry/SentryUIViewControllerSwizzling.m'
   - 'Sources/Sentry/SentryNSDataSwizzling.m'
-  - 'Sources/Sentry/SentryNSFileManagerSwizzling.m'
   - 'Sources/Sentry/SentrySubClassFinder.m'
   - 'Sources/Sentry/SentryCoreDataSwizzling.m'
   - 'Sources/Sentry/SentrySwizzleWrapper.m'

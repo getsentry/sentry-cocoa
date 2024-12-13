@@ -5,13 +5,13 @@
 ### Improvements
 
 - Improve compiler error message for missing Swift declarations due to APPLICATION_EXTENSION_API_ONLY (#4603)
+- Add file IO tracking wrapper for Swift.Data (#4546)
 
 ## 8.42.0-beta.2
 
 ### Fixes
 
 - Fix GraphQL context for HTTP client error tracking (#4567)
-- Fix span recording for `NSFileManager.createFileAtPath` starting with iOS 18.0 and macOS 15 (#4546)
 
 ### Improvements
 
