@@ -622,4 +622,86 @@
     XCTAssertTrue(bytesRead == 0, @"");
 }
 
+- (void)testDeleteContentsOfPath_canNotDeletePath_shouldNotDeleteTopLevelPath
+{
+    // -- Arrange --
+    NSString *notDeleteablePath = @".";
+    // -- Act --
+    bool result = sentrycrashfu_deleteContentsOfPath([notDeleteablePath UTF8String]);
+    // -- Assert --
+    XCTAssertFalse(result);
+}
+
+- (void)testDeleteContentsOfPath_unknownFile_shouldNotDeleteTopLevelPath
+{
+    // -- Arrange --
+    NSString *unknownFilePath = @"/invalid/path";
+    // -- Act --
+    bool result = sentrycrashfu_deleteContentsOfPath([unknownFilePath UTF8String]);
+    // -- Assert --
+    XCTAssertFalse(result);
+}
+
+- (void)testDeleteContentsOfPath_filePath_shouldDeleteFile
+{
+    // -- Arrange --
+    NSString *filePath = [self.tempPath stringByAppendingPathComponent:@"test.txt"];
+    NSError *error;
+    [@"Hello World" writeToFile:filePath
+                     atomically:true
+                       encoding:NSUTF8StringEncoding
+                          error:&error];
+    XCTAssertNil(error);
+    // Smoke-test the file got created
+    int fd = open([filePath UTF8String], O_RDONLY);
+    XCTAssertTrue(fd >= -1, "Failed to create test file");
+
+    // -- Act --
+    bool result = sentrycrashfu_deleteContentsOfPath([filePath UTF8String]);
+
+    // -- Assert --
+    XCTAssertTrue(result);
+    // Validate the file got deleted
+    fd = open([filePath UTF8String], O_RDONLY);
+    XCTAssertTrue(fd == -1, "Test file was not deleted");
+}
+
+- (void)testDeleteContentsOfPath_dirPath_shouldDeleteAllFiles
+{
+    // -- Arrange --
+    NSString *directoryPath =
+        [self.tempPath stringByAppendingPathComponent:[@"" stringByPaddingToLength:100
+                                                                        withString:@"D"
+                                                                   startingAtIndex:0]];
+    NSString *filePath =
+        [[directoryPath stringByAppendingPathComponent:[@"" stringByPaddingToLength:100
+                                                                         withString:@"F"
+                                                                    startingAtIndex:0]]
+            stringByAppendingPathExtension:@"txt"];
+
+    NSError *error;
+    [[NSFileManager defaultManager] createDirectoryAtPath:directoryPath
+                              withIntermediateDirectories:true
+                                               attributes:nil
+                                                    error:&error];
+    XCTAssertNil(error, "Failed to create temporary test folder");
+
+    [@"Hello World" writeToFile:filePath
+                     atomically:true
+                       encoding:NSUTF8StringEncoding
+                          error:&error];
+    XCTAssertNil(error, "Failed to create temporary test file");
+    // Smoke-test the file got created
+    int fd = open([filePath UTF8String], O_RDONLY);
+    XCTAssertTrue(fd >= 0, "Failed to create test file");
+
+    // -- Act --
+    bool result = sentrycrashfu_deleteContentsOfPath([directoryPath UTF8String]);
+
+    // -- Assert --
+    XCTAssertTrue(result);
+    // Validate the file got deleted
+    fd = open([filePath UTF8String], O_RDONLY);
+    XCTAssertTrue(fd == -1, "Test file was not deleted");
+}
 @end
