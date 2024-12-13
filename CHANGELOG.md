@@ -9,6 +9,7 @@
 ### Fixes
 
 - `SentrySdkInfo.packages` should be an array (#4626)
+- Replace occurences of `strncpy` with `strlcpy` (#4636)
 
 ### Internal
 
