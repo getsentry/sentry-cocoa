@@ -187,8 +187,8 @@
             [self.currentTTDTracker reportFullyDisplayed];
         } else {
             SENTRY_LOG_WARN(@"Transaction is not waiting for full display report. You can enable "
-                             @"`enableTimeToFullDisplay` option, or use the waitForFullDisplay "
-                             @"property in our `SentryTracedView` view for SwiftUI.");
+                            @"`enableTimeToFullDisplay` option, or use the waitForFullDisplay "
+                            @"property in our `SentryTracedView` view for SwiftUI.");
         }
     } else {
         SENTRY_LOG_DEBUG(@"No screen transaction being tracked right now.")
