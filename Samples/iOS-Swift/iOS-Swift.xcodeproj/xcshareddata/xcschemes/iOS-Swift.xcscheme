@@ -70,10 +70,6 @@
       </BuildableProductRunnable>
       <CommandLineArguments>
          <CommandLineArgument
-            argument = "--io.sentry.disable-everything"
-            isEnabled = "NO">
-         </CommandLineArgument>
-         <CommandLineArgument
             argument = "--disable-file-io-tracing"
             isEnabled = "NO">
          </CommandLineArgument>
