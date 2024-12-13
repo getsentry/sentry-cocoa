@@ -586,16 +586,6 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
 - (void)captureFeedback:(SentryFeedback *)feedback withScope:(SentryScope *)scope
 {
-    // what i was doing previously when directly sending the envelope. but, it appears i need to
-    // construct a dedicated event type and then package that inside an envelope
-    //    SentryEnvelopeItem *item = [[SentryEnvelopeItem alloc] initWithFeedback:feedback]
-    //    SentryEnvelopeHeader *envelopeHeader =
-    //        [[SentryEnvelopeHeader alloc] initWithId:feedback.eventId];
-    //    NSArray<SentryAttachment *> *attachments = [feedback attachments];
-    //    NSArray *items = [@[item] arrayByAddingObjectsFromArray:attachments];
-    //    SentryEnvelope *envelope = [[SentryEnvelope alloc] initWithHeader:envelopeHeader
-    //                                                           items:items];
-
     SentryEvent *feedbackEvent = [[SentryEvent alloc] init];
     feedbackEvent.eventId = feedback.eventId;
     feedbackEvent.type = SentryEnvelopeItemTypeFeedback;
@@ -605,16 +595,6 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     NSMutableDictionary *context = [NSMutableDictionary dictionary];
     context[@"feedback"] = serializedFeedback;
     feedbackEvent.context = context;
-
-    // the following is basically copied from the implementation for
-    // -[sendEvent:withScope:alwaysAttachStacktrace:isCrashEvent:additionalEnvelopeItems:]. we can't
-    // simply call through to that because the feedback screenshot must be send as an envelope
-    // attachment, but there are no other methods in this class that allow specifying attachments
-    // that aren't already on the scope, and i didn't want to attach the screenshot to the scope in
-    // case another event would also pick it up. the reference implementation does show a trace
-    // context so i thought it best to keep it here too
-    // https://github.com/getsentry/sentry-javascript/blob/be9edf161f72bb0b9ccf38d70297b798054b3ce3/packages/feedback/src/core/sendFeedback.ts#L107.
-    // it also shows a replay context, which i'm not sure how to retrieve yet in this sdk
 
     SentryEvent *preparedEvent = [self prepareEvent:feedbackEvent
                                           withScope:scope
