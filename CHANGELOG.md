@@ -6,12 +6,15 @@
 
 - Improve compiler error message for missing Swift declarations due to APPLICATION_EXTENSION_API_ONLY (#4603)
 
+### Fixes
+
+- Fix span recording for `NSFileManager.createFileAtPath` starting with iOS 18, macOS 15 and tvOS 18 (#4634)
+
 ## 8.42.0-beta.2
 
 ### Fixes
 
 - Fix GraphQL context for HTTP client error tracking (#4567)
-- Fix span recording for `NSFileManager.createFileAtPath` starting with iOS 18, macOS 15 and tvOS 18 (#4634)
 
 ### Improvements
 
