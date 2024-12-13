@@ -6,13 +6,10 @@
 //  Copyright © 2024 Sentry. All rights reserved.
 //
 
-// swiftlint:disable
-// TODO: remove this swiftlint:disable
-
 /// A drop-in replacement for the standard ``Swift.Data`` but with automatic tracking for file I/O operations.
 ///
 /// This structure is intended to resemble the same method signatures as of ``Swift.Data``.
-@available(macOS 15, iOS 18.0, tvOS 15.0, *)
+@available(iOS 18, macOS 15, tvOS 18, *)
 @frozen public struct SentryDataWrapper: Equatable, Hashable, RandomAccessCollection, MutableCollection, RangeReplaceableCollection, MutableDataProtocol, ContiguousBytes, Sendable {
 
     /// The wrapped data
@@ -555,7 +552,7 @@
     }
 }
 
-@available(macOS 15, iOS 18.0, tvOS 15.0, *)
+@available(iOS 18, macOS 15, tvOS 18, *)
 extension SentryDataWrapper: CustomStringConvertible, CustomDebugStringConvertible, CustomReflectable {
 
     /// A human-readable description for the data.
@@ -577,7 +574,7 @@ extension SentryDataWrapper: CustomStringConvertible, CustomDebugStringConvertib
     }
 }
 
-@available(macOS 15, iOS 18.0, tvOS 15.0, *)
+@available(iOS 18, macOS 15, tvOS 18, *)
 extension SentryDataWrapper: Codable {
 
     /// Creates a new instance by decoding from the given decoder.

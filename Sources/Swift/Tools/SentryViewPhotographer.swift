@@ -37,7 +37,7 @@ class SentryViewPhotographer: NSObject, SentryViewScreenshotProvider {
         self.redactBuilder = UIRedactBuilder(options: redactOptions)
     }
     
-    func image(view: UIView, options: SentryRedactOptions, onComplete: @escaping ScreenshotCallback ) {
+    func image(view: UIView, onComplete: @escaping ScreenshotCallback ) {
         let redact = redactBuilder.redactRegionsFor(view: view)
         let image = renderer.render(view: view)
         

@@ -77,9 +77,9 @@ class SentryFileIOTrackingIntegrationTests: XCTestCase {
         assertWriteWithNoSpans()
     }
     
-    func test_Writing_Tracking() {
+    func testData_Writing_Tracking() {
         let expectedSpanCount: Int
-        if #available(iOS 18.0, macOS 15.0, tvOS 15.0, *) {
+        if #available(iOS 18, macOS 15, tvOS 18, *) {
             // Automatic tracking of Swift.Data is not available starting with iOS 18, macOS 15, tvOS 15
             // By asserting for it *not* working, we can lock down the expected behaviour and notice
             // if it changes again in the future.
@@ -93,9 +93,9 @@ class SentryFileIOTrackingIntegrationTests: XCTestCase {
         }
     }
 
-    func test_WritingWithOption_Tracking() {
+    func testData_WritingWithOption_Tracking() {
         let expectedSpanCount: Int
-        if #available(iOS 18, macOS 15, tvOS 15, *) {
+        if #available(iOS 18, macOS 15, tvOS 18, *) {
             // Automatic tracking of Swift.Data is not available starting with iOS 18, macOS 15, tvOS 15
             // By asserting for it *not* working, we can lock down the expected behaviour and notice
             // if it changes again in the future.
@@ -112,7 +112,7 @@ class SentryFileIOTrackingIntegrationTests: XCTestCase {
     func testDataWrapper_Writing_Tracking() throws {
         // Automatic tracking of Swift.Data is not available starting with iOS 18, macOS 15, tvOS 15.
         // Therefore, the wrapper is only tested with these OS versions.
-        guard #available(iOS 18.0, macOS 15.0, tvOS 15.0, *) else {
+        guard #available(iOS 18, macOS 15, tvOS 18, *) else {
             throw XCTSkip("SentryDataWrapper is not tested on this OS version")
         }
         SentrySDK.start(options: fixture.getOptions())
@@ -124,7 +124,7 @@ class SentryFileIOTrackingIntegrationTests: XCTestCase {
     func testDataWrapper_WritingWithOption_Tracking() throws {
         // Automatic tracking of Swift.Data is not available starting with iOS 18, macOS 15, tvOS 15.
         // Therefore, the wrapper is only tested with these OS versions.
-        guard #available(iOS 18, macOS 15, tvOS 15, *) else {
+        guard #available(iOS 18, macOS 15, tvOS 18, *) else {
             throw XCTSkip("SentryDataWrapper is not tested on this OS version")
         }
         SentrySDK.start(options: fixture.getOptions())
@@ -157,9 +157,9 @@ class SentryFileIOTrackingIntegrationTests: XCTestCase {
         assertWriteWithNoSpans()
     }
     
-    func test_ReadingURL_Tracking() {
+    func testData_ReadingURL_Tracking() {
         let expectedSpanCount: Int
-        if #available(iOS 18.0, macOS 15.0, tvOS 15.0, *) {
+        if #available(iOS 18.0, macOS 15.0, tvOS 18.0, *) {
             // Automatic tracking of Swift.Data is not available starting with iOS 18, macOS 15, tvOS 15
             // By asserting for it *not* working, we can lock down the expected behaviour and notice
             // if it changes again in the future.
@@ -173,10 +173,10 @@ class SentryFileIOTrackingIntegrationTests: XCTestCase {
         }
     }
 
-    func test_ReadingURLWithOption_Tracking() throws {
+    func testData_ReadingURLWithOption_Tracking() throws {
         let expectedSpanCount: Int
-        if #available(iOS 18.0, macOS 15.0, tvOS 15.0, *) {
-            // Automatic tracking of Swift.Data is not available starting with iOS 18, macOS 15, tvOS 15
+        if #available(iOS 18.0, macOS 15.0, tvOS 18.0, *) {
+            // Automatic tracking of Swift.Data is not available starting with iOS 18, macOS 15, tvOS 18
             // By asserting for it *not* working, we can lock down the expected behaviour and notice
             // if it changes again in the future.
             expectedSpanCount = 0
@@ -191,9 +191,9 @@ class SentryFileIOTrackingIntegrationTests: XCTestCase {
     }
 
     func testDataWrapper_ReadingURL_Tracking() throws {
-        // Automatic tracking of Swift.Data is not available starting with iOS 18, macOS 15, tvOS 15.
+        // Automatic tracking of Swift.Data is not available starting with iOS 18, macOS 15, tvOS 18.
         // Therefore, the wrapper is only tested with these OS versions.
-        guard #available(iOS 18.0, macOS 15.0, tvOS 15.0, *) else {
+        guard #available(iOS 18, macOS 15, tvOS 18, *) else {
             throw XCTSkip("SentryDataWrapper is not tested on this OS version")
         }
         SentrySDK.start(options: fixture.getOptions())
@@ -203,14 +203,14 @@ class SentryFileIOTrackingIntegrationTests: XCTestCase {
     }
 
     func testDataWrapper_ReadingURLWithOption_Tracking() throws {
-        // Automatic tracking of Swift.Data is not available starting with iOS 18, macOS 15, tvOS 15.
+        // Automatic tracking of Swift.Data is not available starting with iOS 18, macOS 15, tvOS 18.
         // Therefore, the wrapper is only tested with these OS versions.
-        guard #available(iOS 18.0, macOS 15.0, tvOS 15.0, *) else {
+        guard #available(iOS 18, macOS 15, tvOS 18, *) else {
             throw XCTSkip("SentryDataWrapper is not tested on this OS version")
         }
         SentrySDK.start(options: fixture.getOptions())
         assertSpans(1, "file.read") {
-            let data = try? Data(contentsOf: fixture.fileURL, options: .uncached)
+            let data = try? SentryDataWrapper(contentsOf: fixture.fileURL, options: .uncached)
             XCTAssertEqual(data?.count, fixture.data.count)
         }
     }
