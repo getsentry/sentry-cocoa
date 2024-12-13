@@ -186,7 +186,7 @@
         if (tracker.waitForFullDisplay) {
             [self.currentTTDTracker reportFullyDisplayed];
         } else {
-            SENTRY_LOG_DEBUG(@"Transaction is not waiting for full display report. You can enable "
+            SENTRY_LOG_WARN(@"Transaction is not waiting for full display report. You can enable "
                              @"`enableTimeToFullDisplay` option, or use the waitForFullDisplay "
                              @"property in our `SentryTracedView` view for SwiftUI.");
         }
