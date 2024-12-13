@@ -14,6 +14,12 @@
 
 ### Fixes
 
+- Don't start the SDK inside Xcode preview (#4601)
+
+## 8.42.0-beta.2
+
+### Fixes
+
 - Fix GraphQL context for HTTP client error tracking (#4567)
 
 ### Improvements
