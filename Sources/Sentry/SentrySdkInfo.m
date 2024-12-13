@@ -83,32 +83,39 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithDict:(NSDictionary *)dict
 {
-    return [self initWithDictInternal:dict orDefaults:nil];
-}
-
-- (instancetype)initWithDict:(NSDictionary *)dict orDefaults:(SentrySdkInfo *)info;
-{
-    return [self initWithDictInternal:dict orDefaults:info];
-}
-
-- (instancetype)initWithDictInternal:(NSDictionary *)dict orDefaults:(SentrySdkInfo *_Nullable)info;
-{
     NSString *name = @"";
     NSString *version = @"";
+    NSMutableSet<NSString *> *integrations = [[NSMutableSet alloc] init];
+    NSMutableSet<NSString *> *features = [[NSMutableSet alloc] init];
 
     if ([dict[@"name"] isKindOfClass:[NSString class]]) {
         name = dict[@"name"];
-    } else if (info && info.name) {
-        name = info.name;
     }
 
     if ([dict[@"version"] isKindOfClass:[NSString class]]) {
         version = dict[@"version"];
-    } else if (info && info.version) {
-        version = info.version;
     }
 
-    return [self initWithName:name version:version integrations:@[] features:@[]];
+    if ([dict[@"integrations"] isKindOfClass:[NSArray class]]) {
+        for (id item in dict[@"integrations"]) {
+            if ([item isKindOfClass:[NSString class]]) {
+                [integrations addObject:item];
+            }
+        }
+    }
+
+    if ([dict[@"features"] isKindOfClass:[NSArray class]]) {
+        for (id item in dict[@"features"]) {
+            if ([item isKindOfClass:[NSString class]]) {
+                [features addObject:item];
+            }
+        }
+    }
+
+    return [self initWithName:name
+                      version:version
+                 integrations:[integrations allObjects]
+                     features:[features allObjects]];
 }
 
 - (nullable NSString *)getPackageName:(SentryPackageManagerOption)packageManager

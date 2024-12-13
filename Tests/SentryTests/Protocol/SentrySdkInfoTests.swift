@@ -92,7 +92,25 @@ class SentrySdkInfoTests: XCTestCase {
 
         XCTAssertEqual(expected, SentrySdkInfo(dict: dict))
     }
-    
+
+    func testInitWithDict_SdkInfo_RemovesDuplicates() {
+        let version = "10.3.1"
+        let expected = SentrySdkInfo(name: sdkName, version: version, integrations: ["b"], features: ["c"])
+
+        let dict = [ "name": sdkName, "version": version, "integrations": ["b", "b"], "features": ["c", "c"]] as [String: Any]
+
+        XCTAssertEqual(expected, SentrySdkInfo(dict: dict))
+    }
+
+    func testInitWithDict_SdkInfo_IgnoresOrder() {
+        let version = "10.3.1"
+        let expected = SentrySdkInfo(name: sdkName, version: version, integrations: ["a", "b"], features: ["c", "d"])
+
+        let dict = [ "name": sdkName, "version": version, "integrations": ["b", "a"], "features": ["d", "c"]] as [String: Any]
+
+        XCTAssertEqual(expected, SentrySdkInfo(dict: dict))
+    }
+
     func testInitWithDict_AllNil() {
         let dict = [ "name": nil, "version": nil, "integraions": nil, "features": nil] as [String: Any?]
 
@@ -104,7 +122,16 @@ class SentrySdkInfoTests: XCTestCase {
 
         assertEmptySdkInfo(actual: SentrySdkInfo(dict: dict))
     }
-    
+
+    func testInitWithDict_WrongTypesInArrays() {
+        let version = "10.3.1"
+        let expected = SentrySdkInfo(name: sdkName, version: version, integrations: ["a"], features: ["b"])
+
+        let dict = [ "name": sdkName, "version": version, "integrations": [0, [], "a", [:]], "features": [0, [], "b", [:]]] as [String: Any]
+
+        XCTAssertEqual(expected, SentrySdkInfo(dict: dict))
+    }
+
     func testInitWithDict_SdkInfoIsString() {
         let dict = ["sdk": ""]
         
