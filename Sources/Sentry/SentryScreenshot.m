@@ -1,6 +1,6 @@
 #import "SentryScreenshot.h"
 
-#if SENTRY_HAS_UIKIT
+#if SENTRY_TARGET_REPLAY_SUPPORTED
 
 #    import "SentryCompiler.h"
 #    import "SentryDependencyContainer.h"
