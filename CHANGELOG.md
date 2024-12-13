@@ -11,7 +11,7 @@
 ### Fixes
 
 - Fix GraphQL context for HTTP client error tracking (#4567)
-- Fix span recording for `NSFileManager.createFileAtPath` starting with iOS 18, macOS 15 and tvOS 18(#4546)
+- Fix span recording for `NSFileManager.createFileAtPath` starting with iOS 18, macOS 15 and tvOS 18 (#4634)
 
 ### Improvements
 
