@@ -95,6 +95,8 @@ NS_ASSUME_NONNULL_BEGIN
     // default. In any case in the envelope type it should be event. Except for transactions
     NSString *envelopeType = [event.type isEqualToString:SentryEnvelopeItemTypeTransaction]
         ? SentryEnvelopeItemTypeTransaction
+        : [event.type isEqualToString:SentryEnvelopeItemTypeFeedback]
+        ? SentryEnvelopeItemTypeFeedback
         : SentryEnvelopeItemTypeEvent;
 
     return [self initWithHeader:[[SentryEnvelopeItemHeader alloc] initWithType:envelopeType
