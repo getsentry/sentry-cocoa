@@ -152,8 +152,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 user.email = env["--io.sentry.user.email"] ?? "tony@example.com"
                 // first check if the username has been overridden in the scheme for testing purposes; then try to use the system username so each person gets an automatic way to easily filter things on the dashboard; then fall back on a hardcoded value if none of these are present
                 let username = env["--io.sentry.user.username"] ?? (env["SIMULATOR_HOST_HOME"] as? NSString)?
-                    .lastPathComponent ?? "cocoa developer"
+                    .lastPathComponent ?? "cocoadev"
                 user.username = username
+                user.name = env["--io.sentry.user.name"] ?? "cocoa developer"
                 scope.setUser(user)
 
                 if let path = Bundle.main.path(forResource: "Tongariro", ofType: "jpg") {
@@ -174,6 +175,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                     return
                 }
                 config.animations = !args.contains("--io.sentry.feedback.no-animations")
+                config.useSentryUser = args.contains("--io.sentry.feedback.use-sentry-user")
                 config.useShakeGesture = true
                 config.showFormForScreenshots = true
                 config.configureWidget = { widget in
