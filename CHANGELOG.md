@@ -9,6 +9,11 @@
 ### Fixes
 
 - Fix span recording for `NSFileManager.createFileAtPath` starting with iOS 18, macOS 15 and tvOS 18 (#4634)
+- `SentrySdkInfo.packages` should be an array (#4626)
+
+### Internal
+
+- Remove loading `integrations` names from `event.extra` (#4627)
 
 ## 8.42.0-beta.2
 

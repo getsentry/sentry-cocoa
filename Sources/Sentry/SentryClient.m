@@ -880,16 +880,14 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         return;
     }
 
-    id integrations = event.extra[@"__sentry_sdk_integrations"];
-    if (!integrations) {
-        integrations = [SentrySDK.currentHub trimmedInstalledIntegrationNames];
+    NSMutableArray<NSString *> *integrations =
+        [SentrySDK.currentHub trimmedInstalledIntegrationNames];
 
 #if SENTRY_HAS_UIKIT
-        if (self.options.enablePreWarmedAppStartTracing) {
-            [integrations addObject:@"PreWarmedAppStartTracing"];
-        }
-#endif
+    if (self.options.enablePreWarmedAppStartTracing) {
+        [integrations addObject:@"PreWarmedAppStartTracing"];
     }
+#endif
 
     NSArray<NSString *> *features =
         [SentryEnabledFeaturesBuilder getEnabledFeaturesWithOptions:self.options];
