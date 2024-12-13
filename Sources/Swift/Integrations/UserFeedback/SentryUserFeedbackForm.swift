@@ -134,7 +134,7 @@ class SentryUserFeedbackForm: UIViewController {
             return
         }
 
-        let feedback = SentryFeedback(message: messageTextView.text, name: fullNameTextField.text, email: emailTextField.text)
+        let feedback = SentryFeedback(message: messageTextView.text, name: fullNameTextField.text, email: emailTextField.text, screenshot: screenshotImageView.image?.pngData())
         SentrySDK.capture(feedback: feedback)
         delegate?.finished()
     }

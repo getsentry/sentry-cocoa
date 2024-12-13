@@ -686,6 +686,8 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         = event.type == nil || ![event.type isEqualToString:SentryEnvelopeItemTypeTransaction];
     BOOL eventIsNotReplay
         = event.type == nil || ![event.type isEqualToString:SentryEnvelopeItemTypeReplayVideo];
+    BOOL eventIsNotUserFeedback
+        = event.type == nil || ![event.type isEqualToString:SentryEnvelopeItemTypeFeedback];
 
     // Transactions and replays have their own sampleRate
     if (eventIsNotATransaction && eventIsNotReplay && [self isSampled:self.options.sampleRate]) {
@@ -715,8 +717,9 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
     [self setSdk:event];
 
-    // We don't want to attach debug meta and stacktraces for transactions and replays.
-    if (eventIsNotATransaction && eventIsNotReplay) {
+    // We don't want to attach debug meta and stacktraces for transactions, replays or user
+    // feedback.
+    if (eventIsNotATransaction && eventIsNotReplay && eventIsNotUserFeedback) {
         BOOL shouldAttachStacktrace = alwaysAttachStacktrace || self.options.attachStacktrace
             || (nil != event.exceptions && [event.exceptions count] > 0);
 
