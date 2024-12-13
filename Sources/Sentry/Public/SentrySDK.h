@@ -7,7 +7,7 @@
 @protocol SentrySpan;
 
 @class SentryOptions, SentryEvent, SentryBreadcrumb, SentryScope, SentryUser, SentryId,
-     SentryUserFeedback, SentryTransactionContext;
+    SentryUserFeedback, SentryTransactionContext;
 @class SentryMetricsAPI;
 @class UIView;
 
