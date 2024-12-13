@@ -10,6 +10,7 @@
     SentryUserFeedback, SentryTransactionContext;
 @class SentryMetricsAPI;
 @class UIView;
+@class SentryReplayApi;
 
 NS_ASSUME_NONNULL_BEGIN
 
