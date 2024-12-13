@@ -2034,6 +2034,10 @@
 		D8FFE50B2703DAAE00607131 /* SwizzlingCallTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwizzlingCallTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		843FB3142D0BDA3900558F18 /* Feedback */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = Feedback; sourceTree = "<group>"; };
+/* End PBXFileSystemSynchronizedRootGroup section */
+
 /* Begin PBXFrameworksBuildPhase section */
 		63AA75971EB8AEF500D153DE /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
@@ -2959,6 +2963,7 @@
 		7B944FA924697E9700A10721 /* Integrations */ = {
 			isa = PBXGroup;
 			children = (
+				843FB3142D0BDA3900558F18 /* Feedback */,
 				7BF6505D292B77D100BBA5A8 /* MetricKit */,
 				D808FB85281AB2EF009A2A33 /* UIEvents */,
 				D8AB40D92806EBDC00E5E9F7 /* Screenshot */,
@@ -4350,6 +4355,9 @@
 				63AA766C1EB8CB2F00D153DE /* PBXTargetDependency */,
 				D84DAD5C2B1742C1003CF120 /* PBXTargetDependency */,
 				D85153032CA2B5F60070F669 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				843FB3142D0BDA3900558F18 /* Feedback */,
 			);
 			name = SentryTests;
 			packageProductDependencies = (
