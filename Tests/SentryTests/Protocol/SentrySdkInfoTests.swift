@@ -5,8 +5,17 @@ class SentrySdkInfoTests: XCTestCase {
     
     private let sdkName = "sentry.cocoa"
 
-    override class func tearDown() {
+    func cleanUp() {
         SentrySdkInfo.resetPackageManager()
+        SentrySdkInfo.clearExtraPackages()
+    }
+
+    override func setUp() {
+        cleanUp()
+    }
+
+    override func tearDown() {
+        cleanUp()
     }
 
     func testWithPatchLevelSuffix() {
@@ -267,6 +276,26 @@ class SentrySdkInfoTests: XCTestCase {
         XCTAssertEqual(actual.version, SentryMeta.versionString)
         XCTAssertTrue(actual.integrations.count > 0)
         XCTAssertTrue(actual.features.count > 0)
+    }
+    
+    func testFromGlobalsWithExtraPackage() throws {
+        let extraPackage = ["name": "test-package", "version": "1.0.0"]
+        SentrySdkInfo.addPackageName(extraPackage["name"]!, version: extraPackage["version"]!)
+
+        let actual = SentrySdkInfo.fromGlobals()
+        XCTAssertEqual(actual.packages.count, 1)
+        XCTAssertTrue(actual.packages.contains(extraPackage))
+    }
+    
+    func testFromGlobalsWithExtraPackageAndPackageManager() throws {
+        let extraPackage = ["name": "test-package", "version": "1.0.0"]
+        SentrySdkInfo.addPackageName(extraPackage["name"]!, version: extraPackage["version"]!)
+        SentrySdkInfo.setPackageManager(1)
+
+        let actual = SentrySdkInfo.fromGlobals()
+        XCTAssertEqual(actual.packages.count, 2)
+        XCTAssertTrue(actual.packages.contains(extraPackage))
+        XCTAssertTrue(actual.packages.contains(["name": "cocoapods:getsentry/\(SentryMeta.sdkName)", "version": SentryMeta.versionString]))
     }
 
     private func assertEmptySdkInfo(actual: SentrySdkInfo) {

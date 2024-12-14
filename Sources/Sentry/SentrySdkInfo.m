@@ -140,7 +140,10 @@ NS_ASSUME_NONNULL_BEGIN
 
     NSMutableSet<NSDictionary<NSString *, NSString *> *> *packages =
         [SentrySdkInfo getExtraPackages];
-    [packages addObject:[SentrySdkInfo getSentrySDKPackage]];
+    NSDictionary<NSString *, NSString *> *sdkPackage = [SentrySdkInfo getSentrySDKPackage];
+    if (sdkPackage != nil) {
+        [packages addObject:sdkPackage];
+    }
 
     return [self initWithName:SentryMeta.sdkName
                       version:SentryMeta.versionString
