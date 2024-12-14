@@ -18,7 +18,8 @@
     SentrySdkInfo *actual = [[SentrySdkInfo alloc] initWithName:nil
                                                         version:@""
                                                    integrations:@[]
-                                                       features:@[]];
+                                                       features:@[]
+                                                       packages:@[]];
 #pragma clang diagnostic pop
 
     [self assertSdkInfoIsEmtpy:actual];
@@ -31,7 +32,8 @@
     SentrySdkInfo *actual = [[SentrySdkInfo alloc] initWithName:@""
                                                         version:nil
                                                    integrations:@[]
-                                                       features:@[]];
+                                                       features:@[]
+                                                       packages:@[]];
 #pragma clang diagnostic pop
 
     [self assertSdkInfoIsEmtpy:actual];
@@ -44,7 +46,8 @@
     SentrySdkInfo *actual = [[SentrySdkInfo alloc] initWithName:@""
                                                         version:@""
                                                    integrations:nil
-                                                       features:@[]];
+                                                       features:@[]
+                                                       packages:@[]];
 #pragma clang diagnostic pop
 
     [self assertSdkInfoIsEmtpy:actual];
@@ -57,7 +60,22 @@
     SentrySdkInfo *actual = [[SentrySdkInfo alloc] initWithName:@""
                                                         version:@""
                                                    integrations:@[]
-                                                       features:nil];
+                                                       features:nil
+                                                       packages:@[]];
+#pragma clang diagnostic pop
+
+    [self assertSdkInfoIsEmtpy:actual];
+}
+
+- (void)testPackagesAreNil
+{
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnonnull"
+    SentrySdkInfo *actual = [[SentrySdkInfo alloc] initWithName:@""
+                                                        version:@""
+                                                   integrations:@[]
+                                                       features:@[]
+                                                       packages:nil];
 #pragma clang diagnostic pop
 
     [self assertSdkInfoIsEmtpy:actual];

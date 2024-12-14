@@ -24,7 +24,7 @@ class SentrySerializationTests: XCTestCase {
     }
     
     func testEnvelopeWithData_InvalidEnvelopeHeaderJSON_ReturnsNil() {
-        let sdkInfoWithInvalidJSON = SentrySdkInfo(name: SentryInvalidJSONString() as String, version: "8.0.0", integrations: [], features: [])
+        let sdkInfoWithInvalidJSON = SentrySdkInfo(name: SentryInvalidJSONString() as String, version: "8.0.0", integrations: [], features: [], packages: [])
         let headerWithInvalidJSON = SentryEnvelopeHeader(id: nil, sdkInfo: sdkInfoWithInvalidJSON, traceContext: nil)
         
         let envelope = SentryEnvelope(header: headerWithInvalidJSON, items: [])
@@ -125,7 +125,7 @@ class SentrySerializationTests: XCTestCase {
     }
     
     func testEnvelopeWithData_WithSdkInfo_ReturnsSDKInfo() throws {
-        let sdkInfo = SentrySdkInfo(name: "sentry.cocoa", version: "5.0.1", integrations: [], features: [])
+        let sdkInfo = SentrySdkInfo(name: "sentry.cocoa", version: "5.0.1", integrations: [], features: [], packages: [])
         let envelopeHeader = SentryEnvelopeHeader(id: nil, sdkInfo: sdkInfo, traceContext: nil)
         let envelope = SentryEnvelope(header: envelopeHeader, singleItem: createItemWithEmptyAttachment())
         
@@ -524,7 +524,7 @@ class SentrySerializationTests: XCTestCase {
     }
     
     private func assertDefaultSdkInfoSet(deserializedEnvelope: SentryEnvelope) {
-        let sdkInfo = SentrySdkInfo(name: SentryMeta.sdkName, version: SentryMeta.versionString, integrations: [], features: [])
+        let sdkInfo = SentrySdkInfo(name: SentryMeta.sdkName, version: SentryMeta.versionString, integrations: [], features: [], packages: [])
         XCTAssertEqual(sdkInfo, deserializedEnvelope.header.sdkInfo)
     }
     

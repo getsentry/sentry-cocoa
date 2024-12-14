@@ -24,6 +24,8 @@ NS_ASSUME_NONNULL_BEGIN
 @interface SentrySdkInfo : NSObject <SentryInternalSerializable>
 SENTRY_NO_INIT
 
++ (NSMutableSet<NSDictionary<NSString *, NSString *> *> *)getExtraPackages;
+
 + (instancetype)fromGlobals;
 
 /**
@@ -54,14 +56,29 @@ SENTRY_NO_INIT
  */
 @property (nonatomic, readonly, copy) NSArray<NSString *> *features;
 
+/**
+ * A list of packages that were installed as part of this SDK or the
+ * activated integrations. Each package consists of a name in the format
+ * source:identifier and version.
+ */
+@property (nonatomic, readonly, copy) NSArray<NSDictionary<NSString *, NSString *> *> *packages;
+
 - (instancetype)initWithOptions:(SentryOptions *)options;
 
 - (instancetype)initWithName:(NSString *)name
                      version:(NSString *)version
                 integrations:(NSArray<NSString *> *)integrations
-                    features:(NSArray<NSString *> *)features NS_DESIGNATED_INITIALIZER;
+                    features:(NSArray<NSString *> *)features
+                    packages:(NSArray<NSDictionary<NSString *, NSString *> *> *)packages
+    NS_DESIGNATED_INITIALIZER;
 
 - (instancetype)initWithDict:(NSDictionary *)dict;
+
+#if TEST || TESTCI
++ (void)setPackageManager:(NSUInteger)manager;
++ (void)resetPackageManager;
++ (void)clearExtraPackages;
+#endif
 
 @end
 

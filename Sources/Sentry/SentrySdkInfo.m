@@ -29,15 +29,94 @@ static SentryPackageManagerOption SENTRY_PACKAGE_INFO = SentryCarthage;
 static SentryPackageManagerOption SENTRY_PACKAGE_INFO = SentryPackageManagerUnkown;
 #endif
 
+static NSSet<NSDictionary<NSString *, NSString *> *> *extraPackages;
+
 NS_ASSUME_NONNULL_BEGIN
 
 @interface SentrySdkInfo ()
-
-@property (nonatomic) SentryPackageManagerOption packageManager;
-
 @end
 
 @implementation SentrySdkInfo
+
++ (void)addPackageName:(NSString *)name version:(NSString *)version
+{
+    if (name == nil || version == nil) {
+        return;
+    }
+
+    @synchronized(extraPackages) {
+        NSDictionary<NSString *, NSString *> *newPackage =
+            @{ @"name" : name, @"version" : version };
+        if (extraPackages == nil) {
+            extraPackages = [[NSSet alloc] initWithObjects:newPackage, nil];
+        } else {
+            extraPackages = [extraPackages setByAddingObject:newPackage];
+        }
+    }
+}
+
++ (NSMutableSet<NSDictionary<NSString *, NSString *> *> *)getExtraPackages
+{
+    @synchronized(extraPackages) {
+        if (extraPackages == nil) {
+            return [[NSMutableSet alloc] init];
+        } else {
+            return [extraPackages mutableCopy];
+        }
+    }
+}
+
+#if TEST || TESTCI
++ (void)clearExtraPackages
+{
+    extraPackages = [[NSSet alloc] init];
+}
+
++ (void)setPackageManager:(NSUInteger)manager
+{
+    SENTRY_PACKAGE_INFO = manager;
+}
+
++ (void)resetPackageManager
+{
+    SENTRY_PACKAGE_INFO = SentryPackageManagerUnkown;
+}
+#endif
+
++ (nullable NSString *)getSentrySDKPackageName:(SentryPackageManagerOption)packageManager
+{
+    switch (packageManager) {
+    case SentrySwiftPackageManager:
+        return [NSString stringWithFormat:@"spm:getsentry/%@", SentryMeta.sdkName];
+    case SentryCocoaPods:
+        return [NSString stringWithFormat:@"cocoapods:getsentry/%@", SentryMeta.sdkName];
+    case SentryCarthage:
+        return [NSString stringWithFormat:@"carthage:getsentry/%@", SentryMeta.sdkName];
+    default:
+        return nil;
+    }
+}
+
++ (nullable NSDictionary<NSString *, NSString *> *)getSentrySDKPackage:
+    (SentryPackageManagerOption)packageManager
+{
+
+    if (packageManager == SentryPackageManagerUnkown) {
+        return nil;
+    }
+
+    NSString *name = [SentrySdkInfo getSentrySDKPackageName:packageManager];
+    if (nil == name) {
+        return nil;
+    }
+
+    return @{ @"name" : name, @"version" : SentryMeta.versionString };
+}
+
++ (nullable NSDictionary<NSString *, NSString *> *)getSentrySDKPackage
+{
+    return [SentrySdkInfo getSentrySDKPackage:SENTRY_PACKAGE_INFO];
+}
 
 + (instancetype)fromGlobals
 {
@@ -59,23 +138,29 @@ NS_ASSUME_NONNULL_BEGIN
     }
 #endif
 
+    NSMutableSet<NSDictionary<NSString *, NSString *> *> *packages =
+        [SentrySdkInfo getExtraPackages];
+    [packages addObject:[SentrySdkInfo getSentrySDKPackage]];
+
     return [self initWithName:SentryMeta.sdkName
                       version:SentryMeta.versionString
                  integrations:integrations
-                     features:features];
+                     features:features
+                     packages:[packages allObjects]];
 }
 
 - (instancetype)initWithName:(NSString *)name
                      version:(NSString *)version
                 integrations:(NSArray<NSString *> *)integrations
                     features:(NSArray<NSString *> *)features
+                    packages:(NSArray<NSDictionary<NSString *, NSString *> *> *)packages
 {
     if (self = [super init]) {
         _name = name ?: @"";
         _version = version ?: @"";
-        _packageManager = SENTRY_PACKAGE_INFO;
         _integrations = integrations ?: @[];
         _features = features ?: @[];
+        _packages = packages ?: @[];
     }
 
     return self;
@@ -87,6 +172,7 @@ NS_ASSUME_NONNULL_BEGIN
     NSString *version = @"";
     NSMutableSet<NSString *> *integrations = [[NSMutableSet alloc] init];
     NSMutableSet<NSString *> *features = [[NSMutableSet alloc] init];
+    NSMutableSet<NSDictionary<NSString *, NSString *> *> *packages = [[NSMutableSet alloc] init];
 
     if ([dict[@"name"] isKindOfClass:[NSString class]]) {
         name = dict[@"name"];
@@ -112,10 +198,21 @@ NS_ASSUME_NONNULL_BEGIN
         }
     }
 
+    if ([dict[@"packages"] isKindOfClass:[NSArray class]]) {
+        for (id item in dict[@"packages"]) {
+            if ([item isKindOfClass:[NSDictionary class]] &&
+                [item[@"name"] isKindOfClass:[NSString class]] &&
+                [item[@"version"] isKindOfClass:[NSString class]]) {
+                [packages addObject:@{ @"name" : item[@"name"], @"version" : item[@"version"] }];
+            }
+        }
+    }
+
     return [self initWithName:name
                       version:version
                  integrations:[integrations allObjects]
-                     features:[features allObjects]];
+                     features:[features allObjects]
+                     packages:[packages allObjects]];
 }
 
 - (nullable NSString *)getPackageName:(SentryPackageManagerOption)packageManager
@@ -134,26 +231,13 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (NSDictionary<NSString *, id> *)serialize
 {
-    NSMutableDictionary *sdk = @{
+    return @{
         @"name" : self.name,
         @"version" : self.version,
         @"integrations" : self.integrations,
         @"features" : self.features,
-    }
-                                   .mutableCopy;
-    if (self.packageManager != SentryPackageManagerUnkown) {
-        NSString *format = [self getPackageName:self.packageManager];
-        if (format != nil) {
-            sdk[@"packages"] = @[
-                @{
-                    @"name" : [NSString stringWithFormat:format, self.name],
-                    @"version" : self.version
-                },
-            ];
-        }
-    }
-
-    return sdk;
+        @"packages" : self.packages,
+    };
 }
 
 @end
