@@ -70,6 +70,10 @@
       </BuildableProductRunnable>
       <CommandLineArguments>
          <CommandLineArgument
+            argument = "--io.sentry.disable-everything"
+            isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
             argument = "--disable-file-io-tracing"
             isEnabled = "NO">
          </CommandLineArgument>
@@ -111,10 +115,6 @@
          </CommandLineArgument>
          <CommandLineArgument
             argument = "--disable-automatic-session-tracking"
-            isEnabled = "NO">
-         </CommandLineArgument>
-         <CommandLineArgument
-            argument = "--disable-metrics"
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
