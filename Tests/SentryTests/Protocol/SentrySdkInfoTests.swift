@@ -127,7 +127,23 @@ class SentrySdkInfoTests: XCTestCase {
         let version = "10.3.1"
         let expected = SentrySdkInfo(name: sdkName, version: version, integrations: ["a"], features: ["b"])
 
-        let dict = [ "name": sdkName, "version": version, "integrations": [0, [], "a", [:]], "features": [0, [], "b", [:]]] as [String: Any]
+        let dict = [
+            "name": sdkName,
+            "version": version,
+            "integrations":
+                [
+                    0,
+                    [] as [Any],
+                    "a",
+                    [:] as [String: Any]
+                ] as [Any],
+            "features": [
+                0,
+                [] as [Any],
+                "b",
+                [:] as [String: Any]
+            ] as [Any]
+        ] as [String: Any]
 
         XCTAssertEqual(expected, SentrySdkInfo(dict: dict))
     }
