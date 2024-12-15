@@ -88,7 +88,7 @@ class SentrySdkInfoTests: XCTestCase {
 
     func testSPM_packageInfo() throws {
         SentrySdkInfo.setPackageManager(0)
-        let actual = SentrySdkInfo.fromGlobals()
+        let actual = SentrySdkInfo.global()
         let serialization = actual.serialize()
 
         let packages = try XCTUnwrap(serialization["packages"] as? [[String: Any]])
@@ -99,7 +99,7 @@ class SentrySdkInfoTests: XCTestCase {
 
     func testCarthage_packageInfo() throws {
         SentrySdkInfo.setPackageManager(2)
-        let actual = SentrySdkInfo.fromGlobals()
+        let actual = SentrySdkInfo.global()
         let serialization = actual.serialize()
 
         let packages = try XCTUnwrap(serialization["packages"] as? [[String: Any]])
@@ -110,7 +110,7 @@ class SentrySdkInfoTests: XCTestCase {
 
     func testcocoapods_packageInfo() throws {
         SentrySdkInfo.setPackageManager(1)
-        let actual = SentrySdkInfo.fromGlobals()
+        let actual = SentrySdkInfo.global()
         let serialization = actual.serialize()
 
         let packages = try XCTUnwrap(serialization["packages"] as? [[String: Any]])
@@ -293,7 +293,7 @@ class SentrySdkInfoTests: XCTestCase {
         let extraPackage = ["name": "test-package", "version": "1.0.0"]
         SentrySdkInfo.addPackageName(extraPackage["name"]!, version: extraPackage["version"]!)
 
-        let actual = SentrySdkInfo.fromGlobals()
+        let actual = SentrySdkInfo.global()
         XCTAssertEqual(actual.packages.count, 1)
         XCTAssertTrue(actual.packages.contains(extraPackage))
     }
@@ -303,7 +303,7 @@ class SentrySdkInfoTests: XCTestCase {
         SentrySdkInfo.addPackageName(extraPackage["name"]!, version: extraPackage["version"]!)
         SentrySdkInfo.setPackageManager(1)
 
-        let actual = SentrySdkInfo.fromGlobals()
+        let actual = SentrySdkInfo.global()
         XCTAssertEqual(actual.packages.count, 2)
         XCTAssertTrue(actual.packages.contains(extraPackage))
         XCTAssertTrue(actual.packages.contains(["name": "cocoapods:getsentry/\(SentryMeta.sdkName)", "version": SentryMeta.versionString]))
