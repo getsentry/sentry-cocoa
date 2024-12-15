@@ -1,4 +1,5 @@
 @testable import Sentry
+import SentryTestUtils
 import XCTest
 
 class SentrySerializationTests: XCTestCase {
@@ -7,7 +8,17 @@ class SentrySerializationTests: XCTestCase {
         static var invalidData = "hi".data(using: .utf8)!
         static var traceContext = TraceContext(trace: SentryId(), publicKey: "PUBLIC_KEY", releaseName: "RELEASE_NAME", environment: "TEST", transaction: "transaction", userSegment: "some segment", sampleRate: "0.25", sampled: "true", replayId: nil)
     }
-    
+
+    override func setUp() {
+        super.setUp()
+        clearTestState()
+    }
+
+    override func tearDown() {
+        super.tearDown()
+        clearTestState()
+    }
+
     func testSerializationFailsWithInvalidJSONObject() {
         let json: [String: Any] = [
             "valid object": "hi, i'm a valid object",
