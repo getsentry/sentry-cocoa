@@ -249,15 +249,26 @@ class SentrySdkInfoTests: XCTestCase {
         let dict = [
             "name": sdkName,
             "version": version,
-            "integrations": [0, [], "a", [:]],
-            "features": [0, [], "b", [:]],
+            "integrations":
+                [
+                    0,
+                    [] as [Any],
+                    "a",
+                    [:] as [String: Any]
+                ] as [Any],
+            "features": [
+                0,
+                [] as [Any],
+                "b",
+                [:] as [String: Any]
+            ] as [Any],
             "packages": [
                 0,
-                [],
+                [] as [Any],
                 "b",
-                [:],
-                ["name": "a", "version": "1", "invalid": -1]
-            ]
+                [:] as [String: Any],
+                ["name": "a", "version": "1", "invalid": -1] as [String: Any]
+            ] as [Any]
         ] as [String: Any]
 
         XCTAssertEqual(expected, SentrySdkInfo(dict: dict))
