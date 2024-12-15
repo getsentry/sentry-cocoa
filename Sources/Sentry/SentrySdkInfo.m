@@ -118,7 +118,7 @@ NS_ASSUME_NONNULL_BEGIN
     return [SentrySdkInfo getSentrySDKPackage:SENTRY_PACKAGE_INFO];
 }
 
-+ (instancetype)fromGlobals
++ (instancetype)global
 {
     return [[SentrySdkInfo alloc] initWithOptions:[SentrySDK.currentHub getClient].options];
 }

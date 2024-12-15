@@ -27,7 +27,7 @@ SENTRY_NO_INIT
 + (void)addPackageName:(NSString *)name version:(NSString *)version;
 + (NSMutableSet<NSDictionary<NSString *, NSString *> *> *)getExtraPackages;
 
-+ (instancetype)fromGlobals;
++ (instancetype)global;
 
 /**
  * The name of the SDK. Examples: sentry.cocoa, sentry.cocoa.vapor, ...

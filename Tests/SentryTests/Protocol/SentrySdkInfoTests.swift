@@ -269,9 +269,9 @@ class SentrySdkInfoTests: XCTestCase {
         assertEmptySdkInfo(actual: SentrySdkInfo(dict: dict))
     }
 
-    func testFromGlobals() throws {
+    func testglobal() throws {
         SentrySDK.start(options: Options())
-        let actual = SentrySdkInfo.fromGlobals()
+        let actual = SentrySdkInfo.global()
         XCTAssertEqual(actual.name, SentryMeta.sdkName)
         XCTAssertEqual(actual.version, SentryMeta.versionString)
         XCTAssertTrue(actual.integrations.count > 0)
