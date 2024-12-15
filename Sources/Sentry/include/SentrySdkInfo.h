@@ -24,7 +24,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface SentrySdkInfo : NSObject <SentryInternalSerializable>
 SENTRY_NO_INIT
 
-+ (instancetype)fromGlobals;
++ (instancetype)global;
 
 /**
  * The name of the SDK. Examples: sentry.cocoa, sentry.cocoa.vapor, ...

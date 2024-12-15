@@ -29,7 +29,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithId:(nullable SentryId *)eventId
               traceContext:(nullable SentryTraceContext *)traceContext
 {
-    SentrySdkInfo *sdkInfo = [SentrySdkInfo fromGlobals];
+    SentrySdkInfo *sdkInfo = [SentrySdkInfo global];
     self = [self initWithId:eventId sdkInfo:sdkInfo traceContext:traceContext];
     return self;
 }
