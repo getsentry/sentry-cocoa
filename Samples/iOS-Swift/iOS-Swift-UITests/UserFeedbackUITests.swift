@@ -97,6 +97,17 @@ class UserFeedbackUITests: BaseUITest {
         XCTAssertFalse(app.staticTexts["Thy name (Required)"].exists)
     }
     
+    func testPrefilledUserInformation() throws {
+        launchApp(args: ["--io.sentry.feedback.use-sentry-user"], env: [
+            "--io.sentry.user.name": "ui test user",
+            "--io.sentry.user.email": "ui-testing@sentry.io"
+        ])
+        
+        widgetButton.tap()
+        XCTAssertEqual(try XCTUnwrap(nameField.value as? String), "ui test user")
+        XCTAssertEqual(try XCTUnwrap(emailField.value as? String), "ui-testing@sentry.io")
+    }
+    
     // MARK: Tests validating happy path / successful submission
     
     func testSubmitFullyFilledForm() throws {
