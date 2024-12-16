@@ -65,8 +65,8 @@ NSString *const kSentryDefaultEnvironment = @"production";
         [SentryCrashIntegration class],
 #if SENTRY_HAS_UIKIT
         [SentryAppStartTrackingIntegration class], [SentryFramesTrackingIntegration class],
-        [SentryPerformanceTrackingIntegration class],
-        [SentryUIEventTrackingIntegration class], [SentryViewHierarchyIntegration class],
+        [SentryPerformanceTrackingIntegration class], [SentryUIEventTrackingIntegration class],
+        [SentryViewHierarchyIntegration class],
         [SentryWatchdogTerminationTrackingIntegration class],
 #endif // SENTRY_HAS_UIKIT
 #if SENTRY_TARGET_REPLAY_SUPPORTED
