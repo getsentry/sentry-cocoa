@@ -7,6 +7,14 @@
 - Improve compiler error message for missing Swift declarations due to APPLICATION_EXTENSION_API_ONLY (#4603)
 - Add file IO tracking wrapper for Swift.Data (#4605)
 
+### Fixes
+
+- `SentrySdkInfo.packages` should be an array (#4626)
+
+### Internal
+
+- Remove loading `integrations` names from `event.extra` (#4627)
+
 ## 8.42.0-beta.2
 
 ### Fixes
