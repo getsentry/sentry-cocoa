@@ -14,6 +14,7 @@
 ### Internal
 
 - Remove loading `integrations` names from `event.extra` (#4627)
+- Add Hybrid SDKs API to add extra SDK packages (#4637)
 
 ## 8.42.0-beta.2
 
