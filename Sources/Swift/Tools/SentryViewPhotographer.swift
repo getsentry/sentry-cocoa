@@ -97,7 +97,9 @@ class SentryViewPhotographer: NSObject, SentryViewScreenshotProvider {
                                         clipPaths: clipPaths,
                                         clipOutPath: clipOutPath)
                 case .clipEnd:
-                    clipPaths.removeLast()
+                    if !clipPaths.isEmpty {
+                        clipPaths.removeLast()
+                    }
                     self.updateClipping(for: context.cgContext,
                                         clipPaths: clipPaths,
                                         clipOutPath: clipOutPath)
