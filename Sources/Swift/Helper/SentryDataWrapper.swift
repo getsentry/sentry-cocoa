@@ -1,11 +1,3 @@
-//
-//  SentryDataWrapper.swift
-//  Sentry
-//
-//  Created by Philip Niedertscheider on 12.12.24.
-//  Copyright © 2024 Sentry. All rights reserved.
-//
-
 /// A drop-in replacement for the standard ``Swift.Data`` but with automatic tracking for file I/O operations.
 ///
 /// This structure is intended to resemble the same method signatures as of ``Swift.Data``.
