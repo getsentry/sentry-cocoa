@@ -6,8 +6,8 @@ class SentrySdkInfoTests: XCTestCase {
     private let sdkName = "sentry.cocoa"
 
     func cleanUp() {
-        SentrySdkInfo.resetPackageManager()
-        SentrySdkInfo.clearExtraPackages()
+        SentrySdkPackage.resetPackageManager()
+        SentryExtraPackages.clear()
     }
 
     override func setUp() {
@@ -87,7 +87,7 @@ class SentrySdkInfoTests: XCTestCase {
     }
 
     func testSPM_packageInfo() throws {
-        SentrySdkInfo.setPackageManager(0)
+        SentrySdkPackage.setPackageManager(0)
         let actual = SentrySdkInfo.global()
         let serialization = actual.serialize()
 
@@ -98,7 +98,7 @@ class SentrySdkInfoTests: XCTestCase {
     }
 
     func testCarthage_packageInfo() throws {
-        SentrySdkInfo.setPackageManager(2)
+        SentrySdkPackage.setPackageManager(2)
         let actual = SentrySdkInfo.global()
         let serialization = actual.serialize()
 
@@ -109,7 +109,7 @@ class SentrySdkInfoTests: XCTestCase {
     }
 
     func testcocoapods_packageInfo() throws {
-        SentrySdkInfo.setPackageManager(1)
+        SentrySdkPackage.setPackageManager(1)
         let actual = SentrySdkInfo.global()
         let serialization = actual.serialize()
 
@@ -120,14 +120,10 @@ class SentrySdkInfoTests: XCTestCase {
     }
 
     func testNoPackageNames () {
-        let actual = SentrySdkInfo(
-            name: sdkName,
-            version: "",
-            integrations: [],
-            features: [],
-            packages: []
-        )
-        XCTAssertNil(Dynamic(actual).getPackageName(3).asString)
+        SentrySdkPackage.setPackageManager(3)
+        let actual = SentrySdkInfo.global()
+
+        XCTAssertEqual(0, actual.packages.count)
     }
     
     func testInitWithDict_SdkInfo() {
@@ -291,7 +287,7 @@ class SentrySdkInfoTests: XCTestCase {
     
     func testFromGlobalsWithExtraPackage() throws {
         let extraPackage = ["name": "test-package", "version": "1.0.0"]
-        SentrySdkInfo.addPackageName(extraPackage["name"]!, version: extraPackage["version"]!)
+        SentryExtraPackages.addPackageName(extraPackage["name"]!, version: extraPackage["version"]!)
 
         let actual = SentrySdkInfo.global()
         XCTAssertEqual(actual.packages.count, 1)
@@ -300,8 +296,8 @@ class SentrySdkInfoTests: XCTestCase {
     
     func testFromGlobalsWithExtraPackageAndPackageManager() throws {
         let extraPackage = ["name": "test-package", "version": "1.0.0"]
-        SentrySdkInfo.addPackageName(extraPackage["name"]!, version: extraPackage["version"]!)
-        SentrySdkInfo.setPackageManager(1)
+        SentryExtraPackages.addPackageName(extraPackage["name"]!, version: extraPackage["version"]!)
+        SentrySdkPackage.setPackageManager(1)
 
         let actual = SentrySdkInfo.global()
         XCTAssertEqual(actual.packages.count, 2)

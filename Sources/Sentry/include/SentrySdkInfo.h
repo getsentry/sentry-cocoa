@@ -24,8 +24,6 @@ NS_ASSUME_NONNULL_BEGIN
 @interface SentrySdkInfo : NSObject <SentryInternalSerializable>
 SENTRY_NO_INIT
 
-+ (void)addPackageName:(NSString *)name version:(NSString *)version;
-
 + (instancetype)global;
 
 /**
@@ -73,12 +71,6 @@ SENTRY_NO_INIT
     NS_DESIGNATED_INITIALIZER;
 
 - (instancetype)initWithDict:(NSDictionary *)dict;
-
-#if TEST || TESTCI
-+ (void)setPackageManager:(NSUInteger)manager;
-+ (void)resetPackageManager;
-+ (void)clearExtraPackages;
-#endif
 
 @end
 

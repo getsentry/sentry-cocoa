@@ -1,35 +1,13 @@
 #import "SentrySdkInfo.h"
 #import "SentryClient+Private.h"
+#import "SentryExtraPackages.h"
 #import "SentryHub+Private.h"
 #import "SentryMeta.h"
 #import "SentryOptions.h"
 #import "SentrySDK+Private.h"
+#import "SentrySdkPackage.h"
 #import "SentrySwift.h"
 #import <Foundation/Foundation.h>
-
-typedef NS_ENUM(NSUInteger, SentryPackageManagerOption) {
-    SentrySwiftPackageManager,
-    SentryCocoaPods,
-    SentryCarthage,
-    SentryPackageManagerUnkown
-};
-
-/**
- * This is required to identify the package manager used when installing sentry.
- */
-#if SWIFT_PACKAGE
-static SentryPackageManagerOption SENTRY_PACKAGE_INFO = SentrySwiftPackageManager;
-#elif COCOAPODS
-static SentryPackageManagerOption SENTRY_PACKAGE_INFO = SentryCocoaPods;
-#elif CARTHAGE_YES
-// CARTHAGE is a xcodebuild build setting with value `YES`, we need to convert it into a compiler
-// definition to be able to use it.
-static SentryPackageManagerOption SENTRY_PACKAGE_INFO = SentryCarthage;
-#else
-static SentryPackageManagerOption SENTRY_PACKAGE_INFO = SentryPackageManagerUnkown;
-#endif
-
-static NSSet<NSDictionary<NSString *, NSString *> *> *extraPackages;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -37,86 +15,6 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 @implementation SentrySdkInfo
-
-+ (void)addPackageName:(NSString *)name version:(NSString *)version
-{
-    if (name == nil || version == nil) {
-        return;
-    }
-
-    @synchronized(extraPackages) {
-        NSDictionary<NSString *, NSString *> *newPackage =
-            @{ @"name" : name, @"version" : version };
-        if (extraPackages == nil) {
-            extraPackages = [[NSSet alloc] initWithObjects:newPackage, nil];
-        } else {
-            extraPackages = [extraPackages setByAddingObject:newPackage];
-        }
-    }
-}
-
-+ (NSMutableSet<NSDictionary<NSString *, NSString *> *> *)getExtraPackages
-{
-    @synchronized(extraPackages) {
-        if (extraPackages == nil) {
-            return [[NSMutableSet alloc] init];
-        } else {
-            return [extraPackages mutableCopy];
-        }
-    }
-}
-
-#if TEST || TESTCI
-+ (void)clearExtraPackages
-{
-    extraPackages = [[NSSet alloc] init];
-}
-
-+ (void)setPackageManager:(NSUInteger)manager
-{
-    SENTRY_PACKAGE_INFO = manager;
-}
-
-+ (void)resetPackageManager
-{
-    SENTRY_PACKAGE_INFO = SentryPackageManagerUnkown;
-}
-#endif
-
-+ (nullable NSString *)getSentrySDKPackageName:(SentryPackageManagerOption)packageManager
-{
-    switch (packageManager) {
-    case SentrySwiftPackageManager:
-        return [NSString stringWithFormat:@"spm:getsentry/%@", SentryMeta.sdkName];
-    case SentryCocoaPods:
-        return [NSString stringWithFormat:@"cocoapods:getsentry/%@", SentryMeta.sdkName];
-    case SentryCarthage:
-        return [NSString stringWithFormat:@"carthage:getsentry/%@", SentryMeta.sdkName];
-    default:
-        return nil;
-    }
-}
-
-+ (nullable NSDictionary<NSString *, NSString *> *)getSentrySDKPackage:
-    (SentryPackageManagerOption)packageManager
-{
-
-    if (packageManager == SentryPackageManagerUnkown) {
-        return nil;
-    }
-
-    NSString *name = [SentrySdkInfo getSentrySDKPackageName:packageManager];
-    if (nil == name) {
-        return nil;
-    }
-
-    return @{ @"name" : name, @"version" : SentryMeta.versionString };
-}
-
-+ (nullable NSDictionary<NSString *, NSString *> *)getSentrySDKPackage
-{
-    return [SentrySdkInfo getSentrySDKPackage:SENTRY_PACKAGE_INFO];
-}
 
 + (instancetype)global
 {
@@ -139,8 +37,8 @@ NS_ASSUME_NONNULL_BEGIN
 #endif
 
     NSMutableSet<NSDictionary<NSString *, NSString *> *> *packages =
-        [SentrySdkInfo getExtraPackages];
-    NSDictionary<NSString *, NSString *> *sdkPackage = [SentrySdkInfo getSentrySDKPackage];
+        [SentryExtraPackages getPackages];
+    NSDictionary<NSString *, NSString *> *sdkPackage = [SentrySdkPackage global];
     if (sdkPackage != nil) {
         [packages addObject:sdkPackage];
     }
@@ -216,20 +114,6 @@ NS_ASSUME_NONNULL_BEGIN
                  integrations:[integrations allObjects]
                      features:[features allObjects]
                      packages:[packages allObjects]];
-}
-
-- (nullable NSString *)getPackageName:(SentryPackageManagerOption)packageManager
-{
-    switch (packageManager) {
-    case SentrySwiftPackageManager:
-        return @"spm:getsentry/%@";
-    case SentryCocoaPods:
-        return @"cocoapods:getsentry/%@";
-    case SentryCarthage:
-        return @"carthage:getsentry/%@";
-    default:
-        return nil;
-    }
 }
 
 - (NSDictionary<NSString *, id> *)serialize

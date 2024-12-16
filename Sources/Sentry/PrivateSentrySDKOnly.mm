@@ -18,10 +18,10 @@
 #import "SentryViewHierarchy.h"
 #import <SentryBreadcrumb.h>
 #import <SentryDependencyContainer.h>
+#import <SentryExtraPackages.h>
 #import <SentryFramesTracker.h>
 #import <SentryScope+Private.h>
 #import <SentryScreenshot.h>
-#import <SentrySdkInfo.h>
 #import <SentryUser.h>
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
@@ -191,7 +191,7 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
 
 + (void)addSdkPackage:(nonnull NSString *)name version:(nonnull NSString *)version
 {
-    [SentrySdkInfo addPackageName:name version:version];
+    [SentryExtraPackages addPackageName:name version:version];
 }
 
 + (NSDictionary *)getExtraContext

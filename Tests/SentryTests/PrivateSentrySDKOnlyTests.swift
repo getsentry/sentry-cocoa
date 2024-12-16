@@ -10,8 +10,8 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
     }
 
     override func setUp() {
-        SentrySdkInfo.resetPackageManager()
-        SentrySdkInfo.clearExtraPackages()
+        SentrySdkPackage.resetPackageManager()
+        SentryExtraPackages.clear()
     }
 
     func testStoreEnvelope() {
