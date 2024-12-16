@@ -135,7 +135,7 @@ class SentryFileManagerTests: XCTestCase {
     }
     
     func testStoreInvalidEnvelope_ReturnsNil() {
-        let sdkInfoWithInvalidJSON = SentrySdkInfo(name: SentryInvalidJSONString() as String, andVersion: "8.0.0")
+        let sdkInfoWithInvalidJSON = SentrySdkInfo(name: SentryInvalidJSONString() as String, version: "8.0.0", integrations: [], features: [])
         let headerWithInvalidJSON = SentryEnvelopeHeader(id: nil, sdkInfo: sdkInfoWithInvalidJSON, traceContext: nil)
         
         let envelope = SentryEnvelope(header: headerWithInvalidJSON, items: [])

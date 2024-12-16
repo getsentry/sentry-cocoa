@@ -9,6 +9,7 @@
 ### Fixes
 
 - `SentrySdkInfo.packages` should be an array (#4626)
+- Use the same SdkInfo for envelope header and event (#4629)
 - Replace occurences of `strncpy` with `strlcpy` (#4636)
 
 ### Internal
