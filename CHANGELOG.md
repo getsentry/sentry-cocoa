@@ -8,7 +8,7 @@
 
 ### Features
 
-- Show session replay options as replay tags ()
+- Show session replay options as replay tags (#4639)
 
 ### Fixes
 
