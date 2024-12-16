@@ -6,6 +6,10 @@
 
 - Improve compiler error message for missing Swift declarations due to APPLICATION_EXTENSION_API_ONLY (#4603)
 
+### Features
+
+- Show session replay options as replay tags ()
+
 ### Fixes
 
 - `SentrySdkInfo.packages` should be an array (#4626)

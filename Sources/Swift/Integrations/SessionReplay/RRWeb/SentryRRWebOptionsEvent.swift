@@ -9,9 +9,9 @@ import Foundation
                         "sessionSampleRate": options.sessionSampleRate,
                         "errorSampleRate": options.onErrorSampleRate,
                         "maskAllText": options.maskAllText,
-                        "maskAllImates": options.maskAllImages,
-                        "maskedViewClasses": options.maskedViewClasses.map(String.init(describing: )),
-                        "unmaskedViewClasses": options.unmaskedViewClasses.map(String.init(describing: ))
+                        "maskAllImages": options.maskAllImages,
+                        "maskedViewClasses": options.maskedViewClasses.map(String.init(describing: )).joined(separator: ", "),
+                        "unmaskedViewClasses": options.unmaskedViewClasses.map(String.init(describing: )).joined(separator: ", ")
                     ]
         )
     }
