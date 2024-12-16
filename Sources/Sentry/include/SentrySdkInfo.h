@@ -25,7 +25,6 @@ NS_ASSUME_NONNULL_BEGIN
 SENTRY_NO_INIT
 
 + (void)addPackageName:(NSString *)name version:(NSString *)version;
-+ (NSMutableSet<NSDictionary<NSString *, NSString *> *> *)getExtraPackages;
 
 + (instancetype)global;
 

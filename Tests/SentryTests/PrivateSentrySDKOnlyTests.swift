@@ -7,7 +7,6 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
     override func tearDown() {
         super.tearDown()
         clearTestState()
-        
     }
 
     override func setUp() {
@@ -438,7 +437,7 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
         PrivateSentrySDKOnly.addSdkPackage("package2", version: "version2")
 
         XCTAssertEqual(
-            SentrySdkInfo.getExtraPackages(),
+            SentrySdkInfo.global().packages,
             [
                 ["name": "package1", "version": "version1"],
                 ["name": "package2", "version": "version2"]
