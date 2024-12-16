@@ -40,9 +40,10 @@ class SentryViewPhotographer: NSObject, SentryViewScreenshotProvider {
     func image(view: UIView, onComplete: @escaping ScreenshotCallback) {
         let redact = redactBuilder.redactRegionsFor(view: view)
         let image = renderer.render(view: view)
+        let viewSize = view.bounds.size
         
         dispatchQueue.dispatchAsync {
-            let screenshot = self.maskScreenshot(screenshot: image, from: view, masking: redact)
+            let screenshot = self.maskScreenshot(screenshot: image, size: viewSize, masking: redact)
             onComplete(screenshot)
         }
     }
@@ -50,19 +51,20 @@ class SentryViewPhotographer: NSObject, SentryViewScreenshotProvider {
     func image(view: UIView) -> UIImage {
         let redact = redactBuilder.redactRegionsFor(view: view)
         let image = renderer.render(view: view)
+        let viewSize = view.bounds.size
         
-        return self.maskScreenshot(screenshot: image, from: view, masking: redact)
+        return self.maskScreenshot(screenshot: image, size: viewSize, masking: redact)
     }
     
-    private func maskScreenshot(screenshot image: UIImage, from view: UIView, masking: [RedactRegion]) -> UIImage {
-        let imageSize = view.bounds.size
-        let screenshot = UIGraphicsImageRenderer(size: imageSize, format: .init(for: .init(displayScale: 1))).image { context in
+    private func maskScreenshot(screenshot image: UIImage, size: CGSize, masking: [RedactRegion]) -> UIImage {
+        
+        let screenshot = UIGraphicsImageRenderer(size: size, format: .init(for: .init(displayScale: 1))).image { context in
             
-            let clipOutPath = CGMutablePath(rect: CGRect(origin: .zero, size: imageSize), transform: nil)
+            let clipOutPath = CGMutablePath(rect: CGRect(origin: .zero, size: size), transform: nil)
             var clipPaths = [CGPath]()
             
-            let imageRect = CGRect(origin: .zero, size: imageSize)
-            context.cgContext.addRect(CGRect(origin: CGPoint.zero, size: imageSize))
+            let imageRect = CGRect(origin: .zero, size: size)
+            context.cgContext.addRect(CGRect(origin: CGPoint.zero, size: size))
             context.cgContext.clip(using: .evenOdd)
             UIColor.blue.setStroke()
             
