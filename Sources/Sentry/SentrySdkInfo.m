@@ -1,4 +1,10 @@
 #import "SentrySdkInfo.h"
+#import "SentryClient+Private.h"
+#import "SentryHub+Private.h"
+#import "SentryMeta.h"
+#import "SentryOptions.h"
+#import "SentrySDK+Private.h"
+#import "SentrySwift.h"
 #import <Foundation/Foundation.h>
 
 typedef NS_ENUM(NSUInteger, SentryPackageManagerOption) {
@@ -33,12 +39,43 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation SentrySdkInfo
 
-- (instancetype)initWithName:(NSString *)name andVersion:(NSString *)version
++ (instancetype)global
+{
+    return [[SentrySdkInfo alloc] initWithOptions:[SentrySDK.currentHub getClient].options];
+}
+
+- (instancetype)initWithOptions:(SentryOptions *)options
+{
+
+    NSArray<NSString *> *features =
+        [SentryEnabledFeaturesBuilder getEnabledFeaturesWithOptions:options];
+
+    NSMutableArray<NSString *> *integrations =
+        [SentrySDK.currentHub trimmedInstalledIntegrationNames];
+
+#if SENTRY_HAS_UIKIT
+    if (options.enablePreWarmedAppStartTracing) {
+        [integrations addObject:@"PreWarmedAppStartTracing"];
+    }
+#endif
+
+    return [self initWithName:SentryMeta.sdkName
+                      version:SentryMeta.versionString
+                 integrations:integrations
+                     features:features];
+}
+
+- (instancetype)initWithName:(NSString *)name
+                     version:(NSString *)version
+                integrations:(NSArray<NSString *> *)integrations
+                    features:(NSArray<NSString *> *)features
 {
     if (self = [super init]) {
         _name = name ?: @"";
         _version = version ?: @"";
         _packageManager = SENTRY_PACKAGE_INFO;
+        _integrations = integrations ?: @[];
+        _features = features ?: @[];
     }
 
     return self;
@@ -46,35 +83,39 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithDict:(NSDictionary *)dict
 {
-    return [self initWithDictInternal:dict orDefaults:nil];
-}
-
-- (instancetype)initWithDict:(NSDictionary *)dict orDefaults:(SentrySdkInfo *)info;
-{
-    return [self initWithDictInternal:dict orDefaults:info];
-}
-
-- (instancetype)initWithDictInternal:(NSDictionary *)dict orDefaults:(SentrySdkInfo *_Nullable)info;
-{
     NSString *name = @"";
     NSString *version = @"";
+    NSMutableSet<NSString *> *integrations = [[NSMutableSet alloc] init];
+    NSMutableSet<NSString *> *features = [[NSMutableSet alloc] init];
 
-    if (nil != dict[@"sdk"] && [dict[@"sdk"] isKindOfClass:[NSDictionary class]]) {
-        NSDictionary<NSString *, id> *sdkInfoDict = dict[@"sdk"];
-        if ([sdkInfoDict[@"name"] isKindOfClass:[NSString class]]) {
-            name = sdkInfoDict[@"name"];
-        } else if (info && info.name) {
-            name = info.name;
-        }
+    if ([dict[@"name"] isKindOfClass:[NSString class]]) {
+        name = dict[@"name"];
+    }
 
-        if ([sdkInfoDict[@"version"] isKindOfClass:[NSString class]]) {
-            version = sdkInfoDict[@"version"];
-        } else if (info && info.version) {
-            version = info.version;
+    if ([dict[@"version"] isKindOfClass:[NSString class]]) {
+        version = dict[@"version"];
+    }
+
+    if ([dict[@"integrations"] isKindOfClass:[NSArray class]]) {
+        for (id item in dict[@"integrations"]) {
+            if ([item isKindOfClass:[NSString class]]) {
+                [integrations addObject:item];
+            }
         }
     }
 
-    return [self initWithName:name andVersion:version];
+    if ([dict[@"features"] isKindOfClass:[NSArray class]]) {
+        for (id item in dict[@"features"]) {
+            if ([item isKindOfClass:[NSString class]]) {
+                [features addObject:item];
+            }
+        }
+    }
+
+    return [self initWithName:name
+                      version:version
+                 integrations:[integrations allObjects]
+                     features:[features allObjects]];
 }
 
 - (nullable NSString *)getPackageName:(SentryPackageManagerOption)packageManager
@@ -96,6 +137,8 @@ NS_ASSUME_NONNULL_BEGIN
     NSMutableDictionary *sdk = @{
         @"name" : self.name,
         @"version" : self.version,
+        @"integrations" : self.integrations,
+        @"features" : self.features,
     }
                                    .mutableCopy;
     if (self.packageManager != SentryPackageManagerUnkown) {
@@ -110,7 +153,7 @@ NS_ASSUME_NONNULL_BEGIN
         }
     }
 
-    return @{ @"sdk" : sdk };
+    return sdk;
 }
 
 @end
