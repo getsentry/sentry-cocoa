@@ -60,8 +60,8 @@ NSString *const kSentryDefaultEnvironment = @"production";
     // And SentrySessionReplayIntegration before SentryCrashIntegration.
     NSMutableArray<Class> *defaultIntegrations = [NSMutableArray<Class> arrayWithObjects:
 #if SENTRY_TARGET_REPLAY_SUPPORTED
-            [SentrySessionReplayIntegration class], [SentryScreenshotIntegration class],
-#endif
+            [SentrySessionReplayIntegration class],
+#endif // SENTRY_TARGET_REPLAY_SUPPORTED
         [SentryCrashIntegration class],
 #if SENTRY_HAS_UIKIT
         [SentryAppStartTrackingIntegration class], [SentryFramesTrackingIntegration class],
@@ -69,6 +69,9 @@ NSString *const kSentryDefaultEnvironment = @"production";
         [SentryUIEventTrackingIntegration class], [SentryViewHierarchyIntegration class],
         [SentryWatchdogTerminationTrackingIntegration class],
 #endif // SENTRY_HAS_UIKIT
+#if SENTRY_TARGET_REPLAY_SUPPORTED
+        [SentryScreenshotIntegration class],
+#endif // SENTRY_TARGET_REPLAY_SUPPORTED
         [SentryANRTrackingIntegration class], [SentryAutoBreadcrumbTrackingIntegration class],
         [SentryAutoSessionTrackingIntegration class], [SentryCoreDataTrackingIntegration class],
         [SentryFileIOTrackingIntegration class], [SentryNetworkTrackingIntegration class],
