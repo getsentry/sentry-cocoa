@@ -2,10 +2,6 @@
 
 ## Unreleased
 
-### Improvements
-
-- Track adoption of `enablePersistingTracesWhenCrashing` (#4587)
-
 ### Features
 
 - Add in_foreground app context to transactions (#4561)
@@ -26,6 +22,7 @@
 - impr: Speed up getBinaryImages V2 (#4539). Follow up on (#4435)
 - Make SentryId Sendable (#4553)
 - Expose `Sentry._Hybrid` explicit module (#4440)
+- Track adoption of `enablePersistingTracesWhenCrashing` (#4587)
 
 ## 8.42.0-beta.2
 
