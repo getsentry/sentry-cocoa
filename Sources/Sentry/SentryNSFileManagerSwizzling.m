@@ -54,9 +54,11 @@
 #pragma clang diagnostic ignored "-Wshadow"
 + (void)swizzleNSFileManager
 {
-    // Before iOS 18.0 and macOS 15.0 the NSFileManager used NSData.writeToFile internally,
-    // which was tracked using swizzling of NSData. This behaviour changed, therefore the
-    // file manager needs to swizzled for later versions.
+    // Before iOS 18.0, macOS 15.0 and tvOS 18.0 the NSFileManager used NSData.writeToFile
+    // internally, which was tracked using swizzling of NSData. This behaviour changed, therefore
+    // the file manager needs to swizzled for later versions.
+    //
+    // Ref: https://github.com/swiftlang/swift-foundation/pull/410
     if (@available(iOS 18, macOS 15, *)) {
         SEL createFileAtPathContentsAttributes
             = NSSelectorFromString(@"createFileAtPath:contents:attributes:");
