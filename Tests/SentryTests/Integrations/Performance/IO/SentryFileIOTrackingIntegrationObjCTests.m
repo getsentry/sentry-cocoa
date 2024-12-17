@@ -5,6 +5,7 @@
 #import "SentrySpan.h"
 #import "SentrySwizzle.h"
 #import "SentryTracer.h"
+#import <SentrySwift.h>
 #import <XCTest/XCTest.h>
 
 @interface SentryFileIOTrackingIntegrationObjCTests : XCTestCase
@@ -53,6 +54,8 @@
         options.enableAutoPerformanceTracing = YES;
         options.enableFileIOTracing = YES;
         options.tracesSampleRate = @1;
+
+        options.experimental.enableFileManagerSwizzling = YES;
     }];
 }
 
@@ -177,11 +180,6 @@
 
 - (void)test_NSFileManagerCreateFile
 {
-    if (@available(iOS 18, macOS 15, tvOS 15, *)) {
-        XCTSkip("File IO tracking for Swift.Data is not working for this OS version. Therefore, we "
-                "disable this test until we fix file IO tracking: "
-                "https://github.com/getsentry/sentry-cocoa/issues/4546");
-    }
     [self assertTransactionForOperation:SENTRY_FILE_WRITE_OPERATION
                                   block:^{
                                       [NSFileManager.defaultManager createFileAtPath:self->filePath
