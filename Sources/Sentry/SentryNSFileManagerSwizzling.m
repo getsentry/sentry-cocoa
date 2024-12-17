@@ -59,7 +59,7 @@
     // the file manager needs to swizzled for later versions.
     //
     // Ref: https://github.com/swiftlang/swift-foundation/pull/410
-    if (@available(iOS 18, macOS 15, *)) {
+    if (@available(iOS 18, macOS 15, tvOS 18, *)) {
         SEL createFileAtPathContentsAttributes
             = NSSelectorFromString(@"createFileAtPath:contents:attributes:");
         SentrySwizzleInstanceMethod(NSFileManager.class, createFileAtPathContentsAttributes,
