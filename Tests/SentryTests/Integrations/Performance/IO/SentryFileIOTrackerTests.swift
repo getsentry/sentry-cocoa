@@ -277,21 +277,33 @@ class SentryFileIOTrackerTests: XCTestCase {
     
     func testCreateFile() {
         let sut = fixture.getSut()
+
         var methodPath: String?
         var methodData: Data?
         var methodAttributes: [FileAttributeKey: Any]?
-        
+
+        let transaction = SentrySDK.startTransaction(name: "Transaction", operation: "Test", bindToScope: true)
+        var span: Span?
+
         sut.measureNSFileManagerCreateFile(atPath: fixture.filePath, data: fixture.data, attributes: [
             FileAttributeKey.size: 123
         ], method: { path, data, attributes in
             methodPath = path
             methodData = data
             methodAttributes = attributes
+
+            span = self.firstSpan(transaction)
+            XCTAssertFalse(span?.isFinished ?? true)
+            self.advanceTime(bySeconds: 4)
+
             return true
         })
         XCTAssertEqual(methodPath, fixture.filePath)
         XCTAssertEqual(methodData, fixture.data)
         XCTAssertEqual(methodAttributes?[FileAttributeKey.size] as? Int, 123)
+
+        assertSpanDuration(span: span, expectedDuration: 4)
+        assertDataSpan(span, path: fixture.filePath, operation: SENTRY_FILE_WRITE_OPERATION, size: fixture.data.count)
     }
     
     func testDontTrackSentryFilesRead() {
