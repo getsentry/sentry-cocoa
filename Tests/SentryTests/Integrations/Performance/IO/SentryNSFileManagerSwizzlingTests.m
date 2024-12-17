@@ -1,5 +1,6 @@
 #import "SentryByteCountFormatter.h"
 #import "SentryFileIOTracker.h"
+#import "SentryNSFileManagerSwizzling.h"
 #import "SentryOptions.h"
 #import "SentrySDK.h"
 #import "SentrySpan.h"
@@ -47,15 +48,11 @@
     [someData writeToFile:filePath atomically:true];
 }
 
-- (void)setUpSentrySDKwithEnableFileManagerSwizzling:(bool)enableFileManagerSwizzling
+- (void)setUpNSFileManagerSwizzlingWithEnabledFlag:(bool)enableFileManagerSwizzling
 {
-    [SentrySDK startWithConfigureOptions:^(SentryOptions *_Nonnull options) {
-        options.enableAutoPerformanceTracing = YES;
-        options.enableFileIOTracing = YES;
-        options.tracesSampleRate = @1;
-
-        options.experimental.enableFileManagerSwizzling = enableFileManagerSwizzling;
-    }];
+    SentryOptions *options = [[SentryOptions alloc] init];
+    options.experimental.enableFileManagerSwizzling = enableFileManagerSwizzling;
+    [[SentryNSFileManagerSwizzling shared] startWithOptions:options];
 }
 
 - (void)tearDown
@@ -64,7 +61,7 @@
     if (deleteFileDirectory) {
         [NSFileManager.defaultManager removeItemAtURL:fileDirectory error:nil];
     }
-    [SentrySDK close];
+    [[SentryNSFileManagerSwizzling shared] stop];
 }
 
 - (void)testNSFileManagerCreateFile_preiOS18macOS15tvOS18_experimentalFlagDisabled_shouldNotSwizzle
@@ -72,11 +69,9 @@
     if (@available(iOS 18, macOS 15, tvOS 18, *)) {
         XCTSkip("Test only targets pre iOS 18, macOS 15, tvOS 18");
     }
-    [self setUpSentrySDKwithEnableFileManagerSwizzling:NO];
-    // Pre iOS 18, macOS 15, tvOS 18 the NSFileManager uses NSData, which is swizzled.
-    // As NSData swizzling can not be disabled, it will still record a span
+    [self setUpNSFileManagerSwizzlingWithEnabledFlag:NO];
     [self assertTransactionForOperation:SENTRY_FILE_WRITE_OPERATION
-                              spanCount:1
+                              spanCount:0
                                   block:^{
                                       [NSFileManager.defaultManager createFileAtPath:self->filePath
                                                                             contents:self->someData
@@ -90,11 +85,9 @@
     if (@available(iOS 18, macOS 15, tvOS 18, *)) {
         XCTSkip("Test only targets pre iOS 18, macOS 15, tvOS 18");
     }
-    [self setUpSentrySDKwithEnableFileManagerSwizzling:YES];
-    // Pre iOS 18, macOS 15, tvOS 18 the NSFileManager uses NSData, which is swizzled.
-    // As NSData swizzling can not be disabled, it will still record a span
+    [self setUpNSFileManagerSwizzlingWithEnabledFlag:YES];
     [self assertTransactionForOperation:SENTRY_FILE_WRITE_OPERATION
-                              spanCount:1
+                              spanCount:0
                                   block:^{
                                       [NSFileManager.defaultManager createFileAtPath:self->filePath
                                                                             contents:self->someData
@@ -111,7 +104,7 @@
     } else {
         XCTSkip("Test only targets iOS 18, macOS 15, tvOS 18 or later");
     }
-    [self setUpSentrySDKwithEnableFileManagerSwizzling:NO];
+    [self setUpNSFileManagerSwizzlingWithEnabledFlag:NO];
     [self assertTransactionForOperation:SENTRY_FILE_WRITE_OPERATION
                               spanCount:0
                                   block:^{
@@ -129,7 +122,7 @@
     } else {
         XCTSkip("Test only targets iOS 18, macOS 15, tvOS 18 or later");
     }
-    [self setUpSentrySDKwithEnableFileManagerSwizzling:YES];
+    [self setUpNSFileManagerSwizzlingWithEnabledFlag:YES];
     [self assertTransactionForOperation:SENTRY_FILE_WRITE_OPERATION
                               spanCount:1
                                   block:^{
