@@ -4,7 +4,11 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class SentryTracer, SentryId, SentrySpanId, SentryFrame, SentrySpanContext;
+@class SentryFrame;
+@class SentryId;
+@class SentrySpanContext;
+@class SentrySpanId;
+@class SentryTracer;
 
 #if SENTRY_HAS_UIKIT
 @class SentryFramesTracker;
