@@ -1,6 +1,7 @@
 import XCTest
 
 class SentryGeoTests: XCTestCase {
+    
     func testSerializationWithAllProperties() throws {
         let geo = try XCTUnwrap(TestData.geo.copy() as? Geo)
         let actual = geo.serialize()
@@ -16,11 +17,11 @@ class SentryGeoTests: XCTestCase {
     }
     
     func testHash() {
-        XCTAssertEqual(TestData.geo.hash(), TestData.geo.hash())
+        XCTAssertEqual(TestData.geo.hash, TestData.geo.hash)
         
         let geo2 = TestData.geo
         geo2.city = "Berlin"
-        XCTAssertNotEqual(TestData.geo.hash(), geo2.hash())
+        XCTAssertNotEqual(TestData.geo.hash, geo2.hash)
     }
     
     func testIsEqualToSelf() {
