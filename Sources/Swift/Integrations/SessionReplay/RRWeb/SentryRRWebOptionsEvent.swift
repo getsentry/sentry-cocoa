@@ -10,6 +10,7 @@ import Foundation
                         "errorSampleRate": options.onErrorSampleRate,
                         "maskAllText": options.maskAllText,
                         "maskAllImages": options.maskAllImages,
+                        "quality": String(describing: options.quality),
                         "maskedViewClasses": options.maskedViewClasses.map(String.init(describing: )).joined(separator: ", "),
                         "unmaskedViewClasses": options.unmaskedViewClasses.map(String.init(describing: )).joined(separator: ", ")
                     ]

@@ -427,14 +427,16 @@ class SentrySessionReplayTests: XCTestCase {
         XCTAssertEqual(options["maskAllImages"] as? Bool, true)
         XCTAssertEqual(options["maskedViewClasses"] as? String, "")
         XCTAssertEqual(options["unmaskedViewClasses"] as? String, "")
+        XCTAssertEqual(options["quality"] as? String, "medium")
     }
     
     func testOptionsInTheEventAllChanged() throws {
         let fixture = Fixture()
         
         let replayOptions = SentryReplayOptions(sessionSampleRate: 0, onErrorSampleRate: 0, maskAllText: false, maskAllImages: false)
-        replayOptions.maskedViewClasses = [UIView.self, UISwitch.self]
+        replayOptions.maskedViewClasses = [UIView.self]
         replayOptions.unmaskedViewClasses = [UITextField.self, UITextView.self]
+        replayOptions.quality = .high
         
         let sut = fixture.getSut(options: replayOptions)
         sut.start(rootView: fixture.rootView, fullSession: true)
@@ -453,16 +455,15 @@ class SentrySessionReplayTests: XCTestCase {
         XCTAssertEqual(options["errorSampleRate"] as? Float, 0)
         XCTAssertEqual(options["maskAllText"] as? Bool, false)
         XCTAssertEqual(options["maskAllImages"] as? Bool, false)
-        XCTAssertEqual(options["maskedViewClasses"] as? String, "UIView, UISwitch")
+        XCTAssertEqual(options["maskedViewClasses"] as? String, "UIView")
         XCTAssertEqual(options["unmaskedViewClasses"] as? String, "UITextField, UITextView")
+        XCTAssertEqual(options["quality"] as? String, "high")
     }
     
     func testOptionsNotInSegmentsOtherThanZero() throws {
         let fixture = Fixture()
         
-        let replayOptions = SentryReplayOptions(sessionSampleRate: 0, onErrorSampleRate: 0, maskAllText: false, maskAllImages: false)
-        replayOptions.maskedViewClasses = [UIView.self, UISwitch.self]
-        replayOptions.unmaskedViewClasses = [UITextField.self, UITextView.self]
+        let replayOptions = SentryReplayOptions(sessionSampleRate: 1, onErrorSampleRate: 1)
         
         let sut = fixture.getSut(options: replayOptions)
         sut.start(rootView: fixture.rootView, fullSession: true)
