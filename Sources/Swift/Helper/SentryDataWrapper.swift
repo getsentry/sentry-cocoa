@@ -66,9 +66,9 @@
 
     /// See `Data.init(contentsOf:options:)`
     public init(contentsOf url: URL, options: Data.ReadingOptions = []) throws {
-        // start file.read via static tracker
+        let span = Self.startTracking(readingFileUrl: url)
         self.data = try Data(contentsOf: url, options: options)
-        // end file.read via static tracker
+        Self.finishTracking(span: span, withData: self.data)
     }
 
     /// See `Data.reserveCapacity(_:)`
@@ -185,9 +185,9 @@
 
     /// See `Data.write(to:options:)`
     public func write(to url: URL, options: Data.WritingOptions = []) throws {
-        // begin file.write via static tracker
+        let span = Self.startTracking(writingData: data, toUrl: url, options: options)
         try self.data.write(to: url, options: options)
-        // end file.write via static tracker
+        Self.finishTracking(span: span, withData: self.data)
     }
 
     /// The hash value for the data.
@@ -195,11 +195,12 @@
         self.data.hash(into: &hasher)
     }
 
+    /// See `Data.advanced(by:)`
     public func advanced(by amount: Int) -> Data {
         return self.data.advanced(by: amount)
     }
 
-    /// Sets or returns the byte at the specified index.
+    /// See `Data.subscript(index:)`
     public subscript(index: Data.Index) -> UInt8 {
         get {
             return self.data[index]
@@ -311,12 +312,12 @@ extension SentryDataWrapper: CustomStringConvertible, CustomDebugStringConvertib
 
     /// See `Data.description`
     public var description: String {
-        self.data.description
+        "SentryDataWrapper(\(self.data.description))"
     }
 
     /// See `Data.debugDescription`
     public var debugDescription: String {
-        self.data.debugDescription
+        "SentryDataWrapper(\(self.data.debugDescription))"
     }
 
     /// See `Data.customMirror`
