@@ -1,3 +1,5 @@
+@_implementationOnly import _SentryPrivate
+
 let SENTRY_TRACE_ORIGIN_AUTO_SWIFT_DATA = "auto.file.swift_data"
 let SENTRY_TRACKING_COUNTER_KEY = "SENTRY_TRACKING_COUNTER_KEY"
 let SENTRY_FILE_WRITE_OPERATION = "file.write"
@@ -41,11 +43,11 @@ extension SentryDataWrapper {
         return Self.spanForPath(
             path: path,
             operation: SENTRY_FILE_WRITE_OPERATION,
-            size: data.count
+            size: UInt(data.count)
         )
     }
 
-    static func spanForPath(path: String, operation: String, size: Int) -> (any Span)? {
+    static func spanForPath(path: String, operation: String, size: UInt) -> (any Span)? {
         if Self.ignoreFile(atPath: path) {
             return nil
         }
@@ -69,11 +71,13 @@ extension SentryDataWrapper {
     }
 
     static func ignoreFile(atPath path: String) -> Bool {
-        let fileManager = SentrySDK.currentHub().getClient()?.fileManager
-        return fileManager.sentryPath != nil && path.hasPrefix(fileManager.sentryPath)
+        guard let client = SentrySDK.currentHub().getClient() else {
+            return false
+        }
+        return path.hasPrefix(client.fileManager.sentryPath)
     }
 
-    static func transactionDescription(forFileAtPath path: String, withFileSize size: Int) -> String {
+    static func transactionDescription(forFileAtPath path: String, withFileSize size: UInt) -> String {
         let lastPathComponent = URL(string: path)?.lastPathComponent ?? "nil"
         guard size > 0 else {
             return lastPathComponent
