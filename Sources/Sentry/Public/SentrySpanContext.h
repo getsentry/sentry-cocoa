@@ -13,7 +13,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class SentryId, SentrySpanId;
+@class SentryId;
+@class SentrySpanId;
 
 static NSString const *SENTRY_TRACE_TYPE = @"trace";
 
