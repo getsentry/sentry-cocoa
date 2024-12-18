@@ -2,7 +2,6 @@
 #import "SentryEnvelope.h"
 #import "SentryEvent.h"
 #import "SentryOptions.h"
-#import "SentrySwift.h"
 #import "SentryUserFeedback.h"
 #import <Foundation/Foundation.h>
 

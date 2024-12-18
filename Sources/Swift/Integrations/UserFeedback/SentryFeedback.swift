@@ -33,9 +33,9 @@ class SentryFeedback: NSObject, SentrySerializable {
     }
     
     func serialize() -> [String: Any] {
-        var dict: [String: Any] = [
-            "message": message
-        ]
+        let numberOfOptionalItems = (name == nil ? 0 : 1) + (email == nil ? 0 : 1) + (associatedEventId == nil ? 0 : 1)
+        var dict = [String: Any](minimumCapacity: 2 + numberOfOptionalItems)
+        dict["message"] = message
         if let name = name {
             dict["name"] = name
         }

@@ -592,8 +592,16 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
     NSDictionary *serializedFeedback = [feedback serialize];
 
-    NSMutableDictionary *context = [NSMutableDictionary dictionary];
+    NSUInteger optionalItems = (scope.span == nil ? 0 : 1) + (scope.replayId == nil ? 0 : 1);
+    NSMutableDictionary *context = [NSMutableDictionary dictionaryWithCapacity:1 + optionalItems];
     context[@"feedback"] = serializedFeedback;
+
+    if (scope.replayId != nil) {
+        NSMutableDictionary *replayContext = [NSMutableDictionary dictionaryWithCapacity:1];
+        replayContext[@"replay_id"] = scope.replayId;
+        context[@"replay"] = replayContext;
+    }
+
     feedbackEvent.context = context;
 
     SentryEvent *preparedEvent = [self prepareEvent:feedbackEvent
@@ -602,6 +610,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     SentryTraceContext *traceContext = [self getTraceStateWithEvent:preparedEvent withScope:scope];
     NSArray *attachments = [[self attachmentsForEvent:preparedEvent scope:scope]
         arrayByAddingObjectsFromArray:[feedback attachments]];
+
     [self.transportAdapter sendEvent:preparedEvent
                         traceContext:traceContext
                          attachments:attachments
