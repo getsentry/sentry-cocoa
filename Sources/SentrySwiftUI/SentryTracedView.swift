@@ -10,6 +10,7 @@ import SwiftUI
 
 class SentryTraceViewModel {
     var tracker: SentryTimeToDisplayTracker?
+    var viewAppeared: Bool = false
 }
 
 /// A control to measure the performance of your views and send the result as a transaction to Sentry.io.
@@ -40,7 +41,6 @@ class SentryTraceViewModel {
 ///
 @available(iOS 13, macOS 10.15, tvOS 13, watchOS 6.0, *)
 public struct SentryTracedView<Content: View>: View {
-    @State private var viewAppeared = false
     @State private var viewModel = SentryTraceViewModel()
     
     let content: () -> Content
@@ -89,11 +89,13 @@ public struct SentryTracedView<Content: View>: View {
         var trace: SentryTracer?
         var spanId: SpanId?
         
-        if !viewAppeared {
+        if viewModel.viewAppeared {
             trace = ensureTransactionExists()
             spanId = createAndPushBodySpan(transactionCreated: trace != nil)
 #if canImport(SwiftUI) && canImport(UIKit) && os(iOS) || os(tvOS)
-            if let trace = trace { startTTDTraker(for: trace) }
+            if let trace = trace {
+                startTTDTraker(for: trace)
+            }
 #endif
         }
         
@@ -103,19 +105,16 @@ public struct SentryTracedView<Content: View>: View {
         
         return content()
             .onAppear {
-                if !viewAppeared {
-                    viewAppeared = true
+                if !viewModel.viewAppeared {
+                    viewModel.viewAppeared = true
                     viewModel.tracker?.reportInitialDisplay()
                 }
             }
     }
+    
 #if canImport(SwiftUI) && canImport(UIKit) && os(iOS) || os(tvOS)
-    private func startTTDTraker(for trace: SentryTracer) {
-        let tracker = SentryTimeToDisplayTracker(name: self.name, waitForFullDisplay: self.waitforFullDisplay)
-        SentryUIViewControllerPerformanceTracker.shared.setTimeToDisplay(tracker)
-        tracker.start(for: trace)
-        
-        viewModel.tracker = tracker
+    private func startTTDTraker(for tracer: SentryTracer) {
+        viewModel.tracker = SentryUIViewControllerPerformanceTracker.shared.startTimeToDisplay(forScreen: self.name, waitForFullDisplay: self.waitforFullDisplay, tracer: tracer)
     }
 #endif
     
