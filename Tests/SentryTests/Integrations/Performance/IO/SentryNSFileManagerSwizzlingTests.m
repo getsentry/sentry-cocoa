@@ -5,6 +5,7 @@
 #import "SentrySDK.h"
 #import "SentrySpan.h"
 #import "SentrySwizzle.h"
+#import "SentryThreadInspector.h"
 #import "SentryTracer.h"
 #import <SentrySwift.h>
 #import <XCTest/XCTest.h>
@@ -19,6 +20,7 @@
     NSData *someData;
     NSURL *fileDirectory;
     BOOL deleteFileDirectory;
+    SentryFileIOTracker *tracker;
 }
 
 - (void)inititialize
@@ -52,7 +54,16 @@
 {
     SentryOptions *options = [[SentryOptions alloc] init];
     options.experimental.enableFileManagerSwizzling = enableFileManagerSwizzling;
-    [[SentryNSFileManagerSwizzling shared] startWithOptions:options];
+
+    SentryThreadInspector *threadInspector =
+        [[SentryThreadInspector alloc] initWithOptions:options];
+    SentryNSProcessInfoWrapper *processInfoWrapper =
+        [SentryDependencyContainer.sharedInstance processInfoWrapper];
+    self->tracker = [[SentryFileIOTracker alloc] initWithThreadInspector:threadInspector
+                                                      processInfoWrapper:processInfoWrapper];
+    [tracker enable];
+
+    [[SentryNSFileManagerSwizzling shared] startWithOptions:options tracker:self->tracker];
 }
 
 - (void)tearDown
@@ -61,7 +72,7 @@
     if (deleteFileDirectory) {
         [NSFileManager.defaultManager removeItemAtURL:fileDirectory error:nil];
     }
-    [[SentryNSFileManagerSwizzling shared] stop];
+    [self->tracker disable];
 }
 
 - (void)testNSFileManagerCreateFile_preiOS18macOS15tvOS18_experimentalFlagDisabled_shouldNotSwizzle

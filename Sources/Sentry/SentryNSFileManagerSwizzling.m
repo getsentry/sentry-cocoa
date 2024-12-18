@@ -1,21 +1,11 @@
 #import "SentryNSFileManagerSwizzling.h"
-#import "SentryCrashDefaultMachineContextWrapper.h"
-#import "SentryCrashMachineContextWrapper.h"
-#import "SentryCrashStackEntryMapper.h"
-#import "SentryDependencyContainer.h"
-#import "SentryFileIOTracker.h"
-#import "SentryInAppLogic.h"
-#import "SentryNSProcessInfoWrapper.h"
-#import "SentryOptions+Private.h"
-#import "SentryStacktraceBuilder.h"
+#import "SentryLog.h"
 #import "SentrySwizzle.h"
-#import "SentryThreadInspector.h"
-#import <SentryLog.h>
 #import <objc/runtime.h>
 
 @interface SentryNSFileManagerSwizzling ()
 
-@property (nonatomic, strong) SentryFileIOTracker *dataTracker;
+@property (nonatomic, strong) SentryFileIOTracker *tracker;
 
 @end
 
@@ -29,30 +19,23 @@
     return instance;
 }
 
-- (void)startWithOptions:(SentryOptions *)options
+- (void)startWithOptions:(SentryOptions *)options tracker:(SentryFileIOTracker *)tracker
 {
-    self.dataTracker = [[SentryFileIOTracker alloc]
-        initWithThreadInspector:[[SentryThreadInspector alloc] initWithOptions:options]
-             processInfoWrapper:[SentryDependencyContainer.sharedInstance processInfoWrapper]];
-    [self.dataTracker enable];
+    self.tracker = tracker;
 
     if (!options.experimental.enableFileManagerSwizzling) {
         SENTRY_LOG_DEBUG(@"Experimental auto-tracking of FileManager is disabled")
         return;
     }
-    [SentryNSFileManagerSwizzling swizzleNSFileManager];
-}
 
-- (void)stop
-{
-    [self.dataTracker disable];
+    [SentryNSFileManagerSwizzling swizzle];
 }
 
 // SentrySwizzleInstanceMethod declaration shadows a local variable. The swizzling is working
 // fine and we accept this warning.
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wshadow"
-+ (void)swizzleNSFileManager
++ (void)swizzle
 {
     // Before iOS 18.0, macOS 15.0 and tvOS 18.0 the NSFileManager used NSData.writeToFile
     // internally, which was tracked using swizzling of NSData. This behaviour changed, therefore
@@ -67,7 +50,7 @@
             SentrySWArguments(
                 NSString * path, NSData * data, NSDictionary<NSFileAttributeKey, id> * attributes),
             SentrySWReplacement({
-                return [SentryNSFileManagerSwizzling.shared.dataTracker
+                return [SentryNSFileManagerSwizzling.shared.tracker
                     measureNSFileManagerCreateFileAtPath:path
                                                     data:data
                                               attributes:attributes
