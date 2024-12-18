@@ -18,7 +18,15 @@ class SentryTraceViewModel {
     }
 #endif
     
-    func startRootTransaction(name: String, source: SentryTransactionNameSource, traceOrigin: String) -> SentryTracer? {
+    func startSpan(name: String, source: SentryTransactionNameSource, traceOrigin: String)-> SpanId? {
+        guard !viewAppeared else { return nil }
+        
+        let trace = startRootTransaction(name: name, source: source, traceOrigin: traceOrigin)
+        let name = trace != nil ? "\(name) - body" : name
+        return createBodySpan(name: name, source: source, traceOrigin: traceOrigin)
+    }
+    
+    private func startRootTransaction(name: String, source: SentryTransactionNameSource, traceOrigin: String) -> SentryTracer? {
         guard SentryPerformanceTracker.shared.activeSpanId() == nil else { return nil }
         
         let transactionId = SentryPerformanceTracker.shared.startSpan(
@@ -37,10 +45,18 @@ class SentryTraceViewModel {
             self.finishSpan(transactionId)
         }
         
-        return SentryPerformanceTracker.shared.getSpan(transactionId) as? SentryTracer
+        
+        let trace = SentryPerformanceTracker.shared.getSpan(transactionId) as? SentryTracer
+#if canImport(SwiftUI) && canImport(UIKit) && os(iOS) || os(tvOS)
+        if let trace = trace {
+            startTTDTraker(for: trace, name: name, waitForFullDisplay: waitforFullDisplay)
+        }
+#endif
+        
+        return trace
     }
     
-    func createBodySpan(name: String, source: SentryTransactionNameSource, traceOrigin: String) -> SpanId {
+    private func createBodySpan(name: String, source: SentryTransactionNameSource, traceOrigin: String) -> SpanId {
         let spanId = SentryPerformanceTracker.shared.startSpan(
             withName: name,
             nameSource: source,
@@ -54,6 +70,12 @@ class SentryTraceViewModel {
     func finishSpan(_ spanId: SpanId) {
         SentryPerformanceTracker.shared.popActiveSpan()
         SentryPerformanceTracker.shared.finishSpan(spanId)
+    }
+    
+    func viewDidAppear() {
+        guard !viewAppeared else { return }
+        viewAppeared = true
+        tracker?.reportInitialDisplay()
     }
 }
 
@@ -130,19 +152,7 @@ public struct SentryTracedView<Content: View>: View {
     }
     
     public var body: some View {
-        var trace: SentryTracer?
-        var spanId: SpanId?
-        
-        if !viewModel.viewAppeared {
-            trace = viewModel.startRootTransaction(name: self.name, source: self.nameSource, traceOrigin: self.traceOrigin)
-            let name = trace != nil ? "\(name) - body" : name
-            spanId = viewModel.createBodySpan(name: name, source: self.nameSource, traceOrigin: self.traceOrigin)
-#if canImport(SwiftUI) && canImport(UIKit) && os(iOS) || os(tvOS)
-            if let trace = trace {
-                viewModel.startTTDTraker(for: trace, name: name, waitForFullDisplay: waitforFullDisplay)
-            }
-#endif
-        }
+        var spanId: SpanId? = viewModel.startSpan(name: self.name, source: self.nameSource, traceOrigin: self.traceOrigin)
         
         defer {
             if let spanId = spanId {
@@ -150,13 +160,7 @@ public struct SentryTracedView<Content: View>: View {
             }
         }
         
-        return content()
-            .onAppear {
-                if !viewModel.viewAppeared {
-                    viewModel.viewAppeared = true
-                    viewModel.tracker?.reportInitialDisplay()
-                }
-            }
+        return content().onAppear(perform: viewModel.viewDidAppear)
     }
 }
 
