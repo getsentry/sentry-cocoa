@@ -6,7 +6,8 @@ static NSString *const SENTRY_FILE_WRITE_OPERATION = @"file.write";
 
 static NSString *const SENTRY_FILE_READ_OPERATION = @"file.read";
 
-@class SentryThreadInspector, SentryNSProcessInfoWrapper;
+@class SentryNSProcessInfoWrapper;
+@class SentryThreadInspector;
 
 @interface SentryFileIOTracker : NSObject
 SENTRY_NO_INIT

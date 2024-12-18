@@ -3,7 +3,8 @@
 
 @protocol SentryEnvelopeRateLimitDelegate;
 
-@class SentryEnvelope, SentryEnvelopeItem;
+@class SentryEnvelope;
+@class SentryEnvelopeItem;
 
 NS_ASSUME_NONNULL_BEGIN
 

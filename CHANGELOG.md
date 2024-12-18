@@ -6,6 +6,10 @@
 
 - Improve compiler error message for missing Swift declarations due to APPLICATION_EXTENSION_API_ONLY (#4603)
 
+### Features
+
+- Show session replay options as replay tags (#4639)
+
 ### Fixes
 
 - Fix span recording for `NSFileManager.createFileAtPath` starting with iOS 18, macOS 15 and tvOS 18. This feature is experimental and must be enabled by setting the option `experimental.enableFileManagerSwizzling` to `true` (#4634)
