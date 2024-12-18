@@ -6,11 +6,17 @@
 
 @protocol SentrySpan;
 
-@class SentryOptions, SentryEvent, SentryBreadcrumb, SentryScope, SentryUser, SentryId,
-    SentryUserFeedback, SentryTransactionContext;
+@class SentryBreadcrumb;
+@class SentryEvent;
+@class SentryId;
 @class SentryMetricsAPI;
-@class UIView;
+@class SentryOptions;
 @class SentryReplayApi;
+@class SentryScope;
+@class SentryTransactionContext;
+@class SentryUser;
+@class SentryUserFeedback;
+@class UIView;
 
 NS_ASSUME_NONNULL_BEGIN
 
