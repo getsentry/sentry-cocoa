@@ -32,7 +32,6 @@
 
 #include "SentryAsyncSafeLog.h"
 
-#include "SentryStringUtils.h"
 #include <cxxabi.h>
 #include <dlfcn.h>
 #include <exception>
@@ -161,7 +160,7 @@ CPPExceptionTerminate(void)
             try {
                 throw;
             } catch (std::exception &exc) {
-                strncpy_safe(descriptionBuff, exc.what(), sizeof(descriptionBuff));
+                strlcpy(descriptionBuff, exc.what(), sizeof(descriptionBuff));
             }
 #define CATCH_VALUE(TYPE, PRINTFTYPE)                                                              \
     catch (TYPE value)                                                                             \

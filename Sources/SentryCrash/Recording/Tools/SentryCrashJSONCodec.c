@@ -1256,8 +1256,7 @@ decodeElement(const char *const name, SentryCrashJSONDecodeContext *context)
             SENTRY_ASYNC_SAFE_LOG_DEBUG("Number is too long.");
             return SentryCrashJSON_ERROR_DATA_TOO_LONG;
         }
-        strncpy(context->stringBuffer, start, len);
-        context->stringBuffer[len] = '\0';
+        strlcpy(context->stringBuffer, start, len);
 
         sscanf(context->stringBuffer, "%lg", &value);
 

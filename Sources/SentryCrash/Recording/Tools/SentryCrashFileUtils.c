@@ -161,7 +161,7 @@ deletePathContents(const char *path, bool deleteTopLevelPathAlso)
         for (int i = 0; i < entryCount; i++) {
             char *entry = entries[i];
             if (entry != NULL && canDeletePath(entry)) {
-                strncpy(pathPtr, entry, pathRemainingLength);
+                strlcpy(pathPtr, entry, pathRemainingLength);
                 deletePathContents(pathBuffer, true);
             }
         }
