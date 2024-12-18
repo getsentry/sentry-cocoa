@@ -8,7 +8,10 @@
 #    import <SentryWithoutUIKit/SentrySpanProtocol.h>
 #endif
 
-@class SentryUser, SentryOptions, SentryBreadcrumb, SentryAttachment;
+@class SentryAttachment;
+@class SentryBreadcrumb;
+@class SentryOptions;
+@class SentryUser;
 
 NS_ASSUME_NONNULL_BEGIN
 
