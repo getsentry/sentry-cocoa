@@ -118,10 +118,6 @@
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "--disable-metrics"
-            isEnabled = "NO">
-         </CommandLineArgument>
-         <CommandLineArgument
             argument = "--disable-metrickit-integration"
             isEnabled = "NO">
          </CommandLineArgument>

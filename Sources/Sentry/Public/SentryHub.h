@@ -7,9 +7,15 @@
 #    import <SentryWithoutUIKit/SentrySpanProtocol.h>
 #endif
 
-@class SentryEvent, SentryClient, SentryScope, SentryUser, SentryBreadcrumb, SentryId,
-    SentryUserFeedback, SentryTransactionContext;
+@class SentryBreadcrumb;
+@class SentryClient;
+@class SentryEvent;
+@class SentryId;
 @class SentryMetricsAPI;
+@class SentryScope;
+@class SentryTransactionContext;
+@class SentryUser;
+@class SentryUserFeedback;
 
 NS_ASSUME_NONNULL_BEGIN
 @interface SentryHub : NSObject
