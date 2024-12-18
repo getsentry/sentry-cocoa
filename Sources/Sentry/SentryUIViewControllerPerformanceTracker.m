@@ -163,7 +163,10 @@
         return;
     }
 
-    SentryTimeToDisplayTracker *ttdTracker = [self startTimeToDisplayTrackerForScreen:[SwiftDescriptor getObjectClassName:controller] waitForFullDisplay:self.alwaysWaitForFullDisplay tracer:(SentryTracer *)vcSpan];
+    SentryTimeToDisplayTracker *ttdTracker =
+        [self startTimeToDisplayTrackerForScreen:[SwiftDescriptor getObjectClassName:controller]
+                              waitForFullDisplay:self.alwaysWaitForFullDisplay
+                                          tracer:(SentryTracer *)vcSpan];
 
     if (ttdTracker) {
         objc_setAssociatedObject(controller, &SENTRY_UI_PERFORMANCE_TRACKER_TTD_TRACKER, ttdTracker,
@@ -189,19 +192,20 @@
 
 - (SentryTimeToDisplayTracker *)startTimeToDisplayTrackerForScreen:(NSString *)screenName
                                                 waitForFullDisplay:(BOOL)waitForFullDisplay
-                                                            tracer:(SentryTracer *)tracer {
+                                                            tracer:(SentryTracer *)tracer
+{
     [self.currentTTDTracker finishSpansIfNotFinished];
 
-    SentryTimeToDisplayTracker *ttdTracker = [[SentryTimeToDisplayTracker alloc]
-                                              initWithName:screenName
-                                              waitForFullDisplay:waitForFullDisplay
-                                              dispatchQueueWrapper:_dispatchQueueWrapper];
+    SentryTimeToDisplayTracker *ttdTracker =
+        [[SentryTimeToDisplayTracker alloc] initWithName:screenName
+                                      waitForFullDisplay:waitForFullDisplay
+                                    dispatchQueueWrapper:_dispatchQueueWrapper];
 
     if ([ttdTracker startForTracer:tracer] == NO) {
         self.currentTTDTracker = nil;
         return nil;
     }
-    
+
     self.currentTTDTracker = ttdTracker;
     return ttdTracker;
 }
