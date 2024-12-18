@@ -11,6 +11,7 @@
 #import "SentrySwift.h"
 #import "SentrySwizzle.h"
 #import "SentrySwizzleWrapper.h"
+#import "SentrySwift.h"
 
 #if SENTRY_TARGET_MACOS_HAS_UI
 #    import <Cocoa/Cocoa.h>
@@ -304,7 +305,7 @@ static NSString *const SentryBreadcrumbTrackerSwizzleSendAction
 {
     NSMutableDictionary *info = @{}.mutableCopy;
 
-    info[@"screen"] = [SwiftDescriptor getObjectClassName:controller];
+    info[@"screen"] = [self screenNameForViewController:controller];
 
     if ([controller.navigationItem.title length] != 0) {
         info[@"title"] = controller.navigationItem.title;
@@ -315,13 +316,11 @@ static NSString *const SentryBreadcrumbTrackerSwizzleSendAction
     info[@"beingPresented"] = controller.beingPresented ? @"true" : @"false";
 
     if (controller.presentingViewController != nil) {
-        info[@"presentingViewController"] =
-            [SwiftDescriptor getObjectClassName:controller.presentingViewController];
+        info[@"presentingViewController"] = [self screenNameForViewController:controller.presentingViewController];
     }
 
     if (controller.parentViewController != nil) {
-        info[@"parentViewController"] =
-            [SwiftDescriptor getObjectClassName:controller.parentViewController];
+        info[@"parentViewController"] = [self screenNameForViewController:controller.parentViewController];
     }
 
     if (controller.view.window != nil) {
@@ -335,6 +334,15 @@ static NSString *const SentryBreadcrumbTrackerSwizzleSendAction
 
     return info;
 }
+
++ (NSString *)screenNameForViewController:(UIViewController *)controller {
+    if ([controller conformsToProtocol:@protocol(SentryViewControllerBreadcrumbTracking)]) {
+        return ((UIViewController<SentryViewControllerBreadcrumbTracking> *)controller).screenName;
+    } else {
+        return [SwiftDescriptor getObjectClassName:controller];
+    }
+}
+
 #endif // SENTRY_HAS_UIKIT
 
 @end
