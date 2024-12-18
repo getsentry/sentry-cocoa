@@ -134,6 +134,11 @@ class UserFeedbackUITests: BaseUITest {
         XCTAssertEqual(try XCTUnwrap(emailField.value as? String), "your.email@example.org")
         
         XCTAssertEqual(try XCTUnwrap(messageTextView.value as? String), "", "The UITextView shouldn't have any initial text functioning as a placeholder; as UITextView has no placeholder property, the \"placeholder\" is a label on top of it.")
+        
+        // TODO: go to Extras view
+        app.buttons["io.sentry.ui-test.button.get-feedback-envelope"].tap()
+        // TODO: pull contents out of text field
+        // TODO: validate contents
     }
     
     func testSubmitWithOnlyRequiredFieldsFilled() {
@@ -331,6 +336,24 @@ class UserFeedbackUITests: BaseUITest {
         sendButton.tap()
         
         XCTAssert(widgetButton.waitForExistence(timeout: 1))
+    }
+    
+    // MARK: Tests validating configuration hooks
+    
+    func testOnFormOpen() {
+        
+    }
+    
+    func testOnFormClosed() {
+        
+    }
+    
+    func testOnSubmitSuccess() {
+        
+    }
+    
+    func testOnSubmitError() {
+        
     }
     
     // MARK: Private
