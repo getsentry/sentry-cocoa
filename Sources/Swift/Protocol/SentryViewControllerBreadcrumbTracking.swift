@@ -9,5 +9,5 @@ public protocol SentryViewControllerBreadcrumbTracking: NSObjectProtocol {
 
     /// The custom name of the UIViewController
     /// that will be used for the transaction name.
-    var screenName: String { get }
+    var sentryName: String { get }
 }
