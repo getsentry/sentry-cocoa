@@ -66,7 +66,7 @@ jobs:
             raw-test-output.log
 
   unit-tests:
-    name: Unit ${{matrix.platform}} - Xcode ${{matrix.xcode}} - OS ${{matrix.test-destination-os}}
+    name: Unit ${{matrix.platform}} - Xcode ${{matrix.xcode}} - OS ${{matrix.test-destination-os}} ${{matrix.scheme}}
     runs-on: ${{matrix.runs-on}}
     timeout-minutes: 20
     needs: build-test-server
@@ -115,6 +115,14 @@ jobs:
             platform: "tvOS"
             xcode: "15.4"
             test-destination-os: "17.5"
+            
+        # iOS 17
+          - runs-on: macos-14
+            platform: "iOS"
+            xcode: "15.4"
+            test-destination-os: "17.2"
+            device: "iPhone 15"
+            scheme: "SentrySwiftUI"
 
     steps:
       - uses: actions/checkout@v4
@@ -140,14 +148,14 @@ jobs:
       # We split building and running tests in two steps so we know how long running the tests takes.
       - name: Build tests
         id: build_tests
-        run: ./scripts/xcode-test.sh ${{matrix.platform}} ${{matrix.test-destination-os}} $GITHUB_REF_NAME ci build-for-testing "${{matrix.device}}" TestCI
+        run: ./scripts/xcode-test.sh ${{matrix.platform}} ${{matrix.test-destination-os}} $GITHUB_REF_NAME ci build-for-testing "${{matrix.device}}" TestCI ${{matrix.scheme}}
 
       - name: Run tests
         # We call a script with the platform so the destination
         # passed to xcodebuild doesn't end up in the job name,
         # because GitHub Actions don't provide an easy way of
         # manipulating string in expressions.
-        run: ./scripts/xcode-test.sh ${{matrix.platform}} ${{matrix.test-destination-os}} $GITHUB_REF_NAME ci test-without-building "${{matrix.device}}" TestCI
+        run: ./scripts/xcode-test.sh ${{matrix.platform}} ${{matrix.test-destination-os}} $GITHUB_REF_NAME ci test-without-building "${{matrix.device}}" TestCI ${{matrix.scheme}}
 
       - name: Slowest Tests
         if: ${{ always() }}

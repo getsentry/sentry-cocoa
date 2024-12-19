@@ -13,16 +13,21 @@
 #    import "Sentry.h"
 #endif
 
+#if TEST
+#    import "SentrySpan.h"
+#    import "SentryTracer.h"
+#else
+@class SentrySpan;
+@interface SentryTracer : NSObject <SentrySpan>
+@end
+#endif
+
 NS_ASSUME_NONNULL_BEGIN
 
 typedef NS_ENUM(NSInteger, SentryTransactionNameSource);
 
 @class SentrySpanId;
-@class SentrySpan;
 @class SentryDispatchQueueWrapper;
-
-@interface SentryTracer : NSObject <SentrySpan>
-@end
 
 typedef NS_ENUM(NSUInteger, SentrySpanStatus);
 
