@@ -39,6 +39,9 @@
 - (void)uninstall
 {
     [self.tracker disable];
+
+    [SentryNSDataSwizzling.shared stop];
+    [SentryNSFileManagerSwizzling.shared stop];
 }
 
 @end

@@ -13,6 +13,8 @@ SENTRY_NO_INIT
 
 - (void)startWithOptions:(SentryOptions *)options tracker:(SentryFileIOTracker *)tracker;
 
+- (void)stop;
+
 @end
 
 NS_ASSUME_NONNULL_END

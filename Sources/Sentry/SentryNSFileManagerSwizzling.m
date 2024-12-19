@@ -31,6 +31,11 @@
     [SentryNSFileManagerSwizzling swizzle];
 }
 
+- (void)stop
+{
+    [SentryNSFileManagerSwizzling unswizzle];
+}
+
 // SentrySwizzleInstanceMethod declaration shadows a local variable. The swizzling is working
 // fine and we accept this warning.
 #pragma clang diagnostic push
@@ -62,6 +67,16 @@
                                                   }];
             }),
             SentrySwizzleModeOncePerClassAndSuperclasses,
+            (void *)createFileAtPathContentsAttributes);
+    }
+}
+
++ (void)unswizzle
+{
+    if (@available(iOS 18, macOS 15, tvOS 18, *)) {
+        SEL createFileAtPathContentsAttributes
+            = NSSelectorFromString(@"createFileAtPath:contents:attributes:");
+        SentryUnswizzleInstanceMethod(NSFileManager.class, createFileAtPathContentsAttributes,
             (void *)createFileAtPathContentsAttributes);
     }
 }

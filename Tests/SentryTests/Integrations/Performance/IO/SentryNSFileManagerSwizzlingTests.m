@@ -73,6 +73,7 @@
         [NSFileManager.defaultManager removeItemAtURL:fileDirectory error:nil];
     }
     [self->tracker disable];
+    [[SentryNSFileManagerSwizzling shared] stop];
 }
 
 - (void)testNSFileManagerCreateFile_preiOS18macOS15tvOS18_experimentalFlagDisabled_shouldNotSwizzle

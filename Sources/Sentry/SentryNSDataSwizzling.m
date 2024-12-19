@@ -26,6 +26,11 @@
     [SentryNSDataSwizzling swizzle];
 }
 
+- (void)stop
+{
+    [SentryNSDataSwizzling unswizzle];
+}
+
 // SentrySwizzleInstanceMethod declaration shadows a local variable. The swizzling is working
 // fine and we accept this warning.
 #pragma clang diagnostic push
@@ -107,6 +112,31 @@
                               }];
         }),
         SentrySwizzleModeOncePerClassAndSuperclasses,
+        (void *)initWithContentsOfURLOptionsErrorSelector);
+}
+
++ (void)unswizzle
+{
+    SEL writeToFileAtomicallySelector = NSSelectorFromString(@"writeToFile:atomically:");
+    SentryUnswizzleInstanceMethod(
+        NSData.class, writeToFileAtomicallySelector, (void *)writeToFileAtomicallySelector);
+
+    SEL writeToFileOptionsErrorSelector = NSSelectorFromString(@"writeToFile:options:error:");
+    SentryUnswizzleInstanceMethod(
+        NSData.class, writeToFileOptionsErrorSelector, (void *)writeToFileOptionsErrorSelector);
+
+    SEL initWithContentOfFileOptionsErrorSelector
+        = NSSelectorFromString(@"initWithContentsOfFile:options:error:");
+    SentryUnswizzleInstanceMethod(NSData.class, initWithContentOfFileOptionsErrorSelector,
+        (void *)initWithContentOfFileOptionsErrorSelector);
+
+    SEL initWithContentsOfFileSelector = NSSelectorFromString(@"initWithContentsOfFile:");
+    SentryUnswizzleInstanceMethod(
+        NSData.class, initWithContentsOfFileSelector, (void *)initWithContentsOfFileSelector);
+
+    SEL initWithContentsOfURLOptionsErrorSelector
+        = NSSelectorFromString(@"initWithContentsOfURL:options:error:");
+    SentryUnswizzleInstanceMethod(NSData.class, initWithContentsOfURLOptionsErrorSelector,
         (void *)initWithContentsOfURLOptionsErrorSelector);
 }
 #pragma clang diagnostic pop
