@@ -83,6 +83,10 @@ static NSMutableString *_logString = nil;
 {
 };
 
+- (void)methodForUnswizzling
+{
+};
+
 - (NSString *)string
 {
     return @"ABC";
@@ -353,4 +357,23 @@ swizzleNumber(Class classToSwizzle, int (^transformationBlock)(int))
     XCTAssertThrows([a methodForSwizzlingWithoutCallOriginal]);
 }
 
+- (void)testUnswizzleInstanceMethod
+{
+    SEL methodForUnswizzling = NSSelectorFromString(@"methodForUnswizzling");
+
+    SentrySwizzleTestClass_A *object = [SentrySwizzleTestClass_B new];
+    swizzleVoidMethod(
+        [SentrySwizzleTestClass_A class], methodForUnswizzling, ^{ SentryTestsLog(@"A"); },
+        SentrySwizzleModeAlways, (void *)methodForUnswizzling);
+    [object methodForUnswizzling];
+    ASSERT_LOG_IS(@"A");
+
+    [SentryTestsLog clear];
+
+    [SentrySwizzle unswizzleInstanceMethod:methodForUnswizzling
+                                   inClass:[SentrySwizzleTestClass_A class]
+                                       key:(void *)methodForUnswizzling];
+    [object methodForUnswizzling];
+    ASSERT_LOG_IS(@"");
+}
 @end
