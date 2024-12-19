@@ -338,24 +338,6 @@ class UserFeedbackUITests: BaseUITest {
         XCTAssert(widgetButton.waitForExistence(timeout: 1))
     }
     
-    // MARK: Tests validating configuration hooks
-    
-    func testOnFormOpen() {
-        
-    }
-    
-    func testOnFormClosed() {
-        
-    }
-    
-    func testOnSubmitSuccess() {
-        
-    }
-    
-    func testOnSubmitError() {
-        
-    }
-    
     // MARK: Private
     
     var cancelButton: XCUIElement {
