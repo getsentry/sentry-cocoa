@@ -11,12 +11,11 @@ set -euxo pipefail
 PLATFORM="${1}"
 OS=${2:-latest}
 REF_NAME="${3-HEAD}"
-IS_LOCAL_BUILD="${4:-ci}"
-COMMAND="${5:-test}"
-DEVICE=${6:-iPhone 14}
-CONFIGURATION_OVERRIDE="${7:-}"
-DERIVED_DATA_PATH="${8:-}"
-TEST_SCHEME="${9:Sentry}"
+COMMAND="${4:-test}"
+DEVICE=${5:-iPhone 14}
+CONFIGURATION_OVERRIDE="${6:-}"
+DERIVED_DATA_PATH="${7:-}"
+TEST_SCHEME="${8:Sentry}"
 
 case $PLATFORM in
 
@@ -55,15 +54,6 @@ else
         ;;
     esac
 fi
-
-case $IS_LOCAL_BUILD in
-"ci")
-    RUBY_ENV_ARGS=""
-    ;;
-*)
-    RUBY_ENV_ARGS="rbenv exec bundle exec"
-    ;;
-esac
 
 case $COMMAND in
 "build")
@@ -109,14 +99,14 @@ if [ $RUN_BUILD_FOR_TESTING == true ]; then
 fi
 
 if [ $RUN_TEST_WITHOUT_BUILDING == true ]; then
-    env NSUnbufferedIO=YES xcodebuild \
+    env NSUnbufferedIO=YES && set -o pipefail && xcodebuild \
         -workspace Sentry.xcworkspace \
         -scheme "$TEST_SCHEME" \
         -configuration "$CONFIGURATION" \
         -destination "$DESTINATION" \
         test-without-building |
         tee raw-test-output.log |
-        $RUBY_ENV_ARGS xcpretty -t &&
+        xcbeautify &&
         slather coverage --configuration "$CONFIGURATION" &&
         exit "${PIPESTATUS[0]}"
 fi

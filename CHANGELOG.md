@@ -10,6 +10,21 @@
 
 - Improve compiler error message for missing Swift declarations due to APPLICATION_EXTENSION_API_ONLY (#4603)
 
+### Features
+
+- Show session replay options as replay tags (#4639)
+
+### Fixes
+
+- `SentrySdkInfo.packages` should be an array (#4626)
+- Use the same SdkInfo for envelope header and event (#4629)
+- Fixes Session replay screenshot provider crash (#4649)
+
+### Internal
+
+- Remove loading `integrations` names from `event.extra` (#4627)
+- Add Hybrid SDKs API to add extra SDK packages (#4637)
+
 ## 8.42.0-beta.2
 
 ### Fixes
