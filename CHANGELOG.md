@@ -14,7 +14,7 @@
 
 - `SentrySdkInfo.packages` should be an array (#4626)
 - Use the same SdkInfo for envelope header and event (#4629)
-- Add method unswizzling
+- Add method unswizzling (#4647)
 
 ### Internal
 
