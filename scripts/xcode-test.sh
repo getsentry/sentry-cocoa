@@ -78,27 +78,31 @@ case $COMMAND in
 esac
 
 if [ $RUN_BUILD == true ]; then
-    env NSUnbufferedIO=YES xcodebuild \
+    set -o pipefail && NSUnbufferedIO=YES xcodebuild \
         -workspace Sentry.xcworkspace \
         -scheme Sentry \
         -configuration "$CONFIGURATION" \
         -destination "$DESTINATION" \
         -derivedDataPath "$DERIVED_DATA_PATH" \
         -quiet \
-        build
+        build | 
+        tee raw-build-output.log |
+        xcbeautify
 fi
 
 if [ $RUN_BUILD_FOR_TESTING == true ]; then
-    env NSUnbufferedIO=YES xcodebuild \
+    set -o pipefail && NSUnbufferedIO=YES xcodebuild \
         -workspace Sentry.xcworkspace \
         -scheme Sentry \
         -configuration "$CONFIGURATION" \
         -destination "$DESTINATION" -quiet \
-        build-for-testing
+        build-for-testing |
+        tee raw-build-for-testing-output.log |
+        xcbeautify
 fi
 
 if [ $RUN_TEST_WITHOUT_BUILDING == true ]; then
-    env NSUnbufferedIO=YES && set -o pipefail && xcodebuild \
+    set -o pipefail && NSUnbufferedIO=YES xcodebuild \
         -workspace Sentry.xcworkspace \
         -scheme Sentry \
         -configuration "$CONFIGURATION" \
@@ -106,6 +110,5 @@ if [ $RUN_TEST_WITHOUT_BUILDING == true ]; then
         test-without-building |
         tee raw-test-output.log |
         xcbeautify &&
-        slather coverage --configuration "$CONFIGURATION" &&
-        exit "${PIPESTATUS[0]}"
+        slather coverage --configuration "$CONFIGURATION"
 fi
