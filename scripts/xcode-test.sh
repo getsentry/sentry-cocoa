@@ -95,7 +95,8 @@ if [ $RUN_BUILD_FOR_TESTING == true ]; then
         -workspace Sentry.xcworkspace \
         -scheme Sentry \
         -configuration "$CONFIGURATION" \
-        -destination "$DESTINATION" -quiet \
+        -destination "$DESTINATION" \
+        -quiet \
         build-for-testing |
         tee raw-build-for-testing-output.log |
         xcbeautify
