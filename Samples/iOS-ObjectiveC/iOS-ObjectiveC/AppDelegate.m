@@ -34,6 +34,9 @@
         options.experimental.sessionReplay.sessionSampleRate = 0;
         options.experimental.sessionReplay.onErrorSampleRate = 1;
 
+        options.experimental.enableFileManagerSwizzling
+            = ![args containsObject:@"--disable-filemanager-swizzling"];
+
         options.initialScope = ^(SentryScope *scope) {
             [scope setTagValue:@"" forKey:@""];
             [scope injectGitInformation];

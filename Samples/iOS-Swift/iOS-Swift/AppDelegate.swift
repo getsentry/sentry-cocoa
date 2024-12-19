@@ -75,15 +75,8 @@ extension AppDelegate {
         options.beforeCaptureViewHierarchy = { _ in true }
         options.debug = true
         
-        if #available(iOS 16.0, *), enableSessionReplay {
-            options.experimental.sessionReplay = SentryReplayOptions(sessionSampleRate: 0, onErrorSampleRate: 1, maskAllText: true, maskAllImages: true)
-            options.experimental.sessionReplay.quality = .high
-        }
-        
-        if #available(iOS 15.0, *), enableMetricKit {
-            options.enableMetricKit = true
-            options.enableMetricKitRawPayload = true
-        }
+        configureSessionReplay(options: options)
+        configureMetricKit(options: options)
         
         options.tracesSampleRate = tracesSampleRate
         options.tracesSampler = tracesSampler
@@ -110,6 +103,7 @@ extension AppDelegate {
         options.enableCoreDataTracing = enableCoreDataTracing
         options.enableNetworkBreadcrumbs = enableNetworkBreadcrumbs
         options.enableSwizzling = enableSwizzling
+        options.experimental.enableFileManagerSwizzling = enableFileManagerSwizzling
         options.enableCrashHandler = enableCrashHandling
         options.enableTracing = enableTracing
         options.enablePersistingTracesWhenCrashing = true
@@ -128,6 +122,20 @@ extension AppDelegate {
         
         options.initialScope = configureInitialScope(scope:)
         options.configureUserFeedback = configureFeedback(config:)
+    }
+
+    func configureSessionReplay(options: Options) {
+        if #available(iOS 16.0, *), enableSessionReplay {
+            options.experimental.sessionReplay = SentryReplayOptions(sessionSampleRate: 0, onErrorSampleRate: 1, maskAllText: true, maskAllImages: true)
+            options.experimental.sessionReplay.quality = .high
+        }
+    }
+
+    func configureMetricKit(options: Options) {
+        if #available(iOS 15.0, *), enableMetricKit {
+            options.enableMetricKit = true
+            options.enableMetricKitRawPayload = true
+        }
     }
     
     func configureInitialScope(scope: Scope) -> Scope {
@@ -332,6 +340,7 @@ extension AppDelegate {
     var enableCoreDataTracing: Bool { !checkDisabled(with: "--disable-core-data-tracing") }
     var enableNetworkBreadcrumbs: Bool { !checkDisabled(with: "--disable-network-breadcrumbs") }
     var enableSwizzling: Bool { !checkDisabled(with: "--disable-swizzling") }
+    var enableFileManagerSwizzling: Bool { !checkDisabled(with: "--disable-filemanager-swizzling") }
     var enableCrashHandling: Bool { !checkDisabled(with: "--disable-crash-handler") }
     
     var tracesSampleRate: NSNumber {
