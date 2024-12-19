@@ -70,8 +70,16 @@
       </BuildableProductRunnable>
       <CommandLineArguments>
          <CommandLineArgument
+            argument = "--io.sentry.disable-everything"
+            isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
             argument = "--disable-file-io-tracing"
             isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "--io.sentry.feedback.use-sentry-user"
+            isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "--io.sentry.feedback.require-name"
@@ -107,10 +115,6 @@
          </CommandLineArgument>
          <CommandLineArgument
             argument = "--disable-automatic-session-tracking"
-            isEnabled = "NO">
-         </CommandLineArgument>
-         <CommandLineArgument
-            argument = "--disable-metrics"
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
@@ -233,6 +237,11 @@
          </EnvironmentVariable>
          <EnvironmentVariable
             key = "--io.sentry.sessionTrackingIntervalMillis"
+            value = ""
+            isEnabled = "NO">
+         </EnvironmentVariable>
+         <EnvironmentVariable
+            key = "--io.sentry.user.name"
             value = ""
             isEnabled = "NO">
          </EnvironmentVariable>

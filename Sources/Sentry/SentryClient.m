@@ -33,6 +33,7 @@
 #import "SentryRandom.h"
 #import "SentrySDK+Private.h"
 #import "SentryScope+Private.h"
+#import "SentrySdkInfo.h"
 #import "SentrySerialization.h"
 #import "SentrySession.h"
 #import "SentryStacktraceBuilder.h"
@@ -880,26 +881,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         return;
     }
 
-    id integrations = event.extra[@"__sentry_sdk_integrations"];
-    if (!integrations) {
-        integrations = [SentrySDK.currentHub trimmedInstalledIntegrationNames];
-
-#if SENTRY_HAS_UIKIT
-        if (self.options.enablePreWarmedAppStartTracing) {
-            [integrations addObject:@"PreWarmedAppStartTracing"];
-        }
-#endif
-    }
-
-    NSArray<NSString *> *features =
-        [SentryEnabledFeaturesBuilder getEnabledFeaturesWithOptions:self.options];
-
-    event.sdk = @{
-        @"name" : SentryMeta.sdkName,
-        @"version" : SentryMeta.versionString,
-        @"integrations" : integrations,
-        @"features" : features
-    };
+    event.sdk = [[[SentrySdkInfo alloc] initWithOptions:self.options] serialize];
 }
 
 - (void)setUserInfo:(NSDictionary *)userInfo withEvent:(SentryEvent *)event

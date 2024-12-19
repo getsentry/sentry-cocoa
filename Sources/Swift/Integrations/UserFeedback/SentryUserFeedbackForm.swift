@@ -261,6 +261,10 @@ class SentryUserFeedbackForm: UIViewController {
         field.accessibilityLabel = config.formConfig.nameTextFieldAccessibilityLabel
         field.accessibilityIdentifier = "io.sentry.feedback.form.name"
         field.delegate = self
+        field.autocapitalizationType = .words
+        if config.useSentryUser {
+            field.text = sentry_getCurrentUser()?.name
+        }
         return field
     }()
     
@@ -277,6 +281,10 @@ class SentryUserFeedbackForm: UIViewController {
         field.accessibilityIdentifier = "io.sentry.feedback.form.email"
         field.delegate = self
         field.keyboardType = .emailAddress
+        field.autocapitalizationType = .none
+        if config.useSentryUser {
+            field.text = sentry_getCurrentUser()?.email
+        }
         return field
     }()
     
