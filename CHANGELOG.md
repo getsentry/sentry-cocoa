@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Features
+
+- SwiftUI time for initial display and time for full display (#4596)
+
 ### Improvements
 
 - Improve compiler error message for missing Swift declarations due to APPLICATION_EXTENSION_API_ONLY (#4603)
@@ -47,7 +51,6 @@
 - Session replay transformed view masking (#4529)
 - Load integration from same binary (#4541)
 - Masking for fast animations #4574
-
 
 ### Improvements
 
