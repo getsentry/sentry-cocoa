@@ -66,7 +66,6 @@ class SentryViewPhotographer: NSObject, SentryViewScreenshotProvider {
             let imageRect = CGRect(origin: .zero, size: size)
             context.cgContext.addRect(CGRect(origin: CGPoint.zero, size: size))
             context.cgContext.clip(using: .evenOdd)
-            UIColor.blue.setStroke()
             
             context.cgContext.interpolationQuality = .none
             image.draw(at: .zero)
