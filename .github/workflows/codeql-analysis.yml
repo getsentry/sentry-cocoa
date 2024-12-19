@@ -39,7 +39,7 @@ jobs:
             -scheme Sentry \
             -configuration Release \
             -destination platform="iOS Simulator,OS=latest,name=iPhone 14 Pro" \
-            build | 
+            build 2>&1 | 
             tee raw-analyze-output.log |
             xcbeautify
 

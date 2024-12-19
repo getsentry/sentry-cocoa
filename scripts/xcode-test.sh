@@ -85,7 +85,7 @@ if [ $RUN_BUILD == true ]; then
         -destination "$DESTINATION" \
         -derivedDataPath "$DERIVED_DATA_PATH" \
         -quiet \
-        build | 
+        build 2>&1 |
         tee raw-build-output.log |
         xcbeautify
 fi
@@ -97,7 +97,7 @@ if [ $RUN_BUILD_FOR_TESTING == true ]; then
         -configuration "$CONFIGURATION" \
         -destination "$DESTINATION" \
         -quiet \
-        build-for-testing |
+        build-for-testing 2>&1 |
         tee raw-build-for-testing-output.log |
         xcbeautify
 fi
@@ -108,7 +108,7 @@ if [ $RUN_TEST_WITHOUT_BUILDING == true ]; then
         -scheme Sentry \
         -configuration "$CONFIGURATION" \
         -destination "$DESTINATION" \
-        test-without-building |
+        test-without-building 2>&1 |
         tee raw-test-output.log |
         xcbeautify &&
         slather coverage --configuration "$CONFIGURATION"
