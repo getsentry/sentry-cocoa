@@ -606,6 +606,8 @@ NS_ASSUME_NONNULL_BEGIN
         }
     }
 
+    // We don't need call synchronized(_spanLock) here because we get a copy of the span in the
+    // _spanLock above.
     newContext[@"trace"] = [self buildTraceContext:span];
 
     event.context = newContext;

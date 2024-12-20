@@ -83,6 +83,7 @@
         _SentrySWWrapArg(SentrySWArguments), _SentrySWWrapArg(SentrySWReplacement),                \
         SentrySwizzleMode, key)
 
+#if TEST || TESTCI
 /**
  * Unswizzles the instance method of the class.
  *
@@ -92,8 +93,10 @@
  *
  * @return @c YES if successfully unswizzled and @c NO if the method was not swizzled.
  */
-#define SentryUnswizzleInstanceMethod(classToUnswizzle, selector, key)                             \
-    _SentryUnswizzleInstanceMethod(classToUnswizzle, selector, key)
+#    define SentryUnswizzleInstanceMethod(classToUnswizzle, selector, key)                         \
+        _SentryUnswizzleInstanceMethod(classToUnswizzle, selector, key)
+
+#endif // TEST || TESTCI
 
 #pragma mark └ Swizzle Class Method
 
@@ -314,6 +317,7 @@ typedef NS_ENUM(NSUInteger, SentrySwizzleMode) {
                          mode:(SentrySwizzleMode)mode
                           key:(const void *)key;
 
+#if TEST || TESTCI
 /**
  * Unswizzles the instance method of the class.
  *
@@ -327,6 +331,7 @@ typedef NS_ENUM(NSUInteger, SentrySwizzleMode) {
  * @return @c YES if successfully unswizzled and @c NO if the method was not swizzled.
  */
 + (BOOL)unswizzleInstanceMethod:(SEL)selector inClass:(Class)classToUnswizzle key:(const void *)key;
+#endif // TEST || TESTCI
 
 #pragma mark └ Swizzle Class method
 
@@ -422,8 +427,10 @@ typedef NS_ENUM(NSUInteger, SentrySwizzleMode) {
                          mode:SentrySwizzleMode                                                    \
                           key:KEY];
 
-#define _SentryUnswizzleInstanceMethod(classToUnswizzle, selector, KEY)                            \
-    [SentrySwizzle unswizzleInstanceMethod:selector inClass:[classToUnswizzle class] key:KEY]
+#if TEST || TESTCI
+#    define _SentryUnswizzleInstanceMethod(classToUnswizzle, selector, KEY)                        \
+        [SentrySwizzle unswizzleInstanceMethod:selector inClass:[classToUnswizzle class] key:KEY]
+#endif // TEST || TESTCI
 
 #define _SentrySwizzleClassMethod(                                                                 \
     classToSwizzle, selector, SentrySWReturnType, SentrySWArguments, SentrySWReplacement)          \
