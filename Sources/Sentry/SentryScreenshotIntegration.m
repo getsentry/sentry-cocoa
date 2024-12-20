@@ -1,6 +1,6 @@
 #import "SentryScreenshotIntegration.h"
 
-#if SENTRY_HAS_UIKIT
+#if SENTRY_TARGET_REPLAY_SUPPORTED
 
 #    import "SentryAttachment.h"
 #    import "SentryCrashC.h"
