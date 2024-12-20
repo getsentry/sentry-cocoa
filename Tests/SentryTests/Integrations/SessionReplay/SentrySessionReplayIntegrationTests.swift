@@ -502,7 +502,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
     }
     
     func testPersistScreenshotProviderAndBreadcrumbConverter() throws {
-        class CustomImageProvider:NSObject, SentryViewScreenshotProvider {
+        class CustomImageProvider: NSObject, SentryViewScreenshotProvider {
             func image(view: UIView, onComplete: @escaping Sentry.ScreenshotCallback) {
                 onComplete(UIImage())
             }

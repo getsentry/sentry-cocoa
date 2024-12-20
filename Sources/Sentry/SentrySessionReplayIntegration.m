@@ -271,8 +271,9 @@ static SentryTouchTracker *_touchTracker;
              fullSession:(BOOL)shouldReplayFullSession
 {
     [self startWithOptions:replayOptions
-        screenshotProvider:_currentScreenshotProvider ?: _viewPhotographer
-       breadcrumbConverter:_currentBreadcrumbConverter ?: [[SentrySRDefaultBreadcrumbConverter alloc] init]
+         screenshotProvider:_currentScreenshotProvider ?: _viewPhotographer
+        breadcrumbConverter:_currentBreadcrumbConverter
+            ?: [[SentrySRDefaultBreadcrumbConverter alloc] init]
                 fullSession:shouldReplayFullSession];
 }
 
