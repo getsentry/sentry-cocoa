@@ -501,6 +501,34 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         XCTAssertEqual(dispatchQueue.dispatchAsyncCalled, 0)
     }
     
+    func testPersistScreenshotProviderAndBreadcrumbConverter() throws {
+        class CustomImageProvider:NSObject, SentryViewScreenshotProvider {
+            func image(view: UIView, onComplete: @escaping Sentry.ScreenshotCallback) {
+                onComplete(UIImage())
+            }
+        }
+        
+        class CustomBreadcrumbConverter: NSObject, SentryReplayBreadcrumbConverter {
+            func convert(from breadcrumb: Breadcrumb) -> (any Sentry.SentryRRWebEventProtocol)? {
+                return nil
+            }
+        }
+        
+        startSDK(sessionSampleRate: 1, errorSampleRate: 0)
+        PrivateSentrySDKOnly.configureSessionReplay(with: CustomBreadcrumbConverter(),
+                                                    screenshotProvider: CustomImageProvider())
+        let sut = try getSut()
+        
+        XCTAssertTrue(sut.sessionReplay?.screenshotProvider is CustomImageProvider)
+        XCTAssertTrue(sut.sessionReplay?.breadcrumbConverter is CustomBreadcrumbConverter)
+        
+        sut.stop()
+        sut.start()
+        
+        XCTAssertTrue(sut.sessionReplay?.screenshotProvider is CustomImageProvider)
+        XCTAssertTrue(sut.sessionReplay?.breadcrumbConverter is CustomBreadcrumbConverter)
+    }
+    
     func createLastSessionReplay(writeSessionInfo: Bool = true, errorSampleRate: Double = 1) throws {
         let replayFolder = replayFolder()
         let jsonPath = replayFolder + "/replay.current"
