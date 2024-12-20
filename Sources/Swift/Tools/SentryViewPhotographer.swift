@@ -80,6 +80,8 @@ class SentryViewPhotographer: NSObject, SentryViewScreenshotProvider {
                 
                 switch region.type {
                 case .redact, .redactSwiftUI:
+                    // This early return is to avoid masking the same exact area in row,
+                    // something that is very common in SwiftUI and can impact performance.
                     guard latestRegion?.canReplace(as: region) != true && imageRect.intersects(path.boundingBoxOfPath) else { continue }
                     (region.color ?? UIImageHelper.averageColor(of: context.currentImage, at: rect.applying(region.transform))).setFill()
                     context.cgContext.addPath(path)
