@@ -1,7 +1,9 @@
 #import "SentryDefines.h"
 #import <Foundation/Foundation.h>
 
-@class SentryCrashWrapper, SentryDispatchQueueWrapper;
+@class SentryCrashWrapper;
+@class SentryDispatchQueueWrapper;
+
 #if SENTRY_HAS_UIKIT
 @class SentryWatchdogTerminationLogic;
 #endif // SENTRY_HAS_UIKIT

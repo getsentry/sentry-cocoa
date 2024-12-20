@@ -1,5 +1,26 @@
 # Changelog
 
+## Unreleased
+
+### Improvements
+
+- Improve compiler error message for missing Swift declarations due to APPLICATION_EXTENSION_API_ONLY (#4603)
+- Mask screenshots for errors (#4623)
+
+### Features
+
+- Show session replay options as replay tags (#4639)
+
+### Fixes
+
+- `SentrySdkInfo.packages` should be an array (#4626)
+- Use the same SdkInfo for envelope header and event (#4629)
+
+### Internal
+
+- Remove loading `integrations` names from `event.extra` (#4627)
+- Add Hybrid SDKs API to add extra SDK packages (#4637)
+
 ## 8.42.1
 
 ### Fixes
@@ -18,10 +39,11 @@
 ### Fixes
 
 - Session replay touch tracking race condition (#4548)
-- Use `options.reportAccessibilityIdentifier` for Breadcrumbs and UIEvents (#4569) 
+- Use `options.reportAccessibilityIdentifier` for Breadcrumbs and UIEvents (#4569)
 - Session replay transformed view masking (#4529)
 - Load integration from same binary (#4541)
 - Masking for fast animations (#4574)
+- Masking for fast animations #4574
 - Fix GraphQL context for HTTP client error tracking (#4567)
 
 ### Improvements
@@ -52,11 +74,10 @@
 ### Fixes
 
 - Session replay touch tracking race condition (#4548)
-- Use `options.reportAccessibilityIdentifier` for Breadcrumbs and UIEvents (#4569) 
+- Use `options.reportAccessibilityIdentifier` for Breadcrumbs and UIEvents (#4569)
 - Session replay transformed view masking (#4529)
 - Load integration from same binary (#4541)
 - Masking for fast animations #4574
-
 
 ### Improvements
 

@@ -4,8 +4,13 @@
 #    import <SentryWithoutUIKit/SentryDefines.h>
 #endif
 
-@class SentryOptions, SentryEvent, SentryScope, SentryFileManager, SentryId, SentryUserFeedback,
-    SentryTransaction;
+@class SentryEvent;
+@class SentryFileManager;
+@class SentryId;
+@class SentryOptions;
+@class SentryScope;
+@class SentryTransaction;
+@class SentryUserFeedback;
 
 NS_ASSUME_NONNULL_BEGIN
 

@@ -2,7 +2,8 @@
 #import "SentryProfilingConditionals.h"
 #import <Foundation/Foundation.h>
 
-@class SentryProfiler, SentryId;
+@class SentryId;
+@class SentryProfiler;
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 

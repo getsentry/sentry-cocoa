@@ -1,6 +1,7 @@
 #import <Foundation/Foundation.h>
 
-@class SentryEnvelope, SentryDsn;
+@class SentryDsn;
+@class SentryEnvelope;
 
 NS_ASSUME_NONNULL_BEGIN
 

@@ -320,7 +320,6 @@ DEPENDENCIES
   fastlane-plugin-sentry
   rest-client
   slather
-  xcpretty
 
 BUNDLED WITH
    2.4.20

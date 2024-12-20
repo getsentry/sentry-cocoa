@@ -7,10 +7,10 @@ import XCTest
 class SentrySessionReplayTests: XCTestCase {
     
     private class ScreenshotProvider: NSObject, SentryViewScreenshotProvider {
-        var lastImageCall: (view: UIView, options: SentryRedactOptions)?
-        func image(view: UIView, options: Sentry.SentryRedactOptions, onComplete: @escaping Sentry.ScreenshotCallback) {
+        var lastImageCall: UIView?
+        func image(view: UIView, onComplete: @escaping Sentry.ScreenshotCallback) {
             onComplete(UIImage.add)
-            lastImageCall = (view, options)
+            lastImageCall = view
         }
     }
      
@@ -403,6 +403,85 @@ class SentrySessionReplayTests: XCTestCase {
         Dynamic(sut).newFrame(nil)
         
         wait(for: [expect], timeout: 1)
+    }
+    
+    func testOptionsInTheEventAllEnabled() throws {
+        let fixture = Fixture()
+        
+        let sut = fixture.getSut(options: SentryReplayOptions(sessionSampleRate: 1, onErrorSampleRate: 1))
+        sut.start(rootView: fixture.rootView, fullSession: true)
+        
+        fixture.dateProvider.advance(by: 1)
+        Dynamic(sut).newFrame(nil)
+        fixture.dateProvider.advance(by: 5)
+        Dynamic(sut).newFrame(nil)
+
+        let breadCrumbRREvents = fixture.lastReplayRecording?.events.compactMap({ $0 as? SentryRRWebOptionsEvent }) ?? []
+        XCTAssertEqual(breadCrumbRREvents.count, 1)
+        
+        let options = try XCTUnwrap(breadCrumbRREvents.first?.data?["payload"] as? [String: Any])
+        
+        XCTAssertEqual(options["sessionSampleRate"] as? Float, 1)
+        XCTAssertEqual(options["errorSampleRate"] as? Float, 1)
+        XCTAssertEqual(options["maskAllText"] as? Bool, true)
+        XCTAssertEqual(options["maskAllImages"] as? Bool, true)
+        XCTAssertEqual(options["maskedViewClasses"] as? String, "")
+        XCTAssertEqual(options["unmaskedViewClasses"] as? String, "")
+        XCTAssertEqual(options["quality"] as? String, "medium")
+    }
+    
+    func testOptionsInTheEventAllChanged() throws {
+        let fixture = Fixture()
+        
+        let replayOptions = SentryReplayOptions(sessionSampleRate: 0, onErrorSampleRate: 0, maskAllText: false, maskAllImages: false)
+        replayOptions.maskedViewClasses = [UIView.self]
+        replayOptions.unmaskedViewClasses = [UITextField.self, UITextView.self]
+        replayOptions.quality = .high
+        
+        let sut = fixture.getSut(options: replayOptions)
+        sut.start(rootView: fixture.rootView, fullSession: true)
+        
+        fixture.dateProvider.advance(by: 1)
+        Dynamic(sut).newFrame(nil)
+        fixture.dateProvider.advance(by: 5)
+        Dynamic(sut).newFrame(nil)
+
+        let breadCrumbRREvents = fixture.lastReplayRecording?.events.compactMap({ $0 as? SentryRRWebOptionsEvent }) ?? []
+        XCTAssertEqual(breadCrumbRREvents.count, 1)
+        
+        let options = try XCTUnwrap(breadCrumbRREvents.first?.data?["payload"] as? [String: Any])
+        
+        XCTAssertEqual(options["sessionSampleRate"] as? Float, 0)
+        XCTAssertEqual(options["errorSampleRate"] as? Float, 0)
+        XCTAssertEqual(options["maskAllText"] as? Bool, false)
+        XCTAssertEqual(options["maskAllImages"] as? Bool, false)
+        XCTAssertEqual(options["maskedViewClasses"] as? String, "UIView")
+        XCTAssertEqual(options["unmaskedViewClasses"] as? String, "UITextField, UITextView")
+        XCTAssertEqual(options["quality"] as? String, "high")
+    }
+    
+    func testOptionsNotInSegmentsOtherThanZero() throws {
+        let fixture = Fixture()
+        
+        let replayOptions = SentryReplayOptions(sessionSampleRate: 1, onErrorSampleRate: 1)
+        
+        let sut = fixture.getSut(options: replayOptions)
+        sut.start(rootView: fixture.rootView, fullSession: true)
+        
+        // First Segment
+        fixture.dateProvider.advance(by: 1)
+        Dynamic(sut).newFrame(nil)
+        fixture.dateProvider.advance(by: 5)
+        Dynamic(sut).newFrame(nil)
+        
+        // Second Segment
+        fixture.dateProvider.advance(by: 1)
+        Dynamic(sut).newFrame(nil)
+        fixture.dateProvider.advance(by: 5)
+        Dynamic(sut).newFrame(nil)
+        
+        let breadCrumbRREvents = fixture.lastReplayRecording?.events.compactMap({ $0 as? SentryRRWebOptionsEvent }) ?? []
+        XCTAssertEqual(breadCrumbRREvents.count, 0)
     }
     
     @available(iOS 16.0, tvOS 16, *)

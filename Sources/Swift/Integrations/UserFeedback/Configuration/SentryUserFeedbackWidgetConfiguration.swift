@@ -17,12 +17,6 @@ public class SentryUserFeedbackWidgetConfiguration: NSObject {
      */
     public var autoInject: Bool = true
     
-    /**
-     * Whether or not to show animations, like for presenting and dismissing the form.
-     * - note: Default: `true`.
-     */
-    public var animations: Bool = true
-    
     let defaultLabelText = "Report a Bug"
     
     /**

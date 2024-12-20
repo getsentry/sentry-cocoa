@@ -25,48 +25,49 @@ class SentryViewPhotographer: NSObject, SentryViewScreenshotProvider {
     private let dispatchQueue = SentryDispatchQueueWrapper()
 
     var renderer: ViewRenderer
-        
+
     init(renderer: ViewRenderer, redactOptions: SentryRedactOptions) {
         self.renderer = renderer
         redactBuilder = UIRedactBuilder(options: redactOptions)
         super.init()
     }
-    
+
     init(redactOptions: SentryRedactOptions) {
         self.renderer = DefaultViewRenderer()
         self.redactBuilder = UIRedactBuilder(options: redactOptions)
     }
-    
-    func image(view: UIView, options: SentryRedactOptions, onComplete: @escaping ScreenshotCallback ) {
+
+    func image(view: UIView, onComplete: @escaping ScreenshotCallback) {
         let redact = redactBuilder.redactRegionsFor(view: view)
         let image = renderer.render(view: view)
-        
-        let imageSize = view.bounds.size
+        let viewSize = view.bounds.size
+
         dispatchQueue.dispatchAsync {
             let screenshot = UIGraphicsImageRenderer(size: imageSize, format: .init(for: .init(displayScale: 1))).image { context in
-                
+
                 let clipOutPath = CGMutablePath(rect: CGRect(origin: .zero, size: imageSize), transform: nil)
                 var clipPaths = [CGPath]()
-                
+
                 let imageRect = CGRect(origin: .zero, size: imageSize)
                 context.cgContext.addRect(CGRect(origin: CGPoint.zero, size: imageSize))
                 context.cgContext.clip(using: .evenOdd)
                 UIColor.blue.setStroke()
-                
+
                 context.cgContext.interpolationQuality = .none
                 image.draw(at: .zero)
-                
+
                 var latestRegion: RedactRegion?
                 for region in redact {
                     let rect = CGRect(origin: CGPoint.zero, size: region.size)
                     var transform = region.transform
                     let path = CGPath(rect: rect, transform: &transform)
-                    
+
                     defer { latestRegion = region }
-                          
+
+                    guard latestRegion?.canReplace(as: region) != true && imageRect.intersects(path.boundingBoxOfPath) else { continue }
+
                     switch region.type {
                     case .redact, .redactSwiftUI:
-                        guard latestRegion?.canReplace(as: region) != true && imageRect.intersects(path.boundingBoxOfPath) else { continue }
                         (region.color ?? UIImageHelper.averageColor(of: context.currentImage, at: rect.applying(region.transform))).setFill()
                         context.cgContext.addPath(path)
                         context.cgContext.fillPath()
@@ -81,9 +82,7 @@ class SentryViewPhotographer: NSObject, SentryViewScreenshotProvider {
                                             clipPaths: clipPaths,
                                             clipOutPath: clipOutPath)
                     case .clipEnd:
-                        if !clipPaths.isEmpty {
-                            clipPaths.removeLast()
-                        }
+                        clipPaths.removeLast()
                         self.updateClipping(for: context.cgContext,
                                             clipPaths: clipPaths,
                                             clipOutPath: clipOutPath)
@@ -93,18 +92,18 @@ class SentryViewPhotographer: NSObject, SentryViewScreenshotProvider {
             onComplete(screenshot)
         }
     }
-    
+
     private func updateClipping(for context: CGContext, clipPaths: [CGPath], clipOutPath: CGPath) {
         context.resetClip()
         clipPaths.reversed().forEach {
             context.addPath($0)
             context.clip()
         }
-    
+
         context.addPath(clipOutPath)
         context.clip(using: .evenOdd)
     }
-    
+
     @objc(addIgnoreClasses:)
     func addIgnoreClasses(classes: [AnyClass]) {
         redactBuilder.addIgnoreClasses(classes)
@@ -130,7 +129,7 @@ class SentryViewPhotographer: NSObject, SentryViewScreenshotProvider {
         redactBuilder
     }
 #endif
-    
+
 }
 
 #endif // os(iOS) || os(tvOS)

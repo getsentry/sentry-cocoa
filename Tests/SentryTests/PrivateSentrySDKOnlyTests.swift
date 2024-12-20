@@ -9,6 +9,11 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
         clearTestState()
     }
 
+    override func setUp() {
+        SentrySdkPackage.resetPackageManager()
+        SentryExtraPackages.clear()
+    }
+
     func testStoreEnvelope() {
         let client = TestClient(options: Options())
         SentrySDK.setCurrentHub(TestHub(client: client, andScope: nil))
@@ -425,6 +430,19 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
 
         let redactBuilder = replayIntegration.viewPhotographer.getRedactBuild()
         XCTAssertTrue(redactBuilder.isRedactContainerClassTestOnly(RedactContainer.self))
+    }
+
+    func testAddExtraSdkPackages() {
+        PrivateSentrySDKOnly.addSdkPackage("package1", version: "version1")
+        PrivateSentrySDKOnly.addSdkPackage("package2", version: "version2")
+
+        XCTAssertEqual(
+            SentrySdkInfo.global().packages,
+            [
+                ["name": "package1", "version": "version1"],
+                ["name": "package2", "version": "version2"]
+            ]
+        )
     }
 
     private func getFirstIntegrationAsReplay() throws -> SentrySessionReplayIntegration {

@@ -1,9 +1,14 @@
 #import "SentryClient.h"
 #import "SentryDataCategory.h"
 #import "SentryDiscardReason.h"
-
-@class SentrySession, SentryEnvelopeItem, SentryId, SentryAttachment, SentryThreadInspector,
-    SentryReplayEvent, SentryReplayRecording, SentryEnvelope;
+@class SentryAttachment;
+@class SentryEnvelope;
+@class SentryEnvelopeItem;
+@class SentryId;
+@class SentryReplayEvent;
+@class SentryReplayRecording;
+@class SentrySession;
+@class SentryThreadInspector;
 
 NS_ASSUME_NONNULL_BEGIN
 

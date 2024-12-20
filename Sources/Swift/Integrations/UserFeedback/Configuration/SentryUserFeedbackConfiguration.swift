@@ -11,6 +11,12 @@ import UIKit
 @objcMembers
 public class SentryUserFeedbackConfiguration: NSObject {
     /**
+     * Whether or not to show animations, like for presenting and dismissing the form.
+     * - note: Default: `true`.
+     */
+    public var animations: Bool = true
+    
+    /**
      * Configuration settings specific to the managed widget that displays the UI form.
      * - note: Default: `nil` to use the default widget settings.
      */

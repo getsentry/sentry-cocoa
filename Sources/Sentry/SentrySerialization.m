@@ -42,7 +42,7 @@ NS_ASSUME_NONNULL_BEGIN
 
     SentrySdkInfo *sdkInfo = envelope.header.sdkInfo;
     if (nil != sdkInfo) {
-        [serializedData addEntriesFromDictionary:[sdkInfo serialize]];
+        [serializedData setValue:[sdkInfo serialize] forKey:@"sdk"];
     }
 
     SentryTraceContext *traceContext = envelope.header.traceContext;
@@ -111,7 +111,7 @@ NS_ASSUME_NONNULL_BEGIN
 
             SentrySdkInfo *sdkInfo = nil;
             if (nil != headerDictionary[@"sdk"]) {
-                sdkInfo = [[SentrySdkInfo alloc] initWithDict:headerDictionary];
+                sdkInfo = [[SentrySdkInfo alloc] initWithDict:headerDictionary[@"sdk"]];
             }
 
             SentryTraceContext *traceContext = nil;

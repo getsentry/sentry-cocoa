@@ -8,7 +8,6 @@
 #import "SentryEvent.h"
 #import "SentryLog.h"
 #import "SentryMessage.h"
-#import "SentryMeta.h"
 #import "SentryMsgPackSerializer.h"
 #import "SentrySdkInfo.h"
 #import "SentrySerialization.h"
@@ -30,8 +29,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithId:(nullable SentryId *)eventId
               traceContext:(nullable SentryTraceContext *)traceContext
 {
-    SentrySdkInfo *sdkInfo = [[SentrySdkInfo alloc] initWithName:SentryMeta.sdkName
-                                                      andVersion:SentryMeta.versionString];
+    SentrySdkInfo *sdkInfo = [SentrySdkInfo global];
     self = [self initWithId:eventId sdkInfo:sdkInfo traceContext:traceContext];
     return self;
 }

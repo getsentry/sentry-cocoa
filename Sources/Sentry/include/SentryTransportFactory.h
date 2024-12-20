@@ -2,7 +2,8 @@
 
 #import "SentryTransport.h"
 
-@class SentryOptions, SentryFileManager;
+@class SentryFileManager;
+@class SentryOptions;
 @protocol SentryCurrentDateProvider;
 @protocol SentryRateLimits;
 

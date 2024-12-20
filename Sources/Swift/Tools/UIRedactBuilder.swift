@@ -10,19 +10,19 @@ import WebKit
 enum RedactRegionType {
     /// Redacts the region.
     case redact
-    
+
     /// Marks a region to not draw anything.
     /// This is used for opaque views.
     case clipOut
-    
+
     /// Push a clip region to the drawing context.
     /// This is used for views that clip to its bounds.
     case clipBegin
-    
+
     /// Pop the last Pushed region from the drawing context.
     /// Used after prossing every child of a view that clip to its bounds.
     case clipEnd
-    
+
     /// These regions are redacted first, there is no way to avoid it.
     case redactSwiftUI
 }
@@ -32,14 +32,14 @@ struct RedactRegion {
     let transform: CGAffineTransform
     let type: RedactRegionType
     let color: UIColor?
-    
+
     init(size: CGSize, transform: CGAffineTransform, type: RedactRegionType, color: UIColor? = nil) {
         self.size = size
         self.transform = transform
         self.type = type
         self.color = color
     }
-    
+
     func canReplace(as other: RedactRegion) -> Bool {
         size == other.size && transform == other.transform && type == other.type
     }
@@ -55,14 +55,14 @@ class UIRedactBuilder {
     private var ignoreClassesIdentifiers: Set<ObjectIdentifier>
     ///This is a list of UIView subclasses that need to be redacted from screenshot
     private var redactClassesIdentifiers: Set<ObjectIdentifier>
-        
+
     /**
      Initializes a new instance of the redaction process with the specified options.
 
      This initializer configures which `UIView` subclasses should be redacted from screenshots and which should be ignored during the redaction process.
 
      - parameter options: A `SentryRedactOptions` object that specifies the configuration for the redaction process.
-     
+
      - If `options.maskAllText` is `true`, common text-related views such as `UILabel`, `UITextView`, and `UITextField` are redacted.
      - If `options.maskAllImages` is `true`, common image-related views such as `UIImageView` and various internal `SwiftUI` image views are redacted.
      - The `options.unmaskViewTypes` allows specifying custom view types to be ignored during the redaction process.
@@ -72,21 +72,21 @@ class UIRedactBuilder {
      */
     init(options: SentryRedactOptions) {
         var redactClasses = [AnyClass]()
-        
+
         if options.maskAllText {
             redactClasses += [ UILabel.self, UITextView.self, UITextField.self ]
         }
-        
+
         if options.maskAllImages {
             //this classes are used by SwiftUI to display images.
             redactClasses += ["_TtCOCV7SwiftUI11DisplayList11ViewUpdater8Platform13CGDrawingView",
              "_TtC7SwiftUIP33_A34643117F00277B93DEBAB70EC0697122_UIShapeHitTestingView",
              "SwiftUI._UIGraphicsView", "SwiftUI.ImageLayer"
             ].compactMap(NSClassFromString(_:))
-            
+
             redactClasses.append(UIImageView.self)
         }
-        
+
 #if os(iOS)
         redactClasses += [ WKWebView.self ]
 
@@ -97,22 +97,22 @@ class UIRedactBuilder {
 #else
         ignoreClassesIdentifiers = []
 #endif
-        
+
         redactClassesIdentifiers = Set(redactClasses.map({ ObjectIdentifier($0) }))
-        
+
         for type in options.unmaskedViewClasses {
             self.ignoreClassesIdentifiers.insert(ObjectIdentifier(type))
         }
-        
+
         for type in options.maskedViewClasses {
             self.redactClassesIdentifiers.insert(ObjectIdentifier(type))
         }
     }
-    
+
     func containsIgnoreClass(_ ignoreClass: AnyClass) -> Bool {
         return  ignoreClassesIdentifiers.contains(ObjectIdentifier(ignoreClass))
     }
-    
+
     func containsRedactClass(_ redactClass: AnyClass) -> Bool {
         var currentClass: AnyClass? = redactClass
         while currentClass != nil && currentClass != UIView.self {
@@ -123,19 +123,19 @@ class UIRedactBuilder {
         }
         return false
     }
-    
+
     func addIgnoreClass(_ ignoreClass: AnyClass) {
         ignoreClassesIdentifiers.insert(ObjectIdentifier(ignoreClass))
     }
-    
+
     func addRedactClass(_ redactClass: AnyClass) {
         redactClassesIdentifiers.insert(ObjectIdentifier(redactClass))
     }
-    
+
     func addIgnoreClasses(_ ignoreClasses: [AnyClass]) {
         ignoreClasses.forEach(addIgnoreClass(_:))
     }
-    
+
     func addRedactClasses(_ redactClasses: [AnyClass]) {
         redactClasses.forEach(addRedactClass(_:))
     }
@@ -162,34 +162,34 @@ class UIRedactBuilder {
 
     /**
      This function identifies and returns the regions within a given UIView that need to be redacted, based on the specified redaction options.
-     
+
      - Parameter view: The root UIView for which redaction regions are to be calculated.
      - Parameter options: A `SentryRedactOptions` object specifying whether to redact all text (`maskAllText`) or all images (`maskAllImages`). If `options` is nil, defaults are used (redacting all text and images).
-     
+
      - Returns: An array of `RedactRegion` objects representing areas of the view (and its subviews) that require redaction, based on the current visibility, opacity, and content (text or images).
-     
+
      The method recursively traverses the view hierarchy, collecting redaction areas from the view and all its subviews. Each redaction area is calculated based on the view’s presentation layer, size, transformation matrix, and other attributes.
-     
+
      The redaction process considers several key factors:
      1. **Text Redaction**: If `maskAllText` is set to true, regions containing text within the view or its subviews are marked for redaction.
      2. **Image Redaction**: If `maskAllImages` is set to true, image-containing regions are also marked for redaction.
      3. **Opaque View Handling**: If an opaque view covers the entire area, obfuscating views beneath it, those hidden views are excluded from processing, and we can remove them from the result.
      4. **Clip Area Creation**: If a smaller opaque view blocks another view, we create a clip area to avoid drawing a redact mask on top of a view that does not require redaction.
-     
+
      This function returns the redaction regions in reverse order from what was found in the view hierarchy, allowing the processing of regions from top to bottom. This ensures that clip regions are applied first before drawing a redact mask on lower views.
      */
     func redactRegionsFor(view: UIView) -> [RedactRegion] {
         var redactingRegions = [RedactRegion]()
-        
+
         self.mapRedactRegion(fromLayer: view.layer.presentation() ?? view.layer,
                              relativeTo: nil,
                              redacting: &redactingRegions,
                              rootFrame: view.frame,
                              transform: .identity)
-        
+
         var swiftUIRedact = [RedactRegion]()
         var otherRegions = [RedactRegion]()
-        
+
         for region in redactingRegions {
             if region.type == .redactSwiftUI {
                 swiftUIRedact.append(region)
@@ -197,11 +197,11 @@ class UIRedactBuilder {
                 otherRegions.append(region)
             }
         }
-        
+
         //The swiftUI type needs to appear first in the list so it always get masked
         return (otherRegions + swiftUIRedact).reversed()
     }
-    
+
     private func shouldIgnore(view: UIView) -> Bool {
         return  SentryRedactViewHelper.shouldUnmask(view) || containsIgnoreClass(type(of: view)) || shouldIgnoreParentContainer(view)
     }
@@ -230,24 +230,24 @@ class UIRedactBuilder {
         }
         return containsRedactClass(type(of: view))
     }
-    
+
     private func shouldRedact(imageView: UIImageView) -> Bool {
         // Checking the size is to avoid redact gradient background that
         // are usually small lines repeating
         guard let image = imageView.image, image.size.width > 10 && image.size.height > 10  else { return false }
         return image.imageAsset?.value(forKey: "_containingBundle") == nil
     }
-    
+
     private func mapRedactRegion(fromLayer layer: CALayer, relativeTo parentLayer: CALayer?, redacting: inout [RedactRegion], rootFrame: CGRect, transform: CGAffineTransform, forceRedact: Bool = false) {
         guard !redactClassesIdentifiers.isEmpty && !layer.isHidden && layer.opacity != 0, let view = layer.delegate as? UIView else { return }
-        
+
         let newTransform = concatenateTranform(transform, from: layer, withParent: parentLayer)
-        
+
         let ignore = !forceRedact && shouldIgnore(view: view)
         let swiftUI = SentryRedactViewHelper.shouldRedactSwiftUI(view)
         let redact = forceRedact || shouldRedact(view: view) || swiftUI
         var enforceRedact = forceRedact
-        
+
         if !ignore && redact {
             redacting.append(RedactRegion(size: layer.bounds.size, transform: newTransform, type: swiftUI ? .redactSwiftUI : .redact, color: self.color(for: view)))
 
@@ -262,11 +262,10 @@ class UIRedactBuilder {
                 redacting.append(RedactRegion(size: layer.bounds.size, transform: newTransform, type: .clipOut))
             }
         }
-        
+
         guard let subLayers = layer.sublayers, subLayers.count > 0 else { return }
-        
-        let clipToBounds = view.clipsToBounds
-        if clipToBounds {
+
+        if view.clipsToBounds {
             /// Because the order in which we process the redacted regions is reversed, we add the end of the clip region first.
             /// The beginning will be added after all the subviews have been mapped.
             redacting.append(RedactRegion(size: layer.bounds.size, transform: newTransform, type: .clipEnd))
@@ -286,14 +285,14 @@ class UIRedactBuilder {
         let size = layer.bounds.size
         let anchorPoint = CGPoint(x: size.width * layer.anchorPoint.x, y: size.height * layer.anchorPoint.y)
         let position = parentLayer?.convert(layer.position, to: nil) ?? layer.position
-        
+
         var newTransform = transform
         newTransform.tx = position.x
         newTransform.ty = position.y
         newTransform = CATransform3DGetAffineTransform(layer.transform).concatenating(newTransform)
         return newTransform.translatedBy(x: -anchorPoint.x, y: -anchorPoint.y)
     }
-    
+
     /**
      Whether the transform does not contains rotation or skew
      */
@@ -305,7 +304,7 @@ class UIRedactBuilder {
     private func color(for view: UIView) -> UIColor? {
         return (view as? UILabel)?.textColor.withAlphaComponent(1)
     }
-    
+
     /**
      Indicates whether the view is opaque and will block other view behind it
      */
@@ -321,37 +320,37 @@ public class SentryRedactViewHelper: NSObject {
     private static var associatedIgnoreObjectHandle: UInt8 = 0
     private static var associatedClipOutObjectHandle: UInt8 = 0
     private static var associatedSwiftUIRedactObjectHandle: UInt8 = 0
-    
+
     override private init() {}
-    
+
     static func maskView(_ view: UIView) {
         objc_setAssociatedObject(view, &associatedRedactObjectHandle, true, .OBJC_ASSOCIATION_ASSIGN)
     }
-    
+
     static func shouldMaskView(_ view: UIView) -> Bool {
         (objc_getAssociatedObject(view, &associatedRedactObjectHandle) as? NSNumber)?.boolValue ?? false
     }
-    
+
     static func shouldUnmask(_ view: UIView) -> Bool {
         (objc_getAssociatedObject(view, &associatedIgnoreObjectHandle) as? NSNumber)?.boolValue ?? false
     }
-    
+
     static func unmaskView(_ view: UIView) {
         objc_setAssociatedObject(view, &associatedIgnoreObjectHandle, true, .OBJC_ASSOCIATION_ASSIGN)
     }
-    
+
     static func shouldClipOut(_ view: UIView) -> Bool {
         (objc_getAssociatedObject(view, &associatedClipOutObjectHandle) as? NSNumber)?.boolValue ?? false
     }
-    
+
     static public func clipOutView(_ view: UIView) {
         objc_setAssociatedObject(view, &associatedClipOutObjectHandle, true, .OBJC_ASSOCIATION_ASSIGN)
     }
-    
+
     static func shouldRedactSwiftUI(_ view: UIView) -> Bool {
         (objc_getAssociatedObject(view, &associatedSwiftUIRedactObjectHandle) as? NSNumber)?.boolValue ?? false
     }
-    
+
     static public func maskSwiftUI(_ view: UIView) {
         objc_setAssociatedObject(view, &associatedSwiftUIRedactObjectHandle, true, .OBJC_ASSOCIATION_ASSIGN)
     }

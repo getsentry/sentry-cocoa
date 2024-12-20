@@ -8,9 +8,12 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class SentryDsn, SentryMeasurementValue, SentryHttpStatusCodeRange, SentryScope,
-    SentryReplayOptions;
+@class SentryDsn;
 @class SentryExperimentalOptions;
+@class SentryHttpStatusCodeRange;
+@class SentryMeasurementValue;
+@class SentryReplayOptions;
+@class SentryScope;
 
 NS_SWIFT_NAME(Options)
 @interface SentryOptions : NSObject

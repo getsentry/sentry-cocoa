@@ -1,6 +1,8 @@
 #import <Foundation/Foundation.h>
 
-@class SentryDebugMeta, SentryThread, SentryFrame;
+@class SentryDebugMeta;
+@class SentryFrame;
+@class SentryThread;
 
 NS_ASSUME_NONNULL_BEGIN
 

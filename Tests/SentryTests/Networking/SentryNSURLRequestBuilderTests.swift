@@ -66,7 +66,10 @@ class SentryNSURLRequestBuilderTests: XCTestCase {
     private func givenEnvelopeWithInvalidData() -> SentryEnvelope {
         let sdkInfoWithInvalidJSON = SentrySdkInfo(
             name: SentryInvalidJSONString() as String,
-            andVersion: "8.0.0"
+            version: "8.0.0",
+            integrations: [],
+            features: [],
+            packages: []
         )
         let headerWithInvalidJSON = SentryEnvelopeHeader(
             id: nil,

@@ -258,7 +258,11 @@ class SentrySessionReplay: NSObject {
             events.append(contentsOf: touchTracker.replayEvents(from: videoSegmentStart ?? video.start, until: video.end))
             touchTracker.flushFinishedEvents()
         }
-
+        
+        if segment == 0 {
+            events.append(SentryRRWebOptionsEvent(timestamp: video.start, options: self.replayOptions))
+        }
+        
         let recording = SentryReplayRecording(segmentId: segment, video: video, extraEvents: events)
                 
         delegate?.sessionReplayNewSegment(replayEvent: replayEvent, replayRecording: recording, videoUrl: video.path)
@@ -303,7 +307,7 @@ class SentrySessionReplay: NSObject {
 
         let screenName = delegate?.currentScreenNameForSessionReplay()
         
-        screenshotProvider.image(view: rootView, options: replayOptions) { [weak self] screenshot in
+        screenshotProvider.image(view: rootView) { [weak self] screenshot in
             self?.newImage(image: screenshot, forScreen: screenName)
         }
     }

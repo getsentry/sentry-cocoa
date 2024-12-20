@@ -10,8 +10,16 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class SentryThread, SentryException, SentryStacktrace, SentryUser, SentryDebugMeta, SentryContext,
-    SentryBreadcrumb, SentryId, SentryMessage, SentryRequest;
+@class SentryBreadcrumb;
+@class SentryContext;
+@class SentryDebugMeta;
+@class SentryException;
+@class SentryId;
+@class SentryMessage;
+@class SentryRequest;
+@class SentryStacktrace;
+@class SentryThread;
+@class SentryUser;
 
 NS_SWIFT_NAME(Event)
 @interface SentryEvent : NSObject <SentrySerializable>

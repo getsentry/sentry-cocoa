@@ -3,8 +3,14 @@
 #import "SentryDiscardReason.h"
 #import "SentryTransport.h"
 
-@class SentryEnvelope, SentryEnvelopeItem, SentryEvent, SentrySession, SentryUserFeedback,
-    SentryAttachment, SentryTraceContext, SentryOptions;
+@class SentryAttachment;
+@class SentryEnvelope;
+@class SentryEnvelopeItem;
+@class SentryEvent;
+@class SentryOptions;
+@class SentrySession;
+@class SentryTraceContext;
+@class SentryUserFeedback;
 
 NS_ASSUME_NONNULL_BEGIN
 

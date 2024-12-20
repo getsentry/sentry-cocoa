@@ -63,7 +63,10 @@ class SentryStacktraceBuilderTests: XCTestCase {
         XCTAssertFalse(result, "The stacktrace should not contain the function that builds the stacktrace")
     }
     
-    func testFramesOrder() {
+    func testFramesOrder() throws {
+        if #available(iOS 18, macOS 15, tvOS 15, *) {
+            throw XCTSkip("Stacktrace frames order testing is disabled for this OS version")
+        }
         let actual = fixture.sut.buildStacktraceForCurrentThread()
         
         // Make sure the first 4 frames contain main

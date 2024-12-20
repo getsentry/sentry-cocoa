@@ -41,7 +41,7 @@ GIT-REF := $(shell git rev-parse --abbrev-ref HEAD)
 
 test:
 	@echo "--> Running all tests"
-	./scripts/xcode-test.sh iOS latest $(GIT-REF) YES test Test
+	./scripts/xcode-test.sh iOS latest $(GIT-REF) test Test
 	./scripts/xcode-slowest-tests.sh
 .PHONY: test
 
@@ -61,7 +61,7 @@ test-ui-critical:
 
 analyze:
 	rm -rf analyzer
-	xcodebuild analyze -workspace Sentry.xcworkspace -scheme Sentry -configuration Release CLANG_ANALYZER_OUTPUT=html CLANG_ANALYZER_OUTPUT_DIR=analyzer -destination "platform=iOS Simulator,OS=latest,name=iPhone 11"  CODE_SIGNING_ALLOWED="NO" | xcpretty -t && [[ -z `find analyzer -name "*.html"` ]]
+	set -o pipefail && NSUnbufferedIO=YES xcodebuild analyze -workspace Sentry.xcworkspace -scheme Sentry -configuration Release CLANG_ANALYZER_OUTPUT=html CLANG_ANALYZER_OUTPUT_DIR=analyzer -destination "platform=iOS Simulator,OS=latest,name=iPhone 11" CODE_SIGNING_ALLOWED="NO" 2>&1 | xcbeautify && [[ -z `find analyzer -name "*.html"` ]]
 
 # Since Carthage 0.38.0 we need to create separate .framework.zip and .xcframework.zip archives.
 # After creating the zips we create a JSON to be able to test Carthage locally.
