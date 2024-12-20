@@ -117,6 +117,7 @@
 
 + (void)unswizzle
 {
+#if TEST || TESTCI
     SEL writeToFileAtomicallySelector = NSSelectorFromString(@"writeToFile:atomically:");
     SentryUnswizzleInstanceMethod(
         NSData.class, writeToFileAtomicallySelector, (void *)writeToFileAtomicallySelector);
@@ -138,6 +139,7 @@
         = NSSelectorFromString(@"initWithContentsOfURL:options:error:");
     SentryUnswizzleInstanceMethod(NSData.class, initWithContentsOfURLOptionsErrorSelector,
         (void *)initWithContentsOfURLOptionsErrorSelector);
+#endif // TEST || TESTCI
 }
 #pragma clang diagnostic pop
 @end

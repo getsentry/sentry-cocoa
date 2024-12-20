@@ -73,12 +73,14 @@
 
 + (void)unswizzle
 {
+#if TEST || TESTCI
     if (@available(iOS 18, macOS 15, tvOS 18, *)) {
         SEL createFileAtPathContentsAttributes
             = NSSelectorFromString(@"createFileAtPath:contents:attributes:");
         SentryUnswizzleInstanceMethod(NSFileManager.class, createFileAtPathContentsAttributes,
             (void *)createFileAtPathContentsAttributes);
     }
+#endif // TEST || TESTCI
 }
 #pragma clang diagnostic pop
 @end
