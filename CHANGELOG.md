@@ -27,7 +27,7 @@
 ### Features
 
 - Add in_foreground app context to transactions (#4561)
-- Add in_foreground app context to crash events ((#4584)
+- Add in_foreground app context to crash events (#4584)
 - Promote the option `performanceV2` from experimental to stable (#4564)
 
 ### Fixes
@@ -61,7 +61,7 @@
 ### Features
 
 - Add in_foreground app context to transactions (#4561)
-- Add in_foreground app context to crash events ((#4584)
+- Add in_foreground app context to crash events (#4584)
 - Promote the option `performanceV2` from experimental to stable (#4564)
 
 ### Fixes
@@ -71,7 +71,6 @@
 - Session replay transformed view masking (#4529)
 - Load integration from same binary (#4541)
 - Masking for fast animations #4574
-
 
 ### Improvements
 
