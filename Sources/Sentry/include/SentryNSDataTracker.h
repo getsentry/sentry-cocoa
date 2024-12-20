@@ -2,15 +2,13 @@
 #import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
-static NSString *const SENTRY_FILE_WRITE_OPERATION = @"file.write";
-
-static NSString *const SENTRY_FILE_READ_OPERATION = @"file.read";
 
 @class SentryNSProcessInfoWrapper;
 @class SentryThreadInspector;
 
 @interface SentryNSDataTracker : NSObject
-SENTRY_NO_INIT
+
++ (instancetype)sharedInstance;
 
 - (instancetype)initWithThreadInspector:(SentryThreadInspector *)threadInspector
                      processInfoWrapper:(SentryNSProcessInfoWrapper *)processInfoWrapper;

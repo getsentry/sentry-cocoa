@@ -787,7 +787,7 @@
 		A8F17B2E2901765900990B25 /* SentryRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = A8F17B2D2901765900990B25 /* SentryRequest.m */; };
 		A8F17B342902870300990B25 /* SentryHttpStatusCodeRange.m in Sources */ = {isa = PBXBuildFile; fileRef = A8F17B332902870300990B25 /* SentryHttpStatusCodeRange.m */; };
 		D4252AE32D119D3F00184F6F /* SentryDataWrapperTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4252AE22D119D3B00184F6F /* SentryDataWrapperTests.swift */; };
-		D43DD5DA2D11A44A005BDA32 /* SentryDataWrapper+Tracking.swift in Sources */ = {isa = PBXBuildFile; fileRef = D43DD5D92D11A444005BDA32 /* SentryDataWrapper+Tracking.swift */; };
+		D4B3C2D72D158596003E3AB3 /* SentryFileOperations.m in Sources */ = {isa = PBXBuildFile; fileRef = D4B3C2D62D158590003E3AB3 /* SentryFileOperations.m */; };
 		D4EDF9842D0B2A210071E7B3 /* SentryDataWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4EDF9832D0B2A1D0071E7B3 /* SentryDataWrapper.swift */; };
 		D8019910286B089000C277F0 /* SentryCrashReportSinkTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D801990F286B089000C277F0 /* SentryCrashReportSinkTests.swift */; };
 		D802994E2BA836EF000F0081 /* SentryOnDemandReplay.swift in Sources */ = {isa = PBXBuildFile; fileRef = D802994D2BA836EF000F0081 /* SentryOnDemandReplay.swift */; };
@@ -1872,7 +1872,7 @@
 		A8F17B2D2901765900990B25 /* SentryRequest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentryRequest.m; sourceTree = "<group>"; };
 		A8F17B332902870300990B25 /* SentryHttpStatusCodeRange.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentryHttpStatusCodeRange.m; sourceTree = "<group>"; };
 		D4252AE22D119D3B00184F6F /* SentryDataWrapperTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryDataWrapperTests.swift; sourceTree = "<group>"; };
-		D43DD5D92D11A444005BDA32 /* SentryDataWrapper+Tracking.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SentryDataWrapper+Tracking.swift"; sourceTree = "<group>"; };
+		D4B3C2D62D158590003E3AB3 /* SentryFileOperations.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentryFileOperations.m; sourceTree = "<group>"; };
 		D4EDF9832D0B2A1D0071E7B3 /* SentryDataWrapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryDataWrapper.swift; sourceTree = "<group>"; };
 		D800942628F82F3A005D3943 /* SwiftDescriptor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftDescriptor.swift; sourceTree = "<group>"; };
 		D801990F286B089000C277F0 /* SentryCrashReportSinkTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryCrashReportSinkTests.swift; sourceTree = "<group>"; };
@@ -2130,7 +2130,6 @@
 		621D9F2D2B9B030E003D94DE /* Helper */ = {
 			isa = PBXGroup;
 			children = (
-				D43DD5D92D11A444005BDA32 /* SentryDataWrapper+Tracking.swift */,
 				D4EDF9832D0B2A1D0071E7B3 /* SentryDataWrapper.swift */,
 				84B0E0062CD963F9007FB332 /* SentryIconography.swift */,
 				D8739CF62BECFF86007D2F66 /* Log */,
@@ -3600,6 +3599,7 @@
 				622C08D929E554B9002571D4 /* SentrySpanContext+Private.h */,
 				8E4E7C7325DAAB49006AB9E2 /* SentrySpanProtocol.h */,
 				7B3B83712833832B0001FDEB /* SentrySpanOperations.h */,
+				D4B3C2D62D158590003E3AB3 /* SentryFileOperations.m */,
 				622C08D729E546F4002571D4 /* SentryTraceOrigins.h */,
 				8E4E7C6C25DAAAFE006AB9E2 /* SentrySpan.h */,
 				84A789092C0E9F5800FF0803 /* SentrySpan+Private.h */,
@@ -4737,7 +4737,6 @@
 				7BC63F0A28081288009D9E37 /* SentrySwizzleWrapper.m in Sources */,
 				7B6C5EDC264E8DA80010D138 /* SentryFramesTrackingIntegration.m in Sources */,
 				849B8F9A2C6E906900148E1F /* SentryUserFeedbackConfiguration.swift in Sources */,
-				D43DD5DA2D11A44A005BDA32 /* SentryDataWrapper+Tracking.swift in Sources */,
 				63295AF71EF3C7DB002D4490 /* SentryNSDictionarySanitize.m in Sources */,
 				7B8ECBFC26498958005FE2EF /* SentryAppStateManager.m in Sources */,
 				7B2A70DD27D6083D008B0D15 /* SentryThreadWrapper.m in Sources */,
@@ -4826,6 +4825,7 @@
 				62B558B02C6B9C3C00C34FEC /* SentryFramesDelayResult.swift in Sources */,
 				7DAC589123D8B2E0001CF26B /* SentryGlobalEventProcessor.m in Sources */,
 				7BBD189E244EC8D200427C76 /* SentryRetryAfterHeaderParser.m in Sources */,
+				D4B3C2D72D158596003E3AB3 /* SentryFileOperations.m in Sources */,
 				63FE711920DA4C1000CDBAE8 /* SentryCrashMachineContext.c in Sources */,
 				63FE711B20DA4C1000CDBAE8 /* SentryCrashString.c in Sources */,
 				7B14089824878F950035403D /* SentryCrashStackEntryMapper.m in Sources */,

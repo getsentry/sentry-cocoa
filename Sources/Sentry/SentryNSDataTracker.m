@@ -12,14 +12,13 @@
 #import "SentrySDK+Private.h"
 #import "SentryScope+Private.h"
 #import "SentrySpan.h"
+#import "SentrySpanOperations.h"
 #import "SentrySpanProtocol.h"
 #import "SentryStacktrace.h"
 #import "SentryThread.h"
 #import "SentryThreadInspector.h"
 #import "SentryTraceOrigins.h"
 #import "SentryTracer.h"
-
-const NSString *SENTRY_TRACKING_COUNTER_KEY = @"SENTRY_TRACKING_COUNTER_KEY";
 
 @interface SentryNSDataTracker ()
 
@@ -31,6 +30,16 @@ const NSString *SENTRY_TRACKING_COUNTER_KEY = @"SENTRY_TRACKING_COUNTER_KEY";
 @end
 
 @implementation SentryNSDataTracker
+
+NSString *const SENTRY_TRACKING_COUNTER_KEY = @"SENTRY_TRACKING_COUNTER_KEY";
+
++ (instancetype)sharedInstance
+{
+    SentryNSDataTracker *tracker = [[SentryNSDataTracker alloc]
+        initWithThreadInspector:SentryDependencyContainer.sharedInstance.threadInspector
+             processInfoWrapper:SentryDependencyContainer.sharedInstance.processInfoWrapper];
+    return tracker;
+}
 
 - (instancetype)initWithThreadInspector:(SentryThreadInspector *)threadInspector
                      processInfoWrapper:(SentryNSProcessInfoWrapper *)processInfoWrapper
@@ -213,7 +222,7 @@ const NSString *SENTRY_TRACKING_COUNTER_KEY = @"SENTRY_TRACKING_COUNTER_KEY";
 
 - (nullable id<SentrySpan>)startTrackingWritingNSData:(NSData *)data filePath:(NSString *)path
 {
-    return [self spanForPath:path operation:SENTRY_FILE_WRITE_OPERATION size:data.length];
+    return [self spanForPath:path operation:SentrySpanOperationFileWrite size:data.length];
 }
 
 - (nullable id<SentrySpan>)startTrackingReadingFilePath:(NSString *)path
@@ -228,7 +237,7 @@ const NSString *SENTRY_TRACKING_COUNTER_KEY = @"SENTRY_TRACKING_COUNTER_KEY";
     if (count)
         return nil;
 
-    return [self spanForPath:path operation:SENTRY_FILE_READ_OPERATION size:0];
+    return [self spanForPath:path operation:SentrySpanOperationFileRead size:0];
 }
 
 - (void)endTrackingFile

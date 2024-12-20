@@ -1,3 +1,5 @@
+@_implementationOnly import _SentryPrivate
+
 /// A drop-in replacement for the standard ``Swift.Data`` but with automatic tracking for file I/O operations.
 ///
 /// This structure is intended to resemble the same method signatures as of ``Swift.Data``.
@@ -66,9 +68,17 @@
 
     /// See `Data.init(contentsOf:options:)`
     public init(contentsOf url: URL, options: Data.ReadingOptions = []) throws {
-        let span = Self.startTracking(readingFileUrl: url)
-        self.data = try Data(contentsOf: url, options: options)
-        Self.finishTracking(span: span, withData: self.data)
+        let tracker = SentryNSDataTracker.sharedInstance()
+        self.data = try tracker.measureNSData(
+            from: url
+        ) { url, options, errorPtr in
+            do {
+                return try Data(contentsOf: url, options: options)
+            } catch {
+                errorPtr?.pointee = error as NSError
+                return nil
+            }
+        }
     }
 
     /// See `Data.reserveCapacity(_:)`
@@ -185,9 +195,16 @@
 
     /// See `Data.write(to:options:)`
     public func write(to url: URL, options: Data.WritingOptions = []) throws {
-        let span = Self.startTracking(writingData: data, toUrl: url, options: options)
-        try self.data.write(to: url, options: options)
-        Self.finishTracking(span: span, withData: self.data)
+        let tracker = SentryNSDataTracker.sharedInstance()
+        try tracker.measure(self.data, writeToFile: url.path) { _, options, errorPtr in
+            do {
+                try self.data.write(to: url, options: options)
+                return true
+            } catch {
+                errorPtr?.pointee = error as NSError
+                return false
+            }
+        }
     }
 
     /// The hash value for the data.

@@ -110,7 +110,12 @@ class SentryDataWrapperTests: XCTestCase {
         }
 
         assertSpanDuration(span: span, expectedDuration: 4)
-        assertDataSpan(span, path: fixture.filePath, operation: SENTRY_FILE_WRITE_OPERATION, size: fixture.data.count)
+        assertDataSpan(
+            span,
+            path: fixture.filePath,
+            operation: SentrySpanOperationFileRead,
+            size: fixture.data.count
+        )
     }
 
     func testWriteAtomically_CheckTransaction_DebugImages() {
@@ -169,7 +174,7 @@ class SentryDataWrapperTests: XCTestCase {
             }
 
             self.assertSpanDuration(span: span, expectedDuration: 4)
-            self.assertDataSpan(span, path: self.fixture.filePath, operation: SENTRY_FILE_WRITE_OPERATION, size: self.fixture.data.count, mainThread: false)
+            self.assertDataSpan(span, path: self.fixture.filePath, operation: SentrySpanOperationFileWrite, size: self.fixture.data.count, mainThread: false)
             expect.fulfill()
         }
 
@@ -189,7 +194,12 @@ class SentryDataWrapperTests: XCTestCase {
         }
 
         assertSpanDuration(span: span, expectedDuration: 3)
-        assertDataSpan(span, path: fixture.filePath, operation: SENTRY_FILE_WRITE_OPERATION, size: fixture.data.count)
+        assertDataSpan(
+            span,
+            path: fixture.filePath,
+            operation: SentrySpanOperationFileWrite,
+            size: fixture.data.count
+        )
     }
 
     func testDontTrackSentryFilesWrites() {
@@ -223,7 +233,12 @@ class SentryDataWrapperTests: XCTestCase {
         XCTAssertEqual(usedPath, fixture.filePath)
         XCTAssertEqual(data?.count, fixture.data.count)
 
-        assertDataSpan(span, path: fixture.filePath, operation: SENTRY_FILE_READ_OPERATION, size: fixture.data.count)
+        assertDataSpan(
+            span,
+            path: fixture.filePath,
+            operation: SentrySpanOperationFileRead,
+            size: fixture.data.count
+        )
     }
 
     func testReadFromStringOptionsError() {
@@ -244,7 +259,7 @@ class SentryDataWrapperTests: XCTestCase {
         XCTAssertEqual(data?.count, fixture.data.count)
         XCTAssertEqual(usedOptions, .uncached)
 
-        assertDataSpan(span, path: fixture.filePath, operation: SENTRY_FILE_READ_OPERATION, size: fixture.data.count)
+        assertDataSpan(span, path: fixture.filePath, operation: SentrySpanOperationFileRead, size: fixture.data.count)
     }
 
     func testReadFromURLOptionsError() {
@@ -266,7 +281,7 @@ class SentryDataWrapperTests: XCTestCase {
         XCTAssertEqual(data?.count, fixture.data.count)
         XCTAssertEqual(usedOptions, .uncached)
 
-        assertDataSpan(span, path: url.path, operation: SENTRY_FILE_READ_OPERATION, size: fixture.data.count)
+        assertDataSpan(span, path: url.path, operation: SentrySpanOperationFileRead, size: fixture.data.count)
     }
 
     func testDontTrackSentryFilesRead() {
@@ -312,7 +327,7 @@ class SentryDataWrapperTests: XCTestCase {
 
         let lastComponent = (path as NSString).lastPathComponent
 
-        if operation == SENTRY_FILE_READ_OPERATION {
+        if operation == SentrySpanOperationFileRead {
             XCTAssertEqual(span?.spanDescription, lastComponent)
         } else {
             let bytesDescription = SentryByteCountFormatter.bytesCountDescription( UInt(size))
