@@ -34,6 +34,11 @@ NS_ASSUME_NONNULL_BEGIN
             isEqualToString:@"ui-tests"]) {
         return NO;
     }
+#elif DEBUG
+    if ([NSProcessInfo.processInfo.arguments
+            containsObject:@"--io.sentry.disable-http-transport"]) {
+        return NO;
+    }
 #endif // TEST || TESTCI
 
     // We always have at least one operation in the queue when calling this

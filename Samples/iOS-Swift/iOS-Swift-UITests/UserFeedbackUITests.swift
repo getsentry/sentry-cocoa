@@ -111,18 +111,21 @@ class UserFeedbackUITests: BaseUITest {
     // MARK: Tests validating happy path / successful submission
     
     func testSubmitFullyFilledForm() throws {
-        launchApp(args: ["--io.sentry.feedback.all-defaults"])
+        launchApp(args: ["--io.sentry.feedback.all-defaults", "--io.sentry.disable-everything", "--io.sentry.wipe-data", "--io.sentry.base64-attachment-data"])
         
         widgetButton.tap()
         
         nameField.tap()
-        nameField.typeText("Andrew")
+        let testName = "Andrew"
+        nameField.typeText(testName)
         
         emailField.tap()
-        emailField.typeText("andrew.mcknight@sentry.io")
+        let testContactEmail = "andrew.mcknight@sentry.io"
+        emailField.typeText(testContactEmail)
         
         messageTextView.tap()
-        messageTextView.typeText("UITest user feedback")
+        let testMessage = "UITest user feedback"
+        messageTextView.typeText(testMessage)
         
         sendButton.tap()
         
@@ -135,10 +138,20 @@ class UserFeedbackUITests: BaseUITest {
         
         XCTAssertEqual(try XCTUnwrap(messageTextView.value as? String), "", "The UITextView shouldn't have any initial text functioning as a placeholder; as UITextView has no placeholder property, the \"placeholder\" is a label on top of it.")
         
-        // TODO: go to Extras view
-        app.buttons["io.sentry.ui-test.button.get-feedback-envelope"].tap()
-        // TODO: pull contents out of text field
-        // TODO: validate contents
+        cancelButton.tap()
+        
+        app.buttons["Extra"].tap()
+        app.buttons["io.sentry.ui-test.button.get-latest-envelope"].tap()
+        let marshaledDataBase64 = try XCTUnwrap(app.textFields["io.sentry.ui-test.text-field.data-marshaling.latest-envelope"].value as? String)
+        let data = try XCTUnwrap(Data(base64Encoded: marshaledDataBase64))
+        let dict = try XCTUnwrap(JSONSerialization.jsonObject(with: data) as? [String: Any])
+        XCTAssertEqual(try XCTUnwrap(dict["event_type"] as? String), "feedback")
+        XCTAssertEqual(try XCTUnwrap(dict["message"] as? String), testMessage)
+        XCTAssertEqual(try XCTUnwrap(dict["contact_email"] as? String), testContactEmail)
+        XCTAssertEqual(try XCTUnwrap(dict["source"] as? String), "widget")
+        XCTAssertEqual(try XCTUnwrap(dict["name"] as? String), testName)
+        XCTAssertNotNil(dict["event_id"])
+        XCTAssertEqual(try XCTUnwrap(dict["item_header_type"] as? String), "feedback")
     }
     
     func testSubmitWithOnlyRequiredFieldsFilled() {
