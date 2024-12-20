@@ -16,7 +16,7 @@
 - `SentrySdkInfo.packages` should be an array (#4626)
 - Use the same SdkInfo for envelope header and event (#4629)
 - Fixes Session replay screenshot provider crash (#4649)
-- Session Redact wrong clipping order (#4651)
+- Session Replay wrong clipping order (#4651)
 
 ### Internal
 
