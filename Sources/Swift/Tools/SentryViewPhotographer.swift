@@ -63,11 +63,10 @@ class SentryViewPhotographer: NSObject, SentryViewScreenshotProvider {
                     let path = CGPath(rect: rect, transform: &transform)
                     
                     defer { latestRegion = region }
-                    
-                    guard latestRegion?.canReplace(as: region) != true && imageRect.intersects(path.boundingBoxOfPath) else { continue }
                           
                     switch region.type {
                     case .redact, .redactSwiftUI:
+                        guard latestRegion?.canReplace(as: region) != true && imageRect.intersects(path.boundingBoxOfPath) else { continue }
                         (region.color ?? UIImageHelper.averageColor(of: context.currentImage, at: rect.applying(region.transform))).setFill()
                         context.cgContext.addPath(path)
                         context.cgContext.fillPath()
@@ -82,7 +81,9 @@ class SentryViewPhotographer: NSObject, SentryViewScreenshotProvider {
                                             clipPaths: clipPaths,
                                             clipOutPath: clipOutPath)
                     case .clipEnd:
-                        clipPaths.removeLast()
+                        if !clipPaths.isEmpty {
+                            clipPaths.removeLast()
+                        }
                         self.updateClipping(for: context.cgContext,
                                             clipPaths: clipPaths,
                                             clipOutPath: clipOutPath)

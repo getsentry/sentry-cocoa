@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Session Replay wrong clipping order (#4651)
+
 ## 8.42.0
 
 ### Features
