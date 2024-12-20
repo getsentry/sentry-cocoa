@@ -84,21 +84,24 @@ jobs:
             xcode: "14.3"
             test-destination-os: "16.4"
             device: "iPhone 14"
-
+            scheme: "Sentry"
+            
           # iOS 17
           - runs-on: macos-14
             platform: "iOS"
             xcode: "15.4"
             test-destination-os: "17.2"
             device: "iPhone 15"
-
+            scheme: "Sentry"
+            
           # iOS 18
           - runs-on: macos-15
             platform: "iOS"
             xcode: "16.1"
             test-destination-os: "18.1"
             device: "iPhone 16"
-
+            scheme: "Sentry"
+            
           # We don't run the unit tests on macOS 13 cause we run them on all on GH actions available iOS versions.
           # The chance of missing a bug solely on tvOS 16 that doesn't occur on iOS, macOS 12 or macOS 14 is minimal.
           # We are running tests on macOS 14 and later, as there were OS-internal changes introduced in succeeding versions.
@@ -108,13 +111,15 @@ jobs:
             platform: "macOS"
             xcode: "15.4"
             test-destination-os: "latest"
-
+            scheme: "Sentry"
+            
           # macOS 15
           - runs-on: macos-15
             platform: "macOS"
             xcode: "16.1"
             test-destination-os: "latest"
-
+            scheme: "Sentry"
+            
           # Catalyst. We test the latest version, as the risk something breaking on Catalyst and not
           # on an older iOS or macOS version is low.
           # In addition we are running tests on macOS 14, as there were OS-internal changes introduced in succeeding versions.
@@ -122,11 +127,13 @@ jobs:
             platform: "Catalyst"
             xcode: "15.4"
             test-destination-os: "latest"
-
+            scheme: "Sentry"
+            
           - runs-on: macos-15
             platform: "Catalyst"
             xcode: "16.1"
             test-destination-os: "latest"
+            scheme: "Sentry"
 
           # We don't run the unit tests on tvOS 16 cause we run them on all on GH actions available iOS versions.
           # The chance of missing a bug solely on tvOS 16 that doesn't occur on iOS, tvOS 15 or tvOS 16 is minimal.
@@ -137,6 +144,7 @@ jobs:
             platform: "tvOS"
             xcode: "15.4"
             test-destination-os: "17.5"
+            scheme: "Sentry"
             
         # iOS 17
           - runs-on: macos-14
@@ -151,6 +159,7 @@ jobs:
             platform: "tvOS"
             xcode: "16.1"
             test-destination-os: "18.1"
+            scheme: "Sentry"
 
     steps:
       - uses: actions/checkout@v4
