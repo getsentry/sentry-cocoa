@@ -268,6 +268,32 @@ class SentryViewPhotographerTests: XCTestCase {
         ])
     }
     
+    func testLabelRedactedStackedHierarchy() throws {
+        let label = UILabel(frame: CGRect(x: 0, y: 0, width: 30, height: 30))
+        label.text = "Test"
+        
+        let bottomView = UIView(frame: CGRect(x: 5, y: 5, width: 40, height: 40))
+        bottomView.clipsToBounds = true
+        bottomView.backgroundColor = .white
+        
+        let middleView = UIView(frame: CGRect(x: 0, y: 0, width: 40, height: 40))
+        middleView.clipsToBounds = true
+        middleView.backgroundColor = .white
+        
+        let topView = UIView(frame: CGRect(x: 0, y: 0, width: 40, height: 40))
+        topView.clipsToBounds = true
+        topView.backgroundColor = .white
+                
+        bottomView.addSubview(middleView)
+        middleView.addSubview(topView)
+        topView.addSubview(label)
+        
+        let image = try XCTUnwrap(prepare(views: [bottomView]))
+        let pixel = color(at: CGPoint(x: 10, y: 10), in: image)
+        
+        assertColor(pixel, .black)
+    }
+    
     private func assertColor(_ color: UIColor, in image: UIImage, at points: [CGPoint]) {
         points.forEach {
             let pixel = self.color(at: $0, in: image)

@@ -255,7 +255,7 @@ static NSObject *sentryDependencyContainerLock;
 
 #endif // SENTRY_HAS_UIKIT
 
-#if SENTRY_UIKIT_AVAILABLE
+#if SENTRY_TARGET_REPLAY_SUPPORTED
 - (SentryScreenshot *)screenshot SENTRY_DISABLE_THREAD_SANITIZER(
     "double-checked lock produce false alarms")
 {
@@ -275,7 +275,9 @@ static NSObject *sentryDependencyContainerLock;
     return nil;
 #    endif // SENTRY_HAS_UIKIT
 }
+#endif
 
+#if SENTRY_UIKIT_AVAILABLE
 - (SentryViewHierarchy *)viewHierarchy SENTRY_DISABLE_THREAD_SANITIZER(
     "double-checked lock produce false alarms")
 {
