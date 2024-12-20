@@ -15,13 +15,18 @@
 
 - `SentrySdkInfo.packages` should be an array (#4626)
 - Use the same SdkInfo for envelope header and event (#4629)
-- Fixes Session replay screenshot provider crash (#4649)
-- Session Replay wrong clipping order (#4651)
 
 ### Internal
 
 - Remove loading `integrations` names from `event.extra` (#4627)
 - Add Hybrid SDKs API to add extra SDK packages (#4637)
+
+## 8.42.1
+
+### Fixes
+
+- Fixes Session replay screenshot provider crash (#4649)
+- Session Replay wrong clipping order (#4651)
 
 ## 8.42.0
 
@@ -34,9 +39,10 @@
 ### Fixes
 
 - Session replay touch tracking race condition (#4548)
-- Use `options.reportAccessibilityIdentifier` for Breadcrumbs and UIEvents (#4569) 
+- Use `options.reportAccessibilityIdentifier` for Breadcrumbs and UIEvents (#4569)
 - Session replay transformed view masking (#4529)
 - Load integration from same binary (#4541)
+- Masking for fast animations (#4574)
 - Masking for fast animations #4574
 - Fix GraphQL context for HTTP client error tracking (#4567)
 
@@ -68,7 +74,7 @@
 ### Fixes
 
 - Session replay touch tracking race condition (#4548)
-- Use `options.reportAccessibilityIdentifier` for Breadcrumbs and UIEvents (#4569) 
+- Use `options.reportAccessibilityIdentifier` for Breadcrumbs and UIEvents (#4569)
 - Session replay transformed view masking (#4529)
 - Load integration from same binary (#4541)
 - Masking for fast animations #4574
