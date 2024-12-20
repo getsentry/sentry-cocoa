@@ -40,6 +40,7 @@ typedef IMP (^SentrySwizzleImpProvider)(void);
 
 @implementation SentrySwizzle
 
+#if TEST || TESTCI
 static NSMutableDictionary<NSValue *, NSValue *> *
 refsToOriginalImplementationsDictionary(void)
 {
@@ -76,6 +77,7 @@ getRefToOriginalImplementation(const void *key)
     NSValue *originalImplementationValue = [refsToOriginalImplementations objectForKey:keyValue];
     return (IMP)[originalImplementationValue pointerValue];
 }
+#endif // TEST || TESTCI
 
 static void
 swizzle(
@@ -144,13 +146,16 @@ swizzle(
     pthread_mutex_lock(&gLock);
 
     originalIMP = class_replaceMethod(classToSwizzle, selector, newIMP, methodType);
+#if TEST || TESTCI
     if (originalIMP) {
         storeRefToOriginalImplementation(key, originalIMP);
     }
+#endif // TEST || TESTCI
 
     pthread_mutex_unlock(&gLock);
 }
 
+#if TEST || TESTCI
 static void
 unswizzle(Class classToUnswizzle, SEL selector, const void *key)
 {
@@ -174,7 +179,7 @@ unswizzle(Class classToUnswizzle, SEL selector, const void *key)
 
     pthread_mutex_unlock(&gLock);
 }
-
+#endif // TEST || TESTCI
 static NSMutableDictionary<NSValue *, NSMutableSet<Class> *> *
 swizzledClassesDictionary(void)
 {
@@ -239,6 +244,7 @@ swizzledClassesForKey(const void *key)
     return YES;
 }
 
+#if TEST || TESTCI
 + (BOOL)unswizzleInstanceMethod:(SEL)selector inClass:(Class)classToUnswizzle key:(const void *)key
 {
     NSAssert(key != NULL, @"Key may not be NULL.");
@@ -261,6 +267,7 @@ swizzledClassesForKey(const void *key)
 
     return YES;
 }
+#endif // TEST || TESTCI
 
 + (void)swizzleClassMethod:(SEL)selector
                    inClass:(Class)classToSwizzle
