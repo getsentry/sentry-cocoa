@@ -4,6 +4,7 @@
 
 ### Fixes
 
+- Fixes Session replay screenshot provider crash (#4649)
 - Session Replay wrong clipping order (#4651)
 
 ## 8.42.0
