@@ -40,8 +40,48 @@ typedef IMP (^SentrySwizzleImpProvider)(void);
 
 @implementation SentrySwizzle
 
+#if TEST || TESTCI
+static NSMutableDictionary<NSValue *, NSValue *> *
+refsToOriginalImplementationsDictionary(void)
+{
+    static NSMutableDictionary *refsToOriginalImplementations;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{ refsToOriginalImplementations = [NSMutableDictionary new]; });
+    return refsToOriginalImplementations;
+}
+
 static void
-swizzle(Class classToSwizzle, SEL selector, SentrySwizzleImpFactoryBlock factoryBlock)
+storeRefToOriginalImplementation(const void *key, IMP implementation)
+{
+    NSMutableDictionary<NSValue *, NSValue *> *refsToOriginalImplementations
+        = refsToOriginalImplementationsDictionary();
+    NSValue *keyValue = [NSValue valueWithPointer:key];
+    refsToOriginalImplementations[keyValue] = [NSValue valueWithPointer:implementation];
+}
+
+static void
+removeRefToOriginalImplementation(const void *key)
+{
+    NSMutableDictionary<NSValue *, NSValue *> *refsToOriginalImplementations
+        = refsToOriginalImplementationsDictionary();
+    NSValue *keyValue = [NSValue valueWithPointer:key];
+    [refsToOriginalImplementations removeObjectForKey:keyValue];
+}
+
+static IMP
+getRefToOriginalImplementation(const void *key)
+{
+    NSMutableDictionary<NSValue *, NSValue *> *refsToOriginalImplementations
+        = refsToOriginalImplementationsDictionary();
+    NSValue *keyValue = [NSValue valueWithPointer:key];
+    NSValue *originalImplementationValue = [refsToOriginalImplementations objectForKey:keyValue];
+    return (IMP)[originalImplementationValue pointerValue];
+}
+#endif // TEST || TESTCI
+
+static void
+swizzle(
+    Class classToSwizzle, SEL selector, SentrySwizzleImpFactoryBlock factoryBlock, const void *key)
 {
     Method method = class_getInstanceMethod(classToSwizzle, selector);
 
@@ -106,10 +146,40 @@ swizzle(Class classToSwizzle, SEL selector, SentrySwizzleImpFactoryBlock factory
     pthread_mutex_lock(&gLock);
 
     originalIMP = class_replaceMethod(classToSwizzle, selector, newIMP, methodType);
+#if TEST || TESTCI
+    if (originalIMP) {
+        storeRefToOriginalImplementation(key, originalIMP);
+    }
+#endif // TEST || TESTCI
 
     pthread_mutex_unlock(&gLock);
 }
 
+#if TEST || TESTCI
+static void
+unswizzle(Class classToUnswizzle, SEL selector, const void *key)
+{
+    Method method = class_getInstanceMethod(classToUnswizzle, selector);
+
+    NSCAssert(NULL != method, @"Selector %@ not found in %@ methods of class %@.",
+        NSStringFromSelector(selector),
+        class_isMetaClass(classToUnswizzle) ? @"class" : @"instance", classToUnswizzle);
+
+    static pthread_mutex_t gLock = PTHREAD_MUTEX_INITIALIZER;
+
+    pthread_mutex_lock(&gLock);
+
+    IMP originalIMP = getRefToOriginalImplementation(key);
+    if (originalIMP) {
+        const char *methodType = method_getTypeEncoding(method);
+        class_replaceMethod(classToUnswizzle, selector, originalIMP, methodType);
+
+        removeRefToOriginalImplementation(key);
+    }
+
+    pthread_mutex_unlock(&gLock);
+}
+#endif // TEST || TESTCI
 static NSMutableDictionary<NSValue *, NSMutableSet<Class> *> *
 swizzledClassesDictionary(void)
 {
@@ -164,7 +234,7 @@ swizzledClassesForKey(const void *key)
             }
         }
 
-        swizzle(classToSwizzle, selector, factoryBlock);
+        swizzle(classToSwizzle, selector, factoryBlock, key);
 
         if (key) {
             [swizzledClassesForKey(key) addObject:classToSwizzle];
@@ -173,6 +243,31 @@ swizzledClassesForKey(const void *key)
 
     return YES;
 }
+
+#if TEST || TESTCI
++ (BOOL)unswizzleInstanceMethod:(SEL)selector inClass:(Class)classToUnswizzle key:(const void *)key
+{
+    NSAssert(key != NULL, @"Key may not be NULL.");
+
+    if (key == NULL) {
+        NSLog(@"Key may not be NULL.");
+        return NO;
+    }
+
+    @synchronized(swizzledClassesDictionary()) {
+        NSSet<Class> *swizzledClasses = swizzledClassesForKey(key);
+        if (![swizzledClasses containsObject:classToUnswizzle]) {
+            return NO;
+        }
+
+        unswizzle(classToUnswizzle, selector, key);
+
+        [swizzledClassesForKey(key) removeObject:classToUnswizzle];
+    }
+
+    return YES;
+}
+#endif // TEST || TESTCI
 
 + (void)swizzleClassMethod:(SEL)selector
                    inClass:(Class)classToSwizzle

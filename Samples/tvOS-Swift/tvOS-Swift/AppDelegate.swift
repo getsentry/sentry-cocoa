@@ -16,6 +16,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             // Sampling 100% - In Production you probably want to adjust this
             options.tracesSampleRate = 1.0
             options.enableAppHangTracking = true
+            options.experimental.enableFileManagerSwizzling = true
             
             options.initialScope = { scope in
                 if let path = Bundle.main.path(forResource: "Tongariro", ofType: "jpg") {

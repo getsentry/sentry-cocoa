@@ -35,6 +35,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                 
                 return scope
             }
+
+            options.experimental.enableFileManagerSwizzling = !args.contains("--disable-filemanager-swizzling")
         }
     }
 
