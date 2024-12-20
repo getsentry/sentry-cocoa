@@ -45,7 +45,7 @@
         self.inAppLogic = [[SentryInAppLogic alloc] initWithInAppIncludes:options.inAppIncludes
                                                             inAppExcludes:options.inAppExcludes];
 
-        _enableWaitForFullDisplay = NO;
+        _alwaysWaitForFullDisplay = NO;
         _dispatchQueueWrapper = SentryDependencyContainer.sharedInstance.dispatchQueueWrapper;
     }
     return self;
@@ -163,25 +163,51 @@
         return;
     }
 
-    [self.currentTTDTracker finishSpansIfNotFinished];
-
     SentryTimeToDisplayTracker *ttdTracker =
-        [[SentryTimeToDisplayTracker alloc] initForController:controller
-                                           waitForFullDisplay:self.enableWaitForFullDisplay
-                                         dispatchQueueWrapper:_dispatchQueueWrapper];
+        [self startTimeToDisplayTrackerForScreen:[SwiftDescriptor getObjectClassName:controller]
+                              waitForFullDisplay:self.alwaysWaitForFullDisplay
+                                          tracer:(SentryTracer *)vcSpan];
 
-    if ([ttdTracker startForTracer:(SentryTracer *)vcSpan]) {
+    if (ttdTracker) {
         objc_setAssociatedObject(controller, &SENTRY_UI_PERFORMANCE_TRACKER_TTD_TRACKER, ttdTracker,
             OBJC_ASSOCIATION_ASSIGN);
-        self.currentTTDTracker = ttdTracker;
-    } else {
-        self.currentTTDTracker = nil;
     }
 }
 
 - (void)reportFullyDisplayed
 {
-    [self.currentTTDTracker reportFullyDisplayed];
+    SentryTimeToDisplayTracker *tracker = self.currentTTDTracker;
+    if (tracker) {
+        if (tracker.waitForFullDisplay) {
+            [self.currentTTDTracker reportFullyDisplayed];
+        } else {
+            SENTRY_LOG_WARN(@"Transaction is not waiting for full display report. You can enable "
+                            @"`enableTimeToFullDisplay` option, or use the waitForFullDisplay "
+                            @"property in our `SentryTracedView` view for SwiftUI.");
+        }
+    } else {
+        SENTRY_LOG_DEBUG(@"No screen transaction being tracked right now.")
+    }
+}
+
+- (SentryTimeToDisplayTracker *)startTimeToDisplayTrackerForScreen:(NSString *)screenName
+                                                waitForFullDisplay:(BOOL)waitForFullDisplay
+                                                            tracer:(SentryTracer *)tracer
+{
+    [self.currentTTDTracker finishSpansIfNotFinished];
+
+    SentryTimeToDisplayTracker *ttdTracker =
+        [[SentryTimeToDisplayTracker alloc] initWithName:screenName
+                                      waitForFullDisplay:waitForFullDisplay
+                                    dispatchQueueWrapper:_dispatchQueueWrapper];
+
+    if ([ttdTracker startForTracer:tracer] == NO) {
+        self.currentTTDTracker = nil;
+        return nil;
+    }
+
+    self.currentTTDTracker = ttdTracker;
+    return ttdTracker;
 }
 
 - (void)viewControllerViewWillAppear:(UIViewController *)controller

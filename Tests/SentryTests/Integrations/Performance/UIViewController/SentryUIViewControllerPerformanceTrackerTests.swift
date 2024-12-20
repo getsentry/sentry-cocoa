@@ -356,7 +356,7 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
     
     func testReportFullyDisplayed() throws {
         let sut = fixture.getSut()
-        sut.enableWaitForFullDisplay = true
+        sut.alwaysWaitForFullDisplay = true
         let viewController = fixture.viewController
         let tracker = fixture.tracker
         var tracer: SentryTracer?
@@ -661,7 +661,7 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
 
         var tracer: SentryTracer?
 
-        sut.enableWaitForFullDisplay = true
+        sut.alwaysWaitForFullDisplay = true
 
         sut.viewControllerLoadView(firstController) {
             tracer = self.getStack(tracker).first as? SentryTracer
@@ -678,7 +678,7 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
 
         var tracer: SentryTracer?
 
-        sut.enableWaitForFullDisplay = false
+        sut.alwaysWaitForFullDisplay = false
 
         sut.viewControllerLoadView(firstController) {
             tracer = self.getStack(tracker).first as? SentryTracer
@@ -711,7 +711,7 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
     
     func test_OnlyViewDidLoadTTFDEnabled_CreatesTTIDAndTTFDSpans() throws {
         let sut = fixture.getSut()
-        sut.enableWaitForFullDisplay = true
+        sut.alwaysWaitForFullDisplay = true
         let tracker = fixture.tracker
 
         var tracer: SentryTracer!
@@ -776,7 +776,7 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
         var firstTracer: SentryTracer?
         var secondTracer: SentryTracer?
 
-        sut.enableWaitForFullDisplay = true
+        sut.alwaysWaitForFullDisplay = true
         
         let expectedFirstTTFDStartTimestamp = fixture.dateProvider.date()
 
@@ -823,7 +823,7 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
         var firstTracer: SentryTracer?
         var secondTracer: SentryTracer?
 
-        sut.enableWaitForFullDisplay = true
+        sut.alwaysWaitForFullDisplay = true
 
         sut.viewControllerLoadView(firstController) {
             firstTracer = self.getStack(tracker).first as? SentryTracer
@@ -863,7 +863,7 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
         var firstTracer: SentryTracer?
         var secondTracer: SentryTracer?
 
-        sut.enableWaitForFullDisplay = true
+        sut.alwaysWaitForFullDisplay = true
         
         let expectedFirstTTFDStartTimestamp = fixture.dateProvider.date()
         sut.viewControllerLoadView(firstController) {
