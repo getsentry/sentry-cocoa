@@ -5,6 +5,7 @@
 ### Improvements
 
 - Improve compiler error message for missing Swift declarations due to APPLICATION_EXTENSION_API_ONLY (#4603)
+- Mask screenshots for errors (#4623)
 
 ### Features
 
@@ -14,6 +15,7 @@
 
 - `SentrySdkInfo.packages` should be an array (#4626)
 - Use the same SdkInfo for envelope header and event (#4629)
+- Fixes Session replay screenshot provider crash (#4649)
 
 ### Internal
 
