@@ -15,7 +15,7 @@ COMMAND="${4:-test}"
 DEVICE=${5:-iPhone 14}
 CONFIGURATION_OVERRIDE="${6:-}"
 DERIVED_DATA_PATH="${7:-}"
-TEST_SCHEME="${8:Sentry}"
+TEST_SCHEME="${8:-Sentry}"
 
 case $PLATFORM in
 
