@@ -8,6 +8,7 @@
 
 @class SentryBreadcrumb;
 @class SentryEvent;
+@class SentryFeedback;
 @class SentryId;
 @class SentryMetricsAPI;
 @class SentryOptions;

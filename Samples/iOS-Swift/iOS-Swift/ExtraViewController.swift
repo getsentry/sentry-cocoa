@@ -185,4 +185,31 @@ class ExtraViewController: UIViewController {
 
         return pi
     }
+    
+    // copied from ProfilingViewController.withProfile
+    @IBAction func getAllEnvelopes(_ sender: Any) {
+        let cachesDirectory = NSSearchPathForDirectoriesInDomains(.cachesDirectory, .userDomainMask, true).first!
+        let fm = FileManager.default
+        let dir = "\(cachesDirectory)/io.sentry/profiles"
+        let count = try! fm.contentsOfDirectory(atPath: dir).count
+        //swiftlint:disable empty_count
+//        guard first || count > 0 else {
+//            //swiftlint:enable empty_count
+//            profilingUITestDataMarshalingTextField.text = "<missing>"
+//            return
+//        }
+//        let fileName = "profile\(first ? 0 : count - 1)"
+//        let fullPath = "\(dir)/\(fileName)"
+//        
+//        if fm.fileExists(atPath: fullPath) {
+//            let url = NSURL.fileURL(withPath: fullPath)
+//            block(url)
+//            do {
+//                try fm.removeItem(atPath: fullPath)
+//            } catch {
+//                SentrySDK.capture(error: error)
+//            }
+//            return
+//        }
+    }
 }

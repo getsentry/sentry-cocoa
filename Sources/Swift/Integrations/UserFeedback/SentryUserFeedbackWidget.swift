@@ -68,16 +68,9 @@ struct SentryUserFeedbackWidget {
             
             // MARK: SentryUserFeedbackFormDelegate
             
-            func cancelled() {
+            func finished() {
                 closeForm()
             }
-            
-//swiftlint:disable todo
-            func confirmed() {
-                // TODO: submit
-                closeForm()
-            }
-//swiftlint:enable todo
             
             // MARK: UIAdaptivePresentationControllerDelegate
             
