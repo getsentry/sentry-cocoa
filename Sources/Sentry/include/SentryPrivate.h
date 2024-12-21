@@ -4,8 +4,6 @@
 #import "SentryDispatchQueueWrapper.h"
 #import "SentryNSDataUtils.h"
 #import "SentryRandom.h"
-#import "SentrySDK+Private.h"
-#import "SentryScope+Private.h"
 #import "SentryTime.h"
 #import "SentryUserAccess.h"
 
