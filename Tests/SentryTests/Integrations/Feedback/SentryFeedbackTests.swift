@@ -4,7 +4,7 @@ import XCTest
 
 class SentryFeedbackTests: XCTestCase {
     func testSerializeWithAllFields() throws {
-        let sut = SentryFeedback(message: "Test feedback message", name: "Test feedback provider", email: "test-feedback-provider@sentry.io", screenshot: Data())
+        let sut = SentryFeedback(message: "Test feedback message", name: "Test feedback provider", email: "test-feedback-provider@sentry.io", source: .widget, associatedEventId: nil, screenshotPNGData: Data())
         
         let serialization = sut.serialize()
         XCTAssertEqual(try XCTUnwrap(serialization["message"] as? String), "Test feedback message")
@@ -19,7 +19,7 @@ class SentryFeedbackTests: XCTestCase {
     }
     
     func testSerializeWithNoOptionalFields() throws {
-        let sut = SentryFeedback(message: "Test feedback message", name: nil, email: nil)
+        let sut = SentryFeedback(message: "Test feedback message", name: nil, email: nil, source: .widget, associatedEventId: nil, screenshotPNGData: nil)
         
         let serialization = sut.serialize()
         XCTAssertEqual(try XCTUnwrap(serialization["message"] as? String), "Test feedback message")
