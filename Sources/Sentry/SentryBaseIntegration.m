@@ -148,21 +148,16 @@ NS_ASSUME_NONNULL_BEGIN
         [self logWithOptionName:@"attachViewHierarchy"];
         return NO;
     }
-
+#endif
+#if SENTRY_TARGET_REPLAY_SUPPORTED
     if (integrationOptions & kIntegrationOptionEnableReplay) {
-        if (@available(iOS 16.0, tvOS 16.0, *)) {
-            if (options.experimental.sessionReplay.onErrorSampleRate == 0
-                && options.experimental.sessionReplay.sessionSampleRate == 0) {
-                [self logWithOptionName:@"sessionReplaySettings"];
-                return NO;
-            }
-        } else {
-            [self logWithReason:@"Session replay requires iOS 16 or above"];
+        if (options.sessionReplay.onErrorSampleRate == 0
+            && options.sessionReplay.sessionSampleRate == 0) {
+            [self logWithOptionName:@"sessionReplaySettings"];
             return NO;
         }
     }
 #endif
-
     if ((integrationOptions & kIntegrationOptionEnableCrashHandler)
         && !options.enableCrashHandler) {
         [self logWithOptionName:@"enableCrashHandler"];

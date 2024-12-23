@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+- Session replay GA (#4662)
+
 ## 8.43.0-beta.1
 
 ### Improvements
