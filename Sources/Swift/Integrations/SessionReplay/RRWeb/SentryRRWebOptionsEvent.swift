@@ -14,7 +14,7 @@ import Foundation
                         "maskedViewClasses": options.maskedViewClasses.map(String.init(describing: )).joined(separator: ", "),
                         "unmaskedViewClasses": options.unmaskedViewClasses.map(String.init(describing: )).joined(separator: ", "),
                         "nativeSdkName": SentryMeta.nativeSdkName,
-                        "nativeSdkVersion": SentryMeta.nativeVersionString,
+                        "nativeSdkVersion": SentryMeta.nativeVersionString
                     ]
         )
     }
