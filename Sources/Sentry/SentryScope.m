@@ -466,7 +466,7 @@ NS_ASSUME_NONNULL_BEGIN
 
     NSDictionary *traceContext = nil;
     id<SentrySpan> span = nil;
-    
+
     if (self.span != nil) {
         @synchronized(_spanLock) {
             span = self.span;
