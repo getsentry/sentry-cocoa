@@ -373,6 +373,9 @@ NS_SWIFT_NAME(Options)
 
 #if SENTRY_TARGET_REPLAY_SUPPORTED
 
+/**
+ * Settings to configure the session replay.
+ */
 @property (nonatomic, strong) SentryReplayOptions* sessionReplay;
 
 #endif // SENTRY_TARGET_REPLAY_SUPPORTED
