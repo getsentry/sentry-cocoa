@@ -6,6 +6,7 @@
 
 - Improve compiler error message for missing Swift declarations due to APPLICATION_EXTENSION_API_ONLY (#4603)
 - Mask screenshots for errors (#4623)
+- Slightly speed up serializing scope (#4661)
 
 ### Features
 
