@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Improvements
+
+- Add native SDK information in the replay option event ()
+
 ## 8.43.0-beta.1
 
 ### Improvements
