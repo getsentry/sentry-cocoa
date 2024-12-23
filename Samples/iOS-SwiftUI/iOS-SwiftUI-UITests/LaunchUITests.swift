@@ -38,4 +38,12 @@ class LaunchUITests: XCTestCase {
         formScreenNavigationBar/*@START_MENU_TOKEN@*/.buttons["Test"]/*[[".otherElements[\"Test\"].buttons[\"Test\"]",".buttons[\"Test\"]"],[[[-1,1],[-1,0]]],[0]]@END_MENU_TOKEN@*/.tap()
         XCTAssertEqual(app.staticTexts["SPAN_ID"].label, "NO SPAN")
     }
+    
+    func testTTID_TTFD() {
+        let app = XCUIApplication()
+        app.launch()
+        app.buttons["Show TTD"].tap()
+        
+        XCTAssertEqual(app.staticTexts["TTDInfo"].label, "TTID and TTFD found")
+    }
 }

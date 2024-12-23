@@ -2,6 +2,10 @@
 
 ## 8.43.0-beta.1
 
+### Features
+
+- SwiftUI time for initial display and time for full display (#4596)
+
 ### Improvements
 
 - Improve compiler error message for missing Swift declarations due to APPLICATION_EXTENSION_API_ONLY (#4603)
