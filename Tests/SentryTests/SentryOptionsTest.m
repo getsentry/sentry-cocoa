@@ -887,8 +887,7 @@
 {
     if (@available(iOS 16.0, tvOS 16.0, *)) {
         SentryOptions *options = [self getValidOptions:@{
-            @"experimental" :
-                @ { @"sessionReplay" : @ { @"sessionSampleRate" : @2, @"errorSampleRate" : @4 } }
+            @"sessionReplay" : @ { @"sessionSampleRate" : @2, @"errorSampleRate" : @4 }
         }];
         XCTAssertEqual(options.sessionReplay.sessionSampleRate, 2);
         XCTAssertEqual(options.sessionReplay.onErrorSampleRate, 4);
