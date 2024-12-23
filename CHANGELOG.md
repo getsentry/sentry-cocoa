@@ -4,7 +4,7 @@
 
 ### Improvements
 
-- Add native SDK information in the replay option event ()
+- Add native SDK information in the replay option event (#4663)
 
 ## 8.43.0-beta.1
 

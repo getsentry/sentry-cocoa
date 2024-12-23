@@ -2,9 +2,8 @@
 
 @implementation SentryMeta
 
-
-const NSString * const sentryVersionString = @"8.43.0-beta.1";
-const NSString * const sentrySdkName = @"sentry.cocoa";
+const NSString *const sentryVersionString = @"8.43.0-beta.1";
+const NSString *const sentrySdkName = @"sentry.cocoa";
 
 // Don't remove the static keyword. If you do the compiler adds the constant name to the global
 // symbol table and it might clash with other constants. When keeping the static keyword the
@@ -12,7 +11,8 @@ const NSString * const sentrySdkName = @"sentry.cocoa";
 static NSString *versionString;
 static NSString *sdkName;
 
-+ (void)initialize {
++ (void)initialize
+{
     versionString = sentryVersionString.copy;
     sdkName = sentrySdkName.copy;
 }
@@ -37,13 +37,14 @@ static NSString *sdkName;
     sdkName = value;
 }
 
-+ (NSString*)nativeSdkName {
++ (NSString *)nativeSdkName
+{
     return sentrySdkName.copy;
 }
 
-+ (NSString*)nativeVersionString {
++ (NSString *)nativeVersionString
+{
     return sentryVersionString.copy;
 }
-
 
 @end
