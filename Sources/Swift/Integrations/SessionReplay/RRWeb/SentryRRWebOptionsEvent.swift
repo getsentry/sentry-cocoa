@@ -12,7 +12,9 @@ import Foundation
                         "maskAllImages": options.maskAllImages,
                         "quality": String(describing: options.quality),
                         "maskedViewClasses": options.maskedViewClasses.map(String.init(describing: )).joined(separator: ", "),
-                        "unmaskedViewClasses": options.unmaskedViewClasses.map(String.init(describing: )).joined(separator: ", ")
+                        "unmaskedViewClasses": options.unmaskedViewClasses.map(String.init(describing: )).joined(separator: ", "),
+                        "nativeSdkName": SentryMeta.nativeSdkName,
+                        "nativeSdkVersion": SentryMeta.nativeVersionString,
                     ]
         )
     }
