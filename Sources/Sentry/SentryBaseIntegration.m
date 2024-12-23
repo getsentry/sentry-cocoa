@@ -151,8 +151,8 @@ NS_ASSUME_NONNULL_BEGIN
 
     if (integrationOptions & kIntegrationOptionEnableReplay) {
         if (@available(iOS 16.0, tvOS 16.0, *)) {
-            if (options.experimental.sessionReplay.onErrorSampleRate == 0
-                && options.experimental.sessionReplay.sessionSampleRate == 0) {
+            if (options.sessionReplay.onErrorSampleRate == 0
+                && options.sessionReplay.sessionSampleRate == 0) {
                 [self logWithOptionName:@"sessionReplaySettings"];
                 return NO;
             }

@@ -623,7 +623,7 @@
 #if SENTRY_HAS_UIKIT
         @"enableUIViewControllerTracing" : [NSNull null],
         @"attachScreenshot" : [NSNull null],
-        @"sessionReplayOptions" : [NSNull null],
+        @"sessionReplay" : [NSNull null],
 #endif // SENTRY_HAS_UIKIT
         @"enableAppHangTracking" : [NSNull null],
         @"appHangTimeoutInterval" : [NSNull null],
@@ -689,8 +689,8 @@
     XCTAssertEqual(options.enablePreWarmedAppStartTracing, NO);
     XCTAssertEqual(options.attachViewHierarchy, NO);
     XCTAssertEqual(options.reportAccessibilityIdentifier, YES);
-    XCTAssertEqual(options.experimental.sessionReplay.onErrorSampleRate, 0);
-    XCTAssertEqual(options.experimental.sessionReplay.sessionSampleRate, 0);
+    XCTAssertEqual(options.sessionReplay.onErrorSampleRate, 0);
+    XCTAssertEqual(options.sessionReplay.sessionSampleRate, 0);
 #endif // SENTRY_HAS_UIKIT
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
@@ -890,8 +890,8 @@
             @"experimental" :
                 @ { @"sessionReplay" : @ { @"sessionSampleRate" : @2, @"errorSampleRate" : @4 } }
         }];
-        XCTAssertEqual(options.experimental.sessionReplay.sessionSampleRate, 2);
-        XCTAssertEqual(options.experimental.sessionReplay.onErrorSampleRate, 4);
+        XCTAssertEqual(options.sessionReplay.sessionSampleRate, 2);
+        XCTAssertEqual(options.sessionReplay.onErrorSampleRate, 4);
     }
 }
 
@@ -899,8 +899,8 @@
 {
     if (@available(iOS 16.0, tvOS 16.0, *)) {
         SentryOptions *options = [self getValidOptions:@{ @"sessionReplayOptions" : @ {} }];
-        XCTAssertEqual(options.experimental.sessionReplay.sessionSampleRate, 0);
-        XCTAssertEqual(options.experimental.sessionReplay.onErrorSampleRate, 0);
+        XCTAssertEqual(options.sessionReplay.sessionSampleRate, 0);
+        XCTAssertEqual(options.sessionReplay.onErrorSampleRate, 0);
     }
 }
 
