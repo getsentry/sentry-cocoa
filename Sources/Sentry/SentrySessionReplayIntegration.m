@@ -581,9 +581,9 @@ static SentryTouchTracker *_touchTracker;
         [self stop];
         return;
     }
-    
+
     replayEvent.sdk = self.sdkInfo;
-    
+
     [SentrySDK.currentHub captureReplayEvent:replayEvent
                              replayRecording:replayRecording
                                        video:videoUrl];
