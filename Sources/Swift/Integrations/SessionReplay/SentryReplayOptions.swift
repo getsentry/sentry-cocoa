@@ -1,4 +1,5 @@
 import Foundation
+@_implementationOnly import _SentryPrivate
 
 @objcMembers
 public class SentryReplayOptions: NSObject, SentryRedactOptions {
@@ -147,6 +148,10 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
     let maximumDuration = TimeInterval(3_600)
 
     /**
+     * Used by hybrid SDKs to be able to configure SDK info for Session Replay
+     */
+    var sdkInfo: [String: Any]?
+    /**
      * Inittialize session replay options disabled
      */
     public override init() {
@@ -183,5 +188,6 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
         if let quality = SentryReplayQuality(rawValue: dictionary["quality"] as? Int ?? -1) {
             self.quality = quality
         }
+        sdkInfo = dictionary["sdkInfo"] as? [String: Any]
     }
 }

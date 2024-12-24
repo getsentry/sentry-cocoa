@@ -24,6 +24,7 @@
 #    import "SentrySwizzle.h"
 #    import "SentryUIApplication.h"
 #    import <UIKit/UIKit.h>
+#    import "SentrySdkInfo.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -50,6 +51,7 @@ static SentryTouchTracker *_touchTracker;
     id<SentryRateLimits> _rateLimits;
     id<SentryViewScreenshotProvider> _currentScreenshotProvider;
     id<SentryReplayBreadcrumbConverter> _currentBreadcrumbConverter;
+    NSDictionary<NSString *, id> *_sdkInfo;
     // We need to use this variable to identify whether rate limiting was ever activated for session
     // replay in this session, instead of always looking for the rate status in `SentryRateLimits`
     // This is the easiest way to ensure segment 0 will always reach the server, because session
@@ -88,7 +90,8 @@ static SentryTouchTracker *_touchTracker;
     _replayOptions = replayOptions;
     _viewPhotographer = [[SentryViewPhotographer alloc] initWithRedactOptions:replayOptions];
     _rateLimits = SentryDependencyContainer.sharedInstance.rateLimits;
-
+    _sdkInfo = replayOptions.sdkInfo;
+    
     if (touchTracker) {
         _touchTracker = [[SentryTouchTracker alloc]
             initWithDateProvider:SentryDependencyContainer.sharedInstance.dateProvider
@@ -582,7 +585,7 @@ static SentryTouchTracker *_touchTracker;
         return;
     }
     
-    replayEvent.sdk = self.sdkInfo;
+    replayEvent.sdk = _sdkInfo;
     
     [SentrySDK.currentHub captureReplayEvent:replayEvent
                              replayRecording:replayRecording

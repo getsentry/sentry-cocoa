@@ -16,8 +16,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic, strong) SentryViewPhotographer *viewPhotographer;
 
-@property (nonatomic, strong, nullable) NSDictionary<NSString *, id> *sdkInfo;
-
 @end
 
 NS_ASSUME_NONNULL_END

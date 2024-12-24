@@ -379,10 +379,6 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
         setRedactContainerClass:containerClass];
 }
 
-+ (void)setReplaySdkInfo:(NSDictionary<NSString *, id> *)sdkInfo {
-    [PrivateSentrySDKOnly getReplayIntegration].sdkInfo = sdkInfo;
-}
-
 #endif
 
 @end
