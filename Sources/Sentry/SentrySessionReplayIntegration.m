@@ -18,7 +18,6 @@
 #    import "SentryReachability.h"
 #    import "SentrySDK+Private.h"
 #    import "SentryScope+Private.h"
-#    import "SentrySdkInfo.h"
 #    import "SentrySerialization.h"
 #    import "SentrySessionReplaySyncC.h"
 #    import "SentrySwift.h"

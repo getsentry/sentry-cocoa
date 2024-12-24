@@ -13,7 +13,6 @@
 #import "SentryDisplayLinkWrapper.h"
 #import "SentryLevelHelper.h"
 #import "SentryLogC.h"
-#import "SentryMeta.h"
 #import "SentryRandom.h"
 #import "SentrySdkInfo.h"
 #import "SentrySession.h"
