@@ -22,11 +22,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface SentrySessionReplayIntegration ()
 
-- (void)startWithOptions:(SentryReplayOptions *)replayOptions
-      screenshotProvider:(id<SentryViewScreenshotProvider>)screenshotProvider
-     breadcrumbConverter:(id<SentryReplayBreadcrumbConverter>)breadcrumbConverter
-             fullSession:(BOOL)shouldReplayFullSession;
-
 + (id<SentryRRWebEvent>)createBreadcrumbwithTimestamp:(NSDate *)timestamp
                                              category:(NSString *)category
                                               message:(nullable NSString *)message
