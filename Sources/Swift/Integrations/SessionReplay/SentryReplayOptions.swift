@@ -151,6 +151,7 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
      * Used by hybrid SDKs to be able to configure SDK info for Session Replay
      */
     var sdkInfo: [String: Any]?
+    
     /**
      * Inittialize session replay options disabled
      */
