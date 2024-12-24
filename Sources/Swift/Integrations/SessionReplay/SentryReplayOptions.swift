@@ -1,5 +1,5 @@
-import Foundation
 @_implementationOnly import _SentryPrivate
+import Foundation
 
 @objcMembers
 public class SentryReplayOptions: NSObject, SentryRedactOptions {

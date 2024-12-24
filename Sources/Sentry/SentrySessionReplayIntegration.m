@@ -18,13 +18,13 @@
 #    import "SentryReachability.h"
 #    import "SentrySDK+Private.h"
 #    import "SentryScope+Private.h"
+#    import "SentrySdkInfo.h"
 #    import "SentrySerialization.h"
 #    import "SentrySessionReplaySyncC.h"
 #    import "SentrySwift.h"
 #    import "SentrySwizzle.h"
 #    import "SentryUIApplication.h"
 #    import <UIKit/UIKit.h>
-#    import "SentrySdkInfo.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -91,7 +91,7 @@ static SentryTouchTracker *_touchTracker;
     _viewPhotographer = [[SentryViewPhotographer alloc] initWithRedactOptions:replayOptions];
     _rateLimits = SentryDependencyContainer.sharedInstance.rateLimits;
     _sdkInfo = replayOptions.sdkInfo;
-    
+
     if (touchTracker) {
         _touchTracker = [[SentryTouchTracker alloc]
             initWithDateProvider:SentryDependencyContainer.sharedInstance.dateProvider
@@ -584,9 +584,9 @@ static SentryTouchTracker *_touchTracker;
         [self stop];
         return;
     }
-    
+
     replayEvent.sdk = _sdkInfo;
-    
+
     [SentrySDK.currentHub captureReplayEvent:replayEvent
                              replayRecording:replayRecording
                                        video:videoUrl];
