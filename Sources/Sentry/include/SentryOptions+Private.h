@@ -21,6 +21,7 @@ FOUNDATION_EXPORT NSString *const kSentryDefaultEnvironment;
 - (BOOL)isContinuousProfilingEnabled;
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
+#if TARGET_OS_IOS && SENTRY_HAS_UIKIT
 /**
  * A block that can be defined that receives a user feedback configuration object to modify.
  * @warning This is an experimental feature and may still have bugs.
@@ -31,6 +32,7 @@ FOUNDATION_EXPORT NSString *const kSentryDefaultEnvironment;
  */
 @property (nonatomic, copy, nullable)
     SentryUserFeedbackConfigurationBlock configureUserFeedback API_AVAILABLE(ios(13.0));
+#endif // TARGET_OS_IOS && SENTRY_HAS_UIKIT
 
 @property (nonatomic, readonly, class) NSArray<Class> *defaultIntegrationClasses;
 

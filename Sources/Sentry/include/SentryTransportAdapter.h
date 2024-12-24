@@ -7,6 +7,7 @@
 @class SentryEnvelope;
 @class SentryEnvelopeItem;
 @class SentryEvent;
+@class SentryFeedback;
 @class SentryOptions;
 @class SentrySession;
 @class SentryTraceContext;

@@ -113,10 +113,10 @@ extension AppDelegate {
         options.enableCrashHandler = enableCrashHandling
         options.enableTracing = enableTracing
         options.enablePersistingTracesWhenCrashing = true
-        options.attachScreenshot = true
-        options.attachViewHierarchy = true
-        options.enableTimeToFullDisplayTracing = true
-        options.enablePerformanceV2 = true
+        options.attachScreenshot = enableAttachScreenshot
+        options.attachViewHierarchy = enableAttachViewHierarchy
+        options.enableTimeToFullDisplayTracing = enableTimeToFullDisplayTracing
+        options.enablePerformanceV2 = enablePerformanceV2
         options.failedRequestStatusCodes = [ HttpStatusCodeRange(min: 400, max: 599) ]
         
         options.beforeBreadcrumb = { breadcrumb in
@@ -298,7 +298,7 @@ extension AppDelegate {
     var isUITest: Bool { env["--io.sentry.sdk-environment"] == "ui-tests" }
     
     func checkDisabled(with arg: String) -> Bool {
-        args.contains("--disable-everything") || args.contains(arg)
+        args.contains("--io.sentry.disable-everything") || args.contains(arg)
     }
     
     // MARK: features that care about simulator vs device, ui tests and profiling benchmarks
@@ -312,7 +312,7 @@ extension AppDelegate {
     
     /// - note: the benchmark test starts and stops a custom transaction using a UIButton, and automatic user interaction tracing stops the transaction that begins with that button press after the idle timeout elapses, stopping the profiler (only one profiler runs regardless of the number of concurrent transactions)
     var enableUITracing: Bool { !isBenchmarking && !checkDisabled(with: "--disable-ui-tracing") }
-    var enablePrewarmedAppStartTracing: Bool { !isBenchmarking }
+    var enablePrewarmedAppStartTracing: Bool { !isBenchmarking && !checkDisabled(with: "--disable-prewarmed-app-start-tracing") }
     var enablePerformanceTracing: Bool { !isBenchmarking && !checkDisabled(with: "--disable-auto-performance-tracing") }
     var enableTracing: Bool { !isBenchmarking && !checkDisabled(with: "--disable-tracing") }
     /// - note: UI tests generate false OOMs
@@ -322,6 +322,10 @@ extension AppDelegate {
     
     // MARK: Other features
     
+    var enableTimeToFullDisplayTracing: Bool { !checkDisabled(with: "--disable-time-to-full-display-tracing")}
+    var enableAttachScreenshot: Bool { !checkDisabled(with: "--disable-attach-screenshot")}
+    var enableAttachViewHierarchy: Bool { !checkDisabled(with: "--disable-attach-view-hierarchy")}
+    var enablePerformanceV2: Bool { !checkDisabled(with: "--disable-performance-v2")}
     var enableSessionReplay: Bool { !checkDisabled(with: "--disable-session-replay") }
     var enableMetricKit: Bool { !checkDisabled(with: "--disable-metrickit-integration") }
     var enableSessionTracking: Bool { !checkDisabled(with: "--disable-automatic-session-tracking") }

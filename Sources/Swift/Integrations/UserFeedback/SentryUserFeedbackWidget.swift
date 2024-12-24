@@ -7,6 +7,10 @@ import UIKit
 
 var displayingForm = false
 
+protocol SentryUserFeedbackWidgetDelegate: NSObjectProtocol {
+    func capture(feedback: SentryFeedback)
+}
+
 @available(iOS 13.0, *)
 struct SentryUserFeedbackWidget {
     class Window: UIWindow {
@@ -22,8 +26,11 @@ struct SentryUserFeedbackWidget {
             
             let config: SentryUserFeedbackConfiguration
             
-            init(config: SentryUserFeedbackConfiguration) {
+            weak var delegate: (any SentryUserFeedbackWidgetDelegate)?
+            
+            init(config: SentryUserFeedbackConfiguration, delegate: any SentryUserFeedbackWidgetDelegate) {
                 self.config = config
+                self.delegate = delegate
                 super.init(nibName: nil, bundle: nil)
                 view.addSubview(button)
                 
@@ -68,16 +75,13 @@ struct SentryUserFeedbackWidget {
             
             // MARK: SentryUserFeedbackFormDelegate
             
-            func cancelled() {
+            func finished(with feedback: SentryFeedback?) {
                 closeForm()
+                
+                if let feedback = feedback {
+                    delegate?.capture(feedback: feedback)
+                }
             }
-            
-//swiftlint:disable todo
-            func confirmed() {
-                // TODO: submit
-                closeForm()
-            }
-//swiftlint:enable todo
             
             // MARK: UIAdaptivePresentationControllerDelegate
             
@@ -86,9 +90,9 @@ struct SentryUserFeedbackWidget {
             }
         }
         
-        init(config: SentryUserFeedbackConfiguration) {
+        init(config: SentryUserFeedbackConfiguration, delegate: any SentryUserFeedbackWidgetDelegate) {
             super.init(frame: UIScreen.main.bounds)
-            rootViewController = RootViewController(config: config)
+            rootViewController = RootViewController(config: config, delegate: delegate)
             windowLevel = config.widgetConfig.windowLevel
         }
         
