@@ -3,18 +3,25 @@ import Foundation
 @_implementationOnly import _SentryPrivate
 import UIKit
 
+@available(iOS 13.0, *) @objc
+protocol SentryUserFeedbackIntegrationDriverDelegate: NSObjectProtocol {
+    func capture(feedback: SentryFeedback)
+}
+
 /**
  * An integration managing a workflow for end users to report feedback via Sentry.
  * - note: The default method to show the feedback form is via a floating widget placed in the bottom trailing corner of the screen. See the configuration classes for alternative options.
  */
 @available(iOS 13.0, *)
 @objcMembers
-class SentryUserFeedbackIntegrationDriver: NSObject {
+class SentryUserFeedbackIntegrationDriver: NSObject, SentryUserFeedbackWidgetDelegate {
     let configuration: SentryUserFeedbackConfiguration
     private var window: SentryUserFeedbackWidget.Window?
+    weak var delegate: (any SentryUserFeedbackIntegrationDriverDelegate)?
     
-    public init(configuration: SentryUserFeedbackConfiguration) {
+    public init(configuration: SentryUserFeedbackConfiguration, delegate: any SentryUserFeedbackIntegrationDriverDelegate) {
         self.configuration = configuration
+        self.delegate = delegate
         super.init()
         
         if let widgetConfigBuilder = configuration.configureWidget {
@@ -49,7 +56,7 @@ class SentryUserFeedbackIntegrationDriver: NSObject {
      * If `SentryUserFeedbackConfiguration.autoInject` is `false`, this must be called explicitly.
      */
     func createWidget() {
-        window = SentryUserFeedbackWidget.Window(config: configuration)
+        window = SentryUserFeedbackWidget.Window(config: configuration, delegate: self)
         window?.isHidden = false
     }
     
@@ -77,6 +84,12 @@ class SentryUserFeedbackIntegrationDriver: NSObject {
         if !valid {
             SentryLog.warning("Invalid widget location specified: \(config.location). Must specify either one edge or one corner of the screen rect to place the widget.")
         }
+    }
+    
+    // MARK: SentryUserFeedbackWidgetDelegate
+    
+    func capture(feedback: SentryFeedback) {
+        delegate?.capture(feedback: feedback)
     }
 }
 

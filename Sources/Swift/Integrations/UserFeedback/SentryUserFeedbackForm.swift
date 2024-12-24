@@ -8,7 +8,7 @@ import UIKit
 
 @available(iOS 13.0, *)
 protocol SentryUserFeedbackFormDelegate: NSObjectProtocol {
-    func finished()
+    func finished(with feedback: SentryFeedback?)
 }
 
 @available(iOS 13.0, *)
@@ -135,12 +135,12 @@ class SentryUserFeedbackForm: UIViewController {
         }
 
         let feedback = SentryFeedback(message: messageTextView.text, name: fullNameTextField.text, email: emailTextField.text, screenshot: screenshotImageView.image?.pngData())
-        SentrySDK.capture(feedback: feedback)
-        delegate?.finished()
+        SentryLog.log(message: "Sending user feedback", andLevel: .debug)
+        delegate?.finished(with: feedback)
     }
     
     func cancelButtonTapped() {
-        delegate?.finished()
+        delegate?.finished(with: nil)
     }
     
     // MARK: Layout
