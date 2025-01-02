@@ -9,7 +9,7 @@
 ### Fixes
 
 - Remove empty session replay tags (#4667)
-
+- Replace occurences of `strncpy` with `strlcpy` (#4636)
 
 ## 8.43.0-beta.1
 
@@ -27,7 +27,6 @@
 
 - `SentrySdkInfo.packages` should be an array (#4626)
 - Use the same SdkInfo for envelope header and event (#4629)
-- Replace occurences of `strncpy` with `strlcpy` (#4636)
 
 ### Internal
 
