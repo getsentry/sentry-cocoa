@@ -76,8 +76,8 @@ extension AppDelegate {
         options.debug = true
         
         if #available(iOS 16.0, *), enableSessionReplay {
-            options.experimental.sessionReplay = SentryReplayOptions(sessionSampleRate: 0, onErrorSampleRate: 1, maskAllText: true, maskAllImages: true)
-            options.experimental.sessionReplay.quality = .high
+            options.sessionReplay = SentryReplayOptions(sessionSampleRate: 0, onErrorSampleRate: 1, maskAllText: true, maskAllImages: true)
+            options.sessionReplay.quality = .high
         }
         
         if #available(iOS 15.0, *), enableMetricKit {
