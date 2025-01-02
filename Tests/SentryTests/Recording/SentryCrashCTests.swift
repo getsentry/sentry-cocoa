@@ -134,6 +134,71 @@ class SentryCrashCTests: XCTestCase {
         )
     }
 
+    func testOnCrash_crashedDuringCrashHandling_shouldRewriteOldCrashAsRecrashReportToDisk() throws {
+        // -- Arrange --
+        var appName = "SentryCrashCTests"
+            .cString(using: .utf8)!
+        let workDir = URL(fileURLWithPath: NSTemporaryDirectory())
+            .appendingPathComponent("SentryCrashCTests-\(UUID().uuidString)")
+        var installPath = workDir
+            .path
+            .cString(using: .utf8)!
+        let expectedReportsDir = workDir
+            .appendingPathComponent("Reports")
+
+        // Smoke test the existence of the directory
+        XCTAssertFalse(FileManager.default.fileExists(
+            atPath: expectedReportsDir.path
+        ))
+
+        // Installing the sentrycrash will setup the exception handler
+        sentrycrash_uninstall()
+        sentrycrash_install(&appName, &installPath)
+
+        // Initial Crash Context
+        var initialMonitorContext = SentryCrash_MonitorContext()
+        initialMonitorContext.crashedDuringCrashHandling = false // the first context simulates the initial crash
+
+        // Re-created Crash
+        // The following crash context is a minimal version of the crash context created in the `SentryCrashMonitor_NSException`
+        var recrashMachineContext = SentryCrashMachineContext()
+        sentrycrashmc_getContextForThread(
+            sentrycrashthread_self(),
+            &recrashMachineContext,
+            true
+        )
+        var cursor = SentryCrashStackCursor()
+        let callstack = UnsafeMutablePointer<UInt>.allocate(capacity: 0)
+        sentrycrashsc_initWithBacktrace(&cursor, callstack, 0, 0)
+
+        var recrashMonitorContext = SentryCrash_MonitorContext()
+        recrashMonitorContext.crashedDuringCrashHandling = true
+        recrashMonitorContext.crashType = SentryCrashMonitorTypeNSException
+        withUnsafeMutablePointer(to: &recrashMachineContext) { ptr in
+            recrashMonitorContext.offendingMachineContext = ptr
+        }
+        withUnsafeMutablePointer(to: &cursor) { ptr in
+            recrashMonitorContext.stackCursor = UnsafeMutableRawPointer(ptr)
+        }
+
+        // -- Act --
+        // Calling the handle exception will trigger the onCrash handler
+        sentrycrashcm_handleException(&initialMonitorContext)
+
+        // After the first handler, the report will be written to disk.
+        // Read it to memory now, as the next handler will edit the file.
+        let decodedReport = try readFirstReportFromDisk(reportsDir: expectedReportsDir)
+
+        // Calling the handler again with 'crashedDuringCrashHandling' will rewrite the crash report
+        sentrycrashcm_handleException(&recrashMonitorContext)
+
+        // -- Assert --
+        let decodedRecrashReport = try readFirstReportFromDisk(reportsDir: expectedReportsDir)
+
+        let recrashReport = decodedRecrashReport["recrash_report"] as! NSDictionary
+        XCTAssertEqual(recrashReport, decodedReport)
+    }
+
     func testOnCrash_crashedDuringCrashHandling_installFilePathTooLong_shouldNotWriteToDisk() throws {
         // -- Arrange --
         var appName = "SentryCrashCTests"
@@ -174,6 +239,7 @@ class SentryCrashCTests: XCTestCase {
         sentrycrashsc_initWithBacktrace(&cursor, callstack, 0, 0)
 
         var recrashMonitorContext = SentryCrash_MonitorContext()
+        recrashMonitorContext.crashedDuringCrashHandling = true
         recrashMonitorContext.crashType = SentryCrashMonitorTypeNSException
         withUnsafeMutablePointer(to: &recrashMachineContext) { ptr in
             recrashMonitorContext.offendingMachineContext = ptr
@@ -194,5 +260,23 @@ class SentryCrashCTests: XCTestCase {
         XCTAssertFalse(FileManager.default.fileExists(
             atPath: expectedReportsDir.path
         ))
+    }
+
+    // MARK: - Helper
+
+    func readFirstReportFromDisk(reportsDir: URL) throws -> NSDictionary {
+        let reportUrls = try FileManager.default
+            .contentsOfDirectory(atPath: reportsDir.path)
+        XCTAssertEqual(            reportUrls.count, 1)
+        XCTAssertTrue(reportUrls[0].hasPrefix("SentryCrashCTests-report-"))
+        XCTAssertTrue(reportUrls[0].hasSuffix(".json"))
+
+        let reportData = try Data(contentsOf: reportsDir.appendingPathComponent(reportUrls[0]))
+        let decodedReport = try SentryCrashJSONCodec.decode(
+            reportData,
+            options: SentryCrashJSONDecodeOptionNone
+        ) as! NSDictionary
+
+        return decodedReport
     }
 }

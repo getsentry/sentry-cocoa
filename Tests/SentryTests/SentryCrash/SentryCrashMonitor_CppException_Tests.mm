@@ -67,53 +67,36 @@ testHandleExceptionHandler(struct SentryCrash_MonitorContext *context)
 - (void)testCallHandler_shouldCaptureExceptionDescription
 {
     // -- Arrange --
-    waitHandleExceptionHandlerExpectation =
-        [self expectationWithDescription:@"Wait for C++ exception"];
-
     sentrycrashcm_setEventCallback(testHandleExceptionHandler);
     SentryCrashMonitorAPI *api = sentrycrashcm_cppexception_getAPI();
 
-    const char *errorMessage = "Example Error";
+    NSString *errorMessage = @"Example Error";
 
     // -- Act --
-    // Create a thread that will throw an uncaught exception
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        api->setEnabled(true);
-        try {
-            throw std::runtime_error(errorMessage);
-        } catch (...) {
-            // Rethrowing without catching will trigger std::terminate()
-            std::rethrow_exception(std::current_exception());
-        }
-    });
+    api->setEnabled(true);
+    try {
+        throw std::runtime_error(errorMessage.UTF8String);
+    } catch (...) {
+        // This exception handler sets the error context of the termination handler
+        // Instead of rethrowing, directly call the termination handler
+        std::get_terminate()();
+    }
 
     // -- Assert --
-    [self waitForExpectationsWithTimeout:5
-                                 handler:^(NSError *_Nullable error) {
-                                     SentryCrash_MonitorContext *context
-                                         = capturedHandleExceptionContext;
+    SentryCrash_MonitorContext *context = capturedHandleExceptionContext;
 
-                                     // Cleanup
-                                     api->setEnabled(false);
-                                     sentrycrashcm_setEventCallback(NULL);
-                                     capturedHandleExceptionContext = NULL;
+    // Cleanup
+    api->setEnabled(false);
+    sentrycrashcm_setEventCallback(NULL);
+    capturedHandleExceptionContext = NULL;
 
-                                     // Check for expectation failures
-                                     if (error) {
-                                         XCTFail(@"Expectation failed with error: %@", error);
-                                     }
-
-                                     // Assertions
-                                     XCTAssertTrue(strcmp(context->crashReason, errorMessage));
-                                 }];
+    NSString *crashReason = [[NSString alloc] initWithUTF8String:context->crashReason];
+    XCTAssertEqualObjects(crashReason, errorMessage);
 }
 
 - (void)testCallHandler_descriptionLongerThanBuffer_shouldCaptureTruncatedExceptionDescription
 {
     // -- Arrange --
-    waitHandleExceptionHandlerExpectation =
-        [self expectationWithDescription:@"Wait for C++ exception"];
-
     sentrycrashcm_setEventCallback(testHandleExceptionHandler);
     SentryCrashMonitorAPI *api = sentrycrashcm_cppexception_getAPI();
 
@@ -124,38 +107,28 @@ testHandleExceptionHandler(struct SentryCrash_MonitorContext *context)
 
     // -- Act --
     // Create a thread that will throw an uncaught exception
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        api->setEnabled(true);
-        try {
-            throw std::runtime_error(errorMessage.UTF8String);
-        } catch (...) {
-            // Rethrowing without catching will trigger std::terminate()
-            std::rethrow_exception(std::current_exception());
-        }
-    });
+    api->setEnabled(true);
+    try {
+        throw std::runtime_error(errorMessage.UTF8String);
+    } catch (...) {
+        // This exception handler sets the error context of the termination handler
+        // Instead of rethrowing, directly call the termination handler
+        std::get_terminate()();
+    }
 
     // -- Assert --
     NSString *truncatedErrorMessage = [@"" stringByPaddingToLength:1000
                                                         withString:@"A"
                                                    startingAtIndex:0];
-    [self waitForExpectationsWithTimeout:5
-                                 handler:^(NSError *_Nullable error) {
-                                     SentryCrash_MonitorContext *context
-                                         = capturedHandleExceptionContext;
+    SentryCrash_MonitorContext *context = capturedHandleExceptionContext;
 
-                                     // Cleanup
-                                     api->setEnabled(false);
-                                     sentrycrashcm_setEventCallback(NULL);
-                                     capturedHandleExceptionContext = NULL;
+    // Cleanup
+    api->setEnabled(false);
+    sentrycrashcm_setEventCallback(NULL);
+    capturedHandleExceptionContext = NULL;
 
-                                     // Check for expectation failures
-                                     if (error) {
-                                         XCTFail(@"Expectation failed with error: %@", error);
-                                     }
-
-                                     // Assertions
-                                     XCTAssertTrue(strcmp(
-                                         context->crashReason, truncatedErrorMessage.UTF8String));
-                                 }];
+    // Assertions
+    NSString *crashReason = [[NSString alloc] initWithUTF8String:context->crashReason];
+    XCTAssertEqualObjects(crashReason, truncatedErrorMessage);
 }
 @end
