@@ -179,7 +179,7 @@ jobs:
         run: |
           RESULT_PATH=$(mktemp -d)/Results-$(date +%s).xcresult 
           echo "result_path=${RESULT_PATH}" >> $GITHUB_OUTPUT
-          ./scripts/xcode-test.sh ${{matrix.platform}} ${{matrix.test-destination-os}} $GITHUB_REF_NAME test-without-building "${{matrix.device}}" TestCI $RESULT_PATH
+          ./scripts/xcode-test.sh ${{matrix.platform}} ${{matrix.test-destination-os}} $GITHUB_REF_NAME test-without-building "${{matrix.device}}" TestCI "" $RESULT_PATH
 
       - name: Print test summary
         if: ${{ always() }}
