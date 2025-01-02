@@ -171,11 +171,18 @@ jobs:
         run: ./scripts/xcode-test.sh ${{matrix.platform}} ${{matrix.test-destination-os}} $GITHUB_REF_NAME build-for-testing "${{matrix.device}}" TestCI
 
       - name: Run tests
+        id: run_tests
         # We call a script with the platform so the destination
         # passed to xcodebuild doesn't end up in the job name,
         # because GitHub Actions don't provide an easy way of
         # manipulating string in expressions.
-        run: ./scripts/xcode-test.sh ${{matrix.platform}} ${{matrix.test-destination-os}} $GITHUB_REF_NAME test-without-building "${{matrix.device}}" TestCI
+        run: |
+          RESULT_PATH=$(mktemp -d)/Results-$(date +%s).xcresult 
+          ./scripts/xcode-test.sh ${{matrix.platform}} ${{matrix.test-destination-os}} $GITHUB_REF_NAME test-without-building "${{matrix.device}}" TestCI $RESULT_PATH
+          echo "result_path=${RESULT_PATH}" >> $GITHUB_OUTPUT
+
+      - name: Print test summary
+        run: ./scripts/print-test-summary.sh ${{steps.run_tests.outputs.result_path}}
 
       - name: Slowest Tests
         if: ${{ always() }}

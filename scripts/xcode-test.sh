@@ -15,6 +15,7 @@ COMMAND="${4:-test}"
 DEVICE=${5:-iPhone 14}
 CONFIGURATION_OVERRIDE="${6:-}"
 DERIVED_DATA_PATH="${7:-}"
+RESULT_PATH="${8:-$(mktemp -d)/Results-$(date +%s).xcresult}"
 
 case $PLATFORM in
 
@@ -108,8 +109,10 @@ if [ $RUN_TEST_WITHOUT_BUILDING == true ]; then
         -scheme Sentry \
         -configuration "$CONFIGURATION" \
         -destination "$DESTINATION" \
+        -resultBundlePath "$RESULT_PATH" \
         test-without-building 2>&1 |
         tee raw-test-output.log |
         xcbeautify --disable-logging --preserve-unbeautified --quiet &&
+        ./scripts/print-test-summary.sh "$RESULT_PATH" &&
         slather coverage --configuration "$CONFIGURATION"
 fi
