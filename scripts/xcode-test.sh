@@ -113,6 +113,5 @@ if [ $RUN_TEST_WITHOUT_BUILDING == true ]; then
         test-without-building 2>&1 |
         tee raw-test-output.log |
         xcbeautify --disable-logging --preserve-unbeautified --quiet &&
-        ./scripts/print-test-summary.sh "$RESULT_PATH" &&
         slather coverage --configuration "$CONFIGURATION"
 fi
