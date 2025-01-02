@@ -2,9 +2,6 @@
 
 ## Unreleased
 
-### Improvements
-
-- Add native SDK information in the replay option event (#4663)
 ### Features
 
 - Session replay GA (#4662)
@@ -13,6 +10,9 @@
 
 - Remove empty session replay tags (#4667)
 
+### Improvements
+
+- Add native SDK information in the replay option event (#4663)
 
 ## 8.43.0-beta.1
 
