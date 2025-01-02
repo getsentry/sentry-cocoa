@@ -139,6 +139,11 @@ NSString *const kSentryDefaultEnvironment = @"production";
         self.enableAppHangTrackingV2 = NO;
         self.enableReportNonFullyBlockingAppHangs = YES;
 #endif // SENTRY_HAS_UIKIT
+
+#if SENTRY_TARGET_REPLAY_SUPPORTED
+        self.sessionReplay = [[SentryReplayOptions alloc] init];
+#endif
+
         self.enableAppHangTracking = YES;
         self.appHangTimeoutInterval = 2.0;
         self.enableAutoBreadcrumbTracking = YES;
@@ -467,6 +472,13 @@ NSString *const kSentryDefaultEnvironment = @"production";
             block:^(BOOL value) { self->_enableReportNonFullyBlockingAppHangs = value; }];
 
 #endif // SENTRY_HAS_UIKIT
+
+#if SENTRY_TARGET_REPLAY_SUPPORTED
+    if ([options[@"sessionReplay"] isKindOfClass:NSDictionary.class]) {
+        self.sessionReplay =
+            [[SentryReplayOptions alloc] initWithDictionary:options[@"sessionReplay"]];
+    }
+#endif // SENTRY_TARGET_REPLAY_SUPPORTED
 
     [self setBool:options[@"enableAppHangTracking"]
             block:^(BOOL value) { self->_enableAppHangTracking = value; }];

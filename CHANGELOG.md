@@ -1,5 +1,16 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+- Session replay GA (#4662)
+
+### Fixes
+
+- Remove empty session replay tags (#4667)
+
+
 ## 8.43.0-beta.1
 
 ### Improvements
