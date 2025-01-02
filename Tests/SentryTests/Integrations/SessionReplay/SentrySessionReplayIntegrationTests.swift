@@ -46,7 +46,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
     private func startSDK(sessionSampleRate: Float, errorSampleRate: Float, enableSwizzling: Bool = true, noIntegrations: Bool = false, configure: ((Options) -> Void)? = nil) {
         SentrySDK.start {
             $0.dsn = "https://user@test.com/test"
-            $0.experimental.sessionReplay = SentryReplayOptions(sessionSampleRate: sessionSampleRate, onErrorSampleRate: errorSampleRate)
+            $0.sessionReplay = SentryReplayOptions(sessionSampleRate: sessionSampleRate, onErrorSampleRate: errorSampleRate)
             $0.setIntegrations(noIntegrations ? [] : [SentrySessionReplayIntegration.self])
             $0.enableSwizzling = enableSwizzling
             $0.cacheDirectoryPath = FileManager.default.temporaryDirectory.path
@@ -288,7 +288,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         }
             
         startSDK(sessionSampleRate: 1, errorSampleRate: 1) { options in
-            options.experimental.sessionReplay.maskedViewClasses = [AnotherLabel.self]
+            options.sessionReplay.maskedViewClasses = [AnotherLabel.self]
         }
         
         let sut = try getSut()
@@ -301,7 +301,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         }
             
         startSDK(sessionSampleRate: 1, errorSampleRate: 1) { options in
-            options.experimental.sessionReplay.unmaskedViewClasses = [AnotherLabel.self]
+            options.sessionReplay.unmaskedViewClasses = [AnotherLabel.self]
         }
     
         let sut = try getSut()

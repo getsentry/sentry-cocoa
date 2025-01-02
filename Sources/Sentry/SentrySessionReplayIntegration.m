@@ -66,9 +66,8 @@ static SentryTouchTracker *_touchTracker;
 - (instancetype)initForManualUse:(nonnull SentryOptions *)options
 {
     if (self = [super init]) {
-        [self setupWith:options.experimental.sessionReplay
-            enableTouchTracker:options.enableSwizzling];
-        [self startWithOptions:options.experimental.sessionReplay fullSession:YES];
+        [self setupWith:options.sessionReplay enableTouchTracker:options.enableSwizzling];
+        [self startWithOptions:options.sessionReplay fullSession:YES];
     }
     return self;
 }
@@ -79,7 +78,7 @@ static SentryTouchTracker *_touchTracker;
         return NO;
     }
 
-    [self setupWith:options.experimental.sessionReplay enableTouchTracker:options.enableSwizzling];
+    [self setupWith:options.sessionReplay enableTouchTracker:options.enableSwizzling];
     return YES;
 }
 
