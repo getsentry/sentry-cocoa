@@ -178,10 +178,11 @@ jobs:
         # manipulating string in expressions.
         run: |
           RESULT_PATH=$(mktemp -d)/Results-$(date +%s).xcresult 
-          ./scripts/xcode-test.sh ${{matrix.platform}} ${{matrix.test-destination-os}} $GITHUB_REF_NAME test-without-building "${{matrix.device}}" TestCI $RESULT_PATH
           echo "result_path=${RESULT_PATH}" >> $GITHUB_OUTPUT
+          ./scripts/xcode-test.sh ${{matrix.platform}} ${{matrix.test-destination-os}} $GITHUB_REF_NAME test-without-building "${{matrix.device}}" TestCI $RESULT_PATH
 
       - name: Print test summary
+        if: ${{ always() }}
         run: ./scripts/print-test-summary.sh ${{steps.run_tests.outputs.result_path}}
 
       - name: Slowest Tests
