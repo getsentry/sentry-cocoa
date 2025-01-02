@@ -29,6 +29,11 @@
         return NO;
     }
 
+    if (![[NSSet setWithArray:self.packages]
+            isEqualToSet:[NSSet setWithArray:otherSdkInfo.packages]]) {
+        return NO;
+    }
+
     return YES;
 }
 
@@ -40,6 +45,7 @@
     hash = hash * 23 + [self.version hash];
     hash = hash * 23 + [self.integrations hash];
     hash = hash * 23 + [self.features hash];
+    hash = hash * 23 + [self.packages hash];
 
     return hash;
 }

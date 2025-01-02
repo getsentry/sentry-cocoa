@@ -1,14 +1,26 @@
 #import "SentryScreenshot.h"
 
-#if SENTRY_HAS_UIKIT
+#if SENTRY_TARGET_REPLAY_SUPPORTED
 
 #    import "SentryCompiler.h"
 #    import "SentryDependencyContainer.h"
 #    import "SentryDispatchQueueWrapper.h"
+#    import "SentrySwift.h"
 #    import "SentryUIApplication.h"
 #    import <UIKit/UIKit.h>
 
-@implementation SentryScreenshot
+@implementation SentryScreenshot {
+    SentryViewPhotographer *photographer;
+}
+
+- (instancetype)init
+{
+    if (self = [super init]) {
+        photographer = [[SentryViewPhotographer alloc]
+            initWithRedactOptions:[[SentryRedactDefaultOptions alloc] init]];
+    }
+    return self;
+}
 
 - (NSArray<NSData *> *)appScreenshotsFromMainThread
 {
@@ -41,7 +53,6 @@
 - (NSArray<NSData *> *)appScreenshots
 {
     NSArray<UIWindow *> *windows = [SentryDependencyContainer.sharedInstance.application windows];
-
     NSMutableArray *result = [NSMutableArray arrayWithCapacity:windows.count];
 
     for (UIWindow *window in windows) {
@@ -53,21 +64,16 @@
             continue;
         }
 
-        UIGraphicsBeginImageContext(size);
+        UIImage *img = [photographer imageWithView:window];
 
-        if ([window drawViewHierarchyInRect:window.bounds afterScreenUpdates:false]) {
-            UIImage *img = UIGraphicsGetImageFromCurrentImageContext();
-            // this shouldn't happen now that we discard windows with either 0 height or 0 width,
-            // but still, we shouldn't send any images with either one.
-            if (LIKELY(img.size.width > 0 && img.size.height > 0)) {
-                NSData *bytes = UIImagePNGRepresentation(img);
-                if (bytes && bytes.length > 0) {
-                    [result addObject:bytes];
-                }
+        // this shouldn't happen now that we discard windows with either 0 height or 0 width,
+        // but still, we shouldn't send any images with either one.
+        if (LIKELY(img.size.width > 0 && img.size.height > 0)) {
+            NSData *bytes = UIImagePNGRepresentation(img);
+            if (bytes && bytes.length > 0) {
+                [result addObject:bytes];
             }
         }
-
-        UIGraphicsEndImageContext();
     }
     return result;
 }

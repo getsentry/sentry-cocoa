@@ -465,9 +465,14 @@ NS_ASSUME_NONNULL_BEGIN
     }
 
     NSDictionary *traceContext = nil;
-    @synchronized(_spanLock) {
-        traceContext = [self buildTraceContext:_span];
+    id<SentrySpan> span = nil;
+
+    if (self.span != nil) {
+        @synchronized(_spanLock) {
+            span = self.span;
+        }
     }
+    traceContext = [self buildTraceContext:span];
     serializedData[@"traceContext"] = traceContext;
 
     NSDictionary *context = [self context];
@@ -617,9 +622,6 @@ NS_ASSUME_NONNULL_BEGIN
     [self.observers addObject:observer];
 }
 
-/**
- * Make sure to call this inside @c  synchronized(_spanLock) caus this method isn't thread safe.
- */
 - (NSDictionary *)buildTraceContext:(nullable id<SentrySpan>)span
 {
     if (span != nil) {
