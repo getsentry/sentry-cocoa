@@ -2,14 +2,20 @@
 
 ## Unreleased
 
+### Fixes
+
+- Replace occurences of `strncpy` with `strlcpy` (#4636)
+
+## 8.43.0
+
 ### Features
 
 - Session replay GA (#4662)
+- Show session replay options as replay tags (#4639)
 
 ### Fixes
 
 - Remove empty session replay tags (#4667)
-- Replace occurences of `strncpy` with `strlcpy` (#4636)
 
 ## 8.43.0-beta.1
 
