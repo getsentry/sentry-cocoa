@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Internal
+
+- Update to Xcode 16.2 in workflows (#4673)
+
 ## 8.43.0
 
 > [!WARNING]
