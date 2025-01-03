@@ -81,7 +81,7 @@ jobs:
 
   run-ui-tests-with-sauce:
     name: Run benchmarks on Sauce Labs
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     needs: build-benchmark-test-target
     strategy:
       fail-fast: false
