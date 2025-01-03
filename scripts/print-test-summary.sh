@@ -73,7 +73,7 @@ if [ "$STATUS" == "failed" ]; then
         TEST_CASE_NAME=$(echo "$FAILURE_SUMMARY" | jq -r '.testCaseName._value')
         MESSAGE=$(echo "$FAILURE_SUMMARY" | jq -r '.message._value')
         LOCATION=$(echo "$FAILURE_SUMMARY" | jq -r '.documentLocationInCreatingWorkspace.url._value' | sed 's/file:\/\///')
-        FILE_PATH=${LOCATION/#.*//}
+        FILE_PATH=${LOCATION%%#*}
         
         # Extract line number from location URL
         STARTING_LINE_NUM=$(echo "$LOCATION" | grep -o 'StartingLineNumber=[0-9]*' | cut -d= -f2)
