@@ -1,11 +1,36 @@
 # Changelog
 
-## Unreleased
+## 8.43.0
+
+### Features
+
+- Session replay GA (#4662)
+- Show session replay options as replay tags (#4639)
+
+### Fixes
+
+- Remove empty session replay tags (#4667)
+- - `SentrySdkInfo.packages` should be an array (#4626)
+- Use the same SdkInfo for envelope header and event (#4629)
 
 ### Improvements
 
 - Improve compiler error message for missing Swift declarations due to APPLICATION_EXTENSION_API_ONLY (#4603)
 - Mask screenshots for errors (#4623)
+- Slightly speed up serializing scope (#4661)
+
+### Internal
+
+- Remove loading `integrations` names from `event.extra` (#4627)
+- Add Hybrid SDKs API to add extra SDK packages (#4637)
+
+## 8.43.0-beta.1
+
+### Improvements
+
+- Improve compiler error message for missing Swift declarations due to APPLICATION_EXTENSION_API_ONLY (#4603)
+- Mask screenshots for errors (#4623)
+- Slightly speed up serializing scope (#4661)
 
 ### Features
 
@@ -15,12 +40,42 @@
 
 - `SentrySdkInfo.packages` should be an array (#4626)
 - Use the same SdkInfo for envelope header and event (#4629)
-- Fixes Session replay screenshot provider crash (#4649)
 
 ### Internal
 
 - Remove loading `integrations` names from `event.extra` (#4627)
 - Add Hybrid SDKs API to add extra SDK packages (#4637)
+
+## 8.42.1
+
+### Fixes
+
+- Fixes Session replay screenshot provider crash (#4649)
+- Session Replay wrong clipping order (#4651)
+
+## 8.42.0
+
+### Features
+
+- Add in_foreground app context to transactions (#4561)
+- Add in_foreground app context to crash events (#4584)
+- Promote the option `performanceV2` from experimental to stable (#4564)
+
+### Fixes
+
+- Session replay touch tracking race condition (#4548)
+- Use `options.reportAccessibilityIdentifier` for Breadcrumbs and UIEvents (#4569) 
+- Session replay transformed view masking (#4529)
+- Load integration from same binary (#4541)
+- Masking for fast animations #4574
+- Fix GraphQL context for HTTP client error tracking (#4567)
+
+### Improvements
+
+- impr: Speed up getBinaryImages V2 (#4539). Follow up on (#4435)
+- Make SentryId Sendable (#4553)
+- Expose `Sentry._Hybrid` explicit module (#4440)
+- Track adoption of `enablePersistingTracesWhenCrashing` (#4587)
 
 ## 8.42.0-beta.2
 
@@ -37,7 +92,7 @@
 ### Features
 
 - Add in_foreground app context to transactions (#4561)
-- Add in_foreground app context to crash events ((#4584)
+- Add in_foreground app context to crash events (#4584)
 - Promote the option `performanceV2` from experimental to stable (#4564)
 
 ### Fixes
@@ -47,7 +102,6 @@
 - Session replay transformed view masking (#4529)
 - Load integration from same binary (#4541)
 - Masking for fast animations #4574
-
 
 ### Improvements
 
