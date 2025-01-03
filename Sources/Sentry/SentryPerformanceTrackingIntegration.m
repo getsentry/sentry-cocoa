@@ -46,7 +46,7 @@
           binaryImageCache:[SentryDependencyContainer.sharedInstance binaryImageCache]];
 
     [self.swizzling start];
-    SentryUIViewControllerPerformanceTracker.shared.enableWaitForFullDisplay
+    SentryUIViewControllerPerformanceTracker.shared.alwaysWaitForFullDisplay
         = options.enableTimeToFullDisplayTracing;
 
     return YES;
