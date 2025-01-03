@@ -87,7 +87,7 @@ if [ $RUN_BUILD == true ]; then
         -quiet \
         build 2>&1 |
         tee raw-build-output.log |
-        xcbeautify --quiet  --renderer github-actions
+        xcbeautify --quieter  --renderer github-actions
 fi
 
 if [ $RUN_BUILD_FOR_TESTING == true ]; then
@@ -99,7 +99,7 @@ if [ $RUN_BUILD_FOR_TESTING == true ]; then
         -quiet \
         build-for-testing 2>&1 |
         tee raw-build-for-testing-output.log |
-        xcbeautify --quiet --renderer github-actions
+        xcbeautify --quieter --renderer github-actions
 fi
 
 if [ $RUN_TEST_WITHOUT_BUILDING == true ]; then
@@ -110,6 +110,6 @@ if [ $RUN_TEST_WITHOUT_BUILDING == true ]; then
         -destination "$DESTINATION" \
         test-without-building 2>&1 |
         tee raw-test-output.log |
-        xcbeautify --quiet --renderer github-actions &&
+        xcbeautify --quieter --renderer github-actions &&
         slather coverage --configuration "$CONFIGURATION"
 fi
