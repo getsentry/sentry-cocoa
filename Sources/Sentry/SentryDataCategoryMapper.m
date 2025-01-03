@@ -18,6 +18,7 @@ NSString *const kSentryDataCategoryNameProfileChunk = @"profile_chunk";
 NSString *const kSentryDataCategoryNameReplay = @"replay";
 NSString *const kSentryDataCategoryNameMetricBucket = @"metric_bucket";
 NSString *const kSentryDataCategoryNameSpan = @"span";
+NSString *const kSentryDataCategoryNameFeedback = @"feedback";
 NSString *const kSentryDataCategoryNameUnknown = @"unknown";
 
 NS_ASSUME_NONNULL_BEGIN
@@ -45,6 +46,9 @@ sentryDataCategoryForEnvelopItemType(NSString *itemType)
     }
     if ([itemType isEqualToString:SentryEnvelopeItemTypeReplayVideo]) {
         return kSentryDataCategoryReplay;
+    }
+    if ([itemType isEqualToString:SentryEnvelopeItemTypeFeedback]) {
+        return kSentryDataCategoryFeedback;
     }
     // The envelope item type used for metrics is statsd whereas the client report category for
     // discarded events is metric_bucket.
@@ -104,6 +108,9 @@ sentryDataCategoryForString(NSString *value)
     if ([value isEqualToString:kSentryDataCategoryNameSpan]) {
         return kSentryDataCategorySpan;
     }
+    if ([value isEqualToString:kSentryDataCategoryNameFeedback]) {
+        return kSentryDataCategoryFeedback;
+    }
 
     return kSentryDataCategoryUnknown;
 }
@@ -111,13 +118,10 @@ sentryDataCategoryForString(NSString *value)
 NSString *
 nameForSentryDataCategory(SentryDataCategory category)
 {
-    if (category < kSentryDataCategoryAll && category > kSentryDataCategoryUnknown) {
-        return kSentryDataCategoryNameUnknown;
-    }
-
     switch (category) {
     case kSentryDataCategoryAll:
         return kSentryDataCategoryNameAll;
+
     case kSentryDataCategoryDefault:
         return kSentryDataCategoryNameDefault;
     case kSentryDataCategoryError:
@@ -136,12 +140,16 @@ nameForSentryDataCategory(SentryDataCategory category)
         return kSentryDataCategoryNameProfileChunk;
     case kSentryDataCategoryMetricBucket:
         return kSentryDataCategoryNameMetricBucket;
-    case kSentryDataCategoryUnknown:
-        return kSentryDataCategoryNameUnknown;
     case kSentryDataCategoryReplay:
         return kSentryDataCategoryNameReplay;
     case kSentryDataCategorySpan:
         return kSentryDataCategoryNameSpan;
+    case kSentryDataCategoryFeedback:
+        return kSentryDataCategoryNameFeedback;
+
+    default: // !!!: fall-through!
+    case kSentryDataCategoryUnknown:
+        return kSentryDataCategoryNameUnknown;
     }
 }
 

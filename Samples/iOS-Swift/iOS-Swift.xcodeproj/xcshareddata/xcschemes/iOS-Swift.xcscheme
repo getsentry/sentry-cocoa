@@ -74,6 +74,30 @@
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
+            argument = "--disable-time-to-full-display-tracing"
+            isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "--disable-performance-v2"
+            isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "--disable-attach-view-hierarchy"
+            isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "--disable-attach-screenshot"
+            isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "--io.sentry.base64-attachment-data"
+            isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "--io.sentry.disable-http-transport"
+            isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
             argument = "--disable-file-io-tracing"
             isEnabled = "NO">
          </CommandLineArgument>
@@ -237,11 +261,6 @@
          </EnvironmentVariable>
          <EnvironmentVariable
             key = "--io.sentry.sessionTrackingIntervalMillis"
-            value = ""
-            isEnabled = "NO">
-         </EnvironmentVariable>
-         <EnvironmentVariable
-            key = "--io.sentry.user.name"
             value = ""
             isEnabled = "NO">
          </EnvironmentVariable>
