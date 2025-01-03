@@ -2,6 +2,9 @@
 
 ## 8.43.0
 
+> [!WARNING]
+> This release contains a breaking change for the previously experimental session replay options. We moved the options from Session from `options.experimental.sessionReplay` to `options.sessionReplay`.
+
 ### Features
 
 - Session replay GA (#4662)
