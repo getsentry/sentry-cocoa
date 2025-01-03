@@ -2,7 +2,7 @@
 
 @implementation SentryMeta
 
-const NSString *const sentryVersionString = @"8.43.0-beta.1";
+const NSString *const sentryVersionString = @"8.43.0";
 const NSString *const sentrySdkName = @"sentry.cocoa";
 
 // Don't remove the static keyword. If you do the compiler adds the constant name to the global

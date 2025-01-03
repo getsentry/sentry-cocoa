@@ -3,7 +3,7 @@ init:
 	which brew || /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 	brew bundle
 	pre-commit install
-	clang-format --version | awk '{print $3}' > scripts/.clang-format-version
+	clang-format --version | awk '{print $$3}' > scripts/.clang-format-version
 	swiftlint version > scripts/.swiftlint-version
 	
 # installs the tools needed to test various CI tasks locally
