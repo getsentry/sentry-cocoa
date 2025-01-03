@@ -24,6 +24,7 @@
 
 ### Improvements
 
+- Add native SDK information in the replay option event (#4663)
 - Improve compiler error message for missing Swift declarations due to APPLICATION_EXTENSION_API_ONLY (#4603)
 - Mask screenshots for errors (#4623)
 - Slightly speed up serializing scope (#4661)
