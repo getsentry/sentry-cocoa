@@ -4,6 +4,9 @@
 
 ### Features
 
+> [!WARNING]
+> This release contains breaking changes, as the options for Session Replay have been moved from `options.experimental.sessionReplay` to `options.sessionReplay`.
+
 - Session replay GA (#4662)
 - Show session replay options as replay tags (#4639)
 
