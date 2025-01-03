@@ -6,7 +6,6 @@ set -euo pipefail
 RESET='\033[0m'
 INFO_COLOR='\033[0m'        # Default color
 SUCCESS_COLOR='\033[0;32m'  # Green for success
-WARN_COLOR='\033[0;33m'     # Orange for warnings  
 ERROR_COLOR='\033[0;31m'    # Red for errors
 DEBUG_COLOR='\033[0;90m'    # Dark gray for debug info
 CYAN_COLOR='\033[0;36m'    # Cyan for general info
@@ -20,10 +19,6 @@ log_success() {
     echo -e "${SUCCESS_COLOR}$1${RESET}" 
 }
 
-log_warn() {
-    echo -e "${WARN_COLOR}$1${RESET}"
-}
-
 log_error() {
     echo -e "${ERROR_COLOR}$1${RESET}"
 }
@@ -33,6 +28,8 @@ log_debug() {
 }
 
 # Script
+
+EXIT_CODE=0
 
 RESULT_PATH="${1}"
 EXPANDED_RESULT_PATH=$(realpath "$RESULT_PATH")
@@ -103,6 +100,8 @@ if [ "$STATUS" == "failed" ]; then
     # Print the status
     log_error "** TEST EXECUTION FAILED **"
     log_info ""
+
+    EXIT_CODE=1
 else
     # Print the status
     log_success "** TEST EXECUTION PASSED - $STATUS**"
@@ -115,3 +114,5 @@ FAILED_TESTS=$(echo "$ACTION_RESULTS" | jq -r '.metrics.testsFailedCount._value 
 SKIPPED_TESTS=$(echo "$ACTION_RESULTS" | jq -r '.metrics.testsSkippedCount._value | if . == null then 0 else . end')
 
 log_info "Executed: $EXECUTED_TESTS, with $FAILED_TESTS failures ($SKIPPED_TESTS skipped)"
+
+exit $EXIT_CODE
