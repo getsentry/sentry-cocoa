@@ -41,7 +41,7 @@ log_info "+==============+"
 log_info "| TEST SUMMARY |"
 log_info "+==============+"
 log_info ""
-log_info "Creating Test Summary from result at path: $EXPANDED_RESULT_PATH"
+log_info "Creating test summary from result at path: $EXPANDED_RESULT_PATH"
 log_info ""
 
 if [ ! -d "$EXPANDED_RESULT_PATH" ]; then
@@ -49,7 +49,20 @@ if [ ! -d "$EXPANDED_RESULT_PATH" ]; then
     exit 1
 fi
 
-TEST_REPORT_JSON=$(xcrun xcresulttool get test-report --path "$EXPANDED_RESULT_PATH" --legacy --format json)
+# The `xcresulttool` requires different options based on the version of Xcode.
+xcresulttool_version=$(xcrun xcresulttool version | grep -oE '[0-9]+\.[0-9]+' | head -1)
+major_version=$(echo "$xcresulttool_version" | cut -d '.' -f 1)
+minor_version=$(echo "$xcresulttool_version" | cut -d '.' -f 2)
+log_debug "xcresulttool version: $major_version.$minor_version" 
+
+if (( major_version >= 3 )) && (( minor_version >= 53 )); then # Xcode 16.0
+    TEST_REPORT_JSON=$(xcrun xcresulttool get test-report --path "$EXPANDED_RESULT_PATH" --legacy --format json)
+elif (( major_version >= 3 )) && (( minor_version >= 49 )); then # Xcode 15.4
+    TEST_REPORT_JSON=$(xcrun xcresulttool get --path "$EXPANDED_RESULT_PATH" --format json)
+else 
+    TEST_REPORT_JSON=$(xcrun xcresulttool get --path "$EXPANDED_RESULT_PATH" --format json)
+fi
+
 ACTION_RESULTS=$(echo "$TEST_REPORT_JSON" | jq '.actions._values[].actionResult')
 STATUS=$(echo "$ACTION_RESULTS" | jq -r '.status._value')
 
@@ -98,7 +111,7 @@ fi
 
 # Print metrics
 EXECUTED_TESTS=$(echo "$ACTION_RESULTS" | jq -r '.metrics.testsCount._value')
-FAILED_TESTS=$(echo "$ACTION_RESULTS" | jq -r '.metrics.testsFailedCount._value')
-SKIPPED_TESTS=$(echo "$ACTION_RESULTS" | jq -r '.metrics.testsSkippedCount._value')
+FAILED_TESTS=$(echo "$ACTION_RESULTS" | jq -r '.metrics.testsFailedCount._value | if . == null then 0 else . end')
+SKIPPED_TESTS=$(echo "$ACTION_RESULTS" | jq -r '.metrics.testsSkippedCount._value | if . == null then 0 else . end')
 
 log_info "Executed: $EXECUTED_TESTS, with $FAILED_TESTS failures ($SKIPPED_TESTS skipped)"
