@@ -287,7 +287,45 @@ class SentryBreadcrumbTrackerTests: XCTestCase {
         
         XCTAssertEqual(crumbData["accessibilityIdentifier"] as? String, "TestAccessibilityIdentifier")
     }
-    
+
+    func testBreadcrumbViewControllerCustomScreenName() throws {
+        let testReachability = TestSentryReachability()
+        SentryDependencyContainer.sharedInstance().reachability = testReachability
+
+        let scope = Scope()
+        let client = TestClient(options: Options())
+        let hub = TestHub(client: client, andScope: scope)
+        SentrySDK.setCurrentHub(hub)
+
+        let sut = SentryBreadcrumbTracker()
+        sut.start(with: delegate)
+        sut.startSwizzle()
+
+        let parentScreenName = UUID().uuidString
+        let screenName = UUID().uuidString
+        let title = UUID().uuidString
+
+        let parentController = CustomScreenNameViewController(screenName: parentScreenName)
+        let viewController = CustomScreenNameViewController(screenName: screenName)
+        parentController.addChild(viewController)
+        viewController.title = title
+
+        viewController.viewDidAppear(false)
+
+        let crumbs = delegate.addCrumbInvocations.invocations
+
+        // one breadcrumb for starting the tracker, one for the first reachability breadcrumb and one final one for the swizzled viewDidAppear
+        guard crumbs.count == 2 else {
+            XCTFail("Expected exactly 2 breadcrumbs, got: \(crumbs)")
+            return
+        }
+
+        let lifeCycleCrumb = try XCTUnwrap(crumbs.element(at: 1))
+        XCTAssertEqual(screenName, lifeCycleCrumb.data?["screen"] as? String)
+        XCTAssertEqual(title, lifeCycleCrumb.data?["title"] as? String)
+        XCTAssertEqual(parentScreenName, lifeCycleCrumb.data?["parentViewController"] as? String)
+    }
+
     private class TestEvent: UIEvent {
         let touchedView: UIView?
         class TestEndTouch: UITouch {
@@ -307,7 +345,21 @@ class SentryBreadcrumbTrackerTests: XCTestCase {
             TestEndTouch(touchedView: touchedView)
         ] }
     }
-    
+
+    fileprivate final class CustomScreenNameViewController: UIViewController, SentryViewControllerBreadcrumbTracking {
+
+        fileprivate required init?(coder: NSCoder) {
+            fatalError("init(coder:) has not been implemented")
+        }
+
+        fileprivate var screenName: String
+
+        fileprivate init(screenName: String) {
+            self.screenName = screenName
+            super.init(nibName: nil, bundle: nil)
+        }
+    }
+
 #endif
     
 }
