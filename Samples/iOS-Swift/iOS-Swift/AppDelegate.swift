@@ -250,6 +250,18 @@ extension AppDelegate {
         config.configureWidget = configureFeedbackWidget(config:)
         config.configureForm = configureFeedbackForm(config:)
         config.configureTheme = configureFeedbackTheme(config:)
+        config.onFormOpen = {
+            let appSupportDirectory = NSSearchPathForDirectoriesInDomains(.applicationSupportDirectory, .userDomainMask, true).first!
+            let dir = "\(appSupportDirectory)/io.sentry/feedback"
+            try! FileManager.default.createDirectory(atPath: dir, withIntermediateDirectories: true)
+            assert(FileManager.default.createFile(atPath: "\(dir)/onFormOpen", contents: nil))
+        }
+        config.onFormClose = {
+            let appSupportDirectory = NSSearchPathForDirectoriesInDomains(.applicationSupportDirectory, .userDomainMask, true).first!
+            let dir = "\(appSupportDirectory)/io.sentry/feedback"
+            try! FileManager.default.createDirectory(atPath: dir, withIntermediateDirectories: true)
+            assert(FileManager.default.createFile(atPath: "\(dir)/onFormClose", contents: nil))
+        }
         config.onSubmitSuccess = { info in
             let name = info["name"] ?? "$shakespearean_insult_name"
             let alert = UIAlertController(title: "Thanks?", message: "We have enough jank of our own, we really didn't need yours too, \(name).", preferredStyle: .alert)
