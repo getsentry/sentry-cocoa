@@ -54,9 +54,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     private func removeAppData() {
         print("[iOS-Swift] [debug] removing app data")
         let cache = NSSearchPathForDirectoriesInDomains(.cachesDirectory, .userDomainMask, true).first!
-        guard let files = FileManager.default.enumerator(atPath: cache) else { return }
-        for item in files {
-            try! FileManager.default.removeItem(atPath: (cache as NSString).appendingPathComponent((item as! String)))
+        let appSupport = NSSearchPathForDirectoriesInDomains(.applicationSupportDirectory, .userDomainMask, true).first!
+        [cache, appSupport].forEach {
+            guard let files = FileManager.default.enumerator(atPath: $0) else { return }
+            for item in files {
+                try! FileManager.default.removeItem(atPath: ($0 as NSString).appendingPathComponent((item as! String)))
+            }
         }
     }
 }
@@ -250,6 +253,18 @@ extension AppDelegate {
         config.configureWidget = configureFeedbackWidget(config:)
         config.configureForm = configureFeedbackForm(config:)
         config.configureTheme = configureFeedbackTheme(config:)
+        config.onFormOpen = {
+            let appSupportDirectory = NSSearchPathForDirectoriesInDomains(.applicationSupportDirectory, .userDomainMask, true).first!
+            let dir = "\(appSupportDirectory)/io.sentry/feedback"
+            try! FileManager.default.createDirectory(atPath: dir, withIntermediateDirectories: true)
+            assert(FileManager.default.createFile(atPath: "\(dir)/onFormOpen", contents: nil))
+        }
+        config.onFormClose = {
+            let appSupportDirectory = NSSearchPathForDirectoriesInDomains(.applicationSupportDirectory, .userDomainMask, true).first!
+            let dir = "\(appSupportDirectory)/io.sentry/feedback"
+            try! FileManager.default.createDirectory(atPath: dir, withIntermediateDirectories: true)
+            assert(FileManager.default.createFile(atPath: "\(dir)/onFormClose", contents: nil))
+        }
         config.onSubmitSuccess = { info in
             let name = info["name"] ?? "$shakespearean_insult_name"
             let alert = UIAlertController(title: "Thanks?", message: "We have enough jank of our own, we really didn't need yours too, \(name).", preferredStyle: .alert)

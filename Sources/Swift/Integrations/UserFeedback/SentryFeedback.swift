@@ -50,6 +50,22 @@ class SentryFeedback: NSObject, SentrySerializable {
         return dict
     }
     
+    func dataDictionary() -> [String: Any] {
+        var dict: [String: Any] = [
+            "message": message
+        ]
+        if let name = name {
+            dict["name"] = name
+        }
+        if let email = email {
+            dict["email"] = email
+        }
+        if let screenshot = screenshot {
+            dict["attachments"] = [screenshot]
+        }
+        return dict
+    }
+    
     /**
      * - note: Currently there is only a single attachment possible, for the screenshot, of which there can be only one.
      */

@@ -9,7 +9,7 @@ class ExtraViewController: UIViewController {
     @IBOutlet weak var uiTestNameLabel: UILabel!
     @IBOutlet weak var anrFullyBlockingButton: UIButton!
     @IBOutlet weak var anrFillingRunLoopButton: UIButton!
-    @IBOutlet weak var envelopeDataMarshalingField: UITextField!
+    @IBOutlet weak var dataMarshalingField: UITextField!
     @IBOutlet weak var dataMarshalingStatusLabel: UILabel!
     @IBOutlet weak var dataMarshalingErrorLabel: UILabel!
     
@@ -207,8 +207,20 @@ class ExtraViewController: UIViewController {
     @IBAction func getLatestEnvelope(_ sender: Any) {
         guard let latestEnvelopePath = latestEnvelopePath() else { return }
         guard let base64String = base64EncodedStructuredUITestData(envelopePath: latestEnvelopePath) else { return }
-        envelopeDataMarshalingField.text = base64String
-        envelopeDataMarshalingField.isHidden = false
+        displayStringForUITest(string: base64String)
+    }
+    
+    @IBAction func getApplicationSupportPath(_ sender: Any) {
+        guard let appSupportDirectory = NSSearchPathForDirectoriesInDomains(.applicationSupportDirectory, .userDomainMask, true).first else {
+            print("[iOS-Swift] Couldn't retrieve path to application support directory.")
+            return
+        }
+        displayStringForUITest(string: appSupportDirectory)
+    }
+    
+    func displayStringForUITest(string: String) {
+        dataMarshalingField.text = string
+        dataMarshalingField.isHidden = false
         dataMarshalingStatusLabel.isHidden = false
         dataMarshalingStatusLabel.text = "✅"
         dataMarshalingErrorLabel.isHidden = true
