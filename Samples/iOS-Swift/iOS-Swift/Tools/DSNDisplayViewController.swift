@@ -137,7 +137,7 @@ class DSNDisplayViewController: UIViewController {
     
     func updateDSNLabel() {
         do {
-            let dsn = try DSNStorage.shared.getDSN() ?? AppDelegate.defaultDSN
+            let dsn = try DSNStorage.shared.getDSN() ?? SentrySDKWrapper.defaultDSN
             self.label.attributedText = dsnFieldTitleString(dsn: dsn)
         } catch {
             SentrySDK.capture(error: error)
@@ -150,7 +150,7 @@ class DSNDisplayViewController: UIViewController {
     func dsnFieldTitleString(dsn: String) -> NSAttributedString {
         let defaultAnnotation = "(default)"
         let overriddenAnnotation = "(overridden)"
-        guard dsn != AppDelegate.defaultDSN else {
+        guard dsn != SentrySDKWrapper.defaultDSN else {
             let title = "DSN \(defaultAnnotation):"
             let stringContents = "\(title): \(dsn)"
             let attributedString = NSMutableAttributedString(string: stringContents)
