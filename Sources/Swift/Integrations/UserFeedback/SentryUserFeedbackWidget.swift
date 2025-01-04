@@ -91,6 +91,7 @@ struct SentryUserFeedbackWidget {
             
             func presentationControllerDidDismiss(_ presentationController: UIPresentationController) {
                 setWidget(visible: true)
+                self.config.onFormClose?()
             }
         }
         
