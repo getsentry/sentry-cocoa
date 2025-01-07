@@ -1258,15 +1258,14 @@ decodeElement(const char *const name, SentryCrashJSONDecodeContext *context)
         }
         // Must use strncpy instead of strlcpy, because of the following reason:
         //
-        //   Also note that strlcpy() and strlcat() only operate on true ''C'' strings.
-        //   This means that for strlcpy() src must be NUL-terminated and for strlcat()
-        //   both src and dst must be NUL-terminated.
+        //   Also note that strlcpy() and strlcat() only operate on true 'C' strings.
+        //   This means that for strlcpy() src must be NUL-terminated [..]
         //
         // Source: https://linux.die.net/man/3/strlcpy
         strncpy(context->stringBuffer, start, len);
         context->stringBuffer[len] = '\0';
 
-        // Parses a floating point number from stringBuffer into value using %lg format
+        // Parses a floating point number from the string buffer into value using %lg format
         // %lg uses shortest decimal representation and removes trailing zeros
         sscanf(context->stringBuffer, "%lg", &value);
 
