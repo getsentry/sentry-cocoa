@@ -102,7 +102,7 @@ mockHandleExceptionHandler(struct SentryCrash_MonitorContext *context)
     sentrycrashcm_setEventCallback(mockHandleExceptionHandler);
     api->setEnabled(true);
 
-    // Build a 1000 + 1 character message
+    // Build a 1000 character message
     NSString *errorMessage = [@"" stringByPaddingToLength:1000 withString:@"A" startingAtIndex:0];
 
     // -- Act --
