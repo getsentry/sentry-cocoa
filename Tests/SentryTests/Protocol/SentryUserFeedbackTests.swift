@@ -29,7 +29,7 @@ class SentryUserFeedbackTests: XCTestCase {
         
         let actual = userFeedback.serialize()
         
-        XCTAssertEqual(actual["comments"] as? String, "")
+        XCTAssertEqual(actual["comments"] as? String, "fail")
         XCTAssertEqual(actual["email"] as? String, "")
         XCTAssertEqual(actual["name"] as? String, "")
     }
