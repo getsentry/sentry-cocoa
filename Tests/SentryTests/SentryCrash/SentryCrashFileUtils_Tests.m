@@ -708,7 +708,7 @@
 /**
  * The following unit test is used as a control unit test for too long paths.
  *
- * When the overall path length is larger than ``SentryCrashFU_MAX_PATH_LENGTH``, it the given
+ * When the overall path length is larger than ``SentryCrashFU_MAX_PATH_LENGTH``, the given
  * buffer is not large enough to append the file entry name. This is expected to not delete folder
  * for now, therefore this unit test serves as a validation for the expected behaviour.
  */
