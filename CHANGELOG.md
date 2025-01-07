@@ -5,6 +5,7 @@
 ### Fixes
 
 - Replace occurences of `strncpy` with `strlcpy` (#4636)
+
 ### Internal
 
 - Update to Xcode 16.2 in workflows (#4673)
@@ -22,6 +23,19 @@
 ### Fixes
 
 - Remove empty session replay tags (#4667)
+- - `SentrySdkInfo.packages` should be an array (#4626)
+- Use the same SdkInfo for envelope header and event (#4629)
+
+### Improvements
+
+- Improve compiler error message for missing Swift declarations due to APPLICATION_EXTENSION_API_ONLY (#4603)
+- Mask screenshots for errors (#4623)
+- Slightly speed up serializing scope (#4661)
+
+### Internal
+
+- Remove loading `integrations` names from `event.extra` (#4627)
+- Add Hybrid SDKs API to add extra SDK packages (#4637)
 
 ## 8.43.0-beta.1
 
