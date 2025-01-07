@@ -4,15 +4,10 @@ import XCTest
 class SentryCrashCTests: XCTestCase {
     func testOnCrash_notCrashedDuringCrashHandling_shouldWriteReportToDisk() throws {
         // -- Arrange --
-        var appName = "SentryCrashCTests"
-            .cString(using: .utf8)!
-        let installDir = URL(fileURLWithPath: NSTemporaryDirectory())
-            .appendingPathComponent("SentryCrashCTests-\(UUID().uuidString)")
-        var installPath = installDir
-            .path
-            .cString(using: .utf8)!
-        let expectedReportsDir = installDir
-            .appendingPathComponent("Reports")
+        var appName = "SentryCrashCTests".cString(using: .utf8)!
+        let installDir = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent("SentryCrashCTests-\(UUID().uuidString)")
+        var installPath = installDir.path.cString(using: .utf8)!
+        let expectedReportsDir = installDir.appendingPathComponent("Reports")
 
         // Smoke test the existence of the directory
         XCTAssertFalse(FileManager.default.fileExists(
@@ -38,17 +33,11 @@ class SentryCrashCTests: XCTestCase {
 
     func testOnCrash_notCrashedDuringCrashHandling_installFilePathTooLong_shouldNotWriteToDisk() {
         // -- Arrange --
-        var appName = "SentryCrashCTests"
-            .cString(using: .utf8)!
-        let workDir = URL(fileURLWithPath: NSTemporaryDirectory())
-            .appendingPathComponent("SentryCrashCTests-\(UUID().uuidString)")
-        let installDir = workDir
-            .appendingPathComponent(Array(repeating: "X", count: 500).joined())
-        var installPath = installDir
-            .path
-            .cString(using: .utf8)!
-        let expectedReportsDir = installDir
-            .appendingPathComponent("Reports")
+        var appName = "SentryCrashCTests".cString(using: .utf8)!
+        let workDir = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent("SentryCrashCTests-\(UUID().uuidString)")
+        let installDir = workDir.appendingPathComponent(Array(repeating: "X", count: 500).joined())
+        var installPath = installDir.path.cString(using: .utf8)!
+        let expectedReportsDir = installDir.appendingPathComponent("Reports")
 
         // Smoke test the existence of the directory
         XCTAssertFalse(FileManager.default.fileExists(
@@ -75,15 +64,10 @@ class SentryCrashCTests: XCTestCase {
 
     func testOnCrash_crashedDuringCrashHandling_shouldWriteReportToDisk() throws {
         // -- Arrange --
-        var appName = "SentryCrashCTests"
-            .cString(using: .utf8)!
-        let installDir = URL(fileURLWithPath: NSTemporaryDirectory())
-            .appendingPathComponent("SentryCrashCTests-\(UUID().uuidString)")
-        var installPath = installDir
-            .path
-            .cString(using: .utf8)!
-        let expectedReportsDir = installDir
-            .appendingPathComponent("Reports")
+        var appName = "SentryCrashCTests".cString(using: .utf8)!
+        let installDir = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent("SentryCrashCTests-\(UUID().uuidString)")
+        var installPath = installDir.path.cString(using: .utf8)!
+        let expectedReportsDir = installDir.appendingPathComponent("Reports")
 
         // Smoke test the existence of the directory
         XCTAssertFalse(FileManager.default.fileExists(
@@ -136,15 +120,10 @@ class SentryCrashCTests: XCTestCase {
 
     func testOnCrash_crashedDuringCrashHandling_shouldRewriteOldCrashAsRecrashReportToDisk() throws {
         // -- Arrange --
-        var appName = "SentryCrashCTests"
-            .cString(using: .utf8)!
-        let workDir = URL(fileURLWithPath: NSTemporaryDirectory())
-            .appendingPathComponent("SentryCrashCTests-\(UUID().uuidString)")
-        var installPath = workDir
-            .path
-            .cString(using: .utf8)!
-        let expectedReportsDir = workDir
-            .appendingPathComponent("Reports")
+        var appName = "SentryCrashCTests".cString(using: .utf8)!
+        let workDir = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent("SentryCrashCTests-\(UUID().uuidString)")
+        var installPath = workDir.path.cString(using: .utf8)!
+        let expectedReportsDir = workDir.appendingPathComponent("Reports")
 
         // Smoke test the existence of the directory
         XCTAssertFalse(FileManager.default.fileExists(
@@ -201,17 +180,11 @@ class SentryCrashCTests: XCTestCase {
 
     func testOnCrash_crashedDuringCrashHandling_installFilePathTooLong_shouldNotWriteToDisk() throws {
         // -- Arrange --
-        var appName = "SentryCrashCTests"
-            .cString(using: .utf8)!
-        let workDir = URL(fileURLWithPath: NSTemporaryDirectory())
-            .appendingPathComponent("SentryCrashCTests-\(UUID().uuidString)")
-        let installDir = workDir
-            .appendingPathComponent(Array(repeating: "X", count: 500).joined())
-        var installPath = installDir
-            .path
-            .cString(using: .utf8)!
-        let expectedReportsDir = installDir
-            .appendingPathComponent("Reports")
+        var appName = "SentryCrashCTests".cString(using: .utf8)!
+        let workDir = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent("SentryCrashCTests-\(UUID().uuidString)")
+        let installDir = workDir.appendingPathComponent(Array(repeating: "X", count: 500).joined())
+        var installPath = installDir.path.cString(using: .utf8)!
+        let expectedReportsDir = installDir.appendingPathComponent("Reports")
 
         // Smoke test the existence of the directory
         XCTAssertFalse(FileManager.default.fileExists(
@@ -265,9 +238,8 @@ class SentryCrashCTests: XCTestCase {
     // MARK: - Helper
 
     func readFirstReportFromDisk(reportsDir: URL) throws -> NSDictionary {
-        let reportUrls = try FileManager.default
-            .contentsOfDirectory(atPath: reportsDir.path)
-        XCTAssertEqual(            reportUrls.count, 1)
+        let reportUrls = try FileManager.default.contentsOfDirectory(atPath: reportsDir.path)
+        XCTAssertEqual(reportUrls.count, 1)
         XCTAssertTrue(reportUrls[0].hasPrefix("SentryCrashCTests-report-"))
         XCTAssertTrue(reportUrls[0].hasSuffix(".json"))
 
