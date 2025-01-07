@@ -86,6 +86,8 @@
 #if TEST || TESTCI
 /**
  * Unswizzles the instance method of the class.
+ * To reduce the risk of breaking functionality with unswizzling, this method is not considered
+ * safe-to-use in production and only available in test targets.
  *
  * @param classToUnswizzle The class with the method that should be unswizzled.
  *
@@ -320,6 +322,9 @@ typedef NS_ENUM(NSUInteger, SentrySwizzleMode) {
 #if TEST || TESTCI
 /**
  * Unswizzles the instance method of the class.
+ *
+ * To reduce the risk of breaking functionality with unswizzling, this method is not considered
+ * safe-to-use in production and only available in test targets.
  *
  * @param selector Selector of the method that should be unswizzled.
  *
