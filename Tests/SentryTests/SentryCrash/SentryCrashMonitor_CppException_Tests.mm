@@ -16,7 +16,7 @@ SentryCrashMonitorAPI *api;
 NSString *capturedExceptionContextCrashReason;
 
 void
-testTerminationHandler(void)
+mockTerminationHandler(void)
 {
     terminateCalled = true;
 }
@@ -25,6 +25,8 @@ testTerminationHandler(void)
 {
     [super setUp];
     terminateCalled = false;
+
+    api = sentrycrashcm_cppexception_getAPI();
 }
 
 - (void)tearDown
@@ -41,9 +43,7 @@ testTerminationHandler(void)
 - (void)testCallTerminationHandler_NotEnabled
 {
     // -- Arrange --
-    std::set_terminate(&testTerminationHandler);
-
-    api = sentrycrashcm_cppexception_getAPI();
+    std::set_terminate(&mockTerminationHandler);
 
     // -- Act --
     sentrycrashcm_cppexception_callOriginalTerminationHandler();
@@ -55,9 +55,7 @@ testTerminationHandler(void)
 - (void)testCallTerminationHandler_Enabled
 {
     // -- Arrange --
-    std::set_terminate(&testTerminationHandler);
-
-    api = sentrycrashcm_cppexception_getAPI();
+    std::set_terminate(&mockTerminationHandler);
     api->setEnabled(true);
 
     // -- Act --
@@ -68,7 +66,7 @@ testTerminationHandler(void)
 }
 
 void
-testHandleExceptionHandler(struct SentryCrash_MonitorContext *context)
+mockHandleExceptionHandler(struct SentryCrash_MonitorContext *context)
 {
     if (!context) {
         XCTFail("Received null context in handler");
@@ -80,11 +78,10 @@ testHandleExceptionHandler(struct SentryCrash_MonitorContext *context)
 - (void)testCallHandler_shouldCaptureExceptionDescription
 {
     // -- Arrange --
-    sentrycrashcm_setEventCallback(testHandleExceptionHandler);
-    api = sentrycrashcm_cppexception_getAPI();
+    sentrycrashcm_setEventCallback(mockHandleExceptionHandler);
+    api->setEnabled(true);
 
     // -- Act --
-    api->setEnabled(true);
     try {
         throw std::runtime_error("Example Error");
     } catch (...) {
@@ -102,15 +99,13 @@ testHandleExceptionHandler(struct SentryCrash_MonitorContext *context)
 - (void)testCallHandler_descriptionExactLengthOfBuffer_shouldCaptureTruncatedExceptionDescription
 {
     // -- Arrange --
-    sentrycrashcm_setEventCallback(testHandleExceptionHandler);
-    api = sentrycrashcm_cppexception_getAPI();
+    sentrycrashcm_setEventCallback(mockHandleExceptionHandler);
+    api->setEnabled(true);
 
     // Build a 1000 + 1 character message
     NSString *errorMessage = [@"" stringByPaddingToLength:1000 withString:@"A" startingAtIndex:0];
 
     // -- Act --
-    // Create a thread that will throw an uncaught exception
-    api->setEnabled(true);
     try {
         throw std::runtime_error(errorMessage.UTF8String);
     } catch (...) {
@@ -131,17 +126,15 @@ testHandleExceptionHandler(struct SentryCrash_MonitorContext *context)
 - (void)testCallHandler_descriptionLongerThanBuffer_shouldCaptureTruncatedExceptionDescription
 {
     // -- Arrange --
-    sentrycrashcm_setEventCallback(testHandleExceptionHandler);
-    api = sentrycrashcm_cppexception_getAPI();
+    sentrycrashcm_setEventCallback(mockHandleExceptionHandler);
+    api->setEnabled(true);
 
-    // Build a 1000 + 1 character message
-    NSString *errorMessage = [@"" stringByPaddingToLength:(1000 + 1)
-                                               withString:@"A"
-                                          startingAtIndex:0];
+    // Build a 1000 character message, with a single character overflow.
+    // The overflow character is different, so that we can verify truncation at the end
+    NSString *errorMessage = [[@"" stringByPaddingToLength:1000 withString:@"A"
+                                           startingAtIndex:0] stringByAppendingString:@"B"];
 
     // -- Act --
-    // Create a thread that will throw an uncaught exception
-    api->setEnabled(true);
     try {
         throw std::runtime_error(errorMessage.UTF8String);
     } catch (...) {
