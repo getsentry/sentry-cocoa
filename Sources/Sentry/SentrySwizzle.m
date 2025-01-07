@@ -21,7 +21,7 @@ typedef IMP (^SentrySwizzleImpProvider)(void);
 {
     NSAssert(_impProviderBlock, @"_impProviderBlock can't be missing");
     if (!_impProviderBlock) {
-        NSLog(@"_impProviderBlock can't be missing");
+        SENTRY_LOG_ERROR(@"_impProviderBlock can't be missing");
         return NULL;
     }
 
