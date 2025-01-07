@@ -5,8 +5,14 @@
 ### Fixes
 
 - Replace occurences of `strncpy` with `strlcpy` (#4636)
+### Internal
+
+- Update to Xcode 16.2 in workflows (#4673)
 
 ## 8.43.0
+
+> [!WARNING]
+> This release contains a breaking change for the previously experimental session replay options. We moved the options from Session from `options.experimental.sessionReplay` to `options.sessionReplay`.
 
 ### Features
 

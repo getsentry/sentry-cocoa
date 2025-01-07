@@ -405,10 +405,17 @@ static NSDate *_Nullable startTimestamp = nil;
     [SentrySDK.currentHub captureUserFeedback:userFeedback];
 }
 
++ (void)captureFeedback:(SentryFeedback *)feedback
+{
+    [SentrySDK.currentHub captureFeedback:feedback];
+}
+
+#if TARGET_OS_IOS && SENTRY_HAS_UIKIT
 + (void)showUserFeedbackForm
 {
     // TODO: implement
 }
+#endif // TARGET_OS_IOS && SENTRY_HAS_UIKIT
 
 + (void)addBreadcrumb:(SentryBreadcrumb *)crumb
 {
