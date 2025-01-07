@@ -1,4 +1,5 @@
-import Foundation
+import Sentry
+import UIKit
 
 struct SentrySDKWrapper {
     static let shared = SentrySDKWrapper()

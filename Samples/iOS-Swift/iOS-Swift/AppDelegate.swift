@@ -1,4 +1,3 @@
-import Sentry
 import UIKit
 
 @UIApplicationMain
