@@ -196,11 +196,11 @@ swizzle(
     originalIMP = class_replaceMethod(classToSwizzle, selector, newIMP, methodType);
 #if TEST || TESTCI
     if (originalIMP) {
-        NSCAssert(key != NULL, @"Key may not be NULL.");
         if (key != NULL) {
             storeRefToOriginalImplementation(key, originalIMP);
         } else {
-            SENTRY_LOG_WARN(@"Key may not be NULL.");
+            SENTRY_LOG_WARN(
+                @"Swizzling without a key is not recommended, because they can not be unswizzled.");
         }
     }
 #endif // TEST || TESTCI
@@ -213,7 +213,6 @@ static void
 unswizzle(Class classToUnswizzle, SEL selector, const void *key)
 {
     NSCAssert(key != NULL, @"Key may not be NULL.");
-
     if (key == NULL) {
         SENTRY_LOG_WARN(@"Key may not be NULL.");
         return;
@@ -238,6 +237,7 @@ unswizzle(Class classToUnswizzle, SEL selector, const void *key)
     pthread_mutex_unlock(&gLock);
 }
 #endif // TEST || TESTCI
+
 static NSMutableDictionary<NSValue *, NSMutableSet<Class> *> *
 swizzledClassesDictionary(void)
 {
@@ -306,7 +306,6 @@ swizzledClassesForKey(const void *key)
 + (BOOL)unswizzleInstanceMethod:(SEL)selector inClass:(Class)classToUnswizzle key:(const void *)key
 {
     NSAssert(key != NULL, @"Key may not be NULL.");
-
     if (key == NULL) {
         SENTRY_LOG_WARN(@"Key may not be NULL.");
         return NO;

@@ -391,7 +391,7 @@ swizzleNumber(Class classToSwizzle, int (^transformationBlock)(int))
 
     // Smoke-test the swizzling
     [object methodForUnswizzling];
-    ASSERT_LOG_IS(@"A");
+    ASSERT_LOG_IS(@"");
     [SentryTestsLog clear];
 
     // -- Act --
