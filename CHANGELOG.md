@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Fixes
+
+- Replace occurences of `strncpy` with `strlcpy` (#4636)
+
 ### Internal
 
 - Update to Xcode 16.2 in workflows (#4673)

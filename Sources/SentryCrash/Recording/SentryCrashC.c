@@ -82,7 +82,7 @@ onCrash(struct SentryCrash_MonitorContext *monitorContext)
     } else {
         char crashReportFilePath[SentryCrashFU_MAX_PATH_LENGTH];
         sentrycrashcrs_getNextCrashReportPath(crashReportFilePath);
-        strncpy(g_lastCrashReportFilePath, crashReportFilePath, sizeof(g_lastCrashReportFilePath));
+        strlcpy(g_lastCrashReportFilePath, crashReportFilePath, sizeof(g_lastCrashReportFilePath));
         sentrycrashreport_writeStandardReport(monitorContext, crashReportFilePath);
         sentrySessionReplaySync_writeInfo();
     }
