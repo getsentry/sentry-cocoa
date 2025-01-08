@@ -90,11 +90,8 @@ struct SentrySDKWrapper {
         
         let user = User(userId: "1")
         user.email = self.env["--io.sentry.user.email"] ?? "tony@example.com"
-        // first check if the username has been overridden in the scheme for testing purposes; then try to use the system username so each person gets an automatic way to easily filter things on the dashboard; then fall back on a hardcoded value if none of these are present
-        let username = self.env["--io.sentry.user.username"] ?? (self.env["SIMULATOR_HOST_HOME"] as? NSString)?
-            .lastPathComponent ?? "cocoadev"
         user.username = username
-        user.name = self.env["--io.sentry.user.name"] ?? "cocoa developer"
+        user.name = userFullName
         scope.setUser(user)
         
         if let path = Bundle.main.path(forResource: "Tongariro", ofType: "jpg") {
@@ -104,6 +101,23 @@ struct SentrySDKWrapper {
             scope.addAttachment(Attachment(data: data, filename: "log.txt"))
         }
         return scope
+    }
+    
+    var userFullName: String {
+        let name = self.env["--io.sentry.user.name"] ?? NSFullUserName()
+        guard !name.isEmpty else {
+            return "cocoa developer"
+        }
+        return name
+    }
+    
+    var username: String {
+        let username = self.env["--io.sentry.user.username"] ?? NSUserName()
+        guard !username.isEmpty else {
+            return (self.env["SIMULATOR_HOST_HOME"] as? NSString)?
+                .lastPathComponent ?? "cocoadev"
+        }
+        return username
     }
 }
 
