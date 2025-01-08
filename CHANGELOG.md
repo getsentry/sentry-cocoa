@@ -5,6 +5,8 @@
 ### Fixes
 
 - Replace occurences of `strncpy` with `strlcpy` (#4636)
+- Fix span recording for `NSFileManager.createFileAtPath` starting with iOS 18, macOS 15 and tvOS 18. This feature is experimental and must be enabled by setting the option `experimental.enableFileManagerSwizzling` to `true` (#4634)
+
 
 ### Internal
 
@@ -52,7 +54,6 @@
 
 ### Fixes
 
-- Fix span recording for `NSFileManager.createFileAtPath` starting with iOS 18, macOS 15 and tvOS 18. This feature is experimental and must be enabled by setting the option `experimental.enableFileManagerSwizzling` to `true` (#4634)
 - `SentrySdkInfo.packages` should be an array (#4626)
 - Use the same SdkInfo for envelope header and event (#4629)
 
