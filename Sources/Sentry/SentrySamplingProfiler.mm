@@ -42,34 +42,38 @@ namespace profiling {
         void *
         samplingThreadMain(void *arg)
         {
-            SENTRY_ASYNC_SAFE_LOG_ERRNO_RETURN(pthread_setname_np("io.sentry.SamplingProfiler"));
-            const auto params = reinterpret_cast<SamplingThreadParams *>(arg);
-            if (params->onThreadStart != nullptr) {
-                params->onThreadStart();
-            }
-            const int maxSize = 512;
-            const auto replyBuf = reinterpret_cast<mig_reply_error_t *>(malloc(maxSize));
-            pthread_cleanup_push(freeReplyBuf, replyBuf);
-            pthread_cleanup_push(deleteParams, params);
-            while (true) {
-                pthread_testcancel();
-                if (SENTRY_ASYNC_SAFE_LOG_MACH_MSG_RETURN(mach_msg(&replyBuf->Head, MACH_RCV_MSG, 0,
-                        maxSize, params->port, MACH_MSG_TIMEOUT_NONE, MACH_PORT_NULL))
-                    != MACH_MSG_SUCCESS) {
-                    break;
+            @autoreleasepool {
+                SENTRY_ASYNC_SAFE_LOG_ERRNO_RETURN(
+                    pthread_setname_np("io.sentry.SamplingProfiler"));
+                const auto params = reinterpret_cast<SamplingThreadParams *>(arg);
+                if (params->onThreadStart != nullptr) {
+                    params->onThreadStart();
                 }
-                if (SENTRY_ASYNC_SAFE_LOG_KERN_RETURN(
-                        clock_alarm(params->clock, TIME_RELATIVE, params->delaySpec, params->port))
-                    != KERN_SUCCESS) {
-                    break;
-                }
+                const int maxSize = 512;
+                const auto replyBuf = reinterpret_cast<mig_reply_error_t *>(malloc(maxSize));
+                pthread_cleanup_push(freeReplyBuf, replyBuf);
+                pthread_cleanup_push(deleteParams, params);
+                while (true) {
+                    pthread_testcancel();
+                    if (SENTRY_ASYNC_SAFE_LOG_MACH_MSG_RETURN(
+                            mach_msg(&replyBuf->Head, MACH_RCV_MSG, 0, maxSize, params->port,
+                                MACH_MSG_TIMEOUT_NONE, MACH_PORT_NULL))
+                        != MACH_MSG_SUCCESS) {
+                        break;
+                    }
+                    if (SENTRY_ASYNC_SAFE_LOG_KERN_RETURN(clock_alarm(
+                            params->clock, TIME_RELATIVE, params->delaySpec, params->port))
+                        != KERN_SUCCESS) {
+                        break;
+                    }
 
-                params->numSamples.fetch_add(1, std::memory_order_relaxed);
-                enumerateBacktracesForAllThreads(params->callback, params->cache);
+                    params->numSamples.fetch_add(1, std::memory_order_relaxed);
+                    enumerateBacktracesForAllThreads(params->callback, params->cache);
+                }
+                pthread_cleanup_pop(1);
+                pthread_cleanup_pop(1);
+                return nullptr;
             }
-            pthread_cleanup_pop(1);
-            pthread_cleanup_pop(1);
-            return nullptr;
         }
 
     } // namespace
