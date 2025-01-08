@@ -170,7 +170,9 @@ sentry_manageTraceProfilerOnStartSDK(SentryOptions *options, SentryHub *hub)
             Backtrace backtraceCopy = backtrace;
             backtraceCopy.absoluteTimestamp
                 = SentryDependencyContainer.sharedInstance.dateProvider.systemTime;
-            [state appendBacktrace:backtraceCopy];
+            @autoreleasepool {
+                [state appendBacktrace:backtraceCopy];
+            }
         },
         kSentryProfilerFrequencyHz);
     _samplingProfiler->startSampling();
