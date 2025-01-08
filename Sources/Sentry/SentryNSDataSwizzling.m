@@ -118,6 +118,7 @@
 + (void)unswizzle
 {
 #if TEST || TESTCI
+    // Unswizzling is only supported in test targets as it is considered unsafe for production.
     SEL writeToFileAtomicallySelector = NSSelectorFromString(@"writeToFile:atomically:");
     SentryUnswizzleInstanceMethod(
         NSData.class, writeToFileAtomicallySelector, (void *)writeToFileAtomicallySelector);

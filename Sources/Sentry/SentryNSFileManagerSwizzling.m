@@ -74,6 +74,7 @@
 + (void)unswizzle
 {
 #if TEST || TESTCI
+    // Unswizzling is only supported in test targets as it is considered unsafe for production.
     if (@available(iOS 18, macOS 15, tvOS 18, *)) {
         SEL createFileAtPathContentsAttributes
             = NSSelectorFromString(@"createFileAtPath:contents:attributes:");
