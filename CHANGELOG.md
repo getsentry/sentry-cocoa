@@ -23,7 +23,7 @@
 ### Fixes
 
 - Remove empty session replay tags (#4667)
-- - `SentrySdkInfo.packages` should be an array (#4626)
+- `SentrySdkInfo.packages` should be an array (#4626)
 - Use the same SdkInfo for envelope header and event (#4629)
 
 ### Improvements
