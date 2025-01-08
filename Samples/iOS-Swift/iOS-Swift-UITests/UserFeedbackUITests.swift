@@ -133,7 +133,9 @@ extension UserFeedbackUITests {
         sendButton.tap()
         
         XCTAssert(widgetButton.waitForExistence(timeout: 1))
+        
         try assertOnlyHookMarkersExist(names: [.onFormClose, .onSubmitSuccess])
+        XCTAssertEqual(try getMarkerFileContents(type: .onSubmitSuccess), #"["message": "UITest user feedback", "email": "andrew.mcknight@sentry.io", "name": "Andrew"]"#)
         
         // displaying the form again ensures the widget button still works afterwards; also assert that the fields are in their default state to ensure the entered data is not persisted between displays
         widgetButton.tap()
@@ -176,6 +178,7 @@ extension UserFeedbackUITests {
         sendButton.tap()
         
         try assertOnlyHookMarkersExist(names: [.onFormClose, .onSubmitSuccess])
+        XCTAssertEqual(try getMarkerFileContents(type: .onSubmitSuccess), #"["name": "", "message": "UITest user feedback", "email": ""]"#)
         
         XCTAssert(widgetButton.waitForExistence(timeout: 1))
     }
@@ -284,6 +287,7 @@ extension UserFeedbackUITests {
         sendButton.tap()
         
         try assertOnlyHookMarkersExist(names: [.onFormOpen, .onSubmitError])
+        XCTAssertEqual(try getMarkerFileContents(type: .onSubmitError), #"io.sentry.error;1;The user did not complete the feedback form.;["missing_fields": ["description"]]"#)
         
         XCTAssert(app.staticTexts["Error"].exists)
         XCTAssert(app.staticTexts["You must provide all required information. Please check the following field: description."].exists)
@@ -307,6 +311,7 @@ extension UserFeedbackUITests {
         sendButton.tap()
         
         try assertOnlyHookMarkersExist(names: [.onFormOpen, .onSubmitError])
+        XCTAssertEqual(try getMarkerFileContents(type: .onSubmitError), #"io.sentry.error;1;The user did not complete the feedback form.;["missing_fields": ["thine email", "thy complaint"]]"#)
         
         XCTAssert(app.staticTexts["Error"].exists)
         XCTAssert(app.staticTexts["You must provide all required information. Please check the following fields: thine email and thy complaint."].exists)
@@ -332,31 +337,7 @@ extension UserFeedbackUITests {
         sendButton.tap()
         
         try assertOnlyHookMarkersExist(names: [.onFormOpen, .onSubmitError])
-        
-        XCTAssert(app.staticTexts["Error"].exists)
-        XCTAssert(app.staticTexts["You must provide all required information. Please check the following fields: thy name, thine email and thy complaint."].exists)
-        
-        app.buttons["OK"].tap()
-    }
-    
-    func testSubmitWithNoFieldsFilledAllRequiredCustomLabels() throws {
-        launchApp(args: [
-            "--io.sentry.feedback.require-email",
-            "--io.sentry.feedback.require-name"
-        ])
-
-        try retrieveAppUnderTestApplicationSupportDirectory()
-        try assertHookMarkersNotExist()
-        
-        widgetButton.tap()
-        
-        XCTAssert(app.staticTexts["Thine email (Required)"].exists)
-        XCTAssert(app.staticTexts["Thy name (Required)"].exists)
-        XCTAssert(app.staticTexts["Thy complaint (Required)"].exists)
-        
-        sendButton.tap()
-        
-        try assertOnlyHookMarkersExist(names: [.onFormOpen, .onSubmitError])
+        XCTAssertEqual(try getMarkerFileContents(type: .onSubmitError), #"io.sentry.error;1;The user did not complete the feedback form.;["missing_fields": ["thine email", "thy name", "thy complaint"]]"#)
         
         XCTAssert(app.staticTexts["Error"].exists)
         XCTAssert(app.staticTexts["You must provide all required information. Please check the following fields: thy name, thine email and thy complaint."].exists)
@@ -381,6 +362,7 @@ extension UserFeedbackUITests {
         sendButton.tap()
         
         try assertOnlyHookMarkersExist(names: [.onFormOpen, .onSubmitError])
+        XCTAssertEqual(try getMarkerFileContents(type: .onSubmitError), #"io.sentry.error;1;The user did not complete the feedback form.;["missing_fields": ["description"]]"#)
         
         XCTAssert(app.staticTexts["Error"].exists)
         XCTAssert(app.staticTexts["You must provide all required information. Please check the following field: description."].exists)
@@ -399,6 +381,7 @@ extension UserFeedbackUITests {
         sendButton.tap()
         
         try assertOnlyHookMarkersExist(names: [.onFormOpen, .onSubmitError])
+        XCTAssertEqual(try getMarkerFileContents(type: .onSubmitError), #"io.sentry.error;1;The user did not complete the feedback form.;["missing_fields": ["description"]]"#)
         
         XCTAssert(app.staticTexts["Error"].exists)
         
@@ -410,6 +393,7 @@ extension UserFeedbackUITests {
         sendButton.tap()
         
         try assertOnlyHookMarkersExist(names: [.onFormClose, .onSubmitSuccess])
+        XCTAssertEqual(try getMarkerFileContents(type: .onSubmitSuccess), #"["email": "", "name": "", "message": "UITest user feedback"]"#)
         
         XCTAssert(widgetButton.waitForExistence(timeout: 1))
     }
@@ -460,9 +444,13 @@ extension UserFeedbackUITests {
 
 // MARK: Form hook test helpers
 extension UserFeedbackUITests {
-    func assertFormHookFile(named name: String, exists: Bool) throws {
+    func path(for marker: HookMarkerFile) throws -> String {
         let appSupportDirectory = try XCTUnwrap(appSupportDirectory)
-        let path = "\(appSupportDirectory)/io.sentry/feedback/\(name)"
+        return "\(appSupportDirectory)/io.sentry/feedback/\(marker.rawValue)"
+    }
+    
+    func assertFormHookFile(type: HookMarkerFile, exists: Bool) throws {
+        let path = try path(for: type)
         if exists {
             XCTAssert(fm.fileExists(atPath: path), "Expected file to exist at \(path)")
         } else {
@@ -479,12 +467,17 @@ extension UserFeedbackUITests {
     static let allHookMarkers: [HookMarkerFile] = [.onFormOpen, .onFormClose, .onSubmitSuccess, .onSubmitError]
     
     func assertOnlyHookMarkersExist(names: [HookMarkerFile]) throws {
-        try names.forEach { try assertFormHookFile(named: $0.rawValue, exists: true) }
-        try Set(names).symmetricDifference(UserFeedbackUITests.allHookMarkers).forEach { try assertFormHookFile(named: $0.rawValue, exists: false) }
+        try names.forEach { try assertFormHookFile(type: $0, exists: true) }
+        try Set(names).symmetricDifference(UserFeedbackUITests.allHookMarkers).forEach { try assertFormHookFile(type: $0, exists: false) }
+    }
+    
+    func getMarkerFileContents(type: HookMarkerFile) throws -> String {
+        let path = try path(for: type)
+        return try String(contentsOf: URL(fileURLWithPath: path), encoding: .utf8)
     }
     
     func assertHookMarkersNotExist(names: [HookMarkerFile] = allHookMarkers) throws {
-        try names.forEach { try assertFormHookFile(named: $0.rawValue, exists: false) }
+        try names.forEach { try assertFormHookFile(type: $0, exists: false) }
     }
     
     func retrieveAppUnderTestApplicationSupportDirectory() throws {

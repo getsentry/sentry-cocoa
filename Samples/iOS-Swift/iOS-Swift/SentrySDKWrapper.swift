@@ -221,21 +221,23 @@ extension SentrySDKWrapper {
             let alert = UIAlertController(title: "Thanks?", message: "We have enough jank of our own, we really didn't need yours too, \(name).", preferredStyle: .alert)
             alert.addAction(.init(title: "Deal with it 🕶️", style: .default))
             UIApplication.shared.delegate?.window??.rootViewController?.present(alert, animated: true)
-            createHookFile(name: "onSubmitSuccess")
+            createHookFile(name: "onSubmitSuccess", with: info.description)
         }
         config.onSubmitError = { error in
             let alert = UIAlertController(title: "D'oh", message: "You tried to report jank, and encountered more jank. The jank has you now: \(error).", preferredStyle: .alert)
             alert.addAction(.init(title: "Derp", style: .default))
             UIApplication.shared.delegate?.window??.rootViewController?.present(alert, animated: true)
-            createHookFile(name: "onSubmitError")
+            let nserror = error as NSError
+            createHookFile(name: "onSubmitError", with: "\(nserror.domain);\(nserror.code);\(nserror.localizedDescription);\(nserror.userInfo.description)")
         }
     }
     
-    func createHookFile(name: String) {
+    func createHookFile(name: String, with contents: String? = nil) {
         guard let appSupportDirectory = NSSearchPathForDirectoriesInDomains(.applicationSupportDirectory, .userDomainMask, true).first else {
             print("[iOS-Swift] Couldn't retrieve path to application support directory.")
             return
         }
+        
         let fm = FileManager.default
         let dir = "\(appSupportDirectory)/io.sentry/feedback"
         do {
@@ -244,8 +246,15 @@ extension SentrySDKWrapper {
             print("[iOS-Swift] Couldn't create directory structure for user feedback form hook marker files: \(error).")
             return
         }
+        
         let path = "\(dir)/\(name)"
-        if !fm.createFile(atPath: path, contents: nil) {
+        if let contents = contents {
+            do {
+                try contents.write(to: URL(fileURLWithPath: path), atomically: false, encoding: .utf8)
+            } catch {
+                print("[iOS-Swift] Couldn't write contents into user feedback form hook marker file at \(path).")
+            }
+        } else if !fm.createFile(atPath: path, contents: nil) {
             print("[iOS-Swift] Couldn't create user feedback form hook marker file at \(path).")
         } else {
             print("[iOS-Swift] Created user feedback form hook marker file at \(path).")
@@ -259,6 +268,7 @@ extension SentrySDKWrapper {
                 print("[iOS-Swift] Couldn't remove user feedback form hook marker file \(path): \(error).")
             }
         }
+        
         switch name {
         case "onFormOpen": removeHookFile(name: "onFormClose")
         case "onFormClose": removeHookFile(name: "onFormOpen")
