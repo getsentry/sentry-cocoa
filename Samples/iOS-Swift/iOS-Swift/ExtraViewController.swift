@@ -9,7 +9,10 @@ class ExtraViewController: UIViewController {
     @IBOutlet weak var uiTestNameLabel: UILabel!
     @IBOutlet weak var anrFullyBlockingButton: UIButton!
     @IBOutlet weak var anrFillingRunLoopButton: UIButton!
-
+    @IBOutlet weak var envelopeDataMarshalingField: UITextField!
+    @IBOutlet weak var dataMarshalingStatusLabel: UILabel!
+    @IBOutlet weak var dataMarshalingErrorLabel: UILabel!
+    
     @IBOutlet weak var dsnView: UIView!
     private let dispatchQueue = DispatchQueue(label: "ExtraViewControllers", attributes: .concurrent)
     
@@ -17,6 +20,7 @@ class ExtraViewController: UIViewController {
         super.viewDidLoad()
         if let uiTestName = ProcessInfo.processInfo.environment["--io.sentry.ui-test.test-name"] {
             uiTestNameLabel.text = uiTestName
+            uiTestNameLabel.isHidden = false
         }
         
         Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { _ in
@@ -159,7 +163,7 @@ class ExtraViewController: UIViewController {
 
     @IBAction func startSDK(_ sender: UIButton) {
         highlightButton(sender)
-        (UIApplication.shared.delegate as? AppDelegate)?.startSentry()
+        SentrySDKWrapper.shared.startSentry()
     }
 
     @IBAction func causeFrozenFrames(_ sender: Any) {
@@ -184,5 +188,101 @@ class ExtraViewController: UIViewController {
         }
 
         return pi
+    }
+    
+    enum EnvelopeContent {
+        case image(Data)
+        case rawText(String)
+        case json([String: Any])
+    }
+    
+    func displayError(message: String) {
+        dataMarshalingStatusLabel.isHidden = false
+        dataMarshalingStatusLabel.text = "❌"
+        dataMarshalingErrorLabel.isHidden = false
+        dataMarshalingErrorLabel.text = message
+        print("[iOS-Swift] \(message)")
+    }
+    
+    @IBAction func getLatestEnvelope(_ sender: Any) {
+        guard let latestEnvelopePath = latestEnvelopePath() else { return }
+        guard let base64String = base64EncodedStructuredUITestData(envelopePath: latestEnvelopePath) else { return }
+        envelopeDataMarshalingField.text = base64String
+        envelopeDataMarshalingField.isHidden = false
+        dataMarshalingStatusLabel.isHidden = false
+        dataMarshalingStatusLabel.text = "✅"
+        dataMarshalingErrorLabel.isHidden = true
+    }
+    
+    func latestEnvelopePath() -> String? {
+        guard let cachesDirectory = NSSearchPathForDirectoriesInDomains(.cachesDirectory, .userDomainMask, true).first else {
+            displayError(message: "No user caches directory found on device.")
+            return nil
+        }
+        let fm = FileManager.default
+        guard let dsnHash = try? SentryDsn(string: SentrySDKWrapper.defaultDSN).getHash() else {
+            displayError(message: "Couldn't compute DSN hash.")
+            return nil
+        }
+        let dir = "\(cachesDirectory)/io.sentry/\(dsnHash)/envelopes"
+        guard let contents = try? fm.contentsOfDirectory(atPath: dir) else {
+            displayError(message: "\(dir) has no contents.")
+            return nil
+        }
+        guard let latest = contents.compactMap({ path -> (String, Date)? in
+            guard let attr = try? fm.attributesOfItem(atPath: "\(dir)/\(path)"), let date = attr[FileAttributeKey.modificationDate] as? Date else {
+                return nil
+            }
+            return (path, date)
+        }).sorted(by: { a, b in
+            return a.1.compare(b.1) == .orderedAscending
+        }).last else {
+            displayError(message: "Could not find any envelopes in \(dir).")
+            return nil
+        }
+        return "\(dir)/\(latest.0)"
+    }
+    
+    func base64EncodedStructuredUITestData(envelopePath: String) -> String? {
+        guard let envelopeFileContents = try? String(contentsOfFile: envelopePath) else {
+            displayError(message: "\(envelopePath) had no contents.")
+            return nil
+        }
+        let parsedEnvelopeContents = envelopeFileContents.split(separator: "\n").map { line in
+            if let imageData = Data(base64Encoded: String(line), options: []) {
+                return EnvelopeContent.image(imageData)
+            } else if let data = line.data(using: .utf8), let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any] {
+                return EnvelopeContent.json(json)
+            } else {
+                return EnvelopeContent.rawText(String(line))
+            }
+        }
+        let contentsForUITest = parsedEnvelopeContents.reduce(into: [String: Any]()) { result, item in
+            if case let .json(json) = item {
+                insertValues(from: json, into: &result)
+            }
+        }
+        guard let data = try? JSONSerialization.data(withJSONObject: contentsForUITest) else {
+            displayError(message: "Couldn't serialize marshaling dictionary.")
+            return nil
+        }
+        
+        return data.base64EncodedString()
+    }
+    
+    func insertValues(from json: [String: Any], into result: inout [String: Any]) {
+        if let eventContexts = json["contexts"] as? [String: Any] {
+            result["event_type"] = json["type"]
+            if let feedback = eventContexts["feedback"] as? [String: Any] {
+                result["message"] = feedback["message"]
+                result["contact_email"] = feedback["contact_email"]
+                result["source"] = feedback["source"]
+                result["name"] = feedback["name"]
+            }
+        } else if let itemHeaderEventId = json["event_id"] {
+            result["event_id"] = itemHeaderEventId
+        } else if let _ = json["length"], let type = json["type"] as? String, type == "feedback" {
+            result["item_header_type"] = json["type"]
+        }
     }
 }

@@ -1,9 +1,11 @@
 #import "SentryClient.h"
 #import "SentryDataCategory.h"
 #import "SentryDiscardReason.h"
+
 @class SentryAttachment;
 @class SentryEnvelope;
 @class SentryEnvelopeItem;
+@class SentryFeedback;
 @class SentryId;
 @class SentryReplayEvent;
 @class SentryReplayRecording;
@@ -71,6 +73,13 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)addAttachmentProcessor:(id<SentryClientAttachmentProcessor>)attachmentProcessor;
 - (void)removeAttachmentProcessor:(id<SentryClientAttachmentProcessor>)attachmentProcessor;
+
+/**
+ * Captures a new-style user feedback and sends it to Sentry.
+ * @param feedback The user feedback to send to Sentry.
+ */
+- (void)captureFeedback:(SentryFeedback *)feedback
+              withScope:(SentryScope *)scope NS_SWIFT_NAME(capture(feedback:scope:));
 
 @end
 

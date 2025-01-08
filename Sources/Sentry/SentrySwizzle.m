@@ -1,4 +1,5 @@
 #import "SentrySwizzle.h"
+#import "SentryLog.h"
 
 #import <objc/runtime.h>
 #include <pthread.h>
@@ -20,7 +21,7 @@ typedef IMP (^SentrySwizzleImpProvider)(void);
 {
     NSAssert(_impProviderBlock, @"_impProviderBlock can't be missing");
     if (!_impProviderBlock) {
-        NSLog(@"_impProviderBlock can't be missing");
+        SENTRY_LOG_ERROR(@"_impProviderBlock can't be missing");
         return NULL;
     }
 
@@ -40,7 +41,14 @@ typedef IMP (^SentrySwizzleImpProvider)(void);
 
 @implementation SentrySwizzle
 
+// This lock is shared by all swizzling and unswizzling calls to ensure that
+// only one thread is modifying the class at a time.
+static pthread_mutex_t gLock = PTHREAD_MUTEX_INITIALIZER;
+
 #if TEST || TESTCI
+/**
+ * - Returns: a dictionary that maps keys to the references to the original implementations.
+ */
 static NSMutableDictionary<NSValue *, NSValue *> *
 refsToOriginalImplementationsDictionary(void)
 {
@@ -50,31 +58,73 @@ refsToOriginalImplementationsDictionary(void)
     return refsToOriginalImplementations;
 }
 
+/**
+ * Adds a reference to the original implementation to the dictionary.
+ *
+ * If the key is NULL, it will log an error and NOT store the reference.
+ *
+ * - Parameter key: The key for which to store the reference to the original implementation.
+ * - Parameter implementation: Reference to the original implementation to store.
+ */
 static void
 storeRefToOriginalImplementation(const void *key, IMP implementation)
 {
+    NSCAssert(key != NULL, @"Key may not be NULL.");
+    if (key == NULL) {
+        SENTRY_LOG_ERROR(@"Key may not be NULL.");
+        return;
+    }
     NSMutableDictionary<NSValue *, NSValue *> *refsToOriginalImplementations
         = refsToOriginalImplementationsDictionary();
     NSValue *keyValue = [NSValue valueWithPointer:key];
     refsToOriginalImplementations[keyValue] = [NSValue valueWithPointer:implementation];
 }
 
+/**
+ * Removes a reference to the original implementation from the dictionary.
+ *
+ * If the key is NULL, it will log an error and do nothing.
+ *
+ * - Parameter key: The key for which to remove the reference to the original implementation.
+ */
 static void
 removeRefToOriginalImplementation(const void *key)
 {
+    NSCAssert(key != NULL, @"Key may not be NULL.");
+    if (key == NULL) {
+        SENTRY_LOG_ERROR(@"Key may not be NULL.");
+        return;
+    }
     NSMutableDictionary<NSValue *, NSValue *> *refsToOriginalImplementations
         = refsToOriginalImplementationsDictionary();
     NSValue *keyValue = [NSValue valueWithPointer:key];
     [refsToOriginalImplementations removeObjectForKey:keyValue];
 }
 
+/**
+ * Returns the original implementation for the given key.
+ *
+ * If the key is NULL, it will log an error and return NULL.
+ * If no original implementation is found, it will return NULL.
+ *
+ * - Parameter key: The key for which to get the original implementation.
+ * - Returns: The original implementation for the given key.
+ */
 static IMP
 getRefToOriginalImplementation(const void *key)
 {
+    NSCAssert(key != NULL, @"Key may not be NULL.");
+    if (key == NULL) {
+        SENTRY_LOG_ERROR(@"Key may not be NULL.");
+        return NULL;
+    }
     NSMutableDictionary<NSValue *, NSValue *> *refsToOriginalImplementations
         = refsToOriginalImplementationsDictionary();
     NSValue *keyValue = [NSValue valueWithPointer:key];
     NSValue *originalImplementationValue = [refsToOriginalImplementations objectForKey:keyValue];
+    if (originalImplementationValue == nil) {
+        return NULL;
+    }
     return (IMP)[originalImplementationValue pointerValue];
 }
 #endif // TEST || TESTCI
@@ -88,8 +138,6 @@ swizzle(
     NSCAssert(NULL != method, @"Selector %@ not found in %@ methods of class %@.",
         NSStringFromSelector(selector), class_isMetaClass(classToSwizzle) ? @"class" : @"instance",
         classToSwizzle);
-
-    static pthread_mutex_t gLock = PTHREAD_MUTEX_INITIALIZER;
 
     // To keep things thread-safe, we fill in the originalIMP later,
     // with the result of the class_replaceMethod call below.
@@ -148,7 +196,12 @@ swizzle(
     originalIMP = class_replaceMethod(classToSwizzle, selector, newIMP, methodType);
 #if TEST || TESTCI
     if (originalIMP) {
-        storeRefToOriginalImplementation(key, originalIMP);
+        if (key != NULL) {
+            storeRefToOriginalImplementation(key, originalIMP);
+        } else {
+            SENTRY_LOG_WARN(
+                @"Swizzling without a key is not recommended, because they can not be unswizzled.");
+        }
     }
 #endif // TEST || TESTCI
 
@@ -159,13 +212,17 @@ swizzle(
 static void
 unswizzle(Class classToUnswizzle, SEL selector, const void *key)
 {
+    NSCAssert(key != NULL, @"Key may not be NULL.");
+    if (key == NULL) {
+        SENTRY_LOG_WARN(@"Key may not be NULL.");
+        return;
+    }
+
     Method method = class_getInstanceMethod(classToUnswizzle, selector);
 
     NSCAssert(NULL != method, @"Selector %@ not found in %@ methods of class %@.",
         NSStringFromSelector(selector),
         class_isMetaClass(classToUnswizzle) ? @"class" : @"instance", classToUnswizzle);
-
-    static pthread_mutex_t gLock = PTHREAD_MUTEX_INITIALIZER;
 
     pthread_mutex_lock(&gLock);
 
@@ -180,6 +237,7 @@ unswizzle(Class classToUnswizzle, SEL selector, const void *key)
     pthread_mutex_unlock(&gLock);
 }
 #endif // TEST || TESTCI
+
 static NSMutableDictionary<NSValue *, NSMutableSet<Class> *> *
 swizzledClassesDictionary(void)
 {
@@ -213,7 +271,7 @@ swizzledClassesForKey(const void *key)
         @"Key may not be NULL if mode is not SentrySwizzleModeAlways.");
 
     if (key == NULL && mode != SentrySwizzleModeAlways) {
-        NSLog(@"Key may not be NULL if mode is not SentrySwizzleModeAlways.");
+        SENTRY_LOG_WARN(@"Key may not be NULL if mode is not SentrySwizzleModeAlways.");
         return NO;
     }
 
@@ -248,9 +306,8 @@ swizzledClassesForKey(const void *key)
 + (BOOL)unswizzleInstanceMethod:(SEL)selector inClass:(Class)classToUnswizzle key:(const void *)key
 {
     NSAssert(key != NULL, @"Key may not be NULL.");
-
     if (key == NULL) {
-        NSLog(@"Key may not be NULL.");
+        SENTRY_LOG_WARN(@"Key may not be NULL.");
         return NO;
     }
 

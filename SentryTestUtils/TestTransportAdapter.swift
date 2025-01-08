@@ -2,10 +2,6 @@ import _SentryPrivate
 import Foundation
 
 public class TestTransportAdapter: SentryTransportAdapter {
-    public override func send(_ event: Event, session: SentrySession, attachments: [Attachment]) {
-        self.send(event, with: session, traceContext: nil, attachments: attachments)
-    }
-    
     public var sentEventsWithSessionTraceState = Invocations<(event: Event, session: SentrySession, traceContext: TraceContext?, attachments: [Attachment])>()
     public override func send(_ event: Event, with session: SentrySession, traceContext: TraceContext?, attachments: [Attachment]) {
         sentEventsWithSessionTraceState.record((event, session, traceContext, attachments))
