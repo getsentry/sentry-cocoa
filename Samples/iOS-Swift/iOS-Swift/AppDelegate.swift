@@ -59,7 +59,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     private func removeAppData() {
         print("[iOS-Swift] [debug] removing app data")
         let cache = NSSearchPathForDirectoriesInDomains(.cachesDirectory, .userDomainMask, true).first!
-        guard let files = FileManager.default.enumerator(atPath: cache) else { return }
+        let appSupport = NSSearchPathForDirectoriesInDomains(.applicationSupportDirectory, .userDomainMask, true).first!
         [cache, appSupport].forEach {
             guard let files = FileManager.default.enumerator(atPath: $0) else { return }
             for item in files {
