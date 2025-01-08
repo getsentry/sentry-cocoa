@@ -163,7 +163,7 @@ class ExtraViewController: UIViewController {
 
     @IBAction func startSDK(_ sender: UIButton) {
         highlightButton(sender)
-        (UIApplication.shared.delegate as? AppDelegate)?.startSentry()
+        SentrySDKWrapper.shared.startSentry()
     }
 
     @IBAction func causeFrozenFrames(_ sender: Any) {
@@ -220,7 +220,7 @@ class ExtraViewController: UIViewController {
             return nil
         }
         let fm = FileManager.default
-        guard let dsnHash = try? SentryDsn(string: AppDelegate.defaultDSN).getHash() else {
+        guard let dsnHash = try? SentryDsn(string: SentrySDKWrapper.defaultDSN).getHash() else {
             displayError(message: "Couldn't compute DSN hash.")
             return nil
         }

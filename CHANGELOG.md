@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Fixes
+
+- Replace occurences of `strncpy` with `strlcpy` (#4636)
+
 ### Internal
 
 - Update to Xcode 16.2 in workflows (#4673)
@@ -20,7 +24,7 @@
 ### Fixes
 
 - Remove empty session replay tags (#4667)
-- - `SentrySdkInfo.packages` should be an array (#4626)
+- `SentrySdkInfo.packages` should be an array (#4626)
 - Use the same SdkInfo for envelope header and event (#4629)
 
 ### Improvements
