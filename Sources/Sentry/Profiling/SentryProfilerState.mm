@@ -77,7 +77,9 @@ parseBacktraceSymbolsFunctionName(const char *symbol)
 {
     NSParameterAssert(block);
     std::lock_guard<std::mutex> l(_lock);
-    block(_mutableState);
+    @autoreleasepool {
+        block(_mutableState);
+    }
 }
 
 - (void)clear
