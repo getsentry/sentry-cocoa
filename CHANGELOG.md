@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Fixes
+
+- Memory growth issue in profiler (#4682)
+
 ### Internal
 
 - Update to Xcode 16.2 in workflows (#4673)
