@@ -9,6 +9,7 @@
 ### Internal
 
 - Update to Xcode 16.2 in workflows (#4673)
+- Add method unswizzling (#4647)
 
 ## 8.43.0
 
