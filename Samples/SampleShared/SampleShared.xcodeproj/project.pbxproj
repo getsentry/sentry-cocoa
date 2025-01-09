@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 77;
+	objectVersion = 70;
 	objects = {
 
 /* Begin PBXFileReference section */
@@ -11,7 +11,7 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		84EEE7442D2F50F000010A9D /* Exceptions for "SampleShared" folder in "SampleShared" target */ = {
+		84EEE7442D2F50F000010A9D /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			publicHeaders = (
 				SampleShared.h,
@@ -21,14 +21,7 @@
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		84EEE7412D2F50F000010A9D /* SampleShared */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-				84EEE7442D2F50F000010A9D /* Exceptions for "SampleShared" folder in "SampleShared" target */,
-			);
-			path = SampleShared;
-			sourceTree = "<group>";
-		};
+		84EEE7412D2F50F000010A9D /* SampleShared */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (84EEE7442D2F50F000010A9D /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = SampleShared; sourceTree = "<group>"; };
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -110,6 +103,7 @@
 				};
 			};
 			buildConfigurationList = 84EEE7392D2F50F000010A9D /* Build configuration list for PBXProject "SampleShared" */;
+			compatibilityVersion = "Xcode 15.3";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -118,7 +112,6 @@
 			);
 			mainGroup = 84EEE7352D2F50F000010A9D;
 			minimizedProjectReferenceProxies = 1;
-			preferredProjectObjectVersion = 77;
 			productRefGroup = 84EEE7402D2F50F000010A9D /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
