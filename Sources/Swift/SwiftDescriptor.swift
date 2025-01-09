@@ -14,7 +14,7 @@ class SwiftDescriptor: NSObject {
         if let object = object as? SentryUIViewControllerDescriptor {
             return object.sentryName
         }
-        return String(describing: type(of: object))
+        return getObjectClassName(object)
     }
 
     @objc
