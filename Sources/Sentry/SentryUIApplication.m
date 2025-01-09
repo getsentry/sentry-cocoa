@@ -126,7 +126,7 @@
                 = SentryDependencyContainer.sharedInstance.application.relevantViewControllers;
             NSMutableArray *vcsNames =
                 [[NSMutableArray alloc] initWithCapacity:viewControllers.count];
-            for (id vc in viewControllers) {
+            for (UIViewController *vc in viewControllers) {
                 [vcsNames addObject:[SwiftDescriptor getViewControllerClassName:vc]];
             }
             result = [NSArray arrayWithArray:vcsNames];
