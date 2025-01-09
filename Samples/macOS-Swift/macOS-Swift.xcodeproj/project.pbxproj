@@ -16,7 +16,7 @@
 		7B3427FE25876DE700056519 /* Tongariro.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 7B3427FC25876DE700056519 /* Tongariro.jpg */; };
 		7B948A06275E459C00F04173 /* CppSample.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B948A04275E459C00F04173 /* CppSample.cpp */; };
 		7B948A0A275E4A9900F04173 /* CppWrapper.m in Sources */ = {isa = PBXBuildFile; fileRef = 7B948A09275E4A9900F04173 /* CppWrapper.m */; };
-		84BA72AE2C9369B80045B828 /* GitInjections.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BA72AC2C9369B80045B828 /* GitInjections.swift */; };
+		84EEE7782D2F531500010A9D /* SampleShared.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 84EEE7772D2F531500010A9D /* SampleShared.framework */; };
 		924D21562C89FE2D00E0FEFD /* DiskWriteException.swift in Sources */ = {isa = PBXBuildFile; fileRef = 924D21552C89FE2D00E0FEFD /* DiskWriteException.swift */; };
 		924D21682C8A01F800E0FEFD /* SentrySwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 924D215D2C89FE2D00E0FEFD /* SentrySwiftUI.framework */; };
 		924D21692C8A01F800E0FEFD /* SentrySwiftUI.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 924D215D2C89FE2D00E0FEFD /* SentrySwiftUI.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
@@ -106,7 +106,8 @@
 		7B948A05275E459C00F04173 /* CppSample.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = CppSample.hpp; sourceTree = "<group>"; };
 		7B948A08275E498E00F04173 /* CppWrapper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CppWrapper.h; sourceTree = "<group>"; };
 		7B948A09275E4A9900F04173 /* CppWrapper.m */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; path = CppWrapper.m; sourceTree = "<group>"; };
-		84BA72AC2C9369B80045B828 /* GitInjections.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GitInjections.swift; sourceTree = "<group>"; };
+		84EEE7772D2F531500010A9D /* SampleShared.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = SampleShared.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		84EEE7882D2F553900010A9D /* SampleShared.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = SampleShared.xcodeproj; path = ../SampleShared/SampleShared.xcodeproj; sourceTree = SOURCE_ROOT; };
 		924D21552C89FE2D00E0FEFD /* DiskWriteException.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiskWriteException.swift; sourceTree = "<group>"; };
 		924D216A2C8A020C00E0FEFD /* SwiftUIView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftUIView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -116,6 +117,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				84EEE7782D2F531500010A9D /* SampleShared.framework in Frameworks */,
 				6308534E2440C5FB00DDE4CE /* Sentry.framework in Frameworks */,
 				924D21682C8A01F800E0FEFD /* SentrySwiftUI.framework in Frameworks */,
 			);
@@ -140,7 +142,7 @@
 		637AFDE2243B04320034958B = {
 			isa = PBXGroup;
 			children = (
-				84BA72AD2C9369B80045B828 /* Shared */,
+				84EEE7882D2F553900010A9D /* SampleShared.xcodeproj */,
 				6308533E2440C45A00DDE4CE /* Sentry.xcodeproj */,
 				637AFDED243B04320034958B /* macOS-Swift */,
 				637AFDEC243B04320034958B /* Products */,
@@ -180,18 +182,10 @@
 		637AFDFE243B07420034958B /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				84EEE7772D2F531500010A9D /* SampleShared.framework */,
 				637AFDFF243B07420034958B /* Sentry.framework */,
 			);
 			name = Frameworks;
-			sourceTree = "<group>";
-		};
-		84BA72AD2C9369B80045B828 /* Shared */ = {
-			isa = PBXGroup;
-			children = (
-				84BA72AC2C9369B80045B828 /* GitInjections.swift */,
-			);
-			name = Shared;
-			path = ../Shared;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -365,7 +359,6 @@
 				924D216B2C8A020C00E0FEFD /* SwiftUIView.swift in Sources */,
 				7B948A06275E459C00F04173 /* CppSample.cpp in Sources */,
 				637AFDEF243B04320034958B /* AppDelegate.swift in Sources */,
-				84BA72AE2C9369B80045B828 /* GitInjections.swift in Sources */,
 				7B948A0A275E4A9900F04173 /* CppWrapper.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

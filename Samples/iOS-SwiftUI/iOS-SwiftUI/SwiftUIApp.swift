@@ -1,4 +1,5 @@
 import Foundation
+import SampleShared
 import Sentry
 import SwiftUI
 

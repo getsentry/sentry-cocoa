@@ -1,3 +1,4 @@
+import SampleShared
 import Sentry
 import WatchKit
 

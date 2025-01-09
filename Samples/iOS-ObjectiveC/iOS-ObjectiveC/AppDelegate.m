@@ -3,7 +3,7 @@
 @import Sentry;
 #import <Sentry/SentryOptions+Private.h>
 
-#import "iOS_ObjectiveC-Swift.h"
+@import SampleShared;
 
 @interface AppDelegate ()
 @end

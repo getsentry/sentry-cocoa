@@ -38,14 +38,15 @@
 		84BA71F12C8BC55A0045B828 /* Toasts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BA71F02C8BC55A0045B828 /* Toasts.swift */; };
 		84BA71F22C8F73FD0045B828 /* DSNDisplayViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BA71E32C8BBBEC0045B828 /* DSNDisplayViewController.swift */; };
 		84BA71F32C8F74080045B828 /* Toasts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BA71F02C8BC55A0045B828 /* Toasts.swift */; };
-		84BA72A72C93698E0045B828 /* GitInjections.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BA72A52C93698E0045B828 /* GitInjections.swift */; };
-		84BA72A82C93698E0045B828 /* GitInjections.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BA72A52C93698E0045B828 /* GitInjections.swift */; };
-		84BA72DE2C9391920045B828 /* GitInjections.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BA72A52C93698E0045B828 /* GitInjections.swift */; };
 		84BE546F287503F100ACC735 /* SentrySDKPerformanceBenchmarkTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 84BE546E287503F100ACC735 /* SentrySDKPerformanceBenchmarkTests.m */; };
 		84BE547E287645B900ACC735 /* SentryProcessInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = 84BE54792876451D00ACC735 /* SentryProcessInfo.m */; };
 		84DBC6252CE6D321000C4904 /* UserFeedbackUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84DBC61F2CE6D31C000C4904 /* UserFeedbackUITests.swift */; };
 		84EEE6632D28B35700010A9D /* SentrySDKWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84EEE6612D28B35700010A9D /* SentrySDKWrapper.swift */; };
 		84EEE6642D2CABF500010A9D /* SentrySDKWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84EEE6612D28B35700010A9D /* SentrySDKWrapper.swift */; };
+		84EEE7562D2F512900010A9D /* SampleShared.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 84EEE7532D2F510B00010A9D /* SampleShared.framework */; };
+		84EEE7572D2F52AC00010A9D /* SampleShared.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 84EEE7532D2F510B00010A9D /* SampleShared.framework */; };
+		84EEE79C2D2F581700010A9D /* SampleShared.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 84EEE7532D2F510B00010A9D /* SampleShared.framework */; };
+		84EEE79D2D2F582000010A9D /* SampleShared.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 84EEE7532D2F510B00010A9D /* SampleShared.framework */; };
 		84FB812A284001B800F3A94A /* SentryBenchmarking.mm in Sources */ = {isa = PBXBuildFile; fileRef = 84FB8129284001B800F3A94A /* SentryBenchmarking.mm */; };
 		84FB812B284001B800F3A94A /* SentryBenchmarking.mm in Sources */ = {isa = PBXBuildFile; fileRef = 84FB8129284001B800F3A94A /* SentryBenchmarking.mm */; };
 		8E8C57AF25EF16E6001CEEFA /* TraceTestViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E8C57AE25EF16E6001CEEFA /* TraceTestViewController.swift */; };
@@ -131,7 +132,6 @@
 		D8F71A582CDD03BB00334022 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D8F71A572CDD03BB00334022 /* Assets.xcassets */; };
 		D8F71A5B2CDD03BB00334022 /* Base in Resources */ = {isa = PBXBuildFile; fileRef = D8F71A5A2CDD03BB00334022 /* Base */; };
 		D8F71A702CDD03BB00334022 /* UITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F71A6F2CDD03BB00334022 /* UITests.swift */; };
-		D8F71A822CDD04C200334022 /* (null) in Frameworks */ = {isa = PBXBuildFile; };
 		D8FD68C42C1C86E300A70055 /* TableViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = D8FD68C32C1C86E300A70055 /* TableViewController.xib */; };
 /* End PBXBuildFile section */
 
@@ -149,6 +149,13 @@
 			proxyType = 1;
 			remoteGlobalIDString = 637AFDA5243B02760034958B;
 			remoteInfo = "iOS-Swift";
+		};
+		84EEE7522D2F510B00010A9D /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 84EEE74A2D2F510B00010A9D /* SampleShared.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 84EEE73F2D2F50F000010A9D;
+			remoteInfo = SampleShared;
 		};
 		D840D532273A07F600CDF142 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -287,12 +294,13 @@
 		84B527BC28DD25E400475E8D /* SentryDevice.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = SentryDevice.mm; path = ../../../Sources/Sentry/SentryDevice.mm; sourceTree = "<group>"; };
 		84BA71E32C8BBBEC0045B828 /* DSNDisplayViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DSNDisplayViewController.swift; sourceTree = "<group>"; };
 		84BA71F02C8BC55A0045B828 /* Toasts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Toasts.swift; sourceTree = "<group>"; };
-		84BA72A52C93698E0045B828 /* GitInjections.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GitInjections.swift; sourceTree = "<group>"; };
 		84BE546E287503F100ACC735 /* SentrySDKPerformanceBenchmarkTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentrySDKPerformanceBenchmarkTests.m; sourceTree = "<group>"; };
 		84BE54782876451D00ACC735 /* SentryProcessInfo.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SentryProcessInfo.h; sourceTree = "<group>"; };
 		84BE54792876451D00ACC735 /* SentryProcessInfo.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentryProcessInfo.m; sourceTree = "<group>"; };
 		84DBC61F2CE6D31C000C4904 /* UserFeedbackUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserFeedbackUITests.swift; sourceTree = "<group>"; };
 		84EEE6612D28B35700010A9D /* SentrySDKWrapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentrySDKWrapper.swift; sourceTree = "<group>"; };
+		84EEE74A2D2F510B00010A9D /* SampleShared.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = SampleShared.xcodeproj; path = ../SampleShared/SampleShared.xcodeproj; sourceTree = SOURCE_ROOT; };
+		84EEE7A42D2F587400010A9D /* Sentry.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = Sentry.xcodeproj; path = ../../Sentry.xcodeproj; sourceTree = SOURCE_ROOT; };
 		84FB8125284001B800F3A94A /* SentryBenchmarking.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SentryBenchmarking.h; sourceTree = "<group>"; };
 		84FB8129284001B800F3A94A /* SentryBenchmarking.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = SentryBenchmarking.mm; sourceTree = "<group>"; };
 		84FB812C2840021B00F3A94A /* iOS-Swift-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "iOS-Swift-Bridging-Header.h"; sourceTree = "<group>"; };
@@ -369,6 +377,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				84EEE7562D2F512900010A9D /* SampleShared.framework in Frameworks */,
 				D86B9C972CDD11430039211C /* Sentry.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -391,6 +400,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				84EEE7572D2F52AC00010A9D /* SampleShared.framework in Frameworks */,
 				D86B9C9A2CDD114E0039211C /* Sentry.framework in Frameworks */,
 				D86B9CA32CDD136A0039211C /* SentrySwiftUI.framework in Frameworks */,
 			);
@@ -400,6 +410,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				84EEE79C2D2F581700010A9D /* SampleShared.framework in Frameworks */,
 				D86B9C9D2CDD115A0039211C /* Sentry.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -415,7 +426,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D8F71A822CDD04C200334022 /* (null) in Frameworks */,
+				84EEE79D2D2F582000010A9D /* SampleShared.framework in Frameworks */,
 				D86B9CA02CDD11670039211C /* Sentry.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -445,8 +456,9 @@
 		637AFD9D243B02760034958B = {
 			isa = PBXGroup;
 			children = (
+				84EEE7A42D2F587400010A9D /* Sentry.xcodeproj */,
+				84EEE74A2D2F510B00010A9D /* SampleShared.xcodeproj */,
 				62C97DB92CC69B0200DDA204 /* SampleAssets.xcassets */,
-				84BA72A62C93698E0045B828 /* Shared */,
 				848A2576286E3490008A8858 /* PerformanceBenchmarks */,
 				637AFDA8243B02760034958B /* iOS-Swift */,
 				7B64386926A6C544000D0F65 /* iOS-Swift-UITests */,
@@ -544,13 +556,12 @@
 			path = Profiling;
 			sourceTree = "<group>";
 		};
-		84BA72A62C93698E0045B828 /* Shared */ = {
+		84EEE74F2D2F510B00010A9D /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				84BA72A52C93698E0045B828 /* GitInjections.swift */,
+				84EEE7532D2F510B00010A9D /* SampleShared.framework */,
 			);
-			name = Shared;
-			path = ../Shared;
+			name = Products;
 			sourceTree = "<group>";
 		};
 		D8269A3A274C095E00BD5BD5 /* iOS13-Swift */ = {
@@ -809,8 +820,10 @@
 			buildPhases = (
 				D8F71A482CDD03B900334022 /* Sources */,
 				D8F71A492CDD03B900334022 /* Frameworks */,
+				84EEE7A72D2F58CB00010A9D /* Inject Git information into Info.plist */,
 				D8F71A4A2CDD03B900334022 /* Resources */,
 				D8F71A842CDD04C200334022 /* Embed Frameworks */,
+				84EEE7A82D2F58DC00010A9D /* Reset Git fields in Info.plist */,
 			);
 			buildRules = (
 			);
@@ -892,6 +905,12 @@
 			);
 			productRefGroup = 637AFDA7243B02760034958B /* Products */;
 			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = 84EEE74F2D2F510B00010A9D /* Products */;
+					ProjectRef = 84EEE74A2D2F510B00010A9D /* SampleShared.xcodeproj */;
+				},
+			);
 			projectRoot = "";
 			targets = (
 				637AFDA5243B02760034958B /* iOS-Swift */,
@@ -905,6 +924,16 @@
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXReferenceProxy section */
+		84EEE7532D2F510B00010A9D /* SampleShared.framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.framework;
+			path = SampleShared.framework;
+			remoteRef = 84EEE7522D2F510B00010A9D /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+/* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
 		637AFDA4243B02760034958B /* Resources */ = {
@@ -1096,6 +1125,42 @@
 			shellPath = /bin/sh;
 			shellScript = "../Shared/reset-git-info.sh\n";
 		};
+		84EEE7A72D2F58CB00010A9D /* Inject Git information into Info.plist */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Inject Git information into Info.plist";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "../Shared/inject-git-info.sh\n";
+		};
+		84EEE7A82D2F58DC00010A9D /* Reset Git fields in Info.plist */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Reset Git fields in Info.plist";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "../Shared/reset-git-info.sh\n";
+		};
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -1113,7 +1178,6 @@
 				0AABE2EA28855FF80057ED69 /* PermissionsViewController.swift in Sources */,
 				84BA71E42C8BBBEC0045B828 /* DSNDisplayViewController.swift in Sources */,
 				7B5525B32938B5B5006A2932 /* DiskWriteException.swift in Sources */,
-				84BA72A72C93698E0045B828 /* GitInjections.swift in Sources */,
 				D8F3D062274EBD4800B56F8C /* SpanExtension.swift in Sources */,
 				637AFDAA243B02760034958B /* AppDelegate.swift in Sources */,
 				D8F57BC527BBD787000D09D4 /* CoreDataViewController.swift in Sources */,
@@ -1183,7 +1247,6 @@
 				D8269A4E274C09A400BD5BD5 /* SwiftUIViewController.swift in Sources */,
 				D8269A4F274C09A400BD5BD5 /* SwiftUIView.swift in Sources */,
 				D8444E57275F795D0042F4DE /* UIViewControllerExtension.swift in Sources */,
-				84BA72A82C93698E0045B828 /* GitInjections.swift in Sources */,
 				924857562C89A86300774AC3 /* MainViewController.swift in Sources */,
 				D8F3D058274E57D600B56F8C /* TableViewController.swift in Sources */,
 				7B5525B62938B644006A2932 /* DiskWriteException.swift in Sources */,
@@ -1214,7 +1277,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				84BA72DE2C9391920045B828 /* GitInjections.swift in Sources */,
 				D840D527273A07F400CDF142 /* ViewController.swift in Sources */,
 				D840D523273A07F400CDF142 /* AppDelegate.swift in Sources */,
 				D840D525273A07F400CDF142 /* SceneDelegate.swift in Sources */,

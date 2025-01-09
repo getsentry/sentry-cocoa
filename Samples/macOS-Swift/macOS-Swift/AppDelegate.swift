@@ -1,4 +1,5 @@
 import Cocoa
+import SampleShared
 import Sentry
 
 @NSApplicationMain

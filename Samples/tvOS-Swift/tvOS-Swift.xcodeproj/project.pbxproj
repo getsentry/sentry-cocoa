@@ -16,10 +16,10 @@
 		7BA61D7A247FA35500C130A8 /* Sentry.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 7BA61D78247FA35500C130A8 /* Sentry.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		8466D4E328DE64F100932CE7 /* SentryDeviceTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 8466D4E228DE64F100932CE7 /* SentryDeviceTests.mm */; };
 		8466D4E428DE64F100932CE7 /* SentryDevice.mm in Sources */ = {isa = PBXBuildFile; fileRef = 8466D4E128DE64F000932CE7 /* SentryDevice.mm */; };
-		84BA72B12C9369C10045B828 /* GitInjections.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BA72AF2C9369C00045B828 /* GitInjections.swift */; };
-		84BA72B22C9369C10045B828 /* GitInjections.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BA72AF2C9369C00045B828 /* GitInjections.swift */; };
 		84D4FEBF28ECD8A800EDAAFE /* Sentry.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 84D4FEBC28ECD8A100EDAAFE /* Sentry.framework */; };
 		84D4FEC028ECD8AF00EDAAFE /* Sentry.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 84D4FEBC28ECD8A100EDAAFE /* Sentry.framework */; };
+		84EEE7742D2F530600010A9D /* SampleShared.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 84EEE7732D2F530600010A9D /* SampleShared.framework */; };
+		84EEE7762D2F530B00010A9D /* SampleShared.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 84EEE7752D2F530B00010A9D /* SampleShared.framework */; };
 		D822A4232760D15000E7B241 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = D822A4222760D15000E7B241 /* AppDelegate.swift */; };
 		D822A4252760D15000E7B241 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D822A4242760D15000E7B241 /* ViewController.swift */; };
 		D822A4282760D15000E7B241 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D822A4262760D15000E7B241 /* Main.storyboard */; };
@@ -133,8 +133,10 @@
 		8466D4DF28DE64F000932CE7 /* SentryDevice.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SentryDevice.h; path = ../../../Sources/Sentry/include/SentryDevice.h; sourceTree = "<group>"; };
 		8466D4E128DE64F000932CE7 /* SentryDevice.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = SentryDevice.mm; path = ../../../Sources/Sentry/SentryDevice.mm; sourceTree = "<group>"; };
 		8466D4E228DE64F100932CE7 /* SentryDeviceTests.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = SentryDeviceTests.mm; path = ../../../Tests/SentryTests/Helper/SentryDeviceTests.mm; sourceTree = "<group>"; };
-		84BA72AF2C9369C00045B828 /* GitInjections.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GitInjections.swift; sourceTree = "<group>"; };
 		84D4FEB628ECD8A100EDAAFE /* Sentry.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = Sentry.xcodeproj; path = ../../Sentry.xcodeproj; sourceTree = "<group>"; };
+		84EEE7732D2F530600010A9D /* SampleShared.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = SampleShared.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		84EEE7752D2F530B00010A9D /* SampleShared.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = SampleShared.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		84EEE7992D2F57A800010A9D /* SampleShared.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = SampleShared.xcodeproj; path = ../SampleShared/SampleShared.xcodeproj; sourceTree = SOURCE_ROOT; };
 		D822A4202760D15000E7B241 /* tvOS-SBSwift.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "tvOS-SBSwift.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		D822A4222760D15000E7B241 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		D822A4242760D15000E7B241 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -163,6 +165,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				84EEE7742D2F530600010A9D /* SampleShared.framework in Frameworks */,
 				84D4FEBF28ECD8A800EDAAFE /* Sentry.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -171,6 +174,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				84EEE7762D2F530B00010A9D /* SampleShared.framework in Frameworks */,
 				84D4FEC028ECD8AF00EDAAFE /* Sentry.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -200,7 +204,7 @@
 		7BA61D59247FA32600C130A8 = {
 			isa = PBXGroup;
 			children = (
-				84BA72B02C9369C00045B828 /* Shared */,
+				84EEE7992D2F57A800010A9D /* SampleShared.xcodeproj */,
 				84D4FEB628ECD8A100EDAAFE /* Sentry.xcodeproj */,
 				7BA61D64247FA32600C130A8 /* tvOS-Swift */,
 				7B64388726A6C71A000D0F65 /* tvOS-SwiftUITests */,
@@ -238,19 +242,12 @@
 		7BA61D77247FA35500C130A8 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				84EEE7752D2F530B00010A9D /* SampleShared.framework */,
+				84EEE7732D2F530600010A9D /* SampleShared.framework */,
 				D822A4312760D7E100E7B241 /* Sentry.framework */,
 				7BA61D78247FA35500C130A8 /* Sentry.framework */,
 			);
 			name = Frameworks;
-			sourceTree = "<group>";
-		};
-		84BA72B02C9369C00045B828 /* Shared */ = {
-			isa = PBXGroup;
-			children = (
-				84BA72AF2C9369C00045B828 /* GitInjections.swift */,
-			);
-			name = Shared;
-			path = ../Shared;
 			sourceTree = "<group>";
 		};
 		84D4FEB728ECD8A100EDAAFE /* Products */ = {
@@ -567,7 +564,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				7BA61D68247FA32600C130A8 /* ContentView.swift in Sources */,
-				84BA72B12C9369C10045B828 /* GitInjections.swift in Sources */,
 				7BA61D66247FA32600C130A8 /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -577,7 +573,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				D822A4362760DB1900E7B241 /* ActionCell.swift in Sources */,
-				84BA72B22C9369C10045B828 /* GitInjections.swift in Sources */,
 				D822A4252760D15000E7B241 /* ViewController.swift in Sources */,
 				D822A4232760D15000E7B241 /* AppDelegate.swift in Sources */,
 				D822A43D2760EA2200E7B241 /* NibViewController.swift in Sources */,

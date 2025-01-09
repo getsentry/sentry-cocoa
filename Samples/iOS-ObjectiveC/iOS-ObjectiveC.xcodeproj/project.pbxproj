@@ -19,7 +19,7 @@
 		7B3427FB25876DDC00056519 /* Tongariro.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 7B3427F925876DDB00056519 /* Tongariro.jpg */; };
 		7B64387A26A6C69F000D0F65 /* LaunchUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B64387926A6C69F000D0F65 /* LaunchUITests.swift */; };
 		7B8A5C9E2715B5DE008ACD3B /* InitializerViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 7B8A5C9D2715B5DE008ACD3B /* InitializerViewController.m */; };
-		84BA72AB2C9369A40045B828 /* GitInjections.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BA72A92C9369A40045B828 /* GitInjections.swift */; };
+		84EEE77F2D2F531F00010A9D /* SampleShared.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 84EEE77E2D2F531F00010A9D /* SampleShared.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -116,7 +116,8 @@
 		7B64387B26A6C69F000D0F65 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		7B8A5C9C2715B5CF008ACD3B /* InitializerViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = InitializerViewController.h; sourceTree = "<group>"; };
 		7B8A5C9D2715B5DE008ACD3B /* InitializerViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = InitializerViewController.m; sourceTree = "<group>"; };
-		84BA72A92C9369A40045B828 /* GitInjections.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GitInjections.swift; sourceTree = "<group>"; };
+		84EEE77E2D2F531F00010A9D /* SampleShared.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = SampleShared.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		84EEE7852D2F53A400010A9D /* SampleShared.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = SampleShared.xcodeproj; path = ../SampleShared/SampleShared.xcodeproj; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -124,6 +125,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				84EEE77F2D2F531F00010A9D /* SampleShared.framework in Frameworks */,
 				630853492440C46E00DDE4CE /* Sentry.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -154,6 +156,7 @@
 		634C7EC624406A4900AFDE9F /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				84EEE77E2D2F531F00010A9D /* SampleShared.framework */,
 				634C7EC724406A4900AFDE9F /* Sentry.framework */,
 			);
 			name = Frameworks;
@@ -162,7 +165,7 @@
 		637AFDBD243B036B0034958B = {
 			isa = PBXGroup;
 			children = (
-				84BA72AA2C9369A40045B828 /* Shared */,
+				84EEE7852D2F53A400010A9D /* SampleShared.xcodeproj */,
 				630853352440C45500DDE4CE /* Sentry.xcodeproj */,
 				637AFDC8243B036B0034958B /* iOS-ObjectiveC */,
 				7B64387826A6C69F000D0F65 /* iOS-ObjectiveCUITests */,
@@ -208,15 +211,6 @@
 				7B64387B26A6C69F000D0F65 /* Info.plist */,
 			);
 			path = "iOS-ObjectiveCUITests";
-			sourceTree = "<group>";
-		};
-		84BA72AA2C9369A40045B828 /* Shared */ = {
-			isa = PBXGroup;
-			children = (
-				84BA72A92C9369A40045B828 /* GitInjections.swift */,
-			);
-			name = Shared;
-			path = ../Shared;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -418,7 +412,6 @@
 				637AFDD1243B036B0034958B /* ViewController.m in Sources */,
 				7B8A5C9E2715B5DE008ACD3B /* InitializerViewController.m in Sources */,
 				637AFDCB243B036B0034958B /* AppDelegate.m in Sources */,
-				84BA72AB2C9369A40045B828 /* GitInjections.swift in Sources */,
 				637AFDDC243B036D0034958B /* main.m in Sources */,
 				6250B97C2CB69C96009512D6 /* NoARCCrash.m in Sources */,
 			);
@@ -628,7 +621,6 @@
 		7B64387E26A6C69F000D0F65 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 97JCY7859U;
 				INFOPLIST_FILE = "iOS-ObjectiveCUITests/Info.plist";
@@ -651,7 +643,6 @@
 		7B64387F26A6C69F000D0F65 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 97JCY7859U;
 				INFOPLIST_FILE = "iOS-ObjectiveCUITests/Info.plist";
@@ -752,7 +743,6 @@
 		84D4FE9B28ECD21F00EDAAFE /* Test */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 97JCY7859U;
 				INFOPLIST_FILE = "iOS-ObjectiveCUITests/Info.plist";
@@ -853,7 +843,6 @@
 		84D4FE9F28ECD22300EDAAFE /* TestCI */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 97JCY7859U;
 				INFOPLIST_FILE = "iOS-ObjectiveCUITests/Info.plist";

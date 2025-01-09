@@ -15,8 +15,8 @@
 		7BB6224F26A56C4E00D0E75E /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BB6224E26A56C4E00D0E75E /* ContentView.swift */; };
 		7BB6225426A56C5000D0E75E /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7BB6225326A56C5000D0E75E /* Preview Assets.xcassets */; };
 		7BB6225E26A56CB600D0E75E /* Sentry.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 7BB6225C26A56CB600D0E75E /* Sentry.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		84BA72B52C9369C80045B828 /* GitInjections.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BA72B32C9369C80045B828 /* GitInjections.swift */; };
 		84D4FEB528ECD53500EDAAFE /* Sentry.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 84D4FEB228ECD52E00EDAAFE /* Sentry.framework */; };
+		84EEE7602D2F52F500010A9D /* SampleShared.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 84EEE75F2D2F52F500010A9D /* SampleShared.framework */; };
 		D8199DCD29376FD90074249E /* SentrySwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D8BBD38B2901AE400011F850 /* SentrySwiftUI.framework */; };
 		D8199DCE29376FD90074249E /* SentrySwiftUI.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = D8BBD38B2901AE400011F850 /* SentrySwiftUI.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		D832FAF02982A908007A9A5F /* FormScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = D832FAEF2982A908007A9A5F /* FormScreen.swift */; };
@@ -147,10 +147,11 @@
 		7BB6225C26A56CB600D0E75E /* Sentry.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = Sentry.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		7BB6226026A56E1E00D0E75E /* iOS-SwiftUI.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "iOS-SwiftUI.entitlements"; sourceTree = "<group>"; };
 		8425DE1A2B52241000113FEF /* SentryProfilingConditionals.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SentryProfilingConditionals.h; path = ../../../../Sources/Sentry/Public/SentryProfilingConditionals.h; sourceTree = "<group>"; };
-		84BA72B32C9369C80045B828 /* GitInjections.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GitInjections.swift; sourceTree = "<group>"; };
 		84D4FEA628ECD51800EDAAFE /* Sentry.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = Sentry.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		84D4FEA828ECD52700EDAAFE /* Sentry.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = Sentry.xcodeproj; path = ../../Sentry.xcodeproj; sourceTree = "<group>"; };
 		84D4FEAA28ECD52E00EDAAFE /* Sentry.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = Sentry.xcodeproj; path = "/Users/andrewmcknight/Code/organization/getsentry/repos/public/sentry-cocoa/Sentry.xcodeproj"; sourceTree = "<absolute>"; };
+		84EEE75F2D2F52F500010A9D /* SampleShared.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = SampleShared.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		84EEE7932D2F578B00010A9D /* SampleShared.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = SampleShared.xcodeproj; path = ../SampleShared/SampleShared.xcodeproj; sourceTree = SOURCE_ROOT; };
 		D832FAEF2982A908007A9A5F /* FormScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormScreen.swift; sourceTree = "<group>"; };
 		D85388D02980222500B63908 /* UIKitScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIKitScreen.swift; sourceTree = "<group>"; };
 		D8A22A7729151DB7006907D9 /* bridging-headers.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "bridging-headers.h"; sourceTree = "<group>"; };
@@ -175,6 +176,7 @@
 			files = (
 				84D4FEB528ECD53500EDAAFE /* Sentry.framework in Frameworks */,
 				D8199DCD29376FD90074249E /* SentrySwiftUI.framework in Frameworks */,
+				84EEE7602D2F52F500010A9D /* SampleShared.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -206,7 +208,7 @@
 		7BB6224026A56C4E00D0E75E = {
 			isa = PBXGroup;
 			children = (
-				84BA72B42C9369C80045B828 /* Shared */,
+				84EEE7932D2F578B00010A9D /* SampleShared.xcodeproj */,
 				7BB6224B26A56C4E00D0E75E /* iOS-SwiftUI */,
 				7B64385826A6C0A6000D0F65 /* iOS-SwiftUI-UITests */,
 				7BB6224A26A56C4E00D0E75E /* Products */,
@@ -254,20 +256,12 @@
 		7BB6225B26A56CB600D0E75E /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				84EEE75F2D2F52F500010A9D /* SampleShared.framework */,
 				84D4FEA628ECD51800EDAAFE /* Sentry.framework */,
 				84D4FEA828ECD52700EDAAFE /* Sentry.xcodeproj */,
 				7BB6225C26A56CB600D0E75E /* Sentry.framework */,
 			);
 			name = Frameworks;
-			sourceTree = "<group>";
-		};
-		84BA72B42C9369C80045B828 /* Shared */ = {
-			isa = PBXGroup;
-			children = (
-				84BA72B32C9369C80045B828 /* GitInjections.swift */,
-			);
-			name = Shared;
-			path = ../Shared;
 			sourceTree = "<group>";
 		};
 		84D4FEAB28ECD52E00EDAAFE /* Products */ = {
@@ -547,7 +541,6 @@
 				7BB6224F26A56C4E00D0E75E /* ContentView.swift in Sources */,
 				7B5DA9D92859DC850069AD02 /* LoremIpsumView.swift in Sources */,
 				D832FAF02982A908007A9A5F /* FormScreen.swift in Sources */,
-				84BA72B52C9369C80045B828 /* GitInjections.swift in Sources */,
 				7BB6224D26A56C4E00D0E75E /* SwiftUIApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
