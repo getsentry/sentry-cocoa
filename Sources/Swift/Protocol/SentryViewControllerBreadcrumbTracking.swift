@@ -8,6 +8,7 @@ import Foundation
 public protocol SentryUIViewControllerDescriptor: NSObjectProtocol {
 
     /// The custom name of the UIViewController
-    /// that will be used for the transaction name.
+    /// that the Sentry SDK uses for transaction names, breadcrumbs, and
+    /// view hierarchy.
     var sentryName: String { get }
 }
