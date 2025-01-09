@@ -103,8 +103,17 @@ NS_ASSUME_NONNULL_BEGIN
             lastSession = _session;
         }
 
-        NSString *distinctId =
-            [SentryInstallation idWithCacheDirectoryPath:options.cacheDirectoryPath];
+        NSString *cacheDirectoryPath = options.cacheDirectoryPath;
+        if (![SentryOptionsValidator isCacheDirectoryPathValidWithPath:cacheDirectoryPath]) {
+            [SentryLog
+                logWithMessage:[NSString stringWithFormat:
+                                       @"The configured cache directory path looks invalid, "
+                                       @"the SDK might not be able to write reports to disk: %@",
+                                   cacheDirectoryPath]
+                      andLevel:kSentryLevelFatal];
+        }
+
+        NSString *distinctId = [SentryInstallation idWithCacheDirectoryPath:cacheDirectoryPath];
 
         _session = [[SentrySession alloc] initWithReleaseName:options.releaseName
                                                    distinctId:distinctId];

@@ -15,7 +15,7 @@ struct SentrySDKWrapper {
         options.beforeCaptureScreenshot = { _ in true }
         options.beforeCaptureViewHierarchy = { _ in true }
         options.debug = true
-        
+
         if #available(iOS 16.0, *), enableSessionReplay {
             options.sessionReplay = SentryReplayOptions(sessionSampleRate: 0, onErrorSampleRate: 1, maskAllText: true, maskAllImages: true)
             options.sessionReplay.quality = .high

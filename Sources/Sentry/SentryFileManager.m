@@ -705,8 +705,13 @@ _non_thread_safe_removeFileAtPath(NSString *path)
 - (void)createPathsWithOptions:(SentryOptions *)options
 {
     NSString *cachePath = options.cacheDirectoryPath;
-
     SENTRY_LOG_DEBUG(@"SentryFileManager.cachePath: %@", cachePath);
+
+    if (![SentryOptionsValidator isCacheDirectoryPathValidWithPath:cachePath]) {
+        SENTRY_LOG_FATAL(@"The configured cache directory path looks invalid, the SDK might not be "
+                         @"able to write reports to disk: %@",
+            cachePath);
+    }
 
     self.basePath = [cachePath stringByAppendingPathComponent:@"io.sentry"];
     self.sentryPath = [self.basePath stringByAppendingPathComponent:[options.parsedDsn getHash]];

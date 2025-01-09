@@ -360,7 +360,7 @@ NSString *const kSentryDefaultEnvironment = @"production";
         self.maxCacheItems = [options[@"maxCacheItems"] unsignedIntValue];
     }
 
-    if ([options[@"cacheDirectoryPath"] isKindOfClass:[NSString class]]) {
+    if ([SentryOptionsValidator isCacheDirectoryPathValidWithPath:options[@"cacheDirectoryPath"]]) {
         self.cacheDirectoryPath = options[@"cacheDirectoryPath"];
     }
 

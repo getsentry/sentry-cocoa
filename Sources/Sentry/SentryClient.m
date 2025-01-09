@@ -939,8 +939,18 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     // We only want to set the id if the customer didn't set a user so we at least set something to
     // identify the user.
     if (event.user == nil) {
+        NSString *cacheDirectoryPath = self.options.cacheDirectoryPath;
+        if (![SentryOptionsValidator isCacheDirectoryPathValidWithPath:cacheDirectoryPath]) {
+            [SentryLog
+                logWithMessage:[NSString stringWithFormat:
+                                       @"The configured cache directory path looks invalid, "
+                                       @"the SDK might not be able to write reports to disk: %@",
+                                   cacheDirectoryPath]
+                      andLevel:kSentryLevelError];
+        }
+
         SentryUser *user = [[SentryUser alloc] init];
-        user.userId = [SentryInstallation idWithCacheDirectoryPath:self.options.cacheDirectoryPath];
+        user.userId = [SentryInstallation idWithCacheDirectoryPath:cacheDirectoryPath];
         event.user = user;
     }
 }

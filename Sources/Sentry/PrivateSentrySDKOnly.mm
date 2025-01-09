@@ -135,7 +135,13 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
 
 + (NSString *)installationID
 {
-    return [SentryInstallation idWithCacheDirectoryPath:self.options.cacheDirectoryPath];
+    NSString *cacheDirectoryPath = self.options.cacheDirectoryPath;
+    if (![SentryOptionsValidator isCacheDirectoryPathValidWithPath:cacheDirectoryPath]) {
+        SENTRY_LOG_FATAL(@"The configured cache directory path looks invalid, the SDK might not be "
+                         @"able to write reports to disk: %@",
+            cacheDirectoryPath);
+    }
+    return [SentryInstallation idWithCacheDirectoryPath:cacheDirectoryPath];
 }
 
 + (SentryOptions *)options
