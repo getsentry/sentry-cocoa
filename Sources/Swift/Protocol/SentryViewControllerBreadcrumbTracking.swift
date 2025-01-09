@@ -5,7 +5,7 @@ import Foundation
 /// UIViewController performance tracker.
 ///
 @objc
-public protocol SentryViewControllerBreadcrumbTracking: NSObjectProtocol {
+public protocol SentryUIViewControllerDescriptor: NSObjectProtocol {
 
     /// The custom name of the UIViewController
     /// that will be used for the transaction name.

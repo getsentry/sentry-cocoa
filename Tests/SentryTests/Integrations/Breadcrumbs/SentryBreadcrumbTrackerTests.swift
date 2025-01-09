@@ -305,8 +305,8 @@ class SentryBreadcrumbTrackerTests: XCTestCase {
         let screenName = UUID().uuidString
         let title = UUID().uuidString
 
-        let parentController = CustomScreenNameViewController(screenName: parentScreenName)
-        let viewController = CustomScreenNameViewController(screenName: screenName)
+        let parentController = CustomScreenNameViewController(sentryName: parentScreenName)
+        let viewController = CustomScreenNameViewController(sentryName: screenName)
         parentController.addChild(viewController)
         viewController.title = title
 
@@ -346,16 +346,16 @@ class SentryBreadcrumbTrackerTests: XCTestCase {
         ] }
     }
 
-    fileprivate final class CustomScreenNameViewController: UIViewController, SentryViewControllerBreadcrumbTracking {
+    fileprivate final class CustomScreenNameViewController: UIViewController, SentryUIViewControllerDescriptor {
 
         fileprivate required init?(coder: NSCoder) {
             fatalError("init(coder:) has not been implemented")
         }
 
-        fileprivate var screenName: String
+        fileprivate var sentryName: String
 
-        fileprivate init(screenName: String) {
-            self.screenName = screenName
+        fileprivate init(sentryName: String) {
+            self.sentryName = sentryName
             super.init(nibName: nil, bundle: nil)
         }
     }

@@ -304,7 +304,7 @@ static NSString *const SentryBreadcrumbTrackerSwizzleSendAction
 {
     NSMutableDictionary *info = @{}.mutableCopy;
 
-    info[@"screen"] = [self screenNameForViewController:controller];
+    info[@"screen"] = [SwiftDescriptor getViewControllerClassName:controller];
 
     if ([controller.navigationItem.title length] != 0) {
         info[@"title"] = controller.navigationItem.title;
@@ -315,11 +315,11 @@ static NSString *const SentryBreadcrumbTrackerSwizzleSendAction
     info[@"beingPresented"] = controller.beingPresented ? @"true" : @"false";
 
     if (controller.presentingViewController != nil) {
-        info[@"presentingViewController"] = [self screenNameForViewController:controller.presentingViewController];
+        info[@"presentingViewController"] = [SwiftDescriptor getViewControllerClassName:controller.presentingViewController];
     }
 
     if (controller.parentViewController != nil) {
-        info[@"parentViewController"] = [self screenNameForViewController:controller.parentViewController];
+        info[@"parentViewController"] = [SwiftDescriptor getViewControllerClassName:controller.parentViewController];
     }
 
     if (controller.view.window != nil) {
@@ -332,14 +332,6 @@ static NSString *const SentryBreadcrumbTrackerSwizzleSendAction
     }
 
     return info;
-}
-
-+ (NSString *)screenNameForViewController:(UIViewController *)controller {
-    if ([controller conformsToProtocol:@protocol(SentryViewControllerBreadcrumbTracking)]) {
-        return ((UIViewController<SentryViewControllerBreadcrumbTracking> *)controller).screenName;
-    } else {
-        return [SwiftDescriptor getObjectClassName:controller];
-    }
 }
 
 #endif // SENTRY_HAS_UIKIT
