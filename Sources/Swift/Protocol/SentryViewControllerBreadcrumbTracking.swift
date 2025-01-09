@@ -2,7 +2,7 @@ import Foundation
 
 ///
 /// Use this protocol to customize the name used in the automatic
-/// UIViewController performance tracker.
+/// UIViewController performance tracker, view hierarchy, and breadcrumbs.
 ///
 @objc
 public protocol SentryUIViewControllerDescriptor: NSObjectProtocol {
