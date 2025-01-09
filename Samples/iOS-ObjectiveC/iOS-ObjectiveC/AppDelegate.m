@@ -28,11 +28,14 @@
             [[SentryHttpStatusCodeRange alloc] initWithMin:400 max:599];
         options.failedRequestStatusCodes = @[ httpStatusCodeRange ];
 
-        options.experimental.sessionReplay.quality = SentryReplayQualityMedium;
-        options.experimental.sessionReplay.maskAllText = true;
-        options.experimental.sessionReplay.maskAllImages = true;
-        options.experimental.sessionReplay.sessionSampleRate = 0;
-        options.experimental.sessionReplay.onErrorSampleRate = 1;
+        options.sessionReplay.quality = SentryReplayQualityMedium;
+        options.sessionReplay.maskAllText = true;
+        options.sessionReplay.maskAllImages = true;
+        options.sessionReplay.sessionSampleRate = 0;
+        options.sessionReplay.onErrorSampleRate = 1;
+
+        options.experimental.enableFileManagerSwizzling
+            = ![args containsObject:@"--disable-filemanager-swizzling"];
 
         options.initialScope = ^(SentryScope *scope) {
             [scope setTagValue:@"" forKey:@""];

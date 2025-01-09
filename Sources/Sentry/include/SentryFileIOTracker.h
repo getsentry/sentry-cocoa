@@ -6,7 +6,8 @@ NS_ASSUME_NONNULL_BEGIN
 @class SentryNSProcessInfoWrapper;
 @class SentryThreadInspector;
 
-@interface SentryNSDataTracker : NSObject
+@interface SentryFileIOTracker : NSObject
+SENTRY_NO_INIT
 
 + (instancetype)sharedInstance;
 
@@ -57,6 +58,16 @@ NS_ASSUME_NONNULL_BEGIN
                                     error:(NSError **)error
                                    method:(NSData *_Nullable (^)(
                                               NSURL *, NSDataReadingOptions, NSError **))method;
+
+/**
+ * Measure NSFileManager 'createFileAtPath:contents:attributes::' method.
+ */
+- (BOOL)measureNSFileManagerCreateFileAtPath:(NSString *)path
+                                        data:(NSData *)data
+                                  attributes:(NSDictionary<NSFileAttributeKey, id> *)attributes
+                                      method:(BOOL (^)(NSString *, NSData *,
+                                                 NSDictionary<NSFileAttributeKey, id> *))method;
+
 @end
 
 NS_ASSUME_NONNULL_END

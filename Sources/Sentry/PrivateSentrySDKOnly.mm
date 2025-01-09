@@ -280,7 +280,7 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
 
 + (NSArray<NSData *> *)captureScreenshots
 {
-#if SENTRY_HAS_UIKIT
+#if SENTRY_TARGET_REPLAY_SUPPORTED
     return [SentryDependencyContainer.sharedInstance.screenshot appScreenshots];
 #else
     SENTRY_LOG_DEBUG(

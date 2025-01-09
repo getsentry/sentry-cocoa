@@ -1,18 +1,10 @@
 @objcMembers
 public class SentryExperimentalOptions: NSObject {
-    #if canImport(UIKit)
     /**
-     * Settings to configure the session replay.
+     * Enables swizzling of`NSFileManager` to automatically track file operations.
      */
-    public var sessionReplay = SentryReplayOptions(sessionSampleRate: 0, onErrorSampleRate: 0)
-    #endif
+    public var enableFileManagerSwizzling = false
 
     func validateOptions(_ options: [String: Any]?) {
-        #if canImport(UIKit)
-        if let sessionReplayOptions = options?["sessionReplay"] as? [String: Any] {
-            sessionReplay = SentryReplayOptions(dictionary: sessionReplayOptions)
-        }
-        #endif
     }
-
 }

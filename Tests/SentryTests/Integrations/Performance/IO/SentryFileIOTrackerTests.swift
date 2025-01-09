@@ -1,7 +1,7 @@
 import SentryTestUtils
 import XCTest
 
-class SentryNSDataTrackerTests: XCTestCase {
+class SentryFileIOTrackerTests: XCTestCase {
 
     private class Fixture {
         
@@ -12,7 +12,7 @@ class SentryNSDataTrackerTests: XCTestCase {
         let threadInspector = TestThreadInspector.instance
         let imageProvider = TestDebugImageProvider()
 
-        func getSut() -> SentryNSDataTracker {
+        func getSut() -> SentryFileIOTracker {
             imageProvider.debugImages = [TestData.debugImage]
             SentryDependencyContainer.sharedInstance().debugImageProvider = imageProvider
 
@@ -21,7 +21,7 @@ class SentryNSDataTrackerTests: XCTestCase {
             let processInfoWrapper = TestSentryNSProcessInfoWrapper()
             processInfoWrapper.overrides.processDirectoryPath = "sentrytest"
 
-            let result = SentryNSDataTracker(threadInspector: threadInspector, processInfoWrapper: processInfoWrapper)
+            let result = SentryFileIOTracker(threadInspector: threadInspector, processInfoWrapper: processInfoWrapper)
             SentryDependencyContainer.sharedInstance().dateProvider = dateProvider
             result.enable()
             return result
@@ -276,6 +276,37 @@ class SentryNSDataTrackerTests: XCTestCase {
         XCTAssertEqual(usedOptions, .uncached)
         
         assertDataSpan(span, path: url.path, operation: SentrySpanOperationFileRead, size: fixture.data.count)
+    }
+    
+    func testCreateFile() {
+        let sut = fixture.getSut()
+
+        var methodPath: String?
+        var methodData: Data?
+        var methodAttributes: [FileAttributeKey: Any]?
+
+        let transaction = SentrySDK.startTransaction(name: "Transaction", operation: "Test", bindToScope: true)
+        var span: Span?
+
+        sut.measureNSFileManagerCreateFile(atPath: fixture.filePath, data: fixture.data, attributes: [
+            FileAttributeKey.size: 123
+        ], method: { path, data, attributes in
+            methodPath = path
+            methodData = data
+            methodAttributes = attributes
+
+            span = self.firstSpan(transaction)
+            XCTAssertFalse(span?.isFinished ?? true)
+            self.advanceTime(bySeconds: 4)
+
+            return true
+        })
+        XCTAssertEqual(methodPath, fixture.filePath)
+        XCTAssertEqual(methodData, fixture.data)
+        XCTAssertEqual(methodAttributes?[FileAttributeKey.size] as? Int, 123)
+
+        assertSpanDuration(span: span, expectedDuration: 4)
+        assertDataSpan(span, path: fixture.filePath, operation: SENTRY_FILE_WRITE_OPERATION, size: fixture.data.count)
     }
     
     func testDontTrackSentryFilesRead() {

@@ -899,221 +899,267 @@
                                     <constraint firstAttribute="height" constant="70" id="I1r-2C-nBv"/>
                                 </constraints>
                             </view>
-                            <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="zhO-zJ-CAt">
-                                <rect key="frame" x="8" y="134" width="304" height="401"/>
+                            <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="jeG-X8-wSe">
+                                <rect key="frame" x="0.0" y="134" width="320" height="385"/>
                                 <subviews>
-                                    <stackView opaque="NO" contentMode="scaleToFill" distribution="fillEqually" translatesAutoresizingMaskIntoConstraints="NO" id="Yzg-QH-aPg">
-                                        <rect key="frame" x="0.0" y="0.0" width="304" height="252"/>
+                                    <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="zhO-zJ-CAt">
+                                        <rect key="frame" x="0.0" y="0.0" width="304" height="361"/>
                                         <subviews>
-                                            <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="equalSpacing" translatesAutoresizingMaskIntoConstraints="NO" id="FaL-DP-Rl6">
-                                                <rect key="frame" x="0.0" y="0.0" width="152" height="252"/>
+                                            <stackView opaque="NO" contentMode="scaleToFill" distribution="fillEqually" translatesAutoresizingMaskIntoConstraints="NO" id="Yzg-QH-aPg">
+                                                <rect key="frame" x="0.0" y="0.0" width="304" height="280"/>
                                                 <subviews>
-                                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="oag-iN-lAn">
-                                                        <rect key="frame" x="0.0" y="0.0" width="152" height="28"/>
-                                                        <fontDescription key="fontDescription" type="system" pointSize="13"/>
-                                                        <state key="normal" title="Add Breadcrumb"/>
-                                                        <connections>
-                                                            <action selector="addBreadcrumb:" destination="VqS-l1-kwe" eventType="touchUpInside" id="B4T-Hz-d9F"/>
-                                                        </connections>
-                                                    </button>
-                                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="FfQ-2y-q0S">
-                                                        <rect key="frame" x="0.0" y="28" width="152" height="28"/>
-                                                        <accessibility key="accessibilityConfiguration" identifier="uiEventTests"/>
-                                                        <fontDescription key="fontDescription" type="system" pointSize="13"/>
-                                                        <state key="normal" title="UI event tests"/>
-                                                        <connections>
-                                                            <segue destination="ch4-pK-Zhg" kind="show" id="Q5u-Pd-bbT"/>
-                                                        </connections>
-                                                    </button>
-                                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Did-Hh-ggK">
-                                                        <rect key="frame" x="0.0" y="56" width="152" height="28"/>
-                                                        <accessibility key="accessibilityConfiguration" identifier="captureMessageButton"/>
-                                                        <fontDescription key="fontDescription" type="system" pointSize="13"/>
-                                                        <state key="normal" title="Message"/>
-                                                        <connections>
-                                                            <action selector="captureMessage:" destination="VqS-l1-kwe" eventType="touchUpInside" id="mdm-G4-srV"/>
-                                                        </connections>
-                                                    </button>
-                                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="FrJ-bO-5YO">
-                                                        <rect key="frame" x="0.0" y="84" width="152" height="28"/>
-                                                        <fontDescription key="fontDescription" type="system" pointSize="13"/>
-                                                        <state key="normal" title="User Feedback"/>
-                                                        <connections>
-                                                            <action selector="captureUserFeedback:" destination="VqS-l1-kwe" eventType="touchUpInside" id="SKR-5v-uQQ"/>
-                                                        </connections>
-                                                    </button>
-                                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="b7Z-ga-DoR" userLabel="HighCpuLoad">
-                                                        <rect key="frame" x="0.0" y="112" width="152" height="28"/>
-                                                        <fontDescription key="fontDescription" type="system" pointSize="13"/>
-                                                        <state key="normal" title="HighCpuLoad"/>
-                                                        <connections>
-                                                            <action selector="highCPULoad:" destination="VqS-l1-kwe" eventType="touchUpInside" id="BDO-dm-Ckm"/>
-                                                        </connections>
-                                                    </button>
-                                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="E4G-h5-Sio">
-                                                        <rect key="frame" x="0.0" y="140" width="152" height="28"/>
-                                                        <fontDescription key="fontDescription" type="system" pointSize="13"/>
-                                                        <state key="normal" title="permissions"/>
-                                                        <connections>
-                                                            <action selector="permissions:" destination="VqS-l1-kwe" eventType="touchUpInside" id="XBK-Ht-N5S"/>
-                                                        </connections>
-                                                    </button>
-                                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="YeN-3i-awu">
-                                                        <rect key="frame" x="0.0" y="168" width="152" height="28"/>
-                                                        <fontDescription key="fontDescription" type="system" pointSize="13"/>
-                                                        <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
-                                                        <state key="normal" title="Flush"/>
-                                                        <connections>
-                                                            <action selector="flush:" destination="VqS-l1-kwe" eventType="touchUpInside" id="Noh-VX-qnf"/>
-                                                        </connections>
-                                                    </button>
-                                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="chU-g8-yNX">
-                                                        <rect key="frame" x="0.0" y="196" width="152" height="28"/>
-                                                        <fontDescription key="fontDescription" type="system" pointSize="13"/>
-                                                        <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
-                                                        <state key="normal" title="Cause frozen frames"/>
-                                                        <connections>
-                                                            <action selector="causeFrozenFrames:" destination="VqS-l1-kwe" eventType="touchUpInside" id="43j-b4-qDZ"/>
-                                                        </connections>
-                                                    </button>
-                                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="M3X-e9-STj">
-                                                        <rect key="frame" x="0.0" y="224" width="152" height="28"/>
-                                                        <fontDescription key="fontDescription" type="system" pointSize="13"/>
-                                                        <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
-                                                        <state key="normal" title="Web View"/>
-                                                        <connections>
-                                                            <action selector="openWeb:" destination="VqS-l1-kwe" eventType="touchUpInside" id="AUt-Af-7f1"/>
-                                                        </connections>
-                                                    </button>
+                                                    <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="equalSpacing" translatesAutoresizingMaskIntoConstraints="NO" id="FaL-DP-Rl6">
+                                                        <rect key="frame" x="0.0" y="0.0" width="152" height="280"/>
+                                                        <subviews>
+                                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="oag-iN-lAn">
+                                                                <rect key="frame" x="0.0" y="0.0" width="152" height="28"/>
+                                                                <fontDescription key="fontDescription" type="system" pointSize="13"/>
+                                                                <state key="normal" title="Add Breadcrumb"/>
+                                                                <connections>
+                                                                    <action selector="addBreadcrumb:" destination="VqS-l1-kwe" eventType="touchUpInside" id="B4T-Hz-d9F"/>
+                                                                </connections>
+                                                            </button>
+                                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="FfQ-2y-q0S">
+                                                                <rect key="frame" x="0.0" y="31.5" width="152" height="28"/>
+                                                                <accessibility key="accessibilityConfiguration" identifier="uiEventTests"/>
+                                                                <fontDescription key="fontDescription" type="system" pointSize="13"/>
+                                                                <state key="normal" title="UI event tests"/>
+                                                                <connections>
+                                                                    <segue destination="ch4-pK-Zhg" kind="show" id="Q5u-Pd-bbT"/>
+                                                                </connections>
+                                                            </button>
+                                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Did-Hh-ggK">
+                                                                <rect key="frame" x="0.0" y="63" width="152" height="28"/>
+                                                                <accessibility key="accessibilityConfiguration" identifier="captureMessageButton"/>
+                                                                <fontDescription key="fontDescription" type="system" pointSize="13"/>
+                                                                <state key="normal" title="Message"/>
+                                                                <connections>
+                                                                    <action selector="captureMessage:" destination="VqS-l1-kwe" eventType="touchUpInside" id="mdm-G4-srV"/>
+                                                                </connections>
+                                                            </button>
+                                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="FrJ-bO-5YO">
+                                                                <rect key="frame" x="0.0" y="94.5" width="152" height="28"/>
+                                                                <fontDescription key="fontDescription" type="system" pointSize="13"/>
+                                                                <state key="normal" title="User Feedback"/>
+                                                                <connections>
+                                                                    <action selector="captureUserFeedback:" destination="VqS-l1-kwe" eventType="touchUpInside" id="SKR-5v-uQQ"/>
+                                                                </connections>
+                                                            </button>
+                                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="b7Z-ga-DoR" userLabel="HighCpuLoad">
+                                                                <rect key="frame" x="0.0" y="126" width="152" height="28"/>
+                                                                <fontDescription key="fontDescription" type="system" pointSize="13"/>
+                                                                <state key="normal" title="HighCpuLoad"/>
+                                                                <connections>
+                                                                    <action selector="highCPULoad:" destination="VqS-l1-kwe" eventType="touchUpInside" id="BDO-dm-Ckm"/>
+                                                                </connections>
+                                                            </button>
+                                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="E4G-h5-Sio">
+                                                                <rect key="frame" x="0.0" y="157.5" width="152" height="28"/>
+                                                                <fontDescription key="fontDescription" type="system" pointSize="13"/>
+                                                                <state key="normal" title="permissions"/>
+                                                                <connections>
+                                                                    <action selector="permissions:" destination="VqS-l1-kwe" eventType="touchUpInside" id="XBK-Ht-N5S"/>
+                                                                </connections>
+                                                            </button>
+                                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="YeN-3i-awu">
+                                                                <rect key="frame" x="0.0" y="189" width="152" height="28"/>
+                                                                <fontDescription key="fontDescription" type="system" pointSize="13"/>
+                                                                <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
+                                                                <state key="normal" title="Flush"/>
+                                                                <connections>
+                                                                    <action selector="flush:" destination="VqS-l1-kwe" eventType="touchUpInside" id="Noh-VX-qnf"/>
+                                                                </connections>
+                                                            </button>
+                                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="chU-g8-yNX">
+                                                                <rect key="frame" x="0.0" y="220.5" width="152" height="28"/>
+                                                                <fontDescription key="fontDescription" type="system" pointSize="13"/>
+                                                                <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
+                                                                <state key="normal" title="Cause frozen frames"/>
+                                                                <connections>
+                                                                    <action selector="causeFrozenFrames:" destination="VqS-l1-kwe" eventType="touchUpInside" id="43j-b4-qDZ"/>
+                                                                </connections>
+                                                            </button>
+                                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="M3X-e9-STj">
+                                                                <rect key="frame" x="0.0" y="252" width="152" height="28"/>
+                                                                <fontDescription key="fontDescription" type="system" pointSize="13"/>
+                                                                <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
+                                                                <state key="normal" title="Web View"/>
+                                                                <connections>
+                                                                    <action selector="openWeb:" destination="VqS-l1-kwe" eventType="touchUpInside" id="AUt-Af-7f1"/>
+                                                                </connections>
+                                                            </button>
+                                                        </subviews>
+                                                    </stackView>
+                                                    <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="equalSpacing" translatesAutoresizingMaskIntoConstraints="NO" id="ULj-Tl-kYs">
+                                                        <rect key="frame" x="152" y="0.0" width="152" height="280"/>
+                                                        <subviews>
+                                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="weS-d7-IY1">
+                                                                <rect key="frame" x="0.0" y="0.0" width="152" height="28"/>
+                                                                <fontDescription key="fontDescription" type="system" pointSize="13"/>
+                                                                <state key="normal" title="Start SDK"/>
+                                                                <connections>
+                                                                    <action selector="startSDK:" destination="VqS-l1-kwe" eventType="touchUpInside" id="Gkx-lJ-Uzo"/>
+                                                                </connections>
+                                                            </button>
+                                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ckT-1E-GWZ">
+                                                                <rect key="frame" x="0.0" y="28" width="152" height="28"/>
+                                                                <fontDescription key="fontDescription" type="system" pointSize="13"/>
+                                                                <state key="normal" title="Close SDK"/>
+                                                                <connections>
+                                                                    <action selector="close:" destination="VqS-l1-kwe" eventType="touchUpInside" id="UwB-2M-pCr"/>
+                                                                </connections>
+                                                            </button>
+                                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="rpD-Rf-xbz">
+                                                                <rect key="frame" x="0.0" y="56" width="152" height="28"/>
+                                                                <fontDescription key="fontDescription" type="system" pointSize="13"/>
+                                                                <state key="normal" title="ANR fully blocking"/>
+                                                                <connections>
+                                                                    <action selector="anrFullyBlocking:" destination="VqS-l1-kwe" eventType="touchUpInside" id="PLh-oH-8oF"/>
+                                                                </connections>
+                                                            </button>
+                                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="2e4-48-rLl">
+                                                                <rect key="frame" x="0.0" y="84" width="152" height="28"/>
+                                                                <accessibility key="accessibilityConfiguration" identifier="anrFillingRunLoopExtra"/>
+                                                                <fontDescription key="fontDescription" type="system" pointSize="13"/>
+                                                                <state key="normal" title="ANR filling run loop"/>
+                                                                <connections>
+                                                                    <action selector="anrFillingRunLoop:" destination="VqS-l1-kwe" eventType="touchUpInside" id="ON6-DV-3Tz"/>
+                                                                </connections>
+                                                            </button>
+                                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="6Jr-19-VhC">
+                                                                <rect key="frame" x="0.0" y="112" width="152" height="28"/>
+                                                                <accessibility key="accessibilityConfiguration" identifier="anrFillingRunLoopExtra"/>
+                                                                <fontDescription key="fontDescription" type="system" pointSize="13"/>
+                                                                <state key="normal" title="Pasteboard Contents"/>
+                                                                <connections>
+                                                                    <action selector="getPasteBoardString:" destination="VqS-l1-kwe" eventType="touchUpInside" id="RXr-u0-uBD"/>
+                                                                </connections>
+                                                            </button>
+                                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="F0l-xf-cQd">
+                                                                <rect key="frame" x="0.0" y="140" width="152" height="28"/>
+                                                                <fontDescription key="fontDescription" type="system" pointSize="13"/>
+                                                                <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
+                                                                <state key="normal" title="Start 100 threads"/>
+                                                                <connections>
+                                                                    <action selector="start100Threads:" destination="VqS-l1-kwe" eventType="touchUpInside" id="9KO-KS-85G"/>
+                                                                </connections>
+                                                            </button>
+                                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Evt-B9-zEC">
+                                                                <rect key="frame" x="0.0" y="168" width="152" height="28"/>
+                                                                <accessibility key="accessibilityConfiguration" identifier="breadcrumbInfoButton"/>
+                                                                <fontDescription key="fontDescription" type="system" pointSize="13"/>
+                                                                <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
+                                                                <state key="normal" title="Breadcrumb info test"/>
+                                                                <connections>
+                                                                    <segue destination="baS-wm-UQo" kind="show" id="P5B-LG-XhB"/>
+                                                                </connections>
+                                                            </button>
+                                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="5U2-RQ-FCu">
+                                                                <rect key="frame" x="0.0" y="196" width="152" height="28"/>
+                                                                <accessibility key="accessibilityConfiguration" identifier="TOPVCBTN"/>
+                                                                <fontDescription key="fontDescription" type="system" pointSize="13"/>
+                                                                <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
+                                                                <state key="normal" title="Top VC Inspector"/>
+                                                                <connections>
+                                                                    <action selector="showTopVCInspector:" destination="VqS-l1-kwe" eventType="touchUpInside" id="e8l-PC-9Q1"/>
+                                                                </connections>
+                                                            </button>
+                                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="NEs-RL-K3q">
+                                                                <rect key="frame" x="0.0" y="224" width="152" height="28"/>
+                                                                <fontDescription key="fontDescription" type="system" pointSize="13"/>
+                                                                <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
+                                                                <state key="normal" title="Show UI Test"/>
+                                                                <connections>
+                                                                    <segue destination="9PG-vw-mrg" kind="show" id="n2m-cz-6iQ"/>
+                                                                </connections>
+                                                            </button>
+                                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="fVb-GU-NNp">
+                                                                <rect key="frame" x="0.0" y="252" width="152" height="28"/>
+                                                                <accessibility key="accessibilityConfiguration" identifier="io.sentry.ui-test.button.get-latest-envelope"/>
+                                                                <fontDescription key="fontDescription" type="system" pointSize="13"/>
+                                                                <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
+                                                                <state key="normal" title="Get latest envelope"/>
+                                                                <connections>
+                                                                    <action selector="getLatestEnvelope:" destination="VqS-l1-kwe" eventType="touchUpInside" id="6mG-Pd-VkT"/>
+                                                                </connections>
+                                                            </button>
+                                                        </subviews>
+                                                    </stackView>
                                                 </subviews>
                                             </stackView>
-                                            <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="equalSpacing" translatesAutoresizingMaskIntoConstraints="NO" id="ULj-Tl-kYs">
-                                                <rect key="frame" x="152" y="0.0" width="152" height="252"/>
+                                            <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="omd-Rj-xhq">
+                                                <rect key="frame" x="0.0" y="280" width="304" height="81"/>
                                                 <subviews>
-                                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="weS-d7-IY1">
-                                                        <rect key="frame" x="0.0" y="0.0" width="152" height="28"/>
-                                                        <fontDescription key="fontDescription" type="system" pointSize="13"/>
-                                                        <state key="normal" title="Start SDK"/>
-                                                        <connections>
-                                                            <action selector="startSDK:" destination="VqS-l1-kwe" eventType="touchUpInside" id="Gkx-lJ-Uzo"/>
-                                                        </connections>
-                                                    </button>
-                                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ckT-1E-GWZ">
-                                                        <rect key="frame" x="0.0" y="28" width="152" height="28"/>
-                                                        <fontDescription key="fontDescription" type="system" pointSize="13"/>
-                                                        <state key="normal" title="Close SDK"/>
-                                                        <connections>
-                                                            <action selector="close:" destination="VqS-l1-kwe" eventType="touchUpInside" id="UwB-2M-pCr"/>
-                                                        </connections>
-                                                    </button>
-                                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="rpD-Rf-xbz">
-                                                        <rect key="frame" x="0.0" y="56" width="152" height="28"/>
-                                                        <fontDescription key="fontDescription" type="system" pointSize="13"/>
-                                                        <state key="normal" title="ANR fully blocking"/>
-                                                        <connections>
-                                                            <action selector="anrFullyBlocking:" destination="VqS-l1-kwe" eventType="touchUpInside" id="PLh-oH-8oF"/>
-                                                        </connections>
-                                                    </button>
-                                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="2e4-48-rLl">
-                                                        <rect key="frame" x="0.0" y="84" width="152" height="28"/>
-                                                        <accessibility key="accessibilityConfiguration" identifier="anrFillingRunLoopExtra"/>
-                                                        <fontDescription key="fontDescription" type="system" pointSize="13"/>
-                                                        <state key="normal" title="ANR filling run loop"/>
-                                                        <connections>
-                                                            <action selector="anrFillingRunLoop:" destination="VqS-l1-kwe" eventType="touchUpInside" id="ON6-DV-3Tz"/>
-                                                        </connections>
-                                                    </button>
-                                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="6Jr-19-VhC">
-                                                        <rect key="frame" x="0.0" y="112" width="152" height="28"/>
-                                                        <accessibility key="accessibilityConfiguration" identifier="anrFillingRunLoopExtra"/>
-                                                        <fontDescription key="fontDescription" type="system" pointSize="13"/>
-                                                        <state key="normal" title="Pasteboard Contents"/>
-                                                        <connections>
-                                                            <action selector="getPasteBoardString:" destination="VqS-l1-kwe" eventType="touchUpInside" id="RXr-u0-uBD"/>
-                                                        </connections>
-                                                    </button>
-                                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="F0l-xf-cQd">
-                                                        <rect key="frame" x="0.0" y="140" width="152" height="28"/>
-                                                        <fontDescription key="fontDescription" type="system" pointSize="13"/>
-                                                        <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
-                                                        <state key="normal" title="Start 100 threads"/>
-                                                        <connections>
-                                                            <action selector="start100Threads:" destination="VqS-l1-kwe" eventType="touchUpInside" id="9KO-KS-85G"/>
-                                                        </connections>
-                                                    </button>
-                                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Evt-B9-zEC">
-                                                        <rect key="frame" x="0.0" y="168" width="152" height="28"/>
-                                                        <accessibility key="accessibilityConfiguration" identifier="breadcrumbInfoButton"/>
-                                                        <fontDescription key="fontDescription" type="system" pointSize="13"/>
-                                                        <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
-                                                        <state key="normal" title="Breadcrumb info test"/>
-                                                        <connections>
-                                                            <segue destination="baS-wm-UQo" kind="show" id="P5B-LG-XhB"/>
-                                                        </connections>
-                                                    </button>
-                                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="5U2-RQ-FCu">
-                                                        <rect key="frame" x="0.0" y="196" width="152" height="28"/>
-                                                        <accessibility key="accessibilityConfiguration" identifier="TOPVCBTN"/>
-                                                        <fontDescription key="fontDescription" type="system" pointSize="13"/>
-                                                        <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
-                                                        <state key="normal" title="Top VC Inspector"/>
-                                                        <connections>
-                                                            <action selector="showTopVCInspector:" destination="VqS-l1-kwe" eventType="touchUpInside" id="e8l-PC-9Q1"/>
-                                                        </connections>
-                                                    </button>
-                                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="NEs-RL-K3q">
-                                                        <rect key="frame" x="0.0" y="224" width="152" height="28"/>
-                                                        <fontDescription key="fontDescription" type="system" pointSize="13"/>
-                                                        <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
-                                                        <state key="normal" title="Show UI Test"/>
-                                                        <connections>
-                                                            <segue destination="9PG-vw-mrg" kind="show" id="n2m-cz-6iQ"/>
-                                                        </connections>
-                                                    </button>
+                                                    <label hidden="YES" opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="eMF-4u-JGE">
+                                                        <rect key="frame" x="8" y="32" width="288" height="0.0"/>
+                                                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                                        <nil key="textColor"/>
+                                                        <nil key="highlightedColor"/>
+                                                    </label>
+                                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Frames" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="xua-qE-dXN" userLabel="frames">
+                                                        <rect key="frame" x="8" y="32" width="288" height="20.5"/>
+                                                        <accessibility key="accessibilityConfiguration" identifier="framesStatsLabel"/>
+                                                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                                        <nil key="textColor"/>
+                                                        <nil key="highlightedColor"/>
+                                                    </label>
+                                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Last breadcrumb" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="4M5-qM-BM9" userLabel="breadcrumb">
+                                                        <rect key="frame" x="8" y="52.5" width="288" height="20.5"/>
+                                                        <accessibility key="accessibilityConfiguration" identifier="breadcrumbLabel"/>
+                                                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                                        <nil key="textColor"/>
+                                                        <nil key="highlightedColor"/>
+                                                    </label>
+                                                    <stackView opaque="NO" contentMode="scaleToFill" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="YVJ-lT-DQw">
+                                                        <rect key="frame" x="8" y="73" width="288" height="0.0"/>
+                                                        <subviews>
+                                                            <textField hidden="YES" opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="248" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="QHh-KM-erK">
+                                                                <rect key="frame" x="0.0" y="0.0" width="0.0" height="34"/>
+                                                                <accessibility key="accessibilityConfiguration" identifier="io.sentry.ui-test.text-field.data-marshaling.latest-envelope"/>
+                                                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                                                <textInputTraits key="textInputTraits"/>
+                                                            </textField>
+                                                            <label hidden="YES" opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="7Km-xi-51t">
+                                                                <rect key="frame" x="0.0" y="0.0" width="0.0" height="34"/>
+                                                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                                                <nil key="textColor"/>
+                                                                <nil key="highlightedColor"/>
+                                                            </label>
+                                                        </subviews>
+                                                    </stackView>
+                                                    <label hidden="YES" opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" verticalCompressionResistancePriority="751" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ONf-Md-UTM">
+                                                        <rect key="frame" x="8" y="73" width="288" height="0.0"/>
+                                                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                                        <nil key="textColor"/>
+                                                        <nil key="highlightedColor"/>
+                                                    </label>
                                                 </subviews>
+                                                <edgeInsets key="layoutMargins" top="32" left="8" bottom="8" right="8"/>
                                             </stackView>
                                         </subviews>
-                                    </stackView>
-                                    <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="fillEqually" translatesAutoresizingMaskIntoConstraints="NO" id="omd-Rj-xhq">
-                                        <rect key="frame" x="0.0" y="252" width="304" height="149"/>
-                                        <subviews>
-                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="eMF-4u-JGE">
-                                                <rect key="frame" x="8" y="32" width="288" height="31"/>
-                                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                                <nil key="textColor"/>
-                                                <nil key="highlightedColor"/>
-                                            </label>
-                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Frames" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="xua-qE-dXN" userLabel="frames">
-                                                <rect key="frame" x="8" y="63" width="288" height="31"/>
-                                                <accessibility key="accessibilityConfiguration" identifier="framesStatsLabel"/>
-                                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                                <nil key="textColor"/>
-                                                <nil key="highlightedColor"/>
-                                            </label>
-                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Last breadcrumb" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="4M5-qM-BM9" userLabel="breadcrumb">
-                                                <rect key="frame" x="8" y="94" width="288" height="31"/>
-                                                <accessibility key="accessibilityConfiguration" identifier="breadcrumbLabel"/>
-                                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                                <nil key="textColor"/>
-                                                <nil key="highlightedColor"/>
-                                            </label>
-                                        </subviews>
-                                        <edgeInsets key="layoutMargins" top="32" left="8" bottom="8" right="8"/>
                                     </stackView>
                                 </subviews>
-                            </stackView>
+                                <constraints>
+                                    <constraint firstItem="zhO-zJ-CAt" firstAttribute="top" secondItem="P6q-iz-jt7" secondAttribute="top" id="3c6-Kx-Ojl"/>
+                                    <constraint firstItem="zhO-zJ-CAt" firstAttribute="trailing" secondItem="P6q-iz-jt7" secondAttribute="trailing" id="cSQ-1j-bzC"/>
+                                    <constraint firstItem="zhO-zJ-CAt" firstAttribute="bottom" secondItem="P6q-iz-jt7" secondAttribute="bottom" id="j00-Uc-f1Y"/>
+                                    <constraint firstItem="zhO-zJ-CAt" firstAttribute="leading" secondItem="P6q-iz-jt7" secondAttribute="leading" id="tS3-JG-FHD"/>
+                                </constraints>
+                                <viewLayoutGuide key="contentLayoutGuide" id="P6q-iz-jt7"/>
+                                <viewLayoutGuide key="frameLayoutGuide" id="Ywb-BN-766"/>
+                            </scrollView>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="QWh-GD-7Cl"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
-                            <constraint firstItem="zhO-zJ-CAt" firstAttribute="leading" secondItem="QWh-GD-7Cl" secondAttribute="leading" constant="8" id="Asm-Ny-qaW"/>
+                            <constraint firstItem="jeG-X8-wSe" firstAttribute="bottom" secondItem="QWh-GD-7Cl" secondAttribute="bottom" id="5N9-Ex-Ygd"/>
                             <constraint firstItem="R19-6T-z1w" firstAttribute="top" secondItem="QWh-GD-7Cl" secondAttribute="top" id="Bmx-MB-vSd"/>
                             <constraint firstItem="R19-6T-z1w" firstAttribute="leading" secondItem="QWh-GD-7Cl" secondAttribute="leading" id="Kjy-OD-Jzd"/>
-                            <constraint firstItem="zhO-zJ-CAt" firstAttribute="top" secondItem="R19-6T-z1w" secondAttribute="bottom" id="RhY-kn-aF6"/>
+                            <constraint firstItem="zhO-zJ-CAt" firstAttribute="width" secondItem="R19-6T-z1w" secondAttribute="width" multiplier="0.95" id="Pg5-MT-Kiv"/>
+                            <constraint firstItem="jeG-X8-wSe" firstAttribute="top" secondItem="R19-6T-z1w" secondAttribute="bottom" id="ZM0-Da-i4j"/>
                             <constraint firstItem="QWh-GD-7Cl" firstAttribute="trailing" secondItem="R19-6T-z1w" secondAttribute="trailing" id="coe-Va-qvL"/>
-                            <constraint firstItem="QWh-GD-7Cl" firstAttribute="trailing" secondItem="zhO-zJ-CAt" secondAttribute="trailing" constant="8" id="eGG-ja-YO9"/>
-                            <constraint firstItem="zhO-zJ-CAt" firstAttribute="bottom" secondItem="QWh-GD-7Cl" secondAttribute="bottom" constant="16" id="ezv-Y5-lKd"/>
-                            <constraint firstItem="zhO-zJ-CAt" firstAttribute="centerX" secondItem="QWh-GD-7Cl" secondAttribute="centerX" id="rW3-yv-lJt"/>
+                            <constraint firstItem="QWh-GD-7Cl" firstAttribute="leading" secondItem="jeG-X8-wSe" secondAttribute="leading" id="eF6-LG-2uY"/>
+                            <constraint firstItem="jeG-X8-wSe" firstAttribute="trailing" secondItem="QWh-GD-7Cl" secondAttribute="trailing" id="i9x-Ti-nTW"/>
                         </constraints>
                     </view>
                     <tabBarItem key="tabBarItem" title="Extra" image="ellipsis.circle.fill" catalog="system" selectedImage="ellipsis.circle.fill" id="e34-WA-EKV"/>
@@ -1121,7 +1167,10 @@
                         <outlet property="anrFillingRunLoopButton" destination="2e4-48-rLl" id="MXb-mV-5SL"/>
                         <outlet property="anrFullyBlockingButton" destination="rpD-Rf-xbz" id="jF4-7m-26n"/>
                         <outlet property="breadcrumbLabel" destination="4M5-qM-BM9" id="rDd-LH-T9l"/>
+                        <outlet property="dataMarshalingErrorLabel" destination="ONf-Md-UTM" id="RB6-vO-9OX"/>
+                        <outlet property="dataMarshalingStatusLabel" destination="7Km-xi-51t" id="2Sk-Hk-o0J"/>
                         <outlet property="dsnView" destination="R19-6T-z1w" id="XLU-qD-eFO"/>
+                        <outlet property="envelopeDataMarshalingField" destination="QHh-KM-erK" id="c80-C0-NWJ"/>
                         <outlet property="framesLabel" destination="xua-qE-dXN" id="vP2-XG-wBW"/>
                         <outlet property="uiTestNameLabel" destination="eMF-4u-JGE" id="YVe-Un-zF9"/>
                     </connections>
@@ -1280,7 +1329,7 @@
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>
         <systemColor name="systemGray5Color">
-            <color red="0.89803921568627454" green="0.89803921568627454" blue="0.91764705882352937" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="0.8980392157" green="0.8980392157" blue="0.91764705879999997" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
     </resources>
 </document>

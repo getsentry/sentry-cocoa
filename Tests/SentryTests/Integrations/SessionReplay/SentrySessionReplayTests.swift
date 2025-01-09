@@ -425,8 +425,8 @@ class SentrySessionReplayTests: XCTestCase {
         XCTAssertEqual(options["errorSampleRate"] as? Float, 1)
         XCTAssertEqual(options["maskAllText"] as? Bool, true)
         XCTAssertEqual(options["maskAllImages"] as? Bool, true)
-        XCTAssertEqual(options["maskedViewClasses"] as? String, "")
-        XCTAssertEqual(options["unmaskedViewClasses"] as? String, "")
+        XCTAssertNil(options["maskedViewClasses"])
+        XCTAssertNil(options["unmaskedViewClasses"])
         XCTAssertEqual(options["quality"] as? String, "medium")
     }
     

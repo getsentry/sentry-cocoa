@@ -1,4 +1,4 @@
-#import "SentryNSDataTracker.h"
+#import "SentryFileIOTracker.h"
 #import "SentryByteCountFormatter.h"
 #import "SentryClient+Private.h"
 #import "SentryDependencyContainer.h"
@@ -20,7 +20,7 @@
 #import "SentryTraceOrigins.h"
 #import "SentryTracer.h"
 
-@interface SentryNSDataTracker ()
+@interface SentryFileIOTracker ()
 
 @property (nonatomic, assign) BOOL isEnabled;
 @property (nonatomic, strong) NSMutableSet<NSData *> *processingData;
@@ -29,7 +29,7 @@
 
 @end
 
-@implementation SentryNSDataTracker
+@implementation SentryFileIOTracker
 
 NSString *const SENTRY_TRACKING_COUNTER_KEY = @"SENTRY_TRACKING_COUNTER_KEY";
 
@@ -149,6 +149,23 @@ NSString *const SENTRY_TRACKING_COUNTER_KEY = @"SENTRY_TRACKING_COUNTER_KEY";
     }
 
     [self endTrackingFile];
+    return result;
+}
+
+- (BOOL)measureNSFileManagerCreateFileAtPath:(NSString *)path
+                                        data:(NSData *)data
+                                  attributes:(NSDictionary<NSFileAttributeKey, id> *)attributes
+                                      method:
+                                          (BOOL (^)(NSString *_Nonnull, NSData *_Nonnull,
+                                              NSDictionary<NSFileAttributeKey, id> *_Nonnull))method
+{
+    id<SentrySpan> span = [self startTrackingWritingNSData:data filePath:path];
+
+    BOOL result = method(path, data, attributes);
+
+    if (span != nil) {
+        [self finishTrackingNSData:data span:span];
+    }
     return result;
 }
 

@@ -65,9 +65,9 @@ jobs:
           - scheme: watchOS-Swift WatchKit App
             xcode: 15.4
             runs-on: macos-14
-          # Only compiles on Xcode 16.0
+          # Only compiles on Xcode 16+
           - scheme: macOS-SwiftUI
-            xcode: 16.0
+            xcode: 16.2
             runs-on: macos-15
     steps:
       - uses: actions/checkout@v4
