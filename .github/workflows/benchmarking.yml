@@ -94,10 +94,31 @@ jobs:
           name: DerivedData-Xcode
       - run: npm install -g saucectl@0.186.0
       - name: Run Benchmarks in SauceLab
+        id: run-benchmarks-in-sauce-lab
         env:
           SAUCE_USERNAME: ${{ secrets.SAUCE_USERNAME }}
           SAUCE_ACCESS_KEY: ${{ secrets.SAUCE_ACCESS_KEY }}
-        run: saucectl run --select-suite "${{matrix.suite}}" --config .sauce/benchmarking-config.yml --tags benchmark
+        run: saucectl run --select-suite "${{matrix.suite}}" --config .sauce/benchmarking-config.yml --tags benchmark --retries 3
+      - name: Run Benchmarks in SauceLab - Retry 1
+        id: run-benchmarks-in-sauce-lab-retry-1
+        if: ${{ steps.run-benchmarks-in-sauce-lab.outcome == 'failure' }}
+        env:
+          SAUCE_USERNAME: ${{ secrets.SAUCE_USERNAME }}
+          SAUCE_ACCESS_KEY: ${{ secrets.SAUCE_ACCESS_KEY }}
+        run: saucectl run --select-suite "${{matrix.suite}}" --config .sauce/benchmarking-config.yml --tags benchmark --retries 3
+      - name: Run Benchmarks in SauceLab - Retry 2
+        id: run-benchmarks-in-sauce-lab-retry-2
+        if: ${{ steps.run-benchmarks-in-sauce-lab-retry-1.outcome == 'failure' }}
+        env:
+          SAUCE_USERNAME: ${{ secrets.SAUCE_USERNAME }}
+          SAUCE_ACCESS_KEY: ${{ secrets.SAUCE_ACCESS_KEY }}
+        run: saucectl run --select-suite "${{matrix.suite}}" --config .sauce/benchmarking-config.yml --tags benchmark --retries 3
+      - name: Run Benchmarks in SauceLab - Retry 3
+        if: ${{ steps.run-benchmarks-in-sauce-lab-retry-2.outcome == 'failure' }}
+        env:
+          SAUCE_USERNAME: ${{ secrets.SAUCE_USERNAME }}
+          SAUCE_ACCESS_KEY: ${{ secrets.SAUCE_ACCESS_KEY }}
+        run: saucectl run --select-suite "${{matrix.suite}}" --config .sauce/benchmarking-config.yml --tags benchmark --retries 3
 
   app-metrics:
     name: Collect app metrics
