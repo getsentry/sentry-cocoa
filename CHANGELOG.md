@@ -12,7 +12,6 @@
 
 - Update to Xcode 16.2 in workflows (#4673)
 - Add method unswizzling (#4647)
-- Add retry logic to benchmark runs (#4694)
 
 ## 8.43.0
 
