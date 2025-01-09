@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 55;
+	objectVersion = 77;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -131,7 +131,6 @@
 				};
 			};
 			buildConfigurationList = 7B5166432758C6F000C0A720 /* Build configuration list for PBXProject "iOS15-SwiftUI" */;
-			compatibilityVersion = "Xcode 13.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -139,6 +138,7 @@
 				Base,
 			);
 			mainGroup = 7B51663F2758C6F000C0A720;
+			preferredProjectObjectVersion = 77;
 			productRefGroup = 7B5166492758C6F000C0A720 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";

@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 55;
+	objectVersion = 77;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -4520,7 +4520,6 @@
 				};
 			};
 			buildConfigurationList = 6327C5CD1EB8A783004E799B /* Build configuration list for PBXProject "Sentry" */;
-			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -4530,6 +4529,7 @@
 			mainGroup = 6327C5C91EB8A783004E799B;
 			packageReferences = (
 			);
+			preferredProjectObjectVersion = 77;
 			productRefGroup = 6327C5D41EB8A783004E799B /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
