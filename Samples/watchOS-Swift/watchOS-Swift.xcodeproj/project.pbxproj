@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 77;
+	objectVersion = 56;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -327,6 +327,7 @@
 				};
 			};
 			buildConfigurationList = 7B82C47C24C98A93002CA6D1 /* Build configuration list for PBXProject "watchOS-Swift" */;
+			compatibilityVersion = "Xcode 14.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -334,7 +335,6 @@
 				Base,
 			);
 			mainGroup = 7B82C47824C98A93002CA6D1;
-			preferredProjectObjectVersion = 77;
 			productRefGroup = 7B82C48024C98A93002CA6D1 /* Products */;
 			projectDirPath = "";
 			projectReferences = (

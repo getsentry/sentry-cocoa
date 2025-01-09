@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 77;
+	objectVersion = 56;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -893,6 +893,7 @@
 				};
 			};
 			buildConfigurationList = 637AFDA1243B02760034958B /* Build configuration list for PBXProject "iOS-Swift" */;
+			compatibilityVersion = "Xcode 14.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -902,7 +903,6 @@
 			mainGroup = 637AFD9D243B02760034958B;
 			packageReferences = (
 			);
-			preferredProjectObjectVersion = 77;
 			productRefGroup = 637AFDA7243B02760034958B /* Products */;
 			projectDirPath = "";
 			projectReferences = (

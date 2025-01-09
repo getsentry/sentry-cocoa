@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 77;
+	objectVersion = 56;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -400,6 +400,7 @@
 				};
 			};
 			buildConfigurationList = 7BA61D5D247FA32600C130A8 /* Build configuration list for PBXProject "tvOS-Swift" */;
+			compatibilityVersion = "Xcode 14.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -407,7 +408,6 @@
 				Base,
 			);
 			mainGroup = 7BA61D59247FA32600C130A8;
-			preferredProjectObjectVersion = 77;
 			productRefGroup = 7BA61D63247FA32600C130A8 /* Products */;
 			projectDirPath = "";
 			projectReferences = (

@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 77;
+	objectVersion = 56;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -147,6 +147,7 @@
 				};
 			};
 			buildConfigurationList = D84C37D62ACDC4A000EF74BE /* Build configuration list for PBXProject "visionOS-Swift" */;
+			compatibilityVersion = "Xcode 14.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -154,7 +155,6 @@
 				Base,
 			);
 			mainGroup = D84C37D22ACDC4A000EF74BE;
-			preferredProjectObjectVersion = 77;
 			productRefGroup = D84C37DC2ACDC4A000EF74BE /* Products */;
 			projectDirPath = "";
 			projectRoot = "";

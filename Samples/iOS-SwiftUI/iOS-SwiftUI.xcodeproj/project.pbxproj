@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 77;
+	objectVersion = 56;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -350,6 +350,7 @@
 				};
 			};
 			buildConfigurationList = 7BB6224426A56C4E00D0E75E /* Build configuration list for PBXProject "iOS-SwiftUI" */;
+			compatibilityVersion = "Xcode 14.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -357,7 +358,6 @@
 				Base,
 			);
 			mainGroup = 7BB6224026A56C4E00D0E75E;
-			preferredProjectObjectVersion = 77;
 			productRefGroup = 7BB6224A26A56C4E00D0E75E /* Products */;
 			projectDirPath = "";
 			projectReferences = (
