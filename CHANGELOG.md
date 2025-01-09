@@ -9,7 +9,7 @@
 ### Features
 
 - Show session replay options as replay tags (#4639)
-- Add UIViewController custom screenName for breadcrumb tracking (#4646)
+- Add protocol for custom screenName for UIViewControllers (#4646) 
 
 ### Fixes
 
