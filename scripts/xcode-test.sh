@@ -110,7 +110,6 @@ if [ $RUN_TEST_WITHOUT_BUILDING == true ]; then
         -destination "$DESTINATION" \
         test-without-building 2>&1 |
         tee raw-test-output.log |
-        xcbeautify --quieter --renderer github-actions |
-        grep "Error:" || true &&
+        xcbeautify --quieter --renderer github-actions &&
         slather coverage --configuration "$CONFIGURATION"
 fi
