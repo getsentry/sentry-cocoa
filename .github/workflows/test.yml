@@ -95,8 +95,8 @@ jobs:
           # iOS 18
           - runs-on: macos-15
             platform: "iOS"
-            xcode: "16.1"
-            test-destination-os: "18.1"
+            xcode: "16.2"
+            test-destination-os: "18.2"
             device: "iPhone 16"
 
           # We don't run the unit tests on macOS 13 cause we run them on all on GH actions available iOS versions.
@@ -112,7 +112,7 @@ jobs:
           # macOS 15
           - runs-on: macos-15
             platform: "macOS"
-            xcode: "16.1"
+            xcode: "16.2"
             test-destination-os: "latest"
 
           # Catalyst. We test the latest version, as the risk something breaking on Catalyst and not
@@ -125,7 +125,7 @@ jobs:
 
           - runs-on: macos-15
             platform: "Catalyst"
-            xcode: "16.1"
+            xcode: "16.2"
             test-destination-os: "latest"
 
           # We don't run the unit tests on tvOS 16 cause we run them on all on GH actions available iOS versions.
@@ -141,7 +141,7 @@ jobs:
           # tvOS 18
           - runs-on: macos-15
             platform: "tvOS"
-            xcode: "16.1"
+            xcode: "16.2"
             test-destination-os: "18.1"
 
     steps:
@@ -168,14 +168,14 @@ jobs:
       # We split building and running tests in two steps so we know how long running the tests takes.
       - name: Build tests
         id: build_tests
-        run: ./scripts/xcode-test.sh ${{matrix.platform}} ${{matrix.test-destination-os}} $GITHUB_REF_NAME ci build-for-testing "${{matrix.device}}" TestCI
+        run: ./scripts/xcode-test.sh ${{matrix.platform}} ${{matrix.test-destination-os}} $GITHUB_REF_NAME build-for-testing "${{matrix.device}}" TestCI
 
       - name: Run tests
         # We call a script with the platform so the destination
         # passed to xcodebuild doesn't end up in the job name,
         # because GitHub Actions don't provide an easy way of
         # manipulating string in expressions.
-        run: ./scripts/xcode-test.sh ${{matrix.platform}} ${{matrix.test-destination-os}} $GITHUB_REF_NAME ci test-without-building "${{matrix.device}}" TestCI
+        run: ./scripts/xcode-test.sh ${{matrix.platform}} ${{matrix.test-destination-os}} $GITHUB_REF_NAME test-without-building "${{matrix.device}}" TestCI
 
       - name: Slowest Tests
         if: ${{ always() }}
@@ -212,7 +212,7 @@ jobs:
       # We don't upload codecov for scheduled runs as CodeCov only accepts a limited amount of uploads per commit.
       - name: Push code coverage to codecov
         id: codecov_1
-        uses: codecov/codecov-action@7f8b4b4bde536c465e797be725718b88c5d95e0e # pin@v5.1.1
+        uses: codecov/codecov-action@1e68e06f1dbfde0e4cefc87efeba9e4643565303 # pin@v5.1.2
         if: ${{ contains(matrix.platform, 'iOS') && !contains(github.ref, 'release') && github.event.schedule == '' }}
         with:
           # Although public repos should not have to specify a token there seems to be a bug with the Codecov GH action, which can
@@ -224,7 +224,7 @@ jobs:
       # Sometimes codecov uploads etc can fail. Retry one time to rule out e.g. intermittent network failures.
       - name: Push code coverage to codecov
         id: codecov_2
-        uses: codecov/codecov-action@7f8b4b4bde536c465e797be725718b88c5d95e0e # pin@v5.1.1
+        uses: codecov/codecov-action@1e68e06f1dbfde0e4cefc87efeba9e4643565303 # pin@v5.1.2
         if: ${{ steps.codecov_1.outcome == 'failure' && contains(matrix.platform, 'iOS') && !contains(github.ref, 'release') && github.event.schedule == '' }}
         with:
           token: ${{ secrets.CODECOV_TOKEN }}

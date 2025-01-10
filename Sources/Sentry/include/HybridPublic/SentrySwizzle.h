@@ -83,6 +83,23 @@
         _SentrySWWrapArg(SentrySWArguments), _SentrySWWrapArg(SentrySWReplacement),                \
         SentrySwizzleMode, key)
 
+#if TEST || TESTCI
+/**
+ * Unswizzles the instance method of the class.
+ *
+ * @warning To reduce the risk of breaking functionality with unswizzling, this method is not
+ * considered safe-to-use in production and only available in test targets.
+ *
+ * @param classToUnswizzle The class with the method that should be unswizzled.
+ * @param selector Selector of the method that should be unswizzled.
+ * @param key The key to unswizzle the method with.
+ *
+ * @return @c YES if successfully unswizzled and @c NO if the method was not swizzled.
+ */
+#    define SentryUnswizzleInstanceMethod(classToUnswizzle, selector, key)                         \
+        _SentryUnswizzleInstanceMethod(classToUnswizzle, selector, key)
+#endif // TEST || TESTCI
+
 #pragma mark └ Swizzle Class Method
 
 /**
@@ -302,6 +319,23 @@ typedef NS_ENUM(NSUInteger, SentrySwizzleMode) {
                          mode:(SentrySwizzleMode)mode
                           key:(const void *)key;
 
+#if TEST || TESTCI
+/**
+ * Unswizzles the instance method of the class.
+ *
+ * @warning To reduce the risk of breaking functionality with unswizzling, this method is not
+ * considered safe-to-use in production and only available in test targets.
+ *
+ * @param selector Selector of the method that should be unswizzled.
+ * @param classToUnswizzle The class with the method that should be unswizzled.
+ * @param key The key is used in combination with the mode to indicate whether the
+ * swizzling should be done for the given class.
+ *
+ * @return @c YES if successfully unswizzled and @c NO if the method was not swizzled.
+ */
++ (BOOL)unswizzleInstanceMethod:(SEL)selector inClass:(Class)classToUnswizzle key:(const void *)key;
+#endif // TEST || TESTCI
+
 #pragma mark └ Swizzle Class method
 
 /**
@@ -395,6 +429,22 @@ typedef NS_ENUM(NSUInteger, SentrySwizzleMode) {
                 }                                                                                  \
                          mode:SentrySwizzleMode                                                    \
                           key:KEY];
+
+#if TEST || TESTCI
+/**
+ * Macro to unswizzle an instance method.
+ *
+ * @warning To reduce the risk of breaking functionality with unswizzling, this macro is not
+ * considered safe-to-use in production and only available in test targets.
+ *
+ * @param classToUnswizzle The class to unswizzle the method from.
+ * @param selector The selector of the method to unswizzle.
+ * @param KEY The key to unswizzle the method with.
+ * @return @c YES if the method was successfully unswizzled, @c NO otherwise.
+ */
+#    define _SentryUnswizzleInstanceMethod(classToUnswizzle, selector, KEY)                        \
+        [SentrySwizzle unswizzleInstanceMethod:selector inClass:[classToUnswizzle class] key:KEY]
+#endif // TEST || TESTCI
 
 #define _SentrySwizzleClassMethod(                                                                 \
     classToSwizzle, selector, SentrySWReturnType, SentrySWArguments, SentrySWReplacement)          \

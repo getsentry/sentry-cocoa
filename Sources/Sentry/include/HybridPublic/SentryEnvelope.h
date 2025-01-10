@@ -16,13 +16,14 @@
 
 #endif
 
-@class SentryEvent;
-@class SentrySession;
-@class SentryId;
-@class SentryUserFeedback;
 @class SentryAttachment;
 @class SentryEnvelopeItemHeader;
+@class SentryEvent;
+@class SentryFeedback;
+@class SentryId;
+@class SentrySession;
 @class SentryTraceContext;
+@class SentryUserFeedback;
 
 NS_ASSUME_NONNULL_BEGIN
 

@@ -6,10 +6,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 @class SentryOptions;
 
-@interface SentryNSDataSwizzling : NSObject
+@interface SentryNSFileManagerSwizzling : NSObject
 SENTRY_NO_INIT
 
-@property (class, readonly) SentryNSDataSwizzling *shared;
+@property (class, readonly) SentryNSFileManagerSwizzling *shared;
 
 - (void)startWithOptions:(SentryOptions *)options tracker:(SentryFileIOTracker *)tracker;
 

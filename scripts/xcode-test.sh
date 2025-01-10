@@ -11,11 +11,10 @@ set -euxo pipefail
 PLATFORM="${1}"
 OS=${2:-latest}
 REF_NAME="${3-HEAD}"
-IS_LOCAL_BUILD="${4:-ci}"
-COMMAND="${5:-test}"
-DEVICE=${6:-iPhone 14}
-CONFIGURATION_OVERRIDE="${7:-}"
-DERIVED_DATA_PATH="${8:-}"
+COMMAND="${4:-test}"
+DEVICE=${5:-iPhone 14}
+CONFIGURATION_OVERRIDE="${6:-}"
+DERIVED_DATA_PATH="${7:-}"
 
 case $PLATFORM in
 
@@ -55,15 +54,6 @@ else
     esac
 fi
 
-case $IS_LOCAL_BUILD in
-"ci")
-    RUBY_ENV_ARGS=""
-    ;;
-*)
-    RUBY_ENV_ARGS="rbenv exec bundle exec"
-    ;;
-esac
-
 case $COMMAND in
 "build")
     RUN_BUILD=true
@@ -88,34 +78,38 @@ case $COMMAND in
 esac
 
 if [ $RUN_BUILD == true ]; then
-    env NSUnbufferedIO=YES xcodebuild \
+    set -o pipefail && NSUnbufferedIO=YES xcodebuild \
         -workspace Sentry.xcworkspace \
         -scheme Sentry \
         -configuration "$CONFIGURATION" \
         -destination "$DESTINATION" \
         -derivedDataPath "$DERIVED_DATA_PATH" \
         -quiet \
-        build
+        build 2>&1 |
+        tee raw-build-output.log |
+        xcbeautify
 fi
 
 if [ $RUN_BUILD_FOR_TESTING == true ]; then
-    env NSUnbufferedIO=YES xcodebuild \
-        -workspace Sentry.xcworkspace \
-        -scheme Sentry \
-        -configuration "$CONFIGURATION" \
-        -destination "$DESTINATION" -quiet \
-        build-for-testing
-fi
-
-if [ $RUN_TEST_WITHOUT_BUILDING == true ]; then
-    env NSUnbufferedIO=YES xcodebuild \
+    set -o pipefail && NSUnbufferedIO=YES xcodebuild \
         -workspace Sentry.xcworkspace \
         -scheme Sentry \
         -configuration "$CONFIGURATION" \
         -destination "$DESTINATION" \
-        test-without-building |
+        -quiet \
+        build-for-testing 2>&1 |
+        tee raw-build-for-testing-output.log |
+        xcbeautify
+fi
+
+if [ $RUN_TEST_WITHOUT_BUILDING == true ]; then
+    set -o pipefail && NSUnbufferedIO=YES xcodebuild \
+        -workspace Sentry.xcworkspace \
+        -scheme Sentry \
+        -configuration "$CONFIGURATION" \
+        -destination "$DESTINATION" \
+        test-without-building 2>&1 |
         tee raw-test-output.log |
-        $RUBY_ENV_ARGS xcpretty -t &&
-        slather coverage --configuration "$CONFIGURATION" &&
-        exit "${PIPESTATUS[0]}"
+        xcbeautify &&
+        slather coverage --configuration "$CONFIGURATION"
 fi

@@ -8,8 +8,7 @@ import UIKit
 
 @available(iOS 13.0, *)
 protocol SentryUserFeedbackFormDelegate: NSObjectProtocol {
-    func cancelled()
-    func confirmed()
+    func finished(with feedback: SentryFeedback?)
 }
 
 @available(iOS 13.0, *)
@@ -26,6 +25,7 @@ class SentryUserFeedbackForm: UIViewController {
         updateLayout()
     }
     
+    //swiftlint:disable function_body_length
     init(config: SentryUserFeedbackConfiguration, delegate: any SentryUserFeedbackFormDelegate) {
         self.config = config
         self.delegate = delegate
@@ -83,6 +83,7 @@ class SentryUserFeedbackForm: UIViewController {
             $0.setTitleColor(config.theme.buttonForeground, for: .normal)
         }
     }
+    //swiftlint:enable function_body_length
     
     // MARK: Actions
     
@@ -132,12 +133,14 @@ class SentryUserFeedbackForm: UIViewController {
             present(alert, animated: config.animations)
             return
         }
-        
-        delegate?.confirmed()
+
+        let feedback = SentryFeedback(message: messageTextView.text, name: fullNameTextField.text, email: emailTextField.text, screenshot: screenshotImageView.image?.pngData())
+        SentryLog.log(message: "Sending user feedback", andLevel: .debug)
+        delegate?.finished(with: feedback)
     }
     
     func cancelButtonTapped() {
-        delegate?.cancelled()
+        delegate?.finished(with: nil)
     }
     
     // MARK: Layout

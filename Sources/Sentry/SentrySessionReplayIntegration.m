@@ -48,6 +48,8 @@ static SentryTouchTracker *_touchTracker;
     SentryNSNotificationCenterWrapper *_notificationCenter;
     SentryOnDemandReplay *_resumeReplayMaker;
     id<SentryRateLimits> _rateLimits;
+    id<SentryViewScreenshotProvider> _currentScreenshotProvider;
+    id<SentryReplayBreadcrumbConverter> _currentBreadcrumbConverter;
     // We need to use this variable to identify whether rate limiting was ever activated for session
     // replay in this session, instead of always looking for the rate status in `SentryRateLimits`
     // This is the easiest way to ensure segment 0 will always reach the server, because session
@@ -64,9 +66,8 @@ static SentryTouchTracker *_touchTracker;
 - (instancetype)initForManualUse:(nonnull SentryOptions *)options
 {
     if (self = [super init]) {
-        [self setupWith:options.experimental.sessionReplay
-            enableTouchTracker:options.enableSwizzling];
-        [self startWithOptions:options.experimental.sessionReplay fullSession:YES];
+        [self setupWith:options.sessionReplay enableTouchTracker:options.enableSwizzling];
+        [self startWithOptions:options.sessionReplay fullSession:YES];
     }
     return self;
 }
@@ -77,7 +78,7 @@ static SentryTouchTracker *_touchTracker;
         return NO;
     }
 
-    [self setupWith:options.experimental.sessionReplay enableTouchTracker:options.enableSwizzling];
+    [self setupWith:options.sessionReplay enableTouchTracker:options.enableSwizzling];
     return YES;
 }
 
@@ -269,8 +270,9 @@ static SentryTouchTracker *_touchTracker;
              fullSession:(BOOL)shouldReplayFullSession
 {
     [self startWithOptions:replayOptions
-         screenshotProvider:_viewPhotographer
-        breadcrumbConverter:[[SentrySRDefaultBreadcrumbConverter alloc] init]
+         screenshotProvider:_currentScreenshotProvider ?: _viewPhotographer
+        breadcrumbConverter:_currentBreadcrumbConverter
+            ?: [[SentrySRDefaultBreadcrumbConverter alloc] init]
                 fullSession:shouldReplayFullSession];
 }
 
@@ -474,10 +476,12 @@ static SentryTouchTracker *_touchTracker;
          screenshotProvider:(nullable id<SentryViewScreenshotProvider>)screenshotProvider
 {
     if (breadcrumbConverter) {
+        _currentBreadcrumbConverter = breadcrumbConverter;
         self.sessionReplay.breadcrumbConverter = breadcrumbConverter;
     }
 
     if (screenshotProvider) {
+        _currentScreenshotProvider = screenshotProvider;
         self.sessionReplay.screenshotProvider = screenshotProvider;
     }
 }
