@@ -98,27 +98,55 @@ jobs:
         env:
           SAUCE_USERNAME: ${{ secrets.SAUCE_USERNAME }}
           SAUCE_ACCESS_KEY: ${{ secrets.SAUCE_ACCESS_KEY }}
-        run: saucectl run --select-suite "${{matrix.suite}}" --config .sauce/benchmarking-config.yml --tags benchmark --retries 3
+        run: |
+          set -o pipefail && saucectl run \
+            --select-suite "${{matrix.suite}}" \
+            --config .sauce/benchmarking-config.yml \
+            --tags benchmark \
+            --verbose \
+            2>&1 | tee output.log
+
+      - # In case of failure, extract the test ID from the output and check if the test exists.
+        # If the test exists, it failed during the run.
+        # If the test does not exist, it might have failed due to an internal error of SauceLabs, 
+        # which should be retried.
+        name: Recovery - Extract Test ID from output
+        id: should-retry-test
+        if: ${{ failure() && steps.run-benchmarks-in-sauce-lab.outcome == 'failure' }}
+        run: |
+          TEST_ID="$(awk -F'https://app.saucelabs.com/tests/' '{if ($2) print $2}' output.log | awk '{print $1;exit}')"
+          if [ -z "$TEST_ID" ]; then
+            echo "No test ID found in the output, retrying..."
+            echo "RETRY_TEST=true" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          set +x
+          saucectl jobs get $TEST_ID
+          GET_JOB_EXIT_CODE=$?
+          set -x
+
+          if [ $GET_JOB_EXIT_CODE -ne 0 ]; then
+            echo "Test does not exist, retrying..."
+            echo "RETRY_TEST=true" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          echo "Test exists but failed, not retrying."
+
       - name: Run Benchmarks in SauceLab - Retry 1
         id: run-benchmarks-in-sauce-lab-retry-1
-        if: ${{ steps.run-benchmarks-in-sauce-lab.outcome == 'failure' }}
+        if: ${{ failure() && steps.should-retry-test.outputs.RETRY_TEST == 'true' }}
         env:
           SAUCE_USERNAME: ${{ secrets.SAUCE_USERNAME }}
           SAUCE_ACCESS_KEY: ${{ secrets.SAUCE_ACCESS_KEY }}
-        run: saucectl run --select-suite "${{matrix.suite}}" --config .sauce/benchmarking-config.yml --tags benchmark --retries 3
-      - name: Run Benchmarks in SauceLab - Retry 2
-        id: run-benchmarks-in-sauce-lab-retry-2
-        if: ${{ steps.run-benchmarks-in-sauce-lab-retry-1.outcome == 'failure' }}
-        env:
-          SAUCE_USERNAME: ${{ secrets.SAUCE_USERNAME }}
-          SAUCE_ACCESS_KEY: ${{ secrets.SAUCE_ACCESS_KEY }}
-        run: saucectl run --select-suite "${{matrix.suite}}" --config .sauce/benchmarking-config.yml --tags benchmark --retries 3
-      - name: Run Benchmarks in SauceLab - Retry 3
-        if: ${{ steps.run-benchmarks-in-sauce-lab-retry-2.outcome == 'failure' }}
-        env:
-          SAUCE_USERNAME: ${{ secrets.SAUCE_USERNAME }}
-          SAUCE_ACCESS_KEY: ${{ secrets.SAUCE_ACCESS_KEY }}
-        run: saucectl run --select-suite "${{matrix.suite}}" --config .sauce/benchmarking-config.yml --tags benchmark --retries 3
+        run: |
+          set -o pipefail && saucectl run \
+            --select-suite "${{matrix.suite}}" \
+            --config .sauce/benchmarking-config.yml \
+            --tags benchmark \
+            --verbose \
+            2>&1 | tee output-retry-1.log
 
   app-metrics:
     name: Collect app metrics
