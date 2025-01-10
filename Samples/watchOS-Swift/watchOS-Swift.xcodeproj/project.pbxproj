@@ -86,13 +86,6 @@
 			remoteGlobalIDString = 7B82C49124C98A95002CA6D1;
 			remoteInfo = "watchOS-Swift WatchKit Extension";
 		};
-		84EEE8042D30B47C00010A9D /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 84EEE78B2D2F576E00010A9D /* SampleShared.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = 84EEE73F2D2F50F000010A9D;
-			remoteInfo = SampleShared;
-		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -254,14 +247,6 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
-		84EEE7F72D30B47C00010A9D /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				84EEE8052D30B47C00010A9D /* SampleShared.framework */,
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -354,10 +339,6 @@
 			projectDirPath = "";
 			projectReferences = (
 				{
-					ProductGroup = 84EEE7F72D30B47C00010A9D /* Products */;
-					ProjectRef = 84EEE78B2D2F576E00010A9D /* SampleShared.xcodeproj */;
-				},
-				{
 					ProductGroup = 498CC18F2C9217D50045143E /* Products */;
 					ProjectRef = 498CC18E2C9217D50045143E /* Sentry.xcodeproj */;
 				},
@@ -412,13 +393,6 @@
 			fileType = wrapper.framework;
 			path = SentryTestUtilsDynamic.framework;
 			remoteRef = 498CC1A12C9217D50045143E /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-		84EEE8052D30B47C00010A9D /* SampleShared.framework */ = {
-			isa = PBXReferenceProxy;
-			fileType = wrapper.framework;
-			path = SampleShared.framework;
-			remoteRef = 84EEE8042D30B47C00010A9D /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 /* End PBXReferenceProxy section */
