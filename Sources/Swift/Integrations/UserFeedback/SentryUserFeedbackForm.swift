@@ -16,8 +16,6 @@ protocol SentryUserFeedbackFormDelegate: NSObjectProtocol {
 class SentryUserFeedbackForm: UIViewController {
     let config: SentryUserFeedbackConfiguration
     weak var delegate: (any SentryUserFeedbackFormDelegate)?
-    var editingTextField: UITextField?
-    var editingTextView: UITextView?
     
     override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
         config.theme.updateDefaultFonts()
@@ -97,11 +95,35 @@ class SentryUserFeedbackForm: UIViewController {
         addedScreenshot(image: image)
         return
 #else
-        let imagePickerController = UIImagePickerController()
-        imagePickerController.delegate = self
-        imagePickerController.sourceType = .photoLibrary
-        imagePickerController.allowsEditing = true
-        present(imagePickerController, animated: config.animations)
+        
+        func presentPicker() {
+            let imagePickerController = UIImagePickerController()
+            imagePickerController.delegate = self
+            imagePickerController.sourceType = .photoLibrary
+            imagePickerController.allowsEditing = true
+            DispatchQueue.main.async {
+                self.present(imagePickerController, animated: self.config.animations)
+            }
+        }
+        
+        let status = PHPhotoLibrary.authorizationStatus()
+        switch status {
+        case .notDetermined:
+            if #available(iOS 14, *) {
+                PHPhotoLibrary.requestAuthorization(for: .readWrite) {
+                    SentryLog.debug("Photos authorization level: \($0)")
+                    presentPicker()
+                }
+            } else {
+                PHPhotoLibrary.requestAuthorization {
+                    SentryLog.debug("Photos authorization level: \($0)")
+                    presentPicker()
+                }
+            }
+        default:
+            SentryLog.debug("Photos authorization level: \(status)")
+            presentPicker()
+        }
 #endif // TEST || TESTCI
     }
     
@@ -111,7 +133,7 @@ class SentryUserFeedbackForm: UIViewController {
         addScreenshotButton.isHidden = false
     }
     
-    func submitFeedbackButtonTapped() {
+    func validate() -> String? {
         var missing = [String]()
         
         if config.formConfig.isNameRequired && !fullNameTextField.hasText {
@@ -128,15 +150,22 @@ class SentryUserFeedbackForm: UIViewController {
         
         guard missing.isEmpty else {
             let list = missing.count == 1 ? missing[0] : missing[0 ..< missing.count - 1].joined(separator: ", ") + " and " + missing[missing.count - 1]
-            let alert = UIAlertController(title: "Error", message: "You must provide all required information. Please check the following field\(missing.count > 1 ? "s" : ""): \(list).", preferredStyle: .alert)
+            return "You must provide all required information. Please check the following field\(missing.count > 1 ? "s" : ""): \(list)."
+        }
+        
+        return nil
+    }
+     
+    func submitFeedbackButtonTapped() {
+        if let message = validate() {
+            let alert = UIAlertController(title: "Error", message: message, preferredStyle: .alert)
             alert.addAction(UIAlertAction(title: "OK", style: .default))
             present(alert, animated: config.animations)
-            return
+        } else {
+            let feedback = SentryFeedback(message: messageTextView.text, name: fullNameTextField.text, email: emailTextField.text, screenshot: screenshotImageView.image?.pngData())
+            SentryLog.log(message: "Sending user feedback", andLevel: .debug)
+            delegate?.finished(with: feedback)
         }
-
-        let feedback = SentryFeedback(message: messageTextView.text, name: fullNameTextField.text, email: emailTextField.text, screenshot: screenshotImageView.image?.pngData())
-        SentryLog.log(message: "Sending user feedback", andLevel: .debug)
-        delegate?.finished(with: feedback)
     }
     
     func cancelButtonTapped() {
@@ -248,6 +277,7 @@ class SentryUserFeedbackForm: UIViewController {
         
         let view = UIView(frame: .zero)
         view.layer.addSublayer(shapeLayer)
+        view.isAccessibilityElement = true
         view.accessibilityLabel = "provided by Sentry" // ???: what do we want to say here?
         return view
     }()
@@ -265,6 +295,7 @@ class SentryUserFeedbackForm: UIViewController {
         field.accessibilityIdentifier = "io.sentry.feedback.form.name"
         field.delegate = self
         field.autocapitalizationType = .words
+        field.returnKeyType = .done
         if config.useSentryUser {
             field.text = sentry_getCurrentUser()?.name
         }
@@ -285,6 +316,7 @@ class SentryUserFeedbackForm: UIViewController {
         field.delegate = self
         field.keyboardType = .emailAddress
         field.autocapitalizationType = .none
+        field.returnKeyType = .done
         if config.useSentryUser {
             field.text = sentry_getCurrentUser()?.email
         }
@@ -305,6 +337,7 @@ class SentryUserFeedbackForm: UIViewController {
         label.textColor = .placeholderText
         label.translatesAutoresizingMaskIntoConstraints = false
         label.adjustsFontForContentSizeCategory = true
+        label.isAccessibilityElement = false
         return label
     }()
     
@@ -318,7 +351,11 @@ class SentryUserFeedbackForm: UIViewController {
         return textView
     }()
     
-    lazy var screenshotImageView = UIImageView()
+    lazy var screenshotImageView = {
+        let iv = UIImageView()
+        iv.isAccessibilityElement = true
+        return iv
+    }()
     
     lazy var addScreenshotButton = {
         let button = UIButton(frame: .zero)
@@ -326,6 +363,7 @@ class SentryUserFeedbackForm: UIViewController {
         button.accessibilityLabel = config.formConfig.addScreenshotButtonAccessibilityLabel
         button.addTarget(self, action: #selector(addScreenshotButtonTapped), for: .touchUpInside)
         button.accessibilityIdentifier = "io.sentry.feedback.form.add-screenshot"
+        button.accessibilityHint = "Will present the iOS photo picker for you to choose an image to attach to the feedback report."
         return button
     }()
     
@@ -346,7 +384,47 @@ class SentryUserFeedbackForm: UIViewController {
         button.setTitleColor(config.theme.submitForeground, for: .normal)
         button.addTarget(self, action: #selector(submitFeedbackButtonTapped), for: .touchUpInside)
         button.accessibilityIdentifier = "io.sentry.feedback.form.submit"
+        button.accessibilityHint = submitAccessibilityHint
         return button
+    }()
+    
+    lazy var submitAccessibilityHint = {
+        if let message = validate() {
+            return message
+        }
+        
+        var hint = "Will submit feedback "
+        
+        if let name = fullNameTextField.text {
+            hint += "for \(name) "
+        } else {
+            hint += "with no name "
+        }
+        
+        if let email = emailTextField.text {
+            hint += "at \(email) "
+        } else {
+            if fullNameTextField.text != nil {
+                hint += "with no email "
+            } else {
+                hint += "or email "
+            }
+        }
+        
+        if let screenshot = screenshotImageView.image {
+            if let imageDescription = screenshotImageView.accessibilityLabel {
+                hint += "and \(imageDescription)"
+            } else {
+                SentryLog.warning("Expected screenshot image view to have accessibility label containing image metadata")
+                hint += "and attached image"
+            }
+        }
+        
+        if let message = messageTextView.text {
+            hint += "with message: \(message)"
+        }
+         
+        return hint
     }()
     
     lazy var cancelButton = {
@@ -432,9 +510,9 @@ class SentryUserFeedbackForm: UIViewController {
 // MARK: UITextFieldDelegate
 @available(iOS 13.0, *)
 extension SentryUserFeedbackForm: UITextFieldDelegate {
-    func textFieldDidBeginEditing(_ textField: UITextField) {
-        editingTextField = textField
-        editingTextView = nil
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        textField.resignFirstResponder()
+        return true
     }
 }
 
@@ -442,8 +520,6 @@ extension SentryUserFeedbackForm: UITextFieldDelegate {
 @available(iOS 13.0, *)
 extension SentryUserFeedbackForm: UITextViewDelegate {
     func textViewDidChange(_ textView: UITextView) {
-        editingTextField = nil
-        editingTextView = textView
         messageTextViewPlaceholder.isHidden = textView.text != ""
     }
 }
@@ -451,13 +527,34 @@ extension SentryUserFeedbackForm: UITextViewDelegate {
 // MARK: UIImagePickerControllerDelegate & UINavigationControllerDelegate
 @available(iOS 13.0, *)
 extension SentryUserFeedbackForm: UIImagePickerControllerDelegate & UINavigationControllerDelegate {
+    static let formatter = {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .medium
+        formatter.timeStyle = .medium
+        return formatter
+    }()
+    
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey: Any]) {
+        defer {
+            dismiss(animated: config.animations)
+        }
+        
         guard let photo = info[.editedImage] as? UIImage else {
             // TODO: handle error
             return
         }
         addedScreenshot(image: photo)
-        dismiss(animated: config.animations)
+         
+        guard let asset = info[.phAsset] as? PHAsset else {
+            // TODO: handle error
+            return
+        }
+        
+        guard let date = asset.creationDate else {
+            // TODO: handle error
+            return
+        }
+        screenshotImageView.accessibilityLabel = "Image taken \(SentryUserFeedbackForm.formatter.string(from: date))"
     }
     
     func addedScreenshot(image: UIImage) {

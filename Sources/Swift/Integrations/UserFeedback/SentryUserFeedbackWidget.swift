@@ -54,6 +54,11 @@ struct SentryUserFeedbackWidget {
                 fatalError("init(coder:) has not been implemented")
             }
             
+            override func viewDidLayoutSubviews() {
+                super.viewDidLayoutSubviews()
+                button.updateAccessibilityFrame()
+            }
+            
             // MARK: Helpers
             
             func setWidget(visible: Bool) {

@@ -36,6 +36,8 @@
 	<string>Testing location permissions</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Testing location permissions</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Accessing images to attach to feedback.</string>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>

@@ -56,6 +56,7 @@ public class SentryUserFeedbackFormConfiguration: NSObject {
     /**
      * Allows the user to send a screenshot attachment with their feedback.
      * - note: Default: `true`
+     * - warning: Your app must provide a value in its Info plist for the `NSPhotoLibraryUsageDescription` key, or the app will crash upon requesting the necessary `PHPhotoLibrary` authorization.
      */
     public var enableScreenshot: Bool = true
     
@@ -103,7 +104,7 @@ public class SentryUserFeedbackFormConfiguration: NSObject {
     lazy var nameLabelContents = fullLabelText(labelText: nameLabel, required: isNameRequired)
     
     /**
-     * The placeholder for the name input field.
+     * The placeholder for the name input field.sc
      * - note: Default: `"Your Name"`
      * - note: ignored if `showName` is `false`.
      */
