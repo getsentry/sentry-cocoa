@@ -120,6 +120,7 @@ jobs:
           SAUCE_USERNAME: ${{ secrets.SAUCE_USERNAME }}
           SAUCE_ACCESS_KEY: ${{ secrets.SAUCE_ACCESS_KEY }}
         run: |
+          echo "Extracting test ID from output log"
           TEST_ID="$(awk -F'https://app.saucelabs.com/tests/' '{if ($2) print $2}' output.log | awk '{print $1;exit}')"
           if [ -z "$TEST_ID" ]; then
             echo "No test ID found in the output, retrying..."
@@ -127,10 +128,13 @@ jobs:
             exit 0
           fi
 
-          set +x
+          TEST_ID="invalid-test-id"
+
+          echo "Checking if the test exists in SauceLabs: $TEST_ID"
+          set +e
           saucectl jobs get $TEST_ID
           GET_JOB_EXIT_CODE=$?
-          set -x
+          set -e
 
           if [ $GET_JOB_EXIT_CODE -ne 0 ]; then
             echo "Test does not exist, retrying..."
@@ -139,6 +143,7 @@ jobs:
           fi
 
           echo "Test exists but failed, not retrying."
+          exit 1
 
       - name: Run Benchmarks in SauceLab - Retry 1
         id: run-benchmarks-in-sauce-lab-retry-1
