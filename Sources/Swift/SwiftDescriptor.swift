@@ -1,5 +1,8 @@
 import Foundation
+
+#if (os(iOS) || os(tvOS)) && !SENTRY_NO_UIKIT
 import UIKit
+#endif
 
 @objc
 class SwiftDescriptor: NSObject {
@@ -9,6 +12,7 @@ class SwiftDescriptor: NSObject {
         return String(describing: type(of: object))
     }
 
+#if (os(iOS) || os(tvOS)) && !SENTRY_NO_UIKIT
     @objc
     static func getViewControllerClassName(_ object: UIViewController) -> String {
         if let object = object as? SentryUIViewControllerDescriptor {
@@ -16,6 +20,7 @@ class SwiftDescriptor: NSObject {
         }
         return getObjectClassName(object)
     }
+#endif
 
     @objc
     static func getSwiftErrorDescription(_ error: Error) -> String? {
