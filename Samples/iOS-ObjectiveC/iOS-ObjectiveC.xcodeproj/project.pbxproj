@@ -79,6 +79,13 @@
 			remoteGlobalIDString = D84DAD4D2B17428D003CF120;
 			remoteInfo = SentryTestUtilsDynamic;
 		};
+		84EEE80A2D30B47C00010A9D /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 84EEE7852D2F53A400010A9D /* SampleShared.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 84EEE73F2D2F50F000010A9D;
+			remoteInfo = SampleShared;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -213,6 +220,14 @@
 			path = "iOS-ObjectiveCUITests";
 			sourceTree = "<group>";
 		};
+		84EEE7FB2D30B47C00010A9D /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				84EEE80B2D30B47C00010A9D /* SampleShared.framework */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -287,6 +302,10 @@
 			projectDirPath = "";
 			projectReferences = (
 				{
+					ProductGroup = 84EEE7FB2D30B47C00010A9D /* Products */;
+					ProjectRef = 84EEE7852D2F53A400010A9D /* SampleShared.xcodeproj */;
+				},
+				{
 					ProductGroup = 630853362440C45500DDE4CE /* Products */;
 					ProjectRef = 630853352440C45500DDE4CE /* Sentry.xcodeproj */;
 				},
@@ -340,6 +359,13 @@
 			fileType = wrapper.framework;
 			path = SentryTestUtilsDynamic.framework;
 			remoteRef = 84BA72792C9367A10045B828 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		84EEE80B2D30B47C00010A9D /* SampleShared.framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.framework;
+			path = SampleShared.framework;
+			remoteRef = 84EEE80A2D30B47C00010A9D /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 /* End PBXReferenceProxy section */
