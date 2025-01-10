@@ -315,11 +315,13 @@ static NSString *const SentryBreadcrumbTrackerSwizzleSendAction
     info[@"beingPresented"] = controller.beingPresented ? @"true" : @"false";
 
     if (controller.presentingViewController != nil) {
-        info[@"presentingViewController"] = [SwiftDescriptor getViewControllerClassName:controller.presentingViewController];
+        info[@"presentingViewController"] =
+            [SwiftDescriptor getViewControllerClassName:controller.presentingViewController];
     }
 
     if (controller.parentViewController != nil) {
-        info[@"parentViewController"] = [SwiftDescriptor getViewControllerClassName:controller.parentViewController];
+        info[@"parentViewController"] =
+            [SwiftDescriptor getViewControllerClassName:controller.parentViewController];
     }
 
     if (controller.view.window != nil) {

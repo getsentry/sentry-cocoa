@@ -122,7 +122,7 @@
 
     [SentryDependencyContainer.sharedInstance.dispatchQueueWrapper
         dispatchSyncOnMainQueue:^{
-            NSArray <UIViewController *>*viewControllers
+            NSArray<UIViewController *> *viewControllers
                 = SentryDependencyContainer.sharedInstance.application.relevantViewControllers;
             NSMutableArray *vcsNames =
                 [[NSMutableArray alloc] initWithCapacity:viewControllers.count];
