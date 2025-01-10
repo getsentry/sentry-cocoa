@@ -116,6 +116,9 @@ jobs:
         name: Recovery - Extract Test ID from output
         id: should-retry-test
         if: ${{ failure() && steps.run-benchmarks-in-sauce-lab.outcome == 'failure' }}
+        env:
+          SAUCE_USERNAME: ${{ secrets.SAUCE_USERNAME }}
+          SAUCE_ACCESS_KEY: ${{ secrets.SAUCE_ACCESS_KEY }}
         run: |
           TEST_ID="$(awk -F'https://app.saucelabs.com/tests/' '{if ($2) print $2}' output.log | awk '{print $1;exit}')"
           if [ -z "$TEST_ID" ]; then
