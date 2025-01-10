@@ -106,6 +106,9 @@ jobs:
             --verbose \
             2>&1 | tee output.log
 
+          echo "Simulated failure"
+          exit 1 
+
       - # In case of failure, extract the test ID from the output and check if the test exists.
         # If the test exists, it failed during the run.
         # If the test does not exist, it might have failed due to an internal error of SauceLabs, 
