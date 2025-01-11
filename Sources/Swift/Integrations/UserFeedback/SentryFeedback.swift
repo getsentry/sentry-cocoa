@@ -2,12 +2,12 @@
 import Foundation
 
 @objcMembers
-class SentryFeedback: NSObject, SentrySerializable {
+class SentryFeedback: NSObject {
     enum Source: String {
         case widget
         case custom
     }
-
+    
     var name: String?
     var email: String?
     var message: String
@@ -19,7 +19,7 @@ class SentryFeedback: NSObject, SentrySerializable {
     
     /// The event id that this feedback is associated with, like a crash report.
     var associatedEventId: String?
-
+    
     /// - parameter screenshot Image encoded as PNG data.
     init(message: String, name: String?, email: String?, source: Source = .widget, associatedEventId: String? = nil, screenshot: Data? = nil) {
         self.eventId = SentryId()
@@ -31,7 +31,9 @@ class SentryFeedback: NSObject, SentrySerializable {
         self.screenshot = screenshot
         super.init()
     }
-    
+}
+
+extension SentryFeedback: SentrySerializable {
     func serialize() -> [String: Any] {
         let numberOfOptionalItems = (name == nil ? 0 : 1) + (email == nil ? 0 : 1) + (associatedEventId == nil ? 0 : 1)
         var dict = [String: Any](minimumCapacity: 2 + numberOfOptionalItems)
@@ -49,7 +51,11 @@ class SentryFeedback: NSObject, SentrySerializable {
         
         return dict
     }
-    
+}
+ 
+// MARK: Public
+extension SentryFeedback {
+    /// - note: This dictionary is to pass to the block `SentryUserFeedbackConfiguration.onSubmitSuccess`, describing the contents submitted. This is different from the serialized form of the feedback for envelope transmission, because there are some internal details in that serialization that are irrelevant to the consumer and are not available at the time `onSubmitSuccess` is called.
     func dataDictionary() -> [String: Any] {
         var dict: [String: Any] = [
             "message": message
