@@ -13,8 +13,10 @@ static NSString *sdkName;
 
 + (void)initialize
 {
-    versionString = sentryVersionString.copy;
-    sdkName = sentrySdkName.copy;
+    if (self == [SentryMeta class]) {   
+        versionString = sentryVersionString.copy;
+        sdkName = sentrySdkName.copy;
+    }
 }
 
 + (NSString *)versionString
