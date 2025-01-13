@@ -1,6 +1,6 @@
 import Foundation
 
-#if canImport(UIKit) && !SENTRY_NO_UIKIT
+#if (os(iOS) || os(tvOS)) && !SENTRY_NO_UIKIT
 import UIKit
 #endif
 
@@ -12,7 +12,7 @@ class SwiftDescriptor: NSObject {
         return String(describing: type(of: object))
     }
 
-#if canImport(UIKit) && !SENTRY_NO_UIKIT
+#if (os(iOS) || os(tvOS)) && !SENTRY_NO_UIKIT
     @objc
     static func getViewControllerClassName(_ object: UIViewController) -> String {
         if let object = object as? SentryUIViewControllerDescriptor {
