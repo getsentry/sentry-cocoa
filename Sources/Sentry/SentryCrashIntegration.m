@@ -118,13 +118,6 @@ sentry_finishAndSaveTransaction(void)
     }
 #endif // TARGET_OS_OSX
 
-    if (![SentryOptionsValidator isCacheDirectoryPathValidWithPath:options.cacheDirectoryPath]) {
-        [SentryLog logWithMessage:[NSString stringWithFormat:
-                                          @"The configured cache directory path looks invalid, the "
-                                          @"SDK might not be able to write reports to disk: %@",
-                                      options.cacheDirectoryPath]
-                         andLevel:kSentryLevelFatal];
-    }
     [self startCrashHandler:options.cacheDirectoryPath
                    enableSigtermReporting:enableSigtermReporting
         enableReportingUncaughtExceptions:enableUncaughtNSExceptionReporting];

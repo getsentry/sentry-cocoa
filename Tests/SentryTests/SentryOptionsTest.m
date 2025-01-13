@@ -271,23 +271,6 @@
     XCTAssertEqualObjects(options3.cacheDirectoryPath, [self getDefaultCacheDirectoryPath]);
 }
 
-- (void)testCacheDirectoryPath_invalidPathLength_shouldNotBeUsed
-{
-    // -- Arrange --
-    NSString *invalidPathSegment = [@"A" stringByPaddingToLength:256
-                                                      withString:@"a"
-                                                 startingAtIndex:0];
-    NSString *pathWithInvalidSegment = [[@"/path/to/invalid/segment/"
-        stringByAppendingPathComponent:invalidPathSegment] stringByAppendingPathComponent:@"file"];
-
-    // -- Act --
-    SentryOptions *options =
-        [self getValidOptions:@{ @"cacheDirectoryPath" : pathWithInvalidSegment }];
-
-    // -- Assert --
-    XCTAssertEqualObjects(options.cacheDirectoryPath, [self getDefaultCacheDirectoryPath]);
-}
-
 - (NSString *)getDefaultCacheDirectoryPath
 {
     return NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES)

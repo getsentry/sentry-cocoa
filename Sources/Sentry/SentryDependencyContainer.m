@@ -151,13 +151,6 @@ static NSObject *sentryDependencyContainerLock;
     if (_crashReporter == nil) {
         @synchronized(sentryDependencyContainerLock) {
             if (_crashReporter == nil) {
-                NSString *cacheDirectoryPath = SentrySDK.options.cacheDirectoryPath;
-                if (![SentryOptionsValidator
-                        isCacheDirectoryPathValidWithPath:cacheDirectoryPath]) {
-                    SENTRY_LOG_FATAL(@"The configured cache directory path looks invalid, the "
-                                     @"SDK might not be able to write reports to disk: %@",
-                        cacheDirectoryPath);
-                }
                 _crashReporter =
                     [[SentryCrash alloc] initWithBasePath:SentrySDK.options.cacheDirectoryPath];
             }
