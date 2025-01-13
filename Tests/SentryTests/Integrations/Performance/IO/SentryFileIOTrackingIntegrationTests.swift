@@ -118,7 +118,7 @@ class SentryFileIOTrackingIntegrationTests: XCTestCase {
         }
         SentrySDK.start(options: fixture.getOptions())
         assertSpans(1, "file.write") {
-            try? SentryDataWrapper(data: fixture.data).write(to: fixture.fileURL)
+            try? fixture.data.writeWithSentryTracing(to: fixture.fileURL)
         }
     }
 
@@ -130,7 +130,8 @@ class SentryFileIOTrackingIntegrationTests: XCTestCase {
         }
         SentrySDK.start(options: fixture.getOptions())
         assertSpans(1, "file.write") {
-            try? SentryDataWrapper(data: fixture.data).write(to: fixture.fileURL, options: .atomic)
+            try? fixture.data
+                .writeWithSentryTracing(to: fixture.fileURL, options: .atomic)
         }
     }
 
@@ -199,7 +200,8 @@ class SentryFileIOTrackingIntegrationTests: XCTestCase {
         }
         SentrySDK.start(options: fixture.getOptions())
         assertSpans(1, "file.read") {
-            let _ = try? SentryDataWrapper(contentsOf: fixture.fileURL)
+            let data = try? Data(contentsOfUrlWithSentryTracing: fixture.fileURL)
+            XCTAssertEqual(data?.count, fixture.data.count)
         }
     }
 
@@ -211,7 +213,7 @@ class SentryFileIOTrackingIntegrationTests: XCTestCase {
         }
         SentrySDK.start(options: fixture.getOptions())
         assertSpans(1, "file.read") {
-            let data = try? SentryDataWrapper(contentsOf: fixture.fileURL, options: .uncached)
+            let data = try? Data(contentsOfUrlWithSentryTracing: fixture.fileURL, options: .uncached)
             XCTAssertEqual(data?.count, fixture.data.count)
         }
     }

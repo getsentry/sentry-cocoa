@@ -1,6 +1,7 @@
 #import "SentryNSFileManagerSwizzling.h"
 #import "SentryLog.h"
 #import "SentrySwizzle.h"
+#import "SentryTraceOrigins.h"
 #import <objc/runtime.h>
 
 @interface SentryNSFileManagerSwizzling ()
@@ -59,6 +60,7 @@
                     measureNSFileManagerCreateFileAtPath:path
                                                     data:data
                                               attributes:attributes
+                                                  origin:SentryTraceOriginAutoNSData
                                                   method:^BOOL(NSString *path, NSData *data,
                                                       NSDictionary<NSFileAttributeKey, id>
                                                           *attributes) {
