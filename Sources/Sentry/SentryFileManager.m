@@ -24,7 +24,7 @@ BOOL
 isErrorPathTooLong(NSError *error)
 {
     NSError *underlyingError = NULL;
-    if (@available(iOS 14.5, *)) {
+    if (@available(macOS 11.3, iOS 14.5, watchOS 7.4, tvOS 14.5, *)) {
         underlyingError = error.underlyingErrors.firstObject;
     }
     if (underlyingError == NULL) {
