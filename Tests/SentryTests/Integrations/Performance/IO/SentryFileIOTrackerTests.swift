@@ -7,7 +7,9 @@ class SentryFileIOTrackerTests: XCTestCase {
     private class Fixture {
         
         let filePath = "Some Path"
-        let sentryPath = try! TestFileManager(options: Options()).sentryPath 
+        let fileURL = URL(fileURLWithPath: "Some Path")
+        let sentryPath = try! TestFileManager(options: Options()).sentryPath
+        let sentryUrl = URL(fileURLWithPath: try! TestFileManager(options: Options()).sentryPath)
         let dateProvider = TestCurrentDateProvider()
         let data = "SOME DATA".data(using: .utf8)!
         let threadInspector = TestThreadInspector.instance
@@ -43,15 +45,6 @@ class SentryFileIOTrackerTests: XCTestCase {
     override func tearDown() {
         super.tearDown()
         clearTestState()
-    }
-    
-    func testConstants() {
-        //A test to ensure this constants don't accidentally change
-        XCTAssertEqual("file.read", SentrySpanOperation.fileRead)
-        XCTAssertEqual(
-            "file.write",
-            SentrySpanOperation.fileWrite
-        )
     }
     
     func testWritePathAtomically() {
@@ -223,6 +216,67 @@ class SentryFileIOTrackerTests: XCTestCase {
         wait(for: [expect], timeout: 0.1)
     }
     
+    func testWriteUrlOptionsError() {
+        let sut = fixture.getSut()
+        var methodUrl: URL?
+        var methodOptions: NSData.WritingOptions?
+        var methodError: NSError?
+        
+        try! sut.measure(fixture.data, writeTo: fixture.fileURL, options: .atomic, origin: "custom.origin") { url, writingOption, _ -> Bool in
+            methodUrl = url
+            methodOptions = writingOption
+            return true
+        }
+        
+        XCTAssertEqual(fixture.fileURL, methodUrl)
+        XCTAssertEqual(methodOptions, .atomic)
+               
+        do {
+            try sut.measure(fixture.data, writeTo: fixture.fileURL, options: .withoutOverwriting, origin: "custom.origin") { _, writingOption, errorPointer -> Bool in
+                methodOptions = writingOption
+                errorPointer?.pointee = NSError(domain: "Test Error", code: -2, userInfo: nil)
+                return false
+            }
+        } catch {
+            methodError = error as NSError?
+        }
+        
+        XCTAssertEqual(methodOptions, .withoutOverwriting)
+        XCTAssertEqual(methodError?.domain, "Test Error")
+    }
+    
+    func testWriteUrlWithOptionsAndError_CheckTrace() {
+        let sut = fixture.getSut()
+        let transaction = SentrySDK.startTransaction(name: "Transaction", operation: "Test", bindToScope: true)
+        var span: Span?
+        
+        try! sut.measure(fixture.data, writeTo: fixture.fileURL, options: .atomic, origin: "custom.origin") { _, _, _ -> Bool in
+            span = self.firstSpan(transaction)
+            XCTAssertFalse(span?.isFinished ?? true)
+            self.advanceTime(bySeconds: 3)
+            return true
+        }
+        
+        assertSpanDuration(span: span, expectedDuration: 3)
+        assertDataSpan(span, url: fixture.fileURL, operation: SentrySpanOperation.fileWrite, size: fixture.data.count, origin: "custom.origin")
+    }
+    
+    func testDontTrackSentryUrlWrites() {
+        let sut = fixture.getSut()
+        let transaction = SentrySDK.startTransaction(name: "Transaction", operation: "Test", bindToScope: true)
+        var span: Span?
+        
+        let expect = expectation(description: "")
+        try! sut.measure(fixture.data, writeTo: fixture.sentryUrl, options: .atomic, origin: "custom.origin") { _, _, _ -> Bool in
+            span = self.firstSpan(transaction)
+            expect.fulfill()
+            return true
+        }
+        
+        XCTAssertNil(span)
+        wait(for: [expect], timeout: 0.1)
+    }
+    
     func testReadFromString() {
         let sut = fixture.getSut()
         let transaction = SentrySDK.startTransaction(name: "Transaction", operation: "Test", bindToScope: true)
@@ -340,7 +394,20 @@ class SentryFileIOTrackerTests: XCTestCase {
         let result = Dynamic(transaction).children as [Span]?
         return result?.first
     }
-    
+
+    private func assertDataSpan(
+        _ span: Span?,
+        url: URL,
+        operation: String,
+        size: Int,
+        origin: String,
+        mainThread: Bool = true,
+        file: StaticString = #file,
+        line: UInt = #line
+    ) {
+        assertDataSpan(span, path: url.path, operation: operation, size: size, origin: origin, file: file, line: line)
+    }
+
     private func assertDataSpan(
         _ span: Span?,
         path: String,

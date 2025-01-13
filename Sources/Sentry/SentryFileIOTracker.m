@@ -12,7 +12,6 @@
 #import "SentrySDK+Private.h"
 #import "SentryScope+Private.h"
 #import "SentrySpan.h"
-#import "SentrySpanOperations.h"
 #import "SentrySpanProtocol.h"
 #import "SentryStacktrace.h"
 #import "SentryThread.h"

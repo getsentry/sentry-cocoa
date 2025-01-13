@@ -4,7 +4,6 @@
 #import "SentryOptions.h"
 #import "SentrySDK.h"
 #import "SentrySpan.h"
-#import "SentrySpanOperations.h"
 #import "SentrySwizzle.h"
 #import "SentryThreadInspector.h"
 #import "SentryTracer.h"
