@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+## Improvements
+
+- Add file IO tracking wrapper for Swift.Data (#4605)
+
 ## 8.43.1-beta.0
 
 ### Fixes
@@ -33,7 +39,6 @@
 ### Improvements
 
 - Improve compiler error message for missing Swift declarations due to APPLICATION_EXTENSION_API_ONLY (#4603)
-- Add file IO tracking wrapper for Swift.Data (#4605)
 - Mask screenshots for errors (#4623)
 - Slightly speed up serializing scope (#4661)
 

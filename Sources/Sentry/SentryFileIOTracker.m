@@ -271,7 +271,7 @@ NSString *const SENTRY_TRACKING_COUNTER_KEY = @"SENTRY_TRACKING_COUNTER_KEY";
 {
     return [self spanForPath:path
                       origin:origin
-                   operation:SentrySpanOperationFileWrite
+                   operation:SentrySpanOperation.fileWrite
                         size:data.length];
 }
 
@@ -287,7 +287,7 @@ NSString *const SENTRY_TRACKING_COUNTER_KEY = @"SENTRY_TRACKING_COUNTER_KEY";
     if (count)
         return nil;
 
-    return [self spanForPath:path origin:origin operation:SentrySpanOperationFileRead size:0];
+    return [self spanForPath:path origin:origin operation:SentrySpanOperation.fileRead size:0];
 }
 
 - (void)endTrackingFile

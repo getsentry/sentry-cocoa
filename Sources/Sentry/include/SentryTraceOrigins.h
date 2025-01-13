@@ -1,5 +1,8 @@
 #import <Foundation/Foundation.h>
 
+// Note: Consider adding new operations to the `SentrySpanOperation` enum in
+// `SentrySpanOperations.swift` instead of adding them here.
+
 static NSString *const SentryTraceOriginManual = @"manual";
 static NSString *const SentryTraceOriginUIEventTracker = @"auto.ui.event_tracker";
 
