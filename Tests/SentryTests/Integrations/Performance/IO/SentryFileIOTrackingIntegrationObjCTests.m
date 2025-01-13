@@ -3,7 +3,6 @@
 #import "SentryOptions.h"
 #import "SentrySDK.h"
 #import "SentrySpan.h"
-#import "SentrySpanOperations.h"
 #import "SentrySwizzle.h"
 #import "SentryTracer.h"
 #import <SentrySwift.h>
@@ -181,11 +180,6 @@
 
 - (void)test_NSFileManagerCreateFile
 {
-    if (@available(iOS 18, macOS 15, tvOS 15, *)) {
-        XCTSkip("File IO tracking for Swift.Data is not working for this OS version. Therefore, we "
-                "disable this test until we fix file IO tracking: "
-                "https://github.com/getsentry/sentry-cocoa/issues/4546");
-    }
     [self assertTransactionForOperation:SentrySpanOperation.fileWrite
                                   block:^{
                                       [NSFileManager.defaultManager createFileAtPath:self->filePath
