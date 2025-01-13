@@ -107,9 +107,6 @@ jobs:
             --verbose \
             2>&1 | tee output.log
 
-          echo "Simulated failure"
-          exit 1 
-
       - # In case of failure, extract the test ID from the output and check if the test exists.
         # If the test exists, it failed during the run.
         # If the test does not exist, it might have failed due to an internal error of SauceLabs, 
@@ -153,12 +150,11 @@ jobs:
           SAUCE_USERNAME: ${{ secrets.SAUCE_USERNAME }}
           SAUCE_ACCESS_KEY: ${{ secrets.SAUCE_ACCESS_KEY }}
         run: |
-          set -o pipefail && saucectl run \
+          saucectl run \
             --select-suite "${{matrix.suite}}" \
             --config .sauce/benchmarking-config.yml \
             --tags benchmark \
-            --verbose \
-            2>&1 | tee output-retry-1.log
+            --verbose
 
   app-metrics:
     name: Collect app metrics
