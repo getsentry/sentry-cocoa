@@ -8,7 +8,7 @@ class SentryLog: NSObject {
     static private(set) var diagnosticLevel = SentryLevel.error
 
     /**
-     * The log level that will always be logged, regardless of the current configuration
+     * Threshold log level to always log, regardless of the current configuration
      */
     static let alwaysLevel = SentryLevel.fatal
     private static var logOutput = SentryLogOutput()
