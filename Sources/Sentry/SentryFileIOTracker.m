@@ -34,10 +34,7 @@ NSString *const SENTRY_TRACKING_COUNTER_KEY = @"SENTRY_TRACKING_COUNTER_KEY";
 
 + (instancetype)sharedInstance
 {
-    SentryFileIOTracker *tracker = [[SentryFileIOTracker alloc]
-        initWithThreadInspector:SentryDependencyContainer.sharedInstance.threadInspector
-             processInfoWrapper:SentryDependencyContainer.sharedInstance.processInfoWrapper];
-    return tracker;
+    return SentryDependencyContainer.sharedInstance.fileIOTracker;
 }
 
 - (instancetype)initWithThreadInspector:(SentryThreadInspector *)threadInspector

@@ -27,6 +27,14 @@ class SentryFileIOTrackingIntegrationTests: XCTestCase {
             fileURL = fileDirectory.appendingPathComponent("TestFile")
             filePath = fileURL?.path
         }
+
+        func assertDataWritten(toUrl url: URL, file: StaticString = #file, line: UInt = #line) {
+            guard let data = try? Data(contentsOf: url) else {
+                XCTFail("Could not load written resource file", file: file, line: line)
+                return
+            }
+            XCTAssertEqual(self.data, data, file: file, line: line)
+        }
     }
     
     private var fixture: Fixture!
@@ -111,15 +119,19 @@ class SentryFileIOTrackingIntegrationTests: XCTestCase {
     }
 
     func testDataExtension_Writing_Tracking() throws {
+        // -- Arrange --
         // Automatic tracking of Swift.Data is not available starting with iOS 18, macOS 15, tvOS 15.
         // Therefore, the extension method is only tested with these OS versions.
         guard #available(iOS 18, macOS 15, tvOS 18, *) else {
             throw XCTSkip("Data+SentryTracing is not tested on this OS version")
         }
         SentrySDK.start(options: fixture.getOptions())
+
+        // -- Act & Assert --
         assertSpans(1, "file.write") {
             try? fixture.data.writeWithSentryTracing(to: fixture.fileURL)
         }
+        fixture.assertDataWritten(toUrl: fixture.fileURL)
     }
 
     func testDataExtension_WritingWithOption_Tracking() throws {
@@ -133,6 +145,7 @@ class SentryFileIOTrackingIntegrationTests: XCTestCase {
             try? fixture.data
                 .writeWithSentryTracing(to: fixture.fileURL, options: .atomic)
         }
+        fixture.assertDataWritten(toUrl: fixture.fileURL)
     }
 
     func test_ReadingTrackingDisabled_forIOOption() {
@@ -329,9 +342,9 @@ class SentryFileIOTrackingIntegrationTests: XCTestCase {
             return
         }
         
-        XCTAssertEqual(children.count, spansCount, file: file, line: line)
+        XCTAssertEqual(children.count, spansCount, "Actual span count is not equal to expected count", file: file, line: line)
         if let first = children.first {
-            XCTAssertEqual(first.operation, operation, file: file, line: line)         
+            XCTAssertEqual(first.operation, operation, "Operation for span is not equal to expected operation", file: file, line: line)
         }
     }
 }

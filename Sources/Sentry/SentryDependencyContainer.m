@@ -5,6 +5,7 @@
 #import "SentryDispatchQueueWrapper.h"
 #import "SentryDisplayLinkWrapper.h"
 #import "SentryExtraContextProvider.h"
+#import "SentryFileIOTracker.h"
 #import "SentryFileManager.h"
 #import "SentryInternalCDefines.h"
 #import "SentryLog.h"
@@ -184,6 +185,21 @@ static NSObject *sentryDependencyContainerLock;
         }
     }
     return _threadInspector;
+}
+
+- (SentryFileIOTracker *)fileIOTracker SENTRY_DISABLE_THREAD_SANITIZER(
+    "double-checked lock produce false alarms")
+{
+    if (_fileIOTracker == nil) {
+        @synchronized(sentryDependencyContainerLock) {
+            if (_fileIOTracker == nil) {
+                _fileIOTracker =
+                    [[SentryFileIOTracker alloc] initWithThreadInspector:[self threadInspector]
+                                                      processInfoWrapper:[self processInfoWrapper]];
+            }
+        }
+    }
+    return _fileIOTracker;
 }
 
 - (SentryDebugImageProvider *)debugImageProvider

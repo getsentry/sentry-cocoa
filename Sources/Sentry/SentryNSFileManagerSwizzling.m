@@ -60,7 +60,7 @@
                     measureNSFileManagerCreateFileAtPath:path
                                                     data:data
                                               attributes:attributes
-                                                  origin:SentryTraceOriginAutoNSData
+                                                  origin:[SentryTraceOrigin autoNSData]
                                                   method:^BOOL(NSString *path, NSData *data,
                                                       NSDictionary<NSFileAttributeKey, id>
                                                           *attributes) {
