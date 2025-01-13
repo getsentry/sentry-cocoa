@@ -5,9 +5,15 @@
 ### Improvements
 
 - Add error logging for invalid `cacheDirectoryPath` (#4693)
+### Features
+
+- Add protocol for custom screenName for UIViewControllers (#4646)
+
+## 8.43.1-beta.0
 
 ### Fixes
 
+- Memory growth issue in profiler (#4682)
 - Replace occurences of `strncpy` with `strlcpy` (#4636)
 - Fix span recording for `NSFileManager.createFileAtPath` starting with iOS 18, macOS 15 and tvOS 18. This feature is experimental and must be enabled by setting the option `experimental.enableFileManagerSwizzling` to `true` (#4634)
 
