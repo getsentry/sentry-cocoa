@@ -80,6 +80,9 @@
                   Identifier = "SentryCrashReportStore_Tests/testStoresLoadsMultipleReports">
                </Test>
                <Test
+                  Identifier = "SentryHttpTransportTests/testFlush_WhenNoInternet_BlocksAndFinishes()">
+               </Test>
+               <Test
                   Identifier = "SentryNetworkTrackerIntegrationTests/testGetCaptureFailedRequestsEnabled()">
                </Test>
                <Test
