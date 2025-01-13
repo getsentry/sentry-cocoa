@@ -1,10 +1,12 @@
 # Changelog
 
-## 8.43.1-beta.0
+## Unreleased
 
 ### Features
 
-- Add protocol for custom screenName for UIViewControllers (#4646) 
+- Add protocol for custom screenName for UIViewControllers (#4646)
+
+## 8.43.1-beta.0
 
 ### Fixes
 
