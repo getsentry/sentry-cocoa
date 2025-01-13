@@ -83,6 +83,10 @@ static NSMutableString *_logString = nil;
 {
 };
 
+- (void)methodForUnswizzling
+{
+};
+
 - (NSString *)string
 {
     return @"ABC";
@@ -351,6 +355,86 @@ swizzleNumber(Class classToSwizzle, int (^transformationBlock)(int))
         SentrySwizzleModeAlways, NULL);
 
     XCTAssertThrows([a methodForSwizzlingWithoutCallOriginal]);
+}
+
+- (void)testUnswizzleInstanceMethod
+{
+    // -- Arrange --
+    SEL methodForUnswizzling = NSSelectorFromString(@"methodForUnswizzling");
+    SentrySwizzleTestClass_A *object = [SentrySwizzleTestClass_B new];
+
+    // Swizzle the method once
+    swizzleVoidMethod(
+        [SentrySwizzleTestClass_A class], methodForUnswizzling, ^{ SentryTestsLog(@"A"); },
+        SentrySwizzleModeAlways, (void *)methodForUnswizzling);
+
+    // Smoke test the swizzling
+    [object methodForUnswizzling];
+    ASSERT_LOG_IS(@"A");
+    [SentryTestsLog clear];
+
+    // -- Act --
+    [SentrySwizzle unswizzleInstanceMethod:methodForUnswizzling
+                                   inClass:[SentrySwizzleTestClass_A class]
+                                       key:(void *)methodForUnswizzling];
+    [object methodForUnswizzling];
+
+    // -- Assert --
+    ASSERT_LOG_IS(@"");
+}
+
+- (void)testUnswizzleInstanceMethod_methodNotSwizzled_shouldWork
+{
+    // -- Arrange --
+    SEL methodForUnswizzling = NSSelectorFromString(@"methodForUnswizzling");
+    SentrySwizzleTestClass_A *object = [SentrySwizzleTestClass_A new];
+
+    // Smoke-test the swizzling
+    [object methodForUnswizzling];
+    ASSERT_LOG_IS(@"");
+    [SentryTestsLog clear];
+
+    // -- Act --
+    [SentrySwizzle unswizzleInstanceMethod:methodForUnswizzling
+                                   inClass:[SentrySwizzleTestClass_A class]
+                                       key:(void *)methodForUnswizzling];
+    [object methodForUnswizzling];
+
+    // -- Assert --
+    ASSERT_LOG_IS(@"");
+}
+
+- (void)testUnswizzleInstanceMethod_unswizzlingMethodMultipleTimes_shouldWork
+{
+    // -- Arrange --
+    SEL methodForUnswizzling = NSSelectorFromString(@"methodForUnswizzling");
+    SentrySwizzleTestClass_A *object = [SentrySwizzleTestClass_A new];
+
+    swizzleVoidMethod(
+        [SentrySwizzleTestClass_A class], methodForUnswizzling, ^{ SentryTestsLog(@"A"); },
+        SentrySwizzleModeAlways, (void *)methodForUnswizzling);
+
+    // Smoke test the swizzling
+    [object methodForUnswizzling];
+    ASSERT_LOG_IS(@"A");
+    [SentryTestsLog clear];
+
+    [SentrySwizzle unswizzleInstanceMethod:methodForUnswizzling
+                                   inClass:[SentrySwizzleTestClass_A class]
+                                       key:(void *)methodForUnswizzling];
+    [object methodForUnswizzling];
+    ASSERT_LOG_IS(@"");
+    [SentryTestsLog clear];
+
+    // -- Act --
+    // Unswizzle again should not cause issues
+    [SentrySwizzle unswizzleInstanceMethod:methodForUnswizzling
+                                   inClass:[SentrySwizzleTestClass_A class]
+                                       key:(void *)methodForUnswizzling];
+    [object methodForUnswizzling];
+
+    // -- Assert -
+    ASSERT_LOG_IS(@"");
 }
 
 @end

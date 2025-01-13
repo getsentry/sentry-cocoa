@@ -51,6 +51,7 @@ class SentryFileIOTrackingIntegrationTests: XCTestCase {
             try? FileManager.default.removeItem(at: fixture.fileDirectory)
         }
         clearTestState()
+        SentrySDK.close()
     }
     
     func test_WritingTrackingDisabled_forIOOption() {

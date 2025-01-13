@@ -289,8 +289,12 @@
     SENTRY_LOG_DEBUG(@"sendAllCachedEnvelopes start.");
 
     @synchronized(self) {
-        if (self.isSending || ![self.requestManager isReady]) {
+        if (self.isSending) {
             SENTRY_LOG_DEBUG(@"Already sending.");
+            return;
+        }
+        if (![self.requestManager isReady]) {
+            SENTRY_LOG_DEBUG(@"Request manager not ready.");
             return;
         }
         self.isSending = YES;

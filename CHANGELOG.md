@@ -1,6 +1,23 @@
 # Changelog
 
+## 8.43.1-beta.0
+
+### Fixes
+
+- Memory growth issue in profiler (#4682)
+- Replace occurences of `strncpy` with `strlcpy` (#4636)
+- Fix span recording for `NSFileManager.createFileAtPath` starting with iOS 18, macOS 15 and tvOS 18. This feature is experimental and must be enabled by setting the option `experimental.enableFileManagerSwizzling` to `true` (#4634)
+
+
+### Internal
+
+- Update to Xcode 16.2 in workflows (#4673)
+- Add method unswizzling (#4647)
+
 ## 8.43.0
+
+> [!WARNING]
+> This release contains a breaking change for the previously experimental session replay options. We moved the options from Session from `options.experimental.sessionReplay` to `options.sessionReplay`.
 
 ### Features
 
@@ -10,7 +27,7 @@
 ### Fixes
 
 - Remove empty session replay tags (#4667)
-- - `SentrySdkInfo.packages` should be an array (#4626)
+- `SentrySdkInfo.packages` should be an array (#4626)
 - Use the same SdkInfo for envelope header and event (#4629)
 
 ### Improvements
