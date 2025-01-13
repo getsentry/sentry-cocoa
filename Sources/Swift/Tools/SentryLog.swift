@@ -6,6 +6,11 @@ class SentryLog: NSObject {
     
     static private(set) var isDebug = true
     static private(set) var diagnosticLevel = SentryLevel.error
+
+    /**
+     * The log level that will always be logged, regardless of the current configuration
+     */
+    static let alwaysLevel = SentryLevel.fatal
     private static var logOutput = SentryLogOutput()
     private static var logConfigureLock = NSLock()
 
@@ -30,7 +35,13 @@ class SentryLog: NSObject {
      */
     @objc
     static func willLog(atLevel level: SentryLevel) -> Bool {
-        return isDebug && level != .none && level.rawValue >= diagnosticLevel.rawValue
+        if level == .none {
+            return false
+        }
+        if level.rawValue >= alwaysLevel.rawValue {
+            return true
+        }
+        return isDebug && level.rawValue >= diagnosticLevel.rawValue
     }
  
     #if TEST || TESTCI
