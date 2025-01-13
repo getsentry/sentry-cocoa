@@ -2,9 +2,10 @@
 
 ## Unreleased
 
-## Improvements
+### Features
 
-- Add file IO tracking wrapper for Swift.Data (#4605)
+- Add protocol for custom screenName for UIViewControllers (#4646)
+- Add manual file IO tracking methods for Swift.Data (#4605)
 
 ## 8.43.1-beta.0
 

@@ -126,7 +126,7 @@
             [self.currentTTDTracker finishSpansIfNotFinished];
         }
 
-        NSString *name = [SwiftDescriptor getObjectClassName:controller];
+        NSString *name = [SwiftDescriptor getViewControllerClassName:controller];
         spanId = [self.tracker startSpanWithName:name
                                       nameSource:kSentryTransactionNameSourceComponent
                                        operation:SentrySpanOperationUILoad
