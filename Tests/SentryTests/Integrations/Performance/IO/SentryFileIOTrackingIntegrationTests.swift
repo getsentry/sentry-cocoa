@@ -110,11 +110,11 @@ class SentryFileIOTrackingIntegrationTests: XCTestCase {
         }
     }
 
-    func testDataWrapper_Writing_Tracking() throws {
+    func testDataExtension_Writing_Tracking() throws {
         // Automatic tracking of Swift.Data is not available starting with iOS 18, macOS 15, tvOS 15.
-        // Therefore, the wrapper is only tested with these OS versions.
+        // Therefore, the extension method is only tested with these OS versions.
         guard #available(iOS 18, macOS 15, tvOS 18, *) else {
-            throw XCTSkip("SentryDataWrapper is not tested on this OS version")
+            throw XCTSkip("Data+SentryTracing is not tested on this OS version")
         }
         SentrySDK.start(options: fixture.getOptions())
         assertSpans(1, "file.write") {
@@ -122,11 +122,11 @@ class SentryFileIOTrackingIntegrationTests: XCTestCase {
         }
     }
 
-    func testDataWrapper_WritingWithOption_Tracking() throws {
+    func testDataExtension_WritingWithOption_Tracking() throws {
         // Automatic tracking of Swift.Data is not available starting with iOS 18, macOS 15, tvOS 15.
-        // Therefore, the wrapper is only tested with these OS versions.
+        // Therefore, the extension method is only tested with these OS versions.
         guard #available(iOS 18, macOS 15, tvOS 18, *) else {
-            throw XCTSkip("SentryDataWrapper is not tested on this OS version")
+            throw XCTSkip("Data+SentryTracing is not tested on this OS version")
         }
         SentrySDK.start(options: fixture.getOptions())
         assertSpans(1, "file.write") {
@@ -192,11 +192,11 @@ class SentryFileIOTrackingIntegrationTests: XCTestCase {
         }
     }
 
-    func testDataWrapper_ReadingURL_Tracking() throws {
+    func testDataExtension_ReadingURL_Tracking() throws {
         // Automatic tracking of Swift.Data is not available starting with iOS 18, macOS 15, tvOS 18.
-        // Therefore, the wrapper is only tested with these OS versions.
+        // Therefore, the extension method is only tested with these OS versions.
         guard #available(iOS 18, macOS 15, tvOS 18, *) else {
-            throw XCTSkip("SentryDataWrapper is not tested on this OS version")
+            throw XCTSkip("Data+SentryTracing is not tested on this OS version")
         }
         SentrySDK.start(options: fixture.getOptions())
         assertSpans(1, "file.read") {
@@ -205,11 +205,11 @@ class SentryFileIOTrackingIntegrationTests: XCTestCase {
         }
     }
 
-    func testDataWrapper_ReadingURLWithOption_Tracking() throws {
+    func testDataExtension_ReadingURLWithOption_Tracking() throws {
         // Automatic tracking of Swift.Data is not available starting with iOS 18, macOS 15, tvOS 18.
-        // Therefore, the wrapper is only tested with these OS versions.
+        // Therefore, the extension method is only tested with these OS versions.
         guard #available(iOS 18, macOS 15, tvOS 18, *) else {
-            throw XCTSkip("SentryDataWrapper is not tested on this OS version")
+            throw XCTSkip("Data+SentryTracing is not tested on this OS version")
         }
         SentrySDK.start(options: fixture.getOptions())
         assertSpans(1, "file.read") {
@@ -310,7 +310,14 @@ class SentryFileIOTrackingIntegrationTests: XCTestCase {
         }
     }
     
-    private func assertSpans( _ spansCount: Int, _ operation: String, _ description: String = "TestFile", _ block: () -> Void) {
+    private func assertSpans(
+        _ spansCount: Int,
+        _ operation: String,
+        _ description: String = "TestFile",
+        _ block: () -> Void,
+        file: StaticString = #file,
+        line: UInt = #line
+    ) {
         let parentTransaction = SentrySDK.startTransaction(name: "Transaction", operation: "Test", bindToScope: true)
         
         block()
@@ -318,13 +325,13 @@ class SentryFileIOTrackingIntegrationTests: XCTestCase {
         let childrenSelector = NSSelectorFromString("children")
         
         guard let children = parentTransaction.perform(childrenSelector).takeUnretainedValue() as? [Span] else {
-            XCTFail("Did not found children property from transaction.")
+            XCTFail("Did not found children property from transaction.", file: file, line: line)
             return
         }
         
-        XCTAssertEqual(children.count, spansCount)
+        XCTAssertEqual(children.count, spansCount, file: file, line: line)
         if let first = children.first {
-            XCTAssertEqual(first.operation, operation)         
+            XCTAssertEqual(first.operation, operation, file: file, line: line)         
         }
     }
 }

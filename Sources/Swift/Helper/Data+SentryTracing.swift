@@ -18,7 +18,7 @@ public extension Data {
         self = try tracker
             .measureNSData(
                 from: url,
-                origin: SentryTraceOriginManualData) { url, options, errorPtr in
+                origin: SentryTraceOrigin.manualData) { url, options, errorPtr in
                     do {
                         return try Data(contentsOf: url, options: options)
                     } catch {
@@ -41,7 +41,7 @@ public extension Data {
                 self,
                 writeTo: url,
                 options: options,
-                origin: SentryTraceOriginManualData) { url, options, errorPtr in
+                origin: SentryTraceOrigin.manualData) { url, options, errorPtr in
                     do {
                         try self.write(to: url, options: options)
                         return true

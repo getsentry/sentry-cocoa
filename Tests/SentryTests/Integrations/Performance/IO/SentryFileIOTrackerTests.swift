@@ -63,7 +63,7 @@ class SentryFileIOTrackerTests: XCTestCase {
             fixture.data,
             writeToFile: fixture.filePath,
             atomically: false,
-            origin: SentryTraceOriginAutoNSData
+            origin: "custom.origin"
         ) { path, useAuxiliareFile -> Bool in
             methodPath = path
             methodAuxiliareFile = useAuxiliareFile
@@ -74,7 +74,7 @@ class SentryFileIOTrackerTests: XCTestCase {
         XCTAssertFalse(methodAuxiliareFile!)
         XCTAssertFalse(result)
         
-        result = sut.measure(fixture.data, writeToFile: fixture.filePath, atomically: true, origin: SentryTraceOriginAutoNSData) { _, useAuxiliareFile -> Bool in
+        result = sut.measure(fixture.data, writeToFile: fixture.filePath, atomically: true, origin: "custom.origin") { _, useAuxiliareFile -> Bool in
             methodAuxiliareFile = useAuxiliareFile
             return true
         }
@@ -89,7 +89,7 @@ class SentryFileIOTrackerTests: XCTestCase {
         var methodOptions: NSData.WritingOptions?
         var methodError: NSError?
         
-        try! sut.measure(fixture.data, writeToFile: fixture.filePath, options: .atomic, origin: SentryTraceOriginAutoNSData) { path, writingOption, _ -> Bool in
+        try! sut.measure(fixture.data, writeToFile: fixture.filePath, options: .atomic, origin: "custom.origin") { path, writingOption, _ -> Bool in
             methodPath = path
             methodOptions = writingOption
             return true
@@ -99,7 +99,7 @@ class SentryFileIOTrackerTests: XCTestCase {
         XCTAssertEqual(methodOptions, .atomic)
                
         do {
-            try sut.measure(fixture.data, writeToFile: fixture.filePath, options: .withoutOverwriting, origin: SentryTraceOriginAutoNSData) { _, writingOption, errorPointer -> Bool in
+            try sut.measure(fixture.data, writeToFile: fixture.filePath, options: .withoutOverwriting, origin: "custom.origin") { _, writingOption, errorPointer -> Bool in
                 methodOptions = writingOption
                 errorPointer?.pointee = NSError(domain: "Test Error", code: -2, userInfo: nil)
                 return false
@@ -117,7 +117,7 @@ class SentryFileIOTrackerTests: XCTestCase {
         let transaction = SentrySDK.startTransaction(name: "Transaction", operation: "Test", bindToScope: true)
         var span: Span?
 
-        sut.measure(fixture.data, writeToFile: fixture.filePath, atomically: false, origin: SentryTraceOriginAutoNSData) { _, _ -> Bool in
+        sut.measure(fixture.data, writeToFile: fixture.filePath, atomically: false, origin: "custom.origin") { _, _ -> Bool in
             span = self.firstSpan(transaction)
             XCTAssertFalse(span?.isFinished ?? true)
             self.advanceTime(bySeconds: 4)
@@ -125,7 +125,7 @@ class SentryFileIOTrackerTests: XCTestCase {
         }
         
         assertSpanDuration(span: span, expectedDuration: 4)
-        assertDataSpan(span, path: fixture.filePath, operation: SentrySpanOperationFileWrite, size: fixture.data.count)
+        assertDataSpan(span, path: fixture.filePath, operation: SentrySpanOperationFileWrite, size: fixture.data.count, origin: "custom.origin")
     }
 
     func testWriteAtomically_CheckTransaction_DebugImages() {
@@ -133,7 +133,7 @@ class SentryFileIOTrackerTests: XCTestCase {
         let transaction = SentrySDK.startTransaction(name: "Transaction", operation: "Test", bindToScope: true)
         var span: Span?
 
-        sut.measure(fixture.data, writeToFile: fixture.filePath, atomically: false, origin: SentryTraceOriginAutoNSData) { _, _ -> Bool in
+        sut.measure(fixture.data, writeToFile: fixture.filePath, atomically: false, origin: "custom.origin") { _, _ -> Bool in
             span = self.firstSpan(transaction)
             XCTAssertFalse(span?.isFinished ?? true)
             self.advanceTime(bySeconds: 4)
@@ -158,7 +158,7 @@ class SentryFileIOTrackerTests: XCTestCase {
 
         var span: SentrySpan?
 
-        sut.measure(fixture.data, writeToFile: fixture.filePath, atomically: false, origin: SentryTraceOriginAutoNSData) { _, _ -> Bool in
+        sut.measure(fixture.data, writeToFile: fixture.filePath, atomically: false, origin: "custom.origin") { _, _ -> Bool in
             span = self.firstSpan(transaction) as? SentrySpan
             XCTAssertFalse(span?.isFinished ?? true)
             return true
@@ -176,7 +176,7 @@ class SentryFileIOTrackerTests: XCTestCase {
             let transaction = SentrySDK.startTransaction(name: "Transaction", operation: "Test", bindToScope: true)
             var span: Span?
 
-            sut.measure(self.fixture.data, writeToFile: self.fixture.filePath, atomically: false, origin: SentryTraceOriginAutoNSData) { _, _ -> Bool in
+            sut.measure(self.fixture.data, writeToFile: self.fixture.filePath, atomically: false, origin: "custom.origin") { _, _ -> Bool in
                 span = self.firstSpan(transaction)
                 XCTAssertFalse(span?.isFinished ?? true)
                 self.advanceTime(bySeconds: 4)
@@ -184,7 +184,7 @@ class SentryFileIOTrackerTests: XCTestCase {
             }
 
             self.assertSpanDuration(span: span, expectedDuration: 4)
-            self.assertDataSpan(span, path: self.fixture.filePath, operation: SentrySpanOperationFileWrite, size: self.fixture.data.count, mainThread: false)
+            self.assertDataSpan(span, path: self.fixture.filePath, operation: SentrySpanOperationFileWrite, size: self.fixture.data.count, origin: "custom.origin", mainThread: false)
             expect.fulfill()
         }
 
@@ -196,7 +196,7 @@ class SentryFileIOTrackerTests: XCTestCase {
         let transaction = SentrySDK.startTransaction(name: "Transaction", operation: "Test", bindToScope: true)
         var span: Span?
         
-        try! sut.measure(fixture.data, writeToFile: fixture.filePath, options: .atomic, origin: SentryTraceOriginAutoNSData) { _, _, _ -> Bool in
+        try! sut.measure(fixture.data, writeToFile: fixture.filePath, options: .atomic, origin: "custom.origin") { _, _, _ -> Bool in
             span = self.firstSpan(transaction)
             XCTAssertFalse(span?.isFinished ?? true)
             self.advanceTime(bySeconds: 3)
@@ -204,7 +204,7 @@ class SentryFileIOTrackerTests: XCTestCase {
         }
         
         assertSpanDuration(span: span, expectedDuration: 3)
-        assertDataSpan(span, path: fixture.filePath, operation: SentrySpanOperationFileWrite, size: fixture.data.count)
+        assertDataSpan(span, path: fixture.filePath, operation: SentrySpanOperationFileWrite, size: fixture.data.count, origin: "custom.origin")
     }
     
     func testDontTrackSentryFilesWrites() {
@@ -213,7 +213,7 @@ class SentryFileIOTrackerTests: XCTestCase {
         var span: Span?
         
         let expect = expectation(description: "")
-        try! sut.measure(fixture.data, writeToFile: fixture.sentryPath, options: .atomic, origin: SentryTraceOriginAutoNSData) { _, _, _ -> Bool in
+        try! sut.measure(fixture.data, writeToFile: fixture.sentryPath, options: .atomic, origin: "custom.origin") { _, _, _ -> Bool in
             span = self.firstSpan(transaction)
             expect.fulfill()
             return true
@@ -229,7 +229,7 @@ class SentryFileIOTrackerTests: XCTestCase {
         var span: Span?
         var usedPath: String?
         
-        let data = sut.measureNSData(fromFile: fixture.filePath, origin: SentryTraceOriginAutoNSData) { path in
+        let data = sut.measureNSData(fromFile: fixture.filePath, origin: "custom.origin") { path in
             span = self.firstSpan(transaction)
             usedPath = path
             return self.fixture.data
@@ -238,7 +238,7 @@ class SentryFileIOTrackerTests: XCTestCase {
         XCTAssertEqual(usedPath, fixture.filePath)
         XCTAssertEqual(data?.count, fixture.data.count)
         
-        assertDataSpan(span, path: fixture.filePath, operation: SentrySpanOperationFileRead, size: fixture.data.count)
+        assertDataSpan(span, path: fixture.filePath, operation: SentrySpanOperationFileRead, size: fixture.data.count, origin: "custom.origin")
     }
     
     func testReadFromStringOptionsError() {
@@ -248,7 +248,7 @@ class SentryFileIOTrackerTests: XCTestCase {
         var usedPath: String?
         var usedOptions: NSData.ReadingOptions?
         
-        let data = try? sut.measureNSData(fromFile: self.fixture.filePath, options: .uncached, origin: SentryTraceOriginAutoNSData) { path, options, _ -> Data in
+        let data = try? sut.measureNSData(fromFile: self.fixture.filePath, options: .uncached, origin: "custom.origin") { path, options, _ -> Data in
             span = self.firstSpan(transaction)
             usedOptions = options
             usedPath = path
@@ -259,7 +259,7 @@ class SentryFileIOTrackerTests: XCTestCase {
         XCTAssertEqual(data?.count, fixture.data.count)
         XCTAssertEqual(usedOptions, .uncached)
         
-        assertDataSpan(span, path: fixture.filePath, operation: SentrySpanOperationFileRead, size: fixture.data.count)
+        assertDataSpan(span, path: fixture.filePath, operation: SentrySpanOperationFileRead, size: fixture.data.count, origin: "custom.origin")
     }
     
     func testReadFromURLOptionsError() {
@@ -270,7 +270,7 @@ class SentryFileIOTrackerTests: XCTestCase {
         let url = URL(fileURLWithPath: fixture.filePath)
         var usedOptions: NSData.ReadingOptions?
         
-        let data = try? sut.measureNSData(from: url, options: .uncached, origin: SentryTraceOriginAutoNSData) { url, options, _ in
+        let data = try? sut.measureNSData(from: url, options: .uncached, origin: "custom.origin") { url, options, _ in
             span = self.firstSpan(transaction)
             usedOptions = options
             usedUrl = url
@@ -281,7 +281,7 @@ class SentryFileIOTrackerTests: XCTestCase {
         XCTAssertEqual(data?.count, fixture.data.count)
         XCTAssertEqual(usedOptions, .uncached)
         
-        assertDataSpan(span, path: url.path, operation: SentrySpanOperationFileRead, size: fixture.data.count)
+        assertDataSpan(span, path: url.path, operation: SentrySpanOperationFileRead, size: fixture.data.count, origin: "custom.origin")
     }
     
     func testCreateFile() {
@@ -296,7 +296,7 @@ class SentryFileIOTrackerTests: XCTestCase {
 
         sut.measureNSFileManagerCreateFile(atPath: fixture.filePath, data: fixture.data, attributes: [
             FileAttributeKey.size: 123
-        ], origin: SentryTraceOriginAutoNSData, method: { path, data, attributes in
+        ], origin: "custom.origin", method: { path, data, attributes in
             methodPath = path
             methodData = data
             methodAttributes = attributes
@@ -316,7 +316,7 @@ class SentryFileIOTrackerTests: XCTestCase {
             span,
             path: fixture.filePath,
             operation: SentrySpanOperationFileWrite,
-            size: fixture.data.count
+            size: fixture.data.count, origin: "custom.origin"
         )
     }
     
@@ -326,7 +326,7 @@ class SentryFileIOTrackerTests: XCTestCase {
         var span: Span?
        
         let expect = expectation(description: "")
-        let _ = sut.measureNSData(fromFile: fixture.sentryPath, origin: SentryTraceOriginAutoNSData) { _ in
+        let _ = sut.measureNSData(fromFile: fixture.sentryPath, origin: "custom.origin") { _ in
             span = self.firstSpan(transaction)
             expect.fulfill()
             return nil
@@ -341,37 +341,51 @@ class SentryFileIOTrackerTests: XCTestCase {
         return result?.first
     }
     
-    private func assertDataSpan(_ span: Span?, path: String, operation: String, size: Int, mainThread: Bool = true ) {
-        XCTAssertNotNil(span)
-        XCTAssertEqual(span?.operation, operation)
-        XCTAssertEqual(span?.origin, "auto.file.ns_data")
-        XCTAssertTrue(span?.isFinished ?? false)
-        XCTAssertEqual(span?.data["file.size"] as? Int, size)
-        XCTAssertEqual(span?.data["file.path"] as? String, path)
+    private func assertDataSpan(
+        _ span: Span?,
+        path: String,
+        operation: String,
+        size: Int,
+        origin: String,
+        mainThread: Bool = true,
+        file: StaticString = #file,
+        line: UInt = #line
+    ) {
+        XCTAssertNotNil(span, file: file, line: line)
+        XCTAssertEqual(span?.operation, operation, file: file, line: line)
+        XCTAssertEqual(span?.origin, origin, file: file, line: line)
+        XCTAssertTrue(span?.isFinished ?? false, file: file, line: line)
+        XCTAssertEqual(span?.data["file.size"] as? Int, size, file: file, line: line)
+        XCTAssertEqual(span?.data["file.path"] as? String, path, file: file, line: line)
         XCTAssertEqual(span?.data["blocked_main_thread"] as? Bool ?? false, mainThread)
 
         if mainThread {
             guard let frames = (span as? SentrySpan)?.frames else {
-                XCTFail("File IO Span in the main thread has no frames")
+                XCTFail("File IO Span in the main thread has no frames", file: file, line: line)
                 return
             }
-            XCTAssertEqual(frames.first, TestData.mainFrame)
-            XCTAssertEqual(frames.last, TestData.testFrame)
+            XCTAssertEqual(frames.first, TestData.mainFrame, file: file, line: line)
+            XCTAssertEqual(frames.last, TestData.testFrame, file: file, line: line)
         }
         
         let lastComponent = (path as NSString).lastPathComponent
         
         if operation == SentrySpanOperationFileRead {
-            XCTAssertEqual(span?.spanDescription, lastComponent)
+            XCTAssertEqual(span?.spanDescription, lastComponent, file: file, line: line)
         } else {
             let bytesDescription = SentryByteCountFormatter.bytesCountDescription( UInt(size))
-            XCTAssertEqual(span?.spanDescription ?? "", "\(lastComponent) (\(bytesDescription))")
+            XCTAssertEqual(span?.spanDescription ?? "", "\(lastComponent) (\(bytesDescription))", file: file, line: line)
         }
     }
     
-    private func assertSpanDuration(span: Span?, expectedDuration: TimeInterval) {
+    private func assertSpanDuration(
+        span: Span?,
+        expectedDuration: TimeInterval,
+        file: StaticString = #file,
+        line: UInt = #line
+    ) {
         let duration = span?.timestamp?.timeIntervalSince(span!.startTimestamp!)
-        XCTAssertEqual(duration, expectedDuration)
+        XCTAssertEqual(duration, expectedDuration, file: file, line: line)
     }
     
     private func advanceTime(bySeconds: TimeInterval) {
