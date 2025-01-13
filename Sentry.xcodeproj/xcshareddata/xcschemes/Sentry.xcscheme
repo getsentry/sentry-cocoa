@@ -86,6 +86,9 @@
                   Identifier = "SentryNetworkTrackerIntegrationTests/testGetRequest_CompareSentryTraceHeader()">
                </Test>
                <Test
+                  Identifier = "SentryOnDemandReplayTests/testAddFrameIsThreadSafe()">
+               </Test>
+               <Test
                   Identifier = "SentryProfilerSwiftTests/testConcurrentSpansWithTimeout()">
                </Test>
                <Test
