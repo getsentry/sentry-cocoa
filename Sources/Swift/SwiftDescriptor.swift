@@ -1,6 +1,6 @@
 import Foundation
 
-#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
+#if canImport(UIKit) && !SENTRY_NO_UIKIT
 import UIKit
 #endif
 
@@ -12,7 +12,8 @@ class SwiftDescriptor: NSObject {
         return String(describing: type(of: object))
     }
 
-#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
+    /// UIViewControllers aren't available on watchOS
+#if canImport(UIKit) && !os(watchOS) && !SENTRY_NO_UIKIT
     @objc
     static func getViewControllerClassName(_ object: UIViewController) -> String {
         if let object = object as? SentryUIViewControllerDescriptor {
