@@ -1,4 +1,4 @@
-//swiftlint:disable todo
+//swiftlint:disable type_body_length
 
 import XCTest
 
@@ -98,7 +98,10 @@ class UserFeedbackUITests: BaseUITest {
     }
     
     func testPrefilledUserInformation() throws {
-        launchApp(args: ["--io.sentry.feedback.use-sentry-user"], env: [
+        launchApp(args: [
+            "--io.sentry.feedback.use-sentry-user",
+            "--io.sentry.feedback.all-defaults"
+        ], env: [
             "--io.sentry.user.name": "ui test user",
             "--io.sentry.user.email": "ui-testing@sentry.io"
         ])
@@ -386,4 +389,4 @@ class UserFeedbackUITests: BaseUITest {
     }
 }
 
-//swiftlint:enable todo
+//swiftlint:enable type_body_length
