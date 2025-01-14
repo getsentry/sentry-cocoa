@@ -127,8 +127,9 @@ jobs:
             const match = outputLog.match(/https:\/\/app\.saucelabs\.com\/tests\/([^\s]+)/);
 
             // Simulate failure by setting a random test ID
-            // const testId = match?.[1];
-            const testId = 'invalid-test-id';
+            // const testId = match?.[1] ?? '';
+            // const testId = 'invalid-test-id';
+            const testId = '';
             
             if (!testId) {
               console.log("No test ID found in the output, retrying...");
@@ -147,8 +148,7 @@ jobs:
               console.log("Test exists but failed, not retrying.");
               core.setFailed('Test exists but failed');
             } catch (error) {
-              console.error("Failed to get job: ", error);
-              console.log("Retrying...");
+              console.log("Failed to get job, retrying...");
               core.setOutput('RETRY_TEST', 'true');
             }
 
