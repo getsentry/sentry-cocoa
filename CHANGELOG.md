@@ -6,6 +6,10 @@
 
 - Add native SDK information in the replay option event (#4663)
 
+### Features
+
+- Add protocol for custom screenName for UIViewControllers (#4646)
+
 ## 8.43.1-beta.0
 
 ### Fixes
