@@ -133,6 +133,9 @@ jobs:
             
               return;
             }
+
+            // Simulate failure by setting a random test ID
+            const testIdToCheck = 'invalid-test-id';
             
             try {
               console.log(`Checking if the test exists in SauceLabs: ${testId}`);
@@ -143,9 +146,6 @@ jobs:
               
               console.log("Test exists but failed, not retrying.");
               core.setFailed('Test exists but failed');
-
-              console.log("Simulating failure")
-              core.setOutput('RETRY_TEST', 'true'); 
             } catch (error) {
               console.error("Failed to get job: ", error);
               console.log("Retrying...");
