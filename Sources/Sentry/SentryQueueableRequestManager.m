@@ -27,7 +27,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (BOOL)isReady
 {
-#if TEST || TESTCI
+#if SENTRY_TEST || SENTRY_TEST_CI
     // force every envelope to be cached in UI tests so we can inspect what the SDK would've sent
     // for a given operation
     if ([NSProcessInfo.processInfo.environment[@"--io.sentry.sdk-environment"]
@@ -39,7 +39,7 @@ NS_ASSUME_NONNULL_BEGIN
             containsObject:@"--io.sentry.disable-http-transport"]) {
         return NO;
     }
-#endif // TEST || TESTCI
+#endif // SENTRY_TEST || SENTRY_TEST_CI
 
     // We always have at least one operation in the queue when calling this
     return self.queue.operationCount <= 1;

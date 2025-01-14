@@ -73,7 +73,7 @@
 
 + (void)unswizzle
 {
-#if TEST || TESTCI
+#if SENTRY_TEST || SENTRY_TEST_CI
     // Unswizzling is only supported in test targets as it is considered unsafe for production.
     if (@available(iOS 18, macOS 15, tvOS 18, *)) {
         SEL createFileAtPathContentsAttributes
@@ -81,7 +81,7 @@
         SentryUnswizzleInstanceMethod(NSFileManager.class, createFileAtPathContentsAttributes,
             (void *)createFileAtPathContentsAttributes);
     }
-#endif // TEST || TESTCI
+#endif // SENTRY_TEST || SENTRY_TEST_CI
 }
 #pragma clang diagnostic pop
 @end

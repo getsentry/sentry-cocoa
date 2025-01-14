@@ -45,7 +45,7 @@ typedef IMP (^SentrySwizzleImpProvider)(void);
 // only one thread is modifying the class at a time.
 static pthread_mutex_t gLock = PTHREAD_MUTEX_INITIALIZER;
 
-#if TEST || TESTCI
+#if SENTRY_TEST || SENTRY_TEST_CI
 /**
  * - Returns: a dictionary that maps keys to the references to the original implementations.
  */
@@ -127,7 +127,7 @@ getRefToOriginalImplementation(const void *key)
     }
     return (IMP)[originalImplementationValue pointerValue];
 }
-#endif // TEST || TESTCI
+#endif // SENTRY_TEST || SENTRY_TEST_CI
 
 static void
 swizzle(
@@ -194,7 +194,7 @@ swizzle(
     pthread_mutex_lock(&gLock);
 
     originalIMP = class_replaceMethod(classToSwizzle, selector, newIMP, methodType);
-#if TEST || TESTCI
+#if SENTRY_TEST || SENTRY_TEST_CI
     if (originalIMP) {
         if (key != NULL) {
             storeRefToOriginalImplementation(key, originalIMP);
@@ -203,12 +203,12 @@ swizzle(
                 @"Swizzling without a key is not recommended, because they can not be unswizzled.");
         }
     }
-#endif // TEST || TESTCI
+#endif // SENTRY_TEST || SENTRY_TEST_CI
 
     pthread_mutex_unlock(&gLock);
 }
 
-#if TEST || TESTCI
+#if SENTRY_TEST || SENTRY_TEST_CI
 static void
 unswizzle(Class classToUnswizzle, SEL selector, const void *key)
 {
@@ -236,7 +236,7 @@ unswizzle(Class classToUnswizzle, SEL selector, const void *key)
 
     pthread_mutex_unlock(&gLock);
 }
-#endif // TEST || TESTCI
+#endif // SENTRY_TEST || SENTRY_TEST_CI
 
 static NSMutableDictionary<NSValue *, NSMutableSet<Class> *> *
 swizzledClassesDictionary(void)
@@ -302,7 +302,7 @@ swizzledClassesForKey(const void *key)
     return YES;
 }
 
-#if TEST || TESTCI
+#if SENTRY_TEST || SENTRY_TEST_CI
 + (BOOL)unswizzleInstanceMethod:(SEL)selector inClass:(Class)classToUnswizzle key:(const void *)key
 {
     NSAssert(key != NULL, @"Key may not be NULL.");
@@ -324,7 +324,7 @@ swizzledClassesForKey(const void *key)
 
     return YES;
 }
-#endif // TEST || TESTCI
+#endif // SENTRY_TEST || SENTRY_TEST_CI
 
 + (void)swizzleClassMethod:(SEL)selector
                    inClass:(Class)classToSwizzle

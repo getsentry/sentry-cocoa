@@ -522,7 +522,7 @@ static SentryTouchTracker *_touchTracker;
 #    pragma clang diagnostic pop
 }
 
-#    if TEST || TESTCI
+#    if SENTRY_TEST || SENTRY_TEST_CI
 - (SentryTouchTracker *)getTouchTracker
 {
     return _touchTracker;

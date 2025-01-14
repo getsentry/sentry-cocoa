@@ -83,7 +83,7 @@
         _SentrySWWrapArg(SentrySWArguments), _SentrySWWrapArg(SentrySWReplacement),                \
         SentrySwizzleMode, key)
 
-#if TEST || TESTCI
+#if SENTRY_TEST || SENTRY_TEST_CI
 /**
  * Unswizzles the instance method of the class.
  *
@@ -98,7 +98,7 @@
  */
 #    define SentryUnswizzleInstanceMethod(classToUnswizzle, selector, key)                         \
         _SentryUnswizzleInstanceMethod(classToUnswizzle, selector, key)
-#endif // TEST || TESTCI
+#endif // SENTRY_TEST || SENTRY_TEST_CI
 
 #pragma mark └ Swizzle Class Method
 
@@ -319,7 +319,7 @@ typedef NS_ENUM(NSUInteger, SentrySwizzleMode) {
                          mode:(SentrySwizzleMode)mode
                           key:(const void *)key;
 
-#if TEST || TESTCI
+#if SENTRY_TEST || SENTRY_TEST_CI
 /**
  * Unswizzles the instance method of the class.
  *
@@ -334,7 +334,7 @@ typedef NS_ENUM(NSUInteger, SentrySwizzleMode) {
  * @return @c YES if successfully unswizzled and @c NO if the method was not swizzled.
  */
 + (BOOL)unswizzleInstanceMethod:(SEL)selector inClass:(Class)classToUnswizzle key:(const void *)key;
-#endif // TEST || TESTCI
+#endif // SENTRY_TEST || SENTRY_TEST_CI
 
 #pragma mark └ Swizzle Class method
 
@@ -430,7 +430,7 @@ typedef NS_ENUM(NSUInteger, SentrySwizzleMode) {
                          mode:SentrySwizzleMode                                                    \
                           key:KEY];
 
-#if TEST || TESTCI
+#if SENTRY_TEST || SENTRY_TEST_CI
 /**
  * Macro to unswizzle an instance method.
  *
@@ -444,7 +444,7 @@ typedef NS_ENUM(NSUInteger, SentrySwizzleMode) {
  */
 #    define _SentryUnswizzleInstanceMethod(classToUnswizzle, selector, KEY)                        \
         [SentrySwizzle unswizzleInstanceMethod:selector inClass:[classToUnswizzle class] key:KEY]
-#endif // TEST || TESTCI
+#endif // SENTRY_TEST || SENTRY_TEST_CI
 
 #define _SentrySwizzleClassMethod(                                                                 \
     classToSwizzle, selector, SentrySWReturnType, SentrySWArguments, SentrySWReplacement)          \
