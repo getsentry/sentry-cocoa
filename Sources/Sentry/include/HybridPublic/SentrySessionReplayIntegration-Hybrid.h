@@ -36,7 +36,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (id<SentryReplayBreadcrumbConverter>)createDefaultBreadcrumbConverter;
 
-- (void)setCustomOptions:(NSDictionary<NSString *, id> *) customOptions;
+- (void)setCustomOptions:(NSDictionary<NSString *, id> *)customOptions;
 
 @end
 

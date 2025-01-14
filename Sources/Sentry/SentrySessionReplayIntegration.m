@@ -486,7 +486,8 @@ static SentryTouchTracker *_touchTracker;
     }
 }
 
-- (void)setCustomOptions:(NSDictionary<NSString *, id> *) customOptions {
+- (void)setCustomOptions:(NSDictionary<NSString *, id> *)customOptions
+{
     self.sessionReplay.customOptions = [customOptions copy];
 }
 
