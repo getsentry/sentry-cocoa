@@ -460,6 +460,26 @@ class SentrySessionReplayTests: XCTestCase {
         XCTAssertEqual(options["quality"] as? String, "high")
     }
     
+    func testCustomOptionsInTheEvent() throws {
+        let fixture = Fixture()
+        
+        let sut = fixture.getSut(options: SentryReplayOptions(sessionSampleRate: 1, onErrorSampleRate: 1))
+        sut.start(rootView: fixture.rootView, fullSession: true)
+        sut.customOptions = ["SomeOption": "SomeValue", "AnotherOption": "AnotherValue"]
+        fixture.dateProvider.advance(by: 1)
+        Dynamic(sut).newFrame(nil)
+        fixture.dateProvider.advance(by: 5)
+        Dynamic(sut).newFrame(nil)
+
+        let breadCrumbRREvents = fixture.lastReplayRecording?.events.compactMap({ $0 as? SentryRRWebOptionsEvent }) ?? []
+        XCTAssertEqual(breadCrumbRREvents.count, 1)
+        
+        let options = try XCTUnwrap(breadCrumbRREvents.first?.data?["payload"] as? [String: Any])
+        
+        XCTAssertEqual(options["SomeOption"] as? String, "SomeValue")
+        XCTAssertEqual(options["AnotherOption"] as? String, "AnotherValue")
+    }
+    
     func testOptionsNotInSegmentsOtherThanZero() throws {
         let fixture = Fixture()
         
