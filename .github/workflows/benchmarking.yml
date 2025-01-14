@@ -107,41 +107,50 @@ jobs:
             --verbose \
             2>&1 | tee output.log
 
-      - # In case of failure, extract the test ID from the output and check if the test exists.
-        # If the test exists, it failed during the run.
-        # If the test does not exist, it might have failed due to an internal error of SauceLabs, 
-        # which should be retried.
-        name: Recovery - Extract Test ID from output
+          echo "Simulating failure"
+          exit 1
+
+      - name: Recovery - Extract Test ID from output
         id: should-retry-test
         if: ${{ steps.run-benchmarks-in-sauce-lab.outcome == 'failure' }}
+        uses: actions/github-script@v7
         env:
           SAUCE_USERNAME: ${{ secrets.SAUCE_USERNAME }}
           SAUCE_ACCESS_KEY: ${{ secrets.SAUCE_ACCESS_KEY }}
-        run: |
-          echo "Extracting test ID from output log"
-          TEST_ID="$(awk -F'https://app.saucelabs.com/tests/' '{if ($2) print $2}' output.log | awk '{print $1;exit}')"
-          if [ -z "$TEST_ID" ]; then
-            echo "No test ID found in the output, retrying..."
-            echo "RETRY_TEST=true" >> $GITHUB_OUTPUT
-            exit 0
-          fi
+        with:
+          script: |
+            const fs = require('fs');
+            const { execSync } = require('child_process');
+            
+            console.log("Extracting test ID from output log");
+            const outputLog = fs.readFileSync('output.log', 'utf8');
+            const match = outputLog.match(/https:\/\/app\.saucelabs\.com\/tests\/([^\s]+)/);
+            const testId = match?.[1];
+            
+            if (!testId) {
+              console.log("No test ID found in the output, retrying...");
+              core.setOutput('RETRY_TEST', 'true');
+            
+              return;
+            }
+            
+            try {
+              console.log(`Checking if the test exists in SauceLabs: ${testId}`);
+              execSync(`saucectl jobs get ${testId}`, {
+                env: process.env,
+                stdio: 'inherit'
+              });
+              
+              console.log("Test exists but failed, not retrying.");
+              core.setFailed('Test exists but failed');
 
-          TEST_ID="invalid-test-id"
-
-          echo "Checking if the test exists in SauceLabs: $TEST_ID"
-          set +e
-          saucectl jobs get $TEST_ID
-          GET_JOB_EXIT_CODE=$?
-          set -e
-
-          if [ $GET_JOB_EXIT_CODE -ne 0 ]; then
-            echo "Test does not exist, retrying..."
-            echo "RETRY_TEST=true" >> $GITHUB_OUTPUT
-            exit 0
-          fi
-
-          echo "Test exists but failed, not retrying."
-          exit 1
+              console.log("Simulating failure")
+              core.setOutput('RETRY_TEST', 'true'); 
+            } catch (error) {
+              console.error("Failed to get job: ", error);
+              console.log("Retrying...");
+              core.setOutput('RETRY_TEST', 'true');
+            }
 
       - name: Run Benchmarks in SauceLab - Retry 1
         id: run-benchmarks-in-sauce-lab-retry-1
