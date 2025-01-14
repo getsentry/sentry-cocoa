@@ -533,10 +533,10 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         startSDK(sessionSampleRate: 1, errorSampleRate: 0)
         
         let sut = try getSut()
-        sut.setCustomOptions(["someOption": "someValue"])
+        PrivateSentrySDKOnly.setReplayTags(["someOption": "someValue"])
         
         let sessionReplay = try XCTUnwrap(sut.sessionReplay)
-        XCTAssertEqual(sessionReplay.customOptions?["someOption"] as? String, "someValue")
+        XCTAssertEqual(sessionReplay.replayTags?["someOption"] as? String, "someValue")
     }
     
     func createLastSessionReplay(writeSessionInfo: Bool = true, errorSampleRate: Double = 1) throws {

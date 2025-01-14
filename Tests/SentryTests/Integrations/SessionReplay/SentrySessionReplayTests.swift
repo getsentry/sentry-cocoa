@@ -465,7 +465,7 @@ class SentrySessionReplayTests: XCTestCase {
         
         let sut = fixture.getSut(options: SentryReplayOptions(sessionSampleRate: 1, onErrorSampleRate: 1))
         sut.start(rootView: fixture.rootView, fullSession: true)
-        sut.customOptions = ["SomeOption": "SomeValue", "AnotherOption": "AnotherValue"]
+        sut.replayTags = ["SomeOption": "SomeValue", "AnotherOption": "AnotherValue"]
         fixture.dateProvider.advance(by: 1)
         Dynamic(sut).newFrame(nil)
         fixture.dateProvider.advance(by: 5)

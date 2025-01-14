@@ -41,7 +41,7 @@ class SentrySessionReplay: NSObject {
     private let touchTracker: SentryTouchTracker?
     private let dispatchQueue: SentryDispatchQueueWrapper
     private let lock = NSLock()
-    var customOptions: [String: Any]?
+    var replayTags: [String: Any]?
     
     var isRunning: Bool {
         displayLink.isRunning()
@@ -261,7 +261,7 @@ class SentrySessionReplay: NSObject {
         }
         
         if segment == 0 {
-            if let customOptions = customOptions {
+            if let customOptions = replayTags {
                 events.append(SentryRRWebOptionsEvent(timestamp: video.start, customOptions: customOptions))
             } else {
                 events.append(SentryRRWebOptionsEvent(timestamp: video.start, options: self.replayOptions))

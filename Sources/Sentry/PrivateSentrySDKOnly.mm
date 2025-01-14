@@ -381,7 +381,7 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
 
 + (void)setReplayTags:(NSDictionary<NSString *, id> *)tags
 {
-    //[[PrivateSentrySDKOnly getReplayIntegration]
+    [[PrivateSentrySDKOnly getReplayIntegration] setReplayTags:tags];
 }
 
 #endif
