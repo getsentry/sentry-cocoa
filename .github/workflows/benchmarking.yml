@@ -125,7 +125,10 @@ jobs:
             console.log("Extracting test ID from output log");
             const outputLog = fs.readFileSync('output.log', 'utf8');
             const match = outputLog.match(/https:\/\/app\.saucelabs\.com\/tests\/([^\s]+)/);
-            const testId = match?.[1];
+
+            // Simulate failure by setting a random test ID
+            // const testId = match?.[1];
+            const testId = 'invalid-test-id';
             
             if (!testId) {
               console.log("No test ID found in the output, retrying...");
@@ -133,9 +136,6 @@ jobs:
             
               return;
             }
-
-            // Simulate failure by setting a random test ID
-            const testIdToCheck = 'invalid-test-id';
             
             try {
               console.log(`Checking if the test exists in SauceLabs: ${testId}`);
