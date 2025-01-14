@@ -7,6 +7,10 @@
 - Add protocol for custom screenName for UIViewControllers (#4646)
 - Add threshold to always log fatal logs (#4707)
 
+### Internal
+
+- Change macros TEST and TESTCI to SENTRY_TEST and SENTRY_TEST_CI
+
 ## 8.43.1-beta.0
 
 ### Fixes
