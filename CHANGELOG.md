@@ -5,7 +5,7 @@
 ### Features
 
 - Add protocol for custom screenName for UIViewControllers (#4646)
-- Allow hybrid SDK to set replay custom options meta information (#4710)
+- Allow hybrid SDK to set replay options tags information (#4710)
 
 ## 8.43.1-beta.0
 
