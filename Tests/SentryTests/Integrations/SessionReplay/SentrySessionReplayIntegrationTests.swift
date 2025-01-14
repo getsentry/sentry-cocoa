@@ -529,7 +529,6 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         XCTAssertTrue(sut.sessionReplay?.breadcrumbConverter is CustomBreadcrumbConverter)
     }
     
-    
     func testSetCustomOptions() throws {
         startSDK(sessionSampleRate: 1, errorSampleRate: 0)
         
