@@ -6,6 +6,7 @@
 
 - Add protocol for custom screenName for UIViewControllers (#4646)
 - Allow hybrid SDK to set replay options tags information (#4710)
+- Add threshold to always log fatal logs (#4707)
 
 ## 8.43.1-beta.0
 
