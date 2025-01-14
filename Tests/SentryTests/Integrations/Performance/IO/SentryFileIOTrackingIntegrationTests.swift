@@ -10,7 +10,9 @@ class SentryFileIOTrackingIntegrationTests: XCTestCase {
         let filePath: String!
         let fileURL: URL!
         let fileDirectory: URL!
-        
+
+        let invalidFileURL = URL(fileURLWithPath: "/path/to/some/file")
+
         func getOptions(enableAutoPerformanceTracing: Bool = true, enableFileIOTracing: Bool = true, enableSwizzling: Bool = true, tracesSampleRate: NSNumber = 1) -> Options {
             let result = Options()
             result.enableAutoPerformanceTracing = enableAutoPerformanceTracing
@@ -239,7 +241,7 @@ class SentryFileIOTrackingIntegrationTests: XCTestCase {
         XCTAssertEqual(data?.count, fixture.data.count)
     }
 
-    func testDataExtension_ReadingURL_Tracking() throws {
+    func testDataExtension_ReadingURL_fileExists_shouldBeTraced() throws {
         // -- Arrange --
         // Automatic tracking of Swift.Data is not available starting with iOS 18, macOS 15, tvOS 18.
         // Therefore, the extension method is only tested with these OS versions.
@@ -254,20 +256,54 @@ class SentryFileIOTrackingIntegrationTests: XCTestCase {
         XCTAssertEqual(data?.count, fixture.data.count)
     }
 
-    func testDataExtension_ReadingURLWithOption_Tracking() throws {
+    func testDataExtension_ReadingURL_fileNotFound_shouldStillBeTraced() throws {
         // -- Arrange --
         // Automatic tracking of Swift.Data is not available starting with iOS 18, macOS 15, tvOS 18.
         // Therefore, the extension method is only tested with these OS versions.
         guard #available(iOS 18, macOS 15, tvOS 18, *) else {
             throw XCTSkip("Data+SentryTracing is not tested on this OS version")
         }
-        
+        SentrySDK.start(options: fixture.getOptions())
+        // -- Act & Assert --
+        let data = assertSpans(1, "file.read") {
+            try? Data(contentsOfUrlWithSentryTracing: fixture.invalidFileURL)
+        }
+        XCTAssertNil(data)
+    }
+
+    func testDataExtension_ReadingURLWithOption_fileExists_shouldBeTraced() throws {
+        // -- Arrange --
+        // Automatic tracking of Swift.Data is not available starting with iOS 18, macOS 15, tvOS 18.
+        // Therefore, the extension method is only tested with these OS versions.
+        guard #available(iOS 18, macOS 15, tvOS 18, *) else {
+            throw XCTSkip("Data+SentryTracing is not tested on this OS version")
+        }
+
         // -- Act & Assert --
         SentrySDK.start(options: fixture.getOptions())
         let data = assertSpans(1, "file.read") {
             try? Data(contentsOfUrlWithSentryTracing: fixture.fileURL, options: .uncached)
         }
-        XCTAssertEqual(data?.count, fixture.data.count)
+        XCTAssertEqual(data, fixture.data)
+    }
+
+    func testDataExtension_ReadingURLWithOption_fileNotFound_shouldStillBeTraced() throws {
+        // -- Arrange --
+        // Automatic tracking of Swift.Data is not available starting with iOS 18, macOS 15, tvOS 18.
+        // Therefore, the extension method is only tested with these OS versions.
+        guard #available(iOS 18, macOS 15, tvOS 18, *) else {
+            throw XCTSkip("Data+SentryTracing is not tested on this OS version")
+        }
+
+        // -- Act & Assert --
+        SentrySDK.start(options: fixture.getOptions())
+        let data = assertSpans(1, "file.read") {
+            try? Data(
+                contentsOfUrlWithSentryTracing: fixture.invalidFileURL,
+                options: .uncached
+            )
+        }
+        XCTAssertNil(data)
     }
 
     func test_ReadingFile_Tracking() {

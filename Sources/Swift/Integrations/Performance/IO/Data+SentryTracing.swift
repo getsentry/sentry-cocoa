@@ -14,17 +14,14 @@ public extension Data {
     /// - throws: An error in the Cocoa domain, if `url` cannot be read.
     init(contentsOfUrlWithSentryTracing url: URL, options: Data.ReadingOptions = []) throws {
         let tracker = SentryFileIOTracker.sharedInstance()
-        // `Data` is bridged to `NSData`, therefore we can use `measureNSData` to track the operation.
+        // Using the bridging of `Data` to `NSData` caused issues on older versions of macOS.
+        // Therefore we do not use the `measureNSData` method.
         self = try tracker
-            .measureNSData(
+            .measureReadingData(
                 from: url,
-                origin: SentryTraceOrigin.manualData) { url, options, errorPtr in
-                    do {
-                        return try Data(contentsOf: url, options: options)
-                    } catch {
-                        errorPtr?.pointee = error as NSError
-                        return nil
-                    }
+                options: options,
+                origin: SentryTraceOrigin.manualData) { url, options in
+                    try Data(contentsOf: url, options: options)
             }
     }
 
@@ -35,20 +32,15 @@ public extension Data {
     /// - throws: An error in the Cocoa domain, if there is an error writing to the `URL`.
     func writeWithSentryTracing(to url: URL, options: Data.WritingOptions = []) throws {
         let tracker = SentryFileIOTracker.sharedInstance()
-        // `Data` is bridged to `NSData`, therefore we can use `measure` to track the operation
+        // Using the bridging of `Data` to `NSData` caused issues on older versions of macOS.
+        // Therefore we do not use the `measureNSData` method.
         try tracker
-            .measure(
+            .measureWritingData(
                 self,
-                writeTo: url,
+                to: url,
                 options: options,
-                origin: SentryTraceOrigin.manualData) { url, options, errorPtr in
-                    do {
-                        try self.write(to: url, options: options)
-                        return true
-                    } catch {
-                        errorPtr?.pointee = error as NSError
-                        return false
-                    }
+                origin: SentryTraceOrigin.manualData) { data, url, options in
+                    try data.write(to: url, options: options)
             }
     }
 }
