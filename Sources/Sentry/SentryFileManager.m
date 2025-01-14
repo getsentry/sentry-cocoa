@@ -29,13 +29,14 @@ isErrorPathTooLong(NSError *error)
     }
     if (underlyingError == NULL) {
         id errorInUserInfo = [error.userInfo valueForKey:NSUnderlyingErrorKey];
-        if ([errorInUserInfo isKindOfClass:[NSError class]]) {
+        if (errorInUserInfo && [errorInUserInfo isKindOfClass:[NSError class]]) {
             underlyingError = errorInUserInfo;
-        } else {
-            SENTRY_LOG_FATAL(@"Failed to get underlying error from error: %@", error);
         }
     }
-    if (error.domain == NSPOSIXErrorDomain && error.code == ENAMETOOLONG) {
+    if (underlyingError == NULL) {
+        underlyingError = error;
+    }
+    if (underlyingError.domain == NSPOSIXErrorDomain && underlyingError.code == ENAMETOOLONG) {
         return YES;
     }
     return NO;
