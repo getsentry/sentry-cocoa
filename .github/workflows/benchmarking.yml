@@ -107,9 +107,6 @@ jobs:
             --verbose \
             2>&1 | tee output.log
 
-          echo "Simulate failure"
-          exit 1
-
       - name: Recovery - Extract Test ID from output
         id: should-retry-test
         if: ${{ steps.run-benchmarks-in-sauce-lab.outcome == 'failure' }}
@@ -128,10 +125,7 @@ jobs:
             // Lookup for the test ID in the output log
             // Note: The CLI output might change over time, so this might need to be updated.
             const match = outputLog.match(/https:\/\/app\.saucelabs\.com\/tests\/([^\s]+)/);
-            let testId = match?.[1] ?? '';
-            
-            // simulate invalid output
-            testId = '';
+            const testId = match?.[1] ?? '';
 
             if (!testId) {
               core.warning("No SauceLabs test ID found in CLI output, it might have changed, retrying...");
@@ -161,7 +155,7 @@ jobs:
           SAUCE_USERNAME: ${{ secrets.SAUCE_USERNAME }}
           SAUCE_ACCESS_KEY: ${{ secrets.SAUCE_ACCESS_KEY }}
         run: |
-          echo "::warning Retry of benchmark tests in SauceLabs was requested"
+          echo "::warning SauceLabs benchmark tests need to be retried"
           saucectl run \
             --select-suite "${{matrix.suite}}" \
             --config .sauce/benchmarking-config.yml \
