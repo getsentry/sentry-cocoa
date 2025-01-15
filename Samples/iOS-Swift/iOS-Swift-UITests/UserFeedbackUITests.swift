@@ -135,7 +135,7 @@ extension UserFeedbackUITests {
         XCTAssert(widgetButton.waitForExistence(timeout: 1))
         
         try assertOnlyHookMarkersExist(names: [.onFormClose, .onSubmitSuccess])
-        XCTAssertEqual(try getMarkerFileContents(type: .onSubmitSuccess), #"["message": "UITest user feedback", "email": "andrew.mcknight@sentry.io", "name": "Andrew"]"#)
+        XCTAssertEqual(try dictionaryFromSuccessHookFile(), ["message": "UITest user feedback", "email": "andrew.mcknight@sentry.io", "name": "Andrew"])
         
         // displaying the form again ensures the widget button still works afterwards; also assert that the fields are in their default state to ensure the entered data is not persisted between displays
         widgetButton.tap()
@@ -162,6 +162,17 @@ extension UserFeedbackUITests {
         XCTAssertEqual(try XCTUnwrap(dict["item_header_type"] as? String), "feedback")
     }
     
+    func dictionaryFromSuccessHookFile() throws -> [String: String] {
+        let actual = try getMarkerFileContents(type: .onSubmitSuccess)
+        let data = try XCTUnwrap(Data(base64Encoded: actual))
+        return try XCTUnwrap(JSONSerialization.jsonObject(with: data) as? [String: String])
+    }
+    
+    func base64Representation(of dict: [String: Any]) throws -> String {
+        let jsonData = try JSONSerialization.data(withJSONObject: dict, options: .sortedKeys)
+        return jsonData.base64EncodedString()
+    }
+    
     func testSubmitWithOnlyRequiredFieldsFilled() throws {
         launchApp(args: ["--io.sentry.feedback.all-defaults"])
 
@@ -178,7 +189,7 @@ extension UserFeedbackUITests {
         sendButton.tap()
         
         try assertOnlyHookMarkersExist(names: [.onFormClose, .onSubmitSuccess])
-        XCTAssertEqual(try getMarkerFileContents(type: .onSubmitSuccess), #"["name": "", "message": "UITest user feedback", "email": ""]"#)
+        XCTAssertEqual(try dictionaryFromSuccessHookFile(), ["name": "", "message": "UITest user feedback", "email": ""])
         
         XCTAssert(widgetButton.waitForExistence(timeout: 1))
     }
@@ -287,7 +298,8 @@ extension UserFeedbackUITests {
         sendButton.tap()
         
         try assertOnlyHookMarkersExist(names: [.onFormOpen, .onSubmitError])
-        XCTAssertEqual(try getMarkerFileContents(type: .onSubmitError), #"io.sentry.error;1;The user did not complete the feedback form.;["missing_fields": ["description"]]"#)
+        
+        XCTAssertEqual(try getMarkerFileContents(type: .onSubmitError), "io.sentry.error;1;The user did not complete the feedback form.;description")
         
         XCTAssert(app.staticTexts["Error"].exists)
         XCTAssert(app.staticTexts["You must provide all required information. Please check the following field: description."].exists)
@@ -311,7 +323,7 @@ extension UserFeedbackUITests {
         sendButton.tap()
         
         try assertOnlyHookMarkersExist(names: [.onFormOpen, .onSubmitError])
-        XCTAssertEqual(try getMarkerFileContents(type: .onSubmitError), #"io.sentry.error;1;The user did not complete the feedback form.;["missing_fields": ["thine email", "thy complaint"]]"#)
+        XCTAssertEqual(try getMarkerFileContents(type: .onSubmitError), "io.sentry.error;1;The user did not complete the feedback form.;thine email;thy complaint")
         
         XCTAssert(app.staticTexts["Error"].exists)
         XCTAssert(app.staticTexts["You must provide all required information. Please check the following fields: thine email and thy complaint."].exists)
@@ -337,7 +349,7 @@ extension UserFeedbackUITests {
         sendButton.tap()
         
         try assertOnlyHookMarkersExist(names: [.onFormOpen, .onSubmitError])
-        XCTAssertEqual(try getMarkerFileContents(type: .onSubmitError), #"io.sentry.error;1;The user did not complete the feedback form.;["missing_fields": ["thine email", "thy name", "thy complaint"]]"#)
+        XCTAssertEqual(try getMarkerFileContents(type: .onSubmitError), "io.sentry.error;1;The user did not complete the feedback form.;thine email;thy complaint;thy name")
         
         XCTAssert(app.staticTexts["Error"].exists)
         XCTAssert(app.staticTexts["You must provide all required information. Please check the following fields: thy name, thine email and thy complaint."].exists)
@@ -362,7 +374,7 @@ extension UserFeedbackUITests {
         sendButton.tap()
         
         try assertOnlyHookMarkersExist(names: [.onFormOpen, .onSubmitError])
-        XCTAssertEqual(try getMarkerFileContents(type: .onSubmitError), #"io.sentry.error;1;The user did not complete the feedback form.;["missing_fields": ["description"]]"#)
+        XCTAssertEqual(try getMarkerFileContents(type: .onSubmitError), "io.sentry.error;1;The user did not complete the feedback form.;description")
         
         XCTAssert(app.staticTexts["Error"].exists)
         XCTAssert(app.staticTexts["You must provide all required information. Please check the following field: description."].exists)
@@ -381,7 +393,7 @@ extension UserFeedbackUITests {
         sendButton.tap()
         
         try assertOnlyHookMarkersExist(names: [.onFormOpen, .onSubmitError])
-        XCTAssertEqual(try getMarkerFileContents(type: .onSubmitError), #"io.sentry.error;1;The user did not complete the feedback form.;["missing_fields": ["description"]]"#)
+        XCTAssertEqual(try getMarkerFileContents(type: .onSubmitError), "io.sentry.error;1;The user did not complete the feedback form.;description")
         
         XCTAssert(app.staticTexts["Error"].exists)
         
@@ -393,7 +405,7 @@ extension UserFeedbackUITests {
         sendButton.tap()
         
         try assertOnlyHookMarkersExist(names: [.onFormClose, .onSubmitSuccess])
-        XCTAssertEqual(try getMarkerFileContents(type: .onSubmitSuccess), #"["email": "", "name": "", "message": "UITest user feedback"]"#)
+        XCTAssertEqual(try dictionaryFromSuccessHookFile(), ["name": "", "message": "UITest user feedback", "email": ""])
         
         XCTAssert(widgetButton.waitForExistence(timeout: 1))
     }
