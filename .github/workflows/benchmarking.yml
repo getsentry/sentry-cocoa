@@ -107,6 +107,9 @@ jobs:
             --verbose \
             2>&1 | tee output.log
 
+          echo "Simulate failure"
+          exit 1
+
       - name: Recovery - Extract Test ID from output
         id: should-retry-test
         if: ${{ steps.run-benchmarks-in-sauce-lab.outcome == 'failure' }}
