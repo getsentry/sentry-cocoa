@@ -176,12 +176,12 @@ typedef void (*SentrySwizzleOriginalIMP)(void /* id, SEL, ... */);
  */
 @property (nonatomic, readonly) SEL selector;
 
-#if defined(TEST) || defined(TESTCI)
+#if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI)
 /**
  * A flag to check whether the original implementation was called.
  */
 @property (nonatomic) BOOL originalCalled;
-#endif // defined(TEST) || defined(TESTCI) || defined(DEBUG)
+#endif // defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)
 
 @end
 
@@ -401,7 +401,7 @@ typedef NS_ENUM(NSUInteger, SentrySwizzleMode) {
 // and remove it later.
 #define _SentrySWArguments(arguments...) DEL, ##arguments
 
-#if defined(TEST) || defined(TESTCI)
+#if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI)
 #    define _SentrySWReplacement(code...)                                                          \
         @try {                                                                                     \
             code                                                                                   \
@@ -413,7 +413,7 @@ typedef NS_ENUM(NSUInteger, SentrySwizzleMode) {
         }
 #else
 #    define _SentrySWReplacement(code...) code
-#endif // defined(TEST) || defined(TESTCI) || defined(DEBUG)
+#endif // defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)
 
 #define _SentrySwizzleInstanceMethod(classToSwizzle, selector, SentrySWReturnType,                 \
     SentrySWArguments, SentrySWReplacement, SentrySwizzleMode, KEY)                                \

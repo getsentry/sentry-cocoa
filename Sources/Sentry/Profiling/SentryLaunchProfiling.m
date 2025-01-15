@@ -107,13 +107,13 @@ sentry_context(NSNumber *tracesRate)
 
 #    pragma mark - Testing only
 
-#    if defined(TEST) || defined(TESTCI) || defined(DEBUG)
+#    if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)
 BOOL
 sentry_willProfileNextLaunch(SentryOptions *options)
 {
     return sentry_shouldProfileNextLaunch(options).shouldProfile;
 }
-#    endif // defined(TEST) || defined(TESTCI) || defined(DEBUG)
+#    endif // defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)
 
 #    pragma mark - Exposed only to tests
 

@@ -9,9 +9,9 @@ NS_ASSUME_NONNULL_BEGIN
 @property (readonly) NSUInteger processorCount;
 @property (readonly) NSProcessInfoThermalState thermalState;
 
-#if defined(TEST) || defined(TESTCI) || defined(DEBUG)
+#if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)
 - (void)setProcessPath:(NSString *)path;
-#endif // defined(TEST) || defined(TESTCI) || defined(DEBUG)
+#endif // defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)
 
 @end
 
