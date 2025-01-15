@@ -486,6 +486,11 @@ static SentryTouchTracker *_touchTracker;
     }
 }
 
+- (void)setReplayTags:(NSDictionary<NSString *, id> *)tags
+{
+    self.sessionReplay.replayTags = [tags copy];
+}
+
 - (SentryIntegrationOption)integrationOptions
 {
     return kIntegrationOptionEnableReplay;
