@@ -104,7 +104,7 @@ public class SentryUserFeedbackFormConfiguration: NSObject {
     lazy var nameLabelContents = fullLabelText(labelText: nameLabel, required: isNameRequired)
     
     /**
-     * The placeholder for the name input field.sc
+     * The placeholder for the name input field.
      * - note: Default: `"Your Name"`
      * - note: ignored if `showName` is `false`.
      */
