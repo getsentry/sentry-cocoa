@@ -209,9 +209,9 @@ static NSDate *_Nullable startTimestamp = nil;
     // thread could lead to deadlocks.
     SENTRY_LOG_DEBUG(@"Starting SDK...");
 
-#if defined(DEBUG) || defined(TEST) || defined(TESTCI)
+#if defined(DEBUG) || defined(SENTRY_TEST) || defined(SENTRY_TEST_CI)
     SENTRY_LOG_DEBUG(@"Configured options: %@", options.debugDescription);
-#endif // defined(DEBUG) || defined(TEST) || defined(TESTCI)
+#endif // defined(DEBUG) || defined(SENTRY_TEST) || defined(SENTRY_TEST_CI)
 
 #if TARGET_OS_OSX
     // Reference to SentryCrashExceptionApplication to prevent compiler from stripping it

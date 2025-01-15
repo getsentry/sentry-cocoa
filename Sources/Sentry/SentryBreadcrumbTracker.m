@@ -253,12 +253,12 @@ static NSString *const SentryBreadcrumbTrackerSwizzleSendAction
 
     SentrySwizzleMode mode = SentrySwizzleModeOncePerClassAndSuperclasses;
 
-#    if defined(TEST) || defined(TESTCI)
+#    if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI)
     // some tests need to swizzle multiple times, once for each test case. but since they're in the
     // same process, if they set something other than "always", subsequent swizzles fail. override
     // it here for tests
     mode = SentrySwizzleModeAlways;
-#    endif // defined(TEST) || defined(TESTCI)
+#    endif // defined(SENTRY_TEST) || defined(SENTRY_TEST_CI)
 
     SentrySwizzleInstanceMethod(UIViewController.class, selector, SentrySWReturnType(void),
         SentrySWArguments(BOOL animated), SentrySWReplacement({
