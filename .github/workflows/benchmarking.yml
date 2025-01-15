@@ -121,11 +121,17 @@ jobs:
             
             console.log("Extracting test ID from output log");
             const outputLog = fs.readFileSync('output.log', 'utf8');
-            const match = outputLog.match(/https:\/\/app\.saucelabs\.com\/tests\/([^\s]+)/);
-            const testId = match?.[1] ?? '';
             
+            // Lookup for the test ID in the output log
+            // Note: The CLI output might change over time, so this might need to be updated.
+            const match = outputLog.match(/https:\/\/app\.saucelabs\.com\/tests\/([^\s]+)/);
+            let testId = match?.[1] ?? '';
+            
+            // simulate invalid output
+            testId = '';
+
             if (!testId) {
-              console.log("No test ID found in the output, retrying...");
+              core.warning("No SauceLabs test ID found in CLI output, it might have changed, retrying...");
               core.setOutput('RETRY_TEST', 'true');
             
               return;
@@ -152,6 +158,7 @@ jobs:
           SAUCE_USERNAME: ${{ secrets.SAUCE_USERNAME }}
           SAUCE_ACCESS_KEY: ${{ secrets.SAUCE_ACCESS_KEY }}
         run: |
+          echo "::warning Retry of benchmark tests in SauceLabs was requested"
           saucectl run \
             --select-suite "${{matrix.suite}}" \
             --config .sauce/benchmarking-config.yml \
