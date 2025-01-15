@@ -14,9 +14,9 @@
 #import "SentrySpan.h"
 #import "SentrySpanProtocol.h"
 #import "SentryStacktrace.h"
+#import "SentrySwift.h"
 #import "SentryThread.h"
 #import "SentryThreadInspector.h"
-#import "SentryTraceOrigins.h"
 #import "SentryTracer.h"
 
 const NSString *SENTRY_TRACKING_COUNTER_KEY = @"SENTRY_TRACKING_COUNTER_KEY";
@@ -179,7 +179,7 @@ const NSString *SENTRY_TRACKING_COUNTER_KEY = @"SENTRY_TRACKING_COUNTER_KEY";
         ioSpan = [span startChildWithOperation:operation
                                    description:[self transactionDescriptionForFile:path
                                                                           fileSize:size]];
-        ioSpan.origin = SentryTraceOriginAutoNSData;
+        ioSpan.origin = SentryTraceOrigin.autoNSData;
     }];
 
     if (ioSpan == nil) {

@@ -217,7 +217,6 @@
 #import "SentryThreadWrapper.h"
 #import "SentryTime.h"
 #import "SentryTimeToDisplayTracker.h"
-#import "SentryTraceOrigins.h"
 #import "SentryTracer+Private.h"
 #import "SentryTracer+Test.h"
 #import "SentryTracerConfiguration.h"

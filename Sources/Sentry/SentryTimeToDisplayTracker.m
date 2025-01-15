@@ -15,7 +15,6 @@
 #    import "SentrySpanId.h"
 #    import "SentrySpanOperations.h"
 #    import "SentrySwift.h"
-#    import "SentryTraceOrigins.h"
 #    import "SentryTracer.h"
 
 #    import <UIKit/UIKit.h>
@@ -65,7 +64,7 @@
     self.initialDisplaySpan = [tracer
         startChildWithOperation:SentrySpanOperationUILoadInitialDisplay
                     description:[NSString stringWithFormat:@"%@ initial display", _controllerName]];
-    self.initialDisplaySpan.origin = SentryTraceOriginAutoUITimeToDisplay;
+    self.initialDisplaySpan.origin = SentryTraceOrigin.autoUITimeToDisplay;
 
     if (self.waitForFullDisplay) {
         SENTRY_LOG_DEBUG(@"Starting full display span");
@@ -73,7 +72,7 @@
             [tracer startChildWithOperation:SentrySpanOperationUILoadFullDisplay
                                 description:[NSString stringWithFormat:@"%@ full display",
                                                 _controllerName]];
-        self.fullDisplaySpan.origin = SentryTraceOriginManualUITimeToDisplay;
+        self.fullDisplaySpan.origin = SentryTraceOrigin.manualUITimeToDisplay;
 
         // By concept TTID and TTFD spans should have the same beginning,
         // which also should be the same of the transaction starting.
@@ -85,7 +84,7 @@
     [SentryDependencyContainer.sharedInstance.framesTracker addListener:self];
 
     [tracer setShouldIgnoreWaitForChildrenCallback:^(id<SentrySpan> span) {
-        if (span.origin == SentryTraceOriginAutoUITimeToDisplay) {
+        if (span.origin == SentryTraceOrigin.autoUITimeToDisplay) {
             return YES;
         } else {
             return NO;

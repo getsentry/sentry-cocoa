@@ -17,7 +17,6 @@
 #    import "SentrySamplingContext.h"
 #    import "SentrySwift.h"
 #    import "SentryTime.h"
-#    import "SentryTraceOrigins.h"
 #    import "SentryTracer+Private.h"
 #    import "SentryTracerConfiguration.h"
 #    import "SentryTransactionContext+Private.h"
@@ -99,7 +98,7 @@ sentry_context(NSNumber *tracesRate)
         [[SentryTransactionContext alloc] initWithName:@"launch"
                                             nameSource:kSentryTransactionNameSourceCustom
                                              operation:@"app.lifecycle"
-                                                origin:SentryTraceOriginAutoAppStartProfile
+                                                origin:SentryTraceOrigin.autoAppStartProfile
                                                sampled:kSentrySampleDecisionYes];
     context.sampleRate = tracesRate;
     return context;

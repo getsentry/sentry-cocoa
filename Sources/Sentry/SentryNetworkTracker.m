@@ -24,7 +24,6 @@
 #import "SentryThreadInspector.h"
 #import "SentryTraceContext.h"
 #import "SentryTraceHeader.h"
-#import "SentryTraceOrigins.h"
 #import "SentryTracer.h"
 #import "SentryUser.h"
 #import <objc/runtime.h>
@@ -191,7 +190,7 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
                                             description:[NSString stringWithFormat:@"%@ %@",
                                                             sessionTask.currentRequest.HTTPMethod,
                                                             safeUrl.sanitizedUrl]];
-                netSpan.origin = SentryTraceOriginAutoHttpNSURLSession;
+                netSpan.origin = SentryTraceOrigin.autoHttpNSURLSession;
 
                 [netSpan setDataValue:sessionTask.currentRequest.HTTPMethod
                                forKey:@"http.request.method"];
